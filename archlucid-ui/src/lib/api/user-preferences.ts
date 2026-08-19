@@ -1,5 +1,7 @@
 import * as httpApi from "@/lib/api/http";
 import type { ColorModePreference } from "@/lib/color-mode-preference";
+import { getOperatorQueryClient } from "@/lib/query/operator-query-client";
+import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 
 export type UserPreferencesResponse = {
   appearancePreference: ColorModePreference;
@@ -10,80 +12,45 @@ export type SetAppearancePreferenceRequest = {
   value: ColorModePreference;
 };
 
-const USER_PREFERENCES_CACHE_TTL_MS = 30_000;
+/** Matches prior module-level TTL; TanStack `staleTime` for cross-tree dedupe (TB-2303). */
+export const USER_PREFERENCES_STALE_MS = 30_000;
 
-type CacheEntry = {
-  readonly value: UserPreferencesResponse;
-  readonly expiresAtMs: number;
-};
-
-let cacheEntry: CacheEntry | null = null;
-let inFlight: Promise<UserPreferencesResponse> | null = null;
-/** Bumped on invalidate so a late in-flight response cannot re-seed the cache. */
-let cacheGeneration = 0;
-
-function readFreshCache(nowMs: number): UserPreferencesResponse | null {
-  if (cacheEntry === null) {
-    return null;
-  }
-
-  if (cacheEntry.expiresAtMs <= nowMs) {
-    cacheEntry = null;
-    return null;
-  }
-
-  return cacheEntry.value;
+/** Raw fetch for TanStack `queryFn` and SSR callers. */
+export async function fetchUserPreferencesFromApi(): Promise<UserPreferencesResponse> {
+  return httpApi.apiGet<UserPreferencesResponse>("/v1/user/preferences");
 }
 
-function writeCache(value: UserPreferencesResponse, generation: number): void {
-  if (generation !== cacheGeneration) {
+export async function invalidateUserPreferencesCache(): Promise<void> {
+  if (typeof window === "undefined") {
     return;
   }
 
-  cacheEntry = {
-    value,
-    expiresAtMs: Date.now() + USER_PREFERENCES_CACHE_TTL_MS,
-  };
+  await getOperatorQueryClient().invalidateQueries({ queryKey: operatorQueryKeys.userPreferences });
 }
 
-export function invalidateUserPreferencesCache(): void {
-  cacheEntry = null;
-  inFlight = null;
-  cacheGeneration += 1;
-}
-
-/** Test-only: clear TTL cache and generation so suites stay isolated. */
+/** Test-only: drop TanStack cache between Vitest cases. */
 export function resetUserPreferencesCacheForTests(): void {
-  cacheEntry = null;
-  inFlight = null;
-  cacheGeneration = 0;
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  const queryClient = getOperatorQueryClient();
+
+  queryClient.removeQueries({ queryKey: operatorQueryKeys.userPreferences });
 }
 
 export async function getUserPreferences(): Promise<UserPreferencesResponse> {
-  const nowMs = Date.now();
-  const cached = readFreshCache(nowMs);
-
-  if (cached !== null) {
-    return cached;
+  if (typeof window === "undefined") {
+    return fetchUserPreferencesFromApi();
   }
 
-  if (inFlight !== null) {
-    return inFlight;
-  }
+  const queryClient = getOperatorQueryClient();
 
-  const generation = cacheGeneration;
-
-  inFlight = httpApi
-    .apiGet<UserPreferencesResponse>("/v1/user/preferences")
-    .then((value) => {
-      writeCache(value, generation);
-      return value;
-    })
-    .finally(() => {
-      inFlight = null;
-    });
-
-  return inFlight;
+  return queryClient.fetchQuery({
+    queryKey: operatorQueryKeys.userPreferences,
+    queryFn: fetchUserPreferencesFromApi,
+    staleTime: USER_PREFERENCES_STALE_MS,
+  });
 }
 
 export async function setUserAppearancePreference(value: ColorModePreference): Promise<void> {
@@ -92,11 +59,12 @@ export async function setUserAppearancePreference(value: ColorModePreference): P
     { value } satisfies SetAppearancePreferenceRequest,
   );
 
-  writeCache(
-    {
-      appearancePreference: value,
-      appearancePreferenceIsExplicit: true,
-    },
-    cacheGeneration,
-  );
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  getOperatorQueryClient().setQueryData<UserPreferencesResponse>(operatorQueryKeys.userPreferences, {
+    appearancePreference: value,
+    appearancePreferenceIsExplicit: true,
+  });
 }

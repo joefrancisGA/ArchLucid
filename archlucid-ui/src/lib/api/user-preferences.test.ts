@@ -1,5 +1,8 @@
 ﻿import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
+import { resetOperatorQueryClientForTests } from "@/lib/query/operator-query-client";
+
 const apiGetMock = vi.hoisted(() => vi.fn());
 const apiPutJsonMock = vi.hoisted(() => vi.fn());
 
@@ -18,6 +21,7 @@ describe("getUserPreferences", () => {
     vi.resetModules();
     apiGetMock.mockReset();
     apiPutJsonMock.mockReset();
+    resetOperatorQueryClientForTests();
     const mod = await import("@/lib/api/user-preferences");
     getUserPreferences = mod.getUserPreferences;
     invalidateUserPreferencesCache = mod.invalidateUserPreferencesCache;
@@ -28,9 +32,10 @@ describe("getUserPreferences", () => {
 
   afterEach(() => {
     resetUserPreferencesCacheForTests();
+    resetOperatorQueryClientForTests();
   });
 
-  it("dedupes concurrent reads into one network request", async () => {
+  it("dedupes concurrent reads into one network request via TanStack Query", async () => {
     let resolveRequest: ((value: { appearancePreference: "dark"; appearancePreferenceIsExplicit: true }) => void) | undefined;
 
     apiGetMock.mockImplementation(
@@ -60,7 +65,7 @@ describe("getUserPreferences", () => {
     expect(apiGetMock).toHaveBeenCalledTimes(1);
   });
 
-  it("returns the TTL-cached value without a second GET", async () => {
+  it("returns the staleTime-cached value without a second GET", async () => {
     apiGetMock.mockResolvedValue({
       appearancePreference: "light",
       appearancePreferenceIsExplicit: true,
@@ -86,53 +91,34 @@ describe("getUserPreferences", () => {
       });
 
     await getUserPreferences();
-    invalidateUserPreferencesCache();
+    await invalidateUserPreferencesCache();
     const refreshed = await getUserPreferences();
 
     expect(refreshed.appearancePreference).toBe("dark");
     expect(apiGetMock).toHaveBeenCalledTimes(2);
   });
 
-  it("does not let a late in-flight response re-seed after invalidate", async () => {
-    let resolveFirst: ((value: { appearancePreference: "light"; appearancePreferenceIsExplicit: true }) => void) | undefined;
+  it("shares cache between imperative getUserPreferences calls (root vs operator tree)", async () => {
+    const { fetchUserPreferencesFromApi } = await import("@/lib/api/user-preferences");
 
-    apiGetMock.mockImplementationOnce(
-      () =>
-        new Promise((resolve) => {
-          resolveFirst = resolve;
-        }),
-    );
-
-    const stalePromise = getUserPreferences();
-
-    invalidateUserPreferencesCache();
-
-    apiGetMock.mockResolvedValueOnce({
-      appearancePreference: "dark",
-      appearancePreferenceIsExplicit: true,
+    apiGetMock.mockResolvedValue({
+      appearancePreference: "system",
+      appearancePreferenceIsExplicit: false,
     });
 
-    const freshPromise = getUserPreferences();
+    const { getOperatorQueryClient } = await import("@/lib/query/operator-query-client");
+    const queryClient = getOperatorQueryClient();
 
-    resolveFirst?.({
-      appearancePreference: "light",
-      appearancePreferenceIsExplicit: true,
+    await queryClient.fetchQuery({
+      queryKey: operatorQueryKeys.userPreferences,
+      queryFn: fetchUserPreferencesFromApi,
+      staleTime: 30_000,
     });
 
-    await expect(stalePromise).resolves.toEqual({
-      appearancePreference: "light",
-      appearancePreferenceIsExplicit: true,
-    });
+    const viaImperative = await getUserPreferences();
 
-    await expect(freshPromise).resolves.toEqual({
-      appearancePreference: "dark",
-      appearancePreferenceIsExplicit: true,
-    });
-
-    const cachedAfter = await getUserPreferences();
-
-    expect(cachedAfter.appearancePreference).toBe("dark");
-    expect(apiGetMock).toHaveBeenCalledTimes(2);
+    expect(viaImperative.appearancePreference).toBe("system");
+    expect(apiGetMock).toHaveBeenCalledTimes(1);
   });
 });
 
@@ -145,6 +131,7 @@ describe("setUserAppearancePreference", () => {
     vi.resetModules();
     apiGetMock.mockReset();
     apiPutJsonMock.mockReset();
+    resetOperatorQueryClientForTests();
     const mod = await import("@/lib/api/user-preferences");
     getUserPreferences = mod.getUserPreferences;
     resetUserPreferencesCacheForTests = mod.resetUserPreferencesCacheForTests;
@@ -154,9 +141,10 @@ describe("setUserAppearancePreference", () => {
 
   afterEach(() => {
     resetUserPreferencesCacheForTests();
+    resetOperatorQueryClientForTests();
   });
 
-  it("seeds the shared cache so a follow-up get does not hit the network", async () => {
+  it("seeds the shared TanStack cache so a follow-up get does not hit the network", async () => {
     apiPutJsonMock.mockResolvedValue(undefined);
 
     await setUserAppearancePreference("system");

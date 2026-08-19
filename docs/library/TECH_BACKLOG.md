@@ -1642,7 +1642,7 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-2300 | **Done** (2026-08-14) ? Second review reuses prior package + compare default; see ## TB-2300 below | Adoption friction P1 ? **V1**; owner strengthen-reviews ask 2026-08-13 item 7; does not reopen **TB-2130**/**TB-224** | M |
 | TB-2301 | Refresh `/why` hero product screenshot after operator Home IA drift ? **V1.1**; see ## TB-2301 below | Adoption friction P2 ? **V1.1**; owner UX pass 2026-08-14 /why hero screenshot | XS |
 | TB-2302 | `GET /v1/operator/bootstrap` cold-start mega-bundle (residual reads after shell-status) ? **V1.1**; see ## TB-2302 below | Performance P2 ? **V1.1**; operator home startup; after **TB-2304** | L |
-| TB-2303 | User preferences cross-tree TanStack dedupe (root layout vs operator QueryClient) ? **V1.1**; see ## TB-2303 below | Performance P3 ? **V1.1**; pairs existing TTL dedupe in `user-preferences.ts` | M |
+| TB-2303 | **Done** (2026-08-19) ? User preferences cross-tree TanStack dedupe via `operatorQueryKeys.userPreferences` + shared `getOperatorQueryClient().fetchQuery`; see ## TB-2303 below | Performance P3 ? **V1.1**; replaces module-level TTL dedupe in `user-preferences.ts` | M |
 | TB-2304 | Operator home startup proxy-trace baseline + regression gate ? **V1.1**; see ## TB-2304 below | Performance P2 ? **V1.1**; gates **TB-2302** scope; post shell-status wave | S |
 | TB-2330 | **Done** (2026-08-15) ? Vitest `nav-committed-review-gate-drift-guard.test.ts`; NAV_CONFIG_CONTRACT single-input rule; see ## TB-2330 below | Testability P2 ? **V1**; nav gate regression after Done **TB-2133** | S |
 | TB-2331 | **Done** (2026-08-15) ? eval-empty hero demotes walkthrough panel; stickiness cockpit hidden on eval-empty; inventory guard extended; see ## TB-2331 below | Adoption friction P2 ? **V1.1**; after Done **TB-2232** | M |
@@ -28146,7 +28146,7 @@ Plus visual regression: overview, technical index, one expanded object, one fiel
 
 ---
 
-## TB-2303 ? User preferences cross-tree TanStack dedupe (P3) ? **V1.1**
+## TB-2303 ? User preferences cross-tree TanStack dedupe (P3) ? **Done** (2026-08-19)
 
 **Window:** V1.1 ? Performance (global preference reads).
 
@@ -28156,11 +28156,7 @@ Plus visual regression: overview, technical index, one expanded object, one fiel
 
 **Problem:** `ColorModePreferenceProvider` lives in root `app/layout.tsx`, outside the operator `QueryClientProvider`. `user-preferences.ts` already coalesces with a 30s TTL + in-flight dedupe, but color-mode and related preference reads can still duplicate across marketing shell vs operator shell trees unless bridged into a shared cache.
 
-**Approach:**
-
-1. Inventory duplicate `GET /v1/user/preferences` (or equivalent) calls from proxy logs (**TB-2304**).
-2. Prefer a tiny shared module-level cache or a root-level QueryClient boundary over duplicating fetch logic.
-3. Preserve SSR/hydration safety for marketing routes.
+**Shipped (2026-08-19):** `getUserPreferences` / `setUserAppearancePreference` / `invalidateUserPreferencesCache` route through the browser singleton `getOperatorQueryClient()` with `operatorQueryKeys.userPreferences` (`staleTime` 30s). Root `ColorModePreferenceProvider` and operator-shell imperative callers share one TanStack cache; SSR keeps direct `apiGet`.
 
 **Acceptance:** Preference reads on operator-home cold start do not exceed one in-flight request per session window unless explicitly invalidated; no duplicate fetches in **TB-2304** trace.
 
