@@ -109,10 +109,12 @@ public static partial class ServiceCollectionExtensions
         RegisterAdvisoryScheduling(services, configuration, hostingRole);
         RegisterExecDigestServices(services);
         RegisterWeeklySponsorReportServices(services, configuration);
+        RegisterWeeklySponsorSummaryServices(services, configuration);
         RegisterWeeklyArchitectureDigest(services, configuration);
         RegisterTrialLifecycleEmailHostedServices(services, configuration, hostingRole);
         RegisterExecDigestWorkerInfrastructure(services, configuration, hostingRole);
         RegisterWeeklySponsorReportWorkerInfrastructure(services, configuration, hostingRole);
+        RegisterWeeklySponsorSummaryWorkerInfrastructure(services, configuration, hostingRole);
         RegisterWeeklyArchitectureDigestWorkerInfrastructure(services, configuration, hostingRole);
         RegisterTrialLifecycleScheduler(services, configuration, hostingRole);
         RegisterTrialArchitecturePreseed(services, configuration, hostingRole);

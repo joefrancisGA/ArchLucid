@@ -1,3 +1,4 @@
+using ArchLucid.Application.Integrations;
 using ArchLucid.Host.Composition.Startup;
 using ArchLucid.Host.Core.Hosted;
 using ArchLucid.Host.Core.Hosting;
@@ -86,6 +87,21 @@ public sealed class ServiceCollectionExtensionsRegistrationTests
 
         registered.Should().BeFalse(
             "CosmosGraphSnapshotOutboxHostedService is a worker-role hosted service and must not run on Api-only nodes");
+    }
+
+    [Fact]
+    public void AddArchLucidApplicationServices_registers_outbound_webhook_dry_run_probe()
+    {
+        IConfiguration configuration = CreateCompositionTestConfiguration(ArchLucidHostingRole.Combined);
+        ServiceCollection services = [];
+
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Combined);
+
+        bool registered = services.Any(static d =>
+            d.ServiceType == typeof(IOutboundWebhookDryRunService));
+
+        registered.Should().BeTrue(
+            "Host.Composition must register the outbound webhook dry-run probe consumed by WebhookSubscriptionTestService");
     }
 
     private static IConfiguration CreateSqlCompositionTestConfiguration(
