@@ -1536,24 +1536,24 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ## Zone: artifact-synthesis
 
 - **id:** artifact-synthesis
-- **status:** unseeded
+- **status:** open
 - **impact:** medium
 - **aliases:** artifact synthesis; docx generator; packaging sanitization
 - **paths:** ArchLucid.ArtifactSynthesis/
 - **test-filter:** FullyQualifiedName~ArtifactSynthesis|FullyQualifiedName~Docx
-- **hunts:** 0
+- **hunts:** 1
 - **bugs-found:** 0
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
+- **last-hunt:** 2026-08-19
 - **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
 ### Hypotheses
 
-- [ ] (candidate) Generated document embeds unsanitized user HTML/script
-- [ ] (candidate) Packager includes artifacts from a run outside the requested scope
-- [ ] (candidate) Validation passes when required manifest hash is missing
+- [x] (invalid) Generated document embeds unsanitized user HTML/script — `LlmArtifactFreeTextSanitizer` and `WordDocumentBuilder` emit plain OpenXML text nodes (control/bidi strip only); DOCX does not execute embedded markup as script
+- [x] (invalid) Packager includes artifacts from a run outside the requested scope — `ArtifactPackagingService` only zips the `artifacts` list passed by the caller; no cross-run artifact selection locus in this zone
+- [x] (invalid) Validation passes when required manifest hash is missing — `ExportManifestBuilder` intentionally writes empty `committedManifestHash` when `RunExportReadmeContext.ManifestHash` is absent; `ArtifactBundleValidator` does not model manifest-hash enforcement (see `ArtifactPackagingServiceExportManifestTests`)
 
 ---
 
