@@ -2,8 +2,8 @@ import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { DigestsHelpEvidenceOrientationStrip } from "@/components/help/DigestsHelpEvidenceOrientationStrip";
+import { expectClaimDisciplineBand } from "@/lib/claim-discipline-test-helpers";
 import {
-  DIGESTS_HELP_CLAIM_DISCIPLINE,
   DIGESTS_HELP_FOLLOW_UPS_TITLE,
   DIGESTS_HELP_SOURCES,
 } from "@/lib/digests-help-evidence-copy";
@@ -15,9 +15,7 @@ describe("DigestsHelpEvidenceOrientationStrip", () => {
 
     expect(screen.getByTestId("help-digests-orientation")).toBeInTheDocument();
 
-    const claimDiscipline = screen.getByTestId("help-digests-claim-discipline");
-    expect(claimDiscipline).toHaveTextContent(DIGESTS_HELP_CLAIM_DISCIPLINE);
-    expect(claimDiscipline.className).not.toMatch(/amber/);
+    expectClaimDisciplineBand(screen, "help-digests", "help-digests-claim-discipline");
 
     expect(screen.getByRole("heading", { name: DIGESTS_HELP_FOLLOW_UPS_TITLE })).toHaveAttribute(
       "id",

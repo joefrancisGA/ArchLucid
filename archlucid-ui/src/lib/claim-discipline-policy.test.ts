@@ -4,6 +4,7 @@ import {
   CLAIM_DISCIPLINE_BAND_OMIT_SLUGS,
   expectsVisibleClaimDisciplineBand,
   resolveClaimDisciplineForStrip,
+  resolveGuideHeadingsForStrip,
   shouldOmitClaimDisciplineBand,
 } from "@/lib/claim-discipline-policy";
 
@@ -36,5 +37,20 @@ describe("claim-discipline-policy", () => {
 
   it("has no duplicate omit slugs", () => {
     expect(CLAIM_DISCIPLINE_BAND_OMIT_SLUGS.size).toBe([...CLAIM_DISCIPLINE_BAND_OMIT_SLUGS].length);
+  });
+
+  it("resolveGuideHeadingsForStrip drops claim heading for omitted slugs", () => {
+    const headings = [
+      { id: "overview", title: "Overview" },
+      { id: "help-preferences-claim-discipline-heading", title: "Claim discipline" },
+      { id: "where-to-go-next", title: "Where to go next" },
+    ] as const;
+
+    expect(
+      resolveGuideHeadingsForStrip("help-preferences", headings, "help-preferences-claim-discipline-heading"),
+    ).toEqual([headings[0], headings[2]]);
+    expect(
+      resolveGuideHeadingsForStrip("help-evidence-graph", headings, "help-preferences-claim-discipline-heading"),
+    ).toEqual(headings);
   });
 });

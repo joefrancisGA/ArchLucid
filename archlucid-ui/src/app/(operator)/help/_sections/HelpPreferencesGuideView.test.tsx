@@ -6,6 +6,11 @@ vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
 }));
 
 import { HelpPreferencesGuideView } from "@/app/(operator)/help/_sections/HelpPreferencesGuideView";
+import { resolveGuideHeadingsForStrip } from "@/lib/claim-discipline-policy";
+import {
+  expectClaimDisciplineBandContent,
+  expectClaimDisciplineHeading,
+} from "@/lib/claim-discipline-test-helpers";
 import {
   PREFERENCES_HELP_CLAIM_DISCIPLINE,
   PREFERENCES_HELP_CLAIM_DISCIPLINE_HEADING,
@@ -46,11 +51,16 @@ describe("HelpPreferencesGuideView", () => {
       PREFERENCES_HELP_START_HERE_HELPER,
     );
     expect(screen.queryByTestId("help-preferences-start-here-scope-note")).not.toBeInTheDocument();
-    expect(screen.getByTestId("help-preferences-claim-discipline").textContent).toContain(
+    expectClaimDisciplineBandContent(
+      screen,
+      "help-preferences",
+      "help-preferences-claim-discipline",
       PREFERENCES_HELP_CLAIM_DISCIPLINE.slice(0, 40),
     );
-    expect(screen.getByRole("heading", { name: PREFERENCES_HELP_CLAIM_DISCIPLINE_HEADING })).toHaveAttribute(
-      "id",
+    expectClaimDisciplineHeading(
+      screen,
+      "help-preferences",
+      PREFERENCES_HELP_CLAIM_DISCIPLINE_HEADING,
       PREFERENCES_HELP_CLAIM_HEADING_ID,
     );
     expect(screen.getByTestId("help-preferences-overview").className).toContain(HELP_PAGE_LAYOUT.readingBody);
@@ -78,8 +88,10 @@ describe("HelpPreferencesGuideView", () => {
 
     expect(screen.queryByRole("link", { name: "Users and roles" })).not.toBeInTheDocument();
 
-    expect(screen.getByRole("heading", { name: PREFERENCES_HELP_CLAIM_DISCIPLINE_HEADING }).className).toContain(
-      OPERATOR_TYPOGRAPHY.sectionTitle.split(" ")[0],
+    const guideHeadings = resolveGuideHeadingsForStrip(
+      "help-preferences",
+      PREFERENCES_HELP_GUIDE_HEADINGS,
+      PREFERENCES_HELP_CLAIM_HEADING_ID,
     );
 
     for (const item of PREFERENCES_HELP_TILE_ITEMS) {
@@ -92,7 +104,7 @@ describe("HelpPreferencesGuideView", () => {
       expect(sourcesRegion.getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
     }
 
-    for (const heading of PREFERENCES_HELP_GUIDE_HEADINGS) {
+    for (const heading of guideHeadings) {
       expect(screen.getByRole("heading", { name: heading.title })).toHaveAttribute("id", heading.id);
     }
   });

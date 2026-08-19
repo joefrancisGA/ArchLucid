@@ -103,3 +103,16 @@ export function resolveClaimDisciplineForStrip(
 
   return claim;
 }
+
+/** Drops the claim-discipline TOC entry when the strip omits the band so scroll-spy links stay valid. */
+export function resolveGuideHeadingsForStrip<T extends { readonly id: string }>(
+  stripSlug: string,
+  headings: readonly T[],
+  claimHeadingId: string,
+): readonly T[] {
+  if (!shouldOmitClaimDisciplineBand(stripSlug)) {
+    return headings;
+  }
+
+  return headings.filter((heading) => heading.id !== claimHeadingId);
+}

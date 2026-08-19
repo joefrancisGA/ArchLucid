@@ -69,7 +69,7 @@ describe("HelpConnectAwsSecurelyGuideView buyer-polished shell", () => {
     const orientation = screen.getByTestId("connect-aws-securely-help-orientation");
 
     expect(primaryContent).toContainElement(orientation);
-    expect(orientation.compareDocumentPosition(body) & Node.DOCUMENT_POSITION_PRECEDING).toBeTruthy();
+    expect(orientation.compareDocumentPosition(body) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
 
     expect(screen.getByRole("link", { name: CONNECT_AWS_SECURELY_CONFIGURE_ACTION_FOOTER })).toBeInTheDocument();
     expect(screen.getByTestId("connect-aws-configure-action-footer")).toBeInTheDocument();

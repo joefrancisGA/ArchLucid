@@ -6,6 +6,11 @@ vi.mock("@/app/(operator)/help/HelpTopicHashScroll", () => ({
 }));
 
 import { HelpSystemHealthGuideView } from "@/app/(operator)/help/_sections/HelpSystemHealthGuideView";
+import { resolveGuideHeadingsForStrip } from "@/lib/claim-discipline-policy";
+import {
+  expectClaimDisciplineBandContent,
+  expectClaimDisciplineHeading,
+} from "@/lib/claim-discipline-test-helpers";
 import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 import {
   SYSTEM_HEALTH_HELP_CLAIM_DISCIPLINE,
@@ -46,11 +51,16 @@ describe("HelpSystemHealthGuideView", () => {
     );
     expect(screen.queryByTestId("help-system-health-action-panel")).not.toBeInTheDocument();
     expect(screen.queryByTestId("help-system-health-role-precondition-tag")).not.toBeInTheDocument();
-    expect(screen.getByTestId("help-system-health-claim-discipline").textContent).toContain(
+    expectClaimDisciplineBandContent(
+      screen,
+      "help-system-health",
+      "help-system-health-claim-discipline",
       SYSTEM_HEALTH_HELP_CLAIM_DISCIPLINE.slice(0, 40),
     );
-    expect(screen.getByRole("heading", { name: SYSTEM_HEALTH_HELP_CLAIM_DISCIPLINE_HEADING })).toHaveAttribute(
-      "id",
+    expectClaimDisciplineHeading(
+      screen,
+      "help-system-health",
+      SYSTEM_HEALTH_HELP_CLAIM_DISCIPLINE_HEADING,
       SYSTEM_HEALTH_HELP_CLAIM_HEADING_ID,
     );
     expect(screen.getByTestId("help-system-health-overview").className).toContain(HELP_PAGE_LAYOUT.readingBody);
@@ -88,7 +98,13 @@ describe("HelpSystemHealthGuideView", () => {
     expect(screen.queryByRole("link", { name: "Read troubleshooting help →" })).not.toBeInTheDocument();
     expect(screen.queryByRole("link", { name: "Read connection status help →" })).not.toBeInTheDocument();
 
-    for (const heading of SYSTEM_HEALTH_HELP_GUIDE_HEADINGS) {
+    const guideHeadings = resolveGuideHeadingsForStrip(
+      "help-system-health",
+      SYSTEM_HEALTH_HELP_GUIDE_HEADINGS,
+      SYSTEM_HEALTH_HELP_CLAIM_HEADING_ID,
+    );
+
+    for (const heading of guideHeadings) {
       expect(screen.getByRole("heading", { name: heading.title })).toHaveAttribute("id", heading.id);
     }
   });

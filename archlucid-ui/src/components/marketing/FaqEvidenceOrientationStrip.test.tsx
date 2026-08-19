@@ -2,6 +2,7 @@ import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { FaqEvidenceOrientationStrip } from "@/components/marketing/FaqEvidenceOrientationStrip";
+import { expectClaimDisciplineBand } from "@/lib/claim-discipline-test-helpers";
 import { FAQ_CANONICAL_PATH, FAQ_SOURCES } from "@/lib/faq-evidence-copy";
 
 describe("FaqEvidenceOrientationStrip", () => {
@@ -9,7 +10,7 @@ describe("FaqEvidenceOrientationStrip", () => {
     render(<FaqEvidenceOrientationStrip />);
 
     expect(screen.getByTestId("faq-sources")).toBeInTheDocument();
-    expect(screen.getByTestId("faq-claim-discipline")).toBeInTheDocument();
+    expectClaimDisciplineBand(screen, "faq", "faq-claim-discipline");
 
     for (const link of FAQ_SOURCES) {
       expect(screen.getByRole("link", { name: link.label })).toHaveAttribute("href", link.href);
