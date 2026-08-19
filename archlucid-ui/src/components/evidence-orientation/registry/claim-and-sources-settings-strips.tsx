@@ -388,18 +388,3 @@ export function SettingsHubEvidenceOrientationStrip(
     />
   );
 }
-
-export function SettingsHubEvidenceOrientationStrip(
-  props: { readonly readingBodyClassName?: string } = {},
-): React.JSX.Element {
-  return (
-    <EvidenceOrientationClaimAndSourcesStrip
-      slug="settings-hub"
-      sourcesTitle={SETTINGS_HUB_FOLLOW_UPS_TITLE}
-      sourcesIntro={SETTINGS_HUB_SOURCES_INTRO}
-      sources={SETTINGS_HUB_ORIENTATION_SOURCES}
-      sourcesHeadingId="where-to-go-next"
-      readingBodyClassName={props.readingBodyClassName}
-    />
-  );
-}
