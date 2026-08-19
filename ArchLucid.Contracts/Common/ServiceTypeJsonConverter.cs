@@ -11,7 +11,14 @@ public sealed class ServiceTypeJsonConverter : JsonConverter<ServiceType>
     public override ServiceType Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
         if (reader.TokenType == JsonTokenType.Number)
-            return (ServiceType)reader.GetInt32();
+        {
+            int ordinal = reader.GetInt32();
+
+            if (!Enum.IsDefined(typeof(ServiceType), ordinal))
+                throw new JsonException($"Unknown service type value '{ordinal}'.");
+
+            return (ServiceType)ordinal;
+        }
 
         if (reader.TokenType != JsonTokenType.String)
             throw new JsonException("Expected string or number for service type.");

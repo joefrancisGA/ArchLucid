@@ -81,13 +81,15 @@ public sealed class AgentArchitectureFindingConfidenceEnricher(
             IReadOnlyList<AgentExecutionTrace> traces =
                 await _traceRepository.GetByRunIdAsync(scope, runId.Trim(), cancellationToken);
 
-            Dictionary<AgentType, AgentExecutionTrace> traceByAgentType = traces
-                .GroupBy(static t => t.AgentType)
-                .ToDictionary(static g => g.Key, static g => g.First(), comparer: null);
+            IReadOnlyList<AgentExecutionTrace> latestTraces =
+                AgentExecutionTraceLatestPerTaskSelector.Select(traces);
+
+            Dictionary<string, AgentExecutionTrace> traceByTaskId = latestTraces
+                .ToDictionary(static t => t.TaskId, static t => t, StringComparer.OrdinalIgnoreCase);
 
             foreach (AgentResult result in results)
             {
-                traceByAgentType.TryGetValue(result.AgentType, out AgentExecutionTrace? traceForAgent);
+                traceByTaskId.TryGetValue(result.TaskId, out AgentExecutionTrace? traceForAgent);
 
                 bool schemaPassed = traceForAgent is not null &&
                                     await AgentOutputTraceQualityEvaluator.ComputeQualityGateAcceptedForConfidenceAsync(

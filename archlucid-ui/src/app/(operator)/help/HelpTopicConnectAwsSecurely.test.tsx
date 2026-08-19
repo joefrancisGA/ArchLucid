@@ -19,6 +19,7 @@ import {
 import {
   CONNECT_AWS_SECURELY_CONNECTION_STATUS_HREF,
   CONNECT_AWS_SECURELY_CONNECTION_STATUS_LINK_LABEL,
+  CONNECT_AWS_SECURELY_CONFIGURE_ACTION,
   CONNECT_AWS_SECURELY_FORBIDDEN_POLICIES_BODY,
   CONNECT_AWS_SECURELY_PAGE_LEAD,
   CONNECT_AWS_SECURELY_PAGE_TITLE,
@@ -60,6 +61,10 @@ describe("HelpConnectAwsSecurelyGuideView", () => {
       "href",
       "#troubleshoot",
     );
+    expect(within(toc).getByRole("link", { name: CONNECT_AWS_SECURELY_VERIFICATION_HEADING })).toHaveAttribute(
+      "href",
+      "#verification",
+    );
     expect(within(toc).queryByRole("link", { name: CONNECT_AWS_SECURELY_PAGE_TITLE })).toBeNull();
   });
 
@@ -70,7 +75,7 @@ describe("HelpConnectAwsSecurelyGuideView", () => {
 
     render(<HelpConnectAwsSecurelyGuideView entry={entry} />);
 
-    expect(screen.queryByTestId("help-topic-registry-provenance")).toBeNull();
+    expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent("Guide last reviewed 2026-08-09");
     expect(screen.queryByTestId("help-topic-pdf-download-button")).toBeNull();
     expect(screen.queryByTestId("help-topic-print-button")).toBeNull();
     expect(screen.getByTestId("connect-aws-configure-action")).toBeInTheDocument();
@@ -103,7 +108,7 @@ describe("HelpConnectAwsSecurelyGuideView", () => {
 
     render(<HelpConnectAwsSecurelyGuideView entry={entry} />);
 
-    expect(screen.getByRole("heading", { level: 3, name: CONNECT_AWS_SECURELY_VERIFICATION_HEADING })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 2, name: CONNECT_AWS_SECURELY_VERIFICATION_HEADING })).toBeInTheDocument();
 
     for (const item of CONNECT_AWS_SECURELY_VERIFICATION_CHECKS) {
       expect(screen.getByText(item)).toBeInTheDocument();
@@ -178,11 +183,15 @@ describe("HelpConnectAwsSecurelyGuideView", () => {
 
     render(<HelpConnectAwsSecurelyGuideView entry={entry} returnHref="/integrations/cloud-connections/aws" />);
 
-    expect(screen.getByRole("link", { name: /Back to cloud connections/i })).toHaveAttribute(
+    expect(screen.getByTestId("connect-aws-back-to-connections")).toHaveAttribute(
       "href",
       "/integrations/cloud-connections/aws",
     );
-    expect(screen.getAllByRole("link", { name: "Configure AWS connection" })[0]).toHaveAttribute(
+    expect(screen.getByRole("link", { name: CONNECT_AWS_SECURELY_CONFIGURE_ACTION })).toHaveAttribute(
+      "href",
+      "/integrations/cloud-connections/aws",
+    );
+    expect(screen.getByTestId("connect-aws-configure-action-footer")).toHaveAttribute(
       "href",
       "/integrations/cloud-connections/aws",
     );

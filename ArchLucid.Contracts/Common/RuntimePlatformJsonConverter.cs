@@ -11,7 +11,14 @@ public sealed class RuntimePlatformJsonConverter : JsonConverter<RuntimePlatform
     public override RuntimePlatform Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
         if (reader.TokenType == JsonTokenType.Number)
-            return (RuntimePlatform)reader.GetInt32();
+        {
+            int ordinal = reader.GetInt32();
+
+            if (!Enum.IsDefined(typeof(RuntimePlatform), ordinal))
+                throw new JsonException($"Unknown runtime platform value '{ordinal}'.");
+
+            return (RuntimePlatform)ordinal;
+        }
 
         if (reader.TokenType != JsonTokenType.String)
             throw new JsonException("Expected string or number for runtime platform.");

@@ -193,7 +193,6 @@ export function DigestSponsorEvidenceOrientationStrip(): React.JSX.Element {
   );
 }
 
-<<<<<<< HEAD
 export function GetStartedEvidenceOrientationStrip(
   props: {
     readonly placement?: "top" | "footer";
@@ -206,9 +205,6 @@ export function GetStartedEvidenceOrientationStrip(
       ? "mb-8"
       : "mt-8 border-t border-neutral-200 pt-8 dark:border-neutral-800";
 
-=======
-export function GetStartedEvidenceOrientationStrip(): React.JSX.Element {
->>>>>>> ecbef776c777b97fd241b3d0ccf36675cf50f51f
   return (
     <EvidenceOrientationSourcesAndClaimStrip
       slug="get-started"

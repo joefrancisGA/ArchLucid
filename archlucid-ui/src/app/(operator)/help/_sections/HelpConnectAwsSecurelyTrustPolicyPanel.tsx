@@ -20,19 +20,27 @@ import { cn } from "@/lib/utils";
 
 /** Federation identifiers table and copyable IAM trust-policy template for AWS setup. */
 export function HelpConnectAwsSecurelyTrustPolicyPanel(): React.ReactElement {
-  const [copied, setCopied] = useState(false);
+  const [copyStatus, setCopyStatus] = useState<"idle" | "success" | "error">("idle");
   const trustPolicyTemplate = useMemo(() => buildAwsCloudConnectionTrustPolicyTemplate(), []);
 
   const copyTrustPolicy = useCallback(async () => {
     try {
       await navigator.clipboard.writeText(trustPolicyTemplate);
-      setCopied(true);
-      window.setTimeout(() => setCopied(false), 2000);
+      setCopyStatus("success");
+      window.setTimeout(() => setCopyStatus("idle"), 2000);
     } catch {
-      setCopied(false);
+      setCopyStatus("error");
       showError("AWS trust policy", CONNECT_AWS_SECURELY_TRUST_POLICY_COPY_ERROR);
+      window.setTimeout(() => setCopyStatus("idle"), 4000);
     }
   }, [trustPolicyTemplate]);
+
+  const copyStatusMessage =
+    copyStatus === "success"
+      ? "Trust policy copied to clipboard."
+      : copyStatus === "error"
+        ? CONNECT_AWS_SECURELY_TRUST_POLICY_COPY_ERROR
+        : "";
 
   return (
     <div className="space-y-4" id="connect-aws-securely-federation-panel" data-testid="connect-aws-securely-federation-panel">
@@ -87,7 +95,7 @@ export function HelpConnectAwsSecurelyTrustPolicyPanel(): React.ReactElement {
             aria-label="Copy IAM trust policy template"
             onClick={() => void copyTrustPolicy()}
           >
-            {copied ? "Copied" : "Copy trust policy"}
+            {copyStatus === "success" ? "Copied" : "Copy trust policy"}
           </Button>
         </div>
         <p
@@ -95,7 +103,7 @@ export function HelpConnectAwsSecurelyTrustPolicyPanel(): React.ReactElement {
           aria-live="polite"
           data-testid="connect-aws-securely-trust-policy-copy-status"
         >
-          {copied ? "Trust policy copied to clipboard." : ""}
+          {copyStatusMessage}
         </p>
         <p className={cn("m-0 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
           {CONNECT_AWS_SECURELY_TRUST_POLICY_INTRO}

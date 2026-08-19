@@ -25,4 +25,13 @@ public sealed class ServiceTypeJsonConverterTests
 
         value.Should().Be(expected);
     }
+
+    [Fact]
+    public void Read_integer_out_of_range_throws()
+    {
+        Action act = () => JsonSerializer.Deserialize<ServiceType>("99", Options);
+
+        act.Should().Throw<JsonException>()
+            .WithMessage("*Unknown service type value*");
+    }
 }

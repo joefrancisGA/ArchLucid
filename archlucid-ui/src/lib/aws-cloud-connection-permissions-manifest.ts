@@ -24,11 +24,16 @@ export function formatAwsPermissionRequirementLabel(label: AwsPermissionRequirem
 
 export type AwsCloudConnectionPermissionRow = {
   readonly iamIdentifier: string;
+  readonly displayName?: string;
   readonly requirement: AwsPermissionRequirementLabel;
   readonly purpose: string;
   readonly recommendedScope: string;
   readonly writeAccess: false;
 };
+
+export const AWS_CLOUD_CONNECTION_API_PREREQUISITES: readonly string[] = [
+  "Enable a Resource Explorer aggregator index in the AWS account and primary region used for the connection before running Re-poll now.",
+];
 
 export const AWS_CLOUD_CONNECTION_FORBIDDEN_POLICIES: readonly string[] = [
   "AdministratorAccess",
@@ -48,6 +53,7 @@ export const AWS_CLOUD_CONNECTION_TROUBLESHOOTING_ITEMS: readonly string[] = [
 export const AWS_CLOUD_CONNECTION_PERMISSION_ROWS: readonly AwsCloudConnectionPermissionRow[] = [
   {
     iamIdentifier: "resource-explorer-2:Search",
+    displayName: "Resource Explorer Search API",
     requirement: "required",
     purpose: "Lists account resources through AWS Resource Explorer for architecture evidence.",
     recommendedScope: "Read-only IAM role used by the connection",
@@ -55,6 +61,7 @@ export const AWS_CLOUD_CONNECTION_PERMISSION_ROWS: readonly AwsCloudConnectionPe
   },
   {
     iamIdentifier: "AWSResourceExplorerReadOnlyAccess",
+    displayName: "Resource Explorer read-only managed policy",
     requirement: "required",
     purpose: "AWS managed policy that grants the Resource Explorer read APIs ArchLucid calls.",
     recommendedScope: "Attach to the read-only IAM role",
@@ -62,6 +69,7 @@ export const AWS_CLOUD_CONNECTION_PERMISSION_ROWS: readonly AwsCloudConnectionPe
   },
   {
     iamIdentifier: "Resource Explorer index",
+    displayName: "Resource Explorer aggregator index",
     requirement: "conditional",
     purpose:
       "Resource Explorer must have an aggregator index enabled in the account and primary region used for the connection before Search succeeds.",

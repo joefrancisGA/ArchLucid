@@ -24,4 +24,13 @@ public sealed class RelationshipTypeJsonConverterTests
 
         value.Should().Be(expected);
     }
+
+    [Fact]
+    public void Read_integer_out_of_range_throws()
+    {
+        Action act = () => JsonSerializer.Deserialize<RelationshipType>("99", Options);
+
+        act.Should().Throw<JsonException>()
+            .WithMessage("*Unknown relationship type value*");
+    }
 }

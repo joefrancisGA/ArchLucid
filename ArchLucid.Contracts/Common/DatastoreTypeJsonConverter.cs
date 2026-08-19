@@ -11,7 +11,14 @@ public sealed class DatastoreTypeJsonConverter : JsonConverter<DatastoreType>
     public override DatastoreType Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
         if (reader.TokenType == JsonTokenType.Number)
-            return (DatastoreType)reader.GetInt32();
+        {
+            int ordinal = reader.GetInt32();
+
+            if (!Enum.IsDefined(typeof(DatastoreType), ordinal))
+                throw new JsonException($"Unknown datastore type value '{ordinal}'.");
+
+            return (DatastoreType)ordinal;
+        }
 
         if (reader.TokenType != JsonTokenType.String)
             throw new JsonException("Expected string or number for datastore type.");

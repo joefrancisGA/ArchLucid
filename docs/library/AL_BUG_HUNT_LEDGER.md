@@ -1287,24 +1287,25 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ## Zone: agent-runtime-evaluation
 
 - **id:** agent-runtime-evaluation
-- **status:** unseeded
+- **status:** open
 - **impact:** medium
 - **aliases:** agent evaluation; evaluation runner
 - **paths:** ArchLucid.AgentRuntime/Evaluation/
 - **test-filter:** FullyQualifiedName~Evaluation
-- **hunts:** 0
-- **bugs-found:** 0
+- **hunts:** 1
+- **bugs-found:** 1
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **last-hunt:** 2026-08-18
+- **last-bug:** 2026-08-18
 - **related-pd-tb:** none
-- **code-changed-since:** unknown
+- **code-changed-since:** yes
 
 ### Hypotheses
 
-- [ ] (candidate) Evaluation runner scores a failed trace as passed
-- [ ] (candidate) Runner uses a golden fixture from a different tenantÃ¢â‚¬â„¢s catalog
-- [ ] (candidate) Batch evaluation swallows per-item failures and reports aggregate success
+- [x] (invalid) Evaluation runner scores a failed trace as passed — warn-only gate records parse failures without rejecting; pilot strict rejects unparsed output (`AgentOutputTraceQualityEvaluatorTests`).
+- [x] (invalid) Runner uses a golden fixture from a different tenant's catalog — reference cases load from a single configured JSON path, not tenant-scoped catalogs (`AgentOutputReferenceCaseCatalog`).
+- [x] (invalid) Batch evaluation swallows per-item failures and reports aggregate success — `AgentOutputEvaluationRecorder` evaluates each latest-per-task trace independently via `Task.WhenAll`.
+- [x] (proven) Architecture finding confidence enrichment uses the first trace per agent type — **hit 2026-08-18:** `AgentArchitectureFindingConfidenceEnricher` keyed traces by `AgentType` instead of `TaskId`, so multiple tasks of the same agent type inherited the wrong schema/reference signals.
 
 ---
 
@@ -1370,11 +1371,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **last-hunt:** 2026-08-18
 - **last-bug:** 2026-08-18
 - **related-pd-tb:** none
-<<<<<<< HEAD
 - **code-changed-since:** yes
-=======
-- **code-changed-since:** no
->>>>>>> ecbef776c777b97fd241b3d0ccf36675cf50f51f
 
 ### Hypotheses
 
@@ -1411,30 +1408,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ## Zone: archlucid-core
 
 - **id:** archlucid-core
-<<<<<<< HEAD
-- **status:** unseeded
-=======
 - **status:** open
->>>>>>> ecbef776c777b97fd241b3d0ccf36675cf50f51f
 - **impact:** high
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-<<<<<<< HEAD
-- **hunts:** 0
-- **bugs-found:** 0
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
-- **related-pd-tb:** none
-- **code-changed-since:** unknown
-
-### Hypotheses
-
-- [ ] (candidate) URL allow-list policy accepts a credential-bearing redirect target
-- [ ] (candidate) Tenant scope model treats empty workspace as a wildcard
-- [ ] (candidate) Configuration default enables a production-unsafe integration flag
-=======
 - **hunts:** 1
 - **bugs-found:** 1
 - **consecutive-dry-hunts:** 0
@@ -1448,7 +1426,6 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) URL allow-list policy accepts a credential-bearing redirect target — **hit 2026-08-18:** outbound HTTPS URL policies allowed `https://user:pass@host` because only scheme/host were validated; embedded userinfo now rejected.
 - [x] (valid-no-repro) Tenant scope model treats empty workspace as a wildcard — `ActivityScopeTags` rejects `Guid.Empty` workspace ids; no wildcard semantics in Core tenancy models.
 - [x] (valid-no-repro) Configuration default enables a production-unsafe integration flag — ITSM/native and quick-scan defaults are gated by environment validators and hosted-SaaS overrides.
->>>>>>> ecbef776c777b97fd241b3d0ccf36675cf50f51f
 
 ---
 

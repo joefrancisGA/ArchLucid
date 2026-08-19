@@ -30,6 +30,9 @@ export const HELP_TOPIC_GUIDE_REVIEW_PROVENANCE_SLUGS = new Set([
   "sponsor-dashboard",
   "system-health",
   "workspace-settings",
+  "cloud-connections-aws",
+  "cloud-connections-azure",
+  "cloud-connections-gcp",
 ]);
 
 /** Registry taxonomy tokens (e.g. `integrations servicenow orientation`) are not buyer-facing prose. */

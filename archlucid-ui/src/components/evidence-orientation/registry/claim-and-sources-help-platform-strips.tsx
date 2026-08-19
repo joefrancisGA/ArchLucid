@@ -237,6 +237,7 @@ export function ConnectAwsSecurelyHelpEvidenceOrientationStrip(): React.JSX.Elem
       claim={CONNECT_AWS_SECURELY_CLAIM_DISCIPLINE}
       claimHeading={CONNECT_AWS_SECURELY_CLAIM_DISCIPLINE_HEADING}
       claimHeadingId={CONNECT_AWS_SECURELY_CLAIM_HEADING_ID}
+      claimStyle={EVIDENCE_CLAIM_STYLE.operatorInfo}
       sourcesTitle={CONNECT_AWS_SECURELY_FOLLOW_UPS_TITLE}
       sourcesIntro={CONNECT_AWS_SECURELY_SOURCES_INTRO}
       sources={CONNECT_AWS_SECURELY_SOURCES}
@@ -252,6 +253,7 @@ export function ConnectAzureSecurelyHelpEvidenceOrientationStrip(): React.JSX.El
       claim={CONNECT_AZURE_SECURELY_CLAIM_DISCIPLINE}
       claimHeading={CONNECT_AZURE_SECURELY_CLAIM_DISCIPLINE_HEADING}
       claimHeadingId={CONNECT_AZURE_SECURELY_CLAIM_HEADING_ID}
+      claimStyle={EVIDENCE_CLAIM_STYLE.operatorInfo}
       sourcesTitle={CONNECT_AZURE_SECURELY_FOLLOW_UPS_TITLE}
       sourcesIntro={CONNECT_AZURE_SECURELY_SOURCES_INTRO}
       sources={CONNECT_AZURE_SECURELY_SOURCES}

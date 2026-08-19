@@ -41,6 +41,8 @@ describe("HelpConnectAwsSecurelyTrustPolicyPanel", () => {
       expect(showError).toHaveBeenCalledWith("AWS trust policy", CONNECT_AWS_SECURELY_TRUST_POLICY_COPY_ERROR);
     });
     expect(screen.getByTestId("connect-aws-securely-trust-policy-copy")).toHaveTextContent("Copy trust policy");
-    expect(screen.getByTestId("connect-aws-securely-trust-policy-copy-status")).toHaveTextContent("");
+    expect(screen.getByTestId("connect-aws-securely-trust-policy-copy-status")).toHaveTextContent(
+      CONNECT_AWS_SECURELY_TRUST_POLICY_COPY_ERROR,
+    );
   });
 });

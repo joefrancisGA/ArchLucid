@@ -24,4 +24,13 @@ public sealed class RuntimePlatformJsonConverterTests
 
         value.Should().Be(expected);
     }
+
+    [Fact]
+    public void Read_integer_out_of_range_throws()
+    {
+        Action act = () => JsonSerializer.Deserialize<RuntimePlatform>("99", Options);
+
+        act.Should().Throw<JsonException>()
+            .WithMessage("*Unknown runtime platform value*");
+    }
 }

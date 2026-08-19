@@ -32,6 +32,8 @@ export const CONNECT_AWS_SECURELY_BACK_TO_CONNECTIONS = "Back to cloud connectio
 
 export const CONNECT_AWS_SECURELY_CONFIGURE_ACTION = "Configure AWS connection";
 
+export const CONNECT_AWS_SECURELY_CONFIGURE_ACTION_FOOTER = "Configure AWS connection (next step)";
+
 export const CONNECT_AWS_SECURELY_SECURITY_HEADING = "Security model";
 
 export const CONNECT_AWS_SECURELY_SECURITY_ITEMS = [
@@ -95,8 +97,8 @@ export {
 
 export const CONNECT_AWS_SECURELY_PERMISSIONS_HEADING = "IAM permissions";
 
-export const CONNECT_AWS_SECURELY_RESOURCE_EXPLORER_NOTE =
-  "Enable a Resource Explorer aggregator index in the AWS account and primary region used for the connection before running Re-poll now.";
+export const CONNECT_AWS_SECURELY_WRITE_ACCESS_NOTE =
+  "No row in this table grants write access or infrastructure administration.";
 
 export const CONNECT_AWS_SECURELY_PERMISSIONS_AUTHORITY_NOTE =
   "The IAM permissions table below is the authoritative reference for Resource Explorer APIs, managed policies, and aggregator-index prerequisites.";
