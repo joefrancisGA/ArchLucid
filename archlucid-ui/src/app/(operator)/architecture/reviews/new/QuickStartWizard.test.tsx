@@ -1,0 +1,182 @@
+import { zodResolver } from "@hookform/resolvers/zod";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { FormProvider, useForm } from "react-hook-form";
+import { describe, expect, it, vi } from "vitest";
+
+import { ApiRequestError } from "@/lib/api-request-error";
+import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer/buyer-polish-copy";
+import { buildDefaultWizardValues, wizardFormSchema, type WizardFormValues } from "@/lib/wizard-schema";
+
+const createRun = vi.fn();
+
+vi.mock("@/lib/api", () => ({
+  createArchitectureRun: (...args: unknown[]) => createRun(...args),
+}));
+
+vi.mock("@/lib/first-tenant-funnel-telemetry", () => ({
+  recordFirstTenantFunnelEvent: vi.fn(),
+}));
+
+vi.mock("@/lib/toast", () => ({
+  showSuccess: vi.fn(),
+  showError: vi.fn(),
+}));
+
+import { REVIEW_START_STEP_VALIDATION_MESSAGE } from "@/lib/review-start-progress-copy";
+
+import { showError } from "@/lib/toast";
+
+import { QuickStartWizard } from "./QuickStartWizard";
+
+function Harness() {
+  const form = useForm<WizardFormValues>({
+    resolver: zodResolver(wizardFormSchema),
+    defaultValues: buildDefaultWizardValues(),
+    mode: "onBlur",
+  });
+
+  return (
+    <FormProvider {...form}>
+      <QuickStartWizard
+        llmBudgetStatus={null}
+        blocksLlmExecution={false}
+        onRunCreated={() => {
+          /* test double */
+        }}
+      />
+    </FormProvider>
+  );
+}
+
+describe("QuickStartWizard", () => {
+  it("shows three steps and submits createArchitectureRun with valid payload", async () => {
+    createRun.mockResolvedValue({ run: { runId: "quick-run-1" } });
+
+    render(<Harness />);
+
+    expect(screen.getByTestId("quick-start-progress")).toHaveTextContent(/step 1 of 3/i);
+
+    const system = screen.getByLabelText("System name");
+    fireEvent.change(system, { target: { value: "MyRetailApp" } });
+
+    fireEvent.click(screen.getByRole("button", { name: "Next" }));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("quick-start-progress")).toHaveTextContent(/step 2 of 3/i);
+    });
+
+    const desc = screen.getByLabelText("Description");
+    fireEvent.change(desc, {
+      target: {
+        value:
+          "Ten char min: design a secure retail API on Azure with SQL, Redis, and App Service for the pilot scope.",
+      },
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: "Next" }));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("quick-start-progress")).toHaveTextContent(/step 3 of 3/i);
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: BUYER_START_ARCHITECTURE_REVIEW_CTA }));
+
+    await waitFor(() => {
+      expect(createRun).toHaveBeenCalled();
+    });
+
+    const body = createRun.mock.calls[0][0] as { systemName: string; description: string };
+    expect(body.systemName).toBe("MyRetailApp");
+    expect(body.description.length).toBeGreaterThanOrEqual(10);
+  });
+
+  it("applies a review template to description and system name on step 2", async () => {
+    createRun.mockResolvedValue({ run: { runId: "quick-run-2" } });
+
+    render(<Harness />);
+
+    fireEvent.change(screen.getByLabelText("System name"), { target: { value: "IgnoredAfterTemplate" } });
+    fireEvent.click(screen.getByRole("button", { name: "Next" }));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("quick-start-progress")).toHaveTextContent(/step 2 of 3/i);
+    });
+
+    fireEvent.click(screen.getByTestId("quick-start-template-cloud-migration-assessment"));
+
+    const desc = screen.getByLabelText("Description") as HTMLTextAreaElement;
+    expect(desc.value).toContain("brownfield .NET monolith");
+
+    fireEvent.click(screen.getByRole("button", { name: "Next" }));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("quick-start-progress")).toHaveTextContent(/step 3 of 3/i);
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: BUYER_START_ARCHITECTURE_REVIEW_CTA }));
+
+    await waitFor(() => {
+      expect(createRun).toHaveBeenCalled();
+    });
+
+    const body = createRun.mock.calls[0][0] as { systemName: string; description: string };
+    expect(body.systemName).toBe("CloudMigrationAssessment");
+    expect(body.description).toContain("brownfield .NET monolith");
+  });
+
+  it("shows OperatorApiProblem on submit when API returns structured failure", async () => {
+    createRun.mockRejectedValue(
+      new ApiRequestError("Not permitted", {
+        problem: {
+          title: "Forbidden",
+          detail: "Role cannot create runs",
+          errorCode: "VALIDATION_FAILED",
+        },
+        correlationId: "corr-quick-1",
+        httpStatus: 403,
+      }),
+    );
+
+    render(<Harness />);
+
+    fireEvent.change(screen.getByLabelText("System name"), { target: { value: "MyRetailApp" } });
+    fireEvent.click(screen.getByRole("button", { name: "Next" }));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("quick-start-progress")).toHaveTextContent(/step 2 of 3/i);
+    });
+
+    fireEvent.change(screen.getByLabelText("Description"), {
+      target: { value: "Ten char min: long enough brief for validation." },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Next" }));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("quick-start-progress")).toHaveTextContent(/step 3 of 3/i);
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: BUYER_START_ARCHITECTURE_REVIEW_CTA }));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("quick-start-submit-error")).toBeInTheDocument();
+    });
+
+    expect(screen.getByText("Role cannot create reviews")).toBeInTheDocument();
+    expect(screen.getByText(/corr-quick-1/)).toBeInTheDocument();
+  });
+
+  it("surfaces step validation inline without toast (TB-2113)", async () => {
+    render(<Harness />);
+
+    fireEvent.change(screen.getByLabelText("System name"), { target: { value: "" } });
+    fireEvent.click(screen.getByRole("button", { name: "Next" }));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("quick-start-validation-error")).toHaveTextContent(
+        REVIEW_START_STEP_VALIDATION_MESSAGE,
+      );
+    });
+
+    expect(vi.mocked(showError)).not.toHaveBeenCalled();
+  });
+});
