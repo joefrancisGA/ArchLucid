@@ -14,15 +14,6 @@ import {
 } from "@/lib/review-scorecard-empty-state";
 import type { PilotScorecardJson } from "@/types/pilot-scorecard";
 
-vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
-
-  return {
-    ...actual,
-    isBuyerPolishedOperatorShellEnv: vi.fn(() => false),
-  };
-});
-
 vi.mock("next/navigation", async (importOriginal) => {
   const actual = await importOriginal<typeof import("next/navigation")>();
   return {
@@ -35,17 +26,8 @@ vi.mock("@/components/usability/ValueReportOutcomesNav", () => ({
   ValueReportOutcomesNav: () => <nav data-testid="value-report-outcomes-nav" />,
 }));
 
-vi.mock("@/components/usability/PageContextualHelpButton", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("@/components/usability/PageContextualHelpButton")>();
-
-  return {
-    ...actual,
-    PageContextualHelpButton: () => <div data-testid="page-contextual-help-button" />,
-  };
-});
-
-vi.mock("@/components/ScorecardRoiVocabularyRail", () => ({
-  ScorecardRoiVocabularyRail: () => <div data-testid="scorecard-roi-vocabulary" />,
+vi.mock("@/components/usability/PageContextualHelpButton", () => ({
+  PageContextualHelpButton: () => <div data-testid="page-contextual-help-button" />,
 }));
 
 const mockUseSearchParams = vi.mocked(useSearchParams);

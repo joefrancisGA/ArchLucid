@@ -1,0 +1,13 @@
+using ArchLucid.Persistence.Data.Repositories;
+
+namespace ArchLucid.Persistence.Tests.Contracts;
+
+[Trait("Category", "Unit")]
+[Trait("Suite", "Core")]
+public sealed class InMemoryEvidenceBundleRepositoryContractTests : EvidenceBundleRepositoryContractTests
+{
+    protected override IEvidenceBundleRepository CreateRepository()
+    {
+        return new InMemoryEvidenceBundleRepository();
+    }
+}

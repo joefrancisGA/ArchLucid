@@ -1,0 +1,22 @@
+flowchart TB
+  subgraph internet["Hostile internet"]
+    ATT["Unsigned / replayed / oversized POST"]
+  end
+
+  subgraph ingress["Inbound webhook spine INV-015"]
+    RATE["Rate limit"]
+    SIZE["Bounded body / size cap"]
+    VERIFY["Verify signature / shared secret"]
+    PARSE["Schema parse"]
+    ACK["Fast ack + durable work"]
+  end
+
+  subgraph tenant["Tenant binding"]
+    CORR["Correlation → tenant catalog"]
+    RBAC["Fail-closed secrets<br/>ProductionSafetyRules"]
+  end
+
+  ATT --> RATE --> SIZE --> VERIFY --> PARSE --> ACK
+  ACK --> CORR
+  RBAC -.-> VERIFY
+  VERIFY -->|reject| DROP["Drop / 401-403"]

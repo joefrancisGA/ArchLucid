@@ -1,0 +1,22 @@
+﻿enable_redis_cache     = true
+create_resource_group  = true
+resource_group_name    = "rg-archlucid-redis-staging"
+location               = "centralus"
+redis_cache_name       = "redis-archlucid-staging-example"
+redis_sku_name         = "Standard"
+redis_family           = "C"
+redis_capacity         = 1
+public_network_access_enabled = true
+
+# Optional — private data plane (TB-094 / TB-091 pattern)
+# enable_private_endpoint = true
+# private_endpoint_subnet_id = "/subscriptions/.../subnets/private-endpoints"
+# virtual_network_id         = "/subscriptions/.../virtualNetworks/vnet-archlucid"
+
+# Optional — persist connection string for HotPathCache
+# key_vault_id = "/subscriptions/.../providers/Microsoft.KeyVault/vaults/kv-example"
+
+tags = {
+  environment = "staging"
+  product     = "archlucid"
+}

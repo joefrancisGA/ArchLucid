@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "scenarioId": "corpus-adv-hallucination-detection",
+  "adversarialTheme": "hallucination-detection",
+  "offlineQualityGateExpectation": "warned",
+  "rationale": "Committed AgentResult strips per-claim evidenceRefs and findings so eval_agent_corpus semantic ratio collapses—mirroring fabricated-evidence grounding failures without live AOAI.",
+  "recordingExpectations": [
+    "Recorded findings call out fabricated Azure SKU prose and unverified compliance framework labels."
+  ]
+}

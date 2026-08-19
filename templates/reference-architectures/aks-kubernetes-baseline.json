@@ -1,0 +1,25 @@
+{
+  "requestId": "REF-TPL-AKS-K8S-BASELINE-001",
+  "systemName": "AksPlatformBaseline",
+  "description": "Production AKS baseline with Azure CNI overlay, Azure AD workload identity, ingress via Application Gateway, cluster autoscaler, pod security standards, and GitOps-driven deployments from a private container registry.",
+  "environment": "prod",
+  "cloudProvider": "Azure",
+  "constraints": [
+    "No cluster admin kubeconfig shared outside break-glass",
+    "Images pulled only from approved private registry",
+    "Network policies default deny between namespaces",
+    "Node pools segregated by workload sensitivity"
+  ],
+  "requiredCapabilities": [
+    "Azure Kubernetes Service",
+    "Azure Container Registry",
+    "Azure Application Gateway Ingress Controller",
+    "Microsoft Entra Workload ID",
+    "Azure Monitor container insights"
+  ],
+  "assumptions": [
+    "Three node pools: system, general workloads, sensitive workloads",
+    "Platform team owns cluster; app teams own namespaces"
+  ],
+  "priorManifestVersion": null
+}

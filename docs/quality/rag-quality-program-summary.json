@@ -1,0 +1,759 @@
+{
+  "formatVersion": "1.0",
+  "generatedUtc": "2026-07-21T20:40:59.890748+00:00",
+  "program": "deeper-rag-quality-offline",
+  "enforceMode": false,
+  "disposition": "PASS",
+  "steps": [
+    {
+      "label": "faithfulness",
+      "script": "eval_agent_faithfulness.py",
+      "exitCode": 0,
+      "outputTail": "roi-headline retrieved=1 supported=0 ratio=0.0000 missing_citations=1 wrong_corpus=0 unsupported_roi_cost=1\nfaithfulness case=ask-policy-pack-kv-cited retrieved=1 supported=1 ratio=1.0000 missing_citations=0 wrong_corpus=0 unsupported_roi_cost=0\nfaithfulness case=ask-platform-adr-cited retrieved=1 supported=1 ratio=1.0000 missing_citations=0 wrong_corpus=0 unsupported_roi_cost=0\nfaithfulness case=ask-prior-decision-cited retrieved=1 supported=1 ratio=1.0000 missing_citations=0 wrong_corpus=0 unsupported_roi_cost=0\nfaithfulness case=ask-azure-retail-cost-cited retrieved=1 supported=1 ratio=1.0000 missing_citations=0 wrong_corpus=0 unsupported_roi_cost=0\nfaithfulness case=ask-demo-derived-cited retrieved=1 supported=1 ratio=1.0000 missing_citations=0 wrong_corpus=0 unsupported_roi_cost=0\nfaithfulness case=ask-customer-network-cited retrieved=1 supported=1 ratio=1.0000 missing_citations=0 wrong_corpus=0 unsupported_roi_cost=0\nfaithfulness case=ask-multi-corpus-cited retrieved=2 supported=2 ratio=1.0000 missing_citations=0 wrong_corpus=1 unsupported_roi_cost=0\nfaithfulness case=ask-missing-citation-negative retrieved=1 supported=0 ratio=0.0000 missing_citations=1 wrong_corpus=0 unsupported_roi_cost=0\nablation profile=all-on positive=0.9783 combined=0.6389 hits_filtered=0\nablation profile=graph-rag-off positive=0.9783 combined=0.6528 hits_filtered=8\nablation profile=hyde-off positive=1.0000 combined=0.6528 hits_filtered=6\nablation profile=query-rewrite-off positive=0.9783 combined=0.6389 hits_filtered=6\nablation profile=all-advanced-off positive=1.0000 combined=0.6667 hits_filtered=19\nWrote C:\\ArchLucid\\ArchLucid-RC14\\docs\\quality\\faithfulness-ablation-summary.json\nWrote C:\\ArchLucid\\ArchLucid-RC14\\docs\\quality\\faithfulness-report.md\nWrote C:\\ArchLucid\\ArchLucid-RC14\\docs\\quality\\faithfulness-summary.json\nPositive readiness support ratio: 0.9783 (floor 0.8000)\nNegative-control support ratio: 0.0385 (ceiling 0.3500)\nCombined diagnostic support ratio: 0.6389 (floor 0.8000)"
+    },
+    {
+      "label": "retrieval-ir",
+      "script": "eval_retrieval_ir.py",
+      "exitCode": 0,
+      "outputTail": "trieval-ir case=ir-ar-noise recall@5=1.0000 mrr=1.0000 ndcg@10=1.0000 ordering_sensitive=False\nretrieval-ir case=ir-demo-01 recall@5=1.0000 mrr=1.0000 ndcg@10=1.0000 ordering_sensitive=False\nretrieval-ir case=ir-demo-02 recall@5=1.0000 mrr=1.0000 ndcg@10=1.0000 ordering_sensitive=False\nretrieval-ir case=ir-cust-01 recall@5=1.0000 mrr=1.0000 ndcg@10=1.0000 ordering_sensitive=False\nretrieval-ir case=ir-cust-02 recall@5=1.0000 mrr=1.0000 ndcg@10=1.0000 ordering_sensitive=False\nretrieval-ir case=ir-tenant-b-pp recall@5=1.0000 mrr=1.0000 ndcg@10=1.0000 ordering_sensitive=False\nretrieval-ir case=ir-tenant-a-not-b recall@5=1.0000 mrr=0.5000 ndcg@10=0.6309 ordering_sensitive=False\nretrieval-ir case=ir-pd-lib-01 recall@5=1.0000 mrr=1.0000 ndcg@10=1.0000 ordering_sensitive=False\nretrieval-ir case=ir-ar-pp-mixed recall@5=1.0000 mrr=0.3333 ndcg@10=0.5706 ordering_sensitive=False\nretrieval-ir case=ir-pp-kv-03 recall@5=1.0000 mrr=1.0000 ndcg@10=1.0000 ordering_sensitive=False\nretrieval-ir case=ir-pm-run-05 recall@5=1.0000 mrr=1.0000 ndcg@10=1.0000 ordering_sensitive=False\nretrieval-ir case=ir-pd-arch-04 recall@5=1.0000 mrr=1.0000 ndcg@10=1.0000 ordering_sensitive=False\nretrieval-ir case=ir-ra-ms-01 recall@5=1.0000 mrr=1.0000 ndcg@10=1.0000 ordering_sensitive=False\nretrieval-ir case=ir-ra-ms-02 recall@5=1.0000 mrr=1.0000 ndcg@10=1.0000 ordering_sensitive=False\nretrieval-ir case=ir-ra-3tier-01 recall@5=1.0000 mrr=1.0000 ndcg@10=1.0000 ordering_sensitive=False\nretrieval-ir case=ir-ra-dr-01 recall@5=1.0000 mrr=1.0000 ndcg@10=1.0000 ordering_sensitive=False\nretrieval-ir case=ir-ra-platform-scope recall@5=1.0000 mrr=1.0000 ndcg@10=1.0000 ordering_sensitive=False\nretrieval-ir case=ir-ra-noise recall@5=1.0000 mrr=1.0000 ndcg@10=1.0000 ordering_sensitive=False\nWrote C:\\ArchLucid\\ArchLucid-RC14\\docs\\quality\\retrieval-ir-report.md\nWrote C:\\ArchLucid\\ArchLucid-RC14\\docs\\quality\\retrieval-ir-summary.json\nMean recall@5: 0.9811 (floor 0.8500)\nMean MRR: 0.9308 (floor 0.7500)\nMean NDCG@10: 0.9467"
+    },
+    {
+      "label": "floor-ratchet",
+      "script": "assert_faithfulness_ir_floor_ratchet.py",
+      "exitCode": 0,
+      "outputTail": "Faithfulness IR ratchet OK: positive readiness=0.9783 PolicyPack MRR=0.8000"
+    }
+  ],
+  "faithfulnessSummary": {
+    "formatVersion": "1.0",
+    "casesEvaluated": 36,
+    "positiveReadinessSupportRatio": 0.9782608695652174,
+    "negativeControlSupportRatio": 0.038461538461538464,
+    "combinedDiagnosticSupportRatio": 0.6388888888888888,
+    "floorMinSupportRatio": 0.8
+  },
+  "retrievalIrSummary": {
+    "formatVersion": "1.1",
+    "casesEvaluated": 53,
+    "meanRecallAt5": 0.9811320754716981,
+    "meanMrr": 0.9308176100628931,
+    "meanNdcgAt10": 0.9466965608981956,
+    "floorRecallAt5": 0.85,
+    "floorMrr": 0.75,
+    "corpusBreakdown": [
+      {
+        "corpusKind": "AzureRetail",
+        "caseCount": 6,
+        "meanRecallAt5": 1.0,
+        "meanMrr": 0.8888888888888888,
+        "meanNdcgAt10": 0.9079761723822282,
+        "orderingSensitiveCaseCount": 0,
+        "meanOrderingSensitiveNdcgAt10": null
+      },
+      {
+        "corpusKind": "CustomerProvided",
+        "caseCount": 2,
+        "meanRecallAt5": 1.0,
+        "meanMrr": 1.0,
+        "meanNdcgAt10": 1.0,
+        "orderingSensitiveCaseCount": 0,
+        "meanOrderingSensitiveNdcgAt10": null
+      },
+      {
+        "corpusKind": "DemoDerived",
+        "caseCount": 2,
+        "meanRecallAt5": 1.0,
+        "meanMrr": 1.0,
+        "meanNdcgAt10": 1.0,
+        "orderingSensitiveCaseCount": 0,
+        "meanOrderingSensitiveNdcgAt10": null
+      },
+      {
+        "corpusKind": "PlatformDoc",
+        "caseCount": 9,
+        "meanRecallAt5": 1.0,
+        "meanMrr": 1.0,
+        "meanNdcgAt10": 1.0,
+        "orderingSensitiveCaseCount": 1,
+        "meanOrderingSensitiveNdcgAt10": 1.0
+      },
+      {
+        "corpusKind": "PolicyPack",
+        "caseCount": 15,
+        "meanRecallAt5": 0.9333333333333333,
+        "meanMrr": 0.8,
+        "meanNdcgAt10": 0.8484707128874,
+        "orderingSensitiveCaseCount": 3,
+        "meanOrderingSensitiveNdcgAt10": 0.5151601323399654
+      },
+      {
+        "corpusKind": "PriorManifest",
+        "caseCount": 13,
+        "meanRecallAt5": 1.0,
+        "meanMrr": 1.0,
+        "meanNdcgAt10": 1.0,
+        "orderingSensitiveCaseCount": 0,
+        "meanOrderingSensitiveNdcgAt10": null
+      },
+      {
+        "corpusKind": "ReferenceArchitecture",
+        "caseCount": 6,
+        "meanRecallAt5": 1.0,
+        "meanMrr": 1.0,
+        "meanNdcgAt10": 1.0,
+        "orderingSensitiveCaseCount": 0,
+        "meanOrderingSensitiveNdcgAt10": null
+      }
+    ],
+    "cases": [
+      {
+        "id": "ir-pp-kv-01",
+        "corpusKind": "PolicyPack",
+        "recallAt5": 1.0,
+        "mrr": 1.0,
+        "ndcgAt10": 1.0,
+        "orderingSensitive": false
+      },
+      {
+        "id": "ir-pp-kv-02",
+        "corpusKind": "PolicyPack",
+        "recallAt5": 1.0,
+        "mrr": 1.0,
+        "ndcgAt10": 1.0,
+        "orderingSensitive": false
+      },
+      {
+        "id": "ir-pp-mi-01",
+        "corpusKind": "PolicyPack",
+        "recallAt5": 1.0,
+        "mrr": 1.0,
+        "ndcgAt10": 1.0,
+        "orderingSensitive": false
+      },
+      {
+        "id": "ir-pp-mi-02",
+        "corpusKind": "PolicyPack",
+        "recallAt5": 1.0,
+        "mrr": 1.0,
+        "ndcgAt10": 0.9197207891481876,
+        "orderingSensitive": false
+      },
+      {
+        "id": "ir-pp-pe-01",
+        "corpusKind": "PolicyPack",
+        "recallAt5": 1.0,
+        "mrr": 1.0,
+        "ndcgAt10": 1.0,
+        "orderingSensitive": false
+      },
+      {
+        "id": "ir-pp-pe-02",
+        "corpusKind": "PolicyPack",
+        "recallAt5": 1.0,
+        "mrr": 1.0,
+        "ndcgAt10": 1.0,
+        "orderingSensitive": false
+      },
+      {
+        "id": "ir-pp-dual-01",
+        "corpusKind": "PolicyPack",
+        "recallAt5": 0.5,
+        "mrr": 0.25,
+        "ndcgAt10": 0.4627870818679153,
+        "orderingSensitive": true
+      },
+      {
+        "id": "ir-pp-dual-02",
+        "corpusKind": "PolicyPack",
+        "recallAt5": 0.5,
+        "mrr": 0.25,
+        "ndcgAt10": 0.4627870818679153,
+        "orderingSensitive": true
+      },
+      {
+        "id": "ir-pp-triple",
+        "corpusKind": "PolicyPack",
+        "recallAt5": 1.0,
+        "mrr": 0.5,
+        "ndcgAt10": 0.6199062332840657,
+        "orderingSensitive": true
+      },
+      {
+        "id": "ir-pp-noise-guard",
+        "corpusKind": "PolicyPack",
+        "recallAt5": 1.0,
+        "mrr": 1.0,
+        "ndcgAt10": 1.0,
+        "orderingSensitive": false
+      },
+      {
+        "id": "ir-pm-run-01",
+        "corpusKind": "PriorManifest",
+        "recallAt5": 1.0,
+        "mrr": 1.0,
+        "ndcgAt10": 1.0,
+        "orderingSensitive": false
+      },
+      {
+        "id": "ir-pm-run-02",
+        "corpusKind": "PriorManifest",
+        "recallAt5": 1.0,
+        "mrr": 1.0,
+        "ndcgAt10": 1.0,
+        "orderingSensitive": false
+      },
+      {
+        "id": "ir-pm-run-03",
+        "corpusKind": "PriorManifest",
+        "recallAt5": 1.0,
+        "mrr": 1.0,
+        "ndcgAt10": 1.0,
+        "orderingSensitive": false
+      },
+      {
+        "id": "ir-pm-run-04",
+        "corpusKind": "PriorManifest",
+        "recallAt5": 1.0,
+        "mrr": 1.0,
+        "ndcgAt10": 1.0,
+        "orderingSensitive": false
+      },
+      {
+        "id": "ir-pm-pair-01",
+        "corpusKind": "PriorManifest",
+        "recallAt5": 1.0,
+        "mrr": 1.0,
+        "ndcgAt10": 1.0,
+        "orderingSensitive": false
+      },
+      {
+        "id": "ir-pm-pair-02",
+        "corpusKind": "PriorManifest",
+        "recallAt5": 1.0,
+        "mrr": 1.0,
+        "ndcgAt10": 1.0,
+        "orderingSensitive": false
+      },
+      {
+        "id": "ir-pm-noise",
+        "corpusKind": "PriorManifest",
+        "recallAt5": 1.0,
+        "mrr": 1.0,
+        "ndcgAt10": 1.0,
+        "orderingSensitive": false
+      },
+      {
+        "id": "ir-pm-cross-01",
+        "corpusKind": "PriorManifest",
+        "recallAt5": 1.0,
+        "mrr": 1.0,
+        "ndcgAt10": 1.0,
+        "orderingSensitive": false
+      },
+      {
+        "id": "ir-pm-cross-02",
+        "corpusKind": "PriorManifest",
+        "recallAt5": 1.0,
+        "mrr": 1.0,
+        "ndcgAt10": 1.0,
+        "orderingSensitive": false
+      },
+      {
+        "id": "ir-pm-cross-03",
+        "corpusKind": "PriorManifest",
+        "recallAt5": 1.0,
+        "mrr": 1.0,
+        "ndcgAt10": 1.0,
+        "orderingSensitive": false
+      },
+      {
+        "id": "ir-pd-arch-01",
+        "corpusKind": "PlatformDoc",
+        "recallAt5": 1.0,
+        "mrr": 1.0,
+        "ndcgAt10": 1.0,
+        "orderingSensitive": false
+      },
+      {
+        "id": "ir-pd-arch-02",
+        "corpusKind": "PlatformDoc",
+        "recallAt5": 1.0,
+        "mrr": 1.0,
+        "ndcgAt10": 1.0,
+        "orderingSensitive": false
+      },
+      {
+        "id": "ir-pd-arch-03",
+        "corpusKind": "PlatformDoc",
+        "recallAt5": 1.0,
+        "mrr": 1.0,
+        "ndcgAt10": 1.0,
+        "orderingSensitive": false
+      },
+      {
+        "id": "ir-pd-pair-01",
+        "corpusKind": "PlatformDoc",
+        "recallAt5": 1.0,
+        "mrr": 1.0,
+        "ndcgAt10": 1.0,
+        "orderingSensitive": true
+      },
+      {
+        "id": "ir-pd-pair-02",
+        "corpusKind": "PlatformDoc",
+        "recallAt5": 1.0,
+        "mrr": 1.0,
+        "ndcgAt10": 1.0,
+        "orderingSensitive": false
+      },
+      {
+        "id": "ir-pd-noise",
+        "corpusKind": "PlatformDoc",
+        "recallAt5": 1.0,
+        "mrr": 1.0,
+        "ndcgAt10": 1.0,
+        "orderingSensitive": false
+      },
+      {
+        "id": "ir-pd-tenant-only-pp",
+        "corpusKind": "PolicyPack",
+        "recallAt5": 1.0,
+        "mrr": 0.5,
+        "ndcgAt10": 0.6309297535714575,
+        "orderingSensitive": false
+      },
+      {
+        "id": "ir-pd-tenant-only-pm",
+        "corpusKind": "PriorManifest",
+        "recallAt5": 1.0,
+        "mrr": 1.0,
+        "ndcgAt10": 1.0,
+        "orderingSensitive": false
+      },
+      {
+        "id": "ir-mixed-scope-01",
+        "corpusKind": "PlatformDoc",
+        "recallAt5": 1.0,
+        "mrr": 1.0,
+        "ndcgAt10": 1.0,
+        "orderingSensitive": false
+      },
+      {
+        "id": "ir-mixed-scope-02",
+        "corpusKind": "PolicyPack",
+        "recallAt5": 1.0,
+        "mrr": 1.0,
+        "ndcgAt10": 1.0,
+        "orderingSensitive": false
+      },
+      {
+        "id": "ir-mixed-scope-03",
+        "corpusKind": "PriorManifest",
+        "recallAt5": 1.0,
+        "mrr": 1.0,
+        "ndcgAt10": 1.0,
+        "orderingSensitive": false
+      },
+      {
+        "id": "ir-ar-app-01",
+        "corpusKind": "AzureRetail",
+        "recallAt5": 1.0,
+        "mrr": 1.0,
+        "ndcgAt10": 1.0,
+        "orderingSensitive": false
+      },
+      {
+        "id": "ir-ar-app-02",
+        "corpusKind": "AzureRetail",
+        "recallAt5": 1.0,
+        "mrr": 1.0,
+        "ndcgAt10": 0.8772153153380493,
+        "orderingSensitive": false
+      },
+      {
+        "id": "ir-ar-sql-01",
+        "corpusKind": "AzureRetail",
+        "recallAt5": 1.0,
+        "mrr": 1.0,
+        "ndcgAt10": 1.0,
+        "orderingSensitive": false
+      },
+      {
+        "id": "ir-ar-fd-01",
+        "corpusKind": "AzureRetail",
+        "recallAt5": 1.0,
+        "mrr": 1.0,
+        "ndcgAt10": 1.0,
+        "orderingSensitive": false
+      },
+      {
+        "id": "ir-ar-noise",
+        "corpusKind": "AzureRetail",
+        "recallAt5": 1.0,
+        "mrr": 1.0,
+        "ndcgAt10": 1.0,
+        "orderingSensitive": false
+      },
+      {
+        "id": "ir-demo-01",
+        "corpusKind": "DemoDerived",
+        "recallAt5": 1.0,
+        "mrr": 1.0,
+        "ndcgAt10": 1.0,
+        "orderingSensitive": false
+      },
+      {
+        "id": "ir-demo-02",
+        "corpusKind": "DemoDerived",
+        "recallAt5": 1.0,
+        "mrr": 1.0,
+        "ndcgAt10": 1.0,
+        "orderingSensitive": false
+      },
+      {
+        "id": "ir-cust-01",
+        "corpusKind": "CustomerProvided",
+        "recallAt5": 1.0,
+        "mrr": 1.0,
+        "ndcgAt10": 1.0,
+        "orderingSensitive": false
+      },
+      {
+        "id": "ir-cust-02",
+        "corpusKind": "CustomerProvided",
+        "recallAt5": 1.0,
+        "mrr": 1.0,
+        "ndcgAt10": 1.0,
+        "orderingSensitive": false
+      },
+      {
+        "id": "ir-tenant-b-pp",
+        "corpusKind": "PolicyPack",
+        "recallAt5": 1.0,
+        "mrr": 1.0,
+        "ndcgAt10": 1.0,
+        "orderingSensitive": false
+      },
+      {
+        "id": "ir-tenant-a-not-b",
+        "corpusKind": "PolicyPack",
+        "recallAt5": 1.0,
+        "mrr": 0.5,
+        "ndcgAt10": 0.6309297535714575,
+        "orderingSensitive": false
+      },
+      {
+        "id": "ir-pd-lib-01",
+        "corpusKind": "PlatformDoc",
+        "recallAt5": 1.0,
+        "mrr": 1.0,
+        "ndcgAt10": 1.0,
+        "orderingSensitive": false
+      },
+      {
+        "id": "ir-ar-pp-mixed",
+        "corpusKind": "AzureRetail",
+        "recallAt5": 1.0,
+        "mrr": 0.3333333333333333,
+        "ndcgAt10": 0.5706417189553201,
+        "orderingSensitive": false
+      },
+      {
+        "id": "ir-pp-kv-03",
+        "corpusKind": "PolicyPack",
+        "recallAt5": 1.0,
+        "mrr": 1.0,
+        "ndcgAt10": 1.0,
+        "orderingSensitive": false
+      },
+      {
+        "id": "ir-pm-run-05",
+        "corpusKind": "PriorManifest",
+        "recallAt5": 1.0,
+        "mrr": 1.0,
+        "ndcgAt10": 1.0,
+        "orderingSensitive": false
+      },
+      {
+        "id": "ir-pd-arch-04",
+        "corpusKind": "PlatformDoc",
+        "recallAt5": 1.0,
+        "mrr": 1.0,
+        "ndcgAt10": 1.0,
+        "orderingSensitive": false
+      },
+      {
+        "id": "ir-ra-ms-01",
+        "corpusKind": "ReferenceArchitecture",
+        "recallAt5": 1.0,
+        "mrr": 1.0,
+        "ndcgAt10": 1.0,
+        "orderingSensitive": false
+      },
+      {
+        "id": "ir-ra-ms-02",
+        "corpusKind": "ReferenceArchitecture",
+        "recallAt5": 1.0,
+        "mrr": 1.0,
+        "ndcgAt10": 1.0,
+        "orderingSensitive": false
+      },
+      {
+        "id": "ir-ra-3tier-01",
+        "corpusKind": "ReferenceArchitecture",
+        "recallAt5": 1.0,
+        "mrr": 1.0,
+        "ndcgAt10": 1.0,
+        "orderingSensitive": false
+      },
+      {
+        "id": "ir-ra-dr-01",
+        "corpusKind": "ReferenceArchitecture",
+        "recallAt5": 1.0,
+        "mrr": 1.0,
+        "ndcgAt10": 1.0,
+        "orderingSensitive": false
+      },
+      {
+        "id": "ir-ra-platform-scope",
+        "corpusKind": "ReferenceArchitecture",
+        "recallAt5": 1.0,
+        "mrr": 1.0,
+        "ndcgAt10": 1.0,
+        "orderingSensitive": false
+      },
+      {
+        "id": "ir-ra-noise",
+        "corpusKind": "ReferenceArchitecture",
+        "recallAt5": 1.0,
+        "mrr": 1.0,
+        "ndcgAt10": 1.0,
+        "orderingSensitive": false
+      }
+    ]
+  },
+  "liveModelFaithfulnessSummary": {
+    "formatVersion": "1.0",
+    "generatedUtc": "2026-06-27T16:33:56.090571+00:00",
+    "program": "rag-live-model-faithfulness-signal",
+    "disposition": "PASS",
+    "configuredExemplarCount": 18,
+    "positiveScoredCount": 18,
+    "p50": 0.72,
+    "p50Floor": 0.65,
+    "absoluteFloor": 0.5,
+    "adversarialCeiling": 0.4,
+    "positiveScenarioCount": 18,
+    "adversarialScenarioCount": 6,
+    "llmFaithfulnessSummary": {
+      "rubricVersion": "faithfulness-judge-system.v1.0.0",
+      "p50": 0.72,
+      "p50Floor": 0.65,
+      "absoluteFloor": 0.5,
+      "adversarialCeiling": 0.4,
+      "positiveScenarioCount": 18,
+      "positiveScoredCount": 18,
+      "adversarialScenarioCount": 6,
+      "positiveRows": [
+        {
+          "scenarioId": "corpus-real-mode-smoke",
+          "mode": "real",
+          "llmFaithfulnessScore": 0.72,
+          "supportRatio": 0.0,
+          "gateOutcome": "accepted",
+          "cohort": "positive-readiness"
+        },
+        {
+          "scenarioId": "corpus-real-mode-cost",
+          "mode": "real",
+          "llmFaithfulnessScore": 0.74,
+          "supportRatio": 0.0,
+          "gateOutcome": "accepted",
+          "cohort": "positive-readiness"
+        },
+        {
+          "scenarioId": "corpus-real-mode-compliance",
+          "mode": "real",
+          "llmFaithfulnessScore": 0.71,
+          "supportRatio": 0.0,
+          "gateOutcome": "accepted",
+          "cohort": "positive-readiness"
+        },
+        {
+          "scenarioId": "corpus-real-mode-critic",
+          "mode": "real",
+          "llmFaithfulnessScore": 0.73,
+          "supportRatio": 0.0,
+          "gateOutcome": "accepted",
+          "cohort": "positive-readiness"
+        },
+        {
+          "scenarioId": "corpus-real-mode-three-tier",
+          "mode": "real",
+          "llmFaithfulnessScore": 0.7,
+          "supportRatio": 0.0,
+          "gateOutcome": "accepted",
+          "cohort": "positive-readiness"
+        },
+        {
+          "scenarioId": "corpus-real-mode-microservices",
+          "mode": "real",
+          "llmFaithfulnessScore": 0.76,
+          "supportRatio": 0.0,
+          "gateOutcome": "accepted",
+          "cohort": "positive-readiness"
+        },
+        {
+          "scenarioId": "corpus-real-mode-database-backup",
+          "mode": "real",
+          "llmFaithfulnessScore": 0.69,
+          "supportRatio": 0.0,
+          "gateOutcome": "accepted",
+          "cohort": "positive-readiness"
+        },
+        {
+          "scenarioId": "corpus-real-mode-overprovisioned-vm",
+          "mode": "real",
+          "llmFaithfulnessScore": 0.68,
+          "supportRatio": 0.0,
+          "gateOutcome": "accepted",
+          "cohort": "positive-readiness"
+        },
+        {
+          "scenarioId": "corpus-real-mode-multi-region",
+          "mode": "real",
+          "llmFaithfulnessScore": 0.75,
+          "supportRatio": 0.0,
+          "gateOutcome": "accepted",
+          "cohort": "positive-readiness"
+        },
+        {
+          "scenarioId": "corpus-real-mode-azure-web-app",
+          "mode": "real",
+          "llmFaithfulnessScore": 0.72,
+          "supportRatio": 0.0,
+          "gateOutcome": "accepted",
+          "cohort": "positive-readiness"
+        },
+        {
+          "scenarioId": "corpus-real-mode-cloud-migration-lift-shift",
+          "mode": "real",
+          "llmFaithfulnessScore": 0.71,
+          "supportRatio": 0.0,
+          "gateOutcome": "accepted",
+          "cohort": "positive-readiness"
+        },
+        {
+          "scenarioId": "corpus-real-mode-greenfield-microservices",
+          "mode": "real",
+          "llmFaithfulnessScore": 0.73,
+          "supportRatio": 0.0,
+          "gateOutcome": "accepted",
+          "cohort": "positive-readiness"
+        },
+        {
+          "scenarioId": "corpus-real-mode-healthcare-hipaa",
+          "mode": "real",
+          "llmFaithfulnessScore": 0.77,
+          "supportRatio": 0.0,
+          "gateOutcome": "accepted",
+          "cohort": "positive-readiness"
+        },
+        {
+          "scenarioId": "corpus-real-mode-finops-existing-azure",
+          "mode": "real",
+          "llmFaithfulnessScore": 0.7,
+          "supportRatio": 0.0,
+          "gateOutcome": "accepted",
+          "cohort": "positive-readiness"
+        },
+        {
+          "scenarioId": "corpus-real-mode-event-driven",
+          "mode": "real",
+          "llmFaithfulnessScore": 0.74,
+          "supportRatio": 0.0,
+          "gateOutcome": "accepted",
+          "cohort": "positive-readiness"
+        },
+        {
+          "scenarioId": "corpus-real-mode-multi-region-active-active",
+          "mode": "real",
+          "llmFaithfulnessScore": 0.72,
+          "supportRatio": 0.0,
+          "gateOutcome": "accepted",
+          "cohort": "positive-readiness"
+        },
+        {
+          "scenarioId": "corpus-real-mode-data-platform-analytics",
+          "mode": "real",
+          "llmFaithfulnessScore": 0.71,
+          "supportRatio": 0.0,
+          "gateOutcome": "accepted",
+          "cohort": "positive-readiness"
+        },
+        {
+          "scenarioId": "corpus-real-mode-ai-ml-inference",
+          "mode": "real",
+          "llmFaithfulnessScore": 0.73,
+          "supportRatio": 0.0,
+          "gateOutcome": "accepted",
+          "cohort": "positive-readiness"
+        }
+      ],
+      "adversarialRows": [
+        {
+          "scenarioId": "corpus-adv-hallucination-detection",
+          "mode": "simulator",
+          "llmFaithfulnessScore": 0.22,
+          "supportRatio": 0.0,
+          "gateOutcome": "warned",
+          "cohort": "adversarial"
+        },
+        {
+          "scenarioId": "corpus-adv-citation-mismatch",
+          "mode": "simulator",
+          "llmFaithfulnessScore": 0.33,
+          "supportRatio": 0.0,
+          "gateOutcome": "warned",
+          "cohort": "adversarial"
+        },
+        {
+          "scenarioId": "corpus-adv-contradictory-requirements",
+          "mode": "simulator",
+          "llmFaithfulnessScore": 0.3,
+          "supportRatio": 0.0,
+          "gateOutcome": "accepted",
+          "cohort": "adversarial"
+        },
+        {
+          "scenarioId": "corpus-adv-oversized-context",
+          "mode": "simulator",
+          "llmFaithfulnessScore": 0.35,
+          "supportRatio": 0.0,
+          "gateOutcome": "accepted",
+          "cohort": "adversarial"
+        },
+        {
+          "scenarioId": "corpus-adv-unsupported-roi-claim",
+          "mode": "simulator",
+          "llmFaithfulnessScore": 0.27,
+          "supportRatio": 0.0,
+          "gateOutcome": "warned",
+          "cohort": "adversarial"
+        },
+        {
+          "scenarioId": "corpus-adv-out-of-domain-request",
+          "mode": "simulator",
+          "llmFaithfulnessScore": 0.38,
+          "supportRatio": 0.0,
+          "gateOutcome": "warned",
+          "cohort": "adversarial"
+        }
+      ]
+    },
+    "failures": [],
+    "interpretation": "Phase B scores come from committed real-mode exemplars with semanticScore.llmFaithfulnessScore \u2014 not a live deployment-model run in this job."
+  },
+  "rollupSummary": null,
+  "interpretation": "Offline golden fixtures plus optional committed real-mode LLM faithfulness signal \u2014 does not invoke live models unless a separate golden-cohort live job runs."
+}

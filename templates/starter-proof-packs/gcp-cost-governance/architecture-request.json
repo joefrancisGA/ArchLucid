@@ -1,0 +1,47 @@
+{
+  "requestId": "starter-example-finops-gov-001",
+  "systemName": "ExampleCorp.FinOps.FolderHierarchy",
+  "description": "Example Corp (fictional) runs multi-project GCP folder hierarchies with shared hub networking, workload folders, and a FinOps review ask: label governance, budget alerts, committed use discount posture, and organization policy constraints for encryption and public network restrictions.",
+  "environment": "prod",
+  "cloudProvider": "Gcp",
+  "constraints": [
+    "Deny public IPs on sensitive services via organization policy at folder scope (design intent)",
+    "Mandatory resource labels: cost-center, environment, workload-owner before production promotion",
+    "Hub egress through Cloud NAT; spoke-to-spoke via hub (illustrative)"
+  ],
+  "requiredCapabilities": [
+    "hub-vpc-cloud-nat",
+    "workload-folder-app-landing",
+    "workload-folder-data-landing",
+    "billing-export-bigquery"
+  ],
+  "assumptions": [
+    "Single Google Cloud organization; folder hierarchy already exists for pilot story",
+    "No third-party FinOps tool in scope — GCP-native billing export and Recommender signals only in this starter"
+  ],
+  "priorManifestVersion": null,
+  "inlineRequirements": [
+    "Review should highlight observability for cost anomalies and governance drift (labels, region) without asserting measured savings",
+    "Call out FinOps maturity as design hooks: budgets, anomaly detection, committed use discount posture — not dollar outcomes"
+  ],
+  "documents": [
+    {
+      "name": "starter-disclaimer.txt",
+      "contentType": "text/plain",
+      "content": "Synthetic folder hierarchy / FinOps starter. No real costs or projects. No ROI claims."
+    }
+  ],
+  "policyReferences": [
+    "starter:gcp-cost-governance",
+    "assign-vertical-pack:financial-services"
+  ],
+  "topologyHints": [
+    "Folders map to platform vs workload; organization policies inherited with override exceptions documented",
+    "Billing export to BigQuery with dataset access restricted to FinOps roles"
+  ],
+  "securityBaselineHints": [
+    "Google Cloud Architecture Framework alignment as **review vocabulary**",
+    "Encryption defaults and key custody called out for data landing folder"
+  ],
+  "infrastructureDeclarations": []
+}

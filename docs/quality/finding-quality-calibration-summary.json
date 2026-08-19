@@ -1,0 +1,153 @@
+{
+  "generatedUtc": "2026-08-17T17:21:52.548326+00:00",
+  "disclaimer": "Engineering calibration rollup \u2014 not SOC attestation or pack-as-certification.",
+  "baselineFixturesScanned": 36,
+  "labeledPolicyPacks": 0,
+  "insufficientLabels": 36,
+  "perPolicyPack": {
+    "corpus-adv-citation-mismatch": {
+      "status": "insufficient-labels",
+      "note": "Baseline has no policyPackId \u2014 precision/coverage not computed."
+    },
+    "corpus-adv-contradictory-requirements": {
+      "status": "insufficient-labels",
+      "note": "Baseline has no policyPackId \u2014 precision/coverage not computed."
+    },
+    "corpus-adv-fabricated-sku": {
+      "status": "insufficient-labels",
+      "note": "Baseline has no policyPackId \u2014 precision/coverage not computed."
+    },
+    "corpus-adv-hallucination-detection": {
+      "status": "insufficient-labels",
+      "note": "Baseline has no policyPackId \u2014 precision/coverage not computed."
+    },
+    "corpus-adv-invented-compliance-framework": {
+      "status": "insufficient-labels",
+      "note": "Baseline has no policyPackId \u2014 precision/coverage not computed."
+    },
+    "corpus-adv-out-of-domain-request": {
+      "status": "insufficient-labels",
+      "note": "Baseline has no policyPackId \u2014 precision/coverage not computed."
+    },
+    "corpus-adv-oversized-context": {
+      "status": "insufficient-labels",
+      "note": "Baseline has no policyPackId \u2014 precision/coverage not computed."
+    },
+    "corpus-adv-phantom-dependency": {
+      "status": "insufficient-labels",
+      "note": "Baseline has no policyPackId \u2014 precision/coverage not computed."
+    },
+    "corpus-adv-unsupported-roi-claim": {
+      "status": "insufficient-labels",
+      "note": "Baseline has no policyPackId \u2014 precision/coverage not computed."
+    },
+    "corpus-azure-saas-readiness": {
+      "status": "insufficient-labels",
+      "note": "Baseline has no policyPackId \u2014 precision/coverage not computed."
+    },
+    "corpus-azure-web-app": {
+      "status": "insufficient-labels",
+      "note": "Baseline has no policyPackId \u2014 precision/coverage not computed."
+    },
+    "corpus-b2b-api-integration": {
+      "status": "insufficient-labels",
+      "note": "Baseline has no policyPackId \u2014 precision/coverage not computed."
+    },
+    "corpus-citation-forgery": {
+      "status": "insufficient-labels",
+      "note": "Baseline has no policyPackId \u2014 precision/coverage not computed."
+    },
+    "corpus-contradictory-manifest": {
+      "status": "insufficient-labels",
+      "note": "Baseline has no policyPackId \u2014 precision/coverage not computed."
+    },
+    "corpus-cost-constrained-modernization": {
+      "status": "insufficient-labels",
+      "note": "Baseline has no policyPackId \u2014 precision/coverage not computed."
+    },
+    "corpus-governance-heavy-review": {
+      "status": "insufficient-labels",
+      "note": "Baseline has no policyPackId \u2014 precision/coverage not computed."
+    },
+    "corpus-hallucinated-service": {
+      "status": "insufficient-labels",
+      "note": "Baseline has no policyPackId \u2014 precision/coverage not computed."
+    },
+    "corpus-real-mode-ai-ml-inference": {
+      "status": "insufficient-labels",
+      "note": "Baseline has no policyPackId \u2014 precision/coverage not computed."
+    },
+    "corpus-real-mode-azure-web-app": {
+      "status": "insufficient-labels",
+      "note": "Baseline has no policyPackId \u2014 precision/coverage not computed."
+    },
+    "corpus-real-mode-cloud-migration-lift-shift": {
+      "status": "insufficient-labels",
+      "note": "Baseline has no policyPackId \u2014 precision/coverage not computed."
+    },
+    "corpus-real-mode-compliance": {
+      "status": "insufficient-labels",
+      "note": "Baseline has no policyPackId \u2014 precision/coverage not computed."
+    },
+    "corpus-real-mode-cost": {
+      "status": "insufficient-labels",
+      "note": "Baseline has no policyPackId \u2014 precision/coverage not computed."
+    },
+    "corpus-real-mode-critic": {
+      "status": "insufficient-labels",
+      "note": "Baseline has no policyPackId \u2014 precision/coverage not computed."
+    },
+    "corpus-real-mode-data-platform-analytics": {
+      "status": "insufficient-labels",
+      "note": "Baseline has no policyPackId \u2014 precision/coverage not computed."
+    },
+    "corpus-real-mode-database-backup": {
+      "status": "insufficient-labels",
+      "note": "Baseline has no policyPackId \u2014 precision/coverage not computed."
+    },
+    "corpus-real-mode-event-driven": {
+      "status": "insufficient-labels",
+      "note": "Baseline has no policyPackId \u2014 precision/coverage not computed."
+    },
+    "corpus-real-mode-finops-existing-azure": {
+      "status": "insufficient-labels",
+      "note": "Baseline has no policyPackId \u2014 precision/coverage not computed."
+    },
+    "corpus-real-mode-greenfield-microservices": {
+      "status": "insufficient-labels",
+      "note": "Baseline has no policyPackId \u2014 precision/coverage not computed."
+    },
+    "corpus-real-mode-healthcare-hipaa": {
+      "status": "insufficient-labels",
+      "note": "Baseline has no policyPackId \u2014 precision/coverage not computed."
+    },
+    "corpus-real-mode-microservices": {
+      "status": "insufficient-labels",
+      "note": "Baseline has no policyPackId \u2014 precision/coverage not computed."
+    },
+    "corpus-real-mode-multi-region-active-active": {
+      "status": "insufficient-labels",
+      "note": "Baseline has no policyPackId \u2014 precision/coverage not computed."
+    },
+    "corpus-real-mode-multi-region": {
+      "status": "insufficient-labels",
+      "note": "Baseline has no policyPackId \u2014 precision/coverage not computed."
+    },
+    "corpus-real-mode-overprovisioned-vm": {
+      "status": "insufficient-labels",
+      "note": "Baseline has no policyPackId \u2014 precision/coverage not computed."
+    },
+    "corpus-real-mode-smoke": {
+      "status": "insufficient-labels",
+      "note": "Baseline has no policyPackId \u2014 precision/coverage not computed."
+    },
+    "corpus-real-mode-three-tier": {
+      "status": "insufficient-labels",
+      "note": "Baseline has no policyPackId \u2014 precision/coverage not computed."
+    },
+    "corpus-regulated-data-workflow": {
+      "status": "insufficient-labels",
+      "note": "Baseline has no policyPackId \u2014 precision/coverage not computed."
+    }
+  }
+}

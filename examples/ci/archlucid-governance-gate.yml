@@ -1,0 +1,115 @@
+# Reference GitHub Actions workflow — ArchLucid CI/CD governance gate.
+# Copy to .github/workflows/archlucid-governance-gate.yml and configure secrets.
+#
+# Fails the check when:
+#   - Run status is ExecutionCompletedQualityRejected (PilotStrict quality gate)
+#   - POST .../commit returns 409 governance-pre-commit-blocked (PreCommitGateResult)
+#   - Post-commit proofPackageCompleteness indicates PilotStrict / sponsor-send HOLD
+
+name: ArchLucid governance gate
+
+on:
+  pull_request:
+    paths:
+      - 'docs/architecture/**'
+      - 'infra/**'
+      - 'terraform/**'
+      - '.archlucid/**'
+      - 'examples/ci/architecture-request.ci.json'
+  workflow_dispatch:
+
+concurrency:
+  group: archlucid-governance-gate-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pull-requests: write
+  statuses: write
+
+env:
+  ARCHLUCID_API_URL: ${{ secrets.ARCHLUCID_API_URL }}
+  ARCHLUCID_API_KEY: ${{ secrets.ARCHLUCID_API_KEY }}
+  ARCHLUCID_UI_BASE_URL: ${{ vars.ARCHLUCID_UI_BASE_URL }}
+  ARCHLUCID_REQUEST_FILE: .archlucid/architecture-request.json
+  ARCHLUCID_CORRELATION_ID: gh-pr-${{ github.event.pull_request.number || github.run_id }}
+
+jobs:
+  governance-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Prepare architecture request file
+        run: |
+          set -euo pipefail
+          if [[ ! -f "$ARCHLUCID_REQUEST_FILE" ]]; then
+            echo "Using repository template examples/ci/architecture-request.ci.json"
+            mkdir -p .archlucid
+            cp examples/ci/architecture-request.ci.json "$ARCHLUCID_REQUEST_FILE"
+          fi
+          PR_TITLE="${{ github.event.pull_request.title }}"
+          PR_BODY="${{ github.event.pull_request.body }}"
+          if [[ -n "$PR_TITLE" ]]; then
+            export PR_TITLE PR_BODY
+            jq --arg title "$PR_TITLE" --arg body "${PR_BODY:-Automated CI governance gate review.}" \
+              '.description = ($title + " — " + $body)' "$ARCHLUCID_REQUEST_FILE" > "$ARCHLUCID_REQUEST_FILE.tmp"
+            mv "$ARCHLUCID_REQUEST_FILE.tmp" "$ARCHLUCID_REQUEST_FILE"
+          fi
+
+      - name: Run ArchLucid governance gate
+        id: gate
+        run: |
+          set -euo pipefail
+          chmod +x examples/ci/archlucid-governance-gate.sh
+          set +e
+          examples/ci/archlucid-governance-gate.sh | tee gate.log
+          EXIT=$?
+          set -e
+          RUN_ID="$(grep -E '^ArchLucid run id:' gate.log | tail -1 | awk '{print $NF}' || true)"
+          echo "run_id=$RUN_ID" >> "$GITHUB_OUTPUT"
+          echo "exit_code=$EXIT" >> "$GITHUB_OUTPUT"
+          exit "$EXIT"
+
+      - name: Publish job summary
+        if: always()
+        run: |
+          {
+            echo "## ArchLucid governance gate"
+            echo
+            if [[ -n "${{ steps.gate.outputs.run_id }}" ]]; then
+              echo "**Run id:** \`${{ steps.gate.outputs.run_id }}\`"
+              if [[ -n "${ARCHLUCID_UI_BASE_URL}" ]]; then
+                echo "**Review:** ${ARCHLUCID_UI_BASE_URL%/}/reviews/${{ steps.gate.outputs.run_id }}"
+              fi
+            fi
+            echo
+            echo '```'
+            tail -n 40 gate.log || true
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Comment on pull request
+        if: github.event_name == 'pull_request' && always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const runId = '${{ steps.gate.outputs.run_id }}';
+            const exitCode = Number('${{ steps.gate.outputs.exit_code }}');
+            const ui = process.env.ARCHLUCID_UI_BASE_URL || '';
+            let body = '## ArchLucid governance gate\n\n';
+            if (runId) {
+              body += `**Run id:** \`${runId}\`\n`;
+              if (ui) body += `**Review:** ${ui.replace(/\/$/, '')}/reviews/${runId}\n`;
+            }
+            body += exitCode === 0
+              ? '\n**Result:** PASS — pre-commit governance and PilotStrict checks cleared.\n'
+              : '\n**Result:** FAIL — blocked by governance pre-commit gate or PilotStrict HOLD. See workflow logs.\n';
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body,
+            });

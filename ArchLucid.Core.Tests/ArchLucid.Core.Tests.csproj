@@ -1,0 +1,61 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <AssemblyName>ArchLucid.Core.Tests</AssemblyName>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+    <RootNamespace>ArchLucid.Core.Tests</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="coverlet.collector" />
+    <PackageReference Include="FluentAssertions" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Options" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="Moq" />
+    <PackageReference Include="xunit" />
+    <PackageReference Include="Xunit.SkippableFact" />
+    <PackageReference Include="xunit.runner.visualstudio" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ArchLucid.Core\ArchLucid.Core.csproj" />
+    <ProjectReference Include="..\ArchLucid.TestSupport\ArchLucid.TestSupport.csproj" />
+    <ProjectReference Include="..\ArchLucid.Host.Core\ArchLucid.Host.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="..\docs\library\CONFIGURATION_REFERENCE.md">
+      <Link>docs\library\CONFIGURATION_REFERENCE.md</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\docs\library\INTEGRATION_EVENTS_AND_WEBHOOKS.md">
+      <Link>docs\library\INTEGRATION_EVENTS_AND_WEBHOOKS.md</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Include="..\schemas\integration-events\*.v1.schema.json">
+      <Link>schemas\integration-events\%(Filename)%(Extension)</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <Content Include="..\schemas\integration-events\catalog.json">
+      <Link>schemas\integration-events\%(Filename)%(Extension)</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="ArchLucid.Core" />
+    <Using Include="ArchLucid.Core.Manifest" />
+    <Using Include="ArchLucid.TestSupport.Diagnostics" />
+  </ItemGroup>
+
+</Project>

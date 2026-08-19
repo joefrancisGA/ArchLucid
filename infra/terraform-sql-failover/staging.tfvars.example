@@ -1,0 +1,35 @@
+# Staging-oriented example for TB-905 drill-window SQL failover.
+# Merge into terraform.tfvars or pass explicitly, e.g.:
+#   terraform apply -var-file=staging.tfvars.example
+
+posture_tier              = "staging"
+enable_sql_failover_group = true
+
+failover_group_name            = "archlucid-staging-sqlfg"
+primary_sql_server_resource_id = "/subscriptions/<sub-id>/resourceGroups/rg-sql-staging-primary/providers/Microsoft.Sql/servers/sql-staging-primary"
+partner_sql_server_resource_id = "/subscriptions/<sub-id>/resourceGroups/rg-sql-staging-secondary/providers/Microsoft.Sql/servers/sql-staging-secondary"
+
+database_resource_ids = [
+  "/subscriptions/<sub-id>/resourceGroups/rg-sql-staging-primary/providers/Microsoft.Sql/servers/sql-staging-primary/databases/ArchLucid",
+]
+
+read_write_failover_mode         = "Manual"
+read_write_grace_minutes         = 60
+readonly_endpoint_failover_enabled = true
+
+enable_sql_consumption_budget = true
+sql_consumption_budget_amount = 800
+sql_consumption_budget_contact_emails = ["finops@example.com"]
+sql_consumption_budget_time_period_start = "2026-04-01T00:00:00Z"
+
+tags = {
+  Environment = "staging"
+  Workload    = "archlucid"
+}
+
+# Outside the drill window, disable the failover group and add this waiver instead:
+# enable_sql_failover_group = false
+# posture_waivers = [{
+#   id     = "staging-sql-failover-drill-window"
+#   reason = "SQL failover group enabled only during scheduled geo-failover drills (TB-905)."
+# }]

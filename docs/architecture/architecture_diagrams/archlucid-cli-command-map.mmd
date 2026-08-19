@@ -1,0 +1,10 @@
+flowchart LR
+  CLI["ArchLucid.Cli"] --> NEW["new / dev up"]
+  CLI --> RUN["run status submit commit seed"]
+  CLI --> ART["artifacts"]
+  CLI --> CMP["comparisons list replay drift"]
+  CLI --> GRAPH["graph export mermaid|graphml"]
+  RUN --> API["ArchLucid.Api HTTPS"]
+  ART --> API
+  CMP --> API
+  GRAPH --> API

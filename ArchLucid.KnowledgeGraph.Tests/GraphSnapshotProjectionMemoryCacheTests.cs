@@ -1,0 +1,224 @@
+using ArchLucid.Contracts.Persistence.Graph;
+using ArchLucid.Core.Scoping;
+using ArchLucid.KnowledgeGraph.Caching;
+using ArchLucid.KnowledgeGraph.Configuration;
+using ArchLucid.KnowledgeGraph.Interfaces;
+using ArchLucid.KnowledgeGraph.Models;
+
+using FluentAssertions;
+
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Options;
+
+using Moq;
+
+namespace ArchLucid.KnowledgeGraph.Tests;
+[Trait("Category", "Unit")]
+
+/// <summary><see cref="GraphSnapshotProjectionMemoryCache" /> exercises read-through + invalidation semantics.</summary>
+public sealed class GraphSnapshotProjectionMemoryCacheTests
+{
+    [Fact]
+    public async Task GetOrLoadAsync_hits_store_once_for_cached_projection()
+    {
+        IMemoryCache backing = new MemoryCache(new MemoryCacheOptions());
+        KnowledgeGraphProjectionCacheOptions options = new()
+        {
+            Enabled = true,
+            AbsoluteExpirationSeconds = 300,
+        };
+
+        Mock<IOptionsMonitor<KnowledgeGraphProjectionCacheOptions>> opts = new();
+        opts.Setup(m => m.CurrentValue).Returns(options);
+
+        IGraphSnapshotProjectionCache sut =
+            new GraphSnapshotProjectionMemoryCache(backing, opts.Object);
+
+        ScopeContext scope = CreateScope();
+        Guid runId = Guid.NewGuid();
+        Guid graphSnapshotId = Guid.NewGuid();
+        GraphSnapshot materialized = new()
+        {
+            GraphSnapshotId = graphSnapshotId,
+            RunId = runId,
+            ContextSnapshotId = Guid.NewGuid(),
+            CreatedUtc = TimeProvider.System.UtcNowDateTime()
+        };
+
+        int loadCount = 0;
+
+        GraphSnapshot? first =
+            await sut.GetOrLoadAsync(scope, runId, graphSnapshotId, Loader, CancellationToken.None);
+        GraphSnapshot? second =
+            await sut.GetOrLoadAsync(scope, runId, graphSnapshotId, Loader, CancellationToken.None);
+
+        loadCount.Should().Be(1);
+        first.Should().NotBeNull();
+        second.Should().BeSameAs(first);
+        return;
+
+        Task<GraphSnapshot?> Loader(CancellationToken _)
+        {
+            loadCount++;
+            return Task.FromResult<GraphSnapshot?>(materialized);
+        }
+    }
+
+    [Fact]
+    public async Task GetOrLoadAsync_never_caches_null_projection()
+    {
+        IMemoryCache backing = new MemoryCache(new MemoryCacheOptions());
+
+        Mock<IOptionsMonitor<KnowledgeGraphProjectionCacheOptions>> opts = new();
+        opts.Setup(m => m.CurrentValue)
+            .Returns(new KnowledgeGraphProjectionCacheOptions { Enabled = true });
+
+        GraphSnapshotProjectionMemoryCache sut =
+            new(backing, opts.Object);
+
+        ScopeContext scope = CreateScope();
+        Guid runId = Guid.NewGuid();
+        Guid graphSnapshotId = Guid.NewGuid();
+        int loadCount = 0;
+
+        GraphSnapshot? first = await sut.GetOrLoadAsync(scope, runId, graphSnapshotId, Loader, CancellationToken.None);
+        GraphSnapshot? second = await sut.GetOrLoadAsync(scope, runId, graphSnapshotId, Loader, CancellationToken.None);
+
+        first.Should().BeNull();
+        second.Should().BeNull();
+        loadCount.Should().Be(2);
+        return;
+
+        Task<GraphSnapshot?> Loader(CancellationToken _)
+        {
+            loadCount++;
+
+            return Task.FromResult<GraphSnapshot?>(null);
+        }
+    }
+
+    [Fact]
+    public void Invalidate_evicts_projection_entry()
+    {
+        IMemoryCache backing = new MemoryCache(new MemoryCacheOptions());
+
+        Mock<IOptionsMonitor<KnowledgeGraphProjectionCacheOptions>> opts = new();
+        opts.Setup(m => m.CurrentValue).Returns(new KnowledgeGraphProjectionCacheOptions { Enabled = true });
+
+        ScopeContext scope = CreateScope();
+        Guid runId = Guid.NewGuid();
+        Guid graphSnapshotId = Guid.NewGuid();
+        string key = GraphSnapshotProjectionCacheKeys.Projection(scope, runId, graphSnapshotId);
+
+        using (ICacheEntry entry = backing.CreateEntry(key))
+        {
+            entry.Value = new object();
+        }
+
+        backing.TryGetValue(key, out _).Should().BeTrue();
+
+        IGraphSnapshotProjectionCache sut =
+            new GraphSnapshotProjectionMemoryCache(backing, opts.Object);
+
+        sut.Invalidate(scope, runId, graphSnapshotId);
+
+        backing.TryGetValue(key, out _).Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task GetOrLoadAsync_sets_entry_size_from_snapshot_byte_estimate_when_size_limit_enabled()
+    {
+        MemoryCache backing = new(new MemoryCacheOptions { SizeLimit = 1_000_000, TrackStatistics = true });
+
+        Mock<IOptionsMonitor<KnowledgeGraphProjectionCacheOptions>> opts = new();
+        opts.Setup(m => m.CurrentValue).Returns(new KnowledgeGraphProjectionCacheOptions { Enabled = true });
+
+        GraphSnapshotProjectionMemoryCache sut = new(backing, opts.Object);
+        ScopeContext scope = CreateScope();
+        Guid runId = Guid.NewGuid();
+        Guid graphSnapshotId = Guid.NewGuid();
+        GraphSnapshot materialized = new()
+        {
+            GraphSnapshotId = graphSnapshotId,
+            RunId = runId,
+            ContextSnapshotId = Guid.NewGuid(),
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "cache-size-node",
+                    NodeType = "Service",
+                    Label = new string('z', 2048),
+                },
+            ],
+        };
+
+        long expectedSize = GraphSnapshotProjectionCacheEntrySizeEstimator.EstimateCacheEntrySize(materialized);
+
+        await sut.GetOrLoadAsync(scope, runId, graphSnapshotId, _ => Task.FromResult<GraphSnapshot?>(materialized), CancellationToken.None);
+
+        backing.TryGetValue(
+            GraphSnapshotProjectionCacheKeys.Projection(scope, runId, graphSnapshotId),
+            out _).Should().BeTrue();
+
+        backing.GetCurrentStatistics()!.CurrentEstimatedSize.Should().Be(expectedSize);
+    }
+
+    [Fact]
+    public async Task GetOrLoadAsync_bypasses_cache_when_entry_exceeds_max_single_entry_bytes()
+    {
+        MemoryCache backing = new(new MemoryCacheOptions { SizeLimit = 1_000_000_000 });
+
+        Mock<IOptionsMonitor<KnowledgeGraphProjectionCacheOptions>> opts = new();
+        opts.Setup(m => m.CurrentValue)
+            .Returns(new KnowledgeGraphProjectionCacheOptions
+            {
+                Enabled = true,
+                MaxSingleEntryBytes = 16,
+            });
+
+        GraphSnapshotProjectionMemoryCache sut = new(backing, opts.Object);
+        ScopeContext scope = CreateScope();
+        Guid runId = Guid.NewGuid();
+        Guid graphSnapshotId = Guid.NewGuid();
+        GraphSnapshot materialized = new()
+        {
+            GraphSnapshotId = graphSnapshotId,
+            RunId = runId,
+            ContextSnapshotId = Guid.NewGuid(),
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "oversized-node",
+                    NodeType = "Service",
+                    Label = new string('x', 4096),
+                },
+            ],
+        };
+
+        GraphSnapshot? loaded = await sut.GetOrLoadAsync(
+            scope,
+            runId,
+            graphSnapshotId,
+            _ => Task.FromResult<GraphSnapshot?>(materialized),
+            CancellationToken.None);
+
+        loaded.Should().BeSameAs(materialized);
+        backing.TryGetValue(
+            GraphSnapshotProjectionCacheKeys.Projection(scope, runId, graphSnapshotId),
+            out _).Should().BeFalse();
+    }
+
+    private static ScopeContext CreateScope()
+    {
+        return new ScopeContext
+        {
+            TenantId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
+            WorkspaceId = Guid.Parse("22222222-2222-2222-2222-222222222222"),
+            ProjectId = Guid.Parse("33333333-3333-3333-3333-333333333333"),
+        };
+    }
+}

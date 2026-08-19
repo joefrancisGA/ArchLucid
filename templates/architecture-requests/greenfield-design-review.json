@@ -1,0 +1,31 @@
+{
+  "requestId": "TPL-GREENFIELD-DESIGN-REVIEW-001",
+  "systemName": "WingtipDeviceTelemetry",
+  "description": "Wingtip is designing a net-new IoT telemetry ingestion platform on Azure for device fleets up to 500k endpoints. Review ingestion, stream processing, hot/warm storage, and operator dashboards for scalability, cost, and security before build funding.",
+  "environment": "prod",
+  "cloudProvider": "Azure",
+  "constraints": [
+    "Ingestion must tolerate regional outage with documented degradation",
+    "Device identity via X.509 or symmetric keys — no anonymous ingress",
+    "Hot path p95 latency under 2s to alerting bus"
+  ],
+  "requiredCapabilities": [
+    "Azure IoT Hub or equivalent ingress",
+    "Azure Event Hubs",
+    "Azure Stream Analytics or Spark-compatible processing",
+    "Time-series capable storage"
+  ],
+  "assumptions": [
+    "Devices connect over mutual TLS where possible",
+    "Single primary Azure region with failover playbook"
+  ],
+  "priorManifestVersion": null,
+  "inlineRequirements": [],
+  "documents": [],
+  "policyReferences": [],
+  "topologyHints": [
+    "Decouple ingestion from analytics consumers via event hub partitions"
+  ],
+  "securityBaselineHints": [],
+  "infrastructureDeclarations": []
+}

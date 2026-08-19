@@ -1,0 +1,25 @@
+{
+  "findings": [
+    {
+      "findingId": "f-dr-1",
+      "category": "Topology",
+      "severity": "High",
+      "title": "DR automation gap",
+      "detail": "Secondary region fronts static reads but database failover relies on PDF runbook exceeding published RTO."
+    },
+    {
+      "findingId": "f-dr-2",
+      "category": "Compliance",
+      "severity": "High",
+      "title": "Replication lag unmanaged",
+      "detail": "Cross-region asynchronous replication exposes replication lag and residency gaps without secondary attestations or compensating approvals."
+    },
+    {
+      "findingId": "f-dr-3",
+      "category": "Critic",
+      "severity": "Medium",
+      "title": "Chaos backlog",
+      "detail": "No regional evacuation chaos test executed in FY; backlog item cites budget freeze."
+    }
+  ]
+}

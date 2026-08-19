@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "description": "TB-344: first-run onboarding spine must teach evidence-first review intake, not Azure-only upload.",
+  "stepOneSurfaces": [
+    {
+      "id": "core-pilot-step-1",
+      "sourceModule": "archlucid-ui/src/lib/core-pilot-steps.ts",
+      "titleField": "CORE_PILOT_STEPS[0].title",
+      "requiredTitle": "Start demo review or new request"
+    },
+    {
+      "id": "operating-rail-ingest",
+      "sourceModule": "archlucid-ui/src/lib/first-pilot-operating-rail-steps.ts",
+      "titleField": "FIRST_PILOT_OPERATING_RAIL_STEPS[id=ingest-evidence].title",
+      "requiredTitleContains": "architecture evidence"
+    }
+  ],
+  "bannedStepOneLeadPhrases": [
+    "upload your azure environment",
+    "upload azure architecture context",
+    "upload azure package"
+  ]
+}

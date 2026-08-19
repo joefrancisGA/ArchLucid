@@ -1,0 +1,13 @@
+{
+  "properties": {
+    "columns": [
+      { "name": "ServiceName", "type": "string" },
+      { "name": "PreTaxCost", "type": "number" },
+      { "name": "Currency", "type": "string" }
+    ],
+    "rows": [
+      [ "Azure Storage", 10.505, "USD" ],
+      [ "Virtual Machines", 2.246, "EUR" ]
+    ]
+  }
+}

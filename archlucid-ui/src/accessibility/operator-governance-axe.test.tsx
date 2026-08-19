@@ -1,0 +1,180 @@
+import { render } from "@testing-library/react";
+import { axe, toHaveNoViolations } from "jest-axe";
+import { describe, expect, it, vi } from "vitest";
+
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ push: vi.fn(), replace: vi.fn(), back: vi.fn() }),
+  usePathname: () => "/governance/approval-queue",
+  useSearchParams: () => ({
+    get: () => null,
+    toString: () => "",
+  }),
+  redirect: vi.fn(),
+}));
+
+vi.mock("@/lib/api", () => ({
+  apiGet: vi.fn().mockResolvedValue([]),
+  listApprovalRequests: vi.fn().mockResolvedValue([]),
+  listPromotions: vi.fn().mockResolvedValue([]),
+  listActivations: vi.fn().mockResolvedValue([]),
+  submitApprovalRequest: vi.fn(),
+  approveRequest: vi.fn(),
+  rejectRequest: vi.fn(),
+  promoteManifest: vi.fn(),
+  activateEnvironment: vi.fn(),
+  getGovernanceDashboard: vi.fn().mockResolvedValue({
+    pendingApprovals: [],
+    recentDecisions: [],
+    recentChanges: [],
+    pendingCount: 0,
+  }),
+  getGovernanceDecisionsNeededSummary: vi.fn().mockResolvedValue({
+    pendingApprovals: 0,
+    staleRisks: 0,
+    unownedHighSeverityRisks: 0,
+    findingsAwaitingEvidence: 0,
+    waiversExpiringWithin14Days: 0,
+    deferredFindingsDue: 0,
+    totalDecisionItems: 0,
+  }),
+  getComplianceDriftTrend: vi.fn().mockResolvedValue([]),
+  getGovernanceResolution: vi.fn().mockResolvedValue({
+    notes: [],
+    effectiveContent: {},
+    conflicts: [],
+    decisions: [],
+  }),
+  listPolicyPacks: vi.fn().mockResolvedValue([]),
+  getEffectivePolicyPacks: vi.fn().mockResolvedValue({ packs: [] }),
+  getEffectivePolicyContent: vi.fn().mockResolvedValue({}),
+  listPolicyPackVersions: vi.fn().mockResolvedValue([]),
+  createPolicyPack: vi.fn(),
+  publishPolicyPackVersion: vi.fn(),
+  assignPolicyPack: vi.fn(),
+}));
+
+vi.mock("@/lib/workspace-health-audit-count", () => ({
+  countAuditEventsInWindow: vi.fn().mockResolvedValue({ count: 0, exact: true }),
+}));
+
+vi.mock("@/lib/pilot-value-report-fetch", () => {
+  const stubPilotReport = {
+    tenantId: "00000000-0000-0000-0000-000000000001",
+    fromUtc: "2026-01-01T00:00:00.000Z",
+    toUtc: "2026-06-01T00:00:00.000Z",
+    totalRunsCommitted: 0,
+    runDetailsTruncated: false,
+    runDetailCap: 50,
+    totalFindings: 0,
+    findingsBySeverity: { critical: 0, high: 0, medium: 0, low: 0, info: 0 },
+    totalRecommendationsProduced: 0,
+    averagePipelineCompletionSeconds: null,
+    governanceApprovals: 0,
+    governanceRejections: 0,
+    policyPackAssignments: 0,
+    comparisonOrDriftDetections: 0,
+    uniqueAgentTypes: [],
+    committedRunsTimeline: [],
+    governancePendingApprovalsNow: 0,
+    auditExportTruncated: false,
+  };
+
+  const resolved = vi.fn().mockResolvedValue(stubPilotReport);
+
+  return {
+    fetchPilotValueReportJson: resolved,
+    getTenantPilotValueReportJson: resolved,
+  };
+});
+
+vi.mock("@/hooks/use-operate-capability", () => ({
+  useOperateCapability: () => false,
+}));
+
+vi.mock("@/lib/use-nav-surface", () => ({
+  useNavSurface: () => ({
+    links: [],
+    mutationCapability: false,
+    layerGuidance: {
+      layerBadge: "Pilot",
+      headline: "Stub headline",
+      useWhen: "For accessibility tests.",
+      firstPilotNote: null,
+      enterpriseFootnote: null,
+    },
+    contextHints: {
+      enterpriseNavGroupHint: "",
+      enterpriseExecutePageHint: null,
+      layerHeaderEnterpriseRankCue: null,
+      governanceResolutionRank: "",
+      alertsInboxRank: "",
+      auditLogRank: "",
+      alertOperatorToolingRank: "",
+      governanceDashboardReaderAction: null,
+    },
+    callerAuthorityRank: 0,
+    showExtended: true,
+    showAdvanced: true,
+    mounted: true,
+  }),
+}));
+
+vi.mock("@/hooks/useViewportNarrow", () => ({
+  useViewportNarrow: () => false,
+}));
+
+vi.mock("@/lib/toast", () => ({
+  showError: vi.fn(),
+  showSuccess: vi.fn(),
+}));
+
+import GovernanceWorkflowPage from "@/app/(operator)/governance/approval-queue/page";
+import GovernanceResolutionPage from "@/app/(operator)/governance/standards-and-rules/page";
+import GovernanceFindingsPage from "@/app/(operator)/governance/findings/page";
+import PolicyPacksPage from "@/app/(operator)/governance/policy-packs/page";
+
+expect.extend(toHaveNoViolations);
+
+describe("operator governance pages — axe (Vitest)", () => {
+  it(
+    "GovernanceWorkflowPage has no serious axe violations",
+    async () => {
+      const { container } = render(<GovernanceWorkflowPage />);
+
+      expect(await axe(container)).toHaveNoViolations();
+    },
+    45_000,
+  );
+
+  it(
+    "GovernanceResolutionPage has no serious axe violations",
+    async () => {
+      const page = await GovernanceResolutionPage();
+      const { container } = render(page);
+
+      expect(await axe(container)).toHaveNoViolations();
+    },
+    45_000,
+  );
+
+  it(
+    "GovernanceFindingsPage has no serious axe violations",
+    async () => {
+      const { container } = render(<GovernanceFindingsPage />);
+
+      expect(await axe(container)).toHaveNoViolations();
+    },
+    45_000,
+  );
+
+  it(
+    "PolicyPacksPage has no serious axe violations",
+    async () => {
+      const page = await PolicyPacksPage();
+      const { container } = render(page);
+
+      expect(await axe(container)).toHaveNoViolations();
+    },
+    45_000,
+  );
+});

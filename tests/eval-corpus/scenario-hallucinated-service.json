@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 1,
+  "id": "corpus-hallucinated-service",
+  "metadata": {
+    "title": "Hallucinated dependency surfaced by reviewers",
+    "complexity": "medium",
+    "primaryAgents": ["Critic", "Topology", "Compliance"]
+  },
+  "inputSummary": "An assistant narrative introduces NeoQuantumMeshOrchestrator as a synchronous orchestration tier between APIs and data planes, complete with invented telemetry dashboards. The submitted workload manifest and CMDB export omit this component entirely.",
+  "recording": "recordings/corpus-hallucinated-service.findings.json",
+  "qualityEvidence": {
+    "mode": "simulator",
+    "agentType": "Critic",
+    "agentResultPath": "agent-results/corpus-hallucinated-service.simulator.json",
+    "notes": "Adversarial probe: regress defensive language for fabricated services without AOAI."
+  },
+  "expectedFindings": [
+    {
+      "id": "e manifest inventory",
+      "category": "Critic",
+      "minimumSeverity": "Medium",
+      "evidenceMustContain": ["manifest", "inventory"]
+    },
+    {
+      "id": "e inventory reconcile topology",
+      "category": "Topology",
+      "minimumSeverity": "Medium",
+      "evidenceMustContain": ["inventory", "reconcil"]
+    },
+    {
+      "id": "e undocumented manifest compliance",
+      "category": "Compliance",
+      "minimumSeverity": "Low",
+      "evidenceMustContain": ["undocumented", "manifest"]
+    }
+  ],
+  "unexpectedFindings": [
+    {
+      "category": "Topology",
+      "ifContainsAny": ["trust implicit dependency", "deploy without verification"]
+    },
+    {
+      "category": "Compliance",
+      "ifContainsAny": ["waive change control", "skip approval"]
+    }
+  ]
+}

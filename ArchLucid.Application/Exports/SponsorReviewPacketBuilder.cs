@@ -38,9 +38,6 @@ public sealed class SponsorReviewPacketBuilder(
         if (detail is null)
             return null;
 
-        if (!detail.IsCommitted || detail.HasBrokenManifestReference)
-            return null;
-
         SponsorRoiSummaryResponse roiSummary =
             await _SponsorRoiSummaryService.BuildAsync(cancellationToken).ConfigureAwait(false);
 

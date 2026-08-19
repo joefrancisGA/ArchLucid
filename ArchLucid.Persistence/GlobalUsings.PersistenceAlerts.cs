@@ -1,0 +1,23 @@
+global using ArchLucid.Contracts.Alerts;
+global using ArchLucid.Contracts.Alerts.Composite;
+global using ArchLucid.Contracts.Alerts.Delivery;
+global using ArchLucid.Contracts.Alerts.Simulation;
+
+global using AlertEvaluationContext = ArchLucid.Core.Alerts.AlertEvaluationContext;
+global using AlertRoutingMatcher = ArchLucid.Core.Alerts.Delivery.AlertRoutingMatcher;
+global using CompositeAlertDeduplicationKeyBuilder = ArchLucid.Core.Alerts.Composite.CompositeAlertDeduplicationKeyBuilder;
+global using IAlertDeliveryAttemptRepository = ArchLucid.Core.Persistence.Ports.IAlertDeliveryAttemptRepository;
+global using IAlertDeliveryChannel = ArchLucid.Core.Persistence.Ports.IAlertDeliveryChannel;
+global using IAlertDeliveryDispatcher = ArchLucid.Core.Persistence.Ports.IAlertDeliveryDispatcher;
+global using IAlertEvaluator = ArchLucid.Core.Alerts.IAlertEvaluator;
+global using IAlertMetricSnapshotBuilder = ArchLucid.Core.Alerts.Composite.IAlertMetricSnapshotBuilder;
+global using IAlertRecordRepository = ArchLucid.Core.Persistence.Ports.IAlertRecordRepository;
+global using IAlertRoutingSubscriptionRepository = ArchLucid.Core.Persistence.Ports.IAlertRoutingSubscriptionRepository;
+global using IAlertRuleRepository = ArchLucid.Core.Persistence.Ports.IAlertRuleRepository;
+global using IAlertService = ArchLucid.Core.Alerts.IAlertService;
+global using IAlertSimulationContextProvider = ArchLucid.Core.Alerts.Simulation.IAlertSimulationContextProvider;
+global using IAlertSuppressionPolicy = ArchLucid.Core.Alerts.Composite.IAlertSuppressionPolicy;
+global using ICompositeAlertRuleEvaluator = ArchLucid.Core.Alerts.Composite.ICompositeAlertRuleEvaluator;
+global using ICompositeAlertRuleRepository = ArchLucid.Core.Persistence.Ports.ICompositeAlertRuleRepository;
+global using ICompositeAlertService = ArchLucid.Core.Alerts.Composite.ICompositeAlertService;
+global using IRuleSimulationService = ArchLucid.Core.Alerts.Simulation.IRuleSimulationService;

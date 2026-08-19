@@ -1,0 +1,230 @@
+using ArchLucid.Contracts.Persistence.DecisionTraces;
+using ArchLucid.Decisioning.Models;
+namespace ArchLucid.Provenance;
+
+public sealed class ProvenanceBuilder : IProvenanceBuilder
+{
+    public DecisionProvenanceGraph Build(ProvenanceBuildInput input)
+    {
+        if (input is null)
+            throw new ArgumentNullException(nameof(input));
+
+        Guid runId = input.RunId;
+        FindingsSnapshot findings = input.Findings;
+        GraphSnapshot graph = input.Graph;
+        ManifestDocument manifest = input.Manifest;
+        DecisionTraceDto decisionTrace = input.DecisionTrace;
+        IReadOnlyList<SynthesizedArtifact> artifacts = input.Artifacts;
+
+        if (decisionTrace is not RuleAuditTraceDto ruleAuditTrace)
+            throw new InvalidOperationException("Expected a RuleAudit trace (authority pipeline).");
+
+        RuleAuditTracePayload trace = ruleAuditTrace.RuleAudit;
+
+        DecisionProvenanceGraph result = new() { Id = Guid.NewGuid(), RunId = runId };
+
+        Dictionary<string, Guid> nodeMap = new(StringComparer.Ordinal);
+
+        HashSet<string> graphNodeIds = new(graph.Nodes.Select(n => n.NodeId), StringComparer.Ordinal);
+
+        foreach (GraphNode n in graph.Nodes)
+
+            AddNode(
+                $"graph:{n.NodeId}",
+                new ProvenanceNode
+                {
+                    Type = ProvenanceNodeType.GraphNode,
+                    ReferenceId = n.NodeId,
+                    Name = string.IsNullOrWhiteSpace(n.Label) ? n.NodeId : n.Label,
+                    Metadata = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        ["nodeType"] = n.NodeType, ["category"] = n.Category ?? ""
+                    }
+                });
+
+
+        foreach (Finding f in findings.Findings)
+
+            AddNode(
+                $"finding:{f.FindingId}",
+                CreateFindingNode(f));
+
+
+        foreach (string ruleId in trace.AppliedRuleIds.Distinct(StringComparer.OrdinalIgnoreCase))
+
+            AddNode(
+                $"rule:{ruleId}",
+                new ProvenanceNode { Type = ProvenanceNodeType.Rule, ReferenceId = ruleId, Name = ruleId });
+
+
+        foreach (ResolvedArchitectureDecision d in manifest.Decisions)
+
+            AddNode(
+                $"decision:{d.DecisionId}",
+                new ProvenanceNode
+                {
+                    Type = ProvenanceNodeType.Decision,
+                    ReferenceId = d.DecisionId,
+                    Name = d.Title,
+                    Metadata = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        ["category"] = d.Category
+                    }
+                });
+
+
+        foreach (SynthesizedArtifact a in artifacts)
+
+            AddNode(
+                $"artifact:{a.ArtifactId:N}",
+                new ProvenanceNode
+                {
+                    Type = ProvenanceNodeType.Artifact,
+                    ReferenceId = a.ArtifactId.ToString("N"),
+                    Name = a.Name,
+                    Metadata = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        ["artifactType"] = a.ArtifactType, ["format"] = a.Format
+                    }
+                });
+
+
+        Guid manifestNodeId = AddNode(
+            $"manifest:{manifest.ManifestId:N}",
+            new ProvenanceNode
+            {
+                Type = ProvenanceNodeType.Manifest,
+                ReferenceId = manifest.ManifestId.ToString("N"),
+                Name = "ManifestDocument",
+                Metadata = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                {
+                    ["manifestHash"] = manifest.ManifestHash
+                }
+            });
+
+        // Findings → Decisions (decision supported by findings)
+        foreach (ResolvedArchitectureDecision d in manifest.Decisions)
+        {
+            string decisionKey = $"decision:{d.DecisionId}";
+            if (!nodeMap.TryGetValue(decisionKey, out Guid to))
+                continue;
+
+            foreach (string fk in d.SupportingFindingIds.Select(fId => $"finding:{fId}"))
+            {
+                if (!nodeMap.TryGetValue(fk, out Guid from))
+                    continue;
+
+                AddEdge(from, to, ProvenanceEdgeType.SupportedBy);
+            }
+        }
+
+        // Graph nodes → Findings (finding influenced by graph context)
+        foreach (Finding f in findings.Findings)
+        {
+            string fk = $"finding:{f.FindingId}";
+            if (!nodeMap.TryGetValue(fk, out Guid findingNodeId))
+                continue;
+
+            foreach (string relatedId in f.RelatedNodeIds)
+            {
+                string gk = $"graph:{relatedId}";
+                if (!graphNodeIds.Contains(relatedId) || !nodeMap.TryGetValue(gk, out Guid graphNid))
+                    continue;
+
+                AddEdge(graphNid, findingNodeId, ProvenanceEdgeType.InfluencedByGraphNode);
+            }
+        }
+
+        // Rules → Decisions (rules that fired in this trace influenced decisions — v1: cross-product of applied rules × decisions)
+        foreach (string dk in manifest.Decisions.Select(d => $"decision:{d.DecisionId}"))
+        {
+            if (!nodeMap.TryGetValue(dk, out Guid decisionNid))
+                continue;
+
+            foreach (string ruleId in trace.AppliedRuleIds.Distinct(StringComparer.OrdinalIgnoreCase))
+            {
+                string rk = $"rule:{ruleId}";
+                if (!nodeMap.TryGetValue(rk, out Guid ruleNid))
+                    continue;
+
+                AddEdge(ruleNid, decisionNid, ProvenanceEdgeType.TriggeredByRule);
+            }
+        }
+
+        // Decisions → Artifacts
+        foreach (SynthesizedArtifact a in artifacts)
+        {
+            string ak = $"artifact:{a.ArtifactId:N}";
+            if (!nodeMap.TryGetValue(ak, out Guid artifactNid))
+                continue;
+
+            foreach (string dId in a.ContributingDecisionIds.Distinct(StringComparer.Ordinal))
+            {
+                string dk = $"decision:{dId}";
+                if (!nodeMap.TryGetValue(dk, out Guid decisionNid))
+                    continue;
+
+                AddEdge(decisionNid, artifactNid, ProvenanceEdgeType.ContributedToArtifact);
+            }
+        }
+
+        // Decisions → Manifest
+        foreach (string dk in manifest.Decisions.Select(d => $"decision:{d.DecisionId}"))
+        {
+            if (!nodeMap.TryGetValue(dk, out Guid decisionNid))
+                continue;
+
+            AddEdge(decisionNid, manifestNodeId, ProvenanceEdgeType.ContainedInManifest);
+        }
+
+        return result;
+
+        ProvenanceNode CreateFindingNode(Finding finding)
+        {
+            Dictionary<string, string> metadata = new(StringComparer.OrdinalIgnoreCase)
+            {
+                ["findingType"] = finding.FindingType,
+                ["category"] = finding.Category
+            };
+
+            string? agentTraceId = ResolveAgentExecutionTraceId(finding);
+            ProvenanceNode node = new()
+            {
+                Type = ProvenanceNodeType.Finding,
+                ReferenceId = finding.FindingId,
+                Name = finding.Title,
+                Metadata = metadata,
+                AgentExecutionTraceId = agentTraceId
+            };
+
+            if (!string.IsNullOrWhiteSpace(agentTraceId))
+                metadata[ProvenanceMetadataKeys.AgentExecutionTraceId] = agentTraceId;
+
+            return node;
+        }
+
+        static string? ResolveAgentExecutionTraceId(Finding finding)
+        {
+            if (!string.IsNullOrWhiteSpace(finding.AgentExecutionTraceId))
+                return finding.AgentExecutionTraceId;
+
+            return finding.Trace?.SourceAgentExecutionTraceId;
+        }
+
+        Guid AddNode(string key, ProvenanceNode node)
+        {
+            if (nodeMap.TryGetValue(key, out Guid existing))
+                return existing;
+
+            node.Id = Guid.NewGuid();
+            result.Nodes.Add(node);
+            nodeMap[key] = node.Id;
+            return node.Id;
+        }
+
+        void AddEdge(Guid from, Guid to, ProvenanceEdgeType type)
+        {
+            result.Edges.Add(new ProvenanceEdge { Id = Guid.NewGuid(), FromNodeId = from, ToNodeId = to, Type = type });
+        }
+    }
+}

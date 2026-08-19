@@ -1,0 +1,272 @@
+using ArchLucid.Application.DataConsistency;
+using ArchLucid.Application.Jobs;
+using ArchLucid.Application.Operations;
+using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Hosting;
+using ArchLucid.Host.Composition.Configuration;
+using ArchLucid.Host.Composition.Jobs;
+using ArchLucid.Host.Core.Configuration;
+using ArchLucid.Host.Core.Health;
+using ArchLucid.Host.Core.Hosted;
+using ArchLucid.Host.Core.Hosting;
+using ArchLucid.Host.Core.Jobs;
+using ArchLucid.Persistence.BlobStore;
+using ArchLucid.Persistence.Data.Repositories;
+
+using Azure.Core;
+using Azure.Storage.Queues;
+
+using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Microsoft.Extensions.Options;
+
+namespace ArchLucid.Host.Composition.Startup;
+
+public static partial class ServiceCollectionExtensions
+{
+    private static void RegisterArchLucidHealthChecks(
+        IServiceCollection services,
+        IConfiguration configuration,
+        ArchLucidHostingRole hostingRole)
+    {
+        ArgumentNullException.ThrowIfNull(configuration);
+
+        IHealthChecksBuilder builder = services.AddHealthChecks()
+            .AddCheck(
+                "liveness",
+                () => HealthCheckResult.Healthy("ArchLucid API process is running."),
+                tags: [ReadinessTags.Live])
+            .AddCheck<DatabaseLivenessHealthCheck>(
+                DatabaseLivenessHealthCheck.RegistrationName,
+                failureStatus: HealthStatus.Unhealthy,
+                tags: [ReadinessTags.Live])
+            .AddCheck<AgentExecutionModeHealthCheck>(
+                AgentExecutionModeHealthCheck.RegistrationName,
+                tags: [ReadinessTags.Ready]);
+
+        AddArchLucidSqlServerDatabaseHealthCheck(builder);
+
+        string? redisProbeConnection =
+            RedisHealthProbeConnectionResolver.TryResolveRedisHealthProbeConnectionString(configuration);
+
+        if (!string.IsNullOrEmpty(redisProbeConnection))
+
+            builder.AddCheck(
+                "redis",
+                new OptionalRedisConnectionHealthCheck(redisProbeConnection),
+                failureStatus: HealthStatus.Degraded,
+                tags: [ReadinessTags.Ready]);
+
+        builder
+            .AddCheck<SqlSystemPlaneHealthCheck>(
+                "sql_system_plane",
+                failureStatus: HealthStatus.Unhealthy,
+                tags: [ReadinessTags.Ready])
+            .AddCheck<AzureSqlReadReplicaHealthCheck>(
+                AzureSqlReadReplicaHealthCheck.RegistrationName,
+                failureStatus: HealthStatus.Unhealthy,
+                tags: [ReadinessTags.Ready])
+            .AddCheck<RedisGraphProjectionHealthCheck>(
+                RedisGraphProjectionHealthCheck.RegistrationName,
+                failureStatus: HealthStatus.Unhealthy,
+                tags: [ReadinessTags.Ready])
+            .AddCheck<SchemaFilesHealthCheck>("schema_files", tags: [ReadinessTags.Ready])
+            .AddCheck<ComplianceRulePackHealthCheck>("compliance_rule_pack", tags: [ReadinessTags.Ready])
+            .AddCheck<ProcessTempDirectoryHealthCheck>("temp_directory", tags: [ReadinessTags.Ready])
+            .AddCheck<BlobStorageHealthCheck>("blob_storage", tags: [ReadinessTags.Ready])
+            .AddCheck<RunGoldenManifestConsistencyHealthCheck>(
+                "run_golden_manifest_consistency",
+                failureStatus: HealthStatus.Degraded,
+                tags: [ReadinessTags.Ready])
+            .AddCheck<GraphMergeInvariantProbeHealthCheck>(
+                GraphMergeInvariantProbeHealthCheck.RegistrationName,
+                failureStatus: HealthStatus.Degraded,
+                tags: [ReadinessTags.Ready])
+            .AddCheck<OrchestratorHealthCheck>(
+                OrchestratorHealthCheck.RegistrationName,
+                failureStatus: HealthStatus.Degraded,
+                tags: [ReadinessTags.Ready])
+            .AddCheck<CircuitBreakerHealthCheck>(
+                "circuit_breakers",
+                failureStatus: HealthStatus.Degraded,
+                tags: [])
+            .AddCheck<DistributedCacheHealthCheck>(
+                OperationalDetailedHealthChecks.DistributedCache,
+                failureStatus: HealthStatus.Degraded,
+                tags: [])
+            .AddCheck<DemoViewerDataHealthCheck>(
+                "demo_viewer_data",
+                failureStatus: HealthStatus.Degraded,
+                tags: [ReadinessTags.Ready])
+            .AddCheck<AzureOpenAiHealthCheck>(
+                "openai",
+                failureStatus: HealthStatus.Unhealthy,
+                tags: [ReadinessTags.Ready])
+            .AddCheck<VectorStoreHealthCheck>(
+                VectorStoreHealthCheck.RegistrationName,
+                failureStatus: HealthStatus.Degraded,
+                tags: [ReadinessTags.Ready])
+            .AddCheck<RetrievalIndexFreshnessHealthCheck>(
+                RetrievalIndexFreshnessHealthCheck.RegistrationName,
+                failureStatus: HealthStatus.Degraded,
+                tags: [ReadinessTags.Ready])
+            .AddCheck<KeyVaultHealthCheck>(
+                "keyvault",
+                failureStatus: HealthStatus.Unhealthy,
+                tags: [ReadinessTags.Ready]);
+
+        if (hostingRole is ArchLucidHostingRole.Combined or ArchLucidHostingRole.Worker)
+
+            builder.AddCheck<DataArchivalHostHealthCheck>(
+                "data_archival",
+                failureStatus: HealthStatus.Degraded,
+                tags: [ReadinessTags.Ready]);
+
+        if (hostingRole is ArchLucidHostingRole.Combined or ArchLucidHostingRole.Worker)
+
+            builder.AddCheck<DataConsistencyHealthCheck>(
+                "data_consistency",
+                failureStatus: HealthStatus.Unhealthy,
+                tags: [ReadinessTags.Ready]);
+
+    }
+
+    /// <summary>
+    ///     SQL readiness via <see cref="SqlConnectionHealthCheck" /> (SELECT 1 + latency brownout detection).
+    ///     InMemory storage skips the probe.
+    /// </summary>
+    private static void AddArchLucidSqlServerDatabaseHealthCheck(IHealthChecksBuilder builder)
+    {
+        ArgumentNullException.ThrowIfNull(builder);
+
+        builder.AddCheck<SqlConnectionHealthCheck>(
+            "database",
+            failureStatus: HealthStatus.Unhealthy,
+            tags: [ReadinessTags.Ready]);
+    }
+
+    private static void RegisterDataConsistencyReconciliation(
+        IServiceCollection services,
+        IConfiguration configuration,
+        ArchLucidHostingRole hostingRole)
+    {
+        services.Configure<DataConsistencyReconciliationOptions>(configuration.GetSection(DataConsistencyReconciliationOptions.SectionName));
+        services.Configure<StaleInFlightAutoRemediationOptions>(
+            configuration.GetSection(StaleInFlightAutoRemediationOptions.SectionName));
+        services.Configure<MissingArchitectureRequestAutoRemediationOptions>(
+            configuration.GetSection(MissingArchitectureRequestAutoRemediationOptions.SectionName));
+        services.AddSingleton<IArchLucidStorageMode, ArchLucidStorageMode>();
+        services.AddSingleton<ILeaderElectionWorkRunner, LeaderElectionWorkRunner>();
+        services.AddSingleton<DataConsistencyReconciliationHealthState>();
+        services.AddScoped<IDataConsistencyReconciliationService, DataConsistencyReconciliationService>();
+
+        if (hostingRole is ArchLucidHostingRole.Combined or ArchLucidHostingRole.Worker)
+        {
+            services.AddHostedService<DataConsistencyReconciliationHostedService>();
+            services.AddHostedService<RunExecuteOwnershipReconciliationHostedService>();
+            services.AddHostedService<RunExecuteOwnershipShutdownReleaseHostedService>();
+            services.AddHostedService<StaleInFlightAutoRemediationHostedService>();
+            services.AddHostedService<MissingArchitectureRequestAutoRemediationHostedService>();
+        }
+    }
+
+    private static void RegisterBackgroundJobs(
+        IServiceCollection services,
+        IConfiguration configuration,
+        ArchLucidHostingRole hostingRole)
+    {
+        services.Configure<BackgroundJobsOptions>(configuration.GetSection(BackgroundJobsOptions.SectionName));
+
+        BackgroundJobsOptions jobsSnapshot =
+            configuration.GetSection(BackgroundJobsOptions.SectionName).Get<BackgroundJobsOptions>() ??
+            new BackgroundJobsOptions();
+
+        bool durable = string.Equals(jobsSnapshot.Mode, "Durable", StringComparison.OrdinalIgnoreCase);
+
+        services.AddScoped<IBackgroundJobWorkUnitExecutor, BackgroundJobWorkUnitExecutor>();
+        services.AddScoped<IBackgroundJobTenantAccessVerifier, BackgroundJobTenantAccessVerifier>();
+        services.AddScoped<IBackgroundJobWorkUnitAccessor, BackgroundJobWorkUnitAccessor>();
+        services.AddScoped<IBackgroundJobInfoReader, BackgroundJobInfoReader>();
+        services.AddSingleton<IOperationCancellationRegistry, OperationCancellationRegistry>();
+        services.AddScoped<OperationRunCancellationMarker>();
+        services.AddScoped<IOperationCancelService, OperationCancelService>();
+        services.AddScoped<IOperationQueryService, OperationQueryService>();
+
+        if (hostingRole == ArchLucidHostingRole.Worker)
+        {
+            // Queue-backed info/work-unit accessors are registered above for all roles; Worker must
+            // still resolve IBackgroundJobQueue (in-memory or durable) so host composition validates.
+
+            if (!durable)
+            {
+                services.AddSingleton<IBackgroundJobQueue, InMemoryBackgroundJobQueue>();
+                services.AddHostedService(static sp =>
+                    (InMemoryBackgroundJobQueue)sp.GetRequiredService<IBackgroundJobQueue>());
+                services.AddScoped<IBackgroundJobCancellationWriter, NoOpBackgroundJobCancellationWriter>();
+
+                return;
+            }
+
+            RegisterDurableBackgroundJobInfrastructure(services);
+            services.AddSingleton<IBackgroundJobQueueNotifySender, AzureStorageQueueBackgroundJobNotifySender>();
+            services.AddSingleton<IBackgroundJobQueue, DurableBackgroundJobQueue>();
+            services.AddHostedService<BackgroundJobQueueProcessorHostedService>();
+            services.AddScoped<IBackgroundJobCancellationWriter, BackgroundJobRepositoryCancellationWriter>();
+
+            return;
+        }
+
+        if (hostingRole is not (ArchLucidHostingRole.Api or ArchLucidHostingRole.Combined))
+            return;
+
+
+        if (durable)
+        {
+            RegisterDurableBackgroundJobInfrastructure(services);
+            services.AddSingleton<IBackgroundJobQueueNotifySender, AzureStorageQueueBackgroundJobNotifySender>();
+            services.AddSingleton<IBackgroundJobQueue, DurableBackgroundJobQueue>();
+        }
+        else
+        {
+            services.AddSingleton<IBackgroundJobQueue, InMemoryBackgroundJobQueue>();
+
+            services.AddHostedService(static sp => (InMemoryBackgroundJobQueue)sp.GetRequiredService<IBackgroundJobQueue>());
+        }
+
+        services.AddScoped<IBackgroundJobCancellationWriter, BackgroundJobCancellationWriter>();
+    }
+
+    private static void RegisterDurableBackgroundJobInfrastructure(IServiceCollection services)
+    {
+        services.AddScoped<IBackgroundJobRepository, BackgroundJobRepository>();
+        services.AddSingleton<IBackgroundJobResultBlobAccessor, AzureBlobBackgroundJobResultBlobAccessor>();
+        services.AddSingleton(static sp => CreateBackgroundJobsQueueClient(sp));
+
+        services.AddHostedService<BackgroundJobStuckRunningWatchdogHostedService>();
+    }
+
+    private static QueueClient CreateBackgroundJobsQueueClient(IServiceProvider serviceProvider)
+    {
+        BackgroundJobsOptions jobsOptions =
+            serviceProvider.GetRequiredService<IOptions<BackgroundJobsOptions>>().Value;
+
+        ArtifactLargePayloadOptions? largePayload =
+            serviceProvider.GetService<IOptions<ArtifactLargePayloadOptions>>()?.Value;
+
+        TokenCredential credential = serviceProvider.GetRequiredService<TokenCredential>();
+        Uri? queueUri = BackgroundJobQueueAddress.ResolveQueueServiceUri(jobsOptions, largePayload);
+
+        if (queueUri is null)
+
+            throw new InvalidOperationException(
+                "BackgroundJobs:QueueServiceUri is missing and could not be derived from ArtifactLargePayload:AzureBlobServiceUri. Configure a queue endpoint for durable jobs.");
+
+
+        if (string.IsNullOrWhiteSpace(jobsOptions.QueueName))
+
+            throw new InvalidOperationException("BackgroundJobs:QueueName is required when BackgroundJobs:Mode is Durable.");
+
+        QueueServiceClient serviceClient = new(queueUri, credential);
+
+        return serviceClient.GetQueueClient(jobsOptions.QueueName);
+    }
+}

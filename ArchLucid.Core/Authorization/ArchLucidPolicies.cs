@@ -1,0 +1,82 @@
+namespace ArchLucid.Core.Authorization;
+
+/// <summary>
+///     ASP.NET Core authorization policy names. Use these constants with <c>[Authorize(Policy = ...)]</c>
+///     so registration and controllers stay aligned.
+/// </summary>
+public static class ArchLucidPolicies
+{
+    /// <summary>
+    ///     Requires only an authenticated principal (no capability / trial checks). Use at controller scope together with
+    ///     per-action <see cref="ReadAuthority" /> / <see cref="ExecuteAuthority" /> so AL0001 is satisfied without stacking
+    ///     read capability onto execute-only actions.
+    /// </summary>
+    public const string AuthenticatedUserOnly = "AuthenticatedUserOnly";
+
+    /// <summary>Required for read-only authority, manifest, governance query, and similar endpoints.</summary>
+    public const string ReadAuthority = "ReadAuthority";
+
+    /// <summary>Required for endpoints that create runs, replays, governance actions, and alert mutations.</summary>
+    public const string ExecuteAuthority = "ExecuteAuthority";
+
+    /// <summary>Required for host administration and policy-pack lifecycle (see RBAC table in docs/SECURITY.md).</summary>
+    public const string AdminAuthority = "AdminAuthority";
+
+    /// <summary>Policy-pack CRUD / publish / assign for tenant/workspace admins or <c>ProjectAdmin</c> overlays.</summary>
+    public const string PolicyPackMutationAuthority = "PolicyPackMutationAuthority";
+
+    /// <summary>Same policy as <see cref="ReadAuthority" /> (alias for RBAC documentation).</summary>
+    public const string RequireReadOnly = ReadAuthority;
+
+    /// <summary>Same policy as <see cref="ExecuteAuthority" />.</summary>
+    public const string RequireOperator = ExecuteAuthority;
+
+    /// <summary>Same policy as <see cref="AdminAuthority" />.</summary>
+    public const string RequireAdmin = AdminAuthority;
+
+    /// <summary>Audit CSV/JSON export and other auditor-only surfaces.</summary>
+    public const string RequireAuditor = "RequireAuditor";
+
+    /// <summary>Internal replay diagnostics and execution traces.</summary>
+    public const string CanViewReplayDiagnostics = "CanViewReplayDiagnostics";
+
+    /// <summary>Operator-only internal architecture diagnostics (<c>/v1/internal/architecture/…</c>).</summary>
+    public const string RequireOperatorRole = "RequireOperatorRole";
+
+    /// <summary>Comparison replay and persisting replay results.</summary>
+    public const string CanReplayComparisons = "CanReplayComparisons";
+
+    /// <summary>Merge agent results / golden manifest (<c>commit:run</c> permission).</summary>
+    public const string CanCommitRuns = "CanCommitRuns";
+
+    /// <summary>Consulting-template DOCX export (<c>export:consulting-docx</c> permission).</summary>
+    public const string CanExportConsultingDocx = "CanExportConsultingDocx";
+
+    /// <summary>SCIM 2.0 inbound provisioning (dedicated <c>ScimBearer</c> scheme; IdP automation).</summary>
+    public const string ScimWrite = "ScimWrite";
+
+    /// <summary>
+    ///     Dry-run import of external architecture definitions (CSV). Excludes <see cref="ArchLucidRoles.Reviewer" /> and
+    ///     <see cref="ArchLucidRoles.Reader" />; allows Operator-class and tenant/workspace admins.
+    /// </summary>
+    public const string ArchitectureDefinitionImport = "ArchitectureDefinitionImport";
+
+    /// <summary>
+    ///     Queues durable tenant offboarding (SQL + blobs + platform audit). Requires
+    ///     <see cref="ArchLucidPlatformPermissionClaims.TenantDelete" /> (see <see cref="ArchLucidRoles.PlatformOperator" />).
+    /// </summary>
+    public const string PlatformTenantDeletionAuthority = "PlatformTenantDeletionAuthority";
+
+    /// <summary>
+    ///     Fleet-wide usage rollups and internal cross-tenant analytics. Requires
+    ///     <see cref="ArchLucidPlatformPermissionClaims.CrossTenantRead" />; tenant <see cref="ArchLucidRoles.Admin" />
+    ///     principals are denied.
+    /// </summary>
+    public const string PlatformCrossTenantReadAuthority = "PlatformCrossTenantReadAuthority";
+
+    /// <summary>
+    ///     Platform-assisted tenant identity recovery grants. Requires
+    ///     <see cref="ArchLucidPlatformPermissionClaims.IdentityRecovery" />.
+    /// </summary>
+    public const string PlatformIdentityRecoveryAuthority = "PlatformIdentityRecoveryAuthority";
+}

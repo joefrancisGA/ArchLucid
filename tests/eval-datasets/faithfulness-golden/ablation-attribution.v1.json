@@ -1,0 +1,67 @@
+{
+  "schemaVersion": "1.0",
+  "description": "TB-595 offline ablation overlay for faithfulness-golden. Maps existing case hit sourceIds to RAG-V2 features (graphRag, hyde, queryRewrite, iterativeRetry). Baseline vector-search hits have no entry and are always retained.",
+  "configSection": "Retrieval:Advanced",
+  "hitFeatures": {
+    "faithfulness-policy-cited": {
+      "rule-mi-02": ["graphRag"]
+    },
+    "faithfulness-partial-citation": {
+      "chunk-b": ["hyde"]
+    },
+    "azure-saas-readiness-citation-required": {
+      "azure-sql-zone-redundant": ["hyde"]
+    },
+    "ai-governance-wrong-corpus-detected": {
+      "ai-gov-human-review-required": ["graphRag"]
+    },
+    "ai-governance-partial-human-review": {
+      "ai-eval-golden-cohort": ["hyde"]
+    },
+    "roi-cost-supported-with-baseline": {
+      "azure-reserved-instance": ["queryRewrite"]
+    },
+    "wrong-corpus-pricing-in-policy-pack": {
+      "azure-retail-app-service-price": ["graphRag"]
+    },
+    "azure-saas-identity-cited": {
+      "entra-pim-eligible": ["graphRag"]
+    },
+    "ai-governance-content-safety-cited": {
+      "ai-jailbreak-detection": ["hyde"]
+    },
+    "roi-cost-supported-multi-token": {
+      "azure-reserved-instance": ["queryRewrite"]
+    },
+    "healthcare-wrong-corpus-clinical": {
+      "clinical-trial-consent": ["graphRag"]
+    },
+    "ask-policy-pack-kv-cited": {
+      "rule-kv-01": ["queryRewrite"]
+    },
+    "ask-platform-adr-cited": {
+      "adr-0004-outbox": ["queryRewrite"]
+    },
+    "ask-prior-decision-cited": {
+      "decision-2026q1-zone-redundancy": ["graphRag"]
+    },
+    "ask-azure-retail-cost-cited": {
+      "azure-app-service-p1v3": ["queryRewrite"]
+    },
+    "ask-multi-corpus-cited": {
+      "azure-frontdoor-waf-standard": ["graphRag", "hyde"]
+    },
+    "ask-customer-network-cited": {
+      "customer-network-diagram-v3": ["queryRewrite"]
+    },
+    "azure-saas-private-endpoint-cited": {
+      "azure-pe-kv": ["hyde"]
+    },
+    "healthcare-claims-policy-review-citation-required": {
+      "claims-denial-audit-trail": ["graphRag"]
+    },
+    "ask-iterative-retry-recall-boost": {
+      "rule-mi-02": ["iterativeRetry"]
+    }
+  }
+}

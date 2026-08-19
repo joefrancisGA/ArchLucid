@@ -1,0 +1,39 @@
+{
+  "complianceRuleIds": [],
+  "complianceRuleKeys": [
+    "waf-az-001",
+    "waf-az-002",
+    "waf-az-003",
+    "waf-az-004",
+    "waf-az-005",
+    "waf-az-006",
+    "waf-az-007",
+    "waf-az-008",
+    "waf-az-009",
+    "waf-az-010",
+    "waf-az-011",
+    "waf-az-012",
+    "waf-az-013",
+    "waf-az-014",
+    "waf-az-015",
+    "waf-az-016",
+    "waf-az-017"
+  ],
+  "alertRuleIds": [],
+  "compositeAlertRuleIds": [],
+  "advisoryDefaults": {
+    "severityFloor": "warning",
+    "priorityFloor": "P0",
+    "scanDepth": "standard"
+  },
+  "metadata": {
+    "templateId": "azure-waf-v1",
+    "pack.displayName": "Azure Well-Architected Framework",
+    "pack.category": "Architecture",
+    "pack.version": "1.0.0",
+    "pack.isDefault": "true",
+    "pack.description": "WAF pillar themes grounded in Azure extractor inventory. Not a Microsoft Well-Architected Review.",
+    "frameworkMappingDisclaimer": "WAF references are thematic mapping only.",
+    "curatedRulesArtifact": "docs/samples/policy-packs/azure-waf-rules-v1.json"
+  }
+}

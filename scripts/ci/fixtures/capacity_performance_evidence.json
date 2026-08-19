@@ -1,0 +1,35 @@
+{
+  "formatVersion": "1.0",
+  "scenarios": [
+    {
+      "name": "core-pilot-in-process",
+      "scenario": "Create → seed → commit → retrieve manifest",
+      "environmentClass": "ci-in-process-simulator",
+      "requestMix": "write-heavy pilot path",
+      "artifactPath": "docs/library/PERFORMANCE_BASELINES.md",
+      "p95LatencyMs": 164,
+      "failureRatePercent": 0,
+      "exclusions": "In-memory storage; not production SQL or live AOAI."
+    },
+    {
+      "name": "k6-smoke",
+      "scenario": "Hosted API smoke (manual workflow)",
+      "environmentClass": "ci-compose-smoke",
+      "requestMix": "read/write health and pilot endpoints",
+      "artifactPath": "tests/load/README.md",
+      "p95LatencyMs": null,
+      "failureRatePercent": null,
+      "exclusions": "Requires workflow_dispatch artifact; not production load."
+    },
+    {
+      "name": "live-ui-e2e",
+      "scenario": "Operator UI live API E2E",
+      "environmentClass": "ci-staging-like",
+      "requestMix": "trial funnel + review commit",
+      "artifactPath": "archlucid-ui/e2e/live-api-trial-end-to-end.spec.ts",
+      "p95LatencyMs": null,
+      "failureRatePercent": null,
+      "exclusions": "Merge-blocking when secrets present; environment-specific."
+    }
+  ]
+}

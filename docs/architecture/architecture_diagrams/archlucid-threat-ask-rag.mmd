@@ -1,0 +1,25 @@
+flowchart TB
+  subgraph actors["Threat actors / misuse"]
+    USER["Authenticated tenant user"]
+    CROSS["Cross-tenant probe"]
+    PROMPT["Prompt injection via Ask"]
+  end
+
+  subgraph controls["Ask / RAG controls"]
+    SCOPE["ScopeContext from identity<br/>not client headers in prod"]
+    FILTER["Retrieval filtered to tenant corpus"]
+    GROUND["Grounded answers + citations"]
+    BUDGET["Token / quota budgets"]
+  end
+
+  subgraph stores["Stores"]
+    IDX["Vector / search index<br/>tenant-scoped writes"]
+    SQL[("Tenant SQL catalog")]
+  end
+
+  USER --> SCOPE --> FILTER --> IDX
+  FILTER --> SQL
+  FILTER --> GROUND
+  PROMPT --> GROUND
+  BUDGET -.-> GROUND
+  CROSS -.->|"blocked by catalog + query filter"| FILTER

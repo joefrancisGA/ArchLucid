@@ -1,0 +1,52 @@
+namespace ArchLucid.Persistence.Models;
+
+public sealed class TenantSponsorDigestPreferencesRow
+{
+    public Guid TenantId
+    {
+        get;
+        init;
+    }
+
+    public int SchemaVersion
+    {
+        get;
+        init;
+    }
+
+    public bool EmailEnabled
+    {
+        get;
+        init;
+    }
+
+    public string? RecipientEmails
+    {
+        get;
+        init;
+    }
+
+    public string IanaTimeZoneId
+    {
+        get;
+        init;
+    } = "UTC";
+
+    public byte DayOfWeek
+    {
+        get;
+        init;
+    }
+
+    public byte HourOfDay
+    {
+        get;
+        init;
+    }
+
+    public DateTime UpdatedUtc
+    {
+        get;
+        init;
+    }
+}

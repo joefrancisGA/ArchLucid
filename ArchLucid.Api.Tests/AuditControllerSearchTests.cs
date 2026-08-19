@@ -1,0 +1,238 @@
+﻿using System.Net.Http.Json;
+using System.Reflection;
+
+using ArchLucid.Core.Audit;
+using ArchLucid.Persistence.Audit;
+
+using FluentAssertions;
+
+using Moq;
+
+namespace ArchLucid.Api.Tests;
+
+/// <summary>Tests for <c>GET /v1/audit/search</c> and <c>GET /v1/audit/event-types</c>.</summary>
+[Trait("Category", "Integration")]
+public sealed class AuditControllerSearchTests
+{
+    [SkippableFact]
+    public async Task SearchAudit_WithEventType_PassesFilterToRepo()
+    {
+        await using AuditControllerSearchApiFactory factory = new();
+        HttpClient client = factory.CreateClient();
+        Mock<IAuditRepository> repo = factory.AuditRepositoryMock;
+        repo
+            .Setup(r => r.GetFilteredAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<AuditEventFilter>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        HttpResponseMessage response = await client.GetAsync("/v1/audit/search?eventType=RunStarted&take=50");
+
+        await response.EnsureSuccessForTestAsync();
+        repo.Verify(
+            r => r.GetFilteredAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.Is<AuditEventFilter>(f => f.EventType == "RunStarted" && f.Take == 51),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [SkippableFact]
+    public async Task SearchAudit_WithBeforeEventId_without_BeforeUtc_Returns400()
+    {
+        await using AuditControllerSearchApiFactory factory = new();
+        HttpClient client = factory.CreateClient();
+
+        HttpResponseMessage response =
+            await client.GetAsync($"/v1/audit/search?beforeEventId={Guid.NewGuid():D}");
+
+        response.StatusCode.Should().Be(System.Net.HttpStatusCode.BadRequest);
+    }
+
+    [SkippableFact]
+    public async Task SearchAudit_WithBeforeUtc_without_BeforeEventId_Returns400()
+    {
+        await using AuditControllerSearchApiFactory factory = new();
+        HttpClient client = factory.CreateClient();
+
+        HttpResponseMessage response =
+            await client.GetAsync("/v1/audit/search?beforeUtc=2026-01-01T00:00:00.0000000Z");
+
+        response.StatusCode.Should().Be(System.Net.HttpStatusCode.BadRequest);
+    }
+
+    [SkippableFact]
+    public async Task SearchAudit_WithBeforeUtcAndBeforeEventId_PassesFilterToRepo()
+    {
+        Guid beforeEventId = Guid.Parse("a1b2c3d4-e5f6-7890-abcd-ef1234567890");
+
+        await using AuditControllerSearchApiFactory factory = new();
+        HttpClient client = factory.CreateClient();
+        Mock<IAuditRepository> repo = factory.AuditRepositoryMock;
+        repo
+            .Setup(r => r.GetFilteredAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<AuditEventFilter>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        HttpResponseMessage response = await client.GetAsync(
+            $"/v1/audit/search?beforeUtc=2026-01-01T00:00:00.0000000Z&beforeEventId={beforeEventId:D}");
+
+        await response.EnsureSuccessForTestAsync();
+        repo.Verify(
+            r => r.GetFilteredAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.Is<AuditEventFilter>(f =>
+                    f.BeforeUtc.HasValue
+                    && f.BeforeUtc.Value.Kind == DateTimeKind.Utc
+                    && f.BeforeUtc.Value.Year == 2026
+                    && f.BeforeUtc.Value.Month == 1
+                    && f.BeforeUtc.Value.Day == 1
+                    && f.BeforeEventId == beforeEventId),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [SkippableFact]
+    public async Task SearchAudit_ClampsTake()
+    {
+        await using AuditControllerSearchApiFactory factory = new();
+        HttpClient client = factory.CreateClient();
+        Mock<IAuditRepository> repo = factory.AuditRepositoryMock;
+        repo
+            .Setup(r => r.GetFilteredAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<AuditEventFilter>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        HttpResponseMessage response = await client.GetAsync("/v1/audit/search?take=99999");
+
+        await response.EnsureSuccessForTestAsync();
+        repo.Verify(
+            r => r.GetFilteredAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.Is<AuditEventFilter>(f => f.Take == 501),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [SkippableFact]
+    public async Task SearchAudit_WithCorrelationId_PassesFilterToRepo()
+    {
+        await using AuditControllerSearchApiFactory factory = new();
+        HttpClient client = factory.CreateClient();
+        Mock<IAuditRepository> repo = factory.AuditRepositoryMock;
+        repo
+            .Setup(r => r.GetFilteredAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<AuditEventFilter>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        HttpResponseMessage response = await client.GetAsync("/v1/audit/search?correlationId=test-corr-42");
+
+        await response.EnsureSuccessForTestAsync();
+        repo.Verify(
+            r => r.GetFilteredAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.Is<AuditEventFilter>(f => f.CorrelationId == "test-corr-42"),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [SkippableFact]
+    public async Task SearchAudit_WithRunId_PassesFilterToRepo()
+    {
+        Guid runId = Guid.Parse("6e8c4a10-2b1f-4c9a-9d3e-10b2a4f0c501");
+
+        await using AuditControllerSearchApiFactory factory = new();
+        HttpClient client = factory.CreateClient();
+        Mock<IAuditRepository> repo = factory.AuditRepositoryMock;
+        repo
+            .Setup(r => r.GetFilteredAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<AuditEventFilter>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        HttpResponseMessage response = await client.GetAsync($"/v1/audit/search?runId={runId}");
+
+        await response.EnsureSuccessForTestAsync();
+        repo.Verify(
+            r => r.GetFilteredAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.Is<AuditEventFilter>(f => f.RunId == runId),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [SkippableFact]
+    public async Task SearchAudit_WithIncludeDataJson_PassesFilterToRepo()
+    {
+        await using AuditControllerSearchApiFactory factory = new();
+        HttpClient client = factory.CreateClient();
+        Mock<IAuditRepository> repo = factory.AuditRepositoryMock;
+        repo
+            .Setup(r => r.GetFilteredAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<AuditEventFilter>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        HttpResponseMessage response = await client.GetAsync("/v1/audit/search?includeDataJson=true");
+
+        await response.EnsureSuccessForTestAsync();
+        repo.Verify(
+            r => r.GetFilteredAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.Is<AuditEventFilter>(f => f.IncludeDataJson),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [SkippableFact]
+    public async Task GetEventTypes_ReturnsAllConstants()
+    {
+        await using ArchLucidApiFactory plain = new();
+        HttpClient client = plain.CreateClient();
+
+        HttpResponseMessage response = await client.GetAsync("/v1/audit/event-types");
+        await response.EnsureSuccessForTestAsync();
+        List<string>? types = await response.Content.ReadFromJsonAsync<List<string>>();
+        types.Should().NotBeNull();
+
+        int expected = typeof(AuditEventTypes)
+            .GetFields(BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy)
+            .Count(static f => f is { IsLiteral: true, FieldType: { } t } && t == typeof(string));
+
+        types.Count.Should().Be(expected);
+        types.Should().Contain(AuditEventTypes.CircuitBreakerStateTransition);
+    }
+}

@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "scenarioId": "scenario-02-cost-optimization",
+  "source": "bootstrap_eval_template_recordings.py",
+  "note": "Synthetic baseline until live API capture; replace via eval_template_harness --mode capture.",
+  "findings": [
+    {
+      "findingId": "must-right-size-sku",
+      "category": "Cost",
+      "severity": "Medium",
+      "title": "right size",
+      "detail": "right size",
+      "message": "right size"
+    },
+    {
+      "findingId": "must-storage-tiering",
+      "category": "Cost",
+      "severity": "Medium",
+      "title": "tier storage",
+      "detail": "tier storage",
+      "message": "tier storage"
+    },
+    {
+      "findingId": "must-serverless-scale-to-zero",
+      "category": "Cost",
+      "severity": "Medium",
+      "title": "serverless",
+      "detail": "serverless",
+      "message": "serverless"
+    },
+    {
+      "findingId": "must-reserved-savings-baseline",
+      "category": "Cost",
+      "severity": "Medium",
+      "title": "reserved",
+      "detail": "reserved",
+      "message": "reserved"
+    }
+  ]
+}

@@ -1,0 +1,36 @@
+import { readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
+
+import { describe, expect, it } from "vitest";
+
+const routeDir = dirname(fileURLToPath(import.meta.url));
+const sectionsDir = join(routeDir, "_sections");
+
+const pageSource = readFileSync(join(routeDir, "page.tsx"), "utf8");
+const clientSource = readFileSync(join(sectionsDir, "SignedRecordsListClient.tsx"), "utf8");
+const deferredSource = readFileSync(join(sectionsDir, "signed-records-list-deferred-chunks.tsx"), "utf8");
+
+const bannedClientImports = ['./SignedRecordsListTable"'] as const;
+
+describe("signed-records list deferred imports (TB-2061 / wave 11)", () => {
+  it("keeps SignedRecordsListClient off the page static import graph", () => {
+    expect(pageSource).not.toContain('import SignedRecordsListClient from "./_sections/SignedRecordsListClient"');
+    expect(pageSource).toContain('import("./_sections/SignedRecordsListClient")');
+    expect(pageSource).toContain("next/dynamic");
+  });
+
+  it("keeps the EnterpriseTable cluster off SignedRecordsListClient static import graph", () => {
+    for (const bannedImport of bannedClientImports) {
+      expect(clientSource).not.toContain(bannedImport);
+    }
+
+    expect(clientSource).toContain("signed-records-list-deferred-chunks");
+    expect(clientSource).toContain("SignedRecordsListTableDeferred");
+  });
+
+  it("dynamic-imports the signed-records list table", () => {
+    expect(deferredSource).toContain("next/dynamic");
+    expect(deferredSource).toContain('import("./SignedRecordsListTable")');
+  });
+});

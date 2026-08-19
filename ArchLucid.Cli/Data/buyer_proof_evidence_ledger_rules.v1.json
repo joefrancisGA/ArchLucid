@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 1,
+  "canonicalSlots": [
+    {
+      "id": "committed-run",
+      "label": "Committed review run referenced",
+      "requiredForSponsorSend": true
+    },
+    {
+      "id": "roi-basis-labeled",
+      "label": "ROI basis labels present and sponsor-safe",
+      "requiredForSponsorSend": true
+    },
+    {
+      "id": "sponsor-packet-disposition",
+      "label": "Sponsor packet disposition ready for send",
+      "requiredForSponsorSend": true
+    },
+    {
+      "id": "decision-ledger-attributed",
+      "label": "Decision-change ledger attributed or explicitly no-change",
+      "requiredForSponsorSend": true
+    },
+    {
+      "id": "paid-pilot-evidence-row",
+      "label": "Paid-pilot evidence ledger row filed",
+      "requiredForSponsorSend": false
+    },
+    {
+      "id": "procurement-deal-ready",
+      "label": "Procurement deal-ready disposition",
+      "requiredForSponsorSend": true
+    },
+    {
+      "id": "proof-package-completeness",
+      "label": "Proof-package completeness checklist",
+      "requiredForSponsorSend": false
+    }
+  ],
+  "roiBasisIncompleteValues": ["not-collected", "unknown"],
+  "sponsorSendDispositions": ["SEND", "PASS"],
+  "procurementPassDispositions": ["PASS", "PASS_WITH_WARNINGS"],
+  "proofSendableValues": ["Sendable", "SendableWithCaveats"]
+}

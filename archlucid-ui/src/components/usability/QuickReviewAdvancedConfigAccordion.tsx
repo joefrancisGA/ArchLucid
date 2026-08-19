@@ -1,0 +1,48 @@
+"use client";
+
+import { cn } from "@/lib/utils";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { ChevronDown } from "lucide-react";
+import { useState, type ReactNode } from "react";
+
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+
+type QuickReviewAdvancedConfigAccordionProps = {
+  readonly children: ReactNode;
+  readonly open?: boolean;
+  readonly onOpenChange?: (open: boolean) => void;
+};
+
+/** Collapses execution modes, workspace scope, and policy-pack pickers until the operator explicitly expands them. */
+export function QuickReviewAdvancedConfigAccordion(props: QuickReviewAdvancedConfigAccordionProps): React.JSX.Element {
+  const [internalOpen, setInternalOpen] = useState(false);
+  const isControlled = props.open !== undefined;
+  const open = isControlled ? props.open : internalOpen;
+
+  function setOpen(next: boolean): void {
+    if (!isControlled) {
+      setInternalOpen(next);
+    }
+
+    props.onOpenChange?.(next);
+  }
+
+  return (
+    <Collapsible open={open} onOpenChange={setOpen} data-testid="quick-review-advanced-config">
+      <CollapsibleTrigger
+        type="button"
+        className={cn(
+          "flex w-full items-center justify-between gap-2 rounded-md border border-neutral-200 bg-al-surface-raised px-3 py-2 text-left hover:bg-al-layer-hover dark:border-neutral-700",
+          OPERATOR_TYPOGRAPHY.body,
+        )}
+        aria-expanded={open}
+      >
+        <span className="font-medium text-al-text-primary">Advanced configuration (optional)</span>
+        <ChevronDown className={cn("h-4 w-4 shrink-0 transition-transform", open ? "rotate-180" : "rotate-0")} aria-hidden />
+      </CollapsibleTrigger>
+      <CollapsibleContent className="mt-2 space-y-3 rounded-md border border-neutral-200 bg-white p-3 dark:border-neutral-700 dark:bg-neutral-900">
+        {props.children}
+      </CollapsibleContent>
+    </Collapsible>
+  );
+}

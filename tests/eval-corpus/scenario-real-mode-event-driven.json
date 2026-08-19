@@ -1,0 +1,62 @@
+{
+  "schemaVersion": 1,
+  "id": "corpus-real-mode-event-driven",
+  "metadata": {
+    "title": "Real-mode event-driven integration (offline AgentResult scorer)",
+    "complexity": "high",
+    "primaryAgents": ["Topology", "Compliance"]
+  },
+  "architectureBrief": {
+    "systemName": "Metro Logistics Order Hub",
+    "description": "High-volume order intake from partners via HTTPS feeds transformed into canonical events for fulfillment and billing microservices.",
+    "technologyStack": [
+      "Azure Event Hubs (ingress)",
+      "Azure Functions (Premium plan)",
+      "Azure Service Bus (topics for domain handlers)",
+      "Azure Cosmos DB (lease container for consumers)",
+      "Application Insights distributed tracing"
+    ],
+    "reviewObjectives": [
+      "Stress-test scaling limits and poison-message handling",
+      "Validate idempotency and ordering assumptions",
+      "Confirm operational visibility on failure paths"
+    ],
+    "constraints": [
+      "Peak 25M events/day with burst multiplier 3x",
+      "At-least-once delivery acceptable; duplicates must be detectable",
+      "No PII in dead-letter payloads"
+    ]
+  },
+  "inputSummary": "Event Hubs plus Functions and Service Bus for partner order streaming with dead-letter handling. Synthetic event-driven slice.",
+  "recording": "recordings/corpus-event-driven-integration.findings.json",
+  "qualityEvidence": {
+    "mode": "real",
+    "agentType": "Topology",
+    "agentResultPathEnv": "ARCHLUCID_EVAL_CORPUS_REAL_MODE_EVENT_DRIVEN_AGENT_RESULT",
+    "notes": "Topology exemplar; live runs should use gpt-4o deployment only per cohort policy."
+  },
+  "expectedFindings": [
+    {
+      "id": "e event hubs ingress",
+      "category": "Topology",
+      "minimumSeverity": "High",
+      "evidenceMustContain": ["Event Hubs", "autoscale"]
+    },
+    {
+      "id": "e functions processors",
+      "category": "Topology",
+      "minimumSeverity": "Medium",
+      "evidenceMustContain": ["Functions", "managed identity"]
+    },
+    {
+      "id": "e dead letter posture",
+      "category": "Compliance",
+      "minimumSeverity": "Medium",
+      "evidenceMustContain": ["dead-letter", "correlation"]
+    }
+  ],
+  "unexpectedFindings": [
+    { "category": "Topology", "ifContainsAny": ["single thread only", "drop messages silently"] },
+    { "category": "Critic", "ifContainsAny": ["delete dead letter queues"] }
+  ]
+}

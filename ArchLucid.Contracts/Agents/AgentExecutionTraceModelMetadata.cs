@@ -1,0 +1,39 @@
+namespace ArchLucid.Contracts.Agents;
+
+/// <summary>
+///     Canonical strings for <see cref="AgentExecutionTrace.ModelDeploymentName" /> and
+///     <see cref="AgentExecutionTrace.ModelVersion" /> when the provider does not supply values,
+///     so persisted traces remain queryable and log forging / null ambiguity is avoided for Real-mode rows.
+/// </summary>
+/// <remarks>
+///     Simulator-mode traces should use explicit <see cref="SimulatorDeploymentName" /> /
+///     <see cref="SimulatorModelVersion" /> from the recording executor instead of these sentinels.
+/// </remarks>
+public static class AgentExecutionTraceModelMetadata
+{
+    /// <summary>
+    ///     Prefix on <see cref="AgentExecutionTrace.ModelDeploymentName" /> when the secondary (resource-level) LLM
+    ///     completion client produced the response (see host fallback LLM configuration).
+    /// </summary>
+    public const string LlmCompletionFallbackDeploymentPrefix = "fallback:";
+
+    /// <summary>Placeholder when the completion client did not report a deployment name.</summary>
+    public const string UnspecifiedDeploymentName = "unspecified-deployment";
+
+    /// <summary>Placeholder when the completion client did not report a model version.</summary>
+    public const string UnspecifiedModelVersion = "unspecified-model-version";
+
+    /// <summary>Recorded for <c>AgentExecution:Mode=Simulator</c> traces (deterministic executor).</summary>
+    public const string SimulatorDeploymentName = "AgentExecution:Simulator";
+
+    /// <summary>Recorded for simulator traces; bumps if simulator output shape changes materially.</summary>
+    public const string SimulatorModelVersion = "deterministic-1.0";
+
+    /// <summary>
+    ///     Recorded when handler resilience returns a degraded placeholder without an LLM completion (TB-034).
+    /// </summary>
+    public const string DegradedHandlerDeploymentName = "handler-degraded:no-llm-call";
+
+    /// <summary>Version label for degraded-handler partial traces (no provider model).</summary>
+    public const string DegradedHandlerModelVersion = "resilience-placeholder-1.0";
+}

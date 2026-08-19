@@ -31,7 +31,3 @@ export const ITSM_ATLASSIAN_OAUTH_CALLBACK_CONTACT_SUPPORT_LABEL = "Contact supp
 export const ITSM_ATLASSIAN_OAUTH_CALLBACK_BREADCRUMB_INTEGRATIONS_LABEL = "Integrations";
 
 export const ITSM_ATLASSIAN_OAUTH_CALLBACK_BREADCRUMB_JIRA_LABEL = "Jira";
-
-export const ITSM_ATLASSIAN_OAUTH_CALLBACK_PRIMARY_CONTENT_ID = "itsm-oauth-callback-primary-content" as const;
-
-export const ITSM_ATLASSIAN_OAUTH_CALLBACK_SKIP_LINK_LABEL = "Skip to consent outcome" as const;

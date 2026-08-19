@@ -1,0 +1,131 @@
+# TB-683 — nightly real-mode eval loop: score committed *.real.json exemplars, emit JSON+Markdown
+# trend artifacts, and warn on two consecutive baseline-regression nights.
+# Gated on repo variable ARCHLUCID_GOLDEN_COHORT_REAL_LLM=true (same as golden-cohort nightly).
+name: real-mode-eval-nightly
+
+on:
+  schedule:
+    - cron: "30 5 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  real-mode-eval-trend:
+    if: github.event.repository.fork == false
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Eligibility (TB-683)
+        id: eligibility
+        run: |
+          set -euo pipefail
+          if [ "${{ vars.ARCHLUCID_GOLDEN_COHORT_REAL_LLM }}" != "true" ]; then
+            echo "enabled=false" >> "${GITHUB_OUTPUT}"
+            echo "TB-683 skip: set repository variable ARCHLUCID_GOLDEN_COHORT_REAL_LLM=true to enable nightly real-mode eval."
+            exit 0
+          fi
+          echo "enabled=true" >> "${GITHUB_OUTPUT}"
+
+      - uses: actions/setup-python@v6
+        if: steps.eligibility.outputs.enabled == 'true'
+        with:
+          python-version: "3.12"
+
+      - name: Restore previous night trend
+        if: steps.eligibility.outputs.enabled == 'true'
+        uses: actions/cache/restore@v4
+        with:
+          path: ${{ runner.temp }}/real-mode-eval-previous
+          key: real-mode-eval-trend-${{ github.run_id }}
+          restore-keys: |
+            real-mode-eval-trend-
+
+      - name: Eval corpus (18 real-mode exemplars + floors)
+        if: steps.eligibility.outputs.enabled == 'true'
+        id: eval
+        env:
+          ARCHLUCID_EVAL_CORPUS_REAL_MODE_SMOKE_AGENT_RESULT: ${{ github.workspace }}/tests/eval-corpus/agent-results/corpus-real-mode-smoke.real.json
+          ARCHLUCID_EVAL_CORPUS_REAL_MODE_COST_AGENT_RESULT: ${{ github.workspace }}/tests/eval-corpus/agent-results/corpus-real-mode-cost.real.json
+          ARCHLUCID_EVAL_CORPUS_REAL_MODE_COMPLIANCE_AGENT_RESULT: ${{ github.workspace }}/tests/eval-corpus/agent-results/corpus-real-mode-compliance.real.json
+          ARCHLUCID_EVAL_CORPUS_REAL_MODE_CRITIC_AGENT_RESULT: ${{ github.workspace }}/tests/eval-corpus/agent-results/corpus-real-mode-critic.real.json
+          ARCHLUCID_EVAL_CORPUS_REAL_MODE_THREE_TIER_AGENT_RESULT: ${{ github.workspace }}/tests/eval-corpus/agent-results/corpus-real-mode-three-tier.real.json
+          ARCHLUCID_EVAL_CORPUS_REAL_MODE_MICROSERVICES_AGENT_RESULT: ${{ github.workspace }}/tests/eval-corpus/agent-results/corpus-real-mode-microservices.real.json
+          ARCHLUCID_EVAL_CORPUS_REAL_MODE_DATABASE_BACKUP_AGENT_RESULT: ${{ github.workspace }}/tests/eval-corpus/agent-results/corpus-real-mode-database-backup.real.json
+          ARCHLUCID_EVAL_CORPUS_REAL_MODE_OVERPROVISIONED_VM_AGENT_RESULT: ${{ github.workspace }}/tests/eval-corpus/agent-results/corpus-real-mode-overprovisioned-vm.real.json
+          ARCHLUCID_EVAL_CORPUS_REAL_MODE_MULTI_REGION_AGENT_RESULT: ${{ github.workspace }}/tests/eval-corpus/agent-results/corpus-real-mode-multi-region.real.json
+          ARCHLUCID_EVAL_CORPUS_REAL_MODE_AZURE_WEB_APP_AGENT_RESULT: ${{ github.workspace }}/tests/eval-corpus/agent-results/corpus-real-mode-azure-web-app.real.json
+          ARCHLUCID_EVAL_CORPUS_REAL_MODE_CLOUD_MIGRATION_LIFT_SHIFT_AGENT_RESULT: ${{ github.workspace }}/tests/eval-corpus/agent-results/corpus-real-mode-cloud-migration-lift-shift.real.json
+          ARCHLUCID_EVAL_CORPUS_REAL_MODE_GREENFIELD_MICROSERVICES_AGENT_RESULT: ${{ github.workspace }}/tests/eval-corpus/agent-results/corpus-real-mode-greenfield-microservices.real.json
+          ARCHLUCID_EVAL_CORPUS_REAL_MODE_HEALTHCARE_HIPAA_AGENT_RESULT: ${{ github.workspace }}/tests/eval-corpus/agent-results/corpus-real-mode-healthcare-hipaa.real.json
+          ARCHLUCID_EVAL_CORPUS_REAL_MODE_FINOPS_EXISTING_AZURE_AGENT_RESULT: ${{ github.workspace }}/tests/eval-corpus/agent-results/corpus-real-mode-finops-existing-azure.real.json
+          ARCHLUCID_EVAL_CORPUS_REAL_MODE_EVENT_DRIVEN_AGENT_RESULT: ${{ github.workspace }}/tests/eval-corpus/agent-results/corpus-real-mode-event-driven.real.json
+          ARCHLUCID_EVAL_CORPUS_REAL_MODE_MULTI_REGION_ACTIVE_ACTIVE_AGENT_RESULT: ${{ github.workspace }}/tests/eval-corpus/agent-results/corpus-real-mode-multi-region-active-active.real.json
+          ARCHLUCID_EVAL_CORPUS_REAL_MODE_DATA_PLATFORM_ANALYTICS_AGENT_RESULT: ${{ github.workspace }}/tests/eval-corpus/agent-results/corpus-real-mode-data-platform-analytics.real.json
+          ARCHLUCID_EVAL_CORPUS_REAL_MODE_AI_ML_INFERENCE_AGENT_RESULT: ${{ github.workspace }}/tests/eval-corpus/agent-results/corpus-real-mode-ai-ml-inference.real.json
+        run: |
+          set -euo pipefail
+          DATE_UTC="$(date -u +%Y-%m-%d)"
+          OUT_DIR="${GITHUB_WORKSPACE}/artifacts/real-mode-eval-nightly/${DATE_UTC}"
+          mkdir -p "${OUT_DIR}"
+          python3 scripts/ci/eval_agent_corpus.py \
+            --markdown-report "${OUT_DIR}/trend.md" \
+            --json-report "${OUT_DIR}/trend.json" \
+            --enforce-quality-gate \
+            --enforce-real-quality-gate \
+            --enforce-llm-faithfulness \
+            --baseline
+          if [ -n "${GITHUB_STEP_SUMMARY:-}" ]; then
+            echo "## TB-683 real-mode eval (${DATE_UTC})" >> "${GITHUB_STEP_SUMMARY}"
+            head -n 48 "${OUT_DIR}/trend.md" >> "${GITHUB_STEP_SUMMARY}"
+          fi
+          echo "trend_dir=${OUT_DIR}" >> "${GITHUB_OUTPUT}"
+
+      - name: Append LLM batch metadata (TB-685)
+        if: steps.eligibility.outputs.enabled == 'true'
+        env:
+          ARCHLUCID_LLM_BATCH_ENABLED: ${{ vars.ARCHLUCID_LLM_BATCH_ENABLED }}
+        run: |
+          set -euo pipefail
+          ENABLED="${ARCHLUCID_LLM_BATCH_ENABLED:-false}"
+          python3 scripts/ci/append_llm_batch_trend_metadata.py \
+            --trend-json "${{ steps.eval.outputs.trend_dir }}/trend.json" \
+            --enabled "${ENABLED}"
+
+      - name: Golden cohort canary drift alert (TB-2231)
+        if: steps.eligibility.outputs.enabled == 'true'
+        run: |
+          set -euo pipefail
+          PREV="${RUNNER_TEMP}/real-mode-eval-previous/trend.json"
+          CURR="${{ steps.eval.outputs.trend_dir }}/trend.json"
+          if [ -f "${PREV}" ]; then
+            python3 scripts/ci/assert_golden_cohort_canary_drift_alert.py \
+              --current "${CURR}" \
+              --previous "${PREV}" \
+              --history-root "$(dirname "$(dirname "${CURR}")")"
+          else
+            echo "No previous trend artifact in cache (first night or cold cache)."
+          fi
+
+      - name: Save trend for next night
+        if: steps.eligibility.outputs.enabled == 'true'
+        run: |
+          set -euo pipefail
+          mkdir -p "${RUNNER_TEMP}/real-mode-eval-previous"
+          cp "${{ steps.eval.outputs.trend_dir }}/trend.json" "${RUNNER_TEMP}/real-mode-eval-previous/trend.json"
+
+      - name: Cache trend for consecutive-night compare
+        if: steps.eligibility.outputs.enabled == 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: ${{ runner.temp }}/real-mode-eval-previous
+          key: real-mode-eval-trend-${{ github.run_id }}
+
+      - uses: actions/upload-artifact@v4
+        if: steps.eligibility.outputs.enabled == 'true'
+        with:
+          name: real-mode-eval-nightly-${{ github.run_id }}
+          path: artifacts/real-mode-eval-nightly/
+          if-no-files-found: error

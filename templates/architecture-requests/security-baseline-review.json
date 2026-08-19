@@ -1,0 +1,31 @@
+{
+  "requestId": "TPL-SEC-BASELINE-REVIEW-001",
+  "systemName": "AdatumHealthcarePortal",
+  "description": "Adatum is standing up a patient-facing portal on Azure. Review proposed architecture against enterprise security baseline: identity, segmentation, encryption, logging, and vendor alignment with regulated-data handling policies.",
+  "environment": "prod",
+  "cloudProvider": "Azure",
+  "constraints": [
+    "PHI handling per organizational policy (synthetic scenario — replace with your policy ids)",
+    "WAF mandatory for internet ingress",
+    "Admin access via PIM-style patterns only"
+  ],
+  "requiredCapabilities": [
+    "Microsoft Entra ID with conditional access",
+    "Azure Front Door or Application Gateway WAF",
+    "Azure Key Vault",
+    "Microsoft Defender for Cloud logging"
+  ],
+  "assumptions": [
+    "Single-region primary with documented DR posture"
+  ],
+  "priorManifestVersion": null,
+  "inlineRequirements": [],
+  "documents": [],
+  "policyReferences": [],
+  "topologyHints": [],
+  "securityBaselineHints": [
+    "Zero public database endpoints",
+    "Managed identities between app and datastore tiers"
+  ],
+  "infrastructureDeclarations": []
+}

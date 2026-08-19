@@ -1,0 +1,30 @@
+{
+  "resultId": "corp-hall-sim-01",
+  "taskId": "corp-hall-task-01",
+  "runId": "corp-hall-run-01",
+  "agentType": 4,
+  "claims": [
+    {
+      "evidenceRefs": ["hallucinated-service-guardrail-pattern"],
+      "detail": "Simulator critic claim: fabricated tiers must be grounded in CMDB exports before reviewers accept dependency graphs."
+    }
+  ],
+  "evidenceRefs": ["hallucinated-service-guardrail-pattern"],
+  "confidence": 0.77,
+  "findings": [
+    {
+      "severity": "Medium",
+      "category": "Critic",
+      "description": "Reject narratives that invent orchestrators absent from signed manifests until inventory reconciliation completes.",
+      "recommendation": "Attach diff proofs linking each new node to CMDB rows before merging architecture packets."
+    },
+    {
+      "severity": "Medium",
+      "category": "Topology",
+      "description": "Topology reviewers should refuse edges sourced only from prose when reconciled inventories contradict the diagram.",
+      "recommendation": "Regenerate diagrams after importing the latest reconciled inventory CSV through the pipeline validator."
+    }
+  ],
+  "proposedChanges": null,
+  "createdUtc": "2026-05-08T12:00:00Z"
+}

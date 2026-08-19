@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://archlucid.dev/schemas/integration-events/alert-resolved.v1.schema.json",
+  "title": "com.archlucid.alert.resolved",
+  "description": "Alert resolved via API (canonical com.archlucid.alert.resolved; legacy V1 type alias supported).",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "tenantId",
+    "workspaceId",
+    "projectId",
+    "alertId",
+    "resolvedByUserId"
+  ],
+  "properties": {
+    "schemaVersion": { "type": "integer", "const": 1 },
+    "tenantId": { "type": "string", "format": "uuid" },
+    "workspaceId": { "type": "string", "format": "uuid" },
+    "projectId": { "type": "string", "format": "uuid" },
+    "alertId": { "type": "string", "format": "uuid" },
+    "runId": { "type": "string", "format": "uuid" },
+    "deduplicationKey": {
+      "type": "string",
+      "description": "Same key as alert.fired / ADR 0008; copied for ChatOps card correlation on resolve."
+    },
+    "resolvedByUserId": { "type": "string" },
+    "comment": { "type": "string" }
+  },
+  "additionalProperties": true
+}

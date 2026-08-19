@@ -1,0 +1,36 @@
+{
+  "name": "Fabrikam.WorkforceCloud.Api",
+  "description": "Fabrikam (fictional) sells workforce analytics SaaS on Azure: multi-tenant API, background jobs, admin portal; buyers require SOC2-oriented diligence on access, change management, and subprocessors without exposing another customer's data.",
+  "request_id": "starter-fabrikam-saas-soc-001",
+  "environment": "prod",
+  "components": [
+    "public-api",
+    "async-workers",
+    "admin-bff",
+    "tenant-isolation-boundary"
+  ],
+  "data_stores": [
+    "Azure SQL (tenant-partitioned OLTP)",
+    "Azure Cache for Redis (session and rate limits)",
+    "Azure Blob Storage (export artifacts)"
+  ],
+  "public_endpoints": [
+    "https://api.fabrikam-workforce.example"
+  ],
+  "compliance_posture": [
+    "SOC 2 trust services criteria used as **question vocabulary** for architecture review only — not an audit conclusion",
+    "Vendor risk: subprocessors documented; data residency EU+US regions"
+  ],
+  "constraints": [
+    "Tenant isolation: no cross-tenant reads in the OLTP path; defense in depth for support break-glass",
+    "CI/CD: production deploys from signed builds only; manual approval for schema migrations",
+    "Secrets via Key Vault + managed identity; no long-lived keys in app settings for production"
+  ],
+  "assumptions": [
+    "Greenfield service — illustrative only for pilot evaluation",
+    "Entra ID is IdP for workforce customers (OIDC); no legacy SAML in this starter"
+  ],
+  "inline_requirements": [
+    "Architecture review should surface evidence paths for change tickets, access reviews, and logging retention — as **design hooks**, not as proof of operating effectiveness"
+  ]
+}

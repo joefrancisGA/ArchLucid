@@ -1,0 +1,36 @@
+import { cn } from "@/lib/utils";
+import { normalizeFindingSeverity, OPERATOR_TYPOGRAPHY, severityTagClass } from "@/lib/design-tokens";
+
+import type { ProductLearningTimeRangeKey } from "./product-learning-types";
+
+export function sinceIsoForRange(key: ProductLearningTimeRangeKey): string | null {
+  if (key === "all") {
+    return null;
+  }
+
+  const days = key === "7d" ? 7 : 30;
+  const d = new Date();
+  d.setUTCDate(d.getUTCDate() - days);
+
+  return d.toISOString();
+}
+
+export function formatUtc(iso: string): string {
+  try {
+    return `${new Date(iso).toLocaleString(undefined, { timeZone: "UTC" })} UTC`;
+  } catch {
+    return iso;
+  }
+}
+
+export function severityBadgeClass(severity: string): string {
+  return severityTagClass(normalizeFindingSeverity(severity));
+}
+
+export const productLearningTableClass = cn("mt-2 w-full border-collapse", OPERATOR_TYPOGRAPHY.body);
+
+export const productLearningThTdClass =
+  "border border-neutral-200 dark:border-neutral-700 px-2.5 py-2 text-left align-top";
+
+export const productLearningNumericCellClass =
+  "border border-neutral-200 dark:border-neutral-700 px-2.5 py-2 text-right align-top tabular-nums";

@@ -1,0 +1,70 @@
+namespace ArchLucid.Core.Configuration;
+
+/// <summary>Inbound ITSM webhook shared secrets (see <c>Integrations:ItsmInbound</c>).</summary>
+public sealed class IntegrationsItsmInboundOptions
+{
+    public const string SectionName = "Integrations:ItsmInbound";
+
+    /// <summary>
+    ///     When <see langword="false" /> (hosted multi-tenant SaaS), inbound webhooks must authenticate with per-tenant secrets
+    ///     resolved from connector connection rows (tenant-scoped webhook routes).
+    /// </summary>
+    public bool AllowDeploymentWideWebhookSecrets
+    {
+        get;
+        set;
+    } = true;
+
+    /// <summary>Shared secret for <c>X-Jira-Token</c> header on Jira webhook POST. Empty disables the endpoint.</summary>
+    public string JiraWebhookSecret
+    {
+        get;
+        set;
+    } = string.Empty;
+
+    /// <summary>Shared secret for <c>X-ServiceNow-Token</c> header. Empty disables the endpoint.</summary>
+    public string ServiceNowWebhookSecret
+    {
+        get;
+        set;
+    } = string.Empty;
+
+    /// <summary>
+    ///     Optional per-deployment map: Jira workflow status <c>name</c> →
+    ///     <see cref="ArchLucid.Contracts.Findings.FindingHumanReviewStatus"/> name (e.g. <c>Approved</c>). Keys match case-insensitively;
+    ///     when a status is absent here, built-in defaults apply.
+    /// </summary>
+    public Dictionary<string, string> JiraStatusHumanReviewMap { get; set; } = new();
+
+    /// <summary>
+    ///     Optional per-deployment map: ServiceNow <c>state</c> / <c>incident_state</c> raw value (string or numeric text) →
+    ///     <see cref="ArchLucid.Contracts.Findings.FindingHumanReviewStatus"/> name. Keys match case-insensitively; built-in defaults apply for unmapped values.
+    /// </summary>
+    public Dictionary<string, string> ServiceNowStateHumanReviewMap { get; set; } = new();
+
+    /// <summary>
+    ///     Optional per-deployment map: Jira workflow status <c>name</c> →
+    ///     <see cref="ArchLucid.Contracts.Findings.FindingDisposition"/> name (e.g. <c>Remediated</c>). Keys match case-insensitively;
+    ///     when absent, inbound webhooks update human review only (TB-396).
+    /// </summary>
+    public Dictionary<string, string> JiraStatusDispositionMap { get; set; } = new();
+
+    /// <summary>
+    ///     Optional per-deployment map: ServiceNow <c>state</c> / <c>incident_state</c> raw value →
+    ///     <see cref="ArchLucid.Contracts.Findings.FindingDisposition"/> name. Keys match case-insensitively; unmapped values do not change disposition.
+    /// </summary>
+    public Dictionary<string, string> ServiceNowStateDispositionMap { get; set; } = new();
+
+    /// <summary>
+    ///     When <see langword="true" />, callers must send HMAC-SHA256 over the raw UTF-8 body on
+    ///     <c>X-ArchLucid-Webhook-Signature</c> (<c>sha256=&lt;hex&gt;</c>, outbound-aligned) or legacy
+    ///     <c>X-ArchLucid-Signature</c> (lowercase hex only). The vendor token header is still required.
+    /// </summary>
+    public bool RequireBodyHmacSignature { get; set; }
+
+    /// <summary>
+    ///     Maximum acceptable |now − payload| skew when <c>X-ArchLucid-Timestamp</c> (Unix seconds) is present (TB-968:
+    ///     enforced even when <see cref="RequireBodyHmacSignature" /> is false).
+    /// </summary>
+    public int WebhookTimestampSkewSeconds { get; set; } = 300;
+}

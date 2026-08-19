@@ -1,0 +1,93 @@
+using System.Security.Claims;
+
+using ArchLucid.Core.Scoping;
+
+using Microsoft.Extensions.Primitives;
+
+namespace ArchLucid.Host.Core.Auth.Services;
+
+/// <summary>
+/// Resolves <see cref="ScopeContext"/> from optional ambient override, then JWT claims, then <c>x-*-id</c> headers (headers only when the claim is absent or not a valid GUID), with dev fallbacks.
+/// </summary>
+/// <param name="httpContextAccessor">Current HTTP context when the call is on the request thread.</param>
+/// <remarks>
+/// Register as <strong>singleton</strong>: each <see cref="GetCurrentScope"/> call reads <see cref="IHttpContextAccessor.HttpContext"/> (or <see cref="AmbientScopeContext"/>),
+/// so there is no per-request instance state. Scoped services (for example <c>IAgentCompletionClient</c>) can depend on this provider safely.
+/// </remarks>
+public sealed class HttpScopeContextProvider(IHttpContextAccessor httpContextAccessor) : IScopeContextProvider
+{
+    /// <inheritdoc />
+    public ScopeContext GetCurrentScope() => ResolveCurrentScope().Scope;
+
+    /// <inheritdoc />
+    /// <remarks>
+    /// Order per dimension: <see cref="AmbientScopeContext.CurrentOverride"/> (background jobs), then JWT claims
+    /// <c>tenant_id</c> / <c>workspace_id</c> / <c>project_id</c> when they parse as GUIDs, then <c>x-*-id</c> headers,
+    /// else <see cref="ScopeIds"/> defaults. Claims win over headers so callers cannot override token-bound scope via headers (IDOR mitigation).
+    /// </remarks>
+    public ScopeResolution ResolveCurrentScope()
+    {
+        ScopeContext? ambient = AmbientScopeContext.CurrentOverride;
+
+        if (ambient is not null)
+            return ScopeResolution.FromUniformSource(ambient, ScopeSource.Ambient);
+
+        HttpContext? http = httpContextAccessor.HttpContext;
+        ClaimsPrincipal? user = http?.User;
+        IHeaderDictionary? headers = http?.Request.Headers;
+
+        ScopeDimensionResolution tenant = ResolveScopeIdWithSource(
+            user,
+            headers,
+            "tenant_id",
+            "x-tenant-id",
+            ScopeIds.DefaultTenant);
+        ScopeDimensionResolution workspace = ResolveScopeIdWithSource(
+            user,
+            headers,
+            "workspace_id",
+            "x-workspace-id",
+            ScopeIds.DefaultWorkspace);
+        ScopeDimensionResolution project = ResolveScopeIdWithSource(
+            user,
+            headers,
+            "project_id",
+            "x-project-id",
+            ScopeIds.DefaultProject);
+
+        ScopeContext scope = new()
+        {
+            TenantId = tenant.Value,
+            WorkspaceId = workspace.Value,
+            ProjectId = project.Value,
+        };
+
+        return ScopeResolution.Create(scope, tenant, workspace, project);
+    }
+
+    /// <summary>
+    /// Prefers a well-formed JWT claim over the matching header so scope stays bound to the token when both are present.
+    /// </summary>
+    private static ScopeDimensionResolution ResolveScopeIdWithSource(
+        ClaimsPrincipal? user,
+        IHeaderDictionary? headers,
+        string claimType,
+        string headerName,
+        Guid defaultId)
+    {
+        string? claimValue = user?.FindFirst(claimType)?.Value;
+
+        if (!string.IsNullOrWhiteSpace(claimValue) && Guid.TryParse(claimValue, out Guid fromClaim))
+            return new ScopeDimensionResolution(fromClaim, ScopeSource.Claim);
+
+        if (headers is null || !headers.TryGetValue(headerName, out StringValues headerRaw))
+            return new ScopeDimensionResolution(defaultId, ScopeSource.Default);
+
+        string headerText = headerRaw.ToString();
+
+        if (string.IsNullOrWhiteSpace(headerText) || !Guid.TryParse(headerText, out Guid fromHeader))
+            return new ScopeDimensionResolution(defaultId, ScopeSource.Default);
+
+        return new ScopeDimensionResolution(fromHeader, ScopeSource.Header);
+    }
+}

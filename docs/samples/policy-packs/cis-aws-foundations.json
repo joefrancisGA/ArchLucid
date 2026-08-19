@@ -1,0 +1,50 @@
+{
+  "complianceRuleIds": [],
+  "complianceRuleKeys": [
+    "cis-aws-001",
+    "cis-aws-002",
+    "cis-aws-003",
+    "cis-aws-004",
+    "cis-aws-005",
+    "cis-aws-006",
+    "cis-aws-007",
+    "cis-aws-008",
+    "cis-aws-009",
+    "cis-aws-010",
+    "cis-aws-011",
+    "cis-aws-012",
+    "cis-aws-013",
+    "cis-aws-014",
+    "cis-aws-015",
+    "cis-aws-016",
+    "cis-aws-017",
+    "cis-aws-018",
+    "cis-aws-019",
+    "cis-aws-020",
+    "cis-aws-021",
+    "cis-aws-022",
+    "cis-aws-023",
+    "cis-aws-024",
+    "cis-aws-025",
+    "cis-aws-026",
+    "cis-aws-027",
+    "cis-aws-028"
+  ],
+  "alertRuleIds": [],
+  "compositeAlertRuleIds": [],
+  "advisoryDefaults": {
+    "severityFloor": "warning",
+    "priorityFloor": "P0",
+    "scanDepth": "standard"
+  },
+  "metadata": {
+    "templateId": "cis-aws-foundations-v1",
+    "pack.displayName": "CIS AWS Foundations Benchmark",
+    "pack.category": "Security",
+    "pack.version": "1.0.0",
+    "pack.isDefault": "true",
+    "pack.description": "CIS-aligned AWS hardening themes for architecture review. Not CIS benchmark pass/fail.",
+    "frameworkMappingDisclaimer": "CIS references are thematic alignment only.",
+    "curatedRulesArtifact": "docs/samples/policy-packs/cis-aws-foundations-rules-v1.json"
+  }
+}

@@ -1,0 +1,16 @@
+<svg width="220" height="60" viewBox="0 0 220 60" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      .text { font-family: Inter, Arial, sans-serif; font-weight: 600; fill: #1E3A5F; }
+    </style>
+  </defs>
+
+  <!-- Icon -->
+  <g transform="translate(0,5)">
+    <polygon points="20,40 40,5 60,40" fill="#1E3A5F"></polygon>
+    <polygon points="30,40 40,20 50,40" fill="#00AEEF"></polygon>
+  </g>
+
+  <!-- Text -->
+  <text x="75" y="38" class="text" font-size="24">ArchLucid</text>
+</svg>

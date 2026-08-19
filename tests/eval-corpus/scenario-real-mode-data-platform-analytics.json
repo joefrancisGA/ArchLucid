@@ -1,0 +1,63 @@
+{
+  "schemaVersion": 1,
+  "id": "corpus-real-mode-data-platform-analytics",
+  "metadata": {
+    "title": "Real-mode data platform / analytics pipeline (offline AgentResult scorer)",
+    "complexity": "high",
+    "primaryAgents": ["Cost", "Topology", "Compliance"]
+  },
+  "architectureBrief": {
+    "systemName": "Northern Star Telemetry Lakehouse",
+    "description": "Batch and near-real-time analytics over IoT and application telemetry with curated datasets for BI and ML feature stores.",
+    "technologyStack": [
+      "Azure Data Lake Storage Gen2 (bronze/silver/gold)",
+      "Azure Synapse dedicated SQL pools",
+      "Azure Data Factory orchestration",
+      "Apache Spark in Synapse",
+      "Microsoft Purview data catalog",
+      "Power BI Premium capacity"
+    ],
+    "reviewObjectives": [
+      "Optimize compute spend for bursty ETL without missing SLAs",
+      "Validate medallion layer isolation and access boundaries",
+      "Confirm lineage and PII tagging for regulated feeds"
+    ],
+    "constraints": [
+      "Nightly SLAs: curated marts ready by 06:00 local",
+      "Raw retention 13 months; curated retention 7 years",
+      "No direct analyst access to bronze containers"
+    ]
+  },
+  "inputSummary": "Medallion lakehouse on ADLS with Synapse pools and Purview lineage. Synthetic data-platform archetype for cohort expansion.",
+  "recording": "recordings/corpus-data-platform-analytics.findings.json",
+  "qualityEvidence": {
+    "mode": "real",
+    "agentType": "Cost",
+    "agentResultPathEnv": "ARCHLUCID_EVAL_CORPUS_REAL_MODE_DATA_PLATFORM_ANALYTICS_AGENT_RESULT",
+    "notes": "Cost-led exemplar; recordings still carry topology/compliance findings for recall probes."
+  },
+  "expectedFindings": [
+    {
+      "id": "e synapse pause",
+      "category": "Cost",
+      "minimumSeverity": "Medium",
+      "evidenceMustContain": ["Synapse", "pool"]
+    },
+    {
+      "id": "e adls layout",
+      "category": "Topology",
+      "minimumSeverity": "Medium",
+      "evidenceMustContain": ["ADLS", "bronze"]
+    },
+    {
+      "id": "e lineage catalog",
+      "category": "Compliance",
+      "minimumSeverity": "Low",
+      "evidenceMustContain": ["lineage", "purview"]
+    }
+  ],
+  "unexpectedFindings": [
+    { "category": "Compliance", "ifContainsAny": ["delete lineage", "open bronze to everyone"] },
+    { "category": "Cost", "ifContainsAny": ["never pause compute", "ignore storage growth"] }
+  ]
+}

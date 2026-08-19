@@ -1,0 +1,66 @@
+using System.Data;
+
+namespace ArchLucid.Persistence.IntegrationOutbox;
+
+/// <summary>Transactional outbox for integration events (same pattern as <see cref="Retrieval.IRetrievalIndexingOutboxRepository"/>).</summary>
+public interface IIntegrationEventOutboxRepository
+{
+    /// <param name="runId">Optional correlation to an authority run; null for governance-only, alert, or advisory events.</param>
+    Task EnqueueAsync(
+        Guid? runId,
+        string eventType,
+        string? messageId,
+        ReadOnlyMemory<byte> payloadUtf8,
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        CancellationToken ct);
+
+    /// <param name="runId">Optional correlation to an authority run; null when the event is not run-scoped.</param>
+    Task EnqueueAsync(
+        Guid? runId,
+        string eventType,
+        string? messageId,
+        ReadOnlyMemory<byte> payloadUtf8,
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        IDbConnection connection,
+        IDbTransaction transaction,
+        CancellationToken ct);
+
+    Task<IReadOnlyList<IntegrationEventOutboxEntry>> DequeuePendingAsync(int maxBatch, CancellationToken ct);
+
+    Task MarkProcessedAsync(Guid outboxId, CancellationToken ct);
+
+    /// <summary>Updates row after a failed publish (backoff or dead-letter).</summary>
+    Task RecordPublishFailureAsync(
+        Guid outboxId,
+        int newRetryCount,
+        DateTime? nextRetryUtc,
+        DateTime? deadLetteredUtc,
+        string? lastErrorMessage,
+        CancellationToken ct);
+
+    Task<long> CountIntegrationOutboxPublishPendingAsync(CancellationToken ct);
+
+    Task<long> CountIntegrationOutboxDeadLetterAsync(CancellationToken ct);
+
+    Task<IReadOnlyList<IntegrationEventOutboxDeadLetterRow>> ListDeadLettersAsync(int maxRows, CancellationToken ct);
+
+    /// <summary>Clears dead-letter state so the row is eligible for publish retries again.</summary>
+    Task<bool> ResetDeadLetterForRetryAsync(Guid outboxId, CancellationToken ct);
+
+    /// <summary>Marks a dead-letter row processed without republishing (operator suppress / acknowledge).</summary>
+    Task<bool> AcknowledgeDeadLetterAsync(Guid outboxId, CancellationToken ct);
+
+    /// <summary>Re-queues dead-letter rows matching optional tenant and event-type filters.</summary>
+    Task<IntegrationOutboxDeadLetterBulkRetryResult> RetryMatchingDeadLettersAsync(
+        Guid? tenantId,
+        string? eventType,
+        int maxRows,
+        CancellationToken ct);
+
+    /// <summary>Loads a dead-lettered row including payload bytes for operator replay tooling.</summary>
+    Task<IntegrationEventOutboxEntry?> TryGetDeadLetterEntryAsync(Guid outboxId, CancellationToken ct);
+}

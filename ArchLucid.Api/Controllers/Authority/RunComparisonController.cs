@@ -1,0 +1,290 @@
+using ArchLucid.Api.Attributes;
+using ArchLucid.Api.Http;
+using ArchLucid.Api.Mapping;
+using ArchLucid.Api.Models;
+using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application;
+using ArchLucid.Application.Analysis;
+using ArchLucid.Application.Diffs;
+using ArchLucid.Contracts.Architecture;
+using ArchLucid.Core.Audit;
+using ArchLucid.Core.Authorization;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Tenancy;
+using ArchLucid.Persistence.Serialization;
+
+using System.Text.Json;
+
+using Asp.Versioning;
+
+using FluentValidation;
+using FluentValidation.Results;
+
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
+
+namespace ArchLucid.Api.Controllers.Authority;
+
+/// <summary>Run-to-run comparison endpoints (agents, end-to-end replay compare).</summary>
+[ApiController]
+[ApiVersion("1.0")]
+[Route("v{version:apiVersion}/architecture")]
+[Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
+[EnableRateLimiting("fixed")]
+[ProducesResponseType(StatusCodes.Status401Unauthorized)]
+[ProducesResponseType(StatusCodes.Status403Forbidden)]
+[RequiresCommercialTenantTier(TenantTier.Standard)]
+public sealed class RunComparisonController(
+    IRunDetailQueryService runDetailQueryService,
+    IAgentResultDiffService agentResultDiffService,
+    IAgentResultDiffSummaryFormatter agentResultDiffSummaryFormatter,
+    IEndToEndReplayComparisonService endToEndReplayComparisonService,
+    IEndToEndReplayComparisonSummaryFormatter endToEndReplayComparisonSummaryFormatter,
+    IEndToEndReplayComparisonExportService endToEndReplayComparisonExportService,
+    IComparisonAuditService comparisonAuditService,
+    IAuditService auditService,
+    IScopeContextProvider scopeContextProvider,
+    IValidator<RunPairQuery> runPairQueryValidator)
+    : ControllerBase
+{
+    private readonly IAuditService _auditService =
+        auditService ?? throw new ArgumentNullException(nameof(auditService));
+
+    private readonly IScopeContextProvider _scopeContextProvider =
+        scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
+    [HttpGet("review/compare/agents")]
+    [ProducesResponseType(typeof(AgentResultCompareResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> CompareAgentResults(
+        [FromQuery] RunPairQuery query,
+        CancellationToken cancellationToken)
+    {
+        (IActionResult? error, ArchitectureRunDetail? leftDetail, ArchitectureRunDetail? rightDetail) =
+            await LoadValidatedRunPairAsync(query, cancellationToken);
+        if (error is not null)
+            return error;
+
+        AgentResultDiffResult diff = agentResultDiffService.Compare(
+            query.LeftRunId,
+            leftDetail!.Results,
+            query.RightRunId,
+            rightDetail!.Results);
+        return Ok(ComparisonResponseMapper.ToAgentResultCompareResponse(diff));
+    }
+
+    [HttpGet("review/compare/agents/summary")]
+    [ProducesResponseType(typeof(AgentResultCompareSummaryResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> CompareAgentResultsSummary(
+        [FromQuery] RunPairQuery query,
+        CancellationToken cancellationToken)
+    {
+        (IActionResult? error, ArchitectureRunDetail? leftDetail, ArchitectureRunDetail? rightDetail) =
+            await LoadValidatedRunPairAsync(query, cancellationToken);
+        if (error is not null)
+            return error;
+
+        AgentResultDiffResult diff = agentResultDiffService.Compare(
+            query.LeftRunId,
+            leftDetail!.Results,
+            query.RightRunId,
+            rightDetail!.Results);
+        string summary = agentResultDiffSummaryFormatter.FormatMarkdown(diff);
+        return Ok(ComparisonResponseMapper.ToAgentResultCompareSummaryResponse(summary, diff));
+    }
+
+    [HttpGet("review/compare/end-to-end")]
+    [ProducesResponseType(typeof(EndToEndReplayComparisonResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> CompareRunsEndToEnd(
+        [FromQuery] RunPairQuery query,
+        CancellationToken cancellationToken)
+    {
+        (IActionResult? error, EndToEndReplayComparisonReport? report) =
+            await BuildEndToEndReportAsync(query, cancellationToken);
+        return error ?? Ok(ComparisonResponseMapper.ToEndToEndResponse(report!));
+    }
+
+    // idempotency-posture: operator-documented-safe-retry
+    [HttpPost("review/compare/end-to-end/summary")]
+    [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
+    [ProducesResponseType(typeof(EndToEndReplayComparisonSummaryResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> CompareRunsEndToEndSummary(
+        [FromQuery] RunPairQuery query,
+        [FromBody] PersistComparisonRequest? request,
+        CancellationToken cancellationToken)
+    {
+        (IActionResult? error, EndToEndReplayComparisonReport? report) =
+            await BuildEndToEndReportAsync(query, cancellationToken);
+        if (error is not null)
+            return error;
+
+        request ??= new PersistComparisonRequest();
+        string summary = endToEndReplayComparisonSummaryFormatter.FormatMarkdown(report!);
+
+        if (!request.Persist)
+            return Ok(ComparisonResponseMapper.ToEndToEndSummaryResponse(summary));
+
+        string comparisonRecordId =
+            await comparisonAuditService.RecordEndToEndAsync(report!, summary, cancellationToken);
+        Response.Headers[ArchLucidHttpHeaders.ComparisonRecordId] = comparisonRecordId;
+
+        return Ok(ComparisonResponseMapper.ToEndToEndSummaryResponse(summary));
+    }
+
+    [HttpGet("review/compare/end-to-end/export")]
+    [ProducesResponseType(typeof(EndToEndReplayComparisonExportResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> ExportRunsEndToEndComparisonMarkdown(
+        [FromQuery] RunPairQuery query,
+        CancellationToken cancellationToken)
+    {
+        (IActionResult? error, EndToEndReplayComparisonReport? report) =
+            await BuildEndToEndReportAsync(query, cancellationToken);
+        if (error is not null)
+            return error;
+        string markdown = endToEndReplayComparisonExportService.GenerateMarkdown(report!);
+        string fileName = $"end_to_end_compare_{query.LeftRunId}_to_{query.RightRunId}.md";
+        return Ok(ComparisonResponseMapper.ToEndToEndExportResponse(fileName, markdown));
+    }
+
+    [HttpGet("review/compare/end-to-end/export/file")]
+    [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> DownloadRunsEndToEndComparisonMarkdown(
+        [FromQuery] RunPairQuery query,
+        CancellationToken cancellationToken)
+    {
+        (IActionResult? error, EndToEndReplayComparisonReport? report) =
+            await BuildEndToEndReportAsync(query, cancellationToken);
+        if (error is not null)
+            return error;
+        string markdown = endToEndReplayComparisonExportService.GenerateMarkdown(report!);
+        string fileName = $"end_to_end_compare_{query.LeftRunId}_to_{query.RightRunId}.md";
+        await LogComparisonExportDownloadAsync(query, "comparison-markdown", fileName, cancellationToken);
+        return ApiFileResults.RangeText(Request, markdown, "text/markdown", fileName);
+    }
+
+    [HttpGet("review/compare/end-to-end/export/docx")]
+    [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> ExportRunsEndToEndComparisonDocx(
+        [FromQuery] RunPairQuery query,
+        CancellationToken cancellationToken)
+    {
+        (IActionResult? error, EndToEndReplayComparisonReport? report) =
+            await BuildEndToEndReportAsync(query, cancellationToken);
+        if (error is not null)
+            return error;
+        byte[] bytes = await endToEndReplayComparisonExportService.GenerateDocxAsync(report!, cancellationToken);
+        string fileName = $"end_to_end_compare_{query.LeftRunId}_to_{query.RightRunId}.docx";
+        await LogComparisonExportDownloadAsync(query, "comparison-docx", fileName, cancellationToken);
+        return ApiFileResults.RangeBytes(
+            Request,
+            bytes,
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            fileName);
+    }
+
+    /// <summary>
+    ///     Validates the query and builds the end-to-end comparison report.
+    ///     Returns a non-null error result when validation fails.
+    /// </summary>
+    private async Task<(IActionResult? Error, EndToEndReplayComparisonReport? Report)> BuildEndToEndReportAsync(
+        RunPairQuery query,
+        CancellationToken cancellationToken)
+    {
+        IActionResult? error = await ValidateRunPairQueryAsync(query, cancellationToken);
+        if (error is not null)
+            return (error, null);
+
+        EndToEndReplayComparisonReport report =
+            await endToEndReplayComparisonService.BuildAsync(query.LeftRunId, query.RightRunId, cancellationToken);
+        return (null, report);
+    }
+
+    private async Task LogComparisonExportDownloadAsync(
+        RunPairQuery query,
+        string exportType,
+        string fileName,
+        CancellationToken cancellationToken)
+    {
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        Guid? auditRunId = Guid.TryParseExact(query.LeftRunId, "N", out Guid runGuidN)
+            ? runGuidN
+            : Guid.TryParse(query.LeftRunId, out Guid runGuid) ? runGuid : null;
+
+        await _auditService.LogAsync(
+            new AuditEvent
+            {
+                EventType = AuditEventTypes.ExportDownloadSucceeded,
+                RunId = auditRunId,
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ProjectId = scope.ProjectId,
+                CorrelationId = HttpContext.TraceIdentifier,
+                DataJson = JsonSerializer.Serialize(
+                    new
+                    {
+                        exportType,
+                        fileName,
+                        leftRunId = query.LeftRunId,
+                        rightRunId = query.RightRunId
+                    },
+                    AuditJsonSerializationOptions.Instance)
+            },
+            cancellationToken);
+    }
+
+    private async Task<IActionResult?> ValidateRunPairQueryAsync(RunPairQuery query,
+        CancellationToken cancellationToken)
+    {
+        ValidationResult? validation = await runPairQueryValidator.ValidateAsync(query, cancellationToken);
+        if (!validation.IsValid)
+            return this.BadRequestProblem(
+                string.Join(" ", validation.Errors.Select(e => e.ErrorMessage)),
+                ProblemTypes.ValidationFailed);
+
+        return null;
+    }
+
+    /// <summary>
+    ///     Validates the query, loads both runs through <see cref="IRunDetailQueryService" />, and returns 404 when either run
+    ///     is missing.
+    /// </summary>
+    private async Task<(IActionResult? Error, ArchitectureRunDetail? Left, ArchitectureRunDetail? Right)>
+        LoadValidatedRunPairAsync(
+            RunPairQuery query,
+            CancellationToken cancellationToken)
+    {
+        IActionResult? queryError = await ValidateRunPairQueryAsync(query, cancellationToken);
+        if (queryError is not null)
+            return (queryError, null, null);
+
+        Task<ArchitectureRunDetail?> leftDetailTask =
+            runDetailQueryService.GetRunDetailForRollupAsync(query.LeftRunId, cancellationToken);
+        Task<ArchitectureRunDetail?> rightDetailTask =
+            runDetailQueryService.GetRunDetailForRollupAsync(query.RightRunId, cancellationToken);
+        await Task.WhenAll(leftDetailTask, rightDetailTask);
+        ArchitectureRunDetail? left = await leftDetailTask;
+        if (left is null)
+            return (this.NotFoundProblem($"Run '{query.LeftRunId}' was not found.", ProblemTypes.RunNotFound), null,
+                null);
+
+        ArchitectureRunDetail? right = await rightDetailTask;
+        if (right is null)
+            return (this.NotFoundProblem($"Run '{query.RightRunId}' was not found.", ProblemTypes.RunNotFound), null,
+                null);
+
+        return (null, left, right);
+    }
+}

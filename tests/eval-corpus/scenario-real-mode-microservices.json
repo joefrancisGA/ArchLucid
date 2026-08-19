@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "id": "corpus-real-mode-microservices",
+  "metadata": {
+    "title": "Real-mode microservices mesh (offline AgentResult scorer)",
+    "complexity": "medium",
+    "primaryAgents": ["Topology", "Critic"]
+  },
+  "inputSummary": "Nine-service mesh without edge gateway — same probes as simulator scenario with Topology exemplar AgentResult for RC/nightly real-mode hooks.",
+  "recording": "recordings/microservices-no-gateway.findings.json",
+  "qualityEvidence": {
+    "mode": "real",
+    "agentType": "Topology",
+    "agentResultPathEnv": "ARCHLUCID_EVAL_CORPUS_REAL_MODE_MICROSERVICES_AGENT_RESULT",
+    "notes": "Synthetic Topology-shaped exemplar; swap path via env when comparing to a live export."
+  },
+  "expectedFindings": [
+    {
+      "id": "e missing gateway",
+      "category": "Topology",
+      "minimumSeverity": "Medium",
+      "evidenceMustContain": ["API gateway", "edge"]
+    },
+    {
+      "id": "e lateral movement",
+      "category": "Critic",
+      "minimumSeverity": "Low",
+      "evidenceMustContain": ["east-west", "service-to-service"]
+    },
+    {
+      "id": "e observability",
+      "category": "Compliance",
+      "minimumSeverity": "Low",
+      "evidenceMustContain": ["correlation", "trace"]
+    }
+  ],
+  "unexpectedFindings": [
+    { "category": "Cost", "ifContainsAny": ["no cost impact", "cheap enough to ignore segmentation"] },
+    { "category": "Topology", "ifContainsAny": ["gateway present at every edge"] }
+  ]
+}

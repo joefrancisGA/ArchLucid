@@ -1,0 +1,110 @@
+import { describe, expect, it } from "vitest";
+
+import {
+  formatFindings,
+  formatHours,
+  hasMeaningfulSidebarDeltaMedians,
+  percentDelta,
+  formatPerRunFindingsLine,
+  safeCommittedRunWindowCount,
+} from "../formatDelta";
+
+describe("formatHours", () => {
+  it("converts seconds to hours with two decimal places", () => {
+    expect(formatHours(30 * 60)).toBe("0.50 h");
+    expect(formatHours(2 * 3600)).toBe("2.00 h");
+  });
+
+  it("returns em-dash for null/undefined/non-finite/negative", () => {
+    expect(formatHours(null)).toBe("—");
+    expect(formatHours(undefined)).toBe("—");
+    expect(formatHours(Number.NaN)).toBe("—");
+    expect(formatHours(Number.POSITIVE_INFINITY)).toBe("—");
+    expect(formatHours(-1)).toBe("—");
+  });
+});
+
+describe("formatFindings", () => {
+  it("formats integers without decimals and non-integers with one decimal", () => {
+    expect(formatFindings(0)).toBe("0");
+    expect(formatFindings(5)).toBe("5");
+    expect(formatFindings(5.5)).toBe("5.5");
+  });
+
+  it("returns em-dash for null/undefined/non-finite", () => {
+    expect(formatFindings(null)).toBe("—");
+    expect(formatFindings(undefined)).toBe("—");
+    expect(formatFindings(Number.NaN)).toBe("—");
+  });
+});
+
+describe("percentDelta", () => {
+  it("returns positive percent when current is smaller than prior (improvement)", () => {
+    expect(percentDelta(10, 4)).toBeCloseTo(60, 5);
+  });
+
+  it("returns negative percent when current is larger than prior (regression)", () => {
+    expect(percentDelta(4, 10)).toBeCloseTo(-150, 5);
+  });
+
+  it("returns null when prior is zero / negative / null / non-finite", () => {
+    expect(percentDelta(0, 5)).toBeNull();
+    expect(percentDelta(-5, 5)).toBeNull();
+    expect(percentDelta(null, 5)).toBeNull();
+    expect(percentDelta(Number.NaN, 5)).toBeNull();
+  });
+});
+
+describe("safeCommittedRunWindowCount", () => {
+  it("returns floored non-negative integers and null for invalid", () => {
+    expect(safeCommittedRunWindowCount(3)).toBe(3);
+    expect(safeCommittedRunWindowCount(2.9)).toBe(2);
+    expect(safeCommittedRunWindowCount(0)).toBe(0);
+    expect(safeCommittedRunWindowCount(null)).toBeNull();
+    expect(safeCommittedRunWindowCount(Number.NaN)).toBeNull();
+    expect(safeCommittedRunWindowCount(-1)).toBeNull();
+  });
+});
+
+describe("formatPerRunFindingsLine", () => {
+  it("labels findings and degrades bad numbers", () => {
+    expect(formatPerRunFindingsLine(1)).toBe("1 finding");
+    expect(formatPerRunFindingsLine(4)).toBe("4 findings");
+    expect(formatPerRunFindingsLine(Number.NaN)).toBe("Not enough data yet");
+  });
+});
+
+describe("hasMeaningfulSidebarDeltaMedians", () => {
+  it("rejects zero/zero theater", () => {
+    expect(
+      hasMeaningfulSidebarDeltaMedians({
+        medianTotalFindings: 0,
+        medianTimeToCommittedManifestTotalSeconds: 0,
+      }),
+    ).toBe(false);
+  });
+
+  it("accepts a non-zero findings or displayable time median", () => {
+    expect(
+      hasMeaningfulSidebarDeltaMedians({
+        medianTotalFindings: 2,
+        medianTimeToCommittedManifestTotalSeconds: 0,
+      }),
+    ).toBe(true);
+    expect(
+      hasMeaningfulSidebarDeltaMedians({
+        medianTotalFindings: 0,
+        medianTimeToCommittedManifestTotalSeconds: 3600,
+      }),
+    ).toBe(true);
+  });
+
+  it("rejects sub-display time that would render as 0.00 h", () => {
+    expect(
+      hasMeaningfulSidebarDeltaMedians({
+        medianTotalFindings: 0,
+        medianTimeToCommittedManifestTotalSeconds: 18,
+      }),
+    ).toBe(false);
+  });
+});

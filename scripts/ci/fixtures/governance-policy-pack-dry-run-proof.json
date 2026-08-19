@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "purpose": "Sponsor-proof sample for policy-pack governance dry-run on an architecture review — evidence only, not certification.",
+  "nonCertificationNotice": "Dry-run output supports architecture-review governance evidence; it does not prove HIPAA, SOC 2, ISO, or AI Act certification.",
+  "sampleDryRun": {
+    "resolvedRunId": "00000000000000000000000000000001",
+    "targetManifestId": null,
+    "gateResult": {
+      "blocked": true,
+      "blockReason": "Critical findings present with blockCommitOnCritical enabled."
+    },
+    "passedChecks": [
+      "policyPackSchemaValid"
+    ],
+    "failedChecks": [
+      "blockCommitOnCritical"
+    ],
+    "warnings": [],
+    "evidenceReferences": [
+      {
+        "findingId": "f-crit-sample",
+        "severity": "Critical",
+        "title": "Sample critical finding cited in dry-run proof fixture",
+        "evidenceRef": "findingsSnapshot:f-crit-sample"
+      }
+    ]
+  },
+  "requiredTestPaths": [
+    "ArchLucid.Application.Tests/Governance/PolicyPackGovernanceDryRunServiceTests.cs",
+    "ArchLucid.Application.Tests/Governance/PreCommitGovernanceGateTests.cs"
+  ],
+  "requiredDocPaths": [
+    "docs/library/PRE_COMMIT_GOVERNANCE_GATE.md",
+    "docs/library/walkthroughs/AI_GOVERNANCE_REVIEW.md"
+  ]
+}

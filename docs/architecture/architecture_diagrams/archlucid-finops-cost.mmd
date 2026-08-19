@@ -1,0 +1,24 @@
+flowchart TB
+  subgraph drivers["Primary cost drivers"]
+    AOAI["Azure OpenAI<br/>completions + embeddings"]
+    SQL["Azure SQL<br/>DTU/vCore + per-tenant catalogs"]
+    CA["Container Apps<br/>Api + Worker replicas"]
+    SB["Service Bus optional"]
+    ST["Blob storage artifacts"]
+    FD["Front Door / APIM optional"]
+  end
+
+  subgraph levers["Control levers"]
+    SIM["Simulator mode local"]
+    CB["Circuit breakers / rate limits"]
+    ASYNC["Async pipeline vs inline"]
+    TOPK["Ask/RAG topK clamps"]
+    ARCH["Data archival"]
+  end
+
+  AOAI --> CB
+  AOAI --> TOPK
+  AOAI --> SIM
+  SQL --> ARCH
+  CA --> ASYNC
+  PLAY["CAPACITY_AND_COST_PLAYBOOK"] -.-> drivers

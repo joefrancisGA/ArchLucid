@@ -1,0 +1,19 @@
+{
+  "resultId": "corp-adv-over-sim-01",
+  "taskId": "corp-adv-over-task-01",
+  "runId": "corp-adv-over-run-01",
+  "agentType": 4,
+  "claims": [
+    {
+      "detail": "Simulator adversarial stub: oversized prompts must not pass the offline quality gate until grounded evidenceRefs document explicit truncation boundaries."
+    }
+  ],
+  "evidenceRefs": [],
+  "confidence": 0.39,
+  "findings": [],
+  "proposedChanges": null,
+  "createdUtc": "2026-05-09T12:00:00Z",
+  "semanticScore": {
+    "llmFaithfulnessScore": 0.2
+  }
+}

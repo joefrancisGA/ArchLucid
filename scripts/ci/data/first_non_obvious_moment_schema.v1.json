@@ -1,0 +1,9 @@
+{
+  "schema": "archlucid.first-non-obvious-moment-schema.v1",
+  "payloadSchema": "archlucid.first-non-obvious-moment.v1",
+  "reportSchema": "archlucid.first-non-obvious-moment-report.v1",
+  "canonicalTemplate": "docs/go-to-market/templates/first-non-obvious-moment.template.json",
+  "storageRoot": "artifacts/first-non-obvious-moment",
+  "correctnessConfidenceValues": ["high", "medium", "low"],
+  "requiredMomentFields": ["timestampUtc", "findingId", "correctnessConfidence", "changedPlannedAction"]
+}

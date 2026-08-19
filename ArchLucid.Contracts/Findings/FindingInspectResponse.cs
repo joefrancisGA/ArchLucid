@@ -1,0 +1,299 @@
+using System.Text.Json;
+using System.Text.Json.Serialization;
+
+using ArchLucid.Contracts.Common;
+
+namespace ArchLucid.Contracts.Findings;
+
+
+/// <summary>
+/// Read-model for <c>GET /v1/findings/{findingId}/inspect</c> — deterministic explainability without LLM prompt text.
+/// </summary>
+public sealed class FindingInspectResponse
+{
+    public string FindingId
+    {
+        get;
+        init;
+    } = string.Empty;
+
+    /// <summary>Structured finding payload when relational <c>PayloadJson</c> was persisted; otherwise JSON null.</summary>
+    public JsonElement? TypedPayload
+    {
+        get;
+        init;
+    }
+
+    /// <summary>
+    ///     Coarse severity persisted on the finding record (relational <c>Severity</c> or snapshot model). Used as a fallback
+    ///     when <see cref="TypedPayload" /> omits or cannot be mapped to <c>ArchitectureFinding</c> severity.
+    /// </summary>
+    public FindingSeverity Severity
+    {
+        get;
+        init;
+    }
+
+    /// <summary>Primary rule identifier (first applied rule id from authority decisioning trace, else first trace rule text).</summary>
+    public string? DecisionRuleId
+    {
+        get;
+        init;
+    }
+
+    /// <summary>Human-oriented rule label (prefer relational trace rule text when present).</summary>
+    public string? DecisionRuleName
+    {
+        get;
+        init;
+    }
+
+    public IReadOnlyList<FindingInspectEvidenceItem> Evidence
+    {
+        get;
+        init;
+    } = [];
+
+    /// <summary>
+    /// Best-effort durable audit row written when the authority chain that included this findings snapshot was committed
+    /// (<see cref="ArchLucid.Core.Audit.AuditEventTypes.AuthorityCommittedChainPersisted"/>), when SQL audit is enabled.
+    /// </summary>
+    public Guid? AuditRowId
+    {
+        get;
+        init;
+    }
+
+    /// <summary>Authority run that owns the findings snapshot row.</summary>
+    public Guid RunId
+    {
+        get;
+        init;
+    }
+
+    public string? ManifestVersion
+    {
+        get;
+        init;
+    }
+
+    /// <summary>OpenAI / Azure OpenAI deployment name used when the finding was produced (when captured).</summary>
+    public string? ModelDeploymentName
+    {
+        get;
+        init;
+    }
+
+    /// <summary>Customer-facing model alias from the governed registry (TB-871); never a raw deployment name in buyer UI.</summary>
+    public string? ModelAlias
+    {
+        get;
+        init;
+    }
+
+    /// <summary>Prompt template semantic version from the agent catalog when captured.</summary>
+    public string? PromptTemplateVersion
+    {
+        get;
+        init;
+    }
+
+    /// <summary>Agent self-rated confidence for the parent result when bridged into persistence.</summary>
+    public double? ConfidenceScore
+    {
+        get;
+        init;
+    }
+
+    /// <summary>Deterministic evaluation confidence in [0,100] when computed from harness/reference/trace signals.</summary>
+    public int? EvaluationConfidenceScore
+    {
+        get;
+        init;
+    }
+
+    /// <summary>Mapped bucket for <see cref="EvaluationConfidenceScore" />.</summary>
+    public FindingConfidenceLevel? ConfidenceLevel
+    {
+        get;
+        init;
+    }
+
+    public FindingHumanReviewStatus HumanReviewStatus
+    {
+        get;
+        init;
+    }
+
+    /// <summary>
+    /// Ordered list of recommended actions produced by the finding engine.
+    /// Populated from <c>dbo.FindingRecommendedActions ORDER BY SortOrder</c>.
+    /// Empty when the finding engine produced no explicit actions.
+    /// </summary>
+    public IReadOnlyList<string> RecommendedActions
+    {
+        get;
+        init;
+    } = [];
+
+    /// <summary>
+    ///     Deterministic 2–3 sentence explanation of why this finding was raised (template-built from persisted metadata;
+    ///     no LLM). Null when decision rule, evidence citations, or remediation text are too sparse to summarize.
+    /// </summary>
+    public string? ReasoningSummary
+    {
+        get;
+        init;
+    }
+
+    /// <summary>When true, operators hid this finding from default review lists (<c>dbo.FindingRecords.IsMuted</c>).</summary>
+    public bool IsMuted
+    {
+        get;
+        init;
+    }
+
+    /// <summary>Justification captured when the finding was muted.</summary>
+    public string? MuteReason
+    {
+        get;
+        init;
+    }
+
+    /// <summary>Bounded agent reasoning copied into explainability (TB-055).</summary>
+    public string? ReasoningTrace
+    {
+        get;
+        init;
+    }
+
+    /// <summary>SHA-256 hex digest when <see cref="ReasoningTrace" /> was truncated.</summary>
+    public string? ReasoningTraceDigestSha256
+    {
+        get;
+        init;
+    }
+
+    /// <summary>Latest TB-058 disposition for this finding in the tenant, if recorded.</summary>
+    public FindingDisposition? LatestDisposition
+    {
+        get;
+        init;
+    }
+
+    public DateTimeOffset? LatestDispositionOccurredAtUtc
+    {
+        get;
+        init;
+    }
+
+    /// <summary><see langword="true" /> when an active time-bounded waiver covers this finding.</summary>
+    public bool HasActiveWaiver
+    {
+        get;
+        init;
+    }
+
+    public DateTimeOffset? RevisitDueUtc
+    {
+        get;
+        init;
+    }
+
+    /// <summary>Operator-assigned remediation owner (distinct from disposition reviewer). TB-395.</summary>
+    public string? AssignedToUserId
+    {
+        get;
+        init;
+    }
+
+    /// <summary>Target remediation completion (distinct from deferral revisit). TB-395.</summary>
+    public DateTimeOffset? RemediationDueUtc
+    {
+        get;
+        init;
+    }
+
+    public string? Provider
+    {
+        get;
+        init;
+    }
+
+    public string? ExternalKey
+    {
+        get;
+        init;
+    }
+
+    public string? ExternalUrl
+    {
+        get;
+        init;
+    }
+
+    /// <summary>Semicolon-separated <c>Provider:ExternalKey</c> pairs when multiple correlations exist.</summary>
+    public string? ItsmLinkedTicketsSummary
+    {
+        get;
+        init;
+    }
+
+    /// <summary><see langword="true" /> when at least one ITSM correlation exists for the tenant + finding.</summary>
+    public bool TrackedExternally
+    {
+        get;
+        init;
+    }
+
+    /// <summary>Human-readable external ticket summary for filters and badges without client-side correlation joins.</summary>
+    public string? ExternalTrackingSummary
+    {
+        get;
+        init;
+    }
+
+    /// <summary>Authoritative trust label for operator inspect surfaces (enriched at read time).</summary>
+    public string? TrustLabel
+    {
+        get;
+        init;
+    }
+
+    /// <summary>Short reason accompanying <see cref="TrustLabel" />.</summary>
+    public string? TrustLabelReason
+    {
+        get;
+        init;
+    }
+
+    /// <summary>Parent run structural execution mode for server-side trust enrichment (not serialized).</summary>
+    [JsonIgnore]
+    public StructuralExecutionMode? RunStructuralExecutionMode
+    {
+        get;
+        init;
+    }
+
+    /// <summary>Parent run pilot simulator substitution flag for trust enrichment (not serialized).</summary>
+    [JsonIgnore]
+    public bool? RunRealModeFellBackToSimulator
+    {
+        get;
+        init;
+    }
+
+    /// <summary>Persisted run execution mode label for inspect and export surfaces (TB-971).</summary>
+    public string? RunExecutionModeDisplayLabel
+    {
+        get;
+        init;
+    }
+
+    /// <summary>Operator detail for persisted run execution mode (TB-971).</summary>
+    public string? RunExecutionModeDetail
+    {
+        get;
+        init;
+    }
+}

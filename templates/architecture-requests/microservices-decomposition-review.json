@@ -1,0 +1,31 @@
+{
+  "requestId": "TPL-MICROSERVICES-REVIEW-001",
+  "systemName": "NorthwindOrderPlatform",
+  "description": "Northwind proposes splitting the monolithic order platform into bounded contexts with asynchronous integration. Review service boundaries, data ownership, deployment topology on Azure Container Apps or AKS, and failure isolation before funding the program.",
+  "environment": "prod",
+  "cloudProvider": "Azure",
+  "constraints": [
+    "No dual-writes across old and new stores after cutover window",
+    "API compatibility for mobile clients for two major versions",
+    "Observability required per service (traces + metrics)"
+  ],
+  "requiredCapabilities": [
+    "Azure Container Apps or AKS",
+    "Azure Service Bus or Event Hubs",
+    "Azure SQL or Cosmos DB (per service decision)",
+    "Application Insights"
+  ],
+  "assumptions": [
+    "Team owns CI/CD per service",
+    "Strangler fig pattern for first two domains"
+  ],
+  "priorManifestVersion": null,
+  "inlineRequirements": [],
+  "documents": [],
+  "policyReferences": [],
+  "topologyHints": [
+    "Prefer event-driven integration between order and inventory contexts"
+  ],
+  "securityBaselineHints": [],
+  "infrastructureDeclarations": []
+}

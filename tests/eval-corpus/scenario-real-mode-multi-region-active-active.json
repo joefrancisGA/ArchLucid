@@ -1,0 +1,62 @@
+{
+  "schemaVersion": 1,
+  "id": "corpus-real-mode-multi-region-active-active",
+  "metadata": {
+    "title": "Real-mode multi-region active/active HA (offline AgentResult scorer)",
+    "complexity": "high",
+    "primaryAgents": ["Topology", "Compliance"]
+  },
+  "architectureBrief": {
+    "systemName": "Helios Global Cart API",
+    "description": "Customer-facing REST tier spans East US and West Europe with shared Cosmos data; writes accepted in both regions during normal operations.",
+    "technologyStack": [
+      "Azure Front Door + WAF",
+      "AKS regional clusters",
+      "Azure Cosmos DB (multi-region writes)",
+      "Azure Traffic Manager (fallback not primary path)",
+      "Geo-redundant storage for static assets"
+    ],
+    "reviewObjectives": [
+      "Validate conflict resolution and data correctness guards",
+      "Confirm blast-radius containment during regional degradation",
+      "Review cost of dual active footprints vs RTO requirements"
+    ],
+    "constraints": [
+      "RTO target 15 minutes; RPO target 5 minutes for cart state",
+      "EU privacy requires EU data residency subset; US traffic stays in US endpoints only",
+      "Cosmos conflict resolution policies require clinical audit when merge rules fire"
+    ]
+  },
+  "inputSummary": "Front Door fronted active/active API tiers with Cosmos multi-region writes and explicit conflict policies. Distinct from corpus-real-mode-multi-region (no-DR runbook case).",
+  "recording": "recordings/corpus-multi-region-active-active-ha.findings.json",
+  "qualityEvidence": {
+    "mode": "real",
+    "agentType": "Topology",
+    "agentResultPathEnv": "ARCHLUCID_EVAL_CORPUS_REAL_MODE_MULTI_REGION_ACTIVE_ACTIVE_AGENT_RESULT",
+    "notes": "Committed Topology exemplar; complements corpus-real-mode-multi-region (DR gap / runbook stress)."
+  },
+  "expectedFindings": [
+    {
+      "id": "e front door routing",
+      "category": "Topology",
+      "minimumSeverity": "High",
+      "evidenceMustContain": ["Front Door", "health"]
+    },
+    {
+      "id": "e active dual regions",
+      "category": "Topology",
+      "minimumSeverity": "Medium",
+      "evidenceMustContain": ["active", "region"]
+    },
+    {
+      "id": "e cosmos conflicts",
+      "category": "Compliance",
+      "minimumSeverity": "High",
+      "evidenceMustContain": ["conflict", "audit"]
+    }
+  ],
+  "unexpectedFindings": [
+    { "category": "Topology", "ifContainsAny": ["single region only forever", "disable front door"] },
+    { "category": "Cost", "ifContainsAny": ["zero cost dual region", "ignore duplication"] }
+  ]
+}

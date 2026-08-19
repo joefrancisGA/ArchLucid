@@ -1,0 +1,14 @@
+{
+  "stryker-config": {
+    "project": "ArchLucid.Persistence/ArchLucid.Persistence.csproj",
+    "test-projects": ["ArchLucid.Persistence.Tests/ArchLucid.Persistence.Tests.csproj"],
+    "mutate": ["**/Coordination/**/*.cs"],
+    "test-case-filter": "(FullyQualifiedName~ArchLucid.Persistence.Tests.Coordination)&Category!=Integration&Category!=Slow&Category!=SqlServerContainer&Category!=GoldenCorpusRecord",
+    "reporters": ["progress", "html", "json"],
+    "thresholds": {
+      "high": 80,
+      "low": 40,
+      "break": 40
+    }
+  }
+}

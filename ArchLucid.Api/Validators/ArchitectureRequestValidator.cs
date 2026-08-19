@@ -1,0 +1,129 @@
+using ArchLucid.Contracts.Requests;
+
+using FluentValidation;
+using FluentValidation.Results;
+
+namespace ArchLucid.Api.Validators;
+
+/// <summary>
+///     FluentValidation rules for <see cref="ArchitectureRequest" />.
+///     Validates required fields, character limits, and collection cardinality before the
+///     request is passed to the run-creation pipeline.
+/// </summary>
+public sealed class ArchitectureRequestValidator : AbstractValidator<ArchitectureRequest>
+{
+    public ArchitectureRequestValidator()
+    {
+        RuleFor(x => x.RequestId)
+            .NotEmpty().WithMessage("RequestId is required.")
+            .MaximumLength(64).WithMessage("RequestId must not exceed 64 characters.");
+
+        RuleFor(x => x.Description)
+            .NotEmpty().WithMessage("Description is required.")
+            .MinimumLength(ArchitectureRequestFieldLimits.MinDescriptionLength)
+            .WithMessage($"Description must be at least {ArchitectureRequestFieldLimits.MinDescriptionLength} characters.")
+            .MaximumLength(ArchitectureRequestFieldLimits.MaxDescriptionLength)
+            .WithMessage($"Description must not exceed {ArchitectureRequestFieldLimits.MaxDescriptionLength} characters.");
+
+        RuleFor(x => x.SystemName)
+            .NotEmpty().WithMessage("SystemName is required.")
+            .MaximumLength(200).WithMessage("SystemName must not exceed 200 characters.");
+
+        RuleFor(x => x.Environment)
+            .NotEmpty().WithMessage("Environment is required.")
+            .MaximumLength(50).WithMessage("Environment must not exceed 50 characters.");
+
+        RuleFor(x => x.CloudProvider)
+            .IsInEnum().WithMessage("CloudProvider must be a valid value.");
+
+        RuleFor(x => x)
+            .Must(ArchitectureRequestEvidenceSufficiency.HasSufficientEvidenceForNoneProvider)
+            .WithMessage(
+                $"When CloudProvider is None, supply documents, IaC, inline requirements, topology/policy/security hints, "
+                + $"or a description of at least {ArchitectureRequestEvidenceSufficiency.MinDescriptionLengthForNoneOnly} characters.");
+
+        RuleFor(x => x.Constraints)
+            .NotNull().WithMessage("Constraints must not be null.")
+            .Must(c => c.Count <= 50).WithMessage("Constraints must not exceed 50 items.");
+
+        RuleFor(x => x.RequiredCapabilities)
+            .NotNull().WithMessage("RequiredCapabilities must not be null.")
+            .Must(c => c.Count <= 50).WithMessage("RequiredCapabilities must not exceed 50 items.");
+
+        RuleFor(x => x.Assumptions)
+            .NotNull().WithMessage("Assumptions must not be null.")
+            .Must(c => c.Count <= 50).WithMessage("Assumptions must not exceed 50 items.");
+
+        RuleFor(x => x.InlineRequirements)
+            .NotNull().WithMessage("InlineRequirements must not be null.")
+            .Must(c => c.Count <= 100).WithMessage("InlineRequirements must not exceed 100 items.");
+
+        RuleForEach(x => x.InlineRequirements)
+            .MaximumLength(ArchitectureRequestFieldLimits.MaxInlineRequirementLength)
+            .WithMessage(
+                $"Each inline requirement must not exceed {ArchitectureRequestFieldLimits.MaxInlineRequirementLength} characters.");
+
+        RuleFor(x => x.Documents)
+            .NotNull().WithMessage("Documents must not be null.")
+            .Must(c => c.Count <= 50).WithMessage("Documents must not exceed 50 items.");
+
+        RuleForEach(x => x.Documents)
+            .SetValidator(new ContextDocumentRequestValidator());
+
+        RuleFor(x => x.PolicyReferences)
+            .NotNull().WithMessage("PolicyReferences must not be null.")
+            .Must(c => c.Count <= 100).WithMessage("PolicyReferences must not exceed 100 items.");
+
+        RuleForEach(x => x.PolicyReferences)
+            .MaximumLength(500).WithMessage("Each policy reference must not exceed 500 characters.");
+
+        RuleFor(x => x.TopologyHints)
+            .NotNull().WithMessage("TopologyHints must not be null.")
+            .Must(c => c.Count <= 100).WithMessage("TopologyHints must not exceed 100 items.");
+
+        RuleForEach(x => x.TopologyHints)
+            .MaximumLength(2000).WithMessage("Each topology hint must not exceed 2000 characters.");
+
+        RuleFor(x => x.SecurityBaselineHints)
+            .NotNull().WithMessage("SecurityBaselineHints must not be null.")
+            .Must(c => c.Count <= 100).WithMessage("SecurityBaselineHints must not exceed 100 items.");
+
+        RuleForEach(x => x.SecurityBaselineHints)
+            .MaximumLength(2000).WithMessage("Each security baseline hint must not exceed 2000 characters.");
+
+        RuleFor(x => x.InfrastructureDeclarations)
+            .NotNull().WithMessage("InfrastructureDeclarations must not be null.")
+            .Must(c => c.Count <= 50).WithMessage("InfrastructureDeclarations must not exceed 50 items.");
+
+        RuleForEach(x => x.InfrastructureDeclarations)
+            .SetValidator(new InfrastructureDeclarationRequestValidator());
+
+        RuleFor(x => x)
+            .Must(ArchitectureRequestInlinePayloadBudget.IsWithinBudget)
+            .WithMessage(
+                $"Total inline requirement and document characters must not exceed {ArchitectureRequestInlinePayloadBudget.MaxTotalInlineCharacters}.");
+
+        RuleFor(x => x.RequestSource)
+            .MaximumLength(32).WithMessage("RequestSource must not exceed 32 characters.")
+            .Must(source => source is null || WizardPilotRequestSourceValues.IsKnown(source))
+            .WithMessage("RequestSource must be 'wizard', 'cli', or 'recurrence' when provided.");
+
+        RuleFor(x => x.WizardPresetUsed)
+            .MaximumLength(32).WithMessage("WizardPresetUsed must not exceed 32 characters.");
+
+        RuleFor(x => x.IntakeQuestionAnswers)
+            .NotNull().WithMessage("IntakeQuestionAnswers must not be null.");
+
+        RuleFor(x => x)
+            .Custom((request, context) =>
+            {
+                List<ValidationFailure> failures = [];
+
+                if (ArchitectureRequestQuickStartIntakeValidation.TryCollectFailures(request, failures))
+                {
+                    foreach (ValidationFailure failure in failures)
+                        context.AddFailure(failure);
+                }
+            });
+    }
+}

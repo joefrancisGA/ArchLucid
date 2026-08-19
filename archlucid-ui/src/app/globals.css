@@ -1,0 +1,448 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --al-surface-base: #ececed;
+  --al-surface-raised: #ffffff;
+  --al-surface-overlay: #fafafa;
+  --al-accent-interactive: #0f766e;
+  --al-accent-border-focus: #0d9488;
+  --al-primary-action-bg: #0f766e;
+  --al-primary-action-bg-hover: #115e59;
+  --al-primary-action-fg: #ffffff;
+  --al-primary-action-ring: #5eead4;
+  --al-accent-link: #1e4e4a;
+  --al-accent-link-hover: #134e4a;
+  --al-text-primary: #171717;
+  --al-text-secondary: #525252;
+  --al-text-placeholder: #525252;
+  --al-text-disabled: #a3a3a3;
+  --al-status-ready-bg: #ecfdf5;
+  --al-status-ready-fg: #065f46;
+  --al-status-warn-bg: #fffbeb;
+  --al-status-warn-fg: #92400e;
+  --al-status-blocked-bg: #fff1f2;
+  --al-status-blocked-fg: #9f1239;
+  /* Approved shares the positive status surface with Ready; the tag label carries the distinction. */
+  --al-status-approved-bg: var(--al-status-ready-bg);
+  --al-status-approved-fg: var(--al-status-ready-fg);
+  --al-status-neutral-bg: #eef2f6;
+  --al-status-neutral-fg: #525252;
+  --al-status-neutral-border: #cbd5e1;
+  --al-status-approved-monitoring-bg: #e6f4f3;
+  --al-status-approved-monitoring-fg: #0f4c5c;
+  --al-danger-action-bg: #dc2626;
+  --al-danger-action-bg-hover: #b91c1c;
+  --al-danger-action-fg: #ffffff;
+  --al-danger-action-ring: #ef4444;
+  --al-danger-text: #b91c1c;
+  --al-danger-surface-bg: #fef2f2;
+  --al-danger-surface-border: #fecaca;
+  --al-danger-surface-fg: #7f1d1d;
+  --al-layer-hover: #f5f5f5;
+  --al-tooltip-bg: #171717;
+  --al-tooltip-fg: #fafafa;
+  --al-tooltip-fg-muted: #d4d4d4;
+  --al-tooltip-link: #5eead4;
+  --al-tooltip-link-hover: #99f6e4;
+  --al-tooltip-border: rgba(255, 255, 255, 0.08);
+  --al-tooltip-divider: #404040;
+  --al-tooltip-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
+  --app-shell-sticky: 6rem;
+}
+
+html {
+  scroll-padding-top: var(--app-shell-sticky, 6rem);
+}
+
+#main-content {
+  scroll-margin-top: var(--app-shell-sticky, 6rem);
+}
+
+.dark {
+  --al-surface-base: #0a0a0a;
+  --al-surface-raised: #171717;
+  --al-surface-overlay: #262626;
+  --al-accent-interactive: #2dd4bf;
+  --al-accent-border-focus: #14b8a6;
+  --al-primary-action-bg: #115e59;
+  --al-primary-action-bg-hover: #0f766e;
+  --al-primary-action-fg: #ffffff;
+  --al-primary-action-ring: #2dd4bf;
+  --al-accent-link: #14b8a6;
+  --al-accent-link-hover: #2dd4bf;
+  --al-text-primary: #f5f5f5;
+  --al-text-secondary: #a3a3a3;
+  /* Keep ≥4.5:1 on --al-surface-base (#0a0a0a); #737373 fails WCAG AA at body size. */
+  --al-text-placeholder: #a3a3a3;
+  --al-text-disabled: #525252;
+  --al-status-ready-bg: #052e16;
+  --al-status-ready-fg: #a7f3d0;
+  --al-status-warn-bg: #451a03;
+  --al-status-warn-fg: #fde68a;
+  --al-status-blocked-bg: #4c0519;
+  --al-status-blocked-fg: #fecdd3;
+  --al-status-approved-bg: var(--al-status-ready-bg);
+  --al-status-approved-fg: var(--al-status-ready-fg);
+  --al-status-neutral-bg: #262626;
+  --al-status-neutral-fg: #a3a3a3;
+  --al-status-neutral-border: #525252;
+  --al-status-approved-monitoring-bg: #0c2e33;
+  --al-status-approved-monitoring-fg: #99d6e0;
+  --al-danger-action-bg: #dc2626;
+  --al-danger-action-bg-hover: #ef4444;
+  --al-danger-action-fg: #ffffff;
+  --al-danger-action-ring: #f87171;
+  --al-danger-text: #fca5a5;
+  --al-danger-surface-bg: #450a0a;
+  --al-danger-surface-border: #7f1d1d;
+  --al-danger-surface-fg: #fee2e2;
+  --al-layer-hover: #262626;
+  --al-tooltip-bg: #f5f5f5;
+  --al-tooltip-fg: #171717;
+  --al-tooltip-fg-muted: #525252;
+  --al-tooltip-link: #115e59;
+  --al-tooltip-link-hover: #0f766e;
+  --al-tooltip-border: rgba(0, 0, 0, 0.08);
+  --al-tooltip-divider: #d4d4d4;
+  --al-tooltip-shadow: 0 4px 12px rgba(0, 0, 0, 0.28);
+}
+
+/* A/B evaluation — charcoal authority hierarchy (see ui-authority-theme.ts). Default teal tokens remain in :root. */
+[data-al-authority-theme="charcoal"] {
+  --al-accent-interactive: #374151;
+  --al-accent-border-focus: #4b5563;
+  --al-primary-action-bg: #1f2937;
+  --al-primary-action-bg-hover: #111827;
+  --al-primary-action-fg: #ffffff;
+  --al-primary-action-ring: #9ca3af;
+  --al-accent-link: #1f2937;
+  --al-accent-link-hover: #111827;
+  --al-status-approved-monitoring-bg: #e8eef0;
+  --al-status-approved-monitoring-fg: #334155;
+}
+
+[data-al-authority-theme="charcoal"].dark {
+  --al-accent-interactive: #d1d5db;
+  --al-accent-border-focus: #9ca3af;
+  --al-primary-action-bg: #374151;
+  --al-primary-action-bg-hover: #4b5563;
+  --al-primary-action-fg: #f9fafb;
+  --al-primary-action-ring: #6b7280;
+  --al-accent-link: #e5e7eb;
+  --al-accent-link-hover: #f3f4f6;
+  --al-status-approved-monitoring-bg: #1f2937;
+  --al-status-approved-monitoring-fg: #d1d5db;
+}
+
+body {
+  @apply bg-al-surface-base text-al-text-primary antialiased;
+}
+
+/* Operator type scale — keep in sync with OPERATOR_TYPE_SCALE in design-tokens.ts */
+@layer utilities {
+  /* Skip offscreen paint/layout for dense EnterpriseTable rows (perf wave 8). */
+  .content-visibility-auto {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 48px;
+  }
+
+  .text-page-title {
+    @apply text-xl font-semibold leading-7 tracking-tight text-al-text-primary;
+  }
+
+  .text-section-title {
+    @apply text-lg font-semibold leading-[26px] text-al-text-primary;
+  }
+
+  .text-card-title {
+    @apply text-[15px] font-semibold leading-[22px] text-al-text-primary;
+  }
+
+  .text-body {
+    @apply text-[13px] font-normal leading-5 text-al-text-primary;
+  }
+
+  .text-helper {
+    @apply text-xs font-normal leading-[18px] text-al-text-secondary;
+  }
+
+  .text-nav-label {
+    @apply text-[13px] font-medium leading-[18px] text-al-text-primary;
+  }
+
+  .text-nav-helper {
+    @apply text-[11px] font-normal leading-[15px] text-al-text-secondary;
+  }
+
+  .text-button {
+    @apply text-[13px] font-semibold leading-[18px];
+  }
+
+  .text-tab {
+    @apply text-xs font-semibold leading-4 text-al-text-primary;
+  }
+
+  /* Legacy aliases — prefer named roles above */
+  .text-title {
+    @apply text-page-title;
+  }
+
+  .text-section {
+    @apply text-section-title;
+  }
+
+  .text-meta {
+    @apply text-helper;
+  }
+}
+
+/* Skip link: first focusable control; moves focus into page content (see layout `#main-content`). */
+.skip-to-main {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 50;
+  padding: 0.5rem 1rem;
+  background-color: #0f172a;
+  color: #fff;
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-decoration: none;
+  border-radius: 0.375rem;
+}
+
+.skip-to-main:focus {
+  left: 1rem;
+  top: 1rem;
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+
+/* Header nav: keyboard focus must be visible (links are not shadcn Button). */
+.shell-nav-link:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+  border-radius: 0.125rem;
+}
+
+.dark .shell-nav-link:focus-visible {
+  outline-color: #60a5fa;
+}
+
+/* Sidebar / drawer section triggers — match accent token, visible on neutral rail */
+.sidebar-disclosure-trigger:focus-visible {
+  outline: 2px solid var(--al-accent-border-focus);
+  outline-offset: 2px;
+  border-radius: 0.375rem;
+}
+
+/* Teal CTA-style links in the first-run panel */
+.workflow-primary-action:focus-visible {
+  outline: 2px solid #0f172a;
+  outline-offset: 3px;
+}
+
+/* Underline distinguishes links from surrounding body text (WCAG 1.4.1 / axe link-in-text-block). */
+.workflow-inline-link {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.workflow-inline-link:focus-visible {
+  outline: 2px solid var(--al-accent-interactive);
+  outline-offset: 2px;
+  border-radius: 0.125rem;
+}
+
+/* Auth strip controls are custom-styled; match shell focus affordance */
+.auth-panel-focus:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+}
+
+a {
+  color: inherit;
+}
+
+/*
+ * Marketing header product links — hex colors (not CSS variables / Tailwind dark: merge).
+ * Prevents axe color-contrast false/true fails of #171717 on #0a0a0a in dark CI.
+ */
+a.marketing-public-nav-link {
+  color: #262626;
+}
+
+@media (prefers-color-scheme: dark) {
+  a.marketing-public-nav-link {
+    color: #f5f5f5;
+  }
+}
+
+html.dark a.marketing-public-nav-link {
+  color: #f5f5f5;
+}
+
+input,
+select,
+button {
+  padding: 8px;
+  font: inherit;
+}
+
+/* Keyboard shortcut hints in the help dialog — neutral for light UI; dark-friendly when `prefers-color-scheme: dark` or `.dark`. */
+kbd {
+  display: inline-block;
+  padding: 2px 6px;
+  font-family: ui-monospace, monospace;
+  font-size: 0.8125rem;
+  line-height: 1.4;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  background: #f9fafb;
+  box-shadow: 0 1px 0 #d1d5db;
+}
+
+@media (prefers-color-scheme: dark) {
+  kbd {
+    border-color: #404040;
+    background: #262626;
+    color: #f5f5f5;
+    box-shadow: 0 1px 0 #404040;
+  }
+}
+
+.dark kbd {
+  border-color: #404040;
+  background: #262626;
+  color: #f5f5f5;
+  box-shadow: 0 1px 0 #404040;
+}
+
+/* Respect prefers-reduced-motion: collapse motion-heavy transitions (Radix dialog layers, inspector slide-ins). */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+@keyframes marketing-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* forwards (not both): avoid pre-animation opacity:0 so early axe/LCP reads stay AA-safe */
+.marketing-reveal-in {
+  animation: marketing-fade-up 520ms ease-out forwards;
+}
+
+.marketing-hero-visual {
+  transition: transform 220ms ease, box-shadow 220ms ease;
+}
+
+.marketing-hero-visual:hover {
+  transform: translateY(-2px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marketing-reveal-in {
+    animation: none;
+  }
+
+  .marketing-hero-visual,
+  .marketing-hero-visual:hover {
+    transform: none;
+    transition: none;
+  }
+}
+
+/* ── Print stylesheet ────────────────────────────────────────────────
+   Hides operator chrome so document views (value report, explanation,
+   provenance, finding audit) and `/help/{topic}` buyer docs (TB-721)
+   produce clean, printable output.
+   Pairs with print:hidden on shell elements and print:max-w-none
+   in DocumentLayout.                                                */
+
+@media print {
+  [data-testid="app-shell-topbar"],
+  [data-testid="sidebar-nav"],
+  [data-testid="buyer-cto-demo-tour-overlay"],
+  [data-testid="buyer-cto-demo-tour-overlay-collapsed"],
+  [data-testid="cto-demo-journey-caption-bar"],
+  nav,
+  header,
+  .skip-to-main {
+    display: none !important;
+  }
+
+  [data-testid="app-shell-main"] {
+    margin-left: 0 !important;
+    padding: 0 !important;
+    max-width: 100% !important;
+  }
+
+  [data-testid="sponsor-review-page"] {
+    max-width: 100% !important;
+  }
+
+  [data-testid="cto-demo-sponsor-above-fold"] {
+    width: 100% !important;
+    max-width: 100% !important;
+    break-inside: avoid;
+  }
+
+  .privacy-policy-no-print,
+  [data-testid="marketing-analytics-consent-banner"],
+  [data-testid="help-topic-export-actions"],
+  [data-testid="package-print-actions"],
+  [data-testid="help-topic-toc"],
+  [data-testid="help-topic-toc-mobile"] {
+    display: none !important;
+  }
+
+  [data-testid="help-topic-content"] {
+    max-width: 100% !important;
+  }
+
+  .privacy-policy-page {
+    max-width: 100% !important;
+  }
+
+  body {
+    background: white !important;
+    color: black !important;
+    font-size: 12pt;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  h2, h3, h4 {
+    page-break-after: avoid;
+  }
+
+  table, pre, figure {
+    page-break-inside: avoid;
+  }
+}

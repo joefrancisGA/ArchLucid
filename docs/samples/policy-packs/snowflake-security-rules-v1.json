@@ -1,0 +1,1096 @@
+{
+  "schemaVersion": 1,
+  "kind": "archlucid.policyPack.curatedRules.v1",
+  "pack": {
+    "name": "Snowflake Security",
+    "description": "Snowflake-specific security, governance, least privilege, sensitive-data protection, auditability, and operational risk checks for architecture reviews. Thematic mapping only \u2014 not certification or compliance attestation.",
+    "version": "1.0.0",
+    "category": "Data Platform Security",
+    "isDefault": true,
+    "suggestedPackType": "PlatformDefault",
+    "policyPackContentDocumentPath": "docs/samples/policy-packs/snowflake-security.json"
+  },
+  "rules": [
+    {
+      "id": "sf-id-001",
+      "title": "Human users must use MFA or federated SSO with equivalent controls",
+      "description": "Category: Identity and authentication. Password-only interactive access to Snowflake increases account takeover risk for production data. Review SHOW USERS, DESCRIBE USER, login history, IdP/SSO exports, and authentication policies. Pass when all human users require MFA or federated SSO. Fail when password-only human users access production without MFA/SSO. Insufficient evidence when no user or authentication exports are provided. False positive: documented break-glass accounts with compensating monitoring and risk acceptance.",
+      "severity": "Critical",
+      "priority": "P0",
+      "remediationGuidance": "Enforce MFA or federated SSO for all human users; disable password-only paths except approved break-glass with monitoring.",
+      "evidenceHints": [
+        "snowflake.showUsers",
+        "snowflake.describeUser",
+        "snowflake.accountUsage.loginHistory",
+        "snowflake.authenticationPolicy",
+        "governance.RequiredControls",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "Snowflake Security",
+          "requirement": "MFA and federated authentication for human users"
+        }
+      ]
+    },
+    {
+      "id": "sf-id-002",
+      "title": "Shared human accounts are prohibited",
+      "description": "Category: Identity and authentication. Shared human logins prevent attribution, access review, and MFA binding. Review user inventory, login history, and naming patterns for generic/shared accounts. Pass when each human has an individual Snowflake user mapped to corporate identity. Fail when shared or generic human accounts are used for interactive access. Insufficient evidence when user inventory is absent.",
+      "severity": "Critical",
+      "priority": "P0",
+      "remediationGuidance": "Replace shared human accounts with individual federated users; rotate credentials and disable shared logins.",
+      "evidenceHints": [
+        "snowflake.showUsers",
+        "snowflake.accountUsage.users",
+        "snowflake.accountUsage.loginHistory"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "NIST CSF",
+          "requirement": "PR.AC-1 identities are managed"
+        }
+      ]
+    },
+    {
+      "id": "sf-id-003",
+      "title": "Automation users must be separate from human users",
+      "description": "Category: Identity and authentication. Mixing automation and human identities complicates least privilege and access reviews. Review user types, comments, default roles, and service naming conventions. Pass when service/automation users are distinct from human users with dedicated roles. Fail when the same user serves both interactive and batch automation. Insufficient evidence when user purpose is not documented.",
+      "severity": "High",
+      "priority": "P0",
+      "remediationGuidance": "Create dedicated service users per integration; prohibit interactive login on automation accounts.",
+      "evidenceHints": [
+        "snowflake.showUsers",
+        "snowflake.describeUser",
+        "snowflake.showRoles"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "Snowflake Security",
+          "requirement": "Service identity separation"
+        }
+      ]
+    },
+    {
+      "id": "sf-id-004",
+      "title": "Service accounts should use key-pair authentication or approved non-password authentication",
+      "description": "Category: Identity and authentication. Password-based automation is difficult to rotate and prone to leakage. Review DESCRIBE USER RSA public keys, OAuth/security integrations, and password login history for service users. Pass when automation uses key-pair or approved non-password auth. Fail when service users authenticate with passwords for routine jobs. Insufficient evidence when service auth method is not shown.",
+      "severity": "High",
+      "priority": "P0",
+      "remediationGuidance": "Migrate automation to key-pair or OAuth; disable password auth on service users and rotate keys on schedule.",
+      "evidenceHints": [
+        "snowflake.describeUser",
+        "snowflake.accountUsage.loginHistory",
+        "snowflake.showIntegrations"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "CIS Benchmarks",
+          "requirement": "Strong authentication for non-human identities (thematic)"
+        }
+      ]
+    },
+    {
+      "id": "sf-id-005",
+      "title": "Break-glass administrative accounts must be documented, monitored, and controlled",
+      "description": "Category: Identity and authentication. Uncontrolled ACCOUNTADMIN or break-glass paths enable undetected privileged compromise. Review break-glass user list, login alerts, network restrictions, and governance records. Pass when break-glass accounts are named, monitored, time-bound, and approved. Fail when undocumented ACCOUNTADMIN-style accounts exist without monitoring. Insufficient evidence when admin account inventory is missing.",
+      "severity": "Critical",
+      "priority": "P0",
+      "remediationGuidance": "Document break-glass process, restrict network access, alert on use, and review each activation.",
+      "evidenceHints": [
+        "snowflake.showUsers",
+        "snowflake.accountUsage.loginHistory",
+        "governance.PolicyConstraints"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "SOC 2",
+          "requirement": "CC6.1 logical access (thematic)"
+        }
+      ]
+    },
+    {
+      "id": "sf-id-006",
+      "title": "Stale or inactive users must be disabled or reviewed",
+      "description": "Category: Identity and authentication. Dormant enabled accounts expand credential theft surface. Review ACCOUNT_USAGE.USERS last login, disabled flags, and access review exports. Pass when inactive users are disabled or reviewed on schedule. Fail when long-idle enabled users remain without review. Insufficient evidence when login history or user exports are absent.",
+      "severity": "Medium",
+      "priority": "P1",
+      "remediationGuidance": "Disable or remove stale users; implement quarterly access review for enabled accounts.",
+      "evidenceHints": [
+        "snowflake.accountUsage.users",
+        "snowflake.accountUsage.loginHistory"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "ISO 27001",
+          "requirement": "A.9.2.6 removal of access rights (thematic)"
+        }
+      ]
+    },
+    {
+      "id": "sf-rbac-001",
+      "title": "ACCOUNTADMIN usage must be limited and justified",
+      "description": "Category: RBAC and privilege management. Broad ACCOUNTADMIN grants enable full account compromise. Review grants to ACCOUNTADMIN, role assignments, and privileged session evidence. Pass when ACCOUNTADMIN is rare, justified, and monitored. Fail when many users hold ACCOUNTADMIN for routine work. Insufficient evidence when role grant exports are missing.",
+      "severity": "Critical",
+      "priority": "P0",
+      "remediationGuidance": "Remove routine ACCOUNTADMIN grants; use functional admin roles and monitor privileged use.",
+      "evidenceHints": [
+        "snowflake.showGrantsToRole",
+        "snowflake.showGrantsOfRole",
+        "snowflake.accountUsage.grantsToUsers"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "Snowflake Security",
+          "requirement": "ACCOUNTADMIN least use"
+        }
+      ]
+    },
+    {
+      "id": "sf-rbac-002",
+      "title": "SECURITYADMIN and SYSADMIN privileges must be separated by responsibility",
+      "description": "Category: RBAC and privilege management. Combining security administration and system administration weakens segregation of duties. Review role grants for SECURITYADMIN, SYSADMIN, and custom admin roles. Pass when security and platform admin duties are separated. Fail when the same principals hold both without documented exception. Insufficient evidence when admin role grants are not exported.",
+      "severity": "High",
+      "priority": "P0",
+      "remediationGuidance": "Split SECURITYADMIN and SYSADMIN assignments; document SoD exceptions with expiry.",
+      "evidenceHints": [
+        "snowflake.showGrantsToRole",
+        "snowflake.showRoles",
+        "governance.RequiredControls"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "SOX ITGC",
+          "requirement": "Segregation of duties (thematic)"
+        }
+      ]
+    },
+    {
+      "id": "sf-rbac-003",
+      "title": "Grants should be assigned to roles, not directly to users",
+      "description": "Category: RBAC and privilege management. Direct user grants bypass role governance and access reviews. Review SHOW GRANTS TO USER versus role-based inheritance. Pass when object privileges flow through roles. Fail when production privileges are granted directly to users. Insufficient evidence when grant exports omit user-level grants.",
+      "severity": "High",
+      "priority": "P0",
+      "remediationGuidance": "Reassign direct grants to roles; remove ad hoc user privileges and revalidate effective access.",
+      "evidenceHints": [
+        "snowflake.showGrantsToUser",
+        "snowflake.accountUsage.grantsToUsers"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "Snowflake RBAC",
+          "requirement": "Role-based grants"
+        }
+      ]
+    },
+    {
+      "id": "sf-rbac-004",
+      "title": "PUBLIC role must not grant access to sensitive objects",
+      "description": "Category: RBAC and privilege management. PUBLIC grants apply account-wide and can unintentionally expose data or metadata. Review grants to PUBLIC on databases, schemas, tables, stages, and warehouses. Pass when PUBLIC has only safe baseline privileges. Fail when PUBLIC can read production sensitive objects. Insufficient evidence when PUBLIC grants are not listed.",
+      "severity": "Critical",
+      "priority": "P0",
+      "remediationGuidance": "Revoke production privileges from PUBLIC; assign access through governed functional roles.",
+      "evidenceHints": [
+        "snowflake.showGrantsToRole PUBLIC",
+        "snowflake.showGrantsOnAccount"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "Snowflake Security",
+          "requirement": "PUBLIC role hardening"
+        }
+      ]
+    },
+    {
+      "id": "sf-rbac-005",
+      "title": "OWNERSHIP grants must be limited and reviewed",
+      "description": "Category: RBAC and privilege management. OWNERSHIP enables grant management and object lifecycle control beyond read/write. Review ownership on databases, schemas, tables, stages, tasks, and integrations. Pass when ownership is limited to accountable admin/service roles. Fail when broad analyst roles own production objects. Insufficient evidence when ownership grants are not exported.",
+      "severity": "High",
+      "priority": "P1",
+      "remediationGuidance": "Transfer ownership to governed admin roles; review ownership quarterly.",
+      "evidenceHints": [
+        "snowflake.showGrantsToRole",
+        "snowflake.showGrantsOnDatabase"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "Snowflake RBAC",
+          "requirement": "Ownership governance"
+        }
+      ]
+    },
+    {
+      "id": "sf-rbac-006",
+      "title": "Future grants must be explicitly governed",
+      "description": "Category: RBAC and privilege management. Future grants expand access automatically as new objects are created. Review FUTURE GRANTS in role definitions and schema/database defaults. Pass when future grants are documented and least-privilege. Fail when future grants grant broad access to analyst or PUBLIC roles. Insufficient evidence when future grant inventory is missing.",
+      "severity": "High",
+      "priority": "P1",
+      "remediationGuidance": "Remove or narrow future grants; require change control for new future grant patterns.",
+      "evidenceHints": [
+        "snowflake.showGrantsToRole",
+        "snowflake.showGrantsOnSchema"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "Snowflake RBAC",
+          "requirement": "Future grant control"
+        }
+      ]
+    },
+    {
+      "id": "sf-rbac-007",
+      "title": "Role hierarchy must avoid unintended privilege escalation",
+      "description": "Category: RBAC and privilege management. Deep or cyclic role grants can accumulate privileges beyond intent. Review role hierarchy exports and grants of role to role. Pass when hierarchy is understandable and escalation paths are controlled. Fail when junior roles inherit admin privileges through nesting. Insufficient evidence when role hierarchy diagram or exports are absent.",
+      "severity": "High",
+      "priority": "P0",
+      "remediationGuidance": "Flatten or redesign role hierarchy; remove escalation paths and validate effective grants.",
+      "evidenceHints": [
+        "snowflake.showGrantsOfRole",
+        "snowflake.showRoles",
+        "governance.ComplianceTags"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "Snowflake RBAC",
+          "requirement": "Role hierarchy design"
+        }
+      ]
+    },
+    {
+      "id": "sf-rbac-008",
+      "title": "Service roles must be least-privilege",
+      "description": "Category: RBAC and privilege management. Over-privileged service roles enable pipeline or integration abuse. Review grants on service roles for warehouses, stages, tables, and integrations. Pass when each service role has minimum required privileges. Fail when service roles own broad database or warehouse access. Insufficient evidence when service role grants are not shown.",
+      "severity": "High",
+      "priority": "P0",
+      "remediationGuidance": "Scope service roles per workload; remove unused privileges and document purpose.",
+      "evidenceHints": [
+        "snowflake.showGrantsToRole",
+        "snowflake.showGrantsOfRole"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "CIS Benchmarks",
+          "requirement": "Least privilege for service accounts (thematic)"
+        }
+      ]
+    },
+    {
+      "id": "sf-rbac-009",
+      "title": "Privileged role use must be periodically reviewed",
+      "description": "Category: RBAC and privilege management. Without review, privileged access drifts and accumulates. Review access review records, ACCOUNT_USAGE grants history, and governance sign-offs. Pass when privileged roles are reviewed on schedule with evidence. Fail when no review evidence exists for admin or sensitive-data roles. Insufficient evidence when review cadence is undocumented.",
+      "severity": "Medium",
+      "priority": "P1",
+      "remediationGuidance": "Implement quarterly privileged access review with owner attestation and remediation tracking.",
+      "evidenceHints": [
+        "governance.RequiredControls",
+        "snowflake.accountUsage.grantsToRoles",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "SOC 2",
+          "requirement": "CC6.2 access review (thematic)"
+        }
+      ]
+    },
+    {
+      "id": "sf-data-001",
+      "title": "Sensitive production data must be classified or tagged",
+      "description": "Category: Sensitive data protection. Unclassified sensitive tables cannot drive masking, row access, or review controls. Review object tags, classification exports, and schema inventory for production. Pass when sensitive production objects carry classification tags. Fail when likely sensitive production tables lack tags. Insufficient evidence when classification/tag exports are missing.",
+      "severity": "High",
+      "priority": "P0",
+      "remediationGuidance": "Implement object tagging for PHI/PII/PCI/confidential data; cover high-value schemas first.",
+      "evidenceHints": [
+        "snowflake.showTags",
+        "snowflake.tableClassification",
+        "governance.ComplianceTags"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "NIST Privacy Framework",
+          "requirement": "Data inventory and classification (thematic)"
+        }
+      ]
+    },
+    {
+      "id": "sf-data-002",
+      "title": "Sensitive tables must have owner or steward metadata",
+      "description": "Category: Sensitive data protection. Without ownership, classification exceptions and access decisions lack accountability. Review tags, comments, governance metadata, and data catalog exports. Pass when sensitive tables identify an owner or steward. Fail when high-value schemas lack ownership metadata. Insufficient evidence when stewardship model is not documented.",
+      "severity": "Medium",
+      "priority": "P1",
+      "remediationGuidance": "Assign data owners/stewards via tags or catalog; include in access review workflows.",
+      "evidenceHints": [
+        "snowflake.showTags",
+        "governance.RequiredControls",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "Data governance",
+          "requirement": "Data ownership accountability"
+        }
+      ]
+    },
+    {
+      "id": "sf-data-003",
+      "title": "Unclassified production schemas containing likely sensitive data require review",
+      "description": "Category: Sensitive data protection. Schemas with member, payment, clinical, or credential-like columns need classification scrutiny. Review DDL extracts, column names, and sample classification coverage reports. Pass when likely sensitive schemas are classified or explicitly accepted. Fail when production schemas with sensitive column patterns remain untagged. Insufficient evidence when schema inventory is incomplete.",
+      "severity": "High",
+      "priority": "P1",
+      "remediationGuidance": "Scan production schemas for sensitive patterns; classify or document risk acceptance.",
+      "evidenceHints": [
+        "snowflake.informationSchema.columns",
+        "snowflake.tableClassification",
+        "governance.PolicyConstraints"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "HIPAA Security Rule",
+          "requirement": "Information system activity review themes (thematic)"
+        }
+      ]
+    },
+    {
+      "id": "sf-data-004",
+      "title": "Tags and classifications should drive masking, access, or review controls",
+      "description": "Category: Sensitive data protection. Tags without linked controls provide cosmetic governance only. Review mapping between tags and masking/row access policies or documented equivalents. Pass when classified tags trigger protective controls or review workflows. Fail when sensitive tags exist without masking, row access, or access restrictions. Insufficient evidence when tag-to-control mapping is not shown.",
+      "severity": "Medium",
+      "priority": "P1",
+      "remediationGuidance": "Link classification tags to masking/row access policies and validate effective behavior.",
+      "evidenceHints": [
+        "snowflake.showTags",
+        "snowflake.showMaskingPolicies",
+        "snowflake.showRowAccessPolicies"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "Snowflake Tag-based governance",
+          "requirement": "Policy linkage to tags"
+        }
+      ]
+    },
+    {
+      "id": "sf-prot-001",
+      "title": "Sensitive columns must have masking or tokenization controls",
+      "description": "Category: Sensitive data protection. Unmasked sensitive columns allow broad roles to query regulated data beyond minimum necessary use. Review SHOW MASKING POLICIES, policy references, and column classifications. Pass when sensitive columns are masked or tokenized appropriately. Fail when likely PHI/PII/PCI columns lack masking/tokenization. Insufficient evidence when masking inventory or DDL is absent.",
+      "severity": "Critical",
+      "priority": "P0",
+      "remediationGuidance": "Apply masking or tokenization to sensitive columns; validate by representative roles.",
+      "evidenceHints": [
+        "snowflake.showMaskingPolicies",
+        "snowflake.describeTable",
+        "snowflake.tableClassification"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "PCI DSS",
+          "requirement": "Protection of cardholder data (thematic)"
+        }
+      ]
+    },
+    {
+      "id": "sf-prot-002",
+      "title": "Derived tables and views must preserve sensitive-data protections",
+      "description": "Category: Sensitive data protection. Views, materialized views, clones, and CTAS outputs can bypass source masking or row policies. Review secure view usage, derived object DDL, and policy attachment on downstream objects. Pass when derived objects preserve masking and row access controls. Fail when derived tables expose unmasked sensitive data. Insufficient evidence when lineage/protection on derived objects is not shown.",
+      "severity": "High",
+      "priority": "P0",
+      "remediationGuidance": "Use secure views where required; reapply masking/row policies on derived objects and test outputs.",
+      "evidenceHints": [
+        "snowflake.showViews",
+        "snowflake.showMaterializedViews",
+        "snowflake.showMaskingPolicies"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "Snowflake Secure Views",
+          "requirement": "Derived object protection"
+        }
+      ]
+    },
+    {
+      "id": "sf-prot-003",
+      "title": "Multi-tenant or jurisdiction-restricted tables require row access controls",
+      "description": "Category: Sensitive data protection. Shared tables without row segmentation risk cross-tenant or cross-region exposure. Review row access policies, tenant/region columns, and analyst role grants. Pass when row access policies or equivalent segmentation is enforced. Fail when multi-tenant tables lack row access controls. Insufficient evidence when table tenancy model is undocumented.",
+      "severity": "Critical",
+      "priority": "P0",
+      "remediationGuidance": "Implement row access policies for tenant/region/business-unit columns; test cross-tenant queries fail.",
+      "evidenceHints": [
+        "snowflake.showRowAccessPolicies",
+        "snowflake.describeTable",
+        "snowflake.showGrantsToRole"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "Snowflake Row Access Policies",
+          "requirement": "Row-level segmentation"
+        }
+      ]
+    },
+    {
+      "id": "sf-prot-004",
+      "title": "Masking and row access policies must be tested by role",
+      "description": "Category: Sensitive data protection. Policies that are untested may not enforce intended visibility. Review test scripts, query samples, or validation reports by role. Pass when masking/row access behavior is validated per role class. Fail when no test evidence exists for production policies. Insufficient evidence when policy tests are not provided.",
+      "severity": "Medium",
+      "priority": "P1",
+      "remediationGuidance": "Execute role-based SELECT tests documenting masked/unmasked outcomes; store results for audit.",
+      "evidenceHints": [
+        "governance.RequiredControls",
+        "metadata.ChangeDescription",
+        "snowflake.queryHistorySample"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "SOC 2",
+          "requirement": "Control operating effectiveness (thematic)"
+        }
+      ]
+    },
+    {
+      "id": "sf-prot-005",
+      "title": "Privileged masking bypass must be documented and limited",
+      "description": "Category: Sensitive data protection. Masking policies that exempt broad admin roles undermine sensitive-data protection. Review masking policy body, exempt roles, and approval records. Pass when bypass roles are minimal, monitored, and approved. Fail when analyst or wide admin roles bypass masking without justification. Insufficient evidence when masking policy definitions are missing.",
+      "severity": "High",
+      "priority": "P1",
+      "remediationGuidance": "Limit bypass to named break-glass roles; monitor unmasked queries and document approvals.",
+      "evidenceHints": [
+        "snowflake.showMaskingPolicies",
+        "snowflake.accountUsage.queryHistory"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "HIPAA Security Rule",
+          "requirement": "Minimum necessary (thematic)"
+        }
+      ]
+    },
+    {
+      "id": "sf-net-001",
+      "title": "Administrative access should be restricted by network policy or approved equivalent",
+      "description": "Category: Network security. Unrestricted admin login paths increase credential theft impact. Review SHOW NETWORK POLICIES, account parameters, and private connectivity design. Pass when admin paths are network-restricted or equivalent controls exist. Fail when ACCOUNTADMIN users can authenticate from any network without restriction. Insufficient evidence when network policies are not exported.",
+      "severity": "High",
+      "priority": "P0",
+      "remediationGuidance": "Apply network policies to admin roles/users; pair with SSO and IP allowlists.",
+      "evidenceHints": [
+        "snowflake.showNetworkPolicies",
+        "governance.PolicyConstraints"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "Snowflake Network Policies",
+          "requirement": "Administrative network restriction"
+        }
+      ]
+    },
+    {
+      "id": "sf-net-002",
+      "title": "Production account access from broad internet ranges requires risk acceptance",
+      "description": "Category: Network security. Permissive IP ranges increase exposure to credential stuffing and data exfiltration. Review network policy allowed lists and remote access patterns. Pass when production access is limited to managed networks or documented exceptions. Fail when 0.0.0.0/0 or overly broad ranges are allowed for production roles. Insufficient evidence when network policy details are absent.",
+      "severity": "High",
+      "priority": "P1",
+      "remediationGuidance": "Tighten network policies; document and expire any broad-range exceptions.",
+      "evidenceHints": [
+        "snowflake.showNetworkPolicies",
+        "snowflake.accountUsage.loginHistory"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "NIST CSF",
+          "requirement": "PR.AC-5 network integrity (thematic)"
+        }
+      ]
+    },
+    {
+      "id": "sf-net-003",
+      "title": "Private connectivity requirements must be evidenced for regulated workloads",
+      "description": "Category: Network security. Regulated workloads often require PrivateLink or approved private paths instead of public endpoints. Review architecture diagrams, PrivateLink configuration, and network policy design. Pass when private connectivity is documented for regulated paths. Fail when regulated data paths rely on public internet without acceptance. Insufficient evidence when connectivity architecture is not provided.",
+      "severity": "High",
+      "priority": "P1",
+      "remediationGuidance": "Implement PrivateLink or approved private access; update network policies accordingly.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "metadata.ChangeDescription",
+        "snowflake.privateLink"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "Enterprise network security",
+          "requirement": "Private connectivity for regulated data"
+        }
+      ]
+    },
+    {
+      "id": "sf-net-004",
+      "title": "External network access must be allowlisted and governed",
+      "description": "Category: Network security. External access integrations can egress data to unmanaged endpoints. Review external access integrations, network rules, and allowlists. Pass when outbound network access is explicitly allowlisted and owned. Fail when integrations can reach broad external hosts without governance. Insufficient evidence when external access configuration is missing.",
+      "severity": "High",
+      "priority": "P1",
+      "remediationGuidance": "Define network rules with minimal host allowlists; review integrations quarterly.",
+      "evidenceHints": [
+        "snowflake.showIntegrations",
+        "snowflake.showNetworkRules",
+        "snowflake.externalAccessIntegrations"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "Snowflake External Access",
+          "requirement": "Outbound allowlisting"
+        }
+      ]
+    },
+    {
+      "id": "sf-stage-001",
+      "title": "External stages must use governed storage integrations, not embedded credentials",
+      "description": "Category: Data sharing and exfiltration. Inline credentials in stage definitions are hard to rotate and audit. Review SHOW STAGES, DESCRIBE STAGE, and storage integration references. Pass when external stages use storage integrations with cloud IAM roles. Fail when stages embed secrets or long-lived keys in URLs/options. Insufficient evidence when stage definitions are not provided.",
+      "severity": "Critical",
+      "priority": "P0",
+      "remediationGuidance": "Migrate stages to storage integrations; remove embedded credentials and rotate cloud identities.",
+      "evidenceHints": [
+        "snowflake.showStages",
+        "snowflake.describeStage",
+        "snowflake.showIntegrations"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "Snowflake Storage Integrations",
+          "requirement": "Stage credential hygiene"
+        }
+      ]
+    },
+    {
+      "id": "sf-stage-002",
+      "title": "Storage integrations must be least-privilege",
+      "description": "Category: Data sharing and exfiltration. Over-scoped cloud IAM roles increase blast radius if Snowflake stage access is misused. Review storage integration cloud IAM policies and allowed locations/prefixes. Pass when integrations can access only required bucket/container paths. Fail when integrations can list or read broad storage accounts. Insufficient evidence when cloud IAM scope is not shown.",
+      "severity": "High",
+      "priority": "P0",
+      "remediationGuidance": "Restrict storage integration IAM to minimum prefix; separate ingest and export paths.",
+      "evidenceHints": [
+        "snowflake.showIntegrations",
+        "snowflake.terraform.storageIntegration",
+        "governance.PolicyConstraints"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "Cloud IAM",
+          "requirement": "Least-privilege storage access (thematic)"
+        }
+      ]
+    },
+    {
+      "id": "sf-stage-003",
+      "title": "Unload and export locations must be controlled and monitored",
+      "description": "Category: Data sharing and exfiltration. Uncontrolled COPY INTO/unload paths enable data exfiltration. Review unload stages, query history for COPY INTO, and export monitoring design. Pass when export locations are governed and monitored. Fail when users can unload to unmanaged external locations. Insufficient evidence when export/unload patterns are not described.",
+      "severity": "High",
+      "priority": "P0",
+      "remediationGuidance": "Restrict unload stages to approved integrations; alert on large exports.",
+      "evidenceHints": [
+        "snowflake.showStages",
+        "snowflake.accountUsage.queryHistory",
+        "snowflake.copyIntoPatterns"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "Data exfiltration prevention",
+          "requirement": "Controlled unload paths"
+        }
+      ]
+    },
+    {
+      "id": "sf-stage-004",
+      "title": "Sensitive staged files require retention and cleanup controls",
+      "description": "Category: Data sharing and exfiltration. Temporary stages and export files may retain sensitive data beyond need. Review stage lifecycle, cloud object retention, and cleanup jobs. Pass when sensitive staged files have retention and deletion controls. Fail when sensitive exports persist without lifecycle management. Insufficient evidence when stage retention practices are undocumented.",
+      "severity": "Medium",
+      "priority": "P1",
+      "remediationGuidance": "Define retention for temp/export stages; automate cleanup and verify in cloud storage.",
+      "evidenceHints": [
+        "snowflake.showStages",
+        "governance.PolicyConstraints",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "Data lifecycle",
+          "requirement": "Stage file retention"
+        }
+      ]
+    },
+    {
+      "id": "sf-stage-005",
+      "title": "External functions must not send sensitive data to unmanaged endpoints",
+      "description": "Category: Operational governance. External functions and API integrations can egress query results or parameters off-platform. Review external function definitions, secrets, network rules, and endpoint allowlists. Pass when endpoints are approved and sensitive payloads are controlled. Fail when functions call unmanaged endpoints with sensitive inputs. Insufficient evidence when external function inventory is missing.",
+      "severity": "Critical",
+      "priority": "P0",
+      "remediationGuidance": "Allowlist external function endpoints; redact or block sensitive columns from function calls.",
+      "evidenceHints": [
+        "snowflake.showExternalFunctions",
+        "snowflake.externalAccessIntegrations",
+        "snowflake.showNetworkRules"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "Snowflake External Functions",
+          "requirement": "Managed endpoint egress"
+        }
+      ]
+    },
+    {
+      "id": "sf-log-001",
+      "title": "Login and query activity must be retained and reviewable",
+      "description": "Category: Logging and monitoring. Without retained login/query history, investigations and audits are impaired. Review ACCOUNT_USAGE retention, export processes, and review cadence. Pass when login and query history meet retention and review requirements. Fail when retention is shorter than compliance needs or reviews are absent. Insufficient evidence when retention/review design is not documented.",
+      "severity": "High",
+      "priority": "P0",
+      "remediationGuidance": "Configure retention aligned to policy; schedule login/query reviews and archive to durable store.",
+      "evidenceHints": [
+        "snowflake.accountUsage.loginHistory",
+        "snowflake.accountUsage.queryHistory",
+        "governance.RequiredControls"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "SOC 2",
+          "requirement": "CC7.2 monitoring (thematic)"
+        }
+      ]
+    },
+    {
+      "id": "sf-log-002",
+      "title": "Privileged actions must be monitored",
+      "description": "Category: Logging and monitoring. Undetected privileged changes to roles, integrations, or policies increase compromise dwell time. Review alerts on ACCOUNTADMIN/SECURITYADMIN actions and admin query patterns. Pass when privileged actions generate alerts or SIEM events. Fail when no monitoring exists for privileged role activity. Insufficient evidence when monitoring design is not provided.",
+      "severity": "High",
+      "priority": "P0",
+      "remediationGuidance": "Alert on privileged grants, integration changes, and policy edits; integrate with SIEM.",
+      "evidenceHints": [
+        "snowflake.accountUsage.queryHistory",
+        "snowflake.siemIntegration",
+        "governance.PolicyConstraints"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "NIST CSF",
+          "requirement": "DE.CM-1 network monitoring (thematic)"
+        }
+      ]
+    },
+    {
+      "id": "sf-log-003",
+      "title": "Mass export and unload activity must be detectable",
+      "description": "Category: Logging and monitoring. Large COPY INTO or result downloads may indicate exfiltration. Review query history alerts, bytes scanned thresholds, and unload monitoring. Pass when mass export/unload patterns trigger alerts. Fail when large exports occur without detection mechanisms. Insufficient evidence when export monitoring is not described.",
+      "severity": "High",
+      "priority": "P1",
+      "remediationGuidance": "Define thresholds for COPY INTO/bytes transferred; alert and investigate anomalies.",
+      "evidenceHints": [
+        "snowflake.accountUsage.queryHistory",
+        "snowflake.copyIntoPatterns",
+        "snowflake.siemIntegration"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "Data loss prevention",
+          "requirement": "Export anomaly detection"
+        }
+      ]
+    },
+    {
+      "id": "sf-log-004",
+      "title": "Snowflake audit events should integrate with SIEM or equivalent monitoring",
+      "description": "Category: Logging and monitoring. Centralized monitoring improves correlation and incident response. Review SIEM ingestion design, log export jobs, and alert runbooks. Pass when Snowflake audit/login/query events feed SIEM or equivalent. Fail when no central monitoring integration is evidenced. Insufficient evidence when logging architecture is absent.",
+      "severity": "Medium",
+      "priority": "P1",
+      "remediationGuidance": "Integrate ACCOUNT_USAGE and alert streams with SIEM; document alert ownership.",
+      "evidenceHints": [
+        "snowflake.siemIntegration",
+        "governance.RequiredControls",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "SOC 2",
+          "requirement": "CC7.3 incident response support (thematic)"
+        }
+      ]
+    },
+    {
+      "id": "sf-log-005",
+      "title": "Access reviews must be evidenced for privileged and sensitive-data roles",
+      "description": "Category: Logging and monitoring. Periodic review reduces privilege drift for roles touching sensitive data. Review access review exports, attestations, and remediation records. Pass when reviews occur on schedule with named owners. Fail when sensitive-data roles lack review evidence. Insufficient evidence when review process is undocumented.",
+      "severity": "Medium",
+      "priority": "P1",
+      "remediationGuidance": "Run quarterly reviews for privileged/sensitive roles; track removals and exceptions.",
+      "evidenceHints": [
+        "governance.RequiredControls",
+        "snowflake.accountUsage.grantsToRoles",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "ISO 27001",
+          "requirement": "A.9.2.5 review of user access rights (thematic)"
+        }
+      ]
+    },
+    {
+      "id": "sf-key-001",
+      "title": "Key management model must satisfy workload sensitivity and enterprise policy",
+      "description": "Category: Key management and encryption. Encryption ownership must match data sensitivity and enterprise KMS requirements. Review encryption-at-rest posture, Tri-Secret Secure, and key custody documentation. Pass when key model aligns with workload classification and enterprise policy. Fail when regulated workloads use default encryption without required enterprise controls. Insufficient evidence when encryption/key model is not documented.",
+      "severity": "High",
+      "priority": "P1",
+      "remediationGuidance": "Document encryption and key custody; implement CMK/Tri-Secret Secure where required.",
+      "evidenceHints": [
+        "snowflake.showParameters",
+        "snowflake.accountUsage.databaseStorageUsageHistory",
+        "governance.PolicyConstraints",
+        "governance.ComplianceTags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "NIST CSF",
+          "requirement": "PR.DS-1 data-at-rest protection (thematic)"
+        }
+      ]
+    },
+    {
+      "id": "sf-key-002",
+      "title": "External storage encryption must be evidenced",
+      "description": "Category: Key management and encryption. Data in external stages relies on cloud storage encryption as well as Snowflake controls. Review cloud bucket/container encryption settings tied to storage integrations. Pass when external storage uses required encryption (SSE-KMS/CMK etc.). Fail when external locations lack encryption evidence. Insufficient evidence when cloud storage config is not provided.",
+      "severity": "High",
+      "priority": "P1",
+      "remediationGuidance": "Enable required cloud encryption on stage locations; document key ownership.",
+      "evidenceHints": [
+        "snowflake.terraform.storageIntegration",
+        "snowflake.showIntegrations",
+        "governance.ComplianceTags"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "Cloud storage security",
+          "requirement": "External stage encryption (thematic)"
+        }
+      ]
+    },
+    {
+      "id": "sf-key-003",
+      "title": "Customer-managed key or enhanced key-control requirements must be assessed for regulated data",
+      "description": "Category: Key management and encryption. Some regulated programs require CMK or Tri-Secret Secure rather than default Snowflake-managed keys. Review compliance tags, enterprise KMS standards, and Snowflake encryption parameters. Pass when CMK/enhanced controls are implemented or formally deferred with acceptance. Fail when regulated data lacks required key-control assessment. Insufficient evidence when workload regulation context is unknown.",
+      "severity": "Medium",
+      "priority": "P1",
+      "remediationGuidance": "Assess CMK/Tri-Secret Secure need per workload; document decision and exceptions.",
+      "evidenceHints": [
+        "snowflake.showParameters",
+        "governance.ComplianceTags",
+        "governance.PolicyConstraints",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "Enterprise encryption policy",
+          "requirement": "Customer-managed keys for regulated data"
+        }
+      ]
+    },
+    {
+      "id": "sf-share-001",
+      "title": "Outbound data shares must be approved and classified",
+      "description": "Category: Data sharing and exfiltration. Outbound shares move data across account boundaries and require governance. Review SHOW SHARES, share grants, and approval records. Pass when each outbound share is approved and classified. Fail when shares exist without documented authorization. Insufficient evidence when share inventory is missing.",
+      "severity": "High",
+      "priority": "P0",
+      "remediationGuidance": "Inventory outbound shares; require classification and approval before publication.",
+      "evidenceHints": [
+        "snowflake.showShares",
+        "governance.RequiredControls",
+        "governance.ComplianceTags"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "Snowflake Data Sharing",
+          "requirement": "Outbound share approval"
+        }
+      ]
+    },
+    {
+      "id": "sf-share-002",
+      "title": "Shared objects must not expose sensitive data without documented authorization",
+      "description": "Category: Data sharing and exfiltration. Shares can expose tables/views with sensitive columns if masking/row policies do not apply cross-account. Review shared object lists, classifications, and consumer contracts. Pass when sensitive shared objects have documented authorization and controls. Fail when sensitive datasets are shared without approval. Insufficient evidence when shared object inventory is incomplete.",
+      "severity": "Critical",
+      "priority": "P0",
+      "remediationGuidance": "Remove sensitive objects from shares or apply approved sharing pattern with legal/compliance sign-off.",
+      "evidenceHints": [
+        "snowflake.showShares",
+        "snowflake.tableClassification",
+        "governance.PolicyConstraints"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "Data sharing governance",
+          "requirement": "Sensitive data in shares"
+        }
+      ]
+    },
+    {
+      "id": "sf-share-003",
+      "title": "Reader accounts and consumers require periodic access review",
+      "description": "Category: Data sharing and exfiltration. Consumer access can persist after business need ends. Review reader account list, consumer mappings, and review attestations. Pass when consumer access is reviewed on schedule. Fail when reader accounts lack review evidence. Insufficient evidence when consumer inventory is absent.",
+      "severity": "Medium",
+      "priority": "P1",
+      "remediationGuidance": "Review reader accounts/consumers quarterly; revoke unused access.",
+      "evidenceHints": [
+        "snowflake.showShares",
+        "snowflake.readerAccounts",
+        "governance.RequiredControls"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "SOC 2",
+          "requirement": "Third-party access review (thematic)"
+        }
+      ]
+    },
+    {
+      "id": "sf-share-004",
+      "title": "Data sharing revocation process must be documented",
+      "description": "Category: Data sharing and exfiltration. Without revocation runbooks, shared data may remain accessible after contract termination. Review share revocation procedures and past revocation records. Pass when revocation steps and owners are documented. Fail when no revocation process exists for outbound shares. Insufficient evidence when sharing lifecycle is not described.",
+      "severity": "Medium",
+      "priority": "P2",
+      "remediationGuidance": "Document share revocation runbook including consumer notification and verification queries.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "metadata.ChangeDescription",
+        "snowflake.showShares"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "Vendor management",
+          "requirement": "Share revocation procedure"
+        }
+      ]
+    },
+    {
+      "id": "sf-sdlc-001",
+      "title": "Production data in nonproduction environments must be masked, minimized, or approved",
+      "description": "Category: Dev/test/prod governance. Dev/test clones with production sensitive data increase breach and compliance risk. Review clone inventory, masking in nonprod, and risk acceptance records. Pass when nonprod uses masked/minimized data or documented approval. Fail when full production sensitive clones exist in dev/test without controls. Insufficient evidence when environment data lineage is not shown.",
+      "severity": "Critical",
+      "priority": "P0",
+      "remediationGuidance": "Mask or subset production data in nonprod; prohibit full sensitive clones without acceptance.",
+      "evidenceHints": [
+        "snowflake.showDatabases",
+        "snowflake.showClones",
+        "snowflake.showMaskingPolicies"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "HIPAA Security Rule",
+          "requirement": "Minimum necessary in nonproduction (thematic)"
+        }
+      ]
+    },
+    {
+      "id": "sf-sdlc-002",
+      "title": "Role, grant, policy, and integration changes must be peer-reviewed or change-controlled",
+      "description": "Category: Dev/test/prod governance. Manual privilege changes without review cause privilege drift and audit gaps. Review change tickets, IaC pull requests, and peer review evidence for Snowflake changes. Pass when changes follow peer review or formal change control. Fail when production grants/policies change ad hoc without review. Insufficient evidence when change process is undocumented.",
+      "severity": "High",
+      "priority": "P0",
+      "remediationGuidance": "Require PR/change ticket for Snowflake DDL/grants; store approval evidence.",
+      "evidenceHints": [
+        "snowflake.terraform",
+        "governance.RequiredControls",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "ITIL change management",
+          "requirement": "Controlled configuration changes (thematic)"
+        }
+      ]
+    },
+    {
+      "id": "sf-sdlc-003",
+      "title": "Environment boundaries must be clear and documented",
+      "description": "Category: Dev/test/prod governance. Unclear dev/test/prod separation leads to wrong-environment access and data mixing. Review account/database naming, role boundaries, and architecture diagrams. Pass when environment boundaries are documented and reflected in RBAC. Fail when prod and nonprod boundaries are ambiguous. Insufficient evidence when environment model is not provided.",
+      "severity": "Medium",
+      "priority": "P1",
+      "remediationGuidance": "Document account/database boundaries; align roles and warehouses per environment.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "metadata.ChangeDescription",
+        "snowflake.showDatabases"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "Architecture governance",
+          "requirement": "Environment separation"
+        }
+      ]
+    },
+    {
+      "id": "sf-sdlc-004",
+      "title": "Snowflake configuration should be managed as code where practical",
+      "description": "Category: Dev/test/prod governance. IaC improves repeatability, review, and drift detection for Snowflake security settings. Review Terraform/Pulumi/schemachange artifacts and deployment pipelines. Pass when critical config is managed as code with review. Fail when security-sensitive objects are only managed manually at scale. Insufficient evidence when IaC approach is not described.",
+      "severity": "Medium",
+      "priority": "P2",
+      "remediationGuidance": "Manage roles, grants, policies, and integrations via reviewed IaC pipelines.",
+      "evidenceHints": [
+        "snowflake.terraform",
+        "governance.RequiredControls",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "Secure SDLC",
+          "requirement": "Infrastructure as code for Snowflake"
+        }
+      ]
+    },
+    {
+      "id": "sf-comp-001",
+      "title": "PHI workloads require evidence of access control, masking/classification, auditability, and minimum necessary use",
+      "description": "Category: Compliance readiness. Healthcare workloads need demonstrable safeguards beyond generic security hygiene. Review PHI tags, masking, access reviews, and audit retention when PHI is evidenced. Pass when PHI controls are evidenced end-to-end. Fail when PHI is indicated but masking/access/audit evidence is missing. Not applicable when no PHI is evidenced; insufficient evidence when workload type is unknown.",
+      "severity": "High",
+      "priority": "P0",
+      "remediationGuidance": "Map PHI tables to classification, masking, row access, and audit controls; document minimum necessary roles.",
+      "evidenceHints": [
+        "governance.ComplianceTags",
+        "snowflake.showMaskingPolicies",
+        "snowflake.accountUsage.queryHistory"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "HIPAA Security Rule",
+          "requirement": "Safeguards for ePHI (thematic)"
+        }
+      ]
+    },
+    {
+      "id": "sf-comp-002",
+      "title": "PCI-like data requires tokenization/masking and restricted access evidence",
+      "description": "Category: Compliance readiness. Payment or cardholder-like fields require strong column protection and restricted roles. Review PCI tags, masking/tokenization, and role grants on payment schemas. Pass when PCI-like data has masking/tokenization and restricted access. Fail when cardholder-like columns are broadly readable. Not applicable when no PCI-like data is evidenced.",
+      "severity": "High",
+      "priority": "P0",
+      "remediationGuidance": "Tokenize or mask PCI-like columns; restrict roles and monitor access.",
+      "evidenceHints": [
+        "snowflake.showMaskingPolicies",
+        "snowflake.tableClassification",
+        "snowflake.showGrantsToRole"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "PCI DSS",
+          "requirement": "Protect stored cardholder data (thematic)"
+        }
+      ]
+    },
+    {
+      "id": "sf-comp-003",
+      "title": "Data residency requirements must be mapped to Snowflake account region, replication, sharing, and external stages",
+      "description": "Category: Compliance readiness. Cross-border replication, sharing, or external stages can violate residency obligations. Review account region, replication config, shares, and stage cloud regions. Pass when residency requirements are mapped to Snowflake topology. Fail when residency is required but cross-region paths are unaddressed. Insufficient evidence when residency requirements are not stated.",
+      "severity": "High",
+      "priority": "P1",
+      "remediationGuidance": "Document region/replication/sharing/stage map; block noncompliant cross-region paths.",
+      "evidenceHints": [
+        "governance.ComplianceTags",
+        "snowflake.showShares",
+        "snowflake.showStages",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "GDPR",
+          "requirement": "Cross-border transfer controls (thematic)"
+        }
+      ]
+    },
+    {
+      "id": "sf-comp-004",
+      "title": "Exceptions must have owner, rationale, expiry, and renewal review",
+      "description": "Category: Compliance readiness. Permanent security exceptions undermine control effectiveness and audits. Review exception register, owners, expiry dates, and renewal approvals. Pass when exceptions are time-bound with accountable owners. Fail when open-ended exceptions lack renewal review. Insufficient evidence when exception process is not documented.",
+      "severity": "Medium",
+      "priority": "P1",
+      "remediationGuidance": "Maintain exception register with owner, rationale, expiry, and renewal workflow.",
+      "evidenceHints": [
+        "snowflake.accountUsage.grantsToRoles",
+        "governance.PolicyConstraints",
+        "metadata.ChangeDescription",
+        "governance.RequiredControls"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "Risk management",
+          "requirement": "Time-bound control exceptions"
+        }
+      ]
+    },
+    {
+      "id": "sf-wh-001",
+      "title": "Production warehouses must use auto-suspend and appropriate sizing",
+      "description": "Category: Operational governance. Oversized always-on warehouses increase cost and broaden compute access windows. Review warehouse properties, auto-suspend/resume, and role grants. Pass when production warehouses auto-suspend and sizes match workload. Fail when warehouses never suspend or are oversized without justification. Insufficient evidence when warehouse inventory is missing.",
+      "severity": "Medium",
+      "priority": "P2",
+      "remediationGuidance": "Enable auto-suspend; right-size warehouses and restrict grants to needed roles.",
+      "evidenceHints": [
+        "snowflake.showWarehouses",
+        "snowflake.accountUsage.warehouseMeteringHistory"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "FinOps",
+          "requirement": "Warehouse auto-suspend (thematic)"
+        }
+      ]
+    },
+    {
+      "id": "sf-wh-002",
+      "title": "Resource monitors should protect production warehouses from runaway cost or abuse",
+      "description": "Category: Operational governance. Missing resource monitors allow unbounded credit consumption and delayed detection of abuse. Review resource monitor configuration and alert routing. Pass when production warehouses have monitors or equivalent controls. Fail when high-risk warehouses lack credit limits/monitors. Insufficient evidence when warehouse governance is not described.",
+      "severity": "Low",
+      "priority": "P2",
+      "remediationGuidance": "Configure resource monitors with alerts; tie to incident response for anomalies.",
+      "evidenceHints": [
+        "snowflake.showWarehouses",
+        "snowflake.resourceMonitors",
+        "governance.PolicyConstraints"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "Operational governance",
+          "requirement": "Warehouse resource monitors"
+        }
+      ]
+    },
+    {
+      "id": "sf-derived-001",
+      "title": "Development clones containing production sensitive data require equivalent controls or masking",
+      "description": "Category: Sensitive data protection. Clones can copy production sensitive data with weaker downstream controls. Review clone lineage, environment tags, and masking on cloned objects. Pass when sensitive clones inherit controls or are masked/subset. Fail when dev clones expose uncontrolled production sensitive data. Insufficient evidence when clone inventory is absent.",
+      "severity": "High",
+      "priority": "P1",
+      "remediationGuidance": "Mask or restrict sensitive clones; limit clone access roles and lifecycle.",
+      "evidenceHints": [
+        "snowflake.showClones",
+        "snowflake.showMaskingPolicies",
+        "snowflake.showDatabases"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "Snowflake Zero Copy Clone",
+          "requirement": "Clone sensitive-data governance"
+        }
+      ]
+    },
+    {
+      "id": "sf-task-001",
+      "title": "Tasks, streams, and stored procedures must use least-privilege owners and reviewed execution context",
+      "description": "Category: Operational governance. Tasks/procedures running as owner with elevated privileges can bypass user-level controls. Review task/procedure owners, EXECUTE AS settings, and change history. Pass when owners are least-privilege and execution context is reviewed. Fail when high-privilege roles own broad automation without review. Insufficient evidence when task/procedure inventory is missing.",
+      "severity": "High",
+      "priority": "P1",
+      "remediationGuidance": "Assign dedicated service roles to tasks/procedures; review EXECUTE AS CALLER vs OWNER choices.",
+      "evidenceHints": [
+        "snowflake.showTasks",
+        "snowflake.showProcedures",
+        "snowflake.showGrantsToRole"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "Snowflake Tasks",
+          "requirement": "Automation privilege model"
+        }
+      ]
+    }
+  ]
+}

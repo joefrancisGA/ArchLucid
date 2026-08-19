@@ -1,0 +1,374 @@
+using ArchLucid.Application.Common;
+using ArchLucid.Application.Diagnostics;
+using ArchLucid.Application.Evidence;
+using ArchLucid.Contracts.Agents;
+using ArchLucid.Core.AgentEvaluation;
+using ArchLucid.Contracts.Architecture;
+using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Findings;
+using ArchLucid.Contracts.Metadata;
+using ArchLucid.Contracts.Requests;
+using ArchLucid.Core.Audit;
+using ArchLucid.Core.Diagnostics;
+using ArchLucid.Core.Persistence;
+using ArchLucid.Core.Runs;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Transactions;
+using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Persistence.Connections;
+using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Persistence.Models;
+
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+
+namespace ArchLucid.Application;
+
+/// <summary>
+///     API-facing orchestration service that coordinates run retrieval, agent result submission,
+///     manifest access, and fake-result seeding for the architecture run lifecycle.
+/// </summary>
+/// <remarks>
+///     All run reads are routed through <c>IRunDetailQueryService</c> to ensure a single authoritative
+///     data-loading path. Result and evidence writes execute inside <see cref="IArchLucidUnitOfWork"/> for atomicity.
+///     Execute/commit orchestrators own most Authority <c>dbo.Runs</c> transitions. Development-only
+///     <see cref="SeedFakeResultsAsync"/> also promotes Authority <c>LegacyRunStatus</c> so seeded runs can
+///     reach commit without calling execute (TB-937 requires <c>ReadyForCommit</c>).
+/// </remarks>
+public sealed class ArchitectureApplicationService(
+    IRunDetailQueryService runDetailQueryService,
+    IAgentResultRepository resultRepository,
+    IUnifiedGoldenManifestReader unifiedGoldenManifestReader,
+    IArchitectureRequestRepository requestRepository,
+    IAgentEvidencePackageRepository agentEvidencePackageRepository,
+    IEvidenceBuilder evidenceBuilder,
+    IArchLucidUnitOfWorkFactory unitOfWorkFactory,
+    IRunRepository runRepository,
+    IScopeContextProvider scopeContextProvider,
+    IConfiguration configuration,
+    IAuditService auditService,
+    IActorContext actorContext,
+    IAgentArchitectureFindingConfidenceEnricher architectureFindingConfidenceEnricher,
+    IRunStateTransitionService runStateTransitionService,
+    ILogger<ArchitectureApplicationService> logger) : IArchitectureApplicationService
+{
+    private readonly IRunDetailQueryService _runDetailQueryService = runDetailQueryService ?? throw new ArgumentNullException(nameof(runDetailQueryService));
+    private readonly IActorContext _actorContext = actorContext ?? throw new ArgumentNullException(nameof(actorContext));
+
+    private readonly IAgentArchitectureFindingConfidenceEnricher _architectureFindingConfidenceEnricher =
+        architectureFindingConfidenceEnricher ?? throw new ArgumentNullException(nameof(architectureFindingConfidenceEnricher));
+
+    private readonly IAuditService _auditService = auditService ?? throw new ArgumentNullException(nameof(auditService));
+    private readonly IAgentResultRepository _resultRepository = resultRepository ?? throw new ArgumentNullException(nameof(resultRepository));
+    private readonly ILogger<ArchitectureApplicationService> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+    private readonly IScopeContextProvider _scopeContextProvider = scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
+    private readonly IConfiguration _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+
+    private readonly IAgentEvidencePackageRepository _agentEvidencePackageRepository =
+        agentEvidencePackageRepository ?? throw new ArgumentNullException(nameof(agentEvidencePackageRepository));
+
+    private readonly IRunRepository _runRepository = runRepository ?? throw new ArgumentNullException(nameof(runRepository));
+    private readonly IArchitectureRequestRepository _requestRepository = requestRepository ?? throw new ArgumentNullException(nameof(requestRepository));
+    private readonly IEvidenceBuilder _evidenceBuilder = evidenceBuilder ?? throw new ArgumentNullException(nameof(evidenceBuilder));
+    private readonly IArchLucidUnitOfWorkFactory _unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
+
+    private readonly IUnifiedGoldenManifestReader _unifiedGoldenManifestReader =
+        unifiedGoldenManifestReader ?? throw new ArgumentNullException(nameof(unifiedGoldenManifestReader));
+
+    private readonly IRunStateTransitionService _runStateTransitionService =
+        runStateTransitionService ?? throw new ArgumentNullException(nameof(runStateTransitionService));
+
+    public async Task<GetRunResult?> GetRunAsync(string runId, CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(runId))
+            return null;
+        ArchitectureRunDetail? detail = await runDetailQueryService.GetRunDetailAsync(runId, cancellationToken);
+        return detail is null ? null : new GetRunResult(detail.Run, detail.Tasks, detail.Results);
+    }
+
+    public async Task<SubmitResultResult> SubmitAgentResultAsync(string runId, AgentResult? result, CancellationToken cancellationToken = default)
+    {
+        if (result is null)
+            return new SubmitResultResult(false, null, "Agent result is required.", ApplicationServiceFailureKind.BadRequest);
+
+        if (string.IsNullOrWhiteSpace(runId))
+            return new SubmitResultResult(false, null, "RunId is required.", ApplicationServiceFailureKind.BadRequest);
+
+        ArchitectureRunDetail? detail = await runDetailQueryService.GetRunDetailAsync(runId, cancellationToken);
+
+        if (detail is null)
+            return new SubmitResultResult(false, null, $"Run '{runId}' was not found.", ApplicationServiceFailureKind.RunNotFound);
+
+        ArchitectureRun run = detail.Run;
+        List<AgentTask> tasks = detail.Tasks;
+        List<AgentResult> existingResults = detail.Results;
+
+        if (detail.AuthorityPipelineComplete)
+        {
+            return new SubmitResultResult(
+                false,
+                null,
+                $"Run '{runId}' is authority-pipeline complete and does not accept agent results.",
+                ApplicationServiceFailureKind.Conflict);
+        }
+
+        RunStateTransitionCheck submissionCheck = _runStateTransitionService.ValidateResultSubmissionAllowed(run.Status);
+
+        if (!submissionCheck.IsAllowed)
+            return new SubmitResultResult(false, null, submissionCheck.Message!, ApplicationServiceFailureKind.BadRequest);
+
+        if (!string.Equals(result.RunId, runId, StringComparison.OrdinalIgnoreCase))
+            return new SubmitResultResult(false, null, $"Result RunId '{result.RunId}' does not match route runId '{runId}'.",
+                ApplicationServiceFailureKind.BadRequest);
+
+        AgentTask? task = tasks.FirstOrDefault(t => string.Equals(t.TaskId, result.TaskId, StringComparison.Ordinal));
+
+        if (task is null)
+            return new SubmitResultResult(false, null, $"Task '{result.TaskId}' was not found for run '{runId}'.",
+                ApplicationServiceFailureKind.ResourceNotFound);
+
+        if (task.AgentType != result.AgentType)
+            return new SubmitResultResult(false, null,
+                $"Result AgentType '{result.AgentType}' does not match task AgentType '{task.AgentType}' for task '{result.TaskId}'.",
+                ApplicationServiceFailureKind.BadRequest);
+
+        if (existingResults.Any(r => string.Equals(r.TaskId, result.TaskId, StringComparison.Ordinal)))
+            return new SubmitResultResult(false, null, $"A result for task '{result.TaskId}' has already been submitted for this run.",
+                ApplicationServiceFailureKind.BadRequest);
+
+        await using IArchLucidUnitOfWork uow = await unitOfWorkFactory.CreateAsync(cancellationToken);
+        try
+        {
+            ArchitectureRunStatus newStatus = await SubmitAgentResultPersistAsync(runId, result, uow, cancellationToken);
+            await uow.CommitAsync(cancellationToken);
+            try
+            {
+                await architectureFindingConfidenceEnricher.TryEnrichRunAsync(runId, cancellationToken);
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException)
+            {
+                if (logger.IsEnabled(LogLevel.Warning))
+                    logger.LogWarningWithSanitizedUserArg(ex, "Architecture finding confidence enrichment failed after submit for RunId={RunId}; continuing.",
+                        runId);
+            }
+
+            if (logger.IsEnabled(LogLevel.Information))
+                logger.LogInformationAgentResultSubmitted(runId, result.ResultId, result.AgentType, newStatus);
+            return new SubmitResultResult(true, result.ResultId, null);
+        }
+        catch (AgentResultDuplicateConflictException ex)
+        {
+            await uow.RollbackAsync(cancellationToken);
+
+            return new SubmitResultResult(false, null, ex.Message, ApplicationServiceFailureKind.Conflict);
+        }
+        catch (Exception ex) when (SqlUniqueConstraintViolationDetector.IsUniqueKeyViolation(ex))
+        {
+            await uow.RollbackAsync(cancellationToken);
+
+            return new SubmitResultResult(
+                false,
+                null,
+                $"A result for task '{result.TaskId}' has already been submitted for this run.",
+                ApplicationServiceFailureKind.Conflict);
+        }
+        catch
+        {
+            await uow.RollbackAsync(cancellationToken);
+            throw;
+        }
+    }
+
+    public async Task<Contracts.Manifest.GoldenManifest?> GetManifestAsync(string version, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(version);
+        return await unifiedGoldenManifestReader.GetByVersionAsync(version, cancellationToken);
+    }
+
+    public async Task<SeedFakeResultsResult> SeedFakeResultsAsync(string runId, PilotSeedFakeResultsOptions? pilotOptions = null,
+        CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(runId))
+            return new SeedFakeResultsResult(false, 0, "RunId is required.", ApplicationServiceFailureKind.BadRequest);
+
+        if (pilotOptions?.MarkRealModeFellBackToSimulator == true)
+            await TryMarkPilotRealModeFellBackAsync(runId, cancellationToken);
+
+        ArchitectureRunDetail? detail = await runDetailQueryService.GetRunDetailAsync(runId, cancellationToken);
+
+        if (detail is null)
+            return new SeedFakeResultsResult(false, 0, $"Run '{runId}' was not found.", ApplicationServiceFailureKind.RunNotFound);
+
+        ArchitectureRun run = detail.Run;
+        RunStateTransitionCheck seedSubmissionCheck = _runStateTransitionService.ValidateResultSubmissionAllowed(run.Status);
+
+        if (!seedSubmissionCheck.IsAllowed)
+            return new SeedFakeResultsResult(false, 0, seedSubmissionCheck.Message!, ApplicationServiceFailureKind.BadRequest);
+
+        ArchitectureRequest? architectureRequest = await requestRepository.GetByIdAsync(run.RequestId, cancellationToken);
+
+        if (architectureRequest is null)
+            return new SeedFakeResultsResult(false, 0, $"ArchitectureRequest '{run.RequestId}' for run '{runId}' was not found.",
+                ApplicationServiceFailureKind.ResourceNotFound);
+
+        List<AgentTask> tasks = detail.Tasks;
+
+        if (tasks.Count == 0)
+            return new SeedFakeResultsResult(false, 0, "No tasks exist for this run.", ApplicationServiceFailureKind.BadRequest);
+
+        List<AgentResult> existingResults = detail.Results;
+
+        if (existingResults.Count > 0)
+        {
+            if (logger.IsEnabled(LogLevel.Information))
+                logger.LogInformation("Fake results skipped (run already has results): RunId={RunId}, ExistingCount={Count}", LogSanitizer.Sanitize(runId),
+                    existingResults.Count);
+
+            // Prior seed may have written results before LegacyRunStatus promotion existed — heal status.
+            await TryPromoteLegacyRunStatusAfterSeedAsync(runId, existingResults, cancellationToken);
+
+            return new SeedFakeResultsResult(true, 0, null);
+        }
+
+        IReadOnlyList<AgentResult> fakeResults = FakeAgentResultFactory.CreateStarterResults(runId, tasks, architectureRequest);
+        ArchitectureRunStatus newStatus = _runStateTransitionService.DeriveStatusAfterResultSubmission(fakeResults);
+        await using IArchLucidUnitOfWork uow = await unitOfWorkFactory.CreateAsync(cancellationToken);
+
+        try
+        {
+            await SeedFakeResultsPersistAsync(runId, fakeResults, architectureRequest, uow, cancellationToken);
+            await uow.CommitAsync(cancellationToken);
+        }
+        catch
+        {
+            await uow.RollbackAsync(cancellationToken);
+            throw;
+        }
+
+        try
+        {
+            await architectureFindingConfidenceEnricher.TryEnrichRunAsync(runId, cancellationToken);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            if (logger.IsEnabled(LogLevel.Warning))
+                logger.LogWarningWithSanitizedUserArg(ex, "Architecture finding confidence enrichment failed after fake seed for RunId={RunId}; continuing.",
+                    runId);
+        }
+
+        await TryPromoteLegacyRunStatusAfterSeedAsync(runId, fakeResults, cancellationToken);
+
+        if (logger.IsEnabled(LogLevel.Information))
+            logger.LogInformation("Fake results seeded: RunId={RunId}, ResultCount={ResultCount}, NewStatus={NewStatus}", LogSanitizer.Sanitize(runId),
+                fakeResults.Count, newStatus);
+
+        return new SeedFakeResultsResult(true, fakeResults.Count, null);
+    }
+
+    /// <summary>
+    ///     TB-937: commit requires ReadyForCommit. Seed skips execute, so promote Authority LegacyRunStatus from seeded results.
+    /// </summary>
+    private async Task TryPromoteLegacyRunStatusAfterSeedAsync(
+        string runId,
+        IReadOnlyList<AgentResult> results,
+        CancellationToken cancellationToken)
+    {
+        if (!TryParseRunGuid(runId, out Guid runGuid))
+            return;
+
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        RunRecord? header = await _runRepository.GetByIdAsync(scope, runGuid, cancellationToken);
+
+        if (header is null)
+            return;
+
+        string previousLegacyRunStatus = header.LegacyRunStatus ?? string.Empty;
+
+        if (string.Equals(previousLegacyRunStatus, nameof(ArchitectureRunStatus.Committed), StringComparison.OrdinalIgnoreCase))
+            return;
+
+        ArchitectureRunStatus derived = _runStateTransitionService.DeriveStatusAfterResultSubmission(results);
+
+        if (derived is ArchitectureRunStatus.ReadyForCommit
+            && !_runStateTransitionService.ShouldPromoteLegacyStatusToReadyForCommit(previousLegacyRunStatus))
+            return;
+
+        if (string.Equals(previousLegacyRunStatus, derived.ToString(), StringComparison.OrdinalIgnoreCase))
+            return;
+
+        header.LegacyRunStatus = derived.ToString();
+        await _runRepository.UpdateAsync(header, cancellationToken);
+    }
+
+    private async Task<ArchitectureRunStatus> SubmitAgentResultPersistAsync(string runId, AgentResult result, IArchLucidUnitOfWork uow,
+        CancellationToken cancellationToken)
+    {
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+
+        if (uow.SupportsExternalTransaction)
+        {
+            await resultRepository.CreateAsync(result, cancellationToken, uow.Connection, uow.Transaction);
+            // Re-fetch results after insert so concurrent submissions see the full set and only one transition sets ReadyForCommit.
+            IReadOnlyList<AgentResult> allResults = await resultRepository.GetByRunIdAsync(scope, runId, cancellationToken, uow.Connection, uow.Transaction);
+            return _runStateTransitionService.DeriveStatusAfterResultSubmission(allResults);
+        }
+
+        await resultRepository.CreateAsync(result, cancellationToken);
+        IReadOnlyList<AgentResult> allResultsMemory = await resultRepository.GetByRunIdAsync(scope, runId, cancellationToken);
+        return _runStateTransitionService.DeriveStatusAfterResultSubmission(allResultsMemory);
+    }
+
+    private async Task SeedFakeResultsPersistAsync(string runId, IReadOnlyList<AgentResult> fakeResults, ArchitectureRequest request, IArchLucidUnitOfWork uow,
+        CancellationToken cancellationToken)
+    {
+        // CommitRunAsync requires a persisted evidence package (normally written during ExecuteRun). Dev-only seed
+        // skips execute, so create the package here when missing.
+        AgentEvidencePackage? existingPackage = await agentEvidencePackageRepository.GetByRunIdAsync(runId, cancellationToken);
+
+        if (existingPackage is null)
+        {
+            AgentEvidencePackage package = await evidenceBuilder.BuildAsync(runId, request, cancellationToken);
+
+            if (uow.SupportsExternalTransaction)
+                await agentEvidencePackageRepository.CreateAsync(package, cancellationToken, uow.Connection, uow.Transaction);
+            else
+                await agentEvidencePackageRepository.CreateAsync(package, cancellationToken);
+        }
+
+        if (uow.SupportsExternalTransaction)
+            await resultRepository.CreateManyAsync(fakeResults, cancellationToken, uow.Connection, uow.Transaction);
+        else
+            await resultRepository.CreateManyAsync(fakeResults, cancellationToken);
+    }
+
+    private async Task TryMarkPilotRealModeFellBackAsync(string runId, CancellationToken cancellationToken)
+    {
+        if (!TryParseRunGuid(runId, out Guid runGuid))
+            return;
+
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+        RunRecord? header = await runRepository.GetByIdAsync(scope, runGuid, cancellationToken);
+
+        if (header is null)
+            return;
+        header.RealModeFellBackToSimulator = true;
+        header.StructuralExecutionMode = StructuralExecutionMode.Fallback;
+        header.PilotAoaiDeploymentSnapshot = configuration["AzureOpenAI:DeploymentName"]?.Trim();
+        await runRepository.UpdateAsync(header, cancellationToken);
+        ArchLucidInstrumentation.RecordTryRealModePilotFellBackToSimulator();
+        string actor = actorContext.GetActor();
+        AuditEvent fellBack = scope.CreateAuditEvent(
+            AuditEventTypes.FirstRealValueRunFellBackToSimulator,
+            actor,
+            actor);
+        fellBack.RunId = runGuid;
+
+        await auditService.LogAsync(fellBack, cancellationToken);
+    }
+
+    private static bool TryParseRunGuid(string runId, out Guid runGuid)
+    {
+        return Guid.TryParseExact(runId, "N", out runGuid) || Guid.TryParse(runId, out runGuid);
+    }
+}

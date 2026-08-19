@@ -1,0 +1,197 @@
+using System.Text.Json;
+
+using ArchLucid.Api.Attributes;
+using ArchLucid.Api.Http;
+using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Core.Ask;
+using ArchLucid.Core.Authorization;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Tenancy;
+
+using Asp.Versioning;
+
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
+
+namespace ArchLucid.Api.Controllers.Planning;
+
+/// <summary>
+///     Grounded architect assistant: manifest + provenance + optional comparison + retrieval, with threaded conversations.
+/// </summary>
+/// <remarks>
+///     POST <c>api/ask</c>. Maps validation errors to 400; <see cref="InvalidOperationException" /> from the service
+///     to 404.
+/// </remarks>
+[ApiController]
+[Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
+[ApiVersion("1.0")]
+[Route("v{version:apiVersion}/ask")]
+[EnableRateLimiting("fixed")]
+[RequiresCommercialTenantTier(TenantTier.Standard)]
+public sealed class AskController(
+    IAskService ask,
+    IScopeContextProvider scopeProvider,
+    ILogger<AskController> logger) : ControllerBase
+{
+    private static readonly JsonSerializerOptions StreamSerializerOptions = new(JsonSerializerDefaults.Web);
+
+    /// <summary>Returns default Ask prompt templates for operator UI chips (Improvement #11).</summary>
+    [HttpGet("templates")]
+    [ProducesResponseType(typeof(IReadOnlyList<AskPromptTemplate>), StatusCodes.Status200OK)]
+    public ActionResult<IReadOnlyList<AskPromptTemplate>> GetTemplates()
+    {
+        return Ok(AskPromptTemplateCatalog.GetTemplates());
+    }
+
+    /// <summary>Grounded Q&amp;A over GoldenManifest, provenance graph, optional run comparison, and retrieval hits.</summary>
+    /// <param name="request">Thread/run anchors and question (see validation rules in method body).</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns><see cref="AskResponse" /> on success.</returns>
+    // idempotency-posture: operator-documented-safe-retry
+    [HttpPost]
+    [ProducesResponseType(typeof(AskResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> Ask([FromBody] AskRequest? request, CancellationToken ct = default)
+    {
+        IActionResult? validation = ValidateAskRequest(request);
+
+        if (validation is not null)
+            return validation;
+
+        try
+        {
+            ScopeContext scope = scopeProvider.GetCurrentScope();
+            AskResponse result = await ask.AskAsync(request!, scope, ct);
+            return Ok(result);
+        }
+        catch (InvalidOperationException ex)
+        {
+            logger.LogWarning(ex, "Ask failed: resource not found.");
+            return this.NotFoundProblem(ex.Message, ProblemTypes.ResourceNotFound);
+        }
+        catch (ArgumentException ex)
+        {
+            logger.LogWarning(ex, "Ask failed: invalid argument.");
+            return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
+        }
+    }
+
+    /// <summary>
+    ///     Streams grounded Q&amp;A as <c>text/event-stream</c>: <c>token</c> events carry answer text deltas;
+    ///     a terminal <c>done</c> event carries the final <see cref="AskResponse" /> JSON.
+    /// </summary>
+    // idempotency-posture: operator-documented-safe-retry
+    [HttpPost("stream")]
+    [Produces("text/event-stream")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task AskStream([FromBody] AskRequest? request, CancellationToken ct = default)
+    {
+        IActionResult? validation = ValidateAskRequest(request);
+
+        if (validation is not null)
+        {
+            await WriteStreamValidationProblemAsync(validation, ct);
+
+            return;
+        }
+
+        Response.Headers.ContentType = "text/event-stream";
+        Response.Headers.CacheControl = "no-cache";
+        Response.Headers.Connection = "keep-alive";
+
+        try
+        {
+            // Early ack so clients leave the pre-stream hold before PrepareAskContextAsync work.
+            await SseEventWriter.WriteAsync(
+                Response.Body,
+                "ack",
+                JsonSerializer.Serialize(new { status = "started" }, StreamSerializerOptions),
+                ct);
+
+            ScopeContext scope = scopeProvider.GetCurrentScope();
+
+            AskResponse result = await ask.AskStreamAsync(
+                request!,
+                scope,
+                async (answerDelta, tokenCt) =>
+                {
+                    string payload = JsonSerializer.Serialize(new { text = answerDelta }, StreamSerializerOptions);
+                    await SseEventWriter.WriteAsync(Response.Body, "token", payload, tokenCt);
+                },
+                ct);
+
+            string donePayload = JsonSerializer.Serialize(result, StreamSerializerOptions);
+            await SseEventWriter.WriteAsync(Response.Body, "done", donePayload, ct);
+        }
+        catch (InvalidOperationException ex)
+        {
+            logger.LogWarning(ex, "Ask stream failed: resource not found.");
+            await SseEventWriter.WriteAsync(
+                Response.Body,
+                "error",
+                JsonSerializer.Serialize(new { detail = ex.Message }, StreamSerializerOptions),
+                ct);
+        }
+        catch (ArgumentException ex)
+        {
+            logger.LogWarning(ex, "Ask stream failed: invalid argument.");
+            await SseEventWriter.WriteAsync(
+                Response.Body,
+                "error",
+                JsonSerializer.Serialize(new { detail = ex.Message }, StreamSerializerOptions),
+                ct);
+        }
+    }
+
+    private IActionResult? ValidateAskRequest(AskRequest? request)
+    {
+        if (request is null)
+            return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+
+        if (string.IsNullOrWhiteSpace(request.Question))
+            return this.BadRequestProblem("Question is required.", ProblemTypes.ValidationFailed);
+
+        bool hasBase = request.BaseRunId.HasValue;
+        bool hasTarget = request.TargetRunId.HasValue;
+
+        if (hasBase != hasTarget)
+            return this.BadRequestProblem(
+                "Provide both baseRunId and targetRunId for comparison, or omit both.",
+                ProblemTypes.ValidationFailed);
+
+        if (hasBase && request.RunId is null && request.ThreadId is null)
+        {
+            return this.BadRequestProblem(
+                "Provide runId when comparing reviews, or continue an existing comparison thread.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        return null;
+    }
+
+    private async Task WriteStreamValidationProblemAsync(IActionResult validation, CancellationToken ct)
+    {
+        Response.Headers.ContentType = "text/event-stream";
+        Response.Headers.CacheControl = "no-cache";
+        Response.Headers.Connection = "keep-alive";
+        Response.StatusCode = StatusCodes.Status400BadRequest;
+
+        if (validation is ObjectResult { Value: not null } objectResult)
+        {
+            string payload = JsonSerializer.Serialize(objectResult.Value, StreamSerializerOptions);
+            await SseEventWriter.WriteAsync(Response.Body, "error", payload, ct);
+
+            return;
+        }
+
+        await SseEventWriter.WriteAsync(
+            Response.Body,
+            "error",
+            JsonSerializer.Serialize(new { detail = "Validation failed." }, StreamSerializerOptions),
+            ct);
+    }
+}

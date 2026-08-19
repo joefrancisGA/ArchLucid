@@ -1,0 +1,22 @@
+{
+  "schema": "archlucid.principal-architect-cohort-thresholds.v1",
+  "reportSchema": "archlucid.principal-architect-cohort-report.v1",
+  "minSessionsForEvaluation": 3,
+  "archlucidNonObviousSharePass": 0.25,
+  "archlucidNonObviousShareFail": 0.15,
+  "archlucidCriticalXMax": 0,
+  "reusePositivePassFraction": 0.6,
+  "reusePositiveFailFraction": 0.4,
+  "reusePositiveIntents": ["yes", "maybe"],
+  "principalArchitectSessionsRoot": "artifacts/principal-architect-sessions",
+  "blindValidationSessionsRoot": "artifacts/blind-validation",
+  "reportOutputRoot": "artifacts/principal-architect-cohort",
+  "archlucidSourceKeys": ["archlucid"],
+  "manualSourceKeys": ["manualAi", "manualFrontierAi"],
+  "interpretationGuardrails": [
+    "This report reduces design uncertainty about how cohort evidence is collected; it does not prove market outcomes until independent sessions are recorded.",
+    "Do not publish comparative superiority or model-performance claims from demo fixtures or single sessions.",
+    "Any incorrect (X) finding in a live session elevates engineering faithfulness priority over GTM expansion.",
+    "Manual frontier-AI baselines may score higher on flexibility; emphasize repeatability, evidence packaging, and audit readiness when that occurs."
+  ]
+}

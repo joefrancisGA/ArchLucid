@@ -1,0 +1,37 @@
+{
+  "name": "Northwind.Copilot.RagPlatform",
+  "description": "Northwind Traders (fictional) ships an internal copilot over corporate docs: Azure API Management in front of Azure OpenAI chat completion, RAG from Azure AI Search with private endpoints, optional tool-calling to a line-of-business API, and redacted audit logging — buyers ask about data residency, content safety hooks, and who can change system prompts.",
+  "request_id": "starter-northwind-ai-llm-001",
+  "environment": "prod",
+  "components": [
+    "api-management-gateway",
+    "chat-orchestration-worker",
+    "rag-retrieval-service",
+    "embedding-pipeline",
+    "content-safety-wrapper"
+  ],
+  "data_stores": [
+    "Azure AI Search (vector + lexical index)",
+    "Azure Blob (chunked source documents — synthetic in this starter)",
+    "Azure Cosmos DB (conversation state — optional pattern)"
+  ],
+  "public_endpoints": [
+    "https://copilot.northwind-internal.example"
+  ],
+  "compliance_posture": [
+    "NIST AI RMF and responsible-AI vocabulary for **workshop framing only** — not an assessment result",
+    "No training on customer payloads unless explicitly designed (this starter assumes retrieval-only)"
+  ],
+  "constraints": [
+    "All inference and search data planes use private connectivity from the application VNet; no public Azure OpenAI keys in clients",
+    "System prompts and tool manifests change only through approved pipeline; emergency rollback path documented",
+    "PII and secrets must not appear in vector index — ingestion pipeline enforces redaction patterns (design intent)"
+  ],
+  "assumptions": [
+    "Synthetic documents only in pilot starter; production would add data classification and DLP",
+    "Single Entra ID tenant for workforce users; customer-facing B2C is out of scope for this file"
+  ],
+  "inline_requirements": [
+    "Review should surface human-in-the-loop points for high-impact actions and where **grounding** is asserted vs. where the model may speculate — no accuracy guarantees"
+  ]
+}

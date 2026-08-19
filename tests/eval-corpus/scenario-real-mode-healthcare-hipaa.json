@@ -1,0 +1,63 @@
+{
+  "schemaVersion": 1,
+  "id": "corpus-real-mode-healthcare-hipaa",
+  "metadata": {
+    "title": "Real-mode HIPAA PHI platform (offline AgentResult scorer)",
+    "complexity": "high",
+    "primaryAgents": ["Compliance", "Topology"]
+  },
+  "architectureBrief": {
+    "systemName": "Lakeside Clinical Imaging Exchange",
+    "description": "Regional health system sharing DICOM metadata and care summaries between hospitals with strict PHI controls.",
+    "technologyStack": [
+      "Azure Health Data Services FHIR facade",
+      "Azure Storage (hot/cool) with CMK",
+      "Private Link / private endpoints",
+      "Azure Front Door + WAF (TLS only)",
+      "Microsoft Purview for classification",
+      "Log Analytics + Microsoft Sentinel connector"
+    ],
+    "reviewObjectives": [
+      "Verify encryption, key custody, and PHI labeling",
+      "Confirm no data-plane public exposure",
+      "Assess audit logging completeness for clinical access"
+    ],
+    "constraints": [
+      "HIPAA BAA in place; US geography only",
+      "Break-glass access must be logged with reviewer attestation",
+      "Immutability for audit logs minimum one year"
+    ]
+  },
+  "inputSummary": "HIPAA-aligned imaging and FHIR exchange on Azure with CMK, private endpoints, and audit streaming. Synthetic regulated-health slice for real-mode scoring.",
+  "recording": "recordings/corpus-healthcare-hipaa-phi.findings.json",
+  "qualityEvidence": {
+    "mode": "real",
+    "agentType": "Compliance",
+    "agentResultPathEnv": "ARCHLUCID_EVAL_CORPUS_REAL_MODE_HEALTHCARE_HIPAA_AGENT_RESULT",
+    "notes": "Non-production narrative; exemplar JSON only — not legal compliance advice."
+  },
+  "expectedFindings": [
+    {
+      "id": "e phi encryption",
+      "category": "Compliance",
+      "minimumSeverity": "High",
+      "evidenceMustContain": ["PHI", "encryption"]
+    },
+    {
+      "id": "e private data plane",
+      "category": "Topology",
+      "minimumSeverity": "High",
+      "evidenceMustContain": ["private endpoint", "API"]
+    },
+    {
+      "id": "e audit logging",
+      "category": "Compliance",
+      "minimumSeverity": "Medium",
+      "evidenceMustContain": ["diagnostic", "log analytics"]
+    }
+  ],
+  "unexpectedFindings": [
+    { "category": "Compliance", "ifContainsAny": ["disable encryption", "public blob access enabled"] },
+    { "category": "Critic", "ifContainsAny": ["delete audit logs", "bypass BAA controls"] }
+  ]
+}

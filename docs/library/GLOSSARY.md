@@ -1,0 +1,28 @@
+> **Scope:** Canonical product and governance vocabulary for buyers, operators, and GRC reviewers; aligns naming across docs, UI copy, and API concepts. Does not redefine legal terms in procurement templates.
+>
+> **Status:** current
+
+# Glossary — ArchLucid canonical terms
+
+Use these meanings in buyer-facing narratives, **`docs/`**, and **`archlucid-ui`** surfaces unless a doc's **Scope** explicitly defines a narrower local sense.
+
+The in-app glossary at `/help/glossary` is the customer-facing reference. Contributor field taxonomies live in [`contributor-reference/RECORD_TYPE_FIELD_TAXONOMY.md`](contributor-reference/RECORD_TYPE_FIELD_TAXONOMY.md).
+
+| Term | Definition |
+|------|------------|
+| **Architecture Proof Engine** | The buyer-facing product category. Scope of the word **proof** (canonical, per [POSITIONING.md §5](../go-to-market/POSITIONING.md#what-proof-means-here)): ArchLucid proves that a rigorous, evidence-linked architecture review happened — who reviewed what, against which policy packs, with which findings, confidence limits, and explicit non-conclusions where evidence was missing. It does not prove the architecture will perform under load, in an audit, or in an incident. It proves the decision can be defended with evidence. |
+| **Review** | A structured examination of architecture change or design intent tied to **artifacts** and **policies**. In product copy, prefer **architecture review** when the reader might confuse "review" with code review alone. |
+| **Architecture draft** | A saved, resumable description of architecture intent and context in the **Architectures** workspace. Saving or editing a draft does not start an **architecture review**; starting a review is a separate explicit action that creates an **architecture package**. |
+| **Architecture package** | The cohesive set of **review** outputs the product assembles for stakeholders: summaries, sealed review record, explanations, diagrams, findings, and links to underlying **evidence**. Exportable variants are still architecture packages unless the doc distinguishes **bundle** packaging. Former UI noun: *review package*. |
+| **Sealed review record** | The **provenance-backed** record that closes a finalized review (what was decided, bound to lineage). Write-locked and hash-anchored at finalize — not a PKI digital signature. Former terms: *signed review record*, *signed manifest*, *golden manifest*. |
+| **Finding** | A machine- or assisted-generated observation from **decisioning** (risk, drift, conformance, duplication, etc.). **Finding** severity and policy mapping live in packs and workflows; distinguish from informal "comments" outside the ledger. |
+| **Risk** | A potential adverse outcome attached to architecture or operational change — often materialized through **finding** types and surfaced in dashboards and approvals. Risk **without** linkage to artifacts or approvals is conversational, not authoritative. |
+| **Control** | A mitigating safeguard (process, tooling, entitlement, isolation, retention, alerting) asserted against **risk** — whether customer-operated ("customer control") or platform-operated (**ArchLucid control** surfaces are documented separately from customer obligations). |
+| **Decision** | A recorded disposition on **review** proposals (approve, waive, defer with rationale, escalate), auditable alongside **finding** deltas. Casual "team decided in Slack" is not a committed **decision** in this sense. |
+| **Evidence trail** | The chronological, inspectable lineage from inputs (prompts, repositories, citations) through deterministic steps to reviewer-visible outputs. Evidence that cannot be reconstructed from stored traces is weaker procurement posture — call that gap explicitly. |
+| **Governance approval** | A committed **decision** in the governance workflow affecting merge, rollout, waiver, exception, or escalation — differentiated from UX affordances labelled "Approve" unless they write to governance state. |
+| **Audit trail** | The persisted, replayable ledger of authenticated actions across **reviews**, merges, approvals, retention, notifications, exports, and integrations — narrower than informal logging; wider than SIEM payloads alone. Audit trail retention norms are posture-specific. |
+| **Tenant** | The top-level customer boundary for data isolation. In typical SaaS posture, one tenant is one customer organization unless the contract defines otherwise. |
+| **Workspace** | A collaboration boundary under a tenant (team, program, or environment). |
+| **Policy pack** | A versioned bundle of rules, thresholds, and governance mappings applied to **reviews** (compliance, finding treatment, pre-finalize gates). Packs are assigned, published, and audited — not informal one-off prose. |
+| **Deliverable** | An exportable artifact aimed at a specific audience (sponsor summary, architecture board packet, security appendix, diligence bundle). Distinct from a raw **finding** row: deliverables are packaged outputs. |

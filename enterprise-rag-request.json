@@ -1,0 +1,23 @@
+{
+  "requestId": "REQ-ENTERPRISE-RAG-001",
+  "systemName": "EnterpriseRag",
+  "description": "Design a secure Azure RAG system for enterprise internal documents using Azure AI Search and SQL metadata storage.",
+  "environment": "prod",
+  "cloudProvider": "Azure",
+  "constraints": [
+    "Private endpoints required",
+    "Use managed identity",
+    "Encryption at rest required"
+  ],
+  "requiredCapabilities": [
+    "Azure AI Search",
+    "SQL",
+    "Managed Identity",
+    "Private Networking"
+  ],
+  "assumptions": [
+    "Moderate query volume",
+    "Internal enterprise usage only"
+  ],
+  "priorManifestVersion": null
+}

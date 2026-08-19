@@ -1,0 +1,28 @@
+{
+  "complianceRuleIds": [],
+  "complianceRuleKeys": [
+    "cost-opt-001",
+    "cost-opt-002",
+    "cost-opt-003",
+    "cost-opt-004",
+    "cost-opt-005",
+    "cost-opt-006"
+  ],
+  "alertRuleIds": [],
+  "compositeAlertRuleIds": [],
+  "advisoryDefaults": {
+    "severityFloor": "warning",
+    "priorityFloor": "P0",
+    "scanDepth": "standard"
+  },
+  "metadata": {
+    "templateId": "cost-optimization-v1",
+    "pack.displayName": "Cost optimization (extractor-aligned)",
+    "pack.category": "Cost",
+    "pack.version": "1.0.1",
+    "pack.isDefault": "true",
+    "pack.description": "FinOps-oriented review prompts grounded in read-only cloud inventory ZIP output (resource manifests, optional catalog pricing overlays, policy compliance exports). Highlights common waste vectors such as orphaned addressing, oversized compute SKUs, and unattached disks. Does not replace live cost management actuals.",
+    "frameworkMappingDisclaimer": "FinOps mapping is advisory only.",
+    "curatedRulesArtifact": "docs/samples/policy-packs/cost-optimization-rules-v1.json"
+  }
+}

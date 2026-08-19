@@ -1,0 +1,50 @@
+{
+  "complianceRuleIds": [],
+  "complianceRuleKeys": [
+    "az-data-001",
+    "az-data-002",
+    "az-data-003",
+    "az-data-004",
+    "az-data-005",
+    "az-data-006",
+    "az-data-007",
+    "az-data-008",
+    "az-data-009",
+    "az-data-010",
+    "az-data-011",
+    "az-data-012",
+    "az-data-013",
+    "az-data-014",
+    "az-data-015",
+    "az-data-016",
+    "az-data-017",
+    "az-data-018",
+    "az-data-019",
+    "az-data-020",
+    "az-data-021",
+    "az-data-022",
+    "az-data-023",
+    "az-data-024",
+    "az-data-025",
+    "az-data-026",
+    "az-data-027",
+    "az-data-028"
+  ],
+  "alertRuleIds": [],
+  "compositeAlertRuleIds": [],
+  "advisoryDefaults": {
+    "severityFloor": "warning",
+    "priorityFloor": "P0",
+    "scanDepth": "standard"
+  },
+  "metadata": {
+    "templateId": "azure-data-layer-security-v1",
+    "pack.displayName": "Azure SQL / Cosmos DB Data-Layer Security",
+    "pack.category": "Data Platform",
+    "pack.version": "1.0.0",
+    "pack.isDefault": "true",
+    "pack.description": "RLS, TDE, auditing, and private endpoint themes for Azure data platforms.",
+    "frameworkMappingDisclaimer": "Data-layer mapping is thematic only.",
+    "curatedRulesArtifact": "docs/samples/policy-packs/azure-data-layer-security-rules-v1.json"
+  }
+}

@@ -1,0 +1,6 @@
+flowchart LR
+  Fmt["ExportFormat Docx Pdf Html"] --> Svc["ArchitectureReviewExportService"]
+  Svc --> Ctrl["RunsExportController"]
+  Pkg["RunExportPackageBuilder"] --> Pack["ArtifactPackagingService"]
+  Pack --> Blob["RunExportBlobPushOutboxProcessor"]
+  Ctrl --> Art["ArtifactExportController"]

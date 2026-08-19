@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "id": "scenario-10-lift-and-shift",
+  "metadata": {
+    "title": "Contoso claims lift-and-shift to Azure (carrier IP allow-list preserved)",
+    "complexity": "medium",
+    "primaryAgents": ["Topology", "Compliance"],
+    "rubricNotes": "Dropped 'phased DNS cutover and rollback criteria' MUST (covered by inlineRequirements; agent should opine on architecture, not restate the brief). 4 MUSTs: hits 3/4 (75%) to clear the 70% recall floor."
+  },
+  "inputSource": "templates/architecture-requests/cloud-migration-lift-and-shift.json",
+  "recording": "tests/eval-corpus/templates-pack/recordings/scenario-10-lift-and-shift.findings.json",
+  "expectedFindings": [
+    {
+      "id": "must-carrier-egress-ipv4-preservation",
+      "category": "Topology",
+      "minimumSeverity": "Low",
+      "evidenceMustContain": ["nat gateway"]
+    },
+    {
+      "id": "must-managed-secrets-rotation",
+      "category": "Compliance",
+      "minimumSeverity": "Low",
+      "evidenceMustContain": ["secret", "rotation"]
+    },
+    {
+      "id": "must-immutable-backups",
+      "category": "Compliance",
+      "minimumSeverity": "Low",
+      "evidenceMustContain": ["immutable", "backup"]
+    },
+    {
+      "id": "must-disable-legacy-tls",
+      "category": "Compliance",
+      "minimumSeverity": "Low",
+      "evidenceMustContain": ["legacy tls"]
+    }
+  ],
+  "unexpectedFindings": [
+    { "category": "Topology", "ifContainsAny": ["open carrier sftp to the internet", "no allow-list needed"] },
+    { "category": "Topology", "ifContainsAny": ["public rdp", "public ssh", "expose 3389 to internet"] }
+  ]
+}

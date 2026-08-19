@@ -1,0 +1,36 @@
+---
+description: Require explicit branch name before git commit or push to GitHub
+alwaysApply: true
+---
+
+# Git commit — branch name required
+
+When the user asks you to **commit** (with or without **push** to GitHub), they must **name the target branch in that same request**.
+
+## Before committing or pushing
+
+1. **Check the user's message** for an explicit branch name (e.g. `on branch feature/foo`, `commit to main`, `push to origin/release-1.2`).
+2. **If no branch is named**, **stop** and ask:
+   > Which branch should I commit to?
+   Do **not** run `git commit`, `git push`, or branch-switch commands until the user answers.
+3. **Do not substitute** `git branch --show-current`, prior conversation context, or assumed defaults for a missing branch name — unless the user **explicitly** names the branch in the commit/push request.
+
+## After the branch is named
+
+1. Confirm the working tree is on that branch (`git checkout` / `git switch`, or create it if the user directs).
+2. If the current branch differs from the named branch, **tell the user** before switching.
+3. Then follow the normal commit workflow (stage scoped paths, commit message, push only if requested).
+
+## Examples
+
+**Missing branch — ask first:**
+- "Commit these changes" → ask which branch.
+- "Push to GitHub" → ask which branch.
+
+**Branch provided — proceed:**
+- "Commit to `feature/help-center-cleanup`"
+- "On branch `main`, commit and push"
+
+## Scope
+
+Applies to **commit** and **push** requests. Does not apply to read-only git inspection (`git status`, `git diff`, `git log`) or PR creation unless the user also asks to commit/push without naming a branch.

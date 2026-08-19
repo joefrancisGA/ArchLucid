@@ -1,0 +1,267 @@
+using ArchLucid.Api.Auth.Models;
+using ArchLucid.Api.Models.Admin;
+using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Api.Services.Admin;
+using ArchLucid.Contracts.Admin;
+using ArchLucid.Core.Audit;
+using ArchLucid.Core.Authorization;
+using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Identity;
+using ArchLucid.Core.Scim;
+using ArchLucid.Core.Scim.Models;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Host.Core.Services;
+
+using Asp.Versioning;
+
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
+
+namespace ArchLucid.Api.Controllers.Admin;
+
+/// <summary>
+///     Admin endpoint for inspecting recent IdP JWT claim-mapping failures to aid SSO onboarding troubleshooting.
+/// </summary>
+/// <remarks>
+///     Only captures authentication events where the JWT is valid but maps to no known ArchLucid role.
+///     No PII, raw token bytes, or secrets are retained — only safe metadata (issuer, audience, role claim values, and
+///     absent/unrecognised claim names). Gated by <see cref="ArchLucidPolicies.AdminAuthority" />.
+/// </remarks>
+[ApiController]
+[Authorize(Policy = ArchLucidPolicies.AdminAuthority)]
+[ApiVersion("1.0")]
+[Route("v{version:apiVersion}/admin")]
+public sealed class AdminAuthDiagnosticsController(
+    IAuthDiagnosticsRingBuffer authDiagnosticsRingBuffer,
+    IOidcWellKnownDiagnosticsService oidcWellKnownDiagnosticsService,
+    ISamlOperationalDiagnosticsService samlOperationalDiagnosticsService,
+    IOptionsMonitor<ArchLucidSamlAuthOptions> samlAuthOptionsMonitor,
+    IOptionsMonitor<EmailNotificationOptions> emailNotificationOptionsMonitor,
+    IOptionsMonitor<TrialAuthOptions> trialAuthOptionsMonitor,
+    ITenantIdentityProviderConfigurationRepository tenantIdentityProviderConfigurationRepository,
+    IScimTenantTokenRepository scimTenantTokenRepository,
+    IScopeContextProvider scopeContextProvider,
+    ITokenClaimsDiagnosticService tokenClaimsDiagnosticService,
+    IAuditService auditService) : ControllerBase
+{
+    private const int MaxAuthDiagnosticsEntries = 200;
+
+    private readonly IAuthDiagnosticsRingBuffer _authDiagnosticsRingBuffer =
+        authDiagnosticsRingBuffer ?? throw new ArgumentNullException(nameof(authDiagnosticsRingBuffer));
+
+    private readonly IOidcWellKnownDiagnosticsService _oidcWellKnownDiagnosticsService =
+        oidcWellKnownDiagnosticsService ?? throw new ArgumentNullException(nameof(oidcWellKnownDiagnosticsService));
+
+    private readonly ISamlOperationalDiagnosticsService _samlOperationalDiagnosticsService =
+        samlOperationalDiagnosticsService ?? throw new ArgumentNullException(nameof(samlOperationalDiagnosticsService));
+
+    private readonly IOptionsMonitor<ArchLucidSamlAuthOptions> _samlAuthOptionsMonitor =
+        samlAuthOptionsMonitor ?? throw new ArgumentNullException(nameof(samlAuthOptionsMonitor));
+
+    private readonly IOptionsMonitor<EmailNotificationOptions> _emailNotificationOptionsMonitor =
+        emailNotificationOptionsMonitor ?? throw new ArgumentNullException(nameof(emailNotificationOptionsMonitor));
+
+    private readonly IOptionsMonitor<TrialAuthOptions> _trialAuthOptionsMonitor =
+        trialAuthOptionsMonitor ?? throw new ArgumentNullException(nameof(trialAuthOptionsMonitor));
+
+    private readonly ITenantIdentityProviderConfigurationRepository _tenantIdentityProviderConfigurationRepository =
+        tenantIdentityProviderConfigurationRepository
+        ?? throw new ArgumentNullException(nameof(tenantIdentityProviderConfigurationRepository));
+
+    private readonly IScimTenantTokenRepository _scimTenantTokenRepository =
+        scimTenantTokenRepository ?? throw new ArgumentNullException(nameof(scimTenantTokenRepository));
+
+    private readonly IScopeContextProvider _scopeContextProvider =
+        scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
+
+    private readonly ITokenClaimsDiagnosticService _tokenClaimsDiagnosticService =
+        tokenClaimsDiagnosticService ?? throw new ArgumentNullException(nameof(tokenClaimsDiagnosticService));
+
+    private readonly IAuditService _auditService =
+        auditService ?? throw new ArgumentNullException(nameof(auditService));
+
+    /// <summary>
+    ///     Returns the most recent IdP JWT role-mapping failures captured in the in-memory ring buffer.
+    /// </summary>
+    /// <param name="maxCount">
+    ///     Maximum entries to return (1–<see cref="MaxAuthDiagnosticsEntries" />; defaults to 50).
+    /// </param>
+    [HttpGet("auth-diagnostics")]
+    [ProducesResponseType(typeof(IReadOnlyList<AuthDiagnosticEntry>), StatusCodes.Status200OK)]
+    public IActionResult GetAuthDiagnostics([FromQuery] int maxCount = 50)
+    {
+        IReadOnlyList<AuthDiagnosticEntry> entries =
+            _authDiagnosticsRingBuffer.GetRecent(Math.Clamp(maxCount, 1, MaxAuthDiagnosticsEntries));
+
+        return Ok(entries);
+    }
+
+    /// <summary>
+    ///     Decodes a JWT payload without signature validation and evaluates role-claim mapping via
+    ///     <see cref="ArchLucidRoleClaimsTransformation" />.
+    /// </summary>
+    [HttpPost("auth/diagnose-token")]
+    [ProducesResponseType(typeof(AdminTokenClaimsDiagnosticResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> DiagnoseTokenAsync(
+        [FromBody] AdminTokenClaimsDiagnosticRequest request,
+        CancellationToken cancellationToken)
+    {
+        if (request is null || string.IsNullOrWhiteSpace(request.BearerToken))
+            return this.BadRequestProblem("BearerToken is required.", ProblemTypes.ValidationFailed);
+
+        AdminTokenClaimsDiagnosticResponse response =
+            await _tokenClaimsDiagnosticService
+                .DiagnoseAsync(request.BearerToken, cancellationToken)
+                .ConfigureAwait(false);
+
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        string actor = User.Identity?.Name ?? "admin";
+
+        await _auditService.LogAsync(
+            new AuditEvent
+            {
+                EventType = AuditEventTypes.AuthTokenDiagnosticRequested,
+                ActorUserId = actor,
+                ActorUserName = actor,
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ProjectId = scope.ProjectId,
+                DataJson =
+                    $"{{\"resolvedRoleCount\":{response.ResolvedRoles.Count},\"unmappedValueCount\":{response.UnmappedValues.Count},\"warningCount\":{response.Warnings.Count}}}",
+            },
+            cancellationToken).ConfigureAwait(false);
+
+        return Ok(response);
+    }
+
+    /// <summary>
+    ///     Returns configured JWT/OIDC authority and audience plus optional OpenID Provider discovery metadata reachability.
+    /// </summary>
+    [HttpGet("auth/oidc-diagnostics")]
+    [ProducesResponseType(typeof(AdminOidcDiagnosticsResponse), StatusCodes.Status200OK)]
+    public async Task<ActionResult<AdminOidcDiagnosticsResponse>> GetOidcDiagnostics(CancellationToken cancellationToken)
+    {
+        AdminOidcDiagnosticsResponse snapshot =
+            await _oidcWellKnownDiagnosticsService.BuildAsync(cancellationToken);
+
+        return Ok(snapshot);
+    }
+
+    /// <summary>
+    ///     Returns SAML 2.0 SP operational signals (signing certificate expiry and optional IdP metadata
+    ///     <c>validUntil</c>).
+    /// </summary>
+    [HttpGet("auth/saml-operational-health")]
+    [ProducesResponseType(typeof(AdminSamlOperationalHealthResponse), StatusCodes.Status200OK)]
+    public async Task<ActionResult<AdminSamlOperationalHealthResponse>> GetSamlOperationalHealth(
+        CancellationToken cancellationToken)
+    {
+        AdminSamlOperationalHealthResponse snapshot =
+            await _samlOperationalDiagnosticsService.BuildAsync(cancellationToken);
+
+        return Ok(snapshot);
+    }
+
+    /// <summary>
+    ///     Identity providers settings page bundle: probes and configuration diagnostics with a single OIDC/SAML build.
+    /// </summary>
+    [HttpGet("diagnostics/identity-providers-page-bundle")]
+    [ProducesResponseType(typeof(AdminIdentityProvidersPageBundleResponse), StatusCodes.Status200OK)]
+    public async Task<ActionResult<AdminIdentityProvidersPageBundleResponse>> GetIdentityProvidersPageBundle(
+        CancellationToken cancellationToken)
+    {
+        Task<AdminOidcDiagnosticsResponse> oidcTask =
+            _oidcWellKnownDiagnosticsService.BuildAsync(cancellationToken);
+
+        Task<AdminSamlOperationalHealthResponse> samlTask =
+            _samlOperationalDiagnosticsService.BuildAsync(cancellationToken);
+
+        await Task.WhenAll(oidcTask, samlTask).ConfigureAwait(false);
+
+        AdminOidcDiagnosticsResponse oidc = await oidcTask.ConfigureAwait(false);
+        AdminSamlOperationalHealthResponse saml = await samlTask.ConfigureAwait(false);
+
+        AdminIdentityProviderDiagnosticsResponse identityProviders =
+            IdentityProviderDiagnosticsHealthEvaluator.BuildResponse(oidc, saml);
+
+        AdminAuthConfigurationDiagnosticsResponse authConfiguration =
+            await BuildConfigurationDiagnosticsAsync(oidc, saml, cancellationToken).ConfigureAwait(false);
+
+        AdminIdentityProvidersPageBundleResponse body = new()
+        {
+            IdentityProviderDiagnostics = identityProviders,
+            AuthConfigurationDiagnostics = authConfiguration,
+            OidcDiagnostics = oidc,
+            SamlOperationalHealth = saml,
+        };
+
+        return Ok(body);
+    }
+
+    /// <summary>
+    ///     Returns host OIDC/SAML configuration checks, optional tenant SSO claim-mapping state, and bounded misconfiguration hints.
+    /// </summary>
+    [HttpGet("auth/configuration-diagnostics")]
+    [ProducesResponseType(typeof(AdminAuthConfigurationDiagnosticsResponse), StatusCodes.Status200OK)]
+    public async Task<ActionResult<AdminAuthConfigurationDiagnosticsResponse>> GetConfigurationDiagnostics(
+        CancellationToken cancellationToken)
+    {
+        AdminOidcDiagnosticsResponse oidc =
+            await _oidcWellKnownDiagnosticsService.BuildAsync(cancellationToken).ConfigureAwait(false);
+
+        AdminSamlOperationalHealthResponse saml =
+            await _samlOperationalDiagnosticsService.BuildAsync(cancellationToken).ConfigureAwait(false);
+
+        AdminAuthConfigurationDiagnosticsResponse response =
+            await BuildConfigurationDiagnosticsAsync(oidc, saml, cancellationToken).ConfigureAwait(false);
+
+        return Ok(response);
+    }
+
+    private async Task<AdminAuthConfigurationDiagnosticsResponse> BuildConfigurationDiagnosticsAsync(
+        AdminOidcDiagnosticsResponse oidc,
+        AdminSamlOperationalHealthResponse saml,
+        CancellationToken cancellationToken)
+    {
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+
+        TenantIdentityProviderConfigurationRecord? tenantRow = await _tenantIdentityProviderConfigurationRepository
+            .TryGetAsync(scope.TenantId, cancellationToken)
+            .ConfigureAwait(false);
+
+        AuthConfigurationScimDiagnostics? scimDiagnostics =
+            await BuildScimDiagnosticsAsync(scope.TenantId, cancellationToken).ConfigureAwait(false);
+
+        (bool operatorBaseUrlConfigured, bool localTrialIdentityConfigured) =
+            AuthBetaReadinessDiagnosticsEvaluator.Evaluate(
+                _emailNotificationOptionsMonitor.CurrentValue,
+                _trialAuthOptionsMonitor.CurrentValue);
+
+        return AuthConfigurationDiagnosticsComposer.Compose(
+            oidc,
+            saml,
+            _samlAuthOptionsMonitor.CurrentValue,
+            tenantRow,
+            scimDiagnostics,
+            operatorBaseUrlConfigured,
+            localTrialIdentityConfigured);
+    }
+
+    private async Task<AuthConfigurationScimDiagnostics?> BuildScimDiagnosticsAsync(
+        Guid tenantId,
+        CancellationToken cancellationToken)
+    {
+        if (tenantId == Guid.Empty)
+            return null;
+
+        IReadOnlyList<ScimTokenSummaryRow> tokens =
+            await _scimTenantTokenRepository.ListForTenantAsync(tenantId, cancellationToken).ConfigureAwait(false);
+
+        bool provisioned = tokens.Count > 0;
+        bool active = tokens.Any(static row => row.RevokedUtc is null);
+
+        return new AuthConfigurationScimDiagnostics(provisioned, active);
+    }
+}

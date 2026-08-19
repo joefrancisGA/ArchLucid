@@ -1,0 +1,19 @@
+{
+  "resultId": "corp-adv-ood-sim-01",
+  "taskId": "corp-adv-ood-task-01",
+  "runId": "corp-adv-ood-run-01",
+  "agentType": 3,
+  "claims": [
+    {
+      "detail": "Simulator adversarial stub: request asks for legal and medical determinations outside architecture-review scope."
+    }
+  ],
+  "evidenceRefs": [],
+  "confidence": 0.43,
+  "findings": [],
+  "proposedChanges": null,
+  "createdUtc": "2026-06-13T12:00:00Z",
+  "semanticScore": {
+    "llmFaithfulnessScore": 0.38
+  }
+}

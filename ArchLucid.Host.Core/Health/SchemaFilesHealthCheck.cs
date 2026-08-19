@@ -1,0 +1,91 @@
+using ArchLucid.Decisioning.Validation;
+
+using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Microsoft.Extensions.Options;
+
+namespace ArchLucid.Host.Core.Health;
+
+/// <summary>
+/// Verifies JSON Schema files for agent results and golden manifests exist where <see cref="SchemaValidationService"/> loads them.
+/// </summary>
+public sealed class SchemaFilesHealthCheck(IOptions<SchemaValidationOptions> options) : IHealthCheck
+{
+    public Task<HealthCheckResult> CheckHealthAsync(
+        HealthCheckContext context,
+        CancellationToken cancellationToken = default)
+    {
+        SchemaValidationOptions opts = options.Value;
+        List<string> problems = [];
+
+        AddProblemsForPath(opts.AgentResultSchemaPath, "AgentResult", problems);
+        AddProblemsForPath(opts.GoldenManifestSchemaPath, "GoldenManifest", problems);
+        AddProblemsForPath(opts.ExplanationRunSchemaPath, "ExplanationRun", problems);
+        AddProblemsForPath(opts.ComparisonExplanationSchemaPath, "ComparisonExplanation", problems);
+
+        if (problems.Count > 0)
+
+            return Task.FromResult(
+                HealthCheckResult.Unhealthy(
+                    "One or more schema files are missing or misconfigured: " + string.Join("; ", problems)));
+
+        return Task.FromResult(
+            HealthCheckResult.Healthy(
+                $"Schema files present: {opts.AgentResultSchemaPath}, {opts.GoldenManifestSchemaPath}, {opts.ExplanationRunSchemaPath}, {opts.ComparisonExplanationSchemaPath}."));
+    }
+
+    private static void AddProblemsForPath(string relativePath, string logicalName, List<string> problems)
+    {
+        if (string.IsNullOrWhiteSpace(relativePath))
+        {
+            problems.Add($"{logicalName} schema path is empty (SchemaValidation section).");
+
+            return;
+        }
+
+        string trimmed = relativePath.Trim();
+
+        if (IsNonRelativeSchemaPath(trimmed))
+        {
+            problems.Add($"{logicalName} schema path must be relative (got rooted path).");
+
+            return;
+        }
+
+        string baseDir = AppContext.BaseDirectory;
+        string normalizedBase = Path.GetFullPath(baseDir);
+        string fullPath = Path.GetFullPath(Path.Combine(baseDir, trimmed));
+        string relativeToBase = Path.GetRelativePath(normalizedBase, fullPath);
+
+        if (relativeToBase.Equals("..", StringComparison.Ordinal) ||
+            relativeToBase.StartsWith(".." + Path.DirectorySeparatorChar, StringComparison.Ordinal) ||
+            relativeToBase.StartsWith(".." + Path.AltDirectorySeparatorChar, StringComparison.Ordinal))
+        {
+            problems.Add($"{logicalName} schema path escapes the application base directory.");
+
+            return;
+        }
+
+        if (!File.Exists(fullPath))
+
+            problems.Add($"{logicalName} schema not found at '{fullPath}'.");
+    }
+
+    /// <summary>
+    /// Detects absolute paths on all platforms, including Windows drive-letter paths that
+    /// <see cref="Path.IsPathRooted"/> does not treat as rooted on Linux.
+    /// </summary>
+    private static bool IsNonRelativeSchemaPath(string trimmed)
+    {
+        if (Path.IsPathRooted(trimmed))
+        {
+            return true;
+        }
+
+        if (trimmed.Length >= 2 && char.IsAsciiLetter(trimmed[0]) && trimmed[1] == ':')
+        {
+            return true;
+        }
+
+        return false;
+    }
+}

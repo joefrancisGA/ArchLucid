@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "id": "scenario-07-web-app-database",
+  "metadata": {
+    "title": "Northwind retail web — three-tier modernization with autoscale",
+    "complexity": "medium",
+    "primaryAgents": ["Topology", "Compliance", "Critic"],
+    "rubricNotes": "4 MUSTs: hits 3/4 (75%) to clear the 70% recall floor."
+  },
+  "inputSource": "templates/architecture-requests/web-app-with-database.json",
+  "recording": "tests/eval-corpus/templates-pack/recordings/scenario-07-web-app-database.findings.json",
+  "expectedFindings": [
+    {
+      "id": "must-private-endpoint-sql",
+      "category": "Topology",
+      "minimumSeverity": "Low",
+      "evidenceMustContain": ["private endpoint", "sql"]
+    },
+    {
+      "id": "must-blue-green-deployment-slot",
+      "category": "Topology",
+      "minimumSeverity": "Low",
+      "evidenceMustContain": ["deployment slot"]
+    },
+    {
+      "id": "must-rto-rpo-documentation",
+      "category": "Critic",
+      "minimumSeverity": "Low",
+      "evidenceMustContain": ["rto"]
+    },
+    {
+      "id": "must-centralized-structured-logging",
+      "category": "Topology",
+      "minimumSeverity": "Low",
+      "evidenceMustContain": ["application insights"]
+    }
+  ],
+  "unexpectedFindings": [
+    { "category": "Critic", "ifContainsAny": ["no logging needed", "skip monitoring entirely"] },
+    { "category": "Compliance", "ifContainsAny": ["shared sql admin", "sa account", "elevated sql login for the app"] }
+  ]
+}

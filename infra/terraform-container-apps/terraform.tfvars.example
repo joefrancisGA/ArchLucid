@@ -1,0 +1,92 @@
+﻿# Mandatory for first plan: enable_container_apps, resource_group_name, location, api_container_image, ui_container_image.
+# Copy to terraform.tfvars (gitignored). Leave enable_container_apps = false until you target Azure.
+# For production guardrails (budgets, log cap), see production.tfvars.example in this directory.
+# For GitHub CD target `dev` (ArchLucid DEV subscription), see dev.tfvars.example and docs/library/AZURE_SUBSCRIPTIONS.md §5.1.1.
+
+enable_container_apps = true
+create_resource_group   = true
+resource_group_name     = "rg-archlucid-ca-dev"
+location                = "eastus2"
+
+# Build and push images (repo root). Dockerfile publishes ArchLucid.Api + ArchLucid.Worker into one image; default entrypoint is the API.
+#   docker build -f ArchLucid.Api/Dockerfile -t <acr>.azurecr.io/archlucid:2026.04.1 .
+# Worker container app runs: dotnet ArchLucid.Worker.dll (same image as API unless you set worker_container_image).
+#   docker build -t <acr>.azurecr.io/archlucid-ui:2026.04.1 archlucid-ui/
+api_container_image = "<your-acr>.azurecr.io/archlucid:2026.04.1"
+ui_container_image  = "<your-acr>.azurecr.io/archlucid-ui:2026.04.1"
+
+# Optional: use a different image for the worker (default: same as api_container_image).
+# worker_container_image = "<your-acr>.azurecr.io/archlucid-worker:2026.04.1"
+
+# Optional: cap Log Analytics ingestion (GB/day) for FinOps (0 = omit / no Terraform cap).
+# log_analytics_daily_quota_gb = 5
+
+# Replica bounds (HTTP concurrent-request scale rules apply between min and max).
+# Default module value is 2 (staging/production). Use 1 only for pilots where duplicate background jobs are OK to avoid.
+api_min_replicas = 2
+api_max_replicas = 5
+ui_min_replicas  = 1
+ui_max_replicas  = 6
+
+# Background worker (advisory scan, archival, retrieval outbox, durable export jobs). Scale-out is safe for durable jobs (SQL row lock + batch dequeue); advisory/archival still run per replica.
+worker_min_replicas = 1
+worker_max_replicas = 20
+
+# Optional: KEDA-style queue depth scaling for the worker (requires background_jobs_mode = "Durable" and a storage connection string for the scaler secret only).
+# worker_enable_queue_depth_scaling              = true
+# worker_queue_scale_connection_string           = "DefaultEndpointsProtocol=..." # sensitive; prefer TF_VAR_ or Key Vault–backed pipeline secret
+# worker_queue_depth_target_messages_per_revision = 10
+
+# Optional: KEDA prometheus scaler for authority SQL outbox depth (archlucid_authority_pipeline_work_pending).
+# worker_enable_authority_outbox_prom_scale        = true
+# worker_authority_outbox_prom_server_address      = "https://<workspace>.<region>.prometheus.monitor.azure.com"
+# worker_authority_outbox_prom_bearer_token        = "<read-scoped-token>" # sensitive; omit if your Prometheus API is reachable without auth inside the environment
+# worker_authority_outbox_prom_pending_scale_threshold = 50
+
+api_scale_concurrent_requests = 10
+ui_scale_concurrent_requests  = 10
+
+# TB-915 scale-rule mix (OR semantics — see README § Scale-rule mix):
+# api_enable_cpu_scale_rule = true          # default: HTTP + CPU on API
+# api_cpu_scale_utilization_percent = 70
+# api_enable_memory_scale_rule = false        # enable only with RSS evidence
+# ui_enable_cpu_scale_rule = false          # optional operator UI CPU rule
+
+# Staging/production cold-start canary (TB-755): set api_revision_mode = "Multiple" before enabling CD_CANARY_* repo vars.
+# Dev may keep the module default "Single".
+# api_revision_mode = "Multiple"
+
+# Large artifact offload (golden manifests, bundles, artifact content) — required when enable_container_apps = true.
+# Apply infra/terraform-storage first; use its outputs (primary_blob_endpoint, storage_account_id).
+artifact_blob_service_uri     = "https://<storage-account>.blob.core.windows.net/"
+artifact_storage_account_id   = "/subscriptions/<sub>/resourceGroups/<rg>/providers/Microsoft.Storage/storageAccounts/<name>"
+
+# Optional: durable async export jobs (SQL + Storage Queue + worker). Requires Sql + AzureBlob + ConnectionStrings:ArchLucid in app config.
+# background_jobs_mode             = "Durable"
+# background_jobs_queue_name       = "archlucid-export-jobs"
+# background_jobs_results_container = "background-job-results"
+
+# Optional: VNet-integrated environment (subnet must be delegated to Microsoft.App/environments).
+# container_apps_subnet_id                 = "/subscriptions/.../subnets/snet-container-apps"
+# container_apps_internal_load_balancer    = true
+
+tags = {
+  workload = "archlucid"
+  tier     = "dev"
+}
+
+# Optional FinOps keys (merged with tags and Application = ArchLucid on resources).
+# finops_environment  = "dev"
+# finops_cost_center  = "engineering"
+
+# Optional: resource-group consumption budget for Container Apps + managed environments (defaults on 2026-07-20; requires enable_container_apps = true to create).
+# enable_container_apps_consumption_budget     = false  # uncomment to opt out
+# container_apps_consumption_budget_amount     = 500
+# container_apps_consumption_budget_contact_emails = ["finops@example.com"]
+
+# TB-093 — consumed Azure OpenAI (production-like pilot: eastus). Platform team owns the account and deployments.
+# azure_openai_account_resource_id = "/subscriptions/.../resourceGroups/.../providers/Microsoft.CognitiveServices/accounts/..."
+# azure_openai_endpoint                = "https://your-account.openai.azure.com/"
+# azure_openai_chat_deployment_name    = "gpt-4o"
+# azure_openai_embedding_deployment_name = "text-embedding-3-small"
+# azure_openai_expected_location       = "eastus"

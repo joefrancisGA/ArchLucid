@@ -1,0 +1,169 @@
+using System.Net;
+using System.Net.Http.Headers;
+using System.Net.Http.Json;
+using System.Text.Json;
+
+using ArchLucid.Api.Routing;
+using ArchLucid.Contracts.Integrations;
+using ArchLucid.Core.Authorization;
+
+using FluentAssertions;
+
+namespace ArchLucid.Api.Tests;
+
+[Collection("ArchLucidEnvMutation")]
+[Trait("Category", "Integration")]
+public sealed class TeamsIncomingWebhookConnectionsIntegrationTests(JwtLocalSigningWebAppFactory factory) : IClassFixture<JwtLocalSigningWebAppFactory>
+{
+    private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
+    {
+        PropertyNameCaseInsensitive = true
+    };
+
+    [SkippableFact]
+    public async Task Post_connections_with_reader_jwt_returns_forbidden()
+    {
+        string token = factory.MintLocalBearerJwt(
+            "ReaderUser",
+            [ArchLucidRoles.Reader]);
+
+        HttpClient client = factory.CreateClient();
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+        TeamsIncomingWebhookConnectionUpsertRequest body = new()
+        {
+            KeyVaultSecretName = "teams-incoming-webhook-demo"
+        };
+
+        HttpResponseMessage res = await client.PostAsJsonAsync(
+            new Uri($"/{ApiV1Routes.TeamsIncomingWebhookConnections}", UriKind.Relative),
+            body);
+
+        res.StatusCode.Should().Be(HttpStatusCode.Forbidden);
+    }
+
+    [SkippableFact]
+    public async Task Post_connections_with_https_body_returns_bad_request()
+    {
+        string token = factory.MintLocalBearerJwt(
+            "OperatorUser",
+            [ArchLucidRoles.Operator]);
+
+        HttpClient client = factory.CreateClient();
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+        TeamsIncomingWebhookConnectionUpsertRequest body = new()
+        {
+            KeyVaultSecretName = "https://example.invalid/hook"
+        };
+
+        HttpResponseMessage res = await client.PostAsJsonAsync(
+            new Uri($"/{ApiV1Routes.TeamsIncomingWebhookConnections}", UriKind.Relative),
+            body);
+
+        string responseBody = await res.Content.ReadAsStringAsync();
+        res.StatusCode.Should().Be(HttpStatusCode.BadRequest, "response body: {0}", responseBody);
+        responseBody.Should().Contain("raw webhook URLs are not stored");
+    }
+
+    [SkippableFact]
+    public async Task Get_post_delete_round_trip_with_operator_jwt()
+    {
+        string token = factory.MintLocalBearerJwt(
+            "OperatorUser",
+            [ArchLucidRoles.Operator]);
+
+        HttpClient client = factory.CreateClient();
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+        HttpResponseMessage get0 =
+            await client.GetAsync(new Uri($"/{ApiV1Routes.TeamsIncomingWebhookConnections}", UriKind.Relative));
+        string get0Body = await get0.Content.ReadAsStringAsync();
+        get0.StatusCode.Should().Be(HttpStatusCode.OK, "response body: {0}", get0Body);
+        TeamsIncomingWebhookConnectionResponse? parsed0 =
+            await get0.Content.ReadFromJsonAsync<TeamsIncomingWebhookConnectionResponse>(JsonOptions);
+        parsed0.Should().NotBeNull();
+        parsed0.IsConfigured.Should().BeFalse();
+        parsed0.EnabledTriggers.Should().Contain("com.archlucid.authority.run.completed");
+        parsed0.EnabledTriggers.Should().Contain("com.archlucid.seat.reservation.released");
+        parsed0.EnabledTriggers.Should().HaveCount(6, "fresh tenants default to the v1 all-on catalog");
+
+        TeamsIncomingWebhookConnectionUpsertRequest putBody = new()
+        {
+            KeyVaultSecretName = "kv-teams-webhook-ref",
+            Label = "demo tenant — replace before publishing",
+            EnabledTriggers =
+            [
+                "com.archlucid.authority.run.completed",
+                "com.archlucid.alert.fired"
+            ]
+        };
+
+        HttpResponseMessage post = await client.PostAsJsonAsync(
+            new Uri($"/{ApiV1Routes.TeamsIncomingWebhookConnections}", UriKind.Relative),
+            putBody);
+        post.StatusCode.Should().Be(HttpStatusCode.OK);
+        TeamsIncomingWebhookConnectionResponse? postParsed =
+            await post.Content.ReadFromJsonAsync<TeamsIncomingWebhookConnectionResponse>(JsonOptions);
+        postParsed.Should().NotBeNull();
+        postParsed.IsConfigured.Should().BeTrue();
+        postParsed.KeyVaultSecretName.Should().Be("kv-teams-webhook-ref");
+        postParsed.EnabledTriggers.Should()
+            .BeEquivalentTo("com.archlucid.authority.run.completed", "com.archlucid.alert.fired");
+
+        HttpResponseMessage get1 =
+            await client.GetAsync(new Uri($"/{ApiV1Routes.TeamsIncomingWebhookConnections}", UriKind.Relative));
+        get1.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        HttpResponseMessage del = await client.SendAsync(
+            new HttpRequestMessage(HttpMethod.Delete,
+                new Uri($"/{ApiV1Routes.TeamsIncomingWebhookConnections}", UriKind.Relative)));
+        del.StatusCode.Should().Be(HttpStatusCode.NoContent);
+    }
+
+    [SkippableFact]
+    public async Task Post_connections_with_unknown_trigger_returns_bad_request()
+    {
+        string token = factory.MintLocalBearerJwt(
+            "OperatorUser",
+            [ArchLucidRoles.Operator]);
+
+        HttpClient client = factory.CreateClient();
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+        TeamsIncomingWebhookConnectionUpsertRequest body = new()
+        {
+            KeyVaultSecretName = "kv-teams-webhook-ref",
+            EnabledTriggers = ["com.archlucid.authority.run.completed", "com.archlucid.does.not.exist"]
+        };
+
+        HttpResponseMessage res = await client.PostAsJsonAsync(
+            new Uri($"/{ApiV1Routes.TeamsIncomingWebhookConnections}", UriKind.Relative),
+            body);
+
+        res.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        string text = await res.Content.ReadAsStringAsync();
+        text.Should().Contain("com.archlucid.does.not.exist");
+    }
+
+    [SkippableFact]
+    public async Task Get_triggers_catalog_returns_v1_default_set()
+    {
+        string token = factory.MintLocalBearerJwt(
+            "ReaderUser",
+            [ArchLucidRoles.Reader]);
+
+        HttpClient client = factory.CreateClient();
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+        HttpResponseMessage res = await client.GetAsync(
+            new Uri($"/{ApiV1Routes.TeamsNotificationTriggerCatalog}", UriKind.Relative));
+
+        res.StatusCode.Should().Be(HttpStatusCode.OK);
+        string[]? triggers = await res.Content.ReadFromJsonAsync<string[]>(JsonOptions);
+        triggers.Should().NotBeNull();
+        triggers.Should().Contain("com.archlucid.compliance.drift.escalated");
+        triggers.Should().Contain("com.archlucid.advisory.scan.completed");
+        triggers.Should().Contain("com.archlucid.seat.reservation.released");
+    }
+}

@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "scenarioId": "scenario-10-lift-and-shift",
+  "source": "bootstrap_eval_template_recordings.py",
+  "note": "Synthetic baseline until live API capture; replace via eval_template_harness --mode capture.",
+  "findings": [
+    {
+      "findingId": "must-carrier-egress-ipv4-preservation",
+      "category": "Topology",
+      "severity": "Medium",
+      "title": "nat gateway",
+      "detail": "nat gateway",
+      "message": "nat gateway"
+    },
+    {
+      "findingId": "must-managed-secrets-rotation",
+      "category": "Compliance",
+      "severity": "Medium",
+      "title": "secret rotation",
+      "detail": "secret rotation",
+      "message": "secret rotation"
+    },
+    {
+      "findingId": "must-immutable-backups",
+      "category": "Compliance",
+      "severity": "Medium",
+      "title": "immutable backup",
+      "detail": "immutable backup",
+      "message": "immutable backup"
+    },
+    {
+      "findingId": "must-disable-legacy-tls",
+      "category": "Compliance",
+      "severity": "Medium",
+      "title": "legacy tls",
+      "detail": "legacy tls",
+      "message": "legacy tls"
+    }
+  ]
+}

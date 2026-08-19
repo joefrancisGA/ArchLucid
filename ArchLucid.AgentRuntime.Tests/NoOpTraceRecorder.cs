@@ -1,0 +1,35 @@
+using ArchLucid.Contracts.Agents;
+using ArchLucid.Core.AgentEvaluation;
+using ArchLucid.Contracts.Common;
+
+namespace ArchLucid.AgentRuntime.Tests;
+
+public sealed class NoOpTraceRecorder : IAgentExecutionTraceRecorder
+{
+    public Task RecordAsync(
+        string runId,
+        string taskId,
+        AgentType agentType,
+        string systemPrompt,
+        string userPrompt,
+        string rawResponse,
+        string? parsedResultJson,
+        bool parseSucceeded,
+        string? errorMessage,
+        AgentPromptReproMetadata? promptRepro = null,
+        int? inputTokenCount = null,
+        int? outputTokenCount = null,
+        int? reasoningTokenCount = null,
+        string? modelDeploymentName = null,
+        string? modelVersion = null,
+        bool isSimulatorExecution = false,
+        string? failureReasonCode = null,
+        float? completionTemperature = null,
+        int? maxCompletionTokens = null,
+        float? completionTopP = null,
+        int attemptIndex = 0,
+        CancellationToken cancellationToken = default)
+    {
+        return Task.CompletedTask;
+    }
+}

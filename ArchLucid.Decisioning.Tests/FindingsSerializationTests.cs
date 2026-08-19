@@ -1,0 +1,38 @@
+using ArchLucid.Decisioning.Findings.Factories;
+using ArchLucid.Decisioning.Models;
+
+using FluentAssertions;
+
+namespace ArchLucid.Decisioning.Tests;
+
+/// <summary>
+/// Tests for Findings Serialization.
+/// </summary>
+[Trait("Category", "Unit")]
+public sealed class FindingsSerializationTests
+{
+    [Fact]
+    public void RoundTrip_PreservesTypedPayload()
+    {
+        FindingsSnapshot snapshot = new()
+        {
+            FindingsSnapshotId = Guid.NewGuid(),
+            RunId = Guid.NewGuid(),
+            ContextSnapshotId = Guid.NewGuid(),
+            GraphSnapshotId = Guid.NewGuid(),
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+            Findings =
+            {
+                FindingFactory.CreateRequirementFinding("req", "title", "rat", "Name", "Text", false)
+            }
+        };
+
+        string json = FindingsSerialization.SerializeSnapshot(snapshot);
+        FindingsSnapshot back = FindingsSerialization.DeserializeSnapshot(json);
+
+        back.Findings.Should().HaveCount(1);
+        RequirementFindingPayload? p = FindingPayloadConverter.ToRequirementPayload(back.Findings[0]);
+        p!.RequirementName.Should().Be("Name");
+        p.RequirementText.Should().Be("Text");
+    }
+}

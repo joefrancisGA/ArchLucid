@@ -1,0 +1,72 @@
+using System.Text.RegularExpressions;
+
+using ArchLucid.ContextIngestion.Models;
+
+namespace ArchLucid.ContextIngestion.Infrastructure;
+
+public class SimpleTerraformDeclarationParser : IInfrastructureDeclarationParser
+{
+    /// <summary>Lightweight line-based match for <c>resource "type" "name"</c> blocks (not full HCL).</summary>
+    private static readonly Regex ResourceRegex = new(
+        """
+        resource\s+"(?<type>[^"]+)"\s+"(?<name>[^"]+)"
+        """,
+        RegexOptions.IgnoreCase | RegexOptions.Compiled);
+
+    public bool CanParse(string format)
+    {
+        return string.Equals(format, "simple-terraform", StringComparison.OrdinalIgnoreCase);
+    }
+
+    public Task<IReadOnlyList<CanonicalObject>> ParseAsync(
+        InfrastructureDeclarationReference declaration,
+        CancellationToken ct)
+    {
+        ArgumentNullException.ThrowIfNull(declaration);
+        _ = ct;
+        MatchCollection matches = ResourceRegex.Matches(declaration.Content);
+        List<CanonicalObject> results = [];
+
+        foreach (Match match in matches)
+        {
+            string terraformType = match.Groups["type"].Value;
+            string name = match.Groups["name"].Value;
+
+            if (string.IsNullOrWhiteSpace(terraformType) || string.IsNullOrWhiteSpace(name))
+                continue;
+
+            string objectType = ResolveObjectType(terraformType);
+
+            results.Add(new CanonicalObject
+            {
+                ObjectType = objectType,
+                Name = name,
+                SourceType = "InfrastructureDeclaration",
+                SourceId = declaration.DeclarationId,
+                Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                {
+                    ["terraformType"] = terraformType
+                }
+            });
+        }
+
+        return Task.FromResult<IReadOnlyList<CanonicalObject>>(results);
+    }
+
+    private static string ResolveObjectType(string terraformType)
+    {
+        string normalized = terraformType.ToLowerInvariant();
+
+        if (normalized.Contains("key_vault", StringComparison.Ordinal) ||
+            normalized.Contains("firewall", StringComparison.Ordinal) ||
+            normalized.Contains("network_security_group", StringComparison.Ordinal) ||
+            normalized.Contains("aws_security_group", StringComparison.Ordinal) ||
+            normalized.Contains("aws_network_acl", StringComparison.Ordinal) ||
+            normalized.Contains("google_compute_firewall", StringComparison.Ordinal))
+
+            return "SecurityBaseline";
+
+
+        return normalized.Contains("policy", StringComparison.Ordinal) ? "PolicyControl" : "TopologyResource";
+    }
+}

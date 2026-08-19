@@ -1,0 +1,12 @@
+sequenceDiagram
+  participant Dom as Domain
+  participant Out as IntegrationEventOutbox
+  participant HS as IntegrationEventOutboxHostedService
+  participant SB as AzureServiceBusIntegrationEventPublisher
+  participant Post as WebhookHmacEnvelopePoster
+  participant Http as HttpWebhookPoster
+  Dom->>Out: TryPublishOrEnqueueAsync
+  Out->>HS: poll dbo.IntegrationEventOutbox
+  HS->>SB: IIntegrationEventPublisher
+  Dom->>Post: IWebhookPoster
+  Post->>Http: HMAC CloudEvents envelope

@@ -1,0 +1,123 @@
+using System.Text.Json;
+
+using ArchLucid.Core.Manifest.Sections;
+using ArchLucid.Decisioning.Models;
+using ArchLucid.Decisioning.Services;
+
+using FluentAssertions;
+
+namespace ArchLucid.Decisioning.Tests;
+
+/// <summary>
+/// Tests for Manifest Hash Service.
+/// </summary>
+
+[Trait("Suite", "Core")]
+public sealed class ManifestHashServiceTests
+{
+    private readonly ManifestHashService _sut = new();
+
+    private static ManifestDocument BaseManifest() => new()
+    {
+        ManifestId = new Guid("aaaaaaaa-0000-0000-0000-000000000001"),
+        RunId = new Guid("bbbbbbbb-0000-0000-0000-000000000002"),
+        TenantId = new Guid("cccccccc-0000-0000-0000-000000000003"),
+        WorkspaceId = new Guid("dddddddd-0000-0000-0000-000000000004"),
+        ProjectId = new Guid("eeeeeeee-0000-0000-0000-000000000005"),
+        RuleSetId = "default-v1",
+        RuleSetVersion = "1.0",
+        RuleSetHash = "abc123",
+        Policy = new PolicySection(),
+        Provenance = new ManifestProvenance()
+    };
+
+    [Fact]
+    public void ComputeHash_SameManifest_ReturnsSameHash()
+    {
+        ManifestDocument a = BaseManifest();
+        ManifestDocument b = BaseManifest();
+
+        string hashA = _sut.ComputeHash(a);
+        string hashB = _sut.ComputeHash(b);
+
+        hashA.Should().Be(hashB);
+    }
+
+    [Fact]
+    public void ComputeHash_DifferentManifestId_ReturnsDifferentHash()
+    {
+        ManifestDocument a = BaseManifest();
+        ManifestDocument b = BaseManifest();
+        b.ManifestId = Guid.NewGuid();
+
+        _sut.ComputeHash(a).Should().NotBe(_sut.ComputeHash(b));
+    }
+
+    [Fact]
+    public void ComputeHash_PolicySectionAffectsHash()
+    {
+        ManifestDocument withEmptyPolicy = BaseManifest();
+        ManifestDocument withViolation = BaseManifest();
+        withViolation.Policy.Violations.Add(new PolicyControlItem
+        {
+            ControlId = "CTRL-001",
+            ControlName = "Encryption at rest"
+        });
+
+        string hashEmpty = _sut.ComputeHash(withEmptyPolicy);
+        string hashWithViolation = _sut.ComputeHash(withViolation);
+
+        hashEmpty.Should().NotBe(hashWithViolation);
+    }
+
+    [Fact]
+    public void ComputeHash_PolicySatisfiedControlAffectsHash()
+    {
+        ManifestDocument withoutControl = BaseManifest();
+        ManifestDocument withControl = BaseManifest();
+        withControl.Policy.SatisfiedControls.Add(new PolicyControlItem
+        {
+            ControlId = "CTRL-002",
+            ControlName = "MFA enforced"
+        });
+
+        _sut.ComputeHash(withoutControl).Should().NotBe(_sut.ComputeHash(withControl));
+    }
+
+    [Fact]
+    public void ComputeHash_NullManifest_Throws()
+    {
+        Action act = () => _sut.ComputeHash(null!);
+
+        act.Should().Throw<ArgumentNullException>();
+    }
+
+    [Fact]
+    public void ComputeHash_ReturnsUpperHexString()
+    {
+        string hash = _sut.ComputeHash(BaseManifest());
+
+        hash.Should().MatchRegex("^[0-9A-F]{64}$");
+    }
+
+    [Fact]
+    public void ComputeHash_MatchesPinnedBaseline_v1()
+    {
+        string baselinePath = Path.Combine(
+            AppContext.BaseDirectory,
+            "..",
+            "..",
+            "..",
+            "..",
+            "tests",
+            "manifest-hash",
+            "hasher-baseline-v1.json");
+
+        baselinePath = Path.GetFullPath(baselinePath);
+        using FileStream stream = File.OpenRead(baselinePath);
+        using JsonDocument doc = JsonDocument.Parse(stream);
+        string expected = doc.RootElement.GetProperty("expectedManifestHashSha256").GetString()!;
+
+        _sut.ComputeHash(BaseManifest()).Should().Be(expected);
+    }
+}

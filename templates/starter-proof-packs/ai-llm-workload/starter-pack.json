@@ -1,0 +1,31 @@
+{
+  "id": "ai-llm-workload",
+  "title": "AI / LLM workload governance review",
+  "targetBuyer": "Platform or AI governance lead",
+  "buyerJob": "Responsible-AI and LLM workload architecture review",
+  "owner": "ArchLucid GTM",
+  "lastReviewedUtc": "2026-05-29",
+  "requiredInputs": [
+    "second-run.json",
+    "architecture-request.json",
+    "policy-context.json"
+  ],
+  "expectedOutputs": [
+    "AI governance policy-pack findings",
+    "Evidence refs and faithfulness-friendly citations",
+    "proof-package-checklist.md satisfied"
+  ],
+  "scopeLabel": "V1-ready",
+  "doNotUseWhen": [
+    "Buyer only wants a generic chat assistant comparison",
+    "No LLM or agent workload in scope",
+    "First session before Core Pilot commit"
+  ],
+  "deferredScopeNotes": "Does not certify model safety, pen-test attestation, or MCP/plugin marketplace.",
+  "sourceConfidence": "synthetic-demo-labeled",
+  "acceptanceChecks": [
+    "architecture-request.json deserializes in Contracts.Tests dry-run",
+    "policy-context vertical resolves compliance rules",
+    "proof-package-checklist.md lists sponsor-safe caveats"
+  ]
+}

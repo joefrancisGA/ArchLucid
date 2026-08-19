@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://archlucid.dev/schemas/integration-events/authority-run-completed.v1.schema.json",
+  "title": "com.archlucid.authority.run.completed",
+  "description": "Service Bus message after an authority run commits successfully (canonical com.archlucid.authority.run.completed; legacy V1 type alias supported).",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "runId",
+    "manifestId",
+    "tenantId",
+    "workspaceId",
+    "projectId"
+  ],
+  "properties": {
+    "schemaVersion": { "type": "integer", "const": 1 },
+    "runId": { "type": "string", "format": "uuid" },
+    "manifestId": { "type": "string", "format": "uuid" },
+    "tenantId": { "type": "string", "format": "uuid" },
+    "workspaceId": { "type": "string", "format": "uuid" },
+    "projectId": { "type": "string", "format": "uuid" },
+    "previousRunId": {
+      "type": ["string", "null"],
+      "format": "uuid",
+      "description": "Prior committed run in the same tenant/workspace/project scope with a golden manifest, when one exists."
+    },
+    "findings": {
+      "type": "array",
+      "description": "Optional per-finding deep links for operators and webhook consumers (additive; absent when no findings).",
+      "items": {
+        "type": "object",
+        "required": ["findingId", "deepLinkUrl"],
+        "properties": {
+          "findingId": { "type": "string" },
+          "deepLinkUrl": { "type": "string", "format": "uri" },
+          "severity": { "type": "string", "description": "Finding severity name (e.g. High, Medium)." }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": true
+}

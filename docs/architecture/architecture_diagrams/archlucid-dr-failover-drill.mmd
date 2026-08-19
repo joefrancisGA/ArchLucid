@@ -1,0 +1,17 @@
+sequenceDiagram
+  actor Ops as Operator / SRE
+  participant Prim as Primary SQL
+  participant Fog as Failover group listener
+  participant Sec as Secondary SQL
+  participant Api as Container Apps Api
+  participant Wk as Container Apps Worker
+
+  Note over Ops,Sec: Drill - DATABASE_FAILOVER runbook
+  Ops->>Fog: Confirm listener health
+  Ops->>Sec: Force failover drill
+  Fog-->>Api: Connection string listener FQDN
+  Fog-->>Wk: Same listener
+  Api->>Sec: New primary after cutover
+  Wk->>Sec: Resume outbox drain
+  Ops->>Api: Smoke health ready plus synthetic review
+  Ops->>Ops: Record actual RTO vs target

@@ -1,0 +1,25 @@
+# Example only: invoke the manifest-delta composite action with checked-in fixtures or artifacts.
+# Copy into a real workflow when you wire artifact download + export steps.
+name: example-github-manifest-delta
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  show-diff:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Diff sample placeholders
+        uses: ./.github/actions/manifest-delta
+        with:
+          base-manifest: docs/demo/sample-pack/manifest-snippet.json
+          head-manifest: docs/demo/sample-pack/manifest-snippet-head.json

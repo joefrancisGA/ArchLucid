@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="ArchLucidFindingEngine.Tests/ArchLucidFindingEngine.Tests.csproj" />
+  <Project Path="ArchLucidFindingEngine/ArchLucidFindingEngine.csproj" />
+</Solution>

@@ -1,0 +1,17 @@
+# Production-oriented example with posture tier (enable account + PE before apply).
+#   terraform apply -var-file=production.tfvars.example
+
+posture_tier = "production"
+
+# TB-095: Cosmos polyglot is dormant on production-like hosted pilots until feature flags enable it.
+enable_cosmos_account = false
+
+# When enabling:
+# enable_cosmos_account        = true
+# create_resource_group        = true
+# resource_group_name          = "rg-archlucid-cosmos-staging"
+# location                     = "centralus"
+# cosmos_account_name          = "cosmos-archlucid-staging-example"
+# enable_private_endpoint      = true
+# private_endpoint_subnet_id   = "..."
+# virtual_network_id           = "..."

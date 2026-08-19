@@ -1,0 +1,20 @@
+sequenceDiagram
+  actor Architect
+  participant UI as Architect workspace
+  participant API as ArchLucid.Api
+  participant Pipe as Coordinator / authority pipeline
+  participant SQL as SQL Server
+  participant Worker as ArchLucid.Worker
+  actor Reviewer
+
+  Architect->>UI: Create architecture request + evidence
+  UI->>API: POST /v1/architecture/request
+  API->>SQL: Persist run / request
+  API->>Pipe: Execute review
+  Pipe->>SQL: Manifests, traces, findings
+  Pipe-->>UI: Timeline on review detail
+  Architect->>API: Finalize / commit
+  API->>SQL: Sealed record + artifacts
+  API->>SQL: Outbox enqueue
+  Worker->>SQL: Drain outbox / index / events
+  Reviewer->>UI: Package, exports, sponsor view

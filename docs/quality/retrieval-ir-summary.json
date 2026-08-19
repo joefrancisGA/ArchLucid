@@ -1,0 +1,500 @@
+{
+  "formatVersion": "1.1",
+  "casesEvaluated": 53,
+  "meanRecallAt5": 0.9811320754716981,
+  "meanMrr": 0.9308176100628931,
+  "meanNdcgAt10": 0.9466965608981956,
+  "floorRecallAt5": 0.85,
+  "floorMrr": 0.75,
+  "corpusBreakdown": [
+    {
+      "corpusKind": "AzureRetail",
+      "caseCount": 6,
+      "meanRecallAt5": 1.0,
+      "meanMrr": 0.8888888888888888,
+      "meanNdcgAt10": 0.9079761723822282,
+      "orderingSensitiveCaseCount": 0,
+      "meanOrderingSensitiveNdcgAt10": null
+    },
+    {
+      "corpusKind": "CustomerProvided",
+      "caseCount": 2,
+      "meanRecallAt5": 1.0,
+      "meanMrr": 1.0,
+      "meanNdcgAt10": 1.0,
+      "orderingSensitiveCaseCount": 0,
+      "meanOrderingSensitiveNdcgAt10": null
+    },
+    {
+      "corpusKind": "DemoDerived",
+      "caseCount": 2,
+      "meanRecallAt5": 1.0,
+      "meanMrr": 1.0,
+      "meanNdcgAt10": 1.0,
+      "orderingSensitiveCaseCount": 0,
+      "meanOrderingSensitiveNdcgAt10": null
+    },
+    {
+      "corpusKind": "PlatformDoc",
+      "caseCount": 9,
+      "meanRecallAt5": 1.0,
+      "meanMrr": 1.0,
+      "meanNdcgAt10": 1.0,
+      "orderingSensitiveCaseCount": 1,
+      "meanOrderingSensitiveNdcgAt10": 1.0
+    },
+    {
+      "corpusKind": "PolicyPack",
+      "caseCount": 15,
+      "meanRecallAt5": 0.9333333333333333,
+      "meanMrr": 0.8,
+      "meanNdcgAt10": 0.8484707128874,
+      "orderingSensitiveCaseCount": 3,
+      "meanOrderingSensitiveNdcgAt10": 0.5151601323399654
+    },
+    {
+      "corpusKind": "PriorManifest",
+      "caseCount": 13,
+      "meanRecallAt5": 1.0,
+      "meanMrr": 1.0,
+      "meanNdcgAt10": 1.0,
+      "orderingSensitiveCaseCount": 0,
+      "meanOrderingSensitiveNdcgAt10": null
+    },
+    {
+      "corpusKind": "ReferenceArchitecture",
+      "caseCount": 6,
+      "meanRecallAt5": 1.0,
+      "meanMrr": 1.0,
+      "meanNdcgAt10": 1.0,
+      "orderingSensitiveCaseCount": 0,
+      "meanOrderingSensitiveNdcgAt10": null
+    }
+  ],
+  "cases": [
+    {
+      "id": "ir-pp-kv-01",
+      "corpusKind": "PolicyPack",
+      "recallAt5": 1.0,
+      "mrr": 1.0,
+      "ndcgAt10": 1.0,
+      "orderingSensitive": false
+    },
+    {
+      "id": "ir-pp-kv-02",
+      "corpusKind": "PolicyPack",
+      "recallAt5": 1.0,
+      "mrr": 1.0,
+      "ndcgAt10": 1.0,
+      "orderingSensitive": false
+    },
+    {
+      "id": "ir-pp-mi-01",
+      "corpusKind": "PolicyPack",
+      "recallAt5": 1.0,
+      "mrr": 1.0,
+      "ndcgAt10": 1.0,
+      "orderingSensitive": false
+    },
+    {
+      "id": "ir-pp-mi-02",
+      "corpusKind": "PolicyPack",
+      "recallAt5": 1.0,
+      "mrr": 1.0,
+      "ndcgAt10": 0.9197207891481876,
+      "orderingSensitive": false
+    },
+    {
+      "id": "ir-pp-pe-01",
+      "corpusKind": "PolicyPack",
+      "recallAt5": 1.0,
+      "mrr": 1.0,
+      "ndcgAt10": 1.0,
+      "orderingSensitive": false
+    },
+    {
+      "id": "ir-pp-pe-02",
+      "corpusKind": "PolicyPack",
+      "recallAt5": 1.0,
+      "mrr": 1.0,
+      "ndcgAt10": 1.0,
+      "orderingSensitive": false
+    },
+    {
+      "id": "ir-pp-dual-01",
+      "corpusKind": "PolicyPack",
+      "recallAt5": 0.5,
+      "mrr": 0.25,
+      "ndcgAt10": 0.4627870818679153,
+      "orderingSensitive": true
+    },
+    {
+      "id": "ir-pp-dual-02",
+      "corpusKind": "PolicyPack",
+      "recallAt5": 0.5,
+      "mrr": 0.25,
+      "ndcgAt10": 0.4627870818679153,
+      "orderingSensitive": true
+    },
+    {
+      "id": "ir-pp-triple",
+      "corpusKind": "PolicyPack",
+      "recallAt5": 1.0,
+      "mrr": 0.5,
+      "ndcgAt10": 0.6199062332840657,
+      "orderingSensitive": true
+    },
+    {
+      "id": "ir-pp-noise-guard",
+      "corpusKind": "PolicyPack",
+      "recallAt5": 1.0,
+      "mrr": 1.0,
+      "ndcgAt10": 1.0,
+      "orderingSensitive": false
+    },
+    {
+      "id": "ir-pm-run-01",
+      "corpusKind": "PriorManifest",
+      "recallAt5": 1.0,
+      "mrr": 1.0,
+      "ndcgAt10": 1.0,
+      "orderingSensitive": false
+    },
+    {
+      "id": "ir-pm-run-02",
+      "corpusKind": "PriorManifest",
+      "recallAt5": 1.0,
+      "mrr": 1.0,
+      "ndcgAt10": 1.0,
+      "orderingSensitive": false
+    },
+    {
+      "id": "ir-pm-run-03",
+      "corpusKind": "PriorManifest",
+      "recallAt5": 1.0,
+      "mrr": 1.0,
+      "ndcgAt10": 1.0,
+      "orderingSensitive": false
+    },
+    {
+      "id": "ir-pm-run-04",
+      "corpusKind": "PriorManifest",
+      "recallAt5": 1.0,
+      "mrr": 1.0,
+      "ndcgAt10": 1.0,
+      "orderingSensitive": false
+    },
+    {
+      "id": "ir-pm-pair-01",
+      "corpusKind": "PriorManifest",
+      "recallAt5": 1.0,
+      "mrr": 1.0,
+      "ndcgAt10": 1.0,
+      "orderingSensitive": false
+    },
+    {
+      "id": "ir-pm-pair-02",
+      "corpusKind": "PriorManifest",
+      "recallAt5": 1.0,
+      "mrr": 1.0,
+      "ndcgAt10": 1.0,
+      "orderingSensitive": false
+    },
+    {
+      "id": "ir-pm-noise",
+      "corpusKind": "PriorManifest",
+      "recallAt5": 1.0,
+      "mrr": 1.0,
+      "ndcgAt10": 1.0,
+      "orderingSensitive": false
+    },
+    {
+      "id": "ir-pm-cross-01",
+      "corpusKind": "PriorManifest",
+      "recallAt5": 1.0,
+      "mrr": 1.0,
+      "ndcgAt10": 1.0,
+      "orderingSensitive": false
+    },
+    {
+      "id": "ir-pm-cross-02",
+      "corpusKind": "PriorManifest",
+      "recallAt5": 1.0,
+      "mrr": 1.0,
+      "ndcgAt10": 1.0,
+      "orderingSensitive": false
+    },
+    {
+      "id": "ir-pm-cross-03",
+      "corpusKind": "PriorManifest",
+      "recallAt5": 1.0,
+      "mrr": 1.0,
+      "ndcgAt10": 1.0,
+      "orderingSensitive": false
+    },
+    {
+      "id": "ir-pd-arch-01",
+      "corpusKind": "PlatformDoc",
+      "recallAt5": 1.0,
+      "mrr": 1.0,
+      "ndcgAt10": 1.0,
+      "orderingSensitive": false
+    },
+    {
+      "id": "ir-pd-arch-02",
+      "corpusKind": "PlatformDoc",
+      "recallAt5": 1.0,
+      "mrr": 1.0,
+      "ndcgAt10": 1.0,
+      "orderingSensitive": false
+    },
+    {
+      "id": "ir-pd-arch-03",
+      "corpusKind": "PlatformDoc",
+      "recallAt5": 1.0,
+      "mrr": 1.0,
+      "ndcgAt10": 1.0,
+      "orderingSensitive": false
+    },
+    {
+      "id": "ir-pd-pair-01",
+      "corpusKind": "PlatformDoc",
+      "recallAt5": 1.0,
+      "mrr": 1.0,
+      "ndcgAt10": 1.0,
+      "orderingSensitive": true
+    },
+    {
+      "id": "ir-pd-pair-02",
+      "corpusKind": "PlatformDoc",
+      "recallAt5": 1.0,
+      "mrr": 1.0,
+      "ndcgAt10": 1.0,
+      "orderingSensitive": false
+    },
+    {
+      "id": "ir-pd-noise",
+      "corpusKind": "PlatformDoc",
+      "recallAt5": 1.0,
+      "mrr": 1.0,
+      "ndcgAt10": 1.0,
+      "orderingSensitive": false
+    },
+    {
+      "id": "ir-pd-tenant-only-pp",
+      "corpusKind": "PolicyPack",
+      "recallAt5": 1.0,
+      "mrr": 0.5,
+      "ndcgAt10": 0.6309297535714575,
+      "orderingSensitive": false
+    },
+    {
+      "id": "ir-pd-tenant-only-pm",
+      "corpusKind": "PriorManifest",
+      "recallAt5": 1.0,
+      "mrr": 1.0,
+      "ndcgAt10": 1.0,
+      "orderingSensitive": false
+    },
+    {
+      "id": "ir-mixed-scope-01",
+      "corpusKind": "PlatformDoc",
+      "recallAt5": 1.0,
+      "mrr": 1.0,
+      "ndcgAt10": 1.0,
+      "orderingSensitive": false
+    },
+    {
+      "id": "ir-mixed-scope-02",
+      "corpusKind": "PolicyPack",
+      "recallAt5": 1.0,
+      "mrr": 1.0,
+      "ndcgAt10": 1.0,
+      "orderingSensitive": false
+    },
+    {
+      "id": "ir-mixed-scope-03",
+      "corpusKind": "PriorManifest",
+      "recallAt5": 1.0,
+      "mrr": 1.0,
+      "ndcgAt10": 1.0,
+      "orderingSensitive": false
+    },
+    {
+      "id": "ir-ar-app-01",
+      "corpusKind": "AzureRetail",
+      "recallAt5": 1.0,
+      "mrr": 1.0,
+      "ndcgAt10": 1.0,
+      "orderingSensitive": false
+    },
+    {
+      "id": "ir-ar-app-02",
+      "corpusKind": "AzureRetail",
+      "recallAt5": 1.0,
+      "mrr": 1.0,
+      "ndcgAt10": 0.8772153153380493,
+      "orderingSensitive": false
+    },
+    {
+      "id": "ir-ar-sql-01",
+      "corpusKind": "AzureRetail",
+      "recallAt5": 1.0,
+      "mrr": 1.0,
+      "ndcgAt10": 1.0,
+      "orderingSensitive": false
+    },
+    {
+      "id": "ir-ar-fd-01",
+      "corpusKind": "AzureRetail",
+      "recallAt5": 1.0,
+      "mrr": 1.0,
+      "ndcgAt10": 1.0,
+      "orderingSensitive": false
+    },
+    {
+      "id": "ir-ar-noise",
+      "corpusKind": "AzureRetail",
+      "recallAt5": 1.0,
+      "mrr": 1.0,
+      "ndcgAt10": 1.0,
+      "orderingSensitive": false
+    },
+    {
+      "id": "ir-demo-01",
+      "corpusKind": "DemoDerived",
+      "recallAt5": 1.0,
+      "mrr": 1.0,
+      "ndcgAt10": 1.0,
+      "orderingSensitive": false
+    },
+    {
+      "id": "ir-demo-02",
+      "corpusKind": "DemoDerived",
+      "recallAt5": 1.0,
+      "mrr": 1.0,
+      "ndcgAt10": 1.0,
+      "orderingSensitive": false
+    },
+    {
+      "id": "ir-cust-01",
+      "corpusKind": "CustomerProvided",
+      "recallAt5": 1.0,
+      "mrr": 1.0,
+      "ndcgAt10": 1.0,
+      "orderingSensitive": false
+    },
+    {
+      "id": "ir-cust-02",
+      "corpusKind": "CustomerProvided",
+      "recallAt5": 1.0,
+      "mrr": 1.0,
+      "ndcgAt10": 1.0,
+      "orderingSensitive": false
+    },
+    {
+      "id": "ir-tenant-b-pp",
+      "corpusKind": "PolicyPack",
+      "recallAt5": 1.0,
+      "mrr": 1.0,
+      "ndcgAt10": 1.0,
+      "orderingSensitive": false
+    },
+    {
+      "id": "ir-tenant-a-not-b",
+      "corpusKind": "PolicyPack",
+      "recallAt5": 1.0,
+      "mrr": 0.5,
+      "ndcgAt10": 0.6309297535714575,
+      "orderingSensitive": false
+    },
+    {
+      "id": "ir-pd-lib-01",
+      "corpusKind": "PlatformDoc",
+      "recallAt5": 1.0,
+      "mrr": 1.0,
+      "ndcgAt10": 1.0,
+      "orderingSensitive": false
+    },
+    {
+      "id": "ir-ar-pp-mixed",
+      "corpusKind": "AzureRetail",
+      "recallAt5": 1.0,
+      "mrr": 0.3333333333333333,
+      "ndcgAt10": 0.5706417189553201,
+      "orderingSensitive": false
+    },
+    {
+      "id": "ir-pp-kv-03",
+      "corpusKind": "PolicyPack",
+      "recallAt5": 1.0,
+      "mrr": 1.0,
+      "ndcgAt10": 1.0,
+      "orderingSensitive": false
+    },
+    {
+      "id": "ir-pm-run-05",
+      "corpusKind": "PriorManifest",
+      "recallAt5": 1.0,
+      "mrr": 1.0,
+      "ndcgAt10": 1.0,
+      "orderingSensitive": false
+    },
+    {
+      "id": "ir-pd-arch-04",
+      "corpusKind": "PlatformDoc",
+      "recallAt5": 1.0,
+      "mrr": 1.0,
+      "ndcgAt10": 1.0,
+      "orderingSensitive": false
+    },
+    {
+      "id": "ir-ra-ms-01",
+      "corpusKind": "ReferenceArchitecture",
+      "recallAt5": 1.0,
+      "mrr": 1.0,
+      "ndcgAt10": 1.0,
+      "orderingSensitive": false
+    },
+    {
+      "id": "ir-ra-ms-02",
+      "corpusKind": "ReferenceArchitecture",
+      "recallAt5": 1.0,
+      "mrr": 1.0,
+      "ndcgAt10": 1.0,
+      "orderingSensitive": false
+    },
+    {
+      "id": "ir-ra-3tier-01",
+      "corpusKind": "ReferenceArchitecture",
+      "recallAt5": 1.0,
+      "mrr": 1.0,
+      "ndcgAt10": 1.0,
+      "orderingSensitive": false
+    },
+    {
+      "id": "ir-ra-dr-01",
+      "corpusKind": "ReferenceArchitecture",
+      "recallAt5": 1.0,
+      "mrr": 1.0,
+      "ndcgAt10": 1.0,
+      "orderingSensitive": false
+    },
+    {
+      "id": "ir-ra-platform-scope",
+      "corpusKind": "ReferenceArchitecture",
+      "recallAt5": 1.0,
+      "mrr": 1.0,
+      "ndcgAt10": 1.0,
+      "orderingSensitive": false
+    },
+    {
+      "id": "ir-ra-noise",
+      "corpusKind": "ReferenceArchitecture",
+      "recallAt5": 1.0,
+      "mrr": 1.0,
+      "ndcgAt10": 1.0,
+      "orderingSensitive": false
+    }
+  ]
+}

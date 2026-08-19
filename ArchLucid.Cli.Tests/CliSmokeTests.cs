@@ -1,0 +1,38 @@
+using System.Text;
+
+using FluentAssertions;
+
+namespace ArchLucid.Cli.Tests;
+
+/// <summary>
+///     Tests for Cli Smoke.
+/// </summary>
+[Trait("Suite", "Core")]
+public sealed class CliSmokeTests
+{
+    [Fact]
+    public async Task RunAsync_WhenNoArgs_Returns1()
+    {
+        int exit = await Program.RunAsync([]);
+        exit.Should().Be(1);
+    }
+
+    [Fact]
+    public async Task RunAsync_ComparisonsWithNoSubcommand_ShowsUsageAndReturns1()
+    {
+        StringBuilder sb = new();
+        TextWriter oldOut = Console.Out;
+        try
+        {
+            Console.SetOut(new StringWriter(sb));
+            int exit = await Program.RunAsync(["comparisons"]);
+            exit.Should().Be(1);
+        }
+        finally
+        {
+            Console.SetOut(oldOut);
+        }
+
+        sb.ToString().Should().Contain("Usage: archlucid comparisons");
+    }
+}

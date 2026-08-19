@@ -1,0 +1,62 @@
+{
+  "schemaVersion": 1,
+  "id": "corpus-real-mode-cloud-migration-lift-shift",
+  "metadata": {
+    "title": "Real-mode lift-and-shift cloud migration (offline AgentResult scorer)",
+    "complexity": "high",
+    "primaryAgents": ["Cost", "Topology"]
+  },
+  "architectureBrief": {
+    "systemName": "Northwind Claims Core (lift-and-shift wave 1)",
+    "description": "Legacy on-prem .NET monolith and SQL Server footprint moving to Azure with minimal refactor; VPN and ExpressRoute backhaul remain during coexistence.",
+    "technologyStack": [
+      "Azure VMs (Windows Server)",
+      "SQL Server on Azure VMs",
+      "ExpressRoute circuit + hub VNet",
+      "Azure Monitor + Log Analytics",
+      "Key Vault for bootstrap secrets"
+    ],
+    "reviewObjectives": [
+      "Validate cost posture for rehosted IaaS before reservation purchases",
+      "Surface network hub risks that threaten regional failover",
+      "Identify quick FinOps wins that do not block migration cutover"
+    ],
+    "constraints": [
+      "No application rewrite until wave 2 (containerization)",
+      "RTO target 8h with manual runbooks acceptable for FY26",
+      "Data must remain in US regions"
+    ]
+  },
+  "inputSummary": "Lift-and-shift Windows VM fleet on ExpressRoute hub with SQL on IaaS; seeks rightsizing, reserved instances, and hub failover risks before wave 2 refactor. Synthetic brief for golden cohort expansion.",
+  "recording": "recordings/corpus-cloud-migration-lift-shift.findings.json",
+  "qualityEvidence": {
+    "mode": "real",
+    "agentType": "Cost",
+    "agentResultPathEnv": "ARCHLUCID_EVAL_CORPUS_REAL_MODE_CLOUD_MIGRATION_LIFT_SHIFT_AGENT_RESULT",
+    "notes": "Committed exemplar; point env at live gpt-4o export when running ARCHLUCID_AGENT_EXECUTION_MODE=Real."
+  },
+  "expectedFindings": [
+    {
+      "id": "e reserved path",
+      "category": "Cost",
+      "minimumSeverity": "Low",
+      "evidenceMustContain": ["reserved", "instance"]
+    },
+    {
+      "id": "e expressroute coupling",
+      "category": "Topology",
+      "minimumSeverity": "Medium",
+      "evidenceMustContain": ["expressroute", "failover"]
+    },
+    {
+      "id": "e burstable rightsizing",
+      "category": "Cost",
+      "minimumSeverity": "High",
+      "evidenceMustContain": ["burstable", "right"]
+    }
+  ],
+  "unexpectedFindings": [
+    { "category": "Critic", "ifContainsAny": ["halt all migration", "delete expressroute"] },
+    { "category": "Cost", "ifContainsAny": ["unlimited budget", "ignore reservations"] }
+  ]
+}

@@ -1,0 +1,593 @@
+# Full Playwright live-api suite after PR merge (scheduled + dispatch). Complements `ci.yml`:
+# live-e2e jobs there use `if: github.event_name != 'pull_request'` (see `ci.yml` `ui-e2e-live*`).
+
+name: Live E2E nightly
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "30 3 * * *"
+
+permissions:
+  contents: read
+
+jobs:
+  live-e2e-nightly-developmentbypass:
+    if: github.event.repository.fork == false
+    name: "Nightly: live-api full (DevelopmentBypass) [shard ${{ matrix.shard }}/${{ strategy.job-total }}]"
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4]
+    services:
+      sqlserver:
+        image: mcr.microsoft.com/mssql/server:2022-latest
+        env:
+          ACCEPT_EULA: Y
+          MSSQL_SA_PASSWORD: "LocalTesting123!"
+        ports:
+          - 1433:1433
+        options: >-
+          --health-cmd "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'LocalTesting123!' -C -b -Q \"SELECT 1\" || exit 1"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 30
+          --health-start-period 60s
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-dotnet@v5.2.0
+        with:
+          global-json-file: global.json
+          cache: true
+          cache-dependency-path: |
+            Directory.Packages.props
+            global.json
+            **/*.csproj
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: archlucid-ui/package-lock.json
+
+      - name: Restore & build API (Release)
+        run: |
+          dotnet restore ArchLucid.sln
+          dotnet build ArchLucid.Api/ArchLucid.Api.csproj --no-restore -c Release
+
+      - name: Install UI deps & build Next (standalone)
+        working-directory: archlucid-ui
+        env:
+          NODE_OPTIONS: --max-old-space-size=6144
+          NEXT_PUBLIC_E2E_ALLOW_DEMO_BLOCKED_ROUTES: "1"
+          # Bake open signup UI for trial live specs (mirrors Auth:PublicSignup:Mode=PublicSelfService).
+          NEXT_PUBLIC_PUBLIC_SIGNUP_MODE: "public-self-service"
+        run: |
+          npm ci
+          npm run build
+
+      - name: Wait for SQL Server to be ready
+        uses: ./.github/actions/wait-for-sqlserver
+
+      - name: Create SQL catalog
+        run: |
+          set -e
+          docker run --rm --network host --entrypoint /opt/mssql-tools18/bin/sqlcmd \
+            mcr.microsoft.com/mssql/server:2022-latest \
+            -S 127.0.0.1,1433 -U sa -P 'LocalTesting123!' -C \
+            -Q "IF NOT EXISTS (SELECT 1 FROM sys.databases WHERE name = N'ArchLucidLiveE2eNightly${{ matrix.shard }}') CREATE DATABASE ArchLucidLiveE2eNightly${{ matrix.shard }};"
+
+      - name: Start ArchLucid.Api (DevelopmentBypass)
+        env:
+          ASPNETCORE_ENVIRONMENT: Development
+          ASPNETCORE_URLS: http://127.0.0.1:5128
+          ConnectionStrings__ArchLucid: "Server=127.0.0.1,1433;User Id=sa;Password=LocalTesting123!;TrustServerCertificate=True;Initial Catalog=ArchLucidLiveE2eNightly${{ matrix.shard }}"
+          ArchLucid__StorageProvider: Sql
+          ArchLucidAuth__Mode: DevelopmentBypass
+          ArchLucidAuth__AllowTestActorHeaders: "true"
+          Authentication__ApiKey__DevelopmentBypassAll: "true"
+          # Trial live specs need open anonymous register (production default remains InviteOnly).
+          Auth__PublicSignup__Mode: PublicSelfService
+          # Trial live specs expect Noop checkout (env wins over optional appsettings.SaaS.json).
+          Billing__Provider: Noop
+          AgentExecution__Mode: Simulator
+          Observability__Prometheus__Enabled: "true"
+          Observability__Prometheus__RequireScrapeAuthentication: "false"
+          RateLimiting__Registration__PermitLimit: "500"
+          # Full live matrix + axe scans exceed the default fixed window (100/min) and empty the operator shell (429).
+          RateLimiting__FixedWindow__PermitLimit: "10000"
+          RateLimiting__FixedWindow__WindowMinutes: "1"
+          ArchLucid__E2eHarness__SharedSecret: "ci-live-e2e-harness-secret-min16!"
+          Cors__AllowedOrigins__0: "http://127.0.0.1:3000"
+          Cors__AllowedOrigins__1: "http://localhost:3000"
+          DataConsistency__InitialDelaySeconds: "0"
+          HostLeaderElection__Enabled: "false"
+          Demo__Enabled: "true"
+          Demo__SeedOnStartup: "true"
+          Demo__AnonymousViewer__Enabled: "true"
+          Observability__ConsoleExporter__Enabled: "false"
+        run: |
+          set -e
+          nohup dotnet run --no-build -c Release --project ArchLucid.Api/ArchLucid.Api.csproj > "${RUNNER_TEMP}/live-api-nightly-bypass.log" 2>&1 &
+          echo $! > "${RUNNER_TEMP}/live-api-nightly-bypass.pid"
+
+      - name: Wait for API readiness
+        env:
+          API_URL: http://127.0.0.1:5128
+        run: bash scripts/ci/wait-for-api-ready.sh "${RUNNER_TEMP}/live-api-nightly-bypass.log"
+
+      - name: Wait for demo preview (demo workspace smokes)
+        env:
+          ARCHLUCID_API_LOG_FILE: ${{ runner.temp }}/live-api-nightly-bypass.log
+          ARCHLUCID_DEMO_PREVIEW_WAIT_ATTEMPTS: "90"
+          ARCHLUCID_DEMO_WORKSPACES_MANIFEST: fixtures/demo-workspaces/demo-workspaces.fixture.manifest.json
+        run: bash scripts/ci/wait-for-demo-preview.sh
+
+      - name: Wait for DB-backed pilot-run-deltas (demo workspace smokes)
+        env:
+          ARCHLUCID_API_LOG_FILE: ${{ runner.temp }}/live-api-nightly-bypass.log
+          ARCHLUCID_DB_PILOT_WAIT_ATTEMPTS: "60"
+          ARCHLUCID_DEMO_WORKSPACES_MANIFEST: fixtures/demo-workspaces/demo-workspaces.fixture.manifest.json
+        run: bash scripts/ci/wait-for-db-backed-pilot-endpoint.sh
+
+      - name: Playwright full live suite
+        working-directory: archlucid-ui
+        env:
+          CI: true
+          API_URL: http://127.0.0.1:5128
+          ARCHLUCID_API_LOG_FILE: ${{ runner.temp }}/live-api-nightly-bypass.log
+          LIVE_API_URL: http://127.0.0.1:5128
+          LIVE_E2E_SKIP_NEXT_BUILD: "1"
+          LIVE_E2E_HARNESS_SECRET: "ci-live-e2e-harness-secret-min16!"
+          NODE_OPTIONS: --max-old-space-size=6144
+          E2E_INFRA_MAX_ATTEMPTS: "12"
+          E2E_INFRA_DB_MAX_ATTEMPTS: "25"
+          E2E_INFRA_BASE_DELAY_MS: "1000"
+          E2E_INFRA_PROBE_ATTEMPTS: "45"
+          ARCHLUCID_DEMO_WORKSPACES_MANIFEST: fixtures/demo-workspaces/demo-workspaces.fixture.manifest.json
+          # Api host is DevelopmentBypass — prevent inherited JWT/API key env from forcing the wrong client auth lane.
+          LIVE_JWT_TOKEN: ""
+          LIVE_API_KEY: ""
+          LIVE_API_KEY_READONLY: ""
+        run: |
+          npx playwright install --with-deps chromium
+          bash ../scripts/ci/wait-for-api-ready.sh "${ARCHLUCID_API_LOG_FILE}"
+          bash ../scripts/ci/wait-for-db-backed-pilot-endpoint.sh
+          echo "Playwright nightly DevelopmentBypass shard ${{ matrix.shard }}/${{ strategy.job-total }} start: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          npx playwright test --workers=1 --shard=${{ matrix.shard }}/${{ strategy.job-total }}
+          echo "Playwright nightly DevelopmentBypass shard ${{ matrix.shard }}/${{ strategy.job-total }} end: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+
+      - uses: actions/upload-artifact@v6
+        if: always()
+        with:
+          name: nightly-live-e2e-developmentbypass-playwright-report-${{ matrix.shard }}
+          path: archlucid-ui/playwright-report
+          if-no-files-found: warn
+
+      - uses: actions/upload-artifact@v6
+        if: always()
+        with:
+          name: nightly-live-e2e-developmentbypass-test-results-${{ matrix.shard }}
+          path: archlucid-ui/test-results
+          if-no-files-found: warn
+
+      - uses: actions/upload-artifact@v6
+        if: always()
+        with:
+          name: nightly-live-e2e-developmentbypass-blob-report-${{ matrix.shard }}
+          path: archlucid-ui/blob-report
+          if-no-files-found: warn
+
+      - uses: actions/upload-artifact@v6
+        if: failure()
+        with:
+          name: nightly-live-e2e-developmentbypass-log-${{ matrix.shard }}
+          path: ${{ runner.temp }}/live-api-nightly-bypass.log
+          if-no-files-found: warn
+
+  live-e2e-nightly-apikey:
+    if: github.event.repository.fork == false
+    name: "Nightly: live-api full (ApiKey)"
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    services:
+      sqlserver:
+        image: mcr.microsoft.com/mssql/server:2022-latest
+        env:
+          ACCEPT_EULA: Y
+          MSSQL_SA_PASSWORD: "LocalTesting123!"
+        ports:
+          - 1433:1433
+        options: >-
+          --health-cmd "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'LocalTesting123!' -C -Q \"SELECT 1\" || exit 1"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 20
+          --health-start-period 20s
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-dotnet@v5.2.0
+        with:
+          global-json-file: global.json
+          cache: true
+          cache-dependency-path: |
+            Directory.Packages.props
+            global.json
+            **/*.csproj
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: archlucid-ui/package-lock.json
+
+      - name: Restore & build API (Release)
+        run: |
+          dotnet restore ArchLucid.sln
+          dotnet build ArchLucid.Api/ArchLucid.Api.csproj --no-restore -c Release
+
+      - name: Install UI deps & build Next (standalone)
+        working-directory: archlucid-ui
+        env:
+          NODE_OPTIONS: --max-old-space-size=6144
+          NEXT_PUBLIC_E2E_ALLOW_DEMO_BLOCKED_ROUTES: "1"
+          # Bake open signup UI for trial live specs (mirrors Auth:PublicSignup:Mode=PublicSelfService).
+          NEXT_PUBLIC_PUBLIC_SIGNUP_MODE: "public-self-service"
+        run: |
+          npm ci
+          npm run build
+
+      - name: Wait for SQL Server to be ready
+        uses: ./.github/actions/wait-for-sqlserver
+
+      - name: Create SQL catalog (ApiKey nightly)
+        run: |
+          set -e
+          docker run --rm --network host --entrypoint /opt/mssql-tools18/bin/sqlcmd \
+            mcr.microsoft.com/mssql/server:2022-latest \
+            -S 127.0.0.1,1433 -U sa -P 'LocalTesting123!' -C \
+            -Q "IF NOT EXISTS (SELECT 1 FROM sys.databases WHERE name = N'ArchLucidLiveE2eNightlyApiKey') CREATE DATABASE ArchLucidLiveE2eNightlyApiKey;"
+
+      - name: Start ArchLucid.Api (ApiKey)
+        env:
+          ASPNETCORE_ENVIRONMENT: Development
+          ASPNETCORE_URLS: http://127.0.0.1:5128
+          ConnectionStrings__ArchLucid: "Server=127.0.0.1,1433;User Id=sa;Password=LocalTesting123!;TrustServerCertificate=True;Initial Catalog=ArchLucidLiveE2eNightlyApiKey"
+          ArchLucid__StorageProvider: Sql
+          ArchLucidAuth__Mode: ApiKey
+          ArchLucidAuth__AllowTestActorHeaders: "true"
+          Authentication__ApiKey__Enabled: "true"
+          Authentication__ApiKey__DevelopmentBypassAll: "false"
+          Authentication__ApiKey__AdminKey: "nightly-apikey-admin"
+          Authentication__ApiKey__ReviewerKey: "nightly-apikey-reviewer"
+          Authentication__ApiKey__ReadOnlyKey: "nightly-apikey-readonly"
+          # Tenant-bound only: demo workspace smokes send Workspace A/B scope headers that must not
+          # conflict with API-key workspace/project claims (ScopeIdentityBinding → 403).
+          Authentication__ApiKey__TenantId: "11111111-1111-1111-1111-111111111111"
+          # Full live matrix includes register-baseline + demo workspace smokes (parity with DevelopmentBypass lane).
+          Auth__PublicSignup__Mode: PublicSelfService
+          Demo__Enabled: "true"
+          Demo__SeedOnStartup: "true"
+          Demo__AnonymousViewer__Enabled: "true"
+          AgentExecution__Mode: Simulator
+          Observability__Prometheus__Enabled: "true"
+          Observability__Prometheus__RequireScrapeAuthentication: "false"
+          RateLimiting__Registration__PermitLimit: "500"
+          RateLimiting__FixedWindow__PermitLimit: "10000"
+          RateLimiting__FixedWindow__WindowMinutes: "1"
+          ArchLucid__E2eHarness__SharedSecret: "ci-live-e2e-harness-secret-min16!"
+          Cors__AllowedOrigins__0: "http://127.0.0.1:3000"
+          Cors__AllowedOrigins__1: "http://localhost:3000"
+          DataConsistency__InitialDelaySeconds: "0"
+          HostLeaderElection__Enabled: "false"
+          Observability__ConsoleExporter__Enabled: "false"
+        run: |
+          set -e
+          nohup dotnet run --no-build -c Release --project ArchLucid.Api/ArchLucid.Api.csproj > "${RUNNER_TEMP}/live-api-nightly-apikey.log" 2>&1 &
+          echo $! > "${RUNNER_TEMP}/live-api-nightly-apikey.pid"
+
+      - name: Wait for API readiness
+        env:
+          API_URL: http://127.0.0.1:5128
+        run: bash scripts/ci/wait-for-api-ready.sh "${RUNNER_TEMP}/live-api-nightly-apikey.log"
+
+      - name: Wait for demo preview (demo workspace smokes)
+        env:
+          ARCHLUCID_API_LOG_FILE: ${{ runner.temp }}/live-api-nightly-apikey.log
+          ARCHLUCID_DEMO_PREVIEW_WAIT_ATTEMPTS: "90"
+          ARCHLUCID_DEMO_WORKSPACES_MANIFEST: fixtures/demo-workspaces/demo-workspaces.fixture.manifest.json
+          LIVE_API_URL: http://127.0.0.1:5128
+          LIVE_API_KEY: nightly-apikey-admin
+        run: bash scripts/ci/wait-for-demo-preview.sh
+
+      - name: Wait for DB-backed pilot-run-deltas (demo workspace smokes)
+        env:
+          ARCHLUCID_API_LOG_FILE: ${{ runner.temp }}/live-api-nightly-apikey.log
+          ARCHLUCID_DB_PILOT_WAIT_ATTEMPTS: "60"
+          ARCHLUCID_DEMO_WORKSPACES_MANIFEST: fixtures/demo-workspaces/demo-workspaces.fixture.manifest.json
+          LIVE_API_URL: http://127.0.0.1:5128
+          LIVE_API_KEY: nightly-apikey-admin
+        run: bash scripts/ci/wait-for-db-backed-pilot-endpoint.sh
+
+      - name: Playwright full live suite (ApiKey)
+        working-directory: archlucid-ui
+        env:
+          CI: true
+          LIVE_API_URL: http://127.0.0.1:5128
+          LIVE_API_KEY: nightly-apikey-admin
+          LIVE_API_KEY_REVIEWER: nightly-apikey-reviewer
+          LIVE_API_KEY_READONLY: nightly-apikey-readonly
+          ARCHLUCID_API_KEY: nightly-apikey-admin
+          LIVE_E2E_SKIP_NEXT_BUILD: "1"
+          LIVE_E2E_HARNESS_SECRET: "ci-live-e2e-harness-secret-min16!"
+          NODE_OPTIONS: --max-old-space-size=6144
+          ARCHLUCID_DEMO_WORKSPACES_MANIFEST: fixtures/demo-workspaces/demo-workspaces.fixture.manifest.json
+          E2E_INFRA_MAX_ATTEMPTS: "12"
+          E2E_INFRA_DB_MAX_ATTEMPTS: "25"
+          E2E_INFRA_BASE_DELAY_MS: "1000"
+          E2E_INFRA_PROBE_ATTEMPTS: "45"
+        run:
+          npx playwright install --with-deps chromium
+          npx playwright test
+
+      - uses: actions/upload-artifact@v6
+        if: always()
+        with:
+          name: nightly-live-e2e-apikey-playwright-report
+          path: archlucid-ui/playwright-report
+          if-no-files-found: warn
+
+      - uses: actions/upload-artifact@v6
+        if: always()
+        with:
+          name: nightly-live-e2e-apikey-test-results
+          path: archlucid-ui/test-results
+          if-no-files-found: warn
+
+      - uses: actions/upload-artifact@v6
+        if: always()
+        with:
+          name: nightly-live-e2e-apikey-blob-report
+          path: archlucid-ui/blob-report
+          if-no-files-found: warn
+
+      - uses: actions/upload-artifact@v6
+        if: failure()
+        with:
+          name: nightly-live-e2e-apikey-log
+          path: ${{ runner.temp }}/live-api-nightly-apikey.log
+          if-no-files-found: warn
+
+  live-e2e-nightly-jwt:
+    if: github.event.repository.fork == false
+    name: "Nightly: live-api full (JwtBearer + local PEM)"
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    services:
+      sqlserver:
+        image: mcr.microsoft.com/mssql/server:2022-latest
+        env:
+          ACCEPT_EULA: Y
+          MSSQL_SA_PASSWORD: "LocalTesting123!"
+        ports:
+          - 1433:1433
+        options: >-
+          --health-cmd "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'LocalTesting123!' -C -Q \"SELECT 1\" || exit 1"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 20
+          --health-start-period 20s
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-dotnet@v5.2.0
+        with:
+          global-json-file: global.json
+          cache: true
+          cache-dependency-path: |
+            Directory.Packages.props
+            global.json
+            **/*.csproj
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: archlucid-ui/package-lock.json
+
+      - name: Restore & build API (Release)
+        run: |
+          dotnet restore ArchLucid.sln
+          dotnet build ArchLucid.Api/ArchLucid.Api.csproj --no-restore -c Release
+
+      - name: Install UI deps & build Next (standalone)
+        working-directory: archlucid-ui
+        env:
+          NODE_OPTIONS: --max-old-space-size=6144
+          NEXT_PUBLIC_E2E_ALLOW_DEMO_BLOCKED_ROUTES: "1"
+          # Bake JWT mode into the client bundle so isJwtAuthMode() / private-beta UI paths match the API.
+          NEXT_PUBLIC_ARCHLUCID_AUTH_MODE: jwt-bearer
+          # Bake open signup UI for trial live specs (mirrors Auth:PublicSignup:Mode=PublicSelfService).
+          NEXT_PUBLIC_PUBLIC_SIGNUP_MODE: "public-self-service"
+        run: |
+          npm ci
+          npm run build
+
+      - name: Generate RSA keys & PyJWT (nightly JWT mint)
+        run: |
+          set -e
+          pip install --quiet PyJWT cryptography
+          openssl genrsa -out "${RUNNER_TEMP}/nightly-jwt-priv.pem" 2048
+          openssl rsa -in "${RUNNER_TEMP}/nightly-jwt-priv.pem" -pubout -out "${RUNNER_TEMP}/nightly-jwt-pub.pem"
+
+      - name: Wait for SQL Server to be ready
+        uses: ./.github/actions/wait-for-sqlserver
+
+      - name: Create SQL catalog (JwtBearer nightly)
+        run: |
+          set -e
+          docker run --rm --network host --entrypoint /opt/mssql-tools18/bin/sqlcmd \
+            mcr.microsoft.com/mssql/server:2022-latest \
+            -S 127.0.0.1,1433 -U sa -P 'LocalTesting123!' -C \
+            -Q "IF NOT EXISTS (SELECT 1 FROM sys.databases WHERE name = N'ArchLucidLiveE2eNightlyJwt') CREATE DATABASE ArchLucidLiveE2eNightlyJwt;"
+
+      - name: Start ArchLucid.Api (JwtBearer + local PEM)
+        env:
+          ASPNETCORE_ENVIRONMENT: Development
+          ASPNETCORE_URLS: http://127.0.0.1:5128
+          ConnectionStrings__ArchLucid: "Server=127.0.0.1,1433;User Id=sa;Password=LocalTesting123!;TrustServerCertificate=True;Initial Catalog=ArchLucidLiveE2eNightlyJwt"
+          ArchLucid__StorageProvider: Sql
+          ArchLucidAuth__Mode: JwtBearer
+          ArchLucidAuth__Authority: ""
+          ArchLucidAuth__Audience: ""
+          ArchLucidAuth__JwtSigningPublicKeyPemPath: ${{ runner.temp }}/nightly-jwt-pub.pem
+          ArchLucidAuth__JwtLocalIssuer: "https://nightly.archlucid.local"
+          ArchLucidAuth__JwtLocalAudience: "api://archlucid-live-e2e-nightly-jwt"
+          # Private-beta / trial harness issues local JWTs via ILocalTrialJwtIssuer (separate from API validation PEM).
+          Auth__Trial__Modes__0: LocalIdentity
+          Auth__Trial__LocalIdentity__JwtPrivateKeyPemPath: ${{ runner.temp }}/nightly-jwt-priv.pem
+          Auth__Trial__LocalIdentity__JwtIssuer: "https://nightly.archlucid.local"
+          Auth__Trial__LocalIdentity__JwtAudience: "api://archlucid-live-e2e-nightly-jwt"
+          Authentication__ApiKey__DevelopmentBypassAll: "false"
+          # Full live matrix includes register-baseline + demo workspace smokes (parity with DevelopmentBypass lane).
+          Auth__PublicSignup__Mode: PublicSelfService
+          Demo__Enabled: "true"
+          Demo__SeedOnStartup: "true"
+          Demo__AnonymousViewer__Enabled: "true"
+          AgentExecution__Mode: Simulator
+          Observability__Prometheus__Enabled: "true"
+          Observability__Prometheus__RequireScrapeAuthentication: "false"
+          RateLimiting__Registration__PermitLimit: "500"
+          RateLimiting__FixedWindow__PermitLimit: "10000"
+          RateLimiting__FixedWindow__WindowMinutes: "1"
+          ArchLucid__E2eHarness__SharedSecret: "ci-live-e2e-harness-secret-min16!"
+          Cors__AllowedOrigins__0: "http://127.0.0.1:3000"
+          Cors__AllowedOrigins__1: "http://localhost:3000"
+          DataConsistency__InitialDelaySeconds: "0"
+          HostLeaderElection__Enabled: "false"
+          Observability__ConsoleExporter__Enabled: "false"
+        run: |
+          set -e
+          nohup dotnet run --no-build -c Release --project ArchLucid.Api/ArchLucid.Api.csproj > "${RUNNER_TEMP}/live-api-nightly-jwt.log" 2>&1 &
+          echo $! > "${RUNNER_TEMP}/live-api-nightly-jwt.pid"
+
+      - name: Wait for API readiness
+        env:
+          API_URL: http://127.0.0.1:5128
+        run: bash scripts/ci/wait-for-api-ready.sh "${RUNNER_TEMP}/live-api-nightly-jwt.log"
+
+      - name: Mint JWT tokens (needed for demo seed wait probes)
+        run: |
+          set -e
+          # Tenant claim required for TB-925 forged-header 403. Omit workspace/project so demo
+          # workspace A/B probes can send their fixture scope headers without ScopeIdentityBinding 403.
+          TENANT_ID="11111111-1111-1111-1111-111111111111"
+          python3 "${GITHUB_WORKSPACE}/scripts/ci/mint_ci_jwt.py" \
+            --private-key "${RUNNER_TEMP}/nightly-jwt-priv.pem" \
+            --issuer "https://nightly.archlucid.local" \
+            --audience "api://archlucid-live-e2e-nightly-jwt" \
+            --tenant-id "${TENANT_ID}" \
+            --out-token "${RUNNER_TEMP}/nightly-jwt-token.txt"
+          python3 "${GITHUB_WORKSPACE}/scripts/ci/mint_ci_jwt.py" \
+            --private-key "${RUNNER_TEMP}/nightly-jwt-priv.pem" \
+            --issuer "https://nightly.archlucid.local" \
+            --audience "api://archlucid-live-e2e-nightly-jwt" \
+            --tenant-id "${TENANT_ID}" \
+            --name "e2e-peer-reviewer" \
+            --sub "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb" \
+            --out-token "${RUNNER_TEMP}/nightly-jwt-peer-token.txt"
+          python3 "${GITHUB_WORKSPACE}/scripts/ci/mint_ci_jwt.py" \
+            --private-key "${RUNNER_TEMP}/nightly-jwt-priv.pem" \
+            --issuer "https://nightly.archlucid.local" \
+            --audience "api://archlucid-live-e2e-nightly-jwt" \
+            --tenant-id "${TENANT_ID}" \
+            --name "e2e-rejector" \
+            --sub "eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee" \
+            --out-token "${RUNNER_TEMP}/nightly-jwt-rejector-token.txt"
+
+      - name: Wait for demo preview (demo workspace smokes)
+        env:
+          ARCHLUCID_API_LOG_FILE: ${{ runner.temp }}/live-api-nightly-jwt.log
+          ARCHLUCID_DEMO_PREVIEW_WAIT_ATTEMPTS: "90"
+          ARCHLUCID_DEMO_WORKSPACES_MANIFEST: fixtures/demo-workspaces/demo-workspaces.fixture.manifest.json
+          LIVE_API_URL: http://127.0.0.1:5128
+          LIVE_JWT_TOKEN_FILE: ${{ runner.temp }}/nightly-jwt-token.txt
+        run: |
+          set -e
+          export LIVE_JWT_TOKEN="$(tr -d '\n\r' < "${RUNNER_TEMP}/nightly-jwt-token.txt")"
+          bash scripts/ci/wait-for-demo-preview.sh
+
+      - name: Wait for DB-backed pilot-run-deltas (demo workspace smokes)
+        env:
+          ARCHLUCID_API_LOG_FILE: ${{ runner.temp }}/live-api-nightly-jwt.log
+          ARCHLUCID_DB_PILOT_WAIT_ATTEMPTS: "60"
+          ARCHLUCID_DEMO_WORKSPACES_MANIFEST: fixtures/demo-workspaces/demo-workspaces.fixture.manifest.json
+          LIVE_API_URL: http://127.0.0.1:5128
+        run: |
+          set -e
+          export LIVE_JWT_TOKEN="$(tr -d '\n\r' < "${RUNNER_TEMP}/nightly-jwt-token.txt")"
+          bash scripts/ci/wait-for-db-backed-pilot-endpoint.sh
+
+      - name: Playwright full live suite (JwtBearer)
+        working-directory: archlucid-ui
+        env:
+          CI: true
+          LIVE_API_URL: http://127.0.0.1:5128
+          LIVE_E2E_SKIP_NEXT_BUILD: "1"
+          LIVE_E2E_HARNESS_SECRET: "ci-live-e2e-harness-secret-min16!"
+          NODE_OPTIONS: --max-old-space-size=6144
+          ARCHLUCID_DEMO_WORKSPACES_MANIFEST: fixtures/demo-workspaces/demo-workspaces.fixture.manifest.json
+          E2E_INFRA_MAX_ATTEMPTS: "12"
+          E2E_INFRA_DB_MAX_ATTEMPTS: "25"
+          E2E_INFRA_BASE_DELAY_MS: "1000"
+          E2E_INFRA_PROBE_ATTEMPTS: "45"
+        run: |
+          set -e
+          TOKEN="$(tr -d '\n\r' < "${RUNNER_TEMP}/nightly-jwt-token.txt")"
+          PEER_TOKEN="$(tr -d '\n\r' < "${RUNNER_TEMP}/nightly-jwt-peer-token.txt")"
+          REJECTOR_TOKEN="$(tr -d '\n\r' < "${RUNNER_TEMP}/nightly-jwt-rejector-token.txt")"
+          echo "::add-mask::${TOKEN}"
+          echo "::add-mask::${PEER_TOKEN}"
+          echo "::add-mask::${REJECTOR_TOKEN}"
+          export LIVE_JWT_TOKEN="${TOKEN}"
+          export LIVE_JWT_PEER_TOKEN="${PEER_TOKEN}"
+          export LIVE_JWT_REJECTOR_TOKEN="${REJECTOR_TOKEN}"
+          export ARCHLUCID_PROXY_BEARER_TOKEN="${TOKEN}"
+          npx playwright install --with-deps chromium
+          npx playwright test
+
+      - uses: actions/upload-artifact@v6
+        if: always()
+        with:
+          name: nightly-live-e2e-jwt-playwright-report
+          path: archlucid-ui/playwright-report
+          if-no-files-found: warn
+
+      - uses: actions/upload-artifact@v6
+        if: always()
+        with:
+          name: nightly-live-e2e-jwt-test-results
+          path: archlucid-ui/test-results
+          if-no-files-found: warn
+
+      - uses: actions/upload-artifact@v6
+        if: always()
+        with:
+          name: nightly-live-e2e-jwt-blob-report
+          path: archlucid-ui/blob-report
+          if-no-files-found: warn
+
+      - uses: actions/upload-artifact@v6
+        if: failure()
+        with:
+          name: nightly-live-e2e-jwt-log
+          path: ${{ runner.temp }}/live-api-nightly-jwt.log
+          if-no-files-found: warn

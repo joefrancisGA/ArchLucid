@@ -1,0 +1,10 @@
+---
+description: Pointer to shell-hygiene — parallel shells allowed on capable workstations
+alwaysApply: true
+---
+
+# Agent shell discipline (Windows)
+
+Canonical shell rules — **`block_until_ms` tiers**, lifecycle, git, compile verification, cleanup, parallel shells, and **terminal heartbeat** — live in **`shell-hygiene.mdc`** and **`shell-heartbeat.mdc`**. Execution parallelism (subagents) lives in **`Agent-Execution-Policy.mdc`**.
+
+Follow **`shell-hygiene.mdc`**, **`shell-heartbeat.mdc`**, and **`Agent-Execution-Policy.mdc`** in full for every agent turn that uses **`Shell`** or **`Task`**.

@@ -1,0 +1,26 @@
+using ArchLucid.Contracts.Persistence.Context;
+using ArchLucid.Contracts.Persistence.DecisionTraces;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Transactions;
+using ArchLucid.Persistence.Models;
+
+namespace ArchLucid.Application.Runs.Orchestration;
+
+/// <summary>
+///     Commits retrieval outbox rows, integration events, audit, and chat-ops notifications after authority artifacts exist.
+/// </summary>
+public interface IAuthorityCommittedPipelineFinalizer
+{
+    /// <summary>
+    ///     Finalizes the pipeline for a run whose FK chain is already populated on <paramref name="run" />.
+    /// </summary>
+    Task<RunRecord> FinalizeAsync(
+        RunRecord run,
+        ContextSnapshot contextSnapshot,
+        FindingsSnapshot findingsSnapshot,
+        ManifestDocument manifest,
+        DecisionTraceDto trace,
+        ScopeContext scope,
+        IArchLucidUnitOfWork unitOfWork,
+        CancellationToken cancellationToken);
+}

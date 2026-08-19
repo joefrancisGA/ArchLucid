@@ -1,0 +1,79 @@
+"""TB-011 / TB-030 architecture invariant drift guards (Batch 5D)."""
+
+from __future__ import annotations
+
+import unittest
+from pathlib import Path
+
+
+REPO_ROOT = Path(__file__).resolve().parents[3]
+
+
+class TestInvariantWaveBBatch(unittest.TestCase):
+    def test_inv_004_budget_tracker_architecture_tests_exist(self) -> None:
+        path = REPO_ROOT / "ArchLucid.Architecture.Tests" / "LlmBudgetTrackerArchitectureTests.cs"
+        self.assertTrue(path.is_file(), f"Missing {path}")
+
+    def test_inv_012_api_quality_gate_consumer_tests_exist(self) -> None:
+        path = (
+            REPO_ROOT
+            / "ArchLucid.Architecture.Tests"
+            / "AgentOutputQualityGateApiConsumerArchitectureTests.cs"
+        )
+        self.assertTrue(path.is_file(), f"Missing {path}")
+
+    def test_inv_013_replay_commit_uses_replay_guid_guard(self) -> None:
+        path = REPO_ROOT / "ArchLucid.Architecture.Tests" / "ReplayReadOnlyScopeArchitectureTests.cs"
+        text = path.read_text(encoding="utf-8")
+        self.assertIn(r"PersistCommittedChainAsync\(\s*scope,\s*replayGuid,", text)
+        self.assertIn("INV-013", text)
+
+    def test_inv_012_persisted_read_path_architecture_tests_exist(self) -> None:
+        path = (
+            REPO_ROOT
+            / "ArchLucid.Architecture.Tests"
+            / "AgentOutputQualityGatePersistedReadPathArchitectureTests.cs"
+        )
+        self.assertTrue(path.is_file(), f"Missing {path}")
+
+    def test_inv_004_dual_replica_budget_harness_architecture_tests_exist(self) -> None:
+        path = REPO_ROOT / "ArchLucid.Architecture.Tests" / "LlmBudgetDualReplicaHarnessArchitectureTests.cs"
+        self.assertTrue(path.is_file(), f"Missing {path}")
+
+        concurrency = (
+            REPO_ROOT
+            / "ArchLucid.Persistence.Tests"
+            / "SqlLlmTenantBudgetRepositoryConcurrencyIntegrationTests.cs"
+        )
+        self.assertTrue(concurrency.is_file(), f"Missing {concurrency}")
+
+    def test_tb_030_dependency_constraint_rules_exist(self) -> None:
+        path = (
+            REPO_ROOT
+            / "ArchLucid.Architecture.Tests"
+            / "ArchitectureNamespaceConstraintManifest.cs"
+        )
+        text = path.read_text(encoding="utf-8")
+        for rule in (
+            "Jobs.Cli must not depend on Application",
+            "Mcp must not depend on Application",
+            "Mcp must not depend on Persistence",
+            "Integrations.AzureExtractor must not depend on Application",
+            "Notifications.Email.RazorLight must not depend on Application",
+        ):
+            self.assertIn(rule, text, rule)
+
+    def test_architecture_tests_reference_jobs_cli_and_mcp(self) -> None:
+        path = REPO_ROOT / "ArchLucid.Architecture.Tests" / "ArchLucid.Architecture.Tests.csproj"
+        text = path.read_text(encoding="utf-8")
+        for fragment in (
+            "ArchLucid.Jobs.Cli",
+            "ArchLucid.Mcp",
+            "ArchLucid.AgentSimulator",
+            "ArchLucid.Integrations.AzureExtractor",
+        ):
+            self.assertIn(fragment, text, fragment)
+
+
+if __name__ == "__main__":
+    unittest.main()

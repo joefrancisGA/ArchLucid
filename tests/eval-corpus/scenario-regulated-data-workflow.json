@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "id": "corpus-regulated-data-workflow",
+  "metadata": {
+    "title": "Regulated data processing workflow",
+    "complexity": "high",
+    "primaryAgents": ["Compliance", "Topology"]
+  },
+  "inputSummary": "Event-driven workflow ingests partner files, validates in a staging subnet, and updates a line-of-business database. Regulated data must remain in-region, use customer-managed keys, private link only, and produce auditor-friendly change logs.",
+  "recording": "recordings/corpus-regulated-data-workflow.findings.json",
+  "qualityEvidence": {
+    "mode": "simulator",
+    "agentType": "Compliance",
+    "agentResultPath": "agent-results/corpus-regulated-data-workflow.simulator.json",
+    "notes": "Synthetic brief only; not legal or compliance advice."
+  },
+  "expectedFindings": [
+    {
+      "id": "e residency",
+      "category": "Compliance",
+      "minimumSeverity": "Medium",
+      "evidenceMustContain": ["region", "storage"]
+    },
+    {
+      "id": "e private endpoints",
+      "category": "Topology",
+      "minimumSeverity": "Low",
+      "evidenceMustContain": ["private endpoint", "ingress"]
+    },
+    {
+      "id": "e audit logging",
+      "category": "Compliance",
+      "minimumSeverity": "Medium",
+      "evidenceMustContain": ["diagnostic", "log analytics"]
+    }
+  ],
+  "unexpectedFindings": [
+    { "category": "Critic", "ifContainsAny": ["bypass encryption", "disable audit logging"] },
+    { "category": "Topology", "ifContainsAny": ["expose database on public internet"] }
+  ]
+}

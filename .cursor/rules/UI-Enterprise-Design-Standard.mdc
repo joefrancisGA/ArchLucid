@@ -1,0 +1,67 @@
+---
+description: Carbon-inspired enterprise UI standard for archlucid-ui (TB-120)
+alwaysApply: false
+globs:
+  - archlucid-ui/src/**/*.tsx
+  - archlucid-ui/src/**/*.ts
+---
+
+# Enterprise UI design standard (ArchLucid V1 GA)
+
+Canonical doc: [`docs/library/UI_DESIGN_SYSTEM.md`](docs/library/UI_DESIGN_SYSTEM.md).
+
+## Ratified instruction for AI coding agents
+
+Use IBM Carbon Design System as the primary visual and interaction reference for ArchLucid, with selective Microsoft Fluent 2 influence for shell/navigation polish. Do not copy IBM or Microsoft branding. Apply the design principles: restrained enterprise UI, strong information hierarchy, neutral surfaces, disciplined spacing, accessible typography, mature status tags, clear tables, clean side panels, and minimal decorative styling.
+
+ArchLucid must look like a serious enterprise governance product for regulated architecture review — not a startup dashboard, game UI, consumer SaaS page, or internal test harness.
+
+Specific rules:
+
+- Neutral grays and restrained teal accent only.
+- Reduce teal border overuse; teal borders on focus rings and interactive affordances only.
+- Avoid large pastel cards unless they communicate actionable status — use `DESIGN_TOKENS.callout.*` or `StatusTag`.
+- Prefer structured enterprise cards, `EnterpriseTable`, tabs (`variant="pill"` default), accordions, command bars, and side panels.
+- Use `StatusTag` / `SeverityTag` with canonical copy: Ready, Needs attention, Blocked, Approved, Approved with monitoring, In progress, Draft.
+- Make primary content visibly dominant; diagnostics and supporting content quieter (collapsed by default).
+- Operator views: `space-y-4`, `p-4`, `gap-2` — not `space-y-8` / `py-8`.
+- Typography: `OPERATOR_TYPOGRAPHY` from `design-tokens.ts` — page titles `text-xl` max; KPI tiles `kpiValue` only; badges `OPERATOR_TYPOGRAPHY.badge` (`text-[11px]`); no `text-2xl`/`text-3xl` on operator `h1`; no arbitrary `text-[10px]` on operator surfaces.
+- Hide CLI/script/API/model/runtime details from normal surfaces.
+- Product language: architecture package, finding, residual risk, evidence trail, sealed review record, decision, governance approval, audit trail. Never call the package a signed decision record; ADR remains Architecture Decision Record for ADR export wording.
+- Capitalization: sentence case for titles, headings, tabs, column headers, buttons, links, and labels — never Title Case. After a colon, capitalize only when a complete sentence follows (`One lifecycle: Describe your architecture…`), lowercase for fragments and values (`Source: finalized reviews…`). Do not re-case vocabulary constants with CSS or string transforms; the `OPERATOR_TYPOGRAPHY` uppercase section label is the only exception. See `UI_DESIGN_SYSTEM.md` § Capitalization.
+- Form validation affordances (**TB-2005**): disable primary submit/continue until hard client validation passes; show errors on the form; reserve `showError` toasts for system/async failures — see `UI_DESIGN_SYSTEM.md` § Form validation affordances and `.cursor/rules/UI-Form-Validation-Affordances.mdc`.
+- Button / CTA width: prefer `CTA_WIDTH.content` (`w-fit`) for card footers, heroes, and short-label actions. Do not stretch short labels with `w-full` across wide cards or heroes. Use `CTA_WIDTH.formMatch` only for narrow form/auth columns; `CTA_WIDTH.listRow` only for constrained rail/list hit-targets.
+- Visible-boundary `Button` contract (**TB-2168**): every `Button` needs a border (`outline`) or solid fill (`primary` / `default` / `secondary` / `destructive`). **Never** use `ghost` or `link` variants — they are removed from `button.tsx`. Tertiary/dismiss/cancel → `outline`. Text navigation → `OPERATOR_LINK` / `<Link>`, not ghost `Button asChild`.
+
+## Do not
+
+- Use Tailwind/shadcn defaults as the visual north star.
+- Add decorative `bg-teal-50`, `bg-amber-50`, or `border-teal-200` on neutral operator cards.
+- Render status as ad-hoc colored `span` elements — use `StatusTag` or `SeverityTag`.
+- Use `Badge` default/secondary/outline variants for read-only status — those are action-oriented; metadata labels use `StatusTag`, `SeverityTag`, or `BooleanStatusChip` (`METADATA_STATUS_TAG_SHELL` + `--al-status-*`). **Do not** add new `StatusPill` imports (**TB-2284**).
+- Add inline `bg-teal-*`, `bg-emerald-*`, `bg-rose-*`, or `bg-amber-*` fill overrides on operator `Button` — use `variant` per § *Button variant/color matrix* (**TB-2290**); migrations **TB-2291**–**TB-2295**.
+- Use `FilterChip` (`src/components/ui/filter-chip.tsx`) for interactive filter/action chips — never reuse metadata label styling for clickable chips.
+- Tint entire neutral cards with semantic fills — color belongs on the status chip or a single left border accent for the current step.
+- Stretch short-label CTAs to full hero/card width (`w-full` / `items-stretch` on wide containers) — use `CTA_WIDTH.content` instead.
+- Link customer-facing help to GitHub `blob/` URLs (see `PRODUCT_DOCUMENTATION_PRESENTATION.md`).
+
+## Implementation anchors
+
+- Tokens: `archlucid-ui/src/lib/design-tokens.ts`, `globals.css` (`--al-*`)
+- Components: `src/components/ui/status-tag.tsx`, `severity-tag.tsx`, `enterprise-table.tsx`, `tabs.tsx` (default `variant="pill"` — Reviews hub exemplar)
+- Bulk pastel migration (operator): `archlucid-ui/scripts/migrate-tb115-operator-surfaces.ps1` — extend patterns; do not reintroduce `bg-*-50` card fills.
+- Bulk typography (operator): `archlucid-ui/scripts/migrate-tb119-operator-typography.ps1` — prefer `OPERATOR_TYPOGRAPHY.*` tokens for new headings.
+
+## Completed waves (do not regress)
+
+| ID | Scope |
+|----|--------|
+| TB-114 | Design tokens + `UI_DESIGN_SYSTEM.md` |
+| TB-115 | Neutral surfaces / semantic callouts (full repo pass) |
+| TB-116 | `StatusTag`, `SeverityTag`, pipeline `StatusPill` neutrals |
+| TB-117 | `EnterpriseTable` on reviews list, governance findings queue, operator audit log |
+| TB-118 | `space-y-4` / `p-4` on home, run detail, executive dashboard, findings, audit |
+| TB-119 | `OPERATOR_TYPOGRAPHY` scale; migration script; no marketing-scale operator headings |
+| TB-120 | This rule + `archlucid-ui/AGENTS.md` |
+
+Buyer-polished audit **timeline cards** are intentional; operator audit uses **table** layout.

@@ -1,0 +1,543 @@
+using System.Text.Json;
+
+using ArchLucid.Contracts.Agents;
+using ArchLucid.Core.AgentEvaluation;
+using ArchLucid.Core.QualityGates;
+using ArchLucid.Contracts.Common;
+using ArchLucid.Core.Scoping;
+
+namespace ArchLucid.Persistence.Data.Repositories;
+
+/// <summary>
+///     Thread-safe in-memory <see cref="IAgentExecutionTraceRepository" /> for tests (JSON clone-on-read).
+/// </summary>
+public sealed class InMemoryAgentExecutionTraceRepository : IAgentExecutionTraceRepository
+{
+    private readonly Lock _gate = new();
+    private readonly List<AgentExecutionTrace> _items = [];
+
+    /// <inheritdoc />
+    public Task CreateAsync(AgentExecutionTrace trace, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(trace);
+        cancellationToken.ThrowIfCancellationRequested();
+
+        lock (_gate)
+        {
+            if (trace.AttemptIndex == 0)
+            {
+                _items.RemoveAll(t =>
+                    string.Equals(t.RunId, trace.RunId, StringComparison.Ordinal)
+                    && string.Equals(t.TaskId, trace.TaskId, StringComparison.Ordinal)
+                    && t.AgentType == trace.AgentType);
+            }
+            else
+            {
+                _items.RemoveAll(t =>
+                    string.Equals(t.RunId, trace.RunId, StringComparison.Ordinal)
+                    && string.Equals(t.TaskId, trace.TaskId, StringComparison.Ordinal)
+                    && t.AgentType == trace.AgentType
+                    && t.AttemptIndex == trace.AttemptIndex);
+            }
+
+            _items.Add(Clone(trace));
+        }
+
+        return Task.CompletedTask;
+    }
+
+    /// <inheritdoc />
+    public Task PatchBlobStorageFieldsAsync(
+        string traceId,
+        string? fullSystemPromptBlobKey,
+        string? fullUserPromptBlobKey,
+        string? fullResponseBlobKey,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(traceId);
+        cancellationToken.ThrowIfCancellationRequested();
+
+        lock (_gate)
+        {
+            int i = _items.FindIndex(t => string.Equals(t.TraceId, traceId, StringComparison.Ordinal));
+
+            if (i < 0)
+                return Task.CompletedTask;
+
+            AgentExecutionTrace t = Clone(_items[i]);
+
+            if (fullSystemPromptBlobKey is not null)
+
+                t.FullSystemPromptBlobKey = fullSystemPromptBlobKey;
+
+            if (fullUserPromptBlobKey is not null)
+
+                t.FullUserPromptBlobKey = fullUserPromptBlobKey;
+
+            if (fullResponseBlobKey is not null)
+
+                t.FullResponseBlobKey = fullResponseBlobKey;
+
+            _items[i] = t;
+        }
+
+        return Task.CompletedTask;
+    }
+
+    /// <inheritdoc />
+    public Task PatchBlobUploadFailedAsync(
+        string traceId,
+        bool failed,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(traceId);
+        cancellationToken.ThrowIfCancellationRequested();
+        lock (_gate)
+        {
+            int i = _items.FindIndex(t => string.Equals(t.TraceId, traceId, StringComparison.Ordinal));
+
+            if (i < 0)
+                return Task.CompletedTask;
+
+            {
+                AgentExecutionTrace t = Clone(_items[i]);
+                t.BlobUploadFailed = failed;
+                _items[i] = t;
+            }
+        }
+
+        return Task.CompletedTask;
+    }
+
+    /// <inheritdoc />
+    public Task PatchInlinePromptFallbackAsync(
+        string traceId,
+        string? fullSystemPromptInline,
+        string? fullUserPromptInline,
+        string? fullResponseInline,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(traceId);
+        cancellationToken.ThrowIfCancellationRequested();
+
+        lock (_gate)
+        {
+            int i = _items.FindIndex(t => string.Equals(t.TraceId, traceId, StringComparison.Ordinal));
+
+            if (i < 0)
+                return Task.CompletedTask;
+
+            AgentExecutionTrace t = Clone(_items[i]);
+
+            if (fullSystemPromptInline is not null)
+
+                t.FullSystemPromptInline = fullSystemPromptInline;
+
+            if (fullUserPromptInline is not null)
+
+                t.FullUserPromptInline = fullUserPromptInline;
+
+            if (fullResponseInline is not null)
+
+                t.FullResponseInline = fullResponseInline;
+
+            _items[i] = t;
+        }
+
+        return Task.CompletedTask;
+    }
+
+    /// <inheritdoc />
+    public Task PatchInlineFallbackFailedAsync(
+        string traceId,
+        bool failed,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(traceId);
+        cancellationToken.ThrowIfCancellationRequested();
+
+        lock (_gate)
+        {
+            int i = _items.FindIndex(t => string.Equals(t.TraceId, traceId, StringComparison.Ordinal));
+
+            if (i < 0)
+                return Task.CompletedTask;
+
+            {
+                AgentExecutionTrace t = Clone(_items[i]);
+                t.InlineFallbackFailed = failed ? true : null;
+                _items[i] = t;
+            }
+        }
+
+        return Task.CompletedTask;
+    }
+
+    /// <inheritdoc />
+    public Task PatchQualityWarningAsync(
+        string traceId,
+        bool qualityWarning,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(traceId);
+        cancellationToken.ThrowIfCancellationRequested();
+
+        lock (_gate)
+        {
+            int i = _items.FindIndex(t => string.Equals(t.TraceId, traceId, StringComparison.Ordinal));
+
+            if (i < 0)
+                return Task.CompletedTask;
+
+            AgentExecutionTrace t = Clone(_items[i]);
+            t.QualityWarning = qualityWarning;
+            _items[i] = t;
+        }
+
+        return Task.CompletedTask;
+    }
+
+    /// <inheritdoc />
+    public Task PatchQualityRejectedAsync(
+        string traceId,
+        bool qualityRejected,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(traceId);
+        cancellationToken.ThrowIfCancellationRequested();
+
+        lock (_gate)
+        {
+            int i = _items.FindIndex(t => string.Equals(t.TraceId, traceId, StringComparison.Ordinal));
+
+            if (i < 0)
+                return Task.CompletedTask;
+
+            AgentExecutionTrace t = Clone(_items[i]);
+            t.QualityRejected = qualityRejected;
+            _items[i] = t;
+        }
+
+        return Task.CompletedTask;
+    }
+
+    /// <inheritdoc />
+    public Task PatchQualityGateRecordedSnapshotAsync(
+        string traceId,
+        AgentOutputQualityGateOutcome recordedOutcome,
+        string definitionVersion,
+        string definitionContentHashSha256,
+        string gateMode,
+        QualityGateRecordedEvaluationSnapshot? evaluationSnapshot,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(traceId);
+        ArgumentException.ThrowIfNullOrWhiteSpace(definitionVersion);
+        ArgumentException.ThrowIfNullOrWhiteSpace(definitionContentHashSha256);
+        ArgumentException.ThrowIfNullOrWhiteSpace(gateMode);
+        cancellationToken.ThrowIfCancellationRequested();
+
+        lock (_gate)
+        {
+            int i = _items.FindIndex(t => string.Equals(t.TraceId, traceId, StringComparison.Ordinal));
+
+            if (i < 0)
+                return Task.CompletedTask;
+
+            AgentExecutionTrace existing = _items[i];
+
+            if (existing.RecordedQualityGateOutcome is not null)
+                return Task.CompletedTask;
+
+            AgentExecutionTrace t = Clone(existing);
+            t.QualityWarning = recordedOutcome == AgentOutputQualityGateOutcome.Warned;
+            t.QualityRejected = recordedOutcome == AgentOutputQualityGateOutcome.Rejected;
+            t.QualityGateDefinitionVersion = definitionVersion;
+            t.QualityGateDefinitionContentHashSha256 = definitionContentHashSha256;
+            t.QualityGateDefinitionMode = gateMode;
+            t.RecordedQualityGateOutcome = recordedOutcome;
+
+            if (evaluationSnapshot is not null)
+            {
+                t.RecordedStructuralCompletenessRatio = evaluationSnapshot.StructuralCompletenessRatio;
+                t.RecordedSemanticScore = evaluationSnapshot.SemanticScore;
+                t.RecordedRejectReasonCategory = evaluationSnapshot.RejectReasonCategory;
+                t.RecordedTriageScenarioId = evaluationSnapshot.TriageScenarioId;
+            }
+
+            _items[i] = t;
+        }
+
+        return Task.CompletedTask;
+    }
+
+    /// <inheritdoc />
+    public Task<AgentExecutionTrace?> GetByTraceIdAsync(string traceId, CancellationToken cancellationToken = default)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(traceId);
+        cancellationToken.ThrowIfCancellationRequested();
+
+        lock (_gate)
+        {
+            AgentExecutionTrace? found = _items.FirstOrDefault(t =>
+                string.Equals(t.TraceId, traceId, StringComparison.Ordinal));
+
+            return Task.FromResult(found is null ? null : Clone(found));
+        }
+    }
+
+    /// <inheritdoc />
+    public Task<IReadOnlyList<AgentExecutionTrace>> GetByRunIdAsync(
+        ScopeContext scope,
+        string runId,
+        CancellationToken cancellationToken = default)
+    {
+        _ = scope;
+        cancellationToken.ThrowIfCancellationRequested();
+        lock (_gate)
+        {
+            List<AgentExecutionTrace> list = _items
+                .Where(t => string.Equals(t.RunId, runId, StringComparison.Ordinal))
+                .OrderBy(t => t.CreatedUtc)
+                .Select(Clone)
+                .ToList();
+
+            return Task.FromResult<IReadOnlyList<AgentExecutionTrace>>(list);
+        }
+    }
+
+    /// <inheritdoc />
+    public Task<IReadOnlyList<AgentExecutionTraceLlmCostSlice>> GetLlmCostSlicesByRunIdAsync(
+        ScopeContext scope,
+        string runId,
+        CancellationToken cancellationToken = default)
+    {
+        _ = scope;
+        cancellationToken.ThrowIfCancellationRequested();
+        lock (_gate)
+        {
+            List<AgentExecutionTraceLlmCostSlice> list = _items
+                .Where(t => string.Equals(t.RunId, runId, StringComparison.Ordinal))
+                .OrderBy(t => t.CreatedUtc)
+                .Select(static t => new AgentExecutionTraceLlmCostSlice
+                {
+                    ModelDeploymentName = t.ModelDeploymentName,
+                    InputTokenCount = t.InputTokenCount,
+                    OutputTokenCount = t.OutputTokenCount,
+                    ReasoningTokenCount = t.ReasoningTokenCount,
+                })
+                .ToList();
+
+            return Task.FromResult<IReadOnlyList<AgentExecutionTraceLlmCostSlice>>(list);
+        }
+    }
+
+    /// <inheritdoc />
+    public Task<IReadOnlyDictionary<string, IReadOnlyList<AgentExecutionTraceLlmCostSlice>>> GetLlmCostSlicesByRunIdsAsync(
+        ScopeContext scope,
+        IReadOnlyCollection<string> runIds,
+        CancellationToken cancellationToken = default)
+    {
+        _ = scope;
+        cancellationToken.ThrowIfCancellationRequested();
+        ArgumentNullException.ThrowIfNull(runIds);
+
+        List<string> normalized = runIds
+            .Where(static s => !string.IsNullOrWhiteSpace(s))
+            .Select(static s => s.Trim())
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToList();
+
+        lock (_gate)
+        {
+            Dictionary<string, IReadOnlyList<AgentExecutionTraceLlmCostSlice>> result =
+                new(StringComparer.OrdinalIgnoreCase);
+
+            foreach (string runId in normalized)
+            {
+                List<AgentExecutionTraceLlmCostSlice> list = _items
+                    .Where(t => string.Equals(t.RunId, runId, StringComparison.Ordinal))
+                    .OrderBy(t => t.CreatedUtc)
+                    .Select(static t => new AgentExecutionTraceLlmCostSlice
+                    {
+                        ModelDeploymentName = t.ModelDeploymentName,
+                        InputTokenCount = t.InputTokenCount,
+                        OutputTokenCount = t.OutputTokenCount,
+                        ReasoningTokenCount = t.ReasoningTokenCount,
+                    })
+                    .ToList();
+
+                result[runId] = list;
+            }
+
+            return Task.FromResult<IReadOnlyDictionary<string, IReadOnlyList<AgentExecutionTraceLlmCostSlice>>>(result);
+        }
+    }
+
+    /// <inheritdoc />
+    public Task<(IReadOnlyList<AgentExecutionTrace> Traces, int TotalCount)> GetPagedByRunIdAsync(
+        ScopeContext scope,
+        string runId,
+        int offset,
+        int limit,
+        CancellationToken cancellationToken = default)
+    {
+        _ = scope;
+        cancellationToken.ThrowIfCancellationRequested();
+        lock (_gate)
+        {
+            List<AgentExecutionTrace> ordered = _items
+                .Where(t => string.Equals(t.RunId, runId, StringComparison.Ordinal))
+                .OrderBy(t => t.CreatedUtc)
+                .ToList();
+
+            int total = ordered.Count;
+            int clampedOffset = Math.Max(0, offset);
+            int clampedLimit = Math.Clamp(limit, 1, 500);
+            List<AgentExecutionTrace> page = ordered
+                .Skip(clampedOffset)
+                .Take(clampedLimit)
+                .Select(Clone)
+                .ToList();
+
+            return Task.FromResult<(IReadOnlyList<AgentExecutionTrace>, int)>((page, total));
+        }
+    }
+
+    /// <inheritdoc />
+    public Task<(IReadOnlyList<AgentExecutionTraceSummary> Summaries, int TotalCount)> GetPagedSummariesByRunIdAsync(
+        ScopeContext scope,
+        string runId,
+        int offset,
+        int limit,
+        CancellationToken cancellationToken = default)
+    {
+        _ = scope;
+        cancellationToken.ThrowIfCancellationRequested();
+        lock (_gate)
+        {
+            List<AgentExecutionTrace> ordered = _items
+                .Where(t => string.Equals(t.RunId, runId, StringComparison.Ordinal))
+                .OrderBy(t => t.CreatedUtc)
+                .ToList();
+
+            int total = ordered.Count;
+            int clampedOffset = Math.Max(0, offset);
+            int clampedLimit = Math.Clamp(limit, 1, 500);
+            List<AgentExecutionTraceSummary> page = ordered
+                .Skip(clampedOffset)
+                .Take(clampedLimit)
+                .Select(AgentExecutionTraceSummary.FromTrace)
+                .ToList();
+
+            return Task.FromResult<(IReadOnlyList<AgentExecutionTraceSummary>, int)>((page, total));
+        }
+    }
+
+    /// <inheritdoc />
+    public Task<int> CountByRunIdAsync(
+        ScopeContext scope,
+        string runId,
+        CancellationToken cancellationToken = default)
+    {
+        _ = scope;
+        cancellationToken.ThrowIfCancellationRequested();
+        lock (_gate)
+        {
+            int total = _items.Count(t => string.Equals(t.RunId, runId, StringComparison.Ordinal));
+
+            return Task.FromResult(total);
+        }
+    }
+
+    /// <inheritdoc />
+    public Task<IReadOnlyList<AgentExecutionTrace>> GetByTaskIdAsync(string taskId,
+        CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        lock (_gate)
+        {
+            List<AgentExecutionTrace> list = _items
+                .Where(t => string.Equals(t.TaskId, taskId, StringComparison.Ordinal))
+                .OrderBy(t => t.CreatedUtc)
+                .Select(Clone)
+                .ToList();
+
+            return Task.FromResult<IReadOnlyList<AgentExecutionTrace>>(list);
+        }
+    }
+
+    /// <inheritdoc />
+    public Task<IReadOnlyList<string>> GetDistinctAgentTypesWithLlmResourceFallbackAsync(
+        ScopeContext scope,
+        string runId,
+        CancellationToken cancellationToken = default)
+    {
+        _ = scope;
+        ArgumentException.ThrowIfNullOrWhiteSpace(runId);
+        cancellationToken.ThrowIfCancellationRequested();
+
+        lock (_gate)
+        {
+            List<AgentExecutionTrace> forRun = _items
+                .Where(t => string.Equals(t.RunId, runId.Trim(), StringComparison.Ordinal))
+                .ToList();
+
+            return Task.FromResult(AgentExecutionTraceDegradationProbe.DistinctOrderedAgentTypeNames(forRun));
+        }
+    }
+
+    /// <inheritdoc />
+    public Task<IReadOnlyDictionary<string, IReadOnlyList<string>>> GetDistinctAgentTypesWithLlmResourceFallbackByRunIdsAsync(
+        ScopeContext scope,
+        IReadOnlyList<string> runIds,
+        CancellationToken cancellationToken = default)
+    {
+        _ = scope;
+        ArgumentNullException.ThrowIfNull(runIds);
+        cancellationToken.ThrowIfCancellationRequested();
+
+        List<string> normalized = runIds
+            .Where(static s => !string.IsNullOrWhiteSpace(s))
+            .Select(static s => s.Trim())
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToList();
+
+        lock (_gate)
+        {
+            Dictionary<string, IReadOnlyList<string>> map = new(StringComparer.OrdinalIgnoreCase);
+
+            foreach (string rid in normalized)
+            {
+                List<AgentExecutionTrace> forRun = _items
+                    .Where(t => string.Equals(t.RunId, rid, StringComparison.Ordinal))
+                    .ToList();
+
+                map[rid] = AgentExecutionTraceDegradationProbe.DistinctOrderedAgentTypeNames(forRun);
+            }
+
+            return Task.FromResult<IReadOnlyDictionary<string, IReadOnlyList<string>>>(map);
+        }
+    }
+
+    /// <inheritdoc />
+    public Task<int> HardDeleteTracesArchivedBeforeAsync(
+        DateTimeOffset archivedBeforeUtc,
+        int maxRows,
+        CancellationToken cancellationToken = default)
+    {
+        _ = archivedBeforeUtc;
+        _ = maxRows;
+        cancellationToken.ThrowIfCancellationRequested();
+
+        return Task.FromResult(0);
+    }
+
+    private static AgentExecutionTrace Clone(AgentExecutionTrace source)
+    {
+        string json = JsonSerializer.Serialize(source, ContractJson.Default);
+        AgentExecutionTrace? copy = JsonSerializer.Deserialize<AgentExecutionTrace>(json, ContractJson.Default);
+
+        return copy ?? throw new InvalidOperationException("Clone produced null AgentExecutionTrace.");
+    }
+}

@@ -1,0 +1,553 @@
+{
+  "schemaVersion": 1,
+  "kind": "archlucid.policyPack.curatedRules.v1",
+  "pack": {
+    "name": "OWASP API Security Top 10",
+    "description": "API architecture security themes aligned to OWASP API Security Top 10 (2023) categories \u2014 authorization, authentication, resource limits, SSRF, inventory, and third-party API consumption. Thematic mapping only; not OWASP certification or penetration-test substitution.",
+    "version": "1.1.0",
+    "category": "Application Security",
+    "isDefault": true,
+    "suggestedPackType": "PlatformDefault",
+    "policyPackContentDocumentPath": "docs/samples/policy-packs/owasp-api-top10.json"
+  },
+  "rules": [
+    {
+      "id": "owasp-api-001",
+      "title": "Object-level authorization enforced on every API route",
+      "description": "APIs exposing object identifiers must document authorization checks that bind the caller identity to the requested resource \u2014 not rely on obscurity of IDs alone.",
+      "severity": "Critical",
+      "priority": "P0",
+      "remediationGuidance": "Document BOLA controls in governance.RequiredControls; tag API services with authz model (e.g., authz:object-level) in services[].Tags.",
+      "evidenceHints": [
+        "services[].Purpose",
+        "services[].Tags",
+        "governance.RequiredControls",
+        "relationships[].relationshipType"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "OWASP API Security Top 10",
+          "theme": "API1:2023 \u2014 Broken Object Level Authorization"
+        }
+      ]
+    },
+    {
+      "id": "owasp-api-002",
+      "title": "Indirect object references validated server-side",
+      "description": "When clients supply resource keys or paths, architecture must show server-side ownership validation before data access \u2014 especially across multi-tenant boundaries.",
+      "severity": "Critical",
+      "priority": "P0",
+      "remediationGuidance": "Describe tenant scoping and ownership checks in governance.PolicyConstraints; enumerate datastores[] reached by API WritesTo/ReadsFrom edges.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "datastores[]",
+        "relationships[].relationshipType",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "OWASP API Security Top 10",
+          "theme": "API1:2023 \u2014 Broken Object Level Authorization (indirect references)"
+        }
+      ]
+    },
+    {
+      "id": "owasp-api-003",
+      "title": "Horizontal privilege escalation paths documented",
+      "description": "APIs must document how peer-user access is prevented when object IDs are guessable or enumerable.",
+      "severity": "High",
+      "priority": "P0",
+      "remediationGuidance": "Record horizontal-access test expectations in metadata.ChangeDescription; align API gateway policies in governance.RequiredControls.",
+      "evidenceHints": [
+        "metadata.ChangeDescription",
+        "governance.RequiredControls",
+        "services[].Tags"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "OWASP API Security Top 10",
+          "theme": "API1:2023 \u2014 Broken Object Level Authorization (horizontal access)"
+        }
+      ]
+    },
+    {
+      "id": "owasp-api-004",
+      "title": "API authentication mechanism documented",
+      "description": "Each public or partner API surface must document the authentication scheme (OAuth2, mTLS, API keys with rotation) and token validation boundaries.",
+      "severity": "Critical",
+      "priority": "P0",
+      "remediationGuidance": "Tag auth scheme on services[].Tags; document token issuer and validation in governance.PolicyConstraints.",
+      "evidenceHints": [
+        "services[].Tags",
+        "services[].Purpose",
+        "governance.PolicyConstraints",
+        "relationships[].relationshipType"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "OWASP API Security Top 10",
+          "theme": "API2:2023 \u2014 Broken Authentication"
+        }
+      ]
+    },
+    {
+      "id": "owasp-api-005",
+      "title": "Short-lived credentials and token rotation",
+      "description": "Long-lived API keys or refresh tokens without rotation themes increase breach blast radius \u2014 architecture should document expiry and revocation.",
+      "severity": "High",
+      "priority": "P0",
+      "remediationGuidance": "Document token TTL and rotation in governance.PolicyConstraints; prefer managed identity or OAuth over static keys in services[].RequiredControls.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "services[].RequiredControls",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "OWASP API Security Top 10",
+          "theme": "API2:2023 \u2014 Broken Authentication (credential lifecycle)"
+        }
+      ]
+    },
+    {
+      "id": "owasp-api-006",
+      "title": "Machine-to-machine auth separated from user sessions",
+      "description": "Service accounts and client-credentials flows must be distinguished from end-user sessions with separate scopes and audit paths.",
+      "severity": "High",
+      "priority": "P1",
+      "remediationGuidance": "Enumerate M2M clients in services[]; document scope boundaries in governance.RequiredControls.",
+      "evidenceHints": [
+        "services[]",
+        "governance.RequiredControls",
+        "governance.ComplianceTags"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "OWASP API Security Top 10",
+          "theme": "API2:2023 \u2014 Broken Authentication (M2M separation)"
+        }
+      ]
+    },
+    {
+      "id": "owasp-api-007",
+      "title": "Response filtering prevents excessive object exposure",
+      "description": "APIs must document field-level filtering so clients cannot read or modify object properties beyond their authorization \u2014 mass assignment and over-exposure themes.",
+      "severity": "High",
+      "priority": "P0",
+      "remediationGuidance": "Describe response schema filtering and write guards in governance.PolicyConstraints; tag sensitive fields in datastores[].Tags.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "datastores[].Tags",
+        "services[].Purpose"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "OWASP API Security Top 10",
+          "theme": "API3:2023 \u2014 Broken Object Property Level Authorization"
+        }
+      ]
+    },
+    {
+      "id": "owasp-api-008",
+      "title": "Mass assignment protections on write endpoints",
+      "description": "PATCH/PUT handlers must document allow-lists for mutable properties \u2014 especially role, ownership, or billing fields.",
+      "severity": "High",
+      "priority": "P1",
+      "remediationGuidance": "Record writable-field allow lists in metadata.ChangeDescription and governance.RequiredControls.",
+      "evidenceHints": [
+        "metadata.ChangeDescription",
+        "governance.RequiredControls",
+        "services[].Tags"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "OWASP API Security Top 10",
+          "theme": "API3:2023 \u2014 Broken Object Property Level Authorization (mass assignment)"
+        }
+      ]
+    },
+    {
+      "id": "owasp-api-009",
+      "title": "Rate limiting and throttling documented",
+      "description": "API gateways or services must document per-client rate limits to prevent abuse and resource exhaustion.",
+      "severity": "High",
+      "priority": "P0",
+      "remediationGuidance": "Document rate-limit tiers in governance.PolicyConstraints; reference API Management or gateway services in services[].Tags.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "services[].Tags",
+        "services[].ServiceName"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "OWASP API Security Top 10",
+          "theme": "API4:2023 \u2014 Unrestricted Resource Consumption (rate limiting)"
+        }
+      ]
+    },
+    {
+      "id": "owasp-api-010",
+      "title": "Pagination and query size limits",
+      "description": "List and search endpoints must document maximum page sizes and query complexity limits to prevent expensive unbounded reads.",
+      "severity": "Medium",
+      "priority": "P1",
+      "remediationGuidance": "Specify pagination defaults and caps in governance.PolicyConstraints; note datastore query cost in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "datastores[].DatastoreType",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "OWASP API Security Top 10",
+          "theme": "API4:2023 \u2014 Unrestricted Resource Consumption (pagination)"
+        }
+      ]
+    },
+    {
+      "id": "owasp-api-011",
+      "title": "Upload and payload size limits",
+      "description": "File upload and large JSON endpoints must document size limits and async processing to prevent DoS via payloads.",
+      "severity": "Medium",
+      "priority": "P1",
+      "remediationGuidance": "Document max payload sizes in governance.PolicyConstraints; tag upload services in services[].Tags.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "services[].Tags",
+        "services[].Purpose"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "OWASP API Security Top 10",
+          "theme": "API4:2023 \u2014 Unrestricted Resource Consumption (payload limits)"
+        }
+      ]
+    },
+    {
+      "id": "owasp-api-012",
+      "title": "Function-level authorization on administrative APIs",
+      "description": "Admin, debug, and internal-only API operations must be separately authorized \u2014 not gated only by URL obscurity or network location.",
+      "severity": "Critical",
+      "priority": "P0",
+      "remediationGuidance": "Tag admin API surfaces in services[].Tags; document role requirements in governance.RequiredControls.",
+      "evidenceHints": [
+        "services[].Tags",
+        "governance.RequiredControls",
+        "governance.ComplianceTags"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "OWASP API Security Top 10",
+          "theme": "API5:2023 \u2014 Broken Function Level Authorization"
+        }
+      ]
+    },
+    {
+      "id": "owasp-api-013",
+      "title": "HTTP method and route authorization matrix",
+      "description": "Architecture should document which roles may invoke which HTTP methods on sensitive routes \u2014 not assume uniform bearer-token access.",
+      "severity": "High",
+      "priority": "P1",
+      "remediationGuidance": "Summarize route/method RBAC in metadata.ChangeDescription; align with API gateway policy exports when available.",
+      "evidenceHints": [
+        "metadata.ChangeDescription",
+        "governance.RequiredControls",
+        "services[].Purpose"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "OWASP API Security Top 10",
+          "theme": "API5:2023 \u2014 Broken Function Level Authorization (method matrix)"
+        }
+      ]
+    },
+    {
+      "id": "owasp-api-014",
+      "title": "Internal APIs not exposed via public ingress",
+      "description": "Internal function-level APIs must document private networking, mTLS, or zero-trust service mesh boundaries \u2014 not public load balancers.",
+      "severity": "High",
+      "priority": "P1",
+      "remediationGuidance": "Document ingress separation in governance.PolicyConstraints; correlate private endpoints from resources.json when extractor inventory exists.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "azureExtractor.manifest.RawJson",
+        "services[].Tags"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "OWASP API Security Top 10",
+          "theme": "API5:2023 \u2014 Broken Function Level Authorization (network exposure)"
+        }
+      ]
+    },
+    {
+      "id": "owasp-api-015",
+      "title": "Sensitive business flows protected against automation abuse",
+      "description": "High-value flows (payments, password reset, account recovery) must document anti-automation controls \u2014 step-up auth, CAPTCHA, velocity checks.",
+      "severity": "High",
+      "priority": "P0",
+      "remediationGuidance": "Tag sensitive flows in services[].Purpose; document abuse controls in governance.RequiredControls.",
+      "evidenceHints": [
+        "services[].Purpose",
+        "governance.RequiredControls",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "OWASP API Security Top 10",
+          "theme": "API6:2023 \u2014 Unrestricted Access to Sensitive Business Flows"
+        }
+      ]
+    },
+    {
+      "id": "owasp-api-016",
+      "title": "Workflow step-up authentication documented",
+      "description": "Multi-step transactions that change security posture (wire transfer, privilege elevation) should document re-authentication or approval gates.",
+      "severity": "High",
+      "priority": "P1",
+      "remediationGuidance": "Describe step-up patterns in governance.PolicyConstraints and metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "metadata.ChangeDescription",
+        "services[].Tags"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "OWASP API Security Top 10",
+          "theme": "API6:2023 \u2014 Sensitive business flows (step-up auth)"
+        }
+      ]
+    },
+    {
+      "id": "owasp-api-017",
+      "title": "SSRF protections on outbound API integrations",
+      "description": "Services that fetch user-supplied URLs or callbacks must document allow-lists, DNS pinning, or egress controls to prevent server-side request forgery.",
+      "severity": "Critical",
+      "priority": "P0",
+      "remediationGuidance": "Document egress filtering in governance.PolicyConstraints; tag webhook/callback services in services[].Tags.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "services[].Tags",
+        "services[].Purpose",
+        "relationships[].relationshipType"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "OWASP API Security Top 10",
+          "theme": "API7:2023 \u2014 Server Side Request Forgery"
+        }
+      ]
+    },
+    {
+      "id": "owasp-api-018",
+      "title": "Metadata service and cloud credential SSRF themes",
+      "description": "Workloads parsing external URLs must document blocking of link-local and cloud metadata endpoints (169.254.169.254 themes) via egress policy.",
+      "severity": "High",
+      "priority": "P1",
+      "remediationGuidance": "Record metadata endpoint block expectations in governance.RequiredControls; align with NSG/UDR narratives from extractor inventory.",
+      "evidenceHints": [
+        "governance.RequiredControls",
+        "azureExtractor.manifest.RawJson",
+        "services[].Tags"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "OWASP API Security Top 10",
+          "theme": "API7:2023 \u2014 SSRF (cloud metadata protection)"
+        }
+      ]
+    },
+    {
+      "id": "owasp-api-019",
+      "title": "API security headers and TLS configuration",
+      "description": "Public APIs must document TLS versions, HSTS, and security header posture \u2014 not default framework settings without review.",
+      "severity": "High",
+      "priority": "P0",
+      "remediationGuidance": "Document TLS and header policy in governance.PolicyConstraints; reference API gateway or App Service configuration in services[].Tags.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "OWASP API Security Top 10",
+          "theme": "API8:2023 \u2014 Security Misconfiguration (TLS and headers)"
+        }
+      ]
+    },
+    {
+      "id": "owasp-api-020",
+      "title": "Debug and verbose error modes disabled in production",
+      "description": "Production API stacks must document that debug endpoints, stack traces, and verbose errors are disabled or restricted to break-glass roles.",
+      "severity": "High",
+      "priority": "P1",
+      "remediationGuidance": "Tag environment class on services[].Tags; document error-handling policy in governance.PolicyConstraints.",
+      "evidenceHints": [
+        "services[].Tags",
+        "governance.PolicyConstraints",
+        "governance.ComplianceTags"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "OWASP API Security Top 10",
+          "theme": "API8:2023 \u2014 Security Misconfiguration (debug exposure)"
+        }
+      ]
+    },
+    {
+      "id": "owasp-api-021",
+      "title": "CORS and cross-origin policy documented",
+      "description": "Browser-facing APIs must document CORS allow-lists \u2014 wildcard origins with credentials are a common misconfiguration theme.",
+      "severity": "Medium",
+      "priority": "P1",
+      "remediationGuidance": "Record CORS policy in governance.PolicyConstraints; note public vs partner origin lists in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "metadata.ChangeDescription",
+        "services[].Purpose"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "OWASP API Security Top 10",
+          "theme": "API8:2023 \u2014 Security Misconfiguration (CORS)"
+        }
+      ]
+    },
+    {
+      "id": "owasp-api-022",
+      "title": "Complete API inventory maintained",
+      "description": "Architecture must enumerate all API surfaces (public, partner, internal, legacy) \u2014 shadow APIs and forgotten endpoints are a common gap.",
+      "severity": "Medium",
+      "priority": "P0",
+      "remediationGuidance": "List API services in services[] with exposure class tags; reconcile with API gateway or App Service inventory from resources.json.",
+      "evidenceHints": [
+        "services[]",
+        "services[].Tags",
+        "azureExtractor.manifest.RawJson",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "OWASP API Security Top 10",
+          "theme": "API9:2023 \u2014 Improper Inventory Management"
+        }
+      ]
+    },
+    {
+      "id": "owasp-api-023",
+      "title": "API versioning and deprecation lifecycle",
+      "description": "Deprecated API versions must document sunset dates and client migration paths \u2014 not indefinite parallel unsupported versions.",
+      "severity": "Medium",
+      "priority": "P2",
+      "remediationGuidance": "Document version policy in metadata.ChangeDescription and governance.PolicyConstraints; tag legacy versions in services[].Tags.",
+      "evidenceHints": [
+        "metadata.ChangeDescription",
+        "governance.PolicyConstraints",
+        "services[].Tags",
+        "metadata.ManifestVersion"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "OWASP API Security Top 10",
+          "theme": "API9:2023 \u2014 Improper Inventory Management (version lifecycle)"
+        }
+      ]
+    },
+    {
+      "id": "owasp-api-024",
+      "title": "Third-party API responses validated and sanitized",
+      "description": "When consuming external APIs, architecture must document schema validation, timeout, and trust boundaries \u2014 not pass-through of untrusted payloads.",
+      "severity": "High",
+      "priority": "P0",
+      "remediationGuidance": "Document validation and timeout policy in governance.PolicyConstraints; enumerate external API dependencies on WritesTo edges.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "relationships[].relationshipType",
+        "services[].Purpose"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "OWASP API Security Top 10",
+          "theme": "API10:2023 \u2014 Unsafe Consumption of APIs"
+        }
+      ]
+    },
+    {
+      "id": "owasp-api-025",
+      "title": "Third-party API credential isolation",
+      "description": "Credentials for upstream APIs must be scoped per integration and stored in managed secret stores \u2014 not shared across services.",
+      "severity": "High",
+      "priority": "P1",
+      "remediationGuidance": "Require Key Vault or equivalent on external integration services; document scope in services[].RequiredControls.",
+      "evidenceHints": [
+        "services[].RequiredControls",
+        "governance.PolicyConstraints",
+        "datastores[].RuntimePlatform"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "OWASP API Security Top 10",
+          "theme": "API10:2023 \u2014 Unsafe Consumption of APIs (credential scope)"
+        }
+      ]
+    },
+    {
+      "id": "owasp-api-026",
+      "title": "Circuit breakers and fallback for upstream APIs",
+      "description": "Critical upstream dependencies should document circuit breaker, retry, and degraded-mode behavior when third-party APIs fail or slow.",
+      "severity": "Medium",
+      "priority": "P2",
+      "remediationGuidance": "Describe resilience patterns in services[].Purpose and metadata.ChangeDescription.",
+      "evidenceHints": [
+        "services[].Purpose",
+        "metadata.ChangeDescription",
+        "relationships[].relationshipType"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "OWASP API Security Top 10",
+          "theme": "API10:2023 \u2014 Unsafe Consumption of APIs (resilience)"
+        }
+      ]
+    },
+    {
+      "id": "owasp-api-027",
+      "title": "API schema and contract documentation published",
+      "description": "OpenAPI or equivalent contracts should be version-controlled and linked to deployed services \u2014 supporting inventory and consumer alignment.",
+      "severity": "Low",
+      "priority": "P2",
+      "remediationGuidance": "Reference contract repository or portal in metadata.ChangeDescription; tag contract-backed services in services[].Tags.",
+      "evidenceHints": [
+        "metadata.ChangeDescription",
+        "services[].Tags",
+        "metadata.ManifestVersion"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "OWASP API Security Top 10",
+          "theme": "API9:2023 \u2014 Improper Inventory Management (contract documentation)"
+        }
+      ]
+    },
+    {
+      "id": "owasp-api-028",
+      "title": "API security testing in CI/CD pipeline",
+      "description": "Architecture should document SAST/DAST or API-specific security tests in the deployment path before production promotion.",
+      "severity": "Medium",
+      "priority": "P2",
+      "remediationGuidance": "Document security test gates in governance.PolicyConstraints; tag CI/CD services in services[].Tags.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "OWASP API Security Top 10",
+          "theme": "API8:2023 \u2014 Security Misconfiguration (pipeline testing)"
+        }
+      ]
+    }
+  ]
+}

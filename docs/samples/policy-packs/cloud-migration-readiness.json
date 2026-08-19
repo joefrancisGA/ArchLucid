@@ -1,0 +1,24 @@
+{
+  "complianceRuleIds": [],
+  "complianceRuleKeys": [
+    "saas-ctrl-002",
+    "saas-ctrl-004",
+    "saas-ctrl-005",
+    "saas-ctrl-006"
+  ],
+  "alertRuleIds": [],
+  "compositeAlertRuleIds": [],
+  "advisoryDefaults": {
+    "severityFloor": "warning",
+    "migrationReviewDepth": "standard"
+  },
+  "metadata": {
+    "sample.pack.id": "cloud-migration-readiness",
+    "sample.pack.summary": "Encryption, third-party, segmentation, and DR catalog checks; paired checklist strings for cost bands and dependency enumeration.",
+    "sample.policy.costImpact.rationaleMustIncludeCostBand": "true",
+    "sample.policy.costImpact.allowedBandTokens": "delta|monthly|annual|percent|T-shirt|S|M|L",
+    "sample.policy.availability.mustReferenceRtoOrRpo": "true",
+    "sample.policy.dependencies.mustEnumerateExternalServices": "true",
+    "sample.note": "Cost-band and dependency wording are operator-review hooks (metadata only) unless you implement automation against advisory exports."
+  }
+}

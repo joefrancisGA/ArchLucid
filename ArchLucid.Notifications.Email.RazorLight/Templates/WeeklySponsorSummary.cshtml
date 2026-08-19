@@ -1,0 +1,25 @@
+@model ArchLucid.Application.Notifications.Email.Models.WeeklyExecutiveSummaryEmailModel
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+</head>
+<body>
+@if (!string.IsNullOrWhiteSpace(Model.LogoImageUrl))
+{
+    <table role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin:0 0 16px 0;">
+        <tr>
+            <td>
+                <img src="@Model.LogoImageUrl" alt="@Model.ProductName" width="96" height="96" style="display:block;width:96px;height:96px;border:0;"/>
+            </td>
+        </tr>
+    </table>
+}
+<p>Weekly executive summary from @Model.ProductName.</p>
+<p><strong>@Model.WeekLabel</strong></p>
+<p>Latest committed review: <a href="@Model.RunDetailUrl">@Model.RunIdHex</a></p>
+<p>Executive summary (Markdown):</p>
+<pre style="font-family:Consolas,monospace;font-size:13px;white-space:pre-wrap;">@Model.SummaryMarkdown</pre>
+<p>Open the run in ArchLucid for exports and sponsor artifacts.</p>
+</body>
+</html>

@@ -1,0 +1,323 @@
+using System.Text.Json;
+
+using ArchLucid.Application.Explanation;
+using ArchLucid.Core.Comparison;
+using ArchLucid.Core.Diagnostics;
+using ArchLucid.Core.Explanation;
+using ArchLucid.Decisioning.Models;
+using ArchLucid.Decisioning.Validation;
+using ArchLucid.Provenance;
+
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+
+namespace ArchLucid.AgentRuntime.Explanation;
+
+/// <summary>
+///     Structured signals first, then LLM narrative (JSON). Falls back to signal-only text if the model fails.
+/// </summary>
+/// <inheritdoc cref="IExplanationService" />
+public sealed class ExplanationService(
+    IAgentCompletionClient completionClient,
+    IDeterministicExplanationService deterministic,
+    IOptions<ExplanationServiceOptions> explanationOptions,
+    ISchemaValidationService schemaValidation,
+    ILogger<ExplanationService> logger) : IExplanationService
+{
+    private const string ArchitectSystemPrompt =
+        "You are a senior enterprise architect. Be concise but authoritative. " +
+        "Ground every statement in the facts provided; do not invent services or decisions not listed. " +
+        "When responding with structured JSON, you must populate alternativesConsidered: " +
+        "include at least one rejected architectural alternative and a brief reason it was discarded.";
+
+    /// <inheritdoc />
+    public async Task<ComparisonExplanationResult> ExplainComparisonAsync(
+        ComparisonResult comparison,
+        CancellationToken ct)
+    {
+        List<string> majorChanges = deterministic.ExtractMajorChanges(comparison);
+        string securityBlock = deterministic.FormatSecurityChanges(comparison);
+        string costBlock = deterministic.FormatCostChanges(comparison);
+        string topologyBlock = deterministic.FormatTopologyChanges(comparison);
+        string reqBlock = deterministic.FormatRequirementChanges(comparison);
+
+        string userPrompt =
+            "Explain the following architecture changes between a BASE run and a TARGET run.\n\n" +
+            "## Summary counts\n" +
+            $"- Decision deltas: {comparison.DecisionChanges.Count}\n" +
+            $"- Requirement deltas: {comparison.RequirementChanges.Count}\n" +
+            $"- Security deltas: {comparison.SecurityChanges.Count}\n" +
+            $"- Topology deltas: {comparison.TopologyChanges.Count}\n" +
+            $"- Cost deltas: {comparison.CostChanges.Count}\n\n" +
+            "## Decision / choice changes\n" + string.Join("\n", majorChanges) + "\n\n" +
+            "## Requirement changes\n" + reqBlock + "\n\n" +
+            "## Security changes\n" + securityBlock + "\n\n" +
+            "## Topology changes\n" + topologyBlock + "\n\n" +
+            "## Cost changes\n" + costBlock + "\n\n" +
+            "## Highlight strings\n" + string.Join("\n", comparison.SummaryHighlights.Select(h => "- " + h)) +
+            "\n\n" +
+            "Respond with a single JSON object only (no markdown fences), keys:\n" +
+            "highLevelSummary (string), keyTradeoffs (array of strings), narrative (string, 2-4 short paragraphs).";
+
+        string? json = await TryCompleteJsonAsync(userPrompt, explanationOptions.Value.MaxTokens, ct);
+        json = await ValidateComparisonExplanationPayloadAsync(json, userPrompt, ct);
+
+        return deterministic.BuildComparisonExplanation(comparison, majorChanges, json);
+    }
+
+    /// <inheritdoc />
+    public async Task<ExplanationResult> ExplainRunAsync(
+        ManifestDocument manifest,
+        DecisionProvenanceGraph? provenance,
+        CancellationToken ct)
+    {
+        List<string> keyDrivers = deterministic.ExtractRunKeyDrivers(manifest, provenance);
+        List<string> risks = deterministic.ExtractRiskImplications(manifest);
+        List<string> costs = deterministic.ExtractCostImplications(manifest);
+        List<string> compliance = deterministic.ExtractComplianceImplications(manifest);
+
+        string userPrompt =
+            "Explain this architecture run for stakeholders.\n\n" +
+            "## Manifest summary (source of truth)\n" +
+            (string.IsNullOrWhiteSpace(manifest.Metadata.Summary)
+                ? "(none)\n"
+                : manifest.Metadata.Summary + "\n") +
+            "\n## Key drivers (must be reflected in your reasoning)\n" +
+            string.Join("\n", keyDrivers.Select(x => "- " + x)) +
+            "\n\n## Risks / issues (from manifest)\n" +
+            string.Join("\n", risks.Select(x => "- " + x)) +
+            "\n\n## Cost signals\n" +
+            string.Join("\n", costs.Select(x => "- " + x)) +
+            "\n\n## Compliance signals\n" +
+            string.Join("\n", compliance.Select(x => "- " + x)) +
+            "\n\n## Provenance\n" +
+            deterministic.FormatProvenanceSummary(provenance) +
+            "\n\n" +
+            StructuredExplanationLlmPromptSchema.BuildRunExplanationJsonResponseInstructions(
+                "2–4 paragraphs referencing the bullets above");
+
+        string? json = await TryCompleteJsonAsync(userPrompt, explanationOptions.Value.MaxTokens, ct);
+        json = await ValidateRunExplanationPayloadAsync(json, userPrompt, ct);
+        string rawStored = json ?? string.Empty;
+
+        return FinalizeRunExplanation(
+            deterministic.BuildRunExplanationFromLlmPayload(
+                manifest,
+                keyDrivers,
+                risks,
+                costs,
+                compliance,
+                rawStored));
+    }
+
+    private async Task<string?> ValidateRunExplanationPayloadAsync(string? json, string userPrompt, CancellationToken ct)
+    {
+        if (string.IsNullOrWhiteSpace(json))
+            return json;
+
+        string trimmed = json.Trim();
+
+        if (!trimmed.StartsWith("{", StringComparison.Ordinal) || !TryGetRunExplanationSchemaVersion(trimmed, out int ver) || ver != 1)
+        {
+            ArchLucidInstrumentation.RecordExplanationSchemaValidation("run", "skipped");
+
+            return json;
+        }
+
+        SchemaValidationResult schemaResult = schemaValidation.ValidateExplanationRunJson(trimmed);
+
+        if (schemaResult.IsValid)
+        {
+            ArchLucidInstrumentation.RecordExplanationSchemaValidation("run", "valid");
+
+            return json;
+        }
+
+        ArchLucidInstrumentation.RecordExplanationSchemaValidation("run", "invalid");
+
+        if (logger.IsEnabled(LogLevel.Warning))
+
+            logger.LogWarning(
+                "Run explanation LLM JSON failed schema validation; retrying. Errors: {@Errors}",
+                schemaResult.Errors);
+
+        // Retry on schema validation failure
+        string? retryJson = await TryCompleteJsonAsync(
+            userPrompt,
+            explanationOptions.Value.MaxTokens,
+            ct,
+            temperature: 0.1f);
+        
+        if (string.IsNullOrWhiteSpace(retryJson))
+            return null;
+
+        SchemaValidationResult retrySchemaResult = schemaValidation.ValidateExplanationRunJson(retryJson.Trim());
+        
+        if (retrySchemaResult.IsValid)
+        {
+            ArchLucidInstrumentation.RecordExplanationRetrySuccess("run");
+
+            return retryJson;
+        }
+
+        if (logger.IsEnabled(LogLevel.Warning))
+            logger.LogWarning("Run explanation LLM JSON failed schema validation on retry; using deterministic fallback.");
+
+        return null;
+    }
+
+    private async Task<string?> ValidateComparisonExplanationPayloadAsync(string? json, string userPrompt, CancellationToken ct)
+    {
+        if (string.IsNullOrWhiteSpace(json))
+            return json;
+
+        string trimmed = json.Trim();
+
+        if (!trimmed.StartsWith("{", StringComparison.Ordinal))
+        {
+            ArchLucidInstrumentation.RecordExplanationSchemaValidation("comparison", "skipped");
+
+            return json;
+        }
+
+        SchemaValidationResult schemaResult = schemaValidation.ValidateComparisonExplanationJson(trimmed);
+
+        if (schemaResult.IsValid)
+        {
+            ArchLucidInstrumentation.RecordExplanationSchemaValidation("comparison", "valid");
+
+            return json;
+        }
+
+        ArchLucidInstrumentation.RecordExplanationSchemaValidation("comparison", "invalid");
+
+        if (logger.IsEnabled(LogLevel.Warning))
+
+            logger.LogWarning(
+                "Comparison explanation LLM JSON failed schema validation; retrying. Errors: {@Errors}",
+                schemaResult.Errors);
+
+        // Retry on schema validation failure
+        string? retryJson = await TryCompleteJsonAsync(
+            userPrompt,
+            explanationOptions.Value.MaxTokens,
+            ct,
+            temperature: 0.1f);
+        
+        if (string.IsNullOrWhiteSpace(retryJson))
+            return null;
+
+        SchemaValidationResult retrySchemaResult = schemaValidation.ValidateComparisonExplanationJson(retryJson.Trim());
+        
+        if (retrySchemaResult.IsValid)
+        {
+            ArchLucidInstrumentation.RecordExplanationRetrySuccess("comparison");
+
+            return retryJson;
+        }
+
+        if (logger.IsEnabled(LogLevel.Warning))
+            logger.LogWarning("Comparison explanation LLM JSON failed schema validation on retry; using heuristic fallback.");
+
+        return null;
+    }
+
+    private static bool TryGetRunExplanationSchemaVersion(string json, out int version)
+    {
+        version = 0;
+
+        try
+        {
+            using JsonDocument doc = JsonDocument.Parse(json);
+
+            if (doc.RootElement.TryGetProperty("schemaVersion", out JsonElement el)
+                && el.ValueKind == JsonValueKind.Number
+                && el.TryGetInt32(out int v))
+            {
+                version = v;
+
+                return true;
+            }
+        }
+        catch (JsonException)
+        {
+            return false;
+        }
+
+        return false;
+    }
+
+    private ExplanationResult FinalizeRunExplanation(ExplanationResult result)
+    {
+        result.Confidence = result.Structured?.Confidence;
+        result.Provenance = BuildProvenance();
+
+        return result;
+    }
+
+    private ExplanationProvenance BuildProvenance()
+    {
+        ExplanationServiceOptions o = explanationOptions.Value;
+        LlmProviderDescriptor d = completionClient.Descriptor;
+        string agentType = string.IsNullOrWhiteSpace(o.AgentType) ? "run-explanation" : o.AgentType.Trim();
+        string modelId = string.IsNullOrWhiteSpace(d.ModelId) ? "unknown" : d.ModelId.Trim();
+
+        return new ExplanationProvenance(
+            agentType,
+            modelId,
+            string.IsNullOrWhiteSpace(o.PromptTemplateId) ? null : o.PromptTemplateId.Trim(),
+            string.IsNullOrWhiteSpace(o.PromptTemplateVersion)
+                ? null
+                : o.PromptTemplateVersion.Trim(),
+            string.IsNullOrWhiteSpace(o.PromptContentHash) ? null : o.PromptContentHash.Trim());
+    }
+
+    private async Task<string?> TryCompleteJsonAsync(
+        string userPrompt,
+        int? maxTokens,
+        CancellationToken ct,
+        float? temperature = null)
+    {
+        try
+        {
+            string raw = await completionClient.CompleteJsonAsync(
+                ArchitectSystemPrompt,
+                userPrompt,
+                maxTokens,
+                temperature,
+                ct);
+
+            return UnwrapJsonFence(raw);
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "LLM completion failed in ExplanationService; falling back to heuristic response.");
+            return null;
+        }
+    }
+
+    private static string? UnwrapJsonFence(string? raw)
+    {
+        if (string.IsNullOrWhiteSpace(raw))
+            return raw;
+        string s = raw.Trim();
+
+        if (!s.StartsWith("```", StringComparison.Ordinal))
+            return s;
+
+        int firstNl = s.IndexOf('\n');
+        if (firstNl > 0)
+            s = s[(firstNl + 1)..].Trim();
+
+        int end = s.LastIndexOf("```", StringComparison.Ordinal);
+
+        if (end > 0)
+            s = s[..end].Trim();
+
+        return s;
+    }
+}

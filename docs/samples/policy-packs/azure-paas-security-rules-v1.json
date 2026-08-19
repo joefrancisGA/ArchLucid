@@ -1,0 +1,729 @@
+{
+  "schemaVersion": 1,
+  "kind": "archlucid.policyPack.curatedRules.v1",
+  "pack": {
+    "name": "Serverless & PaaS Security (Azure)",
+    "description": "Functions, Container Apps, and App Service private networking and identity themes.",
+    "version": "1.1.0",
+    "category": "Application Platform",
+    "isDefault": true,
+    "suggestedPackType": "PlatformDefault",
+    "policyPackContentDocumentPath": "docs/samples/policy-packs/azure-paas-security.json"
+  },
+  "rules": [
+    {
+      "id": "az-paas-001",
+      "title": "Public network access disabled by default",
+      "description": "PaaS resources should document public access disabled with private endpoint or VNet integration.",
+      "severity": "Critical",
+      "priority": "P0",
+      "remediationGuidance": "Tag public-access posture on services[].Tags; verify publicNetworkAccess in azureExtractor.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "azureExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "Azure PaaS",
+          "theme": "Azure PaaS \u2014 Public access disabled"
+        }
+      ]
+    },
+    {
+      "id": "az-paas-002",
+      "title": "VNet integration for App Service and Functions",
+      "description": "Compute PaaS must document regional VNet integration for outbound private connectivity.",
+      "severity": "Critical",
+      "priority": "P0",
+      "remediationGuidance": "Describe VNet integration in governance.RequiredControls and services[].Tags.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "azureExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "Azure PaaS",
+          "theme": "Azure PaaS \u2014 VNet integration"
+        }
+      ]
+    },
+    {
+      "id": "az-paas-003",
+      "title": "Private endpoints for data-plane access",
+      "description": "Storage, SQL, Key Vault, and Cosmos should use private endpoints \u2014 not public data endpoints.",
+      "severity": "Critical",
+      "priority": "P0",
+      "remediationGuidance": "Map private endpoints in metadata.ChangeDescription; align with azureExtractor PE inventory.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "azureExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "Azure PaaS",
+          "theme": "Azure PaaS \u2014 Private endpoints"
+        }
+      ]
+    },
+    {
+      "id": "az-paas-004",
+      "title": "Managed identity for PaaS to Azure resources",
+      "description": "App Service, Functions, and Container Apps must use managed identity for Azure API calls.",
+      "severity": "Critical",
+      "priority": "P0",
+      "remediationGuidance": "Tag managed-identity on services[].Tags; document in governance.RequiredControls.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "azureExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "Azure PaaS",
+          "theme": "Azure PaaS \u2014 Managed identity"
+        }
+      ]
+    },
+    {
+      "id": "az-paas-005",
+      "title": "TLS 1.2 minimum on all endpoints",
+      "description": "HTTPS endpoints must document minimum TLS version and deprecated protocol disablement.",
+      "severity": "High",
+      "priority": "P0",
+      "remediationGuidance": "Capture TLS policy in governance.PolicyConstraints; verify siteConfig from azureExtractor App Service.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "azureExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "Azure PaaS",
+          "theme": "Azure PaaS \u2014 TLS minimum"
+        }
+      ]
+    },
+    {
+      "id": "az-paas-006",
+      "title": "Authentication enabled on App Service",
+      "description": "Public-facing apps must document Entra ID, Easy Auth, or front-door auth \u2014 not anonymous by default.",
+      "severity": "Critical",
+      "priority": "P1",
+      "remediationGuidance": "Record auth mode in services[].Tags and governance.RequiredControls.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "azureExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "Azure PaaS",
+          "theme": "Azure PaaS \u2014 App authentication"
+        }
+      ]
+    },
+    {
+      "id": "az-paas-007",
+      "title": "Container Apps ingress restricted",
+      "description": "Container Apps public ingress must document WAF, auth, and IP restrictions where exposed.",
+      "severity": "High",
+      "priority": "P1",
+      "remediationGuidance": "Document ingress controls in governance.PolicyConstraints and services[].Tags.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "azureExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "Azure PaaS",
+          "theme": "Azure PaaS \u2014 Container Apps ingress"
+        }
+      ]
+    },
+    {
+      "id": "az-paas-008",
+      "title": "Functions host keys not used for production auth",
+      "description": "Function keys must not substitute for OAuth in production \u2014 document function-level auth strategy.",
+      "severity": "High",
+      "priority": "P1",
+      "remediationGuidance": "Describe Functions auth in governance.RequiredControls and services[].Purpose.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "Azure PaaS",
+          "theme": "Azure PaaS \u2014 Functions auth"
+        }
+      ]
+    },
+    {
+      "id": "az-paas-009",
+      "title": "Deployment slots for zero-downtime releases",
+      "description": "Production App Service and Functions should document slot-based deployment with warm-up.",
+      "severity": "Medium",
+      "priority": "P1",
+      "remediationGuidance": "Note slot strategy in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "azureExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "Azure PaaS",
+          "theme": "Azure PaaS \u2014 Deployment slots"
+        }
+      ]
+    },
+    {
+      "id": "az-paas-010",
+      "title": "CORS restricted to approved origins",
+      "description": "Browser-facing APIs must document explicit CORS allowlists \u2014 not wildcard in production.",
+      "severity": "High",
+      "priority": "P1",
+      "remediationGuidance": "Capture CORS policy in governance.PolicyConstraints and services[].Tags.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "Azure PaaS",
+          "theme": "Azure PaaS \u2014 CORS restriction"
+        }
+      ]
+    },
+    {
+      "id": "az-paas-011",
+      "title": "IP restrictions on management planes",
+      "description": "scm and management endpoints should document IP allowlists or private access only.",
+      "severity": "High",
+      "priority": "P1",
+      "remediationGuidance": "Document SCM restrictions in governance.RequiredControls.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "azureExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "Azure PaaS",
+          "theme": "Azure PaaS \u2014 Management plane restriction"
+        }
+      ]
+    },
+    {
+      "id": "az-paas-012",
+      "title": "DDoS Protection Standard for public edges",
+      "description": "Internet-facing PaaS entry points should document DDoS plan tier and protected resources.",
+      "severity": "Medium",
+      "priority": "P1",
+      "remediationGuidance": "Tag DDoS coverage in services[].Tags and governance.ComplianceTags.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "azureExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "Azure PaaS",
+          "theme": "Azure PaaS \u2014 DDoS protection"
+        }
+      ]
+    },
+    {
+      "id": "az-paas-013",
+      "title": "Web Application Firewall on public HTTP(S)",
+      "description": "App Gateway WAF or Front Door WAF must protect public PaaS HTTP endpoints.",
+      "severity": "Critical",
+      "priority": "P1",
+      "remediationGuidance": "Document WAF attachment in governance.RequiredControls and metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "azureExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "Azure PaaS",
+          "theme": "Azure PaaS \u2014 WAF protection"
+        }
+      ]
+    },
+    {
+      "id": "az-paas-014",
+      "title": "Secrets in Key Vault not app settings plaintext",
+      "description": "Connection strings and API keys must use Key Vault references \u2014 not plain app settings.",
+      "severity": "High",
+      "priority": "P1",
+      "remediationGuidance": "Describe Key Vault reference pattern in governance.RequiredControls.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "azureExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "Azure PaaS",
+          "theme": "Azure PaaS \u2014 Key Vault references"
+        }
+      ]
+    },
+    {
+      "id": "az-paas-015",
+      "title": "Diagnostic logs enabled for all PaaS tiers",
+      "description": "App Service, Functions, and Container Apps must export diagnostics to Log Analytics.",
+      "severity": "High",
+      "priority": "P1",
+      "remediationGuidance": "List diagnostic settings in governance.RequiredControls; align with azureExtractor.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "azureExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "Azure PaaS",
+          "theme": "Azure PaaS \u2014 Diagnostic logging"
+        }
+      ]
+    },
+    {
+      "id": "az-paas-016",
+      "title": "Always On and health check for App Service",
+      "description": "Production web apps must document Always On and health check paths for availability.",
+      "severity": "Medium",
+      "priority": "P1",
+      "remediationGuidance": "Tag alwaysOn and healthCheck in services[].Tags.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "azureExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "Azure PaaS",
+          "theme": "Azure PaaS \u2014 App Service availability"
+        }
+      ]
+    },
+    {
+      "id": "az-paas-017",
+      "title": "Container image scanning in ACR",
+      "description": "Container Apps and Web App for Containers must pull from scanned ACR images.",
+      "severity": "High",
+      "priority": "P2",
+      "remediationGuidance": "Document ACR scanning in governance.RequiredControls.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "azureExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "Azure PaaS",
+          "theme": "Azure PaaS \u2014 Container image security"
+        }
+      ]
+    },
+    {
+      "id": "az-paas-018",
+      "title": "Environment separation (dev/stage/prod)",
+      "description": "PaaS instances must be segregated by subscription or resource group with distinct identities.",
+      "severity": "High",
+      "priority": "P2",
+      "remediationGuidance": "Tag environment on services[].Tags; document isolation in governance.PolicyConstraints.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "azureExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "Azure PaaS",
+          "theme": "Azure PaaS \u2014 Environment separation"
+        }
+      ]
+    },
+    {
+      "id": "az-paas-019",
+      "title": "API Management as security gateway",
+      "description": "When APIM fronts PaaS, policies for auth, rate limit, and validation must be documented.",
+      "severity": "High",
+      "priority": "P2",
+      "remediationGuidance": "Describe APIM policies in governance.RequiredControls and services[].Tags.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "Azure PaaS",
+          "theme": "Azure PaaS \u2014 API Management gateway"
+        }
+      ]
+    },
+    {
+      "id": "az-paas-020",
+      "title": "Event-driven triggers secured",
+      "description": "Event Grid and Service Bus triggers must document authentication and least-privilege RBAC.",
+      "severity": "High",
+      "priority": "P2",
+      "remediationGuidance": "Map trigger auth in services[].Tags and governance.RequiredControls.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "azureExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "Azure PaaS",
+          "theme": "Azure PaaS \u2014 Secure event triggers"
+        }
+      ]
+    },
+    {
+      "id": "az-paas-021",
+      "title": "Storage firewall for Functions bindings",
+      "description": "Functions with storage bindings must document storage firewall allowing only function subnet.",
+      "severity": "High",
+      "priority": "P2",
+      "remediationGuidance": "Document storage network rules in governance.PolicyConstraints.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "azureExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "Azure PaaS",
+          "theme": "Azure PaaS \u2014 Storage binding security"
+        }
+      ]
+    },
+    {
+      "id": "az-paas-022",
+      "title": "Runtime version supported and patched",
+      "description": "PaaS runtime stacks (.NET, Node, Java) must document supported versions and auto-patch channel.",
+      "severity": "Medium",
+      "priority": "P2",
+      "remediationGuidance": "Capture runtime version in services[].Tags and metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "azureExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "Azure PaaS",
+          "theme": "Azure PaaS \u2014 Runtime patching"
+        }
+      ]
+    },
+    {
+      "id": "az-paas-023",
+      "title": "Custom domain and certificate management",
+      "description": "TLS certificates must document renewal automation (App Service Managed Certificate or Key Vault).",
+      "severity": "Medium",
+      "priority": "P2",
+      "remediationGuidance": "Note cert management in governance.RequiredControls.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "Azure PaaS",
+          "theme": "Azure PaaS \u2014 Certificate lifecycle"
+        }
+      ]
+    },
+    {
+      "id": "az-paas-024",
+      "title": "Outbound SNAT and NAT gateway for scale",
+      "description": "High-outbound PaaS workloads must document NAT gateway or VNet integration SNAT strategy.",
+      "severity": "Medium",
+      "priority": "P2",
+      "remediationGuidance": "Describe outbound connectivity in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "azureExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "Azure PaaS",
+          "theme": "Azure PaaS \u2014 Outbound connectivity"
+        }
+      ]
+    },
+    {
+      "id": "az-paas-025",
+      "title": "Logic Apps secure connector authentication",
+      "description": "Logic Apps must document managed identity or OAuth for connectors \u2014 not stored passwords.",
+      "severity": "Medium",
+      "priority": "P2",
+      "remediationGuidance": "Record connector auth in governance.RequiredControls for integration services.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "Azure PaaS",
+          "theme": "Azure PaaS \u2014 Logic Apps auth"
+        }
+      ]
+    },
+    {
+      "id": "az-paas-026",
+      "title": "Static Web Apps auth and API routes",
+      "description": "SWA must document auth provider and API route protection for production.",
+      "severity": "Medium",
+      "priority": "P2",
+      "remediationGuidance": "Describe SWA auth in services[].Tags when Static Web Apps appear in architecture.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "Azure PaaS",
+          "theme": "Azure PaaS \u2014 Static Web Apps security"
+        }
+      ]
+    },
+    {
+      "id": "az-paas-027",
+      "title": "PaaS backup and geo-replication",
+      "description": "State held in PaaS storage bindings must document backup and replication for tier-1 data.",
+      "severity": "High",
+      "priority": "P2",
+      "remediationGuidance": "Align backup tags on datastores[].Tags with PaaS dependencies.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "azureExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "Azure PaaS",
+          "theme": "Azure PaaS \u2014 PaaS data protection"
+        }
+      ]
+    },
+    {
+      "id": "az-paas-028",
+      "title": "Threat modeling for serverless attack surface",
+      "description": "Serverless components must document abuse cases (event injection, oversized payloads) and mitigations.",
+      "severity": "Medium",
+      "priority": "P2",
+      "remediationGuidance": "Add serverless threat notes in metadata.ChangeDescription and governance.PolicyConstraints.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "Azure PaaS",
+          "theme": "Azure PaaS \u2014 Serverless threat model"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,211 @@
+---
+description: >-
+  C# guard clauses, braceless embedded statements, early return, invert-if flattening,
+  and single-line throw/continue — flat happy path and IDE0011 alignment.
+globs: "**/*.cs"
+alwaysApply: false
+---
+
+# C# guards and control-flow shape
+
+One rule family: **guards first**, **no redundant braces** for single statements, **no trailing `else`** after a terminating branch.
+
+---
+
+## Same-line guard clauses
+
+When an `if` body is a single guard statement (`throw …;`, `return;`, `return <expr>;`, `continue;`, `break;`), put it on the **same line** as the `if`, with no braces—including **`if (predicate) return result;`** when the **whole assembled line** is still readable (team tooling uses **≤ 160** characters for auto-collapse; shorten condition or hoist a local if it blows past that).
+
+### Preferred
+
+```csharp
+if (key is null) throw new ArgumentNullException(nameof(key));
+if (string.IsNullOrWhiteSpace(key)) return;
+if (tenant is null) return null;
+if (!TryParse(span, out int n)) return false;
+if (string.IsNullOrWhiteSpace(key)) continue;
+if (cancellationToken.IsCancellationRequested) return Task.CompletedTask;
+```
+
+### Avoid
+
+```csharp
+// Avoid — multiline guard when a single-line guard fits
+if (key is null)
+{
+    throw new ArgumentNullException(nameof(key));
+}
+
+// Avoid — put return on same line as if when it fits
+if (!TryParse(span, out int n))
+    return false;
+```
+
+### Scope
+
+- Body must be **one** statement and must be a guard — `throw`, `return`, `continue`, `break`, `goto`.
+- Keep **one blank line before** the `if` per the project blank-line rule, **except** when the guard is the very first statement of the member or block.
+- See also **`CSharp-Members-And-Construction.mdc`** (never stack multiple blank lines).
+
+---
+
+## Early return — no trailing `else`
+
+When an `if` branch ends in `return`, `throw`, `continue`, or `break`, **do not** wrap the rest of the method in an `else` block. Let control fall through.
+
+### Preferred
+
+```csharp
+public string Resolve(Tenant tenant)
+{
+    if (tenant is null) throw new ArgumentNullException(nameof(tenant));
+    if (!tenant.IsActive) return "(inactive)";
+
+    return Format(tenant);
+}
+```
+
+```csharp
+foreach (string key in keys)
+{
+    if (string.IsNullOrWhiteSpace(key)) continue;
+
+    Process(key);
+}
+```
+
+### Avoid
+
+```csharp
+// Avoid: trailing else after a return / throw
+if (tenant is null)
+{
+    throw new ArgumentNullException(nameof(tenant));
+}
+else if (!tenant.IsActive)
+{
+    return "(inactive)";
+}
+else
+{
+    return Format(tenant);
+}
+```
+
+### Scope
+
+- Stay with `if` / `else if` / `else` only when **every** branch produces a value at the same level (peer mappings) — then prefer **`CSharp-Terse-Modern-Language.mdc`** (switch expressions).
+
+---
+
+## Embedded statements: omit braces when one statement
+
+When a control-flow construct has **exactly one** embedded statement and C# does **not** require a block, **do not** wrap that statement in `{ }`.
+
+### Applies to
+
+`if`, `else`, `while`, `for`, `foreach`, `lock`, and `using` where the body is a single statement.
+
+### Do
+
+Prefer **braceless**, and **prefer the same physical line** when condition + statement stay short:
+
+```csharp
+if (value is null) return;
+
+foreach (string id in ids)
+    Register(id);
+```
+
+Otherwise break across lines — still **without** `{}`:
+
+```csharp
+if (!TryParse(input, out int n))
+    throw new InvalidOperationException("…");
+```
+
+Keep **one blank line before** `if` / `foreach` (etc.) when not the first statement in the member.
+
+### Do not
+
+Do not add braces solely for a single statement:
+
+```csharp
+// Avoid
+if (x)
+{
+    return;
+}
+```
+
+Use a **block** when the body is more than one statement, when you need scoped `locals`, or when omitting braces would confuse `else` binding or readability.
+
+### Tooling
+
+Repo **`.editorconfig`** sets `csharp_prefer_braces = false` (IDE0011). Apply **IDE0011-only** formatting:
+
+`dotnet format ArchLucid.sln style --diagnostics IDE0011 --severity info`
+
+See **`docs/library/FORMATTING.md`** for **`scripts/RemoveEmbeddedStatementBraces`**.
+
+---
+
+## Single embedded statements — one physical line when short
+
+Aligns with **`csharp_prefer_braces = false`** (IDE0011).
+
+When a construct has **exactly one** embedded statement (`if`, `else`, `for`, `foreach`, `while`, `using`, `lock`, …):
+
+1. **Do not wrap** in `{ }` unless multi-statement, locals, or dangling-`else` safety requires a block (same as **Embedded statements** above).
+
+2. **Prefer one physical line** for short **`if (...)` + body**. For guards, same-line as **Same-line guard clauses** (`if (cond) return;`, `if (cond) return expr;`).
+
+3. **When the line would be overly long**, keep the `if (...)` on one logical line or break the condition; put the body on the next indented line **still without braces**.
+
+   **Rough cap:** **≤ 160** characters for a single assembled guard line (`RemoveEmbeddedStatementBraces` uses 160).
+
+**Blank lines:** One blank line before `if` / `foreach` when not the first statement in the member.
+
+---
+
+## Invert `if`s — flatten nesting with guard clauses
+
+Prefer **guard clauses** and **early exits** over nesting the main logic inside positive branches. When a branch only handles an exceptional, empty, or short path (`return`, `throw`, `continue`, `break`), handle it first so the remainder stays at **minimal indentation**.
+
+### When *not* to force inversion
+
+Keep symmetric **`if` / `else if` / `else`** (or a **`switch` expression**) when **every** branch is a **peer** computation (mapping, routing, parsers) — use **`CSharp-Terse-Modern-Language.mdc`**.
+
+---
+
+## Single-line `throw` (no braces)
+
+When an `if` (or `else if`) has **only** a `throw` as its body, **do not** wrap it in `{ }`.
+
+**Preferred:**
+
+```csharp
+if (string.IsNullOrWhiteSpace(name))
+    throw new ArgumentException(nameof(name));
+```
+
+Same-line is also fine when short: `if (x is null) throw new ArgumentNullException(nameof(x));`
+
+Does **not** relax: multi-statement branches, loops, and `catch` blocks still use braces. If analyzers conflict, follow the **stricter** gate.
+
+---
+
+## Single-line `continue` (no braces)
+
+When a loop guard's body is **only** `continue;`, **do not** wrap in `{ }`. Prefer same-line as `if` when the condition is short.
+
+```csharp
+foreach (string key in keys)
+{
+    if (string.IsNullOrWhiteSpace(key)) continue;
+
+    Process(key);
+}
+```
+
+Two-line form when the condition is long. Multi-statement guards still use `{ }`.

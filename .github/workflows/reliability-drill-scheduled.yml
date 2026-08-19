@@ -1,0 +1,33 @@
+# Non-blocking scheduled reliability-drill scaffolding (artifacts only; uses -SkipProbe so no outbound targets).
+#
+# Operators run the real drill locally or in a sandbox with `-BaseUrl` per docs/runbooks/RELIABILITY_DRILL_PACKAGE.md.
+name: reliability-drill (scheduled)
+
+on:
+  workflow_dispatch:
+
+  schedule:
+    - cron: "0 11 * * 1"
+
+permissions:
+  contents: read
+
+jobs:
+  scaffold:
+    name: "Reliability drill — evidence scaffolding"
+    runs-on: windows-latest
+    continue-on-error: true
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Generate drill evidence (SkipProbe)
+        shell: pwsh
+        run: ./scripts/reliability_drill.ps1 -SkipProbe
+
+      - name: Upload artefacts
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: reliability-drill-summary
+          path: dist/reliability-drill/

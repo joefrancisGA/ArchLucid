@@ -1,0 +1,32 @@
+[
+  {
+    "resourceType": "Microsoft.Storage/storageAccounts",
+    "resourceId": "/subscriptions/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/resourceGroups/rg-archlucid-demo/providers/Microsoft.Storage/storageAccounts/starchluciddemo",
+    "name": "starchluciddemo",
+    "location": "eastus",
+    "sku": {
+      "name": "Standard_LRS",
+      "tier": "Standard"
+    },
+    "tags": {
+      "environment": "demo"
+    },
+    "properties": {
+      "provisioningState": "Succeeded"
+    }
+  },
+  {
+    "resourceType": "Microsoft.Compute/virtualMachines",
+    "resourceId": "/subscriptions/aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee/resourceGroups/rg-archlucid-demo/providers/Microsoft.Compute/virtualMachines/vm-demo-01",
+    "name": "vm-demo-01",
+    "location": "eastus",
+    "sku": null,
+    "tags": {},
+    "properties": {
+      "provisioningState": "Succeeded",
+      "hardwareProfile": {
+        "vmSize": "Standard_D2s_v3"
+      }
+    }
+  }
+]

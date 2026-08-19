@@ -1,0 +1,21 @@
+---
+alwaysApply: true
+---
+
+All architecture outputs must follow structured sections:
+
+1. Objective
+
+2. Assumptions
+
+3. Constraints
+
+4. Architecture Overview
+
+5. Component Breakdown
+
+6. Data Flow
+
+7. Security Model
+
+8. Operational Considerations

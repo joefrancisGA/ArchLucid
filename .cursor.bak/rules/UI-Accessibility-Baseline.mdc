@@ -1,0 +1,42 @@
+---
+description: >-
+  archlucid-ui TSX — baseline accessibility for shipped operator and marketing UI
+  (semantic HTML, names, focus, color) — not a substitute for formal AT research panels.
+globs:
+  - "archlucid-ui/**/*.tsx"
+alwaysApply: false
+---
+
+# UI — accessibility baseline
+
+These expectations apply to **new and edited** operator-shell and marketing surfaces. They keep the app **keyboard-friendly and screen-reader-parseable** without claiming formal assistive-technology user studies (see assessment scope docs for research gates).
+
+## Semantic HTML and roles
+
+- Use the **correct element** for the job: `button` for actions, `a` for navigation, `nav`, `main`, `header`, `dialog` / `role="dialog"` patterns for modals, `ul`/`li` for real lists.
+- **Do not** use `div` + `onClick` alone for actions a user would perceive as a button — use `button` (or `role="button"` with keyboard handlers only when a native control is impossible).
+
+## Accessible names
+
+- Every **interactive** control must have an **accessible name**: visible text, `aria-label`, `aria-labelledby`, or `aria-describedby` where appropriate.
+- Icons-only buttons **must** have `aria-label` (or visually hidden text).
+- When buyer-visible copy changes (glossary), verify **`aria-labelledby`** / **tooltips** still describe the control accurately.
+
+## Focus and keyboard
+
+- **Focus order** follows a logical reading path; avoid `tabIndex` gymnastics unless compensating for a composite widget pattern (menus, tabs) that matches WAI-ARIA.
+- **Dialogs / drawers:** trap focus while open, restore focus on close, and support **Escape** to dismiss when that matches the design.
+- **Skip links** or landmark structure (`main`, `nav`) should remain coherent after nav renames.
+
+## Color and status
+
+- **Never encode meaning by color alone.** Pair status colors with **text**, **icon**, or **pattern** (e.g. “Error”, “Warning”) so non-color perception and grayscale previews still communicate state.
+
+## Forms
+
+- Associate **`label`** with **`htmlFor`** / implicit label wrapping, or `aria-label` when the visual design omits a label.
+- Surface **validation errors** in text near the field or via `aria-live` where the pattern already exists in the repo.
+
+## Companion rules
+
+- **`UI-Stable-Selectors-And-Snapshots.mdc`** — tie tests to stable hooks; roles you introduce here should match what tests query.

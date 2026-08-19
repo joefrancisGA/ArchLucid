@@ -1,0 +1,84 @@
+﻿using System.Net;
+using System.Net.Http.Json;
+
+using ArchLucid.Api.Tests.TestDtos;
+
+using FluentAssertions;
+
+namespace ArchLucid.Api.Tests;
+
+/// <summary>
+///     Tests for Architecture Export Audit.
+/// </summary>
+[Trait("Category", "Integration")]
+public sealed class ArchitectureExportAuditTests(ArchLucidApiFactory factory) : IntegrationTestBase(factory)
+{
+    [SkippableFact]
+    public async Task ConsultingDocxExport_PersistsExportHistory()
+    {
+        HttpResponseMessage createResponse = await Client.PostAsync(
+            "/v1/architecture/request",
+            JsonContent(TestRequestFactory.CreateArchitectureRequest("REQ-EXPORT-AUDIT-001")));
+
+        await createResponse.EnsureSuccessForTestAsync();
+        CreateRunResponseDto? created =
+            await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
+        string runId = created!.Run.RunId;
+
+        await Client.PostAsync($"/v1/architecture/review/{runId}/execute", null);
+        await Client.PostAsync($"/v1/architecture/review/{runId}/finalize", null);
+
+        var request = new
+        {
+            templateProfile = (string?)null,
+            audience = "Executives and sponsors",
+            externalDelivery = true,
+            executiveFriendly = true,
+            regulatedEnvironment = false,
+            needDetailedEvidence = false,
+            needExecutionTraces = false,
+            needDeterminismOrCompareAppendices = false,
+            includeEvidence = true,
+            includeExecutionTraces = true,
+            includeManifest = true,
+            includeDiagram = true,
+            includeSummary = true,
+            includeDeterminismCheck = false,
+            determinismIterations = 3,
+            includeManifestCompare = false,
+            compareManifestVersion = (string?)null,
+            includeAgentResultCompare = false,
+            compareRunId = (string?)null
+        };
+
+        HttpResponseMessage exportResponse = await Client.PostAsJsonAsync(
+            $"/v1/architecture/review/{runId}/analysis-report/export/docx/consulting",
+            request);
+
+        exportResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        HttpResponseMessage historyResponse = await Client.GetAsync($"/v1/architecture/review/{runId}/exports");
+
+        historyResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        RunExportHistoryResponse? payload =
+            await historyResponse.Content.ReadFromJsonAsync<RunExportHistoryResponse>(JsonOptions);
+        payload.Should().NotBeNull();
+        payload.Exports.Should().NotBeEmpty();
+
+        RunExportRecordDto export = payload.Exports.First();
+        export.RunId.Should().Be(runId);
+        export.ExportType.Should().Be("analysis-report-consulting-docx");
+        export.Format.Should().Be("docx");
+        export.TemplateProfile.Should().NotBeNullOrWhiteSpace();
+        export.WasAutoSelected.Should().BeTrue();
+        export.IncludedEvidence.Should().BeTrue();
+        export.IncludedExecutionTraces.Should().BeTrue();
+        export.IncludedManifest.Should().BeTrue();
+        export.IncludedDiagram.Should().BeTrue();
+        export.IncludedSummary.Should().BeTrue();
+        export.IncludedDeterminismCheck.Should().BeFalse();
+        export.DeterminismIterations.Should().Be(3);
+        export.AnalysisRequestJson.Should().NotBeNullOrWhiteSpace();
+    }
+}

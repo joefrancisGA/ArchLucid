@@ -1,0 +1,11 @@
+{
+  "findings": [
+    {
+      "findingId": "adv-phantom-1",
+      "category": "Topology",
+      "severity": "Medium",
+      "title": "Phantom dependency",
+      "detail": "Orion Payments Mesh is not present in any evidence source; topology must not advance without corroboration."
+    }
+  ]
+}

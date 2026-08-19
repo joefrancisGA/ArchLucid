@@ -1,0 +1,11 @@
+sequenceDiagram
+  participant Pipe as AuthorityPipelineStagesExecutor
+  participant Stage as Findings stage
+  participant Find as Findings / analysis services
+  participant SQL as Tenant SQL catalog
+  Note over Pipe,Stage: OTel span authority.findings<br/>tag archlucid.stage.name
+
+  Pipe->>Stage: Run after knowledge graph
+  Stage->>Find: Emit structured findings from graph + context
+  Find->>SQL: Persist findings / correlation metadata
+  Stage-->>Pipe: Stage complete → next authority.decisioning

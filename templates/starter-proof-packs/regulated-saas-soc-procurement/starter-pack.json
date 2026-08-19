@@ -1,0 +1,31 @@
+{
+  "id": "regulated-saas-soc-procurement",
+  "title": "Regulated SaaS — SOC-oriented procurement review",
+  "targetBuyer": "B2B SaaS security reviewer or procurement lead",
+  "buyerJob": "SOC-style diligence language on Azure SaaS architecture",
+  "owner": "ArchLucid GTM",
+  "lastReviewedUtc": "2026-05-29",
+  "requiredInputs": [
+    "second-run.json",
+    "architecture-request.json",
+    "policy-context.json"
+  ],
+  "expectedOutputs": [
+    "Committed review with SaaS policy-pack findings",
+    "proof-package-checklist.md satisfied",
+    "Sponsor packet with non-certification caveats"
+  ],
+  "scopeLabel": "V1-ready",
+  "doNotUseWhen": [
+    "First Core Pilot session before any committed review",
+    "Buyer requires CPA-issued SOC 2 Type I/II report",
+    "Real customer names or subprocessors without permission"
+  ],
+  "deferredScopeNotes": "Does not produce SOC 2 attestation, live commerce, public references, or V1.1 ITSM/chat connectors.",
+  "sourceConfidence": "synthetic-demo-labeled",
+  "acceptanceChecks": [
+    "architecture-request.json deserializes in Contracts.Tests dry-run",
+    "policy-context vertical resolves compliance rules",
+    "proof-package-checklist.md lists non-certification caveats"
+  ]
+}

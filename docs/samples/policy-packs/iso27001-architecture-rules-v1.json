@@ -1,0 +1,669 @@
+{
+  "schemaVersion": 1,
+  "kind": "archlucid.policyPack.curatedRules.v1",
+  "pack": {
+    "name": "ISO/IEC 27001 ISMS (Architecture Slice)",
+    "description": "ISMS control themes for architecture evidence. Not ISO 27001 certification.",
+    "version": "1.1.0",
+    "category": "Compliance",
+    "isDefault": true,
+    "suggestedPackType": "PlatformDefault",
+    "policyPackContentDocumentPath": "docs/samples/policy-packs/iso27001-architecture.json"
+  },
+  "rules": [
+    {
+      "id": "iso27001-001",
+      "title": "Information asset inventory documented per system",
+      "description": "Architecture manifests must enumerate information assets (applications, datastores, integrations) with owners so ISMS asset-management scope can be assessed.",
+      "severity": "High",
+      "priority": "P0",
+      "remediationGuidance": "List primary assets in systemName narrative and services[]; assign ownership tags in governance.ComplianceTags and metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "ISO/IEC 27001",
+          "theme": "A.5.9 \u2014 Inventory of information and other associated assets"
+        }
+      ]
+    },
+    {
+      "id": "iso27001-002",
+      "title": "Asset ownership and accountability assigned",
+      "description": "Each in-scope service and datastore should name a business and technical owner responsible for classification, access, and lifecycle decisions.",
+      "severity": "High",
+      "priority": "P0",
+      "remediationGuidance": "Record owner contacts in governance.ComplianceTags (e.g., owner:platform-team) and services[].Tags; avoid unnamed shared components.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "ISO/IEC 27001",
+          "theme": "A.5.10 \u2014 Acceptable use of information and assets"
+        }
+      ]
+    },
+    {
+      "id": "iso27001-003",
+      "title": "Information classification scheme applied",
+      "description": "Sensitive workloads must document classification tiers (public, internal, confidential, restricted) applied to datastores and message flows.",
+      "severity": "Critical",
+      "priority": "P0",
+      "remediationGuidance": "Tag datastores[].Tags and services[].Tags with classification level; align with governance.PolicyConstraints narrative.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "ISO/IEC 27001",
+          "theme": "A.5.12 \u2014 Classification of information"
+        }
+      ]
+    },
+    {
+      "id": "iso27001-004",
+      "title": "Labeling of sensitive data in transit and at rest",
+      "description": "Systems handling classified information must document how labels propagate through APIs, queues, and storage \u2014 not rely on implicit trust.",
+      "severity": "High",
+      "priority": "P0",
+      "remediationGuidance": "Describe labeling expectations in governance.RequiredControls; map WritesTo/ReadsFrom edges for classified data paths.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "ISO/IEC 27001",
+          "theme": "A.5.13 \u2014 Labelling of information"
+        }
+      ]
+    },
+    {
+      "id": "iso27001-005",
+      "title": "Access control policy documented for cloud workloads",
+      "description": "Manifest governance must state role-based access principles, default-deny posture, and exceptions for break-glass or emergency access.",
+      "severity": "Critical",
+      "priority": "P0",
+      "remediationGuidance": "Capture access policy in governance.PolicyConstraints and governance.RequiredControls; tag identity integration on services[].Tags.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "ISO/IEC 27001",
+          "theme": "A.5.15 \u2014 Access control"
+        }
+      ]
+    },
+    {
+      "id": "iso27001-006",
+      "title": "Identity provisioning and deprovisioning process",
+      "description": "Architecture should reference how user and workload identities are provisioned, reviewed, and removed when roles change or systems retire.",
+      "severity": "High",
+      "priority": "P1",
+      "remediationGuidance": "Document joiner-mover-leaver alignment in metadata.ChangeDescription and governance.ComplianceTags.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "ISO/IEC 27001",
+          "theme": "A.5.16 \u2014 Identity management"
+        }
+      ]
+    },
+    {
+      "id": "iso27001-007",
+      "title": "Authentication requirements documented",
+      "description": "Interactive and service authentication strength (MFA, federated SSO, managed identity) must be explicit for each exposed surface.",
+      "severity": "Critical",
+      "priority": "P1",
+      "remediationGuidance": "Tag auth mechanisms on services[].Tags; record MFA and federation expectations in governance.RequiredControls.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "ISO/IEC 27001",
+          "theme": "A.5.17 \u2014 Authentication information"
+        }
+      ]
+    },
+    {
+      "id": "iso27001-008",
+      "title": "Privileged access management themes",
+      "description": "Administrative paths to production (subscription owner, cluster admin, break-glass) must be enumerated with justification and monitoring expectations.",
+      "severity": "Critical",
+      "priority": "P1",
+      "remediationGuidance": "List privileged roles in governance.PolicyConstraints; document break-glass in metadata.ChangeDescription with expiry and alerting.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "azureExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "ISO/IEC 27001",
+          "theme": "A.8.2 \u2014 Privileged access rights"
+        }
+      ]
+    },
+    {
+      "id": "iso27001-009",
+      "title": "Access rights review cadence documented",
+      "description": "Periodic access review for human and service principals should be stated \u2014 especially for cross-team shared roles and legacy integrations.",
+      "severity": "High",
+      "priority": "P1",
+      "remediationGuidance": "Add review cadence tags to governance.ComplianceTags; align RBAC assignments with azureExtractor identity inventory when present.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "azureExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "ISO/IEC 27001",
+          "theme": "A.5.18 \u2014 Access rights"
+        }
+      ]
+    },
+    {
+      "id": "iso27001-010",
+      "title": "Cryptographic controls for data protection",
+      "description": "Encryption at rest and in transit expectations must be documented for confidential and restricted assets, including key custody model.",
+      "severity": "Critical",
+      "priority": "P1",
+      "remediationGuidance": "Record encryption and key-management expectations in governance.RequiredControls; cite TDE/SSE settings from azureExtractor when available.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "azureExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "ISO/IEC 27001",
+          "theme": "A.8.24 \u2014 Use of cryptography"
+        }
+      ]
+    },
+    {
+      "id": "iso27001-011",
+      "title": "Key management and rotation themes",
+      "description": "Customer-managed keys, HSM usage, and rotation cadence should be documented where regulatory or contractual obligations apply.",
+      "severity": "High",
+      "priority": "P1",
+      "remediationGuidance": "Describe CMK/HSM posture in governance.PolicyConstraints and datastores[].Tags; reference Key Vault usage in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "azureExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "ISO/IEC 27001",
+          "theme": "A.8.24 \u2014 Cryptographic key management"
+        }
+      ]
+    },
+    {
+      "id": "iso27001-012",
+      "title": "Secure configuration baseline for platform services",
+      "description": "PaaS and IaaS components must reference hardened configuration baselines (private endpoints, TLS versions, disabled legacy protocols).",
+      "severity": "High",
+      "priority": "P1",
+      "remediationGuidance": "Align services[].Tags with CIS-style hardening themes; document exceptions in governance.PolicyConstraints.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "azureExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "ISO/IEC 27001",
+          "theme": "A.8.9 \u2014 Configuration management"
+        }
+      ]
+    },
+    {
+      "id": "iso27001-013",
+      "title": "Change management for infrastructure and applications",
+      "description": "Material architecture changes should trace to approved change records, rollback plans, and separation of dev/test/prod environments.",
+      "severity": "Medium",
+      "priority": "P1",
+      "remediationGuidance": "Describe change gates in metadata.ChangeDescription and governance.RequiredControls; tag environment class on services[].Tags.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "ISO/IEC 27001",
+          "theme": "A.8.32 \u2014 Change management"
+        }
+      ]
+    },
+    {
+      "id": "iso27001-014",
+      "title": "Vulnerability management integration",
+      "description": "Architecture must show how container images, dependencies, and cloud resources enter a vulnerability scanning and remediation workflow.",
+      "severity": "High",
+      "priority": "P1",
+      "remediationGuidance": "Document scanning touchpoints in governance.RequiredControls; tag build pipelines and registries in services[].Tags.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "ISO/IEC 27001",
+          "theme": "A.8.8 \u2014 Management of technical vulnerabilities"
+        }
+      ]
+    },
+    {
+      "id": "iso27001-015",
+      "title": "Malware and untrusted content controls",
+      "description": "Ingress paths for user uploads, email, or partner files must document scanning or sandboxing before processing in trusted zones.",
+      "severity": "Medium",
+      "priority": "P1",
+      "remediationGuidance": "Enumerate untrusted ingress services and controls in governance.PolicyConstraints and relationships[].relationshipType edges.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "ISO/IEC 27001",
+          "theme": "A.8.7 \u2014 Protection against malware"
+        }
+      ]
+    },
+    {
+      "id": "iso27001-016",
+      "title": "Logging and monitoring coverage documented",
+      "description": "Security-relevant events (authn failures, admin actions, data export) must map to centralized logging with retention stated.",
+      "severity": "High",
+      "priority": "P1",
+      "remediationGuidance": "List log sources in governance.RequiredControls; align with azureExtractor diagnostic settings when inventory exists.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "azureExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "ISO/IEC 27001",
+          "theme": "A.8.15 \u2014 Logging"
+        }
+      ]
+    },
+    {
+      "id": "iso27001-017",
+      "title": "Clock synchronization for audit correlation",
+      "description": "Distributed systems should document time-sync expectations so correlated incident timelines remain trustworthy across regions.",
+      "severity": "Low",
+      "priority": "P2",
+      "remediationGuidance": "Note NTP/time-sync assumptions in metadata.ChangeDescription and governance.PolicyConstraints for multi-region workloads.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "ISO/IEC 27001",
+          "theme": "A.8.17 \u2014 Clock synchronization"
+        }
+      ]
+    },
+    {
+      "id": "iso27001-018",
+      "title": "Backup integrity and restoration testing",
+      "description": "Backup scope, encryption, and restore-test cadence must be documented for systems supporting business-critical or regulated data.",
+      "severity": "High",
+      "priority": "P2",
+      "remediationGuidance": "Describe backup tiers in governance.RequiredControls and datastores[].Tags; cross-reference DR narratives in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "azureExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "ISO/IEC 27001",
+          "theme": "A.8.13 \u2014 Information backup"
+        }
+      ]
+    },
+    {
+      "id": "iso27001-019",
+      "title": "Business continuity alignment",
+      "description": "RTO/RPO targets and failover dependencies should be stated so ISMS continuity planning can map to architecture components.",
+      "severity": "High",
+      "priority": "P2",
+      "remediationGuidance": "Document RTO/RPO in governance.PolicyConstraints; tag tier-1 services and datastores for continuity priority.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "ISO/IEC 27001",
+          "theme": "A.5.29 \u2014 Information security during disruption"
+        }
+      ]
+    },
+    {
+      "id": "iso27001-020",
+      "title": "Security incident response hooks",
+      "description": "Architecture should identify detection sources, on-call routing, and isolation levers (WAF block, identity disable, network segment drop).",
+      "severity": "High",
+      "priority": "P2",
+      "remediationGuidance": "List IR integration points in governance.RequiredControls and metadata.ChangeDescription; tag security monitoring services.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "ISO/IEC 27001",
+          "theme": "A.5.24 \u2014 Information security incident management"
+        }
+      ]
+    },
+    {
+      "id": "iso27001-021",
+      "title": "Supplier and cloud-provider security assessment",
+      "description": "Third-party SaaS, MSP, and hyperscaler dependencies must be enumerated with security review status and data-processing boundaries.",
+      "severity": "Medium",
+      "priority": "P2",
+      "remediationGuidance": "Document suppliers on external WritesTo edges and services[]; add vendor-assessment tags to governance.ComplianceTags.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "ISO/IEC 27001",
+          "theme": "A.5.19 \u2014 Information security in supplier relationships"
+        }
+      ]
+    },
+    {
+      "id": "iso27001-022",
+      "title": "Cloud service usage agreements documented",
+      "description": "Use of shared-responsibility cloud services must reference contractual security commitments, regions, and subprocessors at architecture scope.",
+      "severity": "Medium",
+      "priority": "P2",
+      "remediationGuidance": "Capture cloud contract themes in governance.ComplianceTags and metadata.ChangeDescription; note primary Azure regions on services[].Tags.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "azureExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "ISO/IEC 27001",
+          "theme": "A.5.23 \u2014 Information security for use of cloud services"
+        }
+      ]
+    },
+    {
+      "id": "iso27001-023",
+      "title": "Secure development lifecycle themes",
+      "description": "Custom code paths should document threat modeling, code review, SAST/DAST gates, and secrets handling before production promotion.",
+      "severity": "High",
+      "priority": "P2",
+      "remediationGuidance": "Describe SDLC gates in governance.RequiredControls; tag CI/CD and repo services in services[].Tags.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "ISO/IEC 27001",
+          "theme": "A.8.25 \u2014 Secure development life cycle"
+        }
+      ]
+    },
+    {
+      "id": "iso27001-024",
+      "title": "Separation of development, test, and production",
+      "description": "Environment boundaries (subscriptions, VNets, identities, data) must be documented to prevent test credentials or data bleeding into production.",
+      "severity": "High",
+      "priority": "P2",
+      "remediationGuidance": "Tag environment class on services[].Tags and datastores[].Tags; state isolation model in governance.PolicyConstraints.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "azureExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "ISO/IEC 27001",
+          "theme": "A.8.31 \u2014 Separation of development, test and production"
+        }
+      ]
+    },
+    {
+      "id": "iso27001-025",
+      "title": "Network security perimeter documented",
+      "description": "Ingress/egress controls, private connectivity, and east-west segmentation expectations must be explicit for in-scope workloads.",
+      "severity": "Critical",
+      "priority": "P2",
+      "remediationGuidance": "Map network zones in metadata.ChangeDescription; align NSG/private endpoint posture with azureExtractor network inventory.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "azureExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "ISO/IEC 27001",
+          "theme": "A.8.20 \u2014 Networks security"
+        }
+      ]
+    },
+    {
+      "id": "iso27001-026",
+      "title": "Physical security themes for cloud-hosted workloads",
+      "description": "While physical controls are provider-operated, architecture should document reliance on certified regions and customer access constraints.",
+      "severity": "Low",
+      "priority": "P2",
+      "remediationGuidance": "Note region/certification reliance in governance.ComplianceTags and metadata.ChangeDescription for data residency decisions.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "azureExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "ISO/IEC 27001",
+          "theme": "A.7 \u2014 Physical and environmental security (cloud reliance)"
+        }
+      ]
+    },
+    {
+      "id": "iso27001-027",
+      "title": "Privacy and PII handling within ISMS scope",
+      "description": "Systems processing personal data must cross-reference privacy classifications, retention, and lawful-processing themes in governance metadata.",
+      "severity": "High",
+      "priority": "P2",
+      "remediationGuidance": "Align PII tags on datastores[].Tags with governance.ComplianceTags; document processing purposes in services[].Purpose.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "ISO/IEC 27001",
+          "theme": "A.5.34 \u2014 Privacy and protection of PII"
+        }
+      ]
+    },
+    {
+      "id": "iso27001-028",
+      "title": "ISMS scope boundary documented for the system",
+      "description": "The architecture review boundary \u2014 what is in scope, out of scope, and shared with other systems \u2014 must be explicit for assessors.",
+      "severity": "Medium",
+      "priority": "P2",
+      "remediationGuidance": "State scope boundary in systemName narrative and metadata.ChangeDescription; list excluded components with rationale.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "ISO/IEC 27001",
+          "theme": "A.4 \u2014 Context of the organization (ISMS scope)"
+        }
+      ]
+    }
+  ]
+}

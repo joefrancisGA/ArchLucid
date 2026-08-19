@@ -1,0 +1,37 @@
+---
+description: >-
+  Editing LLM prompts, prompt redaction, Azure OpenAI / completion clients, semantic cache,
+  content safety around model calls, policy-pack explain prompts, MCP tool schemas for product
+  integration, or assessment narrative about AI-readiness — keep prompts governable and safe.
+alwaysApply: false
+---
+
+# LLM prompts, redaction, and model-call hygiene
+
+## Redaction and externally influenced content
+
+- **Tenant- or user-originated text** that is concatenated into model prompts (documents, graph snippets, CLI input, webhook payloads) must pass through the project’s **redaction / sanitization path** (e.g. **`ArchLucid.AgentRuntime/Prompts/PromptFieldRedactor.cs`**, **`AgentUserPromptBuilder`**, or successor). Do not paste raw operational secrets, connection strings, or full stack traces into prompts “for context.”
+- Patterns that mirror logging discipline: **`.cursor/rules/CodeQL-Sanitized-Logging.mdc`** — same mindset for **model input** as for log lines (no unbounded exfiltration of PII or credentials).
+
+## Where prompts live
+
+- Prefer **dedicated prompt types / builders / `*LlmPrompts` classes** (e.g. **`QuickScanLlmPrompts`**, **`PolicyPackExplainLlmPrompts`**) over long string literals scattered through business services.
+- When adding a new prompt surface, centralize copy and version it with the feature; keep **system vs user** roles explicit if the client API distinguishes them.
+
+## Bounds and resilience
+
+- **Timeouts**, **retry policy**, and **token / cost caps** should use **named options** or shared defaults (e.g. **`LlmCallResilienceDefaults`**, tier / budget trackers) — align with **`.cursor/rules/CSharp-NamedBounds-AvoidMagicNumbers.mdc`** for new numeric limits.
+- Real-mode and simulator paths: preserve **testability** — deterministic fakes or stub clients for unit tests; integration tests gate on existing env patterns (see **`ArchLucid.AgentRuntime.Tests`** attributes such as skip-if-no-real-mode where applicable).
+
+## Durable audit and explainability
+
+- Mutations and security-sensitive flows that **emit** durable audit events must stay aligned with **`docs/library/AUDIT_COVERAGE_MATRIX.md`** when you add new model-backed HTTP or worker paths.
+- **Human-review framing** for AI-generated findings belongs in product copy and trace metadata, not in bypassing review gates.
+
+## Contracts and UI
+
+- OpenAPI / wire DTO changes after new AI-facing HTTP surface: **`.cursor/rules/Http-Surface-Docs-And-Clients.mdc`** (snapshot, **`ArchLucid.Api.Client`**, **`archlucid-ui` `generate:api-types`**).
+
+## Inbound MCP (roadmap)
+
+- **V1.1** MCP posture is documented in **`docs/library/MCP_AND_AGENT_ECOSYSTEM_BACKLOG.md`**. Do not treat absence of MCP in **V1** as a defect; when implementing server-side tools, follow the same **redaction + least context** rules as REST-backed features.

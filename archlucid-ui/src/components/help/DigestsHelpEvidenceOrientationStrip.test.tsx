@@ -1,0 +1,33 @@
+import { render, screen } from "@testing-library/react";
+import { describe, expect, it } from "vitest";
+
+import { DigestsHelpEvidenceOrientationStrip } from "@/components/help/DigestsHelpEvidenceOrientationStrip";
+import { expectClaimDisciplineBand } from "@/lib/claim-discipline-test-helpers";
+import {
+  DIGESTS_HELP_FOLLOW_UPS_TITLE,
+  DIGESTS_HELP_SOURCES,
+} from "@/lib/digests-help-evidence-copy";
+import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
+import { HELP_DILIGENCE_ARTIFACT_INDEX_TITLE } from "@/lib/help/help-diligence-artifact-index";
+
+describe("DigestsHelpEvidenceOrientationStrip", () => {
+  it("renders neutral claim discipline and cross-topic follow-up links", () => {
+    render(<DigestsHelpEvidenceOrientationStrip />);
+
+    expect(screen.getByTestId("help-digests-orientation")).toBeInTheDocument();
+
+    expectClaimDisciplineBand(screen, "help-digests", "help-digests-claim-discipline");
+
+    expect(screen.getByRole("heading", { name: DIGESTS_HELP_FOLLOW_UPS_TITLE })).toHaveAttribute(
+      "id",
+      "where-to-go-next",
+    );
+    expect(screen.queryByRole("heading", { name: HELP_DILIGENCE_ARTIFACT_INDEX_TITLE })).toBeNull();
+    expect(screen.queryByRole("complementary")).toBeNull();
+
+    for (const source of DIGESTS_HELP_SOURCES) {
+      const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
+      expect(screen.getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
+    }
+  });
+});

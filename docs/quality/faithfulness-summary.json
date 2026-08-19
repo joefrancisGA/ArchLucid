@@ -1,0 +1,8 @@
+{
+  "formatVersion": "1.0",
+  "casesEvaluated": 36,
+  "positiveReadinessSupportRatio": 0.9782608695652174,
+  "negativeControlSupportRatio": 0.038461538461538464,
+  "combinedDiagnosticSupportRatio": 0.6388888888888888,
+  "floorMinSupportRatio": 0.8
+}

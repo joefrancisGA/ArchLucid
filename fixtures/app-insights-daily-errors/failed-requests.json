@@ -1,0 +1,19 @@
+{
+  "tables": [
+    {
+      "name": "PrimaryResult",
+      "columns": [
+        { "name": "Name", "type": "string" },
+        { "name": "ResultCode", "type": "string" },
+        { "name": "Count", "type": "long" }
+      ],
+      "rows": [
+        [
+          "POST /v1/architecture/draft",
+          "500",
+          12
+        ]
+      ]
+    }
+  ]
+}

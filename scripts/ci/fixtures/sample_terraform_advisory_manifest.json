@@ -1,0 +1,82 @@
+{
+  "$comment": "Mock manifest decisions for CI-only Terraform advisory emit. Keep semantics aligned with ArchLucid.ArtifactSynthesis Services (TerraformAdvisoryArtifactGenerator pipeline). ResolvedArchitectureDecision shape: DecisionId, Category, Title, SelectedOption, Rationale, RelatedNodeIds, RawDecisionJson (optional).",
+  "artifactScenarios": [
+    {
+      "id": "two-decommission-sections",
+      "decisions": [
+        {
+          "decisionId": "d1",
+          "category": "Cost",
+          "title": "Decommission unused environment",
+          "selectedOption": "Dev sandbox",
+          "rationale": "Idle spend",
+          "relatedNodeIds": []
+        },
+        {
+          "decisionId": "d2",
+          "category": "Security",
+          "title": "Key rotation",
+          "selectedOption": "Standard rotation",
+          "rationale": "Remove compromised credentials",
+          "relatedNodeIds": []
+        }
+      ]
+    },
+    {
+      "id": "stub-no-decommission-intent",
+      "decisions": [
+        {
+          "decisionId": "non-decom-1",
+          "category": "Reliability",
+          "title": "Add redundancy",
+          "selectedOption": "Enable zone redundancy",
+          "rationale": "Improve availability",
+          "relatedNodeIds": []
+        }
+      ]
+    }
+  ],
+  "standaloneDecisionSnippets": [
+    {
+      "id": "decommission-related-nodes-address-hint",
+      "decisionId": "dec-node-1",
+      "category": "Lifecycle",
+      "title": "Decommission test workload",
+      "selectedOption": "Option A",
+      "rationale": "Cost",
+      "relatedNodeIds": ["graph-node-1", "graph-node-2"]
+    },
+    {
+      "id": "decommission-selected-option-terraform-address",
+      "decisionId": "dec-addr-1",
+      "category": "Lifecycle",
+      "title": "Remove stale NIC",
+      "selectedOption": "azurerm_network_interface.legacy",
+      "rationale": "Orphan resource",
+      "relatedNodeIds": []
+    },
+    {
+      "id": "decommission-fallback-address-hint",
+      "decisionId": "dec-fallback-1",
+      "category": "Lifecycle",
+      "title": "Tear down sandbox",
+      "selectedOption": "SandboxOnly",
+      "rationale": "No longer needed",
+      "relatedNodeIds": []
+    }
+  ],
+  "templateSnippets": [
+    {
+      "id": "example-right-size-vm",
+      "findingId": "finding-1",
+      "recommendationId": "rec-a",
+      "kind": "ExampleRightSizeVm"
+    },
+    {
+      "id": "explainer-instead-of-destroy",
+      "resourceTerraformAddress": "azurerm_virtual_machine.example",
+      "reason": "protected until operator confirms in UI",
+      "kind": "ExplainerInsteadOfDestroy"
+    }
+  ]
+}

@@ -1,0 +1,185 @@
+using ArchLucid.Contracts.Agents;
+using ArchLucid.Core.AgentEvaluation;
+using ArchLucid.Core.QualityGates;
+using ArchLucid.Core.Scoping;
+
+namespace ArchLucid.Persistence.Data.Repositories;
+
+/// <summary>
+///     Persistence contract for <see cref="AgentExecutionTrace" /> records that capture
+///     the step-by-step execution log of each agent during a run.
+/// </summary>
+public interface IAgentExecutionTraceRepository
+{
+    /// <summary>Persists a single execution trace entry.</summary>
+    /// <param name="trace">The trace to create.</param>
+    /// <param name="cancellationToken">Propagates notification that the operation should be canceled.</param>
+    Task CreateAsync(
+        AgentExecutionTrace trace,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    ///     Updates blob pointer columns and refreshes <c>TraceJson</c> after asynchronous full-text uploads.
+    /// </summary>
+    Task PatchBlobStorageFieldsAsync(
+        string traceId,
+        string? fullSystemPromptBlobKey,
+        string? fullUserPromptBlobKey,
+        string? fullResponseBlobKey,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    ///     Sets the <see cref="AgentExecutionTrace.BlobUploadFailed" /> flag on a trace row.
+    /// </summary>
+    Task PatchBlobUploadFailedAsync(
+        string traceId,
+        bool failed,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    ///     Merges full prompt/response text into <see cref="AgentExecutionTrace" /> JSON and optional SQL inline columns
+    ///     for forensic recovery when blob keys are missing. Non-null parameters overwrite; null leaves existing values.
+    /// </summary>
+    Task PatchInlinePromptFallbackAsync(
+        string traceId,
+        string? fullSystemPromptInline,
+        string? fullUserPromptInline,
+        string? fullResponseInline,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    ///     Sets <see cref="AgentExecutionTrace.InlineFallbackFailed" /> when mandatory inline forensic text could not be
+    ///     stored or verified.
+    /// </summary>
+    Task PatchInlineFallbackFailedAsync(
+        string traceId,
+        bool failed,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    ///     Sets <see cref="AgentExecutionTrace.QualityWarning" /> after a quality-gate <c>warned</c> outcome (merges into
+    ///     <c>TraceJson</c> for SQL and Cosmos).
+    /// </summary>
+    Task PatchQualityWarningAsync(
+        string traceId,
+        bool qualityWarning,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    ///     Sets <see cref="AgentExecutionTrace.QualityRejected" /> after a quality-gate <c>rejected</c> outcome (merges into
+    ///     <c>TraceJson</c> for SQL and Cosmos).
+    /// </summary>
+    Task PatchQualityRejectedAsync(
+        string traceId,
+        bool qualityRejected,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    ///     Persists evaluate-time gate definition snapshot + immutable outcome (TB-973). Never overwrites an existing snapshot.
+    /// </summary>
+    Task PatchQualityGateRecordedSnapshotAsync(
+        string traceId,
+        AgentOutputQualityGateOutcome recordedOutcome,
+        string definitionVersion,
+        string definitionContentHashSha256,
+        string gateMode,
+        QualityGateRecordedEvaluationSnapshot? evaluationSnapshot,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>Returns a single trace by id, or <see langword="null" /> when the row is missing.</summary>
+    Task<AgentExecutionTrace?> GetByTraceIdAsync(
+        string traceId,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    ///     Returns all traces for the specified run, ordered by <c>CreatedUtc</c> ascending.
+    /// </summary>
+    /// <param name="runId">The run whose traces are requested.</param>
+    /// <param name="cancellationToken">Propagates notification that the operation should be canceled.</param>
+    Task<IReadOnlyList<AgentExecutionTrace>> GetByRunIdAsync(
+        ScopeContext scope,
+        string runId,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    ///     Returns token/deployment slices for LLM cost aggregation without deserializing full <c>TraceJson</c> (TB-577).
+    /// </summary>
+    Task<IReadOnlyList<AgentExecutionTraceLlmCostSlice>> GetLlmCostSlicesByRunIdAsync(
+        ScopeContext scope,
+        string runId,
+        CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyDictionary<string, IReadOnlyList<AgentExecutionTraceLlmCostSlice>>> GetLlmCostSlicesByRunIdsAsync(
+        ScopeContext scope,
+        IReadOnlyCollection<string> runIds,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    ///     Returns a page of traces for the run ordered by <c>CreatedUtc</c> ascending,
+    ///     together with the total row count for that run.
+    ///     Full <c>TraceJson</c> — use for forensics; prefer
+    ///     <see cref="GetPagedSummariesByRunIdAsync" /> for operator lists.
+    /// </summary>
+    /// <param name="runId">The run whose traces are requested.</param>
+    /// <param name="offset">Zero-based row offset for paging.</param>
+    /// <param name="limit">Maximum number of rows to return.</param>
+    /// <param name="cancellationToken">Propagates notification that the operation should be canceled.</param>
+    Task<(IReadOnlyList<AgentExecutionTrace> Traces, int TotalCount)> GetPagedByRunIdAsync(
+        ScopeContext scope,
+        string runId,
+        int offset,
+        int limit,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    ///     Returns a page of operator list summaries for the run without deserializing full <c>TraceJson</c> (TB-929).
+    /// </summary>
+    Task<(IReadOnlyList<AgentExecutionTraceSummary> Summaries, int TotalCount)> GetPagedSummariesByRunIdAsync(
+        ScopeContext scope,
+        string runId,
+        int offset,
+        int limit,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    ///     Counts traces for the run without loading <c>TraceJson</c> (TB-929 trust-card / totals).
+    /// </summary>
+    Task<int> CountByRunIdAsync(
+        ScopeContext scope,
+        string runId,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    ///     Returns all traces associated with a specific agent task, ordered by <c>CreatedUtc</c> ascending.
+    /// </summary>
+    /// <param name="taskId">The agent task whose traces are requested.</param>
+    /// <param name="cancellationToken">Propagates notification that the operation should be canceled.</param>
+    Task<IReadOnlyList<AgentExecutionTrace>> GetByTaskIdAsync(
+        string taskId,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    ///     Distinct <see cref="AgentExecutionTrace.AgentType" /> names for traces whose
+    ///     <see cref="AgentExecutionTrace.ModelDeploymentName" /> indicates completion-resource fallback (
+    ///     <see cref="AgentExecutionTraceModelMetadata.LlmCompletionFallbackDeploymentPrefix" />).
+    /// </summary>
+    Task<IReadOnlyList<string>> GetDistinctAgentTypesWithLlmResourceFallbackAsync(
+        ScopeContext scope,
+        string runId,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>Batch form of <see cref="GetDistinctAgentTypesWithLlmResourceFallbackAsync" /> keyed by <paramref name="runId" /> string.</summary>
+    Task<IReadOnlyDictionary<string, IReadOnlyList<string>>> GetDistinctAgentTypesWithLlmResourceFallbackByRunIdsAsync(
+        ScopeContext scope,
+        IReadOnlyList<string> runIds,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    ///     Hard-deletes up to <paramref name="maxRows" /> rows with <c>ArchivedUtc</c> strictly before
+    ///     <paramref name="archivedBeforeUtc" />. Returns the delete count (SQL); Cosmos/in-memory may return 0.
+    /// </summary>
+    Task<int> HardDeleteTracesArchivedBeforeAsync(
+        DateTimeOffset archivedBeforeUtc,
+        int maxRows,
+        CancellationToken cancellationToken = default);
+}

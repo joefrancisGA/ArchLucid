@@ -1,0 +1,87 @@
+{
+  "rulePackId": "aillm-vertical-v1",
+  "name": "Enterprise generative AI / LLM workload",
+  "version": "1.0.0",
+  "rules": [
+    {
+      "ruleId": "aillm-ctrl-001",
+      "controlId": "AILLM-001",
+      "controlName": "GenAI / LLM workload \u2014 control theme logging",
+      "appliesToCategory": "logging",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Tamper-evident logging for model invocations and governance events; prompts and outputs redacted or hashed per retention policy (architecture review vocabulary only)."
+    },
+    {
+      "ruleId": "aillm-ctrl-002",
+      "controlId": "AILLM-002",
+      "controlName": "GenAI / LLM workload \u2014 control theme encryption",
+      "appliesToCategory": "encryption",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Error",
+      "description": "Customer-managed or platform keys for model endpoints, vector stores, and prompt caches; TLS for all inference and RAG retrieval paths."
+    },
+    {
+      "ruleId": "aillm-ctrl-003",
+      "controlId": "AILLM-003",
+      "controlName": "GenAI / LLM workload \u2014 control theme access",
+      "appliesToCategory": "access",
+      "requiredNodeType": "PolicyControl",
+      "requiredEdgeType": "APPLIES_TO",
+      "severity": "Warning",
+      "description": "Entra ID / RBAC for who can deploy models, change system prompts, or access evaluation datasets; break-glass for ops documented."
+    },
+    {
+      "ruleId": "aillm-ctrl-004",
+      "controlId": "AILLM-004",
+      "controlName": "GenAI / LLM workload \u2014 control theme thirdparty",
+      "appliesToCategory": "thirdparty",
+      "requiredNodeType": "PolicyControl",
+      "requiredEdgeType": "APPLIES_TO",
+      "severity": "Error",
+      "description": "Model provider and embedding API inventory; data-processing terms and egress boundaries before production traffic (no legal attestation implied)."
+    },
+    {
+      "ruleId": "aillm-ctrl-005",
+      "controlId": "AILLM-005",
+      "controlName": "GenAI / LLM workload \u2014 control theme segmentation",
+      "appliesToCategory": "segmentation",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Separate subnets and identities for inference plane, RAG corpus, and corporate data; deny-by-default east-west between tiers."
+    },
+    {
+      "ruleId": "aillm-ctrl-006",
+      "controlId": "AILLM-006",
+      "controlName": "GenAI / LLM workload \u2014 control theme dr",
+      "appliesToCategory": "dr",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Error",
+      "description": "Fallback routing or degraded mode when the primary model endpoint is unavailable; RPO/RTO expectations stated for copilot surfaces."
+    },
+    {
+      "ruleId": "aillm-ctrl-007",
+      "controlId": "AILLM-007",
+      "controlName": "GenAI / LLM workload \u2014 control theme changes",
+      "appliesToCategory": "changes",
+      "requiredNodeType": "PolicyControl",
+      "requiredEdgeType": "APPLIES_TO",
+      "severity": "Warning",
+      "description": "Versioned prompts, tool schemas, and model SKUs through CI/CD; human review for high-risk capability changes."
+    },
+    {
+      "ruleId": "aillm-ctrl-008",
+      "controlId": "AILLM-008",
+      "controlName": "GenAI / LLM workload \u2014 control theme monitoring",
+      "appliesToCategory": "monitoring",
+      "requiredNodeType": "PolicyControl",
+      "requiredEdgeType": "APPLIES_TO",
+      "severity": "Error",
+      "description": "Observability for latency, errors, token/cost signals, and content-safety blocks; alerting on anomalous egress or jailbreak patterns (design intent)."
+    }
+  ]
+}

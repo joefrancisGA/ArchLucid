@@ -1,0 +1,17 @@
+{
+  "authority": [
+    {
+      "category": "Requirement",
+      "selectedOption": "Accepted",
+      "title": "Auth-0",
+      "rationale": "Authenticate users"
+    }
+  ],
+  "merge": {
+    "success": false,
+    "errors": [
+      "AgentResult RES-GOLD-CASE32-1: RunId \u0027golden-merge-run-1\u0027 does not match the merge run \u0027golden-merge-case-32\u0027; cross-run results must not be merged."
+    ],
+    "serviceIds": []
+  }
+}

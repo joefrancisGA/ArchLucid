@@ -1,0 +1,56 @@
+using System.Text.Json;
+
+using ArchLucid.ArtifactSynthesis.Interfaces;
+using ArchLucid.ArtifactSynthesis.Models;
+using ArchLucid.ArtifactSynthesis.Services;
+using ArchLucid.Core.Manifest.Sections;
+using ArchLucid.Decisioning.Models;
+
+namespace ArchLucid.ArtifactSynthesis.Generators;
+
+public class DiagramAstGenerator : IArtifactGenerator
+{
+    public string ArtifactType => Models.ArtifactType.DiagramAst;
+
+    public Task<SynthesizedArtifact> GenerateAsync(
+        ManifestDocument manifest,
+        CancellationToken ct)
+    {
+        _ = ct;
+        DiagramAst ast = new() { Title = manifest.Metadata.Name };
+
+        ast.Nodes.Add(new DiagramNode { NodeId = "manifest", Label = "Golden Manifest", NodeType = "Manifest" });
+
+        foreach (ResolvedArchitectureDecision decision in manifest.Decisions)
+        {
+            string nodeId = $"decision-{decision.DecisionId}";
+            ast.Nodes.Add(new DiagramNode { NodeId = nodeId, Label = decision.Title, NodeType = decision.Category });
+
+            ast.Edges.Add(new DiagramEdge { FromNodeId = "manifest", ToNodeId = nodeId, Label = "contains" });
+        }
+
+        for (int i = 0; i < manifest.UnresolvedIssues.Items.Count; i++)
+        {
+            ManifestIssue issue = manifest.UnresolvedIssues.Items[i];
+            string nodeId = $"issue-{i}";
+            ast.Nodes.Add(new DiagramNode { NodeId = nodeId, Label = issue.Title, NodeType = "Issue" });
+
+            ast.Edges.Add(new DiagramEdge { FromNodeId = "manifest", ToNodeId = nodeId, Label = "flags" });
+        }
+
+        string content = JsonSerializer.Serialize(ast, SynthesisJsonOptions.WriteIndented);
+
+        return Task.FromResult(new SynthesizedArtifact
+        {
+            ArtifactId = Guid.NewGuid(),
+            RunId = manifest.RunId,
+            ManifestId = manifest.ManifestId,
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+            ArtifactType = Models.ArtifactType.DiagramAst,
+            Name = "diagram-ast.json",
+            Format = "json",
+            Content = content,
+            ContentHash = ArtifactHashing.ComputeHash(content)
+        });
+    }
+}

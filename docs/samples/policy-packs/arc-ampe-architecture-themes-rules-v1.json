@@ -1,0 +1,2737 @@
+{
+  "schemaVersion": 1,
+  "kind": "archlucid.policyPack.curatedRules.v1",
+  "pack": {
+    "name": "ARC-AMPE Architecture Themes (CMS ACA / Medicaid Partner Entities)",
+    "description": "Architecture-review themes aligned to CMS ARC-AMPE Volume I v1.02 (Pillars, ACA AE CSF Profile, Privacy Framework profile) with NIST SP 800-53 R5 control citations. Thematic mapping only; not CMS conformity, SSPP authoring, or attestation.",
+    "version": "1.1.0",
+    "category": "Compliance",
+    "isDefault": true,
+    "suggestedPackType": "PlatformDefault",
+    "policyPackContentDocumentPath": "docs/samples/policy-packs/arc-ampe-architecture-themes.json"
+  },
+  "rules": [
+    {
+      "id": "arc-ampe-001",
+      "title": "Consumer engagement surfaces documented for informed enrollment decisions",
+      "description": "Exchange-facing portals, eligibility APIs, and partner enrollment channels must document how consumers receive clear plan and subsidy information before PII is collected \u2014 supporting ACA AE Pillar 1 when the tenant operates as an Administering Entity or Medicaid partner.",
+      "severity": "High",
+      "priority": "P0",
+      "remediationGuidance": "Tag consumer-facing services with pillar:engage and enrollment-channel in services[].Tags; describe consent and disclosure touchpoints in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "azureExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose",
+        "services[].Endpoints"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "ARC-AMPE Volume I (CMS, v1.02)",
+          "theme": "ACA AE Pillars \u2014 Pillar 1: Engage consumers and enable informed enrollment decisions"
+        },
+        {
+          "framework": "NIST SP 800-53 R5",
+          "control": "PM-1",
+          "requirement": "Information security program plan"
+        },
+        {
+          "framework": "Disclaimer",
+          "theme": "Thematic architecture-review mapping; not CMS conformity, SSPP authoring, or legal classification."
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-002",
+      "title": "End-to-end enrollment workflow boundaries mapped across systems",
+      "description": "Architecture must trace the seamless enrollment path from identity proofing through plan selection, subsidy determination, and issuer handoff \u2014 including every partner entity that touches applicant data.",
+      "severity": "High",
+      "priority": "P0",
+      "remediationGuidance": "Map enrollment stages on relationships[] between eligibility, enrollment hub, and issuer integration services; document handoff contracts in governance.PolicyConstraints.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "azureExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose",
+        "services[].Endpoints"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "ARC-AMPE Volume I (CMS, v1.02)",
+          "theme": "ACA AE Pillars \u2014 Pillar 2: Seamless experience and end-to-end enrollment"
+        },
+        {
+          "framework": "NIST SP 800-53 R5",
+          "control": "SA-8",
+          "requirement": "Security and privacy engineering principles"
+        },
+        {
+          "framework": "Disclaimer",
+          "theme": "Thematic architecture-review mapping; not CMS conformity, SSPP authoring, or legal classification."
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-003",
+      "title": "Trust, transparency, and accountability controls for Exchange data handling",
+      "description": "Manifest must show auditability, breach notification paths, and public accountability mechanisms for systems processing FFE/SBE or Medicaid eligibility and enrollment data.",
+      "severity": "High",
+      "priority": "P0",
+      "remediationGuidance": "Record accountability owners in governance.ComplianceTags; cite audit log destinations and incident escalation in governance.RequiredControls.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "azureExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose",
+        "services[].Endpoints"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "ARC-AMPE Volume I (CMS, v1.02)",
+          "theme": "ACA AE Pillars \u2014 Pillar 3: Trust, transparency, and accountability"
+        },
+        {
+          "framework": "NIST SP 800-53 R5",
+          "control": "AU-6",
+          "requirement": "Audit record review, analysis, and reporting"
+        },
+        {
+          "framework": "Disclaimer",
+          "theme": "Thematic architecture-review mapping; not CMS conformity, SSPP authoring, or legal classification."
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-004",
+      "title": "Coverage service availability and accessibility architecture documented",
+      "description": "Enrollment and plan-shopping surfaces must document resilience targets, regional failover, and accessibility accommodations so coverage remains available during open enrollment peaks.",
+      "severity": "High",
+      "priority": "P0",
+      "remediationGuidance": "State RTO/RPO expectations in governance.PolicyConstraints; tag availability-tier on critical services[].Tags; align multi-region posture with azureExtractor inventory.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "azureExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose",
+        "services[].Endpoints"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "ARC-AMPE Volume I (CMS, v1.02)",
+          "theme": "ACA AE Pillars \u2014 Pillar 4: Accessibility and availability of coverage"
+        },
+        {
+          "framework": "NIST SP 800-53 R5",
+          "control": "CP-2",
+          "requirement": "Contingency plan"
+        },
+        {
+          "framework": "Disclaimer",
+          "theme": "Thematic architecture-review mapping; not CMS conformity, SSPP authoring, or legal classification."
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-005",
+      "title": "Federal regulatory compliance architecture for ACA and Medicaid obligations",
+      "description": "Systems in scope for ARC-AMPE must document how architecture supports HIPAA, 45 CFR Part 155, Medicaid IT standards, and CMS security/privacy contract clauses \u2014 without asserting legal classification.",
+      "severity": "High",
+      "priority": "P0",
+      "remediationGuidance": "List applicable regulatory tags in governance.ComplianceTags; map control inheritance from platform to tenant workloads in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "ARC-AMPE Volume I (CMS, v1.02)",
+          "theme": "ACA AE Pillars \u2014 Pillar 5: Compliance with federal laws and regulations"
+        },
+        {
+          "framework": "NIST SP 800-53 R5",
+          "control": "PL-2",
+          "requirement": "System and communications protection policy"
+        },
+        {
+          "framework": "Disclaimer",
+          "theme": "Thematic architecture-review mapping; not CMS conformity, SSPP authoring, or legal classification."
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-006",
+      "title": "Governed innovation paths for new Exchange and Medicaid capabilities",
+      "description": "New enrollment features, third-party integrations, and AI-assisted decision support must document security review gates before production \u2014 balancing Pillar 6 innovation with controlled change.",
+      "severity": "High",
+      "priority": "P0",
+      "remediationGuidance": "Describe architecture review and threat modeling gates in governance.RequiredControls; tag experimental integrations with innovation:review-pending on services[].Tags.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "ARC-AMPE Volume I (CMS, v1.02)",
+          "theme": "ACA AE Pillars \u2014 Pillar 6: Drive innovation with governed change"
+        },
+        {
+          "framework": "NIST SP 800-53 R5",
+          "control": "SA-3",
+          "requirement": "System development life cycle"
+        },
+        {
+          "framework": "Disclaimer",
+          "theme": "Thematic architecture-review mapping; not CMS conformity, SSPP authoring, or legal classification."
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-007",
+      "title": "Continuity of care and affordable product data flows documented",
+      "description": "Architecture must show how member, provider, and formulary data supports continuity of care and simple product presentation \u2014 including cross-plan data retention boundaries for partner entities.",
+      "severity": "High",
+      "priority": "P0",
+      "remediationGuidance": "Document care-continuity data stores in datastores[].Tags; map issuer and MCO integration edges on relationships[] with data-classification labels.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "azureExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose",
+        "services[].Endpoints"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "ARC-AMPE Volume I (CMS, v1.02)",
+          "theme": "ACA AE Pillars \u2014 Pillar 7: Simple affordable products and continuity of care"
+        },
+        {
+          "framework": "NIST SP 800-53 R5",
+          "control": "SI-12",
+          "requirement": "Information management and retention"
+        },
+        {
+          "framework": "Disclaimer",
+          "theme": "Thematic architecture-review mapping; not CMS conformity, SSPP authoring, or legal classification."
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-008",
+      "title": "Hardware and software asset inventory for Exchange workloads",
+      "description": "All Azure resources supporting eligibility, enrollment, or Medicaid operations must appear in the manifest with owners \u2014 not only application tiers.",
+      "severity": "High",
+      "priority": "P0",
+      "remediationGuidance": "Ensure azureExtractor inventory populates services[] and datastores[]; add owner tags and environment class in governance.ComplianceTags.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "azureExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose",
+        "services[].Endpoints"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "ARC-AMPE Volume I (CMS, v1.02)",
+          "theme": "ACA AE CSF Profile \u2014 IDENTIFY / ID.AM-1: Physical devices and systems inventoried"
+        },
+        {
+          "framework": "NIST SP 800-53 R5",
+          "control": "CM-8",
+          "requirement": "System component inventory"
+        },
+        {
+          "framework": "Disclaimer",
+          "theme": "Thematic architecture-review mapping; not CMS conformity, SSPP authoring, or legal classification."
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-009",
+      "title": "Software platforms and applications inventoried with version posture",
+      "description": "PaaS runtimes, container images, and COTS packages used in Exchange integrations must be enumerated with supported-version expectations.",
+      "severity": "High",
+      "priority": "P0",
+      "remediationGuidance": "Tag runtime and image references on services[].Tags; document patch cadence in governance.PolicyConstraints.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "azureExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose",
+        "services[].Endpoints"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "ARC-AMPE Volume I (CMS, v1.02)",
+          "theme": "ACA AE CSF Profile \u2014 IDENTIFY / ID.AM-2: Software platforms and applications inventoried"
+        },
+        {
+          "framework": "NIST SP 800-53 R5",
+          "control": "CM-7",
+          "requirement": "Least functionality"
+        },
+        {
+          "framework": "Disclaimer",
+          "theme": "Thematic architecture-review mapping; not CMS conformity, SSPP authoring, or legal classification."
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-010",
+      "title": "Organizational communication and data flows mapped for PII/PHI",
+      "description": "Data flows between AE systems, state Medicaid agencies, issuers, and partner entities must be mapped \u2014 especially cross-boundary transfers of applicant and member data.",
+      "severity": "High",
+      "priority": "P0",
+      "remediationGuidance": "Draw flow narratives in metadata.ChangeDescription; link services and datastores via relationships[] with data-flow labels.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "azureExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose",
+        "services[].Endpoints"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "ARC-AMPE Volume I (CMS, v1.02)",
+          "theme": "ACA AE CSF Profile \u2014 IDENTIFY / ID.AM-3: Organizational communication and data flows mapped"
+        },
+        {
+          "framework": "NIST SP 800-53 R5",
+          "control": "AC-4",
+          "requirement": "Information flow enforcement"
+        },
+        {
+          "framework": "Disclaimer",
+          "theme": "Thematic architecture-review mapping; not CMS conformity, SSPP authoring, or legal classification."
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-011",
+      "title": "External information systems cataloged for partner entity dependencies",
+      "description": "Third-party SaaS, BPO, and cloud services processing Exchange data must be listed with contractual security expectations and data residency constraints.",
+      "severity": "High",
+      "priority": "P0",
+      "remediationGuidance": "Tag external-system and partner-entity on affected services[].Tags; record DPA references in governance.PolicyConstraints.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "azureExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose",
+        "services[].Endpoints"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "ARC-AMPE Volume I (CMS, v1.02)",
+          "theme": "ACA AE CSF Profile \u2014 IDENTIFY / ID.AM-4: External information systems cataloged"
+        },
+        {
+          "framework": "NIST SP 800-53 R5",
+          "control": "SA-9",
+          "requirement": "External system services"
+        },
+        {
+          "framework": "Disclaimer",
+          "theme": "Thematic architecture-review mapping; not CMS conformity, SSPP authoring, or legal classification."
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-012",
+      "title": "Resources prioritized by criticality for enrollment peak operations",
+      "description": "Critical functions during open enrollment (eligibility, plan shopping, payment) must be tagged with business criticality so resilience investments align with ID.AM-5.",
+      "severity": "Medium",
+      "priority": "P1",
+      "remediationGuidance": "Apply criticality:critical on peak-path services[].Tags; document prioritization in governance.RequiredControls.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "azureExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose",
+        "services[].Endpoints"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "ARC-AMPE Volume I (CMS, v1.02)",
+          "theme": "ACA AE CSF Profile \u2014 IDENTIFY / ID.AM-5: Resources prioritized based on criticality"
+        },
+        {
+          "framework": "NIST SP 800-53 R5",
+          "control": "CP-2",
+          "requirement": "Contingency plan"
+        },
+        {
+          "framework": "Disclaimer",
+          "theme": "Thematic architecture-review mapping; not CMS conformity, SSPP authoring, or legal classification."
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-013",
+      "title": "Cybersecurity roles and responsibilities documented for AE operations",
+      "description": "Named accountable roles (ISSO, privacy officer, integration owners) must be referenced for systems in Exchange or Medicaid scope \u2014 not assumed from org chart alone.",
+      "severity": "High",
+      "priority": "P0",
+      "remediationGuidance": "Record role assignments in governance.ComplianceTags and metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "ARC-AMPE Volume I (CMS, v1.02)",
+          "theme": "ACA AE CSF Profile \u2014 IDENTIFY / ID.BE-3: Priorities for organizational mission communicated"
+        },
+        {
+          "framework": "NIST SP 800-53 R5",
+          "control": "PM-2",
+          "requirement": "Information security program leadership role"
+        },
+        {
+          "framework": "Disclaimer",
+          "theme": "Thematic architecture-review mapping; not CMS conformity, SSPP authoring, or legal classification."
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-014",
+      "title": "Dependencies and critical functions identified for Exchange services",
+      "description": "Upstream identity providers, payment processors, and state hub integrations must be documented as dependencies whose failure blocks enrollment.",
+      "severity": "High",
+      "priority": "P0",
+      "remediationGuidance": "Map dependency edges on relationships[]; tag dependency:critical on integration services.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "azureExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose",
+        "services[].Endpoints"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "ARC-AMPE Volume I (CMS, v1.02)",
+          "theme": "ACA AE CSF Profile \u2014 IDENTIFY / ID.BE-4: Dependencies and critical functions identified"
+        },
+        {
+          "framework": "NIST SP 800-53 R5",
+          "control": "CP-8",
+          "requirement": "Telecommunications services"
+        },
+        {
+          "framework": "Disclaimer",
+          "theme": "Thematic architecture-review mapping; not CMS conformity, SSPP authoring, or legal classification."
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-015",
+      "title": "Resilience requirements aligned to enrollment and Medicaid service levels",
+      "description": "RTO, RPO, and capacity headroom for peak enrollment must be stated for systems supporting ACA AE or state Medicaid operations.",
+      "severity": "High",
+      "priority": "P0",
+      "remediationGuidance": "Document resilience targets in governance.PolicyConstraints; align availability zones and scale rules with azureExtractor posture.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "azureExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose",
+        "services[].Endpoints"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "ARC-AMPE Volume I (CMS, v1.02)",
+          "theme": "ACA AE CSF Profile \u2014 IDENTIFY / ID.BE-5: Resilience requirements established"
+        },
+        {
+          "framework": "NIST SP 800-53 R5",
+          "control": "CP-10",
+          "requirement": "System recovery and reconstitution"
+        },
+        {
+          "framework": "Disclaimer",
+          "theme": "Thematic architecture-review mapping; not CMS conformity, SSPP authoring, or legal classification."
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-016",
+      "title": "Supply chain role documented for partner entity integrations",
+      "description": "When the tenant acts as a partner entity, architecture must show how subcontractor and vendor components inherit security requirements for Exchange-bound data.",
+      "severity": "High",
+      "priority": "P0",
+      "remediationGuidance": "Tag supply-chain:in-scope on vendor-hosted services; cite SR-family mappings in governance.RequiredControls.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "ARC-AMPE Volume I (CMS, v1.02)",
+          "theme": "ACA AE CSF Profile \u2014 IDENTIFY / ID.BE-1: Supply chain role in critical infrastructure"
+        },
+        {
+          "framework": "NIST SP 800-53 R5",
+          "control": "SR-3",
+          "requirement": "Supply chain controls and processes"
+        },
+        {
+          "framework": "Disclaimer",
+          "theme": "Thematic architecture-review mapping; not CMS conformity, SSPP authoring, or legal classification."
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-017",
+      "title": "Organizational cybersecurity policy established for Exchange scope",
+      "description": "A documented security policy covering ACA/Medicaid systems must be referenced at architecture scope \u2014 including acceptable use of cloud regions and encryption standards.",
+      "severity": "High",
+      "priority": "P0",
+      "remediationGuidance": "Capture policy references in governance.PolicyConstraints and governance.RequiredControls.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "ARC-AMPE Volume I (CMS, v1.02)",
+          "theme": "ACA AE CSF Profile \u2014 IDENTIFY / ID.GV-1: Organizational cybersecurity policy established"
+        },
+        {
+          "framework": "NIST SP 800-53 R5",
+          "control": "PL-1",
+          "requirement": "Policy and procedures"
+        },
+        {
+          "framework": "Disclaimer",
+          "theme": "Thematic architecture-review mapping; not CMS conformity, SSPP authoring, or legal classification."
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-018",
+      "title": "Legal and regulatory requirements mapped to architecture controls",
+      "description": "Manifest must map HIPAA, state privacy laws, CMS contract clauses, and ARC-AMPE obligations to concrete technical controls \u2014 for counsel review, not auto-classification.",
+      "severity": "High",
+      "priority": "P0",
+      "remediationGuidance": "Use governance.ComplianceTags for regulation references; avoid asserting AE or Partner Entity status.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "ARC-AMPE Volume I (CMS, v1.02)",
+          "theme": "ACA AE CSF Profile \u2014 IDENTIFY / ID.GV-3: Legal and regulatory requirements understood"
+        },
+        {
+          "framework": "NIST SP 800-53 R5",
+          "control": "PM-11",
+          "requirement": "Mission and business process definition"
+        },
+        {
+          "framework": "Disclaimer",
+          "theme": "Thematic architecture-review mapping; not CMS conformity, SSPP authoring, or legal classification."
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-019",
+      "title": "Governance and risk management processes tied to architecture changes",
+      "description": "Architecture change boards, risk acceptance, and exception tracking must be documented for systems handling FFE/SBE or Medicaid enrollment data.",
+      "severity": "Medium",
+      "priority": "P1",
+      "remediationGuidance": "Describe governance cadence in metadata.ChangeDescription; link exceptions in governance.PolicyConstraints.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "ARC-AMPE Volume I (CMS, v1.02)",
+          "theme": "ACA AE CSF Profile \u2014 IDENTIFY / ID.GV-4: Governance and risk management processes"
+        },
+        {
+          "framework": "NIST SP 800-53 R5",
+          "control": "RA-7",
+          "requirement": "Risk response"
+        },
+        {
+          "framework": "Disclaimer",
+          "theme": "Thematic architecture-review mapping; not CMS conformity, SSPP authoring, or legal classification."
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-020",
+      "title": "Identities and credentials managed for Exchange administrative access",
+      "description": "Human and workload identities with access to enrollment databases or hub APIs must use federated SSO or managed identity \u2014 not long-lived shared accounts.",
+      "severity": "High",
+      "priority": "P0",
+      "remediationGuidance": "Tag identity:entra-federated on services[].Tags; document credential types in governance.RequiredControls.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "azureExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose",
+        "services[].Endpoints"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "ARC-AMPE Volume I (CMS, v1.02)",
+          "theme": "ACA AE CSF Profile \u2014 PROTECT / PR.AC-1: Identities and credentials managed"
+        },
+        {
+          "framework": "NIST SP 800-53 R5",
+          "control": "AC-2",
+          "requirement": "Account management"
+        },
+        {
+          "framework": "Disclaimer",
+          "theme": "Thematic architecture-review mapping; not CMS conformity, SSPP authoring, or legal classification."
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-021",
+      "title": "Physical access limited to cloud control plane via privileged paths",
+      "description": "While PE controls are procedural, architecture must show privileged Azure control-plane access is brokered through PIM/JIT \u2014 not standing Owner on production subscriptions.",
+      "severity": "High",
+      "priority": "P0",
+      "remediationGuidance": "Document PIM usage in governance.PolicyConstraints; align with azureExtractor RBAC inventory.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "azureExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose",
+        "services[].Endpoints"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "ARC-AMPE Volume I (CMS, v1.02)",
+          "theme": "ACA AE CSF Profile \u2014 PROTECT / PR.AC-2: Physical access limited (cloud control plane)"
+        },
+        {
+          "framework": "NIST SP 800-53 R5",
+          "control": "AC-6",
+          "requirement": "Least privilege"
+        },
+        {
+          "framework": "Disclaimer",
+          "theme": "Thematic architecture-review mapping; not CMS conformity, SSPP authoring, or legal classification."
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-022",
+      "title": "Remote access encrypted and brokered for partner entity operators",
+      "description": "VPN, bastion, or zero-trust broker paths for remote administration of Exchange workloads must enforce MFA and session logging.",
+      "severity": "High",
+      "priority": "P1",
+      "remediationGuidance": "Describe remote access architecture in metadata.ChangeDescription; tag remote-access:brokered on relevant services[].Tags.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "azureExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose",
+        "services[].Endpoints"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "ARC-AMPE Volume I (CMS, v1.02)",
+          "theme": "ACA AE CSF Profile \u2014 PROTECT / PR.AC-3: Remote access managed"
+        },
+        {
+          "framework": "NIST SP 800-53 R5",
+          "control": "AC-17",
+          "requirement": "Remote access"
+        },
+        {
+          "framework": "Disclaimer",
+          "theme": "Thematic architecture-review mapping; not CMS conformity, SSPP authoring, or legal classification."
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-023",
+      "title": "Access permissions follow least privilege for enrollment data stores",
+      "description": "Database and storage RBAC must document least-privilege roles for eligibility engineers, operations, and partner entity support staff.",
+      "severity": "High",
+      "priority": "P0",
+      "remediationGuidance": "Map data-plane roles in governance.RequiredControls; verify private endpoints on sensitive datastores.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "azureExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose",
+        "services[].Endpoints"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "ARC-AMPE Volume I (CMS, v1.02)",
+          "theme": "ACA AE CSF Profile \u2014 PROTECT / PR.AC-4: Access permissions managed with least privilege"
+        },
+        {
+          "framework": "NIST SP 800-53 R5",
+          "control": "AC-3",
+          "requirement": "Access enforcement"
+        },
+        {
+          "framework": "Disclaimer",
+          "theme": "Thematic architecture-review mapping; not CMS conformity, SSPP authoring, or legal classification."
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-024",
+      "title": "Network integrity protected for Exchange integration subnets",
+      "description": "Hub-spoke or segmented VNets isolating enrollment APIs from corporate networks must be documented with NSG and firewall rule intent.",
+      "severity": "High",
+      "priority": "P0",
+      "remediationGuidance": "Tag network-segment on services[].Tags; cite NSG and Azure Firewall posture from azureExtractor.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "azureExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose",
+        "services[].Endpoints"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "ARC-AMPE Volume I (CMS, v1.02)",
+          "theme": "ACA AE CSF Profile \u2014 PROTECT / PR.AC-5: Network integrity protected"
+        },
+        {
+          "framework": "NIST SP 800-53 R5",
+          "control": "SC-7",
+          "requirement": "Boundary protection"
+        },
+        {
+          "framework": "Disclaimer",
+          "theme": "Thematic architecture-review mapping; not CMS conformity, SSPP authoring, or legal classification."
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-025",
+      "title": "Identity proofing architecture documented for consumer enrollment",
+      "description": "Identity verification services (RIDP, state hub matching) must document data minimization and segregation from internal admin identities.",
+      "severity": "Medium",
+      "priority": "P1",
+      "remediationGuidance": "Describe proofing integration in metadata.ChangeDescription; tag identity-proofing on consumer channels.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "ARC-AMPE Volume I (CMS, v1.02)",
+          "theme": "ACA AE CSF Profile \u2014 PROTECT / PR.AC-6: Identity proofing for enrollment applicants"
+        },
+        {
+          "framework": "NIST SP 800-53 R5",
+          "control": "IA-5",
+          "requirement": "Authenticator management"
+        },
+        {
+          "framework": "Disclaimer",
+          "theme": "Thematic architecture-review mapping; not CMS conformity, SSPP authoring, or legal classification."
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-026",
+      "title": "Multi-factor authentication enforced for privileged Exchange operations",
+      "description": "Conditional Access requiring MFA for admins and developers touching production enrollment data must be documented \u2014 including break-glass exceptions.",
+      "severity": "High",
+      "priority": "P0",
+      "remediationGuidance": "Record MFA policy in governance.RequiredControls; note break-glass controls in governance.PolicyConstraints.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "azureExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose",
+        "services[].Endpoints"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "ARC-AMPE Volume I (CMS, v1.02)",
+          "theme": "ACA AE CSF Profile \u2014 PROTECT / PR.AC-7: Authentication strength for workforce access"
+        },
+        {
+          "framework": "NIST SP 800-53 R5",
+          "control": "IA-2",
+          "requirement": "Identification and authentication (organizational users)"
+        },
+        {
+          "framework": "Disclaimer",
+          "theme": "Thematic architecture-review mapping; not CMS conformity, SSPP authoring, or legal classification."
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-027",
+      "title": "Security awareness themes for partner entity engineering teams",
+      "description": "Architecture onboarding must reference security training for teams building Medicaid/Exchange integrations.",
+      "severity": "Medium",
+      "priority": "P1",
+      "remediationGuidance": "Note training requirements in governance.ComplianceTags and metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "ARC-AMPE Volume I (CMS, v1.02)",
+          "theme": "ACA AE CSF Profile \u2014 PROTECT / PR.AT-1: Security awareness for workforce"
+        },
+        {
+          "framework": "NIST SP 800-53 R5",
+          "control": "AT-2",
+          "requirement": "Literacy training and awareness"
+        },
+        {
+          "framework": "Disclaimer",
+          "theme": "Thematic architecture-review mapping; not CMS conformity, SSPP authoring, or legal classification."
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-028",
+      "title": "Privileged users receive elevated training for enrollment production access",
+      "description": "Teams with standing or JIT access to member PII databases must document role-specific training.",
+      "severity": "Medium",
+      "priority": "P1",
+      "remediationGuidance": "Tag privileged-training:required on governance.ComplianceTags for production data paths.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "ARC-AMPE Volume I (CMS, v1.02)",
+          "theme": "ACA AE CSF Profile \u2014 PROTECT / PR.AT-2: Privileged user training"
+        },
+        {
+          "framework": "NIST SP 800-53 R5",
+          "control": "AT-3",
+          "requirement": "Role-based training"
+        },
+        {
+          "framework": "Disclaimer",
+          "theme": "Thematic architecture-review mapping; not CMS conformity, SSPP authoring, or legal classification."
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-029",
+      "title": "Data-at-rest encryption documented for applicant and member stores",
+      "description": "SQL, Cosmos, and storage accounts holding eligibility or enrollment data must document TDE/SSE and CMK usage where required by state or CMS contracts.",
+      "severity": "High",
+      "priority": "P0",
+      "remediationGuidance": "Tag encryption-at-rest on datastores[].Tags; verify encryption settings from azureExtractor inventory.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "azureExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose",
+        "services[].Endpoints"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "ARC-AMPE Volume I (CMS, v1.02)",
+          "theme": "ACA AE CSF Profile \u2014 PROTECT / PR.DS-1: Data-at-rest protected"
+        },
+        {
+          "framework": "NIST SP 800-53 R5",
+          "control": "SC-28",
+          "requirement": "Protection of information at rest"
+        },
+        {
+          "framework": "Disclaimer",
+          "theme": "Thematic architecture-review mapping; not CMS conformity, SSPP authoring, or legal classification."
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-030",
+      "title": "Data-in-transit encryption for Exchange-facing API surfaces",
+      "description": "All ingress/egress paths handling PII between consumers, AEs, issuers, and partner entities must document TLS 1.2+ and mutual TLS where B2B contracts require it.",
+      "severity": "High",
+      "priority": "P0",
+      "remediationGuidance": "Tag each ingress in services[].Tags with encryption profile; describe TLS termination in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "azureExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose",
+        "services[].Endpoints"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "ARC-AMPE Volume I (CMS, v1.02)",
+          "theme": "ACA AE CSF Profile \u2014 PROTECT / PR.DS-2: Data-in-transit protected (High Priority Subcategory)"
+        },
+        {
+          "framework": "NIST SP 800-53 R5",
+          "control": "SC-8",
+          "requirement": "Transmission confidentiality and integrity"
+        },
+        {
+          "framework": "Disclaimer",
+          "theme": "Thematic architecture-review mapping; not CMS conformity, SSPP authoring, or legal classification."
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-031",
+      "title": "Asset management lifecycle for enrollment platform components",
+      "description": "Decommissioning and data destruction for retired enrollment modules must be documented to prevent orphaned member data in partner entity environments.",
+      "severity": "Medium",
+      "priority": "P1",
+      "remediationGuidance": "Describe retirement procedures in governance.PolicyConstraints; tag lifecycle:decommission on retired assets.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "ARC-AMPE Volume I (CMS, v1.02)",
+          "theme": "ACA AE CSF Profile \u2014 PROTECT / PR.DS-3: Asset management during disposal"
+        },
+        {
+          "framework": "NIST SP 800-53 R5",
+          "control": "MP-6",
+          "requirement": "Media sanitization"
+        },
+        {
+          "framework": "Disclaimer",
+          "theme": "Thematic architecture-review mapping; not CMS conformity, SSPP authoring, or legal classification."
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-032",
+      "title": "Capacity and availability protections for open enrollment peaks",
+      "description": "Auto-scale, queue depth, and database throughput limits must be documented so availability controls protect enrollment during traffic spikes.",
+      "severity": "High",
+      "priority": "P0",
+      "remediationGuidance": "Document capacity headroom in governance.PolicyConstraints; align scale rules with azureExtractor metrics.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "azureExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose",
+        "services[].Endpoints"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "ARC-AMPE Volume I (CMS, v1.02)",
+          "theme": "ACA AE CSF Profile \u2014 PROTECT / PR.DS-4: Availability and capacity maintained"
+        },
+        {
+          "framework": "NIST SP 800-53 R5",
+          "control": "SC-5",
+          "requirement": "Denial-of-service protection"
+        },
+        {
+          "framework": "Disclaimer",
+          "theme": "Thematic architecture-review mapping; not CMS conformity, SSPP authoring, or legal classification."
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-033",
+      "title": "Data leak prevention themes for outbound Exchange integrations",
+      "description": "Egress to issuers, credit agencies, and analytics partners must document DLP, field filtering, and contractual purpose limitation.",
+      "severity": "High",
+      "priority": "P0",
+      "remediationGuidance": "Map outbound integrations on relationships[]; record DLP expectations in governance.RequiredControls.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "azureExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose",
+        "services[].Endpoints"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "ARC-AMPE Volume I (CMS, v1.02)",
+          "theme": "ACA AE CSF Profile \u2014 PROTECT / PR.DS-5: Data leak protections"
+        },
+        {
+          "framework": "NIST SP 800-53 R5",
+          "control": "AC-4",
+          "requirement": "Information flow enforcement"
+        },
+        {
+          "framework": "Disclaimer",
+          "theme": "Thematic architecture-review mapping; not CMS conformity, SSPP authoring, or legal classification."
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-034",
+      "title": "Integrity verification for eligibility and enrollment transactions",
+      "description": "Systems must document checksums, signed payloads, or immutable audit trails for enrollment transactions submitted to CMS or state hubs.",
+      "severity": "High",
+      "priority": "P0",
+      "remediationGuidance": "Describe integrity controls in governance.RequiredControls; tag transaction-integrity on hub APIs.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "ARC-AMPE Volume I (CMS, v1.02)",
+          "theme": "ACA AE CSF Profile \u2014 PROTECT / PR.DS-6: Integrity checking mechanisms"
+        },
+        {
+          "framework": "NIST SP 800-53 R5",
+          "control": "SI-7",
+          "requirement": "Software, firmware, and information integrity"
+        },
+        {
+          "framework": "Disclaimer",
+          "theme": "Thematic architecture-review mapping; not CMS conformity, SSPP authoring, or legal classification."
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-035",
+      "title": "Development and test environments separated from production enrollment data",
+      "description": "Non-production environments must not host production member snapshots without documented masking and contract approval.",
+      "severity": "High",
+      "priority": "P1",
+      "remediationGuidance": "Tag environment:dev/test on non-prod services; prohibit prod-data:present unless explicitly justified.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "azureExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose",
+        "services[].Endpoints"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "ARC-AMPE Volume I (CMS, v1.02)",
+          "theme": "ACA AE CSF Profile \u2014 PROTECT / PR.DS-7: Development and test separation"
+        },
+        {
+          "framework": "NIST SP 800-53 R5",
+          "control": "CM-4",
+          "requirement": "Impact analyses"
+        },
+        {
+          "framework": "Disclaimer",
+          "theme": "Thematic architecture-review mapping; not CMS conformity, SSPP authoring, or legal classification."
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-036",
+      "title": "Information protection processes for Exchange change management",
+      "description": "Security impact analysis must precede architecture changes affecting eligibility rules or enrollment APIs.",
+      "severity": "Medium",
+      "priority": "P1",
+      "remediationGuidance": "Link change records in metadata.ChangeDescription; cite security review gates in governance.RequiredControls.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "ARC-AMPE Volume I (CMS, v1.02)",
+          "theme": "ACA AE CSF Profile \u2014 PROTECT / PR.IP-1: Information protection processes maintained"
+        },
+        {
+          "framework": "NIST SP 800-53 R5",
+          "control": "CM-3",
+          "requirement": "Configuration change control"
+        },
+        {
+          "framework": "Disclaimer",
+          "theme": "Thematic architecture-review mapping; not CMS conformity, SSPP authoring, or legal classification."
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-037",
+      "title": "Protective technology baseline for Exchange workloads on Azure",
+      "description": "Defender, WAF, and endpoint protection coverage must be documented for internet-facing enrollment surfaces.",
+      "severity": "High",
+      "priority": "P0",
+      "remediationGuidance": "Record defender-plan and waf coverage in governance.RequiredControls; verify from azureExtractor security posture.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "azureExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose",
+        "services[].Endpoints"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "ARC-AMPE Volume I (CMS, v1.02)",
+          "theme": "ACA AE CSF Profile \u2014 PROTECT / PR.PT-1: Protective technology deployed"
+        },
+        {
+          "framework": "NIST SP 800-53 R5",
+          "control": "SI-4",
+          "requirement": "System monitoring"
+        },
+        {
+          "framework": "Disclaimer",
+          "theme": "Thematic architecture-review mapping; not CMS conformity, SSPP authoring, or legal classification."
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-038",
+      "title": "Network baseline established for Exchange hub traffic patterns",
+      "description": "Expected traffic between enrollment tiers, identity services, and partner APIs must be baselined for anomaly detection during open enrollment.",
+      "severity": "High",
+      "priority": "P0",
+      "remediationGuidance": "Document baseline sources in governance.RequiredControls; enable NSG flow logs or equivalent in Azure.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "azureExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose",
+        "services[].Endpoints"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "ARC-AMPE Volume I (CMS, v1.02)",
+          "theme": "ACA AE CSF Profile \u2014 DETECT / DE.AE-1: Network baseline established"
+        },
+        {
+          "framework": "NIST SP 800-53 R5",
+          "control": "AU-12",
+          "requirement": "Audit record generation"
+        },
+        {
+          "framework": "Disclaimer",
+          "theme": "Thematic architecture-review mapping; not CMS conformity, SSPP authoring, or legal classification."
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-039",
+      "title": "Security event analysis pipeline for enrollment anomalies",
+      "description": "SIEM rules covering failed authentications, unusual eligibility queries, and bulk exports must be documented for AE and partner entity operations centers.",
+      "severity": "High",
+      "priority": "P0",
+      "remediationGuidance": "List analytic use cases in governance.RequiredControls; tag siem:onboarded on logging services.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "azureExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose",
+        "services[].Endpoints"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "ARC-AMPE Volume I (CMS, v1.02)",
+          "theme": "ACA AE CSF Profile \u2014 DETECT / DE.AE-2: Detected events analyzed"
+        },
+        {
+          "framework": "NIST SP 800-53 R5",
+          "control": "SI-4",
+          "requirement": "System monitoring"
+        },
+        {
+          "framework": "Disclaimer",
+          "theme": "Thematic architecture-review mapping; not CMS conformity, SSPP authoring, or legal classification."
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-040",
+      "title": "Event data aggregated from Exchange platform components",
+      "description": "Diagnostic settings forwarding App Service, SQL, Key Vault, and API Management logs to centralized analytics must be documented.",
+      "severity": "High",
+      "priority": "P0",
+      "remediationGuidance": "Verify diagnostic destinations in azureExtractor; record workspace IDs in governance.ComplianceTags.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "azureExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose",
+        "services[].Endpoints"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "ARC-AMPE Volume I (CMS, v1.02)",
+          "theme": "ACA AE CSF Profile \u2014 DETECT / DE.AE-3: Event data collected and correlated"
+        },
+        {
+          "framework": "NIST SP 800-53 R5",
+          "control": "AU-6",
+          "requirement": "Audit record review, analysis, and reporting"
+        },
+        {
+          "framework": "Disclaimer",
+          "theme": "Thematic architecture-review mapping; not CMS conformity, SSPP authoring, or legal classification."
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-041",
+      "title": "Impact of detected events assessed for member data exposure",
+      "description": "Runbooks must document how enrollment security events escalate to privacy and CMS notification paths.",
+      "severity": "High",
+      "priority": "P0",
+      "remediationGuidance": "Describe impact assessment steps in metadata.ChangeDescription and governance.PolicyConstraints.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "ARC-AMPE Volume I (CMS, v1.02)",
+          "theme": "ACA AE CSF Profile \u2014 DETECT / DE.AE-4: Impact of events determined"
+        },
+        {
+          "framework": "NIST SP 800-53 R5",
+          "control": "IR-4",
+          "requirement": "Incident handling"
+        },
+        {
+          "framework": "Disclaimer",
+          "theme": "Thematic architecture-review mapping; not CMS conformity, SSPP authoring, or legal classification."
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-042",
+      "title": "Alert thresholds defined for enrollment fraud and abuse patterns",
+      "description": "Thresholds for abnormal plan shopping, agent impersonation, and API scraping must be documented.",
+      "severity": "Medium",
+      "priority": "P1",
+      "remediationGuidance": "Record threshold policies in governance.RequiredControls; tag fraud-detection on consumer-facing APIs.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "azureExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose",
+        "services[].Endpoints"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "ARC-AMPE Volume I (CMS, v1.02)",
+          "theme": "ACA AE CSF Profile \u2014 DETECT / DE.AE-5: Alert thresholds established"
+        },
+        {
+          "framework": "NIST SP 800-53 R5",
+          "control": "SI-4",
+          "requirement": "System monitoring"
+        },
+        {
+          "framework": "Disclaimer",
+          "theme": "Thematic architecture-review mapping; not CMS conformity, SSPP authoring, or legal classification."
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-043",
+      "title": "Network monitoring for Exchange integration zones",
+      "description": "Azure Firewall, NDR, or NSG analytics monitoring hub-to-partner traffic must be documented.",
+      "severity": "High",
+      "priority": "P0",
+      "remediationGuidance": "Cite monitoring tools in governance.RequiredControls; align with azureExtractor network security inventory.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "azureExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose",
+        "services[].Endpoints"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "ARC-AMPE Volume I (CMS, v1.02)",
+          "theme": "ACA AE CSF Profile \u2014 DETECT / DE.CM-1: Network monitored for anomalies"
+        },
+        {
+          "framework": "NIST SP 800-53 R5",
+          "control": "SI-4",
+          "requirement": "System monitoring"
+        },
+        {
+          "framework": "Disclaimer",
+          "theme": "Thematic architecture-review mapping; not CMS conformity, SSPP authoring, or legal classification."
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-044",
+      "title": "Malicious code protections on enrollment application tiers",
+      "description": "Container image scanning, App Service malware protection, and dependency scanning must be documented.",
+      "severity": "High",
+      "priority": "P1",
+      "remediationGuidance": "Document scanning stages in governance.RequiredControls; tag image-scan:on in services[].Tags.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "azureExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose",
+        "services[].Endpoints"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "ARC-AMPE Volume I (CMS, v1.02)",
+          "theme": "ACA AE CSF Profile \u2014 DETECT / DE.CM-4: Malicious code detected"
+        },
+        {
+          "framework": "NIST SP 800-53 R5",
+          "control": "SI-3",
+          "requirement": "Malicious code protection"
+        },
+        {
+          "framework": "Disclaimer",
+          "theme": "Thematic architecture-review mapping; not CMS conformity, SSPP authoring, or legal classification."
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-045",
+      "title": "Vulnerability scanning cadence for Exchange Azure resources",
+      "description": "Defender vulnerability assessments and container/CVE scans must run on production enrollment paths.",
+      "severity": "High",
+      "priority": "P1",
+      "remediationGuidance": "Record scan cadence in governance.PolicyConstraints; verify defender VA status from azureExtractor.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "azureExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose",
+        "services[].Endpoints"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "ARC-AMPE Volume I (CMS, v1.02)",
+          "theme": "ACA AE CSF Profile \u2014 DETECT / DE.CM-8: Vulnerability scans performed"
+        },
+        {
+          "framework": "NIST SP 800-53 R5",
+          "control": "RA-5",
+          "requirement": "Vulnerability monitoring and scanning"
+        },
+        {
+          "framework": "Disclaimer",
+          "theme": "Thematic architecture-review mapping; not CMS conformity, SSPP authoring, or legal classification."
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-046",
+      "title": "Incident response plan covers Exchange and Medicaid data breaches",
+      "description": "Architecture must reference IR playbooks including CMS, state, and issuer notification paths for enrollment data incidents.",
+      "severity": "High",
+      "priority": "P1",
+      "remediationGuidance": "Link IR plan identifiers in governance.PolicyConstraints; document communication trees in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "ARC-AMPE Volume I (CMS, v1.02)",
+          "theme": "ACA AE CSF Profile \u2014 RESPOND / RS.RP-1: Response plan executed during incidents"
+        },
+        {
+          "framework": "NIST SP 800-53 R5",
+          "control": "IR-1",
+          "requirement": "Incident handling policy and procedures"
+        },
+        {
+          "framework": "Disclaimer",
+          "theme": "Thematic architecture-review mapping; not CMS conformity, SSPP authoring, or legal classification."
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-047",
+      "title": "Incident coordination with CMS and state Medicaid security contacts",
+      "description": "Contacts and escalation timelines for AE/partner entities must be documented for coordinated response.",
+      "severity": "Medium",
+      "priority": "P1",
+      "remediationGuidance": "Record coordination contacts in governance.ComplianceTags \u2014 not live PII.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "ARC-AMPE Volume I (CMS, v1.02)",
+          "theme": "ACA AE CSF Profile \u2014 RESPOND / RS.CO-1: Incidents coordinated with stakeholders"
+        },
+        {
+          "framework": "NIST SP 800-53 R5",
+          "control": "IR-8",
+          "requirement": "Incident response assistance"
+        },
+        {
+          "framework": "Disclaimer",
+          "theme": "Thematic architecture-review mapping; not CMS conformity, SSPP authoring, or legal classification."
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-048",
+      "title": "Forensic analysis capability for enrollment platform compromises",
+      "description": "Log retention, immutable storage, and chain-of-custody for forensic images must be documented.",
+      "severity": "High",
+      "priority": "P1",
+      "remediationGuidance": "Describe retention periods in governance.RequiredControls; tag forensic-retention on log storage accounts.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "azureExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose",
+        "services[].Endpoints"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "ARC-AMPE Volume I (CMS, v1.02)",
+          "theme": "ACA AE CSF Profile \u2014 RESPOND / RS.AN-1: Incidents analyzed for root cause"
+        },
+        {
+          "framework": "NIST SP 800-53 R5",
+          "control": "AU-11",
+          "requirement": "Audit record retention"
+        },
+        {
+          "framework": "Disclaimer",
+          "theme": "Thematic architecture-review mapping; not CMS conformity, SSPP authoring, or legal classification."
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-049",
+      "title": "Containment procedures for compromised enrollment integration accounts",
+      "description": "Disable-token, revoke-SAS, and isolate-subnet playbooks must be documented for partner entity incidents.",
+      "severity": "High",
+      "priority": "P1",
+      "remediationGuidance": "Document containment automation in governance.RequiredControls and metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "azureExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose",
+        "services[].Endpoints"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "ARC-AMPE Volume I (CMS, v1.02)",
+          "theme": "ACA AE CSF Profile \u2014 RESPOND / RS.MI-1: Incidents contained to limit impact"
+        },
+        {
+          "framework": "NIST SP 800-53 R5",
+          "control": "IR-4",
+          "requirement": "Incident handling"
+        },
+        {
+          "framework": "Disclaimer",
+          "theme": "Thematic architecture-review mapping; not CMS conformity, SSPP authoring, or legal classification."
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-050",
+      "title": "Enrollment service restoration priorities after security incidents",
+      "description": "Recovery order (identity, eligibility, enrollment hub) must be documented to restore consumer access.",
+      "severity": "High",
+      "priority": "P1",
+      "remediationGuidance": "State restoration sequence in governance.PolicyConstraints; align with CP-2 contingency themes.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "ARC-AMPE Volume I (CMS, v1.02)",
+          "theme": "ACA AE CSF Profile \u2014 RESPOND / RS.IM-1: Incidents mitigated and services restored"
+        },
+        {
+          "framework": "NIST SP 800-53 R5",
+          "control": "CP-10",
+          "requirement": "System recovery and reconstitution"
+        },
+        {
+          "framework": "Disclaimer",
+          "theme": "Thematic architecture-review mapping; not CMS conformity, SSPP authoring, or legal classification."
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-051",
+      "title": "Post-incident improvements tracked for Exchange architecture",
+      "description": "Lessons learned must feed back into architecture standards and partner entity onboarding checklists.",
+      "severity": "Medium",
+      "priority": "P1",
+      "remediationGuidance": "Reference post-incident review cadence in governance.ComplianceTags.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "ARC-AMPE Volume I (CMS, v1.02)",
+          "theme": "ACA AE CSF Profile \u2014 RESPOND / RS.IM-2: Incident response improvements implemented"
+        },
+        {
+          "framework": "NIST SP 800-53 R5",
+          "control": "PM-18",
+          "requirement": "Privacy program leadership responsibilities"
+        },
+        {
+          "framework": "Disclaimer",
+          "theme": "Thematic architecture-review mapping; not CMS conformity, SSPP authoring, or legal classification."
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-052",
+      "title": "Recovery plan documented for ACA enrollment platform outage",
+      "description": "DR plans covering regional failover for enrollment APIs and databases must be documented with tested runbooks \u2014 not slide-deck-only.",
+      "severity": "High",
+      "priority": "P1",
+      "remediationGuidance": "Cross-reference DR subscriptions and paired regions in metadata.ChangeDescription; tag dr:documented.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "azureExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose",
+        "services[].Endpoints"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "ARC-AMPE Volume I (CMS, v1.02)",
+          "theme": "ACA AE CSF Profile \u2014 RECOVER / RC.RP-1: Recovery plan executed during disruptions"
+        },
+        {
+          "framework": "NIST SP 800-53 R5",
+          "control": "CP-2",
+          "requirement": "Contingency plan"
+        },
+        {
+          "framework": "Disclaimer",
+          "theme": "Thematic architecture-review mapping; not CMS conformity, SSPP authoring, or legal classification."
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-053",
+      "title": "Recovery strategies aligned to Medicaid and Exchange RTO/RPO",
+      "description": "Warm standby or active-active strategies for state hub integrations must match contractual RTO/RPO.",
+      "severity": "Medium",
+      "priority": "P1",
+      "remediationGuidance": "Document RTO/RPO in governance.PolicyConstraints; verify backup policies on datastores via azureExtractor.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "azureExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose",
+        "services[].Endpoints"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "ARC-AMPE Volume I (CMS, v1.02)",
+          "theme": "ACA AE CSF Profile \u2014 RECOVER / RC.RP-2: Recovery strategies updated"
+        },
+        {
+          "framework": "NIST SP 800-53 R5",
+          "control": "CP-6",
+          "requirement": "Alternate storage site"
+        },
+        {
+          "framework": "Disclaimer",
+          "theme": "Thematic architecture-review mapping; not CMS conformity, SSPP authoring, or legal classification."
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-054",
+      "title": "Enrollment data backups encrypted and restorable",
+      "description": "Backup encryption, geo-redundancy, and restore drills for member databases must be documented.",
+      "severity": "High",
+      "priority": "P1",
+      "remediationGuidance": "Tag backup:encrypted on datastores[].Tags; cite Key Vault keys for backup encryption.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "azureExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose",
+        "services[].Endpoints"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "ARC-AMPE Volume I (CMS, v1.02)",
+          "theme": "ACA AE CSF Profile \u2014 RECOVER / RC.IM-1: Recovery improvements incorporated"
+        },
+        {
+          "framework": "NIST SP 800-53 R5",
+          "control": "CP-9",
+          "requirement": "System backup"
+        },
+        {
+          "framework": "Disclaimer",
+          "theme": "Thematic architecture-review mapping; not CMS conformity, SSPP authoring, or legal classification."
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-055",
+      "title": "Communications plan for enrollment outages during open enrollment",
+      "description": "Public status pages and issuer notification paths during outages must be documented.",
+      "severity": "Medium",
+      "priority": "P1",
+      "remediationGuidance": "Describe comms channels in metadata.ChangeDescription and governance.PolicyConstraints.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "ARC-AMPE Volume I (CMS, v1.02)",
+          "theme": "ACA AE CSF Profile \u2014 RECOVER / RC.CO-1: Recovery communications coordinated"
+        },
+        {
+          "framework": "NIST SP 800-53 R5",
+          "control": "CP-2",
+          "requirement": "Contingency plan"
+        },
+        {
+          "framework": "Disclaimer",
+          "theme": "Thematic architecture-review mapping; not CMS conformity, SSPP authoring, or legal classification."
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-056",
+      "title": "Restoration verification for eligibility rulesets after DR failover",
+      "description": "Post-failover validation of eligibility logic and subsidy tables must be documented before traffic cutover.",
+      "severity": "Medium",
+      "priority": "P1",
+      "remediationGuidance": "Document verification checklists in governance.RequiredControls.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "ARC-AMPE Volume I (CMS, v1.02)",
+          "theme": "ACA AE CSF Profile \u2014 RECOVER / RC.CO-2: Recovery activities communicated to stakeholders"
+        },
+        {
+          "framework": "NIST SP 800-53 R5",
+          "control": "CP-10",
+          "requirement": "System recovery and reconstitution"
+        },
+        {
+          "framework": "Disclaimer",
+          "theme": "Thematic architecture-review mapping; not CMS conformity, SSPP authoring, or legal classification."
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-057",
+      "title": "Privacy data inventory for applicant and member information",
+      "description": "Systems must inventory PII elements collected during enrollment and Medicaid eligibility \u2014 supporting Privacy Framework Identify-P inventory themes.",
+      "severity": "High",
+      "priority": "P0",
+      "remediationGuidance": "Map data categories in datastores[].Tags and governance.ComplianceTags; describe fields in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "azureExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose",
+        "services[].Endpoints"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "ARC-AMPE Volume I (CMS, v1.02)",
+          "theme": "ACA AE Privacy Framework Profile \u2014 Identify-P / ID.IM-P2: Data elements inventoried"
+        },
+        {
+          "framework": "NIST SP 800-53 R5",
+          "control": "PM-5",
+          "requirement": "System inventory"
+        },
+        {
+          "framework": "Disclaimer",
+          "theme": "Thematic architecture-review mapping; not CMS conformity, SSPP authoring, or legal classification."
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-058",
+      "title": "Data processing purposes documented for Exchange integrations",
+      "description": "Each integration must state lawful purpose and retention for applicant data shared with partner entities.",
+      "severity": "High",
+      "priority": "P0",
+      "remediationGuidance": "Record purpose tags on relationships[]; document in governance.PolicyConstraints.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "ARC-AMPE Volume I (CMS, v1.02)",
+          "theme": "ACA AE Privacy Framework Profile \u2014 Identify-P / ID.IM-P3: Processing purposes documented"
+        },
+        {
+          "framework": "NIST SP 800-53 R5",
+          "control": "PT-2",
+          "requirement": "Authority to process personally identifiable information"
+        },
+        {
+          "framework": "Disclaimer",
+          "theme": "Thematic architecture-review mapping; not CMS conformity, SSPP authoring, or legal classification."
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-059",
+      "title": "Data flows mapped for privacy impact on cross-state sharing",
+      "description": "Interstate or federal data exchanges (FFE, hub) must document privacy impact and minimization.",
+      "severity": "High",
+      "priority": "P0",
+      "remediationGuidance": "Draw privacy flow narrative in metadata.ChangeDescription; tag cross-state:data-flow where applicable.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "azureExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose",
+        "services[].Endpoints"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "ARC-AMPE Volume I (CMS, v1.02)",
+          "theme": "ACA AE Privacy Framework Profile \u2014 Identify-P / ID.IM-P4: Data flows mapped for privacy"
+        },
+        {
+          "framework": "NIST SP 800-53 R5",
+          "control": "AC-4",
+          "requirement": "Information flow enforcement"
+        },
+        {
+          "framework": "Disclaimer",
+          "theme": "Thematic architecture-review mapping; not CMS conformity, SSPP authoring, or legal classification."
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-060",
+      "title": "Business environment privacy risks for partner entity role",
+      "description": "When acting as a data processor, architecture must document privacy risks inherited from AE customers.",
+      "severity": "High",
+      "priority": "P0",
+      "remediationGuidance": "Describe processor obligations in governance.ComplianceTags without asserting legal status.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "ARC-AMPE Volume I (CMS, v1.02)",
+          "theme": "ACA AE Privacy Framework Profile \u2014 Identify-P / ID.BE-P1: Business environment privacy risks"
+        },
+        {
+          "framework": "NIST SP 800-53 R5",
+          "control": "RA-3",
+          "requirement": "Risk assessment"
+        },
+        {
+          "framework": "Disclaimer",
+          "theme": "Thematic architecture-review mapping; not CMS conformity, SSPP authoring, or legal classification."
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-061",
+      "title": "Privacy governance policies referenced for Exchange systems",
+      "description": "Privacy program policies covering notice, consent, and individual rights must be cited at system scope.",
+      "severity": "High",
+      "priority": "P0",
+      "remediationGuidance": "Link privacy policy IDs in governance.PolicyConstraints.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "ARC-AMPE Volume I (CMS, v1.02)",
+          "theme": "ACA AE Privacy Framework Profile \u2014 Govern-P / GV.PO-P3: Privacy policies established"
+        },
+        {
+          "framework": "NIST SP 800-53 R5",
+          "control": "PL-1",
+          "requirement": "Policy and procedures"
+        },
+        {
+          "framework": "Disclaimer",
+          "theme": "Thematic architecture-review mapping; not CMS conformity, SSPP authoring, or legal classification."
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-062",
+      "title": "Privacy roles and responsibilities for enrollment data stewards",
+      "description": "Named privacy coordinators and data stewards for Medicaid/Exchange datasets must be documented.",
+      "severity": "Medium",
+      "priority": "P1",
+      "remediationGuidance": "Record privacy roles in governance.ComplianceTags.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "ARC-AMPE Volume I (CMS, v1.02)",
+          "theme": "ACA AE Privacy Framework Profile \u2014 Govern-P / GV.PO-P4: Privacy roles assigned"
+        },
+        {
+          "framework": "NIST SP 800-53 R5",
+          "control": "PM-2",
+          "requirement": "Information security program leadership role"
+        },
+        {
+          "framework": "Disclaimer",
+          "theme": "Thematic architecture-review mapping; not CMS conformity, SSPP authoring, or legal classification."
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-063",
+      "title": "Privacy training for teams handling member PII",
+      "description": "Engineering and operations staff touching enrollment databases must document privacy training requirements.",
+      "severity": "Medium",
+      "priority": "P1",
+      "remediationGuidance": "Note privacy training in governance.ComplianceTags and metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "ARC-AMPE Volume I (CMS, v1.02)",
+          "theme": "ACA AE Privacy Framework Profile \u2014 Govern-P / GV.AT-P1: Privacy awareness training"
+        },
+        {
+          "framework": "NIST SP 800-53 R5",
+          "control": "AT-2",
+          "requirement": "Literacy training and awareness"
+        },
+        {
+          "framework": "Disclaimer",
+          "theme": "Thematic architecture-review mapping; not CMS conformity, SSPP authoring, or legal classification."
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-064",
+      "title": "Privacy monitoring metrics for Exchange data processing",
+      "description": "Metrics on access reviews, DSAR volume, and consent withdrawals should be referenced for architecture scope.",
+      "severity": "Medium",
+      "priority": "P1",
+      "remediationGuidance": "Document monitoring hooks in governance.RequiredControls.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "ARC-AMPE Volume I (CMS, v1.02)",
+          "theme": "ACA AE Privacy Framework Profile \u2014 Govern-P / GV.MT-P3: Privacy program monitored"
+        },
+        {
+          "framework": "NIST SP 800-53 R5",
+          "control": "PM-9",
+          "requirement": "Risk management strategy"
+        },
+        {
+          "framework": "Disclaimer",
+          "theme": "Thematic architecture-review mapping; not CMS conformity, SSPP authoring, or legal classification."
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-065",
+      "title": "Individual participation mechanisms for enrollment privacy rights",
+      "description": "Architecture must show how consumer portals support access, correction, and opt-out per applicable rules.",
+      "severity": "High",
+      "priority": "P0",
+      "remediationGuidance": "Describe consumer rights flows in metadata.ChangeDescription; tag privacy-rights:supported on portals.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "ARC-AMPE Volume I (CMS, v1.02)",
+          "theme": "ACA AE Privacy Framework Profile \u2014 Control-P / CT.DP-P1: Disclosures for individual participation"
+        },
+        {
+          "framework": "NIST SP 800-53 R5",
+          "control": "PT-3",
+          "requirement": "Personally identifiable information processing purposes"
+        },
+        {
+          "framework": "Disclaimer",
+          "theme": "Thematic architecture-review mapping; not CMS conformity, SSPP authoring, or legal classification."
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-066",
+      "title": "Data protection controls for sensitive Medicaid attributes",
+      "description": "Sensitive attributes (SSN, immigration status, health conditions) must document masking, encryption, and role-based visibility.",
+      "severity": "High",
+      "priority": "P0",
+      "remediationGuidance": "Apply data-class:sensitive on datastores[].Tags; document masking in governance.RequiredControls.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "azureExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose",
+        "services[].Endpoints"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "ARC-AMPE Volume I (CMS, v1.02)",
+          "theme": "ACA AE Privacy Framework Profile \u2014 Protect-P / PR.DS-P1: Data protected consistent with risk"
+        },
+        {
+          "framework": "NIST SP 800-53 R5",
+          "control": "SC-28",
+          "requirement": "Protection of information at rest"
+        },
+        {
+          "framework": "Disclaimer",
+          "theme": "Thematic architecture-review mapping; not CMS conformity, SSPP authoring, or legal classification."
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-067",
+      "title": "System categorization documented for Exchange security impact level",
+      "description": "FIPS 199 / CNSSI categorization for enrollment systems must be referenced to drive control selection \u2014 typically Moderate for ARC-AMPE-aligned workloads.",
+      "severity": "High",
+      "priority": "P0",
+      "remediationGuidance": "Record categorization in governance.PolicyConstraints and metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "ARC-AMPE Volume I (CMS, v1.02)",
+          "theme": "Enterprise Risk Management \u2014 NIST 800-37 RMF: Categorize system"
+        },
+        {
+          "framework": "NIST SP 800-53 R5",
+          "control": "RA-2",
+          "requirement": "Security categorization"
+        },
+        {
+          "framework": "Disclaimer",
+          "theme": "Thematic architecture-review mapping; not CMS conformity, SSPP authoring, or legal classification."
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-068",
+      "title": "Security control selection mapped to ARC-AMPE baseline",
+      "description": "Selected NIST SP 800-53 R5 controls (with CMS tailoring) must be traceable from architecture to SSPP control families \u2014 thematic only.",
+      "severity": "High",
+      "priority": "P0",
+      "remediationGuidance": "Map control selections in governance.RequiredControls; cross-reference Volume II families by ID.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "ARC-AMPE Volume I (CMS, v1.02)",
+          "theme": "Enterprise Risk Management \u2014 NIST 800-37 RMF: Select controls"
+        },
+        {
+          "framework": "NIST SP 800-53 R5",
+          "control": "CA-2",
+          "requirement": "Control assessments"
+        },
+        {
+          "framework": "Disclaimer",
+          "theme": "Thematic architecture-review mapping; not CMS conformity, SSPP authoring, or legal classification."
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-069",
+      "title": "Control implementation evidenced in architecture manifest",
+      "description": "Implemented controls (encryption, logging, IAM) must be visible in manifest evidence \u2014 not SSPP prose alone.",
+      "severity": "High",
+      "priority": "P0",
+      "remediationGuidance": "Align services[].Tags and azureExtractor findings with selected controls in governance.RequiredControls.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "azureExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose",
+        "services[].Endpoints"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "ARC-AMPE Volume I (CMS, v1.02)",
+          "theme": "Enterprise Risk Management \u2014 NIST 800-37 RMF: Implement controls"
+        },
+        {
+          "framework": "NIST SP 800-53 R5",
+          "control": "CM-2",
+          "requirement": "Baseline configuration"
+        },
+        {
+          "framework": "Disclaimer",
+          "theme": "Thematic architecture-review mapping; not CMS conformity, SSPP authoring, or legal classification."
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-070",
+      "title": "Security assessment scope defined for enrollment major releases",
+      "description": "Major enrollment releases must document assessment scope (pen test, control assessment) feeding authorization.",
+      "severity": "High",
+      "priority": "P0",
+      "remediationGuidance": "Describe assessment scope in metadata.ChangeDescription; tag assessment:required on release services.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "ARC-AMPE Volume I (CMS, v1.02)",
+          "theme": "Enterprise Risk Management \u2014 NIST 800-37 RMF: Assess controls"
+        },
+        {
+          "framework": "NIST SP 800-53 R5",
+          "control": "CA-2",
+          "requirement": "Control assessments"
+        },
+        {
+          "framework": "Disclaimer",
+          "theme": "Thematic architecture-review mapping; not CMS conformity, SSPP authoring, or legal classification."
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-071",
+      "title": "Authorization boundary and ATO themes for AE systems",
+      "description": "Authorization boundary diagrams and responsible officials must be referenced \u2014 ArchLucid does not issue ATO.",
+      "severity": "High",
+      "priority": "P0",
+      "remediationGuidance": "Document boundary in metadata.ChangeDescription; cite AO/ISSO roles in governance.ComplianceTags.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "ARC-AMPE Volume I (CMS, v1.02)",
+          "theme": "Enterprise Risk Management \u2014 NIST 800-37 RMF: Authorize system"
+        },
+        {
+          "framework": "NIST SP 800-53 R5",
+          "control": "CA-6",
+          "requirement": "Authorization"
+        },
+        {
+          "framework": "Disclaimer",
+          "theme": "Thematic architecture-review mapping; not CMS conformity, SSPP authoring, or legal classification."
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-072",
+      "title": "Continuous monitoring hooks for Exchange security posture",
+      "description": "Ongoing control monitoring (Defender, config drift, log review) must feed the customer's CM program \u2014 ArchLucid is not the continuous-monitoring system of record.",
+      "severity": "High",
+      "priority": "P0",
+      "remediationGuidance": "List monitoring sources in governance.RequiredControls; verify defender and policy assignments in Azure.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "azureExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose",
+        "services[].Endpoints"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "ARC-AMPE Volume I (CMS, v1.02)",
+          "theme": "Enterprise Risk Management \u2014 NIST 800-37 RMF: Monitor controls"
+        },
+        {
+          "framework": "NIST SP 800-53 R5",
+          "control": "CA-7",
+          "requirement": "Continuous monitoring"
+        },
+        {
+          "framework": "Disclaimer",
+          "theme": "Thematic architecture-review mapping; not CMS conformity, SSPP authoring, or legal classification."
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-073",
+      "title": "All Exchange and Medicaid production data hosted in US Azure regions",
+      "description": "Production datastores and compute for enrollment workloads must be pinned to US sovereign regions \u2014 ARC-AMPE eliminates offshore hosting permitted under legacy MARS-E.",
+      "severity": "High",
+      "priority": "P0",
+      "remediationGuidance": "Tag data-residency:us-only on all production datastores[].Tags; verify locations via azureExtractor.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "azureExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose",
+        "services[].Endpoints"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "ARC-AMPE Volume I (CMS, v1.02)",
+          "theme": "US Data Residency \u2014 Production workloads restricted to United States Azure regions"
+        },
+        {
+          "framework": "NIST SP 800-53 R5",
+          "control": "SC-7",
+          "requirement": "Boundary protection"
+        },
+        {
+          "framework": "Disclaimer",
+          "theme": "Thematic architecture-review mapping; not CMS conformity, SSPP authoring, or legal classification."
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-074",
+      "title": "Cross-border replication and CDN paths prohibited for member PII",
+      "description": "Geo-redundant backup, CDN, and traffic manager configurations must not replicate member PII outside the United States without documented CMS exception.",
+      "severity": "High",
+      "priority": "P0",
+      "remediationGuidance": "Audit geo-replication settings in azureExtractor; document exceptions in governance.PolicyConstraints.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "azureExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose",
+        "services[].Endpoints"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "ARC-AMPE Volume I (CMS, v1.02)",
+          "theme": "US Data Residency \u2014 Cross-border replication restricted for PII"
+        },
+        {
+          "framework": "NIST SP 800-53 R5",
+          "control": "SC-12",
+          "requirement": "Cryptographic key establishment and management"
+        },
+        {
+          "framework": "Disclaimer",
+          "theme": "Thematic architecture-review mapping; not CMS conformity, SSPP authoring, or legal classification."
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-075",
+      "title": "Partner entity subprocessors limited to US processing for Exchange data",
+      "description": "Third-party analytics, support, and BPO services must document US-only processing in architecture scope.",
+      "severity": "High",
+      "priority": "P0",
+      "remediationGuidance": "Tag subprocessor:us-only on external services[].Tags; record contractual clauses in governance.PolicyConstraints.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "ARC-AMPE Volume I (CMS, v1.02)",
+          "theme": "US Data Residency \u2014 Partner entity subprocessors US-only processing"
+        },
+        {
+          "framework": "NIST SP 800-53 R5",
+          "control": "SA-9",
+          "requirement": "External system services"
+        },
+        {
+          "framework": "Disclaimer",
+          "theme": "Thematic architecture-review mapping; not CMS conformity, SSPP authoring, or legal classification."
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-076",
+      "title": "DR and backup regions remain within US geography for enrollment data",
+      "description": "Failover pairs and backup vaults must stay in US regions \u2014 not nearest global pair if outside US.",
+      "severity": "High",
+      "priority": "P0",
+      "remediationGuidance": "Document DR region pairs in metadata.ChangeDescription; verify backup region tags in azureExtractor.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "azureExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose",
+        "services[].Endpoints"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "ARC-AMPE Volume I (CMS, v1.02)",
+          "theme": "US Data Residency \u2014 Disaster recovery confined to US geography"
+        },
+        {
+          "framework": "NIST SP 800-53 R5",
+          "control": "CP-6",
+          "requirement": "Alternate storage site"
+        },
+        {
+          "framework": "Disclaimer",
+          "theme": "Thematic architecture-review mapping; not CMS conformity, SSPP authoring, or legal classification."
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-077",
+      "title": "SSPP control implementation pointers for identity and access family",
+      "description": "Architecture gaps against AC-family controls should be tracked for inclusion in the customer's Volume II SSPP \u2014 ArchLucid does not author the SSPP.",
+      "severity": "Medium",
+      "priority": "P2",
+      "remediationGuidance": "Export findings to SSPP AC-family worksheet; map manifest controls in governance.RequiredControls.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "ARC-AMPE Volume I (CMS, v1.02)",
+          "theme": "Volume II SSPP pointer \u2014 Access Control (AC) family implementation evidence"
+        },
+        {
+          "framework": "NIST SP 800-53 R5",
+          "control": "AC-1",
+          "requirement": "Policy and procedures"
+        },
+        {
+          "framework": "Disclaimer",
+          "theme": "Thematic architecture-review mapping; not CMS conformity, SSPP authoring, or legal classification."
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-078",
+      "title": "SSPP control implementation pointers for system and communications protection",
+      "description": "SC-family encryption and boundary controls evidenced in manifest should feed SSPP SC sections.",
+      "severity": "Medium",
+      "priority": "P2",
+      "remediationGuidance": "Cross-reference SC controls in governance.RequiredControls with azureExtractor network and encryption data.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "azureExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose",
+        "services[].Endpoints"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "ARC-AMPE Volume I (CMS, v1.02)",
+          "theme": "Volume II SSPP pointer \u2014 System and Communications Protection (SC) family"
+        },
+        {
+          "framework": "NIST SP 800-53 R5",
+          "control": "SC-1",
+          "requirement": "Policy and procedures"
+        },
+        {
+          "framework": "Disclaimer",
+          "theme": "Thematic architecture-review mapping; not CMS conformity, SSPP authoring, or legal classification."
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-079",
+      "title": "SSPP control implementation pointers for audit and accountability",
+      "description": "AU-family logging controls should be mapped for SSPP continuous monitoring handoff.",
+      "severity": "Medium",
+      "priority": "P2",
+      "remediationGuidance": "List AU control evidence in governance.RequiredControls; cite log workspace destinations.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "azureExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose",
+        "services[].Endpoints"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "ARC-AMPE Volume I (CMS, v1.02)",
+          "theme": "Volume II SSPP pointer \u2014 Audit and Accountability (AU) family"
+        },
+        {
+          "framework": "NIST SP 800-53 R5",
+          "control": "AU-1",
+          "requirement": "Policy and procedures"
+        },
+        {
+          "framework": "Disclaimer",
+          "theme": "Thematic architecture-review mapping; not CMS conformity, SSPP authoring, or legal classification."
+        }
+      ]
+    },
+    {
+      "id": "arc-ampe-080",
+      "title": "SSPP continuous monitoring program alignment (Volume II Section 4.2)",
+      "description": "Architecture evidence gaps should feed the customer's continuous monitoring plan \u2014 not replace it.",
+      "severity": "Medium",
+      "priority": "P2",
+      "remediationGuidance": "Document CM plan cross-references in metadata.ChangeDescription; tag sspp:vol2-cm-pointer.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "ARC-AMPE Volume I (CMS, v1.02)",
+          "theme": "Volume II SSPP pointer \u2014 Continuous monitoring program (Volume II \u00a74.2)"
+        },
+        {
+          "framework": "NIST SP 800-53 R5",
+          "control": "CA-7",
+          "requirement": "Continuous monitoring"
+        },
+        {
+          "framework": "Disclaimer",
+          "theme": "Thematic architecture-review mapping; not CMS conformity, SSPP authoring, or legal classification."
+        }
+      ]
+    }
+  ]
+}

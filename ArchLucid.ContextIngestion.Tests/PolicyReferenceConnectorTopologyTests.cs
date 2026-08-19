@@ -1,0 +1,51 @@
+using ArchLucid.ContextIngestion.Connectors;
+using ArchLucid.ContextIngestion.ConnectorStages;
+using ArchLucid.ContextIngestion.Delta;
+using ArchLucid.ContextIngestion.Models;
+using ArchLucid.ContextIngestion.Topology;
+
+using FluentAssertions;
+
+namespace ArchLucid.ContextIngestion.Tests;
+
+/// <summary>
+///     Tests for Policy Reference Connector Topology.
+/// </summary>
+[Trait("Category", "Unit")]
+public sealed class PolicyReferenceConnectorTopologyTests
+{
+    [Fact]
+    public async Task NormalizeAsync_WhenPolicyOverlapsTopologyHint_SetsApplicableTopologyNodeIds()
+    {
+        PolicyReferenceConnector sut = new(
+            new PolicyReferencePayloadExtractor(),
+            new PolicyReferencePayloadNormalizer(new PolicyTopologyOverlapResolver()),
+            new SetDiffConnectorDeltaComputer());
+        RawContextPayload raw = new()
+        {
+            PolicyReferences = ["prod-vnet-policy"], TopologyHints = ["prod-vnet-policy-subnet"]
+        };
+
+        NormalizedContextBatch batch = await sut.NormalizeAsync(raw, CancellationToken.None);
+
+        CanonicalObject policy = batch.CanonicalObjects.Single();
+        policy.Properties.Should().ContainKey("applicableTopologyNodeIds");
+        string ids = policy.Properties["applicableTopologyNodeIds"];
+        ids.Should().StartWith("obj-");
+        ids.Split(',', StringSplitOptions.RemoveEmptyEntries).Should().HaveCount(1);
+    }
+
+    [Fact]
+    public async Task NormalizeAsync_WhenNoOverlap_OmitsApplicableTopologyNodeIds()
+    {
+        PolicyReferenceConnector sut = new(
+            new PolicyReferencePayloadExtractor(),
+            new PolicyReferencePayloadNormalizer(new PolicyTopologyOverlapResolver()),
+            new SetDiffConnectorDeltaComputer());
+        RawContextPayload raw = new() { PolicyReferences = ["SOC2"], TopologyHints = ["unrelated-vnet"] };
+
+        NormalizedContextBatch batch = await sut.NormalizeAsync(raw, CancellationToken.None);
+
+        batch.CanonicalObjects.Single().Properties.Should().NotContainKey("applicableTopologyNodeIds");
+    }
+}

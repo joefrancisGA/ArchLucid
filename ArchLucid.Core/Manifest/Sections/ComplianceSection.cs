@@ -1,0 +1,16 @@
+namespace ArchLucid.Core.Manifest.Sections;
+
+public class ComplianceSection
+{
+    public List<CompliancePostureItem> Controls
+    {
+        get;
+        set;
+    } = [];
+
+    public List<string> Gaps
+    {
+        get;
+        set;
+    } = [];
+}

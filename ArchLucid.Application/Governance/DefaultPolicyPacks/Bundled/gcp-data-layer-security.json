@@ -1,0 +1,50 @@
+{
+  "complianceRuleIds": [],
+  "complianceRuleKeys": [
+    "gcp-data-001",
+    "gcp-data-002",
+    "gcp-data-003",
+    "gcp-data-004",
+    "gcp-data-005",
+    "gcp-data-006",
+    "gcp-data-007",
+    "gcp-data-008",
+    "gcp-data-009",
+    "gcp-data-010",
+    "gcp-data-011",
+    "gcp-data-012",
+    "gcp-data-013",
+    "gcp-data-014",
+    "gcp-data-015",
+    "gcp-data-016",
+    "gcp-data-017",
+    "gcp-data-018",
+    "gcp-data-019",
+    "gcp-data-020",
+    "gcp-data-021",
+    "gcp-data-022",
+    "gcp-data-023",
+    "gcp-data-024",
+    "gcp-data-025",
+    "gcp-data-026",
+    "gcp-data-027",
+    "gcp-data-028"
+  ],
+  "alertRuleIds": [],
+  "compositeAlertRuleIds": [],
+  "advisoryDefaults": {
+    "severityFloor": "warning",
+    "priorityFloor": "P0",
+    "scanDepth": "standard"
+  },
+  "metadata": {
+    "templateId": "gcp-data-layer-security-v1",
+    "pack.displayName": "GCP Data-Layer Security",
+    "pack.category": "Data Platform",
+    "pack.version": "1.0.0",
+    "pack.isDefault": "true",
+    "pack.description": "Cloud SQL, Spanner, Firestore, BigQuery, and Cloud Storage data-control themes.",
+    "frameworkMappingDisclaimer": "Data-layer mapping is thematic only.",
+    "curatedRulesArtifact": "docs/samples/policy-packs/gcp-data-layer-security-rules-v1.json"
+  }
+}

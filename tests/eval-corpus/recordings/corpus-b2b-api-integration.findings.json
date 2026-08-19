@@ -1,0 +1,32 @@
+{
+  "findings": [
+    {
+      "findingId": "corp-b2b-1",
+      "category": "Topology",
+      "severity": "Medium",
+      "title": "API gateway",
+      "detail": "Azure API Management fronts microservices with JWT validation, throttling policies, and partner-specific products."
+    },
+    {
+      "findingId": "corp-b2b-2",
+      "category": "Compliance",
+      "severity": "Medium",
+      "title": "Mutual TLS",
+      "detail": "North-south traffic from strategic partners terminates client certificates issued by an internal enterprise CA."
+    },
+    {
+      "findingId": "corp-b2b-3",
+      "category": "Topology",
+      "severity": "Low",
+      "title": "Developer portal",
+      "detail": "Sandbox subscriptions isolate partner onboarding examples from production APIM instances."
+    },
+    {
+      "findingId": "corp-b2b-4",
+      "category": "Cost",
+      "severity": "Low",
+      "title": "Consumption tier",
+      "detail": "Initial rollout keeps API Manager on consumption until sustained RPS crosses the committed tier threshold."
+    }
+  ]
+}

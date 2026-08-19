@@ -1,0 +1,167 @@
+"use client";
+import { cn } from "@/lib/utils";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+
+import { useCallback, useEffect, useState } from "react";
+
+import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture/architecture-workflow-labels";
+import { Button } from "@/components/ui/button";
+import { OPT_IN_TOUR_EVIDENCE_STEP } from "@/lib/onboarding-secondary-surfaces";
+
+/**
+ * In-product opt-in tour (PENDING_QUESTIONS.md item 38 — owner Q8 + Q9; copy approved 2026-04-24).
+ *
+ * Hard-wired contract:
+ * - Six steps. Approved copy (Improvement 5, option B — single batch PR).
+ * - Tour NEVER auto-launches (owner Q9). The component is purely controlled — render
+ *   it conditionally on `isOpen` and trigger via the parent's button.
+ * - Closing the tour persists a dismissal flag in `localStorage`. The flag is a
+ *   defensive marker for any future auto-launch path — the "Take tour" button
+ *   itself ignores it, so re-opening the tour by hand always works.
+ */
+export const TOUR_DISMISSED_LOCAL_STORAGE_KEY = "archlucid.optInTour.dismissed.v1";
+
+export interface OptInTourStep {
+  readonly title: string;
+  readonly body: string;
+}
+
+/** Six-step opt-in tour script. */
+export const DRAFT_TOUR_STEPS: readonly OptInTourStep[] = [
+  {
+    title: "1. Workspace home",
+    body:
+      "Your starting point. The first-review checklist at the top walks you through your first architecture review — follow it in order. " +
+      "The analysis and governance sections below are optional until your first review is finalized.",
+  },
+  {
+    title: OPT_IN_TOUR_EVIDENCE_STEP.title,
+    body: OPT_IN_TOUR_EVIDENCE_STEP.body,
+  },
+  {
+    title: "3. Create architecture",
+    body:
+      `Click ${CREATE_ARCHITECTURE_LABEL} (or press Alt+N) to open the wizard. It guides you through system identity, requirements, and ` +
+      "constraints, then kicks off the analysis pipeline for this architecture review. You will see live progress on step 7.",
+  },
+  {
+    title: "4. Review and finalize",
+    body:
+      "When the pipeline finishes, open your review from the Reviews list. Review findings and evidence, then click " +
+      "Finalize to produce your architecture snapshot — the reviewed package you can export and share.",
+  },
+  {
+    title: "5. Governance and alerts",
+    body:
+      "After finalizing your first review, dashboards and alerts can highlight policy gaps and approval queues. These are " +
+      "available when you are ready — they are not required for a successful first pilot.",
+  },
+  {
+    title: "6. Get help",
+    body:
+      "If something is not working, go to Admin → Support to download a redacted diagnostics bundle for support " +
+      "tickets. Most pages also include a link to the relevant documentation. The How it works button on Home re-opens this tour anytime.",
+  },
+];
+export interface OptInTourProps {
+  readonly isOpen: boolean;
+  readonly onClose: () => void;
+}
+
+export function OptInTour({ isOpen, onClose }: OptInTourProps) {
+  const [stepIndex, setStepIndex] = useState(0);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    setStepIndex(0);
+  }, [isOpen]);
+
+  const handleClose = useCallback(() => {
+    persistDismissal();
+    onClose();
+  }, [onClose]);
+
+  const handleNext = useCallback(() => {
+    setStepIndex((current) => Math.min(current + 1, DRAFT_TOUR_STEPS.length - 1));
+  }, []);
+
+  const handlePrev = useCallback(() => {
+    setStepIndex((current) => Math.max(current - 1, 0));
+  }, []);
+
+  if (!isOpen) return null;
+
+  const isLast = stepIndex === DRAFT_TOUR_STEPS.length - 1;
+  const isFirst = stepIndex === 0;
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
+      role="dialog"
+      aria-modal="true"
+      aria-label="ArchLucid opt-in tour"
+      data-testid="opt-in-tour-dialog"
+    >
+      <div className="w-full max-w-md space-y-4 rounded-lg border border-neutral-200 bg-white p-6 shadow-2xl dark:border-neutral-800 dark:bg-neutral-950">
+        <div className="flex items-start justify-between gap-3">
+          <h2 className={cn("font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>Take tour</h2>
+          <button
+            type="button"
+            className={cn("rounded p-1 text-neutral-500 hover:bg-neutral-100 dark:hover:bg-neutral-800", OPERATOR_TYPOGRAPHY.body)}
+            onClick={handleClose}
+            data-testid="opt-in-tour-close"
+            aria-label="Dismiss tour"
+          >
+            ✕
+          </button>
+        </div>
+
+        {DRAFT_TOUR_STEPS.map((step, idx) =>
+          idx === stepIndex ? (
+            <div key={step.title} data-testid={`opt-in-tour-step-${idx}`} className="space-y-3">
+              <h3 className={cn("font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>{step.title}</h3>
+              <p className={cn("leading-relaxed text-neutral-800 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>{step.body}</p>
+            </div>
+          ) : null,
+        )}
+
+        <div className="flex items-center justify-between pt-2">
+          <span className={cn("text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+            Step {stepIndex + 1} of {DRAFT_TOUR_STEPS.length}
+          </span>
+          <div className="flex gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              disabled={isFirst}
+              onClick={handlePrev}
+              data-testid="opt-in-tour-prev"
+            >
+              Back
+            </Button>
+            {isLast ? (
+              <Button type="button" onClick={handleClose} data-testid="opt-in-tour-finish">
+                Finish
+              </Button>
+            ) : (
+              <Button type="button" onClick={handleNext} data-testid="opt-in-tour-next">
+                Next
+              </Button>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function persistDismissal(): void {
+  if (typeof window === "undefined") return;
+
+  try {
+    window.localStorage.setItem(TOUR_DISMISSED_LOCAL_STORAGE_KEY, new Date().toISOString());
+  } catch {
+    // localStorage may be disabled (private mode, embedded contexts) — silently ignore;
+    // the worst case is we'd ask "Take tour" again on next visit, which is harmless.
+  }
+}

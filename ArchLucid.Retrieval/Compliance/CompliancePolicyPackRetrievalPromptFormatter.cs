@@ -1,0 +1,72 @@
+using ArchLucid.Core.Retrieval;
+
+namespace ArchLucid.Retrieval.Compliance;
+
+/// <summary>
+///     Formats policy-pack retrieval hits for compliance agent prompts.
+/// </summary>
+public static class CompliancePolicyPackRetrievalPromptFormatter
+{
+    public static string FormatPolicyPackBlock(
+        IReadOnlyList<RetrievalHit> hits,
+        IRetrievalCitationFormatter citationFormatter)
+    {
+        ArgumentNullException.ThrowIfNull(citationFormatter);
+
+        bool groundingMissing = hits is null || hits.Count == 0;
+
+        if (groundingMissing)
+        {
+            return """
+                Policy Pack Controls (retrieved — cite ruleId when referencing):
+                - groundingMissing: true — no policy-pack rule hit; do not invent control IDs or quote pack text.
+                (none retrieved — grounding unavailable)
+                """.Trim();
+        }
+
+        System.Text.StringBuilder sb = new();
+        sb.AppendLine("Policy Pack Controls (retrieved — cite ruleId when referencing):");
+        sb.AppendLine("- groundingMissing: false — cite these rules when stating compliance requirements:");
+
+        for (int i = 0; i < hits!.Count; i++)
+        {
+            RetrievalHit hit = hits[i];
+            sb.Append('[');
+            sb.Append(i + 1);
+            sb.Append("] ");
+            sb.Append(citationFormatter.Format(hit));
+            sb.Append(" — ");
+            sb.AppendLine(hit.Text);
+        }
+
+        return sb.ToString().TrimEnd();
+    }
+
+    public static string BuildPolicyQueryText(ArchLucid.Contracts.Requests.ArchitectureRequest request)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+
+        System.Text.StringBuilder sb = new();
+        sb.Append(request.SystemName);
+
+        if (!string.IsNullOrWhiteSpace(request.Environment))
+        {
+            sb.Append(' ');
+            sb.Append(request.Environment);
+        }
+
+        if (request.RequiredCapabilities is { Count: > 0 })
+        {
+            sb.Append(" capabilities: ");
+            sb.Append(string.Join(", ", request.RequiredCapabilities));
+        }
+
+        if (request.Constraints is { Count: > 0 })
+        {
+            sb.Append(" constraints: ");
+            sb.Append(string.Join("; ", request.Constraints));
+        }
+
+        return sb.ToString();
+    }
+}

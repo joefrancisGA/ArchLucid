@@ -1,0 +1,796 @@
+using System.Diagnostics.Metrics;
+
+using ArchLucid.Application.Agents;
+using ArchLucid.AgentRuntime.Prompts;
+using ArchLucid.Contracts.Agents;
+using ArchLucid.Core.AgentEvaluation;
+using ArchLucid.Core.QualityGates;
+using ArchLucid.Contracts.Common;
+using ArchLucid.Core.Audit;
+using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Diagnostics;
+using ArchLucid.Core.Llm.Redaction;
+using ArchLucid.Core.Persistence.ApplicationPorts.Agents;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Transactions;
+using ArchLucid.Persistence.BlobStore;
+using ArchLucid.Persistence.Data.Repositories;
+
+using FluentAssertions;
+
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+
+using Moq;
+
+namespace ArchLucid.AgentRuntime.Tests.AgentExecutionTraceRecorder;
+
+[Trait("Category", "Unit")]
+[Trait("Suite", "Core")]
+public sealed class AgentExecutionTraceRecorderReproTests
+{
+    [SkippableFact]
+    public async Task RecordAsync_persists_prompt_repro_fields()
+    {
+        InMemoryAgentExecutionTraceRepository repo = new();
+        AgentRuntime.AgentExecutionTraceRecorder sut = CreateRecorder(repo);
+
+        AgentPromptReproMetadata meta = new("topology-system", "1.0.0", "abc123deadbeef", "pilot-a");
+
+        await sut.RecordAsync(
+            "run-1",
+            "task-1",
+            AgentType.Topology,
+            "system",
+            "user",
+            "{}",
+            "{}",
+            true,
+            null,
+            meta);
+
+        IReadOnlyList<AgentExecutionTrace> list = await repo.GetByRunIdAsync(new ScopeContext(), "run-1");
+
+        AgentExecutionTrace t = list.Should().ContainSingle().Subject;
+        t.PromptTemplateId.Should().Be("topology-system");
+        t.PromptTemplateVersion.Should().Be("1.0.0");
+        t.SystemPromptContentSha256.Should().Be("abc123deadbeef");
+        t.SystemPromptContentHash.Should().Be("abc123deadbeef");
+        t.PromptReleaseLabel.Should().Be("pilot-a");
+    }
+
+    [SkippableFact]
+    public async Task RecordAsync_without_prompt_repro_computes_system_prompt_content_hash()
+    {
+        InMemoryAgentExecutionTraceRepository repo = new();
+        AgentRuntime.AgentExecutionTraceRecorder sut = CreateRecorder(repo);
+        const string systemPrompt = "line1\nline2";
+
+        await sut.RecordAsync(
+            "run-1",
+            "task-1",
+            AgentType.Topology,
+            systemPrompt,
+            "user",
+            "{}",
+            "{}",
+            true,
+            null);
+
+        IReadOnlyList<AgentExecutionTrace> list = await repo.GetByRunIdAsync(new ScopeContext(), "run-1");
+        AgentExecutionTrace t = list.Should().ContainSingle().Subject;
+
+        t.SystemPromptContentHash.Should().Be(AgentPromptCanonicalHasher.ContentHashPrefix16(systemPrompt));
+        t.SystemPromptContentSha256.Should().Be(AgentPromptCanonicalHasher.Sha256HexUtf8Normalized(systemPrompt));
+    }
+
+    [SkippableFact]
+    public async Task RecordAsync_when_model_metadata_null_uses_unspecified_sentinels()
+    {
+        InMemoryAgentExecutionTraceRepository repo = new();
+        AgentRuntime.AgentExecutionTraceRecorder sut = CreateRecorder(repo);
+
+        await sut.RecordAsync(
+            "run-1",
+            "task-1",
+            AgentType.Topology,
+            "system",
+            "user",
+            "{}",
+            "{}",
+            true,
+            null);
+
+        IReadOnlyList<AgentExecutionTrace> list = await repo.GetByRunIdAsync(new ScopeContext(), "run-1");
+        AgentExecutionTrace t = list.Should().ContainSingle().Subject;
+        t.ModelDeploymentName.Should().Be(AgentExecutionTraceModelMetadata.UnspecifiedDeploymentName);
+        t.ModelVersion.Should().Be(AgentExecutionTraceModelMetadata.UnspecifiedModelVersion);
+    }
+
+    [SkippableFact]
+    public async Task RecordAsync_persists_token_counts_and_estimated_cost_when_enabled()
+    {
+        InMemoryAgentExecutionTraceRepository repo = new();
+        IOptions<LlmCostEstimationOptions> opts = Options.Create(
+            new LlmCostEstimationOptions
+            {
+                Enabled = true, InputUsdPerMillionTokens = 1m, OutputUsdPerMillionTokens = 2m
+            });
+        AgentRuntime.AgentExecutionTraceRecorder sut = CreateRecorder(repo, opts);
+
+        await sut.RecordAsync(
+            "run-1",
+            "task-1",
+            AgentType.Topology,
+            "system",
+            "user",
+            "{}",
+            "{}",
+            true,
+            null,
+            null,
+            1_000_000,
+            500_000);
+
+        IReadOnlyList<AgentExecutionTrace> list = await repo.GetByRunIdAsync(new ScopeContext(), "run-1");
+        AgentExecutionTrace t = list.Should().ContainSingle().Subject;
+        t.InputTokenCount.Should().Be(1_000_000);
+        t.OutputTokenCount.Should().Be(500_000);
+        t.EstimatedCostUsd.Should().Be(2m);
+    }
+
+    [SkippableFact]
+    public async Task RecordAsync_sets_blob_keys_when_store_succeeds()
+    {
+        InMemoryAgentExecutionTraceRepository repo = new();
+        AgentRuntime.AgentExecutionTraceRecorder sut = CreateRecorder(repo);
+
+        await sut.RecordAsync(
+            "run-1",
+            "task-1",
+            AgentType.Topology,
+            "full-system",
+            "full-user",
+            "full-response",
+            "{}",
+            true,
+            null);
+
+        IReadOnlyList<AgentExecutionTrace> list = await repo.GetByRunIdAsync(new ScopeContext(), "run-1");
+        AgentExecutionTrace t = list.Should().ContainSingle().Subject;
+        t.FullSystemPromptBlobKey.Should().NotBeNullOrEmpty();
+        t.FullUserPromptBlobKey.Should().NotBeNullOrEmpty();
+        t.FullResponseBlobKey.Should().NotBeNullOrEmpty();
+        t.BlobUploadFailed.Should().BeFalse();
+    }
+
+    [SkippableFact]
+    public async Task RecordAsync_when_simulator_execution_skips_blob_writes()
+    {
+        InMemoryAgentExecutionTraceRepository repo = new();
+        Mock<IArtifactBlobStore> blobMock = new();
+        AgentRuntime.AgentExecutionTraceRecorder sut = CreateRecorder(repo, blobStore: blobMock.Object);
+
+        await sut.RecordAsync(
+            "run-1",
+            "task-1",
+            AgentType.Topology,
+            "full-system",
+            "full-user",
+            "full-response",
+            "{}",
+            true,
+            null,
+            isSimulatorExecution: true);
+
+        blobMock.Verify(
+            b => b.WriteAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+
+        IReadOnlyList<AgentExecutionTrace> list = await repo.GetByRunIdAsync(new ScopeContext(), "run-1");
+        AgentExecutionTrace t = list.Should().ContainSingle().Subject;
+        t.FullSystemPromptBlobKey.Should().BeNull();
+        t.FullUserPromptBlobKey.Should().BeNull();
+        t.FullResponseBlobKey.Should().BeNull();
+    }
+
+    [SkippableFact]
+    public async Task RecordAsync_when_blob_writes_fail_persists_inline_text_for_missing_blobs()
+    {
+        InMemoryAgentExecutionTraceRepository repo = new();
+        Mock<IArtifactBlobStore> blobMock = new();
+        blobMock
+            .Setup(b => b.WriteAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .Returns((string _, string path, string _, CancellationToken _) =>
+                path.Contains("user-prompt", StringComparison.OrdinalIgnoreCase)
+                    ? Task.FromResult<string>(null!)
+                    : Task.FromResult($"ok://{path}"));
+
+        AgentRuntime.AgentExecutionTraceRecorder sut = CreateRecorder(repo, blobStore: blobMock.Object);
+
+        await sut.RecordAsync(
+            "run-1",
+            "task-1",
+            AgentType.Topology,
+            "full-system",
+            "full-user",
+            "full-response",
+            "{}",
+            true,
+            null);
+
+        IReadOnlyList<AgentExecutionTrace> list = await repo.GetByRunIdAsync(new ScopeContext(), "run-1");
+        AgentExecutionTrace t = list.Should().ContainSingle().Subject;
+        t.BlobUploadFailed.Should().BeTrue();
+        t.FullUserPromptInline.Should().Be("full-user");
+        t.FullSystemPromptInline.Should().BeNull();
+        t.FullResponseInline.Should().BeNull();
+    }
+
+    [SkippableFact]
+    public async Task RecordAsync_when_blob_writes_fail_sets_blob_upload_failed_and_audits()
+    {
+        InMemoryAgentExecutionTraceRepository repo = new();
+        SpyAuditService spyAudit = new();
+        Mock<IArtifactBlobStore> blobMock = new();
+        blobMock
+            .Setup(b => b.WriteAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new IOException("simulated blob failure"));
+
+        AgentRuntime.AgentExecutionTraceRecorder sut = CreateRecorder(
+            repo,
+            blobStore: blobMock.Object,
+            auditService: spyAudit);
+
+        await sut.RecordAsync(
+            "run-1",
+            "task-1",
+            AgentType.Compliance,
+            "s",
+            "u",
+            "r",
+            "{}",
+            true,
+            null);
+
+        IReadOnlyList<AgentExecutionTrace> list = await repo.GetByRunIdAsync(new ScopeContext(), "run-1");
+        AgentExecutionTrace t = list.Should().ContainSingle().Subject;
+        t.BlobUploadFailed.Should().BeTrue();
+        t.FullSystemPromptInline.Should().Be("s");
+        t.FullUserPromptInline.Should().Be("u");
+        t.FullResponseInline.Should().Be("r");
+        spyAudit.LastEvent.Should().NotBeNull();
+        spyAudit.LastEvent!.EventType.Should().Be(AuditEventTypes.AgentTraceBlobPersistenceFailed);
+        spyAudit.LastEvent.DataJson.Should().Contain("upload_failed");
+    }
+
+    [SkippableFact]
+    public async Task RecordAsync_retries_blob_write_three_times_before_abandoning_failed_part()
+    {
+        InMemoryAgentExecutionTraceRepository repo = new();
+        Mock<IArtifactBlobStore> blobMock = new();
+        blobMock
+            .Setup(b => b.WriteAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .Returns((string _, string path, string _, CancellationToken _) =>
+                path.Contains("system-prompt", StringComparison.OrdinalIgnoreCase)
+                    ? Task.FromException<string>(new IOException("simulated transient blob failure"))
+                    : Task.FromResult($"ok://{path}"));
+
+        AgentRuntime.AgentExecutionTraceRecorder sut = CreateRecorder(repo, blobStore: blobMock.Object);
+
+        await sut.RecordAsync(
+            "run-1",
+            "task-1",
+            AgentType.Topology,
+            "full-system",
+            "full-user",
+            "full-response",
+            "{}",
+            true,
+            null);
+
+        blobMock.Verify(
+            b => b.WriteAsync(
+                It.IsAny<string>(),
+                It.Is<string>(p => p.Contains("system-prompt", StringComparison.OrdinalIgnoreCase)),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()),
+            Times.Exactly(3));
+
+        blobMock.Verify(
+            b => b.WriteAsync(
+                It.IsAny<string>(),
+                It.Is<string>(p => p.Contains("user-prompt", StringComparison.OrdinalIgnoreCase)),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()),
+            Times.Once());
+
+        blobMock.Verify(
+            b => b.WriteAsync(
+                It.IsAny<string>(),
+                It.Is<string>(p => p.Contains("response.txt", StringComparison.OrdinalIgnoreCase)),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()),
+            Times.Once());
+    }
+
+    [SkippableFact]
+    public async Task
+        RecordAsync_when_each_blob_exhausts_retries_increments_archlucid_agent_trace_blob_upload_failures_total()
+    {
+        _ = ArchLucidInstrumentation.AgentTraceBlobUploadFailuresTotal;
+
+        InMemoryAgentExecutionTraceRepository repo = new();
+        Mock<IArtifactBlobStore> blobMock = new();
+        blobMock
+            .Setup(b => b.WriteAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new IOException("always fail"));
+
+        using BlobUploadFailureMeasurementCapture capture = BlobUploadFailureMeasurementCapture.Start();
+
+        AgentRuntime.AgentExecutionTraceRecorder sut = CreateRecorder(repo, blobStore: blobMock.Object);
+
+        await sut.RecordAsync(
+            "run-1",
+            "task-1",
+            AgentType.Cost,
+            "s",
+            "u",
+            "r",
+            "{}",
+            true,
+            null);
+
+        IReadOnlyList<LongMeasurementRecord> failures =
+            capture.MeasurementsFor("archlucid_agent_trace_blob_upload_failures_total");
+        failures.Should().HaveCount(3);
+        failures.Sum(m => m.Value).Should().Be(3);
+
+        HashSet<string> blobTypes = failures
+            .SelectMany(m => m.Tags.Where(t => t.Key == "blob_type").Select(t => (string)t.Value!))
+            .ToHashSet(StringComparer.Ordinal);
+
+        blobTypes.Should().BeEquivalentTo("system_prompt", "user_prompt", "response");
+    }
+
+    [SkippableFact]
+    public async Task RecordAsync_when_all_blobs_fail_increments_prompt_inline_fallback_total_per_blob_type()
+    {
+        _ = ArchLucidInstrumentation.AgentTracePromptInlineFallbacksTotal;
+
+        InMemoryAgentExecutionTraceRepository repo = new();
+        Mock<IArtifactBlobStore> blobMock = new();
+        blobMock
+            .Setup(b => b.WriteAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new IOException("always fail"));
+
+        using PromptInlineFallbackMeasurementCapture capture = PromptInlineFallbackMeasurementCapture.Start();
+
+        AgentRuntime.AgentExecutionTraceRecorder sut = CreateRecorder(repo, blobStore: blobMock.Object);
+
+        await sut.RecordAsync(
+            "run-1",
+            "task-1",
+            AgentType.Topology,
+            "s",
+            "u",
+            "r",
+            "{}",
+            true,
+            null);
+
+        IReadOnlyList<LongMeasurementRecord> inline =
+            capture.MeasurementsFor("archlucid_agent_trace_prompt_inline_fallback_total");
+        inline.Should().HaveCount(3);
+        inline.Sum(m => m.Value).Should().Be(3);
+
+        HashSet<string> blobTypes = inline
+            .SelectMany(m => m.Tags.Where(t => t.Key == "blob_type").Select(t => (string)t.Value!))
+            .ToHashSet(StringComparer.Ordinal);
+
+        blobTypes.Should().BeEquivalentTo("system_prompt", "user_prompt", "response");
+    }
+
+    [SkippableFact]
+    public async Task RecordAsync_when_inline_sql_patch_throws_sets_inline_fallback_failed_and_audits()
+    {
+        InlinePatchThrowsRepository repo = new();
+        RecordingAuditService recordingAudit = new();
+        Mock<IArtifactBlobStore> blobMock = new();
+        blobMock
+            .Setup(b => b.WriteAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new IOException("blob down"));
+
+        AgentRuntime.AgentExecutionTraceRecorder sut = CreateRecorder(
+            repo,
+            blobStore: blobMock.Object,
+            auditService: recordingAudit);
+
+        await sut.RecordAsync(
+            "run-1",
+            "task-1",
+            AgentType.Topology,
+            "s",
+            "u",
+            "r",
+            "{}",
+            true,
+            null);
+
+        IReadOnlyList<AgentExecutionTrace> list = await repo.GetByRunIdAsync(new ScopeContext(), "run-1");
+        AgentExecutionTrace t = list.Should().ContainSingle().Subject;
+        t.InlineFallbackFailed.Should().BeTrue();
+
+        recordingAudit.Events.Should().Contain(e => e.EventType == AuditEventTypes.AgentTraceInlineFallbackFailed);
+        recordingAudit.Events.Should().Contain(e => e.EventType == AuditEventTypes.AgentTraceBlobPersistenceFailed);
+    }
+
+    private static AgentRuntime.AgentExecutionTraceRecorder CreateRecorder(
+        IAgentExecutionTraceRepository repo,
+        IOptions<LlmCostEstimationOptions>? costOptions = null,
+        IArtifactBlobStore? blobStore = null,
+        IAuditService? auditService = null)
+    {
+        IOptions<LlmCostEstimationOptions> cost =
+            costOptions ?? Options.Create(new LlmCostEstimationOptions { Enabled = false });
+        ServiceCollection services = [];
+        services.AddScoped<IAgentExecutionTraceRepository>(_ => repo);
+        services.AddSingleton(blobStore ?? new InMemoryArtifactBlobStore());
+        services.AddSingleton(cost);
+        services.AddSingleton(Options.Create(new AgentExecutionTraceStorageOptions()));
+        services.AddSingleton<ILlmCostEstimationUsdRateOverride>(NoOpLlmCostEstimationUsdRateOverride.Instance);
+        services.AddSingleton<ILlmCostEstimator, LlmCostEstimator>();
+        services.AddSingleton<IAuditService>(_ => auditService ?? new NoOpAuditService());
+        services.AddSingleton<IScopeContextProvider, FixedScopeProvider>();
+        services.Configure<LlmPromptRedactionOptions>(o => o.Enabled = false);
+        services.AddSingleton<IPromptRedactor, PromptRedactor>();
+        services.AddSingleton<IAgentToolInvocationRecordWriter, NoOpAgentToolInvocationRecordWriter>();
+        services.AddLogging(b => b.SetMinimumLevel(LogLevel.None));
+        services.AddScoped<AgentRuntime.AgentExecutionTraceRecorder>();
+        ServiceProvider provider = services.BuildServiceProvider();
+        IServiceScope scope = provider.CreateScope();
+
+        return scope.ServiceProvider.GetRequiredService<AgentRuntime.AgentExecutionTraceRecorder>();
+    }
+
+    private sealed class FixedScopeProvider : IScopeContextProvider
+    {
+        public ScopeContext GetCurrentScope()
+        {
+            return new ScopeContext
+            {
+                TenantId = Guid.Parse("00000000-0000-0000-0000-000000000001"),
+                WorkspaceId = Guid.Parse("00000000-0000-0000-0000-000000000002"),
+                ProjectId = Guid.Parse("00000000-0000-0000-0000-000000000003")
+            };
+        }
+    }
+
+    private sealed class NoOpAuditService : IAuditService
+    {
+        public Task LogAsync(AuditEvent auditEvent, CancellationToken cancellationToken) =>
+            Task.CompletedTask;
+
+        public Task LogAsync(AuditEvent auditEvent, IArchLucidUnitOfWork unitOfWork, CancellationToken cancellationToken) =>
+            LogAsync(auditEvent, cancellationToken);
+    }
+
+    private sealed class SpyAuditService : IAuditService
+    {
+        public AuditEvent? LastEvent
+        {
+            get;
+            private set;
+        }
+
+        public Task LogAsync(AuditEvent auditEvent, CancellationToken cancellationToken)
+        {
+            LastEvent = auditEvent;
+
+            return Task.CompletedTask;
+        }
+
+        public Task LogAsync(AuditEvent auditEvent, IArchLucidUnitOfWork unitOfWork, CancellationToken cancellationToken) =>
+            LogAsync(auditEvent, cancellationToken);
+    }
+
+    private sealed class RecordingAuditService : IAuditService
+    {
+        public List<AuditEvent> Events
+        {
+            get;
+        } = [];
+
+        public Task LogAsync(AuditEvent auditEvent, CancellationToken cancellationToken)
+        {
+            Events.Add(auditEvent);
+
+            return Task.CompletedTask;
+        }
+
+        public Task LogAsync(AuditEvent auditEvent, IArchLucidUnitOfWork unitOfWork, CancellationToken cancellationToken) =>
+            LogAsync(auditEvent, cancellationToken);
+    }
+
+    /// <summary>Forces SQL inline patch to throw while delegating other trace operations to memory.</summary>
+    private sealed class InlinePatchThrowsRepository : IAgentExecutionTraceRepository
+    {
+        private readonly InMemoryAgentExecutionTraceRepository _inner = new();
+
+        public Task CreateAsync(AgentExecutionTrace trace, CancellationToken cancellationToken = default)
+        {
+            return _inner.CreateAsync(trace, cancellationToken);
+        }
+
+        public Task PatchBlobStorageFieldsAsync(
+            string traceId,
+            string? fullSystemPromptBlobKey,
+            string? fullUserPromptBlobKey,
+            string? fullResponseBlobKey,
+            CancellationToken cancellationToken = default)
+        {
+            return _inner.PatchBlobStorageFieldsAsync(
+                traceId,
+                fullSystemPromptBlobKey,
+                fullUserPromptBlobKey,
+                fullResponseBlobKey,
+                cancellationToken);
+        }
+
+        public Task PatchBlobUploadFailedAsync(string traceId, bool failed,
+            CancellationToken cancellationToken = default)
+        {
+            return _inner.PatchBlobUploadFailedAsync(traceId, failed, cancellationToken);
+        }
+
+        public Task PatchInlinePromptFallbackAsync(
+            string traceId,
+            string? fullSystemPromptInline,
+            string? fullUserPromptInline,
+            string? fullResponseInline,
+            CancellationToken cancellationToken = default)
+        {
+            throw new IOException("simulated mandatory inline SQL patch failure");
+        }
+
+        public Task PatchInlineFallbackFailedAsync(string traceId, bool failed,
+            CancellationToken cancellationToken = default)
+        {
+            return _inner.PatchInlineFallbackFailedAsync(traceId, failed, cancellationToken);
+        }
+
+        public Task PatchQualityWarningAsync(string traceId, bool qualityWarning,
+            CancellationToken cancellationToken = default)
+        {
+            return _inner.PatchQualityWarningAsync(traceId, qualityWarning, cancellationToken);
+        }
+
+        public Task PatchQualityRejectedAsync(string traceId, bool qualityRejected,
+            CancellationToken cancellationToken = default)
+        {
+            return _inner.PatchQualityRejectedAsync(traceId, qualityRejected, cancellationToken);
+        }
+
+        public Task PatchQualityGateRecordedSnapshotAsync(
+            string traceId,
+            AgentOutputQualityGateOutcome recordedOutcome,
+            string definitionVersion,
+            string definitionContentHashSha256,
+            string gateMode,
+            QualityGateRecordedEvaluationSnapshot? evaluationSnapshot,
+            CancellationToken cancellationToken = default)
+        {
+            return _inner.PatchQualityGateRecordedSnapshotAsync(
+                traceId,
+                recordedOutcome,
+                definitionVersion,
+                definitionContentHashSha256,
+                gateMode,
+                evaluationSnapshot,
+                cancellationToken);
+        }
+
+        public Task<AgentExecutionTrace?> GetByTraceIdAsync(string traceId,
+            CancellationToken cancellationToken = default)
+        {
+            return _inner.GetByTraceIdAsync(traceId, cancellationToken);
+        }
+
+        public Task<IReadOnlyList<AgentExecutionTrace>> GetByRunIdAsync(ScopeContext scope, string runId, CancellationToken cancellationToken = default)
+        {
+            return _inner.GetByRunIdAsync(scope, runId, cancellationToken);
+        }
+
+        public Task<IReadOnlyList<AgentExecutionTraceLlmCostSlice>> GetLlmCostSlicesByRunIdAsync(
+            ScopeContext scope,
+            string runId,
+            CancellationToken cancellationToken = default)
+        {
+            return _inner.GetLlmCostSlicesByRunIdAsync(scope, runId, cancellationToken);
+        }
+
+        public Task<IReadOnlyDictionary<string, IReadOnlyList<AgentExecutionTraceLlmCostSlice>>> GetLlmCostSlicesByRunIdsAsync(
+            ScopeContext scope,
+            IReadOnlyCollection<string> runIds,
+            CancellationToken cancellationToken = default)
+        {
+            return _inner.GetLlmCostSlicesByRunIdsAsync(scope, runIds, cancellationToken);
+        }
+
+        public Task<(IReadOnlyList<AgentExecutionTrace> Traces, int TotalCount)> GetPagedByRunIdAsync(ScopeContext scope, string runId, int offset, int limit, CancellationToken cancellationToken = default)
+        {
+            return _inner.GetPagedByRunIdAsync(scope, runId, offset, limit, cancellationToken);
+        }
+
+        public Task<(IReadOnlyList<AgentExecutionTraceSummary> Summaries, int TotalCount)> GetPagedSummariesByRunIdAsync(
+            ScopeContext scope,
+            string runId,
+            int offset,
+            int limit,
+            CancellationToken cancellationToken = default)
+        {
+            return _inner.GetPagedSummariesByRunIdAsync(scope, runId, offset, limit, cancellationToken);
+        }
+
+        public Task<int> CountByRunIdAsync(ScopeContext scope, string runId, CancellationToken cancellationToken = default)
+        {
+            return _inner.CountByRunIdAsync(scope, runId, cancellationToken);
+        }
+
+        public Task<IReadOnlyList<AgentExecutionTrace>> GetByTaskIdAsync(string taskId,
+            CancellationToken cancellationToken = default)
+        {
+            return _inner.GetByTaskIdAsync(taskId, cancellationToken);
+        }
+
+        public Task<IReadOnlyList<string>> GetDistinctAgentTypesWithLlmResourceFallbackAsync(ScopeContext scope, string runId, CancellationToken cancellationToken = default)
+        {
+            return _inner.GetDistinctAgentTypesWithLlmResourceFallbackAsync(scope, runId, cancellationToken);
+        }
+
+        public Task<IReadOnlyDictionary<string, IReadOnlyList<string>>>
+            GetDistinctAgentTypesWithLlmResourceFallbackByRunIdsAsync(ScopeContext scope, IReadOnlyList<string> runIds, CancellationToken cancellationToken = default)
+        {
+            return _inner.GetDistinctAgentTypesWithLlmResourceFallbackByRunIdsAsync(scope, runIds, cancellationToken);
+        }
+
+        public Task<int> HardDeleteTracesArchivedBeforeAsync(
+            DateTimeOffset archivedBeforeUtc,
+            int maxRows,
+            CancellationToken cancellationToken = default)
+        {
+            return _inner.HardDeleteTracesArchivedBeforeAsync(archivedBeforeUtc, maxRows, cancellationToken);
+        }
+    }
+
+    private sealed class BlobUploadFailureMeasurementCapture : IDisposable
+    {
+        private readonly MeterListener _listener = new();
+
+        private readonly List<LongMeasurementRecord> _longMeasures = [];
+
+        private BlobUploadFailureMeasurementCapture()
+        {
+            _listener.InstrumentPublished = OnInstrumentPublished;
+            _listener.SetMeasurementEventCallback<long>(OnMeasurementLong);
+            _listener.Start();
+        }
+
+        public void Dispose()
+        {
+            _listener.Dispose();
+        }
+
+        public static BlobUploadFailureMeasurementCapture Start()
+        {
+            return new BlobUploadFailureMeasurementCapture();
+        }
+
+        public IReadOnlyList<LongMeasurementRecord> MeasurementsFor(string instrumentName)
+        {
+            return _longMeasures.Where(m => m.Name == instrumentName).ToList();
+        }
+
+        private void OnInstrumentPublished(Instrument instrument, MeterListener meterListener)
+        {
+            if (instrument.Meter.Name != ArchLucidMeterNames.Meter)
+            {
+                return;
+            }
+
+            if (instrument.Name == "archlucid_agent_trace_blob_upload_failures_total")
+            {
+                meterListener.EnableMeasurementEvents(instrument);
+            }
+        }
+
+        private void OnMeasurementLong(
+            Instrument instrument,
+            long measurement,
+            ReadOnlySpan<KeyValuePair<string, object?>> tags,
+            object? state)
+        {
+            _ = state;
+            List<KeyValuePair<string, object?>> tagList = [];
+
+            foreach (KeyValuePair<string, object?> tag in tags)
+            {
+                tagList.Add(tag);
+            }
+
+            _longMeasures.Add(new LongMeasurementRecord(instrument.Name, measurement, tagList));
+        }
+    }
+
+    private sealed class PromptInlineFallbackMeasurementCapture : IDisposable
+    {
+        private readonly MeterListener _listener = new();
+
+        private readonly List<LongMeasurementRecord> _longMeasures = [];
+
+        private PromptInlineFallbackMeasurementCapture()
+        {
+            _listener.InstrumentPublished = OnInstrumentPublished;
+            _listener.SetMeasurementEventCallback<long>(OnMeasurementLong);
+            _listener.Start();
+        }
+
+        public void Dispose()
+        {
+            _listener.Dispose();
+        }
+
+        public static PromptInlineFallbackMeasurementCapture Start()
+        {
+            return new PromptInlineFallbackMeasurementCapture();
+        }
+
+        public IReadOnlyList<LongMeasurementRecord> MeasurementsFor(string instrumentName)
+        {
+            return _longMeasures.Where(m => m.Name == instrumentName).ToList();
+        }
+
+        private void OnInstrumentPublished(Instrument instrument, MeterListener meterListener)
+        {
+            if (instrument.Meter.Name != ArchLucidMeterNames.Meter)
+            {
+                return;
+            }
+
+            if (instrument.Name == "archlucid_agent_trace_prompt_inline_fallback_total")
+            {
+                meterListener.EnableMeasurementEvents(instrument);
+            }
+        }
+
+        private void OnMeasurementLong(
+            Instrument instrument,
+            long measurement,
+            ReadOnlySpan<KeyValuePair<string, object?>> tags,
+            object? state)
+        {
+            _ = state;
+            List<KeyValuePair<string, object?>> tagList = [];
+
+            foreach (KeyValuePair<string, object?> tag in tags)
+            {
+                tagList.Add(tag);
+            }
+
+            _longMeasures.Add(new LongMeasurementRecord(instrument.Name, measurement, tagList));
+        }
+    }
+
+    private readonly record struct LongMeasurementRecord(
+        string Name,
+        long Value,
+        IReadOnlyList<KeyValuePair<string, object?>> Tags);
+}

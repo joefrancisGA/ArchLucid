@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+# Delegates to the canonical post-checkout hook in scripts/hooks/.
+set -eu
+ROOT="$(git rev-parse --show-toplevel)"
+exec bash "$ROOT/scripts/hooks/post-checkout" "$@"

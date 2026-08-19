@@ -1,0 +1,261 @@
+using ArchLucid.Application.Pilots;
+using ArchLucid.Application.Value;
+using ArchLucid.Contracts.Architecture;
+using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Explanation;
+using ArchLucid.Contracts.Manifest;
+using ArchLucid.Contracts.Metadata;
+using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Pilots;
+using ArchLucid.Persistence.Tenancy;
+using ArchLucid.Persistence.Value;
+
+using FluentAssertions;
+
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Options;
+
+using Moq;
+
+namespace ArchLucid.Application.Tests.Pilots;
+
+[Trait("Suite", "Core")]
+public sealed class FirstValueReportPdfBuilderTests
+{
+    [SkippableFact]
+    public async Task BuildPdfAsync_WhenRunMissing_ReturnsNull()
+    {
+        Mock<IRunDetailQueryService> query = new();
+        query.Setup(q => q.GetRunDetailAsync("missing", It.IsAny<CancellationToken>()))
+            .ReturnsAsync((ArchitectureRunDetail?)null);
+
+        Mock<IPilotRunDeltaComputer> deltas = new();
+        FirstValueReportBuilder markdown = CreateMarkdownBuilder(query.Object, deltas.Object);
+        FirstValueReportPdfBuilder sut = new(markdown);
+
+        byte[]? pdf = await sut.BuildPdfAsync("missing", "http://localhost:5000");
+
+        pdf.Should().BeNull();
+    }
+
+    [SkippableFact]
+    public async Task BuildPdfAsync_WhenCommitted_ReturnsPdfWithMagicBytes()
+    {
+        ArchitectureRunDetail detail = BuildCommittedDetail();
+        Mock<IRunDetailQueryService> query = new();
+        query.Setup(q => q.GetRunDetailAsync("r-pdf-md-1", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(detail);
+
+        Mock<IPilotRunDeltaComputer> deltas = new();
+        deltas.Setup(d => d.ComputeAsync(detail, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(CreateSendablePilotRunDeltas(detail));
+
+        FirstValueReportBuilder markdown = CreateMarkdownBuilder(query.Object, deltas.Object);
+        FirstValueReportPdfBuilder sut = new(markdown);
+
+        byte[]? pdf = await sut.BuildPdfAsync("r-pdf-md-1", "http://localhost:5000");
+
+        pdf.Should().NotBeNull();
+        pdf.Length.Should().BeGreaterThan(64);
+        ReadOnlySpan<byte> head = pdf.AsSpan(0, 4);
+        head[0].Should().Be((byte)'%');
+        head[1].Should().Be((byte)'P');
+        head[2].Should().Be((byte)'D');
+        head[3].Should().Be((byte)'F');
+    }
+
+    [SkippableFact]
+    public async Task BuildPdfAsync_WhenRoiBaselinesMissing_ThrowsSponsorPdfBlocked()
+    {
+        ArchitectureRunDetail detail = BuildCommittedDetail();
+        Mock<IRunDetailQueryService> query = new();
+        query.Setup(q => q.GetRunDetailAsync("r-pdf-incomplete", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(detail);
+
+        Mock<IPilotRunDeltaComputer> deltas = new();
+        deltas.Setup(d => d.ComputeAsync(detail, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new PilotRunDeltas
+            {
+                RunCreatedUtc = detail.Run.CreatedUtc,
+                ManifestCommittedUtc = detail.Manifest!.Metadata.CreatedUtc,
+                TimeToCommittedManifest = detail.Manifest.Metadata.CreatedUtc - detail.Run.CreatedUtc,
+                FindingsBySeverity = [],
+                AuditRowCount = 0,
+                LlmCallCount = 0,
+                LlmCallCountResolved = true,
+                IsDemoTenant = false,
+            });
+
+        Mock<IPilotBaselineRepository> pilotBaselines = new();
+        pilotBaselines
+            .Setup(b => b.GetAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((PilotBaselineRecord?)null);
+
+        FirstValueReportBuilder markdown = CreateMarkdownBuilder(query.Object, deltas.Object, pilotBaselines.Object);
+        FirstValueReportPdfBuilder sut = new(markdown);
+
+        Func<Task> act = () => sut.BuildPdfAsync("r-pdf-incomplete", "http://localhost:5000");
+
+        await act.Should().ThrowAsync<SponsorFirstValuePdfBlockedException>();
+    }
+
+    [SkippableFact]
+    public async Task BuildPdfAsync_NullRunId_Throws()
+    {
+        Mock<IRunDetailQueryService> query = new();
+        Mock<IPilotRunDeltaComputer> deltas = new();
+        FirstValueReportBuilder markdown = CreateMarkdownBuilder(query.Object, deltas.Object);
+        FirstValueReportPdfBuilder sut = new(markdown);
+
+        Func<Task> act = () => sut.BuildPdfAsync(string.Empty, "http://localhost:5000");
+
+        await act.Should().ThrowAsync<ArgumentException>();
+    }
+
+    private static FirstValueReportBuilder CreateMarkdownBuilder(
+        IRunDetailQueryService query,
+        IPilotRunDeltaComputer deltas,
+        IPilotBaselineRepository? pilotBaselines = null)
+    {
+        Mock<IValueReportMetricsReader> metrics = new();
+        metrics
+            .Setup(m => m.ReadAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<DateTimeOffset>(),
+                It.IsAny<DateTimeOffset>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new ValueReportRawMetrics(
+                    [],
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    0,
+                    8m,
+                    "signup",
+                    TimeProvider.System.GetUtcNow(),
+                    6m,
+                    3,
+                    6m,
+                    null,
+                    null));
+
+        Mock<IOptionsMonitor<ValueReportComputationOptions>> opt = new();
+        opt.Setup(o => o.CurrentValue).Returns(new ValueReportComputationOptions());
+
+        ValueReportBuilder valueReport = new(metrics.Object, opt.Object);
+
+        Mock<IScopeContextProvider> scope = new();
+        scope.Setup(s => s.GetCurrentScope()).Returns(
+            new ScopeContext
+            {
+                TenantId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
+                WorkspaceId = Guid.Parse("22222222-2222-2222-2222-222222222222"),
+                ProjectId = Guid.Parse("33333333-3333-3333-3333-333333333333"),
+            });
+
+        IConfigurationRoot configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(
+                new Dictionary<string, string?> { ["AgentExecution:Mode"] = "Simulator", ["AzureOpenAI:DeploymentName"] = "gpt-test" })
+            .Build();
+
+        Mock<IOptionsMonitor<PublicSiteOptions>> siteOpts = new();
+        siteOpts.Setup(s => s.CurrentValue).Returns(new PublicSiteOptions { BaseUrl = "https://ui.example" });
+
+        Mock<ITenantFirstValueReportBrandingRepository> branding = new();
+        branding
+            .Setup(b => b.TryGetAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((TenantFirstValueReportBrandingRow?)null);
+
+        IPilotBaselineRepository baselineRepo = pilotBaselines ?? CreateDefaultPilotBaselineRepository();
+
+        return new FirstValueReportBuilder(
+            query,
+            deltas,
+            valueReport,
+            scope.Object,
+            new ExecutionProvenanceFooterRenderer(),
+            configuration,
+            siteOpts.Object,
+            branding.Object,
+            baselineRepo,
+            NullLogger<FirstValueReportBuilder>.Instance);
+    }
+
+    private static IPilotBaselineRepository CreateDefaultPilotBaselineRepository()
+    {
+        Mock<IPilotBaselineRepository> pilotBaselines = new();
+        pilotBaselines
+            .Setup(b => b.GetAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new PilotBaselineRecord
+                {
+                    TenantId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
+                    BaselineHoursPerReview = 40m,
+                    BaselineReviewsPerQuarter = 12,
+                    BaselineArchitectHourlyCost = 175m,
+                    UpdatedUtc = DateTimeOffset.UtcNow,
+                });
+
+        return pilotBaselines.Object;
+    }
+
+    private static PilotRunDeltas CreateSendablePilotRunDeltas(ArchitectureRunDetail detail)
+    {
+        return new PilotRunDeltas
+        {
+            RunCreatedUtc = detail.Run.CreatedUtc,
+            ManifestCommittedUtc = detail.Manifest!.Metadata.CreatedUtc,
+            TimeToCommittedManifest = detail.Manifest.Metadata.CreatedUtc - detail.Run.CreatedUtc,
+            FindingsBySeverity =
+            [
+                new KeyValuePair<string, int>("Warning", 2),
+                new KeyValuePair<string, int>("Error", 1),
+            ],
+            AuditRowCount = 7,
+            LlmCallCount = 4,
+            TopFindingId = "top-finding-id",
+            TopFindingSeverity = "Error",
+            TopFindingEvidenceChain = new FindingEvidenceChainResponse
+            {
+                RunId = detail.Run.RunId,
+                FindingId = "top-finding-id",
+                ManifestVersion = detail.Manifest.Metadata.ManifestVersion,
+                FindingsSnapshotId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
+            },
+            IsDemoTenant = false,
+        };
+    }
+
+    private static ArchitectureRunDetail BuildCommittedDetail()
+    {
+        ArchitectureRun run = new()
+        {
+            RunId = "r-pdf-md-1",
+            RequestId = "req",
+            Status = ArchitectureRunStatus.Committed,
+            CreatedUtc = new DateTime(2026, 4, 1, 0, 0, 0, DateTimeKind.Utc),
+            CompletedUtc = new DateTime(2026, 4, 1, 1, 0, 0, DateTimeKind.Utc),
+            CurrentManifestVersion = "v1",
+        };
+
+        GoldenManifest manifest = new()
+        {
+            RunId = "r-pdf-md-1",
+            SystemName = "DemoSystem",
+            Metadata = new ManifestMetadata { ManifestVersion = "v1", CreatedUtc = run.CreatedUtc },
+            Governance = new ManifestGovernance(),
+        };
+
+        return new ArchitectureRunDetail
+        {
+            Run = run, Manifest = manifest, Results = [], DecisionTraces = [],
+        };
+    }
+}

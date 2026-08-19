@@ -3,7 +3,7 @@ import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 import { GOVERNANCE_WORKSPACE_HEALTH_HREF } from "@/lib/governance/governance-route-paths";
 import { TENANT_SYSTEM_WORKSPACE_HEALTH_WORKSPACE_LINK } from "@/lib/vocabulary/tenant-system-workspace-health-vocabulary";
 
-import { ARCHITECTURE_SCORECARD_PATH } from "./architecture-scorecard-route";
+import { ARCHITECTURE_SCORECARD_CANONICAL_PATH } from "./architecture-scorecard-page-copy";
 
 export const ARCHITECTURE_SCORECARD_CLAIM_DISCIPLINE_HEADING = "What this scorecard is not";
 
@@ -24,4 +24,4 @@ export const ARCHITECTURE_SCORECARD_SOURCES: readonly EvidenceSourceLink[] = [
   { label: TENANT_SYSTEM_WORKSPACE_HEALTH_WORKSPACE_LINK.label, href: GOVERNANCE_WORKSPACE_HEALTH_HREF },
 ] as const;
 
-export const ARCHITECTURE_SCORECARD_EVIDENCE_CANONICAL_PATH = ARCHITECTURE_SCORECARD_PATH;
+export const ARCHITECTURE_SCORECARD_EVIDENCE_CANONICAL_PATH = ARCHITECTURE_SCORECARD_CANONICAL_PATH;

@@ -1,0 +1,9 @@
+flowchart TB
+  Store["IArtifactBlobStore"] --> Azure["AzureBlobArtifactBlobStore"]
+  Store --> Local["LocalFileArtifactBlobStore"]
+  Store --> Mem["InMemoryArtifactBlobStore"]
+  Azure --> Tenant["tenantId prefix"]
+  Tenant --> Scope["workspace project artifacts manifest"]
+  Tenant --> Dedup["dedup sha256 payload"]
+  Off["LargePayloadOffloadEvaluator"] --> Env["Artifact and GoldenManifest blob envelopes"]
+  Guard["EnsureReadBlobNameMatchesTenant"] --> Azure

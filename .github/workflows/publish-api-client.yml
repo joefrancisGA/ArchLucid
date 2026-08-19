@@ -1,0 +1,61 @@
+# Pack and optionally push ArchLucid.Api.Client to a NuGet-compatible feed.
+# Configure repository secret NUGET_API_KEY (NuGet.org or Azure Artifacts PAT) to enable push.
+name: Publish API client (NuGet)
+
+on:
+  workflow_dispatch:
+    inputs:
+      package_version:
+        description: "SemVer for the package (overrides Directory.Build.props for this run)"
+        required: true
+        default: "1.0.0"
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  pack:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-dotnet@v5.2.0
+        with:
+          global-json-file: global.json
+          cache: true
+          cache-dependency-path: |
+            Directory.Packages.props
+            global.json
+            **/*.csproj
+
+      - name: Restore
+        run: dotnet restore ArchLucid.Api.Client/ArchLucid.Api.Client.csproj
+
+      - name: Pack
+        run: |
+          dotnet pack ArchLucid.Api.Client/ArchLucid.Api.Client.csproj \
+            --no-restore \
+            -c Release \
+            -o "${RUNNER_TEMP}/nuget" \
+            /p:ArchLucidApiClientPackageVersion=${{ inputs.package_version }}
+
+      - uses: actions/upload-artifact@v6
+        with:
+          name: archlucid-api-client-nupkg
+          path: ${{ runner.temp }}/nuget/*.nupkg
+
+      # secrets cannot be used in step `if:` in this workflow validator; branch in the shell instead.
+      - name: Push (NuGet.org)
+        env:
+          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+        run: |
+          if [ -z "${NUGET_API_KEY}" ]; then
+            echo "NUGET_API_KEY is not set; skipping NuGet push (artifact upload still contains the .nupkg)."
+            exit 0
+          fi
+          dotnet nuget push "${RUNNER_TEMP}/nuget/"*.nupkg \
+            --api-key "$NUGET_API_KEY" \
+            --source https://api.nuget.org/v3/index.json \
+            --skip-duplicate

@@ -1,0 +1,10 @@
+{
+  "schema": "archlucid.material-finding-faithfulness-summary.v1",
+  "rollup": "PASS",
+  "evidenceMode": "offline-fixture",
+  "citationCoverage": {
+    "scenariosRequiringEvidenceRefs": 2,
+    "scenariosPassingCitationRules": 2
+  },
+  "claimBoundary": "Offline material-finding corpus rollup for release-bundle fixture."
+}

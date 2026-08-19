@@ -1,0 +1,869 @@
+{
+  "schemaVersion": 1,
+  "kind": "archlucid.policyPack.curatedRules.v1",
+  "pack": {
+    "name": "GCP Cloud IAM Architecture Baseline",
+    "description": "Cloud IAM, org policies, service accounts, and workload identity themes for GCP architectures. Thematic mapping only; not certification.",
+    "version": "1.0.0",
+    "category": "Identity",
+    "isDefault": true,
+    "suggestedPackType": "PlatformDefault",
+    "policyPackContentDocumentPath": "docs/samples/policy-packs/gcp-iam-baseline.json"
+  },
+  "rules": [
+    {
+      "id": "iam-gcp-001",
+      "title": "Single authoritative GCP organization documented",
+      "description": "Architecture must identify the authoritative GCP organization, folder hierarchy, and project scope for the workload — not ambiguous multi-project sprawl.",
+      "severity": "Critical",
+      "priority": "P0",
+      "remediationGuidance": "Record organization ID, folder paths, and project IDs in governance.ComplianceTags and metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "gcpExtractor.manifest.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose",
+        "gcpExtractor.manifest.RawJson",
+        "gcpExtractor.manifest.ScopeId",
+        "gcpExtractor.manifest.Scope",
+        "gcpExtractor.manifest.CollectionTimestamp",
+        "gcpExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "GCP Cloud IAM",
+          "theme": "GCP resource hierarchy — Organization authority"
+        }
+      ]
+    },
+    {
+      "id": "iam-gcp-002",
+      "title": "Org policies and context-aware access baseline documented",
+      "description": "Sign-in policies must document MFA, compliant device, location, and risk-based conditions for production access.",
+      "severity": "Critical",
+      "priority": "P0",
+      "remediationGuidance": "Capture CA policy themes in governance.RequiredControls and governance.PolicyConstraints.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "gcpExtractor.manifest.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose",
+        "gcpExtractor.manifest.RawJson",
+        "gcpExtractor.manifest.ScopeId",
+        "gcpExtractor.manifest.Scope",
+        "gcpExtractor.manifest.CollectionTimestamp",
+        "gcpExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "GCP Cloud IAM",
+          "theme": "Cloud IAM — Org policies and context-aware access"
+        }
+      ]
+    },
+    {
+      "id": "iam-gcp-003",
+      "title": "Temporary IAM elevation for admin roles",
+      "description": "Standing privileged role assignment should be avoided — document just-in-time elevation, approval, and time-bound access limits.",
+      "severity": "Critical",
+      "priority": "P0",
+      "remediationGuidance": "Document temporary elevation controls in governance.RequiredControls and governance.ComplianceTags.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "gcpExtractor.manifest.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose",
+        "gcpExtractor.manifest.RawJson",
+        "gcpExtractor.manifest.ScopeId",
+        "gcpExtractor.manifest.Scope",
+        "gcpExtractor.manifest.CollectionTimestamp",
+        "gcpExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "GCP Cloud IAM",
+          "theme": "Cloud IAM — Just-in-time admin access"
+        }
+      ]
+    },
+    {
+      "id": "iam-gcp-004",
+      "title": "RBAC least privilege on GCP resources",
+      "description": "Subscription and resource group RBAC must document custom roles or built-in roles with justification for broad grants.",
+      "severity": "Critical",
+      "priority": "P0",
+      "remediationGuidance": "Align RBAC narrative with gcpExtractor role assignment inventory.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "gcpExtractor.manifest.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose",
+        "gcpExtractor.manifest.RawJson",
+        "gcpExtractor.manifest.ScopeId",
+        "gcpExtractor.manifest.Scope",
+        "gcpExtractor.manifest.CollectionTimestamp",
+        "gcpExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "GCP Cloud IAM",
+          "theme": "Cloud IAM \u2014 GCP RBAC"
+        }
+      ]
+    },
+    {
+      "id": "iam-gcp-005",
+      "title": "Workload Identity Federation preferred over service account keys",
+      "description": "GCP workloads should use Workload Identity Federation or attached service accounts — not downloadable JSON service-account keys.",
+      "severity": "Critical",
+      "priority": "P0",
+      "remediationGuidance": "Tag managed-identity usage on services[].Tags; document exceptions in governance.PolicyConstraints.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "gcpExtractor.manifest.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose",
+        "gcpExtractor.manifest.RawJson",
+        "gcpExtractor.manifest.ScopeId",
+        "gcpExtractor.manifest.Scope",
+        "gcpExtractor.manifest.CollectionTimestamp",
+        "gcpExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "GCP Cloud IAM",
+          "theme": "Cloud IAM — Workload identity"
+        }
+      ]
+    },
+    {
+      "id": "iam-gcp-006",
+      "title": "No shared user accounts for operations",
+      "description": "Human access must map to individual Cloud IAM users \u2014 shared break-glass excepted with monitoring.",
+      "severity": "High",
+      "priority": "P1",
+      "remediationGuidance": "Prohibit shared-account tags; document break-glass in governance.RequiredControls.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "gcpExtractor.manifest.RawJson",
+        "gcpExtractor.manifest.ScopeId",
+        "gcpExtractor.manifest.Scope",
+        "gcpExtractor.manifest.CollectionTimestamp",
+        "gcpExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "GCP Cloud IAM",
+          "theme": "Cloud IAM \u2014 Unique users"
+        }
+      ]
+    },
+    {
+      "id": "iam-gcp-007",
+      "title": "Guest (B2B) access inventoried and restricted",
+      "description": "External collaborators must document sponsor, expiration, and group-scoped access.",
+      "severity": "High",
+      "priority": "P1",
+      "remediationGuidance": "List B2B patterns in metadata.ChangeDescription and governance.ComplianceTags.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "gcpExtractor.manifest.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose",
+        "gcpExtractor.manifest.RawJson",
+        "gcpExtractor.manifest.ScopeId",
+        "gcpExtractor.manifest.Scope",
+        "gcpExtractor.manifest.CollectionTimestamp",
+        "gcpExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "GCP Cloud IAM",
+          "theme": "Cloud IAM \u2014 B2B guests"
+        }
+      ]
+    },
+    {
+      "id": "iam-gcp-008",
+      "title": "Service account key rotation and avoidance",
+      "description": "Where service account keys remain unavoidable, rotation cadence, scope limits, and Secret Manager storage must be documented.",
+      "severity": "High",
+      "priority": "P1",
+      "remediationGuidance": "Describe service account key lifecycle in governance.RequiredControls and governance.PolicyConstraints.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "gcpExtractor.manifest.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose",
+        "gcpExtractor.manifest.RawJson",
+        "gcpExtractor.manifest.ScopeId",
+        "gcpExtractor.manifest.Scope",
+        "gcpExtractor.manifest.CollectionTimestamp",
+        "gcpExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "GCP Cloud IAM",
+          "theme": "Cloud IAM — Service account key hygiene"
+        }
+      ]
+    },
+    {
+      "id": "iam-gcp-009",
+      "title": "OAuth client scope minimization",
+      "description": "API permissions for app registrations must document least-scope consent and admin approval.",
+      "severity": "High",
+      "priority": "P1",
+      "remediationGuidance": "Enumerate app registrations in services[].Tags; capture permission scope in governance.RequiredControls.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "gcpExtractor.manifest.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose",
+        "gcpExtractor.manifest.RawJson",
+        "gcpExtractor.manifest.ScopeId",
+        "gcpExtractor.manifest.Scope",
+        "gcpExtractor.manifest.CollectionTimestamp",
+        "gcpExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "GCP Cloud IAM",
+          "theme": "Cloud IAM \u2014 App permissions"
+        }
+      ]
+    },
+    {
+      "id": "iam-gcp-010",
+      "title": "Federated identity for CI/CD pipelines",
+      "description": "Deployment pipelines must use workload identity federation (OIDC) \u2014 not long-lived pipeline secrets.",
+      "severity": "Critical",
+      "priority": "P1",
+      "remediationGuidance": "Document OIDC federation in governance.RequiredControls and services[].Tags for CI/CD.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "gcpExtractor.manifest.RawJson",
+        "gcpExtractor.manifest.ScopeId",
+        "gcpExtractor.manifest.Scope",
+        "gcpExtractor.manifest.CollectionTimestamp",
+        "gcpExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "GCP Cloud IAM",
+          "theme": "Cloud IAM \u2014 Pipeline federation"
+        }
+      ]
+    },
+    {
+      "id": "iam-gcp-011",
+      "title": "Passwordless and phishing-resistant MFA for admins",
+      "description": "Privileged users should document FIDO2 or certificate-based authentication where available.",
+      "severity": "High",
+      "priority": "P1",
+      "remediationGuidance": "Record phishing-resistant MFA in governance.ComplianceTags.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "gcpExtractor.manifest.RawJson",
+        "gcpExtractor.manifest.ScopeId",
+        "gcpExtractor.manifest.Scope",
+        "gcpExtractor.manifest.CollectionTimestamp",
+        "gcpExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "GCP Cloud IAM",
+          "theme": "Cloud IAM \u2014 Phishing-resistant MFA"
+        }
+      ]
+    },
+    {
+      "id": "iam-gcp-012",
+      "title": "Legacy authentication blocked",
+      "description": "Basic auth and other legacy protocols must be disabled for mail, LDAP, and legacy clients.",
+      "severity": "High",
+      "priority": "P1",
+      "remediationGuidance": "Document legacy auth block in governance.PolicyConstraints.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "gcpExtractor.manifest.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose",
+        "gcpExtractor.manifest.RawJson",
+        "gcpExtractor.manifest.ScopeId",
+        "gcpExtractor.manifest.Scope",
+        "gcpExtractor.manifest.CollectionTimestamp",
+        "gcpExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "GCP Cloud IAM",
+          "theme": "Cloud IAM \u2014 Block legacy auth"
+        }
+      ]
+    },
+    {
+      "id": "iam-gcp-013",
+      "title": "Identity governance access reviews",
+      "description": "Periodic access reviews for groups, apps, and roles must be documented with cadence.",
+      "severity": "Medium",
+      "priority": "P1",
+      "remediationGuidance": "Add access-review cadence to governance.ComplianceTags.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "gcpExtractor.manifest.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose",
+        "gcpExtractor.manifest.RawJson",
+        "gcpExtractor.manifest.ScopeId",
+        "gcpExtractor.manifest.Scope",
+        "gcpExtractor.manifest.CollectionTimestamp",
+        "gcpExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "GCP Cloud IAM",
+          "theme": "Cloud IAM \u2014 Access reviews"
+        }
+      ]
+    },
+    {
+      "id": "iam-gcp-014",
+      "title": "Entitlement management for partner access",
+      "description": "Time-bound access packages should be used for external project access when Identity Governance is licensed.",
+      "severity": "Medium",
+      "priority": "P1",
+      "remediationGuidance": "Note entitlement packages in metadata.ChangeDescription when partner access is in scope.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "gcpExtractor.manifest.RawJson",
+        "gcpExtractor.manifest.ScopeId",
+        "gcpExtractor.manifest.Scope",
+        "gcpExtractor.manifest.CollectionTimestamp",
+        "gcpExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "GCP Cloud IAM",
+          "theme": "Cloud IAM \u2014 Entitlement management"
+        }
+      ]
+    },
+    {
+      "id": "iam-gcp-015",
+      "title": "Hybrid identity sync security",
+      "description": "AD Connect or cloud sync must document filtering, MFA on sync accounts, and staging mode for DR.",
+      "severity": "High",
+      "priority": "P1",
+      "remediationGuidance": "Describe hybrid identity in governance.PolicyConstraints and governance.RequiredControls.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "gcpExtractor.manifest.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose",
+        "gcpExtractor.manifest.RawJson",
+        "gcpExtractor.manifest.ScopeId",
+        "gcpExtractor.manifest.Scope",
+        "gcpExtractor.manifest.CollectionTimestamp",
+        "gcpExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "GCP Cloud IAM",
+          "theme": "Cloud IAM \u2014 Hybrid identity"
+        }
+      ]
+    },
+    {
+      "id": "iam-gcp-016",
+      "title": "Password protection and lockout policy",
+      "description": "Cloud IAM password protection and smart lockout settings must align to organizational standards.",
+      "severity": "Medium",
+      "priority": "P1",
+      "remediationGuidance": "Capture password policy in governance.PolicyConstraints.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "gcpExtractor.manifest.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose",
+        "gcpExtractor.manifest.RawJson",
+        "gcpExtractor.manifest.ScopeId",
+        "gcpExtractor.manifest.Scope",
+        "gcpExtractor.manifest.CollectionTimestamp",
+        "gcpExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "GCP Cloud IAM",
+          "theme": "Cloud IAM \u2014 Password protection"
+        }
+      ]
+    },
+    {
+      "id": "iam-gcp-017",
+      "title": "Admin consent workflow for applications",
+      "description": "User consent to risky applications must be blocked with admin consent workflow documented.",
+      "severity": "High",
+      "priority": "P2",
+      "remediationGuidance": "Document consent policy in governance.RequiredControls.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "gcpExtractor.manifest.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose",
+        "gcpExtractor.manifest.RawJson",
+        "gcpExtractor.manifest.ScopeId",
+        "gcpExtractor.manifest.Scope",
+        "gcpExtractor.manifest.CollectionTimestamp",
+        "gcpExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "GCP Cloud IAM",
+          "theme": "Cloud IAM \u2014 Admin consent"
+        }
+      ]
+    },
+    {
+      "id": "iam-gcp-018",
+      "title": "Restricted admin access workstations",
+      "description": "Tier-0 admin tasks should document privileged access workstations or equivalent controls.",
+      "severity": "Medium",
+      "priority": "P2",
+      "remediationGuidance": "Note PAW strategy in metadata.ChangeDescription and governance.ComplianceTags.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "gcpExtractor.manifest.RawJson",
+        "gcpExtractor.manifest.ScopeId",
+        "gcpExtractor.manifest.Scope",
+        "gcpExtractor.manifest.CollectionTimestamp",
+        "gcpExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "GCP Cloud IAM",
+          "theme": "Cloud IAM \u2014 Privileged workstations"
+        }
+      ]
+    },
+    {
+      "id": "iam-gcp-019",
+      "title": "Cross-tenant synchronization controls",
+      "description": "If multi-tenant sync is used, scope and security boundaries must be explicit.",
+      "severity": "Medium",
+      "priority": "P2",
+      "remediationGuidance": "Document cross-tenant sync in governance.PolicyConstraints when applicable.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "gcpExtractor.manifest.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose",
+        "gcpExtractor.manifest.RawJson",
+        "gcpExtractor.manifest.ScopeId",
+        "gcpExtractor.manifest.Scope",
+        "gcpExtractor.manifest.CollectionTimestamp",
+        "gcpExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "GCP Cloud IAM",
+          "theme": "Cloud IAM \u2014 Cross-tenant sync"
+        }
+      ]
+    },
+    {
+      "id": "iam-gcp-020",
+      "title": "Emergency access (break-glass) accounts",
+      "description": "Break-glass accounts must be cloud-only, excluded from CA, monitored, and reviewed after use.",
+      "severity": "Critical",
+      "priority": "P2",
+      "remediationGuidance": "Record break-glass accounts in governance.RequiredControls with monitoring requirements.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "gcpExtractor.manifest.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose",
+        "gcpExtractor.manifest.RawJson",
+        "gcpExtractor.manifest.ScopeId",
+        "gcpExtractor.manifest.Scope",
+        "gcpExtractor.manifest.CollectionTimestamp",
+        "gcpExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "GCP Cloud IAM",
+          "theme": "Cloud IAM \u2014 Break-glass accounts"
+        }
+      ]
+    },
+    {
+      "id": "iam-gcp-021",
+      "title": "Workload identity federation for Kubernetes",
+      "description": "GKE and container workloads must document federated credentials bound to service accounts.",
+      "severity": "High",
+      "priority": "P2",
+      "remediationGuidance": "Align workload identity with services[].Tags on GKE and container platforms.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "gcpExtractor.manifest.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose",
+        "gcpExtractor.manifest.RawJson",
+        "gcpExtractor.manifest.ScopeId",
+        "gcpExtractor.manifest.Scope",
+        "gcpExtractor.manifest.CollectionTimestamp",
+        "gcpExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "GCP Cloud IAM",
+          "theme": "Cloud IAM \u2014 Workload federation"
+        }
+      ]
+    },
+    {
+      "id": "iam-gcp-022",
+      "title": "API Gateway and Cloud Endpoints OAuth validation",
+      "description": "API gateways must document OAuth2 token validation and client credential rotation.",
+      "severity": "High",
+      "priority": "P2",
+      "remediationGuidance": "Describe API auth controls in governance.RequiredControls and services[].Tags.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "gcpExtractor.manifest.RawJson",
+        "gcpExtractor.manifest.ScopeId",
+        "gcpExtractor.manifest.Scope",
+        "gcpExtractor.manifest.CollectionTimestamp",
+        "gcpExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "GCP Cloud IAM",
+          "theme": "Cloud IAM \u2014 API OAuth"
+        }
+      ]
+    },
+    {
+      "id": "iam-gcp-023",
+      "title": "Cloud KMS access via RBAC not access policies",
+      "description": "Cloud KMS should use RBAC authorization model with documented role assignments.",
+      "severity": "High",
+      "priority": "P2",
+      "remediationGuidance": "Cite Cloud KMS RBAC from gcpExtractor; document in governance.RequiredControls.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "gcpExtractor.manifest.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose",
+        "gcpExtractor.manifest.RawJson",
+        "gcpExtractor.manifest.ScopeId",
+        "gcpExtractor.manifest.Scope",
+        "gcpExtractor.manifest.CollectionTimestamp",
+        "gcpExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "GCP Cloud IAM",
+          "theme": "Cloud IAM \u2014 Cloud KMS RBAC"
+        }
+      ]
+    },
+    {
+      "id": "iam-gcp-024",
+      "title": "Directory role assignment separation of duties",
+      "description": "Conflicting directory roles (e.g., User Admin + Security Admin) must be separated or excepted.",
+      "severity": "High",
+      "priority": "P2",
+      "remediationGuidance": "Document SoD for Cloud IAM roles in governance.PolicyConstraints.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "gcpExtractor.manifest.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose",
+        "gcpExtractor.manifest.RawJson",
+        "gcpExtractor.manifest.ScopeId",
+        "gcpExtractor.manifest.Scope",
+        "gcpExtractor.manifest.CollectionTimestamp",
+        "gcpExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "GCP Cloud IAM",
+          "theme": "Cloud IAM \u2014 Directory SoD"
+        }
+      ]
+    },
+    {
+      "id": "iam-gcp-025",
+      "title": "Sign-in and audit log retention",
+      "description": "Cloud IAM sign-in and audit logs must route to SIEM with retention meeting investigation needs.",
+      "severity": "High",
+      "priority": "P2",
+      "remediationGuidance": "List log export destinations in governance.RequiredControls.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "gcpExtractor.manifest.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose",
+        "gcpExtractor.manifest.RawJson",
+        "gcpExtractor.manifest.ScopeId",
+        "gcpExtractor.manifest.Scope",
+        "gcpExtractor.manifest.CollectionTimestamp",
+        "gcpExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "GCP Cloud IAM",
+          "theme": "Cloud IAM \u2014 Identity logging"
+        }
+      ]
+    },
+    {
+      "id": "iam-gcp-026",
+      "title": "Risk-based sign-in blocking",
+      "description": "Identity Protection risky sign-ins should document automated block or MFA challenge.",
+      "severity": "High",
+      "priority": "P2",
+      "remediationGuidance": "Capture risk policies in governance.ComplianceTags and governance.RequiredControls.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "gcpExtractor.manifest.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose",
+        "gcpExtractor.manifest.RawJson",
+        "gcpExtractor.manifest.ScopeId",
+        "gcpExtractor.manifest.Scope",
+        "gcpExtractor.manifest.CollectionTimestamp",
+        "gcpExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "GCP Cloud IAM",
+          "theme": "Cloud IAM \u2014 Identity Protection"
+        }
+      ]
+    },
+    {
+      "id": "iam-gcp-027",
+      "title": "Service account naming and ownership",
+      "description": "Non-human identities must document owner, purpose, and review cadence in tags.",
+      "severity": "Medium",
+      "priority": "P2",
+      "remediationGuidance": "Tag service principals with owner and purpose in services[].Tags and governance.ComplianceTags.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "gcpExtractor.manifest.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose",
+        "gcpExtractor.manifest.RawJson",
+        "gcpExtractor.manifest.ScopeId",
+        "gcpExtractor.manifest.Scope",
+        "gcpExtractor.manifest.CollectionTimestamp",
+        "gcpExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "GCP Cloud IAM",
+          "theme": "Cloud IAM \u2014 Service account governance"
+        }
+      ]
+    },
+    {
+      "id": "iam-gcp-028",
+      "title": "Identity architecture diagram current",
+      "description": "Identity flows (users, SPs, MI, B2B, federation) must be reflected in metadata.ChangeDescription.",
+      "severity": "Low",
+      "priority": "P2",
+      "remediationGuidance": "Maintain current identity diagram reference in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "gcpExtractor.manifest.RawJson",
+        "gcpExtractor.manifest.ScopeId",
+        "gcpExtractor.manifest.Scope",
+        "gcpExtractor.manifest.CollectionTimestamp",
+        "gcpExtractor.manifest.SwitchesUsed"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "GCP Cloud IAM",
+          "theme": "Cloud IAM \u2014 Identity architecture"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,6 @@
+{
+  "blockedAt": null,
+  "expectedContained": true,
+  "mustNotGrantPrivilegedSideEffects": true,
+  "residualRisk": "Soft approve-all social engineering may bypass phrase-only precheck; confinement (TB-950) and human governance are the primary controls."
+}

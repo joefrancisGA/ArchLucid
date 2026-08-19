@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "id": "scenario-02-cost-optimization",
+  "metadata": {
+    "title": "Fabrikam analytics tier — recurring spend reduction",
+    "complexity": "medium",
+    "primaryAgents": ["Cost"],
+    "rubricNotes": "4 MUSTs: hits 3/4 (75%) to clear the 70% recall floor."
+  },
+  "inputSource": "templates/architecture-requests/cost-optimization-review.json",
+  "recording": "tests/eval-corpus/templates-pack/recordings/scenario-02-cost-optimization.findings.json",
+  "expectedFindings": [
+    {
+      "id": "must-right-size-sku",
+      "category": "Cost",
+      "minimumSeverity": "Low",
+      "evidenceMustContain": ["right", "size"]
+    },
+    {
+      "id": "must-storage-tiering",
+      "category": "Cost",
+      "minimumSeverity": "Low",
+      "evidenceMustContain": ["tier", "storage"]
+    },
+    {
+      "id": "must-serverless-scale-to-zero",
+      "category": "Cost",
+      "minimumSeverity": "Low",
+      "evidenceMustContain": ["serverless"]
+    },
+    {
+      "id": "must-reserved-savings-baseline",
+      "category": "Cost",
+      "minimumSeverity": "Low",
+      "evidenceMustContain": ["reserved"]
+    }
+  ],
+  "unexpectedFindings": [
+    { "category": "Cost", "ifContainsAny": ["ignore budgets", "unlimited spend", "no cost guardrails needed"] },
+    { "category": "Critic", "ifContainsAny": ["halt analytics", "abandon nightly batch"] }
+  ]
+}

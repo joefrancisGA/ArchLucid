@@ -1,0 +1,471 @@
+using ArchLucid.Application.Pilots;
+using ArchLucid.Application.Value;
+using ArchLucid.Contracts.Agents;
+using ArchLucid.Core.AgentEvaluation;
+using ArchLucid.Contracts.Architecture;
+using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Explanation;
+using ArchLucid.Contracts.Manifest;
+using ArchLucid.Contracts.Metadata;
+using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Pilots;
+using ArchLucid.Persistence.Tenancy;
+using ArchLucid.Persistence.Value;
+
+using FluentAssertions;
+
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Options;
+
+using Moq;
+
+namespace ArchLucid.Application.Tests.Pilots;
+
+[Trait("Suite", "Core")]
+public sealed class FirstValueReportBuilderTests
+{
+    [SkippableFact]
+    public async Task BuildMarkdownAsync_WhenRunMissing_ReturnsNull()
+    {
+        Mock<IRunDetailQueryService> query = new();
+        query.Setup(q => q.GetRunDetailAsync("abc", It.IsAny<CancellationToken>()))
+            .ReturnsAsync((ArchitectureRunDetail?)null);
+
+        Mock<IPilotRunDeltaComputer> deltas = new();
+        FirstValueReportBuilder sut = CreateSut(query.Object, deltas.Object);
+
+        string? md = await sut.BuildMarkdownAsync("abc", "http://localhost:5000");
+
+        md.Should().BeNull();
+        deltas.Verify(d => d.ComputeAsync(It.IsAny<ArchitectureRunDetail>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [SkippableFact]
+    public async Task BuildMarkdownAsync_WhenCommitted_RendersComputedDeltasAndManifest()
+    {
+        ArchitectureRunDetail detail = BuildCommittedDetail();
+        Mock<IRunDetailQueryService> query = new();
+        query.Setup(q => q.GetRunDetailAsync("r1", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(detail);
+
+        PilotRunDeltas computed = new()
+        {
+            RunCreatedUtc = detail.Run.CreatedUtc,
+            ManifestCommittedUtc = detail.Manifest!.Metadata.CreatedUtc,
+            TimeToCommittedManifest = detail.Manifest.Metadata.CreatedUtc - detail.Run.CreatedUtc,
+            FindingsBySeverity =
+            [
+                new KeyValuePair<string, int>("Warning", 2),
+                new KeyValuePair<string, int>("Error", 1),
+            ],
+            AuditRowCount = 7,
+            LlmCallCount = 4,
+            TopFindingId = "top-finding-id",
+            TopFindingSeverity = "Error",
+            TopFindingEvidenceChain = new FindingEvidenceChainResponse
+            {
+                RunId = "r1",
+                FindingId = "top-finding-id",
+                ManifestVersion = "v2",
+                FindingsSnapshotId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
+            },
+            IsDemoTenant = false,
+        };
+
+        Mock<IPilotRunDeltaComputer> deltas = new();
+        deltas.Setup(d => d.ComputeAsync(detail, It.IsAny<CancellationToken>())).ReturnsAsync(computed);
+
+        FirstValueReportBuilder sut = CreateSut(query.Object, deltas.Object);
+
+        string? md = await sut.BuildMarkdownAsync("r1", "http://api.test");
+
+        md.Should().NotBeNull();
+        md.Should().Contain("## Sponsor first-page status");
+        md.Should().Contain("## Sponsor-safe proof status");
+        md.Should().Contain("## Decision delta (recommended changes)");
+        md.Should().Contain("## Novelty confidence");
+        md.Should().Contain("**Confidence:**");
+        md.Should().Contain("**Evidence class:**");
+        int introEnd = md.IndexOf("metric catalog.", StringComparison.Ordinal);
+        int firstPageStatusHeading = md.IndexOf("## Sponsor first-page status", StringComparison.Ordinal);
+        int proofStatusHeading = md.IndexOf("## Sponsor-safe proof status", StringComparison.Ordinal);
+        introEnd.Should().BeGreaterThan(0);
+        firstPageStatusHeading.Should().BeGreaterThan(introEnd);
+        proofStatusHeading.Should().BeGreaterThan(firstPageStatusHeading);
+        md.Should().Contain("| Evidence source |");
+        md.Should().Contain("| Execution mode | **Simulator**");
+        md.Should().Contain("| Quality disposition | PilotStrict posture satisfied");
+        md.Should().Contain("| ROI basis status | **Strong**");
+        md.Should().Contain("## ROI narrative claim gate");
+        md.Should().Contain("| ROI claim gate |");
+        md.Should().Contain("**Claim disposition:**");
+        md.Should().Contain("**Projected dollar claim disposition:**");
+        md.Should().Contain("| LLM call basis | **4** trace row(s)");
+        md.Should().Contain("## ROI baseline inputs (per field)");
+        md.Should().Contain("| Projected dollar claims sponsor-safe | **No**");
+        md.Should().Contain("| Top findings | Error: m3<br />Warning: m1<br />Warning: m2 |");
+        md.Should().Contain("SOC 2 CPA report, external third-party pen-test summary");
+        md.Should().Contain("| Recommended next action | Send sponsor packet after human redaction review");
+        md.Should().Contain("**Verdict:** **Sendable**");
+        md.Should().Contain("**Structural execution mode:** **Simulator**");
+        md.Should().Contain("First-value evidence completeness");
+        md.Should().Contain("**Classification:** **Strong**");
+        md.Should().Contain("Architecture review identity");
+        md.Should().Contain("Support run id");
+        md.Should().Contain("Sponsor send readiness (buyer-safe gate)");
+        md.Should().Contain("**Proof sendability:** **Sendable**");
+        md.Should().Contain("**Publishing posture:** **Complete**");
+        md.Should().Contain("Buyer-safe proof package contract");
+        md.Should().Contain("| PilotStrict agent-output posture |");
+        md.Should().Contain("| Support run id | Present |");
+        md.Should().Contain("| Committed manifest timestamp (UTC) | Present — `2026-04-01T00:10:00.0000000Z`");
+        md.Should().Contain("| Top finding evidence-chain pointer | Present |");
+        md.Should().Contain("| ROI evidence confidence | **Strong**");
+        md.Should().Contain("| Evidence-basis labels | **Evidence-backed** |");
+        md.Should().Contain("Sponsor-proof readiness:");
+        md.Should().Contain("| Sponsor-proof readiness (classification) |");
+        md.Should().Contain("**Sendable** — structural proof fields");
+        md.Should().Contain("Computed deltas (from this run)");
+        md.Should().Contain("Review-cycle delta (before vs measured)");
+        md.Should().Contain("v2");
+        md.Should().Contain("SysA");
+        md.Should().Contain("| Warning | 2 |");
+        md.Should().Contain("| Error | 1 |");
+        md.Should().Contain("LLM calls for this run");
+        md.Should().Contain("| Audit rows for this run | 7 |");
+        md.Should().Contain("Top-severity finding");
+        md.Should().Contain("evidence chain excerpt");
+        md.Should().Contain("Why this top finding is trustworthy");
+        md.Should().Contain("`top-finding-id`");
+        md.Should().Contain("11111111-1111-1111-1111-111111111111");
+        md.Should().Contain("docs/go-to-market/EXECUTIVE_SPONSOR_BRIEF.md");
+    }
+
+    [SkippableFact]
+    public async Task BuildMarkdownAsync_WhenDemoTenant_RendersBannerAtTopAndOnDeltaSection()
+    {
+        ArchitectureRunDetail detail = BuildCommittedDetail();
+        Mock<IRunDetailQueryService> query = new();
+        query.Setup(q => q.GetRunDetailAsync("r1", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(detail);
+
+        PilotRunDeltas computed = new()
+        {
+            RunCreatedUtc = detail.Run.CreatedUtc,
+            ManifestCommittedUtc = detail.Manifest!.Metadata.CreatedUtc,
+            TimeToCommittedManifest = detail.Manifest.Metadata.CreatedUtc - detail.Run.CreatedUtc,
+            FindingsBySeverity = [],
+            AuditRowCount = 0,
+            LlmCallCount = 0,
+            IsDemoTenant = true,
+        };
+
+        Mock<IPilotRunDeltaComputer> deltas = new();
+        deltas.Setup(d => d.ComputeAsync(detail, It.IsAny<CancellationToken>())).ReturnsAsync(computed);
+
+        FirstValueReportBuilder sut = CreateSut(query.Object, deltas.Object);
+
+        string? md = await sut.BuildMarkdownAsync("r1", "http://api.test");
+
+        md.Should().NotBeNull();
+        md.Should().Contain("## Sponsor first-page status");
+        md.Should().Contain("## Sponsor-safe proof status");
+        md.Should().Contain("**Verdict:** **Not sponsor-safe yet**");
+        md.Should().Contain("| Evidence source | **Demo-derived** — illustrative sample output; do not present as buyer outcome. |");
+        md.Should().Contain("| Recommended next action | Use this only as a demo walkthrough; run the same path on buyer evidence before sponsor send. |");
+        md.Should().Contain("| ROI claim gate | **HOLD**");
+        md.Should().Contain("Demo or sample tenant scope");
+        md.Should().Contain("must **not** be presented");
+        // Banner must appear in the document preface AND immediately under the computed-deltas heading,
+        // so a sponsor cannot crop the page and quote a single number out of context.
+        int firstBanner = md.IndexOf("demo tenant", StringComparison.Ordinal);
+        int secondBanner = md.IndexOf("demo tenant", firstBanner + 1, StringComparison.Ordinal);
+        firstBanner.Should().BeGreaterThan(0);
+        secondBanner.Should().BeGreaterThan(firstBanner);
+        md.Should().Contain("| Non-demo / external-share discipline | **FAILED — non-negotiable demo warning.**");
+        md.Should().Contain("**Classification:** **Incomplete**");
+        md.Should().Contain("Watermark notice");
+        md.Should().Contain("Sponsor-proof readiness:");
+        md.Should().Contain("**DemoOnly**");
+        md.Should().Contain("**Proof sendability:** **Not sendable externally**");
+        md.Should().Contain("**Publishing posture:** **Demo-only**");
+    }
+
+    [SkippableFact]
+    public async Task BuildMarkdownAsync_WhenLlmExecutionCountUnresolved_NeedsOperatorReview()
+    {
+        ArchitectureRunDetail detail = BuildCommittedDetail();
+        Mock<IRunDetailQueryService> query = new();
+        query.Setup(q => q.GetRunDetailAsync("r1", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(detail);
+
+        PilotRunDeltas computed = new()
+        {
+            RunCreatedUtc = detail.Run.CreatedUtc,
+            ManifestCommittedUtc = detail.Manifest!.Metadata.CreatedUtc,
+            TimeToCommittedManifest = detail.Manifest.Metadata.CreatedUtc - detail.Run.CreatedUtc,
+            FindingsBySeverity =
+            [
+                new KeyValuePair<string, int>("Warning", 2),
+                new KeyValuePair<string, int>("Error", 1),
+            ],
+            AuditRowCount = 12,
+            LlmCallCount = 0,
+            LlmCallCountResolved = false,
+            TopFindingId = null,
+            SynthesizedArtifactDescriptorCountResolved = true,
+            SynthesizedArtifactDescriptorCount = 1,
+            IsDemoTenant = false,
+        };
+
+        Mock<IPilotRunDeltaComputer> deltas = new();
+        deltas.Setup(d => d.ComputeAsync(detail, It.IsAny<CancellationToken>())).ReturnsAsync(computed);
+
+        FirstValueReportBuilder sut = CreateSut(query.Object, deltas.Object);
+
+        string? md = await sut.BuildMarkdownAsync("r1", "http://api.test");
+
+        md.Should().NotBeNull();
+        md.Should().Contain("**Verdict:** **Needs operator review**");
+        md.Should().Contain("**Proof sendability:** **Sendable with caveats**");
+        md.Should().Contain("LLM-call count is unattested");
+        md.Should().Contain("Sponsor-proof readiness:");
+        md.Should().Contain("**Incomplete**");
+    }
+
+    [SkippableFact]
+    public async Task BuildMarkdownAsync_WhenTenantReviewCycleBaselineNotCaptured_NeedsOperatorReviewForBaselineGap()
+    {
+        ArchitectureRunDetail detail = BuildCommittedDetail();
+        Mock<IRunDetailQueryService> query = new();
+        query.Setup(q => q.GetRunDetailAsync("r1", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(detail);
+
+        PilotRunDeltas computed = new()
+        {
+            RunCreatedUtc = detail.Run.CreatedUtc,
+            ManifestCommittedUtc = detail.Manifest!.Metadata.CreatedUtc,
+            TimeToCommittedManifest = detail.Manifest.Metadata.CreatedUtc - detail.Run.CreatedUtc,
+            FindingsBySeverity =
+            [
+                new KeyValuePair<string, int>("Warning", 2),
+                new KeyValuePair<string, int>("Error", 1),
+            ],
+            AuditRowCount = 13,
+            LlmCallCount = 5,
+            TopFindingId = "top-finding-id",
+            TopFindingSeverity = "Error",
+            TopFindingEvidenceChain = new FindingEvidenceChainResponse
+            {
+                RunId = "r1",
+                FindingId = "top-finding-id",
+                ManifestVersion = "v2",
+                FindingsSnapshotId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
+            },
+            IsDemoTenant = false,
+        };
+
+        Mock<IPilotRunDeltaComputer> deltas = new();
+        deltas.Setup(d => d.ComputeAsync(detail, It.IsAny<CancellationToken>())).ReturnsAsync(computed);
+
+        ValueReportRawMetrics raw = new(
+            [],
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            null,
+            null,
+            null,
+            6m,
+            3,
+            null,
+            null,
+            null);
+
+        FirstValueReportBuilder sut = CreateSut(query.Object, deltas.Object, raw);
+
+        string? md = await sut.BuildMarkdownAsync("r1", "http://api.test");
+
+        md.Should().NotBeNull();
+        md.Should().Contain("**Verdict:** **Needs operator review**");
+        md.Should().Contain("Tenant comparative baseline is incomplete");
+        md.Should().Contain("Sponsor-proof readiness:");
+        md.Should().Contain("**NeedsBaseline**");
+    }
+
+    [SkippableFact]
+    public async Task BuildMarkdownAsync_WhenBaselineNotCaptured_RendersHoldRoiClaimGate()
+    {
+        ArchitectureRunDetail detail = BuildCommittedDetail();
+        Mock<IRunDetailQueryService> query = new();
+        query.Setup(q => q.GetRunDetailAsync("r1", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(detail);
+
+        PilotRunDeltas computed = new()
+        {
+            RunCreatedUtc = detail.Run.CreatedUtc,
+            ManifestCommittedUtc = detail.Manifest!.Metadata.CreatedUtc,
+            TimeToCommittedManifest = detail.Manifest.Metadata.CreatedUtc - detail.Run.CreatedUtc,
+            FindingsBySeverity = [new KeyValuePair<string, int>("Warning", 1)],
+            AuditRowCount = 5,
+            LlmCallCount = 2,
+            IsDemoTenant = false,
+        };
+
+        Mock<IPilotRunDeltaComputer> deltas = new();
+        deltas.Setup(d => d.ComputeAsync(detail, It.IsAny<CancellationToken>())).ReturnsAsync(computed);
+
+        ValueReportRawMetrics raw = new(
+            [],
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            null,
+            null,
+            null,
+            6m,
+            3,
+            null,
+            null,
+            null);
+
+        FirstValueReportBuilder sut = CreateSut(query.Object, deltas.Object, raw);
+
+        string? md = await sut.BuildMarkdownAsync("r1", "http://api.test");
+
+        md.Should().NotBeNull();
+        md.Should().Contain("| ROI claim gate | **HOLD**");
+        md.Should().Contain("**HOLD:** Do not quote cycle-time savings percentages");
+        md.Should().Contain("**Projected dollar claim disposition:** **HOLD**");
+    }
+
+    private static ArchitectureRunDetail BuildCommittedDetail()
+    {
+        GoldenManifest manifest = new()
+        {
+            RunId = "r1",
+            SystemName = "SysA",
+            Metadata = new ManifestMetadata { ManifestVersion = "v2", CreatedUtc = new DateTime(2026, 4, 1, 0, 10, 0, DateTimeKind.Utc) },
+            Governance = new ManifestGovernance(),
+        };
+
+        ArchitectureRun run = new()
+        {
+            RunId = "r1",
+            RequestId = "req1",
+            Status = ArchitectureRunStatus.Committed,
+            CreatedUtc = new DateTime(2026, 4, 1, 0, 0, 0, DateTimeKind.Utc),
+            CompletedUtc = new DateTime(2026, 4, 1, 0, 10, 0, DateTimeKind.Utc),
+            CurrentManifestVersion = "v2",
+        };
+
+        AgentResult result = new()
+        {
+            TaskId = "t1",
+            RunId = "r1",
+            AgentType = AgentType.Topology,
+            Findings =
+            [
+                new ArchitectureFinding { Severity = FindingSeverity.Warning, Message = "m1" },
+                new ArchitectureFinding { Severity = FindingSeverity.Warning, Message = "m2" },
+                new ArchitectureFinding { Severity = FindingSeverity.Error, Message = "m3" },
+            ],
+        };
+
+        return new ArchitectureRunDetail
+        {
+            Run = run,
+            Results = [result],
+            Manifest = manifest,
+            DecisionTraces = [],
+        };
+    }
+
+    private static FirstValueReportBuilder CreateSut(
+        IRunDetailQueryService query,
+        IPilotRunDeltaComputer deltas,
+        ValueReportRawMetrics? rawMetrics = null)
+    {
+        Mock<IValueReportMetricsReader> metrics = new();
+
+        ValueReportRawMetrics baselineRow = rawMetrics ??
+                                            new ValueReportRawMetrics(
+                                                [],
+                                                0,
+                                                0,
+                                                0,
+                                                0,
+                                                0,
+                                                0,
+                                                8m,
+                                                "signup",
+                                                TimeProvider.System.GetUtcNow(),
+                                                6m,
+                                                3,
+                                                null,
+                                                null,
+                                                null);
+
+        metrics
+            .Setup(m => m.ReadAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<DateTimeOffset>(),
+                It.IsAny<DateTimeOffset>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(baselineRow);
+
+        Mock<IOptionsMonitor<ValueReportComputationOptions>> opt = new();
+        opt.Setup(o => o.CurrentValue).Returns(new ValueReportComputationOptions());
+
+        ValueReportBuilder valueReport = new(metrics.Object, opt.Object);
+
+        Mock<IScopeContextProvider> scope = new();
+        scope.Setup(s => s.GetCurrentScope()).Returns(
+            new ScopeContext
+            {
+                TenantId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
+                WorkspaceId = Guid.Parse("22222222-2222-2222-2222-222222222222"),
+                ProjectId = Guid.Parse("33333333-3333-3333-3333-333333333333"),
+            });
+
+        IConfigurationRoot configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(
+                new Dictionary<string, string?> { ["AgentExecution:Mode"] = "Simulator", ["AzureOpenAI:DeploymentName"] = "gpt-test" })
+            .Build();
+
+        Mock<IOptionsMonitor<PublicSiteOptions>> siteOpts = new();
+        siteOpts.Setup(s => s.CurrentValue).Returns(new PublicSiteOptions { BaseUrl = "https://ui.example" });
+
+        Mock<ITenantFirstValueReportBrandingRepository> branding = new();
+        branding
+            .Setup(b => b.TryGetAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((TenantFirstValueReportBrandingRow?)null);
+
+        Mock<IPilotBaselineRepository> pilotBaselines = new();
+        pilotBaselines
+            .Setup(b => b.GetAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((PilotBaselineRecord?)null);
+
+        return new FirstValueReportBuilder(
+            query,
+            deltas,
+            valueReport,
+            scope.Object,
+            new ExecutionProvenanceFooterRenderer(),
+            configuration,
+            siteOpts.Object,
+            branding.Object,
+            pilotBaselines.Object,
+            NullLogger<FirstValueReportBuilder>.Instance);
+    }
+}

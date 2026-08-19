@@ -1,0 +1,13 @@
+flowchart TB
+  Def["RateLimitingDefaults"] --> Fixed["fixed"]
+  Def --> Exp["expensive"]
+  Def --> Replay["replay"]
+  Def --> Bulk["evidenceBulkUpload"]
+  Def --> Otp["email-otp"]
+  Def --> Dry["governancePolicyPackDryRun"]
+  Part["RateLimitingRolePartitionBuilder"] --> Def
+  Exp --> Runs["RunsController"]
+  Replay --> Cmp["ComparisonsController"]
+  Bulk --> Ev["EvidenceBulkUploadController"]
+  Otp --> Auth["EmailOtpAuthController"]
+  QS["DapperQuickScanIdentityAbuseStore"] --> RL["RateLimited admit"]

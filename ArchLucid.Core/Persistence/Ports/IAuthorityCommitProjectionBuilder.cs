@@ -1,0 +1,23 @@
+using ArchLucid.Core.Manifest;
+
+using Cm = ArchLucid.Contracts.Manifest;
+
+namespace ArchLucid.Core.Persistence.Ports;
+
+/// <summary>
+///     Maps an Authority pipeline <see cref="ManifestDocument" /> to the operator / API
+///     <see cref="Cm.GoldenManifest" /> shape (Coordinator contract).
+/// </summary>
+public interface IAuthorityCommitProjectionBuilder
+{
+    /// <summary>
+    ///     Build the coordinator-shaped manifest. <paramref name="input" />.
+    ///     <see cref="AuthorityCommitProjectionInput.SystemName" />
+    ///     is supplied by the application layer (usually from <c>ArchitectureRequest</c> / run header), not read here,
+    ///     to keep <c>ArchLucid.Decisioning</c> free of persistence references.
+    /// </summary>
+    Task<Cm.GoldenManifest> BuildAsync(
+        ManifestDocument source,
+        AuthorityCommitProjectionInput input,
+        CancellationToken cancellationToken = default);
+}

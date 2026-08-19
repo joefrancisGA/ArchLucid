@@ -1,0 +1,43 @@
+# Manual workflow — simulator vs real LLM drift (golden cohort)
+
+name: golden-cohort-simulator-real-drift
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  simulator-real-drift:
+    if: github.event.repository.fork == false
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: Run simulator-vs-real drift tests
+        env:
+          ARCHLUCID_REAL_AOAI_TEST_ENDPOINT: ${{ secrets.ARCHLUCID_CI_REAL_AOAI_ENDPOINT }}
+          ARCHLUCID_REAL_AOAI_TEST_KEY: ${{ secrets.ARCHLUCID_CI_REAL_AOAI_KEY }}
+          ARCHLUCID_REAL_AOAI_TEST_DEPLOYMENT: ${{ vars.ARCHLUCID_CI_REAL_AOAI_DEPLOYMENT }}
+          ARCHLUCID_DRIFT_SCENARIO_CAP: "3"
+        run: |
+          set -euo pipefail
+          dotnet test "ArchLucid.AgentRuntime.Tests/ArchLucid.AgentRuntime.Tests.csproj" \
+            --filter "FullyQualifiedName~SimulatorVsRealDriftTests" \
+            --logger "trx;LogFileName=golden-cohort-drift.trx"
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: golden-cohort-simulator-real-drift
+          path: |
+            tests/golden-cohort/drift-reports/
+            tests/golden-cohort/DRIFT_SUMMARY.md
+            tests/golden-cohort/drift-trend.jsonl
+          if-no-files-found: warn

@@ -1,0 +1,771 @@
+﻿using System.Globalization;
+using System.Text;
+using System.Text.Json;
+
+using ArchLucid.Api.Http;
+using ArchLucid.Api.Mapping;
+using ArchLucid.Api.Models;
+using ArchLucid.Api.Models.Graph;
+using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Api.Support;
+using ArchLucid.Application;
+using ArchLucid.Application.Http;
+using ArchLucid.Application.Architecture;
+using ArchLucid.Application.Explanation;
+using ArchLucid.Application.Findings;
+using ArchLucid.Application.Reporting;
+using ArchLucid.Application.Traceability;
+using ArchLucid.Application.Agents;
+using ArchLucid.Application.Trust;
+using ArchLucid.Contracts.Agents;
+using ArchLucid.Core.AgentEvaluation;
+using ArchLucid.Contracts.Architecture;
+using ArchLucid.Contracts.Persistence.Decisions;
+using ArchLucid.Contracts.Explanation;
+using ArchLucid.Contracts.Findings;
+using ArchLucid.Decisioning.Interfaces;
+using ArchLucid.Decisioning.Models;
+using ArchLucid.Core.Audit;
+using ArchLucid.Core.Authorization;
+using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Pagination;
+using ArchLucid.Core.Persistence.ApplicationPorts.Agents;
+using ArchLucid.Core.Persistence.ApplicationPorts.Runs;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Data.Infrastructure;
+using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Persistence.Queries;
+using ArchLucid.Persistence.Serialization;
+
+using Asp.Versioning;
+
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
+
+namespace ArchLucid.Api.Controllers.Authority;
+
+/// <summary>
+///     Read-only HTTP API for architecture runs: detail, provenance, decisions, evidence, traces, and list.
+/// </summary>
+[ApiController]
+[Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
+[ApiVersion("1.0")]
+[Route("v{version:apiVersion}/architecture")]
+[EnableRateLimiting("fixed")]
+[ProducesResponseType(StatusCodes.Status401Unauthorized)]
+[ProducesResponseType(StatusCodes.Status403Forbidden)]
+[ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status429TooManyRequests)]
+public sealed class RunQueryController(
+    IRunDetailQueryService runDetailQueryService,
+    IRunRoiEstimator runRoiEstimator,
+    IArchitectureRunProvenanceService architectureRunProvenanceService,
+    IRunRepository authorityRunRepository,
+    IDecisionNodeRepository decisionNodeRepository,
+    IAgentEvidencePackageRepository agentEvidencePackageRepository,
+    IAgentExecutionTraceRepository agentExecutionTraceRepository,
+    IAgentToolInvocationRecordRepository agentToolInvocationRecordRepository,
+    IFindingEvidenceChainService findingEvidenceChainService,
+    IFindingInspectReadRepository findingInspectReadRepository,
+    IFindingTrustLabelMapper findingTrustLabelMapper,
+    IReasoningSummaryBuilder reasoningSummaryBuilder,
+    IScopeContextProvider scopeContextProvider,
+    ITraceabilityBundleBuilder traceabilityBundleBuilder,
+    IRunTrustEvidenceCardBuilder trustEvidenceCardBuilder,
+    ILlmCostEstimator llmCostEstimator,
+    IAuthorityQueryService authorityQueryService,
+    IConfiguration configuration,
+    IAuditService auditService,
+    ExportFormatterService exportFormatter,
+    IFindingsSnapshotRepository findingsSnapshotRepository,
+    IRunStageOutcomesRepository runStageOutcomesRepository,
+    RunFindingExternalTrackingEnrichmentService runFindingExternalTrackingEnrichmentService) : ControllerBase
+{
+    /// <summary>
+    ///     Returns the canonical run aggregate (tasks, results, manifest, decision traces) for <paramref name="runId" />.
+    /// </summary>
+    [HttpGet("review/{runId}")]
+    [ProducesResponseType(typeof(RunDetailsResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status304NotModified)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetRun(
+        [FromRoute] string runId,
+        CancellationToken cancellationToken)
+    {
+        if (!AuthorityRunIdentifier.TryParse(runId, out Guid runGuid))
+            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+        Persistence.Models.RunRecord? runHeader =
+            await authorityRunRepository.GetByIdAsync(scope, runGuid, cancellationToken);
+
+        if (runHeader is null)
+            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+
+        if (ConditionalGetNegotiation.TryFromRowVersion(runHeader.RowVersion, out string runEtag))
+        {
+            IActionResult? notModified = this.TryConditionalNotModified(runEtag);
+
+            if (notModified is not null)
+                return notModified;
+        }
+
+        ArchitectureRunDetail? detail = await runDetailQueryService.GetRunDetailForOperatorEnrichAsync(runId, cancellationToken);
+
+        if (detail is null)
+            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+
+        if (!string.IsNullOrWhiteSpace(detail.Run.CurrentManifestVersion) && detail.Manifest is null)
+            return this.NotFoundProblem(
+                $"Manifest referenced by run '{runId}' could not be found.",
+                ProblemTypes.ResourceNotFound);
+
+        RunDetailsResponse response = RunResponseMapper.ToRunDetailsResponse(
+            detail.Run,
+            detail.Tasks,
+            detail.Results,
+            detail.Manifest,
+            detail.DecisionTraces);
+
+        response.AuthorityPipelineComplete = detail.AuthorityPipelineComplete;
+        response.AgentTaskLoopComplete = detail.AgentTaskLoopComplete;
+
+        response.ExecutionFlavorBuyerSummary = RunExecutionFlavorSummary.Build(
+            detail.Run,
+            configuration["AgentExecution:Mode"]);
+
+        if (detail.IsCommitted)
+        {
+            response.TrustEvidenceCard = await trustEvidenceCardBuilder.BuildAsync(
+                detail,
+                configuration["AgentExecution:Mode"],
+                cancellationToken);
+        }
+
+        ScopeContext appendScope = scopeContextProvider.GetCurrentScope();
+        await RunAgentExecutionLlmCostEstimateAppender.AppendAsync(
+            response,
+            runId,
+            appendScope,
+            agentExecutionTraceRepository,
+            llmCostEstimator,
+            cancellationToken);
+
+        if (!ConditionalGetNegotiation.TryFromRowVersion(runHeader.RowVersion, out runEtag))
+            runEtag = ConditionalGetNegotiation.FromRowVersionWithFingerprint(null, $"run-detail:{runId}");
+
+        return this.OkWithConditionalEtag(response, runEtag);
+    }
+
+    /// <summary>Directional analyst-hour estimate for packaging work implied by this run (configured multipliers).</summary>
+    [HttpGet("review/{runId}/roi")]
+    [ProducesResponseType(typeof(RunRoiScorecardDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetRunRoiEstimate(
+        [FromRoute] string runId,
+        CancellationToken cancellationToken)
+    {
+        ArchitectureRunDetail? detail = await runDetailQueryService.GetRunDetailForOperatorEnrichAsync(runId, cancellationToken);
+
+        if (detail is null)
+            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+
+        RunRoiScorecardDto estimate = runRoiEstimator.Estimate(detail);
+
+        return Ok(estimate);
+    }
+
+    /// <summary>Authority pipeline stage start/end outcomes for operator run investigation (TB-250).</summary>
+    [HttpGet("review/{runId}/stage-timeline")]
+    [ProducesResponseType(typeof(IReadOnlyList<StageTimelineSummary>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetRunStageTimeline(
+        [FromRoute] string runId,
+        CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(runId))
+            return this.BadRequestProblem("runId is required.", ProblemTypes.ValidationFailed);
+
+        if (!AuthorityRunIdentifier.TryParse(runId, out Guid runGuid))
+            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+        Persistence.Models.RunRecord? run = await authorityRunRepository.GetByIdAsync(scope, runGuid, cancellationToken);
+
+        if (run is null)
+            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+
+        IReadOnlyList<StageTimelineSummary> timeline =
+            await runStageOutcomesRepository.ListByRunIdAsync(runGuid, cancellationToken);
+
+        return Ok(timeline);
+    }
+
+    /// <summary>Keyset list of relational finding metadata for <paramref name="runId" />.</summary>
+    [HttpGet("review/{runId}/findings")]
+    [ProducesResponseType(typeof(RunFindingsListResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status304NotModified)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> ListRunFindings(
+        [FromRoute] string runId,
+        [FromQuery] string? orderBy,
+        [FromQuery] int? take,
+        [FromQuery] int? cursorSortOrder,
+        [FromQuery] int? cursorPriorityRank,
+        [FromQuery] Guid? cursorFindingRecordId,
+        CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(runId))
+            return this.BadRequestProblem("runId is required.", ProblemTypes.ValidationFailed);
+
+        if (!AuthorityRunIdentifier.TryParse(runId, out Guid runGuid))
+            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+        Persistence.Models.RunRecord? run = await authorityRunRepository.GetByIdAsync(scope, runGuid, cancellationToken);
+
+        if (run?.FindingsSnapshotId is not Guid snapshotId)
+            return this.NotFoundProblem($"Run '{runId}' has no findings snapshot.", ProblemTypes.ResourceNotFound);
+
+        bool orderByPriority = RunFindingsListResponseBuilder.IsPriorityOrder(orderBy);
+        int pageTake = take ?? FindingPagination.DefaultTake;
+        string findingsFingerprint = RunFindingsListResponseBuilder.BuildRequestFingerprint(
+            snapshotId,
+            orderByPriority,
+            pageTake,
+            cursorSortOrder,
+            cursorPriorityRank,
+            cursorFindingRecordId);
+        string findingsEtag = ConditionalGetNegotiation.FromRowVersionWithFingerprint(run.RowVersion, findingsFingerprint);
+
+        IActionResult? findingsNotModified = this.TryConditionalNotModified(findingsEtag);
+
+        if (findingsNotModified is not null)
+            return findingsNotModified;
+
+        FindingRecordMetadataPage page = await findingsSnapshotRepository.ListFindingRecordsKeysetAsync(
+            scope,
+            snapshotId,
+            cursorSortOrder,
+            cursorFindingRecordId,
+            cursorPriorityRank,
+            severity: null,
+            category: null,
+            findingType: null,
+            pageTake,
+            orderByPriority,
+            cancellationToken);
+
+        IReadOnlyDictionary<string, RunFindingExternalTrackingProjection> trackingByFindingId =
+            await runFindingExternalTrackingEnrichmentService.LoadForFindingsAsync(
+                scope.TenantId,
+                snapshotId,
+                RunFindingsListResponseBuilder.CollectFindingIds(page),
+                cancellationToken);
+
+        RunFindingsListResponse body = RunFindingsListResponseBuilder.Build(
+            runId,
+            orderByPriority,
+            page,
+            trackingByFindingId);
+
+        return this.OkWithConditionalEtag(body, findingsEtag);
+    }
+
+    /// <summary>
+    ///     Bulk export of flattened architecture findings for <paramref name="runId" /> as <c>text/csv</c> (one row per
+    ///     finding across agent results).
+    /// </summary>
+    [HttpGet("review/{runId}/findings/export/csv")]
+    [Produces("text/csv")]
+    [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> ExportRunFindingsCsv(
+        [FromRoute] string runId,
+        CancellationToken cancellationToken)
+    {
+        ArchitectureRunDetail? detail = await runDetailQueryService.GetRunDetailForOperatorEnrichAsync(runId, cancellationToken);
+
+        if (detail is null)
+            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+
+        if (!string.IsNullOrWhiteSpace(detail.Run.CurrentManifestVersion) && detail.Manifest is null)
+            return this.NotFoundProblem(
+                $"Manifest referenced by run '{runId}' could not be found.",
+                ProblemTypes.ResourceNotFound);
+
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+        Guid? findingsSnapshotId = null;
+
+        if (AuthorityRunIdentifier.TryParse(runId, out Guid runGuidForSnapshot))
+        {
+            Persistence.Models.RunRecord? runRecord =
+                await authorityRunRepository.GetByIdAsync(scope, runGuidForSnapshot, cancellationToken);
+
+            findingsSnapshotId = runRecord?.FindingsSnapshotId;
+        }
+
+        IReadOnlyList<string> findingIds = ArchitectureRunFindingsCsvFormatter.CollectFindingIds(detail);
+
+        IReadOnlyDictionary<string, RunFindingExternalTrackingProjection> trackingByFindingId =
+            await runFindingExternalTrackingEnrichmentService.LoadForFindingsAsync(
+                scope.TenantId,
+                findingsSnapshotId,
+                findingIds,
+                cancellationToken);
+
+        string csv = ArchitectureRunFindingsCsvFormatter.BuildCsvContent(detail, trackingByFindingId);
+        int findingCount = ArchitectureRunFindingsCsvFormatter.CountFindingsInDetail(detail);
+
+        Guid? auditRunId = AuthorityRunIdentifier.TryParse(runId, out Guid runGuidForAudit) ? runGuidForAudit : null;
+
+        await auditService.LogAsync(
+            new AuditEvent
+            {
+                EventType = AuditEventTypes.FindingsListAccessed,
+                RunId = auditRunId,
+                DataJson = JsonSerializer.Serialize(
+                    new { format = "csv", findingCount },
+                    AuditJsonSerializationOptions.Instance),
+            },
+            cancellationToken);
+
+        DateTime utcStamp = TimeProvider.System.GetUtcNow().UtcDateTime;
+        string timeSegment = exportFormatter.FormatAttachmentSegmentUtc(utcStamp);
+        string safeRunStem = auditRunId.HasValue
+            ? runGuidForAudit.ToString("N", CultureInfo.InvariantCulture)
+            : AuthorityRunIdentifier.SanitizeForFileStem(runId);
+
+        string downloadName =
+            $"architecture-run-{safeRunStem}-findings-{timeSegment}.csv";
+
+        return File(
+            Encoding.UTF8.GetBytes(csv),
+            "text/csv; charset=utf-8",
+            downloadName);
+    }
+
+    /// <summary>Knowledge-graph snapshot packaged for interactive Cytoscape.js renders.</summary>
+    [HttpGet("reviews/{runId}/graph/interactive")]
+    [HttpGet("reviews/{runId}/graph/cytoscape")]
+    [Produces("application/json")]
+    [ProducesResponseType(typeof(CytoscapeInteractiveGraphResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetInteractiveGraphSnapshot(
+        [FromRoute] string runId,
+        CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(runId))
+            return this.BadRequestProblem("Run id is required.", ProblemTypes.ValidationFailed);
+
+        if (!AuthorityRunIdentifier.TryParse(runId, out Guid runGuid))
+            return this.BadRequestProblem("Run id must be a valid GUID.", ProblemTypes.ValidationFailed);
+
+        return await GetCytoscapeGraphSnapshotAsync(runGuid, cancellationToken);
+    }
+
+    private async Task<IActionResult> GetCytoscapeGraphSnapshotAsync(Guid runGuid, CancellationToken cancellationToken)
+    {
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+        RunDetailDto? detail = await authorityQueryService.GetRunDetailAsync(scope, runGuid, cancellationToken);
+
+        if (detail?.GraphSnapshot is null)
+            return this.NotFoundProblem(
+                $"Interactive graph snapshot for run '{runGuid:D}' was not found.",
+                ProblemTypes.RunNotFound);
+
+        return Ok(GraphSnapshotCytoscapeMapper.ToInteractiveResponse(detail.GraphSnapshot));
+    }
+
+    /// <summary>Aggregates ROI telemetry across all runs in the current scope.</summary>
+    [HttpGet("telemetry/roi")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetRoiTelemetry(
+        [FromServices] IDbConnectionFactory db,
+        CancellationToken cancellationToken)
+    {
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+
+        RunRoiTelemetryAggregate aggregate =
+            await RunRoiTelemetryAggregateQuery.ReadAsync(db, scope, cancellationToken);
+
+        return Ok(aggregate);
+    }
+
+    /// <summary>
+    ///     Returns the coordinator linkage graph (request, tasks, results, findings, manifest, traces, decisions) and a sorted
+    ///     trace timeline.
+    /// </summary>
+    [HttpGet("reviews/{runId}/provenance")]
+    [ProducesResponseType(typeof(ArchitectureRunProvenanceGraph), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetArchitectureRunProvenance(
+        [FromRoute] string runId,
+        CancellationToken cancellationToken)
+    {
+        ArchitectureRunProvenanceGraph? graph = await architectureRunProvenanceService
+            .GetProvenanceAsync(runId, cancellationToken);
+
+        if (graph is null)
+            return this.NotFoundProblem(
+                $"Run '{runId}' was not found, or its manifest reference is broken.",
+                ProblemTypes.RunNotFound);
+
+        return Ok(graph);
+    }
+
+    /// <summary>
+    ///     Per-node provenance explanations are not a supported surface (no stable per-node LLM contract). This route is
+    ///     omitted from OpenAPI; callers should use <c>GET /v1/explain/runs/{{runId}}/aggregate</c>. Tenant scope is enforced
+    ///     before the response.
+    /// </summary>
+    [ApiExplorerSettings(IgnoreApi = true)]
+    [HttpGet("reviews/{runId}/provenance/{nodeId}/explanation")]
+    [HttpGet("review/{runId}/provenance/{nodeId}/explanation")]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status501NotImplemented)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetProvenanceNodeExplanation(
+        [FromRoute] string runId,
+        [FromRoute] string nodeId,
+        CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(runId) || string.IsNullOrWhiteSpace(nodeId))
+            return this.BadRequestProblem("Run id and node id are required.", ProblemTypes.ValidationFailed);
+
+        if (!await AuthorityRunExistsInScopeAsync(runId, cancellationToken))
+            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+
+        const string detail =
+            "ArchLucid does not provide per-node provenance explanations. "
+            + "Use GET /v1/explain/runs/{runId}/aggregate for the supported run-level RunExplanationSummary "
+            + "(Standard commercial tier and ReadAuthority scope, same as other routes under /v1/explain). "
+            + "Alternatively, GET /v1/explain/runs/{runId}/explain returns the granular ExplanationResult when licensed.";
+
+        IReadOnlyDictionary<string, object?> hints = new Dictionary<string, object?>(
+            StringComparer.Ordinal)
+        {
+            ["aggregateExplanationPathTemplate"] = "/v1/explain/runs/{runId}/aggregate",
+            ["granularExplanationPathTemplate"] = "/v1/explain/runs/{runId}/explain",
+        };
+
+        return this.NotImplementedProblem(
+            detail,
+            ProblemTypes.ProvenanceNodeExplanationNotSupported,
+            "Provenance node explanation not supported",
+            hints);
+    }
+
+    /// <summary>
+    ///     Returns decision-tree nodes materialized for <paramref name="runId" /> after commit (empty before commit yields
+    ///     404).
+    /// </summary>
+    [HttpGet("review/{runId}/decisions")]
+    [ProducesResponseType(typeof(DecisionNodeResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetRunDecisions(
+        [FromRoute] string runId,
+        CancellationToken cancellationToken)
+    {
+        if (!await AuthorityRunExistsInScopeAsync(runId, cancellationToken))
+            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+
+        IReadOnlyList<DecisionNodeRecord> decisions = await decisionNodeRepository.GetByRunIdAsync(runId, cancellationToken);
+
+        if (decisions.Count == 0)
+            return this.NotFoundProblem(
+                $"No decisions found for run '{runId}'. Decisions are available after the run has been committed.",
+                ProblemTypes.ResourceNotFound);
+
+        return Ok(new DecisionNodeResponse { Decisions = decisions.ToList() });
+    }
+
+    /// <summary>
+    ///     Returns the hydrated <see cref="AgentEvidencePackage" /> used when agents ran for <paramref name="runId" />.
+    /// </summary>
+    [HttpGet("review/{runId}/evidence")]
+    [ProducesResponseType(typeof(AgentEvidencePackageResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetRunEvidence(
+        [FromRoute] string runId,
+        CancellationToken cancellationToken)
+    {
+        if (!await AuthorityRunExistsInScopeAsync(runId, cancellationToken))
+            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+
+        AgentEvidencePackage? evidence = await agentEvidencePackageRepository.GetByRunIdAsync(runId, cancellationToken);
+        return evidence is null
+            ? this.NotFoundProblem($"Evidence for run '{runId}' was not found.", ProblemTypes.ResourceNotFound)
+            : Ok(new AgentEvidencePackageResponse { Evidence = evidence });
+    }
+
+    /// <summary>
+    ///     Returns a page of <see cref="AgentExecutionTraceSummary" /> rows for <paramref name="runId" /> (no prompts or
+    ///     raw model output — use <c>GET /v1/internal/architecture/traces/forensics/{traceId}</c> for full TraceJson).
+    /// </summary>
+    [HttpGet("review/{runId}/traces")]
+    [ProducesResponseType(typeof(AgentExecutionTraceResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetRunTraces(
+        [FromRoute] string runId,
+        [FromQuery] int pageNumber = 1,
+        [FromQuery] int pageSize = 50,
+        CancellationToken cancellationToken = default)
+    {
+        if (pageNumber < 1) // lgtm[cs/user-controlled-bypass] rejects invalid paging before any data access.
+            return this.BadRequestProblem("pageNumber must be at least 1.", ProblemTypes.ValidationFailed);
+
+        if (pageSize is < 1 or > PagingParameters.MaxPageSize)
+            return this.BadRequestProblem(
+                $"pageSize must be between 1 and {PagingParameters.MaxPageSize}.",
+                ProblemTypes.ValidationFailed);
+
+        if (!await AuthorityRunExistsInScopeAsync(runId, cancellationToken))
+            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+
+        PagingParameters paging = new()
+        {
+            PageNumber = pageNumber,
+            PageSize = pageSize
+        };
+        (int skip, int take) = paging.Normalize();
+
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+
+        (IReadOnlyList<AgentExecutionTraceSummary> summaries, int totalCount) =
+            await agentExecutionTraceRepository.GetPagedSummariesByRunIdAsync(
+                scope,
+                runId,
+                skip,
+                take,
+                cancellationToken);
+
+        return Ok(new AgentExecutionTraceResponse
+        {
+            Traces = summaries.ToList(),
+            TotalCount = totalCount,
+            PageNumber = paging.PageNumber,
+            PageSize = paging.PageSize
+        });
+    }
+
+    /// <summary>
+    ///     Trace-derived redacted invocation forensics for operator review (TB-110). Not a structured MCP tool-call ledger.
+    /// </summary>
+    [HttpGet("review/{runId}/tool-invocation-forensics")]
+    [Authorize(Policy = ArchLucidPolicies.RequireOperatorRole)]
+    [ProducesResponseType(typeof(RunToolInvocationForensicsResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetRunToolInvocationForensics(
+        [FromRoute] string runId,
+        CancellationToken cancellationToken = default)
+    {
+        if (!await AuthorityRunExistsInScopeAsync(runId, cancellationToken))
+            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+
+        IReadOnlyList<AgentExecutionTrace> traces =
+            await agentExecutionTraceRepository.GetByRunIdAsync(scope, runId, cancellationToken).ConfigureAwait(false);
+
+        IReadOnlyList<AgentToolInvocationRecord> structured = [];
+
+        if (scope.TenantId != Guid.Empty && Guid.TryParse(runId, out Guid runGuid))
+        {
+            structured = await agentToolInvocationRecordRepository
+                .ListByRunAsync(scope.TenantId, runGuid, cancellationToken)
+                .ConfigureAwait(false);
+        }
+
+        RunToolInvocationForensicsResponse body =
+            RunToolInvocationForensicsBuilder.Build(runId, traces, structured);
+
+        return Ok(body);
+    }
+
+    /// <summary>
+    ///     Lists runs visible in the current scope. Without <paramref name="cursor" />, uses offset pagination via
+    ///     <paramref name="limit" /> and <paramref name="offset" />; with <paramref name="cursor" />, uses keyset
+    ///     continuation.
+    /// </summary>
+    [HttpGet("reviews")]
+    [HttpGet("runs")]
+    [ProducesResponseType(typeof(CursorPagedResponse<RunListItemResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status304NotModified)]
+    public async Task<IActionResult> ListRuns(
+        [FromQuery] string? cursor = null,
+        [FromQuery] int? limit = null,
+        [FromQuery] int offset = 0,
+        [FromQuery] int take = RunPagination.DefaultTake,
+        [FromQuery] int page = PaginationDefaults.DefaultPage,
+        [FromQuery] int pageSize = PaginationDefaults.DefaultPageSize,
+        CancellationToken cancellationToken = default)
+    {
+        if (!string.IsNullOrWhiteSpace(cursor))
+        {
+            int effectiveTake = RunPagination.ClampTake(take);
+
+            (IReadOnlyList<RunSummary> keysetSummaries, bool keysetHasMore, string? nextCursor) =
+                await runDetailQueryService.ListRunSummariesKeysetAsync(cursor, effectiveTake, cancellationToken);
+
+            string listFingerprint = $"keyset|cursor={cursor}|take={effectiveTake}";
+            string listEtag = RunListPageMapper.BuildEtag(keysetSummaries, listFingerprint);
+            CursorPagedResponse<RunListItemResponse> keysetBody =
+                RunListPageMapper.MapPage(keysetSummaries, keysetHasMore, nextCursor, effectiveTake);
+
+            return this.OkWithConditionalEtag(keysetBody, listEtag);
+        }
+
+        int effectiveLimit = RunPagination.ClampLimit(limit ?? pageSize);
+        int effectiveOffset = offset > 0
+            ? RunPagination.NormalizeOffset(offset)
+            : PaginationDefaults.ToSkip(page, effectiveLimit);
+
+        (IReadOnlyList<RunSummary> offsetSummaries, bool offsetHasMore) =
+            await runDetailQueryService.ListRunSummariesOffsetAsync(effectiveOffset, effectiveLimit, cancellationToken);
+
+        string offsetFingerprint = $"offset|offset={effectiveOffset}|limit={effectiveLimit}";
+        string offsetEtag = RunListPageMapper.BuildEtag(offsetSummaries, offsetFingerprint);
+        CursorPagedResponse<RunListItemResponse> offsetBody =
+            RunListPageMapper.MapPage(offsetSummaries, offsetHasMore, nextCursor: null, effectiveLimit);
+
+        return this.OkWithConditionalEtag(offsetBody, offsetEtag);
+    }
+
+    /// <summary>
+    ///     Returns persisted artifact pointers for one finding (manifest snapshot ids, graph nodes, agent trace ids).
+    /// </summary>
+    [HttpGet("review/{runId}/findings/{findingId}/evidence-chain")]
+    [ProducesResponseType(typeof(FindingEvidenceChainResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetFindingEvidenceChain(
+        [FromRoute] string runId,
+        [FromRoute] string findingId,
+        CancellationToken cancellationToken)
+    {
+        FindingEvidenceChainResponse? chain =
+            await findingEvidenceChainService.BuildAsync(runId, findingId, cancellationToken);
+
+        if (chain is null)
+            return this.NotFoundProblem(
+                $"Evidence chain is not available for run '{runId}' and finding '{findingId}'.",
+                ProblemTypes.ResourceNotFound);
+
+        return Ok(chain);
+    }
+
+    /// <summary>
+    ///     Same payload as <c>GET /v1/findings/{findingId}/inspect</c>; returns <c>404</c> when the finding&apos;s persisted
+    ///     run identifier does not match <paramref name="runId" /> (prevents cross-run ambiguity in deep links).
+    /// </summary>
+    [HttpGet("review/{runId}/findings/{findingId}/inspect")]
+    [ProducesResponseType(typeof(FindingInspectResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetFindingInspectForRun(
+        [FromRoute] string runId,
+        [FromRoute] string findingId,
+        [FromQuery] bool includeTypedPayload = true,
+        CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(runId))
+            return this.BadRequestProblem("Run id is required.", ProblemTypes.ValidationFailed);
+
+        if (string.IsNullOrWhiteSpace(findingId))
+            return this.BadRequestProblem("Finding id is required.", ProblemTypes.ValidationFailed);
+
+        if (findingId.Trim().Length > 64)
+            return this.BadRequestProblem("Finding id exceeds maximum length (64).", ProblemTypes.ValidationFailed);
+
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+        FindingInspectReadOptions options = includeTypedPayload
+            ? FindingInspectReadOptions.Full
+            : FindingInspectReadOptions.MetadataOnly;
+
+        FindingInspectResponse? body =
+            await findingInspectReadRepository.GetInspectAsync(scope, findingId.Trim(), cancellationToken, options);
+
+        if (body is null)
+        {
+            return this.NotFoundProblem(
+                $"Finding '{findingId.Trim()}' was not found in the current scope.",
+                ProblemTypes.ResourceNotFound);
+        }
+
+        if (!AuthorityRunIdentifier.Matches(runId.Trim(), body.RunId))
+        {
+            return this.NotFoundProblem(
+                $"Finding '{findingId.Trim()}' was not found for run '{runId.Trim()}'.",
+                ProblemTypes.ResourceNotFound);
+        }
+
+        return Ok(
+            FindingInspectTrustLabelEnricher.Enrich(
+                body.WithReasoningSummaryFromBuilder(reasoningSummaryBuilder),
+                findingTrustLabelMapper));
+    }
+
+    /// <summary>ZIP bundle: run summary, audit slice for the run, and decision traces (size-capped).</summary>
+    [HttpGet("review/{runId}/traceability-bundle.zip")]
+    [HttpGet("review/{runId}/review-trail/export")]
+    [Produces("application/zip")]
+    [ProducesResponseType(typeof(FileResult), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status413PayloadTooLarge)]
+    public async Task<IActionResult> GetTraceabilityBundleZip(
+        [FromRoute] string runId,
+        CancellationToken cancellationToken)
+    {
+        const long maxZipBytes = 1_500_000L;
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+
+        try
+        {
+            byte[]? zip = await traceabilityBundleBuilder.BuildAsync(runId, scope, maxZipBytes, cancellationToken);
+
+            if (zip is null)
+                return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+
+            Guid? auditRunId = AuthorityRunIdentifier.TryParse(runId, out Guid runGuidForAudit) ? runGuidForAudit : null;
+
+            await auditService.LogAsync(
+                new AuditEvent
+                {
+                    EventType = AuditEventTypes.ExportDownloadSucceeded,
+                    RunId = auditRunId,
+                    TenantId = scope.TenantId,
+                    WorkspaceId = scope.WorkspaceId,
+                    ProjectId = scope.ProjectId,
+                    CorrelationId = HttpContext.TraceIdentifier,
+                    DataJson = JsonSerializer.Serialize(
+                        new { exportType = "traceability-bundle.zip", fileName = $"traceability-{runId}.zip" },
+                        AuditJsonSerializationOptions.Instance)
+                },
+                cancellationToken);
+
+            return File(zip, "application/zip", $"traceability-{runId}.zip");
+        }
+        catch (TraceabilityBundleTooLargeException ex)
+        {
+            // ExportFailed rather than a size-specific type: 413 plus the byte extensions already tell a client the
+            // bundle exceeded the cap, so this reuses an existing contract value instead of adding one.
+            return this.PayloadTooLargeProblem(
+                ex.Message,
+                ProblemTypes.ExportFailed,
+                extensions: new Dictionary<string, object?>
+                {
+                    ["attemptedBytes"] = ex.AttemptedBytes,
+                    ["maxBytes"] = ex.MaxBytes
+                });
+        }
+    }
+
+    private async Task<bool> AuthorityRunExistsInScopeAsync(string runId, CancellationToken cancellationToken)
+    {
+        if (!AuthorityRunIdentifier.TryParse(runId, out Guid runGuid))
+            return false;
+
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+
+        return await authorityRunRepository.GetByIdAsync(scope, runGuid, cancellationToken) is not null;
+    }
+}

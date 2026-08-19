@@ -1,0 +1,23 @@
+import { GOVERNANCE_FINDINGS_PATH, GOVERNANCE_POLICY_PACKS_PATH, GOVERNANCE_STANDARDS_AND_RULES_PATH } from "@/lib/governance/governance-route-paths";
+import { inAppHelpHref } from "@/lib/product-documentation-registry";
+import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
+
+export const POLICY_PACKS_HUB_CANONICAL_PATH = GOVERNANCE_POLICY_PACKS_PATH;
+
+export const POLICY_PACKS_HUB_HELP_TOPIC_LABEL = "How policy packs work" as const;
+
+export const POLICY_PACKS_HUB_CLAIM_DISCIPLINE =
+ "The policy pack library lists workspace packs, catalog clones, and authoring tools — it is not a sealed-review diligence Sources package. Open Standards & rules or Findings when you need applied-rule or finding trails.";
+
+export const POLICY_PACKS_HUB_SOURCES_INTRO =
+ "Use these follow-ups when pack library questions turn into applied rules, findings, or assurance orientation.";
+
+
+/** Operator Sources — no self-href to /governance/policy-packs hub. */
+export const POLICY_PACKS_HUB_SOURCES: readonly EvidenceSourceLink[] = [
+ { label: "Standards & rules", href: GOVERNANCE_STANDARDS_AND_RULES_PATH },
+ { label: "Findings", href: GOVERNANCE_FINDINGS_PATH },
+ { label: "Architecture reviews", href: "/architecture/reviews" },
+ { label: "Policy packs help", href: inAppHelpHref("policy-packs") },
+ { label: "Assurance status", href: "/assurance-status" },
+] as const;

@@ -1,0 +1,21 @@
+{
+  "schema": "archlucid.decision-owner-scoreboard-capture.v1",
+  "runId": "",
+  "generatedUtc": "",
+  "overallVerdict": "PASS | WARN | FAIL",
+  "rows": [
+    {
+      "decisionId": "",
+      "title": "",
+      "decisionOwner": "workload-security-lead",
+      "ownerOutcome": "deferred",
+      "accountabilityStatus": "owned-pending",
+      "remediationDueUtc": ""
+    }
+  ],
+  "notes": [
+    "Populate from archlucid pilot decision-owner-scoreboard output.",
+    "decisionOwner must be a sanitized buyer-side role label — no customer-identifying names.",
+    "Use owner-not-applicable or demo for self-serve pilots without real buyer-side owners."
+  ]
+}

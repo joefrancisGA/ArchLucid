@@ -1,0 +1,257 @@
+"use client";
+
+import { cn } from "@/lib/utils";
+import { ClipboardCheck, FileCheck2, Package, Target } from "lucide-react";
+import Link from "next/link";
+import { useEffect, useId, useMemo, useState } from "react";
+import type { CSSProperties } from "react";
+
+import { OptInTourLauncher } from "@/components/tour/OptInTourLauncher";
+import { GlossaryTooltip } from "@/components/GlossaryTooltip";
+import { Button } from "@/components/ui/button";
+import { useOperatorShellStatusConcernFetchEnabled } from "@/components/shell/OperatorShellStatusQueryGate";
+import { useAskProjectRunsQuery } from "@/hooks/use-ask-project-runs-query";
+import { useTenantTrialStatusQuery } from "@/hooks/use-tenant-trial-status-query";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { normalizeRunSummaryForDemoPicker } from "@/lib/demo-run-canonical";
+import { tryStaticDemoRunSummariesPaged, isStaticDemoPayloadFallbackEnabled } from "@/lib/operator/operator-static-demo";
+import { writeHasExistingRunsCache } from "@/lib/operator/operator-run-presence";
+import { shouldSkipTenantTrialStatusFetch } from "@/lib/tenant-trial-status-client";
+import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY, operatorSemanticBadge, operatorSemanticSurface } from "@/lib/design-tokens";
+import { CANONICAL_ANONYMOUS_PROOF_HREF } from "@/lib/showcase-static-demo";
+
+const SESSION_DISMISS_KEY = "archlucid_welcome_dismissed_session";
+
+/**
+ * Operator-home welcome: trial badge from `GET /v1/tenant/trial-status` (defers until load); first-run vs returning
+ * copy from a cached `archlucid_has_existing_runs` (instant) and {@link loadProjectRunsMergedWithDemoFallback}
+ * so static demo injections match `/architecture/reviews`.
+ * sessionStorage so a new browser session can show the banner again.
+ */
+const DEFAULT_PROJECT_ID = "default";
+
+const dotMaskStyle: CSSProperties = {
+  WebkitMaskImage:
+    "linear-gradient(to right, transparent 0%, transparent 35%, rgba(0,0,0,0.2) 55%, rgba(0,0,0,0.7) 100%)",
+  maskImage: "linear-gradient(to right, transparent 0%, transparent 35%, rgba(0,0,0,0.2) 55%, rgba(0,0,0,0.7) 100%)",
+};
+
+export function WelcomeBanner() {
+  const patternId = useId().replaceAll(":", "");
+  const [dismissed, setDismissed] = useState(true);
+  const [hydrated, setHydrated] = useState(false);
+
+  const concernFetchEnabled = useOperatorShellStatusConcernFetchEnabled();
+  const skipShellProbes = shouldSkipTenantTrialStatusFetch();
+  const runsQueryEnabled = hydrated && !dismissed && !skipShellProbes;
+
+  const trialQuery = useTenantTrialStatusQuery({ enabled: concernFetchEnabled });
+  const runsQuery = useAskProjectRunsQuery(DEFAULT_PROJECT_ID, { enabled: runsQueryEnabled });
+
+  const trialStatusResolved = skipShellProbes || !trialQuery.isPending;
+  const runsPresenceResolved = skipShellProbes || !runsQuery.isPending;
+  const trial = trialQuery.data;
+
+  const resolvedRunItems = useMemo(() => {
+    if (!runsQuery.data) {
+      return [];
+    }
+
+    let items = runsQuery.data.items;
+
+    if (items.length === 0 && isStaticDemoPayloadFallbackEnabled()) {
+      const injected = tryStaticDemoRunSummariesPaged(DEFAULT_PROJECT_ID, { afterEmptyLiveList: true });
+
+      if (injected !== null && injected.items.length > 0) {
+        items = injected.items.map(normalizeRunSummaryForDemoPicker);
+      }
+    }
+
+    return items;
+  }, [runsQuery.data]);
+
+  const hasExistingRuns = resolvedRunItems.length > 0;
+
+  useEffect(() => {
+    try {
+      if (typeof window !== "undefined" && window.sessionStorage.getItem(SESSION_DISMISS_KEY) === "1") {
+        setDismissed(true);
+      } else {
+        setDismissed(false);
+      }
+    } catch {
+      setDismissed(false);
+    }
+
+    setHydrated(true);
+  }, []);
+
+  useEffect(() => {
+    if (!runsPresenceResolved) {
+      return;
+    }
+
+    writeHasExistingRunsCache(hasExistingRuns);
+  }, [hasExistingRuns, runsPresenceResolved]);
+
+  if (!hydrated) {
+    return null;
+  }
+
+  if (dismissed) {
+    return null;
+  }
+
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+
+  if (buyerPolishedShell && !runsPresenceResolved) {
+    return null;
+  }
+
+  const trialActive = trial?.status === "Active";
+  const days = trial?.daysRemaining;
+  const returningUser = hasExistingRuns;
+
+  if (buyerPolishedShell && runsPresenceResolved && !hasExistingRuns && !trialStatusResolved) {
+    return null;
+  }
+
+  if (buyerPolishedShell && runsPresenceResolved && trialStatusResolved && !hasExistingRuns) {
+    return (
+      <div role="banner" aria-label="New here tour callout" className="mb-4 space-y-2">
+        {trialActive ? (
+          <div className={cn("flex flex-wrap items-center gap-2", operatorSemanticSurface("warn"))}>
+            {typeof days === "number" ? (
+              <span className={operatorSemanticBadge("warn")}>
+                {days} day{days === 1 ? "" : "s"} left on trial
+              </span>
+            ) : (
+              <span className={operatorSemanticBadge("warn")}>Trial active</span>
+            )}
+          </div>
+        ) : null}
+        <div className={cn(DESIGN_TOKENS.surface.card, "px-4 py-3")}>
+          <h2 className={cn("mb-1", OPERATOR_TYPOGRAPHY.body, "font-semibold")}>New here?</h2>
+          <p className={cn("mb-3", OPERATOR_TYPOGRAPHY.body, "text-neutral-700 dark:text-neutral-300")}>
+            Take a quick 6-step tour to see how a review goes from upload to architecture snapshot.
+          </p>
+          <OptInTourLauncher />
+        </div>
+      </div>
+    );
+  }
+
+  const headingText =
+    returningUser
+      ? "Architecture review workspace"
+      : buyerPolishedShell
+        ? "Explore one governed architecture review"
+        : "Your first architecture review — four steps";
+
+  // Core workspace hero — always expanded; do not add Minimize/X collapse here.
+  const subheadingText = returningUser ? (
+    <>
+      Open in-progress architecture reviews, finish packages that still need attention, and review prioritized{" "}
+      <GlossaryTooltip termKey="findings">findings</GlossaryTooltip>.
+    </>
+  ) : buyerPolishedShell ? (
+    <>
+      Start with the <strong>sponsor view</strong>, then the <strong>sealed review record</strong>, <strong>audit trail</strong>, and prioritized{" "}
+      <GlossaryTooltip termKey="findings">findings</GlossaryTooltip>.
+    </>
+  ) : (
+    <>
+      <strong>Create a review</strong>, attach evidence, <strong>complete the guided assessment</strong>, then{" "}
+      <strong>open your review</strong> (summary, findings, downloads). The same wizard supports structured
+      capture or loose architecture scope notes.
+    </>
+  );
+
+  return (
+    <div
+      role="banner"
+      aria-label={trialActive ? "Trial welcome" : "Welcome"}
+      className={cn(
+        "isolate relative mb-4 overflow-hidden",
+        trialActive ? DESIGN_TOKENS.banner.trial : DESIGN_TOKENS.banner.page,
+      )}
+    >
+      <div
+        className="pointer-events-none absolute inset-0 z-0 overflow-hidden rounded-xl opacity-20 mix-blend-multiply dark:opacity-15 dark:mix-blend-screen"
+        style={dotMaskStyle}
+        aria-hidden
+      >
+        <svg className="absolute left-0 top-0 h-full w-full" width="100%" height="100%" aria-hidden>
+          <defs>
+            <pattern id={patternId} x="0" y="0" width="24" height="24" patternUnits="userSpaceOnUse">
+              <circle cx="2" cy="2" r="1" className="fill-neutral-400 dark:fill-neutral-600" />
+            </pattern>
+          </defs>
+          <rect width="100%" height="100%" fill={`url(#${patternId})`} />
+        </svg>
+      </div>
+
+      <div className="relative z-10 flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between lg:gap-6">
+        <div className="min-w-0 flex-1">
+          {trialActive && typeof days === "number" ? (
+            <span className={cn("mb-2", operatorSemanticBadge("warn"))}>
+              {days} day{days === 1 ? "" : "s"} left on trial
+            </span>
+          ) : null}
+          <h2 className={cn("mb-1", OPERATOR_TYPOGRAPHY.pageTitle)}>{headingText}</h2>
+          <p className={cn("mt-0 max-w-lg", OPERATOR_TYPOGRAPHY.body, "text-neutral-600 dark:text-neutral-400")}>
+            {subheadingText}
+          </p>
+
+          {buyerPolishedShell ? null : (
+            <div className="mt-4 flex flex-wrap items-center gap-2.5">
+              <OptInTourLauncher className={cn("h-10 px-4", OPERATOR_TYPOGRAPHY.button)} />
+              <Button
+                asChild
+                variant="outline"
+                className={cn("h-10 px-5 font-semibold", OPERATOR_TYPOGRAPHY.button)}
+              >
+                <Link href={CANONICAL_ANONYMOUS_PROOF_HREF}>See completed example</Link>
+              </Button>
+            </div>
+          )}
+        </div>
+
+        {!returningUser ? (
+          <div
+            className={cn(DESIGN_TOKENS.interactive.asidePanel, "w-full shrink-0 lg:max-w-[18rem]", OPERATOR_TYPOGRAPHY.body)}
+            aria-label={
+              returningUser ? "Resume architecture reviews — shortcuts" : "What one completed architecture review delivers"
+            }
+          >
+            <p className={cn("m-0 mb-2 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>What you&apos;ll get</p>
+            <ul className="m-0 mb-2.5 list-none space-y-2 p-0">
+              {(
+                [
+                  { id: "governed-manifest", label: "Sealed review record" as const, Icon: FileCheck2 },
+                  { id: "actionable-findings", label: "Actionable findings" as const, Icon: Target },
+                  {
+                    id: "artifact-bundle",
+                    label: <GlossaryTooltip termKey="artifact_bundle">Artifact bundle</GlossaryTooltip>,
+                    Icon: Package,
+                  },
+                  { id: "review-trail", label: "Review trail" as const, Icon: ClipboardCheck },
+                ] as const
+              ).map(({ id, label, Icon }) => (
+                <li key={id} className={cn("flex items-center gap-2 font-medium text-neutral-700 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
+                  <Icon className="h-4 w-4 shrink-0 text-teal-600 dark:text-teal-400" aria-hidden />
+                  {label}
+                </li>
+              ))}
+            </ul>
+            <p className={cn("m-0 leading-relaxed text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+              {buyerPolishedShell
+                ? "Sponsor view for sponsors; sealed review record summary for the finalized package; optional read-only walkthrough when you want a guided tour."
+                : "One request produces everything needed for review."}
+            </p>
+          </div>
+        ) : null}
+      </div>
+    </div>
+  );
+}

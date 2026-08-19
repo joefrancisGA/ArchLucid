@@ -6,19 +6,16 @@ import { useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 import { ItsmAtlassianOAuthCallbackLoadingView } from "@/app/(operator)/integrations/itsm/oauth/callback/ItsmAtlassianOAuthCallbackLoadingView";
-import { ItsmAtlassianOAuthCallbackBuyerChrome } from "@/app/(operator)/integrations/itsm/oauth/callback/ItsmAtlassianOAuthCallbackBuyerChrome";
-import { ItsmAtlassianOAuthCallbackHeaderActions } from "@/app/(operator)/integrations/itsm/oauth/callback/ItsmAtlassianOAuthCallbackHeaderActions";
 import { CopyIdButton } from "@/components/CopyIdButton";
 import { ItsmOAuthCallbackEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { StatusTag } from "@/components/ui/status-tag";
+import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { completeItsmAtlassianOAuthConsent } from "@/lib/api/itsm-outbound-api";
 import { isApiRequestError } from "@/lib/api-request-error";
 import { DESIGN_TOKENS, OPERATOR_CARD, OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
-import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { INTEGRATIONS_JIRA_PATH } from "@/lib/integrations-nav-paths";
 import {
   ITSM_ATLASSIAN_OAUTH_CALLBACK_INCOMPLETE_RESPONSE,
@@ -33,8 +30,6 @@ import {
   ITSM_ATLASSIAN_OAUTH_CALLBACK_FAILURE_TITLE,
   ITSM_ATLASSIAN_OAUTH_CALLBACK_LOADING_TITLE,
   ITSM_ATLASSIAN_OAUTH_CALLBACK_OPEN_JIRA_LABEL,
-  ITSM_ATLASSIAN_OAUTH_CALLBACK_PRIMARY_CONTENT_ID,
-  ITSM_ATLASSIAN_OAUTH_CALLBACK_SKIP_LINK_LABEL,
   ITSM_ATLASSIAN_OAUTH_CALLBACK_SUCCESS_MESSAGE,
   ITSM_ATLASSIAN_OAUTH_CALLBACK_SUCCESS_TITLE,
   ITSM_ATLASSIAN_OAUTH_CALLBACK_SUPPORT_DISCLOSURE_SUMMARY,
@@ -179,7 +174,6 @@ export function ItsmAtlassianOAuthCallbackClient(): React.ReactElement {
 
   const connectorStateLine = resolveConnectorStateLine(failureKind);
   const pageTitle = resolvePageTitle(phase);
-  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const supportMailtoHref =
     phase === "failure" && supportTimestampUtc !== null && supportReferenceId !== null
       ? buildItsmAtlassianOAuthCallbackSupportMailtoHref({
@@ -195,31 +189,17 @@ export function ItsmAtlassianOAuthCallbackClient(): React.ReactElement {
       className={cn("w-full max-w-[68rem] px-4 py-4 sm:px-6 lg:px-8", OPERATOR_LAYOUT.majorSectionGap)}
       data-testid="itsm-oauth-callback-page"
     >
-      <a
-        href={`#${ITSM_ATLASSIAN_OAUTH_CALLBACK_PRIMARY_CONTENT_ID}`}
-        className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
-      >
-        {ITSM_ATLASSIAN_OAUTH_CALLBACK_SKIP_LINK_LABEL}
-      </a>
+      <OperatorPageHeader
+        title={pageTitle}
+        titleTestId="itsm-oauth-callback-page-title"
+        navHref={INTEGRATIONS_JIRA_PATH}
+        headingLevel="h1"
+        actions={<PageContextualHelpButton />}
+      />
 
-      <div
-        id={ITSM_ATLASSIAN_OAUTH_CALLBACK_PRIMARY_CONTENT_ID}
-        data-testid="itsm-oauth-callback-primary-content"
-        className={cn("scroll-mt-24 space-y-4", OPERATOR_LAYOUT.sectionStack)}
-      >
-        <OperatorPageHeader
-          title={pageTitle}
-          titleTestId="itsm-oauth-callback-page-title"
-          navHref={INTEGRATIONS_JIRA_PATH}
-          headingLevel="h1"
-          actions={<ItsmAtlassianOAuthCallbackHeaderActions />}
-        />
+      <ItsmOAuthCallbackEvidenceOrientationStrip />
 
-        <ItsmAtlassianOAuthCallbackBuyerChrome />
-
-        {buyerPolishedShell ? null : <ItsmOAuthCallbackEvidenceOrientationStrip />}
-
-        <Card className="max-w-[40rem] border-neutral-200/80 bg-al-surface-raised dark:border-neutral-800">
+      <Card className="max-w-[40rem] border-neutral-200/80 bg-al-surface-raised dark:border-neutral-800">
         <CardContent className={cn(OPERATOR_CARD.body, "space-y-4")}>
           <div
             ref={outcomeRef}
@@ -324,7 +304,6 @@ export function ItsmAtlassianOAuthCallbackClient(): React.ReactElement {
           </div>
         </CardContent>
       </Card>
-      </div>
     </div>
   );
 }

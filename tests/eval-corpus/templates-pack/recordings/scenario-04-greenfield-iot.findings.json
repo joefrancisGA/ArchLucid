@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "scenarioId": "scenario-04-greenfield-iot",
+  "source": "bootstrap_eval_template_recordings.py",
+  "note": "Synthetic baseline until live API capture; replace via eval_template_harness --mode capture.",
+  "findings": [
+    {
+      "findingId": "must-event-hub-partitioning",
+      "category": "Topology",
+      "severity": "Medium",
+      "title": "partition",
+      "detail": "partition",
+      "message": "partition"
+    },
+    {
+      "findingId": "must-hot-path-latency-design",
+      "category": "Topology",
+      "severity": "Medium",
+      "title": "hot path latency",
+      "detail": "hot path latency",
+      "message": "hot path latency"
+    },
+    {
+      "findingId": "must-device-identity-x509-or-sas",
+      "category": "Compliance",
+      "severity": "Medium",
+      "title": "device identity",
+      "detail": "device identity",
+      "message": "device identity"
+    },
+    {
+      "findingId": "must-ingestion-cost-guardrails",
+      "category": "Cost",
+      "severity": "Medium",
+      "title": "throughput unit",
+      "detail": "throughput unit",
+      "message": "throughput unit"
+    }
+  ]
+}

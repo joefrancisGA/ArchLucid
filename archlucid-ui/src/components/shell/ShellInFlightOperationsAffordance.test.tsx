@@ -1,0 +1,157 @@
+import { render, screen, waitFor } from "@testing-library/react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+
+import { ShellInFlightOperationsAffordance } from "@/components/shell/ShellInFlightOperationsAffordance";
+import { cancelOperation } from "@/lib/api/operations-api";
+import { buildCancelAbandonInFlightClarity } from "@/lib/operations/cancel-abandon-in-flight-clarity";
+import {
+  getInFlightOperations,
+  resetInFlightOperationsForTests,
+  trackInFlightOperation,
+} from "@/lib/operations/in-flight-operations-store";
+import { showError } from "@/lib/toast";
+
+vi.mock("next/navigation", () => ({
+  usePathname: () => "/",
+  useRouter: () => ({ refresh: vi.fn(), push: vi.fn(), replace: vi.fn() }),
+}));
+
+vi.mock("@/lib/api/operations-api", () => ({
+  getOperation: vi.fn(async () => ({
+    operationId: "run:demo",
+    state: "Running",
+    stepLabel: "Agents running",
+    heartbeatUtc: new Date().toISOString(),
+    resultRef: { runId: "demo" },
+  })),
+  cancelOperation: vi.fn(async () => undefined),
+}));
+
+vi.mock("@/lib/toast", () => ({
+  showError: vi.fn(),
+}));
+
+describe("ShellInFlightOperationsAffordance", () => {
+  beforeEach(() => {
+    resetInFlightOperationsForTests();
+    vi.mocked(cancelOperation).mockReset();
+    vi.mocked(cancelOperation).mockResolvedValue(undefined);
+    vi.mocked(showError).mockReset();
+  });
+
+  afterEach(() => {
+    resetInFlightOperationsForTests();
+  });
+
+  it("renders nothing when idle", () => {
+    const { container } = render(<ShellInFlightOperationsAffordance />);
+    expect(container).toBeEmptyDOMElement();
+  });
+
+  it("shows trigger and aria-live rows for tracked operations", async () => {
+    trackInFlightOperation({
+      operationId: "run:demo",
+      title: "Architecture review analysis",
+      href: "/architecture/reviews/demo",
+      runId: "demo",
+      stepLabel: "Queued",
+      state: "Pending",
+    });
+
+    render(<ShellInFlightOperationsAffordance />);
+
+    expect(screen.getByTestId("shell-in-flight-operations-trigger")).toHaveTextContent(
+      "1 in progress",
+    );
+
+    screen.getByTestId("shell-in-flight-operations-trigger").click();
+
+    expect(await screen.findByTestId("shell-in-flight-operations-panel")).toBeInTheDocument();
+    const row = screen.getByTestId("shell-in-flight-operation-row");
+    expect(row).toHaveAttribute("data-operation-id", "run:demo");
+    expect(row.closest("ul")).toHaveAttribute("aria-live", "polite");
+    expect(screen.getByText("Architecture review analysis")).toBeInTheDocument();
+  });
+
+  it("mounts wait/leave/stop clarity and Cancel without canceling on Open", async () => {
+    const clarity = buildCancelAbandonInFlightClarity();
+
+    trackInFlightOperation({
+      operationId: "run:demo",
+      title: "Architecture review analysis",
+      href: "/architecture/reviews/demo",
+      runId: "demo",
+      stepLabel: "Queued",
+      state: "Pending",
+    });
+
+    render(<ShellInFlightOperationsAffordance />);
+    screen.getByTestId("shell-in-flight-operations-trigger").click();
+
+    expect(await screen.findByTestId("shell-in-flight-cancel-abandon-clarity")).toBeInTheDocument();
+    expect(screen.getByText(clarity.panelHeaderOneLiner)).toBeInTheDocument();
+    expect(screen.getByTestId("shell-in-flight-operation-cancel")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Open" })).toHaveAttribute(
+      "href",
+      "/architecture/reviews/demo",
+    );
+
+    screen.getByRole("link", { name: "Open" }).click();
+    expect(cancelOperation).not.toHaveBeenCalled();
+  });
+
+  it("calls cancelOperation and patches CancelRequested on success", async () => {
+    trackInFlightOperation({
+      operationId: "run:demo",
+      title: "Architecture review analysis",
+      href: "/architecture/reviews/demo",
+      runId: "demo",
+      stepLabel: "Queued",
+      state: "Pending",
+    });
+
+    render(<ShellInFlightOperationsAffordance />);
+    screen.getByTestId("shell-in-flight-operations-trigger").click();
+
+    const cancelButton = await screen.findByTestId("shell-in-flight-operation-cancel");
+    cancelButton.click();
+
+    await waitFor(() => {
+      expect(cancelOperation).toHaveBeenCalledWith("run:demo");
+    });
+
+    await waitFor(() => {
+      const row = getInFlightOperations().find((item) => item.operationId === "run:demo");
+      expect(row?.state).toBe("CancelRequested");
+      expect(row?.stepLabel).toBe("Cancel requested");
+    });
+
+    expect(showError).not.toHaveBeenCalled();
+  });
+
+  it("shows an error toast when cancel fails", async () => {
+    vi.mocked(cancelOperation).mockRejectedValueOnce(new Error("Conflict"));
+
+    trackInFlightOperation({
+      operationId: "run:demo",
+      title: "Architecture review analysis",
+      href: "/architecture/reviews/demo",
+      runId: "demo",
+      stepLabel: "Running",
+      state: "Running",
+    });
+
+    render(<ShellInFlightOperationsAffordance />);
+    screen.getByTestId("shell-in-flight-operations-trigger").click();
+
+    const cancelButton = await screen.findByTestId("shell-in-flight-operation-cancel");
+    cancelButton.click();
+
+    await waitFor(() => {
+      expect(showError).toHaveBeenCalledWith("Could not cancel this work", "Conflict");
+    });
+
+    const row = getInFlightOperations().find((item) => item.operationId === "run:demo");
+    expect(row?.state).toBe("Running");
+  });
+});

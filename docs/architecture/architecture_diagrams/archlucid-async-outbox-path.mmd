@@ -1,0 +1,24 @@
+sequenceDiagram
+  actor Client
+  participant API as ArchLucid.Api
+  participant SQL as SQL Server
+  participant Outbox as Authority pipeline outbox
+  participant Worker as ArchLucid.Worker
+  participant Pipe as AuthorityPipelineStagesExecutor
+
+  Client->>API: POST /v1/architecture/request<br/>(evidence bundle present)
+  Note over API: AsyncAuthorityPipeline default ON<br/>StorageProvider=Sql
+  API->>SQL: Begin TX — insert Run (+ header)
+  API->>Outbox: EnqueueAsync (same TX)
+  API->>SQL: Commit TX
+  API-->>Client: runId (ContextSnapshotId may be null)
+
+  Worker->>Outbox: Claim / drain work row
+  Worker->>Pipe: CompleteQueuedAuthorityPipelineAsync
+  Pipe->>SQL: Ingest → graph → findings → decisioning → artifacts
+  Pipe->>SQL: FinalizeCommittedPipelineAsync<br/>GoldenManifest + DecisionTrace
+  Pipe->>SQL: Retrieval / integration / Cosmos graph outboxes
+  Worker-->>SQL: Mark pipeline outbox complete
+
+  Client->>API: GET /v1/architecture/review/{runId}
+  API-->>Client: Package · timeline · artifacts when ready

@@ -1,0 +1,12 @@
+sequenceDiagram
+  participant Client
+  participant Runs as RunsController
+  participant Hash as ArchitectureRunIdempotencyHashing
+  participant Repo as IArchitectureRunIdempotencyRepository
+  participant DB as dbo.ArchitectureRunIdempotency
+  Client->>Runs: Idempotency-Key create or commit
+  Runs->>Hash: fingerprint request
+  Hash->>Repo: lookup or insert
+  Repo->>DB: durable key
+  DB-->>Runs: same run on replay
+  Runs-->>Client: X-Idempotency-Replayed when replayed

@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "notes": "GTM M-99 remote Lighthouse against ACCEPTANCE_BASE_URL. Public routes always; authenticatedRoutes require ACCEPTANCE_STORAGE_STATE (or FOUNDER_INCLUDE_AUTH_ROUTES with a logged-in origin). Lab mock CI stays in lighthouse-ci-routes.v1.json.",
+  "publicRoutes": [
+    "/welcome",
+    "/why",
+    "/trust",
+    "/signup",
+    "/showcase/customer-intake-modernization",
+    "/showcase/claims-intake-modernization",
+    "/accessibility",
+    "/privacy",
+    "/help"
+  ],
+  "authenticatedRoutes": [
+    "/",
+    "/architecture/reviews",
+    "/architecture/reviews/new",
+    "/governance/approval-queue",
+    "/graph",
+    "/settings/tenant"
+  ]
+}

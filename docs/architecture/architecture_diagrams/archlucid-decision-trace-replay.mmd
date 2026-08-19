@@ -1,0 +1,9 @@
+flowchart LR
+  FIND["Finding on review UI"] --> TRACE["DecisionTrace entry"]
+  TRACE --> RULE["Policy pack rule id"]
+  TRACE --> EVID["Evidence / snapshot hint"]
+  RULE --> PACK["Effective governance pack"]
+  EVID --> CTX["Context / graph snippet"]
+  PACK --> WHY["Why this fired"]
+  CTX --> WHY
+  WHY --> SPONSOR["Sponsor / auditor walkthrough"]

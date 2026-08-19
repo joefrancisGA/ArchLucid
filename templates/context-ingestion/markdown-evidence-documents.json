@@ -1,0 +1,32 @@
+{
+  "requestId": "template-context-ingest-markdown-docs-001",
+  "systemName": "ContextIngestDemoMarkdownDocs",
+  "description": "Pilot template showing how to ship **markdown** evidence inline on the architecture request. Useful when ADR excerpts, runbook fragments, or threat-model notes exist as text and should ride with the run for provenance.",
+  "environment": "prod",
+  "cloudProvider": "Azure",
+  "constraints": [],
+  "requiredCapabilities": [],
+  "assumptions": [
+    "Markdown bodies are non-secret; redact before upload if they reference production hostnames"
+  ],
+  "priorManifestVersion": null,
+  "inlineRequirements": [],
+  "documents": [
+    {
+      "name": "ADR-014-api-edge.md",
+      "contentType": "text/markdown",
+      "content": "# ADR 014 — API edge\n\n## Context\nPublic HTTP API on Azure Front Door + WAF.\n\n## Decision\nTerminate TLS at Front Door; origin is private App Service.\n\n## Status\nAccepted"
+    },
+    {
+      "name": "incident-notes-excerpt.md",
+      "contentType": "text/markdown",
+      "content": "## 2026-04 outage — dependency\nThird-party vendor timeout caused 429 storms. Add **bulkhead** around that client and **timeouts** aligned to SLO."
+    }
+  ],
+  "policyReferences": [],
+  "topologyHints": [
+    "Evidence documents are illustrative; trim or replace before production runs"
+  ],
+  "securityBaselineHints": [],
+  "infrastructureDeclarations": []
+}

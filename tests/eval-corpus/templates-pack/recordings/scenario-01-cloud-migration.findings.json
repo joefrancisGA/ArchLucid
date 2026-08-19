@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 1,
+  "scenarioId": "scenario-01-cloud-migration",
+  "source": "bootstrap_eval_template_recordings.py",
+  "note": "Synthetic baseline until live API capture; replace via eval_template_harness --mode capture.",
+  "findings": [
+    {
+      "findingId": "must-private-link-sql",
+      "category": "Topology",
+      "severity": "Medium",
+      "title": "private sql",
+      "detail": "private sql",
+      "message": "private sql"
+    },
+    {
+      "findingId": "must-hub-spoke-topology",
+      "category": "Topology",
+      "severity": "Medium",
+      "title": "hub spoke",
+      "detail": "hub spoke",
+      "message": "hub spoke"
+    },
+    {
+      "findingId": "must-rpo-backup-posture",
+      "category": "Compliance",
+      "severity": "Medium",
+      "title": "rpo minute",
+      "detail": "rpo minute",
+      "message": "rpo minute"
+    },
+    {
+      "findingId": "must-key-vault-secrets",
+      "category": "Compliance",
+      "severity": "Medium",
+      "title": "key vault",
+      "detail": "key vault",
+      "message": "key vault"
+    },
+    {
+      "findingId": "must-entra-conditional-access",
+      "category": "Compliance",
+      "severity": "Medium",
+      "title": "entra conditional access",
+      "detail": "entra conditional access",
+      "message": "entra conditional access"
+    }
+  ]
+}

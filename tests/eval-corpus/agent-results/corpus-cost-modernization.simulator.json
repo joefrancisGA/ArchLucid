@@ -1,0 +1,30 @@
+{
+  "resultId": "corp-cm-sim-01",
+  "taskId": "corp-cm-task-01",
+  "runId": "corp-cm-run-01",
+  "agentType": 2,
+  "claims": [
+    {
+      "evidenceRefs": ["finops-tagging-standard"],
+      "detail": "Simulator cost claim: migration waves sequenced by savings potential and dependency risk."
+    }
+  ],
+  "evidenceRefs": ["finops-tagging-standard"],
+  "confidence": 0.74,
+  "findings": [
+    {
+      "severity": "Medium",
+      "category": "Cost",
+      "description": "Rightsizing drops annual compute estimate by consolidating burstable VMs after measured utilization windows.",
+      "recommendation": "Pair rightsizing with automated shutdown schedules for non-production tiers."
+    },
+    {
+      "severity": "Low",
+      "category": "Cost",
+      "description": "Reserved instances cover baseline SQL DTU once 30-day peak variance stays within a narrow band.",
+      "recommendation": "Revisit reservation coverage quarterly when workload shifts to serverless tiers."
+    }
+  ],
+  "proposedChanges": null,
+  "createdUtc": "2026-05-01T12:00:00Z"
+}

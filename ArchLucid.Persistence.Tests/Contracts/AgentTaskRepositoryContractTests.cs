@@ -1,0 +1,86 @@
+using ArchLucid.Contracts.Agents;
+using ArchLucid.Core.AgentEvaluation;
+using ArchLucid.Contracts.Common;
+using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Tests.Support;
+
+using ArchLucid.Core.Scoping;
+
+namespace ArchLucid.Persistence.Tests.Contracts;
+[Trait("Category", "Unit")]
+
+/// <summary>
+///     Shared contract assertions for <see cref="IAgentTaskRepository" />.
+/// </summary>
+public abstract class AgentTaskRepositoryContractTests
+{
+    protected virtual void SkipIfSqlServerUnavailable()
+    {
+    }
+
+    protected abstract IAgentTaskRepository CreateRepository();
+
+    protected virtual Task PrepareRequestAndRunAsync(string requestId, string runId, CancellationToken ct)
+    {
+        _ = requestId;
+        _ = runId;
+        _ = ct;
+
+        return Task.CompletedTask;
+    }
+
+    [SkippableFact]
+    public async Task CreateMany_then_GetByRunId_orders_by_CreatedUtc()
+    {
+        SkipIfSqlServerUnavailable();
+        IAgentTaskRepository repo = CreateRepository();
+        string requestId = "atr-req-" + Guid.NewGuid().ToString("N");
+        string runId = Guid.NewGuid().ToString("N");
+
+        await PrepareRequestAndRunAsync(requestId, runId, CancellationToken.None);
+
+        DateTime older = TimeProvider.System.UtcNowDateTime().AddMinutes(-5);
+        DateTime newer = TimeProvider.System.UtcNowDateTime().AddMinutes(-1);
+
+        List<AgentTask> tasks =
+        [
+            NewTask(runId, "t2", AgentType.Compliance, newer),
+            NewTask(runId, "t1", AgentType.Topology, older)
+        ];
+
+        await repo.CreateManyAsync(tasks, CancellationToken.None);
+
+        IReadOnlyList<AgentTask> loaded = await repo.GetByRunIdAsync(ArchitectureCommitTestSeed.AsScopeContext(), runId, CancellationToken.None);
+
+        loaded.Should().HaveCount(2);
+        loaded[0].TaskId.Should().Be("t1");
+        loaded[1].TaskId.Should().Be("t2");
+        loaded.Should().OnlyContain(t => t.RunId == runId);
+    }
+
+    [SkippableFact]
+    public async Task GetByRunId_when_none_returns_empty()
+    {
+        SkipIfSqlServerUnavailable();
+        IAgentTaskRepository repo = CreateRepository();
+
+        IReadOnlyList<AgentTask> loaded =
+            await repo.GetByRunIdAsync(ArchitectureCommitTestSeed.AsScopeContext(), Guid.NewGuid().ToString("N"), CancellationToken.None);
+
+        loaded.Should().BeEmpty();
+    }
+
+    private static AgentTask NewTask(string runId, string taskId, AgentType type, DateTime createdUtc)
+    {
+        return new AgentTask
+        {
+            TaskId = taskId,
+            RunId = runId,
+            AgentType = type,
+            Objective = "obj",
+            Status = AgentTaskStatus.Created,
+            CreatedUtc = createdUtc,
+            EvidenceBundleRef = "eb-contract"
+        };
+    }
+}

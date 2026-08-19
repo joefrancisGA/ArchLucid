@@ -1,0 +1,117 @@
+import { resolveDemoWorkspaceScopeHeadersFromProxyPath } from "@/lib/demo-workspace-scope";
+import {
+  DEV_SCOPE_PROJECT_ID,
+  DEV_SCOPE_TENANT_ID,
+  DEV_SCOPE_WORKSPACE_ID,
+  getScopeHeaders,
+} from "@/lib/scope";
+import { readProxyScopeFromAuthorizationHeader } from "@/lib/proxy-bearer-scope";
+
+const SCOPE_HEADER_KEYS = ["x-tenant-id", "x-workspace-id", "x-project-id"] as const;
+
+function readEnvScopeId(name: string): string | null {
+  const raw = process.env[name]?.trim() ?? "";
+
+  if (raw.length === 0) {
+    return null;
+  }
+
+  return raw;
+}
+
+/**
+ * Production-like proxy posture: browser/localStorage scope headers must not override trusted server scope.
+ * Opt-in dev escape hatch: `ARCHLUCID_PROXY_ALLOW_CLIENT_SCOPE_HEADERS=true`.
+ */
+export function isProxyClientScopeForwardingAllowed(): boolean {
+  const explicitAllow = (process.env.ARCHLUCID_PROXY_ALLOW_CLIENT_SCOPE_HEADERS ?? "").trim().toLowerCase();
+
+  if (explicitAllow === "true" || explicitAllow === "1") {
+    return true;
+  }
+
+  const trustServerOnly = (process.env.ARCHLUCID_PROXY_TRUST_SERVER_SCOPE_ONLY ?? "").trim().toLowerCase();
+
+  if (trustServerOnly === "true" || trustServerOnly === "1") {
+    return false;
+  }
+
+  return process.env.NODE_ENV !== "production";
+}
+
+function readTrustedServerScopeHeaders(): Record<string, string> | null {
+  const tenantId = readEnvScopeId("ARCHLUCID_PROXY_TENANT_ID");
+  const workspaceId = readEnvScopeId("ARCHLUCID_PROXY_WORKSPACE_ID");
+  const projectId = readEnvScopeId("ARCHLUCID_PROXY_PROJECT_ID");
+
+  if (!isProxyClientScopeForwardingAllowed()) {
+    if (tenantId === null || workspaceId === null || projectId === null) {
+      return null;
+    }
+
+    return {
+      "x-tenant-id": tenantId,
+      "x-workspace-id": workspaceId,
+      "x-project-id": projectId,
+    };
+  }
+
+  return {
+    "x-tenant-id": tenantId ?? DEV_SCOPE_TENANT_ID,
+    "x-workspace-id": workspaceId ?? DEV_SCOPE_WORKSPACE_ID,
+    "x-project-id": projectId ?? DEV_SCOPE_PROJECT_ID,
+  };
+}
+
+/**
+ * Resolves upstream scope headers for `/api/proxy` — ignores client scope in production-like posture.
+ * When `proxyPath` references a pinned demo-workspace run, scope headers match RSC run-detail loads.
+ */
+export function resolveProxyUpstreamScopeHeaders(
+  incomingHeaders: Headers,
+  allowClientScope: boolean = isProxyClientScopeForwardingAllowed(),
+  proxyPath?: string,
+): Record<string, string> {
+  const demoScopeFromPath =
+    proxyPath !== undefined && proxyPath.length > 0
+      ? resolveDemoWorkspaceScopeHeadersFromProxyPath(proxyPath)
+      : null;
+
+  if (!allowClientScope) {
+    const fromBearer = readProxyScopeFromAuthorizationHeader(incomingHeaders.get("authorization"));
+
+    if (fromBearer !== null) {
+      if (demoScopeFromPath !== null) {
+        return { ...fromBearer, ...demoScopeFromPath };
+      }
+
+      return { ...fromBearer };
+    }
+  }
+
+  const trusted = allowClientScope ? getScopeHeaders() : readTrustedServerScopeHeaders();
+  const resolved: Record<string, string> = {};
+
+  for (const key of SCOPE_HEADER_KEYS) {
+    const incoming = incomingHeaders.get(key);
+
+    if (allowClientScope && incoming !== null && incoming.trim().length > 0) {
+      resolved[key] = incoming.trim();
+      continue;
+    }
+
+    const fallback = trusted?.[key] ?? (allowClientScope ? getScopeHeaders()[key] : undefined);
+
+    if (fallback === undefined) {
+      continue;
+    }
+
+    resolved[key] = fallback;
+  }
+
+  if (demoScopeFromPath !== null) {
+    return { ...resolved, ...demoScopeFromPath };
+  }
+
+  return resolved;
+}

@@ -1,0 +1,723 @@
+{
+  "schemaVersion": 1,
+  "kind": "archlucid.policyPack.curatedRules.v1",
+  "pack": {
+    "name": "AKS Production Baseline",
+    "description": "Kubernetes on Azure production hardening themes (private API, network policy, identity).",
+    "version": "1.1.0",
+    "category": "Platform",
+    "isDefault": true,
+    "suggestedPackType": "PlatformDefault",
+    "policyPackContentDocumentPath": "docs/samples/policy-packs/aks-production-baseline.json"
+  },
+  "rules": [
+    {
+      "id": "aks-001",
+      "title": "Private AKS API server endpoint",
+      "description": "Production clusters must document private API server access \u2014 not public internet exposure for control plane.",
+      "severity": "Critical",
+      "priority": "P0",
+      "remediationGuidance": "Record private cluster setting in governance.RequiredControls; verify apiServerAccessProfile in azureExtractor AKS inventory.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "azureExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "AKS baseline",
+          "theme": "AKS baseline \u2014 Private API server"
+        }
+      ]
+    },
+    {
+      "id": "aks-002",
+      "title": "Authorized IP ranges if API not fully private",
+      "description": "When API server remains partially public, approved IP ranges must be documented with break-glass exception process.",
+      "severity": "High",
+      "priority": "P0",
+      "remediationGuidance": "Document authorized IP ranges in governance.PolicyConstraints and metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "azureExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "AKS baseline",
+          "theme": "AKS baseline \u2014 API authorized IPs"
+        }
+      ]
+    },
+    {
+      "id": "aks-003",
+      "title": "Azure CNI with network policy enabled",
+      "description": "Pod-to-pod traffic must document Calico or Azure network policy for east-west segmentation.",
+      "severity": "Critical",
+      "priority": "P0",
+      "remediationGuidance": "Tag networkPolicy on services[].Tags; cite networkPolicy plugin from azureExtractor AKS properties.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "azureExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "AKS baseline",
+          "theme": "AKS baseline \u2014 Network policy"
+        }
+      ]
+    },
+    {
+      "id": "aks-004",
+      "title": "Workload identity or managed identity for pods",
+      "description": "Applications must use workload identity federation \u2014 not service principal secrets in Kubernetes secrets.",
+      "severity": "Critical",
+      "priority": "P0",
+      "remediationGuidance": "Document workload identity in governance.RequiredControls and services[].Tags for AKS workloads.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "azureExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "AKS baseline",
+          "theme": "AKS baseline \u2014 Workload identity"
+        }
+      ]
+    },
+    {
+      "id": "aks-005",
+      "title": "RBAC enabled with Azure AD integration",
+      "description": "Kubernetes RBAC must integrate with Entra ID groups \u2014 not local cluster-admin accounts for routine ops.",
+      "severity": "Critical",
+      "priority": "P0",
+      "remediationGuidance": "Capture AAD-integrated RBAC in governance.PolicyConstraints and governance.ComplianceTags.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "azureExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "AKS baseline",
+          "theme": "AKS baseline \u2014 AAD-integrated RBAC"
+        }
+      ]
+    },
+    {
+      "id": "aks-006",
+      "title": "Least-privilege namespace isolation",
+      "description": "Namespaces must document resource quotas, network policies, and RBAC boundaries per team or workload.",
+      "severity": "High",
+      "priority": "P1",
+      "remediationGuidance": "Describe namespace isolation in metadata.ChangeDescription and services[].Tags.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "AKS baseline",
+          "theme": "AKS baseline \u2014 Namespace isolation"
+        }
+      ]
+    },
+    {
+      "id": "aks-007",
+      "title": "Container image from trusted registry",
+      "description": "Images must pull from approved ACR or registry with vulnerability scanning \u2014 not unvetted public images in prod.",
+      "severity": "High",
+      "priority": "P1",
+      "remediationGuidance": "Tag image source on services[].Tags; document ACR linkage in governance.RequiredControls.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "azureExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "AKS baseline",
+          "theme": "AKS baseline \u2014 Trusted registry"
+        }
+      ]
+    },
+    {
+      "id": "aks-008",
+      "title": "Image vulnerability scanning gate",
+      "description": "CI/CD must block deployment of images with critical CVEs unless documented exception with expiry.",
+      "severity": "High",
+      "priority": "P1",
+      "remediationGuidance": "Describe image scan gates in governance.RequiredControls and metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "AKS baseline",
+          "theme": "AKS baseline \u2014 Image scanning"
+        }
+      ]
+    },
+    {
+      "id": "aks-009",
+      "title": "Pod security standards enforced",
+      "description": "Clusters must document Pod Security Admission or policy (OPA/Gatekeeper) restricting privileged containers.",
+      "severity": "Critical",
+      "priority": "P1",
+      "remediationGuidance": "Record pod security level in governance.PolicyConstraints and governance.ComplianceTags.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "AKS baseline",
+          "theme": "AKS baseline \u2014 Pod security standards"
+        }
+      ]
+    },
+    {
+      "id": "aks-010",
+      "title": "Secrets via Key Vault CSI driver",
+      "description": "Application secrets should use Key Vault provider \u2014 not plain Kubernetes secrets for long-lived credentials.",
+      "severity": "High",
+      "priority": "P1",
+      "remediationGuidance": "Document secret injection pattern in governance.RequiredControls and services[].Tags.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "azureExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "AKS baseline",
+          "theme": "AKS baseline \u2014 Key Vault CSI"
+        }
+      ]
+    },
+    {
+      "id": "aks-011",
+      "title": "etcd encryption at rest",
+      "description": "AKS control plane etcd encryption must be documented (platform-managed or CMK where supported).",
+      "severity": "High",
+      "priority": "P1",
+      "remediationGuidance": "Note etcd encryption in governance.PolicyConstraints; align with azureExtractor cluster security profile.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "azureExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "AKS baseline",
+          "theme": "AKS baseline \u2014 etcd encryption"
+        }
+      ]
+    },
+    {
+      "id": "aks-012",
+      "title": "Node pool autoscaling documented",
+      "description": "Cluster capacity must document cluster autoscaler limits, node SKU, and zone spread.",
+      "severity": "Medium",
+      "priority": "P1",
+      "remediationGuidance": "Capture autoscale bounds in governance.PolicyConstraints and services[].Tags.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "azureExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "AKS baseline",
+          "theme": "AKS baseline \u2014 Cluster autoscaling"
+        }
+      ]
+    },
+    {
+      "id": "aks-013",
+      "title": "Availability zone spread for node pools",
+      "description": "Production node pools should span multiple AZs for worker failure tolerance.",
+      "severity": "High",
+      "priority": "P1",
+      "remediationGuidance": "Tag zonal node pools in services[].Tags; verify availabilityZones in azureExtractor agent pool profile.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "azureExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "AKS baseline",
+          "theme": "AKS baseline \u2014 Zonal node pools"
+        }
+      ]
+    },
+    {
+      "id": "aks-014",
+      "title": "Ingress with WAF protection",
+      "description": "Public ingress controllers must sit behind WAF (App Gateway, Front Door) with TLS termination documented.",
+      "severity": "Critical",
+      "priority": "P1",
+      "remediationGuidance": "Document ingress/WAF chain in metadata.ChangeDescription and governance.RequiredControls.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "azureExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "AKS baseline",
+          "theme": "AKS baseline \u2014 WAF ingress"
+        }
+      ]
+    },
+    {
+      "id": "aks-015",
+      "title": "Internal load balancers for east-west only",
+      "description": "Services not requiring public access must use internal load balancers or mesh ingress \u2014 not public LB by default.",
+      "severity": "High",
+      "priority": "P1",
+      "remediationGuidance": "Tag internal-only services in services[].Tags and governance.PolicyConstraints.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "azureExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "AKS baseline",
+          "theme": "AKS baseline \u2014 Internal load balancing"
+        }
+      ]
+    },
+    {
+      "id": "aks-016",
+      "title": "Diagnostic logs to Log Analytics",
+      "description": "AKS control plane and container insights must route logs to centralized analytics with retention stated.",
+      "severity": "High",
+      "priority": "P1",
+      "remediationGuidance": "List log destinations in governance.RequiredControls; align with azureExtractor diagnostic settings.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "azureExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "AKS baseline",
+          "theme": "AKS baseline \u2014 Control plane logging"
+        }
+      ]
+    },
+    {
+      "id": "aks-017",
+      "title": "Azure Monitor container insights enabled",
+      "description": "Metrics and logs for pods/nodes must document Container Insights or equivalent Prometheus/Grafana stack.",
+      "severity": "High",
+      "priority": "P2",
+      "remediationGuidance": "Tag observability stack in services[].Tags and governance.RequiredControls.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "azureExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "AKS baseline",
+          "theme": "AKS baseline \u2014 Container monitoring"
+        }
+      ]
+    },
+    {
+      "id": "aks-018",
+      "title": "Defender for Containers enabled",
+      "description": "Runtime threat detection for Kubernetes should be documented (Defender, Falco, or approved equivalent).",
+      "severity": "High",
+      "priority": "P2",
+      "remediationGuidance": "Record runtime protection in governance.ComplianceTags and governance.RequiredControls.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "azureExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "AKS baseline",
+          "theme": "AKS baseline \u2014 Runtime threat detection"
+        }
+      ]
+    },
+    {
+      "id": "aks-019",
+      "title": "Upgrade channel and patch cadence",
+      "description": "Kubernetes version upgrades must document channel (stable, rapid), maintenance windows, and rollback plan.",
+      "severity": "Medium",
+      "priority": "P2",
+      "remediationGuidance": "Describe upgrade policy in metadata.ChangeDescription and governance.PolicyConstraints.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "azureExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "AKS baseline",
+          "theme": "AKS baseline \u2014 Upgrade management"
+        }
+      ]
+    },
+    {
+      "id": "aks-020",
+      "title": "Resource limits and requests on workloads",
+      "description": "All production deployments must document CPU/memory requests and limits preventing noisy-neighbor exhaustion.",
+      "severity": "Medium",
+      "priority": "P2",
+      "remediationGuidance": "Note resource governance in governance.RequiredControls and services[].Tags.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "AKS baseline",
+          "theme": "AKS baseline \u2014 Resource quotas"
+        }
+      ]
+    },
+    {
+      "id": "aks-021",
+      "title": "Disallow hostPath and privileged mounts",
+      "description": "Workloads must not require hostPath or privileged mode unless documented exception with risk acceptance.",
+      "severity": "High",
+      "priority": "P2",
+      "remediationGuidance": "Document exceptions in governance.PolicyConstraints and metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "AKS baseline",
+          "theme": "AKS baseline \u2014 Restricted pod capabilities"
+        }
+      ]
+    },
+    {
+      "id": "aks-022",
+      "title": "Service mesh mTLS (optional but documented)",
+      "description": "When service mesh is used, mTLS mode and identity federation must be documented for east-west traffic.",
+      "severity": "Medium",
+      "priority": "P2",
+      "remediationGuidance": "Describe mesh mTLS in metadata.ChangeDescription and services[].Tags if Istio/Linkerd present.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "AKS baseline",
+          "theme": "AKS baseline \u2014 Service mesh mTLS"
+        }
+      ]
+    },
+    {
+      "id": "aks-023",
+      "title": "Backup for stateful workloads",
+      "description": "StatefulSets and PVCs must document Velero or Azure Backup snapshot strategy with restore testing.",
+      "severity": "High",
+      "priority": "P2",
+      "remediationGuidance": "Tag stateful backup approach on datastores[].Tags and governance.RequiredControls.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "azureExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "AKS baseline",
+          "theme": "AKS baseline \u2014 Stateful backup"
+        }
+      ]
+    },
+    {
+      "id": "aks-024",
+      "title": "Outbound traffic control (UDR or firewall)",
+      "description": "Egress from cluster should document Azure Firewall, NAT gateway, or UDR filtering \u2014 not unrestricted outbound.",
+      "severity": "High",
+      "priority": "P2",
+      "remediationGuidance": "Map egress controls in metadata.ChangeDescription; align with azureExtractor route tables.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "azureExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "AKS baseline",
+          "theme": "AKS baseline \u2014 Controlled egress"
+        }
+      ]
+    },
+    {
+      "id": "aks-025",
+      "title": "GitOps or approved deployment pipeline",
+      "description": "Cluster changes must flow through GitOps (Flux/Argo) or approved pipeline \u2014 not kubectl apply from laptops.",
+      "severity": "High",
+      "priority": "P2",
+      "remediationGuidance": "Document GitOps/deployment pipeline in governance.RequiredControls and services[].Tags.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "AKS baseline",
+          "theme": "AKS baseline \u2014 GitOps deployment"
+        }
+      ]
+    },
+    {
+      "id": "aks-026",
+      "title": "Disaster recovery cluster documented",
+      "description": "Multi-region or backup cluster strategy must be stated for tier-1 workloads on AKS.",
+      "severity": "High",
+      "priority": "P2",
+      "remediationGuidance": "Describe AKS DR topology in governance.PolicyConstraints and metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "azureExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "AKS baseline",
+          "theme": "AKS baseline \u2014 Cluster DR"
+        }
+      ]
+    },
+    {
+      "id": "aks-027",
+      "title": "Cost and quota guardrails",
+      "description": "Cluster must document max node count, spot vs on-demand mix, and subscription quota headroom.",
+      "severity": "Low",
+      "priority": "P2",
+      "remediationGuidance": "Note capacity guardrails in governance.ComplianceTags and governance.PolicyConstraints.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "azureExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "AKS baseline",
+          "theme": "AKS baseline \u2014 Capacity guardrails"
+        }
+      ]
+    },
+    {
+      "id": "aks-028",
+      "title": "Break-glass cluster admin access",
+      "description": "Emergency cluster admin access must be time-bound, logged, and reviewed \u2014 not standing clusterAdmin for all ops.",
+      "severity": "High",
+      "priority": "P2",
+      "remediationGuidance": "Record break-glass process in governance.RequiredControls and metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "AKS baseline",
+          "theme": "AKS baseline \u2014 Break-glass admin"
+        }
+      ]
+    }
+  ]
+}

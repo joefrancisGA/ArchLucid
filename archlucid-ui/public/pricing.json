@@ -1,0 +1,65 @@
+{
+  "schemaVersion": 1,
+  "effectiveDate": "2026-07-29",
+  "currency": "USD",
+  "architectStripeCheckoutUrl": "https://checkout.stripe.com/placeholder-replace-before-launch",
+  "architectStripeCheckoutUrlSalesLedPlaceholder": true,
+  "teamStripeCheckoutUrl": "https://checkout.stripe.com/placeholder-replace-before-launch",
+  "teamStripeCheckoutUrlSalesLedPlaceholder": true,
+  "packages": [
+    {
+      "id": "architect",
+      "title": "Architect",
+      "summary": "For one architect creating and reviewing architecture packages.",
+      "planMonthlyUsd": 99,
+      "pricingDisplay": "monthly",
+      "includedUsers": 1,
+      "includedWorkspaces": 1,
+      "monthlyAiCredits": 500,
+      "includedReviewsPerMonth": 5,
+      "overageReviewUsd": 12
+    },
+    {
+      "id": "team",
+      "title": "Team",
+      "summary": "Small architecture team with basic governance",
+      "planMonthlyUsd": 499,
+      "pricingDisplay": "monthly",
+      "includedUsers": 5,
+      "includedWorkspaces": 1,
+      "monthlyAiCredits": 2500,
+      "workspaceMonthlyUsd": 199,
+      "includedArchitectSeats": 5,
+      "maxArchitectSeats": 10,
+      "seatMonthlyUsd": 79,
+      "includedReviewsPerMonth": 20,
+      "overageReviewUsd": 10
+    },
+    {
+      "id": "professional",
+      "title": "Professional",
+      "summary": "Governed architecture review practice with policy packs and audit exports",
+      "planMonthlyUsd": 1799,
+      "pricingDisplay": "monthly",
+      "includedUsers": 20,
+      "includedWorkspaces": 5,
+      "monthlyAiCredits": 10000,
+      "workspaceMonthlyUsd": 899,
+      "maxWorkspaces": 5,
+      "includedArchitectSeats": 20,
+      "seatMonthlyUsd": 179,
+      "includedReviewsPerMonth": 100,
+      "overageReviewUsd": 8
+    },
+    {
+      "id": "enterprise",
+      "title": "Enterprise",
+      "summary": "Large organization \u2014 SSO, procurement, and private deployment",
+      "pricingDisplay": "custom",
+      "includedUsers": 0,
+      "includedWorkspaces": 0,
+      "monthlyAiCredits": 0,
+      "annualCeilingUsd": 250000
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+flowchart TB
+  VNet["azurerm_virtual_network.main"] --> PESub["private endpoint subnet"]
+  PESub --> SqlPE["azurerm_private_endpoint.sql"]
+  PESub --> BlobPE["azurerm_private_endpoint.blob"]
+  SqlPE --> DnsSql["privatelink.database.windows.net"]
+  BlobPE --> DnsBlob["privatelink.blob.core.windows.net"]
+  Gate["enable_private_data_plane"] --> VNet
+  Compute["ACA VNet integrate"] --> DnsSql
+  Compute --> DnsBlob

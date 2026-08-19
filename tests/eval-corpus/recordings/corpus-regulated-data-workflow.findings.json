@@ -1,0 +1,32 @@
+{
+  "findings": [
+    {
+      "findingId": "corp-rd-1",
+      "category": "Compliance",
+      "severity": "High",
+      "title": "Data residency",
+      "detail": "PHI-like cohort processing stays in a single Azure region with geo-redundant storage disabled for primary patient indexes."
+    },
+    {
+      "findingId": "corp-rd-2",
+      "category": "Topology",
+      "severity": "Medium",
+      "title": "Private connectivity",
+      "detail": "Ingestion APIs reach workflow workers only through private endpoints; no public ingress on data-plane NICs."
+    },
+    {
+      "findingId": "corp-rd-3",
+      "category": "Compliance",
+      "severity": "Medium",
+      "title": "Audit trail",
+      "detail": "Azure Monitor diagnostic settings stream security logging to a locked-down Log Analytics workspace with retention aligned to policy."
+    },
+    {
+      "findingId": "corp-rd-4",
+      "category": "Critic",
+      "severity": "Low",
+      "title": "Third-party SAAS",
+      "detail": "One vendor integration still uses username-password vault entries; roadmap cites OAuth but not timeline."
+    }
+  ]
+}

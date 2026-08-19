@@ -1,0 +1,3 @@
+ALTER TABLE ComparisonRecords
+ADD Label NVARCHAR(256) NULL,
+    Tags NVARCHAR(MAX) NULL;

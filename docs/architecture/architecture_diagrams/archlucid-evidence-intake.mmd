@@ -1,0 +1,23 @@
+flowchart LR
+  subgraph sources["Evidence sources"]
+    BRIEF["Guided brief"]
+    FILES["PDF DOCX MD JSON YAML images"]
+    ZIP["Cloud inventory ZIP"]
+    CLOUD["Cloud connections extract"]
+  end
+
+  subgraph intake["Intake wizard / API"]
+    VAL["Validate type and layout"]
+    BUNDLE["Evidence bundle id"]
+  end
+
+  subgraph pipe["Authority context ingestion"]
+    CTX["ContextSnapshot"]
+    RUN["dbo.Runs.ContextSnapshotId"]
+  end
+
+  BRIEF --> VAL
+  FILES --> VAL
+  ZIP --> VAL
+  CLOUD --> VAL
+  VAL --> BUNDLE --> CTX --> RUN

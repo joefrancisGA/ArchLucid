@@ -1,0 +1,32 @@
+{
+  "findings": [
+    {
+      "findingId": "adv-over-1",
+      "category": "Critic",
+      "severity": "Medium",
+      "title": "Planner token budget exceeded",
+      "detail": "The monolithic paste exceeds configured planner token budgets; reviewers received an explicit boundary message listing truncated offsets instead of silent condensation."
+    },
+    {
+      "findingId": "adv-over-2",
+      "category": "Topology",
+      "severity": "Medium",
+      "title": "Partial subgraph ingest",
+      "detail": "Only the first and last template shards hydrated into topology services—middle ARM sections were omitted under deterministic truncation so blast radius stays knowingly incomplete."
+    },
+    {
+      "findingId": "adv-over-3",
+      "category": "Cost",
+      "severity": "Low",
+      "title": "Partial cost projection",
+      "detail": "Cost agents flagged partial SKU coverage and paused monthly projections until chunk replay completes—avoid trusting headline savings numbers."
+    },
+    {
+      "findingId": "adv-over-4",
+      "category": "Compliance",
+      "severity": "Low",
+      "title": "Evidence completeness caveat",
+      "detail": "Compliance attestations should cite which artifact spans were skipped during truncation to avoid implying full-map review occurred."
+    }
+  ]
+}

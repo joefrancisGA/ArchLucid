@@ -1,0 +1,44 @@
+{
+  "schema": "archlucid.blind-insight-validation-scoring.v1",
+  "sessionId": "",
+  "fixtureId": "",
+  "packetLabel": "",
+  "ratingScale": {
+    "novelty": "1 = obvious to any architect · 5 = non-obvious and valuable",
+    "correctnessConfidence": "1 = likely wrong vs packet · 5 = high confidence correct",
+    "actionability": "1 = vague · 5 = clear sponsor/team next step",
+    "surpriseFactor": "1 = expected in first pass · 5 = would not have written unprompted",
+    "decisionImpact": "1 = informational only · 5 = would change approval or priority"
+  },
+  "classificationCodes": {
+    "O": "Obvious",
+    "U": "Useful",
+    "N": "Non-obvious",
+    "X": "Wrong / unsupported",
+    "S": "Skipped"
+  },
+  "ratings": [
+    {
+      "armCode": "A",
+      "findingCode": "A-F01",
+      "severity": "",
+      "category": "",
+      "body": "",
+      "novelty": null,
+      "correctnessConfidence": null,
+      "actionability": null,
+      "surpriseFactor": null,
+      "decisionImpact": null,
+      "classification": null,
+      "reviewerNotes": ""
+    }
+  ],
+  "sessionMetadata": {
+    "participantRole": "principal / staff architect / CTO",
+    "facilitator": "",
+    "frontierAiBaselineModel": "",
+    "archLucidExecutionMode": "simulator | real-mode",
+    "reuseIntent": null,
+    "reuseBlocker": ""
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "complianceRuleIds": [],
+  "complianceRuleKeys": [
+    "waf-gcp-001",
+    "waf-gcp-002",
+    "waf-gcp-003",
+    "waf-gcp-004",
+    "waf-gcp-005",
+    "waf-gcp-006",
+    "waf-gcp-007",
+    "waf-gcp-008",
+    "waf-gcp-009",
+    "waf-gcp-010",
+    "waf-gcp-011",
+    "waf-gcp-012",
+    "waf-gcp-013",
+    "waf-gcp-014",
+    "waf-gcp-015",
+    "waf-gcp-016",
+    "waf-gcp-017"
+  ],
+  "alertRuleIds": [],
+  "compositeAlertRuleIds": [],
+  "advisoryDefaults": {
+    "severityFloor": "warning",
+    "priorityFloor": "P0",
+    "scanDepth": "standard"
+  },
+  "metadata": {
+    "templateId": "gcp-architecture-framework-v1",
+    "pack.displayName": "Google Cloud Architecture Framework",
+    "pack.category": "Architecture",
+    "pack.version": "1.0.0",
+    "pack.isDefault": "true",
+    "pack.description": "Architecture framework themes grounded in GCP inventory ZIP and Terraform google_* evidence.",
+    "frameworkMappingDisclaimer": "GCP framework references are thematic mapping only.",
+    "curatedRulesArtifact": "docs/samples/policy-packs/gcp-architecture-framework-rules-v1.json"
+  }
+}

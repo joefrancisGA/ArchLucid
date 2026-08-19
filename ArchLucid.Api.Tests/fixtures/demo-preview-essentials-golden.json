@@ -1,0 +1,54 @@
+{
+  "generatedUtc": "2026-04-01T12:00:00Z",
+  "isDemoData": true,
+  "demoStatusMessage": "demo tenant — replace before publishing",
+  "run": {
+    "runId": "61c60d76-2b80-93f9-46bb-2f66fd608b9b",
+    "projectId": "default",
+    "description": "golden demo preview fixture",
+    "createdUtc": "2026-03-15T08:00:00Z"
+  },
+  "manifest": {
+    "manifestId": "11111111-1111-1111-1111-111111111111",
+    "runId": "61c60d76-2b80-93f9-46bb-2f66fd608b9b",
+    "createdUtc": "2026-03-15T08:00:00Z",
+    "manifestHash": "mh",
+    "ruleSetId": "r",
+    "ruleSetVersion": "v",
+    "decisionCount": 1,
+    "warningCount": 0,
+    "unresolvedIssueCount": 0,
+    "status": "ok",
+    "hasWarnings": false,
+    "hasUnresolvedIssues": false,
+    "operatorSummary": "1 decisions, 0 warnings, 0 unresolved issues, status ok"
+  },
+  "authorityChain": {
+    "contextSnapshotId": null,
+    "graphSnapshotId": null,
+    "findingsSnapshotId": null,
+    "goldenManifestId": "11111111-1111-1111-1111-111111111111",
+    "decisionTraceId": null,
+    "artifactBundleId": null
+  },
+  "artifacts": [
+    {
+      "name": "review-package.zip",
+      "contentType": "application/zip"
+    }
+  ],
+  "pipelineTimeline": [
+    {
+      "phase": "commit",
+      "status": "completed"
+    }
+  ],
+  "runExplanation": {
+    "explanation": {
+      "summary": "Evidence-backed architecture review summary for demo preview."
+    },
+    "themeSummaries": ["Security posture"],
+    "overallAssessment": "Moderate",
+    "riskPosture": "Moderate"
+  }
+}

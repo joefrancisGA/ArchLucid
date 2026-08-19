@@ -1,0 +1,102 @@
+using System.Text.Json;
+
+using ArchLucid.Contracts.Advisory.Workflow;
+
+namespace ArchLucid.Persistence.Advisory;
+
+/// <inheritdoc cref="IRecommendationWorkflowService" />
+public sealed class RecommendationWorkflowService(IRecommendationRepository repository) : IRecommendationWorkflowService
+{
+    private static readonly JsonSerializerOptions JsonOptions = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+
+    /// <inheritdoc />
+    public async Task PersistPlanAsync(
+        ImprovementPlan plan,
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        CancellationToken ct)
+    {
+        ArgumentNullException.ThrowIfNull(plan);
+
+        foreach (ImprovementRecommendation recommendation in plan.Recommendations)
+        {
+            RecommendationRecord? existing = await repository.GetByIdAsync(recommendation.RecommendationId, ct);
+
+            RecommendationRecord record = new()
+            {
+                RecommendationId = recommendation.RecommendationId,
+                TenantId = tenantId,
+                WorkspaceId = workspaceId,
+                ProjectId = projectId,
+                RunId = plan.RunId,
+                ComparedToRunId = plan.ComparedToRunId,
+                Title = recommendation.Title,
+                Category = recommendation.Category,
+                Rationale = recommendation.Rationale,
+                SuggestedAction = recommendation.SuggestedAction,
+                Urgency = recommendation.Urgency,
+                ExpectedImpact = recommendation.ExpectedImpact,
+                PriorityScore = recommendation.PriorityScore,
+                Status = RecommendationStatus.Proposed,
+                CreatedUtc = plan.GeneratedUtc,
+                LastUpdatedUtc = plan.GeneratedUtc,
+                SupportingFindingIdsJson = JsonSerializer.Serialize(recommendation.SupportingFindingIds, JsonOptions),
+                SupportingDecisionIdsJson = JsonSerializer.Serialize(recommendation.SupportingDecisionIds, JsonOptions),
+                SupportingArtifactIdsJson = JsonSerializer.Serialize(recommendation.SupportingArtifactIds, JsonOptions),
+                SourceEvidenceLinksJson = RecommendationSourceEvidenceLinksComposer.ComposeJson(
+                    recommendation.SupportingFindingIds,
+                    recommendation.SupportingDecisionIds,
+                    recommendation.SupportingArtifactIds),
+            };
+
+            if (existing is not null && !string.Equals(existing.Status, RecommendationStatus.Proposed, StringComparison.Ordinal))
+            {
+                record.Status = existing.Status;
+                record.CreatedUtc = existing.CreatedUtc;
+                record.ReviewedByUserId = existing.ReviewedByUserId;
+                record.ReviewedByUserName = existing.ReviewedByUserName;
+                record.ReviewComment = existing.ReviewComment;
+                record.ResolutionRationale = existing.ResolutionRationale;
+                record.LastUpdatedUtc = TimeProvider.System.UtcNowDateTime();
+            }
+
+            await repository.UpsertAsync(record, ct);
+        }
+    }
+
+    /// <inheritdoc />
+    public async Task<RecommendationRecord?> ApplyActionAsync(
+        Guid recommendationId,
+        string userId,
+        string userName,
+        RecommendationActionRequest request,
+        CancellationToken ct)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(userId);
+        ArgumentException.ThrowIfNullOrWhiteSpace(userName);
+        ArgumentNullException.ThrowIfNull(request);
+
+        RecommendationRecord? recommendation = await repository.GetByIdAsync(recommendationId, ct);
+        if (recommendation is null)
+            return null;
+
+        recommendation.Status = request.Action switch
+        {
+            RecommendationActionType.Accept => RecommendationStatus.Accepted,
+            RecommendationActionType.Reject => RecommendationStatus.Rejected,
+            RecommendationActionType.Defer => RecommendationStatus.Deferred,
+            RecommendationActionType.MarkImplemented => RecommendationStatus.Implemented,
+            _ => recommendation.Status
+        };
+
+        recommendation.ReviewedByUserId = userId;
+        recommendation.ReviewedByUserName = userName;
+        recommendation.ReviewComment = request.Comment;
+        recommendation.ResolutionRationale = request.Rationale;
+        recommendation.LastUpdatedUtc = TimeProvider.System.UtcNowDateTime();
+
+        await repository.UpsertAsync(recommendation, ct);
+        return recommendation;
+    }
+}

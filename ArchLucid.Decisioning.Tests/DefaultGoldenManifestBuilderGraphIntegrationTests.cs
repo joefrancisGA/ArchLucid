@@ -1,0 +1,64 @@
+using ArchLucid.Decisioning.DecisionTraces;
+using ArchLucid.Decisioning.Manifest.Builders;
+using ArchLucid.Decisioning.Models;
+using ArchLucid.Decisioning.Rules;
+using ArchLucid.KnowledgeGraph.Models;
+
+using FluentAssertions;
+
+namespace ArchLucid.Decisioning.Tests;
+
+/// <summary>
+/// Integration tests: Default Golden Manifest Builder Graph (HTTP host, database, or cross-component).
+/// </summary>
+[Trait("Category", "Unit")]
+public sealed class DefaultGoldenManifestBuilderGraphIntegrationTests
+{
+    [Fact]
+    public async Task Build_includes_topology_resource_labels_from_graph_snapshot()
+    {
+        Guid runId = Guid.NewGuid();
+        Guid ctxId = Guid.NewGuid();
+        GraphSnapshot graph = new()
+        {
+            GraphSnapshotId = Guid.NewGuid(),
+            Nodes =
+            [
+                new GraphNode
+                {
+                    NodeId = "t1",
+                    NodeType = "TopologyResource",
+                    Label = "hub-vnet",
+                    Category = "network",
+                    Properties = new()
+                }
+            ]
+        };
+
+        FindingsSnapshot findings = new()
+        {
+            FindingsSnapshotId = Guid.NewGuid(),
+            RunId = runId,
+            ContextSnapshotId = ctxId,
+            GraphSnapshotId = graph.GraphSnapshotId,
+            Findings = []
+        };
+
+        DecisionTrace trace = RuleAuditTrace.From(new RuleAuditTracePayload
+        {
+            DecisionTraceId = Guid.NewGuid(),
+            RunId = runId
+        });
+        DecisionRuleSet ruleSet = await new InMemoryDecisionRuleProvider().GetRuleSetAsync(CancellationToken.None);
+
+        ManifestDocument manifest = new DefaultGoldenManifestBuilder().Build(
+            runId,
+            ctxId,
+            graph,
+            findings,
+            trace,
+            ruleSet);
+
+        manifest.Topology.Resources.Should().Contain("hub-vnet");
+    }
+}

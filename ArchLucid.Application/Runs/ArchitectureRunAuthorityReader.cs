@@ -1,0 +1,67 @@
+using ArchLucid.Application.Runs.Mapping;
+using ArchLucid.Contracts.Agents;
+using ArchLucid.Core.AgentEvaluation;
+using ArchLucid.Contracts.Metadata;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Persistence.Models;
+
+namespace ArchLucid.Application.Runs;
+
+/// <summary>
+///     Loads <see cref = "ArchitectureRun"/> from <see cref = "IRunRepository"/> within the current
+///     <see cref = "ScopeContext"/>.
+/// </summary>
+public static class ArchitectureRunAuthorityReader
+{
+    /// <summary>
+    ///     Returns <see langword="null"/> when <paramref name = "runId"/> is not a GUID, the run is outside scope, or it is
+    ///     archived.
+    /// </summary>
+    public static async Task<ArchitectureRun?> TryGetArchitectureRunAsync(IRunRepository runRepository, IScopeContextProvider scopeContextProvider,
+        IAgentTaskRepository taskRepository, string runId, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(runRepository);
+        ArgumentNullException.ThrowIfNull(scopeContextProvider);
+        ArgumentNullException.ThrowIfNull(taskRepository);
+        ArgumentException.ThrowIfNullOrWhiteSpace(runId);
+
+        if (!TryParseRunGuid(runId, out Guid runGuid))
+            return null;
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+        RunRecord? record = await runRepository.GetByIdAsync(scope, runGuid, cancellationToken);
+
+        if (record is null)
+            return null;
+        // Implementations (and loose test doubles) may return null; treat as no tasks so callers still get a run shape.
+        IReadOnlyList<AgentTask> tasks = await taskRepository.GetByRunIdAsync(scope, runId, cancellationToken);
+        IReadOnlyList<string> taskIds = tasks.Select(t => t.TaskId).ToList();
+        return RunRecordToArchitectureRunMapper.ToArchitectureRun(record, taskIds);
+    }
+
+    /// <summary>
+    ///     Builds <see cref="ArchitectureRun" /> from an already-loaded <see cref="RunRecord" /> (avoids a second run fetch).
+    /// </summary>
+    public static async Task<ArchitectureRun?> TryGetArchitectureRunFromRecordAsync(
+        IScopeContextProvider scopeContextProvider,
+        IAgentTaskRepository taskRepository,
+        string runId,
+        RunRecord record,
+        CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(scopeContextProvider);
+        ArgumentNullException.ThrowIfNull(taskRepository);
+        ArgumentException.ThrowIfNullOrWhiteSpace(runId);
+        ArgumentNullException.ThrowIfNull(record);
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+        IReadOnlyList<AgentTask> tasks = await taskRepository.GetByRunIdAsync(scope, runId, cancellationToken);
+        IReadOnlyList<string> taskIds = tasks.Select(t => t.TaskId).ToList();
+        return RunRecordToArchitectureRunMapper.ToArchitectureRun(record, taskIds);
+    }
+
+    private static bool TryParseRunGuid(string runId, out Guid runGuid)
+    {
+        return Guid.TryParseExact(runId, "N", out runGuid) || Guid.TryParse(runId, out runGuid);
+    }
+}

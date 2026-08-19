@@ -1,0 +1,38 @@
+# Loki / Grafana Loki ruler alert rules — policy pack assignment visibility.
+# Log messages are emitted by DapperPolicyPackAssignmentRepository / InMemoryPolicyPackAssignmentRepository via
+# SanitizedLoggerInformationExtensions (EventId 3014 assign, 3015 unassign); do not change app logging for these rules.
+#
+# Load in Grafana Alerting (Loki data source), Grafana Cloud, or Loki ruler — same structural shape as
+# infra/prometheus/archlucid-alerts.yml (groups / rules / labels / annotations).
+#
+# Tighten the stream selector `{}` to your environment labels (e.g. `{service_name="archlucid-api"}` or
+# `{container="api"}`) so unrelated workloads cannot satisfy the line filter.
+groups:
+  - name: archlucid-policy-pack-assignments
+    interval: 1m
+    rules:
+      - alert: ArchLucidPolicyPackAssignmentAssigned
+        expr: |
+          sum(count_over_time({} |= "Policy pack assignment assigned: PolicyPackId=" [5m])) > 0
+        labels:
+          severity: warning
+          archlucid_category: governance
+        annotations:
+          summary: Policy pack assignment persisted (assign path)
+          description: >-
+            At least one Information log line matching PolicyPackAssignmentRepository assign instrumentation
+            was seen in Loki within 5 minutes. Correlate with audit PolicyPackAssignmentCreated and operator change windows.
+            Source: EmitPolicyPackAssignmentAssigned (EventId 3014).
+
+      - alert: ArchLucidPolicyPackAssignmentUnassigned
+        expr: |
+          sum(count_over_time({} |= "Policy pack assignment unassigned: PolicyPackId=" [5m])) > 0
+        labels:
+          severity: warning
+          archlucid_category: governance
+        annotations:
+          summary: Policy pack assignment archived (unassign path)
+          description: >-
+            At least one Information log line matching PolicyPackAssignmentRepository archive instrumentation
+            was seen in Loki within 5 minutes. Correlate with audit PolicyPackAssignmentArchived.
+            Source: EmitPolicyPackAssignmentUnassigned (EventId 3015).

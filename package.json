@@ -1,0 +1,8 @@
+{
+  "name": "archlucid-repo",
+  "private": true,
+  "description": "Meta-package: forwards selected npm scripts to archlucid-ui so common commands work from the repository root after deps are installed under archlucid-ui/.",
+  "scripts": {
+    "test:e2e:accessibility": "npm --prefix archlucid-ui run test:e2e:accessibility"
+  }
+}

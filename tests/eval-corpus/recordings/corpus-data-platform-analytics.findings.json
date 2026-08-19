@@ -1,0 +1,25 @@
+{
+  "findings": [
+    {
+      "findingId": "f-dp-1",
+      "category": "Cost",
+      "severity": "Medium",
+      "title": "Synapse SQL pool scheduling",
+      "detail": "Dedicated SQL pool DW300c runs nightly but sits idle weekends; pause-resume automation could trim spend without breaching SLA."
+    },
+    {
+      "findingId": "f-dp-2",
+      "category": "Topology",
+      "severity": "Medium",
+      "title": "Medallion layout",
+      "detail": "Bronze ADLS Gen2 landing zones ingest raw telemetry before Spark transforms promote curated tables into gold analytical models."
+    },
+    {
+      "findingId": "f-dp-3",
+      "category": "Compliance",
+      "severity": "Low",
+      "title": "Lineage catalog",
+      "detail": "Purview registers pipelines and annotates PII columns sourced from HIPAA-sensitive feeds with access reviews quarterly."
+    }
+  ]
+}

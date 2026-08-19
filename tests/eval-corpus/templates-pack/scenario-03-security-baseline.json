@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "id": "scenario-03-security-baseline",
+  "metadata": {
+    "title": "Adatum healthcare portal — security baseline (3 MUSTs after trim)",
+    "complexity": "medium",
+    "primaryAgents": ["Compliance", "Topology"],
+    "rubricNotes": "Trimmed from 5 to 3 MUSTs (Conditional Access and Defender moved to optional). With only 3 MUSTs, 70% recall floor requires all 3 to hit; if first inform-only capture shows trouble, either tune anchors or relax the floor for this case."
+  },
+  "inputSource": "templates/architecture-requests/security-baseline-review.json",
+  "recording": "tests/eval-corpus/templates-pack/recordings/scenario-03-security-baseline.findings.json",
+  "expectedFindings": [
+    {
+      "id": "must-waf-on-internet-ingress",
+      "category": "Compliance",
+      "minimumSeverity": "Low",
+      "evidenceMustContain": ["waf"]
+    },
+    {
+      "id": "must-no-public-database-endpoints",
+      "category": "Topology",
+      "minimumSeverity": "Low",
+      "evidenceMustContain": ["private endpoint", "database"]
+    },
+    {
+      "id": "must-managed-identity-app-to-data",
+      "category": "Compliance",
+      "minimumSeverity": "Low",
+      "evidenceMustContain": ["managed identity"]
+    }
+  ],
+  "unexpectedFindings": [
+    { "category": "Compliance", "ifContainsAny": ["shared key in code", "static credential in repository", "embed connection string"] },
+    { "category": "Critic", "ifContainsAny": ["skip the waf", "disable waf", "expose phi to the internet"] }
+  ]
+}

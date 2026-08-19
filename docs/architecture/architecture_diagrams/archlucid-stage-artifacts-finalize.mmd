@@ -1,0 +1,17 @@
+sequenceDiagram
+  participant Pipe as AuthorityPipelineStagesExecutor
+  participant Art as Artifact synthesis stage
+  participant Syn as ArchLucid.ArtifactSynthesis
+  participant Orch as AuthorityRunOrchestrator
+  participant SQL as Tenant SQL catalog
+  participant Out as Retrieval / integration outboxes
+  Note over Pipe,Art: OTel span authority.artifacts<br/>then FinalizeCommittedPipelineAsync
+
+  Pipe->>Art: Run after decisioning
+  Art->>Syn: Build package slices / artifact payloads
+  Syn->>SQL: Stage artifact rows (pre-commit)
+  Art-->>Pipe: Stages complete
+  Pipe->>Orch: FinalizeCommittedPipelineAsync
+  Orch->>SQL: Commit golden manifest + decision trace
+  Orch->>Out: Enlist retrieval indexing + integration-event outboxes
+  Orch-->>Pipe: Authority-complete run

@@ -1,0 +1,134 @@
+﻿using FluentAssertions;
+
+namespace ArchLucid.Api.Tests;
+
+/// <summary>
+///     Unit tests for operator-facing <c>supportHint</c> attachment (56R hardening).
+/// </summary>
+[Trait("Category", "Unit")]
+public sealed class ProblemSupportHintsTests
+{
+    [SkippableFact]
+    public void AttachForProblemType_WhenProblemIsNull_throws()
+    {
+        Action act = () => ProblemSupportHints.AttachForProblemType(null!);
+
+        act.Should().Throw<ArgumentNullException>();
+    }
+
+    [SkippableFact]
+    public void AttachForProblemType_WhenTypeIsEmpty_does_not_add_supportHint()
+    {
+        Microsoft.AspNetCore.Mvc.ProblemDetails problem = new() { Type = "" };
+
+        ProblemSupportHints.AttachForProblemType(problem);
+
+        problem.Extensions.Should().NotContainKey("supportHint");
+    }
+
+    [SkippableFact]
+    public void AttachForProblemType_WhenTypeIsUnknown_does_not_add_supportHint()
+    {
+        Microsoft.AspNetCore.Mvc.ProblemDetails problem = new() { Type = "https://example.invalid/problems/unknown" };
+
+        ProblemSupportHints.AttachForProblemType(problem);
+
+        problem.Extensions.Should().NotContainKey("supportHint");
+    }
+
+    [SkippableFact]
+    public void AttachForProblemType_WhenRunNotFound_adds_scope_hint()
+    {
+        Microsoft.AspNetCore.Mvc.ProblemDetails problem = new() { Type = ProblemTypes.RunNotFound };
+
+        ProblemSupportHints.AttachForProblemType(problem);
+
+        problem.Extensions.Should().ContainKey("supportHint");
+        string hint = problem.Extensions["supportHint"].Should().BeOfType<string>().Subject;
+        hint.ToLowerInvariant().Should().Contain("scope");
+    }
+
+    [SkippableFact]
+    public void AttachForProblemType_WhenConflict_adds_idempotency_hint()
+    {
+        Microsoft.AspNetCore.Mvc.ProblemDetails problem = new() { Type = ProblemTypes.Conflict };
+
+        ProblemSupportHints.AttachForProblemType(problem);
+
+        problem.Extensions.Should().ContainKey("supportHint");
+        string hint = problem.Extensions["supportHint"].Should().BeOfType<string>().Subject;
+        hint.ToLowerInvariant().Should().Contain("idempotency");
+    }
+
+    [SkippableFact]
+    public void AttachForProblemType_WhenDatabaseTimeout_adds_health_ready_hint()
+    {
+        Microsoft.AspNetCore.Mvc.ProblemDetails problem = new() { Type = ProblemTypes.DatabaseTimeout };
+
+        ProblemSupportHints.AttachForProblemType(problem);
+
+        problem.Extensions.Should().ContainKey("supportHint");
+        string hint = problem.Extensions["supportHint"].Should().BeOfType<string>().Subject;
+        hint.ToLowerInvariant().Should().Contain("health/ready");
+    }
+
+    [SkippableFact]
+    public void AttachForProblemType_WhenValidationFailed_adds_swagger_hint()
+    {
+        Microsoft.AspNetCore.Mvc.ProblemDetails problem = new() { Type = ProblemTypes.ValidationFailed };
+
+        ProblemSupportHints.AttachForProblemType(problem);
+
+        problem.Extensions.Should().ContainKey("supportHint");
+        string hint = problem.Extensions["supportHint"].Should().BeOfType<string>().Subject;
+        hint.ToLowerInvariant().Should().Contain("swagger");
+    }
+
+    [SkippableFact]
+    public void AttachForProblemType_WhenComparisonVerificationFailed_adds_drift_hint()
+    {
+        Microsoft.AspNetCore.Mvc.ProblemDetails problem = new() { Type = ProblemTypes.ComparisonVerificationFailed };
+
+        ProblemSupportHints.AttachForProblemType(problem);
+
+        problem.Extensions.Should().ContainKey("supportHint");
+        string hint = problem.Extensions["supportHint"].Should().BeOfType<string>().Subject;
+        hint.ToLowerInvariant().Should().Contain("drift");
+    }
+
+    [SkippableFact]
+    public void AttachForProblemType_WhenPackagingTierInsufficient_adds_checkout_hint()
+    {
+        Microsoft.AspNetCore.Mvc.ProblemDetails problem = new() { Type = ProblemTypes.PackagingTierInsufficient };
+
+        ProblemSupportHints.AttachForProblemType(problem);
+
+        problem.Extensions.Should().ContainKey("supportHint");
+        string hint = problem.Extensions["supportHint"].Should().BeOfType<string>().Subject;
+        hint.ToLowerInvariant().Should().Contain("billing/checkout");
+    }
+
+    [SkippableFact]
+    public void AttachForProblemType_WhenQualityGateRejected_adds_runbook_hint()
+    {
+        Microsoft.AspNetCore.Mvc.ProblemDetails problem = new() { Type = ProblemTypes.QualityGateRejected };
+
+        ProblemSupportHints.AttachForProblemType(problem);
+
+        problem.Extensions.Should().ContainKey("supportHint");
+        string hint = problem.Extensions["supportHint"].Should().BeOfType<string>().Subject;
+        hint.Should().Contain("QUALITY_GATE_REJECTION.md");
+    }
+
+    [SkippableFact]
+    public void AttachForProblemType_WhenUpstreamIntegrationFailed_adds_cred_hint()
+    {
+        Microsoft.AspNetCore.Mvc.ProblemDetails problem = new() { Type = ProblemTypes.UpstreamIntegrationFailed };
+
+        ProblemSupportHints.AttachForProblemType(problem);
+
+        problem.Extensions.Should().ContainKey("supportHint");
+        string hint = problem.Extensions["supportHint"].Should().BeOfType<string>().Subject;
+        hint.ToLowerInvariant().Should().Contain("credential");
+    }
+}

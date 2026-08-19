@@ -1,0 +1,405 @@
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+
+vi.unmock("@/hooks/use-core-pilot-commit-context-query");
+
+vi.mock("@/lib/query/operator-query-persist-client", () => ({
+  setupOperatorQueryClientPersistence: () => {},
+}));
+
+vi.mock("@/lib/core-pilot-commit-context", async (importOriginal) => {
+  const { createCorePilotCommitContextModuleMock } = await import("@/testing/core-pilot-commit-context.mock");
+
+  return createCorePilotCommitContextModuleMock(importOriginal);
+});
+
+import { START_REVIEW_LABEL } from "@/lib/architecture/architecture-workflow-labels";
+import { GOVERNANCE_WORKSPACE_HEALTH_HREF } from "@/lib/governance/governance-route-paths";
+import { CorePilotNextStepsCard } from "@/components/CorePilotNextStepsCard";
+import { fetchCorePilotCommitContext } from "@/lib/core-pilot-commit-context";
+import { resetOperatorQueryClientForTests } from "@/lib/query/operator-query-client";
+import { renderWithOperatorQuery } from "@/testing/render-with-operator-query";
+
+const mockedFetchCorePilotCommitContext = vi.mocked(fetchCorePilotCommitContext);
+
+async function expandNextStepsCardIfMinimized(): Promise<void> {
+  await waitFor(() => {
+    const ready =
+      screen.queryByTestId("core-pilot-next-steps") !== null
+      || screen.queryByTestId("core-pilot-next-steps-complete") !== null;
+
+    expect(ready).toBe(true);
+  });
+
+  const expandButton = screen.queryByRole("button", { name: "Expand Recommended first session path" });
+
+  if (expandButton === null) {
+    return;
+  }
+
+  fireEvent.click(expandButton);
+
+  await waitFor(() => {
+    expect(screen.getByTestId("pilot-active-step-link")).toBeInTheDocument();
+  });
+}
+
+describe("CorePilotNextStepsCard", () => {
+  beforeEach(() => {
+    sessionStorage.clear();
+    resetOperatorQueryClientForTests();
+  });
+
+  afterEach(() => {
+    vi.clearAllMocks();
+    localStorage.clear();
+  });
+
+  beforeEach(() => {
+    mockedFetchCorePilotCommitContext.mockResolvedValue({
+      hasCommittedManifest: false,
+      latestRunId: null,
+      firstCommittedRunId: null,
+      latestRunReadyToFinalize: false,
+      committedReviewCount: 0,
+      secondCommittedRunId: null,
+    });
+  });
+
+  describe("no-run state (first-time operator)", () => {
+    it("shows Step 1 of 4 badge so the operator knows where they are", async () => {
+      renderWithOperatorQuery(<CorePilotNextStepsCard />);
+
+      await waitFor(() => {
+        expect(screen.getByTestId("core-pilot-next-steps")).toBeInTheDocument();
+      });
+
+      expect(screen.getByTestId("pilot-step-badge")).toHaveTextContent("Step 1 of 4");
+
+      await expandNextStepsCardIfMinimized();
+
+      expect(screen.getByTestId("first-review-checkpoint-strip")).toBeInTheDocument();
+      expect(screen.getByTestId("first-review-checkpoint-next-action")).toHaveTextContent(
+        /start your first architecture request/i,
+      );
+    });
+
+    it("marks Start review as the active step CTA when expanded", async () => {
+      renderWithOperatorQuery(<CorePilotNextStepsCard />);
+
+      await expandNextStepsCardIfMinimized();
+
+      expect(screen.getByTestId("pilot-active-step-link")).toHaveAttribute("href", "/architecture/reviews/new");
+      expect(screen.getByTestId("pilot-active-step-link")).toHaveTextContent(START_REVIEW_LABEL);
+    });
+
+    it("shows Finalize checkpoint label in the step tracker", async () => {
+      renderWithOperatorQuery(<CorePilotNextStepsCard />);
+
+      await expandNextStepsCardIfMinimized();
+
+      expect(screen.getByRole("link", { name: "Finalize" })).toBeInTheDocument();
+    });
+
+    it("shows skip-for-now note naming advanced features", async () => {
+      renderWithOperatorQuery(<CorePilotNextStepsCard />);
+
+      await expandNextStepsCardIfMinimized();
+
+      await waitFor(() => {
+        expect(screen.getByTestId("pilot-skip-for-now")).toBeInTheDocument();
+      });
+
+      const skipNote = screen.getByTestId("pilot-skip-for-now");
+
+      expect(skipNote).toHaveTextContent(/alerts/i);
+      expect(skipNote).toHaveTextContent(/planning/i);
+      expect(skipNote).toHaveTextContent(/digests/i);
+      expect(skipNote).toHaveTextContent(/advisory/i);
+      expect(skipNote).toHaveTextContent(/compare/i);
+      expect(skipNote).toHaveTextContent(/governance/i);
+      expect(skipNote).toHaveTextContent(/ask/i);
+    });
+
+    it("shows rescue link to Help when blocked", async () => {
+      renderWithOperatorQuery(<CorePilotNextStepsCard />);
+
+      await expandNextStepsCardIfMinimized();
+
+      await waitFor(() => {
+        expect(screen.getByTestId("pilot-rescue-link")).toBeInTheDocument();
+      });
+
+      expect(screen.getByTestId("pilot-rescue-link")).toHaveTextContent(/blocked/i);
+      expect(screen.getByRole("link", { name: /^help$/i })).toHaveAttribute("href", "/help");
+    });
+
+    it("does not show operate links in first-time state", async () => {
+      renderWithOperatorQuery(<CorePilotNextStepsCard />);
+
+      await expandNextStepsCardIfMinimized();
+
+      await waitFor(() => {
+        expect(screen.getByTestId("core-pilot-next-steps")).toBeInTheDocument();
+      });
+
+      expect(screen.queryByRole("link", { name: /open ask \(operate\)/i })).not.toBeInTheDocument();
+      expect(screen.queryByRole("link", { name: /workspace health/i })).not.toBeInTheDocument();
+    });
+
+    it("does not show a run ID when no run exists yet", async () => {
+      renderWithOperatorQuery(<CorePilotNextStepsCard />);
+
+      await expandNextStepsCardIfMinimized();
+
+      await waitFor(() => {
+        expect(screen.getByTestId("core-pilot-next-steps")).toBeInTheDocument();
+      });
+
+      expect(screen.queryByTestId("pilot-run-id")).not.toBeInTheDocument();
+    });
+  });
+
+  describe("has-run state (pipeline in progress)", () => {
+    beforeEach(() => {
+      mockedFetchCorePilotCommitContext.mockResolvedValue({
+        hasCommittedManifest: false,
+        latestRunId: "run-abc-123",
+        firstCommittedRunId: null,
+        latestRunReadyToFinalize: false,
+        committedReviewCount: 0,
+        secondCommittedRunId: null,
+      });
+    });
+
+    it("shows Step 2–3 of 4 badge", async () => {
+      renderWithOperatorQuery(<CorePilotNextStepsCard />);
+
+      await waitFor(() => {
+        expect(screen.getByTestId("pilot-step-badge")).toHaveTextContent("Step 2–3 of 4");
+      });
+    });
+
+    it("shows the run ID for support correlation", async () => {
+      renderWithOperatorQuery(<CorePilotNextStepsCard />);
+
+      await expandNextStepsCardIfMinimized();
+
+      await waitFor(() => {
+        expect(screen.getByTestId("pilot-run-id")).toBeInTheDocument();
+      });
+
+      expect(screen.getByTestId("pilot-run-id")).toHaveTextContent("run-abc-123");
+    });
+
+    it("Review step CTA links to the existing run detail; Evidence links to the graph", async () => {
+      renderWithOperatorQuery(<CorePilotNextStepsCard />);
+
+      await expandNextStepsCardIfMinimized();
+
+      await waitFor(() => {
+        expect(screen.getByTestId("pilot-active-step-link")).toBeInTheDocument();
+      });
+
+      expect(screen.getByTestId("pilot-active-evidence-link")).toHaveAttribute(
+        "href",
+        "/insights/evidence-graph?runId=run-abc-123",
+      );
+      expect(screen.getByTestId("pilot-active-step-link")).toHaveAttribute("href", "/architecture/reviews/run-abc-123");
+    });
+
+    it("shows skip-for-now note", async () => {
+      renderWithOperatorQuery(<CorePilotNextStepsCard />);
+
+      await expandNextStepsCardIfMinimized();
+
+      await waitFor(() => {
+        expect(screen.getByTestId("pilot-skip-for-now")).toBeInTheDocument();
+      });
+    });
+
+    it("shows rescue link", async () => {
+      renderWithOperatorQuery(<CorePilotNextStepsCard />);
+
+      await expandNextStepsCardIfMinimized();
+
+      await waitFor(() => {
+        expect(screen.getByTestId("pilot-rescue-link")).toBeInTheDocument();
+      });
+    });
+
+    it("shows execute as the concrete next action when prerequisites are missing", async () => {
+      renderWithOperatorQuery(<CorePilotNextStepsCard />);
+
+      await expandNextStepsCardIfMinimized();
+
+      await waitFor(() => {
+        expect(screen.getByTestId("first-review-checkpoint-next-action")).toHaveTextContent(
+          /run execute to generate findings/i,
+        );
+      });
+    });
+
+    it("does not show operate links before commit", async () => {
+      renderWithOperatorQuery(<CorePilotNextStepsCard />);
+
+      await expandNextStepsCardIfMinimized();
+
+      await waitFor(() => {
+        expect(screen.getByTestId("core-pilot-next-steps")).toBeInTheDocument();
+      });
+
+      expect(screen.queryByRole("link", { name: /open ask \(operate\)/i })).not.toBeInTheDocument();
+      expect(screen.queryByRole("link", { name: /workspace health/i })).not.toBeInTheDocument();
+    });
+  });
+
+  describe("committed state", () => {
+    it("shows Step 4 of 4 badge and Operate links as secondary", async () => {
+      mockedFetchCorePilotCommitContext.mockResolvedValueOnce({
+        hasCommittedManifest: true,
+        latestRunId: "r1",
+        firstCommittedRunId: "r1",
+        latestRunReadyToFinalize: true,
+        committedReviewCount: 1,
+        secondCommittedRunId: null,
+      });
+
+      renderWithOperatorQuery(<CorePilotNextStepsCard />);
+
+      await waitFor(() => {
+        expect(screen.getByTestId("core-pilot-next-steps-complete")).toBeInTheDocument();
+      });
+
+      expect(screen.getByTestId("pilot-step-badge")).toHaveTextContent("Step 4 of 4");
+      expect(screen.getByRole("link", { name: /workspace health \(sponsor view\)/i })).toHaveAttribute(
+        "href",
+        GOVERNANCE_WORKSPACE_HEALTH_HREF,
+      );
+      expect(screen.getByRole("link", { name: /open ask \(operate\)/i })).toHaveAttribute("href", "/insights/ask-review-questions");
+    });
+
+    it("deeper Operate guidance is present but visually secondary (behind separator section)", async () => {
+      mockedFetchCorePilotCommitContext.mockResolvedValueOnce({
+        hasCommittedManifest: true,
+        latestRunId: "r1",
+        firstCommittedRunId: "r1",
+        latestRunReadyToFinalize: true,
+        committedReviewCount: 1,
+        secondCommittedRunId: null,
+      });
+
+      renderWithOperatorQuery(<CorePilotNextStepsCard />);
+
+      await waitFor(() => {
+        expect(screen.getByTestId("core-pilot-next-steps-complete")).toBeInTheDocument();
+      });
+
+      // Operate links exist but are in the "Now available (optional)" secondary section.
+      expect(screen.getByText(/now available \(optional\)/i)).toBeInTheDocument();
+
+      const askLink = screen.getByRole("link", { name: /open ask \(operate\)/i });
+
+      expect(askLink).toBeInTheDocument();
+    });
+
+    it("shows the committed run ID for support correlation", async () => {
+      mockedFetchCorePilotCommitContext.mockResolvedValueOnce({
+        hasCommittedManifest: true,
+        latestRunId: "r1",
+        firstCommittedRunId: "r1",
+        latestRunReadyToFinalize: true,
+        committedReviewCount: 1,
+        secondCommittedRunId: null,
+      });
+
+      renderWithOperatorQuery(<CorePilotNextStepsCard />);
+
+      await waitFor(() => {
+        expect(screen.getByTestId("pilot-run-id")).toBeInTheDocument();
+      });
+
+      expect(screen.getByTestId("pilot-run-id")).toHaveTextContent("r1");
+    });
+
+    it("links review CTA to the committed run when available", async () => {
+      mockedFetchCorePilotCommitContext.mockResolvedValueOnce({
+        hasCommittedManifest: true,
+        latestRunId: "r1",
+        firstCommittedRunId: "r1",
+        latestRunReadyToFinalize: true,
+        committedReviewCount: 1,
+        secondCommittedRunId: null,
+      });
+
+      renderWithOperatorQuery(<CorePilotNextStepsCard />);
+
+      await waitFor(() => {
+        expect(screen.getByRole("link", { name: /open architecture review detail/i })).toBeInTheDocument();
+      });
+
+      expect(screen.getByRole("link", { name: /open architecture review detail/i })).toHaveAttribute(
+        "href",
+        "/architecture/reviews/r1",
+      );
+    });
+
+    it("falls back to reviews list when no firstCommittedRunId is available", async () => {
+      mockedFetchCorePilotCommitContext.mockResolvedValueOnce({
+        hasCommittedManifest: true,
+        latestRunId: "r2",
+        firstCommittedRunId: null,
+        latestRunReadyToFinalize: true,
+        committedReviewCount: 1,
+        secondCommittedRunId: null,
+      });
+
+      renderWithOperatorQuery(<CorePilotNextStepsCard />);
+
+      await waitFor(() => {
+        expect(screen.getByRole("link", { name: /open architecture review detail/i })).toBeInTheDocument();
+      });
+
+      expect(screen.getByRole("link", { name: /open architecture review detail/i })).toHaveAttribute(
+        "href",
+        "/architecture/reviews",
+      );
+    });
+
+    it("shows CLI support packet snippet", async () => {
+      mockedFetchCorePilotCommitContext.mockResolvedValueOnce({
+        hasCommittedManifest: true,
+        latestRunId: "r1",
+        firstCommittedRunId: "r1",
+        latestRunReadyToFinalize: true,
+        committedReviewCount: 1,
+        secondCommittedRunId: null,
+      });
+
+      renderWithOperatorQuery(<CorePilotNextStepsCard />);
+
+      await waitFor(() => {
+        expect(screen.getAllByText(/run-support-packet/i).length).toBeGreaterThanOrEqual(1);
+      });
+    });
+
+    it("shows sponsor-ready as the final guided next action", async () => {
+      mockedFetchCorePilotCommitContext.mockResolvedValueOnce({
+        hasCommittedManifest: true,
+        latestRunId: "r1",
+        firstCommittedRunId: "r1",
+        latestRunReadyToFinalize: true,
+        committedReviewCount: 1,
+        secondCommittedRunId: null,
+      });
+
+      renderWithOperatorQuery(<CorePilotNextStepsCard />);
+
+      await waitFor(() => {
+        expect(screen.getByTestId("first-review-checkpoint-next-action")).toHaveTextContent(
+          /open report and use the sponsor report/i,
+        );
+      });
+    });
+  });
+});

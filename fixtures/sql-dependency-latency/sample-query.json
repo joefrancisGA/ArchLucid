@@ -1,0 +1,22 @@
+[
+  {
+    "Count": "42",
+    "DependencyType": "Other",
+    "Name": "SELECT dbo.Runs",
+    "TableName": "PrimaryResult",
+    "Target": "archlucid-dev.database.windows.net",
+    "p50": "12.5",
+    "p95": "48.2",
+    "p99": "120.0"
+  },
+  {
+    "Count": "4299",
+    "DependencyType": "Other",
+    "Name": "SELECT dbo.HostLeaderLeases",
+    "TableName": "PrimaryResult",
+    "Target": "archlucid-dev.database.windows.net",
+    "p50": "29.8",
+    "p95": "34.7",
+    "p99": "41.2"
+  }
+]

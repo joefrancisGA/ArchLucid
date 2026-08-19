@@ -1,0 +1,898 @@
+variable "enable_container_apps" {
+  type        = bool
+  description = "When true, deploy Log Analytics, Container Apps Environment, and API + Operator UI container apps. Keep false on laptops until you are targeting Azure."
+  default     = false
+}
+
+variable "create_resource_group" {
+  type        = bool
+  description = "When true and enable_container_apps is true, create the resource group."
+  default     = false
+}
+
+variable "resource_group_name" {
+  type        = string
+  description = "Resource group for Container Apps, Log Analytics, and related resources."
+  default     = ""
+}
+
+variable "location" {
+  type        = string
+  description = "Azure region for Container Apps / LAW / UAMI. When non-empty, overrides the existing resource group's metadata location (so brownfield eastus2 RGs can host centralus compute next to SQL). Required when create_resource_group = true. Default centralus matches docs/REFERENCE_SAAS_STACK_ORDER.md primary region."
+  default     = "centralus"
+}
+
+variable "tags" {
+  type        = map(string)
+  default     = {}
+  description = "Tags applied to created resources."
+}
+
+# FinOps tag keys merged into azurerm resource tags for cost allocation dashboards.
+variable "finops_environment" {
+  type        = string
+  default     = ""
+  description = "Optional Environment tag value for cost allocation (merged into resource tags when non-empty)."
+}
+
+variable "finops_cost_center" {
+  type        = string
+  default     = ""
+  description = "Optional CostCenter tag value for chargeback (merged into resource tags when non-empty)."
+}
+
+variable "log_analytics_workspace_name" {
+  type        = string
+  description = "Log Analytics workspace name (unique within the resource group)."
+  default     = "law-archlucid-ca"
+}
+
+variable "log_analytics_daily_quota_gb" {
+  type        = number
+  description = "Daily cap on Log Analytics ingestion (GB). Use 0 to omit (Azure default / no Terraform-enforced cap). Set 1–10 for FinOps guardrails in shared environments."
+  default     = 0
+}
+
+variable "container_app_environment_name" {
+  type        = string
+  description = "Container Apps managed environment name."
+  default     = "cae-archlucid"
+}
+
+# VNet integration: subnet must delegate to Microsoft.App/environments for private ingress/egress.
+variable "container_apps_subnet_id" {
+  type        = string
+  description = "Optional subnet ID for VNet-integrated Container Apps Environment (Microsoft.App/environments delegation). Leave empty for a public-only environment endpoint."
+  default     = ""
+}
+
+variable "container_apps_internal_load_balancer" {
+  type        = bool
+  description = "When true and container_apps_subnet_id is set, use an internal load balancer (no public environment ingress). Requires private DNS or a jump host to reach apps."
+  default     = false
+}
+
+variable "api_container_app_name" {
+  type        = string
+  description = "Name of the API container app (must be DNS-compliant, lowercase alphanumeric and hyphens)."
+  default     = "archlucid-api"
+}
+
+variable "ui_container_app_name" {
+  type        = string
+  description = "Name of the Operator UI container app (app.<domain> when custom domains are bound)."
+  default     = "archlucid-ui"
+}
+
+variable "worker_container_app_name" {
+  type        = string
+  description = "Name of the background worker container app (advisory scan, archival, retrieval outbox)."
+  default     = "archlucid-worker"
+}
+
+variable "worker_container_image" {
+  type        = string
+  description = "Image for ArchLucid.Worker (must include ArchLucid.Worker.dll; same build as API is typical). Leave empty to reuse api_container_image."
+  default     = ""
+}
+
+variable "worker_min_replicas" {
+  type        = number
+  description = "Minimum worker replicas (use 1 so hosted background loops run in a single instance)."
+  default     = 1
+}
+
+variable "worker_max_replicas" {
+  type        = number
+  description = "Maximum worker replicas. Raise when using durable background jobs + queue-depth scaling; workers coordinate via SQL row locks and batch dequeue."
+  default     = 20
+}
+
+variable "worker_cpu" {
+  type        = number
+  description = "Worker container vCPU."
+  default     = 0.25
+}
+
+variable "worker_memory" {
+  type        = string
+  description = "Worker container memory."
+  default     = "0.5Gi"
+}
+
+variable "worker_termination_grace_period_seconds" {
+  type        = number
+  description = "ACA termination grace for Worker replicas. Must exceed HostOptions.ShutdownTimeout (45s) plus SQL lease release headroom (TB-961)."
+  default     = 60
+
+  validation {
+    condition     = var.worker_termination_grace_period_seconds >= 45
+    error_message = "worker_termination_grace_period_seconds must be at least 45 to cover the .NET host shutdown timeout."
+  }
+}
+
+variable "api_container_image" {
+  type        = string
+  description = "Full image reference for the API container (default entrypoint ArchLucid.Api.dll), e.g. myregistry.azurecr.io/archlucid-api:2026.04.1. Required when enable_container_apps = true."
+  default     = ""
+}
+
+variable "ui_container_image" {
+  type        = string
+  description = "Full image reference for archlucid-ui. Required when enable_container_apps = true."
+  default     = ""
+}
+
+variable "acr_resource_id" {
+  type        = string
+  description = "Full ARM resource ID of the Azure Container Registry used by api_container_image / ui_container_image (and worker when it shares the API image). When set, Terraform grants AcrPull to a user-assigned identity and registers that registry on each Container App so private ACR pulls succeed. Leave empty only for public registries."
+  default     = ""
+}
+
+variable "api_min_replicas" {
+  type        = number
+  description = "Minimum API replicas. Default 2 for staging/production availability (two instances). Override to 1 for local pilots if duplicate hosted background jobs are unacceptable until leader election or a worker app exists (see README)."
+  default     = 2
+}
+
+variable "api_max_replicas" {
+  type        = number
+  description = "Maximum API replicas."
+  default     = 5
+}
+
+variable "ui_min_replicas" {
+  type        = number
+  description = "Minimum Operator UI replicas."
+  default     = 1
+}
+
+variable "ui_max_replicas" {
+  type        = number
+  description = "Maximum Operator UI replicas."
+  default     = 6
+}
+
+variable "api_scale_concurrent_requests" {
+  type        = number
+  description = "HTTP scale rule: target concurrent requests per replica before scaling out."
+  default     = 10
+}
+
+variable "ui_scale_concurrent_requests" {
+  type        = number
+  description = "HTTP scale rule for the UI container app."
+  default     = 10
+}
+
+variable "api_enable_cpu_scale_rule" {
+  type        = bool
+  description = "When true, add a KEDA cpu utilization scale rule on the API alongside HTTP concurrency (TB-915)."
+  default     = true
+}
+
+variable "api_cpu_scale_utilization_percent" {
+  type        = number
+  description = "Target average CPU utilization percent for the API cpu scale rule (TB-915)."
+  default     = 70
+
+  validation {
+    condition     = var.api_cpu_scale_utilization_percent >= 1 && var.api_cpu_scale_utilization_percent <= 100
+    error_message = "api_cpu_scale_utilization_percent must be between 1 and 100."
+  }
+}
+
+variable "api_enable_memory_scale_rule" {
+  type        = bool
+  description = "When true, add a KEDA memory utilization scale rule on the API. Default false until RSS evidence (TB-915)."
+  default     = false
+}
+
+variable "api_memory_scale_utilization_percent" {
+  type        = number
+  description = "Target average memory utilization percent when api_enable_memory_scale_rule is true."
+  default     = 75
+
+  validation {
+    condition     = var.api_memory_scale_utilization_percent >= 1 && var.api_memory_scale_utilization_percent <= 100
+    error_message = "api_memory_scale_utilization_percent must be between 1 and 100."
+  }
+}
+
+variable "ui_enable_cpu_scale_rule" {
+  type        = bool
+  description = "When true, add a light CPU utilization scale rule on the operator UI (TB-915). Default false."
+  default     = false
+}
+
+variable "ui_cpu_scale_utilization_percent" {
+  type        = number
+  description = "Target average CPU utilization percent for the operator UI cpu scale rule."
+  default     = 75
+
+  validation {
+    condition     = var.ui_cpu_scale_utilization_percent >= 1 && var.ui_cpu_scale_utilization_percent <= 100
+    error_message = "ui_cpu_scale_utilization_percent must be between 1 and 100."
+  }
+}
+
+variable "api_cpu" {
+  type        = number
+  description = "API container vCPU (consumption: 0.25, 0.5, 0.75, 1.0, ...)."
+  default     = 0.5
+}
+
+variable "api_memory" {
+  type        = string
+  description = "API container memory (e.g. 1.0Gi)."
+  default     = "1.0Gi"
+}
+
+variable "ui_cpu" {
+  type        = number
+  description = "UI container vCPU."
+  default     = 0.25
+}
+
+variable "ui_memory" {
+  type        = string
+  description = "UI container memory."
+  default     = "0.5Gi"
+}
+
+variable "api_ingress_external" {
+  type        = bool
+  description = "When true, API ingress allows external (internet) access, subject to environment internal LB."
+  default     = true
+}
+
+variable "ui_ingress_external" {
+  type        = bool
+  description = "When true, UI ingress allows external access."
+  default     = true
+}
+
+# Production-like hosts enforce TB-304: ApiKey auth must emit tenant_id + workspace_id + project_id
+# claims (headers/defaults are rejected). Bind all three to the ScopeIds (or seeded demo) GUIDs the
+# UI and tenant SQL catalog use. Empty = omit env (existing apps may still set these via
+# `az containerapp update`; see README "ApiKey scope claims").
+variable "api_key_tenant_id" {
+  type        = string
+  description = "Authentication:ApiKey:TenantId GUID claim for the host admin/read-only API keys. Required with workspace/project on Production-like hosts."
+  default     = ""
+
+  validation {
+    condition = (
+      (length(trimspace(var.api_key_tenant_id)) == 0 &&
+        length(trimspace(var.api_key_workspace_id)) == 0 &&
+        length(trimspace(var.api_key_project_id)) == 0) ||
+      (length(trimspace(var.api_key_tenant_id)) > 0 &&
+        length(trimspace(var.api_key_workspace_id)) > 0 &&
+        length(trimspace(var.api_key_project_id)) > 0)
+    )
+    error_message = "Set api_key_tenant_id, api_key_workspace_id, and api_key_project_id together (all empty or all non-empty)."
+  }
+}
+
+variable "api_key_workspace_id" {
+  type        = string
+  description = "Authentication:ApiKey:WorkspaceId GUID claim. Pair with api_key_tenant_id and api_key_project_id."
+  default     = ""
+}
+
+variable "api_key_project_id" {
+  type        = string
+  description = "Authentication:ApiKey:ProjectId GUID claim. Pair with api_key_tenant_id and api_key_workspace_id."
+  default     = ""
+}
+
+variable "artifact_blob_service_uri" {
+  type        = string
+  description = "Blob service URL for large artifact offload (maps to ArtifactLargePayload__AzureBlobServiceUri), e.g. output primary_blob_endpoint from infra/terraform-storage."
+  default     = ""
+}
+
+variable "artifact_storage_account_id" {
+  type        = string
+  description = "Resource ID of the storage account that holds golden-manifests / artifact-bundles / artifact-contents containers. Used to grant the API container app Storage Blob Data Contributor."
+  default     = ""
+}
+
+variable "background_jobs_mode" {
+  type        = string
+  description = "InMemory keeps export jobs in the API process. Durable uses SQL + Azure Storage Queue + the worker container app (requires Sql storage, AzureBlob artifacts, and queue RBAC)."
+  default     = "InMemory"
+
+  validation {
+    condition     = contains(["InMemory", "Durable"], var.background_jobs_mode)
+    error_message = "background_jobs_mode must be InMemory or Durable."
+  }
+}
+
+variable "background_jobs_queue_name" {
+  type        = string
+  description = "Azure Storage Queue name for durable export jobs (lowercase alphanumeric and hyphens, 3–63 chars)."
+  default     = "archlucid-export-jobs"
+}
+
+variable "background_jobs_results_container" {
+  type        = string
+  description = "Blob container for completed export job binaries (created on first upload if missing)."
+  default     = "background-job-results"
+}
+
+variable "worker_enable_queue_depth_scaling" {
+  type        = bool
+  description = "When true and background_jobs_mode is Durable, add an azure-queue custom scale rule (KEDA) to the worker. Requires worker_queue_scale_connection_string (storage connection string used only as a Container App secret for the scaler)."
+  default     = false
+}
+
+variable "worker_queue_scale_connection_string" {
+  type        = string
+  description = "Azure Storage connection string for the queue scaler (same account as artifact_blob_service_uri). Sensitive; leave empty to omit queue scaling. Prefer Key Vault references at the deployment layer rather than committing this value."
+  default     = ""
+  sensitive   = true
+}
+
+variable "worker_queue_depth_target_messages_per_revision" {
+  type        = number
+  description = "KEDA azure-queue rule: approximate messages per worker revision before scaling out (queue length threshold)."
+  default     = 10
+
+  validation {
+    condition     = var.worker_queue_depth_target_messages_per_revision >= 1
+    error_message = "worker_queue_depth_target_messages_per_revision must be at least 1."
+  }
+}
+
+# KEDA prometheus scaler: scales worker replicas from archlucid_authority_pipeline_work_pending (SQL outbox depth).
+variable "worker_enable_authority_outbox_prom_scale" {
+  type        = bool
+  description = "When true, add a KEDA prometheus custom scale rule on the worker using worker_authority_outbox_prom_query (default: archlucid_authority_pipeline_work_pending). Does not remove the optional azure-queue scaler. Requires a reachable Prometheus HTTP API (e.g. Azure Monitor managed Prometheus query endpoint); optional bearer token via worker_authority_outbox_prom_bearer_token."
+  default     = false
+}
+
+# Prometheus query endpoint for KEDA (e.g. Azure Monitor managed Prometheus). MUST be supplied from Key Vault or pipeline secret when bearer auth is used.
+variable "worker_authority_outbox_prom_server_address" {
+  type        = string
+  description = "Prometheus server base URL for the KEDA prometheus scaler (e.g. https://{workspace}.eastus2.prometheus.monitor.azure.com for Azure Monitor managed Prometheus)."
+  default     = ""
+}
+
+variable "worker_authority_outbox_prom_query" {
+  type        = string
+  description = "Instant PromQL returning a single scalar/vector element; default sums archlucid_authority_pipeline_work_pending across series for total SQL authority outbox depth."
+  default     = "scalar(sum(archlucid_authority_pipeline_work_pending))"
+}
+
+variable "worker_authority_outbox_prom_pending_scale_threshold" {
+  type        = number
+  description = "KEDA prometheus rule: scale-out threshold against the query result (pending rows per effective replica target; aligned with ops guidance in docs/library/OBSERVABILITY.md — Authority pipeline remediation runbook)."
+  default     = 50
+
+  validation {
+    condition     = var.worker_authority_outbox_prom_pending_scale_threshold >= 1
+    error_message = "worker_authority_outbox_prom_pending_scale_threshold must be at least 1."
+  }
+}
+
+variable "worker_authority_outbox_prom_activation_threshold" {
+  type        = number
+  description = "KEDA prometheus activationThreshold (see KEDA docs); backlog must exceed this before the prometheus scaler participates in scale-from-zero behavior."
+  default     = 0
+
+  validation {
+    condition     = var.worker_authority_outbox_prom_activation_threshold >= 0
+    error_message = "worker_authority_outbox_prom_activation_threshold must be non-negative."
+  }
+}
+
+# MUST be supplied from Key Vault or pipeline secret â€” never hardcode in tfvars.
+variable "worker_authority_outbox_prom_bearer_token" {
+  type        = string
+  description = "Optional bearer token for Prometheus API queries (sensitive). When non-empty, KEDA authModes=bearer is set. For Azure Monitor managed Prometheus prefer a read-scoped token or workload-identity patterns per your platform team."
+  default     = ""
+  sensitive   = true
+}
+
+variable "enable_container_apps_consumption_budget" {
+  type        = bool
+  description = "When true and enable_container_apps is true, create an azurerm_consumption_budget_resource_group filtered to Microsoft.App/containerApps and managedEnvironments in the stack resource group. Defaults true (2026-07-20): Azure Cost Management budgets are free; notifications use contact_roles (default Owner) when contact_emails is empty. No budget is created until enable_container_apps is true. Set false to opt out."
+  default     = true
+}
+
+variable "container_apps_consumption_budget_name" {
+  type        = string
+  description = "Budget name (unique within the resource group scope in Cost Management)."
+  default     = "archlucid-container-apps-monthly"
+
+  validation {
+    condition     = length(var.container_apps_consumption_budget_name) >= 1 && length(var.container_apps_consumption_budget_name) <= 63
+    error_message = "container_apps_consumption_budget_name must be 1-63 characters."
+  }
+}
+
+variable "container_apps_consumption_budget_amount" {
+  type        = number
+  description = "Monthly budget amount in the subscription billing currency (e.g. USD)."
+  default     = 500
+
+  validation {
+    condition     = var.container_apps_consumption_budget_amount > 0
+    error_message = "container_apps_consumption_budget_amount must be positive."
+  }
+}
+
+variable "container_apps_consumption_budget_time_period_start" {
+  type        = string
+  description = "Budget period start (RFC3339, first day of a month UTC). Azure requires month boundaries."
+  default     = "2026-01-01T00:00:00Z"
+}
+
+variable "container_apps_consumption_budget_contact_emails" {
+  type        = list(string)
+  description = "Email addresses for budget alerts. When empty, contact_roles is used instead."
+  default     = []
+}
+
+variable "container_apps_consumption_budget_contact_roles" {
+  type        = list(string)
+  description = "RBAC roles to notify when container_apps_consumption_budget_contact_emails is empty."
+  default     = ["Owner"]
+}
+
+variable "api_revision_mode" {
+  type        = string
+  description = "Container Apps revision mode for the API app. Use Multiple to enable weighted traffic between active revisions (canary / blue-green)."
+  default     = "Single"
+
+  validation {
+    condition     = contains(["Single", "Multiple"], var.api_revision_mode)
+    error_message = "api_revision_mode must be Single or Multiple."
+  }
+}
+
+variable "worker_revision_mode" {
+  type        = string
+  description = "Container Apps revision mode for the worker app."
+  default     = "Single"
+
+  validation {
+    condition     = contains(["Single", "Multiple"], var.worker_revision_mode)
+    error_message = "worker_revision_mode must be Single or Multiple."
+  }
+}
+
+variable "ui_revision_mode" {
+  type        = string
+  description = "Container Apps revision mode for the operator UI app."
+  default     = "Single"
+
+  validation {
+    condition     = contains(["Single", "Multiple"], var.ui_revision_mode)
+    error_message = "ui_revision_mode must be Single or Multiple."
+  }
+}
+
+# TB-2016 — same-image marketing UI (apex) alongside operator UI (app subdomain). No Front Door.
+variable "enable_marketing_ui_container_app" {
+  type        = bool
+  description = "When true, provision a second UI Container App from ui_container_image for public marketing (apex). Operator UI remains ui_container_app_name."
+  default     = true
+}
+
+variable "marketing_ui_container_app_name" {
+  type        = string
+  description = "Name of the marketing UI container app (same image as operator UI)."
+  default     = "archlucid-ui-marketing"
+}
+
+variable "marketing_ui_min_replicas" {
+  type        = number
+  description = "Minimum marketing UI replicas."
+  default     = 1
+}
+
+variable "marketing_ui_max_replicas" {
+  type        = number
+  description = "Maximum marketing UI replicas (public traffic burst headroom)."
+  default     = 6
+}
+
+variable "marketing_ui_scale_concurrent_requests" {
+  type        = number
+  description = "HTTP scale rule concurrent-request target for the marketing UI app."
+  default     = 10
+}
+
+variable "marketing_ui_cpu" {
+  type        = number
+  description = "Marketing UI container vCPU."
+  default     = 0.25
+}
+
+variable "marketing_ui_memory" {
+  type        = string
+  description = "Marketing UI container memory."
+  default     = "0.5Gi"
+}
+
+variable "marketing_ui_ingress_external" {
+  type        = bool
+  description = "When true, marketing UI ingress allows external access."
+  default     = true
+}
+
+variable "marketing_ui_revision_mode" {
+  type        = string
+  description = "Container Apps revision mode for the marketing UI app."
+  default     = "Single"
+
+  validation {
+    condition     = contains(["Single", "Multiple"], var.marketing_ui_revision_mode)
+    error_message = "marketing_ui_revision_mode must be Single or Multiple."
+  }
+}
+
+variable "ui_custom_domain_name" {
+  type        = string
+  description = "Operator UI custom hostname (e.g. app.archlucid.net). Empty = default *.azurecontainerapps.io only. Bind cert via az CLI after DNS (see README)."
+  default     = ""
+}
+
+variable "marketing_ui_custom_domain_name" {
+  type        = string
+  description = "Marketing UI custom hostname (e.g. archlucid.net or www.archlucid.net). Empty until DNS ready. Bind cert via az CLI after DNS (see README)."
+  default     = ""
+}
+
+variable "api_custom_domain_name" {
+  type        = string
+  description = "API custom hostname (e.g. api.archlucid.net). Empty until DNS ready. Bind cert via az CLI after DNS (see README)."
+  default     = ""
+}
+
+variable "secondary_region_stack_enabled" {
+  type        = bool
+  description = "When true (and enable_container_apps), deploy a mirrored Container Apps stack in secondary_location for active-secondary / DR. Requires a separate resource group in that Azure region."
+  default     = false
+}
+
+variable "secondary_create_resource_group" {
+  type        = bool
+  description = "When true with secondary_region_stack_enabled, create secondary_resource_group_name in secondary_location."
+  default     = false
+}
+
+variable "secondary_resource_group_name" {
+  type        = string
+  description = "Resource group name in the secondary Azure region (must not be the primary resource group)."
+  default     = ""
+}
+
+variable "secondary_location" {
+  type        = string
+  description = "Azure region for the secondary stack (paired region recommended)."
+  default     = ""
+}
+
+variable "secondary_log_analytics_workspace_name" {
+  type        = string
+  description = "Log Analytics workspace name for the secondary Container Apps environment."
+  default     = "law-archlucid-secondary"
+}
+
+variable "secondary_container_app_environment_name" {
+  type        = string
+  description = "Managed environment name for secondary region."
+  default     = "cae-archlucid-secondary"
+}
+
+variable "secondary_container_apps_subnet_id" {
+  type        = string
+  description = "Optional subnet in the secondary region for VNet-integrated secondary CAE."
+  default     = ""
+}
+
+variable "secondary_container_apps_internal_load_balancer" {
+  type        = bool
+  description = "When true and secondary_container_apps_subnet_id is set, internal LB for secondary CAE."
+  default     = false
+}
+
+variable "secondary_api_container_app_name" {
+  type        = string
+  description = "Secondary region API container app name."
+  default     = "archlucid-api-secondary"
+}
+
+variable "secondary_worker_container_app_name" {
+  type        = string
+  description = "Secondary region worker container app name."
+  default     = "archlucid-worker-secondary"
+}
+
+variable "secondary_ui_container_app_name" {
+  type        = string
+  description = "Secondary region UI container app name."
+  default     = "archlucid-ui-secondary"
+}
+
+variable "secondary_api_min_replicas" {
+  type        = number
+  description = "Minimum API replicas in the secondary region."
+  default     = 1
+}
+
+variable "secondary_api_max_replicas" {
+  type        = number
+  description = "Maximum API replicas in the secondary region."
+  default     = 5
+}
+
+variable "secondary_worker_min_replicas" {
+  type        = number
+  description = "Minimum worker replicas in the secondary region."
+  default     = 1
+}
+
+variable "secondary_worker_max_replicas" {
+  type        = number
+  description = "Maximum worker replicas in the secondary region."
+  default     = 10
+}
+
+variable "secondary_ui_min_replicas" {
+  type        = number
+  description = "Minimum UI replicas in the secondary region."
+  default     = 1
+}
+
+variable "secondary_ui_max_replicas" {
+  type        = number
+  description = "Maximum UI replicas in the secondary region."
+  default     = 6
+}
+
+variable "secondary_read_replica_connection_string" {
+  type        = string
+  description = "Optional SQL read-only connection string for secondary API (e.g. failover group read listener). Prefer Key Vault references at deploy time; value is sensitive in Terraform state."
+  default     = ""
+  sensitive   = true
+}
+
+variable "container_jobs" {
+  type = map(object({
+    trigger_type               = string
+    cron_expression            = optional(string)
+    cpu                        = optional(number, 0.25)
+    memory                     = optional(string, "0.5Gi")
+    command                    = optional(list(string), [])
+    args                       = list(string)
+    replica_timeout_in_seconds = optional(number, 1800)
+    replica_retry_limit        = optional(number, 1)
+    parallelism                = optional(number, 1)
+    replica_completion_count   = optional(number, 1)
+    env                        = optional(map(string), {})
+    # Event trigger (KEDA rules); required when trigger_type = "Event".
+    event_polling_interval_seconds = optional(number, 30)
+    event_max_executions           = optional(number, 10)
+    event_min_executions           = optional(number, 0)
+    event_scale_rules = optional(list(object({
+      name             = string
+      custom_rule_type = string
+      metadata         = map(string)
+      auth = optional(list(object({
+        secret_name       = string
+        trigger_parameter = string
+      })), [])
+    })), [])
+  }))
+  description = "Container Apps Jobs: Schedule (cron) or Event (KEDA scale rules). Image defaults to worker_effective_image; entrypoint runs ArchLucid.Jobs.Cli.dll."
+  default     = {}
+}
+
+# TB-093 — consumed Azure OpenAI app configuration + workload RBAC (multi-root path).
+
+variable "azure_openai_account_resource_id" {
+  type        = string
+  description = "Full ARM id of the platform-owned Cognitive Services OpenAI account. When set with enable_container_apps, grants Cognitive Services OpenAI User to API and Worker system-assigned identities."
+  default     = ""
+}
+
+variable "azure_openai_endpoint" {
+  type        = string
+  description = "HTTPS endpoint for consumed Azure OpenAI (AzureOpenAI__Endpoint)."
+  default     = ""
+}
+
+variable "azure_openai_chat_deployment_name" {
+  type        = string
+  description = "Chat/completion deployment name (AzureOpenAI__DeploymentName)."
+  default     = ""
+}
+
+variable "azure_openai_embedding_deployment_name" {
+  type        = string
+  description = "Embedding deployment name (AzureOpenAI__EmbeddingDeploymentName)."
+  default     = ""
+}
+
+variable "azure_openai_expected_location" {
+  type        = string
+  description = "Expected Azure region for consumed OpenAI (production-like pilot default eastus). Used in checks when account id is set."
+  default     = "eastus"
+}
+
+# TB-094 — HotPathCache Redis connection (from terraform-redis output or Key Vault).
+
+variable "hot_path_cache_redis_connection_string" {
+  type        = string
+  description = "Primary Redis connection string for HotPathCache__RedisConnectionString (sensitive; from terraform-redis output)."
+  default     = ""
+  sensitive   = true
+}
+
+# TB-096 — consumed Azure AI Search (production-like hosted / multi-root path).
+variable "azure_search_service_resource_id" {
+  type        = string
+  description = "Full ARM id of platform-owned Microsoft.Search/searchServices. Grants Search Index Data Contributor to API/Worker when set."
+  default     = ""
+}
+
+variable "azure_search_endpoint" {
+  type        = string
+  description = "HTTPS Search endpoint (Retrieval__AzureSearch__Endpoint)."
+  default     = ""
+}
+
+variable "azure_search_index_name" {
+  type        = string
+  description = "Search index name (Retrieval__AzureSearch__IndexName)."
+  default     = ""
+}
+
+variable "azure_search_expected_location" {
+  type        = string
+  description = "Expected Azure region for consumed Search (pilot default eastus)."
+  default     = "eastus"
+}
+
+variable "enable_container_app_diagnostics" {
+  type        = bool
+  description = "TB-099: forward Container App console/system logs to the stack Log Analytics workspace."
+  default     = false
+}
+variable "api_keyvault_user_assigned_identity_id" {
+  type        = string
+  description = "TB-656: Resource ID of the API user-assigned identity granted Key Vault Secrets User in terraform-keyvault. When set, attaches to the API Container App identity block and wires AZURE_CLIENT_ID for Key Vault secret access."
+  default     = ""
+}
+
+variable "enable_api_sql_runtime_identity" {
+  type        = bool
+  description = "Least-privilege SQL runtime identity: creates a dedicated user-assigned identity (separate from the API's system-assigned identity used for schema bootstrap) and attaches it to the API Container App. Operators must still create a matching SQL user (CREATE USER ... FROM EXTERNAL PROVIDER) and add it to the [ArchLucidApp] database role (see docs/security/MANAGED_IDENTITY_SQL_BLOB.md, migration 051). Use the api_sql_runtime_identity_client_id / api_sql_runtime_identity_name outputs to build ConnectionStrings:ArchLucidRuntime and the CREATE USER statement."
+  default     = false
+}
+
+variable "api_keyvault_user_assigned_identity_client_id" {
+  type        = string
+  description = "TB-656: Client ID of the API Key Vault user-assigned identity (AZURE_CLIENT_ID for secret resolution)."
+  default     = ""
+}
+
+variable "worker_keyvault_user_assigned_identity_id" {
+  type        = string
+  description = "TB-656: Resource ID of the Worker user-assigned identity granted Key Vault Secrets User in terraform-keyvault."
+  default     = ""
+}
+
+variable "worker_keyvault_user_assigned_identity_client_id" {
+  type        = string
+  description = "TB-656: Client ID of the Worker Key Vault user-assigned identity (AZURE_CLIENT_ID for secret resolution)."
+  default     = ""
+}
+
+variable "enable_content_safety_account" {
+  type        = bool
+  description = "When true with enable_container_apps, create an Azure AI Content Safety Cognitive Services account in this resource group. Wire Endpoint/ApiKey onto the API Container App via CD (ARCHLUCID_CONTENT_SAFETY_* GitHub Environment secrets) or az — Terraform does not store the API key."
+  default     = false
+}
+
+variable "content_safety_account_name" {
+  type        = string
+  description = "Content Safety account name (globally unique custom subdomain base). Required when enable_content_safety_account = true."
+  default     = ""
+}
+
+variable "content_safety_custom_subdomain_name" {
+  type        = string
+  description = "Custom subdomain for the Content Safety endpoint (usually same as content_safety_account_name)."
+  default     = ""
+}
+
+variable "content_safety_location" {
+  type        = string
+  description = "Azure region for Content Safety. Empty = use the Container Apps stack location."
+  default     = ""
+}
+
+variable "content_safety_sku_name" {
+  type        = string
+  description = "Content Safety SKU (S0 is the usual pay-as-you-go tier)."
+  default     = "S0"
+}
+
+variable "content_safety_public_network_access_enabled" {
+  type        = bool
+  description = "Public network access on the Content Safety account. Keep true for lab/dev Container Apps without private endpoints; prefer false with private endpoints in production-like stacks."
+  default     = true
+}
+
+variable "enable_communication_email_account" {
+  type        = bool
+  description = "When true with enable_container_apps, provision Azure Communication Services Email (custom domain + noreply sender) and grant API/Worker managed identities Contributor on the Communication Service. Wire Email:* onto Container Apps via CD (DEV_ACS_EMAIL_ENDPOINT / DEV_EMAIL_FROM_ADDRESS)."
+  default     = false
+}
+
+variable "communication_email_email_service_name" {
+  type        = string
+  description = "Globally unique Email Communication Service name. Required when enable_communication_email_account = true."
+  default     = ""
+}
+
+variable "communication_email_communication_service_name" {
+  type        = string
+  description = "Globally unique Communication Service name linked to the email domain. Required when enable_communication_email_account = true."
+  default     = ""
+}
+
+variable "communication_email_data_location" {
+  type        = string
+  description = "ACS data residency geography (e.g. United States, Europe). Not the same as azure_location."
+  default     = "United States"
+}
+
+variable "communication_email_custom_domain_name" {
+  type        = string
+  description = "Verified custom mail domain (e.g. archlucid.net). Sender becomes {communication_email_sender_username}@{this domain}."
+  default     = "archlucid.net"
+}
+
+variable "communication_email_sender_username" {
+  type        = string
+  description = "Local-part for the transactional sender address (noreply -> noreply@archlucid.net)."
+  default     = "noreply"
+}
+
+variable "communication_email_sender_display_name" {
+  type        = string
+  description = "Display name on outbound ArchLucid transactional email."
+  default     = "ArchLucid"
+}
+
+variable "communication_email_initiate_domain_verification" {
+  type        = bool
+  description = "When true, call ACS initiateVerification(Domain) after DNS records exist. Leave false on first apply; publish verification_records to DNS, then set true and re-apply."
+  default     = false
+}

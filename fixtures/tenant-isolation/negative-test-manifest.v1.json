@@ -1,0 +1,60 @@
+﻿{
+  "schemaVersion": 1,
+  "primaryRunId": "aaaaaaaa-1111-1111-1111-111111111111",
+  "alternateTenantId": "44444444-4444-4444-4444-444444444444",
+  "alternateWorkspaceId": "55555555-5555-5555-5555-555555555555",
+  "alternateProjectId": "66666666-6666-6666-6666-666666666666",
+  "scenarios": [
+    {
+      "name": "expected-deny",
+      "probes": [
+        {
+          "name": "cross-tenant-run-get",
+          "path": "/v1/architecture/review/aaaaaaaa-1111-1111-1111-111111111111",
+          "expectedOutcome": "deny-status",
+          "observedOutcome": "HTTP 404",
+          "observedStatusCode": 404,
+          "correlationId": "corr-deny-run-get",
+          "evidence": "Cross-tenant GET run detail denied.",
+          "verdict": "pass"
+        },
+        {
+          "name": "cross-tenant-run-roi",
+          "path": "/v1/architecture/review/aaaaaaaa-1111-1111-1111-111111111111/roi",
+          "expectedOutcome": "deny-status",
+          "observedOutcome": "HTTP 404",
+          "observedStatusCode": 404,
+          "correlationId": "corr-deny-run-roi",
+          "evidence": "Cross-tenant GET run ROI denied.",
+          "verdict": "pass"
+        },
+        {
+          "name": "cross-tenant-run-list",
+          "path": "/v1/runs?limit=200",
+          "expectedOutcome": "exclude-run-id",
+          "observedOutcome": "HTTP 200; foreign runId absent",
+          "observedStatusCode": 200,
+          "correlationId": "corr-deny-run-list",
+          "evidence": "Cross-tenant run list excludes foreign runId.",
+          "foreignRunIdVisible": false,
+          "verdict": "pass"
+        }
+      ]
+    },
+    {
+      "name": "unexpected-success",
+      "probes": [
+        {
+          "name": "cross-tenant-run-get",
+          "path": "/v1/architecture/review/aaaaaaaa-1111-1111-1111-111111111111",
+          "expectedOutcome": "deny-status",
+          "observedOutcome": "HTTP 200",
+          "observedStatusCode": 200,
+          "correlationId": "corr-leak-run-get",
+          "evidence": "Cross-tenant GET unexpectedly succeeded.",
+          "verdict": "fail"
+        }
+      ]
+    }
+  ]
+}

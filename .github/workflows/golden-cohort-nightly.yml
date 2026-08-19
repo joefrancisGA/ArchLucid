@@ -1,0 +1,444 @@
+# Nightly golden cohort: JSON contract (always) + simulator drift when repository variable
+# ARCHLUCID_GOLDEN_COHORT_BASELINE_LOCKED is "true".
+#
+# Optional real-LLM **gate** (cohort-real-llm-gate job): budget probe + fixture presence check only —
+# no live OpenAI invoke in CI. **`cohort-real-llm-live`** runs (**a**) **workflow_dispatch** with
+# **run_live_invoke=true**, or (**b**) the **Sunday 06:00 UTC** schedule when **vars** below enable it —
+# gated on **preflight budget exit** 0/1 only (warn/kill-skip suppresses live the same as preflight dotnet steps).
+# Budget probe (**scripts/golden_cohort_budget_probe.py**) exit codes:
+#        0 → continue normally (MTD < 80% of $15 cap)
+#        1 → WARN: continue but post a GitHub issue (MTD ≥ 80% < 95%)
+#        2 → SKIP: post issue, do NOT count as workflow failure (MTD ≥ 95%)
+#        3 → probe failed: skip + summary, do NOT count as workflow failure
+#
+# Threshold ratios 0.80 / 0.95 are the Q15-conditional rule (PENDING_QUESTIONS Q15) and are
+# enforced by scripts/ci/assert_golden_cohort_kill_switch_present.py at PR-merge time so a
+# future workflow edit cannot silently weaken them. See docs/runbooks/GOLDEN_COHORT_REAL_LLM_GATE.md.
+#
+# Baseline SHAs in tests/golden-cohort/cohort.json were captured from an approved Simulator run (item 33, 2026-04-21).
+# CI (doc-markdown-links job) also runs scripts/ci/assert_golden_cohort_baseline_locked.py with the locked flag so a
+# PR cannot regress to placeholder SHAs while the repo treats the baseline as locked.
+name: golden-cohort-nightly
+
+on:
+  schedule:
+    # Mon–Sat-only so Sunday does not double-fire alongside the Sunday cron below.
+    - cron: "0 6 * * 1-6"
+    - cron: "0 6 * * 0"
+  pull_request:
+    branches: [main, master]
+  workflow_dispatch:
+    inputs:
+      run_live_invoke:
+        description: "Run golden-cohort drift against ARCHLUCID_API_URL with --strict-real (requires secrets + budget gate)."
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  cohort-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: Test golden cohort JSON contract
+        run: dotnet test ArchLucid.Application.Tests/ArchLucid.Application.Tests.csproj --filter "FullyQualifiedName~GoldenCohortContractTests" --configuration Release
+
+  cohort-faithfulness-phase-b-warn:
+    needs: cohort-contract
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Deterministic faithfulness trend (Phase B — enforce when repo var set)
+        run: |
+          set -euo pipefail
+          if [ "${{ vars.ARCHLUCID_FAITHFULNESS_NIGHTLY_ENFORCE }}" = "true" ]; then
+            python3 scripts/ci/eval_agent_faithfulness.py --enforce
+            ENFORCE_LABEL=", enforce"
+          else
+            python3 scripts/ci/eval_agent_faithfulness.py
+            ENFORCE_LABEL=", warn-only"
+          fi
+          if [ -f docs/quality/faithfulness-report.md ] && [ -n "${GITHUB_STEP_SUMMARY:-}" ]; then
+            echo "## Agent faithfulness (nightly${ENFORCE_LABEL})" >> "$GITHUB_STEP_SUMMARY"
+            head -n 40 docs/quality/faithfulness-report.md >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: faithfulness-nightly-warn
+          path: docs/quality/faithfulness-report.md
+          if-no-files-found: warn
+
+  cohort-rag-live-model-faithfulness:
+    needs: cohort-contract
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: RAG live-model faithfulness signal (Phase B committed exemplars)
+        run: |
+          set -euo pipefail
+          if [ "${{ vars.ARCHLUCID_RAG_LIVE_MODEL_FAITHFULNESS_ENFORCE }}" = "true" ]; then
+            python3 scripts/ci/run_rag_live_model_faithfulness_signal.py --enforce
+            ENFORCE_LABEL=", enforce"
+          else
+            python3 scripts/ci/run_rag_live_model_faithfulness_signal.py
+            ENFORCE_LABEL=", warn-only"
+          fi
+          if [ -f docs/quality/rag-live-model-faithfulness-summary.md ] && [ -n "${GITHUB_STEP_SUMMARY:-}" ]; then
+            echo "## RAG live-model faithfulness${ENFORCE_LABEL}" >> "$GITHUB_STEP_SUMMARY"
+            cat docs/quality/rag-live-model-faithfulness-summary.md >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: rag-live-model-faithfulness-signal
+          path: |
+            docs/quality/rag-live-model-faithfulness-summary.json
+            docs/quality/rag-live-model-faithfulness-summary.md
+          if-no-files-found: warn
+
+  cohort-simulator-drift:
+    needs: cohort-contract
+    if: ${{ vars.ARCHLUCID_GOLDEN_COHORT_BASELINE_LOCKED == 'true' }}
+    runs-on: ubuntu-latest
+    services:
+      sqlserver:
+        image: mcr.microsoft.com/mssql/server:2022-latest
+        env:
+          ACCEPT_EULA: Y
+          MSSQL_SA_PASSWORD: "LocalTesting123!"
+        ports:
+          - 1433:1433
+        options: >-
+          --health-cmd "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'LocalTesting123!' -C -Q \"SELECT 1\" || exit 1"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 20
+          --health-start-period 20s
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: Restore + build API integration tests (Release)
+        run: |
+          dotnet restore ArchLucid.Api.Tests/ArchLucid.Api.Tests.csproj
+          dotnet build ArchLucid.Api.Tests/ArchLucid.Api.Tests.csproj --no-restore -c Release
+
+      - name: Assert cohort.json has no placeholder SHAs while baseline locked
+        env:
+          ARCHLUCID_GOLDEN_COHORT_BASELINE_LOCKED: "true"
+        run: python scripts/ci/assert_golden_cohort_baseline_locked.py
+
+      - name: Archive prior drift summary (best-effort)
+        run: |
+          set -euo pipefail
+          if [ -f docs/quality/golden-cohort-drift-latest.md ]; then
+            mkdir -p docs/quality/archive
+            cp docs/quality/golden-cohort-drift-latest.md "docs/quality/archive/$(date -u +%Y-%m-%d).md"
+          fi
+
+      - name: Simulator drift vs locked cohort.json
+        env:
+          ARCHLUCID_GOLDEN_COHORT_BASELINE_LOCKED: "true"
+          ARCHLUCID_GOLDEN_COHORT_DRIFT_REPORT_ROOT: ${{ github.workspace }}/docs/quality
+          ARCHLUCID_SQL_TEST: "Server=127.0.0.1,1433;User Id=sa;Password=LocalTesting123!;TrustServerCertificate=True;Initial Catalog=ArchLucidPersistenceTests"
+        run: >
+          dotnet test ArchLucid.Api.Tests/ArchLucid.Api.Tests.csproj
+          --no-build -c Release
+          --filter "FullyQualifiedName~GoldenCohortSimulatorDriftTests"
+
+      - uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: golden-cohort-drift
+          path: |
+            docs/quality/golden-cohort-drift-latest.md
+            docs/quality/archive/*.md
+          if-no-files-found: warn
+
+  cohort-real-llm-gate:
+    needs: cohort-contract
+    runs-on: ubuntu-latest
+    environment: dev
+    outputs:
+      budget_exit_code: ${{ steps.budget.outputs.exit_code }}
+    # Improvement 11 (2026-04-24) — issues:write needed by the warn/kill auto-issue step.
+    permissions:
+      contents: read
+      id-token: write
+      issues: write
+    steps:
+      - name: Gate eligibility (var off, fork PR, or disabled path)
+        id: eligibility
+        run: |
+          set -euo pipefail
+          if [ "${{ vars.ARCHLUCID_GOLDEN_COHORT_REAL_LLM }}" != "true" ]; then
+            echo "enabled=false" >> "${GITHUB_OUTPUT}"
+            echo "ARCHLUCID_GOLDEN_COHORT_REAL_LLM is not true; cohort-real-llm-gate passes as no-op."
+            exit 0
+          fi
+
+          if [ "${{ github.event_name }}" = "pull_request" ] && [ "${{ github.event.pull_request.head.repo.full_name }}" != "${{ github.repository }}" ]; then
+            echo "enabled=false" >> "${GITHUB_OUTPUT}"
+            echo "Fork pull request; cohort-real-llm-gate passes as no-op (secrets unavailable)."
+            exit 0
+          fi
+
+          echo "enabled=true" >> "${GITHUB_OUTPUT}"
+
+      - uses: actions/checkout@v4
+        if: steps.eligibility.outputs.enabled == 'true'
+
+      - name: Set up Python (golden cohort budget probe)
+        if: steps.eligibility.outputs.enabled == 'true'
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Install requests (budget probe)
+        if: steps.eligibility.outputs.enabled == 'true'
+        run: python -m pip install --upgrade pip && pip install requests
+
+      - name: Azure login (Cost Management / management plane)
+        if: steps.eligibility.outputs.enabled == 'true'
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      # Improvement 11 (2026-04-24) — Q15-conditional kill-switch.
+      # Exit codes (defined in scripts/golden_cohort_budget_probe.py):
+      #   0 → continue normally (MTD < warnThresholdPercent of monthlyTokenBudgetUsd)
+      #   1 → WARN: continue but post issue   (MTD ≥ warnThresholdPercent and < killSwitchThresholdPercent)
+      #   2 → SKIP: post issue, do not fail   (MTD ≥ killSwitchThresholdPercent)
+      #   3 → probe failed: skip + summary, do not fail
+      # Thresholds 0.80 / 0.95 are enforced at merge time by
+      # scripts/ci/assert_golden_cohort_kill_switch_present.py.
+      - id: budget
+        name: Golden cohort budget probe ($15/mo cap, 80% warn / 95% kill)
+        if: steps.eligibility.outputs.enabled == 'true'
+        env:
+          AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          ARCHLUCID_GOLDEN_COHORT_AZURE_OPENAI_RESOURCE_ID: ${{ secrets.ARCHLUCID_GOLDEN_COHORT_AZURE_OPENAI_RESOURCE_ID }}
+        run: bash scripts/ci/run_golden_cohort_budget_probe_ci.sh "Golden cohort real LLM"
+
+      # Improvement 11 (2026-04-24) — owner visibility for warn (continue) and kill (skip) states.
+      # Uses gh CLI bundled on ubuntu-latest. We DO NOT --label so the issue doesn't require
+      # pre-existing labels. Title is dated so each calendar day appends only one issue per state.
+      - name: Open issue on warn or kill (Q15 owner visibility)
+        if: ${{ steps.eligibility.outputs.enabled == 'true' && (steps.budget.outputs.exit_code == '1' || steps.budget.outputs.exit_code == '2') }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BUDGET_EXIT: ${{ steps.budget.outputs.exit_code }}
+          MTD_USD: ${{ steps.budget.outputs.mtd_usd }}
+          WARN_USD: ${{ steps.budget.outputs.warn_threshold_usd }}
+          KILL_USD: ${{ steps.budget.outputs.kill_threshold_usd }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          state="WARN"
+          body_threshold_line="MTD spend \$${MTD_USD:-?} crossed the warn threshold (\$${WARN_USD:-?}, 80% of cap). Cohort still runs; opening this issue so the owner can monitor before the kill threshold trips."
+          if [ "${BUDGET_EXIT}" = "2" ]; then
+            state="KILL — SKIPPED"
+            body_threshold_line="MTD spend \$${MTD_USD:-?} crossed the kill threshold (\$${KILL_USD:-?}, 95% of cap). Real-LLM cohort SKIPPED for the rest of the month. Workflow did not count as failure (Q15-conditional rule)."
+          fi
+          today=$(date -u +%Y-%m-%d)
+          title="Golden cohort kill-switch ${state} — ${today}"
+          body=$(cat <<EOF
+          ${body_threshold_line}
+
+          - Workflow run: ${RUN_URL}
+          - Probe exit code: ${BUDGET_EXIT}
+          - Month-to-date USD: \$${MTD_USD:-?}
+          - Warn threshold USD: \$${WARN_USD:-?}
+          - Kill threshold USD: \$${KILL_USD:-?}
+          - Runbook: docs/runbooks/GOLDEN_COHORT_REAL_LLM_GATE.md
+
+          This issue was opened automatically by .github/workflows/golden-cohort-nightly.yml. Close it after the owner has reviewed and (for KILL) acknowledged the skip.
+          EOF
+          )
+          gh issue create --title "${title}" --body "${body}" || echo "gh issue create failed; budget step still recorded the state in the workflow summary above."
+
+      - name: Setup .NET (golden cohort real LLM gate)
+        if: ${{ steps.eligibility.outputs.enabled == 'true' && (steps.budget.outputs.exit_code == '0' || steps.budget.outputs.exit_code == '1') }}
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+
+      # Improvement 11 (2026-04-24) — runs on exit 0 (green) AND exit 1 (warn — still under kill).
+      - name: Cohort fixture presence check (no live LLM invocation in this job)
+        if: ${{ steps.eligibility.outputs.enabled == 'true' && (steps.budget.outputs.exit_code == '0' || steps.budget.outputs.exit_code == '1') }}
+        env:
+          ARCHLUCID_GOLDEN_COHORT_REAL_LLM: "true"
+          ARCHLUCID_GOLDEN_COHORT_LATENCY_REPORT_PATH: ${{ runner.temp }}/golden-cohort-latency.json
+        run: >
+          dotnet test ArchLucid.Application.Tests/ArchLucid.Application.Tests.csproj
+          --configuration Release
+          --filter "FullyQualifiedName~GoldenCohortRealLlmGateTests"
+
+      # Improvement 11 (2026-04-24) — capture per-scenario p50/p95/p99 latency JSON, even on test
+      # failure, so the dashboard always has the latest data point. The file is also a candidate to
+      # be pushed into Application Insights customMetrics by an owner-side ingestion job — that
+      # ingestion is out of scope for this PR (no Application Insights connection string is wired
+      # in here; doing so would inject a secret the prompt explicitly says we must not).
+      - name: Upload per-scenario latency JSON
+        if: ${{ steps.eligibility.outputs.enabled == 'true' && always() && (steps.budget.outputs.exit_code == '0' || steps.budget.outputs.exit_code == '1') }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: golden-cohort-latency
+          path: ${{ runner.temp }}/golden-cohort-latency.json
+          if-no-files-found: warn
+
+      - uses: actions/upload-artifact@v4
+        if: ${{ steps.eligibility.outputs.enabled == 'true' && always() }}
+        with:
+          name: golden-cohort-usage-mtd-ledger
+          path: tests/golden-cohort/usage-mtd.json
+          if-no-files-found: warn
+
+  cohort-real-mode-eval-corpus:
+    needs: cohort-real-llm-gate
+    if: >-
+      ${{ vars.ARCHLUCID_GOLDEN_COHORT_REAL_LLM == 'true'
+      && (needs['cohort-real-llm-gate'].outputs.budget_exit_code == '0'
+        || needs['cohort-real-llm-gate'].outputs.budget_exit_code == '1') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Eval corpus (real-mode exemplars + quality gates)
+        env:
+          ARCHLUCID_EVAL_CORPUS_MARKDOWN_REPORT: ${{ runner.temp }}/eval-corpus-nightly-real-mode.md
+          ARCHLUCID_EVAL_CORPUS_REAL_MODE_SMOKE_AGENT_RESULT: ${{ github.workspace }}/tests/eval-corpus/agent-results/corpus-real-mode-smoke.real.json
+          ARCHLUCID_EVAL_CORPUS_REAL_MODE_COST_AGENT_RESULT: ${{ github.workspace }}/tests/eval-corpus/agent-results/corpus-real-mode-cost.real.json
+          ARCHLUCID_EVAL_CORPUS_REAL_MODE_COMPLIANCE_AGENT_RESULT: ${{ github.workspace }}/tests/eval-corpus/agent-results/corpus-real-mode-compliance.real.json
+          ARCHLUCID_EVAL_CORPUS_REAL_MODE_CRITIC_AGENT_RESULT: ${{ github.workspace }}/tests/eval-corpus/agent-results/corpus-real-mode-critic.real.json
+          ARCHLUCID_EVAL_CORPUS_REAL_MODE_THREE_TIER_AGENT_RESULT: ${{ github.workspace }}/tests/eval-corpus/agent-results/corpus-real-mode-three-tier.real.json
+          ARCHLUCID_EVAL_CORPUS_REAL_MODE_MICROSERVICES_AGENT_RESULT: ${{ github.workspace }}/tests/eval-corpus/agent-results/corpus-real-mode-microservices.real.json
+          ARCHLUCID_EVAL_CORPUS_REAL_MODE_DATABASE_BACKUP_AGENT_RESULT: ${{ github.workspace }}/tests/eval-corpus/agent-results/corpus-real-mode-database-backup.real.json
+          ARCHLUCID_EVAL_CORPUS_REAL_MODE_OVERPROVISIONED_VM_AGENT_RESULT: ${{ github.workspace }}/tests/eval-corpus/agent-results/corpus-real-mode-overprovisioned-vm.real.json
+          ARCHLUCID_EVAL_CORPUS_REAL_MODE_MULTI_REGION_AGENT_RESULT: ${{ github.workspace }}/tests/eval-corpus/agent-results/corpus-real-mode-multi-region.real.json
+          ARCHLUCID_EVAL_CORPUS_REAL_MODE_AZURE_WEB_APP_AGENT_RESULT: ${{ github.workspace }}/tests/eval-corpus/agent-results/corpus-real-mode-azure-web-app.real.json
+          ARCHLUCID_EVAL_CORPUS_REAL_MODE_CLOUD_MIGRATION_LIFT_SHIFT_AGENT_RESULT: ${{ github.workspace }}/tests/eval-corpus/agent-results/corpus-real-mode-cloud-migration-lift-shift.real.json
+          ARCHLUCID_EVAL_CORPUS_REAL_MODE_GREENFIELD_MICROSERVICES_AGENT_RESULT: ${{ github.workspace }}/tests/eval-corpus/agent-results/corpus-real-mode-greenfield-microservices.real.json
+          ARCHLUCID_EVAL_CORPUS_REAL_MODE_HEALTHCARE_HIPAA_AGENT_RESULT: ${{ github.workspace }}/tests/eval-corpus/agent-results/corpus-real-mode-healthcare-hipaa.real.json
+          ARCHLUCID_EVAL_CORPUS_REAL_MODE_FINOPS_EXISTING_AZURE_AGENT_RESULT: ${{ github.workspace }}/tests/eval-corpus/agent-results/corpus-real-mode-finops-existing-azure.real.json
+          ARCHLUCID_EVAL_CORPUS_REAL_MODE_EVENT_DRIVEN_AGENT_RESULT: ${{ github.workspace }}/tests/eval-corpus/agent-results/corpus-real-mode-event-driven.real.json
+          ARCHLUCID_EVAL_CORPUS_REAL_MODE_MULTI_REGION_ACTIVE_ACTIVE_AGENT_RESULT: ${{ github.workspace }}/tests/eval-corpus/agent-results/corpus-real-mode-multi-region-active-active.real.json
+          ARCHLUCID_EVAL_CORPUS_REAL_MODE_DATA_PLATFORM_ANALYTICS_AGENT_RESULT: ${{ github.workspace }}/tests/eval-corpus/agent-results/corpus-real-mode-data-platform-analytics.real.json
+          ARCHLUCID_EVAL_CORPUS_REAL_MODE_AI_ML_INFERENCE_AGENT_RESULT: ${{ github.workspace }}/tests/eval-corpus/agent-results/corpus-real-mode-ai-ml-inference.real.json
+        run: |
+          set -euo pipefail
+          REP="${ARCHLUCID_EVAL_CORPUS_MARKDOWN_REPORT}"
+          python3 scripts/ci/eval_agent_corpus.py \
+            --markdown-report "${REP}" \
+            --enforce-quality-gate \
+            --enforce-real-quality-gate \
+            --enforce-llm-faithfulness \
+            --baseline
+          if [ -n "${GITHUB_STEP_SUMMARY:-}" ]; then cat "${REP}" >> "${GITHUB_STEP_SUMMARY}"; fi
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: eval-corpus-nightly-real-mode
+          path: ${{ runner.temp }}/eval-corpus-nightly-real-mode.md
+          if-no-files-found: warn
+
+  cohort-real-llm-live:
+    needs:
+      - cohort-contract
+      - cohort-real-llm-gate
+    if: >-
+      ${{ vars.ARCHLUCID_GOLDEN_COHORT_REAL_LLM == 'true'
+      && (needs['cohort-real-llm-gate'].outputs.budget_exit_code == '0'
+        || needs['cohort-real-llm-gate'].outputs.budget_exit_code == '1')
+      && (
+        (github.event_name == 'workflow_dispatch' && inputs.run_live_invoke == true)
+        || (
+          github.event_name == 'schedule'
+          && github.event.schedule == '0 6 * * 0'
+          && vars.ARCHLUCID_GOLDEN_COHORT_LIVE_SCHEDULE_ENABLED == 'true'
+        )
+      ) }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: Require golden cohort API host secret
+        env:
+          ARCHLUCID_API_URL: ${{ secrets.ARCHLUCID_GOLDEN_COHORT_API_HOST }}
+        run: |
+          set -euo pipefail
+          if [ -z "${ARCHLUCID_API_URL:-}" ]; then
+            echo "::error::ARCHLUCID_GOLDEN_COHORT_API_HOST repository secret must be set to the ArchLucid API base URL (https://…); the CLI maps it to ARCHLUCID_API_URL."
+            exit 1
+          fi
+
+      - name: dotnet restore CLI
+        run: dotnet restore ArchLucid.Cli/ArchLucid.Cli.csproj
+
+      # Runner-side AZURE_OPENAI_* matches docs/library/FIRST_REAL_VALUE.md and CLI RealModePreflight
+      # expectations. The drift command calls the hosted API; these env vars still align tooling and
+      # any subprocess that reads process environment. Set secret AZURE_OPENAI_API_KEY and variable
+      # AZURE_OPENAI_ENDPOINT on the repository (see docs/runbooks/GOLDEN_COHORT_REAL_LLM_GATE.md §2).
+      - name: Golden cohort drift (strict real + structural-only)
+        env:
+          ARCHLUCID_API_URL: ${{ secrets.ARCHLUCID_GOLDEN_COHORT_API_HOST }}
+          ARCHLUCID_GOLDEN_COHORT_REAL_LLM: "true"
+          ARCHLUCID_AGENT_EXECUTION_MODE: "Real"
+          AZURE_OPENAI_ENDPOINT: ${{ vars.AZURE_OPENAI_ENDPOINT }}
+          AZURE_OPENAI_API_KEY: ${{ secrets.AZURE_OPENAI_API_KEY }}
+          AZURE_OPENAI_DEPLOYMENT_NAME: gpt-5.6-terra
+        run: >
+          dotnet run --project ArchLucid.Cli/ArchLucid.Cli.csproj --configuration Release --
+          golden-cohort drift --strict-real --structural-only
+
+      - name: Scrape token metrics
+        env:
+          ARCHLUCID_API_URL: ${{ secrets.ARCHLUCID_GOLDEN_COHORT_API_HOST }}
+        run: curl -s "${ARCHLUCID_API_URL}/metrics" > metrics.txt
+
+      - name: Aggregate LLM Token Metrics
+        run: python scripts/ci/aggregate_llm_token_metrics.py --metrics metrics.txt --output golden-cohort-llm-token-report.md
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: golden-cohort-llm-token-report
+          path: golden-cohort-llm-token-report.md
+          if-no-files-found: warn

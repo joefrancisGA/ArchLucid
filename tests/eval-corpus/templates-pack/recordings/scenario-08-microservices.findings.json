@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "scenarioId": "scenario-08-microservices",
+  "source": "bootstrap_eval_template_recordings.py",
+  "note": "Synthetic baseline until live API capture; replace via eval_template_harness --mode capture.",
+  "findings": [
+    {
+      "findingId": "must-event-driven-order-inventory",
+      "category": "Topology",
+      "severity": "Medium",
+      "title": "event-driven",
+      "detail": "event-driven",
+      "message": "event-driven"
+    },
+    {
+      "findingId": "must-per-service-observability",
+      "category": "Topology",
+      "severity": "Medium",
+      "title": "trace",
+      "detail": "trace",
+      "message": "trace"
+    },
+    {
+      "findingId": "must-api-versioning-mobile",
+      "category": "Critic",
+      "severity": "Medium",
+      "title": "api version",
+      "detail": "api version",
+      "message": "api version"
+    },
+    {
+      "findingId": "must-strangler-fig-phasing",
+      "category": "Topology",
+      "severity": "Medium",
+      "title": "strangler",
+      "detail": "strangler",
+      "message": "strangler"
+    }
+  ]
+}

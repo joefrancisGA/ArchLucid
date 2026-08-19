@@ -1,0 +1,38 @@
+# Weekly pricing quote response SLA telemetry (non merge-blocking).
+# Policy: docs/runbooks/PRICING_QUOTE_RESPONSE_TELEMETRY.md
+
+name: "Commercial: pricing quote response weekly"
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 7 * * 1"
+
+permissions:
+  contents: read
+
+jobs:
+  pricing-quote-response-weekly:
+    if: github.event.repository.fork == false
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Generate weekly pricing quote response summary (fixture)
+        run: |
+          pwsh -NoProfile -File scripts/Invoke-PricingQuoteResponseWeekly.ps1 -OutDir artifacts/pricing-quote-response
+
+      - name: Pricing quote weekly telemetry unit tests
+        run: python -m unittest discover -s scripts/ci/tests -p "test_report_pricing_quote_response_weekly.py"
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: pricing-quote-response-weekly
+          path: artifacts/pricing-quote-response/**/*
+          if-no-files-found: warn

@@ -1,0 +1,139 @@
+# Daily App Insights / Log Analytics error digest emailed to the owner.
+# Policy: docs/runbooks/APP_INSIGHTS_DAILY_ERROR_REPORT.md
+
+name: "Ops: App Insights daily error report"
+
+on:
+  workflow_dispatch:
+  schedule:
+    # 07:30 America/New_York — before the workday.
+    - cron: "30 7 * * *"
+      timezone: America/New_York
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  app-insights-daily-error-report:
+    if: github.event.repository.fork == false
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: dev
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Eligibility
+        id: eligibility
+        run: |
+          set -euo pipefail
+          if [ "${{ vars.APP_INSIGHTS_DAILY_REPORT_ENABLED }}" = "false" ]; then
+            echo "enabled=false" >> "${GITHUB_OUTPUT}"
+            echo "Skip: repository variable APP_INSIGHTS_DAILY_REPORT_ENABLED=false."
+            exit 0
+          fi
+          if [ -z "${{ vars.ARCHLUCID_LOG_ANALYTICS_WORKSPACE_ID }}" ]; then
+            echo "enabled=false" >> "${GITHUB_OUTPUT}"
+            echo "Skip: set repository variable ARCHLUCID_LOG_ANALYTICS_WORKSPACE_ID (Log Analytics customerId)."
+            exit 0
+          fi
+          if [ -z "${{ secrets.APP_INSIGHTS_REPORT_EMAIL_TO }}" ]; then
+            echo "enabled=false" >> "${GITHUB_OUTPUT}"
+            echo "Skip: set dev environment secret APP_INSIGHTS_REPORT_EMAIL_TO."
+            exit 0
+          fi
+          echo "enabled=true" >> "${GITHUB_OUTPUT}"
+
+      - uses: actions/setup-python@v6
+        if: steps.eligibility.outputs.enabled == 'true'
+        with:
+          python-version: "3.12"
+
+      - uses: azure/login@v3
+        if: steps.eligibility.outputs.enabled == 'true'
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Restore error-signature baseline
+        if: steps.eligibility.outputs.enabled == 'true'
+        uses: actions/cache/restore@v5
+        with:
+          path: ${{ runner.temp }}/app-insights-error-baseline
+          key: app-insights-error-baseline-${{ github.run_id }}
+          restore-keys: |
+            app-insights-error-baseline-
+
+      - name: Generate daily App Insights digest
+        if: steps.eligibility.outputs.enabled == 'true'
+        env:
+          ARCHLUCID_LOG_ANALYTICS_WORKSPACE_ID: ${{ vars.ARCHLUCID_LOG_ANALYTICS_WORKSPACE_ID }}
+        run: |
+          set -euo pipefail
+          DATE_UTC="$(date -u +%Y-%m-%d)"
+          OUT_DIR="${GITHUB_WORKSPACE}/artifacts/app-insights-daily-errors/${DATE_UTC}"
+          mkdir -p "${OUT_DIR}"
+          BASELINE_IN="${RUNNER_TEMP}/app-insights-error-baseline/baseline.json"
+          BASELINE_ARGS=()
+          if [ -f "${BASELINE_IN}" ]; then
+            BASELINE_ARGS+=(--baseline-in "${BASELINE_IN}")
+          fi
+          python3 scripts/ci/report_app_insights_daily_errors.py \
+            --environment dev \
+            --window-hours 24 \
+            --baseline-out "${RUNNER_TEMP}/app-insights-error-baseline/baseline.json" \
+            "${BASELINE_ARGS[@]}" \
+            --json-out "${OUT_DIR}/daily-error-report.json" \
+            --markdown-out "${OUT_DIR}/daily-error-report.md"
+          if [ -n "${GITHUB_STEP_SUMMARY:-}" ]; then
+            echo "## App Insights daily error digest (${DATE_UTC})" >> "${GITHUB_STEP_SUMMARY}"
+            head -n 40 "${OUT_DIR}/daily-error-report.md" >> "${GITHUB_STEP_SUMMARY}"
+          fi
+
+      - name: App Insights daily digest unit tests
+        if: steps.eligibility.outputs.enabled == 'true'
+        run: python -m unittest discover -s scripts/ci/tests -p "test_report_app_insights_daily_errors.py"
+
+      - name: Email digest (new signatures only)
+        if: steps.eligibility.outputs.enabled == 'true'
+        continue-on-error: true
+        env:
+          APP_INSIGHTS_REPORT_EMAIL_TO: ${{ secrets.APP_INSIGHTS_REPORT_EMAIL_TO }}
+          ACS_EMAIL_ENDPOINT: ${{ vars.ACS_EMAIL_ENDPOINT }}
+          ACS_EMAIL_SENDER_ADDRESS: ${{ vars.ACS_EMAIL_SENDER_ADDRESS }}
+          SMTP_HOST: ${{ secrets.SMTP_HOST }}
+          SMTP_PORT: ${{ secrets.SMTP_PORT }}
+          SMTP_USERNAME: ${{ secrets.SMTP_USERNAME }}
+          SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+          SMTP_FROM_ADDRESS: ${{ secrets.SMTP_FROM_ADDRESS }}
+          SMTP_USE_TLS: ${{ vars.SMTP_USE_TLS }}
+        run: |
+          set -euo pipefail
+          DATE_UTC="$(date -u +%Y-%m-%d)"
+          OUT_DIR="${GITHUB_WORKSPACE}/artifacts/app-insights-daily-errors/${DATE_UTC}"
+          python3 scripts/ci/app_insights_report_email.py \
+            --report-json "${OUT_DIR}/daily-error-report.json" \
+            --markdown-path "${OUT_DIR}/daily-error-report.md" \
+            --only-when-new
+
+      - name: Save error-signature baseline
+        if: steps.eligibility.outputs.enabled == 'true'
+        run: |
+          set -euo pipefail
+          mkdir -p "${RUNNER_TEMP}/app-insights-error-baseline"
+          test -f "${RUNNER_TEMP}/app-insights-error-baseline/baseline.json"
+
+      - name: Cache baseline for next run
+        if: steps.eligibility.outputs.enabled == 'true'
+        uses: actions/cache/save@v5
+        with:
+          path: ${{ runner.temp }}/app-insights-error-baseline
+          key: app-insights-error-baseline-${{ github.run_id }}
+
+      - uses: actions/upload-artifact@v4
+        if: steps.eligibility.outputs.enabled == 'true'
+        with:
+          name: app-insights-daily-errors-${{ github.run_id }}
+          path: artifacts/app-insights-daily-errors/
+          if-no-files-found: error

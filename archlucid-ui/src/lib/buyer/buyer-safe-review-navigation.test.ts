@@ -1,0 +1,97 @@
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+
+import {
+  SHOWCASE_STATIC_DEMO_LATER_COMPARE_RUN_ID,
+  SHOWCASE_STATIC_DEMO_MANIFEST_ID,
+  SHOWCASE_STATIC_DEMO_PRIOR_COMPARE_RUN_ID,
+  SHOWCASE_STATIC_DEMO_RUN_ID,
+} from "@/lib/showcase-static-demo";
+
+const BACKUP_ENV = process.env;
+
+describe("buyer-safe-review-navigation", () => {
+  beforeEach(() => {
+    vi.resetModules();
+  });
+
+  afterEach(() => {
+    process.env = { ...BACKUP_ENV };
+    vi.restoreAllMocks();
+  });
+
+  it("prefers buyer-primary navigation for curated demo IDs when DEMO_MODE buyer chrome is enabled", async () => {
+    process.env = { ...BACKUP_ENV, NEXT_PUBLIC_DEMO_MODE: "true", NEXT_PUBLIC_DEMO_STATIC_OPERATOR: "false" };
+
+    const mod = await import("@/lib/buyer/buyer-safe-review-navigation");
+
+    expect(mod.isBuyerSafePrimaryReviewNavigationPreferred(SHOWCASE_STATIC_DEMO_RUN_ID)).toBe(true);
+    expect(mod.isBuyerSafePrimaryReviewNavigationPreferred(SHOWCASE_STATIC_DEMO_PRIOR_COMPARE_RUN_ID)).toBe(true);
+
+    const link = mod.getBuyerSafeReviewsTableLink(SHOWCASE_STATIC_DEMO_RUN_ID);
+
+    expect(link.label).toBe("Open review");
+    expect(link.href).toBe(`/architecture/reviews/${SHOWCASE_STATIC_DEMO_RUN_ID}`);
+  });
+
+  it("uses review link for static spine IDs even when buyer chrome env is off", async () => {
+    process.env = { ...BACKUP_ENV, NEXT_PUBLIC_DEMO_MODE: "false", NEXT_PUBLIC_DEMO_STATIC_OPERATOR: "false" };
+
+    const mod = await import("@/lib/buyer/buyer-safe-review-navigation");
+
+    expect(mod.isBuyerSafePrimaryReviewNavigationPreferred("claims-intake-modernization")).toBe(false);
+
+    const link = mod.getBuyerSafeReviewsTableLink("claims-intake-modernization");
+
+    expect(link.label).toBe("Open review");
+    expect(link.href).toBe("/architecture/reviews/claims-intake-modernization");
+  });
+
+  it("uses review link for static spine IDs when static operator enables buyer-polished shell without DEMO_MODE", async () => {
+    process.env = { ...BACKUP_ENV, NEXT_PUBLIC_DEMO_MODE: "false", NEXT_PUBLIC_DEMO_STATIC_OPERATOR: "true" };
+
+    const mod = await import("@/lib/buyer/buyer-safe-review-navigation");
+
+    const link = mod.getBuyerSafeReviewsTableLink("claims-intake-modernization");
+
+    expect(link.label).toBe("Open review");
+    expect(link.href).toBe("/architecture/reviews/claims-intake-modernization");
+  });
+
+  it("canonicalizes workspace href for alias demo IDs", async () => {
+    process.env = { ...BACKUP_ENV, NEXT_PUBLIC_DEMO_MODE: "false", NEXT_PUBLIC_DEMO_STATIC_OPERATOR: "false" };
+
+    const mod = await import("@/lib/buyer/buyer-safe-review-navigation");
+
+    expect(mod.getCanonicalReviewWorkspaceHref("claims-intake-modernization-run")).toBe(
+      `/architecture/reviews/${SHOWCASE_STATIC_DEMO_RUN_ID}`,
+    );
+  });
+
+  it("expose stable manifest slug for manifests route", async () => {
+    process.env = { ...BACKUP_ENV, NEXT_PUBLIC_DEMO_MODE: "false", NEXT_PUBLIC_DEMO_STATIC_OPERATOR: "false" };
+
+    const mod = await import("@/lib/buyer/buyer-safe-review-navigation");
+
+    expect(mod.getShowcaseManifestHref()).toBe(`/governance/sealed-records/${SHOWCASE_STATIC_DEMO_MANIFEST_ID}`);
+  });
+
+  it("builds showcase compare href with v1 and v2 static spine run ids", async () => {
+    process.env = { ...BACKUP_ENV, NEXT_PUBLIC_DEMO_MODE: "true", NEXT_PUBLIC_DEMO_STATIC_OPERATOR: "false" };
+
+    const mod = await import("@/lib/buyer/buyer-safe-review-navigation");
+
+    expect(mod.getShowcaseCompareHref()).toBe(
+      `/insights/compare-two-reviews?priorRunId=${SHOWCASE_STATIC_DEMO_PRIOR_COMPARE_RUN_ID}&laterRunId=${SHOWCASE_STATIC_DEMO_LATER_COMPARE_RUN_ID}`,
+    );
+  });
+
+  it("resolves signed manifest table link for curated static spine IDs", async () => {
+    process.env = { ...BACKUP_ENV, NEXT_PUBLIC_DEMO_MODE: "true", NEXT_PUBLIC_DEMO_STATIC_OPERATOR: "false" };
+
+    const mod = await import("@/lib/buyer/buyer-safe-review-navigation");
+    const manifest = mod.getBuyerSafeSignedManifestTableLink(SHOWCASE_STATIC_DEMO_RUN_ID);
+
+    expect(manifest.label).toBe("View sealed record");
+    expect(manifest.href).toBe(`/governance/sealed-records/${SHOWCASE_STATIC_DEMO_MANIFEST_ID}`);
+  });
+});

@@ -1,0 +1,40 @@
+---
+description: Stop before overwriting unstaged changes the agent did not create this session
+alwaysApply: true
+---
+
+# Agent working-tree safety
+
+Protect the user's unstaged edits. A coding agent must not silently overwrite files that were already dirty when the session started.
+
+## Before editing tracked files
+
+1. When the task will touch **specific paths**, run a scoped check first:
+   ```powershell
+   .\scripts\agent\check-working-tree-path.ps1 -Path 'path/to/file.cs'
+   ```
+2. If the script exits **2**, **stop** and tell the user which paths are blocked. Offer:
+   - commit or stash their changes,
+   - name alternate files,
+   - or set `ARCHLUCID_AGENT_ALLOW_DIRTY=1` for a one-shot override (user-directed only).
+3. Do **not** run `git checkout`, `git restore`, or `git reset` on blocked paths to "fix" the conflict.
+
+## What counts as safe
+
+- **New untracked files** you are creating (not in the session baseline).
+- **Clean tracked files** (no unstaged diff at session start).
+- Files you already edited this session **only if** they were clean at session start or you created them.
+
+## Cursor hook (when enabled)
+
+Project hooks in `.cursor/hooks.json` capture a **session-start baseline** of dirty tracked files and block `Write` / `StrReplace` on those paths via `preToolUse`. The hook is the hard guard; this rule is the agent's procedural guard.
+
+## Commit discipline
+
+When committing, **stage only paths you changed for the requested task**. Never `git add -A` or `git add .` on a dirty tree. List paths left unstaged in the commit summary.
+
+## Never
+
+- Overwrite blocked paths and mention it only after the fact.
+- Assume unstaged UI or test edits are yours.
+- Amend commits that include files the user did not ask to commit.

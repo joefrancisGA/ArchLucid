@@ -1,0 +1,7 @@
+# Sample variables for local terraform validate / plan dry-run only.
+# Replace GUIDs with values from your ArchLucid deployment team.
+
+archlucid_tenant_id                   = "00000000-0000-0000-0000-000000000001"
+archlucid_managed_identity_object_id  = "00000000-0000-0000-0000-000000000002"
+subscription_id                       = "00000000-0000-0000-0000-000000000003"
+location                              = "eastus"

@@ -1,0 +1,87 @@
+{
+  "rulePackId": "fs-vertical-v1",
+  "name": "GLBA/SOX financial API platform",
+  "version": "1.0.0",
+  "rules": [
+    {
+      "ruleId": "fs-ctrl-001",
+      "controlId": "FS-001",
+      "controlName": "GLBA/SOX financial API platform \u2014 control theme logging",
+      "appliesToCategory": "logging",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Centralized tamper-evident logging for regulated data flows (anchor: GLBA customer financial privacy; SOX IT general controls for material systems)."
+    },
+    {
+      "ruleId": "fs-ctrl-002",
+      "controlId": "FS-002",
+      "controlName": "GLBA/SOX financial API platform \u2014 control theme encryption",
+      "appliesToCategory": "encryption",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Error",
+      "description": "Encryption in transit and at rest for regulated identifiers; key rotation cadence explicit."
+    },
+    {
+      "ruleId": "fs-ctrl-003",
+      "controlId": "FS-003",
+      "controlName": "GLBA/SOX financial API platform \u2014 control theme access",
+      "appliesToCategory": "access",
+      "requiredNodeType": "PolicyControl",
+      "requiredEdgeType": "APPLIES_TO",
+      "severity": "Warning",
+      "description": "Role-based access with periodic recertification; break-glass documented."
+    },
+    {
+      "ruleId": "fs-ctrl-004",
+      "controlId": "FS-004",
+      "controlName": "GLBA/SOX financial API platform \u2014 control theme thirdparty",
+      "appliesToCategory": "thirdparty",
+      "requiredNodeType": "PolicyControl",
+      "requiredEdgeType": "APPLIES_TO",
+      "severity": "Error",
+      "description": "Subprocessor inventory and DPAs / vendor risk reviews before production connectivity."
+    },
+    {
+      "ruleId": "fs-ctrl-005",
+      "controlId": "FS-005",
+      "controlName": "GLBA/SOX financial API platform \u2014 control theme segmentation",
+      "appliesToCategory": "segmentation",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "description": "Network segmentation between regulated and non-regulated tiers; deny-by-default east-west."
+    },
+    {
+      "ruleId": "fs-ctrl-006",
+      "controlId": "FS-006",
+      "controlName": "GLBA/SOX financial API platform \u2014 control theme dr",
+      "appliesToCategory": "dr",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Error",
+      "description": "Backup, restore, and RTO/RPO tested quarterly for regulated datasets."
+    },
+    {
+      "ruleId": "fs-ctrl-007",
+      "controlId": "FS-007",
+      "controlName": "GLBA/SOX financial API platform \u2014 control theme changes",
+      "appliesToCategory": "changes",
+      "requiredNodeType": "PolicyControl",
+      "requiredEdgeType": "APPLIES_TO",
+      "severity": "Warning",
+      "description": "Change windows, CAB approval, and automated drift detection for production configs."
+    },
+    {
+      "ruleId": "fs-ctrl-008",
+      "controlId": "FS-008",
+      "controlName": "GLBA/SOX financial API platform \u2014 control theme monitoring",
+      "appliesToCategory": "monitoring",
+      "requiredNodeType": "PolicyControl",
+      "requiredEdgeType": "APPLIES_TO",
+      "severity": "Error",
+      "description": "Security monitoring and alerting on privileged actions and data exfiltration patterns."
+    }
+  ]
+}

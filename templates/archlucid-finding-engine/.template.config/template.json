@@ -1,0 +1,15 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "ArchLucid",
+  "classifications": [ "ArchLucid", "Library" ],
+  "identity": "ArchLucid.Templates.FindingEngine",
+  "name": "ArchLucid finding engine",
+  "description": "Minimal class library plus xUnit tests for custom finding logic.",
+  "shortName": "archlucid-finding-engine",
+  "sourceName": "ArchLucidFindingEngine",
+  "preferNameDirectory": true,
+  "tags": {
+    "language": "C#",
+    "type": "solution"
+  }
+}

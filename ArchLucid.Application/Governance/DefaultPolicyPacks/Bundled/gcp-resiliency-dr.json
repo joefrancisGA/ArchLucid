@@ -1,0 +1,50 @@
+{
+  "complianceRuleIds": [],
+  "complianceRuleKeys": [
+    "gcp-dr-001",
+    "gcp-dr-002",
+    "gcp-dr-003",
+    "gcp-dr-004",
+    "gcp-dr-005",
+    "gcp-dr-006",
+    "gcp-dr-007",
+    "gcp-dr-008",
+    "gcp-dr-009",
+    "gcp-dr-010",
+    "gcp-dr-011",
+    "gcp-dr-012",
+    "gcp-dr-013",
+    "gcp-dr-014",
+    "gcp-dr-015",
+    "gcp-dr-016",
+    "gcp-dr-017",
+    "gcp-dr-018",
+    "gcp-dr-019",
+    "gcp-dr-020",
+    "gcp-dr-021",
+    "gcp-dr-022",
+    "gcp-dr-023",
+    "gcp-dr-024",
+    "gcp-dr-025",
+    "gcp-dr-026",
+    "gcp-dr-027",
+    "gcp-dr-028"
+  ],
+  "alertRuleIds": [],
+  "compositeAlertRuleIds": [],
+  "advisoryDefaults": {
+    "severityFloor": "warning",
+    "priorityFloor": "P0",
+    "scanDepth": "standard"
+  },
+  "metadata": {
+    "templateId": "gcp-resiliency-dr-v1",
+    "pack.displayName": "GCP Resiliency & Disaster Recovery",
+    "pack.category": "Reliability",
+    "pack.version": "1.0.0",
+    "pack.isDefault": "true",
+    "pack.description": "Multi-region GCE/Cloud SQL, Cloud DNS failover, and backup/DR themes for GCP workloads.",
+    "frameworkMappingDisclaimer": "DR mapping is thematic only.",
+    "curatedRulesArtifact": "docs/samples/policy-packs/gcp-resiliency-dr-rules-v1.json"
+  }
+}

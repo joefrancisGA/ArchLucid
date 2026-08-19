@@ -1,0 +1,52 @@
+{
+  "schema": "archlucid.paid-pilot-evidence-ledger.v1",
+  "ledgerLabel": "",
+  "pilotLabel": "",
+  "runId": "",
+  "recordedUtc": "",
+  "paidPilot": true,
+  "executionMode": "real | simulator | mixed",
+  "pilotContext": {
+    "sku": "readiness-review | arb-report | evidence-pack | other",
+    "workloadCategory": "",
+    "evidenceBasis": "buyer-azure | uploaded-evidence | demo-workspace-accepted",
+    "pilotDurationDays": null,
+    "sponsorRole": ""
+  },
+  "baselineSourceConfidence": {
+    "level": "high | medium | low | not-collected",
+    "sources": ["buyer-reported", "time-study", "model-default", "waived"],
+    "rationale": ""
+  },
+  "decisionChanged": {
+    "changed": false,
+    "why": "",
+    "findingIds": [],
+    "decisionDeltaOutcome": "pass | warn | fail",
+    "attributionNote": ""
+  },
+  "sponsorActionTaken": {
+    "action": "none | approved-with-conditions | deferred-scope | requested-evidence-pack | requested-arb-report | initiated-annual-order | declined",
+    "description": "",
+    "actionUtc": ""
+  },
+  "conversionStatus": "not-started | in-pilot | sponsor-sent | evidence-pack-ordered | arb-report-ordered | annual-order-signed | lost-deferred",
+  "expansionSignal": {
+    "level": "none | watch | strong",
+    "signals": ["second-workload", "team-expansion", "budget-increase", "reference-willing"],
+    "notes": ""
+  },
+  "blockers": [
+    {
+      "category": "procurement | soc2 | finding-quality | pricing | connector-gap | no-decision-change | champion-loss | other",
+      "description": "",
+      "deferralScope": "v1 | v1.1 | v2 | b-procurement"
+    }
+  ],
+  "notes": [
+    "Buyer-safe only — no customer names, subscription IDs, or raw infrastructure identifiers.",
+    "Populate decisionChanged from QUOTE_TO_PROOF_PACKET.md#decision-delta-interview-paid-pilots (PAID_PILOT_EVIDENCE_LEDGER.md alias) within 7 days of sponsor handoff.",
+    "Populate baselineSourceConfidence from paid-pilot-baseline.template.json or QUOTE_TO_PROOF_PACKET.md#commercial-conversion-checklist §1.",
+    "Store full rows locally; commit only sanitized aggregates per FIRST_SESSION_COGNITIVE_LOAD_OBSERVATION.md#validation-runs-folder (validation-runs/README.md alias)."
+  ]
+}

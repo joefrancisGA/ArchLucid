@@ -1,0 +1,21 @@
+import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
+import {
+  IMPACT_PREVIEW_CLAIM_DISCIPLINE,
+  IMPACT_PREVIEW_CLAIM_DISCIPLINE_HEADING,
+  IMPACT_PREVIEW_SOURCES,
+  IMPACT_PREVIEW_SOURCES_INTRO,
+} from "@/lib/impact-preview-evidence-copy";
+
+export const IMPACT_PREVIEW_HELP_CANONICAL_PATH = "/help/impact-preview" as const;
+
+export const IMPACT_PREVIEW_HELP_TOPIC_LABEL = "How impact preview works" as const;
+
+export const IMPACT_PREVIEW_HELP_CLAIM_DISCIPLINE = IMPACT_PREVIEW_CLAIM_DISCIPLINE;
+
+export const IMPACT_PREVIEW_HELP_CLAIM_DISCIPLINE_HEADING = IMPACT_PREVIEW_CLAIM_DISCIPLINE_HEADING;
+
+export const IMPACT_PREVIEW_HELP_FOLLOW_UPS_TITLE = "Where to go next";
+
+export const IMPACT_PREVIEW_HELP_SOURCES_INTRO = IMPACT_PREVIEW_SOURCES_INTRO;
+
+export const IMPACT_PREVIEW_HELP_SOURCES: readonly EvidenceSourceLink[] = IMPACT_PREVIEW_SOURCES;

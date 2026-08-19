@@ -1,0 +1,30 @@
+{
+  "variables": {
+    "location": {
+      "value": "eastus"
+    }
+  },
+  "planned_values": {
+    "root_module": {
+      "resources": [
+        {
+          "address": "module.pool.azurerm_mssql_database.system",
+          "mode": "managed",
+          "type": "azurerm_mssql_database",
+          "values": {
+            "requested_backup_storage_redundancy": "Geo"
+          }
+        },
+        {
+          "address": "module.pool.azurerm_mssql_database.tenant[\"demo\"]",
+          "mode": "managed",
+          "type": "azurerm_mssql_database",
+          "values": {
+            "requested_backup_storage_redundancy": "Geo"
+          }
+        }
+      ],
+      "child_modules": []
+    }
+  }
+}

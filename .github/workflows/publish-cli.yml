@@ -1,0 +1,96 @@
+# Pack ArchLucid.Cli as a dotnet global tool and publish self-contained single-file binaries.
+# Artifacts: NuGet .nupkg (PackAsTool) + win-x64 / linux-x64 / osx-x64 executables.
+name: Publish CLI
+
+on:
+  workflow_dispatch:
+    inputs:
+      package_version:
+        description: "SemVer for ArchLucid.Cli (ToolCommandName archlucid)"
+        required: true
+        default: "1.0.0"
+  push:
+    tags:
+      - "cli-v*"
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  CLI_PROJECT: ArchLucid.Cli/ArchLucid.Cli.csproj
+
+jobs:
+  pack-tool:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-dotnet@v5.2.0
+        with:
+          global-json-file: global.json
+          cache: true
+          cache-dependency-path: |
+            Directory.Packages.props
+            global.json
+            **/*.csproj
+
+      - name: Restore
+        run: dotnet restore "${{ env.CLI_PROJECT }}"
+
+      - name: Pack global tool
+        run: |
+          dotnet pack "${{ env.CLI_PROJECT }}" \
+            --no-restore \
+            -c Release \
+            -o "${RUNNER_TEMP}/nuget" \
+            /p:Version=${{ github.event.inputs.package_version || '1.0.0' }}
+
+      - uses: actions/upload-artifact@v6
+        with:
+          name: archlucid-cli-nupkg
+          path: ${{ runner.temp }}/nuget/*.nupkg
+
+  publish-binaries:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - rid: win-x64
+            os: windows-latest
+          - rid: linux-x64
+            os: ubuntu-latest
+          - rid: osx-x64
+            os: macos-latest
+    runs-on: ${{ matrix.os }}
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-dotnet@v5.2.0
+        with:
+          global-json-file: global.json
+          cache: true
+          cache-dependency-path: |
+            Directory.Packages.props
+            global.json
+            **/*.csproj
+
+      - name: Restore
+        run: dotnet restore "${{ env.CLI_PROJECT }}"
+
+      - name: Publish self-contained single-file binary
+        run: |
+          dotnet publish "${{ env.CLI_PROJECT }}" \
+            --no-restore \
+            -c Release \
+            -r ${{ matrix.rid }} \
+            --self-contained true \
+            -p:PublishSingleFile=true \
+            -p:IncludeNativeLibrariesForSelfExtract=true \
+            -o "${RUNNER_TEMP}/publish"
+
+      - uses: actions/upload-artifact@v6
+        with:
+          name: archlucid-cli-${{ matrix.rid }}
+          path: ${{ runner.temp }}/publish/

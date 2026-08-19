@@ -1,0 +1,353 @@
+﻿import Link from "next/link";
+
+import type { ReactNode } from "react";
+
+
+
+import { HelpTopicMarkdownPageHeader } from "@/app/(operator)/help/_sections/HelpTopicMarkdownPageHeader";
+
+import { CaiqSigResponseHelpPostureSummary } from "@/components/help/CaiqSigResponseHelpPostureSummary";
+
+import { SecurityTrustHelpNextSteps } from "@/components/help/SecurityTrustHelpNextSteps";
+
+import { SecurityTrustHelpPostureSummary } from "@/components/help/SecurityTrustHelpPostureSummary";
+
+import { HelpTopicExportClaimDiscipline } from "@/components/help/HelpTopicExportClaimDiscipline";
+
+import { HelpTopicHashScroll } from "@/app/(operator)/help/HelpTopicHashScroll";
+
+import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
+
+import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
+
+import {
+
+  buildCaiqSigResponseTocGroups,
+
+  computeCaiqSigResponsePostureCounts,
+
+  countCaiqSigResponseTableRows,
+
+  isCaiqSigResponseHelpTopic,
+
+  prepareCaiqSigResponseHelpMarkdown,
+
+  type HelpTopicTocGroup,
+
+} from "@/lib/caiq-sig-response-help-presentation";
+
+import { DESIGN_TOKENS, OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+
+import { CAIQ_SIG_RESPONSE_HELP_PRIMARY_ACTION } from "@/lib/caiq-sig-response-help-evidence-copy";
+import { INTEGRATION_READINESS_HELP_PRIMARY_ACTION } from "@/lib/integration-readiness-help-evidence-copy";
+import { PROCUREMENT_HELP_CLAIM_DISCIPLINE } from "@/lib/procurement-help-evidence-copy";
+import { isProcurementHelpTopic } from "@/lib/procurement-help-presentation";
+import { POLICY_PACKS_HELP_PRIMARY_ACTION } from "@/lib/policy/policy-packs-help-evidence-copy";
+import { REPORT_A_PROBLEM_HELP_PRIMARY_ACTION } from "@/lib/report-a-problem-help-evidence-copy";
+import { SCOPE_HELP_PRIMARY_ACTION } from "@/lib/scope-help-evidence-copy";
+import { SECURITY_TRUST_HELP_PRIMARY_ACTION } from "@/lib/security-trust-help-evidence-copy";
+import { SUBPROCESSORS_HELP_PRIMARY_ACTION } from "@/lib/subprocessors-help-evidence-copy";
+import { SecurityTrustHelpHubVocabularyRail } from "@/components/SecurityTrustHelpHubVocabularyRail";
+
+import {
+  buildSecurityTrustTocGroups,
+  computeSecurityTrustPostureCounts,
+  countSecurityTrustPostureTableRows,
+} from "@/lib/security-trust-help-presentation";
+
+import { extractHelpMarkdownHeadings, appendHelpClaimDisciplineTocHeadings } from "@/lib/help/help-markdown-headings";
+
+import { prepareHelpMarkdownForPresentation } from "@/lib/help/help-markdown-presentation";
+
+import { HELP_PAGE_LAYOUT, resolveHelpPageContentGridClass } from "@/lib/help/help-page-layout";
+
+import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
+
+import { inAppHelpHref } from "@/lib/product-documentation-registry";
+
+import { cn } from "@/lib/utils";
+
+
+
+type HelpTopicMarkdownViewProps = {
+
+  entry: ProductDocumentationEntry;
+
+  markdown: string;
+
+  /** Optional Evidence orientation strip (Sources + claim discipline). */
+
+  readonly evidenceOrientation?: ReactNode;
+
+  /** Optional header metadata under the title (status tag, reviewed date). */
+
+  readonly titleBlockOrientation?: ReactNode;
+
+  /** When true, show Category-1 PageContextualHelpButton in the header actions. */
+
+  readonly showContextualHelp?: boolean;
+
+  /** Optional grouped TOC parents (for example CAIQ Lite vs SIG Core). */
+
+  readonly tocGroups?: readonly HelpTopicTocGroup[];
+
+  /** When set with `evidenceOrientation`, appends claim-discipline + where-to-go-next TOC rows. */
+
+  readonly claimDisciplineTocHeadingId?: string;
+
+  readonly claimDisciplineTocHeadingTitle?: string;
+
+  readonly followUpsTocTitle?: string;
+
+  /** Wider technical-reference grid for dense questionnaire tables. */
+
+  readonly layoutVariant?: "default" | "technicalReference";
+
+  /** When true, render export claim discipline near PDF / print actions. */
+
+  readonly showExportClaimDiscipline?: boolean;
+
+};
+
+
+
+/** Renders curated repo markdown inside the operator help shell (no GitHub chrome). */
+
+export function HelpTopicMarkdownView(props: HelpTopicMarkdownViewProps): React.ReactElement {
+
+  const {
+
+    entry,
+
+    markdown,
+
+    evidenceOrientation,
+
+    titleBlockOrientation,
+
+    showContextualHelp,
+
+    tocGroups,
+
+    layoutVariant = "default",
+
+    showExportClaimDiscipline = false,
+
+    claimDisciplineTocHeadingId,
+
+    claimDisciplineTocHeadingTitle,
+
+    followUpsTocTitle,
+
+  } = props;
+
+  const sourceDocPath = entry.sourcePaths[0] ?? "";
+
+  const preserveMaintenanceMetadata = entry.audience === "developer";
+
+  const isCaiqSigResponse = isCaiqSigResponseHelpTopic(entry.slug);
+
+  const preparedMarkdown = isCaiqSigResponse
+
+    ? prepareCaiqSigResponseHelpMarkdown(markdown, sourceDocPath)
+
+    : prepareHelpMarkdownForPresentation(markdown, sourceDocPath, {
+
+        preserveMaintenanceMetadata,
+
+        helpTopicSlug: entry.slug,
+
+      });
+
+  const extractedHeadings = extractHelpMarkdownHeadings(preparedMarkdown);
+
+  const headings =
+    evidenceOrientation !== undefined && claimDisciplineTocHeadingId !== undefined
+      ? appendHelpClaimDisciplineTocHeadings(
+          extractedHeadings,
+          claimDisciplineTocHeadingId,
+          claimDisciplineTocHeadingTitle,
+          followUpsTocTitle,
+        )
+      : extractedHeadings;
+
+  const isSecurityTrustHelp = entry.slug === "security-trust";
+
+  const resolvedTocGroups =
+
+    tocGroups
+
+    ?? (isCaiqSigResponse ? buildCaiqSigResponseTocGroups(headings) : undefined)
+
+    ?? (isSecurityTrustHelp ? buildSecurityTrustTocGroups(headings) : undefined);
+
+  const securityTrustPostureCounts = isSecurityTrustHelp
+    ? computeSecurityTrustPostureCounts(preparedMarkdown)
+    : null;
+  const caiqSigPostureCounts = isCaiqSigResponse
+    ? computeCaiqSigResponsePostureCounts(preparedMarkdown)
+    : null;
+  const postureTableRowTotal = isCaiqSigResponse
+    ? countCaiqSigResponseTableRows(preparedMarkdown)
+    : isSecurityTrustHelp
+      ? countSecurityTrustPostureTableRows(preparedMarkdown)
+      : 0;
+
+  const isIntegrationReadinessHelp = entry.slug === "integration-readiness";
+  const isPolicyPacksHelp = entry.slug === "policy-packs";
+  const isScopeHelp = entry.slug === "scope";
+  const isSubprocessorsHelp = entry.slug === "subprocessors";
+  const isProcurementHelp = isProcurementHelpTopic(entry.slug);
+  const allowWithoutServerPdf = entry.pdfStatus === null && (entry.audience === "buyer" || isProcurementHelp);
+
+  const isTechnicalReferenceLayout = layoutVariant === "technicalReference";
+
+  const contentGridClass = isTechnicalReferenceLayout
+
+    ? HELP_PAGE_LAYOUT.technicalReferenceGrid
+
+    : resolveHelpPageContentGridClass(headings.length);
+
+  const contentColumnClass = isTechnicalReferenceLayout
+
+    ? HELP_PAGE_LAYOUT.technicalReferenceColumn
+
+    : HELP_PAGE_LAYOUT.contentColumn;
+
+
+
+  return (
+
+    <article
+
+      className={cn(
+
+        OPERATOR_LAYOUT.majorSectionGap,
+
+        isTechnicalReferenceLayout ? HELP_PAGE_LAYOUT.technicalReferenceArticle : undefined,
+
+      )}
+
+      data-testid={isCaiqSigResponse ? "help-caiq-sig-response-topic" : undefined}
+
+    >
+
+      <HelpTopicHashScroll />
+
+      <HelpTopicMarkdownPageHeader
+
+        entry={entry}
+
+        showContextualHelp={showContextualHelp}
+
+        showExportClaimDiscipline={showExportClaimDiscipline}
+
+        allowWithoutServerPdf={allowWithoutServerPdf}
+
+        exportClaimDiscipline={
+          showExportClaimDiscipline ? (
+            <HelpTopicExportClaimDiscipline
+              claimDiscipline={isProcurementHelp ? PROCUREMENT_HELP_CLAIM_DISCIPLINE : undefined}
+            />
+          ) : undefined
+        }
+
+        titleBlockOrientation={titleBlockOrientation}
+
+        primaryAction={
+          isCaiqSigResponse
+              ? CAIQ_SIG_RESPONSE_HELP_PRIMARY_ACTION
+              : isIntegrationReadinessHelp
+                ? INTEGRATION_READINESS_HELP_PRIMARY_ACTION
+                : isPolicyPacksHelp
+                  ? POLICY_PACKS_HELP_PRIMARY_ACTION
+                  : isScopeHelp
+                    ? SCOPE_HELP_PRIMARY_ACTION
+                    : isSecurityTrustHelp
+                      ? SECURITY_TRUST_HELP_PRIMARY_ACTION
+                      : isSubprocessorsHelp
+                        ? SUBPROCESSORS_HELP_PRIMARY_ACTION
+                        : entry.slug === "report-a-problem"
+                          ? REPORT_A_PROBLEM_HELP_PRIMARY_ACTION
+                          : undefined
+        }
+
+      />
+
+
+
+      {entry.slug === "security-trust" ? (
+        <SecurityTrustHelpHubVocabularyRail currentSurfaceId="security-trust-help" />
+      ) : null}
+
+      {entry.audience === "developer" ? (
+
+        <p className={`m-0 max-w-3xl ${OPERATOR_TYPOGRAPHY.label}`}>
+
+          Engineering runbook â€” CLI commands, environment variables, and log detail. For symptom-first operator help,
+
+          open{" "}
+
+          <Link href={inAppHelpHref("troubleshooting")} className={OPERATOR_BODY_INLINE_LINK_CLASS}>
+
+            Troubleshooting
+
+          </Link>
+
+          .
+
+        </p>
+
+      ) : null}
+
+
+
+      {securityTrustPostureCounts !== null ? (
+        <SecurityTrustHelpPostureSummary counts={securityTrustPostureCounts} tableRowTotal={postureTableRowTotal} />
+      ) : null}
+
+      {caiqSigPostureCounts !== null ? (
+        <CaiqSigResponseHelpPostureSummary counts={caiqSigPostureCounts} tableRowTotal={postureTableRowTotal} />
+      ) : null}
+
+
+
+      <div className={contentGridClass}>
+
+        <div className={contentColumnClass} data-testid="help-topic-content">
+
+          <MarketingAccessibilityMarkdownFragment
+
+            markdownBody={markdown}
+
+            tableCaption={`${entry.title} reference table`}
+
+            presentation="help"
+
+            sourceDocPath={entry.sourcePaths[0]}
+
+            helpTopicSlug={entry.slug}
+
+            preserveMaintenanceMetadata={preserveMaintenanceMetadata}
+
+            preparedMarkdownOverride={preparedMarkdown}
+
+          />
+
+          {!evidenceOrientation ? null : evidenceOrientation}
+
+        </div>
+
+        <HelpTopicTableOfContents headings={headings} groups={resolvedTocGroups} enableScrollSpy />
+
+      </div>
+
+      {isSecurityTrustHelp ? <SecurityTrustHelpNextSteps /> : null}
+
+    </article>
+
+  );
+
+}
+
+

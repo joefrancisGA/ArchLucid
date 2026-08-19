@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "id": "corpus-real-mode-critic",
+  "metadata": {
+    "title": "Real-mode Critic AgentResult exemplar (offline scorer)",
+    "complexity": "high",
+    "primaryAgents": ["Critic"]
+  },
+  "inputSummary": "Mirrors the governance-heavy design review brief for finding probes; committed exemplar scores Critic-shaped AgentResult JSON.",
+  "recording": "recordings/corpus-governance-heavy-review.findings.json",
+  "qualityEvidence": {
+    "mode": "real",
+    "agentType": "Critic",
+    "agentResultPathEnv": "ARCHLUCID_EVAL_CORPUS_REAL_MODE_CRITIC_AGENT_RESULT",
+    "notes": "Synthetic governance narrative; validate production posture with your own GRC program."
+  },
+  "expectedFindings": [
+    {
+      "id": "e cab",
+      "category": "Compliance",
+      "minimumSeverity": "Low",
+      "evidenceMustContain": ["approval", "azure devops"]
+    },
+    {
+      "id": "e audit evidence",
+      "category": "Compliance",
+      "minimumSeverity": "Low",
+      "evidenceMustContain": ["evidence", "audit"]
+    },
+    {
+      "id": "e segregation",
+      "category": "Topology",
+      "minimumSeverity": "Low",
+      "evidenceMustContain": ["entra", "PIM"]
+    }
+  ],
+  "unexpectedFindings": [
+    { "category": "Compliance", "ifContainsAny": ["skip change control", "no audit trail"] },
+    { "category": "Critic", "ifContainsAny": ["approve without review"] }
+  ]
+}

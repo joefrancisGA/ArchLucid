@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "updatedUtc": "2026-08-16T22:00:20.000Z",
+  "regressionToleranceKb": 25,
+  "routes": {
+    "/": {
+      "firstLoadJsKb": 1601.3
+    },
+    "/welcome": {
+      "firstLoadJsKb": 609.1
+    },
+    "/governance/approval-queue": {
+      "firstLoadJsKb": 1574.6
+    },
+    "/governance/alerts": {
+      "firstLoadJsKb": 1958.5
+    },
+    "/governance/alert-rules": {
+      "firstLoadJsKb": 1316.1
+    },
+    "/architecture/reviews": {
+      "firstLoadJsKb": 1499.8
+    },
+    "/architecture/reviews/[reviewId]": {
+      "firstLoadJsKb": 1883.4
+    },
+    "/architecture/sponsor-dashboard": {
+      "firstLoadJsKb": 1612.3
+    },
+    "/governance/sealed-records": {
+      "firstLoadJsKb": 1769.4
+    }
+  },
+  "notes": "RC31 CI run 31972861111: refresh First Load JS baselines after merge-driven bundle growth beyond +25 kB tolerance on six operator routes."
+}

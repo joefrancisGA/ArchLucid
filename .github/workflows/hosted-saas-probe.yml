@@ -1,0 +1,77 @@
+# Scheduled HTTP probes against the public hosted staging stack (no secrets in URLs).
+# Configure repository variable ARCHLUCID_STAGING_BASE_URL (default documented in docs/REFERENCE_SAAS_STACK_ORDER.md).
+name: hosted-saas-probe
+
+on:
+  schedule:
+    - cron: "15 */4 * * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Probe staging health endpoints
+        env:
+          BASE_URL: ${{ vars.ARCHLUCID_STAGING_BASE_URL }}
+          ARCHLUCID_STAGING_UI_BASE_URL: ${{ vars.ARCHLUCID_STAGING_UI_BASE_URL }}
+        run: |
+          set -u
+          set -o pipefail
+          mkdir -p probe-out
+          stamp="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          if [ -z "${BASE_URL:-}" ]; then
+            echo "ARCHLUCID_STAGING_BASE_URL is not set — skipping probe (set repo variable to e.g. https://staging.archlucid.net)."
+            printf '%s\n' "{\"skipped\":true,\"probedAtUtc\":\"${stamp}\",\"reason\":\"ARCHLUCID_STAGING_BASE_URL unset\"}" > probe-out/probe-result.json
+            exit 0
+          fi
+          base="${BASE_URL%/}"
+          ui_base="${ARCHLUCID_STAGING_UI_BASE_URL:-$base}"
+          ui_base="${ui_base%/}"
+          live_ok=false
+          ready_ok=false
+          showcase_ok=false
+          echo "Probing ${base}/health/live"
+          if curl -fsS --max-time 30 "${base}/health/live" >/dev/null; then live_ok=true; fi
+          echo "Probing ${base}/health/ready"
+          if curl -fsS --max-time 45 "${base}/health/ready" >/dev/null; then ready_ok=true; fi
+          showcase_path="/showcase/claims-intake-modernization"
+          showcase_url="${ui_base}${showcase_path}"
+          echo "Probing ${showcase_url}"
+          showcase_body="$(mktemp)"
+          showcase_http_code="$(curl -fsS --max-time 60 -o "${showcase_body}" -w '%{http_code}' "${showcase_url}" || true)"
+          if [ "${showcase_http_code}" = "200" ]; then
+            if grep -q 'data-testid="demo-preview-marketing-body"' "${showcase_body}" \
+              && grep -qi 'Sponsor summary' "${showcase_body}" \
+              && ! grep -q 'data-testid="demo-preview-not-available"' "${showcase_body}"; then
+              showcase_ok=true
+            fi
+          fi
+          rm -f "${showcase_body}"
+          export STAMP="$stamp" BASE="$base" UI_BASE="$ui_base" LIVE_OK="$live_ok" READY_OK="$ready_ok" SHOWCASE_OK="$showcase_ok" SHOWCASE_URL="$showcase_url"
+          python3 - <<'PY' > probe-out/probe-result.json
+          import json, os
+          print(json.dumps({
+              "skipped": False,
+              "probedAtUtc": os.environ["STAMP"],
+              "baseUrl": os.environ["BASE"],
+              "uiBaseUrl": os.environ["UI_BASE"],
+              "showcaseUrl": os.environ["SHOWCASE_URL"],
+              "live_ok": os.environ["LIVE_OK"] == "true",
+              "ready_ok": os.environ["READY_OK"] == "true",
+              "showcase_ok": os.environ["SHOWCASE_OK"] == "true",
+          }))
+          PY
+          if [ "$live_ok" != true ] || [ "$ready_ok" != true ] || [ "$showcase_ok" != true ]; then
+            echo "One or more hosted probes failed (see probe-out/probe-result.json)."
+            exit 1
+          fi
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: hosted-saas-probe-${{ github.run_id }}
+          path: probe-out/probe-result.json

@@ -1,0 +1,49 @@
+{
+  "resultId": "RES-TOPO-001",
+  "taskId": "TASK-TOPO-001",
+  "runId": "RUN-FIXTURE",
+  "agentType": "Topology",
+  "claims": [
+    "API service required for query orchestration",
+    "Azure AI Search required for vector retrieval",
+    "SQL metadata database required"
+  ],
+  "evidenceRefs": [
+    "architecture-catalog",
+    "enterprise-rag-pattern"
+  ],
+  "confidence": 0.92,
+  "proposedChanges": {
+    "proposalId": "PROP-TOPO-001",
+    "sourceAgent": "Topology",
+    "addedServices": [
+      {
+        "serviceId": "svc-api",
+        "serviceName": "rag-api",
+        "serviceType": "Api",
+        "runtimePlatform": "AppService",
+        "purpose": "RAG query orchestration",
+        "tags": [
+          "rag",
+          "entrypoint"
+        ]
+      },
+      {
+        "serviceId": "svc-search",
+        "serviceName": "rag-search",
+        "serviceType": "SearchService",
+        "runtimePlatform": "AzureAiSearch",
+        "purpose": "Vector and keyword retrieval"
+      }
+    ],
+    "addedDatastores": [
+      {
+        "datastoreId": "ds-metadata",
+        "datastoreName": "rag-metadata",
+        "datastoreType": "Sql",
+        "runtimePlatform": "SqlServer",
+        "privateEndpointRequired": false
+      }
+    ]
+  }
+}

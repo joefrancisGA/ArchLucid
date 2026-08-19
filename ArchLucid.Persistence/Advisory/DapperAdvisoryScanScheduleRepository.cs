@@ -1,0 +1,147 @@
+using System.Diagnostics.CodeAnalysis;
+
+using ArchLucid.Core.Tenancy;
+using ArchLucid.Persistence.Connections;
+
+using Dapper;
+
+using Microsoft.Data.SqlClient;
+
+namespace ArchLucid.Persistence.Advisory;
+
+/// <summary>
+/// SQL Server implementation of <see cref="IAdvisoryScanScheduleRepository"/> against <c>dbo.AdvisoryScanSchedules</c>.
+/// </summary>
+/// <remarks>Registered scoped in DI when SQL storage is enabled.</remarks>
+[ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]
+public sealed class DapperAdvisoryScanScheduleRepository(ISqlConnectionFactory connectionFactory)
+    : IAdvisoryScanScheduleRepository
+{
+    /// <inheritdoc />
+    public async Task CreateAsync(AdvisoryScanSchedule schedule, CancellationToken ct)
+    {
+        ArgumentNullException.ThrowIfNull(schedule);
+
+        const string sql = """
+            INSERT INTO dbo.AdvisoryScanSchedules
+            (
+                ScheduleId, TenantId, WorkspaceId, ProjectId, RunProjectSlug,
+                Name, CronExpression, IsEnabled,
+                CreatedUtc, LastRunUtc, NextRunUtc
+            )
+            VALUES
+            (
+                @ScheduleId, @TenantId, @WorkspaceId, @ProjectId, @RunProjectSlug,
+                @Name, @CronExpression, @IsEnabled,
+                @CreatedUtc, @LastRunUtc, @NextRunUtc
+            );
+            """;
+
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        await connection.ExecuteAsync(new CommandDefinition(sql, schedule, cancellationToken: ct));
+    }
+
+    public async Task UpdateAsync(AdvisoryScanSchedule schedule, CancellationToken ct)
+    {
+        ArgumentNullException.ThrowIfNull(schedule);
+
+        const string sql = """
+            UPDATE dbo.AdvisoryScanSchedules
+            SET
+                Name = @Name,
+                CronExpression = @CronExpression,
+                IsEnabled = @IsEnabled,
+                RunProjectSlug = @RunProjectSlug,
+                LastRunUtc = @LastRunUtc,
+                NextRunUtc = @NextRunUtc
+            WHERE ScheduleId = @ScheduleId;
+            """;
+
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        await connection.ExecuteAsync(new CommandDefinition(sql, schedule, cancellationToken: ct));
+    }
+
+    /// <inheritdoc />
+    [TenantScopeExempt(TenantScopeExemptReason.Operational, "Scheduler worker lists due rows within the active tenant catalog.")]
+    public async Task<IReadOnlyList<AdvisoryScanSchedule>> ListDueAsync(
+        DateTime utcNow,
+        int take,
+        CancellationToken ct)
+    {
+        const string sql = """
+            SELECT TOP (@Take)
+                ScheduleId, TenantId, WorkspaceId, ProjectId, RunProjectSlug,
+                Name, CronExpression, IsEnabled,
+                CreatedUtc, LastRunUtc, NextRunUtc
+            FROM dbo.AdvisoryScanSchedules
+            WHERE IsEnabled = 1
+              AND NextRunUtc IS NOT NULL
+              AND NextRunUtc <= @UtcNow
+            ORDER BY NextRunUtc ASC;
+            """;
+
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        IEnumerable<AdvisoryScanSchedule> result = await connection.QueryAsync<AdvisoryScanSchedule>(
+            new CommandDefinition(sql, new
+            {
+                UtcNow = utcNow,
+                Take = take
+            }, cancellationToken: ct));
+
+        return result.ToList();
+    }
+
+    /// <inheritdoc />
+    public async Task<IReadOnlyList<AdvisoryScanSchedule>> ListByScopeAsync(
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        CancellationToken ct)
+    {
+        const string sql = """
+            SELECT TOP 200
+                ScheduleId, TenantId, WorkspaceId, ProjectId, RunProjectSlug,
+                Name, CronExpression, IsEnabled,
+                CreatedUtc, LastRunUtc, NextRunUtc
+            FROM dbo.AdvisoryScanSchedules
+            WHERE TenantId = @TenantId
+              AND WorkspaceId = @WorkspaceId
+              AND ProjectId = @ProjectId
+            ORDER BY CreatedUtc DESC;
+            """;
+
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        IEnumerable<AdvisoryScanSchedule> result = await connection.QueryAsync<AdvisoryScanSchedule>(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    TenantId = tenantId,
+                    WorkspaceId = workspaceId,
+                    ProjectId = projectId
+                },
+                cancellationToken: ct));
+
+        return result.ToList();
+    }
+
+    /// <inheritdoc />
+    public async Task<AdvisoryScanSchedule?> GetByIdAsync(Guid scheduleId, CancellationToken ct)
+    {
+        const string sql = """
+            SELECT
+                ScheduleId, TenantId, WorkspaceId, ProjectId, RunProjectSlug,
+                Name, CronExpression, IsEnabled,
+                CreatedUtc, LastRunUtc, NextRunUtc
+            FROM dbo.AdvisoryScanSchedules
+            WHERE ScheduleId = @ScheduleId;
+            """;
+
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        return await connection.QueryFirstOrDefaultAsync<AdvisoryScanSchedule>(
+            new CommandDefinition(sql, new
+            {
+                ScheduleId = scheduleId
+            }, cancellationToken: ct));
+    }
+}

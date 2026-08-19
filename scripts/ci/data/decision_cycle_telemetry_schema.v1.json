@@ -1,0 +1,12 @@
+{
+  "schema": "archlucid.decision-cycle-telemetry-schema.v1",
+  "requiredEventFields": ["eventId", "eventType", "occurredUtc", "accountLabel"],
+  "allowedEventTypes": [
+    "demo_complete",
+    "pilot_start",
+    "first_committed_run",
+    "sponsor_packet_sent",
+    "next_step_decision"
+  ],
+  "allowedNextStepOutcomes": ["advance", "hold", "decline", "unknown"]
+}

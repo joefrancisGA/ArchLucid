@@ -1,0 +1,98 @@
+# Scheduled Simmy chaos coverage (LLM retry + CB composition, SQL, blob). See docs/LLM_RETRY_AND_CIRCUIT_BREAKER.md.
+# Calendar alignment: docs/quality/game-day-log/README.md (14:00 UTC on each game day).
+name: Simmy chaos (scheduled)
+
+on:
+  schedule:
+    # Quarterly staging game days — 14:00 UTC (see docs/quality/game-day-log/README.md).
+    - cron: "0 14 29 4 *"
+    - cron: "0 14 29 7 *"
+    - cron: "0 14 28 10 *"
+  workflow_dispatch:
+    inputs:
+      scenario_id:
+        description: "Short label for the game day (recorded in the job summary)."
+        required: false
+        default: "scheduled"
+      environment:
+        description: "Staging only. Production chaos is owner-gated (PENDING_QUESTIONS item 34)."
+        required: false
+        default: "staging"
+        type: choice
+        options:
+          - staging
+      production:
+        description: "MUST stay empty. Any non-empty value fails this run immediately (item 34)."
+        required: false
+        default: ""
+        type: string
+      dry_run:
+        description: "When true, skip dotnet test (workflow wiring smoke only)."
+        required: false
+        default: false
+        type: boolean
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  chaos:
+    name: "Simmy chaos — LLM + SQL + Blob"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      # Per owner decision 2026-04-22 (PENDING_QUESTIONS item 34), production chaos is
+      # out of scope for v1 and beyond. Reopening requires an explicit ADR — do not loosen
+      # this guard via PR review alone.
+      - name: Production workflow_dispatch gate (PENDING_QUESTIONS item 34)
+        if: github.event_name == 'workflow_dispatch'
+        env:
+          PRODUCTION_INPUT: ${{ github.event.inputs.production }}
+        run: |
+          if [ -n "${PRODUCTION_INPUT}" ]; then
+            echo "::error::workflow_dispatch input 'production' must remain empty. Staging-only; production chaos is out of scope for v1+ (PENDING_QUESTIONS item 34) — reopen only via ADR."
+            exit 1
+          fi
+
+      - name: Game day context
+        run: |
+          echo "## Simmy chaos game day" >> "$GITHUB_STEP_SUMMARY"
+          echo "- **scenario_id:** ${{ github.event.inputs.scenario_id || 'scheduled' }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "- **environment:** ${{ github.event.inputs.environment || 'staging' }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "- **dry_run:** ${{ github.event.inputs.dry_run || 'false' }}" >> "$GITHUB_STEP_SUMMARY"
+          echo "- **Runbook:** docs/runbooks/GAME_DAY_CHAOS_QUARTERLY.md" >> "$GITHUB_STEP_SUMMARY"
+          echo "- **Calendar:** docs/quality/game-day-log/README.md" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "### Attach this workflow run to the closing report" >> "$GITHUB_STEP_SUMMARY"
+          echo "Paste the run URL into the **Workflow** / evidence section of the matching date row in \`docs/quality/game-day-log/README.md\` (2026-04-29, 2026-07-29, 2026-10-28)." >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "**This run:** ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5.2.0
+        with:
+          global-json-file: global.json
+
+      - name: Restore
+        run: dotnet restore ArchLucid.sln
+
+      - name: Run chaos tests
+        # schedule has no inputs; boolean dispatch inputs may arrive as bool or string — skip only when explicitly true.
+        if: ${{ !(github.event.inputs.dry_run == true || github.event.inputs.dry_run == 'true') }}
+        run: |
+          dotnet test ArchLucid.AgentRuntime.Tests \
+            --filter "FullyQualifiedName~Simmy|FullyQualifiedName~Chaos" \
+            --logger "trx;LogFileName=chaos-agent.trx"
+          dotnet test ArchLucid.Persistence.Tests \
+            --filter "FullyQualifiedName~Simmy|FullyQualifiedName~Chaos" \
+            --logger "trx;LogFileName=chaos-persistence.trx"
+
+      - name: Upload chaos test results
+        uses: actions/upload-artifact@v6
+        if: always()
+        with:
+          name: chaos-test-results
+          path: |
+            **/chaos-agent.trx
+            **/chaos-persistence.trx

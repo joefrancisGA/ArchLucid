@@ -1,0 +1,621 @@
+{
+  "schemaVersion": 1,
+  "kind": "archlucid.policyPack.curatedRules.v1",
+  "pack": {
+    "name": "Observability & OpenTelemetry Baseline",
+    "description": "Distributed tracing, metrics, and centralized logging themes before production approval.",
+    "version": "1.1.0",
+    "category": "Operations",
+    "isDefault": true,
+    "suggestedPackType": "PlatformDefault",
+    "policyPackContentDocumentPath": "docs/samples/policy-packs/observability-otel.json"
+  },
+  "rules": [
+    {
+      "id": "otel-001",
+      "title": "OpenTelemetry SDK instrumentation planned",
+      "description": "Services must document OTel SDK or auto-instrumentation for traces, metrics, and logs.",
+      "severity": "Critical",
+      "priority": "P0",
+      "remediationGuidance": "Tag otel-instrumented on services[].Tags and governance.RequiredControls.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "OpenTelemetry",
+          "theme": "OpenTelemetry \u2014 SDK instrumentation"
+        }
+      ]
+    },
+    {
+      "id": "otel-002",
+      "title": "Distributed tracing across service boundaries",
+      "description": "Cross-service requests must propagate trace context (W3C traceparent) end-to-end.",
+      "severity": "Critical",
+      "priority": "P0",
+      "remediationGuidance": "Document trace propagation in governance.PolicyConstraints and relationships[].",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "OpenTelemetry",
+          "theme": "OpenTelemetry \u2014 Distributed tracing"
+        }
+      ]
+    },
+    {
+      "id": "otel-003",
+      "title": "Metrics exported in Prometheus or OTLP format",
+      "description": "Golden signals (latency, traffic, errors, saturation) must be documented per tier.",
+      "severity": "High",
+      "priority": "P0",
+      "remediationGuidance": "List metric endpoints in governance.RequiredControls and services[].Tags.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "OpenTelemetry",
+          "theme": "OpenTelemetry \u2014 Metrics export"
+        }
+      ]
+    },
+    {
+      "id": "otel-004",
+      "title": "Structured logging with correlation IDs",
+      "description": "Logs must include trace_id/span_id or correlation ID linking to requests.",
+      "severity": "High",
+      "priority": "P0",
+      "remediationGuidance": "Capture logging standard in governance.PolicyConstraints.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "OpenTelemetry",
+          "theme": "OpenTelemetry \u2014 Correlated logging"
+        }
+      ]
+    },
+    {
+      "id": "otel-005",
+      "title": "Centralized log aggregation (Log Analytics/Splunk)",
+      "description": "All production logs must route to centralized SIEM/log platform with retention.",
+      "severity": "Critical",
+      "priority": "P0",
+      "remediationGuidance": "Document log sink in governance.RequiredControls; align with azureExtractor diagnostics.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "azureExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "OpenTelemetry",
+          "theme": "OpenTelemetry \u2014 Log aggregation"
+        }
+      ]
+    },
+    {
+      "id": "otel-006",
+      "title": "OTel Collector deployment documented",
+      "description": "Collector agents or gateway collectors must document scrape/receive/export pipelines.",
+      "severity": "High",
+      "priority": "P1",
+      "remediationGuidance": "Describe collector topology in metadata.ChangeDescription and services[].Tags.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "OpenTelemetry",
+          "theme": "OpenTelemetry \u2014 Collector pipeline"
+        }
+      ]
+    },
+    {
+      "id": "otel-007",
+      "title": "Service name and resource attributes standardized",
+      "description": "OTel resource attributes (service.name, deployment.environment) must follow naming convention.",
+      "severity": "Medium",
+      "priority": "P1",
+      "remediationGuidance": "Publish naming standard in governance.ComplianceTags.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "OpenTelemetry",
+          "theme": "OpenTelemetry \u2014 Resource attributes"
+        }
+      ]
+    },
+    {
+      "id": "otel-008",
+      "title": "Sampling strategy for high-volume traces",
+      "description": "Trace sampling head/tail must be documented balancing cost and debuggability.",
+      "severity": "Medium",
+      "priority": "P1",
+      "remediationGuidance": "Note sampling policy in governance.PolicyConstraints.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "OpenTelemetry",
+          "theme": "OpenTelemetry \u2014 Trace sampling"
+        }
+      ]
+    },
+    {
+      "id": "otel-009",
+      "title": "Alerting on SLO burn rate",
+      "description": "Error budget and latency SLOs must document multi-window burn alerts.",
+      "severity": "High",
+      "priority": "P1",
+      "remediationGuidance": "Describe SLO alerts in governance.RequiredControls.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "OpenTelemetry",
+          "theme": "OpenTelemetry \u2014 SLO alerting"
+        }
+      ]
+    },
+    {
+      "id": "otel-010",
+      "title": "Dashboards for golden signals per service",
+      "description": "Each tier-1 service must reference operational dashboard covering latency, errors, traffic.",
+      "severity": "High",
+      "priority": "P1",
+      "remediationGuidance": "Link dashboard IDs in services[].Tags or metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "OpenTelemetry",
+          "theme": "OpenTelemetry \u2014 Operational dashboards"
+        }
+      ]
+    },
+    {
+      "id": "otel-011",
+      "title": "Synthetic monitoring for user journeys",
+      "description": "Critical user paths must have synthetic probes independent of app metrics.",
+      "severity": "High",
+      "priority": "P1",
+      "remediationGuidance": "List synthetics in governance.RequiredControls.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "OpenTelemetry",
+          "theme": "OpenTelemetry \u2014 Synthetic monitoring"
+        }
+      ]
+    },
+    {
+      "id": "otel-012",
+      "title": "APM for dependency latency breakdown",
+      "description": "External dependency calls must appear in trace spans with latency attribution.",
+      "severity": "Medium",
+      "priority": "P1",
+      "remediationGuidance": "Document dependency tracing in services[].Purpose.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "OpenTelemetry",
+          "theme": "OpenTelemetry \u2014 Dependency mapping"
+        }
+      ]
+    },
+    {
+      "id": "otel-013",
+      "title": "Exception and error tracking integrated",
+      "description": "Unhandled exceptions must flow to error tracking with release version tags.",
+      "severity": "High",
+      "priority": "P1",
+      "remediationGuidance": "Tag error-tracking integration on services[].Tags.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "OpenTelemetry",
+          "theme": "OpenTelemetry \u2014 Error tracking"
+        }
+      ]
+    },
+    {
+      "id": "otel-014",
+      "title": "Infrastructure metrics (node, pod, VM)",
+      "description": "Platform metrics must complement application metrics for saturation diagnosis.",
+      "severity": "High",
+      "priority": "P1",
+      "remediationGuidance": "Note infra monitoring in governance.RequiredControls; align with Azure Monitor.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "azureExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "OpenTelemetry",
+          "theme": "OpenTelemetry \u2014 Infrastructure metrics"
+        }
+      ]
+    },
+    {
+      "id": "otel-015",
+      "title": "Log PII redaction before export",
+      "description": "Telemetry pipelines must document redaction of secrets and PII in logs and traces.",
+      "severity": "Critical",
+      "priority": "P1",
+      "remediationGuidance": "Describe redaction in governance.PolicyConstraints.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "OpenTelemetry",
+          "theme": "OpenTelemetry \u2014 Telemetry redaction"
+        }
+      ]
+    },
+    {
+      "id": "otel-016",
+      "title": "Retention tiers for traces vs logs vs metrics",
+      "description": "Different signal types must document retention aligned to cost and compliance.",
+      "severity": "Medium",
+      "priority": "P1",
+      "remediationGuidance": "Capture retention in governance.PolicyConstraints.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "OpenTelemetry",
+          "theme": "OpenTelemetry \u2014 Retention policy"
+        }
+      ]
+    },
+    {
+      "id": "otel-017",
+      "title": "On-call runbooks linked to alerts",
+      "description": "Each critical alert must reference runbook in metadata or ticketing integration.",
+      "severity": "Medium",
+      "priority": "P2",
+      "remediationGuidance": "Link runbooks in metadata.ChangeDescription and governance.RequiredControls.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "OpenTelemetry",
+          "theme": "OpenTelemetry \u2014 Alert runbooks"
+        }
+      ]
+    },
+    {
+      "id": "otel-018",
+      "title": "Observability as code (dashboards/alerts in Git)",
+      "description": "Dashboards and alert rules should be version-controlled \u2014 not console-only.",
+      "severity": "Low",
+      "priority": "P2",
+      "remediationGuidance": "Note obs-as-code in governance.ComplianceTags.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "OpenTelemetry",
+          "theme": "OpenTelemetry \u2014 Observability as code"
+        }
+      ]
+    },
+    {
+      "id": "otel-019",
+      "title": "Health endpoints expose dependency status",
+      "description": "Health checks must document downstream dependency checks for load balancer routing.",
+      "severity": "High",
+      "priority": "P2",
+      "remediationGuidance": "Document health API in services[].Tags.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "OpenTelemetry",
+          "theme": "OpenTelemetry \u2014 Deep health checks"
+        }
+      ]
+    },
+    {
+      "id": "otel-020",
+      "title": "Cardinality control for custom metrics",
+      "description": "High-cardinality labels must be avoided \u2014 document label allowlist.",
+      "severity": "Medium",
+      "priority": "P2",
+      "remediationGuidance": "Capture cardinality policy in governance.PolicyConstraints.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "OpenTelemetry",
+          "theme": "OpenTelemetry \u2014 Metric cardinality"
+        }
+      ]
+    },
+    {
+      "id": "otel-021",
+      "title": "Multi-region observability failover",
+      "description": "Telemetry export must survive regional loss \u2014 document collector redundancy.",
+      "severity": "Medium",
+      "priority": "P2",
+      "remediationGuidance": "Describe obs DR in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription",
+        "azureExtractor.manifest.RawJson",
+        "datastores[].DatastoreType",
+        "datastores[].RuntimePlatform",
+        "datastores[].Tags",
+        "relationships[].relationshipType",
+        "services[].Purpose"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "OpenTelemetry",
+          "theme": "OpenTelemetry \u2014 Telemetry DR"
+        }
+      ]
+    },
+    {
+      "id": "otel-022",
+      "title": "Cost monitoring for observability platform",
+      "description": "Ingest volume and retention costs must be tracked with budget alerts.",
+      "severity": "Low",
+      "priority": "P2",
+      "remediationGuidance": "Note obs cost controls in governance.ComplianceTags.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "OpenTelemetry",
+          "theme": "OpenTelemetry \u2014 Observability FinOps"
+        }
+      ]
+    },
+    {
+      "id": "otel-023",
+      "title": "OpenTelemetry semantic conventions adopted",
+      "description": "Spans and metrics must follow OTel semantic conventions for HTTP, DB, messaging.",
+      "severity": "Medium",
+      "priority": "P2",
+      "remediationGuidance": "Reference semantic conventions in governance.RequiredControls.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "OpenTelemetry",
+          "theme": "OpenTelemetry \u2014 Semantic conventions"
+        }
+      ]
+    },
+    {
+      "id": "otel-024",
+      "title": "Baggage propagation for business context",
+      "description": "Optional business context (tenant_id) propagation must document privacy review.",
+      "severity": "Low",
+      "priority": "P2",
+      "remediationGuidance": "Document baggage keys in governance.PolicyConstraints.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "OpenTelemetry",
+          "theme": "OpenTelemetry \u2014 Context propagation"
+        }
+      ]
+    },
+    {
+      "id": "otel-025",
+      "title": "Profiling integration for performance incidents",
+      "description": "Continuous profiling or on-demand profiling must be documented for latency incidents.",
+      "severity": "Low",
+      "priority": "P2",
+      "remediationGuidance": "Note profiling in metadata.ChangeDescription for performance-critical services.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "OpenTelemetry",
+          "theme": "OpenTelemetry \u2014 Profiling"
+        }
+      ]
+    },
+    {
+      "id": "otel-026",
+      "title": "Audit log stream separate from debug logs",
+      "description": "Security audit events must not rely on debug-level application logs alone.",
+      "severity": "High",
+      "priority": "P2",
+      "remediationGuidance": "Separate audit stream in governance.RequiredControls.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "OpenTelemetry",
+          "theme": "OpenTelemetry \u2014 Audit vs debug logs"
+        }
+      ]
+    },
+    {
+      "id": "otel-027",
+      "title": "Telemetry access RBAC documented",
+      "description": "Who can query production traces/logs must follow least privilege.",
+      "severity": "Medium",
+      "priority": "P2",
+      "remediationGuidance": "Document obs platform RBAC in governance.PolicyConstraints.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "OpenTelemetry",
+          "theme": "OpenTelemetry \u2014 Telemetry access control"
+        }
+      ]
+    },
+    {
+      "id": "otel-028",
+      "title": "Pre-production observability parity",
+      "description": "Staging must emit telemetry to validate dashboards before production cutover.",
+      "severity": "Medium",
+      "priority": "P2",
+      "remediationGuidance": "Note staging obs parity in metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "metadata.ChangeDescription"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "OpenTelemetry",
+          "theme": "OpenTelemetry \u2014 Pre-prod parity"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "resultId": "corp-cite-sim-01",
+  "taskId": "corp-cite-task-01",
+  "runId": "corp-cite-run-01",
+  "agentType": 4,
+  "claims": [
+    {
+      "evidenceRefs": ["citation-provenance-policy-ref"],
+      "detail": "Simulator critic claim: forged ADR pointers erode audit trails unless hashes bind citations to repository commits."
+    }
+  ],
+  "evidenceRefs": ["citation-provenance-policy-ref"],
+  "confidence": 0.79,
+  "findings": [
+    {
+      "severity": "Medium",
+      "category": "Critic",
+      "description": "Citation forgery undermines trust when URLs fail repository resolution checks during automated pre-merge scans.",
+      "recommendation": "Force checksum bundles for every external reference before architecture boards ratify the packet."
+    },
+    {
+      "severity": "Medium",
+      "category": "Compliance",
+      "description": "Compliance reviewers need verified ADR mappings so regulated workloads inherit accurate control inheritance stories.",
+      "recommendation": "Run the signing workflow that verifies repository commits against published ADR identifiers nightly."
+    }
+  ],
+  "proposedChanges": null,
+  "createdUtc": "2026-05-08T12:00:00Z"
+}

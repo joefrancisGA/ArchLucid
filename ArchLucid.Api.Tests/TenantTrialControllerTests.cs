@@ -1,0 +1,352 @@
+using ArchLucid.Api.Controllers.Tenancy;
+using ArchLucid.Api.Models.Tenancy;
+using ArchLucid.Core.Audit;
+using ArchLucid.Core.Billing;
+using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Identity;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Tenancy;
+
+using FluentAssertions;
+
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
+
+using Moq;
+
+namespace ArchLucid.Api.Tests;
+
+[Trait("Category", "Unit")]
+[Trait("Suite", "Core")]
+public sealed class TenantTrialControllerTests
+{
+    [SkippableFact]
+    public async Task GetTrialStatusAsync_returns_not_found_when_tenant_missing()
+    {
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+            WorkspaceId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+            ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc")
+        };
+        Mock<ITenantRepository> tenants = new();
+        tenants.Setup(t => t.GetByIdAsync(scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((TenantRecord?)null);
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(scope);
+        Mock<IAuditService> audit = new();
+        Mock<IBillingTrialConversionGate> gate = new();
+        Mock<IOptionsMonitor<TrialLifecycleSchedulerOptions>> schedulerOpts = new();
+        schedulerOpts.Setup(o => o.CurrentValue).Returns(new TrialLifecycleSchedulerOptions());
+
+        TenantTrialController sut =
+            new(tenants.Object, scopeProvider.Object, audit.Object, gate.Object, NoopTrialIdentityUsers(),
+                schedulerOpts.Object)
+            {
+                ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
+            };
+
+        IActionResult result = await sut.GetTrialStatusAsync(CancellationToken.None);
+
+        ObjectResult problem = result.Should().BeOfType<ObjectResult>().Subject;
+        problem.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+    }
+
+    [SkippableFact]
+    public async Task GetTrialStatusAsync_returns_none_when_trial_status_blank()
+    {
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd"),
+            WorkspaceId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee"),
+            ProjectId = Guid.Parse("ffffffff-ffff-ffff-ffff-ffffffffffff")
+        };
+        TenantRecord tenant = new()
+        {
+            Id = scope.TenantId,
+            Name = "t",
+            Slug = "t",
+            Tier = TenantTier.Free,
+            CreatedUtc = TimeProvider.System.GetUtcNow(),
+            TrialRunsUsed = 1,
+            TrialSeatsUsed = 0,
+            TrialStatus = "   "
+        };
+        Mock<ITenantRepository> tenants = new();
+        tenants.Setup(t => t.GetByIdAsync(scope.TenantId, It.IsAny<CancellationToken>())).ReturnsAsync(tenant);
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(scope);
+        Mock<IAuditService> audit = new();
+        Mock<IBillingTrialConversionGate> gate = new();
+        Mock<IOptionsMonitor<TrialLifecycleSchedulerOptions>> schedulerOpts = new();
+        schedulerOpts.Setup(o => o.CurrentValue).Returns(new TrialLifecycleSchedulerOptions());
+
+        TenantTrialController sut =
+            new(tenants.Object, scopeProvider.Object, audit.Object, gate.Object, NoopTrialIdentityUsers(),
+                schedulerOpts.Object)
+            {
+                ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
+            };
+
+        IActionResult result = await sut.GetTrialStatusAsync(CancellationToken.None);
+
+        OkObjectResult ok = result.Should().BeOfType<OkObjectResult>().Subject;
+        TenantTrialStatusResponse body = ok.Value.Should().BeOfType<TenantTrialStatusResponse>().Subject;
+        body.Status.Should().Be("None");
+        body.TrialRunsUsed.Should().Be(1);
+        body.FirstCommitUtc.Should().BeNull();
+    }
+
+    [SkippableFact]
+    public async Task GetTrialStatusAsync_echoes_first_commit_utc_on_none_branch_when_set()
+    {
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"),
+            WorkspaceId = Guid.Parse("bbbbbbbb-cccc-dddd-eeee-ffffffffffff"),
+            ProjectId = Guid.Parse("cccccccc-dddd-eeee-ffff-000000000000")
+        };
+        DateTimeOffset created = TimeProvider.System.GetUtcNow().AddDays(-2);
+        DateTimeOffset committed = created.AddHours(6);
+        TenantRecord tenant = new()
+        {
+            Id = scope.TenantId,
+            Name = "t",
+            Slug = "t",
+            Tier = TenantTier.Standard,
+            CreatedUtc = created,
+            TrialRunsUsed = 0,
+            TrialSeatsUsed = 0,
+            TrialStatus = "   ",
+            TrialFirstManifestCommittedUtc = committed
+        };
+        Mock<ITenantRepository> tenants = new();
+        tenants.Setup(t => t.GetByIdAsync(scope.TenantId, It.IsAny<CancellationToken>())).ReturnsAsync(tenant);
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(scope);
+        Mock<IAuditService> audit = new();
+        Mock<IBillingTrialConversionGate> gate = new();
+        Mock<IOptionsMonitor<TrialLifecycleSchedulerOptions>> schedulerOpts = new();
+        schedulerOpts.Setup(o => o.CurrentValue).Returns(new TrialLifecycleSchedulerOptions());
+
+        TenantTrialController sut =
+            new(tenants.Object, scopeProvider.Object, audit.Object, gate.Object, NoopTrialIdentityUsers(),
+                schedulerOpts.Object)
+            {
+                ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
+            };
+
+        IActionResult result = await sut.GetTrialStatusAsync(CancellationToken.None);
+
+        OkObjectResult ok = result.Should().BeOfType<OkObjectResult>().Subject;
+        TenantTrialStatusResponse body = ok.Value.Should().BeOfType<TenantTrialStatusResponse>().Subject;
+        body.Status.Should().Be("None");
+        body.FirstCommitUtc.Should().Be(committed);
+        body.TimeToFirstCommittedManifestTotalSeconds.Should().BeApproximately(6 * 3600, 1);
+    }
+
+    [SkippableFact]
+    public async Task GetTrialStatusAsync_echoes_first_commit_utc_on_active_branch()
+    {
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.Parse("dddddddd-eeee-ffff-0000-111111111111"),
+            WorkspaceId = Guid.Parse("eeeeeeee-ffff-0000-1111-222222222222"),
+            ProjectId = Guid.Parse("ffffffff-0000-1111-2222-333333333333")
+        };
+        DateTimeOffset expires = TimeProvider.System.GetUtcNow().AddDays(9);
+        DateTimeOffset trialStart = TimeProvider.System.GetUtcNow().AddDays(-1);
+        DateTimeOffset committed = trialStart.AddHours(4);
+        TenantRecord tenant = new()
+        {
+            Id = scope.TenantId,
+            Name = "t",
+            Slug = "t",
+            Tier = TenantTier.Free,
+            CreatedUtc = TimeProvider.System.GetUtcNow(),
+            TrialRunsUsed = 0,
+            TrialSeatsUsed = 0,
+            TrialStatus = TrialLifecycleStatus.Active,
+            TrialStartUtc = trialStart,
+            TrialExpiresUtc = expires,
+            TrialRunsLimit = 5,
+            TrialSeatsLimit = 10,
+            TrialFirstManifestCommittedUtc = committed
+        };
+        Mock<ITenantRepository> tenants = new();
+        tenants.Setup(t => t.GetByIdAsync(scope.TenantId, It.IsAny<CancellationToken>())).ReturnsAsync(tenant);
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(scope);
+        Mock<IAuditService> audit = new();
+        Mock<IBillingTrialConversionGate> gate = new();
+        Mock<IOptionsMonitor<TrialLifecycleSchedulerOptions>> schedulerOpts = new();
+        schedulerOpts.Setup(o => o.CurrentValue).Returns(new TrialLifecycleSchedulerOptions());
+
+        TenantTrialController sut =
+            new(tenants.Object, scopeProvider.Object, audit.Object, gate.Object, NoopTrialIdentityUsers(),
+                schedulerOpts.Object)
+            {
+                ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
+            };
+
+        IActionResult result = await sut.GetTrialStatusAsync(CancellationToken.None);
+
+        OkObjectResult ok = result.Should().BeOfType<OkObjectResult>().Subject;
+        TenantTrialStatusResponse body = ok.Value.Should().BeOfType<TenantTrialStatusResponse>().Subject;
+        body.Status.Should().Be(TrialLifecycleStatus.Active);
+        body.FirstCommitUtc.Should().Be(committed);
+        body.TimeToFirstCommittedManifestTotalSeconds.Should().BeApproximately(4 * 3600, 1);
+    }
+
+    [SkippableFact]
+    public async Task GetTrialStatusAsync_identity_handoff_pending_true_when_converted_and_entra_unbound()
+    {
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.Parse("aaaaaaaa-1111-2222-3333-444444444444"),
+            WorkspaceId = Guid.Parse("bbbbbbbb-1111-2222-3333-555555555555"),
+            ProjectId = Guid.Parse("cccccccc-1111-2222-3333-666666666666")
+        };
+        TenantRecord tenant = new()
+        {
+            Id = scope.TenantId,
+            Name = "t",
+            Slug = "t",
+            Tier = TenantTier.Standard,
+            CreatedUtc = TimeProvider.System.GetUtcNow(),
+            TrialRunsUsed = 0,
+            TrialSeatsUsed = 0,
+            TrialStatus = TrialLifecycleStatus.Converted,
+            EntraTenantId = null
+        };
+        Mock<ITenantRepository> tenants = new();
+        tenants.Setup(t => t.GetByIdAsync(scope.TenantId, It.IsAny<CancellationToken>())).ReturnsAsync(tenant);
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(scope);
+        Mock<IAuditService> audit = new();
+        Mock<IBillingTrialConversionGate> gate = new();
+        Mock<IOptionsMonitor<TrialLifecycleSchedulerOptions>> schedulerOpts = new();
+        schedulerOpts.Setup(o => o.CurrentValue).Returns(new TrialLifecycleSchedulerOptions());
+
+        TenantTrialController sut =
+            new(
+                tenants.Object,
+                scopeProvider.Object,
+                audit.Object,
+                gate.Object,
+                NoopTrialIdentityUsers(),
+                schedulerOpts.Object)
+            {
+                ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
+            };
+
+        IActionResult result = await sut.GetTrialStatusAsync(CancellationToken.None);
+
+        OkObjectResult ok = result.Should().BeOfType<OkObjectResult>().Subject;
+        TenantTrialStatusResponse body = ok.Value.Should().BeOfType<TenantTrialStatusResponse>().Subject;
+        body.IdentityHandoffPending.Should().BeTrue();
+    }
+
+    [SkippableFact]
+    public async Task GetTrialStatusAsync_identity_handoff_pending_false_when_converted_and_entra_bound()
+    {
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.Parse("dddddddd-1111-2222-3333-777777777777"),
+            WorkspaceId = Guid.Parse("eeeeeeee-1111-2222-3333-888888888888"),
+            ProjectId = Guid.Parse("ffffffff-1111-2222-3333-999999999999")
+        };
+        TenantRecord tenant = new()
+        {
+            Id = scope.TenantId,
+            Name = "t",
+            Slug = "t",
+            Tier = TenantTier.Standard,
+            CreatedUtc = TimeProvider.System.GetUtcNow(),
+            TrialRunsUsed = 0,
+            TrialSeatsUsed = 0,
+            TrialStatus = TrialLifecycleStatus.Converted,
+            EntraTenantId = Guid.Parse("99999999-9999-9999-9999-999999999999")
+        };
+        Mock<ITenantRepository> tenants = new();
+        tenants.Setup(t => t.GetByIdAsync(scope.TenantId, It.IsAny<CancellationToken>())).ReturnsAsync(tenant);
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(scope);
+        Mock<IAuditService> audit = new();
+        Mock<IBillingTrialConversionGate> gate = new();
+        Mock<IOptionsMonitor<TrialLifecycleSchedulerOptions>> schedulerOpts = new();
+        schedulerOpts.Setup(o => o.CurrentValue).Returns(new TrialLifecycleSchedulerOptions());
+
+        TenantTrialController sut =
+            new(
+                tenants.Object,
+                scopeProvider.Object,
+                audit.Object,
+                gate.Object,
+                NoopTrialIdentityUsers(),
+                schedulerOpts.Object)
+            {
+                ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
+            };
+
+        IActionResult result = await sut.GetTrialStatusAsync(CancellationToken.None);
+
+        OkObjectResult ok = result.Should().BeOfType<OkObjectResult>().Subject;
+        TenantTrialStatusResponse body = ok.Value.Should().BeOfType<TenantTrialStatusResponse>().Subject;
+        body.IdentityHandoffPending.Should().BeFalse();
+    }
+
+    [SkippableFact]
+    public async Task GetTrialStatusAsync_returns_active_payload_with_days_remaining()
+    {
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
+            WorkspaceId = Guid.Parse("22222222-2222-2222-2222-222222222222"),
+            ProjectId = Guid.Parse("33333333-3333-3333-3333-333333333333")
+        };
+        DateTimeOffset expires = TimeProvider.System.GetUtcNow().AddDays(9);
+        TenantRecord tenant = new()
+        {
+            Id = scope.TenantId,
+            Name = "t",
+            Slug = "t",
+            Tier = TenantTier.Free,
+            CreatedUtc = TimeProvider.System.GetUtcNow(),
+            TrialRunsUsed = 0,
+            TrialSeatsUsed = 0,
+            TrialStatus = TrialLifecycleStatus.Active,
+            TrialStartUtc = TimeProvider.System.GetUtcNow().AddDays(-1),
+            TrialExpiresUtc = expires,
+            TrialRunsLimit = 5,
+            TrialSeatsLimit = 10
+        };
+        Mock<ITenantRepository> tenants = new();
+        tenants.Setup(t => t.GetByIdAsync(scope.TenantId, It.IsAny<CancellationToken>())).ReturnsAsync(tenant);
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(scope);
+        Mock<IAuditService> audit = new();
+        Mock<IBillingTrialConversionGate> gate = new();
+        Mock<IOptionsMonitor<TrialLifecycleSchedulerOptions>> schedulerOpts = new();
+        schedulerOpts.Setup(o => o.CurrentValue).Returns(new TrialLifecycleSchedulerOptions());
+
+        TenantTrialController sut =
+            new(tenants.Object, scopeProvider.Object, audit.Object, gate.Object, NoopTrialIdentityUsers(),
+                schedulerOpts.Object)
+            {
+                ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
+            };
+
+        IActionResult result = await sut.GetTrialStatusAsync(CancellationToken.None);
+
+        OkObjectResult ok = result.Should().BeOfType<OkObjectResult>().Subject;
+        TenantTrialStatusResponse body = ok.Value.Should().BeOfType<TenantTrialStatusResponse>().Subject;
+        body.Status.Should().Be(TrialLifecycleStatus.Active);
+        body.TrialExpiresUtc.Should().Be(expires);
+        body.DaysRemaining.Should().NotBeNull();
+        body.DaysRemaining!.Value.Should().BeGreaterOrEqualTo(8).And.BeLessOrEqualTo(10);
+    }
+
+    private static ITrialIdentityUserRepository NoopTrialIdentityUsers() => Mock.Of<ITrialIdentityUserRepository>();
+}

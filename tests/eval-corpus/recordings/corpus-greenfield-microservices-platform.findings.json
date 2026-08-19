@@ -1,0 +1,25 @@
+{
+  "findings": [
+    {
+      "findingId": "f-gf-1",
+      "category": "Topology",
+      "severity": "Medium",
+      "title": "Edge ingress standard",
+      "detail": "External APIs publish only through Azure API Management with OAuth2 validation before traffic reaches AKS ingress controllers."
+    },
+    {
+      "findingId": "f-gf-2",
+      "category": "Topology",
+      "severity": "Medium",
+      "title": "Kubernetes runtime",
+      "detail": "Microservices run on AKS with Azure CNI overlay; internal east-west calls rely on mTLS via service mesh sidecars."
+    },
+    {
+      "findingId": "f-gf-3",
+      "category": "Compliance",
+      "severity": "Low",
+      "title": "Workload identity",
+      "detail": "Workload identity with federated credentials replaces static secrets for calling Key Vault and Azure Storage data plane."
+    }
+  ]
+}

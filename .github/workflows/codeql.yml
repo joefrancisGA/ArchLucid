@@ -1,0 +1,117 @@
+# Code scanning for C# (solution) and JavaScript/TypeScript (Operator UI).
+# Enable "Code scanning" in repo Settings → Security after merge if alerts do not appear.
+name: CodeQL
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+  schedule:
+    - cron: "12 9 * * 1"
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  # Operator UI package directory (`archlucid-ui/`; keep CodeQL source-root in sync with CI).
+  ARCHLUCID_UI_DIR: archlucid-ui
+
+concurrency:
+  group: codeql-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  csharp:
+    name: "CodeQL (csharp)"
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Validate CodeQL MaD model kinds
+        run: python3 scripts/ci/validate_codeql_mad_kinds.py
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v4
+        with:
+          languages: csharp
+          queries: security-extended
+          # AlertSuppression binds // codeql[rule-id] comments into SARIF suppressions for assert_codeql_sarif_clean.py.
+          packs: codeql/csharp-queries:AlertSuppression.ql
+          config-file: ./.github/codeql/codeql-config.yml
+          # `none` is required for PR overlay-base incremental DBs; `manual` forces a full DB and logs a warning.
+          # Trade-off: analysis is "good" vs "best" per GitHub docs; we restore packages to help resolution without a traced build.
+          build-mode: none
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5.2.0
+        with:
+          global-json-file: global.json
+          cache: true
+          cache-dependency-path: |
+            Directory.Packages.props
+            global.json
+            **/*.csproj
+
+      # No traced build: standalone C# extraction. Restore keeps central package management + SDK (global.json) resolvable.
+      - name: Restore .NET dependencies
+        run: dotnet restore ArchLucid.sln
+
+      # Emit workspace SARIF for a strict CI gate (complements GitHub "code scanning" PR policies).
+      - name: Perform CodeQL analysis
+        uses: github/codeql-action/analyze@v4
+        with:
+          output: csharp-sarif
+
+      - name: Fail on unresolved CodeQL C# SARIF findings
+        run: python3 scripts/ci/assert_codeql_sarif_clean.py csharp-sarif
+
+  javascript:
+    name: "CodeQL (javascript)"
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Verify UI directory for CodeQL
+        run: |
+          if [ ! -d "${ARCHLUCID_UI_DIR}" ]; then
+            echo "::error::Missing ${ARCHLUCID_UI_DIR}/ — update ARCHLUCID_UI_DIR in .github/workflows/codeql.yml if the UI folder was renamed."
+            exit 1
+          fi
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v4
+        with:
+          languages: javascript
+          queries: security-extended
+          packs: codeql/javascript-queries:AlertSuppression.ql
+          source-root: ${{ env.ARCHLUCID_UI_DIR }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: ${{ env.ARCHLUCID_UI_DIR }}/package-lock.json
+
+      - name: Install and build UI
+        working-directory: ${{ env.ARCHLUCID_UI_DIR }}
+        run: |
+          npm ci
+          npm run build
+
+      - name: Perform CodeQL analysis
+        uses: github/codeql-action/analyze@v4
+        with:
+          output: javascript-sarif
+
+      - name: Fail on unresolved CodeQL JavaScript SARIF findings
+        run: python3 scripts/ci/assert_codeql_sarif_clean.py javascript-sarif

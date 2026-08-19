@@ -1,0 +1,151 @@
+using System.Diagnostics.CodeAnalysis;
+
+using ArchLucid.Persistence.Connections;
+
+using Dapper;
+
+using Microsoft.Data.SqlClient;
+
+namespace ArchLucid.Persistence.Alerts;
+
+/// <summary>Dapper implementation of <see cref="IAlertRoutingSubscriptionRepository"/> over <c>dbo.AlertRoutingSubscriptions</c>.</summary>
+/// <param name="connectionFactory">SQL connection factory (scoped in DI).</param>
+[ExcludeFromCodeCoverage(Justification = "SQL-dependent repository; requires live SQL Server for integration testing.")]
+public sealed class DapperAlertRoutingSubscriptionRepository(ISqlConnectionFactory connectionFactory)
+    : IAlertRoutingSubscriptionRepository
+{
+    /// <inheritdoc />
+    public async Task CreateAsync(AlertRoutingSubscription subscription, CancellationToken ct)
+    {
+        const string sql = """
+            INSERT INTO dbo.AlertRoutingSubscriptions
+            (
+                RoutingSubscriptionId, TenantId, WorkspaceId, ProjectId,
+                Name, ChannelType, Destination, MinimumSeverity, IsEnabled,
+                CreatedUtc, CreatedByActor, LastModifiedByActor, LastModifiedUtc,
+                LastDeliveredUtc, MetadataJson
+            )
+            VALUES
+            (
+                @RoutingSubscriptionId, @TenantId, @WorkspaceId, @ProjectId,
+                @Name, @ChannelType, @Destination, @MinimumSeverity, @IsEnabled,
+                @CreatedUtc, @CreatedByActor, @LastModifiedByActor, @LastModifiedUtc,
+                @LastDeliveredUtc, @MetadataJson
+            );
+            """;
+
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        await connection.ExecuteAsync(new CommandDefinition(sql, subscription, cancellationToken: ct));
+    }
+
+    /// <inheritdoc />
+    public async Task UpdateAsync(AlertRoutingSubscription subscription, CancellationToken ct)
+    {
+        const string sql = """
+            UPDATE dbo.AlertRoutingSubscriptions
+            SET
+                Name = @Name,
+                ChannelType = @ChannelType,
+                Destination = @Destination,
+                MinimumSeverity = @MinimumSeverity,
+                IsEnabled = @IsEnabled,
+                LastModifiedByActor = @LastModifiedByActor,
+                LastModifiedUtc = @LastModifiedUtc,
+                LastDeliveredUtc = @LastDeliveredUtc,
+                MetadataJson = @MetadataJson
+            WHERE RoutingSubscriptionId = @RoutingSubscriptionId;
+            """;
+
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        await connection.ExecuteAsync(new CommandDefinition(sql, subscription, cancellationToken: ct));
+    }
+
+    /// <inheritdoc />
+    public async Task<AlertRoutingSubscription?> GetByIdAsync(Guid routingSubscriptionId, CancellationToken ct)
+    {
+        const string sql = """
+            SELECT
+                RoutingSubscriptionId, TenantId, WorkspaceId, ProjectId,
+                Name, ChannelType, Destination, MinimumSeverity, IsEnabled,
+                CreatedUtc, CreatedByActor, LastModifiedByActor, LastModifiedUtc,
+                LastDeliveredUtc, MetadataJson
+            FROM dbo.AlertRoutingSubscriptions
+            WHERE RoutingSubscriptionId = @RoutingSubscriptionId;
+            """;
+
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        return await connection.QueryFirstOrDefaultAsync<AlertRoutingSubscription>(
+            new CommandDefinition(sql, new
+            {
+                RoutingSubscriptionId = routingSubscriptionId
+            }, cancellationToken: ct));
+    }
+
+    public async Task<IReadOnlyList<AlertRoutingSubscription>> ListByScopeAsync(
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        CancellationToken ct)
+    {
+        const string sql = """
+            SELECT TOP 200
+                RoutingSubscriptionId, TenantId, WorkspaceId, ProjectId,
+                Name, ChannelType, Destination, MinimumSeverity, IsEnabled,
+                CreatedUtc, CreatedByActor, LastModifiedByActor, LastModifiedUtc,
+                LastDeliveredUtc, MetadataJson
+            FROM dbo.AlertRoutingSubscriptions
+            WHERE TenantId = @TenantId
+              AND WorkspaceId = @WorkspaceId
+              AND ProjectId = @ProjectId
+            ORDER BY CreatedUtc DESC;
+            """;
+
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        IEnumerable<AlertRoutingSubscription> rows = await connection.QueryAsync<AlertRoutingSubscription>(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    TenantId = tenantId,
+                    WorkspaceId = workspaceId,
+                    ProjectId = projectId
+                },
+                cancellationToken: ct));
+        return rows.ToList();
+    }
+
+    /// <inheritdoc />
+    public async Task<IReadOnlyList<AlertRoutingSubscription>> ListEnabledByScopeAsync(
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        CancellationToken ct)
+    {
+        const string sql = """
+            SELECT TOP 200
+                RoutingSubscriptionId, TenantId, WorkspaceId, ProjectId,
+                Name, ChannelType, Destination, MinimumSeverity, IsEnabled,
+                CreatedUtc, CreatedByActor, LastModifiedByActor, LastModifiedUtc,
+                LastDeliveredUtc, MetadataJson
+            FROM dbo.AlertRoutingSubscriptions
+            WHERE TenantId = @TenantId
+              AND WorkspaceId = @WorkspaceId
+              AND ProjectId = @ProjectId
+              AND IsEnabled = 1
+            ORDER BY CreatedUtc DESC;
+            """;
+
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
+        IEnumerable<AlertRoutingSubscription> rows = await connection.QueryAsync<AlertRoutingSubscription>(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    TenantId = tenantId,
+                    WorkspaceId = workspaceId,
+                    ProjectId = projectId
+                },
+                cancellationToken: ct));
+        return rows.ToList();
+    }
+}

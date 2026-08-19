@@ -1,0 +1,75 @@
+namespace ArchLucid.Core.Hosting;
+
+/// <summary>
+/// Stable <c>rule_name</c> labels for <see cref="ArchLucid.Core.Diagnostics.ArchLucidInstrumentation.RecordStartupConfigWarning"/> (TB-002).
+/// </summary>
+public static class ProductionLikeHostingMisconfigurationAdvisorRuleNames
+{
+    /// <summary>API host lacks CORS origins on staging/production-like.</summary>
+    public const string CorsAllowedOriginsEmptyProductionLikeHost = "cors_allowed_origins_empty_production_like_host";
+
+    /// <summary>JwtBearer configured without Authority or PEM path.</summary>
+    public const string JwtBearerMissingAuthorityAndPem = "jwt_bearer_missing_authority_and_pem";
+
+    /// <summary>ArchLucidAuth Mode is ApiKey but API keys disabled.</summary>
+    public const string ApiKeyModeDisabledWhenConfigured = "api_key_mode_disabled_when_api_key_auth_configured";
+
+    /// <summary><c>Authentication:ApiKey:DevelopmentBypassAll</c> set under production-profile validation.</summary>
+    public const string AuthenticationApiKeyDevelopmentBypassAllDisallowed =
+        "authentication_api_key_development_bypass_all_disallowed";
+
+    /// <summary>Real LLM mode without prompt deny-list redaction under production-profile validation.</summary>
+    public const string LlmPromptRedactionRequiredForRealMode = "llm_prompt_redaction_required_for_real_mode";
+
+    /// <summary><c>ProductionValidation:RequireTelemetryExport</c> enabled but no exporter configured.</summary>
+    public const string TelemetryExportRequiredMissing = "telemetry_export_required_but_not_configured";
+
+    /// <summary>Unrecognized <c>ArchLucidAuth:Mode</c> under production-profile validation.</summary>
+    public const string AuthModeUnrecognized = "auth_mode_unrecognized_production_profile";
+
+    /// <summary><c>ArchLucidAuth:Mode=DevelopmentBypass</c> under production-profile validation.</summary>
+    public const string AuthModeDevelopmentBypassDisallowed = "auth_mode_development_bypass_disallowed";
+
+    /// <summary>Local JWT PEM validation path disallowed when ASP.NET Production or <c>ARCHLUCID_ENVIRONMENT=Production</c>.</summary>
+    public const string JwtBearerLocalPemDisallowedProductionProfile = "jwt_bearer_local_pem_disallowed_production_profile";
+
+    /// <summary><c>Retrieval:VectorIndex</c> is not <c>AzureSearch</c> on production-like hosting (owner 2026-05-29).</summary>
+    public const string AzureAiSearchVectorIndexRequiredProductionLike = "azure_ai_search_vector_index_required_production_like";
+
+    /// <summary><c>Retrieval:AzureSearch:Endpoint</c> missing when Azure Search is required on production-like hosting.</summary>
+    public const string AzureAiSearchEndpointRequiredProductionLike = "azure_ai_search_endpoint_required_production_like";
+
+    /// <summary>Raw Service Bus connection string configured on production-like hosting.</summary>
+    public const string IntegrationEventsServiceBusConnectionStringDisallowedProductionLike =
+        "integration_events_service_bus_connection_string_disallowed_production_like";
+
+    /// <summary>Plaintext admin API key on production-like hosting.</summary>
+    public const string AuthenticationApiKeyAdminKeyPlaintextProductionLike =
+        "authentication_api_key_admin_key_plaintext_production_like";
+
+    /// <summary>Plaintext read-only API key on production-like hosting.</summary>
+    public const string AuthenticationApiKeyReadOnlyKeyPlaintextProductionLike =
+        "authentication_api_key_readonly_key_plaintext_production_like";
+
+    /// <summary>Plaintext Azure OpenAI API key on production-like real-mode hosting.</summary>
+    public const string AzureOpenAiApiKeyPlaintextProductionLike =
+        "azure_openai_api_key_plaintext_production_like";
+
+    /// <summary>
+    ///     <c>ArchLucid:AgentOutput:QualityGate:Mode=WarnOnly</c> with <c>AgentExecution:Mode=Real</c> on production-like hosting.
+    ///     Advisory in general lint; blocking under <c>production-like-hosted-pilot</c> profile (TB-213).
+    /// </summary>
+    public const string QualityGateWarnOnlyInRealProductionLike =
+        "quality_gate_warn_only_in_real_production_like";
+
+    /// <summary>
+    ///     PilotStrict semantic/faithfulness floors below hosted-pilot minimums on production-like hosting.
+    ///     Advisory in general lint; blocking under <c>production-like-hosted-pilot</c> profile.
+    /// </summary>
+    public const string QualityGatePilotStrictThresholdsTooLooseInProductionLike =
+        "quality_gate_pilot_strict_thresholds_too_loose_in_production_like";
+
+    /// <summary>Graph-RAG enabled without Azure AI Search vector index posture.</summary>
+    public const string GraphRagEnabledWithoutAzureSearchPosture =
+        "graph_rag_enabled_without_azure_search_posture";
+}

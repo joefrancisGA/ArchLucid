@@ -1,0 +1,7 @@
+flowchart TB
+  Mem["IMemoryCache"] --> Local["pwned OAuth marketing KeyVault"]
+  Hot["IHotPathReadCache HybridHotPathReadCache"] --> Redis["HotPathCache Provider Auto or Redis"]
+  Llm["LlmCompletionResponseCache"] --> Dist["DistributedLlmCompletionResponseStore"]
+  Graph["IGraphSnapshotProjectionCache"] --> GDist["GraphSnapshotProjectionDistributedCache"]
+  Repo["CachingTenantRepository CachingPolicyPackRepository"] --> Mem
+  Health["DistributedCacheHealthCheck"] --> Redis

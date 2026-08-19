@@ -1,0 +1,10 @@
+namespace ArchLucid.Core.Manifest.Sections;
+
+public class UnresolvedIssuesSection
+{
+    public List<ManifestIssue> Items
+    {
+        get;
+        set;
+    } = [];
+}

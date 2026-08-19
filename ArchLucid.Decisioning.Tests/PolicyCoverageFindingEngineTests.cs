@@ -1,0 +1,104 @@
+using ArchLucid.Decisioning.Analysis;
+using ArchLucid.Decisioning.Models;
+using ArchLucid.Decisioning.Services;
+using ArchLucid.KnowledgeGraph.Models;
+
+using FluentAssertions;
+
+using Moq;
+
+namespace ArchLucid.Decisioning.Tests;
+
+/// <summary>
+/// Tests for Policy Coverage Finding Engine.
+/// </summary>
+[Trait("Suite", "Core")]
+[Trait("Category", "Unit")]
+public sealed class PolicyCoverageFindingEngineTests
+{
+    private readonly Mock<IGraphCoverageAnalyzer> _analyzer = new(MockBehavior.Strict);
+
+    [Fact]
+    public async Task AnalyzeAsync_NoPolicyNodes_EmitsSingleWarningFinding()
+    {
+        PolicyCoverageResult result = new()
+        {
+            PolicyNodeCount = 0,
+            PolicyApplicabilityEdgeCount = 0,
+            UncoveredResources = []
+        };
+        _analyzer.Setup(a => a.AnalyzePolicy(It.IsAny<GraphSnapshot>())).Returns(result);
+
+        PolicyCoverageFindingEngine sut = new(_analyzer.Object);
+        GraphSnapshot graph = new();
+
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(graph, CancellationToken.None);
+
+        findings.Should().ContainSingle();
+        findings[0].FindingType.Should().Be("PolicyCoverageFinding");
+        findings[0].Severity.Should().Be(FindingSeverity.Warning);
+        findings[0].Title.Should().Contain("No policy");
+        findings[0].Trace.DecisionsTaken.Should().NotBeEmpty();
+        findings[0].Trace.AlternativePathsConsidered.Should().HaveCount(2);
+        findings[0].Trace.RulesApplied.Should().Contain("policy-coverage-presence");
+        findings[0].Trace.Notes.Should().NotBeEmpty();
+        PolicyCoverageFindingPayload? payload = findings[0].Payload as PolicyCoverageFindingPayload;
+        payload.Should().NotBeNull();
+        payload.PolicyNodeCount.Should().Be(0);
+    }
+
+    [Fact]
+    public async Task AnalyzeAsync_FullCoverage_ReturnsEmptyList()
+    {
+        PolicyCoverageResult result = new()
+        {
+            PolicyNodeCount = 2,
+            PolicyApplicabilityEdgeCount = 5,
+            UncoveredResources = []
+        };
+        _analyzer.Setup(a => a.AnalyzePolicy(It.IsAny<GraphSnapshot>())).Returns(result);
+
+        PolicyCoverageFindingEngine sut = new(_analyzer.Object);
+
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(new GraphSnapshot(), CancellationToken.None);
+
+        findings.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task AnalyzeAsync_UncoveredResources_EmitsFindingWithPayload()
+    {
+        PolicyCoverageResult result = new()
+        {
+            PolicyNodeCount = 1,
+            PolicyApplicabilityEdgeCount = 0,
+            UncoveredResources = ["storage-1", "vm-2"]
+        };
+        _analyzer.Setup(a => a.AnalyzePolicy(It.IsAny<GraphSnapshot>())).Returns(result);
+
+        PolicyCoverageFindingEngine sut = new(_analyzer.Object);
+
+        IReadOnlyList<Finding> findings = await sut.AnalyzeAsync(new GraphSnapshot(), CancellationToken.None);
+
+        findings.Should().ContainSingle();
+        PolicyCoverageFindingPayload? payload = findings[0].Payload as PolicyCoverageFindingPayload;
+        payload.Should().NotBeNull();
+        payload.UncoveredResources.Should().Equal("storage-1", "vm-2");
+        payload.PolicyNodeCount.Should().Be(1);
+        findings[0].Trace.DecisionsTaken.Should().NotBeEmpty();
+        findings[0].Trace.GraphNodeIdsExamined.Should().Equal("storage-1", "vm-2");
+        findings[0].RelatedNodeIds.Should().Equal("storage-1", "vm-2");
+        findings[0].Trace.RulesApplied.Should().Contain("policy-coverage-applicability");
+        findings[0].Trace.AlternativePathsConsidered.Should().HaveCount(2);
+        findings[0].Trace.Notes.Should().NotBeEmpty();
+    }
+
+    [Fact]
+    public void EngineType_And_Category_AreStable()
+    {
+        PolicyCoverageFindingEngine sut = new(_analyzer.Object);
+
+        sut.EngineType.Should().Be("policy-coverage");
+        sut.Category.Should().Be("Policy");
+    }
+}

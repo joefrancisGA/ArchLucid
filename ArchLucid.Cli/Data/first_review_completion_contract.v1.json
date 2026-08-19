@@ -1,0 +1,46 @@
+﻿{
+  "schemaVersion": 1,
+  "purpose": "TB-413: structural first-review completion signals probed by ship-gate Gate 1 for the representative --run-id (create -> execute -> commit -> manifest + artifact).",
+  "runDetailSignals": [
+    {
+      "id": "committed-status",
+      "label": "Run status is Committed",
+      "requiredStatusValues": ["Committed", "5"]
+    },
+    {
+      "id": "manifest-version",
+      "label": "Golden manifest version present",
+      "requireManifestVersion": true
+    },
+    {
+      "id": "request-linked",
+      "label": "Architecture request linked to run",
+      "requireRequestId": true
+    },
+    {
+      "id": "execution-complete",
+      "label": "Execution signals present",
+      "requireAnyExecutionSignal": true
+    }
+  ],
+  "liveProbes": [
+    {
+      "id": "artifacts-present",
+      "label": "At least one run artifact",
+      "method": "GET",
+      "pathTemplate": "/v1/artifacts/runs/{runId}",
+      "minArrayLength": 1
+    },
+    {
+      "id": "provenance-graph",
+      "label": "Provenance graph reachable",
+      "method": "GET",
+      "pathTemplate": "/v1/architecture/reviews/{runId}/provenance",
+      "minJsonArrayPropertyLength": {
+        "property": "nodes",
+        "min": 1
+      }
+    }
+  ],
+  "acceptableStatusCodes": [200]
+}

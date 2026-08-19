@@ -1,0 +1,49 @@
+﻿using ArchLucid.AgentRuntime.Safety;
+using ArchLucid.Core.Safety;
+
+using Azure.AI.ContentSafety;
+
+using FluentAssertions;
+
+namespace ArchLucid.AgentRuntime.Tests.Safety;
+
+[Trait("Suite", "Core")]
+[Trait("Category", "Unit")]
+public sealed class AzureContentSafetyGuardMapResultTests
+{
+    [SkippableFact]
+    public void MapResult_allows_when_no_categories()
+    {
+        AnalyzeTextResult result = ContentSafetyModelFactory.AnalyzeTextResult([], []);
+
+        ContentSafetyResult mapped = AzureContentSafetyGuard.MapResult(result, 4);
+
+        mapped.IsAllowed.Should().BeTrue();
+    }
+
+    [SkippableFact]
+    public void MapResult_blocks_when_severity_meets_threshold()
+    {
+        AnalyzeTextResult result = ContentSafetyModelFactory.AnalyzeTextResult(
+            [],
+            [ContentSafetyModelFactory.TextCategoriesAnalysis(TextCategory.Hate, 6)]);
+
+        ContentSafetyResult mapped = AzureContentSafetyGuard.MapResult(result, 4);
+
+        mapped.IsAllowed.Should().BeFalse();
+        mapped.Category.Should().Be(TextCategory.Hate.ToString());
+        mapped.Severity.Should().Be(6);
+    }
+
+    [SkippableFact]
+    public void MapResult_allows_when_severity_below_threshold()
+    {
+        AnalyzeTextResult result = ContentSafetyModelFactory.AnalyzeTextResult(
+            [],
+            [ContentSafetyModelFactory.TextCategoriesAnalysis(TextCategory.Violence, 2)]);
+
+        ContentSafetyResult mapped = AzureContentSafetyGuard.MapResult(result, 4);
+
+        mapped.IsAllowed.Should().BeTrue();
+    }
+}

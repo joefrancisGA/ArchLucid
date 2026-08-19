@@ -1,0 +1,34 @@
+---
+description: Form submit affordances — disable until hard validation passes; inline errors; toast only for async/system failures
+alwaysApply: false
+globs:
+  - archlucid-ui/src/**/*.tsx
+  - archlucid-ui/src/**/*.ts
+---
+
+# Form validation affordances (ArchLucid UI)
+
+Canonical doc: [`docs/library/UI_DESIGN_SYSTEM.md`](docs/library/UI_DESIGN_SYSTEM.md) § Form validation affordances (**TB-2005**).
+
+## Preferred pattern (new forms and form edits)
+
+1. **Disable** the primary submit / continue / start CTA until hard minimum client-side validation passes (required fields present, min length, numeric ranges the client already knows).
+2. **Show validation on the form** — field-level messages and/or a form-level readiness line near the CTA. Use `aria-invalid` / `role="alert"` where the control already does.
+3. **Reserve `showError` toasts** for system and async failures the user could not have predicted from the form alone: network errors, server 4xx/5xx, save conflicts, clipboard failures, unexpected API shapes.
+
+## Do not
+
+- Leave a primary CTA enabled when hard validation already fails, then toast “add X before …” on click.
+- Duplicate the same client-known validation in both an inline message and a toast.
+- Use toasts as the only feedback for empty/required/format errors.
+
+## Nuance
+
+- Soft/advisory warnings (optional fields, non-blocking tips) may leave the CTA enabled.
+- Wizard steps that use React Hook Form `trigger()` on Next may keep click-to-validate **only if** field errors render inline and there is **no** validation toast. Prefer live `canProceed` / `formValid` gating when the validity predicate is cheap.
+- Defensive `if (!valid) return` guards after a disabled CTA are fine; they must **not** call `showError` for that client-known case.
+
+## Reference implementations
+
+- Good: `SocraticIntakeWizard.tsx` create-architecture continue (`canAdvanceIntent` + advance hint); `QuickScanClient.tsx`; `AlertRulesContent.tsx`; `DigestSubscriptionCreateForm.tsx`; `SsoWizardFooter.tsx`.
+- Fix cluster: **TB-2006**–**TB-2011** (architecture draft Start review, pilot baseline wizard, admin toast offenders, dual toast/inline, disable-until-ready inventory, Vitest/dead toast cleanup).

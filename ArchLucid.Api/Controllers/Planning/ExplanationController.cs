@@ -1,0 +1,236 @@
+using ArchLucid.Api.Attributes;
+using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Api.Support;
+using ArchLucid.Application.Explanation;
+using ArchLucid.Core.Audit;
+using ArchLucid.Core.Explanation;
+using ArchLucid.Application.Explanation.Models;
+using ArchLucid.Contracts.Explanation;
+using ArchLucid.Core.Authorization;
+using ArchLucid.Core.Comparison;
+using ArchLucid.Core.Diagnostics;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Tenancy;
+using ArchLucid.Contracts.Findings;
+using ArchLucid.Decisioning.Findings;
+using ArchLucid.Persistence.Provenance;
+using ArchLucid.Persistence.Queries;
+using ArchLucid.Provenance;
+
+using Asp.Versioning;
+
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
+
+namespace ArchLucid.Api.Controllers.Planning;
+
+/// <summary>
+///     LLM explanations for a single run (with optional provenance) and for manifest deltas between two runs.
+/// </summary>
+/// <remarks>
+///     Routes under <c>api/explain</c>; uses <see cref="IExplanationService" /> and <see cref="IComparisonService" />
+///     for compare narrative.
+/// </remarks>
+[ApiController]
+[Authorize(Policy = ArchLucidPolicies.ReadAuthority)]
+[ApiVersion("1.0")]
+[Route("v{version:apiVersion}/explain")]
+[EnableRateLimiting("fixed")]
+[RequiresCommercialTenantTier(TenantTier.Standard)]
+public sealed class ExplanationController(
+    IAuthorityQueryService query,
+    IComparisonService comparison,
+    IExplanationService explanation,
+    IRunExplanationSummaryService runExplanationSummary,
+    IFindingExplainabilityComposer findingExplainabilityComposer,
+    IFindingLlmAuditService findingLlmAudit,
+    IProvenanceSnapshotRepository provenanceRepo,
+    IScopeContextProvider scopeProvider,
+    IHolisticCriticService holisticCriticService,
+    ILogger<ExplanationController> logger)
+    : ControllerBase
+{
+    private readonly ILogger<ExplanationController> _logger =
+        logger ?? throw new ArgumentNullException(nameof(logger));
+
+    /// <summary>Stakeholder explanation for one run�s golden manifest, optionally enriched with stored provenance graph JSON.</summary>
+    /// <param name="runId">Run to load.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns><see cref="ExplanationResult" /> JSON, or 404 when the run or manifest is missing in scope.</returns>
+    [HttpGet("runs/{runId:guid}/explain")]
+    [ProducesResponseType(typeof(ExplanationResult), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> ExplainRun(Guid runId, CancellationToken ct = default)
+    {
+        ScopeContext scope = scopeProvider.GetCurrentScope();
+        RunDetailDto? detail = await query.GetRunDetailAsync(scope, runId, ct);
+        if (detail?.GoldenManifest is null)
+            return this.NotFoundProblem(
+                $"Run '{runId}' was not found or has no committed manifest in the current scope.",
+                ProblemTypes.RunNotFound);
+
+        DecisionProvenanceGraph? graph = null;
+        ArchLucid.Contracts.Persistence.Data.DecisionProvenanceSnapshot? snapshot =
+            await provenanceRepo.GetByRunIdAsync(scope, runId, ct);
+
+        if (snapshot is not null)
+
+            try
+            {
+                graph = ProvenanceGraphSerializer.Deserialize(snapshot.GraphJson);
+            }
+            catch (InvalidOperationException ex)
+            {
+                _logger.LogWarningWithSanitizedUserArg(
+                    ex,
+                    "Provenance graph JSON for run {RunId} is corrupt; explanation will proceed without provenance.",
+                    runId.ToString("D"));
+            }
+
+        ExplanationResult result = await explanation.ExplainRunAsync(detail.GoldenManifest, graph, ct);
+        List<FindingTraceConfidenceDto> traceRows = FindingTraceConfidenceMapper.FromSnapshot(detail.FindingsSnapshot);
+
+        if (traceRows.Count > 0)
+            result.FindingTraceConfidences = traceRows;
+
+        int findingCountForTelemetry = detail.FindingsSnapshot?.Findings?.Count ?? 0;
+        FindingsListAccessTelemetry.LogFindingSnapshotExpose(_logger, scope, runId, nameof(ExplainRun), findingCountForTelemetry);
+
+        return Ok(result);
+    }
+
+    /// <summary>Sponsor rollup: themes, risk posture, counts, and the same explanation payload as granular explain.</summary>
+    /// <param name="runId">Run to summarize.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns><see cref="RunExplanationSummary" /> JSON, or 404 when the run or manifest is missing in scope.</returns>
+    [HttpGet("runs/{runId:guid}/aggregate")]
+    [ProducesResponseType(typeof(RunExplanationSummary), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> AggregateRunExplanation(Guid runId, CancellationToken ct = default)
+    {
+        ScopeContext scope = scopeProvider.GetCurrentScope();
+        RunExplanationSummary? summary = await runExplanationSummary.GetSummaryAsync(scope, runId, ct);
+        if (summary is null)
+            return this.NotFoundProblem(
+                $"Run '{runId}' was not found or has no committed manifest in the current scope.",
+                ProblemTypes.RunNotFound);
+
+        FindingsListAccessTelemetry.LogFindingSnapshotExpose(
+            _logger,
+            scope,
+            runId,
+            nameof(AggregateRunExplanation),
+            summary.FindingCount);
+
+        return Ok(summary);
+    }
+
+    /// <summary>
+    ///     Returns persisted <c>ExplainabilityTrace</c> fields for one finding on an authority run (no LLM).
+    /// </summary>
+    [HttpGet("runs/{runId:guid}/findings/{findingId}/explainability")]
+    [ProducesResponseType(typeof(FindingExplainabilityResult), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetFindingExplainability(
+        Guid runId,
+        string findingId,
+        CancellationToken ct = default)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(findingId);
+
+        ScopeContext scope = scopeProvider.GetCurrentScope();
+        RunDetailDto? detail = await query.GetRunDetailAsync(scope, runId, ct);
+        if (detail?.FindingsSnapshot?.Findings is not { Count: > 0 } list)
+            return this.NotFoundProblem(
+                $"Run '{runId}' has no findings snapshot in the current scope.",
+                ProblemTypes.RunNotFound);
+
+        Finding? match = list.FirstOrDefault(f =>
+            string.Equals(f.FindingId, findingId, StringComparison.OrdinalIgnoreCase));
+
+        if (match is null)
+            return this.NotFoundProblem(
+                $"Finding '{findingId}' was not found on run '{runId}'.",
+                ProblemTypes.ResourceNotFound);
+
+        FindingExplainabilityResult body = findingExplainabilityComposer.Compose(match);
+
+        return Ok(body);
+    }
+
+    /// <summary>
+    ///     Returns deny-list redacted system/user prompts and raw LLM completion for the best-matching agent trace for this
+    ///     finding.
+    /// </summary>
+    [HttpGet("runs/{runId:guid}/findings/{findingId}/llm-audit")]
+    [ProducesResponseType(typeof(FindingLlmAuditResult), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetFindingLlmAudit(
+        Guid runId,
+        string findingId,
+        CancellationToken ct = default)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(findingId);
+
+        FindingLlmAuditResult? body = await findingLlmAudit.BuildAsync(runId, findingId, ct);
+
+        if (body is null)
+            return this.NotFoundProblem(
+                $"Finding '{findingId}' on run '{runId}' has no resolvable agent execution trace in the current scope.",
+                ProblemTypes.ResourceNotFound);
+
+        return Ok(body);
+    }
+
+    /// <summary>AI narrative for manifest delta between two runs (base ? target).</summary>
+    /// <param name="baseRunId">Baseline run.</param>
+    /// <param name="targetRunId">Target run.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns><see cref="ComparisonExplanationResult" /> JSON, or 404 when either run lacks a golden manifest in scope.</returns>
+    [HttpGet("compare/explain")]
+    [ProducesResponseType(typeof(ComparisonExplanationResult), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> ExplainComparison(
+        [FromQuery] Guid baseRunId,
+        [FromQuery] Guid targetRunId,
+        CancellationToken ct = default)
+    {
+        ScopeContext scope = scopeProvider.GetCurrentScope();
+        RunDetailDto? baseRun = await query.GetRunDetailAsync(scope, baseRunId, ct);
+        RunDetailDto? targetRun = await query.GetRunDetailAsync(scope, targetRunId, ct);
+        if (baseRun?.GoldenManifest is null || targetRun?.GoldenManifest is null)
+            return this.NotFoundProblem(
+                "One or both runs were not found or have no committed manifest in the current scope.",
+                ProblemTypes.RunNotFound);
+
+        ComparisonResult comparison1 = comparison.Compare(baseRun.GoldenManifest, targetRun.GoldenManifest);
+        ComparisonExplanationResult result = await explanation.ExplainComparisonAsync(comparison1, ct);
+        return Ok(result);
+    }
+
+    /// <summary>Unstructured holistic architecture critique (advisory; not persisted as findings).</summary>
+    // idempotency-posture: dry-run-no-persist
+    [HttpPost("runs/{runId:guid}/holistic-critic")]
+    [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
+    [MutatingAuditExcluded("Holistic critic is advisory-only and does not persist domain mutations.")]
+    [ProducesResponseType(typeof(HolisticCriticResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> HolisticCritic(
+        Guid runId,
+        [FromBody] HolisticCriticRequest? request,
+        CancellationToken ct = default)
+    {
+        ScopeContext scope = scopeProvider.GetCurrentScope();
+
+        try
+        {
+            HolisticCriticResponse response = await holisticCriticService.GenerateAsync(scope, runId, request, ct);
+            return Ok(response);
+        }
+        catch (InvalidOperationException ex) when (ex.Message.Contains("not found", StringComparison.OrdinalIgnoreCase))
+        {
+            return this.NotFoundProblem(ex.Message, ProblemTypes.RunNotFound);
+        }
+    }
+}

@@ -1,0 +1,63 @@
+# https://docs.github.com/en/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: daily
+    groups:
+      github-actions:
+        patterns:
+          - "*"
+
+  - package-ecosystem: nuget
+    directory: "/"
+    schedule:
+      interval: daily
+    open-pull-requests-limit: 15
+
+  - package-ecosystem: nuget
+    directory: "/templates/archlucid-finding-engine"
+    schedule:
+      interval: monthly
+
+  - package-ecosystem: npm
+    directory: "/archlucid-ui"
+    schedule:
+      interval: daily
+    open-pull-requests-limit: 10
+
+  - package-ecosystem: terraform
+    directory: "/infra/terraform-private"
+    schedule:
+      interval: weekly
+
+  - package-ecosystem: terraform
+    directory: "/infra/terraform-pilot"
+    schedule:
+      interval: weekly
+
+  - package-ecosystem: terraform
+    directory: "/infra/terraform"
+    schedule:
+      interval: weekly
+
+  - package-ecosystem: terraform
+    directory: "/infra/terraform-edge"
+    schedule:
+      interval: weekly
+
+  - package-ecosystem: terraform
+    directory: "/infra/terraform-entra"
+    schedule:
+      interval: weekly
+
+  - package-ecosystem: docker
+    directory: "/ArchLucid.Api"
+    schedule:
+      interval: weekly
+
+  - package-ecosystem: docker
+    directory: "/archlucid-ui"
+    schedule:
+      interval: weekly
