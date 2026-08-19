@@ -1643,7 +1643,7 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-2301 | Refresh `/why` hero product screenshot after operator Home IA drift ? **V1.1**; see ## TB-2301 below | Adoption friction P2 ? **V1.1**; owner UX pass 2026-08-14 /why hero screenshot | XS |
 | TB-2302 | `GET /v1/operator/bootstrap` cold-start mega-bundle (residual reads after shell-status) ? **V1.1**; see ## TB-2302 below | Performance P2 ? **V1.1**; operator home startup; after **TB-2304** | L |
 | TB-2303 | **Done** (2026-08-19) ? User preferences cross-tree TanStack dedupe via `operatorQueryKeys.userPreferences` + shared `getOperatorQueryClient().fetchQuery`; see ## TB-2303 below | Performance P3 ? **V1.1**; replaces module-level TTL dedupe in `user-preferences.ts` | M |
-| TB-2304 | Operator home startup proxy-trace baseline + regression gate ? **V1.1**; see ## TB-2304 below | Performance P2 ? **V1.1**; gates **TB-2302** scope; post shell-status wave | S |
+| TB-2304 | **Done** (2026-08-19) ? Operator home startup proxy-trace baseline + regression gate; `operator-home-startup-proxy-trace-baseline.v1.json` + concern-gate drift guard; TB-2302 **no-go**; see ## TB-2304 below | Performance P2 ? **V1.1**; gates **TB-2302** scope; post shell-status wave | S |
 | TB-2330 | **Done** (2026-08-15) ? Vitest `nav-committed-review-gate-drift-guard.test.ts`; NAV_CONFIG_CONTRACT single-input rule; see ## TB-2330 below | Testability P2 ? **V1**; nav gate regression after Done **TB-2133** | S |
 | TB-2331 | **Done** (2026-08-15) ? eval-empty hero demotes walkthrough panel; stickiness cockpit hidden on eval-empty; inventory guard extended; see ## TB-2331 below | Adoption friction P2 ? **V1.1**; after Done **TB-2232** | M |
 | TB-2332 | **Done** (2026-08-15) ? returning tenants use job chooser + More ways disclosure; path tabs removed; Vitest updated; see ## TB-2332 below | Adoption friction P2 ? **V1**; after Done **TB-2136**/**TB-2283** | M |
@@ -28169,6 +28169,8 @@ Plus visual regression: overview, technical index, one expanded object, one fiel
 ---
 
 ## TB-2304 ? Operator home startup proxy-trace baseline + regression gate (P2) ? **V1.1**
+
+**Status:** **Done** (2026-08-19) ? `archlucid-ui/performance/operator-home-startup-proxy-trace-baseline.v1.json`; `scripts/operator-home-startup-proxy-trace.mjs` + Vitest; `operator-shell-status-concern-gate-source-patterns.ts` drift guard; [`operator_home_startup_proxy_trace_tb2304.md`](../architecture/operator_home_startup_proxy_trace_tb2304.md); **TB-2302 bootstrap bundling no-go** documented.
 
 **Window:** V1.1 ? Performance verification (operator home).
 

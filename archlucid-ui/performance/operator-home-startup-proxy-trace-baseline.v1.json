@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "updatedUtc": "2026-08-19T18:00:00.000Z",
+  "route": "/",
+  "regressionToleranceExtraRequests": 2,
+  "maxTotalProxyRequests": 5,
+  "paths": {
+    "/v1/operator/shell-status": {
+      "minCount": 1,
+      "maxCount": 1
+    },
+    "/v1/user/preferences": {
+      "minCount": 0,
+      "maxCount": 1
+    },
+    "/health/ready": {
+      "minCount": 0,
+      "maxCount": 1
+    },
+    "/v1/tenant/baseline": {
+      "minCount": 0,
+      "maxCount": 1
+    }
+  },
+  "shellStatusHydratedMaxCount": 0,
+  "shellStatusHydratedPaths": [
+    "/v1/tenant/trial-status",
+    "/v1/tenant/catalog-migration-status",
+    "/v1/admin/llm-monthly-dollar-budget-status",
+    "/v1/alerts/inbox-summary",
+    "/v1/tenant/usage-status",
+    "/v1/tenant/homepage-settings",
+    "/v1/tenant/customer-success/stickiness-snapshot",
+    "/v1/governance/risk-register/assigned-to-me-count",
+    "/v1/governance/reviews-awaiting-action"
+  ],
+  "tb2302BootstrapBundlingGoNoGo": "no-go",
+  "tb2302BootstrapBundlingRationale": "Post-shell-status cold start fits 3–5 proxy GETs (shell-status + preferences + optional health/baseline). TB-2302 mega-bundle is not justified until the trace exceeds this budget or serial duplicate chains return.",
+  "notes": "TB-2304 performance baseline (operator home). Distinct from vocabulary rail TB-2304 in package-governance-approval-queue-vocabulary.ts."
+}
