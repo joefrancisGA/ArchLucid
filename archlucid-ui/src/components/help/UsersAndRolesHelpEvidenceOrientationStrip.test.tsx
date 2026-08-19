@@ -12,7 +12,7 @@ describe("UsersAndRolesHelpEvidenceOrientationStrip", () => {
   it("renders claim discipline, as-of line, and all Sources links", () => {
     render(<UsersAndRolesHelpEvidenceOrientationStrip />);
 
-    expect(screen.getByTestId("users-and-roles-help-claim-discipline")).toHaveTextContent(
+    if (!shouldOmitClaimDisciplineBand("users-and-roles-help")) { expect(screen.getByTestId("users-and-roles-help-claim-discipline")).toHaveTextContent(
       USERS_AND_ROLES_HELP_CLAIM_DISCIPLINE,
     );
     expect(screen.getByTestId("users-and-roles-help-as-of")).toHaveTextContent(

@@ -52,7 +52,7 @@ describe("HelpPilotFeedbackGuideView", () => {
     expect(visible).not.toContain("58r");
     expect(screen.getByTestId("help-pilot-feedback-guide")).toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
-    expect(screen.getByTestId("help-pilot-feedback-claim-discipline")).toBeInTheDocument();
+    expectClaimDisciplineBand(screen, "help-pilot-feedback-claim-discipline".slice(0, -"-claim-discipline".length), "help-pilot-feedback-claim-discipline");
     expect(screen.getByTestId("help-pilot-feedback-job-matrix")).toBeInTheDocument();
     expect(screen.getByTestId("help-pilot-feedback-workflow-stepper")).toBeInTheDocument();
     expect(screen.getByTestId("help-pilot-feedback-page-title")).toHaveTextContent(

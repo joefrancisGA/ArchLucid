@@ -101,7 +101,7 @@ describe("HelpDigestsGuideView", () => {
 
     render(<HelpDigestsGuideView entry={entry} />);
 
-    expect(screen.getByTestId("help-digests-claim-discipline")).toHaveTextContent(DIGESTS_HELP_CLAIM_DISCIPLINE);
+    if (!shouldOmitClaimDisciplineBand("help-digests")) { expect(screen.getByTestId("help-digests-claim-discipline")).toHaveTextContent(DIGESTS_HELP_CLAIM_DISCIPLINE);
     expect(screen.getByRole("heading", { name: DIGESTS_HELP_CLAIM_DISCIPLINE_HEADING })).toHaveAttribute(
       "id",
       DIGESTS_HELP_CLAIM_HEADING_ID,

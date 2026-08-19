@@ -12,7 +12,7 @@ describe("ShowcaseEvidenceOrientationStrip", () => {
     render(<ShowcaseEvidenceOrientationStrip />);
 
     expect(screen.getByTestId("showcase-sources")).toBeInTheDocument();
-    expect(screen.getByTestId("showcase-claim-discipline")).toBeInTheDocument();
+    expectClaimDisciplineBand(screen, "showcase-claim-discipline".slice(0, -"-claim-discipline".length), "showcase-claim-discipline");
 
     for (const link of SHOWCASE_SOURCES) {
       expect(screen.getByRole("link", { name: link.label })).toHaveAttribute("href", link.href);

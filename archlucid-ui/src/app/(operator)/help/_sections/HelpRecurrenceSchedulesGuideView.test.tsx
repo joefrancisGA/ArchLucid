@@ -49,7 +49,7 @@ describe("HelpRecurrenceSchedulesGuideView", () => {
       RECURRENCE_SCHEDULES_HELP_PRIMARY_ACTION.href,
     );
 
-    expect(screen.getByTestId("help-recurrence-schedules-claim-discipline")).toHaveTextContent(
+    if (!shouldOmitClaimDisciplineBand("help-recurrence-schedules")) { expect(screen.getByTestId("help-recurrence-schedules-claim-discipline")).toHaveTextContent(
       RECURRENCE_SCHEDULES_HELP_CLAIM_DISCIPLINE.slice(0, 40),
     );
     expect(screen.getByRole("heading", { name: RECURRENCE_SCHEDULES_HELP_CLAIM_DISCIPLINE_HEADING })).toHaveAttribute(

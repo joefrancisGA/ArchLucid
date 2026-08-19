@@ -9,7 +9,7 @@ describe("WelcomeEvidenceOrientationStrip", () => {
     render(<WelcomeEvidenceOrientationStrip />);
 
     expect(screen.getByTestId("welcome-sources")).toBeInTheDocument();
-    expect(screen.getByTestId("welcome-claim-discipline")).toBeInTheDocument();
+    expectClaimDisciplineBand(screen, "welcome-claim-discipline".slice(0, -"-claim-discipline".length), "welcome-claim-discipline");
 
     for (const link of WELCOME_SOURCES) {
       expect(screen.getByRole("link", { name: link.label })).toHaveAttribute("href", link.href);

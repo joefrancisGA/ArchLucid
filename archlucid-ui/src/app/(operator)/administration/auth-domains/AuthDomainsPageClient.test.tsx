@@ -153,7 +153,7 @@ describe("AuthDomainsPageClient", () => {
       "href",
       inAppHelpHref("authentication-sign-in"),
     );
-    expect(screen.getByTestId("auth-domains-settings-claim-discipline")).toBeInTheDocument();
+    expectClaimDisciplineBand(screen, "auth-domains-settings-claim-discipline".slice(0, -"-claim-discipline".length), "auth-domains-settings-claim-discipline");
 
     for (const source of AUTH_DOMAINS_SETTINGS_SOURCES) {
       expect(screen.getByRole("link", { name: source.label })).toHaveAttribute("href", source.href);

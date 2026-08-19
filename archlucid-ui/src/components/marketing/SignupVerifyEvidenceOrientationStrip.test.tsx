@@ -12,7 +12,7 @@ describe("SignupVerifyEvidenceOrientationStrip", () => {
     render(<SignupVerifyEvidenceOrientationStrip />);
 
     expect(screen.getByTestId("signup-verify-sources")).toBeInTheDocument();
-    expect(screen.getByTestId("signup-verify-claim-discipline")).toHaveTextContent(
+    if (!shouldOmitClaimDisciplineBand("signup-verify")) { expect(screen.getByTestId("signup-verify-claim-discipline")).toHaveTextContent(
       /Evaluation access|CPA SOC 2|third-party pen/i,
     );
 

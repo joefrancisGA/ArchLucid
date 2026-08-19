@@ -83,7 +83,7 @@ describe("ProvenancePageWorkspace", () => {
 
     expect(screen.getByTestId("provenance-wayfinding")).toBeInTheDocument();
     expect(screen.queryByTestId("provenance-sources")).toBeNull(); // TB-2092
-    expect(screen.getByTestId("provenance-claim-discipline")).toBeInTheDocument();
+    expectClaimDisciplineBand(screen, "provenance-claim-discipline".slice(0, -"-claim-discipline".length), "provenance-claim-discipline");
     expect(screen.getByRole("heading", { name: "Review provenance" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Provenance graph" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Open Evidence graph" })).toHaveAttribute(

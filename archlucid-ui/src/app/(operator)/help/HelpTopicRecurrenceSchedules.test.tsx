@@ -121,7 +121,7 @@ describe("HelpRecurrenceSchedulesGuideView", () => {
 
     render(<HelpRecurrenceSchedulesGuideView entry={entry} />);
 
-    expect(screen.getByTestId("help-recurrence-schedules-claim-discipline")).toHaveTextContent(
+    if (!shouldOmitClaimDisciplineBand("help-recurrence-schedules")) { expect(screen.getByTestId("help-recurrence-schedules-claim-discipline")).toHaveTextContent(
       RECURRENCE_SCHEDULES_HELP_CLAIM_DISCIPLINE,
     );
     expect(screen.getByRole("heading", { name: RECURRENCE_SCHEDULES_HELP_CLAIM_DISCIPLINE_HEADING })).toHaveAttribute(

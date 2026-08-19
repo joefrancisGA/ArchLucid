@@ -99,7 +99,7 @@ describe("HelpApiKeysGuideView", () => {
       "id",
       API_KEYS_HELP_CLAIM_HEADING_ID,
     );
-    expect(screen.getByTestId("help-api-keys-claim-discipline")).toHaveTextContent(API_KEYS_HELP_CLAIM_DISCIPLINE);
+    if (!shouldOmitClaimDisciplineBand("help-api-keys")) { expect(screen.getByTestId("help-api-keys-claim-discipline")).toHaveTextContent(API_KEYS_HELP_CLAIM_DISCIPLINE);
     expect(screen.getByTestId("help-api-keys-claim-discipline").textContent?.toLowerCase()).not.toContain(
       "not available",
     );

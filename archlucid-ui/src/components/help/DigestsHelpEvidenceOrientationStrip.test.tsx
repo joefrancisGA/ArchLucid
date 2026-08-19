@@ -7,6 +7,7 @@ import {
   DIGESTS_HELP_FOLLOW_UPS_TITLE,
   DIGESTS_HELP_SOURCES,
 } from "@/lib/digests-help-evidence-copy";
+import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 import { HELP_DILIGENCE_ARTIFACT_INDEX_TITLE } from "@/lib/help/help-diligence-artifact-index";
 
 describe("DigestsHelpEvidenceOrientationStrip", () => {
@@ -25,7 +26,8 @@ describe("DigestsHelpEvidenceOrientationStrip", () => {
     expect(screen.queryByRole("complementary")).toBeNull();
 
     for (const source of DIGESTS_HELP_SOURCES) {
-      expect(screen.getByRole("link", { name: source.label })).toHaveAttribute("href", source.href);
+      const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
+      expect(screen.getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
     }
   });
 });

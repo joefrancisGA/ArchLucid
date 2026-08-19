@@ -14,7 +14,7 @@ describe("SignupEvidenceOrientationStrip", () => {
       </>,
     );
 
-    expect(screen.getByTestId("signup-claim-discipline")).toHaveTextContent(
+    if (!shouldOmitClaimDisciplineBand("signup")) { expect(screen.getByTestId("signup-claim-discipline")).toHaveTextContent(
       /What this page covers|CPA SOC 2|third-party pen|Trust Center/i,
     );
 

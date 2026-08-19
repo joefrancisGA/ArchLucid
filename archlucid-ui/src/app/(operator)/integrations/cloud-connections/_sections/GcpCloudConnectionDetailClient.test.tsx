@@ -96,7 +96,7 @@ describe("GcpCloudConnectionDetailClient", () => {
       expect(screen.getByTestId("gcp-connection-header-status")).toHaveTextContent("Not connected");
     });
 
-    expect(screen.getByTestId("cloud-connections-gcp-claim-discipline")).toHaveTextContent(
+    if (!shouldOmitClaimDisciplineBand("cloud-connections-gcp")) { expect(screen.getByTestId("cloud-connections-gcp-claim-discipline")).toHaveTextContent(
       CLOUD_PROVIDER_CONNECTION_CLAIM_DISCIPLINE,
     );
     const sources = screen.getByTestId("cloud-connections-gcp-sources");

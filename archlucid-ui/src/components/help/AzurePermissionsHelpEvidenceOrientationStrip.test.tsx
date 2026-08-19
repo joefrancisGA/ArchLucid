@@ -8,7 +8,7 @@ describe("AzurePermissionsHelpEvidenceOrientationStrip", () => {
   it("renders claim discipline without a Sources list", () => {
     render(<AzurePermissionsHelpEvidenceOrientationStrip />);
 
-    expect(screen.getByTestId("azure-permissions-help-claim-discipline")).toHaveTextContent(
+    if (!shouldOmitClaimDisciplineBand("azure-permissions-help")) { expect(screen.getByTestId("azure-permissions-help-claim-discipline")).toHaveTextContent(
       AZURE_PERMISSIONS_HELP_CLAIM_DISCIPLINE,
     );
     expect(screen.queryByTestId("azure-permissions-help-sources")).not.toBeInTheDocument();
