@@ -1408,30 +1408,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ## Zone: archlucid-core
 
 - **id:** archlucid-core
-<<<<<<< HEAD
-- **status:** unseeded
-=======
 - **status:** open
->>>>>>> ecbef776c777b97fd241b3d0ccf36675cf50f51f
 - **impact:** high
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-<<<<<<< HEAD
-- **hunts:** 0
-- **bugs-found:** 0
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
-- **related-pd-tb:** none
-- **code-changed-since:** unknown
-
-### Hypotheses
-
-- [ ] (candidate) URL allow-list policy accepts a credential-bearing redirect target
-- [ ] (candidate) Tenant scope model treats empty workspace as a wildcard
-- [ ] (candidate) Configuration default enables a production-unsafe integration flag
-=======
 - **hunts:** 1
 - **bugs-found:** 1
 - **consecutive-dry-hunts:** 0
@@ -1445,7 +1426,6 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) URL allow-list policy accepts a credential-bearing redirect target — **hit 2026-08-18:** outbound HTTPS URL policies allowed `https://user:pass@host` because only scheme/host were validated; embedded userinfo now rejected.
 - [x] (valid-no-repro) Tenant scope model treats empty workspace as a wildcard — `ActivityScopeTags` rejects `Guid.Empty` workspace ids; no wildcard semantics in Core tenancy models.
 - [x] (valid-no-repro) Configuration default enables a production-unsafe integration flag — ITSM/native and quick-scan defaults are gated by environment validators and hosted-SaaS overrides.
->>>>>>> ecbef776c777b97fd241b3d0ccf36675cf50f51f
 
 ---
 
