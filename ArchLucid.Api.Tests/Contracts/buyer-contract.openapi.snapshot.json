@@ -7161,6 +7161,23 @@
         },
         "type": "object"
       },
+      "CloudPlatformScopeDto": {
+        "properties": {
+          "aws": {
+            "type": "boolean"
+          },
+          "azure": {
+            "type": "boolean"
+          },
+          "evidence-only": {
+            "type": "boolean"
+          },
+          "gcp": {
+            "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
       "CloudProvider": {
         "enum": [
           "None",
@@ -26749,6 +26766,14 @@
         },
         "type": "object"
       },
+      "SetCloudPlatformScopeRequest": {
+        "properties": {
+          "scope": {
+            "$ref": "#/components/schemas/CloudPlatformScopeDto"
+          }
+        },
+        "type": "object"
+      },
       "SetPlatformBundledPolicyPackActivationRequest": {
         "properties": {
           "isGloballyActive": {
@@ -26760,6 +26785,14 @@
       "SetPolicyPackAssignmentEnabledRequest": {
         "properties": {
           "isEnabled": {
+            "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
+      "SetWhereToGoNextVisibilityRequest": {
+        "properties": {
+          "enabled": {
             "type": "boolean"
           }
         },
@@ -31464,6 +31497,18 @@
             "type": "string"
           },
           "appearancePreferenceIsExplicit": {
+            "type": "boolean"
+          },
+          "cloudPlatformScope": {
+            "$ref": "#/components/schemas/CloudPlatformScopeDto"
+          },
+          "cloudPlatformScopeIsExplicit": {
+            "type": "boolean"
+          },
+          "whereToGoNextEnabled": {
+            "type": "boolean"
+          },
+          "whereToGoNextIsExplicit": {
             "type": "boolean"
           }
         },
