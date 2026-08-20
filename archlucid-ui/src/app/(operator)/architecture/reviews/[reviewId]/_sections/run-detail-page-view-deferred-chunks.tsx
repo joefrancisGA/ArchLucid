@@ -311,9 +311,9 @@ export const RunDetailSubmittedArchitectureSectionDeferred = createDeferredCompo
   { suppressLoading: true },
 );
 
-export const RunDetailGovernanceCtaDeferred = dynamic(
-  () => import("./RunDetailGovernanceCta").then((module) => module.RunDetailGovernanceCta),
-  { ssr: false, loading: () => null },
+export const RunDetailGovernanceCtaDeferred = createDeferredComponentFromManifest(
+  "run-detail-governance-cta",
+  { suppressLoading: true },
 );
 
 export const RunDetailCaptureEvidenceSectionDeferred = createDeferredComponentFromManifest(
@@ -326,17 +326,14 @@ export const RunDetailManifestSummarySectionDeferred = createDeferredComponentFr
   { suppressLoading: true },
 );
 
-export const RunDetailBuyerPilotConversionSectionDeferred = dynamic(
-  () =>
-    import("./RunDetailBuyerPilotConversionSection").then(
-      (module) => module.RunDetailBuyerPilotConversionSection,
-    ),
-  { ssr: false, loading: () => null },
+export const RunDetailBuyerPilotConversionSectionDeferred = createDeferredComponentFromManifest(
+  "run-detail-buyer-pilot-conversion-section",
+  { suppressLoading: true },
 );
 
-export const RunDetailBuyerModeFallbackBannerDeferred = dynamic(
-  () => import("./RunDetailBuyerModeFallbackBanner").then((module) => module.RunDetailBuyerModeFallbackBanner),
-  { ssr: false, loading: () => null },
+export const RunDetailBuyerModeFallbackBannerDeferred = createDeferredComponentFromManifest(
+  "run-detail-buyer-mode-fallback-banner",
+  { suppressLoading: true },
 );
 
 /** TB-2142 — evidence tab scope/inventory cluster off sync First Load JS. */
@@ -345,20 +342,20 @@ export const RunDetailEvidenceTabPanelDeferred = createDeferredComponentFromMani
 });
 
 /** TB-2142 — post-finalize share/export row off sync First Load JS. */
-export const RunDetailReviewPackageShareRowDeferred = dynamic(
-  () => import("./RunDetailReviewPackageShareRow").then((module) => module.RunDetailReviewPackageShareRow),
-  { ssr: false, loading: () => null },
+export const RunDetailReviewPackageShareRowDeferred = createDeferredComponentFromManifest(
+  "run-detail-review-package-share-row",
+  { suppressLoading: true },
 );
 
 /** TB-2142 — demo marketing chrome off sync First Load JS. */
-export const RunDetailDemoMarketingChromeDeferred = dynamic(
-  () => import("./RunDetailDemoMarketingChrome").then((module) => module.RunDetailDemoMarketingChrome),
-  { ssr: false, loading: () => null },
+export const RunDetailDemoMarketingChromeDeferred = createDeferredComponentFromManifest(
+  "run-detail-demo-marketing-chrome",
+  { suppressLoading: true },
 );
 
-export const RunDetailManifestSummaryAlertsDeferred = dynamic(
-  () => import("./RunDetailManifestSummaryAlerts").then((module) => module.RunDetailManifestSummaryAlerts),
-  { ssr: false, loading: () => null },
+export const RunDetailManifestSummaryAlertsDeferred = createDeferredComponentFromManifest(
+  "run-detail-manifest-summary-alerts",
+  { suppressLoading: true },
 );
 
 export const RunDetailRunActionsSectionDeferred = dynamic(

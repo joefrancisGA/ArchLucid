@@ -14,6 +14,7 @@
 
 import { FIRST_ARCHITECTURE_REVIEW_HELP_PATH } from "@/lib/first-architecture-review-help-route";
 import { FIRST_REVIEW_GUIDE_PATH } from "@/lib/first-review-guide-route";
+import type { PairwiseVocabularyRailModel } from "@/lib/vocabulary/create-pairwise-vocabulary-rail";
 
 export type FirstReviewGuideFirstArchitectureReviewSurfaceId =
   | "first-review-guide"
@@ -59,14 +60,27 @@ export const FIRST_REVIEW_GUIDE_FIRST_ARCHITECTURE_REVIEW_HELP_LINK: FirstReview
     whenToUse: "Follow the help-center guided path to complete your first review.",
   };
 
-/** Full vocabulary model (heading, why-two copy, and deep links). */
-export function buildFirstReviewGuideFirstArchitectureReviewVocabulary(): FirstReviewGuideFirstArchitectureReviewVocabularyModel {
+/** Pairwise model for First review guide ↔ Your first architecture review (fixed routes). */
+export function buildFirstReviewGuideFirstArchitectureReviewPairwiseRail(): PairwiseVocabularyRailModel<FirstReviewGuideFirstArchitectureReviewSurfaceId> {
   return {
     heading: FIRST_REVIEW_GUIDE_FIRST_ARCHITECTURE_REVIEW_HEADING,
     whyTwo: FIRST_REVIEW_GUIDE_FIRST_ARCHITECTURE_REVIEW_WHY_TWO,
     compactLine: FIRST_REVIEW_GUIDE_FIRST_ARCHITECTURE_REVIEW_COMPACT_LINE,
-    firstReviewGuideLink: FIRST_REVIEW_GUIDE_FIRST_ARCHITECTURE_REVIEW_GUIDE_LINK,
-    firstArchitectureReviewLink: FIRST_REVIEW_GUIDE_FIRST_ARCHITECTURE_REVIEW_HELP_LINK,
+    currentLink: FIRST_REVIEW_GUIDE_FIRST_ARCHITECTURE_REVIEW_GUIDE_LINK,
+    peerLink: FIRST_REVIEW_GUIDE_FIRST_ARCHITECTURE_REVIEW_HELP_LINK,
+  };
+}
+
+/** Full vocabulary model (heading, why-two copy, and deep links). */
+export function buildFirstReviewGuideFirstArchitectureReviewVocabulary(): FirstReviewGuideFirstArchitectureReviewVocabularyModel {
+  const rail = buildFirstReviewGuideFirstArchitectureReviewPairwiseRail();
+
+  return {
+    heading: rail.heading,
+    whyTwo: rail.whyTwo,
+    compactLine: rail.compactLine,
+    firstReviewGuideLink: rail.currentLink,
+    firstArchitectureReviewLink: rail.peerLink,
   };
 }
 

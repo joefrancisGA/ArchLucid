@@ -14,6 +14,7 @@
 
 import { AI_USAGE_SETTINGS_PATH } from "@/lib/ai-usage-nav-paths";
 import { MODEL_GOVERNANCE_SETTINGS_CANONICAL_PATH } from "@/lib/model-governance-settings-evidence-copy";
+import type { PairwiseVocabularyRailModel } from "@/lib/vocabulary/create-pairwise-vocabulary-rail";
 
 export type ModelGovernanceAiUsageSurfaceId = "model-governance" | "ai-usage";
 
@@ -55,14 +56,27 @@ export const MODEL_GOVERNANCE_AI_USAGE_USAGE_LINK: ModelGovernanceAiUsageLink = 
   whenToUse: "Monitor estimated AI spend and budget utilization for this workspace.",
 };
 
-/** Full vocabulary model (heading, why-two, and deep links). */
-export function buildModelGovernanceAiUsageVocabulary(): ModelGovernanceAiUsageVocabularyModel {
+/** Pairwise model for Model governance ↔ AI usage (fixed routes). */
+export function buildModelGovernanceAiUsagePairwiseRail(): PairwiseVocabularyRailModel<ModelGovernanceAiUsageSurfaceId> {
   return {
     heading: MODEL_GOVERNANCE_AI_USAGE_HEADING,
     whyTwo: MODEL_GOVERNANCE_AI_USAGE_WHY_TWO,
     compactLine: MODEL_GOVERNANCE_AI_USAGE_COMPACT_LINE,
-    modelGovernanceLink: MODEL_GOVERNANCE_AI_USAGE_GOVERNANCE_LINK,
-    aiUsageLink: MODEL_GOVERNANCE_AI_USAGE_USAGE_LINK,
+    currentLink: MODEL_GOVERNANCE_AI_USAGE_GOVERNANCE_LINK,
+    peerLink: MODEL_GOVERNANCE_AI_USAGE_USAGE_LINK,
+  };
+}
+
+/** Full vocabulary model (heading, why-two, and deep links). */
+export function buildModelGovernanceAiUsageVocabulary(): ModelGovernanceAiUsageVocabularyModel {
+  const rail = buildModelGovernanceAiUsagePairwiseRail();
+
+  return {
+    heading: rail.heading,
+    whyTwo: rail.whyTwo,
+    compactLine: rail.compactLine,
+    modelGovernanceLink: rail.currentLink,
+    aiUsageLink: rail.peerLink,
   };
 }
 

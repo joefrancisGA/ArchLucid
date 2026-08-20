@@ -13,6 +13,7 @@
 
 import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
 import { PATTERN_LIBRARY_PATH } from "@/lib/pattern-library-route";
+import type { PairwiseVocabularyRailModel } from "@/lib/vocabulary/create-pairwise-vocabulary-rail";
 
 export type PatternLibraryPolicyPacksSurfaceId = "pattern-library" | "policy-packs";
 
@@ -54,14 +55,27 @@ export const PATTERN_LIBRARY_POLICY_PACKS_PACKS_LINK: PatternLibraryPolicyPacksL
   whenToUse: "Author, inspect, and activate enforceable governance rule sets.",
 };
 
-/** Full vocabulary model (heading, why-two copy, and deep links). */
-export function buildPatternLibraryPolicyPacksVocabulary(): PatternLibraryPolicyPacksVocabularyModel {
+/** Pairwise model for Pattern library ↔ Policy packs (fixed routes). */
+export function buildPatternLibraryPolicyPacksPairwiseRail(): PairwiseVocabularyRailModel<PatternLibraryPolicyPacksSurfaceId> {
   return {
     heading: PATTERN_LIBRARY_POLICY_PACKS_HEADING,
     whyTwo: PATTERN_LIBRARY_POLICY_PACKS_WHY_TWO,
     compactLine: PATTERN_LIBRARY_POLICY_PACKS_COMPACT_LINE,
-    patternLibraryLink: PATTERN_LIBRARY_POLICY_PACKS_LIBRARY_LINK,
-    policyPacksLink: PATTERN_LIBRARY_POLICY_PACKS_PACKS_LINK,
+    currentLink: PATTERN_LIBRARY_POLICY_PACKS_LIBRARY_LINK,
+    peerLink: PATTERN_LIBRARY_POLICY_PACKS_PACKS_LINK,
+  };
+}
+
+/** Full vocabulary model (heading, why-two copy, and deep links). */
+export function buildPatternLibraryPolicyPacksVocabulary(): PatternLibraryPolicyPacksVocabularyModel {
+  const rail = buildPatternLibraryPolicyPacksPairwiseRail();
+
+  return {
+    heading: rail.heading,
+    whyTwo: rail.whyTwo,
+    compactLine: rail.compactLine,
+    patternLibraryLink: rail.currentLink,
+    policyPacksLink: rail.peerLink,
   };
 }
 

@@ -450,6 +450,42 @@ function resolveDeferredChunkImportLoader(
           (module) => module.RunDetailSubmittedArchitectureSection,
         ),
       ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "run-detail-governance-cta":
+      return deferredChunkLoader(() =>
+        import("@/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailGovernanceCta").then(
+          (module) => module.RunDetailGovernanceCta,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "run-detail-buyer-pilot-conversion-section":
+      return deferredChunkLoader(() =>
+        import("@/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailBuyerPilotConversionSection").then(
+          (module) => module.RunDetailBuyerPilotConversionSection,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "run-detail-buyer-mode-fallback-banner":
+      return deferredChunkLoader(() =>
+        import("@/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailBuyerModeFallbackBanner").then(
+          (module) => module.RunDetailBuyerModeFallbackBanner,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "run-detail-review-package-share-row":
+      return deferredChunkLoader(() =>
+        import("@/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailReviewPackageShareRow").then(
+          (module) => module.RunDetailReviewPackageShareRow,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "run-detail-demo-marketing-chrome":
+      return deferredChunkLoader(() =>
+        import("@/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailDemoMarketingChrome").then(
+          (module) => module.RunDetailDemoMarketingChrome,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "run-detail-manifest-summary-alerts":
+      return deferredChunkLoader(() =>
+        import("@/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailManifestSummaryAlerts").then(
+          (module) => module.RunDetailManifestSummaryAlerts,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
     default:
       throw new Error(`No deferred chunk import loader registered for manifest entry "${entryId}".`);
   }
