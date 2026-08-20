@@ -50,11 +50,11 @@ describe("QuickDecisionSummary", () => {
     expect(screen.queryByText("No findings to act on")).not.toBeInTheDocument();
     expect(screen.getByRole("link", { name: /View assessment progress on the Activity tab/i })).toHaveAttribute(
       "href",
-      expect.stringContaining("archTab=activity"),
+      expect.stringContaining("reviewTab=activity"),
     );
     expect(screen.getByRole("link", { name: /Open clarifications/i })).toHaveAttribute(
       "href",
-      expect.stringContaining("archTab=clarifications"),
+      expect.stringContaining("reviewTab=decisions-remediation"),
     );
   });
 

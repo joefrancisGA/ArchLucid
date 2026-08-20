@@ -7,7 +7,6 @@ import {
   resolvePackageActivityAuditTrailPeerLink,
   type PackageActivityAuditTrailSurfaceId,
   type PackageActivityAuditTrailVocabularyModel,
-  type PackageActivityHrefKind,
 } from "@/lib/vocabulary/package-activity-audit-trail-vocabulary";
 import { VocabularyRail } from "@/components/vocabulary/VocabularyRail";
 
@@ -15,7 +14,6 @@ export type PackageActivityAuditTrailVocabularyRailProps = {
   readonly currentSurfaceId: PackageActivityAuditTrailSurfaceId;
   /** Required on package Activity tabs so the current link is run-scoped. */
   readonly runId?: string | null;
-  readonly hrefKind?: PackageActivityHrefKind;
   readonly variant?: "compact" | "full";
   readonly className?: string;
   readonly model?: PackageActivityAuditTrailVocabularyModel;
@@ -27,7 +25,7 @@ export function PackageActivityAuditTrailVocabularyRail(
 ): JSX.Element {
   const model =
     props.model ??
-    buildPackageActivityAuditTrailVocabulary(props.runId, props.hrefKind ?? "archTab");
+    buildPackageActivityAuditTrailVocabulary(props.runId);
   const peer = resolvePackageActivityAuditTrailPeerLink(props.currentSurfaceId, model);
   const currentLink =
     props.currentSurfaceId === "package-activity"

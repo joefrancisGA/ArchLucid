@@ -32,11 +32,11 @@ describe("create-home clarifications band regression (TB-1840)", () => {
     }
   });
 
-  it("honors REC traffic honesty for create-home-only archTab=clarifications (TB-1836)", () => {
+  it("honors REC traffic honesty for create-home-only reviewTab=decisions-remediation (TB-1836)", () => {
     const rec = findUiRouteTrafficRow("REC");
 
     expect(rec).toBeDefined();
-    expect(rec?.path).toBe("/architecture/reviews/[reviewId]?archTab=clarifications");
+    expect(rec?.path).toBe("/architecture/reviews/[reviewId]?reviewTab=decisions-remediation");
     expect(rec?.section).toBe("Tab surface");
 
     for (const phrase of REC_TRAFFIC_HONESTY_PHRASES) {

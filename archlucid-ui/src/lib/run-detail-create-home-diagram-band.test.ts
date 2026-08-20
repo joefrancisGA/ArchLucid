@@ -33,11 +33,11 @@ describe("create-home diagram band regression (TB-1845)", () => {
     }
   });
 
-  it("honors RED traffic honesty for create-home-only archTab=diagram (TB-1841)", () => {
+  it("honors RED traffic honesty for create-home-only reviewTab=architecture (TB-1841)", () => {
     const red = findUiRouteTrafficRow("RED");
 
     expect(red).toBeDefined();
-    expect(red?.path).toBe("/architecture/reviews/[reviewId]?archTab=diagram");
+    expect(red?.path).toBe("/architecture/reviews/[reviewId]?reviewTab=architecture");
     expect(red?.section).toBe("Tab surface");
 
     for (const phrase of RED_TRAFFIC_HONESTY_PHRASES) {

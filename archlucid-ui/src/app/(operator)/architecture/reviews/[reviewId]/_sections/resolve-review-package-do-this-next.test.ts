@@ -37,7 +37,7 @@ describe("resolveReviewPackageDoThisNext", () => {
     });
 
     expect(next.kind).toBe("view-assessment-progress");
-    expect(next.href).toContain("archTab=activity");
+    expect(next.href).toContain("reviewTab=activity");
   });
 
   it("surfaces assessment-in-progress guidance before other CTAs", () => {
@@ -48,7 +48,7 @@ describe("resolveReviewPackageDoThisNext", () => {
 
     expect(next.kind).toBe("view-assessment-progress");
     expect(next.actionLabel).toBe("View assessment progress");
-    expect(next.href).toContain("archTab=activity");
+    expect(next.href).toContain("reviewTab=activity");
   });
 
   it("links assessment progress to reviewTab on committed review workspace", () => {

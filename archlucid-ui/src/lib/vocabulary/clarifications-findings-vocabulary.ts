@@ -12,7 +12,7 @@
  * (TB-2249).
  */
 
-import { buildArchitectureWorkspaceTabHref } from "@/lib/architecture/architecture-workspace-tabs";
+import { buildReviewWorkspaceTabHref } from "@/lib/unified-review-workspace-tabs";
 
 export type ClarificationsFindingsSurfaceId = "clarifications" | "findings";
 
@@ -53,13 +53,13 @@ export function buildClarificationsFindingsVocabulary(
     clarificationsLink: {
       id: "clarifications",
       label: "Clarifications",
-      href: buildArchitectureWorkspaceTabHref(trimmed, "clarifications"),
+      href: buildReviewWorkspaceTabHref(trimmed, "decisions-remediation"),
       whenToUse: "Answer gaps and open questions that reduce assessment confidence.",
     },
     findingsLink: {
       id: "findings",
       label: "Findings",
-      href: buildArchitectureWorkspaceTabHref(trimmed, "findings"),
+      href: buildReviewWorkspaceTabHref(trimmed, "findings"),
       whenToUse: "Triage assessment findings for this architecture review.",
     },
   };

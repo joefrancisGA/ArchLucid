@@ -14,11 +14,8 @@
  */
 
 import { REVIEWS_LIST_PATH } from "@/lib/architecture/architecture-routes";
-import { buildArchitectureWorkspaceTabHref } from "@/lib/architecture/architecture-workspace-tabs";
 import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
-import { buildReviewDetailTabHref } from "@/lib/review-detail-workspace-tabs";
-
-export type PackageActivityHrefKind = "archTab" | "reviewTab";
+import { buildReviewWorkspaceTabHref } from "@/lib/unified-review-workspace-tabs";
 
 export type PackageActivityAuditTrailSurfaceId = "package-activity" | "audit-trail";
 
@@ -68,16 +65,11 @@ export const PACKAGE_ACTIVITY_AUDIT_TRAIL_AUDIT_LINK: PackageActivityAuditTrailL
 /** Build vocabulary; pass runId when mounting on a package Activity tab. */
 export function buildPackageActivityAuditTrailVocabulary(
   runId?: string | null,
-  hrefKind: PackageActivityHrefKind = "archTab",
 ): PackageActivityAuditTrailVocabularyModel {
   const trimmed = runId?.trim() ?? "";
 
   const packageActivityHref =
-    trimmed.length === 0
-      ? null
-      : hrefKind === "reviewTab"
-        ? buildReviewDetailTabHref(trimmed, "activity")
-        : buildArchitectureWorkspaceTabHref(trimmed, "activity");
+    trimmed.length === 0 ? null : buildReviewWorkspaceTabHref(trimmed, "activity");
 
   const packageActivityLink: PackageActivityAuditTrailLink =
     packageActivityHref !== null

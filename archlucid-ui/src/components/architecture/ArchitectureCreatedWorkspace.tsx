@@ -349,7 +349,6 @@ export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspace
             <PackageEvidenceEvidenceGraphVocabularyRail
               runId={props.baseline.runId}
               currentSurfaceId="package-evidence"
-              hrefKind="archTab"
             />
             {props.panels.evidence}
           </div>
@@ -360,7 +359,6 @@ export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspace
             <PackageGovernanceApprovalQueueVocabularyRail
               runId={props.baseline.runId}
               currentSurfaceId="package-governance"
-              hrefKind="archTab"
             />
             {props.panels.governance}
           </div>
@@ -371,7 +369,6 @@ export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspace
             <PackageActivityAuditTrailVocabularyRail
               runId={props.baseline.runId}
               currentSurfaceId="package-activity"
-              hrefKind="archTab"
             />
             {props.panels.activity}
           </div>

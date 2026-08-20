@@ -66,7 +66,7 @@ describe("ArchitectureCreatedWorkspace", () => {
 
   it("uses compact context bar on governance tab instead of full first viewport", () => {
     searchParamsState.value = new URLSearchParams(
-      "fromGeneration=1&intent=create-architecture&archTab=governance",
+      "fromGeneration=1&intent=create-architecture&reviewTab=policies",
     );
 
     render(

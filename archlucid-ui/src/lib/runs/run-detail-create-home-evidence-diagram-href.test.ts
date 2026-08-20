@@ -7,7 +7,7 @@ describe("buildRunDetailCreateHomeEvidenceDiagramHref", () => {
     const href = buildRunDetailCreateHomeEvidenceDiagramHref("run-abc");
 
     expect(href).toContain("/architecture/reviews/run-abc");
-    expect(href).toContain("archTab=diagram");
+    expect(href).toContain("reviewTab=architecture");
     expect(href).toContain("fromGeneration=1");
     expect(href).toContain("intent=create-architecture");
   });

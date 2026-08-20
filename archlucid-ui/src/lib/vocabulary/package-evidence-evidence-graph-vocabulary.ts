@@ -14,11 +14,8 @@
  */
 
 import { REVIEWS_LIST_PATH } from "@/lib/architecture/architecture-routes";
-import { buildArchitectureWorkspaceTabHref } from "@/lib/architecture/architecture-workspace-tabs";
 import { EVIDENCE_GRAPH_PATH } from "@/lib/evidence-graph-route";
-import { buildReviewDetailTabHref } from "@/lib/review-detail-workspace-tabs";
-
-export type PackageEvidenceHrefKind = "archTab" | "reviewTab";
+import { buildReviewWorkspaceTabHref } from "@/lib/unified-review-workspace-tabs";
 
 export type PackageEvidenceEvidenceGraphSurfaceId = "package-evidence" | "evidence-graph";
 
@@ -68,16 +65,11 @@ export const PACKAGE_EVIDENCE_EVIDENCE_GRAPH_GRAPH_LINK: PackageEvidenceEvidence
 /** Build vocabulary; pass runId when mounting on a package Evidence tab. */
 export function buildPackageEvidenceEvidenceGraphVocabulary(
   runId?: string | null,
-  hrefKind: PackageEvidenceHrefKind = "archTab",
 ): PackageEvidenceEvidenceGraphVocabularyModel {
   const trimmed = runId?.trim() ?? "";
 
   const packageEvidenceHref =
-    trimmed.length === 0
-      ? null
-      : hrefKind === "reviewTab"
-        ? buildReviewDetailTabHref(trimmed, "evidence")
-        : buildArchitectureWorkspaceTabHref(trimmed, "evidence");
+    trimmed.length === 0 ? null : buildReviewWorkspaceTabHref(trimmed, "evidence");
 
   const packageEvidenceLink: PackageEvidenceEvidenceGraphLink =
     packageEvidenceHref !== null

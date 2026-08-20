@@ -44,7 +44,7 @@ describe("architecture-workspace-tabs", () => {
 
   it("reads tab ids from href hash or search param", () => {
     expect(readArchitectureWorkspaceTabFromHref("#architecture-diagram")).toBe("diagram");
-    expect(readArchitectureWorkspaceTabFromHref("/architecture/reviews/run-1?archTab=evidence")).toBe("evidence");
+    expect(readArchitectureWorkspaceTabFromHref("/architecture/reviews/run-1?reviewTab=evidence")).toBe("evidence");
     expect(readArchitectureWorkspaceTabFromHref("/architecture/reviews/run-1?reviewTab=evidence")).toBe("evidence");
     expect(readArchitectureWorkspaceTabFromHref("/architecture/reviews/new")).toBeNull();
   });

@@ -1,3 +1,7 @@
+import {
+  buildIntegrationPageLoadError,
+  settleIntegrationPageLoadSlice,
+} from "@/lib/integrations/settle-integration-page-load-slices";
 import type { AzureBoardsOutboundSettingsResponse } from "@/lib/api/azure-boards-api";
 import type { TenantItsmConnectorConnectionResponse } from "@/lib/api/itsm-outbound-api";
 
@@ -23,31 +27,11 @@ const SLICE_LABELS: Readonly<Record<AzureBoardsPageLoadSlice, string>> = {
   connection: "Azure Boards connection",
 };
 
-function reasonMessage(reason: unknown, fallback: string): string {
-  if (reason instanceof Error && reason.message.trim().length > 0) {
-    return reason.message.trim();
-  }
-
-  return fallback;
-}
-
 export function settleAzureBoardsPageLoadSlice<T>(
   outcome: PromiseSettledResult<T>,
   slice: AzureBoardsPageLoadSlice,
 ): AzureBoardsPageLoadSliceResult<T> {
-  if (outcome.status === "fulfilled") {
-    return {
-      value: outcome.value,
-      failed: false,
-      errorMessage: null,
-    };
-  }
-
-  return {
-    value: null,
-    failed: true,
-    errorMessage: reasonMessage(outcome.reason, `Could not load ${SLICE_LABELS[slice]}.`),
-  };
+  return settleIntegrationPageLoadSlice(outcome, SLICE_LABELS[slice]);
 }
 
 export function buildAzureBoardsPageLoadResult(args: {
@@ -74,13 +58,10 @@ export function buildAzureBoardsPageLoadResult(args: {
   }
 
   const failedSliceLabels = failedEntries.map((entry) => SLICE_LABELS[entry.slice]);
-  const firstFailure = failedEntries[0];
-  const loadError =
-    firstFailure === undefined
-      ? null
-      : failedEntries.length === 1
-        ? firstFailure.message
-        : `Some Azure Boards data could not be loaded (${failedSliceLabels.join(", ")}).`;
+  const loadError = buildIntegrationPageLoadError(
+    failedEntries.map((entry) => ({ label: SLICE_LABELS[entry.slice], message: entry.message })),
+    "Azure Boards",
+  );
 
   return {
     itsmHealth,

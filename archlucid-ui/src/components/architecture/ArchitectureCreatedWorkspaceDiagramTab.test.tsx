@@ -11,7 +11,7 @@ vi.mock("next/navigation", () => ({
   }),
   usePathname: () => "/architecture/reviews/run-diagram",
   useSearchParams: () =>
-    new URLSearchParams("fromGeneration=1&intent=create-architecture&archTab=diagram"),
+    new URLSearchParams("fromGeneration=1&intent=create-architecture&reviewTab=architecture"),
 }));
 
 vi.mock("@/components/architecture/ArchitectureDiagramViewer", () => ({

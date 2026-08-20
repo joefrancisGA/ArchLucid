@@ -7,7 +7,6 @@ import {
   resolvePackageGovernanceApprovalQueuePeerLink,
   type PackageGovernanceApprovalQueueSurfaceId,
   type PackageGovernanceApprovalQueueVocabularyModel,
-  type PackageGovernanceHrefKind,
 } from "@/lib/vocabulary/package-governance-approval-queue-vocabulary";
 import { VocabularyRail } from "@/components/vocabulary/VocabularyRail";
 
@@ -15,7 +14,6 @@ export type PackageGovernanceApprovalQueueVocabularyRailProps = {
   readonly currentSurfaceId: PackageGovernanceApprovalQueueSurfaceId;
   /** Required on package Governance / Policies tabs so the current link is run-scoped. */
   readonly runId?: string | null;
-  readonly hrefKind?: PackageGovernanceHrefKind;
   readonly variant?: "compact" | "full";
   readonly className?: string;
   readonly model?: PackageGovernanceApprovalQueueVocabularyModel;
@@ -27,7 +25,7 @@ export function PackageGovernanceApprovalQueueVocabularyRail(
 ): JSX.Element {
   const model =
     props.model ??
-    buildPackageGovernanceApprovalQueueVocabulary(props.runId, props.hrefKind ?? "archTab");
+    buildPackageGovernanceApprovalQueueVocabulary(props.runId);
   const peer = resolvePackageGovernanceApprovalQueuePeerLink(props.currentSurfaceId, model);
   const currentLink =
     props.currentSurfaceId === "package-governance"
