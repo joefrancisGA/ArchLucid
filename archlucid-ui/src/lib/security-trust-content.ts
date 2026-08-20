@@ -184,7 +184,7 @@ export const SECURITY_TRUST_SUMMARY_COLUMNS: readonly SecurityTrustSummaryColumn
     id: "public-evidence",
     title: "Public evidence",
     status: "Available now",
-    description: "Procurement-ready summaries, accessibility attestation, and published control mapping.",
+    description: "Buyer-ready summaries, accessibility attestation, and published control mapping.",
     href: "/trust",
     linkLabel: "View Trust Center",
   },

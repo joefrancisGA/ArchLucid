@@ -37,6 +37,7 @@ type OperatorHomeReviewSummaryCardProps = {
   readonly buyerPolishedShell: boolean;
   readonly variant?: "list" | "featured";
   readonly primaryAction?: { readonly href: string; readonly label: string } | null;
+  readonly pagePrimaryOwnedElsewhere?: boolean;
 };
 
 function formatFindingsMetadata(run: RunSummary): string | null {
@@ -147,7 +148,12 @@ export function OperatorHomeReviewSummaryCard(props: OperatorHomeReviewSummaryCa
       ) : null}
 
       {props.primaryAction !== null && props.primaryAction !== undefined ? (
-        <Button asChild variant="primary" size="sm" className="mt-1 h-8">
+        <Button
+          asChild
+          variant={props.pagePrimaryOwnedElsewhere === true ? "outline" : "primary"}
+          size="sm"
+          className="mt-1 h-8"
+        >
           <Link href={props.primaryAction.href}>{props.primaryAction.label}</Link>
         </Button>
       ) : null}

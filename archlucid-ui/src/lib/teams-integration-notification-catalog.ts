@@ -105,7 +105,7 @@ export const TEAMS_NOTIFICATION_CATEGORIES: readonly TeamsNotificationCategory[]
       {
         eventType: "com.archlucid.governance.policy-pack.published.v1",
         label: "Policy pack activated",
-        description: "A policy pack version was published and is available for governed reviews.",
+        description: "A policy pack version was published and is available for finalized reviews.",
       },
     ],
   },

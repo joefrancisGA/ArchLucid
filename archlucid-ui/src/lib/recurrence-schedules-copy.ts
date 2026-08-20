@@ -19,12 +19,12 @@ export const RECURRENCE_SCHEDULES_EMPTY_DESCRIPTION =
 
 /** @deprecated Prefer `RECURRENCE_SCHEDULES_HOW_IT_WORKS_BODY` — folded under How-it-works (TB-1130). */
 export const RECURRENCE_SCHEDULES_EMPTY_SUPPORTING =
-  "Schedules help ensure that accepted risks, policy exceptions, and governed architecture decisions are reviewed on time instead of being forgotten after approval.";
+  "Schedules help ensure that accepted risks, policy exceptions, and approved architecture decisions are reviewed on time instead of being forgotten after approval.";
 
 export const RECURRENCE_SCHEDULES_HELPER_TITLE = "Governance workflow";
 
 export const RECURRENCE_SCHEDULES_HELPER_BODY =
-  "Use recurrence schedules to create follow-up architecture reviews when governed reviews need periodic re-review. Recipients and notifications are not configured on this page.";
+  "Use recurrence schedules to create follow-up architecture reviews when scheduled reviews need periodic re-review. Recipients and notifications are not configured on this page.";
 
 export const RECURRENCE_SCHEDULES_HELPER_NEXT_STEP =
   "Start with a finalized architecture review, then define the review cadence.";

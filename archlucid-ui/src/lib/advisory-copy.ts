@@ -127,7 +127,7 @@ export const ADVISORY_SCANS_DISPOSITION_REJECT_HINT = "Records why it will not b
 
 export const ADVISORY_SCANS_DISPOSITION_IMPLEMENTED_HINT = "Records completion";
 
-export const ADVISORY_SCANS_DISPOSITION_DIALOG_TITLE = "Record recommendation disposition";
+export const ADVISORY_SCANS_DISPOSITION_DIALOG_TITLE = "Record recommendation resolve";
 
 export const ADVISORY_SCANS_DISPOSITION_DIALOG_DESCRIPTION =
   "Optional comment and rationale are stored with the resolve outcome for audit and follow-up.";
@@ -136,7 +136,7 @@ export const ADVISORY_SCANS_DISPOSITION_COMMENT_LABEL = "Comment (optional)";
 
 export const ADVISORY_SCANS_DISPOSITION_RATIONALE_LABEL = "Rationale (optional)";
 
-export const ADVISORY_SCANS_DISPOSITION_CONFIRM_LABEL = "Confirm disposition";
+export const ADVISORY_SCANS_DISPOSITION_CONFIRM_LABEL = "Confirm resolve";
 
 export const ADVISORY_SCANS_CARD_IMPACT_LABEL = "Impact level";
 

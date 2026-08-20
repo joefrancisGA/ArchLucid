@@ -51,9 +51,12 @@ export type RunsDashboardRecentTabProps = {
   readonly contentTestId?: string;
   readonly statusFilterEmptyMessage?: string | null;
   readonly onRestoreArchivedRequest: (requestId: string) => void;
+  /** When the Overview command center already renders the filled page primary (TB-2232). */
+  readonly pagePrimaryOwnedElsewhere?: boolean;
 };
 
 export function RunsDashboardRecentTab(props: RunsDashboardRecentTabProps) {
+  const showcaseLeadButtonVariant = props.pagePrimaryOwnedElsewhere === true ? "outline" : "primary";
   const showArchivedEmptyState =
     props.showArchived &&
     props.archivedFieldSupported &&
@@ -155,7 +158,7 @@ export function RunsDashboardRecentTab(props: RunsDashboardRecentTabProps) {
           <div className="flex flex-wrap items-center gap-2">
             {props.buyerSafeHighlight && props.showcasePrimaryCta !== null ? (
               <>
-                <Button asChild variant="primary" size="sm" className="h-8">
+                <Button asChild variant={showcaseLeadButtonVariant} size="sm" className="h-8">
                   <Link href={props.showcasePrimaryCta.href}>{props.showcasePrimaryCta.label}</Link>
                 </Button>
                 <Button asChild variant="outline" size="sm" className="h-8">
@@ -167,7 +170,7 @@ export function RunsDashboardRecentTab(props: RunsDashboardRecentTabProps) {
               </>
             ) : (
               <>
-                <Button asChild variant="primary" size="sm" className="h-8">
+                <Button asChild variant={showcaseLeadButtonVariant} size="sm" className="h-8">
                   <Link href={`/architecture/reviews/${encodeURIComponent(props.showcaseDemoRun.runId)}`}>Review</Link>
                 </Button>
                 <Button asChild variant="outline" size="sm" className="h-8">
@@ -207,6 +210,7 @@ export function RunsDashboardRecentTab(props: RunsDashboardRecentTabProps) {
             buyerPolishedShell={props.buyerPolishedShell}
             variant="featured"
             primaryAction={props.showcasePrimaryCta}
+            pagePrimaryOwnedElsewhere={props.pagePrimaryOwnedElsewhere}
           />
         </section>
       ) : null}

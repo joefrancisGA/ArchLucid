@@ -12,7 +12,7 @@ import {
 
 const RECURRENCE_SCHEDULES_HUB_CONTEXTUAL_HELP = {
   whatIsThisPage:
-    "Automate follow-up architecture reviews on a repeating cadence for governed reviews that need periodic re-assessment.",
+    "Automate follow-up architecture reviews on a repeating cadence for scheduled reviews that need periodic re-assessment.",
   whatToDoNext: "Create a schedule from a finalized review, then monitor cadence, status, and last-run health on this page.",
   whyEmpty: "Schedules appear after you create one for a finalized architecture review.",
   whereToConfigurePrerequisite:

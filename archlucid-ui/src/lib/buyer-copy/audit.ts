@@ -18,7 +18,7 @@ export const BUYER_AUDIT_SYSTEM_EVENTS_EXPLANATION =
 export const BUYER_AUDIT_DOWNLOAD_CTA = "Download governance evidence bundle";
 
 export const BUYER_AUDIT_ENTERPRISE_WORKSPACE_LEAD =
-  "When your team is ready for tenant-backed governed reviews, procurement and workspace onboarding use a separate request flow.";
+  "When your team is ready for tenant-backed architecture reviews, procurement and workspace onboarding use a separate request flow.";
 
 export const BUYER_AUDIT_ENTERPRISE_WORKSPACE_FOLLOWUP =
   "Use this section when you are ready to discuss tenant-backed workspaces and production onboarding.";

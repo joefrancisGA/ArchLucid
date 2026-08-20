@@ -22,7 +22,7 @@ export const BILLING_TIER_FEATURE_BULLETS: Readonly<Record<string, readonly stri
     "Policy packs, audit exports, and review comparison",
     "Scorecards and guided trial onboarding",
     "Expanded AI allowance with clear overage options",
-    "Governed architecture review practice packaging",
+    "Architecture review practice packaging",
   ],
   enterprise: [
     "Custom users, workspaces, and deployment model",
