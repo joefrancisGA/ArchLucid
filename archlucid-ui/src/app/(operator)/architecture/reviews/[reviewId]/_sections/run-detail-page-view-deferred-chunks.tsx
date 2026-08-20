@@ -279,40 +279,36 @@ export const RunDetailSponsorReportCtaCardDeferred = createDeferredComponentFrom
   { suppressLoading: true },
 );
 
-export const ReviewPackagePrimaryActionDeferred = dynamic(
-  () =>
-    import("./ReviewPackagePrimaryActionTabAware").then((module) => module.ReviewPackagePrimaryActionTabAware),
-  { ssr: false, loading: () => null },
+export const ReviewPackagePrimaryActionDeferred = createDeferredComponentFromManifest(
+  "run-detail-review-package-primary-action",
+  { suppressLoading: true },
 );
 
-export const ReviewPackageSponsorHandoffStripDeferred = dynamic(
-  () =>
-    import("./ReviewPackageSponsorHandoffStrip").then((module) => module.ReviewPackageSponsorHandoffStrip),
-  { ssr: false, loading: () => null },
+export const ReviewPackageSponsorHandoffStripDeferred = createDeferredComponentFromManifest(
+  "run-detail-review-package-sponsor-handoff-strip",
+  { suppressLoading: true },
 );
 
-export const ReviewPackageDoThisNextStripDeferred = dynamic(
-  () => import("./ReviewPackageDoThisNextStrip").then((module) => module.ReviewPackageDoThisNextStrip),
-  { ssr: false, loading: () => null },
+export const ReviewPackageDoThisNextStripDeferred = createDeferredComponentFromManifest(
+  "run-detail-review-package-do-this-next-strip",
+  { suppressLoading: true },
 );
 
-export const RunDetailGovernanceDecisionSectionDeferred = dynamic(
-  () =>
-    import("./RunDetailGovernanceDecisionSection").then((module) => module.RunDetailGovernanceDecisionSection),
-  { ssr: false, loading: () => <RunDetailExplanationSkeleton /> },
+export const RunDetailGovernanceDecisionSectionDeferred = createDeferredComponentFromManifest(
+  "run-detail-governance-decision-section",
+  {
+    loadingWrapper: (_loading) => <RunDetailExplanationSkeleton />,
+  },
 );
 
-export const RunDetailReviewPackageSectionDeferred = dynamic(
-  () => import("./RunDetailReviewPackageSection").then((module) => module.RunDetailReviewPackageSection),
-  { ssr: false, loading: () => null },
+export const RunDetailReviewPackageSectionDeferred = createDeferredComponentFromManifest(
+  "run-detail-review-package-section",
+  { suppressLoading: true },
 );
 
-export const RunDetailSubmittedArchitectureSectionDeferred = dynamic(
-  () =>
-    import("./RunDetailSubmittedArchitectureSection").then(
-      (module) => module.RunDetailSubmittedArchitectureSection,
-    ),
-  { ssr: false, loading: () => null },
+export const RunDetailSubmittedArchitectureSectionDeferred = createDeferredComponentFromManifest(
+  "run-detail-submitted-architecture-section",
+  { suppressLoading: true },
 );
 
 export const RunDetailGovernanceCtaDeferred = dynamic(

@@ -13,6 +13,7 @@
  */
 
 import { REVIEWS_LIST_PATH } from "@/lib/architecture/architecture-routes";
+import type { PairwiseVocabularyRailModel } from "@/lib/vocabulary/create-pairwise-vocabulary-rail";
 
 /** Reviews hub hosts pinned architecture packages (favorites). */
 export const FAVORITE_REVIEWS_SURFACE_PATH = REVIEWS_LIST_PATH;
@@ -63,14 +64,27 @@ export const FAVORITE_REVIEWS_VS_NAV_PINS_NAV_PINS_LINK: FavoriteReviewsVsNavPin
   whenToUse: "Pin frequently used nav routes in the sidebar for quick page access.",
 };
 
-/** Full vocabulary model (heading, why-two copy, and deep links). */
-export function buildFavoriteReviewsVsNavPinsVocabulary(): FavoriteReviewsVsNavPinsVocabularyModel {
+/** Pairwise model for Pinned reviews ↔ Nav pins (fixed routes). */
+export function buildFavoriteReviewsVsNavPinsPairwiseRail(): PairwiseVocabularyRailModel<FavoriteReviewsVsNavPinsSurfaceId> {
   return {
     heading: FAVORITE_REVIEWS_VS_NAV_PINS_HEADING,
     whyTwo: FAVORITE_REVIEWS_VS_NAV_PINS_WHY_TWO,
     compactLine: FAVORITE_REVIEWS_VS_NAV_PINS_COMPACT_LINE,
-    favoriteReviewsLink: FAVORITE_REVIEWS_VS_NAV_PINS_FAVORITES_LINK,
-    navPinsLink: FAVORITE_REVIEWS_VS_NAV_PINS_NAV_PINS_LINK,
+    currentLink: FAVORITE_REVIEWS_VS_NAV_PINS_FAVORITES_LINK,
+    peerLink: FAVORITE_REVIEWS_VS_NAV_PINS_NAV_PINS_LINK,
+  };
+}
+
+/** Full vocabulary model (heading, why-two copy, and deep links). */
+export function buildFavoriteReviewsVsNavPinsVocabulary(): FavoriteReviewsVsNavPinsVocabularyModel {
+  const rail = buildFavoriteReviewsVsNavPinsPairwiseRail();
+
+  return {
+    heading: rail.heading,
+    whyTwo: rail.whyTwo,
+    compactLine: rail.compactLine,
+    favoriteReviewsLink: rail.currentLink,
+    navPinsLink: rail.peerLink,
   };
 }
 

@@ -13,6 +13,7 @@
 
 import { SSO_WIZARD_IDENTITY_PROVIDERS_HREF } from "@/lib/sso-wizard-copy";
 import { SSO_WIZARD_CANONICAL_PATH } from "@/lib/sso-wizard-evidence-copy";
+import type { PairwiseVocabularyRailModel } from "@/lib/vocabulary/create-pairwise-vocabulary-rail";
 
 export type IdentityProvidersSsoWizardSurfaceId = "identity-providers" | "sso-wizard";
 
@@ -54,14 +55,27 @@ export const IDENTITY_PROVIDERS_SSO_WIZARD_WIZARD_LINK: IdentityProvidersSsoWiza
   whenToUse: "Walk guided discovery, sandbox claim mapping test, and save configuration.",
 };
 
-/** Full vocabulary model (heading, why-two copy, and deep links). */
-export function buildIdentityProvidersSsoWizardVocabulary(): IdentityProvidersSsoWizardVocabularyModel {
+/** Pairwise model for Identity providers ↔ SSO wizard (fixed routes). */
+export function buildIdentityProvidersSsoWizardPairwiseRail(): PairwiseVocabularyRailModel<IdentityProvidersSsoWizardSurfaceId> {
   return {
     heading: IDENTITY_PROVIDERS_SSO_WIZARD_HEADING,
     whyTwo: IDENTITY_PROVIDERS_SSO_WIZARD_WHY_TWO,
     compactLine: IDENTITY_PROVIDERS_SSO_WIZARD_COMPACT_LINE,
-    identityProvidersLink: IDENTITY_PROVIDERS_SSO_WIZARD_HUB_LINK,
-    ssoWizardLink: IDENTITY_PROVIDERS_SSO_WIZARD_WIZARD_LINK,
+    currentLink: IDENTITY_PROVIDERS_SSO_WIZARD_HUB_LINK,
+    peerLink: IDENTITY_PROVIDERS_SSO_WIZARD_WIZARD_LINK,
+  };
+}
+
+/** Full vocabulary model (heading, why-two copy, and deep links). */
+export function buildIdentityProvidersSsoWizardVocabulary(): IdentityProvidersSsoWizardVocabularyModel {
+  const rail = buildIdentityProvidersSsoWizardPairwiseRail();
+
+  return {
+    heading: rail.heading,
+    whyTwo: rail.whyTwo,
+    compactLine: rail.compactLine,
+    identityProvidersLink: rail.currentLink,
+    ssoWizardLink: rail.peerLink,
   };
 }
 
