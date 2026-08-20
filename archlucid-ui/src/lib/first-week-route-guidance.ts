@@ -34,13 +34,8 @@ const BUYER_REVIEW_DETAIL_IN_PROGRESS_GUIDANCE: FirstWeekRouteGuidanceConfig = {
   useWhen: "The review is running or findings are ready but the sealed review record is not finalized yet.",
   bridgeCopy:
     "Stay on this page until you finalize — that locks the sealed review record and unlocks sponsor exports.",
-<<<<<<< HEAD
-  primaryAction: { label: "Finalize this review", href: BUYER_REVIEW_DETAIL_IN_PROGRESS_FINALIZE_ANCHOR },
-  operateDeferralNote: "Skip the graph and governance pages until after your first finalized review.",
-=======
   // Primary CTA lives in ReviewPackageDoThisNextStrip above this callout.
-  operateDeferralNote: "Skip graph and governance dashboards until after commit unless your pilot explicitly needs them.",
->>>>>>> 92e7a3ac0b (Demote duplicate next-action CTAs so Do this next owns the review page primary.)
+  operateDeferralNote: "Skip the graph and governance pages until after your first finalized review.",
 };
 
 export const FIRST_WEEK_ROUTE_GUIDANCE_REVIEW_DETAIL_COMMITTED_COLLAPSED_SUMMARY =
