@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { IntegrationZoneRecoveryCard } from "@/components/integrations/IntegrationZoneRecoveryCard";
+import { CloudPlatformScopePreferencesNotice } from "@/components/preferences/CloudPlatformScopePreferencesNotice";
 import { listAwsTier2Connections } from "@/lib/api/aws-cloud-connections-api";
 import { listTier2Connections } from "@/lib/api/cloud-connections-api";
 import { listGcpTier2Connections } from "@/lib/api/gcp-cloud-connections-api";
@@ -14,19 +15,18 @@ import {
   CLOUD_CONNECTIONS_PAGE_TITLE,
   CLOUD_CONNECTIONS_PROVIDER_EVIDENCE_NONE,
 } from "@/lib/cloud-connections-copy";
+import { CLOUD_CONNECTIONS_PLATFORM_SCOPE_EMPTY_SELECTION } from "@/lib/cloud-platform-scope-copy";
 import { CLOUD_CONNECTIONS_PATH } from "@/lib/integrations-nav-paths";
 import {
   cloudConnectionIndicatesSuccessfulPull,
 } from "@/lib/cloud-first-inventory-coach";
 import {
   CLOUD_PROVIDER_NEUTRAL_ORDER,
-  hasCloudPlatformScopeWorkspace,
   resolveLandingCloudPlatformScope,
   subscribeCloudPlatformScopeChanges,
+  syncCloudPlatformScopeFromServer,
   visibleLandingPlatformCards,
-  writeCloudPlatformScopeToStorage,
   type CloudPlatformId,
-  type CloudPlatformScope,
   type CloudProviderId,
 } from "@/lib/cloud-platform-scope-storage";
 import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -41,7 +41,6 @@ import { PageHeading } from "@/components/PageHeading";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { CloudConnectionsHubVocabularyDisclosure } from "./CloudConnectionsHubVocabularyDisclosure";
 import { CloudConnectionsSecurityAssuranceBand } from "./CloudConnectionsSecurityAssuranceBand";
-import { CloudPlatformScopePanel } from "./CloudPlatformScopePanel";
 import { CloudProviderSummaryCard } from "./CloudProviderSummaryCard";
 import { EvidenceOnlyConnectionCard } from "./EvidenceOnlyConnectionCard";
 import { isCloudProviderSummaryConfigured } from "./is-cloud-provider-summary-configured";
@@ -87,7 +86,6 @@ const CLOUD_PROVIDER_COUNT = CLOUD_PROVIDER_NEUTRAL_ORDER.length;
 
 export function CloudConnectionsPageClient() {
   const [platformScope, setPlatformScope] = useState(() => resolveLandingCloudPlatformScope());
-  const [persistAvailable, setPersistAvailable] = useState(() => hasCloudPlatformScopeWorkspace());
   const [isLoading, setIsLoading] = useState(true);
   const [hasSuccessfulPull, setHasSuccessfulPull] = useState(false);
   const [providerSummaries, setProviderSummaries] = useState<Record<CloudProviderId, ProviderSummaryState>>({
@@ -233,19 +231,17 @@ export function CloudConnectionsPageClient() {
     void loadSummaries();
   }, [loadSummaries]);
 
+  useEffect(() => {
+    void syncCloudPlatformScopeFromServer();
+  }, []);
+
   useEffect(
     () =>
       subscribeCloudPlatformScopeChanges(() => {
         setPlatformScope(resolveLandingCloudPlatformScope());
-        setPersistAvailable(hasCloudPlatformScopeWorkspace());
       }),
     [],
   );
-
-  const handlePlatformScopeChange = useCallback((nextScope: CloudPlatformScope) => {
-    setPlatformScope(nextScope);
-    writeCloudPlatformScopeToStorage(nextScope);
-  }, []);
 
   const visibleCards = useMemo(() => visibleLandingPlatformCards(platformScope), [platformScope]);
 
@@ -352,7 +348,7 @@ export function CloudConnectionsPageClient() {
 
         {visibleCards.length === 0 ? (
           <p className={OPERATOR_TYPOGRAPHY.helper}>
-            No platforms are selected. Enable at least one option below, or use{" "}
+            {CLOUD_CONNECTIONS_PLATFORM_SCOPE_EMPTY_SELECTION}{" "}
             <Link href="/architecture/reviews/new" className={OPERATOR_LINK.nav}>
               evidence-only review
             </Link>
@@ -360,11 +356,7 @@ export function CloudConnectionsPageClient() {
           </p>
         ) : null}
 
-        <CloudPlatformScopePanel
-          scope={platformScope}
-          onScopeChange={handlePlatformScopeChange}
-          persistAvailable={persistAvailable}
-        />
+        <CloudPlatformScopePreferencesNotice />
 
         <CloudConnectionsHubVocabularyDisclosure />
       </section>

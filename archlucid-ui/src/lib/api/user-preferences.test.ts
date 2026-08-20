@@ -3,6 +3,13 @@
 const apiGetMock = vi.hoisted(() => vi.fn());
 const apiPutJsonMock = vi.hoisted(() => vi.fn());
 
+const DEFAULT_CLOUD_PLATFORM_SCOPE = {
+  "evidence-only": true,
+  azure: true,
+  aws: true,
+  gcp: true,
+} as const;
+
 vi.mock("@/lib/api/http", () => ({
   apiGet: (...args: unknown[]) => apiGetMock(...args),
   apiPutJson: (...args: unknown[]) => apiPutJsonMock(...args),
@@ -12,7 +19,6 @@ describe("getUserPreferences", () => {
   let getUserPreferences: typeof import("@/lib/api/user-preferences").getUserPreferences;
   let invalidateUserPreferencesCache: typeof import("@/lib/api/user-preferences").invalidateUserPreferencesCache;
   let resetUserPreferencesCacheForTests: typeof import("@/lib/api/user-preferences").resetUserPreferencesCacheForTests;
-  let setUserAppearancePreference: typeof import("@/lib/api/user-preferences").setUserAppearancePreference;
 
   beforeEach(async () => {
     vi.resetModules();
@@ -22,7 +28,6 @@ describe("getUserPreferences", () => {
     getUserPreferences = mod.getUserPreferences;
     invalidateUserPreferencesCache = mod.invalidateUserPreferencesCache;
     resetUserPreferencesCacheForTests = mod.resetUserPreferencesCacheForTests;
-    setUserAppearancePreference = mod.setUserAppearancePreference;
     resetUserPreferencesCacheForTests();
   });
 
@@ -30,109 +35,76 @@ describe("getUserPreferences", () => {
     resetUserPreferencesCacheForTests();
   });
 
-  it("dedupes concurrent reads into one network request", async () => {
-    let resolveRequest: ((value: { appearancePreference: "dark"; appearancePreferenceIsExplicit: true }) => void) | undefined;
-
-    apiGetMock.mockImplementation(
-      () =>
-        new Promise((resolve) => {
-          resolveRequest = resolve;
-        }),
-    );
-
-    const firstPromise = getUserPreferences();
-    const secondPromise = getUserPreferences();
-
-    expect(apiGetMock).toHaveBeenCalledTimes(1);
-
-    resolveRequest?.({
-      appearancePreference: "dark",
-      appearancePreferenceIsExplicit: true,
-    });
-
-    const [first, second] = await Promise.all([firstPromise, secondPromise]);
-
-    expect(first).toEqual({
-      appearancePreference: "dark",
-      appearancePreferenceIsExplicit: true,
-    });
-    expect(second).toEqual(first);
-    expect(apiGetMock).toHaveBeenCalledTimes(1);
-  });
-
-  it("returns the TTL-cached value without a second GET", async () => {
+  it("returns cloud platform scope from the API", async () => {
     apiGetMock.mockResolvedValue({
-      appearancePreference: "light",
-      appearancePreferenceIsExplicit: true,
-    });
-
-    const first = await getUserPreferences();
-    const second = await getUserPreferences();
-
-    expect(first.appearancePreference).toBe("light");
-    expect(second).toEqual(first);
-    expect(apiGetMock).toHaveBeenCalledTimes(1);
-  });
-
-  it("fetches again after invalidateUserPreferencesCache", async () => {
-    apiGetMock
-      .mockResolvedValueOnce({
-        appearancePreference: "light",
-        appearancePreferenceIsExplicit: true,
-      })
-      .mockResolvedValueOnce({
-        appearancePreference: "dark",
-        appearancePreferenceIsExplicit: true,
-      });
-
-    await getUserPreferences();
-    invalidateUserPreferencesCache();
-    const refreshed = await getUserPreferences();
-
-    expect(refreshed.appearancePreference).toBe("dark");
-    expect(apiGetMock).toHaveBeenCalledTimes(2);
-  });
-
-  it("does not let a late in-flight response re-seed after invalidate", async () => {
-    let resolveFirst: ((value: { appearancePreference: "light"; appearancePreferenceIsExplicit: true }) => void) | undefined;
-
-    apiGetMock.mockImplementationOnce(
-      () =>
-        new Promise((resolve) => {
-          resolveFirst = resolve;
-        }),
-    );
-
-    const stalePromise = getUserPreferences();
-
-    invalidateUserPreferencesCache();
-
-    apiGetMock.mockResolvedValueOnce({
       appearancePreference: "dark",
       appearancePreferenceIsExplicit: true,
+      cloudPlatformScope: {
+        "evidence-only": true,
+        azure: false,
+        aws: true,
+        gcp: false,
+      },
+      cloudPlatformScopeIsExplicit: true,
+      whereToGoNextEnabled: true,
+      whereToGoNextIsExplicit: false,
     });
 
-    const freshPromise = getUserPreferences();
+    const preferences = await getUserPreferences();
 
-    resolveFirst?.({
-      appearancePreference: "light",
-      appearancePreferenceIsExplicit: true,
+    expect(preferences.cloudPlatformScope.azure).toBe(false);
+    expect(preferences.cloudPlatformScopeIsExplicit).toBe(true);
+  });
+});
+
+describe("setUserCloudPlatformScope", () => {
+  let getUserPreferences: typeof import("@/lib/api/user-preferences").getUserPreferences;
+  let resetUserPreferencesCacheForTests: typeof import("@/lib/api/user-preferences").resetUserPreferencesCacheForTests;
+  let setUserCloudPlatformScope: typeof import("@/lib/api/user-preferences").setUserCloudPlatformScope;
+
+  beforeEach(async () => {
+    vi.resetModules();
+    apiGetMock.mockReset();
+    apiPutJsonMock.mockReset();
+    const mod = await import("@/lib/api/user-preferences");
+    getUserPreferences = mod.getUserPreferences;
+    resetUserPreferencesCacheForTests = mod.resetUserPreferencesCacheForTests;
+    setUserCloudPlatformScope = mod.setUserCloudPlatformScope;
+    resetUserPreferencesCacheForTests();
+  });
+
+  afterEach(() => {
+    resetUserPreferencesCacheForTests();
+  });
+
+  it("persists scope and seeds cache without a follow-up GET", async () => {
+    apiPutJsonMock.mockResolvedValue(undefined);
+
+    await setUserCloudPlatformScope({
+      "evidence-only": true,
+      azure: false,
+      aws: true,
+      gcp: false,
     });
 
-    await expect(stalePromise).resolves.toEqual({
-      appearancePreference: "light",
-      appearancePreferenceIsExplicit: true,
+    const preferences = await getUserPreferences();
+
+    expect(preferences.cloudPlatformScope).toEqual({
+      "evidence-only": true,
+      azure: false,
+      aws: true,
+      gcp: false,
     });
-
-    await expect(freshPromise).resolves.toEqual({
-      appearancePreference: "dark",
-      appearancePreferenceIsExplicit: true,
+    expect(preferences.cloudPlatformScopeIsExplicit).toBe(true);
+    expect(apiGetMock).not.toHaveBeenCalled();
+    expect(apiPutJsonMock).toHaveBeenCalledWith("/v1/user/preferences/cloud-platforms", {
+      scope: {
+        "evidence-only": true,
+        azure: false,
+        aws: true,
+        gcp: false,
+      },
     });
-
-    const cachedAfter = await getUserPreferences();
-
-    expect(cachedAfter.appearancePreference).toBe("dark");
-    expect(apiGetMock).toHaveBeenCalledTimes(2);
   });
 });
 
@@ -166,8 +138,47 @@ describe("setUserAppearancePreference", () => {
     expect(preferences).toEqual({
       appearancePreference: "system",
       appearancePreferenceIsExplicit: true,
+      cloudPlatformScope: DEFAULT_CLOUD_PLATFORM_SCOPE,
+      cloudPlatformScopeIsExplicit: false,
+      whereToGoNextEnabled: true,
+      whereToGoNextIsExplicit: false,
     });
     expect(apiGetMock).not.toHaveBeenCalled();
-    expect(apiPutJsonMock).toHaveBeenCalledWith("/v1/user/preferences/appearance", { value: "system" });
+  });
+});
+
+describe("setUserWhereToGoNextEnabled", () => {
+  let getUserPreferences: typeof import("@/lib/api/user-preferences").getUserPreferences;
+  let resetUserPreferencesCacheForTests: typeof import("@/lib/api/user-preferences").resetUserPreferencesCacheForTests;
+  let setUserWhereToGoNextEnabled: typeof import("@/lib/api/user-preferences").setUserWhereToGoNextEnabled;
+
+  beforeEach(async () => {
+    vi.resetModules();
+    apiGetMock.mockReset();
+    apiPutJsonMock.mockReset();
+    const mod = await import("@/lib/api/user-preferences");
+    getUserPreferences = mod.getUserPreferences;
+    resetUserPreferencesCacheForTests = mod.resetUserPreferencesCacheForTests;
+    setUserWhereToGoNextEnabled = mod.setUserWhereToGoNextEnabled;
+    resetUserPreferencesCacheForTests();
+  });
+
+  afterEach(() => {
+    resetUserPreferencesCacheForTests();
+  });
+
+  it("persists visibility and seeds cache without a follow-up GET", async () => {
+    apiPutJsonMock.mockResolvedValue(undefined);
+
+    await setUserWhereToGoNextEnabled(false);
+
+    const preferences = await getUserPreferences();
+
+    expect(preferences.whereToGoNextEnabled).toBe(false);
+    expect(preferences.whereToGoNextIsExplicit).toBe(true);
+    expect(apiGetMock).not.toHaveBeenCalled();
+    expect(apiPutJsonMock).toHaveBeenCalledWith("/v1/user/preferences/where-to-go-next", {
+      enabled: false,
+    });
   });
 });

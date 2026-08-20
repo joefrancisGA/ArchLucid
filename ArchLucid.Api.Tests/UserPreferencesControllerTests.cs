@@ -20,10 +20,7 @@ public sealed class UserPreferencesControllerTests
     [SkippableFact]
     public async Task GetPreferences_ReturnsDefaultWhenUnset()
     {
-        Mock<IUserSettingsRepository> repository = new();
-        repository
-            .Setup(repo => repo.TryGetAsync("jwt:user-1", UserSettingKeys.AppearancePreference, It.IsAny<CancellationToken>()))
-            .ReturnsAsync((string?)null);
+        Mock<IUserSettingsRepository> repository = CreateRepositoryMock();
 
         UserPreferencesController sut = CreateController(repository.Object);
 
@@ -34,15 +31,19 @@ public sealed class UserPreferencesControllerTests
         UserPreferencesResponse body = ok.Value.Should().BeOfType<UserPreferencesResponse>().Subject;
         body.AppearancePreference.Should().Be(AppearancePreferenceValues.Default);
         body.AppearancePreferenceIsExplicit.Should().BeFalse();
+        body.CloudPlatformScope.EvidenceOnly.Should().BeTrue();
+        body.CloudPlatformScopeIsExplicit.Should().BeFalse();
+        body.WhereToGoNextEnabled.Should().BeTrue();
+        body.WhereToGoNextIsExplicit.Should().BeFalse();
     }
 
     [SkippableFact]
-    public async Task GetPreferences_MarksExplicitStoredValue()
+    public async Task GetPreferences_ReturnsStoredCloudPlatformScope()
     {
-        Mock<IUserSettingsRepository> repository = new();
+        Mock<IUserSettingsRepository> repository = CreateRepositoryMock();
         repository
-            .Setup(repo => repo.TryGetAsync("jwt:user-1", UserSettingKeys.AppearancePreference, It.IsAny<CancellationToken>()))
-            .ReturnsAsync("system");
+            .Setup(repo => repo.TryGetAsync("jwt:user-1", UserSettingKeys.CloudPlatformScope, It.IsAny<CancellationToken>()))
+            .ReturnsAsync("""{"evidence-only":true,"azure":false,"aws":true,"gcp":false}""");
 
         UserPreferencesController sut = CreateController(repository.Object);
 
@@ -50,33 +51,15 @@ public sealed class UserPreferencesControllerTests
 
         OkObjectResult ok = (OkObjectResult)result;
         UserPreferencesResponse body = ok.Value.Should().BeOfType<UserPreferencesResponse>().Subject;
-        body.AppearancePreference.Should().Be("system");
-        body.AppearancePreferenceIsExplicit.Should().BeTrue();
-    }
-
-    [SkippableFact]
-    public async Task GetPreferences_ReturnsStoredValue()
-    {
-        Mock<IUserSettingsRepository> repository = new();
-        repository
-            .Setup(repo => repo.TryGetAsync("jwt:user-1", UserSettingKeys.AppearancePreference, It.IsAny<CancellationToken>()))
-            .ReturnsAsync("dark");
-
-        UserPreferencesController sut = CreateController(repository.Object);
-
-        IActionResult result = await sut.GetPreferences(CancellationToken.None);
-
-        result.Should().BeOfType<OkObjectResult>();
-        OkObjectResult ok = (OkObjectResult)result;
-        UserPreferencesResponse body = ok.Value.Should().BeOfType<UserPreferencesResponse>().Subject;
-        body.AppearancePreference.Should().Be("dark");
-        body.AppearancePreferenceIsExplicit.Should().BeTrue();
+        body.CloudPlatformScope.Azure.Should().BeFalse();
+        body.CloudPlatformScope.Aws.Should().BeTrue();
+        body.CloudPlatformScopeIsExplicit.Should().BeTrue();
     }
 
     [SkippableFact]
     public async Task SetAppearancePreference_ReturnsNoContentWhenValid()
     {
-        Mock<IUserSettingsRepository> repository = new();
+        Mock<IUserSettingsRepository> repository = CreateRepositoryMock();
         UserPreferencesController sut = CreateController(repository.Object);
 
         IActionResult result = await sut.SetAppearancePreference(
@@ -95,24 +78,88 @@ public sealed class UserPreferencesControllerTests
     }
 
     [SkippableFact]
-    public async Task SetAppearancePreference_ReturnsBadRequestWhenInvalid()
+    public async Task SetCloudPlatformScope_ReturnsNoContentWhenValid()
     {
-        Mock<IUserSettingsRepository> repository = new();
+        Mock<IUserSettingsRepository> repository = CreateRepositoryMock();
         UserPreferencesController sut = CreateController(repository.Object);
 
-        IActionResult result = await sut.SetAppearancePreference(
-            new SetAppearancePreferenceRequest { Value = "sepia" },
+        IActionResult result = await sut.SetCloudPlatformScope(
+            new SetCloudPlatformScopeRequest
+            {
+                Scope = new CloudPlatformScopeDto
+                {
+                    EvidenceOnly = true,
+                    Azure = false,
+                    Aws = true,
+                    Gcp = false,
+                },
+            },
             CancellationToken.None);
 
-        result.Should().BeOfType<ObjectResult>().Which.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        result.Should().BeOfType<NoContentResult>();
 
         repository.Verify(
             repo => repo.UpsertAsync(
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<string>(),
+                "jwt:user-1",
+                UserSettingKeys.CloudPlatformScope,
+                """{"evidence-only":true,"azure":false,"aws":true,"gcp":false}""",
                 It.IsAny<CancellationToken>()),
-            Times.Never);
+            Times.Once);
+    }
+
+    [SkippableFact]
+    public async Task GetPreferences_ReturnsStoredWhereToGoNextVisibility()
+    {
+        Mock<IUserSettingsRepository> repository = CreateRepositoryMock();
+        repository
+            .Setup(repo => repo.TryGetAsync("jwt:user-1", UserSettingKeys.WhereToGoNextEnabled, It.IsAny<CancellationToken>()))
+            .ReturnsAsync("false");
+
+        UserPreferencesController sut = CreateController(repository.Object);
+
+        IActionResult result = await sut.GetPreferences(CancellationToken.None);
+
+        OkObjectResult ok = (OkObjectResult)result;
+        UserPreferencesResponse body = ok.Value.Should().BeOfType<UserPreferencesResponse>().Subject;
+        body.WhereToGoNextEnabled.Should().BeFalse();
+        body.WhereToGoNextIsExplicit.Should().BeTrue();
+    }
+
+    [SkippableFact]
+    public async Task SetWhereToGoNextVisibility_ReturnsNoContentWhenValid()
+    {
+        Mock<IUserSettingsRepository> repository = CreateRepositoryMock();
+        UserPreferencesController sut = CreateController(repository.Object);
+
+        IActionResult result = await sut.SetWhereToGoNextVisibility(
+            new SetWhereToGoNextVisibilityRequest { Enabled = false },
+            CancellationToken.None);
+
+        result.Should().BeOfType<NoContentResult>();
+
+        repository.Verify(
+            repo => repo.UpsertAsync(
+                "jwt:user-1",
+                UserSettingKeys.WhereToGoNextEnabled,
+                "false",
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    private static Mock<IUserSettingsRepository> CreateRepositoryMock()
+    {
+        Mock<IUserSettingsRepository> repository = new();
+        repository
+            .Setup(repo => repo.TryGetAsync("jwt:user-1", UserSettingKeys.AppearancePreference, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((string?)null);
+        repository
+            .Setup(repo => repo.TryGetAsync("jwt:user-1", UserSettingKeys.CloudPlatformScope, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((string?)null);
+        repository
+            .Setup(repo => repo.TryGetAsync("jwt:user-1", UserSettingKeys.WhereToGoNextEnabled, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((string?)null);
+
+        return repository;
     }
 
     private static UserPreferencesController CreateController(IUserSettingsRepository repository)

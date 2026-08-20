@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("@/lib/toast", () => ({
@@ -34,8 +34,8 @@ vi.mock("@/lib/api/gcp-cloud-connections-api", () => ({
   triggerGcpTier2HostedRun: vi.fn(),
 }));
 
-import { resetCloudPlatformScopeSessionStateForTests } from "@/lib/cloud-platform-scope-storage";
-import * as operatorScopeStorage from "@/lib/operator/operator-scope-storage";
+import { CLOUD_CONNECTIONS_PLATFORM_SCOPE_PREFERENCES_HREF } from "@/lib/cloud-platform-scope-copy";
+import { resetCloudPlatformScopeSessionStateForTests, writeCloudPlatformScopeToStorage } from "@/lib/cloud-platform-scope-storage";
 import { CLOUD_CONNECTIONS_SOURCES } from "@/lib/cloud-connections-evidence-copy";
 
 import { CloudConnectionsPageClient } from "./CloudConnectionsPageClient";
@@ -58,7 +58,12 @@ describe("CloudConnectionsPageClient", () => {
     expect(screen.getByRole("heading", { level: 1, name: "Cloud connections" })).toBeInTheDocument();
     expect(screen.getByText(/Cloud connectors are optional/i)).toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
-    expect(screen.getByTestId("cloud-platform-scope-panel")).toBeInTheDocument();
+    expect(screen.getByTestId("cloud-platform-scope-preferences-notice")).toBeInTheDocument();
+    expect(screen.queryByTestId("cloud-platform-scope-panel")).not.toBeInTheDocument();
+    expect(screen.getByTestId("cloud-platform-scope-preferences-link")).toHaveAttribute(
+      "href",
+      CLOUD_CONNECTIONS_PLATFORM_SCOPE_PREFERENCES_HREF,
+    );
     expect(screen.getByTestId("cloud-connection-card-aws")).toBeInTheDocument();
     expect(screen.getByTestId("cloud-connection-card-azure")).toBeInTheDocument();
     expect(screen.getByTestId("cloud-connection-card-gcp")).toBeInTheDocument();
@@ -128,51 +133,37 @@ describe("CloudConnectionsPageClient", () => {
     );
   });
 
-  it("hides provider cards when platform scope is narrowed", async () => {
-    window.localStorage.setItem(
-      "archlucid_operator_scope_v1",
-      JSON.stringify({
-        tenantId: "tenant-1",
-        workspaceId: "workspace-1",
-        projectId: "project-1",
-        workspaceLabel: "Pilot workspace",
-        projectLabel: "Default",
-      }),
-    );
+  it("hides provider cards when personal platform scope is narrowed", async () => {
+    writeCloudPlatformScopeToStorage({
+      "evidence-only": true,
+      azure: false,
+      aws: true,
+      gcp: false,
+    });
 
     render(<CloudConnectionsPageClient />);
 
     await waitFor(() => {
-      expect(screen.getByTestId("cloud-connection-card-azure")).toBeInTheDocument();
+      expect(screen.getByTestId("cloud-connection-card-aws")).toBeInTheDocument();
     });
-
-    fireEvent.click(screen.getByTestId("cloud-platform-scope-azure"));
-    fireEvent.click(screen.getByTestId("cloud-platform-scope-gcp"));
 
     expect(screen.queryByTestId("cloud-connection-card-azure")).not.toBeInTheDocument();
     expect(screen.queryByTestId("cloud-connection-card-gcp")).not.toBeInTheDocument();
-    expect(screen.getByTestId("cloud-connection-card-aws")).toBeInTheDocument();
   });
 
   it("recommends a visible provider when AWS is hidden from platform scope", async () => {
-    window.localStorage.setItem(
-      "archlucid_operator_scope_v1",
-      JSON.stringify({
-        tenantId: "tenant-1",
-        workspaceId: "workspace-1",
-        projectId: "project-1",
-        workspaceLabel: "Pilot workspace",
-        projectLabel: "Default",
-      }),
-    );
+    writeCloudPlatformScopeToStorage({
+      "evidence-only": true,
+      azure: true,
+      aws: false,
+      gcp: true,
+    });
 
     render(<CloudConnectionsPageClient />);
 
     await waitFor(() => {
       expect(screen.getByTestId("cloud-first-inventory-coach")).toBeInTheDocument();
     });
-
-    fireEvent.click(screen.getByTestId("cloud-platform-scope-aws"));
 
     expect(screen.queryByTestId("cloud-connection-card-aws")).not.toBeInTheDocument();
     expect(screen.getByTestId("cloud-first-inventory-coach-cta")).toHaveTextContent("Configure Azure");
@@ -226,56 +217,5 @@ describe("CloudConnectionsPageClient", () => {
     });
 
     expect(screen.getByTestId("cloud-first-inventory-coach")).toHaveAttribute("data-phase", "post-connect");
-  });
-
-  it("disables platform scope and keeps all cards when effective scope is missing (TB-1142)", async () => {
-    vi.spyOn(operatorScopeStorage, "getEffectiveBrowserProxyScopeHeaders").mockReturnValue({
-      "x-tenant-id": "",
-      "x-workspace-id": "",
-      "x-project-id": "",
-    });
-
-    render(<CloudConnectionsPageClient />);
-
-    await waitFor(() => {
-      expect(screen.getByTestId("cloud-connection-card-gcp")).toBeInTheDocument();
-    });
-
-    expect(screen.getByTestId("cloud-platform-scope-workspace-required")).toBeInTheDocument();
-    expect(screen.getByTestId("cloud-platform-scope-workspace-action")).toHaveAttribute("href", "/help/scope");
-    expect(screen.getByTestId("cloud-platform-scope-gcp")).toBeDisabled();
-
-    fireEvent.click(screen.getByTestId("cloud-platform-scope-gcp"));
-
-    expect(screen.getByTestId("cloud-connection-card-gcp")).toBeInTheDocument();
-    expect(screen.getByTestId("cloud-connection-card-aws")).toBeInTheDocument();
-    expect(screen.getByTestId("cloud-connection-card-azure")).toBeInTheDocument();
-  });
-
-  it("keeps panel and cards on the same scope when a workspace is present (TB-1142)", async () => {
-    window.localStorage.setItem(
-      "archlucid_operator_scope_v1",
-      JSON.stringify({
-        tenantId: "tenant-1",
-        workspaceId: "workspace-1",
-        projectId: "project-1",
-        workspaceLabel: "Pilot workspace",
-        projectLabel: "Default",
-      }),
-    );
-
-    render(<CloudConnectionsPageClient />);
-
-    await waitFor(() => {
-      expect(screen.getByTestId("cloud-connection-card-azure")).toBeInTheDocument();
-    });
-
-    expect(screen.queryByTestId("cloud-platform-scope-workspace-required")).not.toBeInTheDocument();
-    expect(screen.getByTestId("cloud-platform-scope-azure")).not.toBeDisabled();
-
-    fireEvent.click(screen.getByTestId("cloud-platform-scope-azure"));
-
-    expect(screen.queryByTestId("cloud-connection-card-azure")).not.toBeInTheDocument();
-    expect(screen.getByTestId("cloud-platform-scope-azure")).not.toBeChecked();
   });
 });
