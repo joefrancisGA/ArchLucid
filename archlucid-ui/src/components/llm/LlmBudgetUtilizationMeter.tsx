@@ -3,6 +3,7 @@ import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { Progress } from "@/components/ui/progress";
+import { useOperatorShellStatusConcernFetchEnabled } from "@/components/shell/OperatorShellStatusQueryGate";
 import { useLlmMonthlyBudgetStatusQuery } from "@/hooks/use-llm-monthly-budget-status-query";
 import {
   llmBudgetUtilizationPercent,
@@ -13,7 +14,10 @@ import { formatUtcBillingMonthLabel } from "@/lib/llm-cost-reporting-display-lab
 
 /** UTC-month LLM dollar hard-cap utilization for operator settings and dashboards. */
 export function LlmBudgetUtilizationMeter() {
-  const { data: status, isPending, isError } = useLlmMonthlyBudgetStatusQuery();
+  const concernFetchEnabled = useOperatorShellStatusConcernFetchEnabled();
+  const { data: status, isPending, isError } = useLlmMonthlyBudgetStatusQuery({
+    enabled: concernFetchEnabled,
+  });
 
   if (isPending) {
     return (

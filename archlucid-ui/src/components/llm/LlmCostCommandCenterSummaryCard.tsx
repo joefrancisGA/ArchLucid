@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import type { ReactElement } from "react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useOperatorShellStatusConcernFetchEnabled } from "@/components/shell/OperatorShellStatusQueryGate";
 import { useLlmMonthlyBudgetStatusQuery } from "@/hooks/use-llm-monthly-budget-status-query";
 import {
   buildLlmBudgetCommandCenterSummary,
@@ -158,8 +159,11 @@ function SummaryGrid(props: { readonly summary: LlmCostCommandCenterSummary; rea
 export function LlmCostCommandCenterSummaryCard(props: {
   readonly dashboard: LlmCostReportingDashboard | null;
 }): ReactElement | null {
+  const concernFetchEnabled = useOperatorShellStatusConcernFetchEnabled();
   const summary = buildLlmCostCommandCenterSummary(props.dashboard);
-  const { data: budgetStatus } = useLlmMonthlyBudgetStatusQuery();
+  const { data: budgetStatus } = useLlmMonthlyBudgetStatusQuery({
+    enabled: concernFetchEnabled,
+  });
 
   if (summary === null) {
     return null;

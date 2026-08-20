@@ -7,7 +7,7 @@ import {
   type LlmMonthlyDollarBudgetStatus,
 } from "@/lib/llm-monthly-budget-status";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
-import { resolveLlmMonthlyBudgetStatusStaleTime } from "@/lib/query/operator-query-stale-time";
+import { OPERATOR_QUERY_GC_MS } from "@/lib/query/operator-query-stale-time";
 import {
   resolveShellBannerPollIntervalMs,
   shouldPollLlmMonthlyBudgetStatus,
@@ -23,11 +23,18 @@ type UseLlmMonthlyBudgetStatusQueryOptions = {
   readonly refetchIntervalMs?: number | false;
 };
 
+/**
+ * LLM budget status is hydrated from `GET /v1/operator/shell-status` before concern observers enable.
+ * `staleTime: Infinity` keeps hydrate/`setQueryData` from refetching on every banner/pill mount;
+ * `LlmMonthlyBudgetStatusPollOwner` owns `refetchInterval` while budget banners need refresh.
+ */
 export function useLlmMonthlyBudgetStatusQuery(options?: UseLlmMonthlyBudgetStatusQueryOptions) {
   return useQuery<LlmMonthlyDollarBudgetStatus>({
     queryKey: operatorQueryKeys.llmMonthlyBudgetStatus,
     queryFn: fetchLlmMonthlyDollarBudgetStatus,
     enabled: options?.enabled ?? true,
+    staleTime: Infinity,
+    gcTime: OPERATOR_QUERY_GC_MS,
     refetchInterval: (query) => {
       if (options?.refetchIntervalMs !== undefined) {
         if (!options.refetchIntervalMs || options.documentHidden === true) {
@@ -49,6 +56,5 @@ export function useLlmMonthlyBudgetStatusQuery(options?: UseLlmMonthlyBudgetStat
       });
     },
     refetchIntervalInBackground: false,
-    staleTime: (query) => resolveLlmMonthlyBudgetStatusStaleTime(query.state.data),
   });
 }

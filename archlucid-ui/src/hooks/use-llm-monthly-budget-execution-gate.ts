@@ -1,9 +1,8 @@
-import { useEffect, useState } from "react";
+"use client";
 
-import {
-  fetchLlmMonthlyDollarBudgetStatusCached,
-  type LlmMonthlyDollarBudgetStatus,
-} from "@/lib/llm-monthly-budget-status";
+import { useOperatorShellStatusConcernFetchEnabled } from "@/components/shell/OperatorShellStatusQueryGate";
+import { useLlmMonthlyBudgetStatusQuery } from "@/hooks/use-llm-monthly-budget-status-query";
+import type { LlmMonthlyDollarBudgetStatus } from "@/lib/llm-monthly-budget-status";
 
 export type { LlmMonthlyDollarBudgetStatus };
 
@@ -16,34 +15,13 @@ export function useLlmMonthlyBudgetExecutionGate(): {
   status: LlmMonthlyDollarBudgetStatus | null;
   blocksLlmExecution: boolean;
 } {
-  const [loading, setLoading] = useState(true);
-  const [status, setStatus] = useState<LlmMonthlyDollarBudgetStatus | null>(null);
+  const concernFetchEnabled = useOperatorShellStatusConcernFetchEnabled();
+  const query = useLlmMonthlyBudgetStatusQuery({
+    enabled: concernFetchEnabled,
+  });
 
-  useEffect(() => {
-    let cancelled = false;
-
-    void (async () => {
-      try {
-        const data = await fetchLlmMonthlyDollarBudgetStatusCached();
-
-        if (!cancelled) {
-          setStatus(data);
-        }
-      } catch {
-        if (!cancelled) {
-          setStatus(null);
-        }
-      } finally {
-        if (!cancelled) {
-          setLoading(false);
-        }
-      }
-    })();
-
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+  const status = query.data ?? null;
+  const loading = concernFetchEnabled && query.isPending && status === null;
 
   const blocksLlmExecution =
     status !== null &&
