@@ -4,7 +4,7 @@ import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 export const QUICK_SCAN_CANONICAL_PATH = "/quick-scan" as const;
 
 export const QUICK_SCAN_SCOPE_DISCLOSURE_BODY =
-  "Quick Scan is a limited marketing demonstration — results are not saved as workspace reviews, not a sealed-review diligence Sources package. Open Assurance status or start an evaluation when you need live workspace evidence.";
+  "Quick Scan is a demo only — results are not saved as workspace reviews and this is not a full audit export. Open Assurance status or start an evaluation when you need live workspace evidence.";
 
 export const QUICK_SCAN_SOURCES_INTRO =
   "Use these evaluation links when a demonstration result turns into signup, assurance, or product orientation.";

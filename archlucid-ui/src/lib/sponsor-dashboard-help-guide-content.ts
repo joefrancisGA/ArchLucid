@@ -28,7 +28,7 @@ export function sponsorDashboardHelpPageSubtitle(buyerPolishedShell: boolean): s
 }
 
 export const SPONSOR_DASHBOARD_HELP_OVERVIEW =
-  "The sponsor dashboard summarizes portfolio ROI trends, workspace-health KPI tiles, and sponsor exports for the selected scope — use it for governance posture at a glance before opening sponsor report help or architecture scorecard follow-ups.";
+  "The sponsor dashboard summarizes portfolio ROI trends, workspace-health KPI tiles, and sponsor exports for the selected scope — use it for approval and ROI status at a glance before opening sponsor report help or architecture scorecard follow-ups.";
 
 export const SPONSOR_DASHBOARD_HELP_PRIMARY_ACTION = {
   label: "Open sponsor dashboard",

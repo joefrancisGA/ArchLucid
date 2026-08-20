@@ -38,7 +38,7 @@ export const SCORECARD_ROI_HEADING =
   "Architecture scorecard and ROI summary serve different purposes" as const;
 
 export const SCORECARD_ROI_WHY_TWO =
-  "Architecture scorecard shows pilot operational KPIs and directional savings tiles for the current workspace window. ROI summary shows portfolio KPIs — review-cycle reduction, estimated effort saved, and governance-ready artifacts across the reporting window. Pilot scorecard tiles are not the same as portfolio ROI framing." as const;
+  "Architecture scorecard shows pilot KPIs and directional savings tiles for the current workspace window. ROI summary shows portfolio totals — review-cycle reduction, estimated effort saved, and export-ready artifacts across the reporting window. One pilot scorecard is not the same as portfolio ROI framing." as const;
 
 export const SCORECARD_ROI_COMPACT_LINE =
   "Scorecard is pilot operational KPIs; ROI summary is portfolio framing — open the other when you need both." as const;

@@ -4,7 +4,7 @@ import { PLANNING_PATH } from "@/lib/planning-route";
 export const IMPACT_PREVIEW_PAGE_TITLE = "Impact preview" as const;
 
 export const IMPACT_PREVIEW_PAGE_SUBTITLE =
-  "Preview how a proposed architecture change may affect findings, risk, cost, and governance posture before implementation." as const;
+  "Preview how a proposed architecture change may affect findings, risk, cost, and approval impact before implementation." as const;
 
 export const IMPACT_PREVIEW_PAGE_SUBTITLE_BUYER =
   "Compare a proposed change against a baseline review before implementation." as const;
@@ -53,7 +53,7 @@ export const IMPACT_PREVIEW_ACTION_REQUEST_ACCESS = "Contact workspace admin" as
 
 export const IMPACT_PREVIEW_EMPTY_NO_CANDIDATES_TITLE = "No proposed changes available" as const;
 export const IMPACT_PREVIEW_EMPTY_NO_CANDIDATES_BODY =
-  "Create a proposed architecture change before running an impact preview. Impact preview compares the proposed change against a baseline review and estimates likely changes in findings, risk, cost, and governance posture." as const;
+  "Create a proposed architecture change before running an impact preview. Impact preview compares the proposed change against a baseline review and estimates likely changes in findings, risk, cost, and approval impact." as const;
 
 export const IMPACT_PREVIEW_EMPTY_NO_BASELINE_TITLE = "No baseline review available" as const;
 export const IMPACT_PREVIEW_EMPTY_NO_BASELINE_BODY =

@@ -6,7 +6,7 @@ export const GET_STARTED_CANONICAL_PATH = "/get-started" as const;
 
 /** Body for demoted scope disclosure (replaces footer amber orientation callout). */
 export const GET_STARTED_SCOPE_DISCLOSURE_BODY =
-  "This get-started page orients buyers toward a guided trial or illustrative sample review — it is marketing first-run orientation, not a sealed-review diligence Sources package from your tenant. Open Assurance status or start an evaluation when you need live workspace evidence.";
+  "This get-started page orients buyers toward a guided trial or sample review — first-run orientation only, not a full audit export from your workspace. Open Assurance status or start an evaluation when you need live evidence.";
 
 export const GET_STARTED_SOURCES_INTRO =
   "Use these evaluation links when path selection turns into signup, assurance, or product orientation.";
