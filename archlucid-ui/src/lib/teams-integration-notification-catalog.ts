@@ -25,6 +25,11 @@ export const TEAMS_NOTIFICATION_CATEGORIES: readonly TeamsNotificationCategory[]
         recommended: true,
       },
       {
+        eventType: "com.archlucid.manifest.finalized.v1",
+        label: "Sealed review record finalized",
+        description: "The authoritative architecture package was committed as the sealed review record.",
+      },
+      {
         eventType: "com.archlucid.advisory.scan.completed",
         label: "Advisory scan completed",
         description: "An advisory scan produced updated findings.",
@@ -42,9 +47,37 @@ export const TEAMS_NOTIFICATION_CATEGORIES: readonly TeamsNotificationCategory[]
         recommended: true,
       },
       {
+        eventType: "com.archlucid.governance.approval.approved",
+        label: "Approval approved",
+        description: "A governance approval request was approved.",
+        recommended: true,
+      },
+      {
+        eventType: "com.archlucid.governance.approval.rejected",
+        label: "Approval rejected",
+        description: "A governance approval request was rejected or returned.",
+      },
+      {
+        eventType: "com.archlucid.governance.promotion.activated",
+        label: "Governance promotion activated",
+        description: "An approved review was authorized to advance in a governed environment.",
+        recommended: true,
+      },
+      {
         eventType: "com.archlucid.alert.fired",
         label: "Governance alert created",
         description: "A rule detected a condition that needs attention.",
+        recommended: true,
+      },
+      {
+        eventType: "com.archlucid.alert.acknowledged",
+        label: "Governance alert acknowledged",
+        description: "An authorized user acknowledged a governance alert.",
+      },
+      {
+        eventType: "com.archlucid.alert.resolved",
+        label: "Governance alert resolved",
+        description: "A governance alert was marked resolved.",
         recommended: true,
       },
       {

@@ -11,9 +11,9 @@ namespace ArchLucid.Core.Tests.Notifications.Teams;
 public sealed class TeamsNotificationTriggerCatalogTests
 {
     [Fact]
-    public void All_contains_v1_default_six_triggers()
+    public void All_contains_v1_default_twelve_triggers()
     {
-        TeamsNotificationTriggerCatalog.All.Should().HaveCount(6);
+        TeamsNotificationTriggerCatalog.All.Should().HaveCount(12);
         TeamsNotificationTriggerCatalog.All.Should().Contain(IntegrationEventTypes.AuthorityRunCompletedV1);
         TeamsNotificationTriggerCatalog.All.Should().Contain(IntegrationEventTypes.GovernanceApprovalSubmittedV1);
         TeamsNotificationTriggerCatalog.All.Should().Contain(IntegrationEventTypes.AlertFiredV1);

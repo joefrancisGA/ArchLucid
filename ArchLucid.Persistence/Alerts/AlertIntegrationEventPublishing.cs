@@ -105,4 +105,51 @@ internal static class AlertIntegrationEventPublishing
             transaction: null,
             cancellationToken);
     }
+    internal static Task TryPublishAcknowledgedAsync(
+        IIntegrationEventOutboxRepository integrationEventOutbox,
+        IIntegrationEventPublisher integrationEventPublisher,
+        IOptionsMonitor<IntegrationEventsOptions> integrationEventsOptions,
+        ILogger logger,
+        AlertRecord alert,
+        string acknowledgedByUserId,
+        string? comment,
+        CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(integrationEventOutbox);
+        ArgumentNullException.ThrowIfNull(integrationEventPublisher);
+        ArgumentNullException.ThrowIfNull(integrationEventsOptions);
+        ArgumentNullException.ThrowIfNull(logger);
+        ArgumentNullException.ThrowIfNull(alert);
+
+        object payload = new
+        {
+            schemaVersion = 1,
+            tenantId = alert.TenantId,
+            workspaceId = alert.WorkspaceId,
+            projectId = alert.ProjectId,
+            alertId = alert.AlertId,
+            runId = alert.RunId,
+            deduplicationKey = alert.DeduplicationKey,
+            acknowledgedByUserId,
+            comment,
+        };
+
+        string messageId = $"{alert.AlertId:D}:{IntegrationEventTypes.AlertAcknowledgedV1}";
+
+        return OutboxAwareIntegrationEventPublishing.TryPublishOrEnqueueAsync(
+            integrationEventOutbox,
+            integrationEventPublisher,
+            integrationEventsOptions.CurrentValue,
+            logger,
+            IntegrationEventTypes.AlertAcknowledgedV1,
+            payload,
+            messageId,
+            alert.RunId,
+            alert.TenantId,
+            alert.WorkspaceId,
+            alert.ProjectId,
+            connection: null,
+            transaction: null,
+            cancellationToken);
+    }
 }

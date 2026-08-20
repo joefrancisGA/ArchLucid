@@ -187,6 +187,7 @@ public sealed class GovernanceWorkflowService(
         if (logger.IsEnabled(LogLevel.Information))
             logger.LogInformation("Governance approval request approved: ApprovalRequestId={ApprovalRequestId}, ReviewedBy={ReviewedBy}",
                 LogSanitizer.Sanitize(request.ApprovalRequestId), LogSanitizer.Sanitize(reviewedBy));
+                await TryPublishGovernanceApprovalApprovedAsync(request, reviewedBy, reviewedUtc, reviewComment, cancellationToken);
         return request;
     }
 
@@ -233,6 +234,7 @@ public sealed class GovernanceWorkflowService(
         if (logger.IsEnabled(LogLevel.Information))
             logger.LogInformation("Governance approval request rejected: ApprovalRequestId={ApprovalRequestId}, ReviewedBy={ReviewedBy}",
                 LogSanitizer.Sanitize(request.ApprovalRequestId), LogSanitizer.Sanitize(reviewedBy));
+                await TryPublishGovernanceApprovalRejectedAsync(request, reviewedBy, reviewedUtc, reviewComment, cancellationToken);
         return request;
     }
 
@@ -726,6 +728,58 @@ public sealed class GovernanceWorkflowService(
         return TimeProvider.System.UtcNowDateTime().AddHours(slaHours.Value);
     }
 
+
+    private Task TryPublishGovernanceApprovalApprovedAsync(GovernanceApprovalRequest request, string reviewedBy, DateTime reviewedUtc, string? reviewComment,
+        CancellationToken cancellationToken)
+    {
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+        object payload = new
+        {
+            schemaVersion = 1,
+            tenantId = scope.TenantId,
+            workspaceId = scope.WorkspaceId,
+            projectId = scope.ProjectId,
+            approvalRequestId = request.ApprovalRequestId,
+            runId = request.RunId,
+            manifestVersion = request.ManifestVersion,
+            sourceEnvironment = request.SourceEnvironment,
+            targetEnvironment = request.TargetEnvironment,
+            reviewedBy,
+            reviewedUtc,
+            reviewComment
+        };
+        string messageId = $"{request.ApprovalRequestId}:{IntegrationEventTypes.GovernanceApprovalApprovedV1}";
+        Guid? runKey = Guid.TryParse(request.RunId, out Guid rid) ? rid : null;
+        return OutboxAwareIntegrationEventPublishing.TryPublishOrEnqueueAsync(integrationEventOutbox, integrationEventPublisher,
+            integrationEventsOptions.CurrentValue, logger, IntegrationEventTypes.GovernanceApprovalApprovedV1, payload, messageId, runKey, scope.TenantId,
+            scope.WorkspaceId, scope.ProjectId, null, null, cancellationToken);
+    }
+
+    private Task TryPublishGovernanceApprovalRejectedAsync(GovernanceApprovalRequest request, string reviewedBy, DateTime reviewedUtc, string? reviewComment,
+        CancellationToken cancellationToken)
+    {
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+        object payload = new
+        {
+            schemaVersion = 1,
+            tenantId = scope.TenantId,
+            workspaceId = scope.WorkspaceId,
+            projectId = scope.ProjectId,
+            approvalRequestId = request.ApprovalRequestId,
+            runId = request.RunId,
+            manifestVersion = request.ManifestVersion,
+            sourceEnvironment = request.SourceEnvironment,
+            targetEnvironment = request.TargetEnvironment,
+            reviewedBy,
+            reviewedUtc,
+            reviewComment
+        };
+        string messageId = $"{request.ApprovalRequestId}:{IntegrationEventTypes.GovernanceApprovalRejectedV1}";
+        Guid? runKey = Guid.TryParse(request.RunId, out Guid rid) ? rid : null;
+        return OutboxAwareIntegrationEventPublishing.TryPublishOrEnqueueAsync(integrationEventOutbox, integrationEventPublisher,
+            integrationEventsOptions.CurrentValue, logger, IntegrationEventTypes.GovernanceApprovalRejectedV1, payload, messageId, runKey, scope.TenantId,
+            scope.WorkspaceId, scope.ProjectId, null, null, cancellationToken);
+    }
     private Task TryPublishGovernancePromotionActivatedAsync(GovernanceEnvironmentActivation activation, string activatedBy, IDbConnection? connection,
         IDbTransaction? transaction, CancellationToken cancellationToken)
     {

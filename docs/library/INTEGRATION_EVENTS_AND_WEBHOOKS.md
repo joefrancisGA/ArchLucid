@@ -58,8 +58,9 @@ Events using the outbox today:
 |------------------------|---------------|
 | `com.archlucid.authority.run.completed` | Via `OutboxAwareIntegrationEventPublishing.TryPublishOrEnqueueAsync` before commit: same SQL transaction as authority commit when `TransactionalOutboxEnabled` and `SupportsExternalTransaction`; otherwise standalone enqueue or best-effort direct publish (same helper as other events) |
 | `com.archlucid.governance.approval.submitted` | After approval request create (standalone SQL connection if no ambient transaction) |
+| `com.archlucid.governance.approval.approved` / `com.archlucid.governance.approval.rejected` | After approval approve/reject disposition (standalone enqueue) |
 | `com.archlucid.governance.promotion.activated` | Same transaction as environment activation when `SupportsExternalTransaction`; otherwise standalone enqueue after commit |
-| `com.archlucid.alert.fired` / `com.archlucid.alert.resolved` | After alert row write (standalone enqueue) |
+| `com.archlucid.alert.fired` / `com.archlucid.alert.acknowledged` / `com.archlucid.alert.resolved` | After alert row write (standalone enqueue) |
 | `com.archlucid.advisory.scan.completed` | After scan execution completes (standalone enqueue) |
 | `com.archlucid.notifications.trial-lifecycle-email.v1` | After durable audit append (`TrialProvisioned`, `CoordinatorRunCommitCompleted`, `TenantTrialConverted`) or scheduled trial scan (standalone enqueue) |
 | `com.archlucid.billing.marketplace.webhook.received.v1` | After Marketplace JWT verification, SQL dedupe insert, and successful `AzureMarketplaceBillingProvider` dispatch (`BillingMarketplaceWebhookController` → `MarketplaceWebhookIntegrationEventPublisher`) |

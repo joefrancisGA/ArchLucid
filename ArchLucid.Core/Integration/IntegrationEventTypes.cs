@@ -15,9 +15,15 @@ public static class IntegrationEventTypes
 
     public const string GovernanceApprovalSubmittedV1 = "com.archlucid.governance.approval.submitted";
 
+    public const string GovernanceApprovalApprovedV1 = "com.archlucid.governance.approval.approved";
+
+    public const string GovernanceApprovalRejectedV1 = "com.archlucid.governance.approval.rejected";
+
     public const string GovernancePromotionActivatedV1 = "com.archlucid.governance.promotion.activated";
 
     public const string AlertFiredV1 = "com.archlucid.alert.fired";
+
+    public const string AlertAcknowledgedV1 = "com.archlucid.alert.acknowledged";
 
     public const string AlertResolvedV1 = "com.archlucid.alert.resolved";
 
@@ -89,8 +95,11 @@ public static class IntegrationEventTypes
             DataConsistencyCheckCompletedV1,
             ManifestFinalizedV1,
             GovernanceApprovalSubmittedV1,
+            GovernanceApprovalApprovedV1,
+            GovernanceApprovalRejectedV1,
             GovernancePromotionActivatedV1,
             AlertFiredV1,
+            AlertAcknowledgedV1,
             AlertResolvedV1,
             AdvisoryScanCompletedV1,
             ComplianceDriftEscalatedV1,

@@ -9,14 +9,19 @@ When `enable_teams_notifications_logic_app = true`, this module provisions a ded
 ## Workflow design (author in Designer)
 
 1. **Service Bus trigger** â€” subscribe to the integration topic (see [`docs/INTEGRATION_EVENTS_AND_WEBHOOKS.md`](../../../docs/INTEGRATION_EVENTS_AND_WEBHOOKS.md)).
-2. **Filter / switch** on `eventType` (catalog: [`schemas/integration-events/catalog.json`](../../../schemas/integration-events/catalog.json)). The v1 default trigger set was extended on **2026-04-21** (PENDING_QUESTIONS.md item 32):
-   - `com.archlucid.authority.run.completed` â€” run committed path.
-   - `com.archlucid.governance.approval.submitted` â€” governance approval requested.
-   - `com.archlucid.alert.fired` â€” alert raised.
-   - `com.archlucid.compliance.drift.escalated` â€” compliance drift breached its threshold and escalated. **(added 2026-04-21)**
-   - `com.archlucid.advisory.scan.completed` â€” advisory finding scan committed a fresh result. **(added 2026-04-21)**
-   - `com.archlucid.seat.reservation.released` â€” a trial seat reservation expired or was released, freeing capacity. **(added 2026-04-21)**
-
+2. **Filter / switch** on `eventType` (catalog: [`schemas/integration-events/catalog.json`](../../../schemas/integration-events/catalog.json)). The v1 default trigger set includes **twelve** events (see `ArchLucid.Core.Notifications.Teams.TeamsNotificationTriggerCatalog`):
+   - `com.archlucid.authority.run.completed` — run committed path.
+   - `com.archlucid.manifest.finalized.v1` — sealed review record finalized.
+   - `com.archlucid.governance.approval.submitted` — governance approval requested.
+   - `com.archlucid.governance.approval.approved` — governance approval approved.
+   - `com.archlucid.governance.approval.rejected` — governance approval rejected.
+   - `com.archlucid.governance.promotion.activated` — governed promotion activated.
+   - `com.archlucid.alert.fired` — alert raised.
+   - `com.archlucid.alert.acknowledged` — alert acknowledged.
+   - `com.archlucid.alert.resolved` — alert resolved.
+   - `com.archlucid.compliance.drift.escalated` — compliance drift breached its threshold and escalated.
+   - `com.archlucid.advisory.scan.completed` — advisory finding scan committed a fresh result.
+   - `com.archlucid.seat.reservation.released` — a trial seat reservation expired or was released, freeing capacity.
    Card layout convention: **headline (bold)**, **tenant + workspace** as a sub-line, **action link** to the operator UI route most relevant to the event (run page / governance approval page / alert page / compliance dashboard / advisory finding / trial seat dashboard). Re-use the existing Adaptive Card schema; no new card variants per trigger.
 3. **Per-tenant trigger opt-in filter (added 2026-04-21 â€” PENDING_QUESTIONS.md item 23 sub-bullet "Per-trigger Teams opt-in").** Before the HTTP POST, the workflow **must** look up the tenant's row from `dbo.TenantTeamsIncomingWebhookConnections` and abort if the current event's `eventType` is **not** in the row's `EnabledTriggersJson` array. Two implementation paths:
    - **API path (preferred):** call `GET /v1/integrations/teams/connections` with managed identity or an operator API key (the response carries `enabledTriggers: string[]`); short-circuit when `enabledTriggers.includes(eventType)` is false.

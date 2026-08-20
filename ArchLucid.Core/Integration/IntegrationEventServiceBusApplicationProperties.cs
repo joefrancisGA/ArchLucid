@@ -41,9 +41,11 @@ public static class IntegrationEventServiceBusApplicationProperties
         if (IntegrationEventTypes.AreEquivalent(eventType, IntegrationEventTypes.AlertFiredV1))
             return TryResolveAlertFired(payloadUtf8);
 
-        return IntegrationEventTypes.AreEquivalent(eventType, IntegrationEventTypes.AlertResolvedV1)
-            ? TryResolveAlertResolved(payloadUtf8)
-            : null;
+        if (IntegrationEventTypes.AreEquivalent(eventType, IntegrationEventTypes.AlertResolvedV1)
+            || IntegrationEventTypes.AreEquivalent(eventType, IntegrationEventTypes.AlertAcknowledgedV1))
+            return TryResolveAlertResolved(payloadUtf8);
+
+        return null;
     }
 
     private static IReadOnlyDictionary<string, object>? TryResolveGovernancePromotionActivated(
