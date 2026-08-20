@@ -12,7 +12,7 @@ export const CONNECT_GCP_SECURELY_CLAIM_HEADING_ID = "connect-gcp-securely-help-
 export const CONNECT_GCP_SECURELY_FOLLOW_UPS_TITLE = "Where to go next";
 
 export const CONNECT_GCP_SECURELY_CLAIM_DISCIPLINE =
-  "This guide explains how to attach GCP with Workload Identity Federation and Cloud Asset Viewer scope — it is connector setup orientation, not a sealed-review diligence Sources package. Open Assurance status or the live Cloud connections hub before treating setup guidance as assurance evidence.";
+  "This guide explains how to connect GCP read-only inventory — setup help only, not proof for auditors. Open Assurance status or the Cloud connections hub before treating setup guidance as security evidence.";
 
 export const CONNECT_GCP_SECURELY_CONFIGURE_ACTION = "Open GCP connection settings" as const;
 

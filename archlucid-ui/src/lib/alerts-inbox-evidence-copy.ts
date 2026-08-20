@@ -11,10 +11,10 @@ export const ALERTS_INBOX_CLAIM_HEADING = "What the alert inbox is not";
 export const ALERTS_INBOX_FOLLOW_UPS_TITLE = HUB_SECONDARY_FOLLOW_UPS_TITLES.alertsInbox;
 
 export const ALERTS_INBOX_CLAIM_DISCIPLINE =
-  "Alert inbox is the operational triage launcher for raised governance notifications — it is not a sealed-review diligence Sources package. Open Findings, Audit, or Alert rules when you need disposition trails or configuration evidence.";
+  "Alert inbox is where raised alerts land for triage — not a full audit export. Open Findings, Audit, or Alert rules for resolution history or alert setup.";
 
 export const ALERTS_INBOX_SOURCES_INTRO = hubSecondaryFollowUpsIntro(
-  "inbox triage turns into finding disposition, rule configuration, or activity trails",
+  "inbox triage turns into finding resolution, rule configuration, or activity trails",
 );
 
 

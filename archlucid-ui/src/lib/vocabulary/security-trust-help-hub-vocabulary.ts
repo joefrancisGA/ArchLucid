@@ -37,7 +37,7 @@ export const SECURITY_TRUST_HELP_HUB_HEADING =
   "Security & Trust help and Security & Trust hub serve different purposes" as const;
 
 export const SECURITY_TRUST_HELP_HUB_WHY_TWO =
-  "Security & Trust help orients architects and buyers on the assurance ladder, data handling, and diligence materials. Security & Trust hub is the in-product operator hub for workspace procurement-ready materials. Reading the help topic is not the same as using the admin hub." as const;
+  "Security & Trust help explains security review progress and data handling. Security & Trust hub is the in-product settings page for procurement materials. Reading the help topic is not the same as using the admin hub." as const;
 
 export const SECURITY_TRUST_HELP_HUB_COMPACT_LINE =
   "Security & Trust help is orientation; Security & Trust hub is the admin procurement hub." as const;

@@ -11,7 +11,7 @@ export const POLICY_PACKS_HUB_CANONICAL_PATH = GOVERNANCE_POLICY_PACKS_PATH;
 export const POLICY_PACKS_HUB_HELP_TOPIC_LABEL = "How policy packs work" as const;
 
 export const POLICY_PACKS_HUB_CLAIM_DISCIPLINE =
- "The policy pack library lists workspace packs, catalog clones, and authoring tools — it is not a sealed-review diligence Sources package. Open Standards & rules or Findings when you need applied-rule or finding trails.";
+ "The policy pack library lists your policy packs and authoring tools — not a full audit export. Open Standards & rules or Findings to see rules in use.";
 
 export const POLICY_PACKS_HUB_FOLLOW_UPS_TITLE = HUB_SECONDARY_FOLLOW_UPS_TITLES.policyPacksHub;
 

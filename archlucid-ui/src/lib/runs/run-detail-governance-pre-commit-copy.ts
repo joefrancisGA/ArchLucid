@@ -18,7 +18,7 @@ export const RUN_DETAIL_GOVERNANCE_PRE_COMMIT_WHAT_HAPPENS_NEXT_HEADING = "What 
 export const RUN_DETAIL_GOVERNANCE_PRE_COMMIT_WHAT_HAPPENS_NEXT_STEPS: readonly string[] = [
   "Finalize the architecture review to create the sealed review record.",
   "Route governance approval on the sealed review record.",
-  "Record the decision and audit trail for sponsor handoff.",
+  "Record the approval decision and add it to the audit log before sharing with leadership.",
 ] as const;
 
 export const RUN_DETAIL_GOVERNANCE_PRE_COMMIT_HELP_CITES_INTRO =

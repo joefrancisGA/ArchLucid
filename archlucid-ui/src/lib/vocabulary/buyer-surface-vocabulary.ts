@@ -77,7 +77,7 @@ export const BUYER_SPONSOR_SUMMARY_VOCABULARY = {
   /** Review-scoped sponsor briefing (showcase spine, Ask grounding) — not the portfolio dashboard. */
   reviewSponsorReportLabel: "Sponsor report",
   portfolioPageLead:
-    "Track governance posture, remediation progress, estimated ROI, and sponsor-ready proof across finalized reviews.",
+    "Track approval status, open findings, estimated ROI, and export-ready summaries across finalized reviews.",
   portfolioPageNextStep: "Finalize at least one review to populate dashboard metrics.",
   portfolioPageLearnMoreHref: "/help/sponsor-report",
   portfolioPageLearnMoreLabel: "View dashboard guide",

@@ -62,7 +62,7 @@ export const TRUST_ASSURANCE_SECURITY_TRUST_ASSURANCE_LINK: TrustAssuranceSecuri
   id: "assurance-status",
   label: ASSURANCE_STATUS_PUBLIC_LABEL,
   href: ASSURANCE_STATUS_PUBLIC_PATH,
-  whenToUse: "Review the public assurance ladder and diligence engagement status.",
+  whenToUse: "See public security review progress and download materials.",
 };
 
 export const TRUST_ASSURANCE_SECURITY_TRUST_HUB_LINK: TrustAssuranceSecurityTrustLink = {

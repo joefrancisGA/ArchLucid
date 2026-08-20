@@ -56,7 +56,7 @@ export const PACKAGE_GOVERNANCE_APPROVAL_QUEUE_REVIEWS_PEER_LINK: PackageGoverna
     id: "package-governance",
     label: "Reviews (open Governance)",
     href: REVIEWS_LIST_PATH,
-    whenToUse: "Open an architecture package, then use Governance for pre-finalize readiness.",
+    whenToUse: "Open an architecture package, then check policy alignment before you finalize.",
   };
 
 export const PACKAGE_GOVERNANCE_APPROVAL_QUEUE_QUEUE_LINK: PackageGovernanceApprovalQueueLink =
@@ -79,7 +79,7 @@ export function buildPackageGovernanceApprovalQueuePairwiseRail(runId?: string |
       whyTwo: PACKAGE_GOVERNANCE_APPROVAL_QUEUE_WHY_TWO,
       compactLine: PACKAGE_GOVERNANCE_APPROVAL_QUEUE_COMPACT_LINE,
       reviewSideLabel: "Policies and standards",
-      reviewSideWhenToUse: "Review pre-finalize governance readiness for this architecture package.",
+      reviewSideWhenToUse: "Check policy alignment before you finalize this architecture package.",
     },
     reviewsPeerFallbackLink: PACKAGE_GOVERNANCE_APPROVAL_QUEUE_REVIEWS_PEER_LINK,
     externalPeerLinkBase: PACKAGE_GOVERNANCE_APPROVAL_QUEUE_QUEUE_LINK,

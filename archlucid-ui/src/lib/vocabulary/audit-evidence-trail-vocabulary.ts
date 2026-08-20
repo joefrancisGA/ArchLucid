@@ -41,10 +41,10 @@ export const AUDIT_EVIDENCE_TRAIL_HEADING =
   "Audit trail and evidence surfaces serve different purposes" as const;
 
 export const AUDIT_EVIDENCE_TRAIL_WHY_THREE =
-  "Audit trail is the operator activity log for governance and review events. Evidence graph visualizes the signed-record evidence trail for an architecture package. Search review evidence finds findings, decisions, and sealed review records across packages. Do not treat the audit log as the diligence evidence trail — open the peer evidence surface when you need signed-record proof or cross-package retrieval." as const;
+  "Audit trail is the workspace activity log for governance and review events. Evidence graph shows how evidence connects in one architecture review. Search review evidence finds findings, decisions, and sealed review records across reviews. The activity log is not the same as one review's evidence path — open the peer link when you need review evidence or cross-review search." as const;
 
 export const AUDIT_EVIDENCE_TRAIL_COMPACT_LINE =
-  "Audit is the activity log; Evidence graph and Search review evidence are the diligence trail — open the peers when you need both." as const;
+  "Audit is the activity log; Evidence graph and Search review evidence cover review evidence — open the peers when you need both." as const;
 
 export const AUDIT_EVIDENCE_TRAIL_AUDIT_LINK: AuditEvidenceTrailLink = {
   id: "audit",

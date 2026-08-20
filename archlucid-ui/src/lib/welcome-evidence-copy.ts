@@ -3,7 +3,7 @@ import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 export const WELCOME_CANONICAL_PATH = "/welcome" as const;
 
 export const WELCOME_CLAIM_DISCIPLINE =
-  "This welcome page is marketing product orientation for buyers evaluating ArchLucid — it is not a sealed-review diligence Sources package from your tenant. Open Assurance status, Trust Center, or start an evaluation when you need live workspace evidence.";
+  "This welcome page is marketing overview for buyers evaluating ArchLucid — not live workspace evidence. Open Assurance status, Trust Center, or start an evaluation when you need real data from your tenant.";
 
 export const WELCOME_SOURCES_INTRO =
   "Use these evaluation links when the landing story turns into a sample proof, signup, or assurance review.";

@@ -6,7 +6,7 @@ import { GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-path
 export const OPERATOR_HOME_CANONICAL_PATH = "/";
 
 export const OPERATOR_HOME_CLAIM_DISCIPLINE =
-  "Overview is the architect command center launcher for next actions, recent reviews, and directional ROI — it is not a sealed-review diligence Sources package. Open Architecture reviews, Evidence trail, or Trust Center when you need sponsor-safe trails.";
+  "Overview is the home page for next steps and recent reviews — not a full audit export. Open Architecture reviews, Evidence trail, or Trust Center when you need export-ready records.";
 
 export const OPERATOR_HOME_SOURCES_INTRO =
   "Use these when a completed review needs a sponsor briefing or findings triage. Start, resume, and explore from the cards above.";
