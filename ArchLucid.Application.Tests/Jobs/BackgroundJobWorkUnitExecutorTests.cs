@@ -47,7 +47,8 @@ public sealed class BackgroundJobWorkUnitExecutorTests
             consulting.Object,
             audit.Object,
             tenantDeletion.Object,
-            itsmOutbound.Object);
+            itsmOutbound.Object,
+            Mock.Of<IBackgroundJobWorkUnitScopeResolver>());
 
         AnalysisReportDocxWorkUnit unit = new(
             new AnalysisReportDocxJobPayload { RunId = runId },
@@ -99,7 +100,8 @@ public sealed class BackgroundJobWorkUnitExecutorTests
             consulting.Object,
             audit.Object,
             tenantDeletion.Object,
-            itsmOutbound.Object);
+            itsmOutbound.Object,
+            Mock.Of<IBackgroundJobWorkUnitScopeResolver>());
 
         ConsultingDocxWorkUnit unit = new(
             new ConsultingDocxJobPayload { RunId = runId },
@@ -151,7 +153,8 @@ public sealed class BackgroundJobWorkUnitExecutorTests
             consulting.Object,
             audit.Object,
             tenantDeletion.Object,
-            itsmOutbound.Object);
+            itsmOutbound.Object,
+            Mock.Of<IBackgroundJobWorkUnitScopeResolver>());
 
         TenantDeletionWorkUnit unit = new(
             new TenantDeletionJobPayload(tenantId, "actor-id", "actor-name", "corr-1"));
@@ -200,7 +203,8 @@ public sealed class BackgroundJobWorkUnitExecutorTests
             consulting.Object,
             audit.Object,
             tenantDeletion.Object,
-            itsmOutbound.Object);
+            itsmOutbound.Object,
+            Mock.Of<IBackgroundJobWorkUnitScopeResolver>());
 
         ItsmOutboundCreateWorkUnit unit = new(
             new ItsmOutboundCreateJobPayload(
@@ -263,7 +267,8 @@ public sealed class BackgroundJobWorkUnitExecutorTests
             consulting.Object,
             audit.Object,
             tenantDeletion.Object,
-            itsmOutbound.Object);
+            itsmOutbound.Object,
+            Mock.Of<IBackgroundJobWorkUnitScopeResolver>());
 
         ItsmOutboundCreateWorkUnit unit = new(
             new ItsmOutboundCreateJobPayload(

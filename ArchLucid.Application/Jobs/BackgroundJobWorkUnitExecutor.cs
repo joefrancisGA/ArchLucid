@@ -20,7 +20,8 @@ public sealed class BackgroundJobWorkUnitExecutor(
     IArchitectureAnalysisConsultingDocxExportService consultingDocxExportService,
     IAuditService auditService,
     ITenantDeletionService tenantDeletionService,
-    IItsmOutboundIssueCreationService itsmOutboundIssueCreationService) : IBackgroundJobWorkUnitExecutor
+    IItsmOutboundIssueCreationService itsmOutboundIssueCreationService,
+    IBackgroundJobWorkUnitScopeResolver workUnitScopeResolver) : IBackgroundJobWorkUnitExecutor
 {
     private readonly IRunDetailQueryService _runDetailQuery = runDetailQuery ?? throw new ArgumentNullException(nameof(runDetailQuery));
 
@@ -41,17 +42,25 @@ public sealed class BackgroundJobWorkUnitExecutor(
     private readonly IItsmOutboundIssueCreationService _itsmOutboundIssueCreationService =
         itsmOutboundIssueCreationService ?? throw new ArgumentNullException(nameof(itsmOutboundIssueCreationService));
 
+    private readonly IBackgroundJobWorkUnitScopeResolver _workUnitScopeResolver =
+        workUnitScopeResolver ?? throw new ArgumentNullException(nameof(workUnitScopeResolver));
+
     public async Task<BackgroundJobFile> ExecuteAsync(BackgroundJobWorkUnit workUnit, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(workUnit);
-        return workUnit switch
+        ScopeContext jobScope = await _workUnitScopeResolver.ResolveAsync(workUnit, cancellationToken).ConfigureAwait(false);
+
+        using (AmbientScopeContext.Push(jobScope))
         {
-            AnalysisReportDocxWorkUnit w => await ExecuteAnalysisReportDocxAsync(w, cancellationToken),
-            ConsultingDocxWorkUnit w => await ExecuteConsultingDocxAsync(w, cancellationToken),
-            TenantDeletionWorkUnit w => await ExecuteTenantDeletionAsync(w, cancellationToken),
-            ItsmOutboundCreateWorkUnit w => await ExecuteItsmOutboundCreateAsync(w, cancellationToken),
-            _ => throw new InvalidOperationException($"Unsupported background job work unit: {workUnit.GetType().Name}.")
-        };
+            return workUnit switch
+            {
+                AnalysisReportDocxWorkUnit w => await ExecuteAnalysisReportDocxAsync(w, cancellationToken),
+                ConsultingDocxWorkUnit w => await ExecuteConsultingDocxAsync(w, cancellationToken),
+                TenantDeletionWorkUnit w => await ExecuteTenantDeletionAsync(w, cancellationToken),
+                ItsmOutboundCreateWorkUnit w => await ExecuteItsmOutboundCreateAsync(w, cancellationToken),
+                _ => throw new InvalidOperationException($"Unsupported background job work unit: {workUnit.GetType().Name}.")
+            };
+        }
     }
 
     private async Task<BackgroundJobFile> ExecuteTenantDeletionAsync(TenantDeletionWorkUnit unit, CancellationToken cancellationToken)

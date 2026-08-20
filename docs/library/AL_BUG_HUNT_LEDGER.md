@@ -1102,17 +1102,17 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** background jobs; hosted services; durable job queue
 - **paths:** ArchLucid.Host.Core/Jobs/; ArchLucid.Host.Core/Hosted/
 - **test-filter:** FullyQualifiedName~ArchLucidJob|FullyQualifiedName~BackgroundJob|FullyQualifiedName~Hosted
-- **hunts:** 1
-- **bugs-found:** 1
+- **hunts:** 2
+- **bugs-found:** 2
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-17
-- **last-bug:** 2026-08-17 â€” watchdog reclaimed Running jobs before queue visibility expired (10m vs 15m default)
+- **last-hunt:** 2026-08-20
+- **last-bug:** 2026-08-20
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
 ### Hypotheses
 
-- [ ] Job dequeue runs work without re-binding tenant scope from the job payload
+- [x] (proven) Job dequeue runs work without re-binding tenant scope from the job payload — `BackgroundJobWorkUnitExecutor` resolves scope via `BackgroundJobWorkUnitScopeResolver` and pushes `AmbientScopeContext` before run-scoped reads
 - [x] Leader-elected hosted service runs the same outbox drain on every replica â€” retired: intentional when `HostLeaderElection:Enabled` is false; default is enabled
 - [x] Stuck-running watchdog marks a healthy job failed and it is retried into duplicate side effects â€” fixed stale threshold to exceed processor visibility (2026-08-17)
 
