@@ -46,6 +46,7 @@ import {
   BUYER_OPERATOR_HOME_PAGE_SUBTITLE,
   OPERATOR_HOME_PAGE_SUBTITLE,
 } from "@/lib/operator/operator-home-page-copy";
+import { OPERATOR_HOME_FOLLOW_UPS_TITLE } from "@/lib/operator/operator-home-evidence-copy";
 import {
   OPERATOR_HOME_PRIMARY_CONTENT_ID,
   OPERATOR_HOME_SKIP_LINK_LABEL,
@@ -88,12 +89,16 @@ describe("OperatorHomePageView buyer-polished shell (HOM)", () => {
     expect(screen.queryByText(OPERATOR_HOME_PAGE_SUBTITLE)).not.toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
 
+    expect(screen.getByRole("heading", { level: 2, name: OPERATOR_HOME_FOLLOW_UPS_TITLE })).toBeInTheDocument();
+    expect(screen.getByTestId("operator-home-settings-sources").querySelector("ul")).toHaveClass("flex-wrap");
+    expect(screen.getByTestId("operator-home-settings-sources").querySelector("p")).toHaveClass("max-w-none");
+
     const primaryContent = screen.getByTestId("operator-home-primary-content");
-    const orderedLandmarks = ["operator-home-orientation-top", "operator-home-hero-section"]
+    const orderedLandmarks = ["operator-home-hero-section", "operator-home-orientation-top"]
       .map((testId) => primaryContent.querySelector(`[data-testid="${testId}"]`))
       .filter((node): node is HTMLElement => node !== null)
       .map((node) => node.getAttribute("data-testid"));
 
-    expect(orderedLandmarks).toEqual(["operator-home-orientation-top", "operator-home-hero-section"]);
+    expect(orderedLandmarks).toEqual(["operator-home-hero-section", "operator-home-orientation-top"]);
   });
 });

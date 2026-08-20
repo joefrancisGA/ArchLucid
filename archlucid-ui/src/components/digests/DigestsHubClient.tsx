@@ -319,13 +319,13 @@ export function DigestsHubClient(): ReactElement {
           <DigestSubscriptionsContent healthSnap={healthSnap} refreshToken={healthRefreshToken} />
         </TabsContent>
         <TabsContent value="schedule" className="mt-4">
-          {buyerPolishedShell ? <DigestsScheduleBuyerChrome /> : null}
           <ExecDigestScheduleContent
             refreshToken={scheduleRefreshToken}
             healthSnap={healthSnap}
             onRefresh={onRefresh}
             refreshing={refreshing}
           />
+          {buyerPolishedShell ? <DigestsScheduleBuyerChrome /> : null}
         </TabsContent>
       </Tabs>
       </div>

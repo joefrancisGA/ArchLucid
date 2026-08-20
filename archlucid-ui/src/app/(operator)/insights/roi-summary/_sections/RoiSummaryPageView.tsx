@@ -172,8 +172,6 @@ export function RoiSummaryPageView(props: Props) {
             }
           />
 
-          <RoiSummaryBuyerChrome />
-
           <RoiSummaryHeroStrip
           period={heroPeriod}
           hourlyUsd={hourly.hourlyUsd}
@@ -290,6 +288,8 @@ export function RoiSummaryPageView(props: Props) {
         <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} role="note">
           {roiSummaryDirectionalDisclaimer()}
         </p>
+
+          <RoiSummaryBuyerChrome />
         </div>
       </DocumentLayout>
     </OperatorPageContainer>

@@ -1,5 +1,6 @@
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
+import { HUB_SECONDARY_FOLLOW_UPS_TITLES } from "@/lib/evidence-orientation/hub-secondary-follow-ups";
 import { GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
 
 export const OPERATOR_HOME_CANONICAL_PATH = "/";
@@ -8,9 +9,10 @@ export const OPERATOR_HOME_CLAIM_DISCIPLINE =
   "Overview is the architect command center launcher for next actions, recent reviews, and directional ROI — it is not a sealed-review diligence Sources package. Open Architecture reviews, Evidence trail, or Trust Center when you need sponsor-safe trails.";
 
 export const OPERATOR_HOME_SOURCES_INTRO =
-  "Use these follow-ups when Overview next-actions need architecture reviews, findings triage, sponsor ROI, or first-run guidance.";
+  "Use these when a completed review needs a sponsor briefing or findings triage. Start, resume, and explore from the cards above.";
 
-export const OPERATOR_HOME_FOLLOW_UPS_TITLE = "Where to go next";
+/** Secondary destinations after on-page create / review / resume work — not the Home hero. */
+export const OPERATOR_HOME_FOLLOW_UPS_TITLE = HUB_SECONDARY_FOLLOW_UPS_TITLES.operatorHome;
 
 /** Operator Sources — no self-href to Overview `/`. */
 export const OPERATOR_HOME_SOURCES: readonly EvidenceSourceLink[] = [

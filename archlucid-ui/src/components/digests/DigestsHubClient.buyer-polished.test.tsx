@@ -101,11 +101,11 @@ describe("DigestsHubClient buyer-polished shell", () => {
     expect(screen.queryByTestId("digests-advisory-scans-vocabulary")).not.toBeInTheDocument();
     expect(screen.queryByTestId("digests-last-updated")).not.toBeInTheDocument();
 
-    const orderedLandmarks = ["digests-schedule-orientation-top", "exec-digest-schedule-content"]
+    const orderedLandmarks = ["exec-digest-schedule-content", "digests-schedule-orientation-top"]
       .map((testId) => document.querySelector(`[data-testid="${testId}"]`))
       .filter((node): node is HTMLElement => node !== null)
       .map((node) => node.getAttribute("data-testid"));
 
-    expect(orderedLandmarks).toEqual(["digests-schedule-orientation-top", "exec-digest-schedule-content"]);
+    expect(orderedLandmarks).toEqual(["exec-digest-schedule-content", "digests-schedule-orientation-top"]);
   });
 });

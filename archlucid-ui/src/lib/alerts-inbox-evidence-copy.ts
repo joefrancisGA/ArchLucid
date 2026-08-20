@@ -1,16 +1,21 @@
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import { GOVERNANCE_AUDIT_PATH, GOVERNANCE_FINDINGS_PATH, governanceAlertRulesTabHref } from "@/lib/governance/governance-route-paths";
+import {
+  HUB_SECONDARY_FOLLOW_UPS_TITLES,
+  hubSecondaryFollowUpsIntro,
+} from "@/lib/evidence-orientation/hub-secondary-follow-ups";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
 export const ALERTS_INBOX_CLAIM_HEADING = "What the alert inbox is not";
 
-export const ALERTS_INBOX_FOLLOW_UPS_TITLE = "Where to go next";
+export const ALERTS_INBOX_FOLLOW_UPS_TITLE = HUB_SECONDARY_FOLLOW_UPS_TITLES.alertsInbox;
 
 export const ALERTS_INBOX_CLAIM_DISCIPLINE =
   "Alert inbox is the operational triage launcher for raised governance notifications — it is not a sealed-review diligence Sources package. Open Findings, Audit, or Alert rules when you need disposition trails or configuration evidence.";
 
-export const ALERTS_INBOX_SOURCES_INTRO =
-  "Use these follow-ups when inbox triage turns into finding disposition, rule configuration, or activity trails.";
+export const ALERTS_INBOX_SOURCES_INTRO = hubSecondaryFollowUpsIntro(
+  "inbox triage turns into finding disposition, rule configuration, or activity trails",
+);
 
 
 /** Operator Sources — no self-href to the alerts inbox. */

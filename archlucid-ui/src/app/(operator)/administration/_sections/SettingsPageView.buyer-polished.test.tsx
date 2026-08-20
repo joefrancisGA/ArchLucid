@@ -98,7 +98,7 @@ describe("SettingsPageView buyer-polished shell (SET)", () => {
     internalShell.enabled = false;
   });
 
-  it("renders skip link, orientation above search, buyer description, and hides contextual help", () => {
+  it("renders skip link, orientation after search, buyer description, and hides contextual help", () => {
     render(<SettingsPageView />);
 
     expect(screen.getByRole("link", { name: SETTINGS_MASTER_SKIP_LINK_LABEL })).toHaveAttribute(
@@ -116,7 +116,7 @@ describe("SettingsPageView buyer-polished shell (SET)", () => {
     const searchField = screen.getByPlaceholderText("Search settings…");
 
     expect(
-      orientation.compareDocumentPosition(searchField) & Node.DOCUMENT_POSITION_FOLLOWING,
+      searchField.compareDocumentPosition(orientation) & Node.DOCUMENT_POSITION_FOLLOWING,
     ).toBeTruthy();
     expect(
       screen.getByRole("heading", { level: 1, name: OPERATOR_NAV_LINK_LABELS.settings }),

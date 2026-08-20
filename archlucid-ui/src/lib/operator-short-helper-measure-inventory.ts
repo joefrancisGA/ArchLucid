@@ -26,6 +26,9 @@ export const OPERATOR_SHORT_HELPER_MEASURE_GUARDED_SOURCES = [
   "src/app/(operator)/administration/_sections/SettingsPageView.tsx",
   "src/app/(operator)/administration/identity-providers/_sections/IdentityProvidersSettingsShell.tsx",
   "src/components/alerts/AlertRoutingContent.tsx",
+  "src/components/evidence-orientation/evidence-orientation-styles.ts",
+  "src/components/evidence-orientation/EvidenceOrientationLead.tsx",
+  "src/components/evidence-orientation/EvidenceOrientationMetaLine.tsx",
 ] as const;
 
 /**

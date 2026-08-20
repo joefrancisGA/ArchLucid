@@ -95,7 +95,6 @@ export function PolicyPacksPageView(props: Props) {
         onRefresh={m.load}
         breadcrumb={m.buyerPolishedShell ? <PolicyPacksBreadcrumb /> : undefined}
       />
-      <PolicyPacksBuyerChrome />
       {m.buyerPolishedShell ? null : (
         <>
           <LayerHeader
@@ -311,6 +310,8 @@ export function PolicyPacksPageView(props: Props) {
           </div>
         </TabsContent>
       </Tabs>
+
+      {m.buyerPolishedShell ? <PolicyPacksBuyerChrome /> : null}
     </div>
   );
 }

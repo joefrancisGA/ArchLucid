@@ -17,6 +17,7 @@ export function EvidenceGraphClaimOrientationStrip(): React.JSX.Element {
       sourcesTitle={EVIDENCE_GRAPH_FOLLOW_UPS_TITLE}
       sourcesIntro={EVIDENCE_GRAPH_SOURCES_INTRO}
       sources={EVIDENCE_GRAPH_SOURCES}
+      hubSecondary
     />
   );
 }

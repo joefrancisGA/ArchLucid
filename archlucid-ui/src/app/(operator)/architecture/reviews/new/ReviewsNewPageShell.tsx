@@ -35,8 +35,8 @@ export function ReviewsNewPageShell(props: ReviewsNewPageShellProps): React.JSX.
         className="mt-6 scroll-mt-24"
         data-testid="reviews-new-primary-content"
       >
-        {buyerPolishedShell ? <ReviewsNewBuyerChrome /> : null}
         {props.children}
+        {buyerPolishedShell ? <ReviewsNewBuyerChrome /> : null}
       </div>
     </OperatorPageContainer>
   );

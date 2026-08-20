@@ -30,8 +30,8 @@ export default function ArchitecturesListPage(): React.JSX.Element {
         actions={<ArchitecturesHubHeaderActions />}
       />
       <ArchitectureObjectMapStrip focus="draft" />
-      <ArchitecturesHubBuyerChrome />
       <ArchitectureDraftListClient />
+      <ArchitecturesHubBuyerChrome />
     </OperatorPageContainer>
   );
 }

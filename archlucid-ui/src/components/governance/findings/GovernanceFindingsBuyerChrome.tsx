@@ -6,7 +6,7 @@ import { ReviewPackageGovernanceFindingsVocabularyRail } from "@/components/Revi
 
 import { GovernanceFindingsClaimOrientationStrip } from "./GovernanceFindingsClaimOrientationStrip";
 
-/** Buyer default: mount claim discipline + Sources above the findings queue body. */
+/** Buyer default: mount claim discipline + Sources after primary workspace findings queue body. */
 export type GovernanceFindingsBuyerChromeProps = {
   readonly scopedRunId?: string | null;
 };

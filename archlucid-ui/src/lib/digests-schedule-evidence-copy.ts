@@ -4,15 +4,20 @@ import {
   DIGESTS_SCHEDULE_CANONICAL_PATH,
   DIGESTS_SUBSCRIPTIONS_TAB_PATH,
 } from "@/lib/digests-route-paths";
+import {
+  HUB_SECONDARY_FOLLOW_UPS_TITLES,
+  hubSecondaryFollowUpsIntro,
+} from "@/lib/evidence-orientation/hub-secondary-follow-ups";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
 export { DIGESTS_SCHEDULE_CANONICAL_PATH };
 
-export const DIGESTS_SCHEDULE_FOLLOW_UPS_TITLE = "Where to go next";
+export const DIGESTS_SCHEDULE_FOLLOW_UPS_TITLE = HUB_SECONDARY_FOLLOW_UPS_TITLES.digestsSchedule;
 
-export const DIGESTS_SCHEDULE_SOURCES_INTRO =
-  "Use these follow-ups when cadence is set but delivery destinations, browse history, or advisory scans still need attention.";
+export const DIGESTS_SCHEDULE_SOURCES_INTRO = hubSecondaryFollowUpsIntro(
+  "cadence is set but delivery destinations, browse history, or advisory scans still need attention",
+);
 
 /** Operator Sources — no self-href to the schedule tab. */
 export const DIGESTS_SCHEDULE_SOURCES: readonly EvidenceSourceLink[] = [

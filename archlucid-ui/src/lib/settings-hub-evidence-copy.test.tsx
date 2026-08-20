@@ -8,6 +8,7 @@ import {
   SETTINGS_HUB_SOURCES,
   SETTINGS_HUB_SOURCES_INTRO,
 } from "@/lib/settings-hub-evidence-copy";
+import { HUB_SECONDARY_FOLLOW_UPS_TITLES } from "@/lib/evidence-orientation/hub-secondary-follow-ups";
 
 describe("settings-hub-evidence-copy", () => {
   it("publishes its canonical operator path", () => {
@@ -35,6 +36,8 @@ describe("settings-hub-evidence-copy", () => {
     render(<SettingsHubEvidenceOrientationStrip />);
 
     expect(screen.getByRole("heading", { name: SETTINGS_HUB_FOLLOW_UPS_TITLE })).toBeInTheDocument();
+    expect(SETTINGS_HUB_FOLLOW_UPS_TITLE).toBe(HUB_SECONDARY_FOLLOW_UPS_TITLES.settingsHub);
+    expect(SETTINGS_HUB_SOURCES_INTRO.toLowerCase()).toContain("catalog above");
     expect(screen.queryByRole("heading", { name: /Sources package/i })).toBeNull();
   });
 });

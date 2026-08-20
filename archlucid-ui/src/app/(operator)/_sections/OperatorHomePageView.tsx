@@ -77,6 +77,8 @@ function BuyerPolishedHomePageBody(props: { readonly model: OperatorHomePageView
 
       <HomeRecentReviewsSection model={props.model} />
 
+      <OperatorHomeBuyerChrome />
+
       <OperatorHomeBelowFoldPanelsDeferred buyerPolishedShell model={props.model} />
 
       <OperatorHomeStickinessCockpitDeferred />
@@ -157,7 +159,6 @@ export function OperatorHomePageView({ model }: OperatorHomePageViewProps) {
               className="scroll-mt-24 space-y-4"
               data-testid="operator-home-primary-content"
             >
-              <OperatorHomeBuyerChrome />
               <BuyerPolishedHomePageBody model={model} />
             </div>
           ) : (

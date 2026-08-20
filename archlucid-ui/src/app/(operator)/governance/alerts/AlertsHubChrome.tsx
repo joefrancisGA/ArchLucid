@@ -95,8 +95,6 @@ function AlertsHubChromeInner({
         ) : null}
       </OperatorPageHeader>
 
-      {buyerPolishedShell ? <AlertsHubBuyerChrome /> : null}
-
       <div
         id={buyerPolishedShell ? ALERTS_INBOX_PRIMARY_CONTENT_ID : undefined}
         className={cn("min-w-0", buyerPolishedShell ? "scroll-mt-24" : undefined)}
@@ -104,6 +102,7 @@ function AlertsHubChromeInner({
         aria-label="Alert inbox"
       >
         {children}
+        {buyerPolishedShell ? <AlertsHubBuyerChrome /> : null}
       </div>
     </div>
   );

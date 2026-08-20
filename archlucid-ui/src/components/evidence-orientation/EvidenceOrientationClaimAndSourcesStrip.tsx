@@ -8,6 +8,7 @@ import {
 } from "@/components/evidence-orientation/evidence-orientation-styles";
 import { resolveClaimDisciplineForStrip } from "@/lib/claim-discipline-policy";
 import type { EvidenceOrientationLink } from "@/lib/evidence-surface-copy";
+import { HUB_SECONDARY_SOURCES_LAYOUT } from "@/lib/evidence-orientation/hub-secondary-follow-ups";
 import { HELP_DILIGENCE_ARTIFACT_INDEX_TITLE } from "@/lib/help/help-diligence-artifact-index";
 import type { EvidenceOrientationSourcesLayout } from "@/components/evidence-orientation/EvidenceOrientationSourcesSection";
 
@@ -36,6 +37,8 @@ export type EvidenceOrientationClaimAndSourcesStripProps = {
   readonly sourcesHeadingId?: string;
   readonly sourcesTestId?: string;
   readonly sourcesLayout?: EvidenceOrientationSourcesLayout;
+  /** Hub pages below primary workspace — defaults sourcesLayout to wrap when sourcesLayout is omitted. */
+  readonly hubSecondary?: boolean;
   /** Optional body scale for claim + sources list — help specialty guides pass readingBody. */
   readonly readingBodyClassName?: string;
   /** Optional heading scale for claim + sources h2 bands — help specialty guides pass sectionTitle. */
@@ -69,7 +72,8 @@ export function EvidenceOrientationClaimAndSourcesStrip({
   sourcesStyle = EVIDENCE_SOURCES_STYLE.operatorRaised,
   sourcesHeadingId,
   sourcesTestId,
-  sourcesLayout = "stacked",
+  sourcesLayout,
+  hubSecondary = false,
   readingBodyClassName,
   headingClassName,
   stripTestId,
@@ -77,6 +81,8 @@ export function EvidenceOrientationClaimAndSourcesStrip({
   promotedSourceHref,
 }: EvidenceOrientationClaimAndSourcesStripProps): React.JSX.Element {
   const resolvedClaim: string | undefined = resolveClaimDisciplineForStrip(slug, claim);
+  const resolvedSourcesLayout: EvidenceOrientationSourcesLayout =
+    sourcesLayout ?? (hubSecondary ? HUB_SECONDARY_SOURCES_LAYOUT : "stacked");
 
   return (
     <EvidenceOrientationStripShell testId={stripTestId ?? `${slug}-orientation`}>
@@ -107,7 +113,7 @@ export function EvidenceOrientationClaimAndSourcesStrip({
         intro={sourcesIntro}
         links={sources}
         style={sourcesStyle}
-        layout={sourcesLayout}
+        layout={resolvedSourcesLayout}
         listClassName={readingBodyClassName}
         headingClassName={headingClassName}
         distinguishFollowUpDestinations={distinguishFollowUpDestinations}

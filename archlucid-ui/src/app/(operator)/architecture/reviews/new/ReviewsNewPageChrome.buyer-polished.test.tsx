@@ -66,12 +66,12 @@ describe("ReviewsNewPageChrome buyer-polished shell (REN)", () => {
     expect(reviewsNewPageSubtitle(true, "detailed")).toBe(BUYER_REVIEWS_NEW_DETAILED_PAGE_SUBTITLE);
 
     const primaryContent = screen.getByTestId("reviews-new-primary-content");
-    const orderedLandmarks = ["reviews-new-orientation-top", "reviews-new-path-switcher"]
+    const orderedLandmarks = ["reviews-new-path-switcher", "reviews-new-orientation-top"]
       .map((testId) => primaryContent.querySelector(`[data-testid="${testId}"]`))
       .filter((node): node is HTMLElement => node !== null)
       .map((node) => node.getAttribute("data-testid"));
 
-    expect(orderedLandmarks).toEqual(["reviews-new-orientation-top", "reviews-new-path-switcher"]);
+    expect(orderedLandmarks).toEqual(["reviews-new-path-switcher", "reviews-new-orientation-top"]);
   });
 });
 

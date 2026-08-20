@@ -119,7 +119,7 @@ function buildModel(overrides: Partial<RoiSummaryPageViewModel> = {}): RoiSummar
 }
 
 describe("RoiSummaryPageView buyer-polished shell", () => {
-  it("renders skip link, breadcrumb, orientation above hero, and hides vocabulary rails", () => {
+  it("renders skip link, breadcrumb, orientation after hero, and hides vocabulary rails", () => {
     render(<RoiSummaryPageView model={buildModel()} />);
 
     const skipLink = screen.getByRole("link", { name: ROI_SUMMARY_SKIP_LINK_LABEL });
@@ -150,6 +150,6 @@ describe("RoiSummaryPageView buyer-polished shell", () => {
     const hero = screen.getByTestId("roi-summary-hero-strip");
 
     expect(primaryContent).toContainElement(orientation);
-    expect(orientation.compareDocumentPosition(hero) & Node.DOCUMENT_POSITION_PRECEDING).toBeTruthy();
+    expect(hero.compareDocumentPosition(orientation) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 });

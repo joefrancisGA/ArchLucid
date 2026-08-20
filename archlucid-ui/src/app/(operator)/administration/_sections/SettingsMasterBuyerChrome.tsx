@@ -4,7 +4,7 @@ import { SettingsHubEvidenceOrientationStrip } from "@/components/evidence-orien
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 
-/** Buyer default: mount Sources orientation above the settings hub body (SET). */
+/** Buyer default: mount Sources orientation after primary workspace settings catalog (SET). */
 export function SettingsMasterBuyerChrome(): React.JSX.Element | null {
   if (!isBuyerPolishedOperatorShellEnv()) {
     return null;

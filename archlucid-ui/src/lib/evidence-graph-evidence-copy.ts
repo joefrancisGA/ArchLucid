@@ -1,6 +1,10 @@
 import type { EvidenceSourceLinkWithWhen } from "@/lib/evidence-surface-copy";
 import { EVIDENCE_GRAPH_PATH } from "@/lib/evidence-graph-route";
 import { REVIEWS_LIST_PATH, REVIEWS_NEW_PATH } from "@/lib/architecture/architecture-routes";
+import {
+  HUB_SECONDARY_FOLLOW_UPS_TITLES,
+  hubSecondaryFollowUpsIntro,
+} from "@/lib/evidence-orientation/hub-secondary-follow-ups";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
 export const EVIDENCE_GRAPH_CANONICAL_PATH = EVIDENCE_GRAPH_PATH;
@@ -9,13 +13,14 @@ export const EVIDENCE_GRAPH_HELP_TOPIC_LABEL = "Evidence graph";
 
 export const EVIDENCE_GRAPH_CLAIM_DISCIPLINE_HEADING = "What the evidence graph is not";
 
-export const EVIDENCE_GRAPH_FOLLOW_UPS_TITLE = "Where to go next";
+export const EVIDENCE_GRAPH_FOLLOW_UPS_TITLE = HUB_SECONDARY_FOLLOW_UPS_TITLES.evidenceGraph;
 
 export const EVIDENCE_GRAPH_CLAIM_DISCIPLINE =
   "The evidence graph visualizes how evidence connects to findings, decisions, approvals, and audit records for a finalized review — it is not a sealed-review diligence Sources package.";
 
-export const EVIDENCE_GRAPH_SOURCES_INTRO =
-  "Use these follow-ups when graph exploration needs review intake, search, compare, or evidence-trail methodology.";
+export const EVIDENCE_GRAPH_SOURCES_INTRO = hubSecondaryFollowUpsIntro(
+  "graph exploration needs review intake, search, compare, or evidence-trail methodology",
+);
 
 /** Operator Sources — no self-href to `/insights/evidence-graph`. */
 export const EVIDENCE_GRAPH_SOURCES: readonly EvidenceSourceLinkWithWhen[] = [

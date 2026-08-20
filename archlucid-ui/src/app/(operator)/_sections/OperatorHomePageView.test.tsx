@@ -131,7 +131,7 @@ describe("OperatorHomePageView", () => {
     expect(screen.getByRole("heading", { level: 2, name: OPERATOR_HOME_RECENT_REVIEWS_HEADING })).toBeInTheDocument();
   });
 
-  it("orders buyer-polished home as orientation, hero, workspace activity, then explore sample without advanced guidance", () => {
+  it("orders buyer-polished home as hero, recent reviews, secondary orientation, then explore sample without advanced guidance", () => {
     render(<OperatorHomePageView model={mockHomeModel(true)} />);
 
     expect(screen.getByTestId("operator-home-orientation-top")).toBeInTheDocument();
@@ -147,9 +147,9 @@ describe("OperatorHomePageView", () => {
     const runsDashboard = screen.getByTestId("home-block-runs-dashboard");
     const exploreSample = screen.getByTestId("home-block-explore-sample");
 
-    expect(orientationTop.compareDocumentPosition(heroSection) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(heroSection.compareDocumentPosition(runsDashboard) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(runsDashboard.compareDocumentPosition(exploreSample) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(runsDashboard.compareDocumentPosition(orientationTop) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(orientationTop.compareDocumentPosition(exploreSample) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
   it("keeps operator shell hero, workspace activity, explore sample, workspace context, and advanced guidance in order", () => {
@@ -176,14 +176,14 @@ describe("OperatorHomePageView", () => {
   });
 
   it.each([false, true])(
-    "mounts the stickiness cockpit above recent reviews (buyerPolishedShell=%s) (TB-2191)",
+    "mounts the stickiness cockpit after recent reviews (buyerPolishedShell=%s) (TB-2191)",
     (buyerPolishedShell) => {
       render(<OperatorHomePageView model={mockHomeModel(buyerPolishedShell)} />);
 
       const cockpit = screen.getByTestId("operator-home-stickiness-cockpit");
       const runsDashboard = screen.getByTestId("home-block-runs-dashboard");
 
-      expect(cockpit.compareDocumentPosition(runsDashboard) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+      expect(runsDashboard.compareDocumentPosition(cockpit) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     },
   );
 });
