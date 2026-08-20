@@ -8,6 +8,12 @@ public static class IntegrationEventTypes
 {
     public const string AuthorityRunCompletedV1 = "com.archlucid.authority.run.completed";
 
+    public const string AuthorityRunFailedV1 = "com.archlucid.authority.run.failed";
+
+    public const string AuthorityRunQualityGateRejectedV1 = "com.archlucid.authority.run.quality-gate.rejected";
+
+    public const string FindingsHighSeverityCapturedV1 = "com.archlucid.findings.high-severity.captured.v1";
+
     public const string DataConsistencyCheckCompletedV1 = "com.archlucid.system.data-consistency-check.completed.v1";
 
     /// <summary>Review-trail / webhook payload when a golden manifest row is finalized for a run.</summary>
@@ -20,6 +26,8 @@ public static class IntegrationEventTypes
     public const string GovernanceApprovalRejectedV1 = "com.archlucid.governance.approval.rejected";
 
     public const string GovernancePromotionActivatedV1 = "com.archlucid.governance.promotion.activated";
+
+    public const string GovernancePolicyPackPublishedV1 = "com.archlucid.governance.policy-pack.published.v1";
 
     public const string AlertFiredV1 = "com.archlucid.alert.fired";
 
@@ -92,12 +100,16 @@ public static class IntegrationEventTypes
         string[] canonicalTypes =
         [
             AuthorityRunCompletedV1,
+            AuthorityRunFailedV1,
+            AuthorityRunQualityGateRejectedV1,
+            FindingsHighSeverityCapturedV1,
             DataConsistencyCheckCompletedV1,
             ManifestFinalizedV1,
             GovernanceApprovalSubmittedV1,
             GovernanceApprovalApprovedV1,
             GovernanceApprovalRejectedV1,
             GovernancePromotionActivatedV1,
+            GovernancePolicyPackPublishedV1,
             AlertFiredV1,
             AlertAcknowledgedV1,
             AlertResolvedV1,

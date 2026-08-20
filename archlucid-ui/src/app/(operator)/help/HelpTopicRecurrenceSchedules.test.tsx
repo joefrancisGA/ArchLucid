@@ -26,6 +26,7 @@ import {
   RECURRENCE_SCHEDULES_HELP_HEALTH_CONSTRAINTS,
   RECURRENCE_SCHEDULES_HELP_SOURCES,
 } from "@/lib/recurrence-schedules-help-evidence-copy";
+import { shouldOmitClaimDisciplineBand } from "@/lib/claim-discipline-policy";
 import {
   RECURRENCE_SCHEDULES_HELP_AUTOMATION_ITEMS,
   RECURRENCE_SCHEDULES_HELP_CLAIM_HEADING_ID,
@@ -121,9 +122,11 @@ describe("HelpRecurrenceSchedulesGuideView", () => {
 
     render(<HelpRecurrenceSchedulesGuideView entry={entry} />);
 
-    if (!shouldOmitClaimDisciplineBand("help-recurrence-schedules")) { expect(screen.getByTestId("help-recurrence-schedules-claim-discipline")).toHaveTextContent(
-      RECURRENCE_SCHEDULES_HELP_CLAIM_DISCIPLINE,
-    );
+    if (!shouldOmitClaimDisciplineBand("help-recurrence-schedules")) {
+      expect(screen.getByTestId("help-recurrence-schedules-claim-discipline")).toHaveTextContent(
+        RECURRENCE_SCHEDULES_HELP_CLAIM_DISCIPLINE,
+      );
+    }
     expect(screen.getByRole("heading", { name: RECURRENCE_SCHEDULES_HELP_CLAIM_DISCIPLINE_HEADING })).toHaveAttribute(
       "id",
       RECURRENCE_SCHEDULES_HELP_CLAIM_HEADING_ID,

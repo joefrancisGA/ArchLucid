@@ -11,6 +11,7 @@ import {
   NOTIFICATION_PREFERENCE_CENTER_SETTINGS_SOURCES,
   NOTIFICATION_PREFERENCE_CENTER_SETTINGS_SOURCES_INTRO,
 } from "@/lib/notification-preference-center-evidence-copy";
+import { shouldOmitClaimDisciplineBand } from "@/lib/claim-discipline-policy";
 
 describe("notification-preference-center-evidence-copy", () => {
   it("publishes its canonical operator path", () => {
@@ -20,9 +21,11 @@ describe("notification-preference-center-evidence-copy", () => {
   it("renders claim discipline and operator Sources follow-ups", () => {
     render(<NotificationPreferenceCenterEvidenceOrientationStrip />);
 
-    if (!shouldOmitClaimDisciplineBand("notification-preference-center")) { expect(screen.getByTestId("notification-preference-center-claim-discipline")).toHaveTextContent(
-      NOTIFICATION_PREFERENCE_CENTER_SETTINGS_CLAIM_DISCIPLINE,
-    );
+    if (!shouldOmitClaimDisciplineBand("notification-preference-center")) {
+      expect(screen.getByTestId("notification-preference-center-claim-discipline")).toHaveTextContent(
+        NOTIFICATION_PREFERENCE_CENTER_SETTINGS_CLAIM_DISCIPLINE,
+      );
+    }
     expect(screen.getByText(NOTIFICATION_PREFERENCE_CENTER_SETTINGS_SOURCES_INTRO)).toBeInTheDocument();
 
     const sources = screen.getByTestId("notification-preference-center-sources");

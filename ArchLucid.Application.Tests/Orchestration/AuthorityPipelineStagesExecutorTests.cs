@@ -11,7 +11,9 @@ using ArchLucid.Contracts.Persistence.TechnologyLedger;
 using ArchLucid.Contracts.Persistence.Artifacts;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authority;
+using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
+using ArchLucid.Core.Integration;
 using ArchLucid.Contracts.Scoping;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Transactions;
@@ -22,6 +24,7 @@ using ArchLucid.KnowledgeGraph.Interfaces;
 using ArchLucid.KnowledgeGraph.Models;
 using ArchLucid.Persistence.Cosmos;
 using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.IntegrationOutbox;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 
@@ -856,6 +859,10 @@ public sealed class AuthorityPipelineStagesExecutorTests
             snapshotConfidence.Object,
             stageOutcomes.Object,
             Mock.Of<ArchLucid.Application.ArchitectureIntelligence.IAuthorityClosedLoopStrengtheningPass>(),
+            Mock.Of<IIntegrationEventOutboxRepository>(),
+            Mock.Of<IIntegrationEventPublisher>(),
+            ArchitectureRunExecuteOrchestratorTestFactory.CreateIntegrationEventsOptionsMonitor(),
+            Options.Create(new PublicSiteOptions()),
             NullLogger<AuthorityPipelineStagesExecutor>.Instance), decision, audit);
     }
 

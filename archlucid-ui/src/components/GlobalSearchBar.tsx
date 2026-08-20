@@ -16,7 +16,11 @@ import {
 import { GLOBAL_FIND_PAGE_SEARCH } from "@/lib/search-surface-disambiguation";
 import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
-import { searchHelpTopics } from "@/lib/usability/search-help-topics";
+import {
+  searchFindPageHelpEntries,
+  searchFindPageIndex,
+  type FindPageSearchEntry,
+} from "@/lib/find-page-search-index";
 
 export const OPEN_GLOBAL_SEARCH_EVENT = "archlucid-open-global-search";
 export const FOCUS_GLOBAL_SEARCH_EVENT = "archlucid-focus-global-search";
@@ -121,9 +125,11 @@ export function GlobalSearchBar(props: GlobalSearchBarProps) {
     return () => document.removeEventListener("mousedown", onDocClick);
   }, []);
 
-  const helpHits = searchHelpTopics(query, 4);
+  const findPageMatches = searchFindPageIndex(query, { limit: 6 });
+  const helpHits = searchFindPageHelpEntries(query, { limit: 4 });
 
   const hasResults =
+    findPageMatches.length > 0 ||
     (results?.runs?.length ?? 0) > 0 ||
     (results?.findings?.length ?? 0) > 0 ||
     (results?.policyPacks?.length ?? 0) > 0 ||
@@ -178,6 +184,26 @@ export function GlobalSearchBar(props: GlobalSearchBarProps) {
           {loading ? <p className={cn("m-0 px-3 py-2 text-neutral-500", OPERATOR_TYPOGRAPHY.body)}>Searching…</p> : null}
           {!loading && !hasResults ? (
             <p className={cn("m-0 px-3 py-2 text-neutral-500", OPERATOR_TYPOGRAPHY.body)}>No matches.</p>
+          ) : null}
+          {!loading && findPageMatches.length > 0 ? (
+            <section className="border-b border-neutral-100 px-3 py-2 dark:border-neutral-800">
+              <h3 className={cn("m-0 font-semibold uppercase tracking-wide text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>
+                Pages & shortcuts
+              </h3>
+              <ul className="m-0 list-none p-0">
+                {findPageMatches.map((entry: FindPageSearchEntry) => (
+                  <li key={entry.id}>
+                    <Link
+                      href={entry.href}
+                      className={cn("block rounded px-1 py-1.5 hover:bg-neutral-100 dark:hover:bg-neutral-900", OPERATOR_TYPOGRAPHY.body)}
+                      onClick={() => setOpen(false)}
+                    >
+                      <span className="font-medium">{entry.label}</span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </section>
           ) : null}
           {!loading && (results?.runs?.length ?? 0) > 0 ? (
             <section className="border-b border-neutral-100 px-3 py-2 dark:border-neutral-800">

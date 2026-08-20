@@ -1,7 +1,16 @@
 ﻿using ArchLucid.Core.Audit;
+using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Integration;
 using ArchLucid.Decisioning.Governance.PolicyPacks;
+using ArchLucid.Host.Core.Services;
+using ArchLucid.Persistence.IntegrationOutbox;
+using ArchLucid.Persistence.Interfaces;
 
 using FluentAssertions;
+
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Options;
 
 using Moq;
 
@@ -40,7 +49,7 @@ public sealed class PolicyPacksAppServiceTests
         Mock<IAuditService> audit = new();
         audit.Setup(x => x.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
 
-        PolicyPacksAppService sut = new(management.Object, Mock.Of<IPolicyPackRepository>(), Mock.Of<IPolicyPackVersionRepository>(), audit.Object);
+        PolicyPacksAppService sut = CreateSut(management.Object, audit: audit.Object);
 
         PolicyPack result = await sut.CreatePackAsync(tenantId, workspaceId, projectId, "n", "d",
             PolicyPackType.BuiltIn, "{}", CancellationToken.None);
@@ -65,7 +74,7 @@ public sealed class PolicyPacksAppServiceTests
         Mock<IPolicyPackManagementService> management = new(MockBehavior.Strict);
         Mock<IAuditService> audit = new(MockBehavior.Strict);
 
-        PolicyPacksAppService sut = new(management.Object, Mock.Of<IPolicyPackRepository>(), versions.Object, audit.Object);
+        PolicyPacksAppService sut = CreateSut(management.Object, versions: versions.Object, audit: audit.Object);
 
         PolicyPackAssignment? result = await sut.TryAssignAsync(
             Guid.NewGuid(),
@@ -98,7 +107,7 @@ public sealed class PolicyPacksAppServiceTests
         Mock<IAuditService> audit = new();
         audit.Setup(x => x.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
 
-        PolicyPacksAppService sut = new(management.Object, Mock.Of<IPolicyPackRepository>(), Mock.Of<IPolicyPackVersionRepository>(), audit.Object);
+        PolicyPacksAppService sut = CreateSut(management.Object, audit: audit.Object);
 
         bool ok = await sut.TryArchiveAssignmentAsync(tenantId, assignmentId, CancellationToken.None);
 
@@ -123,7 +132,7 @@ public sealed class PolicyPacksAppServiceTests
         Mock<IPolicyPackManagementService> management = new(MockBehavior.Strict);
         Mock<IAuditService> audit = new(MockBehavior.Strict);
 
-        PolicyPacksAppService sut = new(management.Object, packs.Object, Mock.Of<IPolicyPackVersionRepository>(), audit.Object);
+        PolicyPacksAppService sut = CreateSut(management.Object, packs: packs.Object, audit: audit.Object);
 
         Func<Task> act = async () => await sut.PublishVersionAsync(packId, "1.0.0", "{}", CancellationToken.None);
 
@@ -197,7 +206,7 @@ public sealed class PolicyPacksAppServiceTests
         Mock<IAuditService> audit = new();
         audit.Setup(x => x.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
 
-        PolicyPacksAppService sut = new(management.Object, packs.Object, versions.Object, audit.Object);
+        PolicyPacksAppService sut = CreateSut(management.Object, packs: packs.Object, versions: versions.Object, audit: audit.Object);
 
         PolicyPack? result = await sut.TryDuplicatePackAsync(tenantId, workspaceId, projectId, packId, CancellationToken.None);
 
@@ -214,5 +223,28 @@ public sealed class PolicyPacksAppServiceTests
                 body,
                 It.IsAny<CancellationToken>()),
             Times.Once);
+    }
+
+    private static PolicyPacksAppService CreateSut(
+        IPolicyPackManagementService management,
+        IPolicyPackRepository? packs = null,
+        IPolicyPackVersionRepository? versions = null,
+        IAuditService? audit = null) =>
+        new(
+            management,
+            packs ?? Mock.Of<IPolicyPackRepository>(),
+            versions ?? Mock.Of<IPolicyPackVersionRepository>(),
+            audit ?? Mock.Of<IAuditService>(),
+            Mock.Of<IIntegrationEventOutboxRepository>(),
+            Mock.Of<IIntegrationEventPublisher>(),
+            CreateIntegrationEventsOptionsMonitor(),
+            NullLogger<PolicyPacksAppService>.Instance);
+
+    private static IOptionsMonitor<IntegrationEventsOptions> CreateIntegrationEventsOptionsMonitor()
+    {
+        Mock<IOptionsMonitor<IntegrationEventsOptions>> options = new();
+        options.Setup(o => o.CurrentValue).Returns(new IntegrationEventsOptions());
+
+        return options.Object;
     }
 }

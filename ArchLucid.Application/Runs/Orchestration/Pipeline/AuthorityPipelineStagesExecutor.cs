@@ -9,6 +9,8 @@ using ArchLucid.Contracts.Persistence.TechnologyLedger;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authority;
+using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Integration;
 using ArchLucid.Core.Persistence.Graph;
 using ArchLucid.Core.Persistence.ApplicationPorts.Runs;
 using ArchLucid.Core.Persistence.Ports;
@@ -17,6 +19,7 @@ using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Transactions;
 using ArchLucid.Persistence.Cosmos;
 using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.IntegrationOutbox;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Decisioning.Manifest;
@@ -53,6 +56,10 @@ public sealed class AuthorityPipelineStagesExecutor(
     IFindingsSnapshotEvaluationConfidenceEnricher findingsSnapshotEvaluationConfidenceEnricher,
     IRunStageOutcomesRepository runStageOutcomesRepository,
     IAuthorityClosedLoopStrengtheningPass closedLoopStrengtheningPass,
+    IIntegrationEventOutboxRepository integrationEventOutbox,
+    IIntegrationEventPublisher integrationEventPublisher,
+    IOptionsMonitor<IntegrationEventsOptions> integrationEventsOptions,
+    IOptionsMonitor<PublicSiteOptions> publicSiteOptions,
     ILogger<AuthorityPipelineStagesExecutor> logger) : IAuthorityPipelineStagesExecutor
 {
     private readonly AuthorityPipelineStageContextHydrator _stageContextHydrator =
@@ -245,7 +252,7 @@ public sealed class AuthorityPipelineStagesExecutor(
             await UpdateRunAsync(run, uow, token);
 
             if (findingsSnapshot.GenerationStatus == FindingsSnapshotGenerationStatus.Complete)
-
+            {
                 await _auditService.LogAsync(
                     new AuditEvent
                     {
@@ -266,6 +273,19 @@ public sealed class AuthorityPipelineStagesExecutor(
                     },
                     uow,
                     token);
+
+                await FindingsIntegrationEventPublishing.TryPublishHighSeverityCapturedAsync(
+                    integrationEventOutbox,
+                    integrationEventPublisher,
+                    integrationEventsOptions,
+                    logger,
+                    findingsSnapshot,
+                    scope,
+                    publicSiteOptions.CurrentValue.BaseUrl,
+                    uow.SupportsExternalTransaction ? uow.Connection : null,
+                    uow.SupportsExternalTransaction ? uow.Transaction : null,
+                    token);
+            }
         }, ct);
 
         await ExecuteStageAsync(ctx, "authority.decisioning", "decisioning", async (_, token) =>

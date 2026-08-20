@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://archlucid.dev/schemas/integration-events/findings-high-severity-captured.v1.schema.json",
+  "title": "com.archlucid.findings.high-severity.captured.v1",
+  "description": "Batched high-severity findings captured when a findings snapshot is sealed.",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "tenantId",
+    "workspaceId",
+    "projectId",
+    "runId",
+    "findingsSnapshotId",
+    "highSeverityCount",
+    "findings"
+  ],
+  "properties": {
+    "schemaVersion": { "type": "integer", "const": 1 },
+    "tenantId": { "type": "string", "format": "uuid" },
+    "workspaceId": { "type": "string", "format": "uuid" },
+    "projectId": { "type": "string", "format": "uuid" },
+    "runId": { "type": "string", "format": "uuid" },
+    "findingsSnapshotId": { "type": "string", "format": "uuid" },
+    "highSeverityCount": { "type": "integer", "minimum": 1 },
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["findingId", "title", "severity", "deepLinkUrl"],
+        "properties": {
+          "findingId": { "type": "string" },
+          "title": { "type": "string" },
+          "severity": { "type": "string" },
+          "category": { "type": "string" },
+          "deepLinkUrl": { "type": "string", "format": "uri" }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": true
+}

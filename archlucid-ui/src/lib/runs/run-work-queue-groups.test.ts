@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   assignRunWorkQueueGroup,
   partitionRunsIntoWorkQueueSections,
+  runWorkQueueAttentionPartition,
   workQueueSectionHeading,
 } from "@/lib/runs/run-work-queue-groups";
 
@@ -48,6 +49,10 @@ describe("assignRunWorkQueueGroup", () => {
         }),
       ),
     ).toBe("in-progress");
+  });
+
+  it("maps committed queue rows to awaiting-approval attention partition", () => {
+    expect(runWorkQueueAttentionPartition("committed")).toBe("awaiting-approval");
   });
 });
 

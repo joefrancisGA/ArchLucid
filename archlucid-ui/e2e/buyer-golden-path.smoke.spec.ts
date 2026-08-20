@@ -84,7 +84,7 @@ test.describe(
     // Satellites — optional diligence surfaces linked from the layer strip / command palette
     await page.goto(BUYER_GOLDEN_PATH_HREFS.governanceFindings);
     await expect(
-      page.getByRole("heading", { level: 2, name: "Findings" }),
+      getAppMain(page).getByTestId("architecture-risk-register-page-title"),
     ).toBeVisible();
     await expectNoGenericErrorBoundary(page);
 

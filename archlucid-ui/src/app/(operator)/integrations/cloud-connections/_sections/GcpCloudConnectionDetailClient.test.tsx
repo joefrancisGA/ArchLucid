@@ -35,6 +35,7 @@ vi.mock("@/lib/api/gcp-cloud-connections-api", () => ({
 import { GcpCloudConnectionDetailClient } from "./GcpCloudConnectionDetailClient";
 import { GCP_CLOUD_CONNECTION_BANNED_COPY } from "@/lib/gcp-cloud-connection-copy";
 import { CLOUD_PROVIDER_CONNECTION_CLAIM_DISCIPLINE } from "@/lib/cloud-provider-connection-evidence-copy";
+import { shouldOmitClaimDisciplineBand } from "@/lib/claim-discipline-policy";
 
 describe("GcpCloudConnectionDetailClient", () => {
   it("does not claim Preview for Tier 2 Done GCP (TB-1140)", () => {
@@ -96,9 +97,11 @@ describe("GcpCloudConnectionDetailClient", () => {
       expect(screen.getByTestId("gcp-connection-header-status")).toHaveTextContent("Not connected");
     });
 
-    if (!shouldOmitClaimDisciplineBand("cloud-connections-gcp")) { expect(screen.getByTestId("cloud-connections-gcp-claim-discipline")).toHaveTextContent(
-      CLOUD_PROVIDER_CONNECTION_CLAIM_DISCIPLINE,
-    );
+    if (!shouldOmitClaimDisciplineBand("cloud-connections-gcp")) {
+      expect(screen.getByTestId("cloud-connections-gcp-claim-discipline")).toHaveTextContent(
+        CLOUD_PROVIDER_CONNECTION_CLAIM_DISCIPLINE,
+      );
+    }
     const sources = screen.getByTestId("cloud-connections-gcp-sources");
     expect(within(sources).getByRole("link", { name: "Connection status" })).toHaveAttribute(
       "href",

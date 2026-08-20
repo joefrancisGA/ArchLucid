@@ -146,6 +146,9 @@ public sealed class ArchitectureRunExecuteOrchestratorRetryRequestedAuditTests
             new OperationRunCancellationMarker(runRepo.Object),
             new DisabledRunExecuteOwnershipLeaseService(),
             Mock.Of<IRunStageOutcomesRepository>(),
+            ArchitectureRunExecuteOrchestratorTestFactory.CreateIntegrationEventOutbox(),
+            ArchitectureRunExecuteOrchestratorTestFactory.CreateIntegrationEventPublisher(),
+            ArchitectureRunExecuteOrchestratorTestFactory.CreateIntegrationEventsOptionsMonitor(),
             NullLogger<ArchitectureRunExecuteOrchestrator>.Instance);
 
         Func<Task> act = async () => await sut.ExecuteRunAsync(runId);
@@ -269,6 +272,9 @@ public sealed class ArchitectureRunExecuteOrchestratorRetryRequestedAuditTests
             new OperationRunCancellationMarker(runRepo.Object),
             new DisabledRunExecuteOwnershipLeaseService(),
             Mock.Of<IRunStageOutcomesRepository>(),
+            ArchitectureRunExecuteOrchestratorTestFactory.CreateIntegrationEventOutbox(),
+            ArchitectureRunExecuteOrchestratorTestFactory.CreateIntegrationEventPublisher(),
+            ArchitectureRunExecuteOrchestratorTestFactory.CreateIntegrationEventsOptionsMonitor(),
             NullLogger<ArchitectureRunExecuteOrchestrator>.Instance);
 
         Func<Task> act = async () => await sut.ExecuteRunAsync(runId);

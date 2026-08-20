@@ -12,7 +12,7 @@
  * (TB-2300).
  */
 
-import { buildReviewWorkspaceTabHref } from "@/lib/unified-review-workspace-tabs";
+import { createPairwiseVocabularyRail } from "@/lib/vocabulary/create-pairwise-vocabulary-rail";
 
 export type OverviewDiagramSurfaceId = "overview" | "diagram";
 
@@ -40,26 +40,32 @@ export const OVERVIEW_DIAGRAM_WHY_TWO =
 export const OVERVIEW_DIAGRAM_COMPACT_LINE =
   "Overview is the structured brief; Diagram is an illustrative sketch." as const;
 
-/** Build run-scoped Overview ↔ Diagram vocabulary (create-home archTab links). */
+/** Build run-scoped Overview ↔ Diagram vocabulary (create-home reviewTab links). */
 export function buildOverviewDiagramVocabulary(runId: string): OverviewDiagramVocabularyModel {
-  const trimmed = runId.trim();
+  const rail = createPairwiseVocabularyRail({
+    runId,
+    currentTab: "overview",
+    currentTabId: "overview",
+    peerTabId: "architecture",
+    currentSurfaceId: "overview",
+    peerSurfaceId: "diagram",
+    copy: {
+      heading: OVERVIEW_DIAGRAM_HEADING,
+      whyTwo: OVERVIEW_DIAGRAM_WHY_TWO,
+      compactLine: OVERVIEW_DIAGRAM_COMPACT_LINE,
+      currentLabel: "Overview",
+      peerLabel: "Diagram",
+      currentWhenToUse: "Read the structured brief summary for this architecture package.",
+      peerWhenToUse: "View the illustrative architecture sketch for this package.",
+    },
+  });
 
   return {
-    heading: OVERVIEW_DIAGRAM_HEADING,
-    whyTwo: OVERVIEW_DIAGRAM_WHY_TWO,
-    compactLine: OVERVIEW_DIAGRAM_COMPACT_LINE,
-    overviewLink: {
-      id: "overview",
-      label: "Overview",
-      href: buildReviewWorkspaceTabHref(trimmed, "overview"),
-      whenToUse: "Read the structured brief summary for this architecture package.",
-    },
-    diagramLink: {
-      id: "diagram",
-      label: "Diagram",
-      href: buildReviewWorkspaceTabHref(trimmed, "architecture"),
-      whenToUse: "View the illustrative architecture sketch for this package.",
-    },
+    heading: rail.heading,
+    whyTwo: rail.whyTwo,
+    compactLine: rail.compactLine,
+    overviewLink: rail.currentLink,
+    diagramLink: rail.peerLink,
   };
 }
 

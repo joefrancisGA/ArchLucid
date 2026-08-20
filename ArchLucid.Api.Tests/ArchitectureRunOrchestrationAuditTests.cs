@@ -12,9 +12,11 @@ using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Core.AiUsage;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Integration;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.IntegrationOutbox;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Core.Persistence.ApplicationPorts.Runs;
 using ArchLucid.Persistence.Models;
@@ -142,7 +144,18 @@ public sealed class ArchitectureRunOrchestrationAuditTests
             new OperationRunCancellationMarker(runRepository),
             new DisabledRunExecuteOwnershipLeaseService(),
             Mock.Of<IRunStageOutcomesRepository>(),
+            Mock.Of<IIntegrationEventOutboxRepository>(),
+            Mock.Of<IIntegrationEventPublisher>(),
+            CreateIntegrationEventsOptionsMonitor(),
             NullLogger<ArchitectureRunExecuteOrchestrator>.Instance);
+    }
+
+    private static IOptionsMonitor<IntegrationEventsOptions> CreateIntegrationEventsOptionsMonitor()
+    {
+        Mock<IOptionsMonitor<IntegrationEventsOptions>> options = new();
+        options.Setup(o => o.CurrentValue).Returns(new IntegrationEventsOptions());
+
+        return options.Object;
     }
 
     private static ITenantAiBudgetPolicyResolver BuildPermissiveAiBudgetPolicyResolver()

@@ -14,18 +14,22 @@
 | Logic Apps Standard | Subscribes to Service Bus; resolves secret; POSTs Adaptive Card to Teams (see `infra/terraform-logicapps/workflows/teams-notifications/README.md`). |
 | Service Bus | Topics per [`schemas/integration-events/catalog.json`](../../schemas/integration-events/catalog.json). |
 
-## v1 default trigger set (twelve events)
+## v1 default trigger set (sixteen events)
 
 The v1 production workflow subscribes to the following `eventType` values. Owner approved the expanded set on **2026-04-21** (PENDING_QUESTIONS.md item 32):
 
 | `eventType` | When fired | Action link in card |
 |-------------|-----------|---------------------|
 | `com.archlucid.authority.run.completed` | A run reaches the committed manifest state | `/runs/{runId}` |
+| `com.archlucid.authority.run.failed` | A review execution fails before commit | `/runs/{runId}` |
+| `com.archlucid.authority.run.quality-gate.rejected` | Agent output quality gate rejects a run | `/runs/{runId}` |
+| `com.archlucid.findings.high-severity.captured.v1` | High-severity findings sealed for a review (batched) | `/runs/{runId}` |
 | `com.archlucid.manifest.finalized.v1` | The sealed review record is finalized | `/runs/{runId}` |
 | `com.archlucid.governance.approval.submitted` | A governance approval has been requested or submitted | `/governance/approvals/{approvalId}` |
 | `com.archlucid.governance.approval.approved` | A governance approval request was approved | `/governance/approvals/{approvalId}` |
 | `com.archlucid.governance.approval.rejected` | A governance approval request was rejected | `/governance/approvals/{approvalId}` |
 | `com.archlucid.governance.promotion.activated` | An approved review was authorized to advance in a governed environment | `/governance/promotions/{activationId}` |
+| `com.archlucid.governance.policy-pack.published.v1` | A policy pack version was published | `/policy-packs/{policyPackId}` |
 | `com.archlucid.alert.fired` | An alert is raised | `/alerts/{alertId}` |
 | `com.archlucid.alert.acknowledged` | An alert was acknowledged by an authorized user | `/alerts/{alertId}` |
 | `com.archlucid.alert.resolved` | An alert was resolved | `/alerts/{alertId}` |

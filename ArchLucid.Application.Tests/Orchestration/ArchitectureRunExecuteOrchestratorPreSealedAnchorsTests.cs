@@ -196,6 +196,9 @@ public sealed class ArchitectureRunExecuteOrchestratorPreSealedAnchorsTests
             tail.RunCancellationMarker,
             new DisabledRunExecuteOwnershipLeaseService(),
             Mock.Of<IRunStageOutcomesRepository>(),
+            ArchitectureRunExecuteOrchestratorTestFactory.CreateIntegrationEventOutbox(),
+            ArchitectureRunExecuteOrchestratorTestFactory.CreateIntegrationEventPublisher(),
+            ArchitectureRunExecuteOrchestratorTestFactory.CreateIntegrationEventsOptionsMonitor(),
             NullLogger<ArchitectureRunExecuteOrchestrator>.Instance);
 
         await sut.ExecuteRunAsync(runId);

@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://archlucid.dev/schemas/integration-events/authority-run-quality-gate-rejected.v1.schema.json",
+  "title": "com.archlucid.authority.run.quality-gate.rejected",
+  "description": "Service Bus message when agent output quality gate rejects a run after execute.",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "tenantId",
+    "workspaceId",
+    "projectId",
+    "runId",
+    "traceId",
+    "agentLabel"
+  ],
+  "properties": {
+    "schemaVersion": { "type": "integer", "const": 1 },
+    "tenantId": { "type": "string", "format": "uuid" },
+    "workspaceId": { "type": "string", "format": "uuid" },
+    "projectId": { "type": "string", "format": "uuid" },
+    "runId": { "type": "string", "format": "uuid" },
+    "traceId": { "type": "string" },
+    "agentLabel": { "type": "string" },
+    "evaluationReason": { "type": "string" },
+    "structuralCompletenessRatio": { "type": "number" },
+    "semanticScore": { "type": "number" },
+    "rejectReasonCategory": { "type": "string" },
+    "triageScenarioId": { "type": "string" },
+    "gateDefinitionVersion": { "type": "string" },
+    "gateMode": { "type": "string" }
+  },
+  "additionalProperties": true
+}

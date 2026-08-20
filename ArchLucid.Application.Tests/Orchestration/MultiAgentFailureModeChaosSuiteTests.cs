@@ -379,6 +379,9 @@ public sealed class MultiAgentFailureModeChaosSuiteTests
             tail.RunCancellationMarker,
             tail.RunExecuteOwnershipLeaseService,
             tail.RunStageOutcomesRepository,
+            tail.IntegrationEventOutbox,
+            tail.IntegrationEventPublisher,
+            tail.IntegrationEventsOptions,
             tail.Logger);
     }
 

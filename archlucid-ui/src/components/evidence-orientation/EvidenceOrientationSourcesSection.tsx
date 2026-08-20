@@ -14,13 +14,15 @@ import type { EvidenceOrientationLink } from "@/lib/evidence-surface-copy";
 import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 import { cn } from "@/lib/utils";
 
-/** `wrap` reads as a chip row; `stacked` gives each link its own line so a `when` caption can follow it. */
-export type EvidenceOrientationSourcesLayout = "wrap" | "stacked";
+/** `wrap` reads as a chip row; `stacked` gives each link its own line; `columns` places intro beside a two-column link index. */
+export type EvidenceOrientationSourcesLayout = "wrap" | "stacked" | "columns";
 
-const SOURCES_LIST_CLASS: Record<EvidenceOrientationSourcesLayout, string> = {
+const SOURCES_LIST_CLASS: Record<Exclude<EvidenceOrientationSourcesLayout, "columns">, string> = {
   wrap: "m-0 mt-2 flex list-none flex-wrap gap-x-3 gap-y-1 p-0",
   stacked: "m-0 mt-2 list-none space-y-2 p-0",
 };
+
+const SOURCES_COLUMNS_LIST_CLASS = "m-0 mt-2 grid list-none gap-x-3 gap-y-1 p-0 sm:grid-cols-2";
 
 export type EvidenceOrientationSourcesSectionProps = {
   readonly testId: string;
@@ -63,14 +65,14 @@ export function EvidenceOrientationSourcesSection({
     return null;
   }
 
-  return (
-    <section className={style.panel} aria-labelledby={headingId} data-testid={testId}>
-      <h2 id={headingId} className={headingClassName ?? EVIDENCE_ORIENTATION_HEADING_CLASS}>
-        {title}
-      </h2>
-      <p className={style.intro}>{intro}</p>
-      <ul className={cn(SOURCES_LIST_CLASS[layout], listClassName ?? OPERATOR_TYPOGRAPHY.body)}>
-        {links.map((link) => {
+  const heading = (
+    <h2 id={headingId} className={headingClassName ?? EVIDENCE_ORIENTATION_HEADING_CLASS}>
+      {title}
+    </h2>
+  );
+  const introParagraph = <p className={style.intro}>{intro}</p>;
+  const listClassNameResolved = listClassName ?? OPERATOR_TYPOGRAPHY.body;
+  const linkItems = links.map((link) => {
           const linkLabel = distinguishFollowUpDestinations
             ? formatHelpFollowUpLinkAccessibleName(link.href, link.label)
             : link.label;
@@ -97,8 +99,30 @@ export function EvidenceOrientationSourcesSection({
             )}
           </li>
           );
-        })}
-      </ul>
+        });
+
+  return (
+    <section
+      className={cn(style.panel, layout === "columns" && "md:grid md:grid-cols-2")}
+      aria-labelledby={headingId}
+      data-testid={testId}
+      data-layout={layout}
+    >
+      {layout === "columns" ? (
+        <>
+          <div>
+            {heading}
+            {introParagraph}
+          </div>
+          <ul className={cn(SOURCES_COLUMNS_LIST_CLASS, listClassNameResolved)}>{linkItems}</ul>
+        </>
+      ) : (
+        <>
+          {heading}
+          {introParagraph}
+          <ul className={cn(SOURCES_LIST_CLASS[layout], listClassNameResolved)}>{linkItems}</ul>
+        </>
+      )}
     </section>
   );
 }

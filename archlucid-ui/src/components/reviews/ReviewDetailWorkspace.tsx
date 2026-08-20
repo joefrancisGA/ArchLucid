@@ -38,6 +38,7 @@ import {
 } from "@/lib/resolve-review-detail-visible-tabs";
 import { scheduleScrollToReviewDetailSection } from "@/lib/review-detail-section-scroll";
 import { cn } from "@/lib/utils";
+import { REVIEW_WORKSPACE_TAB_STRIP_TEST_ID } from "@/components/reviews/ReviewWorkspaceShell";
 
 export type ReviewDetailTabCounts = {
   readonly findings?: number | null;
@@ -237,7 +238,7 @@ export function ReviewDetailWorkspace(props: ReviewDetailWorkspaceProps): React.
         >
           <TabsList
             aria-label="Review workspace sections"
-            data-testid="review-detail-workspace-tabs"
+            data-testid={REVIEW_WORKSPACE_TAB_STRIP_TEST_ID}
             className="-mx-1 overflow-x-auto overflow-y-hidden px-1"
           >
             {resolved.visibleTabIds.map((tabId) => {

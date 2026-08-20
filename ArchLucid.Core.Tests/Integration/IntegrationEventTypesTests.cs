@@ -15,11 +15,15 @@ public sealed class IntegrationEventTypesTests
     } =
     [
         IntegrationEventTypes.AuthorityRunCompletedV1,
+        IntegrationEventTypes.AuthorityRunFailedV1,
+        IntegrationEventTypes.AuthorityRunQualityGateRejectedV1,
+        IntegrationEventTypes.FindingsHighSeverityCapturedV1,
         IntegrationEventTypes.DataConsistencyCheckCompletedV1,
         IntegrationEventTypes.ManifestFinalizedV1,
         IntegrationEventTypes.GovernanceApprovalSubmittedV1,
         IntegrationEventTypes.GovernanceApprovalApprovedV1,
         IntegrationEventTypes.GovernancePromotionActivatedV1,
+        IntegrationEventTypes.GovernancePolicyPackPublishedV1,
         IntegrationEventTypes.GovernanceApprovalRejectedV1,
         IntegrationEventTypes.AlertFiredV1,
         IntegrationEventTypes.AlertAcknowledgedV1,

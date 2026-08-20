@@ -5,9 +5,11 @@ using ArchLucid.Application.Runs.ExecuteOwnership;
 using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Core.AiUsage;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Integration;
 using ArchLucid.Core.Persistence.ApplicationPorts.Runs;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.IntegrationOutbox;
 using ArchLucid.Persistence.Interfaces;
 
 using Microsoft.Extensions.Logging;
@@ -35,6 +37,9 @@ public static class ArchitectureRunExecuteOrchestratorTestFactory
             new OperationRunCancellationMarker(runs),
             new DisabledRunExecuteOwnershipLeaseService(),
             Mock.Of<IRunStageOutcomesRepository>(),
+            ArchitectureRunExecuteOrchestratorTestFactory.CreateIntegrationEventOutbox(),
+            ArchitectureRunExecuteOrchestratorTestFactory.CreateIntegrationEventPublisher(),
+            ArchitectureRunExecuteOrchestratorTestFactory.CreateIntegrationEventsOptionsMonitor(),
             NullLogger<ArchitectureRunExecuteOrchestrator>.Instance);
     }
 
@@ -68,4 +73,18 @@ public static class ArchitectureRunExecuteOrchestratorTestFactory
 
     internal static OperationRunCancellationMarker CreateRunCancellationMarker(IRunRepository runRepository) =>
         new(runRepository);
+
+    internal static IIntegrationEventOutboxRepository CreateIntegrationEventOutbox() =>
+        Mock.Of<IIntegrationEventOutboxRepository>();
+
+    internal static IIntegrationEventPublisher CreateIntegrationEventPublisher() =>
+        Mock.Of<IIntegrationEventPublisher>();
+
+    internal static IOptionsMonitor<IntegrationEventsOptions> CreateIntegrationEventsOptionsMonitor()
+    {
+        Mock<IOptionsMonitor<IntegrationEventsOptions>> options = new();
+        options.Setup(o => o.CurrentValue).Returns(new IntegrationEventsOptions());
+
+        return options.Object;
+    }
 }

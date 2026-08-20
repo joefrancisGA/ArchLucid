@@ -1,6 +1,7 @@
 import type { RunSummary } from "@/types/authority";
 
 import { isBuyerVocabularyPassActive } from "@/lib/demo-ui-env";
+import { runWorkQueueAttentionPartition } from "@/lib/operator/attention-partitions";
 
 /** Queue slice derived only from {@link RunSummary} snapshot flags (no extra API fields). */
 export type RunWorkQueueGroupId = "needs-attention" | "in-progress" | "committed";
@@ -48,6 +49,8 @@ export function partitionRunsIntoWorkQueueSections(runs: RunSummary[]): RunWorkQ
     runs: buckets[groupId],
   }));
 }
+
+export { runWorkQueueAttentionPartition };
 
 export function workQueueSectionHeading(
   groupId: RunWorkQueueGroupId,
