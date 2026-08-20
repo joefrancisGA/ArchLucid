@@ -3,6 +3,7 @@
 import dynamic from "next/dynamic";
 import type { ComponentType } from "react";
 
+import { createDeferredComponentFromManifest } from "@/lib/operator/load-deferred-chunk-from-manifest";
 import { DeferredChunkLoading } from "@/components/ui/deferred-chunk-loading";
 
 import type { GovernanceOverviewPanelProps } from "./GovernanceOverviewPanel";
@@ -16,22 +17,16 @@ function governanceWorkflowDeferredLoading(label: string): React.JSX.Element {
 }
 
 /** Overview panel — deferred so approval-queue chrome paints first (wave 11 hub First Load). */
-export const GovernanceOverviewPanelDeferred: ComponentType<GovernanceOverviewPanelProps> = dynamic(
-  () => import("./GovernanceOverviewPanel").then((module) => module.GovernanceOverviewPanel),
-  {
-    ssr: false,
-    loading: () => governanceWorkflowDeferredLoading("Loading governance overview"),
-  },
-);
+export const GovernanceOverviewPanelDeferred: ComponentType<GovernanceOverviewPanelProps> =
+  createDeferredComponentFromManifest("governance-workflow-overview-panel", {
+    loadingTestId: "governance-workflow-deferred-chunk-loading",
+  });
 
 /** Review context bar — deferred so approval-queue header paints first (wave 14 First Load). */
-export const GovernanceReviewContextBarDeferred: ComponentType<GovernanceReviewContextBarProps> = dynamic(
-  () => import("./GovernanceReviewContextBar").then((module) => module.GovernanceReviewContextBar),
-  {
-    ssr: false,
-    loading: () => governanceWorkflowDeferredLoading("Loading review context"),
-  },
-);
+export const GovernanceReviewContextBarDeferred: ComponentType<GovernanceReviewContextBarProps> =
+  createDeferredComponentFromManifest("governance-workflow-review-context-bar", {
+    loadingTestId: "governance-workflow-deferred-chunk-loading",
+  });
 
 export const GovernanceWorkflowSubmitSectionDeferred: ComponentType<GovernanceWorkflowSubmitSectionProps> =
   dynamic(
@@ -46,13 +41,9 @@ export const GovernanceWorkflowSubmitSectionDeferred: ComponentType<GovernanceWo
   );
 
 /** Approvals list — below-fold relative to overview/header (wave 10 hub First Load). */
-export const GovernanceWorkflowApprovalsListDeferred = dynamic(
-  () =>
-    import("./GovernanceWorkflowApprovalsList").then((module) => module.GovernanceWorkflowApprovalsList),
-  {
-    ssr: false,
-    loading: () => governanceWorkflowDeferredLoading("Loading approval requests"),
-  },
+export const GovernanceWorkflowApprovalsListDeferred = createDeferredComponentFromManifest(
+  "governance-workflow-approvals-list",
+  { loadingTestId: "governance-workflow-deferred-chunk-loading" },
 );
 
 export const GovernanceWorkflowPromotionsActivationsSectionDeferred = dynamic(

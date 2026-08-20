@@ -16,6 +16,7 @@ import {
   GOVERNANCE_POLICY_PACKS_PATH,
   GOVERNANCE_STANDARDS_AND_RULES_PATH,
 } from "@/lib/governance/governance-route-paths";
+import type { PairwiseVocabularyRailModel } from "@/lib/vocabulary/create-pairwise-vocabulary-rail";
 
 export type PolicyPacksStandardsSurfaceId = "policy-packs" | "standards-and-rules";
 
@@ -56,14 +57,27 @@ export const POLICY_PACKS_STANDARDS_STANDARDS_LINK: PolicyPacksStandardsLink = {
   whenToUse: "Read the effective standards and rules after pack resolution.",
 };
 
-/** Full vocabulary model (heading, why-two copy, and deep links). */
-export function buildPolicyPacksStandardsVocabulary(): PolicyPacksStandardsVocabularyModel {
+/** Pairwise model for Policy packs ↔ Standards and rules (fixed routes). */
+export function buildPolicyPacksStandardsPairwiseRail(): PairwiseVocabularyRailModel<PolicyPacksStandardsSurfaceId> {
   return {
     heading: POLICY_PACKS_STANDARDS_HEADING,
     whyTwo: POLICY_PACKS_STANDARDS_WHY_TWO,
     compactLine: POLICY_PACKS_STANDARDS_COMPACT_LINE,
-    policyPacksLink: POLICY_PACKS_STANDARDS_POLICY_PACKS_LINK,
-    standardsLink: POLICY_PACKS_STANDARDS_STANDARDS_LINK,
+    currentLink: POLICY_PACKS_STANDARDS_POLICY_PACKS_LINK,
+    peerLink: POLICY_PACKS_STANDARDS_STANDARDS_LINK,
+  };
+}
+
+/** Full vocabulary model (heading, why-two copy, and deep links). */
+export function buildPolicyPacksStandardsVocabulary(): PolicyPacksStandardsVocabularyModel {
+  const rail = buildPolicyPacksStandardsPairwiseRail();
+
+  return {
+    heading: rail.heading,
+    whyTwo: rail.whyTwo,
+    compactLine: rail.compactLine,
+    policyPacksLink: rail.currentLink,
+    standardsLink: rail.peerLink,
   };
 }
 

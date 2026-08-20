@@ -14,6 +14,7 @@
 
 import { ACCOUNT_PREFERENCES_PATH } from "@/lib/account-route-paths";
 import { SETTINGS_NOTIFICATIONS_PATH } from "@/lib/settings-admin-route-paths";
+import type { PairwiseVocabularyRailModel } from "@/lib/vocabulary/create-pairwise-vocabulary-rail";
 
 export type PreferencesNotificationsSurfaceId = "preferences" | "notifications";
 
@@ -55,14 +56,27 @@ export const PREFERENCES_NOTIFICATIONS_NOTIFICATIONS_LINK: PreferencesNotificati
   whenToUse: "Open the preference launcher for digests, alerts, Teams, and Slack.",
 };
 
-/** Full vocabulary model (heading, why-two copy, and deep links). */
-export function buildPreferencesNotificationsVocabulary(): PreferencesNotificationsVocabularyModel {
+/** Pairwise model for Preferences ↔ Notifications (fixed routes). */
+export function buildPreferencesNotificationsPairwiseRail(): PairwiseVocabularyRailModel<PreferencesNotificationsSurfaceId> {
   return {
     heading: PREFERENCES_NOTIFICATIONS_HEADING,
     whyTwo: PREFERENCES_NOTIFICATIONS_WHY_TWO,
     compactLine: PREFERENCES_NOTIFICATIONS_COMPACT_LINE,
-    preferencesLink: PREFERENCES_NOTIFICATIONS_PREFERENCES_LINK,
-    notificationsLink: PREFERENCES_NOTIFICATIONS_NOTIFICATIONS_LINK,
+    currentLink: PREFERENCES_NOTIFICATIONS_PREFERENCES_LINK,
+    peerLink: PREFERENCES_NOTIFICATIONS_NOTIFICATIONS_LINK,
+  };
+}
+
+/** Full vocabulary model (heading, why-two copy, and deep links). */
+export function buildPreferencesNotificationsVocabulary(): PreferencesNotificationsVocabularyModel {
+  const rail = buildPreferencesNotificationsPairwiseRail();
+
+  return {
+    heading: rail.heading,
+    whyTwo: rail.whyTwo,
+    compactLine: rail.compactLine,
+    preferencesLink: rail.currentLink,
+    notificationsLink: rail.peerLink,
   };
 }
 

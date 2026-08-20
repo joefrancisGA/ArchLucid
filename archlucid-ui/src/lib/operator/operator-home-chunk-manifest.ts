@@ -51,4 +51,11 @@ export const OPERATOR_HOME_CHUNK_MANIFEST: readonly DeferredChunkManifestEntry[]
     modulePath: "@/components/operator-home/RunsDashboardPanel",
     exportName: "RunsDashboardPanel",
   },
+  {
+    id: "operator-home-cto-demo-sponsor-landing",
+    label: "Loading sponsor landing redirect",
+    variant: "compact",
+    modulePath: "@/components/cto-demo/CtoDemoSponsorLandingRedirect",
+    exportName: "CtoDemoSponsorLandingRedirect",
+  },
 ] as const;

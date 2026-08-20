@@ -37,6 +37,11 @@ const explanationDeferredSource = readFileSync(
   "utf8",
 );
 
+const tabbedDeferredIslandsSource = readFileSync(
+  join(sectionsDir, "RunDetailTabbedDeferredIslands.tsx"),
+  "utf8",
+);
+
 const bannedStaticImports = [
   '@/components/runs/RunEstimatedLlmCostCard"',
   '@/components/runs/RunAgentResultsSummaryCard"',
@@ -228,6 +233,12 @@ describe("run detail bundle deferred imports (TB-697 / TB-933 / TB-2021 / TB-211
     expect(deferredChunksSource).toContain('"run-detail-export-deliverable-dialog"');
     expect(deferredChunksSource).toContain('"run-detail-generate-adr-from-run-modal"');
     expect(deferredChunksSource).toContain('"run-detail-compare-to-baseline-cta"');
+    expect(tabbedDeferredIslandsSource).toContain('"run-detail-post-commit-habit-loop"');
+    expect(tabbedDeferredIslandsSource).toContain('"run-detail-architecture-graph-section"');
+    expect(tabbedDeferredIslandsSource).not.toContain('import("@/components/PostCommitHabitLoopCard")');
+    expect(tabbedDeferredIslandsSource).not.toContain(
+      'import("@/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailArchitectureGraphSection")',
+    );
     expect(manifestLoaderSource).toContain('import("@/components/reviews/ReviewWorkspaceShell")');
     expect(manifestLoaderSource).toContain('import("@/components/reviews/RunDetailOverviewPanelClient")');
     expect(manifestLoaderSource).toContain('import("@/components/architecture/ArchitectureCreatedReviewWorkspaceShell")');
@@ -375,6 +386,10 @@ describe("run detail bundle deferred imports (TB-697 / TB-933 / TB-2021 / TB-211
     expect(manifestLoaderSource).toContain('import("@/components/usability/ExportDeliverableDialog")');
     expect(manifestLoaderSource).toContain('import("@/components/GenerateAdrFromRunModal")');
     expect(manifestLoaderSource).toContain('import("@/components/CompareToBaselineCta")');
+    expect(manifestLoaderSource).toContain('import("@/components/PostCommitHabitLoopCard")');
+    expect(manifestLoaderSource).toContain(
+      'import("@/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailArchitectureGraphSection")',
+    );
     expect(deferredChunksSource).toContain("RunDetailArchitectureCreateWorkItemSectionDeferred");
     expect(deferredChunksSource).toContain("RunDetailArchitectureSponsorSharingPanelDeferred");
     expect(deferredChunksSource).toContain("RunDetailSampleReviewPackageSummaryDeferred");

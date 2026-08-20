@@ -510,4 +510,18 @@ export const RUN_DETAIL_CHUNK_MANIFEST: readonly DeferredChunkManifestEntry[] = 
     modulePath: "@/components/CompareToBaselineCta",
     exportName: "CompareToBaselineCta",
   },
+  {
+    id: "run-detail-post-commit-habit-loop",
+    label: "Loading post-commit habit loop",
+    variant: "panel",
+    modulePath: "@/components/PostCommitHabitLoopCard",
+    exportName: "PostCommitHabitLoopCard",
+  },
+  {
+    id: "run-detail-architecture-graph-section",
+    label: "Loading architecture graph",
+    variant: "panel",
+    modulePath: "@/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailArchitectureGraphSection",
+    exportName: "RunDetailArchitectureGraphSection",
+  },
 ] as const;

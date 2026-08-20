@@ -1,10 +1,8 @@
 "use client";
 
 import type { JSX } from "react";
-import dynamic from "next/dynamic";
 
 import { createDeferredComponentFromManifest } from "@/lib/operator/load-deferred-chunk-from-manifest";
-import { deferredChunkLoader } from "@/lib/import-deferred-chunk-with-retry";
 import { cn } from "@/lib/utils";
 import { OPERATOR_SURFACE_CARD_CLASS } from "@/lib/design-tokens";
 
@@ -40,13 +38,9 @@ export const OperatorHomeStickinessCockpitDeferred = createDeferredComponentFrom
   { suppressLoading: true },
 );
 
-export const CtoDemoSponsorLandingRedirectDeferred = dynamic(
-  deferredChunkLoader(() =>
-    import("@/components/cto-demo/CtoDemoSponsorLandingRedirect").then(
-      (module) => module.CtoDemoSponsorLandingRedirect,
-    ),
-  ),
-  { ssr: false, loading: () => null },
+export const CtoDemoSponsorLandingRedirectDeferred = createDeferredComponentFromManifest(
+  "operator-home-cto-demo-sponsor-landing",
+  { suppressLoading: true },
 );
 
 /** Perf wave 12 — buyer-polished home hero off sync First Load JS. */

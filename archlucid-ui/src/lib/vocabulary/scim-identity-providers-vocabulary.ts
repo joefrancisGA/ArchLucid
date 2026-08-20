@@ -14,6 +14,7 @@
 
 import { SCIM_IDENTITY_PROVIDERS_HREF } from "@/lib/scim-provisioning-page-copy";
 import { SCIM_PROVISIONING_CANONICAL_PATH } from "@/lib/scim-provisioning-evidence-copy";
+import type { PairwiseVocabularyRailModel } from "@/lib/vocabulary/create-pairwise-vocabulary-rail";
 
 export type ScimIdentityProvidersSurfaceId = "scim-provisioning" | "identity-providers";
 
@@ -55,14 +56,27 @@ export const SCIM_IDENTITY_PROVIDERS_IDP_LINK: ScimIdentityProvidersLink = {
   whenToUse: "Configure SAML/OIDC federation, role mapping, and sign-in diagnostics.",
 };
 
-/** Full vocabulary model (heading, why-two copy, and deep links). */
-export function buildScimIdentityProvidersVocabulary(): ScimIdentityProvidersVocabularyModel {
+/** Pairwise model for SCIM provisioning ↔ Identity providers (fixed routes). */
+export function buildScimIdentityProvidersPairwiseRail(): PairwiseVocabularyRailModel<ScimIdentityProvidersSurfaceId> {
   return {
     heading: SCIM_IDENTITY_PROVIDERS_HEADING,
     whyTwo: SCIM_IDENTITY_PROVIDERS_WHY_TWO,
     compactLine: SCIM_IDENTITY_PROVIDERS_COMPACT_LINE,
-    scimLink: SCIM_IDENTITY_PROVIDERS_SCIM_LINK,
-    identityProvidersLink: SCIM_IDENTITY_PROVIDERS_IDP_LINK,
+    currentLink: SCIM_IDENTITY_PROVIDERS_SCIM_LINK,
+    peerLink: SCIM_IDENTITY_PROVIDERS_IDP_LINK,
+  };
+}
+
+/** Full vocabulary model (heading, why-two copy, and deep links). */
+export function buildScimIdentityProvidersVocabulary(): ScimIdentityProvidersVocabularyModel {
+  const rail = buildScimIdentityProvidersPairwiseRail();
+
+  return {
+    heading: rail.heading,
+    whyTwo: rail.whyTwo,
+    compactLine: rail.compactLine,
+    scimLink: rail.currentLink,
+    identityProvidersLink: rail.peerLink,
   };
 }
 
