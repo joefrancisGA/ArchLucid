@@ -99,9 +99,9 @@ export const RunDetailTrustEvidenceCardSectionDeferred = createDeferredComponent
   { suppressLoading: true },
 );
 
-export const RunDetailSampleReviewPackageSummaryDeferred = dynamic(
-  () => import("@/components/SampleReviewPackageSummary").then((module) => module.SampleReviewPackageSummary),
-  { ssr: false, loading: () => null },
+export const RunDetailSampleReviewPackageSummaryDeferred = createDeferredComponentFromManifest(
+  "run-detail-sample-review-package-summary",
+  { suppressLoading: true },
 );
 
 /** TB-2021 remainder — create-home workspace off sync First Load JS. */
@@ -110,41 +110,29 @@ export const RunDetailArchitectureCreatedWorkspaceDeferred = createDeferredCompo
   { suppressLoading: true },
 );
 
-export const RunDetailArchitectureCreateWorkItemSectionDeferred = dynamic(
-  () =>
-    import("@/components/architecture/ArchitectureCreateWorkItemSection").then(
-      (module) => module.ArchitectureCreateWorkItemSection,
-    ),
-  { ssr: false, loading: () => null },
+export const RunDetailArchitectureCreateWorkItemSectionDeferred = createDeferredComponentFromManifest(
+  "run-detail-architecture-create-work-item-section",
+  { suppressLoading: true },
 );
 
-export const RunDetailArchitectureSponsorSharingPanelDeferred = dynamic(
-  () =>
-    import("@/components/architecture/ArchitectureSponsorSharingPanel").then(
-      (module) => module.ArchitectureSponsorSharingPanel,
-    ),
-  { ssr: false, loading: () => null },
+export const RunDetailArchitectureSponsorSharingPanelDeferred = createDeferredComponentFromManifest(
+  "run-detail-architecture-sponsor-sharing-panel",
+  { suppressLoading: true },
 );
 
-export const RunDetailFirstWeekRouteGuidanceDeferred = dynamic(
-  () => import("@/components/FirstWeekRouteGuidance").then((module) => module.FirstWeekRouteGuidance),
-  { ssr: false, loading: () => null },
+export const RunDetailFirstWeekRouteGuidanceDeferred = createDeferredComponentFromManifest(
+  "run-detail-first-week-route-guidance",
+  { suppressLoading: true },
 );
 
-export const RunDetailColdOpenOrientationDeferred = dynamic(
-  () =>
-    import("@/components/reviews/RunDetailColdOpenOrientationClient").then(
-      (module) => module.RunDetailColdOpenOrientationClient,
-    ),
-  { ssr: false, loading: () => null },
+export const RunDetailColdOpenOrientationDeferred = createDeferredComponentFromManifest(
+  "run-detail-cold-open-orientation",
+  { suppressLoading: true },
 );
 
-export const RunDetailExplanationConfidenceBannerDeferred = dynamic(
-  () =>
-    import("@/components/runs/RunExplanationConfidenceBanner").then(
-      (module) => module.RunExplanationConfidenceBanner,
-    ),
-  { ssr: false, loading: () => null },
+export const RunDetailExplanationConfidenceBannerDeferred = createDeferredComponentFromManifest(
+  "run-detail-explanation-confidence-banner",
+  { suppressLoading: true },
 );
 
 export const RunDetailGovernanceAlertsDeferred = dynamic(

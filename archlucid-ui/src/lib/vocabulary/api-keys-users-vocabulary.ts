@@ -17,6 +17,7 @@ import {
   API_KEYS_SETTINGS_CANONICAL_PATH,
 } from "@/lib/api-keys-settings-evidence-copy";
 import { SETTINGS_USERS_PATH } from "@/lib/settings-admin-route-paths";
+import type { PairwiseVocabularyRailModel } from "@/lib/vocabulary/create-pairwise-vocabulary-rail";
 
 export type ApiKeysUsersSurfaceId = "api-keys" | "users";
 
@@ -57,14 +58,27 @@ export const API_KEYS_USERS_USERS_LINK: ApiKeysUsersLink = {
   whenToUse: "Invite people, assign roles, and manage workspace access.",
 };
 
-/** Full vocabulary model (heading, why-two copy, and deep links). */
-export function buildApiKeysUsersVocabulary(): ApiKeysUsersVocabularyModel {
+/** Pairwise model for API keys ↔ Users invite (fixed routes). */
+export function buildApiKeysUsersPairwiseRail(): PairwiseVocabularyRailModel<ApiKeysUsersSurfaceId> {
   return {
     heading: API_KEYS_USERS_HEADING,
     whyTwo: API_KEYS_USERS_WHY_TWO,
     compactLine: API_KEYS_USERS_COMPACT_LINE,
-    apiKeysLink: API_KEYS_USERS_API_KEYS_LINK,
-    usersLink: API_KEYS_USERS_USERS_LINK,
+    currentLink: API_KEYS_USERS_API_KEYS_LINK,
+    peerLink: API_KEYS_USERS_USERS_LINK,
+  };
+}
+
+/** Full vocabulary model (heading, why-two copy, and deep links). */
+export function buildApiKeysUsersVocabulary(): ApiKeysUsersVocabularyModel {
+  const rail = buildApiKeysUsersPairwiseRail();
+
+  return {
+    heading: rail.heading,
+    whyTwo: rail.whyTwo,
+    compactLine: rail.compactLine,
+    apiKeysLink: rail.currentLink,
+    usersLink: rail.peerLink,
   };
 }
 

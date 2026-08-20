@@ -2,13 +2,12 @@
 
 import type { JSX } from "react";
 
+import { PairwiseVocabularyRailFromModel } from "@/components/vocabulary/PairwiseVocabularyRailFromModel";
 import {
-  buildAccountSecurityAuthDomainsVocabulary,
-  resolveAccountSecurityAuthDomainsPeerLink,
+  buildAccountSecurityAuthDomainsPairwiseRail,
   type AccountSecurityAuthDomainsSurfaceId,
   type AccountSecurityAuthDomainsVocabularyModel,
 } from "@/lib/vocabulary/account-security-auth-domains-vocabulary";
-import { VocabularyRail } from "@/components/vocabulary/VocabularyRail";
 
 export type AccountSecurityAuthDomainsVocabularyRailProps = {
   readonly currentSurfaceId: AccountSecurityAuthDomainsSurfaceId;
@@ -21,25 +20,25 @@ export type AccountSecurityAuthDomainsVocabularyRailProps = {
 export function AccountSecurityAuthDomainsVocabularyRail(
   props: AccountSecurityAuthDomainsVocabularyRailProps,
 ): JSX.Element {
-  const model = props.model ?? buildAccountSecurityAuthDomainsVocabulary();
-  const peer = resolveAccountSecurityAuthDomainsPeerLink(props.currentSurfaceId);
-  const currentLink =
-    props.currentSurfaceId === "account-security"
-      ? model.accountSecurityLink
-      : model.authDomainsLink;
+  const pairwiseModel =
+    props.model !== undefined
+      ? {
+          heading: props.model.heading,
+          whyTwo: props.model.whyTwo,
+          compactLine: props.model.compactLine,
+          currentLink: props.model.accountSecurityLink,
+          peerLink: props.model.authDomainsLink,
+        }
+      : buildAccountSecurityAuthDomainsPairwiseRail();
 
   return (
-    <VocabularyRail
+    <PairwiseVocabularyRailFromModel
       testIdPrefix="account-security-auth-domains-vocabulary"
       currentSurfaceId={props.currentSurfaceId}
       variant={props.variant}
       className={props.className}
-      compactLine={model.compactLine}
       compactLinkPlacement="inline"
-      heading={model.heading}
-      whyTwo={model.whyTwo}
-      currentLabel={currentLink.label}
-      links={[{ ...peer, testIdSuffix: "peer-link" }]}
+      model={pairwiseModel}
     />
   );
 }

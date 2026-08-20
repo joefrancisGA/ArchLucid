@@ -318,6 +318,38 @@ function resolveDeferredChunkImportLoader(
           (module) => module.RunTrustEvidenceCardSection,
         ),
       ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "run-detail-sample-review-package-summary":
+      return deferredChunkLoader(() =>
+        import("@/components/SampleReviewPackageSummary").then((module) => module.SampleReviewPackageSummary),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "run-detail-architecture-create-work-item-section":
+      return deferredChunkLoader(() =>
+        import("@/components/architecture/ArchitectureCreateWorkItemSection").then(
+          (module) => module.ArchitectureCreateWorkItemSection,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "run-detail-architecture-sponsor-sharing-panel":
+      return deferredChunkLoader(() =>
+        import("@/components/architecture/ArchitectureSponsorSharingPanel").then(
+          (module) => module.ArchitectureSponsorSharingPanel,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "run-detail-first-week-route-guidance":
+      return deferredChunkLoader(() =>
+        import("@/components/FirstWeekRouteGuidance").then((module) => module.FirstWeekRouteGuidance),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "run-detail-cold-open-orientation":
+      return deferredChunkLoader(() =>
+        import("@/components/reviews/RunDetailColdOpenOrientationClient").then(
+          (module) => module.RunDetailColdOpenOrientationClient,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "run-detail-explanation-confidence-banner":
+      return deferredChunkLoader(() =>
+        import("@/components/runs/RunExplanationConfidenceBanner").then(
+          (module) => module.RunExplanationConfidenceBanner,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
     default:
       throw new Error(`No deferred chunk import loader registered for manifest entry "${entryId}".`);
   }

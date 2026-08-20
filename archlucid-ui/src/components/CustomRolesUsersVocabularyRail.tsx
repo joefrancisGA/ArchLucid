@@ -2,13 +2,12 @@
 
 import type { JSX } from "react";
 
+import { PairwiseVocabularyRailFromModel } from "@/components/vocabulary/PairwiseVocabularyRailFromModel";
 import {
-  buildCustomRolesUsersVocabulary,
-  resolveCustomRolesUsersPeerLink,
+  buildCustomRolesUsersPairwiseRail,
   type CustomRolesUsersSurfaceId,
   type CustomRolesUsersVocabularyModel,
 } from "@/lib/vocabulary/custom-roles-users-vocabulary";
-import { VocabularyRail } from "@/components/vocabulary/VocabularyRail";
 
 export type CustomRolesUsersVocabularyRailProps = {
   /** Surface hosting the strip — marks the current tab job and links to the peer. */
@@ -27,23 +26,25 @@ export type CustomRolesUsersVocabularyRailProps = {
 export function CustomRolesUsersVocabularyRail(
   props: CustomRolesUsersVocabularyRailProps,
 ): JSX.Element {
-  const model = props.model ?? buildCustomRolesUsersVocabulary();
-  const peer = resolveCustomRolesUsersPeerLink(props.currentSurfaceId);
-  const currentLink =
-    props.currentSurfaceId === "custom-roles" ? model.customRolesLink : model.usersLink;
+  const pairwiseModel =
+    props.model !== undefined
+      ? {
+          heading: props.model.heading,
+          whyTwo: props.model.whyTwo,
+          compactLine: props.model.compactLine,
+          currentLink: props.model.customRolesLink,
+          peerLink: props.model.usersLink,
+        }
+      : buildCustomRolesUsersPairwiseRail();
 
   return (
-    <VocabularyRail
+    <PairwiseVocabularyRailFromModel
       testIdPrefix="custom-roles-users-vocabulary"
       currentSurfaceId={props.currentSurfaceId}
       variant={props.variant}
       className={props.className}
-      compactLine={model.compactLine}
       compactLinkPlacement="inline"
-      heading={model.heading}
-      whyTwo={model.whyTwo}
-      currentLabel={currentLink.label}
-      links={[{ ...peer, testIdSuffix: "peer-link" }]}
+      model={pairwiseModel}
     />
   );
 }

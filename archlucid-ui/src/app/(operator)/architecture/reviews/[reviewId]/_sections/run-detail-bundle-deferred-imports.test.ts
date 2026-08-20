@@ -194,6 +194,12 @@ describe("run detail bundle deferred imports (TB-697 / TB-933 / TB-2021 / TB-211
     expect(deferredChunksSource).toContain('"run-detail-run-metadata-section"');
     expect(deferredChunksSource).toContain('"run-detail-last-failure-card"');
     expect(deferredChunksSource).toContain('"run-detail-trust-evidence-card-section"');
+    expect(deferredChunksSource).toContain('"run-detail-sample-review-package-summary"');
+    expect(deferredChunksSource).toContain('"run-detail-architecture-create-work-item-section"');
+    expect(deferredChunksSource).toContain('"run-detail-architecture-sponsor-sharing-panel"');
+    expect(deferredChunksSource).toContain('"run-detail-first-week-route-guidance"');
+    expect(deferredChunksSource).toContain('"run-detail-cold-open-orientation"');
+    expect(deferredChunksSource).toContain('"run-detail-explanation-confidence-banner"');
     expect(manifestLoaderSource).toContain('import("@/components/reviews/ReviewWorkspaceShell")');
     expect(manifestLoaderSource).toContain('import("@/components/reviews/RunDetailOverviewPanelClient")');
     expect(manifestLoaderSource).toContain('import("@/components/architecture/ArchitectureCreatedReviewWorkspaceShell")');
@@ -269,8 +275,24 @@ describe("run detail bundle deferred imports (TB-697 / TB-933 / TB-2021 / TB-211
     );
     expect(manifestLoaderSource).toContain('import("@/components/runs/RunDetailLastFailureCard")');
     expect(manifestLoaderSource).toContain('import("@/components/runs/RunTrustEvidenceCardSection")');
+    expect(manifestLoaderSource).toContain('import("@/components/SampleReviewPackageSummary")');
+    expect(manifestLoaderSource).toContain('import("@/components/architecture/ArchitectureCreateWorkItemSection")');
+    expect(manifestLoaderSource).toContain('import("@/components/architecture/ArchitectureSponsorSharingPanel")');
+    expect(manifestLoaderSource).toContain('import("@/components/FirstWeekRouteGuidance")');
+    expect(manifestLoaderSource).toContain('import("@/components/reviews/RunDetailColdOpenOrientationClient")');
+    expect(manifestLoaderSource).toContain('import("@/components/runs/RunExplanationConfidenceBanner")');
     expect(deferredChunksSource).toContain("RunDetailArchitectureCreateWorkItemSectionDeferred");
     expect(deferredChunksSource).toContain("RunDetailArchitectureSponsorSharingPanelDeferred");
+    expect(deferredChunksSource).toContain("RunDetailSampleReviewPackageSummaryDeferred");
+    expect(deferredChunksSource).toContain("RunDetailFirstWeekRouteGuidanceDeferred");
+    expect(deferredChunksSource).toContain("RunDetailColdOpenOrientationDeferred");
+    expect(deferredChunksSource).toContain("RunDetailExplanationConfidenceBannerDeferred");
+    expect(deferredChunksSource).not.toContain('import("@/components/SampleReviewPackageSummary")');
+    expect(deferredChunksSource).not.toContain('import("@/components/architecture/ArchitectureCreateWorkItemSection")');
+    expect(deferredChunksSource).not.toContain('import("@/components/architecture/ArchitectureSponsorSharingPanel")');
+    expect(deferredChunksSource).not.toContain('import("@/components/FirstWeekRouteGuidance")');
+    expect(deferredChunksSource).not.toContain('import("@/components/reviews/RunDetailColdOpenOrientationClient")');
+    expect(deferredChunksSource).not.toContain('import("@/components/runs/RunExplanationConfidenceBanner")');
     expect(deferredChunksSource).toContain("RunDetailArchitectureCreatedWorkspaceDeferred");
     expect(deferredChunksSource).not.toContain('import("@/components/architecture/ArchitectureCreatedWorkspace")');
     expect(deferredChunksSource).toContain("RunDetailProgressTrackerDeferred");
@@ -345,12 +367,6 @@ describe("run detail bundle deferred imports (TB-697 / TB-933 / TB-2021 / TB-211
     expect(deferredChunksSource).toContain('import("./RunDetailDemoMarketingChrome")');
     expect(deferredChunksSource).toContain('import("./RunDetailManifestSummaryAlerts")');
     expect(deferredChunksSource).not.toContain('import("@/components/runs/RunDetailOutcomeCards")');
-    expect(deferredChunksSource).toContain(
-      'import("@/components/architecture/ArchitectureCreateWorkItemSection")',
-    );
-    expect(deferredChunksSource).toContain(
-      'import("@/components/architecture/ArchitectureSponsorSharingPanel")',
-    );
     expect(deferredChunksSource).not.toContain(
       'import("./RunDetailOperatorTechnicalForensicsPanel")',
     );

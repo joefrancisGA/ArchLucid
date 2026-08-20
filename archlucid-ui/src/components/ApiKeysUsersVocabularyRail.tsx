@@ -2,13 +2,12 @@
 
 import type { JSX } from "react";
 
+import { PairwiseVocabularyRailFromModel } from "@/components/vocabulary/PairwiseVocabularyRailFromModel";
 import {
-  buildApiKeysUsersVocabulary,
-  resolveApiKeysUsersPeerLink,
+  buildApiKeysUsersPairwiseRail,
   type ApiKeysUsersSurfaceId,
   type ApiKeysUsersVocabularyModel,
 } from "@/lib/vocabulary/api-keys-users-vocabulary";
-import { VocabularyRail } from "@/components/vocabulary/VocabularyRail";
 
 export type ApiKeysUsersVocabularyRailProps = {
   /** Surface hosting the strip — marks the current job and links to the peer. */
@@ -27,23 +26,25 @@ export type ApiKeysUsersVocabularyRailProps = {
 export function ApiKeysUsersVocabularyRail(
   props: ApiKeysUsersVocabularyRailProps,
 ): JSX.Element {
-  const model = props.model ?? buildApiKeysUsersVocabulary();
-  const peer = resolveApiKeysUsersPeerLink(props.currentSurfaceId);
-  const currentLink =
-    props.currentSurfaceId === "api-keys" ? model.apiKeysLink : model.usersLink;
+  const pairwiseModel =
+    props.model !== undefined
+      ? {
+          heading: props.model.heading,
+          whyTwo: props.model.whyTwo,
+          compactLine: props.model.compactLine,
+          currentLink: props.model.apiKeysLink,
+          peerLink: props.model.usersLink,
+        }
+      : buildApiKeysUsersPairwiseRail();
 
   return (
-    <VocabularyRail
+    <PairwiseVocabularyRailFromModel
       testIdPrefix="api-keys-users-vocabulary"
       currentSurfaceId={props.currentSurfaceId}
       variant={props.variant}
       className={props.className}
-      compactLine={model.compactLine}
       compactLinkPlacement="inline"
-      heading={model.heading}
-      whyTwo={model.whyTwo}
-      currentLabel={currentLink.label}
-      links={[{ ...peer, testIdSuffix: "peer-link" }]}
+      model={pairwiseModel}
     />
   );
 }

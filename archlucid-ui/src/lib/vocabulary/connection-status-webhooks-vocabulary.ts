@@ -17,6 +17,7 @@ import {
   ADMINISTRATION_CONNECTION_STATUS_PATH,
   INTEGRATIONS_WEBHOOKS_PATH,
 } from "@/lib/integrations-nav-paths";
+import type { PairwiseVocabularyRailModel } from "@/lib/vocabulary/create-pairwise-vocabulary-rail";
 
 export type ConnectionStatusWebhooksSurfaceId = "connection-status" | "webhooks";
 
@@ -58,14 +59,27 @@ export const CONNECTION_STATUS_WEBHOOKS_WEBHOOKS_LINK: ConnectionStatusWebhooksL
   whenToUse: "Configure webhook subscriptions and delivery destinations.",
 };
 
-/** Full vocabulary model (heading, why-two copy, and deep links). */
-export function buildConnectionStatusWebhooksVocabulary(): ConnectionStatusWebhooksVocabularyModel {
+/** Pairwise model for Connection status ↔ Webhooks (fixed routes). */
+export function buildConnectionStatusWebhooksPairwiseRail(): PairwiseVocabularyRailModel<ConnectionStatusWebhooksSurfaceId> {
   return {
     heading: CONNECTION_STATUS_WEBHOOKS_HEADING,
     whyTwo: CONNECTION_STATUS_WEBHOOKS_WHY_TWO,
     compactLine: CONNECTION_STATUS_WEBHOOKS_COMPACT_LINE,
-    connectionStatusLink: CONNECTION_STATUS_WEBHOOKS_STATUS_LINK,
-    webhooksLink: CONNECTION_STATUS_WEBHOOKS_WEBHOOKS_LINK,
+    currentLink: CONNECTION_STATUS_WEBHOOKS_STATUS_LINK,
+    peerLink: CONNECTION_STATUS_WEBHOOKS_WEBHOOKS_LINK,
+  };
+}
+
+/** Full vocabulary model (heading, why-two copy, and deep links). */
+export function buildConnectionStatusWebhooksVocabulary(): ConnectionStatusWebhooksVocabularyModel {
+  const rail = buildConnectionStatusWebhooksPairwiseRail();
+
+  return {
+    heading: rail.heading,
+    whyTwo: rail.whyTwo,
+    compactLine: rail.compactLine,
+    connectionStatusLink: rail.currentLink,
+    webhooksLink: rail.peerLink,
   };
 }
 
