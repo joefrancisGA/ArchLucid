@@ -6,7 +6,8 @@ import { useMemo, useState } from "react";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { ArchitecturesHubListSkeleton } from "@/app/(operator)/architecture/architectures/_sections/ArchitecturesHubListSkeleton";
 import { ArchitectureDraftGuidanceDisclosure } from "@/components/architecture/ArchitectureDraftGuidanceDisclosure";
-import { PathChooserCreateObjectVocabularyRail } from "@/components/PathChooserCreateObjectVocabularyRail";
+import { WorkspaceScopeEmptyTeaching } from "@/components/WorkspaceScopeEmptyTeaching";
+import { useOperatorScopeRecord } from "@/hooks/use-operator-scope-record";
 import { ProjectsRecycleDraftsPackageVocabularyRail } from "@/components/ProjectsRecycleDraftsPackageVocabularyRail";
 import { Button } from "@/components/ui/button";
 import {
@@ -67,6 +68,7 @@ import { buyerFilterChipClass } from "@/lib/buyer/buyer-shell-home-present";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { formatRelativeTime } from "@/lib/relative-time";
+import { resolveWorkspaceScopeEmptyTeachingForHub } from "@/lib/workspace-scope-empty-teaching";
 import { cn } from "@/lib/utils";
 
 type ArchitectureFilterId =
@@ -181,6 +183,12 @@ export function ArchitectureDraftListClient(): React.JSX.Element {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeFilter, setActiveFilter] = useState<ArchitectureFilterId>("all");
   const [activeSort, setActiveSort] = useState<ArchitectureSortId>("updated-desc");
+  const scopeRecord = useOperatorScopeRecord();
+  const workspaceScopeTeaching = resolveWorkspaceScopeEmptyTeachingForHub({
+    listEmpty: entries.length === 0,
+    scopeRecord,
+    objectPlural: "architecture drafts",
+  });
 
   const filterCounts = useMemo(() => {
     const counts = new Map<ArchitectureFilterId, number>();
@@ -212,17 +220,25 @@ export function ArchitectureDraftListClient(): React.JSX.Element {
             <PathChooserCreateObjectVocabularyRail currentSurfaceId="architecture-drafts" />
           </>
         ) : null}
-        <EnterpriseCompactEmptyState
-          title={ARCHITECTURES_HUB_EMPTY_TITLE}
-          description={ARCHITECTURES_HUB_EMPTY_BODY}
-          actions={[
-            {
-              label: CREATE_ARCHITECTURE_LABEL,
-              href: ARCHITECTURES_NEW_PATH,
-              variant: "primary",
-            },
-          ]}
-        />
+        {workspaceScopeTeaching !== null ? (
+          <WorkspaceScopeEmptyTeaching
+            title={workspaceScopeTeaching.title}
+            body={workspaceScopeTeaching.body}
+            ctaLabel={workspaceScopeTeaching.ctaLabel}
+          />
+        ) : (
+          <EnterpriseCompactEmptyState
+            title={ARCHITECTURES_HUB_EMPTY_TITLE}
+            description={ARCHITECTURES_HUB_EMPTY_BODY}
+            actions={[
+              {
+                label: CREATE_ARCHITECTURE_LABEL,
+                href: ARCHITECTURES_NEW_PATH,
+                variant: "primary",
+              },
+            ]}
+          />
+        )}
       </div>
     );
   }

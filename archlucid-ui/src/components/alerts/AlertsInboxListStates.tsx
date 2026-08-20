@@ -1,6 +1,8 @@
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import type { EnterpriseCompactEmptyStateProps } from "@/components/EnterpriseCompactEmptyState";
+import { WorkspaceScopeEmptyTeaching } from "@/components/WorkspaceScopeEmptyTeaching";
 import { Skeleton } from "@/components/ui/skeleton";
+import type { WorkspaceScopeEmptyTeachingCopy } from "@/lib/workspace-scope-empty-teaching";
 
 export type AlertsInboxListStatesProps = {
   readonly loading: boolean;
@@ -8,6 +10,7 @@ export type AlertsInboxListStatesProps = {
   readonly visibleAlertCount: number;
   readonly alertCount: number;
   readonly emptyFilteredProps: EnterpriseCompactEmptyStateProps;
+  readonly workspaceScopeEmptyTeaching?: WorkspaceScopeEmptyTeachingCopy | null;
 };
 
 function AlertsInboxListLoadingSkeleton(): React.JSX.Element {
@@ -40,7 +43,17 @@ export function AlertsInboxListStates(props: AlertsInboxListStatesProps) {
       ) : null}
 
       {!props.loading && !props.hasLoadFailure && props.visibleAlertCount === 0 ? (
-        <EnterpriseCompactEmptyState {...props.emptyFilteredProps} />
+        <>
+          {props.workspaceScopeEmptyTeaching !== null && props.workspaceScopeEmptyTeaching !== undefined ? (
+            <WorkspaceScopeEmptyTeaching
+              title={props.workspaceScopeEmptyTeaching.title}
+              body={props.workspaceScopeEmptyTeaching.body}
+              ctaLabel={props.workspaceScopeEmptyTeaching.ctaLabel}
+            />
+          ) : (
+            <EnterpriseCompactEmptyState {...props.emptyFilteredProps} />
+          )}
+        </>
       ) : null}
     </>
   );

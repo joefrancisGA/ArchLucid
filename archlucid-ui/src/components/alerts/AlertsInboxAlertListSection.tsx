@@ -48,6 +48,7 @@ export function AlertsInboxAlertListSection({ controller, emptyFilteredProps }: 
         visibleAlertCount={visibleAlerts.length}
         alertCount={alerts.length}
         emptyFilteredProps={emptyFilteredProps}
+        workspaceScopeEmptyTeaching={controller.workspaceScopeEmptyTeaching}
       />
 
       {visibleAlerts.length > 0
