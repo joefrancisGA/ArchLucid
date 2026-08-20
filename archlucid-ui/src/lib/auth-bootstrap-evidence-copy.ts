@@ -7,7 +7,7 @@ export const AUTH_BOOTSTRAP_CLAIM_DISCIPLINE_HEADING = "What workspace setup is 
 export const AUTH_BOOTSTRAP_FOLLOW_UPS_TITLE = "Where to go next";
 
 export const AUTH_BOOTSTRAP_CLAIM_DISCIPLINE =
-  "Post-sign-in workspace setup chooses or creates a workspace — it is an authentication handoff, not a sealed-review diligence Sources package. After you enter a workspace, open Assurance status or a finalized review when you need live workspace evidence.";
+  "Post-sign-in workspace setup chooses or creates a workspace — setup only, not a full audit export. After you enter a workspace, open Assurance status or a finalized review when you need live evidence.";
 
 export const AUTH_BOOTSTRAP_SOURCES_INTRO =
   "Use these follow-ups when bootstrap is blocked or you need product orientation before a workspace is ready.";

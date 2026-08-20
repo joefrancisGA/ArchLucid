@@ -14,7 +14,7 @@ export const GOVERNANCE_APPROVAL_HELP_TOPIC_LABEL = "How governance approval wor
 export const GOVERNANCE_APPROVAL_HELP_CLAIM_DISCIPLINE_HEADING = "What this guide does not cover";
 
 export const GOVERNANCE_APPROVAL_HELP_CLAIM_DISCIPLINE =
-  "This guide explains workflow, roles, and statuses — open the approval queue, Workspace Health, Findings, or Audit when you need live decisions or governed trails.";
+  "This guide explains workflow, roles, and statuses — open the approval queue, Workspace Health, Findings, or Audit when you need live decisions or official activity records.";
 
 export const GOVERNANCE_APPROVAL_HELP_FOLLOW_UPS_TITLE = "Where to go next";
 

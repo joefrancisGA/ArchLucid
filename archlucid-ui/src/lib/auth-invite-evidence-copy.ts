@@ -7,7 +7,7 @@ export const AUTH_INVITE_CLAIM_DISCIPLINE_HEADING = "What invitation accept is n
 export const AUTH_INVITE_FOLLOW_UPS_TITLE = "Where to go next";
 
 export const AUTH_INVITE_CLAIM_DISCIPLINE =
-  "This invitation accept page validates a workspace invite before sign-in — it is an authentication handoff, not a sealed-review diligence Sources package. After you sign in and join, open Assurance status or a finalized review when you need live workspace evidence.";
+  "This invitation accept page validates a workspace invite before sign-in — sign-in help only, not a full audit export. After you sign in and join, open Assurance status or a finalized review when you need live evidence.";
 
 export const AUTH_INVITE_SOURCES_INTRO =
   "Use these follow-ups when the invitation is invalid or you need product orientation before signing in.";

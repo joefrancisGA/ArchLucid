@@ -6,7 +6,7 @@ import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
 export const PROJECTS_RECYCLE_BIN_CANONICAL_PATH = "/administration/workspace-settings/recycle-bin" as const;
 
 export const PROJECTS_RECYCLE_BIN_CLAIM_DISCIPLINE =
-  "This Projects recycle bin lists soft-deleted architecture projects you can restore - it is not a sealed-review diligence Sources package. Open Tenant settings, Architecture drafts, or Audit when you need workspace scope or governed trails.";
+  "This Projects recycle bin lists soft-deleted architecture projects you can restore — not a full audit export. Open Tenant settings, Architecture drafts, or Audit for workspace scope or activity records.";
 
 export const PROJECTS_RECYCLE_BIN_SOURCES_INTRO =
   "Use these follow-ups when restored projects turn into architecture drafts, tenant scope checks, or audit cites.";
