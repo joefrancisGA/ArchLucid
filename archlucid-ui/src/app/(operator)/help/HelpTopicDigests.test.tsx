@@ -30,7 +30,6 @@ import {
   DIGESTS_HELP_SAMPLE_DIGEST_BROWSE_LABEL,
 } from "@/lib/digests-help-guide-content";
 import { DIGESTS_BROWSE_TAB_PATH, DIGESTS_SCHEDULE_TAB_PATH } from "@/lib/digests-route-paths";
-import { HELP_DILIGENCE_ARTIFACT_INDEX_TITLE } from "@/lib/help/help-diligence-artifact-index";
 import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 import { resolveGuideHeadingsForStrip } from "@/lib/claim-discipline-policy";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
@@ -119,7 +118,7 @@ describe("HelpDigestsGuideView", () => {
       DIGESTS_HELP_CLAIM_HEADING_ID,
     );
     expect(screen.getByRole("heading", { name: DIGESTS_HELP_FOLLOW_UPS_TITLE })).toBeInTheDocument();
-    expect(screen.queryByRole("heading", { name: HELP_DILIGENCE_ARTIFACT_INDEX_TITLE })).toBeNull();
+    expect(screen.queryByText(/Diligence artifact/i)).toBeNull();
     expect(screen.getByTestId("help-digests-sources")).toBeInTheDocument();
 
     const followUps = screen.getByTestId("help-digests-sources");

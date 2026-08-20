@@ -8,7 +8,7 @@ import {
 } from "@/lib/connect-azure-securely-help-content";
 
 describe("ConnectAzureSecurelyHelpEvidenceOrientationStrip", () => {
-  it("renders claim discipline and diligence artifact index links", () => {
+  it("renders claim discipline and where-to-go-next links", () => {
     render(<ConnectAzureSecurelyHelpEvidenceOrientationStrip />);
 
     expect(screen.getByTestId("connect-azure-securely-help-claim-discipline")).toHaveTextContent(

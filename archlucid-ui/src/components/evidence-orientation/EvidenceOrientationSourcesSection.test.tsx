@@ -16,7 +16,7 @@ describe("EvidenceOrientationSourcesSection", () => {
       <EvidenceOrientationSourcesSection
         testId="audit-trail-help-sources"
         headingId="audit-trail-help-sources-heading"
-        title="Diligence artifact index"
+        title="Where to go next"
         intro="Use these follow-ups."
         links={LINKS}
       />,
@@ -24,7 +24,7 @@ describe("EvidenceOrientationSourcesSection", () => {
 
     const section = screen.getByTestId("audit-trail-help-sources");
     expect(section).toHaveAttribute("aria-labelledby", "audit-trail-help-sources-heading");
-    expect(screen.getByRole("heading", { name: "Diligence artifact index" })).toHaveAttribute(
+    expect(screen.getByRole("heading", { name: "Where to go next" })).toHaveAttribute(
       "id",
       "audit-trail-help-sources-heading",
     );
@@ -40,7 +40,7 @@ describe("EvidenceOrientationSourcesSection", () => {
       <EvidenceOrientationSourcesSection
         testId="report-a-problem-help-sources"
         headingId="report-a-problem-help-sources-heading"
-        title="Diligence artifact index"
+        title="Where to go next"
         intro="Follow-ups."
         links={[{ label: "Support inbox", href: "/administration/support", adminOnly: true }]}
       />,
@@ -54,7 +54,7 @@ describe("EvidenceOrientationSourcesSection", () => {
       <EvidenceOrientationSourcesSection
         testId="caiq-sig-response-help-sources"
         headingId="caiq-sig-response-help-sources-heading"
-        title="Diligence artifact index"
+        title="Where to go next"
         intro="Follow-ups."
         links={[{ label: "Trust center", href: "/assurance-status", when: "During vendor review" }]}
         layout="stacked"
@@ -79,5 +79,25 @@ describe("EvidenceOrientationSourcesSection", () => {
     const section = screen.getByTestId("help-digests-sources");
     expect(section).toHaveClass("bg-al-surface-raised");
     expect(section).not.toHaveClass("bg-neutral-50/80");
+    expect(section.querySelector("p")).toHaveClass("max-w-none");
+    expect(section.querySelector("p")?.className).not.toContain("max-w-3xl");
+  });
+
+  it("uses a two-column index so follow-ups sit beside the intro", () => {
+    render(
+      <EvidenceOrientationSourcesSection
+        testId="cloud-connections-sources"
+        headingId="where-to-go-next"
+        title="Where to go next"
+        intro="Follow-ups."
+        links={LINKS}
+        layout="columns"
+      />,
+    );
+
+    const section = screen.getByTestId("cloud-connections-sources");
+    expect(section).toHaveAttribute("data-layout", "columns");
+    expect(section).toHaveClass("md:grid", "md:grid-cols-2");
+    expect(section.querySelector("ul")).toHaveClass("sm:grid-cols-2");
   });
 });

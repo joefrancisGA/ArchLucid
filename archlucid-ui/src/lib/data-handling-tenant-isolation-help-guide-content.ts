@@ -90,7 +90,7 @@ export const DATA_HANDLING_TENANT_ISOLATION_HELP_OVERVIEW_CROSS_CHECK_LINKS: rea
   [{ label: "Related topics", href: `#${DATA_HANDLING_TENANT_ISOLATION_HELP_RELATED_TOPICS_HEADING_ID}` }] as const;
 
 export const DATA_HANDLING_TENANT_ISOLATION_HELP_OVERVIEW_CROSS_CHECK_LINKS_BUYER: readonly DataHandlingTenantIsolationHelpCrossCheckLink[] =
-  [{ label: "Related diligence artifacts", href: "#related-diligence-artifacts" }] as const;
+  [{ label: "Where to go next", href: "#related-diligence-artifacts" }] as const;
 
 export function dataHandlingTenantIsolationHelpOverviewCrossCheckLinks(
   buyerPolishedShell: boolean,

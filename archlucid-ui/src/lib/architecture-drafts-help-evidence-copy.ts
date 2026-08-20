@@ -5,14 +5,12 @@ import {
   ARCHITECTURE_DRAFTS_SOURCES,
 } from "@/lib/architecture-drafts-evidence-copy";
 import { ARCHITECTURES_NEW_PATH, REVIEWS_NEW_PATH } from "@/lib/architecture/architecture-routes";
-import { HELP_DILIGENCE_ARTIFACT_INDEX_TITLE } from "@/lib/help/help-diligence-artifact-index";
-
 export const ARCHITECTURE_DRAFTS_HELP_CANONICAL_PATH = "/help/architecture-drafts" as const;
 
 export const ARCHITECTURE_DRAFTS_HELP_CLAIM_DISCIPLINE_HEADING = "What this guide is not";
 
 export const ARCHITECTURE_DRAFTS_HELP_CLAIM_DISCIPLINE =
-  `This guide orients draft editing before review intake. It is not the ${HELP_DILIGENCE_ARTIFACT_INDEX_TITLE} for a sealed review record — open Sealed review records or Assurance status when procurement needs citations.`;
+  "This guide orients draft editing before review intake. It is not where procurement goes for sealed review record citations — open Sealed review records or Assurance status when procurement needs citations.";
 
 export const ARCHITECTURE_DRAFTS_HELP_FOLLOW_UPS_TITLE = "Where to go next";
 

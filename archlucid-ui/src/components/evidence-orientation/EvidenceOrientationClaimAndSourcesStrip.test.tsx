@@ -3,10 +3,10 @@ import { describe, expect, it } from "vitest";
 
 import { EvidenceOrientationClaimAndSourcesStrip } from "@/components/evidence-orientation/EvidenceOrientationClaimAndSourcesStrip";
 import { EVIDENCE_SOURCES_STYLE } from "@/components/evidence-orientation/evidence-orientation-styles";
-import { HELP_DILIGENCE_ARTIFACT_INDEX_TITLE } from "@/lib/help/help-diligence-artifact-index";
+import { HELP_FOLLOW_UPS_DEFAULT_TITLE } from "@/lib/help/help-markdown-headings";
 
 describe("EvidenceOrientationClaimAndSourcesStrip", () => {
-  it("derives every band test id from the slug and defaults to the diligence index title", () => {
+  it("derives every band test id from the slug and defaults to the where-to-go-next title", () => {
     render(
       <EvidenceOrientationClaimAndSourcesStrip
         slug="findings-help"
@@ -25,7 +25,7 @@ describe("EvidenceOrientationClaimAndSourcesStrip", () => {
       "findings-help-sources-heading",
     );
     expect(
-      screen.getByRole("heading", { name: HELP_DILIGENCE_ARTIFACT_INDEX_TITLE }),
+      screen.getByRole("heading", { name: HELP_FOLLOW_UPS_DEFAULT_TITLE }),
     ).toBeInTheDocument();
   });
 

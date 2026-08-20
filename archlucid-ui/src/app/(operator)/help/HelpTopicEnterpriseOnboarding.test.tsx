@@ -18,7 +18,7 @@ vi.mock("next/navigation", () => ({
 import { HelpEnterpriseOnboardingGuideView } from "@/app/(operator)/help/_sections/HelpEnterpriseOnboardingGuideView";
 import {
   ENTERPRISE_ONBOARDING_HELP_CLAIM_DISCIPLINE,
-  ENTERPRISE_ONBOARDING_HELP_RELATED_PAGES_TITLE,
+  ENTERPRISE_ONBOARDING_HELP_FOLLOW_UPS_TITLE,
   ENTERPRISE_ONBOARDING_HELP_SOURCES,
 } from "@/lib/enterprise-onboarding-help-evidence-copy";
 import {
@@ -174,7 +174,7 @@ describe("HelpEnterpriseOnboardingGuideView enterprise onboarding checklist", ()
     expect(screen.queryByText(/Sources package/i)).toBeNull();
     expect(screen.queryByText(/Diligence artifact/i)).toBeNull();
     expect(screen.getByTestId("enterprise-onboarding-help-sources")).toHaveTextContent(
-      ENTERPRISE_ONBOARDING_HELP_RELATED_PAGES_TITLE,
+      ENTERPRISE_ONBOARDING_HELP_FOLLOW_UPS_TITLE,
     );
 
     const sources = screen.getByTestId("enterprise-onboarding-help-sources");
