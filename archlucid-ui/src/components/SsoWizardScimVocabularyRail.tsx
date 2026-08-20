@@ -2,13 +2,12 @@
 
 import type { JSX } from "react";
 
+import { PairwiseVocabularyRailFromModel } from "@/components/vocabulary/PairwiseVocabularyRailFromModel";
 import {
-  buildSsoWizardScimVocabulary,
-  resolveSsoWizardScimPeerLink,
+  buildSsoWizardScimPairwiseRail,
   type SsoWizardScimSurfaceId,
   type SsoWizardScimVocabularyModel,
 } from "@/lib/vocabulary/sso-wizard-scim-vocabulary";
-import { VocabularyRail } from "@/components/vocabulary/VocabularyRail";
 
 export type SsoWizardScimVocabularyRailProps = {
   /** Surface hosting the strip — marks the current job and links to the peer. */
@@ -27,23 +26,25 @@ export type SsoWizardScimVocabularyRailProps = {
 export function SsoWizardScimVocabularyRail(
   props: SsoWizardScimVocabularyRailProps,
 ): JSX.Element {
-  const model = props.model ?? buildSsoWizardScimVocabulary();
-  const peer = resolveSsoWizardScimPeerLink(props.currentSurfaceId);
-  const currentLink =
-    props.currentSurfaceId === "sso-wizard" ? model.ssoWizardLink : model.scimLink;
+  const pairwiseModel =
+    props.model !== undefined
+      ? {
+          heading: props.model.heading,
+          whyTwo: props.model.whyTwo,
+          compactLine: props.model.compactLine,
+          currentLink: props.model.ssoWizardLink,
+          peerLink: props.model.scimLink,
+        }
+      : buildSsoWizardScimPairwiseRail();
 
   return (
-    <VocabularyRail
+    <PairwiseVocabularyRailFromModel
       testIdPrefix="sso-wizard-scim-vocabulary"
       currentSurfaceId={props.currentSurfaceId}
       variant={props.variant}
       className={props.className}
-      compactLine={model.compactLine}
       compactLinkPlacement="inline"
-      heading={model.heading}
-      whyTwo={model.whyTwo}
-      currentLabel={currentLink.label}
-      links={[{ ...peer, testIdSuffix: "peer-link" }]}
+      model={pairwiseModel}
     />
   );
 }

@@ -14,6 +14,7 @@
 
 import { AUTH_DOMAINS_SETTINGS_CANONICAL_PATH } from "@/lib/auth-domains-settings-evidence-copy";
 import { SCIM_IDENTITY_PROVIDERS_HREF } from "@/lib/scim-provisioning-page-copy";
+import type { PairwiseVocabularyRailModel } from "@/lib/vocabulary/create-pairwise-vocabulary-rail";
 
 export type AuthDomainsIdentityProvidersSurfaceId = "auth-domains" | "identity-providers";
 
@@ -55,14 +56,27 @@ export const AUTH_DOMAINS_IDENTITY_PROVIDERS_IDP_LINK: AuthDomainsIdentityProvid
   whenToUse: "Configure SAML/OIDC federation, role mapping, and sign-in diagnostics.",
 };
 
-/** Full vocabulary model (heading, why-two copy, and deep links). */
-export function buildAuthDomainsIdentityProvidersVocabulary(): AuthDomainsIdentityProvidersVocabularyModel {
+/** Pairwise model for Sign-in domains ↔ Identity providers (fixed routes). */
+export function buildAuthDomainsIdentityProvidersPairwiseRail(): PairwiseVocabularyRailModel<AuthDomainsIdentityProvidersSurfaceId> {
   return {
     heading: AUTH_DOMAINS_IDENTITY_PROVIDERS_HEADING,
     whyTwo: AUTH_DOMAINS_IDENTITY_PROVIDERS_WHY_TWO,
     compactLine: AUTH_DOMAINS_IDENTITY_PROVIDERS_COMPACT_LINE,
-    authDomainsLink: AUTH_DOMAINS_IDENTITY_PROVIDERS_DOMAINS_LINK,
-    identityProvidersLink: AUTH_DOMAINS_IDENTITY_PROVIDERS_IDP_LINK,
+    currentLink: AUTH_DOMAINS_IDENTITY_PROVIDERS_DOMAINS_LINK,
+    peerLink: AUTH_DOMAINS_IDENTITY_PROVIDERS_IDP_LINK,
+  };
+}
+
+/** Full vocabulary model (heading, why-two copy, and deep links). */
+export function buildAuthDomainsIdentityProvidersVocabulary(): AuthDomainsIdentityProvidersVocabularyModel {
+  const rail = buildAuthDomainsIdentityProvidersPairwiseRail();
+
+  return {
+    heading: rail.heading,
+    whyTwo: rail.whyTwo,
+    compactLine: rail.compactLine,
+    authDomainsLink: rail.currentLink,
+    identityProvidersLink: rail.peerLink,
   };
 }
 

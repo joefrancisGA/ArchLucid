@@ -17,6 +17,7 @@
 import type { EnterpriseStatusKind } from "@/lib/design-tokens";
 import { SCIM_PROVISIONING_CANONICAL_PATH } from "@/lib/scim-provisioning-evidence-copy";
 import { SETTINGS_USERS_PATH } from "@/lib/settings-admin-route-paths";
+import type { PairwiseVocabularyRailModel } from "@/lib/vocabulary/create-pairwise-vocabulary-rail";
 
 export type UsersMembersDirectorySource = "scim_synced" | "manual";
 
@@ -68,14 +69,27 @@ export const SCIM_USERS_USERS_LINK: ScimUsersLink = {
   whenToUse: "Invite people, assign roles, and manage workspace access.",
 };
 
-/** Full vocabulary model (heading, why-two copy, and deep links). */
-export function buildScimUsersVocabulary(): ScimUsersVocabularyModel {
+/** Pairwise model for SCIM provisioning ↔ Users invite (fixed routes). */
+export function buildScimUsersPairwiseRail(): PairwiseVocabularyRailModel<ScimUsersSurfaceId> {
   return {
     heading: SCIM_USERS_HEADING,
     whyTwo: SCIM_USERS_WHY_TWO,
     compactLine: SCIM_USERS_COMPACT_LINE,
-    scimLink: SCIM_USERS_SCIM_LINK,
-    usersLink: SCIM_USERS_USERS_LINK,
+    currentLink: SCIM_USERS_SCIM_LINK,
+    peerLink: SCIM_USERS_USERS_LINK,
+  };
+}
+
+/** Full vocabulary model (heading, why-two copy, and deep links). */
+export function buildScimUsersVocabulary(): ScimUsersVocabularyModel {
+  const rail = buildScimUsersPairwiseRail();
+
+  return {
+    heading: rail.heading,
+    whyTwo: rail.whyTwo,
+    compactLine: rail.compactLine,
+    scimLink: rail.currentLink,
+    usersLink: rail.peerLink,
   };
 }
 

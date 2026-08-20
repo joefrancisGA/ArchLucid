@@ -14,6 +14,7 @@
 
 import { SCIM_PROVISIONING_CANONICAL_PATH } from "@/lib/scim-provisioning-evidence-copy";
 import { SSO_WIZARD_CANONICAL_PATH } from "@/lib/sso-wizard-evidence-copy";
+import type { PairwiseVocabularyRailModel } from "@/lib/vocabulary/create-pairwise-vocabulary-rail";
 
 export type SsoWizardScimSurfaceId = "sso-wizard" | "scim";
 
@@ -55,14 +56,27 @@ export const SSO_WIZARD_SCIM_SCIM_LINK: SsoWizardScimLink = {
   whenToUse: "Create and verify SCIM tokens for directory sync.",
 };
 
-/** Full vocabulary model (heading, why-two copy, and deep links). */
-export function buildSsoWizardScimVocabulary(): SsoWizardScimVocabularyModel {
+/** Pairwise model for SSO wizard ↔ SCIM provisioning (fixed routes). */
+export function buildSsoWizardScimPairwiseRail(): PairwiseVocabularyRailModel<SsoWizardScimSurfaceId> {
   return {
     heading: SSO_WIZARD_SCIM_HEADING,
     whyTwo: SSO_WIZARD_SCIM_WHY_TWO,
     compactLine: SSO_WIZARD_SCIM_COMPACT_LINE,
-    ssoWizardLink: SSO_WIZARD_SCIM_SSO_WIZARD_LINK,
-    scimLink: SSO_WIZARD_SCIM_SCIM_LINK,
+    currentLink: SSO_WIZARD_SCIM_SSO_WIZARD_LINK,
+    peerLink: SSO_WIZARD_SCIM_SCIM_LINK,
+  };
+}
+
+/** Full vocabulary model (heading, why-two copy, and deep links). */
+export function buildSsoWizardScimVocabulary(): SsoWizardScimVocabularyModel {
+  const rail = buildSsoWizardScimPairwiseRail();
+
+  return {
+    heading: rail.heading,
+    whyTwo: rail.whyTwo,
+    compactLine: rail.compactLine,
+    ssoWizardLink: rail.currentLink,
+    scimLink: rail.peerLink,
   };
 }
 

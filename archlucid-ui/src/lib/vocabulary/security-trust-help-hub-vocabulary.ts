@@ -15,6 +15,7 @@
 
 import { SECURITY_TRUST_HELP_CANONICAL_PATH } from "@/lib/security-trust-help-evidence-copy";
 import { SETTINGS_SECURITY_TRUST_PATH } from "@/lib/settings-admin-route-paths";
+import type { PairwiseVocabularyRailModel } from "@/lib/vocabulary/create-pairwise-vocabulary-rail";
 
 export type SecurityTrustHelpHubSurfaceId = "security-trust-help" | "security-trust-hub";
 
@@ -56,14 +57,27 @@ export const SECURITY_TRUST_HELP_HUB_HUB_LINK: SecurityTrustHelpHubLink = {
   whenToUse: "Open the in-product operator hub for workspace procurement materials.",
 };
 
-/** Full vocabulary model (heading, why-two copy, and deep links). */
-export function buildSecurityTrustHelpHubVocabulary(): SecurityTrustHelpHubVocabularyModel {
+/** Pairwise model for Security & Trust help ↔ Security & Trust hub (fixed routes). */
+export function buildSecurityTrustHelpHubPairwiseRail(): PairwiseVocabularyRailModel<SecurityTrustHelpHubSurfaceId> {
   return {
     heading: SECURITY_TRUST_HELP_HUB_HEADING,
     whyTwo: SECURITY_TRUST_HELP_HUB_WHY_TWO,
     compactLine: SECURITY_TRUST_HELP_HUB_COMPACT_LINE,
-    securityTrustHelpLink: SECURITY_TRUST_HELP_HUB_HELP_LINK,
-    securityTrustHubLink: SECURITY_TRUST_HELP_HUB_HUB_LINK,
+    currentLink: SECURITY_TRUST_HELP_HUB_HELP_LINK,
+    peerLink: SECURITY_TRUST_HELP_HUB_HUB_LINK,
+  };
+}
+
+/** Full vocabulary model (heading, why-two copy, and deep links). */
+export function buildSecurityTrustHelpHubVocabulary(): SecurityTrustHelpHubVocabularyModel {
+  const rail = buildSecurityTrustHelpHubPairwiseRail();
+
+  return {
+    heading: rail.heading,
+    whyTwo: rail.whyTwo,
+    compactLine: rail.compactLine,
+    securityTrustHelpLink: rail.currentLink,
+    securityTrustHubLink: rail.peerLink,
   };
 }
 

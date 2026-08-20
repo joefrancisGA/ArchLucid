@@ -188,6 +188,12 @@ describe("run detail bundle deferred imports (TB-697 / TB-933 / TB-2021 / TB-211
     expect(deferredChunksSource).toContain('"run-detail-estimated-llm-cost-card"');
     expect(deferredChunksSource).toContain('"run-detail-capture-evidence-section"');
     expect(deferredChunksSource).toContain('"run-detail-manifest-summary-section"');
+    expect(deferredChunksSource).toContain('"run-detail-agent-results-summary-card"');
+    expect(deferredChunksSource).toContain('"run-detail-review-agent-execution-log-section"');
+    expect(deferredChunksSource).toContain('"run-detail-retrieval-grounding-summary-card"');
+    expect(deferredChunksSource).toContain('"run-detail-run-metadata-section"');
+    expect(deferredChunksSource).toContain('"run-detail-last-failure-card"');
+    expect(deferredChunksSource).toContain('"run-detail-trust-evidence-card-section"');
     expect(manifestLoaderSource).toContain('import("@/components/reviews/ReviewWorkspaceShell")');
     expect(manifestLoaderSource).toContain('import("@/components/reviews/RunDetailOverviewPanelClient")');
     expect(manifestLoaderSource).toContain('import("@/components/architecture/ArchitectureCreatedReviewWorkspaceShell")');
@@ -255,11 +261,31 @@ describe("run detail bundle deferred imports (TB-697 / TB-933 / TB-2021 / TB-211
     expect(manifestLoaderSource).toContain(
       'import("@/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailManifestSummarySection")',
     );
+    expect(manifestLoaderSource).toContain('import("@/components/runs/RunAgentResultsSummaryCard")');
+    expect(manifestLoaderSource).toContain('import("@/components/reviews/ReviewAgentExecutionLogSection")');
+    expect(manifestLoaderSource).toContain('import("@/components/runs/RunRetrievalGroundingSummaryCard")');
+    expect(manifestLoaderSource).toContain(
+      'import("@/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailRunMetadataSection")',
+    );
+    expect(manifestLoaderSource).toContain('import("@/components/runs/RunDetailLastFailureCard")');
+    expect(manifestLoaderSource).toContain('import("@/components/runs/RunTrustEvidenceCardSection")');
     expect(deferredChunksSource).toContain("RunDetailArchitectureCreateWorkItemSectionDeferred");
     expect(deferredChunksSource).toContain("RunDetailArchitectureSponsorSharingPanelDeferred");
     expect(deferredChunksSource).toContain("RunDetailArchitectureCreatedWorkspaceDeferred");
     expect(deferredChunksSource).not.toContain('import("@/components/architecture/ArchitectureCreatedWorkspace")');
     expect(deferredChunksSource).toContain("RunDetailProgressTrackerDeferred");
+    expect(deferredChunksSource).toContain("RunDetailAgentResultsSummaryCardDeferred");
+    expect(deferredChunksSource).toContain("RunDetailReviewAgentExecutionLogSectionDeferred");
+    expect(deferredChunksSource).toContain("RunDetailRetrievalGroundingSummaryCardDeferred");
+    expect(deferredChunksSource).toContain("RunDetailRunMetadataSectionDeferred");
+    expect(deferredChunksSource).toContain("RunDetailLastFailureCardDeferred");
+    expect(deferredChunksSource).toContain("RunDetailTrustEvidenceCardSectionDeferred");
+    expect(deferredChunksSource).not.toContain('import("@/components/runs/RunAgentResultsSummaryCard")');
+    expect(deferredChunksSource).not.toContain('import("@/components/reviews/ReviewAgentExecutionLogSection")');
+    expect(deferredChunksSource).not.toContain('import("@/components/runs/RunRetrievalGroundingSummaryCard")');
+    expect(deferredChunksSource).not.toContain('import("./RunDetailRunMetadataSection")');
+    expect(deferredChunksSource).not.toContain('import("@/components/runs/RunDetailLastFailureCard")');
+    expect(deferredChunksSource).not.toContain('import("@/components/runs/RunTrustEvidenceCardSection")');
     expect(deferredChunksSource).toContain("RunDetailOutcomeCardsDeferred");
     expect(deferredChunksSource).toContain("RunDetailWhatIfBranchCompareBannerDeferred");
     expect(deferredChunksSource).toContain("RunDetailOperatorTechnicalForensicsPanelDeferred");

@@ -64,36 +64,29 @@ export const RunDetailEstimatedLlmCostCardDeferred = createDeferredComponentFrom
   { suppressLoading: true },
 );
 
-export const RunDetailAgentResultsSummaryCardDeferred = dynamic(
-  () => import("@/components/runs/RunAgentResultsSummaryCard").then((module) => module.RunAgentResultsSummaryCard),
-  { ssr: false, loading: () => null },
+export const RunDetailAgentResultsSummaryCardDeferred = createDeferredComponentFromManifest(
+  "run-detail-agent-results-summary-card",
+  { suppressLoading: true },
 );
 
-export const RunDetailReviewAgentExecutionLogSectionDeferred = dynamic(
-  () =>
-    import("@/components/reviews/ReviewAgentExecutionLogSection").then(
-      (module) => module.ReviewAgentExecutionLogSection,
-    ),
-  { ssr: false, loading: () => null },
+export const RunDetailReviewAgentExecutionLogSectionDeferred = createDeferredComponentFromManifest(
+  "run-detail-review-agent-execution-log-section",
+  { suppressLoading: true },
 );
 
-export const RunDetailRetrievalGroundingSummaryCardDeferred = dynamic(
-  () =>
-    import("@/components/runs/RunRetrievalGroundingSummaryCard").then(
-      (module) => module.RunRetrievalGroundingSummaryCard,
-    ),
-  { ssr: false, loading: () => null },
+export const RunDetailRetrievalGroundingSummaryCardDeferred = createDeferredComponentFromManifest(
+  "run-detail-retrieval-grounding-summary-card",
+  { suppressLoading: true },
 );
 
-export const RunDetailRunMetadataSectionDeferred = dynamic(
-  () =>
-    import("./RunDetailRunMetadataSection").then((module) => module.RunDetailRunMetadataSection),
-  { ssr: false, loading: () => null },
+export const RunDetailRunMetadataSectionDeferred = createDeferredComponentFromManifest(
+  "run-detail-run-metadata-section",
+  { suppressLoading: true },
 );
 
-export const RunDetailLastFailureCardDeferred = dynamic(
-  () => import("@/components/runs/RunDetailLastFailureCard").then((module) => module.RunDetailLastFailureCard),
-  { ssr: false, loading: () => null },
+export const RunDetailLastFailureCardDeferred = createDeferredComponentFromManifest(
+  "run-detail-last-failure-card",
+  { suppressLoading: true },
 );
 
 export const RunDetailProgressTrackerDeferred = createDeferredComponentFromManifest(
@@ -101,10 +94,9 @@ export const RunDetailProgressTrackerDeferred = createDeferredComponentFromManif
   { suppressLoading: true },
 );
 
-export const RunDetailTrustEvidenceCardSectionDeferred = dynamic(
-  () =>
-    import("@/components/runs/RunTrustEvidenceCardSection").then((module) => module.RunTrustEvidenceCardSection),
-  { ssr: false, loading: () => null },
+export const RunDetailTrustEvidenceCardSectionDeferred = createDeferredComponentFromManifest(
+  "run-detail-trust-evidence-card-section",
+  { suppressLoading: true },
 );
 
 export const RunDetailSampleReviewPackageSummaryDeferred = dynamic(
