@@ -26,16 +26,12 @@ describe("CloudFirstInventoryCoach (TB-2222)", () => {
     );
   });
 
-  it("uses empty phase copy when no connection exists", () => {
+  it("uses empty phase copy when no connection exists without a hub duplicate CTA", () => {
     render(<CloudFirstInventoryCoach hasConnection={false} hasSuccessfulPull={false} />);
 
     expect(screen.getByTestId("cloud-first-inventory-coach")).toHaveAttribute("data-phase", "empty");
     expect(screen.getByText(CLOUD_FIRST_INVENTORY_COACH_EMPTY_TITLE)).toBeInTheDocument();
     expect(screen.getByText(/0 of 3 cloud providers connected/i)).toBeInTheDocument();
-    expect(screen.getByTestId("cloud-first-inventory-coach-cta")).toHaveAttribute(
-      "href",
-      "/integrations/cloud-connections/aws",
-    );
-    expect(screen.getByTestId("cloud-first-inventory-coach-cta")).toHaveTextContent("Configure AWS");
+    expect(screen.queryByTestId("cloud-first-inventory-coach-cta")).not.toBeInTheDocument();
   });
 });

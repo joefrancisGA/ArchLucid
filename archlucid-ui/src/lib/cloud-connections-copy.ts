@@ -1,5 +1,7 @@
 /** Cloud connections page copy — cloud-neutral, no platform advocacy. */
 
+import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
+
 export const CLOUD_CONNECTIONS_PAGE_TITLE = "Cloud connections";
 
 export const CLOUD_CONNECTIONS_PAGE_SUBTITLE =
@@ -16,17 +18,12 @@ export const CLOUD_CONNECTIONS_SECURITY_ASSURANCE_TITLE = "Security assurance";
 export const CLOUD_CONNECTIONS_SECURITY_ASSURANCE_BODY =
   "Cloud connections use read-only federated access. Review procurement materials and tenant isolation notes before enabling collection in production.";
 
-export const CLOUD_CONNECTIONS_SECURITY_ASSURANCE_LINK_LABEL = "Security & Trust";
+export const CLOUD_CONNECTIONS_SECURITY_ASSURANCE_LINK_LABEL = OPERATOR_NAV_LINK_LABELS.securityTrust;
 
 export const CLOUD_CONNECTIONS_PROVIDER_EVIDENCE_NONE = "None collected yet";
 
 /** Compact empty-state line for unconfigured provider landing cards (TB-1143). */
 export const CLOUD_CONNECTIONS_PROVIDER_NOT_CONNECTED = "Not connected";
-
-export const CLOUD_CONNECTIONS_EVIDENCE_ONLY_TITLE = "Evidence-only upload";
-
-export const CLOUD_CONNECTIONS_EVIDENCE_ONLY_SUMMARY =
-  "Run architecture reviews from briefs, diagrams, documents, and exported inventory ZIPs without connecting a cloud provider.";
 
 export const CLOUD_CONNECTIONS_PROVIDER_AUTH_MODEL: Readonly<Record<"azure" | "aws" | "gcp", string>> = {
   azure: "Workload identity federation (read-only service principal)",
