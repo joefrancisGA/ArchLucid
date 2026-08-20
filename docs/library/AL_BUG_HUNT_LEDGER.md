@@ -643,11 +643,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** recommendation engine; alternatives
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationEngine.cs
 - **test-filter:** FullyQualifiedName~ArchitectureRecommendationAlternativesTests|FullyQualifiedName~ArchitectureRecommendationProposedChangeTests
-- **hunts:** 1
-- **bugs-found:** 1
+- **hunts:** 2
+- **bugs-found:** 2
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-17
-- **last-bug:** 2026-08-17
+- **last-hunt:** 2026-08-20
+- **last-bug:** 2026-08-20
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
@@ -655,7 +655,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] Recommended change targets an element that is not in the current package (retired: engine has no package element targeting)
 - [x] Alternative list duplicates the primary recommendation as if it were distinct
-- [ ] Engine emits a must-change when evidence only supports a suggestion
+- [x] Engine emits a must-change when evidence only supports a suggestion (proven)
 
 ---
 
