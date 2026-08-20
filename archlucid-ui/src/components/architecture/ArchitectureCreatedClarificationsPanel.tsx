@@ -27,6 +27,8 @@ export type ArchitectureCreatedClarificationsPanelProps = {
   readonly dismissedClarificationGapIds: ReadonlySet<string>;
   readonly onDismissClarificationGap: (itemId: string) => void;
   readonly onNavigateTab: (tab: ArchitectureWorkspaceTabId) => void;
+  /** When Do this next owns the page primary, keep tab-scoped follow-ons as outline actions. */
+  readonly pagePrimaryOwnedElsewhere?: boolean;
 };
 
 function hasOpenQuestionEntities(
@@ -66,6 +68,7 @@ export function ArchitectureCreatedClarificationsPanel(
   const hasOpenQuestions = hasOpenQuestionEntities(openQuestions);
   const isZeroGapSuccess =
     !parseResult.hasPartialParseFailure && !hasVisibleWorkQueue && !hasOpenQuestions;
+  const reviewDiagramVariant = props.pagePrimaryOwnedElsewhere === true ? "outline" : "primary";
 
   return (
     <div className="space-y-5" data-testid="architecture-workspace-clarifications-panel">
@@ -100,7 +103,7 @@ export function ArchitectureCreatedClarificationsPanel(
             ready for the next step.
           </p>
           <div className="flex flex-wrap gap-2">
-            <Button type="button" variant="primary" size="sm" asChild>
+            <Button type="button" variant={reviewDiagramVariant} size="sm" asChild>
               <Link href={diagramTabHref}>Review diagram</Link>
             </Button>
             <Button type="button" variant="outline" size="sm" asChild>

@@ -48,6 +48,8 @@ export type ArchitectureCreatedOverviewPanelProps = {
   readonly openClarificationGapCount: number;
   readonly onNavigateTab: (tab: ArchitectureWorkspaceTabId) => void;
   readonly submittedArchitectureSection: React.ReactNode;
+  /** When Do this next owns the page primary, keep tab-scoped follow-ons as outline actions. */
+  readonly pagePrimaryOwnedElsewhere?: boolean;
 };
 
 /** Overview tab — sponsor architecture narrative without operational chrome. */
@@ -71,6 +73,7 @@ export function ArchitectureCreatedOverviewPanel(
   const clarificationGapCount = props.openClarificationGapCount;
   const showStructuredSections = overviewSections.length > 0;
   const showEmptyOverviewState = !showStructuredSections && !parseResult.hasPartialParseFailure;
+  const continueClarifyingVariant = props.pagePrimaryOwnedElsewhere === true ? "outline" : "primary";
 
   return (
     <div
@@ -124,7 +127,13 @@ export function ArchitectureCreatedOverviewPanel(
             {ARCHITECTURE_CREATED_OVERVIEW_EMPTY_CAUSE}
           </p>
           <div className="flex flex-wrap gap-2">
-            <Button type="button" variant="primary" size="sm" asChild data-testid="architecture-overview-continue-clarifying">
+            <Button
+              type="button"
+              variant={continueClarifyingVariant}
+              size="sm"
+              asChild
+              data-testid="architecture-overview-continue-clarifying"
+            >
               <Link href={continueClarifyingHref}>Continue clarifying</Link>
             </Button>
             <Button
