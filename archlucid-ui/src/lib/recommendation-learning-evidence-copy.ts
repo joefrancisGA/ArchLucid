@@ -11,7 +11,7 @@ export const RECOMMENDATION_LEARNING_HELP_TOPIC_LABEL = "How recommendation lear
 export const RECOMMENDATION_LEARNING_FOLLOW_UPS_TITLE = "Where to go next";
 
 export const RECOMMENDATION_LEARNING_CLAIM_DISCIPLINE =
-  "Recommendation learning rebuilds ranking weights from historical advisory outcomes for architects — preview and rebuild are operational profile controls, not a sealed-review diligence Sources package. Open Advisory scans or Pilot feedback when you need live recommendation or feedback trails.";
+  "Recommendation learning rebuilds ranking weights from historical advisory outcomes — preview and rebuild are workspace controls only, not a full audit export. Open Advisory scans or Pilot feedback when you need live recommendation or feedback records.";
 
 export const RECOMMENDATION_LEARNING_SOURCES_INTRO =
   "Use these follow-ups when profile eligibility, rebuild impact, or architect feedback needs a live workflow trail.";

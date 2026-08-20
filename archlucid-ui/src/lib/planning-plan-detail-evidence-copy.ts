@@ -33,7 +33,7 @@ export const PLANNING_PLAN_DETAIL_MISSING_PLAN_ID_BODY =
   "Open a plan from Improvement planning to review its priority, evidence links, and action steps.";
 
 export const PLANNING_PLAN_DETAIL_CLAIM_DISCIPLINE =
-  "This plan is derived from captured review feedback in the current workspace — not a sealed-review diligence Sources trail.";
+  "This plan is derived from captured review feedback in the current workspace — not a full audit export.";
 
 export const PLANNING_PLAN_DETAIL_CLAIM_HEADING = "Derived plan only" as const;
 

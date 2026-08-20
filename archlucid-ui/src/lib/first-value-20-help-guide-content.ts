@@ -9,7 +9,7 @@ export const FIRST_VALUE_20_HELP_PAGE_SUBTITLE =
   "Admin/SE time-boxed checklist when platform wiring is already green. Not the default customer help path.";
 
 export const FIRST_VALUE_20_HELP_OVERVIEW =
-  "Use this runbook only when you are an Admin or SE collecting a sponsor-safe artifact in about 20 minutes. Customer architects should stay on Your first architecture review. Label simulator outputs honestly unless real-mode LLM evidence was collected.";
+  "Use this runbook only when you are an Admin or SE collecting an export-ready demo artifact in about 20 minutes. Customer architects should stay on Your first architecture review. Label simulator outputs honestly unless real-mode LLM evidence was collected.";
 
 export const FIRST_VALUE_20_HELP_CLAIM_DISCIPLINE =
   "A completed 20-minute path produces architecture-review evidence for SE demos — not certification.";

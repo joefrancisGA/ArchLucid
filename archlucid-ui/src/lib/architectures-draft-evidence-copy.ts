@@ -10,7 +10,7 @@ import {
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
 export const ARCHITECTURES_DRAFT_CLAIM_DISCIPLINE =
-  "Editing a saved architecture draft does not start a review - this page is drafting-first workspace, not a sealed-review diligence Sources package. Open Start a review when the brief is ready for evidence intake.";
+  "Editing a saved architecture draft does not start a review — not a full audit export. Open Start a review when the brief is ready for evidence intake.";
 
 export const ARCHITECTURES_DRAFT_SOURCES_INTRO =
   "Use these when the brief is ready for review intake, you want to start another draft, or you need first-run orientation.";

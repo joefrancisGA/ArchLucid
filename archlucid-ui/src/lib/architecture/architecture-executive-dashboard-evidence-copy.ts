@@ -5,7 +5,7 @@ import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 export const ARCHITECTURE_SPONSOR_DASHBOARD_CANONICAL_PATH = SPONSOR_DASHBOARD_HREF;
 
 export const ARCHITECTURE_SPONSOR_DASHBOARD_CLAIM_DISCIPLINE =
-  "Sponsor dashboard KPIs, trends, and sponsor exports summarize portfolio ROI and workspace health for the selected window — they are not a sealed-review diligence Sources package. Open Architecture reviews, Evidence trail, or Trust Center when you need sponsor-safe trails.";
+  "Sponsor dashboard KPIs, trends, and sponsor exports summarize portfolio ROI and workspace health for the selected window — not a full audit export. Open Architecture reviews, Evidence trail, or Trust Center for export-ready records.";
 
 export const ARCHITECTURE_SPONSOR_DASHBOARD_SOURCES_INTRO =
   "Use these follow-ups when portfolio KPIs need architecture reviews, grounded Q&A, ROI methodology, or assurance cites.";

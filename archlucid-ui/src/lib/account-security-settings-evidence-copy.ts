@@ -15,7 +15,7 @@ export const ACCOUNT_SECURITY_SETTINGS_CLAIM_HEADING_ID =
   "account-security-settings-claim-discipline-heading" as const;
 
 export const ACCOUNT_SECURITY_SETTINGS_CLAIM_DISCIPLINE =
-  `This ${ACCOUNT_SECURITY_PAGE_TITLE} page manages your personal sign-in methods - it is not a sealed-review diligence Sources package. Open Security and trust help, Preferences, or Assurance status when you need trust cites, theme settings, or published diligence.`;
+  `This ${ACCOUNT_SECURITY_PAGE_TITLE} page manages your personal sign-in methods — not a full audit export. Open Security and trust help, Preferences, or Assurance status for official materials or theme settings.`;
 
 export const ACCOUNT_SECURITY_SETTINGS_SOURCES_INTRO =
   "Use these follow-ups when sign-in method changes turn into workspace identity setup, preferences, or assurance cites.";

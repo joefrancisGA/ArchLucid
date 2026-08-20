@@ -8,7 +8,7 @@ export const ARCHITECTURES_NEW_CANONICAL_PATH = ARCHITECTURES_NEW_PATH;
 export const ARCHITECTURES_NEW_HELP_TOPIC_LABEL = "How to create an architecture" as const;
 
 export const ARCHITECTURES_NEW_CLAIM_DISCIPLINE =
-  "Creating or saving an architecture draft does not start a review - this page is a drafting-first workspace, not a sealed-review diligence Sources package. Open Start a review or Evidence intake help when you are ready to file evidence.";
+  "Creating or saving an architecture draft does not start a review — not a full audit export. Open Start a review or Evidence intake help when you are ready to file evidence.";
 
 export const ARCHITECTURES_NEW_SOURCES_INTRO =
   "Use these when the brief is ready for review intake, you want to browse saved drafts, or need first-run orientation.";

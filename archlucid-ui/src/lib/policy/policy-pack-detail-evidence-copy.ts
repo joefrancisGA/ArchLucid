@@ -3,7 +3,7 @@ import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
 export const POLICY_PACK_DETAIL_CLAIM_DISCIPLINE =
-  "Policy pack detail describes published rules and versions for this workspace — not a sealed-review diligence Sources trail.";
+  "Policy pack detail describes published rules and versions for this workspace — not a full audit export.";
 
 export const POLICY_PACK_DETAIL_SOURCES_INTRO =
   "Return to the policy pack library to compare packs, or open reviews and findings when applying rules to a review.";

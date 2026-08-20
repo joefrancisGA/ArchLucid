@@ -5,7 +5,7 @@ import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 export const HELP_TOPIC_CATCHALL_CANONICAL_PATH = "/help/[...topic]" as const;
 
 export const HELP_TOPIC_CATCHALL_CLAIM_DISCIPLINE =
-  "Residual help topics render curated product markdown in the architect help — orientation only, not a sealed-review diligence Sources package from your tenant. Specialty guides (alerts, governance approval, review guide, and siblings) ship richer chrome on their own workbook rows.";
+  "Residual help topics render curated product markdown — orientation only, not a full audit export from your workspace. Specialty guides (alerts, governance approval, review guide, and siblings) have richer pages of their own.";
 
 export const HELP_TOPIC_CATCHALL_SOURCES_INTRO =
   "Use these follow-ups when a residual markdown topic turns into first-run orientation, troubleshooting, or the help hub.";
