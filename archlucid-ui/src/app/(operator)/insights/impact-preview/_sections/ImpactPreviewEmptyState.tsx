@@ -1,15 +1,13 @@
 "use client";
 
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
+import { buildInsightsFinalizedReviewPrerequisiteEmpty } from "@/lib/insights-finalized-review-prerequisite-empty";
 import {
   IMPACT_PREVIEW_ACTION_CREATE_PROPOSED_CHANGE,
   IMPACT_PREVIEW_ACTION_OPEN_PLANNING,
   IMPACT_PREVIEW_ACTION_OPEN_REVIEW_PACKAGES,
   IMPACT_PREVIEW_ACTION_REQUEST_ACCESS,
-  IMPACT_PREVIEW_ACTION_START_REVIEW,
   IMPACT_PREVIEW_CREATE_REVIEW_HREF,
-  IMPACT_PREVIEW_EMPTY_NO_BASELINE_BODY,
-  IMPACT_PREVIEW_EMPTY_NO_BASELINE_TITLE,
   IMPACT_PREVIEW_EMPTY_NO_CANDIDATES_BODY,
   IMPACT_PREVIEW_EMPTY_NO_CANDIDATES_TITLE,
   IMPACT_PREVIEW_EMPTY_PERMISSION_BODY,
@@ -46,16 +44,15 @@ export function ImpactPreviewEmptyState(props: ImpactPreviewEmptyStateProps): Re
   }
 
   if (props.pageState === "no_baseline") {
+    const prerequisiteEmpty = buildInsightsFinalizedReviewPrerequisiteEmpty({
+      jobId: "impact-preview",
+      finalizedCount: 0,
+    });
+
     return (
       <EnterpriseCompactEmptyState
-        testId="impact-preview-no-baseline-empty-state"
-        title={IMPACT_PREVIEW_EMPTY_NO_BASELINE_TITLE}
-        description={IMPACT_PREVIEW_EMPTY_NO_BASELINE_BODY}
+        {...prerequisiteEmpty}
         prominentBoundary
-        actions={[
-          { label: IMPACT_PREVIEW_ACTION_START_REVIEW, href: IMPACT_PREVIEW_CREATE_REVIEW_HREF, variant: "primary" },
-          { label: IMPACT_PREVIEW_ACTION_OPEN_REVIEW_PACKAGES, href: IMPACT_PREVIEW_REVIEWS_HREF, variant: "outline" },
-        ]}
       />
     );
   }

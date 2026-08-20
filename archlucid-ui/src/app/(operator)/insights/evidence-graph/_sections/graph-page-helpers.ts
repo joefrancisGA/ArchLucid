@@ -7,14 +7,13 @@ import {
 import {
   EVIDENCE_GRAPH_AWAITING_SELECTION_BODY,
   EVIDENCE_GRAPH_AWAITING_SELECTION_TITLE,
-  EVIDENCE_GRAPH_EMPTY_BODY,
   EVIDENCE_GRAPH_EMPTY_PRIMARY_ACTION,
   EVIDENCE_GRAPH_EMPTY_SECONDARY_START,
   EVIDENCE_GRAPH_EMPTY_SECONDARY_UPLOAD,
-  EVIDENCE_GRAPH_EMPTY_TITLE,
 } from "@/lib/evidence-graph-page";
 import { EXTRACT_UPLOAD_SETTINGS_PATH } from "@/lib/core-pilot-steps";
 import { GRAPH_IDLE, GRAPH_IDLE_BUYER } from "@/lib/empty-state-presets";
+import { buildInsightsFinalizedReviewPrerequisiteEmpty } from "@/lib/insights-finalized-review-prerequisite-empty";
 import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { graphLooksLikeCoordinatorProvenanceTrail } from "@/lib/graph-mapper";
 import { isStaticDemoPayloadFallbackActiveForRun, isStaticDemoPayloadFallbackEnabled } from "@/lib/operator/operator-static-demo";
@@ -24,10 +23,23 @@ import type { GraphViewModel } from "@/types/graph";
 
 const evidenceGraphSampleHref = `/insights/evidence-graph?runId=${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`;
 
+const EVIDENCE_GRAPH_PREREQUISITE_EMPTY = buildInsightsFinalizedReviewPrerequisiteEmpty({
+  jobId: "evidence-graph",
+  finalizedCount: 0,
+});
+
 const EVIDENCE_GRAPH_IDLE_ACTIONS: EmptyStateProps["actions"] = [
-  { label: EVIDENCE_GRAPH_EMPTY_PRIMARY_ACTION, href: evidenceGraphSampleHref },
-  { label: EVIDENCE_GRAPH_EMPTY_SECONDARY_START, href: "/architecture/reviews/new", variant: "outline" as const },
+  {
+    label: EVIDENCE_GRAPH_PREREQUISITE_EMPTY.actions?.[0]?.label ?? "Open reviews",
+    href: EVIDENCE_GRAPH_PREREQUISITE_EMPTY.actions?.[0]?.href ?? "/architecture/reviews",
+  },
+  {
+    label: EVIDENCE_GRAPH_PREREQUISITE_EMPTY.actions?.[1]?.label ?? EVIDENCE_GRAPH_EMPTY_SECONDARY_START,
+    href: EVIDENCE_GRAPH_PREREQUISITE_EMPTY.actions?.[1]?.href ?? "/architecture/reviews/new",
+    variant: "outline" as const,
+  },
   { label: EVIDENCE_GRAPH_EMPTY_SECONDARY_UPLOAD, href: EXTRACT_UPLOAD_SETTINGS_PATH, variant: "outline" as const },
+  { label: EVIDENCE_GRAPH_EMPTY_PRIMARY_ACTION, href: evidenceGraphSampleHref, variant: "outline" as const },
 ];
 
 /** Graph visualization mode: which endpoint to query and what graph subset to display. */
@@ -96,8 +108,8 @@ export function resolveGraphIdleEmptyPreset(options: GraphIdleEmptyPresetOptions
 
     return {
       icon: GRAPH_IDLE_BUYER.icon,
-      title: EVIDENCE_GRAPH_EMPTY_TITLE,
-      description: EVIDENCE_GRAPH_EMPTY_BODY,
+      title: EVIDENCE_GRAPH_PREREQUISITE_EMPTY.title,
+      description: EVIDENCE_GRAPH_PREREQUISITE_EMPTY.description,
       actions: EVIDENCE_GRAPH_IDLE_ACTIONS,
     };
   }
