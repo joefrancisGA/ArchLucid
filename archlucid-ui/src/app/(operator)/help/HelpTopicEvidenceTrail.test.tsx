@@ -115,7 +115,7 @@ describe("HelpEvidenceTrailGuideView (TB-1360–TB-1364)", () => {
     const claimDiscipline = screen.getByTestId("evidence-trail-help-claim-discipline");
 
     expect(claimDiscipline).toHaveTextContent(EVIDENCE_TRAIL_HELP_CLAIM_DISCIPLINE);
-    expect(claimDiscipline).toHaveTextContent("not a sealed-review diligence Sources package");
+    expect(claimDiscipline).toHaveTextContent("not a full audit export");
 
     const exportActions = screen.getByTestId("help-topic-export-actions");
 
