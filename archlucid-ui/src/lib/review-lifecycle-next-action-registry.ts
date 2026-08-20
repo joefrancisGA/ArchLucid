@@ -118,7 +118,7 @@ export const REVIEW_LIFECYCLE_NEXT_ACTION_REGISTRY: readonly ReviewLifecycleNext
     id: "triage-findings",
     kind: "primary",
     label: "Review findings",
-    description: "Open findings need disposition before finalization or sponsor handoff.",
+    description: "Resolve open findings before you finalize or share with leadership.",
     surfaces: ["review-package"],
     phases: ["in-review"],
   },

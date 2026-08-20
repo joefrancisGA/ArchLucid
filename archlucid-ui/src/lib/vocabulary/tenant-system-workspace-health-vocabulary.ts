@@ -43,10 +43,10 @@ export const TENANT_SYSTEM_WORKSPACE_HEALTH_HEADING =
   "Tenant, system, and workspace health are three different views" as const;
 
 export const TENANT_SYSTEM_WORKSPACE_HEALTH_WHY_THREE =
-  "Tenant health is the internal customer-success view of engagement and governance per tenant. System health shows platform readiness and dependency probes for this deployment. Workspace health is the sponsor KPI strip for the current workspace. One health surface does not replace the others — open the peer link when you need that view." as const;
+  "Tenant health tracks customer engagement per tenant. System health shows platform uptime and dependency checks for this deployment. Workspace health is the sponsor KPI strip for the current workspace. One health page does not replace the others — open the peer link when you need that view." as const;
 
 export const TENANT_SYSTEM_WORKSPACE_HEALTH_COMPACT_LINE =
-  "Tenant health is CS posture; system health is platform probes; workspace health is sponsor KPIs — open the other when you need that view." as const;
+  "Tenant health is customer engagement; system health is platform uptime; workspace health is sponsor KPIs — open the other when you need that view." as const;
 
 export const TENANT_SYSTEM_WORKSPACE_HEALTH_TENANT_LINK: TenantSystemWorkspaceHealthLink = {
   id: "tenant-health",

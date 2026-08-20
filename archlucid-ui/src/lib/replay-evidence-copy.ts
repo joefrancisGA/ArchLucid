@@ -9,7 +9,7 @@ export const REPLAY_HELP_TOPIC_LABEL = "How validate review works" as const;
 export const REPLAY_FOLLOW_UPS_TITLE = "Where to go next";
 
 export const REPLAY_CLAIM_DISCIPLINE =
-  "Validate review re-checks a finalized package (reconstruct, rebuild manifest, or full regeneration) — it is not a sealed-review diligence Sources package by itself. Open the review record, Evidence trail, or Audit when you need governed trails.";
+  "Validate review re-runs checks on one finalized review — not a full audit export on its own. Open the review record, Evidence trail, or Audit when you need official activity records.";
 
 export const REPLAY_SOURCES_INTRO =
   "Use these follow-ups when validation results need review context, pairwise diffs, or help on compare/replay modes.";

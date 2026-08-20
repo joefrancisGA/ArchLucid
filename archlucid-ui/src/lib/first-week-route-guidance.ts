@@ -35,7 +35,7 @@ const BUYER_REVIEW_DETAIL_IN_PROGRESS_GUIDANCE: FirstWeekRouteGuidanceConfig = {
   bridgeCopy:
     "Stay on this page until you finalize — that locks the sealed review record and unlocks sponsor exports.",
   primaryAction: { label: "Finalize this review", href: BUYER_REVIEW_DETAIL_IN_PROGRESS_FINALIZE_ANCHOR },
-  operateDeferralNote: "Skip graph and governance dashboards until after commit unless your pilot explicitly needs them.",
+  operateDeferralNote: "Skip the graph and governance pages until after your first finalized review.",
 };
 
 export const FIRST_WEEK_ROUTE_GUIDANCE_REVIEW_DETAIL_COMMITTED_COLLAPSED_SUMMARY =

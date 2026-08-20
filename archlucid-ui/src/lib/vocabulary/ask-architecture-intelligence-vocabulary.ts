@@ -39,10 +39,10 @@ export const ASK_ARCHITECTURE_INTELLIGENCE_HEADING =
   "Ask review questions and Try another reasoning pass serve different purposes" as const;
 
 export const ASK_ARCHITECTURE_INTELLIGENCE_WHY_TWO =
-  "Ask review questions answers questions about a finalized review and cites evidence from the sealed review record. Try another reasoning pass explores alternative architecture conclusions from a free-form description — not Q&A on a signed review." as const;
+  "Ask review questions answers questions about a finalized review and cites evidence from the sealed review record. Try another reasoning pass explores a new written architecture description — not Q&A on a finalized review." as const;
 
 export const ASK_ARCHITECTURE_INTELLIGENCE_COMPACT_LINE =
-  "Ask review questions is Q&A on a signed review; Try another reasoning pass is an exploratory reasoning tool." as const;
+  "Ask review questions is Q&A on a finalized review; Try another reasoning pass explores a new description." as const;
 
 export const ASK_ARCHITECTURE_INTELLIGENCE_ASK_LINK: AskArchitectureIntelligenceLink = {
   id: "ask-review-questions",

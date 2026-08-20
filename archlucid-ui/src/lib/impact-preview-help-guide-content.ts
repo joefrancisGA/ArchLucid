@@ -57,7 +57,7 @@ export const IMPACT_PREVIEW_HELP_OUTPUT_TILE_ITEMS: readonly ImpactPreviewHelpTi
   },
   {
     label: "Compare and replay",
-    detail: "Open compare when you need governed diff proof after the simulation.",
+    detail: "Open compare when you need a side-by-side record of what changed.",
     href: "/insights/compare-two-reviews",
   },
 ] as const;

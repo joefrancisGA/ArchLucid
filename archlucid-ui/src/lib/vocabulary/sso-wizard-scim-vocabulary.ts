@@ -36,7 +36,7 @@ export const SSO_WIZARD_SCIM_HEADING =
   "SSO wizard and SCIM provisioning serve different purposes" as const;
 
 export const SSO_WIZARD_SCIM_WHY_TWO =
-  "The SSO wizard is guided setup that records and verifies single sign-on configuration for the workspace. SCIM provisioning issues directory-sync tokens so an identity provider can push users and groups. Configuring SSO sign-in is not SCIM directory sync — and issuing a SCIM token does not save SSO configuration." as const;
+  "The SSO wizard walks you through single sign-on setup for the workspace. SCIM provisioning sets up automatic user sync from your identity provider. Setting up sign-in and setting up user sync are separate steps." as const;
 
 export const SSO_WIZARD_SCIM_COMPACT_LINE =
   "SSO wizard records and verifies the sign-in connection; SCIM syncs directory people — open the other when you need both." as const;
