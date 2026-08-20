@@ -3,7 +3,12 @@ import { describe, expect, it } from "vitest";
 
 import { EvidenceOrientationClaimAndSourcesStrip } from "@/components/evidence-orientation/EvidenceOrientationClaimAndSourcesStrip";
 import { EVIDENCE_SOURCES_STYLE } from "@/components/evidence-orientation/evidence-orientation-styles";
+import { WhereToGoNextPreferenceProvider } from "@/components/WhereToGoNextPreferenceProvider";
 import { HELP_FOLLOW_UPS_DEFAULT_TITLE } from "@/lib/help/help-markdown-headings";
+import {
+  WHERE_TO_GO_NEXT_STORAGE_KEY,
+  resetWhereToGoNextSessionStateForTests,
+} from "@/lib/where-to-go-next-preference";
 
 describe("EvidenceOrientationClaimAndSourcesStrip", () => {
   it("derives every band test id from the slug and defaults to the where-to-go-next title", () => {
@@ -100,5 +105,23 @@ describe("EvidenceOrientationClaimAndSourcesStrip", () => {
       ...EVIDENCE_SOURCES_STYLE.operatorMuted.panel.split(" "),
     );
     expect(screen.getByRole("list")).toHaveClass("flex-wrap");
+  });
+
+  it("omits sources-only strips when Where to go next is turned off", () => {
+    resetWhereToGoNextSessionStateForTests();
+    window.localStorage.setItem(WHERE_TO_GO_NEXT_STORAGE_KEY, "false");
+
+    render(
+      <WhereToGoNextPreferenceProvider>
+        <EvidenceOrientationClaimAndSourcesStrip
+          slug="cloud-connections"
+          sourcesIntro="Follow-ups."
+          sources={[{ label: "Preferences", href: "/account/preferences" }]}
+        />
+      </WhereToGoNextPreferenceProvider>,
+    );
+
+    expect(screen.queryByTestId("cloud-connections-orientation")).not.toBeInTheDocument();
+    resetWhereToGoNextSessionStateForTests();
   });
 });

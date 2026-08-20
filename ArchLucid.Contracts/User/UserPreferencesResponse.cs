@@ -15,4 +15,31 @@ public sealed class UserPreferencesResponse
         get;
         set;
     }
+
+    public CloudPlatformScopeDto CloudPlatformScope
+    {
+        get;
+        set;
+    } = CloudPlatformScopeValues.Default;
+
+    /// <summary>True when the user has an explicit stored cloud-platform scope row.</summary>
+    public bool CloudPlatformScopeIsExplicit
+    {
+        get;
+        set;
+    }
+
+    /// <summary>When false, operator follow-up strips titled Where to go next are hidden.</summary>
+    public bool WhereToGoNextEnabled
+    {
+        get;
+        set;
+    } = true;
+
+    /// <summary>True when the user has an explicit stored Where to go next visibility row.</summary>
+    public bool WhereToGoNextIsExplicit
+    {
+        get;
+        set;
+    }
 }

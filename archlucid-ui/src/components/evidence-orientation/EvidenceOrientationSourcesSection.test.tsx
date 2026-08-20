@@ -3,7 +3,12 @@ import { describe, expect, it } from "vitest";
 
 import { EvidenceOrientationSourcesSection } from "@/components/evidence-orientation/EvidenceOrientationSourcesSection";
 import { EVIDENCE_SOURCES_STYLE } from "@/components/evidence-orientation/evidence-orientation-styles";
+import { WhereToGoNextPreferenceProvider } from "@/components/WhereToGoNextPreferenceProvider";
 import type { EvidenceOrientationLink } from "@/lib/evidence-surface-copy";
+import {
+  WHERE_TO_GO_NEXT_STORAGE_KEY,
+  resetWhereToGoNextSessionStateForTests,
+} from "@/lib/where-to-go-next-preference";
 
 const LINKS: readonly EvidenceOrientationLink[] = [
   { label: "Audit", href: "/governance/audit" },
@@ -99,5 +104,25 @@ describe("EvidenceOrientationSourcesSection", () => {
     expect(section).toHaveAttribute("data-layout", "columns");
     expect(section).toHaveClass("md:grid", "md:grid-cols-2");
     expect(section.querySelector("ul")).toHaveClass("sm:grid-cols-2");
+  });
+
+  it("renders nothing when Where to go next is turned off in personal preferences", () => {
+    resetWhereToGoNextSessionStateForTests();
+    window.localStorage.setItem(WHERE_TO_GO_NEXT_STORAGE_KEY, "false");
+
+    render(
+      <WhereToGoNextPreferenceProvider>
+        <EvidenceOrientationSourcesSection
+          testId="audit-trail-help-sources"
+          headingId="audit-trail-help-sources-heading"
+          title="Where to go next"
+          intro="Use these follow-ups."
+          links={LINKS}
+        />
+      </WhereToGoNextPreferenceProvider>,
+    );
+
+    expect(screen.queryByTestId("audit-trail-help-sources")).not.toBeInTheDocument();
+    resetWhereToGoNextSessionStateForTests();
   });
 });

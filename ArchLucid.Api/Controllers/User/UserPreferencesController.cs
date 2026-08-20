@@ -16,7 +16,7 @@ using Microsoft.AspNetCore.RateLimiting;
 
 namespace ArchLucid.Api.Controllers.User;
 
-/// <summary>Per-user account preferences (appearance, future personal settings).</summary>
+/// <summary>Per-user account preferences (appearance, cloud-platform visibility, future personal settings).</summary>
 [ApiController]
 [Authorize(Policy = ArchLucidPolicies.AuthenticatedUserOnly)]
 [ApiVersion("1.0")]
@@ -39,19 +39,34 @@ public sealed class UserPreferencesController(
     public async Task<IActionResult> GetPreferences(CancellationToken cancellationToken)
     {
         string userId = _actorContext.GetActorId();
-        string? stored = await _userSettingsRepository.TryGetAsync(
+        string? appearanceStored = await _userSettingsRepository.TryGetAsync(
             userId,
             UserSettingKeys.AppearancePreference,
             cancellationToken);
+        string? cloudScopeStored = await _userSettingsRepository.TryGetAsync(
+            userId,
+            UserSettingKeys.CloudPlatformScope,
+            cancellationToken);
+        string? whereToGoNextStored = await _userSettingsRepository.TryGetAsync(
+            userId,
+            UserSettingKeys.WhereToGoNextEnabled,
+            cancellationToken);
 
-        string appearancePreference = AppearancePreferenceValues.NormalizeOrNull(stored)
+        string appearancePreference = AppearancePreferenceValues.NormalizeOrNull(appearanceStored)
             ?? AppearancePreferenceValues.Default;
+        CloudPlatformScopeDto cloudPlatformScope = CloudPlatformScopeValues.NormalizeOrDefault(cloudScopeStored);
+        bool whereToGoNextEnabled = WhereToGoNextVisibilityValues.ParseOrDefault(whereToGoNextStored);
 
         return Ok(new UserPreferencesResponse
         {
             AppearancePreference = appearancePreference,
-            AppearancePreferenceIsExplicit = stored is not null
-                && AppearancePreferenceValues.NormalizeOrNull(stored) is not null,
+            AppearancePreferenceIsExplicit = appearanceStored is not null
+                && AppearancePreferenceValues.NormalizeOrNull(appearanceStored) is not null,
+            CloudPlatformScope = cloudPlatformScope,
+            CloudPlatformScopeIsExplicit = cloudScopeStored is not null
+                && CloudPlatformScopeValues.TryParse(cloudScopeStored) is not null,
+            WhereToGoNextEnabled = whereToGoNextEnabled,
+            WhereToGoNextIsExplicit = whereToGoNextStored is not null,
         });
     }
 
@@ -84,6 +99,58 @@ public sealed class UserPreferencesController(
             userId,
             UserSettingKeys.AppearancePreference,
             normalized,
+            cancellationToken);
+
+        return NoContent();
+    }
+
+    /// <summary>Persists the authenticated user's cloud-platform visibility preference.</summary>
+    [HttpPut("cloud-platforms")]
+    [MutatingAuditExcluded("Personal cloud-platform scope stored in dbo.UserSettings; no durable tenant audit row required.")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> SetCloudPlatformScope(
+        [FromBody] SetCloudPlatformScopeRequest? body,
+        CancellationToken cancellationToken)
+    {
+        if (body?.Scope is null)
+        {
+            return this.BadRequestProblem("scope is required.", ProblemTypes.ValidationFailed);
+        }
+
+        string userId = _actorContext.GetActorId();
+        string serialized = CloudPlatformScopeValues.Serialize(body.Scope);
+
+        await _userSettingsRepository.UpsertAsync(
+            userId,
+            UserSettingKeys.CloudPlatformScope,
+            serialized,
+            cancellationToken);
+
+        return NoContent();
+    }
+
+    /// <summary>Persists whether Where to go next follow-up strips are shown.</summary>
+    [HttpPut("where-to-go-next")]
+    [MutatingAuditExcluded("Personal Where to go next visibility stored in dbo.UserSettings; no durable tenant audit row required.")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> SetWhereToGoNextVisibility(
+        [FromBody] SetWhereToGoNextVisibilityRequest? body,
+        CancellationToken cancellationToken)
+    {
+        if (body is null)
+        {
+            return this.BadRequestProblem("Request body is required.", ProblemTypes.ValidationFailed);
+        }
+
+        string userId = _actorContext.GetActorId();
+        string serialized = WhereToGoNextVisibilityValues.Serialize(body.Enabled);
+
+        await _userSettingsRepository.UpsertAsync(
+            userId,
+            UserSettingKeys.WhereToGoNextEnabled,
+            serialized,
             cancellationToken);
 
         return NoContent();

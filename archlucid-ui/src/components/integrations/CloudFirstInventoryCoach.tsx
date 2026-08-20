@@ -58,13 +58,15 @@ export function CloudFirstInventoryCoach(props: CloudFirstInventoryCoachProps): 
           ))}
         </ol>
       ) : null}
-      <div className="mt-3">
-        <Button type="button" variant="primary" size="sm" asChild>
-          <Link href={view.primaryCtaHref} data-testid="cloud-first-inventory-coach-cta">
-            {view.primaryCtaLabel}
-          </Link>
-        </Button>
-      </div>
+      {view.primaryCtaLabel !== null && view.primaryCtaHref !== null ? (
+        <div className="mt-3">
+          <Button type="button" variant="primary" size="sm" asChild>
+            <Link href={view.primaryCtaHref} data-testid="cloud-first-inventory-coach-cta">
+              {view.primaryCtaLabel}
+            </Link>
+          </Button>
+        </div>
+      ) : null}
     </aside>
   );
 }

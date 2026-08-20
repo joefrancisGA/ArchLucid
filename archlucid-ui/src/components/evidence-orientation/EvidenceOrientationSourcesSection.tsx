@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 
 import {
@@ -5,6 +7,7 @@ import {
   EVIDENCE_SOURCES_STYLE,
   type EvidenceOrientationSourcesStyle,
 } from "@/components/evidence-orientation/evidence-orientation-styles";
+import { useWhereToGoNextVisible } from "@/components/WhereToGoNextPreferenceProvider";
 import { Button } from "@/components/ui/button";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { EvidenceOrientationLink } from "@/lib/evidence-surface-copy";
@@ -53,7 +56,13 @@ export function EvidenceOrientationSourcesSection({
   headingClassName,
   distinguishFollowUpDestinations = false,
   promotedSourceHref,
-}: EvidenceOrientationSourcesSectionProps): React.JSX.Element {
+}: EvidenceOrientationSourcesSectionProps): React.JSX.Element | null {
+  const whereToGoNextVisible = useWhereToGoNextVisible();
+
+  if (!whereToGoNextVisible) {
+    return null;
+  }
+
   return (
     <section className={style.panel} aria-labelledby={headingId} data-testid={testId}>
       <h2 id={headingId} className={headingClassName ?? EVIDENCE_ORIENTATION_HEADING_CLASS}>

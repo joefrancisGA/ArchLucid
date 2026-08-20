@@ -1,8 +1,3 @@
-import {
-  ARCHLUCID_OPERATOR_SCOPE_CHANGED_EVENT,
-  getEffectiveBrowserProxyScopeHeaders,
-} from "@/lib/operator/operator-scope-storage";
-
 export type CloudPlatformId = "evidence-only" | "azure" | "aws" | "gcp";
 
 export type CloudProviderId = "azure" | "aws" | "gcp";
@@ -13,6 +8,9 @@ export const CLOUD_PROVIDER_NEUTRAL_ORDER: readonly CloudProviderId[] = ["aws", 
 
 export const CLOUD_PLATFORM_SCOPE_CHANGED_EVENT = "archlucid:cloud-platform-scope-changed";
 
+export const CLOUD_PLATFORM_SCOPE_ACCOUNT_SYNC_LOCAL_ONLY_MESSAGE =
+  "Saved on this device only. Account sync failed — check connectivity and try again.";
+
 export const DEFAULT_CLOUD_PLATFORM_SCOPE: CloudPlatformScope = {
   "evidence-only": true,
   azure: true,
@@ -20,54 +18,35 @@ export const DEFAULT_CLOUD_PLATFORM_SCOPE: CloudPlatformScope = {
   gcp: true,
 };
 
-/**
- * When operator workspace is missing, localStorage persistence is deferred.
- * Keep a session copy so checkbox toggles still drive the landing card grid (TB-1139).
- */
-let deferredScopeWithoutWorkspace: CloudPlatformScope | null = null;
-
-function scopeStorageKey(workspaceId: string): string {
-  return `archlucid.cloud-platform-scope.v1.${workspaceId.trim()}`;
-}
-
-function readWorkspaceIdForScope(): string | null {
-  if (typeof window === "undefined") {
-    return null;
-  }
-
-  const workspaceId = getEffectiveBrowserProxyScopeHeaders()["x-workspace-id"]?.trim() ?? "";
-
-  return workspaceId.length > 0 ? workspaceId : null;
-}
-
-/** True when platform-scope preferences can be persisted for the current operator workspace. */
-export function hasCloudPlatformScopeWorkspace(): boolean {
-  if (typeof window === "undefined") {
-    return false;
-  }
-
-  const headers = getEffectiveBrowserProxyScopeHeaders();
-  const tenantId = headers["x-tenant-id"]?.trim() ?? "";
-  const workspaceId = headers["x-workspace-id"]?.trim() ?? "";
-  const projectId = headers["x-project-id"]?.trim() ?? "";
-
-  return tenantId.length > 0 && workspaceId.length > 0 && projectId.length > 0;
-}
-
-/**
- * Landing filter scope: fail closed to all platforms when no workspace is selected (TB-1142).
- * Session-deferred writes (TB-1139) still flush when a workspace appears.
- */
-export function resolveLandingCloudPlatformScope(): CloudPlatformScope {
-  if (!hasCloudPlatformScopeWorkspace()) {
-    return DEFAULT_CLOUD_PLATFORM_SCOPE;
-  }
-
-  return readCloudPlatformScopeFromStorage();
-}
+const PERSONAL_SCOPE_STORAGE_KEY = "archlucid.cloud-platform-scope.v1.personal";
 
 function dispatchCloudPlatformScopeChanged(): void {
   window.dispatchEvent(new CustomEvent(CLOUD_PLATFORM_SCOPE_CHANGED_EVENT));
+}
+
+function normalizeCloudPlatformScope(
+  parsed: Partial<Record<CloudPlatformId, boolean>> | null | undefined,
+): CloudPlatformScope {
+  return {
+    "evidence-only": parsed?.["evidence-only"] ?? true,
+    azure: parsed?.azure ?? true,
+    aws: parsed?.aws ?? true,
+    gcp: parsed?.gcp ?? true,
+  };
+}
+
+function scopesEqual(left: CloudPlatformScope, right: CloudPlatformScope): boolean {
+  return (
+    left["evidence-only"] === right["evidence-only"]
+    && left.azure === right.azure
+    && left.aws === right.aws
+    && left.gcp === right.gcp
+  );
+}
+
+/** Personal cloud-platform visibility for the signed-in user. */
+export function resolveLandingCloudPlatformScope(): CloudPlatformScope {
+  return readCloudPlatformScopeFromStorage();
 }
 
 export function readCloudPlatformScopeFromStorage(): CloudPlatformScope {
@@ -75,28 +54,8 @@ export function readCloudPlatformScopeFromStorage(): CloudPlatformScope {
     return DEFAULT_CLOUD_PLATFORM_SCOPE;
   }
 
-  const workspaceId = readWorkspaceIdForScope();
-
-  if (workspaceId === null) {
-    return deferredScopeWithoutWorkspace ?? DEFAULT_CLOUD_PLATFORM_SCOPE;
-  }
-
-  // Workspace just became available: seed empty storage from session toggles, then drop deferred
-  // so logout cannot resurrect a stale filter (TB-1139 / Bugbot).
-  if (deferredScopeWithoutWorkspace !== null) {
-    const flushed = deferredScopeWithoutWorkspace;
-    deferredScopeWithoutWorkspace = null;
-    const existingRaw = window.localStorage.getItem(scopeStorageKey(workspaceId));
-
-    if (existingRaw === null || existingRaw.length === 0) {
-      window.localStorage.setItem(scopeStorageKey(workspaceId), JSON.stringify(flushed));
-
-      return flushed;
-    }
-  }
-
   try {
-    const raw = window.localStorage.getItem(scopeStorageKey(workspaceId));
+    const raw = window.localStorage.getItem(PERSONAL_SCOPE_STORAGE_KEY);
 
     if (raw === null || raw.length === 0) {
       return DEFAULT_CLOUD_PLATFORM_SCOPE;
@@ -104,12 +63,7 @@ export function readCloudPlatformScopeFromStorage(): CloudPlatformScope {
 
     const parsed = JSON.parse(raw) as Partial<Record<CloudPlatformId, boolean>>;
 
-    return {
-      "evidence-only": parsed["evidence-only"] ?? true,
-      azure: parsed.azure ?? true,
-      aws: parsed.aws ?? true,
-      gcp: parsed.gcp ?? true,
-    };
+    return normalizeCloudPlatformScope(parsed);
   } catch {
     return DEFAULT_CLOUD_PLATFORM_SCOPE;
   }
@@ -120,24 +74,67 @@ export function writeCloudPlatformScopeToStorage(scope: CloudPlatformScope): voi
     return;
   }
 
-  const workspaceId = readWorkspaceIdForScope();
-
-  if (workspaceId === null) {
-    // Persist in session memory and notify subscribers — never silent no-op (TB-1139).
-    deferredScopeWithoutWorkspace = scope;
-    dispatchCloudPlatformScopeChanged();
-
-    return;
-  }
-
-  deferredScopeWithoutWorkspace = null;
-  window.localStorage.setItem(scopeStorageKey(workspaceId), JSON.stringify(scope));
+  window.localStorage.setItem(PERSONAL_SCOPE_STORAGE_KEY, JSON.stringify(scope));
   dispatchCloudPlatformScopeChanged();
 }
 
-/** Clears deferred no-workspace scope between Vitest cases. */
+export function persistCloudPlatformScopeLocally(scope: CloudPlatformScope): void {
+  writeCloudPlatformScopeToStorage(scope);
+}
+
+export async function syncCloudPlatformScopeFromServer(): Promise<CloudPlatformScope | null> {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
+  try {
+    const { fromCloudPlatformScopeDto, getUserPreferences, setUserCloudPlatformScope } = await import(
+      "@/lib/api/user-preferences"
+    );
+    const remote = await getUserPreferences();
+    const localScope = readCloudPlatformScopeFromStorage();
+
+    if (!remote.cloudPlatformScopeIsExplicit && !scopesEqual(localScope, DEFAULT_CLOUD_PLATFORM_SCOPE)) {
+      await setUserCloudPlatformScope(localScope);
+      persistCloudPlatformScopeLocally(localScope);
+
+      return localScope;
+    }
+
+    const normalized = fromCloudPlatformScopeDto(remote.cloudPlatformScope);
+
+    persistCloudPlatformScopeLocally(normalized);
+
+    return normalized;
+  } catch {
+    return null;
+  }
+}
+
+export async function persistCloudPlatformScopeToServer(scope: CloudPlatformScope): Promise<boolean> {
+  try {
+    const { setUserCloudPlatformScope } = await import("@/lib/api/user-preferences");
+    await setUserCloudPlatformScope(scope);
+
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export async function persistCloudPlatformScope(scope: CloudPlatformScope): Promise<boolean> {
+  persistCloudPlatformScopeLocally(scope);
+
+  return persistCloudPlatformScopeToServer(scope);
+}
+
+/** Clears personal scope between Vitest cases. */
 export function resetCloudPlatformScopeSessionStateForTests(): void {
-  deferredScopeWithoutWorkspace = null;
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  window.localStorage.removeItem(PERSONAL_SCOPE_STORAGE_KEY);
 }
 
 export function visibleCloudProviders(scope: CloudPlatformScope): CloudProviderId[] {
@@ -170,10 +167,8 @@ export function subscribeCloudPlatformScopeChanges(onChange: () => void): () => 
   };
 
   window.addEventListener(CLOUD_PLATFORM_SCOPE_CHANGED_EVENT, handler);
-  window.addEventListener(ARCHLUCID_OPERATOR_SCOPE_CHANGED_EVENT, handler);
 
   return () => {
     window.removeEventListener(CLOUD_PLATFORM_SCOPE_CHANGED_EVENT, handler);
-    window.removeEventListener(ARCHLUCID_OPERATOR_SCOPE_CHANGED_EVENT, handler);
   };
 }

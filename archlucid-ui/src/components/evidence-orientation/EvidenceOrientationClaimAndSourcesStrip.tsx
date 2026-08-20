@@ -1,3 +1,5 @@
+"use client";
+
 import { EvidenceOrientationClaimCallout } from "@/components/evidence-orientation/EvidenceOrientationClaimCallout";
 import { EvidenceOrientationSourcesSection } from "@/components/evidence-orientation/EvidenceOrientationSourcesSection";
 import { EvidenceOrientationStripShell } from "@/components/evidence-orientation/EvidenceOrientationStripShell";
@@ -6,6 +8,7 @@ import {
   type EvidenceOrientationClaimStyle,
   type EvidenceOrientationSourcesStyle,
 } from "@/components/evidence-orientation/evidence-orientation-styles";
+import { useWhereToGoNextVisible } from "@/components/WhereToGoNextPreferenceProvider";
 import { resolveClaimDisciplineForStrip } from "@/lib/claim-discipline-policy";
 import type { EvidenceOrientationLink } from "@/lib/evidence-surface-copy";
 import { HUB_SECONDARY_SOURCES_LAYOUT } from "@/lib/evidence-orientation/hub-secondary-follow-ups";
@@ -79,10 +82,15 @@ export function EvidenceOrientationClaimAndSourcesStrip({
   stripTestId,
   distinguishFollowUpDestinations = slug.startsWith("help-"),
   promotedSourceHref,
-}: EvidenceOrientationClaimAndSourcesStripProps): React.JSX.Element {
+}: EvidenceOrientationClaimAndSourcesStripProps): React.JSX.Element | null {
+  const whereToGoNextVisible = useWhereToGoNextVisible();
   const resolvedClaim: string | undefined = resolveClaimDisciplineForStrip(slug, claim);
   const resolvedSourcesLayout: EvidenceOrientationSourcesLayout =
     sourcesLayout ?? (hubSecondary ? HUB_SECONDARY_SOURCES_LAYOUT : "stacked");
+
+  if (!whereToGoNextVisible && resolvedClaim === undefined) {
+    return null;
+  }
 
   return (
     <EvidenceOrientationStripShell testId={stripTestId ?? `${slug}-orientation`}>
