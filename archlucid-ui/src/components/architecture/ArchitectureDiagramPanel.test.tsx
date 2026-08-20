@@ -128,6 +128,26 @@ describe("ArchitectureDiagramPanel", () => {
     expect(screen.getByRole("link", { name: ARCHITECTURE_DIAGRAM_CLARIFY_ARCHITECTURE_ACTION })).toBeInTheDocument();
   });
 
+  it("demotes Clarify architecture when Do this next owns the page primary", async () => {
+    render(
+      <ArchitectureDiagramPanel
+        runId="run-insufficient-orientation"
+        architectureName="Untitled architecture"
+        sourceText="Too little detail."
+        userAssertions={{ ...assertions, peopleAndSystems: [], architectureName: "" }}
+        canEdit
+        clarifyHref="/architecture/reviews/new?path=guided-intake&rerun=run-insufficient-orientation"
+        pagePrimaryOwnedElsewhere
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-diagram-clarify-architecture")).toBeInTheDocument();
+    });
+
+    expect(screen.getByTestId("architecture-diagram-clarify-architecture").className).toContain("border-neutral-300");
+  });
+
   it("shows secondary regenerate on insufficient when a prior diagram version exists (TB-1843)", async () => {
     appendArchitectureDiagramVersion({
       runId: "run-stale",

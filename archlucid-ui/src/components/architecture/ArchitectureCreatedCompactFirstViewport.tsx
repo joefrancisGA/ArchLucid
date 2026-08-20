@@ -23,6 +23,8 @@ export type ArchitectureCreatedCompactFirstViewportProps = {
   readonly mode?: "full" | "context-bar";
   readonly diagramClarifyHref?: string;
   readonly onUnconfirmedInferredCountChange?: (count: number) => void;
+  /** When Do this next owns the page primary, demote compact next-step CTAs below the strip. */
+  readonly pagePrimaryOwnedElsewhere?: boolean;
 };
 
 function WorkspaceActionLink(props: {
@@ -73,6 +75,7 @@ export function ArchitectureCreatedCompactFirstViewport(
   const primaryAction = model.primaryActions.find((action) => action.primary) ?? model.primaryActions[0];
   const secondaryActions = model.primaryActions.filter((action) => action !== primaryAction);
   const summaryFields = model.summaryFields.slice(0, 3);
+  const compactPrimaryVariant = props.pagePrimaryOwnedElsewhere === true ? "outline" : "primary";
 
   if (mode === "context-bar") {
     const summaryPreview = summaryFields[0]?.value ?? model.architectureName;
@@ -134,6 +137,7 @@ export function ArchitectureCreatedCompactFirstViewport(
               props.onNavigateTab("diagram");
             }}
             onUnconfirmedInferredCountChange={props.onUnconfirmedInferredCountChange}
+            pagePrimaryOwnedElsewhere={props.pagePrimaryOwnedElsewhere}
           />
         </div>
 
@@ -163,7 +167,7 @@ export function ArchitectureCreatedCompactFirstViewport(
                 label={primaryAction.label}
                 onNavigateTab={props.onNavigateTab}
                 testId="architecture-created-primary-action"
-                variant="primary"
+                variant={compactPrimaryVariant}
               />
             ) : null}
             {secondaryActions.length > 0 ? (

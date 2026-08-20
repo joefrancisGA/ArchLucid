@@ -189,6 +189,7 @@ export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspace
         mode={compactViewportMode}
         diagramClarifyHref={diagramClarifyHref}
         onUnconfirmedInferredCountChange={setDiagramInferredCount}
+        pagePrimaryOwnedElsewhere={props.pagePrimaryOwnedElsewhere}
       />
 
       <Tabs value={activeTab} onValueChange={(value) => navigateTab(resolveArchitectureWorkspaceTab(value))}>
@@ -305,6 +306,7 @@ export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspace
                     onDiagramNodesChange={setDiagramNodes}
                     highlightedNodeId={highlightedNodeId}
                     variant="full"
+                    pagePrimaryOwnedElsewhere={props.pagePrimaryOwnedElsewhere}
                   />
                 }
               />
@@ -320,6 +322,7 @@ export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspace
                 onDiagramNodesChange={setDiagramNodes}
                 highlightedNodeId={null}
                 variant="full"
+                pagePrimaryOwnedElsewhere={props.pagePrimaryOwnedElsewhere}
               />
             )}
           </div>
