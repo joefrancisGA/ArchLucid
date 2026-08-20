@@ -206,6 +206,12 @@ describe("run detail bundle deferred imports (TB-697 / TB-933 / TB-2021 / TB-211
     expect(deferredChunksSource).toContain('"run-detail-stalled-review-guidance-callout"');
     expect(deferredChunksSource).toContain('"run-detail-cto-demo-review-route-guard"');
     expect(deferredChunksSource).toContain('"run-detail-policy-pack-impact-callout"');
+    expect(deferredChunksSource).toContain('"run-detail-tabbed-section-nav"');
+    expect(deferredChunksSource).toContain('"run-detail-before-after-delta-panel"');
+    expect(deferredChunksSource).toContain('"run-detail-recurrence-schedule-post-commit-card"');
+    expect(deferredChunksSource).toContain('"run-detail-retrieval-grounding-section"');
+    expect(deferredChunksSource).toContain('"run-detail-advanced-analysis-section"');
+    expect(deferredChunksSource).toContain('"run-detail-sponsor-report-cta-card"');
     expect(manifestLoaderSource).toContain('import("@/components/reviews/ReviewWorkspaceShell")');
     expect(manifestLoaderSource).toContain('import("@/components/reviews/RunDetailOverviewPanelClient")');
     expect(manifestLoaderSource).toContain('import("@/components/architecture/ArchitectureCreatedReviewWorkspaceShell")');
@@ -293,6 +299,18 @@ describe("run detail bundle deferred imports (TB-697 / TB-933 / TB-2021 / TB-211
     expect(manifestLoaderSource).toContain('import("@/components/usability/StalledReviewGuidanceCallout")');
     expect(manifestLoaderSource).toContain('import("@/components/cto-demo/CtoDemoReviewRouteGuard")');
     expect(manifestLoaderSource).toContain('import("@/components/findings/ReviewDetailPolicyPackImpactSection")');
+    expect(manifestLoaderSource).toContain('import("@/components/runs/RunDetailTabbedSectionNav")');
+    expect(manifestLoaderSource).toContain('import("@/components/BeforeAfterDeltaPanel")');
+    expect(manifestLoaderSource).toContain('import("@/components/governance/RecurrenceSchedulePostCommitCard")');
+    expect(manifestLoaderSource).toContain(
+      'import("@/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailRetrievalGroundingSection")',
+    );
+    expect(manifestLoaderSource).toContain(
+      'import("@/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailAdvancedAnalysisSection")',
+    );
+    expect(manifestLoaderSource).toContain(
+      'import("@/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailExecutiveSummaryCtaCard")',
+    );
     expect(deferredChunksSource).toContain("RunDetailArchitectureCreateWorkItemSectionDeferred");
     expect(deferredChunksSource).toContain("RunDetailArchitectureSponsorSharingPanelDeferred");
     expect(deferredChunksSource).toContain("RunDetailSampleReviewPackageSummaryDeferred");
@@ -333,6 +351,18 @@ describe("run detail bundle deferred imports (TB-697 / TB-933 / TB-2021 / TB-211
     expect(deferredChunksSource).not.toContain('import("@/components/usability/StalledReviewGuidanceCallout")');
     expect(deferredChunksSource).not.toContain('import("@/components/cto-demo/CtoDemoReviewRouteGuard")');
     expect(deferredChunksSource).not.toContain('import("@/components/findings/ReviewDetailPolicyPackImpactSection")');
+    expect(deferredChunksSource).toContain("RunDetailTabbedSectionNavDeferred");
+    expect(deferredChunksSource).toContain("BeforeAfterDeltaPanelDeferred");
+    expect(deferredChunksSource).toContain("RecurrenceSchedulePostCommitCardDeferred");
+    expect(deferredChunksSource).toContain("RunDetailRetrievalGroundingSectionDeferred");
+    expect(deferredChunksSource).toContain("RunDetailAdvancedAnalysisSectionDeferred");
+    expect(deferredChunksSource).toContain("RunDetailSponsorReportCtaCardDeferred");
+    expect(deferredChunksSource).not.toContain('import("@/components/runs/RunDetailTabbedSectionNav")');
+    expect(deferredChunksSource).not.toContain('import("@/components/BeforeAfterDeltaPanel")');
+    expect(deferredChunksSource).not.toContain('import("@/components/governance/RecurrenceSchedulePostCommitCard")');
+    expect(deferredChunksSource).not.toContain('import("./RunDetailRetrievalGroundingSection")');
+    expect(deferredChunksSource).not.toContain('import("./RunDetailAdvancedAnalysisSection")');
+    expect(deferredChunksSource).not.toContain('import("./RunDetailExecutiveSummaryCtaCard")');
     expect(deferredChunksSource).toContain("RunDetailOperatorTechnicalForensicsPanelDeferred");
     expect(deferredChunksSource).toContain("RunDetailArtifactsExportsSectionDeferred");
     expect(deferredChunksSource).toContain("ReviewDetailWorkspaceDeferred");
@@ -379,7 +409,7 @@ describe("run detail bundle deferred imports (TB-697 / TB-933 / TB-2021 / TB-211
     expect(deferredChunksSource).toContain('import("./ReviewPackagePrimaryActionTabAware")');
     expect(deferredChunksSource).toContain('import("./RunDetailSubmittedArchitectureSection")');
     expect(deferredChunksSource).toContain('import("./RunDetailBuyerPilotConversionSection")');
-    expect(deferredChunksSource).toContain('import("./RunDetailExecutiveSummaryCtaCard")');
+    expect(deferredChunksSource).not.toContain('import("./RunDetailExecutiveSummaryCtaCard")');
     expect(deferredChunksSource).toContain('import("./RunDetailGovernanceCta")');
     expect(deferredChunksSource).toContain('import("./RunDetailGovernanceDecisionSection")');
     expect(deferredChunksSource).toContain('import("./RunDetailReviewPackageSection")');

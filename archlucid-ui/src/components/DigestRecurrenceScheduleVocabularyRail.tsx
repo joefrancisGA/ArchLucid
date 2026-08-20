@@ -2,13 +2,12 @@
 
 import type { JSX } from "react";
 
+import { PairwiseVocabularyRailFromModel } from "@/components/vocabulary/PairwiseVocabularyRailFromModel";
 import {
-  buildDigestRecurrenceScheduleVocabulary,
-  resolveDigestRecurrenceSchedulePeerLink,
+  buildDigestRecurrenceSchedulePairwiseRail,
   type DigestRecurrenceScheduleSurfaceId,
   type DigestRecurrenceScheduleVocabularyModel,
 } from "@/lib/vocabulary/digest-recurrence-schedule-vocabulary";
-import { VocabularyRail } from "@/components/vocabulary/VocabularyRail";
 
 export type DigestRecurrenceScheduleVocabularyRailProps = {
   /** Surface hosting the strip — marks the current schedule kind and links to the peer. */
@@ -27,25 +26,25 @@ export type DigestRecurrenceScheduleVocabularyRailProps = {
 export function DigestRecurrenceScheduleVocabularyRail(
   props: DigestRecurrenceScheduleVocabularyRailProps,
 ): JSX.Element {
-  const model = props.model ?? buildDigestRecurrenceScheduleVocabulary();
-  const peer = resolveDigestRecurrenceSchedulePeerLink(props.currentSurfaceId);
-  const currentLink =
-    props.currentSurfaceId === "digest-sponsor-schedule"
-      ? model.digestLink
-      : model.recurrenceLink;
+  const pairwiseModel =
+    props.model !== undefined
+      ? {
+          heading: props.model.heading,
+          whyTwo: props.model.whyTwo,
+          compactLine: props.model.compactLine,
+          currentLink: props.model.digestLink,
+          peerLink: props.model.recurrenceLink,
+        }
+      : buildDigestRecurrenceSchedulePairwiseRail();
 
   return (
-    <VocabularyRail
+    <PairwiseVocabularyRailFromModel
       testIdPrefix="digest-recurrence-schedule-vocabulary"
       currentSurfaceId={props.currentSurfaceId}
       variant={props.variant}
       className={props.className}
-      compactLine={model.compactLine}
       compactLinkPlacement="inline"
-      heading={model.heading}
-      whyTwo={model.whyTwo}
-      currentLabel={currentLink.label}
-      links={[{ ...peer, testIdSuffix: "peer-link" }]}
+      model={pairwiseModel}
     />
   );
 }

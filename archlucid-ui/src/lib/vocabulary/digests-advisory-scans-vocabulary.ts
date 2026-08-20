@@ -14,6 +14,7 @@
 
 import { ADVISORY_SCANS_HREF } from "@/lib/advisory-scans-route";
 import { DIGESTS_HUB_PATH } from "@/lib/digests-route-paths";
+import type { PairwiseVocabularyRailModel } from "@/lib/vocabulary/create-pairwise-vocabulary-rail";
 
 export type DigestsAdvisoryScansSurfaceId = "digests" | "advisory-scans";
 
@@ -55,14 +56,27 @@ export const DIGESTS_ADVISORY_SCANS_ADVISORY_LINK: DigestsAdvisoryScansLink = {
   whenToUse: "Generate advisory findings and schedule recurring advisory scans.",
 };
 
-/** Full vocabulary model (heading, why-two copy, and deep links). */
-export function buildDigestsAdvisoryScansVocabulary(): DigestsAdvisoryScansVocabularyModel {
+/** Pairwise model for Digests ↔ Advisory scans (fixed routes). */
+export function buildDigestsAdvisoryScansPairwiseRail(): PairwiseVocabularyRailModel<DigestsAdvisoryScansSurfaceId> {
   return {
     heading: DIGESTS_ADVISORY_SCANS_HEADING,
     whyTwo: DIGESTS_ADVISORY_SCANS_WHY_TWO,
     compactLine: DIGESTS_ADVISORY_SCANS_COMPACT_LINE,
-    digestsLink: DIGESTS_ADVISORY_SCANS_DIGESTS_LINK,
-    advisoryScansLink: DIGESTS_ADVISORY_SCANS_ADVISORY_LINK,
+    currentLink: DIGESTS_ADVISORY_SCANS_DIGESTS_LINK,
+    peerLink: DIGESTS_ADVISORY_SCANS_ADVISORY_LINK,
+  };
+}
+
+/** Full vocabulary model (heading, why-two copy, and deep links). */
+export function buildDigestsAdvisoryScansVocabulary(): DigestsAdvisoryScansVocabularyModel {
+  const rail = buildDigestsAdvisoryScansPairwiseRail();
+
+  return {
+    heading: rail.heading,
+    whyTwo: rail.whyTwo,
+    compactLine: rail.compactLine,
+    digestsLink: rail.currentLink,
+    advisoryScansLink: rail.peerLink,
   };
 }
 

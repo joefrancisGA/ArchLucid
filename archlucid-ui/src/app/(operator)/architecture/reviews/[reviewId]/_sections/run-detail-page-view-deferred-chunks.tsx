@@ -215,8 +215,6 @@ const workspaceHeaderLoading = (
   </header>
 );
 
-const sectionNavLoading = runDetailDeferredLoading("Loading section navigation", "h-10");
-
 /** TB-2117 — workspace identity chrome off sync First Load JS. */
 export const RunDetailWorkspaceHeaderDeferred = createDeferredComponentFromManifest(
   "run-detail-workspace-header",
@@ -246,36 +244,29 @@ export const RunDetailSectionNavDeferred = createDeferredComponentFromManifest("
   loadingClassName: "h-10",
 });
 
-export const RunDetailTabbedSectionNavDeferred = dynamic(
-  () => import("@/components/runs/RunDetailTabbedSectionNav").then((module) => module.RunDetailTabbedSectionNav),
-  { ssr: false, loading: () => sectionNavLoading },
+export const RunDetailTabbedSectionNavDeferred = createDeferredComponentFromManifest(
+  "run-detail-tabbed-section-nav",
+  { loadingClassName: "h-10" },
 );
 
-export const BeforeAfterDeltaPanelDeferred = dynamic(
-  () => import("@/components/BeforeAfterDeltaPanel").then((module) => module.BeforeAfterDeltaPanel),
-  { loading: () => null },
+export const BeforeAfterDeltaPanelDeferred = createDeferredComponentFromManifest(
+  "run-detail-before-after-delta-panel",
+  { suppressLoading: true },
 );
 
-export const RecurrenceSchedulePostCommitCardDeferred = dynamic(
-  () =>
-    import("@/components/governance/RecurrenceSchedulePostCommitCard").then(
-      (module) => module.RecurrenceSchedulePostCommitCard,
-    ),
-  { loading: () => null },
+export const RecurrenceSchedulePostCommitCardDeferred = createDeferredComponentFromManifest(
+  "run-detail-recurrence-schedule-post-commit-card",
+  { suppressLoading: true },
 );
 
-export const RunDetailRetrievalGroundingSectionDeferred = dynamic(
-  () =>
-    import("./RunDetailRetrievalGroundingSection").then(
-      (module) => module.RunDetailRetrievalGroundingSection,
-    ),
-  { loading: () => null },
+export const RunDetailRetrievalGroundingSectionDeferred = createDeferredComponentFromManifest(
+  "run-detail-retrieval-grounding-section",
+  { suppressLoading: true },
 );
 
-export const RunDetailAdvancedAnalysisSectionDeferred = dynamic(
-  () =>
-    import("./RunDetailAdvancedAnalysisSection").then((module) => module.RunDetailAdvancedAnalysisSection),
-  { loading: () => null },
+export const RunDetailAdvancedAnalysisSectionDeferred = createDeferredComponentFromManifest(
+  "run-detail-advanced-analysis-section",
+  { suppressLoading: true },
 );
 
 export const RunDetailSponsorBottomLineDeferred = createDeferredComponentFromManifest(
@@ -283,10 +274,9 @@ export const RunDetailSponsorBottomLineDeferred = createDeferredComponentFromMan
   { loadingClassName: "h-40" },
 );
 
-export const RunDetailSponsorReportCtaCardDeferred = dynamic(
-  () =>
-    import("./RunDetailExecutiveSummaryCtaCard").then((module) => module.RunDetailSponsorReportCtaCard),
-  { ssr: false, loading: () => null },
+export const RunDetailSponsorReportCtaCardDeferred = createDeferredComponentFromManifest(
+  "run-detail-sponsor-report-cta-card",
+  { suppressLoading: true },
 );
 
 export const ReviewPackagePrimaryActionDeferred = dynamic(

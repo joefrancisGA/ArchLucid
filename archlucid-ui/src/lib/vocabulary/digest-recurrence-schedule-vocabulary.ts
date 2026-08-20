@@ -14,6 +14,7 @@
 
 import { DIGESTS_SCHEDULE_TAB_PATH } from "@/lib/digests-route-paths";
 import { RECURRENCE_SCHEDULES_MANAGE_PATH } from "@/lib/recurrence-schedules-copy";
+import type { PairwiseVocabularyRailModel } from "@/lib/vocabulary/create-pairwise-vocabulary-rail";
 
 export type DigestRecurrenceScheduleSurfaceId =
   | "digest-sponsor-schedule"
@@ -56,14 +57,27 @@ export const DIGEST_RECURRENCE_SCHEDULE_RECURRENCE_LINK: DigestRecurrenceSchedul
   whenToUse: "Automate repeating re-review of architecture reviews.",
 };
 
-/** Full vocabulary model (heading, why-two copy, and deep links). */
-export function buildDigestRecurrenceScheduleVocabulary(): DigestRecurrenceScheduleVocabularyModel {
+/** Pairwise model for Sponsor digest schedule ↔ Recurrence schedules (fixed routes). */
+export function buildDigestRecurrenceSchedulePairwiseRail(): PairwiseVocabularyRailModel<DigestRecurrenceScheduleSurfaceId> {
   return {
     heading: DIGEST_RECURRENCE_SCHEDULE_HEADING,
     whyTwo: DIGEST_RECURRENCE_SCHEDULE_WHY_TWO,
     compactLine: DIGEST_RECURRENCE_SCHEDULE_COMPACT_LINE,
-    digestLink: DIGEST_RECURRENCE_SCHEDULE_DIGEST_LINK,
-    recurrenceLink: DIGEST_RECURRENCE_SCHEDULE_RECURRENCE_LINK,
+    currentLink: DIGEST_RECURRENCE_SCHEDULE_DIGEST_LINK,
+    peerLink: DIGEST_RECURRENCE_SCHEDULE_RECURRENCE_LINK,
+  };
+}
+
+/** Full vocabulary model (heading, why-two copy, and deep links). */
+export function buildDigestRecurrenceScheduleVocabulary(): DigestRecurrenceScheduleVocabularyModel {
+  const rail = buildDigestRecurrenceSchedulePairwiseRail();
+
+  return {
+    heading: rail.heading,
+    whyTwo: rail.whyTwo,
+    compactLine: rail.compactLine,
+    digestLink: rail.currentLink,
+    recurrenceLink: rail.peerLink,
   };
 }
 

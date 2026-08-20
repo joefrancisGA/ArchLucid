@@ -382,6 +382,38 @@ function resolveDeferredChunkImportLoader(
           (module) => module.ReviewDetailPolicyPackImpactSection,
         ),
       ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "run-detail-tabbed-section-nav":
+      return deferredChunkLoader(() =>
+        import("@/components/runs/RunDetailTabbedSectionNav").then((module) => module.RunDetailTabbedSectionNav),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "run-detail-before-after-delta-panel":
+      return deferredChunkLoader(() =>
+        import("@/components/BeforeAfterDeltaPanel").then((module) => module.BeforeAfterDeltaPanel),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "run-detail-recurrence-schedule-post-commit-card":
+      return deferredChunkLoader(() =>
+        import("@/components/governance/RecurrenceSchedulePostCommitCard").then(
+          (module) => module.RecurrenceSchedulePostCommitCard,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "run-detail-retrieval-grounding-section":
+      return deferredChunkLoader(() =>
+        import("@/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailRetrievalGroundingSection").then(
+          (module) => module.RunDetailRetrievalGroundingSection,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "run-detail-advanced-analysis-section":
+      return deferredChunkLoader(() =>
+        import("@/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailAdvancedAnalysisSection").then(
+          (module) => module.RunDetailAdvancedAnalysisSection,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "run-detail-sponsor-report-cta-card":
+      return deferredChunkLoader(() =>
+        import("@/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailExecutiveSummaryCtaCard").then(
+          (module) => module.RunDetailSponsorReportCtaCard,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
     default:
       throw new Error(`No deferred chunk import loader registered for manifest entry "${entryId}".`);
   }
