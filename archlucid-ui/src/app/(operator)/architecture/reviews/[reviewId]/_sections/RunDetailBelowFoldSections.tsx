@@ -219,6 +219,7 @@ export function RunDetailBelowFoldSections(props: RunDetailBelowFoldSectionsProp
           <RecurrenceSchedulePostCommitCard
             runId={m.routeRunId}
             hasStickinessPrompt={Boolean(m.manifestId)}
+            pagePrimaryOwnedElsewhere
           />
         </>
       ) : null}

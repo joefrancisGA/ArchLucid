@@ -37,12 +37,15 @@ const DEFAULT_NAME = "Weekly architecture review";
 type RecurrenceSchedulePostCommitCardProps = {
   readonly runId: string;
   readonly hasStickinessPrompt?: boolean;
+  /** When ReviewPackageDoThisNextStrip owns the filled page primary (TB-2175). */
+  readonly pagePrimaryOwnedElsewhere?: boolean;
 };
 
 /** TB-222 — post-commit recurrence scheduling with cron + display name. */
 export function RecurrenceSchedulePostCommitCard({
   runId,
   hasStickinessPrompt = false,
+  pagePrimaryOwnedElsewhere = false,
 }: RecurrenceSchedulePostCommitCardProps) {
   const [open, setOpen] = useState(hasStickinessPrompt);
   const [schedules, setSchedules] = useState<ArchitectureReviewRecurrenceSchedule[]>([]);
@@ -222,6 +225,7 @@ export function RecurrenceSchedulePostCommitCard({
               onSavePaused={() => void submitSchedule(false)}
               onEnableRecurring={() => void submitSchedule(true)}
               onDecline={declineProposal}
+              pagePrimaryOwnedElsewhere={pagePrimaryOwnedElsewhere}
             />
             {statusMessage ? (
               <p className={cn("m-0 text-teal-800 dark:text-teal-300", OPERATOR_TYPOGRAPHY.body)}>{statusMessage}</p>

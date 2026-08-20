@@ -207,6 +207,7 @@ const evidenceTabPanelEl = (
     blockingFindingId={primaryConcernFindingId}
     blockingFindingTitle={primaryConcernLabel}
     approvalBlocked={blockingApprovalCount > 0}
+    pagePrimaryOwnedElsewhere
   />
 );
 const executiveBottomLineEl =
@@ -485,6 +486,7 @@ const architectureTabPanelEl = (
               <RecurrenceSchedulePostCommitCardDeferred
                 runId={m.routeRunId}
                 hasStickinessPrompt={Boolean(m.manifestId)}
+                pagePrimaryOwnedElsewhere
               />
             ) : null}
             {!m.buyerPolishedArtifactTable ? (
