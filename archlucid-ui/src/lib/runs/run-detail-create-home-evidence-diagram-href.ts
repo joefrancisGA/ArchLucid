@@ -1,6 +1,6 @@
-import { buildArchitectureWorkspaceTabHref } from "@/lib/architecture/architecture-workspace-tabs";
+import { buildCreateHomeReviewTabHref } from "@/lib/unified-review-workspace-tabs";
 
-/** Create-home Evidence tab deep link to the Diagram archTab (TB-1848). */
+/** Create-home Evidence tab deep link to the Diagram reviewTab (TB-1848). */
 export function buildRunDetailCreateHomeEvidenceDiagramHref(runId: string): string {
-  return buildArchitectureWorkspaceTabHref(runId.trim(), "diagram", { includeCreateIntent: true });
+  return buildCreateHomeReviewTabHref(runId.trim(), "diagram");
 }

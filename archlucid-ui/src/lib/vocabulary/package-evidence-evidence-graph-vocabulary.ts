@@ -63,10 +63,10 @@ export const PACKAGE_EVIDENCE_EVIDENCE_GRAPH_GRAPH_LINK: PackageEvidenceEvidence
 };
 
 /** Build vocabulary; pass runId when mounting on a package Evidence tab. */
-export function buildPackageEvidenceEvidenceGraphVocabulary(
+export function buildPackageEvidenceEvidenceGraphPairwiseRail(
   runId?: string | null,
-): PackageEvidenceEvidenceGraphVocabularyModel {
-  const rail = createExternalPeerPairwiseVocabularyRail({
+) {
+  return createExternalPeerPairwiseVocabularyRail({
     runId,
     reviewSurfaceId: "package-evidence",
     externalSurfaceId: "evidence-graph",
@@ -81,6 +81,13 @@ export function buildPackageEvidenceEvidenceGraphVocabulary(
     reviewsPeerFallbackLink: PACKAGE_EVIDENCE_EVIDENCE_GRAPH_REVIEWS_PEER_LINK,
     externalPeerLinkBase: PACKAGE_EVIDENCE_EVIDENCE_GRAPH_GRAPH_LINK,
   });
+}
+
+/** Build vocabulary; pass runId when mounting on a package Evidence tab. */
+export function buildPackageEvidenceEvidenceGraphVocabulary(
+  runId?: string | null,
+): PackageEvidenceEvidenceGraphVocabularyModel {
+  const rail = buildPackageEvidenceEvidenceGraphPairwiseRail(runId);
 
   return {
     heading: rail.heading,

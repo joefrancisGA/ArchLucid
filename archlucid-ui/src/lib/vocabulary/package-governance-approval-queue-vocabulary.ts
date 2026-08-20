@@ -68,10 +68,8 @@ export const PACKAGE_GOVERNANCE_APPROVAL_QUEUE_QUEUE_LINK: PackageGovernanceAppr
   };
 
 /** Build vocabulary; pass runId when mounting on a package Governance / Policies tab. */
-export function buildPackageGovernanceApprovalQueueVocabulary(
-  runId?: string | null,
-): PackageGovernanceApprovalQueueVocabularyModel {
-  const rail = createExternalPeerPairwiseVocabularyRail({
+export function buildPackageGovernanceApprovalQueuePairwiseRail(runId?: string | null) {
+  return createExternalPeerPairwiseVocabularyRail({
     runId,
     reviewSurfaceId: "package-governance",
     externalSurfaceId: "approval-queue",
@@ -87,6 +85,13 @@ export function buildPackageGovernanceApprovalQueueVocabulary(
     externalPeerLinkBase: PACKAGE_GOVERNANCE_APPROVAL_QUEUE_QUEUE_LINK,
     buildExternalPeerHref: governanceApprovalQueueHref,
   });
+}
+
+/** Build vocabulary; pass runId when mounting on a package Governance / Policies tab. */
+export function buildPackageGovernanceApprovalQueueVocabulary(
+  runId?: string | null,
+): PackageGovernanceApprovalQueueVocabularyModel {
+  const rail = buildPackageGovernanceApprovalQueuePairwiseRail(runId);
 
   return {
     heading: rail.heading,

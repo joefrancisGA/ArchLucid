@@ -63,10 +63,8 @@ export const PACKAGE_ACTIVITY_AUDIT_TRAIL_AUDIT_LINK: PackageActivityAuditTrailL
 };
 
 /** Build vocabulary; pass runId when mounting on a package Activity tab. */
-export function buildPackageActivityAuditTrailVocabulary(
-  runId?: string | null,
-): PackageActivityAuditTrailVocabularyModel {
-  const rail = createExternalPeerPairwiseVocabularyRail({
+export function buildPackageActivityAuditTrailPairwiseRail(runId?: string | null) {
+  return createExternalPeerPairwiseVocabularyRail({
     runId,
     reviewSurfaceId: "package-activity",
     externalSurfaceId: "audit-trail",
@@ -83,6 +81,13 @@ export function buildPackageActivityAuditTrailVocabulary(
     buildExternalPeerHref: (scopedRunId) =>
       `${GOVERNANCE_AUDIT_PATH}?runId=${encodeURIComponent(scopedRunId)}`,
   });
+}
+
+/** Build vocabulary; pass runId when mounting on a package Activity tab. */
+export function buildPackageActivityAuditTrailVocabulary(
+  runId?: string | null,
+): PackageActivityAuditTrailVocabularyModel {
+  const rail = buildPackageActivityAuditTrailPairwiseRail(runId);
 
   return {
     heading: rail.heading,

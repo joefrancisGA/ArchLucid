@@ -8,6 +8,10 @@ const sectionsDir = dirname(fileURLToPath(import.meta.url));
 
 const pageViewSource = readFileSync(join(sectionsDir, "RunsPageView.tsx"), "utf8");
 const deferredSource = readFileSync(join(sectionsDir, "reviews-hub-deferred-chunks.tsx"), "utf8");
+const manifestLoaderSource = readFileSync(
+  join(sectionsDir, "../../../../lib/operator/load-deferred-chunk-from-manifest.tsx"),
+  "utf8",
+);
 
 const bannedStaticImports = [
   '@/components/operator/OperatorWelcomeOnboarding"',
@@ -33,13 +37,20 @@ describe("reviews hub deferred imports (TB-934)", () => {
     expect(pageViewSource).toContain("RunsListAggregateErrorBoundaryDeferred");
   });
 
-  it("dynamic-imports each deferred reviews hub panel", () => {
-    expect(deferredSource).toContain('import("@/components/operator/OperatorWelcomeOnboarding")');
-    expect(deferredSource).toContain('import("./ReviewsHubExploreSamples")');
-    expect(deferredSource).toContain('import("./ReviewsHubPackageIncludes")');
-    expect(deferredSource).toContain('import("./ReviewsHubBeforeAfterDeltaPanel")');
-    expect(deferredSource).toContain('import("@/components/runs/RunsIndexBeforeAfterPanel")');
-    expect(deferredSource).toContain('import("@/components/runs/RunsListAggregateErrorBoundary")');
-    expect(deferredSource).toContain("next/dynamic");
+  it("dynamic-imports deferred reviews hub panels via manifest loaders", () => {
+    expect(deferredSource).toContain("createDeferredComponentFromManifest");
+    expect(deferredSource).not.toContain("next/dynamic");
+    expect(manifestLoaderSource).toContain('import("@/components/operator/OperatorWelcomeOnboarding")');
+    expect(manifestLoaderSource).toContain(
+      'import("@/app/(operator)/architecture/reviews/_sections/ReviewsHubExploreSamples")',
+    );
+    expect(manifestLoaderSource).toContain(
+      'import("@/app/(operator)/architecture/reviews/_sections/ReviewsHubPackageIncludes")',
+    );
+    expect(manifestLoaderSource).toContain(
+      'import("@/app/(operator)/architecture/reviews/_sections/ReviewsHubBeforeAfterDeltaPanel")',
+    );
+    expect(manifestLoaderSource).toContain('import("@/components/runs/RunsIndexBeforeAfterPanel")');
+    expect(manifestLoaderSource).toContain('import("@/components/runs/RunsListAggregateErrorBoundary")');
   });
 });

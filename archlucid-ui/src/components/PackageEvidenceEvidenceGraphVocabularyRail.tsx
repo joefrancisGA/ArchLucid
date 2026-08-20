@@ -2,13 +2,12 @@
 
 import type { JSX } from "react";
 
+import { ExternalPeerVocabularyRailFromModel } from "@/components/vocabulary/ExternalPeerVocabularyRailFromModel";
 import {
-  buildPackageEvidenceEvidenceGraphVocabulary,
-  resolvePackageEvidenceEvidenceGraphPeerLink,
+  buildPackageEvidenceEvidenceGraphPairwiseRail,
   type PackageEvidenceEvidenceGraphSurfaceId,
   type PackageEvidenceEvidenceGraphVocabularyModel,
 } from "@/lib/vocabulary/package-evidence-evidence-graph-vocabulary";
-import { VocabularyRail } from "@/components/vocabulary/VocabularyRail";
 
 export type PackageEvidenceEvidenceGraphVocabularyRailProps = {
   readonly currentSurfaceId: PackageEvidenceEvidenceGraphSurfaceId;
@@ -23,27 +22,26 @@ export type PackageEvidenceEvidenceGraphVocabularyRailProps = {
 export function PackageEvidenceEvidenceGraphVocabularyRail(
   props: PackageEvidenceEvidenceGraphVocabularyRailProps,
 ): JSX.Element {
-  const model =
-    props.model ??
-    buildPackageEvidenceEvidenceGraphVocabulary(props.runId);
-  const peer = resolvePackageEvidenceEvidenceGraphPeerLink(props.currentSurfaceId, model);
-  const currentLink =
-    props.currentSurfaceId === "package-evidence"
-      ? model.packageEvidenceLink
-      : model.evidenceGraphLink;
+  const pairwiseModel =
+    props.model !== undefined
+      ? {
+          heading: props.model.heading,
+          whyTwo: props.model.whyTwo,
+          compactLine: props.model.compactLine,
+          reviewSideLink: props.model.packageEvidenceLink,
+          externalPeerLink: props.model.evidenceGraphLink,
+        }
+      : buildPackageEvidenceEvidenceGraphPairwiseRail(props.runId);
 
   return (
-    <VocabularyRail
+    <ExternalPeerVocabularyRailFromModel
       testIdPrefix="package-evidence-evidence-graph-vocabulary"
+      reviewSurfaceId="package-evidence"
       currentSurfaceId={props.currentSurfaceId}
       variant={props.variant}
       className={props.className}
-      compactLine={model.compactLine}
       compactLinkPlacement="inline"
-      heading={model.heading}
-      whyTwo={model.whyTwo}
-      currentLabel={currentLink.label}
-      links={[{ ...peer, testIdSuffix: "peer-link" }]}
+      model={pairwiseModel}
     />
   );
 }

@@ -123,6 +123,18 @@ export function createExternalPeerPairwiseVocabularyRail<TSurfaceId extends stri
   };
 }
 
+export function resolveExternalPeerPairwisePeerLink<TSurfaceId extends string>(
+  currentSurfaceId: TSurfaceId,
+  reviewSurfaceId: TSurfaceId,
+  model: ExternalPeerPairwiseVocabularyRailModel<TSurfaceId>,
+): PairwiseVocabularyLink<TSurfaceId> {
+  if (currentSurfaceId === reviewSurfaceId) {
+    return model.externalPeerLink;
+  }
+
+  return model.reviewSideLink;
+}
+
 export function resolvePairwiseVocabularyPeerLink<TSurfaceId extends string>(
   currentSurfaceId: TSurfaceId,
   model: PairwiseVocabularyRailModel<TSurfaceId>,

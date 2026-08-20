@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  buildCreateHomeReviewTabHref,
   buildReviewWorkspaceTabHref,
   mapArchitectureTabToReviewTab,
   mapReviewTabToArchitectureTab,
@@ -41,5 +42,13 @@ describe("buildReviewWorkspaceTabHref (TB-2363)", () => {
     const href = buildReviewWorkspaceTabHref("run-1", "review-package", { hash: "sponsor-handoff" });
 
     expect(href).toBe("/architecture/reviews/run-1?reviewTab=review-package#sponsor-handoff");
+  });
+
+  it("maps create-home archTab ids through buildCreateHomeReviewTabHref", () => {
+    const href = buildCreateHomeReviewTabHref("run-1", "diagram");
+
+    expect(href).toContain("reviewTab=architecture");
+    expect(href).toContain("fromGeneration=1");
+    expect(href).not.toContain("archTab=");
   });
 });

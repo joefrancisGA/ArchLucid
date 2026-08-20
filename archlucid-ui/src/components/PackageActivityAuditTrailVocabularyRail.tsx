@@ -2,13 +2,12 @@
 
 import type { JSX } from "react";
 
+import { ExternalPeerVocabularyRailFromModel } from "@/components/vocabulary/ExternalPeerVocabularyRailFromModel";
 import {
-  buildPackageActivityAuditTrailVocabulary,
-  resolvePackageActivityAuditTrailPeerLink,
+  buildPackageActivityAuditTrailPairwiseRail,
   type PackageActivityAuditTrailSurfaceId,
   type PackageActivityAuditTrailVocabularyModel,
 } from "@/lib/vocabulary/package-activity-audit-trail-vocabulary";
-import { VocabularyRail } from "@/components/vocabulary/VocabularyRail";
 
 export type PackageActivityAuditTrailVocabularyRailProps = {
   readonly currentSurfaceId: PackageActivityAuditTrailSurfaceId;
@@ -23,27 +22,26 @@ export type PackageActivityAuditTrailVocabularyRailProps = {
 export function PackageActivityAuditTrailVocabularyRail(
   props: PackageActivityAuditTrailVocabularyRailProps,
 ): JSX.Element {
-  const model =
-    props.model ??
-    buildPackageActivityAuditTrailVocabulary(props.runId);
-  const peer = resolvePackageActivityAuditTrailPeerLink(props.currentSurfaceId, model);
-  const currentLink =
-    props.currentSurfaceId === "package-activity"
-      ? model.packageActivityLink
-      : model.auditTrailLink;
+  const pairwiseModel =
+    props.model !== undefined
+      ? {
+          heading: props.model.heading,
+          whyTwo: props.model.whyTwo,
+          compactLine: props.model.compactLine,
+          reviewSideLink: props.model.packageActivityLink,
+          externalPeerLink: props.model.auditTrailLink,
+        }
+      : buildPackageActivityAuditTrailPairwiseRail(props.runId);
 
   return (
-    <VocabularyRail
+    <ExternalPeerVocabularyRailFromModel
       testIdPrefix="package-activity-audit-trail-vocabulary"
+      reviewSurfaceId="package-activity"
       currentSurfaceId={props.currentSurfaceId}
       variant={props.variant}
       className={props.className}
-      compactLine={model.compactLine}
       compactLinkPlacement="inline"
-      heading={model.heading}
-      whyTwo={model.whyTwo}
-      currentLabel={currentLink.label}
-      links={[{ ...peer, testIdSuffix: "peer-link" }]}
+      model={pairwiseModel}
     />
   );
 }

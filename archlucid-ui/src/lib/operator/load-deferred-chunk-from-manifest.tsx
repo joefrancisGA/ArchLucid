@@ -98,6 +98,24 @@ function resolveDeferredChunkImportLoader(
           (module) => module.ReviewsHubPackageIncludes,
         ),
       ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "reviews-hub-before-after-delta":
+      return deferredChunkLoader(() =>
+        import("@/app/(operator)/architecture/reviews/_sections/ReviewsHubBeforeAfterDeltaPanel").then(
+          (module) => module.ReviewsHubBeforeAfterDeltaPanel,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "reviews-hub-index-before-after":
+      return deferredChunkLoader(() =>
+        import("@/components/runs/RunsIndexBeforeAfterPanel").then(
+          (module) => module.RunsIndexBeforeAfterPanel,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "reviews-hub-list-error-boundary":
+      return deferredChunkLoader(() =>
+        import("@/components/runs/RunsListAggregateErrorBoundary").then(
+          (module) => module.RunsListAggregateErrorBoundary,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
     case "run-detail-review-workspace-shell":
       return deferredChunkLoader(() =>
         import("@/components/reviews/ReviewWorkspaceShell").then((module) => module.ReviewWorkspaceShell),
@@ -177,12 +195,9 @@ export const OPERATOR_HOME_DEFERRED_CHUNK_LOADER_IDS: readonly string[] = OPERAT
 );
 
 /** Reviews-hub manifest ids that have registered import loaders (manifest import-test guard). */
-export const REVIEWS_HUB_DEFERRED_CHUNK_LOADER_IDS: readonly string[] = REVIEWS_HUB_CHUNK_MANIFEST.filter(
-  (entry) =>
-    entry.id === "reviews-hub-inventory"
-    || entry.id === "reviews-hub-welcome-onboarding"
-    || entry.id === "reviews-hub-explore-samples",
-).map((entry) => entry.id);
+export const REVIEWS_HUB_DEFERRED_CHUNK_LOADER_IDS: readonly string[] = REVIEWS_HUB_CHUNK_MANIFEST.map(
+  (entry) => entry.id,
+);
 
 /** Run-detail manifest ids that have registered import loaders (manifest import-test guard). */
 export const RUN_DETAIL_DEFERRED_CHUNK_LOADER_IDS: readonly string[] = RUN_DETAIL_CHUNK_MANIFEST.map(
