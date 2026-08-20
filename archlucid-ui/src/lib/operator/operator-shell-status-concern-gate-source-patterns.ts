@@ -7,6 +7,7 @@ export const OPERATOR_SHELL_STATUS_CONCERN_GATE_CONSUMER_RELATIVE_PATHS = [
   "src/components/alerts/AlertsOutstandingNavBadge.tsx",
   "src/components/llm/LlmBudgetApproachingLimitBanner.tsx",
   "src/components/llm/LlmBudgetStatusPill.tsx",
+  "src/components/llm/LlmBudgetUtilizationMeter.tsx",
   "src/components/shell/LlmMonthlyBudgetStatusPollOwner.tsx",
   "src/components/tenancy/TenantMigrationMaintenanceBanner.tsx",
   "src/components/trial/TrialAiBudgetStatusBanner.tsx",

@@ -2,6 +2,7 @@ import type { TenantCatalogMigrationStatus } from "@/lib/fetch-tenant-catalog-mi
 import type { HealthReadyResponse } from "@/lib/health-dashboard-types";
 import { isAzureServiceBusHealthUnhealthy } from "@/lib/health-dashboard-types";
 import {
+  resolveLlmBudgetUtilizationTone,
   shouldShowBuyerLlmUsageBandHint,
   type LlmMonthlyDollarBudgetStatus,
 } from "@/lib/llm-monthly-budget-status";
@@ -27,7 +28,13 @@ export function shouldPollTrialAiBudgetBanner(
 export function shouldPollLlmBudgetApproachingBanner(
   status: LlmMonthlyDollarBudgetStatus | undefined,
 ): boolean {
-  return status?.monthlyBudgetMonitoringActive === true;
+  if (!status?.monthlyBudgetMonitoringActive) {
+    return false;
+  }
+
+  const tone = resolveLlmBudgetUtilizationTone(status);
+
+  return tone === "warn" || tone === "critical";
 }
 
 /** Buyer-polished shell band hint — poll only while approaching/exhausted copy is visible. */

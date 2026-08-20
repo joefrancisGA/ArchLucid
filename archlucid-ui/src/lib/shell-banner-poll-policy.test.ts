@@ -27,21 +27,27 @@ describe("shell banner poll policy (TB-2029)", () => {
     ).toBe(false);
   });
 
-  it("polls LLM warn banner while monthly monitoring is active", () => {
+  it("polls LLM warn banner only while utilization is warn or critical", () => {
     expect(
       shouldPollLlmBudgetApproachingBanner({
         monthlyBudgetMonitoringActive: true,
-        monthlyBudgetUsd: 100,
-        monthToDateSpendUsd: 10,
+        hardCapUtilizationFraction: 0.8,
         warnFraction: 0.75,
       } as never),
     ).toBe(true);
 
     expect(
       shouldPollLlmBudgetApproachingBanner({
+        monthlyBudgetMonitoringActive: true,
+        hardCapUtilizationFraction: 0.1,
+        warnFraction: 0.75,
+      } as never),
+    ).toBe(false);
+
+    expect(
+      shouldPollLlmBudgetApproachingBanner({
         monthlyBudgetMonitoringActive: false,
-        monthlyBudgetUsd: 100,
-        monthToDateSpendUsd: 80,
+        hardCapUtilizationFraction: 0.8,
         warnFraction: 0.75,
       } as never),
     ).toBe(false);
