@@ -60,7 +60,7 @@ public class DefaultGraphEdgeInferer : IGraphEdgeInferer
     {
         foreach (GraphNode node in nodes)
         {
-            if (!node.Properties.TryGetValue("parentNodeId", out string? parentId))
+            if (!GraphNodePropertyReader.TryGetPropertyValue(node.Properties, "parentNodeId", out string? parentId))
                 continue;
 
             if (string.IsNullOrWhiteSpace(parentId))
@@ -116,7 +116,7 @@ public class DefaultGraphEdgeInferer : IGraphEdgeInferer
     /// </summary>
     private static bool ShouldInferNetworkContainsSubnet(GraphNode network, GraphNode subnet, int networkCount)
     {
-        if (subnet.Properties.TryGetValue("parentNodeId", out string? parentId)
+        if (GraphNodePropertyReader.TryGetPropertyValue(subnet.Properties, "parentNodeId", out string? parentId)
             && string.Equals(parentId, network.NodeId, StringComparison.OrdinalIgnoreCase))
             return true;
 
@@ -156,7 +156,7 @@ public class DefaultGraphEdgeInferer : IGraphEdgeInferer
                 GraphEdgeInferenceSources.TopologyExposes,
                 topologyById);
 
-            if (node.Properties.TryGetValue("connectedToNodeIds", out string? connectedRaw)
+            if (GraphNodePropertyReader.TryGetPropertyValue(node.Properties, "connectedToNodeIds", out string? connectedRaw)
                 && !string.IsNullOrWhiteSpace(connectedRaw))
             {
                 foreach (string targetId in connectedRaw.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
@@ -336,7 +336,7 @@ public class DefaultGraphEdgeInferer : IGraphEdgeInferer
     /// </summary>
     private static HashSet<string>? ParseTargetNodeIds(Dictionary<string, string> properties, string key)
     {
-        if (!properties.TryGetValue(key, out string? raw) || string.IsNullOrWhiteSpace(raw))
+        if (!GraphNodePropertyReader.TryGetPropertyValue(properties, key, out string? raw) || string.IsNullOrWhiteSpace(raw))
             return null;
 
         string[] parts = raw.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
