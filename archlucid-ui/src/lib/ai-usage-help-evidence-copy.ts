@@ -7,12 +7,12 @@ export const AI_USAGE_HELP_CANONICAL_PATH = "/help/ai-usage" as const;
 export const AI_USAGE_HELP_CLAIM_DISCIPLINE_HEADING = "What AI usage is not";
 
 export const AI_USAGE_HELP_CLAIM_DISCIPLINE =
-  "This guide explains workspace AI usage and cost signals for directional operations telemetry. It is not invoice-accurate financial reporting or a sealed-review diligence Sources package.";
+  "This guide explains workspace AI usage and cost signals for directional operations telemetry. It is not invoice-accurate financial reporting or a full audit export.";
 
 export const AI_USAGE_HELP_FOLLOW_UPS_TITLE = "Where to go next";
 
 export const AI_USAGE_HELP_SOURCES_INTRO =
-  "Use these follow-ups when estimated spend turns into billing controls, execution profiles, or governed audit trails.";
+  "Use these follow-ups when estimated spend turns into billing controls, execution profiles, or activity records.";
 
 /** Operator Sources — no self-href to the AI usage settings surface or tile-covered destinations. */
 export const AI_USAGE_HELP_SOURCES: readonly EvidenceSourceLink[] = [

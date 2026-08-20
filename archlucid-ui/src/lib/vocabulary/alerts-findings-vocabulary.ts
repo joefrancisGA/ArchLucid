@@ -43,7 +43,7 @@ export const ALERTS_FINDINGS_WHY_TWO =
   "Alerts are raised notifications from rules. The findings queue is where you resolve underlying risks. You can acknowledge an alert without resolving the finding — use both when triage and resolution both apply." as const;
 
 export const ALERTS_FINDINGS_COMPACT_LINE =
-  "Alerts triage notifications; findings dispose risks — open the other inbox when you need both." as const;
+  "Alerts triage notifications; findings resolve risks — open the other inbox when you need both." as const;
 
 export const ALERTS_FINDINGS_ALERTS_LINK: AlertsFindingsLink = {
   id: "alerts-inbox",

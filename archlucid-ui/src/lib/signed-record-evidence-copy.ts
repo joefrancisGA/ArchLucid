@@ -9,10 +9,10 @@ export type SignedRecordSourceLink = EvidenceSourceLink;
 export const SIGNED_RECORD_CANONICAL_PATH_PATTERN = "/governance/sealed-records/[manifestId]" as const;
 
 export const SIGNED_RECORD_CLAIM_DISCIPLINE =
-  "This sealed review record packages decisions, findings, and downloadable artifacts for one finalized review — it is application-layer lineage closure. Open Audit or Assurance status when you need broader assurance cites.";
+  "This sealed review record packages decisions, findings, and downloadable artifacts for one finalized review — one review's export bundle. Open Audit or Assurance status for broader official materials.";
 
 export const SIGNED_RECORD_SOURCES_INTRO =
-  "Use these follow-ups when the signed review needs findings triage, audit trail, or assurance cites.";
+  "Use these follow-ups when the signed review needs findings triage, audit trail, or official assurance materials.";
 
 
 /** Operator Sources — no self-href to the dynamic signed-record path pattern. */

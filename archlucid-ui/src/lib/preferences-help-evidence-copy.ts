@@ -12,7 +12,7 @@ export const PREFERENCES_HELP_CLAIM_DISCIPLINE =
 export const PREFERENCES_HELP_FOLLOW_UPS_TITLE = "Where to go next";
 
 export const PREFERENCES_HELP_SOURCES_INTRO =
-  "Follow these links when personal theme settings lead to onboarding, account security, or assurance cites.";
+  "Follow these links when personal theme settings lead to onboarding, account security, or official assurance materials.";
 
 /** Operator follow-ups — no self-href to preferences. */
 export const PREFERENCES_HELP_SOURCES: readonly EvidenceOrientationLink[] = [

@@ -8,7 +8,7 @@ export const ARCHITECTURE_SPONSOR_DASHBOARD_CLAIM_DISCIPLINE =
   "Sponsor dashboard KPIs, trends, and sponsor exports summarize portfolio ROI and workspace health for the selected window — not a full audit export. Open Architecture reviews, Evidence trail, or Trust Center for export-ready records.";
 
 export const ARCHITECTURE_SPONSOR_DASHBOARD_SOURCES_INTRO =
-  "Use these follow-ups when portfolio KPIs need architecture reviews, grounded Q&A, ROI methodology, or assurance cites.";
+  "Use these follow-ups when portfolio KPIs need architecture reviews, grounded Q&A, ROI methodology, or official assurance materials.";
 
 
 /** Operator Sources — no self-href to the sponsor dashboard. */

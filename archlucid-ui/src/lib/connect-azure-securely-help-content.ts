@@ -19,10 +19,10 @@ export const CONNECT_AZURE_SECURELY_FOLLOW_UPS_TITLE = "Where to go next";
 export const CONNECT_AZURE_SECURELY_CLAIM_HEADING_ID = "help-cloud-connections-azure-claim-discipline-heading" as const;
 
 export const CONNECT_AZURE_SECURELY_CLAIM_DISCIPLINE =
-  "This guide orients architects on Azure federated trust and read-only role assignment — open Assurance status or the Cloud connections hub when you need live connector health or assurance cites.";
+  "This guide orients architects on Azure federated trust and read-only role assignment — open Assurance status or Cloud connections for connector health or official materials.";
 
 export const CONNECT_AZURE_SECURELY_SOURCES_INTRO =
-  "Use these follow-ups when Azure setup needs the live hub, permissions detail, or assurance cites.";
+  "Use these follow-ups when Azure setup needs the live hub, permissions detail, or official assurance materials.";
 
 export type ConnectAzureSecurelySourceLink = {
   readonly label: string;

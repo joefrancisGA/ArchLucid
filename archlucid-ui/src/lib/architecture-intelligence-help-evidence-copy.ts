@@ -22,7 +22,7 @@ export const ARCHITECTURE_INTELLIGENCE_HELP_DATA_HANDLING_LINK = {
 } as const;
 
 export const ARCHITECTURE_INTELLIGENCE_HELP_CLAIM_DISCIPLINE =
-  "This guide explains closed-loop architecture reasoning and publish-to-findings — it is not a sealed-review diligence Sources package.";
+  "This guide explains closed-loop architecture reasoning and publish-to-findings — not a full audit export.";
 
 export const ARCHITECTURE_INTELLIGENCE_HELP_FOLLOW_UPS_TITLE = "Where to go next";
 

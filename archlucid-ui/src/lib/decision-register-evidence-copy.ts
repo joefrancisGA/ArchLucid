@@ -4,7 +4,7 @@ import { GOVERNANCE_AUDIT_PATH, GOVERNANCE_DECISION_REGISTER_PATH, GOVERNANCE_FI
 import { SIGNED_RECORDS_LIST_PATH } from "@/lib/signed-records-paths";
 
 export const DECISION_REGISTER_CLAIM_DISCIPLINE =
-  "This register lists architecture decisions locked with sealed review records in the current workspace — each row links to the review, findings, and lineage that justified the recorded decision. It does not replace findings triage or live assurance cites.";
+  "This register lists architecture decisions locked with sealed review records in the current workspace — each row links to the review, findings, and lineage that justified the recorded decision. It does not replace findings triage or official assurance materials.";
 
 export const DECISION_REGISTER_SOURCES_INTRO =
   "Open the related architecture review, sealed record, or findings when a decision needs follow-up; use Audit trail for activity context.";
@@ -29,7 +29,7 @@ export const DECISION_REGISTER_SOURCES: readonly EvidenceSourceLinkWithWhen[] = 
   {
     label: "Audit trail",
     href: GOVERNANCE_AUDIT_PATH,
-    when: "Follow governed activity when assurance cites need audit context",
+    when: "Follow activity records when you need audit context for procurement",
   },
   {
     label: "Governance approval help",

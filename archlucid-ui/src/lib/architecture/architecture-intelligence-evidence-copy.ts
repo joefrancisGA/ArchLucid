@@ -12,7 +12,7 @@ export const ARCHITECTURE_INTELLIGENCE_CLAIM_DISCIPLINE =
   "This Architecture intelligence page runs closed-loop reasoning and optional publish-to-findings — not a full audit export. Open Findings, Start a review, or Audit for live records.";
 
 export const ARCHITECTURE_INTELLIGENCE_SOURCES_INTRO =
-  "Use these follow-ups when reasoning output turns into findings triage, review intake, or assurance cites.";
+  "Use these follow-ups when reasoning output turns into findings triage, review intake, or official assurance materials.";
 
 
 /** Operator Sources - no self-href to architecture-intelligence. */
@@ -20,7 +20,7 @@ export const ARCHITECTURE_INTELLIGENCE_SOURCES: readonly EvidenceOrientationLink
   {
     label: "Findings",
     href: GOVERNANCE_FINDINGS_PATH,
-    when: "Open the findings queue when published reasoning output needs governed triage",
+    when: "Open the findings queue when published reasoning output needs triage",
   },
   {
     label: "Start a review",
@@ -40,6 +40,6 @@ export const ARCHITECTURE_INTELLIGENCE_SOURCES: readonly EvidenceOrientationLink
   {
     label: "Audit",
     href: GOVERNANCE_AUDIT_PATH,
-    when: "Open audit when published output needs a governed assurance trail with persisted cites",
+    when: "Open audit when published output needs an audit trail with saved references",
   },
 ] as const;

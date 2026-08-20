@@ -16,7 +16,7 @@ export const SPONSOR_DASHBOARD_HELP_CLAIM_DISCIPLINE =
 export const SPONSOR_DASHBOARD_HELP_FOLLOW_UPS_TITLE = "Where to go next";
 
 export const SPONSOR_DASHBOARD_HELP_SOURCES_INTRO =
-  "Use these follow-ups when portfolio KPIs need architecture reviews, grounded Q&A, traceable ROI methodology, or assurance cites.";
+  "Use these follow-ups when portfolio KPIs need architecture reviews, grounded Q&A, traceable ROI methodology, or official assurance materials.";
 
 /** Help follow-ups — no self-href; scorecard lives in the feature grid. */
 export const SPONSOR_DASHBOARD_HELP_SOURCES: readonly EvidenceSourceLink[] = [
