@@ -23,7 +23,7 @@ export const GETTING_STARTED_HELP_AUDIENCE_LINE =
   "For architects, pilot teams, and sponsors who want to understand the review flow before starting.";
 
 export const GETTING_STARTED_HELP_CLAIM_DISCIPLINE =
-  "This guide orients you through the review flow — it is not a sealed-review diligence Sources package. Open Security & Trust or a finalized review before treating onboarding copy as procurement evidence.";
+  "This guide orients you through the review flow — not a full audit export. Open Security & Trust or a finalized review before procurement.";
 
 export const GETTING_STARTED_HELP_SOURCES_INTRO =
   "Use these follow-ups when getting-started orientation turns into a first review, path choice, or assurance questions.";

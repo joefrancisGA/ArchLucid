@@ -38,7 +38,7 @@ export const FINDINGS_QUEUE_SEARCH_EVIDENCE_HEADING =
   "Findings queue and Search review evidence serve different purposes" as const;
 
 export const FINDINGS_QUEUE_SEARCH_EVIDENCE_WHY_TWO =
-  "The findings queue is the governance triage inbox for dispositioning risks, assigning owners, and clearing open items. Search review evidence finds findings, decisions, and sealed review records across architecture packages in the evidence trail. Use the findings queue to triage; open Search when you need to locate evidence across packages." as const;
+  "Findings queue is where you resolve and assign open risks. Search finds findings and records across reviews in the evidence trail. Triage in the queue; open Search when you need cross-review lookup." as const;
 
 export const FINDINGS_QUEUE_SEARCH_EVIDENCE_COMPACT_LINE =
   "Findings queue triages risks; Search finds evidence across architecture packages — open the other when you need both." as const;

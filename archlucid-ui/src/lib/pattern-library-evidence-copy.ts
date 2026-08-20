@@ -5,7 +5,7 @@ import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 export const PATTERN_LIBRARY_HELP_TOPIC_LABEL = "How the pattern library works";
 
 export const PATTERN_LIBRARY_CLAIM_DISCIPLINE =
-  "Pattern library cards are anonymized, thresholded aggregates (or labeled sample catalog data) — not a sealed-review diligence Sources package and not tenant-identifying usage. Open Reviews or a pattern detail before briefing sponsors.";
+  "Pattern library cards show anonymized catalog trends (or labeled samples) — not live tenant usage or a full audit export. Open Reviews or a pattern detail before briefing sponsors.";
 
 export const PATTERN_LIBRARY_CLAIM_HEADING = "Anonymized catalog only" as const;
 

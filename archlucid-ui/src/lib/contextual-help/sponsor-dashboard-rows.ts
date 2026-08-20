@@ -10,7 +10,7 @@ import { GOVERNANCE_APPROVAL_QUEUE_PATH } from "@/lib/governance/governance-rout
 
 const SPONSOR_DASHBOARD_HUB_CONTEXTUAL_HELP = {
   whatIsThisPage:
-    "Sponsor dashboard — portfolio ROI trends, sponsor exports, and workspace-health KPI tiles for governance posture in the current scope.",
+    "Sponsor dashboard — portfolio ROI trends, sponsor exports, and workspace-health KPI tiles for approval and ROI status in the current scope.",
   whatToDoNext:
     "Review KPI tiles and sponsor exports, then open Workspace health or Decisions needed for governance follow-up.",
   whyEmpty:

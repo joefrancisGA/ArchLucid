@@ -7,7 +7,7 @@ export const SETTINGS_USERS_CANONICAL_PATH = SETTINGS_USERS_PATH;
 export const SETTINGS_USERS_HELP_TOPIC_LABEL = "How users and roles work" as const;
 
 export const SETTINGS_USERS_CLAIM_DISCIPLINE =
-  "User invitations, role assignments, and API-key access on this page configure workspace membership — they are not a sealed-review diligence Sources package. Open Users and roles help or Assurance status before treating directory setup as assurance evidence.";
+  "User invitations, role assignments, and API-key access on this page configure workspace membership — not a full audit export. Open Users and roles help or Assurance status before procurement.";
 
 export const SETTINGS_USERS_SOURCES_INTRO =
   "Use these follow-ups when access setup needs role guidance, SSO configuration, or assurance cites.";

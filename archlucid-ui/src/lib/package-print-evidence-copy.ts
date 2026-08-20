@@ -7,7 +7,7 @@ export const PACKAGE_PRINT_CANONICAL_PATH_PATTERN =
   "/architecture/reviews/[reviewId]/print" as const;
 
 export const PACKAGE_PRINT_CLAIM_DISCIPLINE =
-  "This print view summarizes one architecture review for screen or PDF output — it is not a sealed-review diligence Sources package. Open the review workspace, provenance, or sealed record when you need tenant evidence.";
+  "This print view summarizes one architecture review for screen or PDF output — not a full audit export. Open the review workspace, provenance, or sealed record when you need tenant evidence.";
 
 export const PACKAGE_PRINT_SOURCES_INTRO =
   "Use these follow-ups when the print summary leads into package review, provenance, or diligence help.";

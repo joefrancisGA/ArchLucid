@@ -8,7 +8,7 @@ import { FIRST_ARCHITECTURE_REVIEW_HELP_PATH } from "@/lib/first-architecture-re
 export const SPONSOR_SUMMARY_HELP_PAGE_TITLE = "Sponsor report";
 
 export const SPONSOR_SUMMARY_HELP_PAGE_SUBTITLE =
-  "What ArchLucid is, sponsor-safe pilot proof, and what executives should expect in exports.";
+  "What ArchLucid is, export-ready pilot proof, and what executives should expect in exports.";
 
 export const SPONSOR_SUMMARY_HELP_PAGE_SUBTITLE_BUYER =
   "What ArchLucid is, what sponsors should expect from pilot proof, and measurable value framing.";

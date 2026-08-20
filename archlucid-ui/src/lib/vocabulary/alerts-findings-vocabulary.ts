@@ -40,7 +40,7 @@ export type AlertsFindingsVocabularyModel = {
 export const ALERTS_FINDINGS_HEADING = "Alerts and findings stay separate" as const;
 
 export const ALERTS_FINDINGS_WHY_TWO =
-  "Alerts are raised notifications from rules; the findings queue is the risk-register for disposition. Acknowledge an alert without disposing the finding — or dispose a finding without clearing every related alert. Use both inboxes when triage and disposition both apply." as const;
+  "Alerts are raised notifications from rules. The findings queue is where you resolve underlying risks. You can acknowledge an alert without resolving the finding — use both when triage and resolution both apply." as const;
 
 export const ALERTS_FINDINGS_COMPACT_LINE =
   "Alerts triage notifications; findings dispose risks — open the other inbox when you need both." as const;
