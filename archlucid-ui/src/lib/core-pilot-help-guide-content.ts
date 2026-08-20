@@ -173,7 +173,7 @@ export const CORE_PILOT_HELP_DISCLOSURE = {
     title: "What this guide covers",
     body:
       "This page is your guided path from an empty workspace to a finalized architecture review. " +
-      "It focuses on evidence intake, running the assessment, finalizing findings, and sharing sponsor-ready exports. " +
+      "It focuses on evidence intake, running the assessment, finalizing findings, and sharing export-ready exports. " +
       "Template-specific walkthroughs and deeper configuration live in related guides below.",
   },
   whenToUseCloudConnectors: {
