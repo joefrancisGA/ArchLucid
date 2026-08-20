@@ -614,24 +614,24 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ## Zone: outbound-webhook-dry-run
 
 - **id:** outbound-webhook-dry-run
-- **status:** unseeded
+- **status:** open
 - **impact:** high
 - **aliases:** webhook dry run; outbound webhook
-- **paths:** ArchLucid.Api/Services/OutboundWebhookDryRunService.cs; ArchLucid.Api/Controllers/Webhooks/OutboundWebhookDryRunController.cs
+- **paths:** ArchLucid.Api/Controllers/Webhooks/OutboundWebhookDryRunController.cs; ArchLucid.Host.Composition/Services/OutboundWebhookDryRunService.cs
 - **test-filter:** FullyQualifiedName~OutboundWebhookDryRunServiceTests|FullyQualifiedName~OutboundWebhookDryRunControllerTests
-- **hunts:** 0
+- **hunts:** 1
 - **bugs-found:** 0
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
+- **last-hunt:** 2026-08-20
 - **last-bug:** never
 - **related-pd-tb:** none
-- **code-changed-since:** unknown
+- **code-changed-since:** 3
 
 ### Hypotheses
 
-- [ ] (candidate) Dry-run posts to the live customer endpoint
-- [ ] (candidate) Dry-run payload includes secrets from another tenantÎ“Ã‡Ã–s webhook config
-- [ ] (candidate) Controller returns success when the dry-run service throws
+- [x] (invalid) Dry-run posts to the live customer endpoint — retired: operator supplies `TargetUrl`; POST is the feature (no stored webhook config in zone paths)
+- [x] (invalid) Dry-run payload includes secrets from another tenant's webhook config — retired: controller uses request `SharedSecret` only; no tenant webhook lookup in zone paths
+- [x] (invalid) Controller returns success when the dry-run service throws — retired: `ProbeWithBodyAsync` catches transport errors and returns `TransportSucceeded=false`; controller intentionally returns 200 with probe outcome in body
 
 ---
 
