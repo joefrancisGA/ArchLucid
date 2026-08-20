@@ -4,7 +4,7 @@ import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 
 import { EvidenceGraphClaimOrientationStrip } from "./EvidenceGraphClaimOrientationStrip";
 
-/** Buyer default: mount claim discipline + Sources above the evidence graph body (GRA). */
+/** Buyer default: mount claim discipline + Sources after primary workspace evidence graph body (GRA). */
 export function GraphPageBuyerChrome(): React.JSX.Element | null {
   if (!isBuyerPolishedOperatorShellEnv()) {
     return null;

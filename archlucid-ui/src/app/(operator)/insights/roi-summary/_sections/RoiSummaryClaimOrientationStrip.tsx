@@ -17,6 +17,7 @@ export function RoiSummaryClaimOrientationStrip(): React.JSX.Element {
       sourcesTitle={ROI_SUMMARY_FOLLOW_UPS_TITLE}
       sourcesIntro={ROI_SUMMARY_SOURCES_INTRO}
       sources={ROI_SUMMARY_SOURCES}
+      hubSecondary
     />
   );
 }

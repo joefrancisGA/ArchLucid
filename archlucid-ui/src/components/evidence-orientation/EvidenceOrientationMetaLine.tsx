@@ -1,4 +1,4 @@
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_SHORT_HELPER_MEASURE_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 export type EvidenceOrientationMetaLineProps = {
@@ -17,7 +17,7 @@ export function EvidenceOrientationMetaLine({
 }: EvidenceOrientationMetaLineProps): React.JSX.Element {
   return (
     <p
-      className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+      className={cn("m-0 text-al-text-secondary", OPERATOR_SHORT_HELPER_MEASURE_CLASS, OPERATOR_TYPOGRAPHY.helper)}
       data-testid={testId}
     >
       <span className="font-medium text-al-text-primary">{label}</span>

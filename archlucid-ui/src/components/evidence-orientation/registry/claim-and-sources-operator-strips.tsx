@@ -1,7 +1,11 @@
-/** Claim-then-sources evidence strips for operator console and internal admin surfaces. */
+import { cn } from "@/lib/utils";
 import {
   EvidenceOrientationClaimAndSourcesStrip,
 } from "@/components/evidence-orientation/EvidenceOrientationClaimAndSourcesStrip";
+import {
+  OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
+  OPERATOR_TYPOGRAPHY,
+} from "@/lib/design-tokens";
 import {
   EVIDENCE_PROPOSALS_FOLLOW_UPS_TITLE,
   EVIDENCE_PROPOSALS_SOURCES,
@@ -105,6 +109,12 @@ import {
 import type { EvidenceOrientationLink } from "@/lib/evidence-surface-copy";
 
 export function ConnectionStatusEvidenceOrientationStrip(): React.JSX.Element {
+  const sectionHeadingClass = cn(
+    OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
+    OPERATOR_TYPOGRAPHY.sectionTitle,
+    "m-0 scroll-mt-24",
+  );
+
   return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="connection-status"
@@ -112,6 +122,7 @@ export function ConnectionStatusEvidenceOrientationStrip(): React.JSX.Element {
       sourcesIntro={CONNECTION_STATUS_SOURCES_INTRO}
       sources={CONNECTION_STATUS_SOURCES}
       sourcesHeadingId="where-to-go-next"
+      headingClassName={sectionHeadingClass}
     />
   );
 }
@@ -345,6 +356,7 @@ export function OperatorHomeEvidenceOrientationStrip(
       sourcesIntro={OPERATOR_HOME_SOURCES_INTRO}
       sources={sources}
       sourcesHeadingId="where-to-go-next"
+      hubSecondary
     />
   );
 }

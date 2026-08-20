@@ -4,7 +4,7 @@ import { ReviewsNewEvidenceOrientationStrip } from "@/components/evidence-orient
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { REVIEWS_NEW_ORIENTATION_SOURCES } from "@/lib/reviews-new-evidence-copy";
 
-/** Buyer default: mount Sources orientation above path tabs (RNX / REN / REQ / ENE). */
+/** Buyer default: mount Sources orientation after primary workspace path tabs (RNX / REN / REQ / ENE). */
 export function ReviewsNewBuyerChrome(): React.JSX.Element | null {
   if (!isBuyerPolishedOperatorShellEnv()) {
     return null;

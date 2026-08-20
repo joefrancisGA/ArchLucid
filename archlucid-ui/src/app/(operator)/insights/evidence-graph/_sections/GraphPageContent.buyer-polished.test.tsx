@@ -65,7 +65,7 @@ describe("GraphPageContent buyer-polished shell", () => {
     expect(breadcrumb).toHaveTextContent(OPERATOR_NAV_GROUP_LABELS.analysis);
     expect(breadcrumb).toHaveTextContent(EVIDENCE_GRAPH_PAGE_TITLE);
 
-    expect(screen.getByRole("heading", { level: 1, name: EVIDENCE_GRAPH_PAGE_TITLE })).toBeInTheDocument();
+    expect(screen.getByTestId("evidence-graph-page-title")).toHaveTextContent(EVIDENCE_GRAPH_PAGE_TITLE);
     expect(screen.getByText(EVIDENCE_GRAPH_PAGE_SUBTITLE)).toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
     expect(
@@ -84,6 +84,6 @@ describe("GraphPageContent buyer-polished shell", () => {
     const controls = screen.getByTestId("graph-page-controls-buyer");
 
     expect(primaryContent).toContainElement(orientation);
-    expect(orientation.compareDocumentPosition(controls) & Node.DOCUMENT_POSITION_PRECEDING).toBeTruthy();
+    expect(controls.compareDocumentPosition(orientation) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 });

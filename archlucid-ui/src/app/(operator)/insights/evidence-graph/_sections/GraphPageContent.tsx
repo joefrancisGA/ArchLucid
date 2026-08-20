@@ -725,7 +725,6 @@ export function GraphPageContent() {
         className={cn("scroll-mt-24", OPERATOR_LAYOUT.sectionStack)}
         data-testid="evidence-graph-primary-content"
       >
-      <GraphPageBuyerChrome />
       {!buyerPolishedShell ? (
         <>
           <ArchitectureIntelligenceEvidenceGraphVocabularyRail currentSurfaceId="evidence-graph" />
@@ -806,6 +805,7 @@ export function GraphPageContent() {
           />
         </>
       ) : null}
+      {buyerPolishedShell ? <GraphPageBuyerChrome /> : null}
       </div>
     </OperatorPageContainer>
   );

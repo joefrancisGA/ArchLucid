@@ -73,8 +73,6 @@ export function SettingsPageView() {
           buyerPolishedShell={buyerPolishedShell}
         />
 
-        <SettingsMasterBuyerChrome />
-
         {!buyerPolishedShell ? <SettingsHubEvidenceOrientationStrip /> : null}
 
         <AdminPrerequisitesReadinessBoard enabled={canViewPrerequisitesBoard && !isAuthorityLoading} />
@@ -160,6 +158,8 @@ export function SettingsPageView() {
             </div>
           </div>
         )}
+
+        {buyerPolishedShell ? <SettingsMasterBuyerChrome /> : null}
       </div>
     </div>
   );

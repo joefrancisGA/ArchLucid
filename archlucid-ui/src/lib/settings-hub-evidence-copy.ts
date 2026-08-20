@@ -1,6 +1,10 @@
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 import {
+  HUB_SECONDARY_FOLLOW_UPS_TITLES,
+  hubSecondaryFollowUpsIntro,
+} from "@/lib/evidence-orientation/hub-secondary-follow-ups";
+import {
   SETTINGS_ROOT_PATH,
   SETTINGS_SECURITY_TRUST_PATH,
   SETTINGS_USERS_PATH,
@@ -8,10 +12,11 @@ import {
 
 export const SETTINGS_HUB_CANONICAL_PATH = SETTINGS_ROOT_PATH;
 
-export const SETTINGS_HUB_FOLLOW_UPS_TITLE = "Where to go next";
+export const SETTINGS_HUB_FOLLOW_UPS_TITLE = HUB_SECONDARY_FOLLOW_UPS_TITLES.settingsHub;
 
-export const SETTINGS_HUB_SOURCES_INTRO =
-  "Use these follow-ups when administration scope turns into access control, assurance cites, or operational health checks.";
+export const SETTINGS_HUB_SOURCES_INTRO = hubSecondaryFollowUpsIntro(
+  "administration scope turns into access control, assurance cites, or operational health checks after using the catalog above",
+);
 
 /** Operator Sources — no self-href to `/administration`. */
 export const SETTINGS_HUB_SOURCES: readonly EvidenceSourceLink[] = [

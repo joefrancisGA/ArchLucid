@@ -4,7 +4,7 @@ import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 
 import { RoiSummaryClaimOrientationStrip } from "./RoiSummaryClaimOrientationStrip";
 
-/** Buyer default: mount claim discipline + Sources above the ROI summary body (SPR). */
+/** Buyer default: mount claim discipline + Sources after primary workspace ROI metrics (SPR). */
 export function RoiSummaryBuyerChrome(): React.JSX.Element | null {
   if (!isBuyerPolishedOperatorShellEnv()) {
     return null;

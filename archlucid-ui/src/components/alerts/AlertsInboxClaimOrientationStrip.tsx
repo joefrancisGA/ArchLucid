@@ -17,6 +17,7 @@ export function AlertsInboxClaimOrientationStrip(): React.JSX.Element {
       sourcesTitle={ALERTS_INBOX_FOLLOW_UPS_TITLE}
       sourcesIntro={ALERTS_INBOX_SOURCES_INTRO}
       sources={ALERTS_INBOX_SOURCES}
+      hubSecondary
     />
   );
 }

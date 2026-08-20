@@ -523,7 +523,7 @@ describe("GovernanceFindingsQueueClient assigned-to-me mode", () => {
     expect(screen.queryByRole("link", { name: "View approval record" })).not.toBeInTheDocument();
   });
 
-  it("renders skip link, breadcrumb, and orientation above queue body in buyer shell", async () => {
+  it("renders skip link, breadcrumb, and orientation after queue body in buyer shell", async () => {
     vi.spyOn(demoUiEnv, "isBuyerPolishedOperatorShellEnv").mockReturnValue(true);
     vi.mocked(governanceApi.getArchitectureRiskRegister).mockResolvedValue({ entries: [loadedRiskRow] });
 
@@ -534,7 +534,9 @@ describe("GovernanceFindingsQueueClient assigned-to-me mode", () => {
       `#${GOVERNANCE_FINDINGS_PRIMARY_CONTENT_ID}`,
     );
     expect(screen.getByTestId("governance-findings-breadcrumb")).toBeInTheDocument();
-    expect(screen.getByText(BUYER_GOVERNANCE_FINDINGS_PAGE_TITLE)).toBeInTheDocument();
+    expect(screen.getByTestId("architecture-risk-register-page-title")).toHaveTextContent(
+      BUYER_GOVERNANCE_FINDINGS_PAGE_TITLE,
+    );
     expect(screen.getByTestId("governance-findings-orientation-top")).toBeInTheDocument();
     expect(screen.getByTestId("governance-findings-claim-discipline").textContent).toContain(
       GOVERNANCE_FINDINGS_CLAIM_DISCIPLINE.slice(0, 40),
@@ -545,7 +547,8 @@ describe("GovernanceFindingsQueueClient assigned-to-me mode", () => {
     const orientationTop = screen.getByTestId("governance-findings-orientation-top");
     const queueBody = screen.getByTestId("governance-findings-queue-body");
 
-    expect(orientationTop.compareDocumentPosition(queueBody) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(queueBody).toContainElement(orientationTop);
+    expect(queueBody.compareDocumentPosition(orientationTop) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(queueBody).toHaveAttribute("id", GOVERNANCE_FINDINGS_PRIMARY_CONTENT_ID);
   });
 });

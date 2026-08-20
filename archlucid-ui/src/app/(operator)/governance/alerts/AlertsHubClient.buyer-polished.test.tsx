@@ -68,7 +68,7 @@ import { AlertsHubChrome } from "./AlertsHubChrome";
 import { AlertsHubClient } from "./AlertsHubClient";
 
 describe("AlertsHubClient buyer-polished chrome", () => {
-  it("renders skip link, breadcrumb, and orientation above the inbox body", () => {
+  it("renders skip link, breadcrumb, and orientation after the inbox body", () => {
     render(<AlertsHubClient />);
 
     expect(screen.getByRole("link", { name: ALERTS_INBOX_SKIP_LINK_LABEL })).toHaveAttribute(
@@ -86,19 +86,17 @@ describe("AlertsHubClient buyer-polished chrome", () => {
     const primary = screen.getByTestId("alerts-inbox-primary-content");
 
     expect(primary).toContainElement(inbox);
+    expect(primary).toContainElement(orientation);
 
-    const pageRoot = screen.getByTestId("alerts-page-title").closest(".px-0");
-    expect(pageRoot).not.toBeNull();
-
-    const orderedTestIds = Array.from(pageRoot!.querySelectorAll("[data-testid]")).map((element) =>
+    const orderedTestIds = Array.from(primary.querySelectorAll("[data-testid]")).map((element) =>
       element.getAttribute("data-testid"),
     );
     const orientationIndex = orderedTestIds.indexOf("alerts-inbox-orientation-top");
-    const primaryIndex = orderedTestIds.indexOf("alerts-inbox-primary-content");
+    const inboxIndex = orderedTestIds.indexOf("stub-inbox");
 
-    expect(orientationIndex).toBeGreaterThan(-1);
-    expect(primaryIndex).toBeGreaterThan(orientationIndex);
-    expect(orientation.compareDocumentPosition(primary) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(inboxIndex).toBeGreaterThan(-1);
+    expect(orientationIndex).toBeGreaterThan(inboxIndex);
+    expect(inbox.compareDocumentPosition(orientation) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
   it("keeps the buyer subtitle, help control, and header configure link by default", () => {

@@ -270,6 +270,8 @@ export function CloudConnectionsEvidenceOrientationStrip(): React.JSX.Element {
       sourcesIntro={CLOUD_CONNECTIONS_SOURCES_INTRO}
       sources={CLOUD_CONNECTIONS_SOURCES}
       sourcesHeadingId="where-to-go-next"
+      hubSecondary
+      sourcesLayout="columns"
     />
   );
 }

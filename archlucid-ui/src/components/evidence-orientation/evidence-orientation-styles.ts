@@ -1,4 +1,10 @@
-import { DESIGN_TOKENS, MARKETING_SURFACES, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  DESIGN_TOKENS,
+  MARKETING_SURFACES,
+  OPERATOR_LINK,
+  OPERATOR_SHORT_HELPER_MEASURE_CLASS,
+  OPERATOR_TYPOGRAPHY,
+} from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 /**
@@ -17,7 +23,8 @@ const SOURCES_PANEL_MUTED =
 
 const SOURCES_PANEL_RAISED = "rounded-md border border-neutral-200 bg-al-surface-raised p-3 dark:border-neutral-800";
 
-const SOURCES_INTRO_BASE = "m-0 mt-1 max-w-3xl text-al-text-secondary";
+/** Short strip intros use the work-surface width (TB-2038) — do not apply a prose-measure cap. */
+const SOURCES_INTRO_BASE = cn("m-0 mt-1 text-al-text-secondary", OPERATOR_SHORT_HELPER_MEASURE_CLASS);
 
 /** Operator help intros sit one step below body copy; evaluation surfaces keep the body scale. */
 const SOURCES_INTRO_HELPER = cn(SOURCES_INTRO_BASE, OPERATOR_TYPOGRAPHY.helper);

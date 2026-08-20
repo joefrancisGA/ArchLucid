@@ -616,6 +616,7 @@ export function ReviewsNewEvidenceOrientationStrip(
       sourcesIntro={REVIEWS_NEW_SOURCES_INTRO}
       sources={sources}
       sourcesHeadingId="where-to-go-next"
+      hubSecondary
     />
   );
 }

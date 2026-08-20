@@ -158,6 +158,7 @@ export function DigestsScheduleEvidenceOrientationStrip(
       sources={sources}
       sourcesHeadingId="where-to-go-next"
       readingBodyClassName={props.readingBodyClassName}
+      hubSecondary
     />
   );
 }
@@ -385,6 +386,7 @@ export function SettingsHubEvidenceOrientationStrip(
       sources={SETTINGS_HUB_ORIENTATION_SOURCES}
       sourcesHeadingId="where-to-go-next"
       readingBodyClassName={props.readingBodyClassName}
+      hubSecondary
     />
   );
 }
