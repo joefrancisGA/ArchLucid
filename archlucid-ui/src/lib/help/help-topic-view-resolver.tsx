@@ -113,6 +113,9 @@ const HelpSponsorDashboardGuideView = dynamic(() =>
 const HelpArchitectureDraftsGuideView = dynamic(() =>
   import("@/app/(operator)/help/_sections/HelpArchitectureDraftsGuideView").then((module) => module.HelpArchitectureDraftsGuideView),
 );
+const HelpStructuredBriefGuideView = dynamic(() =>
+  import("@/app/(operator)/help/_sections/HelpStructuredBriefGuideView").then((module) => module.HelpStructuredBriefGuideView),
+);
 const HelpModelGovernanceGuideView = dynamic(() =>
   import("@/app/(operator)/help/_sections/HelpModelGovernanceGuideView").then((module) => module.HelpModelGovernanceGuideView),
 );
@@ -416,6 +419,10 @@ export function resolveHelpTopicView(
 
   if (loaded.entry.slug === "architecture-drafts") {
     return <HelpArchitectureDraftsGuideView entry={loaded.entry} />;
+  }
+
+  if (loaded.entry.slug === "structured-brief") {
+    return <HelpStructuredBriefGuideView entry={loaded.entry} />;
   }
 
   if (loaded.entry.slug === "model-governance") {

@@ -37,6 +37,14 @@ import {
 } from "@/lib/baseline-settings-help-evidence-copy";
 import { BASELINE_SETTINGS_HELP_CLAIM_HEADING_ID } from "@/lib/baseline-settings-help-guide-content";
 import {
+  STRUCTURED_BRIEF_HELP_CLAIM_DISCIPLINE,
+  STRUCTURED_BRIEF_HELP_CLAIM_DISCIPLINE_HEADING,
+  STRUCTURED_BRIEF_HELP_FOLLOW_UPS_TITLE,
+  STRUCTURED_BRIEF_HELP_SOURCES,
+  STRUCTURED_BRIEF_HELP_SOURCES_INTRO,
+} from "@/lib/structured-brief-help-evidence-copy";
+import { STRUCTURED_BRIEF_HELP_CLAIM_HEADING_ID } from "@/lib/structured-brief-help-guide-content";
+import {
   ARCHITECTURE_DRAFTS_HELP_CLAIM_DISCIPLINE,
   ARCHITECTURE_DRAFTS_HELP_CLAIM_DISCIPLINE_HEADING,
   ARCHITECTURE_DRAFTS_HELP_FOLLOW_UPS_TITLE,
@@ -511,6 +519,24 @@ export function ArchitectureDraftsHelpEvidenceOrientationStrip(
       sourcesTitle={ARCHITECTURE_DRAFTS_HELP_FOLLOW_UPS_TITLE}
       sourcesIntro={ARCHITECTURE_DRAFTS_HELP_SOURCES_INTRO}
       sources={ARCHITECTURE_DRAFTS_HELP_SOURCES}
+      sourcesHeadingId="where-to-go-next"
+      readingBodyClassName={props.readingBodyClassName ?? HELP_PAGE_LAYOUT.readingBody}
+    />
+  );
+}
+
+export function StructuredBriefHelpEvidenceOrientationStrip(
+  props: { readonly readingBodyClassName?: string } = {},
+): React.JSX.Element {
+  return (
+    <EvidenceOrientationClaimAndSourcesStrip
+      slug="help-structured-brief"
+      claim={STRUCTURED_BRIEF_HELP_CLAIM_DISCIPLINE}
+      claimHeading={STRUCTURED_BRIEF_HELP_CLAIM_DISCIPLINE_HEADING}
+      claimHeadingId={STRUCTURED_BRIEF_HELP_CLAIM_HEADING_ID}
+      sourcesTitle={STRUCTURED_BRIEF_HELP_FOLLOW_UPS_TITLE}
+      sourcesIntro={STRUCTURED_BRIEF_HELP_SOURCES_INTRO}
+      sources={STRUCTURED_BRIEF_HELP_SOURCES}
       sourcesHeadingId="where-to-go-next"
       readingBodyClassName={props.readingBodyClassName ?? HELP_PAGE_LAYOUT.readingBody}
     />

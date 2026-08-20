@@ -16,6 +16,7 @@ vi.mock("@/app/(operator)/help/_sections/HelpSponsorDashboardWorkspaceReadinessS
 import { HelpApiKeysGuideView } from "@/app/(operator)/help/_sections/HelpApiKeysGuideView";
 import { HelpAiUsageGuideView } from "@/app/(operator)/help/_sections/HelpAiUsageGuideView";
 import { HelpArchitectureDraftsGuideView } from "@/app/(operator)/help/_sections/HelpArchitectureDraftsGuideView";
+import { HelpStructuredBriefGuideView } from "@/app/(operator)/help/_sections/HelpStructuredBriefGuideView";
 import { HelpArchitectureScorecardGuideView } from "@/app/(operator)/help/_sections/HelpArchitectureScorecardGuideView";
 import { HelpBaselineSettingsGuideView } from "@/app/(operator)/help/_sections/HelpBaselineSettingsGuideView";
 import { HelpConnectionStatusGuideView } from "@/app/(operator)/help/_sections/HelpConnectionStatusGuideView";
@@ -64,6 +65,7 @@ describe("specialty help guides — operator surfaces batch", () => {
     ["architecture-intelligence", HelpArchitectureIntelligenceGuideView, "help-architecture-intelligence-guide"],
     ["sponsor-dashboard", HelpSponsorDashboardGuideView, "help-sponsor-dashboard-guide"],
     ["architecture-drafts", HelpArchitectureDraftsGuideView, "help-architecture-drafts-guide"],
+    ["structured-brief", HelpStructuredBriefGuideView, "help-structured-brief-guide"],
     ["model-governance", HelpModelGovernanceGuideView, "help-model-governance-guide"],
     ["jira-integration", HelpJiraIntegrationGuideView, "help-jira-integration-guide"],
     ["servicenow-integration", HelpServiceNowIntegrationGuideView, "help-servicenow-integration-guide"],
