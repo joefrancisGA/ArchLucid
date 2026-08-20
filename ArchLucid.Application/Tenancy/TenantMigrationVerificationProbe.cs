@@ -60,6 +60,13 @@ public sealed class TenantMigrationVerificationProbe(
         ReferenceEvidenceRunCandidate candidate = committedRuns[0];
         string probeRunId = candidate.RunId.ToString("N");
 
+        if (candidate.WorkspaceId == Guid.Empty || candidate.ScopeProjectId == Guid.Empty)
+        {
+            return Failed(
+                "Committed review is missing workspace or project scope required for authorization-boundary verification.",
+                probeRunId);
+        }
+
         ScopeContext scope = new()
         {
             TenantId = tenantId,
