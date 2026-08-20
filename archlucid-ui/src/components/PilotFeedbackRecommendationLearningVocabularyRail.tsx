@@ -2,13 +2,12 @@
 
 import type { JSX } from "react";
 
+import { PairwiseVocabularyRailFromModel } from "@/components/vocabulary/PairwiseVocabularyRailFromModel";
 import {
-  buildPilotFeedbackRecommendationLearningVocabulary,
-  resolvePilotFeedbackRecommendationLearningPeerLink,
+  buildPilotFeedbackRecommendationLearningPairwiseRail,
   type PilotFeedbackRecommendationLearningSurfaceId,
   type PilotFeedbackRecommendationLearningVocabularyModel,
 } from "@/lib/vocabulary/pilot-feedback-recommendation-learning-vocabulary";
-import { VocabularyRail } from "@/components/vocabulary/VocabularyRail";
 
 export type PilotFeedbackRecommendationLearningVocabularyRailProps = {
   readonly currentSurfaceId: PilotFeedbackRecommendationLearningSurfaceId;
@@ -21,25 +20,25 @@ export type PilotFeedbackRecommendationLearningVocabularyRailProps = {
 export function PilotFeedbackRecommendationLearningVocabularyRail(
   props: PilotFeedbackRecommendationLearningVocabularyRailProps,
 ): JSX.Element {
-  const model = props.model ?? buildPilotFeedbackRecommendationLearningVocabulary();
-  const peer = resolvePilotFeedbackRecommendationLearningPeerLink(props.currentSurfaceId);
-  const currentLink =
-    props.currentSurfaceId === "pilot-feedback"
-      ? model.pilotFeedbackLink
-      : model.recommendationLearningLink;
+  const pairwiseModel =
+    props.model !== undefined
+      ? {
+          heading: props.model.heading,
+          whyTwo: props.model.whyTwo,
+          compactLine: props.model.compactLine,
+          currentLink: props.model.pilotFeedbackLink,
+          peerLink: props.model.recommendationLearningLink,
+        }
+      : buildPilotFeedbackRecommendationLearningPairwiseRail();
 
   return (
-    <VocabularyRail
+    <PairwiseVocabularyRailFromModel
       testIdPrefix="pilot-feedback-recommendation-learning-vocabulary"
       currentSurfaceId={props.currentSurfaceId}
       variant={props.variant}
       className={props.className}
-      compactLine={model.compactLine}
       compactLinkPlacement="inline"
-      heading={model.heading}
-      whyTwo={model.whyTwo}
-      currentLabel={currentLink.label}
-      links={[{ ...peer, testIdSuffix: "peer-link" }]}
+      model={pairwiseModel}
     />
   );
 }

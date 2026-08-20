@@ -16,6 +16,7 @@
 
 import { API_KEYS_SETTINGS_CANONICAL_PATH } from "@/lib/api-keys-settings-evidence-copy";
 import { INTEGRATIONS_WEBHOOKS_PATH } from "@/lib/integrations-nav-paths";
+import type { PairwiseVocabularyRailModel } from "@/lib/vocabulary/create-pairwise-vocabulary-rail";
 import type { VocabularyPeerLinkFields } from "@/lib/vocabulary/vocabulary-peer-link-fields";
 
 export type WebhooksApiKeysSurfaceId = "webhooks" | "api-keys";
@@ -58,14 +59,27 @@ export const WEBHOOKS_API_KEYS_API_KEYS_LINK: WebhooksApiKeysLink = {
   compactLineAnchor: "API keys",
 };
 
-/** Full vocabulary model (heading, why-two copy, and deep links). */
-export function buildWebhooksApiKeysVocabulary(): WebhooksApiKeysVocabularyModel {
+/** Pairwise model for Webhooks ↔ API keys (fixed routes). */
+export function buildWebhooksApiKeysPairwiseRail(): PairwiseVocabularyRailModel<WebhooksApiKeysSurfaceId> {
   return {
     heading: WEBHOOKS_API_KEYS_HEADING,
     whyTwo: WEBHOOKS_API_KEYS_WHY_TWO,
     compactLine: WEBHOOKS_API_KEYS_COMPACT_LINE,
-    webhooksLink: WEBHOOKS_API_KEYS_WEBHOOKS_LINK,
-    apiKeysLink: WEBHOOKS_API_KEYS_API_KEYS_LINK,
+    currentLink: WEBHOOKS_API_KEYS_WEBHOOKS_LINK,
+    peerLink: WEBHOOKS_API_KEYS_API_KEYS_LINK,
+  };
+}
+
+/** Full vocabulary model (heading, why-two copy, and deep links). */
+export function buildWebhooksApiKeysVocabulary(): WebhooksApiKeysVocabularyModel {
+  const rail = buildWebhooksApiKeysPairwiseRail();
+
+  return {
+    heading: rail.heading,
+    whyTwo: rail.whyTwo,
+    compactLine: rail.compactLine,
+    webhooksLink: rail.currentLink,
+    apiKeysLink: rail.peerLink,
   };
 }
 

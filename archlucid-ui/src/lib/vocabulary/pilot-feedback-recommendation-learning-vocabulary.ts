@@ -14,6 +14,7 @@
 
 import { PRODUCT_LEARNING_PATH } from "@/lib/product-learning-route";
 import { RECOMMENDATION_LEARNING_CANONICAL_PATH } from "@/types/recommendation-learning-operational";
+import type { PairwiseVocabularyRailModel } from "@/lib/vocabulary/create-pairwise-vocabulary-rail";
 
 export type PilotFeedbackRecommendationLearningSurfaceId =
   | "pilot-feedback"
@@ -61,15 +62,27 @@ export const PILOT_FEEDBACK_RECOMMENDATION_LEARNING_RECOMMENDATION_LINK: PilotFe
       "Inspect and rebuild the advisory recommendation-ranking profile from historical outcomes.",
   };
 
-/** Full vocabulary model (heading, why-two copy, and deep links). */
-export function buildPilotFeedbackRecommendationLearningVocabulary(): PilotFeedbackRecommendationLearningVocabularyModel {
+/** Pairwise model for Pilot feedback ↔ Recommendation learning (fixed routes). */
+export function buildPilotFeedbackRecommendationLearningPairwiseRail(): PairwiseVocabularyRailModel<PilotFeedbackRecommendationLearningSurfaceId> {
   return {
     heading: PILOT_FEEDBACK_RECOMMENDATION_LEARNING_HEADING,
     whyTwo: PILOT_FEEDBACK_RECOMMENDATION_LEARNING_WHY_TWO,
     compactLine: PILOT_FEEDBACK_RECOMMENDATION_LEARNING_COMPACT_LINE,
-    pilotFeedbackLink: PILOT_FEEDBACK_RECOMMENDATION_LEARNING_PILOT_LINK,
-    recommendationLearningLink:
-      PILOT_FEEDBACK_RECOMMENDATION_LEARNING_RECOMMENDATION_LINK,
+    currentLink: PILOT_FEEDBACK_RECOMMENDATION_LEARNING_PILOT_LINK,
+    peerLink: PILOT_FEEDBACK_RECOMMENDATION_LEARNING_RECOMMENDATION_LINK,
+  };
+}
+
+/** Full vocabulary model (heading, why-two copy, and deep links). */
+export function buildPilotFeedbackRecommendationLearningVocabulary(): PilotFeedbackRecommendationLearningVocabularyModel {
+  const rail = buildPilotFeedbackRecommendationLearningPairwiseRail();
+
+  return {
+    heading: rail.heading,
+    whyTwo: rail.whyTwo,
+    compactLine: rail.compactLine,
+    pilotFeedbackLink: rail.currentLink,
+    recommendationLearningLink: rail.peerLink,
   };
 }
 

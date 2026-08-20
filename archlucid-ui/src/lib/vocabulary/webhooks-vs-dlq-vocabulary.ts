@@ -14,6 +14,7 @@
 
 import { INTEGRATIONS_WEBHOOKS_PATH } from "@/lib/integrations-nav-paths";
 import { INTERNAL_INTEGRATION_EVENTS_DLQ_PATH } from "@/lib/internal-ops-route-paths";
+import type { PairwiseVocabularyRailModel } from "@/lib/vocabulary/create-pairwise-vocabulary-rail";
 
 export type WebhooksVsDlqSurfaceId = "webhooks" | "dlq";
 
@@ -55,14 +56,27 @@ export const WEBHOOKS_VS_DLQ_DLQ_LINK: WebhooksVsDlqLink = {
   whenToUse: "Inspect, retry, or suppress outbound integration events that exhausted publish retries.",
 };
 
-/** Full vocabulary model (heading, why-two copy, and deep links). */
-export function buildWebhooksVsDlqVocabulary(): WebhooksVsDlqVocabularyModel {
+/** Pairwise model for Webhooks ↔ integration-events DLQ (fixed routes). */
+export function buildWebhooksVsDlqPairwiseRail(): PairwiseVocabularyRailModel<WebhooksVsDlqSurfaceId> {
   return {
     heading: WEBHOOKS_VS_DLQ_HEADING,
     whyTwo: WEBHOOKS_VS_DLQ_WHY_TWO,
     compactLine: WEBHOOKS_VS_DLQ_COMPACT_LINE,
-    webhooksLink: WEBHOOKS_VS_DLQ_WEBHOOKS_LINK,
-    dlqLink: WEBHOOKS_VS_DLQ_DLQ_LINK,
+    currentLink: WEBHOOKS_VS_DLQ_WEBHOOKS_LINK,
+    peerLink: WEBHOOKS_VS_DLQ_DLQ_LINK,
+  };
+}
+
+/** Full vocabulary model (heading, why-two copy, and deep links). */
+export function buildWebhooksVsDlqVocabulary(): WebhooksVsDlqVocabularyModel {
+  const rail = buildWebhooksVsDlqPairwiseRail();
+
+  return {
+    heading: rail.heading,
+    whyTwo: rail.whyTwo,
+    compactLine: rail.compactLine,
+    webhooksLink: rail.currentLink,
+    dlqLink: rail.peerLink,
   };
 }
 

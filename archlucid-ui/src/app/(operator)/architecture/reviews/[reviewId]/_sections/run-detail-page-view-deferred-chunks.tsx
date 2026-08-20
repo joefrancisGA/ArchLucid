@@ -1,7 +1,5 @@
 "use client";
 
-import dynamic from "next/dynamic";
-
 import { DeferredChunkLoading, DEFERRED_CHUNK_LOADING_SURFACE_CLASS } from "@/components/ui/deferred-chunk-loading";
 import { createDeferredComponentFromManifest } from "@/lib/operator/load-deferred-chunk-from-manifest";
 import { RunDetailExplanationSkeleton } from "./RunDetailDeferredSkeleton";
@@ -33,30 +31,24 @@ export const RunDetailTechnologyBaselineSection = createDeferredComponentFromMan
   },
 );
 
-export const RunDetailHolisticCriticPanelDeferred = dynamic(
-  () => import("./RunDetailHolisticCriticPanel").then((module) => module.RunDetailHolisticCriticPanel),
-  { ssr: false, loading: () => null },
+export const RunDetailHolisticCriticPanelDeferred = createDeferredComponentFromManifest(
+  "run-detail-holistic-critic-panel",
+  { suppressLoading: true },
 );
 
-export const RunDetailExportDeliverableDialog = dynamic(
-  () =>
-    import("@/components/usability/ExportDeliverableDialog").then(
-      (module) => module.ExportDeliverableDialog,
-    ),
-  { ssr: false, loading: () => null },
+export const RunDetailExportDeliverableDialog = createDeferredComponentFromManifest(
+  "run-detail-export-deliverable-dialog",
+  { suppressLoading: true },
 );
 
-export const RunDetailGenerateAdrFromRunModal = dynamic(
-  () => import("@/components/GenerateAdrFromRunModal").then((module) => module.GenerateAdrFromRunModal),
-  { ssr: false, loading: () => null },
+export const RunDetailGenerateAdrFromRunModal = createDeferredComponentFromManifest(
+  "run-detail-generate-adr-from-run-modal",
+  { suppressLoading: true },
 );
 
-export const RunDetailCompareToBaselineCta = dynamic(
-  () => import("@/components/CompareToBaselineCta").then((module) => module.CompareToBaselineCta),
-  {
-    ssr: false,
-    loading: () => runDetailDeferredLoading("Loading compare to baseline", "h-9 w-44"),
-  },
+export const RunDetailCompareToBaselineCta = createDeferredComponentFromManifest(
+  "run-detail-compare-to-baseline-cta",
+  { loadingClassName: "h-9 w-44" },
 );
 
 export const RunDetailEstimatedLlmCostCardDeferred = createDeferredComponentFromManifest(
@@ -358,9 +350,9 @@ export const RunDetailManifestSummaryAlertsDeferred = createDeferredComponentFro
   { suppressLoading: true },
 );
 
-export const RunDetailRunActionsSectionDeferred = dynamic(
-  () => import("./RunDetailRunActionsSection").then((module) => module.RunDetailRunActionsSection),
-  { ssr: false, loading: () => null },
+export const RunDetailRunActionsSectionDeferred = createDeferredComponentFromManifest(
+  "run-detail-run-actions-section",
+  { suppressLoading: true },
 );
 
 export const HelpPageSituationRegistrarDeferred = createDeferredComponentFromManifest(
@@ -401,12 +393,9 @@ export const RunDetailRunExplanationCollapsibleDeferred = createDeferredComponen
 );
 
 /** Perf wave 12 — sponsor walkthrough destination off sync First Load JS. */
-export const GoldenSponsorPackageWalkthroughDestinationDeferred = dynamic(
-  () =>
-    import("@/components/golden-walkthrough/GoldenSponsorPackageWalkthroughDestination").then(
-      (module) => module.GoldenSponsorPackageWalkthroughDestination,
-    ),
-  { ssr: false, loading: () => null },
+export const GoldenSponsorPackageWalkthroughDestinationDeferred = createDeferredComponentFromManifest(
+  "run-detail-golden-sponsor-walkthrough",
+  { suppressLoading: true },
 );
 
 /** Perf wave 14 — create-home evidence archTab off sync First Load JS. */

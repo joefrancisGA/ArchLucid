@@ -486,6 +486,38 @@ function resolveDeferredChunkImportLoader(
           (module) => module.RunDetailManifestSummaryAlerts,
         ),
       ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "run-detail-holistic-critic-panel":
+      return deferredChunkLoader(() =>
+        import("@/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailHolisticCriticPanel").then(
+          (module) => module.RunDetailHolisticCriticPanel,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "run-detail-run-actions-section":
+      return deferredChunkLoader(() =>
+        import("@/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailRunActionsSection").then(
+          (module) => module.RunDetailRunActionsSection,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "run-detail-golden-sponsor-walkthrough":
+      return deferredChunkLoader(() =>
+        import("@/components/golden-walkthrough/GoldenSponsorPackageWalkthroughDestination").then(
+          (module) => module.GoldenSponsorPackageWalkthroughDestination,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "run-detail-export-deliverable-dialog":
+      return deferredChunkLoader(() =>
+        import("@/components/usability/ExportDeliverableDialog").then(
+          (module) => module.ExportDeliverableDialog,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "run-detail-generate-adr-from-run-modal":
+      return deferredChunkLoader(() =>
+        import("@/components/GenerateAdrFromRunModal").then((module) => module.GenerateAdrFromRunModal),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "run-detail-compare-to-baseline-cta":
+      return deferredChunkLoader(() =>
+        import("@/components/CompareToBaselineCta").then((module) => module.CompareToBaselineCta),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
     default:
       throw new Error(`No deferred chunk import loader registered for manifest entry "${entryId}".`);
   }

@@ -141,9 +141,7 @@ describe("run detail bundle deferred imports (TB-697 / TB-933 / TB-2021 / TB-211
     expect(pageViewSource).toContain("ReviewGenerationCreatedNoticeDeferred");
     expect(pageViewSource).toContain("RunDetailBelowFoldSectionsDeferred");
     expect(pageViewSource).not.toContain("GoldenSponsorPackageWalkthroughDestinationDeferred");
-    expect(deferredChunksSource).toContain(
-      'import("@/components/golden-walkthrough/GoldenSponsorPackageWalkthroughDestination")',
-    );
+    expect(deferredChunksSource).toContain('"run-detail-golden-sponsor-walkthrough"');
     expect(pageViewSource).toContain("RunDetailWorkspaceShell");
     expect(pageViewSource).not.toContain("./RunDetailWorkspaceChrome");
     expect(pageViewSource).toContain("ReviewDetailWorkspaceDeferred");
@@ -224,6 +222,12 @@ describe("run detail bundle deferred imports (TB-697 / TB-933 / TB-2021 / TB-211
     expect(deferredChunksSource).toContain('"run-detail-review-package-share-row"');
     expect(deferredChunksSource).toContain('"run-detail-demo-marketing-chrome"');
     expect(deferredChunksSource).toContain('"run-detail-manifest-summary-alerts"');
+    expect(deferredChunksSource).toContain('"run-detail-holistic-critic-panel"');
+    expect(deferredChunksSource).toContain('"run-detail-run-actions-section"');
+    expect(deferredChunksSource).toContain('"run-detail-golden-sponsor-walkthrough"');
+    expect(deferredChunksSource).toContain('"run-detail-export-deliverable-dialog"');
+    expect(deferredChunksSource).toContain('"run-detail-generate-adr-from-run-modal"');
+    expect(deferredChunksSource).toContain('"run-detail-compare-to-baseline-cta"');
     expect(manifestLoaderSource).toContain('import("@/components/reviews/ReviewWorkspaceShell")');
     expect(manifestLoaderSource).toContain('import("@/components/reviews/RunDetailOverviewPanelClient")');
     expect(manifestLoaderSource).toContain('import("@/components/architecture/ArchitectureCreatedReviewWorkspaceShell")');
@@ -359,6 +363,18 @@ describe("run detail bundle deferred imports (TB-697 / TB-933 / TB-2021 / TB-211
     expect(manifestLoaderSource).toContain(
       'import("@/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailManifestSummaryAlerts")',
     );
+    expect(manifestLoaderSource).toContain(
+      'import("@/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailHolisticCriticPanel")',
+    );
+    expect(manifestLoaderSource).toContain(
+      'import("@/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailRunActionsSection")',
+    );
+    expect(manifestLoaderSource).toContain(
+      'import("@/components/golden-walkthrough/GoldenSponsorPackageWalkthroughDestination")',
+    );
+    expect(manifestLoaderSource).toContain('import("@/components/usability/ExportDeliverableDialog")');
+    expect(manifestLoaderSource).toContain('import("@/components/GenerateAdrFromRunModal")');
+    expect(manifestLoaderSource).toContain('import("@/components/CompareToBaselineCta")');
     expect(deferredChunksSource).toContain("RunDetailArchitectureCreateWorkItemSectionDeferred");
     expect(deferredChunksSource).toContain("RunDetailArchitectureSponsorSharingPanelDeferred");
     expect(deferredChunksSource).toContain("RunDetailSampleReviewPackageSummaryDeferred");
@@ -489,9 +505,14 @@ describe("run detail bundle deferred imports (TB-697 / TB-933 / TB-2021 / TB-211
     expect(deferredChunksSource).toContain("RunDetailActivitySourcesPanelDeferred");
     expect(deferredChunksSource).not.toContain('import("./RunDetailActivitySourcesPanel")');
     expect(deferredChunksSource).toContain("GoldenSponsorPackageWalkthroughDestinationDeferred");
-    expect(deferredChunksSource).toContain(
+    expect(deferredChunksSource).not.toContain(
       'import("@/components/golden-walkthrough/GoldenSponsorPackageWalkthroughDestination")',
     );
+    expect(deferredChunksSource).not.toContain('import("./RunDetailHolisticCriticPanel")');
+    expect(deferredChunksSource).not.toContain('import("./RunDetailRunActionsSection")');
+    expect(deferredChunksSource).not.toContain('import("@/components/usability/ExportDeliverableDialog")');
+    expect(deferredChunksSource).not.toContain('import("@/components/GenerateAdrFromRunModal")');
+    expect(deferredChunksSource).not.toContain('import("@/components/CompareToBaselineCta")');
   });
 
   it("dynamic-imports findings/explanation client leaves (TB-2021)", () => {

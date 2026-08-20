@@ -2,13 +2,12 @@
 
 import type { JSX } from "react";
 
+import { PairwiseVocabularyRailFromModel } from "@/components/vocabulary/PairwiseVocabularyRailFromModel";
 import {
-  buildPlanningPlanDetailHubVocabulary,
-  resolvePlanningPlanDetailHubPeerLink,
+  buildPlanningPlanDetailHubPairwiseRail,
   type PlanningPlanDetailHubSurfaceId,
   type PlanningPlanDetailHubVocabularyModel,
 } from "@/lib/vocabulary/planning-plan-detail-hub-vocabulary";
-import { VocabularyRail } from "@/components/vocabulary/VocabularyRail";
 
 export type PlanningPlanDetailHubVocabularyRailProps = {
   /** Surface hosting the strip — marks hub vs plan detail and links to the peer. */
@@ -28,25 +27,25 @@ export type PlanningPlanDetailHubVocabularyRailProps = {
 export function PlanningPlanDetailHubVocabularyRail(
   props: PlanningPlanDetailHubVocabularyRailProps,
 ): JSX.Element {
-  const model = props.model ?? buildPlanningPlanDetailHubVocabulary();
-  const peer = resolvePlanningPlanDetailHubPeerLink(props.currentSurfaceId);
-  const currentLink =
-    props.currentSurfaceId === "improvement-planning"
-      ? model.planningHubLink
-      : model.planDetailLink;
+  const pairwiseModel =
+    props.model !== undefined
+      ? {
+          heading: props.model.heading,
+          whyTwo: props.model.whyTwo,
+          compactLine: props.model.compactLine,
+          currentLink: props.model.planningHubLink,
+          peerLink: props.model.planDetailLink,
+        }
+      : buildPlanningPlanDetailHubPairwiseRail();
 
   return (
-    <VocabularyRail
+    <PairwiseVocabularyRailFromModel
       testIdPrefix="planning-plan-detail-hub-vocabulary"
       currentSurfaceId={props.currentSurfaceId}
       variant={props.variant}
       className={props.className}
-      compactLine={model.compactLine}
       compactLinkPlacement="inline"
-      heading={model.heading}
-      whyTwo={model.whyTwo}
-      currentLabel={currentLink.label}
-      links={[{ ...peer, testIdSuffix: "peer-link" }]}
+      model={pairwiseModel}
     />
   );
 }

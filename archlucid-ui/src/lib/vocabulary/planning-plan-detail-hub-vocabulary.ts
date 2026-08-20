@@ -13,6 +13,7 @@
  */
 
 import { PLANNING_PATH } from "@/lib/planning-route";
+import type { PairwiseVocabularyRailModel } from "@/lib/vocabulary/create-pairwise-vocabulary-rail";
 
 export type PlanningPlanDetailHubSurfaceId = "improvement-planning" | "plan-detail";
 
@@ -55,14 +56,27 @@ export const PLANNING_PLAN_DETAIL_HUB_PLAN_DETAIL_LINK: PlanningPlanDetailHubLin
   whenToUse: "Inspect one derived improvement plan.",
 };
 
-/** Full vocabulary model (heading, why-two copy, and deep links). */
-export function buildPlanningPlanDetailHubVocabulary(): PlanningPlanDetailHubVocabularyModel {
+/** Pairwise model for Improvement planning hub ↔ Plan detail (fixed routes). */
+export function buildPlanningPlanDetailHubPairwiseRail(): PairwiseVocabularyRailModel<PlanningPlanDetailHubSurfaceId> {
   return {
     heading: PLANNING_PLAN_DETAIL_HUB_HEADING,
     whyTwo: PLANNING_PLAN_DETAIL_HUB_WHY_TWO,
     compactLine: PLANNING_PLAN_DETAIL_HUB_COMPACT_LINE,
-    planningHubLink: PLANNING_PLAN_DETAIL_HUB_PLANNING_LINK,
-    planDetailLink: PLANNING_PLAN_DETAIL_HUB_PLAN_DETAIL_LINK,
+    currentLink: PLANNING_PLAN_DETAIL_HUB_PLANNING_LINK,
+    peerLink: PLANNING_PLAN_DETAIL_HUB_PLAN_DETAIL_LINK,
+  };
+}
+
+/** Full vocabulary model (heading, why-two copy, and deep links). */
+export function buildPlanningPlanDetailHubVocabulary(): PlanningPlanDetailHubVocabularyModel {
+  const rail = buildPlanningPlanDetailHubPairwiseRail();
+
+  return {
+    heading: rail.heading,
+    whyTwo: rail.whyTwo,
+    compactLine: rail.compactLine,
+    planningHubLink: rail.currentLink,
+    planDetailLink: rail.peerLink,
   };
 }
 
