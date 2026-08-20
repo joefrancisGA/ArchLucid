@@ -6,6 +6,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { OperatorLoadingNotice } from "@/components/operator/OperatorShellMessage";
 import { ServiceNowIntegrationEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
+import { IntegrationZoneRecoveryCard } from "@/components/integrations/IntegrationZoneRecoveryCard";
 import { ItsmConnectorProviderChooserRail } from "@/components/itsm/ItsmConnectorProviderChooserRail";
 import { useNavCallerAuthorityRank } from "@/components/operator/OperatorNavAuthorityProvider";
 import { Button } from "@/components/ui/button";
@@ -70,6 +71,10 @@ import {
 import { ITSM_PRODUCT_SMOKE_VERIFICATION_HREF } from "@/lib/itsm/itsm-connectors-admin-scope";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { buildServiceNowPageLoadResult } from "@/lib/servicenow-page-load";
+import {
+  buildIntegrationZoneRecoveries,
+  type IntegrationZoneLoadSlice,
+} from "@/lib/integration-zone-recovery";
 
 import { ItsmNotConfiguredNextStep } from "../../_sections/itsm/ItsmNotConfiguredNextStep";
 import { ServiceNowIntegrationAside } from "./ServiceNowIntegrationAside";
@@ -98,6 +103,7 @@ export function ServiceNowIntegrationPageClient(): React.ReactElement {
   const [lastTestSummary, setLastTestSummary] = useState<string | null>(null);
   const [lastTestSuccess, setLastTestSuccess] = useState<boolean | null>(null);
   const [lastCheckedAt, setLastCheckedAt] = useState<Date | null>(null);
+  const [zoneLoadSlices, setZoneLoadSlices] = useState<readonly IntegrationZoneLoadSlice[]>([]);
 
   const applySettings = useCallback((loaded: TenantItsmOutboundSettingsResponse | null) => {
     setSettings(loaded);
@@ -138,6 +144,26 @@ export function ServiceNowIntegrationPageClient(): React.ReactElement {
     }
 
     setLoadError(loaded.loadError);
+    setZoneLoadSlices([
+      {
+        id: "health",
+        label: "ServiceNow health",
+        failed: loaded.health.failed,
+        errorMessage: loaded.health.errorMessage,
+      },
+      {
+        id: "settings",
+        label: "ServiceNow settings",
+        failed: loaded.settings.failed,
+        errorMessage: loaded.settings.errorMessage,
+      },
+      {
+        id: "connection",
+        label: "ServiceNow connection",
+        failed: loaded.connection.failed,
+        errorMessage: loaded.connection.errorMessage,
+      },
+    ]);
     setLastCheckedAt(new Date());
     setIsLoading(false);
   }, [applySettings]);
@@ -199,6 +225,11 @@ export function ServiceNowIntegrationPageClient(): React.ReactElement {
         testGateAllowed: testGate.allowed,
       }),
     [credentialsReady, nativeEnabled, testGate.allowed],
+  );
+
+  const integrationZoneRecoveries = useMemo(
+    () => buildIntegrationZoneRecoveries(zoneLoadSlices),
+    [zoneLoadSlices],
   );
 
   const runConnectionTest = useCallback(async () => {
@@ -384,18 +415,12 @@ export function ServiceNowIntegrationPageClient(): React.ReactElement {
           data-operator-side-rail-kind="none"
         >
           <div className="min-w-0 space-y-4" data-testid="servicenow-page-main">
-            {loadError !== null ? (
-              <p
-                className={cn(
-                  "m-0",
-                  DESIGN_TOKENS.callout.warn,
-                  OPERATOR_TYPOGRAPHY.helper,
-                )}
-                role="alert"
-                data-testid="servicenow-page-load-error"
-              >
-                {loadError}
-              </p>
+            {integrationZoneRecoveries.length > 0 ? (
+              <div className="space-y-3" data-testid="servicenow-zone-recoveries">
+                {integrationZoneRecoveries.map((recovery) => (
+                  <IntegrationZoneRecoveryCard key={recovery.zoneId} recovery={recovery} />
+                ))}
+              </div>
             ) : null}
 
             <section aria-labelledby="servicenow-status-heading" className="space-y-3" data-testid="servicenow-connection-status">

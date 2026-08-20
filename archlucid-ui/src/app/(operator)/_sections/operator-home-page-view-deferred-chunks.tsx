@@ -2,15 +2,17 @@
 
 import dynamic from "next/dynamic";
 
+import { DeferredChunkLoading } from "@/components/ui/deferred-chunk-loading";
 import { cn } from "@/lib/utils";
 import { OPERATOR_SURFACE_CARD_CLASS } from "@/lib/design-tokens";
 
 const pilotCommandCenterLoading = (
   <section aria-label="Overview command center" data-testid="pilot-command-center-card-loading">
-    <div
-      className={cn(OPERATOR_SURFACE_CARD_CLASS, "h-48 animate-pulse p-4")}
-      role="status"
-      aria-label="Loading overview command center"
+    <DeferredChunkLoading
+      label="Loading overview command center"
+      variant="panel"
+      testId="pilot-command-center-deferred-chunk-loading"
+      className={cn(OPERATOR_SURFACE_CARD_CLASS, "h-48")}
     />
   </section>
 );
@@ -56,10 +58,11 @@ export const CtoDemoSponsorLandingRedirectDeferred = dynamic(
 );
 
 const buyerPolishedHeroLoading = (
-  <div
-    className={cn(OPERATOR_SURFACE_CARD_CLASS, "h-56 animate-pulse p-4")}
-    role="status"
-    aria-label="Loading overview hero"
+  <DeferredChunkLoading
+    label="Loading overview hero"
+    variant="panel"
+    testId="buyer-polished-home-hero-deferred-chunk-loading"
+    className={cn(OPERATOR_SURFACE_CARD_CLASS, "h-56")}
   />
 );
 
@@ -78,10 +81,11 @@ export const OperatorHomeGateDeferred = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div
-        className="flex min-h-[12rem] items-center justify-center"
-        role="status"
-        aria-label="Checking workspace access"
+      <DeferredChunkLoading
+        label="Checking workspace access"
+        variant="section"
+        testId="operator-home-gate-deferred-chunk-loading"
+        className="min-h-[12rem]"
       />
     ),
   },

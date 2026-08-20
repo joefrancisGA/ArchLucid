@@ -441,7 +441,9 @@ describe("ServiceNowIntegrationPageClient", () => {
     });
 
     expect(screen.getByTestId("servicenow-credential-status")).toBeInTheDocument();
-    expect(screen.getByTestId("servicenow-page-load-error")).toHaveTextContent("Database Query Failed");
+    expect(screen.getByTestId("integration-zone-recovery-settings-contract")).toHaveTextContent(
+      "Database Query Failed",
+    );
     expect(screen.getByTestId("servicenow-connection-status")).not.toHaveTextContent(/Database Query Failed/i);
     expect(screen.getByRole("button", { name: SERVICENOW_SAVE_SETTINGS_BUTTON })).toBeDisabled();
   });

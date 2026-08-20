@@ -166,10 +166,10 @@ describe("AdminItsmConnectorsPageClient", () => {
     });
 
     expect(screen.getByTestId("admin-itsm-onboarding-wizard")).toBeInTheDocument();
-    expect(screen.getByTestId("admin-itsm-settings-load-error")).toHaveTextContent(
+    expect(screen.getByTestId("integration-zone-recovery-settings-contract")).toHaveTextContent(
       ITSM_CONNECTORS_ADMIN_SETTINGS_LOAD_FAILURE_EXPLANATION,
     );
-    expect(screen.queryByTestId("admin-itsm-health-load-error")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("integration-zone-recovery-health-contract")).not.toBeInTheDocument();
     expect(
       screen.queryByText("not configured — ask a platform administrator to add Jira credentials"),
     ).not.toBeInTheDocument();
@@ -193,9 +193,11 @@ describe("AdminItsmConnectorsPageClient", () => {
       expect(screen.getByTestId("admin-itsm-onboarding-wizard")).toBeInTheDocument();
     });
 
-    expect(screen.getByTestId("admin-itsm-health-load-error")).toHaveTextContent("Health probe unavailable");
+    expect(screen.getByTestId("integration-zone-recovery-health-contract")).toHaveTextContent(
+      "Health probe unavailable",
+    );
     expect(screen.getByText("Tenant ITSM outbound overrides are saved for this tenant.")).toBeInTheDocument();
-    expect(screen.queryByTestId("admin-itsm-settings-load-error")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("integration-zone-recovery-settings-contract")).not.toBeInTheDocument();
   });
 
   it("shows skeleton while loading and page-level refresh control (TB-1432)", async () => {
@@ -219,8 +221,8 @@ describe("AdminItsmConnectorsPageClient", () => {
       expect(screen.getByTestId("admin-itsm-connectors-refresh")).toHaveTextContent("Retry");
     });
 
-    expect(screen.getByTestId("admin-itsm-health-load-error")).toBeInTheDocument();
-    expect(screen.getByTestId("admin-itsm-settings-load-error")).toBeInTheDocument();
+    expect(screen.getByTestId("integration-zone-recovery-health-contract")).toBeInTheDocument();
+    expect(screen.getByTestId("integration-zone-recovery-settings-contract")).toBeInTheDocument();
     expect(screen.queryByText(/Database Query Failed/i)).not.toBeInTheDocument();
   });
 
