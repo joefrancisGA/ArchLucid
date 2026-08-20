@@ -1834,21 +1834,21 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ## Zone: ui-operator-lib
 
 - **id:** ui-operator-lib
-- **status:** unseeded
+- **status:** open
 - **impact:** medium
 - **aliases:** operator lib; operator scope; operator API client
 - **paths:** archlucid-ui/src/lib/operator/
 - **test-filter:** lib/operator
-- **hunts:** 0
-- **bugs-found:** 0
+- **hunts:** 1
+- **bugs-found:** 1
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **last-hunt:** 2026-08-20
+- **last-bug:** 2026-08-20
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
 ### Hypotheses
 
-- [ ] (candidate) Operator API helper omits workspace scope on mutating requests
-- [ ] (candidate) Cached operator context survives a tenant switch without invalidation
-- [ ] (candidate) Error mapper surfaces another tenantâ€™s problem detail in the toast
+- [x] (invalid) Operator API helper omits workspace scope on mutating requests — no mutating helpers under `operator/`; sole proxy GET uses `mergeRegistrationScopeForProxy` with full scope headers.
+- [x] (proven) Cached operator context survives tenant switch — `hydrateOperatorShellStatusCaches` writes trial/homepage/stickiness/etc. to scope-agnostic TanStack keys; scope change did not clear them. Fixed via `clearOperatorShellStatusScopeAgnosticCaches` on `writeOperatorScopeToStorage` / `clearOperatorScopeStorage`.
+- [x] (invalid) Error mapper surfaces another tenant's problem detail in the toast — `operator-connectivity-error-present.ts` is stateless; no cross-request error cache in this directory.
