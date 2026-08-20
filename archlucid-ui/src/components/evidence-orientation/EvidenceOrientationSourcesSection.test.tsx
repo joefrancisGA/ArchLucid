@@ -5,6 +5,7 @@ import { EvidenceOrientationSourcesSection } from "@/components/evidence-orienta
 import { EVIDENCE_SOURCES_STYLE } from "@/components/evidence-orientation/evidence-orientation-styles";
 import { WhereToGoNextPreferenceProvider } from "@/components/WhereToGoNextPreferenceProvider";
 import type { EvidenceOrientationLink } from "@/lib/evidence-surface-copy";
+import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 import {
   WHERE_TO_GO_NEXT_STORAGE_KEY,
   resetWhereToGoNextSessionStateForTests,
@@ -34,6 +35,47 @@ describe("EvidenceOrientationSourcesSection", () => {
       "audit-trail-help-sources-heading",
     );
     expect(section.textContent).toContain("Use these follow-ups.");
+
+    for (const link of LINKS) {
+      expect(
+        screen.getByRole("link", { name: formatHelpFollowUpLinkAccessibleName(link.href, link.label) }),
+      ).toHaveAttribute("href", link.href);
+    }
+  });
+
+  it("prefixes help and product destinations by default", () => {
+    render(
+      <EvidenceOrientationSourcesSection
+        testId="preferences-settings-sources"
+        headingId="preferences-settings-sources-heading"
+        title="Where to go next"
+        intro="Follow-ups."
+        links={[
+          { label: "Getting started", href: "/help/getting-started" },
+          { label: "Sign-in methods", href: "/account/security" },
+        ]}
+        distinguishFollowUpDestinations
+      />,
+    );
+
+    expect(screen.getByRole("link", { name: "Read Getting started" })).toHaveAttribute(
+      "href",
+      "/help/getting-started",
+    );
+    expect(screen.getByRole("link", { name: "Open Sign-in methods" })).toHaveAttribute("href", "/account/security");
+  });
+
+  it("can render raw labels when destination labeling is turned off", () => {
+    render(
+      <EvidenceOrientationSourcesSection
+        testId="marketing-sources"
+        headingId="marketing-sources-heading"
+        title="Sources for follow-up"
+        intro="Follow-ups."
+        links={LINKS}
+        distinguishFollowUpDestinations={false}
+      />,
+    );
 
     for (const link of LINKS) {
       expect(screen.getByRole("link", { name: link.label })).toHaveAttribute("href", link.href);
@@ -102,8 +144,30 @@ describe("EvidenceOrientationSourcesSection", () => {
 
     const section = screen.getByTestId("cloud-connections-sources");
     expect(section).toHaveAttribute("data-layout", "columns");
-    expect(section).toHaveClass("md:grid", "md:grid-cols-2");
+    expect(section).toHaveClass("md:grid", "md:grid-cols-[minmax(0,1fr)_auto]");
+    expect(section.querySelector("ul")).toHaveClass("flex-col");
+    expect(section.querySelector("ul")).not.toHaveClass("sm:grid-cols-2");
+  });
+
+  it("uses a dense link grid when many follow-ups need a two-column index", () => {
+    render(
+      <EvidenceOrientationSourcesSection
+        testId="cloud-connections-sources"
+        headingId="where-to-go-next"
+        title="Where to go next"
+        intro="Follow-ups."
+        links={[
+          ...LINKS,
+          { label: "Reviews", href: "/architecture/reviews" },
+          { label: "Help", href: "/help" },
+        ]}
+        layout="columns"
+      />,
+    );
+
+    const section = screen.getByTestId("cloud-connections-sources");
     expect(section.querySelector("ul")).toHaveClass("sm:grid-cols-2");
+    expect(section.querySelector("ul")).not.toHaveClass("flex-col");
   });
 
   it("renders nothing when Where to go next is turned off in personal preferences", () => {

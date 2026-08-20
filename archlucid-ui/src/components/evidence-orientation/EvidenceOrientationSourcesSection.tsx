@@ -22,7 +22,13 @@ const SOURCES_LIST_CLASS: Record<Exclude<EvidenceOrientationSourcesLayout, "colu
   stacked: "m-0 mt-2 list-none space-y-2 p-0",
 };
 
+const SOURCES_COLUMNS_PANEL_CLASS =
+  "md:grid md:grid-cols-[minmax(0,1fr)_auto] md:items-start md:gap-x-6 md:gap-y-2";
+
 const SOURCES_COLUMNS_LIST_CLASS = "m-0 mt-2 grid list-none gap-x-3 gap-y-1 p-0 sm:grid-cols-2";
+
+/** Few follow-ups read better as a tight stack beside the intro — not a sparse two-column index. */
+const SOURCES_COLUMNS_COMPACT_LIST_CLASS = "m-0 mt-2 flex list-none flex-col gap-y-1 p-0 md:mt-0";
 
 export type EvidenceOrientationSourcesSectionProps = {
   readonly testId: string;
@@ -56,7 +62,7 @@ export function EvidenceOrientationSourcesSection({
   layout = "wrap",
   listClassName,
   headingClassName,
-  distinguishFollowUpDestinations = false,
+  distinguishFollowUpDestinations = true,
   promotedSourceHref,
 }: EvidenceOrientationSourcesSectionProps): React.JSX.Element | null {
   const whereToGoNextVisible = useWhereToGoNextVisible();
@@ -72,6 +78,8 @@ export function EvidenceOrientationSourcesSection({
   );
   const introParagraph = <p className={style.intro}>{intro}</p>;
   const listClassNameResolved = listClassName ?? OPERATOR_TYPOGRAPHY.body;
+  const columnsLinkListClass =
+    links.length <= 3 ? SOURCES_COLUMNS_COMPACT_LIST_CLASS : SOURCES_COLUMNS_LIST_CLASS;
   const linkItems = links.map((link) => {
           const linkLabel = distinguishFollowUpDestinations
             ? formatHelpFollowUpLinkAccessibleName(link.href, link.label)
@@ -103,7 +111,7 @@ export function EvidenceOrientationSourcesSection({
 
   return (
     <section
-      className={cn(style.panel, layout === "columns" && "md:grid md:grid-cols-2")}
+      className={cn(style.panel, layout === "columns" && SOURCES_COLUMNS_PANEL_CLASS)}
       aria-labelledby={headingId}
       data-testid={testId}
       data-layout={layout}
@@ -114,7 +122,7 @@ export function EvidenceOrientationSourcesSection({
             {heading}
             {introParagraph}
           </div>
-          <ul className={cn(SOURCES_COLUMNS_LIST_CLASS, listClassNameResolved)}>{linkItems}</ul>
+          <ul className={cn(columnsLinkListClass, listClassNameResolved)}>{linkItems}</ul>
         </>
       ) : (
         <>
