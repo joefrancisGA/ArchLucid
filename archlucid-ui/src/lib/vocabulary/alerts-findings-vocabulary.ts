@@ -18,6 +18,7 @@ import {
   GOVERNANCE_ALERTS_PATH,
   GOVERNANCE_FINDINGS_PATH,
 } from "@/lib/governance/governance-route-paths";
+import type { PairwiseVocabularyRailModel } from "@/lib/vocabulary/create-pairwise-vocabulary-rail";
 
 export type AlertsFindingsSurfaceId = "alerts-inbox" | "findings-queue";
 
@@ -58,14 +59,27 @@ export const ALERTS_FINDINGS_FINDINGS_LINK: AlertsFindingsLink = {
   whenToUse: "Disposition risks, assign owners, and clear open governance items.",
 };
 
-/** Full vocabulary model (heading, why-two copy, and deep links). */
-export function buildAlertsFindingsVocabulary(): AlertsFindingsVocabularyModel {
+/** Pairwise model for Alerts inbox ↔ Findings queue (fixed governance routes). */
+export function buildAlertsFindingsPairwiseRail(): PairwiseVocabularyRailModel<AlertsFindingsSurfaceId> {
   return {
     heading: ALERTS_FINDINGS_HEADING,
     whyTwo: ALERTS_FINDINGS_WHY_TWO,
     compactLine: ALERTS_FINDINGS_COMPACT_LINE,
-    alertsLink: ALERTS_FINDINGS_ALERTS_LINK,
-    findingsLink: ALERTS_FINDINGS_FINDINGS_LINK,
+    currentLink: ALERTS_FINDINGS_ALERTS_LINK,
+    peerLink: ALERTS_FINDINGS_FINDINGS_LINK,
+  };
+}
+
+/** Full vocabulary model (heading, why-two copy, and deep links). */
+export function buildAlertsFindingsVocabulary(): AlertsFindingsVocabularyModel {
+  const rail = buildAlertsFindingsPairwiseRail();
+
+  return {
+    heading: rail.heading,
+    whyTwo: rail.whyTwo,
+    compactLine: rail.compactLine,
+    alertsLink: rail.currentLink,
+    findingsLink: rail.peerLink,
   };
 }
 

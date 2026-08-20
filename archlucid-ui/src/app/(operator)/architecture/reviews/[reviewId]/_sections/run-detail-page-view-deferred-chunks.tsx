@@ -260,46 +260,38 @@ const workspaceHeaderLoading = (
   </header>
 );
 
-const workspaceSummaryLoading = runDetailDeferredLoading("Loading decision snapshot", "h-48");
-
-const workspaceStickyActionsLoading = runDetailDeferredLoading(
-  "Loading review actions",
-  "h-14",
-  "hidden rounded-lg dark:bg-neutral-900/40 lg:block",
-);
-
 const sectionNavLoading = runDetailDeferredLoading("Loading section navigation", "h-10");
 
 const executiveBottomLineLoading = runDetailDeferredLoading("Loading sponsor report", "h-40");
 
 /** TB-2117 — workspace identity chrome off sync First Load JS. */
-export const RunDetailWorkspaceHeaderDeferred = dynamic(
-  () => import("./RunDetailWorkspaceChrome").then((module) => module.RunDetailWorkspaceHeader),
-  { ssr: false, loading: () => workspaceHeaderLoading },
+export const RunDetailWorkspaceHeaderDeferred = createDeferredComponentFromManifest(
+  "run-detail-workspace-header",
+  {
+    loadingWrapper: () => workspaceHeaderLoading,
+  },
 );
 
-export const RunDetailWorkspaceSummaryStripDeferred = dynamic(
-  () =>
-    import("./RunDetailWorkspaceSummaryStripTabAware").then(
-      (module) => module.RunDetailWorkspaceSummaryStripTabAware,
-    ),
-  { ssr: false, loading: () => workspaceSummaryLoading },
+export const RunDetailWorkspaceSummaryStripDeferred = createDeferredComponentFromManifest(
+  "run-detail-workspace-summary-strip",
+  { loadingClassName: "h-48" },
 );
 
-export const RunDetailWorkspaceBlockingBannerDeferred = dynamic(
-  () => import("./RunDetailWorkspaceChrome").then((module) => module.RunDetailWorkspaceBlockingBanner),
-  { ssr: false, loading: () => null },
+export const RunDetailWorkspaceBlockingBannerDeferred = createDeferredComponentFromManifest(
+  "run-detail-workspace-blocking-banner",
+  { suppressLoading: true },
 );
 
-export const RunDetailWorkspaceStickyActionsDeferred = dynamic(
-  () => import("./RunDetailWorkspaceStickyActions").then((module) => module.RunDetailWorkspaceStickyActions),
-  { ssr: false, loading: () => workspaceStickyActionsLoading },
+export const RunDetailWorkspaceStickyActionsDeferred = createDeferredComponentFromManifest(
+  "run-detail-workspace-sticky-actions",
+  {
+    loadingClassName: "h-14 hidden rounded-lg dark:bg-neutral-900/40 lg:block",
+  },
 );
 
-export const RunDetailSectionNavDeferred = dynamic(
-  () => import("@/components/runs/RunDetailSectionNav").then((module) => module.RunDetailSectionNav),
-  { ssr: false, loading: () => sectionNavLoading },
-);
+export const RunDetailSectionNavDeferred = createDeferredComponentFromManifest("run-detail-section-nav", {
+  loadingClassName: "h-10",
+});
 
 export const RunDetailTabbedSectionNavDeferred = dynamic(
   () => import("@/components/runs/RunDetailTabbedSectionNav").then((module) => module.RunDetailTabbedSectionNav),

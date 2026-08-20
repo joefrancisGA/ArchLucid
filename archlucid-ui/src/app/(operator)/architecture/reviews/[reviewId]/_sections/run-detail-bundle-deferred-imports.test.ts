@@ -171,6 +171,11 @@ describe("run detail bundle deferred imports (TB-697 / TB-933 / TB-2021 / TB-211
     expect(deferredChunksSource).toContain('"run-detail-decision-delta"');
     expect(deferredChunksSource).toContain('"run-detail-explanation-collapsible"');
     expect(deferredChunksSource).toContain('"run-detail-activity-sources"');
+    expect(deferredChunksSource).toContain('"run-detail-workspace-header"');
+    expect(deferredChunksSource).toContain('"run-detail-workspace-summary-strip"');
+    expect(deferredChunksSource).toContain('"run-detail-workspace-blocking-banner"');
+    expect(deferredChunksSource).toContain('"run-detail-workspace-sticky-actions"');
+    expect(deferredChunksSource).toContain('"run-detail-section-nav"');
     expect(manifestLoaderSource).toContain('import("@/components/reviews/ReviewWorkspaceShell")');
     expect(manifestLoaderSource).toContain('import("@/components/reviews/RunDetailOverviewPanelClient")');
     expect(manifestLoaderSource).toContain('import("@/components/architecture/ArchitectureCreatedReviewWorkspaceShell")');
@@ -200,6 +205,16 @@ describe("run detail bundle deferred imports (TB-697 / TB-933 / TB-2021 / TB-211
     expect(manifestLoaderSource).toContain(
       'import("@/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailActivitySourcesPanel")',
     );
+    expect(manifestLoaderSource).toContain(
+      'import("@/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailWorkspaceChrome")',
+    );
+    expect(manifestLoaderSource).toContain(
+      'import("@/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailWorkspaceSummaryStripTabAware")',
+    );
+    expect(manifestLoaderSource).toContain(
+      'import("@/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailWorkspaceStickyActions")',
+    );
+    expect(manifestLoaderSource).toContain('import("@/components/runs/RunDetailSectionNav")');
     expect(deferredChunksSource).toContain("RunDetailArchitectureCreateWorkItemSectionDeferred");
     expect(deferredChunksSource).toContain("RunDetailArchitectureSponsorSharingPanelDeferred");
     expect(deferredChunksSource).toContain("RunDetailArchitectureCreatedWorkspaceDeferred");
@@ -228,11 +243,14 @@ describe("run detail bundle deferred imports (TB-697 / TB-933 / TB-2021 / TB-211
     expect(deferredChunksSource).toContain("RunDetailGovernanceDecisionSectionDeferred");
     expect(deferredChunksSource).toContain("RunDetailReviewPackageSectionDeferred");
     expect(deferredChunksSource).toContain("RunDetailBuyerModeFallbackBannerDeferred");
-    expect(deferredChunksSource).toContain('import("./RunDetailWorkspaceChrome")');
-    expect(deferredChunksSource).toContain('import("./RunDetailWorkspaceStickyActions")');
+    expect(deferredChunksSource).not.toContain('import("./RunDetailWorkspaceChrome")');
+    expect(deferredChunksSource).not.toContain('import("./RunDetailWorkspaceStickyActions")');
+    expect(deferredChunksSource).not.toContain('import("@/components/runs/RunDetailSectionNav")');
+    expect(deferredChunksSource).not.toContain(
+      'import("./RunDetailWorkspaceSummaryStripTabAware")',
+    );
     expect(deferredChunksSource).toContain('import("./ReviewPackagePrimaryActionTabAware")');
     expect(deferredChunksSource).toContain('import("./RunDetailSponsorBottomLine")');
-    expect(deferredChunksSource).toContain('import("@/components/runs/RunDetailSectionNav")');
     expect(deferredChunksSource).toContain('import("./RunDetailManifestSummarySection")');
     expect(deferredChunksSource).toContain('import("./RunDetailSubmittedArchitectureSection")');
     expect(deferredChunksSource).toContain('import("./RunDetailCaptureEvidenceSection")');

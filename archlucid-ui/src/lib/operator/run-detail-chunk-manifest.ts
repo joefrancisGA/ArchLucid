@@ -93,4 +93,40 @@ export const RUN_DETAIL_CHUNK_MANIFEST: readonly DeferredChunkManifestEntry[] = 
     modulePath: "@/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailActivitySourcesPanel",
     exportName: "RunDetailActivitySourcesPanel",
   },
+  {
+    id: "run-detail-workspace-header",
+    label: "Loading review header",
+    variant: "section",
+    modulePath: "@/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailWorkspaceChrome",
+    exportName: "RunDetailWorkspaceHeader",
+  },
+  {
+    id: "run-detail-workspace-summary-strip",
+    label: "Loading decision snapshot",
+    variant: "panel",
+    modulePath:
+      "@/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailWorkspaceSummaryStripTabAware",
+    exportName: "RunDetailWorkspaceSummaryStripTabAware",
+  },
+  {
+    id: "run-detail-workspace-blocking-banner",
+    label: "Loading review blocking banner",
+    variant: "panel",
+    modulePath: "@/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailWorkspaceChrome",
+    exportName: "RunDetailWorkspaceBlockingBanner",
+  },
+  {
+    id: "run-detail-workspace-sticky-actions",
+    label: "Loading review actions",
+    variant: "panel",
+    modulePath: "@/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailWorkspaceStickyActions",
+    exportName: "RunDetailWorkspaceStickyActions",
+  },
+  {
+    id: "run-detail-section-nav",
+    label: "Loading section navigation",
+    variant: "panel",
+    modulePath: "@/components/runs/RunDetailSectionNav",
+    exportName: "RunDetailSectionNav",
+  },
 ] as const;

@@ -13,6 +13,7 @@
 
 import { REVIEWS_LIST_PATH } from "@/lib/architecture/architecture-routes";
 import { SIGNED_RECORDS_LIST_PATH } from "@/lib/signed-records-paths";
+import type { PairwiseVocabularyRailModel } from "@/lib/vocabulary/create-pairwise-vocabulary-rail";
 
 export type SignedRecordsReviewDetailSurfaceId = "signed-records" | "review-detail";
 
@@ -55,14 +56,27 @@ export const SIGNED_RECORDS_REVIEW_DETAIL_REVIEW_DETAIL_LINK: SignedRecordsRevie
   whenToUse: "Open an architecture package workspace for findings, evidence, and finalize.",
 };
 
-/** Full vocabulary model (heading, why-two copy, and deep links). */
-export function buildSignedRecordsReviewDetailVocabulary(): SignedRecordsReviewDetailVocabularyModel {
+/** Pairwise model for Sealed review records ↔ Review detail (fixed routes). */
+export function buildSignedRecordsReviewDetailPairwiseRail(): PairwiseVocabularyRailModel<SignedRecordsReviewDetailSurfaceId> {
   return {
     heading: SIGNED_RECORDS_REVIEW_DETAIL_HEADING,
     whyTwo: SIGNED_RECORDS_REVIEW_DETAIL_WHY_TWO,
     compactLine: SIGNED_RECORDS_REVIEW_DETAIL_COMPACT_LINE,
-    signedRecordsLink: SIGNED_RECORDS_REVIEW_DETAIL_SIGNED_RECORDS_LINK,
-    reviewDetailLink: SIGNED_RECORDS_REVIEW_DETAIL_REVIEW_DETAIL_LINK,
+    currentLink: SIGNED_RECORDS_REVIEW_DETAIL_SIGNED_RECORDS_LINK,
+    peerLink: SIGNED_RECORDS_REVIEW_DETAIL_REVIEW_DETAIL_LINK,
+  };
+}
+
+/** Full vocabulary model (heading, why-two copy, and deep links). */
+export function buildSignedRecordsReviewDetailVocabulary(): SignedRecordsReviewDetailVocabularyModel {
+  const rail = buildSignedRecordsReviewDetailPairwiseRail();
+
+  return {
+    heading: rail.heading,
+    whyTwo: rail.whyTwo,
+    compactLine: rail.compactLine,
+    signedRecordsLink: rail.currentLink,
+    reviewDetailLink: rail.peerLink,
   };
 }
 

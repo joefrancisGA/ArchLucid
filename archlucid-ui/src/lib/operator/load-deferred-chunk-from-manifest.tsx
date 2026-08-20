@@ -190,6 +190,34 @@ function resolveDeferredChunkImportLoader(
           (module) => module.RunDetailActivitySourcesPanel,
         ),
       ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "run-detail-workspace-header":
+      return deferredChunkLoader(() =>
+        import("@/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailWorkspaceChrome").then(
+          (module) => module.RunDetailWorkspaceHeader,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "run-detail-workspace-summary-strip":
+      return deferredChunkLoader(() =>
+        import("@/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailWorkspaceSummaryStripTabAware").then(
+          (module) => module.RunDetailWorkspaceSummaryStripTabAware,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "run-detail-workspace-blocking-banner":
+      return deferredChunkLoader(() =>
+        import("@/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailWorkspaceChrome").then(
+          (module) => module.RunDetailWorkspaceBlockingBanner,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "run-detail-workspace-sticky-actions":
+      return deferredChunkLoader(() =>
+        import("@/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailWorkspaceStickyActions").then(
+          (module) => module.RunDetailWorkspaceStickyActions,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "run-detail-section-nav":
+      return deferredChunkLoader(() =>
+        import("@/components/runs/RunDetailSectionNav").then((module) => module.RunDetailSectionNav),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
     default:
       throw new Error(`No deferred chunk import loader registered for manifest entry "${entryId}".`);
   }
