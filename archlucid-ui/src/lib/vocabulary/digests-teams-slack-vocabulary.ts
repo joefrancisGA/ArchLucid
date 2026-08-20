@@ -18,10 +18,11 @@ import {
   INTEGRATIONS_SLACK_PATH,
   INTEGRATIONS_TEAMS_PATH,
 } from "@/lib/integrations-nav-paths";
+import type { VocabularyPeerLinkFields } from "@/lib/vocabulary/vocabulary-peer-link-fields";
 
 export type DigestsTeamsSlackSurfaceId = "digests" | "teams" | "slack";
 
-export type DigestsTeamsSlackLink = {
+export type DigestsTeamsSlackLink = VocabularyPeerLinkFields & {
   readonly id: DigestsTeamsSlackSurfaceId;
   readonly label: string;
   readonly href: string;
@@ -58,6 +59,7 @@ export const DIGESTS_TEAMS_SLACK_TEAMS_LINK: DigestsTeamsSlackLink = {
   label: "Microsoft Teams",
   href: INTEGRATIONS_TEAMS_PATH,
   whenToUse: "Configure Teams webhook delivery for governance alerts.",
+  compactLineAnchor: "Teams",
 };
 
 export const DIGESTS_TEAMS_SLACK_SLACK_LINK: DigestsTeamsSlackLink = {

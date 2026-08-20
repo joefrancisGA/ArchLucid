@@ -33,6 +33,7 @@ export function ItsmConnectorsBuyerJiraServicenowVocabularyRail(
       variant={props.variant}
       className={props.className}
       compactLine={model.compactLine}
+      compactLinkPlacement="inline"
       heading={model.heading}
       whyTwo={model.whyThree}
       currentLabel={currentLink?.label ?? null}
@@ -40,6 +41,7 @@ export function ItsmConnectorsBuyerJiraServicenowVocabularyRail(
         href: peer.href,
         label: peer.label,
         testIdSuffix: `peer-${peer.id}`,
+        compactLineAnchor: peer.compactLineAnchor,
       }))}
     />
   );

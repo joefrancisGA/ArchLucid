@@ -1,26 +1,24 @@
 "use client";
 
-import { Fragment, type JSX, type MouseEventHandler } from "react";
+import { type JSX } from "react";
 
 import Link from "next/link";
 
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
-export type VocabularyRailLink = {
-  readonly href: string;
-  readonly label: string;
-  /** Appended to {@link VocabularyRailProps.testIdPrefix}, e.g. `peer-link`. */
-  readonly testIdSuffix: string;
-  /** Optional click handler (e.g. focus a same-page control instead of relying on hash alone). */
-  readonly onClick?: MouseEventHandler<HTMLAnchorElement>;
-};
+import { VocabularyRailCompactStrip } from "@/components/vocabulary/VocabularyRailCompactStrip";
+import type {
+  VocabularyRailCompactLinkPlacement,
+  VocabularyRailLink,
+  VocabularyRailNote,
+} from "@/components/vocabulary/vocabulary-rail-types";
 
-/** Extra full-variant paragraph below the why-two line (honesty caveats, scope notes). */
-export type VocabularyRailNote = {
-  readonly testIdSuffix: string;
-  readonly text: string;
-};
+export type {
+  VocabularyRailCompactLinkPlacement,
+  VocabularyRailLink,
+  VocabularyRailNote,
+} from "@/components/vocabulary/vocabulary-rail-types";
 
 export type VocabularyRailProps = {
   /** Rail-wide test id, e.g. `policy-packs-standards-vocabulary`. */
@@ -34,6 +32,11 @@ export type VocabularyRailProps = {
   readonly heading: string;
   readonly whyTwo: string;
   readonly notes?: readonly VocabularyRailNote[];
+  /**
+   * Compact peer links: trailing after the sentence (default) or wrapped on the
+   * words already in {@link VocabularyRailProps.compactLine}.
+   */
+  readonly compactLinkPlacement?: VocabularyRailCompactLinkPlacement;
   /** Current surface label; omitted on hub surfaces that are neither peer. */
   readonly currentLabel?: string | null;
   /** Peer surfaces to link. Hub rails pass both peers; leaf rails pass the opposite one. */
@@ -48,6 +51,7 @@ export type VocabularyRailProps = {
 export function VocabularyRail(props: VocabularyRailProps): JSX.Element {
   const variant = props.variant ?? "compact";
   const notes = props.notes ?? [];
+  const compactLinkPlacement = props.compactLinkPlacement ?? "trailing";
 
   if (variant === "compact") {
     return (
@@ -61,26 +65,13 @@ export function VocabularyRail(props: VocabularyRailProps): JSX.Element {
         data-variant="compact"
         data-current-surface={props.currentSurfaceId}
       >
-        <span>{props.compactLine}</span>
-        {notes.map((note) => (
-          <span key={note.testIdSuffix} data-testid={`${props.testIdPrefix}-${note.testIdSuffix}`}>
-            {" "}
-            {note.text}
-          </span>
-        ))}{" "}
-        {props.links.map((link, index) => (
-          <Fragment key={link.testIdSuffix}>
-            {index > 0 ? " · " : null}
-            <Link
-              href={link.href}
-              className={cn(OPERATOR_LINK.nav, "font-medium")}
-              data-testid={`${props.testIdPrefix}-${link.testIdSuffix}`}
-              onClick={link.onClick}
-            >
-              {link.label}
-            </Link>
-          </Fragment>
-        ))}
+        <VocabularyRailCompactStrip
+          testIdPrefix={props.testIdPrefix}
+          compactLine={props.compactLine}
+          notes={notes}
+          links={props.links}
+          compactLinkPlacement={compactLinkPlacement}
+        />
       </p>
     );
   }

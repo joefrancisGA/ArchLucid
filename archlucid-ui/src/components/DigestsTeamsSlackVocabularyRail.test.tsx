@@ -18,16 +18,30 @@ describe("DigestsTeamsSlackVocabularyRail (TB-2325)", () => {
     const strip = screen.getByTestId("digests-teams-slack-vocabulary");
     expect(strip).toHaveAttribute("data-variant", "compact");
     expect(strip).toHaveAttribute("data-current-surface", "digests");
-    expect(strip.textContent ?? "").toContain(DIGESTS_TEAMS_SLACK_COMPACT_LINE);
+    expect(strip.textContent ?? "").toBe(DIGESTS_TEAMS_SLACK_COMPACT_LINE);
 
-    expect(screen.getByTestId("digests-teams-slack-vocabulary-peer-teams")).toHaveAttribute(
+    expect(screen.getByRole("link", { name: /^Teams$/ })).toHaveAttribute(
       "href",
       DIGESTS_TEAMS_SLACK_TEAMS_LINK.href,
     );
-    expect(screen.getByTestId("digests-teams-slack-vocabulary-peer-slack")).toHaveAttribute(
+    expect(screen.getByRole("link", { name: /^Slack$/ })).toHaveAttribute(
       "href",
       DIGESTS_TEAMS_SLACK_SLACK_LINK.href,
     );
+  });
+
+  it("inlines Digests and Slack on the Teams page", () => {
+    render(<DigestsTeamsSlackVocabularyRail currentSurfaceId="teams" />);
+
+    expect(screen.getByRole("link", { name: /^Digests$/ })).toHaveAttribute(
+      "href",
+      DIGESTS_TEAMS_SLACK_DIGESTS_LINK.href,
+    );
+    expect(screen.getByRole("link", { name: /^Slack$/ })).toHaveAttribute(
+      "href",
+      DIGESTS_TEAMS_SLACK_SLACK_LINK.href,
+    );
+    expect(screen.queryByRole("link", { name: /^Teams$/ })).toBeNull();
   });
 
   it("renders full variant on Teams with digests peer", () => {

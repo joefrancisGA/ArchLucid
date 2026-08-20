@@ -17,10 +17,11 @@ import {
   INTEGRATIONS_TEAMS_PATH,
 } from "@/lib/integrations-nav-paths";
 import { SETTINGS_NOTIFICATIONS_PATH } from "@/lib/settings-admin-route-paths";
+import type { VocabularyPeerLinkFields } from "@/lib/vocabulary/vocabulary-peer-link-fields";
 
 export type TeamsSlackNotificationSurfaceId = "notifications-hub" | "teams" | "slack";
 
-export type TeamsSlackNotificationLink = {
+export type TeamsSlackNotificationLink = VocabularyPeerLinkFields & {
   readonly id: Exclude<TeamsSlackNotificationSurfaceId, "notifications-hub">;
   readonly label: string;
   readonly href: string;
@@ -50,6 +51,7 @@ export const TEAMS_SLACK_NOTIFICATION_TEAMS_LINK: TeamsSlackNotificationLink = {
   label: "Microsoft Teams",
   href: INTEGRATIONS_TEAMS_PATH,
   whenToUse: "Configure Teams webhook delivery for governance alerts.",
+  compactLineAnchor: "Teams",
 };
 
 export const TEAMS_SLACK_NOTIFICATION_SLACK_LINK: TeamsSlackNotificationLink = {
@@ -84,4 +86,4 @@ export function resolveTeamsSlackNotificationPeerLink(
 
   return TEAMS_SLACK_NOTIFICATION_TEAMS_LINK;
 }
-
+

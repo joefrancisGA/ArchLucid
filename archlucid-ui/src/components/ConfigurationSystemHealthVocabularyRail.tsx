@@ -41,6 +41,7 @@ export function ConfigurationSystemHealthVocabularyRail(
       variant={props.variant}
       className={props.className}
       compactLine={model.compactLine}
+      compactLinkPlacement="inline"
       heading={model.heading}
       whyTwo={model.whyTwo}
       currentLabel={currentLink.label}

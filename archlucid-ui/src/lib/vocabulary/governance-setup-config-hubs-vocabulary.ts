@@ -16,6 +16,7 @@ import {
   GOVERNANCE_STANDARDS_AND_RULES_PATH,
 } from "@/lib/governance/governance-route-paths";
 import { GOVERNANCE_SETUP_HREF } from "@/lib/governance/governance-setup-route";
+import type { VocabularyPeerLinkFields } from "@/lib/vocabulary/vocabulary-peer-link-fields";
 
 export type GovernanceSetupConfigHubsSurfaceId =
   | "setup"
@@ -23,7 +24,7 @@ export type GovernanceSetupConfigHubsSurfaceId =
   | "policy-packs"
   | "standards";
 
-export type GovernanceSetupConfigHubsLink = {
+export type GovernanceSetupConfigHubsLink = VocabularyPeerLinkFields & {
   readonly id: GovernanceSetupConfigHubsSurfaceId;
   readonly label: string;
   readonly href: string;
@@ -54,6 +55,7 @@ export const GOVERNANCE_SETUP_CONFIG_HUBS_SETUP_LINK: GovernanceSetupConfigHubsL
   label: "Governance setup",
   href: GOVERNANCE_SETUP_HREF,
   whenToUse: "Follow the readiness checklist that links to configuration areas.",
+  compactLineAnchor: "Setup",
 };
 
 export const GOVERNANCE_SETUP_CONFIG_HUBS_ALERT_RULES_LINK: GovernanceSetupConfigHubsLink = {
@@ -75,6 +77,7 @@ export const GOVERNANCE_SETUP_CONFIG_HUBS_STANDARDS_LINK: GovernanceSetupConfigH
   label: "Standards & rules",
   href: GOVERNANCE_STANDARDS_AND_RULES_PATH,
   whenToUse: "Configure standards and resolution rules applied to reviews.",
+  compactLineAnchor: "Standards",
 };
 
 const ALL_LINKS: readonly GovernanceSetupConfigHubsLink[] = [
