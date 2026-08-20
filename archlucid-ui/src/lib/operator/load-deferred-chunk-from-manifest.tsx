@@ -218,6 +218,40 @@ function resolveDeferredChunkImportLoader(
       return deferredChunkLoader(() =>
         import("@/components/runs/RunDetailSectionNav").then((module) => module.RunDetailSectionNav),
       ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "run-detail-outcome-cards":
+      return deferredChunkLoader(() =>
+        import("@/components/runs/RunDetailOutcomeCards").then((module) => module.RunDetailOutcomeCards),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "run-detail-artifacts-exports-section":
+      return deferredChunkLoader(() =>
+        import("@/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailArtifactsExportsSection").then(
+          (module) => module.RunDetailArtifactsExportsSection,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "run-detail-operator-technical-forensics":
+      return deferredChunkLoader(() =>
+        import("@/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailOperatorTechnicalForensicsPanel").then(
+          (module) => module.RunDetailOperatorTechnicalForensicsPanel,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "run-detail-sponsor-bottom-line":
+      return deferredChunkLoader(() =>
+        import("@/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailSponsorBottomLine").then(
+          (module) => module.RunDetailSponsorBottomLine,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "run-detail-review-package-do-this-next-resolved":
+      return deferredChunkLoader(() =>
+        import("@/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailReviewPackageDoThisNextResolved").then(
+          (module) => module.RunDetailReviewPackageDoThisNextResolved,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "run-detail-review-package-sponsor-handoff-gate":
+      return deferredChunkLoader(() =>
+        import("@/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailReviewPackageSponsorHandoffGate").then(
+          (module) => module.RunDetailReviewPackageSponsorHandoffGate,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
     default:
       throw new Error(`No deferred chunk import loader registered for manifest entry "${entryId}".`);
   }

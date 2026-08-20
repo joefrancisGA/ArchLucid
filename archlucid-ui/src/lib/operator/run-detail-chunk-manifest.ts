@@ -129,4 +129,49 @@ export const RUN_DETAIL_CHUNK_MANIFEST: readonly DeferredChunkManifestEntry[] = 
     modulePath: "@/components/runs/RunDetailSectionNav",
     exportName: "RunDetailSectionNav",
   },
+  {
+    id: "run-detail-outcome-cards",
+    label: "Loading outcome cards",
+    variant: "panel",
+    modulePath: "@/components/runs/RunDetailOutcomeCards",
+    exportName: "RunDetailOutcomeCards",
+  },
+  {
+    id: "run-detail-artifacts-exports-section",
+    label: "Loading artifacts and exports",
+    variant: "section",
+    modulePath: "@/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailArtifactsExportsSection",
+    exportName: "RunDetailArtifactsExportsSection",
+  },
+  {
+    id: "run-detail-operator-technical-forensics",
+    label: "Loading operator forensics",
+    variant: "panel",
+    modulePath:
+      "@/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailOperatorTechnicalForensicsPanel",
+    exportName: "RunDetailOperatorTechnicalForensicsPanel",
+  },
+  {
+    id: "run-detail-sponsor-bottom-line",
+    label: "Loading sponsor report",
+    variant: "panel",
+    modulePath: "@/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailSponsorBottomLine",
+    exportName: "RunDetailSponsorBottomLine",
+  },
+  {
+    id: "run-detail-review-package-do-this-next-resolved",
+    label: "Loading next step",
+    variant: "panel",
+    modulePath:
+      "@/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailReviewPackageDoThisNextResolved",
+    exportName: "RunDetailReviewPackageDoThisNextResolved",
+  },
+  {
+    id: "run-detail-review-package-sponsor-handoff-gate",
+    label: "Loading sponsor handoff gate",
+    variant: "panel",
+    modulePath:
+      "@/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailReviewPackageSponsorHandoffGate",
+    exportName: "RunDetailReviewPackageSponsorHandoffGate",
+  },
 ] as const;

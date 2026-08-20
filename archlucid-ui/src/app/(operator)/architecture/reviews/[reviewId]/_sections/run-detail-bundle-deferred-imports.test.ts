@@ -176,6 +176,12 @@ describe("run detail bundle deferred imports (TB-697 / TB-933 / TB-2021 / TB-211
     expect(deferredChunksSource).toContain('"run-detail-workspace-blocking-banner"');
     expect(deferredChunksSource).toContain('"run-detail-workspace-sticky-actions"');
     expect(deferredChunksSource).toContain('"run-detail-section-nav"');
+    expect(deferredChunksSource).toContain('"run-detail-outcome-cards"');
+    expect(deferredChunksSource).toContain('"run-detail-artifacts-exports-section"');
+    expect(deferredChunksSource).toContain('"run-detail-operator-technical-forensics"');
+    expect(deferredChunksSource).toContain('"run-detail-sponsor-bottom-line"');
+    expect(deferredChunksSource).toContain('"run-detail-review-package-do-this-next-resolved"');
+    expect(deferredChunksSource).toContain('"run-detail-review-package-sponsor-handoff-gate"');
     expect(manifestLoaderSource).toContain('import("@/components/reviews/ReviewWorkspaceShell")');
     expect(manifestLoaderSource).toContain('import("@/components/reviews/RunDetailOverviewPanelClient")');
     expect(manifestLoaderSource).toContain('import("@/components/architecture/ArchitectureCreatedReviewWorkspaceShell")');
@@ -215,6 +221,22 @@ describe("run detail bundle deferred imports (TB-697 / TB-933 / TB-2021 / TB-211
       'import("@/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailWorkspaceStickyActions")',
     );
     expect(manifestLoaderSource).toContain('import("@/components/runs/RunDetailSectionNav")');
+    expect(manifestLoaderSource).toContain('import("@/components/runs/RunDetailOutcomeCards")');
+    expect(manifestLoaderSource).toContain(
+      'import("@/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailArtifactsExportsSection")',
+    );
+    expect(manifestLoaderSource).toContain(
+      'import("@/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailOperatorTechnicalForensicsPanel")',
+    );
+    expect(manifestLoaderSource).toContain(
+      'import("@/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailSponsorBottomLine")',
+    );
+    expect(manifestLoaderSource).toContain(
+      'import("@/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailReviewPackageDoThisNextResolved")',
+    );
+    expect(manifestLoaderSource).toContain(
+      'import("@/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailReviewPackageSponsorHandoffGate")',
+    );
     expect(deferredChunksSource).toContain("RunDetailArchitectureCreateWorkItemSectionDeferred");
     expect(deferredChunksSource).toContain("RunDetailArchitectureSponsorSharingPanelDeferred");
     expect(deferredChunksSource).toContain("RunDetailArchitectureCreatedWorkspaceDeferred");
@@ -249,8 +271,15 @@ describe("run detail bundle deferred imports (TB-697 / TB-933 / TB-2021 / TB-211
     expect(deferredChunksSource).not.toContain(
       'import("./RunDetailWorkspaceSummaryStripTabAware")',
     );
+    expect(deferredChunksSource).not.toContain('import("@/components/runs/RunDetailOutcomeCards")');
+    expect(deferredChunksSource).not.toContain(
+      'import("./RunDetailOperatorTechnicalForensicsPanel")',
+    );
+    expect(deferredChunksSource).not.toContain('import("./RunDetailArtifactsExportsSection")');
+    expect(deferredChunksSource).not.toContain('import("./RunDetailSponsorBottomLine")');
+    expect(deferredChunksSource).not.toContain('import("./RunDetailReviewPackageDoThisNextResolved")');
+    expect(deferredChunksSource).not.toContain('import("./RunDetailReviewPackageSponsorHandoffGate")');
     expect(deferredChunksSource).toContain('import("./ReviewPackagePrimaryActionTabAware")');
-    expect(deferredChunksSource).toContain('import("./RunDetailSponsorBottomLine")');
     expect(deferredChunksSource).toContain('import("./RunDetailManifestSummarySection")');
     expect(deferredChunksSource).toContain('import("./RunDetailSubmittedArchitectureSection")');
     expect(deferredChunksSource).toContain('import("./RunDetailCaptureEvidenceSection")');
@@ -271,21 +300,21 @@ describe("run detail bundle deferred imports (TB-697 / TB-933 / TB-2021 / TB-211
       'import("@/components/review-intake/ReviewGenerationCreatedNotice")',
     );
     expect(deferredChunksSource).toContain('import("@/components/runs/RunEstimatedLlmCostCard")');
-    expect(deferredChunksSource).toContain('import("@/components/runs/RunDetailOutcomeCards")');
+    expect(deferredChunksSource).not.toContain('import("@/components/runs/RunDetailOutcomeCards")');
     expect(deferredChunksSource).toContain(
       'import("@/components/architecture/ArchitectureCreateWorkItemSection")',
     );
     expect(deferredChunksSource).toContain(
       'import("@/components/architecture/ArchitectureSponsorSharingPanel")',
     );
-    expect(deferredChunksSource).toContain(
+    expect(deferredChunksSource).not.toContain(
       'import("./RunDetailOperatorTechnicalForensicsPanel")',
     );
-    expect(deferredChunksSource).toContain('import("./RunDetailArtifactsExportsSection")');
+    expect(deferredChunksSource).not.toContain('import("./RunDetailArtifactsExportsSection")');
     expect(deferredChunksSource).toContain("RunDetailReviewPackageDoThisNextResolvedDeferred");
-    expect(deferredChunksSource).toContain('import("./RunDetailReviewPackageDoThisNextResolved")');
     expect(deferredChunksSource).toContain("RunDetailReviewPackageSponsorHandoffGateDeferred");
-    expect(deferredChunksSource).toContain('import("./RunDetailReviewPackageSponsorHandoffGate")');
+    expect(deferredChunksSource).not.toContain('import("./RunDetailReviewPackageDoThisNextResolved")');
+    expect(deferredChunksSource).not.toContain('import("./RunDetailReviewPackageSponsorHandoffGate")');
     expect(deferredChunksSource).toContain("RunDetailCreateHomeEvidencePanelDeferred");
     expect(deferredChunksSource).toContain("RunDetailCreateHomeActivityPanelDeferred");
     expect(deferredChunksSource).not.toContain('import("./RunDetailCreateHomeEvidencePanel")');

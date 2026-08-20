@@ -2,21 +2,17 @@
 
 import type { JSX } from "react";
 
+import { PairwiseVocabularyRailFromModel } from "@/components/vocabulary/PairwiseVocabularyRailFromModel";
 import {
-  buildPlanningReviewsVocabulary,
-  resolvePlanningReviewsPeerLink,
+  buildPlanningReviewsPairwiseRail,
   type PlanningReviewsSurfaceId,
   type PlanningReviewsVocabularyModel,
 } from "@/lib/vocabulary/planning-reviews-vocabulary";
-import { VocabularyRail } from "@/components/vocabulary/VocabularyRail";
 
 export type PlanningReviewsVocabularyRailProps = {
-  /** Surface hosting the strip — marks the current job and links to the peer. */
   readonly currentSurfaceId: PlanningReviewsSurfaceId;
-  /** Compact one-line strip (default) vs fuller why-two explanation. */
   readonly variant?: "compact" | "full";
   readonly className?: string;
-  /** Optional override for tests; defaults to {@link buildPlanningReviewsVocabulary}. */
   readonly model?: PlanningReviewsVocabularyModel;
 };
 
@@ -27,25 +23,25 @@ export type PlanningReviewsVocabularyRailProps = {
 export function PlanningReviewsVocabularyRail(
   props: PlanningReviewsVocabularyRailProps,
 ): JSX.Element {
-  const model = props.model ?? buildPlanningReviewsVocabulary();
-  const peer = resolvePlanningReviewsPeerLink(props.currentSurfaceId);
-  const currentLink =
-    props.currentSurfaceId === "improvement-planning"
-      ? model.planningLink
-      : model.reviewsLink;
+  const pairwiseModel =
+    props.model !== undefined
+      ? {
+          heading: props.model.heading,
+          whyTwo: props.model.whyTwo,
+          compactLine: props.model.compactLine,
+          currentLink: props.model.planningLink,
+          peerLink: props.model.reviewsLink,
+        }
+      : buildPlanningReviewsPairwiseRail();
 
   return (
-    <VocabularyRail
+    <PairwiseVocabularyRailFromModel
       testIdPrefix="planning-reviews-vocabulary"
       currentSurfaceId={props.currentSurfaceId}
       variant={props.variant}
       className={props.className}
-      compactLine={model.compactLine}
       compactLinkPlacement="inline"
-      heading={model.heading}
-      whyTwo={model.whyTwo}
-      currentLabel={currentLink.label}
-      links={[{ ...peer, testIdSuffix: "peer-link" }]}
+      model={pairwiseModel}
     />
   );
 }

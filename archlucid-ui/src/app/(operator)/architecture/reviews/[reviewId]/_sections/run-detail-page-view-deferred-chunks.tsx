@@ -163,13 +163,10 @@ export const RunDetailGovernanceAlertsDeferred = dynamic(
   { ssr: false, loading: () => null },
 );
 
-const outcomeCardsLoading = runDetailDeferredLoading("Loading outcome cards", "h-40");
-
 /** Activity-tab / details-gated outcome cards — not needed for first paint (TB-933). */
-export const RunDetailOutcomeCardsDeferred = dynamic(
-  () => import("@/components/runs/RunDetailOutcomeCards").then((module) => module.RunDetailOutcomeCards),
-  { ssr: false, loading: () => outcomeCardsLoading },
-);
+export const RunDetailOutcomeCardsDeferred = createDeferredComponentFromManifest("run-detail-outcome-cards", {
+  loadingClassName: "h-40",
+});
 
 export const RunDetailWhatIfBranchCompareBannerDeferred = dynamic(
   () =>
@@ -211,12 +208,9 @@ export const RunDetailPolicyPackImpactCalloutDeferred = dynamic(
   { ssr: false, loading: () => null },
 );
 
-export const RunDetailOperatorTechnicalForensicsPanelDeferred = dynamic(
-  () =>
-    import("./RunDetailOperatorTechnicalForensicsPanel").then(
-      (module) => module.RunDetailOperatorTechnicalForensicsPanel,
-    ),
-  { ssr: false, loading: () => null },
+export const RunDetailOperatorTechnicalForensicsPanelDeferred = createDeferredComponentFromManifest(
+  "run-detail-operator-technical-forensics",
+  { suppressLoading: true },
 );
 
 const artifactsExportsLoading = (
@@ -226,12 +220,11 @@ const artifactsExportsLoading = (
 );
 
 /** TB-2021 — export button cluster is tab/Evidence-gated; keep off sync First Load JS. */
-export const RunDetailArtifactsExportsSectionDeferred = dynamic(
-  () =>
-    import("./RunDetailArtifactsExportsSection").then(
-      (module) => module.RunDetailArtifactsExportsSection,
-    ),
-  { ssr: false, loading: () => artifactsExportsLoading },
+export const RunDetailArtifactsExportsSectionDeferred = createDeferredComponentFromManifest(
+  "run-detail-artifacts-exports-section",
+  {
+    loadingWrapper: () => artifactsExportsLoading,
+  },
 );
 
 const workspaceShellLoading = (
@@ -261,8 +254,6 @@ const workspaceHeaderLoading = (
 );
 
 const sectionNavLoading = runDetailDeferredLoading("Loading section navigation", "h-10");
-
-const executiveBottomLineLoading = runDetailDeferredLoading("Loading sponsor report", "h-40");
 
 /** TB-2117 — workspace identity chrome off sync First Load JS. */
 export const RunDetailWorkspaceHeaderDeferred = createDeferredComponentFromManifest(
@@ -325,9 +316,9 @@ export const RunDetailAdvancedAnalysisSectionDeferred = dynamic(
   { loading: () => null },
 );
 
-export const RunDetailSponsorBottomLineDeferred = dynamic(
-  () => import("./RunDetailSponsorBottomLine").then((module) => module.RunDetailSponsorBottomLine),
-  { ssr: false, loading: () => executiveBottomLineLoading },
+export const RunDetailSponsorBottomLineDeferred = createDeferredComponentFromManifest(
+  "run-detail-sponsor-bottom-line",
+  { loadingClassName: "h-40" },
 );
 
 export const RunDetailSponsorReportCtaCardDeferred = dynamic(
@@ -497,21 +488,13 @@ export const RunDetailActivitySourcesPanelDeferred = createDeferredComponentFrom
   { loadingClassName: "h-32" },
 );
 
-const doThisNextResolvedLoading = runDetailDeferredLoading("Loading next step", "h-20");
-
 /** Perf wave 14 — review-package next-step resolver off sync First Load JS. */
-export const RunDetailReviewPackageDoThisNextResolvedDeferred = dynamic(
-  () =>
-    import("./RunDetailReviewPackageDoThisNextResolved").then(
-      (module) => module.RunDetailReviewPackageDoThisNextResolved,
-    ),
-  { ssr: false, loading: () => doThisNextResolvedLoading },
+export const RunDetailReviewPackageDoThisNextResolvedDeferred = createDeferredComponentFromManifest(
+  "run-detail-review-package-do-this-next-resolved",
+  { loadingClassName: "h-20" },
 );
 
-export const RunDetailReviewPackageSponsorHandoffGateDeferred = dynamic(
-  () =>
-    import("./RunDetailReviewPackageSponsorHandoffGate").then(
-      (module) => module.RunDetailReviewPackageSponsorHandoffGate,
-    ),
-  { ssr: false, loading: () => null },
+export const RunDetailReviewPackageSponsorHandoffGateDeferred = createDeferredComponentFromManifest(
+  "run-detail-review-package-sponsor-handoff-gate",
+  { suppressLoading: true },
 );

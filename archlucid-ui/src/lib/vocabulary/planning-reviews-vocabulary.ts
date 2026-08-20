@@ -13,6 +13,7 @@
  */
 
 import { PLANNING_PATH } from "@/lib/planning-route";
+import type { PairwiseVocabularyRailModel } from "@/lib/vocabulary/create-pairwise-vocabulary-rail";
 
 export const ARCHITECTURE_REVIEWS_HUB_PATH = "/architecture/reviews" as const;
 
@@ -55,14 +56,27 @@ export const PLANNING_REVIEWS_REVIEWS_LINK: PlanningReviewsLink = {
   whenToUse: "Start or open architecture packages and review inventory.",
 };
 
-/** Full vocabulary model (heading, why-two copy, and deep links). */
-export function buildPlanningReviewsVocabulary(): PlanningReviewsVocabularyModel {
+/** Pairwise model for Improvement planning ↔ Architecture reviews (fixed routes). */
+export function buildPlanningReviewsPairwiseRail(): PairwiseVocabularyRailModel<PlanningReviewsSurfaceId> {
   return {
     heading: PLANNING_REVIEWS_HEADING,
     whyTwo: PLANNING_REVIEWS_WHY_TWO,
     compactLine: PLANNING_REVIEWS_COMPACT_LINE,
-    planningLink: PLANNING_REVIEWS_PLANNING_LINK,
-    reviewsLink: PLANNING_REVIEWS_REVIEWS_LINK,
+    currentLink: PLANNING_REVIEWS_PLANNING_LINK,
+    peerLink: PLANNING_REVIEWS_REVIEWS_LINK,
+  };
+}
+
+/** Full vocabulary model (heading, why-two copy, and deep links). */
+export function buildPlanningReviewsVocabulary(): PlanningReviewsVocabularyModel {
+  const rail = buildPlanningReviewsPairwiseRail();
+
+  return {
+    heading: rail.heading,
+    whyTwo: rail.whyTwo,
+    compactLine: rail.compactLine,
+    planningLink: rail.currentLink,
+    reviewsLink: rail.peerLink,
   };
 }
 
