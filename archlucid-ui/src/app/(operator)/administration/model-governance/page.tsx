@@ -19,7 +19,7 @@ export default function ModelGovernanceSettingsPage() {
         icon={ShieldCheck}
         headingLevel="h1"
         title="AI and model governance"
-        subtitle="Manage the workspace default execution profile and review governed model aliases used on reviews."
+        subtitle="Manage the workspace default execution profile and review approved model aliases used on reviews."
         actions={<PageContextualHelpButton />}
       />
       <ModelGovernanceSettingsEvidenceOrientationStrip />

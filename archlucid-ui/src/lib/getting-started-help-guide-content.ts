@@ -172,7 +172,7 @@ export const GETTING_STARTED_HELP_WORKFLOW_STEPS: readonly GettingStartedWorkflo
   {
     stepNumber: 5,
     title: "Finalize and share outputs",
-    description: "Lock the review and export sponsor-ready artifacts for stakeholders.",
+    description: "Lock the review and share export-ready artifacts for stakeholders.",
     expectedOutputs: "Sealed review record, evidence trail, and exports.",
     href: "/architecture/reviews",
     ctaLabel: "Open reviews",
@@ -203,7 +203,7 @@ export const GETTING_STARTED_HELP_NEXT_ACTION_CARDS: readonly GettingStartedActi
   },
   {
     title: GOLDEN_SPONSOR_PACKAGE_WALKTHROUGH_TITLE,
-    description: "Walk through a labeled sample from sealed review record to sponsor-ready exports.",
+    description: "Walk through a labeled sample from sealed review record to export-ready outputs.",
     href: sampleReviewHref,
     ctaLabel: GOLDEN_SPONSOR_PACKAGE_WALKTHROUGH_PRIMARY_CTA,
   },

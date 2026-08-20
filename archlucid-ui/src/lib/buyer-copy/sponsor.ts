@@ -21,7 +21,7 @@ export const BUYER_WHY_ARCHLUCID_SPONSOR_PACK_SOURCE_LINE =
 export const SPONSOR_REPORT_PAGE_TITLE = "Sponsor report";
 
 export const BUYER_VALUE_REPORT_PAGE_SUBTITLE =
-  "Generate sponsor-ready summaries of finalized reviews, findings, governance activity, and estimated ROI.";
+  "Generate export-ready summaries of finalized reviews, findings, governance activity, and estimated ROI.";
 
 export const BUYER_VALUE_REPORT_OUTCOME_LEAD =
   "Choose a reporting period, review what the report contains, and export when finalized reviews exist in that window.";

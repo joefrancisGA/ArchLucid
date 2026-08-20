@@ -79,9 +79,9 @@ describe("buyer-polish-copy optional setup CTA (TB-466)", () => {
 });
 
 describe("buyer-polish-copy value report page (TB-468)", () => {
-  it("uses the merged sponsor report title and sponsor-ready subtitle", () => {
+  it("uses the merged sponsor report title and export-ready subtitle", () => {
     expect(SPONSOR_REPORT_PAGE_TITLE).toBe("Sponsor report");
-    expect(BUYER_VALUE_REPORT_PAGE_SUBTITLE).toContain("sponsor-ready");
+    expect(BUYER_VALUE_REPORT_PAGE_SUBTITLE).toContain("export-ready");
     expect(SPONSOR_REPORT_PAGE_TITLE.toLowerCase()).not.toContain("pilot");
   });
 });

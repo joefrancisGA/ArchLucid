@@ -200,7 +200,7 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
   },
   "value-report": {
     layerBadge: "Sponsor report",
-    headline: "Create a sponsor-ready report summarizing finalized reviews, findings, governance activity, and estimated ROI.",
+    headline: "Create an export-ready report summarizing finalized reviews, findings, governance activity, and estimated ROI.",
     useWhen: "Generate sponsor and board-ready exports after you have finalized reviews in the selected period.",
     firstPilotNote: "After pilot outcomes when sponsors need a packaged value narrative.",
     enterpriseFootnote: "Standard tier required; cost estimate is hours-first from review severities.",

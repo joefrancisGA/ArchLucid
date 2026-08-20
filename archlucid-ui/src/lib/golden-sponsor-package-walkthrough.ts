@@ -18,10 +18,10 @@ export type GoldenSponsorPackageWalkthroughStep = {
   readonly description: string;
 };
 
-export const GOLDEN_SPONSOR_PACKAGE_WALKTHROUGH_TITLE = "Show me a sponsor-ready package";
+export const GOLDEN_SPONSOR_PACKAGE_WALKTHROUGH_TITLE = "Show me an export-ready package";
 
 export const GOLDEN_SPONSOR_PACKAGE_WALKTHROUGH_LEAD =
-  "Follow a labeled sample review from sealed review record through sponsor-ready exports — no facilitator required.";
+  "Follow a labeled sample review from sealed review record through export-ready outputs — no facilitator required.";
 
 export const GOLDEN_SPONSOR_PACKAGE_WALKTHROUGH_SAMPLE_DISCLOSURE =
   "Illustrative sample data only. Exports on this path are preview-only and never merge into your live workspace.";
@@ -45,11 +45,11 @@ export const GOLDEN_SPONSOR_PACKAGE_WALKTHROUGH_STEPS: readonly GoldenSponsorPac
   {
     id: "signed-record",
     label: "Review the sealed review record",
-    description: "Inspect the committed package that backs sponsor-ready language.",
+    description: "Inspect the committed package that backs export-ready language.",
   },
   {
     id: "sponsor-export",
-    label: "Open sponsor-ready exports",
+    label: "Open export-ready outputs",
     description: "Download the sponsor report or architecture report when you are ready to share.",
   },
 ] as const;
