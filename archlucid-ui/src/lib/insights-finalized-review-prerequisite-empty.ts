@@ -39,11 +39,11 @@ export const INSIGHTS_FINALIZED_REVIEW_START_REVIEW_ACTION = {
 const INSIGHTS_JOB_DESCRIPTIONS: Record<InsightsFinalizedReviewJobId, string> = {
   compare:
     "You need at least two finalized reviews before ArchLucid can compare changes over time.",
-  ask: "Finalize a review package before asking questions across workspace evidence.",
+  ask: "Finalize an architecture review before asking questions across workspace evidence.",
   scorecard: REVIEW_SCORECARD_EMPTY_DESCRIPTION,
   "impact-preview": IMPACT_PREVIEW_EMPTY_NO_BASELINE_BODY,
   "evidence-graph":
-    "Select a finalized review package to explore evidence links, or start a review to build the graph.",
+    "Select a finalized architecture review to explore evidence links, or start a review to build the graph.",
 };
 
 const INSIGHTS_JOB_TEST_IDS: Record<InsightsFinalizedReviewJobId, string> = {
@@ -60,31 +60,34 @@ export type BuildInsightsFinalizedReviewPrerequisiteEmptyInput = {
   readonly includeSampleAction?: boolean;
 };
 
-/** Shared Insights prerequisite empty when no finalized review packages exist (TB-2389). */
+/** Shared Insights prerequisite empty when no finalized architecture reviews exist (TB-2389). */
 export function buildInsightsFinalizedReviewPrerequisiteEmpty(
   input: BuildInsightsFinalizedReviewPrerequisiteEmptyInput,
 ): EnterpriseCompactEmptyStateProps {
-  const finalizedCount = input.finalizedCount ?? 0;
+  const sampleScorecardAction: EnterpriseCompactEmptyStateAction | null =
+    input.includeSampleAction === true
+      ? {
+          label: "View sample scorecard",
+          href: buildReviewScorecardSampleHref(),
+          variant: "outline",
+        }
+      : null;
+
+  const askSampleWorkspaceAction: EnterpriseCompactEmptyStateAction | null =
+    input.jobId === "ask"
+      ? {
+          label: "Load sample workspace",
+          href: `/insights/evidence-graph?runId=${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`,
+          variant: "outline",
+        }
+      : null;
+
   const actions: EnterpriseCompactEmptyStateAction[] = [
     INSIGHTS_FINALIZED_REVIEW_OPEN_REVIEWS_ACTION,
     INSIGHTS_FINALIZED_REVIEW_START_REVIEW_ACTION,
+    ...(sampleScorecardAction !== null ? [sampleScorecardAction] : []),
+    ...(askSampleWorkspaceAction !== null ? [askSampleWorkspaceAction] : []),
   ];
-
-  if (input.includeSampleAction === true) {
-    actions.push({
-      label: "View sample scorecard",
-      href: buildReviewScorecardSampleHref(),
-      variant: "outline",
-    });
-  }
-
-  if (input.jobId === "ask") {
-    actions.push({
-      label: "Load sample workspace",
-      href: `/insights/evidence-graph?runId=${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`,
-      variant: "outline",
-    });
-  }
 
   const title =
     input.jobId === "impact-preview"
