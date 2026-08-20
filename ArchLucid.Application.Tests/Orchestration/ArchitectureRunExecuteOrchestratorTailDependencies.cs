@@ -12,6 +12,7 @@ using ArchLucid.Core.Configuration;
 
 using ArchLucid.Core.Integration;
 
+using ArchLucid.Core.Persistence.ApplicationPorts.IntegrationOutbox;
 using ArchLucid.Core.Persistence.ApplicationPorts.Runs;
 
 using ArchLucid.Persistence.IntegrationOutbox;

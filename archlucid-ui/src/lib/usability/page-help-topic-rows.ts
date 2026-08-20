@@ -760,7 +760,7 @@ export const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }
   },
   {
     prefix: "/administration/workspace-settings",
-    topic: { slug: "workspace-settings", label: WORKSPACE_SETTINGS_HELP_TOPIC_LABEL },
+    topic: { slug: "workspace-settings", label: OPERATOR_NAV_LINK_LABELS.workspaceSettings },
   },
   {
     prefix: "/administration/baseline",

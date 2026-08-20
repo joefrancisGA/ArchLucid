@@ -19,13 +19,14 @@ import {
   TRUST_CENTER_PUBLIC_PATH,
 } from "@/lib/marketing-assurance-public-labels";
 import { SETTINGS_SECURITY_TRUST_PATH } from "@/lib/settings-admin-route-paths";
+import type { VocabularyPeerLinkFields } from "@/lib/vocabulary/vocabulary-peer-link-fields";
 
 export type TrustAssuranceSecurityTrustSurfaceId =
   | "trust-center"
   | "assurance-status"
   | "security-trust-hub";
 
-export type TrustAssuranceSecurityTrustLink = {
+export type TrustAssuranceSecurityTrustLink = VocabularyPeerLinkFields & {
   readonly id: TrustAssuranceSecurityTrustSurfaceId;
   readonly label: string;
   readonly href: string;
