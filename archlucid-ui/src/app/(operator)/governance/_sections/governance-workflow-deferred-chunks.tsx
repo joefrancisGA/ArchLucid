@@ -4,17 +4,10 @@ import dynamic from "next/dynamic";
 import type { ComponentType } from "react";
 
 import { createDeferredComponentFromManifest } from "@/lib/operator/load-deferred-chunk-from-manifest";
-import { DeferredChunkLoading } from "@/components/ui/deferred-chunk-loading";
 
 import type { GovernanceOverviewPanelProps } from "./GovernanceOverviewPanel";
 import type { GovernanceReviewContextBarProps } from "./GovernanceReviewContextBar";
 import type { GovernanceWorkflowSubmitSectionProps } from "./GovernanceWorkflowSubmitSection";
-
-function governanceWorkflowDeferredLoading(label: string): React.JSX.Element {
-  return (
-    <DeferredChunkLoading label={label} testId="governance-workflow-deferred-chunk-loading" />
-  );
-}
 
 /** Overview panel — deferred so approval-queue chrome paints first (wave 11 hub First Load). */
 export const GovernanceOverviewPanelDeferred: ComponentType<GovernanceOverviewPanelProps> =
@@ -29,16 +22,9 @@ export const GovernanceReviewContextBarDeferred: ComponentType<GovernanceReviewC
   });
 
 export const GovernanceWorkflowSubmitSectionDeferred: ComponentType<GovernanceWorkflowSubmitSectionProps> =
-  dynamic(
-    () =>
-      import("./GovernanceWorkflowSubmitSection").then(
-        (module) => module.GovernanceWorkflowSubmitSection,
-      ),
-    {
-      ssr: false,
-      loading: () => governanceWorkflowDeferredLoading("Loading approval submit"),
-    },
-  );
+  createDeferredComponentFromManifest("governance-workflow-submit-section", {
+    loadingTestId: "governance-workflow-deferred-chunk-loading",
+  });
 
 /** Approvals list — below-fold relative to overview/header (wave 10 hub First Load). */
 export const GovernanceWorkflowApprovalsListDeferred = createDeferredComponentFromManifest(
@@ -46,20 +32,14 @@ export const GovernanceWorkflowApprovalsListDeferred = createDeferredComponentFr
   { loadingTestId: "governance-workflow-deferred-chunk-loading" },
 );
 
-export const GovernanceWorkflowPromotionsActivationsSectionDeferred = dynamic(
-  () =>
-    import("./GovernanceWorkflowPromotionsActivationsSection").then(
-      (module) => module.GovernanceWorkflowPromotionsActivationsSection,
-    ),
-  {
-    ssr: false,
-    loading: () => governanceWorkflowDeferredLoading("Loading environment releases"),
-  },
+export const GovernanceWorkflowPromotionsActivationsSectionDeferred = createDeferredComponentFromManifest(
+  "governance-workflow-promotions-activations",
+  { loadingTestId: "governance-workflow-deferred-chunk-loading" },
 );
 
-export const GovernanceWorkflowDialogsDeferred = dynamic(
-  () => import("./GovernanceWorkflowDialogs").then((module) => module.GovernanceWorkflowDialogs),
-  { ssr: false, loading: () => null },
+export const GovernanceWorkflowDialogsDeferred = createDeferredComponentFromManifest(
+  "governance-workflow-dialogs",
+  { suppressLoading: true },
 );
 
 export const CtoDemoBuyerValueStripDeferred = dynamic(
@@ -86,37 +66,19 @@ export const CtoDemoGovernancePreviewHintDeferred = dynamic(
   { ssr: false, loading: () => null },
 );
 
-export const GovernanceInteractiveQuickstartContentDeferred = dynamic(
-  () =>
-    import("@/components/governance/GovernanceInteractiveQuickstartContent").then(
-      (module) => module.GovernanceInteractiveQuickstartContent,
-    ),
-  {
-    ssr: false,
-    loading: () => governanceWorkflowDeferredLoading("Loading governance quickstart"),
-  },
+export const GovernanceInteractiveQuickstartContentDeferred = createDeferredComponentFromManifest(
+  "governance-workflow-interactive-quickstart",
+  { loadingTestId: "governance-workflow-deferred-chunk-loading" },
 );
 
 /** Buyer approval narrative card — below-fold relative to workflow header (First Load split). */
-export const GovernanceApprovalStoryCardDeferred = dynamic(
-  () =>
-    import("@/components/governance/GovernanceApprovalStoryCard").then(
-      (module) => module.GovernanceApprovalStoryCard,
-    ),
-  {
-    ssr: false,
-    loading: () => governanceWorkflowDeferredLoading("Loading approval decision record"),
-  },
+export const GovernanceApprovalStoryCardDeferred = createDeferredComponentFromManifest(
+  "governance-workflow-approval-story-card",
+  { loadingTestId: "governance-workflow-deferred-chunk-loading" },
 );
 
 /** Environment releases accordion — advanced options, below primary approval path. */
-export const AdvancedOptionsAccordionDeferred = dynamic(
-  () =>
-    import("@/components/AdvancedOptionsAccordion").then(
-      (module) => module.AdvancedOptionsAccordion,
-    ),
-  {
-    ssr: false,
-    loading: () => governanceWorkflowDeferredLoading("Loading advanced options"),
-  },
+export const AdvancedOptionsAccordionDeferred = createDeferredComponentFromManifest(
+  "governance-workflow-advanced-options",
+  { loadingTestId: "governance-workflow-deferred-chunk-loading" },
 );

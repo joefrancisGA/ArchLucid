@@ -2,13 +2,12 @@
 
 import type { JSX } from "react";
 
+import { PairwiseVocabularyRailFromModel } from "@/components/vocabulary/PairwiseVocabularyRailFromModel";
 import {
-  buildTrialFunnelDemoReadinessVocabulary,
-  resolveTrialFunnelDemoReadinessPeerLink,
+  buildTrialFunnelDemoReadinessPairwiseRail,
   type TrialFunnelDemoReadinessSurfaceId,
   type TrialFunnelDemoReadinessVocabularyModel,
 } from "@/lib/vocabulary/trial-funnel-demo-readiness-vocabulary";
-import { VocabularyRail } from "@/components/vocabulary/VocabularyRail";
 
 export type TrialFunnelDemoReadinessVocabularyRailProps = {
   /** Surface hosting the strip — marks the current job and links to the peer. */
@@ -27,25 +26,25 @@ export type TrialFunnelDemoReadinessVocabularyRailProps = {
 export function TrialFunnelDemoReadinessVocabularyRail(
   props: TrialFunnelDemoReadinessVocabularyRailProps,
 ): JSX.Element {
-  const model = props.model ?? buildTrialFunnelDemoReadinessVocabulary();
-  const peer = resolveTrialFunnelDemoReadinessPeerLink(props.currentSurfaceId);
-  const currentLink =
-    props.currentSurfaceId === "trial-funnel"
-      ? model.trialFunnelLink
-      : model.demoReadinessLink;
+  const pairwiseModel =
+    props.model !== undefined
+      ? {
+          heading: props.model.heading,
+          whyTwo: props.model.whyTwo,
+          compactLine: props.model.compactLine,
+          currentLink: props.model.trialFunnelLink,
+          peerLink: props.model.demoReadinessLink,
+        }
+      : buildTrialFunnelDemoReadinessPairwiseRail();
 
   return (
-    <VocabularyRail
+    <PairwiseVocabularyRailFromModel
       testIdPrefix="trial-funnel-demo-readiness-vocabulary"
       currentSurfaceId={props.currentSurfaceId}
       variant={props.variant}
       className={props.className}
-      compactLine={model.compactLine}
       compactLinkPlacement="inline"
-      heading={model.heading}
-      whyTwo={model.whyTwo}
-      currentLabel={currentLink.label}
-      links={[{ ...peer, testIdSuffix: "peer-link" }]}
+      model={pairwiseModel}
     />
   );
 }

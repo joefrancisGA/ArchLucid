@@ -99,6 +99,40 @@ function resolveDeferredChunkImportLoader(
           (module) => module.GovernanceWorkflowApprovalsList,
         ),
       ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "governance-workflow-submit-section":
+      return deferredChunkLoader(() =>
+        import("@/app/(operator)/governance/_sections/GovernanceWorkflowSubmitSection").then(
+          (module) => module.GovernanceWorkflowSubmitSection,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "governance-workflow-promotions-activations":
+      return deferredChunkLoader(() =>
+        import("@/app/(operator)/governance/_sections/GovernanceWorkflowPromotionsActivationsSection").then(
+          (module) => module.GovernanceWorkflowPromotionsActivationsSection,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "governance-workflow-dialogs":
+      return deferredChunkLoader(() =>
+        import("@/app/(operator)/governance/_sections/GovernanceWorkflowDialogs").then(
+          (module) => module.GovernanceWorkflowDialogs,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "governance-workflow-interactive-quickstart":
+      return deferredChunkLoader(() =>
+        import("@/components/governance/GovernanceInteractiveQuickstartContent").then(
+          (module) => module.GovernanceInteractiveQuickstartContent,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "governance-workflow-approval-story-card":
+      return deferredChunkLoader(() =>
+        import("@/components/governance/GovernanceApprovalStoryCard").then(
+          (module) => module.GovernanceApprovalStoryCard,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "governance-workflow-advanced-options":
+      return deferredChunkLoader(() =>
+        import("@/components/AdvancedOptionsAccordion").then((module) => module.AdvancedOptionsAccordion),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
     case "reviews-hub-inventory":
       return deferredChunkLoader(() =>
         import("@/app/(operator)/architecture/reviews/_sections/ReviewsHubReviewInventory").then(
