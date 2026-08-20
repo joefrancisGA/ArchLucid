@@ -35,11 +35,13 @@ vi.mock("./ReviewPackagePrimaryAction", () => ({
   ReviewPackagePrimaryAction: ({
     action,
     commitBlockedReason,
+    demoted,
   }: {
     action: { label: string; kind: string };
     commitBlockedReason?: string | null;
+    demoted?: boolean;
   }) => (
-    <div>
+    <div data-testid="review-package-primary-action-mock" data-demoted={demoted === true ? "true" : "false"}>
       <button type="button">{action.label}</button>
       {commitBlockedReason !== null && commitBlockedReason !== undefined && commitBlockedReason.length > 0 ? (
         <div data-testid="commit-blocked-reason">{commitBlockedReason}</div>
@@ -209,5 +211,34 @@ describe("RunDetailWorkspaceStickyActions", () => {
       "Assessment coverage is incomplete for architecture structure. Re-run the review before finalizing.",
     );
     expect(screen.getByRole("button", { name: "Finalize review" })).toBeInTheDocument();
+  });
+
+  it("demotes sticky primary action when Do this next owns the page primary", () => {
+    render(
+      <RunDetailWorkspaceStickyActions
+        runId="run-1"
+        primaryAction={{
+          kind: "review-findings",
+          label: "Review findings",
+          href: "/architecture/reviews/run-1?reviewTab=findings",
+        }}
+        primaryActionContext={{
+          runId: "run-1",
+          manifestId: null,
+          hasCommitBlockingFailures: false,
+          blockingFindingCount: 0,
+          buyerPolishedArtifactTable: false,
+          operatorGovernanceDecision: null,
+          manifestStatus: "Draft",
+          runCompleted: false,
+        }}
+        commitBlockedReason={null}
+        showProgressTracker={false}
+        manifestId={null}
+        pagePrimaryOwnedElsewhere
+      />,
+    );
+
+    expect(screen.getByTestId("review-package-primary-action-mock")).toHaveAttribute("data-demoted", "true");
   });
 });

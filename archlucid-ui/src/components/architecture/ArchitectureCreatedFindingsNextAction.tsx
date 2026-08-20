@@ -17,6 +17,8 @@ export type ArchitectureCreatedFindingsNextActionProps = {
   readonly findings: readonly QuickDecisionFinding[];
   readonly analysisStagesComplete: boolean;
   readonly onNavigateActivity?: () => void;
+  /** When Do this next owns the page primary, keep tab-scoped follow-ons as outline actions. */
+  readonly pagePrimaryOwnedElsewhere?: boolean;
 };
 
 function triageVisibleFindings(
@@ -34,6 +36,7 @@ function triageVisibleFindings(
 export function ArchitectureCreatedFindingsNextAction(
   props: ArchitectureCreatedFindingsNextActionProps,
 ): React.JSX.Element | null {
+  const actionVariant = props.pagePrimaryOwnedElsewhere === true ? "outline" : "primary";
   const sortedFindings = sortQuickDecisionFindings(triageVisibleFindings(props.findings));
   const highestSeverityFinding = sortedFindings[0] ?? null;
   const activityHref = buildArchitectureWorkspaceTabHref(props.runId, "activity", {
@@ -51,7 +54,7 @@ export function ArchitectureCreatedFindingsNextAction(
         <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
           Recommended next step
         </p>
-        <Button type="button" variant="primary" size="sm" className="mt-2 h-8" asChild>
+        <Button type="button" variant={actionVariant} size="sm" className="mt-2 h-8" asChild>
           <Link href={href} prefetch={false} data-testid="architecture-findings-triage-primary-action">
             Triage highest-severity finding
           </Link>
@@ -69,7 +72,7 @@ export function ArchitectureCreatedFindingsNextAction(
         <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
           Recommended next step
         </p>
-        <Button type="button" variant="primary" size="sm" className="mt-2 h-8" asChild>
+        <Button type="button" variant={actionVariant} size="sm" className="mt-2 h-8" asChild>
           <Link
             href={buildArchitectureGovernanceFinalizeReadinessHref(props.runId)}
             prefetch={false}
@@ -93,7 +96,7 @@ export function ArchitectureCreatedFindingsNextAction(
         </p>
         <Button
           type="button"
-          variant="primary"
+          variant={actionVariant}
           size="sm"
           className="mt-2 h-8"
           data-testid="architecture-findings-activity-primary-action"

@@ -13,11 +13,15 @@ export type ReviewPackagePrimaryActionProps = {
   readonly runId: string;
   readonly hasGoldenManifest: boolean;
   readonly commitBlockedReason: string | null | undefined;
+  /** Secondary placement when Do this next owns the page primary (TB-2175). */
+  readonly demoted?: boolean;
 };
 
 /** Single green primary next-action control for the Review Package summary header (TB-618). */
 export function ReviewPackagePrimaryAction(props: ReviewPackagePrimaryActionProps): React.JSX.Element {
-  const { action, runId, hasGoldenManifest, commitBlockedReason } = props;
+  const { action, runId, hasGoldenManifest, commitBlockedReason, demoted = false } = props;
+  const linkVariant = demoted ? "outline" : "primary";
+  const commitVariant = demoted ? "outline" : "primary";
 
   switch (action.kind) {
     case "finalize-package":
@@ -27,7 +31,7 @@ export function ReviewPackagePrimaryAction(props: ReviewPackagePrimaryActionProp
             runId={runId}
             disabled={hasGoldenManifest}
             commitBlockedReason={commitBlockedReason}
-            buttonVariant="primary"
+            buttonVariant={commitVariant}
           />
         </div>
       );
@@ -42,7 +46,7 @@ export function ReviewPackagePrimaryAction(props: ReviewPackagePrimaryActionProp
       return (
         <div data-testid="review-package-primary-action" data-review-package-primary-action-kind={action.kind}>
           <Link
-            className={cn(buttonVariants({ variant: "primary", size: "sm" }))}
+            className={cn(buttonVariants({ variant: linkVariant, size: "sm" }))}
             href={action.href}
           >
             {action.label}

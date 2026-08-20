@@ -386,6 +386,7 @@ export async function RunDetailPageView(props: {
                             </Suspense>
                           }
                           sourcesPanel={<RunDetailActivitySourcesPanelDeferred />}
+                          pagePrimaryOwnedElsewhere
                         />
                       ),
                       submittedArchitecture: (

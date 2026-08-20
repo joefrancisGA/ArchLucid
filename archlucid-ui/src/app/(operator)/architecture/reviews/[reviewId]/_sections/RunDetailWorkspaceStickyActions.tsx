@@ -27,6 +27,8 @@ export type RunDetailWorkspaceStickyActionsProps = {
   readonly commitBlockedTechnicalDetail?: string | null;
   readonly showProgressTracker: boolean;
   readonly manifestId: string | null | undefined;
+  /** When Do this next owns the page primary, demote the sticky duplicate to outline. */
+  readonly pagePrimaryOwnedElsewhere?: boolean;
 };
 
 /**
@@ -100,6 +102,7 @@ export function RunDetailWorkspaceStickyActions(
         runId={props.runId}
         hasGoldenManifest={Boolean(props.manifestId)}
         commitBlockedReason={stickyCommitBlockedReason}
+        demoted={props.pagePrimaryOwnedElsewhere === true}
       />
     </div>
   );

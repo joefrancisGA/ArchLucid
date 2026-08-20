@@ -37,6 +37,12 @@ describe("RunDetailCreateHomeActivityPanel", () => {
     );
   });
 
+  it("demotes Open overview to outline when Do this next owns the page primary", () => {
+    render(<RunDetailCreateHomeActivityPanel {...baseProps} pagePrimaryOwnedElsewhere />);
+
+    expect(screen.getByRole("link", { name: "Open overview" })).toHaveClass("border-neutral-300");
+  });
+
   it("mounts the progress tracker in the primary region and defers forensics (TB-1834)", () => {
     render(<RunDetailCreateHomeActivityPanel {...baseProps} showProgressTracker />);
 
