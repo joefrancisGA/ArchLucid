@@ -91,7 +91,8 @@ describe("OperatorHomePageView buyer-polished shell (HOM)", () => {
 
     expect(screen.getByRole("heading", { level: 2, name: OPERATOR_HOME_FOLLOW_UPS_TITLE })).toBeInTheDocument();
     expect(screen.getByTestId("operator-home-settings-sources")).toHaveAttribute("data-layout", "columns");
-    expect(screen.getByTestId("operator-home-settings-sources").querySelector("ul")).toHaveClass(
+    expect(screen.getByTestId("operator-home-settings-sources").querySelector("ul")).toHaveClass("flex-col");
+    expect(screen.getByTestId("operator-home-settings-sources").querySelector("ul")).not.toHaveClass(
       "sm:grid-cols-2",
     );
     expect(screen.getByTestId("operator-home-settings-sources").querySelector("p")).toHaveClass("max-w-none");
