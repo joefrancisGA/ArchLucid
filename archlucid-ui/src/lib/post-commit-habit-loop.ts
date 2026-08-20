@@ -1,6 +1,8 @@
+import { listDoItAgainActions } from "@/lib/do-it-again-actions";
 import {
   listReviewLifecycleNextActions,
   POST_COMMIT_OPTIONAL_ACTION_IDS,
+  type ReviewLifecycleNextActionId,
 } from "@/lib/review-lifecycle-next-action-registry";
 
 export type PostCommitHabitActionKind = "primary" | "optional";
@@ -30,6 +32,22 @@ function hasManifest(manifestId: string | null): boolean {
   return manifestId !== null && manifestId.trim().length > 0;
 }
 
+const POST_COMMIT_SUPPLEMENTAL_OPTIONAL_IDS: readonly ReviewLifecycleNextActionId[] = [
+  "evidence-chain",
+  "value-delta",
+] as const;
+
+/** TB-2359 — do-it-again family ids that overlap post-commit optional actions. */
+function postCommitDoItAgainOptionalIds(): readonly ReviewLifecycleNextActionId[] {
+  return listDoItAgainActions("post-finalize")
+    .map((action) => action.registryId)
+    .filter((id) => id !== "validate-replay");
+}
+
+function postCommitOptionalActionIds(): readonly ReviewLifecycleNextActionId[] {
+  return [...postCommitDoItAgainOptionalIds(), ...POST_COMMIT_SUPPLEMENTAL_OPTIONAL_IDS];
+}
+
 /**
  * One primary next action plus a short optional list after commit — aligned to FIRST_PILOT_OPERATOR_PATH Phase D/E.
  */
@@ -37,7 +55,7 @@ export function buildPostCommitHabitLoop(input: PostCommitHabitLoopInput): PostC
   const actions = listReviewLifecycleNextActions({
     surface: "post-commit-habit-loop",
     phase: "post-finalize",
-    optionalActionIds: POST_COMMIT_OPTIONAL_ACTION_IDS,
+    optionalActionIds: postCommitOptionalActionIds(),
     hrefInput: {
       runId: input.runId,
       showCompareCta: input.showCompareCta,

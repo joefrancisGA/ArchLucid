@@ -1,4 +1,10 @@
 import { buildReviewWorkspaceTabHref } from "@/lib/unified-review-workspace-tabs";
+import { resolveClarificationsFindingsLoopNext } from "@/lib/review-clarifications-findings-loop";
+import {
+  reviewLifecycleNextActionInstance,
+  reviewLifecycleNextActionLabel,
+  type BuildReviewLifecycleNextActionHrefInput,
+} from "@/lib/review-lifecycle-next-action-registry";
 
 import {
   resolveReviewPackagePrimaryAction,
@@ -28,6 +34,7 @@ export type ReviewPackageDoThisNext = {
 export type ResolveReviewPackageDoThisNextInput = ResolveReviewPackagePrimaryActionInput & {
   readonly showProgressTracker: boolean;
   readonly openClarificationGapCount: number;
+  readonly findingsCount?: number;
   readonly correctionHref: string | null;
   readonly nextAction?: string | null;
   readonly evidenceCoverageLinkedCount: number;
@@ -92,6 +99,49 @@ function evidenceCoverageGapSentence(totalCount: number): string {
   return `This package is finalized, but ${gap} — review evidence coverage before sharing with a sponsor.`;
 }
 
+function registryHrefInput(input: ResolveReviewPackageDoThisNextInput): BuildReviewLifecycleNextActionHrefInput {
+  return {
+    runId: input.runId,
+    showCompareCta: true,
+    hasManifest: input.manifestId !== null && input.manifestId !== undefined && input.manifestId.trim().length > 0,
+    correctionHref: input.correctionHref,
+  };
+}
+
+/** Post-finalize compare / second-review labels from the lifecycle registry (TB-2366). */
+export function resolveReviewPackageDoThisNextFromRegistry(
+  input: ResolveReviewPackageDoThisNextInput,
+  primaryAction: ReviewPackagePrimaryAction,
+): ReviewPackageDoThisNext | null {
+  const compareWithPriorHref = input.compareWithPriorHref?.trim() ?? "";
+
+  if (
+    compareWithPriorHref.length > 0 &&
+    input.runCompleted &&
+    input.blockingFindingCount === 0 &&
+    (primaryAction.kind === "send-to-sponsor" || primaryAction.kind === "finalize-package")
+  ) {
+    const compareAction = reviewLifecycleNextActionInstance({
+      id: "compare",
+      hrefInput: registryHrefInput(input),
+      hrefOverride: compareWithPriorHref,
+    });
+
+    return {
+      kind: "compare-to-prior",
+      sentence: "This package can be compared to the prior review — confirm what changed before sharing.",
+      actionLabel: compareAction?.label ?? reviewLifecycleNextActionLabel("compare"),
+      href: compareWithPriorHref,
+      secondaryAction:
+        primaryAction.href !== null && primaryAction.href !== undefined
+          ? { label: primaryAction.label, href: primaryAction.href }
+          : null,
+    };
+  }
+
+  return null;
+}
+
 /** TB-2175: one sentence + one CTA for the current review package lifecycle step. */
 export function resolveReviewPackageDoThisNext(
   input: ResolveReviewPackageDoThisNextInput,
@@ -105,18 +155,34 @@ export function resolveReviewPackageDoThisNext(
     };
   }
 
-  if (input.openClarificationGapCount > 0 && input.manifestId === null && !input.runCompleted) {
-    const gapLabel =
-      input.openClarificationGapCount === 1
-        ? "One clarifying question is still open"
-        : `${input.openClarificationGapCount} clarifying questions are still open`;
+  if (input.manifestId === null && !input.runCompleted) {
+    const loopNext = resolveClarificationsFindingsLoopNext({
+      openClarificationGapCount: input.openClarificationGapCount,
+      findingsCount: input.findingsCount ?? 0,
+    });
 
-    return {
-      kind: "answer-clarifications",
-      sentence: `${gapLabel} — answer them before assessment confidence improves.`,
-      actionLabel: "Answer clarifying questions",
-      href: clarificationsHref(input),
-    };
+    if (loopNext !== null && input.openClarificationGapCount > 0) {
+      const clarificationsAction = reviewLifecycleNextActionInstance({
+        id: "answer-clarifications",
+        hrefInput: registryHrefInput(input),
+      });
+
+      return {
+        kind: "answer-clarifications",
+        sentence: loopNext.sentence,
+        actionLabel: clarificationsAction?.label ?? reviewLifecycleNextActionLabel("answer-clarifications"),
+        href: clarificationsAction?.href ?? clarificationsHref(input),
+      };
+    }
+
+    if (loopNext !== null && input.openClarificationGapCount === 0 && (input.findingsCount ?? 0) > 0) {
+      return {
+        kind: "review-findings",
+        sentence: loopNext.sentence,
+        actionLabel: reviewLifecycleNextActionLabel("triage-findings"),
+        href: buildReviewWorkspaceTabHref(input.runId, loopNext.nextTabId),
+      };
+    }
   }
 
   const primaryAction = resolveReviewPackagePrimaryAction({
@@ -124,24 +190,10 @@ export function resolveReviewPackageDoThisNext(
     nextAction: input.nextAction,
   });
 
-  const compareWithPriorHref = input.compareWithPriorHref?.trim() ?? "";
+  const registryNext = resolveReviewPackageDoThisNextFromRegistry(input, primaryAction);
 
-  if (
-    compareWithPriorHref.length > 0 &&
-    input.runCompleted &&
-    input.blockingFindingCount === 0 &&
-    (primaryAction.kind === "send-to-sponsor" || primaryAction.kind === "finalize-package")
-  ) {
-    return {
-      kind: "compare-to-prior",
-      sentence: "This package can be compared to the prior review — confirm what changed before sharing.",
-      actionLabel: "Compare to prior review",
-      href: compareWithPriorHref,
-      secondaryAction:
-        primaryAction.href !== null && primaryAction.href !== undefined
-          ? { label: primaryAction.label, href: primaryAction.href }
-          : null,
-    };
+  if (registryNext !== null) {
+    return registryNext;
   }
 
   if (primaryAction.kind === "send-to-sponsor" && evidenceCoverageGap(input)) {

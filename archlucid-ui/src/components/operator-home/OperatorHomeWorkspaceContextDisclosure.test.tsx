@@ -124,7 +124,7 @@ describe("OperatorHomeWorkspaceContextDisclosure", () => {
 
     const summary = screen.getByTestId("operator-home-workspace-metrics-summary");
 
-    expect(within(summary).getByText("2 (1 committed · 1 active)")).toBeInTheDocument();
+    expect(within(summary).getByText("2 (1 finalized · 1 active)")).toBeInTheDocument();
     expect(within(summary).getByText("6")).toBeInTheDocument();
     expect(within(summary).getByText("2 of 4 ready")).toBeInTheDocument();
     expect(within(summary).getByRole("link", { name: "2 of 4 ready" })).toHaveAttribute(

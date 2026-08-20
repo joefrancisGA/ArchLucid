@@ -15,7 +15,7 @@
 
 import { REVIEWS_LIST_PATH } from "@/lib/architecture/architecture-routes";
 import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
-import { buildReviewWorkspaceTabHref } from "@/lib/unified-review-workspace-tabs";
+import { createExternalPeerPairwiseVocabularyRail } from "@/lib/vocabulary/create-pairwise-vocabulary-rail";
 
 export type PackageActivityAuditTrailSurfaceId = "package-activity" | "audit-trail";
 
@@ -66,35 +66,30 @@ export const PACKAGE_ACTIVITY_AUDIT_TRAIL_AUDIT_LINK: PackageActivityAuditTrailL
 export function buildPackageActivityAuditTrailVocabulary(
   runId?: string | null,
 ): PackageActivityAuditTrailVocabularyModel {
-  const trimmed = runId?.trim() ?? "";
-
-  const packageActivityHref =
-    trimmed.length === 0 ? null : buildReviewWorkspaceTabHref(trimmed, "activity");
-
-  const packageActivityLink: PackageActivityAuditTrailLink =
-    packageActivityHref !== null
-      ? {
-          id: "package-activity",
-          label: "Activity",
-          href: packageActivityHref,
-          whenToUse: "Follow assessment progress for this architecture package.",
-        }
-      : PACKAGE_ACTIVITY_AUDIT_TRAIL_REVIEWS_PEER_LINK;
-
-  const auditTrailLink: PackageActivityAuditTrailLink =
-    trimmed.length > 0
-      ? {
-          ...PACKAGE_ACTIVITY_AUDIT_TRAIL_AUDIT_LINK,
-          href: `${GOVERNANCE_AUDIT_PATH}?runId=${encodeURIComponent(trimmed)}`,
-        }
-      : PACKAGE_ACTIVITY_AUDIT_TRAIL_AUDIT_LINK;
+  const rail = createExternalPeerPairwiseVocabularyRail({
+    runId,
+    reviewSurfaceId: "package-activity",
+    externalSurfaceId: "audit-trail",
+    reviewTabId: "activity",
+    copy: {
+      heading: PACKAGE_ACTIVITY_AUDIT_TRAIL_HEADING,
+      whyTwo: PACKAGE_ACTIVITY_AUDIT_TRAIL_WHY_TWO,
+      compactLine: PACKAGE_ACTIVITY_AUDIT_TRAIL_COMPACT_LINE,
+      reviewSideLabel: "Activity",
+      reviewSideWhenToUse: "Follow assessment progress for this architecture package.",
+    },
+    reviewsPeerFallbackLink: PACKAGE_ACTIVITY_AUDIT_TRAIL_REVIEWS_PEER_LINK,
+    externalPeerLinkBase: PACKAGE_ACTIVITY_AUDIT_TRAIL_AUDIT_LINK,
+    buildExternalPeerHref: (scopedRunId) =>
+      `${GOVERNANCE_AUDIT_PATH}?runId=${encodeURIComponent(scopedRunId)}`,
+  });
 
   return {
-    heading: PACKAGE_ACTIVITY_AUDIT_TRAIL_HEADING,
-    whyTwo: PACKAGE_ACTIVITY_AUDIT_TRAIL_WHY_TWO,
-    compactLine: PACKAGE_ACTIVITY_AUDIT_TRAIL_COMPACT_LINE,
-    packageActivityLink,
-    auditTrailLink,
+    heading: rail.heading,
+    whyTwo: rail.whyTwo,
+    compactLine: rail.compactLine,
+    packageActivityLink: rail.reviewSideLink,
+    auditTrailLink: rail.externalPeerLink,
   };
 }
 

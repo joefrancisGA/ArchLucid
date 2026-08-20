@@ -186,4 +186,31 @@ describe("OperatorHomePageView", () => {
       expect(runsDashboard.compareDocumentPosition(cockpit) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     },
   );
+
+  it("shows the attention kind strip only when returning home has reviews (TB-2353)", () => {
+    render(<OperatorHomePageView model={mockHomeModel(false)} />);
+    expect(screen.queryByTestId("operator-attention-kind-strip")).not.toBeInTheDocument();
+
+    render(
+      <OperatorHomePageView
+        model={{
+          buyerPolishedShell: false,
+          runsDashboard: {
+            ...mockRunsDashboard,
+            items: [
+              {
+                runId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+                projectId: "default",
+                createdUtc: "2026-01-01T00:00:00Z",
+                hasGoldenManifest: false,
+              },
+            ],
+            totalCount: 1,
+          },
+        }}
+      />,
+    );
+
+    expect(screen.getAllByTestId("operator-attention-kind-strip")).toHaveLength(1);
+  });
 });

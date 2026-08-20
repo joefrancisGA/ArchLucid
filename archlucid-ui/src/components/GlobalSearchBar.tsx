@@ -188,7 +188,7 @@ export function GlobalSearchBar(props: GlobalSearchBarProps) {
           {!loading && findPageMatches.length > 0 ? (
             <section className="border-b border-neutral-100 px-3 py-2 dark:border-neutral-800">
               <h3 className={cn("m-0 font-semibold uppercase tracking-wide text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>
-                Pages & shortcuts
+                Pages
               </h3>
               <ul className="m-0 list-none p-0">
                 {findPageMatches.map((entry: FindPageSearchEntry) => (

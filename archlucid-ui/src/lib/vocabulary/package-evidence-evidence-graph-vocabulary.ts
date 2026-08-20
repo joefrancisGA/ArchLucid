@@ -15,7 +15,7 @@
 
 import { REVIEWS_LIST_PATH } from "@/lib/architecture/architecture-routes";
 import { EVIDENCE_GRAPH_PATH } from "@/lib/evidence-graph-route";
-import { buildReviewWorkspaceTabHref } from "@/lib/unified-review-workspace-tabs";
+import { createExternalPeerPairwiseVocabularyRail } from "@/lib/vocabulary/create-pairwise-vocabulary-rail";
 
 export type PackageEvidenceEvidenceGraphSurfaceId = "package-evidence" | "evidence-graph";
 
@@ -66,27 +66,28 @@ export const PACKAGE_EVIDENCE_EVIDENCE_GRAPH_GRAPH_LINK: PackageEvidenceEvidence
 export function buildPackageEvidenceEvidenceGraphVocabulary(
   runId?: string | null,
 ): PackageEvidenceEvidenceGraphVocabularyModel {
-  const trimmed = runId?.trim() ?? "";
-
-  const packageEvidenceHref =
-    trimmed.length === 0 ? null : buildReviewWorkspaceTabHref(trimmed, "evidence");
-
-  const packageEvidenceLink: PackageEvidenceEvidenceGraphLink =
-    packageEvidenceHref !== null
-      ? {
-          id: "package-evidence",
-          label: "Evidence",
-          href: packageEvidenceHref,
-          whenToUse: "Capture and inventory evidence for this architecture package.",
-        }
-      : PACKAGE_EVIDENCE_EVIDENCE_GRAPH_REVIEWS_PEER_LINK;
+  const rail = createExternalPeerPairwiseVocabularyRail({
+    runId,
+    reviewSurfaceId: "package-evidence",
+    externalSurfaceId: "evidence-graph",
+    reviewTabId: "evidence",
+    copy: {
+      heading: PACKAGE_EVIDENCE_EVIDENCE_GRAPH_HEADING,
+      whyTwo: PACKAGE_EVIDENCE_EVIDENCE_GRAPH_WHY_TWO,
+      compactLine: PACKAGE_EVIDENCE_EVIDENCE_GRAPH_COMPACT_LINE,
+      reviewSideLabel: "Evidence",
+      reviewSideWhenToUse: "Capture and inventory evidence for this architecture package.",
+    },
+    reviewsPeerFallbackLink: PACKAGE_EVIDENCE_EVIDENCE_GRAPH_REVIEWS_PEER_LINK,
+    externalPeerLinkBase: PACKAGE_EVIDENCE_EVIDENCE_GRAPH_GRAPH_LINK,
+  });
 
   return {
-    heading: PACKAGE_EVIDENCE_EVIDENCE_GRAPH_HEADING,
-    whyTwo: PACKAGE_EVIDENCE_EVIDENCE_GRAPH_WHY_TWO,
-    compactLine: PACKAGE_EVIDENCE_EVIDENCE_GRAPH_COMPACT_LINE,
-    packageEvidenceLink,
-    evidenceGraphLink: PACKAGE_EVIDENCE_EVIDENCE_GRAPH_GRAPH_LINK,
+    heading: rail.heading,
+    whyTwo: rail.whyTwo,
+    compactLine: rail.compactLine,
+    packageEvidenceLink: rail.reviewSideLink,
+    evidenceGraphLink: rail.externalPeerLink,
   };
 }
 

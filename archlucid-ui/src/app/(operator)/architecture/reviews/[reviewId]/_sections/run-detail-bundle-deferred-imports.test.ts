@@ -13,6 +13,11 @@ const deferredChunksSource = readFileSync(
   "utf8",
 );
 
+const manifestLoaderSource = readFileSync(
+  join(sectionsDir, "../../../../../../lib/operator/load-deferred-chunk-from-manifest.tsx"),
+  "utf8",
+);
+
 const explanationCollapsibleSource = readFileSync(
   join(sectionsDir, "RunDetailRunExplanationCollapsible.tsx"),
   "utf8",
@@ -152,16 +157,34 @@ describe("run detail bundle deferred imports (TB-697 / TB-933 / TB-2021 / TB-211
 
   it("dynamic-imports operator forensics and activity-tab chunks", () => {
     expect(deferredChunksSource).toContain("RunDetailEstimatedLlmCostCardDeferred");
-    expect(deferredChunksSource).toContain("RunDetailArchitectureCreatedWorkspaceDeferred");
+    expect(deferredChunksSource).toContain("createDeferredComponentFromManifest");
+    expect(deferredChunksSource).toContain('"run-detail-review-workspace-shell"');
+    expect(deferredChunksSource).toContain('"run-detail-overview-panel"');
+    expect(deferredChunksSource).toContain('"run-detail-evidence-tab"');
+    expect(deferredChunksSource).toContain('"run-detail-below-fold"');
+    expect(deferredChunksSource).toContain('"run-detail-architecture-created-workspace"');
+    expect(manifestLoaderSource).toContain('import("@/components/reviews/ReviewWorkspaceShell")');
+    expect(manifestLoaderSource).toContain('import("@/components/reviews/RunDetailOverviewPanelClient")');
+    expect(manifestLoaderSource).toContain('import("@/components/architecture/ArchitectureCreatedReviewWorkspaceShell")');
+    expect(manifestLoaderSource).toContain(
+      'import("@/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailEvidenceTabPanel")',
+    );
+    expect(manifestLoaderSource).toContain(
+      'import("@/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailBelowFoldSections")',
+    );
     expect(deferredChunksSource).toContain("RunDetailArchitectureCreateWorkItemSectionDeferred");
     expect(deferredChunksSource).toContain("RunDetailArchitectureSponsorSharingPanelDeferred");
+    expect(deferredChunksSource).toContain("RunDetailArchitectureCreatedWorkspaceDeferred");
+    expect(deferredChunksSource).not.toContain('import("@/components/architecture/ArchitectureCreatedWorkspace")');
     expect(deferredChunksSource).toContain("RunDetailProgressTrackerDeferred");
     expect(deferredChunksSource).toContain("RunDetailOutcomeCardsDeferred");
     expect(deferredChunksSource).toContain("RunDetailWhatIfBranchCompareBannerDeferred");
     expect(deferredChunksSource).toContain("RunDetailOperatorTechnicalForensicsPanelDeferred");
     expect(deferredChunksSource).toContain("RunDetailArtifactsExportsSectionDeferred");
     expect(deferredChunksSource).toContain("ReviewDetailWorkspaceDeferred");
+    expect(deferredChunksSource).not.toContain('import("@/components/reviews/ReviewWorkspaceShell")');
     expect(deferredChunksSource).toContain("RunDetailOverviewPanelClientDeferred");
+    expect(deferredChunksSource).not.toContain('import("@/components/reviews/RunDetailOverviewPanelClient")');
     expect(deferredChunksSource).toContain("RunDetailWorkspaceHeaderDeferred");
     expect(deferredChunksSource).toContain("RunDetailWorkspaceSummaryStripDeferred");
     expect(deferredChunksSource).toContain("RunDetailWorkspaceBlockingBannerDeferred");
@@ -191,7 +214,8 @@ describe("run detail bundle deferred imports (TB-697 / TB-933 / TB-2021 / TB-211
     expect(deferredChunksSource).toContain('import("./RunDetailGovernanceDecisionSection")');
     expect(deferredChunksSource).toContain('import("./RunDetailReviewPackageSection")');
     expect(deferredChunksSource).toContain('import("./RunDetailBuyerModeFallbackBanner")');
-    expect(deferredChunksSource).toContain('import("./RunDetailEvidenceTabPanel")');
+    expect(deferredChunksSource).toContain("RunDetailEvidenceTabPanelDeferred");
+    expect(deferredChunksSource).not.toContain('import("./RunDetailEvidenceTabPanel")');
     expect(deferredChunksSource).toContain('import("./RunDetailReviewPackageShareRow")');
     expect(deferredChunksSource).toContain('import("./RunDetailDemoMarketingChrome")');
     expect(deferredChunksSource).toContain('import("./RunDetailManifestSummaryAlerts")');

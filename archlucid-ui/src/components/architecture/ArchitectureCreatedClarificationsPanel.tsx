@@ -14,10 +14,8 @@ import { buildArchitectureCorrectionHref } from "@/lib/architecture/architecture
 import { parseArchitectureGeneratedContent } from "@/lib/architecture/architecture-generated-content-parser";
 import type { ArchitectureCreatedHomeModel } from "@/lib/architecture/architecture-created-home-model";
 import type { ArchitectureCreationUserAssertions } from "@/lib/architecture/architecture-structured-content-types";
-import {
-  buildArchitectureWorkspaceTabHref,
-  type ArchitectureWorkspaceTabId,
-} from "@/lib/architecture/architecture-workspace-tabs";
+import { buildReviewWorkspaceTabHref } from "@/lib/unified-review-workspace-tabs";
+import type { ArchitectureWorkspaceTabId } from "@/lib/architecture/architecture-workspace-tabs";
 import { REVIEWS_NEW_GUIDED_QUESTIONS_LABEL } from "@/lib/reviews-new-path-copy";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
@@ -43,9 +41,9 @@ export function ArchitectureCreatedClarificationsPanel(
 ): React.JSX.Element {
   const [parseAttempt, setParseAttempt] = useState(0);
   const continueClarifyingHref = buildArchitectureCorrectionHref(props.model.runId, props.correctionHref);
-  const diagramTabHref = buildArchitectureWorkspaceTabHref(props.model.runId, "diagram");
-  const findingsTabHref = buildArchitectureWorkspaceTabHref(props.model.runId, "findings");
-  const activityTabHref = buildArchitectureWorkspaceTabHref(props.model.runId, "activity");
+  const diagramTabHref = buildReviewWorkspaceTabHref(props.model.runId, "architecture");
+  const findingsTabHref = buildReviewWorkspaceTabHref(props.model.runId, "findings");
+  const activityTabHref = buildReviewWorkspaceTabHref(props.model.runId, "activity");
 
   const parseResult = useMemo(
     () => {

@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
 import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY, operatorSemanticSurface } from "@/lib/design-tokens";
 import { buildArchitectureActivityFinalizeReadinessHref } from "@/lib/architecture/architecture-created-finalize-readiness-href";
-import { buildArchitectureWorkspaceTabHref } from "@/lib/architecture/architecture-workspace-tabs";
+import { buildReviewWorkspaceTabHref } from "@/lib/unified-review-workspace-tabs";
 import {
   RUN_DETAIL_GOVERNANCE_PRE_COMMIT_APPROVAL_GATE_LABEL,
   RUN_DETAIL_GOVERNANCE_PRE_COMMIT_APPROVAL_GATE_VALUE,
@@ -58,10 +58,10 @@ export function RunDetailGovernanceDecisionSection(
   });
 
   if (!manifestFinalized) {
-    const findingsHref = buildArchitectureWorkspaceTabHref(props.runId, "findings", {
+    const findingsHref = buildReviewWorkspaceTabHref(props.runId, "findings", {
       includeCreateIntent: true,
     });
-    const activityHref = buildArchitectureWorkspaceTabHref(props.runId, "activity", {
+    const activityHref = buildReviewWorkspaceTabHref(props.runId, "activity", {
       includeCreateIntent: true,
     });
     const finalizeReadinessHref = buildArchitectureActivityFinalizeReadinessHref(props.runId, {
@@ -191,7 +191,7 @@ export function RunDetailGovernanceDecisionSection(
         ? props.governanceGateLabel ?? "Awaiting decision"
         : "No governance decision recorded";
 
-  const findingsHref = buildArchitectureWorkspaceTabHref(props.runId, "findings");
+  const findingsHref = buildReviewWorkspaceTabHref(props.runId, "findings");
   const decisionSecondaryViewPresentation = buildCanonicalObjectSecondaryView(
     "decision",
     "reviewPackageGovernanceTab",

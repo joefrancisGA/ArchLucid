@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import { Lock, LockOpen } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { OperatorEmptyState, OperatorLoadingNotice, OperatorWarningCallout } from "@/components/operator/OperatorShellMessage";
@@ -28,6 +28,7 @@ import {
   technologyLedgerStatusTag,
 } from "@/lib/technology-ledger-labels";
 import { TechnologyBaselineRationaleDialog } from "@/components/reviews/technology-baseline/TechnologyBaselineRationaleDialog";
+import { detectTechnologyLedgerDrift } from "@/lib/vocabulary/detect-technology-ledger-drift";
 import type { TechnologyLedgerEntry } from "@/types/technology-ledger";
 
 export type TechnologyBaselinePanelProps = {
@@ -101,6 +102,7 @@ export function TechnologyBaselinePanel({
     void loadLedger();
   }, [loadLedger]);
 
+  const driftWarnings = useMemo(() => detectTechnologyLedgerDrift(entries), [entries]);
   const hasAssumedRows = entries.some((entry) => entry.status === "Assumed");
   const showPreFinalizeBanner = !manifestFinalized && hasAssumedRows;
   const showConsistencyNote = warningCountDisplay > 0;
@@ -216,6 +218,16 @@ export function TechnologyBaselinePanel({
           Agent-proposed technology choices still need operator approval before this review should be treated as
           authoritative. Approve Assumed rows below or adjust intake evidence.
         </OperatorWarningCallout>
+      ) : null}
+
+      {!loading && driftWarnings.length > 0 ? (
+        <div className="space-y-2" data-testid="technology-baseline-drift-warnings">
+          {driftWarnings.map((warning) => (
+            <OperatorWarningCallout key={`${warning.code}-${warning.role}`}>
+              {warning.message}
+            </OperatorWarningCallout>
+          ))}
+        </div>
       ) : null}
 
       {loading ? (

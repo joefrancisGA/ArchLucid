@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { ReactElement, ReactNode } from "react";
 
 import { Button } from "@/components/ui/button";
-import { buildArchitectureWorkspaceTabHref } from "@/lib/architecture/architecture-workspace-tabs";
+import { buildReviewWorkspaceTabHref } from "@/lib/unified-review-workspace-tabs";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   RUN_DETAIL_CREATE_HOME_FINDINGS_ACTIVITY_CTA_LABEL,
@@ -18,7 +18,7 @@ export type RunDetailCreateHomeFindingsPanelProps = {
 
 /** Create-home Findings archTab — pre-finalize orientation before deferred explanation UI (TB-1852). */
 export function RunDetailCreateHomeFindingsPanel(props: RunDetailCreateHomeFindingsPanelProps): ReactElement {
-  const activityHref = buildArchitectureWorkspaceTabHref(props.runId, "activity", {
+  const activityHref = buildReviewWorkspaceTabHref(props.runId, "activity", {
     includeCreateIntent: true,
   });
 

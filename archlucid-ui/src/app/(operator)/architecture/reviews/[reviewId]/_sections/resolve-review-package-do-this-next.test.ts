@@ -69,7 +69,20 @@ describe("resolveReviewPackageDoThisNext", () => {
 
     expect(next.kind).toBe("answer-clarifications");
     expect(next.sentence).toContain("2 clarifying questions");
+    expect(next.sentence).toContain("before triaging findings");
     expect(next.href).toBe(baseInput.correctionHref);
+  });
+
+  it("routes to findings when clarifications are clear on create-home packages", () => {
+    const next = resolveReviewPackageDoThisNext({
+      ...baseInput,
+      openClarificationGapCount: 0,
+      findingsCount: 2,
+    });
+
+    expect(next.kind).toBe("review-findings");
+    expect(next.sentence).toContain("Clarifications are clear");
+    expect(next.href).toContain("reviewTab=findings");
   });
 
   it("surfaces ready-to-finalize guidance when the run completed without a manifest", () => {
@@ -143,7 +156,7 @@ describe("resolveReviewPackageDoThisNext", () => {
     });
 
     expect(next.kind).toBe("compare-to-prior");
-    expect(next.actionLabel).toBe("Compare to prior review");
+    expect(next.actionLabel).toBe("Compare with prior review");
     expect(next.href).toContain("compare-two-reviews");
     expect(next.secondaryAction?.label).toBe("Send to sponsor");
   });

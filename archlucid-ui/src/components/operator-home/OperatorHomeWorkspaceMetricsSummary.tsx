@@ -9,6 +9,7 @@ import {
   OPERATOR_HOME_WORKSPACE_METRICS_EMPTY_COPY,
   type OperatorHomeWorkspaceMetricsSnapshot,
 } from "@/lib/operator/operator-home-workspace-metrics";
+import { projectReviewLifecycleForDisplay } from "@/lib/vocabulary/project-review-lifecycle-for-display";
 import {
   OPERATOR_HOME_ARCHITECTURE_PACKAGES_HREF,
   OPERATOR_HOME_GOVERNANCE_WARNINGS_HREF,
@@ -57,7 +58,14 @@ function MetricItem(props: MetricItemProps) {
 
 function buildReviewPackagesValue(metrics: OperatorHomeWorkspaceMetricsSnapshot): string {
   if (metrics.reviewPackagesCommitted > 0 || metrics.reviewPackagesActive > 0) {
-    return `${metrics.reviewPackagesTotal} (${metrics.reviewPackagesCommitted} committed · ${metrics.reviewPackagesActive} active)`;
+    const scopeLabel = projectReviewLifecycleForDisplay({
+      committedRunsInScope: metrics.reviewPackagesCommitted,
+      activeRunsInScope: metrics.reviewPackagesActive,
+    }).committedRunsInScopeLabel;
+
+    if (scopeLabel !== null) {
+      return `${metrics.reviewPackagesTotal} (${scopeLabel})`;
+    }
   }
 
   return String(metrics.reviewPackagesTotal);

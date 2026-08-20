@@ -8,6 +8,8 @@ import {
   type DeferredChunkManifestEntry,
 } from "@/lib/operator/deferred-chunk-manifest";
 import { OPERATOR_HOME_CHUNK_MANIFEST } from "@/lib/operator/operator-home-chunk-manifest";
+import { REVIEWS_HUB_CHUNK_MANIFEST } from "@/lib/operator/reviews-hub-chunk-manifest";
+import { RUN_DETAIL_CHUNK_MANIFEST } from "@/lib/operator/run-detail-chunk-manifest";
 
 export type LoadDeferredChunkFromManifestOptions = {
   readonly ssr?: boolean;
@@ -27,8 +29,10 @@ function requireDeferredChunkManifestEntry(entryId: string): DeferredChunkManife
   return entry;
 }
 
-/** Static import map so webpack can split operator-home deferred chunks predictably. */
-function resolveDeferredChunkImportLoader(entryId: string): () => Promise<ComponentType<Record<string, unknown>>> {
+/** Static import map so webpack can split deferred chunks predictably. */
+function resolveDeferredChunkImportLoader(
+  entryId: string,
+): () => Promise<ComponentType<Record<string, unknown>>> {
   switch (entryId) {
     case "operator-home-command-center":
       return deferredChunkLoader(() =>
@@ -68,6 +72,58 @@ function resolveDeferredChunkImportLoader(entryId: string): () => Promise<Compon
       return deferredChunkLoader(() =>
         import("@/components/operator-home/RunsDashboardPanel").then(
           (module) => module.RunsDashboardPanel,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "reviews-hub-inventory":
+      return deferredChunkLoader(() =>
+        import("@/app/(operator)/architecture/reviews/_sections/ReviewsHubReviewInventory").then(
+          (module) => module.ReviewsHubReviewInventory,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "reviews-hub-welcome-onboarding":
+      return deferredChunkLoader(() =>
+        import("@/components/operator/OperatorWelcomeOnboarding").then(
+          (module) => module.OperatorWelcomeOnboarding,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "reviews-hub-explore-samples":
+      return deferredChunkLoader(() =>
+        import("@/app/(operator)/architecture/reviews/_sections/ReviewsHubExploreSamples").then(
+          (module) => module.ReviewsHubExploreSamples,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "reviews-hub-package-includes":
+      return deferredChunkLoader(() =>
+        import("@/app/(operator)/architecture/reviews/_sections/ReviewsHubPackageIncludes").then(
+          (module) => module.ReviewsHubPackageIncludes,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "run-detail-review-workspace-shell":
+      return deferredChunkLoader(() =>
+        import("@/components/reviews/ReviewWorkspaceShell").then((module) => module.ReviewWorkspaceShell),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "run-detail-overview-panel":
+      return deferredChunkLoader(() =>
+        import("@/components/reviews/RunDetailOverviewPanelClient").then(
+          (module) => module.RunDetailOverviewPanelClient,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "run-detail-evidence-tab":
+      return deferredChunkLoader(() =>
+        import("@/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailEvidenceTabPanel").then(
+          (module) => module.RunDetailEvidenceTabPanel,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "run-detail-below-fold":
+      return deferredChunkLoader(() =>
+        import("@/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailBelowFoldSections").then(
+          (module) => module.RunDetailBelowFoldSections,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "run-detail-architecture-created-workspace":
+      return deferredChunkLoader(() =>
+        import("@/components/architecture/ArchitectureCreatedReviewWorkspaceShell").then(
+          (module) => module.ArchitectureCreatedReviewWorkspaceShell,
         ),
       ) as () => Promise<ComponentType<Record<string, unknown>>>;
     default:
@@ -117,5 +173,18 @@ export function createDeferredComponentFromManifest<P extends Record<string, unk
 
 /** Operator-home manifest ids that have registered import loaders (manifest import-test guard). */
 export const OPERATOR_HOME_DEFERRED_CHUNK_LOADER_IDS: readonly string[] = OPERATOR_HOME_CHUNK_MANIFEST.map(
+  (entry) => entry.id,
+);
+
+/** Reviews-hub manifest ids that have registered import loaders (manifest import-test guard). */
+export const REVIEWS_HUB_DEFERRED_CHUNK_LOADER_IDS: readonly string[] = REVIEWS_HUB_CHUNK_MANIFEST.filter(
+  (entry) =>
+    entry.id === "reviews-hub-inventory"
+    || entry.id === "reviews-hub-welcome-onboarding"
+    || entry.id === "reviews-hub-explore-samples",
+).map((entry) => entry.id);
+
+/** Run-detail manifest ids that have registered import loaders (manifest import-test guard). */
+export const RUN_DETAIL_DEFERRED_CHUNK_LOADER_IDS: readonly string[] = RUN_DETAIL_CHUNK_MANIFEST.map(
   (entry) => entry.id,
 );
