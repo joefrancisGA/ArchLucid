@@ -13,7 +13,6 @@
  */
 
 import { REVIEWS_LIST_PATH } from "@/lib/architecture/architecture-routes";
-import { GLOBAL_FIND_PAGE_SEARCH } from "@/lib/search-surface-disambiguation";
 
 /**
  * Command palette / header find-a-page has no dedicated route.
@@ -52,7 +51,7 @@ export const COMMAND_PALETTE_SIDEBAR_COMPACT_LINE =
 
 export const COMMAND_PALETTE_SIDEBAR_COMMAND_PALETTE_LINK: CommandPaletteSidebarLink = {
   id: "command-palette",
-  label: GLOBAL_FIND_PAGE_SEARCH.ariaLabel,
+  label: "Find a page",
   href: COMMAND_PALETTE_FIND_A_PAGE_HREF,
   whenToUse: "Type to jump to a page, review, finding, policy pack, or help topic.",
 };

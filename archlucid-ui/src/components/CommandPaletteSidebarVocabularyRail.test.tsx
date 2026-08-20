@@ -32,7 +32,7 @@ describe("CommandPaletteSidebarVocabularyRail (TB-2316)", () => {
     expect(peer).toHaveAttribute("href", COMMAND_PALETTE_SIDEBAR_COMMAND_PALETTE_LINK.href);
   });
 
-  it("focuses Go to… when the Find a page peer link is clicked", () => {
+  it("focuses header search when the Find a page peer link is clicked", () => {
     const listener = vi.fn();
     window.addEventListener(FOCUS_GLOBAL_SEARCH_EVENT, listener);
 

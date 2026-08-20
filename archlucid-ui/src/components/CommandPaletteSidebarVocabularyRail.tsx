@@ -20,7 +20,7 @@ export type CommandPaletteSidebarVocabularyRailProps = {
 };
 
 function focusFindAPageControl(event: MouseEvent<HTMLAnchorElement>): void {
-  // Hash alone lands on a non-focusable wrapper; focus the Go to… input instead.
+  // Hash alone lands on a non-focusable wrapper; focus the header search input instead.
   event.preventDefault();
   window.dispatchEvent(new Event(FOCUS_GLOBAL_SEARCH_EVENT));
 }
