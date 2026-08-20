@@ -40,10 +40,10 @@ export const ARTIFACT_PREVIEW_SPONSOR_EXPORT_HEADING =
   "Artifact preview and Sponsor export serve different purposes" as const;
 
 export const ARTIFACT_PREVIEW_SPONSOR_EXPORT_WHY_TWO =
-  "Artifact preview shows one signed-record artifact in the shell for review and download of that output. Sponsor export hands off a finalized architecture package — sponsor review summary or architecture report — to sponsors. Previewing a committed artifact is not the same as sending a package handoff." as const;
+  "Artifact preview shows one output in the app for review and download. Sponsor export downloads the leadership briefing for a finalized review. Previewing one file is not the same as sending the full export package." as const;
 
 export const ARTIFACT_PREVIEW_SPONSOR_EXPORT_COMPACT_LINE =
-  "Artifact preview is in-shell signed-record content; Sponsor export is package handoff." as const;
+  "Artifact preview is one in-app output; Sponsor export is the leadership briefing download." as const;
 
 /**
  * Peer from Sponsor export: Sealed review records list, because artifact preview
@@ -61,7 +61,7 @@ export const ARTIFACT_PREVIEW_SPONSOR_EXPORT_SPONSOR_LINK: ArtifactPreviewSponso
   id: "sponsor-export",
   label: "Sponsor export",
   href: SPONSOR_EXPORTS_HREF,
-  whenToUse: "Download the sponsor review summary or architecture report for sponsor handoff.",
+  whenToUse: "Download the sponsor review summary or architecture report for leadership.",
 };
 
 /** Optional run-scoped sponsor handoff href when a review is in scope. */

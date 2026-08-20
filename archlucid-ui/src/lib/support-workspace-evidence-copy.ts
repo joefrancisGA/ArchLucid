@@ -10,7 +10,7 @@ export const SUPPORT_WORKSPACE_CLAIM_DISCIPLINE_HEADING = "What Support workspac
 export const SUPPORT_WORKSPACE_FOLLOW_UPS_TITLE = "Where to go next";
 
 export const SUPPORT_WORKSPACE_CLAIM_DISCIPLINE =
-  "Support workspace is for administrator contact workflows, redacted diagnostics bundles, and guided troubleshooting — it is not a sealed-review diligence Sources package or a substitute for Report problem on in-product error surfaces.";
+  "Support workspace is for administrator contact and guided troubleshooting — not a full audit export. Use Report problem for in-product errors.";
 
 export const SUPPORT_WORKSPACE_SOURCES_INTRO =
   "Use these follow-ups when support intake needs structured defect reporting, symptom triage, or assurance cites.";

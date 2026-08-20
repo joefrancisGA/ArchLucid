@@ -36,16 +36,16 @@ export const SIGNED_RECORDS_REVIEW_DETAIL_HEADING =
   "Sealed review records and review detail serve different purposes" as const;
 
 export const SIGNED_RECORDS_REVIEW_DETAIL_WHY_TWO =
-  "Sealed review records is the inventory of finalized sealed review records for diligence and governance follow-up. Review detail is the architecture package workspace for one review — findings, evidence, and finalize. The inventory is not the package workspace." as const;
+  "Sealed review records lists all finalized reviews. Review detail is where you work on one review — findings, evidence, and finalize. The list is not the workspace." as const;
 
 export const SIGNED_RECORDS_REVIEW_DETAIL_COMPACT_LINE =
-  "Sealed review records lists finalized records; review detail is one architecture package — open the other when you need both." as const;
+  "Sealed review records lists finalized reviews; review detail is one active review — open the other when you need both." as const;
 
 export const SIGNED_RECORDS_REVIEW_DETAIL_SIGNED_RECORDS_LINK: SignedRecordsReviewDetailLink = {
   id: "signed-records",
   label: "Sealed review records",
   href: SIGNED_RECORDS_LIST_PATH,
-  whenToUse: "Browse finalized sealed review records for diligence and governance follow-up.",
+  whenToUse: "Browse all finalized sealed review records.",
 };
 
 /** Review detail is per-package; href uses the reviews hub as the stable peer home. */

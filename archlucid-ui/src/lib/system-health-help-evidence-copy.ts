@@ -11,7 +11,7 @@ export const SYSTEM_HEALTH_HELP_CANONICAL_PATH = "/help/system-health" as const;
 export const SYSTEM_HEALTH_HELP_CLAIM_DISCIPLINE_HEADING = SYSTEM_HEALTH_CLAIM_DISCIPLINE_HEADING;
 
 export const SYSTEM_HEALTH_HELP_CLAIM_DISCIPLINE =
-  "This guide explains workspace operational readiness (live/ready checks and build identity). It is not a sealed-review diligence Sources trail.";
+  "This guide explains workspace operational readiness (live/ready checks and build identity). It is not a full audit export.";
 
 export const SYSTEM_HEALTH_HELP_FOLLOW_UPS_TITLE = "Where to go next";
 
@@ -42,4 +42,4 @@ export const SYSTEM_HEALTH_HELP_SOURCES: readonly EvidenceOrientationLink[] = [
 ] as const;
 
 /** Drift guard: help claim shares operator negation substance without mirroring live-page framing. */
-export const SYSTEM_HEALTH_HELP_OPERATOR_CLAIM_NEGATION = "not a sealed-review diligence Sources trail";
+export const SYSTEM_HEALTH_HELP_OPERATOR_CLAIM_NEGATION = "not a full audit export";

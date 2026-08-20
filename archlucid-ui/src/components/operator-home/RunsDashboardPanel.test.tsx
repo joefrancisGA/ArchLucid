@@ -276,7 +276,7 @@ describe("RunsDashboardPanel", () => {
     fireEvent.click(screen.getByRole("tab", { name: /needs attention/i }));
 
     expect(
-      await screen.findByText("Findings ready · finalize manifest to lock governance posture"),
+      await screen.findByText("Findings ready · finalize this review to lock approval readiness"),
     ).toBeInTheDocument();
     expect(screen.queryByLabelText(/Review status:/i)).toBeNull();
   });

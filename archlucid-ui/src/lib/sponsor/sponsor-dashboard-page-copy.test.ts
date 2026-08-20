@@ -16,8 +16,6 @@ describe("sponsor-dashboard-page-copy", () => {
 
   it("uses sponsor-safe sponsor dashboard lead without env gating (TB-1533)", () => {
     expect(executiveDashboardPageSubtitle()).toBe(SPONSOR_DASHBOARD_PAGE_SUBTITLE_BUYER);
-    expect(SPONSOR_DASHBOARD_PAGE_SUBTITLE_BUYER.length).toBeLessThan(
-      SPONSOR_DASHBOARD_PAGE_SUBTITLE_OPERATOR.length,
-    );
+    expect(SPONSOR_DASHBOARD_PAGE_SUBTITLE_BUYER).toBe(BUYER_SPONSOR_SUMMARY_VOCABULARY.portfolioPageLead);
   });
 });

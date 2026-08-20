@@ -11,7 +11,7 @@ const SPONSOR_DASHBOARD_HELP_SCORECARD_PATH = "/insights/architecture-scorecard"
 export const SPONSOR_DASHBOARD_HELP_CLAIM_DISCIPLINE_HEADING = "What this guide does not cover";
 
 export const SPONSOR_DASHBOARD_HELP_CLAIM_DISCIPLINE =
-  "This guide explains sponsor dashboard KPIs, trends, and sponsor exports — use it to orient portfolio governance posture, then open Architecture reviews, Evidence trail, or Trust Center when you need sponsor-safe trails or assurance cites.";
+  "This guide explains sponsor dashboard KPIs, trends, and exports — open Architecture reviews, Evidence trail, or Trust Center when you need export-ready records.";
 
 export const SPONSOR_DASHBOARD_HELP_FOLLOW_UPS_TITLE = "Where to go next";
 
