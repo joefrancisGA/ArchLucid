@@ -30,6 +30,7 @@ describe("buildPostCommitHabitLoop", () => {
     expect(loop.optional.some((action) => action.id === "evidence-chain")).toBe(true);
     expect(loop.optional.some((action) => action.id === "value-delta")).toBe(true);
     expect(loop.optional.some((action) => action.id === "second-review")).toBe(true);
+    expect(loop.optional.some((action) => action.id === "validate-replay")).toBe(false);
     expect(POST_COMMIT_OPTIONAL_ACTION_IDS).toContain("compare");
   });
 

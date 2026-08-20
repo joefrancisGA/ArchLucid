@@ -1,5 +1,5 @@
 import type { GovernanceFindingQueueRow } from "@/app/(operator)/governance/findings/governance-finding-queue-row";
-import { buildArchitectureWorkspaceTabHref } from "@/lib/architecture/architecture-workspace-tabs";
+import { buildReviewWorkspaceTabHref } from "@/lib/unified-review-workspace-tabs";
 import {
   matchesGovernanceFindingsRunScope,
   matchesRiskRegisterFilter,
@@ -87,7 +87,7 @@ export function buildReviewDetailFindingsTabHref(runId: string): string {
 }
 
 export function buildArchitectureClarificationsTabHref(runId: string): string {
-  return buildArchitectureWorkspaceTabHref(runId.trim(), "clarifications");
+  return buildReviewWorkspaceTabHref(runId.trim(), "decisions-remediation");
 }
 
 export function architectureOpenClarificationsPresentation(
@@ -119,7 +119,7 @@ export function architectureAssessmentFindingsPresentation(
     count,
     noun: count === 1 ? "assessment finding" : "assessment findings",
     dimensions: [{ kind: "this-review" }, { kind: "findings-tab" }],
-    href: buildArchitectureWorkspaceTabHref(runId, "findings"),
+    href: buildReviewWorkspaceTabHref(runId, "findings"),
   };
 }
 

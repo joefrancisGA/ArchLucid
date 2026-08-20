@@ -6,6 +6,7 @@ import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_PAGE_CONTAINER, OPERATOR_TYPOG
 
 import { GovernanceModePresentationGate } from "@/components/governance/GovernanceModePresentationGate";
 import { SignedRecordsReviewDetailVocabularyRail } from "@/components/SignedRecordsReviewDetailVocabularyRail";
+import { ArchitectureIntelligenceReviewToolStrip } from "@/components/ArchitectureIntelligenceReviewToolStrip";
 import { detectStalledReview } from "@/lib/usability/stalled-review-detection";
 import { resolveRunDetailLastFailureSummary } from "@/components/resolve-run-detail-last-failure-summary";
 
@@ -482,6 +483,10 @@ export async function RunDetailPageView(props: {
       >
         <summary className={cn("cursor-pointer px-4 py-2", OPERATOR_TYPOGRAPHY.cardTitle)}>Related surfaces</summary>
         <div className="space-y-3 border-t border-neutral-200 px-4 py-3 dark:border-neutral-800">
+          <ArchitectureIntelligenceReviewToolStrip
+            runId={m.resolvedDetail.run.runId}
+            currentSurfaceId="review-workspace"
+          />
           <SignedRecordsReviewDetailVocabularyRail currentSurfaceId="review-detail" />
         </div>
       </details>

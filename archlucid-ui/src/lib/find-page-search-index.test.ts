@@ -7,10 +7,11 @@ import {
 } from "@/lib/find-page-search-index";
 
 describe("find-page-search-index (TB-2364)", () => {
-  it("builds a static index from curated tasks and palette actions", () => {
+  it("builds a static index from nav links, curated tasks, and palette actions", () => {
     const index = buildStaticFindPageSearchIndex();
 
     expect(index.length).toBeGreaterThan(0);
+    expect(index.some((entry) => entry.source === "nav")).toBe(true);
     expect(index.some((entry) => entry.source === "curated")).toBe(true);
     expect(index.some((entry) => entry.source === "action")).toBe(true);
     expect(new Set(index.map((entry) => entry.id)).size).toBe(index.length);

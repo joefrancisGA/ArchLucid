@@ -15,6 +15,7 @@
  */
 
 import { FIRST_ARCHITECTURE_REVIEW_HELP_PATH } from "@/lib/first-architecture-review-help-route";
+import type { VocabularyPeerLinkFields } from "@/lib/vocabulary/vocabulary-peer-link-fields";
 import { GETTING_STARTED_HELP_PATH } from "@/lib/getting-started-help-guide-content";
 import { PILOT_GUIDE_HELP_PATH } from "@/lib/pilot-guide-help-guide-content";
 import type { VocabularyPeerLinkFields } from "@/lib/vocabulary/vocabulary-peer-link-fields";

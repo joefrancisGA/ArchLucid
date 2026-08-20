@@ -191,6 +191,40 @@ describe("TechnologyBaselinePanel", () => {
     });
   });
 
+  it("shows ledger drift warnings when Chosen providers conflict", async () => {
+    mockGetTechnologyLedger.mockResolvedValue(
+      listResponse([
+        sampleEntry({
+          entryId: "entry-azure",
+          role: "PrimaryDatastore",
+          status: "Chosen",
+          providerFamily: "Azure",
+          source: "User",
+        }),
+        sampleEntry({
+          entryId: "entry-aws",
+          role: "PrimaryDatastore",
+          status: "Chosen",
+          providerFamily: "Aws",
+          source: "User",
+        }),
+      ]),
+    );
+
+    render(
+      <TechnologyBaselinePanel
+        runId={runId}
+        manifestFinalized={false}
+        buyerPolished={false}
+        usedStaticDemoRun={false}
+        warningCountDisplay={0}
+      />,
+    );
+
+    expect(await screen.findByTestId("technology-baseline-drift-warnings")).toBeInTheDocument();
+    expect(screen.getByText(/multiple Chosen rows with different providers/i)).toBeInTheDocument();
+  });
+
   it("does not use window.prompt for rationale capture", async () => {
     const chosen = sampleEntry({ status: "Chosen", source: "User", isLocked: true, rationale: "" });
     mockGetTechnologyLedger.mockResolvedValue(listResponse([chosen]));

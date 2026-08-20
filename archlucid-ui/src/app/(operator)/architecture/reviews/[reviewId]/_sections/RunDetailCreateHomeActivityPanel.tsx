@@ -3,7 +3,7 @@ import type { ReactElement, ReactNode } from "react";
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
-import { buildArchitectureWorkspaceTabHref } from "@/lib/architecture/architecture-workspace-tabs";
+import { buildReviewWorkspaceTabHref } from "@/lib/unified-review-workspace-tabs";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   RUN_DETAIL_CREATE_HOME_ACTIVITY_ORIENTATION_LEAD,
@@ -29,9 +29,9 @@ export type RunDetailCreateHomeActivityPanelProps = {
 };
 
 function RunDetailCreateHomeActivityOrientation(props: { readonly runId: string }): ReactElement {
-  const overviewHref = buildArchitectureWorkspaceTabHref(props.runId, "overview");
-  const findingsHref = buildArchitectureWorkspaceTabHref(props.runId, "findings");
-  const clarificationsHref = buildArchitectureWorkspaceTabHref(props.runId, "clarifications");
+  const overviewHref = buildReviewWorkspaceTabHref(props.runId, "overview");
+  const findingsHref = buildReviewWorkspaceTabHref(props.runId, "findings");
+  const clarificationsHref = buildReviewWorkspaceTabHref(props.runId, "decisions-remediation");
 
   return (
     <div

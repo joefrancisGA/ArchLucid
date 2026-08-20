@@ -4,6 +4,7 @@ import {
   POST_COMMIT_OPTIONAL_ACTION_IDS,
   REVIEW_LIFECYCLE_NEXT_ACTION_REGISTRY,
   listReviewLifecycleNextActions,
+  reviewLifecycleNextActionInstance,
 } from "@/lib/review-lifecycle-next-action-registry";
 
 describe("review-lifecycle-next-action-registry (TB-2366)", () => {
@@ -45,5 +46,39 @@ describe("review-lifecycle-next-action-registry (TB-2366)", () => {
     });
 
     expect(actions.optional.some((action) => action.id === "compare")).toBe(false);
+  });
+
+  it("lists in-review review-package actions", () => {
+    const actions = listReviewLifecycleNextActions({
+      surface: "review-package",
+      phase: "in-review",
+      hrefInput: {
+        runId: "run-1",
+        correctionHref: "/architecture/reviews/new?rerun=run-1",
+      },
+    });
+
+    expect(actions.optional.map((action) => action.id)).toContain("second-review");
+    expect(
+      reviewLifecycleNextActionInstance({
+        id: "triage-findings",
+        hrefInput: { runId: "run-1" },
+      })?.label,
+    ).toBe("Review findings");
+    expect(
+      reviewLifecycleNextActionInstance({
+        id: "add-evidence",
+        hrefInput: { runId: "run-1" },
+      })?.href,
+    ).toContain("reviewTab=evidence");
+    expect(
+      reviewLifecycleNextActionInstance({
+        id: "answer-clarifications",
+        hrefInput: {
+          runId: "run-1",
+          correctionHref: "/architecture/reviews/new?rerun=run-1",
+        },
+      })?.href,
+    ).toBe("/architecture/reviews/new?rerun=run-1");
   });
 });

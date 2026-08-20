@@ -4,6 +4,8 @@ import {
   SPONSOR_BRIEFING_EXPORT_LABEL_LOWER,
 } from "@/lib/usability/canonical-product-terms";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { buildReviewWorkspaceTabHref } from "@/lib/unified-review-workspace-tabs";
+import { INTERNAL_REPLAY_PATH } from "@/lib/internal-ops-route-paths";
 
 export type ReviewLifecycleNextActionSurface = "post-commit-habit-loop" | "review-package" | "operator-home";
 
@@ -15,10 +17,14 @@ export type ReviewLifecycleNextActionId =
   | "sponsor-packet"
   | "governance"
   | "compare"
+  | "validate-replay"
   | "schedule-recurrence"
   | "evidence-chain"
   | "value-delta"
-  | "second-review";
+  | "second-review"
+  | "triage-findings"
+  | "add-evidence"
+  | "answer-clarifications";
 
 export type ReviewLifecycleNextActionDefinition = {
   readonly id: ReviewLifecycleNextActionId;
@@ -69,6 +75,14 @@ export const REVIEW_LIFECYCLE_NEXT_ACTION_REGISTRY: readonly ReviewLifecycleNext
     phases: ["post-finalize"],
   },
   {
+    id: "validate-replay",
+    kind: "optional",
+    label: "Validate replay",
+    description: "Re-check a single finalized architecture package.",
+    surfaces: ["operator-home"],
+    phases: ["post-finalize"],
+  },
+  {
     id: "schedule-recurrence",
     kind: "optional",
     label: "Schedule recurring review",
@@ -97,8 +111,32 @@ export const REVIEW_LIFECYCLE_NEXT_ACTION_REGISTRY: readonly ReviewLifecycleNext
     kind: "optional",
     label: "Start another review",
     description: "Run a follow-up architecture review when the team is ready to compare outcomes.",
-    surfaces: ["post-commit-habit-loop", "operator-home"],
+    surfaces: ["post-commit-habit-loop", "operator-home", "review-package"],
     phases: ["post-finalize", "in-review"],
+  },
+  {
+    id: "triage-findings",
+    kind: "primary",
+    label: "Review findings",
+    description: "Open findings need disposition before finalization or sponsor handoff.",
+    surfaces: ["review-package"],
+    phases: ["in-review"],
+  },
+  {
+    id: "add-evidence",
+    kind: "primary",
+    label: "Add evidence",
+    description: "Add architecture evidence before expecting full findings.",
+    surfaces: ["review-package"],
+    phases: ["in-review"],
+  },
+  {
+    id: "answer-clarifications",
+    kind: "primary",
+    label: "Answer clarifying questions",
+    description: "Answer open clarifying questions before assessment confidence improves.",
+    surfaces: ["review-package"],
+    phases: ["in-review"],
   },
 ] as const;
 
@@ -107,6 +145,7 @@ export type BuildReviewLifecycleNextActionHrefInput = {
   readonly showCompareCta?: boolean;
   readonly hasManifest?: boolean;
   readonly buyerShowcaseQuickLinks?: boolean;
+  readonly correctionHref?: string | null;
 };
 
 export type ReviewLifecycleNextActionInstance = {
@@ -144,6 +183,9 @@ function resolveHref(id: ReviewLifecycleNextActionId, input: BuildReviewLifecycl
 
       return comparePageHrefAdaptive(runId);
 
+    case "validate-replay":
+      return `${INTERNAL_REPLAY_PATH}?runId=${encodeURIComponent(runId)}`;
+
     case "schedule-recurrence":
       if (input.hasManifest !== true) {
         return null;
@@ -163,6 +205,22 @@ function resolveHref(id: ReviewLifecycleNextActionId, input: BuildReviewLifecycl
 
     case "second-review":
       return "/architecture/reviews/new";
+
+    case "triage-findings":
+      return buildReviewWorkspaceTabHref(runId, "findings");
+
+    case "add-evidence":
+      return buildReviewWorkspaceTabHref(runId, "evidence");
+
+    case "answer-clarifications": {
+      const correctionHref = input.correctionHref?.trim() ?? "";
+
+      if (correctionHref.length > 0) {
+        return correctionHref;
+      }
+
+      return buildReviewWorkspaceTabHref(runId, "overview");
+    }
 
     default: {
       const unreachable: never = id;
@@ -253,6 +311,27 @@ export function listReviewLifecycleNextActions(input: {
 
 export function reviewLifecycleNextActionLabel(id: ReviewLifecycleNextActionId): string {
   return registryEntry(id).label;
+}
+
+export function reviewLifecycleNextActionInstance(input: {
+  readonly id: ReviewLifecycleNextActionId;
+  readonly hrefInput: BuildReviewLifecycleNextActionHrefInput;
+  readonly hrefOverride?: string | null;
+}): ReviewLifecycleNextActionInstance | null {
+  const entry = registryEntry(input.id);
+  const href = input.hrefOverride?.trim() ?? resolveHref(entry.id, input.hrefInput);
+
+  if (href === null || href.length === 0) {
+    return null;
+  }
+
+  return {
+    id: entry.id,
+    kind: entry.kind,
+    label: entry.label,
+    href,
+    description: entry.description,
+  };
 }
 
 export const REVIEW_LIFECYCLE_SPONSOR_PACKET_LABEL = SPONSOR_BRIEFING_EXPORT_LABEL;

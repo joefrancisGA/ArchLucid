@@ -59,9 +59,7 @@ import { CommandPaletteSidebarVocabularyRail } from "@/components/CommandPalette
 import { stampRouteReferrer } from "@/lib/operator/operator-navigation-referrer";
 import { GLOBAL_FIND_PAGE_SEARCH } from "@/lib/search-surface-disambiguation";
 import {
-  searchFindPageHelpEntries,
   searchFindPageIndex,
-  type FindPageSearchEntry,
 } from "@/lib/find-page-search-index";
 import { OPEN_COMMAND_PALETTE_EVENT, SHORTCUTS } from "@/lib/shortcut-registry";
 
@@ -109,22 +107,22 @@ function curatedPaletteVisibilityHref(href: string): string {
 }
 
 function CommandPaletteFindPageSearch({
+  visibleHrefs,
   onNavigate,
 }: {
+  visibleHrefs: ReadonlySet<string>;
   onNavigate: (href: string) => void;
 }) {
   const search = useCommandState((state) => state.search);
   const trimmed = search.trim();
-  const staticMatches = searchFindPageIndex(trimmed, { limit: 8 });
-  const helpMatches = searchFindPageHelpEntries(trimmed, { limit: 4 });
-  const matches: FindPageSearchEntry[] = [...staticMatches, ...helpMatches];
+  const matches = searchFindPageIndex(trimmed, { limit: 8, visibleHrefs });
 
   if (trimmed.length === 0 || matches.length === 0) {
     return null;
   }
 
   return (
-    <CommandGroup heading="Pages & shortcuts">
+    <CommandGroup heading="Pages">
       {matches.map((entry) => (
         <CommandItem
           key={entry.id}
@@ -249,22 +247,9 @@ function CommandPaletteCuratedTasks({
   );
 }
 
-function buyerPaletteNavGroupHeading(groupId: string, defaultLabel: string): string {
-  if (groupId === "pilot") {
-    return "Reviews";
-  }
-
-  if (groupId === "operate-analysis") {
-    return "Trace & exploration";
-  }
-
-  return defaultLabel;
-}
-
-function CommandPaletteNavGroups({
+function CommandPaletteAdminNavGroups({
   callerAuthorityRank,
   hasCommittedArchitectureReview,
-  buyerPolishedShell,
   auditRunId,
   patternLibraryNavVisible,
   roleNavDensityPersona,
@@ -273,7 +258,6 @@ function CommandPaletteNavGroups({
 }: {
   callerAuthorityRank: number;
   hasCommittedArchitectureReview: boolean;
-  buyerPolishedShell: boolean;
   auditRunId: string | null;
   patternLibraryNavVisible: boolean;
   roleNavDensityPersona: ReturnType<typeof resolveRoleNavDensityPersona>;
@@ -283,22 +267,9 @@ function CommandPaletteNavGroups({
   const search = useCommandState((state) => state.search);
   const showAdminPalette = search.trim().length > 0;
 
-  const reviewRows = filterNavGroupsByRoleDensity(
-    applyPatternLibraryNavGate(
-      scopeOperatorShellNavRows(
-        listNavGroupsVisibleInOperatorShell(
-          NAV_GROUPS,
-          callerAuthorityRank,
-          "review-workflow",
-          hasCommittedArchitectureReview,
-        ),
-        auditRunId,
-      ),
-      patternLibraryNavVisible,
-    ),
-    roleNavDensityPersona,
-    roleNavDensityShowFullNav,
-  );
+  if (!showAdminPalette) {
+    return null;
+  }
 
   const adminRows = filterNavGroupsByRoleDensity(
     applyPatternLibraryNavGate(
@@ -332,15 +303,15 @@ function CommandPaletteNavGroups({
 
   return (
     <>
-      {reviewRows.map(({ group, visibleLinks }) => (
+      {adminRows.map(({ group, visibleLinks }) => (
         <CommandGroup
-          key={group.id}
-          heading={buyerPolishedShell ? buyerPaletteNavGroupHeading(group.id, group.label) : group.label}
+          key={`palette-${group.id}`}
+          heading={group.id === "operator-admin" ? "Administration" : group.label}
         >
           {visibleLinks.map((link) => (
             <CommandItem
               key={link.href}
-              value={`${link.label} ${link.href}`}
+              value={`administration ${link.label} ${link.href}`}
               onSelect={() => {
                 onNavigate(link.href);
               }}
@@ -350,43 +321,21 @@ function CommandPaletteNavGroups({
           ))}
         </CommandGroup>
       ))}
-      {showAdminPalette
-        ? adminRows.map(({ group, visibleLinks }) => (
-            <CommandGroup
-              key={`palette-${group.id}`}
-              heading={group.id === "operator-admin" ? "Administration" : group.label}
+      {systemAdminRows.map(({ group, visibleLinks }) => (
+        <CommandGroup key={`palette-${group.id}`} heading={group.label}>
+          {visibleLinks.map((link) => (
+            <CommandItem
+              key={link.href}
+              value={`internal operations ${link.label} ${link.href}`}
+              onSelect={() => {
+                onNavigate(link.href);
+              }}
             >
-              {visibleLinks.map((link) => (
-                <CommandItem
-                  key={link.href}
-                  value={`administration ${link.label} ${link.href}`}
-                  onSelect={() => {
-                    onNavigate(link.href);
-                  }}
-                >
-                  {link.label}
-                </CommandItem>
-              ))}
-            </CommandGroup>
-          ))
-        : null}
-      {showAdminPalette
-        ? systemAdminRows.map(({ group, visibleLinks }) => (
-            <CommandGroup key={`palette-${group.id}`} heading={group.label}>
-              {visibleLinks.map((link) => (
-                <CommandItem
-                  key={link.href}
-                  value={`internal operations ${link.label} ${link.href}`}
-                  onSelect={() => {
-                    onNavigate(link.href);
-                  }}
-                >
-                  {link.label}
-                </CommandItem>
-              ))}
-            </CommandGroup>
-          ))
-        : null}
+              {link.label}
+            </CommandItem>
+          ))}
+        </CommandGroup>
+      ))}
     </>
   );
 }
@@ -673,7 +622,7 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
         <CommandList>
           <RunIdQuickOpen onNavigate={navigate} allowRunIdPaste={!buyerPolishedShell} />
           <CommandPaletteRecentViewsGroup onNavigate={navigate} />
-          <CommandPaletteFindPageSearch onNavigate={navigate} />
+          <CommandPaletteFindPageSearch visibleHrefs={visibleHrefs} onNavigate={navigate} />
           <CommandPaletteDocumentationSearch buyerPolishedShell={buyerPolishedShell} onNavigate={navigate} />
           <CommandPaletteActions onNavigate={navigate} />
           <CommandPaletteDemoActions onNavigate={navigate} onClose={() => setOpen(false)} />
@@ -688,10 +637,9 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
               ? "No matching page. Try another search."
               : "No matching pages. Try another search or paste a review ID."}
           </CommandEmpty>
-          <CommandPaletteNavGroups
+          <CommandPaletteAdminNavGroups
             callerAuthorityRank={callerAuthorityRank}
             hasCommittedArchitectureReview={effectiveHasCommittedArchitectureReview}
-            buyerPolishedShell={buyerPolishedShell}
             auditRunId={auditRunId}
             patternLibraryNavVisible={patternLibraryNavVisible}
             roleNavDensityPersona={roleNavDensityPersona}

@@ -3,6 +3,7 @@
 import dynamic from "next/dynamic";
 
 import { DeferredChunkLoading, DEFERRED_CHUNK_LOADING_SURFACE_CLASS } from "@/components/ui/deferred-chunk-loading";
+import { createDeferredComponentFromManifest } from "@/lib/operator/load-deferred-chunk-from-manifest";
 import { RunDetailExplanationSkeleton } from "./RunDetailDeferredSkeleton";
 import { cn } from "@/lib/utils";
 
@@ -112,12 +113,10 @@ export const RunDetailSampleReviewPackageSummaryDeferred = dynamic(
   { ssr: false, loading: () => null },
 );
 
-export const RunDetailArchitectureCreatedWorkspaceDeferred = dynamic(
-  () =>
-    import("@/components/architecture/ArchitectureCreatedWorkspace").then(
-      (module) => module.ArchitectureCreatedWorkspace,
-    ),
-  { ssr: false, loading: () => null },
+/** TB-2021 remainder — create-home workspace off sync First Load JS. */
+export const RunDetailArchitectureCreatedWorkspaceDeferred = createDeferredComponentFromManifest(
+  "run-detail-architecture-created-workspace",
+  { suppressLoading: true },
 );
 
 export const RunDetailArchitectureCreateWorkItemSectionDeferred = dynamic(
@@ -244,19 +243,16 @@ const workspaceShellLoading = (
 );
 
 /** TB-2021 remainder — tabbed workspace shell off sync First Load JS. */
-export const ReviewDetailWorkspaceDeferred = dynamic(
-  () => import("@/components/reviews/ReviewWorkspaceShell").then((module) => module.ReviewWorkspaceShell),
-  { ssr: false, loading: () => workspaceShellLoading },
+export const ReviewDetailWorkspaceDeferred = createDeferredComponentFromManifest(
+  "run-detail-review-workspace-shell",
+  {
+    loadingWrapper: () => workspaceShellLoading,
+  },
 );
 
-const overviewPanelLoading = runDetailDeferredLoading("Loading review overview", "h-48");
-
-export const RunDetailOverviewPanelClientDeferred = dynamic(
-  () =>
-    import("@/components/reviews/RunDetailOverviewPanelClient").then(
-      (module) => module.RunDetailOverviewPanelClient,
-    ),
-  { ssr: false, loading: () => overviewPanelLoading },
+export const RunDetailOverviewPanelClientDeferred = createDeferredComponentFromManifest(
+  "run-detail-overview-panel",
+  { loadingClassName: "h-48" },
 );
 
 const workspaceHeaderLoading = (
@@ -413,13 +409,10 @@ export const RunDetailBuyerModeFallbackBannerDeferred = dynamic(
   { ssr: false, loading: () => null },
 );
 
-const evidenceTabLoading = runDetailDeferredLoading("Loading evidence tab", "h-48");
-
 /** TB-2142 — evidence tab scope/inventory cluster off sync First Load JS. */
-export const RunDetailEvidenceTabPanelDeferred = dynamic(
-  () => import("./RunDetailEvidenceTabPanel").then((module) => module.RunDetailEvidenceTabPanel),
-  { ssr: false, loading: () => evidenceTabLoading },
-);
+export const RunDetailEvidenceTabPanelDeferred = createDeferredComponentFromManifest("run-detail-evidence-tab", {
+  loadingClassName: "h-48",
+});
 
 /** TB-2142 — post-finalize share/export row off sync First Load JS. */
 export const RunDetailReviewPackageShareRowDeferred = dynamic(
@@ -460,13 +453,9 @@ export const ReviewGenerationCreatedNoticeDeferred = dynamic(
 );
 
 /** Perf wave 8 — below-fold forensics/pipeline/provenance cluster off sync First Load JS. */
-export const RunDetailBelowFoldSectionsDeferred = dynamic(
-  () => import("./RunDetailBelowFoldSections").then((module) => module.RunDetailBelowFoldSections),
-  {
-    ssr: false,
-    loading: () => runDetailDeferredLoading("Loading additional review sections", "h-32"),
-  },
-);
+export const RunDetailBelowFoldSectionsDeferred = createDeferredComponentFromManifest("run-detail-below-fold", {
+  loadingClassName: "h-32",
+});
 
 const midBannerLoading = runDetailDeferredLoading("Loading review changes banner", "h-16");
 

@@ -6,7 +6,7 @@ import {
 import { buildClarificationGapSourcePresentation } from "@/lib/architecture/architecture-clarification-gap-present";
 import { buildArchitectureCorrectionHref } from "@/lib/architecture/architecture-correction-href";
 import type { ArchitectureCreationHandoffSnapshot } from "@/lib/architecture/architecture-creation-handoff";
-import { buildArchitectureWorkspaceTabHref } from "@/lib/architecture/architecture-workspace-tabs";
+import { buildCreateHomeReviewTabHref } from "@/lib/unified-review-workspace-tabs";
 import type { RunDetailWorkspaceStatus } from "@/lib/run-detail-workspace-derive";
 
 export type ArchitectureDefinitionStatusKind =
@@ -244,7 +244,7 @@ function buildMissingItems(input: BuildArchitectureCreatedHomeModelInput): Archi
     items.push({
       id: "diagram",
       label: "Architecture diagram or supporting evidence not uploaded",
-      href: buildArchitectureWorkspaceTabHref(input.runId, "evidence"),
+      href: buildCreateHomeReviewTabHref(input.runId, "evidence"),
       category: "evidence",
       source,
     });
@@ -254,7 +254,7 @@ function buildMissingItems(input: BuildArchitectureCreatedHomeModelInput): Archi
     items.push({
       id: "assessment-progress",
       label: "Initial assessment is still running",
-      href: buildArchitectureWorkspaceTabHref(input.runId, "activity"),
+      href: buildCreateHomeReviewTabHref(input.runId, "activity"),
       category: "assessment",
       source,
     });
@@ -279,8 +279,8 @@ function buildPrimaryActions(
   input: BuildArchitectureCreatedHomeModelInput,
 ): ArchitectureCreatedPrimaryAction[] {
   const clarifyHref = resolveClarifyHref(input);
-  const diagramHref = buildArchitectureWorkspaceTabHref(input.runId, "diagram");
-  const assessmentHref = buildArchitectureWorkspaceTabHref(input.runId, "activity");
+  const diagramHref = buildCreateHomeReviewTabHref(input.runId, "diagram");
+  const assessmentHref = buildCreateHomeReviewTabHref(input.runId, "activity");
   const partitioned = partitionMissingItems(buildMissingItems(input));
   const hasClarificationGaps = partitioned.clarificationGaps.length > 0;
 
@@ -377,10 +377,10 @@ export function buildArchitectureCreatedHomeModel(
     assessmentItems: partitioned.assessmentItems,
     primaryActions: buildPrimaryActions(input),
     overflowActions: [
-      { label: "View assessment details", href: buildArchitectureWorkspaceTabHref(input.runId, "findings") },
-      { label: "Architecture diagram", href: buildArchitectureWorkspaceTabHref(input.runId, "diagram") },
-      { label: "Add evidence", href: buildArchitectureWorkspaceTabHref(input.runId, "evidence") },
-      { label: "Submitted architecture", href: buildArchitectureWorkspaceTabHref(input.runId, "overview") },
+      { label: "View assessment details", href: buildCreateHomeReviewTabHref(input.runId, "findings") },
+      { label: "Architecture diagram", href: buildCreateHomeReviewTabHref(input.runId, "diagram") },
+      { label: "Add evidence", href: buildCreateHomeReviewTabHref(input.runId, "evidence") },
+      { label: "Submitted architecture", href: buildCreateHomeReviewTabHref(input.runId, "overview") },
     ],
   };
 }

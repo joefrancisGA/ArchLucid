@@ -2,13 +2,12 @@
 
 import type { JSX } from "react";
 
+import { ExternalPeerVocabularyRailFromModel } from "@/components/vocabulary/ExternalPeerVocabularyRailFromModel";
 import {
-  buildPackageGovernanceApprovalQueueVocabulary,
-  resolvePackageGovernanceApprovalQueuePeerLink,
+  buildPackageGovernanceApprovalQueuePairwiseRail,
   type PackageGovernanceApprovalQueueSurfaceId,
   type PackageGovernanceApprovalQueueVocabularyModel,
 } from "@/lib/vocabulary/package-governance-approval-queue-vocabulary";
-import { VocabularyRail } from "@/components/vocabulary/VocabularyRail";
 
 export type PackageGovernanceApprovalQueueVocabularyRailProps = {
   readonly currentSurfaceId: PackageGovernanceApprovalQueueSurfaceId;
@@ -23,27 +22,26 @@ export type PackageGovernanceApprovalQueueVocabularyRailProps = {
 export function PackageGovernanceApprovalQueueVocabularyRail(
   props: PackageGovernanceApprovalQueueVocabularyRailProps,
 ): JSX.Element {
-  const model =
-    props.model ??
-    buildPackageGovernanceApprovalQueueVocabulary(props.runId);
-  const peer = resolvePackageGovernanceApprovalQueuePeerLink(props.currentSurfaceId, model);
-  const currentLink =
-    props.currentSurfaceId === "package-governance"
-      ? model.packageGovernanceLink
-      : model.approvalQueueLink;
+  const pairwiseModel =
+    props.model !== undefined
+      ? {
+          heading: props.model.heading,
+          whyTwo: props.model.whyTwo,
+          compactLine: props.model.compactLine,
+          reviewSideLink: props.model.packageGovernanceLink,
+          externalPeerLink: props.model.approvalQueueLink,
+        }
+      : buildPackageGovernanceApprovalQueuePairwiseRail(props.runId);
 
   return (
-    <VocabularyRail
+    <ExternalPeerVocabularyRailFromModel
       testIdPrefix="package-governance-approval-queue-vocabulary"
+      reviewSurfaceId="package-governance"
       currentSurfaceId={props.currentSurfaceId}
       variant={props.variant}
       className={props.className}
-      compactLine={model.compactLine}
       compactLinkPlacement="inline"
-      heading={model.heading}
-      whyTwo={model.whyTwo}
-      currentLabel={currentLink.label}
-      links={[{ ...peer, testIdSuffix: "peer-link" }]}
+      model={pairwiseModel}
     />
   );
 }

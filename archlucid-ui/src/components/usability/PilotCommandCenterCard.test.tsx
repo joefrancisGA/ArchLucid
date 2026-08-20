@@ -404,7 +404,7 @@ describe("PilotCommandCenterCard", () => {
 
     const kpiStrip = screen.getByTestId("operator-home-hero-kpi-strip");
 
-    expect(kpiStrip).toHaveTextContent("3 (0 committed · 3 active)");
-    expect(kpiStrip).not.toHaveTextContent("1 (0 committed · 1 active)");
+    expect(kpiStrip).toHaveTextContent("3 (0 finalized · 3 active)");
+    expect(kpiStrip).not.toHaveTextContent("1 (0 finalized · 1 active)");
   });
 });

@@ -17,7 +17,7 @@ import {
   GOVERNANCE_APPROVAL_QUEUE_PATH,
   governanceApprovalQueueHref,
 } from "@/lib/governance/governance-route-paths";
-import { buildReviewWorkspaceTabHref } from "@/lib/unified-review-workspace-tabs";
+import { createExternalPeerPairwiseVocabularyRail } from "@/lib/vocabulary/create-pairwise-vocabulary-rail";
 
 export type PackageGovernanceApprovalQueueSurfaceId =
   | "package-governance"
@@ -68,35 +68,37 @@ export const PACKAGE_GOVERNANCE_APPROVAL_QUEUE_QUEUE_LINK: PackageGovernanceAppr
   };
 
 /** Build vocabulary; pass runId when mounting on a package Governance / Policies tab. */
+export function buildPackageGovernanceApprovalQueuePairwiseRail(runId?: string | null) {
+  return createExternalPeerPairwiseVocabularyRail({
+    runId,
+    reviewSurfaceId: "package-governance",
+    externalSurfaceId: "approval-queue",
+    reviewTabId: "policies",
+    copy: {
+      heading: PACKAGE_GOVERNANCE_APPROVAL_QUEUE_HEADING,
+      whyTwo: PACKAGE_GOVERNANCE_APPROVAL_QUEUE_WHY_TWO,
+      compactLine: PACKAGE_GOVERNANCE_APPROVAL_QUEUE_COMPACT_LINE,
+      reviewSideLabel: "Policies and standards",
+      reviewSideWhenToUse: "Review pre-finalize governance readiness for this architecture package.",
+    },
+    reviewsPeerFallbackLink: PACKAGE_GOVERNANCE_APPROVAL_QUEUE_REVIEWS_PEER_LINK,
+    externalPeerLinkBase: PACKAGE_GOVERNANCE_APPROVAL_QUEUE_QUEUE_LINK,
+    buildExternalPeerHref: governanceApprovalQueueHref,
+  });
+}
+
+/** Build vocabulary; pass runId when mounting on a package Governance / Policies tab. */
 export function buildPackageGovernanceApprovalQueueVocabulary(
   runId?: string | null,
 ): PackageGovernanceApprovalQueueVocabularyModel {
-  const trimmed = runId?.trim() ?? "";
-
-  const packageGovernanceHref =
-    trimmed.length === 0 ? null : buildReviewWorkspaceTabHref(trimmed, "policies");
-
-  const packageGovernanceLink: PackageGovernanceApprovalQueueLink =
-    packageGovernanceHref !== null
-      ? {
-          id: "package-governance",
-          label: "Policies and standards",
-          href: packageGovernanceHref,
-          whenToUse: "Review pre-finalize governance readiness for this architecture package.",
-        }
-      : PACKAGE_GOVERNANCE_APPROVAL_QUEUE_REVIEWS_PEER_LINK;
-
-  const approvalQueueLink: PackageGovernanceApprovalQueueLink = {
-    ...PACKAGE_GOVERNANCE_APPROVAL_QUEUE_QUEUE_LINK,
-    href: governanceApprovalQueueHref(trimmed.length > 0 ? trimmed : null),
-  };
+  const rail = buildPackageGovernanceApprovalQueuePairwiseRail(runId);
 
   return {
-    heading: PACKAGE_GOVERNANCE_APPROVAL_QUEUE_HEADING,
-    whyTwo: PACKAGE_GOVERNANCE_APPROVAL_QUEUE_WHY_TWO,
-    compactLine: PACKAGE_GOVERNANCE_APPROVAL_QUEUE_COMPACT_LINE,
-    packageGovernanceLink,
-    approvalQueueLink,
+    heading: rail.heading,
+    whyTwo: rail.whyTwo,
+    compactLine: rail.compactLine,
+    packageGovernanceLink: rail.reviewSideLink,
+    approvalQueueLink: rail.externalPeerLink,
   };
 }
 

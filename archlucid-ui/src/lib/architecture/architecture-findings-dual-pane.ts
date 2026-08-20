@@ -4,7 +4,7 @@
  * Answers: "where does this finding live in the diagram?" at a glance.
  */
 
-import { buildArchitectureWorkspaceTabHref } from "@/lib/architecture/architecture-workspace-tabs";
+import { buildReviewWorkspaceTabHref } from "@/lib/unified-review-workspace-tabs";
 
 /** Layout mode when Diagram tab shows findings beside the diagram. */
 export const ARCHITECTURE_FINDINGS_DUAL_PANE_LAYOUT_MODE_ID = "architecture-findings-linked" as const;
@@ -254,11 +254,11 @@ export function resolveArchitectureFindingsDualPaneLayoutMode(
 }
 
 export function buildArchitectureFindingsDualPaneDiagramHref(runId: string): string {
-  return buildArchitectureWorkspaceTabHref(runId.trim(), "diagram");
+  return buildReviewWorkspaceTabHref(runId.trim(), "architecture");
 }
 
 export function buildArchitectureFindingsDualPaneFindingsHref(runId: string): string {
-  return buildArchitectureWorkspaceTabHref(runId.trim(), "findings");
+  return buildReviewWorkspaceTabHref(runId.trim(), "findings");
 }
 
 export function formatLinkedComponentStatus(

@@ -34,7 +34,7 @@ export const RUN_DETAIL_CHUNK_MANIFEST: readonly DeferredChunkManifestEntry[] = 
     id: "run-detail-architecture-created-workspace",
     label: "Loading create-home workspace",
     variant: "section",
-    modulePath: "@/components/architecture/ArchitectureCreatedWorkspace",
-    exportName: "ArchitectureCreatedWorkspace",
+    modulePath: "@/components/architecture/ArchitectureCreatedReviewWorkspaceShell",
+    exportName: "ArchitectureCreatedReviewWorkspaceShell",
   },
 ] as const;

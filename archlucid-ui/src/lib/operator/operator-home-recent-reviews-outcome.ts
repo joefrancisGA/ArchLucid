@@ -3,7 +3,7 @@ import { isDemoSeededOverviewInjectedRun } from "@/lib/demo-seeded-overview";
 import { isShowcaseStaticDemoRunId } from "@/lib/demo-run-canonical";
 import type { OperatorHomeWorkspaceMetricsSnapshot } from "@/lib/operator/operator-home-workspace-metrics";
 import type { RunSummary } from "@/types/authority";
-import { formatFinalizedReviewPackagesOutcome } from "@/lib/vocabulary/review-lifecycle-verb-map";
+import { projectReviewLifecycleForDisplay } from "@/lib/vocabulary/project-review-lifecycle-for-display";
 
 export type FormatOperatorHomeRecentReviewsOutcomeOptions = {
   /** Demo/seeded or static showcase rows only — not tenant-authored reviews. */
@@ -27,10 +27,11 @@ export function formatOperatorHomeRecentReviewsOutcome(
 
   const committed = metrics.reviewPackagesCommitted;
   const active = metrics.reviewPackagesActive;
-  const packagePart = formatFinalizedReviewPackagesOutcome({
-    finalizedCount: committed,
-    activeCount: active,
-  });
+  const packagePart =
+    projectReviewLifecycleForDisplay({
+      committedRunsInScope: committed,
+      activeRunsInScope: active,
+    }).committedRunsInScopeLabel ?? `${committed} finalized`;
 
   const pressureParts: string[] = [];
 

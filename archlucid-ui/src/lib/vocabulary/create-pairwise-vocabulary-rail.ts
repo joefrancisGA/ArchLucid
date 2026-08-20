@@ -65,6 +65,76 @@ export function createPairwiseVocabularyRail<TSurfaceId extends string>(
   };
 }
 
+export type CreateExternalPeerPairwiseVocabularyRailInput<TSurfaceId extends string> = {
+  readonly runId?: string | null;
+  readonly reviewSurfaceId: TSurfaceId;
+  readonly externalSurfaceId: TSurfaceId;
+  readonly reviewTabId: ReviewDetailTabId;
+  readonly copy: {
+    readonly heading: string;
+    readonly whyTwo: string;
+    readonly compactLine: string;
+    readonly reviewSideLabel: string;
+    readonly reviewSideWhenToUse: string;
+  };
+  readonly reviewsPeerFallbackLink: PairwiseVocabularyLink<TSurfaceId>;
+  readonly externalPeerLinkBase: PairwiseVocabularyLink<TSurfaceId>;
+  readonly buildExternalPeerHref?: (runId: string) => string;
+};
+
+export type ExternalPeerPairwiseVocabularyRailModel<TSurfaceId extends string> = {
+  readonly heading: string;
+  readonly whyTwo: string;
+  readonly compactLine: string;
+  readonly reviewSideLink: PairwiseVocabularyLink<TSurfaceId>;
+  readonly externalPeerLink: PairwiseVocabularyLink<TSurfaceId>;
+};
+
+/** TB-2365 — reviewTab current side + external route peer (audit trail, evidence graph, approval queue). */
+export function createExternalPeerPairwiseVocabularyRail<TSurfaceId extends string>(
+  input: CreateExternalPeerPairwiseVocabularyRailInput<TSurfaceId>,
+): ExternalPeerPairwiseVocabularyRailModel<TSurfaceId> {
+  const trimmedRunId = input.runId?.trim() ?? "";
+  const hasRunId = trimmedRunId.length > 0;
+
+  const reviewSideLink: PairwiseVocabularyLink<TSurfaceId> = hasRunId
+    ? {
+        id: input.reviewSurfaceId,
+        label: input.copy.reviewSideLabel,
+        href: buildReviewWorkspaceTabHref(trimmedRunId, input.reviewTabId),
+        whenToUse: input.copy.reviewSideWhenToUse,
+      }
+    : input.reviewsPeerFallbackLink;
+
+  const externalPeerLink: PairwiseVocabularyLink<TSurfaceId> =
+    hasRunId && input.buildExternalPeerHref !== undefined
+      ? {
+          ...input.externalPeerLinkBase,
+          href: input.buildExternalPeerHref(trimmedRunId),
+        }
+      : input.externalPeerLinkBase;
+
+  return {
+    heading: input.copy.heading,
+    whyTwo: input.copy.whyTwo,
+    compactLine: input.copy.compactLine,
+    reviewSideLink,
+    externalPeerLink,
+  };
+}
+
+export function resolveExternalPeerPairwisePeerLink<TSurfaceId extends string>(
+  currentSurfaceId: TSurfaceId,
+  reviewSurfaceId: TSurfaceId,
+  model: ExternalPeerPairwiseVocabularyRailModel<TSurfaceId>,
+): PairwiseVocabularyLink<TSurfaceId> {
+  if (currentSurfaceId === reviewSurfaceId) {
+    return model.externalPeerLink;
+  }
+
+  return model.reviewSideLink;
+}
+
 export function resolvePairwiseVocabularyPeerLink<TSurfaceId extends string>(
   currentSurfaceId: TSurfaceId,
   model: PairwiseVocabularyRailModel<TSurfaceId>,
