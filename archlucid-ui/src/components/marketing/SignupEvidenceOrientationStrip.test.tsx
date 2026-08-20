@@ -4,6 +4,7 @@ import { describe, expect, it } from "vitest";
 import { SignupEvidenceOrientationStrip } from "@/components/marketing/SignupEvidenceOrientationStrip";
 import { EVALUATION_SOURCES_TITLE } from "@/lib/evaluation-sources-title";
 import { SIGNUP_CANONICAL_PATH, SIGNUP_SOURCES } from "@/lib/signup-evidence-copy";
+import { shouldOmitClaimDisciplineBand } from "@/lib/claim-discipline-policy";
 
 describe("SignupEvidenceOrientationStrip", () => {
   it("renders claim and sources bands separately without a Related heading", () => {
@@ -14,9 +15,11 @@ describe("SignupEvidenceOrientationStrip", () => {
       </>,
     );
 
-    if (!shouldOmitClaimDisciplineBand("signup")) { expect(screen.getByTestId("signup-claim-discipline")).toHaveTextContent(
-      /What this page covers|CPA SOC 2|third-party pen|Trust Center/i,
-    );
+    if (!shouldOmitClaimDisciplineBand("signup")) {
+      expect(screen.getByTestId("signup-claim-discipline")).toHaveTextContent(
+        /What this page covers|CPA SOC 2|third-party pen|Trust Center/i,
+      );
+    }
 
     const sources = screen.getByTestId("signup-sources");
 

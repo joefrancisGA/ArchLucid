@@ -3,7 +3,7 @@
  *
  * Why two surfaces exist:
  * - Review Findings tab (`/architecture/reviews/{runId}?reviewTab=findings`) scopes to
- *   one architecture review package — triage, export, and cluster disposition within
+ *   one architecture review — triage, export, and cluster disposition within
  *   that review.
  * - Findings queue (`/governance/findings`) is the workspace risk register across
  *   reviews for disposition, ownership, and exception work.
@@ -42,10 +42,10 @@ export const REVIEW_PACKAGE_GOVERNANCE_FINDINGS_HEADING =
   "This review and the workspace findings queue are different views" as const;
 
 export const REVIEW_PACKAGE_GOVERNANCE_FINDINGS_WHY_TWO =
-  "This review's Findings tab lists findings for one architecture review package — triage and export within this review. The workspace findings queue is the risk register across reviews for disposition, ownership, and exception work. Disposition in the queue updates governance state; triage on the review tab does not replace cross-review disposition. Counts scoped to this review may not match workspace totals." as const;
+  "This review's Findings tab lists findings for one architecture review — triage and export within this review. The workspace findings queue is the risk register across reviews for disposition, ownership, and exception work. Disposition in the queue updates governance state; triage on the review tab does not replace cross-review disposition. Counts scoped to this review may not match workspace totals." as const;
 
 export const REVIEW_PACKAGE_GOVERNANCE_FINDINGS_COMPACT_LINE =
-  "This review's findings tab triages one package; the workspace findings queue disposes risks across reviews." as const;
+  "This review's findings tab triages one review; the workspace findings queue disposes risks across reviews." as const;
 
 /**
  * Peer from the findings queue without a review scope: Reviews hub, because review
@@ -56,7 +56,7 @@ export const REVIEW_PACKAGE_GOVERNANCE_FINDINGS_REVIEWS_PEER_LINK: ReviewPackage
     id: "review-package-findings",
     label: "Reviews (open Findings tab)",
     href: REVIEWS_LIST_PATH,
-    whenToUse: "Open an architecture review, then use Findings to triage this review's package.",
+    whenToUse: "Open an architecture review, then use Findings to triage this review.",
   };
 
 /** Build vocabulary; pass runId when mounting on a review Findings tab or scoped queue. */
@@ -71,7 +71,7 @@ export function buildReviewPackageGovernanceFindingsVocabulary(
           id: "review-package-findings",
           label: "This review's findings",
           href: buildReviewDetailFindingsTabHref(trimmed),
-          whenToUse: "Triage and export findings within this architecture review package.",
+          whenToUse: "Triage and export findings within this architecture review.",
         }
       : REVIEW_PACKAGE_GOVERNANCE_FINDINGS_REVIEWS_PEER_LINK;
 

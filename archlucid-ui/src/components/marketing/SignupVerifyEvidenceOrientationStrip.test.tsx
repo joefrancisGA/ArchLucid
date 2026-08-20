@@ -6,15 +6,18 @@ import {
   SIGNUP_VERIFY_CANONICAL_PATH,
   SIGNUP_VERIFY_SOURCES,
 } from "@/lib/signup-verify-evidence-copy";
+import { shouldOmitClaimDisciplineBand } from "@/lib/claim-discipline-policy";
 
 describe("SignupVerifyEvidenceOrientationStrip", () => {
   it("lists evaluation Sources without self-linking signup verify", () => {
     render(<SignupVerifyEvidenceOrientationStrip />);
 
     expect(screen.getByTestId("signup-verify-sources")).toBeInTheDocument();
-    if (!shouldOmitClaimDisciplineBand("signup-verify")) { expect(screen.getByTestId("signup-verify-claim-discipline")).toHaveTextContent(
-      /Evaluation access|CPA SOC 2|third-party pen/i,
-    );
+    if (!shouldOmitClaimDisciplineBand("signup-verify")) {
+      expect(screen.getByTestId("signup-verify-claim-discipline")).toHaveTextContent(
+        /Evaluation access|CPA SOC 2|third-party pen/i,
+      );
+    }
 
     const sources = screen.getByTestId("signup-verify-sources");
 

@@ -42,6 +42,7 @@ import {
   formatAzurePermissionsHelpRequirementsReviewedLine,
 } from "@/lib/azure-permissions-help-evidence-copy";
 import { CONNECT_AZURE_SECURELY_PAGE_TITLE } from "@/lib/connect-azure-securely-help-content";
+import { shouldOmitClaimDisciplineBand } from "@/lib/claim-discipline-policy";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
 describe("HelpAzurePermissionsGuideView", () => {
@@ -142,9 +143,11 @@ describe("HelpAzurePermissionsGuideView", () => {
     expect(screen.getByText(AZURE_PERMISSIONS_PAGE_SUBTITLE)).toBeInTheDocument();
     expect(screen.queryByTestId("help-topic-registry-provenance")).toBeNull();
     expect(screen.queryByTestId("help-topic-registry-provenance")).toBeNull();
-    if (!shouldOmitClaimDisciplineBand("azure-permissions-help")) { expect(screen.getByTestId("azure-permissions-help-claim-discipline")).toHaveTextContent(
-      AZURE_PERMISSIONS_HELP_CLAIM_DISCIPLINE,
-    );
+    if (!shouldOmitClaimDisciplineBand("azure-permissions-help")) {
+      expect(screen.getByTestId("azure-permissions-help-claim-discipline")).toHaveTextContent(
+        AZURE_PERMISSIONS_HELP_CLAIM_DISCIPLINE,
+      );
+    }
     expect(screen.queryByTestId("azure-permissions-help-sources")).not.toBeInTheDocument();
     expect(screen.getByRole("link", { name: AZURE_PERMISSIONS_HELP_PRIMARY_SETUP_ACTION.label })).toHaveAttribute(
       "href",
