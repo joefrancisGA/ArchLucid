@@ -59,9 +59,9 @@ export const RunDetailCompareToBaselineCta = dynamic(
   },
 );
 
-export const RunDetailEstimatedLlmCostCardDeferred = dynamic(
-  () => import("@/components/runs/RunEstimatedLlmCostCard").then((module) => module.RunEstimatedLlmCostCard),
-  { ssr: false, loading: () => null },
+export const RunDetailEstimatedLlmCostCardDeferred = createDeferredComponentFromManifest(
+  "run-detail-estimated-llm-cost-card",
+  { suppressLoading: true },
 );
 
 export const RunDetailAgentResultsSummaryCardDeferred = dynamic(
@@ -96,9 +96,9 @@ export const RunDetailLastFailureCardDeferred = dynamic(
   { ssr: false, loading: () => null },
 );
 
-export const RunDetailProgressTrackerDeferred = dynamic(
-  () => import("@/components/runs/RunProgressTracker").then((module) => module.RunProgressTracker),
-  { ssr: false, loading: () => null },
+export const RunDetailProgressTrackerDeferred = createDeferredComponentFromManifest(
+  "run-detail-progress-tracker",
+  { suppressLoading: true },
 );
 
 export const RunDetailTrustEvidenceCardSectionDeferred = dynamic(
@@ -368,14 +368,14 @@ export const RunDetailGovernanceCtaDeferred = dynamic(
   { ssr: false, loading: () => null },
 );
 
-export const RunDetailCaptureEvidenceSectionDeferred = dynamic(
-  () => import("./RunDetailCaptureEvidenceSection").then((module) => module.RunDetailCaptureEvidenceSection),
-  { ssr: false, loading: () => null },
+export const RunDetailCaptureEvidenceSectionDeferred = createDeferredComponentFromManifest(
+  "run-detail-capture-evidence-section",
+  { suppressLoading: true },
 );
 
-export const RunDetailManifestSummarySectionDeferred = dynamic(
-  () => import("./RunDetailManifestSummarySection").then((module) => module.RunDetailManifestSummarySection),
-  { ssr: false, loading: () => null },
+export const RunDetailManifestSummarySectionDeferred = createDeferredComponentFromManifest(
+  "run-detail-manifest-summary-section",
+  { suppressLoading: true },
 );
 
 export const RunDetailBuyerPilotConversionSectionDeferred = dynamic(
@@ -418,20 +418,14 @@ export const RunDetailRunActionsSectionDeferred = dynamic(
   { ssr: false, loading: () => null },
 );
 
-export const HelpPageSituationRegistrarDeferred = dynamic(
-  () =>
-    import("@/components/help/HelpPageSituationRegistrar").then(
-      (module) => module.HelpPageSituationRegistrar,
-    ),
-  { ssr: false, loading: () => null },
+export const HelpPageSituationRegistrarDeferred = createDeferredComponentFromManifest(
+  "run-detail-help-page-situation-registrar",
+  { suppressLoading: true },
 );
 
-export const ReviewGenerationCreatedNoticeDeferred = dynamic(
-  () =>
-    import("@/components/review-intake/ReviewGenerationCreatedNotice").then(
-      (module) => module.ReviewGenerationCreatedNotice,
-    ),
-  { ssr: false, loading: () => null },
+export const ReviewGenerationCreatedNoticeDeferred = createDeferredComponentFromManifest(
+  "run-detail-review-generation-created-notice",
+  { suppressLoading: true },
 );
 
 /** Perf wave 8 — below-fold forensics/pipeline/provenance cluster off sync First Load JS. */

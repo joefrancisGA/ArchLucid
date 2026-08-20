@@ -2,13 +2,12 @@
 
 import type { JSX } from "react";
 
+import { PairwiseVocabularyRailFromModel } from "@/components/vocabulary/PairwiseVocabularyRailFromModel";
 import {
-  buildGlossaryProceduralHelpVocabulary,
-  resolveGlossaryProceduralHelpPeerLink,
+  buildGlossaryProceduralHelpPairwiseRail,
   type GlossaryProceduralHelpSurfaceId,
   type GlossaryProceduralHelpVocabularyModel,
 } from "@/lib/vocabulary/glossary-procedural-help-vocabulary";
-import { VocabularyRail } from "@/components/vocabulary/VocabularyRail";
 
 export type GlossaryProceduralHelpVocabularyRailProps = {
   readonly currentSurfaceId: GlossaryProceduralHelpSurfaceId;
@@ -21,23 +20,25 @@ export type GlossaryProceduralHelpVocabularyRailProps = {
 export function GlossaryProceduralHelpVocabularyRail(
   props: GlossaryProceduralHelpVocabularyRailProps,
 ): JSX.Element {
-  const model = props.model ?? buildGlossaryProceduralHelpVocabulary();
-  const peer = resolveGlossaryProceduralHelpPeerLink(props.currentSurfaceId);
-  const currentLink =
-    props.currentSurfaceId === "glossary" ? model.glossaryLink : model.helpHubLink;
+  const pairwiseModel =
+    props.model !== undefined
+      ? {
+          heading: props.model.heading,
+          whyTwo: props.model.whyTwo,
+          compactLine: props.model.compactLine,
+          currentLink: props.model.glossaryLink,
+          peerLink: props.model.helpHubLink,
+        }
+      : buildGlossaryProceduralHelpPairwiseRail();
 
   return (
-    <VocabularyRail
+    <PairwiseVocabularyRailFromModel
       testIdPrefix="glossary-procedural-help-vocabulary"
       currentSurfaceId={props.currentSurfaceId}
       variant={props.variant}
       className={props.className}
-      compactLine={model.compactLine}
       compactLinkPlacement="inline"
-      heading={model.heading}
-      whyTwo={model.whyTwo}
-      currentLabel={currentLink.label}
-      links={[{ ...peer, testIdSuffix: "peer-link" }]}
+      model={pairwiseModel}
     />
   );
 }

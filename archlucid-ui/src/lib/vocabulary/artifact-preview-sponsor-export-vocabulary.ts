@@ -14,6 +14,7 @@
  */
 
 import { SIGNED_RECORDS_LIST_PATH } from "@/lib/signed-records-paths";
+import type { ExternalPeerPairwiseVocabularyRailModel } from "@/lib/vocabulary/create-pairwise-vocabulary-rail";
 
 /** Stable peer — matches sponsor dashboard `#sponsor-exports` (avoid coupling to WIP path moves). */
 const SPONSOR_EXPORTS_HREF = "/architecture/sponsor-dashboard#sponsor-exports" as const;
@@ -72,6 +73,22 @@ export function buildArtifactPreviewSponsorExportHref(runId?: string | null): st
   }
 
   return `/architecture/reviews/${encodeURIComponent(trimmed)}#sponsor-handoff`;
+}
+
+/** Pairwise model for Artifact preview ↔ Sponsor export. */
+export function buildArtifactPreviewSponsorExportPairwiseRail(options?: {
+  readonly artifactHref?: string | null;
+  readonly runId?: string | null;
+}): ExternalPeerPairwiseVocabularyRailModel<ArtifactPreviewSponsorExportSurfaceId> {
+  const model = buildArtifactPreviewSponsorExportVocabulary(options);
+
+  return {
+    heading: model.heading,
+    whyTwo: model.whyTwo,
+    compactLine: model.compactLine,
+    reviewSideLink: model.artifactPreviewLink,
+    externalPeerLink: model.sponsorExportLink,
+  };
 }
 
 /** Build vocabulary; pass artifactHref when mounting on a specific preview page. */

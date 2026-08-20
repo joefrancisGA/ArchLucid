@@ -13,6 +13,7 @@
 
 import { GLOSSARY_HELP_CANONICAL_PATH } from "@/lib/glossary-help-evidence-copy";
 import { HELP_HUB_CANONICAL_PATH } from "@/lib/help/help-hub-evidence-copy";
+import type { PairwiseVocabularyRailModel } from "@/lib/vocabulary/create-pairwise-vocabulary-rail";
 
 export type GlossaryProceduralHelpSurfaceId = "glossary" | "help-hub";
 
@@ -54,14 +55,27 @@ export const GLOSSARY_PROCEDURAL_HELP_HELP_HUB_LINK: GlossaryProceduralHelpLink 
   whenToUse: "Browse how-to topics, guides, and runbooks from the Help hub.",
 };
 
-/** Full vocabulary model (heading, why-two copy, and deep links). */
-export function buildGlossaryProceduralHelpVocabulary(): GlossaryProceduralHelpVocabularyModel {
+/** Pairwise model for Glossary ↔ Help hub (fixed routes). */
+export function buildGlossaryProceduralHelpPairwiseRail(): PairwiseVocabularyRailModel<GlossaryProceduralHelpSurfaceId> {
   return {
     heading: GLOSSARY_PROCEDURAL_HELP_HEADING,
     whyTwo: GLOSSARY_PROCEDURAL_HELP_WHY_TWO,
     compactLine: GLOSSARY_PROCEDURAL_HELP_COMPACT_LINE,
-    glossaryLink: GLOSSARY_PROCEDURAL_HELP_GLOSSARY_LINK,
-    helpHubLink: GLOSSARY_PROCEDURAL_HELP_HELP_HUB_LINK,
+    currentLink: GLOSSARY_PROCEDURAL_HELP_GLOSSARY_LINK,
+    peerLink: GLOSSARY_PROCEDURAL_HELP_HELP_HUB_LINK,
+  };
+}
+
+/** Full vocabulary model (heading, why-two copy, and deep links). */
+export function buildGlossaryProceduralHelpVocabulary(): GlossaryProceduralHelpVocabularyModel {
+  const rail = buildGlossaryProceduralHelpPairwiseRail();
+
+  return {
+    heading: rail.heading,
+    whyTwo: rail.whyTwo,
+    compactLine: rail.compactLine,
+    glossaryLink: rail.currentLink,
+    helpHubLink: rail.peerLink,
   };
 }
 

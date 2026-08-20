@@ -2,19 +2,16 @@
 
 import type { JSX } from "react";
 
+import { ExternalPeerVocabularyRailFromModel } from "@/components/vocabulary/ExternalPeerVocabularyRailFromModel";
 import {
-  buildArtifactPreviewSponsorExportVocabulary,
-  resolveArtifactPreviewSponsorExportPeerLink,
+  buildArtifactPreviewSponsorExportPairwiseRail,
   type ArtifactPreviewSponsorExportSurfaceId,
   type ArtifactPreviewSponsorExportVocabularyModel,
 } from "@/lib/vocabulary/artifact-preview-sponsor-export-vocabulary";
-import { VocabularyRail } from "@/components/vocabulary/VocabularyRail";
 
 export type ArtifactPreviewSponsorExportVocabularyRailProps = {
   readonly currentSurfaceId: ArtifactPreviewSponsorExportSurfaceId;
-  /** When mounting on a specific artifact preview page. */
   readonly artifactHref?: string | null;
-  /** Optional run scope for sponsor handoff peer. */
   readonly runId?: string | null;
   readonly variant?: "compact" | "full";
   readonly className?: string;
@@ -25,30 +22,29 @@ export type ArtifactPreviewSponsorExportVocabularyRailProps = {
 export function ArtifactPreviewSponsorExportVocabularyRail(
   props: ArtifactPreviewSponsorExportVocabularyRailProps,
 ): JSX.Element {
-  const model =
-    props.model ??
-    buildArtifactPreviewSponsorExportVocabulary({
-      artifactHref: props.artifactHref,
-      runId: props.runId,
-    });
-  const peer = resolveArtifactPreviewSponsorExportPeerLink(props.currentSurfaceId, model);
-  const currentLink =
-    props.currentSurfaceId === "artifact-preview"
-      ? model.artifactPreviewLink
-      : model.sponsorExportLink;
+  const pairwiseModel =
+    props.model !== undefined
+      ? {
+          heading: props.model.heading,
+          whyTwo: props.model.whyTwo,
+          compactLine: props.model.compactLine,
+          reviewSideLink: props.model.artifactPreviewLink,
+          externalPeerLink: props.model.sponsorExportLink,
+        }
+      : buildArtifactPreviewSponsorExportPairwiseRail({
+          artifactHref: props.artifactHref,
+          runId: props.runId,
+        });
 
   return (
-    <VocabularyRail
+    <ExternalPeerVocabularyRailFromModel
       testIdPrefix="artifact-preview-sponsor-export-vocabulary"
+      reviewSurfaceId="artifact-preview"
       currentSurfaceId={props.currentSurfaceId}
       variant={props.variant}
       className={props.className}
-      compactLine={model.compactLine}
       compactLinkPlacement="inline"
-      heading={model.heading}
-      whyTwo={model.whyTwo}
-      currentLabel={currentLink.label}
-      links={[{ ...peer, testIdSuffix: "peer-link" }]}
+      model={pairwiseModel}
     />
   );
 }

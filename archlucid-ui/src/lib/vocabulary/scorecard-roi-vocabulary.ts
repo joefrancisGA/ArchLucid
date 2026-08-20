@@ -15,6 +15,7 @@
 
 import { ARCHITECTURE_SCORECARD_PATH } from "@/lib/architecture/architecture-scorecard-route";
 import { SPONSOR_REPORT_ROI_SUMMARY_PATH } from "@/lib/sponsor-report-navigation";
+import type { PairwiseVocabularyRailModel } from "@/lib/vocabulary/create-pairwise-vocabulary-rail";
 
 export type ScorecardRoiSurfaceId = "scorecard" | "roi-summary";
 
@@ -56,14 +57,27 @@ export const SCORECARD_ROI_ROI_SUMMARY_LINK: ScorecardRoiLink = {
   whenToUse: "Review portfolio KPIs for the reporting window.",
 };
 
-/** Full vocabulary model (heading, why-two copy, and deep links). */
-export function buildScorecardRoiVocabulary(): ScorecardRoiVocabularyModel {
+/** Pairwise model for Architecture scorecard ↔ ROI summary (fixed routes). */
+export function buildScorecardRoiPairwiseRail(): PairwiseVocabularyRailModel<ScorecardRoiSurfaceId> {
   return {
     heading: SCORECARD_ROI_HEADING,
     whyTwo: SCORECARD_ROI_WHY_TWO,
     compactLine: SCORECARD_ROI_COMPACT_LINE,
-    scorecardLink: SCORECARD_ROI_SCORECARD_LINK,
-    roiSummaryLink: SCORECARD_ROI_ROI_SUMMARY_LINK,
+    currentLink: SCORECARD_ROI_SCORECARD_LINK,
+    peerLink: SCORECARD_ROI_ROI_SUMMARY_LINK,
+  };
+}
+
+/** Full vocabulary model (heading, why-two copy, and deep links). */
+export function buildScorecardRoiVocabulary(): ScorecardRoiVocabularyModel {
+  const rail = buildScorecardRoiPairwiseRail();
+
+  return {
+    heading: rail.heading,
+    whyTwo: rail.whyTwo,
+    compactLine: rail.compactLine,
+    scorecardLink: rail.currentLink,
+    roiSummaryLink: rail.peerLink,
   };
 }
 
