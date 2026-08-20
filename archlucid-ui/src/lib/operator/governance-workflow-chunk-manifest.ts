@@ -65,4 +65,25 @@ export const GOVERNANCE_WORKFLOW_CHUNK_MANIFEST: readonly DeferredChunkManifestE
     modulePath: "@/components/AdvancedOptionsAccordion",
     exportName: "AdvancedOptionsAccordion",
   },
+  {
+    id: "governance-workflow-cto-demo-buyer-value-strip",
+    label: "Loading buyer value strip",
+    variant: "compact",
+    modulePath: "@/components/cto-demo/CtoDemoBuyerValueStrip",
+    exportName: "CtoDemoBuyerValueStrip",
+  },
+  {
+    id: "governance-workflow-cto-demo-segregation-callout",
+    label: "Loading segregation callout",
+    variant: "compact",
+    modulePath: "@/components/cto-demo/CtoDemoSegregationCallout",
+    exportName: "CtoDemoSegregationCallout",
+  },
+  {
+    id: "governance-workflow-cto-demo-governance-preview-hint",
+    label: "Loading governance preview hint",
+    variant: "compact",
+    modulePath: "@/components/OperateCapabilityHints",
+    exportName: "CtoDemoGovernancePreviewHint",
+  },
 ] as const;

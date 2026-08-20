@@ -9,6 +9,7 @@ import {
 } from "@/lib/operator/deferred-chunk-manifest";
 import { GOVERNANCE_WORKFLOW_CHUNK_MANIFEST } from "@/lib/operator/governance-workflow-chunk-manifest";
 import { OPERATOR_HOME_CHUNK_MANIFEST } from "@/lib/operator/operator-home-chunk-manifest";
+import { POLICY_PACKS_AUTHORING_CHUNK_MANIFEST } from "@/lib/operator/policy-packs-authoring-chunk-manifest";
 import { REVIEWS_HUB_CHUNK_MANIFEST } from "@/lib/operator/reviews-hub-chunk-manifest";
 import { RUN_DETAIL_CHUNK_MANIFEST } from "@/lib/operator/run-detail-chunk-manifest";
 
@@ -132,6 +133,40 @@ function resolveDeferredChunkImportLoader(
     case "governance-workflow-advanced-options":
       return deferredChunkLoader(() =>
         import("@/components/AdvancedOptionsAccordion").then((module) => module.AdvancedOptionsAccordion),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "governance-workflow-cto-demo-buyer-value-strip":
+      return deferredChunkLoader(() =>
+        import("@/components/cto-demo/CtoDemoBuyerValueStrip").then(
+          (module) => module.CtoDemoBuyerValueStrip,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "governance-workflow-cto-demo-segregation-callout":
+      return deferredChunkLoader(() =>
+        import("@/components/cto-demo/CtoDemoSegregationCallout").then(
+          (module) => module.CtoDemoSegregationCallout,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "governance-workflow-cto-demo-governance-preview-hint":
+      return deferredChunkLoader(() =>
+        import("@/components/OperateCapabilityHints").then((module) => module.CtoDemoGovernancePreviewHint),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "policy-packs-authoring-wizard":
+      return deferredChunkLoader(() =>
+        import("@/app/(operator)/governance/policy-packs/_sections/PolicyRuleAuthoringWizard").then(
+          (module) => module.PolicyRuleAuthoringWizard,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "policy-packs-authoring-natural-language-builder":
+      return deferredChunkLoader(() =>
+        import("@/app/(operator)/governance/policy-packs/_sections/PolicyPackNaturalLanguageBuilder").then(
+          (module) => module.PolicyPackNaturalLanguageBuilder,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "policy-packs-authoring-visual-builder":
+      return deferredChunkLoader(() =>
+        import("@/app/(operator)/governance/policy-packs/_sections/PolicyPackVisualBuilder").then(
+          (module) => module.PolicyPackVisualBuilder,
+        ),
       ) as () => Promise<ComponentType<Record<string, unknown>>>;
     case "reviews-hub-inventory":
       return deferredChunkLoader(() =>
@@ -650,3 +685,7 @@ export const RUN_DETAIL_DEFERRED_CHUNK_LOADER_IDS: readonly string[] = RUN_DETAI
 /** Governance-workflow manifest ids that have registered import loaders (manifest import-test guard). */
 export const GOVERNANCE_WORKFLOW_DEFERRED_CHUNK_LOADER_IDS: readonly string[] =
   GOVERNANCE_WORKFLOW_CHUNK_MANIFEST.map((entry) => entry.id);
+
+/** Policy-packs authoring manifest ids that have registered import loaders (manifest import-test guard). */
+export const POLICY_PACKS_AUTHORING_DEFERRED_CHUNK_LOADER_IDS: readonly string[] =
+  POLICY_PACKS_AUTHORING_CHUNK_MANIFEST.map((entry) => entry.id);

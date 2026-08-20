@@ -1,6 +1,5 @@
 "use client";
 
-import dynamic from "next/dynamic";
 import type { ComponentType } from "react";
 
 import { createDeferredComponentFromManifest } from "@/lib/operator/load-deferred-chunk-from-manifest";
@@ -42,28 +41,19 @@ export const GovernanceWorkflowDialogsDeferred = createDeferredComponentFromMani
   { suppressLoading: true },
 );
 
-export const CtoDemoBuyerValueStripDeferred = dynamic(
-  () =>
-    import("@/components/cto-demo/CtoDemoBuyerValueStrip").then(
-      (module) => module.CtoDemoBuyerValueStrip,
-    ),
-  { ssr: false, loading: () => null },
+export const CtoDemoBuyerValueStripDeferred = createDeferredComponentFromManifest(
+  "governance-workflow-cto-demo-buyer-value-strip",
+  { suppressLoading: true },
 );
 
-export const CtoDemoSegregationCalloutDeferred = dynamic(
-  () =>
-    import("@/components/cto-demo/CtoDemoSegregationCallout").then(
-      (module) => module.CtoDemoSegregationCallout,
-    ),
-  { ssr: false, loading: () => null },
+export const CtoDemoSegregationCalloutDeferred = createDeferredComponentFromManifest(
+  "governance-workflow-cto-demo-segregation-callout",
+  { suppressLoading: true },
 );
 
-export const CtoDemoGovernancePreviewHintDeferred = dynamic(
-  () =>
-    import("@/components/OperateCapabilityHints").then(
-      (module) => module.CtoDemoGovernancePreviewHint,
-    ),
-  { ssr: false, loading: () => null },
+export const CtoDemoGovernancePreviewHintDeferred = createDeferredComponentFromManifest(
+  "governance-workflow-cto-demo-governance-preview-hint",
+  { suppressLoading: true },
 );
 
 export const GovernanceInteractiveQuickstartContentDeferred = createDeferredComponentFromManifest(
