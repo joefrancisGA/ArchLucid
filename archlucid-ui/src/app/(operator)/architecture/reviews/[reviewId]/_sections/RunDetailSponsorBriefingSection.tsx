@@ -46,6 +46,11 @@ type RunDetailSponsorBriefingSectionProps = {
   readonly curatedSampleRun: boolean;
   readonly buyerPolishedArtifactTable: boolean;
   readonly sponsorDocxAvailable: boolean;
+  readonly pagePrimaryOwnedElsewhere?: boolean;
+};
+
+export type RunDetailSponsorBriefingSectionOptions = {
+  readonly pagePrimaryOwnedElsewhere?: boolean;
 };
 
 /** Inputs already on the first-screen run-detail model — no below-fold deferred fetch required. */
@@ -64,6 +69,7 @@ export type RunDetailSponsorBriefingModelSlice = {
  */
 export function resolveRunDetailSponsorBriefingSection(
   model: RunDetailSponsorBriefingModelSlice,
+  options?: RunDetailSponsorBriefingSectionOptions,
 ): ReactElement | null {
   const manifestId = model.manifestId?.trim() ?? "";
 
@@ -78,12 +84,20 @@ export function resolveRunDetailSponsorBriefingSection(
       curatedSampleRun={model.usedStaticDemoRun}
       buyerPolishedArtifactTable={model.buyerPolishedArtifactTable}
       sponsorDocxAvailable={manifestId.length > 0}
+      pagePrimaryOwnedElsewhere={options?.pagePrimaryOwnedElsewhere}
     />
   );
 }
 
 export function RunDetailSponsorBriefingSection(props: RunDetailSponsorBriefingSectionProps): ReactElement {
-  const { runId, manifestId, curatedSampleRun, buyerPolishedArtifactTable, sponsorDocxAvailable } = props;
+  const {
+    runId,
+    manifestId,
+    curatedSampleRun,
+    buyerPolishedArtifactTable,
+    sponsorDocxAvailable,
+    pagePrimaryOwnedElsewhere,
+  } = props;
 
   const deliverables = (
     <>
@@ -94,6 +108,7 @@ export function RunDetailSponsorBriefingSection(props: RunDetailSponsorBriefingS
         manifestId={manifestId}
         curatedSampleRun={curatedSampleRun}
         sponsorDocxAvailable={sponsorDocxAvailable}
+        pagePrimaryOwnedElsewhere={pagePrimaryOwnedElsewhere}
       />
     </>
   );

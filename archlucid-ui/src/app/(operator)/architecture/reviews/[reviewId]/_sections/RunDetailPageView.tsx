@@ -283,6 +283,7 @@ export async function RunDetailPageView(props: {
                     findings={quickDecisionFindings}
                     findingsTriageVisibleCount={findingsTriageVisibleCount}
                     correctionHref={architectureEditHref}
+                    pagePrimaryOwnedElsewhere
                     panels={{
                       findings: (
                         <RunDetailCreateHomeFindingsPanel
@@ -345,6 +346,7 @@ export async function RunDetailPageView(props: {
                             governanceGateLabel={m.governanceGateLabel}
                             blockingFindingCount={blockingApprovalCount}
                             hasGovernanceWarnings={m.resolvedDetail.run.hasGovernanceWarnings === true}
+                            pagePrimaryOwnedElsewhere
                           />
                           {m.manifestId ? (
                             <>
@@ -385,6 +387,7 @@ export async function RunDetailPageView(props: {
                             </Suspense>
                           }
                           sourcesPanel={<RunDetailActivitySourcesPanelDeferred />}
+                          pagePrimaryOwnedElsewhere
                         />
                       ),
                       submittedArchitecture: (
@@ -509,6 +512,7 @@ export async function RunDetailPageView(props: {
       {blockingApprovalCount === 0 ? (
         <RunDetailFirstWeekRouteGuidanceDeferred
           variant={Boolean(m.manifestId) ? "review-detail-committed" : "review-detail-in-progress"}
+          pagePrimaryOwnedElsewhere
         />
       ) : null}
 
@@ -635,7 +639,7 @@ export async function RunDetailPageView(props: {
 
           {buyerFinalizedPackage ? null : sectionNavEl}
 
-          {resolveRunDetailSponsorBriefingSection(m)}
+          {resolveRunDetailSponsorBriefingSection(m, { pagePrimaryOwnedElsewhere: true })}
 
           <Suspense fallback={<RunDetailBelowFoldDeferredSkeleton />}>
             <RunDetailBelowFoldSectionsDeferred model={m} context={deferredContext} />

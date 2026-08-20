@@ -46,6 +46,7 @@ import {
   mergeScopeBulletsIntoBrief,
   type ScopeUnderstandingBullet,
 } from "@/lib/architecture/architecture-scope-understanding-check";
+import { GUIDED_INTAKE_ARCHITECTURE_CONTEXT_LABEL } from "@/lib/guided-intake-copy";
 import { BUYER_START_ARCHITECTURE_REVIEW_CTA, CREATE_REVIEW_PACKAGE_HEADING } from "@/lib/buyer/buyer-polish-copy";
 import { deriveEvidencePresenceFromFileNames } from "@/lib/evidence-gap-forecast";
 import {
@@ -553,7 +554,7 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
           ) : null}
 
           <div className="space-y-2">
-            <IntakeFieldLabel htmlFor="first-pilot-brief" label="Architecture context" required={false} />
+            <IntakeFieldLabel htmlFor="first-pilot-brief" label={GUIDED_INTAKE_ARCHITECTURE_CONTEXT_LABEL} required={false} />
             <Textarea
               id="first-pilot-brief"
               value={briefText}
@@ -587,7 +588,7 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
 
           <ArchitectureScopeUnderstandingCheckPanel
             input={scopeUnderstandingInput}
-            contextSourceLabel="Architecture context above"
+            contextSourceLabel={`${GUIDED_INTAKE_ARCHITECTURE_CONTEXT_LABEL} above`}
             disabled={creationProgress.isActive || blocksLlmExecution}
             onBulletsChange={setScopeBullets}
             onGateChange={setScopeGateOpen}

@@ -1,5 +1,6 @@
 import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
+import { expectFollowUpLink } from "@/lib/claim-discipline-test-helpers";
 
 import { RecommendationLearningEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
 import {
@@ -23,7 +24,7 @@ describe("recommendation-learning-evidence-copy", () => {
     const sources = screen.getByTestId("recommendation-learning-sources");
 
     for (const link of RECOMMENDATION_LEARNING_SOURCES) {
-      expect(within(sources).getByRole("link", { name: link.label })).toHaveAttribute("href", link.href);
+      expectFollowUpLink(within(sources), link);
     }
 
     expect(

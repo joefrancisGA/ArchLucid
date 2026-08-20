@@ -8,6 +8,7 @@ import {
   describeFirstPilotReviewTitleGap,
   isFirstPilotReviewTitleAcceptable,
 } from "@/lib/first-pilot-review-title-quality";
+import { GUIDED_INTAKE_ARCHITECTURE_CONTEXT_LABEL } from "@/lib/guided-intake-copy";
 import {
   describeUniversalIntakeMustGap,
   isUniversalIntakeMustComplete,
@@ -112,7 +113,7 @@ export function describeFirstPilotIntakeGap(input: FirstPilotIntakeReadinessInpu
   }
 
   if (!evidenceReady && briefLength > 0 && briefLength < FIRST_PILOT_MIN_BRIEF_CHARS) {
-    return `Architecture context needs at least ${FIRST_PILOT_MIN_BRIEF_CHARS} characters (${briefLength} so far), or attach evidence instead.`;
+    return `${GUIDED_INTAKE_ARCHITECTURE_CONTEXT_LABEL} needs at least ${FIRST_PILOT_MIN_BRIEF_CHARS} characters (${briefLength} so far), or attach evidence instead.`;
   }
 
   const analyzableGap = describeQuickStartAnalyzableEvidenceGap(toAnalyzableEvidenceInput(input));

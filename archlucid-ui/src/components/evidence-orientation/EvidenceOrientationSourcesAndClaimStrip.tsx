@@ -79,6 +79,7 @@ export function EvidenceOrientationSourcesAndClaimStrip({
           intro={sourcesIntro}
           links={sources}
           style={sourcesStyle}
+          distinguishFollowUpDestinations={false}
         />
       )}
 

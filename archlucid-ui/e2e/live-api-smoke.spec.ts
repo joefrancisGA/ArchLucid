@@ -166,7 +166,7 @@ test.describe("live-api-smoke", { tag: ["@founder", "@critical", "@release-smoke
 
     const forward = page.getByRole("button", { name: /^(Continue|Next)$/ });
 
-    await expect(page.getByRole("textbox", { name: "System name" })).toBeVisible({ timeout: 30_000 });
+    await expect(page.getByRole("textbox", { name: "System Name" })).toBeVisible({ timeout: 30_000 });
 
     const description = page.getByRole("textbox", { name: "Description" });
     const descriptionText = (await description.inputValue()).trim();

@@ -10,6 +10,7 @@ import { Separator } from "@/components/ui/separator";
 import { RunWizardCostPreviewCard } from "@/components/wizard/RunWizardCostPreviewCard";
 import { WizardPolicyPackCloudMismatchCallout } from "@/components/wizard/WizardPolicyPackCloudMismatchCallout";
 import { WizardStepPanel } from "@/components/wizard/WizardStepPanel";
+import { GUIDED_INTAKE_STRUCTURED_BRIEF_REQUIRED_CAPABILITIES_LABEL } from "@/lib/guided-intake-copy";
 import { ARCHITECTURE_HINTS_BUYER_LABEL } from "@/lib/usability/canonical-product-terms";
 import { deriveWizardPolicyPackCloudMismatch } from "@/lib/wizard-payload";
 import type { WizardFormValues } from "@/lib/wizard-schema";
@@ -137,7 +138,9 @@ export function WizardStepReview(props: { readonly focusedPilotModeEnabled?: boo
               <li key={c}>{c}</li>
             ))}
           </ul>
-          <p className={cn("mt-2 m-0 text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>Required capabilities</p>
+          <p className={cn("mt-2 m-0 text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>
+            {GUIDED_INTAKE_STRUCTURED_BRIEF_REQUIRED_CAPABILITIES_LABEL}
+          </p>
           <ul className="mt-1 list-disc pl-5">
             {(v.requiredCapabilities ?? []).map((c) => (
               <li key={c}>{c}</li>

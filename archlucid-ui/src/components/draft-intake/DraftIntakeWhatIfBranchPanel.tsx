@@ -18,6 +18,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { branchDraftRequest, getDraftBranchQuota } from "@/lib/api/draft-intake-api";
 import { isApiRequestError } from "@/lib/api-request-error";
 import { formatDraftBranchQuotaSummary } from "@/lib/draft-branch-quota-display";
+import {
+  GUIDED_INTAKE_ARCHITECTURE_INTENT_LABEL,
+  GUIDED_INTAKE_CREATION_BUSINESS_OUTCOME_LABEL,
+  GUIDED_INTAKE_CREATION_SYSTEM_NAME_LABEL,
+} from "@/lib/guided-intake-copy";
 import type { ApiProblemDetails } from "@/lib/api-problem";
 import type {
   BranchDraftResponse,
@@ -38,17 +43,17 @@ const OVERRIDE_KIND_OPTIONS: ReadonlyArray<{
   },
   {
     value: "BusinessOutcome",
-    label: "Business outcome",
+    label: GUIDED_INTAKE_CREATION_BUSINESS_OUTCOME_LABEL,
     description: "Try a different measurable outcome while holding intent fixed.",
   },
   {
     value: "FreeTextIntent",
-    label: "Architecture intent",
+    label: GUIDED_INTAKE_ARCHITECTURE_INTENT_LABEL,
     description: "Try alternate intent wording while holding outcome fixed.",
   },
   {
     value: "SystemName",
-    label: "System name",
+    label: GUIDED_INTAKE_CREATION_SYSTEM_NAME_LABEL,
     description: "Rename the system under review.",
   },
 ];

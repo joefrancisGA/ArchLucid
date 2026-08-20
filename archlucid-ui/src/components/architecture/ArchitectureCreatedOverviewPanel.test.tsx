@@ -124,6 +124,23 @@ alpha|beta|gamma|delta|epsilon|zeta`;
     expect(within(briefDetails).getByText("Submitted brief body")).toBeInTheDocument();
   });
 
+  it("demotes Continue clarifying when Do this next owns the page primary", () => {
+    render(
+      <ArchitectureCreatedOverviewPanel
+        model={buildModel()}
+        sourceText=""
+        userAssertions={null}
+        correctionHref="/architecture/reviews/new?path=guided-intake&rerun=run-abc"
+        openClarificationGapCount={0}
+        onNavigateTab={vi.fn()}
+        submittedArchitectureSection={<div>Submitted brief body</div>}
+        pagePrimaryOwnedElsewhere
+      />,
+    );
+
+    expect(screen.getByTestId("architecture-overview-continue-clarifying").className).toContain("border-neutral-300");
+  });
+
   it("exposes a single clarification control that navigates to the Clarifications tab", () => {
     const onNavigateTab = vi.fn();
     const source = `## Sponsor report

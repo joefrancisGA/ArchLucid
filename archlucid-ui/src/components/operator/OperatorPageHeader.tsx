@@ -41,7 +41,9 @@ export type OperatorPageHeaderProps = {
   /** Optional status tag beside the title (navHref / PageHeading path only). */
   statusBadge?: ReactNode;
   actions?: ReactNode;
-  /** Optional hierarchy trail rendered above the title row. */
+  /**
+   * @deprecated TB-2090: breadcrumbs removed system-wide. Prop is ignored; left nav + titles are wayfinding.
+   */
   breadcrumb?: ReactNode;
   /** Page heading level when `navHref` renders {@link PageHeading}. Defaults to `h2` (shell chrome owns the document `h1`). */
   headingLevel?: "h1" | "h2";
@@ -64,14 +66,12 @@ export function OperatorPageHeader({
   metadata,
   statusBadge,
   actions,
-  breadcrumb,
   headingLevel = "h2",
   children,
 }: OperatorPageHeaderProps) {
   if (navHref !== undefined) {
     return (
       <div className="mb-6">
-        {breadcrumb != null ? <div className="mb-2">{breadcrumb}</div> : null}
         <PageHeading
           navHref={navHref}
           icon={icon}
@@ -96,7 +96,6 @@ export function OperatorPageHeader({
 
   return (
     <header className="mb-6 border-b border-neutral-200 pb-4 dark:border-neutral-800">
-      {breadcrumb != null ? <div className="mb-2">{breadcrumb}</div> : null}
       {eyebrow !== undefined && eyebrow.length > 0 ? (
         <p className={cn("m-0 mb-2", OPERATOR_NAV_GROUP_LABEL)} data-testid="page-heading-eyebrow">
           {eyebrow}

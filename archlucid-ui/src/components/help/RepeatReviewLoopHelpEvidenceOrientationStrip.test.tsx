@@ -1,5 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
+import { expectFollowUpLink } from "@/lib/claim-discipline-test-helpers";
 
 import { RepeatReviewLoopHelpEvidenceOrientationStrip } from "@/components/help/RepeatReviewLoopHelpEvidenceOrientationStrip";
 import {
@@ -17,7 +18,7 @@ describe("RepeatReviewLoopHelpEvidenceOrientationStrip", () => {
     );
 
     for (const source of REPEAT_REVIEW_LOOP_HELP_SOURCES) {
-      expect(screen.getByRole("link", { name: source.label })).toHaveAttribute("href", source.href);
+      expectFollowUpLink(screen, source);
     }
   });
 });

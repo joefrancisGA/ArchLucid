@@ -34,7 +34,7 @@ export async function waitForReviewsNewBaselineSimplifiedWizard(page: Page): Pro
 
 /** ZIP upload prefills identity fields while the wizard stays on the evidence step — go back to verify. */
 export async function expectBaselineWizardSystemNamePrefilled(page: Page, expected: string): Promise<void> {
-  const systemName = page.getByRole("textbox", { name: "System name" });
+  const systemName = page.getByRole("textbox", { name: "System Name" });
 
   if (!(await systemName.isVisible().catch(() => false))) {
     const backButton = page.getByTestId("simplified-pilot-footer").getByRole("button", { name: /^Back$/i });

@@ -1,5 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
+import { expectFollowUpLink, followUpLinkAccessibleName } from "@/lib/claim-discipline-test-helpers";
 
 import { AuthenticationSignInHelpEvidenceOrientationStrip } from "@/components/help/AuthenticationSignInHelpEvidenceOrientationStrip";
 import {
@@ -17,14 +18,18 @@ describe("AuthenticationSignInHelpEvidenceOrientationStrip", () => {
     );
 
     for (const link of AUTHENTICATION_SIGN_IN_HELP_SOURCES) {
-      expect(screen.getByRole("link", { name: link.label })).toHaveAttribute("href", link.href);
+      expectFollowUpLink(screen, link);
     }
 
     expect(AUTHENTICATION_SIGN_IN_HELP_SOURCES).toHaveLength(2);
     expect(screen.queryByRole("link", { name: /enterprise onboarding/i })).toBeNull();
-    expect(screen.getByRole("link", { name: AUTHENTICATION_SIGN_IN_HELP_SSO_SETUP_LINK.label })).toHaveAttribute(
-      "href",
-      AUTHENTICATION_SIGN_IN_HELP_SSO_SETUP_LINK.href,
-    );
+    expect(
+      screen.getByRole("link", {
+        name: followUpLinkAccessibleName(
+          AUTHENTICATION_SIGN_IN_HELP_SSO_SETUP_LINK.href,
+          AUTHENTICATION_SIGN_IN_HELP_SSO_SETUP_LINK.label,
+        ),
+      }),
+    ).toHaveAttribute("href", AUTHENTICATION_SIGN_IN_HELP_SSO_SETUP_LINK.href);
   });
 });

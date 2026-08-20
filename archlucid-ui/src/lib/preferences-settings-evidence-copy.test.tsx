@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 
 import { PreferencesSettingsEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
 import { shouldOmitClaimDisciplineBand } from "@/lib/claim-discipline-policy";
-import { expectClaimDisciplineBand } from "@/lib/claim-discipline-test-helpers";
+import { expectClaimDisciplineBand, expectFollowUpLink } from "@/lib/claim-discipline-test-helpers";
 import {
   PREFERENCES_SETTINGS_CANONICAL_PATH,
   PREFERENCES_SETTINGS_CLAIM_DISCIPLINE,

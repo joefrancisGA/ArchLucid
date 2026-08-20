@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server";
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
   enforceProxyRateLimit,
@@ -38,6 +38,7 @@ describe("enforceProxyRateLimit", () => {
     delete process.env.ARCHLUCID_PROXY_RATE_LIMIT_DISABLED;
     process.env.ARCHLUCID_PROXY_RATE_LIMIT_PER_MINUTE = "3";
     process.env.ARCHLUCID_PROXY_RATE_LIMIT_WINDOW_MS = "60000";
+    vi.stubEnv("NODE_ENV", "production");
     resetProxyRateLimitStateForTests();
   });
 
@@ -45,6 +46,7 @@ describe("enforceProxyRateLimit", () => {
     restoreEnv("ARCHLUCID_PROXY_RATE_LIMIT_DISABLED", savedEnv.DISABLED_LUCID);
     restoreEnv("ARCHLUCID_PROXY_RATE_LIMIT_PER_MINUTE", savedEnv.PER_LUCID);
     restoreEnv("ARCHLUCID_PROXY_RATE_LIMIT_WINDOW_MS", savedEnv.WINDOW_LUCID);
+    vi.unstubAllEnvs();
     resetProxyRateLimitStateForTests();
   });
 
@@ -84,6 +86,19 @@ describe("enforceProxyRateLimit", () => {
     process.env.ARCHLUCID_PROXY_RATE_LIMIT_DISABLED = "true";
     const req = new NextRequest("http://localhost/api/proxy/x", {
       headers: { "x-forwarded-for": "10.0.0.52" },
+    });
+
+    for (let i = 0; i < 10; i++) {
+      expect(enforceProxyRateLimit(req)).toBeNull();
+    }
+  });
+
+  it("no-ops in development when ARCHLUCID_PROXY_RATE_LIMIT_DISABLED is unset", () => {
+    vi.stubEnv("NODE_ENV", "development");
+    delete process.env.ARCHLUCID_PROXY_RATE_LIMIT_DISABLED;
+    resetProxyRateLimitStateForTests();
+    const req = new NextRequest("http://localhost/api/proxy/x", {
+      headers: { "x-forwarded-for": "10.0.0.53" },
     });
 
     for (let i = 0; i < 10; i++) {

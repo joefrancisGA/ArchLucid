@@ -58,7 +58,7 @@ describe("WizardStepConstraints", () => {
     const addsOpen = screen.getAllByRole("button", { name: "Add" });
     expect(addsOpen).toHaveLength(3);
 
-    fireEvent.change(screen.getByLabelText("Required capabilities"), {
+    fireEvent.change(screen.getByLabelText("Required Capabilities"), {
       target: { value: "HTTPS only" },
     });
     fireEvent.click(addsOpen[1]);

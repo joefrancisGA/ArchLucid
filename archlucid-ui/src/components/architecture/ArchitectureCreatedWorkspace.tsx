@@ -69,6 +69,8 @@ export type ArchitectureCreatedWorkspaceProps = {
   readonly findingsTriageVisibleCount?: number;
   readonly panels: ArchitectureCreatedWorkspacePanels;
   readonly correctionHref: string | null;
+  /** When Do this next owns the page primary, demote tab-scoped filled CTAs below the strip. */
+  readonly pagePrimaryOwnedElsewhere?: boolean;
 };
 
 function resolveUserAssertions(
@@ -187,6 +189,7 @@ export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspace
         mode={compactViewportMode}
         diagramClarifyHref={diagramClarifyHref}
         onUnconfirmedInferredCountChange={setDiagramInferredCount}
+        pagePrimaryOwnedElsewhere={props.pagePrimaryOwnedElsewhere}
       />
 
       <Tabs value={activeTab} onValueChange={(value) => navigateTab(resolveArchitectureWorkspaceTab(value))}>
@@ -257,6 +260,7 @@ export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspace
               openClarificationGapCount={clarificationGapCount}
               onNavigateTab={navigateTab}
               submittedArchitectureSection={props.panels.submittedArchitecture}
+              pagePrimaryOwnedElsewhere={props.pagePrimaryOwnedElsewhere}
             />
           </div>
         </TabsContent>
@@ -302,6 +306,7 @@ export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspace
                     onDiagramNodesChange={setDiagramNodes}
                     highlightedNodeId={highlightedNodeId}
                     variant="full"
+                    pagePrimaryOwnedElsewhere={props.pagePrimaryOwnedElsewhere}
                   />
                 }
               />
@@ -317,6 +322,7 @@ export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspace
                 onDiagramNodesChange={setDiagramNodes}
                 highlightedNodeId={null}
                 variant="full"
+                pagePrimaryOwnedElsewhere={props.pagePrimaryOwnedElsewhere}
               />
             )}
           </div>
@@ -335,6 +341,7 @@ export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspace
             dismissedClarificationGapIds={dismissedClarificationGapIds}
             onDismissClarificationGap={dismissClarificationGap}
             onNavigateTab={navigateTab}
+            pagePrimaryOwnedElsewhere={props.pagePrimaryOwnedElsewhere}
           />
         </TabsContent>
 

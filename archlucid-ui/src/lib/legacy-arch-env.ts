@@ -113,7 +113,16 @@ export function readProxyRateLimitDisabled(): boolean {
 
   const raw = process.env.ARCHLUCID_PROXY_RATE_LIMIT_DISABLED?.trim().toLowerCase();
 
-  return raw === "1" || raw === "true" || raw === "yes";
+  if (raw === "1" || raw === "true" || raw === "yes") {
+    return true;
+  }
+
+  if (raw === "0" || raw === "false" || raw === "no") {
+    return false;
+  }
+
+  // `next dev` shares one in-process bucket for all tabs and HMR remounts — keep proxy reads usable locally.
+  return process.env.NODE_ENV === "development";
 }
 
 export function readProxyRateLimitPerMinute(): number {

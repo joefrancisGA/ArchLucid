@@ -4,8 +4,8 @@ import { describe, expect, it } from "vitest";
 import { OperatorPageBreadcrumb } from "@/components/operator/OperatorPageBreadcrumb";
 
 describe("OperatorPageBreadcrumb", () => {
-  it("renders linked parents and a plain-text current page", () => {
-    render(
+  it("renders nothing (TB-2090 system-wide breadcrumb removal)", () => {
+    const { container } = render(
       <OperatorPageBreadcrumb
         items={[
           { label: "Governance", href: "/governance/approval-queue" },
@@ -15,11 +15,7 @@ describe("OperatorPageBreadcrumb", () => {
       />,
     );
 
-    expect(screen.getByRole("navigation", { name: "Breadcrumb" })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Governance" })).toHaveAttribute(
-      "href",
-      "/governance/approval-queue",
-    );
-    expect(screen.getByText("Alert rules")).toHaveAttribute("aria-current", "page");
+    expect(container).toBeEmptyDOMElement();
+    expect(screen.queryByRole("navigation", { name: "Breadcrumb" })).toBeNull();
   });
 });

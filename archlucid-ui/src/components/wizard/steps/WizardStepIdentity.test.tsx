@@ -33,7 +33,7 @@ describe("WizardStepIdentity", () => {
   it("renders system name, environment, cloud provider controls, and manifest baseline behind Advanced Options", () => {
     render(<IdentityHarness />);
 
-    expect(screen.getByLabelText("System name")).toBeInTheDocument();
+    expect(screen.getByLabelText("System Name")).toBeInTheDocument();
     expect(screen.getByText("Environment")).toBeInTheDocument();
     expect(screen.getByText("Cloud target")).toBeInTheDocument();
     expect(screen.queryByLabelText("Prior review record version (optional)")).not.toBeInTheDocument();
@@ -70,7 +70,7 @@ describe("WizardStepIdentity", () => {
   it("surfaces a validation error when system name is cleared and validated", async () => {
     render(<IdentityHarness />);
 
-    const input = screen.getByLabelText("System name");
+    const input = screen.getByLabelText("System Name");
     fireEvent.change(input, { target: { value: "" } });
     fireEvent.blur(input);
 

@@ -1,5 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
+import { expectFollowUpLink } from "@/lib/claim-discipline-test-helpers";
 
 import { ConnectGcpSecurelyHelpEvidenceOrientationStrip } from "@/components/help/ConnectGcpSecurelyHelpEvidenceOrientationStrip";
 import {
@@ -23,7 +24,7 @@ describe("ConnectGcpSecurelyHelpEvidenceOrientationStrip", () => {
     expect(claimDiscipline).toHaveTextContent(CONNECT_GCP_SECURELY_CLAIM_DISCIPLINE);
 
     for (const link of CONNECT_GCP_SECURELY_SOURCES) {
-      expect(screen.getByRole("link", { name: link.label })).toHaveAttribute("href", link.href);
+      expectFollowUpLink(screen, link);
     }
   });
 });

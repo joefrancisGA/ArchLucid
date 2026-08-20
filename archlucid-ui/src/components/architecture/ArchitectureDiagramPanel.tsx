@@ -68,6 +68,8 @@ export type ArchitectureDiagramPanelProps = {
   readonly highlightedNodeId?: string | null;
   /** TB-2201 — publish active node ids/labels for finding ↔ diagram selection sync. */
   readonly onDiagramNodesChange?: (nodes: readonly { id: string; label: string }[]) => void;
+  /** When Do this next owns the page primary, keep tab-scoped follow-ons as outline actions. */
+  readonly pagePrimaryOwnedElsewhere?: boolean;
 };
 
 type PanelPhase = "idle" | "loading" | "ready" | "insufficient" | "invalid" | "error";
@@ -271,18 +273,20 @@ export function ArchitectureDiagramPanel(props: ArchitectureDiagramPanelProps): 
     [cache?.edgeOverrides, inferredReviewLocked, props.runId, runGeneration],
   );
 
+  const clarifyArchitectureVariant = props.pagePrimaryOwnedElsewhere === true ? "outline" : "primary";
+
   const diagramClarifyAction =
     props.onClarificationsNavigate !== undefined ? (
       <Button
         type="button"
-        variant="primary"
+        variant={clarifyArchitectureVariant}
         data-testid="architecture-diagram-clarify-architecture"
         onClick={props.onClarificationsNavigate}
       >
         {ARCHITECTURE_DIAGRAM_CLARIFY_ARCHITECTURE_ACTION}
       </Button>
     ) : props.clarifyHref !== undefined ? (
-      <Button type="button" variant="primary" asChild data-testid="architecture-diagram-clarify-architecture">
+      <Button type="button" variant={clarifyArchitectureVariant} asChild data-testid="architecture-diagram-clarify-architecture">
         <Link href={props.clarifyHref}>{ARCHITECTURE_DIAGRAM_CLARIFY_ARCHITECTURE_ACTION}</Link>
       </Button>
     ) : null;

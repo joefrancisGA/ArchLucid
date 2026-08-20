@@ -3,6 +3,7 @@
 import type { ReactNode } from "react";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
+import { GUIDED_INTAKE_ADVANCED_OPTIONS_LABEL } from "@/lib/guided-intake-copy";
 
 export type DraftIntakeAdvancedSectionProps = {
   readonly children: ReactNode;
@@ -13,7 +14,7 @@ export type DraftIntakeAdvancedSectionProps = {
 export function DraftIntakeAdvancedSection(props: DraftIntakeAdvancedSectionProps) {
   return (
     <CollapsibleSection
-      title="Advanced options"
+      title={GUIDED_INTAKE_ADVANCED_OPTIONS_LABEL}
       defaultOpen={props.defaultOpen === true}
       sectionTestId="draft-intake-advanced-section"
     >

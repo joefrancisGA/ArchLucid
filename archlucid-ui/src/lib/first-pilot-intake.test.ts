@@ -144,7 +144,7 @@ describe("first-pilot-intake", () => {
         limitedEvidenceAnalysisAcknowledged: false,
         l0Must: emptyL0Must,
       }),
-    ).toBe("Architecture context needs at least 100 characters (40 so far), or attach evidence instead.");
+    ).toBe("Architecture Context needs at least 100 characters (40 so far), or attach evidence instead.");
   });
 
   it("describeFirstPilotIntakeGap surfaces L0 gaps once title and evidence are ready", () => {

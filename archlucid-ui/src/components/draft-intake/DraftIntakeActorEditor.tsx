@@ -51,6 +51,7 @@ import {
   GUIDED_INTAKE_SUGGEST_ACTORS_BUTTON,
   GUIDED_INTAKE_SUGGEST_ACTORS_DISABLED_HINT,
   GUIDED_INTAKE_TRUST_BOUNDARY_HINT,
+  GUIDED_INTAKE_TRUST_ORIGIN_LABEL,
 } from "@/lib/guided-intake-copy";
 import type { ActorDescriptor, ActorSet } from "@/types/draft-intake";
 
@@ -398,7 +399,7 @@ export function DraftIntakeActorEditor(props: DraftIntakeActorEditorProps) {
             </div>
 
             <div className={OPERATOR_FORM_FIELD_STACK_CLASS}>
-              <Label htmlFor={`draft-intake-actor-trust-${index}`}>Trust origin</Label>
+              <Label htmlFor={`draft-intake-actor-trust-${index}`}>{GUIDED_INTAKE_TRUST_ORIGIN_LABEL}</Label>
               <Select
                 value={actor.trustOrigin}
                 disabled={panelDisabled}

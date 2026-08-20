@@ -169,6 +169,7 @@ const artifactsExportsSectionEl =
         (m.resolvedDetail.run as { requestId?: string }).requestId
       }
       deliverablesDefaultOpen={false}
+      pagePrimaryOwnedElsewhere
     />
   ) : null;
 
@@ -206,6 +207,7 @@ const evidenceTabPanelEl = (
     blockingFindingId={primaryConcernFindingId}
     blockingFindingTitle={primaryConcernLabel}
     approvalBlocked={blockingApprovalCount > 0}
+    pagePrimaryOwnedElsewhere
   />
 );
 const executiveBottomLineEl =
@@ -240,6 +242,7 @@ const governanceDecisionSectionEl = (
     governanceGateLabel={m.governanceGateLabel}
     blockingFindingCount={blockingApprovalCount}
     hasGovernanceWarnings={m.resolvedDetail.run.hasGovernanceWarnings === true}
+    pagePrimaryOwnedElsewhere
   />
 );
 const submittedArchitectureTabEl = (
@@ -475,7 +478,7 @@ const architectureTabPanelEl = (
                 <RunDetailGenerateAdrFromRunModal input={m.adrGeneratorInput} buyerPolished={false} />
               </div>
             ) : null}
-            {resolveRunDetailSponsorBriefingSection(m)}
+            {resolveRunDetailSponsorBriefingSection(m, { pagePrimaryOwnedElsewhere: true })}
             {m.manifestId ? (
               <RunDetailPostCommitHabitIsland model={m} context={deferredContext} />
             ) : null}
@@ -483,6 +486,7 @@ const architectureTabPanelEl = (
               <RecurrenceSchedulePostCommitCardDeferred
                 runId={m.routeRunId}
                 hasStickinessPrompt={Boolean(m.manifestId)}
+                pagePrimaryOwnedElsewhere
               />
             ) : null}
             {!m.buyerPolishedArtifactTable ? (

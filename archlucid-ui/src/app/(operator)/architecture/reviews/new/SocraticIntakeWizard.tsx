@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 
@@ -7,7 +8,7 @@ import { DraftIntakeActorEditor } from "@/components/draft-intake/DraftIntakeAct
 import { PilotModePolicyPackToggle } from "@/components/wizard/PilotModePolicyPackToggle";
 import { FocusedPilotScopeDisclosureBanner } from "@/components/wizard/FocusedPilotScopeDisclosureBanner";
 import { DraftIntakeClaimLabel } from "@/components/draft-intake/DraftIntakeClaimLabel";
-import { DraftIntakeRequiredClarificationField } from "@/components/draft-intake/DraftIntakeRequiredClarificationField";
+import { DraftIntakeRequiredClarificationField, REQUIRED_CLARIFICATION_BASELINE_LABEL } from "@/components/draft-intake/DraftIntakeRequiredClarificationField";
 import { InlineMetadataLabel } from "@/components/InlineMetadataLabel";
 import { ReviewIntakeExampleTemplateCallout } from "@/components/review-intake/ReviewIntakeExampleTemplateCallout";
 import { ReviewStartLoadingButton } from "@/components/review-intake/ReviewStartLoadingButton";
@@ -18,6 +19,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { WizardStepper } from "@/components/wizard/WizardStepper";
 import { WizardSessionResumePrompt } from "@/components/wizard/WizardSessionResumePrompt";
 import { WizardSessionSaveStatus } from "@/components/wizard/WizardSessionSaveStatus";
 import { LlmMonthlyBudgetExceededBanner } from "@/components/llm/LlmMonthlyBudgetExceededBanner";
@@ -32,8 +34,8 @@ import {
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
 import {
-  WIZARD_STICKY_PROGRESS_CLASS,
-  WIZARD_STICKY_PROGRESS_TEST_ID,
+  WIZARD_STICKY_FOOTER_CLASS,
+  WIZARD_STICKY_FOOTER_TEST_ID,
 } from "@/lib/wizard-sticky-progress";
 import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer/buyer-polish-copy";
 import {
@@ -48,11 +50,13 @@ import {
   GUIDED_INTAKE_CREATION_STEP1_CARD_DESCRIPTION,
   GUIDED_INTAKE_CREATION_SYSTEM_NAME_LABEL,
   GUIDED_INTAKE_CREATION_SYSTEM_NAME_PLACEHOLDER,
+  GUIDED_INTAKE_REVIEW_ANSWERS_DISABLED_HINT,
   GUIDED_INTAKE_SOURCE_ARCHITECTURE_HINT_LEAD,
   GUIDED_INTAKE_SOURCE_ARCHITECTURE_HINT_TAIL,
   GUIDED_INTAKE_STEP2_SUBMIT_DESCRIPTION,
   GUIDED_INTAKE_WHAT_IF_BRANCH_HINT_LEAD,
   guidedIntakeArchitectureIntentHelperText,
+  guidedIntakeClarificationsAnsweredCounter,
   guidedIntakeCreationArchitectureOverviewHelperText,
 } from "@/lib/guided-intake-copy";
 
@@ -62,7 +66,7 @@ import {
 } from "./SocraticIntakeWizardDeferredPanels";
 import { GuidedIntakeRequestError } from "./GuidedIntakeRequestError";
 import { IntakeFieldLabel } from "@/components/intake/IntakeFieldLabel";
-import { INTAKE_STEPS, MIN_OUTCOME_CHARS } from "./guided-intake-steps";
+import { INTAKE_STEPS, INTAKE_WIZARD_STEPPER_STEPS, MIN_OUTCOME_CHARS } from "./guided-intake-steps";
 import { useGuidedIntakeWizard } from "./use-guided-intake-wizard";
 
 /** Guided intake: write the brief, answer required clarifications, submit the review package. */
@@ -118,6 +122,9 @@ export function SocraticIntakeWizard() {
     totalRequiredClarifications,
     activePendingQuestions,
     resolvedClarificationCount,
+    handledClarificationCount,
+    getClarificationOrdinal,
+    getClarificationStatus,
     primaryPendingQuestion,
     otherPendingQuestions,
     allClarificationsHandled,
@@ -135,11 +142,57 @@ export function SocraticIntakeWizard() {
     policyPackCloudMismatch,
   } = useGuidedIntakeWizard();
 
+  const completedWizardSteps = useMemo(
+    () => Array.from({ length: step }, (_, index) => index),
+    [step],
+  );
+
+  function renderClarificationField(
+    question: (typeof pendingQuestions)[number],
+    options: {
+      readonly isPrimary: boolean;
+      readonly isFocused: boolean;
+    },
+  ): React.JSX.Element {
+    const questionKey = question.questionKey;
+
+    return (
+      <DraftIntakeRequiredClarificationField
+        key={questionKey}
+        question={question}
+        answer={answers[questionKey] ?? ""}
+        busy={busy}
+        clarificationIndex={getClarificationOrdinal(questionKey)}
+        clarificationTotal={totalRequiredClarifications}
+        isPrimary={options.isPrimary}
+        isFocused={options.isFocused}
+        compactActions={viewAllClarifications}
+        showAllMode={viewAllClarifications}
+        showBaselineLabel={false}
+        clarificationStatus={getClarificationStatus(questionKey)}
+        canSaveAndContinue={(answers[questionKey]?.trim() ?? "").length > 0}
+        onAnswerChange={(nextQuestionKey, value) => {
+          setAnswers((current) => ({
+            ...current,
+            [nextQuestionKey]: value,
+          }));
+        }}
+        onSaveAndContinue={(nextQuestionKey) => {
+          saveAndContinue(nextQuestionKey);
+        }}
+        onSkip={(nextQuestionKey) => {
+          void skipQuestion(nextQuestionKey);
+        }}
+      />
+    );
+  }
+
   return (
     <div
-      className={cn("space-y-4", isCreateArchitectureFlow && "max-w-3xl")}
+      className={cn(OPERATOR_LAYOUT.mainWithStickyAside)}
       data-testid="socratic-intake-wizard"
     >
+      <div className="min-w-0 space-y-4">
       {wizardSession.pendingRestore !== null ? (
         <WizardSessionResumePrompt
           onResume={wizardSession.acceptRestore}
@@ -153,21 +206,21 @@ export function SocraticIntakeWizard() {
         />
       </div>
       {!isCreateArchitectureFlow ? (
-        <div
-          className={WIZARD_STICKY_PROGRESS_CLASS}
-          data-testid={WIZARD_STICKY_PROGRESS_TEST_ID}
-        >
-          <p
-            className={cn(OPERATOR_TYPOGRAPHY.helper, "m-0 text-neutral-600 dark:text-neutral-400")}
-            data-testid="socratic-intake-progress"
-          >
-            {stepLabel} — {INTAKE_STEPS[step]?.progressLabel}
-          </p>
-        </div>
-      ) : null}
-      {!isCreateArchitectureFlow ? (
-        <DraftIntakeClaimLabel surface="structural-admission" />
-      ) : null}
+        <WizardStepper
+          steps={[...INTAKE_WIZARD_STEPPER_STEPS]}
+          currentStep={step}
+          completedSteps={completedWizardSteps}
+        />
+      ) : (
+        <WizardStepper
+          steps={[...INTAKE_WIZARD_STEPPER_STEPS]}
+          currentStep={step}
+          completedSteps={completedWizardSteps}
+        />
+      )}
+      <DraftIntakeClaimLabel
+        surface={isCreateArchitectureFlow ? "architecture-creation-draft" : "structural-admission"}
+      />
 
       {exampleTemplate !== null ? <ReviewIntakeExampleTemplateCallout template={exampleTemplate} /> : null}
 
@@ -328,7 +381,7 @@ export function SocraticIntakeWizard() {
             ) : (
               <>
                 <div className={OPERATOR_FORM_FIELD_STACK_CLASS}>
-                  <IntakeFieldLabel htmlFor="socratic-system-name" label="System name" required={false} />
+                  <IntakeFieldLabel htmlFor="socratic-system-name" label={GUIDED_INTAKE_CREATION_SYSTEM_NAME_LABEL} required={false} />
                   <Input
                     id="socratic-system-name"
                     value={systemName}
@@ -338,7 +391,7 @@ export function SocraticIntakeWizard() {
                   />
                 </div>
                 <div className={OPERATOR_FORM_FIELD_STACK_CLASS}>
-                  <IntakeFieldLabel htmlFor="socratic-outcome" label="Business outcome" required />
+                  <IntakeFieldLabel htmlFor="socratic-outcome" label={GUIDED_INTAKE_CREATION_BUSINESS_OUTCOME_LABEL} required />
                   <Textarea
                     id="socratic-outcome"
                     value={businessOutcome}

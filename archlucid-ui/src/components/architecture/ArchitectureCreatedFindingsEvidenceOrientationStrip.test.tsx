@@ -1,5 +1,6 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
+import { expectFollowUpLink } from "@/lib/claim-discipline-test-helpers";
 
 import { ArchitectureCreatedFindingsEvidenceOrientationStrip } from "@/components/architecture/ArchitectureCreatedFindingsEvidenceOrientationStrip";
 import { ARCHITECTURE_CREATED_FINDINGS_SOURCES } from "@/lib/architecture/architecture-created-findings-sources";
@@ -12,7 +13,7 @@ describe("ArchitectureCreatedFindingsEvidenceOrientationStrip", () => {
     expect(screen.getByTestId("architecture-findings-claim-discipline")).toBeInTheDocument();
 
     for (const link of ARCHITECTURE_CREATED_FINDINGS_SOURCES) {
-      expect(screen.getByRole("link", { name: link.label })).toHaveAttribute("href", link.href);
+      expectFollowUpLink(screen, link);
     }
 
     expect(screen.getByText(/not a signed-record Sources trail/i)).toBeInTheDocument();

@@ -93,7 +93,9 @@ Do **not** use “Evidence trail” as the title, tab, or destination pill for `
 
 ### Capitalization
 
-**Sentence case everywhere**, matching Carbon and Fluent: page titles, section headings, tabs, table column headers, buttons, links, status tags, empty states, and form labels. Capitalize only the first word plus proper nouns and product-surface names that are already capitalized elsewhere (Trust Center, Evidence graph, Architecture Decision Record). Never Title Case a heading or CTA (“Start Review” → “Start review”).
+**Sentence case** for page titles, section headings, tabs, table column headers, buttons, links, status tags, empty states, and helper/body copy, matching Carbon and Fluent. Capitalize only the first word plus proper nouns and product-surface names that are already capitalized elsewhere (Trust Center, Evidence graph, Architecture Decision Record). Never Title Case a CTA (“Start Review” → “Start review”).
+
+**Form field labels** are the exception: Title Case each significant word (`System Name`, `Architecture Overview`, `Business Outcome`). Keep short function words lowercase (`Primary System or Architecture`, `People in Scope`). Owner direction 2026-08-20: the second word of two-word labels is capitalized.
 
 **After a colon**, capitalize when a complete sentence follows; stay lowercase when the colon introduces a fragment, value, or list. This follows the Microsoft Writing Style Guide, and matches Chicago's exception for a colon introducing one or more full sentences.
 

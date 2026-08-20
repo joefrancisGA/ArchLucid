@@ -149,4 +149,40 @@ describe("ArchitectureCreatedWorkspace", () => {
 
     expect(screen.getByTestId("architecture-workspace-tab-clarifications")).toHaveTextContent("2");
   });
+
+  it("demotes compact first-viewport primary action when Do this next owns the page primary", () => {
+    render(
+      <ArchitectureCreatedWorkspace
+        baseline={{
+          runId: "run-1",
+          architectureName: "Claims platform",
+          architectureOverview: "A governed workflow platform for analysts with auditable evidence trails.",
+          businessOutcome: "Reduce manual triage time.",
+          peopleAndSystems: [{ label: "Analyst", kind: "Human" }],
+          ownerLabel: "owner@example.com",
+          lastUpdatedLabel: "Jul 11, 2026",
+          workspaceStatus: { label: "Draft", kind: "draft", statusTagKind: "neutral" },
+          assessmentInProgress: false,
+          hasArtifacts: false,
+          correctionHref: "/architecture/reviews/new?path=guided-intake&rerun=run-1",
+          gapAssertion: { businessOutcome: true, peopleAndSystems: true },
+          gapSourceCapturedAtUtc: null,
+        }}
+        architectureSourceText="Generated architecture body"
+        canEditDiagram
+        findings={[]}
+        correctionHref="/architecture/reviews/new?path=guided-intake&rerun=run-1"
+        pagePrimaryOwnedElsewhere
+        panels={{
+          findings: <div data-testid="findings-panel-slot">Findings</div>,
+          evidence: <div data-testid="evidence-panel-slot">Evidence</div>,
+          governance: <div data-testid="governance-panel-slot">Governance</div>,
+          activity: <div data-testid="activity-panel-slot">Activity</div>,
+          submittedArchitecture: <div data-testid="submitted-panel-slot">Submitted</div>,
+        }}
+      />,
+    );
+
+    expect(screen.getByTestId("architecture-created-primary-action").className).toContain("border-neutral-300");
+  });
 });

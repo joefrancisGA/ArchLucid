@@ -13,6 +13,7 @@ import {
   CLOUD_CONNECTIONS_HELP_TIER_1,
   CLOUD_CONNECTIONS_HELP_TIER_2,
 } from "@/lib/cloud-connections-help-guide-content";
+import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
 function renderCloudConnectionsGuide(markdown = "# Cloud connections\n\nOptional connectors for read-only evidence.\n"): void {
@@ -138,7 +139,8 @@ describe("HelpCloudConnectionsGuideView (HCE)", () => {
     expect(within(actionPanel).queryByRole("button")).toBeNull();
 
     for (const link of CLOUD_CONNECTIONS_HELP_FOLLOW_UP_LINKS) {
-      const matches = within(actionPanel).getAllByRole("link", { name: link.label });
+      const accessibleName = formatHelpFollowUpLinkAccessibleName(link.href, link.label);
+      const matches = within(actionPanel).getAllByRole("link", { name: accessibleName });
 
       expect(matches.some((anchor) => anchor.getAttribute("href") === link.href)).toBe(true);
     }

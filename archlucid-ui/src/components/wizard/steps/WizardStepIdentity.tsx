@@ -21,6 +21,7 @@ import {
   CLOUD_NEUTRAL_PRIMARY_COPY,
   WIZARD_CLOUD_PROVIDER_OPTIONS,
 } from "@/lib/cloud-neutral-primary-copy";
+import { GUIDED_INTAKE_CREATION_SYSTEM_NAME_LABEL } from "@/lib/guided-intake-copy";
 import type { WizardFormValues } from "@/lib/wizard-schema";
 
 const ENVIRONMENT_OPTIONS = [
@@ -52,7 +53,7 @@ export function WizardStepIdentity() {
         <div className={OPERATOR_FORM_FIELD_STACK_CLASS}>
           <WizardFieldHint
             htmlFor="wizard-systemName"
-            label="System name"
+            label={GUIDED_INTAKE_CREATION_SYSTEM_NAME_LABEL}
             hint="Short project slug, e.g. OrderService. Used as the ingestion project ID."
           />
           <Input

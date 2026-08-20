@@ -13,6 +13,7 @@ import { Separator } from "@/components/ui/separator";
 import { WizardFieldError } from "@/components/wizard/WizardFieldError";
 import { WizardFieldHint } from "@/components/wizard/WizardFieldHint";
 import { WizardStepPanel } from "@/components/wizard/WizardStepPanel";
+import { GUIDED_INTAKE_STRUCTURED_BRIEF_REQUIRED_CAPABILITIES_LABEL } from "@/lib/guided-intake-copy";
 import { useWizardAiSuggestedFields, type WizardAiSuggestedFieldName } from "@/lib/wizard-ai-suggested-fields";
 import type { WizardFormValues } from "@/lib/wizard-schema";
 
@@ -132,7 +133,7 @@ export function WizardStepConstraints() {
         <AdvancedOptionsAccordion className="mt-2">
           <ChipListBlock
             fieldName="requiredCapabilities"
-            label="Required capabilities"
+            label={GUIDED_INTAKE_STRUCTURED_BRIEF_REQUIRED_CAPABILITIES_LABEL}
             hint="What the system must support — e.g. HTTPS ingress, managed database, observability."
             inputId="wizard-capabilities-draft"
           />
