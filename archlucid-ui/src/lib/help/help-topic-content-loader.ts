@@ -47,6 +47,7 @@ export const HELP_APP_GUIDED_TOPIC_SLUGS = [
   "architecture-intelligence",
   "sponsor-dashboard",
   "architecture-drafts",
+  "structured-brief",
   "model-governance",
   "jira-integration",
   "servicenow-integration",

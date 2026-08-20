@@ -769,6 +769,16 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     releaseApplicability: "architecture drafts orientation",
   },
   {
+    slug: "structured-brief",
+    title: "Structured brief fields",
+    summary:
+      "How to fill constraints, assumptions, required capabilities, and quality attributes before evidence intake.",
+    audience: "operator",
+    sourcePaths: [],
+    lastReviewed: "2026-08-20",
+    releaseApplicability: "architecture draft structured brief orientation",
+  },
+  {
     slug: "model-governance",
     title: "AI and model governance",
     summary: "Workspace execution profiles, approved model aliases, and profile mappings used on reviews.",

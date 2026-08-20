@@ -1,6 +1,8 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { ApiRequestError } from "@/lib/api-request-error";
+
 const getDraftRequest = vi.fn();
 const getRunSummary = vi.fn();
 const saveDraft = vi.fn();
@@ -228,6 +230,9 @@ describe("ArchitectureDraftWorkspace", () => {
     });
 
     expect(screen.queryByTestId("architecture-draft-autosave-reassurance")).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: BUYER_START_ARCHITECTURE_REVIEW_CTA })).toBeDisabled();
+    expect(screen.getByTestId("architecture-scope-understanding-confirm")).toBeDisabled();
+    expect(screen.getByTestId("architecture-draft-review-readiness")).toBeInTheDocument();
   });
 
   it("shows browser-local resume drafts on /new when registry entries exist (TB-1459)", async () => {
@@ -319,6 +324,44 @@ describe("ArchitectureDraftWorkspace", () => {
     await waitFor(() => {
       expect(screen.getByTestId("architecture-draft-workspace")).toBeInTheDocument();
     });
+  });
+
+  it("loads an existing draft only once per architecture id on mount", async () => {
+    getDraftRequest.mockResolvedValue({
+      ...spawnedDraft,
+      status: "Drafting",
+      spawnedRunId: null,
+      document: { ...spawnedDraft.document, workflowIntent: "create-architecture" },
+    });
+
+    render(<ArchitectureDraftWorkspace architectureId="arch-001" />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-draft-workspace")).toBeInTheDocument();
+    });
+
+    expect(getDraftRequest).toHaveBeenCalledTimes(1);
+    expect(getDraftRequest).toHaveBeenCalledWith("arch-001");
+  });
+
+  it("surfaces proxy rate-limit copy when draft load returns 429", async () => {
+    getDraftRequest.mockRejectedValue(
+      new ApiRequestError("Too many requests", {
+        problem: null,
+        correlationId: "cid-429",
+        httpStatus: 429,
+        retryAfterSeconds: 12,
+      }),
+    );
+
+    render(<ArchitectureDraftWorkspace architectureId="arch-001" />);
+
+    await waitFor(() => {
+      expect(screen.getByRole("alert")).toHaveTextContent(/Too many requests while loading this draft/i);
+    });
+
+    expect(screen.getByRole("alert")).toHaveTextContent(/Wait about 12 seconds/i);
+    expect(getDraftRequest).toHaveBeenCalledTimes(1);
   });
 
   it("omits back-to-list wayfinding on loaded edit routes — the sidebar is the return path", async () => {
@@ -584,7 +627,7 @@ describe("ArchitectureDraftWorkspace", () => {
     });
 
     expect(screen.getByTestId("architecture-draft-review-readiness")).toHaveTextContent(
-      /Add architecture overview and business outcome/i,
+      /architecture overview of at least/i,
     );
     expect(screen.getByTestId("architecture-draft-intent")).toHaveAttribute("aria-invalid", "true");
     expect(screen.getByTestId("architecture-draft-outcome")).toHaveAttribute("aria-invalid", "true");

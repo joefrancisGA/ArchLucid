@@ -2,6 +2,7 @@ import {
   GUIDED_INTAKE_ARCHITECTURE_INTENT_MIN_CHARS,
 } from "@/lib/guided-intake-copy";
 
+import type { ArchitectureReviewReadinessBlockerId } from "./architecture-review-readiness-copy";
 import type { ArchitectureDraftStructuredBriefState } from "./architecture-draft-structured-brief";
 import {
   hasConfirmedActor,
@@ -21,7 +22,7 @@ export type ArchitectureDraftFieldState = {
 
 export type ArchitectureDraftValidationResult = {
   readonly isValid: boolean;
-  readonly blockers: readonly string[];
+  readonly blockers: readonly ArchitectureReviewReadinessBlockerId[];
 };
 
 /** True when the operator entered content worth a first server persist (deferred-create gate). */
@@ -40,14 +41,14 @@ export function hasArchitectureDraftSaveableContent(fields: ArchitectureDraftFie
 export function validateArchitectureDraftIntegrity(
   fields: ArchitectureDraftFieldState,
 ): ArchitectureDraftValidationResult {
-  const blockers: string[] = [];
+  const blockers: ArchitectureReviewReadinessBlockerId[] = [];
 
   if (fields.freeTextIntent.trim().length > 0 && fields.freeTextIntent.trim().length < GUIDED_INTAKE_ARCHITECTURE_INTENT_MIN_CHARS) {
-    blockers.push("architecture overview format");
+    blockers.push("architecture-overview");
   }
 
   if (fields.businessOutcome.trim().length > 0 && fields.businessOutcome.trim().length < MIN_OUTCOME_CHARS) {
-    blockers.push("business outcome format");
+    blockers.push("business-outcome");
   }
 
   return {
@@ -60,18 +61,18 @@ export function validateArchitectureReviewReadiness(
   fields: ArchitectureDraftFieldState,
   actors: readonly ActorDescriptor[] = [],
 ): ArchitectureDraftValidationResult {
-  const blockers: string[] = [];
+  const blockers: ArchitectureReviewReadinessBlockerId[] = [];
 
   if (fields.systemName.trim().length === 0) {
-    blockers.push("system name");
+    blockers.push("system-name");
   }
 
   if (fields.freeTextIntent.trim().length < GUIDED_INTAKE_ARCHITECTURE_INTENT_MIN_CHARS) {
-    blockers.push("architecture overview");
+    blockers.push("architecture-overview");
   }
 
   if (fields.businessOutcome.trim().length < MIN_OUTCOME_CHARS) {
-    blockers.push("business outcome");
+    blockers.push("business-outcome");
   }
 
   if (!listHasConfirmedEntry(fields.structuredBrief.confirmedConstraints)) {
@@ -83,11 +84,11 @@ export function validateArchitectureReviewReadiness(
   }
 
   if (!hasConfirmedActor(actors)) {
-    blockers.push("confirmed actor");
+    blockers.push("confirmed-actor");
   }
 
   if (!qualityAttributeMeetsMinimum(fields.structuredBrief.qualityAttribute)) {
-    blockers.push("quality attributes with at least one numeric target");
+    blockers.push("quality-attributes");
   }
 
   return {

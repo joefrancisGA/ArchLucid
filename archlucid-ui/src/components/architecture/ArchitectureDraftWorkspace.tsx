@@ -53,6 +53,7 @@ import {
   validateArchitectureReviewReadiness,
   type ArchitectureDraftFieldState,
 } from "@/lib/architecture/architecture-draft-readiness";
+import { formatArchitectureReviewReadinessMessage } from "@/lib/architecture/architecture-review-readiness-copy";
 import { emptyArchitectureDraftStructuredBrief } from "@/lib/architecture/architecture-draft-structured-brief";
 import { architectureDraftDetailPageSubtitle } from "@/lib/architecture/architecture-draft-detail-page-copy";
 import { architecturesNewWorkspaceLead } from "@/lib/architectures-new-page-copy";
@@ -65,6 +66,7 @@ import {
 } from "@/lib/architecture/architecture-routes";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { getRunSummary } from "@/lib/api/architecture-runs";
+import { isApiRequestError } from "@/lib/api-request-error";
 import { getDraftRequest, patchDraftRequest } from "@/lib/api/draft-intake-api";
 import {
   mergeScopeBulletsIntoBrief,
@@ -112,6 +114,8 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
   const [registryHydrated, setRegistryHydrated] = useState(false);
   const previousSaveStateRef = useRef<ArchitectureDraftSaveState>("saved");
   const exitTimeoutIdRef = useRef<number | null>(null);
+  const loadDraftInFlightRef = useRef<Promise<void> | null>(null);
+  const loadDraftRef = useRef<() => Promise<void>>(async () => undefined);
   const reviewStartProgress = useReviewStartNavigationProgress();
 
   const linkedReviewId = architectureDraftSpawnedRunId(draft);
@@ -218,40 +222,68 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
       return;
     }
 
-    setLoading(true);
-    setLoadError(null);
+    if (loadDraftInFlightRef.current !== null) {
+      return loadDraftInFlightRef.current;
+    }
+
+    const loadPromise = (async () => {
+      setLoading(true);
+      setLoadError(null);
+
+      try {
+        const loaded = await getDraftRequest(props.architectureId);
+
+        if (loaded.document.workflowIntent !== undefined && loaded.document.workflowIntent !== CREATE_ARCHITECTURE_INTENT) {
+          // Draft exists but is not a create-architecture draft — still allow editing with create intent on save.
+        }
+
+        const formState = applyLoadedDraftToForm(loaded);
+        // Match autosave baseline to the hydrated form so reload does not look "unsaved"
+        // and accidentally PATCH empty system name / business outcome over the server copy.
+        acceptServerBaselineRef.current(formState, loaded.updatedUtc);
+        setHandoffAcknowledged(isArchitectureDraftHandoffAcknowledged(props.architectureId));
+        upsertArchitectureDraftRegistryEntry(
+          buildArchitectureDraftRegistryEntry(loaded, {
+            linkedReviewId: architectureDraftSpawnedRunId(loaded),
+          }),
+        );
+      } catch (err) {
+        if (isApiRequestError(err) && err.httpStatus === 429) {
+          const waitSec = err.retryAfterSeconds;
+          const waitHint =
+            waitSec !== null && waitSec > 0
+              ? ` Wait about ${waitSec} second${waitSec === 1 ? "" : "s"}, then retry.`
+              : " Wait a short time, then retry.";
+
+          setLoadError(`Too many requests while loading this draft.${waitHint}`);
+        } else {
+          setLoadError("Could not load this architecture draft.");
+        }
+      } finally {
+        setLoading(false);
+      }
+    })();
+
+    loadDraftInFlightRef.current = loadPromise;
 
     try {
-      const loaded = await getDraftRequest(props.architectureId);
-
-      if (loaded.document.workflowIntent !== undefined && loaded.document.workflowIntent !== CREATE_ARCHITECTURE_INTENT) {
-        // Draft exists but is not a create-architecture draft — still allow editing with create intent on save.
-      }
-
-      const formState = applyLoadedDraftToForm(loaded);
-      // Match autosave baseline to the hydrated form so reload does not look "unsaved"
-      // and accidentally PATCH empty system name / business outcome over the server copy.
-      acceptServerBaseline(formState, loaded.updatedUtc);
-      setHandoffAcknowledged(isArchitectureDraftHandoffAcknowledged(props.architectureId));
-      upsertArchitectureDraftRegistryEntry(
-        buildArchitectureDraftRegistryEntry(loaded, {
-          linkedReviewId: architectureDraftSpawnedRunId(loaded),
-        }),
-      );
-    } catch {
-      setLoadError("Could not load this architecture draft.");
+      await loadPromise;
     } finally {
-      setLoading(false);
+      if (loadDraftInFlightRef.current === loadPromise) {
+        loadDraftInFlightRef.current = null;
+      }
     }
-  }, [acceptServerBaseline, applyLoadedDraftToForm, isNewDraft, props.architectureId]);
+  }, [applyLoadedDraftToForm, isNewDraft, props.architectureId]);
+
+  loadDraftRef.current = loadDraft;
 
   useEffect(() => {
     if (isNewDraft) {
       return;
     }
 
-    void loadDraft();
-  }, [isNewDraft, loadDraft]);
+    void loadDraftRef.current();
+  }, [isNewDraft, props.architectureId]);
 
   useEffect(() => {
     if (linkedReviewId === null) {
@@ -568,6 +600,7 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
         <ArchitectureScopeUnderstandingCheckPanel
           input={scopeUnderstandingInput}
           disabled={handoffEditorLocked || exitPending || reviewStartProgress.isPending}
+          draftSaveState={saveState}
           onBulletsChange={setScopeBullets}
           onGateChange={setScopeGateOpen}
         />
@@ -584,7 +617,7 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
             role="alert"
             data-testid="architecture-draft-review-readiness"
           >
-            Add {reviewReadiness.blockers.join(" and ")} before starting a review.
+            {formatArchitectureReviewReadinessMessage(reviewReadiness.blockers)}
           </p>
         ) : null}
         {linkedReviewId === null && reviewReadiness.isValid && needsPersistedDraftBeforeStart ? (

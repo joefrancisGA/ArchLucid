@@ -4,6 +4,8 @@ import type { Dispatch, SetStateAction } from "react";
 import { useState } from "react";
 
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
+import { InAppHelpLink } from "@/components/InAppHelpLink";
+import { StructuredBriefCapabilitiesQualityVocabularyRail } from "@/components/StructuredBriefCapabilitiesQualityVocabularyRail";
 import { IntakeFieldLabel } from "@/components/intake/IntakeFieldLabel";
 import { IntakeTextField } from "@/components/intake/IntakeTextField";
 import { Badge } from "@/components/ui/badge";
@@ -15,7 +17,12 @@ import type { ApiProblemDetails } from "@/lib/api-problem";
 import {
   ARCHITECTURE_DRAFT_UNKNOWN_CONFIRM_LABEL,
   applyIncomingStructuredBriefSuggestions,
+  areConfirmedFactControlsDisabled,
+  confirmedFactControlsDisabledReason,
+  isMarkUnknownControlDisabled,
   joinQualityAttributeEntries,
+  markUnknownDisabledReason,
+  mergeExclusiveConfirmedItem,
   mergeUniqueStrings,
   parseQualityAttributeEntries,
   qualityAttributeMeetsMinimum,
@@ -32,6 +39,8 @@ import {
   GUIDED_INTAKE_STRUCTURED_BRIEF_QUALITY_ATTRIBUTES_HINT,
   GUIDED_INTAKE_STRUCTURED_BRIEF_QUALITY_ATTRIBUTES_LABEL,
   GUIDED_INTAKE_STRUCTURED_BRIEF_QUALITY_ATTRIBUTES_PLACEHOLDER,
+  GUIDED_INTAKE_STRUCTURED_BRIEF_REQUIRED_CAPABILITIES_LABEL,
+  GUIDED_INTAKE_STRUCTURED_BRIEF_SECTION_LABEL,
   GUIDED_INTAKE_STRUCTURED_BRIEF_SUGGEST_EMPTY,
   GUIDED_INTAKE_STRUCTURED_BRIEF_SUGGEST_EDITOR_LOCKED_HINT,
   guidedIntakeStructuredBriefSuggestDisabledHint,
@@ -57,7 +66,7 @@ function addConfirmedListItem(
 ): void {
   onStructuredBriefChange((current) => ({
     ...current,
-    [confirmedKey]: mergeUniqueStrings(current[confirmedKey], [value]),
+    [confirmedKey]: mergeExclusiveConfirmedItem(current[confirmedKey], value),
     [suggestedKey]: current[suggestedKey].filter((item) => item !== value),
   }));
 }
@@ -81,7 +90,7 @@ function confirmSuggestedListItem(
 ): void {
   onStructuredBriefChange((current) => ({
     ...current,
-    [confirmedKey]: mergeUniqueStrings(current[confirmedKey], [value]),
+    [confirmedKey]: mergeExclusiveConfirmedItem(current[confirmedKey], value),
     [suggestedKey]: current[suggestedKey].filter((item) => item !== value),
   }));
 }
@@ -107,13 +116,32 @@ function ConfirmableChipList(props: {
   readonly allowMarkUnknown?: boolean;
   readonly inputPlaceholder?: string;
   readonly emptyMessage?: string;
+  readonly helpSlug?: string;
+  readonly helpHashFragment?: string;
+  readonly helpLabel?: string;
   readonly onAdd: (value: string) => void;
   readonly onRemove: (index: number) => void;
   readonly onConfirmSuggested: (value: string) => void;
 }): React.JSX.Element {
   const [draft, setDraft] = useState("");
+  const isRequired = props.required !== false;
+  const allowMarkUnknown = props.allowMarkUnknown !== false;
+  const inputPlaceholder = props.inputPlaceholder ?? "Type and Add";
+  const emptyMessage = props.emptyMessage ?? "No confirmed items yet.";
+  const factControlsDisabled = areConfirmedFactControlsDisabled(
+    props.items,
+    props.disabled,
+    allowMarkUnknown,
+  );
+  const markUnknownDisabled = isMarkUnknownControlDisabled(props.items, props.disabled);
+  const factControlsTitle = confirmedFactControlsDisabledReason(props.items, allowMarkUnknown);
+  const markUnknownTitle = markUnknownDisabledReason(props.items);
 
   const addDraft = () => {
+    if (factControlsDisabled) {
+      return;
+    }
+
     const trimmed = draft.trim();
 
     if (trimmed.length === 0) {
@@ -124,11 +152,6 @@ function ConfirmableChipList(props: {
     setDraft("");
   };
 
-  const isRequired = props.required !== false;
-  const allowMarkUnknown = props.allowMarkUnknown !== false;
-  const inputPlaceholder = props.inputPlaceholder ?? "Type and Add";
-  const emptyMessage = props.emptyMessage ?? "No confirmed items yet.";
-
   return (
     <div className="space-y-2" data-testid={props.inputId}>
       <IntakeFieldLabel
@@ -137,6 +160,16 @@ function ConfirmableChipList(props: {
         required={isRequired}
       />
       <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper, "text-neutral-600 dark:text-neutral-400")}>{props.hint}</p>
+      {props.helpSlug !== undefined && props.helpLabel !== undefined ? (
+        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper, "text-neutral-600 dark:text-neutral-400")}>
+          <InAppHelpLink
+            helpSlug={props.helpSlug}
+            hashFragment={props.helpHashFragment}
+            label={props.helpLabel}
+            variant="text"
+          />
+        </p>
+      ) : null}
       <div className="flex flex-wrap gap-2">
         <Input
           id={`${props.inputId}-input`}
@@ -150,7 +183,8 @@ function ConfirmableChipList(props: {
               addDraft();
             }
           }}
-          disabled={props.disabled}
+          disabled={factControlsDisabled}
+          title={factControlsTitle}
           className="max-w-md min-w-[12rem] flex-1"
           placeholder={inputPlaceholder}
           aria-invalid={props.invalid}
@@ -158,7 +192,8 @@ function ConfirmableChipList(props: {
         <Button
           type="button"
           variant="secondary"
-          disabled={props.disabled}
+          disabled={factControlsDisabled}
+          title={factControlsTitle}
           data-testid={`${props.inputId}-add`}
           onClick={addDraft}
         >
@@ -168,7 +203,8 @@ function ConfirmableChipList(props: {
           <Button
             type="button"
             variant="outline"
-            disabled={props.disabled}
+            disabled={markUnknownDisabled}
+            title={markUnknownTitle}
             data-testid={`${props.inputId}-mark-unknown`}
             onClick={() => {
               props.onAdd(ARCHITECTURE_DRAFT_UNKNOWN_CONFIRM_LABEL);
@@ -201,7 +237,8 @@ function ConfirmableChipList(props: {
                     variant="outline"
                     size="sm"
                     className="h-6 px-1"
-                    disabled={props.disabled}
+                    disabled={factControlsDisabled}
+                    title={factControlsTitle}
                     onClick={() => {
                       props.onConfirmSuggested(item);
                     }}
@@ -341,7 +378,7 @@ export function ArchitectureDraftStructuredBriefFields(
     <div className="space-y-6" data-testid="architecture-draft-structured-brief-fields">
       <div className="space-y-2">
         <p className={cn("m-0", OPERATOR_FORM_FIELD_LABEL_CLASS)}>
-          Structured brief
+          {GUIDED_INTAKE_STRUCTURED_BRIEF_SECTION_LABEL}
         </p>
         <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper, "text-neutral-600 dark:text-neutral-400")}>
           Confirm constraints and assumptions so review engines do not invent them from free text alone.
@@ -421,6 +458,8 @@ export function ArchitectureDraftStructuredBriefFields(
         ) : null}
       </div>
 
+      <StructuredBriefCapabilitiesQualityVocabularyRail currentSurfaceId="architecture-draft-structured-brief" />
+
       <ConfirmableChipList
         label="Constraints"
         hint="Hard limits the architecture must not violate — budget, regions, compliance, or mark unknown."
@@ -470,7 +509,7 @@ export function ArchitectureDraftStructuredBriefFields(
       />
 
       <ConfirmableChipList
-        label="Required capabilities"
+        label={GUIDED_INTAKE_STRUCTURED_BRIEF_REQUIRED_CAPABILITIES_LABEL}
         hint="Platform traits the design must support — for example HTTPS ingress, managed database, or observability."
         inputId="architecture-draft-capabilities"
         items={brief.confirmedRequiredCapabilities}
@@ -478,6 +517,9 @@ export function ArchitectureDraftStructuredBriefFields(
         invalid={false}
         required={false}
         disabled={props.disabled === true}
+        helpSlug="structured-brief"
+        helpHashFragment="field-concepts"
+        helpLabel="Read required capabilities help"
         onAdd={(value) => {
           addConfirmedListItem(
             props.onStructuredBriefChange,
@@ -505,6 +547,9 @@ export function ArchitectureDraftStructuredBriefFields(
         allowMarkUnknown={false}
         emptyMessage="No quality attributes yet."
         disabled={props.disabled === true}
+        helpSlug="structured-brief"
+        helpHashFragment="field-concepts"
+        helpLabel="Read quality attributes help"
         onAdd={(value) => {
           props.onStructuredBriefChange((current) => ({
             ...current,

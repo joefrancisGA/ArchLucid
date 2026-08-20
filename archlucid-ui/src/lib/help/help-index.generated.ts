@@ -64,6 +64,13 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
   {
     "docPath": "docs/library/CONFIGURATION_REFERENCE.md",
     "docTitle": "Configuration reference",
+    "sectionSlug": "itsm-inbound-webhooks-integrationsitsminbound-tb-396",
+    "sectionHeading": "ITSM inbound webhooks (`Integrations:ItsmInbound`, TB-396)",
+    "excerpt": "Jira and ServiceNow inbound status webhooks authenticate with shared secrets (or per-tenant connector secrets when `AllowDeploymentWideWebhookSecrets` is `false`). When a correlated external ticket changes state, ArchLucid updates `FindingRecords.HumanReviewStatus` on the scoped snapshot row. Optional disposition ma…"
+  },
+  {
+    "docPath": "docs/library/CONFIGURATION_REFERENCE.md",
+    "docTitle": "Configuration reference",
     "sectionSlug": "tooling",
     "sectionHeading": "Tooling",
     "excerpt": "- Validate locally: `archlucid config check` (add `--no-api` to skip the API snapshot; use global `--json` for machine-readable output; exit `0` when all required keys for the current mode are set, exit `4` when not). - Auth / production-like traps (`ArchLucidAuth:Mode`, bypass flags): `archlucid config lint` (runs …"
@@ -1599,7 +1606,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "residuals-honest-30",
     "sectionHeading": "Residuals (honest)",
-    "excerpt": "- TB-1560 owns honesty CI for CI-guarantees-compat / Sunset-always-on overclaims. - Optional product follow-ons: `oasdiff`, CLI surface snapshot, enable Sunset in prod — not claimed as shipped. - This handout does not claim CPA SOC 2 or a published third-party penetration test."
+    "excerpt": "- TB-1560 Done — honesty CI (`check_rest_cli_breaking_change_compat_honesty.py`) guards CI-guarantees-compat / Sunset-always-on overclaims. - Optional product follow-ons: `oasdiff`, CLI surface snapshot, enable Sunset in prod — not claimed as shipped. - This handout does not claim CPA SOC 2 or a published third-part…"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
@@ -2537,7 +2544,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "pa-review-30",
     "sectionHeading": "PA review",
-    "excerpt": "1. Ask which rung the buyer will open and whether ladder UI labels the `/see-it` ↔ `/live-demo` relationship (TB-1267 / TB-1282). 2. Confirm offline curated fallback is not narrated as a live API session. 3. Confirm Contoso payload is not under Claims chrome. 4. Treat “ladder done” while TB-1267 / TB-1282 / TB-1029 …"
+    "excerpt": "1. Ask which rung the buyer will open and whether ladder UI labels the `/see-it` ↔ `/live-demo` relationship (TB-1267 / TB-1282). 2. Confirm offline curated fallback is not narrated as a live API session. 3. Confirm Contoso payload is not under Claims chrome. 4. Treat “ladder done” while TB-1029 or mode-chip / hero-…"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
@@ -2551,7 +2558,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "residuals-honest-50",
     "sectionHeading": "Residuals (honest)",
-    "excerpt": "- TB-1427 Done (2026-08-09) — fused ladder + claim-honesty contract published in [`../library/LIVE_DEMO_SEE_IT_LADDER_HONESTY.md`](../library/LIVE_DEMO_SEE_IT_LADDER_HONESTY.md). - TB-1428 owns anti-live-demo-as-live / ladder-closed language guards (depends on TB-1427). - UI ship remains on TB-1266–TB-1269 / TB-1281…"
+    "excerpt": "- TB-1427 Done (2026-08-09) — fused ladder + claim-honesty contract published in [`../library/LIVE_DEMO_SEE_IT_LADDER_HONESTY.md`](../library/LIVE_DEMO_SEE_IT_LADDER_HONESTY.md). - TB-1428 Done (2026-08-14) — anti-live-demo-as-live / ladder-closed language guard CI (`scripts/ci/check_live_demo_see_it_ladder_honesty.…"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
