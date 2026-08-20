@@ -39,6 +39,7 @@ import {
   GUIDED_INTAKE_STRUCTURED_BRIEF_QUALITY_ATTRIBUTES_HINT,
   GUIDED_INTAKE_STRUCTURED_BRIEF_QUALITY_ATTRIBUTES_LABEL,
   GUIDED_INTAKE_STRUCTURED_BRIEF_QUALITY_ATTRIBUTES_PLACEHOLDER,
+  GUIDED_INTAKE_STRUCTURED_BRIEF_REQUIRED_CAPABILITIES_HINT,
   GUIDED_INTAKE_STRUCTURED_BRIEF_REQUIRED_CAPABILITIES_LABEL,
   GUIDED_INTAKE_STRUCTURED_BRIEF_SECTION_LABEL,
   GUIDED_INTAKE_STRUCTURED_BRIEF_SUGGEST_EMPTY,
@@ -510,7 +511,7 @@ export function ArchitectureDraftStructuredBriefFields(
 
       <ConfirmableChipList
         label={GUIDED_INTAKE_STRUCTURED_BRIEF_REQUIRED_CAPABILITIES_LABEL}
-        hint="Platform traits the design must support — for example HTTPS ingress, managed database, or observability."
+        hint={GUIDED_INTAKE_STRUCTURED_BRIEF_REQUIRED_CAPABILITIES_HINT}
         inputId="architecture-draft-capabilities"
         items={brief.confirmedRequiredCapabilities}
         suggestedItems={brief.suggestedRequiredCapabilities}

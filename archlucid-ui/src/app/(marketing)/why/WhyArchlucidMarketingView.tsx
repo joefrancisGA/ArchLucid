@@ -385,7 +385,7 @@ export function WhyArchlucidMarketingView({ frontDoorRows }: WhyArchlucidMarketi
           </Button>
         </div>
         <p className={cn("mt-4 text-neutral-600 dark:text-neutral-400", MARKETING_TYPOGRAPHY.meta)}>
-          For sponsor-ready language and procurement context, see the{" "}
+          For export-ready language and procurement context, see the{" "}
           <Link className={MARKETING_SURFACES.inlineLink} href="/get-started">
             getting started guide
           </Link>

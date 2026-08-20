@@ -14,10 +14,10 @@ export const STRUCTURED_BRIEF_CAPABILITIES_QUALITY_HEADING =
   "Required capabilities and quality attributes are different" as const;
 
 export const STRUCTURED_BRIEF_CAPABILITIES_QUALITY_WHY_TWO =
-  "Required capabilities name platform traits the design must support — for example HTTPS ingress, managed database, or observability. Quality attributes state how well the system must perform — with a numeric target such as RTO 4h or p95 latency 200ms when you have one, or a qualitative target such as defense in depth when a number does not apply. Capabilities describe what must exist; quality attributes describe how good it must be." as const;
+  "Required capabilities name traits the design must support — for example HTTPS ingress, managed database, or observability. Quality attributes state how well the system must perform — with a numeric target such as RTO 4h or p95 latency 200ms when you have one, or a qualitative target such as defense in depth when a number does not apply. Capabilities describe what must exist; quality attributes describe how good it must be." as const;
 
 export const STRUCTURED_BRIEF_CAPABILITIES_QUALITY_COMPACT_LINE =
-  "Capabilities name platform traits; quality attributes describe performance or resilience targets." as const;
+  "Capabilities name traits; quality attributes describe performance or resilience targets." as const;
 
 export function buildStructuredBriefCapabilitiesQualityVocabulary(): StructuredBriefCapabilitiesQualityVocabularyModel {
   return {

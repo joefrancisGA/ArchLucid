@@ -60,7 +60,7 @@ export const FIRST_WEEK_ROUTE_GUIDANCE: Record<FirstWeekRouteGuidanceVariant, Fi
   "new-review": {
     useWhen: "You have enough context to start an architecture review.",
     bridgeCopy:
-      "ArchLucid produces a defensible review — committed findings, evidence trail, and sponsor-ready exports. Default to evidence-only (no cloud target) unless you attach cloud inventory output.",
+      "ArchLucid produces a defensible review — committed findings, evidence trail, and export-ready outputs. Default to evidence-only (no cloud target) unless you attach cloud inventory output.",
     operateDeferralNote:
       "Policy packs and deeper governance can wait until after your first committed package. Cloud inventory ZIP is optional — see the InfoSec pre-read if security must approve the read-only script.",
   },
@@ -72,7 +72,7 @@ export const FIRST_WEEK_ROUTE_GUIDANCE: Record<FirstWeekRouteGuidanceVariant, Fi
   },
   "review-detail-in-progress": BUYER_REVIEW_DETAIL_IN_PROGRESS_GUIDANCE,
   "review-detail-committed": {
-    useWhen: "The review is finalized and you need sponsor-ready exports or a board summary.",
+    useWhen: "The review is finalized and you need export-ready outputs or a board summary.",
     bridgeCopy:
       "This review is complete — use the exports section in Review when you need deliverables for sponsors or auditors.",
     // Primary CTA lives in ReviewPackageDoThisNextStrip above this callout.

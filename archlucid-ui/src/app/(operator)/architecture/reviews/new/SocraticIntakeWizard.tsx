@@ -81,7 +81,6 @@ export function SocraticIntakeWizard() {
     blocksLlmExecution,
     step,
     setStep,
-    stepLabel,
     wizardSession,
     // Brief form
     freeTextIntent,
@@ -121,7 +120,6 @@ export function SocraticIntakeWizard() {
     setViewAllClarifications,
     totalRequiredClarifications,
     activePendingQuestions,
-    resolvedClarificationCount,
     handledClarificationCount,
     getClarificationOrdinal,
     getClarificationStatus,
@@ -205,19 +203,11 @@ export function SocraticIntakeWizard() {
           lastSavedUtc={wizardSession.lastSavedUtc}
         />
       </div>
-      {!isCreateArchitectureFlow ? (
-        <WizardStepper
-          steps={[...INTAKE_WIZARD_STEPPER_STEPS]}
-          currentStep={step}
-          completedSteps={completedWizardSteps}
-        />
-      ) : (
-        <WizardStepper
-          steps={[...INTAKE_WIZARD_STEPPER_STEPS]}
-          currentStep={step}
-          completedSteps={completedWizardSteps}
-        />
-      )}
+      <WizardStepper
+        steps={[...INTAKE_WIZARD_STEPPER_STEPS]}
+        currentStep={step}
+        completedSteps={completedWizardSteps}
+      />
       <DraftIntakeClaimLabel
         surface={isCreateArchitectureFlow ? "architecture-creation-draft" : "structural-admission"}
       />
@@ -483,33 +473,20 @@ export function SocraticIntakeWizard() {
                 ? "Your answers stay with the architecture draft until you choose to start a review."
                 : "Your answers will be included when you review and submit."}
             </CardDescription>
+            <p
+              className={cn("m-0 pt-1 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="socratic-clarifications-baseline-label"
+            >
+              {REQUIRED_CLARIFICATION_BASELINE_LABEL}
+            </p>
           </CardHeader>
           <CardContent className={OPERATOR_LAYOUT.sectionStack}>
-            {primaryPendingQuestion !== null ? (
-              <DraftIntakeRequiredClarificationField
-                key={primaryPendingQuestion.questionKey}
-                question={primaryPendingQuestion}
-                answer={answers[primaryPendingQuestion.questionKey] ?? ""}
-                busy={busy}
-                clarificationIndex={resolvedClarificationCount + 1}
-                clarificationTotal={totalRequiredClarifications}
-                isPrimary
-                compactActions={viewAllClarifications}
-                canSaveAndContinue={(answers[primaryPendingQuestion.questionKey]?.trim() ?? "").length > 0}
-                onAnswerChange={(questionKey, value) => {
-                  setAnswers((current) => ({
-                    ...current,
-                    [questionKey]: value,
-                  }));
-                }}
-                onSaveAndContinue={(questionKey) => {
-                  saveAndContinue(questionKey);
-                }}
-                onSkip={(questionKey) => {
-                  void skipQuestion(questionKey);
-                }}
-              />
-            ) : null}
+            {primaryPendingQuestion !== null
+              ? renderClarificationField(primaryPendingQuestion, {
+                  isPrimary: true,
+                  isFocused: !viewAllClarifications,
+                })
+              : null}
 
             {pendingQuestions.length > 1 ? (
               <Button
@@ -533,31 +510,12 @@ export function SocraticIntakeWizard() {
                 <p className={cn("m-0 font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.tab)}>
                   Other clarifications
                 </p>
-                {otherPendingQuestions.map((question, index) => (
-                  <DraftIntakeRequiredClarificationField
-                    key={question.questionKey}
-                    question={question}
-                    answer={answers[question.questionKey] ?? ""}
-                    busy={busy}
-                    clarificationIndex={resolvedClarificationCount + index + 2}
-                    clarificationTotal={totalRequiredClarifications}
-                    isPrimary={false}
-                    compactActions
-                    canSaveAndContinue={(answers[question.questionKey]?.trim() ?? "").length > 0}
-                    onAnswerChange={(questionKey, value) => {
-                      setAnswers((current) => ({
-                        ...current,
-                        [questionKey]: value,
-                      }));
-                    }}
-                    onSaveAndContinue={(questionKey) => {
-                      saveAndContinue(questionKey);
-                    }}
-                    onSkip={(questionKey) => {
-                      void skipQuestion(questionKey);
-                    }}
-                  />
-                ))}
+                {otherPendingQuestions.map((question) =>
+                  renderClarificationField(question, {
+                    isPrimary: false,
+                    isFocused: false,
+                  }),
+                )}
               </div>
             ) : null}
 
@@ -565,48 +523,54 @@ export function SocraticIntakeWizard() {
               Answer or skip each clarification. You can review everything before starting the architecture review.
             </p>
 
-            <div className={OPERATOR_FORM_FIELD_STACK_CLASS}>
-              {!allClarificationsHandled ? (
-                <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)} data-testid="socratic-review-answers-hint">
-                  Handle all required clarifications first.
-                </p>
-              ) : null}
-              {submitError !== null ? <GuidedIntakeRequestError error={submitError} /> : null}
-              <Button
-                type="button"
-                variant={allClarificationsHandled ? "primary" : "outline"}
-                disabled={!canReviewAnswers}
-                onClick={() => {
-                  if (pendingQuestions.length === 0) {
-                    setStep(2);
-                    return;
-                  }
-
-                  void reviewAnswers();
-                }}
-                data-testid="socratic-questions-done"
-              >
-                {busy ? "Saving answers…" : "Review answers"}
-              </Button>
-            </div>
+            {submitError !== null ? <GuidedIntakeRequestError error={submitError} /> : null}
           </CardContent>
         </Card>
       ) : null}
 
-      {draftId !== null && step === 1 ? (
-        <SocraticIntakeWizardAdvancedRail
-          draftId={draftId}
-          busy={busy}
-          blocksLlmExecution={blocksLlmExecution}
-          freeTextIntent={freeTextIntent}
-          businessOutcome={businessOutcome}
-          systemName={systemName}
-          allQuestions={allQuestions}
-          pendingQuestions={pendingQuestions}
-          onBranched={(response) => {
-            void applyBranchDraft(response);
-          }}
-        />
+      {step === 1 ? (
+        <div
+          className={WIZARD_STICKY_FOOTER_CLASS}
+          data-testid={WIZARD_STICKY_FOOTER_TEST_ID}
+        >
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="space-y-1">
+              <p
+                className={cn("m-0 font-medium text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}
+                data-testid="socratic-clarifications-answered-counter"
+              >
+                {guidedIntakeClarificationsAnsweredCounter(
+                  handledClarificationCount,
+                  totalRequiredClarifications,
+                )}
+              </p>
+              {!allClarificationsHandled ? (
+                <p
+                  className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
+                  data-testid="socratic-review-answers-hint"
+                >
+                  {GUIDED_INTAKE_REVIEW_ANSWERS_DISABLED_HINT}
+                </p>
+              ) : null}
+            </div>
+            <Button
+              type="button"
+              variant="primary"
+              disabled={!canReviewAnswers}
+              onClick={() => {
+                if (pendingQuestions.length === 0) {
+                  setStep(2);
+                  return;
+                }
+
+                void reviewAnswers();
+              }}
+              data-testid="socratic-questions-done"
+            >
+              {busy ? "Saving answers…" : "Review answers"}
+            </Button>
+          </div>
+        </div>
       ) : null}
 
       {step === 2 ? (
@@ -672,6 +636,29 @@ export function SocraticIntakeWizard() {
           </CardContent>
         </Card>
       ) : null}
+      </div>
+
+      <aside
+        className={cn(OPERATOR_LAYOUT.stickyAsideTop, "hidden min-w-0 lg:block")}
+        data-testid="socratic-intake-context-rail"
+        data-operator-side-rail-kind="working-object"
+      >
+        {draftId !== null && step >= 1 ? (
+          <SocraticIntakeWizardAdvancedRail
+            draftId={draftId}
+            busy={busy}
+            blocksLlmExecution={blocksLlmExecution}
+            freeTextIntent={freeTextIntent}
+            businessOutcome={businessOutcome}
+            systemName={systemName}
+            allQuestions={allQuestions}
+            pendingQuestions={pendingQuestions}
+            onBranched={(response) => {
+              void applyBranchDraft(response);
+            }}
+          />
+        ) : null}
+      </aside>
     </div>
   );
 }

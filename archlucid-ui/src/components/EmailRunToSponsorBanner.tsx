@@ -158,7 +158,7 @@ export function EmailRunToSponsorBanner({
         >
           pilot ROI estimate assumptions
         </a>
-        .{buyerPolishedShell ? " Downloads and readiness checks are split below." : " Use the exports below for sponsor-ready collateral."}
+        .{buyerPolishedShell ? " Downloads and readiness checks are split below." : " Use the exports below for export-ready collateral."}
       </p>
 
       {proofGate.status === "ok" ? (

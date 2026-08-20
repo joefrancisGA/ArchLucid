@@ -98,7 +98,7 @@ export function tryStaticDemoGovernancePromotions(runId: string): GovernanceProm
       targetEnvironment: "test",
       promotedBy: "Taylor Morgan",
       approvalRequestId: "customer-intake-approval-001",
-      notes: "Governed-use record aligned with this architecture review.",
+      notes: "Official use record aligned with this architecture review.",
       promotedUtc: "2026-01-14T22:06:00.000Z",
     },
   ];

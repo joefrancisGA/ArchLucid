@@ -113,7 +113,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
       class="mt-3 max-w-3xl text-[17px] font-normal leading-7 text-al-text-primary text-al-text-secondary"
       data-testid="why-outcome-led-value-proposition"
     >
-      Cut architecture review cycle time with an evidence-backed proof export — sealed review record, findings, audit trail, and sponsor-ready readout — not a chat transcript.
+      Cut architecture review cycle time with an evidence-backed proof export — sealed review record, findings, audit trail, and export-ready readout — not a chat transcript.
     </p>
   </section>
   <div
@@ -1449,7 +1449,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
     <p
       class="mt-4 dark:text-neutral-400 text-[15px] font-normal leading-6 text-al-text-secondary"
     >
-      For sponsor-ready language and procurement context, see the
+      For export-ready language and procurement context, see the
        
       <a
         class="font-medium text-[var(--al-accent-link)] underline underline-offset-2 hover:text-[var(--al-accent-link-hover)]"

@@ -128,6 +128,9 @@ export const GUIDED_INTAKE_STRUCTURED_BRIEF_SECTION_LABEL = "Structured Brief";
 
 export const GUIDED_INTAKE_STRUCTURED_BRIEF_REQUIRED_CAPABILITIES_LABEL = "Required Capabilities";
 
+export const GUIDED_INTAKE_STRUCTURED_BRIEF_REQUIRED_CAPABILITIES_HINT =
+  "Traits the design must support — for example HTTPS ingress, managed database, or observability.";
+
 export const GUIDED_INTAKE_STRUCTURED_BRIEF_QUALITY_ATTRIBUTES_LABEL = "Quality Attributes";
 
 export const GUIDED_INTAKE_TRUST_ORIGIN_LABEL = "Trust Origin";

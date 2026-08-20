@@ -121,7 +121,7 @@ export function WizardStepConstraints() {
   return (
     <WizardStepPanel
       title="Constraints, capabilities & assumptions"
-      description="Capture hard limits, required platform traits, and safe assumptions for agents."
+      description="Capture hard limits, required traits, and safe assumptions for agents."
     >
       <div className="space-y-8">
         <ChipListBlock

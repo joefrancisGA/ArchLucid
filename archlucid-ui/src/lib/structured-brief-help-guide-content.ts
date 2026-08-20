@@ -58,7 +58,7 @@ export const STRUCTURED_BRIEF_HELP_CONCEPT_ITEMS: readonly StructuredBriefHelpCo
   },
   {
     label: GUIDED_INTAKE_STRUCTURED_BRIEF_REQUIRED_CAPABILITIES_LABEL,
-    detail: "Platform traits the architecture must support — not performance numbers.",
+    detail: "Traits the architecture must support — not performance numbers.",
     examples: ["HTTPS ingress", "Managed relational database", "Centralized audit logging"],
     antiPatterns: ["Fast", "Highly available"],
   },

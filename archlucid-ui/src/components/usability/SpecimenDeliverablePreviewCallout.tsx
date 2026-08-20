@@ -15,7 +15,7 @@ import {
 import { cn } from "@/lib/utils";
 
 export type SpecimenDeliverablePreviewCalloutProps = {
-  readonly variant?: "section" | "compact";
+  readonly variant?: "section" | "compact" | "header-links";
   readonly sectionTestId?: string;
 };
 
@@ -25,6 +25,29 @@ export function SpecimenDeliverablePreviewCallout(
 ): React.JSX.Element {
   const variant = props.variant ?? "section";
   const sectionTestId = props.sectionTestId ?? "reviews-new-specimen-preview";
+
+  if (variant === "header-links") {
+    return (
+      <>
+        <span className="text-al-text-secondary"> · </span>
+        <Link
+          href={showcaseSpecimenSignedReviewRecordHref()}
+          className={cn(OPERATOR_LINK.nav, OPERATOR_TYPOGRAPHY.helper)}
+          data-testid={`${sectionTestId}-primary-link`}
+        >
+          {REVIEWS_NEW_SPECIMEN_PREVIEW_PRIMARY_CTA}
+        </Link>
+        <span className="text-al-text-secondary"> · </span>
+        <Link
+          href={showcaseSpecimenFindingsHref()}
+          className={cn(OPERATOR_LINK.nav, OPERATOR_TYPOGRAPHY.helper)}
+          data-testid={`${sectionTestId}-findings-link`}
+        >
+          {REVIEWS_NEW_SPECIMEN_PREVIEW_FINDINGS_LINK}
+        </Link>
+      </>
+    );
+  }
 
   if (variant === "compact") {
     return (

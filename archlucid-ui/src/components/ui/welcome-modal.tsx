@@ -73,7 +73,7 @@ const BUYER_WELCOME_STEPS: ReadonlyArray<StepDef> = [
   {
     title: "Start from sponsor report",
     description:
-      "Open the sponsor workspace first for sponsor-ready posture and citations; drill into sealed review record, evidence traceability, and deliverables when you need deeper proof.",
+      "Open the sponsor workspace first for export-ready posture and citations; drill into sealed review record, evidence traceability, and deliverables when you need deeper proof.",
     Icon: Users,
   },
   {

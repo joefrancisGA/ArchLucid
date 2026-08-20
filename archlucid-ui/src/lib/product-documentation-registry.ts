@@ -146,7 +146,7 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     slug: "review-packages",
     title: REVIEW_PACKAGES_HELP_PAGE_TITLE,
     summary:
-      "Find architecture packages in Reviews, inspect findings and evidence, and export sponsor-ready artifacts.",
+      "Find architecture packages in Reviews, inspect findings and evidence, and share export-ready artifacts.",
     audience: "operator",
     sourcePaths: ["docs/library/customer-facing/REVIEW_PACKAGES_OPERATOR_GUIDE.md"],
     lastReviewed: "2026-08-11",
@@ -435,7 +435,7 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     slug: "first-architecture-review",
     title: FIRST_ARCHITECTURE_REVIEW_PAGE_TITLE,
     summary:
-      "Your guided path from evidence intake to a finalized architecture review and sponsor-ready exports.",
+      "Your guided path from evidence intake to a finalized architecture review and export-ready outputs.",
     audience: "buyer",
     sourcePaths: ["docs/CORE_PILOT.md"],
     pdfStatus: "public",

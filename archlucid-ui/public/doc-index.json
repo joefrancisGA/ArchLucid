@@ -301,7 +301,7 @@
   },
   {
     "title": "Your first architecture review",
-    "summary": "Your guided path from evidence intake to a finalized architecture review and sponsor-ready exports.",
+    "summary": "Your guided path from evidence intake to a finalized architecture review and export-ready outputs.",
     "category": "Go-to-Market",
     "url": "/help/first-architecture-review"
   },
@@ -355,7 +355,7 @@
   },
   {
     "title": "Architecture packages",
-    "summary": "Find architecture packages in Reviews, inspect findings and evidence, and export sponsor-ready artifacts.",
+    "summary": "Find architecture packages in Reviews, inspect findings and evidence, and share export-ready artifacts.",
     "category": "Operations",
     "url": "/help/review-packages"
   },

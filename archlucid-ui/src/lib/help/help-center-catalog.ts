@@ -101,7 +101,7 @@ const HELP_CENTER_DISPLAY_OVERRIDES: Readonly<Partial<Record<string, HelpCenterD
   "first-architecture-review": {
     title: FIRST_ARCHITECTURE_REVIEW_PAGE_TITLE,
     summary:
-      "Your guided path from evidence intake to a finalized architecture review and sponsor-ready exports.",
+      "Your guided path from evidence intake to a finalized architecture review and export-ready outputs.",
   },
   "repeat-review-loop": {
     title: REPEAT_REVIEW_LOOP_HELP_PAGE_TITLE,
