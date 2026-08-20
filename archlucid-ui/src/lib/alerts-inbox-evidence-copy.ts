@@ -14,7 +14,7 @@ export const ALERTS_INBOX_CLAIM_DISCIPLINE =
   "Alert inbox is where raised alerts land for triage — not a full audit export. Open Findings, Audit, or Alert rules for resolution history or alert setup.";
 
 export const ALERTS_INBOX_SOURCES_INTRO = hubSecondaryFollowUpsIntro(
-  "inbox triage turns into finding resolution, rule configuration, or activity trails",
+  "inbox triage turns into finding resolution, rule configuration, or activity records",
 );
 
 

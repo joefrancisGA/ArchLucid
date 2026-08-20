@@ -17,7 +17,7 @@ export const SPONSOR_WORKSPACE_HEALTH_PAGE_TITLE = TENANT_SYSTEM_WORKSPACE_HEALT
 export const SPONSOR_WORKSPACE_HEALTH_HEADING_ID = "sponsor-workspace-health-heading";
 
 export const SPONSOR_WORKSPACE_HEALTH_PAGE_LEAD_BUYER =
-  "Governance posture at a glance for your current workspace scope — counts and trends only.";
+  "Approval status at a glance for your current workspace scope — counts and trends only.";
 
 export const SPONSOR_WORKSPACE_HEALTH_PAGE_LEAD_OPERATOR =
   "Pre-commit posture, severity exposure, compliance drift, approval SLAs, and a hours-first value proxy — all within your current workspace scope.";

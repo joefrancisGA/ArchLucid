@@ -93,7 +93,7 @@ export function resolveRepeatReviewActivation(input: {
       {
         label: "Sponsor value report",
         href: "/insights/sponsor-report",
-        reason: "Sponsor-safe ROI rollup with source labels and freshness disposition.",
+        reason: "Export-ready ROI rollup with source labels and freshness status.",
       },
       {
         label: REPEAT_REVIEW_LOOP_HELP_INBOUND_LABEL,

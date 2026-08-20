@@ -17,7 +17,7 @@ export const HELP_HUB_CLAIM_DISCIPLINE =
  "Help Center orients you to guides and documentation — not a full audit export. Open a specialty guide, Audit, or Assurance status when you need official records.";
 
 export const HELP_HUB_SOURCES_INTRO =
- "Use these follow-ups when browsing Help turns into workflow orientation, assurance, or activity trails.";
+ "Use these follow-ups when browsing Help turns into workflow orientation, assurance, or activity records.";
 
 
 /** Operator Sources — no self-href to the Help hub. */

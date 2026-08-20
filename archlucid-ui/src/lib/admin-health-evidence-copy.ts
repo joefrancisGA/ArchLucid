@@ -9,7 +9,7 @@ export const ADMIN_HEALTH_HELP_TOPIC_LABEL = "How admin diagnostics work" as con
 export const ADMIN_HEALTH_FOLLOW_UPS_TITLE = "Where to go next";
 
 export const ADMIN_HEALTH_SOURCES_INTRO =
-  "Use these follow-ups when diagnostics need customer-facing readiness, activity trails, or troubleshooting guides.";
+  "Use these follow-ups when diagnostics need customer-facing readiness, activity records, or troubleshooting guides.";
 
 
 /** Operator Sources — no self-href to /internal/health. */

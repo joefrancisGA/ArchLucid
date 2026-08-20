@@ -45,7 +45,7 @@ export const API_KEYS_HELP_ACTION_PANEL_ID = "not-in-this-release-what-to-use-in
 export const API_KEYS_HELP_ACTION_PANEL_TITLE = "Not in this release — what to use instead";
 
 export const API_KEYS_HELP_ACTION_PANEL_INTRO =
-  "Use these live follow-ups when automation credential questions need membership controls, scripting guidance, or governed audit trails.";
+  "Use these live follow-ups when automation credential questions need membership controls, scripting guidance, or official activity records.";
 
 export type ApiKeysHelpItem = {
   readonly label: string;

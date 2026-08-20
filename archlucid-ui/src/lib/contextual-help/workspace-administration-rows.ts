@@ -78,7 +78,7 @@ export const WORKSPACE_ADMINISTRATION_CONTEXTUAL_HELP_ROWS: readonly PageContext
       whatIsThisPage:
         "Operator Security & Trust — procurement-oriented materials, tenant isolation posture, retention notes, and NDA-gated diligence requests for this workspace.",
       whatToDoNext:
-        "Open Assurance status or Trust Center for assurance surfaces, or Audit when you need governed activity trails.",
+        "Open Assurance status or Trust Center for assurance surfaces, or Audit when you need official activity records.",
       whyEmpty:
         "Public materials list here when published; NDA-gated packs require contacting security@archlucid.net.",
       whereToConfigurePrerequisite:

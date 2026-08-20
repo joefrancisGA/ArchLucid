@@ -71,7 +71,7 @@ export const IMPACT_PREVIEW_COMPARISON_SCOPE_LABEL = "Comparison scope" as const
 export const IMPACT_PREVIEW_SCOPE_FINDINGS = "Findings" as const;
 export const IMPACT_PREVIEW_SCOPE_RISK = "Risk" as const;
 export const IMPACT_PREVIEW_SCOPE_COST = "Cost" as const;
-export const IMPACT_PREVIEW_SCOPE_GOVERNANCE = "Governance posture" as const;
+export const IMPACT_PREVIEW_SCOPE_GOVERNANCE = "Approval impact" as const;
 export const IMPACT_PREVIEW_SCOPE_EVIDENCE = "Evidence affected" as const;
 
 export const IMPACT_PREVIEW_OUTPUT_PREVIEW_TITLE = "Impact preview will show" as const;
@@ -79,7 +79,7 @@ export const IMPACT_PREVIEW_OUTPUT_PREVIEW_ITEMS = [
   "Expected finding changes",
   "Risk changes",
   "Cost or effort estimate",
-  "Governance posture changes",
+  "Approval impact changes",
   "Affected evidence and decisions",
   "Recommended next actions",
 ] as const;

@@ -76,7 +76,7 @@ export const NOTIFICATIONS_HELP_WORKED_EXAMPLES: readonly NotificationsHelpWorke
   {
     scenario: "Audit trail entry",
     detail:
-      "Subscription changes, integration updates, and alert routing edits append governed audit trail entries — open Audit when you need accountability context.",
+      "Subscription changes, integration updates, and alert routing edits append official audit trail entries — open Audit when you need accountability context.",
   },
 ] as const;
 

@@ -23,7 +23,7 @@ export const GOVERNANCE_FINDINGS_CLAIM_HEADING = "What the findings queue is not
 export const GOVERNANCE_FINDINGS_FOLLOW_UPS_TITLE = HUB_SECONDARY_FOLLOW_UPS_TITLES.governanceFindings;
 
 export const GOVERNANCE_FINDINGS_SOURCES_INTRO = hubSecondaryFollowUpsIntro(
-  "queue triage turns into package detail, evidence search, or activity trails",
+  "queue triage turns into package detail, evidence search, or activity records",
 );
 
 

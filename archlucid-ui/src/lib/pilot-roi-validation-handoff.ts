@@ -148,7 +148,7 @@ export function buildPilotRoiValidationChecklistMarkdown(
     "## Persisted signals (from pilot-run-deltas)",
     "",
     `- ROI evidence confidence: ${roi.tier} — ${roi.meaning}`,
-    `- Projected dollar claims sponsor-safe: ${dollarSafe ? "yes" : "no"}`,
+    `- Projected dollar claims export-ready: ${dollarSafe ? "yes" : "no"}`,
     `- Structural execution mode: ${executionMode}`,
     `- Sponsor proof readiness: ${readiness?.classification ?? readiness?.title ?? "unknown"}`,
     `- Validation verdict: ${verdict.headline}`,

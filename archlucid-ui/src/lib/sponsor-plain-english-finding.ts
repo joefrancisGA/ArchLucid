@@ -40,7 +40,7 @@ export function sponsorSeverityUrgencyClause(severity: string | null | undefined
   const raw = nonEmpty(severity);
 
   if (raw === null) {
-    return "This review recorded a finding that still needs a human disposition.";
+    return "This review recorded a finding that still needs a human resolve decision.";
   }
 
   const key = normalizeSeverityKey(raw);

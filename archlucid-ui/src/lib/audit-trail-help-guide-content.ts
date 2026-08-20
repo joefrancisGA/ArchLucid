@@ -85,7 +85,7 @@ export const AUDIT_TRAIL_HELP_ANATOMY_FIELDS: readonly AuditTrailHelpAnatomyFiel
 export const AUDIT_TRAIL_HELP_IMMUTABILITY_TITLE = "Immutability and export posture";
 
 export const AUDIT_TRAIL_HELP_IMMUTABILITY_INTRO =
-  "Audit trail rows are append-only under the application identity. Diligence reviewers should pair each immutability statement below with linked guidance — this help topic orients buyers; it is not itself a signed diligence Sources package.";
+  "Audit trail rows are append-only under the application identity. Procurement reviewers should pair each immutability statement below with linked guidance — this help topic orients buyers; it is not itself a full audit export.";
 
 export const AUDIT_TRAIL_HELP_APPEND_ONLY_ENFORCEMENT =
   "Append-only rows are enforced by a database-level deny on update and delete for the application role.";

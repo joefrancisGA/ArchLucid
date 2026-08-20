@@ -131,7 +131,7 @@ export const SEARCH_REVIEW_EVIDENCE_HELP_HIT_ANATOMY_FIELDS: readonly SearchRevi
 export const SEARCH_REVIEW_EVIDENCE_HELP_HOW_TO_READ_STEPS = [
   `Try a concrete phrase such as "${SEARCH_REVIEW_EVIDENCE_HELP_EXAMPLE_QUERY}" and optionally limit results to one finalized review.`,
   "Scan each hit's snippet, cited artifact, review link, and evidence trail link before opening deeper surfaces.",
-  "Open the cited review or evidence trail when search hits need fuller diligence before governance or sponsor briefings.",
+  "Open the cited review or evidence trail when search hits need fuller review records before governance or sponsor briefings.",
 ] as const;
 
 export const SEARCH_REVIEW_EVIDENCE_HELP_CLAIM_HEADING_ID = "help-search-review-evidence-claim-discipline-heading" as const;
