@@ -10,6 +10,10 @@ const operatorDir = join(sectionsDir, "..");
 const homePageViewSource = readFileSync(join(sectionsDir, "OperatorHomePageView.tsx"), "utf8");
 const homePageSource = readFileSync(join(operatorDir, "page.tsx"), "utf8");
 const deferredSource = readFileSync(join(sectionsDir, "operator-home-page-view-deferred-chunks.tsx"), "utf8");
+const manifestLoaderSource = readFileSync(
+  join(sectionsDir, "../../../lib/operator/load-deferred-chunk-from-manifest.tsx"),
+  "utf8",
+);
 const heroSource = readFileSync(
   join(sectionsDir, "../../../components/operator-home/BuyerPolishedHomeHeroSection.tsx"),
   "utf8",
@@ -52,14 +56,15 @@ describe("operator home deferred imports (TB-2145)", () => {
     expect(homePageSource).not.toContain("loadOperatorHomeRunsDashboardModel");
   });
 
-  it("dynamic-imports deferred home modules", () => {
-    expect(deferredSource).toContain('import("@/components/usability/PilotCommandCenterCard")');
-    expect(deferredSource).toContain('import("@/components/operator-home/OperatorHomeSponsorRoiStrip")');
-    expect(deferredSource).toContain('import("@/app/(operator)/_sections/OperatorHomeBelowFoldPanels")');
+  it("dynamic-imports deferred home modules via manifest loaders", () => {
+    expect(deferredSource).toContain("createDeferredComponentFromManifest");
+    expect(deferredSource).not.toContain("next/dynamic");
+    expect(manifestLoaderSource).toContain('import("@/components/usability/PilotCommandCenterCard")');
+    expect(manifestLoaderSource).toContain('import("@/components/operator-home/OperatorHomeSponsorRoiStrip")');
+    expect(manifestLoaderSource).toContain('import("@/app/(operator)/_sections/OperatorHomeBelowFoldPanels")');
+    expect(manifestLoaderSource).toContain('import("@/components/operator-home/BuyerPolishedHomeHeroSection")');
+    expect(manifestLoaderSource).toContain('import("@/components/operator-home/OperatorHomeGate")');
     expect(deferredSource).toContain('import("@/components/cto-demo/CtoDemoSponsorLandingRedirect")');
-    expect(deferredSource).toContain('import("@/components/operator-home/BuyerPolishedHomeHeroSection")');
-    expect(deferredSource).toContain('import("@/components/operator-home/OperatorHomeGate")');
-    expect(deferredSource).toContain("next/dynamic");
   });
 
   it("defers pilot command center in buyer-polished hero", () => {

@@ -12,7 +12,7 @@
  * (TB-2249).
  */
 
-import { buildReviewWorkspaceTabHref } from "@/lib/unified-review-workspace-tabs";
+import { createPairwiseVocabularyRail } from "@/lib/vocabulary/create-pairwise-vocabulary-rail";
 
 export type ClarificationsFindingsSurfaceId = "clarifications" | "findings";
 
@@ -40,28 +40,34 @@ export const CLARIFICATIONS_FINDINGS_WHY_TWO =
 export const CLARIFICATIONS_FINDINGS_COMPACT_LINE =
   "Clarifications are gaps and open questions; Findings are assessment issues to triage." as const;
 
-/** Build run-scoped Clarifications ↔ Findings vocabulary (create-home archTab links). */
+/** Build run-scoped Clarifications ↔ Findings vocabulary (create-home reviewTab links). */
 export function buildClarificationsFindingsVocabulary(
   runId: string,
 ): ClarificationsFindingsVocabularyModel {
-  const trimmed = runId.trim();
+  const rail = createPairwiseVocabularyRail({
+    runId,
+    currentTab: "clarifications",
+    currentTabId: "decisions-remediation",
+    peerTabId: "findings",
+    currentSurfaceId: "clarifications",
+    peerSurfaceId: "findings",
+    copy: {
+      heading: CLARIFICATIONS_FINDINGS_HEADING,
+      whyTwo: CLARIFICATIONS_FINDINGS_WHY_TWO,
+      compactLine: CLARIFICATIONS_FINDINGS_COMPACT_LINE,
+      currentLabel: "Clarifications",
+      peerLabel: "Findings",
+      currentWhenToUse: "Answer gaps and open questions that reduce assessment confidence.",
+      peerWhenToUse: "Triage assessment findings for this architecture review.",
+    },
+  });
 
   return {
-    heading: CLARIFICATIONS_FINDINGS_HEADING,
-    whyTwo: CLARIFICATIONS_FINDINGS_WHY_TWO,
-    compactLine: CLARIFICATIONS_FINDINGS_COMPACT_LINE,
-    clarificationsLink: {
-      id: "clarifications",
-      label: "Clarifications",
-      href: buildReviewWorkspaceTabHref(trimmed, "decisions-remediation"),
-      whenToUse: "Answer gaps and open questions that reduce assessment confidence.",
-    },
-    findingsLink: {
-      id: "findings",
-      label: "Findings",
-      href: buildReviewWorkspaceTabHref(trimmed, "findings"),
-      whenToUse: "Triage assessment findings for this architecture review.",
-    },
+    heading: rail.heading,
+    whyTwo: rail.whyTwo,
+    compactLine: rail.compactLine,
+    clarificationsLink: rail.currentLink,
+    findingsLink: rail.peerLink,
   };
 }
 

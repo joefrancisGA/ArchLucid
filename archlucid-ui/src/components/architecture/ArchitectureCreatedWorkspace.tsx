@@ -43,6 +43,7 @@ import {
   resolveArchitectureWorkspaceTabFromSearchParams,
 } from "@/lib/architecture/architecture-workspace-tabs";
 import { REVIEW_DETAIL_TAB_PARAM } from "@/lib/review-detail-workspace-tabs";
+import { REVIEW_WORKSPACE_TAB_STRIP_TEST_ID } from "@/components/reviews/ReviewWorkspaceShell";
 import { mapArchitectureTabToReviewTab } from "@/lib/unified-review-workspace-tabs";
 import {
   architectureOpenClarificationsPresentation,
@@ -189,7 +190,10 @@ export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspace
       />
 
       <Tabs value={activeTab} onValueChange={(value) => navigateTab(resolveArchitectureWorkspaceTab(value))}>
-        <div className="-mx-1 overflow-x-auto px-1">
+        <div
+          className="-mx-1 overflow-x-auto px-1"
+          data-testid={REVIEW_WORKSPACE_TAB_STRIP_TEST_ID}
+        >
           <TabsList aria-label="Architecture workspace sections" data-testid="architecture-workspace-tabs">
             {(Object.keys(ARCHITECTURE_WORKSPACE_TAB_LABELS) as ArchitectureWorkspaceTabId[]).map((tabId) => {
               const count =

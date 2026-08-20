@@ -2,6 +2,7 @@ import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { ArchitectureCreatedWorkspace } from "@/components/architecture/ArchitectureCreatedWorkspace";
+import { REVIEW_WORKSPACE_TAB_STRIP_TEST_ID } from "@/components/reviews/ReviewWorkspaceShell";
 
 const pushMock = vi.fn();
 const replaceMock = vi.fn();
@@ -60,6 +61,7 @@ describe("ArchitectureCreatedWorkspace", () => {
     expect(screen.getByTestId("architecture-created-workspace-header")).toBeInTheDocument();
     expect(screen.getByTestId("architecture-created-compact-first-viewport")).toBeInTheDocument();
     expect(screen.getByTestId("architecture-workspace-tabs")).toBeInTheDocument();
+    expect(screen.getByTestId(REVIEW_WORKSPACE_TAB_STRIP_TEST_ID)).toBeInTheDocument();
     expect(screen.getByTestId("architecture-workspace-panel-overview")).toBeInTheDocument();
     expect(screen.queryByTestId("findings-panel-slot")).not.toBeInTheDocument();
   });
