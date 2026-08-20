@@ -13,6 +13,7 @@ using ArchLucid.Contracts.ProductLearning;
 using ArchLucid.Contracts.ProductLearning.Planning;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Coordination.ProductLearning.Planning;
@@ -78,7 +79,23 @@ public sealed class LearningController(
             return this.BadRequestProblem(maxError!, ProblemTypes.ValidationFailed);
 
         ProductLearningScope scope = ToProductLearningScope(scopeProvider.GetCurrentScope());
+
+        LearningPlansHangDiagnostics.Log(
+            "controller_get_plans_entered",
+            ("correlationId", HttpContext.TraceIdentifier),
+            ("maxPlans", take),
+            ("tenantId", scope.TenantId),
+            ("workspaceId", scope.WorkspaceId),
+            ("projectId", scope.ProjectId));
+
+        long startedMs = Environment.TickCount64;
         LearningPlansListResponse body = await learningReadService.GetPlansAsync(scope, take, cancellationToken);
+
+        LearningPlansHangDiagnostics.Log(
+            "controller_get_plans_completed",
+            ("correlationId", HttpContext.TraceIdentifier),
+            ("durationMs", Environment.TickCount64 - startedMs),
+            ("planCount", body.Plans.Count));
 
         return Ok(body);
     }

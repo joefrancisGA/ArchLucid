@@ -319,6 +319,8 @@ async function forward(
   const search = request.nextUrl.search;
   const targetUrl = `${base}/${path}${search}`;
   const pathForLog = path.length > 0 ? path : "_";
+  const traceLearningPlansList =
+    method === "GET" && normalizedTailPath === "v1/learning/plans";
 
   const headers = upstreamHeaders;
 
@@ -383,6 +385,17 @@ async function forward(
 
   let res: Response;
 
+  const upstreamFetchStartedAtMs = performance.now();
+
+  if (traceLearningPlansList) {
+    logProxyDiagnostic("upstream_fetch_started", {
+      method,
+      path: pathForLog,
+      correlationId,
+      targetUrl,
+    });
+  }
+
   try {
     res = await fetchWithWarmupRetry(
       () =>
@@ -413,6 +426,18 @@ async function forward(
       timeoutMs: PROXY_UPSTREAM_FETCH_TIMEOUT_MS,
       causeMessage: message,
     });
+
+    if (traceLearningPlansList) {
+      logProxyDiagnostic("upstream_fetch_timed_out", {
+        method,
+        path: pathForLog,
+        message,
+        durationMs: Math.round(performance.now() - upstreamFetchStartedAtMs),
+        timeoutMs: PROXY_UPSTREAM_FETCH_TIMEOUT_MS,
+        correlationId,
+      });
+    }
+
     logProxyDiagnostic("upstream_fetch_failed", {
       method,
       path: pathForLog,
@@ -443,6 +468,16 @@ async function forward(
       method,
       path: pathForLog,
       status: res.status,
+      correlationId,
+    });
+  }
+
+  if (traceLearningPlansList) {
+    logProxyDiagnostic("upstream_fetch_completed", {
+      method,
+      path: pathForLog,
+      status: res.status,
+      durationMs: Math.round(performance.now() - upstreamFetchStartedAtMs),
       correlationId,
     });
   }

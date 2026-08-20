@@ -1,6 +1,9 @@
+using System.Diagnostics;
+
 using ArchLucid.Api.Models.Learning;
 using ArchLucid.Contracts.ProductLearning;
 using ArchLucid.Contracts.ProductLearning.Planning;
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Persistence.Coordination.ProductLearning.Planning;
 
 namespace ArchLucid.Api.Services;
@@ -27,18 +30,43 @@ public sealed class LearningPlanningReadService(IProductLearningPlanningReposito
         int maxPlans,
         CancellationToken cancellationToken)
     {
+        Stopwatch totalStopwatch = Stopwatch.StartNew();
+
+        LearningPlansHangDiagnostics.Log(
+            "service_get_plans_started",
+            ("tenantId", scope.TenantId),
+            ("workspaceId", scope.WorkspaceId),
+            ("projectId", scope.ProjectId),
+            ("maxPlans", maxPlans));
+
+        Stopwatch listPlansStopwatch = Stopwatch.StartNew();
         IReadOnlyList<ProductLearningImprovementPlanRecord> rows =
             await planningRepository.ListPlansAsync(scope, maxPlans, cancellationToken);
+
+        LearningPlansHangDiagnostics.Log(
+            "service_list_plans_completed",
+            ("durationMs", listPlansStopwatch.ElapsedMilliseconds),
+            ("planCount", rows.Count));
 
         DateTime generatedUtc = TimeProvider.System.UtcNowDateTime();
 
         Guid[] distinctThemeIds = rows.Select(r => r.ThemeId).Distinct().ToArray();
 
+        LearningPlansHangDiagnostics.Log(
+            "service_resolve_themes_started",
+            ("distinctThemeCount", distinctThemeIds.Length));
+
+        Stopwatch resolveThemesStopwatch = Stopwatch.StartNew();
         ProductLearningImprovementThemeRecord?[] themeRows =
             await Task.WhenAll(
                     distinctThemeIds.Select(id =>
                         planningRepository.GetThemeAsync(id, scope, cancellationToken)))
                 .ConfigureAwait(false);
+
+        LearningPlansHangDiagnostics.Log(
+            "service_resolve_themes_completed",
+            ("durationMs", resolveThemesStopwatch.ElapsedMilliseconds),
+            ("resolvedThemeCount", themeRows.Count(t => t is not null)));
 
         Dictionary<Guid, ProductLearningImprovementThemeRecord?> themeById = [];
         for (int i = 0; i < distinctThemeIds.Length; i++)
@@ -49,6 +77,11 @@ public sealed class LearningPlanningReadService(IProductLearningPlanningReposito
             .Select(p => MapPlanListItem(p,
                 themeById.TryGetValue(p.ThemeId, out ProductLearningImprovementThemeRecord? t) ? t : null))
             .ToList();
+
+        LearningPlansHangDiagnostics.Log(
+            "service_get_plans_completed",
+            ("durationMs", totalStopwatch.ElapsedMilliseconds),
+            ("responsePlanCount", plans.Count));
 
         return new LearningPlansListResponse { GeneratedUtc = generatedUtc, Plans = plans };
     }
