@@ -240,6 +240,7 @@ const governanceDecisionSectionEl = (
     governanceGateLabel={m.governanceGateLabel}
     blockingFindingCount={blockingApprovalCount}
     hasGovernanceWarnings={m.resolvedDetail.run.hasGovernanceWarnings === true}
+    pagePrimaryOwnedElsewhere
   />
 );
 const submittedArchitectureTabEl = (

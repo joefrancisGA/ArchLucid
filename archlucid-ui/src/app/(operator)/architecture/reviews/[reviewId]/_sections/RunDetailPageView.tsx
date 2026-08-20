@@ -345,6 +345,7 @@ export async function RunDetailPageView(props: {
                             governanceGateLabel={m.governanceGateLabel}
                             blockingFindingCount={blockingApprovalCount}
                             hasGovernanceWarnings={m.resolvedDetail.run.hasGovernanceWarnings === true}
+                            pagePrimaryOwnedElsewhere
                           />
                           {m.manifestId ? (
                             <>
