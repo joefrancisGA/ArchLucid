@@ -42,10 +42,10 @@ export const PACKAGE_GOVERNANCE_APPROVAL_QUEUE_HEADING =
   "Package Governance and Approval queue serve different purposes" as const;
 
 export const PACKAGE_GOVERNANCE_APPROVAL_QUEUE_WHY_TWO =
-  "Package Governance is pre-finalize readiness on one architecture package — policy alignment and governance checks before commit. Approval queue is the live approve and reject workflow for pending governance approval requests. Checking package readiness is not the same as approving a request." as const;
+  "Package Governance checks this review before you finalize — policy alignment and readiness checks. The approval queue is where you approve or reject pending requests. Checking readiness is not the same as approving a request." as const;
 
 export const PACKAGE_GOVERNANCE_APPROVAL_QUEUE_COMPACT_LINE =
-  "Package Governance is pre-finalize readiness; Approval queue is live approve workflow." as const;
+  "Package Governance checks readiness before finalize; Approval queue handles live approvals." as const;
 
 /**
  * Peer from Approval queue without a run: Reviews hub, because Governance is

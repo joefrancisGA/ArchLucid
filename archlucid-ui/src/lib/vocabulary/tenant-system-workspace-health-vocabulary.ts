@@ -52,14 +52,14 @@ export const TENANT_SYSTEM_WORKSPACE_HEALTH_TENANT_LINK: TenantSystemWorkspaceHe
   id: "tenant-health",
   label: "Tenant health",
   href: INTERNAL_TENANT_HEALTH_PATH,
-  whenToUse: "Review engagement and governance posture per tenant scope.",
+  whenToUse: "Review customer engagement per tenant.",
 };
 
 export const TENANT_SYSTEM_WORKSPACE_HEALTH_SYSTEM_LINK: TenantSystemWorkspaceHealthLink = {
   id: "system-health",
   label: "System health",
   href: ADMINISTRATION_SYSTEM_HEALTH_PATH,
-  whenToUse: "Check platform readiness and critical dependency probes.",
+  whenToUse: "Check platform uptime and dependency health.",
 };
 
 export const TENANT_SYSTEM_WORKSPACE_HEALTH_WORKSPACE_LINK: TenantSystemWorkspaceHealthLink = {
