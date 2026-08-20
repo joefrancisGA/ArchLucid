@@ -49,7 +49,9 @@ export function WhereToGoNextPreferencePanel({
           data-testid="where-to-go-next-enabled"
           className={cn(
             "h-6 w-6 shrink-0 rounded border-2 border-neutral-600 accent-teal-700",
-            "data-[state=checked]:border-teal-700 data-[state=checked]:bg-teal-700",
+            "focus-visible:ring-teal-600/40",
+            "dark:border-neutral-400 dark:accent-teal-500",
+            enabled ? "border-teal-700 bg-teal-700 dark:border-teal-500 dark:bg-teal-600" : null,
           )}
         />
         <span>{PREFERENCES_WHERE_TO_GO_NEXT_TOGGLE_LABEL}</span>
@@ -57,6 +59,7 @@ export function WhereToGoNextPreferencePanel({
       {accountSyncState === "local-only" ? (
         <p
           className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+          role="alert"
           data-testid="where-to-go-next-account-sync-local-only"
         >
           {WHERE_TO_GO_NEXT_ACCOUNT_SYNC_LOCAL_ONLY_MESSAGE}

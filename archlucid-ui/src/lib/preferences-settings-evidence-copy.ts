@@ -23,7 +23,7 @@ export const PREFERENCES_SETTINGS_SOURCES_INTRO =
 export const PREFERENCES_SETTINGS_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Getting started", href: inAppHelpHref("getting-started") },
   { label: "Sign-in methods", href: ACCOUNT_SECURITY_PATH },
-  { label: "Users and roles", href: "/administration/users" },
+  { label: "Users and roles", href: "/administration/users", adminOnly: true },
   { label: "How ArchLucid works", href: inAppHelpHref("getting-started", "how-archlucid-works") },
   { label: "Assurance status", href: "/assurance-status" },
 ] as const;

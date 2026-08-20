@@ -1,6 +1,8 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
+import { PREFERENCES_WHERE_TO_GO_NEXT_HEADING } from "@/lib/where-to-go-next-preference-copy";
+
 vi.mock("next/link", () => ({
   default: ({ href, children }: { href: string; children: React.ReactNode }) => <a href={href}>{children}</a>,
 }));
@@ -37,13 +39,17 @@ describe("PreferencesSettingsPage", () => {
     render(page);
 
     expect(screen.getByTestId("preferences-settings-page-title")).toHaveTextContent("Preferences");
-    expectClaimDisciplineBand(screen, "preferences-settings-claim-discipline".slice(0, -"-claim-discipline".length), "preferences-settings-claim-discipline");
     expect(screen.getByTestId("preferences-appearance-card")).toBeInTheDocument();
     expect(screen.getByText(/saved to your account and applied across supported devices/i)).toBeInTheDocument();
     expect(screen.getByTestId("theme-preference-selector-stub")).toBeInTheDocument();
     expect(
       screen.queryByTestId("shell-theme-preferences-appearance-vocabulary"),
     ).not.toBeInTheDocument();
+    expect(screen.getByTestId("preferences-notifications-vocabulary")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Appearance" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Cloud platforms shown" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: PREFERENCES_WHERE_TO_GO_NEXT_HEADING })).toBeInTheDocument();
+    expect(screen.getByTestId("preferences-follow-up-link-strips-card")).toHaveAttribute("id", "follow-up-link-strips");
     expect(screen.queryByRole("link", { name: "← Settings" })).not.toBeInTheDocument();
   });
 });

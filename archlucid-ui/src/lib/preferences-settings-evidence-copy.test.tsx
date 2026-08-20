@@ -1,4 +1,4 @@
-﻿import { render, screen, within } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { PreferencesSettingsEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
@@ -41,7 +41,7 @@ describe("preferences-settings-evidence-copy", () => {
     const sources = screen.getByTestId("preferences-settings-sources");
 
     for (const link of PREFERENCES_SETTINGS_SOURCES) {
-      expect(within(sources).getByRole("link", { name: link.label })).toHaveAttribute("href", link.href);
+      expectFollowUpLink(within(sources), link);
     }
 
     expect(
