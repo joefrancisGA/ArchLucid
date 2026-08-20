@@ -1,5 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
+import { expectFollowUpLink } from "@/lib/claim-discipline-test-helpers";
 
 import { ConnectAzureSecurelyHelpEvidenceOrientationStrip } from "@/components/help/ConnectAzureSecurelyHelpEvidenceOrientationStrip";
 import {
@@ -16,7 +17,7 @@ describe("ConnectAzureSecurelyHelpEvidenceOrientationStrip", () => {
     );
 
     for (const link of CONNECT_AZURE_SECURELY_SOURCES) {
-      expect(screen.getByRole("link", { name: link.label })).toHaveAttribute("href", link.href);
+      expectFollowUpLink(screen, link);
     }
   });
 });

@@ -2,6 +2,16 @@ import type { Screen } from "@testing-library/react";
 import { expect } from "vitest";
 
 import { shouldOmitClaimDisciplineBand } from "@/lib/claim-discipline-policy";
+import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
+import type { EvidenceOrientationLink, EvidenceSourceLink } from "@/lib/evidence-surface-copy";
+
+/** Narrow link shapes used in evidence-copy modules. */
+export type FollowUpLinkLike = EvidenceOrientationLink | EvidenceSourceLink;
+
+/** Accessible name for a follow-up link when destination labeling is enabled. */
+export function followUpLinkAccessibleName(href: string, label: string): string {
+  return formatHelpFollowUpLinkAccessibleName(href, label);
+}
 
 /** Assert claim-discipline visibility matches {@link shouldOmitClaimDisciplineBand} for a strip slug. */
 export function expectClaimDisciplineBand(
@@ -45,4 +55,14 @@ export function expectClaimDisciplineHeading(
   }
 
   expect(screen.getByRole("heading", { name: headingName })).toHaveAttribute("id", headingId);
+}
+
+/** Assert a labeled follow-up link inside a scoped region. */
+export function expectFollowUpLink(
+  region: Pick<Screen, "getByRole">,
+  link: FollowUpLinkLike,
+): void {
+  expect(
+    region.getByRole("link", { name: followUpLinkAccessibleName(link.href, link.label) }),
+  ).toHaveAttribute("href", link.href);
 }

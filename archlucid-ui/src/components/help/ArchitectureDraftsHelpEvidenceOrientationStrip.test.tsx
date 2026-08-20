@@ -1,5 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
+import { expectFollowUpLink } from "@/lib/claim-discipline-test-helpers";
 
 import { ArchitectureDraftsHelpEvidenceOrientationStrip } from "@/components/help/ArchitectureDraftsHelpEvidenceOrientationStrip";
 import {
@@ -26,7 +27,7 @@ describe("ArchitectureDraftsHelpEvidenceOrientationStrip", () => {
     );
 
     for (const source of ARCHITECTURE_DRAFTS_HELP_SOURCES) {
-      expect(screen.getByRole("link", { name: source.label })).toHaveAttribute("href", source.href);
+      expectFollowUpLink(screen, source);
     }
   });
 });

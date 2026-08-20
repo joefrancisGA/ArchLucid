@@ -79,7 +79,7 @@ export function EvidenceOrientationClaimAndSourcesStrip({
   readingBodyClassName,
   headingClassName,
   stripTestId,
-  distinguishFollowUpDestinations = slug.startsWith("help-"),
+  distinguishFollowUpDestinations = true,
   promotedSourceHref,
 }: EvidenceOrientationClaimAndSourcesStripProps): React.JSX.Element | null {
   const whereToGoNextVisible = useWhereToGoNextVisible();

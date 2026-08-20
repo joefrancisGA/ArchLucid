@@ -1,5 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
+import { expectFollowUpLink } from "@/lib/claim-discipline-test-helpers";
 
 import { ConnectAwsSecurelyHelpEvidenceOrientationStrip } from "@/components/help/ConnectAwsSecurelyHelpEvidenceOrientationStrip";
 import {
@@ -17,7 +18,7 @@ describe("ConnectAwsSecurelyHelpEvidenceOrientationStrip", () => {
     );
 
     for (const source of CONNECT_AWS_SECURELY_SOURCES) {
-      expect(screen.getByRole("link", { name: source.label })).toHaveAttribute("href", source.href);
+      expectFollowUpLink(screen, source);
     }
   });
 });

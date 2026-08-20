@@ -5,6 +5,7 @@ import {
   type CloudConnectionsHelpFollowUpLink,
 } from "@/lib/cloud-connections-help-guide-content";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 import { cn } from "@/lib/utils";
 
 function HelpCloudConnectionsFollowUpLinkItem(props: { readonly link: CloudConnectionsHelpFollowUpLink }): React.ReactElement {
@@ -16,7 +17,7 @@ function HelpCloudConnectionsFollowUpLinkItem(props: { readonly link: CloudConne
         href={link.href}
         className={cn(OPERATOR_LINK.nav, "inline-flex min-h-6 items-center py-1.5 text-[13px]")}
       >
-        {link.label}
+        {formatHelpFollowUpLinkAccessibleName(link.href, link.label)}
       </Link>
     </li>
   );

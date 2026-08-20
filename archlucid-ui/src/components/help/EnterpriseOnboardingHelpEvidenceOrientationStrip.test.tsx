@@ -1,5 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
+import { expectFollowUpLink } from "@/lib/claim-discipline-test-helpers";
 
 import { EnterpriseOnboardingHelpEvidenceOrientationStrip } from "@/components/help/EnterpriseOnboardingHelpEvidenceOrientationStrip";
 import {
@@ -22,7 +23,7 @@ describe("EnterpriseOnboardingHelpEvidenceOrientationStrip", () => {
     expect(screen.queryByText(/Sources package/i)).toBeNull();
 
     for (const link of ENTERPRISE_ONBOARDING_HELP_SOURCES) {
-      expect(screen.getByRole("link", { name: link.label })).toHaveAttribute("href", link.href);
+      expectFollowUpLink(screen, link);
     }
 
     expect(screen.queryByRole("link", { name: "Hosted SaaS enterprise onboarding checklist" })).toBeNull();

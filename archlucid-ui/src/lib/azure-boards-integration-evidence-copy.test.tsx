@@ -1,5 +1,6 @@
 import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
+import { expectFollowUpLink } from "@/lib/claim-discipline-test-helpers";
 
 import { AzureBoardsIntegrationEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
 import {
@@ -23,7 +24,7 @@ describe("azure-boards-integration-evidence-copy", () => {
     const sources = screen.getByTestId("azure-boards-integration-sources");
 
     for (const link of AZURE_BOARDS_INTEGRATION_SOURCES) {
-      expect(within(sources).getByRole("link", { name: link.label })).toHaveAttribute("href", link.href);
+      expectFollowUpLink(within(sources), link);
     }
 
     expect(
