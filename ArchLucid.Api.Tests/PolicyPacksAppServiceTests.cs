@@ -1,9 +1,9 @@
 ﻿using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Integration;
-using ArchLucid.Core.Persistence.ApplicationPorts.IntegrationOutbox;
 using ArchLucid.Decisioning.Governance.PolicyPacks;
 using ArchLucid.Host.Core.Services;
+using ArchLucid.Persistence.IntegrationOutbox;
 using ArchLucid.Persistence.Interfaces;
 
 using FluentAssertions;
