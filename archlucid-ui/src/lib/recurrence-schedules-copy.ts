@@ -4,13 +4,13 @@ import { GOVERNANCE_APPROVAL_QUEUE_PATH } from "@/lib/governance/governance-rout
 
 /** Single above-the-fold lead under the page title (TB-1130 — no wall of governance prose). */
 export const RECURRENCE_SCHEDULES_PAGE_SUBTITLE =
-  "Automate follow-up review cadences for governed architecture reviews.";
+  "Automate follow-up review cadences for architecture reviews.";
 
 export const RECURRENCE_SCHEDULES_HOW_IT_WORKS_TITLE = "How recurrence schedules work";
 
 /** Folded value + trust copy — shown only inside How-it-works disclosure (TB-1130). */
 export const RECURRENCE_SCHEDULES_HOW_IT_WORKS_BODY =
-  "Define repeatable review cadences for finalized architecture reviews — quarterly control reviews, annual policy attestations, post-remediation follow-ups, and architecture board checkpoints. When a schedule comes due, ArchLucid creates a follow-up architecture review from the source review. Schedules help ensure that accepted risks, policy exceptions, and governed architecture decisions are reviewed on time instead of being forgotten after approval.";
+  "Define repeatable review cadences for finalized architecture reviews — quarterly control reviews, annual policy attestations, post-remediation follow-ups, and architecture board checkpoints. When a schedule comes due, ArchLucid creates a follow-up architecture review from the source review. Schedules help ensure that accepted risks, policy exceptions, and approved architecture decisions are reviewed on time instead of being forgotten after approval.";
 
 export const RECURRENCE_SCHEDULES_EMPTY_TITLE = "No recurrence schedules yet";
 

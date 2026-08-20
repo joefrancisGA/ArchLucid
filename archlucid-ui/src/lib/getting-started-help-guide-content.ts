@@ -59,7 +59,7 @@ export const GETTING_STARTED_HELP_QUICK_START_COPY =
 export const GETTING_STARTED_HELP_DIAGRAM_TITLE = "How ArchLucid works";
 
 export const GETTING_STARTED_HELP_DIAGRAM_SUMMARY =
-  "ArchLucid ingests architecture evidence, evaluates it against your standards, and produces a governed architecture review you can share.";
+  "ArchLucid ingests architecture evidence, evaluates it against your standards, and produces a finalized architecture review you can share.";
 
 export const GETTING_STARTED_HELP_DIAGRAM_STEPS = [
   "Evidence",

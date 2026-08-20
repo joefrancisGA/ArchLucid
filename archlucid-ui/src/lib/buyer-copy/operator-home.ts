@@ -373,7 +373,7 @@ export const BUYER_HOME_EXAMPLE_PACKAGE_LEAD =
 
 export const BUYER_HOME_EXAMPLE_EXPLORE_LINK = "Explore example";
 
-export const BUYER_HOME_WELCOME_HEADING = "Explore one governed architecture review";
+export const BUYER_HOME_WELCOME_HEADING = "Explore one architecture review";
 
 export const BUYER_HOME_WELCOME_LEAD =
   "Start with the sponsor view, then the sealed review record, audit trail, and prioritized findings.";

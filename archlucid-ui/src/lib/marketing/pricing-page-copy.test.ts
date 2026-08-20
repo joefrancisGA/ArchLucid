@@ -17,6 +17,6 @@ describe("pricing-page-copy", () => {
     const lead = pricingPageBrandCategoryLead(BRAND_CATEGORY);
 
     expect(lead).toContain(BRAND_CATEGORY);
-    expect(lead).toMatch(/governed architecture review/i);
+    expect(lead).toMatch(/architecture review/i);
   });
 });

@@ -48,7 +48,7 @@ describe("HelpRecurrenceSchedulesGuideView", () => {
   it("registers the recurrence schedules help guide entry", () => {
     expect(entry?.slug).toBe("recurrence-schedules");
     expect(entry?.title).toBe(RECURRENCE_SCHEDULES_HELP_PAGE_TITLE);
-    expect(entry?.summary).toBe("Automate follow-up review cadences for governed architecture reviews.");
+    expect(entry?.summary).toBe("Automate follow-up review cadences for architecture reviews.");
     expect(entry?.lastReviewed).toBe("2026-08-12");
     expect(entry?.releaseApplicability).toBe("governance recurrence schedule orientation");
   });

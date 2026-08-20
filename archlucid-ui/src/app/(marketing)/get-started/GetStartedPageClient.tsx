@@ -326,7 +326,7 @@ export function GetStartedPageClient(): ReactElement {
             Ready to go further?
           </h2>
           <p className={cn("mt-2 max-w-3xl text-al-text-secondary", MARKETING_TYPOGRAPHY.body)}>
-            Use your own architecture material to create a governed review with evidence, findings, decisions, and reusable
+            Use your own architecture material to create an architecture review with evidence, findings, decisions, and reusable
             deliverables.
           </p>
           <div className="mt-5 flex flex-wrap gap-3">

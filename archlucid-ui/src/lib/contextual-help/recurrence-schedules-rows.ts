@@ -39,7 +39,7 @@ export const RECURRENCE_SCHEDULES_CONTEXTUAL_HELP_ROWS: readonly PageContextualH
       whatToDoNext: "Open recurrence schedules to create or edit a cadence, then follow cloned reviews through governance surfaces.",
       whyEmpty: "This guide is always available; schedules appear after you create one from a finalized review.",
       whereToConfigurePrerequisite:
-        "Anchor each schedule to a finalized governed architecture review before defining cadence.",
+        "Anchor each schedule to a finalized architecture review before defining cadence.",
       whatToDoNextAction: {
         label: "Open recurrence schedules",
         href: RECURRENCE_SCHEDULES_MANAGE_PATH,

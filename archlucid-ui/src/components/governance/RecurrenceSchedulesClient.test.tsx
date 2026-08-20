@@ -108,13 +108,13 @@ describe("RecurrenceSchedulesClient", () => {
     expect(createButtons[0]?.className).toContain("al-primary-action-bg");
     expect(screen.getByTestId("recurrence-schedules-create-action")).toBe(createButtons[0]);
 
-    expect(screen.getAllByRole("link", { name: "View governed reviews" })).toHaveLength(1);
+    expect(screen.getAllByRole("link", { name: "View architecture reviews" })).toHaveLength(1);
     expect(screen.queryByRole("link", { name: "View pending approvals" })).not.toBeInTheDocument();
     expect(screen.queryByRole("link", { name: "Open risk register" })).not.toBeInTheDocument();
 
     const secondaryNav = screen.getByTestId("recurrence-schedules-secondary-links");
 
-    expect(secondaryNav).toContainElement(screen.getByRole("link", { name: "View governed reviews" }));
+    expect(secondaryNav).toContainElement(screen.getByRole("link", { name: "View architecture reviews" }));
     expect(secondaryNav.querySelector("button")).toBeNull();
   });
 
@@ -161,7 +161,7 @@ describe("RecurrenceSchedulesClient", () => {
 
     await screen.findByTestId("recurrence-schedules-empty-state");
 
-    expect(screen.getByRole("link", { name: "View governed reviews" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "View architecture reviews" })).toHaveAttribute(
       "href",
       RECURRENCE_SCHEDULES_REVIEW_PACKAGES_HREF,
     );
@@ -176,7 +176,7 @@ describe("RecurrenceSchedulesClient", () => {
       expect(screen.getByText("Weekly architecture review")).toBeInTheDocument();
     });
 
-    expect(screen.getByRole("link", { name: "View governed reviews" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "View architecture reviews" })).toHaveAttribute(
       "href",
       RECURRENCE_SCHEDULES_REVIEW_PACKAGES_HREF,
     );

@@ -3,7 +3,7 @@ export const DATA_HANDLING_MARKDOWN = `# What ArchLucid does with your data
 
 ## What ArchLucid does
 
-ArchLucid takes your architecture brief and optional evidence context, applies policy packs, and produces a **governed architecture review** with findings, decisions, a **sealed review record**, and an audit trail. ArchLucid does not execute code in your environment and does not require write access to your systems.
+ArchLucid takes your architecture brief and optional evidence context, applies policy packs, and produces a **finalized architecture review** with findings, decisions, a **sealed review record**, and an audit trail. ArchLucid does not execute code in your environment and does not require write access to your systems.
 
 ## What leaves your tenant
 
