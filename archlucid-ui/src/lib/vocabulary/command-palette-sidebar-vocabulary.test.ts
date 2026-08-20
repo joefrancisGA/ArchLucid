@@ -1,7 +1,6 @@
 import { describe, expect, it } from "vitest";
 
 import { REVIEWS_LIST_PATH } from "@/lib/architecture/architecture-routes";
-import { GLOBAL_FIND_PAGE_SEARCH } from "@/lib/search-surface-disambiguation";
 import {
   COMMAND_PALETTE_FIND_A_PAGE_HREF,
   COMMAND_PALETTE_SIDEBAR_COMMAND_PALETTE_LINK,
@@ -25,7 +24,7 @@ describe("command-palette-sidebar-vocabulary (TB-2316)", () => {
     expect(model.compactLine).toBe(COMMAND_PALETTE_SIDEBAR_COMPACT_LINE);
 
     expect(model.commandPaletteLink).toEqual(COMMAND_PALETTE_SIDEBAR_COMMAND_PALETTE_LINK);
-    expect(model.commandPaletteLink.label).toBe(GLOBAL_FIND_PAGE_SEARCH.ariaLabel);
+    expect(model.commandPaletteLink.label).toBe("Find a page");
     expect(model.commandPaletteLink.href).toBe(COMMAND_PALETTE_FIND_A_PAGE_HREF);
     expect(model.sidebarLink).toEqual(COMMAND_PALETTE_SIDEBAR_SIDEBAR_LINK);
     expect(model.sidebarLink.href).toBe(SIDEBAR_NAVIGATION_PEER_PATH);
