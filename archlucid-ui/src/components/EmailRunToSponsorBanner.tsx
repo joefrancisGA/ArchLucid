@@ -201,7 +201,7 @@ export function EmailRunToSponsorBanner({
           data-testid="email-run-to-sponsor-projected-dollar-gap"
           className={cn("mt-3 rounded-md border border-amber-600/40 bg-al-surface-raised px-3 py-2 text-al-text-primary dark:border-amber-700/50 px-3 py-2", OPERATOR_TYPOGRAPHY.body)}
         >
-          <p className="m-0 font-semibold">Projected dollar claims not sponsor-safe</p>
+          <p className="m-0 font-semibold">Projected dollar claims not export-ready</p>
           <p className={cn("m-0 mt-1 leading-relaxed opacity-95", OPERATOR_TYPOGRAPHY.helper)}>
             ROI baseline fields are defaulted or incomplete. Capture buyer-provided baselines on{" "}
             <Link className={OPERATOR_BODY_INLINE_LINK_CLASS} href="/insights/architecture-scorecard#roi-baselines">
@@ -421,7 +421,7 @@ export function EmailRunToSponsorBanner({
             : blockSponsorPdfForAiGate
             ? "PDF export stays disabled until strict AI quality readiness signals pass for this review."
             : blockSponsorPdfForProjectedDollar
-              ? "PDF export stays disabled until ROI baselines are buyer-provided and projected-dollar claims are sponsor-safe."
+              ? "PDF export stays disabled until ROI baselines are buyer-provided and projected-dollar claims are export-ready."
               : blockSponsorPdfForRoi
                 ? "PDF export stays disabled until tenant ROI baselines are captured."
                 : buyerPolishedShell

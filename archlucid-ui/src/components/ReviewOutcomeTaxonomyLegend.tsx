@@ -18,7 +18,7 @@ export function ReviewOutcomeTaxonomyLegend(): ReactElement {
       <strong className="font-semibold text-neutral-800 dark:text-neutral-200">Deliverable</strong> — packaged output for sponsors, review boards, or audit.{" "}
       <strong className="font-semibold text-neutral-800 dark:text-neutral-200">Audit event</strong> — lifecycle record in the immutable audit trail.{" "}
       <strong className="font-semibold text-neutral-800 dark:text-neutral-200">Monitored risk</strong> — non-blocking posture captured under active governance oversight.{" "}
-      <strong className="font-semibold text-neutral-800 dark:text-neutral-200">Approval status</strong> — governance disposition for citation; production deployments follow your enterprise change process.
+      <strong className="font-semibold text-neutral-800 dark:text-neutral-200">Approval status</strong> — resolve outcome for citation; production deployments follow your enterprise change process.
     </p>
   );
 }

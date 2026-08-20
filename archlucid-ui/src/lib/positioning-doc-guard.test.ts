@@ -16,7 +16,7 @@ describe("positioning-doc-guard (TB-746)", () => {
     expect(markdown).toMatch(/architecture package/i);
     expect(markdown).toMatch(/review-led/i);
     expect(markdown).toMatch(/Verbs never in the hero/i);
-    expect(markdown).toMatch(/governed architecture packages/i);
+    expect(markdown).toMatch(/architecture review packages/i);
     expect(markdown).not.toMatch(/prioritized, evidence-linked risk review/i);
   });
 });

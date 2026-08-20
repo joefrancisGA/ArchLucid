@@ -111,7 +111,7 @@ export function PilotRoiValidationHandoffCard(props: PilotRoiValidationHandoffCa
 
       <div className="mt-3 flex flex-wrap gap-2">
         <StatusTag kind={roi.tier === "Strong" ? "ready" : roi.tier === "Low" ? "blocked" : "needs-attention"} label={`ROI confidence: ${roi.tier}`} />
-        <StatusTag kind={dollarSafe ? "ready" : "blocked"} label={`Dollar claims sponsor-safe: ${dollarSafe ? "yes" : "no"}`} />
+        <StatusTag kind={dollarSafe ? "ready" : "blocked"} label={`Dollar claims export-ready: ${dollarSafe ? "yes" : "no"}`} />
         <StatusTag kind="neutral" label={`Execution mode: ${executionMode}`} />
         {readiness !== null ? (
           <StatusTag

@@ -148,7 +148,7 @@ export const ADVISORY_SCANS_CARD_SUGGESTED_ACTION_LABEL = "Suggested action";
 
 export const ADVISORY_SCANS_CARD_OWNER_LABEL = "Owner or role";
 
-export const ADVISORY_SCANS_CARD_DISPOSITION_LABEL = "Governance disposition";
+export const ADVISORY_SCANS_CARD_DISPOSITION_LABEL = "Resolve outcome";
 
 export const ADVISORY_SCANS_SCHEDULES_PAGE_HEADING = "Schedule advisory scans";
 

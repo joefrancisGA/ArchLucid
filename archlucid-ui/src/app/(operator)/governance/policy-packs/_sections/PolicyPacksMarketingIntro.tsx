@@ -51,7 +51,7 @@ export function PolicyPacksMarketingIntro(props: PolicyPacksMarketingIntroProps)
         <p className={cn("mb-3 max-w-3xl rounded-md border border-neutral-200 bg-al-surface-raised px-3 py-2 dark:border-neutral-800", OPERATOR_TYPOGRAPHY.body)}>
           <strong className="font-semibold">Healthcare Claims sample pack</strong> enforces PHI minimization expectations in
           review outputs, aligns advisory defaults with claims-intake patterns, and keeps alert posture consistent with the
-          governed review story in this workspace.
+          architecture review story in this workspace.
         </p>
       ) : null}
       {buyerPolishedShell ? null : (

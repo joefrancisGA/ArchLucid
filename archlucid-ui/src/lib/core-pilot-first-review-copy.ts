@@ -3,7 +3,7 @@ import { CLOUD_NEUTRAL_PRIMARY_COPY } from "@/lib/cloud-neutral-primary-copy";
 /**
  * Buyer-first labels for the Core Pilot checklist (“architecture review” in operator chrome).
  */
-export const CORE_PILOT_FIRST_REVIEW_HEADING = "Create a governed architecture review";
+export const CORE_PILOT_FIRST_REVIEW_HEADING = "Create an architecture review";
 
 export const CORE_PILOT_FIRST_REVIEW_HEADING_COMPACT = "First review checklist";
 

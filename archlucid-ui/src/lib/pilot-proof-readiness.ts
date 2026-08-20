@@ -62,7 +62,7 @@ export function isProjectedDollarClaimsSponsorSafe(
 
 /**
  * TB-984 — projected-USD sponsor badge uses the same gates as external sponsor PDF:
- * sponsor-safe ROI basis plus Real (non-blocked) execution mode.
+ * export-ready ROI basis plus Real (non-blocked) execution mode.
  */
 export function isProjectedUsdSponsorBadgeVisible(
   payload: PilotRunDeltasProofSummaryJson | null,

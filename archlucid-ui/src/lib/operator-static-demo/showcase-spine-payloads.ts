@@ -370,7 +370,7 @@ function buildStaticDemoRunDetailFromCreatedShowcase(urlRunId: string): RunDetai
 
   return {
     executionFlavorBuyerSummary:
-      "Born-governed created review — findings, manifest, and export produced from guided intake without a separate review pass.",
+      "Sample created review — findings, manifest, and export produced from guided intake without a separate review pass.",
     agentExecutionLlmCostEstimate: {
       estimatedCostUsd: null,
       tokenCounts: { prompt: 0, completion: 0 },

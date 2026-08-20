@@ -589,7 +589,7 @@
   },
   {
     "title": "Recurrence schedules",
-    "summary": "Automate follow-up review cadences for governed architecture reviews.",
+    "summary": "Automate follow-up review cadences for architecture reviews.",
     "category": "Operations",
     "url": "/help/recurrence-schedules"
   },

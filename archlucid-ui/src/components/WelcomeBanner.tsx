@@ -19,6 +19,7 @@ import { writeHasExistingRunsCache } from "@/lib/operator/operator-run-presence"
 import { shouldSkipTenantTrialStatusFetch } from "@/lib/tenant-trial-status-client";
 import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY, operatorSemanticBadge, operatorSemanticSurface } from "@/lib/design-tokens";
 import { CANONICAL_ANONYMOUS_PROOF_HREF } from "@/lib/showcase-static-demo";
+import { BUYER_HOME_WELCOME_HEADING } from "@/lib/buyer-copy/operator-home";
 
 const SESSION_DISMISS_KEY = "archlucid_welcome_dismissed_session";
 
@@ -145,7 +146,7 @@ export function WelcomeBanner() {
     returningUser
       ? "Architecture review workspace"
       : buyerPolishedShell
-        ? "Explore one governed architecture review"
+        ? BUYER_HOME_WELCOME_HEADING
         : "Your first architecture review — four steps";
 
   // Core workspace hero — always expanded; do not add Minimize/X collapse here.

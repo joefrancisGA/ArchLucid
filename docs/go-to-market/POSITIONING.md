@@ -70,13 +70,13 @@ Related: [`CONCEPT_VOCABULARY.md#ui-glossary-v1`](../library/CONCEPT_VOCABULARY.
 
 **One-sentence tagline:** ***Defensible architecture, on demand.***
 
-> For **enterprise architects and the CTOs who sponsor their work**, ArchLucid turns scattered architecture evidence into **governed architecture packages** — evidence-linked findings, stated confidence limits, explicit non-conclusions where proof is missing, and exportable sponsor summaries backed by a signed manifest and audit chain. Unlike **manual architecture review**, which is slow, inconsistent, and undocumented, or **ad-hoc AI tools**, which produce prose without accountability, ArchLucid delivers a **proof-oriented package**: every risk traced to evidence, every recommendation actionable, every decision auditable — obvious from a **finished package** without a founder narrating generation.
+> For **enterprise architects and the CTOs who sponsor their work**, ArchLucid turns scattered architecture evidence into **architecture review packages** — evidence-linked findings, stated confidence limits, explicit non-conclusions where proof is missing, and exportable sponsor summaries backed by a signed manifest and audit chain. Unlike **manual architecture review**, which is slow, inconsistent, and undocumented, or **ad-hoc AI tools**, which produce prose without accountability, ArchLucid delivers a **proof-oriented package**: every risk traced to evidence, every recommendation actionable, every decision auditable — obvious from a **finished package** without a founder narrating generation.
 
 **Category:** Architecture Proof Engine — sits between traditional Enterprise Architecture Management (which catalogs but does not analyze) and ad-hoc AI assistance (which analyzes but lacks governance and traceability). **Lead promise:** *Defensible architecture, on demand.*
 
 **GTM companion lines (founder-led / consulting-enabled motion):**
 
-- **Pain-led one-liner:** *ArchLucid turns architecture evidence into governed architecture packages your sponsors can defend — review-led first, creation on the same pipeline.*
+- **Pain-led one-liner:** *ArchLucid turns architecture evidence into architecture review packages your sponsors can defend — review-led first, creation on the same pipeline.*
 - **Founder-led service line (outreach / LinkedIn):** *I use ArchLucid to deliver evidence-backed architecture packages for teams that need defensible decisions, not just diagrams.*
 
 Use these where the buyer is evaluating **a review and report**, not self-serve platform signup. Category tagline and sponsor brief remain authoritative for **product** framing. Named service SKUs and bands: [`QUOTE_TO_PROOF_PACKET.md#productized-service-offers`](QUOTE_TO_PROOF_PACKET.md#productized-service-offers) (`SERVICE_LED_OFFERS.md` alias). Execution tasks: [`GTM_BACKLOG.md`](GTM_BACKLOG.md).

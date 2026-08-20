@@ -19,7 +19,7 @@ export const WELCOME_HERO_PITCH_OPERATOR =
   "Turn scattered architecture evidence into a prioritized, evidence-linked review your ARB can defend — exportable proof in days, not weeks.";
 
 export const WELCOME_HERO_PITCH_BUYER =
-  "Turn scattered architecture evidence into a governed review your ARB can defend — explore sample proof first.";
+  "Turn scattered architecture evidence into an architecture review your ARB can defend — explore sample proof first.";
 
 /** Marketing welcome hero pitch — shorter buyer-oriented line above the fold. */
 export const WELCOME_HERO_PITCH = WELCOME_HERO_PITCH_BUYER;
