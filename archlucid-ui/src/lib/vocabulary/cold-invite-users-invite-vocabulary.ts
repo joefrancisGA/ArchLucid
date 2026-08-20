@@ -13,6 +13,7 @@
 
 import { INVITE_REVIEWER_PATH } from "@/lib/invite-reviewer-flow";
 import { SETTINGS_USERS_USERS_TAB_PATH } from "@/lib/settings-admin-route-paths";
+import type { PairwiseVocabularyRailModel } from "@/lib/vocabulary/create-pairwise-vocabulary-rail";
 
 /** Canonical cold-invite accept path (pre-sign-in). */
 export const AUTH_INVITE_PATH = "/auth/invite" as const;
@@ -60,14 +61,27 @@ export const COLD_INVITE_USERS_INVITE_USERS_LINK: ColdInviteUsersInviteLink = {
 /** Alternate admin deep-link for the Users tab invite panel (same send task). */
 export const COLD_INVITE_USERS_INVITE_USERS_TAB_HREF = SETTINGS_USERS_USERS_TAB_PATH;
 
-/** Full vocabulary model (heading, why-two copy, and deep links). */
-export function buildColdInviteUsersInviteVocabulary(): ColdInviteUsersInviteVocabularyModel {
+/** Pairwise model for Cold invite accept ↔ Users invite send (fixed routes). */
+export function buildColdInviteUsersInvitePairwiseRail(): PairwiseVocabularyRailModel<ColdInviteUsersInviteSurfaceId> {
   return {
     heading: COLD_INVITE_USERS_INVITE_HEADING,
     whyTwo: COLD_INVITE_USERS_INVITE_WHY_TWO,
     compactLine: COLD_INVITE_USERS_INVITE_COMPACT_LINE,
-    coldInviteLink: COLD_INVITE_USERS_INVITE_COLD_LINK,
-    usersInviteLink: COLD_INVITE_USERS_INVITE_USERS_LINK,
+    currentLink: COLD_INVITE_USERS_INVITE_COLD_LINK,
+    peerLink: COLD_INVITE_USERS_INVITE_USERS_LINK,
+  };
+}
+
+/** Full vocabulary model (heading, why-two copy, and deep links). */
+export function buildColdInviteUsersInviteVocabulary(): ColdInviteUsersInviteVocabularyModel {
+  const rail = buildColdInviteUsersInvitePairwiseRail();
+
+  return {
+    heading: rail.heading,
+    whyTwo: rail.whyTwo,
+    compactLine: rail.compactLine,
+    coldInviteLink: rail.currentLink,
+    usersInviteLink: rail.peerLink,
   };
 }
 

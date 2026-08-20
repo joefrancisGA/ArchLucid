@@ -14,6 +14,7 @@
 
 import { ADMINISTRATION_SYSTEM_HEALTH_PATH } from "@/lib/administration-route-paths";
 import { INTERNAL_CONFIGURATION_PATH } from "@/lib/internal-ops-route-paths";
+import type { PairwiseVocabularyRailModel } from "@/lib/vocabulary/create-pairwise-vocabulary-rail";
 
 export type ConfigurationSystemHealthSurfaceId =
   | "configuration-summary"
@@ -57,14 +58,27 @@ export const CONFIGURATION_SYSTEM_HEALTH_SYSTEM_HEALTH_LINK: ConfigurationSystem
   whenToUse: "Check platform readiness and critical dependency probes.",
 };
 
-/** Full vocabulary model (heading, why-two copy, and deep links). */
-export function buildConfigurationSystemHealthVocabulary(): ConfigurationSystemHealthVocabularyModel {
+/** Pairwise model for Configuration summary ↔ System health (fixed routes). */
+export function buildConfigurationSystemHealthPairwiseRail(): PairwiseVocabularyRailModel<ConfigurationSystemHealthSurfaceId> {
   return {
     heading: CONFIGURATION_SYSTEM_HEALTH_HEADING,
     whyTwo: CONFIGURATION_SYSTEM_HEALTH_WHY_TWO,
     compactLine: CONFIGURATION_SYSTEM_HEALTH_COMPACT_LINE,
-    configurationLink: CONFIGURATION_SYSTEM_HEALTH_CONFIGURATION_LINK,
-    systemHealthLink: CONFIGURATION_SYSTEM_HEALTH_SYSTEM_HEALTH_LINK,
+    currentLink: CONFIGURATION_SYSTEM_HEALTH_CONFIGURATION_LINK,
+    peerLink: CONFIGURATION_SYSTEM_HEALTH_SYSTEM_HEALTH_LINK,
+  };
+}
+
+/** Full vocabulary model (heading, why-two copy, and deep links). */
+export function buildConfigurationSystemHealthVocabulary(): ConfigurationSystemHealthVocabularyModel {
+  const rail = buildConfigurationSystemHealthPairwiseRail();
+
+  return {
+    heading: rail.heading,
+    whyTwo: rail.whyTwo,
+    compactLine: rail.compactLine,
+    configurationLink: rail.currentLink,
+    systemHealthLink: rail.peerLink,
   };
 }
 

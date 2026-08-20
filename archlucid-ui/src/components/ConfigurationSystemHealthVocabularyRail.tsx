@@ -2,13 +2,12 @@
 
 import type { JSX } from "react";
 
+import { PairwiseVocabularyRailFromModel } from "@/components/vocabulary/PairwiseVocabularyRailFromModel";
 import {
-  buildConfigurationSystemHealthVocabulary,
-  resolveConfigurationSystemHealthPeerLink,
+  buildConfigurationSystemHealthPairwiseRail,
   type ConfigurationSystemHealthSurfaceId,
   type ConfigurationSystemHealthVocabularyModel,
 } from "@/lib/vocabulary/configuration-system-health-vocabulary";
-import { VocabularyRail } from "@/components/vocabulary/VocabularyRail";
 
 export type ConfigurationSystemHealthVocabularyRailProps = {
   /** Surface hosting the strip — marks the current job and links to the peer. */
@@ -27,25 +26,25 @@ export type ConfigurationSystemHealthVocabularyRailProps = {
 export function ConfigurationSystemHealthVocabularyRail(
   props: ConfigurationSystemHealthVocabularyRailProps,
 ): JSX.Element {
-  const model = props.model ?? buildConfigurationSystemHealthVocabulary();
-  const peer = resolveConfigurationSystemHealthPeerLink(props.currentSurfaceId);
-  const currentLink =
-    props.currentSurfaceId === "configuration-summary"
-      ? model.configurationLink
-      : model.systemHealthLink;
+  const pairwiseModel =
+    props.model !== undefined
+      ? {
+          heading: props.model.heading,
+          whyTwo: props.model.whyTwo,
+          compactLine: props.model.compactLine,
+          currentLink: props.model.configurationLink,
+          peerLink: props.model.systemHealthLink,
+        }
+      : buildConfigurationSystemHealthPairwiseRail();
 
   return (
-    <VocabularyRail
+    <PairwiseVocabularyRailFromModel
       testIdPrefix="configuration-system-health-vocabulary"
       currentSurfaceId={props.currentSurfaceId}
       variant={props.variant}
       className={props.className}
-      compactLine={model.compactLine}
       compactLinkPlacement="inline"
-      heading={model.heading}
-      whyTwo={model.whyTwo}
-      currentLabel={currentLink.label}
-      links={[{ ...peer, testIdSuffix: "peer-link" }]}
+      model={pairwiseModel}
     />
   );
 }

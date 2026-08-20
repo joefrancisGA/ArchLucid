@@ -350,6 +350,38 @@ function resolveDeferredChunkImportLoader(
           (module) => module.RunExplanationConfidenceBanner,
         ),
       ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "run-detail-governance-alerts":
+      return deferredChunkLoader(() =>
+        import("@/components/reviews/RunDetailGovernanceAlerts").then((module) => module.RunDetailGovernanceAlerts),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "run-detail-what-if-branch-compare-banner":
+      return deferredChunkLoader(() =>
+        import("@/components/draft-intake/WhatIfBranchCompareBanner").then(
+          (module) => module.WhatIfBranchCompareBanner,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "run-detail-commit-blocking-findings-banner":
+      return deferredChunkLoader(() =>
+        import("@/components/usability/CommitBlockingFindingsBanner").then(
+          (module) => module.CommitBlockingFindingsBanner,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "run-detail-stalled-review-guidance-callout":
+      return deferredChunkLoader(() =>
+        import("@/components/usability/StalledReviewGuidanceCallout").then(
+          (module) => module.StalledReviewGuidanceCallout,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "run-detail-cto-demo-review-route-guard":
+      return deferredChunkLoader(() =>
+        import("@/components/cto-demo/CtoDemoReviewRouteGuard").then((module) => module.CtoDemoReviewRouteGuard),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "run-detail-policy-pack-impact-callout":
+      return deferredChunkLoader(() =>
+        import("@/components/findings/ReviewDetailPolicyPackImpactSection").then(
+          (module) => module.ReviewDetailPolicyPackImpactSection,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
     default:
       throw new Error(`No deferred chunk import loader registered for manifest entry "${entryId}".`);
   }

@@ -135,12 +135,9 @@ export const RunDetailExplanationConfidenceBannerDeferred = createDeferredCompon
   { suppressLoading: true },
 );
 
-export const RunDetailGovernanceAlertsDeferred = dynamic(
-  () =>
-    import("@/components/reviews/RunDetailGovernanceAlerts").then(
-      (module) => module.RunDetailGovernanceAlerts,
-    ),
-  { ssr: false, loading: () => null },
+export const RunDetailGovernanceAlertsDeferred = createDeferredComponentFromManifest(
+  "run-detail-governance-alerts",
+  { suppressLoading: true },
 );
 
 /** Activity-tab / details-gated outcome cards — not needed for first paint (TB-933). */
@@ -148,44 +145,29 @@ export const RunDetailOutcomeCardsDeferred = createDeferredComponentFromManifest
   loadingClassName: "h-40",
 });
 
-export const RunDetailWhatIfBranchCompareBannerDeferred = dynamic(
-  () =>
-    import("@/components/draft-intake/WhatIfBranchCompareBanner").then(
-      (module) => module.WhatIfBranchCompareBanner,
-    ),
-  { ssr: false, loading: () => null },
+export const RunDetailWhatIfBranchCompareBannerDeferred = createDeferredComponentFromManifest(
+  "run-detail-what-if-branch-compare-banner",
+  { suppressLoading: true },
 );
 
-export const RunDetailCommitBlockingFindingsBannerDeferred = dynamic(
-  () =>
-    import("@/components/usability/CommitBlockingFindingsBanner").then(
-      (module) => module.CommitBlockingFindingsBanner,
-    ),
-  { ssr: false, loading: () => null },
+export const RunDetailCommitBlockingFindingsBannerDeferred = createDeferredComponentFromManifest(
+  "run-detail-commit-blocking-findings-banner",
+  { suppressLoading: true },
 );
 
-export const RunDetailStalledReviewGuidanceCalloutDeferred = dynamic(
-  () =>
-    import("@/components/usability/StalledReviewGuidanceCallout").then(
-      (module) => module.StalledReviewGuidanceCallout,
-    ),
-  { ssr: false, loading: () => null },
+export const RunDetailStalledReviewGuidanceCalloutDeferred = createDeferredComponentFromManifest(
+  "run-detail-stalled-review-guidance-callout",
+  { suppressLoading: true },
 );
 
-export const RunDetailCtoDemoReviewRouteGuardDeferred = dynamic(
-  () =>
-    import("@/components/cto-demo/CtoDemoReviewRouteGuard").then(
-      (module) => module.CtoDemoReviewRouteGuard,
-    ),
-  { ssr: false, loading: () => null },
+export const RunDetailCtoDemoReviewRouteGuardDeferred = createDeferredComponentFromManifest(
+  "run-detail-cto-demo-review-route-guard",
+  { suppressLoading: true },
 );
 
-export const RunDetailPolicyPackImpactCalloutDeferred = dynamic(
-  () =>
-    import("@/components/findings/ReviewDetailPolicyPackImpactSection").then(
-      (module) => module.ReviewDetailPolicyPackImpactSection,
-    ),
-  { ssr: false, loading: () => null },
+export const RunDetailPolicyPackImpactCalloutDeferred = createDeferredComponentFromManifest(
+  "run-detail-policy-pack-impact-callout",
+  { suppressLoading: true },
 );
 
 export const RunDetailOperatorTechnicalForensicsPanelDeferred = createDeferredComponentFromManifest(
