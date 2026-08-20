@@ -86,9 +86,9 @@ export const IMPACT_PREVIEW_HELP_GUIDE_HEADINGS: readonly HelpMarkdownHeading[] 
 export const IMPACT_PREVIEW_HELP_NEGATION_DRIFT_MARKERS = {
   overviewMustNotContain: [
     "not production observation",
-    "not a sealed-review diligence",
+    "not a full audit export",
     "sources package",
     "Sources package",
   ],
-  claimMustContain: "not a sealed-review diligence sources package",
+  claimMustContain: "not a full audit export",
 } as const;

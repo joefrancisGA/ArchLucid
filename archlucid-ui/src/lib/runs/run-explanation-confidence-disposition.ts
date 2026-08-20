@@ -46,7 +46,7 @@ export function buildExplanationConfidenceSummary(
       detail:
         warning.length > 0
           ? warning
-          : "Faithfulness was too low for sponsor-safe LLM narrative — review record-backed text before external send.",
+          : "Faithfulness was too low for export-ready LLM narrative — review record-backed text before external send.",
     };
   }
 

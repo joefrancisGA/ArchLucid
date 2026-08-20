@@ -15,7 +15,7 @@ export const ROI_SUMMARY_CLAIM_DISCIPLINE =
   "ROI summary hours and dollar estimates are directional portfolio metrics for the selected window — they are not invoices, financial reporting, or an audit export. Open Architecture reviews, Evidence trail, or Trust Center when you need export-ready records.";
 
 export const ROI_SUMMARY_SOURCES_INTRO = hubSecondaryFollowUpsIntro(
-  "ROI summary needs architecture reviews, methodology context, or assurance cites",
+  "ROI summary needs architecture reviews, methodology context, or official assurance materials",
 );
 
 

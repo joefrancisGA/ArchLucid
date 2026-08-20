@@ -18,7 +18,7 @@ export const ACCOUNT_SECURITY_SETTINGS_CLAIM_DISCIPLINE =
   `This ${ACCOUNT_SECURITY_PAGE_TITLE} page manages your personal sign-in methods — not a full audit export. Open Security and trust help, Preferences, or Assurance status for official materials or theme settings.`;
 
 export const ACCOUNT_SECURITY_SETTINGS_SOURCES_INTRO =
-  "Use these follow-ups when sign-in method changes turn into workspace identity setup, preferences, or assurance cites.";
+  "Use these follow-ups when sign-in method changes turn into workspace identity setup, preferences, or official assurance materials.";
 
 
 /** Operator Sources - no self-href to account-security. */

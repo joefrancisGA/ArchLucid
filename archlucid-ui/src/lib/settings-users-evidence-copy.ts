@@ -10,7 +10,7 @@ export const SETTINGS_USERS_CLAIM_DISCIPLINE =
   "User invitations, role assignments, and API-key access on this page configure workspace membership — not a full audit export. Open Users and roles help or Assurance status before procurement.";
 
 export const SETTINGS_USERS_SOURCES_INTRO =
-  "Use these follow-ups when access setup needs role guidance, SSO configuration, or assurance cites.";
+  "Use these follow-ups when access setup needs role guidance, SSO configuration, or official assurance materials.";
 
 
 /** Operator Sources — no self-href to the users settings page. */

@@ -8,7 +8,7 @@ export const SSO_WIZARD_HELP_TOPIC_LABEL = "How the SSO wizard works" as const;
 export const SSO_WIZARD_FOLLOW_UPS_TITLE = "Where to go next";
 
 export const SSO_WIZARD_SOURCES_INTRO =
-  "Use these follow-ups when wizard steps turn into identity-provider hub setup, role mapping, diagnostics, or assurance cites.";
+  "Use these follow-ups when wizard steps turn into identity-provider hub setup, role mapping, diagnostics, or official assurance materials.";
 
 /** Operator Sources - no self-href to SSO wizard. */
 export const SSO_WIZARD_SOURCES: readonly EvidenceSourceLink[] = [

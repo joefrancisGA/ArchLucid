@@ -7,7 +7,7 @@ export const PREFERENCES_HELP_CANONICAL_PATH = "/help/preferences" as const;
 export const PREFERENCES_HELP_CLAIM_DISCIPLINE_HEADING = "What this guide does not cover";
 
 export const PREFERENCES_HELP_CLAIM_DISCIPLINE =
-  "This guide explains personal preferences — it is not a sealed-review diligence sources package.";
+  "This guide explains personal preferences — not a full audit export.";
 
 export const PREFERENCES_HELP_FOLLOW_UPS_TITLE = "Where to go next";
 
@@ -34,6 +34,6 @@ export const PREFERENCES_HELP_SOURCES: readonly EvidenceOrientationLink[] = [
   {
     label: "Assurance status",
     href: "/assurance-status",
-    when: "Open assurance status when trust cites are needed for procurement",
+    when: "Open assurance status when official materials are needed for procurement",
   },
 ] as const;

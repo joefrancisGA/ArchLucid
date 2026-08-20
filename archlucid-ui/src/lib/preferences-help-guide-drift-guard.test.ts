@@ -63,11 +63,11 @@ describe("preferences help negation drift guard", () => {
         PREFERENCES_HELP_NEGATION_DRIFT_MARKERS.claimMustContain,
       );
 
-      const diligenceNegationCount =
-        (PREFERENCES_HELP_OVERVIEW.match(/sources package/gi) ?? []).length +
-        (PREFERENCES_HELP_CLAIM_DISCIPLINE.match(/sources package/gi) ?? []).length;
+      const auditExportNegationCount =
+        (PREFERENCES_HELP_OVERVIEW.match(/full audit export/gi) ?? []).length +
+        (PREFERENCES_HELP_CLAIM_DISCIPLINE.match(/full audit export/gi) ?? []).length;
 
-      expect(diligenceNegationCount).toBe(1);
+      expect(auditExportNegationCount).toBe(1);
     }
   });
 

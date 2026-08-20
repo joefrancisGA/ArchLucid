@@ -19,7 +19,7 @@ export const CONNECT_GCP_SECURELY_CONFIGURE_ACTION = "Open GCP connection settin
 export const CONNECT_GCP_SECURELY_CONFIGURE_HREF = "/integrations/cloud-connections/gcp" as const;
 
 export const CONNECT_GCP_SECURELY_SOURCES_INTRO =
-  "Use these follow-ups when GCP setup needs the live hub, connection health, security orientation, or assurance cites.";
+  "Use these follow-ups when GCP setup needs the live hub, connection health, security orientation, or official assurance materials.";
 
 /** Operator Sources — no self-href to `/help/cloud-connections/gcp` or sibling cloud provider guides. */
 export const CONNECT_GCP_SECURELY_SOURCES: readonly EvidenceSourceLink[] = [

@@ -16,7 +16,7 @@ export const AUTH_DOMAINS_SETTINGS_CLAIM_DISCIPLINE =
   "This Sign-in domains page verifies email domain ownership and SSO enforcement readiness — not a full audit export. Open SSO and identity, Users and roles help, or Assurance status when you need federation setup or membership.";
 
 export const AUTH_DOMAINS_SETTINGS_SOURCES_INTRO =
-  "Use these follow-ups when domain verification turns into identity-provider setup, recovery admins, or assurance cites.";
+  "Use these follow-ups when domain verification turns into identity-provider setup, recovery admins, or official assurance materials.";
 
 
 /** Operator Sources - no self-href to `/administration/auth-domains`. */

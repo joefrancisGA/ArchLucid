@@ -7,7 +7,7 @@ import { inAppHelpHref } from "@/lib/product-documentation-registry";
 export const PLANNING_CLAIM_DISCIPLINE_HEADING = "What improvement planning is not";
 
 export const PLANNING_CLAIM_DISCIPLINE =
-  "Themes and plans aggregate captured review feedback in the current workspace scope — not a sealed-review diligence sources package. Open reviews, findings, or product learning before treating prioritized plans as executed commitments.";
+  "Themes and plans aggregate captured review feedback in the current workspace scope — not a full audit export. Open reviews, findings, or product learning before treating prioritized plans as executed commitments.";
 
 export const PLANNING_SOURCES_INTRO =
   "Open reviews, findings, or product learning before treating prioritized plans as executed commitments.";
@@ -18,12 +18,12 @@ export const PLANNING_SOURCES: readonly EvidenceOrientationLink[] = [
   {
     label: "Architecture reviews",
     href: IMPROVEMENT_PLANNING_VIEW_REVIEWS_HREF,
-    when: "Open governed architecture reviews when a plan needs execution or evidence trails",
+    when: "Open architecture reviews when a plan needs execution or activity records",
   },
   {
     label: "Findings",
     href: GOVERNANCE_FINDINGS_PATH,
-    when: "Triage live findings when a theme needs disposition follow-up",
+    when: "Triage live findings when a theme needs resolve follow-up",
   },
   {
     label: "Product learning",

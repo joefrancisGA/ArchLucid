@@ -74,13 +74,13 @@ export const PREFERENCES_HELP_GUIDE_HEADINGS: readonly HelpMarkdownHeading[] = [
   { level: 2, id: "where-to-go-next", title: "Where to go next" },
 ];
 
-/** Drift guard: overview stays positive-only; claim band owns the diligence negation once. */
+/** Drift guard: overview stays positive-only; claim band owns the audit-export negation once. */
 export const PREFERENCES_HELP_NEGATION_DRIFT_MARKERS = {
   overviewMustNotContain: [
-    "not a sealed-review diligence",
+    "not a full audit export",
     "sources package",
     "Sources package",
     "does not change",
   ],
-  claimMustContain: "not a sealed-review diligence sources package",
+  claimMustContain: "not a full audit export",
 } as const;

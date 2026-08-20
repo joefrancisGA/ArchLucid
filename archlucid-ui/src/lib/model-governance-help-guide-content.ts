@@ -84,10 +84,10 @@ export const MODEL_GOVERNANCE_HELP_GUIDE_HEADINGS: readonly HelpMarkdownHeading[
 /** Drift guard: overview stays positive-only; claim band owns the diligence negation once. */
 export const MODEL_GOVERNANCE_HELP_NEGATION_DRIFT_MARKERS = {
   overviewMustNotContain: [
-    "not a sealed-review diligence",
+    "not a full audit export",
     "sources package",
     "Sources package",
     "diligence Sources",
   ],
-  claimMustContain: "not a sealed-review diligence Sources package",
+  claimMustContain: "not a full audit export",
 } as const;
