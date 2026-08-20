@@ -10,6 +10,10 @@ const sectionsDir = join(routeDir, "_sections");
 const pageSource = readFileSync(join(routeDir, "page.tsx"), "utf8");
 const clientSource = readFileSync(join(sectionsDir, "SignedRecordsListClient.tsx"), "utf8");
 const deferredSource = readFileSync(join(sectionsDir, "signed-records-list-deferred-chunks.tsx"), "utf8");
+const manifestLoaderSource = readFileSync(
+  join(sectionsDir, "../../../../../lib/operator/load-deferred-chunk-from-manifest.tsx"),
+  "utf8",
+);
 
 const bannedClientImports = ['./SignedRecordsListTable"'] as const;
 
@@ -29,8 +33,12 @@ describe("signed-records list deferred imports (TB-2061 / wave 11)", () => {
     expect(clientSource).toContain("SignedRecordsListTableDeferred");
   });
 
-  it("dynamic-imports the signed-records list table", () => {
-    expect(deferredSource).toContain("next/dynamic");
-    expect(deferredSource).toContain('import("./SignedRecordsListTable")');
+  it("dynamic-imports the signed-records list table via manifest loaders", () => {
+    expect(deferredSource).toContain("createDeferredComponentFromManifest");
+    expect(deferredSource).not.toContain("next/dynamic");
+    expect(manifestLoaderSource).toContain(
+      'import("@/app/(operator)/governance/sealed-records/_sections/SignedRecordsListTable")',
+    );
+    expect(deferredSource).toContain("signed-records-list-table");
   });
 });

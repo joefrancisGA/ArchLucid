@@ -7,11 +7,14 @@ import {
   deferredChunkManifestEntry,
   type DeferredChunkManifestEntry,
 } from "@/lib/operator/deferred-chunk-manifest";
+import { ALERT_RULES_HUB_CHUNK_MANIFEST } from "@/lib/operator/alert-rules-hub-chunk-manifest";
 import { GOVERNANCE_WORKFLOW_CHUNK_MANIFEST } from "@/lib/operator/governance-workflow-chunk-manifest";
 import { OPERATOR_HOME_CHUNK_MANIFEST } from "@/lib/operator/operator-home-chunk-manifest";
 import { POLICY_PACKS_AUTHORING_CHUNK_MANIFEST } from "@/lib/operator/policy-packs-authoring-chunk-manifest";
 import { REVIEWS_HUB_CHUNK_MANIFEST } from "@/lib/operator/reviews-hub-chunk-manifest";
 import { RUN_DETAIL_CHUNK_MANIFEST } from "@/lib/operator/run-detail-chunk-manifest";
+import { SIGNED_RECORDS_LIST_CHUNK_MANIFEST } from "@/lib/operator/signed-records-list-chunk-manifest";
+import { SPONSOR_ROI_DASHBOARD_CHUNK_MANIFEST } from "@/lib/operator/sponsor-roi-dashboard-chunk-manifest";
 
 export type LoadDeferredChunkFromManifestOptions = {
   readonly ssr?: boolean;
@@ -166,6 +169,38 @@ function resolveDeferredChunkImportLoader(
       return deferredChunkLoader(() =>
         import("@/app/(operator)/governance/policy-packs/_sections/PolicyPackVisualBuilder").then(
           (module) => module.PolicyPackVisualBuilder,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "alert-rules-hub-conditions":
+      return deferredChunkLoader(() =>
+        import("@/components/alerts/AlertRulesContent").then((module) => module.AlertRulesContent),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "alert-rules-hub-routing":
+      return deferredChunkLoader(() =>
+        import("@/components/alerts/AlertRoutingContent").then((module) => module.AlertRoutingContent),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "alert-rules-hub-composite-rules":
+      return deferredChunkLoader(() =>
+        import("@/components/alerts/CompositeAlertRulesContent").then(
+          (module) => module.CompositeAlertRulesContent,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "alert-rules-hub-simulation-tuning":
+      return deferredChunkLoader(() =>
+        import("@/components/alerts/AlertSimulationTuningSection").then(
+          (module) => module.AlertSimulationTuningSection,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "signed-records-list-table":
+      return deferredChunkLoader(() =>
+        import("@/app/(operator)/governance/sealed-records/_sections/SignedRecordsListTable").then(
+          (module) => module.SignedRecordsListTable,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "sponsor-roi-dashboard-next-action":
+      return deferredChunkLoader(() =>
+        import("@/app/(operator)/architecture/sponsor-dashboard/_sections/SponsorDashboardNextActionSection").then(
+          (module) => module.SponsorDashboardNextActionSection,
         ),
       ) as () => Promise<ComponentType<Record<string, unknown>>>;
     case "reviews-hub-inventory":
@@ -689,3 +724,15 @@ export const GOVERNANCE_WORKFLOW_DEFERRED_CHUNK_LOADER_IDS: readonly string[] =
 /** Policy-packs authoring manifest ids that have registered import loaders (manifest import-test guard). */
 export const POLICY_PACKS_AUTHORING_DEFERRED_CHUNK_LOADER_IDS: readonly string[] =
   POLICY_PACKS_AUTHORING_CHUNK_MANIFEST.map((entry) => entry.id);
+
+/** Alert-rules hub manifest ids that have registered import loaders (manifest import-test guard). */
+export const ALERT_RULES_HUB_DEFERRED_CHUNK_LOADER_IDS: readonly string[] =
+  ALERT_RULES_HUB_CHUNK_MANIFEST.map((entry) => entry.id);
+
+/** Signed-records list manifest ids that have registered import loaders (manifest import-test guard). */
+export const SIGNED_RECORDS_LIST_DEFERRED_CHUNK_LOADER_IDS: readonly string[] =
+  SIGNED_RECORDS_LIST_CHUNK_MANIFEST.map((entry) => entry.id);
+
+/** Sponsor ROI dashboard manifest ids that have registered import loaders (manifest import-test guard). */
+export const SPONSOR_ROI_DASHBOARD_DEFERRED_CHUNK_LOADER_IDS: readonly string[] =
+  SPONSOR_ROI_DASHBOARD_CHUNK_MANIFEST.map((entry) => entry.id);

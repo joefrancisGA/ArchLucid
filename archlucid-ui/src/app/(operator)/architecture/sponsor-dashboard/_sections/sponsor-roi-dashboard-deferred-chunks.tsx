@@ -4,6 +4,7 @@ import dynamic from "next/dynamic";
 import type { ComponentType, JSX } from "react";
 
 import { DeferredChunkLoading } from "@/components/ui/deferred-chunk-loading";
+import { createDeferredComponentFromManifest } from "@/lib/operator/load-deferred-chunk-from-manifest";
 
 import type { SponsorComplianceDriftTrendSectionProps } from "./SponsorComplianceDriftTrendSection";
 import type { SponsorDashboardNextActionSectionProps } from "./SponsorDashboardNextActionSection";
@@ -35,16 +36,9 @@ export const OperatorWelcomeOnboardingDeferred: ComponentType = dynamic(
 );
 
 export const SponsorDashboardNextActionSectionDeferred: ComponentType<SponsorDashboardNextActionSectionProps> =
-  dynamic(
-    () =>
-      import("./SponsorDashboardNextActionSection").then(
-        (module) => module.SponsorDashboardNextActionSection,
-      ),
-    {
-      ssr: false,
-      loading: () => executiveDashboardDeferredLoading("Loading next action"),
-    },
-  );
+  createDeferredComponentFromManifest("sponsor-roi-dashboard-next-action", {
+    loadingTestId: "sponsor-dashboard-deferred-chunk-loading",
+  });
 
 export const SponsorDashboardPrimaryMetricsSectionDeferred: ComponentType<SponsorDashboardPrimaryMetricsSectionProps> =
   dynamic(
