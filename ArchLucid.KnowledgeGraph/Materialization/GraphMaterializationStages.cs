@@ -1,5 +1,6 @@
 using ArchLucid.Contracts.Persistence.Context;
 using ArchLucid.KnowledgeGraph.Interfaces;
+using ArchLucid.KnowledgeGraph.Mapping;
 using ArchLucid.KnowledgeGraph.Models;
 
 namespace ArchLucid.KnowledgeGraph.Materialization;
