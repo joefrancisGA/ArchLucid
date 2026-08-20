@@ -147,6 +147,92 @@ public sealed class IntegrationEventPayloadContractTests
     }
 
     [Fact]
+    public void AuthorityRunFailed_payload_has_expected_contract()
+    {
+        object payload = new
+        {
+            schemaVersion = 1,
+            tenantId = Guid.NewGuid(),
+            workspaceId = Guid.NewGuid(),
+            projectId = Guid.NewGuid(),
+            runId = Guid.NewGuid(),
+            failureClass = "AgentExecutionFailed",
+            agentType = "Topology",
+            reasonCode = "timeout",
+        };
+
+        AssertPayloadMatchesCommittedSchema("authority-run-failed.v1.schema.json", payload);
+    }
+
+    [Fact]
+    public void AuthorityRunQualityGateRejected_payload_has_expected_contract()
+    {
+        object payload = new
+        {
+            schemaVersion = 1,
+            tenantId = Guid.NewGuid(),
+            workspaceId = Guid.NewGuid(),
+            projectId = Guid.NewGuid(),
+            runId = Guid.NewGuid(),
+            traceId = "trace-1",
+            agentLabel = "Topology",
+            rejectReasonCategory = "structure",
+        };
+
+        AssertPayloadMatchesCommittedSchema("authority-run-quality-gate-rejected.v1.schema.json", payload);
+    }
+
+    [Fact]
+    public void FindingsHighSeverityCaptured_payload_has_expected_contract()
+    {
+        Guid runId = Guid.NewGuid();
+
+        object payload = new
+        {
+            schemaVersion = 1,
+            tenantId = Guid.NewGuid(),
+            workspaceId = Guid.NewGuid(),
+            projectId = Guid.NewGuid(),
+            runId,
+            findingsSnapshotId = Guid.NewGuid(),
+            highSeverityCount = 1,
+            findings = new[]
+            {
+                new
+                {
+                    findingId = "finding-1",
+                    title = "Missing backup policy",
+                    severity = "Error",
+                    category = "Resilience",
+                    deepLinkUrl = $"https://archlucid.net/runs/{runId:D}/findings/finding-1",
+                },
+            },
+        };
+
+        AssertPayloadMatchesCommittedSchema("findings-high-severity-captured.v1.schema.json", payload);
+    }
+
+    [Fact]
+    public void GovernancePolicyPackPublished_payload_has_expected_contract()
+    {
+        object payload = new
+        {
+            schemaVersion = 1,
+            tenantId = Guid.NewGuid(),
+            workspaceId = Guid.NewGuid(),
+            projectId = Guid.NewGuid(),
+            policyPackId = Guid.NewGuid(),
+            policyPackVersionId = Guid.NewGuid(),
+            name = "SOC 2 baseline",
+            packType = "BuiltIn",
+            version = "1.0.0",
+            publishedUtc = TimeProvider.System.UtcNowDateTime(),
+        };
+
+        AssertPayloadMatchesCommittedSchema("governance-policy-pack-published.v1.schema.json", payload);
+    }
+
+    [Fact]
     public void AlertFired_payload_has_expected_contract()
     {
         object payload = new
@@ -346,12 +432,19 @@ public sealed class IntegrationEventPayloadContractTests
         Dictionary<string, string> expectedFileToEventType = new(StringComparer.Ordinal)
         {
             ["authority-run-completed.v1.schema.json"] = IntegrationEventTypes.AuthorityRunCompletedV1,
+            ["authority-run-failed.v1.schema.json"] = IntegrationEventTypes.AuthorityRunFailedV1,
+            ["authority-run-quality-gate-rejected.v1.schema.json"] =
+                IntegrationEventTypes.AuthorityRunQualityGateRejectedV1,
+            ["findings-high-severity-captured.v1.schema.json"] =
+                IntegrationEventTypes.FindingsHighSeverityCapturedV1,
             ["manifest-finalized.v1.schema.json"] = IntegrationEventTypes.ManifestFinalizedV1,
             ["governance-approval-submitted.v1.schema.json"] = IntegrationEventTypes.GovernanceApprovalSubmittedV1,
             ["governance-approval-approved.v1.schema.json"] = IntegrationEventTypes.GovernanceApprovalApprovedV1,
             ["governance-approval-rejected.v1.schema.json"] = IntegrationEventTypes.GovernanceApprovalRejectedV1,
             ["governance-promotion-activated.v1.schema.json"] =
                 IntegrationEventTypes.GovernancePromotionActivatedV1,
+            ["governance-policy-pack-published.v1.schema.json"] =
+                IntegrationEventTypes.GovernancePolicyPackPublishedV1,
             ["alert-fired.v1.schema.json"] = IntegrationEventTypes.AlertFiredV1,
             ["alert-acknowledged.v1.schema.json"] = IntegrationEventTypes.AlertAcknowledgedV1,
             ["alert-resolved.v1.schema.json"] = IntegrationEventTypes.AlertResolvedV1,

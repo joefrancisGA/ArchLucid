@@ -1,7 +1,14 @@
 using System.Text.Json;
 
+using ArchLucid.Application.Governance;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Integration;
 using ArchLucid.Decisioning.Governance.PolicyPacks;
+using ArchLucid.Persistence.IntegrationOutbox;
+
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Host.Core.Services;
 
@@ -16,11 +23,19 @@ namespace ArchLucid.Host.Core.Services;
 /// <param name="packRepository">Loads pack metadata to block republishing platform defaults.</param>
 /// <param name="versionRepository">Read path for assign 404 semantics.</param>
 /// <param name="auditService">Structured audit log.</param>
+/// <param name="integrationEventOutbox">Transactional outbox for integration events.</param>
+/// <param name="integrationEventPublisher">Direct Service Bus publisher when outbox is disabled.</param>
+/// <param name="integrationEventsOptions">Integration event transport options.</param>
+/// <param name="logger">Structured logging.</param>
 public sealed class PolicyPacksAppService(
     IPolicyPackManagementService managementService,
     IPolicyPackRepository packRepository,
     IPolicyPackVersionRepository versionRepository,
-    IAuditService auditService) : IPolicyPacksAppService
+    IAuditService auditService,
+    IIntegrationEventOutboxRepository integrationEventOutbox,
+    IIntegrationEventPublisher integrationEventPublisher,
+    IOptionsMonitor<IntegrationEventsOptions> integrationEventsOptions,
+    ILogger<PolicyPacksAppService> logger) : IPolicyPacksAppService
 {
     /// <inheritdoc />
     /// <remarks>Audit payload: pack id, name, pack type (minimal PII).</remarks>
@@ -72,6 +87,18 @@ public sealed class PolicyPacksAppService(
                 EventType = AuditEventTypes.PolicyPackVersionPublished, DataJson = JsonSerializer.Serialize(new { policyPackId, packVersion.Version }),
             },
             ct);
+
+        if (pack is not null)
+        {
+            await PolicyPackIntegrationEventPublishing.TryPublishPublishedAsync(
+                integrationEventOutbox,
+                integrationEventPublisher,
+                integrationEventsOptions,
+                logger,
+                pack,
+                packVersion,
+                ct);
+        }
 
         return packVersion;
     }

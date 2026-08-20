@@ -30,6 +30,23 @@ export const TEAMS_NOTIFICATION_CATEGORIES: readonly TeamsNotificationCategory[]
         description: "The authoritative architecture package was committed as the sealed review record.",
       },
       {
+        eventType: "com.archlucid.authority.run.failed",
+        label: "Review failed",
+        description: "A review did not complete successfully during execution.",
+        recommended: true,
+      },
+      {
+        eventType: "com.archlucid.authority.run.quality-gate.rejected",
+        label: "Quality gate rejected",
+        description: "Review output did not meet the configured quality bar.",
+        recommended: true,
+      },
+      {
+        eventType: "com.archlucid.findings.high-severity.captured.v1",
+        label: "High-severity findings captured",
+        description: "One notification summarizing high-severity findings from a completed review.",
+      },
+      {
         eventType: "com.archlucid.advisory.scan.completed",
         label: "Advisory scan completed",
         description: "An advisory scan produced updated findings.",
@@ -84,6 +101,11 @@ export const TEAMS_NOTIFICATION_CATEGORIES: readonly TeamsNotificationCategory[]
         eventType: "com.archlucid.compliance.drift.escalated",
         label: "Compliance drift escalated",
         description: "A compliance issue exceeded its configured threshold.",
+      },
+      {
+        eventType: "com.archlucid.governance.policy-pack.published.v1",
+        label: "Policy pack activated",
+        description: "A policy pack version was published and is available for governed reviews.",
       },
     ],
   },

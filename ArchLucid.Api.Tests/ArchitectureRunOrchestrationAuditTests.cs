@@ -142,6 +142,9 @@ public sealed class ArchitectureRunOrchestrationAuditTests
             new OperationRunCancellationMarker(runRepository),
             new DisabledRunExecuteOwnershipLeaseService(),
             Mock.Of<IRunStageOutcomesRepository>(),
+            ArchitectureRunExecuteOrchestratorTestFactory.CreateIntegrationEventOutbox(),
+            ArchitectureRunExecuteOrchestratorTestFactory.CreateIntegrationEventPublisher(),
+            ArchitectureRunExecuteOrchestratorTestFactory.CreateIntegrationEventsOptionsMonitor(),
             NullLogger<ArchitectureRunExecuteOrchestrator>.Instance);
     }
 

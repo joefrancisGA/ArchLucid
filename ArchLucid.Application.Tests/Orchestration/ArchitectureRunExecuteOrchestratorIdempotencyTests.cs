@@ -173,6 +173,9 @@ public sealed class ArchitectureRunExecuteOrchestratorIdempotencyTests
             new OperationRunCancellationMarker(runRepo.Object),
             new DisabledRunExecuteOwnershipLeaseService(),
             Mock.Of<IRunStageOutcomesRepository>(),
+            ArchitectureRunExecuteOrchestratorTestFactory.CreateIntegrationEventOutbox(),
+            ArchitectureRunExecuteOrchestratorTestFactory.CreateIntegrationEventPublisher(),
+            ArchitectureRunExecuteOrchestratorTestFactory.CreateIntegrationEventsOptionsMonitor(),
             NullLogger<ArchitectureRunExecuteOrchestrator>.Instance);
     }
 

@@ -8,11 +8,18 @@ public static class IntegrationWebhookPayloadSamples
     private static readonly HashSet<string> KnownEventTypes = new(StringComparer.Ordinal)
     {
         IntegrationEventTypes.AuthorityRunCompletedV1,
+        IntegrationEventTypes.AuthorityRunFailedV1,
+        IntegrationEventTypes.AuthorityRunQualityGateRejectedV1,
+        IntegrationEventTypes.FindingsHighSeverityCapturedV1,
         IntegrationEventTypes.DataConsistencyCheckCompletedV1,
         IntegrationEventTypes.ManifestFinalizedV1,
         IntegrationEventTypes.GovernanceApprovalSubmittedV1,
+        IntegrationEventTypes.GovernanceApprovalApprovedV1,
+        IntegrationEventTypes.GovernanceApprovalRejectedV1,
         IntegrationEventTypes.GovernancePromotionActivatedV1,
+        IntegrationEventTypes.GovernancePolicyPackPublishedV1,
         IntegrationEventTypes.AlertFiredV1,
+        IntegrationEventTypes.AlertAcknowledgedV1,
         IntegrationEventTypes.AlertResolvedV1,
         IntegrationEventTypes.AdvisoryScanCompletedV1,
         IntegrationEventTypes.ComplianceDriftEscalatedV1,
@@ -33,10 +40,18 @@ public static class IntegrationWebhookPayloadSamples
                 IntegrationEventTypes.ManifestFinalizedV1,
             "RunCompleted" or "AuthorityRunCompleted" or "authority-run-completed" =>
                 IntegrationEventTypes.AuthorityRunCompletedV1,
+            "AuthorityRunFailed" or "authority-run-failed" =>
+                IntegrationEventTypes.AuthorityRunFailedV1,
+            "AuthorityRunQualityGateRejected" or "authority-run-quality-gate-rejected" =>
+                IntegrationEventTypes.AuthorityRunQualityGateRejectedV1,
+            "FindingsHighSeverityCaptured" or "findings-high-severity-captured" =>
+                IntegrationEventTypes.FindingsHighSeverityCapturedV1,
             "GovernanceApprovalSubmitted" or "governance-approval-submitted" =>
                 IntegrationEventTypes.GovernanceApprovalSubmittedV1,
             "GovernancePromotionActivated" or "governance-promotion-activated" =>
                 IntegrationEventTypes.GovernancePromotionActivatedV1,
+            "GovernancePolicyPackPublished" or "governance-policy-pack-published" =>
+                IntegrationEventTypes.GovernancePolicyPackPublishedV1,
             "AlertFired" or "alert-fired" => IntegrationEventTypes.AlertFiredV1,
             "AlertResolved" or "alert-resolved" => IntegrationEventTypes.AlertResolvedV1,
             "AdvisoryScanCompleted" or "advisory-scan-completed" =>
@@ -67,10 +82,17 @@ public static class IntegrationWebhookPayloadSamples
         return resolvedEventType switch
         {
             IntegrationEventTypes.AuthorityRunCompletedV1 => CreateAuthorityRunCompleted(),
+            IntegrationEventTypes.AuthorityRunFailedV1 => CreateAuthorityRunFailed(),
+            IntegrationEventTypes.AuthorityRunQualityGateRejectedV1 => CreateAuthorityRunQualityGateRejected(),
+            IntegrationEventTypes.FindingsHighSeverityCapturedV1 => CreateFindingsHighSeverityCaptured(),
             IntegrationEventTypes.ManifestFinalizedV1 => CreateManifestFinalized(),
             IntegrationEventTypes.GovernanceApprovalSubmittedV1 => CreateGovernanceApprovalSubmitted(),
+            IntegrationEventTypes.GovernanceApprovalApprovedV1 => CreateGovernanceApprovalApproved(),
+            IntegrationEventTypes.GovernanceApprovalRejectedV1 => CreateGovernanceApprovalRejected(),
             IntegrationEventTypes.GovernancePromotionActivatedV1 => CreateGovernancePromotionActivated(),
+            IntegrationEventTypes.GovernancePolicyPackPublishedV1 => CreateGovernancePolicyPackPublished(),
             IntegrationEventTypes.AlertFiredV1 => CreateAlertFired(),
+            IntegrationEventTypes.AlertAcknowledgedV1 => CreateAlertAcknowledged(),
             IntegrationEventTypes.AlertResolvedV1 => CreateAlertResolved(),
             IntegrationEventTypes.AdvisoryScanCompletedV1 => CreateAdvisoryScanCompleted(),
             IntegrationEventTypes.ComplianceDriftEscalatedV1 => CreateComplianceDriftEscalated(),
@@ -103,6 +125,59 @@ public static class IntegrationWebhookPayloadSamples
                     severity = "High"
                 }
             }
+        };
+    }
+
+    private static object CreateAuthorityRunFailed()
+    {
+        return new
+        {
+            schemaVersion = 1,
+            tenantId = Guid.NewGuid(),
+            workspaceId = Guid.NewGuid(),
+            projectId = Guid.NewGuid(),
+            runId = Guid.NewGuid(),
+            failureClass = "AgentExecutionFailed",
+        };
+    }
+
+    private static object CreateAuthorityRunQualityGateRejected()
+    {
+        return new
+        {
+            schemaVersion = 1,
+            tenantId = Guid.NewGuid(),
+            workspaceId = Guid.NewGuid(),
+            projectId = Guid.NewGuid(),
+            runId = Guid.NewGuid(),
+            traceId = "trace-synthetic",
+            agentLabel = "Topology",
+        };
+    }
+
+    private static object CreateFindingsHighSeverityCaptured()
+    {
+        Guid runId = Guid.NewGuid();
+
+        return new
+        {
+            schemaVersion = 1,
+            tenantId = Guid.NewGuid(),
+            workspaceId = Guid.NewGuid(),
+            projectId = Guid.NewGuid(),
+            runId,
+            findingsSnapshotId = Guid.NewGuid(),
+            highSeverityCount = 1,
+            findings = new[]
+            {
+                new
+                {
+                    findingId = "finding-primary",
+                    title = "Synthetic high-severity finding",
+                    severity = "Error",
+                    deepLinkUrl = $"https://archlucid.net/runs/{runId:D}/findings/finding-primary",
+                },
+            },
         };
     }
 
@@ -181,6 +256,23 @@ public static class IntegrationWebhookPayloadSamples
         };
     }
 
+    private static object CreateGovernancePolicyPackPublished()
+    {
+        return new
+        {
+            schemaVersion = 1,
+            tenantId = Guid.NewGuid(),
+            workspaceId = Guid.NewGuid(),
+            projectId = Guid.NewGuid(),
+            policyPackId = Guid.NewGuid(),
+            policyPackVersionId = Guid.NewGuid(),
+            name = "Synthetic policy pack",
+            packType = "BuiltIn",
+            version = "1.0.0",
+            publishedUtc = TimeProvider.System.GetUtcNow().ToString("O"),
+        };
+    }
+
     private static object CreateAlertFired()
     {
         return new
@@ -201,6 +293,17 @@ public static class IntegrationWebhookPayloadSamples
             alertId = Guid.NewGuid().ToString("D"),
             tenantId = Guid.NewGuid(),
             resolvedUtc = TimeProvider.System.GetUtcNow().ToString("O")
+        };
+    }
+
+    private static object CreateAlertAcknowledged()
+    {
+        return new
+        {
+            schemaVersion = 1,
+            alertId = Guid.NewGuid().ToString("D"),
+            tenantId = Guid.NewGuid(),
+            acknowledgedByUserId = "cli-simulator@archlucid.local",
         };
     }
 

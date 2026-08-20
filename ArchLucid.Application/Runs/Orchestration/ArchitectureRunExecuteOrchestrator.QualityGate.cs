@@ -244,6 +244,16 @@ public sealed partial class ArchitectureRunExecuteOrchestrator
             runId,
             details,
             cancellationToken);
+
+        await ArchitectureRunIntegrationEventPublishing.TryPublishQualityGateRejectedAsync(
+            integrationEventOutbox,
+            integrationEventPublisher,
+            integrationEventsOptions,
+            logger,
+            runGuid,
+            scope,
+            ex,
+            cancellationToken);
     }
 
     private static string BuildQualityGateRejectedAuditDetails(AgentOutputQualityGateRejectedException ex)

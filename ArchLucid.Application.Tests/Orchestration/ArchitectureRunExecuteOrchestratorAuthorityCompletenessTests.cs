@@ -158,6 +158,9 @@ public sealed class ArchitectureRunExecuteOrchestratorAuthorityCompletenessTests
             new OperationRunCancellationMarker(runRepo.Object),
             new DisabledRunExecuteOwnershipLeaseService(),
             stagesRepo.Object,
+            ArchitectureRunExecuteOrchestratorTestFactory.CreateIntegrationEventOutbox(),
+            ArchitectureRunExecuteOrchestratorTestFactory.CreateIntegrationEventPublisher(),
+            ArchitectureRunExecuteOrchestratorTestFactory.CreateIntegrationEventsOptionsMonitor(),
             NullLogger<ArchitectureRunExecuteOrchestrator>.Instance);
     }
 

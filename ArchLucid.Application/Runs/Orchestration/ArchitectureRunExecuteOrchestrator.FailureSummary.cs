@@ -34,6 +34,21 @@ public sealed partial class ArchitectureRunExecuteOrchestrator
             runId,
             FormatExecuteRunFailureAuditDetails(failureSummary),
             cancellationToken);
+
+        if (TryParseRunGuid(runId, out Guid runGuid))
+        {
+            ScopeContext scope = scopeContextProvider.GetCurrentScope();
+
+            await ArchitectureRunIntegrationEventPublishing.TryPublishRunFailedAsync(
+                integrationEventOutbox,
+                integrationEventPublisher,
+                integrationEventsOptions,
+                logger,
+                runGuid,
+                scope,
+                failureSummary,
+                cancellationToken);
+        }
     }
 
 

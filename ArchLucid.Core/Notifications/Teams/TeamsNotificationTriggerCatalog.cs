@@ -21,8 +21,18 @@ public static class TeamsNotificationTriggerCatalog
     public static readonly IReadOnlyList<string> All =
     [
         IntegrationEventTypes.AuthorityRunCompletedV1,
+        IntegrationEventTypes.AuthorityRunFailedV1,
+        IntegrationEventTypes.AuthorityRunQualityGateRejectedV1,
+        IntegrationEventTypes.FindingsHighSeverityCapturedV1,
+        IntegrationEventTypes.ManifestFinalizedV1,
         IntegrationEventTypes.GovernanceApprovalSubmittedV1,
+        IntegrationEventTypes.GovernanceApprovalApprovedV1,
+        IntegrationEventTypes.GovernanceApprovalRejectedV1,
+        IntegrationEventTypes.GovernancePromotionActivatedV1,
+        IntegrationEventTypes.GovernancePolicyPackPublishedV1,
         IntegrationEventTypes.AlertFiredV1,
+        IntegrationEventTypes.AlertAcknowledgedV1,
+        IntegrationEventTypes.AlertResolvedV1,
         IntegrationEventTypes.ComplianceDriftEscalatedV1,
         IntegrationEventTypes.AdvisoryScanCompletedV1,
         IntegrationEventTypes.SeatReservationReleasedV1

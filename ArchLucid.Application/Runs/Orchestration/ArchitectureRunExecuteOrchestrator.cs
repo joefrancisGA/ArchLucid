@@ -24,11 +24,13 @@ using ArchLucid.Core;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
+using ArchLucid.Core.Integration;
 using ArchLucid.Core.Runs;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Persistence.ApplicationPorts.Runs;
 using ArchLucid.Core.Transactions;
 using ArchLucid.Persistence.Data.Repositories;
+using ArchLucid.Persistence.IntegrationOutbox;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Serialization;
@@ -70,6 +72,9 @@ public sealed partial class ArchitectureRunExecuteOrchestrator(
     OperationRunCancellationMarker runCancellationMarker,
     IRunExecuteOwnershipLeaseService runExecuteOwnershipLeaseService,
     IRunStageOutcomesRepository runStageOutcomesRepository,
+    IIntegrationEventOutboxRepository integrationEventOutbox,
+    IIntegrationEventPublisher integrationEventPublisher,
+    IOptionsMonitor<IntegrationEventsOptions> integrationEventsOptions,
     ILogger<ArchitectureRunExecuteOrchestrator> logger) : IArchitectureRunExecuteOrchestrator
 {
     private readonly IActorContext _actorContext = actorContext ?? throw new ArgumentNullException(nameof(actorContext));

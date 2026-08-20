@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://archlucid.dev/schemas/integration-events/authority-run-failed.v1.schema.json",
+  "title": "com.archlucid.authority.run.failed",
+  "description": "Service Bus message after an authority run execution fails before commit.",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "tenantId",
+    "workspaceId",
+    "projectId",
+    "runId",
+    "failureClass"
+  ],
+  "properties": {
+    "schemaVersion": { "type": "integer", "const": 1 },
+    "tenantId": { "type": "string", "format": "uuid" },
+    "workspaceId": { "type": "string", "format": "uuid" },
+    "projectId": { "type": "string", "format": "uuid" },
+    "runId": { "type": "string", "format": "uuid" },
+    "failureClass": { "type": "string" },
+    "agentType": { "type": "string" },
+    "agentTypeKey": { "type": "string" },
+    "reasonCode": { "type": "string" },
+    "triageScenarioId": { "type": "string" }
+  },
+  "additionalProperties": true
+}
