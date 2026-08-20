@@ -1662,24 +1662,25 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ## Zone: application-agents
 
 - **id:** application-agents
-- **status:** unseeded
+- **status:** open
 - **impact:** medium
 - **aliases:** application agents; agent handlers wiring
 - **paths:** ArchLucid.Application/Agents/
 - **test-filter:** FullyQualifiedName~Application.Agents
-- **hunts:** 0
-- **bugs-found:** 0
+- **hunts:** 1
+- **bugs-found:** 1
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **last-hunt:** 2026-08-20
+- **last-bug:** 2026-08-20
 - **related-pd-tb:** none
-- **code-changed-since:** unknown
+- **code-changed-since:** 12
 
 ### Hypotheses
 
-- [ ] (candidate) Agent invocation uses a default tenant when scope is missing
-- [ ] (candidate) Handler result is cached across tenants with the same run id
-- [ ] (candidate) Agent registry resolves a handler without checking feature flags per tenant
+- [x] (invalid) Agent invocation uses a default tenant when scope is missing — retired: `ExternalSubprocessorEngineAcknowledgmentService`, `EvidenceProposalPromoter`, and `AgentToolInvocationRecordWriter` throw when `TenantId` is empty
+- [x] (invalid) Handler result is cached across tenants with the same run id — retired: no cross-run result cache in `ArchLucid.Application/Agents/` (only catalog cache invalidation)
+- [x] (invalid) Agent registry resolves a handler without checking feature flags per tenant — retired: `RegisteredAgentHandlersInspector` lists DI handlers; execution routing lives outside this folder
+- [x] (proven) Reasoning-only LLM cost slices report Unavailable basis when estimator returns null — `AgentExecutionTraceRunLlmCostAggregator.ComputeCore` early-return ignored reasoning token counts (fixed 2026-08-20)
 
 ---
 

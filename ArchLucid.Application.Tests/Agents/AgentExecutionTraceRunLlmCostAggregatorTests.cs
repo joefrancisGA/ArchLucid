@@ -180,6 +180,36 @@ public sealed class AgentExecutionTraceRunLlmCostAggregatorTests
         summary.CostEstimationBasis.Should().Be(RunLlmCostEstimationBasis.EstimatedFromConfiguredRates);
     }
 
+    /// <summary>
+    /// Reasoning-only traces with positive token counts but no configured rate should not report Unavailable basis.
+    /// </summary>
+    [Fact]
+    public void Compute_ReasoningTokensOnlyTrace_WhenEstimatorReturnsNull_UsesProviderTokensWithoutRateBasis()
+    {
+        Mock<ILlmCostEstimator> estimator = new();
+        estimator
+            .Setup(e => e.EstimateUsd(0, 0, 300, "o1-preview"))
+            .Returns((decimal?)null);
+
+        List<AgentExecutionTrace> traces =
+        [
+            new()
+            {
+                ModelDeploymentName = "o1-preview",
+                InputTokenCount = null,
+                OutputTokenCount = null,
+                ReasoningTokenCount = 300,
+            },
+        ];
+
+        AgentExecutionTraceRunLlmCostSummary summary =
+            AgentExecutionTraceRunLlmCostAggregator.Compute(traces, estimator.Object);
+
+        summary.EstimatedCostUsd.Should().BeNull();
+        summary.CostEstimationBasis.Should().Be(RunLlmCostEstimationBasis.ProviderTokensWithoutRate);
+        summary.ModelLabel.Should().Be("o1-preview");
+    }
+
     [Fact]
     public void Compute_LargeTokenTotals_UseLongAccumulationWithoutOverflow()
     {

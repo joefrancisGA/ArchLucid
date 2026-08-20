@@ -134,45 +134,6 @@ internal static class IntegrationEventWebhookPayloadSampleFactory
         };
     }
 
-    /// <remarks>Mirrors <c>GovernanceWorkflowService.TryPublishGovernanceApprovalApprovedAsync</c>.</remarks>
-    private static object CreateGovernanceApprovalApproved()
-    {
-        return new
-        {
-            schemaVersion = 1,
-            tenantId = Guid.NewGuid(),
-            workspaceId = Guid.NewGuid(),
-            projectId = Guid.NewGuid(),
-            approvalRequestId = "approval-req-1",
-            runId = Guid.NewGuid().ToString("D"),
-            manifestVersion = "v1",
-            sourceEnvironment = "dev",
-            targetEnvironment = "test",
-            reviewedBy = "reviewer-1",
-            reviewedUtc = TimeProvider.System.UtcNowDateTime(),
-            reviewComment = (string?)null
-        };
-    }
-
-    /// <remarks>Mirrors <c>GovernanceWorkflowService.TryPublishGovernanceApprovalRejectedAsync</c>.</remarks>
-    private static object CreateGovernanceApprovalRejected()
-    {
-        return new
-        {
-            schemaVersion = 1,
-            tenantId = Guid.NewGuid(),
-            workspaceId = Guid.NewGuid(),
-            projectId = Guid.NewGuid(),
-            approvalRequestId = "approval-req-1",
-            runId = Guid.NewGuid().ToString("D"),
-            manifestVersion = "v1",
-            sourceEnvironment = "dev",
-            targetEnvironment = "test",
-            reviewedBy = "reviewer-1",
-            reviewedUtc = TimeProvider.System.UtcNowDateTime(),
-            reviewComment = "needs more evidence"
-        };
-    }
     /// <remarks>Mirrors <c>GovernanceWorkflowService.TryPublishGovernancePromotionActivatedAsync</c>.</remarks>
     private static object CreateGovernancePromotionActivated()
     {

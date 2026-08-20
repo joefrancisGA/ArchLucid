@@ -3,6 +3,7 @@ using System.Text.Json;
 
 using ArchLucid.Application.Runs;
 using ArchLucid.ContextIngestion.Models;
+using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Persistence.DecisionTraces;
 using ArchLucid.Core.Agents;
 using ArchLucid.Core.Audit;
@@ -1123,6 +1124,8 @@ public sealed class AuthorityRunOrchestratorTests
 
             return false;
         }
+
+        public string ResolveAliasIdForTier(LlmModelTier tier) => AgentModelAliasIds.StandardGeneral;
     }
 
     private static ManifestDocument NewMinimalManifest(
