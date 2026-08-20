@@ -71,9 +71,7 @@ export function ArchitectureCreatedFindingsNextAction(
         </p>
         <Button type="button" variant="primary" size="sm" className="mt-2 h-8" asChild>
           <Link
-            href={buildArchitectureGovernanceFinalizeReadinessHref(props.runId, {
-              includeCreateIntent: true,
-            })}
+            href={buildArchitectureGovernanceFinalizeReadinessHref(props.runId)}
             prefetch={false}
             data-testid="architecture-findings-finalize-primary-action"
           >
