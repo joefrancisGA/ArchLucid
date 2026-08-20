@@ -638,7 +638,7 @@ export async function RunDetailPageView(props: {
 
           {buyerFinalizedPackage ? null : sectionNavEl}
 
-          {resolveRunDetailSponsorBriefingSection(m)}
+          {resolveRunDetailSponsorBriefingSection(m, { pagePrimaryOwnedElsewhere: true })}
 
           <Suspense fallback={<RunDetailBelowFoldDeferredSkeleton />}>
             <RunDetailBelowFoldSectionsDeferred model={m} context={deferredContext} />

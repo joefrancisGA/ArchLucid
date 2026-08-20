@@ -584,4 +584,14 @@ describe("EmailRunToSponsorBanner", () => {
 
     expect(screen.getByTestId("email-run-to-sponsor-sent-badge")).toHaveTextContent("Sent to sponsor");
   });
+
+  it("demotes sponsor proof pack ZIP when Do this next owns the page primary", async () => {
+    render(<EmailRunToSponsorBanner {...bannerProps} pagePrimaryOwnedElsewhere />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("email-run-to-sponsor-proof-pack-zip")).toBeInTheDocument();
+    });
+
+    expect(screen.getByTestId("email-run-to-sponsor-proof-pack-zip").className).toContain("border-neutral-300");
+  });
 });

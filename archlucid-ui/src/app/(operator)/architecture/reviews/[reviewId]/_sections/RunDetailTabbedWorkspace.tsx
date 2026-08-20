@@ -478,7 +478,7 @@ const architectureTabPanelEl = (
                 <RunDetailGenerateAdrFromRunModal input={m.adrGeneratorInput} buyerPolished={false} />
               </div>
             ) : null}
-            {resolveRunDetailSponsorBriefingSection(m)}
+            {resolveRunDetailSponsorBriefingSection(m, { pagePrimaryOwnedElsewhere: true })}
             {m.manifestId ? (
               <RunDetailPostCommitHabitIsland model={m} context={deferredContext} />
             ) : null}

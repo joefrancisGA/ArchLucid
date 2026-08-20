@@ -41,6 +41,8 @@ export type EmailRunToSponsorBannerProps = {
    * Curated static demo / golden-path review — avoid “preparing…” copy that reads like an unresolved check in screenshots.
    */
   curatedSampleRun?: boolean;
+  /** When true, {@link ReviewPackageDoThisNextStrip} owns the filled primary — demote package download CTAs. */
+  pagePrimaryOwnedElsewhere?: boolean;
 };
 
 /**
@@ -55,7 +57,9 @@ export function EmailRunToSponsorBanner({
   manifestId,
   sponsorDocxAvailable = false,
   curatedSampleRun = false,
+  pagePrimaryOwnedElsewhere = false,
 }: EmailRunToSponsorBannerProps) {
+  const proofPackZipVariant = pagePrimaryOwnedElsewhere ? "outline" : "primary";
   const {
     busy,
     markSentBusy,
@@ -332,7 +336,7 @@ export function EmailRunToSponsorBanner({
       </h3>
 
       <div className="mt-2 flex flex-wrap items-center gap-3">
-        <Button variant="primary" asChild data-testid="email-run-to-sponsor-proof-pack-zip">
+        <Button variant={proofPackZipVariant} asChild data-testid="email-run-to-sponsor-proof-pack-zip">
           <ExportTrackedAnchor href={sponsorProofPackHref} download={`sponsor-proof-pack-${runId}.zip`}>
             Download sponsor proof pack (ZIP)
           </ExportTrackedAnchor>
