@@ -16,10 +16,11 @@
 
 import { API_KEYS_SETTINGS_CANONICAL_PATH } from "@/lib/api-keys-settings-evidence-copy";
 import { INTEGRATIONS_WEBHOOKS_PATH } from "@/lib/integrations-nav-paths";
+import type { VocabularyPeerLinkFields } from "@/lib/vocabulary/vocabulary-peer-link-fields";
 
 export type WebhooksApiKeysSurfaceId = "webhooks" | "api-keys";
 
-export type WebhooksApiKeysLink = {
+export type WebhooksApiKeysLink = VocabularyPeerLinkFields & {
   readonly id: WebhooksApiKeysSurfaceId;
   readonly label: string;
   readonly href: string;
@@ -54,6 +55,7 @@ export const WEBHOOKS_API_KEYS_API_KEYS_LINK: WebhooksApiKeysLink = {
   label: "CLI usage help",
   href: API_KEYS_SETTINGS_CANONICAL_PATH,
   whenToUse: "Configure host automation credentials and CLI access for enterprise integrations.",
+  compactLineAnchor: "API keys",
 };
 
 /** Full vocabulary model (heading, why-two copy, and deep links). */

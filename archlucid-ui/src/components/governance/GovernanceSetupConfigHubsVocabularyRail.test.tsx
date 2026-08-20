@@ -27,7 +27,7 @@ describe("GovernanceSetupConfigHubsVocabularyRail (TB-2297)", () => {
     render(<GovernanceSetupConfigHubsVocabularyRail currentSurfaceId="alert-rules" />);
 
     const setupPeer = screen.getByTestId("governance-setup-config-hubs-vocabulary-peer-setup");
-    expect(setupPeer).toHaveTextContent(GOVERNANCE_SETUP_CONFIG_HUBS_SETUP_LINK.label);
+    expect(setupPeer).toHaveTextContent("Setup");
     expect(setupPeer).toHaveAttribute("href", GOVERNANCE_SETUP_CONFIG_HUBS_SETUP_LINK.href);
   });
 

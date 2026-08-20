@@ -73,6 +73,29 @@ describe("VocabularyRail", () => {
     expect(screen.getByTestId("pair-vocabulary").textContent ?? "").toContain("·");
   });
 
+  it("inlines peer words in the compact sentence instead of repeating them after the period", () => {
+    render(
+      <VocabularyRail
+        testIdPrefix="pair-vocabulary"
+        currentSurfaceId="teams"
+        compactLine="Digests are email cadence; Teams and Slack are chat alert channels."
+        compactLinkPlacement="inline"
+        heading="Digests vs Teams vs Slack"
+        whyTwo="They answer different questions."
+        links={[
+          { href: "/digests", label: "Digests", testIdSuffix: "peer-digests" },
+          { href: "/slack", label: "Slack", testIdSuffix: "peer-slack" },
+        ]}
+      />,
+    );
+
+    const strip = screen.getByTestId("pair-vocabulary");
+    expect(strip.textContent ?? "").toBe(
+      "Digests are email cadence; Teams and Slack are chat alert channels.",
+    );
+    expect(strip.textContent ?? "").not.toContain("·");
+  });
+
   it("renders the full variant with heading, why-two, notes, and current surface", () => {
     render(
       <VocabularyRail
