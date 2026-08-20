@@ -1,5 +1,6 @@
 using ArchLucid.Api.Auth.Models;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Host.Core.Configuration;
@@ -43,6 +44,17 @@ public sealed class CommercialTenantTierFilter(
 
     public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
     {
+        bool traceLearningPlansList = IsLearningPlansListRequest(context.HttpContext.Request);
+
+        if (traceLearningPlansList)
+        {
+            LearningPlansHangDiagnostics.Log(
+                "tier_filter_entered",
+                ("correlationId", context.HttpContext.TraceIdentifier),
+                ("path", context.HttpContext.Request.Path.Value),
+                ("isAuthenticated", context.HttpContext.User.Identity?.IsAuthenticated == true));
+        }
+
         if (context.HttpContext.User.Identity?.IsAuthenticated is not true)
         {
             await next();
@@ -52,11 +64,31 @@ public sealed class CommercialTenantTierFilter(
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
         CancellationToken cancellationToken = context.HttpContext.RequestAborted;
+
+        if (traceLearningPlansList)
+        {
+            LearningPlansHangDiagnostics.Log(
+                "tier_filter_tenant_lookup_started",
+                ("correlationId", context.HttpContext.TraceIdentifier),
+                ("tenantId", scope.TenantId));
+        }
+
+        long tenantLookupStartedMs = Environment.TickCount64;
         TenantRecord? tenant = await _tenantRepository.GetByIdAsync(scope.TenantId, cancellationToken);
 
         if (tenant is null)
         {
             tenant = await _tenantRepository.GetByIdFromControlPlaneCatalogAsync(scope.TenantId, cancellationToken);
+        }
+
+        if (traceLearningPlansList)
+        {
+            LearningPlansHangDiagnostics.Log(
+                "tier_filter_tenant_lookup_completed",
+                ("correlationId", context.HttpContext.TraceIdentifier),
+                ("durationMs", Environment.TickCount64 - tenantLookupStartedMs),
+                ("tenantFound", tenant is not null),
+                ("tenantTier", tenant?.Tier.ToString()));
         }
 
         if (tenant is null)
@@ -97,6 +129,14 @@ public sealed class CommercialTenantTierFilter(
         {
             string? instancePath = context.HttpContext.Request.Path.Value;
 
+            if (traceLearningPlansList)
+            {
+                LearningPlansHangDiagnostics.Log(
+                    "tier_filter_denied",
+                    ("correlationId", context.HttpContext.TraceIdentifier),
+                    ("minimumTier", minimumTier.ToString()));
+            }
+
             context.Result =
                 MinimumTierDeniedShouldObfuscate(minimumTier)
                     ? PackagingTierProblemDetailsFactory.CreateObfuscatedNotFound(context.HttpContext, instancePath)
@@ -108,7 +148,26 @@ public sealed class CommercialTenantTierFilter(
             return;
         }
 
+        if (traceLearningPlansList)
+        {
+            LearningPlansHangDiagnostics.Log(
+                "tier_filter_allowing_request",
+                ("correlationId", context.HttpContext.TraceIdentifier));
+        }
+
         await next();
+    }
+
+    private static bool IsLearningPlansListRequest(HttpRequest request)
+    {
+        if (!HttpMethods.IsGet(request.Method))
+        {
+            return false;
+        }
+
+        string? path = request.Path.Value?.TrimEnd('/');
+
+        return string.Equals(path, "/v1/learning/plans", StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool MinimumTierDeniedShouldObfuscate(TenantTier minimumTier)

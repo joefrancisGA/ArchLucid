@@ -1,7 +1,9 @@
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 
 using ArchLucid.Contracts.ProductLearning;
 using ArchLucid.Contracts.ProductLearning.Planning;
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Persistence.Connections;
 
 using Dapper;
@@ -101,6 +103,8 @@ internal sealed class DapperProductLearningPlanningThemeRepository(ISqlConnectio
     {
         ProductLearningPlanningRepositoryValidation.EnsureScope(scope);
 
+        LearningPlansHangDiagnostics.Log("sql_get_theme_started", ("themeId", themeId));
+
         const string sql = """
                            SELECT
                                ThemeId,
@@ -128,13 +132,27 @@ internal sealed class DapperProductLearningPlanningThemeRepository(ISqlConnectio
                              AND ProjectId = @ProjectId;
                            """;
 
+        Stopwatch stopwatch = Stopwatch.StartNew();
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        LearningPlansHangDiagnostics.Log(
+            "sql_get_theme_connection_open",
+            ("themeId", themeId),
+            ("connectionMs", stopwatch.ElapsedMilliseconds));
+
+        stopwatch.Restart();
         ProductLearningImprovementThemeSqlRow? row =
             await connection.QuerySingleOrDefaultAsync<ProductLearningImprovementThemeSqlRow>(
                 new CommandDefinition(
                     sql,
                     new { ThemeId = themeId, scope.TenantId, scope.WorkspaceId, scope.ProjectId },
                     cancellationToken: cancellationToken));
+
+        LearningPlansHangDiagnostics.Log(
+            "sql_get_theme_completed",
+            ("themeId", themeId),
+            ("queryMs", stopwatch.ElapsedMilliseconds),
+            ("found", row is not null));
 
         return row is null ? null : MapTheme(row);
     }

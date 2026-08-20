@@ -1,7 +1,9 @@
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 
 using ArchLucid.Contracts.ProductLearning;
 using ArchLucid.Contracts.ProductLearning.Planning;
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Persistence.Connections;
 
 using Dapper;
@@ -131,6 +133,13 @@ internal sealed class DapperProductLearningPlanningPlanRepository(ISqlConnection
         ProductLearningPlanningRepositoryValidation.EnsureScope(scope);
         ProductLearningPlanningRepositoryValidation.EnsureTake(take);
 
+        LearningPlansHangDiagnostics.Log(
+            "sql_list_plans_started",
+            ("tenantId", scope.TenantId),
+            ("workspaceId", scope.WorkspaceId),
+            ("projectId", scope.ProjectId),
+            ("take", take));
+
         const string sql = """
                            SELECT TOP (@Take)
                                PlanId,
@@ -153,7 +162,14 @@ internal sealed class DapperProductLearningPlanningPlanRepository(ISqlConnection
                            ORDER BY CreatedUtc DESC, PlanId ASC;
                            """;
 
+        Stopwatch connectionStopwatch = Stopwatch.StartNew();
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+
+        LearningPlansHangDiagnostics.Log(
+            "sql_list_plans_connection_open",
+            ("connectionMs", connectionStopwatch.ElapsedMilliseconds));
+
+        Stopwatch queryStopwatch = Stopwatch.StartNew();
         IEnumerable<ProductLearningImprovementPlanSqlRow> rows =
             await connection.QueryAsync<ProductLearningImprovementPlanSqlRow>(
                 new CommandDefinition(
@@ -161,7 +177,14 @@ internal sealed class DapperProductLearningPlanningPlanRepository(ISqlConnection
                     new { Take = take, scope.TenantId, scope.WorkspaceId, scope.ProjectId },
                     cancellationToken: cancellationToken));
 
-        return rows.Select(static r => MapPlan(r)).ToList();
+        List<ProductLearningImprovementPlanRecord> plans = rows.Select(static r => MapPlan(r)).ToList();
+
+        LearningPlansHangDiagnostics.Log(
+            "sql_list_plans_completed",
+            ("queryMs", queryStopwatch.ElapsedMilliseconds),
+            ("rowCount", plans.Count));
+
+        return plans;
     }
 
     public async Task<IReadOnlyList<ProductLearningImprovementPlanRecord>> ListPlansForThemeAsync(
