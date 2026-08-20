@@ -71,7 +71,9 @@ if [ "${list_runs_code}" != "200" ]; then
 fi
 
 create_run_body='{"requestId":"k6-startup-smoke-1","description":"k6 CI smoke architecture write-path test","systemName":"K6CiSmokeSystem","environment":"prod","cloudProvider":1,"constraints":[],"requiredCapabilities":["SQL"],"assumptions":[],"priorManifestVersion":null}'
-create_run_code="$(curl -sS --max-time 360 -o "${LOG_FILE}.create-run-smoke.json" -w "%{http_code}" \
+# GreenfieldSqlApiFactory allows 15 min per POST (3 min applock + 5 min pipeline + cold SQL headroom).
+create_run_smoke_max_time_seconds="${ARCHLUCID_K6_CREATE_RUN_SMOKE_MAX_TIME_SECONDS:-900}"
+create_run_code="$(curl -sS --max-time "${create_run_smoke_max_time_seconds}" -o "${LOG_FILE}.create-run-smoke.json" -w "%{http_code}" \
   -X POST "${API_URL}/v1/architecture/request" \
   -H "Accept: application/json" \
   -H "Content-Type: application/json" \
