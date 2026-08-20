@@ -289,7 +289,7 @@ export const PAGE_HELP_TOPICS: readonly { prefix: string; topic: PageHelpTopic }
     prefix: INTERNAL_REPLAY_PATH,
     topic: { slug: "comparison-replay", label: COMPARISON_REPLAY_HELP_TOPIC_LABEL },
   },
-  { prefix: "/governance/findings", topic: { slug: "findings", label: FINDINGS_HELP_TOPIC_LABEL } },
+  { prefix: "/governance/findings", topic: { slug: "findings", label: OPERATOR_NAV_LINK_LABELS.findings } },
   {
     prefix: GOVERNANCE_SETUP_HREF,
     topic: { slug: "governance-approval", label: GOVERNANCE_SETUP_PAGE_TITLE },
