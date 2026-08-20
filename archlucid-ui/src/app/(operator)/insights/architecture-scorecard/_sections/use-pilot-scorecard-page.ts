@@ -14,6 +14,7 @@ import {
 } from "@/lib/architecture/architecture-scorecard-roi-preview";
 import { formatUsd } from "@/lib/roi-assumptions";
 import { buildSponsorServerSavingsSummary, resolveRunSavingsUsd } from "@/lib/roi-resolution-priority";
+import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import { showError, showSuccess } from "@/lib/toast";
 import type { PilotScorecardJson } from "@/types/pilot-scorecard";
 
@@ -166,11 +167,14 @@ export function usePilotScorecardPage(loaded: PilotScorecardPageServerLoad): Use
         baselineReviewsPerQuarter: reviews.trim() === "" ? null : Number.parseInt(reviews, 10),
         baselineArchitectHourlyCost: rate.trim() === "" ? null : Number(rate),
       };
-      const res = await fetch("/api/proxy/v1/pilots/scorecard/baselines", {
-        body: JSON.stringify(body),
-        headers: { "Content-Type": "application/json", Accept: "application/json" },
-        method: "PUT",
-      });
+      const res = await fetch(
+        "/api/proxy/v1/pilots/scorecard/baselines",
+        mergeRegistrationScopeForProxy({
+          body: JSON.stringify(body),
+          headers: { "Content-Type": "application/json", Accept: "application/json" },
+          method: "PUT",
+        }),
+      );
 
       if (!res.ok) {
         throw new Error(`HTTP ${res.status}`);
