@@ -463,7 +463,9 @@ export default function GovernanceFindingsQueueClient({
       {!isAssignedToMe ? (
         <GovernanceJobRouterStrip currentJobId={currentJobId} layout="default" />
       ) : null}
-      {!isAssignedToMe && buyerPolishedShell ? <GovernanceFindingsBuyerChrome /> : null}
+      {!isAssignedToMe && buyerPolishedShell ? (
+        <GovernanceFindingsBuyerChrome scopedRunId={scopedRunId} />
+      ) : null}
       {!isAssignedToMe && !buyerPolishedShell ? (
         <>
           <AlertsFindingsVocabularyRail currentSurfaceId="findings-queue" />

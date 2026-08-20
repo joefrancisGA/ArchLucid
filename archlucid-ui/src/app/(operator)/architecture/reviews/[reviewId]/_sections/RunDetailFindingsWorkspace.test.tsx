@@ -121,5 +121,24 @@ describe("RunDetailFindingsWorkspace", () => {
     expect(screen.queryByText(/governance queue/i)).not.toBeInTheDocument();
     expect(screen.getByTestId("run-detail-findings-toolbar")).toHaveAttribute("data-testid", "run-detail-findings-toolbar");
     expect(screen.getByTestId("quick-decision-summary-stub")).toBeInTheDocument();
+    expect(
+      screen.queryByTestId("review-package-governance-findings-vocabulary"),
+    ).not.toBeInTheDocument();
+  });
+
+  it("shows review vs workspace findings vocabulary rail on committed review findings tab", () => {
+    const findings: QuickDecisionFinding[] = [
+      finding({ findingId: "f-1", severityValue: 1, findingOrder: 0 }),
+    ];
+
+    render(<RunDetailFindingsWorkspace runId="run-abc" findings={findings} packageCommitted={true} />);
+
+    expect(screen.getByTestId("review-package-governance-findings-vocabulary")).toHaveAttribute(
+      "data-current-surface",
+      "review-package-findings",
+    );
+    expect(
+      screen.getByTestId("review-package-governance-findings-vocabulary-peer-link"),
+    ).toHaveAttribute("href", "/governance/findings?runId=run-abc");
   });
 });
