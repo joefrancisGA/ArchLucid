@@ -11,9 +11,9 @@ namespace ArchLucid.Core.Tests.Notifications.Teams;
 public sealed class TeamsNotificationTriggerCatalogTests
 {
     [Fact]
-    public void All_contains_v1_default_twelve_triggers()
+    public void All_contains_v1_default_six_triggers()
     {
-        TeamsNotificationTriggerCatalog.All.Should().HaveCount(12);
+        TeamsNotificationTriggerCatalog.All.Should().HaveCount(6);
         TeamsNotificationTriggerCatalog.All.Should().Contain(IntegrationEventTypes.AuthorityRunCompletedV1);
         TeamsNotificationTriggerCatalog.All.Should().Contain(IntegrationEventTypes.GovernanceApprovalSubmittedV1);
         TeamsNotificationTriggerCatalog.All.Should().Contain(IntegrationEventTypes.AlertFiredV1);
@@ -58,6 +58,15 @@ public sealed class TeamsNotificationTriggerCatalogTests
             .BeEquivalentTo(TeamsNotificationTriggerCatalog.All);
         TeamsNotificationTriggerCatalog.ParseOrDefault("not json").Should()
             .BeEquivalentTo(TeamsNotificationTriggerCatalog.All);
+    }
+
+    [Fact]
+    public void ParseOrDefault_returns_full_catalog_when_json_contains_only_unknown_triggers()
+    {
+        IReadOnlyList<string> parsed =
+            TeamsNotificationTriggerCatalog.ParseOrDefault("[\"com.archlucid.does.not.exist\"]");
+
+        parsed.Should().BeEquivalentTo(TeamsNotificationTriggerCatalog.All);
     }
 
     [Fact]

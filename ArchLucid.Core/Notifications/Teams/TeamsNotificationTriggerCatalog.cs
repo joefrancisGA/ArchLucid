@@ -9,20 +9,20 @@ namespace ArchLucid.Core.Notifications.Teams;
 ///     Canonical catalog of integration event types eligible to fan out to Microsoft Teams via the
 ///     per-tenant `dbo.TenantTeamsIncomingWebhookConnections.EnabledTriggersJson` opt-in column.
 /// </summary>
+/// <remarks>
+///     Single source of truth for the v1 trigger set defined in PENDING_QUESTIONS.md item 32 + 23 sub-bullet
+///     (Resolved 2026-04-21). The Logic Apps workflow filters events server-side against this list before
+///     fan-out so a disabled trigger cannot reach Teams even if upstream routing misbehaves. The HTTP API
+///     validates incoming opt-in lists are a subset of <see cref="All" /> via <see cref="IsKnown" />.
+/// </remarks>
 public static class TeamsNotificationTriggerCatalog
 {
-    /// <summary>Default trigger set (all-on for fresh tenants and legacy rows without explicit opt-in).</summary>
+    /// <summary>v1 default trigger set (all-on for fresh tenants and existing rows).</summary>
     public static readonly IReadOnlyList<string> All =
     [
         IntegrationEventTypes.AuthorityRunCompletedV1,
-        IntegrationEventTypes.ManifestFinalizedV1,
         IntegrationEventTypes.GovernanceApprovalSubmittedV1,
-        IntegrationEventTypes.GovernanceApprovalApprovedV1,
-        IntegrationEventTypes.GovernanceApprovalRejectedV1,
-        IntegrationEventTypes.GovernancePromotionActivatedV1,
         IntegrationEventTypes.AlertFiredV1,
-        IntegrationEventTypes.AlertAcknowledgedV1,
-        IntegrationEventTypes.AlertResolvedV1,
         IntegrationEventTypes.ComplianceDriftEscalatedV1,
         IntegrationEventTypes.AdvisoryScanCompletedV1,
         IntegrationEventTypes.SeatReservationReleasedV1
@@ -39,7 +39,7 @@ public static class TeamsNotificationTriggerCatalog
     public static readonly string DefaultEnabledTriggersJson =
         JsonSerializer.Serialize(All);
 
-    /// <summary>True when <paramref name="eventType" /> is one of the catalog triggers.</summary>
+    /// <summary>True when <paramref name="eventType" /> is one of the v1 catalog triggers.</summary>
     public static bool IsKnown(string eventType)
     {
         return !string.IsNullOrWhiteSpace(eventType) && AllSet.Contains(eventType);
@@ -49,6 +49,11 @@ public static class TeamsNotificationTriggerCatalog
     ///     Deserialize <paramref name="json" /> into a deduplicated list of catalog triggers, dropping unknown / blank
     ///     entries.
     /// </summary>
+    /// <remarks>
+    ///     Returns the v1 default <see cref="All" /> when the column is empty / missing / not a JSON array. This is the safest
+    ///     "no opinion" interpretation for legacy rows that pre-dated migration 107 and lets the Logic Apps filter still fan
+    ///     every v1 event out without a database backfill.
+    /// </remarks>
     public static IReadOnlyList<string> ParseOrDefault(string? json)
     {
         if (string.IsNullOrWhiteSpace(json))
@@ -61,10 +66,15 @@ public static class TeamsNotificationTriggerCatalog
             if (parsed is null || parsed.Length == 0)
                 return All;
 
-            return parsed
+            string[] filtered = parsed
                 .Where(IsKnown)
                 .Distinct(StringComparer.Ordinal)
                 .ToArray();
+
+            if (filtered.Length == 0)
+                return All;
+
+            return filtered;
         }
         catch (JsonException)
         {
