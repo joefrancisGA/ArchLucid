@@ -28,7 +28,7 @@ REQUIRED_SUBSTRINGS = (
 
 
 def load_catalog_event_types() -> set[str]:
-    data = json.loads(CATALOG.read_text(encoding="utf-8"))
+    data = json.loads(CATALOG.read_text(encoding="utf-8-sig"))
     return {entry["eventType"].lower() for entry in data["events"]}
 
 
