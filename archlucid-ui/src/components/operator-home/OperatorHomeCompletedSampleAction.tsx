@@ -22,6 +22,7 @@ import { cn } from "@/lib/utils";
 type OperatorHomeCompletedSampleActionProps = {
   readonly compact?: boolean;
   readonly onOpenSample?: () => void;
+  readonly pagePrimaryOwnedElsewhere?: boolean;
 };
 
 /** Opens the workspace-owner-selected completed sample or a safe missing-selection state. */
@@ -52,9 +53,11 @@ export function OperatorHomeCompletedSampleAction(
   }
 
   if (sample.isAvailable && sample.selectedRunId !== null) {
+    const sampleVariant = props.pagePrimaryOwnedElsewhere === true ? "outline" : "primary";
+
     return (
       <OperatorHomeNavigateLoadingButton
-        variant="primary"
+        variant={sampleVariant}
         size="sm"
         className={cn("h-8 w-fit", props.compact === true && "h-7")}
         href={featuredCompletedSampleReviewHref(sample.selectedRunId)}

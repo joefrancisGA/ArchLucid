@@ -40,7 +40,7 @@ function roiBasisLabel(payload: PilotRunDeltasProofSummaryJson | null): string {
   const freshness = (payload as { roiSourceFreshnessDisposition?: string } | null)?.roiSourceFreshnessDisposition;
 
   if (typeof freshness === "string" && freshness.length > 0) {
-    return `${freshness.toUpperCase()} — server ROI freshness disposition`;
+    return `${freshness.toUpperCase()} — server ROI freshness status`;
   }
 
   const sources = (payload as { roiMetricSources?: readonly unknown[] } | null)?.roiMetricSources;

@@ -109,7 +109,7 @@ export const IMPACT_PREVIEW_DO_NOT_PROCEED_WITHOUT_REVIEW =
   "Do not proceed without review — route material changes through governance before implementation." as const;
 
 export const IMPACT_PREVIEW_DECISION_OWNERSHIP_NOTE =
-  "Simulation output informs review; accountable reviewers and governance owners retain disposition authority." as const;
+  "Simulation output informs review; accountable reviewers and governance owners retain resolve authority." as const;
 
 export const IMPACT_PREVIEW_EVIDENCE_BASIS_TITLE = "Evidence basis" as const;
 export const IMPACT_PREVIEW_EVIDENCE_LINKED_FINDINGS = "Linked findings" as const;

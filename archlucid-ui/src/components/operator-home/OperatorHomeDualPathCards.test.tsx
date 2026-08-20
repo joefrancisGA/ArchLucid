@@ -150,9 +150,11 @@ describe("OperatorHomeDualPathCards", () => {
       "href",
       CLOUD_CONNECTIONS_PATH,
     );
-    expect(screen.getByRole("button", { name: CREATE_ARCHITECTURE_LABEL })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: OPERATOR_HOME_REVIEW_ARCHITECTURE_CTA })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: OPERATOR_HOME_OPEN_COMPLETED_REVIEW_CTA })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: CREATE_ARCHITECTURE_LABEL })).toHaveClass("border-neutral-300");
+    expect(screen.getByRole("button", { name: OPERATOR_HOME_REVIEW_ARCHITECTURE_CTA })).toHaveClass("border-neutral-300");
+    expect(screen.getByRole("link", { name: OPERATOR_HOME_OPEN_COMPLETED_REVIEW_CTA })).toHaveClass(
+      "bg-[var(--al-primary-action-bg)]",
+    );
     // Unblocked workspaces show no readiness affordance — only blockers are worth a line.
     expect(screen.queryByTestId("operator-home-readiness-strip")).toBeNull();
     expect(screen.queryByTestId("operator-home-readiness-blocker")).toBeNull();
@@ -168,6 +170,10 @@ describe("OperatorHomeDualPathCards", () => {
       "Recommended next",
     );
     expect(screen.queryByTestId("operator-home-explore-recommended-badge")).toBeNull();
+    expect(screen.getByRole("button", { name: OPERATOR_HOME_REVIEW_ARCHITECTURE_CTA })).toHaveClass(
+      "bg-[var(--al-primary-action-bg)]",
+    );
+    expect(screen.getByRole("button", { name: CREATE_ARCHITECTURE_LABEL })).toHaveClass("border-neutral-300");
   });
 
   it("shows immediate loading feedback when starting the review architecture path", () => {
@@ -230,5 +236,13 @@ describe("OperatorHomeDualPathCards", () => {
       CLOUD_CONNECTIONS_PATH,
     );
     expect(screen.getByText(OPERATOR_HOME_CLOUD_CONNECT_ADMIN_HINT)).toBeInTheDocument();
+  });
+
+  it("demotes all lifecycle card primaries when another surface owns the page primary", () => {
+    render(<OperatorHomeDualPathCards emphasizedPath="review-architecture" pagePrimaryOwnedElsewhere />);
+
+    expect(screen.getByRole("button", { name: CREATE_ARCHITECTURE_LABEL })).toHaveClass("border-neutral-300");
+    expect(screen.getByRole("button", { name: OPERATOR_HOME_REVIEW_ARCHITECTURE_CTA })).toHaveClass("border-neutral-300");
+    expect(screen.getByRole("link", { name: OPERATOR_HOME_OPEN_COMPLETED_REVIEW_CTA })).toHaveClass("border-neutral-300");
   });
 });

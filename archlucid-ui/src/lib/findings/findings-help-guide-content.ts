@@ -202,7 +202,7 @@ export type FindingsHelpLifecycleStage = {
 export const FINDINGS_HELP_LIFECYCLE_STAGES: readonly FindingsHelpLifecycleStage[] = [
   {
     status: "Open",
-    meaning: "The finding is active and has no final governance disposition.",
+    meaning: "The finding is active and has no final resolve outcome.",
   },
   {
     status: "Under review",
@@ -326,6 +326,6 @@ export const FINDINGS_HELP_GUIDE_HEADINGS: readonly HelpMarkdownHeading[] = [
 
 /** Drift guard: claim band owns diligence limits; overview stays affirmative. */
 export const FINDINGS_HELP_NEGATION_DRIFT_MARKERS = {
-  overviewMustNotContain: ["not a sealed-review diligence", "sources package"],
+  overviewMustNotContain: ["not a full audit export", "sources package"],
   claimMustNotContain: ["sources package", "sealed-review diligence"],
 } as const;

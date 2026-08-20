@@ -75,6 +75,6 @@ export const CONNECTION_STATUS_HELP_GUIDE_HEADINGS: readonly HelpMarkdownHeading
 
 /** Drift guard: claim band owns diligence limits; overview and steps stay affirmative. */
 export const CONNECTION_STATUS_HELP_NEGATION_DRIFT_MARKERS = {
-  overviewMustNotContain: ["not a sealed-review diligence package", "not a diligence package"],
+  overviewMustNotContain: ["not a full audit export", "not a diligence package"],
   claimMustNotContain: ["sources package", "sealed-review diligence"],
 } as const;

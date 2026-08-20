@@ -43,7 +43,7 @@ export const ADVISORY_SCANS_HELP_PAGE_SUBTITLE =
   "Generate prioritized follow-up recommendations from finalized architecture reviews.";
 
 export const ADVISORY_SCANS_HELP_OVERVIEW =
-  "Each recommendation includes impact level, evidence basis, suggested action, and governance disposition status so owners can triage follow-up in one place.";
+  "Each recommendation includes impact level, evidence basis, suggested action, and resolve status so owners can triage follow-up in one place.";
 
 export const ADVISORY_SCANS_HELP_START_HERE_ROLE_LINK = {
   label: "execute access or a management role",

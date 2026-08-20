@@ -100,11 +100,11 @@ const ERROR_CODE_REMEDIATION: Record<string, string> = {
   GOVERNANCE_PRE_COMMIT_BLOCKED:
     "Governance policy blocked review finalization. Resolve critical findings or obtain approval per your policy pack before finalizing.",
   PROOF_PACKET_HOLD:
-    "Proof collection returned HOLD. Open the proof disposition JSON, clear blocking findings, and rerun collect-first-pilot-proof before external send.",
+    "Proof collection returned HOLD. Open the proof status JSON, clear blocking findings, and rerun collect-first-pilot-proof before external send.",
   CONFIG_LINT_HOLD:
     "Production-like config lint reported blocking findings. Run `archlucid config lint --profile production-like-hosted-pilot`, fix blocking rows, then retry.",
   SPONSOR_HANDOFF_HOLD:
-    "Sponsor handoff is blocked until HOLD findings are cleared. Review first-pilot proof disposition and triage cards before sending externally.",
+    "Sponsor handoff is blocked until HOLD findings are cleared. Review first-pilot proof status and triage cards before sending externally.",
 };
 
 function mergeRateLimitCopy(

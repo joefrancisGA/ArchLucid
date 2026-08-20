@@ -130,7 +130,7 @@ export const AUDIT_TRAIL_HELP_EVIDENCE_TRAIL_INTRO =
 
 export const AUDIT_TRAIL_HELP_EVIDENCE_TRAIL_ITEMS = [
   "Input artifacts and evidence trail citations explain what was reviewed.",
-  "Findings and decisions capture architecture risk and governance disposition.",
+  "Findings and decisions capture architecture risk and resolve outcomes.",
   "Audit trail entries record authenticated actions — who submitted, approved, exported, or changed evidence.",
   "The sealed review record binds the committed architecture review state.",
 ] as const;

@@ -82,7 +82,7 @@ export const WEBHOOKS_INTEGRATION_HELP_GUIDE_HEADINGS: readonly HelpMarkdownHead
 
 /** Drift guard: claim band owns diligence limits; overview and steps stay affirmative. */
 export const WEBHOOKS_INTEGRATION_HELP_NEGATION_DRIFT_MARKERS = {
-  overviewMustNotContain: ["not a sealed-review diligence package", "not a diligence package"],
+  overviewMustNotContain: ["not a full audit export", "not a diligence package"],
   claimMustNotContain: ["sources package", "sealed-review diligence"],
   claimMustNotStartWith: ["This guide explains"],
 } as const;

@@ -51,7 +51,7 @@ export const BUYER_GOLDEN_JOURNEY_STEP_DEFINITIONS = [
     step: 4,
     label: "Governance approval",
     href: governanceApprovalQueueHref(SHOWCASE_STATIC_DEMO_RUN_ID),
-    chipTooltip: "Governance posture, approvals, and monitoring hooks tied to this review.",
+    chipTooltip: "Approval impact, approvals, and monitoring hooks tied to this review.",
   },
   {
     step: 5,
