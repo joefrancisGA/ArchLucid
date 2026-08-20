@@ -1421,7 +1421,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
       class="text-2xl font-semibold leading-tight tracking-tight text-al-text-primary"
       id="why-closing-cta-heading"
     >
-      See what a governed architecture decision actually looks like
+      See what a finalized architecture decision actually looks like
     </h2>
     <p
       class="mt-2 max-w-3xl text-[17px] font-normal leading-7 text-al-text-primary text-al-text-secondary"
