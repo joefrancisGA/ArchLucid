@@ -1,5 +1,7 @@
 "use client";
 
+import { Check } from "lucide-react";
+
 import { cn } from "@/lib/utils";
 
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -63,9 +65,11 @@ export function ThemePreferenceSelector(props: Props) {
                 key={option.value}
                 htmlFor={inputId}
                 className={cn(
-                  "block cursor-pointer rounded-lg border p-3 transition-colors",
+                  "relative block cursor-pointer rounded-lg border p-3 transition-colors",
+                  "focus-within:ring-2 focus-within:ring-teal-700 focus-within:ring-offset-2 dark:focus-within:ring-teal-500",
+                  "forced-colors:border forced-colors:outline-offset-2",
                   selected
-                    ? "border-teal-700 bg-teal-50/70 ring-2 ring-teal-700/30 dark:border-teal-500 dark:bg-teal-950/30 dark:ring-teal-400/30"
+                    ? "border-teal-700 bg-teal-50/70 ring-2 ring-teal-700/30 dark:border-teal-500 dark:bg-teal-950/30 dark:ring-teal-400/30 forced-colors:outline"
                     : "border-neutral-200 bg-al-surface-raised hover:border-neutral-300 dark:border-neutral-700 dark:hover:border-neutral-600",
                 )}
                 data-testid={`theme-preference-option-${option.value}`}
@@ -74,12 +78,18 @@ export function ThemePreferenceSelector(props: Props) {
                   id={inputId}
                   type="radio"
                   name="theme-preference"
-                  className="sr-only"
+                  className="peer sr-only"
                   value={option.value}
                   checked={selected}
                   aria-label={option.label}
                   onChange={() => setAndPersist(option.value)}
                 />
+                {selected ? (
+                  <span className="absolute right-3 top-3 inline-flex items-center gap-1 text-teal-800 dark:text-teal-300">
+                    <Check aria-hidden="true" className="h-4 w-4" />
+                    <span className={cn("font-medium", OPERATOR_TYPOGRAPHY.helper)}>Selected</span>
+                  </span>
+                ) : null}
                 <div
                   className={cn("mb-3 h-10 w-full rounded-md", option.previewClassName)}
                   aria-hidden="true"

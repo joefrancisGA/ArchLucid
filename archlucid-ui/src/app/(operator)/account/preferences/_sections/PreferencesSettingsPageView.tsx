@@ -11,7 +11,10 @@ import { PageContextualHelpButton } from "@/components/usability/PageContextualH
 import { PreferencesSettingsEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
 import { ACCOUNT_PREFERENCES_PATH } from "@/lib/account-route-paths";
 import { PREFERENCES_CLOUD_PLATFORMS_HEADING } from "@/lib/cloud-platform-scope-copy";
-import { PREFERENCES_WHERE_TO_GO_NEXT_HEADING } from "@/lib/where-to-go-next-preference-copy";
+import {
+  PREFERENCES_FOLLOW_UP_LINK_STRIPS_ANCHOR_ID,
+  PREFERENCES_WHERE_TO_GO_NEXT_HEADING,
+} from "@/lib/where-to-go-next-preference-copy";
 import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { PREFERENCES_HELP_TOPIC_LABEL } from "@/lib/preferences-settings-evidence-copy";
 import { useCloudPlatformScope } from "@/lib/use-cloud-platform-scope";
@@ -40,7 +43,7 @@ export function PreferencesSettingsPageView() {
       <PreferencesNotificationsVocabularyRail currentSurfaceId="preferences" />
       <Card data-testid="preferences-appearance-card">
         <CardHeader>
-          <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Appearance</CardTitle>
+          <CardTitle as="h2" className={OPERATOR_TYPOGRAPHY.cardTitle}>Appearance</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div>
@@ -55,7 +58,7 @@ export function PreferencesSettingsPageView() {
       </Card>
       <Card id="cloud-platforms-shown" data-testid="preferences-cloud-platforms-card">
         <CardHeader>
-          <CardTitle id="preferences-cloud-platforms-heading" className={OPERATOR_TYPOGRAPHY.cardTitle}>
+          <CardTitle id="preferences-cloud-platforms-heading" as="h2" className={OPERATOR_TYPOGRAPHY.cardTitle}>
             {PREFERENCES_CLOUD_PLATFORMS_HEADING}
           </CardTitle>
         </CardHeader>
@@ -72,9 +75,9 @@ export function PreferencesSettingsPageView() {
           )}
         </CardContent>
       </Card>
-      <Card id="where-to-go-next" data-testid="preferences-where-to-go-next-card">
+      <Card id={PREFERENCES_FOLLOW_UP_LINK_STRIPS_ANCHOR_ID} data-testid="preferences-follow-up-link-strips-card">
         <CardHeader>
-          <CardTitle id="preferences-follow-up-strips-heading" className={OPERATOR_TYPOGRAPHY.cardTitle}>
+          <CardTitle id="preferences-follow-up-strips-heading" as="h2" className={OPERATOR_TYPOGRAPHY.cardTitle}>
             {PREFERENCES_WHERE_TO_GO_NEXT_HEADING}
           </CardTitle>
         </CardHeader>
