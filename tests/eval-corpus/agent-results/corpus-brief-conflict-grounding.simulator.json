@@ -1,0 +1,17 @@
+{
+  "resultId": "corp-brief-conflict-sim-01",
+  "taskId": "corp-brief-conflict-task-01",
+  "runId": "corp-brief-conflict-run-01",
+  "agentType": "Topology",
+  "claims": [
+    {
+      "evidenceRefs": ["brief-conflict-https-grounding-pattern"],
+      "detail": "Simulator topology claim: public-http gateway proposals contradict confirmed HTTPS-only brief constraints and should be dropped before review."
+    }
+  ],
+  "evidenceRefs": ["brief-conflict-https-grounding-pattern"],
+  "confidence": 0.84,
+  "findings": [],
+  "proposedChanges": null,
+  "createdUtc": "2026-08-19T12:00:00Z"
+}

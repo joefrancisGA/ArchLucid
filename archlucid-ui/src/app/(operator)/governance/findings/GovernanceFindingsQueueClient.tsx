@@ -228,13 +228,13 @@ export default function GovernanceFindingsQueueClient({
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const scopedRunFilterActive = scopedRunId !== null && scopedRunId.trim().length > 0;
   const workspaceScopeTeaching =
-    !isAssignedToMe &&
-    !scopedRunFilterActive &&
-    resolveWorkspaceScopeEmptyTeachingForHub({
-      listEmpty: !loading && rows.length === 0 && !loadFailed,
-      scopeRecord,
-      objectPlural: "findings",
-    });
+    !isAssignedToMe && !scopedRunFilterActive
+      ? resolveWorkspaceScopeEmptyTeachingForHub({
+          listEmpty: !loading && rows.length === 0 && !loadFailed,
+          scopeRecord,
+          objectPlural: "findings",
+        })
+      : null;
   const filterBarVisible = !buyerPolishedShell && !loading && rows.length > 0;
   const effectiveJobView = resolveEffectiveFindingJobView(jobView, filterBarVisible);
   const jobViewFilterActive = filterBarVisible && jobView !== DEFAULT_FINDING_JOB_VIEW;

@@ -8,6 +8,7 @@ import { ArchitecturesHubListSkeleton } from "@/app/(operator)/architecture/arch
 import { ArchitectureDraftGuidanceDisclosure } from "@/components/architecture/ArchitectureDraftGuidanceDisclosure";
 import { WorkspaceScopeEmptyTeaching } from "@/components/WorkspaceScopeEmptyTeaching";
 import { useOperatorScopeRecord } from "@/hooks/use-operator-scope-record";
+import { PathChooserCreateObjectVocabularyRail } from "@/components/PathChooserCreateObjectVocabularyRail";
 import { ProjectsRecycleDraftsPackageVocabularyRail } from "@/components/ProjectsRecycleDraftsPackageVocabularyRail";
 import { Button } from "@/components/ui/button";
 import {

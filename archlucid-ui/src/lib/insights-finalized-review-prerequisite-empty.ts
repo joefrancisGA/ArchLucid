@@ -1,4 +1,7 @@
-import type { EnterpriseCompactEmptyStateProps } from "@/components/EnterpriseCompactEmptyState";
+import type {
+  EnterpriseCompactEmptyStateAction,
+  EnterpriseCompactEmptyStateProps,
+} from "@/components/EnterpriseCompactEmptyState";
 import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer/buyer-polish-copy";
 import {
   IMPACT_PREVIEW_EMPTY_NO_BASELINE_BODY,
@@ -62,7 +65,7 @@ export function buildInsightsFinalizedReviewPrerequisiteEmpty(
   input: BuildInsightsFinalizedReviewPrerequisiteEmptyInput,
 ): EnterpriseCompactEmptyStateProps {
   const finalizedCount = input.finalizedCount ?? 0;
-  const actions: EnterpriseCompactEmptyStateProps["actions"] = [
+  const actions: EnterpriseCompactEmptyStateAction[] = [
     INSIGHTS_FINALIZED_REVIEW_OPEN_REVIEWS_ACTION,
     INSIGHTS_FINALIZED_REVIEW_START_REVIEW_ACTION,
   ];
