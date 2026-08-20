@@ -10,7 +10,7 @@ export const FINDING_DETAIL_CLAIM_DISCIPLINE =
   "This page summarizes one architecture review finding — not a full audit export by itself. Open Evidence trace, review provenance, or a sealed record when you need the broader package.";
 
 export const FINDING_DETAIL_SOURCES_INTRO =
-  "Use these follow-ups when finding disposition leads into evidence trace, run provenance, or governance queues.";
+  "Use these follow-ups when finding triage leads into evidence trace, run provenance, or governance queues.";
 
 export const FINDING_DETAIL_FOLLOW_UPS_TITLE = "Where to go next";
 

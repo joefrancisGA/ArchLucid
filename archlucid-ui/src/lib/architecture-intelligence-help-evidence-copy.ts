@@ -34,7 +34,7 @@ export const ARCHITECTURE_INTELLIGENCE_HELP_SOURCES: readonly EvidenceOrientatio
   {
     label: "Model governance help",
     href: MODEL_GOVERNANCE_HELP_CANONICAL_PATH,
-    when: "Review workspace execution profiles and governed aliases before changing model policy",
+    when: "Review workspace execution profiles and approved model aliases before changing model policy",
   },
   {
     label: "AI usage help",

@@ -9,7 +9,7 @@ export const ROLE_MAPPING_SETTINGS_HELP_TOPIC_LABEL = "How role mapping works" a
 export const ROLE_MAPPING_SETTINGS_FOLLOW_UPS_TITLE = "Where to go next";
 
 export const ROLE_MAPPING_SETTINGS_SOURCES_INTRO =
-  "Use these follow-ups when claim mapping turns into membership invites, SSO setup, diagnostics, or assurance cites.";
+  "Use these follow-ups when claim mapping turns into membership invites, SSO setup, diagnostics, or official assurance materials.";
 
 /** Operator Sources - no self-href to role-mapping. */
 export const ROLE_MAPPING_SETTINGS_SOURCES: readonly EvidenceSourceLink[] = [

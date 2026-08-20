@@ -9,7 +9,7 @@ export const MODEL_GOVERNANCE_HELP_TOPIC_LABEL = "How model governance works";
 export const MODEL_GOVERNANCE_SETTINGS_FOLLOW_UPS_TITLE = "Where to go next";
 
 export const MODEL_GOVERNANCE_SETTINGS_SOURCES_INTRO =
-  "Use these follow-ups when profile or alias changes turn into spend monitoring, plan controls, or assurance cites.";
+  "Use these follow-ups when profile or alias changes turn into spend monitoring, plan controls, or official assurance materials.";
 
 /** Operator Sources - no self-href to `/administration/model-governance`. */
 export const MODEL_GOVERNANCE_SETTINGS_SOURCES: readonly EvidenceSourceLink[] = [

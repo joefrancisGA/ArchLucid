@@ -8,7 +8,7 @@ export const SCIM_PROVISIONING_HELP_TOPIC_LABEL = "How SCIM provisioning works" 
 export const SCIM_PROVISIONING_FOLLOW_UPS_TITLE = "Where to go next";
 
 export const SCIM_PROVISIONING_SOURCES_INTRO =
-  "Use these follow-ups when token setup turns into SSO federation, role mapping, or assurance cites.";
+  "Use these follow-ups when token setup turns into SSO federation, role mapping, or official assurance materials.";
 
 /** Operator Sources - no self-href to SCIM provisioning. */
 export const SCIM_PROVISIONING_SOURCES: readonly EvidenceSourceLink[] = [

@@ -13,7 +13,7 @@ export const SUPPORT_WORKSPACE_CLAIM_DISCIPLINE =
   "Support workspace is for administrator contact and guided troubleshooting — not a full audit export. Use Report problem for in-product errors.";
 
 export const SUPPORT_WORKSPACE_SOURCES_INTRO =
-  "Use these follow-ups when support intake needs structured defect reporting, symptom triage, or assurance cites.";
+  "Use these follow-ups when support intake needs structured defect reporting, symptom triage, or official assurance materials.";
 
 
 /** Operator Sources — no self-href to Support workspace. */

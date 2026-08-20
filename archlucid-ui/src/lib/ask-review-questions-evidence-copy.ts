@@ -9,7 +9,7 @@ export const ASK_REVIEW_QUESTIONS_CLAIM_DISCIPLINE =
   "Ask review questions grounds answers in a selected sealed review record — not a complete audit export by itself. Open cited findings, Evidence graph, or Audit when you need the full package.";
 
 export const ASK_REVIEW_QUESTIONS_SOURCES_INTRO =
-  "Use these follow-ups when answers need package context, evidence search, or governance disposition.";
+  "Use these follow-ups when answers need package context, evidence search, or governance triage.";
 
 
 /** Operator Sources — no self-href to Ask. */

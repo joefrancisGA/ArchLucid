@@ -27,7 +27,7 @@ export const RECURRENCE_SCHEDULES_HELP_SOURCES: readonly EvidenceSourceLinkWithW
   {
     label: "Audit trail",
     href: GOVERNANCE_AUDIT_PATH,
-    when: "Trace enable, disable, and auto-disable events when schedule lifecycle needs assurance cites",
+    when: "Trace enable, disable, and auto-disable events when schedule lifecycle needs official assurance materials",
   },
   {
     label: "Governance findings",

@@ -19,7 +19,7 @@ export const DECISION_REGISTER_SOURCES: readonly EvidenceSourceLinkWithWhen[] = 
   {
     label: "Findings",
     href: GOVERNANCE_FINDINGS_PATH,
-    when: "Triage live risks when a decision needs disposition follow-up",
+    when: "Triage live risks when a decision needs resolve follow-up",
   },
   {
     label: "Sealed review records",
