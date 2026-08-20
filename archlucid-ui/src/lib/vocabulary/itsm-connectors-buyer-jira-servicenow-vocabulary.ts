@@ -18,13 +18,14 @@ import {
   INTEGRATIONS_SERVICENOW_PATH,
 } from "@/lib/integrations-nav-paths";
 import { ITSM_CONNECTORS_ADMIN_PATH } from "@/lib/itsm/itsm-connectors-admin-scope";
+import type { VocabularyPeerLinkFields } from "@/lib/vocabulary/vocabulary-peer-link-fields";
 
 export type ItsmConnectorsBuyerJiraServicenowSurfaceId =
   | "itsm-connectors"
   | "jira"
   | "servicenow";
 
-export type ItsmConnectorsBuyerJiraServicenowLink = {
+export type ItsmConnectorsBuyerJiraServicenowLink = VocabularyPeerLinkFields & {
   readonly id: ItsmConnectorsBuyerJiraServicenowSurfaceId;
   readonly label: string;
   readonly href: string;
