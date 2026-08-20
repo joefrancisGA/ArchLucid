@@ -36,7 +36,7 @@ describe("sponsor-plain-english-finding (TB-2192)", () => {
     expect(result.headline).toBe("Architecture review finding");
     expect(result.plainEnglish).toContain("still needs a human disposition");
     expect(result.plainEnglish).toContain(
-      "No sponsor-safe finding summary was supplied beyond severity and related notes.",
+      "No export-ready finding summary was supplied beyond severity and related notes.",
     );
     expect(result.plainEnglish).not.toContain("How reviewers derived it");
     expect(result.plainEnglish).not.toContain("Residual risk note");

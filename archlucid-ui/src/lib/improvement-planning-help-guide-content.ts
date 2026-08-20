@@ -85,7 +85,7 @@ export const IMPROVEMENT_PLANNING_HELP_OUTPUT_TILE_ITEMS: readonly ImprovementPl
   },
   {
     label: "Findings triage",
-    detail: "Follow linked findings when a plan needs governed disposition follow-up.",
+    detail: "Follow linked findings when a plan needs resolve follow-up.",
     href: GOVERNANCE_FINDINGS_PATH,
   },
 ] as const;

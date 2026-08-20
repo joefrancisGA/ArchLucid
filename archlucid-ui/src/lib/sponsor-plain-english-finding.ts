@@ -112,7 +112,7 @@ export function buildSponsorPlainEnglishFinding(
   } else if (title !== null) {
     parts.push(`The recorded finding is titled "${title}".`);
   } else {
-    parts.push("No sponsor-safe finding summary was supplied beyond severity and related notes.");
+    parts.push("No export-ready finding summary was supplied beyond severity and related notes.");
   }
 
   if (derivation !== null) {

@@ -113,7 +113,7 @@ function buildWhySafeToSendBullets(
   }
 
   if (!strictSafe) {
-    bullets.push("Strict AI quality evidence is not satisfied for sponsor-safe agent output.");
+    bullets.push("Strict AI quality evidence is not satisfied for export-ready agent output.");
   }
 
   if (roiLabel.startsWith("HOLD")) {

@@ -9,7 +9,7 @@ export const EVIDENCE_TRACE_CLAIM_DISCIPLINE =
   "This page shows the policy, evidence, reasoning, and audit linkage for one finding — not a full audit export by itself. Open the finding detail, review provenance, or sealed record when you need the broader package.";
 
 export const EVIDENCE_TRACE_SOURCES_INTRO =
-  "Use these follow-ups when the trace leads into finding disposition, run provenance, or governance help.";
+  "Use these follow-ups when the trace leads into finding triage, run provenance, or governance help.";
 
 
 /**

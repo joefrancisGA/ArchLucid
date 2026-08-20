@@ -62,7 +62,7 @@ export function resolveRepeatReviewActivation(input: {
         {
           label: REPEAT_REVIEW_LOOP_HELP_INBOUND_LABEL,
           href: "/help/repeat-review-loop",
-          reason: "Checklist for compare, replay, governance, and sponsor-safe ROI labels.",
+          reason: "Checklist for compare, replay, governance, and export-ready ROI labels.",
         },
       ],
     };

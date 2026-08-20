@@ -10,7 +10,7 @@ export const ADVISORY_SCANS_CLAIM_DISCIPLINE_HEADING = "What advisory scans are 
 export const ADVISORY_SCANS_CLAIM_DISCIPLINE = ADVISORY_SCANS_INLINE_CAPABILITY_BOUNDARY;
 
 export const ADVISORY_SCANS_SOURCES_INTRO =
-  "Follow-ups for architecture review intake, governed audit trails, AI spend signals, or product orientation.";
+  "Follow-ups for architecture review intake, official activity records, AI spend signals, or product orientation.";
 
 /** Operator Sources — no self-href to the default advisory-scans hub path or tile-covered destinations. */
 export const ADVISORY_SCANS_SOURCES: readonly EvidenceSourceLinkWithWhen[] = [
@@ -22,7 +22,7 @@ export const ADVISORY_SCANS_SOURCES: readonly EvidenceSourceLinkWithWhen[] = [
   {
     label: "Audit trail help",
     href: inAppHelpHref("audit-trail"),
-    when: "Trace governed disposition and assurance events tied to recommendations",
+    when: "Trace resolve events and assurance events tied to recommendations",
   },
   {
     label: "AI usage help",

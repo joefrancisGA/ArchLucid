@@ -5,7 +5,7 @@ export const ADMINISTRATION_HUB_CLAIM_DISCIPLINE =
   "Settings is the launcher for workspace, identity, billing, security, and support configuration — not a full audit export. Open System health, Audit, or a sealed record when you need operational or export-ready records.";
 
 export const ADMINISTRATION_HUB_SOURCES_INTRO =
-  "Use these follow-ups when configuration browsing turns into readiness checks, activity trails, or governance disposition.";
+  "Use these follow-ups when configuration browsing turns into readiness checks, activity records, or governance triage.";
 
 
 /** Operator Sources — no self-href to the Settings hub. */

@@ -15,7 +15,7 @@ export const RISK_EXCEPTIONS_CLAIM_DISCIPLINE =
   "Risk exceptions track temporary approvals to accept a known risk for accepted findings — they are not a full audit export on their own. Open Findings, Audit, or a review workspace when you need export-ready records for leadership or audit.";
 
 export const RISK_EXCEPTIONS_SOURCES_INTRO =
-  "Use these follow-ups when an exception needs finding disposition, package context, or an activity trail.";
+  "Use these follow-ups when an exception needs finding triage, package context, or an activity record.";
 
 
 /** Operator Sources — no self-href to exceptions. */

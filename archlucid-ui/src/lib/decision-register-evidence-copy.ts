@@ -34,7 +34,7 @@ export const DECISION_REGISTER_SOURCES: readonly EvidenceSourceLinkWithWhen[] = 
   {
     label: "Governance approval help",
     href: inAppHelpHref("governance-approval"),
-    when: "Read disposition workflow orientation before approving changes",
+    when: "Read resolve workflow orientation before approving changes",
   },
   {
     label: "How ArchLucid works",

@@ -32,7 +32,7 @@ export const RECURRENCE_SCHEDULES_HELP_SOURCES: readonly EvidenceSourceLinkWithW
   {
     label: "Governance findings",
     href: GOVERNANCE_FINDINGS_PATH,
-    when: "Triage findings raised when a follow-up cloned review surfaces new disposition work",
+    when: "Triage findings raised when a follow-up cloned review surfaces new triage work",
   },
   {
     label: "Approval queue",
@@ -70,7 +70,7 @@ export const RECURRENCE_SCHEDULES_HELP_HEALTH_CONSTRAINTS: readonly RecurrenceSc
   {
     label: "Enabled state",
     detail:
-      "Disable a schedule when you no longer need automated follow-up; re-enable it when the governed review should resume on cadence.",
+      "Disable a schedule when you no longer need automated follow-up; re-enable it when the scheduled review should resume on cadence.",
   },
   {
     label: "Last trigger outcome",

@@ -9,7 +9,7 @@ export const GOVERNANCE_SETUP_CLAIM_DISCIPLINE =
   "Governance setup is a checklist that links to configuration pages — not a full audit export. It detects your policy baseline and alert ownership from workspace settings; you confirm thresholds, approvals, and reporting yourself. Open Findings, Audit, or Policy packs when you need live activity records.";
 
 export const GOVERNANCE_SETUP_SOURCES_INTRO =
-  "Use these follow-ups when setup steps turn into live configuration, disposition, or activity trails.";
+  "Use these follow-ups when setup steps turn into live configuration, triage, or activity records.";
 
 
 /** Operator Sources — no self-href to /governance/setup. */
