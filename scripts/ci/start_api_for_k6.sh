@@ -23,10 +23,7 @@ echo "Starting ArchLucid.Api (background, port ${API_PORT})..."
 export API_URL="http://127.0.0.1:${API_PORT}"
 export ASPNETCORE_ENVIRONMENT=Development
 export ASPNETCORE_URLS="${API_URL}"
-export ConnectionStrings__ArchLucid="Server=127.0.0.1,1433;User Id=sa;Password=${SA_PASSWORD};TrustServerCertificate=True;Initial Catalog=${DB_NAME};Max Pool Size=200;Connect Timeout=120"
-# Parity with GreenfieldSqlApiFactory / IntegrationTestSqlCatalogEnvironment: pin control-plane + tenant-plane to one catalog.
-export ConnectionStrings__ArchLucidSystem="${ConnectionStrings__ArchLucid}"
-export ArchLucid__SqlTopology__Mode=SingleCatalog
+export ConnectionStrings__ArchLucid="Server=127.0.0.1,1433;User Id=sa;Password=${SA_PASSWORD};TrustServerCertificate=True;Initial Catalog=${DB_NAME}"
 export ArchLucid__StorageProvider=Sql
 export ArchLucidAuth__Mode=DevelopmentBypass
 export Authentication__ApiKey__DevelopmentBypassAll=true
@@ -37,10 +34,7 @@ export Demo__SeedOnStartup=false
 export TrialArchitecturePreseed__Enabled=false
 # Parity with api-greenfield-boot / GreenfieldSqlApiFactory: readiness and create-run on cold CI SQL.
 export DataConsistency__InitialDelaySeconds=0
-export DataConsistency__OrphanProbeEnabled=false
 export HostLeaderElection__Enabled=false
-export Persistence__SqlOpenResilience__MaxRetryAttempts=6
-export Persistence__SqlOpenResilience__BaseDelayMilliseconds=500
 # k6 path uses appsettings.Advanced.json (chained in Program); DbUp + schema bootstrap run without database RLS.
 export RateLimiting__FixedWindow__PermitLimit=200000
 export RateLimiting__FixedWindow__WindowMinutes=1

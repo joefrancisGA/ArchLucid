@@ -37,7 +37,6 @@ public static class ContextIngestionRequestMapper
             ActorsJson = SerializeActors(request.DraftActors),
             QualityAttribute = request.QualityAttributeSnapshot,
             FailureModeNote = request.FailureModeNoteSnapshot,
-            EffectiveModelAliasId = request.EffectiveModelAliasId,
             InfrastructureDeclarations = request.InfrastructureDeclarations
                 .Select(x => new InfrastructureDeclarationReference
                 {

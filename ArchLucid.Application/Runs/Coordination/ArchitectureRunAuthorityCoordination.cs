@@ -102,15 +102,6 @@ public sealed class ArchitectureRunAuthorityCoordination(
         }
 
         EvidenceBundle evidenceBundle = RunStarterTaskFactory.BuildEvidenceBundle(request);
-
-        ModelExecutionProfileResolution profileResolution =
-            await _modelExecutionProfileResolver.ResolveForRunCreateAsync(request, cancellationToken).ConfigureAwait(false);
-
-        ReviewModelAliasResolution aliasResolution =
-            await _reviewModelAliasResolver.ResolveForRunCreateAsync(request, cancellationToken).ConfigureAwait(false);
-
-        request.EffectiveModelAliasId = aliasResolution.EffectiveAliasId;
-
         RunRecord authorityRun = await _authorityRunOrchestrator.ExecuteAsync(
             ContextIngestionRequestMapper.FromArchitectureRequest(request),
             cancellationToken,
@@ -142,6 +133,14 @@ public sealed class ArchitectureRunAuthorityCoordination(
 
             IReadOnlyList<TechnologyLedgerEntry> ledgerEntries =
                 await _technologyLedgerRepository.GetByRunIdAsync(scopeForExtractor, runId, cancellationToken);
+
+            ModelExecutionProfileResolution profileResolution =
+                await _modelExecutionProfileResolver.ResolveForRunCreateAsync(request, cancellationToken).ConfigureAwait(false);
+
+            ReviewModelAliasResolution aliasResolution =
+                await _reviewModelAliasResolver.ResolveForRunCreateAsync(request, cancellationToken).ConfigureAwait(false);
+
+            request.EffectiveModelAliasId = aliasResolution.EffectiveAliasId;
 
             tasks = RunStarterTaskFactory.BuildStarterTasks(
                 runId,
@@ -222,12 +221,16 @@ public sealed class ArchitectureRunAuthorityCoordination(
         header.PackageOrigin = ArchitecturePackageOriginResolver.Resolve(request);
 
         if (!deferred
-            && header.GoldenManifestId is null
             && !string.IsNullOrWhiteSpace(effectiveModelAliasId)
             && _agentModelAliasRegistry.TryGet(effectiveModelAliasId, out AgentModelAliasRegistryEntry? aliasEntry)
             && aliasEntry is not null)
         {
-            RunEngineProvenanceApplicator.TryApplyFromEffectiveAliasId(header, effectiveModelAliasId, _agentModelAliasRegistry);
+            ReviewRunEngineProvenance selectionProvenance = ReviewRunEngineSelectionProvenanceBuilder.Build(
+                effectiveModelAliasId,
+                aliasEntry,
+                header.CreatedUtc);
+
+            header.EngineProvenanceJson = ReviewRunEngineProvenanceJson.Serialize(selectionProvenance);
         }
 
         await _runRepository.UpdateAsync(header, cancellationToken);
