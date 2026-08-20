@@ -35,8 +35,10 @@ vi.mock("@/lib/api/gcp-cloud-connections-api", () => ({
 }));
 
 import { CLOUD_CONNECTIONS_PLATFORM_SCOPE_PREFERENCES_HREF } from "@/lib/cloud-platform-scope-copy";
+import { CLOUD_CONNECTIONS_SECURITY_ASSURANCE_LINK_LABEL } from "@/lib/cloud-connections-copy";
 import { resetCloudPlatformScopeSessionStateForTests, writeCloudPlatformScopeToStorage } from "@/lib/cloud-platform-scope-storage";
 import { CLOUD_CONNECTIONS_SOURCES } from "@/lib/cloud-connections-evidence-copy";
+import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 
 import { CloudConnectionsPageClient } from "./CloudConnectionsPageClient";
 
@@ -52,8 +54,10 @@ describe("CloudConnectionsPageClient", () => {
     render(<CloudConnectionsPageClient />);
 
     await waitFor(() => {
-      expect(screen.getByTestId("cloud-connection-card-evidence-only")).toBeInTheDocument();
+      expect(screen.getByTestId("cloud-connection-card-aws")).toBeInTheDocument();
     });
+
+    expect(screen.queryByTestId("cloud-connection-card-evidence-only")).not.toBeInTheDocument();
 
     expect(screen.getByRole("heading", { level: 1, name: "Cloud connections" })).toBeInTheDocument();
     expect(screen.getByText(/Cloud connectors are optional/i)).toBeInTheDocument();
@@ -76,7 +80,14 @@ describe("CloudConnectionsPageClient", () => {
     expect(screen.queryByTestId("extract-upload-cloud-connections-vocabulary")).not.toBeInTheDocument();
     expect(screen.getByTestId("cloud-connections-hub-vocabulary-disclosure")).toBeInTheDocument();
     expect(screen.getByTestId("cloud-connections-security-assurance-band")).toBeInTheDocument();
-    expect(screen.getByTestId("cloud-first-inventory-coach")).toBeInTheDocument();
+    expect(screen.getByTestId("cloud-connections-security-assurance-link")).toHaveTextContent(
+      CLOUD_CONNECTIONS_SECURITY_ASSURANCE_LINK_LABEL,
+    );
+    expect(screen.getByRole("link", { name: "Security & Trust" })).toHaveAttribute(
+      "href",
+      "/administration/security-trust",
+    );
+    expect(screen.queryByTestId("cloud-first-inventory-coach")).not.toBeInTheDocument();
 
     for (const provider of ["aws", "azure", "gcp"] as const) {
       const card = screen.getByTestId(`cloud-connection-card-${provider}`);
@@ -98,7 +109,9 @@ describe("CloudConnectionsPageClient", () => {
     const sources = screen.getByTestId("cloud-connections-sources");
 
     for (const link of CLOUD_CONNECTIONS_SOURCES) {
-      expect(within(sources).getByRole("link", { name: link.label })).toHaveAttribute("href", link.href);
+      const accessibleName = formatHelpFollowUpLinkAccessibleName(link.href, link.label);
+
+      expect(within(sources).getByRole("link", { name: accessibleName })).toHaveAttribute("href", link.href);
     }
 
     expect(screen.queryByTestId("cloud-connections-claim-discipline")).not.toBeInTheDocument();
@@ -111,26 +124,21 @@ describe("CloudConnectionsPageClient", () => {
       expect(screen.getByTestId("cloud-connection-card-aws-not-connected")).toBeInTheDocument();
     });
 
-    expect(screen.getByTestId("cloud-connection-card-evidence-only")).toHaveTextContent("Always available");
     expect(screen.queryByText("Not configured")).not.toBeInTheDocument();
     expect(screen.queryByText("Not validated yet")).not.toBeInTheDocument();
     expect(screen.queryByText("No packages collected")).not.toBeInTheDocument();
   });
 
-  it("shows zero-connected readiness coach with one recommended action", async () => {
+  it("does not show a zero-connected coach when provider cards already show status", async () => {
     render(<CloudConnectionsPageClient />);
 
     await waitFor(() => {
-      expect(screen.getByTestId("cloud-first-inventory-coach")).toBeInTheDocument();
+      expect(screen.getByTestId("cloud-connection-card-aws-not-connected")).toBeInTheDocument();
     });
 
-    expect(screen.getByTestId("cloud-first-inventory-coach")).toHaveAttribute("data-phase", "empty");
-    expect(screen.getByText(/0 of 3 cloud providers connected/i)).toBeInTheDocument();
-    expect(screen.getByTestId("cloud-first-inventory-coach-cta")).toHaveTextContent("Configure AWS");
-    expect(screen.getByTestId("cloud-first-inventory-coach-cta")).toHaveAttribute(
-      "href",
-      "/integrations/cloud-connections/aws",
-    );
+    expect(screen.queryByTestId("cloud-first-inventory-coach")).not.toBeInTheDocument();
+    expect(screen.queryByText(/0 of 3 cloud providers connected/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/No cloud providers connected yet/i)).not.toBeInTheDocument();
   });
 
   it("hides provider cards when personal platform scope is narrowed", async () => {
@@ -151,7 +159,7 @@ describe("CloudConnectionsPageClient", () => {
     expect(screen.queryByTestId("cloud-connection-card-gcp")).not.toBeInTheDocument();
   });
 
-  it("recommends a visible provider when AWS is hidden from platform scope", async () => {
+  it("does not surface a hub coach when AWS is hidden from platform scope and nothing is connected", async () => {
     writeCloudPlatformScopeToStorage({
       "evidence-only": true,
       azure: true,
@@ -162,15 +170,13 @@ describe("CloudConnectionsPageClient", () => {
     render(<CloudConnectionsPageClient />);
 
     await waitFor(() => {
-      expect(screen.getByTestId("cloud-first-inventory-coach")).toBeInTheDocument();
+      expect(screen.getByTestId("cloud-connection-card-azure-not-connected")).toBeInTheDocument();
     });
 
     expect(screen.queryByTestId("cloud-connection-card-aws")).not.toBeInTheDocument();
-    expect(screen.getByTestId("cloud-first-inventory-coach-cta")).toHaveTextContent("Configure Azure");
-    expect(screen.getByTestId("cloud-first-inventory-coach-cta")).toHaveAttribute(
-      "href",
-      "/integrations/cloud-connections/azure",
-    );
+    expect(screen.queryByTestId("cloud-first-inventory-coach")).not.toBeInTheDocument();
+    expect(screen.getByTestId("cloud-connection-card-azure-primary-cta")).toHaveTextContent("Configure");
+    expect(screen.getByTestId("cloud-connection-card-gcp-primary-cta")).toHaveTextContent("Configure");
   });
 
   it("uses Open connection as the sole primary CTA when a provider is configured (TB-1141)", async () => {

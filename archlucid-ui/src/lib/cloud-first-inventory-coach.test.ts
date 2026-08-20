@@ -57,7 +57,7 @@ describe("cloud-first-inventory-coach (TB-2222)", () => {
     expect(view.body.toLowerCase()).toContain("attach");
   });
 
-  it("empty phase recommends configuring the first neutral provider", () => {
+  it("empty hub phase omits a provider-specific CTA when cards already expose Configure", () => {
     const view = buildCloudFirstInventoryCoach({
       hasConnection: false,
       hasSuccessfulPull: false,
@@ -68,21 +68,22 @@ describe("cloud-first-inventory-coach (TB-2222)", () => {
     expect(view.phase).toBe("empty");
     expect(view.body).toContain("0 of 3");
     expect(view.steps).toEqual([]);
-    expect(view.primaryCtaLabel).toBe("Configure AWS");
-    expect(view.primaryCtaHref).toBe("/integrations/cloud-connections/aws");
+    expect(view.primaryCtaLabel).toBeNull();
+    expect(view.primaryCtaHref).toBeNull();
   });
 
-  it("empty phase respects recommendedProviderId from platform scope", () => {
+  it("empty phase respects recommendedProviderId on provider detail pages", () => {
     const view = buildCloudFirstInventoryCoach({
       hasConnection: false,
       hasSuccessfulPull: false,
       connectedProviderCount: 0,
       totalProviderCount: 3,
       recommendedProviderId: "azure",
+      emptyPhasePrimaryCtaHref: "#connection-details",
     });
 
     expect(view.primaryCtaLabel).toBe("Configure Azure");
-    expect(view.primaryCtaHref).toBe("/integrations/cloud-connections/azure");
+    expect(view.primaryCtaHref).toBe("#connection-details");
   });
 
   it("empty phase on a provider detail page avoids hub-wide provider counts", () => {

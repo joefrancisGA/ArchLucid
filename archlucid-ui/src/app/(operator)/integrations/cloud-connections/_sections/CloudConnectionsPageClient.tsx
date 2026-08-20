@@ -25,8 +25,7 @@ import {
   resolveLandingCloudPlatformScope,
   subscribeCloudPlatformScopeChanges,
   syncCloudPlatformScopeFromServer,
-  visibleLandingPlatformCards,
-  type CloudPlatformId,
+  visibleCloudProviders,
   type CloudProviderId,
 } from "@/lib/cloud-platform-scope-storage";
 import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -42,7 +41,6 @@ import { PageContextualHelpButton } from "@/components/usability/PageContextualH
 import { CloudConnectionsHubVocabularyDisclosure } from "./CloudConnectionsHubVocabularyDisclosure";
 import { CloudConnectionsSecurityAssuranceBand } from "./CloudConnectionsSecurityAssuranceBand";
 import { CloudProviderSummaryCard } from "./CloudProviderSummaryCard";
-import { EvidenceOnlyConnectionCard } from "./EvidenceOnlyConnectionCard";
 import { isCloudProviderSummaryConfigured } from "./is-cloud-provider-summary-configured";
 
 function formatTimestamp(value: string | null | undefined): string {
@@ -243,7 +241,7 @@ export function CloudConnectionsPageClient() {
     [],
   );
 
-  const visibleCards = useMemo(() => visibleLandingPlatformCards(platformScope), [platformScope]);
+  const visibleProviders = useMemo(() => visibleCloudProviders(platformScope), [platformScope]);
 
   const connectedProviderCount = useMemo(
     () =>
@@ -316,7 +314,7 @@ export function CloudConnectionsPageClient() {
 
         {isLoading ? <p className={OPERATOR_TYPOGRAPHY.helper}>Loading connection status...</p> : null}
 
-        {showConnectionContent ? (
+        {showConnectionContent && (hasConfiguredProvider || hasSuccessfulPull) ? (
           <CloudFirstInventoryCoach
             hasConnection={hasConfiguredProvider}
             hasSuccessfulPull={hasSuccessfulPull}
@@ -327,17 +325,13 @@ export function CloudConnectionsPageClient() {
         ) : null}
 
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-2">
-          {visibleCards.map((platformId: CloudPlatformId) => {
-            if (platformId === "evidence-only") {
-              return <EvidenceOnlyConnectionCard key={platformId} />;
-            }
-
-            const summary = providerSummaries[platformId];
+          {visibleProviders.map((providerId: CloudProviderId) => {
+            const summary = providerSummaries[providerId];
 
             return (
               <CloudProviderSummaryCard
-                key={platformId}
-                provider={platformId}
+                key={providerId}
+                provider={providerId}
                 status={summary.status}
                 lastValidation={summary.lastValidation}
                 evidenceCollected={summary.evidenceCollected}
@@ -346,7 +340,7 @@ export function CloudConnectionsPageClient() {
           })}
         </div>
 
-        {visibleCards.length === 0 ? (
+        {visibleProviders.length === 0 ? (
           <p className={OPERATOR_TYPOGRAPHY.helper}>
             {CLOUD_CONNECTIONS_PLATFORM_SCOPE_EMPTY_SELECTION}{" "}
             <Link href="/architecture/reviews/new" className={OPERATOR_LINK.nav}>

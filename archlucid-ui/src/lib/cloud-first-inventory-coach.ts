@@ -4,7 +4,6 @@
  */
 
 import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer/buyer-polish-copy";
-import { cloudProviderDetailPath } from "@/lib/cloud-connections-paths";
 import {
   CLOUD_PROVIDER_NEUTRAL_ORDER,
   type CloudProviderId,
@@ -36,8 +35,9 @@ export type CloudFirstInventoryCoachView = {
   readonly title: string;
   readonly body: string;
   readonly steps: readonly CloudFirstInventoryCoachStep[];
-  readonly primaryCtaLabel: string;
-  readonly primaryCtaHref: string;
+  /** Null on the hub empty coach — provider cards already expose Configure actions. */
+  readonly primaryCtaLabel: string | null;
+  readonly primaryCtaHref: string | null;
   /** When true, prefer this coach over idle empty-state copy. */
   readonly replacesIdleEmpty: boolean;
 };
@@ -125,9 +125,8 @@ export function buildCloudFirstInventoryCoach(
           ? `${providerLabel} is not connected yet. Complete connection details below to attach read-only inventory to architecture reviews.`
           : `${connectedProviderCount} of ${totalProviderCount} cloud providers connected. Connecting adds read-only inventory packages to architecture reviews; evidence-only upload works without cloud vendor access.`,
         steps: [],
-        primaryCtaLabel: `Configure ${providerLabel}`,
-        primaryCtaHref:
-          input.emptyPhasePrimaryCtaHref ?? cloudProviderDetailPath(recommendedProviderId),
+        primaryCtaLabel: providerScopedEmpty ? `Configure ${providerLabel}` : null,
+        primaryCtaHref: providerScopedEmpty ? input.emptyPhasePrimaryCtaHref : null,
         replacesIdleEmpty: true,
       };
     }

@@ -141,20 +141,8 @@ export function visibleCloudProviders(scope: CloudPlatformScope): CloudProviderI
   return CLOUD_PROVIDER_NEUTRAL_ORDER.filter((provider) => scope[provider]);
 }
 
-export function visibleLandingPlatformCards(scope: CloudPlatformScope): CloudPlatformId[] {
-  const cards: CloudPlatformId[] = [];
-
-  if (scope["evidence-only"]) {
-    cards.push("evidence-only");
-  }
-
-  for (const provider of CLOUD_PROVIDER_NEUTRAL_ORDER) {
-    if (scope[provider]) {
-      cards.push(provider);
-    }
-  }
-
-  return cards;
+export function visibleLandingPlatformCards(scope: CloudPlatformScope): CloudProviderId[] {
+  return visibleCloudProviders(scope);
 }
 
 export function subscribeCloudPlatformScopeChanges(onChange: () => void): () => void {

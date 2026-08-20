@@ -82,15 +82,11 @@ export function CloudProviderSummaryCard(props: CloudProviderSummaryCardProps) {
             </div>
           </dl>
         ) : (
-          <div
-            className="space-y-2"
+          <StatusTag
+            kind="neutral"
+            label={CLOUD_CONNECTIONS_PROVIDER_NOT_CONNECTED}
             data-testid={`cloud-connection-card-${provider}-not-connected`}
-          >
-            <StatusTag kind="neutral" label={CLOUD_CONNECTIONS_PROVIDER_NOT_CONNECTED} />
-            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
-              {CLOUD_CONNECTIONS_PROVIDER_AUTH_MODEL[provider]}
-            </p>
-          </div>
+          />
         )}
       </CardContent>
       <CardFooter className="mt-auto border-t border-neutral-200 pt-4 dark:border-neutral-700">

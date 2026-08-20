@@ -25,7 +25,7 @@ describe("cloud-platform-scope-storage", () => {
     expect(scope.gcp).toBe(true);
   });
 
-  it("orders provider cards neutrally with evidence-only first", () => {
+  it("orders provider cards in neutral provider order", () => {
     const cards = visibleLandingPlatformCards({
       "evidence-only": true,
       azure: true,
@@ -33,7 +33,7 @@ describe("cloud-platform-scope-storage", () => {
       gcp: true,
     });
 
-    expect(cards).toEqual(["evidence-only", "aws", "azure", "gcp"]);
+    expect(cards).toEqual(["aws", "azure", "gcp"]);
   });
 
   it("hides deselected providers from landing cards", () => {
@@ -45,7 +45,7 @@ describe("cloud-platform-scope-storage", () => {
     } as const;
 
     expect(visibleCloudProviders(scope)).toEqual(["aws"]);
-    expect(visibleLandingPlatformCards(scope)).toEqual(["evidence-only", "aws"]);
+    expect(visibleLandingPlatformCards(scope)).toEqual(["aws"]);
   });
 
   it("persists personal scope and notifies subscribers", () => {
