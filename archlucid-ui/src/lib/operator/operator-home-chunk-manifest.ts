@@ -1,0 +1,54 @@
+import type { DeferredChunkManifestEntry } from "@/lib/operator/deferred-chunk-manifest";
+
+/** TB-2371 — operator home deferred chunk catalog. */
+export const OPERATOR_HOME_CHUNK_MANIFEST: readonly DeferredChunkManifestEntry[] = [
+  {
+    id: "operator-home-command-center",
+    label: "Loading overview command center",
+    variant: "panel",
+    modulePath: "@/components/usability/PilotCommandCenterCard",
+    exportName: "PilotCommandCenterCard",
+  },
+  {
+    id: "operator-home-hero",
+    label: "Loading overview hero",
+    variant: "panel",
+    modulePath: "@/components/operator-home/BuyerPolishedHomeHeroSection",
+    exportName: "BuyerPolishedHomeHeroSection",
+  },
+  {
+    id: "operator-home-gate",
+    label: "Checking workspace access",
+    variant: "section",
+    modulePath: "@/components/operator-home/OperatorHomeGate",
+    exportName: "OperatorHomeGate",
+  },
+  {
+    id: "operator-home-below-fold",
+    label: "Loading overview guidance panels",
+    variant: "section",
+    modulePath: "@/app/(operator)/_sections/OperatorHomeBelowFoldPanels",
+    exportName: "OperatorHomeBelowFoldPanels",
+  },
+  {
+    id: "operator-home-stickiness",
+    label: "Loading stickiness cockpit",
+    variant: "panel",
+    modulePath: "@/components/operator-home/OperatorHomeStickinessCockpit",
+    exportName: "OperatorHomeStickinessCockpit",
+  },
+  {
+    id: "operator-home-sponsor-roi",
+    label: "Loading sponsor ROI strip",
+    variant: "compact",
+    modulePath: "@/components/operator-home/OperatorHomeSponsorRoiStrip",
+    exportName: "OperatorHomeSponsorRoiStrip",
+  },
+  {
+    id: "operator-home-runs-dashboard",
+    label: "Loading recent reviews",
+    variant: "panel",
+    modulePath: "@/components/operator-home/RunsDashboardPanel",
+    exportName: "RunsDashboardPanel",
+  },
+] as const;

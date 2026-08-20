@@ -24,95 +24,10 @@ public class DefaultGraphBuilder(
 
         nodes.Add(CreateContextNode(contextSnapshot));
 
-        bool hasCanonicalCostConstraints = false;
-        bool hasCanonicalActors = false;
-        bool hasCanonicalAssumptions = false;
-        bool hasCanonicalQualityAttributes = false;
-        bool hasCanonicalFailureModes = false;
+        GraphMaterializationContext materializationContext = new(contextSnapshot, nodes);
+        GraphMaterializationPipeline pipeline = GraphMaterializationStages.CreateDefaultPipeline(nodeFactory);
 
-        foreach (CanonicalObject item in canonicalObjects)
-        {
-            GraphNode node = nodeFactory.CreateNode(item);
-
-            if (string.Equals(item.ObjectType, GraphNodeTypes.CostConstraint, StringComparison.OrdinalIgnoreCase))
-                hasCanonicalCostConstraints = true;
-
-            if (string.Equals(item.ObjectType, GraphNodeTypes.Actor, StringComparison.OrdinalIgnoreCase))
-                hasCanonicalActors = true;
-
-            if (string.Equals(item.ObjectType, GraphNodeTypes.Assumption, StringComparison.OrdinalIgnoreCase))
-                hasCanonicalAssumptions = true;
-
-            if (string.Equals(item.ObjectType, GraphNodeTypes.QualityAttribute, StringComparison.OrdinalIgnoreCase))
-                hasCanonicalQualityAttributes = true;
-
-            if (string.Equals(item.ObjectType, GraphNodeTypes.FailureMode, StringComparison.OrdinalIgnoreCase))
-                hasCanonicalFailureModes = true;
-
-            if (item.Properties.TryGetValue("associatedFindings", out string? associatedFindings) &&
-                associatedFindings.Contains("WAF", StringComparison.OrdinalIgnoreCase))
-            {
-                node.Properties["WafAligned"] = "true";
-            }
-            else if (item.Properties.TryGetValue("findings", out string? findings) &&
-                     findings.Contains("WAF", StringComparison.OrdinalIgnoreCase))
-            {
-                node.Properties["WafAligned"] = "true";
-            }
-
-            nodes.Add(node);
-        }
-
-        if (!hasCanonicalCostConstraints
-            && contextSnapshot.SourceHashes.TryGetValue(ContextScopeMetadataKeys.Constraints, out string? constraints))
-        {
-            nodes.AddRange(
-                RequestCostConstraintMaterializer.MaterializeFromConstraintsMetadata(
-                    constraints,
-                    contextSnapshot.SnapshotId));
-        }
-
-        if (!hasCanonicalActors
-            && contextSnapshot.SourceHashes.TryGetValue(ContextScopeMetadataKeys.Actors, out string? actorsJson))
-        {
-            nodes.AddRange(
-                RequestActorMaterializer.MaterializeFromActorsJson(
-                    actorsJson,
-                    contextSnapshot.SnapshotId));
-        }
-
-        if (!hasCanonicalAssumptions
-            && contextSnapshot.SourceHashes.TryGetValue(ContextScopeMetadataKeys.Assumptions, out string? assumptions))
-        {
-            nodes.AddRange(
-                RequestAssumptionMaterializer.MaterializeFromAssumptionsMetadata(
-                    assumptions,
-                    contextSnapshot.SnapshotId));
-        }
-
-        if (!hasCanonicalQualityAttributes
-            && contextSnapshot.SourceHashes.TryGetValue(
-                ContextScopeMetadataKeys.QualityAttribute,
-                out string? qualityAttribute))
-        {
-            nodes.AddRange(
-                RequestQualityAttributeMaterializer.MaterializeFromQualityAttribute(
-                    qualityAttribute,
-                    contextSnapshot.SnapshotId));
-        }
-
-        if (!hasCanonicalFailureModes
-            && contextSnapshot.SourceHashes.TryGetValue(
-                ContextScopeMetadataKeys.FailureModeNote,
-                out string? failureModeNote))
-        {
-            nodes.AddRange(
-                RequestFailureModeMaterializer.MaterializeFromFailureModeNote(
-                    failureModeNote,
-                    contextSnapshot.SnapshotId));
-        }
-
-        await CostConstraintProjectedSpendEnricher.EnrichFromTopologyAsync(nodes, ct).ConfigureAwait(false);
+        await pipeline.RunAsync(materializationContext, ct).ConfigureAwait(false);
 
         IReadOnlyList<GraphEdge> inferredEdges = edgeInferer.InferEdges(contextSnapshot, nodes);
 

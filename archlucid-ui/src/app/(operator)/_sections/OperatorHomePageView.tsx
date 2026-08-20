@@ -17,6 +17,11 @@ import { deriveOperatorHomeWorkspaceMetrics } from "@/lib/operator/operator-home
 import { OperatorHomeRefreshProvider } from "@/lib/operator/operator-home-refresh-context";
 import { OPERATOR_HOME_RECENT_REVIEWS_HEADING } from "@/lib/operator/operator-home-recent-reviews-heading";
 import {
+  composeOperatorHomeSections,
+  type OperatorHomeSectionDescriptor,
+  type OperatorHomeSectionId,
+} from "@/lib/compose-operator-home-sections";
+import {
   BuyerPolishedHomeHeroSectionDeferred,
   OperatorHomeBelowFoldPanelsDeferred,
   OperatorHomeSponsorRoiStripDeferred,
@@ -56,7 +61,11 @@ function OperatorHomePageChrome(props: { readonly buyerPolishedShell: boolean })
 
 function HomeRecentReviewsSection(props: { readonly model: OperatorHomePageViewModel }) {
   return (
-    <section aria-labelledby="operator-home-reviews-heading" className={OPERATOR_LAYOUT.sectionHeadingStack}>
+    <section
+      aria-labelledby="operator-home-reviews-heading"
+      className={OPERATOR_LAYOUT.sectionHeadingStack}
+      data-testid="operator-home-recent-reviews"
+    >
       <HomeSectionHeading id="operator-home-reviews-heading">{OPERATOR_HOME_RECENT_REVIEWS_HEADING}</HomeSectionHeading>
       {/* Outcome line renders inside the runs panel from live list rows (avoids empty vs sample mismatch). */}
       <OperatorHomeRunsPanel hideHeading initialModel={props.model.runsDashboard} />
@@ -64,74 +73,111 @@ function HomeRecentReviewsSection(props: { readonly model: OperatorHomePageViewM
   );
 }
 
-function BuyerPolishedHomePageBody(props: { readonly model: OperatorHomePageViewModel }) {
-  const initialHasReviews = (props.model.runsDashboard?.items.length ?? 0) > 0;
+type RenderOperatorHomeSectionInput = {
+  readonly section: OperatorHomeSectionDescriptor;
+  readonly model: OperatorHomePageViewModel;
+  readonly buyerPolishedShell: boolean;
+  readonly workspaceMetrics: ReturnType<typeof deriveOperatorHomeWorkspaceMetrics>;
+};
 
-  return (
+function renderOperatorHomeSection(input: RenderOperatorHomeSectionInput): React.JSX.Element | null {
+  switch (input.section.id) {
+    case "unfinished":
+      return (
+        <div key={input.section.id} data-testid={input.section.testId}>
+          <UnfinishedWorkRail runs={input.model.runsDashboard.items} />
+        </div>
+      );
 
-    <OperatorHomeWorkspaceActivityProvider initialHasReviews={initialHasReviews}>
+    case "hero":
+      return (
+        <BuyerPolishedHomeHeroSectionDeferred
+          key={input.section.id}
+          runsDashboard={input.model.runsDashboard}
+        />
+      );
 
-      <UnfinishedWorkRail runs={props.model.runsDashboard.items} />
+    case "command-center":
+      return (
+        <section
+          key={input.section.id}
+          aria-label="Overview command center"
+          data-testid={input.section.testId}
+        >
+          <PilotCommandCenterCardDeferred
+            openFindingsCount={input.workspaceMetrics.openFindings}
+            governanceWarningsCount={input.workspaceMetrics.governanceWarnings}
+            hasWorkspaceReviews={input.workspaceMetrics.hasReviews}
+            runsDashboard={input.model.runsDashboard}
+            suppressLeadCopy
+            showContextualHelp={false}
+          />
+        </section>
+      );
 
-      <BuyerPolishedHomeHeroSectionDeferred runsDashboard={props.model.runsDashboard} />
+    case "recent-reviews":
+      return <HomeRecentReviewsSection key={input.section.id} model={input.model} />;
 
-      <HomeRecentReviewsSection model={props.model} />
+    case "buyer-chrome":
+      return <OperatorHomeBuyerChrome key={input.section.id} />;
 
-      <OperatorHomeBuyerChrome />
+    case "below-fold":
+      return (
+        <OperatorHomeBelowFoldPanelsDeferred
+          key={input.section.id}
+          buyerPolishedShell={input.buyerPolishedShell}
+          model={input.model}
+          showFirstValueCallout={!input.buyerPolishedShell}
+        />
+      );
 
-      <OperatorHomeBelowFoldPanelsDeferred buyerPolishedShell model={props.model} />
+    case "stickiness":
+      return <OperatorHomeStickinessCockpitDeferred key={input.section.id} />;
 
-      <OperatorHomeStickinessCockpitDeferred />
+    case "sponsor-roi":
+      return <OperatorHomeSponsorRoiStripDeferred key={input.section.id} />;
 
-      <OperatorHomeSponsorRoiStripDeferred />
-
-    </OperatorHomeWorkspaceActivityProvider>
-
-  );
+    default: {
+      const unreachable: never = input.section.id as never;
+      throw new Error(`Unhandled operator home section ${unreachable}.`);
+    }
+  }
 }
 
-function OperatorHomePageBody(props: { readonly model: OperatorHomePageViewModel }) {
+function OperatorHomePageBody(props: {
+  readonly model: OperatorHomePageViewModel;
+  readonly buyerPolishedShell: boolean;
+}): React.JSX.Element {
   const workspaceMetrics = deriveOperatorHomeWorkspaceMetrics(
     props.model.runsDashboard.items,
     props.model.runsDashboard.totalCount,
   );
+  const sections = composeOperatorHomeSections({
+    phaseSignals: {
+      hasWorkspaceReviews: workspaceMetrics.hasReviews,
+      draftCount: 0,
+      hasCommittedManifest: workspaceMetrics.reviewPackagesCommitted > 0,
+      openFindingsCount: workspaceMetrics.openFindings,
+      governanceWarningsCount: workspaceMetrics.governanceWarnings,
+    },
+    buyerPolishedShell: props.buyerPolishedShell,
+    metrics: workspaceMetrics,
+  });
 
   return (
-
     <OperatorHomeWorkspaceActivityProvider
       initialHasReviews={workspaceMetrics.hasReviews}
       initialOpenFindingsCount={workspaceMetrics.openFindings}
     >
-
-      <UnfinishedWorkRail runs={props.model.runsDashboard.items} />
-
-      <section aria-label="Overview command center" data-testid="operator-home-pilot-command-center-host">
-
-        <PilotCommandCenterCardDeferred
-          openFindingsCount={workspaceMetrics.openFindings}
-          governanceWarningsCount={workspaceMetrics.governanceWarnings}
-          hasWorkspaceReviews={workspaceMetrics.hasReviews}
-          runsDashboard={props.model.runsDashboard}
-          suppressLeadCopy
-          showContextualHelp={false}
-        />
-
-      </section>
-
-      <HomeRecentReviewsSection model={props.model} />
-
-      <OperatorHomeBelowFoldPanelsDeferred
-        buyerPolishedShell={false}
-        model={props.model}
-        showFirstValueCallout
-      />
-
-      <OperatorHomeStickinessCockpitDeferred />
-
-      <OperatorHomeSponsorRoiStripDeferred />
-
+      {sections.map((section) =>
+        renderOperatorHomeSection({
+          section,
+          model: props.model,
+          buyerPolishedShell: props.buyerPolishedShell,
+          workspaceMetrics,
+        }),
+      )}
     </OperatorHomeWorkspaceActivityProvider>
-
   );
 }
 
@@ -159,13 +205,15 @@ export function OperatorHomePageView({ model }: OperatorHomePageViewProps) {
               className="scroll-mt-24 space-y-4"
               data-testid="operator-home-primary-content"
             >
-              <BuyerPolishedHomePageBody model={model} />
+              <OperatorHomePageBody model={model} buyerPolishedShell />
             </div>
           ) : (
-            <OperatorHomePageBody model={model} />
+            <OperatorHomePageBody model={model} buyerPolishedShell={false} />
           )}
         </OperatorPageContainer>
       </OperatorHomeRefreshProvider>
     </OperatorHomeGateDeferred>
   );
 }
+
+export { renderOperatorHomeSection, type OperatorHomeSectionId };

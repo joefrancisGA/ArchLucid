@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 
-import { buildPostCommitHabitLoop } from "@/lib/post-commit-habit-loop";
+import { buildPostCommitHabitLoop, POST_COMMIT_OPTIONAL_ACTION_IDS } from "@/lib/post-commit-habit-loop";
 
 vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
@@ -30,6 +30,7 @@ describe("buildPostCommitHabitLoop", () => {
     expect(loop.optional.some((action) => action.id === "evidence-chain")).toBe(true);
     expect(loop.optional.some((action) => action.id === "value-delta")).toBe(true);
     expect(loop.optional.some((action) => action.id === "second-review")).toBe(true);
+    expect(POST_COMMIT_OPTIONAL_ACTION_IDS).toContain("compare");
   });
 
   it("omits compare optional action when compare is unavailable", () => {

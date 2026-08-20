@@ -173,7 +173,7 @@ export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspace
       : "full";
 
   return (
-    <div className="space-y-5" data-testid="architecture-created-workspace">
+    <div className="space-y-5" data-testid="architecture-created-workspace" data-workspace-lifecycle="create-home">
       <ArchitectureCreatedWorkspaceHeader model={model} activeTab={activeTab} onNavigateTab={navigateTab} />
 
       <ArchitectureCreatedCompactFirstViewport

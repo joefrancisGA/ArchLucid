@@ -245,7 +245,7 @@ const workspaceShellLoading = (
 
 /** TB-2021 remainder — tabbed workspace shell off sync First Load JS. */
 export const ReviewDetailWorkspaceDeferred = dynamic(
-  () => import("@/components/reviews/ReviewDetailWorkspace").then((module) => module.ReviewDetailWorkspace),
+  () => import("@/components/reviews/ReviewWorkspaceShell").then((module) => module.ReviewWorkspaceShell),
   { ssr: false, loading: () => workspaceShellLoading },
 );
 

@@ -58,6 +58,11 @@ import { CommandPaletteRecentViewsGroup } from "@/components/usability/CommandPa
 import { CommandPaletteSidebarVocabularyRail } from "@/components/CommandPaletteSidebarVocabularyRail";
 import { stampRouteReferrer } from "@/lib/operator/operator-navigation-referrer";
 import { GLOBAL_FIND_PAGE_SEARCH } from "@/lib/search-surface-disambiguation";
+import {
+  searchFindPageHelpEntries,
+  searchFindPageIndex,
+  type FindPageSearchEntry,
+} from "@/lib/find-page-search-index";
 import { OPEN_COMMAND_PALETTE_EVENT, SHORTCUTS } from "@/lib/shortcut-registry";
 
 const RUN_ID_LIKE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -101,6 +106,38 @@ function buyerPolishedCommandPaletteLabel(pathname: string): string {
 
 function curatedPaletteVisibilityHref(href: string): string {
   return commandPaletteNavVisibilityHref(href);
+}
+
+function CommandPaletteFindPageSearch({
+  onNavigate,
+}: {
+  onNavigate: (href: string) => void;
+}) {
+  const search = useCommandState((state) => state.search);
+  const trimmed = search.trim();
+  const staticMatches = searchFindPageIndex(trimmed, { limit: 8 });
+  const helpMatches = searchFindPageHelpEntries(trimmed, { limit: 4 });
+  const matches: FindPageSearchEntry[] = [...staticMatches, ...helpMatches];
+
+  if (trimmed.length === 0 || matches.length === 0) {
+    return null;
+  }
+
+  return (
+    <CommandGroup heading="Pages & shortcuts">
+      {matches.map((entry) => (
+        <CommandItem
+          key={entry.id}
+          value={`find-page ${entry.label} ${entry.searchValue}`}
+          onSelect={() => {
+            onNavigate(entry.href);
+          }}
+        >
+          {entry.label}
+        </CommandItem>
+      ))}
+    </CommandGroup>
+  );
 }
 
 function CommandPaletteDocumentationSearch({
@@ -636,6 +673,7 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
         <CommandList>
           <RunIdQuickOpen onNavigate={navigate} allowRunIdPaste={!buyerPolishedShell} />
           <CommandPaletteRecentViewsGroup onNavigate={navigate} />
+          <CommandPaletteFindPageSearch onNavigate={navigate} />
           <CommandPaletteDocumentationSearch buyerPolishedShell={buyerPolishedShell} onNavigate={navigate} />
           <CommandPaletteActions onNavigate={navigate} />
           <CommandPaletteDemoActions onNavigate={navigate} onClose={() => setOpen(false)} />

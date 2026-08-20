@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { deriveReviewDetailTabActivityAt } from "@/lib/review-detail-tab-activity";
+import { resolveReviewWorkspaceLifecycle } from "@/lib/resolve-review-workspace-lifecycle";
 import { RunDetailActivityTabSectionNav } from "@/components/runs/RunDetailActivityTabSectionNav";
 import { resolveRunDetailLastFailureSummary } from "@/components/resolve-run-detail-last-failure-summary";
 
@@ -277,6 +278,11 @@ const architectureTabPanelEl = (
     <ReviewDetailWorkspaceDeferred
       runId={m.resolvedDetail.run.runId}
       inPipelineBanner={inPipelineBannerEl}
+      lifecycle={resolveReviewWorkspaceLifecycle({
+        manifestId: m.manifestId,
+        showProgressTracker: m.showProgressTracker,
+        runCompleted: m.resolvedDetail.run.completedUtc != null,
+      })}
       tabLifecycle={{
         manifestId: m.manifestId,
         showProgressTracker: m.showProgressTracker,

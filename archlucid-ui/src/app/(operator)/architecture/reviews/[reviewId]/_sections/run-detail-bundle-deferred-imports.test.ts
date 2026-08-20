@@ -53,7 +53,7 @@ const bannedStaticImports = [
   '@/components/cto-demo/CtoDemoReviewRouteGuard"',
   '@/components/findings/ReviewDetailPolicyPackImpactCallout"',
   '@/components/runs/RunDetailLastFailureCard"',
-  '@/components/reviews/ReviewDetailWorkspace"',
+  '@/components/reviews/ReviewWorkspaceShell"',
   '@/components/reviews/RunDetailOverviewPanelClient"',
   '@/components/runs/RunDetailSectionNav"',
   './RunDetailOperatorTechnicalForensicsPanel"',
