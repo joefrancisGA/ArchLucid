@@ -82,4 +82,17 @@ public sealed class MemoryCacheItsmInboundWebhookReplayGuardTests
         blocked.Should().BeFalse();
         afterRelease.Should().BeTrue();
     }
+
+    [Fact]
+    public async Task TryClaimAsync_treats_event_id_case_variants_as_same_claim()
+    {
+        using MemoryCache cache = new(new MemoryCacheOptions { SizeLimit = 100 });
+        MemoryCacheItsmInboundWebhookReplayGuard sut = new(cache, TimeProvider.System);
+
+        bool first = await sut.TryClaimAsync(TenantA, "Jira", "delivery-1", CancellationToken.None);
+        bool second = await sut.TryClaimAsync(TenantA, "Jira", "DELIVERY-1", CancellationToken.None);
+
+        first.Should().BeTrue();
+        second.Should().BeFalse();
+    }
 }

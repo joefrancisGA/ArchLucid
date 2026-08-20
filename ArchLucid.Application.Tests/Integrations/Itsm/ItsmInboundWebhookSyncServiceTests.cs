@@ -845,6 +845,65 @@ public sealed class ItsmInboundWebhookSyncServiceTests
     }
 
     [Fact]
+    public async Task Jira_replay_without_delivery_id_blocks_status_case_variant()
+    {
+        Mock<IItsmFindingCorrelationRepository> correlations = new();
+        correlations
+            .Setup(c => c.TryGetByExternalKeyAsync("Jira", "KEY-1", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+                new ItsmFindingCorrelationRecord
+                {
+                    TenantId = TenantA,
+                    WorkspaceId = WorkspaceA,
+                    ProjectId = ProjectA,
+                    FindingId = "f1"
+                });
+        correlations
+            .Setup(c => c.FindingRecordExistsAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<Guid?>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+        correlations
+            .Setup(c => c.UpdateHumanReviewStatusForFindingAsync(
+                TenantA,
+                "f1",
+                nameof(FindingHumanReviewStatus.Approved),
+                It.IsAny<Guid?>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(1);
+
+        using MemoryCache cache = new(new MemoryCacheOptions { SizeLimit = 100 });
+        MemoryCacheItsmInboundWebhookReplayGuard replayGuard = new(cache, TimeProvider.System);
+        Mock<IOptionsMonitor<IntegrationsItsmInboundOptions>> monitor = new();
+        monitor.Setup(m => m.CurrentValue).Returns(new IntegrationsItsmInboundOptions());
+        ItsmInboundWebhookSyncService sut = new(
+            correlations.Object,
+            monitor.Object,
+            new ItsmInboundDispositionSync(new Mock<IFindingDispositionService>().Object, NullLogger<ItsmInboundDispositionSync>.Instance),
+            replayGuard,
+            NullLogger<ItsmInboundWebhookSyncService>.Instance);
+
+        using JsonDocument doneDoc = JsonDocument.Parse(
+            """{"issue":{"key":"KEY-1","fields":{"status":{"name":"Done"}}}}""");
+        using JsonDocument lowerDoc = JsonDocument.Parse(
+            """{"issue":{"key":"KEY-1","fields":{"status":{"name":"done"}}}}""");
+
+        ItsmInboundWebhookProcessResult first =
+            await sut.TryProcessJiraIssueUpdateAsync(doneDoc.RootElement, CancellationToken.None);
+        ItsmInboundWebhookProcessResult second =
+            await sut.TryProcessJiraIssueUpdateAsync(lowerDoc.RootElement, CancellationToken.None);
+
+        first.ReplayIgnored.Should().BeFalse();
+        second.ReplayIgnored.Should().BeTrue();
+        correlations.Verify(
+            c => c.UpdateHumanReviewStatusForFindingAsync(
+                TenantA,
+                "f1",
+                nameof(FindingHumanReviewStatus.Approved),
+                It.IsAny<Guid?>(),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
     public async Task Jira_concurrent_same_delivery_id_only_mutates_once()
     {
         Mock<IItsmFindingCorrelationRepository> correlations = new();
