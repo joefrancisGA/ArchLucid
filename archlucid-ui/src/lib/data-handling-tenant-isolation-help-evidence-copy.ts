@@ -17,7 +17,7 @@ export const DATA_HANDLING_TENANT_ISOLATION_HELP_CLAIM_DISCIPLINE =
 export const DATA_HANDLING_TENANT_ISOLATION_HELP_FOLLOW_UPS_TITLE = HELP_DILIGENCE_ARTIFACT_INDEX_TITLE;
 
 export const DATA_HANDLING_TENANT_ISOLATION_HELP_SOURCES_INTRO =
-  "Artifact index for isolation, sealed review record, and audit trail claims that need a cite trail beyond this guide.";
+  "Use these follow-ups when isolation, sealed review record, or audit trail claims need a cite trail beyond this guide.";
 
 export const DATA_HANDLING_TENANT_ISOLATION_HELP_SOURCES_DISCLOSURE_TITLE =
   HELP_DILIGENCE_ARTIFACT_INDEX_TITLE;

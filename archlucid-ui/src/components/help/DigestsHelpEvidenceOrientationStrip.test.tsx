@@ -8,7 +8,6 @@ import {
   DIGESTS_HELP_SOURCES,
 } from "@/lib/digests-help-evidence-copy";
 import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
-import { HELP_DILIGENCE_ARTIFACT_INDEX_TITLE } from "@/lib/help/help-diligence-artifact-index";
 
 describe("DigestsHelpEvidenceOrientationStrip", () => {
   it("renders neutral claim discipline and cross-topic follow-up links", () => {
@@ -22,7 +21,7 @@ describe("DigestsHelpEvidenceOrientationStrip", () => {
       "id",
       "where-to-go-next",
     );
-    expect(screen.queryByRole("heading", { name: HELP_DILIGENCE_ARTIFACT_INDEX_TITLE })).toBeNull();
+    expect(screen.queryByText(/Diligence artifact/i)).toBeNull();
     expect(screen.queryByRole("complementary")).toBeNull();
 
     for (const source of DIGESTS_HELP_SOURCES) {

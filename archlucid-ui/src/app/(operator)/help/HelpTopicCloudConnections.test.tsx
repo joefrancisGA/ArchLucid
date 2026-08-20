@@ -13,7 +13,6 @@ import {
   CLOUD_CONNECTIONS_HELP_TIER_1,
   CLOUD_CONNECTIONS_HELP_TIER_2,
 } from "@/lib/cloud-connections-help-guide-content";
-import { HELP_DILIGENCE_ARTIFACT_INDEX_TITLE } from "@/lib/help/help-diligence-artifact-index";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
 function renderCloudConnectionsGuide(markdown = "# Cloud connections\n\nOptional connectors for read-only evidence.\n"): void {
@@ -62,7 +61,7 @@ describe("HelpCloudConnectionsGuideView (HCE)", () => {
     expect(screen.queryByRole("button", { name: "Connect Azure securely" })).toBeNull();
     expect(screen.queryByRole("link", { name: "Read the Azure connection guide" })).toBeNull();
     expect(screen.queryByTestId("help-center-documentation-badge")).toBeNull();
-    expect(screen.getByText(HELP_DILIGENCE_ARTIFACT_INDEX_TITLE, { exact: false })).toBeInTheDocument();
+    expect(screen.getByText(/sealed review record citations/i)).toBeInTheDocument();
     expect(screen.queryByText(/Sources package/i)).toBeNull();
     expect(screen.queryByText(/claim discipline/i)).toBeNull();
     expect(screen.queryByText(/assurance cites/i)).toBeNull();
