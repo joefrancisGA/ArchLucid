@@ -203,6 +203,42 @@ function resolveDeferredChunkImportLoader(
           (module) => module.SponsorDashboardNextActionSection,
         ),
       ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "sponsor-roi-dashboard-primary-metrics":
+      return deferredChunkLoader(() =>
+        import("@/app/(operator)/architecture/sponsor-dashboard/_sections/SponsorDashboardPrimaryMetricsSection").then(
+          (module) => module.SponsorDashboardPrimaryMetricsSection,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "sponsor-roi-dashboard-how-it-works":
+      return deferredChunkLoader(() =>
+        import("@/components/sponsor/SponsorDashboardHowItWorks").then(
+          (module) => module.SponsorDashboardHowItWorks,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "sponsor-roi-dashboard-exports":
+      return deferredChunkLoader(() =>
+        import("@/app/(operator)/architecture/sponsor-dashboard/_sections/SponsorExportsSection").then(
+          (module) => module.SponsorExportsSection,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "sponsor-roi-dashboard-business-impact":
+      return deferredChunkLoader(() =>
+        import("@/app/(operator)/architecture/sponsor-dashboard/_sections/BusinessImpactSummaryWidget").then(
+          (module) => module.BusinessImpactSummaryWidget,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "sponsor-roi-dashboard-roi-summary":
+      return deferredChunkLoader(() =>
+        import("@/app/(operator)/architecture/sponsor-dashboard/_sections/SponsorRoiSummarySection").then(
+          (module) => module.SponsorRoiSummarySection,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "sponsor-roi-dashboard-compliance-drift-trend":
+      return deferredChunkLoader(() =>
+        import("@/app/(operator)/architecture/sponsor-dashboard/_sections/SponsorComplianceDriftTrendSection").then(
+          (module) => module.SponsorComplianceDriftTrendSection,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
     case "reviews-hub-inventory":
       return deferredChunkLoader(() =>
         import("@/app/(operator)/architecture/reviews/_sections/ReviewsHubReviewInventory").then(
