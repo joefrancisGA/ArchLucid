@@ -511,6 +511,7 @@ export async function RunDetailPageView(props: {
       {blockingApprovalCount === 0 ? (
         <RunDetailFirstWeekRouteGuidanceDeferred
           variant={Boolean(m.manifestId) ? "review-detail-committed" : "review-detail-in-progress"}
+          pagePrimaryOwnedElsewhere
         />
       ) : null}
 

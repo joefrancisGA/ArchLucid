@@ -41,6 +41,8 @@ export type ReviewPackageSummaryHeaderProps = {
   readonly primaryActionHasGoldenManifest: boolean;
   readonly primaryActionCommitBlockedReason: string | null | undefined;
   readonly demoteHeaderFinalizeButton: boolean;
+  /** When Do this next owns the page primary, demote the summary header duplicate to outline. */
+  readonly demotePrimaryAction?: boolean;
 };
 
 /**
@@ -67,6 +69,7 @@ export function ReviewPackageSummaryHeader(props: ReviewPackageSummaryHeaderProp
         runId={props.primaryActionRunId}
         hasGoldenManifest={props.primaryActionHasGoldenManifest}
         commitBlockedReason={props.primaryActionCommitBlockedReason}
+        demoted={props.demotePrimaryAction === true}
       />
 
       {attentionLine !== null ? (

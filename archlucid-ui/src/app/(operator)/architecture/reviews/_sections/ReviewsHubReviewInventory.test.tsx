@@ -64,6 +64,7 @@ describe("ReviewsHubReviewInventory", () => {
       "href",
       "/architecture/reviews/new",
     );
+    expect(screen.getByRole("link", { name: "Start an architecture review" })).toHaveClass("border-neutral-300");
     expect(screen.getByRole("link", { name: "Explore the sample review" })).toBeInTheDocument();
     expect(screen.queryByTestId("reviews-hub-recent-empty-help-link")).not.toBeInTheDocument();
     expect(screen.queryByTestId("workspace-scope-empty-teaching")).not.toBeInTheDocument();

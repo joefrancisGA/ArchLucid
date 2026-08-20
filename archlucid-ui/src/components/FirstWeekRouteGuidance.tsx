@@ -20,6 +20,8 @@ import { useInviteeReviewerContext } from "@/hooks/use-invitee-reviewer-context"
 
 export type FirstWeekRouteGuidanceProps = {
   readonly variant: FirstWeekRouteGuidanceVariant;
+  /** When another surface owns the page primary, demote guidance CTAs to outline. */
+  readonly pagePrimaryOwnedElsewhere?: boolean;
 };
 
 function GuidanceBody(props: {
@@ -27,8 +29,11 @@ function GuidanceBody(props: {
   readonly bridgeCopy: string;
   readonly operateDeferralNote: string;
   readonly primaryAction?: { readonly href: string; readonly label: string };
+  readonly pagePrimaryOwnedElsewhere?: boolean;
 }) {
   const primaryAction = props.primaryAction;
+  const primaryButtonVariant =
+    props.pagePrimaryOwnedElsewhere === true && primaryAction !== undefined ? "outline" : "primary";
 
   return (
     <>
@@ -45,7 +50,7 @@ function GuidanceBody(props: {
               {primaryAction.label}
             </a>
           ) : (
-            <Button variant="primary" size="sm" asChild>
+            <Button variant={primaryButtonVariant} size="sm" asChild>
               <Link href={primaryAction.href} className="no-underline">
                 {primaryAction.label}
               </Link>
@@ -63,6 +68,7 @@ function GuidanceBody(props: {
  */
 export function FirstWeekRouteGuidance(props: FirstWeekRouteGuidanceProps) {
   const { isInviteeReviewer } = useInviteeReviewerContext();
+  const pagePrimaryOwnedElsewhere = props.pagePrimaryOwnedElsewhere === true;
 
   if (isInviteeReviewer) {
     return null;
@@ -83,6 +89,7 @@ export function FirstWeekRouteGuidance(props: FirstWeekRouteGuidanceProps) {
           bridgeCopy={config.bridgeCopy}
           operateDeferralNote={config.operateDeferralNote}
           primaryAction={config.primaryAction}
+          pagePrimaryOwnedElsewhere={pagePrimaryOwnedElsewhere}
         />
       </aside>
     );
@@ -104,6 +111,7 @@ export function FirstWeekRouteGuidance(props: FirstWeekRouteGuidanceProps) {
           bridgeCopy={config.bridgeCopy}
           operateDeferralNote={config.operateDeferralNote}
           primaryAction={config.primaryAction}
+          pagePrimaryOwnedElsewhere={pagePrimaryOwnedElsewhere}
         />
       </OperatorHomeDisclosureSection>
     );
@@ -125,6 +133,7 @@ export function FirstWeekRouteGuidance(props: FirstWeekRouteGuidanceProps) {
           bridgeCopy={config.bridgeCopy}
           operateDeferralNote={config.operateDeferralNote}
           primaryAction={config.primaryAction}
+          pagePrimaryOwnedElsewhere={pagePrimaryOwnedElsewhere}
         />
       </OperatorHomeDisclosureSection>
     );
@@ -146,6 +155,7 @@ export function FirstWeekRouteGuidance(props: FirstWeekRouteGuidanceProps) {
         bridgeCopy={config.bridgeCopy}
         operateDeferralNote={config.operateDeferralNote}
         primaryAction={config.primaryAction}
+        pagePrimaryOwnedElsewhere={pagePrimaryOwnedElsewhere}
       />
     </aside>
   );

@@ -103,4 +103,15 @@ describe("FirstWeekRouteGuidance", () => {
     expect(section.className).toContain("rounded-lg");
     expect(section.className).toContain("border");
   });
+
+  it("demotes home guidance primary CTA to outline when another surface owns the page primary", () => {
+    render(<FirstWeekRouteGuidance variant="home" pagePrimaryOwnedElsewhere />);
+
+    fireEvent.click(screen.getByRole("button", { name: /Expand Recommended first session path/i }));
+
+    expect(screen.getByRole("link", { name: CREATE_ARCHITECTURE_LABEL })).toHaveClass("border-neutral-300");
+    expect(screen.getByRole("link", { name: CREATE_ARCHITECTURE_LABEL })).not.toHaveClass(
+      "bg-[var(--al-primary-action-bg)]",
+    );
+  });
 });
