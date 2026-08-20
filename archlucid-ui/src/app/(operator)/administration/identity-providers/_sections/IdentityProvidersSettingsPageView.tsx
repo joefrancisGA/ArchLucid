@@ -84,7 +84,7 @@ export function IdentityProvidersSettingsPageView(props: IdentityProvidersSettin
         ) : null}
 
         {showPrimaryNextStep ? (
-          <Button variant="primary" size="sm" asChild data-testid="identity-providers-primary-next-step-button">
+          <Button variant="outline" size="sm" asChild data-testid="identity-providers-primary-next-step-button">
             <Link href={model.overview.recommendedNextHref!}>{model.overview.recommendedNextStep}</Link>
           </Button>
         ) : null}

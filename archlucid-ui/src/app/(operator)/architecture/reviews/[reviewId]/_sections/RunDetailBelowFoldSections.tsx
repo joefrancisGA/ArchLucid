@@ -3,7 +3,6 @@ import { Suspense } from "react";
 import dynamic from "next/dynamic";
 
 import { GovernanceModePresentationGate } from "@/components/governance/GovernanceModePresentationGate";
-import { RunDetailWhatsNextSection } from "@/components/runs/RunDetailWhatsNextSection";
 import { GovernanceApprovalAttestationBlock } from "@/components/reviews/GovernanceApprovalAttestationBlock";
 import { ReviewChainOfCustodySection } from "@/components/reviews/ReviewChainOfCustodySection";
 import { ReviewCliReproduceSection } from "@/components/reviews/ReviewCliReproduceSection";
@@ -127,6 +126,7 @@ async function RunDetailBelowFoldProjectContextAsync(
           showCompareCta={projectContext.canShowCompareReviewButton}
           buyerShowcaseQuickLinks={m.usedStaticDemoRun}
           goldenManifestId={m.manifestId}
+          pagePrimaryOwnedElsewhere
         />
       ) : null}
     </>
@@ -216,7 +216,6 @@ export function RunDetailBelowFoldSections(props: RunDetailBelowFoldSectionsProp
 
       {m.manifestId && !ownedByAnotherTab ? (
         <>
-          <RunDetailWhatsNextSection runId={m.routeRunId} />
           <RecurrenceSchedulePostCommitCard
             runId={m.routeRunId}
             hasStickinessPrompt={Boolean(m.manifestId)}

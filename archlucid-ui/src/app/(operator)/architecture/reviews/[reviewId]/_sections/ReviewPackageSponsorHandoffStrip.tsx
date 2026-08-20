@@ -99,7 +99,7 @@ export function ReviewPackageSponsorHandoffStrip(
         {props.usedStaticDemoRun ? (
           <div className="flex max-w-prose flex-col gap-1.5">
             <Button
-              variant="primary"
+              variant="outline"
               size="sm"
               disabled
               aria-describedby="review-package-sponsor-handoff-docx-disabled-hint"
@@ -114,7 +114,7 @@ export function ReviewPackageSponsorHandoffStrip(
           </div>
         ) : (
           <Button
-            variant="primary"
+            variant="outline"
             size="sm"
             disabled={!extractionGateSatisfied}
             asChild={extractionGateSatisfied}

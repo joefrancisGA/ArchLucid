@@ -5,7 +5,6 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { FirstWeekRouteGuidance } from "@/components/FirstWeekRouteGuidance";
 import {
-  BUYER_REVIEW_DETAIL_IN_PROGRESS_FINALIZE_ANCHOR,
   FIRST_WEEK_ROUTE_GUIDANCE,
   FIRST_WEEK_ROUTE_GUIDANCE_HOME_COLLAPSED_SUMMARY,
 } from "@/lib/first-week-route-guidance";
@@ -37,24 +36,18 @@ describe("FirstWeekRouteGuidance", () => {
     expect(screen.queryByRole("link", { name: "Continue in wizard below" })).not.toBeInTheDocument();
   });
 
-  it("renders in-progress review detail guidance with header finalize anchor (BDA-001)", () => {
+  it("renders in-progress review detail guidance without a competing finalize CTA", () => {
     render(<FirstWeekRouteGuidance variant="review-detail-in-progress" />);
 
-    expect(screen.getByRole("link", { name: "Finalize this review" })).toHaveAttribute(
-      "href",
-      BUYER_REVIEW_DETAIL_IN_PROGRESS_FINALIZE_ANCHOR,
-    );
+    expect(screen.queryByRole("link", { name: "Finalize this review" })).not.toBeInTheDocument();
     expect(screen.getByText(/Skip graph and governance dashboards/i)).toBeInTheDocument();
   });
 
-  it("renders buyer-polished in-progress guidance with header finalize anchor (BDA-001)", () => {
+  it("renders buyer-polished in-progress guidance without a competing finalize CTA (BDA-001)", () => {
     buyerPolishedMock.on = true;
     render(<FirstWeekRouteGuidance variant="review-detail-in-progress" />);
 
-    expect(screen.getByRole("link", { name: "Finalize this review" })).toHaveAttribute(
-      "href",
-      BUYER_REVIEW_DETAIL_IN_PROGRESS_FINALIZE_ANCHOR,
-    );
+    expect(screen.queryByRole("link", { name: "Finalize this review" })).not.toBeInTheDocument();
   });
 
   it("renders committed review detail guidance collapsed without external AI product names", () => {
@@ -66,10 +59,8 @@ describe("FirstWeekRouteGuidance", () => {
 
     fireEvent.click(screen.getByRole("button", { name: /Expand Review guidance/i }));
 
-    expect(screen.getByRole("link", { name: "Open exports section" })).toHaveAttribute(
-      "href",
-      "#artifacts-exports",
-    );
+    expect(screen.queryByRole("link", { name: "Open exports section" })).not.toBeInTheDocument();
+    expect(screen.getByText(/This review is complete/i)).toBeInTheDocument();
   });
 
   it("renders onboarding guidance with start review CTA and user-facing lead copy", () => {

@@ -5,7 +5,6 @@ import { useState } from "react";
 import type { ReactElement } from "react";
 
 import { ArchitectureCreatedFindingsEvidenceOrientationStrip } from "@/components/architecture/ArchitectureCreatedFindingsEvidenceOrientationStrip";
-import { ArchitectureCreatedFindingsNextAction } from "@/components/architecture/ArchitectureCreatedFindingsNextAction";
 import { FindingsItsmExportToolbar } from "@/components/findings/FindingsItsmExportToolbar";
 import { FindingKeyboardTriageHost } from "@/components/governance/findings/FindingKeyboardTriageHost";
 import { QuickDecisionSummary } from "@/components/QuickDecisionSummary";
@@ -220,14 +219,6 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
     <div className="space-y-4" data-testid="run-detail-findings-workspace">
       <FindingKeyboardTriageHost resolveRunId={(findingId) => (findingId.trim().length > 0 ? props.runId : null)} />
       {createHomeSurface ? <ArchitectureCreatedFindingsEvidenceOrientationStrip /> : null}
-      {createHomeSurface ? (
-        <ArchitectureCreatedFindingsNextAction
-          runId={props.runId}
-          findings={props.findings}
-          analysisStagesComplete={props.analysisStagesComplete === true}
-          onNavigateActivity={props.onNavigateActivity}
-        />
-      ) : null}
       {findingsSecondaryViewPresentation !== null ? (
         <CanonicalObjectSecondaryViewStrip
           presentation={findingsSecondaryViewPresentation}
