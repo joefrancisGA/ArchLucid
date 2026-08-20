@@ -66,15 +66,18 @@ export const WHY_HERO_SECONDARY_CTA_LABEL = WHY_CLOSING_SECONDARY_CTA_LABEL;
 
 export const WHY_HERO_SECONDARY_CTA_HREF = WHY_CLOSING_SECONDARY_CTA_HREF;
 
-/** Operator Home screenshot for the /why hero proof card (TB-1671). */
+/** Operator Home screenshot for the /why hero proof card (TB-1671; refreshed TB-2301). */
+export const WHY_HERO_PRODUCT_SCREENSHOT_FILENAME =
+  "why-hero-operator-home-2026-08-19.png" as const;
+
 export const WHY_HERO_PRODUCT_SCREENSHOT_SRC =
-  "/marketing/why/why-hero-operator-home-2026-08.png" as const;
+  `/marketing/why/${WHY_HERO_PRODUCT_SCREENSHOT_FILENAME}` as const;
 
 export const WHY_HERO_PRODUCT_SCREENSHOT_ALT =
-  "ArchLucid operator Home showing a finalized architecture review workspace";
+  "ArchLucid operator Home showing Recent reviews and a Claims Intake sample review card";
 
 export const WHY_HERO_PRODUCT_SCREENSHOT_CAPTION =
-  "Healthcare Claims intake modernization — sample review with findings, approvals, and evidence trail";
+  "Claims Intake Demo workspace — sample review with findings, approvals, and evidence trail (fabricated demo data)";
 
 /**
  * TB-1302 / M-107 Option A: canonical anonymous proof ladder — Claims-static primary;
