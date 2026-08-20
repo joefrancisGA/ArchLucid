@@ -3,7 +3,7 @@
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { Workflow } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { FindingCorrelationVocabularyDisambiguation } from "@/components/findings/FindingCorrelationVocabularyDisambiguation";
 import { ItsmConnectorsBuyerJiraServicenowVocabularyRail } from "@/components/itsm/ItsmConnectorsBuyerJiraServicenowVocabularyRail";
@@ -11,6 +11,7 @@ import { ItsmConnectorsFindingTicketVocabularyRail } from "@/components/itsm/Its
 import { PageHeading } from "@/components/PageHeading";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { AdminItsmConnectorsEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
+import { IntegrationZoneRecoveryCard } from "@/components/integrations/IntegrationZoneRecoveryCard";
 import { RefreshButton } from "@/components/ui/refresh-button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -41,6 +42,10 @@ import {
   buildItsmConnectorsAdminPageLoadResult,
   sanitizeItsmConnectorsAdminLoadError,
 } from "@/lib/itsm/itsm-connectors-admin-page-load";
+import {
+  buildIntegrationZoneRecoveries,
+  type IntegrationZoneLoadSlice,
+} from "@/lib/integration-zone-recovery";
 
 export function AdminItsmConnectorsPageClient(): React.ReactElement {
   const [health, setHealth] = useState<ItsmIntegrationHealthResponse | null>(null);
@@ -48,6 +53,7 @@ export function AdminItsmConnectorsPageClient(): React.ReactElement {
   const [healthLoadError, setHealthLoadError] = useState<string | null>(null);
   const [settingsLoadError, setSettingsLoadError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [zoneLoadSlices, setZoneLoadSlices] = useState<readonly IntegrationZoneLoadSlice[]>([]);
 
   const nativeEnabled = health?.nativeEnabled ?? settings?.nativeEnabled ?? false;
   const hasLoadErrors = healthLoadError !== null || settingsLoadError !== null;
@@ -85,12 +91,36 @@ export function AdminItsmConnectorsPageClient(): React.ReactElement {
       setSettingsLoadError(sanitizeItsmConnectorsAdminLoadError(loaded.settings.errorMessage, "settings"));
     }
 
+    setZoneLoadSlices([
+      {
+        id: "health",
+        label: "Connector health",
+        failed: loaded.health.failed,
+        errorMessage: loaded.health.failed
+          ? sanitizeItsmConnectorsAdminLoadError(loaded.health.errorMessage, "health")
+          : null,
+      },
+      {
+        id: "settings",
+        label: "Outbound settings",
+        failed: loaded.settings.failed,
+        errorMessage: loaded.settings.failed
+          ? sanitizeItsmConnectorsAdminLoadError(loaded.settings.errorMessage, "settings")
+          : null,
+      },
+    ]);
+
     setIsLoading(false);
   }, []);
 
   useEffect(() => {
     void refresh();
   }, [refresh]);
+
+  const integrationZoneRecoveries = useMemo(
+    () => buildIntegrationZoneRecoveries(zoneLoadSlices),
+    [zoneLoadSlices],
+  );
 
   return (
     <div className={cn("w-full max-w-3xl", OPERATOR_LAYOUT.sectionStack)} data-testid="admin-itsm-connectors-page">
@@ -126,14 +156,12 @@ export function AdminItsmConnectorsPageClient(): React.ReactElement {
         <AdminItsmConnectorsPageLoadingSkeleton />
       ) : (
         <>
-          {healthLoadError !== null ? (
-            <p
-              className={cn("text-red-600 dark:text-red-400", OPERATOR_TYPOGRAPHY.body)}
-              role="alert"
-              data-testid="admin-itsm-health-load-error"
-            >
-              {healthLoadError}
-            </p>
+          {integrationZoneRecoveries.length > 0 ? (
+            <div className="space-y-3" data-testid="admin-itsm-zone-recoveries">
+              {integrationZoneRecoveries.map((recovery) => (
+                <IntegrationZoneRecoveryCard key={recovery.zoneId} recovery={recovery} />
+              ))}
+            </div>
           ) : null}
 
           <AdminItsmConnectorOnboardingWizard
@@ -185,15 +213,13 @@ export function AdminItsmConnectorsPageClient(): React.ReactElement {
           ) : (
             <p className="m-0">{ITSM_CONNECTORS_NATIVE_DISABLED_MESSAGE}</p>
           )}
-          {settingsLoadError !== null ? (
-            <p className="m-0 text-red-600 dark:text-red-400" role="alert" data-testid="admin-itsm-settings-load-error">
-              {settingsLoadError}
-            </p>
-          ) : settings?.hasTenantOverrides ? (
-            <p className="m-0">Tenant ITSM outbound overrides are saved for this tenant.</p>
-          ) : (
-            <p className="m-0">No tenant overrides saved yet — use the onboarding wizard above.</p>
-          )}
+          {settingsLoadError === null ? (
+            settings?.hasTenantOverrides ? (
+              <p className="m-0">Tenant ITSM outbound overrides are saved for this tenant.</p>
+            ) : (
+              <p className="m-0">No tenant overrides saved yet — use the onboarding wizard above.</p>
+            )
+          ) : null}
         </CardContent>
       </Card>
 

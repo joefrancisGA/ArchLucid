@@ -99,4 +99,11 @@ public class ContextIngestionRequest
         get;
         set;
     }
+
+    /// <summary>Resolved review-model alias for engine provenance before authority pipeline finalizes (TB-310).</summary>
+    public string? EffectiveModelAliasId
+    {
+        get;
+        set;
+    }
 }

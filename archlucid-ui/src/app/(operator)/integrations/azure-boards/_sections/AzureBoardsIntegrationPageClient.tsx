@@ -89,7 +89,12 @@ import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_LAYOUT, OPERATOR_LINK, OPER
 import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";
 import { isShowSystemAdministrationNavEnabled } from "@/lib/features";
 import { GOVERNANCE_AUDIT_PATH } from "@/lib/governance/governance-route-paths";
+import {
+  buildIntegrationZoneRecoveries,
+  type IntegrationZoneLoadSlice,
+} from "@/lib/integration-zone-recovery";
 import { AzureBoardsIntegrationEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
+import { IntegrationZoneRecoveryCard } from "@/components/integrations/IntegrationZoneRecoveryCard";
 import { ItsmConnectorProviderChooserRail } from "@/components/itsm/ItsmConnectorProviderChooserRail";
 
 import { AzureBoardsIntegrationAside } from "./AzureBoardsIntegrationAside";
@@ -151,6 +156,7 @@ export function AzureBoardsIntegrationPageClient(): React.ReactElement {
   const [lastRefreshedAt, setLastRefreshedAt] = useState<Date | null>(null);
   const [hasLoadedOnce, setHasLoadedOnce] = useState(false);
   const [failedSliceLabels, setFailedSliceLabels] = useState<readonly string[]>([]);
+  const [zoneLoadSlices, setZoneLoadSlices] = useState<readonly IntegrationZoneLoadSlice[]>([]);
 
   const applySettings = useCallback((loaded: AzureBoardsOutboundSettingsResponse | null) => {
     setSettings(loaded);
@@ -217,6 +223,26 @@ export function AzureBoardsIntegrationPageClient(): React.ReactElement {
 
     setLoadError(loaded.loadError);
     setFailedSliceLabels(loaded.failedSliceLabels);
+    setZoneLoadSlices([
+      {
+        id: "itsm-health",
+        label: "Work management health",
+        failed: loaded.itsmHealth.failed,
+        errorMessage: loaded.itsmHealth.errorMessage,
+      },
+      {
+        id: "settings",
+        label: "Azure Boards settings",
+        failed: loaded.settings.failed,
+        errorMessage: loaded.settings.errorMessage,
+      },
+      {
+        id: "connection",
+        label: "Azure Boards connection",
+        failed: loaded.connection.failed,
+        errorMessage: loaded.connection.errorMessage,
+      },
+    ]);
     setLastRefreshedAt(new Date());
     setHasLoadedOnce(true);
     setIsLoading(false);
@@ -283,6 +309,11 @@ export function AzureBoardsIntegrationPageClient(): React.ReactElement {
         hasConnectionPayload: connection !== null,
       }),
     [connection, credentialsReady, failedSliceLabels, nativeEnabled, settingsReady, testGate.allowed],
+  );
+
+  const integrationZoneRecoveries = useMemo(
+    () => buildIntegrationZoneRecoveries(zoneLoadSlices),
+    [zoneLoadSlices],
   );
 
   const setupSteps = useMemo(
@@ -503,6 +534,14 @@ export function AzureBoardsIntegrationPageClient(): React.ReactElement {
                 <span className="font-medium text-al-text-primary">Next step:</span> {connectionStatus.nextAction}
               </p>
             </section>
+
+            {integrationZoneRecoveries.length > 0 ? (
+              <div className="space-y-3" data-testid="azure-boards-zone-recoveries">
+                {integrationZoneRecoveries.map((recovery) => (
+                  <IntegrationZoneRecoveryCard key={recovery.zoneId} recovery={recovery} />
+                ))}
+              </div>
+            ) : null}
 
             {pageComposition.showConnectionSettings ? (
               <section

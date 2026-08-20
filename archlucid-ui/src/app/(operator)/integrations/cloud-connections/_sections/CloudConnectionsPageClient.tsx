@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
-import { OperatorSectionLoadFailure } from "@/components/operator/OperatorSectionLoadFailure";
+import { IntegrationZoneRecoveryCard } from "@/components/integrations/IntegrationZoneRecoveryCard";
 import { listAwsTier2Connections } from "@/lib/api/aws-cloud-connections-api";
 import { listTier2Connections } from "@/lib/api/cloud-connections-api";
 import { listGcpTier2Connections } from "@/lib/api/gcp-cloud-connections-api";
@@ -30,6 +30,10 @@ import {
   type CloudProviderId,
 } from "@/lib/cloud-platform-scope-storage";
 import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  buildIntegrationZoneRecoveries,
+  type IntegrationZoneLoadSlice,
+} from "@/lib/integration-zone-recovery";
 
 import { CloudConnectionsEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
 import { CloudFirstInventoryCoach } from "@/components/integrations/CloudFirstInventoryCoach";
@@ -65,6 +69,14 @@ type ProviderSummaryState = {
 const CLOUD_CONNECTIONS_LOAD_FAILURE_MESSAGE =
   "Could not load cloud connection status. Check your permissions, then try again.";
 
+function integrationZoneLoadReasonMessage(reason: unknown, fallback: string): string {
+  if (reason instanceof Error && reason.message.trim().length > 0) {
+    return reason.message.trim();
+  }
+
+  return fallback;
+}
+
 const DEFAULT_PROVIDER_SUMMARY: ProviderSummaryState = {
   status: "Not configured",
   lastValidation: "Not validated yet",
@@ -77,56 +89,112 @@ export function CloudConnectionsPageClient() {
   const [platformScope, setPlatformScope] = useState(() => resolveLandingCloudPlatformScope());
   const [persistAvailable, setPersistAvailable] = useState(() => hasCloudPlatformScopeWorkspace());
   const [isLoading, setIsLoading] = useState(true);
-  const [loadError, setLoadError] = useState<string | null>(null);
   const [hasSuccessfulPull, setHasSuccessfulPull] = useState(false);
   const [providerSummaries, setProviderSummaries] = useState<Record<CloudProviderId, ProviderSummaryState>>({
     azure: DEFAULT_PROVIDER_SUMMARY,
     aws: DEFAULT_PROVIDER_SUMMARY,
     gcp: DEFAULT_PROVIDER_SUMMARY,
   });
+  const [zoneLoadSlices, setZoneLoadSlices] = useState<readonly IntegrationZoneLoadSlice[]>([]);
 
   const refreshSummaries = useCallback(async () => {
-    const [azureConnections, awsConnections, gcpConnections] = await Promise.all([
+    const [azureOutcome, awsOutcome, gcpOutcome] = await Promise.allSettled([
       listTier2Connections(),
       listAwsTier2Connections(),
       listGcpTier2Connections(),
     ]);
 
-    const awsIndicatesPull = awsConnections.some((connection) =>
-      cloudConnectionIndicatesSuccessfulPull(connection),
-    );
-    const gcpIndicatesPull = gcpConnections.some((connection) =>
-      cloudConnectionIndicatesSuccessfulPull(connection),
-    );
+    const zones: IntegrationZoneLoadSlice[] = [
+      {
+        id: "azure",
+        label: "Azure cloud connections",
+        failed: azureOutcome.status === "rejected",
+        errorMessage:
+          azureOutcome.status === "rejected"
+            ? integrationZoneLoadReasonMessage(azureOutcome.reason, "Could not load Azure connections.")
+            : null,
+      },
+      {
+        id: "aws",
+        label: "AWS cloud connections",
+        failed: awsOutcome.status === "rejected",
+        errorMessage:
+          awsOutcome.status === "rejected"
+            ? integrationZoneLoadReasonMessage(awsOutcome.reason, "Could not load AWS connections.")
+            : null,
+      },
+      {
+        id: "gcp",
+        label: "GCP cloud connections",
+        failed: gcpOutcome.status === "rejected",
+        errorMessage:
+          gcpOutcome.status === "rejected"
+            ? integrationZoneLoadReasonMessage(gcpOutcome.reason, "Could not load GCP connections.")
+            : null,
+      },
+    ];
 
-    setHasSuccessfulPull(awsIndicatesPull || gcpIndicatesPull);
-    setProviderSummaries({
-      azure:
-        azureConnections.length > 0
-          ? {
-              status: "Configured",
-              lastValidation: formatTimestamp(azureConnections[0]?.updatedUtc),
-              evidenceCollected: `${azureConnections.length} connection${azureConnections.length === 1 ? "" : "s"}`,
-            }
-          : DEFAULT_PROVIDER_SUMMARY,
-      aws:
-        awsConnections.length > 0
-          ? {
-              status: awsConnections[0]?.status ?? "Configured",
-              lastValidation: formatTimestamp(awsConnections[0]?.lastPolledUtc ?? awsConnections[0]?.updatedUtc),
-              evidenceCollected: "Resource inventory packages",
-            }
-          : DEFAULT_PROVIDER_SUMMARY,
-      gcp:
-        gcpConnections.length > 0
-          ? {
-              status: gcpConnections[0]?.status ?? "Configured",
-              lastValidation: formatTimestamp(gcpConnections[0]?.lastPolledUtc ?? gcpConnections[0]?.updatedUtc),
-              evidenceCollected: "Cloud Asset Inventory packages",
-            }
-          : DEFAULT_PROVIDER_SUMMARY,
-    });
-    setLoadError(null);
+    setZoneLoadSlices(zones);
+
+    if (azureOutcome.status === "fulfilled") {
+      const azureConnections = azureOutcome.value;
+
+      setProviderSummaries((previous) => ({
+        ...previous,
+        azure:
+          azureConnections.length > 0
+            ? {
+                status: "Configured",
+                lastValidation: formatTimestamp(azureConnections[0]?.updatedUtc),
+                evidenceCollected: `${azureConnections.length} connection${azureConnections.length === 1 ? "" : "s"}`,
+              }
+            : DEFAULT_PROVIDER_SUMMARY,
+      }));
+    }
+
+    if (awsOutcome.status === "fulfilled") {
+      const awsConnections = awsOutcome.value;
+      const awsIndicatesPull = awsConnections.some((connection) =>
+        cloudConnectionIndicatesSuccessfulPull(connection),
+      );
+
+      setHasSuccessfulPull((previous) => previous || awsIndicatesPull);
+      setProviderSummaries((previous) => ({
+        ...previous,
+        aws:
+          awsConnections.length > 0
+            ? {
+                status: awsConnections[0]?.status ?? "Configured",
+                lastValidation: formatTimestamp(
+                  awsConnections[0]?.lastPolledUtc ?? awsConnections[0]?.updatedUtc,
+                ),
+                evidenceCollected: "Resource inventory packages",
+              }
+            : DEFAULT_PROVIDER_SUMMARY,
+      }));
+    }
+
+    if (gcpOutcome.status === "fulfilled") {
+      const gcpConnections = gcpOutcome.value;
+      const gcpIndicatesPull = gcpConnections.some((connection) =>
+        cloudConnectionIndicatesSuccessfulPull(connection),
+      );
+
+      setHasSuccessfulPull((previous) => previous || gcpIndicatesPull);
+      setProviderSummaries((previous) => ({
+        ...previous,
+        gcp:
+          gcpConnections.length > 0
+            ? {
+                status: gcpConnections[0]?.status ?? "Configured",
+                lastValidation: formatTimestamp(
+                  gcpConnections[0]?.lastPolledUtc ?? gcpConnections[0]?.updatedUtc,
+                ),
+                evidenceCollected: "Cloud Asset Inventory packages",
+              }
+            : DEFAULT_PROVIDER_SUMMARY,
+      }));
+    }
   }, []);
 
   const loadSummaries = useCallback(async () => {
@@ -136,7 +204,26 @@ export function CloudConnectionsPageClient() {
       await refreshSummaries();
     } catch (error) {
       console.error(error);
-      setLoadError(CLOUD_CONNECTIONS_LOAD_FAILURE_MESSAGE);
+      setZoneLoadSlices([
+        {
+          id: "azure",
+          label: "Azure cloud connections",
+          failed: true,
+          errorMessage: CLOUD_CONNECTIONS_LOAD_FAILURE_MESSAGE,
+        },
+        {
+          id: "aws",
+          label: "AWS cloud connections",
+          failed: true,
+          errorMessage: CLOUD_CONNECTIONS_LOAD_FAILURE_MESSAGE,
+        },
+        {
+          id: "gcp",
+          label: "GCP cloud connections",
+          failed: true,
+          errorMessage: CLOUD_CONNECTIONS_LOAD_FAILURE_MESSAGE,
+        },
+      ]);
     } finally {
       setIsLoading(false);
     }
@@ -187,6 +274,16 @@ export function CloudConnectionsPageClient() {
     return anyVisible ?? CLOUD_PROVIDER_NEUTRAL_ORDER[0];
   }, [platformScope, providerSummaries]);
 
+  const integrationZoneRecoveries = useMemo(
+    () => buildIntegrationZoneRecoveries(zoneLoadSlices),
+    [zoneLoadSlices],
+  );
+
+  const allZonesFailed =
+    zoneLoadSlices.length > 0 && zoneLoadSlices.every((zone) => zone.failed);
+
+  const showConnectionContent = !isLoading && !allZonesFailed;
+
   return (
     <div className={cn("w-full max-w-[1120px] px-1 py-4 sm:px-0", OPERATOR_LAYOUT.sectionStack)} data-testid="cloud-connections-page">
       <PageHeading
@@ -213,18 +310,17 @@ export function CloudConnectionsPageClient() {
           Connection options
         </h2>
 
-        {loadError ? (
-          <OperatorSectionLoadFailure
-            message={loadError}
-            retrying={isLoading}
-            testId="cloud-connections-load-failure"
-            onRetry={() => void loadSummaries()}
-          />
+        {integrationZoneRecoveries.length > 0 ? (
+          <div className="space-y-3" data-testid="cloud-connections-zone-recoveries">
+            {integrationZoneRecoveries.map((recovery) => (
+              <IntegrationZoneRecoveryCard key={recovery.zoneId} recovery={recovery} />
+            ))}
+          </div>
         ) : null}
 
         {isLoading ? <p className={OPERATOR_TYPOGRAPHY.helper}>Loading connection status...</p> : null}
 
-        {!isLoading && !loadError ? (
+        {showConnectionContent ? (
           <CloudFirstInventoryCoach
             hasConnection={hasConfiguredProvider}
             hasSuccessfulPull={hasSuccessfulPull}

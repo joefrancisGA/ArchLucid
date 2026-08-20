@@ -3,6 +3,7 @@ using System.Text.Json;
 
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Persistence.Context;
+using ArchLucid.Core.Agents;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authority;
 using ArchLucid.Core.Diagnostics;
@@ -12,6 +13,7 @@ using ArchLucid.Core.Transactions;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Orchestration;
+using ArchLucid.Application.Agents;
 using ArchLucid.Application.Runs.Orchestration.Pipeline;
 using ArchLucid.Persistence.Serialization;
 
@@ -39,6 +41,7 @@ public sealed class AuthorityRunOrchestrator(
     IOptionsMonitor<AuthorityPipelineOptions> authorityPipelineOptions,
     ITenantAuthorityPipelineConcurrencyGate tenantAuthorityPipelineConcurrencyGate,
     IRunStateTransitionService runStateTransitionService,
+    IAgentModelAliasRegistry agentModelAliasRegistry,
     ILogger<AuthorityRunOrchestrator> logger) : IAuthorityRunOrchestrator
 {
     private readonly IRunRepository _runRepository =
@@ -58,6 +61,9 @@ public sealed class AuthorityRunOrchestrator(
 
     private readonly IRunStateTransitionService _runStateTransitionService =
         runStateTransitionService ?? throw new ArgumentNullException(nameof(runStateTransitionService));
+
+    private readonly IAgentModelAliasRegistry _agentModelAliasRegistry =
+        agentModelAliasRegistry ?? throw new ArgumentNullException(nameof(agentModelAliasRegistry));
 
     /// <remarks>
     ///     Persists the run under the current <see cref="ScopeContext" />, records telemetry tags, then chooses one of two
@@ -276,6 +282,13 @@ public sealed class AuthorityRunOrchestrator(
                 {
                     LogAgentExecutionStateTransition(run.RunId, "inline_authority_pipeline_stages", "authority_pipeline_finalize",
                         "(none)");
+
+                    RunEngineProvenanceApplicator.TryApplyFromEffectiveAliasId(
+                        run,
+                        request.EffectiveModelAliasId,
+                        _agentModelAliasRegistry);
+
+                    await SaveRunWithTransientRetryAsync(run, stagesUow, pipelineCt);
 
                     RunRecord finalized = await _authorityCommittedPipelineFinalizer.FinalizeAsync(
                         run,
