@@ -298,7 +298,6 @@ export function RecurrenceSchedulesHelpEvidenceOrientationStrip(
       sourcesIntro={RECURRENCE_SCHEDULES_HELP_SOURCES_INTRO}
       sources={RECURRENCE_SCHEDULES_HELP_SOURCES}
       sourcesHeadingId="where-to-go-next"
-      sourcesLayout="stacked"
       readingBodyClassName={props.readingBodyClassName ?? HELP_PAGE_LAYOUT.readingBody}
     />
   );
@@ -337,7 +336,6 @@ export function ApiKeysHelpEvidenceOrientationStrip(): React.JSX.Element {
       sourcesIntro={API_KEYS_HELP_SOURCES_INTRO}
       sources={API_KEYS_HELP_SOURCES}
       sourcesHeadingId="where-to-go-next"
-      sourcesLayout="wrap"
     />
   );
 }
@@ -369,7 +367,6 @@ export function AiUsageHelpEvidenceOrientationStrip(): React.JSX.Element {
       sourcesIntro={AI_USAGE_HELP_SOURCES_INTRO}
       sources={AI_USAGE_HELP_SOURCES}
       sourcesHeadingId="where-to-go-next"
-      sourcesLayout="wrap"
     />
   );
 }
@@ -443,7 +440,6 @@ export function WorkspaceSettingsHelpEvidenceOrientationStrip(
       sources={WORKSPACE_SETTINGS_HELP_SOURCES}
       sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorMuted}
       sourcesHeadingId="where-to-go-next"
-      sourcesLayout="wrap"
       readingBodyClassName={props.readingBodyClassName ?? HELP_PAGE_LAYOUT.readingBody}
       headingClassName={sectionHeadingClass}
     />

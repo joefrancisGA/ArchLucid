@@ -105,7 +105,6 @@ function AwsCloudConnectionDetailBody(): React.ReactElement {
         sources={cloudProviderConnectionSources("aws")}
         claimElement="aside"
         sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorMuted}
-        sourcesLayout="wrap"
       />
     </>
   );

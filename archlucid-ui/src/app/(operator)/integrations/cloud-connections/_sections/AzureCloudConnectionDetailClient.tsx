@@ -240,7 +240,6 @@ function AzureConnectionDetailBody() {
         sources={cloudProviderConnectionSources("azure")}
         claimElement="aside"
         sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorMuted}
-        sourcesLayout="wrap"
       />
 
     </>

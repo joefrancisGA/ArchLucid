@@ -79,7 +79,6 @@ export function GovernanceSetupGuidePageView({ model }: GovernanceSetupGuidePage
             sources={GOVERNANCE_SETUP_SOURCES}
             claimElement="aside"
             sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorMuted}
-            sourcesLayout="wrap"
           />
         </div>
 

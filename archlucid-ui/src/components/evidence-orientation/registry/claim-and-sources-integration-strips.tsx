@@ -180,7 +180,7 @@ export function TeamsIntegrationHelpEvidenceOrientationStrip(
         intro={TEAMS_INTEGRATION_HELP_SOURCES_INTRO}
         links={TEAMS_INTEGRATION_HELP_SOURCES}
         style={EVIDENCE_SOURCES_STYLE.operatorRaised}
-        layout="stacked"
+        layout="columns"
         listClassName={props.readingBodyClassName ?? HELP_PAGE_LAYOUT.readingBody}
         headingClassName={sectionHeadingClass}
         distinguishFollowUpDestinations
@@ -194,7 +194,7 @@ export function TeamsIntegrationHelpEvidenceOrientationStrip(
         intro="Compare sibling notification channels when Teams is not the only destination under review."
         links={TEAMS_INTEGRATION_HELP_ALTERNATIVE_SOURCES}
         style={EVIDENCE_SOURCES_STYLE.operatorRaised}
-        layout="stacked"
+        layout="columns"
         listClassName={props.readingBodyClassName ?? HELP_PAGE_LAYOUT.readingBody}
         headingClassName={cn(OPERATOR_TYPOGRAPHY.cardTitle, "m-0")}
         distinguishFollowUpDestinations
@@ -271,7 +271,6 @@ export function CloudConnectionsEvidenceOrientationStrip(): React.JSX.Element {
       sources={CLOUD_CONNECTIONS_SOURCES}
       sourcesHeadingId="where-to-go-next"
       hubSecondary
-      sourcesLayout="columns"
     />
   );
 }
