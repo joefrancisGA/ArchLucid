@@ -15,7 +15,7 @@ export const IMPACT_PREVIEW_HELP_PAGE_SUBTITLE =
   "Estimate before-and-after effects of proposed architecture changes against a finalized review baseline.";
 
 export const IMPACT_PREVIEW_HELP_OVERVIEW =
-  "Impact preview re-evaluates findings, risk, cost, and governance posture when you simulate a proposed change against a finalized review baseline.";
+  "Impact preview re-evaluates findings, risk, cost, and approval impact when you simulate a proposed change against a finalized review baseline.";
 
 export const IMPACT_PREVIEW_HELP_BASELINE_PRECONDITION =
   "Finalize an architecture review before running impact preview — simulations compare proposed changes against that finalized baseline.";

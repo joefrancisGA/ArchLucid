@@ -173,7 +173,7 @@ function ProofChainView(props: {
     >
       <div className="space-y-1">
         <h4 className={cn("m-0 text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>
-          Evidence → finding → review record → artifact → audit proof chain
+          How evidence flows from source to audit log
         </h4>
         <p className={cn("m-0 max-w-prose text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
           This chain links sponsor-facing claims to stored evidence, findings, the committed review record, exportable

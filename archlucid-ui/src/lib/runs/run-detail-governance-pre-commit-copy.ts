@@ -11,7 +11,7 @@ export const RUN_DETAIL_GOVERNANCE_PRE_COMMIT_SECONDARY_CTA = "View assessment a
 export const RUN_DETAIL_GOVERNANCE_PRE_COMMIT_APPROVAL_GATE_LABEL = "Approval gate";
 
 export const RUN_DETAIL_GOVERNANCE_PRE_COMMIT_APPROVAL_GATE_VALUE =
-  "Opens after you finalize this architecture review and create the sealed review record.";
+  "Available after you finalize this architecture review and create the sealed review record.";
 
 export const RUN_DETAIL_GOVERNANCE_PRE_COMMIT_WHAT_HAPPENS_NEXT_HEADING = "What happens next";
 
@@ -27,7 +27,7 @@ export const RUN_DETAIL_GOVERNANCE_PRE_COMMIT_HELP_CITES_INTRO =
 export const RUN_DETAIL_GOVERNANCE_PRE_COMMIT_GOVERNANCE_WARNINGS_TITLE = "Governance warnings";
 
 export const RUN_DETAIL_GOVERNANCE_PRE_COMMIT_GOVERNANCE_WARNINGS_BODY =
-  "Open governance exceptions are linked to this architecture review. Resolve or document them before sponsor handoff.";
+  "Open policy waivers are tied to this architecture review. Resolve or document them before sharing with leadership.";
 
 export const RUN_DETAIL_GOVERNANCE_PRE_COMMIT_CLAIM_DISCIPLINE_HEADING =
   "Where governance decisions are recorded";

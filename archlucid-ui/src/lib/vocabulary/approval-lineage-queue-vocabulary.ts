@@ -36,7 +36,7 @@ export const APPROVAL_LINEAGE_QUEUE_HEADING =
   "Approval lineage and Approval queue serve different purposes" as const;
 
 export const APPROVAL_LINEAGE_QUEUE_WHY_TWO =
-  "Approval lineage links one approval request to its architecture review, findings, and sealed review record version — a governance linkage view. The approval queue is the decision workflow to submit, approve, or reject requests. Lineage is not the queue." as const;
+  "Approval lineage shows what review, findings, and sealed review record version one approval request is tied to. The approval queue is where you submit, approve, or reject requests. Lineage is not the queue." as const;
 
 export const APPROVAL_LINEAGE_QUEUE_COMPACT_LINE =
   "Lineage links one approval request; the queue is the decision workflow — open the other when you need both." as const;

@@ -72,7 +72,7 @@ function sentenceForPrimaryAction(
           : `${input.blockingFindingCount} findings still block approval or finalization — review them next.`;
       }
 
-      return "Open findings need your disposition before you can finalize or share this package.";
+      return "Resolve or assign all open findings before you finalize or share this review.";
     case "finalize-package":
       return "Assessment finished — finalize this review to create a sealed review record.";
     case "send-to-sponsor":

@@ -12,7 +12,7 @@ export const RISK_EXCEPTIONS_CANONICAL_PATH = GOVERNANCE_EXCEPTIONS_PATH;
 export const RISK_EXCEPTIONS_HELP_TOPIC_LABEL = "How risk exceptions work";
 
 export const RISK_EXCEPTIONS_CLAIM_DISCIPLINE =
-  "Risk exceptions track time-bounded waivers for accepted findings — they are not a sealed-review diligence Sources package. Open Findings, Audit, or a review workspace when you need sponsor-safe trails.";
+  "Risk exceptions track temporary approvals to accept a known risk for accepted findings — they are not a full audit export on their own. Open Findings, Audit, or a review workspace when you need sponsor-safe trails.";
 
 export const RISK_EXCEPTIONS_SOURCES_INTRO =
   "Use these follow-ups when an exception needs finding disposition, package context, or an activity trail.";

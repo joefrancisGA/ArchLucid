@@ -43,7 +43,7 @@ export const REVIEW_PACKAGE_GOVERNANCE_FINDINGS_HEADING =
   "This review and the workspace findings queue are different views" as const;
 
 export const REVIEW_PACKAGE_GOVERNANCE_FINDINGS_WHY_TWO =
-  "This review's Findings tab lists findings for one architecture review — triage and export within this review. The workspace findings queue is the risk register across reviews for disposition, ownership, and exception work. Disposition in the queue updates governance state; triage on the review tab does not replace cross-review disposition. Counts scoped to this review may not match workspace totals." as const;
+  "This review's Findings tab lists findings for one architecture review — triage and export within this review. The workspace findings queue is the risk register across reviews for disposition, ownership, and exception work. Resolving a finding in the workspace queue updates org-wide status; sorting findings inside one review does not. Counts scoped to this review may not match workspace totals." as const;
 
 export const REVIEW_PACKAGE_GOVERNANCE_FINDINGS_COMPACT_LINE =
   "This review's findings tab triages one review; the workspace findings queue disposes risks across reviews." as const;

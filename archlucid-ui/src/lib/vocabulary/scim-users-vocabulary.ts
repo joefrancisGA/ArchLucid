@@ -49,7 +49,7 @@ export type ScimUsersVocabularyModel = {
 export const SCIM_USERS_HEADING = "SCIM provisioning and users stay separate" as const;
 
 export const SCIM_USERS_WHY_TWO =
-  "SCIM provisioning connects your identity provider so people and groups sync into the workspace automatically. Users and roles manage invitations, membership, and workspace access by hand. Issuing a SCIM token does not invite a person — and inviting a user does not configure directory sync." as const;
+  "SCIM provisioning connects your identity provider so people and groups sync into the workspace automatically. Users and roles manage invitations, membership, and workspace access by hand. Setting up automatic user sync (SCIM) is separate from manually inviting someone.";
 
 export const SCIM_USERS_COMPACT_LINE =
   "SCIM syncs directory people; Users invite and assign roles — open the other when you need both." as const;

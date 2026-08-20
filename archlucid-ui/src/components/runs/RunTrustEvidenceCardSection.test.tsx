@@ -75,7 +75,7 @@ describe("RunTrustEvidenceCardSection", () => {
 
     expect(proofChain).toBeInTheDocument();
     expect(screen.getByText("Proof confidence")).toBeInTheDocument();
-    expect(screen.getByText(/Evidence → finding → review record → artifact → audit proof chain/i)).toBeInTheDocument();
+    expect(screen.getByText(/How evidence flows from source to audit log/i)).toBeInTheDocument();
     expect(screen.queryByText(/stronger than a free-form AI answer/i)).not.toBeInTheDocument();
     expect(within(proofChain).getByRole("link", { name: "Open evidence trail" })).toHaveAttribute(
       "href",

@@ -20,7 +20,7 @@ describe("architecture-intelligence-evidence-graph-vocabulary (TB-2273)", () => 
     expect(model.heading.toLowerCase()).toContain("architecture intelligence");
     expect(model.heading.toLowerCase()).toContain("evidence graph");
     expect(model.whyTwo).toBe(ARCHITECTURE_INTELLIGENCE_EVIDENCE_GRAPH_WHY_TWO);
-    expect(model.whyTwo.toLowerCase()).toContain("closed-loop");
+    expect(model.whyTwo.toLowerCase()).toContain("analyzes");
     expect(model.whyTwo.toLowerCase()).toContain("provenance");
     expect(model.compactLine).toBe(ARCHITECTURE_INTELLIGENCE_EVIDENCE_GRAPH_COMPACT_LINE);
 
