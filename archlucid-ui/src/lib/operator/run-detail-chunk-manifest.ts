@@ -37,4 +37,25 @@ export const RUN_DETAIL_CHUNK_MANIFEST: readonly DeferredChunkManifestEntry[] = 
     modulePath: "@/components/architecture/ArchitectureCreatedReviewWorkspaceShell",
     exportName: "ArchitectureCreatedReviewWorkspaceShell",
   },
+  {
+    id: "run-detail-create-home-evidence",
+    label: "Loading evidence panel",
+    variant: "panel",
+    modulePath: "@/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailCreateHomeEvidencePanel",
+    exportName: "RunDetailCreateHomeEvidencePanel",
+  },
+  {
+    id: "run-detail-create-home-activity",
+    label: "Loading activity panel",
+    variant: "panel",
+    modulePath: "@/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailCreateHomeActivityPanel",
+    exportName: "RunDetailCreateHomeActivityPanel",
+  },
+  {
+    id: "run-detail-technology-baseline",
+    label: "Loading technology baseline",
+    variant: "section",
+    modulePath: "@/components/reviews/technology-baseline/TechnologyBaselineSection",
+    exportName: "TechnologyBaselineSection",
+  },
 ] as const;

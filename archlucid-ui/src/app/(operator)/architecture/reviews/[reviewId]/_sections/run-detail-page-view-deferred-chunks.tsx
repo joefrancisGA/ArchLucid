@@ -26,12 +26,11 @@ const technologyBaselineLoading = (
   </section>
 );
 
-export const RunDetailTechnologyBaselineSection = dynamic(
-  () =>
-    import("@/components/reviews/technology-baseline/TechnologyBaselineSection").then(
-      (module) => module.TechnologyBaselineSection,
-    ),
-  { ssr: false, loading: () => technologyBaselineLoading },
+export const RunDetailTechnologyBaselineSection = createDeferredComponentFromManifest(
+  "run-detail-technology-baseline",
+  {
+    loadingWrapper: () => technologyBaselineLoading,
+  },
 );
 
 export const RunDetailHolisticCriticPanelDeferred = dynamic(
@@ -503,22 +502,16 @@ export const GoldenSponsorPackageWalkthroughDestinationDeferred = dynamic(
   { ssr: false, loading: () => null },
 );
 
-const createHomeEvidenceLoading = runDetailDeferredLoading("Loading evidence panel", "h-48");
-
 /** Perf wave 14 — create-home evidence archTab off sync First Load JS. */
-export const RunDetailCreateHomeEvidencePanelDeferred = dynamic(
-  () =>
-    import("./RunDetailCreateHomeEvidencePanel").then((module) => module.RunDetailCreateHomeEvidencePanel),
-  { ssr: false, loading: () => createHomeEvidenceLoading },
+export const RunDetailCreateHomeEvidencePanelDeferred = createDeferredComponentFromManifest(
+  "run-detail-create-home-evidence",
+  { loadingClassName: "h-48" },
 );
 
-const createHomeActivityLoading = runDetailDeferredLoading("Loading activity panel", "h-40");
-
 /** Perf wave 14 — create-home activity archTab off sync First Load JS (TB-1832/TB-1834). */
-export const RunDetailCreateHomeActivityPanelDeferred = dynamic(
-  () =>
-    import("./RunDetailCreateHomeActivityPanel").then((module) => module.RunDetailCreateHomeActivityPanel),
-  { ssr: false, loading: () => createHomeActivityLoading },
+export const RunDetailCreateHomeActivityPanelDeferred = createDeferredComponentFromManifest(
+  "run-detail-create-home-activity",
+  { loadingClassName: "h-40" },
 );
 
 const activitySourcesLoading = runDetailDeferredLoading("Loading activity sources", "h-32");

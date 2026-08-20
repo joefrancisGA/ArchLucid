@@ -163,6 +163,9 @@ describe("run detail bundle deferred imports (TB-697 / TB-933 / TB-2021 / TB-211
     expect(deferredChunksSource).toContain('"run-detail-evidence-tab"');
     expect(deferredChunksSource).toContain('"run-detail-below-fold"');
     expect(deferredChunksSource).toContain('"run-detail-architecture-created-workspace"');
+    expect(deferredChunksSource).toContain('"run-detail-create-home-evidence"');
+    expect(deferredChunksSource).toContain('"run-detail-create-home-activity"');
+    expect(deferredChunksSource).toContain('"run-detail-technology-baseline"');
     expect(manifestLoaderSource).toContain('import("@/components/reviews/ReviewWorkspaceShell")');
     expect(manifestLoaderSource).toContain('import("@/components/reviews/RunDetailOverviewPanelClient")');
     expect(manifestLoaderSource).toContain('import("@/components/architecture/ArchitectureCreatedReviewWorkspaceShell")');
@@ -171,6 +174,15 @@ describe("run detail bundle deferred imports (TB-697 / TB-933 / TB-2021 / TB-211
     );
     expect(manifestLoaderSource).toContain(
       'import("@/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailBelowFoldSections")',
+    );
+    expect(manifestLoaderSource).toContain(
+      'import("@/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailCreateHomeEvidencePanel")',
+    );
+    expect(manifestLoaderSource).toContain(
+      'import("@/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailCreateHomeActivityPanel")',
+    );
+    expect(manifestLoaderSource).toContain(
+      'import("@/components/reviews/technology-baseline/TechnologyBaselineSection")',
     );
     expect(deferredChunksSource).toContain("RunDetailArchitectureCreateWorkItemSectionDeferred");
     expect(deferredChunksSource).toContain("RunDetailArchitectureSponsorSharingPanelDeferred");
@@ -242,7 +254,8 @@ describe("run detail bundle deferred imports (TB-697 / TB-933 / TB-2021 / TB-211
     expect(deferredChunksSource).toContain('import("./RunDetailReviewPackageSponsorHandoffGate")');
     expect(deferredChunksSource).toContain("RunDetailCreateHomeEvidencePanelDeferred");
     expect(deferredChunksSource).toContain("RunDetailCreateHomeActivityPanelDeferred");
-    expect(deferredChunksSource).toContain('import("./RunDetailCreateHomeEvidencePanel")');
+    expect(deferredChunksSource).not.toContain('import("./RunDetailCreateHomeEvidencePanel")');
+    expect(deferredChunksSource).not.toContain('import("./RunDetailCreateHomeActivityPanel")');
     expect(deferredChunksSource).toContain("RunDetailActivitySourcesPanelDeferred");
     expect(deferredChunksSource).toContain('import("./RunDetailActivitySourcesPanel")');
     expect(deferredChunksSource).toContain("GoldenSponsorPackageWalkthroughDestinationDeferred");

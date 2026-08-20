@@ -2,13 +2,12 @@
 
 import type { JSX } from "react";
 
+import { PairwiseVocabularyRailFromModel } from "@/components/vocabulary/PairwiseVocabularyRailFromModel";
 import {
-  buildClarificationsFindingsVocabulary,
-  resolveClarificationsFindingsPeerLink,
+  buildClarificationsFindingsPairwiseRail,
   type ClarificationsFindingsSurfaceId,
   type ClarificationsFindingsVocabularyModel,
 } from "@/lib/vocabulary/clarifications-findings-vocabulary";
-import { VocabularyRail } from "@/components/vocabulary/VocabularyRail";
 
 export type ClarificationsFindingsVocabularyRailProps = {
   readonly runId: string;
@@ -22,25 +21,25 @@ export type ClarificationsFindingsVocabularyRailProps = {
 export function ClarificationsFindingsVocabularyRail(
   props: ClarificationsFindingsVocabularyRailProps,
 ): JSX.Element {
-  const model = props.model ?? buildClarificationsFindingsVocabulary(props.runId);
-  const peer = resolveClarificationsFindingsPeerLink(props.currentSurfaceId, model);
-  const currentLink =
-    props.currentSurfaceId === "clarifications"
-      ? model.clarificationsLink
-      : model.findingsLink;
+  const pairwiseModel =
+    props.model !== undefined
+      ? {
+          heading: props.model.heading,
+          whyTwo: props.model.whyTwo,
+          compactLine: props.model.compactLine,
+          currentLink: props.model.clarificationsLink,
+          peerLink: props.model.findingsLink,
+        }
+      : buildClarificationsFindingsPairwiseRail(props.runId);
 
   return (
-    <VocabularyRail
+    <PairwiseVocabularyRailFromModel
       testIdPrefix="clarifications-findings-vocabulary"
       currentSurfaceId={props.currentSurfaceId}
       variant={props.variant}
       className={props.className}
-      compactLine={model.compactLine}
       compactLinkPlacement="inline"
-      heading={model.heading}
-      whyTwo={model.whyTwo}
-      currentLabel={currentLink.label}
-      links={[{ ...peer, testIdSuffix: "peer-link" }]}
+      model={pairwiseModel}
     />
   );
 }

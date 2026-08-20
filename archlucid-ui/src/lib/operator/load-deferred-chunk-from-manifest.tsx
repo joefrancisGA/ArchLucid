@@ -144,6 +144,24 @@ function resolveDeferredChunkImportLoader(
           (module) => module.ArchitectureCreatedReviewWorkspaceShell,
         ),
       ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "run-detail-create-home-evidence":
+      return deferredChunkLoader(() =>
+        import("@/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailCreateHomeEvidencePanel").then(
+          (module) => module.RunDetailCreateHomeEvidencePanel,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "run-detail-create-home-activity":
+      return deferredChunkLoader(() =>
+        import("@/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailCreateHomeActivityPanel").then(
+          (module) => module.RunDetailCreateHomeActivityPanel,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "run-detail-technology-baseline":
+      return deferredChunkLoader(() =>
+        import("@/components/reviews/technology-baseline/TechnologyBaselineSection").then(
+          (module) => module.TechnologyBaselineSection,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
     default:
       throw new Error(`No deferred chunk import loader registered for manifest entry "${entryId}".`);
   }

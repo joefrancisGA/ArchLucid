@@ -12,7 +12,10 @@
  * (TB-2249).
  */
 
-import { createPairwiseVocabularyRail } from "@/lib/vocabulary/create-pairwise-vocabulary-rail";
+import {
+  createPairwiseVocabularyRail,
+  type PairwiseVocabularyRailModel,
+} from "@/lib/vocabulary/create-pairwise-vocabulary-rail";
 
 export type ClarificationsFindingsSurfaceId = "clarifications" | "findings";
 
@@ -40,11 +43,11 @@ export const CLARIFICATIONS_FINDINGS_WHY_TWO =
 export const CLARIFICATIONS_FINDINGS_COMPACT_LINE =
   "Clarifications are gaps and open questions; Findings are assessment issues to triage." as const;
 
-/** Build run-scoped Clarifications ↔ Findings vocabulary (create-home reviewTab links). */
-export function buildClarificationsFindingsVocabulary(
+/** Build run-scoped Clarifications ↔ Findings pairwise model (create-home reviewTab links). */
+export function buildClarificationsFindingsPairwiseRail(
   runId: string,
-): ClarificationsFindingsVocabularyModel {
-  const rail = createPairwiseVocabularyRail({
+): PairwiseVocabularyRailModel<ClarificationsFindingsSurfaceId> {
+  return createPairwiseVocabularyRail({
     runId,
     currentTab: "clarifications",
     currentTabId: "decisions-remediation",
@@ -61,6 +64,13 @@ export function buildClarificationsFindingsVocabulary(
       peerWhenToUse: "Triage assessment findings for this architecture review.",
     },
   });
+}
+
+/** Build run-scoped Clarifications ↔ Findings vocabulary (create-home reviewTab links). */
+export function buildClarificationsFindingsVocabulary(
+  runId: string,
+): ClarificationsFindingsVocabularyModel {
+  const rail = buildClarificationsFindingsPairwiseRail(runId);
 
   return {
     heading: rail.heading,

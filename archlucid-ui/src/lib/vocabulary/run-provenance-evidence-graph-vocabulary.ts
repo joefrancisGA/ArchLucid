@@ -14,6 +14,7 @@
 
 import { REVIEWS_LIST_PATH } from "@/lib/architecture/architecture-routes";
 import { EVIDENCE_GRAPH_PATH } from "@/lib/evidence-graph-route";
+import { createExternalPeerPairwiseVocabularyRail } from "@/lib/vocabulary/create-pairwise-vocabulary-rail";
 
 export type RunProvenanceEvidenceGraphSurfaceId = "run-provenance" | "evidence-graph";
 
@@ -59,14 +60,35 @@ export const RUN_PROVENANCE_EVIDENCE_GRAPH_GRAPH_LINK: RunProvenanceEvidenceGrap
   whenToUse: "Explore provenance and evidence trails across architecture packages.",
 };
 
+/** Pairwise model for package provenance ↔ Evidence graph (reviews hub fallback). */
+export function buildRunProvenanceEvidenceGraphPairwiseRail() {
+  return createExternalPeerPairwiseVocabularyRail({
+    reviewSurfaceId: "run-provenance",
+    externalSurfaceId: "evidence-graph",
+    reviewTabId: "activity",
+    copy: {
+      heading: RUN_PROVENANCE_EVIDENCE_GRAPH_HEADING,
+      whyTwo: RUN_PROVENANCE_EVIDENCE_GRAPH_WHY_TWO,
+      compactLine: RUN_PROVENANCE_EVIDENCE_GRAPH_COMPACT_LINE,
+      reviewSideLabel: "Reviews (open Provenance)",
+      reviewSideWhenToUse:
+        "Open an architecture package, then use Provenance for that review’s linkage walk.",
+    },
+    reviewsPeerFallbackLink: RUN_PROVENANCE_EVIDENCE_GRAPH_PROVENANCE_LINK,
+    externalPeerLinkBase: RUN_PROVENANCE_EVIDENCE_GRAPH_GRAPH_LINK,
+  });
+}
+
 /** Full vocabulary model (heading, why-two copy, and deep links). */
 export function buildRunProvenanceEvidenceGraphVocabulary(): RunProvenanceEvidenceGraphVocabularyModel {
+  const rail = buildRunProvenanceEvidenceGraphPairwiseRail();
+
   return {
-    heading: RUN_PROVENANCE_EVIDENCE_GRAPH_HEADING,
-    whyTwo: RUN_PROVENANCE_EVIDENCE_GRAPH_WHY_TWO,
-    compactLine: RUN_PROVENANCE_EVIDENCE_GRAPH_COMPACT_LINE,
-    runProvenanceLink: RUN_PROVENANCE_EVIDENCE_GRAPH_PROVENANCE_LINK,
-    evidenceGraphLink: RUN_PROVENANCE_EVIDENCE_GRAPH_GRAPH_LINK,
+    heading: rail.heading,
+    whyTwo: rail.whyTwo,
+    compactLine: rail.compactLine,
+    runProvenanceLink: rail.reviewSideLink,
+    evidenceGraphLink: rail.externalPeerLink,
   };
 }
 

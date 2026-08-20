@@ -2,13 +2,12 @@
 
 import type { JSX } from "react";
 
+import { ExternalPeerVocabularyRailFromModel } from "@/components/vocabulary/ExternalPeerVocabularyRailFromModel";
 import {
-  buildRunProvenanceEvidenceGraphVocabulary,
-  resolveRunProvenanceEvidenceGraphPeerLink,
+  buildRunProvenanceEvidenceGraphPairwiseRail,
   type RunProvenanceEvidenceGraphSurfaceId,
   type RunProvenanceEvidenceGraphVocabularyModel,
 } from "@/lib/vocabulary/run-provenance-evidence-graph-vocabulary";
-import { VocabularyRail } from "@/components/vocabulary/VocabularyRail";
 
 export type RunProvenanceEvidenceGraphVocabularyRailProps = {
   readonly currentSurfaceId: RunProvenanceEvidenceGraphSurfaceId;
@@ -21,25 +20,26 @@ export type RunProvenanceEvidenceGraphVocabularyRailProps = {
 export function RunProvenanceEvidenceGraphVocabularyRail(
   props: RunProvenanceEvidenceGraphVocabularyRailProps,
 ): JSX.Element {
-  const model = props.model ?? buildRunProvenanceEvidenceGraphVocabulary();
-  const peer = resolveRunProvenanceEvidenceGraphPeerLink(props.currentSurfaceId);
-  const currentLink =
-    props.currentSurfaceId === "run-provenance"
-      ? model.runProvenanceLink
-      : model.evidenceGraphLink;
+  const pairwiseModel =
+    props.model !== undefined
+      ? {
+          heading: props.model.heading,
+          whyTwo: props.model.whyTwo,
+          compactLine: props.model.compactLine,
+          reviewSideLink: props.model.runProvenanceLink,
+          externalPeerLink: props.model.evidenceGraphLink,
+        }
+      : buildRunProvenanceEvidenceGraphPairwiseRail();
 
   return (
-    <VocabularyRail
+    <ExternalPeerVocabularyRailFromModel
       testIdPrefix="run-provenance-evidence-graph-vocabulary"
+      reviewSurfaceId="run-provenance"
       currentSurfaceId={props.currentSurfaceId}
       variant={props.variant}
       className={props.className}
-      compactLine={model.compactLine}
       compactLinkPlacement="inline"
-      heading={model.heading}
-      whyTwo={model.whyTwo}
-      currentLabel={currentLink.label}
-      links={[{ ...peer, testIdSuffix: "peer-link" }]}
+      model={pairwiseModel}
     />
   );
 }

@@ -2,13 +2,12 @@
 
 import type { JSX } from "react";
 
+import { PairwiseVocabularyRailFromModel } from "@/components/vocabulary/PairwiseVocabularyRailFromModel";
 import {
-  buildArchitectureIntelligenceEvidenceGraphVocabulary,
-  resolveArchitectureIntelligenceEvidenceGraphPeerLink,
+  buildArchitectureIntelligenceEvidenceGraphPairwiseRail,
   type ArchitectureIntelligenceEvidenceGraphSurfaceId,
   type ArchitectureIntelligenceEvidenceGraphVocabularyModel,
 } from "@/lib/vocabulary/architecture-intelligence-evidence-graph-vocabulary";
-import { VocabularyRail } from "@/components/vocabulary/VocabularyRail";
 
 export type ArchitectureIntelligenceEvidenceGraphVocabularyRailProps = {
   /** Surface hosting the strip — marks the current job and links to the peer. */
@@ -27,25 +26,25 @@ export type ArchitectureIntelligenceEvidenceGraphVocabularyRailProps = {
 export function ArchitectureIntelligenceEvidenceGraphVocabularyRail(
   props: ArchitectureIntelligenceEvidenceGraphVocabularyRailProps,
 ): JSX.Element {
-  const model = props.model ?? buildArchitectureIntelligenceEvidenceGraphVocabulary();
-  const peer = resolveArchitectureIntelligenceEvidenceGraphPeerLink(props.currentSurfaceId);
-  const currentLink =
-    props.currentSurfaceId === "architecture-intelligence"
-      ? model.architectureIntelligenceLink
-      : model.evidenceGraphLink;
+  const pairwiseModel =
+    props.model !== undefined
+      ? {
+          heading: props.model.heading,
+          whyTwo: props.model.whyTwo,
+          compactLine: props.model.compactLine,
+          currentLink: props.model.architectureIntelligenceLink,
+          peerLink: props.model.evidenceGraphLink,
+        }
+      : buildArchitectureIntelligenceEvidenceGraphPairwiseRail();
 
   return (
-    <VocabularyRail
+    <PairwiseVocabularyRailFromModel
       testIdPrefix="architecture-intelligence-evidence-graph-vocabulary"
       currentSurfaceId={props.currentSurfaceId}
       variant={props.variant}
       className={props.className}
-      compactLine={model.compactLine}
       compactLinkPlacement="inline"
-      heading={model.heading}
-      whyTwo={model.whyTwo}
-      currentLabel={currentLink.label}
-      links={[{ ...peer, testIdSuffix: "peer-link" }]}
+      model={pairwiseModel}
     />
   );
 }

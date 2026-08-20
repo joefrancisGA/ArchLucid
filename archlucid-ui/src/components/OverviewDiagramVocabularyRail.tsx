@@ -2,13 +2,12 @@
 
 import type { JSX } from "react";
 
+import { PairwiseVocabularyRailFromModel } from "@/components/vocabulary/PairwiseVocabularyRailFromModel";
 import {
-  buildOverviewDiagramVocabulary,
-  resolveOverviewDiagramPeerLink,
+  buildOverviewDiagramPairwiseRail,
   type OverviewDiagramSurfaceId,
   type OverviewDiagramVocabularyModel,
 } from "@/lib/vocabulary/overview-diagram-vocabulary";
-import { VocabularyRail } from "@/components/vocabulary/VocabularyRail";
 
 export type OverviewDiagramVocabularyRailProps = {
   readonly runId: string;
@@ -22,23 +21,25 @@ export type OverviewDiagramVocabularyRailProps = {
 export function OverviewDiagramVocabularyRail(
   props: OverviewDiagramVocabularyRailProps,
 ): JSX.Element {
-  const model = props.model ?? buildOverviewDiagramVocabulary(props.runId);
-  const peer = resolveOverviewDiagramPeerLink(props.currentSurfaceId, model);
-  const currentLink =
-    props.currentSurfaceId === "overview" ? model.overviewLink : model.diagramLink;
+  const pairwiseModel =
+    props.model !== undefined
+      ? {
+          heading: props.model.heading,
+          whyTwo: props.model.whyTwo,
+          compactLine: props.model.compactLine,
+          currentLink: props.model.overviewLink,
+          peerLink: props.model.diagramLink,
+        }
+      : buildOverviewDiagramPairwiseRail(props.runId);
 
   return (
-    <VocabularyRail
+    <PairwiseVocabularyRailFromModel
       testIdPrefix="overview-diagram-vocabulary"
       currentSurfaceId={props.currentSurfaceId}
       variant={props.variant}
       className={props.className}
-      compactLine={model.compactLine}
       compactLinkPlacement="inline"
-      heading={model.heading}
-      whyTwo={model.whyTwo}
-      currentLabel={currentLink.label}
-      links={[{ ...peer, testIdSuffix: "peer-link" }]}
+      model={pairwiseModel}
     />
   );
 }
