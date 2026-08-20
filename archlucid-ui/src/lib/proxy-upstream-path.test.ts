@@ -30,4 +30,20 @@ describe("buildProxyUpstreamPath", () => {
   it("rejects empty segments", () => {
     expect(buildProxyUpstreamPath(["v1", "", "sample"])).toEqual({ ok: false });
   });
+
+  it("rejects percent-encoded dot traversal segments", () => {
+    expect(
+      buildProxyUpstreamPath([
+        "v1",
+        "marketing",
+        "quick-scan",
+        "%2e%2e",
+        "%2e%2e",
+        "%2e%2e",
+        "architecture",
+        "draft",
+        "draft-1",
+      ]),
+    ).toEqual({ ok: false });
+  });
 });
