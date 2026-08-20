@@ -16,6 +16,7 @@
 
 import { ARCHITECTURE_INTELLIGENCE_PATH } from "@/lib/architecture/architecture-intelligence-route";
 import { EVIDENCE_GRAPH_PATH } from "@/lib/evidence-graph-route";
+import type { PairwiseVocabularyRailModel } from "@/lib/vocabulary/create-pairwise-vocabulary-rail";
 
 export type ArchitectureIntelligenceEvidenceGraphSurfaceId =
   | "architecture-intelligence"
@@ -62,14 +63,27 @@ export const ARCHITECTURE_INTELLIGENCE_EVIDENCE_GRAPH_GRAPH_LINK: ArchitectureIn
     whenToUse: "Explore provenance and linkage in an architecture package’s evidence trail.",
   };
 
-/** Full vocabulary model (heading, why-two copy, and deep links). */
-export function buildArchitectureIntelligenceEvidenceGraphVocabulary(): ArchitectureIntelligenceEvidenceGraphVocabularyModel {
+/** Pairwise model for Architecture intelligence ↔ Evidence graph (fixed routes). */
+export function buildArchitectureIntelligenceEvidenceGraphPairwiseRail(): PairwiseVocabularyRailModel<ArchitectureIntelligenceEvidenceGraphSurfaceId> {
   return {
     heading: ARCHITECTURE_INTELLIGENCE_EVIDENCE_GRAPH_HEADING,
     whyTwo: ARCHITECTURE_INTELLIGENCE_EVIDENCE_GRAPH_WHY_TWO,
     compactLine: ARCHITECTURE_INTELLIGENCE_EVIDENCE_GRAPH_COMPACT_LINE,
-    architectureIntelligenceLink: ARCHITECTURE_INTELLIGENCE_EVIDENCE_GRAPH_INTELLIGENCE_LINK,
-    evidenceGraphLink: ARCHITECTURE_INTELLIGENCE_EVIDENCE_GRAPH_GRAPH_LINK,
+    currentLink: ARCHITECTURE_INTELLIGENCE_EVIDENCE_GRAPH_INTELLIGENCE_LINK,
+    peerLink: ARCHITECTURE_INTELLIGENCE_EVIDENCE_GRAPH_GRAPH_LINK,
+  };
+}
+
+/** Full vocabulary model (heading, why-two copy, and deep links). */
+export function buildArchitectureIntelligenceEvidenceGraphVocabulary(): ArchitectureIntelligenceEvidenceGraphVocabularyModel {
+  const rail = buildArchitectureIntelligenceEvidenceGraphPairwiseRail();
+
+  return {
+    heading: rail.heading,
+    whyTwo: rail.whyTwo,
+    compactLine: rail.compactLine,
+    architectureIntelligenceLink: rail.currentLink,
+    evidenceGraphLink: rail.peerLink,
   };
 }
 

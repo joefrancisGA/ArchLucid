@@ -9,6 +9,7 @@ import { REVIEWS_LIST_PATH } from "@/lib/architecture/architecture-routes";
 import { ARCHITECTURE_INTELLIGENCE_PATH } from "@/lib/architecture/architecture-intelligence-route";
 import { ARCHITECTURE_INTELLIGENCE_PAGE_TITLE } from "@/lib/architecture/architecture-intelligence-page-copy";
 import { createExternalPeerPairwiseVocabularyRail } from "@/lib/vocabulary/create-pairwise-vocabulary-rail";
+import type { ExternalPeerPairwiseVocabularyRailModel } from "@/lib/vocabulary/create-pairwise-vocabulary-rail";
 
 export type ArchitectureIntelligenceReviewSurfaceId = "review-workspace" | "architecture-intelligence";
 
@@ -50,11 +51,11 @@ export const ARCHITECTURE_INTELLIGENCE_REVIEW_TOOL_LINK: ArchitectureIntelligenc
   whenToUse: "Explore an alternative reasoning pass from a linked review when you need a fresh angle.",
 };
 
-/** Build run-scoped review workspace ↔ Architecture Intelligence vocabulary. */
-export function buildArchitectureIntelligenceReviewVocabulary(
+/** Build run-scoped review workspace ↔ Architecture Intelligence pairwise model. */
+export function buildArchitectureIntelligenceReviewPairwiseRail(
   runId?: string | null,
-): ArchitectureIntelligenceReviewVocabularyModel {
-  const rail = createExternalPeerPairwiseVocabularyRail({
+): ExternalPeerPairwiseVocabularyRailModel<ArchitectureIntelligenceReviewSurfaceId> {
+  return createExternalPeerPairwiseVocabularyRail({
     runId,
     reviewSurfaceId: "review-workspace",
     externalSurfaceId: "architecture-intelligence",
@@ -71,6 +72,13 @@ export function buildArchitectureIntelligenceReviewVocabulary(
     buildExternalPeerHref: (scopedRunId) =>
       `${ARCHITECTURE_INTELLIGENCE_PATH}?runId=${encodeURIComponent(scopedRunId)}`,
   });
+}
+
+/** Build run-scoped review workspace ↔ Architecture Intelligence vocabulary. */
+export function buildArchitectureIntelligenceReviewVocabulary(
+  runId?: string | null,
+): ArchitectureIntelligenceReviewVocabularyModel {
+  const rail = buildArchitectureIntelligenceReviewPairwiseRail(runId);
 
   return {
     heading: rail.heading,

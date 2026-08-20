@@ -15,6 +15,7 @@ import {
   GOVERNANCE_DECISION_REGISTER_PATH,
   GOVERNANCE_FINDINGS_PATH,
 } from "@/lib/governance/governance-route-paths";
+import type { PairwiseVocabularyRailModel } from "@/lib/vocabulary/create-pairwise-vocabulary-rail";
 
 export type DecisionRegisterFindingsSurfaceId = "decision-register" | "findings-queue";
 
@@ -56,14 +57,27 @@ export const DECISION_REGISTER_FINDINGS_QUEUE_LINK: DecisionRegisterFindingsLink
   whenToUse: "Triage and resolve open governance findings.",
 };
 
-/** Full vocabulary model (heading, why-two copy, and deep links). */
-export function buildDecisionRegisterFindingsVocabulary(): DecisionRegisterFindingsVocabularyModel {
+/** Pairwise model for Decision register ↔ Findings queue (fixed governance routes). */
+export function buildDecisionRegisterFindingsPairwiseRail(): PairwiseVocabularyRailModel<DecisionRegisterFindingsSurfaceId> {
   return {
     heading: DECISION_REGISTER_FINDINGS_HEADING,
     whyTwo: DECISION_REGISTER_FINDINGS_WHY_TWO,
     compactLine: DECISION_REGISTER_FINDINGS_COMPACT_LINE,
-    decisionRegisterLink: DECISION_REGISTER_FINDINGS_REGISTER_LINK,
-    findingsQueueLink: DECISION_REGISTER_FINDINGS_QUEUE_LINK,
+    currentLink: DECISION_REGISTER_FINDINGS_REGISTER_LINK,
+    peerLink: DECISION_REGISTER_FINDINGS_QUEUE_LINK,
+  };
+}
+
+/** Full vocabulary model (heading, why-two copy, and deep links). */
+export function buildDecisionRegisterFindingsVocabulary(): DecisionRegisterFindingsVocabularyModel {
+  const rail = buildDecisionRegisterFindingsPairwiseRail();
+
+  return {
+    heading: rail.heading,
+    whyTwo: rail.whyTwo,
+    compactLine: rail.compactLine,
+    decisionRegisterLink: rail.currentLink,
+    findingsQueueLink: rail.peerLink,
   };
 }
 

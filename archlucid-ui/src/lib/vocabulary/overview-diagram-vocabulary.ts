@@ -12,7 +12,10 @@
  * (TB-2300).
  */
 
-import { createPairwiseVocabularyRail } from "@/lib/vocabulary/create-pairwise-vocabulary-rail";
+import {
+  createPairwiseVocabularyRail,
+  type PairwiseVocabularyRailModel,
+} from "@/lib/vocabulary/create-pairwise-vocabulary-rail";
 
 export type OverviewDiagramSurfaceId = "overview" | "diagram";
 
@@ -40,9 +43,11 @@ export const OVERVIEW_DIAGRAM_WHY_TWO =
 export const OVERVIEW_DIAGRAM_COMPACT_LINE =
   "Overview is the structured brief; Diagram is an illustrative sketch." as const;
 
-/** Build run-scoped Overview ↔ Diagram vocabulary (create-home reviewTab links). */
-export function buildOverviewDiagramVocabulary(runId: string): OverviewDiagramVocabularyModel {
-  const rail = createPairwiseVocabularyRail({
+/** Build run-scoped Overview ↔ Diagram pairwise model (create-home reviewTab links). */
+export function buildOverviewDiagramPairwiseRail(
+  runId: string,
+): PairwiseVocabularyRailModel<OverviewDiagramSurfaceId> {
+  return createPairwiseVocabularyRail({
     runId,
     currentTab: "overview",
     currentTabId: "overview",
@@ -59,6 +64,11 @@ export function buildOverviewDiagramVocabulary(runId: string): OverviewDiagramVo
       peerWhenToUse: "View the illustrative architecture sketch for this package.",
     },
   });
+}
+
+/** Build run-scoped Overview ↔ Diagram vocabulary (create-home reviewTab links). */
+export function buildOverviewDiagramVocabulary(runId: string): OverviewDiagramVocabularyModel {
+  const rail = buildOverviewDiagramPairwiseRail(runId);
 
   return {
     heading: rail.heading,

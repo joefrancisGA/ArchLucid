@@ -18,6 +18,7 @@ import {
   buildGovernanceFindingsQueueHref,
   buildReviewDetailFindingsTabHref,
 } from "@/lib/metric-count-presentation";
+import type { ExternalPeerPairwiseVocabularyRailModel } from "@/lib/vocabulary/create-pairwise-vocabulary-rail";
 
 export type ReviewPackageGovernanceFindingsSurfaceId =
   | "review-package-findings"
@@ -58,6 +59,21 @@ export const REVIEW_PACKAGE_GOVERNANCE_FINDINGS_REVIEWS_PEER_LINK: ReviewPackage
     href: REVIEWS_LIST_PATH,
     whenToUse: "Open an architecture review, then use Findings to triage this review.",
   };
+
+/** Pairwise model for review-package Findings tab ↔ workspace findings queue. */
+export function buildReviewPackageGovernanceFindingsPairwiseRail(
+  runId?: string | null,
+): ExternalPeerPairwiseVocabularyRailModel<ReviewPackageGovernanceFindingsSurfaceId> {
+  const model = buildReviewPackageGovernanceFindingsVocabulary(runId);
+
+  return {
+    heading: model.heading,
+    whyTwo: model.whyTwo,
+    compactLine: model.compactLine,
+    reviewSideLink: model.reviewPackageFindingsLink,
+    externalPeerLink: model.governanceFindingsLink,
+  };
+}
 
 /** Build vocabulary; pass runId when mounting on a review Findings tab or scoped queue. */
 export function buildReviewPackageGovernanceFindingsVocabulary(
