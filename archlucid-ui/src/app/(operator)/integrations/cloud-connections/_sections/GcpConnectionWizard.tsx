@@ -24,7 +24,6 @@ import {
   GCP_CONNECTION_WIZARD_IDS_STEP_LEAD,
   GCP_CONNECTION_WIZARD_POOL_PROVIDER_PLACEHOLDER,
   GCP_CONNECTION_WIZARD_SAVE_STEP_LEAD,
-  GCP_CONNECTION_WIZARD_WIF_STEP_LEAD,
 } from "./gcp-connection-wizard-content";
 import { useGcpConnectionData } from "./GcpConnectionDataContext";
 
@@ -60,16 +59,12 @@ export function GcpConnectionWizard(props: Props): React.ReactElement {
       done.push(0);
     }
 
-    if (step > 1 && fieldsValid) {
+    if (saveSucceeded) {
       done.push(1);
     }
 
-    if (saveSucceeded) {
-      done.push(2);
-    }
-
     return done;
-  }, [fieldsValid, saveSucceeded, step]);
+  }, [saveSucceeded, step]);
 
   const markTouched = useCallback((field: GcpConnectionFieldKey) => {
     setTouched((current) => ({ ...current, [field]: true }));
@@ -84,7 +79,7 @@ export function GcpConnectionWizard(props: Props): React.ReactElement {
   }, []);
 
   const handleNext = useCallback(() => {
-    if (step === 1 && !fieldsValid) {
+    if (step === 0 && !fieldsValid) {
       touchAllFields();
 
       return;
@@ -146,19 +141,6 @@ export function GcpConnectionWizard(props: Props): React.ReactElement {
       />
 
       {step === 0 ? (
-        <section
-          className="space-y-3"
-          aria-labelledby="gcp-wizard-wif-heading"
-          data-testid="gcp-connection-wizard-step-wif"
-        >
-          <h3 id="gcp-wizard-wif-heading" className={OPERATOR_TYPOGRAPHY.cardTitle}>
-            Configure Workload Identity Federation
-          </h3>
-          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{GCP_CONNECTION_WIZARD_WIF_STEP_LEAD}</p>
-        </section>
-      ) : null}
-
-      {step === 1 ? (
         <section
           className="space-y-4"
           aria-labelledby="gcp-wizard-ids-heading"
@@ -230,7 +212,7 @@ export function GcpConnectionWizard(props: Props): React.ReactElement {
         </section>
       ) : null}
 
-      {step === 2 ? (
+      {step === 1 ? (
         <section
           className="space-y-4"
           aria-labelledby="gcp-wizard-save-heading"

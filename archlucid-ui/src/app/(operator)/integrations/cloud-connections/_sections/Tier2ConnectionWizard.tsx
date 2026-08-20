@@ -653,6 +653,8 @@ export function Tier2ConnectionWizard({
 
             providerLabel="Azure"
 
+            collapsedByDefault={false}
+
             verifiedTopics={verifiedTopics}
 
           />
@@ -1119,6 +1121,7 @@ export function Tier2ConnectionWizard({
                 <CloudSecurityPreflightPanel
                   topics={cloudSecurityPreflightTopics("azure")}
                   providerLabel="Azure"
+                  collapsedByDefault={false}
                   verifiedTopics={verifiedTopics}
                 />
               ) : null}

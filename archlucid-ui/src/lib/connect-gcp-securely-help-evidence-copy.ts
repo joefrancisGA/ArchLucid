@@ -19,14 +19,14 @@ export const CONNECT_GCP_SECURELY_CONFIGURE_ACTION = "Open GCP connection settin
 export const CONNECT_GCP_SECURELY_CONFIGURE_HREF = "/integrations/cloud-connections/gcp" as const;
 
 export const CONNECT_GCP_SECURELY_SOURCES_INTRO =
-  "Use these follow-ups when GCP setup needs the live hub, sibling cloud guides, or assurance cites.";
+  "Use these follow-ups when GCP setup needs the live hub, connection health, security orientation, or assurance cites.";
 
-
-/** Operator Sources — no self-href to `/help/cloud-connections/gcp`. */
+/** Operator Sources — no self-href to `/help/cloud-connections/gcp` or sibling cloud provider guides. */
 export const CONNECT_GCP_SECURELY_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Cloud connections hub", href: "/integrations/cloud-connections" },
   { label: "GCP connection settings", href: CONNECT_GCP_SECURELY_CONFIGURE_HREF },
-  { label: "Connect Azure securely", href: inAppHelpHref("cloud-connections-azure") },
-  { label: "Connect AWS securely", href: inAppHelpHref("cloud-connections-aws") },
+  { label: "Cloud connections help", href: inAppHelpHref("cloud-connections") },
+  { label: "Connection status", href: "/administration/connection-status" },
+  { label: "Security and trust help", href: inAppHelpHref("security-trust") },
   { label: "Assurance status", href: "/assurance-status" },
 ] as const;

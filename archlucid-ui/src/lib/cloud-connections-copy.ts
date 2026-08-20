@@ -43,6 +43,6 @@ export const CLOUD_CONNECTIONS_DETAIL_SECTIONS = [
   "Identity and access setup",
   "Connection details",
   "Validate connection",
-  "Recent collection activity",
+  "Recent connection activity",
   "Technical details",
 ] as const;

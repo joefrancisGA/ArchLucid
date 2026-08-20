@@ -55,7 +55,7 @@ function CloudSecurityPreflightTopicRow(props: {
 
 /** Read-only security review checklist — not a persisted attestation control. */
 export function CloudSecurityPreflightPanel(props: CloudSecurityPreflightPanelProps): React.ReactElement {
-  const { topics, providerLabel, collapsedByDefault = false, verifiedTopics } = props;
+  const { topics, providerLabel, collapsedByDefault = true, verifiedTopics } = props;
   const summaryLine = `${topics.length} access controls reviewed for ${providerLabel} — expand for cited details.`;
 
   const topicList = (

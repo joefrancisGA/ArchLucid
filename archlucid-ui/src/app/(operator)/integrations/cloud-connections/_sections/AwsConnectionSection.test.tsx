@@ -40,11 +40,17 @@ describe("AwsConnectionSection", () => {
       expect(screen.getByTestId("aws-connection-wizard")).toBeInTheDocument();
     });
 
-    expect(screen.getByTestId("aws-connection-wizard-step-iam")).toBeInTheDocument();
+    expect(screen.getByTestId("aws-connection-wizard-step-ids")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Next" })).toBeInTheDocument();
     expect(screen.queryByTestId("aws-connect-submit")).not.toBeInTheDocument();
 
+    fireEvent.change(screen.getByTestId("aws-account-id"), { target: { value: "123456789012" } });
+    fireEvent.change(screen.getByTestId("aws-role-arn"), {
+      target: { value: "arn:aws:iam::123456789012:role/ArchLucidReadOnly" },
+    });
+
     fireEvent.click(screen.getByRole("button", { name: "Next" }));
-    expect(screen.getByTestId("aws-connection-wizard-step-ids")).toBeInTheDocument();
+    expect(screen.getByTestId("aws-connection-wizard-step-save")).toBeInTheDocument();
   });
 
   it("TB-1764: connected state exposes exactly one primary CTA in connection details", async () => {

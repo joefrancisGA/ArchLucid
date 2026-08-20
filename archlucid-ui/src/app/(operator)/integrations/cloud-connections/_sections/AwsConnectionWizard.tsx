@@ -21,7 +21,6 @@ import {
 } from "./aws-connection-field-validation";
 import {
   AWS_CONNECTION_DETAIL_WIZARD_STEPS,
-  AWS_CONNECTION_WIZARD_IAM_STEP_LEAD,
   AWS_CONNECTION_WIZARD_IDS_STEP_LEAD,
   AWS_CONNECTION_WIZARD_SAVE_STEP_LEAD,
 } from "./aws-connection-wizard-content";
@@ -59,16 +58,12 @@ export function AwsConnectionWizard(props: Props): React.ReactElement {
       done.push(0);
     }
 
-    if (step > 1 && fieldsValid) {
+    if (saveSucceeded) {
       done.push(1);
     }
 
-    if (saveSucceeded) {
-      done.push(2);
-    }
-
     return done;
-  }, [fieldsValid, saveSucceeded, step]);
+  }, [saveSucceeded, step]);
 
   const markTouched = useCallback((field: AwsConnectionFieldKey) => {
     setTouched((current) => ({ ...current, [field]: true }));
@@ -79,7 +74,7 @@ export function AwsConnectionWizard(props: Props): React.ReactElement {
   }, []);
 
   const handleNext = useCallback(() => {
-    if (step === 1 && !fieldsValid) {
+    if (step === 0 && !fieldsValid) {
       touchAllFields();
 
       return;
@@ -141,15 +136,6 @@ export function AwsConnectionWizard(props: Props): React.ReactElement {
       />
 
       {step === 0 ? (
-        <section className="space-y-3" aria-labelledby="aws-wizard-iam-heading" data-testid="aws-connection-wizard-step-iam">
-          <h3 id="aws-wizard-iam-heading" className={OPERATOR_TYPOGRAPHY.cardTitle}>
-            Configure the read-only IAM role
-          </h3>
-          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{AWS_CONNECTION_WIZARD_IAM_STEP_LEAD}</p>
-        </section>
-      ) : null}
-
-      {step === 1 ? (
         <section className="space-y-4" aria-labelledby="aws-wizard-ids-heading" data-testid="aws-connection-wizard-step-ids">
           <div>
             <h3 id="aws-wizard-ids-heading" className={OPERATOR_TYPOGRAPHY.cardTitle}>
@@ -217,7 +203,7 @@ export function AwsConnectionWizard(props: Props): React.ReactElement {
         </section>
       ) : null}
 
-      {step === 2 ? (
+      {step === 1 ? (
         <section className="space-y-4" aria-labelledby="aws-wizard-save-heading" data-testid="aws-connection-wizard-step-save">
           <div>
             <h3 id="aws-wizard-save-heading" className={OPERATOR_TYPOGRAPHY.cardTitle}>
