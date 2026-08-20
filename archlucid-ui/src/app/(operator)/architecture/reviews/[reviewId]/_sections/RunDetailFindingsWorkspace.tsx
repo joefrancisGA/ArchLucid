@@ -24,6 +24,7 @@ import {
   architectureAssessmentFindingsPresentation,
   reviewFindingsGovernanceQueuePresentation,
 } from "@/lib/metric-count-presentation";
+import { ReviewPackageGovernanceFindingsVocabularyRail } from "@/components/ReviewPackageGovernanceFindingsVocabularyRail";
 import { CanonicalObjectSecondaryViewStrip } from "@/components/usability/CanonicalObjectSecondaryViewStrip";
 import { SelfDescribingMetricCount } from "@/components/usability/SelfDescribingMetricCount";
 import { buildCanonicalObjectSecondaryView } from "@/lib/canonical-object-home-registry";
@@ -232,6 +233,12 @@ export function RunDetailFindingsWorkspace(props: RunDetailFindingsWorkspaceProp
           presentation={findingsSecondaryViewPresentation}
           testId="review-findings-secondary-view-strip"
           className="mb-3"
+        />
+      ) : null}
+      {!createHomeSurface ? (
+        <ReviewPackageGovernanceFindingsVocabularyRail
+          runId={props.runId}
+          currentSurfaceId="review-package-findings"
         />
       ) : null}
       {metricCountEl}

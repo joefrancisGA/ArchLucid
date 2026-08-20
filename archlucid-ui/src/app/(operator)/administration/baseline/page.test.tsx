@@ -21,7 +21,7 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
 });
 
 import { showError, showSuccess } from "@/lib/toast";
-import { BASELINE_SETTINGS_PAGE_TITLE } from "@/lib/baseline-settings-present";
+import { BASELINE_SETTINGS_PAGE_TITLE, BASELINE_REVIEW_NOTE_SAVE_READINESS } from "@/lib/baseline-settings-present";
 import { BaselineSettingsClient } from "./BaselineSettingsClient";
 
 const emptyBaseline = {
@@ -143,7 +143,9 @@ describe("BaselineSettingsPage", () => {
 
     expect(noteField).toBeDisabled();
     expect(screen.getByTestId("baseline-save")).toBeDisabled();
-    expect(screen.getByTestId("baseline-review-note-save-readiness")).toBeInTheDocument();
+    expect(screen.getByTestId("baseline-save-disabled-hint")).toHaveTextContent(
+      BASELINE_REVIEW_NOTE_SAVE_READINESS,
+    );
 
     fireEvent.click(screen.getByTestId("baseline-save"));
 
@@ -195,6 +197,7 @@ describe("BaselineSettingsPage", () => {
 
     expect(screen.getByRole("alert")).toHaveTextContent(/between 0 and 10,000/i);
     expect(screen.getByTestId("baseline-save")).toBeDisabled();
+    expect(screen.getByTestId("baseline-save-disabled-hint")).toHaveTextContent(/between 0 and 10,000/i);
 
     fireEvent.click(screen.getByTestId("baseline-save"));
 

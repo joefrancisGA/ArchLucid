@@ -8,6 +8,7 @@ using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Scoping;
 
 using Microsoft.Extensions.Logging;
@@ -77,7 +78,7 @@ public sealed class TopologyProposalDualModelConsensusEnricher(
             if (_logger.IsEnabled(LogLevel.Warning))
                 _logger.LogWarning(
                     "Topology dual-model consensus skipped for RunId={RunId}: secondary model returned no proposal.",
-                    runId);
+                    LogSanitizer.Sanitize(runId)); // codeql[cs/log-forging]: run id sanitized for log sink.
 
             return;
         }

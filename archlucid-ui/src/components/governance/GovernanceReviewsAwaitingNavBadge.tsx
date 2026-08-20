@@ -1,5 +1,6 @@
 "use client";
 
+import { operatorAttentionKindLabel } from "@/lib/operator/operator-attention-taxonomy";
 import { useGovernanceReviewsAwaitingActionQuery } from "@/hooks/use-governance-reviews-awaiting-action-query";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
@@ -19,7 +20,7 @@ export function GovernanceReviewsAwaitingNavBadge() {
         "ml-1 inline-flex min-w-[1.25rem] items-center justify-center rounded-full bg-amber-600 px-1.5 font-bold text-white",
         OPERATOR_TYPOGRAPHY.badge,
       )}
-      aria-label={`${count} reviews awaiting action`}
+      aria-label={`${count} reviews ${operatorAttentionKindLabel("awaiting-approval").toLowerCase()}`}
       data-testid="governance-awaiting-action-nav-badge"
     >
       {count}

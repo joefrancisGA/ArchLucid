@@ -258,6 +258,22 @@ git log origin/master -1 --oneline
 
 After a hit, dry hunt, or seed-only pass, **edit** `docs/library/AL_BUG_HUNT_LEDGER.md` for the picked zone (`hunts`, `bugs-found`, `last-hunt`, `consecutive-dry-hunts`, hypothesis tags, `status`). Include that file in the same ship when the hunt produced a product fix; for a dry or seed-only hunt, ship the ledger update only.
 
+Then **record the outcome** and print rolling **24-hour** yield (do **not** record for `--status` preview-only runs):
+
+```powershell
+.\scripts\agent\al-bug-rolling-stats.ps1 `
+  -RecordHunt `
+  -HuntZoneId '<zoneId>' `
+  -HuntOutcome hit   # hit | dry | seed-only — match the run result
+  -Rolling24h
+```
+
+- **`hit`** — failing repro proved (fixed and shipped, or `--find-only` stop after repro).
+- **`dry`** — hunt-ready hypotheses tested; no failing repro.
+- **`seed-only`** — seed hunt with no failing repro; does **not** count as a dry run in 24h stats.
+
+Include `docs/library/AL_BUG_HUNT_RUN_LOG.jsonl` in the same commit as the ledger update (always, for every completed hunt).
+
 Replacement hypotheses after a miss must cite a **different mechanism**, not the same template with new nouns. Do not template-seed an `unseeded` zone with three harm-class rows.
 
 ```markdown
@@ -278,7 +294,11 @@ Replacement hypotheses after a miss must cite a **different mechanism**, not the
 | Tests | <test names> — N passed |
 | Commit | `<sha>` on `origin/master` |
 | Left unstaged | <paths or none> |
+| Bugs found (24h) | N |
+| Dry runs (24h) | N |
 ```
+
+Copy the **Bugs found (24h)** and **Dry runs (24h)** values from the `-Rolling24h` table the script prints.
 
 ---
 
@@ -287,7 +307,9 @@ Replacement hypotheses after a miss must cite a **different mechanism**, not the
 - `.cursor/commands/al-bug.md` — this workflow
 - `.cursor/skills/al-bug/SKILL.md` — skill pointer + hunt heuristics
 - `docs/library/AL_BUG_HUNT_LEDGER.md` — zone yield, hypotheses, exhaustion
+- `docs/library/AL_BUG_HUNT_RUN_LOG.jsonl` — append-only hunt outcome log (UTC timestamps)
 - `scripts/agent/al-bug-pick-zone.ps1` — deterministic next-zone picker
+- `scripts/agent/al-bug-rolling-stats.ps1` — rolling 24h hunt yield log + preview
 - `scripts/agent/al-bug-push-master.ps1` — worktree commit/push helper
 
 ## Related commands

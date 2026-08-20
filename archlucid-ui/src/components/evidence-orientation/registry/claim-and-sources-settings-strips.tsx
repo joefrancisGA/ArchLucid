@@ -110,6 +110,11 @@ import {
   TENANT_SETTINGS_SOURCES,
   TENANT_SETTINGS_SOURCES_INTRO,
 } from "@/lib/tenant-settings-evidence-copy";
+import {
+  SETTINGS_HUB_FOLLOW_UPS_TITLE,
+  SETTINGS_HUB_ORIENTATION_SOURCES,
+  SETTINGS_HUB_SOURCES_INTRO,
+} from "@/lib/settings-hub-evidence-copy";
 
 export function BaselineSettingsEvidenceOrientationStrip(): React.JSX.Element {
   return (
@@ -363,6 +368,21 @@ export function ApiKeysSettingsEvidenceOrientationStrip(
       sourcesTitle={API_KEYS_SETTINGS_FOLLOW_UPS_TITLE}
       sourcesIntro={API_KEYS_SETTINGS_SOURCES_INTRO}
       sources={API_KEYS_SETTINGS_SOURCES}
+      sourcesHeadingId="where-to-go-next"
+      readingBodyClassName={props.readingBodyClassName}
+    />
+  );
+}
+
+export function SettingsHubEvidenceOrientationStrip(
+  props: { readonly readingBodyClassName?: string } = {},
+): React.JSX.Element {
+  return (
+    <EvidenceOrientationClaimAndSourcesStrip
+      slug="settings-hub"
+      sourcesTitle={SETTINGS_HUB_FOLLOW_UPS_TITLE}
+      sourcesIntro={SETTINGS_HUB_SOURCES_INTRO}
+      sources={SETTINGS_HUB_ORIENTATION_SOURCES}
       sourcesHeadingId="where-to-go-next"
       readingBodyClassName={props.readingBodyClassName}
     />

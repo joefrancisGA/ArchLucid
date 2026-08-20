@@ -1,6 +1,6 @@
-# Multi-agent failure-mode chaos suite (TB-945)
-
 > **Scope:** Contributor-reference — deterministic run-level failure scenarios that lock **TB-937**–**TB-944** semantics. Not production Simmy fault injection (**TB-914**).
+
+# Multi-agent failure-mode chaos suite (TB-945)
 
 ## Why
 

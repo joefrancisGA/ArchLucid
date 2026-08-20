@@ -44,6 +44,7 @@ import {
   STANDARDS_RULES_EMPTY_HEADING,
 } from "@/lib/standards-rules-page";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
+import { buildInsightsFinalizedReviewPrerequisiteEmpty } from "@/lib/insights-finalized-review-prerequisite-empty";
 import {
   buildOperatorFilteredEmptyCompact,
   buildOperatorHubZoneEmptyCompact,
@@ -165,28 +166,16 @@ export const GOVERNANCE_APPROVAL_LINEAGE_NO_DATA_COMPACT: EnterpriseCompactEmpty
 };
 
 /** Compare page when zero finalized reviews exist. */
-export const COMPARE_ZERO_FINALIZED_COMPACT: EnterpriseCompactEmptyStateProps = {
-  testId: "compare-zero-finalized-empty-state",
-  title: "No finalized reviews available",
-  description:
-    "You need at least two finalized reviews before ArchLucid can compare changes over time.",
-  actions: [
-    { label: BUYER_START_ARCHITECTURE_REVIEW_CTA, href: "/architecture/reviews/new", variant: "primary" },
-    { label: "Open reviews", href: "/architecture/reviews", variant: "outline" },
-  ],
-};
+export const COMPARE_ZERO_FINALIZED_COMPACT: EnterpriseCompactEmptyStateProps =
+  buildInsightsFinalizedReviewPrerequisiteEmpty({ jobId: "compare", finalizedCount: 0 });
 
 /** Architecture scorecard when no finalized reviews exist yet. */
-export const REVIEW_SCORECARD_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps = {
-  testId: "review-scorecard-empty-state",
-  title: REVIEW_SCORECARD_EMPTY_HEADING,
-  description: REVIEW_SCORECARD_EMPTY_DESCRIPTION,
-  actions: [
-    { label: REVIEW_SCORECARD_EMPTY_PRIMARY_CTA, href: REVIEW_SCORECARD_EMPTY_PRIMARY_HREF, variant: "primary" },
-    { label: REVIEW_SCORECARD_EMPTY_TERTIARY_CTA, href: buildReviewScorecardSampleHref(), variant: "outline" },
-    { label: REVIEW_SCORECARD_EMPTY_SECONDARY_CTA, href: REVIEW_SCORECARD_EMPTY_SECONDARY_HREF, variant: "outline" },
-  ],
-};
+export const REVIEW_SCORECARD_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps =
+  buildInsightsFinalizedReviewPrerequisiteEmpty({
+    jobId: "scorecard",
+    finalizedCount: 0,
+    includeSampleAction: true,
+  });
 
 /** Pilot feedback dashboard when no signals exist in the selected scope. */
 export const PRODUCT_LEARNING_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps = {

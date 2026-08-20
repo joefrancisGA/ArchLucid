@@ -31,6 +31,7 @@ Default push target: **`master`**.
 1. **Find** — repro-first; failing test required before fixing
 2. **Fix** — minimal diff + permanent regression test
 3. **Ship** — `.\scripts\agent\al-bug-push-master.ps1` when main tree is dirty; else direct commit. Always update `docs/library/AL_BUG_HUNT_LEDGER.md`.
+4. **Stats** — `.\scripts\agent\al-bug-rolling-stats.ps1 -RecordHunt -HuntZoneId '<id>' -HuntOutcome hit|dry|seed-only -Rolling24h` (skip for `--status`). Ship `docs/library/AL_BUG_HUNT_RUN_LOG.jsonl` with the ledger. Report **Bugs found (24h)** and **Dry runs (24h)** in the result table.
 
 `--status` prints the picker preview and stops. A dry hunt (hunt-ready hypotheses tested, no failing repro) updates the ledger and stops — do not invent another zone. A **seed hunt** (`seedHunt: true`) reads the zone files, promotes or retires candidates, and may prove one hunt-ready row in the same run.
 
@@ -80,6 +81,8 @@ dotnet test ArchLucid.Application.Tests/ArchLucid.Application.Tests.csproj `
 
 - `/al-defect` — operator-reported production defects (`PD-###`)
 - `docs/library/AL_BUG_HUNT_LEDGER.md` — zone yield and exhaustion
+- `docs/library/AL_BUG_HUNT_RUN_LOG.jsonl` — rolling hunt outcome log
 - `scripts/agent/al-bug-pick-zone.ps1` — next-zone picker
+- `scripts/agent/al-bug-rolling-stats.ps1` — record outcome + 24h yield preview
 - `.cursor/rules/Agent-Working-Tree-Safety.mdc`
 - `.cursor/rules/Git-Commit-Requires-Branch.mdc` — satisfied by default `master` target

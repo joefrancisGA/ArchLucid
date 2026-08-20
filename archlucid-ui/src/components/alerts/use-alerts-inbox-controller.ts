@@ -12,6 +12,7 @@ import {
 } from "@/components/alerts/use-alerts-inbox-queries";
 import { useAlertCardShortcuts } from "@/hooks/useAlertCardShortcuts";
 import { useOperatorScopeQueryKey } from "@/hooks/use-operator-scope-query-key";
+import { useOperatorScopeRecord } from "@/hooks/use-operator-scope-record";
 import {
   acknowledgeAlertsBatch,
   applyAlertAction,
@@ -21,8 +22,10 @@ import {
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import {
+  resolveAlertsInboxEmptyVariant,
   shouldShowAlertsHeaderConfigureRulesLink,
 } from "@/lib/alerts-inbox-workspace-context";
+import { resolveWorkspaceScopeEmptyTeachingForHub } from "@/lib/workspace-scope-empty-teaching";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 import { useNavSurface } from "@/lib/use-nav-surface";
@@ -170,6 +173,20 @@ export function useAlertsInboxController(initialModel: AlertsInboxPageModel | nu
     workspaceContext,
     status,
   );
+  const scopeRecord = useOperatorScopeRecord();
+  const alertsInboxEmptyVariant = resolveAlertsInboxEmptyVariant(
+    workspaceContext,
+    status,
+    ALERTS_INBOX_ALL_STATUSES_VALUE,
+  );
+  const workspaceScopeEmptyTeaching =
+    alertsInboxEmptyVariant === "healthy_clear"
+      ? resolveWorkspaceScopeEmptyTeachingForHub({
+          listEmpty: !loading && failure === null && visibleAlerts.length === 0,
+          scopeRecord,
+          objectPlural: "alerts",
+        })
+      : null;
 
   const showHeaderConfigureLink = shouldShowAlertsHeaderConfigureRulesLink(
     workspaceContext,
@@ -362,6 +379,7 @@ export function useAlertsInboxController(initialModel: AlertsInboxPageModel | nu
     clearPendingAction,
     closeActionLoopDialog,
     emptyFilteredProps,
+    workspaceScopeEmptyTeaching,
     failure,
     goNextPage,
     goPreviousPage,

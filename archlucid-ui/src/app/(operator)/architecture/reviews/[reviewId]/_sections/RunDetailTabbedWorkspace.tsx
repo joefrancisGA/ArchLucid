@@ -63,6 +63,7 @@ import { RunDetailDecisionDeltaDeferred } from "./RunDetailDecisionDeltaDeferred
 import { RunDetailDecisionDeltaSkeleton } from "./RunDetailDecisionDeltaSkeleton";
 import { RunDetailExplanationDeferred } from "./RunDetailExplanationDeferred";
 import { RunDetailFirstScreenProofStatusClient } from "@/components/reviews/RunDetailFirstScreenProofStatusClient";
+import { ReviewInPipelineBanner } from "@/components/reviews/ReviewInPipelineBanner";
 import type { RunDetailPageModel } from "./run-detail-page-model";
 
 export type RunDetailTabbedWorkspaceProps = {
@@ -267,10 +268,15 @@ const architectureTabPanelEl = (
     return null;
   }
 
+  const inPipelineBannerEl = m.showProgressTracker ? (
+    <ReviewInPipelineBanner runId={m.resolvedDetail.run.runId} initialSummary={m.progressForPipelineUi} />
+  ) : null;
+
   return (
   <Suspense fallback={<RunDetailExplanationSkeleton />}>
     <ReviewDetailWorkspaceDeferred
       runId={m.resolvedDetail.run.runId}
+      inPipelineBanner={inPipelineBannerEl}
       tabLifecycle={{
         manifestId: m.manifestId,
         showProgressTracker: m.showProgressTracker,

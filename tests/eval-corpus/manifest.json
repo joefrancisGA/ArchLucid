@@ -11,6 +11,7 @@
     "scenario-cost-constrained-modernization.json",
     "scenario-governance-heavy-review.json",
     "scenario-b2b-api-integration.json",
+    "scenario-brief-conflict-grounding.json",
     "scenario-azure-saas-readiness.json",
     "scenario-hallucinated-service.json",
     "scenario-citation-forgery.json",

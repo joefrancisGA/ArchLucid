@@ -43,7 +43,26 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
+      # The pull_request trigger is copy-paste documentation for buyers; this repo
+      # does not wire ARCHLUCID_* secrets/vars by default. Soft-skip instead of
+      # failing every PR (same pattern as trial-funnel-test-mode.yml).
+      - name: Skip when ArchLucid compare inputs are not configured
+        id: gate
+        env:
+          API_BASE: ${{ inputs.api_base_url || vars.ARCHLUCID_API_BASE }}
+          API_TOKEN: ${{ secrets.ARCHLUCID_READONLY_API_KEY }}
+          BASE_RUN_ID: ${{ inputs.base_run_id || vars.ARCHLUCID_BASE_RUN_ID }}
+          TARGET_RUN_ID: ${{ inputs.target_run_id || vars.ARCHLUCID_TARGET_RUN_ID }}
+        run: |
+          if [ -z "${API_BASE:-}" ] || [ -z "${API_TOKEN:-}" ] || [ -z "${BASE_RUN_ID:-}" ] || [ -z "${TARGET_RUN_ID:-}" ]; then
+            echo "::notice::ArchLucid manifest-delta PR comment inputs are not configured — skipping example workflow."
+            echo "skipped=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "skipped=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: ArchLucid manifest delta (sticky PR comment)
+        if: steps.gate.outputs.skipped != 'true'
         uses: ./integrations/github-action-manifest-delta-pr-comment
         with:
           api-base-url: ${{ inputs.api_base_url || vars.ARCHLUCID_API_BASE }}

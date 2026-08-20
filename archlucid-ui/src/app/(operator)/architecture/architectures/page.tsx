@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 
+import { ArchitectureObjectMapStrip } from "@/components/operator/ArchitectureObjectMapStrip";
 import { ArchitectureDraftListClient } from "@/components/architecture/ArchitectureDraftListClient";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
@@ -28,6 +29,7 @@ export default function ArchitecturesListPage(): React.JSX.Element {
         breadcrumb={<ArchitecturesHubBreadcrumb />}
         actions={<ArchitecturesHubHeaderActions />}
       />
+      <ArchitectureObjectMapStrip focus="draft" />
       <ArchitecturesHubBuyerChrome />
       <ArchitectureDraftListClient />
     </OperatorPageContainer>

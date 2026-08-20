@@ -4,12 +4,14 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { GovernanceSealedRecordsListBreadcrumb } from "@/components/governance/GovernanceSealedRecordsListBreadcrumb";
+import { ArchitectureObjectMapStrip } from "@/components/operator/ArchitectureObjectMapStrip";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { OperatorDemoStaticBanner } from "@/components/operator/OperatorDemoStaticBanner";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { OperatorPageFreshnessMetadata } from "@/components/operator/OperatorPageFreshnessMetadata";
 import { SignedRecordsReviewDetailVocabularyRail } from "@/components/SignedRecordsReviewDetailVocabularyRail";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import { WorkspaceScopeEmptyTeaching } from "@/components/WorkspaceScopeEmptyTeaching";
 import { Button } from "@/components/ui/button";
 import { RefreshButton } from "@/components/ui/refresh-button";
 import { getShowcaseManifestHref } from "@/lib/buyer/buyer-safe-review-navigation";
@@ -22,6 +24,7 @@ import { getEffectiveBrowserProxyScopeHeaders } from "@/lib/operator/operator-sc
 import { projectIdFromScopeHeaders } from "@/lib/operator/operator-resource-scope";
 import { areSpineStaticDemoPayloadsAvailable, tryStaticDemoRunSummariesPaged } from "@/lib/operator/operator-static-demo";
 import { operatorFreshnessMetadataWithClockLabel } from "@/lib/operator/operator-last-refreshed-label";
+import { resolveWorkspaceScopeEmptyTeachingForHub } from "@/lib/workspace-scope-empty-teaching";
 import { SIGNED_RECORDS_LIST_PATH } from "@/lib/signed-records-paths";
 import { cn } from "@/lib/utils";
 
@@ -53,6 +56,7 @@ import {
   SignedRecordsListToolbar,
   type SignedRecordsListIntegrityFilter,
 } from "./SignedRecordsListToolbar";
+import { useOperatorScopeRecord } from "@/hooks/use-operator-scope-record";
 import { buildSignedRecordsListRowsFromRuns, type SignedRecordsListRow } from "./signed-records-list-row";
 
 const SIGNED_RECORDS_LIST_PAGE_SIZE = 100;
@@ -74,6 +78,7 @@ export default function SignedRecordsListClient() {
   const [hasMore, setHasMore] = useState(false);
   const [nextCursor, setNextCursor] = useState<string | null>(null);
   const [lastRefreshedAt, setLastRefreshedAt] = useState<Date | null>(null);
+  const scopeRecord = useOperatorScopeRecord();
 
   const loadRows = useCallback(async (request: { readonly page: number; readonly cursor: string }) => {
     setLoading(true);
@@ -211,6 +216,11 @@ export default function SignedRecordsListClient() {
   const showPagination = loadFailure === null && (loading || hasRows || page > 1 || hasMore);
   const showListChrome = loadFailure === null && (loading || hasRows);
   const showcaseSampleAvailable = areSpineStaticDemoPayloadsAvailable();
+  const workspaceScopeTeaching = resolveWorkspaceScopeEmptyTeachingForHub({
+    listEmpty: showEmptyState,
+    scopeRecord,
+    objectPlural: "sealed review records",
+  });
   const freshnessLabel = operatorFreshnessMetadataWithClockLabel({
     prefix: SIGNED_RECORDS_LIST_LAST_REFRESHED_PREFIX,
     lastRefreshedAt: loading ? null : lastRefreshedAt,
@@ -239,6 +249,7 @@ export default function SignedRecordsListClient() {
         breadcrumb={<GovernanceSealedRecordsListBreadcrumb />}
         actions={headerActions}
       />
+      <ArchitectureObjectMapStrip focus="sealed" />
 
       {usedStaticFallback && isOperatorExperienceFullShellEnv() ? (
         <div className="mb-4 max-w-5xl">
@@ -255,21 +266,29 @@ export default function SignedRecordsListClient() {
       ) : null}
 
       {showEmptyState ? (
-        <EnterpriseCompactEmptyState
-          title={SIGNED_RECORDS_LIST_EMPTY_TITLE}
-          description={SIGNED_RECORDS_LIST_EMPTY_BODY}
-          actions={[
-            { label: SIGNED_RECORDS_LIST_EMPTY_PRIMARY_LABEL, href: "/architecture/reviews/new", variant: "primary" },
-            {
-              label: SIGNED_RECORDS_LIST_EMPTY_SECONDARY_LABEL,
-              href: SIGNED_RECORDS_LIST_EMPTY_SECONDARY_HREF,
-              variant: "outline",
-            },
-            ...(showcaseSampleAvailable
-              ? [{ label: SIGNED_RECORDS_LIST_EMPTY_SAMPLE_CTA, href: getShowcaseManifestHref(), variant: "outline" as const }]
-              : []),
-          ]}
-        />
+        workspaceScopeTeaching !== null ? (
+          <WorkspaceScopeEmptyTeaching
+            title={workspaceScopeTeaching.title}
+            body={workspaceScopeTeaching.body}
+            ctaLabel={workspaceScopeTeaching.ctaLabel}
+          />
+        ) : (
+          <EnterpriseCompactEmptyState
+            title={SIGNED_RECORDS_LIST_EMPTY_TITLE}
+            description={SIGNED_RECORDS_LIST_EMPTY_BODY}
+            actions={[
+              { label: SIGNED_RECORDS_LIST_EMPTY_PRIMARY_LABEL, href: "/architecture/reviews/new", variant: "primary" },
+              {
+                label: SIGNED_RECORDS_LIST_EMPTY_SECONDARY_LABEL,
+                href: SIGNED_RECORDS_LIST_EMPTY_SECONDARY_HREF,
+                variant: "outline",
+              },
+              ...(showcaseSampleAvailable
+                ? [{ label: SIGNED_RECORDS_LIST_EMPTY_SAMPLE_CTA, href: getShowcaseManifestHref(), variant: "outline" as const }]
+                : []),
+            ]}
+          />
+        )
       ) : null}
 
       {showListChrome ? (

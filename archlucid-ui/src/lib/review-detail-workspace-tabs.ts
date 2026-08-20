@@ -1,4 +1,5 @@
 import { RUN_DETAIL_SECTION_TAB } from "@/lib/runs/run-detail-section-tab-map";
+import { resolveUnifiedReviewWorkspaceTab, ARCH_TAB_TO_REVIEW_TAB } from "@/lib/unified-review-workspace-tabs";
 
 export const REVIEW_DETAIL_TAB_PARAM = "reviewTab" as const;
 
@@ -43,6 +44,13 @@ export function resolveReviewDetailTab(paramValue: string | null | undefined): R
   }
 
   return REVIEW_DETAIL_DEFAULT_TAB;
+}
+
+export function resolveReviewDetailTabFromLocation(
+  reviewTabValue: string | null | undefined,
+  archTabValue: string | null | undefined,
+): ReviewDetailTabId {
+  return resolveUnifiedReviewWorkspaceTab(reviewTabValue, archTabValue);
 }
 
 export function resolveReviewDetailTabFromHash(hash: string | null | undefined): ReviewDetailTabId | null {
@@ -111,7 +119,10 @@ export function readReviewDetailTabFromWindowLocation(): ReviewDetailTabId {
     return fromHash;
   }
 
-  return resolveReviewDetailTab(new URLSearchParams(window.location.search).get(REVIEW_DETAIL_TAB_PARAM));
+  return resolveReviewDetailTabFromLocation(
+    new URLSearchParams(window.location.search).get(REVIEW_DETAIL_TAB_PARAM),
+    new URLSearchParams(window.location.search).get("archTab"),
+  );
 }
 
 export function readReviewDetailTabFromHref(href: string): ReviewDetailTabId | null {
@@ -124,12 +135,17 @@ export function readReviewDetailTabFromHref(href: string): ReviewDetailTabId | n
     }
 
     const fromParam = url.searchParams.get(REVIEW_DETAIL_TAB_PARAM);
+    const fromArch = url.searchParams.get("archTab");
+    const hasArchTab =
+      fromArch !== null
+      && fromArch.trim().length > 0
+      && (Object.keys(ARCH_TAB_TO_REVIEW_TAB) as readonly string[]).includes(fromArch);
 
-    if (isReviewDetailTabId(fromParam)) {
-      return fromParam;
+    if (!isReviewDetailTabId(fromParam) && !hasArchTab) {
+      return null;
     }
 
-    return null;
+    return resolveReviewDetailTabFromLocation(fromParam, fromArch);
   } catch {
     return null;
   }

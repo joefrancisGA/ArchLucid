@@ -65,7 +65,7 @@ public sealed class WeeklySponsorSummaryEmailDispatcher(
             LogoImageUrl = EmailBrandingUrls.TryBuildLogoImageUrl(operatorBase)
         };
 
-        string idempotencyKey = $"weekly-sponsor-report:{tenantId:N}:{isoWeekIdempotencyKey}";
+        string idempotencyKey = $"weekly-sponsor-summary:{tenantId:N}:{isoWeekIdempotencyKey}";
         SentEmailLedgerEntry ledgerEntry = new(idempotencyKey, tenantId, TemplateId, _emailProvider.ProviderName, null);
         bool reserved = await _sentEmailLedger.TryRecordSentAsync(ledgerEntry, cancellationToken);
 
@@ -88,7 +88,7 @@ public sealed class WeeklySponsorSummaryEmailDispatcher(
                 HtmlBody = html,
                 TextBody = text,
                 IdempotencyKey = idempotencyKey + ":" + mailbox.Trim(),
-                Tags = new EmailMessageTags { TenantId = tenantId, EventType = "weekly-sponsor-report" }
+                Tags = new EmailMessageTags { TenantId = tenantId, EventType = "weekly-sponsor-summary" }
             };
 
             try

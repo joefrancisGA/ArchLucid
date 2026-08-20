@@ -686,6 +686,21 @@ Headline counts on golden-path surfaces must be **self-describing** and **click-
 
 ---
 
+## Attention taxonomy (TB-2353)
+
+Home, nav badges, and review queues use **four attention kinds** — do not invent a fifth inbox without owner review:
+
+| Kind | Label | Example surfaces |
+| --- | --- | --- |
+| `unfinished-work` | Unfinished work | `UnfinishedWorkRail`, stickiness cockpit, reviews `"needs-attention"` groups |
+| `assigned-to-me` | Assigned to me | Assigned findings count / governance assigned queue |
+| `alerts` | Alerts | Alerts, notifications, digests nav |
+| `awaiting-approval` | Awaiting approval | `GovernanceReviewsAwaitingNavBadge`, governance approval queue |
+
+Canonical labels live in `operator-attention-taxonomy.ts`. New attention surfaces must map to one kind in that inventory test.
+
+---
+
 ## Cross-references
 
 - Backlog items: `docs/library/TECH_BACKLOG.md` **TB-114 – TB-120**, **TB-143 – TB-148** (in-app documentation presentation)

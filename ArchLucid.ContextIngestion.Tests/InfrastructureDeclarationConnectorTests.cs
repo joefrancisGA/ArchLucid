@@ -76,4 +76,49 @@ public sealed class InfrastructureDeclarationConnectorTests
         parser.Verify(p => p.ParseAsync(It.IsAny<InfrastructureDeclarationReference>(), It.IsAny<CancellationToken>()),
             Times.Once);
     }
+
+    [Fact]
+    public async Task DeltaAsync_MultipleResourcesInSameDeclaration_CountsEachResource()
+    {
+        InfrastructureDeclarationConnector connector = new(
+            new InfrastructureDeclarationsPayloadExtractor(),
+            new InfrastructureDeclarationsPayloadNormalizer([]),
+            new SetDiffConnectorDeltaComputer());
+
+        NormalizedContextBatch previousBatch = new();
+        previousBatch.CanonicalObjects.Add(MakeInfraResource("decl-1", "hub-vnet", "vnet"));
+        previousBatch.CanonicalObjects.Add(MakeInfraResource("decl-1", "hub-subnet", "subnet"));
+
+        ContextSnapshot previous = new()
+        {
+            SnapshotId = Guid.NewGuid(),
+            RunId = Guid.NewGuid(),
+            ProjectId = "p",
+            CanonicalObjects = previousBatch.CanonicalObjects,
+        };
+
+        NormalizedContextBatch currentBatch = new();
+        currentBatch.CanonicalObjects.Add(MakeInfraResource("decl-1", "hub-vnet", "vnet"));
+        currentBatch.CanonicalObjects.Add(MakeInfraResource("decl-1", "hub-subnet", "subnet"));
+        currentBatch.CanonicalObjects.Add(MakeInfraResource("decl-1", "storage-acct", "storage"));
+
+        ContextDelta delta = await connector.DeltaAsync(currentBatch, previous, CancellationToken.None);
+
+        delta.AddedCount.Should().Be(1, "storage-acct is new within the same declaration");
+        delta.UnchangedCount.Should().Be(2, "hub-vnet and hub-subnet are unchanged");
+        delta.RemovedCount.Should().Be(0);
+    }
+
+    private static CanonicalObject MakeInfraResource(string declarationId, string name, string resourceType)
+        => new()
+        {
+            ObjectType = "TopologyResource",
+            Name = name,
+            SourceType = "InfrastructureDeclaration",
+            SourceId = declarationId,
+            Properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["resourceType"] = resourceType,
+            },
+        };
 }

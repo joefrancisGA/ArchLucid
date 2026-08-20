@@ -1,9 +1,6 @@
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
-/** Canonical buyer trust-center markdown (TB-737). Other copies are pointer stubs only. */
-export const TRUST_CENTER_CANONICAL_MARKDOWN_RELATIVE_PATH = "docs/go-to-market/trust-center.md" as const;
-
 const LAST_REVIEWED_PATTERN = /<!--\s*TRUST_CENTER_LAST_REVIEWED_UTC:([^>]+)\s*-->/;
 
 /**

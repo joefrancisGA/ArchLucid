@@ -13,6 +13,7 @@ import { useOperatorStickinessSnapshotQuery } from "@/hooks/use-operator-stickin
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
 import { formatInstantForLocale } from "@/lib/locale-datetime";
+import { REVIEW_LIFECYCLE_FINALIZED_STATE_LABEL } from "@/lib/vocabulary/review-lifecycle-verb-map";
 
 /**
  * Customer-success stickiness cockpit: funnel + habit metrics with links to next actions.
@@ -77,7 +78,8 @@ export function OperatorStickinessSnapshotCard(): ReactElement | null {
           </CardHeader>
           <CardContent className={cn("space-y-1 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
             <p className="m-0 tabular-nums">
-              <span className="font-medium">{funnel.committedRunsInScope}</span> committed ·{" "}
+              <span className="font-medium">{funnel.committedRunsInScope}</span>{" "}
+              {REVIEW_LIFECYCLE_FINALIZED_STATE_LABEL.toLowerCase()} ·{" "}
               <span className="font-medium">{funnel.totalRunsInScope}</span> total
             </p>
             {data.latestRunId ? (

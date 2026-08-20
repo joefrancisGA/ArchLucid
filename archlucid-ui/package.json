@@ -19,6 +19,8 @@
     "build": "npm run build:api-types && npm run sync:glossary && npm run generate:pricing && npm run build:help-index && npm run build:docs-pdf && npm run clean:next-export && next build",
     "build:analyze": "pwsh -NoProfile -Command \"$env:ANALYZE='1'; npm run build\"",
     "check:first-load-js": "node ./scripts/first-load-js-baseline.mjs check",
+    "check:operator-home-proxy-trace": "node ./scripts/operator-home-startup-proxy-trace.mjs check",
+    "write:operator-home-proxy-trace-baseline": "node ./scripts/operator-home-startup-proxy-trace.mjs write-baseline",
     "lighthouse:ci": "node ./scripts/run-lighthouse-ci.mjs",
     "lighthouse:acceptance": "node ./scripts/run-lighthouse-acceptance.mjs",
     "write:first-load-js-baseline": "node ./scripts/first-load-js-baseline.mjs write-baseline",

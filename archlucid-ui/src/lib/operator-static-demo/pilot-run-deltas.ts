@@ -18,7 +18,6 @@ export function tryStaticDemoPilotRunDeltas(runId: string): PilotRunDeltasProofS
 
   return {
     isDemoTenant: true,
-    structuralExecutionMode: "Simulator",
     proofPackageCompleteness: {
       sponsorProofReadiness: "DemoOnly",
       demoTenantWarningRequired: true,

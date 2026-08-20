@@ -24,10 +24,23 @@ export type ProofPackageCompletenessJson = {
   readonly llmCallCountResolved?: boolean;
 };
 
+export type GovernedFindingCoverageJson = {
+  readonly isAvailable?: boolean;
+  readonly governedCount?: number;
+  readonly totalDecisionGradeCount?: number;
+  readonly governedPercentage?: number | null;
+  readonly advisoryCount?: number;
+};
+
 export type PilotRunDeltasProofSummaryJson = {
   readonly isDemoTenant?: boolean;
   readonly estimatedUsdSavings?: number | null;
   readonly proofPackageCompleteness?: ProofPackageCompletenessJson | null;
+  readonly structuralExecutionMode?: string | number | null;
+  readonly realModeFellBackToSimulator?: boolean;
+  readonly governedFindingCoverage?: GovernedFindingCoverageJson | null;
+  readonly roiSourceFreshnessDisposition?: string;
+  readonly roiMetricSources?: readonly unknown[];
 };
 
 export type SponsorProofReadinessCopy = {

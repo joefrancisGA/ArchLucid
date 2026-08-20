@@ -57,6 +57,7 @@ import { usePatternLibraryNavVisible } from "@/hooks/use-pattern-library-nav-vis
 import { CommandPaletteRecentViewsGroup } from "@/components/usability/CommandPaletteRecentViewsGroup";
 import { CommandPaletteSidebarVocabularyRail } from "@/components/CommandPaletteSidebarVocabularyRail";
 import { stampRouteReferrer } from "@/lib/operator/operator-navigation-referrer";
+import { GLOBAL_FIND_PAGE_SEARCH } from "@/lib/search-surface-disambiguation";
 import { OPEN_COMMAND_PALETTE_EVENT, SHORTCUTS } from "@/lib/shortcut-registry";
 
 const RUN_ID_LIKE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -586,7 +587,7 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
       return "Jump to sponsor report, graph, governance…";
     }
 
-    return "Find another page in this review…";
+    return GLOBAL_FIND_PAGE_SEARCH.placeholder;
   }, [pathname]);
 
   return (

@@ -69,3 +69,28 @@ This measures wall-clock time from request creation through real LLM-powered ana
 **Local trace gate:** after a deploy that touches these surfaces, capture a Performance recording on graph pan/zoom and compare diff expand; no interaction long task should exceed **200 ms** on a mid-tier laptop. Field Web Vitals (Done **TB-2031**) remain the authoritative INP trend — target **−100 to −300 ms** INP improvement on these routes when field data is available.
 
 **Contract tests:** `archlucid-ui/src/lib/workers/inp-offload-*.test.ts`.
+
+---
+
+## Operator home startup proxy trace (TB-2304)
+
+**Scope:** Browser `GET` calls through the Next.js UI proxy on operator home (`/`) cold start — not RSC/server fetches or production RUM.
+
+| Metric | Budget | Committed baseline |
+|--------|--------|-------------------|
+| Total proxy GETs (cold `/`) | ≤ 5 (+2 tolerance) | `archlucid-ui/performance/operator-home-startup-proxy-trace-baseline.v1.json` |
+| `GET /v1/operator/shell-status` | exactly 1 | same |
+| `GET /v1/user/preferences` | ≤ 1 | same (pairs **TB-2303**) |
+| Duplicate shell-status concern GETs | 0 | `shellStatusHydratedPaths` in baseline JSON |
+| **TB-2302** bootstrap mega-bundle | **no-go** | Documented in baseline + [`operator_home_startup_proxy_trace_tb2304.md`](../architecture/operator_home_startup_proxy_trace_tb2304.md) |
+
+**Check (fixture or fresh capture):**
+
+```bash
+cd archlucid-ui
+npm run check:operator-home-proxy-trace -- --trace scripts/fixtures/operator-home-startup-proxy-trace.pass.v1.json
+```
+
+**Drift guards:** `operator-home-startup-proxy-trace.test.ts`, `operator-shell-status-concern-gate-drift-guard.test.ts`.
+
+**Last measured:** **2026-08-19** — engineering baseline from post shell-status architecture (3 GET pass fixture); refresh with `scripts/dev/capture-operator-home-proxy-trace.ps1` after material home changes.

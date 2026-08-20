@@ -15,6 +15,7 @@ Curated zones covering the full product surface (API, persistence, UI, CLI, orch
    - **Dry:** increment `hunts` and `consecutive-dry-hunts`; set `last-hunt` to today; tick attempted hunt-ready rows as `(valid-no-repro)` or `(invalid)`. Do not invent another bug in the same files.
    - **Seed-only:** increment `hunts`; set `last-hunt`; set `status` to `open`; do **not** increment `consecutive-dry-hunts`. Promote or retire candidates. Do not refill with three harm-class templates.
    - **Reopened:** when JSON `reopened` is `true`, set `status` back to `open`.
+4. Record the outcome and print rolling 24h yield: `.\scripts\agent\al-bug-rolling-stats.ps1 -RecordHunt -HuntZoneId '<id>' -HuntOutcome hit|dry|seed-only -Rolling24h`. Commit `docs/library/AL_BUG_HUNT_RUN_LOG.jsonl` with the ledger update.
 
 ### Zone status
 
@@ -1484,96 +1485,100 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ## Zone: knowledge-graph-provenance
 
 - **id:** knowledge-graph-provenance
-- **status:** unseeded
+- **status:** open
 - **impact:** medium
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 0
-- **bugs-found:** 0
+- **hunts:** 2
+- **bugs-found:** 2
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **last-hunt:** 2026-08-19
+- **last-bug:** 2026-08-19
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
 ### Hypotheses
 
-- [ ] (candidate) Graph merge links a node to provenance from another tenant
-- [ ] (candidate) Lineage query traverses into a sibling tenantÃ¢â‚¬â„¢s artifact store
-- [ ] (candidate) Provenance record is written without workspace scope
+- [x] (invalid) Graph merge links a node to provenance from another tenant — `DefaultGraphBuilder` / `ProvenanceBuilder` build from a single scoped snapshot; tenant isolation is repository/query scope, not a merge defect in these files
+- [x] (invalid) Lineage query traverses into a sibling tenant's artifact store — `ArchLucid.Provenance` query/build paths do not open cross-tenant artifact stores; persistence uses `ScopeContext` on snapshot reads/writes
+- [x] (invalid) Provenance record is written without workspace scope — `SqlProvenanceSnapshotRepository` and `ProvenanceGraphAccessService` persist/query with `TenantId` + `WorkspaceId` + `ProjectId`
+- [x] (proven) Topology projected-spend enrichment overwrites parsed constraint spend when property keys use non-canonical casing — **hit 2026-08-19:** `CostConstraintProjectedSpendEnricher.HasProjectedSpend` used case-sensitive `ContainsKey` while deserialized `GraphNode.Properties` can use PascalCase keys
+- [x] (proven) Topology cost projection under-scales when instance-count property keys use PascalCase — **hit 2026-08-19:** `GraphTopologyInfrastructureCostNodes.ReadProperty` used case-sensitive `TryGetValue`, so `InstanceCount` on deserialized nodes defaulted quantity to 1
 
 ---
 
 ## Zone: notifications-pipeline
 
 - **id:** notifications-pipeline
-- **status:** unseeded
+- **status:** open
 - **impact:** medium
 - **aliases:** notifications; email dispatchers beyond weekly summary
 - **paths:** ArchLucid.Notifications/; ArchLucid.Application/Notifications/
 - **test-filter:** FullyQualifiedName~Notifications|FullyQualifiedName~EmailDispatcher
-- **hunts:** 0
-- **bugs-found:** 0
+- **hunts:** 1
+- **bugs-found:** 1
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **last-hunt:** 2026-08-19
+- **last-bug:** 2026-08-19
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
 ### Hypotheses
 
-- [ ] (candidate) Dispatcher sends to recipients outside the tenant membership list
-- [ ] (candidate) Template render includes another userÃ¢â‚¬â„¢s email in the body
-- [ ] (candidate) Send failure is treated as success and suppresses retry
+- [x] (invalid) Dispatcher sends to recipients outside the tenant membership list — no membership-validation locus in zone; callers supply mailboxes
+- [x] (invalid) Template render includes another user's email in the body — zone Razor models carry URLs/metadata only, no cross-user mailbox fields
+- [x] (invalid) Send failure is treated as success and suppresses retry — post-reservation ledger block is documented intentional (TB-089 / EMAIL_NOTIFICATIONS.md)
+- [x] (proven) Weekly sponsor summary and report dispatchers share one idempotency key — **hit 2026-08-19:** `WeeklySponsorSummaryEmailDispatcher` reused `weekly-sponsor-report:{tenant}:{isoWeek}` so the summary email was skipped when the report sent first in the same ISO week
 
 ---
 
 ## Zone: artifact-synthesis
 
 - **id:** artifact-synthesis
-- **status:** unseeded
+- **status:** open
 - **impact:** medium
 - **aliases:** artifact synthesis; docx generator; packaging sanitization
 - **paths:** ArchLucid.ArtifactSynthesis/
 - **test-filter:** FullyQualifiedName~ArtifactSynthesis|FullyQualifiedName~Docx
-- **hunts:** 0
+- **hunts:** 1
 - **bugs-found:** 0
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
+- **last-hunt:** 2026-08-19
 - **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
 ### Hypotheses
 
-- [ ] (candidate) Generated document embeds unsanitized user HTML/script
-- [ ] (candidate) Packager includes artifacts from a run outside the requested scope
-- [ ] (candidate) Validation passes when required manifest hash is missing
+- [x] (invalid) Generated document embeds unsanitized user HTML/script — `LlmArtifactFreeTextSanitizer` and `WordDocumentBuilder` emit plain OpenXML text nodes (control/bidi strip only); DOCX does not execute embedded markup as script
+- [x] (invalid) Packager includes artifacts from a run outside the requested scope — `ArtifactPackagingService` only zips the `artifacts` list passed by the caller; no cross-run artifact selection locus in this zone
+- [x] (invalid) Validation passes when required manifest hash is missing — `ExportManifestBuilder` intentionally writes empty `committedManifestHash` when `RunExportReadmeContext.ManifestHash` is absent; `ArtifactBundleValidator` does not model manifest-hash enforcement (see `ArtifactPackagingServiceExportManifestTests`)
 
 ---
 
 ## Zone: host-composition
 
 - **id:** host-composition
-- **status:** unseeded
+- **status:** open
 - **impact:** medium
 - **aliases:** host composition; DI registration; startup modules
 - **paths:** ArchLucid.Host.Composition/
 - **test-filter:** FullyQualifiedName~Host.Composition|FullyQualifiedName~ServiceCollectionExtensions
-- **hunts:** 0
-- **bugs-found:** 0
+- **hunts:** 1
+- **bugs-found:** 1
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **last-hunt:** 2026-08-19
+- **last-bug:** 2026-08-19
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
 ### Hypotheses
 
-- [ ] (candidate) Singleton service caches the first request tenant for the process lifetime
-- [ ] (candidate) Optional security service is not registered in production configuration
-- [ ] (candidate) Composition registers two implementations for the same tenant-scoped interface
+- [x] (invalid) Singleton service caches the first request tenant for the process lifetime — `CachingGovernanceDashboardService` keys cache entries with `HotPathCacheKeys.GovernanceDashboard(scope, tenantId, …)` per request scope
+- [x] (invalid) Optional security service is not registered in production configuration — harm-class template; no single missing-security locus identified in composition partials
+- [x] (invalid) Composition registers two implementations for the same tenant-scoped interface — `ISponsorReportRecipientLookup` is registered in both weekly modules with the same implementation type; MS.DI last registration wins without functional divergence
+- [x] (proven) Weekly sponsor summary pipeline never wired into composition root — **hit 2026-08-19:** `RegisterWeeklySponsorSummaryServices` / worker infrastructure existed but were not called from `AddArchLucidApplicationServices`, so `IWeeklySponsorSummaryEmailDispatcher` was absent from DI
 
 ---
 

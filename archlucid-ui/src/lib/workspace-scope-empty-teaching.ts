@@ -91,9 +91,60 @@ export function resolveWorkspaceScopeEmptyTeachingScopeLabel(
 export function buildReviewsHubWorkspaceScopeEmptyTeaching(
   record: OperatorScopeRecord | null,
 ): WorkspaceScopeEmptyTeachingCopy {
+  return buildHubWorkspaceScopeEmptyTeaching(record, "reviews");
+}
+
+export function buildArchitecturesHubWorkspaceScopeEmptyTeaching(
+  record: OperatorScopeRecord | null,
+): WorkspaceScopeEmptyTeachingCopy {
+  return buildHubWorkspaceScopeEmptyTeaching(record, "architecture drafts");
+}
+
+export function buildSignedRecordsHubWorkspaceScopeEmptyTeaching(
+  record: OperatorScopeRecord | null,
+): WorkspaceScopeEmptyTeachingCopy {
+  return buildHubWorkspaceScopeEmptyTeaching(record, "sealed review records");
+}
+
+export function buildGovernanceFindingsHubWorkspaceScopeEmptyTeaching(
+  record: OperatorScopeRecord | null,
+): WorkspaceScopeEmptyTeachingCopy {
+  return buildHubWorkspaceScopeEmptyTeaching(record, "findings");
+}
+
+export function buildAlertsInboxWorkspaceScopeEmptyTeaching(
+  record: OperatorScopeRecord | null,
+): WorkspaceScopeEmptyTeachingCopy {
+  return buildHubWorkspaceScopeEmptyTeaching(record, "alerts");
+}
+
+/**
+ * Returns scope-empty teaching copy when the hub list is empty under a non-default project
+ * selection; otherwise null so the hub keeps its true-zero empty preset.
+ */
+export function resolveWorkspaceScopeEmptyTeachingForHub(args: {
+  readonly listEmpty: boolean;
+  readonly scopeRecord: OperatorScopeRecord | null;
+  readonly objectPlural: string;
+}): WorkspaceScopeEmptyTeachingCopy | null {
+  if (!shouldShowWorkspaceScopeEmptyTeaching({ listEmpty: args.listEmpty, scopeRecord: args.scopeRecord })) {
+    return null;
+  }
+
+  return buildWorkspaceScopeEmptyTeaching({
+    scopeLabel: resolveWorkspaceScopeEmptyTeachingScopeLabel(args.scopeRecord),
+    objectPlural: args.objectPlural,
+    switcherHint: WORKSPACE_SCOPE_EMPTY_TEACHING_DEFAULT_SWITCHER_HINT,
+  });
+}
+
+function buildHubWorkspaceScopeEmptyTeaching(
+  record: OperatorScopeRecord | null,
+  objectPlural: string,
+): WorkspaceScopeEmptyTeachingCopy {
   return buildWorkspaceScopeEmptyTeaching({
     scopeLabel: resolveWorkspaceScopeEmptyTeachingScopeLabel(record),
-    objectPlural: "reviews",
+    objectPlural,
     switcherHint: WORKSPACE_SCOPE_EMPTY_TEACHING_DEFAULT_SWITCHER_HINT,
   });
 }

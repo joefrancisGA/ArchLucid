@@ -4,9 +4,8 @@
  * Why two surfaces exist:
  * - Ask review questions (`/insights/ask-review-questions`) answers questions
  *   about a finalized review and cites evidence from the sealed review record.
- * - Architecture intelligence (`/architecture/architecture-intelligence`) runs
- *   closed-loop architecture reasoning or the golden regression harness against
- *   a free-form description.
+ * - Try another reasoning pass (`/architecture/architecture-intelligence`) explores
+ *   alternative architecture conclusions from a free-form description.
  *
  * They stay separate because Q&A on a signed review is not the same task as
  * running closed-loop architecture reasoning. Distinct from Ask ≠ Search
@@ -36,13 +35,13 @@ export type AskArchitectureIntelligenceVocabularyModel = {
 };
 
 export const ASK_ARCHITECTURE_INTELLIGENCE_HEADING =
-  "Ask review questions and Architecture intelligence serve different purposes" as const;
+  "Ask review questions and Try another reasoning pass serve different purposes" as const;
 
 export const ASK_ARCHITECTURE_INTELLIGENCE_WHY_TWO =
-  "Ask review questions answers questions about a finalized review and cites evidence from the sealed review record. Architecture intelligence runs closed-loop architecture reasoning or the golden regression harness against a free-form description. Asking about a signed review is not the same as running closed-loop reasoning." as const;
+  "Ask review questions answers questions about a finalized review and cites evidence from the sealed review record. Try another reasoning pass explores alternative architecture conclusions from a free-form description — not Q&A on a signed review." as const;
 
 export const ASK_ARCHITECTURE_INTELLIGENCE_COMPACT_LINE =
-  "Ask review questions is Q&A on a signed review; Architecture intelligence runs closed-loop reasoning." as const;
+  "Ask review questions is Q&A on a signed review; Try another reasoning pass is an exploratory reasoning tool." as const;
 
 export const ASK_ARCHITECTURE_INTELLIGENCE_ASK_LINK: AskArchitectureIntelligenceLink = {
   id: "ask-review-questions",
@@ -53,10 +52,10 @@ export const ASK_ARCHITECTURE_INTELLIGENCE_ASK_LINK: AskArchitectureIntelligence
 
 export const ASK_ARCHITECTURE_INTELLIGENCE_INTELLIGENCE_LINK: AskArchitectureIntelligenceLink = {
   id: "architecture-intelligence",
-  label: "Architecture intelligence",
+  label: "Try another reasoning pass",
   href: ARCHITECTURE_INTELLIGENCE_PATH,
   whenToUse:
-    "Open from a linked review, draft refine, or findings action to run closed-loop reasoning or the golden harness.",
+    "Open from a linked review, draft refine, or findings action to explore an alternative reasoning pass.",
 };
 
 /** Full vocabulary model (heading, why-two copy, and deep links). */

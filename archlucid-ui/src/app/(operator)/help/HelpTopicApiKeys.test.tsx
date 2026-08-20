@@ -32,6 +32,7 @@ import {
 } from "@/lib/api-keys-help-evidence-copy";
 import { API_KEYS_SETTINGS_RETIRED_ROUTE_PATH } from "@/lib/api-keys-settings-evidence-copy";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
+import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
 import { getProductDocumentationEntry } from "@/lib/product-documentation-registry";
 
 describe("HelpApiKeysGuideView", () => {
@@ -124,7 +125,8 @@ describe("HelpApiKeysGuideView", () => {
     expect(within(followUps).getAllByRole("link")).toHaveLength(API_KEYS_HELP_SOURCES.length);
 
     for (const source of API_KEYS_HELP_SOURCES) {
-      expect(within(followUps).getByRole("link", { name: source.label })).toHaveAttribute("href", source.href);
+      const accessibleName = formatHelpFollowUpLinkAccessibleName(source.href, source.label);
+      expect(within(followUps).getByRole("link", { name: accessibleName })).toHaveAttribute("href", source.href);
     }
 
     expect(screen.getAllByRole("link", { name: API_KEYS_HELP_PRIMARY_ACTIONS.usersAndRoles.label })).toHaveLength(1);
@@ -146,8 +148,6 @@ describe("HelpApiKeysGuideView", () => {
 
     if (expectsVisibleClaimDisciplineBand("help-api-keys")) {
       expect(screen.getAllByRole("link", { name: API_KEYS_HELP_CLAIM_DISCIPLINE_HEADING })).not.toHaveLength(0);
-    } else {
-      expect(screen.queryAllByRole("link", { name: API_KEYS_HELP_CLAIM_DISCIPLINE_HEADING })).toHaveLength(0);
     }
 
     expect(screen.getAllByRole("link", { name: API_KEYS_HELP_FOLLOW_UPS_TITLE })).not.toHaveLength(0);

@@ -72,13 +72,16 @@ public sealed class FindingsSnapshotEvaluationConfidenceEnricher(
             IReadOnlyList<AgentExecutionTrace> traces =
                 await _traceRepository.GetByRunIdAsync(scope, runKey, cancellationToken);
 
-            Dictionary<AgentType, AgentExecutionTrace> traceByAgentType = traces
+            IReadOnlyList<AgentExecutionTrace> latestTraces =
+                AgentExecutionTraceLatestPerTaskSelector.Select(traces);
+
+            Dictionary<AgentType, AgentExecutionTrace> traceByAgentType = latestTraces
                 .GroupBy(static t => t.AgentType)
                 .ToDictionary(static g => g.Key, static g => g.First());
 
             foreach (Finding finding in snapshot.Findings)
             {
-                AgentExecutionTrace? trace = ResolveTraceForFinding(finding, traces, traceByAgentType);
+                AgentExecutionTrace? trace = ResolveTraceForFinding(finding, latestTraces, traceByAgentType);
 
                 bool schemaPassed = trace is not null &&
                                     await AgentOutputTraceQualityEvaluator.ComputeQualityGateAcceptedForConfidenceAsync(

@@ -5,8 +5,13 @@ import { DEV_SCOPE_PROJECT_ID, DEV_SCOPE_TENANT_ID, DEV_SCOPE_WORKSPACE_ID } fro
 import {
   WORKSPACE_SCOPE_EMPTY_TEACHING_CTA_LABEL,
   WORKSPACE_SCOPE_EMPTY_TEACHING_DEFAULT_SWITCHER_HINT,
+  buildAlertsInboxWorkspaceScopeEmptyTeaching,
+  buildArchitecturesHubWorkspaceScopeEmptyTeaching,
+  buildGovernanceFindingsHubWorkspaceScopeEmptyTeaching,
   buildReviewsHubWorkspaceScopeEmptyTeaching,
+  buildSignedRecordsHubWorkspaceScopeEmptyTeaching,
   buildWorkspaceScopeEmptyTeaching,
+  resolveWorkspaceScopeEmptyTeachingForHub,
   resolveWorkspaceScopeEmptyTeachingScopeLabel,
   shouldShowWorkspaceScopeEmptyTeaching,
 } from "@/lib/workspace-scope-empty-teaching";
@@ -111,5 +116,46 @@ describe("buildReviewsHubWorkspaceScopeEmptyTeaching", () => {
 
     expect(copy.title).toBe("No reviews in Payments");
     expect(copy.body).toBe(WORKSPACE_SCOPE_EMPTY_TEACHING_DEFAULT_SWITCHER_HINT);
+  });
+});
+
+describe("hub workspace scope empty teaching builders (TB-2387)", () => {
+  const scopedRecord = record({
+    workspaceId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+    projectId: "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+    projectLabel: "Payments",
+  });
+
+  it("names object plurals per hub", () => {
+    expect(buildArchitecturesHubWorkspaceScopeEmptyTeaching(scopedRecord).title).toBe(
+      "No architecture drafts in Payments",
+    );
+    expect(buildSignedRecordsHubWorkspaceScopeEmptyTeaching(scopedRecord).title).toBe(
+      "No sealed review records in Payments",
+    );
+    expect(buildGovernanceFindingsHubWorkspaceScopeEmptyTeaching(scopedRecord).title).toBe(
+      "No findings in Payments",
+    );
+    expect(buildAlertsInboxWorkspaceScopeEmptyTeaching(scopedRecord).title).toBe("No alerts in Payments");
+  });
+
+  it("resolveWorkspaceScopeEmptyTeachingForHub returns null for dev-default scope", () => {
+    expect(
+      resolveWorkspaceScopeEmptyTeachingForHub({
+        listEmpty: true,
+        scopeRecord: record(),
+        objectPlural: "findings",
+      }),
+    ).toBeNull();
+  });
+
+  it("resolveWorkspaceScopeEmptyTeachingForHub returns copy for scoped empty lists", () => {
+    const copy = resolveWorkspaceScopeEmptyTeachingForHub({
+      listEmpty: true,
+      scopeRecord: scopedRecord,
+      objectPlural: "findings",
+    });
+
+    expect(copy?.title).toBe("No findings in Payments");
   });
 });

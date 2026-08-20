@@ -1,4 +1,5 @@
 import { StatusTag } from "@/components/ui/status-tag";
+import type { EnterpriseStatusKind } from "@/lib/design-tokens";
 import type { AwsPermissionRequirementLabel } from "@/lib/aws-cloud-connection-permissions-manifest";
 import { formatAwsPermissionRequirementLabel } from "@/lib/aws-cloud-connection-permissions-manifest";
 
@@ -8,10 +9,10 @@ type CloudConnectionPermissionRequirementStatusCellProps = {
 
 function mapAwsPermissionRequirementToTagKind(
   requirement: AwsPermissionRequirementLabel,
-): "success" | "neutral" | "needs-attention" {
+): EnterpriseStatusKind {
   switch (requirement) {
     case "required":
-      return "success";
+      return "ready";
     case "optional":
       return "neutral";
     case "conditional":

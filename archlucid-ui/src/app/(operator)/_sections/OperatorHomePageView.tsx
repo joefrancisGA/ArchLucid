@@ -75,11 +75,11 @@ function BuyerPolishedHomePageBody(props: { readonly model: OperatorHomePageView
 
       <BuyerPolishedHomeHeroSectionDeferred runsDashboard={props.model.runsDashboard} />
 
-      <OperatorHomeStickinessCockpitDeferred />
-
       <HomeRecentReviewsSection model={props.model} />
 
       <OperatorHomeBelowFoldPanelsDeferred buyerPolishedShell model={props.model} />
+
+      <OperatorHomeStickinessCockpitDeferred />
 
       <OperatorHomeSponsorRoiStripDeferred />
 
@@ -116,8 +116,6 @@ function OperatorHomePageBody(props: { readonly model: OperatorHomePageViewModel
 
       </section>
 
-      <OperatorHomeStickinessCockpitDeferred />
-
       <HomeRecentReviewsSection model={props.model} />
 
       <OperatorHomeBelowFoldPanelsDeferred
@@ -125,6 +123,8 @@ function OperatorHomePageBody(props: { readonly model: OperatorHomePageViewModel
         model={props.model}
         showFirstValueCallout
       />
+
+      <OperatorHomeStickinessCockpitDeferred />
 
       <OperatorHomeSponsorRoiStripDeferred />
 

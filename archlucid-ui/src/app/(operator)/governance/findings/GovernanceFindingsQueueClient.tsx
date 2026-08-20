@@ -21,6 +21,7 @@ import { GovernanceFindingsRelatedQueuesDisclosure } from "@/components/governan
 import { RiskExceptionsFindingsVocabularyRail } from "@/components/RiskExceptionsFindingsVocabularyRail";
 import { PageCapabilityBoundaryStrip } from "@/components/PageCapabilityBoundaryStrip";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import { WorkspaceScopeEmptyTeaching } from "@/components/WorkspaceScopeEmptyTeaching";
 import { GovernanceFindingsFilterBar } from "@/components/governance/findings/GovernanceFindingsFilterBar";
 import { GovernanceFindingsQueueActiveFilterChips } from "@/components/governance/findings/GovernanceFindingsQueueActiveFilterChips";
 import { GovernanceFindingsList } from "@/components/governance/findings/GovernanceFindingsList";
@@ -33,6 +34,7 @@ import { useGovernanceFindingsQuery } from "@/components/governance/findings/use
 import { useAssignedToMeFindingsQuery } from "@/components/governance/findings/use-assigned-to-me-findings-query";
 import { useAssignedToMeFindingsCountQuery } from "@/hooks/use-assigned-to-me-findings-count-query";
 import { useOperatorScopeQueryKey } from "@/hooks/use-operator-scope-query-key";
+import { useOperatorScopeRecord } from "@/hooks/use-operator-scope-record";
 import {
   ARCHITECTURE_RISK_REGISTER_EMPTY_BODY,
   ARCHITECTURE_RISK_REGISTER_EMPTY_TITLE,
@@ -56,6 +58,7 @@ import {
   GOVERNANCE_FINDINGS_SKIP_LINK_LABEL,
 } from "@/lib/governance-findings-page-copy";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
+import { resolveWorkspaceScopeEmptyTeachingForHub } from "@/lib/workspace-scope-empty-teaching";
 import { hasGovernanceApprovalProvenance } from "@/lib/governance/governance-approval-provenance";
 import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
@@ -137,6 +140,7 @@ export default function GovernanceFindingsQueueClient({
   const isAssignedToMe = mode === "assigned-to-me";
   const { currentPrincipal } = useOperatorNavAuthority();
   const scopeKey = useOperatorScopeQueryKey();
+  const scopeRecord = useOperatorScopeRecord();
   const assignedToMeWorkspaceLabel = useMemo(() => resolveGovernanceAssignedToMeWorkspaceLabel(), [scopeKey.workspaceId]);
   const tenantQuery = useGovernanceFindingsQuery(!isAssignedToMe);
   const assignedToMeQuery = useAssignedToMeFindingsQuery(isAssignedToMe);
@@ -222,6 +226,15 @@ export default function GovernanceFindingsQueueClient({
   }, [mode, setRegisterFilter]);
 
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const scopedRunFilterActive = scopedRunId !== null && scopedRunId.trim().length > 0;
+  const workspaceScopeTeaching =
+    !isAssignedToMe &&
+    !scopedRunFilterActive &&
+    resolveWorkspaceScopeEmptyTeachingForHub({
+      listEmpty: !loading && rows.length === 0 && !loadFailed,
+      scopeRecord,
+      objectPlural: "findings",
+    });
   const filterBarVisible = !buyerPolishedShell && !loading && rows.length > 0;
   const effectiveJobView = resolveEffectiveFindingJobView(jobView, filterBarVisible);
   const jobViewFilterActive = filterBarVisible && jobView !== DEFAULT_FINDING_JOB_VIEW;
@@ -463,7 +476,9 @@ export default function GovernanceFindingsQueueClient({
       {!isAssignedToMe ? (
         <GovernanceJobRouterStrip currentJobId={currentJobId} layout="default" />
       ) : null}
-      {!isAssignedToMe && buyerPolishedShell ? <GovernanceFindingsBuyerChrome /> : null}
+      {!isAssignedToMe && buyerPolishedShell ? (
+        <GovernanceFindingsBuyerChrome scopedRunId={scopedRunId} />
+      ) : null}
       {!isAssignedToMe && !buyerPolishedShell ? (
         <>
           <AlertsFindingsVocabularyRail currentSurfaceId="findings-queue" />
@@ -630,53 +645,61 @@ export default function GovernanceFindingsQueueClient({
         ) : null}
 
         {!loading && rows.length === 0 && !loadFailed ? (
-          <EnterpriseCompactEmptyState
-            testId="governance-findings-empty-state"
-            title={
-              isAssignedToMe
-                ? GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_EMPTY_COMPACT.title
-                : buyerPolishedShell
-                  ? BUYER_RISK_REGISTER_EMPTY_TITLE
-                  : ARCHITECTURE_RISK_REGISTER_EMPTY_TITLE
-            }
-            description={
-              isAssignedToMe
-                ? buildGovernanceAssignedToMeEmptyDescription({
-                    assigneeDisplayName: currentPrincipal.name ?? "",
-                    assigneeRoleLabel: currentPrincipal.primaryAppRole,
-                    checkedAt: assignedToMeCheckedAt,
-                    fetchBasis: assignedToMeFetchBasis,
-                  })
-                : buyerPolishedShell
-                  ? BUYER_RISK_REGISTER_EMPTY_BODY
-                  : ARCHITECTURE_RISK_REGISTER_EMPTY_BODY
-            }
-            actions={
-              isAssignedToMe
-                ? undefined
-                : [
-                    { label: "Open reviews", href: "/architecture/reviews", variant: "primary" },
-                    {
-                      label: buyerPolishedShell ? BUYER_RISK_REGISTER_EMPTY_SECONDARY_ACTION : "Open governance workflow",
-                      href: "/governance/approval-queue",
-                      variant: "outline",
-                    },
-                  ]
-            }
-            footer={
-              isAssignedToMe ? (
-                <Button asChild size="sm" variant="primary">
-                  <Link href={GOVERNANCE_ASSIGNED_TO_ME_EMPTY_SECONDARY_HREF}>
-                    {GOVERNANCE_ASSIGNED_TO_ME_EMPTY_SECONDARY_LABEL}
+          workspaceScopeTeaching !== null ? (
+            <WorkspaceScopeEmptyTeaching
+              title={workspaceScopeTeaching.title}
+              body={workspaceScopeTeaching.body}
+              ctaLabel={workspaceScopeTeaching.ctaLabel}
+            />
+          ) : (
+            <EnterpriseCompactEmptyState
+              testId="governance-findings-empty-state"
+              title={
+                isAssignedToMe
+                  ? GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_EMPTY_COMPACT.title
+                  : buyerPolishedShell
+                    ? BUYER_RISK_REGISTER_EMPTY_TITLE
+                    : ARCHITECTURE_RISK_REGISTER_EMPTY_TITLE
+              }
+              description={
+                isAssignedToMe
+                  ? buildGovernanceAssignedToMeEmptyDescription({
+                      assigneeDisplayName: currentPrincipal.name ?? "",
+                      assigneeRoleLabel: currentPrincipal.primaryAppRole,
+                      checkedAt: assignedToMeCheckedAt,
+                      fetchBasis: assignedToMeFetchBasis,
+                    })
+                  : buyerPolishedShell
+                    ? BUYER_RISK_REGISTER_EMPTY_BODY
+                    : ARCHITECTURE_RISK_REGISTER_EMPTY_BODY
+              }
+              actions={
+                isAssignedToMe
+                  ? undefined
+                  : [
+                      { label: "Open reviews", href: "/architecture/reviews", variant: "primary" },
+                      {
+                        label: buyerPolishedShell ? BUYER_RISK_REGISTER_EMPTY_SECONDARY_ACTION : "Open governance workflow",
+                        href: "/governance/approval-queue",
+                        variant: "outline",
+                      },
+                    ]
+              }
+              footer={
+                isAssignedToMe ? (
+                  <Button asChild size="sm" variant="primary">
+                    <Link href={GOVERNANCE_ASSIGNED_TO_ME_EMPTY_SECONDARY_HREF}>
+                      {GOVERNANCE_ASSIGNED_TO_ME_EMPTY_SECONDARY_LABEL}
+                    </Link>
+                  </Button>
+                ) : !buyerPolishedShell ? (
+                  <Link className={OPERATOR_LINK.inline} href={ARCHITECTURE_RISK_REGISTER_POLICY_PACKS_HREF}>
+                    View policy packs
                   </Link>
-                </Button>
-              ) : !buyerPolishedShell ? (
-                <Link className={OPERATOR_LINK.inline} href={ARCHITECTURE_RISK_REGISTER_POLICY_PACKS_HREF}>
-                  View policy packs
-                </Link>
-              ) : undefined
-            }
-          />
+                ) : undefined
+              }
+            />
+          )
         ) : null}
 
         {isAssignedToMe ? (

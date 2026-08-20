@@ -38,9 +38,12 @@ import {
   ARCHITECTURE_WORKSPACE_TAB_LABELS,
   ARCHITECTURE_WORKSPACE_TAB_PARAM,
   type ArchitectureWorkspaceTabId,
-  resolveArchitectureWorkspaceTab,
   resolveArchitectureWorkspaceTabFromHash,
+  resolveArchitectureWorkspaceTab,
+  resolveArchitectureWorkspaceTabFromSearchParams,
 } from "@/lib/architecture/architecture-workspace-tabs";
+import { REVIEW_DETAIL_TAB_PARAM } from "@/lib/review-detail-workspace-tabs";
+import { mapArchitectureTabToReviewTab } from "@/lib/unified-review-workspace-tabs";
 import {
   architectureOpenClarificationsPresentation,
   formatMetricCountHeadline,
@@ -109,12 +112,16 @@ export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspace
     [props.architectureSourceText, userAssertions],
   );
 
-  const activeTab = resolveArchitectureWorkspaceTab(searchParams.get(ARCHITECTURE_WORKSPACE_TAB_PARAM));
+  const activeTab = resolveArchitectureWorkspaceTabFromSearchParams(
+    searchParams.get(REVIEW_DETAIL_TAB_PARAM),
+    searchParams.get(ARCHITECTURE_WORKSPACE_TAB_PARAM),
+  );
 
   const navigateTab = useCallback(
     (tab: ArchitectureWorkspaceTabId) => {
       const params = new URLSearchParams(searchParams.toString());
-      params.set(ARCHITECTURE_WORKSPACE_TAB_PARAM, tab);
+      params.set(REVIEW_DETAIL_TAB_PARAM, mapArchitectureTabToReviewTab(tab));
+      params.delete(ARCHITECTURE_WORKSPACE_TAB_PARAM);
       router.push(`${pathname}?${params.toString()}`, { scroll: false });
     },
     [pathname, router, searchParams],
@@ -139,7 +146,8 @@ export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspace
     }
 
     const params = new URLSearchParams(searchParams.toString());
-    params.set(ARCHITECTURE_WORKSPACE_TAB_PARAM, tabFromHash);
+    params.set(REVIEW_DETAIL_TAB_PARAM, mapArchitectureTabToReviewTab(tabFromHash));
+    params.delete(ARCHITECTURE_WORKSPACE_TAB_PARAM);
     router.replace(`${pathname}?${params.toString()}#${hash}`, { scroll: false });
     setHashResolved(true);
   }, [hashResolved, pathname, router, searchParams]);
