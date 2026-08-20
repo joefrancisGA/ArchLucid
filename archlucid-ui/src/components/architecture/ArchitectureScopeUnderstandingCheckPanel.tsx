@@ -6,8 +6,11 @@ import { ArchitectureScopeUnderstandingRow } from "@/components/architecture/Arc
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { StatusTag } from "@/components/ui/status-tag";
+import type { ArchitectureDraftSaveState } from "@/hooks/use-architecture-draft-autosave";
 import {
   deriveScopeUnderstandingBullets,
+  isScopeBulletRemovable,
   normalizeScopeUnderstandingBullets,
   reconcileScopeUnderstandingBullets,
   scopeBulletBehavior,
@@ -18,6 +21,8 @@ import {
   SCOPE_UNDERSTANDING_ADD_HINT,
   SCOPE_UNDERSTANDING_ADD_LABEL,
   SCOPE_UNDERSTANDING_ADD_PLACEHOLDER,
+  canConfirmScopeUnderstanding,
+  SCOPE_UNDERSTANDING_CONFIRM_BLOCKED_HINT,
   SCOPE_UNDERSTANDING_CONFIRM_LABEL,
   SCOPE_UNDERSTANDING_HEADING,
   SCOPE_UNDERSTANDING_HELPER,
@@ -35,6 +40,8 @@ export type ArchitectureScopeUnderstandingCheckPanelProps = {
   readonly contextSourceLabel?: string;
   /** What confirmation unblocks on this surface — starting the review, or continuing the wizard. */
   readonly readyHint?: string;
+  /** Draft persistence on architecture draft surfaces — suppresses the ready line while save is in flight. */
+  readonly draftSaveState?: ArchitectureDraftSaveState;
   readonly onBulletsChange?: Dispatch<SetStateAction<ScopeUnderstandingBullet[]>>;
   readonly onGateChange?: (gateOpen: boolean) => void;
 };
@@ -96,12 +103,22 @@ export function ArchitectureScopeUnderstandingCheckPanel(
 
   // Dismissal is remembered so re-deriving after a form edit above cannot resurrect the row.
   const handleRowRemove = (bulletId: string) => {
+    const target = bullets.find((entry) => entry.id === bulletId);
+
+    if (target === undefined || !isScopeBulletRemovable(target.kind)) {
+      return;
+    }
+
     setDismissedIds((previous) => [...previous, bulletId]);
     applyBullets(bullets.filter((entry) => entry.id !== bulletId));
   };
 
   const handleConfirm = () => {
     const normalized = normalizeScopeUnderstandingBullets(bullets);
+
+    if (!canConfirmScopeUnderstanding(normalized, props.input)) {
+      return;
+    }
 
     setBullets(normalized);
     setConfirmed(true);
@@ -115,6 +132,10 @@ export function ArchitectureScopeUnderstandingCheckPanel(
   );
 
   const editingAllowed = props.disabled !== true && !confirmed;
+  const canConfirmScope = useMemo(
+    () => canConfirmScopeUnderstanding(bullets, props.input),
+    [bullets, props.input],
+  );
   const canAddBullet = editingAllowed && addValidation.status === "valid";
   const showAddHint = editingAllowed && addValidation.status === "empty";
   const addErrorMessage =
@@ -264,12 +285,22 @@ export function ArchitectureScopeUnderstandingCheckPanel(
         </p>
       </div>
 
+      {!confirmed && !canConfirmScope ? (
+        <p
+          className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+          role="status"
+          data-testid="architecture-scope-understanding-confirm-readiness"
+        >
+          {SCOPE_UNDERSTANDING_CONFIRM_BLOCKED_HINT}
+        </p>
+      ) : null}
+
       <div className="flex flex-wrap gap-2">
         <Button
           type="button"
           variant="primary"
           size="sm"
-          disabled={props.disabled === true || confirmed}
+          disabled={props.disabled === true || confirmed || !canConfirmScope}
           data-testid="architecture-scope-understanding-confirm"
           onClick={handleConfirm}
         >
@@ -278,12 +309,22 @@ export function ArchitectureScopeUnderstandingCheckPanel(
       </div>
 
       {confirmed ? (
-        <p
-          className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-          data-testid="architecture-scope-understanding-ready"
-        >
-          {props.readyHint ?? SCOPE_UNDERSTANDING_READY_HINT}
-        </p>
+        props.draftSaveState === "saving" ? (
+          <div
+            role="status"
+            aria-live="polite"
+            data-testid="architecture-scope-understanding-saving"
+          >
+            <StatusTag kind="in-progress" label="Saving…" />
+          </div>
+        ) : (
+          <p
+            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="architecture-scope-understanding-ready"
+          >
+            {props.readyHint ?? SCOPE_UNDERSTANDING_READY_HINT}
+          </p>
+        )
       ) : null}
     </section>
   );

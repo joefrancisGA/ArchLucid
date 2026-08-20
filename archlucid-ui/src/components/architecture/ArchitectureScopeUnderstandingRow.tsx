@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   isScopeBulletEditable,
+  isScopeBulletRemovable,
   scopeReadOnlyHint,
   SCOPE_ITEM_MAX_LENGTH,
   type ScopeUnderstandingBullet,
@@ -42,6 +43,7 @@ export function ArchitectureScopeUnderstandingRow(
 ): React.JSX.Element {
   const bullet = props.bullet;
   const editable = isScopeBulletEditable(bullet.kind);
+  const removable = isScopeBulletRemovable(bullet.kind);
   const inputId = `architecture-scope-bullet-${bullet.id}`;
   const showSourcePointer = bullet.kind === "context";
 
@@ -87,7 +89,7 @@ export function ArchitectureScopeUnderstandingRow(
         ) : null}
       </div>
 
-      {editable ? (
+      {editable && removable ? (
         <Button
           type="button"
           variant="outline"

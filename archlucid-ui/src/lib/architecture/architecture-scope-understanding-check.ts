@@ -1,4 +1,10 @@
 /** Which intake field a scope row came from. Drives the row's static label and its edit behavior. */
+import {
+  GUIDED_INTAKE_ARCHITECTURE_CONTEXT_LABEL,
+  GUIDED_INTAKE_CREATION_ARCHITECTURE_OVERVIEW_LABEL,
+  GUIDED_INTAKE_CREATION_BUSINESS_OUTCOME_LABEL,
+} from "@/lib/guided-intake-copy";
+
 export type ScopeUnderstandingBulletKind =
   | "system"
   | "outcome"
@@ -32,6 +38,8 @@ export type DeriveScopeUnderstandingBulletsInput = {
 export type ScopeUnderstandingBulletBehavior = {
   /** False when the underlying field is edited elsewhere on the page, so this row is display-only. */
   readonly editable: boolean;
+  /** False for rows mirrored from required intake fields — operators may edit values, not delete the row. */
+  readonly removable: boolean;
   /** False when merging the row would duplicate text the brief already carries, or is not operator scope. */
   readonly includeInBrief: boolean;
   readonly label: string;
@@ -49,7 +57,7 @@ export const SCOPE_UNDERSTANDING_ADD_HINT =
 export const SCOPE_UNDERSTANDING_ADD_EFFECT_HINT =
   "Items you add become scope lines in the intake brief — write each one the way you would state the boundary to a reviewer.";
 /** Default pointer to the field that owns the architecture context text on the architecture draft page. */
-export const SCOPE_CONTEXT_SOURCE_DEFAULT_LABEL = "Architecture overview above";
+export const SCOPE_CONTEXT_SOURCE_DEFAULT_LABEL = `${GUIDED_INTAKE_CREATION_ARCHITECTURE_OVERVIEW_LABEL} above`;
 
 export function scopeReadOnlyHint(contextSourceLabel: string): string {
   return `Read-only preview — edit this in ${contextSourceLabel}.`;
@@ -59,6 +67,9 @@ export const SCOPE_UNDERSTANDING_READ_ONLY_HINT = scopeReadOnlyHint(
   SCOPE_CONTEXT_SOURCE_DEFAULT_LABEL,
 );
 export const SCOPE_UNDERSTANDING_CONFIRM_LABEL = "Confirm scope";
+/** Shown near Confirm scope when only placeholder guidance is present (TB-2005). */
+export const SCOPE_UNDERSTANDING_CONFIRM_BLOCKED_HINT =
+  "Add at least one in-scope item from the brief above before confirming scope.";
 export const SCOPE_UNDERSTANDING_SECTION_HEADER = "Operator-confirmed in-scope understanding";
 /** Ready line for surfaces where confirming scope is the last step before the review starts. */
 export const SCOPE_UNDERSTANDING_READY_HINT = "Scope confirmed — you can start the review.";
@@ -77,18 +88,18 @@ export const SCOPE_ITEM_NO_LETTER_MESSAGE =
 export const SCOPE_ITEM_DUPLICATE_MESSAGE = "That item is already listed in scope.";
 
 const SCOPE_BULLET_BEHAVIOR: Record<ScopeUnderstandingBulletKind, ScopeUnderstandingBulletBehavior> = {
-  system: { editable: true, includeInBrief: true, label: "Primary system or architecture" },
-  outcome: { editable: true, includeInBrief: true, label: "Business outcome" },
+  system: { editable: true, removable: false, includeInBrief: true, label: "Primary System or Architecture" },
+  outcome: { editable: true, removable: false, includeInBrief: true, label: GUIDED_INTAKE_CREATION_BUSINESS_OUTCOME_LABEL },
   // The context row mirrors the architecture overview, which is the brief itself. Editing it here would
   // create a second source of truth, and merging it would append a truncated copy of the overview to the
   // overview. Both are avoided by keeping this row a read-only preview.
-  context: { editable: false, includeInBrief: false, label: "Architecture context" },
-  people: { editable: true, includeInBrief: true, label: "People in scope" },
-  systems: { editable: true, includeInBrief: true, label: "Systems in scope" },
-  gap: { editable: true, includeInBrief: true, label: "Out of scope until clarified" },
-  custom: { editable: true, includeInBrief: true, label: "Also in scope" },
+  context: { editable: false, removable: false, includeInBrief: false, label: GUIDED_INTAKE_ARCHITECTURE_CONTEXT_LABEL },
+  people: { editable: true, removable: false, includeInBrief: true, label: "People in Scope" },
+  systems: { editable: true, removable: false, includeInBrief: true, label: "Systems in Scope" },
+  gap: { editable: true, removable: false, includeInBrief: true, label: "Out of scope until clarified" },
+  custom: { editable: true, removable: true, includeInBrief: true, label: "Also in Scope" },
   // Placeholder copy shown when nothing has been entered yet — guidance, not operator-stated scope.
-  fallback: { editable: false, includeInBrief: false, label: "" },
+  fallback: { editable: false, removable: false, includeInBrief: false, label: "" },
 };
 
 export function scopeBulletBehavior(
@@ -99,6 +110,10 @@ export function scopeBulletBehavior(
 
 export function isScopeBulletEditable(kind: ScopeUnderstandingBulletKind): boolean {
   return scopeBulletBehavior(kind).editable;
+}
+
+export function isScopeBulletRemovable(kind: ScopeUnderstandingBulletKind): boolean {
+  return scopeBulletBehavior(kind).removable;
 }
 
 /** Flattens a typed row back to the `Label: value` line used in the brief and in assertions. */
@@ -303,6 +318,36 @@ export function scopeBriefLines(bullets: readonly ScopeUnderstandingBullet[]): s
     .filter((bullet) => scopeBulletBehavior(bullet.kind).includeInBrief)
     .filter((bullet) => bullet.value.trim().length > 0)
     .map((bullet) => scopeBulletText(bullet));
+}
+
+/** True when confirming scope would add at least one reviewer-facing line to the brief. */
+export function canConfirmScopeUnderstanding(
+  bullets: readonly ScopeUnderstandingBullet[],
+  input?: DeriveScopeUnderstandingBulletsInput,
+): boolean {
+  const briefLines = scopeBriefLines(bullets);
+
+  if (briefLines.length === 0) {
+    return false;
+  }
+
+  if (bullets.some((bullet) => bullet.kind === "custom" && bullet.value.trim().length > 0)) {
+    return true;
+  }
+
+  if (input !== undefined && !hasScopeSourceBriefContent(input)) {
+    return false;
+  }
+
+  return true;
+}
+
+function hasScopeSourceBriefContent(input: DeriveScopeUnderstandingBulletsInput): boolean {
+  const architectureName = input.architectureName?.trim() ?? input.systemName?.trim() ?? "";
+  const outcome = stripScopeUnderstandingSection(input.businessOutcome).trim();
+  const overview = stripScopeUnderstandingSection(input.architectureOverview ?? input.intentText).trim();
+
+  return architectureName.length > 0 || outcome.length > 0 || overview.length > 0;
 }
 
 export function mergeScopeBulletsIntoBrief(
