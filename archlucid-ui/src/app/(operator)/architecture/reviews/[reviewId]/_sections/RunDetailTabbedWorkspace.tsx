@@ -169,6 +169,7 @@ const artifactsExportsSectionEl =
         (m.resolvedDetail.run as { requestId?: string }).requestId
       }
       deliverablesDefaultOpen={false}
+      pagePrimaryOwnedElsewhere
     />
   ) : null;
 
