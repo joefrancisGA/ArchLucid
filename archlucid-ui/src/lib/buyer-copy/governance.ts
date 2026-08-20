@@ -21,11 +21,11 @@ export const BUYER_GOVERNANCE_PAGE_TITLE = "Governance workflow";
 export const BUYER_GOVERNANCE_STATUS_BANNER_TITLE = "Governance approval record";
 
 export const BUYER_GOVERNANCE_STATUS_BANNER_BODY =
-  "Approved for governed use with monitored PHI minimization control. Production deployments remain governed by enterprise change management.";
+  "Approved for planning use with monitored PHI minimization control. Production deployments remain controlled by enterprise change management.";
 
 export const BUYER_GOVERNANCE_STATUS_BANNER_VIEW_APPROVAL = "View approval record";
 
-export const BUYER_GOVERNANCE_STATUS_BANNER_VIEW_DISPOSITIONS = "View dispositions";
+export const BUYER_GOVERNANCE_STATUS_BANNER_VIEW_DISPOSITIONS = "View resolve outcomes";
 
 export const BUYER_GOVERNANCE_STATUS_BANNER_VIEW_AUDIT = "View audit trail";
 
@@ -83,7 +83,7 @@ export const BUYER_FINDING_SUMMARY_DECISION_IMPACT_LABEL = "Decision impact";
 export const BUYER_FINDING_SUMMARY_NEXT_STEP_LABEL = "What to do next";
 
 export const BUYER_GOVERNANCE_GOVERNED_USE_NOTES =
-  "Governed-use record aligned with this architecture review.";
+  "Official use record aligned with this architecture review.";
 
 export const BUYER_GOVERNANCE_WORKFLOW_LIVE_INTRO =
   "Authorized roles submit approval requests, record decisions, and attach evidence before changes move to implementation planning.";

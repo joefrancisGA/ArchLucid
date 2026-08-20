@@ -11,13 +11,13 @@ export function ReviewOutcomeTaxonomyLegend(): ReactElement {
       className={cn("m-0 leading-relaxed text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
       data-testid="review-outcome-taxonomy-legend"
     >
-      <strong className="font-semibold text-neutral-800 dark:text-neutral-200">Decision</strong> — approved architecture choice recorded on the finalized sealed review record.{" "}
-      <strong className="font-semibold text-neutral-800 dark:text-neutral-200">Finding</strong> — review observation requiring disposition, evidence, and traceability.{" "}
+      <strong className="font-semibold text-neutral-800 dark:text-neutral-200">Decision</strong> — approved architecture choice recorded on the finalized review record.{" "}
+      <strong className="font-semibold text-neutral-800 dark:text-neutral-200">Finding</strong> — review observation requiring a resolve outcome, evidence, and traceability.{" "}
       <strong className="font-semibold text-neutral-800 dark:text-neutral-200">Risk</strong> — potential exposure framed with cited evidence.{" "}
       <strong className="font-semibold text-neutral-800 dark:text-neutral-200">Control</strong> — mitigation or safeguard referenced on the record.{" "}
       <strong className="font-semibold text-neutral-800 dark:text-neutral-200">Deliverable</strong> — packaged output for sponsors, review boards, or audit.{" "}
       <strong className="font-semibold text-neutral-800 dark:text-neutral-200">Audit event</strong> — lifecycle record in the immutable audit trail.{" "}
-      <strong className="font-semibold text-neutral-800 dark:text-neutral-200">Monitored risk</strong> — non-blocking posture captured under active governance oversight.{" "}
+      <strong className="font-semibold text-neutral-800 dark:text-neutral-200">Monitored risk</strong> — non-blocking posture captured under active monitoring.{" "}
       <strong className="font-semibold text-neutral-800 dark:text-neutral-200">Approval status</strong> — resolve outcome for citation; production deployments follow your enterprise change process.
     </p>
   );

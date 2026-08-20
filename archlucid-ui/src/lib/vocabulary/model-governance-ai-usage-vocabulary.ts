@@ -3,7 +3,7 @@
  *
  * Why two administration surfaces exist:
  * - AI and model governance (`/administration/model-governance`) sets workspace
- *   execution profiles and governed model aliases used on reviews.
+ *   execution profiles and approved model aliases used on reviews.
  * - AI usage (`/administration/ai-usage`) shows *estimated* AI spend, budgets,
  *   and workflow cost drivers for this workspace.
  *
@@ -37,7 +37,7 @@ export const MODEL_GOVERNANCE_AI_USAGE_HEADING =
   "Model governance and AI usage stay separate" as const;
 
 export const MODEL_GOVERNANCE_AI_USAGE_WHY_TWO =
-  "AI and model governance sets workspace execution profiles and governed model aliases used on reviews. AI usage shows estimated spend, budgets, and workflow cost drivers. Choosing which profile runs is not reading usage estimates." as const;
+  "AI and model governance sets workspace execution profiles and approved model aliases used on reviews. AI usage shows estimated spend, budgets, and workflow cost drivers. Choosing which profile runs is not reading usage estimates." as const;
 
 export const MODEL_GOVERNANCE_AI_USAGE_COMPACT_LINE =
   "Model governance sets execution profiles; AI usage shows cost estimates — open the other when you need both." as const;
@@ -46,7 +46,7 @@ export const MODEL_GOVERNANCE_AI_USAGE_GOVERNANCE_LINK: ModelGovernanceAiUsageLi
   id: "model-governance",
   label: "AI and model governance",
   href: MODEL_GOVERNANCE_SETTINGS_CANONICAL_PATH,
-  whenToUse: "Manage workspace default execution profile and governed model aliases.",
+  whenToUse: "Manage workspace default execution profile and approved model aliases.",
 };
 
 export const MODEL_GOVERNANCE_AI_USAGE_USAGE_LINK: ModelGovernanceAiUsageLink = {

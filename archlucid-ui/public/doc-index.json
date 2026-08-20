@@ -307,7 +307,7 @@
   },
   {
     "title": "AI and model governance",
-    "summary": "Workspace execution profiles, governed model aliases, and profile mappings used on reviews.",
+    "summary": "Workspace execution profiles, approved model aliases, and profile mappings used on reviews.",
     "category": "Operations",
     "url": "/help/model-governance"
   },

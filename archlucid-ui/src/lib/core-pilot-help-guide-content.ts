@@ -8,7 +8,7 @@ export const CORE_PILOT_HELP_START_REVIEW_HREF = "/architecture/reviews/new" as 
 export const CORE_PILOT_HELP_SUMMARY_TITLE = "First review path";
 
 export const CORE_PILOT_HELP_SUMMARY_COPY =
-  "Start with evidence, run the review, finalize the architecture review, then share sponsor-ready outputs.";
+  "Start with evidence, run the review, finalize the architecture review, then share export-ready outputs.";
 
 export type CorePilotHelpWorkflowStep = {
   readonly stepNumber: number;
@@ -56,7 +56,7 @@ export const CORE_PILOT_HELP_FIRST_VIEWPORT_STEPS: readonly CorePilotHelpFirstVi
   {
     stepNumber: 3,
     title: "Finalize and share",
-    description: "Run the review, finalize the package, and export sponsor-ready outputs.",
+    description: "Run the review, finalize the package, and export export-ready outputs.",
   },
 ];
 

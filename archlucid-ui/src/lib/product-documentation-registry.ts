@@ -771,7 +771,7 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
   {
     slug: "model-governance",
     title: "AI and model governance",
-    summary: "Workspace execution profiles, governed model aliases, and profile mappings used on reviews.",
+    summary: "Workspace execution profiles, approved model aliases, and profile mappings used on reviews.",
     audience: "operator",
     sourcePaths: [],
     lastReviewed: "2026-08-13",

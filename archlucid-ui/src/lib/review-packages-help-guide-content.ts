@@ -8,7 +8,7 @@ export {
   REVIEW_PACKAGES_HELP_PAGE_TITLE,
 } from "@/lib/review-packages-help-page-copy";
 export const REVIEW_PACKAGES_HELP_PAGE_SUBTITLE =
-  "Open Architecture reviews to find packages in your workspace, then inspect findings and export sponsor-ready artifacts.";
+  "Open Architecture reviews to find packages in your workspace, then inspect findings and share export-ready artifacts.";
 
 /** One orientation statement: definition + review↔package relationship (not browse/inspect/export again). */
 export const REVIEW_PACKAGES_HELP_OVERVIEW =

@@ -20,7 +20,7 @@ export const MODEL_GOVERNANCE_CATALOG_UNAVAILABLE_COPY =
   "Governed alias catalog is temporarily unavailable. You can still change the workspace execution profile below.";
 
 export const MODEL_GOVERNANCE_REGISTRY_EMPTY_COPY =
-  "No governed model aliases are registered for this workspace yet. Alias entries appear here after platform configuration.";
+  "No approved model aliases are registered for this workspace yet. Alias entries appear here after platform configuration.";
 
 export const MODEL_GOVERNANCE_PROFILE_MAPPINGS_EMPTY_COPY =
   "No profile-to-alias mappings are available yet. Mappings appear here when the governed alias catalog is configured.";

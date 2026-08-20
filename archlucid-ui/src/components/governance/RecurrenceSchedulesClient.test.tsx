@@ -156,7 +156,7 @@ describe("RecurrenceSchedulesClient", () => {
     expect(screen.getByText(RECURRENCE_SCHEDULE_EXAMPLES[0]!.whenToUse)).toBeInTheDocument();
   });
 
-  it("links the empty secondary action to governed reviews", async () => {
+  it("links the empty secondary action to architecture reviews", async () => {
     render(<RecurrenceSchedulesClient />);
 
     await screen.findByTestId("recurrence-schedules-empty-state");

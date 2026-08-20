@@ -107,7 +107,7 @@ import {
 const validIntent =
   "We are designing a governed workflow platform for analysts with Entra ID authentication, auditable evidence trails, and exportable architecture reviews.";
 
-const validOutcome = "Reduce cycle time for governed architecture reviews.";
+const validOutcome = "Reduce cycle time for architecture reviews.";
 const validSystemName = "Governed review platform";
 
 function fillCreateArchitectureMinimumFields(): void {

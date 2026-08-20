@@ -70,7 +70,7 @@ export const FINDINGS_HELP_ANATOMY_FIELDS: readonly FindingsHelpAnatomyField[] =
   { label: "Evidence", description: "Inputs, diagrams, or policy checks that support the finding." },
   { label: "Recommendation", description: "Suggested remediation, monitoring, or next step." },
   { label: "Owner", description: "The person accountable for follow-up when assigned." },
-  { label: "Governance disposition", description: "Recorded acceptance, waiver, remediation, or exception." },
+  { label: "Resolve outcome", description: "Recorded acceptance, waiver, remediation, or exception." },
 ] as const;
 
 export type FindingsHelpSeverityRow = {
@@ -265,7 +265,7 @@ export const FINDINGS_HELP_ACTIONS = [
 ] as const;
 
 export const FINDINGS_HELP_GOVERNANCE_INTRO =
-  "Findings connect day-to-day architecture work to governance oversight:";
+  "Findings connect day-to-day architecture work to approval tracking:";
 
 export const FINDINGS_HELP_GOVERNANCE_ITEMS = [
   "Findings influence whether a review is ready for approval or export.",

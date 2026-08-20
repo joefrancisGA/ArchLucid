@@ -68,7 +68,7 @@ export function tryStaticDemoGovernanceApprovalRequests(runId: string): Governan
       status: "Approved",
       requestedBy: "Taylor Morgan",
       reviewedBy: "Jordan Lee",
-      requestComment: "Request governed use of the finalized intake review after privacy review.",
+      requestComment: "Request approval for use of the finalized intake review after privacy review.",
       reviewComment: "Approved — maintain weekly monitoring on unstructured attachment volume.",
       requestedUtc: "2026-01-14T21:00:00.000Z",
       reviewedUtc: "2026-01-14T22:05:00.000Z",

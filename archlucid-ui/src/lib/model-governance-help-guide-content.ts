@@ -11,10 +11,10 @@ export const MODEL_GOVERNANCE_HELP_BREADCRUMB_TOPIC_TITLE = "AI and model govern
 export const MODEL_GOVERNANCE_HELP_PAGE_TITLE = "AI and model governance";
 
 export const MODEL_GOVERNANCE_HELP_PAGE_SUBTITLE =
-  "Manage the workspace default execution profile and governed model aliases used on reviews.";
+  "Manage the workspace default execution profile and approved model aliases used on reviews.";
 
 export const MODEL_GOVERNANCE_HELP_OVERVIEW =
-  "Model governance controls which execution profile and governed model aliases apply to architecture reviews in this workspace. Use it for workspace-wide AI policy.";
+  "Model governance controls which execution profile and approved model aliases apply to architecture reviews in this workspace. Use it for workspace-wide AI policy.";
 
 export const MODEL_GOVERNANCE_HELP_START_HERE_CARD_TITLE = "Start here";
 
