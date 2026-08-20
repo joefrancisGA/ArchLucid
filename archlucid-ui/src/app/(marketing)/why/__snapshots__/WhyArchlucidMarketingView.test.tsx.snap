@@ -66,14 +66,14 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
             class="relative aspect-[16/10] w-full bg-neutral-100 dark:bg-neutral-950"
           >
             <img
-              alt="ArchLucid operator Home showing a finalized architecture review workspace"
+              alt="ArchLucid operator Home showing Recent reviews and a Claims Intake sample review card"
               class="object-cover object-top"
               data-nimg="fill"
               data-testid="why-hero-product-screenshot"
               decoding="async"
               sizes="(min-width: 1024px) 40vw, 100vw"
-              src="/_next/image?url=%2Fmarketing%2Fwhy%2Fwhy-hero-operator-home-2026-08.png&w=3840&q=75"
-              srcset="/_next/image?url=%2Fmarketing%2Fwhy%2Fwhy-hero-operator-home-2026-08.png&w=256&q=75 256w, /_next/image?url=%2Fmarketing%2Fwhy%2Fwhy-hero-operator-home-2026-08.png&w=384&q=75 384w, /_next/image?url=%2Fmarketing%2Fwhy%2Fwhy-hero-operator-home-2026-08.png&w=640&q=75 640w, /_next/image?url=%2Fmarketing%2Fwhy%2Fwhy-hero-operator-home-2026-08.png&w=750&q=75 750w, /_next/image?url=%2Fmarketing%2Fwhy%2Fwhy-hero-operator-home-2026-08.png&w=828&q=75 828w, /_next/image?url=%2Fmarketing%2Fwhy%2Fwhy-hero-operator-home-2026-08.png&w=1080&q=75 1080w, /_next/image?url=%2Fmarketing%2Fwhy%2Fwhy-hero-operator-home-2026-08.png&w=1200&q=75 1200w, /_next/image?url=%2Fmarketing%2Fwhy%2Fwhy-hero-operator-home-2026-08.png&w=1920&q=75 1920w, /_next/image?url=%2Fmarketing%2Fwhy%2Fwhy-hero-operator-home-2026-08.png&w=2048&q=75 2048w, /_next/image?url=%2Fmarketing%2Fwhy%2Fwhy-hero-operator-home-2026-08.png&w=3840&q=75 3840w"
+              src="/_next/image?url=%2Fmarketing%2Fwhy%2Fwhy-hero-operator-home-2026-08-19.png&w=3840&q=75"
+              srcset="/_next/image?url=%2Fmarketing%2Fwhy%2Fwhy-hero-operator-home-2026-08-19.png&w=256&q=75 256w, /_next/image?url=%2Fmarketing%2Fwhy%2Fwhy-hero-operator-home-2026-08-19.png&w=384&q=75 384w, /_next/image?url=%2Fmarketing%2Fwhy%2Fwhy-hero-operator-home-2026-08-19.png&w=640&q=75 640w, /_next/image?url=%2Fmarketing%2Fwhy%2Fwhy-hero-operator-home-2026-08-19.png&w=750&q=75 750w, /_next/image?url=%2Fmarketing%2Fwhy%2Fwhy-hero-operator-home-2026-08-19.png&w=828&q=75 828w, /_next/image?url=%2Fmarketing%2Fwhy%2Fwhy-hero-operator-home-2026-08-19.png&w=1080&q=75 1080w, /_next/image?url=%2Fmarketing%2Fwhy%2Fwhy-hero-operator-home-2026-08-19.png&w=1200&q=75 1200w, /_next/image?url=%2Fmarketing%2Fwhy%2Fwhy-hero-operator-home-2026-08-19.png&w=1920&q=75 1920w, /_next/image?url=%2Fmarketing%2Fwhy%2Fwhy-hero-operator-home-2026-08-19.png&w=2048&q=75 2048w, /_next/image?url=%2Fmarketing%2Fwhy%2Fwhy-hero-operator-home-2026-08-19.png&w=3840&q=75 3840w"
               style="position: absolute; height: 100%; width: 100%; left: 0px; top: 0px; right: 0px; bottom: 0px; color: transparent;"
             />
           </div>
@@ -83,7 +83,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
             <p
               class="m-0 text-[15px] font-normal leading-6 text-al-text-secondary"
             >
-              Healthcare Claims intake modernization — sample review with findings, approvals, and evidence trail
+              Claims Intake Demo workspace — sample review with findings, approvals, and evidence trail (fabricated demo data)
             </p>
             <p
               class="m-0 mt-2 underline underline-offset-2 hover:text-[var(--al-accent-link-hover)] text-[15px] font-normal leading-6 text-al-text-secondary"
@@ -1525,21 +1525,6 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
         </li>
       </ul>
     </section>
-    <aside
-      class="rounded-md border border-neutral-200 bg-neutral-50/40 p-3 dark:border-neutral-700 dark:bg-neutral-900/30"
-      data-testid="why-claim-discipline"
-    >
-      <h2
-        class="m-0 text-[15px] font-semibold leading-[22px] text-al-text-primary"
-      >
-        About these comparisons
-      </h2>
-      <p
-        class="m-0 mt-2 text-[13px] font-normal leading-5 text-al-text-primary"
-      >
-        Product differentiation only — use your own evidence for formal evaluation. Open Assurance status, Trust Center, or start an evaluation when you need live workspace evidence.
-      </p>
-    </aside>
   </div>
 </main>
 `;

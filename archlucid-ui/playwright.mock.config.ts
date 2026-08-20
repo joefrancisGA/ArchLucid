@@ -1,4 +1,4 @@
-import { defineConfig, devices } from "@playwright/test";
+﻿import { defineConfig, devices } from "@playwright/test";
 
 /**
  * Mock-backed operator UI Playwright suite (loopback mock API on 18765).
@@ -51,6 +51,7 @@ export default defineConfig({
         "**/demo-workspace-*.smoke.spec.ts",
         "**/pilot-nav-profile.spec.ts",
         "**/ux-audit-screenshots.spec.ts",
+        "**/capture-why-hero-operator-home-screenshot.spec.ts",
         "**/.next/**",
         "tests/e2e/**",
       ],
@@ -83,6 +84,15 @@ export default defineConfig({
       name: "chromium-ux-audit-marketing",
       testDir: "e2e",
       testMatch: ["ux-audit-screenshots.spec.ts"],
+      testIgnore: ["**/.next/**"],
+      timeout: 120_000,
+      use: { ...devices["Desktop Chrome"] },
+    },
+    /** `/why` hero operator Home PNG — `npm run capture:why-hero-operator-home` (TB-2301). */
+    {
+      name: "chromium-capture-why-hero",
+      testDir: "e2e",
+      testMatch: ["capture-why-hero-operator-home-screenshot.spec.ts"],
       testIgnore: ["**/.next/**"],
       timeout: 120_000,
       use: { ...devices["Desktop Chrome"] },
