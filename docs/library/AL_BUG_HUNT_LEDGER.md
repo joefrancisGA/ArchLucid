@@ -1150,11 +1150,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** UI auth; API proxy; edge proxy
 - **paths:** archlucid-ui/src/lib/auth/; archlucid-ui/src/app/api/proxy/; archlucid-ui/src/proxy.ts
 - **test-filter:** lib/auth|proxy-route|proxy.ts
-- **hunts:** 1
-- **bugs-found:** 1
+- **hunts:** 2
+- **bugs-found:** 2
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-18
-- **last-bug:** 2026-08-18
+- **last-hunt:** 2026-08-19
+- **last-bug:** 2026-08-19
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
@@ -1162,7 +1162,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (candidate) Proxy forwards operator cookies or auth headers to a marketing-only upstream path - invalid: server bearer stripped on allowlisted marketing paths; cookies are not copied upstream
 - [x] (candidate) Return-destination helper accepts an external URL that bypasses host-gate - invalid: `isSafeReturnPath` rejects external URLs; host-gate runs on next navigation
-- [x] (candidate) Anonymous marketing proxy path can reach a mutating operator API route - fixed: reject `..`/`.` proxy segments before upstream fetch
+- [x] (proven) Anonymous marketing proxy path can reach a mutating operator API route via literal `..` segments - fixed: reject `..`/`.` proxy segments before upstream fetch
+- [x] (proven) `buildProxyUpstreamPath` — `%2e%2e` proxy segments decode to `..` during URL normalization and reach `architecture/draft/*` while literal `..` segments are rejected
 
 ---
 
@@ -1633,24 +1634,25 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ## Zone: api-governance-tenancy-controllers
 
 - **id:** api-governance-tenancy-controllers
-- **status:** unseeded
+- **status:** open
 - **impact:** high
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 0
-- **bugs-found:** 0
+- **hunts:** 1
+- **bugs-found:** 1
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **last-hunt:** 2026-08-19
+- **last-bug:** 2026-08-19
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
 ### Hypotheses
 
-- [ ] (candidate) Governance write succeeds for a policy pack owned by another tenant
-- [ ] (candidate) Tenancy suspend endpoint affects a tenant id from the body not the principal
-- [ ] (candidate) List endpoint omits tenant predicate when workspace filter is empty
+- [x] (proven) `PolicyPacksController.Publish` / `PolicyPacksAppService.TryPublishVersionAsync` — cross-tenant publish: caller scope tenant B + pack id owned by tenant A → HTTP 200 and version row upserted (reads already 404 on scope mismatch; publish omitted tenant/workspace/project check)
+- [x] (invalid) Tenancy suspend endpoint affects a tenant id from the body not the principal — no suspend action under `ArchLucid.Api/Controllers/Tenancy/`
+- [x] (invalid) List endpoint omits tenant predicate when workspace filter is empty — `PolicyPacksController.ListVisiblePacksAsync` always passes `scope.TenantId` into `ListByScopeAsync` (`WHERE TenantId = @TenantId`)
+- [ ] (hunt-ready) `PolicyPacksController.SimulateBulk` — pack id from another tenant scope → dry-run evaluates foreign pack content (only `IsDeleted` checked, not tenant/workspace/project vs `scope`)
 
 ---
 
