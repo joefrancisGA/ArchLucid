@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  canConfirmScopeUnderstanding,
   deriveScopeUnderstandingBullets,
+  isScopeBulletRemovable,
   mergeScopeBulletsIntoBrief,
   normalizeScopeUnderstandingBullets,
   reconcileScopeUnderstandingBullets,
@@ -22,12 +24,23 @@ function bullet(overrides: Partial<ScopeUnderstandingBullet>): ScopeUnderstandin
   return {
     id: "custom-1",
     kind: "custom",
-    label: "Also in scope",
+    label: "Also in Scope",
     value: "PCI cardholder data zone",
     source: "user",
     ...overrides,
   };
 }
+
+describe("scopeBulletBehavior", () => {
+  it("allows removal only for operator-added custom rows", () => {
+    expect(isScopeBulletRemovable("system")).toBe(false);
+    expect(isScopeBulletRemovable("outcome")).toBe(false);
+    expect(isScopeBulletRemovable("people")).toBe(false);
+    expect(isScopeBulletRemovable("systems")).toBe(false);
+    expect(isScopeBulletRemovable("gap")).toBe(false);
+    expect(isScopeBulletRemovable("custom")).toBe(true);
+  });
+});
 
 describe("deriveScopeUnderstandingBullets", () => {
   it("renders typed rows from fixture brief fields", () => {
@@ -41,7 +54,7 @@ describe("deriveScopeUnderstandingBullets", () => {
     });
 
     expect(bullets.find((entry) => entry.kind === "system")).toMatchObject({
-      label: "Primary system or architecture",
+      label: "Primary System or Architecture",
       value: "Claims intake platform",
     });
     expect(bullets.find((entry) => entry.kind === "outcome")?.value).toBe(
@@ -57,7 +70,7 @@ describe("deriveScopeUnderstandingBullets", () => {
 
     expect(systemRow?.value).toBe("Vertex");
     expect(systemRow?.value).not.toContain(":");
-    expect(scopeBulletText(systemRow!)).toBe("Primary system or architecture: Vertex");
+    expect(scopeBulletText(systemRow!)).toBe("Primary System or Architecture: Vertex");
   });
 
   it("marks derived rows as inferred so callers can tell edited scope from untouched scope", () => {
@@ -105,6 +118,31 @@ describe("deriveScopeUnderstandingBullets", () => {
 
     expect(bullets).toHaveLength(1);
     expect(bullets[0]?.kind).toBe("fallback");
+    expect(canConfirmScopeUnderstanding(bullets, {})).toBe(false);
+  });
+
+  it("allows scope confirmation once a brief-backed row exists", () => {
+    const bullets = deriveScopeUnderstandingBullets({ systemName: "Vertex" });
+
+    expect(canConfirmScopeUnderstanding(bullets, { systemName: "Vertex" })).toBe(true);
+  });
+
+  it("blocks scope confirmation when only the default actor row exists", () => {
+    const bullets = deriveScopeUnderstandingBullets({
+      peopleAndSystems: [{ label: "Primary operator", kind: "Human" }],
+    });
+
+    expect(canConfirmScopeUnderstanding(bullets, {})).toBe(false);
+  });
+
+  it("allows scope confirmation from an operator-added custom row alone", () => {
+    const bullets = deriveScopeUnderstandingBullets({});
+    const withCustom = [
+      ...bullets.filter((entry) => entry.kind !== "fallback"),
+      bullet({ kind: "custom", label: "Also in Scope", value: "PCI cardholder data zone" }),
+    ];
+
+    expect(canConfirmScopeUnderstanding(withCustom, {})).toBe(true);
   });
 
   it("lists unresolved items as out-of-scope rows", () => {
@@ -151,7 +189,7 @@ describe("mergeScopeBulletsIntoBrief", () => {
 
     expect(merged).toContain("Base operator brief.");
     expect(merged).toContain(SCOPE_UNDERSTANDING_SECTION_HEADER);
-    expect(merged).toContain("- Primary system or architecture: Payments hub");
+    expect(merged).toContain("- Primary System or Architecture: Payments hub");
   });
 
   it("never merges the architecture context preview back into the brief it came from", () => {
@@ -159,7 +197,7 @@ describe("mergeScopeBulletsIntoBrief", () => {
     const bullets = deriveScopeUnderstandingBullets({ systemName: "Vertex", architectureOverview: overview });
     const merged = mergeScopeBulletsIntoBrief(bullets, overview);
 
-    expect(merged).not.toContain("Architecture context:");
+    expect(merged).not.toContain("Architecture Context:");
     expect(merged).not.toContain("…");
   });
 
@@ -190,7 +228,7 @@ describe("mergeScopeBulletsIntoBrief", () => {
 
 describe("reconcileScopeUnderstandingBullets", () => {
   it("keeps an operator edit when the form above is re-derived", () => {
-    const previous = [bullet({ id: "system", kind: "system", label: "Primary system or architecture", value: "Vertex EU", source: "user" })];
+    const previous = [bullet({ id: "system", kind: "system", label: "Primary System or Architecture", value: "Vertex EU", source: "user" })];
     const inferred = deriveScopeUnderstandingBullets({ systemName: "Vertex" });
     const reconciled = reconcileScopeUnderstandingBullets({ inferred, previous, dismissedIds: [] });
 

@@ -2,6 +2,7 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import {
+  scopeBulletBehavior,
   scopeReadOnlyHint,
   SCOPE_ITEM_DUPLICATE_MESSAGE,
   SCOPE_ITEM_NO_LETTER_MESSAGE,
@@ -10,6 +11,7 @@ import {
   SCOPE_UNDERSTANDING_ADD_EFFECT_HINT,
   SCOPE_UNDERSTANDING_ADD_HINT,
   SCOPE_UNDERSTANDING_ADD_LABEL,
+  SCOPE_UNDERSTANDING_CONFIRM_BLOCKED_HINT,
   SCOPE_UNDERSTANDING_CONFIRM_LABEL,
   SCOPE_UNDERSTANDING_HEADING,
   SCOPE_UNDERSTANDING_HELPER,
@@ -50,8 +52,8 @@ describe("ArchitectureScopeUnderstandingCheckPanel", () => {
       />,
     );
 
-    expect(screen.getByLabelText("Primary system or architecture")).toHaveValue("Vertex");
-    expect(screen.getByLabelText("Business outcome")).toHaveValue("Faster review cycles");
+    expect(screen.getByLabelText(scopeBulletBehavior("system").label)).toHaveValue("Vertex");
+    expect(screen.getByLabelText(scopeBulletBehavior("outcome").label)).toHaveValue("Faster review cycles");
   });
 
   it("shows the architecture context as a read-only preview that points at the field that owns it", () => {
@@ -66,9 +68,11 @@ describe("ArchitectureScopeUnderstandingCheckPanel", () => {
     expect(screen.getByTestId("architecture-scope-readonly-hint-context")).toHaveTextContent(
       scopeReadOnlyHint("Architecture overview above"),
     );
-    expect(screen.queryByLabelText("Architecture context")).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(scopeBulletBehavior("context").label)).not.toBeInTheDocument();
     expect(
-      screen.queryByRole("button", { name: "Remove Architecture context from scope" }),
+      screen.queryByRole("button", {
+        name: `Remove ${scopeBulletBehavior("context").label} from scope`,
+      }),
     ).not.toBeInTheDocument();
   });
 
@@ -137,7 +141,7 @@ describe("ArchitectureScopeUnderstandingCheckPanel", () => {
 
     fireEvent.keyDown(addInput, { key: "Enter" });
 
-    expect(screen.queryByLabelText("Also in scope")).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(scopeBulletBehavior("custom").label)).not.toBeInTheDocument();
     expect(addInput).toHaveValue("1234!!");
   });
 
@@ -156,7 +160,7 @@ describe("ArchitectureScopeUnderstandingCheckPanel", () => {
   it("keeps spaces while the operator types in a row", () => {
     render(<ArchitectureScopeUnderstandingCheckPanel input={{ architectureName: "Vertex" }} />);
 
-    const systemRow = screen.getByLabelText("Primary system or architecture");
+    const systemRow = screen.getByLabelText(scopeBulletBehavior("system").label);
 
     fireEvent.change(systemRow, { target: { value: "Vertex " } });
 
@@ -168,7 +172,7 @@ describe("ArchitectureScopeUnderstandingCheckPanel", () => {
       <ArchitectureScopeUnderstandingCheckPanel input={{ architectureName: "Vertex", businessOutcome: "Faster" }} />,
     );
 
-    fireEvent.change(screen.getByLabelText("Primary system or architecture"), {
+    fireEvent.change(screen.getByLabelText(scopeBulletBehavior("system").label), {
       target: { value: "Vertex EU only" },
     });
 
@@ -178,24 +182,48 @@ describe("ArchitectureScopeUnderstandingCheckPanel", () => {
       />,
     );
 
-    expect(screen.getByLabelText("Primary system or architecture")).toHaveValue("Vertex EU only");
-    expect(screen.getByLabelText("Business outcome")).toHaveValue("Faster and cheaper");
+    expect(screen.getByLabelText(scopeBulletBehavior("system").label)).toHaveValue("Vertex EU only");
+    expect(screen.getByLabelText(scopeBulletBehavior("outcome").label)).toHaveValue("Faster and cheaper");
   });
 
-  it("does not bring back a row the operator removed", () => {
-    const { rerender } = render(
-      <ArchitectureScopeUnderstandingCheckPanel input={{ architectureName: "Vertex", businessOutcome: "Faster" }} />,
-    );
-
-    fireEvent.click(screen.getByRole("button", { name: "Remove Business outcome from scope" }));
-
-    rerender(
+  it("does not show Remove on intake-derived rows that generation depends on", () => {
+    render(
       <ArchitectureScopeUnderstandingCheckPanel
-        input={{ architectureName: "Vertex 2", businessOutcome: "Faster" }}
+        input={{ architectureName: "Vertex", businessOutcome: "Faster review cycles" }}
       />,
     );
 
-    expect(screen.queryByLabelText("Business outcome")).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", {
+        name: `Remove ${scopeBulletBehavior("system").label} from scope`,
+      }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", {
+        name: `Remove ${scopeBulletBehavior("outcome").label} from scope`,
+      }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("does not bring back a custom row the operator removed", () => {
+    render(<ArchitectureScopeUnderstandingCheckPanel input={{ architectureName: "Vertex" }} />);
+
+    fireEvent.change(screen.getByLabelText(SCOPE_UNDERSTANDING_ADD_LABEL), {
+      target: { value: "PCI cardholder data zone" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: SCOPE_UNDERSTANDING_ADD_BUTTON_LABEL }));
+    fireEvent.click(screen.getByRole("button", { name: "Remove PCI cardholder data zone from scope" }));
+
+    expect(screen.queryByDisplayValue("PCI cardholder data zone")).not.toBeInTheDocument();
+  });
+
+  it("keeps Confirm scope disabled until a brief-backed in-scope item exists", () => {
+    render(<ArchitectureScopeUnderstandingCheckPanel input={{}} />);
+
+    expect(screen.getByRole("button", { name: SCOPE_UNDERSTANDING_CONFIRM_LABEL })).toBeDisabled();
+    expect(screen.getByTestId("architecture-scope-understanding-confirm-readiness")).toHaveTextContent(
+      SCOPE_UNDERSTANDING_CONFIRM_BLOCKED_HINT,
+    );
   });
 
   it("confirms scope after the operator chooses Confirm scope", () => {
@@ -212,6 +240,20 @@ describe("ArchitectureScopeUnderstandingCheckPanel", () => {
 
     expect(screen.getByTestId("architecture-scope-understanding-ready")).toBeInTheDocument();
     expect(onGateChange).toHaveBeenCalledWith(true);
+  });
+
+  it("shows a Saving chip instead of the ready line while draft persistence is in flight", () => {
+    render(
+      <ArchitectureScopeUnderstandingCheckPanel
+        input={{ architectureName: "Vertex" }}
+        draftSaveState="saving"
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: SCOPE_UNDERSTANDING_CONFIRM_LABEL }));
+
+    expect(screen.getByTestId("architecture-scope-understanding-saving")).toHaveTextContent("Saving…");
+    expect(screen.queryByTestId("architecture-scope-understanding-ready")).not.toBeInTheDocument();
   });
 
   it("reopens the gate when the form changes after scope was confirmed", () => {
@@ -235,6 +277,6 @@ describe("ArchitectureScopeUnderstandingCheckPanel", () => {
 
     expect(screen.queryByTestId("architecture-scope-understanding-ready")).not.toBeInTheDocument();
     expect(onGateChange).toHaveBeenLastCalledWith(false);
-    expect(screen.getByLabelText("Primary system or architecture")).toHaveValue("Vertex 2");
+    expect(screen.getByLabelText(scopeBulletBehavior("system").label)).toHaveValue("Vertex 2");
   });
 });
