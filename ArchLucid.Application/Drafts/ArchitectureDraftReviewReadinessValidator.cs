@@ -1,5 +1,3 @@
-using System.Text.RegularExpressions;
-
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Drafts;
@@ -7,12 +5,9 @@ using ArchLucid.Contracts.Drafts;
 namespace ArchLucid.Application.Drafts;
 
 /// <summary>Fail-closed review-start readiness for architecture drafts (TB-2282).</summary>
-public static partial class ArchitectureDraftReviewReadinessValidator
+public static class ArchitectureDraftReviewReadinessValidator
 {
     private const int MinimumOutcomeLength = 10;
-
-    [GeneratedRegex(@"\d")]
-    private static partial Regex NumericTokenPattern();
 
     public static IReadOnlyList<string> EvaluateBlockers(DraftRequestDocument document)
     {
@@ -41,8 +36,8 @@ public static partial class ArchitectureDraftReviewReadinessValidator
         if (!HasConfirmedActor(document.ActorSet))
             blockers.Add("confirmed actor");
 
-        if (!QualityAttributeMeetsMinimum(document.StructuredBrief.QualityAttribute))
-            blockers.Add("quality attributes with at least one numeric target");
+        if (!ArchitectureDraftStructuredBrief.QualityAttributeMeetsMinimum(document.StructuredBrief.QualityAttribute))
+            blockers.Add("quality attributes");
 
         return blockers;
     }
@@ -87,13 +82,5 @@ public static partial class ArchitectureDraftReviewReadinessValidator
         }
 
         return false;
-    }
-
-    private static bool QualityAttributeMeetsMinimum(string? qualityAttribute)
-    {
-        if (!ArchitectureDraftStructuredBrief.IsConfirmedBriefEntry(qualityAttribute))
-            return false;
-
-        return NumericTokenPattern().IsMatch(qualityAttribute!.Trim());
     }
 }

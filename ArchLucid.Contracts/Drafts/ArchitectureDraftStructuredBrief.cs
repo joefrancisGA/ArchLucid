@@ -61,12 +61,36 @@ public sealed class ArchitectureDraftStructuredBrief
         set;
     } = [];
 
-    /// <summary>RTO/RPO, latency, volume, or cost ceiling — must include a numeric value when set.</summary>
+    /// <summary>RTO/RPO, latency, volume, cost ceiling, or qualitative targets such as defense in depth.</summary>
     [JsonPropertyName("qualityAttribute")]
     public string? QualityAttribute
     {
         get;
         set;
+    }
+
+    /// <summary>Splits a stored quality-attribute string into chip entries (semicolon-delimited).</summary>
+    public static IReadOnlyList<string> ParseQualityAttributeEntries(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            return [];
+
+        return value
+            .Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Where(entry => entry.Length > 0)
+            .ToList();
+    }
+
+    /// <summary>TB-2282: at least one confirmed quality-attribute chip is required for review start.</summary>
+    public static bool QualityAttributeMeetsMinimum(string? qualityAttribute)
+    {
+        foreach (string entry in ParseQualityAttributeEntries(qualityAttribute))
+        {
+            if (IsConfirmedBriefEntry(entry))
+                return true;
+        }
+
+        return false;
     }
 
     [JsonPropertyName("failureModeNote")]

@@ -36,9 +36,9 @@ describe("projectStructuredBriefOntoCreateRunPayload", () => {
     expect(projected.assumptions).toEqual(["Single-region MVP"]);
     expect(projected.requiredCapabilities).toEqual(["Audit trail export"]);
     expect(projected.inlineRequirements).toEqual([
-      "Quality attribute: p99 latency < 200ms",
-      "Failure mode / continuity: Queue backlog must not block intake",
-      "Operational owner: Platform SRE",
+      "Quality Attribute: p99 latency < 200ms",
+      "Failure mode and recovery: Queue backlog must not block intake",
+      "Operational Owner: Platform SRE",
     ]);
   });
 });

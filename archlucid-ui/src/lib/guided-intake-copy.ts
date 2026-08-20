@@ -17,13 +17,15 @@ export const GUIDED_INTAKE_CREATION_STEP0_CARD_DESCRIPTION =
 export const GUIDED_INTAKE_CREATION_INTRO =
   "Describe your architecture, then answer a short set of guided questions.";
 
-export const GUIDED_INTAKE_ARCHITECTURE_INTENT_LABEL = "Architecture intent";
+export const GUIDED_INTAKE_ARCHITECTURE_INTENT_LABEL = "Architecture Intent";
 
-export const GUIDED_INTAKE_CREATION_ARCHITECTURE_OVERVIEW_LABEL = "Architecture overview";
+export const GUIDED_INTAKE_CREATION_ARCHITECTURE_OVERVIEW_LABEL = "Architecture Overview";
 
-export const GUIDED_INTAKE_CREATION_BUSINESS_OUTCOME_LABEL = "Business outcome";
+export const GUIDED_INTAKE_CREATION_BUSINESS_OUTCOME_LABEL = "Business Outcome";
 
-export const GUIDED_INTAKE_CREATION_SYSTEM_NAME_LABEL = "System name";
+export const GUIDED_INTAKE_CREATION_SYSTEM_NAME_LABEL = "System Name";
+
+export const GUIDED_INTAKE_ARCHITECTURE_CONTEXT_LABEL = "Architecture Context";
 
 export const GUIDED_INTAKE_CREATION_SYSTEM_NAME_PLACEHOLDER = "Example: Claims intake platform";
 
@@ -90,13 +92,13 @@ export const GUIDED_INTAKE_ACTORS_EMPTY_STATE = "No people or systems added yet.
 export const GUIDED_INTAKE_INTERACTION_TIMING_HINT =
   "Choose Async batch if work is submitted now and the result arrives later.";
 
-/** Start review guided intake — field label is Architecture intent. */
+/** Start review guided intake — field label is Architecture Intent. */
 export const GUIDED_INTAKE_SUGGEST_ACTORS_BUTTON = "Suggest from architecture intent";
 
 export const GUIDED_INTAKE_SUGGEST_ACTORS_DISABLED_HINT =
   "Enter an architecture intent to generate suggestions.";
 
-/** Create-architecture guided intake — field label is Architecture overview. */
+/** Create-architecture guided intake — field label is Architecture Overview. */
 export const GUIDED_INTAKE_CREATION_SUGGEST_ACTORS_BUTTON = "Suggest from architecture overview";
 
 export const GUIDED_INTAKE_CREATION_SUGGEST_ACTORS_DISABLED_HINT =
@@ -119,26 +121,37 @@ export function guidedIntakeStructuredBriefSuggestDisabledHint(trimmedOverviewLe
     return "Enter an architecture overview before suggesting structured brief items.";
   }
 
-  return `Architecture overview needs at least ${ARCHITECTURE_REQUEST_DRAFT_MIN_DESCRIPTION_CHARS} characters before suggestions can run.`;
+  return `${GUIDED_INTAKE_CREATION_ARCHITECTURE_OVERVIEW_LABEL} needs at least ${ARCHITECTURE_REQUEST_DRAFT_MIN_DESCRIPTION_CHARS} characters before suggestions can run.`;
 }
 
-export const GUIDED_INTAKE_STRUCTURED_BRIEF_QUALITY_ATTRIBUTES_LABEL = "Quality attributes";
+export const GUIDED_INTAKE_STRUCTURED_BRIEF_SECTION_LABEL = "Structured Brief";
+
+export const GUIDED_INTAKE_STRUCTURED_BRIEF_REQUIRED_CAPABILITIES_LABEL = "Required Capabilities";
+
+export const GUIDED_INTAKE_STRUCTURED_BRIEF_QUALITY_ATTRIBUTES_LABEL = "Quality Attributes";
+
+export const GUIDED_INTAKE_TRUST_ORIGIN_LABEL = "Trust Origin";
+
+export const GUIDED_INTAKE_ADVANCED_OPTIONS_LABEL = "Advanced Options";
 
 export const GUIDED_INTAKE_STRUCTURED_BRIEF_QUALITY_ATTRIBUTES_PLACEHOLDER =
-  "e.g. p95 latency 200ms";
+  "e.g. p95 latency 200ms or defense in depth";
 
 export const GUIDED_INTAKE_STRUCTURED_BRIEF_QUALITY_ATTRIBUTES_HINT =
-  "Add one measurable target at a time. At least one entry must include a number. Examples include recovery time, latency, throughput, availability, or cost — not limited to those categories.";
+  "Add one target at a time. Numeric targets (latency, RTO, throughput) and qualitative ones (defense in depth, zero trust) are both valid.";
 
-export const GUIDED_INTAKE_STRUCTURED_BRIEF_FAILURE_MODE_LABEL = "Failure mode / continuity";
+export const GUIDED_INTAKE_STRUCTURED_BRIEF_FAILURE_MODE_LABEL = "Failure mode and recovery";
+
+export const GUIDED_INTAKE_STRUCTURED_BRIEF_FAILURE_MODE_INLINE_PREFIX =
+  GUIDED_INTAKE_STRUCTURED_BRIEF_FAILURE_MODE_LABEL;
 
 export const GUIDED_INTAKE_STRUCTURED_BRIEF_FAILURE_MODE_HINT =
-  "What breaks first and how operators recover.";
+  "What breaks first in the design and how operators recover — not org-wide business continuity.";
 
 export const GUIDED_INTAKE_STRUCTURED_BRIEF_FAILURE_MODE_PLACEHOLDER =
   "e.g. API outage; failover to secondary region";
 
-export const GUIDED_INTAKE_STRUCTURED_BRIEF_OPERATIONAL_OWNER_LABEL = "Operational owner";
+export const GUIDED_INTAKE_STRUCTURED_BRIEF_OPERATIONAL_OWNER_LABEL = "Operational Owner";
 
 export const GUIDED_INTAKE_STRUCTURED_BRIEF_OPERATIONAL_OWNER_HINT =
   "Team or role accountable for runbooks and on-call.";

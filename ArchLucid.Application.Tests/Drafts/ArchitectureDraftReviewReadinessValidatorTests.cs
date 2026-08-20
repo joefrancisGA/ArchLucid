@@ -22,7 +22,7 @@ public sealed class ArchitectureDraftReviewReadinessValidatorTests
 
         blockers.Should().Contain("constraints");
         blockers.Should().Contain("assumptions");
-        blockers.Should().Contain("quality attributes with at least one numeric target");
+        blockers.Should().Contain("quality attributes");
     }
 
     [Fact]
@@ -62,7 +62,16 @@ public sealed class ArchitectureDraftReviewReadinessValidatorTests
 
         blockers.Should().Contain("constraints");
         blockers.Should().Contain("assumptions");
-        blockers.Should().Contain("quality attributes with at least one numeric target");
+        blockers.Should().Contain("quality attributes");
+    }
+
+    [Fact]
+    public void EvaluateBlockers_WhenQualitativeQualityAttributesOnly_ReturnsEmpty()
+    {
+        DraftRequestDocument document = CreateReadyDocument();
+        document.StructuredBrief.QualityAttribute = "defense in depth; zero trust";
+
+        ArchitectureDraftReviewReadinessValidator.EvaluateBlockers(document).Should().BeEmpty();
     }
 
     [Fact]
