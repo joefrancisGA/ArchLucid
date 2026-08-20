@@ -6,7 +6,6 @@ using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Core.AiUsage;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Integration;
-using ArchLucid.Core.Persistence.ApplicationPorts.IntegrationOutbox;
 using ArchLucid.Core.Persistence.ApplicationPorts.Runs;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;

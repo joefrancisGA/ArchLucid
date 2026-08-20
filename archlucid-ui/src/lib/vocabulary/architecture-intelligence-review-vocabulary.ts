@@ -41,7 +41,7 @@ export const ARCHITECTURE_INTELLIGENCE_REVIEW_REVIEWS_PEER_LINK: ArchitectureInt
   id: "review-workspace",
   label: "Reviews (open workspace)",
   href: REVIEWS_LIST_PATH,
-  whenToUse: "Open an architecture review package to triage findings and finalize.",
+  whenToUse: "Open an architecture review to triage findings and finalize.",
 };
 
 export const ARCHITECTURE_INTELLIGENCE_REVIEW_TOOL_LINK: ArchitectureIntelligenceReviewLink = {
@@ -65,7 +65,7 @@ export function buildArchitectureIntelligenceReviewPairwiseRail(
       whyTwo: ARCHITECTURE_INTELLIGENCE_REVIEW_WHY_TWO,
       compactLine: ARCHITECTURE_INTELLIGENCE_REVIEW_COMPACT_LINE,
       reviewSideLabel: "Review workspace",
-      reviewSideWhenToUse: "Triage findings, capture evidence, and finalize this review package.",
+      reviewSideWhenToUse: "Triage findings, capture evidence, and finalize this architecture review.",
     },
     reviewsPeerFallbackLink: ARCHITECTURE_INTELLIGENCE_REVIEW_REVIEWS_PEER_LINK,
     externalPeerLinkBase: ARCHITECTURE_INTELLIGENCE_REVIEW_TOOL_LINK,
