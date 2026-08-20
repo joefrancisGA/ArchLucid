@@ -121,6 +121,7 @@ export function ConnectGcpSecurelyHelpEvidenceOrientationStrip(): React.JSX.Elem
         title={CONNECT_GCP_SECURELY_FOLLOW_UPS_TITLE}
         intro={CONNECT_GCP_SECURELY_SOURCES_INTRO}
         links={CONNECT_GCP_SECURELY_SOURCES}
+        layout="columns"
       />
     </EvidenceOrientationStripShell>
   );
@@ -212,6 +213,7 @@ export function PricingEvidenceOrientationStrip(props: {
         intro={PRICING_SOURCES_INTRO}
         links={PRICING_SOURCES}
         style={EVIDENCE_SOURCES_STYLE.evaluationMuted}
+        distinguishFollowUpDestinations={false}
       />
     </EvidenceOrientationStripShell>
   );
@@ -283,6 +285,7 @@ export function UsersAndRolesHelpEvidenceOrientationStrip(): React.JSX.Element {
         title={HELP_DILIGENCE_ARTIFACT_INDEX_TITLE}
         intro={USERS_AND_ROLES_HELP_SOURCES_INTRO}
         links={USERS_AND_ROLES_HELP_SOURCES}
+        layout="columns"
       />
     </EvidenceOrientationStripShell>
   );

@@ -11,7 +11,7 @@ import {
 import { useWhereToGoNextVisible } from "@/components/WhereToGoNextPreferenceProvider";
 import { resolveClaimDisciplineForStrip } from "@/lib/claim-discipline-policy";
 import type { EvidenceOrientationLink } from "@/lib/evidence-surface-copy";
-import { HUB_SECONDARY_SOURCES_LAYOUT } from "@/lib/evidence-orientation/hub-secondary-follow-ups";
+import { WHERE_TO_GO_NEXT_SOURCES_LAYOUT } from "@/lib/evidence-orientation/hub-secondary-follow-ups";
 import { HELP_DILIGENCE_ARTIFACT_INDEX_TITLE } from "@/lib/help/help-diligence-artifact-index";
 import type { EvidenceOrientationSourcesLayout } from "@/components/evidence-orientation/EvidenceOrientationSourcesSection";
 
@@ -40,14 +40,14 @@ export type EvidenceOrientationClaimAndSourcesStripProps = {
   readonly sourcesHeadingId?: string;
   readonly sourcesTestId?: string;
   readonly sourcesLayout?: EvidenceOrientationSourcesLayout;
-  /** Hub pages below primary workspace — defaults sourcesLayout to wrap when sourcesLayout is omitted. */
+  /** Hub pages below primary workspace — same columns layout when sourcesLayout is omitted. */
   readonly hubSecondary?: boolean;
   /** Optional body scale for claim + sources list — help specialty guides pass readingBody. */
   readonly readingBodyClassName?: string;
   /** Optional heading scale for claim + sources h2 bands — help specialty guides pass sectionTitle. */
   readonly headingClassName?: string;
   readonly stripTestId?: string;
-  /** Help topic strips default true so follow-up links prefix Read vs Open. */
+  /** Where to go next strips default true so follow-up links prefix Read vs Open. */
   readonly distinguishFollowUpDestinations?: boolean;
   readonly promotedSourceHref?: string;
 };
@@ -59,7 +59,7 @@ export type EvidenceOrientationClaimAndSourcesStripProps = {
  *
  * `claimElement`, `sourcesStyle`, and `sourcesLayout` default to that operator preset rather than
  * to the leaf-primitive defaults, which are tuned for marketing bands. Surfaces wanting the leaf
- * look pass `"aside"` / `operatorMuted` / `"wrap"` explicitly.
+ * look pass `"aside"` / `operatorMuted` / `"wrap"` explicitly. Where to go next strips default to `"columns"`.
  */
 export function EvidenceOrientationClaimAndSourcesStrip({
   slug,
@@ -76,7 +76,6 @@ export function EvidenceOrientationClaimAndSourcesStrip({
   sourcesHeadingId,
   sourcesTestId,
   sourcesLayout,
-  hubSecondary = false,
   readingBodyClassName,
   headingClassName,
   stripTestId,
@@ -86,7 +85,7 @@ export function EvidenceOrientationClaimAndSourcesStrip({
   const whereToGoNextVisible = useWhereToGoNextVisible();
   const resolvedClaim: string | undefined = resolveClaimDisciplineForStrip(slug, claim);
   const resolvedSourcesLayout: EvidenceOrientationSourcesLayout =
-    sourcesLayout ?? (hubSecondary ? HUB_SECONDARY_SOURCES_LAYOUT : "stacked");
+    sourcesLayout ?? WHERE_TO_GO_NEXT_SOURCES_LAYOUT;
 
   if (!whereToGoNextVisible && resolvedClaim === undefined) {
     return null;

@@ -119,7 +119,6 @@ export function GcpCloudConnectionDetailClient() {
           sources={cloudProviderConnectionSources("gcp")}
           claimElement="aside"
           sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorMuted}
-          sourcesLayout="wrap"
         />
       </div>
     </GcpConnectionDataProvider>

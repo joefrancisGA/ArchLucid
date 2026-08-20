@@ -90,7 +90,10 @@ describe("OperatorHomePageView buyer-polished shell (HOM)", () => {
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
 
     expect(screen.getByRole("heading", { level: 2, name: OPERATOR_HOME_FOLLOW_UPS_TITLE })).toBeInTheDocument();
-    expect(screen.getByTestId("operator-home-settings-sources").querySelector("ul")).toHaveClass("flex-wrap");
+    expect(screen.getByTestId("operator-home-settings-sources")).toHaveAttribute("data-layout", "columns");
+    expect(screen.getByTestId("operator-home-settings-sources").querySelector("ul")).toHaveClass(
+      "sm:grid-cols-2",
+    );
     expect(screen.getByTestId("operator-home-settings-sources").querySelector("p")).toHaveClass("max-w-none");
 
     const primaryContent = screen.getByTestId("operator-home-primary-content");

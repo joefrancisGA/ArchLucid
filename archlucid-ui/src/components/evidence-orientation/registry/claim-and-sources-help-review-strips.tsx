@@ -421,7 +421,6 @@ export function SearchReviewEvidenceHelpEvidenceOrientationStrip(): React.JSX.El
       sourcesIntro={SEARCH_REVIEW_EVIDENCE_HELP_SOURCES_INTRO}
       sources={SEARCH_REVIEW_EVIDENCE_HELP_SOURCES}
       sourcesHeadingId="where-to-go-next"
-      sourcesLayout="wrap"
       readingBodyClassName={HELP_PAGE_LAYOUT.readingBody}
     />
   );
@@ -477,7 +476,6 @@ export function DataHandlingTenantIsolationHelpEvidenceOrientationStrip(
       sourcesIntro={DATA_HANDLING_TENANT_ISOLATION_HELP_SOURCES_INTRO}
       sources={DATA_HANDLING_TENANT_ISOLATION_HELP_ORIENTATION_SOURCES}
       sourcesHeadingId={DATA_HANDLING_TENANT_ISOLATION_HELP_SOURCES_HEADING_ID}
-      sourcesLayout="stacked"
       readingBodyClassName={props.readingBodyClassName ?? HELP_PAGE_LAYOUT.readingBody}
     />
   );
@@ -496,7 +494,6 @@ export function PathChooserHelpEvidenceOrientationStrip(
       sourcesIntro={PATH_CHOOSER_HELP_RELATED_NEXT_STEPS_INTRO}
       sources={PATH_CHOOSER_HELP_SOURCES}
       sourcesHeadingId="related-next-steps"
-      sourcesLayout="wrap"
       readingBodyClassName={props.readingBodyClassName ?? HELP_PAGE_LAYOUT.readingBody}
     />
   );
@@ -515,7 +512,6 @@ export function ArchitectureDraftsHelpEvidenceOrientationStrip(
       sourcesIntro={ARCHITECTURE_DRAFTS_HELP_SOURCES_INTRO}
       sources={ARCHITECTURE_DRAFTS_HELP_SOURCES}
       sourcesHeadingId="where-to-go-next"
-      sourcesLayout="wrap"
       readingBodyClassName={props.readingBodyClassName ?? HELP_PAGE_LAYOUT.readingBody}
     />
   );

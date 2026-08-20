@@ -82,8 +82,8 @@ describe("EvidenceOrientationClaimAndSourcesStrip", () => {
     expect(screen.getByTestId("preset-default-sources")).toHaveClass(
       ...EVIDENCE_SOURCES_STYLE.operatorRaised.panel.split(" "),
     );
-    // `stacked` gives each follow-up its own line; the `wrap` chip row would set flex-wrap instead.
-    expect(screen.getByRole("list")).toHaveClass("space-y-2");
+    expect(screen.getByTestId("preset-default-sources")).toHaveAttribute("data-layout", "columns");
+    expect(screen.getByRole("list")).toHaveClass("sm:grid-cols-2");
     expect(screen.getByRole("list")).not.toHaveClass("flex-wrap");
   });
 
