@@ -122,7 +122,7 @@ public sealed class DraftRequestProjectorTests
         request.RequiredCapabilities.Should().ContainSingle("Managed identity");
         request.Assumptions.Should().Contain(a => a.Contains("Team has landing zone access", StringComparison.Ordinal));
         request.InlineRequirements.Should().Contain("Quality attribute: RTO 4h");
-        request.InlineRequirements.Should().Contain("Failure mode / continuity: Queue backlog delays intake");
+        request.InlineRequirements.Should().Contain("Failure mode and recovery: Queue backlog delays intake");
         request.InlineRequirements.Should().Contain("Operational owner: Platform operations");
     }
 

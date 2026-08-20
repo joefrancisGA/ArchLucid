@@ -43,7 +43,7 @@ describe("architecture-draft-readiness", () => {
 
     expect(validateArchitectureDraftIntegrity(incomplete).isValid).toBe(true);
     expect(validateArchitectureReviewReadiness(incomplete, [assertedActor]).isValid).toBe(false);
-    expect(validateArchitectureReviewReadiness(incomplete, [assertedActor]).blockers).toContain("system name");
+    expect(validateArchitectureReviewReadiness(incomplete, [assertedActor]).blockers).toContain("system-name");
   });
 
   it("blocks draft integrity only when partial fields violate format rules", () => {
@@ -67,7 +67,7 @@ describe("architecture-draft-readiness", () => {
     };
 
     expect(validateArchitectureReviewReadiness(namedReadyExceptName, [assertedActor]).isValid).toBe(false);
-    expect(validateArchitectureReviewReadiness(namedReadyExceptName, [assertedActor]).blockers).toEqual(["system name"]);
+    expect(validateArchitectureReviewReadiness(namedReadyExceptName, [assertedActor]).blockers).toEqual(["system-name"]);
   });
 
   it("blocks review start when only unknown sentinel placeholders are present (TB-2343)", () => {
@@ -88,7 +88,7 @@ describe("architecture-draft-readiness", () => {
     expect(result.isValid).toBe(false);
     expect(result.blockers).toContain("constraints");
     expect(result.blockers).toContain("assumptions");
-    expect(result.blockers).toContain("quality attributes with at least one numeric target");
+    expect(result.blockers).toContain("quality-attributes");
   });
 
   it("allows mixed sentinel and real constraint while still requiring real assumption (TB-2343)", () => {
@@ -111,6 +111,23 @@ describe("architecture-draft-readiness", () => {
     expect(result.blockers).toContain("assumptions");
   });
 
+  it("allows review start with qualitative-only quality attributes", () => {
+    const qualitativeOnly = {
+      freeTextIntent: readyOverview,
+      businessOutcome: "Reduce cycle time for governed architecture reviews.",
+      systemName: "Claims intake",
+      structuredBrief: {
+        ...readyStructuredBrief(),
+        qualityAttribute: "defense in depth; zero trust",
+      },
+    };
+
+    const result = validateArchitectureReviewReadiness(qualitativeOnly, [assertedActor]);
+
+    expect(result.isValid).toBe(true);
+    expect(result.blockers).not.toContain("quality-attributes");
+  });
+
   it("blocks review start when only legacy name/overview/outcome minimums are met (TB-2282)", () => {
     const legacyMinimumOnly = {
       freeTextIntent: readyOverview,
@@ -124,7 +141,7 @@ describe("architecture-draft-readiness", () => {
     expect(result.isValid).toBe(false);
     expect(result.blockers).toContain("constraints");
     expect(result.blockers).toContain("assumptions");
-    expect(result.blockers).toContain("quality attributes with at least one numeric target");
+    expect(result.blockers).toContain("quality-attributes");
   });
 
   it("gates deferred server create until at least one valid field has content", () => {

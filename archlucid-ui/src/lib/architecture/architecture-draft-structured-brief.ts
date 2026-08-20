@@ -44,14 +44,104 @@ export function listHasConfirmedEntry(items: readonly string[]): boolean {
   return items.some((item) => isConfirmedBriefEntry(item));
 }
 
-export function qualityAttributeMeetsMinimum(value: string): boolean {
-  const entries = parseQualityAttributeEntries(value);
+export function listHasUnknownConfirmSentinel(items: readonly string[]): boolean {
+  return items.some((item) => isUnknownConfirmSentinel(item));
+}
 
-  if (entries.length === 0) {
+/**
+ * Unknown and stated facts cannot coexist on the same chip list.
+ * Mark unknown stays off once a real item is selected, or once unknown is already set.
+ */
+export function isMarkUnknownControlDisabled(
+  items: readonly string[],
+  editorDisabled: boolean,
+): boolean {
+  if (editorDisabled) {
+    return true;
+  }
+
+  if (listHasConfirmedEntry(items)) {
+    return true;
+  }
+
+  return listHasUnknownConfirmSentinel(items);
+}
+
+/** Input, Add, and Confirm stay off while the unknown sentinel is selected. */
+export function areConfirmedFactControlsDisabled(
+  items: readonly string[],
+  editorDisabled: boolean,
+  allowMarkUnknown: boolean,
+): boolean {
+  if (editorDisabled) {
+    return true;
+  }
+
+  if (!allowMarkUnknown) {
     return false;
   }
 
-  return entries.some((entry) => isConfirmedBriefEntry(entry) && /\d/.test(entry));
+  return listHasUnknownConfirmSentinel(items);
+}
+
+export function markUnknownDisabledReason(items: readonly string[]): string | undefined {
+  if (listHasConfirmedEntry(items)) {
+    return "Remove selected items before marking this field unknown.";
+  }
+
+  if (listHasUnknownConfirmSentinel(items)) {
+    return "This field is already marked unknown.";
+  }
+
+  return undefined;
+}
+
+export function confirmedFactControlsDisabledReason(
+  items: readonly string[],
+  allowMarkUnknown: boolean,
+): string | undefined {
+  if (!allowMarkUnknown) {
+    return undefined;
+  }
+
+  if (!listHasUnknownConfirmSentinel(items)) {
+    return undefined;
+  }
+
+  return "Remove the unknown marker before adding or confirming items.";
+}
+
+/**
+ * Adds either the unknown sentinel or a stated fact, never both.
+ * Stated facts replace an existing unknown marker; unknown is ignored when facts exist.
+ */
+export function mergeExclusiveConfirmedItem(
+  existing: readonly string[],
+  value: string,
+): string[] {
+  const trimmed = value.trim();
+
+  if (trimmed.length === 0) {
+    return [...existing];
+  }
+
+  if (isUnknownConfirmSentinel(trimmed)) {
+    if (listHasConfirmedEntry(existing)) {
+      return [...existing];
+    }
+
+    return mergeUniqueStrings(existing, [ARCHITECTURE_DRAFT_UNKNOWN_CONFIRM_LABEL]);
+  }
+
+  const withoutUnknown = existing.filter((item) => !isUnknownConfirmSentinel(item));
+
+  return mergeUniqueStrings(withoutUnknown, [trimmed]);
+}
+
+export function qualityAttributeMeetsMinimum(value: string): boolean {
+  const entries = parseQualityAttributeEntries(value);
+
+  return entries.some((entry) => isConfirmedBriefEntry(entry));
 }
 
 /** Splits a stored quality-attribute string into chip entries (semicolon-delimited). */

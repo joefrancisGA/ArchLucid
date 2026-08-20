@@ -1,4 +1,8 @@
 import type { CreateArchitectureRunRequestPayload } from "@/lib/api/architecture-runs";
+import {
+  GUIDED_INTAKE_STRUCTURED_BRIEF_FAILURE_MODE_LABEL,
+  GUIDED_INTAKE_STRUCTURED_BRIEF_OPERATIONAL_OWNER_LABEL,
+} from "@/lib/guided-intake-copy";
 
 import type { ArchitectureDraftStructuredBriefState } from "./architecture-draft-structured-brief";
 import { mergeUniqueStrings } from "./architecture-draft-structured-brief";
@@ -40,18 +44,21 @@ export function projectStructuredBriefOntoCreateRunPayload(
   }
 
   if (structuredBrief.qualityAttribute.trim().length > 0) {
-    appendUnique(inlineRequirements, `Quality attribute: ${structuredBrief.qualityAttribute.trim()}`);
+    appendUnique(inlineRequirements, `Quality Attribute: ${structuredBrief.qualityAttribute.trim()}`);
   }
 
   if (structuredBrief.failureModeNote.trim().length > 0) {
     appendUnique(
       inlineRequirements,
-      `Failure mode / continuity: ${structuredBrief.failureModeNote.trim()}`,
+      `${GUIDED_INTAKE_STRUCTURED_BRIEF_FAILURE_MODE_LABEL}: ${structuredBrief.failureModeNote.trim()}`,
     );
   }
 
   if (structuredBrief.operationalOwner.trim().length > 0) {
-    appendUnique(inlineRequirements, `Operational owner: ${structuredBrief.operationalOwner.trim()}`);
+    appendUnique(
+      inlineRequirements,
+      `${GUIDED_INTAKE_STRUCTURED_BRIEF_OPERATIONAL_OWNER_LABEL}: ${structuredBrief.operationalOwner.trim()}`,
+    );
   }
 
   return {

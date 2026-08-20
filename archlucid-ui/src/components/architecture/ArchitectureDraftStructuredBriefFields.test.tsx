@@ -96,7 +96,9 @@ describe("ArchitectureDraftStructuredBriefFields", () => {
       <StructuredBriefHarness freeTextIntent={"Tenant migration platform with private networking and EU residency goals."} />,
     );
 
-    expect(screen.getByText(/Required capabilities/i)).toHaveTextContent("(optional)");
+    expect(
+      within(screen.getByTestId("architecture-draft-capabilities")).getByText(/^Required capabilities/i),
+    ).toHaveTextContent("(optional)");
     expect(screen.queryByText(/Required capabilities.*\(required\)/i)).not.toBeInTheDocument();
   });
 
@@ -112,8 +114,8 @@ describe("ArchitectureDraftStructuredBriefFields", () => {
         name: /Mark unknown/i,
       }),
     ).not.toBeInTheDocument();
-    expect(screen.getByText(/Add one measurable target at a time/i)).toBeInTheDocument();
-    expect(screen.getByText(/not limited to those categories/i)).toBeInTheDocument();
+    expect(screen.getByText(/Numeric targets \(latency, RTO, throughput\)/i)).toBeInTheDocument();
+    expect(screen.getByText(/qualitative ones \(defense in depth, zero trust\)/i)).toBeInTheDocument();
   });
 
   it("uses single-line inputs for optional narrative fields", () => {
@@ -163,6 +165,79 @@ describe("ArchitectureDraftStructuredBriefFields", () => {
     fireEvent.click(screen.getByTestId("architecture-draft-constraints-mark-unknown"));
 
     expect(screen.getByText(ARCHITECTURE_DRAFT_UNKNOWN_CONFIRM_LABEL)).toBeInTheDocument();
+  });
+
+  it("disables Mark unknown when a constraint is selected and restores it after removal", () => {
+    render(
+      <StructuredBriefHarness freeTextIntent={"Tenant migration platform with private networking and EU residency goals."} />,
+    );
+
+    const constraintInput = document.getElementById("architecture-draft-constraints-input");
+    expect(constraintInput).not.toBeNull();
+
+    fireEvent.change(constraintInput!, { target: { value: "EU data residency" } });
+    fireEvent.click(screen.getByTestId("architecture-draft-constraints-add"));
+
+    expect(screen.getByTestId("architecture-draft-constraints-mark-unknown")).toBeDisabled();
+    expect(screen.getByTestId("architecture-draft-constraints-mark-unknown")).toHaveAttribute(
+      "title",
+      "Remove selected items before marking this field unknown.",
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Remove EU data residency" }));
+
+    expect(screen.getByTestId("architecture-draft-constraints-mark-unknown")).toBeEnabled();
+  });
+
+  it("disables Mark unknown on assumptions and capabilities once items are selected", () => {
+    render(
+      <StructuredBriefHarness freeTextIntent={"Tenant migration platform with private networking and EU residency goals."} />,
+    );
+
+    const assumptionInput = document.getElementById("architecture-draft-assumptions-input");
+    const capabilityInput = document.getElementById("architecture-draft-capabilities-input");
+    expect(assumptionInput).not.toBeNull();
+    expect(capabilityInput).not.toBeNull();
+
+    fireEvent.change(assumptionInput!, { target: { value: "Single-region pilot" } });
+    fireEvent.click(screen.getByTestId("architecture-draft-assumptions-add"));
+    fireEvent.change(capabilityInput!, { target: { value: "Private networking" } });
+    fireEvent.click(screen.getByTestId("architecture-draft-capabilities-add"));
+
+    expect(screen.getByTestId("architecture-draft-assumptions-mark-unknown")).toBeDisabled();
+    expect(screen.getByTestId("architecture-draft-capabilities-mark-unknown")).toBeDisabled();
+  });
+
+  it("disables add while a field is marked unknown", () => {
+    render(
+      <StructuredBriefHarness freeTextIntent={"Tenant migration platform with private networking and EU residency goals."} />,
+    );
+
+    fireEvent.click(screen.getByTestId("architecture-draft-constraints-mark-unknown"));
+
+    expect(screen.getByTestId("architecture-draft-constraints-add")).toBeDisabled();
+    expect(document.getElementById("architecture-draft-constraints-input")).toBeDisabled();
+    expect(screen.getByTestId("architecture-draft-constraints-add")).toHaveAttribute(
+      "title",
+      "Remove the unknown marker before adding or confirming items.",
+    );
+  });
+
+  it("disables confirm on suggestions while unknown is selected", () => {
+    render(
+      <StructuredBriefHarness
+        freeTextIntent={"Tenant migration platform with private networking and EU residency goals."}
+        initialBrief={{
+          ...emptyArchitectureDraftStructuredBrief(),
+          confirmedConstraints: [ARCHITECTURE_DRAFT_UNKNOWN_CONFIRM_LABEL],
+          suggestedConstraints: ["EU data residency"],
+        }}
+      />,
+    );
+
+    expect(
+      within(screen.getByTestId("architecture-draft-constraints")).getByRole("button", { name: "Confirm" }),
+    ).toBeDisabled();
   });
 
   it("disables suggest when the monthly AI budget blocks execution", () => {

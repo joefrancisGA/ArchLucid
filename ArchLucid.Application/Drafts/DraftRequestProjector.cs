@@ -106,7 +106,7 @@ public sealed class DraftRequestProjector : IDraftRequestProjector
             requirements.Add($"Quality attribute: {structuredBrief.QualityAttribute!.Trim()}");
 
         if (ArchitectureDraftStructuredBrief.IsConfirmedBriefEntry(structuredBrief.FailureModeNote))
-            requirements.Add($"Failure mode / continuity: {structuredBrief.FailureModeNote!.Trim()}");
+            requirements.Add($"Failure mode and recovery: {structuredBrief.FailureModeNote!.Trim()}");
 
         if (ArchitectureDraftStructuredBrief.IsConfirmedBriefEntry(structuredBrief.OperationalOwner))
             requirements.Add($"Operational owner: {structuredBrief.OperationalOwner!.Trim()}");
