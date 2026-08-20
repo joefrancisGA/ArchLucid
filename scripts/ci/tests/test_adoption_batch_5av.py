@@ -21,10 +21,12 @@ class TestAdoptionBatch5AV(unittest.TestCase):
         self.assertIn("SponsorEvidencePackSent", text)
 
     def test_tb_243_ui_cta(self) -> None:
-        path = REPO_ROOT / "archlucid-ui" / "src" / "components" / "EmailRunToSponsorBanner.tsx"
-        text = path.read_text(encoding="utf-8")
-        self.assertIn("markSponsorPackSent", text)
-        self.assertIn("email-run-to-sponsor-mark-sent", text)
+        banner_path = REPO_ROOT / "archlucid-ui" / "src" / "components" / "EmailRunToSponsorBanner.tsx"
+        hook_path = REPO_ROOT / "archlucid-ui" / "src" / "components" / "use-email-run-to-sponsor-banner.ts"
+        banner_text = banner_path.read_text(encoding="utf-8")
+        hook_text = hook_path.read_text(encoding="utf-8")
+        self.assertIn("markSponsorPackSent", hook_text)
+        self.assertIn("email-run-to-sponsor-mark-sent", banner_text)
 
 
 if __name__ == "__main__":

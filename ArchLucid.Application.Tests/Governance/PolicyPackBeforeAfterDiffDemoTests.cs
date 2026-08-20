@@ -5,7 +5,9 @@ using ArchLucid.Application.Governance.PolicyPackBeforeAfterDiff;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Contracts.Governance.Resolution;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Governance.PolicyPacks;
+using ArchLucid.Core.Integration;
 using ArchLucid.Core.Llm.Redaction;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Transactions;
@@ -15,6 +17,7 @@ using ArchLucid.Decisioning.Models;
 using ArchLucid.Decisioning.Repositories;
 using ArchLucid.Host.Core.Services;
 using ArchLucid.Persistence.Governance;
+using ArchLucid.Persistence.IntegrationOutbox;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Repositories;
@@ -199,7 +202,15 @@ public sealed class PolicyPackBeforeAfterDiffDemoTests : VerifyBase
             .Callback<AuditEvent, CancellationToken>((auditEvent, _) => auditEvents.Add(auditEvent))
             .Returns(Task.CompletedTask);
 
-        PolicyPacksAppService appService = new(management, packs, versions, audit.Object);
+        PolicyPacksAppService appService = new(
+            management,
+            packs,
+            versions,
+            audit.Object,
+            Mock.Of<IIntegrationEventOutboxRepository>(),
+            Mock.Of<IIntegrationEventPublisher>(),
+            CreateIntegrationEventsOptionsMonitor(),
+            NullLogger<PolicyPacksAppService>.Instance);
 
         await packs.CreateAsync(
             new PolicyPack
@@ -289,4 +300,12 @@ public sealed class PolicyPackBeforeAfterDiffDemoTests : VerifyBase
 
     private static string NormalizeForVerifySnapshot(string text) =>
         text.ReplaceLineEndings("\n").TrimEnd() + "\n";
+
+    private static IOptionsMonitor<IntegrationEventsOptions> CreateIntegrationEventsOptionsMonitor()
+    {
+        Mock<IOptionsMonitor<IntegrationEventsOptions>> options = new();
+        options.Setup(o => o.CurrentValue).Returns(new IntegrationEventsOptions());
+
+        return options.Object;
+    }
 }

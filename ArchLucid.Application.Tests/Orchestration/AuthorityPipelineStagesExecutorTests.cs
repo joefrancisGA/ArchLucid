@@ -862,8 +862,16 @@ public sealed class AuthorityPipelineStagesExecutorTests
             Mock.Of<IIntegrationEventOutboxRepository>(),
             Mock.Of<IIntegrationEventPublisher>(),
             ArchitectureRunExecuteOrchestratorTestFactory.CreateIntegrationEventsOptionsMonitor(),
-            Options.Create(new PublicSiteOptions()),
+            CreatePublicSiteOptionsMonitor(),
             NullLogger<AuthorityPipelineStagesExecutor>.Instance), decision, audit);
+    }
+
+    private static IOptionsMonitor<PublicSiteOptions> CreatePublicSiteOptionsMonitor()
+    {
+        Mock<IOptionsMonitor<PublicSiteOptions>> options = new();
+        options.Setup(o => o.CurrentValue).Returns(new PublicSiteOptions());
+
+        return options.Object;
     }
 
     private sealed record HistogramMeasurement([UsedImplicitly] double Value, List<KeyValuePair<string, object?>> Tags);
