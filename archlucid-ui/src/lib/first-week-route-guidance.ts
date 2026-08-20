@@ -34,8 +34,13 @@ const BUYER_REVIEW_DETAIL_IN_PROGRESS_GUIDANCE: FirstWeekRouteGuidanceConfig = {
   useWhen: "The review is running or findings are ready but the sealed review record is not finalized yet.",
   bridgeCopy:
     "Stay on this page until you finalize — that locks the sealed review record and unlocks sponsor exports.",
+<<<<<<< HEAD
   primaryAction: { label: "Finalize this review", href: BUYER_REVIEW_DETAIL_IN_PROGRESS_FINALIZE_ANCHOR },
   operateDeferralNote: "Skip the graph and governance pages until after your first finalized review.",
+=======
+  // Primary CTA lives in ReviewPackageDoThisNextStrip above this callout.
+  operateDeferralNote: "Skip graph and governance dashboards until after commit unless your pilot explicitly needs them.",
+>>>>>>> 92e7a3ac0b (Demote duplicate next-action CTAs so Do this next owns the review page primary.)
 };
 
 export const FIRST_WEEK_ROUTE_GUIDANCE_REVIEW_DETAIL_COMMITTED_COLLAPSED_SUMMARY =
@@ -75,7 +80,7 @@ export const FIRST_WEEK_ROUTE_GUIDANCE: Record<FirstWeekRouteGuidanceVariant, Fi
     useWhen: "The review is finalized and you need sponsor-ready exports or a board summary.",
     bridgeCopy:
       "This review is complete — use the exports section in Review when you need deliverables for sponsors or auditors.",
-    primaryAction: { label: "Open exports section", href: "#artifacts-exports" },
+    // Primary CTA lives in ReviewPackageDoThisNextStrip above this callout.
     operateDeferralNote: "Operate surfaces unlock in the sidebar after your first committed review when you need compare, graph, or digests.",
   },
 };

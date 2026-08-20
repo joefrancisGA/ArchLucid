@@ -76,6 +76,7 @@ async function RunDetailPostCommitHabitIslandAsync(
       showCompareCta={projectContext.canShowCompareReviewButton}
       buyerShowcaseQuickLinks={m.usedStaticDemoRun}
       goldenManifestId={m.manifestId}
+      pagePrimaryOwnedElsewhere
     />
   );
 }

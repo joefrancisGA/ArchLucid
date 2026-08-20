@@ -9,7 +9,7 @@ import {
 import { RunDetailCreateHomeFindingsPanel } from "./RunDetailCreateHomeFindingsPanel";
 
 describe("RunDetailCreateHomeFindingsPanel", () => {
-  it("shows pre-finalize orientation with Activity tab link on create-home (TB-1852)", () => {
+  it("shows pre-finalize orientation copy without a duplicate Activity CTA (TB-1852)", () => {
     render(
       <RunDetailCreateHomeFindingsPanel runId="run-findings" packageCommitted={false}>
         <div data-testid="findings-body" />
@@ -19,14 +19,7 @@ describe("RunDetailCreateHomeFindingsPanel", () => {
     expect(screen.getByTestId("run-detail-create-home-findings-orientation")).toHaveTextContent(
       RUN_DETAIL_CREATE_HOME_FINDINGS_ORIENTATION_LEAD,
     );
-    expect(screen.getByRole("link", { name: RUN_DETAIL_CREATE_HOME_FINDINGS_ACTIVITY_CTA_LABEL })).toHaveAttribute(
-      "href",
-      expect.stringContaining("reviewTab=activity"),
-    );
-    expect(screen.getByRole("link", { name: RUN_DETAIL_CREATE_HOME_FINDINGS_ACTIVITY_CTA_LABEL })).toHaveAttribute(
-      "href",
-      expect.stringContaining("fromGeneration=1"),
-    );
+    expect(screen.queryByRole("link", { name: RUN_DETAIL_CREATE_HOME_FINDINGS_ACTIVITY_CTA_LABEL })).not.toBeInTheDocument();
     expect(screen.getByTestId("findings-body")).toBeInTheDocument();
   });
 
