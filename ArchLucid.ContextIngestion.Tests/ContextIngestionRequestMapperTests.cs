@@ -59,4 +59,36 @@ public sealed class ContextIngestionRequestMapperTests
         mapped.InfrastructureDeclarations[0].Name.Should().Be("env.json");
         mapped.InfrastructureDeclarations[0].Format.Should().Be("json");
     }
+
+    [Fact]
+    public void FromArchitectureRequest_AssignsStableDocumentAndDeclarationIdsAcrossRepeatedMaps()
+    {
+        ArchitectureRequest request = new()
+        {
+            Description = "1234567890 minimum len",
+            SystemName = "billing-api",
+            Environment = "prod",
+            CloudProvider = CloudProvider.Azure,
+            Documents =
+            [
+                new ContextDocumentRequest
+                {
+                    Name = "spec.txt", ContentType = "text/plain", Content = "REQ: Must scale"
+                }
+            ],
+            InfrastructureDeclarations =
+            [
+                new InfrastructureDeclarationRequest
+                {
+                    Name = "env.json", Format = "json", Content = """{"resources":[]}"""
+                }
+            ]
+        };
+
+        ContextIngestionRequest first = ContextIngestionRequestMapper.FromArchitectureRequest(request);
+        ContextIngestionRequest second = ContextIngestionRequestMapper.FromArchitectureRequest(request);
+
+        first.Documents[0].DocumentId.Should().Be(second.Documents[0].DocumentId);
+        first.InfrastructureDeclarations[0].DeclarationId.Should().Be(second.InfrastructureDeclarations[0].DeclarationId);
+    }
 }

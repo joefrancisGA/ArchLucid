@@ -1468,13 +1468,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 1
-- **bugs-found:** 1
+- **hunts:** 2
+- **bugs-found:** 2
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-19
-- **last-bug:** 2026-08-19
+- **last-hunt:** 2026-08-20
+- **last-bug:** 2026-08-20
 - **related-pd-tb:** none
-- **code-changed-since:** unknown
+- **code-changed-since:** yes
 
 ### Hypotheses
 
@@ -1482,6 +1482,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) Stage pipeline continues after a failed validation with partial graph — parsers skip bad declarations by design with warnings, not a validation gate
 - [x] (invalid) Duplicate external keys from two tenants collapse into one node — ingestion is per-project snapshot, not multi-tenant batch dedup
 - [x] (proven) `InfrastructureDeclarationConnector.DeltaAsync` keys resources by `SourceId` (declaration id) so multiple resources in one declaration collapse in `SetDiffConnectorDeltaComputer` — fixed with composite `SourceId|ObjectType|Name` key
+- [x] (proven) `ContextIngestionRequestMapper.FromArchitectureRequest` assigns fresh random `DocumentId` / `DeclarationId` on every map, so identical re-ingest reports false add/remove churn — fixed with `ContextIngestionStableReferenceIds` keyed by name + content type / format
 
 ---
 
