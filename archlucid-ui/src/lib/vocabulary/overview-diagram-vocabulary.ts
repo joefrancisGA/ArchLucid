@@ -12,7 +12,7 @@
  * (TB-2300).
  */
 
-import { buildArchitectureWorkspaceTabHref } from "@/lib/architecture/architecture-workspace-tabs";
+import { buildReviewWorkspaceTabHref } from "@/lib/unified-review-workspace-tabs";
 
 export type OverviewDiagramSurfaceId = "overview" | "diagram";
 
@@ -51,13 +51,13 @@ export function buildOverviewDiagramVocabulary(runId: string): OverviewDiagramVo
     overviewLink: {
       id: "overview",
       label: "Overview",
-      href: buildArchitectureWorkspaceTabHref(trimmed, "overview"),
+      href: buildReviewWorkspaceTabHref(trimmed, "overview"),
       whenToUse: "Read the structured brief summary for this architecture package.",
     },
     diagramLink: {
       id: "diagram",
       label: "Diagram",
-      href: buildArchitectureWorkspaceTabHref(trimmed, "diagram"),
+      href: buildReviewWorkspaceTabHref(trimmed, "architecture"),
       whenToUse: "View the illustrative architecture sketch for this package.",
     },
   };

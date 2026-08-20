@@ -37,7 +37,7 @@ describe("RunDetailCreateHomeEvidencePanel", () => {
     expect(screen.getByTestId("run-detail-create-home-evidence-diagram-cross-link")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: RUN_DETAIL_CREATE_HOME_EVIDENCE_DIAGRAM_CTA_LABEL })).toHaveAttribute(
       "href",
-      expect.stringContaining("archTab=diagram"),
+      expect.stringContaining("reviewTab=architecture"),
     );
     expect(screen.getByTestId("capture-evidence-region")).toBeInTheDocument();
   });

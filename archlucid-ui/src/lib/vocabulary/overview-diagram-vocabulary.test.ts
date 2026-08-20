@@ -7,7 +7,7 @@ import {
   buildOverviewDiagramVocabulary,
   resolveOverviewDiagramPeerLink,
 } from "@/lib/vocabulary/overview-diagram-vocabulary";
-import { buildArchitectureWorkspaceTabHref } from "@/lib/architecture/architecture-workspace-tabs";
+import { buildReviewWorkspaceTabHref } from "@/lib/unified-review-workspace-tabs";
 
 describe("overview-diagram-vocabulary (TB-2309)", () => {
   it("explains structured overview brief vs illustrative diagram", () => {
@@ -18,8 +18,8 @@ describe("overview-diagram-vocabulary (TB-2309)", () => {
     expect(model.whyTwo.toLowerCase()).toContain("brief");
     expect(model.whyTwo.toLowerCase()).toContain("sketch");
     expect(model.compactLine).toBe(OVERVIEW_DIAGRAM_COMPACT_LINE);
-    expect(model.overviewLink.href).toBe(buildArchitectureWorkspaceTabHref("run-abc", "overview"));
-    expect(model.diagramLink.href).toBe(buildArchitectureWorkspaceTabHref("run-abc", "diagram"));
+    expect(model.overviewLink.href).toBe(buildReviewWorkspaceTabHref("run-abc", "overview"));
+    expect(model.diagramLink.href).toBe(buildReviewWorkspaceTabHref("run-abc", "architecture"));
   });
 
   it("resolves the peer surface from overview and diagram", () => {

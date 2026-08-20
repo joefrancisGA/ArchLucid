@@ -13,14 +13,11 @@
  */
 
 import { REVIEWS_LIST_PATH } from "@/lib/architecture/architecture-routes";
-import { buildArchitectureWorkspaceTabHref } from "@/lib/architecture/architecture-workspace-tabs";
 import {
   GOVERNANCE_APPROVAL_QUEUE_PATH,
   governanceApprovalQueueHref,
 } from "@/lib/governance/governance-route-paths";
-import { buildReviewDetailTabHref } from "@/lib/review-detail-workspace-tabs";
-
-export type PackageGovernanceHrefKind = "archTab" | "reviewTab";
+import { buildReviewWorkspaceTabHref } from "@/lib/unified-review-workspace-tabs";
 
 export type PackageGovernanceApprovalQueueSurfaceId =
   | "package-governance"
@@ -73,22 +70,17 @@ export const PACKAGE_GOVERNANCE_APPROVAL_QUEUE_QUEUE_LINK: PackageGovernanceAppr
 /** Build vocabulary; pass runId when mounting on a package Governance / Policies tab. */
 export function buildPackageGovernanceApprovalQueueVocabulary(
   runId?: string | null,
-  hrefKind: PackageGovernanceHrefKind = "archTab",
 ): PackageGovernanceApprovalQueueVocabularyModel {
   const trimmed = runId?.trim() ?? "";
 
   const packageGovernanceHref =
-    trimmed.length === 0
-      ? null
-      : hrefKind === "reviewTab"
-        ? buildReviewDetailTabHref(trimmed, "policies")
-        : buildArchitectureWorkspaceTabHref(trimmed, "governance");
+    trimmed.length === 0 ? null : buildReviewWorkspaceTabHref(trimmed, "policies");
 
   const packageGovernanceLink: PackageGovernanceApprovalQueueLink =
     packageGovernanceHref !== null
       ? {
           id: "package-governance",
-          label: hrefKind === "reviewTab" ? "Policies and standards" : "Governance",
+          label: "Policies and standards",
           href: packageGovernanceHref,
           whenToUse: "Review pre-finalize governance readiness for this architecture package.",
         }

@@ -353,7 +353,6 @@ export function ReviewDetailWorkspace(props: ReviewDetailWorkspaceProps): React.
             <PackageEvidenceEvidenceGraphVocabularyRail
               runId={props.runId}
               currentSurfaceId="package-evidence"
-              hrefKind="reviewTab"
             />
             {panelWithInPipelineBanner("evidence", props.panels.evidence, inPipelineBanner)}
           </TabsContent>
@@ -365,7 +364,6 @@ export function ReviewDetailWorkspace(props: ReviewDetailWorkspaceProps): React.
             <PackageGovernanceApprovalQueueVocabularyRail
               runId={props.runId}
               currentSurfaceId="package-governance"
-              hrefKind="reviewTab"
             />
             {panelWithInPipelineBanner("policies", props.panels.policies, inPipelineBanner)}
           </TabsContent>
@@ -402,7 +400,6 @@ export function ReviewDetailWorkspace(props: ReviewDetailWorkspaceProps): React.
             <PackageActivityAuditTrailVocabularyRail
               runId={props.runId}
               currentSurfaceId="package-activity"
-              hrefKind="reviewTab"
             />
             {props.panels.activity}
           </TabsContent>

@@ -47,10 +47,10 @@ describe("RunDetailFindingsWorkspace create-home empty composition (TB-1853)", (
 
     expect(
       screen.getByRole("link", { name: ARCHITECTURE_CREATED_FINDINGS_IN_PROGRESS_ACTIVITY_LINK }),
-    ).toHaveAttribute("href", expect.stringContaining("archTab=activity"));
+    ).toHaveAttribute("href", expect.stringContaining("reviewTab=activity"));
     expect(
       screen.getByRole("link", { name: ARCHITECTURE_CREATED_FINDINGS_IN_PROGRESS_CLARIFICATIONS_LINK }),
-    ).toHaveAttribute("href", expect.stringContaining("archTab=clarifications"));
+    ).toHaveAttribute("href", expect.stringContaining("reviewTab=decisions-remediation"));
     expect(
       screen.getByRole("link", { name: ARCHITECTURE_CREATED_FINDINGS_IN_PROGRESS_ACTIVITY_LINK }),
     ).toHaveAttribute("href", expect.stringContaining("fromGeneration=1"));

@@ -89,7 +89,7 @@ describe("architecture-findings-dual-pane SoT", () => {
   });
 
   it("builds diagram and findings deep links", () => {
-    expect(buildArchitectureFindingsDualPaneDiagramHref("run-1")).toContain("archTab=diagram");
-    expect(buildArchitectureFindingsDualPaneFindingsHref("run-1")).toContain("archTab=findings");
+    expect(buildArchitectureFindingsDualPaneDiagramHref("run-1")).toContain("reviewTab=architecture");
+    expect(buildArchitectureFindingsDualPaneFindingsHref("run-1")).toContain("reviewTab=findings");
   });
 });

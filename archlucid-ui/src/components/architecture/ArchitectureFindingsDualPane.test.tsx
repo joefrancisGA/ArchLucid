@@ -71,7 +71,7 @@ describe("ArchitectureFindingsDualPane", () => {
     expect(onHighlightedNodeIdChange).toHaveBeenCalledWith("claims_api");
     expect(screen.getByRole("link", { name: "Open findings tab" })).toHaveAttribute(
       "href",
-      expect.stringContaining("archTab=findings"),
+      expect.stringContaining("reviewTab=findings"),
     );
   });
 

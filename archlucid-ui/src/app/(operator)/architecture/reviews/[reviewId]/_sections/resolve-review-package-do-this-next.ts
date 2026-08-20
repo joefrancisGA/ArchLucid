@@ -1,5 +1,4 @@
-import { buildArchitectureWorkspaceTabHref } from "@/lib/architecture/architecture-workspace-tabs";
-import { buildReviewDetailTabHref } from "@/lib/review-detail-workspace-tabs";
+import { buildReviewWorkspaceTabHref } from "@/lib/unified-review-workspace-tabs";
 
 import {
   resolveReviewPackagePrimaryAction,
@@ -34,7 +33,7 @@ export type ResolveReviewPackageDoThisNextInput = ResolveReviewPackagePrimaryAct
   readonly evidenceCoverageLinkedCount: number;
   readonly evidenceCoverageTotalCount: number;
   readonly governanceDecisionRecorded: boolean;
-  /** Create-home uses `archTab=`; committed review workspace uses `reviewTab=` (TB-1831). */
+  /** Create-home and committed review workspace both use canonical `reviewTab=` (TB-2363). */
   readonly useCreateHomeWorkspaceTabs: boolean;
   /** Compare href when a prior package on the same request is already comparable. */
   readonly compareWithPriorHref?: string | null;
@@ -45,15 +44,11 @@ function clarificationsHref(input: ResolveReviewPackageDoThisNextInput): string 
     return input.correctionHref;
   }
 
-  return buildArchitectureWorkspaceTabHref(input.runId, "overview");
+  return buildReviewWorkspaceTabHref(input.runId, "overview");
 }
 
-function viewAssessmentHref(runId: string, useCreateHomeWorkspaceTabs: boolean): string {
-  if (useCreateHomeWorkspaceTabs) {
-    return buildArchitectureWorkspaceTabHref(runId, "activity");
-  }
-
-  return buildReviewDetailTabHref(runId, "activity");
+function viewAssessmentHref(runId: string): string {
+  return buildReviewWorkspaceTabHref(runId, "activity");
 }
 
 function sentenceForPrimaryAction(
@@ -106,7 +101,7 @@ export function resolveReviewPackageDoThisNext(
       kind: "view-assessment-progress",
       sentence: "Assessment is running — follow progress or add evidence while you wait.",
       actionLabel: "View assessment progress",
-      href: viewAssessmentHref(input.runId, input.useCreateHomeWorkspaceTabs),
+      href: viewAssessmentHref(input.runId),
     };
   }
 
@@ -154,11 +149,11 @@ export function resolveReviewPackageDoThisNext(
       kind: primaryAction.kind,
       sentence: evidenceCoverageGapSentence(input.evidenceCoverageTotalCount),
       actionLabel: "Review evidence coverage",
-      href: buildReviewDetailTabHref(input.runId, "evidence"),
+      href: buildReviewWorkspaceTabHref(input.runId, "evidence"),
       buttonVariant: "outline",
       secondaryAction: {
         label: primaryAction.label,
-        href: primaryAction.href ?? buildReviewDetailTabHref(input.runId, "review-package", { hash: "sponsor-handoff" }),
+        href: primaryAction.href ?? buildReviewWorkspaceTabHref(input.runId, "review-package", { hash: "sponsor-handoff" }),
       },
     };
   }

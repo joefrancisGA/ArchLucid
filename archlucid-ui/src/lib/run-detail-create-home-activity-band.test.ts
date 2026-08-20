@@ -39,11 +39,11 @@ describe("create-home activity band regression (TB-1835)", () => {
     }
   });
 
-  it("honors REA traffic honesty for create-home-only archTab=activity (TB-1831)", () => {
+  it("honors REA traffic honesty for create-home-only reviewTab=activity (TB-1831)", () => {
     const rea = findUiRouteTrafficRow("REA");
 
     expect(rea).toBeDefined();
-    expect(rea?.path).toBe("/architecture/reviews/[reviewId]?archTab=activity");
+    expect(rea?.path).toBe("/architecture/reviews/[reviewId]?reviewTab=activity");
     expect(rea?.section).toBe("Tab surface");
 
     for (const phrase of REA_TRAFFIC_HONESTY_PHRASES) {
@@ -56,7 +56,7 @@ describe("create-home activity band regression (TB-1835)", () => {
   it("builds activity archTab hrefs without forcing create intent unless opted in (TB-1833)", () => {
     const href = buildArchitectureWorkspaceTabHref("run-rea", "activity");
 
-    expect(href).toBe("/architecture/reviews/run-rea?archTab=activity");
+    expect(href).toBe("/architecture/reviews/run-rea?reviewTab=activity");
     expect(href).not.toContain("fromGeneration=1");
     expect(href).not.toContain("intent=create-architecture");
 
@@ -64,14 +64,14 @@ describe("create-home activity band regression (TB-1835)", () => {
       includeCreateIntent: true,
     });
 
-    expect(withIntent).toContain("archTab=activity");
+    expect(withIntent).toContain("reviewTab=activity");
     expect(withIntent).toContain("fromGeneration=1");
     expect(withIntent).toContain("intent=create-architecture");
   });
 
   it("resolves activity from legacy hash and archTab search param", () => {
     expect(resolveArchitectureWorkspaceTabFromHash("architecture-assessment-progress")).toBe("activity");
-    expect(readArchitectureWorkspaceTabFromHref("/architecture/reviews/run-1?archTab=activity")).toBe(
+    expect(readArchitectureWorkspaceTabFromHref("/architecture/reviews/run-1?reviewTab=activity")).toBe(
       "activity",
     );
   });

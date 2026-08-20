@@ -38,11 +38,11 @@ describe("create-home evidence band regression (TB-1850)", () => {
     }
   });
 
-  it("honors REE traffic honesty for create-home-only archTab=evidence (TB-1846)", () => {
+  it("honors REE traffic honesty for create-home-only reviewTab=evidence (TB-1846)", () => {
     const ree = findUiRouteTrafficRow("REE");
 
     expect(ree).toBeDefined();
-    expect(ree?.path).toBe("/architecture/reviews/[reviewId]?archTab=evidence");
+    expect(ree?.path).toBe("/architecture/reviews/[reviewId]?reviewTab=evidence");
     expect(ree?.section).toBe("Tab surface");
 
     for (const phrase of REE_TRAFFIC_HONESTY_PHRASES) {
@@ -62,7 +62,7 @@ describe("create-home evidence band regression (TB-1850)", () => {
     const href = buildRunDetailCreateHomeEvidenceDiagramHref("run-ree");
 
     expect(href).toContain("/architecture/reviews/run-ree");
-    expect(href).toContain("archTab=diagram");
+    expect(href).toContain("reviewTab=architecture");
     expect(href).toContain("fromGeneration=1");
   });
 

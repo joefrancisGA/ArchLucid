@@ -29,19 +29,19 @@ describe("RunDetailGovernanceDecisionSection", () => {
 
     const primary = screen.getByTestId("run-detail-governance-primary-cta");
 
-    expect(primary).toHaveAttribute("href", expect.stringContaining("archTab=activity"));
+    expect(primary).toHaveAttribute("href", expect.stringContaining("reviewTab=activity"));
     expect(primary.getAttribute("href") ?? "").toContain("architecture-assessment-progress");
     expect(primary).toHaveTextContent("Review finalize readiness");
 
     const secondary = screen.getByTestId("run-detail-governance-secondary-cta");
 
     expect(secondary.tagName.toLowerCase()).toBe("a");
-    expect(secondary.getAttribute("href") ?? "").toContain("archTab=activity");
+    expect(secondary.getAttribute("href") ?? "").toContain("reviewTab=activity");
     expect(screen.queryByRole("button", { name: "View assessment activity" })).not.toBeInTheDocument();
 
     const blockingLink = screen.getByRole("link", { name: "2" });
 
-    expect(blockingLink.getAttribute("href") ?? "").toContain("archTab=findings");
+    expect(blockingLink.getAttribute("href") ?? "").toContain("reviewTab=findings");
 
     expect(screen.queryByTestId("run-detail-governance-sources")).toBeNull();
     expect(screen.getByTestId("run-detail-governance-help-cites")).toBeInTheDocument();
@@ -79,6 +79,6 @@ describe("RunDetailGovernanceDecisionSection", () => {
 
     const blockingLink = screen.getByRole("link", { name: "2" });
 
-    expect(blockingLink.getAttribute("href") ?? "").toContain("archTab=findings");
+    expect(blockingLink.getAttribute("href") ?? "").toContain("reviewTab=findings");
   });
 });

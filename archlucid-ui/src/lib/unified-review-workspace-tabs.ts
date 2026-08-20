@@ -1,5 +1,7 @@
 import type { ArchitectureWorkspaceTabId } from "@/lib/architecture/architecture-workspace-tabs";
+import { buildArchitectureWorkspaceTabHref } from "@/lib/architecture/architecture-workspace-tabs";
 import {
+  buildReviewDetailTabHref,
   isReviewDetailTabId,
   REVIEW_DETAIL_DEFAULT_TAB,
   REVIEW_DETAIL_TAB_PARAM,
@@ -70,4 +72,33 @@ export function readUnifiedReviewWorkspaceTabFromSearchParams(
     params.get(REVIEW_DETAIL_TAB_PARAM),
     params.get("archTab"),
   );
+}
+
+export type BuildReviewWorkspaceTabHrefOptions = {
+  /** Opt in when a deep link must mount create-home chrome (TB-1833). */
+  readonly includeCreateIntent?: boolean;
+  readonly hash?: string | null;
+};
+
+/** Canonical review workspace tab deep link — always emits `reviewTab` (TB-2363). */
+export function buildReviewWorkspaceTabHref(
+  runId: string,
+  tab: ReviewDetailTabId,
+  options?: BuildReviewWorkspaceTabHrefOptions,
+): string {
+  if (options?.includeCreateIntent === true) {
+    const archTab = mapReviewTabToArchitectureTab(tab);
+    const base = buildArchitectureWorkspaceTabHref(runId, archTab, { includeCreateIntent: true });
+    const hash = options.hash?.trim() ?? "";
+
+    if (hash.length === 0) {
+      return base;
+    }
+
+    const normalizedHash = hash.startsWith("#") ? hash : `#${hash}`;
+
+    return `${base}${normalizedHash}`;
+  }
+
+  return buildReviewDetailTabHref(runId, tab, { hash: options?.hash });
 }

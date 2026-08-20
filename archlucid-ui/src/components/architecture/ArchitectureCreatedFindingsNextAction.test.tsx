@@ -103,7 +103,7 @@ describe("ArchitectureCreatedFindingsNextAction", () => {
 
     expect(screen.getByTestId("architecture-findings-finalize-primary-action")).toHaveAttribute(
       "href",
-      expect.stringContaining("archTab=governance"),
+      expect.stringContaining("reviewTab=policies"),
     );
   });
 
@@ -114,7 +114,7 @@ describe("ArchitectureCreatedFindingsNextAction", () => {
 
     expect(screen.getByTestId("architecture-findings-finalize-primary-action")).toHaveAttribute(
       "href",
-      expect.stringContaining("archTab=governance"),
+      expect.stringContaining("reviewTab=policies"),
     );
   });
 

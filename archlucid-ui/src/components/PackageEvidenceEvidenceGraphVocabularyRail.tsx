@@ -7,7 +7,6 @@ import {
   resolvePackageEvidenceEvidenceGraphPeerLink,
   type PackageEvidenceEvidenceGraphSurfaceId,
   type PackageEvidenceEvidenceGraphVocabularyModel,
-  type PackageEvidenceHrefKind,
 } from "@/lib/vocabulary/package-evidence-evidence-graph-vocabulary";
 import { VocabularyRail } from "@/components/vocabulary/VocabularyRail";
 
@@ -15,7 +14,6 @@ export type PackageEvidenceEvidenceGraphVocabularyRailProps = {
   readonly currentSurfaceId: PackageEvidenceEvidenceGraphSurfaceId;
   /** Required on package Evidence tabs so the current link is run-scoped. */
   readonly runId?: string | null;
-  readonly hrefKind?: PackageEvidenceHrefKind;
   readonly variant?: "compact" | "full";
   readonly className?: string;
   readonly model?: PackageEvidenceEvidenceGraphVocabularyModel;
@@ -27,7 +25,7 @@ export function PackageEvidenceEvidenceGraphVocabularyRail(
 ): JSX.Element {
   const model =
     props.model ??
-    buildPackageEvidenceEvidenceGraphVocabulary(props.runId, props.hrefKind ?? "archTab");
+    buildPackageEvidenceEvidenceGraphVocabulary(props.runId);
   const peer = resolvePackageEvidenceEvidenceGraphPeerLink(props.currentSurfaceId, model);
   const currentLink =
     props.currentSurfaceId === "package-evidence"

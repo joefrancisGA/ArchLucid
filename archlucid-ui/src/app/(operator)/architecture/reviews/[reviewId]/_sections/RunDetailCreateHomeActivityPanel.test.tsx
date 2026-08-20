@@ -33,7 +33,7 @@ describe("RunDetailCreateHomeActivityPanel", () => {
     expect(screen.queryByTestId("progress-tracker")).not.toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Open overview" })).toHaveAttribute(
       "href",
-      expect.stringContaining("archTab=overview"),
+      expect.stringContaining("reviewTab=overview"),
     );
   });
 

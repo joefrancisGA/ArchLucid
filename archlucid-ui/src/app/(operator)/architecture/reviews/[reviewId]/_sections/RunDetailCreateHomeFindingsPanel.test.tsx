@@ -21,7 +21,7 @@ describe("RunDetailCreateHomeFindingsPanel", () => {
     );
     expect(screen.getByRole("link", { name: RUN_DETAIL_CREATE_HOME_FINDINGS_ACTIVITY_CTA_LABEL })).toHaveAttribute(
       "href",
-      expect.stringContaining("archTab=activity"),
+      expect.stringContaining("reviewTab=activity"),
     );
     expect(screen.getByRole("link", { name: RUN_DETAIL_CREATE_HOME_FINDINGS_ACTIVITY_CTA_LABEL })).toHaveAttribute(
       "href",

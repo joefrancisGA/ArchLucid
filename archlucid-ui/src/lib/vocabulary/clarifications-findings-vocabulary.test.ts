@@ -7,10 +7,10 @@ import {
   buildClarificationsFindingsVocabulary,
   resolveClarificationsFindingsPeerLink,
 } from "@/lib/vocabulary/clarifications-findings-vocabulary";
-import { buildArchitectureWorkspaceTabHref } from "@/lib/architecture/architecture-workspace-tabs";
+import { buildReviewWorkspaceTabHref } from "@/lib/unified-review-workspace-tabs";
 
 describe("clarifications-findings-vocabulary (TB-2298)", () => {
-  it("explains clarifications gaps vs findings triage with run-scoped archTab links", () => {
+  it("explains clarifications gaps vs findings triage with run-scoped reviewTab links", () => {
     const model = buildClarificationsFindingsVocabulary("run-abc");
 
     expect(model.heading).toBe(CLARIFICATIONS_FINDINGS_HEADING);
@@ -20,9 +20,9 @@ describe("clarifications-findings-vocabulary (TB-2298)", () => {
     expect(model.compactLine).toBe(CLARIFICATIONS_FINDINGS_COMPACT_LINE);
 
     expect(model.clarificationsLink.href).toBe(
-      buildArchitectureWorkspaceTabHref("run-abc", "clarifications"),
+      buildReviewWorkspaceTabHref("run-abc", "decisions-remediation"),
     );
-    expect(model.findingsLink.href).toBe(buildArchitectureWorkspaceTabHref("run-abc", "findings"));
+    expect(model.findingsLink.href).toBe(buildReviewWorkspaceTabHref("run-abc", "findings"));
   });
 
   it("resolves the peer surface from clarifications and findings", () => {

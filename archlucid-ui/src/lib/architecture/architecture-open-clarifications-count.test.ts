@@ -18,7 +18,7 @@ const clarificationItems: ArchitectureMissingItem[] = [
   {
     id: "diagram",
     label: "Architecture diagram or supporting evidence not uploaded",
-    href: "/architecture/reviews/run-1?archTab=evidence",
+    href: "/architecture/reviews/run-1?reviewTab=evidence",
     category: "evidence",
     source: { label: "From your brief", capturedAtLabel: null },
   },
