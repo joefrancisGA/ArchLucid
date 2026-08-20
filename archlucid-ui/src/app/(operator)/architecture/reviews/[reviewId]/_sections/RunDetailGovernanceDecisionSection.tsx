@@ -64,9 +64,7 @@ export function RunDetailGovernanceDecisionSection(
     const activityHref = buildReviewWorkspaceTabHref(props.runId, "activity", {
       includeCreateIntent: true,
     });
-    const finalizeReadinessHref = buildArchitectureActivityFinalizeReadinessHref(props.runId, {
-      includeCreateIntent: true,
-    });
+    const finalizeReadinessHref = buildArchitectureActivityFinalizeReadinessHref(props.runId);
 
     return (
       <section
