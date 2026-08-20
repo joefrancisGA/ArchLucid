@@ -72,6 +72,43 @@ public sealed class ContainerJobsOffloadRegistrationTests
     }
 
     [Fact]
+    public void AddArchLucidApplicationServices_registers_WeeklySponsorSummaryArchLucidJob()
+    {
+        Dictionary<string, string?> data = CreateWorkerCompositionDictionary();
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        ServiceCollection services = CreateCoreServices(configuration);
+
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Worker);
+
+        bool hasJob = services.Any(static d =>
+            d.ServiceType == typeof(IArchLucidJob)
+            && d.ImplementationType == typeof(WeeklySponsorSummaryArchLucidJob));
+
+        hasJob.Should().BeTrue(
+            "weekly-sponsor-summary must resolve via ArchLucidJobRunner when offloaded from the worker host");
+    }
+
+    [Fact]
+    public void
+        AddArchLucidApplicationServices_Worker_offloads_weekly_sponsor_summary_does_not_register_WeeklySponsorSummaryHostedService()
+    {
+        Dictionary<string, string?> data = CreateWorkerCompositionDictionary();
+        data["Jobs:OffloadedToContainerJobs:0"] = ArchLucidJobNames.WeeklySponsorSummary;
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        ServiceCollection services = CreateCoreServices(configuration);
+
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Worker);
+
+        bool hasHosted = services.Any(static d =>
+            d.ServiceType == typeof(IHostedService)
+            && d.ImplementationType == typeof(WeeklySponsorSummaryHostedService));
+
+        hasHosted.Should().BeFalse();
+    }
+
+    [Fact]
     public void AddArchLucidApplicationServices_Api_role_does_not_register_TenantHealthScoringHostedService()
     {
         Dictionary<string, string?> data = CreateWorkerCompositionDictionary();
