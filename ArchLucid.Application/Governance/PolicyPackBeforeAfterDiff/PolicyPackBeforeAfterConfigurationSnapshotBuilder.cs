@@ -31,6 +31,10 @@ public static class PolicyPackBeforeAfterConfigurationSnapshotBuilder
             .Select(rule => rule.RuleId)
             .ToList();
 
+        HashSet<string> blockingFindingIds = gateResult.Blocked
+            ? gateResult.BlockingFindingIds.ToHashSet(StringComparer.Ordinal)
+            : [];
+
         IReadOnlyList<PolicyPackBeforeAfterFindingLine> findingLines = committedFindings
             .OrderByDescending(finding => (int)finding.Severity)
             .ThenBy(finding => finding.FindingId, StringComparer.Ordinal)
@@ -39,7 +43,7 @@ public static class PolicyPackBeforeAfterConfigurationSnapshotBuilder
                 FindingId = finding.FindingId,
                 Severity = finding.Severity.ToString(),
                 Title = finding.Title,
-                BlocksCommitUnderConfiguration = gateResult.Blocked && finding.Severity >= ResolveMinimumBlockingSeverity(configuration),
+                BlocksCommitUnderConfiguration = blockingFindingIds.Contains(finding.FindingId),
             })
             .ToList();
 
@@ -60,17 +64,6 @@ public static class PolicyPackBeforeAfterConfigurationSnapshotBuilder
             GateBlocked = gateResult.Blocked,
             SponsorReportLines = SponsorReportLines,
         };
-    }
-
-    private static FindingSeverity ResolveMinimumBlockingSeverity(PolicyPackBeforeAfterConfiguration configuration)
-    {
-        if (configuration.BlockCommitMinimumSeverity is int minimum)
-            return (FindingSeverity)minimum;
-
-        if (configuration.BlockCommitOnCritical)
-            return FindingSeverity.Critical;
-
-        return FindingSeverity.Info;
     }
 
     private static int RulePriorityRank(string? priority)

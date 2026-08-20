@@ -21,7 +21,7 @@ public sealed class WebhookSubscriptionTestServiceBindingTests
             .Single(static parameter => parameter.Name == "probe");
 
         probeParameter.ParameterType.Should().Be(
-            typeof(IOutboundWebhookDryRunService),
+            typeof(Application.Integrations.IOutboundWebhookDryRunService),
             "Api.Services types must not shadow Application.Integrations.IOutboundWebhookDryRunService " +
             "or DI cannot resolve the Host.Composition HttpClient registration");
     }

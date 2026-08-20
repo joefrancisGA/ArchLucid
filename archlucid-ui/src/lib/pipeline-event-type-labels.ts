@@ -30,9 +30,12 @@ const PIPELINE_EVENT_TYPE_LABELS: Record<string, string> = {
   "com.archlucid.authority.run.completed": "Review finalized",
   "com.archlucid.manifest.finalized.v1": "Review finalized",
   "com.archlucid.governance.approval.submitted": "Governance approval requested",
+  "com.archlucid.governance.approval.approved": "Governance approval approved",
+  "com.archlucid.governance.approval.rejected": "Governance approval rejected",
   "com.archlucid.governance.approval.recorded": "Governance approval recorded",
   "com.archlucid.governance.promotion.activated": "Governance promotion activated",
   "com.archlucid.alert.fired": "Alert fired",
+  "com.archlucid.alert.acknowledged": "Alert acknowledged",
   "com.archlucid.alert.resolved": "Alert resolved",
   "com.archlucid.advisory.scan.completed": "Advisory scan completed",
   "com.archlucid.compliance.drift.escalated": "Compliance drift escalated",
@@ -54,7 +57,7 @@ export function pipelineEventTypeFriendlyLabel(eventType: string): string {
   return auditEventFriendlyTitle(key);
 }
 
-/** One-line “why this milestone matters” for buyer-polished audit cards (falls back to generic). */
+/** One-line â€œwhy this milestone mattersâ€ for buyer-polished audit cards (falls back to generic). */
 const PIPELINE_EVENT_BUYER_SUBTITLE: Record<string, string> = {
   RunStarted: "Creates the review record and starts the evidence capture timeline.",
   RunCompleted: "Closes the review with a durable outcome snapshot for governance and audit.",

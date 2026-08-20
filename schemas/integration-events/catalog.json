@@ -1,4 +1,4 @@
-{
+﻿{
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "ArchLucid Integration Event Schema Catalog",
   "description": "Machine-readable index of all outbound integration event JSON Schemas.",
@@ -35,6 +35,26 @@
       "audience": "external"
     },
     {
+      "eventType": "com.archlucid.governance.approval.approved",
+      "schemaVersion": 1,
+      "schemaFile": "governance-approval-approved.v1.schema.json",
+      "schemaUri": "https://archlucid.dev/schemas/integration-events/governance-approval-approved.v1.schema.json",
+      "transport": "Azure Service Bus (topic)",
+      "outboxSupported": true,
+      "description": "Emitted when a governance approval request is approved.",
+      "audience": "external"
+    },
+    {
+      "eventType": "com.archlucid.governance.approval.rejected",
+      "schemaVersion": 1,
+      "schemaFile": "governance-approval-rejected.v1.schema.json",
+      "schemaUri": "https://archlucid.dev/schemas/integration-events/governance-approval-rejected.v1.schema.json",
+      "transport": "Azure Service Bus (topic)",
+      "outboxSupported": true,
+      "description": "Emitted when a governance approval request is rejected.",
+      "audience": "external"
+    },
+    {
       "eventType": "com.archlucid.governance.promotion.activated",
       "schemaVersion": 1,
       "schemaFile": "governance-promotion-activated.v1.schema.json",
@@ -52,6 +72,16 @@
       "transport": "Azure Service Bus (topic)",
       "outboxSupported": true,
       "description": "Emitted when an alert is raised for a scope (run/comparison context). Service Bus user properties: severity, deduplication_key (see INTEGRATION_EVENTS_AND_WEBHOOKS.md).",
+      "audience": "external"
+    },
+    {
+      "eventType": "com.archlucid.alert.acknowledged",
+      "schemaVersion": 1,
+      "schemaFile": "alert-acknowledged.v1.schema.json",
+      "schemaUri": "https://archlucid.dev/schemas/integration-events/alert-acknowledged.v1.schema.json",
+      "transport": "Azure Service Bus (topic)",
+      "outboxSupported": true,
+      "description": "Emitted when an alert is acknowledged. Service Bus user property deduplication_key when payload includes deduplicationKey (ChatOps card correlation).",
       "audience": "external"
     },
     {

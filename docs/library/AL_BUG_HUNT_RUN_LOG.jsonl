@@ -2,3 +2,14 @@
 {"at":"2026-08-20T02:43:58.4109123Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
 {"at":"2026-08-20T02:52:02.9922187Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
 {"at":"2026-08-20T04:21:33.4722134Z","zoneId":"ui-auth-proxy","outcome":"hit"}
+{"at":"2026-08-20T05:52:39.9222277Z","zoneId":"host-composition","outcome":"hit"}
+{"at":"2026-08-20T07:05:08.8736159Z","zoneId":"archlucid-core","outcome":"hit"}
+{"at":"2026-08-20T07:31:41.1366818Z","zoneId":"knowledge-graph-provenance","outcome":"hit"}
+{"at":"2026-08-20T08:47:55.6565436Z","zoneId":"itsm-inbound-webhooks","outcome":"hit"}
+{"at":"2026-08-20T09:17:48.7863085Z","zoneId":"outbound-webhook-dry-run","outcome":"seed-only"}
+{"at":"2026-08-20T09:38:45.4121259Z","zoneId":"application-agents","outcome":"hit"}
+{"at":"2026-08-20T09:59:48.0756860Z","zoneId":"application-governance-policy","outcome":"hit"}
+{"at":"2026-08-20T10:20:51.5157517Z","zoneId":"application-tenancy-lifecycle","outcome":"hit"}
+{"at":"2026-08-20T10:51:37.6296076Z","zoneId":"host-core-coordination","outcome":"hit"}
+{"at":"2026-08-20T11:04:52.8926707Z","zoneId":"ui-operator-routes","outcome":"hit"}
+{"at":"2026-08-20T11:14:53.7720928Z","zoneId":"ui-marketing-surfaces","outcome":"hit"}

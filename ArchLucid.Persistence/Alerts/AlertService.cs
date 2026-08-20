@@ -210,6 +210,17 @@ public sealed class AlertService(
                         AuditJsonSerializationOptions.Instance),
                 },
                 ct);
+        if (request.Action == AlertActionType.Acknowledge)
+
+            await AlertIntegrationEventPublishing.TryPublishAcknowledgedAsync(
+                integrationEventOutbox,
+                integrationEventPublisher,
+                integrationEventsOptions,
+                logger,
+                alert,
+                userId,
+                request.Comment,
+                ct);
 
 
         if (request.Action == AlertActionType.Resolve)

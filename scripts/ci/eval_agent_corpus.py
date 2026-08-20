@@ -1394,8 +1394,10 @@ def evaluate_scenario(scenario_path: Path, corpus_root: Path) -> dict[str, Any]:
         if bad:
             unexpected_hits.append(who)
 
-    denom = len(expected_rules) if expected_rules else 1
-    recall = hits / float(denom)
+    if not expected_rules:
+        recall = 1.0 if not unexpected_hits else 0.0
+    else:
+        recall = hits / float(len(expected_rules))
 
     row: dict[str, Any] = {
         "id": sid,

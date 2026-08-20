@@ -29,6 +29,35 @@ public sealed class TenantMigrationVerificationProbeTests
     }
 
     [Fact]
+    public async Task RunAsync_fails_when_committed_run_candidate_is_missing_scope_ids()
+    {
+        Guid runId = Guid.Parse("11111111-2222-3333-4444-555555555555");
+        Mock<IRunDetailQueryService> runDetail = new(MockBehavior.Strict);
+
+        TenantMigrationVerificationProbe sut = CreateProbe(
+            tenant: ActiveTenant(suspendedUtc: DateTimeOffset.UtcNow),
+            committedRuns:
+            [
+                new ReferenceEvidenceRunCandidate
+                {
+                    RunId = runId,
+                    WorkspaceId = Guid.Empty,
+                    ScopeProjectId = Guid.Empty,
+                },
+            ],
+            runDetailQueryService: runDetail.Object);
+
+        TenantMigrationVerificationProbeResult result = await sut.RunAsync(TenantId, CancellationToken.None);
+
+        Assert.False(result.Passed);
+        Assert.Contains("scope", result.ErrorMessage, StringComparison.OrdinalIgnoreCase);
+        Assert.Equal(runId.ToString("N"), result.ProbeRunId);
+        runDetail.Verify(
+            service => service.GetRunDetailForRollupAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
     public async Task RunAsync_passes_when_tenant_is_suspended_and_committed_run_loads()
     {
         Guid runId = Guid.Parse("11111111-2222-3333-4444-555555555555");
@@ -39,7 +68,15 @@ public sealed class TenantMigrationVerificationProbeTests
 
         TenantMigrationVerificationProbe sut = CreateProbe(
             tenant: ActiveTenant(suspendedUtc: DateTimeOffset.UtcNow),
-            committedRuns: [new ReferenceEvidenceRunCandidate { RunId = runId }],
+            committedRuns:
+            [
+                new ReferenceEvidenceRunCandidate
+                {
+                    RunId = runId,
+                    WorkspaceId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+                    ScopeProjectId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+                },
+            ],
             runDetailQueryService: runDetail.Object);
 
         TenantMigrationVerificationProbeResult result = await sut.RunAsync(TenantId, CancellationToken.None);

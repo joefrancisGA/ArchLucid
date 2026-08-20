@@ -86,12 +86,12 @@ public sealed class TeamsIncomingWebhookConnectionsIntegrationTests(JwtLocalSign
         parsed0.IsConfigured.Should().BeFalse();
         parsed0.EnabledTriggers.Should().Contain("com.archlucid.authority.run.completed");
         parsed0.EnabledTriggers.Should().Contain("com.archlucid.seat.reservation.released");
-        parsed0.EnabledTriggers.Should().HaveCount(6, "fresh tenants default to the v1 all-on catalog");
+        parsed0.EnabledTriggers.Should().HaveCount(12, "fresh tenants default to the v1 all-on catalog");
 
         TeamsIncomingWebhookConnectionUpsertRequest putBody = new()
         {
             KeyVaultSecretName = "kv-teams-webhook-ref",
-            Label = "demo tenant — replace before publishing",
+            Label = "demo tenant â€” replace before publishing",
             EnabledTriggers =
             [
                 "com.archlucid.authority.run.completed",

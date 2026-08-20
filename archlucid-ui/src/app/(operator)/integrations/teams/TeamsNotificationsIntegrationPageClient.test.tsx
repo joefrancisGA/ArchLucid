@@ -54,10 +54,16 @@ import { showSuccess } from "@/lib/toast";
 
 const CATALOG = [
   "com.archlucid.authority.run.completed",
-  "com.archlucid.governance.approval.submitted",
-  "com.archlucid.alert.fired",
-  "com.archlucid.compliance.drift.escalated",
+  "com.archlucid.manifest.finalized.v1",
   "com.archlucid.advisory.scan.completed",
+  "com.archlucid.governance.approval.submitted",
+  "com.archlucid.governance.approval.approved",
+  "com.archlucid.governance.approval.rejected",
+  "com.archlucid.governance.promotion.activated",
+  "com.archlucid.alert.fired",
+  "com.archlucid.alert.acknowledged",
+  "com.archlucid.alert.resolved",
+  "com.archlucid.compliance.drift.escalated",
   "com.archlucid.seat.reservation.released",
 ];
 
@@ -122,13 +128,13 @@ describe("TeamsNotificationsIntegrationPageClient", () => {
     expect(screen.queryByRole("link", { name: /^Microsoft Teams notification help$/i })).not.toBeInTheDocument();
     expect(screen.queryAllByRole("link", { name: /^Slack notifications$/i })).toHaveLength(0);
 
-    // TB-1178: help cluster only in PageHeading actions — not duplicated in aside footer.
+    // TB-1178: help cluster only in PageHeading actions â€” not duplicated in aside footer.
     expect(screen.getAllByTestId("page-contextual-help-button")).toHaveLength(1);
     expect(screen.getByTestId("teams-integration-aside").textContent).not.toMatch(
       /Microsoft Teams notification help/i,
     );
 
-    // TB-1575: about-aside demoted — no persistent two-col rail beside the connect form.
+    // TB-1575: about-aside demoted â€” no persistent two-col rail beside the connect form.
     expect(document.querySelector(".xl\\:grid-cols-\\[minmax\\(0\\,36rem\\)_minmax\\(16rem\\,1fr\\)\\]")).toBeNull();
     expect(screen.getByTestId("teams-integration-aside")).toBeInTheDocument();
   });

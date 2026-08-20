@@ -14,18 +14,24 @@
 | Logic Apps Standard | Subscribes to Service Bus; resolves secret; POSTs Adaptive Card to Teams (see `infra/terraform-logicapps/workflows/teams-notifications/README.md`). |
 | Service Bus | Topics per [`schemas/integration-events/catalog.json`](../../schemas/integration-events/catalog.json). |
 
-## v1 default trigger set (2026-04-21 — six events)
+## v1 default trigger set (twelve events)
 
 The v1 production workflow subscribes to the following `eventType` values. Owner approved the expanded set on **2026-04-21** (PENDING_QUESTIONS.md item 32):
 
 | `eventType` | When fired | Action link in card |
 |-------------|-----------|---------------------|
 | `com.archlucid.authority.run.completed` | A run reaches the committed manifest state | `/runs/{runId}` |
+| `com.archlucid.manifest.finalized.v1` | The sealed review record is finalized | `/runs/{runId}` |
 | `com.archlucid.governance.approval.submitted` | A governance approval has been requested or submitted | `/governance/approvals/{approvalId}` |
+| `com.archlucid.governance.approval.approved` | A governance approval request was approved | `/governance/approvals/{approvalId}` |
+| `com.archlucid.governance.approval.rejected` | A governance approval request was rejected | `/governance/approvals/{approvalId}` |
+| `com.archlucid.governance.promotion.activated` | An approved review was authorized to advance in a governed environment | `/governance/promotions/{activationId}` |
 | `com.archlucid.alert.fired` | An alert is raised | `/alerts/{alertId}` |
-| `com.archlucid.compliance.drift.escalated` | Compliance drift breached its threshold and escalated **(added 2026-04-21)** | `/compliance/drift/{driftId}` |
-| `com.archlucid.advisory.scan.completed` | An advisory finding scan committed a fresh result **(added 2026-04-21)** | `/advisories/{advisoryId}` |
-| `com.archlucid.seat.reservation.released` | A trial seat reservation expired or was released **(added 2026-04-21)** | `/admin/trial-seats` |
+| `com.archlucid.alert.acknowledged` | An alert was acknowledged by an authorized user | `/alerts/{alertId}` |
+| `com.archlucid.alert.resolved` | An alert was resolved | `/alerts/{alertId}` |
+| `com.archlucid.compliance.drift.escalated` | Compliance drift breached its threshold and escalated | `/compliance/drift/{driftId}` |
+| `com.archlucid.advisory.scan.completed` | An advisory finding scan committed a fresh result | `/advisories/{advisoryId}` |
+| `com.archlucid.seat.reservation.released` | A trial seat reservation expired or was released | `/admin/trial-seats` |
 
 **Scope decision (2026-04-21):** **Notification-only for v1** — no two-way (approve-from-Teams) flow. Two-way is a V1.1 candidate gated on registering an M365 admin app manifest (PENDING_QUESTIONS.md item 23).
 

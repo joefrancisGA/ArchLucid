@@ -93,6 +93,47 @@ internal static class IntegrationEventWebhookPayloadSampleFactory
         };
     }
 
+
+    /// <remarks>Mirrors <c>GovernanceWorkflowService.TryPublishGovernanceApprovalApprovedAsync</c>.</remarks>
+    private static object CreateGovernanceApprovalApproved()
+    {
+        return new
+        {
+            schemaVersion = 1,
+            tenantId = Guid.NewGuid(),
+            workspaceId = Guid.NewGuid(),
+            projectId = Guid.NewGuid(),
+            approvalRequestId = "approval-req-1",
+            runId = Guid.NewGuid().ToString("D"),
+            manifestVersion = "v1",
+            sourceEnvironment = "dev",
+            targetEnvironment = "test",
+            reviewedBy = "reviewer-1",
+            reviewedUtc = TimeProvider.System.UtcNowDateTime(),
+            reviewComment = (string?)null
+        };
+    }
+
+    /// <remarks>Mirrors <c>GovernanceWorkflowService.TryPublishGovernanceApprovalRejectedAsync</c>.</remarks>
+    private static object CreateGovernanceApprovalRejected()
+    {
+        return new
+        {
+            schemaVersion = 1,
+            tenantId = Guid.NewGuid(),
+            workspaceId = Guid.NewGuid(),
+            projectId = Guid.NewGuid(),
+            approvalRequestId = "approval-req-1",
+            runId = Guid.NewGuid().ToString("D"),
+            manifestVersion = "v1",
+            sourceEnvironment = "dev",
+            targetEnvironment = "test",
+            reviewedBy = "reviewer-1",
+            reviewedUtc = TimeProvider.System.UtcNowDateTime(),
+            reviewComment = "needs more evidence"
+        };
+    }
+
     /// <remarks>Mirrors <c>GovernanceWorkflowService.TryPublishGovernancePromotionActivatedAsync</c>.</remarks>
     private static object CreateGovernancePromotionActivated()
     {
@@ -146,6 +187,34 @@ internal static class IntegrationEventWebhookPayloadSampleFactory
         };
     }
 
+
+    /// <remarks>Mirrors <c>AlertIntegrationEventPublishing.TryPublishAcknowledgedAsync</c>.</remarks>
+    private static object CreateAlertAcknowledged()
+    {
+        AlertRecord alert = new()
+        {
+            AlertId = Guid.NewGuid(),
+            RuleId = Guid.NewGuid(),
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+            RunId = null,
+            DeduplicationKey = "composite:rule:scope"
+        };
+
+        return new
+        {
+            schemaVersion = 1,
+            tenantId = alert.TenantId,
+            workspaceId = alert.WorkspaceId,
+            projectId = alert.ProjectId,
+            alertId = alert.AlertId,
+            runId = alert.RunId,
+            deduplicationKey = alert.DeduplicationKey,
+            acknowledgedByUserId = "acknowledger-1",
+            comment = (string?)null
+        };
+    }
     /// <remarks>Mirrors <c>AlertIntegrationEventPublishing.TryPublishResolvedAsync</c>.</remarks>
     private static object CreateAlertResolved()
     {
@@ -218,7 +287,7 @@ internal static class IntegrationEventWebhookPayloadSampleFactory
         };
     }
 
-    /// <summary>Catalog event; publisher wiring may land outside Application — shape kept aligned with committed schema.</summary>
+    /// <summary>Catalog event; publisher wiring may land outside Application â€” shape kept aligned with committed schema.</summary>
     private static object CreateComplianceDriftEscalated()
     {
         return new
@@ -235,7 +304,7 @@ internal static class IntegrationEventWebhookPayloadSampleFactory
         };
     }
 
-    /// <summary>Catalog event; publisher wiring may land outside Application — shape kept aligned with committed schema.</summary>
+    /// <summary>Catalog event; publisher wiring may land outside Application â€” shape kept aligned with committed schema.</summary>
     private static object CreateSeatReservationReleased()
     {
         return new

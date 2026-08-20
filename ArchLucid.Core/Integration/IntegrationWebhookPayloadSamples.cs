@@ -137,6 +137,36 @@ public static class IntegrationWebhookPayloadSamples
         };
     }
 
+
+    private static object CreateGovernanceApprovalApproved()
+    {
+        return new
+        {
+            schemaVersion = 1,
+            approvalRequestId = Guid.NewGuid().ToString("D"),
+            runId = Guid.NewGuid(),
+            tenantId = Guid.NewGuid(),
+            workspaceId = Guid.NewGuid(),
+            projectId = Guid.NewGuid(),
+            reviewedBy = "cli-simulator@archlucid.local",
+            reviewedUtc = TimeProvider.System.GetUtcNow().ToString("O")
+        };
+    }
+
+    private static object CreateGovernanceApprovalRejected()
+    {
+        return new
+        {
+            schemaVersion = 1,
+            approvalRequestId = Guid.NewGuid().ToString("D"),
+            runId = Guid.NewGuid(),
+            tenantId = Guid.NewGuid(),
+            workspaceId = Guid.NewGuid(),
+            projectId = Guid.NewGuid(),
+            reviewedBy = "cli-simulator@archlucid.local",
+            reviewedUtc = TimeProvider.System.GetUtcNow().ToString("O")
+        };
+    }
     private static object CreateGovernancePromotionActivated()
     {
         return new

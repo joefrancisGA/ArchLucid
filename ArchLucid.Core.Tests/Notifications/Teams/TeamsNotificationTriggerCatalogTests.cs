@@ -61,6 +61,15 @@ public sealed class TeamsNotificationTriggerCatalogTests
     }
 
     [Fact]
+    public void ParseOrDefault_returns_full_catalog_when_json_contains_only_unknown_triggers()
+    {
+        IReadOnlyList<string> parsed =
+            TeamsNotificationTriggerCatalog.ParseOrDefault("[\"com.archlucid.does.not.exist\"]");
+
+        parsed.Should().BeEquivalentTo(TeamsNotificationTriggerCatalog.All);
+    }
+
+    [Fact]
     public void ParseOrDefault_drops_unknown_and_blank_entries()
     {
         string json = JsonSerializer.Serialize(new[]

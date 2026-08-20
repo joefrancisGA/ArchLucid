@@ -49,6 +49,38 @@ public sealed class DefaultGraphEdgeInfererContractTests
     }
 
     [Fact]
+    public void InferEdges_WhenChildDeclaresParentNodeIdWithPascalCaseOnCaseSensitiveDictionary_AddsContainsResourceEdge()
+    {
+        ContextSnapshot context = new() { SnapshotId = Guid.NewGuid() };
+        GraphNode parent = new()
+        {
+            NodeId = "topo-parent",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "parent",
+            Category = GraphTopologyCategories.Storage
+        };
+        GraphNode child = new()
+        {
+            NodeId = "topo-child",
+            NodeType = GraphNodeTypes.TopologyResource,
+            Label = "child",
+            Category = GraphTopologyCategories.Storage,
+            Properties = new Dictionary<string, string>
+            {
+                ["ParentNodeId"] = "topo-parent"
+            }
+        };
+
+        IReadOnlyList<GraphEdge> edges = _sut.InferEdges(context, [parent, child]);
+
+        edges.Should().ContainSingle(e =>
+            e.EdgeType == GraphEdgeTypes.ContainsResource
+            && e.FromNodeId == "topo-parent"
+            && e.ToNodeId == "topo-child"
+            && e.InferenceSource == GraphEdgeInferenceSources.ExplicitParentChild);
+    }
+
+    [Fact]
     public void InferEdges_WhenPolicyListsApplicableTopologyNodeIds_OnlyTargetsListedResources()
     {
         ContextSnapshot context = new() { SnapshotId = Guid.NewGuid() };

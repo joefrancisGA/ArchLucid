@@ -12,13 +12,13 @@ namespace ArchLucid.Api.Services;
 public sealed class WebhookSubscriptionTestService(
     IScopeContextProvider scopeProvider,
     IAlertRoutingSubscriptionRepository subscriptionRepository,
-    IOutboundWebhookDryRunService probe,
+    ArchLucid.Application.Integrations.IOutboundWebhookDryRunService probe,
     IAuditService auditService) : IWebhookSubscriptionTestService
 {
     private readonly IAuditService _auditService =
         auditService ?? throw new ArgumentNullException(nameof(auditService));
 
-    private readonly IOutboundWebhookDryRunService _probe =
+    private readonly ArchLucid.Application.Integrations.IOutboundWebhookDryRunService _probe =
         probe ?? throw new ArgumentNullException(nameof(probe));
 
     private readonly IAlertRoutingSubscriptionRepository _subscriptionRepository =
@@ -62,7 +62,7 @@ public sealed class WebhookSubscriptionTestService(
 
         string? sharedSecret = WebhookSubscriptionSharedSecretReader.TryRead(subscription.MetadataJson);
 
-        OutboundWebhookDryRunResult outcome =
+        ArchLucid.Application.Integrations.OutboundWebhookDryRunResult outcome =
             await _probe.ProbeAsync(destinationUri, sharedSecret, cancellationToken);
 
         await _auditService.LogAsync(

@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://archlucid.dev/schemas/integration-events/governance-approval-approved.v1.schema.json",
+  "title": "com.archlucid.governance.approval.approved",
+  "description": "Governance approval request approved (canonical com.archlucid.governance.approval.approved; legacy V1 type alias supported).",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "tenantId",
+    "workspaceId",
+    "projectId",
+    "approvalRequestId",
+    "runId",
+    "manifestVersion",
+    "sourceEnvironment",
+    "targetEnvironment",
+    "reviewedBy",
+    "reviewedUtc"
+  ],
+  "properties": {
+    "schemaVersion": { "type": "integer", "const": 1 },
+    "tenantId": { "type": "string", "format": "uuid" },
+    "workspaceId": { "type": "string", "format": "uuid" },
+    "projectId": { "type": "string", "format": "uuid" },
+    "approvalRequestId": { "type": "string" },
+    "runId": { "type": "string" },
+    "manifestVersion": { "type": "string" },
+    "sourceEnvironment": { "type": "string" },
+    "targetEnvironment": { "type": "string" },
+    "reviewedBy": { "type": "string" },
+    "reviewedUtc": { "type": "string", "format": "date-time" },
+    "reviewComment": { "type": "string" }
+  },
+  "additionalProperties": true
+}

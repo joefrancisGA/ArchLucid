@@ -58,6 +58,7 @@ public static class AgentExecutionTraceRunLlmCostAggregator
     {
         long promptSum = 0;
         long completionSum = 0;
+        long reasoningSum = 0;
         decimal costAccum = 0m;
         bool anyCost = false;
 
@@ -73,6 +74,7 @@ public static class AgentExecutionTraceRunLlmCostAggregator
 
             promptSum += inTok;
             completionSum += outTok;
+            reasoningSum += reasoningTok;
 
             if (inTok <= 0 && outTok <= 0 && reasoningTok <= 0)
                 continue;
@@ -105,7 +107,7 @@ public static class AgentExecutionTraceRunLlmCostAggregator
 
         // Reasoning-only traces (TB-196) have zero prompt/completion sums but may still produce a USD estimate.
 
-        if (promptSum + completionSum <= 0 && !anyCost)
+        if (promptSum + completionSum + reasoningSum <= 0 && !anyCost)
             return new AgentExecutionTraceRunLlmCostSummary(estimatedUsd, promptSum, completionSum, modelLabel, costBasis);
 
         if (anyCost)

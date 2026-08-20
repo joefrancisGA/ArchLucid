@@ -3,7 +3,9 @@ using System.Text.Json;
 
 using ArchLucid.Application.Runs;
 using ArchLucid.ContextIngestion.Models;
+using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Persistence.DecisionTraces;
+using ArchLucid.Core.Agents;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authority;
 using ArchLucid.Core.Configuration;
@@ -1105,7 +1107,25 @@ public sealed class AuthorityRunOrchestratorTests
             pipelineOpts,
             tenantConcurrencyGate,
             new RunStateTransitionService(),
+            new EmptyAgentModelAliasRegistryStub(),
             logger);
+    }
+
+    private sealed class EmptyAgentModelAliasRegistryStub : IAgentModelAliasRegistry
+    {
+        public IReadOnlyCollection<AgentModelAliasRegistryEntry> ListEntries() => [];
+
+        public AgentModelAliasRegistryEntry GetRequired(string aliasId) =>
+            throw new KeyNotFoundException(aliasId);
+
+        public bool TryGet(string aliasId, out AgentModelAliasRegistryEntry? entry)
+        {
+            entry = null;
+
+            return false;
+        }
+
+        public string ResolveAliasIdForTier(LlmModelTier tier) => AgentModelAliasIds.StandardGeneral;
     }
 
     private static ManifestDocument NewMinimalManifest(

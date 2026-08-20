@@ -6,7 +6,6 @@ using ArchLucid.Core.Scoping;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Host.Core.Coordination;
 using ArchLucid.Persistence.Cosmos;
-using ArchLucid.Persistence.Repositories;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -52,10 +51,10 @@ public sealed class CosmosGraphSnapshotOutboxProcessor(
         CosmosGraphSnapshotOutboxProcessorOptions opts,
         CancellationToken cancellationToken)
     {
-        SqlGraphSnapshotRepository sqlGraphSnapshots =
-            scope.ServiceProvider.GetRequiredService<SqlGraphSnapshotRepository>();
-        CosmosGraphSnapshotRepository cosmosGraphSnapshots =
-            scope.ServiceProvider.GetRequiredService<CosmosGraphSnapshotRepository>();
+        ICosmosGraphSnapshotOutboxSqlLoader sqlLoader =
+            scope.ServiceProvider.GetRequiredService<ICosmosGraphSnapshotOutboxSqlLoader>();
+        ICosmosGraphSnapshotOutboxCosmosWriter cosmosWriter =
+            scope.ServiceProvider.GetRequiredService<ICosmosGraphSnapshotOutboxCosmosWriter>();
 
         using Activity? activity = ArchLucidInstrumentation.AuthorityRun.StartActivity(
             "CosmosGraphSnapshotOutbox.ProcessEntry");
@@ -72,8 +71,12 @@ public sealed class CosmosGraphSnapshotOutboxProcessor(
             ProjectId = entry.ProjectId
         };
 
+        ActivityScopeTags.ApplyTenantWorkspace(activity, scopeContext);
+
+        using IDisposable ambientScope = AmbientScopeContext.Push(scopeContext);
+
         GraphSnapshot? snapshot =
-            await sqlGraphSnapshots.GetByIdAsync(scopeContext, entry.GraphSnapshotId, cancellationToken);
+            await sqlLoader.LoadAsync(scopeContext, entry.GraphSnapshotId, cancellationToken);
 
         if (snapshot is null)
         {
@@ -81,7 +84,7 @@ public sealed class CosmosGraphSnapshotOutboxProcessor(
                 $"Graph snapshot '{entry.GraphSnapshotId:D}' was not found in SQL for Cosmos replication.");
         }
 
-        await cosmosGraphSnapshots.SaveAsync(snapshot, cancellationToken);
+        await cosmosWriter.SaveAsync(snapshot, cancellationToken);
         await outbox.MarkProcessedAsync(entry.OutboxId, cancellationToken);
     }
 

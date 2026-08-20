@@ -21,6 +21,7 @@ using ArchLucid.Notifications.Advisory;
 using ArchLucid.Decisioning.Alerts.Tuning;
 using ArchLucid.Decisioning.Governance.PolicyPacks;
 using ArchLucid.Host.Composition.Alerts;
+using ArchLucid.Host.Composition.Coordination.Cosmos;
 using ArchLucid.Decisioning.Governance.Resolution;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Host.Core.Coordination.Cosmos;
@@ -293,6 +294,8 @@ public static partial class ServiceCollectionExtensions
         if (!cosmosOpts.GraphSnapshotsEnabled)
             return;
 
+        services.AddScoped<ICosmosGraphSnapshotOutboxSqlLoader, CosmosGraphSnapshotOutboxSqlLoader>();
+        services.AddScoped<ICosmosGraphSnapshotOutboxCosmosWriter, CosmosGraphSnapshotOutboxCosmosWriter>();
         services.AddSingleton<ICosmosGraphSnapshotOutboxProcessor, CosmosGraphSnapshotOutboxProcessor>();
 
         if (hostingRole is not (ArchLucidHostingRole.Combined or ArchLucidHostingRole.Worker))

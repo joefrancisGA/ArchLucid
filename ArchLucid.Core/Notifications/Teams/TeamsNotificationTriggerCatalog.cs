@@ -66,10 +66,15 @@ public static class TeamsNotificationTriggerCatalog
             if (parsed is null || parsed.Length == 0)
                 return All;
 
-            return parsed
+            string[] filtered = parsed
                 .Where(IsKnown)
                 .Distinct(StringComparer.Ordinal)
                 .ToArray();
+
+            if (filtered.Length == 0)
+                return All;
+
+            return filtered;
         }
         catch (JsonException)
         {

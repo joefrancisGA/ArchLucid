@@ -4,6 +4,7 @@ import { describe, expect, it } from "vitest";
 import { MarketingPageShell } from "@/components/marketing/MarketingPageShell";
 import { MarketingTrustCenterBuyerBody } from "./MarketingTrustCenterBuyerBody";
 import { TRUST_ASSURANCE_CLASSIFICATIONS } from "@/lib/trust-center-buyer-content";
+import { TRUST_CENTER_EVIDENCE_PACK_ZIP_HREF } from "@/lib/trust-center-public-assurance";
 
 describe("MarketingTrustCenterBuyerBody", () => {
   it("renders hero hierarchy with one primary diligence action and secondary links", () => {
@@ -96,7 +97,7 @@ describe("MarketingTrustCenterBuyerBody", () => {
     );
     expect(screen.getByTestId("trust-center-evidence-pack-link")).toHaveAttribute(
       "href",
-      "/v1/marketing/trust-center/evidence-pack.zip",
+      TRUST_CENTER_EVIDENCE_PACK_ZIP_HREF,
     );
   });
 

@@ -1088,7 +1088,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
                     <a
                       class="inline-flex min-h-6 items-center break-words py-1 font-medium text-[var(--al-accent-link)] underline underline-offset-2 hover:text-[var(--al-accent-link-hover)]"
                       download=""
-                      href="/v1/marketing/trust-center/evidence-pack.zip"
+                      href="/api/proxy/v1/marketing/trust-center/evidence-pack.zip"
                     >
                       Assurance evidence bundle (ZIP)
                     </a>
@@ -1476,7 +1476,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
         Sources for follow-up
       </h2>
       <p
-        class="m-0 mt-1 max-w-3xl text-[13px] font-normal leading-5 text-al-text-primary"
+        class="m-0 mt-1 max-w-none text-[13px] font-normal leading-5 text-al-text-primary"
       >
         Use these evaluation links when the comparison story turns into a sample proof, signup, or assurance review.
       </p>

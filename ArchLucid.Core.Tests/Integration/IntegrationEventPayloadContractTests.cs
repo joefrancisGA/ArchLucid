@@ -81,7 +81,50 @@ public sealed class IntegrationEventPayloadContractTests
         };
 
         AssertPayloadMatchesCommittedSchema("governance-approval-submitted.v1.schema.json", payload);
+    }    [Fact]
+    public void GovernanceApprovalApproved_payload_has_expected_contract()
+    {
+        object payload = new
+        {
+            schemaVersion = 1,
+            tenantId = Guid.NewGuid(),
+            workspaceId = Guid.NewGuid(),
+            projectId = Guid.NewGuid(),
+            approvalRequestId = "a",
+            runId = "r",
+            manifestVersion = "v",
+            sourceEnvironment = "dev",
+            targetEnvironment = "test",
+            reviewedBy = "u",
+            reviewedUtc = TimeProvider.System.UtcNowDateTime(),
+            reviewComment = (string?)null
+        };
+
+        AssertPayloadMatchesCommittedSchema("governance-approval-approved.v1.schema.json", payload);
     }
+
+    [Fact]
+    public void GovernanceApprovalRejected_payload_has_expected_contract()
+    {
+        object payload = new
+        {
+            schemaVersion = 1,
+            tenantId = Guid.NewGuid(),
+            workspaceId = Guid.NewGuid(),
+            projectId = Guid.NewGuid(),
+            approvalRequestId = "a",
+            runId = "r",
+            manifestVersion = "v",
+            sourceEnvironment = "dev",
+            targetEnvironment = "test",
+            reviewedBy = "u",
+            reviewedUtc = TimeProvider.System.UtcNowDateTime(),
+            reviewComment = "returned"
+        };
+
+        AssertPayloadMatchesCommittedSchema("governance-approval-rejected.v1.schema.json", payload);
+    }
+
 
     [Fact]
     public void GovernancePromotionActivated_payload_has_expected_contract()
@@ -123,7 +166,25 @@ public sealed class IntegrationEventPayloadContractTests
         };
 
         AssertPayloadMatchesCommittedSchema("alert-fired.v1.schema.json", payload);
+    }    [Fact]
+    public void AlertAcknowledged_payload_has_expected_contract()
+    {
+        object payload = new
+        {
+            schemaVersion = 1,
+            tenantId = Guid.NewGuid(),
+            workspaceId = Guid.NewGuid(),
+            projectId = Guid.NewGuid(),
+            alertId = Guid.NewGuid(),
+            runId = (Guid?)null,
+            deduplicationKey = "composite:rule:scope",
+            acknowledgedByUserId = "u",
+            comment = (string?)null
+        };
+
+        AssertPayloadMatchesCommittedSchema("alert-acknowledged.v1.schema.json", payload);
     }
+
 
     [Fact]
     public void AlertResolved_payload_has_expected_contract()
@@ -287,9 +348,12 @@ public sealed class IntegrationEventPayloadContractTests
             ["authority-run-completed.v1.schema.json"] = IntegrationEventTypes.AuthorityRunCompletedV1,
             ["manifest-finalized.v1.schema.json"] = IntegrationEventTypes.ManifestFinalizedV1,
             ["governance-approval-submitted.v1.schema.json"] = IntegrationEventTypes.GovernanceApprovalSubmittedV1,
+            ["governance-approval-approved.v1.schema.json"] = IntegrationEventTypes.GovernanceApprovalApprovedV1,
+            ["governance-approval-rejected.v1.schema.json"] = IntegrationEventTypes.GovernanceApprovalRejectedV1,
             ["governance-promotion-activated.v1.schema.json"] =
                 IntegrationEventTypes.GovernancePromotionActivatedV1,
             ["alert-fired.v1.schema.json"] = IntegrationEventTypes.AlertFiredV1,
+            ["alert-acknowledged.v1.schema.json"] = IntegrationEventTypes.AlertAcknowledgedV1,
             ["alert-resolved.v1.schema.json"] = IntegrationEventTypes.AlertResolvedV1,
             ["advisory-scan-completed.v1.schema.json"] = IntegrationEventTypes.AdvisoryScanCompletedV1,
             ["compliance-drift-escalated.v1.schema.json"] = IntegrationEventTypes.ComplianceDriftEscalatedV1,

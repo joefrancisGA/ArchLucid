@@ -24,7 +24,7 @@ public static class IntegrationEventOutboxPriority
 
     private static int TierFromCanonical(string canonical) => canonical switch
     {
-        IntegrationEventTypes.AlertFiredV1 or IntegrationEventTypes.AlertResolvedV1
+        IntegrationEventTypes.AlertFiredV1 or IntegrationEventTypes.AlertAcknowledgedV1 or IntegrationEventTypes.AlertResolvedV1
             or IntegrationEventTypes.ComplianceDriftEscalatedV1 => 0,
         IntegrationEventTypes.TrialLifecycleEmailV1 => 2,
         _ => 1,
