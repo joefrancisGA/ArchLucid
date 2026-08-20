@@ -56,7 +56,7 @@ export const CORE_PILOT_HELP_FIRST_VIEWPORT_STEPS: readonly CorePilotHelpFirstVi
   {
     stepNumber: 3,
     title: "Finalize and share",
-    description: "Run the review, finalize the package, and export export-ready outputs.",
+    description: "Run the review, finalize the package, and share export-ready outputs.",
   },
 ];
 
