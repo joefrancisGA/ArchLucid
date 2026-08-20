@@ -7,7 +7,13 @@ import { CloudSecurityPreflightPanel } from "./CloudSecurityPreflightPanel";
 
 describe("CloudSecurityPreflightPanel", () => {
   it("renders a read-only checklist without attestation controls (P0-2)", () => {
-    render(<CloudSecurityPreflightPanel topics={cloudSecurityPreflightTopics("aws")} providerLabel="AWS" />);
+    render(
+      <CloudSecurityPreflightPanel
+        topics={cloudSecurityPreflightTopics("aws")}
+        providerLabel="AWS"
+        collapsedByDefault={false}
+      />,
+    );
 
     expect(screen.queryByRole("radio")).not.toBeInTheDocument();
     expect(screen.queryByText(/security review is recommended/i)).not.toBeInTheDocument();
@@ -39,6 +45,21 @@ describe("CloudSecurityPreflightPanel", () => {
     fireEvent.click(screen.getByText(/7 access controls reviewed for Azure/i));
 
     expect(screen.getByText("Read-only scope")).toBeVisible();
+  });
+
+  it("links AWS federation citations to AWS help instead of Azure workload identity", () => {
+    render(<CloudSecurityPreflightPanel topics={cloudSecurityPreflightTopics("aws")} providerLabel="AWS" />);
+
+    fireEvent.click(screen.getByText(/7 access controls reviewed for AWS/i));
+
+    expect(screen.getByTestId("cloud-security-preflight-citation-identity-federation")).toHaveAttribute(
+      "href",
+      "/help/cloud-connections/aws",
+    );
+    expect(screen.getByTestId("cloud-security-preflight-citation-aws-role-trust")).toHaveAttribute(
+      "href",
+      "/help/cloud-connections/aws",
+    );
   });
 
   it("links every topic to a trust-center control and shows verified tags after validation (P0-5)", () => {

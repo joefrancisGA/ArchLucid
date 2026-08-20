@@ -51,7 +51,7 @@ export function AwsTrustPolicyStarterPanel(): React.ReactElement {
     <div className="space-y-4" data-testid="aws-trust-starter-panel">
       <div className="space-y-3">
         <h3 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>{AWS_TRUST_STARTER_FEDERATION_HEADING}</h3>
-        <p className={cn("m-0 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
           {AWS_TRUST_STARTER_FEDERATION_INTRO_LEAD}{" "}
           <Link href={CONNECTION_STATUS_CANONICAL_PATH} className={OPERATOR_BODY_INLINE_LINK_CLASS}>
             Connection status
@@ -62,15 +62,15 @@ export function AwsTrustPolicyStarterPanel(): React.ReactElement {
           </Link>{" "}
           {AWS_TRUST_STARTER_FEDERATION_INTRO_TAIL}
         </p>
-        <div className={HELP_PAGE_LAYOUT.tableWrap} data-testid="aws-trust-starter-federation-identifiers">
-          <EnterpriseTable ariaLabel="OIDC federation identifiers for AWS IAM role trust" className={HELP_PAGE_LAYOUT.table}>
+        <div data-testid="aws-trust-starter-federation-identifiers">
+          <EnterpriseTable ariaLabel="OIDC federation identifiers for AWS IAM role trust" className="w-full table-fixed">
             <caption className="sr-only">OIDC federation identifiers for AWS IAM role trust</caption>
             <EnterpriseTableHead>
               <EnterpriseTableHeadRow>
-                <EnterpriseTableHeaderCell scope="col" className={HELP_PAGE_LAYOUT.tableHeadCell}>
+                <EnterpriseTableHeaderCell scope="col" className="w-[38%]">
                   Field
                 </EnterpriseTableHeaderCell>
-                <EnterpriseTableHeaderCell scope="col" className={HELP_PAGE_LAYOUT.tableHeadCell}>
+                <EnterpriseTableHeaderCell scope="col" className="min-w-0">
                   Value
                 </EnterpriseTableHeaderCell>
               </EnterpriseTableHeadRow>
@@ -81,10 +81,10 @@ export function AwsTrustPolicyStarterPanel(): React.ReactElement {
                   key={identifier.id}
                   className={index % 2 === 0 ? HELP_PAGE_LAYOUT.tableRowOdd : HELP_PAGE_LAYOUT.tableRowEven}
                 >
-                  <EnterpriseTableHeaderCell scope="row" className={HELP_PAGE_LAYOUT.tableBodyCell}>
+                  <EnterpriseTableHeaderCell scope="row" className="align-top w-[38%]">
                     {identifier.label}
                   </EnterpriseTableHeaderCell>
-                  <EnterpriseTableCell className={cn(HELP_PAGE_LAYOUT.tableBodyCell, "font-mono text-sm")}>
+                  <EnterpriseTableCell className="min-w-0 break-all font-mono text-sm align-top">
                     <div className="flex flex-wrap items-center gap-2">
                       <span className={identifier.isPlaceholder ? "text-al-text-secondary" : undefined}>
                         {identifier.value}
@@ -122,7 +122,7 @@ export function AwsTrustPolicyStarterPanel(): React.ReactElement {
             {copyFeedback}
           </p>
         ) : null}
-        <p className={cn("m-0 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
           {AWS_TRUST_STARTER_TRUST_POLICY_INTRO}
         </p>
         <pre

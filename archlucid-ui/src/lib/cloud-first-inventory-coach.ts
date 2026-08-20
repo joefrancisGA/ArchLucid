@@ -115,13 +115,17 @@ export function buildCloudFirstInventoryCoach(
       );
     case "empty": {
       const recommendedProviderId = input.recommendedProviderId ?? CLOUD_PROVIDER_NEUTRAL_ORDER[0];
+      const providerLabel = EMPTY_COACH_PROVIDER_LABEL[recommendedProviderId];
+      const providerScopedEmpty = input.emptyPhasePrimaryCtaHref !== undefined;
 
       return {
         phase,
         title: CLOUD_FIRST_INVENTORY_COACH_EMPTY_TITLE,
-        body: `${connectedProviderCount} of ${totalProviderCount} cloud providers connected. Connecting adds read-only inventory packages to architecture reviews; evidence-only upload works without cloud vendor access.`,
+        body: providerScopedEmpty
+          ? `${providerLabel} is not connected yet. Complete connection details below to attach read-only inventory to architecture reviews.`
+          : `${connectedProviderCount} of ${totalProviderCount} cloud providers connected. Connecting adds read-only inventory packages to architecture reviews; evidence-only upload works without cloud vendor access.`,
         steps: [],
-        primaryCtaLabel: `Configure ${EMPTY_COACH_PROVIDER_LABEL[recommendedProviderId]}`,
+        primaryCtaLabel: `Configure ${providerLabel}`,
         primaryCtaHref:
           input.emptyPhasePrimaryCtaHref ?? cloudProviderDetailPath(recommendedProviderId),
         replacesIdleEmpty: true,

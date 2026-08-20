@@ -15,15 +15,15 @@ export const CONNECT_AWS_SECURELY_FOLLOW_UPS_TITLE = "Where to go next";
 export const CONNECT_AWS_SECURELY_CLAIM_HEADING_ID = "help-cloud-connections-aws-claim-discipline-heading" as const;
 
 export const CONNECT_AWS_SECURELY_SOURCES_INTRO =
-  "Use these follow-ups when AWS setup needs the live hub, parent cloud-connections help, sibling cloud guides, or assurance cites.";
+  "Use these follow-ups when AWS setup needs the live hub, connection health, security orientation, or assurance cites.";
 
-/** Operator Sources — no self-href to `/help/cloud-connections/aws`. */
+/** Operator Sources — no self-href to `/help/cloud-connections/aws` or sibling cloud provider guides. */
 export const CONNECT_AWS_SECURELY_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Cloud connections hub", href: "/integrations/cloud-connections" },
   { label: "AWS connection settings", href: "/integrations/cloud-connections/aws" },
   { label: "Cloud connections help", href: inAppHelpHref("cloud-connections") },
-  { label: "Connect Azure securely", href: inAppHelpHref("cloud-connections-azure") },
-  { label: "Connect GCP securely", href: inAppHelpHref("cloud-connections-gcp") },
+  { label: "Connection status", href: "/administration/connection-status" },
+  { label: "Security and trust help", href: inAppHelpHref("security-trust") },
   { label: "Assurance status", href: "/assurance-status" },
 ] as const;
 

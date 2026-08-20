@@ -85,6 +85,21 @@ describe("cloud-first-inventory-coach (TB-2222)", () => {
     expect(view.primaryCtaHref).toBe("/integrations/cloud-connections/azure");
   });
 
+  it("empty phase on a provider detail page avoids hub-wide provider counts", () => {
+    const view = buildCloudFirstInventoryCoach({
+      hasConnection: false,
+      hasSuccessfulPull: false,
+      connectedProviderCount: 0,
+      totalProviderCount: 3,
+      recommendedProviderId: "aws",
+      emptyPhasePrimaryCtaHref: "#connection-details",
+    });
+
+    expect(view.body).not.toContain("0 of 3");
+    expect(view.body).toContain("AWS");
+    expect(view.primaryCtaHref).toBe("#connection-details");
+  });
+
   it("empty phase can anchor to connection details on the current provider page", () => {
     const view = buildCloudFirstInventoryCoach({
       hasConnection: false,

@@ -123,10 +123,14 @@ describe("HelpConnectAwsSecurelyGuideView", () => {
     const verifyHref = buildConnectAwsSecurelyVerifyHref("/integrations/cloud-connections");
     expect(verifyHref).toBe("/integrations/cloud-connections/aws#validate-connection");
     expect(screen.getAllByRole("link", { name: /run Re-poll now/i })[0]).toHaveAttribute("href", verifyHref);
-    expect(screen.getByRole("link", { name: CONNECT_AWS_SECURELY_CONNECTION_STATUS_LINK_LABEL })).toHaveAttribute(
-      "href",
-      CONNECT_AWS_SECURELY_CONNECTION_STATUS_HREF,
-    );
+    const connectionStatusLinks = screen.getAllByRole("link", {
+      name: CONNECT_AWS_SECURELY_CONNECTION_STATUS_LINK_LABEL,
+    });
+    expect(
+      connectionStatusLinks.some(
+        (link) => link.getAttribute("href") === CONNECT_AWS_SECURELY_CONNECTION_STATUS_HREF,
+      ),
+    ).toBe(true);
 
     for (const link of screen.getAllByRole("link", { name: /run Re-poll now/i })) {
       expect(link.getAttribute("href")).not.toContain("/help/");

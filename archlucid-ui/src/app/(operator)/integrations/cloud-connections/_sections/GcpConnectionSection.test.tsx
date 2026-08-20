@@ -40,11 +40,23 @@ describe("GcpConnectionSection", () => {
       expect(screen.getByTestId("gcp-connection-wizard")).toBeInTheDocument();
     });
 
-    expect(screen.getByTestId("gcp-connection-wizard-step-wif")).toBeInTheDocument();
+    expect(screen.getByTestId("gcp-connection-wizard-step-ids")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Next" })).toBeInTheDocument();
     expect(screen.queryByTestId("gcp-connect-submit")).not.toBeInTheDocument();
 
+    fireEvent.change(screen.getByTestId("gcp-project-id"), { target: { value: "my-gcp-project" } });
+    fireEvent.change(screen.getByTestId("gcp-pool-provider"), {
+      target: {
+        value:
+          "//iam.googleapis.com/projects/my-gcp-project/locations/global/workloadIdentityPools/archlucid/providers/archlucid",
+      },
+    });
+    fireEvent.change(screen.getByTestId("gcp-service-account-email"), {
+      target: { value: "archlucid-readonly@my-gcp-project.iam.gserviceaccount.com" },
+    });
+
     fireEvent.click(screen.getByRole("button", { name: "Next" }));
-    expect(screen.getByTestId("gcp-connection-wizard-step-ids")).toBeInTheDocument();
+    expect(screen.getByTestId("gcp-connection-wizard-step-save")).toBeInTheDocument();
   });
 
   it("requires confirmation before disconnecting a saved connection", async () => {

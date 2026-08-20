@@ -91,8 +91,8 @@ function AwsCloudConnectionDetailBody(): React.ReactElement {
         technicalDetails={
           <CloudSecurityPreflightTechnicalDetails>
             <p>
-              Cross-cloud trust uses OIDC federation from ArchLucid&apos;s hosted identity to your AWS IAM role.
-              This does not require you to run workloads on Azure.
+              ArchLucid assumes your read-only IAM role through OIDC federation from its hosted identity. You only
+              configure AWS on this page — no other cloud subscription is required for this connection.
             </p>
           </CloudSecurityPreflightTechnicalDetails>
         }
