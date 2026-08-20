@@ -16,7 +16,7 @@ export const PREFERENCES_SETTINGS_CLAIM_DISCIPLINE =
   "This Preferences page saves personal appearance choices to your account — not a full audit export. Open Getting started, Sign-in methods, or Assurance status when you need onboarding or official materials.";
 
 export const PREFERENCES_SETTINGS_SOURCES_INTRO =
-  "Use these follow-ups when personal theme settings turn into onboarding, account security, or official assurance materials.";
+  "Open these pages when you need onboarding, sign-in security, user administration, or assurance status.";
 
 
 /** Operator Sources - no self-href to preferences. */

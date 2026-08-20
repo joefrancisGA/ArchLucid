@@ -5,7 +5,6 @@ import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { CloudPlatformScopePanel } from "@/components/preferences/CloudPlatformScopePanel";
 import { WhereToGoNextPreferencePanel } from "@/components/preferences/WhereToGoNextPreferencePanel";
 import { PreferencesNotificationsVocabularyRail } from "@/components/PreferencesNotificationsVocabularyRail";
-import { ShellThemePreferencesAppearanceVocabularyRail } from "@/components/ShellThemePreferencesAppearanceVocabularyRail";
 import { ThemePreferenceSelector } from "@/components/ThemePreferenceSelector";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
@@ -39,7 +38,6 @@ export function PreferencesSettingsPageView() {
       />
       <PreferencesSettingsEvidenceOrientationStrip />
       <PreferencesNotificationsVocabularyRail currentSurfaceId="preferences" />
-      <ShellThemePreferencesAppearanceVocabularyRail currentSurfaceId="preferences-appearance" />
       <Card data-testid="preferences-appearance-card">
         <CardHeader>
           <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Appearance</CardTitle>
@@ -57,7 +55,9 @@ export function PreferencesSettingsPageView() {
       </Card>
       <Card id="cloud-platforms-shown" data-testid="preferences-cloud-platforms-card">
         <CardHeader>
-          <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>{PREFERENCES_CLOUD_PLATFORMS_HEADING}</CardTitle>
+          <CardTitle id="preferences-cloud-platforms-heading" className={OPERATOR_TYPOGRAPHY.cardTitle}>
+            {PREFERENCES_CLOUD_PLATFORMS_HEADING}
+          </CardTitle>
         </CardHeader>
         <CardContent>
           {mounted ? (
@@ -65,6 +65,7 @@ export function PreferencesSettingsPageView() {
               scope={scope}
               onScopeChange={setAndPersist}
               accountSyncState={accountSyncState}
+              labelledById="preferences-cloud-platforms-heading"
             />
           ) : (
             <div aria-hidden="true" className="h-24 w-full" data-testid="cloud-platform-scope-loading" />
@@ -73,7 +74,9 @@ export function PreferencesSettingsPageView() {
       </Card>
       <Card id="where-to-go-next" data-testid="preferences-where-to-go-next-card">
         <CardHeader>
-          <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>{PREFERENCES_WHERE_TO_GO_NEXT_HEADING}</CardTitle>
+          <CardTitle id="preferences-follow-up-strips-heading" className={OPERATOR_TYPOGRAPHY.cardTitle}>
+            {PREFERENCES_WHERE_TO_GO_NEXT_HEADING}
+          </CardTitle>
         </CardHeader>
         <CardContent>
           {whereToGoNextMounted ? (
@@ -81,6 +84,7 @@ export function PreferencesSettingsPageView() {
               enabled={whereToGoNextEnabled}
               onEnabledChange={setWhereToGoNextAndPersist}
               accountSyncState={whereToGoNextAccountSyncState}
+              labelledById="preferences-follow-up-strips-heading"
             />
           ) : (
             <div aria-hidden="true" className="h-16 w-full" data-testid="where-to-go-next-preference-loading" />

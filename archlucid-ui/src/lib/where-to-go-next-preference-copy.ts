@@ -1,7 +1,7 @@
-/** Personal preferences card — Where to go next follow-up strips. */
-export const PREFERENCES_WHERE_TO_GO_NEXT_HEADING = "Where to go next";
+/** Personal preferences card — follow-up strip visibility (distinct from page-level Where to go next link strips). */
+export const PREFERENCES_WHERE_TO_GO_NEXT_HEADING = "Follow-up link strips";
 
 export const PREFERENCES_WHERE_TO_GO_NEXT_LEAD =
-  "Show follow-up link strips titled Where to go next on operator pages. Turn this off to hide those strips across the product. Your choice is saved to your account and syncs across browsers.";
+  "Show or hide follow-up link strips on operator pages. Your choice is saved to your account and syncs across browsers.";
 
-export const PREFERENCES_WHERE_TO_GO_NEXT_TOGGLE_LABEL = "Show Where to go next strips";
+export const PREFERENCES_WHERE_TO_GO_NEXT_TOGGLE_LABEL = "Show follow-up link strips";

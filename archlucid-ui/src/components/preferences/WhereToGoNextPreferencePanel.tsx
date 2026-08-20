@@ -15,12 +15,15 @@ export type WhereToGoNextPreferencePanelProps = {
   readonly enabled: boolean;
   readonly onEnabledChange: (enabled: boolean) => void;
   readonly accountSyncState?: WhereToGoNextAccountSyncState;
+  /** Card title id when the panel is rendered inside a CardHeader (avoids duplicate headings). */
+  readonly labelledById?: string;
 };
 
 export function WhereToGoNextPreferencePanel({
   enabled,
   onEnabledChange,
   accountSyncState = "idle",
+  labelledById,
 }: WhereToGoNextPreferencePanelProps) {
   const checkboxId = "where-to-go-next-enabled";
 
@@ -28,16 +31,9 @@ export function WhereToGoNextPreferencePanel({
     <section
       className="space-y-3"
       data-testid="where-to-go-next-preference-panel"
-      aria-labelledby="where-to-go-next-preference-heading"
+      aria-labelledby={labelledById}
     >
-      <div>
-        <h2 id="where-to-go-next-preference-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
-          {PREFERENCES_WHERE_TO_GO_NEXT_HEADING}
-        </h2>
-        <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-          {PREFERENCES_WHERE_TO_GO_NEXT_LEAD}
-        </p>
-      </div>
+      <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{PREFERENCES_WHERE_TO_GO_NEXT_LEAD}</p>
       <label
         htmlFor={checkboxId}
         className={cn(
