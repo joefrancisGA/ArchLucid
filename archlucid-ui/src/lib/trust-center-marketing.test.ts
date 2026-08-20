@@ -37,6 +37,12 @@ describe("trust-center-marketing (TB-737)", () => {
     }
   });
 
+  it("routes evidence-pack ZIP through the same-origin marketing proxy as other public downloads", () => {
+    expect(TRUST_CENTER_EVIDENCE_PACK_ZIP_HREF).toBe(
+      "/api/proxy/v1/marketing/trust-center/evidence-pack.zip",
+    );
+  });
+
   it("lists public assurance artifact hrefs that do not require sign-in", () => {
     const hrefs = TRUST_PUBLIC_ASSURANCE_ARTIFACTS.map((artifact) => artifact.href);
 

@@ -1,4 +1,5 @@
 import { CANONICAL_ANONYMOUS_PROOF_HREF, SECONDARY_CLAIMS_PROOF_HREF } from "@/lib/showcase-static-demo";
+import { TRUST_CENTER_EVIDENCE_PACK_ZIP_HREF } from "@/lib/trust-center-public-assurance";
 
 /**
  * One row per front-door hard-comparison claim (same order as `WHY_COMPARISON_ROWS` / COMPETITIVE_LANDSCAPE.md).
@@ -14,7 +15,7 @@ export type WhyVerifyLink = {
 export const WHY_COMPARISON_VERIFY_LINK_ROWS: readonly WhyVerifyLink[][] = [
   [{ label: "Enterprise customer intake sample review", href: CANONICAL_ANONYMOUS_PROOF_HREF }],
   [
-    { label: "Assurance evidence bundle (ZIP)", href: "/v1/marketing/trust-center/evidence-pack.zip" },
+    { label: "Assurance evidence bundle (ZIP)", href: TRUST_CENTER_EVIDENCE_PACK_ZIP_HREF },
     { label: "Audit trail", href: "/help/audit-trail" },
   ],
   [

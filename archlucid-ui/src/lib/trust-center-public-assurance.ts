@@ -1,8 +1,9 @@
 import { resolveInAppDocHref } from "@/lib/in-app-doc-href";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
-/** Anonymous procurement ZIP — same endpoint as Welcome / Why comparison surfaces (TB-721). */
-export const TRUST_CENTER_EVIDENCE_PACK_ZIP_HREF = "/v1/marketing/trust-center/evidence-pack.zip" as const;
+/** Anonymous procurement ZIP — same-origin proxy as other marketing downloads (TB-721). */
+export const TRUST_CENTER_EVIDENCE_PACK_ZIP_HREF =
+  "/api/proxy/v1/marketing/trust-center/evidence-pack.zip" as const;
 
 export type TrustPublicAssuranceArtifact = {
   readonly id: string;
