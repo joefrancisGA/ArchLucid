@@ -2,13 +2,12 @@
 
 import type { JSX } from "react";
 
+import { PairwiseVocabularyRailFromModel } from "@/components/vocabulary/PairwiseVocabularyRailFromModel";
 import {
-  buildDecisionRegisterFindingsVocabulary,
-  resolveDecisionRegisterFindingsPeerLink,
+  buildDecisionRegisterFindingsPairwiseRail,
   type DecisionRegisterFindingsSurfaceId,
   type DecisionRegisterFindingsVocabularyModel,
 } from "@/lib/vocabulary/decision-register-findings-vocabulary";
-import { VocabularyRail } from "@/components/vocabulary/VocabularyRail";
 
 export type DecisionRegisterFindingsVocabularyRailProps = {
   readonly currentSurfaceId: DecisionRegisterFindingsSurfaceId;
@@ -24,25 +23,25 @@ export type DecisionRegisterFindingsVocabularyRailProps = {
 export function DecisionRegisterFindingsVocabularyRail(
   props: DecisionRegisterFindingsVocabularyRailProps,
 ): JSX.Element {
-  const model = props.model ?? buildDecisionRegisterFindingsVocabulary();
-  const peer = resolveDecisionRegisterFindingsPeerLink(props.currentSurfaceId);
-  const currentLink =
-    props.currentSurfaceId === "decision-register"
-      ? model.decisionRegisterLink
-      : model.findingsQueueLink;
+  const pairwiseModel =
+    props.model !== undefined
+      ? {
+          heading: props.model.heading,
+          whyTwo: props.model.whyTwo,
+          compactLine: props.model.compactLine,
+          currentLink: props.model.decisionRegisterLink,
+          peerLink: props.model.findingsQueueLink,
+        }
+      : buildDecisionRegisterFindingsPairwiseRail();
 
   return (
-    <VocabularyRail
+    <PairwiseVocabularyRailFromModel
       testIdPrefix="decision-register-findings-vocabulary"
       currentSurfaceId={props.currentSurfaceId}
       variant={props.variant}
       className={props.className}
-      compactLine={model.compactLine}
       compactLinkPlacement="inline"
-      heading={model.heading}
-      whyTwo={model.whyTwo}
-      currentLabel={currentLink.label}
-      links={[{ ...peer, testIdSuffix: "peer-link" }]}
+      model={pairwiseModel}
     />
   );
 }

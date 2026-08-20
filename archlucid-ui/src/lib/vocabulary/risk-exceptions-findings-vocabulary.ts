@@ -17,6 +17,7 @@ import {
   GOVERNANCE_EXCEPTIONS_PATH,
   GOVERNANCE_FINDINGS_PATH,
 } from "@/lib/governance/governance-route-paths";
+import type { PairwiseVocabularyRailModel } from "@/lib/vocabulary/create-pairwise-vocabulary-rail";
 
 export type RiskExceptionsFindingsSurfaceId = "risk-exceptions" | "findings-queue";
 
@@ -58,14 +59,27 @@ export const RISK_EXCEPTIONS_FINDINGS_FINDINGS_LINK: RiskExceptionsFindingsLink 
   whenToUse: "Disposition risks, assign owners, and clear open governance items.",
 };
 
-/** Full vocabulary model (heading, why-two copy, and deep links). */
-export function buildRiskExceptionsFindingsVocabulary(): RiskExceptionsFindingsVocabularyModel {
+/** Pairwise model for Risk exceptions ↔ Findings queue (fixed governance routes). */
+export function buildRiskExceptionsFindingsPairwiseRail(): PairwiseVocabularyRailModel<RiskExceptionsFindingsSurfaceId> {
   return {
     heading: RISK_EXCEPTIONS_FINDINGS_HEADING,
     whyTwo: RISK_EXCEPTIONS_FINDINGS_WHY_TWO,
     compactLine: RISK_EXCEPTIONS_FINDINGS_COMPACT_LINE,
-    riskExceptionsLink: RISK_EXCEPTIONS_FINDINGS_RISK_EXCEPTIONS_LINK,
-    findingsLink: RISK_EXCEPTIONS_FINDINGS_FINDINGS_LINK,
+    currentLink: RISK_EXCEPTIONS_FINDINGS_RISK_EXCEPTIONS_LINK,
+    peerLink: RISK_EXCEPTIONS_FINDINGS_FINDINGS_LINK,
+  };
+}
+
+/** Full vocabulary model (heading, why-two copy, and deep links). */
+export function buildRiskExceptionsFindingsVocabulary(): RiskExceptionsFindingsVocabularyModel {
+  const rail = buildRiskExceptionsFindingsPairwiseRail();
+
+  return {
+    heading: rail.heading,
+    whyTwo: rail.whyTwo,
+    compactLine: rail.compactLine,
+    riskExceptionsLink: rail.currentLink,
+    findingsLink: rail.peerLink,
   };
 }
 

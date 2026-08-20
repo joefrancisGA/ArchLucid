@@ -456,41 +456,26 @@ export const RunDetailBelowFoldSectionsDeferred = createDeferredComponentFromMan
   loadingClassName: "h-32",
 });
 
-const midBannerLoading = runDetailDeferredLoading("Loading review changes banner", "h-16");
-
-const savingsSummaryLoading = runDetailDeferredLoading("Loading savings summary", "h-24");
-
-const decisionDeltaLoading = runDetailDeferredLoading("Loading decision delta", "h-36");
-
-const explanationCollapsibleLoading = runDetailDeferredLoading("Loading review explanation", "h-48");
-
 /** Perf wave 10 — mid-band compare/savings leaves off sync First Load JS. */
-export const ChangesSinceLastReviewBannerDeferred = dynamic(
-  () =>
-    import("@/components/ChangesSinceLastReviewBanner").then(
-      (module) => module.ChangesSinceLastReviewBanner,
-    ),
-  { ssr: false, loading: () => midBannerLoading },
+export const ChangesSinceLastReviewBannerDeferred = createDeferredComponentFromManifest(
+  "run-detail-changes-since-last-review",
+  { loadingClassName: "h-16" },
 );
 
-export const RunSavingsSummaryDeferred = dynamic(
-  () => import("@/components/RunSavingsSummary").then((module) => module.RunSavingsSummary),
-  { ssr: false, loading: () => savingsSummaryLoading },
-);
+export const RunSavingsSummaryDeferred = createDeferredComponentFromManifest("run-detail-savings-summary", {
+  loadingClassName: "h-24",
+});
 
 /** Perf wave 10 — decision-delta panel off sync First Load JS. */
-export const RunDetailDecisionDeltaPanelDeferred = dynamic(
-  () => import("./RunDetailDecisionDeltaPanel").then((module) => module.RunDetailDecisionDeltaPanel),
-  { ssr: false, loading: () => decisionDeltaLoading },
+export const RunDetailDecisionDeltaPanelDeferred = createDeferredComponentFromManifest(
+  "run-detail-decision-delta",
+  { loadingClassName: "h-36" },
 );
 
 /** Perf wave 10 — findings/explanation collapsible off sync First Load JS. */
-export const RunDetailRunExplanationCollapsibleDeferred = dynamic(
-  () =>
-    import("./RunDetailRunExplanationCollapsible").then(
-      (module) => module.RunDetailRunExplanationCollapsible,
-    ),
-  { ssr: false, loading: () => explanationCollapsibleLoading },
+export const RunDetailRunExplanationCollapsibleDeferred = createDeferredComponentFromManifest(
+  "run-detail-explanation-collapsible",
+  { loadingClassName: "h-48" },
 );
 
 /** Perf wave 12 — sponsor walkthrough destination off sync First Load JS. */
@@ -514,12 +499,10 @@ export const RunDetailCreateHomeActivityPanelDeferred = createDeferredComponentF
   { loadingClassName: "h-40" },
 );
 
-const activitySourcesLoading = runDetailDeferredLoading("Loading activity sources", "h-32");
-
 /** Perf wave 14 — activity-tab sources panel off sync First Load JS. */
-export const RunDetailActivitySourcesPanelDeferred = dynamic(
-  () => import("./RunDetailActivitySourcesPanel").then((module) => module.RunDetailActivitySourcesPanel),
-  { ssr: false, loading: () => activitySourcesLoading },
+export const RunDetailActivitySourcesPanelDeferred = createDeferredComponentFromManifest(
+  "run-detail-activity-sources",
+  { loadingClassName: "h-32" },
 );
 
 const doThisNextResolvedLoading = runDetailDeferredLoading("Loading next step", "h-20");

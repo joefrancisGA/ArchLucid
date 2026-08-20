@@ -14,6 +14,7 @@
 
 import { ARCHITECTURE_INTELLIGENCE_PATH } from "@/lib/architecture/architecture-intelligence-route";
 import { ASK_REVIEW_QUESTIONS_PATH } from "@/lib/ask-review-questions-route";
+import type { PairwiseVocabularyRailModel } from "@/lib/vocabulary/create-pairwise-vocabulary-rail";
 
 export type AskArchitectureIntelligenceSurfaceId =
   | "ask-review-questions"
@@ -58,14 +59,27 @@ export const ASK_ARCHITECTURE_INTELLIGENCE_INTELLIGENCE_LINK: AskArchitectureInt
     "Open from a linked review, draft refine, or findings action to explore an alternative reasoning pass.",
 };
 
-/** Full vocabulary model (heading, why-two copy, and deep links). */
-export function buildAskArchitectureIntelligenceVocabulary(): AskArchitectureIntelligenceVocabularyModel {
+/** Pairwise model for Ask review questions ↔ Architecture intelligence (fixed routes). */
+export function buildAskArchitectureIntelligencePairwiseRail(): PairwiseVocabularyRailModel<AskArchitectureIntelligenceSurfaceId> {
   return {
     heading: ASK_ARCHITECTURE_INTELLIGENCE_HEADING,
     whyTwo: ASK_ARCHITECTURE_INTELLIGENCE_WHY_TWO,
     compactLine: ASK_ARCHITECTURE_INTELLIGENCE_COMPACT_LINE,
-    askReviewQuestionsLink: ASK_ARCHITECTURE_INTELLIGENCE_ASK_LINK,
-    architectureIntelligenceLink: ASK_ARCHITECTURE_INTELLIGENCE_INTELLIGENCE_LINK,
+    currentLink: ASK_ARCHITECTURE_INTELLIGENCE_ASK_LINK,
+    peerLink: ASK_ARCHITECTURE_INTELLIGENCE_INTELLIGENCE_LINK,
+  };
+}
+
+/** Full vocabulary model (heading, why-two copy, and deep links). */
+export function buildAskArchitectureIntelligenceVocabulary(): AskArchitectureIntelligenceVocabularyModel {
+  const rail = buildAskArchitectureIntelligencePairwiseRail();
+
+  return {
+    heading: rail.heading,
+    whyTwo: rail.whyTwo,
+    compactLine: rail.compactLine,
+    askReviewQuestionsLink: rail.currentLink,
+    architectureIntelligenceLink: rail.peerLink,
   };
 }
 

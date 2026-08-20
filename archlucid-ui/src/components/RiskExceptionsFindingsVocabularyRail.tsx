@@ -2,13 +2,12 @@
 
 import type { JSX } from "react";
 
+import { PairwiseVocabularyRailFromModel } from "@/components/vocabulary/PairwiseVocabularyRailFromModel";
 import {
-  buildRiskExceptionsFindingsVocabulary,
-  resolveRiskExceptionsFindingsPeerLink,
+  buildRiskExceptionsFindingsPairwiseRail,
   type RiskExceptionsFindingsSurfaceId,
   type RiskExceptionsFindingsVocabularyModel,
 } from "@/lib/vocabulary/risk-exceptions-findings-vocabulary";
-import { VocabularyRail } from "@/components/vocabulary/VocabularyRail";
 
 export type RiskExceptionsFindingsVocabularyRailProps = {
   /** Surface hosting the strip — marks the current register and links to the peer. */
@@ -27,25 +26,25 @@ export type RiskExceptionsFindingsVocabularyRailProps = {
 export function RiskExceptionsFindingsVocabularyRail(
   props: RiskExceptionsFindingsVocabularyRailProps,
 ): JSX.Element {
-  const model = props.model ?? buildRiskExceptionsFindingsVocabulary();
-  const peer = resolveRiskExceptionsFindingsPeerLink(props.currentSurfaceId);
-  const currentLink =
-    props.currentSurfaceId === "risk-exceptions"
-      ? model.riskExceptionsLink
-      : model.findingsLink;
+  const pairwiseModel =
+    props.model !== undefined
+      ? {
+          heading: props.model.heading,
+          whyTwo: props.model.whyTwo,
+          compactLine: props.model.compactLine,
+          currentLink: props.model.riskExceptionsLink,
+          peerLink: props.model.findingsLink,
+        }
+      : buildRiskExceptionsFindingsPairwiseRail();
 
   return (
-    <VocabularyRail
+    <PairwiseVocabularyRailFromModel
       testIdPrefix="risk-exceptions-findings-vocabulary"
       currentSurfaceId={props.currentSurfaceId}
       variant={props.variant}
       className={props.className}
-      compactLine={model.compactLine}
       compactLinkPlacement="inline"
-      heading={model.heading}
-      whyTwo={model.whyTwo}
-      currentLabel={currentLink.label}
-      links={[{ ...peer, testIdSuffix: "peer-link" }]}
+      model={pairwiseModel}
     />
   );
 }

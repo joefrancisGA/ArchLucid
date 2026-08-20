@@ -166,6 +166,11 @@ describe("run detail bundle deferred imports (TB-697 / TB-933 / TB-2021 / TB-211
     expect(deferredChunksSource).toContain('"run-detail-create-home-evidence"');
     expect(deferredChunksSource).toContain('"run-detail-create-home-activity"');
     expect(deferredChunksSource).toContain('"run-detail-technology-baseline"');
+    expect(deferredChunksSource).toContain('"run-detail-changes-since-last-review"');
+    expect(deferredChunksSource).toContain('"run-detail-savings-summary"');
+    expect(deferredChunksSource).toContain('"run-detail-decision-delta"');
+    expect(deferredChunksSource).toContain('"run-detail-explanation-collapsible"');
+    expect(deferredChunksSource).toContain('"run-detail-activity-sources"');
     expect(manifestLoaderSource).toContain('import("@/components/reviews/ReviewWorkspaceShell")');
     expect(manifestLoaderSource).toContain('import("@/components/reviews/RunDetailOverviewPanelClient")');
     expect(manifestLoaderSource).toContain('import("@/components/architecture/ArchitectureCreatedReviewWorkspaceShell")');
@@ -183,6 +188,17 @@ describe("run detail bundle deferred imports (TB-697 / TB-933 / TB-2021 / TB-211
     );
     expect(manifestLoaderSource).toContain(
       'import("@/components/reviews/technology-baseline/TechnologyBaselineSection")',
+    );
+    expect(manifestLoaderSource).toContain('import("@/components/ChangesSinceLastReviewBanner")');
+    expect(manifestLoaderSource).toContain('import("@/components/RunSavingsSummary")');
+    expect(manifestLoaderSource).toContain(
+      'import("@/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailDecisionDeltaPanel")',
+    );
+    expect(manifestLoaderSource).toContain(
+      'import("@/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailRunExplanationCollapsible")',
+    );
+    expect(manifestLoaderSource).toContain(
+      'import("@/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailActivitySourcesPanel")',
     );
     expect(deferredChunksSource).toContain("RunDetailArchitectureCreateWorkItemSectionDeferred");
     expect(deferredChunksSource).toContain("RunDetailArchitectureSponsorSharingPanelDeferred");
@@ -257,7 +273,7 @@ describe("run detail bundle deferred imports (TB-697 / TB-933 / TB-2021 / TB-211
     expect(deferredChunksSource).not.toContain('import("./RunDetailCreateHomeEvidencePanel")');
     expect(deferredChunksSource).not.toContain('import("./RunDetailCreateHomeActivityPanel")');
     expect(deferredChunksSource).toContain("RunDetailActivitySourcesPanelDeferred");
-    expect(deferredChunksSource).toContain('import("./RunDetailActivitySourcesPanel")');
+    expect(deferredChunksSource).not.toContain('import("./RunDetailActivitySourcesPanel")');
     expect(deferredChunksSource).toContain("GoldenSponsorPackageWalkthroughDestinationDeferred");
     expect(deferredChunksSource).toContain(
       'import("@/components/golden-walkthrough/GoldenSponsorPackageWalkthroughDestination")',
@@ -329,10 +345,10 @@ describe("run detail bundle deferred imports (TB-697 / TB-933 / TB-2021 / TB-211
     expect(deferredChunksSource).toContain("RunSavingsSummaryDeferred");
     expect(deferredChunksSource).toContain("RunDetailDecisionDeltaPanelDeferred");
     expect(deferredChunksSource).toContain("RunDetailRunExplanationCollapsibleDeferred");
-    expect(deferredChunksSource).toContain('import("@/components/ChangesSinceLastReviewBanner")');
-    expect(deferredChunksSource).toContain('import("@/components/RunSavingsSummary")');
-    expect(deferredChunksSource).toContain('import("./RunDetailDecisionDeltaPanel")');
-    expect(deferredChunksSource).toContain('import("./RunDetailRunExplanationCollapsible")');
+    expect(deferredChunksSource).not.toContain('import("@/components/ChangesSinceLastReviewBanner")');
+    expect(deferredChunksSource).not.toContain('import("@/components/RunSavingsSummary")');
+    expect(deferredChunksSource).not.toContain('import("./RunDetailDecisionDeltaPanel")');
+    expect(deferredChunksSource).not.toContain('import("./RunDetailRunExplanationCollapsible")');
   });
 
   it("splits below-fold into nested Suspense boundaries (TB-2026)", () => {

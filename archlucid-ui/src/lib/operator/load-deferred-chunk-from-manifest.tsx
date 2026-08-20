@@ -162,6 +162,34 @@ function resolveDeferredChunkImportLoader(
           (module) => module.TechnologyBaselineSection,
         ),
       ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "run-detail-changes-since-last-review":
+      return deferredChunkLoader(() =>
+        import("@/components/ChangesSinceLastReviewBanner").then(
+          (module) => module.ChangesSinceLastReviewBanner,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "run-detail-savings-summary":
+      return deferredChunkLoader(() =>
+        import("@/components/RunSavingsSummary").then((module) => module.RunSavingsSummary),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "run-detail-decision-delta":
+      return deferredChunkLoader(() =>
+        import("@/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailDecisionDeltaPanel").then(
+          (module) => module.RunDetailDecisionDeltaPanel,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "run-detail-explanation-collapsible":
+      return deferredChunkLoader(() =>
+        import("@/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailRunExplanationCollapsible").then(
+          (module) => module.RunDetailRunExplanationCollapsible,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "run-detail-activity-sources":
+      return deferredChunkLoader(() =>
+        import("@/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailActivitySourcesPanel").then(
+          (module) => module.RunDetailActivitySourcesPanel,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
     default:
       throw new Error(`No deferred chunk import loader registered for manifest entry "${entryId}".`);
   }
