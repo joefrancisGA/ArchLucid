@@ -5,6 +5,8 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { GOVERNANCE_MODE_COPY } from "@/lib/vocabulary/governance-mode-vocabulary";
 import { useGovernanceMode } from "@/hooks/use-governance-mode";
 
+import { GovernanceModeFirstUseCoach } from "@/components/governance/GovernanceModeFirstUseCoach";
+
 type GovernanceModeToggleProps = {
   readonly className?: string;
   readonly showFootnote?: boolean;
@@ -50,6 +52,7 @@ export function GovernanceModeToggle(props: GovernanceModeToggleProps) {
           </span>
         </span>
       </label>
+      <GovernanceModeFirstUseCoach enabled={isGovernanceModeEnabled} />
       {showFootnote && !isGovernanceModeEnabled ? (
         <p className={cn("m-0 px-1 leading-snug text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
           {GOVERNANCE_MODE_COPY.toggleFootnote}
