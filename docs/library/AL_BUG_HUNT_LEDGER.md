@@ -1575,11 +1575,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** host composition; DI registration; startup modules
 - **paths:** ArchLucid.Host.Composition/
 - **test-filter:** FullyQualifiedName~Host.Composition|FullyQualifiedName~ServiceCollectionExtensions
-- **hunts:** 2
-- **bugs-found:** 2
+- **hunts:** 3
+- **bugs-found:** 3
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-20
-- **last-bug:** 2026-08-20
+- **last-hunt:** 2026-08-21
+- **last-bug:** 2026-08-21
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
@@ -1590,6 +1590,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) Composition registers two implementations for the same tenant-scoped interface — `ISponsorReportRecipientLookup` is registered in both weekly modules with the same implementation type; MS.DI last registration wins without functional divergence
 - [x] (proven) Weekly sponsor summary pipeline never wired into composition root — **hit 2026-08-19:** `RegisterWeeklySponsorSummaryServices` / worker infrastructure existed but were not called from `AddArchLucidApplicationServices`, so `IWeeklySponsorSummaryEmailDispatcher` was absent from DI
 - [x] (proven) Weekly sponsor summary container offload has no `IArchLucidJob` — **hit 2026-08-20:** `RegisterWeeklySponsorSummaryWorkerInfrastructure` skips `WeeklySponsorSummaryHostedService` when `Jobs:OffloadedToContainerJobs` includes `weekly-sponsor-summary`, but `RegisterArchLucidJobRunners` never registered a matching job so container offload silently dropped delivery
+- [x] (proven) Data-archival container offload drops agent trace blob cleanup — **hit 2026-08-21:** `RegisterAgentResultBlobCleanupHostedService` reused `ArchLucidJobsOffload.IsOffloaded(..., DataArchival)` so offloading `data-archival` unregistered `AgentResultBlobCleanupHostedService` even though no matching `IArchLucidJob` exists
 
 ---
 

@@ -109,6 +109,26 @@ public sealed class ContainerJobsOffloadRegistrationTests
     }
 
     [Fact]
+    public void
+        AddArchLucidApplicationServices_Worker_offloads_data_archival_still_registers_AgentResultBlobCleanupHostedService()
+    {
+        Dictionary<string, string?> data = CreateWorkerCompositionDictionary();
+        data["Jobs:OffloadedToContainerJobs:0"] = ArchLucidJobNames.DataArchival;
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        ServiceCollection services = CreateCoreServices(configuration);
+
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Worker);
+
+        bool hasHosted = services.Any(static d =>
+            d.ServiceType == typeof(IHostedService)
+            && d.ImplementationType == typeof(AgentResultBlobCleanupHostedService));
+
+        hasHosted.Should().BeTrue(
+            "agent trace blob cleanup is not a container job; offloading data-archival must not drop it from the worker");
+    }
+
+    [Fact]
     public void AddArchLucidApplicationServices_Api_role_does_not_register_TenantHealthScoringHostedService()
     {
         Dictionary<string, string?> data = CreateWorkerCompositionDictionary();

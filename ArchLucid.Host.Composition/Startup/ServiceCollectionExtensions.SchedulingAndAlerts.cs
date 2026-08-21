@@ -74,14 +74,13 @@ public static partial class ServiceCollectionExtensions
 
     private static void RegisterAgentResultBlobCleanupHostedService(
         IServiceCollection services,
-        IConfiguration configuration,
         ArchLucidHostingRole hostingRole)
     {
         if (hostingRole is not ArchLucidHostingRole.Combined and not ArchLucidHostingRole.Worker)
             return;
 
-        if (!ArchLucidJobsOffload.IsOffloaded(configuration, ArchLucidJobNames.DataArchival))
-            services.AddHostedService<AgentResultBlobCleanupHostedService>();
+        // Agent trace blob cleanup is worker-only and has no container-job offload slug.
+        services.AddHostedService<AgentResultBlobCleanupHostedService>();
     }
 
     private static void RegisterSponsorRoiCacheWarmupHostedService(
