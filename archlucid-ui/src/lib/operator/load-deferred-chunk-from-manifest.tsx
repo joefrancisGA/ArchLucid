@@ -12,6 +12,7 @@ import { ALERTS_INBOX_CHUNK_MANIFEST } from "@/lib/operator/alerts-inbox-chunk-m
 import { APP_SHELL_CHUNK_MANIFEST } from "@/lib/operator/app-shell-chunk-manifest";
 import { GOVERNANCE_WORKFLOW_CHUNK_MANIFEST } from "@/lib/operator/governance-workflow-chunk-manifest";
 import { OPERATOR_HOME_CHUNK_MANIFEST } from "@/lib/operator/operator-home-chunk-manifest";
+import { OPERATOR_SHELL_TOP_BAR_CHUNK_MANIFEST } from "@/lib/operator/operator-shell-top-bar-chunk-manifest";
 import { POLICY_PACKS_AUTHORING_CHUNK_MANIFEST } from "@/lib/operator/policy-packs-authoring-chunk-manifest";
 import { REVIEWS_HUB_CHUNK_MANIFEST } from "@/lib/operator/reviews-hub-chunk-manifest";
 import { RUN_DETAIL_CHUNK_MANIFEST } from "@/lib/operator/run-detail-chunk-manifest";
@@ -352,6 +353,34 @@ function resolveDeferredChunkImportLoader(
         import("@/components/ShellThemePreferencesAppearanceVocabularyRail").then(
           (module) => module.ShellThemePreferencesAppearanceVocabularyRail,
         ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "operator-shell-top-bar-global-search":
+      return deferredChunkLoader(() =>
+        import("@/components/GlobalSearchBar").then((module) => module.GlobalSearchBar),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "operator-shell-top-bar-mobile-nav-drawer":
+      return deferredChunkLoader(() =>
+        import("@/components/MobileNavDrawer").then((module) => module.MobileNavDrawer),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "operator-shell-top-bar-scope-switcher":
+      return deferredChunkLoader(() =>
+        import("@/components/ScopeSwitcher").then((module) => module.ScopeSwitcher),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "operator-shell-top-bar-in-flight-operations":
+      return deferredChunkLoader(() =>
+        import("@/components/shell/ShellInFlightOperationsAffordance").then(
+          (module) => module.ShellInFlightOperationsAffordance,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "operator-shell-top-bar-more-menu":
+      return deferredChunkLoader(() =>
+        import("@/components/shell/OperatorShellTopBarMoreMenu").then(
+          (module) => module.OperatorShellTopBarMoreMenu,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "operator-shell-top-bar-account-settings":
+      return deferredChunkLoader(() =>
+        import("@/components/shell/AccountSettingsMenu").then((module) => module.AccountSettingsMenu),
       ) as () => Promise<ComponentType<Record<string, unknown>>>;
     case "reviews-hub-inventory":
       return deferredChunkLoader(() =>
@@ -896,3 +925,7 @@ export const ALERTS_INBOX_DEFERRED_CHUNK_LOADER_IDS: readonly string[] = ALERTS_
 export const APP_SHELL_DEFERRED_CHUNK_LOADER_IDS: readonly string[] = APP_SHELL_CHUNK_MANIFEST.map(
   (entry) => entry.id,
 );
+
+/** Operator shell top bar manifest ids that have registered import loaders (manifest import-test guard). */
+export const OPERATOR_SHELL_TOP_BAR_DEFERRED_CHUNK_LOADER_IDS: readonly string[] =
+  OPERATOR_SHELL_TOP_BAR_CHUNK_MANIFEST.map((entry) => entry.id);

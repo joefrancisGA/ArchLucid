@@ -3,7 +3,8 @@
 import dynamic from "next/dynamic";
 import type { ComponentType } from "react";
 
-import { DeferredChunkLoading } from "@/components/ui/deferred-chunk-loading";
+import { createDeferredComponentFromManifest } from "@/lib/operator/load-deferred-chunk-from-manifest";
+import { deferredChunkLoader } from "@/lib/import-deferred-chunk-with-retry";
 
 import type { AccountSettingsMenu } from "@/components/shell/AccountSettingsMenu";
 import type { GlobalSearchBar } from "@/components/GlobalSearchBar";
@@ -12,62 +13,33 @@ import type { MobileNavDrawer } from "@/components/MobileNavDrawer";
 import type { OperatorShellTopBarMoreMenu } from "@/components/shell/OperatorShellTopBarMoreMenu";
 import type { ScopeSwitcher } from "@/components/ScopeSwitcher";
 import type { ShellInFlightOperationsAffordance } from "@/components/shell/ShellInFlightOperationsAffordance";
-import { deferredChunkLoader } from "@/lib/import-deferred-chunk-with-retry";
 
-function globalSearchBarDeferredLoading(): React.JSX.Element {
-  return (
-    <DeferredChunkLoading
-      label="Loading global search"
-      variant="context"
-      className="h-9 w-full dark:bg-neutral-800/80"
-      testId="global-search-bar-deferred-loading"
-    />
-  );
-}
+export const GlobalSearchBarDeferred: ComponentType<React.ComponentProps<typeof GlobalSearchBar>> =
+  createDeferredComponentFromManifest("operator-shell-top-bar-global-search", {
+    loadingTestId: "global-search-bar-deferred-loading",
+    loadingClassName: "h-9 w-full dark:bg-neutral-800/80",
+  });
 
-export const GlobalSearchBarDeferred: ComponentType<React.ComponentProps<typeof GlobalSearchBar>> = dynamic(
-  deferredChunkLoader(() => import("@/components/GlobalSearchBar").then((module) => module.GlobalSearchBar)),
-  {
-    ssr: false,
-    loading: () => globalSearchBarDeferredLoading(),
-  },
+export const MobileNavDrawerDeferred: ComponentType = createDeferredComponentFromManifest(
+  "operator-shell-top-bar-mobile-nav-drawer",
+  { suppressLoading: true },
 );
 
-export const MobileNavDrawerDeferred: ComponentType = dynamic(
-  deferredChunkLoader(() => import("@/components/MobileNavDrawer").then((module) => module.MobileNavDrawer)),
-  { ssr: false },
-);
+export const ScopeSwitcherDeferred: ComponentType<React.ComponentProps<typeof ScopeSwitcher>> =
+  createDeferredComponentFromManifest("operator-shell-top-bar-scope-switcher", { suppressLoading: true });
 
-export const ScopeSwitcherDeferred: ComponentType<React.ComponentProps<typeof ScopeSwitcher>> = dynamic(
-  deferredChunkLoader(() => import("@/components/ScopeSwitcher").then((module) => module.ScopeSwitcher)),
-  { ssr: false },
-);
-
-export const ShellInFlightOperationsAffordanceDeferred: ComponentType = dynamic(
-  deferredChunkLoader(() =>
-    import("@/components/shell/ShellInFlightOperationsAffordance").then(
-      (module) => module.ShellInFlightOperationsAffordance,
-    ),
-  ),
-  { ssr: false },
-);
+export const ShellInFlightOperationsAffordanceDeferred: ComponentType =
+  createDeferredComponentFromManifest("operator-shell-top-bar-in-flight-operations", {
+    suppressLoading: true,
+  });
 
 export const OperatorShellTopBarMoreMenuDeferred: ComponentType<
   React.ComponentProps<typeof OperatorShellTopBarMoreMenu>
-> = dynamic(
-  deferredChunkLoader(() =>
-    import("@/components/shell/OperatorShellTopBarMoreMenu").then(
-      (module) => module.OperatorShellTopBarMoreMenu,
-    ),
-  ),
-  { ssr: false },
-);
+> = createDeferredComponentFromManifest("operator-shell-top-bar-more-menu", { suppressLoading: true });
 
-export const AccountSettingsMenuDeferred: ComponentType = dynamic(
-  deferredChunkLoader(() =>
-    import("@/components/shell/AccountSettingsMenu").then((module) => module.AccountSettingsMenu),
-  ),
-  { ssr: false },
+export const AccountSettingsMenuDeferred: ComponentType = createDeferredComponentFromManifest(
+  "operator-shell-top-bar-account-settings",
+  { suppressLoading: true },
 );
 
 export const LlmBudgetStatusPillDeferred: ComponentType = dynamic(

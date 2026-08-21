@@ -10,7 +10,6 @@ const componentsDir = join(shellDir, "..");
 const appShellSource = readFileSync(join(componentsDir, "AppShellClient.tsx"), "utf8");
 const deferredSource = readFileSync(join(shellDir, "app-shell-deferred-chunks.tsx"), "utf8");
 const topBarSource = readFileSync(join(shellDir, "OperatorShellTopBar.tsx"), "utf8");
-const topBarDeferredSource = readFileSync(join(shellDir, "operator-shell-top-bar-deferred-chunks.tsx"), "utf8");
 const manifestLoaderSource = readFileSync(
   join(componentsDir, "../lib/operator/load-deferred-chunk-from-manifest.tsx"),
   "utf8",
@@ -110,11 +109,5 @@ describe("operator shell deferred imports (TB-2118)", () => {
     expect(topBarSource).toContain("operator-shell-top-bar-deferred-chunks");
     expect(topBarSource).toContain("GlobalSearchBarDeferred");
     expect(topBarSource).toContain("MobileNavDrawerDeferred");
-  });
-
-  it("dynamic-imports deferred top-bar modules", () => {
-    expect(topBarDeferredSource).toContain('import("@/components/GlobalSearchBar")');
-    expect(topBarDeferredSource).toContain('import("@/components/MobileNavDrawer")');
-    expect(topBarDeferredSource).toContain("next/dynamic");
   });
 });
