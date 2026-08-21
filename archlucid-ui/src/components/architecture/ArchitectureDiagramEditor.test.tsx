@@ -79,6 +79,25 @@ describe("ArchitectureDiagramEditor", () => {
     expect(screen.getByText(/Diagram edits are locked/)).toBeInTheDocument();
   });
 
+  it("demotes save mermaid when Do this next owns the page primary", () => {
+    render(
+      <ArchitectureDiagramEditor
+        open
+        onOpenChange={() => undefined}
+        mermaidSource={'flowchart TB\n  a["A"]'}
+        versions={[]}
+        activeVersionId={null}
+        canEdit
+        storageWriteFailed={false}
+        onSaveMermaid={() => undefined}
+        onActivateVersion={() => undefined}
+        pagePrimaryOwnedElsewhere
+      />,
+    );
+
+    expect(screen.getByTestId("architecture-diagram-save-mermaid").className).toContain("border-neutral-300");
+  });
+
   it("shows honest device-local version history copy", () => {
     render(
       <ArchitectureDiagramEditor

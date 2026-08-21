@@ -363,6 +363,7 @@ export async function RunDetailPageView(props: {
                                 architecture={architectureCreatedBaseline}
                                 architectureSourceText={submittedArchitectureText ?? ""}
                                 findings={quickDecisionFindings}
+                                pagePrimaryOwnedElsewhere
                               />
                             </>
                           ) : null}

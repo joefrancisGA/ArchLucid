@@ -108,6 +108,20 @@ describe("ArchitectureSponsorSharingPanel", () => {
     });
   });
 
+  it("demotes resolve readiness when Do this next owns the page primary", () => {
+    render(<ArchitectureSponsorSharingPanel {...incompleteArchitecture} pagePrimaryOwnedElsewhere />);
+
+    expect(screen.getByTestId("architecture-sponsor-resolve").className).toContain("border-neutral-300");
+  });
+
+  it("demotes preliminary submit when Do this next owns the page primary", () => {
+    render(<ArchitectureSponsorSharingPanel {...incompleteArchitecture} pagePrimaryOwnedElsewhere />);
+
+    fireEvent.click(screen.getByTestId("architecture-sponsor-share-preliminary"));
+
+    expect(screen.getByTestId("architecture-sponsor-preliminary-submit").className).toContain("border-neutral-300");
+  });
+
   it("shows permission messaging for users without sharing capability", () => {
     useOperateCapability.mockReturnValue(false);
 

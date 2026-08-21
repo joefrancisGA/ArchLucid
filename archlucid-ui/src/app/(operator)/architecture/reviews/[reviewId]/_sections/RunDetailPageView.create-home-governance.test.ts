@@ -17,6 +17,7 @@ describe("RunDetailPageView create-home governance (TB-1858)", () => {
     expect(governancePanelSource).toContain("{m.manifestId ? (");
     expect(governancePanelSource).toContain("<RunDetailArchitectureCreateWorkItemSectionDeferred");
     expect(governancePanelSource).toContain("<RunDetailArchitectureSponsorSharingPanelDeferred");
+    expect(governancePanelSource).toContain("pagePrimaryOwnedElsewhere");
     expect(governancePanelSource).not.toMatch(
       /<RunDetailArchitectureCreateWorkItemSectionDeferred[\s\S]*?<\/>\s*<RunDetailArchitectureSponsorSharingPanelDeferred/,
     );
