@@ -18,11 +18,10 @@ export const SESSION_EXPIRED_PRIMARY_CONTENT_ID = "session-expired-primary-conte
 
 export const SESSION_EXPIRED_SKIP_LINK_LABEL = "Skip to session recovery content" as const;
 
-export const SESSION_EXPIRED_BREADCRUMB_HUB_LABEL = "Welcome" as const;
+export const SESSION_EXPIRED_PASSWORDLESS_EXPLANATION =
+  "ArchLucid does not use a product password. Sign in with a work or school account or a one-time email code.";
 
-export const SESSION_EXPIRED_BREADCRUMB_HUB_PATH = "/welcome" as const;
-
-export const SESSION_EXPIRED_BREADCRUMB_TOPIC_TITLE = SESSION_EXPIRED_PAGE_TITLE;
+export const SESSION_EXPIRED_SIGN_OUT_DISCLOSURE_LABEL = "When you were signed out";
 
 /** Framed for idle-timeout recovery when OIDC cannot start — not "Access request" (TB-1316). */
 export const SESSION_EXPIRED_SIGN_IN_ERROR_TITLE = "Sign-in could not start";

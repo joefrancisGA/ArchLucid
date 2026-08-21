@@ -6,9 +6,19 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
+  SESSION_EXPIRED_PASSWORDLESS_EXPLANATION,
   SESSION_EXPIRED_SECONDARY_EXIT_LABEL,
   SESSION_EXPIRED_SECONDARY_EXIT_PATH,
+  SESSION_EXPIRED_SIGN_OUT_DISCLOSURE_LABEL,
 } from "@/lib/auth/session-expired-page-copy";
+import {
+  formatSessionExpiredReturnHint,
+  resolveReturnDestinationLabel,
+} from "@/lib/auth/sign-in-return-destination";
+import {
+  AUTHENTICATION_SIGN_IN_INBOUND_HELP_HREF,
+  AUTHENTICATION_SIGN_IN_INBOUND_HELP_LINK_LABEL,
+} from "@/lib/authentication-sign-in-inbound-copy";
 import { publicSiteHref } from "@/lib/site-urls";
 import { getSessionMessageCopy } from "@/app/(operator)/auth/signin/session-message-copy";
 
@@ -16,11 +26,26 @@ export type SessionExpiredViewProps = {
   /** Raw `reason` query value; unrecognized or absent values fall back to safe generic copy. */
   readonly reason?: string | null;
   readonly onSignIn: () => void;
-  /** Shows the "return to the last page" hint when a real (non-root) return destination is known. */
-  readonly hasReturnDestination?: boolean;
+  /** Safe `returnUrl` query value when the user was mid-session. */
+  readonly returnUrl?: string;
+  /** ISO timestamp from idle-timeout handoff — shown in disclosure when present. */
+  readonly sessionClearedAt?: string | null;
   /** Renders a subtle public exit secondary link. Defaults to `true`. */
   readonly showReturnHome?: boolean;
 };
+
+function formatSessionClearedAt(isoTimestamp: string): string | null {
+  const parsed = new Date(isoTimestamp);
+
+  if (Number.isNaN(parsed.getTime())) {
+    return null;
+  }
+
+  return parsed.toLocaleString(undefined, {
+    dateStyle: "medium",
+    timeStyle: "short",
+  });
+}
 
 /**
  * Shown when the user arrives at sign-in with a recognized `reason` (idle-timeout,
@@ -32,10 +57,16 @@ export type SessionExpiredViewProps = {
 export function SessionExpiredView({
   reason,
   onSignIn,
-  hasReturnDestination = false,
+  returnUrl,
+  sessionClearedAt,
   showReturnHome = true,
 }: SessionExpiredViewProps) {
   const copy = getSessionMessageCopy(reason);
+  const returnDestinationLabel = resolveReturnDestinationLabel(returnUrl);
+  const formattedClearedAt =
+    reason === "idle-timeout" && sessionClearedAt !== undefined && sessionClearedAt !== null
+      ? formatSessionClearedAt(sessionClearedAt)
+      : null;
 
   return (
     <div data-testid="session-expired-view">
@@ -45,20 +76,28 @@ export function SessionExpiredView({
       <p className={cn("mt-3 text-[15px] leading-relaxed text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
         {copy.body}
       </p>
-      {copy.showsReturnDestinationHint || hasReturnDestination ? (
-        <p
-          className={cn(
-            "mt-3 text-[15px] leading-relaxed text-al-text-secondary",
-            OPERATOR_TYPOGRAPHY.body,
-            hasReturnDestination ? "font-medium text-al-text-primary" : undefined,
-          )}
-        >
-          {hasReturnDestination
-            ? "Sign in to continue where you left off."
-            : "Sign in again to continue."}
+      {copy.workPreservationNote === undefined ? null : (
+        <p className={cn("mt-3 text-[15px] leading-relaxed text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+          {copy.workPreservationNote}
         </p>
-      ) : null}
-      <div className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-2">
+      )}
+      {copy.scopeNote === undefined ? null : (
+        <p className={cn("mt-3 text-[15px] leading-relaxed text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+          {copy.scopeNote}
+        </p>
+      )}
+      {formattedClearedAt === null ? null : (
+        <details className="mt-3" data-testid="session-expired-sign-out-disclosure">
+          <summary className={cn("cursor-pointer text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+            {SESSION_EXPIRED_SIGN_OUT_DISCLOSURE_LABEL}
+          </summary>
+          <p className={cn("mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{formattedClearedAt}</p>
+        </details>
+      )}
+      <p className={cn("mt-4 text-[15px] leading-relaxed text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+        {SESSION_EXPIRED_PASSWORDLESS_EXPLANATION}
+      </p>
+      <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2">
         <Button variant="primary" onClick={onSignIn} data-testid="session-expired-sign-in">
           Sign in
         </Button>
@@ -70,6 +109,21 @@ export function SessionExpiredView({
           >
             {SESSION_EXPIRED_SECONDARY_EXIT_LABEL}
           </Link>
+        ) : null}
+        <Link
+          className={cn(OPERATOR_LINK.nav, "text-sm")}
+          href={AUTHENTICATION_SIGN_IN_INBOUND_HELP_HREF}
+          data-testid="session-expired-auth-help"
+        >
+          {AUTHENTICATION_SIGN_IN_INBOUND_HELP_LINK_LABEL}
+        </Link>
+        {returnDestinationLabel !== null && copy.showsReturnDestinationHint ? (
+          <p
+            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="session-expired-return-destination-hint"
+          >
+            {formatSessionExpiredReturnHint(returnDestinationLabel)}
+          </p>
         ) : null}
       </div>
     </div>

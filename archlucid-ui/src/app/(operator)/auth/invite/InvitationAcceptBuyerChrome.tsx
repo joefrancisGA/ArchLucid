@@ -16,14 +16,21 @@ type InvitationAcceptBuyerChromeProps = {
   readonly children: ReactNode;
 };
 
-/** Shared buyer-facing chrome for `/auth/invite` — skip link, breadcrumb, claim/Sources, step body. */
+/** Shared buyer-facing chrome for `/auth/invite` — skip link, breadcrumb, step body, Sources below. */
 export function InvitationAcceptBuyerChrome({ children }: InvitationAcceptBuyerChromeProps): React.JSX.Element {
   return (
     <>
       <a href={`#${AUTH_INVITE_PRIMARY_CONTENT_ID}`} className={TRUST_CENTER_PUBLIC_LAYOUT.skipLink}>
         {AUTH_INVITE_SKIP_LINK_LABEL}
       </a>
-      <AuthFlowShell showEvaluationSignupLink={false}>
+      <AuthFlowShell
+        showEvaluationSignupLink={false}
+        afterPanel={
+          <div className="mt-4 text-left" data-testid="auth-invite-orientation-bottom">
+            <InvitationAcceptClaimOrientationStrip />
+          </div>
+        }
+      >
         <div
           id={AUTH_INVITE_PRIMARY_CONTENT_ID}
           data-testid="auth-invite-primary-content"
@@ -31,9 +38,6 @@ export function InvitationAcceptBuyerChrome({ children }: InvitationAcceptBuyerC
         >
           <div className="mb-4 text-left">
             <InvitationAcceptBreadcrumb />
-          </div>
-          <div className="mb-6 text-left" data-testid="auth-invite-orientation-top">
-            <InvitationAcceptClaimOrientationStrip />
           </div>
           {children}
         </div>

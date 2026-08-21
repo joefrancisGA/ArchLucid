@@ -44,7 +44,7 @@ describe("InvitationAcceptPageClient buyer-polished shell", () => {
     });
   });
 
-  it("renders skip link, breadcrumb, orientation above body, and hides vocabulary rail", async () => {
+  it("renders skip link, breadcrumb, body, then orientation below the panel", async () => {
     render(<InvitationAcceptPageClient />);
 
     await waitFor(() => {
@@ -62,10 +62,9 @@ describe("InvitationAcceptPageClient buyer-polished shell", () => {
     expect(screen.getByRole("heading", { level: 2, name: AUTH_INVITE_FOLLOW_UPS_TITLE })).toBeInTheDocument();
     expect(screen.queryByTestId("cold-invite-users-invite-vocabulary")).toBeNull();
 
-    const orientation = screen.getByTestId("auth-invite-orientation-top");
+    const orientation = screen.getByTestId("auth-invite-orientation-bottom");
     const acceptPage = screen.getByTestId("invitation-accept-page");
 
-    expect(screen.getByTestId("auth-invite-primary-content")).toContainElement(orientation);
-    expect(orientation.compareDocumentPosition(acceptPage) & Node.DOCUMENT_POSITION_PRECEDING).toBeTruthy();
+    expect(orientation.compareDocumentPosition(acceptPage) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 });

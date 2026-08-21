@@ -69,6 +69,7 @@ export const CLAIM_DISCIPLINE_BAND_OMIT_SLUGS: ReadonlySet<string> = new Set([
   "role-mapping-settings",
   "scim-provisioning-settings",
   "servicenow-integration",
+  "session-expired",
   "showcase",
   "signup",
   "signup-verify",

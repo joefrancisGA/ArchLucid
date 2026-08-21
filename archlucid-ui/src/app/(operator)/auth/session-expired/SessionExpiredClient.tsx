@@ -1,23 +1,19 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { useSearchParams } from "next/navigation";
 
 import { SessionExpiredBuyerChrome } from "@/app/(operator)/auth/session-expired/SessionExpiredBuyerChrome";
 import { SessionExpiredView } from "@/app/(operator)/auth/signin/SessionExpiredView";
 import { AuthErrorPanel } from "@/app/(operator)/auth/signin/AuthErrorPanel";
+import { SESSION_CLEARED_AT_STORAGE_KEY } from "@/lib/auth/session-idle-timeout";
 import { assertOidcSignInConfig, isJwtAuthMode } from "@/lib/oidc/config";
 import { BUYER_SAFE_AUTH_NOT_CONFIGURED_MESSAGE } from "@/lib/buyer/buyer-safe-auth-messages";
 import { initiateOidcRedirect } from "@/lib/oidc/initiate-redirect";
-import { isSafeReturnPath } from "@/lib/navigation/safe-return-path";
 import { SESSION_EXPIRED_SIGN_IN_ERROR_TITLE } from "@/lib/auth/session-expired-page-copy";
 
-function sessionExpiredChrome(content: ReactNode, hasReturnDestination: boolean): React.JSX.Element {
-  return (
-    <SessionExpiredBuyerChrome hasReturnDestination={hasReturnDestination}>
-      {content}
-    </SessionExpiredBuyerChrome>
-  );
+function sessionExpiredChrome(content: ReactNode): React.JSX.Element {
+  return <SessionExpiredBuyerChrome>{content}</SessionExpiredBuyerChrome>;
 }
 
 /**
@@ -30,9 +26,12 @@ export function SessionExpiredClient() {
   const searchParams = useSearchParams();
   const reason = searchParams.get("reason") ?? "idle-timeout";
   const rawReturnUrl = searchParams.get("returnUrl") ?? undefined;
-  const hasReturnDestination = isSafeReturnPath(rawReturnUrl) && rawReturnUrl !== "/";
-
+  const [sessionClearedAt, setSessionClearedAt] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    setSessionClearedAt(sessionStorage.getItem(SESSION_CLEARED_AT_STORAGE_KEY));
+  }, []);
 
   const handleSignIn = () => {
     if (!isJwtAuthMode()) {
@@ -61,12 +60,15 @@ export function SessionExpiredClient() {
         message={error}
         onTryAgain={handleSignIn}
       />,
-      hasReturnDestination,
     );
   }
 
   return sessionExpiredChrome(
-    <SessionExpiredView reason={reason} onSignIn={handleSignIn} hasReturnDestination={hasReturnDestination} />,
-    hasReturnDestination,
+    <SessionExpiredView
+      reason={reason}
+      onSignIn={handleSignIn}
+      returnUrl={rawReturnUrl}
+      sessionClearedAt={sessionClearedAt}
+    />,
   );
 }

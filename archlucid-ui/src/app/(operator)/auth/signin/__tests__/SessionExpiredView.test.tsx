@@ -3,16 +3,24 @@ import { axe, toHaveNoViolations } from "jest-axe";
 import { describe, expect, it, vi } from "vitest";
 
 import { SessionExpiredView } from "@/app/(operator)/auth/signin/SessionExpiredView";
+import { AUTHENTICATION_SIGN_IN_HELP_PAGE_TITLE } from "@/lib/authentication-sign-in-help-copy";
+import { SESSION_IDLE_TIMEOUT_MINUTES } from "@/lib/auth/session-idle-timeout";
+import { SESSION_EXPIRED_PASSWORDLESS_EXPLANATION } from "@/lib/auth/session-expired-page-copy";
 
 expect.extend(toHaveNoViolations);
 
 describe("SessionExpiredView — copy per reason", () => {
-  it("renders idle-timeout copy", () => {
+  it("renders idle-timeout copy with configured inactivity window", () => {
     render(<SessionExpiredView reason="idle-timeout" onSignIn={vi.fn()} />);
 
     expect(screen.getByTestId("session-expired-heading")).toHaveTextContent("Your session expired");
     expect(
-      screen.getByText(/for your security, archlucid signed you out after a period of inactivity/i),
+      screen.getByText(
+        new RegExp(
+          `for your security, archlucid signed you out after ${SESSION_IDLE_TIMEOUT_MINUTES} minutes of inactivity`,
+          "i",
+        ),
+      ),
     ).toBeInTheDocument();
   });
 
@@ -50,23 +58,39 @@ describe("SessionExpiredView — copy per reason", () => {
     expect(screen.getByTestId("session-expired-heading")).toHaveTextContent("Your session expired");
   });
 
-  it("promises resume only when a return destination is known", () => {
-    render(<SessionExpiredView reason="idle-timeout" onSignIn={vi.fn()} hasReturnDestination />);
+  it("names the safe return destination beside the CTA", () => {
+    render(
+      <SessionExpiredView reason="idle-timeout" onSignIn={vi.fn()} returnUrl="/architecture/reviews/run-1" />,
+    );
 
-    expect(screen.getByText(/sign in to continue where you left off/i)).toBeInTheDocument();
+    expect(screen.getByTestId("session-expired-return-destination-hint")).toHaveTextContent(
+      "Sign in to return to Review detail.",
+    );
   });
 
-  it("does not promise resume when no return destination is known", () => {
-    render(<SessionExpiredView reason="idle-timeout" onSignIn={vi.fn()} hasReturnDestination={false} />);
+  it("does not name a return destination when returnUrl is absent", () => {
+    render(<SessionExpiredView reason="idle-timeout" onSignIn={vi.fn()} />);
 
-    expect(screen.queryByText(/where you left off/i)).toBeNull();
-    expect(screen.getByText(/sign in again to continue/i)).toBeInTheDocument();
+    expect(screen.queryByTestId("session-expired-return-destination-hint")).toBeNull();
   });
 
-  it("promises resume when unauthorized with a return destination", () => {
-    render(<SessionExpiredView reason="unauthorized" onSignIn={vi.fn()} hasReturnDestination />);
+  it("states server work preservation honestly for idle timeout", () => {
+    render(<SessionExpiredView reason="idle-timeout" onSignIn={vi.fn()} />);
 
-    expect(screen.getByText(/sign in to continue where you left off/i)).toBeInTheDocument();
+    expect(screen.getByText(/saved drafts and other server-stored work remain available/i)).toBeInTheDocument();
+    expect(screen.getByText(/unsaved changes in this browser tab were not preserved/i)).toBeInTheDocument();
+  });
+
+  it("shows sign-out timestamp in disclosure for idle timeout", () => {
+    render(
+      <SessionExpiredView
+        reason="idle-timeout"
+        onSignIn={vi.fn()}
+        sessionClearedAt="2026-08-20T18:30:00.000Z"
+      />,
+    );
+
+    expect(screen.getByTestId("session-expired-sign-out-disclosure")).toBeInTheDocument();
   });
 
   it("exposes session recovery title as the page heading", () => {
@@ -77,6 +101,15 @@ describe("SessionExpiredView — copy per reason", () => {
 });
 
 describe("SessionExpiredView — sign-in action", () => {
+  it("renders passwordless explanation above the Sign in button at body scale", () => {
+    render(<SessionExpiredView reason="idle-timeout" onSignIn={vi.fn()} />);
+
+    const explanation = screen.getByText(SESSION_EXPIRED_PASSWORDLESS_EXPLANATION);
+    const button = screen.getByTestId("session-expired-sign-in");
+
+    expect(explanation.compareDocumentPosition(button) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
   it("renders the Sign in button using the primary variant", () => {
     render(<SessionExpiredView reason="idle-timeout" onSignIn={vi.fn()} />);
 
@@ -94,6 +127,18 @@ describe("SessionExpiredView — sign-in action", () => {
     fireEvent.click(screen.getByTestId("session-expired-sign-in"));
 
     expect(onSignIn).toHaveBeenCalledTimes(1);
+  });
+
+  it("raises authentication help beside the CTA row", () => {
+    render(<SessionExpiredView reason="idle-timeout" onSignIn={vi.fn()} />);
+
+    expect(screen.getByTestId("session-expired-auth-help")).toHaveTextContent(
+      AUTHENTICATION_SIGN_IN_HELP_PAGE_TITLE,
+    );
+    expect(screen.getByTestId("session-expired-auth-help")).toHaveAttribute(
+      "href",
+      "/help/authentication-sign-in",
+    );
   });
 });
 
