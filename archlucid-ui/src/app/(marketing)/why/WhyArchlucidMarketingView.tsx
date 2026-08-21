@@ -119,7 +119,7 @@ export function WhyArchlucidMarketingView({ frontDoorRows }: WhyArchlucidMarketi
         </h2>
         <p className={`mt-2 max-w-3xl ${MARKETING_TYPOGRAPHY.meta}`}>
           Many buyers already use a general LLM for architecture questions. ArchLucid persists a committed review,
-          governance gate, and audit trail a session cannot replace.
+          approval check, and audit trail a session cannot replace.
         </p>
         <ul className="mt-4 grid gap-3 sm:grid-cols-2">
           {MARKETING_GENERIC_AI_CONTRAST_POINTS.map((point) => (

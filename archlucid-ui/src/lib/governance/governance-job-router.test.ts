@@ -29,7 +29,7 @@ describe("governance-job-router (TB-2199 / TB-2230)", () => {
     const router = getGovernanceJobRouter();
 
     expect(router.heading).toBe(GOVERNANCE_JOB_ROUTER_HEADING);
-    expect(router.heading).toBe("Which governance queue am I in?");
+    expect(router.heading).toBe("Which approval queue am I in?");
     expect(router.options).toEqual(buildGovernanceJobRouterOptions());
   });
 

@@ -448,7 +448,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
     <p
       class="mt-2 max-w-3xl text-[15px] font-normal leading-6 text-al-text-secondary"
     >
-      Many buyers already use a general LLM for architecture questions. ArchLucid persists a committed review, governance gate, and audit trail a session cannot replace.
+      Many buyers already use a general LLM for architecture questions. ArchLucid persists a committed review, approval check, and audit trail a session cannot replace.
     </p>
     <ul
       class="mt-4 grid gap-3 sm:grid-cols-2"

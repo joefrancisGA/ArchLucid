@@ -59,7 +59,7 @@ export function buildCompareComparisonTrustItems(input: {
       severity: "low",
       headline: "AI narrative is advisory",
       detail:
-        "Summaries and AI-generated narratives summarize posture shifts. Per-finding trust labels on inspect, sealed review record, and export paths remain authoritative for provenance.",
+        "Summaries and AI-generated narratives summarize posture shifts. Per-finding trust labels on inspect, finalized review record, and export paths remain authoritative for provenance.",
     });
   }
 

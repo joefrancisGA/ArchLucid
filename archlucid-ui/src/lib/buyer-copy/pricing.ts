@@ -29,4 +29,4 @@ export const BUYER_EARLY_ADOPTER_PRICING_NOTE =
 
 /** Outcome-led value proposition for marketing/demo surfaces (one problem, one proof export). */
 export const BUYER_OUTCOME_LED_VALUE_PROPOSITION =
-  "Cut architecture review cycle time with an evidence-backed proof export — sealed review record, findings, audit trail, and export-ready readout — not a chat transcript.";
+  "Cut architecture review cycle time with an evidence-backed proof export — finalized review record, findings, audit trail, and export-ready readout — not a chat transcript.";

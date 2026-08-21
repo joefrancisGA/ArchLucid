@@ -20,7 +20,7 @@ const SEARCH_REVIEW_EVIDENCE_HUB_CONTEXTUAL_HELP = {
 
   whatIsThisPage:
 
-    "Search findings, decisions, and signed review evidence across the workspace index, optionally scoped to one review.",
+    "Search findings, decisions, and finalized review evidence across the workspace index, optionally scoped to one review.",
 
   whatToDoNext:
 

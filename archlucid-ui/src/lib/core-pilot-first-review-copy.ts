@@ -25,7 +25,7 @@ export const CORE_PILOT_FIRST_SESSION_GUIDANCE_BULLETS: readonly string[] = [
   "Let the assessment finish on review detail before you finalize the architecture review.",
   CLOUD_NEUTRAL_PRIMARY_COPY.corePilotFirstSessionInventoryBullet,
   "Open the dashboard ROI summary and export audit CSV from Deliverables & exports for your proof packet.",
-  "Read governed findings and sponsor exports on review detail when you are ready to share internally.",
+  "Read findings and sponsor exports on review detail when you are ready to share internally.",
 ];
 
 /**

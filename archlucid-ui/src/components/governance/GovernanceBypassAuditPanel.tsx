@@ -75,7 +75,7 @@ export function GovernanceBypassAuditPanel(): React.JSX.Element {
             <p className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
               {buyerPolishedShell ? (
                 <>
-                  Recent break-glass commits that overrode pre-commit governance gates. Each event records the actor and
+                  Recent break-glass commits that overrode pre-commit approval checks. Each event records the actor and
                   justification from the commit request.
                 </>
               ) : (

@@ -97,7 +97,7 @@ export const SEARCH_REVIEW_EVIDENCE_HELP_FEATURE_ITEMS: readonly SearchReviewEvi
   },
   {
     label: "Ask follow-up",
-    detail: "Use Ask review questions when plain-language answers need a selected sealed record.",
+    detail: "Use Ask review questions when plain-language answers need a selected finalized review record.",
     href: SEARCH_REVIEW_EVIDENCE_HELP_ASK_HREF,
   },
 ] as const;

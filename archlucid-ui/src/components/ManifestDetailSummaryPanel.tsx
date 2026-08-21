@@ -106,7 +106,7 @@ export function ManifestDetailSummaryPanel(props: ManifestDetailSummaryPanelProp
         <p className={cn("m-0 mt-2 leading-snug text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
           {isCuratedDemo
             ? "Policy pack used for this review — defines checks referenced in diligence. Human approvals do not replace your change-management authority."
-            : "Defines referenced checks used in diligence; approvals stay human-governed and do not bypass deployment authority."}
+            : "Defines referenced checks used in diligence; approvals stay human-approved and do not bypass deployment authority."}
         </p>
         {buyerPolicyPackHref !== null ? (
           <p className={cn("m-0 mt-3", OPERATOR_TYPOGRAPHY.body)}>

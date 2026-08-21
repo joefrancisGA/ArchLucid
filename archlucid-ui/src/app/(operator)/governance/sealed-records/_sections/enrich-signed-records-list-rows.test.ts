@@ -70,7 +70,7 @@ describe("enrichSignedRecordsListRows", () => {
     expect(getManifestSummary).toHaveBeenCalledWith(manifestSummary.manifestId);
     expect(rows[0]?.committedUtc).toBe("2026-03-20T16:45:00.000Z");
     expect(rows[0]?.manifestVersion).toBe("2.4.1");
-    expect(rows[0]?.sealIntegrity?.label).toBe("Sealed");
+    expect(rows[0]?.sealIntegrity?.label).toBe("Finalized");
   });
 
   it("resolves manifest id and summary when the list row did not include them", async () => {

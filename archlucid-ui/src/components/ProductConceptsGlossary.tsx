@@ -28,7 +28,7 @@ const CORE_GLOSSARY: GlossaryEntry[] = [
   {
     term: "Finalized review record",
     definition:
-      "The immutable summary of a finalized architecture review. Finalizing the review locks the package and triggers governance gates.",
+      "The immutable summary of a finalized architecture review. Finalizing the review locks the package and runs approval checks.",
   },
   {
     term: "Policy pack",
@@ -43,7 +43,7 @@ const CORE_GLOSSARY: GlossaryEntry[] = [
   {
     term: "Audit trail",
     definition:
-      "The append-only log of every action taken in this workspace — reviews created, reviews finalized, governance decisions recorded.",
+      "The append-only log of every action taken in this workspace — reviews created, reviews finalized, and resolve outcomes recorded.",
   },
   {
     term: "Risk exception",

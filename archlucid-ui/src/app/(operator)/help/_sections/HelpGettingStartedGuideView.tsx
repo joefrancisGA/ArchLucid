@@ -214,7 +214,7 @@ export function HelpGettingStartedGuideView(props: HelpGettingStartedGuideViewPr
               data-testid="getting-started-pipeline-diagram"
             >
               <p className="m-0">
-                Authority pipeline from architecture request through governance gate and committed outputs:
+                Authority pipeline from architecture request through approval check and committed outputs:
               </p>
               <ol
                 className="m-0 list-decimal space-y-1 pl-5 text-al-text-secondary"

@@ -217,7 +217,7 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
   },
   "governance-workflow": {
     layerBadge: "Governance",
-    headline: "Submit finalized architecture outputs for governance review and promotion.",
+    headline: "Submit finalized architecture outputs for approval workflow review and promotion.",
     useWhen: "Pick one review and move from submission through approval, promotion, and activation.",
     firstPilotNote:
       "After Pilot proof when your team promotes finalized architecture snapshots through approval workflow stages.",

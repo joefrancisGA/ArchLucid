@@ -249,7 +249,7 @@ describe("help-markdown-presentation (leakage 2)", () => {
     const source = [
       "## Isolation",
       "",
-      "Each customer tenant uses a dedicated database. Cross-tenant data access is not part of the product design. Append-only audit logging records every governed action within your tenant.",
+      "Each customer tenant uses a dedicated database. Cross-tenant data access is not part of the product design. Append-only audit logging records every approved action within your tenant.",
     ].join("\n");
 
     const prepared = alignDataHandlingIsolationHonesty(source);

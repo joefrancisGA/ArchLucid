@@ -37,8 +37,8 @@ export function deriveSignedRecordsListSealIntegrity(
   }
 
   if (summary.hasWarnings === true || summary.warningCount > 0) {
-    return { kind: "approved-with-monitoring", label: "Sealed with warnings" };
+    return { kind: "approved-with-monitoring", label: "Finalized with warnings" };
   }
 
-  return { kind: "ready", label: "Sealed" };
+  return { kind: "ready", label: "Finalized" };
 }

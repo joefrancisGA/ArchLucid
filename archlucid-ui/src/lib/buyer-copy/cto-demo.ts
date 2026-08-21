@@ -224,7 +224,7 @@ export const BUYER_CTO_DEMO_PREFLIGHT_BEGIN_CTA = "Begin demo";
 export const BUYER_CTO_DEMO_AGENDA_HEADING = "Your 30-minute review journey";
 
 export const BUYER_CTO_DEMO_AGENDA_SUBTEXT =
-  "Five stops from sponsor outcomes through sealed review record, evidence, governance, and audit trail.";
+  "Five stops from sponsor outcomes through finalized review record, evidence, resolve outcomes, and audit trail.";
 
 export const BUYER_CTO_DEMO_AUDIT_VERIFY_CTA = "Verify integrity";
 
