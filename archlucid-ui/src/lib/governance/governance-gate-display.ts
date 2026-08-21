@@ -1,5 +1,5 @@
 /**
- * Maps persisted manifest status to a reviewer-facing governance gate label.
+ * Maps persisted manifest status to a reviewer-facing approval check label.
  * API may emit `Committed` for a finalized record; UI elsewhere maps that to "Finalized".
  */
 export function governanceGateLabelFromManifestStatus(status: string | undefined | null): string {

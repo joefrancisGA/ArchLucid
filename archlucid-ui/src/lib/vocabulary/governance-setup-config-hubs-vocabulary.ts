@@ -62,7 +62,7 @@ export const GOVERNANCE_SETUP_CONFIG_HUBS_ALERT_RULES_LINK: GovernanceSetupConfi
   id: "alert-rules",
   label: "Alert rules",
   href: GOVERNANCE_ALERT_RULES_PATH,
-  whenToUse: "Configure when and how governance alerts fire.",
+  whenToUse: "Configure when and how approval alerts fire.",
 };
 
 export const GOVERNANCE_SETUP_CONFIG_HUBS_POLICY_PACKS_LINK: GovernanceSetupConfigHubsLink = {

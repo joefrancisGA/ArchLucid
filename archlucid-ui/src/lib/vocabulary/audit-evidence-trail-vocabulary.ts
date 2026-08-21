@@ -4,10 +4,10 @@
  * Why three surfaces exist:
  * - Audit trail (`/governance/audit`) is the operator activity log for
  *   governance and review events (filters, integrity export/verify).
- * - Evidence graph (`/insights/evidence-graph`) is the signed-record evidence
+ * - Evidence graph (`/insights/evidence-graph`) is the finalized review record evidence
  *   trail visualization for an architecture package.
  * - Search review evidence (`/insights/search-review-evidence`) finds findings,
- *   decisions, and sealed review records across packages in the evidence trail.
+ *   decisions, and finalized review records across packages in the evidence trail.
  *
  * They stay separate because the audit activity log is not the diligence
  * evidence trail, and graph presentation is not cross-package retrieval.

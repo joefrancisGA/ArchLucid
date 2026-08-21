@@ -6,7 +6,7 @@
  *   *linkage view* for one approval request — review, findings, and signed
  *   review record version context.
  * - Approval queue (`/governance/approval-queue`) is the *decision workflow*
- *   hub to submit, approve, or reject governance approvals.
+ *   hub to submit, approve, or reject resolve outcomes.
  *
  * They stay separate because inspecting one request’s lineage is not the same
  * task as working the approval queue. Distinct from findings triage and audit.

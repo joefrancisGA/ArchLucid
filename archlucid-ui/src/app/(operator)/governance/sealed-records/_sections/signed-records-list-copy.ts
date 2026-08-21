@@ -43,7 +43,7 @@ export const SIGNED_RECORDS_LIST_SEARCH_LABEL = "Search";
 
 export const SIGNED_RECORDS_LIST_SEARCH_PLACEHOLDER = "Review title or version";
 
-export const SIGNED_RECORDS_LIST_FILTER_INTEGRITY_LABEL = "Seal integrity";
+export const SIGNED_RECORDS_LIST_FILTER_INTEGRITY_LABEL = "Record integrity";
 
 export const SIGNED_RECORDS_LIST_FILTER_ALL_INTEGRITY = "All integrity states";
 
@@ -54,7 +54,7 @@ export const SIGNED_RECORDS_LIST_FILTER_NO_MATCH_BODY =
 
 export const SIGNED_RECORDS_LIST_FILTER_CLEAR_ACTION = "Clear filters";
 
-export const SIGNED_RECORDS_LIST_ENRICHING_CELL_STATUS = "Resolving seal metadata…";
+export const SIGNED_RECORDS_LIST_ENRICHING_CELL_STATUS = "Resolving record metadata…";
 
 export const SIGNED_RECORDS_LIST_RETRY_SUCCEEDED_STATUS = "Record metadata refreshed.";
 
@@ -85,11 +85,11 @@ export const SIGNED_RECORDS_LIST_TABLE_VERSION_COLUMN = "Version";
 /** Seal timestamp from manifest `createdUtc` — not review start time. */
 export const SIGNED_RECORDS_LIST_TABLE_FINALIZED_COLUMN = "Finalized";
 
-export const SIGNED_RECORDS_LIST_TABLE_INTEGRITY_COLUMN = "Seal integrity";
+export const SIGNED_RECORDS_LIST_TABLE_INTEGRITY_COLUMN = "Record integrity";
 
 export const SIGNED_RECORDS_LIST_TABLE_ACTIONS_COLUMN = "Actions";
 
-export const SIGNED_RECORDS_LIST_SEAL_DETAILS_DISCLOSURE = "Seal details";
+export const SIGNED_RECORDS_LIST_SEAL_DETAILS_DISCLOSURE = "Record details";
 
 export const SIGNED_RECORDS_LIST_SEAL_DIGEST_LABEL = "Record digest";
 

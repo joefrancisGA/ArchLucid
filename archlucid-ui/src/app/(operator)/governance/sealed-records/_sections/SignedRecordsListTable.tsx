@@ -207,7 +207,7 @@ export function SignedRecordsListTable(props: SignedRecordsListTableProps): Reac
                     <SignedRecordsListSealDetails row={row} />
                   </div>
                 ) : lookupMessage === null ? (
-                  <SignedRecordsListEmptyValue fieldLabel="Seal integrity" />
+                  <SignedRecordsListEmptyValue fieldLabel="Record integrity" />
                 ) : null}
               </EnterpriseTableCell>
               <EnterpriseTableCell>

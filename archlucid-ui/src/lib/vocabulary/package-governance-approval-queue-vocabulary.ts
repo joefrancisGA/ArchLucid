@@ -6,7 +6,7 @@
  *   pre-finalize readiness on one architecture package — policy alignment and
  *   governance checks before commit.
  * - Approval queue (`/governance/approval-queue`) is the live approve / reject
- *   workflow across pending governance approval requests.
+ *   workflow across pending resolve outcome requests.
  *
  * They stay separate because package readiness is not the live approval
  * workflow. Distinct from Approval lineage ≠ Approval queue (TB-2260 family).

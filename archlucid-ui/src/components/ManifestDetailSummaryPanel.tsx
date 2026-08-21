@@ -223,7 +223,7 @@ export function ManifestDetailSummaryPanel(props: ManifestDetailSummaryPanelProp
               <span className={cn("font-mono", OPERATOR_TYPOGRAPHY.helper)}>{summary.manifestHash}</span>
             </dd>
             <dd className={cn("m-0 mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)} data-testid="manifest-determinism-statement">
-              Policy-consistent: outputs are governed by the same deterministic policy evaluation rules for identical inputs and policy pack versions.
+              Policy-consistent: outputs follow the same deterministic policy evaluation rules for identical inputs and policy pack versions.
             </dd>
           </>
         ) : null}

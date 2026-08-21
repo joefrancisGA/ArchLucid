@@ -61,7 +61,7 @@ describe("help-product-language", () => {
     expect(output).toContain("ReviewId=abc");
     expect(output.toLowerCase()).toContain("review not ready to finalize");
     expect(output.toLowerCase()).toContain("review exists");
-    expect(output.toLowerCase()).toContain("sealed review record");
+    expect(output.toLowerCase()).toContain("finalized review record");
   });
 
   it("preserves Architecture package and does not collapse it to architecture review", () => {

@@ -151,7 +151,7 @@ export const PATTERN_LIBRARY_SAMPLE_CATALOG: readonly PatternLibraryRecord[] = [
   },
   {
     patternKey: "governed-data-lake-zones",
-    name: "Data lake ingestion with governed zones",
+    name: "Data lake ingestion with controlled zones",
     description:
       "Landing, curated, and consumption zones separate raw ingestion from curated analytics products.",
     domains: ["Financial services", "Healthcare", "Public sector"],
@@ -176,7 +176,7 @@ export const PATTERN_LIBRARY_SAMPLE_CATALOG: readonly PatternLibraryRecord[] = [
     governanceConsiderations: ["Align retention with legal hold requirements", "Require approval for PII in consumption zone"],
     relatedPolicyRules: ["No direct analyst access to landing zone", "Masking required for indirect identifiers"],
     alternatives: ["Warehouse-only model", "Federated query without central lake", "Event streaming to OLTP replicas"],
-    architectureShape: "Ingest → landing storage → curation jobs → governed consumption layer → BI/ML tools.",
+    architectureShape: "Ingest → landing storage → curation jobs → curated consumption layer → BI/ML tools.",
     reviewQuestions: [
       "Who can promote datasets between zones?",
       "How is lineage captured for derived tables?",

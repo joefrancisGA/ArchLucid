@@ -33,7 +33,7 @@ const CORE_GLOSSARY: GlossaryEntry[] = [
   {
     term: "Policy pack",
     definition:
-      "A versioned rule set applied during analysis. Controls which checks run and how findings are classified (e.g. Azure CIS, custom governance).",
+      "A versioned rule set applied during analysis. Controls which checks run and how findings are classified (e.g. Azure CIS, custom policy packs).",
   },
   {
     term: "Resolve outcomes",

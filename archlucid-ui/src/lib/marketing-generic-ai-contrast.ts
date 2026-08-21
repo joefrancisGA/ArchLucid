@@ -10,12 +10,12 @@ export type MarketingGenericAiContrastPoint = {
 export const MARKETING_GENERIC_AI_CONTRAST_POINTS: readonly MarketingGenericAiContrastPoint[] = [
   {
     label: "Durable review artifact",
-    archlucid: "Committed sealed review record in SQL with review record id and audit trail",
+    archlucid: "Committed finalized review record in SQL with review record id and audit trail",
     genericAi: "Chat transcript — no durable review record tied to your tenant",
   },
   {
     label: "Governance before commit",
-    archlucid: "Optional pre-commit gate blocks policy violations before the review record is canonical",
+    archlucid: "Optional approval check blocks policy violations before the review record is canonical",
     genericAi: "No commit boundary — advice is not gated against your policy packs",
   },
   {

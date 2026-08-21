@@ -3,9 +3,9 @@
  *
  * Why two “evidence” surfaces exist:
  * - Ask (`/insights/ask-review-questions`) answers questions about a finalized
- *   review and cites evidence from the sealed review record.
+ *   review and cites evidence from the finalized review record.
  * - Search (`/insights/search-review-evidence`) finds findings, decisions, and
- *   sealed review records across architecture packages in the evidence trail.
+ *   finalized review records across architecture packages in the evidence trail.
  *
  * They stay separate because Q&A with citations is not the same task as
  * retrieval across packages. Do not confuse Search review evidence with the

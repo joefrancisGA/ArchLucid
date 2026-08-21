@@ -498,7 +498,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
           >
             ArchLucid:
           </span>
-           Optional pre-commit gate blocks policy violations before the review record is canonical
+           Optional approval check blocks policy violations before the review record is canonical
         </p>
         <p
           class="m-0 mt-1 dark:text-neutral-400 text-[15px] font-normal leading-6 text-al-text-secondary"

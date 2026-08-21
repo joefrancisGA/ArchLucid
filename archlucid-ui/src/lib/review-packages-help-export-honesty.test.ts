@@ -49,7 +49,7 @@ describe("review-packages help export honesty (TB-1403)", () => {
     const body = prepareReviewPackagesHelpBodyMarkdown(loaded.markdown);
 
     expect(sourceContainsBannedReviewPackagesHelpExportCopy(body)).toBe(false);
-    expect(body).toMatch(/sealed review record/i);
+    expect(body).toMatch(/finalized review record/i);
     expect(BANNED_REVIEW_PACKAGES_HELP_EXPORT_PATTERNS.length).toBeGreaterThan(0);
   });
 });

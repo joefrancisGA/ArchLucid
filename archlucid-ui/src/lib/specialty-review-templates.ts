@@ -202,7 +202,7 @@ export const SPECIALTY_REVIEW_TEMPLATES: readonly SpecialtyReviewTemplateDefinit
       exampleQuestions: [
         "What data sources feed model training and inference, and how is sensitive data handled?",
         "Where is human review required before high-impact automated decisions?",
-        "How are model changes, prompts, and tool access governed and audited?",
+        "How are model changes, prompts, and tool access controlled and audited?",
       ],
       evidenceTypicallyRequested: [
         "Model and data-flow diagrams",
