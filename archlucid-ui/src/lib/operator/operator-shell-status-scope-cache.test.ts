@@ -5,6 +5,7 @@ import {
   clearOperatorShellStatusScopeAgnosticCaches,
   OPERATOR_SHELL_STATUS_SCOPE_AGNOSTIC_QUERY_KEYS,
 } from "@/lib/operator/operator-shell-status-scope-cache";
+import { readOperatorShellStableCache, writeOperatorShellStableCache } from "@/lib/operator/operator-shell-stable-cache";
 import type { OperatorScopeQueryKey } from "@/lib/operator/operator-scope-query-key";
 import { writeOperatorScopeToStorage } from "@/lib/operator/operator-scope-storage";
 import { createOperatorQueryClient, getOperatorQueryClient, resetOperatorQueryClientForTests } from "@/lib/query/operator-query-client";
@@ -20,10 +21,12 @@ describe("operator-shell-status-scope-cache", () => {
   beforeEach(() => {
     resetOperatorQueryClientForTests();
     localStorage.clear();
+    sessionStorage.clear();
   });
 
   afterEach(() => {
     localStorage.clear();
+    sessionStorage.clear();
   });
 
   it("clears scope-agnostic shell caches when operator scope changes", () => {
@@ -67,6 +70,40 @@ describe("operator-shell-status-scope-cache", () => {
 
     expect(queryClient.getQueryData(operatorQueryKeys.tenantTrialStatus)).toBeUndefined();
     expect(queryClient.getQueryData(operatorQueryKeys.tenantHomepageSettings)).toBeUndefined();
+  });
+
+  it("clears session stable cache when operator scope changes so tenant switch-back does not rehydrate stale shell status", () => {
+    writeOperatorScopeToStorage({
+      tenantId: SCOPE_A.tenantId,
+      workspaceId: SCOPE_A.workspaceId,
+      projectId: SCOPE_A.projectId,
+      workspaceLabel: "Tenant A",
+      projectLabel: "Project A",
+    });
+    writeOperatorShellStableCache({
+      trialStatus: { status: "None" },
+      catalogMigration: { inMigration: false },
+    });
+
+    expect(readOperatorShellStableCache()?.trialStatus?.status).toBe("None");
+
+    writeOperatorScopeToStorage({
+      tenantId: "tenant-b",
+      workspaceId: "workspace-b",
+      projectId: "project-b",
+      workspaceLabel: "Tenant B",
+      projectLabel: "Project B",
+    });
+
+    writeOperatorScopeToStorage({
+      tenantId: SCOPE_A.tenantId,
+      workspaceId: SCOPE_A.workspaceId,
+      projectId: SCOPE_A.projectId,
+      workspaceLabel: "Tenant A",
+      projectLabel: "Project A",
+    });
+
+    expect(readOperatorShellStableCache()).toBeNull();
   });
 
   it("removeQueries targets every scope-agnostic shell-status key", () => {
