@@ -111,6 +111,13 @@ export const OPERATOR_HOME_BEST_FOR_EVALUATING_BADGE = "Best for evaluating Arch
 export const OPERATOR_HOME_MISSING_COMPLETED_SAMPLE_MESSAGE =
   "No completed sample has been selected for this workspace.";
 
+export const OPERATOR_HOME_COMPLETED_SAMPLE_FETCH_ERROR_MESSAGE =
+  "Could not load the completed sample for this workspace. Try refreshing the page.";
+
+export const OPERATOR_HOME_DRAFT_ARCHITECTURE_EYEBROW = "Draft architecture";
+
+export const OPERATOR_HOME_DATA_CURRENCY_PREFIX = "Updated";
+
 export const OPERATOR_HOME_CHOOSE_SAMPLE_REVIEW_CTA = "Choose sample review";
 
 export const OPERATOR_HOME_CONTACT_WORKSPACE_OWNER_HINT = "Contact the workspace owner.";

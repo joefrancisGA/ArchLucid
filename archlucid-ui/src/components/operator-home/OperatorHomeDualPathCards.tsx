@@ -31,7 +31,7 @@ import {
   OPERATOR_HOME_REVIEW_ARCHITECTURE_CARD_TITLE,
   OPERATOR_HOME_REVIEW_ARCHITECTURE_CTA,
 } from "@/lib/buyer/buyer-polish-copy";
-import { OPERATOR_CARD, OPERATOR_LAYOUT, OPERATOR_SURFACE_CARD_CLASS, OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
+import { OPERATOR_CARD, OPERATOR_LAYOUT, OPERATOR_HOME_LIFECYCLE_CARD_TITLE, OPERATOR_SURFACE_CARD_CLASS, OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
 import type { OperatorHomeLifecyclePath } from "@/lib/resolve-operator-home-workspace-phase";
 import { trackOperatorHomeLifecyclePathClick } from "@/lib/operator/operator-home-lifecycle-path-telemetry";
 import { CLOUD_CONNECTIONS_PATH } from "@/lib/integrations-nav-paths";
@@ -62,6 +62,14 @@ function resolveLifecycleCardButtonVariant(
     pagePrimaryOwnedElsewhere: boolean;
   },
 ): "primary" | "outline" {
+  if (
+    options.emphasizedPath !== null &&
+    options.emphasizedPath !== undefined &&
+    options.emphasizedPath === path
+  ) {
+    return "primary";
+  }
+
   if (options.pagePrimaryOwnedElsewhere) {
     return "outline";
   }
@@ -171,8 +179,6 @@ export function OperatorHomeDualPathCards(props: OperatorHomeDualPathCardsProps)
     >
       <div
         className={cn("grid gap-3 sm:grid-cols-2 md:grid-cols-3", OPERATOR_LAYOUT.inlineGap)}
-        role="status"
-        aria-live="polite"
       >
         <article
           className={lifecycleCardClassName("create-architecture", emphasizedPath, selectedPath)}
@@ -183,7 +189,7 @@ export function OperatorHomeDualPathCards(props: OperatorHomeDualPathCardsProps)
           <div className="min-w-0 space-y-1">
             {lifecycleRecommendedBadge("create-architecture", emphasizedPath, isCompact)}
             <h3
-              className={cn("m-0", isCompact ? OPERATOR_TYPE_SCALE.helper : OPERATOR_TYPE_SCALE.sectionTitle)}
+              className={cn("m-0", isCompact ? OPERATOR_TYPE_SCALE.helper : OPERATOR_HOME_LIFECYCLE_CARD_TITLE)}
               id="operator-home-create-architecture-title"
             >
               {OPERATOR_HOME_CREATE_ARCHITECTURE_CARD_TITLE}
@@ -242,7 +248,7 @@ export function OperatorHomeDualPathCards(props: OperatorHomeDualPathCardsProps)
           <div className="min-w-0 space-y-1">
             {lifecycleRecommendedBadge("review-architecture", emphasizedPath, isCompact)}
             <h3
-              className={cn("m-0", isCompact ? OPERATOR_TYPE_SCALE.helper : OPERATOR_TYPE_SCALE.sectionTitle)}
+              className={cn("m-0", isCompact ? OPERATOR_TYPE_SCALE.helper : OPERATOR_HOME_LIFECYCLE_CARD_TITLE)}
               id="operator-home-review-architecture-title"
             >
               {OPERATOR_HOME_REVIEW_ARCHITECTURE_CARD_TITLE}
@@ -269,10 +275,6 @@ export function OperatorHomeDualPathCards(props: OperatorHomeDualPathCardsProps)
               {OPERATOR_HOME_READ_ONLY_INTENT_HINT}
             </p>
           )}
-          <SpecimenDeliverablePreviewCallout
-            variant="compact"
-            sectionTestId="operator-home-review-architecture-specimen-preview"
-          />
         </article>
 
         <article
@@ -288,7 +290,7 @@ export function OperatorHomeDualPathCards(props: OperatorHomeDualPathCardsProps)
           <div className="min-w-0 space-y-2">
             {lifecycleRecommendedBadge("explore-completed-review", emphasizedPath, isCompact)}
             <h3
-              className={cn("m-0", isCompact ? OPERATOR_TYPE_SCALE.helper : OPERATOR_TYPE_SCALE.sectionTitle)}
+              className={cn("m-0", isCompact ? OPERATOR_TYPE_SCALE.helper : OPERATOR_HOME_LIFECYCLE_CARD_TITLE)}
               id="operator-home-explore-completed-review-title"
             >
               {OPERATOR_HOME_EXPLORE_COMPLETED_REVIEW_TITLE}
@@ -299,6 +301,10 @@ export function OperatorHomeDualPathCards(props: OperatorHomeDualPathCardsProps)
               </p>
             ) : null}
           </div>
+          <SpecimenDeliverablePreviewCallout
+            variant="compact"
+            sectionTestId="operator-home-explore-completed-review-specimen-preview"
+          />
           <OperatorHomeCompletedSampleAction
             compact={isCompact}
             pagePrimaryOwnedElsewhere={exploreCompletedReviewVariant === "outline"}

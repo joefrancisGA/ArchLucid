@@ -6,11 +6,15 @@ import {
   resolveOperatorHomeLifecycleEmphasizedPath,
   resolveOperatorHomePhaseHeroCopy,
   resolveOperatorHomeRequiresAttention,
+  deriveOperatorHomeWorkspacePhaseSignalsFromOverviewRuns,
   resolveOperatorHomeWorkspacePhase,
 } from "@/lib/resolve-operator-home-workspace-phase";
+import type { RunSummary } from "@/types/authority";
+import { buildDemoSeededOverviewRunSummary } from "@/lib/demo-seeded-overview";
 
 const baseSignals = {
   hasWorkspaceReviews: false,
+  hasOverviewReviewRows: false,
   draftCount: 0,
   hasCommittedManifest: false,
   openFindingsCount: 0,
@@ -31,11 +35,31 @@ describe("resolveOperatorHomeWorkspacePhase", () => {
     ).toBe("eval-with-drafts");
   });
 
+  it("keeps eval-empty when only overview showcase rows exist without tenant reviews (TB-1039)", () => {
+    expect(
+      resolveOperatorHomeWorkspacePhase({
+        ...baseSignals,
+        hasOverviewReviewRows: true,
+      }),
+    ).toBe("eval-empty");
+  });
+
+  it("keeps eval-with-drafts when drafts and showcase rows coexist without tenant reviews", () => {
+    expect(
+      resolveOperatorHomeWorkspacePhase({
+        ...baseSignals,
+        draftCount: 1,
+        hasOverviewReviewRows: true,
+      }),
+    ).toBe("eval-with-drafts");
+  });
+
   it("returns active-reviews when reviews exist without a committed manifest", () => {
     expect(
       resolveOperatorHomeWorkspacePhase({
         ...baseSignals,
         hasWorkspaceReviews: true,
+        hasOverviewReviewRows: true,
       }),
     ).toBe("active-reviews");
   });
@@ -52,6 +76,7 @@ describe("resolveOperatorHomeWorkspacePhase", () => {
       resolveOperatorHomeWorkspacePhase({
         ...baseSignals,
         hasWorkspaceReviews: true,
+        hasOverviewReviewRows: true,
         hasCommittedManifest: true,
       }),
     ).toBe("operational");
@@ -63,16 +88,29 @@ describe("resolveOperatorHomeWorkspacePhase", () => {
         ...baseSignals,
         draftCount: 1,
         hasWorkspaceReviews: true,
+        hasOverviewReviewRows: true,
         hasCommittedManifest: true,
       }),
     ).toBe("operational");
   });
 });
 
+describe("deriveOperatorHomeWorkspacePhaseSignalsFromOverviewRuns", () => {
+  it("counts showcase rows toward overview occupancy while excluding them from tenant metrics", () => {
+    const signals = deriveOperatorHomeWorkspacePhaseSignalsFromOverviewRuns(
+      [buildDemoSeededOverviewRunSummary("default", null)],
+      1,
+    );
+
+    expect(signals.hasOverviewReviewRows).toBe(true);
+    expect(signals.openFindingsCount).toBe(0);
+  });
+});
+
 describe("resolveOperatorHomeLifecycleEmphasizedPath", () => {
   it("emphasizes explore on eval-empty and review on active-reviews only", () => {
     expect(resolveOperatorHomeLifecycleEmphasizedPath("eval-empty")).toBe("explore-completed-review");
-    expect(resolveOperatorHomeLifecycleEmphasizedPath("eval-with-drafts")).toBeNull();
+    expect(resolveOperatorHomeLifecycleEmphasizedPath("eval-with-drafts")).toBe("create-architecture");
     expect(resolveOperatorHomeLifecycleEmphasizedPath("active-reviews")).toBe("review-architecture");
     expect(resolveOperatorHomeLifecycleEmphasizedPath("operational")).toBeNull();
   });
@@ -124,6 +162,7 @@ describe("resolveOperatorHomePhaseHeroCopy", () => {
     const copy = resolveOperatorHomePhaseHeroCopy("active-reviews", {
       ...baseSignals,
       hasWorkspaceReviews: true,
+      hasOverviewReviewRows: true,
     });
 
     expect(copy.heading).toBe("Reviews in progress");

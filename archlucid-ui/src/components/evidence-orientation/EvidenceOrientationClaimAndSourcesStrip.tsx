@@ -11,7 +11,7 @@ import {
 import { useWhereToGoNextVisible } from "@/components/WhereToGoNextPreferenceProvider";
 import { resolveClaimDisciplineForStrip } from "@/lib/claim-discipline-policy";
 import type { EvidenceOrientationLink } from "@/lib/evidence-surface-copy";
-import { WHERE_TO_GO_NEXT_SOURCES_LAYOUT } from "@/lib/evidence-orientation/hub-secondary-follow-ups";
+import { HUB_SECONDARY_SOURCES_LAYOUT, WHERE_TO_GO_NEXT_SOURCES_LAYOUT } from "@/lib/evidence-orientation/hub-secondary-follow-ups";
 import { HELP_DILIGENCE_ARTIFACT_INDEX_TITLE } from "@/lib/help/help-diligence-artifact-index";
 import type { EvidenceOrientationSourcesLayout } from "@/components/evidence-orientation/EvidenceOrientationSourcesSection";
 
@@ -81,11 +81,12 @@ export function EvidenceOrientationClaimAndSourcesStrip({
   stripTestId,
   distinguishFollowUpDestinations = true,
   promotedSourceHref,
+  hubSecondary = false,
 }: EvidenceOrientationClaimAndSourcesStripProps): React.JSX.Element | null {
   const whereToGoNextVisible = useWhereToGoNextVisible();
   const resolvedClaim: string | undefined = resolveClaimDisciplineForStrip(slug, claim);
   const resolvedSourcesLayout: EvidenceOrientationSourcesLayout =
-    sourcesLayout ?? WHERE_TO_GO_NEXT_SOURCES_LAYOUT;
+    sourcesLayout ?? (hubSecondary ? HUB_SECONDARY_SOURCES_LAYOUT : WHERE_TO_GO_NEXT_SOURCES_LAYOUT);
 
   if (!whereToGoNextVisible && resolvedClaim === undefined) {
     return null;

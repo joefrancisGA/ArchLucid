@@ -7,6 +7,7 @@ import {
   isShowcaseCanonicalPrimaryFindingRoute,
   showcasePrimaryFindingDetailHref,
   showcaseSpecimenFindingsHref,
+  showcaseSpecimenSealedReviewRecordHref,
   showcaseSpecimenSignedReviewRecordHref,
   showcaseSampleReviewPackageHref,
 } from "@/lib/showcase-sample-review-registry";
@@ -25,9 +26,10 @@ describe("showcase-sample-review-registry", () => {
 
   it("builds canonical review and finding detail hrefs", () => {
     expect(showcaseSampleReviewPackageHref()).toBe("/architecture/reviews/customer-intake-modernization");
-    expect(showcaseSpecimenSignedReviewRecordHref()).toBe(
+    expect(showcaseSpecimenSealedReviewRecordHref()).toBe(
       "/architecture/reviews/customer-intake-modernization?reviewTab=review-package",
     );
+    expect(showcaseSpecimenSignedReviewRecordHref()).toBe(showcaseSpecimenSealedReviewRecordHref());
     expect(showcaseSpecimenFindingsHref()).toBe(
       "/architecture/reviews/customer-intake-modernization?reviewTab=findings",
     );

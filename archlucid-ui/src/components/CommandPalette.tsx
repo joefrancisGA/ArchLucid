@@ -55,7 +55,7 @@ import {
 import { applyPatternLibraryHrefSetGate, applyPatternLibraryNavGate } from "@/lib/apply-pattern-library-nav-gate";
 import { usePatternLibraryNavVisible } from "@/hooks/use-pattern-library-nav-visible";
 import { CommandPaletteRecentViewsGroup } from "@/components/usability/CommandPaletteRecentViewsGroup";
-import { CommandPaletteSidebarVocabularyRail } from "@/components/CommandPaletteSidebarVocabularyRail";
+import { COMMAND_PALETTE_SIDEBAR_COMPACT_LINE } from "@/lib/vocabulary/command-palette-sidebar-vocabulary";
 import { stampRouteReferrer } from "@/lib/operator/operator-navigation-referrer";
 import { GLOBAL_FIND_PAGE_SEARCH } from "@/lib/search-surface-disambiguation";
 import {
@@ -616,9 +616,6 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
       ) : null}
       <CommandDialog open={open} onOpenChange={setOpen}>
         <CommandInput placeholder={buyerPolishedShell ? polishedPalettePlaceholder : "Search pages or paste a review ID…"} />
-        <div className="px-3 pt-2">
-          <CommandPaletteSidebarVocabularyRail currentSurfaceId="command-palette" />
-        </div>
         <CommandList>
           <RunIdQuickOpen onNavigate={navigate} allowRunIdPaste={!buyerPolishedShell} />
           <CommandPaletteRecentViewsGroup onNavigate={navigate} />
@@ -633,9 +630,17 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
             onNavigate={navigate}
           />
           <CommandEmpty>
-            {buyerPolishedShell
-              ? "No matching page. Try another search."
-              : "No matching pages. Try another search or paste a review ID."}
+            {buyerPolishedShell ? (
+              <>
+                <p className="m-0">{COMMAND_PALETTE_SIDEBAR_COMPACT_LINE}</p>
+                <p className="m-0 mt-2">No matching page. Try another search.</p>
+              </>
+            ) : (
+              <>
+                <p className="m-0">{COMMAND_PALETTE_SIDEBAR_COMPACT_LINE}</p>
+                <p className="m-0 mt-2">No matching pages. Try another search or paste a review ID.</p>
+              </>
+            )}
           </CommandEmpty>
           <CommandPaletteAdminNavGroups
             callerAuthorityRank={callerAuthorityRank}

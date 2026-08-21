@@ -211,6 +211,9 @@ export const OPERATOR_HOME_PRIMARY_SECTION_HEADING =
 /** Peer overview card h2 — matches {@link OPERATOR_TYPE_SCALE.cardTitle} and CardTitle chrome. */
 export const OPERATOR_HOME_CARD_SECTION_HEADING = `m-0 tracking-tight ${OPERATOR_TYPE_SCALE.cardTitle}`;
 
+/** Lifecycle path card h3 — one step below peer card h2; must not borrow sectionTitle scale. */
+export const OPERATOR_HOME_LIFECYCLE_CARD_TITLE = `m-0 ${OPERATOR_TYPE_SCALE.cardTitle}`;
+
 /** Zone headings one step below primary — e.g. First-hour path, Latest in workspace. */
 export const OPERATOR_HOME_SECTION_HEADING = `m-0 ${OPERATOR_TYPE_SCALE.sectionTitle}`;
 

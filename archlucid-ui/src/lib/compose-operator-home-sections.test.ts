@@ -17,6 +17,7 @@ describe("composeOperatorHomeSections (TB-2368)", () => {
     const sections = composeOperatorHomeSections({
       phaseSignals: {
         hasWorkspaceReviews: false,
+        hasOverviewReviewRows: false,
         draftCount: 0,
         hasCommittedManifest: false,
         openFindingsCount: 0,
@@ -41,6 +42,7 @@ describe("composeOperatorHomeSections (TB-2368)", () => {
     const sections = composeOperatorHomeSections({
       phaseSignals: {
         hasWorkspaceReviews: true,
+        hasOverviewReviewRows: true,
         draftCount: 0,
         hasCommittedManifest: true,
         openFindingsCount: 0,
@@ -60,6 +62,7 @@ describe("composeOperatorHomeSections (TB-2368)", () => {
     const sections = composeOperatorHomeSections({
       phaseSignals: {
         hasWorkspaceReviews: true,
+        hasOverviewReviewRows: true,
         draftCount: 0,
         hasCommittedManifest: false,
         openFindingsCount: 2,
@@ -69,7 +72,9 @@ describe("composeOperatorHomeSections (TB-2368)", () => {
       metrics: { ...emptyMetrics, hasReviews: true, openFindings: 2 },
     });
 
-    expect(sections.map((section) => section.id)).toContain("command-center");
-    expect(sections.indexOf("command-center")).toBeLessThan(sections.indexOf("recent-reviews"));
+    const sectionIds = sections.map((section) => section.id);
+
+    expect(sectionIds).toContain("command-center");
+    expect(sectionIds.indexOf("command-center")).toBeLessThan(sectionIds.indexOf("recent-reviews"));
   });
 });
