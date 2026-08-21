@@ -329,6 +329,30 @@ function resolveDeferredChunkImportLoader(
       return deferredChunkLoader(() =>
         import("@/components/RouteAnnouncer").then((module) => module.RouteAnnouncer),
       ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "operator-shell-top-bar":
+      return deferredChunkLoader(() =>
+        import("@/components/shell/OperatorShellTopBar").then((module) => module.OperatorShellTopBar),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "app-shell-keyboard-shortcut-boundary":
+      return deferredChunkLoader(() =>
+        import("@/components/shell/AppShellKeyboardShortcutBoundary").then(
+          (module) => module.AppShellKeyboardShortcutBoundary,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "app-shell-color-mode-toggle":
+      return deferredChunkLoader(() =>
+        import("@/components/ColorModeToggle").then((module) => module.ColorModeToggle),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "app-shell-authority-theme-toggle":
+      return deferredChunkLoader(() =>
+        import("@/components/AuthorityThemeToggle").then((module) => module.AuthorityThemeToggle),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "app-shell-theme-preferences-vocabulary-rail":
+      return deferredChunkLoader(() =>
+        import("@/components/ShellThemePreferencesAppearanceVocabularyRail").then(
+          (module) => module.ShellThemePreferencesAppearanceVocabularyRail,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
     case "reviews-hub-inventory":
       return deferredChunkLoader(() =>
         import("@/app/(operator)/architecture/reviews/_sections/ReviewsHubReviewInventory").then(

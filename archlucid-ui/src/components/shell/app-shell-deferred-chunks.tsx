@@ -1,19 +1,18 @@
 "use client";
 
-import dynamic from "next/dynamic";
 import type { ComponentType } from "react";
+
+import {
+  OPERATOR_SHELL_CONTENT_PADDING_X_CLASS,
+  OPERATOR_SHELL_MAX_WIDTH_CLASS,
+} from "@/lib/design-tokens";
+import { createDeferredComponentFromManifest } from "@/lib/operator/load-deferred-chunk-from-manifest";
+import { cn } from "@/lib/utils";
 
 import type { AppShellKeyboardShortcutBoundary } from "@/components/shell/AppShellKeyboardShortcutBoundary";
 import type { AuthorityThemeToggle } from "@/components/AuthorityThemeToggle";
 import type { ColorModeToggle } from "@/components/ColorModeToggle";
 import type { ShellThemePreferencesAppearanceVocabularyRail } from "@/components/ShellThemePreferencesAppearanceVocabularyRail";
-import {
-  OPERATOR_SHELL_CONTENT_PADDING_X_CLASS,
-  OPERATOR_SHELL_MAX_WIDTH_CLASS,
-} from "@/lib/design-tokens";
-import { deferredChunkLoader } from "@/lib/import-deferred-chunk-with-retry";
-import { createDeferredComponentFromManifest } from "@/lib/operator/load-deferred-chunk-from-manifest";
-import { cn } from "@/lib/utils";
 
 const operatorTopBarLoading = (
   <header
@@ -34,10 +33,9 @@ const operatorTopBarLoading = (
 );
 
 /** TB-2118 — command palette / global search / mobile drawer off hub First Load JS. */
-export const OperatorShellTopBarDeferred = dynamic(
-  () => import("./OperatorShellTopBar").then((module) => module.OperatorShellTopBar),
-  { ssr: false, loading: () => operatorTopBarLoading },
-);
+export const OperatorShellTopBarDeferred = createDeferredComponentFromManifest("operator-shell-top-bar", {
+  loadingWrapper: () => operatorTopBarLoading,
+});
 
 export const AppShellWorkspaceFooterDeferred = createDeferredComponentFromManifest(
   "app-shell-workspace-footer",
@@ -79,12 +77,7 @@ export const AppShellMainContentGateDeferred = createDeferredComponentFromManife
 
 export const AppShellKeyboardShortcutBoundaryDeferred: ComponentType<
   React.ComponentProps<typeof AppShellKeyboardShortcutBoundary>
-> = dynamic(
-  deferredChunkLoader(() =>
-    import("./AppShellKeyboardShortcutBoundary").then((module) => module.AppShellKeyboardShortcutBoundary),
-  ),
-  { ssr: false },
-);
+> = createDeferredComponentFromManifest("app-shell-keyboard-shortcut-boundary", { suppressLoading: true });
 
 export const OperatorShellAccessRedirectsHostDeferred = createDeferredComponentFromManifest(
   "app-shell-access-redirects-host",
@@ -99,26 +92,14 @@ export const RouteAnnouncerDeferred = createDeferredComponentFromManifest("app-s
   suppressLoading: true,
 });
 
-export const ColorModeToggleDeferred: ComponentType<React.ComponentProps<typeof ColorModeToggle>> = dynamic(
-  deferredChunkLoader(() => import("@/components/ColorModeToggle").then((module) => module.ColorModeToggle)),
-  { ssr: false, loading: () => null },
-);
+export const ColorModeToggleDeferred: ComponentType<React.ComponentProps<typeof ColorModeToggle>> =
+  createDeferredComponentFromManifest("app-shell-color-mode-toggle", { suppressLoading: true });
 
 export const AuthorityThemeToggleDeferred: ComponentType<React.ComponentProps<typeof AuthorityThemeToggle>> =
-  dynamic(
-    deferredChunkLoader(() =>
-      import("@/components/AuthorityThemeToggle").then((module) => module.AuthorityThemeToggle),
-    ),
-    { ssr: false, loading: () => null },
-  );
+  createDeferredComponentFromManifest("app-shell-authority-theme-toggle", { suppressLoading: true });
 
 export const ShellThemePreferencesAppearanceVocabularyRailDeferred: ComponentType<
   React.ComponentProps<typeof ShellThemePreferencesAppearanceVocabularyRail>
-> = dynamic(
-  deferredChunkLoader(() =>
-    import("@/components/ShellThemePreferencesAppearanceVocabularyRail").then(
-      (module) => module.ShellThemePreferencesAppearanceVocabularyRail,
-    ),
-  ),
-  { ssr: false, loading: () => null },
-);
+> = createDeferredComponentFromManifest("app-shell-theme-preferences-vocabulary-rail", {
+  suppressLoading: true,
+});

@@ -19,19 +19,8 @@ export type DeferredChunkManifestEntry = {
   readonly exportName: string;
 };
 
-const SHARED_DEFERRED_CHUNK_MANIFEST: readonly DeferredChunkManifestEntry[] = [
-  {
-    id: "operator-shell-top-bar",
-    label: "Loading shell navigation",
-    variant: "compact",
-    modulePath: "@/components/shell/OperatorShellTopBar",
-    exportName: "OperatorShellTopBar",
-  },
-] as const;
-
 /** Route-level deferred chunk catalog for TB-2371 manifest + import tests. */
 export const DEFERRED_CHUNK_MANIFEST: readonly DeferredChunkManifestEntry[] = [
-  ...SHARED_DEFERRED_CHUNK_MANIFEST,
   ...OPERATOR_HOME_CHUNK_MANIFEST,
   ...REVIEWS_HUB_CHUNK_MANIFEST,
   ...RUN_DETAIL_CHUNK_MANIFEST,

@@ -75,8 +75,11 @@ describe("operator shell deferred imports (TB-2118)", () => {
     expect(appShellSource).toContain("ShellThemePreferencesAppearanceVocabularyRailDeferred");
   });
 
-  it("dynamic-imports manifest-backed app shell modules via loaders", () => {
+  it("dynamic-imports every app shell module via manifest loaders", () => {
     expect(deferredSource).toContain("createDeferredComponentFromManifest");
+    expect(deferredSource).not.toContain("next/dynamic");
+    expect(deferredSource).not.toContain("deferredChunkLoader");
+    expect(manifestLoaderSource).toContain('import("@/components/shell/OperatorShellTopBar")');
     expect(manifestLoaderSource).toContain('import("@/components/shell/AppShellWorkspaceFooter")');
     expect(manifestLoaderSource).toContain('import("@/components/shell/AppShellIdleOverlays")');
     expect(manifestLoaderSource).toContain('import("@/components/dev-testing/DevTestingShellShortcuts")');
@@ -88,27 +91,15 @@ describe("operator shell deferred imports (TB-2118)", () => {
     expect(manifestLoaderSource).toContain('import("@/components/shell/OperatorShellAccessRedirectsHost")');
     expect(manifestLoaderSource).toContain('import("@/components/AppToaster")');
     expect(manifestLoaderSource).toContain('import("@/components/RouteAnnouncer")');
-    expect(deferredSource).toContain("app-shell-workspace-footer");
-    expect(deferredSource).toContain("app-shell-idle-overlays");
-    expect(deferredSource).toContain("app-shell-dev-testing-shortcuts");
-    expect(deferredSource).toContain("app-shell-telemetry-bundle");
-    expect(deferredSource).toContain("app-shell-session-idle-timeout");
-    expect(deferredSource).toContain("app-shell-auth-panel");
-    expect(deferredSource).toContain("app-shell-sync-active-run");
-    expect(deferredSource).toContain("app-shell-main-content-gate");
-    expect(deferredSource).toContain("app-shell-access-redirects-host");
-    expect(deferredSource).toContain("app-shell-toaster");
-    expect(deferredSource).toContain("app-shell-route-announcer");
-  });
-
-  it("keeps remaining shell modules on inline dynamic imports", () => {
-    expect(deferredSource).toContain("next/dynamic");
-    expect(deferredSource).toContain('import("./OperatorShellTopBar")');
-    expect(deferredSource).toContain('import("./AppShellKeyboardShortcutBoundary")');
-    expect(deferredSource).toContain('import("@/components/ColorModeToggle")');
-    expect(deferredSource).toContain('import("@/components/AuthorityThemeToggle")');
-    expect(deferredSource).toContain('import("@/components/ShellThemePreferencesAppearanceVocabularyRail")');
-    expect(deferredSource).toContain("deferredChunkLoader");
+    expect(manifestLoaderSource).toContain('import("@/components/shell/AppShellKeyboardShortcutBoundary")');
+    expect(manifestLoaderSource).toContain('import("@/components/ColorModeToggle")');
+    expect(manifestLoaderSource).toContain('import("@/components/AuthorityThemeToggle")');
+    expect(manifestLoaderSource).toContain('import("@/components/ShellThemePreferencesAppearanceVocabularyRail")');
+    expect(deferredSource).toContain("operator-shell-top-bar");
+    expect(deferredSource).toContain("app-shell-keyboard-shortcut-boundary");
+    expect(deferredSource).toContain("app-shell-color-mode-toggle");
+    expect(deferredSource).toContain("app-shell-authority-theme-toggle");
+    expect(deferredSource).toContain("app-shell-theme-preferences-vocabulary-rail");
   });
 
   it("keeps heavy top-bar modules off the sync import graph", () => {
