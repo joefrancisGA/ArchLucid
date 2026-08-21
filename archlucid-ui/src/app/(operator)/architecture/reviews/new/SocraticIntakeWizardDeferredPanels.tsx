@@ -2,12 +2,11 @@
 
 import dynamic from "next/dynamic";
 
-export const DraftIntakeDecisionReceiptCard = dynamic(
-  () =>
-    import("@/components/draft-intake/DraftIntakeDecisionReceiptCard").then(
-      (module) => module.DraftIntakeDecisionReceiptCard,
-    ),
-  { loading: () => null },
+import { createDeferredComponentFromManifest } from "@/lib/operator/load-deferred-chunk-from-manifest";
+
+export const DraftIntakeDecisionReceiptCard = createDeferredComponentFromManifest(
+  "reviews-new-draft-intake-decision-receipt",
+  { suppressLoading: true },
 );
 
 export const SocraticIntakeWizardAdvancedRail = dynamic(

@@ -15,6 +15,7 @@ import { MARKETING_CHUNK_MANIFEST } from "@/lib/operator/marketing-chunk-manifes
 import { OPERATOR_HOME_CHUNK_MANIFEST } from "@/lib/operator/operator-home-chunk-manifest";
 import { OPERATOR_SHELL_TOP_BAR_CHUNK_MANIFEST } from "@/lib/operator/operator-shell-top-bar-chunk-manifest";
 import { POLICY_PACKS_AUTHORING_CHUNK_MANIFEST } from "@/lib/operator/policy-packs-authoring-chunk-manifest";
+import { REVIEWS_NEW_CHUNK_MANIFEST } from "@/lib/operator/reviews-new-chunk-manifest";
 import { REVIEWS_HUB_CHUNK_MANIFEST } from "@/lib/operator/reviews-hub-chunk-manifest";
 import { RUN_DETAIL_CHUNK_MANIFEST } from "@/lib/operator/run-detail-chunk-manifest";
 import { SIGNED_RECORDS_LIST_CHUNK_MANIFEST } from "@/lib/operator/signed-records-list-chunk-manifest";
@@ -433,6 +434,34 @@ function resolveDeferredChunkImportLoader(
       return deferredChunkLoader(() =>
         import("@/components/MarketingAnalyticsConsentBanner").then(
           (module) => module.MarketingAnalyticsConsentBanner,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "reviews-new-quick-review-advanced-config":
+      return deferredChunkLoader(() =>
+        import("@/components/usability/QuickReviewAdvancedConfigAccordion").then(
+          (module) => module.QuickReviewAdvancedConfigAccordion,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "reviews-new-wizard-evidence-upload":
+      return deferredChunkLoader(() =>
+        import("@/components/usability/WizardEvidenceUploadZone").then((module) => module.WizardEvidenceUploadZone),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "reviews-new-wizard-package-preview":
+      return deferredChunkLoader(() =>
+        import("@/components/usability/WizardPackagePreview").then((module) => module.WizardPackagePreview),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "reviews-new-cto-demo-fast-create":
+      return deferredChunkLoader(() =>
+        import("@/components/cto-demo/CtoDemoFastCreatePanel").then((module) => module.CtoDemoFastCreatePanel),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "reviews-new-cto-demo-review-mode-callout":
+      return deferredChunkLoader(() =>
+        import("@/components/cto-demo/CtoDemoReviewModeCallout").then((module) => module.CtoDemoReviewModeCallout),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "reviews-new-draft-intake-decision-receipt":
+      return deferredChunkLoader(() =>
+        import("@/components/draft-intake/DraftIntakeDecisionReceiptCard").then(
+          (module) => module.DraftIntakeDecisionReceiptCard,
         ),
       ) as () => Promise<ComponentType<Record<string, unknown>>>;
     case "reviews-hub-inventory":
@@ -941,6 +970,11 @@ export const OPERATOR_HOME_DEFERRED_CHUNK_LOADER_IDS: readonly string[] = OPERAT
 
 /** Reviews-hub manifest ids that have registered import loaders (manifest import-test guard). */
 export const REVIEWS_HUB_DEFERRED_CHUNK_LOADER_IDS: readonly string[] = REVIEWS_HUB_CHUNK_MANIFEST.map(
+  (entry) => entry.id,
+);
+
+/** Reviews-new manifest ids that have registered import loaders (manifest import-test guard). */
+export const REVIEWS_NEW_DEFERRED_CHUNK_LOADER_IDS: readonly string[] = REVIEWS_NEW_CHUNK_MANIFEST.map(
   (entry) => entry.id,
 );
 

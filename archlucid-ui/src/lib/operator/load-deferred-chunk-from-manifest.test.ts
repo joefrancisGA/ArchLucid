@@ -11,6 +11,7 @@ import {
   OPERATOR_SHELL_TOP_BAR_DEFERRED_CHUNK_LOADER_IDS,
   POLICY_PACKS_AUTHORING_DEFERRED_CHUNK_LOADER_IDS,
   REVIEWS_HUB_DEFERRED_CHUNK_LOADER_IDS,
+  REVIEWS_NEW_DEFERRED_CHUNK_LOADER_IDS,
   RUN_DETAIL_DEFERRED_CHUNK_LOADER_IDS,
   SIGNED_RECORDS_LIST_DEFERRED_CHUNK_LOADER_IDS,
   SPONSOR_ROI_DASHBOARD_DEFERRED_CHUNK_LOADER_IDS,
@@ -24,6 +25,7 @@ import { OPERATOR_HOME_CHUNK_MANIFEST } from "@/lib/operator/operator-home-chunk
 import { OPERATOR_SHELL_TOP_BAR_CHUNK_MANIFEST } from "@/lib/operator/operator-shell-top-bar-chunk-manifest";
 import { POLICY_PACKS_AUTHORING_CHUNK_MANIFEST } from "@/lib/operator/policy-packs-authoring-chunk-manifest";
 import { REVIEWS_HUB_CHUNK_MANIFEST } from "@/lib/operator/reviews-hub-chunk-manifest";
+import { REVIEWS_NEW_CHUNK_MANIFEST } from "@/lib/operator/reviews-new-chunk-manifest";
 import { RUN_DETAIL_CHUNK_MANIFEST } from "@/lib/operator/run-detail-chunk-manifest";
 import { SIGNED_RECORDS_LIST_CHUNK_MANIFEST } from "@/lib/operator/signed-records-list-chunk-manifest";
 import { SPONSOR_ROI_DASHBOARD_CHUNK_MANIFEST } from "@/lib/operator/sponsor-roi-dashboard-chunk-manifest";
@@ -42,6 +44,13 @@ describe("loadDeferredChunkFromManifest (TB-2371)", () => {
         continue;
       }
 
+      expect(() => loadDeferredChunkFromManifest(entry.id)).not.toThrow();
+    }
+  });
+
+  it("registers import loaders for every reviews-new manifest entry", () => {
+    for (const entry of REVIEWS_NEW_CHUNK_MANIFEST) {
+      expect(REVIEWS_NEW_DEFERRED_CHUNK_LOADER_IDS).toContain(entry.id);
       expect(() => loadDeferredChunkFromManifest(entry.id)).not.toThrow();
     }
   });
