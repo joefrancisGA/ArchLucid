@@ -211,7 +211,7 @@ export const RUN_DETAIL_CHUNK_MANIFEST: readonly DeferredChunkManifestEntry[] = 
   },
   {
     id: "run-detail-manifest-summary-section",
-    label: "Loading manifest summary",
+    label: "Loading architecture package summary",
     variant: "panel",
     modulePath: "@/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailManifestSummarySection",
     exportName: "RunDetailManifestSummarySection",
@@ -260,7 +260,7 @@ export const RUN_DETAIL_CHUNK_MANIFEST: readonly DeferredChunkManifestEntry[] = 
   },
   {
     id: "run-detail-sample-review-package-summary",
-    label: "Loading sample review package",
+    label: "Loading sample architecture package",
     variant: "panel",
     modulePath: "@/components/SampleReviewPackageSummary",
     exportName: "SampleReviewPackageSummary",
@@ -386,7 +386,7 @@ export const RUN_DETAIL_CHUNK_MANIFEST: readonly DeferredChunkManifestEntry[] = 
   },
   {
     id: "run-detail-review-package-primary-action",
-    label: "Loading review package action",
+    label: "Loading architecture package action",
     variant: "panel",
     modulePath: "@/app/(operator)/architecture/reviews/[reviewId]/_sections/ReviewPackagePrimaryActionTabAware",
     exportName: "ReviewPackagePrimaryActionTabAware",
@@ -414,7 +414,7 @@ export const RUN_DETAIL_CHUNK_MANIFEST: readonly DeferredChunkManifestEntry[] = 
   },
   {
     id: "run-detail-review-package-section",
-    label: "Loading review package",
+    label: "Loading architecture package",
     variant: "panel",
     modulePath: "@/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailReviewPackageSection",
     exportName: "RunDetailReviewPackageSection",
@@ -449,7 +449,7 @@ export const RUN_DETAIL_CHUNK_MANIFEST: readonly DeferredChunkManifestEntry[] = 
   },
   {
     id: "run-detail-review-package-share-row",
-    label: "Loading review package share row",
+    label: "Loading architecture package share row",
     variant: "panel",
     modulePath: "@/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailReviewPackageShareRow",
     exportName: "RunDetailReviewPackageShareRow",
@@ -463,7 +463,7 @@ export const RUN_DETAIL_CHUNK_MANIFEST: readonly DeferredChunkManifestEntry[] = 
   },
   {
     id: "run-detail-manifest-summary-alerts",
-    label: "Loading manifest summary alerts",
+    label: "Loading architecture package summary alerts",
     variant: "panel",
     modulePath: "@/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailManifestSummaryAlerts",
     exportName: "RunDetailManifestSummaryAlerts",
