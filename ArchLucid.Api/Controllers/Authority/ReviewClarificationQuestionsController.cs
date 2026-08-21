@@ -9,6 +9,7 @@ using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Host.Core.ProblemDetails;
 using ArchLucid.Persistence.Audit;
+using ArchLucid.Persistence.Serialization;
 
 using Asp.Versioning;
 
