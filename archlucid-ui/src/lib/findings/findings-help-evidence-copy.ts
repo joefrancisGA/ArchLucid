@@ -18,7 +18,7 @@ export const FINDINGS_HELP_CLAIM_DISCIPLINE =
 export const FINDINGS_HELP_FOLLOW_UPS_TITLE = "Where to go next";
 
 export const FINDINGS_HELP_SOURCES_INTRO =
-  "Use these follow-ups when a finding needs live triage, evidence search, governance decisions, or product orientation.";
+  "Use these follow-ups when a finding needs live triage, evidence search, approval decisions, or product orientation.";
 
 
 /** Operator Sources — no self-href to `/help/findings`. */

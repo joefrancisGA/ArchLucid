@@ -15,7 +15,7 @@ export const SPONSOR_REPORT_SECTION_LABEL = "Insights";
 export const SPONSOR_REPORT_PAGE_TITLE = BUYER_SPONSOR_REPORT_PAGE_TITLE;
 
 export const SPONSOR_REPORT_PAGE_SUBTITLE =
-  "Summarize finalized review activity, material findings, governance decisions, and measurable outcomes for the selected reporting period, then export the sponsor report.";
+  "Summarize finalized review activity, material findings, approval decisions, and measurable outcomes for the selected reporting period, then export the sponsor report.";
 
 export const SPONSOR_REPORT_PATH = "/insights/sponsor-report";
 export const SPONSOR_REPORT_ROI_SUMMARY_PATH = "/insights/roi-summary";

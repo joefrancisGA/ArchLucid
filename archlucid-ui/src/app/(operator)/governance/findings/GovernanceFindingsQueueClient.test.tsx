@@ -78,7 +78,7 @@ vi.mock("@/lib/use-nav-surface", () => ({
     mutationCapability: false,
     layerGuidance: {
       layerBadge: "Findings",
-      headline: "Track architecture risks created from accepted findings, waivers, exceptions, and governance decisions.",
+      headline: "Track architecture risks created from accepted findings, waivers, exceptions, and approval decisions.",
       useWhen: "Start with open risks, expiring exceptions, or risks without owners.",
       firstPilotNote: null,
       enterpriseFootnote: "Each row should trace back to its source review, evidence trail, and finalized review record.",
@@ -219,7 +219,7 @@ describe("GovernanceFindingsQueueClient", () => {
     expect(await screen.findByTestId("governance-findings-empty-state")).toBeInTheDocument();
     expect(screen.getByText("No risks recorded for this review")).toBeInTheDocument();
     expect(
-      screen.getByText(/Risks appear here when accepted findings, waivers, exceptions, or governance decisions/),
+      screen.getByText(/Risks appear here when accepted findings, waivers, exceptions, or approval decisions/),
     ).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Open reviews" })).toHaveAttribute(
       "href",

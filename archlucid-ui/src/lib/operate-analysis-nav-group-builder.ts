@@ -122,7 +122,7 @@ export class OperateAnalysisNavGroupBuilder extends NavGroupBuilderBase {
       {
         href: SPONSOR_REPORT_ROI_SUMMARY_PATH as typeof SPONSOR_REPORT_ROI_SUMMARY_PATH & "/insights/roi-summary",
         label: OPERATOR_NAV_LINK_LABELS.roiReport,
-        title: "ROI summary — hours estimate from severities and governance blocks",
+        title: "ROI summary — hours estimate from severities and approval-check blocks",
         icon: TrendingUp,
         tier: "extended",
         requiredAuthority: "ReadAuthority",

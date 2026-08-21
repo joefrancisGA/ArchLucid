@@ -53,7 +53,7 @@ describe("InviteReviewerPageView", () => {
 
     expect(screen.getByTestId("invite-reviewer-reader-capabilities")).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Reader role capabilities:" })).toBeInTheDocument();
-    expect(screen.getByText("View reviews, findings, and governance decisions")).toBeInTheDocument();
+    expect(screen.getByText("View reviews, findings, and approval decisions")).toBeInTheDocument();
     expect(screen.getByText("Export finalized review records and audit CSVs")).toBeInTheDocument();
     expect(screen.getByText("Cannot approve governance requests")).toBeInTheDocument();
     expect(screen.getByText("Cannot finalize reviews")).toBeInTheDocument();

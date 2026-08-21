@@ -53,7 +53,7 @@ export type SponsorDashboardHelpItem = {
 export const SPONSOR_DASHBOARD_HELP_FEATURE_ITEMS: readonly SponsorDashboardHelpItem[] = [
   {
     label: "Portfolio KPI tiles",
-    detail: "Track finalized reviews, material findings, and governance decisions for the current workspace scope.",
+    detail: "Track finalized reviews, material findings, and approval decisions for the current workspace scope.",
   },
   {
     label: "ROI trends",
@@ -86,7 +86,7 @@ export const SPONSOR_DASHBOARD_HELP_HOW_TO_READ_STEPS = [
 export const SPONSOR_DASHBOARD_HELP_BEFORE_YOU_START_TITLE = "Before you start";
 
 export const SPONSOR_DASHBOARD_HELP_BEFORE_YOU_START_BODY =
-  "Sponsor dashboard figures reflect finalized reviews and governance activity in the selected workspace or project — confirm scope in the header before briefing sponsors or exporting portfolio data.";
+  "Sponsor dashboard figures reflect finalized reviews and approval activity in the selected workspace or project — confirm scope in the header before briefing sponsors or exporting portfolio data.";
 
 export const SPONSOR_DASHBOARD_HELP_CLAIM_HEADING_ID = "help-sponsor-dashboard-claim-discipline-heading" as const;
 

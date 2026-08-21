@@ -111,7 +111,7 @@ export const GOVERNANCE_APPROVAL_HELP_ROLES: readonly GovernanceApprovalHelpRole
     description: "Access approved assurance materials and review evidence made available for diligence.",
     tasks: [
       "Open the trust center for public and procurement-facing assurance artifacts.",
-      "Review evidence attached to approved reviews and recorded governance decisions.",
+      "Review evidence attached to approved reviews and recorded approval decisions.",
       "Request additional diligence materials through your organization's security contact.",
       "Understand which artifacts are public, restricted to authenticated users, or under NDA.",
     ],
@@ -119,7 +119,7 @@ export const GOVERNANCE_APPROVAL_HELP_ROLES: readonly GovernanceApprovalHelpRole
   {
     id: "platform-engineer",
     title: "Platform engineer",
-    description: "Attach CI, deployment, and operational evidence to support governance decisions.",
+    description: "Attach CI, deployment, and operational evidence to support approval decisions.",
     tasks: [
       "Attach CI and build evidence to the review before finalize.",
       "Link deployment and environment validation results reviewers can inspect.",

@@ -37,7 +37,7 @@ export function modelExecutionProfileDescriptor(profile: ModelExecutionProfile):
         summary: "Lower token spend for routine architecture reviews.",
         tradeoffs: [
           "Uses economy model tiers across agent roles",
-          "May reduce depth on complex governance decisions",
+          "May reduce depth on complex approval decisions",
         ],
       };
     case "Balanced":

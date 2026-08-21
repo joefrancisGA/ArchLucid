@@ -117,7 +117,7 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
   "governance-findings": {
     layerBadge: "Findings",
     headline:
-      "Track architecture risks created from accepted findings, waivers, exceptions, and governance decisions.",
+      "Track architecture risks created from accepted findings, waivers, exceptions, and approval decisions.",
     useWhen:
       "Use this register to assign owners, monitor aging risks, review exceptions before expiry, and prepare audit evidence.",
     firstPilotNote:
@@ -185,14 +185,14 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
     layerBadge: "Sponsor report",
     headline: "Pilot outcomes from finalized reviews for sponsor sponsors.",
     useWhen:
-      "After you finalize a review, summarize pilot outcomes here — activity, findings, governance decisions, and exportable sponsor proof for the selected period.",
+      "After you finalize a review, summarize pilot outcomes here — activity, findings, approval decisions, and exportable sponsor proof for the selected period.",
     firstPilotNote:
       "First-use path: create review → execute analysis → finalize → open pilot outcomes on this page (or export from review detail).",
     omitReviewPackageScopeHelp: true,
   },
   "value-report-roi": {
     layerBadge: "Sponsor report",
-    headline: "Estimated hours saved from review findings and governance blocks.",
+    headline: "Estimated hours saved from review findings and approval-check blocks.",
     useWhen:
       "When champions need a defensible hours story before negotiating loaded cost internally; pairs with Workspace health.",
     firstPilotNote: "Hours-first estimate from finalized reviews in the selected period.",
@@ -232,11 +232,11 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
     firstPilotNote:
       "After Pilot proof when governance leads need automated follow-up instead of calendar reminders for recurring architecture reviews.",
     enterpriseFootnote:
-      "Schedules clone a finalized review on the cadence you define; manage approvals and risk resolve on linked governance surfaces.",
+      "Schedules clone a finalized review on the cadence you define; manage approvals and risk resolve on linked approval surfaces.",
   },
   exceptions: {
     layerBadge: "Governance",
-    headline: "Track active waivers, expirations, owners, and linked governance decisions.",
+    headline: "Track active waivers, expirations, owners, and linked approval decisions.",
     useWhen:
       "Use this page to track owner, expiration, evidence, and the linked decision so exceptions do not become unmanaged risk.",
     firstPilotNote:
@@ -249,7 +249,7 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
     headline: "Packs in scope, published versions, and effective policy.",
     useWhen: "Start by reviewing inventory and diffs; publish or assign when your role allows.",
     firstPilotNote: "After Pilot proof when you steward pack publish and assignment.",
-    enterpriseFootnote: "Inspect registered packs and active governance rule layers for your scope.",
+    enterpriseFootnote: "Inspect registered packs and active policy rule layers for your scope.",
   },
   "alert-rules": {
     layerBadge: "Governance",

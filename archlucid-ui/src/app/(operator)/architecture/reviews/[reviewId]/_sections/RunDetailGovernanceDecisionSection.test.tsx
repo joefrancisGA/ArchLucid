@@ -48,7 +48,7 @@ describe("RunDetailGovernanceDecisionSection", () => {
     expect(screen.getByRole("link", { name: "Resolve outcomes help" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Audit trail help" })).toBeInTheDocument();
     expect(screen.getByTestId("run-detail-governance-claim-discipline")).toHaveTextContent(
-      /Where governance decisions are recorded/i,
+      /Where approval decisions are recorded/i,
     );
     expect(screen.getByTestId("run-detail-governance-claim-discipline")).toHaveTextContent(/not the committed/i);
   });

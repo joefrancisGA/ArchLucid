@@ -32,7 +32,7 @@ describe("invite-reviewer-flow", () => {
     const labels = INVITE_REVIEWER_READER_CAPABILITIES.map((item) => item.label);
 
     expect(labels).toEqual([
-      "View reviews, findings, and governance decisions",
+      "View reviews, findings, and approval decisions",
       "Export finalized review records and audit CSVs",
       "Cannot approve governance requests",
       "Cannot finalize reviews",

@@ -45,7 +45,7 @@ describe("RoiTelemetryCard", () => {
     );
 
     expect(screen.getByText("Findings counted")).toBeInTheDocument();
-    expect(screen.getByText("Governance blocks")).toBeInTheDocument();
+    expect(screen.getByText("Approval-check blocks")).toBeInTheDocument();
     expect(screen.getByText(/Confidence:/)).toBeInTheDocument();
     expect(screen.getByText("$1,800")).toBeInTheDocument();
   });

@@ -49,7 +49,7 @@ const suggestions: Suggestion[] = [
   {
     title: "Review policy packs",
     href: GOVERNANCE_POLICY_PACKS_PATH,
-    description: "Versions, effective content, and how governance rules attach to your scope.",
+    description: "Versions, effective content, and how policy rules attach to your scope.",
     sidebarNote: `Expand Governance in the sidebar, or use “${SHOW_ALL_DESTINATIONS.show}” if groups are hidden.`,
   },
 ];

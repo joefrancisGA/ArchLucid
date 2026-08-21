@@ -65,7 +65,7 @@ export const REVIEWS_HUB_COMPARE_HINT = "Compare changes between finalized revie
 export const REVIEWS_HUB_RECENT_EMPTY_TITLE = "No reviews yet";
 
 export const REVIEWS_HUB_RECENT_EMPTY_BODY =
-  `Architecture reviews are where findings, evidence, approvals, and governance decisions are recorded. ${REVIEWS_HUB_ARCHITECTURE_INPUT_HINT}`;
+  `Architecture reviews are where findings, evidence, approvals, and approval decisions are recorded. ${REVIEWS_HUB_ARCHITECTURE_INPUT_HINT}`;
 
 export const REVIEWS_HUB_RECENT_EMPTY_PRIMARY_LABEL = BUYER_START_ARCHITECTURE_REVIEW_CTA;
 
@@ -76,11 +76,11 @@ export const REVIEWS_HUB_RECENT_EMPTY_WITH_DRAFT_TITLE = "No reviews yet";
 
 /** Empty inventory when exactly one draft — header Continue owns the draft chooser. */
 export const REVIEWS_HUB_RECENT_EMPTY_WITH_SOLE_DRAFT_BODY =
-  "Architecture reviews are where findings, evidence, approvals, and governance decisions are recorded. Continue editing from the header, then start a review when ready.";
+  "Architecture reviews are where findings, evidence, approvals, and approval decisions are recorded. Continue editing from the header, then start a review when ready.";
 
 /** Empty inventory when multiple drafts — supporting strip lists architectures ready for review. */
 export const REVIEWS_HUB_RECENT_EMPTY_WITH_DRAFTS_BODY =
-  "Architecture reviews are where findings, evidence, approvals, and governance decisions are recorded. Pick an architecture ready for review below, or start a new review.";
+  "Architecture reviews are where findings, evidence, approvals, and approval decisions are recorded. Pick an architecture ready for review below, or start a new review.";
 
 /** @deprecated Prefer sole/multi bodies; kept for callers that only know drafts exist. */
 export const REVIEWS_HUB_RECENT_EMPTY_WITH_DRAFT_BODY = REVIEWS_HUB_RECENT_EMPTY_WITH_DRAFTS_BODY;

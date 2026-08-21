@@ -32,7 +32,7 @@ export const SPONSOR_WORKSPACE_HEALTH_CLAIM_DISCIPLINE =
   "These tiles are workspace KPI estimates — not a full audit export. Hours and SLA figures are planning proxies.";
 
 export const SPONSOR_WORKSPACE_HEALTH_SOURCES_INTRO =
-  "Open row-level governance surfaces before briefing sponsors from these KPI tiles.";
+  "Open row-level approval and audit surfaces before briefing sponsors from these KPI tiles.";
 
 export type SponsorWorkspaceHealthSourceLink = {
   readonly label: string;

@@ -51,7 +51,7 @@ export function GovernanceBypassAuditPanel(): React.JSX.Element {
       const loaded = await listRecentGovernanceBypassAuditEvents({ days: 30, take: 25 });
       setEvents(loaded);
     } catch (error) {
-      setErrorMessage(error instanceof Error ? error.message : "Could not load governance bypass audit events.");
+      setErrorMessage(error instanceof Error ? error.message : "Could not load approval bypass audit events.");
     } finally {
       setLoading(false);
     }
@@ -93,7 +93,7 @@ export function GovernanceBypassAuditPanel(): React.JSX.Element {
 
         {loading ? (
           <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} role="status">
-            Loading governance bypass events…
+            Loading approval bypass events…
           </p>
         ) : null}
 
@@ -104,7 +104,7 @@ export function GovernanceBypassAuditPanel(): React.JSX.Element {
         ) : null}
 
         {!loading && !errorMessage && events.length === 0 ? (
-          <OperatorEmptyState title="No governance bypass events in the last 30 days." />
+          <OperatorEmptyState title="No approval bypass events in the last 30 days." />
         ) : null}
 
         {!loading && !errorMessage && events.length > 0 ? (
