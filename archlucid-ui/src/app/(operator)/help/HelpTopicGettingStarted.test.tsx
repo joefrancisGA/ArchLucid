@@ -138,7 +138,7 @@ describe("HelpGettingStartedGuideView", () => {
     expect(screen.getByTestId("getting-started-mental-model-diagram")).toBeInTheDocument();
     expect(screen.getByTestId("getting-started-plain-language-table")).toBeInTheDocument();
     expect(screen.getByText("Architecture package")).toBeInTheDocument();
-    expect(screen.getByText("Governance approval")).toBeInTheDocument();
+    expect(screen.getByText("Resolve outcomes")).toBeInTheDocument();
   });
 
   it("renders the authority pipeline with text stages and Mermaid diagram", () => {

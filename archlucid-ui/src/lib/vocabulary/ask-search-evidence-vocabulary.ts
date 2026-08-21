@@ -36,7 +36,7 @@ export type AskSearchEvidenceVocabularyModel = {
 export const ASK_SEARCH_EVIDENCE_HEADING = "Ask and Search serve different purposes" as const;
 
 export const ASK_SEARCH_EVIDENCE_WHY_TWO =
-  "Ask answers questions about a finalized review and cites evidence from the sealed review record. Search finds findings, decisions, and sealed review records across architecture packages in the evidence trail. Use Ask when you have a question; open Search when you need to locate evidence across packages." as const;
+  "Ask answers questions about a finalized review and cites evidence from the finalized review record. Search finds findings, decisions, and finalized review records across architecture packages in the evidence trail. Use Ask when you have a question; open Search when you need to locate evidence across packages." as const;
 
 export const ASK_SEARCH_EVIDENCE_COMPACT_LINE =
   "Ask answers with citations; Search finds evidence across architecture packages — open the other when you need both." as const;
@@ -52,7 +52,7 @@ export const ASK_SEARCH_EVIDENCE_SEARCH_LINK: AskSearchEvidenceLink = {
   id: "search",
   label: "Search review evidence",
   href: SEARCH_REVIEW_EVIDENCE_PATH,
-  whenToUse: "Find findings, decisions, and sealed review records across architecture packages.",
+  whenToUse: "Find findings, decisions, and finalized review records across architecture packages.",
 };
 
 /** Pairwise model for Ask review questions ↔ Search review evidence (fixed routes). */

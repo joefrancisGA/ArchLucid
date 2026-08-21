@@ -100,7 +100,7 @@ describe("HelpDecisionRegisterGuideView", () => {
       expect(screen.getByRole("link", { name: source.label })).toHaveAttribute("href", source.href);
     }
 
-    expect(screen.getByRole("link", { name: "Sealed review records" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Finalized review records" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Governance approval help" })).toBeInTheDocument();
 
     for (const heading of DECISION_REGISTER_HELP_GUIDE_HEADINGS) {

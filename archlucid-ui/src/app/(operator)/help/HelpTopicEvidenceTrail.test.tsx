@@ -46,7 +46,7 @@ const EVIDENCE_TRAIL_LINEAGE_NODES = [
   "evidence and artifacts",
   "findings",
   "governance decisions",
-  "sealed review record",
+  "finalized review record",
   "exports and downloads",
 ] as const;
 
@@ -164,7 +164,7 @@ describe("HelpEvidenceTrailGuideView (TB-1360–TB-1364)", () => {
     expect(diagram).toHaveTextContent("Evidence and artifacts");
     expect(diagram).toHaveTextContent("Findings");
     expect(diagram).toHaveTextContent("Governance decisions");
-    expect(diagram).toHaveTextContent("Sealed review record");
+    expect(diagram).toHaveTextContent("Finalized review record");
     expect(diagram).toHaveTextContent("Exports and downloads");
 
     const diagramText = diagram.textContent ?? "";

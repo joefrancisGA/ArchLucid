@@ -81,6 +81,6 @@ describe("usability improvements", () => {
 
   it("canonical product terms use audit trail and sealed review record", () => {
     expect(AUDIT_TRAIL_LABEL).toBe("Audit trail");
-    expect(SIGNED_MANIFEST_LABEL).toBe("Sealed review record");
+    expect(SIGNED_MANIFEST_LABEL).toBe("Finalized review record");
   });
 });

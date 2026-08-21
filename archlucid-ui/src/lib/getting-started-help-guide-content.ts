@@ -121,7 +121,7 @@ export const GETTING_STARTED_HELP_PLAIN_LANGUAGE_TERMS: readonly GettingStartedP
       "Versioned governance standards and rules applied to reviews for your workspace or project.",
   },
   {
-    term: "Governance approval",
+    term: "Resolve outcomes",
     definition:
       "Formal sign-off workflow when a review requires approver acknowledgement before release.",
   },

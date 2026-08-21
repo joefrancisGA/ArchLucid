@@ -143,7 +143,7 @@ describe("WhyArchLucidPage (proof page snapshot)", () => {
     await waitFor(() => {
       expect(screen.getByTestId("why-archlucid-counters")).toBeInTheDocument();
       expect(screen.getByRole("region", { name: "Sponsor first-value report body" })).toHaveTextContent("Demo body.");
-      expect(screen.getByTestId("why-archlucid-citations")).toHaveTextContent("Sealed review record");
+      expect(screen.getByTestId("why-archlucid-citations")).toHaveTextContent("Finalized review record");
     });
 
     expect(container.firstChild).toMatchSnapshot();

@@ -150,7 +150,7 @@ describe("resolveBuyerCtoDemoTourNavigation", () => {
 
     expect(nav.prev).toBeNull();
 
-    expect(nav.next?.label).toBe("Sealed review record");
+    expect(nav.next?.label).toBe("Finalized review record");
 
     expect(nav.presenterLine.length).toBeGreaterThan(20);
 
@@ -216,7 +216,7 @@ describe("buildCtoDemoRunOfShowMarkdown", () => {
 
     expect(markdown).toContain("Sponsor report");
 
-    expect(markdown).toContain("Sealed review record");
+    expect(markdown).toContain("Finalized review record");
 
     expect(markdown).toContain("Evidence graph");
 

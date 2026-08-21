@@ -239,10 +239,10 @@ describe("RunTrustEvidenceCardSection", () => {
 
     render(<RunTrustEvidenceCardSection card={card()} runId={RUN_ID} />);
 
-    expect(screen.getByText(/Step 3: Sealed review record/i)).toBeInTheDocument();
+    expect(screen.getByText(/Step 3: Finalized review record/i)).toBeInTheDocument();
     expect(screen.queryByText("Golden manifest snapshot")).not.toBeInTheDocument();
     expect(screen.queryByText(/Golden manifest snapshot detail/i)).not.toBeInTheDocument();
-    expect(screen.getAllByText("Sealed review record").length).toBeGreaterThanOrEqual(2);
+    expect(screen.getAllByText("Finalized review record").length).toBeGreaterThanOrEqual(2);
     expect(screen.getByText("Scope and limitations")).toBeInTheDocument();
   });
 });

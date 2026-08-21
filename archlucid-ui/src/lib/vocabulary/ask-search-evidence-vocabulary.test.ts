@@ -18,7 +18,7 @@ describe("ask-search-evidence-vocabulary (TB-2231)", () => {
 
     expect(model.heading).toBe(ASK_SEARCH_EVIDENCE_HEADING);
     expect(model.whyTwo).toBe(ASK_SEARCH_EVIDENCE_WHY_TWO);
-    expect(model.whyTwo.toLowerCase()).toContain("sealed review record");
+    expect(model.whyTwo.toLowerCase()).toContain("finalized review record");
     expect(model.whyTwo.toLowerCase()).toContain("architecture package");
     expect(model.whyTwo.toLowerCase()).toContain("evidence trail");
     expect(model.whyTwo.toLowerCase()).not.toContain("find a page");

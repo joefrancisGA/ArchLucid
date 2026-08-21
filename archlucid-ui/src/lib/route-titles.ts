@@ -2,6 +2,7 @@ import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture/architecture-workf
 import { canonicalizeLegacyOperatorRoutePath } from "@/lib/canonicalize-legacy-operator-route-path";
 import { isInvalidDynamicRouteToken } from "@/lib/route-dynamic-param";
 import { ROUTE_TITLES } from "@/lib/route-static-titles";
+import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
 
 /** Human-readable title for route announcements and accessibility copy. */
 export function getRouteTitle(pathname: string): string {
@@ -43,7 +44,7 @@ export function getRouteTitle(pathname: string): string {
   }
 
   if (/^\/(?:governance\/)?(?:signed|sealed)-records\/[^/]+$/.test(normalized)) {
-    return "Sealed review record";
+    return SIGNED_MANIFEST_LABEL;
   }
 
   if (/^\/governance\/policy-packs\/[^/]+$/.test(normalized)) {

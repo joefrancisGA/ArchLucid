@@ -7,6 +7,7 @@ import {
   BUYER_HOME_EXAMPLE_PACKAGE_HEADING,
   BUYER_HOME_EXAMPLE_PACKAGE_LEAD,
   BUYER_HOME_EXAMPLE_PACKAGE_SHORTCUTS_ARIA,
+  BUYER_VIEW_SIGNED_RECORD_CTA,
 } from "@/lib/buyer/buyer-polish-copy";
 import {
   getCanonicalReviewWorkspaceHref,
@@ -39,7 +40,7 @@ export function SamplePackageShortcutsCard(): React.JSX.Element {
           <Link href={sampleReviewHref}>{BUYER_HOME_EXAMPLE_EXPLORE_LINK}</Link>
         </Button>
         <Button asChild variant="outline" className={CTA_WIDTH.content}>
-          <Link href={manifestHref}>View sealed record</Link>
+          <Link href={manifestHref}>{BUYER_VIEW_SIGNED_RECORD_CTA}</Link>
         </Button>
         <Button asChild variant="outline" className={CTA_WIDTH.content}>
           <Link href={findingsHref}>View findings</Link>

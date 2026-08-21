@@ -13,7 +13,7 @@ describe("ReviewsHubPackageIncludes", () => {
     }
 
     expect(screen.getByText("Architecture description")).toBeInTheDocument();
-    expect(screen.getByText("Sealed review record")).toBeInTheDocument();
+    expect(screen.getByText("Finalized review record")).toBeInTheDocument();
     expect(screen.queryByText("Review record")).not.toBeInTheDocument();
     expect(new Set(REVIEWS_HUB_INCLUDES_ITEMS).size).toBe(REVIEWS_HUB_INCLUDES_ITEMS.length);
   });

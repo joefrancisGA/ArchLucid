@@ -368,12 +368,12 @@ export function OperatorFirstRunWorkflowPanel(props: { exploreCompletedOutput?: 
                 {OPERATOR_SAMPLE_PACKAGE_SHORTCUTS_HEADING}
               </h2>
               <p className={cn("m-0 mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-                Claims Intake is the sample review — start with the sealed review record summary, then review detail or the read-only
+                Claims Intake is the sample review — start with the finalized review record summary, then review detail or the read-only
                 walkthrough. The checklist below is optional.
               </p>
               <p className={cn("m-0 mt-2 font-medium text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
                 <Link className={OPERATOR_BODY_INLINE_LINK_CLASS} href={getShowcaseManifestHref()}>
-                  View sealed record summary
+                  View finalized record summary
                 </Link>{" "}
                 ·{" "}
                 <Link

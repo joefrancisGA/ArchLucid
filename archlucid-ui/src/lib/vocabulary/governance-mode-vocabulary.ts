@@ -37,9 +37,9 @@ const GOVERNANCE_VOCABULARY: GovernanceModeVocabulary = {
   reviewSingular: "Review",
   reviewPlural: "Reviews",
   reviewDetailTitle: "Review detail",
-  goldenManifestLabel: "Sealed review record",
+  goldenManifestLabel: "Finalized review record",
   authorityChainLabel: "Authority chain",
-  manifestSummaryHeading: "Sealed review record summary",
+  manifestSummaryHeading: "Finalized review record summary",
 };
 
 function applyBuyerVocabularyToGovernanceMode(vocabulary: GovernanceModeVocabulary): GovernanceModeVocabulary {

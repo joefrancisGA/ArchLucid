@@ -29,7 +29,7 @@ flowchart LR
   end
 
   subgraph outputs [Committed outputs]
-    SR[Sealed review record]
+    SR[Finalized review record]
     PKG[Exports and downloads]
   end
 

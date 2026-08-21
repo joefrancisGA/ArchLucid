@@ -151,7 +151,7 @@ export function GovernanceWorkflowSubmitSection(props: GovernanceWorkflowSubmitS
               <Label htmlFor="gov-submit-version">
                 Review record version (the{" "}
                 <GlossaryTooltip termKey="golden_manifest" pulseOnFirstSession={false}>
-                  sealed review record
+                  finalized review record
                 </GlossaryTooltip>{" "}
                 label)
               </Label>
@@ -259,7 +259,7 @@ export function GovernanceWorkflowSubmitSection(props: GovernanceWorkflowSubmitS
                   </>
                 ) : (
                   <>
-                    Submitting for governance approval requires additional permissions on your account. You can still review
+                    Submitting for resolve outcomes requires additional permissions on your account. You can still review
                     approvals below — contact your administrator to enable governance submissions for your workspace.
                   </>
                 )}

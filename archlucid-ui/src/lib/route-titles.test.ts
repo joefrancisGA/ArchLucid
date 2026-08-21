@@ -38,8 +38,8 @@ describe("getRouteTitle — dynamic review detail", () => {
 });
 
 describe("getRouteTitle — manifest detail", () => {
-  it("returns Sealed review record", () => {
-    expect(getRouteTitle("/governance/sealed-records/abc-123")).toBe("Sealed review record");
+  it("returns Finalized review record", () => {
+    expect(getRouteTitle("/governance/sealed-records/abc-123")).toBe("Finalized review record");
   });
 });
 

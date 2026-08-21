@@ -35,7 +35,7 @@ describe("FindingDetailOperationalActions", () => {
     );
 
     expect(screen.getByRole("link", { name: "Evidence graph" })).toHaveAttribute("href", "/graph?runId=run-1");
-    expect(screen.getByRole("link", { name: /Open sealed review record/i })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: /Open finalized review record/i })).toHaveAttribute(
       "href",
       "/governance/sealed-records/m1",
     );

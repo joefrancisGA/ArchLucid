@@ -52,7 +52,7 @@ describe("LayerContextStrip", () => {
     const { getByTestId, unmount } = render(
       <LayerContextStrip
         layerId="pilot"
-        buyerRouteOrientation={{ label: "Sealed review record", line: "Demo review record copy." }}
+        buyerRouteOrientation={{ label: "Finalized review record", line: "Demo review record copy." }}
         buyerOperateBackLink={{ label: "Back to review", href: "/architecture/reviews/demo-run" }}
       />,
     );
@@ -70,7 +70,7 @@ describe("LayerContextStrip", () => {
         buyerRouteOrientation={{ label: "View evidence trail", line: "Demo orientation." }}
         buyerGoldenJourneyNav={{
           summaryLine: "Step 3 of 5 · View evidence trail",
-          prev: { label: "Sealed review record", href: "/architecture/reviews/x/sealed-record" },
+          prev: { label: "Finalized review record", href: "/architecture/reviews/x/sealed-record" },
           next: { label: "Governance approval", href: "/governance/approval-queue" },
           currentStepIndex: 2,
         }}
@@ -102,7 +102,7 @@ describe("LayerContextStrip", () => {
         layerId="operate-analysis"
         buyerGoldenJourneyNav={{
           summaryLine: "Step 3 of 5 · View evidence trail",
-          prev: { label: "Sealed review record", href: "/architecture/reviews/x/sealed-record" },
+          prev: { label: "Finalized review record", href: "/architecture/reviews/x/sealed-record" },
           next: { label: "Governance approval", href: "/governance/approval-queue" },
           currentStepIndex: 2,
         }}

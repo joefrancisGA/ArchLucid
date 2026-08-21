@@ -8,7 +8,7 @@ export const BUYER_COMPARE_PAGE_TITLE = "Compare reviews";
 
 export const BUYER_COMPARE_PRIMARY_ACTION_LABEL = "Compare reviews";
 
-export const BUYER_COMPARE_OPEN_SIGNED_REVIEW_RECORD_CTA = "Open sealed review record";
+export const BUYER_COMPARE_OPEN_SIGNED_REVIEW_RECORD_CTA = "Open finalized review record";
 
 export const BUYER_COMPARE_OPEN_EVIDENCE_TRAIL_CTA = "Open evidence trail";
 
@@ -29,7 +29,7 @@ export const COMPARE_REVIEW_RECORD_DIFF_OPERATOR_INTRO =
 export const BUYER_COMPARE_TECHNICAL_APPENDIX_LABEL = "Detailed comparison appendix";
 
 export const BUYER_COMPARE_SECONDARY_PAGE_LEAD =
-  "Load a prior vs. later review pair to see an explicit delta between sealed review records.";
+  "Load a prior vs. later review pair to see an explicit delta between finalized review records.";
 
 export const BUYER_COMPARE_OPEN_FULL_LINK_LABEL = "View review change comparison";
 

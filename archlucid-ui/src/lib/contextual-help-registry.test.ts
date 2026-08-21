@@ -339,7 +339,7 @@ describe("contextual-help-registry (TB-733)", () => {
 
   it("resolves signed-record detail Category-1 help (MMX)", () => {
     expect(contextualHelpForPathname("/governance/sealed-records/demo-manifest")?.whatIsThisPage).toContain(
-      "Sealed review record",
+      "Finalized review record",
     );
     expect(contextualHelpForPathname("/governance/sealed-records/demo-manifest")?.whatToDoNext).toContain(
       "export the review bundle",

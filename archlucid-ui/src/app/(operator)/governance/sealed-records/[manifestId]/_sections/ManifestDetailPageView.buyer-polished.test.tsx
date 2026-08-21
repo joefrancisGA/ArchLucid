@@ -80,7 +80,7 @@ describe("ManifestDetailPageView buyer polish", () => {
 
     const breadcrumb = screen.getByRole("navigation", { name: "Breadcrumb" });
     expect(breadcrumb).toHaveTextContent("Governance");
-    expect(breadcrumb).toHaveTextContent("Sealed review records");
+    expect(breadcrumb).toHaveTextContent("Finalized review records");
 
     expect(screen.getByRole("heading", { level: 2, name: SEALED_RECORD_DETAIL_CLAIM_HEADING })).toBeInTheDocument();
     expect(screen.getByTestId("sealed-record-detail-sources")).toBeInTheDocument();

@@ -111,7 +111,7 @@ describe("review terminology guard", () => {
 
   it("canonical product terms export audit trail label constant", () => {
     expect(AUDIT_TRAIL_LABEL).toBe("Audit trail");
-    expect(SIGNED_MANIFEST_LABEL).toBe("Sealed review record");
+    expect(SIGNED_MANIFEST_LABEL).toBe("Finalized review record");
   });
 
   it("finalize/audit surfaces use one verb and one destination name", () => {

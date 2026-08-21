@@ -8,7 +8,7 @@ describe("projectReviewLifecycleForDisplay (TB-2372)", () => {
 
     expect(projection.manifestStatusLabel).toBe("Finalized");
     expect(projection.finalizeActionLabel).toBe("Finalize review");
-    expect(projection.sealedArtifactLabel).toBe("Sealed review record");
+    expect(projection.sealedArtifactLabel).toBe("Finalized review record");
   });
 
   it("passes through non-committed statuses", () => {

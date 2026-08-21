@@ -16,7 +16,7 @@ describe("governanceModeVocabulary", () => {
 
     expect(vocabulary.reviewPlural).toBe("Reviews");
     expect(vocabulary.reviewDetailTitle).toBe("Review detail");
-    expect(vocabulary.goldenManifestLabel).toBe("Sealed review record");
+    expect(vocabulary.goldenManifestLabel).toBe("Finalized review record");
     expect(vocabulary.authorityChainLabel).toBe("Authority chain");
   });
 });

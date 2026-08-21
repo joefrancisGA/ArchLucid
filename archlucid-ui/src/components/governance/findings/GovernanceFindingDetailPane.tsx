@@ -11,6 +11,7 @@ import { StatusTag } from "@/components/ui/status-tag";
 import { buildPolicyTraceabilityLinksFromRuleId } from "@/lib/findings/finding-policy-evidence-citations";
 import {
   BUYER_GOVERNANCE_FINDINGS_VIEW_EVIDENCE_TRAIL_CTA,
+  BUYER_OPEN_SIGNED_RECORD_CTA,
 } from "@/lib/buyer/buyer-polish-copy";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
@@ -208,7 +209,7 @@ export function GovernanceFindingOperationalHeaderMeta(props: {
               className={OPERATOR_LINK.inline}
               href={governanceFindingManifestRecordHref(row.runId, row.manifestId)}
             >
-              Open sealed record
+              {BUYER_OPEN_SIGNED_RECORD_CTA}
             </Link>
           </div>
         </div>

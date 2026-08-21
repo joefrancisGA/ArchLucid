@@ -81,7 +81,7 @@ export function GovernanceApprovalStoryCard(props: {
         <div className={cn("space-y-2 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
           <p className="m-0 leading-relaxed">
             <span className="font-semibold text-neutral-900 dark:text-neutral-100">Recorded package:</span> finalized review
-            version <span className="font-semibold">{row.manifestVersion}</span> — approved sealed review record for
+            version <span className="font-semibold">{row.manifestVersion}</span> — approved finalized review record for
             this review. Policy basis: <span className="font-semibold">{BUYER_SHOWCASE_POLICY_PACK_LABEL}</span>.
           </p>
           {reviewed ? (

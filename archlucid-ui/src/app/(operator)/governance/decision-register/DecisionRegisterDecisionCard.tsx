@@ -3,6 +3,7 @@ import { cn } from "@/lib/utils";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { BUYER_VIEW_SIGNED_RECORD_CTA } from "@/lib/buyer/buyer-polish-copy";
 import type { ArchitectureDecisionRegisterEntry } from "@/lib/api/governance-stickiness-api";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { signedRecordDetailPath } from "@/lib/signed-records-paths";
@@ -92,7 +93,7 @@ export function DecisionRegisterDecisionCard(props: DecisionRegisterDecisionCard
             <dt className="text-al-text-secondary">Evidence lineage</dt>
             <dd className="m-0">
               <Link className={OPERATOR_LINK.nav} href={signedRecordDetailPath(decision.manifestId)}>
-                View sealed record
+                {BUYER_VIEW_SIGNED_RECORD_CTA}
               </Link>
             </dd>
           </div>

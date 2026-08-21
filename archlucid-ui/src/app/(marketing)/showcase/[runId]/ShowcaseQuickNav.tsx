@@ -3,6 +3,7 @@
 import Link from "next/link";
 import type { ReactElement } from "react";
 
+import { BUYER_OPEN_SIGNED_RECORD_CTA } from "@/lib/buyer/buyer-polish-copy";
 import { ShowcaseFunnelTelemetryAnchor } from "@/lib/marketing/showcase-funnel-telemetry-anchor";
 import { buildAuthSignInHref } from "@/lib/navigation/auth-sign-in-href";
 import {
@@ -85,7 +86,7 @@ export function ShowcaseQuickNav({
               renderMode={renderMode}
               funnelAction="quick_nav_signed_record"
             >
-              Open sealed record
+              {BUYER_OPEN_SIGNED_RECORD_CTA}
             </ShowcaseFunnelTelemetryAnchor>
             <ShowcaseFunnelTelemetryAnchor
               href={findingHref}

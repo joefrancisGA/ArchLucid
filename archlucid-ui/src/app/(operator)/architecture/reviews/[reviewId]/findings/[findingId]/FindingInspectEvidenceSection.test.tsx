@@ -44,7 +44,7 @@ describe("FindingInspectEvidenceSection", () => {
           },
           evidence: [
             {
-              label: "Open sealed record section",
+              label: "Open finalized record section",
               detail: "Lines 12-14 · diagram-1",
               href: "/architecture/reviews/run-1#manifest-summary",
             },

@@ -18,6 +18,7 @@ import {
   getShowcaseManifestHref,
   getShowcaseWalkthroughHref,
 } from "@/lib/buyer/buyer-safe-review-navigation";
+import { BUYER_VIEW_SIGNED_RECORD_CTA } from "@/lib/buyer/buyer-polish-copy";
 import {
   OPERATOR_CARD,
   OPERATOR_LINK,
@@ -174,7 +175,7 @@ export function RunsDashboardRecentTab(props: RunsDashboardRecentTabProps) {
                   <Link href={`/architecture/reviews/${encodeURIComponent(props.showcaseDemoRun.runId)}`}>Review</Link>
                 </Button>
                 <Button asChild variant="outline" size="sm" className="h-8">
-                  <Link href={getShowcaseManifestHref()}>View sealed record</Link>
+                  <Link href={getShowcaseManifestHref()}>{BUYER_VIEW_SIGNED_RECORD_CTA}</Link>
                 </Button>
                 <Button asChild variant="outline" size="sm" className="h-8">
                   <Link
