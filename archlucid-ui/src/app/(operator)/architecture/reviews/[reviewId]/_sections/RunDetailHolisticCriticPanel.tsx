@@ -17,10 +17,12 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export type RunDetailHolisticCriticPanelProps = {
   readonly runId: string;
+  /** Holistic critique requires a committed golden manifest and explanation summary on the API. */
+  readonly hasGoldenManifest: boolean;
 };
 
 export function RunDetailHolisticCriticPanel(props: RunDetailHolisticCriticPanelProps) {
-  const { runId } = props;
+  const { runId, hasGoldenManifest } = props;
   const { blocksLlmExecution } = useLlmMonthlyBudgetExecutionGate();
 
   const [focus, setFocus] = useState("");
@@ -33,7 +35,7 @@ export function RunDetailHolisticCriticPanel(props: RunDetailHolisticCriticPanel
     <Card className="border border-neutral-200 dark:border-neutral-700" data-testid="run-holistic-critic-panel">
       <CardHeader className="pb-3">
         <CardTitle className={cn("text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
-          Holistic critic (exploratory)
+          Holistic critique (exploratory)
         </CardTitle>
         <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
           Exploratory principal-architect critique beyond structured findings — blind spots, alternatives, and pushback. Not a substitute for disposition or finalize gates.
@@ -54,10 +56,18 @@ export function RunDetailHolisticCriticPanel(props: RunDetailHolisticCriticPanel
             data-testid="holistic-critic-focus"
           />
         </div>
+        {!hasGoldenManifest ? (
+          <p
+            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="holistic-critic-readiness"
+          >
+            Available after the review package is committed. Finish the review run so findings and explanation summary exist, then return here for an exploratory critique.
+          </p>
+        ) : null}
         <Button
           type="button"
           size="sm"
-          disabled={busy || blocksLlmExecution || runId.trim().length === 0}
+          disabled={busy || blocksLlmExecution || runId.trim().length === 0 || !hasGoldenManifest}
           data-testid="holistic-critic-generate"
           onClick={() => {
             void (async () => {
