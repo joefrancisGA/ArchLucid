@@ -30,7 +30,7 @@ export const CLAIMS_INTAKE_CANONICAL_PROOF_HREF = `/showcase/${CLAIMS_INTAKE_SAM
 
 /** Secondary regulated-depth sample sentence — not the primary buyer-facing line (TB-980). */
 export const CLAIMS_INTAKE_SECONDARY_BUYER_SENTENCE =
-  "Claims Intake Modernization is ArchLucid's regulated-depth healthcare sample — an architecture review package for intake-to-adjudication flows with HIPAA-aligned evidence you can finalize and export.";
+  "Claims Intake Modernization is ArchLucid's regulated-depth healthcare sample — an architecture package for intake-to-adjudication flows with HIPAA-aligned evidence you can finalize and export.";
 
 /** Registry entry for the Claims Intake regulated-depth sample spine (TB-979). */
 export const CLAIMS_INTAKE_SAMPLE_DEFINITION: SampleScenarioDefinition = {

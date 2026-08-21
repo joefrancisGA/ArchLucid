@@ -1,4 +1,4 @@
-import ArchLucid.ContextIngestion.Models;
+using ArchLucid.ContextIngestion.Models;
 using ArchLucid.Contracts.Persistence.Context;
 using ArchLucid.KnowledgeGraph.Builders;
 using ArchLucid.KnowledgeGraph.Inference;
