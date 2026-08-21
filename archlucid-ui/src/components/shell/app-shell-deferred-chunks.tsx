@@ -10,8 +10,6 @@ import { createDeferredComponentFromManifest } from "@/lib/operator/load-deferre
 import { cn } from "@/lib/utils";
 
 import type { AppShellKeyboardShortcutBoundary } from "@/components/shell/AppShellKeyboardShortcutBoundary";
-import type { AuthorityThemeToggle } from "@/components/AuthorityThemeToggle";
-import type { ColorModeToggle } from "@/components/ColorModeToggle";
 import type { ShellThemePreferencesAppearanceVocabularyRail } from "@/components/ShellThemePreferencesAppearanceVocabularyRail";
 
 const operatorTopBarLoading = (
@@ -92,11 +90,14 @@ export const RouteAnnouncerDeferred = createDeferredComponentFromManifest("app-s
   suppressLoading: true,
 });
 
-export const ColorModeToggleDeferred: ComponentType<React.ComponentProps<typeof ColorModeToggle>> =
-  createDeferredComponentFromManifest("app-shell-color-mode-toggle", { suppressLoading: true });
+export const ColorModeToggleDeferred = createDeferredComponentFromManifest("app-shell-color-mode-toggle", {
+  suppressLoading: true,
+});
 
-export const AuthorityThemeToggleDeferred: ComponentType<React.ComponentProps<typeof AuthorityThemeToggle>> =
-  createDeferredComponentFromManifest("app-shell-authority-theme-toggle", { suppressLoading: true });
+export const AuthorityThemeToggleDeferred = createDeferredComponentFromManifest(
+  "app-shell-authority-theme-toggle",
+  { suppressLoading: true },
+);
 
 export const ShellThemePreferencesAppearanceVocabularyRailDeferred: ComponentType<
   React.ComponentProps<typeof ShellThemePreferencesAppearanceVocabularyRail>
