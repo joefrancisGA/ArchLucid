@@ -3,6 +3,8 @@ namespace ArchLucid.Application.Identity;
 /// <summary>Prevents open redirects while preserving in-app return paths.</summary>
 public static class AuthSignInReturnPathGuard
 {
+    private const int MaxPercentDecodePasses = 8;
+
     public static string? TryNormalize(string? returnPath)
     {
         if (string.IsNullOrWhiteSpace(returnPath))
@@ -44,7 +46,7 @@ public static class AuthSignInReturnPathGuard
     {
         string working = candidate;
 
-        for (int decodePass = 0; decodePass < 3 && working.Contains('%', StringComparison.Ordinal); decodePass++)
+        for (int decodePass = 0; decodePass < MaxPercentDecodePasses && working.Contains('%', StringComparison.Ordinal); decodePass++)
         {
             string decoded;
 
@@ -72,7 +74,19 @@ public static class AuthSignInReturnPathGuard
             normalized = decodedNormalized;
         }
 
+        if (ContainsPercentEncodedPathSeparator(working))
+            return null;
+
         return normalized;
+    }
+
+    private static bool ContainsPercentEncodedPathSeparator(string candidate)
+    {
+        string lower = candidate.ToLowerInvariant();
+
+        return lower.Contains("%2f", StringComparison.Ordinal)
+            || lower.Contains("%5c", StringComparison.Ordinal)
+            || lower.Contains("%2e", StringComparison.Ordinal);
     }
 
     private static bool ContainsControlCharacter(string candidate)
