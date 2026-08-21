@@ -25,6 +25,7 @@ import {
 } from "@/lib/pattern-library-filters";
 import type { PatternLibraryFiltersState } from "@/lib/pattern-library-types";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
+import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import { usePatternLibraryProvenance } from "@/lib/use-pattern-library-provenance";
 import { cn } from "@/lib/utils";
 
@@ -120,7 +121,11 @@ export function PatternLibraryPageClient(): React.JSX.Element {
               }
               actions={[
                 { label: "Start architecture review", href: "/architecture/reviews/new", variant: "primary" },
-                { label: "Open completed sample", href: "/architecture/reviews/claims-intake-modernization", variant: "outline" },
+                {
+                  label: "Open completed sample",
+                  href: `/architecture/reviews/${SHOWCASE_STATIC_DEMO_RUN_ID}`,
+                  variant: "outline",
+                },
               ]}
             />
           ) : null}

@@ -1,5 +1,6 @@
 import { auditTrailNavHref } from "@/lib/audit-nav-paths";
 import { getShowcaseManifestHref } from "@/lib/buyer/buyer-safe-review-navigation";
+import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
 
 export type CtoDemoQuestion = {
@@ -82,7 +83,7 @@ export const CTO_DEMO_QUESTIONS: readonly CtoDemoQuestion[] = [
     question: "Can it integrate with our tools?",
     answer:
       "ArchLucid exposes a documented REST API and CLI; Jira, Teams, and webhooks are on the future-release roadmap.",
-    proofHref: auditTrailNavHref("claims-intake-modernization"),
+    proofHref: auditTrailNavHref(SHOWCASE_STATIC_DEMO_RUN_ID),
     proofLabel: "Audit trail",
     proofQueryParam: "focus=api",
   },

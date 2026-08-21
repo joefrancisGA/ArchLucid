@@ -25,8 +25,8 @@ export type StaticDemoRunsListFallbackOptions = {
    */
   readonly afterAuthorityListFailure?: boolean;
   /**
-   * When the authority API returns **zero** rows for the project (successful empty page), inject the curated Claims
-   * Intake sample — same trust model as {@link afterAuthorityListFailure} for demo/staging hosts without seeded data.
+   * When the authority API returns **zero** rows for the project (successful empty page), inject the curated
+   * Customer Intake sample — same trust model as {@link afterAuthorityListFailure} for demo/staging hosts without seeded data.
    */
   readonly afterEmptyLiveList?: boolean;
 };
@@ -36,7 +36,7 @@ function isRunsListCuratedShowcaseAllowed(): boolean {
 }
 
 /**
- * When the runs list API fails (or returns unusable JSON), serve one curated Claims Intake row so
+ * When the runs list API fails (or returns unusable JSON), serve one curated Customer Intake row so
  * primary nav + `/runs` screenshots stay credible in demo / static-operator deploys.
  */
 export function tryStaticDemoRunSummariesPaged(

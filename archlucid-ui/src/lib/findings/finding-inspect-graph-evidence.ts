@@ -6,7 +6,7 @@ import {
 } from "@/lib/showcase-static-demo";
 import type { FindingInspectPayload } from "@/types/finding-inspect";
 
-/** Static demo PHI finding node id in the curated provenance graph (`operator-static-demo`). */
+/** Static demo primary-finding node id in the curated provenance graph (`operator-static-demo`). */
 export const SHOWCASE_PHI_FINDING_GRAPH_NODE_ID = "n-phi";
 
 export function findingInspectListsEvidenceProvenance(payload: FindingInspectPayload): boolean {
@@ -32,7 +32,7 @@ export function preferredGraphNodeIdForFindingDeepLink(runId: string, findingId:
   return null;
 }
 
-/** Graph URL when inspect lists evidence excerpts or artifact pointers — optional focus node for the Claims Intake demo. */
+/** Graph URL when inspect lists evidence excerpts or artifact pointers — optional focus node for the primary showcase demo. */
 export function graphEvidenceHrefFromInspect(
   runId: string,
   findingId: string,
