@@ -125,10 +125,6 @@ export function PolicyPackDetailClient(props: PolicyPackDetailClientProps): Reac
     );
   }
 
-  if (loadFailed) {
-    return withEvidenceChrome(<PolicyPackDetailLoadError onRetry={handleRetry} />);
-  }
-
   if (kind === "healthcare-claims") {
     return withEvidenceChrome(<HealthcareClaimsPolicyPackDetail policyPackId={policyPackId} />);
   }
@@ -143,6 +139,10 @@ export function PolicyPackDetailClient(props: PolicyPackDetailClientProps): Reac
         isGloballyActive={isGloballyActive}
       />,
     );
+  }
+
+  if (loadFailed) {
+    return withEvidenceChrome(<PolicyPackDetailLoadError onRetry={handleRetry} />);
   }
 
   if (packRecord !== null) {

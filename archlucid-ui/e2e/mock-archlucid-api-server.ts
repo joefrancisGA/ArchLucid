@@ -1,7 +1,7 @@
 import http from "node:http";
 import { randomUUID } from "node:crypto";
 
-import { MOCK_TRIAL_WELCOME_RUN_ID } from "./fixtures/ids";
+import { FIXTURE_LEFT_RUN_ID, FIXTURE_RIGHT_RUN_ID, MOCK_TRIAL_WELCOME_RUN_ID } from "./fixtures/ids";
 import {
   getMockEffectiveContent,
   getMockEffectivePacks,
@@ -65,6 +65,10 @@ function resolveRunDetailBodyForRunId(runId: string): RunDetail | null {
 
   if (runId === OPERATOR_DEMO_REVIEW_RUN_ID) {
     return fixtureOperatorDemoReviewRunDetail(runId);
+  }
+
+  if (runId === FIXTURE_LEFT_RUN_ID || runId === FIXTURE_RIGHT_RUN_ID) {
+    return fixtureRunDetailForRunId(runId);
   }
 
   return null;
@@ -313,6 +317,11 @@ export function startMockArchlucidApiServer(port: number): Promise<{ stop: () =>
         return;
       }
 
+      if (req.method === "GET" && pathname === "/v1/policy-packs/workspace-selection") {
+        sendJson(res, 200, []);
+        return;
+      }
+
       const versionsMatch = /^\/v1\/policy-packs\/([^/]+)\/versions$/.exec(pathname);
 
       if (req.method === "GET" && versionsMatch) {
@@ -455,6 +464,12 @@ export function startMockArchlucidApiServer(port: number): Promise<{ stop: () =>
           pathname === "/v1/diagnostics/core-pilot-rail-step" ||
           pathname === "/v1/diagnostics/sponsor-banner-first-commit-badge")
       ) {
+        res.writeHead(204);
+        res.end();
+        return;
+      }
+
+      if (req.method === "PUT" && pathname === "/v1/user/preferences/where-to-go-next") {
         res.writeHead(204);
         res.end();
         return;
