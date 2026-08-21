@@ -18,3 +18,5 @@
 {"at":"2026-08-20T19:04:14.2688720Z","zoneId":"context-ingestion","outcome":"hit"}
 {"at":"2026-08-20T19:52:50.6434629Z","zoneId":"host-core-jobs","outcome":"hit"}
 {"at":"2026-08-20T20:14:24.3824761Z","zoneId":"architecture-recommendation","outcome":"hit"}
+{"at":"2026-08-21T01:38:15.7893061Z","zoneId":"ui-auth-proxy","outcome":"hit"}
+{"at":"2026-08-21T01:51:31.2559159Z","zoneId":"ui-auth-proxy","outcome":"hit"}

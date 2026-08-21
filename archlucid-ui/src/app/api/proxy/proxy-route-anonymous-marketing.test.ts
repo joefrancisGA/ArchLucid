@@ -86,6 +86,26 @@ describe("proxy route anonymous marketing paths", () => {
     expect(fetchMock).not.toHaveBeenCalled();
   });
 
+  it("rejects PATCH with double-encoded dot traversal to operator draft", async () => {
+    const req = new NextRequest(
+      "http://localhost/api/proxy/v1/marketing/quick-scan/%252e%252e/%252e%252e/architecture/draft/draft-1",
+      {
+        method: "PATCH",
+        headers: { "content-type": "application/json", "content-length": "2" },
+        body: "{}",
+      },
+    );
+
+    const res = await PATCH(req, {
+      params: Promise.resolve({
+        path: ["v1", "marketing", "quick-scan", "%252e%252e", "%252e%252e", "architecture", "draft", "draft-1"],
+      }),
+    });
+
+    expect(res.status).toBe(400);
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
   it("rejects PATCH that traverses from marketing quick-scan to operator draft", async () => {
     const req = new NextRequest(
       "http://localhost/api/proxy/v1/marketing/quick-scan/status/../../../architecture/draft/draft-1",

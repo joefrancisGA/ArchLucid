@@ -46,4 +46,19 @@ describe("buildProxyUpstreamPath", () => {
       ]),
     ).toEqual({ ok: false });
   });
+
+  it("rejects double-encoded dot traversal segments", () => {
+    expect(
+      buildProxyUpstreamPath([
+        "v1",
+        "marketing",
+        "quick-scan",
+        "%252e%252e",
+        "%252e%252e",
+        "architecture",
+        "draft",
+        "draft-1",
+      ]),
+    ).toEqual({ ok: false });
+  });
 });

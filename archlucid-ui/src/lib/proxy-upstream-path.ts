@@ -2,19 +2,57 @@ export type ProxyUpstreamPathResult =
   | { ok: true; path: string }
   | { ok: false };
 
+function containsPercentEncodedPathSeparator(value: string): boolean {
+  const lower = value.toLowerCase();
+
+  return lower.includes("%2e") || lower.includes("%2f") || lower.includes("%5c");
+}
+
+function segmentDecodesToUnsafeTraversal(segment: string): boolean {
+  if (containsPercentEncodedPathSeparator(segment)) {
+    return true;
+  }
+
+  let working = segment;
+
+  for (let decodePass = 0; decodePass < 4 && working.includes("%"); decodePass++) {
+    let decoded: string;
+
+    try {
+      decoded = decodeURIComponent(working);
+    } catch {
+      return true;
+    }
+
+    if (decoded === working) {
+      break;
+    }
+
+    if (
+      decoded === "." ||
+      decoded === ".." ||
+      decoded.includes("/") ||
+      decoded.includes("\\")
+    ) {
+      return true;
+    }
+
+    if (containsPercentEncodedPathSeparator(decoded)) {
+      return true;
+    }
+
+    working = decoded;
+  }
+
+  return containsPercentEncodedPathSeparator(working);
+}
+
 function isUnsafeProxyPathSegment(segment: string): boolean {
   if (segment.length === 0 || segment === "." || segment === ".." || segment.includes("/") || segment.includes("\\")) {
     return true;
   }
 
-  const lower = segment.toLowerCase();
-
-  // Reject percent-encoded `.`, `/`, or `\` so URL normalization cannot resurrect `..` traversal.
-  if (lower.includes("%2e") || lower.includes("%2f") || lower.includes("%5c")) {
-    return true;
-  }
-
-  return false;
+  return segmentDecodesToUnsafeTraversal(segment);
 }
 
 /**
@@ -35,7 +73,7 @@ export function buildProxyUpstreamPath(pathSegments: readonly string[]): ProxyUp
   const joined = pathSegments.join("/");
   const resolved = new URL(joined, "http://archlucid.invalid/").pathname.replace(/^\//, "");
 
-  if (resolved.length === 0 || resolved.includes("..")) {
+  if (resolved.length === 0 || resolved.includes("..") || containsPercentEncodedPathSeparator(resolved)) {
     return { ok: false };
   }
 
