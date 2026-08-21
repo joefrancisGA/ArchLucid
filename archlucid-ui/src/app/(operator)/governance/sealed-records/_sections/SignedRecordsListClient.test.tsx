@@ -116,7 +116,7 @@ describe("SignedRecordsListClient", () => {
     });
 
     expect(screen.getByTestId("signed-records-list-record-count")).toHaveTextContent(
-      "1 sealed review record on this page",
+      "1 finalized review record on this page",
     );
 
     expect(listRunsByProjectPaged).toHaveBeenCalled();
