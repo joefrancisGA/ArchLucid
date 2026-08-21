@@ -15,13 +15,8 @@ import { draftArchitectureRequest, ARCHITECTURE_REQUEST_DRAFT_MIN_DESCRIPTION_CH
 import { isApiRequestError } from "@/lib/api-request-error";
 import type { ApiProblemDetails } from "@/lib/api-problem";
 import {
-  ARCHITECTURE_DRAFT_UNKNOWN_CONFIRM_LABEL,
   applyIncomingStructuredBriefSuggestions,
-  areConfirmedFactControlsDisabled,
-  confirmedFactControlsDisabledReason,
-  isMarkUnknownControlDisabled,
   joinQualityAttributeEntries,
-  markUnknownDisabledReason,
   mergeExclusiveConfirmedItem,
   mergeUniqueStrings,
   parseQualityAttributeEntries,
@@ -113,7 +108,6 @@ function ConfirmableChipList(props: {
   readonly invalid: boolean;
   readonly disabled: boolean;
   readonly required?: boolean;
-  readonly allowMarkUnknown?: boolean;
   readonly inputPlaceholder?: string;
   readonly emptyMessage?: string;
   readonly helpSlug?: string;
@@ -125,23 +119,10 @@ function ConfirmableChipList(props: {
 }): React.JSX.Element {
   const [draft, setDraft] = useState("");
   const isRequired = props.required !== false;
-  const allowMarkUnknown = props.allowMarkUnknown !== false;
   const inputPlaceholder = props.inputPlaceholder ?? "Type and Add";
   const emptyMessage = props.emptyMessage ?? "No confirmed items yet.";
-  const factControlsDisabled = areConfirmedFactControlsDisabled(
-    props.items,
-    props.disabled,
-    allowMarkUnknown,
-  );
-  const markUnknownDisabled = isMarkUnknownControlDisabled(props.items, props.disabled);
-  const factControlsTitle = confirmedFactControlsDisabledReason(props.items, allowMarkUnknown);
-  const markUnknownTitle = markUnknownDisabledReason(props.items);
 
   const addDraft = () => {
-    if (factControlsDisabled) {
-      return;
-    }
-
     const trimmed = draft.trim();
 
     if (trimmed.length === 0) {
@@ -183,8 +164,7 @@ function ConfirmableChipList(props: {
               addDraft();
             }
           }}
-          disabled={factControlsDisabled}
-          title={factControlsTitle}
+          disabled={props.disabled}
           className="max-w-md min-w-[12rem] flex-1"
           placeholder={inputPlaceholder}
           aria-invalid={props.invalid}
@@ -192,27 +172,12 @@ function ConfirmableChipList(props: {
         <Button
           type="button"
           variant="secondary"
-          disabled={factControlsDisabled}
-          title={factControlsTitle}
+          disabled={props.disabled}
           data-testid={`${props.inputId}-add`}
           onClick={addDraft}
         >
           Add
         </Button>
-        {allowMarkUnknown ? (
-          <Button
-            type="button"
-            variant="outline"
-            disabled={markUnknownDisabled}
-            title={markUnknownTitle}
-            data-testid={`${props.inputId}-mark-unknown`}
-            onClick={() => {
-              props.onAdd(ARCHITECTURE_DRAFT_UNKNOWN_CONFIRM_LABEL);
-            }}
-          >
-            Mark unknown
-          </Button>
-        ) : null}
       </div>
       {props.suggestedItems.length > 0 ? (
         <div className="space-y-1">
@@ -237,8 +202,7 @@ function ConfirmableChipList(props: {
                     variant="outline"
                     size="sm"
                     className="h-6 px-1"
-                    disabled={factControlsDisabled}
-                    title={factControlsTitle}
+                    disabled={props.disabled}
                     onClick={() => {
                       props.onConfirmSuggested(item);
                     }}
@@ -462,11 +426,12 @@ export function ArchitectureDraftStructuredBriefFields(
 
       <ConfirmableChipList
         label="Constraints"
-        hint="Hard limits the architecture must not violate — budget, regions, compliance, or mark unknown."
+        hint="Hard limits the architecture must not violate — budget, regions, compliance. Leave empty if none are stated."
         inputId="architecture-draft-constraints"
         items={brief.confirmedConstraints}
         suggestedItems={brief.suggestedConstraints}
-        invalid={markInvalid && brief.confirmedConstraints.every((item) => item.trim().length === 0)}
+        invalid={false}
+        required={false}
         disabled={props.disabled === true}
         onAdd={(value) => {
           addConfirmedListItem(
@@ -486,11 +451,12 @@ export function ArchitectureDraftStructuredBriefFields(
 
       <ConfirmableChipList
         label="Assumptions"
-        hint="Facts agents may rely on unless evidence contradicts them — or mark unknown."
+        hint="Facts agents may rely on unless evidence contradicts them. Leave empty if none are stated."
         inputId="architecture-draft-assumptions"
         items={brief.confirmedAssumptions}
         suggestedItems={brief.suggestedAssumptions}
-        invalid={markInvalid && brief.confirmedAssumptions.every((item) => item.trim().length === 0)}
+        invalid={false}
+        required={false}
         disabled={props.disabled === true}
         onAdd={(value) => {
           addConfirmedListItem(
@@ -544,7 +510,6 @@ export function ArchitectureDraftStructuredBriefFields(
         items={parseQualityAttributeEntries(brief.qualityAttribute)}
         suggestedItems={[]}
         invalid={qualityInvalid}
-        allowMarkUnknown={false}
         emptyMessage="No quality attributes yet."
         disabled={props.disabled === true}
         helpSlug="structured-brief"

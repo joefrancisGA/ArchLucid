@@ -6,7 +6,6 @@ import type { ArchitectureReviewReadinessBlockerId } from "./architecture-review
 import type { ArchitectureDraftStructuredBriefState } from "./architecture-draft-structured-brief";
 import {
   hasConfirmedActor,
-  listHasConfirmedEntry,
   qualityAttributeMeetsMinimum,
 } from "./architecture-draft-structured-brief";
 import type { ActorDescriptor } from "@/types/draft-intake";
@@ -73,14 +72,6 @@ export function validateArchitectureReviewReadiness(
 
   if (fields.businessOutcome.trim().length < MIN_OUTCOME_CHARS) {
     blockers.push("business-outcome");
-  }
-
-  if (!listHasConfirmedEntry(fields.structuredBrief.confirmedConstraints)) {
-    blockers.push("constraints");
-  }
-
-  if (!listHasConfirmedEntry(fields.structuredBrief.confirmedAssumptions)) {
-    blockers.push("assumptions");
   }
 
   if (!hasConfirmedActor(actors)) {

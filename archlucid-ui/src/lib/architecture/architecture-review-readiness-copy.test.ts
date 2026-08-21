@@ -12,8 +12,8 @@ describe("architecture-review-readiness-copy", () => {
   });
 
   it("joins multiple blockers into one readiness sentence", () => {
-    expect(formatArchitectureReviewReadinessMessage(["constraints", "quality-attributes"])).toMatch(
-      /confirmed constraint.*quality attribute/i,
+    expect(formatArchitectureReviewReadinessMessage(["system-name", "quality-attributes"])).toMatch(
+      /system name.*quality attribute/i,
     );
   });
 });
