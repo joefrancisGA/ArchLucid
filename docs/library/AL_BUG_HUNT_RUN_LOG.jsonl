@@ -32,3 +32,4 @@
 {"at":"2026-08-21T07:14:36.0243362Z","zoneId":"application-governance-policy","outcome":"hit"}
 {"at":"2026-08-21T12:37:16.4050732Z","zoneId":"agent-runtime-evaluation","outcome":"hit"}
 {"at":"2026-08-21T13:27:27.3698649Z","zoneId":"ui-auth-proxy","outcome":"hit"}
+{"at":"2026-08-21T21:52:34.3759269Z","zoneId":"auth-return-path","outcome":"hit"}
