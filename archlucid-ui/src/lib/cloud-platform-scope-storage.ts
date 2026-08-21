@@ -1,5 +1,6 @@
 export type CloudPlatformId = "evidence-only" | "azure" | "aws" | "gcp";
 
+/** Server-owned visibility flag — persisted for API parity but not exposed on Preferences UI. */
 export type CloudProviderId = "azure" | "aws" | "gcp";
 
 export type CloudPlatformScope = Readonly<Record<CloudPlatformId, boolean>>;

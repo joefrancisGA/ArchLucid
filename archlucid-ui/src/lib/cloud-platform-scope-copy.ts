@@ -3,8 +3,15 @@ import { ACCOUNT_PREFERENCES_PATH } from "@/lib/account-route-paths";
 /** Personal preferences card — cloud platform visibility. */
 export const PREFERENCES_CLOUD_PLATFORMS_HEADING = "Cloud platforms shown";
 
+export const PREFERENCES_CLOUD_PLATFORMS_SCOPE_TAG = "Only affects your view";
+
 export const PREFERENCES_CLOUD_PLATFORMS_LEAD =
-  "Choose which cloud platforms appear in Integrations and connection flows. Your choices are saved to your account and sync across browsers. Hidden platforms are removed from the product until you turn them back on here.";
+  "Choose which cloud platforms appear in your Integrations and connection flows. Hidden platforms are removed from your view until you turn them back on here. Your choices are saved to your account and sync across browsers.";
+
+export const PREFERENCES_CLOUD_PLATFORMS_EMPTY_SELECTION_MESSAGE =
+  "Keep at least one cloud platform visible so Integrations and connection flows stay reachable.";
+
+export const PREFERENCES_CLOUD_PLATFORMS_SHOW_ALL_LABEL = "Show all platforms";
 
 /** Cloud connections hub — points readers to personal preferences instead of inline toggles. */
 export const CLOUD_CONNECTIONS_PLATFORM_SCOPE_PREFERENCES_NOTICE =

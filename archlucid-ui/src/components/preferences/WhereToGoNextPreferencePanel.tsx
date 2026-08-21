@@ -1,9 +1,9 @@
 "use client";
 
-import { Checkbox } from "@/components/ui/checkbox";
+import { PreferenceAccountSyncStatus } from "@/components/preferences/PreferenceAccountSyncStatus";
+import { PreferenceCheckbox } from "@/components/preferences/PreferenceCheckbox";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
-  PREFERENCES_WHERE_TO_GO_NEXT_HEADING,
   PREFERENCES_WHERE_TO_GO_NEXT_LEAD,
   PREFERENCES_WHERE_TO_GO_NEXT_TOGGLE_LABEL,
 } from "@/lib/where-to-go-next-preference-copy";
@@ -15,7 +15,6 @@ export type WhereToGoNextPreferencePanelProps = {
   readonly enabled: boolean;
   readonly onEnabledChange: (enabled: boolean) => void;
   readonly accountSyncState?: WhereToGoNextAccountSyncState;
-  /** Card title id when the panel is rendered inside a CardHeader (avoids duplicate headings). */
   readonly labelledById?: string;
 };
 
@@ -42,29 +41,19 @@ export function WhereToGoNextPreferencePanel({
           "text-al-text-primary",
         )}
       >
-        <Checkbox
+        <PreferenceCheckbox
           id={checkboxId}
           checked={enabled}
           onCheckedChange={(checked) => onEnabledChange(checked === true)}
           data-testid="where-to-go-next-enabled"
-          className={cn(
-            "h-6 w-6 shrink-0 rounded border-2 border-neutral-600 accent-teal-700",
-            "focus-visible:ring-teal-600/40",
-            "dark:border-neutral-400 dark:accent-teal-500",
-            enabled ? "border-teal-700 bg-teal-700 dark:border-teal-500 dark:bg-teal-600" : null,
-          )}
         />
         <span>{PREFERENCES_WHERE_TO_GO_NEXT_TOGGLE_LABEL}</span>
       </label>
-      {accountSyncState === "local-only" ? (
-        <p
-          className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-          role="alert"
-          data-testid="where-to-go-next-account-sync-local-only"
-        >
-          {WHERE_TO_GO_NEXT_ACCOUNT_SYNC_LOCAL_ONLY_MESSAGE}
-        </p>
-      ) : null}
+      <PreferenceAccountSyncStatus
+        accountSyncState={accountSyncState}
+        localOnlyMessage={WHERE_TO_GO_NEXT_ACCOUNT_SYNC_LOCAL_ONLY_MESSAGE}
+        testIdPrefix="where-to-go-next"
+      />
     </section>
   );
 }

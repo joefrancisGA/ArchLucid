@@ -78,7 +78,6 @@ export function ColorModePreferenceProvider(props: { readonly children: ReactNod
       setPreference(syncedPreference);
       setSystemPrefersDark(prefersDark);
       applyColorModePreference(syncedPreference, prefersDark);
-      setAccountSyncState("synced");
     });
   }, []);
 

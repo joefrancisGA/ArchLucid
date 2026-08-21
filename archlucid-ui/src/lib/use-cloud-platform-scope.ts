@@ -34,7 +34,6 @@ export function useCloudPlatformScope(): {
       }
 
       setScope(syncedScope);
-      setAccountSyncState("synced");
     });
   }, []);
 

@@ -1,13 +1,24 @@
 "use client";
 
-import { Checkbox } from "@/components/ui/checkbox";
-import { PREFERENCES_CLOUD_PLATFORMS_LEAD } from "@/lib/cloud-platform-scope-copy";
+import { useState } from "react";
+
+import { PreferenceAccountSyncStatus } from "@/components/preferences/PreferenceAccountSyncStatus";
+import { PreferenceCheckbox } from "@/components/preferences/PreferenceCheckbox";
+import { Button } from "@/components/ui/button";
+import {
+  PREFERENCES_CLOUD_PLATFORMS_EMPTY_SELECTION_MESSAGE,
+  PREFERENCES_CLOUD_PLATFORMS_LEAD,
+  PREFERENCES_CLOUD_PLATFORMS_SCOPE_TAG,
+  PREFERENCES_CLOUD_PLATFORMS_SHOW_ALL_LABEL,
+} from "@/lib/cloud-platform-scope-copy";
 import {
   CLOUD_PLATFORM_SCOPE_ACCOUNT_SYNC_LOCAL_ONLY_MESSAGE,
   CLOUD_PROVIDER_NEUTRAL_ORDER,
+  DEFAULT_CLOUD_PLATFORM_SCOPE,
   type CloudPlatformScope,
   type CloudProviderId,
 } from "@/lib/cloud-platform-scope-storage";
+import { wouldLeaveNoVisibleCloudProviders } from "@/lib/cloud-platform-scope-validation";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { CloudPlatformScopeAccountSyncState } from "@/lib/use-cloud-platform-scope";
 import { cn } from "@/lib/utils";
@@ -22,7 +33,6 @@ export type CloudPlatformScopePanelProps = {
   readonly scope: CloudPlatformScope;
   readonly onScopeChange: (nextScope: CloudPlatformScope) => void;
   readonly accountSyncState?: CloudPlatformScopeAccountSyncState;
-  /** Card title id when the panel is rendered inside a CardHeader (avoids duplicate headings). */
   readonly labelledById?: string;
 };
 
@@ -32,25 +42,34 @@ export function CloudPlatformScopePanel({
   accountSyncState = "idle",
   labelledById,
 }: CloudPlatformScopePanelProps) {
+  const [emptySelectionMessage, setEmptySelectionMessage] = useState<string | null>(null);
+
   const toggleProvider = (providerId: CloudProviderId) => {
+    if (wouldLeaveNoVisibleCloudProviders(scope, providerId)) {
+      setEmptySelectionMessage(PREFERENCES_CLOUD_PLATFORMS_EMPTY_SELECTION_MESSAGE);
+
+      return;
+    }
+
+    setEmptySelectionMessage(null);
     onScopeChange({
       ...scope,
       [providerId]: !scope[providerId],
     });
   };
 
+  const showAllPlatforms = () => {
+    setEmptySelectionMessage(null);
+    onScopeChange(DEFAULT_CLOUD_PLATFORM_SCOPE);
+  };
+
   return (
-    <section
-      className="space-y-3"
-      data-testid="cloud-platform-scope-panel"
-      aria-labelledby={labelledById}
-    >
-      <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{PREFERENCES_CLOUD_PLATFORMS_LEAD}</p>
-      <div
-        className="flex flex-wrap gap-x-6 gap-y-3"
-        role="group"
-        aria-labelledby={labelledById}
-      >
+    <section className="space-y-3" data-testid="cloud-platform-scope-panel" aria-labelledby={labelledById}>
+      <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+        <span className="font-medium text-al-text-primary">{PREFERENCES_CLOUD_PLATFORMS_SCOPE_TAG}.</span>{" "}
+        {PREFERENCES_CLOUD_PLATFORMS_LEAD}
+      </p>
+      <div className="flex flex-wrap gap-x-6 gap-y-3" role="group" aria-labelledby={labelledById}>
         {CLOUD_PROVIDER_NEUTRAL_ORDER.map((providerId) => {
           const checkboxId = `cloud-platform-scope-${providerId}`;
 
@@ -64,32 +83,36 @@ export function CloudPlatformScopePanel({
                 "text-al-text-primary",
               )}
             >
-              <Checkbox
+              <PreferenceCheckbox
                 id={checkboxId}
                 checked={scope[providerId]}
                 onCheckedChange={() => toggleProvider(providerId)}
                 data-testid={`cloud-platform-scope-${providerId}`}
-                className={cn(
-                  "h-6 w-6 shrink-0 rounded border-2 border-neutral-600 accent-teal-700",
-                  "focus-visible:ring-teal-600/40",
-                  "dark:border-neutral-400 dark:accent-teal-500",
-                  scope[providerId] ? "border-teal-700 bg-teal-700 dark:border-teal-500 dark:bg-teal-600" : null,
-                )}
               />
               <span>{PROVIDER_LABELS[providerId]}</span>
             </label>
           );
         })}
       </div>
-      {accountSyncState === "local-only" ? (
+      {emptySelectionMessage !== null ? (
         <p
           className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
           role="alert"
-          data-testid="cloud-platform-scope-sync-status"
+          data-testid="cloud-platform-scope-empty-selection"
         >
-          {CLOUD_PLATFORM_SCOPE_ACCOUNT_SYNC_LOCAL_ONLY_MESSAGE}
+          {emptySelectionMessage}
         </p>
       ) : null}
+      <div className="flex flex-wrap items-center gap-3">
+        <Button type="button" variant="outline" onClick={showAllPlatforms} data-testid="cloud-platform-scope-show-all">
+          {PREFERENCES_CLOUD_PLATFORMS_SHOW_ALL_LABEL}
+        </Button>
+      </div>
+      <PreferenceAccountSyncStatus
+        accountSyncState={accountSyncState}
+        localOnlyMessage={CLOUD_PLATFORM_SCOPE_ACCOUNT_SYNC_LOCAL_ONLY_MESSAGE}
+        testIdPrefix="cloud-platform-scope"
+      />
     </section>
   );
 }

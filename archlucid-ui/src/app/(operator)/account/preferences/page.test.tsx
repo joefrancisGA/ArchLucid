@@ -40,7 +40,7 @@ describe("PreferencesSettingsPage", () => {
 
     expect(screen.getByTestId("preferences-settings-page-title")).toHaveTextContent("Preferences");
     expect(screen.getByTestId("preferences-appearance-card")).toBeInTheDocument();
-    expect(screen.getByText(/saved to your account and applied across supported devices/i)).toBeInTheDocument();
+    expect(screen.getByText(/syncs across browsers where you sign in/i)).toBeInTheDocument();
     expect(screen.getByTestId("theme-preference-selector-stub")).toBeInTheDocument();
     expect(
       screen.queryByTestId("shell-theme-preferences-appearance-vocabulary"),

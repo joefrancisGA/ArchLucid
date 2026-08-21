@@ -39,21 +39,21 @@ export function PreferencesSettingsPageView() {
         titleTestId="preferences-settings-page-title"
         actions={<PageContextualHelpButton triggerText={PREFERENCES_HELP_TOPIC_LABEL} />}
       />
-      <PreferencesSettingsEvidenceOrientationStrip />
-      <PreferencesNotificationsVocabularyRail currentSurfaceId="preferences" />
-      <Card data-testid="preferences-appearance-card">
+      <Card id="appearance" data-testid="preferences-appearance-card">
         <CardHeader>
           <CardTitle as="h2" className={OPERATOR_TYPOGRAPHY.cardTitle}>Appearance</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div>
-            <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>Theme</p>
+            <p id="preferences-theme-label" className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
+              Theme
+            </p>
             <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-              Choose how ArchLucid appears. Your preference is saved to your account and applied across supported
-              devices.
+              Choose how ArchLucid appears. Your preference is saved to your account and syncs across browsers where you
+              sign in.
             </p>
           </div>
-          <ThemePreferenceSelector />
+          <ThemePreferenceSelector fieldsetLabelledById="preferences-theme-label" />
         </CardContent>
       </Card>
       <Card id="cloud-platforms-shown" data-testid="preferences-cloud-platforms-card">
@@ -94,6 +94,8 @@ export function PreferencesSettingsPageView() {
           )}
         </CardContent>
       </Card>
+      <PreferencesNotificationsVocabularyRail currentSurfaceId="preferences" />
+      <PreferencesSettingsEvidenceOrientationStrip />
     </OperatorPageContainer>
   );
 }

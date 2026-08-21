@@ -2,6 +2,7 @@
 
 import { Check } from "lucide-react";
 
+import { PreferenceAccountSyncStatus } from "@/components/preferences/PreferenceAccountSyncStatus";
 import { cn } from "@/lib/utils";
 
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -39,13 +40,12 @@ const THEME_OPTIONS: ReadonlyArray<{
 
 type Props = {
   readonly helperText?: string;
+  readonly fieldsetLabelledById?: string;
 };
 
 /** Accessible radio-card theme selector backed by account preferences. */
 export function ThemePreferenceSelector(props: Props) {
   const { preference, mounted, accountSyncState, setAndPersist } = useUserAppearancePreference();
-  const statusText =
-    accountSyncState === "local-only" ? COLOR_MODE_ACCOUNT_SYNC_LOCAL_ONLY_MESSAGE : props.helperText;
 
   if (!mounted) {
     return <div aria-hidden="true" className="h-28 w-full" data-testid="theme-preference-loading" />;
@@ -53,12 +53,12 @@ export function ThemePreferenceSelector(props: Props) {
 
   return (
     <div className="space-y-3" data-testid="theme-preference-selector">
-      <fieldset>
-        <legend className="sr-only">Theme</legend>
+      <fieldset aria-labelledby={props.fieldsetLabelledById}>
         <div className="grid gap-3 sm:grid-cols-3">
           {THEME_OPTIONS.map((option) => {
             const selected = preference === option.value;
             const inputId = `theme-preference-${option.value}`;
+            const descriptionId = `theme-preference-${option.value}-description`;
 
             return (
               <label
@@ -81,12 +81,15 @@ export function ThemePreferenceSelector(props: Props) {
                   className="peer sr-only"
                   value={option.value}
                   checked={selected}
-                  aria-label={option.label}
+                  aria-describedby={descriptionId}
                   onChange={() => setAndPersist(option.value)}
                 />
                 {selected ? (
-                  <span className="absolute right-3 top-3 inline-flex items-center gap-1 text-teal-800 dark:text-teal-300">
-                    <Check aria-hidden="true" className="h-4 w-4" />
+                  <span
+                    className="absolute right-3 top-3 inline-flex items-center gap-1 text-teal-800 dark:text-teal-300"
+                    aria-hidden="true"
+                  >
+                    <Check className="h-4 w-4" />
                     <span className={cn("font-medium", OPERATOR_TYPOGRAPHY.helper)}>Selected</span>
                   </span>
                 ) : null}
@@ -95,20 +98,24 @@ export function ThemePreferenceSelector(props: Props) {
                   aria-hidden="true"
                 />
                 <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>{option.label}</p>
-                <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{option.description}</p>
+                <p
+                  id={descriptionId}
+                  className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                >
+                  {option.description}
+                </p>
               </label>
             );
           })}
         </div>
       </fieldset>
-      {statusText ? (
-        <p
-          className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-          role={accountSyncState === "local-only" ? "alert" : "status"}
-          data-testid="theme-preference-sync-status"
-        >
-          {statusText}
-        </p>
+      <PreferenceAccountSyncStatus
+        accountSyncState={accountSyncState}
+        localOnlyMessage={COLOR_MODE_ACCOUNT_SYNC_LOCAL_ONLY_MESSAGE}
+        testIdPrefix="theme-preference"
+      />
+      {props.helperText ? (
+        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{props.helperText}</p>
       ) : null}
     </div>
   );
