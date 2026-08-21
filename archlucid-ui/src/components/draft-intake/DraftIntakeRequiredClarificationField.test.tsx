@@ -6,6 +6,10 @@ import {
   DraftIntakeRequiredClarificationField,
   REQUIRED_CLARIFICATION_BASELINE_LABEL,
 } from "./DraftIntakeRequiredClarificationField";
+import {
+  GUIDED_INTAKE_SAVE_AND_CONTINUE_LABEL,
+  GUIDED_INTAKE_SAVE_ANSWER_LABEL,
+} from "@/lib/guided-intake-copy";
 
 const sampleQuestion = {
   questionKey: "l0.pillar.security",
@@ -17,7 +21,7 @@ const sampleQuestion = {
 };
 
 describe("DraftIntakeRequiredClarificationField", () => {
-  it("shows baseline label, save-and-continue primary action, and skip link", () => {
+  it("shows baseline label when enabled, save-and-continue outline action, and skip link", () => {
     render(
       <DraftIntakeRequiredClarificationField
         question={sampleQuestion}
@@ -37,8 +41,45 @@ describe("DraftIntakeRequiredClarificationField", () => {
     expect(screen.getByTestId("socratic-question-baseline-label")).toHaveTextContent(
       REQUIRED_CLARIFICATION_BASELINE_LABEL,
     );
-    expect(screen.getByRole("button", { name: "Save and continue" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: GUIDED_INTAKE_SAVE_AND_CONTINUE_LABEL })).toBeDisabled();
     expect(screen.getByRole("button", { name: "Skip this clarification" })).toBeEnabled();
+  });
+
+  it("hides baseline label when showBaselineLabel is false", () => {
+    render(
+      <DraftIntakeRequiredClarificationField
+        question={sampleQuestion}
+        answer=""
+        busy={false}
+        clarificationIndex={1}
+        clarificationTotal={3}
+        showBaselineLabel={false}
+        onAnswerChange={vi.fn()}
+        onSaveAndContinue={vi.fn()}
+        onSkip={vi.fn()}
+      />,
+    );
+
+    expect(screen.queryByTestId("socratic-question-baseline-label")).not.toBeInTheDocument();
+  });
+
+  it("uses Save answer label in show-all mode", () => {
+    render(
+      <DraftIntakeRequiredClarificationField
+        question={sampleQuestion}
+        answer="Encrypted at rest"
+        busy={false}
+        clarificationIndex={1}
+        clarificationTotal={3}
+        showAllMode
+        canSaveAndContinue
+        onAnswerChange={vi.fn()}
+        onSaveAndContinue={vi.fn()}
+        onSkip={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByRole("button", { name: GUIDED_INTAKE_SAVE_ANSWER_LABEL })).toBeEnabled();
   });
 
   it("enables save and continue when an answer is present", () => {
@@ -56,7 +97,7 @@ describe("DraftIntakeRequiredClarificationField", () => {
       />,
     );
 
-    expect(screen.getByRole("button", { name: "Save and continue" })).toBeEnabled();
+    expect(screen.getByRole("button", { name: GUIDED_INTAKE_SAVE_AND_CONTINUE_LABEL })).toBeEnabled();
   });
 
   it("marks non-primary questions for secondary styling", () => {
@@ -78,6 +119,24 @@ describe("DraftIntakeRequiredClarificationField", () => {
     expect(screen.getByTestId("socratic-question")).toHaveAttribute("data-question-primary", "false");
   });
 
+  it("renders clarification status tag when provided", () => {
+    render(
+      <DraftIntakeRequiredClarificationField
+        question={sampleQuestion}
+        answer=""
+        busy={false}
+        clarificationIndex={1}
+        clarificationTotal={3}
+        clarificationStatus={{ kind: "needs-attention", label: "Needs answer" }}
+        onAnswerChange={vi.fn()}
+        onSaveAndContinue={vi.fn()}
+        onSkip={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByTestId("socratic-question-status")).toHaveTextContent("Needs answer");
+  });
+
   it("invokes save and continue handler", () => {
     const onSaveAndContinue = vi.fn();
 
@@ -95,7 +154,7 @@ describe("DraftIntakeRequiredClarificationField", () => {
       />,
     );
 
-    fireEvent.click(screen.getByRole("button", { name: "Save and continue" }));
+    fireEvent.click(screen.getByRole("button", { name: GUIDED_INTAKE_SAVE_AND_CONTINUE_LABEL }));
 
     expect(onSaveAndContinue).toHaveBeenCalledWith("l0.pillar.security");
   });
@@ -121,7 +180,7 @@ describe("DraftIntakeRequiredClarificationField", () => {
     expect(onSkip).toHaveBeenCalledWith("l0.pillar.security");
   });
 
-  it("renders cloud target question as a select instead of free text", () => {
+  it("renders cloud target question as a select with control-type hint", () => {
     const cloudTargetQuestion = {
       ...sampleQuestion,
       questionKey: CLOUD_TARGET_QUESTION_KEY,
@@ -144,7 +203,8 @@ describe("DraftIntakeRequiredClarificationField", () => {
 
     expect(screen.queryByRole("textbox")).not.toBeInTheDocument();
     expect(screen.getByTestId("socratic-cloud-target-select")).toBeInTheDocument();
-    expect(screen.getByRole("combobox")).toHaveAttribute("aria-label", cloudTargetQuestion.prompt);
+    expect(screen.getByTestId("socratic-cloud-target-control-hint")).toBeInTheDocument();
+    expect(screen.getByRole("combobox", { name: /which cloud provider/i })).toBeInTheDocument();
 
     fireEvent.click(screen.getByTestId("socratic-cloud-target-select"));
 

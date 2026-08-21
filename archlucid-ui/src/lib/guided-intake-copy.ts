@@ -128,6 +128,9 @@ export const GUIDED_INTAKE_STRUCTURED_BRIEF_SECTION_LABEL = "Structured Brief";
 
 export const GUIDED_INTAKE_STRUCTURED_BRIEF_REQUIRED_CAPABILITIES_LABEL = "Required Capabilities";
 
+export const GUIDED_INTAKE_STRUCTURED_BRIEF_REQUIRED_CAPABILITIES_HINT =
+  "Traits the design must support — for example HTTPS ingress, managed database, or observability.";
+
 export const GUIDED_INTAKE_STRUCTURED_BRIEF_QUALITY_ATTRIBUTES_LABEL = "Quality Attributes";
 
 export const GUIDED_INTAKE_TRUST_ORIGIN_LABEL = "Trust Origin";
@@ -174,6 +177,24 @@ export const GUIDED_INTAKE_CONTINUE_TO_DISCOVERY = "Continue to clarifying quest
 
 export const GUIDED_INTAKE_CREATION_STEP1_CARD_DESCRIPTION =
   "Answer the guided questions about reliability, security, cost, operations, performance, and deployment.";
+
+/** Shown when the cloud-target clarification uses a select while earlier prompts used free text. */
+export const GUIDED_INTAKE_CLOUD_TARGET_CONTROL_HINT =
+  "This clarification uses a fixed provider list so policy packs and cloud-scoped rules can align with your target.";
+
+export const GUIDED_INTAKE_SAVE_ANSWER_LABEL = "Save answer";
+
+export const GUIDED_INTAKE_SAVE_AND_CONTINUE_LABEL = "Save and continue";
+
+export function guidedIntakeClarificationsAnsweredCounter(
+  answeredCount: number,
+  totalCount: number,
+): string {
+  return `${answeredCount} of ${totalCount} answered`;
+}
+
+export const GUIDED_INTAKE_REVIEW_ANSWERS_DISABLED_HINT =
+  "Handle all required clarifications before reviewing answers.";
 
 export const GUIDED_INTAKE_CREATION_DRAFT_GUIDANCE_CALLOUT =
   "Architecture draft only. Nothing is submitted for review until you explicitly create a review.";

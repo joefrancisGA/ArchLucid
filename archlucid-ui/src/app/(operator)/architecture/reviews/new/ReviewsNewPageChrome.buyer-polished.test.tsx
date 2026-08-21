@@ -1,13 +1,18 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const searchParamsGet = vi.fn<(key: string) => string | null>();
+const useReviewsNewSpecimenPreviewPresentation = vi.fn();
 
 vi.mock("next/navigation", () => ({
   useSearchParams: () => ({
     get: (key: string) => searchParamsGet(key),
   }),
   usePathname: () => "/architecture/reviews/new",
+}));
+
+vi.mock("./use-reviews-new-specimen-preview-presentation", () => ({
+  useReviewsNewSpecimenPreviewPresentation: () => useReviewsNewSpecimenPreviewPresentation(),
 }));
 
 vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
@@ -36,6 +41,17 @@ import {
   REVIEWS_NEW_SKIP_LINK_LABEL,
 } from "./reviews-new-page-surface-copy";
 import { ReviewsNewPageShell } from "./ReviewsNewPageShell";
+import {
+  REVIEWS_NEW_SPECIMEN_PREVIEW_FINDINGS_LINK,
+  REVIEWS_NEW_SPECIMEN_PREVIEW_PRIMARY_CTA,
+} from "@/lib/buyer/buyer-polish-copy";
+
+beforeEach(() => {
+  useReviewsNewSpecimenPreviewPresentation.mockReturnValue({
+    showProminentSection: true,
+    showHeaderLinks: false,
+  });
+});
 
 describe("ReviewsNewPageChrome buyer-polished shell (REN)", () => {
   it("renders skip link, breadcrumb, orientation strip, and detailed-tab buyer subtitle", () => {
@@ -57,6 +73,7 @@ describe("ReviewsNewPageChrome buyer-polished shell (REN)", () => {
     );
     expect(screen.getByTestId("reviews-new-breadcrumb")).toBeInTheDocument();
     expect(screen.getByTestId("reviews-new-orientation-top")).toBeInTheDocument();
+    expect(screen.getByTestId("reviews-new-orientation-disclosure")).toBeInTheDocument();
     expect(screen.getByTestId("reviews-new-settings-sources")).toBeInTheDocument();
     expect(screen.getByTestId("reviews-new-page-subtitle")).toHaveTextContent(
       BUYER_REVIEWS_NEW_DETAILED_PAGE_SUBTITLE,
@@ -96,6 +113,7 @@ describe("ReviewsNewPageChrome buyer-polished shell (ENE)", () => {
     expect(screen.getByTestId("reviews-new-breadcrumb")).toBeInTheDocument();
     expect(screen.getByText("Guided questions")).toBeInTheDocument();
     expect(screen.getByTestId("reviews-new-orientation-top")).toBeInTheDocument();
+    expect(screen.getByTestId("reviews-new-orientation-disclosure")).toBeInTheDocument();
     expect(screen.getByTestId("reviews-new-settings-sources")).toBeInTheDocument();
     expect(screen.getByTestId("reviews-new-page-subtitle")).toHaveTextContent(
       BUYER_REVIEWS_NEW_GUIDED_INTAKE_PAGE_SUBTITLE,
@@ -149,5 +167,19 @@ describe("ReviewsNewPageChrome buyer-polished hub", () => {
       reviewsNewPageSubtitle(true, null),
     );
     expect(screen.queryByText("Quick start")).not.toBeInTheDocument();
+  });
+
+  it("adds specimen preview links to the header hint row for returning tenants", () => {
+    useReviewsNewSpecimenPreviewPresentation.mockReturnValue({
+      showProminentSection: false,
+      showHeaderLinks: true,
+    });
+    searchParamsGet.mockImplementation(() => null);
+
+    render(<ReviewsNewPageChrome />);
+
+    expect(screen.getByRole("link", { name: REVIEWS_NEW_SPECIMEN_PREVIEW_PRIMARY_CTA })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: REVIEWS_NEW_SPECIMEN_PREVIEW_FINDINGS_LINK })).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "See what you will get" })).not.toBeInTheDocument();
   });
 });

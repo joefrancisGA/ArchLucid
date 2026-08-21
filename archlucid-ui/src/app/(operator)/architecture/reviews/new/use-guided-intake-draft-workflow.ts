@@ -39,6 +39,7 @@ import { REVIEWS_NEW_GUIDED_QUESTIONS_LABEL } from "@/lib/reviews-new-path-copy"
 import { showError, showSuccess } from "@/lib/toast";
 import type { BranchDraftResponse, DraftElicitationQuestion } from "@/types/draft-intake";
 import type { ManifestFeasibilityVerdict } from "@/types/feasibility-verdict";
+import type { EnterpriseStatusKind } from "@/lib/design-tokens";
 
 import type { GuidedIntakeBriefForm } from "./use-guided-intake-brief-form";
 
@@ -378,6 +379,9 @@ export function useGuidedIntakeDraftWorkflow(options: GuidedIntakeDraftWorkflowO
   const skipQuestion = useCallback(
     async (questionKey: string) => {
       if (draftId === null) {
+        setSubmitError(new Error("Draft is not ready yet. Go back and continue from the brief step."));
+        showError(REVIEWS_NEW_GUIDED_QUESTIONS_LABEL, "Draft is not ready yet. Continue from the brief step first.");
+
         return;
       }
 
@@ -478,6 +482,39 @@ export function useGuidedIntakeDraftWorkflow(options: GuidedIntakeDraftWorkflowO
   ]);
 
   const totalRequiredClarifications = Math.max(requiredMustQuestionKeys.length, pendingQuestions.length);
+  const clarificationOrdinalByKey = useMemo(() => {
+    const orderedKeys =
+      requiredMustQuestionKeys.length > 0
+        ? requiredMustQuestionKeys
+        : allQuestions.filter((question) => question.tier === "Must").map((question) => question.questionKey);
+    const ordinals = new Map<string, number>();
+
+    orderedKeys.forEach((questionKey, index) => {
+      ordinals.set(questionKey, index + 1);
+    });
+
+    return ordinals;
+  }, [allQuestions, requiredMustQuestionKeys]);
+  const getClarificationOrdinal = useCallback(
+    (questionKey: string): number => clarificationOrdinalByKey.get(questionKey) ?? 0,
+    [clarificationOrdinalByKey],
+  );
+  const getClarificationStatus = useCallback(
+    (questionKey: string): { kind: EnterpriseStatusKind; label: string } => {
+      if (savedLocallyQuestionKeys.has(questionKey)) {
+        const answer = answers[questionKey]?.trim() ?? "";
+
+        if (answer.length > 0) {
+          return { kind: "ready", label: "Answered" };
+        }
+
+        return { kind: "draft", label: "Skipped" };
+      }
+
+      return { kind: "needs-attention", label: "Needs answer" };
+    },
+    [answers, savedLocallyQuestionKeys],
+  );
   const activePendingQuestions = useMemo(
     () => pendingQuestions.filter((question) => !savedLocallyQuestionKeys.has(question.questionKey)),
     [pendingQuestions, savedLocallyQuestionKeys],
@@ -486,6 +523,7 @@ export function useGuidedIntakeDraftWorkflow(options: GuidedIntakeDraftWorkflowO
     0,
     totalRequiredClarifications - activePendingQuestions.length,
   );
+  const handledClarificationCount = resolvedClarificationCount;
   const primaryPendingQuestion = activePendingQuestions[0] ?? null;
   const otherPendingQuestions =
     viewAllClarifications && activePendingQuestions.length > 1 ? activePendingQuestions.slice(1) : [];
@@ -511,6 +549,9 @@ export function useGuidedIntakeDraftWorkflow(options: GuidedIntakeDraftWorkflowO
     totalRequiredClarifications,
     activePendingQuestions,
     resolvedClarificationCount,
+    handledClarificationCount,
+    getClarificationOrdinal,
+    getClarificationStatus,
     primaryPendingQuestion,
     otherPendingQuestions,
     allClarificationsHandled,

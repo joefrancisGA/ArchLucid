@@ -40,6 +40,12 @@ export const INTAKE_STEP_DEFINITIONS: readonly WizardStepDefinition[] = INTAKE_S
   description: step.description,
 }));
 
+/** WizardStepper metadata — same order as {@link INTAKE_STEPS}. */
+export const INTAKE_WIZARD_STEPPER_STEPS = INTAKE_STEP_DEFINITIONS.map((step) => ({
+  label: step.label,
+  description: step.description,
+}));
+
 /** Snapshot persisted so a reload can resume guided intake where it stopped. */
 export type GuidedIntakeSessionState = {
   readonly freeTextIntent: string;

@@ -20,7 +20,7 @@ export function ReviewsNewPageShell(props: ReviewsNewPageShellProps): React.JSX.
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
 
   return (
-    <OperatorPageContainer variant="workflow">
+    <OperatorPageContainer variant="workflow" withContextRail={buyerPolishedShell}>
       {buyerPolishedShell ? (
         <a
           href={`#${REVIEWS_NEW_PRIMARY_CONTENT_ID}`}

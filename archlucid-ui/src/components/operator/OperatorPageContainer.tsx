@@ -9,6 +9,11 @@ import {
 export type OperatorPageContainerProps = HTMLAttributes<HTMLDivElement> & {
   /** Width profile for the page work surface. Defaults to workflow wizard width. */
   variant?: OperatorPageContainerVariant;
+  /**
+   * Reserve a persistent right context rail on lg+ (guided intake clarifications).
+   * Widens the work surface to the dashboard rail without centering.
+   */
+  withContextRail?: boolean;
 };
 
 export function operatorPageContainerClass(
@@ -24,9 +29,15 @@ export function operatorPageContainerClass(
  * are discouraged — prefer full work-surface width (Overview fix 2026-08-04; **TB-2038**–**TB-2041**).
  */
 export const OperatorPageContainer = forwardRef<HTMLDivElement, OperatorPageContainerProps>(
-  function OperatorPageContainer({ variant = "workflow", className, children, ...rest }, ref) {
+  function OperatorPageContainer(
+    { variant = "workflow", withContextRail = false, className, children, ...rest },
+    ref,
+  ) {
+    const resolvedVariant: OperatorPageContainerVariant =
+      withContextRail && variant === "workflow" ? "dashboard" : variant;
+
     return (
-      <div ref={ref} className={operatorPageContainerClass(variant, className)} {...rest}>
+      <div ref={ref} className={operatorPageContainerClass(resolvedVariant, className)} {...rest}>
         {children}
       </div>
     );
