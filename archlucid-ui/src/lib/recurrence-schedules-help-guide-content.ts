@@ -122,6 +122,6 @@ export const RECURRENCE_SCHEDULES_HELP_GUIDE_HEADINGS: readonly HelpMarkdownHead
 
 /** Drift guard: claim band owns diligence limits; overview and steps stay affirmative. */
 export const RECURRENCE_SCHEDULES_HELP_NEGATION_DRIFT_MARKERS = {
-  overviewMustNotContain: ["not a sealed review record", "digest delivery receipt"],
+  overviewMustNotContain: ["not a finalized review record", "digest delivery receipt"],
   claimMustNotContain: ["sources package", "sealed-review diligence"],
 } as const;

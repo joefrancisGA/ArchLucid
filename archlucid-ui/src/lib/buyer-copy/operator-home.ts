@@ -191,7 +191,7 @@ export const OPERATOR_HOME_SAMPLE_FINDINGS_HEADING = OPERATOR_HOME_EXPLORE_SAMPL
 export const OPERATOR_HOME_SAMPLE_FINDINGS_LEAD = OPERATOR_HOME_EXPLORE_SAMPLE_LEAD;
 
 export const OPERATOR_HOME_SAMPLE_FINDINGS_DEFENSIBLE_LAYER =
-  "Example review — not your workspace data. Open the full review for findings, evidence, and the sealed record.";
+  "Example review — not your workspace data. Open the full review for findings, evidence, and the finalized review record.";
 
 export const SAMPLE_REVIEW_AHA_FINDING_LABEL = "Finding";
 

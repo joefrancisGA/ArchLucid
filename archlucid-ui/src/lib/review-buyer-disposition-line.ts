@@ -32,7 +32,7 @@ export function buildBuyerReviewPackagePlainStatusHeadline(input: BuyerReviewDis
   }
 
   if (postureRaw === "approved with monitoring") {
-    return "Approved with monitoring — proceed under the controls documented in this finalized signed review.";
+    return "Approved with monitoring — proceed under the controls documented in this finalized review.";
   }
 
   return null;
@@ -85,7 +85,7 @@ export function buildBuyerReviewPackageDispositionLine(input: BuyerReviewDisposi
 
   const warningPhrase =
     warnings !== null && warnings > 0 && unresolved !== null && unresolved > 0
-      ? ` ${warnings} non-blocking monitored risk${warnings === 1 ? "" : "s"} remain on the finalized sealed record.`
+      ? ` ${warnings} non-blocking monitored risk${warnings === 1 ? "" : "s"} remain on the finalized review record.`
       : "";
 
   const lead =
@@ -93,7 +93,7 @@ export function buildBuyerReviewPackageDispositionLine(input: BuyerReviewDisposi
       ? `Approved for implementation planning with ${warnings ?? 1} monitored risk${warnings === 1 ? "" : "s"} under active oversight.`
       : posture !== null
         ? `Finalized package — ${posture}.`
-        : "Finalized package — governance complete.";
+        : "Finalized package — resolve outcomes complete.";
 
   return `${lead} ${findingPhrase}${warningPhrase}`;
 }

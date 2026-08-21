@@ -64,7 +64,7 @@ export function ShowcaseOutcomeStrip(props: ShowcaseOutcomeStripProps): ReactEle
             {`1 · ${BUYER_SPONSOR_SUMMARY_VOCABULARY.reviewSponsorReportLabel}`}
           </span>
           <span className={outcomeCaptionClass}>
-            Sign in with a connected workspace to open the sponsor report and finalized sealed record.
+            Sign in with a connected workspace to open the sponsor report and finalized review record.
           </span>
         </div>
       )}

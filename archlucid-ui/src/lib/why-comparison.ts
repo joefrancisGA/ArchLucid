@@ -24,7 +24,7 @@ export const WHY_COMPARISON_TABLE_ROW_LABELS_IN_ORDER = [
   "Authentication fails closed by default (API keys disabled until enabled)",
   "Comparison replay can re-derive the same artifact and detect drift",
   "Findings carry typed payloads per category, not free-text",
-  "Governance gate can block configured high-severity changes before approval",
+  "Approval check can block configured high-severity changes before approval",
 ] as const;
 
 const WHY_HARD_ROW_CELLS: readonly Omit<WhyHardComparisonRow, "label">[] = [

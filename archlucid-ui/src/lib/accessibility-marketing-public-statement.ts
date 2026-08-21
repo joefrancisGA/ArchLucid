@@ -19,7 +19,7 @@ export const ACCESSIBILITY_PUBLIC_WHAT_WE_TEST_AREAS: readonly string[] = [
   "Public marketing pages",
   "Sign-in and navigation flows",
   "Review intake and review pages",
-  "Evidence and governance workflows",
+  "Evidence and approval workflows",
   "Reporting and trust pages",
 ];
 

@@ -126,10 +126,10 @@ export function summarizeEvidenceBasis(payload: FindingInspectPayload | null): s
     if (isPhiMinimizationSampleFinding(payload) || isPhiMinimizationFindingId(payload.findingId)) {
       if (isBuyerPolishedOperatorShellEnv()) {
         if (ruleLabel !== null && ruleLabel.trim().length > 0) {
-          return `Evidence linked to ${ruleLabel} — see evidence trail and sealed review record.`;
+          return `Evidence linked to ${ruleLabel} — see evidence trail and finalized review record.`;
         }
 
-        return "Evidence linked in the finalized review — see evidence trail and sealed review record.";
+        return "Evidence linked in the finalized review — see evidence trail and finalized review record.";
       }
     }
 
@@ -288,7 +288,7 @@ export function validationRequirement(payload: FindingInspectPayload | null, fin
   }
 
   if (isBuyerPolishedOperatorShellEnv()) {
-    return "Recorded in the governance workflow with evidence trail linkage.";
+    return "Recorded in the approval workflow with evidence trail linkage.";
   }
 
   return "Validate that the related review decision, evidence citations, and remediation action are complete before approval.";

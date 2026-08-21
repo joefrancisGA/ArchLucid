@@ -29,19 +29,19 @@ export const MUTATION_REVERSIBILITY_REGISTRY: Readonly<
     id: "governance_quick_approve",
     classification: "permanent",
     confirmationLead:
-      "This records a governance approval on the sealed review record. It cannot be undone from this workspace.",
+      "This records resolve outcomes on the finalized review record. It cannot be undone from this workspace.",
   },
   governance_workflow_approve: {
     id: "governance_workflow_approve",
     classification: "permanent",
     confirmationLead:
-      "Approving this request updates the governance workflow state. It cannot be undone from this workspace.",
+      "Approving this request updates the approval workflow state. It cannot be undone from this workspace.",
   },
   governance_workflow_reject: {
     id: "governance_workflow_reject",
     classification: "permanent",
     confirmationLead:
-      "Rejecting this request updates the governance workflow state. It cannot be undone from this workspace.",
+      "Rejecting this request updates the approval workflow state. It cannot be undone from this workspace.",
   },
   governance_workflow_promote: {
     id: "governance_workflow_promote",

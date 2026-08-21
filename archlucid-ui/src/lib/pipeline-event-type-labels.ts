@@ -90,7 +90,7 @@ const PIPELINE_EVENT_BUYER_SUBTITLE: Record<string, string> = {
   "com.archlucid.governance.approval.submitted":
     "Creates an auditable resolve-outcomes checkpoint before any governed downstream handoff.",
   "com.archlucid.governance.approval.recorded":
-    "Records that the required governance approval sequence completed for this finalized signed review.",
+    "Records that the required resolve outcomes sequence completed for this finalized review.",
   "com.archlucid.governance.promotion.activated":
     "Records that an approved review was authorized to advance within the governed change boundary.",
 };

@@ -37,7 +37,7 @@ export const RECURRENCE_SCHEDULES_HELP_SOURCES: readonly EvidenceSourceLinkWithW
   {
     label: "Approval queue",
     href: GOVERNANCE_APPROVAL_QUEUE_PATH,
-    when: "Route governance approvals when a scheduled follow-up requires sponsor sign-off",
+    when: "Route resolve outcomes when a scheduled follow-up requires sponsor sign-off",
   },
   {
     label: "Architecture digests help",

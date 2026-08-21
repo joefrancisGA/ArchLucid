@@ -238,7 +238,7 @@ export const GOVERNANCE_APPROVAL_HELP_DECISION_OUTCOMES: readonly GovernanceAppr
     outcome: "Approved",
     bullets: [
       "The approval decision is recorded with reviewer identity and timestamp.",
-      "The request shows an approved state in the governance workflow and dashboard.",
+      "The request shows an approved state in the approval workflow and dashboard.",
       "Audit history is updated for procurement and internal assurance.",
       "Authorized users may release the review record to the target environment next.",
     ],
@@ -308,7 +308,7 @@ export const GOVERNANCE_APPROVAL_HELP_TROUBLESHOOTING: readonly GovernanceApprov
   {
     issue: "Approval request not visible",
     resolution:
-      "Load the correct review on the governance workflow page or check the dashboard for pending items across reviews.",
+      "Load the correct review on the approval workflow page or check the dashboard for pending items across reviews.",
   },
   {
     issue: "Evidence appears missing",
@@ -338,7 +338,7 @@ export const GOVERNANCE_APPROVAL_HELP_TROUBLESHOOTING: readonly GovernanceApprov
   {
     issue: "Audit history not updating",
     resolution:
-      "Refresh the governance workflow or audit trail after a decision. If the UI still looks stale, verify the action completed without an error banner.",
+      "Refresh the approval workflow or audit trail after a decision. If the UI still looks stale, verify the action completed without an error banner.",
   },
 ] as const;
 

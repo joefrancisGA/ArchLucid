@@ -210,7 +210,7 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
     layerBadge: "Governance",
     headline: "Diagnose effective policy, conflicts, and precedence for this scope.",
     useWhen:
-      "Use after changing policy pack assignments or governance workflow settings to confirm what is in effect.",
+      "Use after changing policy pack assignments or approval workflow settings to confirm what is in effect.",
     firstPilotNote: "After Pilot proof when merge order or conflicts need review.",
     enterpriseFootnote: "Read-only diagnostic; edits on Policy packs or Governance workflow.",
     omitReviewPackageScopeHelp: true,
@@ -326,10 +326,10 @@ const LAYER_GUIDANCE_BUYER_POLISH_PARTIAL: Partial<
   "governance-findings": {
     headline: "Review records, decisions, and monitoring actions tied to this review.",
     useWhen:
-      "Scan dispositions alongside the governance approval — findings, recorded decisions, and follow-up monitors in one ledger.",
+      "Scan dispositions alongside resolve outcomes — findings, recorded decisions, and follow-up monitors in one ledger.",
     firstPilotNote: null,
     enterpriseFootnote:
-      "Review administrators and governance reviewers use review detail for deep inspection; governance approval remains the authoritative checkpoint.",
+      "Review administrators and governance reviewers use review detail for deep inspection; resolve outcomes remain the authoritative checkpoint.",
   },
   "policy-packs": {
     useWhen: "See which governance packs apply in this workspace and how they combine.",

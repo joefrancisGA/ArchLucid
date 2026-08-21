@@ -85,7 +85,7 @@ export function PolicyPackGenericDetail(props: PolicyPackGenericDetailProps): Re
   const description =
     packRecord.description.trim().length > 0
       ? packRecord.description.trim()
-      : "Review published versions, inspect how rules apply to this scope, and continue governance workflow steps from the policy pack library.";
+      : "Review published versions, inspect how rules apply to this scope, and continue approval workflow steps from the policy pack library.";
   const rulesResolution = resolveResponsibleAiPolicyRuleRows(packContent, {
     hasPackRecord: true,
     usePlatformTemplateFallback: false,

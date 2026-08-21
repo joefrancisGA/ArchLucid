@@ -735,7 +735,7 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
   {
     slug: "search-review-evidence",
     title: "Search review evidence",
-    summary: "How to search findings, decisions, and signed review evidence across the workspace index.",
+    summary: "How to search findings, decisions, and finalized review evidence across the workspace index.",
     audience: "operator",
     sourcePaths: [],
     lastReviewed: "2026-08-13",

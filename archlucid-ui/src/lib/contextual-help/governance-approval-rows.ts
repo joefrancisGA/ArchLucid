@@ -22,7 +22,7 @@ export const GOVERNANCE_APPROVAL_CONTEXTUAL_HELP_ROWS: readonly PageContextualHe
         href: "/governance/approval-queue",
       },
       whereToConfigureAction: {
-        label: "Open governance setup",
+        label: "Open approval setup",
         href: "/governance/setup",
       },
     },
@@ -42,10 +42,10 @@ export const GOVERNANCE_APPROVAL_CONTEXTUAL_HELP_ROWS: readonly PageContextualHe
         href: "/governance/approval-queue",
       },
       whereToConfigureAction: {
-        label: "Open governance setup",
+        label: "Open approval setup",
         href: "/governance/setup",
       },
     },
   },
 ];
-
+

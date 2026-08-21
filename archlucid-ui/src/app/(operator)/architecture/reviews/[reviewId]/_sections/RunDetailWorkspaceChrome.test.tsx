@@ -113,7 +113,7 @@ describe("RunDetailWorkspaceHeader", () => {
 
     expect(screen.getByTestId("run-detail-record-metadata-disclosure")).toBeInTheDocument();
     expect(screen.getByText("Record metadata (4 fields not recorded)")).toBeInTheDocument();
-    expect(screen.getByText("Not recorded — finalization timestamp missing from the sealed record")).toBeInTheDocument();
+    expect(screen.getByText("Not recorded — finalization timestamp missing from the finalized review record")).toBeInTheDocument();
     expect(screen.getByText("Not recorded — rule set version missing")).toBeInTheDocument();
   });
 

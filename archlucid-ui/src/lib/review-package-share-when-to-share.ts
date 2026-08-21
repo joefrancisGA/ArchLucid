@@ -20,7 +20,7 @@ export type ReviewPackageShareWhenToSharePreview = {
   readonly rows: readonly ReviewPackageShareWhenToShareRow[];
 };
 
-export const REVIEW_PACKAGE_SHARE_WHEN_TO_SHARE_TITLE = "When to share this sealed record" as const;
+export const REVIEW_PACKAGE_SHARE_WHEN_TO_SHARE_TITLE = "When to share this finalized review record" as const;
 
 const ROW_IDS: readonly ReviewPackageShareWhenToShareRowId[] = [
   "shareLink",

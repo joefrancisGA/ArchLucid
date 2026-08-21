@@ -16,7 +16,7 @@ export const BUYER_RUN_INSPECTOR_FINALIZED_LABEL = "Example · finalized";
 export const BUYER_RUNS_GETTING_STARTED_GUIDE = "getting-started guide";
 
 export const BUYER_RUNS_LIST_GLOSSARY_LEAD =
-  "Open a review for the sealed record, evidence, findings, and deliverables.";
+  "Open a review for the finalized review record, evidence, findings, and deliverables.";
 
 export const BUYER_RUNS_LIST_MALFORMED_HEADING = "Reviews could not be displayed.";
 
@@ -60,7 +60,7 @@ export const BUYER_ARCHITECTURE_PACKAGE_ORIGIN_REVIEWED_BADGE = "Reviewed";
 export const BUYER_ARCHITECTURE_PACKAGE_ORIGIN_METADATA_LABEL = "Package origin";
 
 export const BUYER_ARCHITECTURE_PACKAGE_ORIGIN_REVIEWED_DISCLOSURE =
-  "Reviewed means the architecture package was assessed in a completed review — not that governance approval is complete.";
+  "Reviewed means the architecture package was assessed in a completed review — not that resolve outcomes are complete.";
 
 /** Footer navigation on home reviews card — distinct from the All status filter pill. */
 export const BUYER_RUNS_DASHBOARD_OPEN_REVIEW_PACKAGES_CTA = "Open all reviews";

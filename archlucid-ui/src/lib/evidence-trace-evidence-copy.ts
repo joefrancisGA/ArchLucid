@@ -6,7 +6,7 @@ export const EVIDENCE_TRACE_CANONICAL_PATH_PATTERN =
   "/architecture/reviews/[reviewId]/findings/[findingId]/evidence-trace" as const;
 
 export const EVIDENCE_TRACE_CLAIM_DISCIPLINE =
-  "This page shows the policy, evidence, reasoning, and audit linkage for one finding — not a full audit export by itself. Open the finding detail, review provenance, or sealed record when you need the broader package.";
+  "This page shows the policy, evidence, reasoning, and audit linkage for one finding — not a full audit export by itself. Open the finding detail, review provenance, or finalized review record when you need the broader package.";
 
 export const EVIDENCE_TRACE_SOURCES_INTRO =
   "Use these follow-ups when the trace leads into finding triage, run provenance, or governance help.";

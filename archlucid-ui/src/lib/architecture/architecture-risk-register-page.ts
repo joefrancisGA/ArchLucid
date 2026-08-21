@@ -16,7 +16,7 @@ export const ARCHITECTURE_RISK_REGISTER_EMPTY_BODY =
   "Risks appear here when accepted findings, waivers, exceptions, or governance decisions create follow-up risk items.";
 
 export const ARCHITECTURE_RISK_REGISTER_CONTAINS_COPY =
-  "Each row represents a tracked architecture risk. A risk should identify the source finding or decision, owner, severity, resolve status, linked evidence, exception status, and review history. The record should be traceable back to the signed review that created it.";
+  "Each row represents a tracked architecture risk. A risk should identify the source finding or decision, owner, severity, resolve status, linked evidence, exception status, and review history. The record should be traceable back to the finalized review that created it.";
 
 export type ArchitectureRiskRegisterSummary = {
   readonly openRisks: number;
@@ -94,7 +94,7 @@ export const ARCHITECTURE_RISK_REGISTER_GLOSSARY = [
   {
     term: "Governance decision",
     definition:
-      "A recorded approval, rejection, or monitoring disposition tied to a signed review and evidence trail.",
+      "A recorded approval, rejection, or monitoring disposition tied to a finalized review and evidence trail.",
   },
   {
     term: "Evidence trail",

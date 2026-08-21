@@ -54,7 +54,7 @@ export const APPROVAL_LINEAGE_QUEUE_QUEUE_LINK: ApprovalLineageQueueLink = {
   id: "approval-queue",
   label: "Approval queue",
   href: GOVERNANCE_APPROVAL_QUEUE_PATH,
-  whenToUse: "Submit, approve, or reject governance approval requests.",
+  whenToUse: "Submit, approve, or reject resolve outcomes requests.",
 };
 
 /** Pairwise model for Approval lineage ↔ Approval queue (fixed governance routes). */

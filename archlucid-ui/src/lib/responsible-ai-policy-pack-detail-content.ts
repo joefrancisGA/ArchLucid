@@ -93,7 +93,7 @@ export const RESPONSIBLE_AI_POLICY_RULE_ROWS: readonly ResponsibleAiPolicyRuleRo
   {
     ruleName: "Audit logging",
     severity: "Medium",
-    requirement: "Retain tamper-evident logs for prompts, model calls, and governance approvals.",
+    requirement: "Retain tamper-evident logs for prompts, model calls, and resolve outcomes.",
     evidenceExpected: "Audit log design, retention policy",
   },
   {
@@ -150,7 +150,7 @@ export const RESPONSIBLE_AI_ACTION_START_REVIEW = "Start review with this pack";
 
 export const RESPONSIBLE_AI_ACTION_GOVERNANCE = "Open resolve outcomes";
 
-export const RESPONSIBLE_AI_ACTION_OPEN_GOVERNANCE_SETUP = "Open governance setup";
+export const RESPONSIBLE_AI_ACTION_OPEN_GOVERNANCE_SETUP = "Open approval setup";
 
 export const RESPONSIBLE_AI_VIEW_TECHNICAL_DETAILS = "View technical details";
 

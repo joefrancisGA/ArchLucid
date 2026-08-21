@@ -101,7 +101,7 @@ export const GLOSSARY_TERMS = {
   },
   governance_workflow: {
     term: "Governance workflow",
-    definition: "A committed decision in the governance workflow affecting merge, rollout, waiver, exception, or escalation — differentiated from UX affordances labelled \"Approve\" unless they write to governance state.",
+    definition: "A committed decision in the approval workflow affecting merge, rollout, waiver, exception, or escalation — differentiated from UX affordances labelled \"Approve\" unless they write to governance state.",
   },
   architecture_manifest: {
     term: "Finalized review record",
@@ -120,7 +120,7 @@ export const GLOSSARY_TERMS = {
   },
   approval_request: {
     term: "Approval request",
-    definition: "A committed decision in the governance workflow affecting merge, rollout, waiver, exception, or escalation — differentiated from UX affordances labelled \"Approve\" unless they write to governance state.",
+    definition: "A committed decision in the approval workflow affecting merge, rollout, waiver, exception, or escalation — differentiated from UX affordances labelled \"Approve\" unless they write to governance state.",
     docLink: "/docs/library/GLOSSARY.md#governance-workflow",
   },
   governance_resolution: {

@@ -37,9 +37,9 @@ export const ENTERPRISE_ONBOARDING_HUB_STEPS: readonly EnterpriseOnboardingHubSt
     primaryLink: { label: "Assign policy packs", href: "#default-policy-packs" },
   },
   {
-    title: "Enable governance workflow",
+    title: "Enable approval workflow",
     owner: ENTERPRISE_ONBOARDING_HUB_STEP_OWNERS.tenantAdmin,
-    primaryLink: { label: "Enable governance workflow", href: "#governance-enablement" },
+    primaryLink: { label: "Enable approval workflow", href: "#governance-enablement" },
   },
   {
     title: "Configure audit export",

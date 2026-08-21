@@ -85,7 +85,7 @@ export const governanceResolutionRawOutputAccordionLabel = "Raw resolution outpu
 export const governanceResolutionRefreshPolicySectionHeading = "Refresh policy resolution";
 
 export const governanceResolutionChangeRelatedControlsLead =
-  "Refresh the effective policy after changing policy packs or governance workflow settings.";
+  "Refresh the effective policy after changing policy packs or approval workflow settings.";
 
 /**
  * Policy resolution — extra line under **Refresh policy resolution** when **`useOperateCapability()`** is

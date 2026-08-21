@@ -66,13 +66,13 @@ export const TEAMS_NOTIFICATION_CATEGORIES: readonly TeamsNotificationCategory[]
       {
         eventType: "com.archlucid.governance.approval.approved",
         label: "Approval approved",
-        description: "A governance approval request was approved.",
+        description: "A resolve outcomes request was approved.",
         recommended: true,
       },
       {
         eventType: "com.archlucid.governance.approval.rejected",
         label: "Approval rejected",
-        description: "A governance approval request was rejected or returned.",
+        description: "A resolve outcomes request was rejected or returned.",
       },
       {
         eventType: "com.archlucid.governance.promotion.activated",

@@ -38,7 +38,7 @@ describe("formatBuyerAuditTrailSummaryLine", () => {
     const demo = getDemoSampleAuditTrailEvents();
     const line = formatBuyerAuditTrailSummaryLine(demo, "customer-intake-modernization", "");
 
-    expect(line).toContain("This audit trail shows the lifecycle from review creation through governance approval");
+    expect(line).toContain("This audit trail shows the lifecycle from review creation through resolve outcomes");
     expect(line).toContain(SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE);
     expect(line).toContain("named human actors");
   });

@@ -72,12 +72,12 @@ export const GETTING_STARTED_HELP_DIAGRAM_STEPS = [
 export const GETTING_STARTED_HELP_PIPELINE_TEXT_STAGES = [
   "Architecture request opens a review session and feeds context ingestion.",
   "Authority pipeline stages: knowledge graph, findings, decisioning, and artifacts.",
-  "Governance gate: allow commits the finalized review record; block or warn policy holds finalize.",
+  "Approval check: allow commits the finalized review record; block or warn policy holds finalize.",
   "Committed outputs: finalized review record and downloadable exports.",
 ] as const;
 
 export const GETTING_STARTED_HELP_PIPELINE_DIAGRAM_DESCRIPTION =
-  "Stages from architecture request through context ingestion, authority pipeline (knowledge graph, findings, decisioning, artifacts), governance gate (allow commits the finalized review record; block or warn policy holds finalize), and committed outputs (finalized review record and exports).";
+  "Stages from architecture request through context ingestion, authority pipeline (knowledge graph, findings, decisioning, artifacts), approval check (allow commits the finalized review record; block or warn policy holds finalize), and committed outputs (finalized review record and exports).";
 
 export type GettingStartedPlainLanguageTerm = {
   readonly term: string;
@@ -272,7 +272,7 @@ export const GETTING_STARTED_HELP_DIAGRAM_SOURCE = `flowchart LR
   end
   AR --> CI --> KG --> FD --> DV --> ART
   R -.created at start.- CI
-  FD --> gov{Governance gate}
+  FD --> gov{Approval check}
   gov -->|allow| SR
   gov -->|block / warn policy| gov
   SR --> PKG`;

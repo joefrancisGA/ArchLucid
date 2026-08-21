@@ -119,7 +119,7 @@ export function PreCommitGovernanceBlockPanel(props: PreCommitGovernanceBlockPan
           className={OPERATOR_LINK.nav}
           data-testid="pre-commit-governance-block-audit-link"
         >
-          View governance bypass audit →
+          View approval bypass audit →
         </Link>
       </div>
     </div>

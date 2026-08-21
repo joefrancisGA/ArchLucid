@@ -33,9 +33,9 @@ export const REPLAY_VALIDATION_MODES: readonly ReplayValidationModeDefinition[] 
   {
     mode: "ReconstructOnly",
     title: "Check stored package",
-    summary: "Read-only validation of stored evidence, findings, decisions, links, and sealed record.",
+    summary: "Read-only validation of stored evidence, findings, decisions, links, and finalized review record.",
     bullets: [
-      "Validates stored evidence, findings, decisions, links, and sealed record",
+      "Validates stored evidence, findings, decisions, links, and finalized review record",
       "Does not regenerate AI output",
       "No full-review AI budget usage",
     ],

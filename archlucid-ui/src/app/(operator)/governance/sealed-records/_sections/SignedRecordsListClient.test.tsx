@@ -224,7 +224,7 @@ describe("SignedRecordsListClient", () => {
     expect(browseReviewsLink).toHaveAttribute("href", "/architecture/reviews");
     expect(browseReviewsLink.getAttribute("href")).not.toMatch(/projectId=/i);
 
-    expect(screen.getByRole("link", { name: "View sample sealed record" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "View sample finalized record" })).toBeInTheDocument();
   });
 
   it("shows the demo static banner when live list is empty and static fallback rows are injected", async () => {

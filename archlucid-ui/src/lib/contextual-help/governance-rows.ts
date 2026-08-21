@@ -60,7 +60,7 @@ export const GOVERNANCE_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] =
         "Review the summary and decisions, open related findings, or export the review bundle when downloads are ready.",
       whyEmpty: "A finalized review record appears after you finalize an architecture review.",
       whereToConfigurePrerequisite:
-        "Finalize a review from the architecture review workspace before opening its sealed record.",
+        "Finalize a review from the architecture review workspace before opening its finalized review record.",
     },
   },
 ];
