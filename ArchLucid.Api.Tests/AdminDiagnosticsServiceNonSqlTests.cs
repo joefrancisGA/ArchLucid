@@ -588,7 +588,7 @@ public sealed class AdminDiagnosticsServiceNonSqlTests
         };
 
         _ = runs
-            .Setup(r => r.GetByIdAsync(scope, runId, It.IsAny<CancellationToken>()))
+            .Setup(r => r.GetByIdAsync(It.IsAny<ScopeContext>(), runId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new RunRecord { RunId = runId, TenantId = tenantId });
 
         _ = runs
@@ -696,7 +696,7 @@ public sealed class AdminDiagnosticsServiceNonSqlTests
         foreach (Guid runId in succeededRunIds)
         {
             _ = runs
-                .Setup(r => r.GetByIdAsync(scope, runId, It.IsAny<CancellationToken>()))
+                .Setup(r => r.GetByIdAsync(It.IsAny<ScopeContext>(), runId, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new RunRecord { RunId = runId, TenantId = scope.TenantId });
         }
 

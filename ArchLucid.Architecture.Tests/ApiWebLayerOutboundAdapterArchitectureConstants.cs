@@ -25,6 +25,7 @@ internal static class ApiWebLayerOutboundAdapterArchitectureConstants
     internal static readonly string[] AllowlistedOutboundAdapterImplementationTypeNames =
     [
         "WebhookSubscriptionTestService",
+        "TeamsIncomingWebhookConnectionProbeService",
         "OidcWellKnownDiagnosticsService",
         "SamlOperationalDiagnosticsService",
         "IdentityProviderDiscoveryService",
