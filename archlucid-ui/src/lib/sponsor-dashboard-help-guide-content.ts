@@ -62,7 +62,7 @@ export const SPONSOR_DASHBOARD_HELP_FEATURE_ITEMS: readonly SponsorDashboardHelp
   },
   {
     label: "Sponsor exports",
-    detail: "Generate sponsor-ready exports when portfolio data is ready for sponsor briefings.",
+    detail: "Generate export-ready outputs when portfolio data is ready for sponsor briefings.",
     href: SPONSOR_DASHBOARD_HELP_SPONSOR_SUMMARY_HREF,
   },
   {

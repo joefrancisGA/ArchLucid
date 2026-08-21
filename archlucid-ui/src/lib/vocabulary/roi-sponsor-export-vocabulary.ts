@@ -65,7 +65,7 @@ export const ROI_SPONSOR_EXPORT_SPONSOR_DASHBOARD_LINK: RoiSponsorExportLink = {
   id: "sponsor-dashboard",
   label: "Sponsor dashboard",
   href: SPONSOR_DASHBOARD_HREF,
-  whenToUse: "Open sponsor-ready exports and sponsor report from the dashboard.",
+  whenToUse: "Open export-ready outputs and sponsor report from the dashboard.",
 };
 
 /** Full vocabulary model (heading, why-two copy, and deep links). */

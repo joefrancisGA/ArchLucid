@@ -89,7 +89,7 @@ export const BUYER_SPONSOR_SUMMARY_VOCABULARY = {
   roiMetricsSrOnly: "Sponsor ROI metrics",
   emptyStateTitle: "No finalized reviews yet",
   emptyStateDescription:
-    "Finalize a review to populate sponsor metrics, remediation progress, ROI estimates, and sponsor-ready exports.",
+    "Finalize a review to populate sponsor metrics, remediation progress, ROI estimates, and export-ready outputs.",
   emptyStatePrimaryAction: BUYER_START_ARCHITECTURE_REVIEW_CTA,
   emptyStateSecondaryAction: "Load sample dashboard",
   emptyStateSecondaryHelper: "Populate this workspace with sample review data.",

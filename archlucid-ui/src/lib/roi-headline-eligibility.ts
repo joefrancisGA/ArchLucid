@@ -21,7 +21,7 @@ export const ROI_HEADLINE_ILLUSTRATIVE_DEMO_LABEL = ILLUSTRATIVE_CONTAINER_LABEL
 export const ROI_HEADLINE_ILLUSTRATIVE_ESTIMATE_LABEL = ESTIMATE_CONTAINER_LABEL;
 
 export const ROI_HEADLINE_SUPPRESSED_CTA =
-  "Supply buyer-provided ROI baselines before treating dollar figures as sponsor-ready." as const;
+  "Supply buyer-provided ROI baselines before treating dollar figures as export-ready." as const;
 
 /**
  * Given an evidence / basis label, return whether a dollar KPI may headline a sponsor surface.

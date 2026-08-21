@@ -146,4 +146,17 @@ describe("ArchitectureCreatedFindingsNextAction", () => {
 
     expect(screen.getByTestId("architecture-findings-triage-primary-action")).toHaveClass("border-neutral-300");
   });
+
+  it("demotes fallback activity link when Do this next owns the page primary", () => {
+    render(
+      <ArchitectureCreatedFindingsNextAction
+        runId="run-1"
+        findings={[]}
+        analysisStagesComplete={false}
+        pagePrimaryOwnedElsewhere
+      />,
+    );
+
+    expect(screen.getByTestId("architecture-findings-activity-primary-action").className).toContain("border-neutral-300");
+  });
 });

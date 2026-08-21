@@ -51,7 +51,7 @@ export function WizardStepBaselineMetrics(props: WizardStepBaselineMetricsProps)
           />
           <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
             How many hours does a typical architecture review currently take your team (request to approved
-            manifest)? Required for sponsor-ready ROI reporting in your first-value report.
+            manifest)? Required for export-ready ROI reporting in your first-value report.
           </p>
           {fieldError !== null ? (
             <p className={cn("m-0 text-red-600", OPERATOR_TYPOGRAPHY.body)} role="alert" data-testid="wizard-baseline-metrics-error">

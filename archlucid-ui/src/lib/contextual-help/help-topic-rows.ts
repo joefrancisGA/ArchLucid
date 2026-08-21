@@ -341,7 +341,7 @@ export const HELP_TOPIC_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] =
     prefix: "/help/first-architecture-review",
     entry: {
       whatIsThisPage:
-        "Your first architecture review — guided path from evidence intake to a finalized package and sponsor-ready exports.",
+        "Your first architecture review — guided path from evidence intake to a finalized package and export-ready outputs.",
       whatToDoNext:
         "Start an architecture review from the hero CTA, or open the sample review when you want a completed outcome first.",
       whyEmpty: "This guide is always available; live architecture reviews appear after you create them.",

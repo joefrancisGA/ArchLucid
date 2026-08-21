@@ -284,6 +284,7 @@ export async function RunDetailPageView(props: {
                     findingsTriageVisibleCount={findingsTriageVisibleCount}
                     correctionHref={architectureEditHref}
                     pagePrimaryOwnedElsewhere
+                    analysisStagesComplete={createHomeAnalysisStagesComplete}
                     panels={{
                       findings: (
                         <RunDetailCreateHomeFindingsPanel

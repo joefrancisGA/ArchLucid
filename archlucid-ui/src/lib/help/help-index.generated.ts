@@ -136,7 +136,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Your first architecture review",
     "sectionSlug": "first-review-path",
     "sectionHeading": "First review path",
-    "excerpt": "Start with evidence, run the review, finalize the architecture review, then share sponsor-ready outputs."
+    "excerpt": "Start with evidence, run the review, finalize the architecture review, then share export-ready outputs."
   },
   {
     "docPath": "docs/CORE_PILOT.md",

@@ -73,7 +73,7 @@ describe("architecture-draft-readiness", () => {
   it("does not block review start when constraints and assumptions are empty", () => {
     const emptyLists = {
       freeTextIntent: readyOverview,
-      businessOutcome: "Reduce cycle time for governed architecture reviews.",
+      businessOutcome: "Reduce cycle time for architecture reviews.",
       systemName: "Claims intake",
       structuredBrief: {
         ...emptyArchitectureDraftStructuredBrief(),
@@ -128,7 +128,7 @@ describe("architecture-draft-readiness", () => {
   it("allows review start with qualitative-only quality attributes", () => {
     const qualitativeOnly = {
       freeTextIntent: readyOverview,
-      businessOutcome: "Reduce cycle time for governed architecture reviews.",
+      businessOutcome: "Reduce cycle time for architecture reviews.",
       systemName: "Claims intake",
       structuredBrief: {
         ...readyStructuredBrief(),

@@ -114,7 +114,7 @@ export const HELP_TOPICS: HelpTopic[] = [
     title: "Ask about a review",
     keywords: ["chat", "question", "sponsor", "assistant"],
     summary:
-      "Attach the sample architecture review (or your workspace review), ask sponsor-ready questions, and follow threaded answers.",
+      "Attach the sample architecture review (or your workspace review), ask export-ready questions, and follow threaded answers.",
     docPath: "docs/library/operator-shell.md",
     routes: ["/insights/ask-review-questions"],
   },
