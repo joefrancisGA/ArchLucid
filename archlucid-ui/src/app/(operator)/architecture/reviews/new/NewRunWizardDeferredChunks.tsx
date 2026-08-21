@@ -1,63 +1,46 @@
 "use client";
 
-import dynamic from "next/dynamic";
+import { createDeferredComponentFromManifest } from "@/lib/operator/load-deferred-chunk-from-manifest";
 
-export const WizardStepAdvanced = dynamic(
-  () => import("@/components/wizard/steps/WizardStepAdvanced").then((module) => module.WizardStepAdvanced),
-  { loading: () => null },
-);
+export const WizardStepAdvanced = createDeferredComponentFromManifest("reviews-new-wizard-step-advanced", {
+  suppressLoading: true,
+});
 
-export const WizardStepCloudInventoryContext = dynamic(
-  () =>
-    import("@/components/wizard/steps/WizardStepCloudInventoryContext").then(
-      (module) => module.WizardStepCloudInventoryContext,
-    ),
-  { loading: () => null },
+export const WizardStepCloudInventoryContext = createDeferredComponentFromManifest(
+  "reviews-new-wizard-step-cloud-inventory",
+  { suppressLoading: true },
 );
 
 /** @deprecated Prefer {@link WizardStepCloudInventoryContext}. */
 export const WizardStepAzureContext = WizardStepCloudInventoryContext;
 
-export const WizardStepBaselineZip = dynamic(
-  () => import("@/components/wizard/steps/WizardStepBaselineZip").then((module) => module.WizardStepBaselineZip),
-  { loading: () => null },
+export const WizardStepBaselineZip = createDeferredComponentFromManifest("reviews-new-wizard-step-baseline-zip", {
+  suppressLoading: true,
+});
+
+export const WizardStepBaselineMetrics = createDeferredComponentFromManifest(
+  "reviews-new-wizard-step-baseline-metrics",
+  { suppressLoading: true },
 );
 
-export const WizardStepBaselineMetrics = dynamic(
-  () =>
-    import("@/components/wizard/steps/WizardStepBaselineMetrics").then(
-      (module) => module.WizardStepBaselineMetrics,
-    ),
-  { loading: () => null },
+export const WizardPostCreateEvidenceUploadPanel = createDeferredComponentFromManifest(
+  "reviews-new-wizard-post-create-evidence",
+  { suppressLoading: true },
 );
 
-export const WizardPostCreateEvidenceUploadPanel = dynamic(
-  () =>
-    import("@/components/wizard/steps/WizardPostCreateEvidenceUploadPanel").then(
-      (module) => module.WizardPostCreateEvidenceUploadPanel,
-    ),
-  { loading: () => null },
+export const WizardStepTrack = createDeferredComponentFromManifest("reviews-new-wizard-step-track", {
+  suppressLoading: true,
+});
+
+export const ArchitectureRequestWizardHelpDrawer = createDeferredComponentFromManifest(
+  "reviews-new-wizard-help-drawer",
+  { suppressLoading: true },
 );
 
-export const WizardStepTrack = dynamic(
-  () => import("@/components/wizard/steps/WizardStepTrack").then((module) => module.WizardStepTrack),
-  { loading: () => null },
-);
+export const QuickStartWizard = createDeferredComponentFromManifest("reviews-new-quick-start-wizard", {
+  suppressLoading: true,
+});
 
-export const ArchitectureRequestWizardHelpDrawer = dynamic(
-  () =>
-    import("@/components/wizard/ArchitectureRequestWizardHelpDrawer").then(
-      (module) => module.ArchitectureRequestWizardHelpDrawer,
-    ),
-  { loading: () => null },
-);
-
-export const QuickStartWizard = dynamic(
-  () => import("./QuickStartWizard").then((module) => module.QuickStartWizard),
-  { loading: () => null },
-);
-
-export const SimplifiedPilotWizard = dynamic(
-  () => import("./SimplifiedPilotWizard").then((module) => module.SimplifiedPilotWizard),
-  { loading: () => null },
-);
+export const SimplifiedPilotWizard = createDeferredComponentFromManifest("reviews-new-simplified-pilot-wizard", {
+  suppressLoading: true,
+});
