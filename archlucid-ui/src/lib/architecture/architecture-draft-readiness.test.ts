@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  buildArchitectureDraftPatchPayload,
   hasArchitectureDraftSaveableContent,
   validateArchitectureDraftIntegrity,
   validateArchitectureReviewReadiness,
@@ -181,5 +182,24 @@ describe("architecture-draft-readiness", () => {
     };
 
     expect(hasArchitectureDraftSaveableContent(partialInvalidOutcome)).toBe(false);
+  });
+
+  it("omits freeTextIntent from PATCH payload until the overview meets server minimum length", () => {
+    const actorSet = { actors: [assertedActor] };
+    const systemNameOnly = {
+      freeTextIntent: "",
+      businessOutcome: "Reduce cycle time for architecture reviews.",
+      systemName: "Claims intake",
+      structuredBrief: emptyArchitectureDraftStructuredBrief(),
+    };
+
+    expect(buildArchitectureDraftPatchPayload(systemNameOnly, actorSet).freeTextIntent).toBeUndefined();
+
+    const withOverview = {
+      ...systemNameOnly,
+      freeTextIntent: readyOverview,
+    };
+
+    expect(buildArchitectureDraftPatchPayload(withOverview, actorSet).freeTextIntent).toBe(readyOverview);
   });
 });

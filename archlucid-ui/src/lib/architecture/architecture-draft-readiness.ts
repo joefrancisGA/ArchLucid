@@ -1,14 +1,18 @@
 import {
   GUIDED_INTAKE_ARCHITECTURE_INTENT_MIN_CHARS,
 } from "@/lib/guided-intake-copy";
+import { buildDefaultActorSet } from "@/lib/api/draft-intake-api";
+import { CREATE_ARCHITECTURE_INTENT } from "@/lib/architecture/architecture-workflow-intent";
+import { normalizeActorSetForAdmission } from "@/lib/draft-intake-actor-suggestions";
 
 import type { ArchitectureReviewReadinessBlockerId } from "./architecture-review-readiness-copy";
 import type { ArchitectureDraftStructuredBriefState } from "./architecture-draft-structured-brief";
 import {
   hasConfirmedActor,
   qualityAttributeMeetsMinimum,
+  structuredBriefToPatchPayload,
 } from "./architecture-draft-structured-brief";
-import type { ActorDescriptor } from "@/types/draft-intake";
+import type { ActorDescriptor, ActorSet } from "@/types/draft-intake";
 
 const MIN_OUTCOME_CHARS = 10;
 
@@ -53,6 +57,41 @@ export function validateArchitectureDraftIntegrity(
   return {
     isValid: blockers.length === 0,
     blockers,
+  };
+}
+
+export type ArchitectureDraftPatchPayload = {
+  readonly freeTextIntent?: string;
+  readonly businessOutcome: string;
+  readonly systemName?: string;
+  readonly actorSet: ActorSet;
+  readonly workflowIntent: typeof CREATE_ARCHITECTURE_INTENT;
+  readonly structuredBrief: ReturnType<typeof structuredBriefToPatchPayload>;
+};
+
+/**
+ * PATCH body for `/v1/architecture/draft/{id}` while status is `Drafting`.
+ * Omits `freeTextIntent` when empty or below server minimum so partial saves do not 400.
+ */
+export function buildArchitectureDraftPatchPayload(
+  fields: ArchitectureDraftFieldState,
+  actorSet: ActorSet,
+): ArchitectureDraftPatchPayload {
+  const trimmedIntent = fields.freeTextIntent.trim();
+  const trimmedOutcome = fields.businessOutcome.trim();
+  const trimmedSystemName = fields.systemName.trim();
+
+  return {
+    ...(trimmedIntent.length >= GUIDED_INTAKE_ARCHITECTURE_INTENT_MIN_CHARS
+      ? { freeTextIntent: trimmedIntent }
+      : {}),
+    businessOutcome: trimmedOutcome,
+    ...(trimmedSystemName.length > 0 ? { systemName: trimmedSystemName } : {}),
+    actorSet: normalizeActorSetForAdmission(
+      actorSet.actors.length > 0 ? actorSet : buildDefaultActorSet(),
+    ),
+    workflowIntent: CREATE_ARCHITECTURE_INTENT,
+    structuredBrief: structuredBriefToPatchPayload(fields.structuredBrief),
   };
 }
 
