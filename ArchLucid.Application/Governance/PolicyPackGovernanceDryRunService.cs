@@ -141,7 +141,7 @@ public sealed class PolicyPackGovernanceDryRunService(
     {
         foreach (string key in keys)
         {
-            if (!metadata.TryGetValue(key, out string? raw) || string.IsNullOrWhiteSpace(raw))
+            if (!PolicyPackContentMetadataReader.TryGetValue(metadata, key, out string? raw) || string.IsNullOrWhiteSpace(raw))
                 continue;
             if (bool.TryParse(raw.Trim(), out bool b))
                 return b;
@@ -166,7 +166,7 @@ public sealed class PolicyPackGovernanceDryRunService(
     {
         foreach (string key in keys)
         {
-            if (!metadata.TryGetValue(key, out string? raw) || string.IsNullOrWhiteSpace(raw))
+            if (!PolicyPackContentMetadataReader.TryGetValue(metadata, key, out string? raw) || string.IsNullOrWhiteSpace(raw))
                 continue;
             if (int.TryParse(raw.Trim(), out int value))
                 return value;
