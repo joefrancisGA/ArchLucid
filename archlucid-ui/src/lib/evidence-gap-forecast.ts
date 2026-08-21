@@ -25,12 +25,22 @@ export type EvidenceGapForecastEntry = {
 export const EVIDENCE_GAP_FORECAST_DISCLAIMER =
   "Directional coverage expectation only — not a guarantee of finding counts or severities.";
 
+export const EVIDENCE_GAP_FORECAST_PANEL_TITLE = "Expected finding coverage";
+
+/** Deep link to the reference section on `/help/evidence-intake`. */
+export const EVIDENCE_COVERAGE_HELP_HREF = "/help/evidence-intake#finding-coverage";
+
+export const EVIDENCE_COVERAGE_HELP_LINK_LABEL = "How evidence affects coverage";
+
 const DOMAIN_LABELS: Record<FindingCoverageDomain, string> = {
   cost: "cost",
   resilience: "resilience",
   security: "security",
   decisions: "architecture decisions",
 };
+
+/** Canonical domain order so summary copy stays stable regardless of which classes are missing. */
+const DOMAIN_ORDER: readonly FindingCoverageDomain[] = ["cost", "resilience", "security", "decisions"];
 
 const FORECAST_BY_CLASS: Record<
   EvidenceGapClass,
@@ -81,16 +91,22 @@ function formatThinnerDomains(domains: readonly FindingCoverageDomain[]): string
   return `${labels.slice(0, -1).join(", ")}, and ${labels[labels.length - 1]}`;
 }
 
-function missingEntries(flags: EvidencePresenceFlags): EvidenceGapForecastEntry[] {
-  const checks: readonly { readonly flag: keyof EvidencePresenceFlags; readonly classId: EvidenceGapClass }[] = [
-    { flag: "hasArchitectureBrief", classId: "architecture-brief" },
-    { flag: "hasCloudInventory", classId: "cloud-inventory" },
-    { flag: "hasInfrastructureAsCode", classId: "infrastructure-as-code" },
-    { flag: "hasArchitectureDiagram", classId: "architecture-diagram" },
-    { flag: "hasOperationalEvidence", classId: "operational-evidence" },
-  ];
+/** Presentation order for every evidence class, shared by the forecast, the summary, and the help table. */
+const EVIDENCE_CLASS_ORDER: readonly {
+  readonly flag: keyof EvidencePresenceFlags;
+  readonly classId: EvidenceGapClass;
+}[] = [
+  { flag: "hasArchitectureBrief", classId: "architecture-brief" },
+  { flag: "hasCloudInventory", classId: "cloud-inventory" },
+  { flag: "hasInfrastructureAsCode", classId: "infrastructure-as-code" },
+  { flag: "hasArchitectureDiagram", classId: "architecture-diagram" },
+  { flag: "hasOperationalEvidence", classId: "operational-evidence" },
+];
 
-  return checks
+export const EVIDENCE_COVERAGE_CLASS_COUNT: number = EVIDENCE_CLASS_ORDER.length;
+
+function missingEntries(flags: EvidencePresenceFlags): EvidenceGapForecastEntry[] {
+  return EVIDENCE_CLASS_ORDER
     .filter((entry) => !flags[entry.flag])
     .map((entry) => {
       const forecast = FORECAST_BY_CLASS[entry.classId];
@@ -113,6 +129,76 @@ export function formatEvidenceGapForecastHeadline(entry: EvidenceGapForecastEntr
   const domains = formatThinnerDomains(entry.thinnerDomains);
 
   return `Without ${entry.label.toLowerCase()}, expect thinner ${domains} findings.`;
+}
+
+export type EvidenceCoverageSummary = {
+  readonly presentCount: number;
+  readonly totalCount: number;
+  readonly missingCount: number;
+  /** Union of the domains every missing class would thin, in canonical order. */
+  readonly thinnerDomains: readonly FindingCoverageDomain[];
+  /** Single-line status suitable for a disclosure summary row or an inline helper line. */
+  readonly summaryLine: string;
+};
+
+function unionThinnerDomains(
+  forecast: readonly EvidenceGapForecastEntry[],
+): readonly FindingCoverageDomain[] {
+  const affected = new Set<FindingCoverageDomain>(forecast.flatMap((entry) => entry.thinnerDomains));
+
+  return DOMAIN_ORDER.filter((domain) => affected.has(domain));
+}
+
+function formatEvidenceCoverageSummaryLine(
+  presentCount: number,
+  thinnerDomains: readonly FindingCoverageDomain[],
+): string {
+  if (thinnerDomains.length === 0) {
+    return `All ${EVIDENCE_COVERAGE_CLASS_COUNT} evidence classes present — no expected coverage gaps.`;
+  }
+
+  return `${presentCount} of ${EVIDENCE_COVERAGE_CLASS_COUNT} evidence classes present — expect thinner ${formatThinnerDomains(thinnerDomains)} findings.`;
+}
+
+/**
+ * Condenses the per-class forecast into one sentence so surfaces can lead with coverage state
+ * and keep the per-class detail behind progressive disclosure.
+ */
+export function summarizeEvidenceCoverage(flags: EvidencePresenceFlags): EvidenceCoverageSummary {
+  const forecast = deriveEvidenceGapForecast(flags);
+  const missingCount = forecast.length;
+  const presentCount = EVIDENCE_COVERAGE_CLASS_COUNT - missingCount;
+  const thinnerDomains = unionThinnerDomains(forecast);
+
+  return {
+    presentCount,
+    totalCount: EVIDENCE_COVERAGE_CLASS_COUNT,
+    missingCount,
+    thinnerDomains,
+    summaryLine: formatEvidenceCoverageSummaryLine(presentCount, thinnerDomains),
+  };
+}
+
+export type EvidenceCoverageReferenceRow = {
+  readonly classId: EvidenceGapClass;
+  readonly label: string;
+  /** Domains this class strengthens, already formatted for display. */
+  readonly strengthens: string;
+  readonly guidance: string;
+};
+
+/** Reference table backing `/help/evidence-intake#finding-coverage`, from the same map the panel uses. */
+export function listEvidenceCoverageReferenceRows(): readonly EvidenceCoverageReferenceRow[] {
+  return EVIDENCE_CLASS_ORDER.map((entry) => {
+    const forecast = FORECAST_BY_CLASS[entry.classId];
+
+    return {
+      classId: entry.classId,
+      label: forecast.label,
+      strengthens: formatThinnerDomains(forecast.domains),
+      guidance: forecast.guidance,
+    };
+  });
 }
 
 function fileNameImpliesClass(fileName: string): EvidenceGapClass | null {

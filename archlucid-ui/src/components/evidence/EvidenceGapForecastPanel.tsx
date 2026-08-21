@@ -1,15 +1,27 @@
 import Link from "next/link";
 
+import { CollapsibleSection } from "@/components/CollapsibleSection";
 import {
   deriveEvidenceGapForecast,
+  EVIDENCE_COVERAGE_HELP_HREF,
+  EVIDENCE_COVERAGE_HELP_LINK_LABEL,
   EVIDENCE_GAP_FORECAST_DISCLAIMER,
+  EVIDENCE_GAP_FORECAST_PANEL_TITLE,
   formatEvidenceGapForecastHeadline,
+  summarizeEvidenceCoverage,
   type EvidenceGapForecastEntry,
   type EvidencePresenceFlags,
 } from "@/lib/evidence-gap-forecast";
-import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
+/**
+ * How much of the forecast a surface renders inline.
+ *
+ * - `expandable` — one-line status with the per-class detail collapsed behind a disclosure.
+ *   Use where the operator can attach evidence without leaving the page.
+ * - `summary` — the status line only. Use on confirm/summary surfaces with no upload affordance.
+ */
 export type EvidenceGapForecastPresentation = "expandable" | "summary";
 
 export type EvidenceGapForecastPanelProps = {
@@ -18,60 +30,72 @@ export type EvidenceGapForecastPanelProps = {
   readonly presentation?: EvidenceGapForecastPresentation;
 };
 
-function buildEvidenceGapForecastSummary(forecast: readonly EvidenceGapForecastEntry[]): string {
-  const headlines = forecast.map((entry) => formatEvidenceGapForecastHeadline(entry));
-
-  if (headlines.length === 1) {
-    return headlines[0] ?? "";
-  }
-
-  return `${headlines[0] ?? ""} (+${headlines.length - 1} more expected coverage gaps)`;
-}
-
 /** TB-2177: directional forecast of thinner finding domains when evidence classes are missing. */
 export function EvidenceGapForecastPanel(props: EvidenceGapForecastPanelProps): React.JSX.Element | null {
   const forecast = deriveEvidenceGapForecast(props.presence);
-  const presentation = props.presentation ?? "expandable";
 
   if (forecast.length === 0) {
     return null;
   }
 
-  if (presentation === "summary") {
-    return (
-      <p
-        className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-        data-testid="evidence-gap-forecast-summary"
-      >
-        {buildEvidenceGapForecastSummary(forecast)}
-      </p>
-    );
-  }
+  const summaryLine = summarizeEvidenceCoverage(props.presence).summaryLine;
+  const presentation = props.presentation ?? "expandable";
 
-  return (
-    <aside
-      className={cn(DESIGN_TOKENS.callout.neutral, "space-y-3 p-4")}
-      data-testid="evidence-gap-forecast-panel"
-      aria-labelledby="evidence-gap-forecast-heading"
-    >
-      <div className="space-y-1">
-        <h2
-          id="evidence-gap-forecast-heading"
-          className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}
+  switch (presentation) {
+    case "summary":
+      return <CoverageSummaryLine summaryLine={summaryLine} />;
+    case "expandable":
+      return (
+        <CollapsibleSection
+          title={EVIDENCE_GAP_FORECAST_PANEL_TITLE}
+          headingLevel={2}
+          summaryLine={summaryLine}
+          sectionTestId="evidence-gap-forecast-panel"
         >
-          Expected finding coverage
-        </h2>
-        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-          {EVIDENCE_GAP_FORECAST_DISCLAIMER}
-        </p>
-      </div>
+          <div className="space-y-3">
+            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+              {EVIDENCE_GAP_FORECAST_DISCLAIMER} <CoverageHelpLink />
+            </p>
+            <ul className={cn("m-0 list-none space-y-3 p-0", OPERATOR_TYPOGRAPHY.body)}>
+              {forecast.map((entry) => (
+                <ForecastRow key={entry.missingClass} entry={entry} addEvidenceHref={props.addEvidenceHref} />
+              ))}
+            </ul>
+          </div>
+        </CollapsibleSection>
+      );
+    default: {
+      const unhandled: never = presentation;
 
-      <ul className={cn("m-0 list-none space-y-3 p-0", OPERATOR_TYPOGRAPHY.body)}>
-        {forecast.map((entry) => (
-          <ForecastRow key={entry.missingClass} entry={entry} addEvidenceHref={props.addEvidenceHref} />
-        ))}
-      </ul>
-    </aside>
+      throw new Error(`Unhandled evidence gap forecast presentation: ${String(unhandled)}`);
+    }
+  }
+}
+
+type CoverageSummaryLineProps = {
+  readonly summaryLine: string;
+};
+
+function CoverageSummaryLine(props: CoverageSummaryLineProps): React.JSX.Element {
+  return (
+    <p
+      className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+      data-testid="evidence-gap-forecast-summary"
+    >
+      {props.summaryLine} <CoverageHelpLink />
+    </p>
+  );
+}
+
+function CoverageHelpLink(): React.JSX.Element {
+  return (
+    <Link
+      href={EVIDENCE_COVERAGE_HELP_HREF}
+      className={OPERATOR_LINK.inline}
+      data-testid="evidence-gap-forecast-help-link"
+    >
+      {EVIDENCE_COVERAGE_HELP_LINK_LABEL}
+    </Link>
   );
 }
 
