@@ -34,10 +34,14 @@ export function buildDefaultActorSet(): ActorSet {
 export async function createDraftRequest(
   freeTextIntent: string,
   workflowIntent?: "create-architecture" | "start-review",
+  priorRunId?: string | null,
 ): Promise<DraftRequestResponse> {
+  const trimmedPriorRunId = priorRunId?.trim() ?? "";
+
   return apiPostJson<DraftRequestResponse>(DRAFT_BASE, {
     freeTextIntent: freeTextIntent.trim(),
     ...(workflowIntent !== undefined ? { workflowIntent } : {}),
+    ...(trimmedPriorRunId.length > 0 ? { priorRunId: trimmedPriorRunId } : {}),
   });
 }
 

@@ -4,8 +4,11 @@ import {
   ARCHITECTURE_SUMMARY_LABELS,
 } from "@/lib/architecture/architecture-created-home-copy";
 import { buildClarificationGapSourcePresentation } from "@/lib/architecture/architecture-clarification-gap-present";
+import { buildFindingsDerivedClarificationGaps } from "@/lib/architecture/build-findings-derived-clarification-gaps";
+import { resolveClarificationFollowUpHref } from "@/lib/architecture/resolve-clarification-follow-up-href";
 import { buildArchitectureCorrectionHref } from "@/lib/architecture/architecture-correction-href";
 import type { ArchitectureCreationHandoffSnapshot } from "@/lib/architecture/architecture-creation-handoff";
+import type { ReviewClarificationQuestion } from "@/lib/review-clarification-questions-types";
 import { buildCreateHomeReviewTabHref } from "@/lib/unified-review-workspace-tabs";
 import type { RunDetailWorkspaceStatus } from "@/lib/run-detail-workspace-derive";
 
@@ -84,6 +87,9 @@ export type BuildArchitectureCreatedHomeModelInput = {
   readonly correctionHref: string | null;
   readonly gapAssertion: ArchitectureGapAssertionFlags;
   readonly gapSourceCapturedAtUtc: string | null;
+  readonly findingsDerivedQuestions?: readonly ReviewClarificationQuestion[];
+  readonly clarificationRoundAvailable?: boolean;
+  readonly clarificationPriorRunId?: string | null;
 };
 
 const MIN_STRONG_OVERVIEW_CHARS = 100;
@@ -189,10 +195,6 @@ function buildSummaryFields(input: BuildArchitectureCreatedHomeModelInput): Arch
   return fields.slice(0, 4);
 }
 
-function resolveClarifyHref(input: BuildArchitectureCreatedHomeModelInput): string {
-  return buildArchitectureCorrectionHref(input.runId, input.correctionHref);
-}
-
 function buildGapSource(input: BuildArchitectureCreatedHomeModelInput): ClarificationGapSource {
   return buildClarificationGapSourcePresentation({
     capturedAtUtc: input.gapSourceCapturedAtUtc,
@@ -200,7 +202,18 @@ function buildGapSource(input: BuildArchitectureCreatedHomeModelInput): Clarific
   });
 }
 
-function buildMissingItems(input: BuildArchitectureCreatedHomeModelInput): ArchitectureMissingItem[] {
+function resolveClarifyHref(input: BuildArchitectureCreatedHomeModelInput): string {
+  if (input.clarificationRoundAvailable === true) {
+    return resolveClarificationFollowUpHref({
+      runId: input.runId,
+      priorRunId: input.clarificationPriorRunId ?? input.runId,
+    });
+  }
+
+  return buildArchitectureCorrectionHref(input.runId, input.correctionHref);
+}
+
+function buildHeuristicMissingItems(input: BuildArchitectureCreatedHomeModelInput): ArchitectureMissingItem[] {
   const items: ArchitectureMissingItem[] = [];
   const clarifyHref = resolveClarifyHref(input);
   const source = buildGapSource(input);
@@ -261,6 +274,21 @@ function buildMissingItems(input: BuildArchitectureCreatedHomeModelInput): Archi
   }
 
   return items.slice(0, MAX_MISSING_ITEMS);
+}
+
+function buildMissingItems(input: BuildArchitectureCreatedHomeModelInput): ArchitectureMissingItem[] {
+  const findingsQuestions = input.findingsDerivedQuestions ?? [];
+
+  if (findingsQuestions.length > 0) {
+    return buildFindingsDerivedClarificationGaps({
+      runId: input.runId,
+      questions: findingsQuestions,
+      clarificationPriorRunId: input.clarificationPriorRunId ?? input.runId,
+      gapSourceCapturedAtUtc: input.gapSourceCapturedAtUtc,
+    }).slice(0, MAX_MISSING_ITEMS);
+  }
+
+  return buildHeuristicMissingItems(input);
 }
 
 function partitionMissingItems(items: readonly ArchitectureMissingItem[]): {

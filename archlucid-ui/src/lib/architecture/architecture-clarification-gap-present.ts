@@ -42,9 +42,10 @@ export function formatGapCapturedAtLabel(utc: string | null): string | null {
 export function buildClarificationGapSourcePresentation(input: {
   readonly capturedAtUtc: string | null;
   readonly fromHandoff: boolean;
+  readonly findingsDerived?: boolean;
 }): ClarificationGapSourcePresentation {
   return {
-    label: ARCHITECTURE_STRUCTURED_ASSERTED_LABEL,
+    label: input.findingsDerived === true ? "From assessment findings" : ARCHITECTURE_STRUCTURED_ASSERTED_LABEL,
     capturedAtLabel: formatGapCapturedAtLabel(input.capturedAtUtc),
   };
 }
