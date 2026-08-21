@@ -24,11 +24,7 @@ export const DIGESTS_HUB_PRIMARY_CONTENT_ID = "digests-hub-primary-content" as c
 
 export const DIGESTS_HUB_SKIP_LINK_LABEL = "Skip to architecture digests workspace" as const;
 
-export const DIGESTS_HUB_BREADCRUMB_TOPIC_TITLE = DIGESTS_PAGE_TITLE;
-
 export const DIGESTS_SCHEDULE_TAB_LABEL = "Sponsor schedule" as const;
-
-export const DIGESTS_SCHEDULE_BREADCRUMB_TOPIC_TITLE = DIGESTS_SCHEDULE_TAB_LABEL;
 
 export const DIGESTS_LAST_UPDATED_PREFIX = "Last updated" as const;
 

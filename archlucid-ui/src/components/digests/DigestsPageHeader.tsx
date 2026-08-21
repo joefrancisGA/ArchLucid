@@ -24,7 +24,6 @@ export type DigestsPageHeaderProps = {
   readonly actions?: ReactNode;
   /** Defaults to {@link DIGESTS_LAST_UPDATED_PREFIX}; use health-check label during setup. */
   readonly lastUpdatedPrefix?: string;
-  readonly breadcrumb?: ReactNode;
 };
 
 /**
@@ -70,7 +69,6 @@ export function DigestsPageHeader(props: DigestsPageHeaderProps): React.JSX.Elem
       title={DIGESTS_PAGE_TITLE}
       titleTestId="digests-page-title"
       subtitle={props.subtitle}
-      breadcrumb={props.breadcrumb}
       actions={
         <div className="flex flex-wrap items-center gap-2" data-testid="digests-header-actions">
           <PageContextualHelpButton triggerText={PAGE_HELP_SHORT_TRIGGER_TEXT} />
