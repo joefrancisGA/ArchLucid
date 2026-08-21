@@ -303,6 +303,32 @@ function resolveDeferredChunkImportLoader(
       return deferredChunkLoader(() =>
         import("@/components/SessionIdleTimeoutGuard").then((module) => module.SessionIdleTimeoutGuard),
       ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "app-shell-auth-panel":
+      return deferredChunkLoader(() =>
+        import("@/components/AuthPanel").then((module) => module.AuthPanel),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "app-shell-sync-active-run":
+      return deferredChunkLoader(() =>
+        import("@/components/SyncActiveRunFromPathname").then((module) => module.SyncActiveRunFromPathname),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "app-shell-main-content-gate":
+      return deferredChunkLoader(() =>
+        import("@/components/shell/AppShellMainContentGate").then((module) => module.AppShellMainContentGate),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "app-shell-access-redirects-host":
+      return deferredChunkLoader(() =>
+        import("@/components/shell/OperatorShellAccessRedirectsHost").then(
+          (module) => module.OperatorShellAccessRedirectsHost,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "app-shell-toaster":
+      return deferredChunkLoader(() =>
+        import("@/components/AppToaster").then((module) => module.AppToaster),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "app-shell-route-announcer":
+      return deferredChunkLoader(() =>
+        import("@/components/RouteAnnouncer").then((module) => module.RouteAnnouncer),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
     case "reviews-hub-inventory":
       return deferredChunkLoader(() =>
         import("@/app/(operator)/architecture/reviews/_sections/ReviewsHubReviewInventory").then(

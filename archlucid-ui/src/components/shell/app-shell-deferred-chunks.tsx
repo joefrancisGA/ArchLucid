@@ -63,20 +63,18 @@ export const SessionIdleTimeoutGuardDeferred = createDeferredComponentFromManife
   { suppressLoading: true },
 );
 
-export const AuthPanelDeferred = dynamic(
-  () => import("@/components/AuthPanel").then((module) => module.AuthPanel),
-  { ssr: false, loading: () => null },
+export const AuthPanelDeferred = createDeferredComponentFromManifest("app-shell-auth-panel", {
+  suppressLoading: true,
+});
+
+export const SyncActiveRunFromPathnameDeferred = createDeferredComponentFromManifest(
+  "app-shell-sync-active-run",
+  { suppressLoading: true },
 );
 
-export const SyncActiveRunFromPathnameDeferred = dynamic(
-  () =>
-    import("@/components/SyncActiveRunFromPathname").then((module) => module.SyncActiveRunFromPathname),
-  { ssr: false, loading: () => null },
-);
-
-export const AppShellMainContentGateDeferred = dynamic(
-  () => import("./AppShellMainContentGate").then((module) => module.AppShellMainContentGate),
-  { ssr: false, loading: () => null },
+export const AppShellMainContentGateDeferred = createDeferredComponentFromManifest(
+  "app-shell-main-content-gate",
+  { suppressLoading: true },
 );
 
 export const AppShellKeyboardShortcutBoundaryDeferred: ComponentType<
@@ -88,22 +86,18 @@ export const AppShellKeyboardShortcutBoundaryDeferred: ComponentType<
   { ssr: false },
 );
 
-export const OperatorShellAccessRedirectsHostDeferred = dynamic(
-  deferredChunkLoader(() =>
-    import("./OperatorShellAccessRedirectsHost").then((module) => module.OperatorShellAccessRedirectsHost),
-  ),
-  { ssr: false, loading: () => null },
+export const OperatorShellAccessRedirectsHostDeferred = createDeferredComponentFromManifest(
+  "app-shell-access-redirects-host",
+  { suppressLoading: true },
 );
 
-export const AppToasterDeferred = dynamic(
-  deferredChunkLoader(() => import("@/components/AppToaster").then((module) => module.AppToaster)),
-  { ssr: false, loading: () => null },
-);
+export const AppToasterDeferred = createDeferredComponentFromManifest("app-shell-toaster", {
+  suppressLoading: true,
+});
 
-export const RouteAnnouncerDeferred = dynamic(
-  deferredChunkLoader(() => import("@/components/RouteAnnouncer").then((module) => module.RouteAnnouncer)),
-  { ssr: false, loading: () => null },
-);
+export const RouteAnnouncerDeferred = createDeferredComponentFromManifest("app-shell-route-announcer", {
+  suppressLoading: true,
+});
 
 export const ColorModeToggleDeferred: ComponentType<React.ComponentProps<typeof ColorModeToggle>> = dynamic(
   deferredChunkLoader(() => import("@/components/ColorModeToggle").then((module) => module.ColorModeToggle)),
