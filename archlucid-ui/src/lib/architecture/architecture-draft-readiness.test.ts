@@ -21,7 +21,7 @@ const assertedActor: ActorDescriptor = {
 };
 
 const readyOverview =
-  "We are designing a governed workflow platform for analysts with authentication, auditable evidence trails, and exportable architecture reviews.";
+  "We are designing a structured workflow platform for analysts with authentication, auditable evidence trails, and exportable architecture reviews.";
 
 function readyStructuredBrief() {
   return {

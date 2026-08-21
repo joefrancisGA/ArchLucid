@@ -126,7 +126,7 @@ export const governanceDashboardLineageLinkTitle = "Read-only approval and revie
 
 /** Governance dashboard — **Review** opens workflow for the review (`governance/dashboard/page.tsx`). */
 export const governanceDashboardOpenWorkflowReviewTitleOperator =
-  "Open governance workflow for this review to continue governance release steps.";
+  "Open resolve outcomes for this review to continue governance release steps.";
 
 export const governanceDashboardOpenWorkflowReviewTitleReader =
   "Open workflow for inspection; approve or reject actions need elevated permissions in this workspace.";

@@ -67,7 +67,7 @@ export const IMPROVEMENT_PLANNING_HELP_SHOW_TILE_ITEMS: readonly ImprovementPlan
   },
   {
     label: "Reviews and findings",
-    detail: "Open live reviews or findings when a plan needs governed evidence trails.",
+    detail: "Open live reviews or findings when a plan needs linked evidence trails.",
     href: IMPROVEMENT_PLANNING_VIEW_REVIEWS_HREF,
   },
 ] as const;

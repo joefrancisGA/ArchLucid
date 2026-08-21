@@ -27,4 +27,4 @@ export const SEE_IT_MARKETING_PDF_DOWNLOAD_FILENAME = "why-archlucid-pack.pdf";
 export const SEE_IT_MARKETING_PDF_DOWNLOAD_LABEL = "Download sample overview (PDF)";
 
 export const SEE_IT_MARKETING_PDF_HELPER =
-  "The PDF is a no-sign-in marketing overview aligned with this sample — not the full governed evidence bundle from a signed-in workspace.";
+  "The PDF is a no-sign-in marketing overview aligned with this sample — not the full evidence bundle from a signed-in workspace.";

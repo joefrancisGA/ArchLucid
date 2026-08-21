@@ -127,7 +127,7 @@ export function OperatorStickinessSnapshotCard(): ReactElement | null {
               Assigned to you: <span className="font-medium">{assignedToMeCount}</span>
             </p>
             <Link className={OPERATOR_LINK.optional} href="/governance/approval-queue">
-              {buyerPolishedShell ? "View resolve outcomes" : "Open governance workflow"}
+              {buyerPolishedShell ? "View resolve outcomes" : "Open resolve outcomes"}
             </Link>
             {assignedToMeCount > 0 ? (
               <Link className={OPERATOR_LINK.optional} href={GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH}>

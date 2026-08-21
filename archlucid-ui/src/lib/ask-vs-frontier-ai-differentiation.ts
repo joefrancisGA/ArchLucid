@@ -40,7 +40,7 @@ export const ASK_VS_FRONTIER_AI_WHY_PACKAGE_BEATS_CHAT_BULLETS = [
 export const ASK_VS_FRONTIER_AI_COMPACT_LINE =
   "Ask is scoped to this review's evidence — not a frontier-chat paste." as const;
 
-export const ASK_VS_FRONTIER_AI_COMPACT_LINK_LABEL = "Why a governed package beats chat" as const;
+export const ASK_VS_FRONTIER_AI_COMPACT_LINK_LABEL = "Why a finalized package beats chat" as const;
 
 /** Full differentiation strip lives on the Ask hub. */
 export const ASK_VS_FRONTIER_AI_COMPACT_LINK_HREF = ASK_REVIEW_QUESTIONS_PATH;

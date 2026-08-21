@@ -78,7 +78,7 @@ export function getShowcaseCreatedStaticDemoPayload(urlRunId: string): DemoCommi
   return {
     generatedUtc: GENERATED_UTC,
     isDemoData: true,
-    demoStatusMessage: "Demonstration — born-governed created architecture review",
+    demoStatusMessage: "Demonstration — finalized created architecture review",
     run: {
       runId,
       projectId: DEV_SCOPE_PROJECT_ID,
@@ -160,7 +160,7 @@ export function getShowcaseCreatedStaticDemoPayload(urlRunId: string): DemoCommi
         costImplications: ["Illustrative FinOps bands for APIM, ACA, AI Search, and Azure OpenAI."],
         complianceImplications: ["Responsible-AI starter pack alignment — design intent only."],
         detailedNarrative:
-          "This demonstration shows a governed package produced from guided intake — findings, manifest, and export " +
+          "This demonstration shows a finalized package produced from guided intake — findings, manifest, and export " +
           "without requiring a separate review workflow.",
       },
       themeSummaries: ["Private AI plane", "Content safety", "Prompt governance", "RAG grounding"],

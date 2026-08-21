@@ -80,7 +80,7 @@ export function buildBoardPackEvidenceClusterRows(summary: SponsorRoiSummary): B
       findingCount: Math.max(0, issue.count),
       posture: "review-backed",
       detail:
-        "Findings come from committed reviews and governed evaluation — not generic model advice alone.",
+        "Findings come from committed reviews and structured evaluation — not generic model advice alone.",
     });
   }
 

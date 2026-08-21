@@ -19,7 +19,7 @@ export function WelcomeMarketingProofAtGlanceSection(): React.JSX.Element {
         Proof at a glance
       </h2>
       <p className={cn("mt-3 max-w-3xl text-al-text-secondary", MARKETING_TYPOGRAPHY.lead)}>
-        Inspect governed outputs before you bring your own architecture evidence.
+        Inspect finalized outputs before you bring your own architecture evidence.
       </p>
       <ul className="m-0 mt-8 grid list-none gap-4 p-0 lg:grid-cols-3">
         <li className={cn(MARKETING_SURFACES.cardComfort, "lg:col-span-1")}>
