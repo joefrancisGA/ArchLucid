@@ -139,6 +139,8 @@ export function ArchitectureDraftFormFields(props: ArchitectureDraftFormFieldsPr
       <ArchitectureDraftStructuredBriefFields
         structuredBrief={props.fields.structuredBrief}
         freeTextIntent={props.fields.freeTextIntent}
+        systemName={props.fields.systemName}
+        businessOutcome={props.fields.businessOutcome}
         disabled={props.disabled === true}
         blocksLlmExecution={props.blocksLlmExecution === true}
         markReviewReadinessInvalid={markInvalid}

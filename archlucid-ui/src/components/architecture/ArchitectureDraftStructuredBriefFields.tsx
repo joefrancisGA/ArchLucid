@@ -105,6 +105,8 @@ function confirmSuggestedListItem(
 type ArchitectureDraftStructuredBriefFieldsProps = {
   readonly structuredBrief: ArchitectureDraftStructuredBriefState;
   readonly freeTextIntent: string;
+  readonly systemName?: string;
+  readonly businessOutcome?: string;
   readonly disabled?: boolean;
   readonly blocksLlmExecution?: boolean;
   readonly markReviewReadinessInvalid?: boolean;
