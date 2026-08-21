@@ -174,6 +174,27 @@ export const ADVISORY_SCANS_SCHEDULES_LAST_LOADED_PREFIX = "Last loaded";
 
 export const ADVISORY_SCANS_SCHEDULES_LIST_COUNT_LABEL = "schedules in scope";
 
+export const ADVISORY_SCANS_SCHEDULES_NEXT_SCAN_HEADER = "Next scan";
+
+export const ADVISORY_SCANS_SCHEDULES_LAST_SCAN_HEADER = "Last scan";
+
+export const ADVISORY_SCANS_SCHEDULES_NEXT_SCHEDULED_SCANS_LABEL = "Next scheduled scans";
+
+export const ADVISORY_SCANS_SCHEDULES_SCAN_NOW_LABEL = "Scan now";
+
+export const ADVISORY_SCANS_SCHEDULES_SCAN_NOW_WORKING_LABEL = "Scanning…";
+
+export const ADVISORY_SCANS_SCHEDULES_SCAN_NOW_SR_ONLY =
+  "Scan this advisory scan now without waiting for the next scheduled time.";
+
+export const ADVISORY_SCANS_SCHEDULES_NO_SCAN_HISTORY =
+  "No scan history recorded for this schedule yet.";
+
+export const ADVISORY_SCANS_SCHEDULES_SCAN_STARTED = "Advisory scan started.";
+
+/** Vocabulary rail peer link on the schedules tab — distinct from the compact-line sentence. */
+export const ADVISORY_SCANS_SCHEDULES_RECURRENCE_PEER_LINK_LABEL = "Open recurrence schedules";
+
 export const ADVISORY_SCANS_SCHEDULES_EXAMPLE_PREVIEW_LABEL = "Example schedule (not live data)";
 
 export const ADVISORY_SCANS_SCHEDULES_EXAMPLE_PREVIEW_HELPER =
@@ -192,6 +213,14 @@ export const ADVISORY_SCANS_SCHEDULES_EMPTY_TITLE = "No advisory-scan schedules 
 
 export const ADVISORY_SCANS_SCHEDULES_EMPTY_BODY =
   "Create a schedule to generate follow-up recommendations automatically.";
+
+export const ADVISORY_SCANS_SCHEDULES_NO_FINALIZED_REVIEWS_TITLE = "Finalized review required";
+
+export const ADVISORY_SCANS_SCHEDULES_NO_FINALIZED_REVIEWS_BODY =
+  "Finalize at least one architecture review in this project scope before creating or running advisory scan schedules.";
+
+export const ADVISORY_SCANS_SCHEDULES_RUN_NOW_NO_REVIEWS_HINT =
+  "Finalize a review in this project scope before running advisory scans.";
 
 export const ADVISORY_SCANS_SCHEDULES_SAMPLE_BLOCKED =
   "Schedules cannot be created for fabricated sample data. Start an evaluation or sign in to schedule advisory scans for your organization.";

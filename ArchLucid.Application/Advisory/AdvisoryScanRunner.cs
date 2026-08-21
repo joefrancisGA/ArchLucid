@@ -169,7 +169,11 @@ public sealed class AdvisoryScanRunner(
         RunSummaryDto? latest = ordered.FirstOrDefault();
         if (latest is null)
         {
-            await CompleteNoRunsAsync(execution, schedule, ct);
+            await FailAsync(
+                execution,
+                schedule,
+                AdvisoryScheduleEligibilityGuard.NoFinalizedReviewMessage,
+                ct);
             return;
         }
 
@@ -284,22 +288,6 @@ public sealed class AdvisoryScanRunner(
                 DataJson = JsonSerializer.Serialize(new { digestId = digest.DigestId, scheduleId = schedule.ScheduleId })
             }, ct);
         await TryPublishAdvisoryScanCompletedAsync(schedule, execution, latest.RunId, comparedToRunId, digest.DigestId, true, ct);
-        await AdvanceScheduleAsync(schedule, ct);
-    }
-
-    private async Task CompleteNoRunsAsync(AdvisoryScanExecution execution, AdvisoryScanSchedule schedule, CancellationToken ct)
-    {
-        execution.Status = StatusCompleted;
-        execution.CompletedUtc = TimeProvider.System.UtcNowDateTime();
-        execution.ResultJson = """{"message":"No runs were available."}""";
-        await executionRepository.UpdateAsync(execution, ct);
-        await auditService.LogAsync(
-            new AuditEvent
-            {
-                EventType = AuditEventTypes.AdvisoryScanExecuted,
-                DataJson = JsonSerializer.Serialize(new { scheduleId = schedule.ScheduleId, message = "no_runs" }, AuditJsonSerializationOptions.Instance)
-            }, ct);
-        await TryPublishAdvisoryScanCompletedAsync(schedule, execution, null, null, null, false, ct);
         await AdvanceScheduleAsync(schedule, ct);
     }
 

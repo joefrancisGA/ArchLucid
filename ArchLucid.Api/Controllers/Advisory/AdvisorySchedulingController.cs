@@ -2,6 +2,7 @@ using System.Text.Json;
 
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application.Advisory;
 using ArchLucid.Application.Governance;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
@@ -11,6 +12,7 @@ using ArchLucid.Core.Tenancy;
 using ArchLucid.Contracts.Advisory.Scheduling;
 using ArchLucid.Decisioning.Advisory.Scheduling;
 using ArchLucid.Persistence.Advisory;
+using ArchLucid.Persistence.Queries;
 
 using Asp.Versioning;
 
@@ -43,6 +45,7 @@ public sealed class AdvisorySchedulingController(
     IArchitectureDigestRepository digestRepository,
     IAdvisoryScanRunner scanRunner,
     IScanScheduleCalculator scheduleCalculator,
+    IAuthorityQueryService authorityQueryService,
     IAuditService auditService)
     : ControllerBase
 {
@@ -79,6 +82,17 @@ public sealed class AdvisorySchedulingController(
         if (string.IsNullOrWhiteSpace(request.RunProjectSlug))
             request.RunProjectSlug = AdvisoryScanSchedule.DefaultProjectSlug;
         request.CreatedUtc = TimeProvider.System.UtcNowDateTime();
+
+        if (!await AdvisoryScheduleEligibilityGuard.HasFinalizedReviewForProjectAsync(
+                authorityQueryService,
+                scope,
+                request.RunProjectSlug,
+                ct))
+        {
+            return this.BadRequestProblem(
+                AdvisoryScheduleEligibilityGuard.NoFinalizedReviewMessage,
+                ProblemTypes.ValidationFailed);
+        }
 
         if (!scheduleCalculator.IsSupportedCronExpression(request.CronExpression))
         {
@@ -190,6 +204,17 @@ public sealed class AdvisorySchedulingController(
         if (!MatchesScope(schedule, scope))
             return this.NotFoundProblem($"Advisory scan schedule '{scheduleId}' was not found in the current scope.",
                 ProblemTypes.ResourceNotFound);
+
+        if (!await AdvisoryScheduleEligibilityGuard.HasFinalizedReviewForProjectAsync(
+                authorityQueryService,
+                scope,
+                schedule.RunProjectSlug,
+                ct))
+        {
+            return this.BadRequestProblem(
+                AdvisoryScheduleEligibilityGuard.NoFinalizedReviewMessage,
+                ProblemTypes.ValidationFailed);
+        }
 
         await scanRunner.RunScheduleAsync(schedule, ct);
         return NoContent();

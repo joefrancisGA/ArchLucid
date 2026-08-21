@@ -2,6 +2,11 @@ import { fireEvent, render, screen, waitFor, within } from "@testing-library/rea
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { AdvisorySchedulesContent } from "@/components/advisory/AdvisorySchedulesContent";
+import {
+  ADVISORY_SCANS_SCHEDULES_NEXT_SCHEDULED_SCANS_LABEL,
+  ADVISORY_SCANS_SCHEDULES_RECURRENCE_PEER_LINK_LABEL,
+  ADVISORY_SCANS_SCHEDULES_SCAN_NOW_LABEL,
+} from "@/lib/advisory-copy";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { writeOperatorScopeToStorage } from "@/lib/operator/operator-scope-storage";
 
@@ -15,6 +20,12 @@ const apiMocks = vi.hoisted(() => ({
 
 const authMock = vi.hoisted(() => ({
   rank: 3,
+}));
+
+const reviewAvailabilityMock = vi.hoisted(() => ({
+  loading: false,
+  hasFinalizedReviews: true,
+  finalizedCount: 1,
 }));
 
 const demoEnvMock = vi.hoisted(() => ({
@@ -37,6 +48,14 @@ vi.mock("@/components/operator/OperatorNavAuthorityProvider", () => ({
   useNavCallerAuthorityRank: () => authMock.rank,
 }));
 
+vi.mock("@/hooks/use-advisory-schedule-review-availability", () => ({
+  useAdvisoryScheduleReviewAvailability: () => ({
+    loading: reviewAvailabilityMock.loading,
+    hasFinalizedReviews: reviewAvailabilityMock.hasFinalizedReviews,
+    finalizedCount: reviewAvailabilityMock.finalizedCount,
+  }),
+}));
+
 vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
 
@@ -54,6 +73,9 @@ describe("AdvisorySchedulesContent", () => {
 
   beforeEach(() => {
     authMock.rank = AUTHORITY_RANK.AdminAuthority;
+    reviewAvailabilityMock.loading = false;
+    reviewAvailabilityMock.hasFinalizedReviews = true;
+    reviewAvailabilityMock.finalizedCount = 1;
     demoEnvMock.buyerPolished = false;
     demoEnvMock.fullShell = true;
     apiMocks.listAdvisorySchedules.mockReset();
@@ -68,8 +90,6 @@ describe("AdvisorySchedulesContent", () => {
         "2026-07-21T11:00:00.000Z",
         "2026-07-22T11:00:00.000Z",
         "2026-07-23T11:00:00.000Z",
-        "2026-07-24T11:00:00.000Z",
-        "2026-07-25T11:00:00.000Z",
       ],
     });
     writeOperatorScopeToStorage({
@@ -90,9 +110,13 @@ describe("AdvisorySchedulesContent", () => {
 
     expect(screen.queryByText("Advisory scans")).toBeNull();
     expect(screen.getByRole("heading", { name: "Schedule advisory scans" })).toBeInTheDocument();
-    expect(screen.getByTestId("advisory-schedules-how-it-works")).toBeInTheDocument();
+    expect(screen.queryByTestId("advisory-schedules-how-it-works")).toBeNull();
+    expect(screen.queryByTestId("advisory-schedules-layout")).toBeNull();
     expect(screen.queryByText(/Background worker polls/i)).toBeNull();
     expect(screen.queryByText(/project slug/i)).toBeNull();
+    expect(screen.getByTestId("advisory-recurrence-schedule-vocabulary-peer-link")).toHaveTextContent(
+      ADVISORY_SCANS_SCHEDULES_RECURRENCE_PEER_LINK_LABEL,
+    );
     expect(screen.getByTestId("advisory-recurrence-schedule-vocabulary-peer-link")).toHaveAttribute(
       "href",
       "/governance/recurrence-schedules",
@@ -106,8 +130,8 @@ describe("AdvisorySchedulesContent", () => {
       expect(screen.getByTestId("advisory-schedule-project-scope-label")).toHaveTextContent("claims-intake");
     });
 
-    expect(screen.getAllByText(/workspace switcher/i).length).toBeGreaterThanOrEqual(1);
-    expect(screen.getByText(/not stored silently in this browser/i)).toBeInTheDocument();
+    expect(screen.getByText(/Schedule project scope:/i)).toBeInTheDocument();
+    expect(screen.queryByText(/not stored silently in this browser/i)).toBeNull();
     expect(screen.queryByLabelText(/Workspace project slug/i)).toBeNull();
   });
 
@@ -119,8 +143,8 @@ describe("AdvisorySchedulesContent", () => {
     });
 
     expect(screen.queryByTestId("cron-expression-input")).toBeNull();
-    expect(await screen.findByText(/Next scheduled runs/i)).toBeInTheDocument();
-    expect(await screen.findAllByRole("listitem")).toHaveLength(5);
+    expect(await screen.findByText(ADVISORY_SCANS_SCHEDULES_NEXT_SCHEDULED_SCANS_LABEL)).toBeInTheDocument();
+    expect(await screen.findAllByRole("listitem")).toHaveLength(3);
     expect(screen.queryByTestId("document-layout")).toBeNull();
   });
 
@@ -130,6 +154,42 @@ describe("AdvisorySchedulesContent", () => {
     const submit = await screen.findByTestId("advisory-schedule-create-submit");
     expect(submit.className).toContain("al-primary-action-bg");
     expect(screen.queryByTestId("advisory-schedules-create-action")).toBeNull();
+  });
+
+  it("shows finalized-review prerequisite empty state when no committed reviews exist", async () => {
+    reviewAvailabilityMock.hasFinalizedReviews = false;
+    reviewAvailabilityMock.finalizedCount = 0;
+
+    render(<AdvisorySchedulesContent />);
+
+    expect(await screen.findByTestId("advisory-schedules-no-finalized-reviews-empty-state")).toBeInTheDocument();
+    expect(screen.queryByTestId("advisory-schedule-create-form")).toBeNull();
+    expect(screen.queryByTestId("advisory-schedule-create-submit")).toBeNull();
+  });
+
+  it("disables run now when finalized reviews are unavailable", async () => {
+    reviewAvailabilityMock.hasFinalizedReviews = false;
+    reviewAvailabilityMock.finalizedCount = 0;
+    apiMocks.listAdvisorySchedules.mockResolvedValue([
+      {
+        scheduleId: "sched-blocked",
+        tenantId: "t",
+        workspaceId: "w",
+        projectId: "p",
+        runProjectSlug: "default",
+        name: "Weekly architecture follow-up scan",
+        cronExpression: "0 8 * * 1",
+        isEnabled: true,
+        createdUtc: "2026-07-01T00:00:00.000Z",
+        nextRunUtc: "2026-07-27T08:00:00.000Z",
+        lastRunUtc: null,
+      },
+    ]);
+
+    render(<AdvisorySchedulesContent />);
+
+    expect(await screen.findByTestId("advisory-schedules-prerequisite-blocked")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: ADVISORY_SCANS_SCHEDULES_SCAN_NOW_LABEL })).toBeDisabled();
   });
 
   it("shows one next-runs panel when Advanced is open on a preset frequency (AD-P0-3)", async () => {
@@ -147,13 +207,12 @@ describe("AdvisorySchedulesContent", () => {
     expect(screen.queryByText(/Generated expression \(UTC\)/i)).toBeNull();
   });
 
-  it("reveals advanced cron behind Advanced scheduling", async () => {
+  it("shows generated cron only after Advanced scheduling opens", async () => {
     render(<AdvisorySchedulesContent />);
 
     fireEvent.click(screen.getByTestId("advisory-schedule-advanced-toggle"));
 
-    expect(await screen.findByTestId("cron-expression-input")).toBeInTheDocument();
-    expect(screen.getByText(/For administrators who need a custom UTC schedule/i)).toBeInTheDocument();
+    expect(await screen.findByText(/Generated expression \(UTC\)/i)).toBeInTheDocument();
   });
 
   it("creates a daily schedule with pending state and refreshes the list", async () => {
@@ -232,14 +291,12 @@ describe("AdvisorySchedulesContent", () => {
     expect(screen.getByDisplayValue("Keep this name")).toBeInTheDocument();
   });
 
-  it("shows example preview and expanded create form when empty and can mutate", async () => {
+  it("shows framed empty state and expanded create form when empty and can mutate", async () => {
     render(<AdvisorySchedulesContent />);
 
-    expect(await screen.findByTestId("advisory-schedule-example-preview")).toBeInTheDocument();
-    expect(screen.getByTestId("advisory-schedule-example-row")).toBeInTheDocument();
-    expect(screen.getByText(/Example schedule \(not live data\)/i)).toBeInTheDocument();
+    expect(await screen.findByTestId("advisory-schedules-empty")).toBeInTheDocument();
+    expect(screen.queryByTestId("advisory-schedule-example-preview")).toBeNull();
     expect(screen.getByTestId("advisory-schedule-create-submit")).toBeInTheDocument();
-    expect(screen.queryByTestId("advisory-schedules-empty")).toBeNull();
     expect(screen.queryByTestId("advisory-schedules-create-action")).toBeNull();
   });
 
@@ -293,8 +350,10 @@ describe("AdvisorySchedulesContent", () => {
 
     const table = await screen.findByRole("table", { name: "Advisory scan schedules" });
     expect(within(table).getByText("Weekly architecture follow-up scan")).toBeInTheDocument();
-    expect(screen.getByText("Active")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Run now" })).toHaveAttribute("aria-describedby");
+    expect(screen.getByText("Ready")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: ADVISORY_SCANS_SCHEDULES_SCAN_NOW_LABEL })).toHaveAttribute(
+      "aria-describedby",
+    );
     expect(screen.getByRole("button", { name: "View history" })).toHaveAttribute("aria-describedby");
     expect(screen.queryByRole("button", { name: "Delete" })).toBeNull();
     expect(screen.queryByRole("button", { name: "Pause" })).toBeNull();
@@ -334,21 +393,17 @@ describe("AdvisorySchedulesContent", () => {
     expect(screen.getByLabelText("Day of month")).toBeInTheDocument();
   });
 
-  it("uses a side panel for orientation prose at wide widths (TB-1573 / AD-P0-9)", async () => {
+  it("renders create form at full section width without a pinned orientation rail", async () => {
     render(<AdvisorySchedulesContent />);
 
     await waitFor(() => {
       expect(apiMocks.listAdvisorySchedules).toHaveBeenCalled();
     });
 
-    const layout = screen.getByTestId("advisory-schedules-layout");
-    expect(layout.className).toMatch(/xl:grid-cols-/);
-    expect(screen.getByTestId("advisory-schedules-side-column")).toBeInTheDocument();
+    expect(screen.queryByTestId("advisory-schedules-side-column")).toBeNull();
     expect(screen.getByTestId("advisory-schedule-inline-scope")).toBeInTheDocument();
     expect(screen.getByTestId("advisory-schedule-project-scope-label")).toHaveTextContent("claims-intake");
-
-    const examplePreview = screen.getByTestId("advisory-schedule-example-preview");
-    expect(layout.compareDocumentPosition(examplePreview)).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
+    expect(screen.getByTestId("advisory-schedule-create-form")).toBeInTheDocument();
   });
 
   it("surfaces invalid advanced cron feedback", async () => {
@@ -376,7 +431,7 @@ describe("AdvisorySchedulesContent", () => {
     expect(within(header).getByTestId("advisory-schedules-count")).toHaveTextContent("0 schedules in scope");
     expect(within(header).getByTestId("advisory-schedules-last-loaded")).toHaveTextContent(/Last loaded/i);
     expect(within(header).getByTestId("advisory-schedules-refresh")).toBeInTheDocument();
-    expect(screen.getByTestId("advisory-schedules-status-message")).toBeInTheDocument();
+    expect(screen.queryByTestId("advisory-schedules-status-message")).toBeNull();
   });
 
   it("places Refresh in the persistent schedules header when populated", async () => {

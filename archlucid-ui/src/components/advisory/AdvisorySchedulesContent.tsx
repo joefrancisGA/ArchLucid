@@ -5,12 +5,11 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { useCallback, useEffect, useId, useMemo, useRef, useState, type ReactElement } from "react";
 
+import { useAdvisoryScheduleReviewAvailability } from "@/hooks/use-advisory-schedule-review-availability";
+
 import { AdvisoryScheduleCreateForm } from "@/components/advisory/AdvisoryScheduleCreateForm";
-import { AdvisoryScheduleExamplePreview } from "@/components/advisory/AdvisoryScheduleExamplePreview";
 import { AdvisoryRecurrenceScheduleVocabularyRail } from "@/components/AdvisoryRecurrenceScheduleVocabularyRail";
-import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
-import { OperatorLivePreviewPinLayout } from "@/components/advisory/OperatorLivePreviewPinLayout";
 import { useNavCallerAuthorityRank } from "@/components/operator/OperatorNavAuthorityProvider";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { Button } from "@/components/ui/button";
@@ -28,13 +27,22 @@ import { StatusTag } from "@/components/ui/status-tag";
 import {
   ADVISORY_SCANS_SCHEDULES_CREATE_FAILURE,
   ADVISORY_SCANS_SCHEDULES_CREATE_SUCCESS,
-  ADVISORY_SCANS_SCHEDULES_HOW_IT_WORKS_BODY,
-  ADVISORY_SCANS_SCHEDULES_HOW_IT_WORKS_TITLE,
   ADVISORY_SCANS_SCHEDULES_LAST_LOADED_PREFIX,
+  ADVISORY_SCANS_SCHEDULES_LAST_SCAN_HEADER,
   ADVISORY_SCANS_SCHEDULES_LIST_COUNT_LABEL,
+  ADVISORY_SCANS_SCHEDULES_NEXT_SCAN_HEADER,
+  ADVISORY_SCANS_SCHEDULES_NO_FINALIZED_REVIEWS_BODY,
+  ADVISORY_SCANS_SCHEDULES_NO_SCAN_HISTORY,
   ADVISORY_SCANS_SCHEDULES_PAGE_HEADING,
   ADVISORY_SCANS_SCHEDULES_READ_ONLY,
+  ADVISORY_SCANS_SCHEDULES_RECURRENCE_PEER_LINK_LABEL,
+  ADVISORY_SCANS_SCHEDULES_RUN_NOW_NO_REVIEWS_HINT,
+  ADVISORY_SCANS_SCHEDULES_SCAN_NOW_LABEL,
+  ADVISORY_SCANS_SCHEDULES_SCAN_NOW_SR_ONLY,
+  ADVISORY_SCANS_SCHEDULES_SCAN_NOW_WORKING_LABEL,
+  ADVISORY_SCANS_SCHEDULES_SCAN_STARTED,
 } from "@/lib/advisory-copy";
+import { ADVISORY_SCHEDULES_NO_FINALIZED_REVIEWS_EMPTY_COMPACT } from "@/lib/enterprise-compact-empty-state-presets";
 import { ADVISORY_SCHEDULES_EMPTY_COMPACT } from "@/lib/enterprise-compact-empty-state-presets";
 import { resolveAdvisoryRunProjectSlug, resolveBrowserTimeZoneId } from "@/lib/advisory-schedule-form";
 import {
@@ -121,6 +129,10 @@ export function AdvisorySchedulesContent(): ReactElement {
   const runNowHintId = useId();
   const viewHistoryHintId = useId();
   const mutationDisabledHintId = useId();
+  const runNowNoReviewsHintId = useId();
+  const reviewAvailability = useAdvisoryScheduleReviewAvailability(runProjectSlug);
+  const reviewsReady = !reviewAvailability.loading;
+  const prerequisiteBlocksSchedules = reviewsReady && !reviewAvailability.hasFinalizedReviews;
 
   const syncProjectContext = useCallback(() => {
     const scope = readOperatorScopeFromStorage();
@@ -136,7 +148,10 @@ export function AdvisorySchedulesContent(): ReactElement {
       const list: AdvisoryScanSchedule[] = await listAdvisorySchedules();
       setSchedules(list);
       setLastLoadedUtc(new Date().toISOString());
-      setStatusMessage(list.length === 0 ? "No schedules in scope." : "Schedules updated.");
+
+      if (list.length > 0) {
+        setStatusMessage("Schedules updated.");
+      }
     } catch (error) {
       setFailure(toApiLoadFailure(error));
     } finally {
@@ -271,7 +286,7 @@ export function AdvisorySchedulesContent(): ReactElement {
       await runAdvisoryScheduleNow(scheduleId);
       await loadExecutions(scheduleId);
       await refresh();
-      setStatusMessage("Schedule run started.");
+      setStatusMessage(ADVISORY_SCANS_SCHEDULES_SCAN_STARTED);
     } catch (error) {
       setFailure(toApiLoadFailure(error));
     } finally {
@@ -280,9 +295,18 @@ export function AdvisorySchedulesContent(): ReactElement {
   }
 
   const isEmpty = schedules.length === 0;
-  const showCreateForm = !canMutateSchedules || isEmpty || showCreatePanel;
-  const showHeaderCreate = canMutateSchedules && !isEmpty && !showCreatePanel;
-  const showEmptyCompact = isEmpty && canMutateSchedules && !showCreateForm;
+  const showCreateForm =
+    reviewsReady &&
+    (!canMutateSchedules || isEmpty || showCreatePanel) &&
+    reviewAvailability.hasFinalizedReviews;
+  const showHeaderCreate =
+    reviewsReady &&
+    canMutateSchedules &&
+    !isEmpty &&
+    !showCreatePanel &&
+    reviewAvailability.hasFinalizedReviews;
+  const showPrerequisiteEmpty = isEmpty && canMutateSchedules && prerequisiteBlocksSchedules;
+  const runNowDisabledByPrerequisite = canMutateSchedules && prerequisiteBlocksSchedules;
   const listHeading = canMutateSchedules ? advisorySchedulesListHeadingOperator : advisorySchedulesListHeadingReader;
   const lastLoadedLabel = formatAdvisorySchedulesLastLoaded(lastLoadedUtc);
 
@@ -300,30 +324,20 @@ export function AdvisorySchedulesContent(): ReactElement {
     ) : null;
 
   const emptyStateFooter =
-    canMutateSchedules && !showCreateForm ? (
+    canMutateSchedules && !prerequisiteBlocksSchedules ? (
       <Button
         type="button"
         size="sm"
         variant="primary"
         data-testid="advisory-schedules-create-action"
-        onClick={() => setShowCreatePanel(true)}
+        onClick={() => {
+          setShowCreatePanel(true);
+          document.getElementById("advisory-schedule-create-form")?.scrollIntoView({ behavior: "smooth", block: "start" });
+        }}
       >
         Create schedule
       </Button>
     ) : null;
-
-  const orientationAside = (
-    <div className="space-y-4" data-testid="advisory-schedules-side-column">
-      <CollapsibleSection
-        title={ADVISORY_SCANS_SCHEDULES_HOW_IT_WORKS_TITLE}
-        sectionTestId="advisory-schedules-how-it-works"
-      >
-        <p className={cn("m-0 max-w-prose text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
-          {ADVISORY_SCANS_SCHEDULES_HOW_IT_WORKS_BODY}
-        </p>
-      </CollapsibleSection>
-    </div>
-  );
 
   const listHeader = (
     <div
@@ -355,16 +369,19 @@ export function AdvisorySchedulesContent(): ReactElement {
   );
 
   return (
-    <div className="w-full max-w-[1200px] px-4 py-6" data-testid="advisory-schedules-content">
-      <div className="min-w-0 space-y-6">
-        <div className="m-0 mb-1 flex flex-wrap items-start justify-between gap-2">
-          <h2 className={cn("m-0 font-bold text-neutral-900 dark:text-neutral-50", OPERATOR_TYPOGRAPHY.pageTitle)}>
+    <div className="w-full max-w-[1200px] py-4" data-testid="advisory-schedules-content">
+      <div className="min-w-0 space-y-4">
+        <div className="m-0 flex flex-wrap items-start justify-between gap-2">
+          <h2 className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
             {ADVISORY_SCANS_SCHEDULES_PAGE_HEADING}
           </h2>
           {createScheduleButton}
         </div>
 
-        <AdvisoryRecurrenceScheduleVocabularyRail currentSurfaceId="advisory-schedules" />
+        <AdvisoryRecurrenceScheduleVocabularyRail
+          currentSurfaceId="advisory-schedules"
+          peerLinkLabel={ADVISORY_SCANS_SCHEDULES_RECURRENCE_PEER_LINK_LABEL}
+        />
 
         {failure !== null ? (
           <div role="alert">
@@ -396,46 +413,46 @@ export function AdvisorySchedulesContent(): ReactElement {
           </p>
         ) : null}
 
-        <OperatorLivePreviewPinLayout
-          pinRail
-          testId="advisory-schedules-layout"
-          primary={
-            showCreateForm ? (
-              <AdvisoryScheduleCreateForm
-                canEdit={canMutateSchedules}
-                sampleModeBlocked={sampleModeBlocked}
-                creating={creating}
-                createSuccess={createSuccess}
-                projectLabel={projectLabel}
-                runProjectSlug={runProjectSlug}
-                formResetKey={formResetKey}
-                onCreate={onCreate}
-              />
-            ) : null
-          }
-          aside={orientationAside}
-        />
+        {showCreateForm ? (
+          <AdvisoryScheduleCreateForm
+            canEdit={canMutateSchedules}
+            sampleModeBlocked={sampleModeBlocked}
+            creating={creating}
+            createSuccess={createSuccess}
+            projectLabel={projectLabel}
+            runProjectSlug={runProjectSlug}
+            formResetKey={formResetKey}
+            onCreate={onCreate}
+          />
+        ) : null}
 
         <section className="min-w-0" data-testid="advisory-schedules-existing">
           {listHeader}
 
           {isEmpty ? (
-            <div className="mt-4 space-y-4">
-              <AdvisoryScheduleExamplePreview
-                projectLabel={projectLabel}
-                displayTimeZoneId={displayTimeZoneId}
+            <div className="mt-4">
+              <EnterpriseCompactEmptyState
+                {...(showPrerequisiteEmpty
+                  ? ADVISORY_SCHEDULES_NO_FINALIZED_REVIEWS_EMPTY_COMPACT
+                  : ADVISORY_SCHEDULES_EMPTY_COMPACT)}
+                footer={showPrerequisiteEmpty ? undefined : emptyStateFooter}
               />
-              {showEmptyCompact ? (
-                <EnterpriseCompactEmptyState
-                  {...ADVISORY_SCHEDULES_EMPTY_COMPACT}
-                  footer={emptyStateFooter}
-                />
-              ) : null}
             </div>
           ) : (
             <div className="mt-3">
+              {prerequisiteBlocksSchedules ? (
+                <p
+                  className={cn("m-0 mb-3 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+                  data-testid="advisory-schedules-prerequisite-blocked"
+                >
+                  {ADVISORY_SCANS_SCHEDULES_NO_FINALIZED_REVIEWS_BODY}
+                </p>
+              ) : null}
+              <span id={runNowNoReviewsHintId} className="sr-only">
+                {ADVISORY_SCANS_SCHEDULES_RUN_NOW_NO_REVIEWS_HINT}
+              </span>
               <span id={runNowHintId} className="sr-only">
-                Run this advisory scan now without waiting for the next scheduled time.
+                {ADVISORY_SCANS_SCHEDULES_SCAN_NOW_SR_ONLY}
               </span>
               <span id={viewHistoryHintId} className="sr-only">
                 {canMutateSchedules
@@ -452,8 +469,8 @@ export function AdvisorySchedulesContent(): ReactElement {
                     <EnterpriseTableHeaderCell>Name</EnterpriseTableHeaderCell>
                     <EnterpriseTableHeaderCell>Cadence</EnterpriseTableHeaderCell>
                     <EnterpriseTableHeaderCell>Scope</EnterpriseTableHeaderCell>
-                    <EnterpriseTableHeaderCell>Next run</EnterpriseTableHeaderCell>
-                    <EnterpriseTableHeaderCell>Last run</EnterpriseTableHeaderCell>
+                    <EnterpriseTableHeaderCell>{ADVISORY_SCANS_SCHEDULES_NEXT_SCAN_HEADER}</EnterpriseTableHeaderCell>
+                    <EnterpriseTableHeaderCell>{ADVISORY_SCANS_SCHEDULES_LAST_SCAN_HEADER}</EnterpriseTableHeaderCell>
                     <EnterpriseTableHeaderCell>Status</EnterpriseTableHeaderCell>
                     <EnterpriseTableHeaderCell>Actions</EnterpriseTableHeaderCell>
                   </EnterpriseTableHeadRow>
@@ -502,15 +519,21 @@ export function AdvisorySchedulesContent(): ReactElement {
                             size="sm"
                             variant="outline"
                             onClick={() => void onRunNow(view.scheduleId)}
-                            disabled={!canMutateSchedules || runningScheduleId !== null}
+                            disabled={
+                              !canMutateSchedules || runningScheduleId !== null || runNowDisabledByPrerequisite
+                            }
                             aria-describedby={
-                              canMutateSchedules ? runNowHintId : mutationDisabledHintId
+                              runNowDisabledByPrerequisite
+                                ? runNowNoReviewsHintId
+                                : canMutateSchedules
+                                  ? runNowHintId
+                                  : mutationDisabledHintId
                             }
                           >
                             {runningScheduleId === view.scheduleId
-                              ? "Running…"
+                              ? ADVISORY_SCANS_SCHEDULES_SCAN_NOW_WORKING_LABEL
                               : canMutateSchedules
-                                ? "Run now"
+                                ? ADVISORY_SCANS_SCHEDULES_SCAN_NOW_LABEL
                                 : advisorySchedulesRunNowButtonLabelReaderRank}
                           </Button>
                           <Button
@@ -556,7 +579,7 @@ export function AdvisorySchedulesContent(): ReactElement {
               executionsBySchedule[historyOpenFor] !== undefined &&
               executionsBySchedule[historyOpenFor].length === 0 ? (
                 <p className={cn("m-0 mt-3 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-                  No run history recorded for this schedule yet.
+                  {ADVISORY_SCANS_SCHEDULES_NO_SCAN_HISTORY}
                 </p>
               ) : null}
             </div>

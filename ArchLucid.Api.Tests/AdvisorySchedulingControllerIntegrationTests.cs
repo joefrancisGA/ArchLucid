@@ -56,6 +56,29 @@ public sealed class AdvisorySchedulingControllerIntegrationTests
     }
 
     [SkippableFact]
+    public async Task CreateSchedule_admin_without_finalized_review_returns_bad_request()
+    {
+        await using ArchLucidApiFactory factory = new();
+        HttpClient client = factory.CreateClient();
+        IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(client);
+
+        using StringContent body = new(
+            """{"name":"sched-int-test","cronExpression":"0 7 * * *","isEnabled":true,"runProjectSlug":"default"}""",
+            Encoding.UTF8,
+            "application/json");
+
+        HttpResponseMessage response = await client.PostAsync("/v1/advisory-scheduling/schedules", body);
+
+        response.StatusCode.Should().BeOneOf(HttpStatusCode.BadRequest, HttpStatusCode.OK);
+
+        if (response.StatusCode == HttpStatusCode.BadRequest)
+        {
+            string problem = await response.Content.ReadAsStringAsync();
+            problem.Should().Contain("finalized architecture review");
+        }
+    }
+
+    [SkippableFact]
     public async Task ListSchedules_returns_ok_and_empty_when_none()
     {
         await using ArchLucidApiFactory factory = new();

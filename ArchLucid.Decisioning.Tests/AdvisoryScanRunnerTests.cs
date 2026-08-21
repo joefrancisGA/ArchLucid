@@ -38,7 +38,7 @@ namespace ArchLucid.Decisioning.Tests;
 public sealed class AdvisoryScanRunnerTests
 {
     [Fact]
-    public async Task RunScheduleAsync_WhenNoRuns_CompletesExecutionAndAdvancesSchedule()
+    public async Task RunScheduleAsync_WhenNoRuns_FailsExecutionAndAdvancesSchedule()
     {
         Mock<IAuthorityQueryService> authority = new();
         authority
@@ -101,7 +101,11 @@ public sealed class AdvisoryScanRunnerTests
         await sut.RunScheduleAsync(schedule, CancellationToken.None);
 
         executions.Verify(
-            x => x.UpdateAsync(It.Is<AdvisoryScanExecution>(e => e.Status == "Completed"), It.IsAny<CancellationToken>()),
+            x => x.UpdateAsync(
+                It.Is<AdvisoryScanExecution>(e =>
+                    e.Status == "Failed" &&
+                    e.ErrorMessage == AdvisoryScheduleEligibilityGuard.NoFinalizedReviewMessage),
+                It.IsAny<CancellationToken>()),
             Times.Once);
         schedules.Verify(x => x.UpdateAsync(It.IsAny<AdvisoryScanSchedule>(), It.IsAny<CancellationToken>()), Times.AtLeastOnce);
     }

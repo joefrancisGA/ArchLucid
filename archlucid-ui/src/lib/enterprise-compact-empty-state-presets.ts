@@ -19,6 +19,8 @@ import {
 } from "@/lib/enterprise-controls-context-copy";
 import {
   ADVISORY_SCANS_SCHEDULES_EMPTY_BODY,
+  ADVISORY_SCANS_SCHEDULES_NO_FINALIZED_REVIEWS_BODY,
+  ADVISORY_SCANS_SCHEDULES_NO_FINALIZED_REVIEWS_TITLE,
 } from "@/lib/advisory-copy";
 import {
   ALERTS_ACTION_OPEN_GOVERNANCE_SETUP_GUIDE,
@@ -424,6 +426,21 @@ export const ADVISORY_SCHEDULES_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps 
     description: ADVISORY_SCANS_SCHEDULES_EMPTY_BODY,
   },
 );
+
+/** Advisory Schedules tab when no finalized reviews exist in project scope. */
+export const ADVISORY_SCHEDULES_NO_FINALIZED_REVIEWS_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps = {
+  testId: "advisory-schedules-no-finalized-reviews-empty-state",
+  title: ADVISORY_SCANS_SCHEDULES_NO_FINALIZED_REVIEWS_TITLE,
+  description: ADVISORY_SCANS_SCHEDULES_NO_FINALIZED_REVIEWS_BODY,
+  actions: [
+    { label: ALERTS_ACTION_OPEN_REVIEW_PACKAGES, href: ALERTS_ACTION_OPEN_REVIEW_PACKAGES_HREF, variant: "primary" },
+    {
+      label: ALERTS_ACTION_START_ARCHITECTURE_REVIEW,
+      href: ALERTS_ACTION_START_ARCHITECTURE_REVIEW_HREF,
+      variant: "outline",
+    },
+  ],
+};
 
 /** Alerts inbox — status filter yields zero rows while alerts exist (TB-1555 filtered preset). */
 export const ALERTS_INBOX_FILTERED_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps = {
