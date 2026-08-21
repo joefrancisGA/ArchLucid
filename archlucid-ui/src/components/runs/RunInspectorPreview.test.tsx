@@ -97,7 +97,7 @@ describe("RunInspectorPreview", () => {
       "href",
       "/insights/evidence-graph?runId=customer-intake-modernization",
     );
-    expect(screen.getByRole("link", { name: "View governance approval" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "View resolve outcomes" })).toHaveAttribute(
       "href",
       "/governance/approval-queue?runId=customer-intake-modernization",
     );

@@ -1,5 +1,5 @@
 ﻿export const NOT_SEALED_REVIEW_DILIGENCE_SOURCES_PACKAGE =
-  "not a sealed-review diligence Sources package";
+  "not a full audit export";
 
 export type BuildSealedReviewDiligenceSourcesClaimDisciplineParams = {
   readonly surfaceDescription: string;

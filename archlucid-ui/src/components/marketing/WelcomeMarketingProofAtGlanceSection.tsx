@@ -45,7 +45,7 @@ export function WelcomeMarketingProofAtGlanceSection(): React.JSX.Element {
           </p>
         </li>
         <li className={cn(MARKETING_SURFACES.cardComfort, "lg:col-span-1")}>
-          <p className={cn("m-0", MARKETING_TYPOGRAPHY.cardTitle)}>Procurement-ready posture</p>
+          <p className={cn("m-0", MARKETING_TYPOGRAPHY.cardTitle)}>Buyer-ready posture</p>
           <p className={cn("m-0 mt-2 text-al-text-secondary", MARKETING_TYPOGRAPHY.body)}>
             Published Trust Center materials and downloadable diligence anchors.
           </p>

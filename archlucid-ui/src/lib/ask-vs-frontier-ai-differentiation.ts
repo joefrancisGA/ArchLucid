@@ -32,8 +32,8 @@ export const ASK_VS_FRONTIER_AI_WHY_PACKAGE_BEATS_CHAT_HEADING =
 
 export const ASK_VS_FRONTIER_AI_WHY_PACKAGE_BEATS_CHAT_BULLETS = [
   "Durable architecture review with an evidence trail you can reopen and export.",
-  "Repeatable, audit-ready sealed review record — not a one-off transcript.",
-  "Sponsor-ready packaging and policy citations without reassembling chat history by hand.",
+  "Repeatable, audit-ready finalized review record — not a one-off transcript.",
+  "Export-ready packaging and policy citations without reassembling chat history by hand.",
 ] as const;
 
 /** Compact finding-inline line — complements BUYER_ASK_GROUNDING_ONCE; does not replace it. */

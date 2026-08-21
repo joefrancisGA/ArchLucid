@@ -899,7 +899,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
               class="max-w-[320px] px-3 py-3 align-top font-medium text-neutral-900 dark:text-neutral-100"
               scope="row"
             >
-              Sponsor-ready export integrity
+              Export-ready output integrity
             </th>
             <td
               class="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"

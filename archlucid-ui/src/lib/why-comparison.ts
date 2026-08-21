@@ -91,7 +91,7 @@ export const WHY_GOVERNANCE_SUMMARY_ROWS: readonly WhyGovernanceSummaryRow[] = [
   { label: "Immutable review record", fullRowIndex: 0 },
   { label: "Evidence-linked findings", fullRowIndex: 5 },
   { label: "Approval gates", fullRowIndex: 6 },
-  { label: "Sponsor-ready export integrity", fullRowIndex: 4 },
+  { label: "Export-ready output integrity", fullRowIndex: 4 },
   { label: "Auditable decision history", fullRowIndex: 1 },
 ];
 

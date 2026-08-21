@@ -1788,14 +1788,14 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "pa-review-14",
     "sectionHeading": "PA review",
-    "excerpt": "1. Walk first-session home and confirm Authority → Finalize → sponsor export is the taught spine. 2. Confirm empty dashboard is not labeled sponsor-ready. 3. Confirm CLI proof collection is not the primary first-session handoff. 4. Treat create→execute→commit as default peer guidance as a review finding."
+    "excerpt": "1. Walk first-session home and confirm Authority → Finalize → sponsor export is the taught spine. 2. Confirm empty dashboard is not labeled export-ready. 3. Confirm CLI proof collection is not the primary first-session handoff. 4. Treat create→execute→commit as default peer guidance as a review finding."
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "claim-boundary-20",
     "sectionHeading": "Claim boundary",
-    "excerpt": "Do not teach create→execute→commit as the default peer to Authority on first-session home, label future checkpoints Needs attention, send sponsor-ready to empty `/dashboard`, or lead first-session sponsor handoff with CLI/PowerShell. Say request → pipeline → Finalize → in-app sponsor exports."
+    "excerpt": "Do not teach create→execute→commit as the default peer to Authority on first-session home, label future checkpoints Needs attention, send export-ready to empty `/dashboard`, or lead first-session sponsor handoff with CLI/PowerShell. Say request → pipeline → Finalize → in-app sponsor exports."
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
@@ -3678,7 +3678,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "orthogonal-axes",
     "sectionHeading": "Orthogonal axes",
-    "excerpt": "Green quality on Simulator, Fallback, or Mixed must still carry mode labels. External PDF or email-to-sponsor requires Real execution with sponsor-safe baselines."
+    "excerpt": "Green quality on Simulator, Fallback, or Mixed must still carry mode labels. External PDF or email-to-sponsor requires Real execution with export-ready baselines."
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",

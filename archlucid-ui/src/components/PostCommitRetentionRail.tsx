@@ -62,7 +62,7 @@ export function PostCommitRetentionRail({
               Sponsor report is already the prominent CTA on review detail; this rail continues the package path.
             */}
             <Button type="button" asChild variant="default" size="sm" className="justify-center sm:justify-start">
-              <Link href={`/governance/approval-queue?runId=${encodeURIComponent(runId)}`}>View governance approval</Link>
+              <Link href={`/governance/approval-queue?runId=${encodeURIComponent(runId)}`}>View resolve outcomes</Link>
             </Button>
             {goldenManifestId !== null && goldenManifestId.trim().length > 0 ? (
               <Button type="button" asChild variant="secondary" size="sm" className="justify-center sm:justify-start">

@@ -9,7 +9,7 @@ export const BUYER_MANIFEST_DELIVERABLES_HEADING = "Deliverables";
 export const BUYER_MANIFEST_DELIVERABLE_SPONSOR_PDF_TITLE = "Sponsor PDF";
 
 export const BUYER_MANIFEST_DELIVERABLE_SPONSOR_PDF_DESC =
-  "Sponsor-ready one-pager with verdict, top risks, and recommended actions.";
+  "Export-ready one-pager with verdict, top risks, and recommended actions.";
 
 export const BUYER_MANIFEST_DELIVERABLE_DOCX_TITLE = "Architecture review export (DOCX)";
 
