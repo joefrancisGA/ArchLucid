@@ -11,6 +11,7 @@ describe("sign-in-return-destination", () => {
     expect(signInHasReturnDestination("/architecture/reviews/run-1")).toBe(true);
     expect(signInHasReturnDestination("/")).toBe(false);
     expect(signInHasReturnDestination("//evil.example")).toBe(false);
+    expect(signInHasReturnDestination("/x%2F%2Fevil.example")).toBe(false);
   });
 
   it("resolves a human label for a safe return path", () => {

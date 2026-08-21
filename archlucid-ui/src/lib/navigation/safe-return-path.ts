@@ -6,15 +6,27 @@
 /** ASCII control characters (including NUL and DEL) that some browsers strip before parsing a URL. */
 const CONTROL_CHARS_RE = /[\u0000-\u001F\u007F]/g;
 
+const MAX_RETURN_PATH_DECODE_PASSES = 8;
+
 function stripControlChars(candidate: string): string {
   return candidate.replace(CONTROL_CHARS_RE, "");
+}
+
+function containsProtocolRelativeTraversal(path: string): boolean {
+  return path.startsWith("//") || path.startsWith("/\\") || path.includes("//") || path.includes("/\\");
+}
+
+function containsPercentEncodedSlash(value: string): boolean {
+  const lower = value.toLowerCase();
+
+  return lower.includes("%2f") || lower.includes("%5c");
 }
 
 /**
  * True when `candidate` is a safe, same-origin relative path suitable for a post-sign-in redirect.
  * Rejects absolute URLs, protocol-relative URLs (`//evil.example`), backslash tricks (`/\evil.example`
- * — some browsers treat a leading backslash as a slash), embedded schemes (`javascript:`, `https://…`),
- * and control-character smuggling used to bypass naive `startsWith("/")` checks.
+ * — some browsers treat a leading backslash as a slash), embedded protocol-relative segments (`/safe//evil.example`),
+ * embedded schemes (`javascript:`, `https://…`), and control-character smuggling used to bypass naive `startsWith("/")` checks.
  */
 export function isSafeReturnPath(candidate: string | null | undefined): candidate is string {
   if (!candidate) {
@@ -27,7 +39,7 @@ export function isSafeReturnPath(candidate: string | null | undefined): candidat
     return false;
   }
 
-  if (normalized.startsWith("//") || normalized.startsWith("/\\")) {
+  if (containsProtocolRelativeTraversal(normalized)) {
     return false;
   }
 
@@ -41,7 +53,7 @@ export function isSafeReturnPath(candidate: string | null | undefined): candidat
 function isSafeReturnPathAfterPercentDecoding(candidate: string): boolean {
   let working = candidate;
 
-  for (let decodePass = 0; decodePass < 3 && working.includes("%"); decodePass++) {
+  for (let decodePass = 0; decodePass < MAX_RETURN_PATH_DECODE_PASSES && working.includes("%"); decodePass++) {
     let decoded: string;
 
     try {
@@ -58,7 +70,7 @@ function isSafeReturnPathAfterPercentDecoding(candidate: string): boolean {
       return false;
     }
 
-    if (!decoded.startsWith("/") || decoded.startsWith("//") || decoded.startsWith("/\\")) {
+    if (!decoded.startsWith("/") || containsProtocolRelativeTraversal(decoded)) {
       return false;
     }
 
@@ -67,6 +79,14 @@ function isSafeReturnPathAfterPercentDecoding(candidate: string): boolean {
     }
 
     working = decoded;
+  }
+
+  if (containsProtocolRelativeTraversal(working)) {
+    return false;
+  }
+
+  if (containsPercentEncodedSlash(working)) {
+    return false;
   }
 
   return true;

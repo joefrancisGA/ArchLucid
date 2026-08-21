@@ -75,6 +75,20 @@ describe("isSafeReturnPath", () => {
   it("rejects a percent-encoded NUL smuggling a protocol-relative URL", () => {
     expect(isSafeReturnPath("/%00//evil.example")).toBe(false);
   });
+
+  it("rejects an embedded protocol-relative segment after percent-decoding", () => {
+    expect(isSafeReturnPath("/x%2F%2Fevil.example")).toBe(false);
+  });
+
+  it("rejects a deeply percent-encoded embedded protocol-relative segment", () => {
+    let payload = "//evil.example";
+
+    for (let pass = 0; pass < 4; pass++) {
+      payload = encodeURIComponent(payload);
+    }
+
+    expect(isSafeReturnPath(`/welcome${payload}`)).toBe(false);
+  });
 });
 
 describe("resolveSafeReturnPath", () => {
