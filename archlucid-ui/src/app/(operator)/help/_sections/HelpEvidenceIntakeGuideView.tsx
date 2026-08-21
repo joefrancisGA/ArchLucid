@@ -1,4 +1,5 @@
 import { HelpEvidenceIntakeAcceptedFormatsTable } from "@/app/(operator)/help/_sections/HelpEvidenceIntakeAcceptedFormatsTable";
+import { HelpEvidenceIntakeFindingCoverageTable } from "@/app/(operator)/help/_sections/HelpEvidenceIntakeFindingCoverageTable";
 import { HelpEvidenceIntakePathStrip } from "@/app/(operator)/help/_sections/HelpEvidenceIntakePathStrip";
 import { HelpEvidenceIntakeRelatedGuidesLinks } from "@/app/(operator)/help/_sections/HelpEvidenceIntakeRelatedGuidesLinks";
 import { HelpEvidenceIntakeVerifyIntakePanel } from "@/app/(operator)/help/_sections/HelpEvidenceIntakeVerifyIntakePanel";
@@ -80,6 +81,7 @@ export function HelpEvidenceIntakeGuideView(props: HelpEvidenceIntakeGuideViewPr
       <div className={contentGridClass}>
         <div className={cn(HELP_PAGE_LAYOUT.contentColumn, "space-y-6")} data-testid="help-evidence-intake-secondary">
           <HelpEvidenceIntakePathStrip />
+          <HelpEvidenceIntakeFindingCoverageTable />
           <HelpEvidenceIntakeVerifyIntakePanel />
           <EvidenceIntakeHelpClaimDisciplineStrip />
 

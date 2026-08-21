@@ -49,7 +49,7 @@ export function RunDetailCaptureEvidenceSection(props: RunDetailCaptureEvidenceS
         </p>
       </div>
       {props.evidencePresence !== undefined ? (
-        <EvidenceGapForecastPanel presence={props.evidencePresence} />
+        <EvidenceGapForecastPanel presence={props.evidencePresence} presentation="expandable" />
       ) : null}
       <BulkEvidenceUpload runId={runId} embedded onUploadSummary={props.onUploadSummary} />
     </section>

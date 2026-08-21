@@ -576,7 +576,7 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
             </p>
           </div>
 
-          <EvidenceGapForecastPanel presence={evidencePresence} />
+          <EvidenceGapForecastPanel presence={evidencePresence} presentation="expandable" />
 
           <QuickStartL0MustQuestionsPanel
             answers={l0Answers}

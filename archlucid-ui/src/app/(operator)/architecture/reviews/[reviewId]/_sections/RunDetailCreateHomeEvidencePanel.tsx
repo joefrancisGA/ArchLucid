@@ -68,7 +68,7 @@ export function RunDetailCreateHomeEvidencePanel(props: RunDetailCreateHomeEvide
         readinessVerdict={scopeReadiness.verdict}
         evidenceCoverageLine={evidenceCoverageLine}
       />
-      <EvidenceGapForecastPanel presence={evidencePresence} />
+      <EvidenceGapForecastPanel presence={evidencePresence} presentation="summary" />
       <RunDetailEvidenceInventorySection items={props.items} hasManifest={false} />
       <RunDetailCreateHomeEvidenceDiagramCrossLink runId={props.runId} />
       <RunDetailCreateHomeEvidenceCaptureRegion
