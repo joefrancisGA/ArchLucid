@@ -42,7 +42,11 @@ public static class RecentAuthenticationEvaluator
         }
 
         TimeSpan maxAge = TimeSpan.FromMinutes(Math.Clamp(maxAgeMinutes, 1, 60));
+        TimeSpan age = timeProvider.GetUtcNow() - authenticatedAt.Value;
 
-        return timeProvider.GetUtcNow() - authenticatedAt.Value <= maxAge;
+        if (age < TimeSpan.Zero)
+            return false;
+
+        return age <= maxAge;
     }
 }
