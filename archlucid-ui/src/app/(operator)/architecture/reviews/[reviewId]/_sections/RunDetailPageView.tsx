@@ -192,6 +192,7 @@ export async function RunDetailPageView(props: {
       failedEngineLabels={findingCoverageSummary?.failedEngineLabels ?? []}
       findingCoverageSummary={findingCoverageSummary}
       hidePromotedStatus
+      pagePrimaryOwnedElsewhere
     />
   );
 

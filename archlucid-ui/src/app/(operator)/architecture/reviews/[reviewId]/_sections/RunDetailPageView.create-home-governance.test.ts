@@ -22,4 +22,11 @@ describe("RunDetailPageView create-home governance (TB-1858)", () => {
       /<RunDetailArchitectureCreateWorkItemSectionDeferred[\s\S]*?<\/>\s*<RunDetailArchitectureSponsorSharingPanelDeferred/,
     );
   });
+
+  it("passes pagePrimaryOwnedElsewhere to create-home activity outcome cards", () => {
+    const outcomeCardsIndex = source.indexOf("const createHomeActivityOutcomeCardsEl = (");
+    const outcomeCardsSource = source.slice(outcomeCardsIndex, outcomeCardsIndex + 900);
+
+    expect(outcomeCardsSource).toContain("pagePrimaryOwnedElsewhere");
+  });
 });

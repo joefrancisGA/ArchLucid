@@ -51,6 +51,8 @@ type RunDetailOutcomeCardsProps = {
   readonly showcasePolicyPackStrip?: ShowcasePolicyPackStripLink | null;
   /** When true, omit promoted status headline and disposition line (shown elsewhere). */
   readonly hidePromotedStatus?: boolean;
+  /** When ReviewPackageDoThisNextStrip owns the filled page primary (TB-2175). */
+  readonly pagePrimaryOwnedElsewhere?: boolean;
 };
 
 /**
@@ -267,10 +269,13 @@ type PackageStatusStripProps = {
   artifactCount: number;
   governanceGateLabel: string | null | undefined;
   showcasePolicyPackStrip: ShowcasePolicyPackStripLink | null | undefined;
+  readonly pagePrimaryOwnedElsewhere?: boolean;
 };
 
 function PackageStatusStrip(props: PackageStatusStripProps) {
   const { evaluationStandardsLabel, approvalStatusLabel } = useStreamlinedPilotOutcomeLabels();
+  const inlineLinkClass =
+    props.pagePrimaryOwnedElsewhere === true ? OPERATOR_LINK.optional : OPERATOR_LINK.inline;
   const trimmedManifestId = props.manifestId?.trim() ?? "";
   const hasManifest = trimmedManifestId.length > 0;
   const warningsLine = manifestWarningsSecondaryCopy(props.warningCountDisplay);
@@ -331,7 +336,7 @@ function PackageStatusStrip(props: PackageStatusStripProps) {
           {props.hasGoldenManifest && hasManifest ? (
             <Link
               href={signedRecordDetailPath(trimmedManifestId)}
-              className={cn("block rounded outline-none ring-offset-2 focus-visible:ring-2 focus-visible:ring-teal-600 dark:ring-offset-neutral-950", OPERATOR_LINK.inline)}
+              className={cn("block rounded outline-none ring-offset-2 focus-visible:ring-2 focus-visible:ring-teal-600 dark:ring-offset-neutral-950", inlineLinkClass)}
               data-testid="run-detail-finalized-package-link"
             >
               {packageBody}
@@ -351,7 +356,7 @@ function PackageStatusStrip(props: PackageStatusStripProps) {
           <div className="mt-1">
             <Link
               href={props.showcasePolicyPackStrip.href.trim()}
-              className={cn("block rounded outline-none ring-offset-2 focus-visible:ring-2 focus-visible:ring-teal-600 dark:ring-offset-neutral-950", OPERATOR_LINK.inline)}
+              className={cn("block rounded outline-none ring-offset-2 focus-visible:ring-2 focus-visible:ring-teal-600 dark:ring-offset-neutral-950", inlineLinkClass)}
             >
               <p className={valueClass}>{props.showcasePolicyPackStrip.label.trim()}</p>
               <p className={detailClass}>Read-only pack rules and version</p>
@@ -366,7 +371,7 @@ function PackageStatusStrip(props: PackageStatusStripProps) {
           {hasManifest ? (
             <Link
               href="#run-explanation"
-              className={cn("block rounded outline-none ring-offset-2 focus-visible:ring-2 focus-visible:ring-teal-600 dark:ring-offset-neutral-950", OPERATOR_LINK.inline)}
+              className={cn("block rounded outline-none ring-offset-2 focus-visible:ring-2 focus-visible:ring-teal-600 dark:ring-offset-neutral-950", inlineLinkClass)}
             >
               {findingsBody}
             </Link>
@@ -382,7 +387,7 @@ function PackageStatusStrip(props: PackageStatusStripProps) {
           {hasManifest ? (
             <Link
               href="#artifacts-exports"
-              className={cn("block rounded outline-none ring-offset-2 focus-visible:ring-2 focus-visible:ring-teal-600 dark:ring-offset-neutral-950", OPERATOR_LINK.inline)}
+              className={cn("block rounded outline-none ring-offset-2 focus-visible:ring-2 focus-visible:ring-teal-600 dark:ring-offset-neutral-950", inlineLinkClass)}
             >
               <p className={valueClass}>{finiteIntegerCountDisplay(props.artifactCount)}</p>
               <p className={detailClass}>Export-ready deliverables</p>
@@ -425,7 +430,10 @@ export function RunDetailOutcomeCards({
   failedEngineLabels = [],
   findingCoverageSummary = null,
   hidePromotedStatus = false,
+  pagePrimaryOwnedElsewhere = false,
 }: RunDetailOutcomeCardsProps) {
+  const supplementaryNavLinkClass =
+    pagePrimaryOwnedElsewhere === true ? OPERATOR_LINK.optional : OPERATOR_LINK.nav;
   const { approvalStatusLabel } = useStreamlinedPilotOutcomeLabels();
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const coverageBanner =
@@ -542,6 +550,7 @@ export function RunDetailOutcomeCards({
         artifactCount={artifactCount}
         governanceGateLabel={governanceGateLabel}
         showcasePolicyPackStrip={showcasePolicyPackStrip ?? null}
+        pagePrimaryOwnedElsewhere={pagePrimaryOwnedElsewhere}
       />
       <details className="rounded-lg border border-neutral-200 bg-neutral-50/50 dark:border-neutral-800 dark:bg-neutral-900/30">
         <summary className={cn("cursor-pointer select-none font-medium text-neutral-800 dark:text-neutral-200", OPERATOR_CARD.nested, OPERATOR_TYPOGRAPHY.body)}>
@@ -634,8 +643,9 @@ export function RunDetailOutcomeCards({
           ) : null}
           {hasGoldenManifest && manifestId !== null && manifestId !== undefined && manifestId.trim().length > 0 ? (
             <Link
-              className={cn("mt-2 inline-block", OPERATOR_LINK.nav)}
+              className={cn("mt-2 inline-block", supplementaryNavLinkClass)}
               href={signedRecordDetailPath(manifestId.trim())}
+              data-testid="run-detail-open-signed-record-link"
             >
               {BUYER_OPEN_SIGNED_RECORD_CTA}
             </Link>
@@ -666,19 +676,19 @@ export function RunDetailOutcomeCards({
         </CardHeader>
         <CardContent className="pt-0">
           <Link
-            className={OPERATOR_LINK.nav}
+            className={supplementaryNavLinkClass}
             href="#authority-chain"
           >
             Jump to activity timeline on this page
           </Link>
           <Link
-            className={cn("mt-2 block", OPERATOR_LINK.nav)}
+            className={cn("mt-2 block", supplementaryNavLinkClass)}
             href={`/architecture/reviews/${encodeURIComponent(runId)}/provenance`}
           >
             Full provenance view
           </Link>
           <Link
-            className={cn("mt-2 block", OPERATOR_LINK.nav)}
+            className={cn("mt-2 block", supplementaryNavLinkClass)}
             href={`/showcase/${encodeURIComponent(runId)}`}
           >
             Completed output (public showcase)

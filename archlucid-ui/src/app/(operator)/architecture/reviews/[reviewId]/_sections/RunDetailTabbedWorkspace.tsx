@@ -128,6 +128,7 @@ const outcomeCardsEl = (
     degradedFindingCoverage={m.resolvedDetail.degradedFindingCoverage === true}
     failedEngineLabels={findingCoverageSummary?.failedEngineLabels ?? []}
     findingCoverageSummary={findingCoverageSummary}
+    pagePrimaryOwnedElsewhere
   />
 );
 
@@ -147,6 +148,7 @@ const createHomeActivityOutcomeCardsEl = (
     failedEngineLabels={findingCoverageSummary?.failedEngineLabels ?? []}
     findingCoverageSummary={findingCoverageSummary}
     hidePromotedStatus
+    pagePrimaryOwnedElsewhere
   />
 );
 

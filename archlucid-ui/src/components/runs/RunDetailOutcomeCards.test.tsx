@@ -44,6 +44,23 @@ describe("RunDetailOutcomeCards", () => {
     expect(screen.getByText("Needs evidence")).toBeInTheDocument();
   });
 
+  it("demotes buyer package strip links when Do this next owns the page primary", () => {
+    render(
+      <RunDetailOutcomeCards
+        runId="run-1"
+        manifestId="manifest-1"
+        hasGoldenManifest
+        findingCountDisplay={1}
+        warningCountDisplay={0}
+        artifactCount={2}
+        unresolvedIssueCountDisplay={0}
+        pagePrimaryOwnedElsewhere
+      />,
+    );
+
+    expect(screen.getByTestId("run-detail-finalized-package-link").className).toContain("text-al-text-secondary");
+  });
+
   it("labels package finalization as package state rather than review outcome", () => {
     render(
       <RunDetailOutcomeCards
