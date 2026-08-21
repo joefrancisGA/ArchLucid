@@ -5,7 +5,7 @@ import {
 } from "@/lib/see-it-page-copy";
 import { CANONICAL_ANONYMOUS_PROOF_HREF } from "@/lib/showcase-static-demo";
 
-/** Marketing why-pack PDF on `/why` — same asset as `/see-it`, not a governed evidence export (TB-1305). */
+/** Marketing why-pack PDF on `/why` — same asset as `/see-it`, not a finalized evidence export (TB-1305). */
 export const WHY_MARKETING_PDF_HREF = SEE_IT_MARKETING_PDF_HREF;
 
 export const WHY_MARKETING_PDF_DOWNLOAD_FILENAME = SEE_IT_MARKETING_PDF_DOWNLOAD_FILENAME;

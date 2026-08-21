@@ -72,7 +72,7 @@ export const HELP_TOPICS: HelpTopic[] = [
     title: "Create your first review",
     keywords: ["wizard", "create", "pipeline", "review", "request"],
     summary:
-      "Create a request, track progress, finalize the sealed review record, and review artifacts, findings, and the review trail.",
+      "Create a request, track progress, finalize the review record, and review artifacts, findings, and the review trail.",
     docPath: "docs/library/FIRST_RUN_WIZARD.md",
     routes: ["/architecture/reviews/new", "/", "/architecture/first-review-guide"],
   },

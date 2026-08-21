@@ -29,7 +29,7 @@ const REPLACEMENTS: ReadonlyArray<readonly [RegExp, string]> = [
   ],
   [
     // Match legacy seeded copy; replacement must stay free of banned package nouns (TB-355).
-    /Northwind Copilot RAG platform — born-governed created architecture package \(synthetic guided-intake sample\)\./g,
+    /Northwind Copilot RAG platform — finalized created architecture package \(synthetic guided-intake sample\)\./g,
     "Enterprise Copilot RAG platform — finalized created architecture review (synthetic guided-intake sample).",
   ],
   [/Northwind\.Copilot\.RagPlatform/g, "Enterprise.Copilot.RagPlatform"],

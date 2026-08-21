@@ -250,7 +250,7 @@ export const DECISION_REGISTER_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps =
   testId: "decision-register-empty-state",
   title: "No architecture decisions yet",
   description:
-    "Finalize a review to lock its sealed review record. Architecture decisions from that package then appear here with findings and evidence lineage.",
+    "Finalize a review to lock its finalized review record. Architecture decisions from that package then appear here with findings and evidence lineage.",
   actions: [
     { label: "Open reviews", href: "/architecture/reviews", variant: "primary" },
     { label: "Start architecture review", href: "/architecture/reviews/new", variant: "outline" },

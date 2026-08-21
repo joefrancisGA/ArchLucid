@@ -3,7 +3,7 @@
  *
  * Why two surfaces exist:
  * - ROI summary (`/insights/roi-summary`) is the *portfolio KPI* view for
- *   review-cycle reduction, effort saved, and governance-ready artifacts across
+ *   review-cycle reduction, effort saved, and export-ready artifacts across
  *   the reporting window.
  * - Sponsor export (review-detail `#sponsor-handoff` and sponsor dashboard
  *   sponsor exports) is the *per-package send* — download the sponsor review
@@ -41,7 +41,7 @@ export const ROI_SPONSOR_EXPORT_HEADING =
   "ROI summary and sponsor export serve different purposes" as const;
 
 export const ROI_SPONSOR_EXPORT_WHY_TWO =
-  "ROI summary shows portfolio KPIs — review-cycle reduction, estimated effort saved, and governance-ready artifacts across the reporting window. Sponsor export sends a per-package sponsor review summary or architecture report for one finalized architecture package. Portfolio framing is not the same as handing off a single sealed review record." as const;
+  "ROI summary shows portfolio KPIs — review-cycle reduction, estimated effort saved, and export-ready artifacts across the reporting window. Sponsor export sends a per-package sponsor review summary or architecture report for one finalized architecture package. Portfolio framing is not the same as handing off a single finalized review record." as const;
 
 export const ROI_SPONSOR_EXPORT_COMPACT_LINE =
   "ROI summary is portfolio KPI; sponsor export is per-package send — open the other when you need both." as const;

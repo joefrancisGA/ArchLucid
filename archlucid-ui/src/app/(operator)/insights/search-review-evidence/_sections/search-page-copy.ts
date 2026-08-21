@@ -8,7 +8,7 @@ export const SEARCH_PAGE_SUBTITLE = EVIDENCE_TRAIL_SEARCH.pageSubtitle;
 
 /** Buyer-polished lead — shorter, sponsor-safe retrieval framing (SXX). */
 export const SEARCH_PAGE_SUBTITLE_BUYER =
-  "Find findings, decisions, and sealed review records across your workspace evidence index.";
+  "Find findings, decisions, and finalized review records across your workspace evidence index.";
 
 export function searchReviewEvidencePageSubtitle(buyerPolishedShell: boolean): string {
   return buyerPolishedShell ? SEARCH_PAGE_SUBTITLE_BUYER : SEARCH_PAGE_SUBTITLE;

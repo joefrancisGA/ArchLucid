@@ -12,7 +12,7 @@ export const SEE_IT_BREADCRUMB_HUB_PATH = "/welcome" as const;
 export const SEE_IT_BREADCRUMB_TOPIC_TITLE = SEE_IT_PAGE_TITLE;
 
 export const SEE_IT_HERO_LEAD_OPERATOR =
-  "Evidence-backed proof export — sealed review record, findings, and audit trail — not a chat transcript.";
+  "Evidence-backed proof export — finalized review record, findings, and audit trail — not a chat transcript.";
 
 export const SEE_IT_HERO_LEAD_BUYER =
   "See sealed findings, audit trail, and exportable proof — not a chat transcript.";

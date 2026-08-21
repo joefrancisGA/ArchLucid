@@ -68,7 +68,7 @@ export const BUYER_VIEW_SIGNED_RECORD_CTA = "View sealed record";
 
 export const BUYER_OPEN_SIGNED_RECORD_CTA = "Open sealed record";
 
-export const BUYER_VIEW_SIGNED_REVIEW_RECORD_CTA = "View sealed review record";
+export const BUYER_VIEW_SIGNED_REVIEW_RECORD_CTA = "View finalized review record";
 
 export const BUYER_REVIEW_DETAIL_EVIDENCE_BASIS_LINE =
   "Blocking issues: 0 · Evidence basis: sealed review record, evidence trail, audit trail";

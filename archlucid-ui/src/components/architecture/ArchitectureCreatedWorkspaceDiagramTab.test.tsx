@@ -24,7 +24,7 @@ import { ArchitectureCreatedWorkspace } from "@/components/architecture/Architec
 const workspaceBaseline = {
   runId: "run-diagram",
   architectureName: "Claims platform",
-  architectureOverview: "A governed workflow platform for analysts with auditable evidence trails.",
+  architectureOverview: "A structured workflow platform for analysts with auditable evidence trails.",
   businessOutcome: "Reduce manual triage time.",
   peopleAndSystems: [{ label: "Claims analyst", kind: "Human" }],
   ownerLabel: "owner@example.com",

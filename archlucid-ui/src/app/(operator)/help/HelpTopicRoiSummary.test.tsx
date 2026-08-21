@@ -50,7 +50,7 @@ describe("HelpRoiSummaryGuideView", () => {
     expect(entry?.slug).toBe("roi-summary");
     expect(entry?.title).toBe(ROI_SUMMARY_HELP_PAGE_TITLE);
     expect(entry?.summary).toBe(
-      "Portfolio KPI framing for review-cycle reduction, effort saved, and governance-ready artifacts.",
+      "Portfolio KPI framing for review-cycle reduction, effort saved, and export-ready artifacts.",
     );
     expect(entry?.lastReviewed).toBe("2026-08-12");
     expect(entry?.releaseApplicability).toBe("sponsor ROI summary orientation");

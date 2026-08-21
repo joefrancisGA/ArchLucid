@@ -1,7 +1,7 @@
 import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer/buyer-polish-copy";
 
 export const DECISION_REGISTER_PAGE_SUBTITLE =
-  "Browse architecture decisions locked with each sealed review record — category, supporting findings, confidence, and lineage.";
+  "Browse architecture decisions locked with each finalized review record — category, supporting findings, confidence, and lineage.";
 
 export const DECISION_REGISTER_CLAIM_HEADING = "Register browse only";
 

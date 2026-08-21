@@ -47,7 +47,7 @@ describe("ArchitectureCreatedClarificationsPanel", () => {
       runId: "run-abc",
       architectureName: "Platform",
       architectureOverview:
-        "A governed workflow platform for analysts with Entra ID authentication, auditable evidence trails, and exportable architecture reviews for enterprise tenants.",
+        "A structured workflow platform for analysts with Entra ID authentication, auditable evidence trails, and exportable architecture reviews for enterprise tenants.",
       businessOutcome: "Reduce manual triage time and improve auditability for operations teams.",
       peopleAndSystems: [{ label: "Analyst", kind: "Human" }],
       ownerLabel: null,
@@ -118,7 +118,7 @@ alpha|beta|gamma|delta|epsilon|zeta`;
       runId: "run-abc",
       architectureName: "Claims intake platform",
       architectureOverview:
-        "A governed workflow platform for analysts with Entra ID authentication, auditable evidence trails, and exportable architecture reviews for enterprise tenants.",
+        "A structured workflow platform for analysts with Entra ID authentication, auditable evidence trails, and exportable architecture reviews for enterprise tenants.",
       businessOutcome: "Reduce manual triage time and improve auditability for operations teams.",
       peopleAndSystems: [{ label: "Claims analyst", kind: "Human" }],
       ownerLabel: null,
@@ -154,7 +154,7 @@ alpha|beta|gamma|delta|epsilon|zeta`;
       runId: "run-abc",
       architectureName: "Claims intake platform",
       architectureOverview:
-        "A governed workflow platform for analysts with Entra ID authentication, auditable evidence trails, and exportable architecture reviews for enterprise tenants.",
+        "A structured workflow platform for analysts with Entra ID authentication, auditable evidence trails, and exportable architecture reviews for enterprise tenants.",
       businessOutcome: "Reduce manual triage time and improve auditability for operations teams.",
       peopleAndSystems: [{ label: "Claims analyst", kind: "Human" }],
       ownerLabel: null,

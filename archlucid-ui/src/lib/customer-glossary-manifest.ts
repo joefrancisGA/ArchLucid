@@ -72,11 +72,11 @@ export const CUSTOMER_GLOSSARY_TERMS: readonly CustomerGlossaryTerm[] = [
     id: "review-package",
     label: "Architecture review",
     definition:
-      "The durable record for one architecture review: findings, decisions, evidence links, sealed review record, governance records, and exportable deliverables.",
+      "The durable record for one architecture review: findings, decisions, evidence links, finalized review record, governance records, and exportable deliverables.",
     category: "review-process",
     relatedTermIds: ["review", "sealed-review-record", "deliverable"],
     detail:
-      "Stakeholders open an architecture review to triage findings, finalize, export, compare, and audit outcomes. Finalize locks the sealed review record and export-ready outputs.",
+      "Stakeholders open an architecture review to triage findings, finalize, export, compare, and audit outcomes. Finalize locks the finalized review record and export-ready outputs.",
     deprecatedAliases: ["Review package", "review package", "Architecture package", "architecture package", "Finalized review"],
     visibility: "customer",
   },
@@ -134,11 +134,11 @@ export const CUSTOMER_GLOSSARY_TERMS: readonly CustomerGlossaryTerm[] = [
     id: "decision",
     label: "Decision",
     definition:
-      "A recorded disposition on review proposals—such as approve, waive, defer, or escalate—captured for governance and audit. Not the same as the sealed review record (the package that locks those decisions at finalize).",
+      "A recorded disposition on review proposals—such as approve, waive, defer, or escalate—captured for governance and audit. Not the same as the finalized review record (the package that locks those decisions at finalize).",
     category: "decisions-and-findings",
     relatedTermIds: ["governance-approval", "finding", "sealed-review-record"],
     detail:
-      "Browse decisions in the Decision register. Open the sealed review record for the immutable package that contains decisions, findings, and exports for one review.",
+      "Browse decisions in the Decision register. Open the finalized review record for the immutable package that contains decisions, findings, and exports for one review.",
     visibility: "customer",
   },
   {

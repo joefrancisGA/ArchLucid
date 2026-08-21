@@ -8,7 +8,7 @@ export const BUYER_EVIDENCE_CHAIN_SOURCE_LINE =
   "Persisted evidence chain pointers for this finding (review record version, snapshots, and trace ids).";
 
 export const BUYER_GRAPH_WHAT_THIS_PROVES =
-  "Trace any accepted risk to its supporting evidence — from source context through policy basis, decision, approval, sealed review record, and audit record.";
+  "Trace any accepted risk to its supporting evidence — from source context through policy basis, decision, approval, finalized review record, and audit record.";
 
 export const BUYER_GRAPH_TECHNICAL_CONTROLS_DISCLOSURE = "Graph options and filters";
 
@@ -160,4 +160,4 @@ export const BUYER_FINDING_SUPPORTING_EVIDENCE_TRACE = "Supporting evidence trac
 
 export const BUYER_GRAPH_GOVERNANCE_NEXT_APPROVED = "View resolve outcomes";
 
-export const BUYER_GRAPH_GOVERNANCE_NEXT_PENDING = "Continue to governance approval";
+export const BUYER_GRAPH_GOVERNANCE_NEXT_PENDING = "Continue to resolve outcomes";
