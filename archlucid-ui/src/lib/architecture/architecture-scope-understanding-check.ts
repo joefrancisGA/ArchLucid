@@ -73,6 +73,8 @@ export const SCOPE_UNDERSTANDING_CONFIRM_BLOCKED_HINT =
 export const SCOPE_UNDERSTANDING_SECTION_HEADER = "Operator-confirmed in-scope understanding";
 /** Ready line for surfaces where confirming scope is the last step before the review starts. */
 export const SCOPE_UNDERSTANDING_READY_HINT = "Scope confirmed — you can start the review.";
+export const SCOPE_UNDERSTANDING_SAVE_ERROR_HINT =
+  "Scope is confirmed locally, but the draft could not be saved. Fix the errors above, then save again.";
 /** Ready line for wizards that confirm scope on an earlier step. */
 export const SCOPE_UNDERSTANDING_READY_TO_CONTINUE_HINT = "Scope confirmed — you can continue.";
 

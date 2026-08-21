@@ -113,6 +113,7 @@ export function useArchitectureDraftAutosave(
   const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const inFlightSaveRef = useRef<Promise<boolean> | null>(null);
   const trailingSaveNeededRef = useRef(false);
+  const autosaveBlockedRef = useRef(false);
   const persistDraftRef = useRef<() => Promise<boolean>>(async () => false);
   const resolvedArchitectureIdRef = useRef<string | null>(
     deferCreateUntilFirstSave ? null : args.architectureId,
@@ -251,6 +252,10 @@ export function useArchitectureDraftAutosave(
 
         patchFailedNonRetryable = isNonRetryableDraftPatchError(error);
 
+        if (patchFailedNonRetryable) {
+          autosaveBlockedRef.current = true;
+        }
+
         return false;
       } finally {
         inFlightSaveRef.current = null;
@@ -260,7 +265,8 @@ export function useArchitectureDraftAutosave(
           persistedFieldsRef.current,
         );
         const shouldRunTrailingSave =
-          trailingSaveNeededRef.current || (stillDirtyRelativeToBaseline && !patchFailedNonRetryable);
+          !patchFailedNonRetryable &&
+          (trailingSaveNeededRef.current || stillDirtyRelativeToBaseline);
         trailingSaveNeededRef.current = false;
 
         if (shouldRunTrailingSave && hasArchitectureDraftSaveableContent(fieldsRef.current)) {
@@ -304,7 +310,11 @@ export function useArchitectureDraftAutosave(
   }, [enabled, isOnline]);
 
   useEffect(() => {
-    if (!enabled || !hasUnsavedChanges) {
+    autosaveBlockedRef.current = false;
+  }, [args.fields]);
+
+  useEffect(() => {
+    if (!enabled || !hasUnsavedChanges || autosaveBlockedRef.current) {
       return;
     }
 
