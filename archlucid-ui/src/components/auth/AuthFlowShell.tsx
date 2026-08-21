@@ -17,6 +17,10 @@ export type AuthFlowShellProps = {
   readonly showEvaluationSignupLink?: boolean;
   /** When true, shows a post-sign-in return promise above the panel. */
   readonly hasReturnDestination?: boolean;
+  /** When false, omits the passwordless footer line (session-expired inlines it above the CTA). */
+  readonly showFooterPasswordlessExplanation?: boolean;
+  /** When false, omits the footer help link (session-expired raises it beside the CTA). */
+  readonly showFooterHelpLink?: boolean;
   /** Optional Evidence orientation strip below the auth panel (ASI/ACB). */
   readonly afterPanel?: ReactNode;
 };
@@ -30,8 +34,12 @@ export function AuthFlowShell({
   children,
   showEvaluationSignupLink = true,
   hasReturnDestination = false,
+  showFooterPasswordlessExplanation = true,
+  showFooterHelpLink = true,
   afterPanel = null,
 }: AuthFlowShellProps) {
+  const showFooterLinks = showEvaluationSignupLink || showFooterHelpLink;
+
   return (
     <div className="w-full text-al-text-primary" data-testid="auth-flow-shell">
       <div className="mx-auto flex w-full max-w-[520px] flex-col px-4 sm:px-6">
@@ -46,7 +54,7 @@ export function AuthFlowShell({
 
         {hasReturnDestination ? (
           <p
-            className={cn("mt-4 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+            className={cn("mt-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
             data-testid="auth-flow-return-destination-hint"
           >
             {SIGN_IN_PAGE_COPY.returnDestinationHint}
@@ -56,7 +64,7 @@ export function AuthFlowShell({
         <div
           className={cn(
             DESIGN_TOKENS.surface.card,
-            hasReturnDestination ? "mt-4 p-6 sm:p-7" : "mt-6 p-6 sm:p-7",
+            hasReturnDestination ? "mt-3 p-4 sm:p-5" : "mt-4 p-4 sm:p-5",
           )}
           data-testid="auth-flow-panel"
         >
@@ -65,26 +73,34 @@ export function AuthFlowShell({
 
         {afterPanel}
 
-        <footer className="mt-6 space-y-2 border-t border-neutral-200 pt-5 dark:border-neutral-800">
-          <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-            ArchLucid does not use a product password. Sign in with a work or school account or a
-            one-time email code.
-          </p>
-          <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-            {showEvaluationSignupLink ? (
-              <>
-                New to ArchLucid?{" "}
-                <Link className={OPERATOR_LINK.nav} href={publicSiteHref("/signup")}>
-                  Start an evaluation
-                </Link>
-                {" · "}
-              </>
+        {showFooterPasswordlessExplanation || showFooterLinks ? (
+          <footer className="mt-4 space-y-2 border-t border-neutral-200 pt-4 dark:border-neutral-800">
+            {showFooterPasswordlessExplanation ? (
+              <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                ArchLucid does not use a product password. Sign in with a work or school account or a
+                one-time email code.
+              </p>
             ) : null}
-            <Link className={OPERATOR_LINK.nav} href={AUTHENTICATION_SIGN_IN_INBOUND_HELP_HREF}>
-              {AUTHENTICATION_SIGN_IN_INBOUND_HELP_LINK_LABEL}
-            </Link>
-          </p>
-        </footer>
+            {showFooterLinks ? (
+              <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                {showEvaluationSignupLink ? (
+                  <>
+                    New to ArchLucid?{" "}
+                    <Link className={OPERATOR_LINK.nav} href={publicSiteHref("/signup")}>
+                      Start an evaluation
+                    </Link>
+                    {" · "}
+                  </>
+                ) : null}
+                {showFooterHelpLink ? (
+                  <Link className={OPERATOR_LINK.nav} href={AUTHENTICATION_SIGN_IN_INBOUND_HELP_HREF}>
+                    {AUTHENTICATION_SIGN_IN_INBOUND_HELP_LINK_LABEL}
+                  </Link>
+                ) : null}
+              </p>
+            ) : null}
+          </footer>
+        ) : null}
       </div>
     </div>
   );

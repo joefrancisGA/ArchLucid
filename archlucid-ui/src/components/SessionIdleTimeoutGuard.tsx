@@ -4,12 +4,13 @@ import { useEffect, useRef } from "react";
 
 import { useRouter } from "next/navigation";
 
+import {
+  SESSION_CLEARED_AT_STORAGE_KEY,
+  SESSION_IDLE_TIMEOUT_MS,
+} from "@/lib/auth/session-idle-timeout";
 import { buildSessionExpiredHref } from "@/lib/navigation/auth-sign-in-href";
 import { clearOperatorScopeStorage } from "@/lib/operator/operator-scope-storage";
 import { clearOidcSession } from "@/lib/oidc/session";
-
-const IDLE_MS = 30 * 60 * 1000;
-const SESSION_STORAGE_KEY = "archlucid.session.clearedAt";
 
 /** Clears operator session after 30 minutes of inactivity (enterprise idle timeout). */
 export function SessionIdleTimeoutGuard() {
@@ -23,7 +24,7 @@ export function SessionIdleTimeoutGuard() {
       }
 
       timerRef.current = window.setTimeout(() => {
-        sessionStorage.setItem(SESSION_STORAGE_KEY, new Date().toISOString());
+        sessionStorage.setItem(SESSION_CLEARED_AT_STORAGE_KEY, new Date().toISOString());
         clearOidcSession();
         clearOperatorScopeStorage();
 
@@ -31,7 +32,7 @@ export function SessionIdleTimeoutGuard() {
 
         router.push(buildSessionExpiredHref(returnPath));
         router.refresh();
-      }, IDLE_MS);
+      }, SESSION_IDLE_TIMEOUT_MS);
     };
 
     const events: Array<keyof WindowEventMap> = ["mousemove", "mousedown", "keydown", "touchstart", "scroll"];

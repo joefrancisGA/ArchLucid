@@ -77,7 +77,7 @@ describe("CallbackClient buyer-polished shell", () => {
     vi.clearAllMocks();
   });
 
-  it("renders skip link, breadcrumb, and orientation above callback body", () => {
+  it("renders skip link, breadcrumb, callback body, then orientation below the panel", () => {
     render(<CallbackClient />);
 
     expect(screen.getByRole("link", { name: AUTH_CALLBACK_SKIP_LINK_LABEL })).toHaveAttribute(
@@ -90,24 +90,13 @@ describe("CallbackClient buyer-polished shell", () => {
     ).toBeInTheDocument();
     expect(screen.getByRole("heading", { level: 2, name: AUTH_CALLBACK_FOLLOW_UPS_TITLE })).toBeInTheDocument();
 
-    const orientation = screen.getByTestId("auth-callback-orientation-top");
+    const orientation = screen.getByTestId("auth-callback-orientation-bottom");
     const loading = screen.getByTestId("auth-callback-loading");
-    const primary = screen.getByTestId("auth-callback-primary-content");
 
-    expect(primary).toContainElement(orientation);
-    expect(primary).toContainElement(loading);
-
-    const orderedTestIds = Array.from(primary.querySelectorAll("[data-testid]")).map((element) =>
-      element.getAttribute("data-testid"),
-    );
-    const orientationIndex = orderedTestIds.indexOf("auth-callback-orientation-top");
-    const loadingIndex = orderedTestIds.indexOf("auth-callback-loading");
-
-    expect(orientationIndex).toBeGreaterThan(-1);
-    expect(loadingIndex).toBeGreaterThan(orientationIndex);
+    expect(orientation.compareDocumentPosition(loading) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
-  it("renders orientation above the access panel on callback failure", async () => {
+  it("renders orientation below the access panel on callback failure", async () => {
     searchParamsMock.value = new URLSearchParams();
     vi.mocked(consumePkceState).mockReturnValueOnce(null);
 
@@ -117,17 +106,9 @@ describe("CallbackClient buyer-polished shell", () => {
       expect(screen.getByTestId("auth-callback-access-panel")).toBeInTheDocument();
     });
 
-    const orientation = screen.getByTestId("auth-callback-orientation-top");
+    const orientation = screen.getByTestId("auth-callback-orientation-bottom");
     const accessPanel = screen.getByTestId("auth-callback-access-panel");
-    const primary = screen.getByTestId("auth-callback-primary-content");
 
-    const orderedTestIds = Array.from(primary.querySelectorAll("[data-testid]")).map((element) =>
-      element.getAttribute("data-testid"),
-    );
-    const orientationIndex = orderedTestIds.indexOf("auth-callback-orientation-top");
-    const accessPanelIndex = orderedTestIds.indexOf("auth-callback-access-panel");
-
-    expect(orientationIndex).toBeGreaterThan(-1);
-    expect(accessPanelIndex).toBeGreaterThan(orientationIndex);
+    expect(orientation.compareDocumentPosition(accessPanel) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 });

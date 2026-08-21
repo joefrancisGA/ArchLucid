@@ -49,7 +49,7 @@ export function EvidenceOrientationClaimCallout({
   testId,
   stripSlug,
   body,
-  style = EVIDENCE_CLAIM_STYLE.operatorWarn,
+  style = EVIDENCE_CLAIM_STYLE.operatorNeutral,
   element = "aside",
   heading,
   bodyClassName,

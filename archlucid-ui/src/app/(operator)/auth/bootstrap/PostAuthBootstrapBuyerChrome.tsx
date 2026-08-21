@@ -16,14 +16,21 @@ type PostAuthBootstrapBuyerChromeProps = {
   readonly children: ReactNode;
 };
 
-/** Shared buyer-facing chrome for `/auth/bootstrap` — skip link, breadcrumb, claim/Sources, step body. */
+/** Shared buyer-facing chrome for `/auth/bootstrap` — skip link, breadcrumb, step body, Sources below. */
 export function PostAuthBootstrapBuyerChrome({ children }: PostAuthBootstrapBuyerChromeProps): React.JSX.Element {
   return (
     <>
       <a href={`#${AUTH_BOOTSTRAP_PRIMARY_CONTENT_ID}`} className={TRUST_CENTER_PUBLIC_LAYOUT.skipLink}>
         {AUTH_BOOTSTRAP_SKIP_LINK_LABEL}
       </a>
-      <AuthFlowShell showEvaluationSignupLink={false}>
+      <AuthFlowShell
+        showEvaluationSignupLink={false}
+        afterPanel={
+          <div className="mt-4 text-left" data-testid="post-auth-bootstrap-orientation-bottom">
+            <PostAuthBootstrapClaimOrientationStrip />
+          </div>
+        }
+      >
         <div
           id={AUTH_BOOTSTRAP_PRIMARY_CONTENT_ID}
           data-testid="post-auth-bootstrap-primary-content"
@@ -31,9 +38,6 @@ export function PostAuthBootstrapBuyerChrome({ children }: PostAuthBootstrapBuye
         >
           <div className="mb-4 text-left">
             <PostAuthBootstrapBreadcrumb />
-          </div>
-          <div className="mb-6 text-left" data-testid="post-auth-bootstrap-orientation-top">
-            <PostAuthBootstrapClaimOrientationStrip />
           </div>
           {children}
         </div>

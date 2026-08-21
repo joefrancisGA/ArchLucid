@@ -16,14 +16,21 @@ type AuthCallbackBuyerChromeProps = {
   readonly children: ReactNode;
 };
 
-/** Shared buyer-facing chrome for `/auth/callback` — skip link, breadcrumb, claim/Sources, body. */
+/** Shared buyer-facing chrome for `/auth/callback` — skip link, breadcrumb, body, Sources below. */
 export function AuthCallbackBuyerChrome({ children }: AuthCallbackBuyerChromeProps): React.JSX.Element {
   return (
     <>
       <a href={`#${AUTH_CALLBACK_PRIMARY_CONTENT_ID}`} className={TRUST_CENTER_PUBLIC_LAYOUT.skipLink}>
         {AUTH_CALLBACK_SKIP_LINK_LABEL}
       </a>
-      <AuthFlowShell showEvaluationSignupLink={false}>
+      <AuthFlowShell
+        showEvaluationSignupLink={false}
+        afterPanel={
+          <div className="mt-4 text-left" data-testid="auth-callback-orientation-bottom">
+            <AuthCallbackClaimOrientationStrip />
+          </div>
+        }
+      >
         <div
           id={AUTH_CALLBACK_PRIMARY_CONTENT_ID}
           data-testid="auth-callback-primary-content"
@@ -31,9 +38,6 @@ export function AuthCallbackBuyerChrome({ children }: AuthCallbackBuyerChromePro
         >
           <div className="mb-4 text-left">
             <AuthCallbackBreadcrumb />
-          </div>
-          <div className="mb-6 text-left" data-testid="auth-callback-orientation-top">
-            <AuthCallbackClaimOrientationStrip />
           </div>
           {children}
         </div>

@@ -1,24 +1,24 @@
 import { describe, expect, it } from "vitest";
 
 import {
-  SIGN_IN_RETURN_DESTINATION_HINT,
+  formatSessionExpiredReturnHint,
+  resolveReturnDestinationLabel,
   signInHasReturnDestination,
 } from "@/lib/auth/sign-in-return-destination";
 
-describe("signInHasReturnDestination", () => {
-  it("returns true for safe non-root return paths", () => {
+describe("sign-in-return-destination", () => {
+  it("detects a safe non-root return destination", () => {
     expect(signInHasReturnDestination("/architecture/reviews/run-1")).toBe(true);
-  });
-
-  it("returns false for root and unsafe paths", () => {
     expect(signInHasReturnDestination("/")).toBe(false);
-    expect(signInHasReturnDestination("https://evil.example")).toBe(false);
-    expect(signInHasReturnDestination(undefined)).toBe(false);
+    expect(signInHasReturnDestination("//evil.example")).toBe(false);
   });
-});
 
-describe("SIGN_IN_RETURN_DESTINATION_HINT", () => {
-  it("is non-empty customer-facing copy", () => {
-    expect(SIGN_IN_RETURN_DESTINATION_HINT.length).toBeGreaterThan(20);
+  it("resolves a human label for a safe return path", () => {
+    expect(resolveReturnDestinationLabel("/architecture/reviews/run-1")).toBe("Review detail");
+    expect(resolveReturnDestinationLabel("/")).toBeNull();
+  });
+
+  it("formats the session-expired return hint", () => {
+    expect(formatSessionExpiredReturnHint("Review detail")).toBe("Sign in to return to Review detail.");
   });
 });

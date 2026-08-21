@@ -1,10 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import {
-  SESSION_EXPIRED_CLAIM_DISCIPLINE_HEADING,
-  SESSION_EXPIRED_FOLLOW_UPS_TITLE,
-} from "@/lib/session-expired-evidence-copy";
+import { SESSION_EXPIRED_FOLLOW_UPS_TITLE } from "@/lib/session-expired-evidence-copy";
 import {
   SESSION_EXPIRED_PRIMARY_CONTENT_ID,
   SESSION_EXPIRED_SKIP_LINK_LABEL,
@@ -46,23 +43,19 @@ describe("SessionExpiredClient buyer-polished shell", () => {
     vi.clearAllMocks();
   });
 
-  it("renders skip link, breadcrumb, and orientation above session recovery body", () => {
+  it("renders skip link, recovery body, then orientation below the panel", () => {
     render(<SessionExpiredClient />);
 
     expect(screen.getByRole("link", { name: SESSION_EXPIRED_SKIP_LINK_LABEL })).toHaveAttribute(
       "href",
       `#${SESSION_EXPIRED_PRIMARY_CONTENT_ID}`,
     );
-    expect(screen.getByTestId("session-expired-breadcrumb")).toBeInTheDocument();
-    expect(
-      screen.getByRole("heading", { level: 2, name: SESSION_EXPIRED_CLAIM_DISCIPLINE_HEADING }),
-    ).toBeInTheDocument();
+    expect(screen.queryByTestId("session-expired-breadcrumb")).toBeNull();
     expect(screen.getByRole("heading", { level: 2, name: SESSION_EXPIRED_FOLLOW_UPS_TITLE })).toBeInTheDocument();
 
-    const orientation = screen.getByTestId("session-expired-orientation-top");
+    const orientation = screen.getByTestId("session-expired-orientation-bottom");
     const sessionView = screen.getByTestId("session-expired-view");
 
-    expect(screen.getByTestId("session-expired-primary-content")).toContainElement(orientation);
-    expect(orientation.compareDocumentPosition(sessionView) & Node.DOCUMENT_POSITION_PRECEDING).toBeTruthy();
+    expect(orientation.compareDocumentPosition(sessionView) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 });

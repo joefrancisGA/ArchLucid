@@ -37,7 +37,7 @@ describe("PostAuthBootstrapClient buyer-polished shell", () => {
     });
   });
 
-  it("renders skip link, breadcrumb, and orientation above workspace selection", async () => {
+  it("renders skip link, breadcrumb, workspace selection, then orientation below the panel", async () => {
     render(<PostAuthBootstrapClient />);
 
     await waitFor(() => {
@@ -54,10 +54,9 @@ describe("PostAuthBootstrapClient buyer-polished shell", () => {
     ).toBeInTheDocument();
     expect(screen.getByRole("heading", { level: 2, name: AUTH_BOOTSTRAP_FOLLOW_UPS_TITLE })).toBeInTheDocument();
 
-    const orientation = screen.getByTestId("post-auth-bootstrap-orientation-top");
+    const orientation = screen.getByTestId("post-auth-bootstrap-orientation-bottom");
     const workspaceStep = screen.getByTestId("bootstrap-select-workspace-step");
 
-    expect(screen.getByTestId("post-auth-bootstrap-primary-content")).toContainElement(orientation);
-    expect(orientation.compareDocumentPosition(workspaceStep) & Node.DOCUMENT_POSITION_PRECEDING).toBeTruthy();
+    expect(orientation.compareDocumentPosition(workspaceStep) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 });

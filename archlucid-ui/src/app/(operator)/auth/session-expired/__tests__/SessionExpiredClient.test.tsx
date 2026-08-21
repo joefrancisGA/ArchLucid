@@ -90,7 +90,9 @@ describe("SessionExpiredClient", () => {
     expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Your session expired");
     expect(screen.getByTestId("session-expired-heading")).toHaveTextContent("Your session expired");
     expect(
-      screen.getByText(/for your security, archlucid signed you out after a period of inactivity/i),
+      screen.getByText(
+        new RegExp(`for your security, archlucid signed you out after 30 minutes of inactivity`, "i"),
+      ),
     ).toBeInTheDocument();
   });
 

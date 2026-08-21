@@ -138,7 +138,7 @@ describe("SignInClient — idle-timeout session-expired view", () => {
 
     render(<SignInClient />);
 
-    expect(screen.getByText(/signed you out after a period of inactivity/i)).toBeInTheDocument();
+    expect(screen.getByText(/signed you out after 30 minutes of inactivity/i)).toBeInTheDocument();
   });
 
   it("does NOT render artifact 404 copy for reason=idle-timeout", () => {
