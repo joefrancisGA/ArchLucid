@@ -49,7 +49,7 @@ export function buildFinalizeConsequencePreview(): FinalizeConsequencePreview {
         id: "staysEditable",
         label: "What stays editable",
         detail:
-          "Finding dispositions, comments, and governance follow-ups stay editable. Replay and comparison remain available.",
+          "Finding dispositions, comments, and approval follow-ups stay editable. Replay and comparison remain available.",
       },
       {
         id: "exportsUnlock",

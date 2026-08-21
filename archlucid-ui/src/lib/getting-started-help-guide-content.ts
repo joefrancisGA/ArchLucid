@@ -4,7 +4,7 @@ import type { HelpMarkdownHeading } from "@/lib/help/help-markdown-headings";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
 export const GETTING_STARTED_HELP_SUBTITLE =
-  "Learn how ArchLucid turns architecture evidence into review findings, decisions, and governance-ready outputs.";
+  "Learn how ArchLucid turns architecture evidence into review findings, decisions, and export-ready outputs.";
 
 export const GETTING_STARTED_HELP_PAGE_SUBTITLE_OPERATOR = GETTING_STARTED_HELP_SUBTITLE;
 
@@ -156,7 +156,7 @@ export const GETTING_STARTED_HELP_WORKFLOW_STEPS: readonly GettingStartedWorkflo
   {
     stepNumber: 3,
     title: "Review findings",
-    description: "Triage issues, confirm evidence coverage, and note items that need governance follow-up.",
+    description: "Triage issues, confirm evidence coverage, and note items that need approval follow-up.",
     expectedOutputs: "Prioritized findings ready for decisions.",
     href: "/governance/findings",
     ctaLabel: "Open findings queue",

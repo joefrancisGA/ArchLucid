@@ -59,7 +59,7 @@ export const governanceResolutionRankOperatorLine =
   "Change pack order on Policy packs or Governance workflow — not on this page.";
 
 const governanceResolutionPageLead =
-  "See which governance packs, controls, and workflow rules are currently effective for this workspace. Use this page to diagnose policy conflicts, precedence, and generated approval decisions.";
+  "See which policy packs, controls, and workflow rules are currently effective for this workspace. Use this page to diagnose policy conflicts, precedence, and generated approval decisions.";
 
 /** Policy resolution — lead under page title (`governance-resolution/page.tsx`), before rank cue. */
 export const governanceResolutionPageLeadOperator = governanceResolutionPageLead;

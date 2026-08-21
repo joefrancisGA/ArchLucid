@@ -7,7 +7,7 @@ import {
 
 describe("finding-governance-action-copy", () => {
   it("exposes governance region title", () => {
-    expect(GOVERNANCE_ACTION_REGION_TITLE).toBe("Take governance action");
+    expect(GOVERNANCE_ACTION_REGION_TITLE).toBe("Act on this finding");
   });
 
   it("accepts email remediation owners", () => {

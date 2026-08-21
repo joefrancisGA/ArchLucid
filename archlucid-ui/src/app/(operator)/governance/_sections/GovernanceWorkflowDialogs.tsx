@@ -73,7 +73,7 @@ export function GovernanceWorkflowDialogs(props: GovernanceWorkflowDialogsProps)
         title="Activate environment?"
         description={
           pendingActivate !== null
-            ? `Activating governance pack in ${pendingActivate.env}. This will apply the pack's rules to all future governed changes.`
+            ? `Activating policy pack in ${pendingActivate.env}. This will apply the pack's rules to all future architecture reviews.`
             : ""
         }
         variant="default"

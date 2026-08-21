@@ -117,7 +117,7 @@ const MARKETING_FAQ_ITEM_TEMPLATES: ReadonlyArray<MarketingFaqItem> = [
     categoryId: "evaluation-first-review",
     question: "What do I get after my first architecture review?",
     answer:
-      "A review with prioritized findings, evidence links, governance-ready outputs, and exportable artifacts you can share with sponsors, review boards, or procurement — without rebuilding the narrative in slides.",
+      "A review with prioritized findings, evidence links, export-ready outputs, and exportable artifacts you can share with sponsors, review boards, or procurement — without rebuilding the narrative in slides.",
     relatedLinks: [
       { label: "Get started", href: "/get-started" },
       { label: "See it in 30 seconds", href: "/see-it" },

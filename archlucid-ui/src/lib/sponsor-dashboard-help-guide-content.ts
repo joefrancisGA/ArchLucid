@@ -12,10 +12,10 @@ export const SPONSOR_DASHBOARD_HELP_BREADCRUMB_TOPIC_TITLE = "Sponsor dashboard 
 export const SPONSOR_DASHBOARD_HELP_PAGE_TITLE = "Sponsor dashboard";
 
 export const SPONSOR_DASHBOARD_HELP_PAGE_SUBTITLE =
-  "How portfolio ROI trends, workspace-health KPI tiles, and sponsor exports fit sponsor governance briefings.";
+  "How portfolio ROI trends, workspace-health KPI tiles, and sponsor exports fit sponsor briefings.";
 
 export const SPONSOR_DASHBOARD_HELP_PAGE_SUBTITLE_BUYER =
-  "Portfolio ROI, workspace-health KPIs, and sponsor exports for governance briefings in this workspace." as const;
+  "Portfolio ROI, workspace-health KPIs, and sponsor exports for sponsor briefings in this workspace." as const;
 
 export const SPONSOR_DASHBOARD_HELP_PRIMARY_CONTENT_ID = "help-sponsor-dashboard-primary-content" as const;
 
@@ -67,7 +67,7 @@ export const SPONSOR_DASHBOARD_HELP_FEATURE_ITEMS: readonly SponsorDashboardHelp
   },
   {
     label: "Workspace health",
-    detail: "Open workspace health or the approval queue when KPI tiles need governance follow-up.",
+    detail: "Open workspace health or the approval queue when KPI tiles need approval follow-up.",
     href: SPONSOR_DASHBOARD_WORKSPACE_HEALTH_HREF,
   },
   {

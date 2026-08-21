@@ -234,7 +234,7 @@ export const HELP_TOPIC_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] =
     prefix: "/help/getting-started",
     entry: {
       whatIsThisPage:
-        "Getting started guide — how ArchLucid turns evidence into findings, decisions, and governance-ready review outputs.",
+        "Getting started guide — how ArchLucid turns evidence into findings, decisions, and export-ready review outputs.",
       whatToDoNext:
         "Start a review, open the sample walkthrough, or pick a path from Choose your next step when you know your goal.",
       whyEmpty: "This guide is always available; review metrics appear after you create or finalize reviews.",

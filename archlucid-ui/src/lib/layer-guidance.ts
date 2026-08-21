@@ -332,7 +332,7 @@ const LAYER_GUIDANCE_BUYER_POLISH_PARTIAL: Partial<
       "Review administrators and governance reviewers use review detail for deep inspection; resolve outcomes remain the authoritative checkpoint.",
   },
   "policy-packs": {
-    useWhen: "See which governance packs apply in this workspace and how they combine.",
+    useWhen: "See which policy packs apply in this workspace and how they combine.",
     firstPilotNote: null,
   },
   "governance-workflow": {

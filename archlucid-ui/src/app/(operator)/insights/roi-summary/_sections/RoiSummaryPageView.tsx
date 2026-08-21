@@ -71,7 +71,7 @@ export function RoiSummaryPageView(props: Props) {
         <DemoWorkspaceCapabilityUnavailablePanel
           layout="embedded"
           capability="ROI summary"
-          description="In a connected tenant, sponsors review review-cycle reduction, estimated effort saved, and governance-ready artifacts produced by committed reviews."
+          description="In a connected tenant, sponsors review review-cycle reduction, estimated effort saved, and export-ready artifacts produced by committed reviews."
         />
       </OperatorPageContainer>
     );

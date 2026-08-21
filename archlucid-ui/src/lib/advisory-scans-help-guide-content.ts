@@ -157,7 +157,7 @@ export const ADVISORY_SCANS_HELP_SUMMARY_METRICS: readonly AdvisoryScansHelpSumm
   },
   {
     label: ADVISORY_SCANS_SUMMARY_ACCEPTED,
-    detail: "Recommendations accepted into governance follow-up.",
+    detail: "Recommendations accepted into approval follow-up.",
   },
   {
     label: ADVISORY_SCANS_SUMMARY_DEFERRED,

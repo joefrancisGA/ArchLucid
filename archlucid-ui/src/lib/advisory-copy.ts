@@ -119,7 +119,7 @@ export const ADVISORY_SCANS_DISPOSITION_REJECT = "Reject";
 
 export const ADVISORY_SCANS_DISPOSITION_IMPLEMENTED = "Mark implemented";
 
-export const ADVISORY_SCANS_DISPOSITION_ACCEPT_HINT = "Adds to governance follow-up";
+export const ADVISORY_SCANS_DISPOSITION_ACCEPT_HINT = "Adds to approval follow-up";
 
 export const ADVISORY_SCANS_DISPOSITION_DEFER_HINT = "Keeps recommendation visible for later";
 
