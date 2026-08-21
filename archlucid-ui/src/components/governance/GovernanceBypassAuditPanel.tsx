@@ -70,13 +70,13 @@ export function GovernanceBypassAuditPanel(): React.JSX.Element {
         <div className="flex flex-wrap items-start justify-between gap-2">
           <div className="space-y-1">
             <h2 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
-              Pre-commit governance bypass audit
+              Approval-check bypass audit
             </h2>
             <p className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
               {buyerPolishedShell ? (
                 <>
-                  Recent break-glass commits that overrode pre-commit approval checks. Each event records the actor and
-                  justification from the commit request.
+                  Recent break-glass commits that overrode approval checks before finalize. Each event records the actor
+                  and justification from the commit request.
                 </>
               ) : (
                 <>
@@ -108,7 +108,7 @@ export function GovernanceBypassAuditPanel(): React.JSX.Element {
         ) : null}
 
         {!loading && !errorMessage && events.length > 0 ? (
-          <EnterpriseTable ariaLabel="Recent pre-commit governance bypass audit events">
+          <EnterpriseTable ariaLabel="Recent approval-check bypass audit events">
             <EnterpriseTableHead>
               <EnterpriseTableHeadRow>
                 <EnterpriseTableHeaderCell>When (UTC)</EnterpriseTableHeaderCell>

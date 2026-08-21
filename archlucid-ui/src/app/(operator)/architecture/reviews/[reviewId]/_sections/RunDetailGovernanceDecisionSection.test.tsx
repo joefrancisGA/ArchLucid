@@ -21,7 +21,7 @@ describe("RunDetailGovernanceDecisionSection", () => {
     render(<RunDetailGovernanceDecisionSection {...baseProps} manifestId={null} />);
 
     expect(screen.getByTestId("run-detail-governance-decision")).toHaveAttribute("data-package-committed", "false");
-    expect(screen.getByRole("heading", { name: "Governance after finalize" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Approvals after finalize" })).toBeInTheDocument();
     expect(screen.queryByText("Record governance decision")).not.toBeInTheDocument();
     expect(screen.queryByText("No governance decision recorded")).not.toBeInTheDocument();
     expect(screen.getByText("What happens next")).toBeInTheDocument();

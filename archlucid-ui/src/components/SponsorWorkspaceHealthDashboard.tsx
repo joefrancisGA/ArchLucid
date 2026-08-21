@@ -358,7 +358,7 @@ export function SponsorWorkspaceHealthDashboard() {
               {buyerPolishedShell ? (
                 <>
                   Rolling 30-day counts from audit-backed governance checkpoints — hard blocks vs monitored-risk signals
-                  (non-blocking pre-commit guidance).
+                  (non-blocking approval guidance).
                 </>
               ) : (
                 <>

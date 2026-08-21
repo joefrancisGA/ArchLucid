@@ -19,7 +19,7 @@ export function resolveSponsorScorecardHoursSavedDisplay(input: {
     input.averageManualReviewHours ?? SPONSOR_SCORECARD_AVERAGE_MANUAL_REVIEW_HOURS;
 
   if (input.hoursRoi > 0) {
-    const precommitCaption = input.precommitBlocksExact ? "" : " · pre-commit block count may be capped";
+    const precommitCaption = input.precommitBlocksExact ? "" : " · approval-check block count may be capped";
 
     return {
       valueText: formatHours(input.hoursRoi),
@@ -45,7 +45,7 @@ export function resolveSponsorScorecardHoursSavedDisplay(input: {
     };
   }
 
-  const precommitCaption = input.precommitBlocksExact ? "" : " · pre-commit block count may be capped";
+  const precommitCaption = input.precommitBlocksExact ? "" : " · approval-check block count may be capped";
 
   return {
     valueText: `Est. ${formatHours(fallbackHours)}`,

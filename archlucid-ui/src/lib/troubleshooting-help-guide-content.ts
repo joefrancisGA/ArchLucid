@@ -193,9 +193,9 @@ export const TROUBLESHOOTING_COMMON_ISSUES: readonly TroubleshootingIssue[] = [
   },
   {
     id: "governance-pre-commit-blocked",
-    title: "Finalize blocked by governance policy",
+    title: "Finalize blocked by policy",
     kind: "workspace-admin",
-    whatYouSee: "Finalize returns a governance block with severity or policy pack details.",
+    whatYouSee: "Finalize returns a policy block with severity or policy pack details.",
     likelyCause: "Findings exceed the configured finalize threshold for the active policy pack.",
     tryFirst: "Review blocking findings, remediate or accept risk per policy, then retry finalize.",
     ifStillBlocked: "Ask a workspace admin to adjust policy thresholds if the block is not appropriate.",

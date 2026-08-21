@@ -24,7 +24,7 @@ describe("sponsor-workspace-health-page-copy", () => {
   });
 
   it("keeps numbered KPI prefixes for the full operator shell", () => {
-    expect(executiveWorkspaceHealthKpiTitle("preCommitOutcomes", false)).toBe("1. Pre-commit outcomes (30 days)");
-    expect(executiveWorkspaceHealthKpiTitle("valueProxy", false)).toBe("5. Pre-commit blocks as value proxy");
+    expect(executiveWorkspaceHealthKpiTitle("preCommitOutcomes", false)).toBe("1. Approval-check outcomes (30 days)");
+    expect(executiveWorkspaceHealthKpiTitle("valueProxy", false)).toBe("5. Approval-check blocks as value proxy");
   });
 });

@@ -191,7 +191,7 @@ export function PolicyPackImpactPreviewPanel(props: PolicyPackImpactPreviewPanel
           <div
             className="grid gap-3 md:grid-cols-2"
             data-testid="policy-impact-preview-gate-delta"
-            aria-label="Pre-commit gate simulation delta"
+            aria-label="Approval check simulation delta"
           >
             <div className="rounded-md border border-neutral-200 bg-white p-3 dark:border-neutral-800 dark:bg-neutral-950/50">
               <p className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
@@ -221,7 +221,7 @@ export function PolicyPackImpactPreviewPanel(props: PolicyPackImpactPreviewPanel
             className={cn("m-0", DESIGN_TOKENS.callout.warn, OPERATOR_TYPOGRAPHY.body)}
             data-testid="policy-impact-preview-gate-changed"
           >
-            Gate outcome changes for this review under stricter enforcement — this is the policy-pack moat moment for
+            Approval check outcome changes for this review under stricter enforcement — this is the policy-pack moat moment for
             demos.
           </p>
         ) : null}

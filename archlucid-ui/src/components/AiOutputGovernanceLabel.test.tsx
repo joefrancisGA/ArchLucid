@@ -7,7 +7,7 @@ describe("AiOutputGovernanceLabel", () => {
   it("renders governed label for persisted findings", () => {
     render(<AiOutputGovernanceLabel findingId="finding-123" />);
 
-    expect(screen.getByTestId("ai-output-governance-label-governed")).toHaveTextContent("Governed finding");
+    expect(screen.getByTestId("ai-output-governance-label-governed")).toHaveTextContent("Tracked finding");
   });
 
   it("renders advisory label when forced", () => {

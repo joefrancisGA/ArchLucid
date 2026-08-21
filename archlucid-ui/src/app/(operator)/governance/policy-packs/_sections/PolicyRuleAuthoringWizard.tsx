@@ -624,7 +624,7 @@ export function PolicyRuleAuthoringWizard(props: PolicyRuleAuthoringWizardProps)
               checked={blockOnCritical}
               onChange={(e) => setBlockOnCritical(e.target.checked)}
             />
-            Treat critical findings as blocking (pre-commit semantics)
+            Treat critical findings as blocking before finalize
           </label>
 
           <Button
