@@ -47,13 +47,15 @@ public static class GraphMaterializationStages
                 if (string.Equals(item.ObjectType, GraphNodeTypes.FailureMode, StringComparison.OrdinalIgnoreCase))
                     context.HasCanonicalFailureModes = true;
 
-                if (item.Properties.TryGetValue("associatedFindings", out string? associatedFindings) &&
-                    associatedFindings.Contains("WAF", StringComparison.OrdinalIgnoreCase))
+                if (GraphNodePropertyReader.TryGetPropertyValue(node.Properties, "associatedFindings", out string? associatedFindings)
+                    && associatedFindings is not null
+                    && associatedFindings.Contains("WAF", StringComparison.OrdinalIgnoreCase))
                 {
                     node.Properties["WafAligned"] = "true";
                 }
-                else if (item.Properties.TryGetValue("findings", out string? findings) &&
-                         findings.Contains("WAF", StringComparison.OrdinalIgnoreCase))
+                else if (GraphNodePropertyReader.TryGetPropertyValue(node.Properties, "findings", out string? findings)
+                         && findings is not null
+                         && findings.Contains("WAF", StringComparison.OrdinalIgnoreCase))
                 {
                     node.Properties["WafAligned"] = "true";
                 }
