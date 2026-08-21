@@ -47,6 +47,7 @@ import {
 } from "@/lib/baseline-settings-present";
 import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import { PILOT_BASELINE_WIZARD_OPEN_EVENT } from "@/lib/pilot-baseline-wizard-events";
 import { showError, showSuccess } from "@/lib/toast";
 import {
@@ -195,11 +196,14 @@ export function BaselineSettingsClient() {
     setLoadFailure(null);
 
     try {
-      const res = await fetch("/api/proxy/v1/tenant/baseline", {
-        method: "GET",
-        headers: { Accept: "application/json" },
-        credentials: "include",
-      });
+      const res = await fetch(
+        "/api/proxy/v1/tenant/baseline",
+        mergeRegistrationScopeForProxy({
+          method: "GET",
+          headers: { Accept: "application/json" },
+          credentials: "include",
+        }),
+      );
 
       if (!res.ok) {
         const t = await res.text();
@@ -291,12 +295,15 @@ export function BaselineSettingsClient() {
         payload.baselineReviewCycleSourceNote = null;
       }
 
-      const res = await fetch("/api/proxy/v1/tenant/baseline", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json", Accept: "application/json" },
-        credentials: "include",
-        body: JSON.stringify(payload),
-      });
+      const res = await fetch(
+        "/api/proxy/v1/tenant/baseline",
+        mergeRegistrationScopeForProxy({
+          method: "PUT",
+          headers: { "Content-Type": "application/json", Accept: "application/json" },
+          credentials: "include",
+          body: JSON.stringify(payload),
+        }),
+      );
 
       if (!res.ok) {
         const t = await res.text();
