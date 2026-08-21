@@ -23,6 +23,7 @@ import { resolveReviewIntakeExampleTemplateFromSearchParams } from "@/lib/operat
 import { ReviewsNewMoreWaysToStart } from "./ReviewsNewMoreWaysToStart";
 import { ReviewsNewJobChooserSection } from "./ReviewsNewJobChooserSection";
 import { ReviewsNewOwnEvidenceStart } from "./ReviewsNewOwnEvidenceStart";
+import { useReviewsNewSpecimenPreviewPresentation } from "./use-reviews-new-specimen-preview-presentation";
 import {
   buildReviewsNewPathHref,
   persistActivePath,
@@ -92,6 +93,7 @@ export function ReviewsNewPathSwitcher() {
       hasExampleTemplateIntent ||
       isAcceleratorPackId(acceleratorPackId));
   const showJobChooserStartOptions = activePath === "quick-review" && !hasAcceleratorStartIntent;
+  const specimenPreviewPresentation = useReviewsNewSpecimenPreviewPresentation();
 
   useEffect(() => {
     const activeTour = readBuyerCtoDemoTourActive();
@@ -134,7 +136,7 @@ export function ReviewsNewPathSwitcher() {
       ) : null}
       {shellReady ? (
         <div className="space-y-4" data-testid="reviews-new-primary-path-layout">
-          <SpecimenDeliverablePreviewCallout />
+          {specimenPreviewPresentation.showProminentSection ? <SpecimenDeliverablePreviewCallout /> : null}
           {showJobChooserStartOptions ? (
             <>
               <ReviewsNewOwnEvidenceStart />

@@ -224,7 +224,7 @@ describe("ReviewsNewPathSwitcher (returning tenant)", () => {
       expect(screen.getByTestId("reviews-new-job-chooser-section")).toBeInTheDocument();
     });
 
-    expect(screen.getByTestId("reviews-new-specimen-preview")).toBeInTheDocument();
+    expect(screen.queryByTestId("reviews-new-specimen-preview")).not.toBeInTheDocument();
     expect(screen.getByTestId("reviews-new-primary-path-layout")).toBeInTheDocument();
     expect(screen.getByTestId("reviews-new-more-intake-options")).toBeInTheDocument();
     expect(screen.queryByTestId("reviews-new-path-toggle")).toBeNull();

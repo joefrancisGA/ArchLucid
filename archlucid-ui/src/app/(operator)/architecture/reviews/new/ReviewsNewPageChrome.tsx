@@ -7,6 +7,7 @@ import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { InlineGlossaryChip } from "@/components/InlineGlossaryChip";
 import { PathChooserCreateObjectVocabularyRail } from "@/components/PathChooserCreateObjectVocabularyRail";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import { SpecimenDeliverablePreviewCallout } from "@/components/usability/SpecimenDeliverablePreviewCallout";
 import { START_REVIEW_LABEL } from "@/lib/architecture/architecture-workflow-labels";
 import { REVIEWS_NEW_PATH } from "@/lib/architecture/architecture-routes";
 import { REVIEWS_NEW_PAGE_LEAD } from "@/lib/buyer/buyer-polish-copy";
@@ -24,6 +25,7 @@ import {
 import { cn } from "@/lib/utils";
 
 import { ReviewsNewBreadcrumb } from "./ReviewsNewBreadcrumb";
+import { useReviewsNewSpecimenPreviewPresentation } from "./use-reviews-new-specimen-preview-presentation";
 
 function resolveReviewsNewPathMode(pathQuery: string): ReviewsNewPathMode | null {
   if (pathQuery === "detailed" || pathQuery === "guided-intake" || pathQuery === "quick-review") {
@@ -43,7 +45,44 @@ function reviewsNewShowsPathTabChrome(
 type ReviewsNewPageSubtitleProps = {
   readonly buyerPolishedShell: boolean;
   readonly activePath: ReviewsNewPathMode | null;
+  readonly showSpecimenHeaderLinks: boolean;
 };
+
+type ReviewsNewOptionalCloudHintProps = {
+  readonly showSpecimenHeaderLinks: boolean;
+};
+
+function ReviewsNewOptionalCloudHint(props: ReviewsNewOptionalCloudHintProps): React.JSX.Element {
+  return (
+    <p
+      className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
+      data-testid="reviews-new-optional-cloud-hint"
+    >
+      {REVIEWS_NEW_OPTIONAL_CLOUD_LEAD}{" "}
+      <Link
+        href={REVIEWS_NEW_CLOUD_CONNECTIONS_HELP_HREF}
+        className={OPERATOR_LINK.nav}
+        data-testid="reviews-new-cloud-connections-help-link"
+      >
+        {REVIEWS_NEW_CLOUD_CONNECTIONS_HELP_LINK_LABEL}
+      </Link>
+      <span className="text-al-text-secondary"> · </span>
+      <Link
+        href={REVIEWS_NEW_CLOUD_CONNECTIONS_HUB_HREF}
+        className={OPERATOR_LINK.nav}
+        data-testid="reviews-new-cloud-connections-hub-link"
+      >
+        {REVIEWS_NEW_CLOUD_CONNECTIONS_HUB_LINK_LABEL}
+      </Link>
+      {props.showSpecimenHeaderLinks ? (
+        <SpecimenDeliverablePreviewCallout
+          variant="header-links"
+          sectionTestId="reviews-new-specimen-preview"
+        />
+      ) : null}
+    </p>
+  );
+}
 
 function ReviewsNewPageSubtitle(props: ReviewsNewPageSubtitleProps): React.JSX.Element {
   if (!props.buyerPolishedShell) {
@@ -54,27 +93,7 @@ function ReviewsNewPageSubtitle(props: ReviewsNewPageSubtitleProps): React.JSX.E
           <InlineGlossaryChip nounId="review-package">architecture package</InlineGlossaryChip> with an{" "}
           <InlineGlossaryChip nounId="evidence-trail">evidence trail</InlineGlossaryChip>.
         </p>
-        <p
-          className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
-          data-testid="reviews-new-optional-cloud-hint"
-        >
-          {REVIEWS_NEW_OPTIONAL_CLOUD_LEAD}{" "}
-          <Link
-            href={REVIEWS_NEW_CLOUD_CONNECTIONS_HELP_HREF}
-            className={OPERATOR_LINK.nav}
-            data-testid="reviews-new-cloud-connections-help-link"
-          >
-            {REVIEWS_NEW_CLOUD_CONNECTIONS_HELP_LINK_LABEL}
-          </Link>
-          <span className="text-al-text-secondary"> · </span>
-          <Link
-            href={REVIEWS_NEW_CLOUD_CONNECTIONS_HUB_HREF}
-            className={OPERATOR_LINK.nav}
-            data-testid="reviews-new-cloud-connections-hub-link"
-          >
-            {REVIEWS_NEW_CLOUD_CONNECTIONS_HUB_LINK_LABEL}
-          </Link>
-        </p>
+        <ReviewsNewOptionalCloudHint showSpecimenHeaderLinks={props.showSpecimenHeaderLinks} />
       </div>
     );
   }
@@ -87,27 +106,7 @@ function ReviewsNewPageSubtitle(props: ReviewsNewPageSubtitleProps): React.JSX.E
         {reviewsNewPageSubtitle(props.buyerPolishedShell, props.activePath)}
       </p>
       {!onPathTab ? (
-        <p
-          className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
-          data-testid="reviews-new-optional-cloud-hint"
-        >
-          {REVIEWS_NEW_OPTIONAL_CLOUD_LEAD}{" "}
-          <Link
-            href={REVIEWS_NEW_CLOUD_CONNECTIONS_HELP_HREF}
-            className={OPERATOR_LINK.nav}
-            data-testid="reviews-new-cloud-connections-help-link"
-          >
-            {REVIEWS_NEW_CLOUD_CONNECTIONS_HELP_LINK_LABEL}
-          </Link>
-          <span className="text-al-text-secondary"> · </span>
-          <Link
-            href={REVIEWS_NEW_CLOUD_CONNECTIONS_HUB_HREF}
-            className={OPERATOR_LINK.nav}
-            data-testid="reviews-new-cloud-connections-hub-link"
-          >
-            {REVIEWS_NEW_CLOUD_CONNECTIONS_HUB_LINK_LABEL}
-          </Link>
-        </p>
+        <ReviewsNewOptionalCloudHint showSpecimenHeaderLinks={props.showSpecimenHeaderLinks} />
       ) : null}
     </div>
   );
@@ -121,6 +120,7 @@ export function ReviewsNewPageChrome(): React.JSX.Element {
   const activePath = resolveReviewsNewPathMode(pathQuery);
   const onPathTab = reviewsNewShowsPathTabChrome(buyerPolishedShell, activePath);
   const showContextualHelp = !(buyerPolishedShell && onPathTab);
+  const specimenPreviewPresentation = useReviewsNewSpecimenPreviewPresentation();
 
   return (
     <>
@@ -130,7 +130,11 @@ export function ReviewsNewPageChrome(): React.JSX.Element {
         titleTestId="reviews-new-page-title"
         breadcrumb={buyerPolishedShell ? <ReviewsNewBreadcrumb activePath={activePath} /> : undefined}
         subtitle={
-          <ReviewsNewPageSubtitle buyerPolishedShell={buyerPolishedShell} activePath={activePath} />
+          <ReviewsNewPageSubtitle
+            buyerPolishedShell={buyerPolishedShell}
+            activePath={activePath}
+            showSpecimenHeaderLinks={specimenPreviewPresentation.showHeaderLinks}
+          />
         }
         subtitleTestId="reviews-new-page-lead"
         headingLevel="h1"
