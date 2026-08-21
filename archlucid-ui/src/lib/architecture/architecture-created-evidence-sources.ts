@@ -21,4 +21,4 @@ export const ARCHITECTURE_CREATED_EVIDENCE_SOURCES_INTRO =
   "Use these follow-ups when create-home Evidence upload turns into findings triage, search, or export readiness.";
 
 export const ARCHITECTURE_CREATED_EVIDENCE_CLAIM_DISCIPLINE =
-  "This create-home Evidence tab is for attaching capture before finalize. It is not a signed-record Sources trail";
+  "This create-home Evidence tab is for attaching capture before finalize. It is not a finalized review record export trail";

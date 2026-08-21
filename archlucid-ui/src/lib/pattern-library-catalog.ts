@@ -153,7 +153,7 @@ export const PATTERN_LIBRARY_SAMPLE_CATALOG: readonly PatternLibraryRecord[] = [
     patternKey: "governed-data-lake-zones",
     name: "Data lake ingestion with governed zones",
     description:
-      "Landing, curated, and consumption zones separate raw ingestion from governed analytics products.",
+      "Landing, curated, and consumption zones separate raw ingestion from curated analytics products.",
     domains: ["Financial services", "Healthcare", "Public sector"],
     platforms: ["Azure", "AWS", "GCP"],
     patternType: "Data",

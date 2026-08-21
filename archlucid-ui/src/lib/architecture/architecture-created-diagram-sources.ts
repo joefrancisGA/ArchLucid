@@ -21,4 +21,4 @@ export const ARCHITECTURE_CREATED_DIAGRAM_SOURCES_INTRO =
   "Use these follow-ups when create-home Diagram orientation turns into evidence capture, findings triage, or export readiness.";
 
 export const ARCHITECTURE_CREATED_DIAGRAM_CLAIM_DISCIPLINE =
-  "This create-home Diagram tab shows an illustrative architecture sketch before finalize. It is not authoritative architecture structure, not a signed-record Sources trail,";
+  "This create-home Diagram tab shows an illustrative architecture sketch before finalize. It is not authoritative architecture structure, not a finalized review record export trail,";

@@ -64,7 +64,7 @@ describe("ArchitectureCreatedOverviewPanel", () => {
     expect(screen.getByTestId("architecture-overview-provenance-legend")).toHaveTextContent(/Asserted/i);
     expect(screen.getByTestId("architecture-overview-provenance-legend")).toHaveTextContent(/Inferred/i);
     expect(screen.getByTestId("architecture-overview-sources")).toBeInTheDocument();
-    expect(screen.getByText(/not a signed-record Sources trail/i)).toBeInTheDocument();
+    expect(screen.getByText(/not a finalized review record export trail/i)).toBeInTheDocument();
 
     for (const link of ARCHITECTURE_CREATED_OVERVIEW_SOURCES) {
       expect(screen.getByRole("link", { name: link.label })).toBeInTheDocument();

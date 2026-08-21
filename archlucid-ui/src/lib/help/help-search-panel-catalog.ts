@@ -159,7 +159,7 @@ const REVIEW_WORK_TOPICS: readonly HelpSearchPanelTopic[] = [
   {
     id: "finalize-review",
     title: "Finalize a review",
-    description: "Create the sealed review record and export deliverables.",
+    description: "Create the finalized review record and export deliverables.",
     keywords: ["finalize", "commit", "signed", "export", "deliverables"],
     action: { kind: "route", href: "/help/governance-approval", helpSlug: "governance-approval" },
   },

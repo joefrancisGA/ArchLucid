@@ -144,7 +144,7 @@ export const OPERATOR_NAV_LINK_LABELS = {
   governanceResolution: "Standards & rules",
   governanceWorkflow: "Approval queue",
   auditTrail: BUYER_SURFACE_VOCABULARY.auditTrail,
-  governanceSetupGuide: "Governance setup",
+  governanceSetupGuide: "Approval setup",
   workspaceHealth: "Workspace health",
   securityTrust: "Security & Trust",
   aiUsage: "AI usage",

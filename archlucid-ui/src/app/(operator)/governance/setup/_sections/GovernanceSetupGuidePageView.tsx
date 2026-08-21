@@ -52,7 +52,7 @@ export function GovernanceSetupGuidePageView({ model }: GovernanceSetupGuidePage
         <div className="space-y-5 min-w-0">
           <ol
             className="m-0 list-none p-0"
-            aria-label="Governance setup steps"
+            aria-label="Approval setup steps"
             data-testid="governance-setup-step-track"
           >
             {model.steps.map((step, index) => (

@@ -7,7 +7,7 @@
 export const BUYER_PRICING_FAIR_USE_OVERAGE_NOTE = "Higher volumes are handled through procurement terms.";
 
 export const BUYER_PRICING_ARCHITECTURE_PROOF_ENGINE_CLAUSE =
-  "for architecture review, evidence traceability, and audit-ready sealed review records";
+  "for architecture review, evidence traceability, and audit-ready finalized review records";
 
 export const BUYER_MARKETING_PRICING_PAGE_INTRO =
   "Start with one architect, grow into an architecture review practice, and use Enterprise when procurement, SSO, or private deployment is required.";

@@ -69,7 +69,7 @@ export function HelpProductGuide() {
             <Link className={OPERATOR_LINK.inline} href={inAppHelpHref("getting-started", "how-archlucid-works")}>
               How ArchLucid works
             </Link>{" "}
-            — workflow from evidence through findings, governance, and exports.
+            — workflow from evidence through findings, resolve outcomes, and exports.
           </p>
           <p className="m-0">
             <Link className={OPERATOR_LINK.inline} href="/faq">
@@ -88,7 +88,7 @@ export function HelpProductGuide() {
             <li>Commit the review.</li>
             <li>
               Open the <strong>evidence trail</strong>, <strong>audit trail</strong>, and{" "}
-              <strong>sealed review record</strong>.
+              <strong>finalized review record</strong>.
             </li>
             <li>
               Share the{" "}
@@ -118,7 +118,7 @@ export function HelpProductGuide() {
               — start with the business decision and monitored risks.
             </li>
             <li>
-              Open the <strong>sealed review record</strong> — the immutable package locked when this review was finalized.
+              Open the <strong>finalized review record</strong> — the immutable package locked when this review was finalized.
             </li>
             <li>
               Follow the{" "}
@@ -150,7 +150,7 @@ export function HelpProductGuide() {
       </Card>
 
       <p className={`m-0 ${OPERATOR_TYPOGRAPHY.helper}`}>
-        ArchLucid turns an architecture review into a governed package: decisions, findings, artifacts, and an evidence
+        ArchLucid turns an architecture review into an export-ready package: decisions, findings, artifacts, and an evidence
         trail you can export for diligence.
       </p>
 

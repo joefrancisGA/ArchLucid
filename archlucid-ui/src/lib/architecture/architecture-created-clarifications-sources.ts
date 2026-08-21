@@ -23,4 +23,4 @@ export const ARCHITECTURE_CREATED_CLARIFICATIONS_SOURCES_INTRO =
   "Use these follow-ups when create-home Clarifications gaps turn into evidence capture, findings triage, or another guided-questions pass.";
 
 export const ARCHITECTURE_CREATED_CLARIFICATIONS_CLAIM_DISCIPLINE =
-  "This create-home Clarifications tab lists unresolved gaps and open questions before finalize. It is not a signed-record Sources trail";
+  "This create-home Clarifications tab lists unresolved gaps and open questions before finalize. It is not a finalized review record export trail";

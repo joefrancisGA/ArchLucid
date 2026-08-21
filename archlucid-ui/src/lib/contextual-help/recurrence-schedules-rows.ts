@@ -36,7 +36,7 @@ export const RECURRENCE_SCHEDULES_CONTEXTUAL_HELP_ROWS: readonly PageContextualH
     prefix: RECURRENCE_SCHEDULES_HELP_CANONICAL_PATH,
     entry: {
       whatIsThisPage: `Recurrence schedules — ${RECURRENCE_SCHEDULES_HELP_TOPIC_LABEL.toLowerCase()} and how automated re-review cadences differ from sponsor digest email.`,
-      whatToDoNext: "Open recurrence schedules to create or edit a cadence, then follow cloned reviews through governance surfaces.",
+      whatToDoNext: "Open recurrence schedules to create or edit a cadence, then follow cloned reviews through approval workflow surfaces.",
       whyEmpty: "This guide is always available; schedules appear after you create one from a finalized review.",
       whereToConfigurePrerequisite:
         "Anchor each schedule to a finalized architecture review before defining cadence.",

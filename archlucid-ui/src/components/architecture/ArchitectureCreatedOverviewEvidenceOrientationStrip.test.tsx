@@ -16,6 +16,6 @@ describe("ArchitectureCreatedOverviewEvidenceOrientationStrip", () => {
       expectFollowUpLink(screen, link);
     }
 
-    expect(screen.getByText(/not a signed-record Sources trail/i)).toBeInTheDocument();
+    expect(screen.getByText(/not a finalized review record export trail/i)).toBeInTheDocument();
   });
 });

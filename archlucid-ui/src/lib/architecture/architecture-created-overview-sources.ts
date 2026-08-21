@@ -21,7 +21,7 @@ export const ARCHITECTURE_CREATED_OVERVIEW_SOURCES_INTRO =
   "Use these follow-ups when create-home Overview orientation turns into clarifications, findings triage, or a corrected intake pass.";
 
 export const ARCHITECTURE_CREATED_OVERVIEW_CLAIM_DISCIPLINE =
-  "This create-home Overview tab summarizes the submitted architecture brief before finalize. It is not a signed-record Sources trail.";
+  "This create-home Overview tab summarizes the submitted architecture brief before finalize. It is not a finalized review record export trail.";
 
 export const ARCHITECTURE_CREATED_OVERVIEW_EMPTY_HEADING = "No structured overview yet" as const;
 

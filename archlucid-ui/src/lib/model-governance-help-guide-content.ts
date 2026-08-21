@@ -52,7 +52,7 @@ export const MODEL_GOVERNANCE_HELP_FEATURE_ITEMS: readonly ModelGovernanceHelpIt
   },
   {
     label: "Profile mappings",
-    detail: "See how execution profiles map to governed aliases when the catalog is configured.",
+    detail: "See how execution profiles map to approved aliases when the catalog is configured.",
   },
   {
     label: "Spend signals",

@@ -22,4 +22,4 @@ export const RUN_DETAIL_ACTIVITY_PRE_COMMIT_SOURCES_INTRO =
   "Use these follow-ups when create-home Activity progress turns into findings triage, evidence search, or export readiness.";
 
 export const RUN_DETAIL_ACTIVITY_PRE_COMMIT_CLAIM_DISCIPLINE =
-  "This create-home Activity tab shows assessment progress and baseline context before finalize. It is not a signed-record Sources trail";
+  "This create-home Activity tab shows assessment progress and baseline context before finalize. It is not a finalized review record export trail";

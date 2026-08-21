@@ -55,7 +55,7 @@ export function GovernanceInteractiveQuickstartContent({
         <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
           Onboarding preset (optional):{" "}
           <Link href="/governance/setup" className={OPERATOR_LINK.optional}>
-            Governance setup
+            Approval setup
           </Link>
         </p>
       )}

@@ -32,7 +32,7 @@ export const CORE_PILOT_FIRST_SESSION_GUIDANCE_BULLETS: readonly string[] = [
  * Progressive disclosure: advanced surfaces stay available in the shell but are not part of the default four-step path.
  */
 export const CORE_PILOT_ADVANCED_TOOLS_DEFERRAL_NOTE =
-  "Compare, Replay, Graph, extended governance, alerts, and policy packs stay in the sidebar under Show more — use them after your first finalized review, not as prerequisites.";
+  "Compare, Replay, Graph, extended approval workflow, alerts, and policy packs stay in the sidebar under Show more — use them after your first finalized review, not as prerequisites.";
 
 /** @deprecated Prefer {@link CORE_PILOT_FIRST_SESSION_GUIDANCE_BULLETS} in UI lists. */
 export const CORE_PILOT_FIRST_SESSION_GUIDANCE = CORE_PILOT_FIRST_SESSION_GUIDANCE_BULLETS.join(" ");

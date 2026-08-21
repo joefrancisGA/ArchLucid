@@ -7,7 +7,7 @@ export const GOVERNANCE_SETUP_HREF = "/governance/setup" as const;
  * contextual help topic for this route is also labelled "Governance setup", which is why the trigger
  * renders as "Help" instead of repeating the title.
  */
-export const GOVERNANCE_SETUP_PAGE_TITLE = "Governance setup" as const;
+export const GOVERNANCE_SETUP_PAGE_TITLE = "Approval setup" as const;
 
 export const GOVERNANCE_SETUP_PAGE_SUBTITLE =
   "Set policy, alerts, approvals, and sponsor reporting so governance can run day to day." as const;

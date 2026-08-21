@@ -44,7 +44,7 @@ export const PAGE_CAPABILITY_BOUNDARY_COMPARE: PageCapabilityBoundary = {
   ],
 };
 
-/** Governance findings / risk register - track governed risks; does not remediate or author policy. */
+/** Governance findings / risk register - track open risks; does not remediate or author policy. */
 export const PAGE_CAPABILITY_BOUNDARY_GOVERNANCE_FINDINGS: PageCapabilityBoundary = {
   heading: PAGE_CAPABILITY_BOUNDARY_DISCLOSURE_SUMMARY,
   items: [

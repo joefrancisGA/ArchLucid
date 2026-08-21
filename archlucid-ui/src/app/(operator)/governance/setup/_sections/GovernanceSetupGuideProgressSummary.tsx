@@ -73,7 +73,7 @@ export function GovernanceSetupGuideProgressSummary({ summary }: GovernanceSetup
         aria-valuemax={100}
         aria-valuenow={progressPercent}
         aria-valuetext={ariaValueText}
-        aria-label="Governance setup progress"
+        aria-label="Approval setup progress"
         className="h-1.5 w-full max-w-md overflow-hidden rounded-full border border-neutral-300 bg-neutral-200 dark:border-neutral-700 dark:bg-neutral-800"
       >
         <div
