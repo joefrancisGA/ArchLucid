@@ -42,7 +42,7 @@ export const CUSTOMER_GLOSSARY_CATEGORY_LABELS: Readonly<Record<CustomerGlossary
   evidence: "Evidence",
   "decisions-and-findings": "Decisions and findings",
   "risk-and-controls": "Risk and controls",
-  governance: "Approval",
+  governance: "Governance",
   "organization-and-access": "Organization and access",
   deliverables: "Deliverables",
 };
@@ -52,11 +52,11 @@ export const CUSTOMER_GLOSSARY_TERMS: readonly CustomerGlossaryTerm[] = [
     id: "review",
     label: "Review",
     definition:
-      "A structured evaluation of architecture change or design intent tied to evidence and policy. In ArchLucid, a review is the structured review process from intake through finalized outputs.",
+      "A structured evaluation of architecture change or design intent tied to evidence and policy. In ArchLucid, a review is the governed process from intake through finalized outputs.",
     category: "review-process",
     relatedTermIds: ["review-package", "architecture-draft"],
     detail:
-      "A review is the structured evaluation process from intake through finalized outputs such as the finalized review record, findings, and exports.",
+      "A review is the governed evaluation process from intake through finalized outputs such as the sealed review record, findings, and exports.",
     visibility: "customer",
   },
   {
@@ -72,22 +72,22 @@ export const CUSTOMER_GLOSSARY_TERMS: readonly CustomerGlossaryTerm[] = [
     id: "review-package",
     label: "Architecture review",
     definition:
-      "The durable record for one architecture review: findings, decisions, evidence links, finalized review record, approval records, and exportable deliverables.",
+      "The durable record for one architecture review: findings, decisions, evidence links, sealed review record, governance records, and exportable deliverables.",
     category: "review-process",
     relatedTermIds: ["review", "sealed-review-record", "deliverable"],
     detail:
-      "Stakeholders open an architecture review to triage findings, finalize, export, compare, and audit outcomes. Finalize locks the finalized review record and export-ready outputs.",
+      "Stakeholders open an architecture review to triage findings, finalize, export, compare, and audit outcomes. Finalize locks the sealed review record and sponsor-ready exports.",
     deprecatedAliases: ["Review package", "review package", "Architecture package", "architecture package", "Finalized review"],
     visibility: "customer",
   },
   {
     id: "sealed-review-record",
-    label: "Finalized review record",
+    label: "Sealed review record",
     definition:
-      "The immutable, provenance-backed package that closes a finalized review. ArchLucid treats it as the authoritative review anchor for approval and exports. Do not call this a signed decision record — a decision is one disposition inside the package.",
+      "The immutable, provenance-backed package that closes a finalized review. ArchLucid treats it as the authoritative review anchor for governance and exports. Do not call this a signed decision record — a decision is one disposition inside the package.",
     category: "review-process",
-    aliases: ["Finalized review record"],
-    deprecatedAliases: ["Signed review record", "Signed manifest", "Golden manifest", "Signed decision record", "Sealed review record"],
+    aliases: ["Sealed review record"],
+    deprecatedAliases: ["Signed review record", "Signed manifest", "Golden manifest", "Signed decision record"],
     relatedTermIds: ["review-package", "evidence-trail", "decision"],
     visibility: "customer",
   },
@@ -134,11 +134,11 @@ export const CUSTOMER_GLOSSARY_TERMS: readonly CustomerGlossaryTerm[] = [
     id: "decision",
     label: "Decision",
     definition:
-      "A recorded disposition on review proposals — such as approve, waive, defer, or escalate — captured for approval and audit. Not the same as the finalized review record (the package that locks those decisions at finalize).",
+      "A recorded disposition on review proposal — uch as approve, waive, defer, or escalat — aptured for governance and audit. Not the same as the sealed review record (the package that locks those decisions at finalize).",
     category: "decisions-and-findings",
     relatedTermIds: ["governance-approval", "finding", "sealed-review-record"],
     detail:
-      "Browse decisions in the Decision register. Open the finalized review record for the immutable package that contains decisions, findings, and exports for one review.",
+      "Browse decisions in the Decision register. Open the sealed review record for the immutable package that contains decisions, findings, and exports for one review.",
     visibility: "customer",
   },
   {
@@ -154,19 +154,18 @@ export const CUSTOMER_GLOSSARY_TERMS: readonly CustomerGlossaryTerm[] = [
     id: "control",
     label: "Control",
     definition:
-      "A safeguard — process, tooling, entitlement, or monitoring — that mitigates risk or enforces policy during review and operations.",
+      "A safeguar — rocess, tooling, entitlement, or monitorin — hat mitigates risk or enforces policy during review and operations.",
     category: "risk-and-controls",
     relatedTermIds: ["risk", "policy-pack"],
     visibility: "customer",
   },
   {
     id: "governance-approval",
-    label: "Resolve outcomes",
+    label: "Governance approval",
     definition:
-      "A committed approval decision that affects rollout, waiver, exception, or escalation for a review or related record.",
+      "A committed governance decision that affects rollout, waiver, exception, or escalation for a review or related record.",
     category: "governance",
     relatedTermIds: ["decision", "audit-trail"],
-    deprecatedAliases: ["Governance approval"],
     visibility: "customer",
   },
   {
@@ -182,7 +181,7 @@ export const CUSTOMER_GLOSSARY_TERMS: readonly CustomerGlossaryTerm[] = [
     id: "policy-pack",
     label: "Policy pack",
     definition:
-      "A versioned bundle of rules, thresholds, and policy mappings applied to reviews in your workspace.",
+      "A versioned bundle of rules, thresholds, and governance mappings applied to reviews in your workspace.",
     category: "governance",
     relatedTermIds: ["finding", "control"],
     visibility: "customer",

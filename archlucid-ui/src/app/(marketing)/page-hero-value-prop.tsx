@@ -57,7 +57,7 @@ export function PageHeroValueProp(): ReactNode {
           Turn architecture briefs into defensible, review-ready deliverables faster.
         </h2>
         <p className="mx-auto mt-4 max-w-2xl text-pretty text-base text-neutral-600 dark:text-neutral-400 sm:text-lg">
-          Architecture and modernization leads need sponsor-grade evidence — not weeks lost reconciling drafts, slides, and
+          Architecture and modernization leads need sponsor-grade evidenc — ot weeks lost reconciling drafts, slides, and
           side conversations.
         </p>
       </div>

@@ -297,7 +297,7 @@ export function CompareResultsPanel(props: CompareResultsPanelProps) {
             The supplementary comparison may still have succeeded; check the sections below.
           </p>
           <OperatorTryNext>
-            Verify both reviews have finalized review records in scope. If only the supplementary diff is needed for
+            Verify both reviews have finalized sealed review records in scope. If only the supplementary diff is needed for
             now, expand <strong>Review-level diff</strong> after confirming the pair in the summary panel.
           </OperatorTryNext>
         </>
@@ -310,7 +310,7 @@ export function CompareResultsPanel(props: CompareResultsPanelProps) {
             <p className="mt-2">{goldenMalformed}</p>
           </OperatorMalformedCallout>
           <OperatorTryNext>
-            Treat this as contract drift — compare deployed API vs UI. The supplementary diff section may still render if
+            Treat this as contract drif — ompare deployed API vs UI. The supplementary diff section may still render if
             that response was valid.
           </OperatorTryNext>
         </>
@@ -323,7 +323,7 @@ export function CompareResultsPanel(props: CompareResultsPanelProps) {
           </p>
           <OperatorApiProblem failure={aiFailure} variant="warning" />
           <OperatorTryNext>
-            AI is optional — use the structured summary and supplementary tables above for the authoritative diff. If this
+            AI is optiona — se the structured summary and supplementary tables above for the authoritative diff. If this
             should work, check API LLM configuration, quotas, and proxy timeouts, then retry{" "}
             <strong>{summarizeCue}</strong>.
           </OperatorTryNext>

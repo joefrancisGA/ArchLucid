@@ -4,12 +4,12 @@ import type { HelpMarkdownHeading } from "@/lib/help/help-markdown-headings";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
 export const GETTING_STARTED_HELP_SUBTITLE =
-  "Learn how ArchLucid turns architecture evidence into review findings, decisions, and export-ready outputs.";
+  "Learn how ArchLucid turns architecture evidence into review findings, decisions, and governance-ready outputs.";
 
 export const GETTING_STARTED_HELP_PAGE_SUBTITLE_OPERATOR = GETTING_STARTED_HELP_SUBTITLE;
 
 export const GETTING_STARTED_HELP_PAGE_SUBTITLE_BUYER =
-  "See how evidence becomes findings, decisions, and export-ready outputs before your first review.";
+  "See how evidence becomes findings, decisions, and governance outputs before your first review.";
 
 export const GETTING_STARTED_HELP_BREADCRUMB_TOPIC_TITLE = "Getting started" as const;
 
@@ -23,7 +23,7 @@ export const GETTING_STARTED_HELP_AUDIENCE_LINE =
   "For architects, pilot teams, and sponsors who want to understand the review flow before starting.";
 
 export const GETTING_STARTED_HELP_CLAIM_DISCIPLINE =
-  "This guide orients you through the review flow — not a full audit export. Open Security & Trust or a finalized review before procurement.";
+  "This guide orients you through the review flow — it is not a sealed-review diligence Sources package. Open Security & Trust or a finalized review before treating onboarding copy as procurement evidence.";
 
 export const GETTING_STARTED_HELP_SOURCES_INTRO =
   "Use these follow-ups when getting-started orientation turns into a first review, path choice, or assurance questions.";
@@ -59,25 +59,25 @@ export const GETTING_STARTED_HELP_QUICK_START_COPY =
 export const GETTING_STARTED_HELP_DIAGRAM_TITLE = "How ArchLucid works";
 
 export const GETTING_STARTED_HELP_DIAGRAM_SUMMARY =
-  "ArchLucid ingests architecture evidence, evaluates it against your standards, and produces a finalized architecture review you can share.";
+  "ArchLucid ingests architecture evidence, evaluates it against your standards, and produces a governed architecture review you can share.";
 
 export const GETTING_STARTED_HELP_DIAGRAM_STEPS = [
   "Evidence",
   "Analyze",
   "Findings",
   "Decisions",
-  "Export-ready outputs",
+  "Governance outputs",
 ] as const;
 
 export const GETTING_STARTED_HELP_PIPELINE_TEXT_STAGES = [
   "Architecture request opens a review session and feeds context ingestion.",
   "Authority pipeline stages: knowledge graph, findings, decisioning, and artifacts.",
-  "Approval check: allow commits the finalized review record; block or warn policy holds finalize.",
-  "Committed outputs: finalized review record and downloadable exports.",
+  "Governance gate: allow commits the sealed review record; block or warn policy holds finalize.",
+  "Committed outputs: sealed review record and downloadable exports.",
 ] as const;
 
 export const GETTING_STARTED_HELP_PIPELINE_DIAGRAM_DESCRIPTION =
-  "Stages from architecture request through context ingestion, authority pipeline (knowledge graph, findings, decisioning, artifacts), approval check (allow commits the finalized review record; block or warn policy holds finalize), and committed outputs (finalized review record and exports).";
+  "Stages from architecture request through context ingestion, authority pipeline (knowledge graph, findings, decisioning, artifacts), governance gate (allow commits the sealed review record; block or warn policy holds finalize), and committed outputs (sealed review record and exports).";
 
 export type GettingStartedPlainLanguageTerm = {
   readonly term: string;
@@ -103,12 +103,12 @@ export const GETTING_STARTED_HELP_PLAIN_LANGUAGE_TERMS: readonly GettingStartedP
   {
     term: "Decision",
     definition:
-      "A recorded resolve outcome on review proposals — such as approve, waive, defer, or escalate — captured for approval and audit.",
+      "A recorded disposition on review proposal — uch as approve, waive, defer, or escalat — aptured for governance and audit.",
   },
   {
-    term: "Finalized review record",
+    term: "Sealed review record",
     definition:
-      "The immutable package locked when a review is finalized — the authoritative anchor for approval, exports, and evidence lineage.",
+      "The immutable package locked when a review is finalized — the authoritative anchor for governance, exports, and evidence lineage.",
   },
   {
     term: "Evidence trail",
@@ -118,10 +118,10 @@ export const GETTING_STARTED_HELP_PLAIN_LANGUAGE_TERMS: readonly GettingStartedP
   {
     term: "Policy pack",
     definition:
-      "Versioned policy standards and rules applied to reviews for your workspace or project.",
+      "Versioned governance standards and rules applied to reviews for your workspace or project.",
   },
   {
-    term: "Resolve outcomes",
+    term: "Governance approval",
     definition:
       "Formal sign-off workflow when a review requires approver acknowledgement before release.",
   },
@@ -156,7 +156,7 @@ export const GETTING_STARTED_HELP_WORKFLOW_STEPS: readonly GettingStartedWorkflo
   {
     stepNumber: 3,
     title: "Review findings",
-    description: "Triage issues, confirm evidence coverage, and note items that need approval follow-up.",
+    description: "Triage issues, confirm evidence coverage, and note items that need governance follow-up.",
     expectedOutputs: "Prioritized findings ready for decisions.",
     href: "/governance/findings",
     ctaLabel: "Open findings queue",
@@ -165,15 +165,15 @@ export const GETTING_STARTED_HELP_WORKFLOW_STEPS: readonly GettingStartedWorkflo
     stepNumber: 4,
     title: "Record decisions",
     description: "Capture approvals, accepted risks, and remediation owners before finalizing.",
-    expectedOutputs: "Architecture decisions and approval notes.",
+    expectedOutputs: "Architecture decisions and governance notes.",
     href: "/governance/approval-queue",
-    ctaLabel: "Open resolve outcomes",
+    ctaLabel: "Open governance workflow",
   },
   {
     stepNumber: 5,
     title: "Finalize and share outputs",
-    description: "Lock the review and share export-ready artifacts for stakeholders.",
-    expectedOutputs: "Finalized review record, evidence trail, and exports.",
+    description: "Lock the review and export sponsor-ready artifacts for stakeholders.",
+    expectedOutputs: "Sealed review record, evidence trail, and exports.",
     href: "/architecture/reviews",
     ctaLabel: "Open reviews",
   },
@@ -203,13 +203,13 @@ export const GETTING_STARTED_HELP_NEXT_ACTION_CARDS: readonly GettingStartedActi
   },
   {
     title: GOLDEN_SPONSOR_PACKAGE_WALKTHROUGH_TITLE,
-    description: "Walk through a labeled sample from finalized review record to export-ready outputs.",
+    description: "Walk through a labeled sample from sealed review record to sponsor-ready exports.",
     href: sampleReviewHref,
     ctaLabel: GOLDEN_SPONSOR_PACKAGE_WALKTHROUGH_PRIMARY_CTA,
   },
   {
     title: "Learn the vocabulary",
-    description: "Scan the plain-language terms used across review, approval, and exports.",
+    description: "Scan the plain-language terms used across review, governance, and exports.",
     href: "#plain-language-vocabulary",
     ctaLabel: "View vocabulary",
   },
@@ -249,7 +249,7 @@ export const GETTING_STARTED_HELP_TECHNICAL_TERMS: readonly GettingStartedPlainL
     definition: "Metadata attached to findings for audit and evidence inspection surfaces.",
   },
   {
-    term: "Approval check",
+    term: "Approval gate",
     definition: "Configurable blocker on finalize when severity thresholds are breached.",
   },
 ];
@@ -267,12 +267,12 @@ export const GETTING_STARTED_HELP_DIAGRAM_SOURCE = `flowchart LR
     ART[Artifacts]
   end
   subgraph outputs [Committed outputs]
-    SR[Finalized review record]
+    SR[Sealed review record]
     PKG[Downloads / exports]
   end
   AR --> CI --> KG --> FD --> DV --> ART
   R -.created at start.- CI
-  FD --> gov{Approval check}
+  FD --> gov{Governance gate}
   gov -->|allow| SR
   gov -->|block / warn policy| gov
   SR --> PKG`;

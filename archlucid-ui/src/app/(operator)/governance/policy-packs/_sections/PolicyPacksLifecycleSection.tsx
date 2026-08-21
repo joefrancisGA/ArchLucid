@@ -106,7 +106,7 @@ export function PolicyPacksLifecycleSection(props: PolicyPacksLifecycleSectionPr
             shipped under{" "}
             <code className="rounded bg-neutral-100 px-1 dark:bg-neutral-800">archlucid-ui/public/vertical-templates/</code>{" "}
             (mirrors <code className="rounded bg-neutral-100 px-1 dark:bg-neutral-800">templates/policy-packs/</code> in
-            the repo). Fills the create form below â€” adjust name and policy content, then create and publish.
+            the repo). Fills the create form below  —  adjust name and policy content, then create and publish.
           </p>
           <div className="mb-2 flex flex-wrap gap-2">
             {VERTICAL_POLICY_PACK_IMPORTS.map((row) => (
@@ -212,7 +212,7 @@ export function PolicyPacksLifecycleSection(props: PolicyPacksLifecycleSectionPr
                 OPERATOR_TYPOGRAPHY.helper,
               )}
             >
-              Selected pack is <strong className="font-semibold">Bundled default (platform)</strong>: ArchLucid seeded it at tenant onboarding. Published versions upgrade with product releases â€”
+              Selected pack is <strong className="font-semibold">Bundled default (platform)</strong>: ArchLucid seeded it at tenant onboarding. Published versions upgrade with product releases  — 
               tenants cannot mint new SemVer revisions from Policy packs UI (API blocks republish too). Customize by copying JSON into a{" "}
               <strong className="font-semibold">Project custom</strong> pack.
             </p>

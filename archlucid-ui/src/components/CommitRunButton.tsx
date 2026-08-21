@@ -35,12 +35,12 @@ import {
 import { PRIOR_MANIFEST_RETRIEVAL_HELP_FINALIZE_SUCCESS_LINK_LABEL } from "@/lib/prior-manifest-retrieval-help-inbound-label-surfaces";
 import { FinalizeConsequencePreview } from "@/components/FinalizeConsequencePreview";
 
-/** Nav and review-detail copy â€” replay/compare stay available post-finalize (see UI_GLOSSARY_V1). */
+/** Nav and review-detail copy  —  replay/compare stay available post-finalize (see UI_GLOSSARY_V1). */
 export const FINALIZE_REPLAY_COMPARE_TOOLTIP = FINALIZE_REPLAY_COMPARE_NOTE;
 
 export type CommitRunButtonProps = {
   runId: string;
-  /** When true, the review already has a reviewed manifest â€” commit is not offered. */
+  /** When true, the review already has a reviewed manifest  —  commit is not offered. */
   disabled: boolean;
   /** Existing server-side finding coverage says finalize will be blocked. */
   commitBlockedReason?: string | null;

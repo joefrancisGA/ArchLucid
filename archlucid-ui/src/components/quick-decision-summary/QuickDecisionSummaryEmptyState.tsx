@@ -40,7 +40,7 @@ export function QuickDecisionSummaryEmptyState({
 
     const warningPhrase =
       warningN > 0
-        ? " One monitored PHI minimization risk remains in this review record — review severity and controls below."
+        ? " One monitored PHI minimization risk remains in this review recor — eview severity and controls below."
         : "";
 
     return (
