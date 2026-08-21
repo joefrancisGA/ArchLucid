@@ -151,7 +151,7 @@ export function auditEventLifecycleStageLabel(eventType: string): string | null 
       return "Review finalized";
 
     case "GovernanceApprovalRequested":
-      return "Governance approval requested";
+      return "Resolve outcomes requested";
 
     case "com.archlucid.governance.approval.recorded":
       return "Resolve outcomes recorded";

@@ -546,19 +546,19 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
     const path = (pathname ?? "").split("?")[0] ?? "";
 
     if (path.startsWith("/insights/evidence-graph")) {
-      return "Jump to audit, sealed review record, governance, or type another destination…";
+      return "Jump to audit, finalized review record, governance, or type another destination…";
     }
 
     if (path.startsWith("/insights/ask-review-questions")) {
-      return "Jump to sponsor report, sealed review record, evidence trail, or governance…";
+      return "Jump to sponsor report, finalized review record, evidence trail, or governance…";
     }
 
     if (path.startsWith("/insights/compare-two-reviews")) {
-      return "Jump to review, sealed review record, or evidence trail…";
+      return "Jump to review, finalized review record, or evidence trail…";
     }
 
     if (path.startsWith("/audit")) {
-      return "Jump to sponsor report, evidence graph, sealed review record — or type a destination…";
+      return "Jump to sponsor report, evidence graph, finalized review record — or type a destination…";
     }
 
     if (path.startsWith("/governance")) {
@@ -566,7 +566,7 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
     }
 
     if (isSponsorDashboardPath(path)) {
-      return "Jump to sealed review record, evidence graph, audit…";
+      return "Jump to finalized review record, evidence graph, audit…";
     }
 
     if (path.startsWith("/signed-records") || path.includes("/architecture")) {

@@ -68,7 +68,7 @@ describe("OperatorHomeReviewSummaryCard", () => {
     );
     expect(proofMetadata.textContent).toMatch(/Audit trail:\s*Complete/);
     expect(proofMetadata.textContent).toMatch(/Decision date:/);
-    expect(proofMetadata.textContent).toMatch(/Sealed review record:/);
+    expect(proofMetadata.textContent).toMatch(/Finalized review record:/);
     expect(proofMetadata.textContent).toMatch(/Approver:/);
   });
 

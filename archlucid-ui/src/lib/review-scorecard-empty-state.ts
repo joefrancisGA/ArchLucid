@@ -19,7 +19,7 @@ export const REVIEW_SCORECARD_EMPTY_PREVIEW_SECTION_TITLE = "What this scorecard
 export const REVIEW_SCORECARD_EMPTY_PREVIEW_ITEMS = [
   "Finalized reviews",
   "Affirmed findings",
-  "Governance approvals",
+  "Resolve outcomes",
   "Average review cycle time",
   "Estimated review-time savings",
   "ROI readiness",

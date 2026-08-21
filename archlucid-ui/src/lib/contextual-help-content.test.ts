@@ -143,7 +143,7 @@ describe("contextualHelpByKey", () => {
 describe("contextualHelpTriggerSummary", () => {
   it("returns the first sentence when help copy contains a period", () => {
     expect(contextualHelpTriggerSummary(contextualHelpByKey["commit-manifest"].text, "commit-manifest")).toBe(
-      "Finalizing locks the sealed review record and synthesizes artifacts.",
+      "Finalizing locks the finalized review record and synthesizes artifacts.",
     );
   });
 
@@ -155,7 +155,7 @@ describe("contextualHelpTriggerSummary", () => {
 describe("contextualHelpTriggerAriaLabel", () => {
   it("prefixes the summary with Contextual help for known keys", () => {
     expect(contextualHelpTriggerAriaLabel("commit-manifest")).toBe(
-      "Contextual help: Finalizing locks the sealed review record and synthesizes artifacts.",
+      "Contextual help: Finalizing locks the finalized review record and synthesizes artifacts.",
     );
   });
 

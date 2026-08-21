@@ -130,7 +130,7 @@ export function OperatorHomeReviewSummaryCard(props: OperatorHomeReviewSummaryCa
           {showcaseProofMeta !== null ? (
             <>
               <InlineMetadataLine label="Decision date" value={showcaseProofMeta.decisionDate} />
-              <InlineMetadataLine label="Sealed review record" value={SHOWCASE_STATIC_DEMO_MANIFEST_ID} />
+              <InlineMetadataLine label="Finalized review record" value={SHOWCASE_STATIC_DEMO_MANIFEST_ID} />
               <InlineMetadataLine label="Approver" value={showcaseProofMeta.approvalAuthority} />
             </>
           ) : null}

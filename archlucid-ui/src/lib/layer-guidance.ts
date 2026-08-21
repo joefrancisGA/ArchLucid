@@ -123,7 +123,7 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
     firstPilotNote:
       "After Pilot proof, use review detail for drill-down; this register queues portfolio-level owned risks and decisions.",
     enterpriseFootnote:
-      "Each risk should remain traceable to the review, evidence, policy rule, and sealed review record that produced it.",
+      "Each risk should remain traceable to the review, evidence, policy rule, and finalized review record that produced it.",
     omitReviewPackageScopeHelp: true,
   },
   "governance-setup": {

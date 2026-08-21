@@ -98,7 +98,7 @@ export function DemoPreviewSignedReviewSection(props: DemoPreviewSponsorConclusi
       data-testid="demo-preview-signed-review-section"
     >
       <h2 className={cn("m-0 text-neutral-900 dark:text-neutral-50", MARKETING_TYPOGRAPHY.sectionTitle)}>
-        Sealed review record
+        Finalized review record
       </h2>
       {manifest?.operatorSummary ? (
         <p className={cn("m-0 mt-3 max-w-3xl text-neutral-700 dark:text-neutral-300", MARKETING_TYPOGRAPHY.body)}>
@@ -117,7 +117,7 @@ export function DemoPreviewSignedReviewSection(props: DemoPreviewSponsorConclusi
             href={signedRecordDetailPath(manifest.manifestId)}
             className={MARKETING_SURFACES.inlineLink}
           >
-            Open sealed review record
+            Open finalized review record
           </Link>
         </p>
       ) : null}

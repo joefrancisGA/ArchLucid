@@ -103,9 +103,9 @@ export const DEMO_PREVIEW_ARTIFACT_EVIDENCE_TITLE = "Evidence graph";
 
 export const DEMO_PREVIEW_ARTIFACT_EVIDENCE_DESC = "Trace conclusions to supporting evidence.";
 
-export const DEMO_PREVIEW_ARTIFACT_GOVERNANCE_TITLE = "Governance approval";
+export const DEMO_PREVIEW_ARTIFACT_GOVERNANCE_TITLE = "Resolve outcomes";
 
-export const DEMO_PREVIEW_ARTIFACT_GOVERNANCE_DESC = "Review the approval and monitored conditions.";
+export const DEMO_PREVIEW_ARTIFACT_GOVERNANCE_DESC = "Review resolve outcomes and monitored conditions.";
 
 export const DEMO_PREVIEW_ARTIFACT_AUDIT_TITLE = "Audit trail";
 

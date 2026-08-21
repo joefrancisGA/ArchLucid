@@ -12,7 +12,7 @@ const PIPELINE_EVENT_TYPE_LABELS: Record<string, string> = {
   ManifestFinalized: "Review finalized",
   FindingsSnapshotSealed: "Findings captured",
   ArtifactsGenerated: "Deliverables ready",
-  GovernanceApprovalRequested: "Governance approval requested",
+  GovernanceApprovalRequested: "Resolve outcomes requested",
   "finalize.run": "Review finalized",
   "run.finalized": "Review finalized",
   "context.snapshot.created": "Source context captured",
@@ -32,9 +32,9 @@ const PIPELINE_EVENT_TYPE_LABELS: Record<string, string> = {
   "com.archlucid.authority.run.quality-gate.rejected": "Quality gate rejected",
   "com.archlucid.findings.high-severity.captured.v1": "High-severity findings captured",
   "com.archlucid.manifest.finalized.v1": "Review finalized",
-  "com.archlucid.governance.approval.submitted": "Governance approval requested",
-  "com.archlucid.governance.approval.approved": "Governance approval approved",
-  "com.archlucid.governance.approval.rejected": "Governance approval rejected",
+  "com.archlucid.governance.approval.submitted": "Resolve outcomes requested",
+  "com.archlucid.governance.approval.approved": "Resolve outcomes approved",
+  "com.archlucid.governance.approval.rejected": "Resolve outcomes rejected",
   "com.archlucid.governance.approval.recorded": "Resolve outcomes recorded",
   "com.archlucid.governance.promotion.activated": "Governance promotion activated",
   "com.archlucid.governance.policy-pack.published.v1": "Policy pack activated",
@@ -72,7 +72,7 @@ const PIPELINE_EVENT_BUYER_SUBTITLE: Record<string, string> = {
   FindingsSnapshotSealed: "Freezes finding text and severities for traceability and remediation tickets.",
   ArtifactsGenerated: "Materializes sponsor and compliance deliverables attached to the review.",
   GovernanceApprovalRequested:
-    "Creates an auditable governance checkpoint before any governed downstream handoff.",
+    "Creates an auditable resolve-outcomes checkpoint before any governed downstream handoff.",
   "finalize.run": "Locks the finalized review as the official version used for approvals, exports, and audit history.",
   "run.finalized": "Closes the review with a durable outcome snapshot for governance and audit.",
   "context.snapshot.created": "Captures the ingested context used to justify findings and graph evidence.",
@@ -88,7 +88,7 @@ const PIPELINE_EVENT_BUYER_SUBTITLE: Record<string, string> = {
   "com.archlucid.manifest.finalized.v1":
     "Finalizes the review record as the authoritative package for decisions, deliverables, and audit.",
   "com.archlucid.governance.approval.submitted":
-    "Creates an auditable governance checkpoint before any governed downstream handoff.",
+    "Creates an auditable resolve-outcomes checkpoint before any governed downstream handoff.",
   "com.archlucid.governance.approval.recorded":
     "Records that the required governance approval sequence completed for this finalized signed review.",
   "com.archlucid.governance.promotion.activated":
