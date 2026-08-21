@@ -53,7 +53,7 @@ describe("GenerateAdrFromRunModal", () => {
   it("uses decision-record wording in buyer-polished shell", async () => {
     render(<GenerateAdrFromRunModal input={minimalInput} buyerPolished />);
 
-    expect(screen.getByTestId("generate-adr-button")).toHaveTextContent("View sealed record");
+    expect(screen.getByTestId("generate-adr-button")).toHaveTextContent("View finalized record");
 
     fireEvent.click(screen.getByTestId("generate-adr-button"));
 

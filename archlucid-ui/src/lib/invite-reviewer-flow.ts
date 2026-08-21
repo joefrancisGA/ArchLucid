@@ -35,7 +35,7 @@ export const INVITE_REVIEWER_READER_CAPABILITIES_HEADING = "Reader role capabili
 
 export const INVITE_REVIEWER_READER_CAPABILITIES: readonly InviteReviewerReaderCapability[] = [
   { allowed: true, label: "View reviews, findings, and governance decisions" },
-  { allowed: true, label: "Export sealed review records and audit CSVs" },
+  { allowed: true, label: "Export finalized review records and audit CSVs" },
   { allowed: false, label: "Cannot approve governance requests" },
   { allowed: false, label: "Cannot finalize reviews" },
   { allowed: false, label: "Cannot modify evidence or review settings" },

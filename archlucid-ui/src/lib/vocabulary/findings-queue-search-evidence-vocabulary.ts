@@ -54,7 +54,7 @@ export const FINDINGS_QUEUE_SEARCH_EVIDENCE_SEARCH_LINK: FindingsQueueSearchEvid
   id: "search-evidence",
   label: "Search review evidence",
   href: SEARCH_REVIEW_EVIDENCE_PATH,
-  whenToUse: "Find findings, decisions, and sealed review records across architecture packages.",
+  whenToUse: "Find findings, decisions, and finalized review records across architecture packages.",
 };
 
 /** Pairwise model for Findings queue ↔ Search review evidence (fixed routes). */

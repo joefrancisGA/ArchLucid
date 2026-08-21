@@ -82,12 +82,12 @@ export const CUSTOMER_GLOSSARY_TERMS: readonly CustomerGlossaryTerm[] = [
   },
   {
     id: "sealed-review-record",
-    label: "Sealed review record",
+    label: "Finalized review record",
     definition:
       "The immutable, provenance-backed package that closes a finalized review. ArchLucid treats it as the authoritative review anchor for governance and exports. Do not call this a signed decision record — a decision is one disposition inside the package.",
     category: "review-process",
-    aliases: ["Sealed review record"],
-    deprecatedAliases: ["Signed review record", "Signed manifest", "Golden manifest", "Signed decision record"],
+    aliases: ["Finalized review record"],
+    deprecatedAliases: ["Signed review record", "Signed manifest", "Golden manifest", "Signed decision record", "Sealed review record"],
     relatedTermIds: ["review-package", "evidence-trail", "decision"],
     visibility: "customer",
   },

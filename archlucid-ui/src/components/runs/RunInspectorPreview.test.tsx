@@ -89,7 +89,7 @@ describe("RunInspectorPreview", () => {
 
     expect(screen.queryByRole("link", { name: "Open approved package" })).not.toBeInTheDocument();
     fireEvent.click(screen.getByText("Related actions"));
-    expect(screen.getByRole("link", { name: "View sealed record" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "View finalized record" })).toHaveAttribute(
       "href",
       `/governance/sealed-records/${SHOWCASE_STATIC_DEMO_MANIFEST_ID}`,
     );

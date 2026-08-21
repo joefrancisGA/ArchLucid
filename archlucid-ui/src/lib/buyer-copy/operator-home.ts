@@ -13,7 +13,7 @@ export const BUYER_HOME_SAMPLE_PACKAGE_SUBTITLE =
   "Completed architecture review with finalized review record, evidence trail, and audit record.";
 
 export const BUYER_HOME_SAMPLE_PACKAGE_LEAD =
-  "Review a completed example review with evidence trail, findings, governance approval, and audit-ready artifacts before creating your first review.";
+  "Review a completed example review with evidence trail, findings, resolve outcomes, and audit-ready artifacts before creating your first review.";
 
 export const BUYER_HOME_PRIMARY_CTA = "Open sample finding";
 

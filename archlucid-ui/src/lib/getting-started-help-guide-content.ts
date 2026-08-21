@@ -106,7 +106,7 @@ export const GETTING_STARTED_HELP_PLAIN_LANGUAGE_TERMS: readonly GettingStartedP
       "A recorded resolve outcome on review proposals—such as approve, waive, defer, or escalate—captured for governance and audit.",
   },
   {
-    term: "Sealed review record",
+    term: "Finalized review record",
     definition:
       "The immutable package locked when a review is finalized — the authoritative anchor for governance, exports, and evidence lineage.",
   },
@@ -173,7 +173,7 @@ export const GETTING_STARTED_HELP_WORKFLOW_STEPS: readonly GettingStartedWorkflo
     stepNumber: 5,
     title: "Finalize and share outputs",
     description: "Lock the review and share export-ready artifacts for stakeholders.",
-    expectedOutputs: "Sealed review record, evidence trail, and exports.",
+    expectedOutputs: "Finalized review record, evidence trail, and exports.",
     href: "/architecture/reviews",
     ctaLabel: "Open reviews",
   },
@@ -267,7 +267,7 @@ export const GETTING_STARTED_HELP_DIAGRAM_SOURCE = `flowchart LR
     ART[Artifacts]
   end
   subgraph outputs [Committed outputs]
-    SR[Sealed review record]
+    SR[Finalized review record]
     PKG[Downloads / exports]
   end
   AR --> CI --> KG --> FD --> DV --> ART

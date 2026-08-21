@@ -632,7 +632,7 @@ export function RunDetailOutcomeCards({
           ) : null}
           <p className={cn("mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
             {hasGoldenManifest
-              ? "Sealed review record is pinned to this review."
+              ? "Finalized review record is pinned to this review."
               : "Finalize from the finalize control when ready."}
           </p>
           {governanceGateLabel !== null && governanceGateLabel !== undefined && governanceGateLabel.length > 0 ? (

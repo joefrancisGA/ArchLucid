@@ -57,7 +57,7 @@ export function GovernanceApprovalStoryCard(props: {
       detail: approved ? `Recorded ${approvalTimestamp}` : row.status.trim() || "Not approved yet",
     },
     {
-      label: "Approved sealed review record",
+      label: "Approved finalized review record",
       done: promoteReady,
       detail: promoteReady
         ? "Ready for implementation planning, subject to enterprise change control."
@@ -119,7 +119,7 @@ export function GovernanceApprovalStoryCard(props: {
               ) : null}
               <div
                 className={cn("min-w-0 flex-1 rounded-md border px-3 py-2", OPERATOR_TYPOGRAPHY.body,
-                  s.label === "Approved sealed review record" && promoteReady
+                  s.label === "Approved finalized review record" && promoteReady
                     ? "border-neutral-400 bg-[var(--al-layer-hover)] ring-2 ring-[var(--al-accent-border-focus)]/30 dark:border-neutral-500 dark:bg-neutral-800/80"
                     : "border-neutral-200 bg-white/90 dark:border-neutral-700 dark:bg-neutral-950/40",
                 )}

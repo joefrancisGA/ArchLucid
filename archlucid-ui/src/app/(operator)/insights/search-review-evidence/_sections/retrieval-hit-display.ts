@@ -123,7 +123,7 @@ function reviewPackageHref(runId: string): RetrievalHitActionLink {
 function manifestHref(manifestId: string): RetrievalHitActionLink {
   return {
     href: signedRecordDetailPath(manifestId),
-    label: `Open ${SIGNED_MANIFEST_LABEL.toLowerCase()}`,
+    label: "Open finalized review record",
   };
 }
 

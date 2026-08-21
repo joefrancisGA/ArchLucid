@@ -145,7 +145,7 @@ export function CommitRunButton({
       <LongOperationWaitNotice
         active={busy}
         operationLabel="Finalizing architecture review"
-        stageLabel="Saving sealed review record"
+        stageLabel="Saving finalized review record"
         testId="commit-run-long-wait"
       />
       <div>

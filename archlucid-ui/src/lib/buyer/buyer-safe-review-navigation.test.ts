@@ -91,7 +91,7 @@ describe("buyer-safe-review-navigation", () => {
     const mod = await import("@/lib/buyer/buyer-safe-review-navigation");
     const manifest = mod.getBuyerSafeSignedManifestTableLink(SHOWCASE_STATIC_DEMO_RUN_ID);
 
-    expect(manifest.label).toBe("View sealed record");
+    expect(manifest.label).toBe("View finalized record");
     expect(manifest.href).toBe(`/governance/sealed-records/${SHOWCASE_STATIC_DEMO_MANIFEST_ID}`);
   });
 });

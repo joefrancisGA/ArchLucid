@@ -189,7 +189,7 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
           <InlineMetadataLine label="Governance approval" value="Approved with monitoring" />
           <InlineMetadataLine
             label="Remaining monitored risk"
-            value={`${SHOWCASE_STATIC_DEMO_SPINE_COUNTS.warningCount} (tracked in finalized sealed review record)`}
+            value={`${SHOWCASE_STATIC_DEMO_SPINE_COUNTS.warningCount} (tracked in finalized review record)`}
           />
           <InlineMetadataLine label="Evidence trail" value="Ready" />
           <InlineMetadataLine label="Audit trail" value="Complete" />

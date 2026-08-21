@@ -240,7 +240,7 @@ export function GovernanceWorkflowSubmitSection(props: GovernanceWorkflowSubmitS
               {submitBusy
                 ? "Submitting…"
                 : canMutateWorkflow
-                  ? "Submit for governance approval"
+                  ? "Submit for resolve outcomes"
                   : governanceWorkflowSubmitForApprovalButtonLabelReaderRank}
             </Button>
             {canMutateWorkflow ? (

@@ -41,7 +41,7 @@ export const AUDIT_EVIDENCE_TRAIL_HEADING =
   "Audit trail and evidence surfaces serve different purposes" as const;
 
 export const AUDIT_EVIDENCE_TRAIL_WHY_THREE =
-  "Audit trail is the workspace activity log for governance and review events. Evidence graph shows how evidence connects in one architecture review. Search review evidence finds findings, decisions, and sealed review records across reviews. The activity log is not the same as one review's evidence path — open the peer link when you need review evidence or cross-review search." as const;
+  "Audit trail is the workspace activity log for governance and review events. Evidence graph shows how evidence connects in one architecture review. Search review evidence finds findings, decisions, and finalized review records across reviews. The activity log is not the same as one review's evidence path — open the peer link when you need review evidence or cross-review search." as const;
 
 export const AUDIT_EVIDENCE_TRAIL_COMPACT_LINE =
   "Audit is the activity log; Evidence graph and Search review evidence cover review evidence — open the peers when you need both." as const;
@@ -64,7 +64,7 @@ export const AUDIT_EVIDENCE_TRAIL_SEARCH_EVIDENCE_LINK: AuditEvidenceTrailLink =
   id: "search-evidence",
   label: "Search review evidence",
   href: SEARCH_REVIEW_EVIDENCE_PATH,
-  whenToUse: "Find findings, decisions, and sealed review records across architecture packages.",
+  whenToUse: "Find findings, decisions, and finalized review records across architecture packages.",
 };
 
 /** Full vocabulary model (heading, why-three copy, and deep links). */

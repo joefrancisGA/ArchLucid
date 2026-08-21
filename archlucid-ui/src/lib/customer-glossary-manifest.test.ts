@@ -32,10 +32,11 @@ describe("customer-glossary-manifest", () => {
     expect(CUSTOMER_GLOSSARY_TERMS.some((term) => term.visibility === "internal-only")).toBe(false);
   });
 
-  it("uses Sealed review record as the preferred label, not Signed manifest", () => {
+  it("uses Finalized review record as the preferred label, not Signed manifest", () => {
     const signedTerm = listCustomerFacingGlossaryTerms().find((term) => term.id === "sealed-review-record");
 
-    expect(signedTerm?.label).toBe("Sealed review record");
+    expect(signedTerm?.label).toBe("Finalized review record");
+    expect(signedTerm?.deprecatedAliases).toContain("Sealed review record");
     expect(signedTerm?.deprecatedAliases).toContain("Signed review record");
     expect(signedTerm?.deprecatedAliases).toContain("Signed manifest");
     expect(listCustomerFacingGlossaryTerms().some((term) => term.label === "Signed manifest")).toBe(false);

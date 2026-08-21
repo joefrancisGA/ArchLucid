@@ -107,7 +107,7 @@ describe("SignedRecordsListClient", () => {
 
     render(<SignedRecordsListClient />);
 
-    expect(screen.getByTestId("signed-records-list-page-title")).toHaveTextContent("Sealed review records");
+    expect(screen.getByTestId("signed-records-list-page-title")).toHaveTextContent("Finalized review records");
     expect(screen.queryByText(GOVERNANCE_OVERVIEW_PAGE_LEAD)).not.toBeInTheDocument();
     expect(screen.getByText(SIGNED_RECORDS_LIST_LIST_LEAD)).toBeInTheDocument();
 
@@ -123,7 +123,7 @@ describe("SignedRecordsListClient", () => {
     const listOptions = listRunsByProjectPaged.mock.calls[0]?.[3] as Record<string, unknown> | undefined;
     expect(listOptions?.includeArchived).toBeUndefined();
 
-    expect(screen.getByRole("link", { name: "Open sealed record" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "Open finalized record" })).toHaveAttribute(
       "href",
       "/governance/sealed-records/manifest-abc",
     );
@@ -193,7 +193,7 @@ describe("SignedRecordsListClient", () => {
       expect(screen.getByText(SIGNED_RECORDS_LIST_RECORD_PENDING_RESOLUTION)).toBeInTheDocument();
     });
 
-    expect(screen.queryByRole("link", { name: "Open sealed record" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "Open finalized record" })).not.toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Claims modernization" })).toHaveAttribute(
       "href",
       `/architecture/reviews/${finalizedRun.runId}`,
@@ -214,7 +214,7 @@ describe("SignedRecordsListClient", () => {
     render(<SignedRecordsListClient />);
 
     await waitFor(() => {
-      expect(screen.getByText("No sealed review records yet")).toBeInTheDocument();
+      expect(screen.getByText("No finalized review records yet")).toBeInTheDocument();
     });
 
     expect(screen.getByText(/Reviews in progress are not listed here/i)).toBeInTheDocument();

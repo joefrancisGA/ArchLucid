@@ -81,7 +81,7 @@ describe("buildRetrievalHitActionLink", () => {
 
     expect(link).toEqual({
       href: `/governance/sealed-records/${SAMPLE_MANIFEST_ID}`,
-      label: "Open sealed review record",
+      label: "Open finalized review record",
     });
   });
 

@@ -1,17 +1,17 @@
 import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer/buyer-polish-copy";
 import { SIGNED_RECORDS_LIST_PATH } from "@/lib/signed-records-paths";
 
-export const SIGNED_RECORDS_LIST_PAGE_TITLE = "Sealed review records";
+export const SIGNED_RECORDS_LIST_PAGE_TITLE = "Finalized review records";
 
 export const SIGNED_RECORDS_LIST_PAGE_SUBTITLE =
-  "Browse finalized sealed review records across your workspace — open the source review or inspect the sealed record.";
+  "Browse finalized review records across your workspace — open the source review or inspect the finalized record.";
 
 export const SIGNED_RECORDS_LIST_LIST_LEAD =
-  "Only architecture reviews with a finalized sealed review record appear here. Open a row to inspect the sealed record or jump to the source review.";
+  "Only architecture reviews with a finalized review record appear here. Open a row to inspect the finalized record or jump to the source review.";
 
 export const SIGNED_RECORDS_LIST_LAST_REFRESHED_PREFIX = "Last refreshed";
 
-export const SIGNED_RECORDS_LIST_LOADING_STATUS = "Loading sealed review records…";
+export const SIGNED_RECORDS_LIST_LOADING_STATUS = "Loading finalized review records…";
 
 export type SignedRecordsListRecordCountOptions = {
   readonly page?: number;
@@ -23,7 +23,7 @@ export function formatSignedRecordsListRecordCount(
   count: number,
   options?: SignedRecordsListRecordCountOptions,
 ): string {
-  const word = count === 1 ? "sealed review record" : "sealed review records";
+  const word = count === 1 ? "finalized review record" : "finalized review records";
   const base = `${count} ${word}`;
 
   if (options?.page !== undefined && options.page > 0) {
@@ -37,7 +37,7 @@ export function formatSignedRecordsListRecordCount(
   return base;
 }
 
-export const SIGNED_RECORDS_LIST_TOOLBAR_ARIA_LABEL = "Filter sealed review records";
+export const SIGNED_RECORDS_LIST_TOOLBAR_ARIA_LABEL = "Filter finalized review records";
 
 export const SIGNED_RECORDS_LIST_SEARCH_LABEL = "Search";
 
@@ -61,12 +61,12 @@ export const SIGNED_RECORDS_LIST_RETRY_SUCCEEDED_STATUS = "Record metadata refre
 export const SIGNED_RECORDS_LIST_RETRY_FAILED_STATUS =
   "Record metadata is still unavailable — try again or open the source review.";
 
-export const SIGNED_RECORDS_LIST_EMPTY_TITLE = "No sealed review records yet";
+export const SIGNED_RECORDS_LIST_EMPTY_TITLE = "No finalized review records yet";
 
 export const SIGNED_RECORDS_LIST_EMPTY_BODY =
-  "Reviews in progress are not listed here. Finalize an architecture review to create a sealed review record, or browse active reviews while you wait.";
+  "Reviews in progress are not listed here. Finalize an architecture review to create a finalized review record, or browse active reviews while you wait.";
 
-export const SIGNED_RECORDS_LIST_EMPTY_SAMPLE_CTA = "View sample sealed record";
+export const SIGNED_RECORDS_LIST_EMPTY_SAMPLE_CTA = "View sample finalized record";
 
 export const SIGNED_RECORDS_LIST_EMPTY_PRIMARY_LABEL = BUYER_START_ARCHITECTURE_REVIEW_CTA;
 
@@ -100,18 +100,18 @@ export const SIGNED_RECORDS_LIST_RECORD_SUMMARY_UNAVAILABLE =
   "Manifest metadata is temporarily unavailable — retry or open the source review.";
 
 export const SIGNED_RECORDS_LIST_RECORD_NOT_FOUND =
-  "Sealed record was not found — it may have been removed or is outside your scope.";
+  "Finalized record was not found — it may have been removed or is outside your scope.";
 
-export const SIGNED_RECORDS_LIST_OPEN_RECORD_ACTION = "Open sealed record";
+export const SIGNED_RECORDS_LIST_OPEN_RECORD_ACTION = "Open finalized record";
 
-export const SIGNED_RECORDS_LIST_PAGINATION_ARIA_LABEL = "Sealed review records pagination";
+export const SIGNED_RECORDS_LIST_PAGINATION_ARIA_LABEL = "Finalized review records pagination";
 
 export function formatSignedRecordsListPaginationSummary(
   page: number,
   shownCount: number,
   hasMore: boolean,
 ): string {
-  const recordWord = shownCount === 1 ? "sealed record" : "sealed records";
+  const recordWord = shownCount === 1 ? "finalized record" : "finalized records";
   const shown = `Showing ${shownCount} ${recordWord}`;
 
   if (hasMore) {

@@ -43,7 +43,7 @@ export const BUYER_MANIFEST_BUNDLE_DOWNLOAD_ZIP_NOTE = "Delivered as a ZIP archi
  * @deprecated Prefer {@link SIGNED_MANIFEST_LABEL} / `BUYER_SURFACE_VOCABULARY.sealedReviewRecord`.
  * Kept so older imports resolve to the canonical package noun (not a Decision register row).
  */
-export const BUYER_SIGNED_DECISION_RECORD_LABEL = "Sealed review record";
+export const BUYER_SIGNED_DECISION_RECORD_LABEL = "Finalized review record";
 
 export const BUYER_MANIFEST_SECTION_DECISION = "Decision";
 
@@ -64,9 +64,9 @@ export const BUYER_DOWNLOAD_REVIEW_RECORD_JSON = "Download review record (JSON)"
 
 export const BUYER_COPY_REVIEW_RECORD_JSON = "Copy review record JSON";
 
-export const BUYER_VIEW_SIGNED_RECORD_CTA = "View sealed record";
+export const BUYER_VIEW_SIGNED_RECORD_CTA = "View finalized record";
 
-export const BUYER_OPEN_SIGNED_RECORD_CTA = "Open sealed record";
+export const BUYER_OPEN_SIGNED_RECORD_CTA = "Open finalized record";
 
 export const BUYER_VIEW_SIGNED_REVIEW_RECORD_CTA = "View finalized review record";
 

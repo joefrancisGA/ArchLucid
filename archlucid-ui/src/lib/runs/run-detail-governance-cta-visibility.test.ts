@@ -70,7 +70,7 @@ describe("runDetailGovernanceWorkflowHref", () => {
 });
 
 describe("RUN_DETAIL_GOVERNANCE_CTA_LABEL", () => {
-  it("uses governance approval forward copy", () => {
-    expect(RUN_DETAIL_GOVERNANCE_CTA_LABEL).toBe("Submit for governance approval →");
+  it("uses resolve outcomes forward copy", () => {
+    expect(RUN_DETAIL_GOVERNANCE_CTA_LABEL).toBe("Submit for resolve outcomes →");
   });
 });

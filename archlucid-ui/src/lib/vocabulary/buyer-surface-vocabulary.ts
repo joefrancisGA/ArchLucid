@@ -17,7 +17,7 @@ export const BUYER_SURFACE_VOCABULARY = {
   finding: "Finding",
   phiMinimizationRisk: "PHI minimization risk",
   /** Golden / sealed review record artifact in buyer copy — use sealed, not signed. */
-  sealedReviewRecord: "Sealed review record",
+  sealedReviewRecord: "Finalized review record",
 } as const;
 
 /**

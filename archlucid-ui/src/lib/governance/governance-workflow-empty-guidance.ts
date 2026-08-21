@@ -4,7 +4,7 @@ import type { EmptyStateGettingStarted } from "@/components/EmptyState";
 export const governanceWorkflowIdleGettingStartedOperator: EmptyStateGettingStarted = {
   heading: "Governance workflow in three moves",
   steps: [
-    "Finalize a review on a review, then scroll to Submit for governance approval (source → target environments).",
+    "Finalize a review on a review, then scroll to Submit for resolve outcomes (source → target environments).",
     "Load that review under Approval requests — approve or reject rows as a reviewer.",
     "Release approved requests to the target environment, then Activate when you are ready to go live.",
   ],
