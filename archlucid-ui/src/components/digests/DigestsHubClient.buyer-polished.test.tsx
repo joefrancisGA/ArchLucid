@@ -95,8 +95,6 @@ describe("DigestsHubClient buyer-polished shell", () => {
     render(<DigestsHubClient />);
 
     expect(await screen.findByText(DIGESTS_PAGE_SUBTITLE_BUYER)).toBeInTheDocument();
-    // TB-2090 removed breadcrumbs system-wide; `OperatorPageHeader.breadcrumb` is ignored.
-    expect(screen.queryByTestId("digests-hub-breadcrumb")).toBeNull();
     expect(screen.getByTestId("digests-schedule-orientation-top")).toBeInTheDocument();
     expect(screen.getByTestId("digests-schedule-sources")).toBeInTheDocument();
     expect(screen.queryByTestId("digests-advisory-scans-vocabulary")).not.toBeInTheDocument();

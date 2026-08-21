@@ -48,7 +48,6 @@ import { DigestsBrowseContent } from "./DigestsBrowseContent";
 import { DigestsRelatedSurfacesRail } from "./DigestsRelatedSurfacesRail";
 import { DigestSubscriptionsContent } from "./DigestSubscriptionsContent";
 import { ExecDigestScheduleContent } from "./ExecDigestScheduleContent";
-import { DigestsHubBreadcrumb } from "./DigestsHubBreadcrumb";
 import { DigestsPageHeader } from "./DigestsPageHeader";
 import { DigestsScheduleBuyerChrome } from "./DigestsScheduleBuyerChrome";
 import { WeeklyDigestHealthBanner } from "./WeeklyDigestHealthBanner";
@@ -237,7 +236,6 @@ export function DigestsHubClient(): ReactElement {
           onRefresh={onRefresh}
           lastUpdatedPrefix={browseSetupGuidesChecklist ? DIGESTS_HEALTH_CHECK_PREFIX : undefined}
           actions={browseHeaderActions}
-          breadcrumb={buyerPolishedShell ? <DigestsHubBreadcrumb activeTab={activeTab} /> : undefined}
         />
 
       {/* Tabs sit immediately under the header so hub navigation precedes orientation chrome. */}
