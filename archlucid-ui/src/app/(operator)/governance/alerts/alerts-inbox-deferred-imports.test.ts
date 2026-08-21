@@ -10,6 +10,10 @@ const componentsAlertsDir = join(routeDir, "..", "..", "..", "..", "components",
 const chromeSource = readFileSync(join(routeDir, "AlertsHubChrome.tsx"), "utf8");
 const interactiveSource = readFileSync(join(componentsAlertsDir, "AlertsInboxInteractiveClient.tsx"), "utf8");
 const deferredSource = readFileSync(join(componentsAlertsDir, "alerts-inbox-deferred-chunks.tsx"), "utf8");
+const manifestLoaderSource = readFileSync(
+  join(componentsAlertsDir, "../../lib/operator/load-deferred-chunk-from-manifest.tsx"),
+  "utf8",
+);
 
 const bannedChromeImports = ['@/components/alerts/AlertsGovernanceContextPanel"'] as const;
 const bannedInteractiveImports = ['@/components/alerts/AlertsInboxDialogs"'] as const;
@@ -33,9 +37,11 @@ describe("alerts inbox deferred imports (wave 11 hub First Load)", () => {
     expect(interactiveSource).toContain("AlertsInboxDialogsDeferred");
   });
 
-  it("dynamic-imports deferred alerts inbox panels", () => {
+  it("dynamic-imports governance context via manifest loaders", () => {
+    expect(deferredSource).toContain("createDeferredComponentFromManifest");
+    expect(manifestLoaderSource).toContain('import("@/components/alerts/AlertsGovernanceContextPanel")');
+    expect(deferredSource).toContain("alerts-inbox-governance-context-panel");
     expect(deferredSource).toContain("next/dynamic");
     expect(deferredSource).toContain('import("@/components/alerts/AlertsInboxDialogs")');
-    expect(deferredSource).toContain('import("@/components/alerts/AlertsGovernanceContextPanel")');
   });
 });

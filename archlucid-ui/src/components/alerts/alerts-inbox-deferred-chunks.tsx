@@ -3,20 +3,10 @@
 import dynamic from "next/dynamic";
 import type { ComponentType } from "react";
 
-import { DeferredChunkLoading } from "@/components/ui/deferred-chunk-loading";
+import { createDeferredComponentFromManifest } from "@/lib/operator/load-deferred-chunk-from-manifest";
 
 import type { AlertsInboxDialogsProps } from "@/components/alerts/AlertsInboxDialogs";
 import type { AlertsGovernanceContextPanelProps } from "@/components/alerts/AlertsGovernanceContextPanel";
-
-function alertsInboxDeferredLoading(label: string): React.JSX.Element {
-  return (
-    <DeferredChunkLoading
-      label={label}
-      variant="context"
-      testId="alerts-inbox-deferred-chunk-loading"
-    />
-  );
-}
 
 /** Triage + action-loop dialogs — off inbox First Load JS (wave 11). */
 export const AlertsInboxDialogsDeferred: ComponentType<AlertsInboxDialogsProps> = dynamic(
@@ -25,13 +15,6 @@ export const AlertsInboxDialogsDeferred: ComponentType<AlertsInboxDialogsProps> 
 );
 
 export const AlertsGovernanceContextPanelDeferred: ComponentType<AlertsGovernanceContextPanelProps> =
-  dynamic(
-    () =>
-      import("@/components/alerts/AlertsGovernanceContextPanel").then(
-        (module) => module.AlertsGovernanceContextPanel,
-      ),
-    {
-      ssr: false,
-      loading: () => alertsInboxDeferredLoading("Loading alerts context"),
-    },
-  );
+  createDeferredComponentFromManifest("alerts-inbox-governance-context-panel", {
+    loadingTestId: "alerts-inbox-deferred-chunk-loading",
+  });
