@@ -982,16 +982,6 @@
       "nav_operator_href": null
     },
     {
-      "controller_file": "Authority/ReviewClarificationQuestionsController.cs",
-      "class_name": "ReviewClarificationQuestionsController",
-      "route_template": "v{version:apiVersion}/architecture",
-      "normalized_prefix": "/v1/architecture",
-      "commercial_tier": "none",
-      "class_policy": "ReadAuthority",
-      "exemption": null,
-      "nav_operator_href": null
-    },
-    {
       "controller_file": "Authority/ReviewsDemoController.cs",
       "class_name": "ReviewsDemoController",
       "route_template": "v{version:apiVersion}/reviews",

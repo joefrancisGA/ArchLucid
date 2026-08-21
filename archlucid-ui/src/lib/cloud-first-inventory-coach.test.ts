@@ -72,18 +72,20 @@ describe("cloud-first-inventory-coach (TB-2222)", () => {
     expect(view.primaryCtaHref).toBeNull();
   });
 
-  it("empty phase respects recommendedProviderId on provider detail pages", () => {
+  it("empty phase on a provider detail page omits Configure because the form is already on the page", () => {
     const view = buildCloudFirstInventoryCoach({
       hasConnection: false,
       hasSuccessfulPull: false,
       connectedProviderCount: 0,
       totalProviderCount: 3,
       recommendedProviderId: "azure",
-      emptyPhasePrimaryCtaHref: "#connection-details",
     });
 
-    expect(view.primaryCtaLabel).toBe("Configure Azure");
-    expect(view.primaryCtaHref).toBe("#connection-details");
+    expect(view.primaryCtaLabel).toBeNull();
+    expect(view.primaryCtaHref).toBeNull();
+    expect(view.body).toContain("Azure");
+    expect(view.body).toContain("Connection details on this page");
+    expect(view.body).not.toContain("0 of 3");
   });
 
   it("empty phase on a provider detail page avoids hub-wide provider counts", () => {
@@ -93,26 +95,25 @@ describe("cloud-first-inventory-coach (TB-2222)", () => {
       connectedProviderCount: 0,
       totalProviderCount: 3,
       recommendedProviderId: "aws",
-      emptyPhasePrimaryCtaHref: "#connection-details",
     });
 
     expect(view.body).not.toContain("0 of 3");
     expect(view.body).toContain("AWS");
-    expect(view.primaryCtaHref).toBe("#connection-details");
+    expect(view.primaryCtaLabel).toBeNull();
   });
 
-  it("empty phase can anchor to connection details on the current provider page", () => {
+  it("empty phase on GCP detail omits a configure CTA", () => {
     const view = buildCloudFirstInventoryCoach({
       hasConnection: false,
       hasSuccessfulPull: false,
       connectedProviderCount: 0,
       totalProviderCount: 3,
       recommendedProviderId: "gcp",
-      emptyPhasePrimaryCtaHref: "#connection-details",
     });
 
-    expect(view.primaryCtaLabel).toBe("Configure GCP");
-    expect(view.primaryCtaHref).toBe("#connection-details");
+    expect(view.primaryCtaLabel).toBeNull();
+    expect(view.primaryCtaHref).toBeNull();
+    expect(view.body).toContain("GCP");
   });
 
   it("detects successful pull from lastPolledUtc or healthy status", () => {

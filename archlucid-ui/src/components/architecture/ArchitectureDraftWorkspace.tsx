@@ -12,6 +12,7 @@ import { ArchitectureDraftDetailLoadFailure } from "@/components/architecture/Ar
 import { ArchitectureDraftFormFields } from "@/components/architecture/ArchitectureDraftFormFields";
 import { ArchitectureDraftGuidanceDisclosure } from "@/components/architecture/ArchitectureDraftGuidanceDisclosure";
 import { ArchitectureDraftHandoffBanner } from "@/components/architecture/ArchitectureDraftHandoffBanner";
+import { ArchitectureDraftIntakeModeBanner } from "@/components/architecture/ArchitectureDraftIntakeModeBanner";
 import { ArchitectureScopeUnderstandingCheckPanel } from "@/components/architecture/ArchitectureScopeUnderstandingCheckPanel";
 import { ArchitectureDraftWorkspaceLoadingSkeleton } from "@/components/architecture/ArchitectureDraftWorkspaceLoadingSkeleton";
 import { ArchitectureDraftSaveStatus } from "@/components/architecture/ArchitectureDraftSaveStatus";
@@ -67,7 +68,12 @@ import {
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { getRunSummary } from "@/lib/api/architecture-runs";
 import { isApiRequestError } from "@/lib/api-request-error";
-import { getDraftRequest, patchDraftRequest } from "@/lib/api/draft-intake-api";
+import { getDraftRequest, patchDraftRequest, reopenDraftRequest } from "@/lib/api/draft-intake-api";
+import {
+  ARCHITECTURE_DRAFT_INTAKE_MODE_CONTINUE_LABEL,
+  architectureDraftAllowsBriefUnlock,
+  isArchitectureDraftInReviewIntake,
+} from "@/lib/architecture/architecture-draft-intake-mode";
 import {
   mergeScopeBulletsIntoBrief,
   type ScopeUnderstandingBullet,
@@ -80,7 +86,7 @@ import {
   ARCHITECTURE_CREATION_NEW_DRAFT_SECTION_TITLE,
 } from "@/lib/create-vs-review-intake-copy";
 import { OPERATOR_LINK, OPERATOR_PAGE_LEAD_MEASURE, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { showSuccess } from "@/lib/toast";
+import { showError, showSuccess } from "@/lib/toast";
 import { cn } from "@/lib/utils";
 import type { ActorSet, DraftRequestResponse } from "@/types/draft-intake";
 
@@ -113,6 +119,7 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
   const [handoffAcknowledged, setHandoffAcknowledged] = useState(false);
   const [linkedReviewTitle, setLinkedReviewTitle] = useState("Untitled review");
   const [registryHydrated, setRegistryHydrated] = useState(false);
+  const [unlockBusy, setUnlockBusy] = useState(false);
   const previousSaveStateRef = useRef<ArchitectureDraftSaveState>("saved");
   const exitTimeoutIdRef = useRef<number | null>(null);
   const loadDraftInFlightRef = useRef<Promise<void> | null>(null);
@@ -121,6 +128,9 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
 
   const linkedReviewId = architectureDraftSpawnedRunId(draft);
   const handoffEditorLocked = linkedReviewId !== null && !handoffAcknowledged;
+  const intakeModeActive = isArchitectureDraftInReviewIntake(draft?.status);
+  const canUnlockBrief = architectureDraftAllowsBriefUnlock(draft?.status);
+  const editorLocked = handoffEditorLocked || intakeModeActive || exitPending;
   const localDraftRegistryEntries = useArchitectureDraftRegistryEntries();
 
   useEffect(() => {
@@ -165,21 +175,26 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
     [applyLoadedDraftToForm],
   );
 
+  const handleImmutableDraftDetected = useCallback((loaded: DraftRequestResponse) => {
+    setDraft(loaded);
+  }, []);
+
   const { saveState, lastSavedUtc, conflictMessage, saveDraft, reloadDraft, acceptServerBaseline, hasPersistedDraft } =
     useArchitectureDraftAutosave({
       architectureId: props.architectureId,
       fields,
       actorSet,
-      enabled: !handoffEditorLocked,
+      enabled: !handoffEditorLocked && !intakeModeActive,
       deferCreateUntilFirstSave: isNewDraft,
       onDraftCreated: isNewDraft ? handleDraftCreated : undefined,
       onDraftLoaded: handleDraftLoaded,
+      onImmutableDraftDetected: handleImmutableDraftDetected,
     });
 
   acceptServerBaselineRef.current = acceptServerBaseline;
 
   const hasUnsavedChanges = saveState === "unsaved" || saveState === "saving" || saveState === "error";
-  useUnsavedChangesGuard({ when: hasUnsavedChanges && !handoffEditorLocked });
+  useUnsavedChangesGuard({ when: hasUnsavedChanges && !editorLocked });
 
   const displayName = useMemo(
     () => architectureDraftDisplayName(fields.systemName, fields.freeTextIntent),
@@ -199,7 +214,14 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
   );
   const needsPersistedDraftBeforeStart = isNewDraft && !hasPersistedDraft;
   const canStartReview =
-    reviewReadiness.isValid && scopeGateOpen && !needsPersistedDraftBeforeStart && saveState !== "saving";
+    reviewReadiness.isValid &&
+    scopeGateOpen &&
+    !needsPersistedDraftBeforeStart &&
+    saveState !== "saving" &&
+    !intakeModeActive &&
+    saveState !== "error" &&
+    saveState !== "offline" &&
+    conflictMessage === null;
   const scopeUnderstandingInput = useMemo(
     () => ({
       architectureName: fields.systemName,
@@ -456,6 +478,27 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
     setHandoffAcknowledged(true);
   }, [linkedReviewId, props.architectureId]);
 
+  const handleUnlockBrief = useCallback(async () => {
+    if (!canUnlockBrief || draft === null) {
+      return;
+    }
+
+    setUnlockBusy(true);
+
+    try {
+      const reopened = await reopenDraftRequest(draft.draftId);
+      handleDraftLoaded(reopened);
+      showSuccess("Architecture unlocked — you can edit the brief.");
+    } catch (error) {
+      showError(
+        "Could not unlock this architecture",
+        isApiRequestError(error) ? error.message : undefined,
+      );
+    } finally {
+      setUnlockBusy(false);
+    }
+  }, [canUnlockBrief, draft, handleDraftLoaded]);
+
   if (loading) {
     return (
       <div className="space-y-3" data-testid="architecture-draft-workspace-loading">
@@ -523,7 +566,7 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
           <ArchitectureDraftSaveStatus
             saveState={saveState}
             lastSavedUtc={lastSavedUtc}
-            autosaveActive={!handoffEditorLocked}
+            autosaveActive={!handoffEditorLocked && !intakeModeActive}
             hasPersistedDraft={hasPersistedDraft}
           />
         </div>
@@ -537,6 +580,18 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
           linkedReviewTitle={linkedReviewTitle}
           editorLocked={handoffEditorLocked}
           onAcknowledgeEditAnyway={handleAcknowledgeHandoff}
+        />
+      ) : null}
+
+      {intakeModeActive && linkedReviewId === null ? (
+        <ArchitectureDraftIntakeModeBanner
+          status={draft?.status}
+          continueHref={startReviewFromArchitectureHref(props.architectureId)}
+          canUnlock={canUnlockBrief}
+          unlockBusy={unlockBusy}
+          onUnlock={() => {
+            void handleUnlockBrief();
+          }}
         />
       ) : null}
 
@@ -573,7 +628,7 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
           <ArchitectureDraftFormFields
             fields={fields}
             actorSet={actorSet}
-            disabled={handoffEditorLocked || exitPending}
+            disabled={editorLocked}
             blocksLlmExecution={blocksLlmExecution}
             markReviewReadinessInvalid={linkedReviewId === null && !reviewReadiness.isValid}
             onFieldsChange={setFields}
@@ -582,26 +637,28 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
         </CardContent>
       </Card>
 
-      {refinementDraftId !== null && !handoffEditorLocked ? (
-        <DraftIntakeAdvancedSection defaultOpen={false}>
-          <AiBudgetSpendNotice
-            action="Architecture reasoning"
-            testId="architecture-draft-ai-budget-notice"
-          />
+      {refinementDraftId !== null && !editorLocked ? (
+        <>
           <ArchitectureDraftAiRefinePanel
             fields={fields}
             linkedReviewId={linkedReviewId}
             disabled={exitPending || blocksLlmExecution}
           />
-          <DraftIntakeReasoningPanel
-            draftId={refinementDraftId}
-            disabled={exitPending || blocksLlmExecution}
-            embedded
-          />
-        </DraftIntakeAdvancedSection>
+          <DraftIntakeAdvancedSection defaultOpen={false}>
+            <AiBudgetSpendNotice
+              action="Architecture reasoning"
+              testId="architecture-draft-ai-budget-notice"
+            />
+            <DraftIntakeReasoningPanel
+              draftId={refinementDraftId}
+              disabled={exitPending || blocksLlmExecution}
+              embedded
+            />
+          </DraftIntakeAdvancedSection>
+        </>
       ) : null}
 
-      {linkedReviewId === null ? (
+      {linkedReviewId === null && !intakeModeActive ? (
         <ArchitectureScopeUnderstandingCheckPanel
           input={scopeUnderstandingInput}
           disabled={handoffEditorLocked || exitPending || reviewStartProgress.isPending}
@@ -611,12 +668,12 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
         />
       ) : null}
 
-      {linkedReviewId === null ? (
+      {linkedReviewId === null && !intakeModeActive ? (
         <PreExecuteCostEstimateNotice testId="architecture-draft-pre-execute-cost" />
       ) : null}
 
       <div className="space-y-2">
-        {linkedReviewId === null && !reviewReadiness.isValid ? (
+        {linkedReviewId === null && !intakeModeActive && !reviewReadiness.isValid ? (
           <p
             className={cn("m-0", OPERATOR_TYPOGRAPHY.helper, "text-red-800 dark:text-red-300")}
             role="alert"
@@ -625,7 +682,7 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
             {formatArchitectureReviewReadinessMessage(reviewReadiness.blockers)}
           </p>
         ) : null}
-        {linkedReviewId === null && reviewReadiness.isValid && needsPersistedDraftBeforeStart ? (
+        {linkedReviewId === null && !intakeModeActive && reviewReadiness.isValid && needsPersistedDraftBeforeStart ? (
           <p
             className={cn("m-0", OPERATOR_TYPOGRAPHY.helper, "text-al-text-secondary")}
             role="status"
@@ -634,7 +691,7 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
             Save the architecture draft before starting a review.
           </p>
         ) : null}
-        {linkedReviewId === null && reviewReadiness.isValid && !needsPersistedDraftBeforeStart && !scopeGateOpen ? (
+        {linkedReviewId === null && !intakeModeActive && reviewReadiness.isValid && !needsPersistedDraftBeforeStart && !scopeGateOpen ? (
           <p
             className={cn("m-0", OPERATOR_TYPOGRAPHY.helper, "text-al-text-secondary")}
             role="status"
@@ -673,7 +730,13 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
           />
         ) : null}
         <div className="flex flex-wrap gap-2">
-          {linkedReviewId !== null ? (
+          {intakeModeActive && linkedReviewId === null ? (
+            <Button type="button" variant="primary" size="sm" asChild>
+              <Link href={startReviewFromArchitectureHref(props.architectureId)}>
+                {ARCHITECTURE_DRAFT_INTAKE_MODE_CONTINUE_LABEL}
+              </Link>
+            </Button>
+          ) : linkedReviewId !== null ? (
             <Button type="button" variant="primary" size="sm" asChild data-testid="architecture-continue-review">
               <Link href={reviewDetailPath(linkedReviewId)}>Continue in review</Link>
             </Button>
@@ -697,7 +760,7 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
               type="button"
               variant="outline"
               size="sm"
-              disabled={handoffEditorLocked}
+              disabled={editorLocked}
               onClick={() => {
                 void handleSaveDraft();
               }}
@@ -710,7 +773,7 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
             type="button"
             variant="outline"
             size="sm"
-            disabled={handoffEditorLocked || saveState === "saving" || exitPending}
+            disabled={editorLocked || saveState === "saving"}
             onClick={() => {
               void handleSaveAndExit();
             }}

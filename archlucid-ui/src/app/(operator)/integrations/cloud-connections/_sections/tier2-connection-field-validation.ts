@@ -1,3 +1,8 @@
+import {
+  AZURE_CONNECTION_CLIENT_APP_ID_INVALID,
+  AZURE_CONNECTION_TENANT_ID_INVALID,
+} from "@/lib/azure-cloud-connection-copy";
+
 const GUID_PATTERN =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -37,11 +42,11 @@ export function validateTier2ConnectionFields(
   const errors: Tier2FieldValidationErrors = {};
 
   if (!isAzureGuid(tenantId)) {
-    errors.tenantId = "Enter a valid Azure AD tenant GUID.";
+    errors.tenantId = AZURE_CONNECTION_TENANT_ID_INVALID;
   }
 
   if (!isAzureGuid(clientId)) {
-    errors.clientId = "Enter a valid application (client) ID GUID.";
+    errors.clientId = AZURE_CONNECTION_CLIENT_APP_ID_INVALID;
   }
 
   const parts = parseTier2SubscriptionIds(subscriptionIds);

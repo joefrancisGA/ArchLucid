@@ -68,8 +68,8 @@ describe("gcp-cloud-connection-wif-starter", () => {
     const surfaces = [
       buildGcpWorkloadIdentityPoolProviderSetupScript(),
       GCP_WIF_STARTER_SCRIPT_REPLACE_HINT,
-      ...buildGcpWifStarterFederationIdentifiers({ tenantId: "", managedIdentityObjectId: "" }).map(
-        (row) => row.value,
+      ...buildGcpWifStarterFederationIdentifiers({ tenantId: "", managedIdentityObjectId: "" }).flatMap(
+        (row) => [row.value, row.hint],
       ),
     ];
 

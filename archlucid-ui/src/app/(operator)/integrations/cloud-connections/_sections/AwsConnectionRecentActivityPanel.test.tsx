@@ -14,7 +14,7 @@ vi.mock("@/lib/api/aws-cloud-connections-api", () => ({
 }));
 
 describe("AwsConnectionRecentActivityPanel (P0-1)", () => {
-  it("uses AWS-specific empty coach CTA anchored to connection details", async () => {
+  it("keeps AWS-scoped empty coach without a Configure CTA on this page", async () => {
     render(
       <AwsConnectionDataProvider>
         <AwsConnectionRecentActivityPanel />
@@ -22,9 +22,10 @@ describe("AwsConnectionRecentActivityPanel (P0-1)", () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByTestId("cloud-first-inventory-coach-cta")).toHaveTextContent("Configure AWS");
+      expect(screen.getByTestId("cloud-first-inventory-coach")).toHaveTextContent("AWS");
     });
 
-    expect(screen.getByTestId("cloud-first-inventory-coach-cta")).toHaveAttribute("href", "#connection-details");
+    expect(screen.queryByTestId("cloud-first-inventory-coach-cta")).not.toBeInTheDocument();
+    expect(screen.getByTestId("aws-connection-recent-activity-empty")).toBeInTheDocument();
   });
 });

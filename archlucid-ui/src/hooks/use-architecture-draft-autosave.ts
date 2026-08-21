@@ -33,6 +33,8 @@ type UseArchitectureDraftAutosaveArgs = {
   readonly deferCreateUntilFirstSave?: boolean;
   readonly onDraftCreated?: (draftId: string) => void;
   readonly onDraftLoaded?: (draft: DraftRequestResponse) => void;
+  /** Called when GET shows a non-drafting status — do not treat as another-session conflict. */
+  readonly onImmutableDraftDetected?: (draft: DraftRequestResponse) => void;
 };
 
 type UseArchitectureDraftAutosaveResult = {
@@ -73,14 +75,6 @@ function fieldsFromDraftDocument(draft: DraftRequestResponse): ArchitectureDraft
 
 function isNonRetryableDraftPatchError(error: unknown): boolean {
   return isApiRequestError(error) && error.httpStatus === 400;
-}
-
-function draftPatchBlockedMessage(status: DraftRequestResponse["status"]): string {
-  if (status === "Admitted" || status === "RunSpawned" || status === "Submitted") {
-    return "This architecture draft is locked for review intake and can no longer be edited here. Refresh the page or return to the drafts list.";
-  }
-
-  return "This architecture draft can no longer be edited in its current state. Refresh the page or open it from the drafts list.";
 }
 
 function createIntentForDeferredDraft(fields: ArchitectureDraftFieldState): string {
@@ -205,8 +199,9 @@ export function useArchitectureDraftAutosave(
         const latestServer = await getDraftRequest(architectureId);
 
         if (latestServer.status !== "Drafting") {
-          setConflictMessage(draftPatchBlockedMessage(latestServer.status));
-          setSaveState("error");
+          args.onImmutableDraftDetected?.(latestServer);
+          setConflictMessage(null);
+          setSaveState("idle");
           patchFailedNonRetryable = true;
 
           return false;
@@ -281,6 +276,7 @@ export function useArchitectureDraftAutosave(
   }, [
     args.architectureId,
     args.onDraftCreated,
+    args.onImmutableDraftDetected,
     deferCreateUntilFirstSave,
     enabled,
     isOnline,

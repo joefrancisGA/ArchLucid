@@ -26,6 +26,7 @@ export type AwsTrustStarterFederationIdentifier = {
   readonly id: string;
   readonly label: string;
   readonly value: string;
+  readonly hint: string;
   readonly isPlaceholder: boolean;
 };
 
@@ -34,24 +35,28 @@ export const AWS_TRUST_STARTER_FEDERATION_IDENTIFIERS: readonly AwsTrustStarterF
     id: "issuer",
     label: "OIDC issuer (Entra ID)",
     value: "https://login.microsoftonline.com/{ArchLucid tenant ID}/v2.0",
+    hint: "Entra issuer URL for ArchLucid's tenant. Replace the tenant ID placeholder with the value from Connection status.",
     isPlaceholder: true,
   },
   {
     id: "audience",
     label: "Token audience",
     value: "api://AzureADTokenExchange",
+    hint: "Must match api://AzureADTokenExchange on the IAM OIDC provider and trust policy.",
     isPlaceholder: false,
   },
   {
     id: "subject",
     label: "Subject (managed identity object ID)",
     value: "{ArchLucid managed identity object ID}",
+    hint: "Object ID of ArchLucid's managed identity. The IAM trust policy sub claim must match this value.",
     isPlaceholder: true,
   },
   {
     id: "oidc-provider-arn",
     label: "IAM OIDC provider ARN (example)",
     value: "arn:aws:iam::{your AWS account ID}:oidc-provider/sts.windows.net/{ArchLucid tenant ID}",
+    hint: "Example ARN for the Entra OIDC provider in your AWS account. Replace account and tenant ID placeholders.",
     isPlaceholder: true,
   },
 ] as const;

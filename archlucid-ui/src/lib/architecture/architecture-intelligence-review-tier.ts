@@ -17,7 +17,7 @@ export function architectureIntelligenceReviewTierLabel(
     case "Trial":
       return "Light (fewest specialist roles, lowest cost)";
     case "Standard":
-      return "Standard (default)";
+      return "Balanced (recommended)";
     case "Deep":
       return "Deep (most specialist roles, highest cost)";
     default: {

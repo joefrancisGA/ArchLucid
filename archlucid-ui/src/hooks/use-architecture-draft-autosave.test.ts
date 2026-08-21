@@ -342,6 +342,8 @@ describe("useArchitectureDraftAutosave", () => {
       structuredBrief: emptyArchitectureDraftStructuredBrief(),
     };
 
+    const onImmutableDraftDetected = vi.fn();
+
     getDraftRequest.mockResolvedValueOnce({
       ...draftResponse(fields, "2026-08-11T12:00:00.000Z"),
       status: "Admitted",
@@ -352,6 +354,7 @@ describe("useArchitectureDraftAutosave", () => {
         architectureId: "draft-001",
         fields,
         actorSet,
+        onImmutableDraftDetected,
       }),
     );
 
@@ -360,7 +363,8 @@ describe("useArchitectureDraftAutosave", () => {
     });
 
     expect(patchDraftRequest).not.toHaveBeenCalled();
-    expect(result.current.saveState).toBe("error");
-    expect(result.current.conflictMessage).toContain("locked for review intake");
+    expect(onImmutableDraftDetected).toHaveBeenCalledTimes(1);
+    expect(result.current.saveState).toBe("idle");
+    expect(result.current.conflictMessage).toBeNull();
   });
 });

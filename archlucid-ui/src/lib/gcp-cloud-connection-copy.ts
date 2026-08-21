@@ -23,8 +23,23 @@ export const GCP_CONNECTION_SAVE_FAILED_ERROR =
 export const GCP_CONNECTION_VALIDATE_EMPTY_STATE =
   "Save a GCP connection in Connection details before validating access.";
 
+export const GCP_CONNECTION_PROJECT_ID_LABEL = "GCP project ID";
+
+export const GCP_CONNECTION_PROJECT_ID_HINT =
+  "GCP project that Cloud Asset Inventory will scan for this connection.";
+
+export const GCP_CONNECTION_POOL_PROVIDER_LABEL = "Workload Identity Pool provider";
+
+export const GCP_CONNECTION_POOL_PROVIDER_HINT =
+  "Full Workload Identity Pool provider resource name from Identity and access setup.";
+
+export const GCP_CONNECTION_SERVICE_ACCOUNT_LABEL = "Read-only service account email";
+
+export const GCP_CONNECTION_SERVICE_ACCOUNT_HINT =
+  "Email of the read-only service account bound to ArchLucid through Workload Identity Federation.";
+
 export const GCP_CONNECTION_RECENT_ACTIVITY_EMPTY_STATE =
-  "No collection activity yet. Save a connection and run Re-poll now to import inventory.";
+  "Save a connection and run Re-poll now to import inventory.";
 
 export function formatGcpConnectionCollectionSuccessMessage(
   resourceCount: number,

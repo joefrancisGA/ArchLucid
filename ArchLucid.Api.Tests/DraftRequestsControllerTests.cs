@@ -276,4 +276,28 @@ public sealed class DraftRequestsControllerTests
                 It.IsAny<CancellationToken>()),
             Times.Once);
     }
+
+    [Fact]
+    public async Task ReopenDraft_ReturnsOk_AndAudits()
+    {
+        DraftRequestResponse reopened = new() { DraftId = DraftId, Status = DraftRequestStatus.Drafting };
+        _service
+            .Setup(static s => s.ReopenAsync(
+                It.IsAny<ScopeContext>(),
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(reopened);
+
+        DraftRequestsController sut = BuildSut();
+
+        IActionResult result = await sut.ReopenDraft(DraftId, CancellationToken.None);
+
+        OkObjectResult ok = result.Should().BeOfType<OkObjectResult>().Subject;
+        ok.Value.Should().BeSameAs(reopened);
+        _audit.Verify(
+            static a => a.LogAsync(
+                It.Is<AuditEvent>(e => e.EventType == AuditEventTypes.DraftIntakeReopened),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
 }

@@ -74,6 +74,14 @@ describe("AwsCloudConnectionDetailClient", () => {
       expect(screen.getByTestId("aws-connection-header-status")).toHaveTextContent("Not connected");
     });
 
+    expect(screen.getByTestId("aws-connection-header-connect")).toHaveTextContent("Connect AWS account");
+    expect(screen.getByTestId("aws-connection-header-connect")).toHaveAttribute("href", "#connection-details");
+    expect(screen.getByRole("heading", { name: "Recent connection activity" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "View setup guide" })).toHaveAttribute(
+      "href",
+      "/help/cloud-connections/aws",
+    );
+
     expect(screen.getByTestId("page-contextual-help-button")).toHaveTextContent("Help");
     expect(screen.getByTestId("cloud-connections-aws-claim-discipline")).toHaveTextContent(
       CLOUD_PROVIDER_CONNECTION_CLAIM_DISCIPLINE,
@@ -101,5 +109,6 @@ describe("AwsCloudConnectionDetailClient", () => {
     });
 
     expect(screen.getByTestId("aws-connection-header-status")).not.toHaveTextContent("Not connected");
+    expect(screen.queryByTestId("aws-connection-header-connect")).not.toBeInTheDocument();
   });
 });

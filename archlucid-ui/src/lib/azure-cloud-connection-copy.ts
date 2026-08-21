@@ -26,8 +26,38 @@ export const AZURE_CONNECTION_CONNECTED_SUMMARY_LEAD =
 
 export const AZURE_CONNECTION_UPDATE_BUTTON_LABEL = "Update connection";
 
+export const AZURE_CONNECTION_CLIENT_APP_ID_LABEL = "Client/App ID";
+
+export const AZURE_CONNECTION_CLIENT_APP_ID_TERM = "client/app ID";
+
+export const AZURE_CONNECTION_CLIENT_APP_ID_HINT =
+  "Application (client) ID on the app registration Overview page in Microsoft Entra. Azure CLI prints this as appId.";
+
+export const AZURE_CONNECTION_TENANT_ID_LABEL = "Azure Tenant ID";
+
+export const AZURE_CONNECTION_TENANT_ID_HINT =
+  "Directory (tenant) ID for the Entra tenant that owns the app registration — not ArchLucid's tenant.";
+
+export const AZURE_CONNECTION_SUBSCRIPTION_IDS_LABEL = "Subscription IDs";
+
+export const AZURE_CONNECTION_SUBSCRIPTION_IDS_HINT =
+  "Azure subscription GUIDs to inventory. Separate multiple IDs with commas.";
+
+export const AZURE_CONNECTION_IDS_STEP_LEAD =
+  `Paste the Azure tenant ID, ${AZURE_CONNECTION_CLIENT_APP_ID_TERM}, and comma-separated subscription IDs from your provisioning output. ArchLucid stores identifiers only — never client secrets.`;
+
+export const AZURE_CONNECTION_ARCHLUCID_TENANT_ID_HINT =
+  "Entra tenant ID ArchLucid uses for federation. Use this in the federated credential issuer, not your customer tenant ID.";
+
+export const AZURE_CONNECTION_MANAGED_IDENTITY_OBJECT_ID_HINT =
+  "Object ID of ArchLucid's managed identity. The federated credential subject must match this value.";
+
+export const AZURE_CONNECTION_TENANT_ID_INVALID = "Enter a valid Azure tenant ID GUID.";
+
+export const AZURE_CONNECTION_CLIENT_APP_ID_INVALID = "Enter a valid client/app ID GUID.";
+
 export const AZURE_CONNECTION_RECENT_ACTIVITY_EMPTY_STATE =
-  "No collection activity yet. Save a connection and run Validate connection to import inventory.";
+  "Save a connection and run Validate connection to import inventory.";
 
 export function formatAzureConnectionValidationSuccessMessage(
   resourceCount: number,

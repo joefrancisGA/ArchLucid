@@ -5,6 +5,7 @@ import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import { REPEAT_REVIEW_LOOP_HELP_PRIMARY_ACTIONS } from "@/lib/repeat-review-loop-help-guide-content";
 import {
   REPEAT_REVIEW_LOOP_HELP_RELATED_GUIDES,
+  REPEAT_REVIEW_LOOP_HELP_RELATED_HEADING,
   repeatReviewLoopHelpRelatedGuides,
 } from "@/lib/repeat-review-loop-help-related-guides";
 
@@ -54,10 +55,7 @@ export const REPEAT_REVIEW_LOOP_HELP_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Audit trail", href: GOVERNANCE_AUDIT_PATH },
 ] as const;
 
-export const REPEAT_REVIEW_LOOP_HELP_RELATED_HEADING = "Related help" as const;
-
-/** Related help links — TB-1397 buyer-safe density (no accelerator chooser). */
 export const REPEAT_REVIEW_LOOP_HELP_RELATED: readonly EvidenceSourceLink[] =
   REPEAT_REVIEW_LOOP_HELP_RELATED_GUIDES;
 
-export { repeatReviewLoopHelpRelatedGuides };
+export { REPEAT_REVIEW_LOOP_HELP_RELATED_HEADING, repeatReviewLoopHelpRelatedGuides };

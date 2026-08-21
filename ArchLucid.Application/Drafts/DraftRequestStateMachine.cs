@@ -29,4 +29,7 @@ public static class DraftRequestStateMachine
     /// <summary>Returns <see langword="true" /> when abandon may be requested.</summary>
     public static bool AllowsAbandon(DraftRequestStatus status) =>
         status is DraftRequestStatus.Drafting or DraftRequestStatus.Admitted;
+
+    /// <summary>Returns <see langword="true" /> when an admitted draft may return to drafting.</summary>
+    public static bool AllowsReopen(DraftRequestStatus status) => status == DraftRequestStatus.Admitted;
 }

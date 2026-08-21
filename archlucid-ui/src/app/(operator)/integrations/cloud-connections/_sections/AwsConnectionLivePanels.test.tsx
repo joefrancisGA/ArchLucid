@@ -66,13 +66,10 @@ describe("AWS connection live panels (TB-1762)", () => {
     });
 
     expect(screen.getByTestId("cloud-first-inventory-coach")).toHaveAttribute("data-phase", "empty");
-
-    const emptyCoachCta = screen.getByTestId("cloud-first-inventory-coach-cta");
-    expect(emptyCoachCta).toHaveTextContent("Configure AWS");
-    expect(emptyCoachCta).toHaveAttribute("href", "#connection-details");
+    expect(screen.queryByTestId("cloud-first-inventory-coach-cta")).not.toBeInTheDocument();
 
     // P0-7: an AWS-scoped panel must not bounce the operator back to the cloud connections hub.
-    const renderedHrefs = screen.getAllByRole("link").map((link) => link.getAttribute("href"));
+    const renderedHrefs = screen.queryAllByRole("link").map((link) => link.getAttribute("href"));
     expect(renderedHrefs).not.toContain(CLOUD_CONNECTIONS_AWS_PATH);
   });
 

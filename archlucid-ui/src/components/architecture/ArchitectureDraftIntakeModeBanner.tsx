@@ -14,14 +14,13 @@ import { cn } from "@/lib/utils";
 import type { DraftRequestStatus } from "@/types/draft-intake";
 
 type ArchitectureDraftIntakeModeBannerProps = {
-  readonly status: DraftRequestStatus;
+  readonly status: DraftRequestStatus | string | null | undefined;
   readonly continueHref: string;
   readonly canUnlock: boolean;
-  readonly unlockBusy?: boolean;
-  readonly onUnlock?: () => void;
+  readonly unlockBusy: boolean;
+  readonly onUnlock: () => void;
 };
 
-/** Warns before editing when the architecture has already entered review intake. */
 export function ArchitectureDraftIntakeModeBanner(
   props: ArchitectureDraftIntakeModeBannerProps,
 ): React.JSX.Element {
@@ -32,7 +31,9 @@ export function ArchitectureDraftIntakeModeBanner(
       className={cn(DESIGN_TOKENS.callout.warn, "p-4 shadow-sm", OPERATOR_TYPOGRAPHY.body)}
     >
       <p className="m-0 font-semibold">{ARCHITECTURE_DRAFT_INTAKE_MODE_TITLE}</p>
-      <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)}>{architectureDraftIntakeModeLead(props.status)}</p>
+      <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)}>
+        {architectureDraftIntakeModeLead(props.status)}
+      </p>
       <div className="mt-3 flex flex-wrap gap-2">
         <Button type="button" variant="primary" size="sm" asChild data-testid="architecture-draft-continue-intake">
           <Link href={props.continueHref}>{ARCHITECTURE_DRAFT_INTAKE_MODE_CONTINUE_LABEL}</Link>
@@ -42,7 +43,7 @@ export function ArchitectureDraftIntakeModeBanner(
             type="button"
             variant="outline"
             size="sm"
-            disabled={props.unlockBusy === true}
+            disabled={props.unlockBusy}
             onClick={props.onUnlock}
             data-testid="architecture-draft-unlock-brief"
           >

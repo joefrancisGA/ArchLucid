@@ -45,7 +45,6 @@ import { CloudFirstInventoryCoach } from "@/components/integrations/CloudFirstIn
 import { PageHeading } from "@/components/PageHeading";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { CloudConnectionsHubVocabularyDisclosure } from "./CloudConnectionsHubVocabularyDisclosure";
-import { CloudConnectionsSecurityAssuranceBand } from "./CloudConnectionsSecurityAssuranceBand";
 import { CloudProviderSummaryCard } from "./CloudProviderSummaryCard";
 import { isCloudProviderSummaryConfigured } from "./is-cloud-provider-summary-configured";
 
@@ -368,8 +367,6 @@ export function CloudConnectionsPageClient() {
 
         <CloudConnectionsHubVocabularyDisclosure />
       </section>
-
-      <CloudConnectionsSecurityAssuranceBand />
     </div>
   );
 }

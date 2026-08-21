@@ -21,20 +21,17 @@ import type { DraftRequestStatus } from "@/types/draft-intake";
 
 type ArchitectureDraftIntakeModeDialogProps = {
   readonly open: boolean;
-  readonly status: DraftRequestStatus;
+  readonly status: DraftRequestStatus | string | null | undefined;
   readonly canUnlock: boolean;
-  readonly busy?: boolean;
+  readonly busy: boolean;
   readonly onOpenChange: (open: boolean) => void;
   readonly onContinueIntake: () => void;
   readonly onUnlock: () => void;
 };
 
-/** Intercepts navigation onto a frozen architecture so the operator chooses continue vs unlock. */
 export function ArchitectureDraftIntakeModeDialog(
   props: ArchitectureDraftIntakeModeDialogProps,
 ): React.JSX.Element {
-  const busy = props.busy === true;
-
   return (
     <AlertDialog open={props.open} onOpenChange={props.onOpenChange}>
       <AlertDialogContent data-testid="architecture-draft-intake-mode-dialog">
@@ -43,13 +40,13 @@ export function ArchitectureDraftIntakeModeDialog(
           <AlertDialogDescription>{architectureDraftIntakeModeLead(props.status)}</AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel disabled={busy}>{ARCHITECTURE_DRAFT_INTAKE_MODE_CANCEL_LABEL}</AlertDialogCancel>
+          <AlertDialogCancel disabled={props.busy}>{ARCHITECTURE_DRAFT_INTAKE_MODE_CANCEL_LABEL}</AlertDialogCancel>
           {props.canUnlock ? (
             <Button
               type="button"
               variant="outline"
               size="sm"
-              disabled={busy}
+              disabled={props.busy}
               onClick={props.onUnlock}
               data-testid="architecture-draft-intake-mode-dialog-unlock"
             >
@@ -60,7 +57,7 @@ export function ArchitectureDraftIntakeModeDialog(
             type="button"
             variant="primary"
             size="sm"
-            disabled={busy}
+            disabled={props.busy}
             onClick={props.onContinueIntake}
             data-testid="architecture-draft-intake-mode-dialog-continue"
           >

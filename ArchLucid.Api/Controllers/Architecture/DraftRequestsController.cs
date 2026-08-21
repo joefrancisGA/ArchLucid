@@ -510,6 +510,39 @@ public sealed class DraftRequestsController(
         }
     }
 
+    /// <summary>Returns an admitted draft to <see cref="DraftRequestStatus.Drafting" /> so the brief can be edited again.</summary>
+    [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
+    // idempotency-posture: operator-documented-safe-retry
+    [HttpPost("{draftId:guid}/reopen")]
+    [ProducesResponseType(typeof(DraftRequestResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> ReopenDraft(Guid draftId, CancellationToken cancellationToken)
+    {
+        ScopeContext scope = _scopeProvider.GetCurrentScope();
+
+        try
+        {
+            DraftRequestResponse? result = await _draftRequestService.ReopenAsync(scope, draftId, cancellationToken);
+
+            if (result is null)
+                return this.NotFoundProblem($"Draft '{draftId}' was not found.", ProblemTypes.ValidationFailed);
+
+            await _auditService.LogAsync(
+                BuildDraftAuditEvent(
+                    scope,
+                    AuditEventTypes.DraftIntakeReopened,
+                    new { draftId, status = result.Status.ToString() }),
+                cancellationToken);
+
+            return Ok(result);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return this.BadRequestProblem(ex.Message, ProblemTypes.ValidationFailed);
+        }
+    }
+
     private AuditEvent BuildDraftAuditEvent(ScopeContext scope, string eventType, object payload)
     {
         string actor = _actorContext.GetActor();

@@ -8,7 +8,7 @@ export function isInAppHelpFollowUpHref(href: string): boolean {
 /**
  * Prefixes help follow-up link text so readers can tell Help vs product destinations before click.
  * Help links read "Read …"; product routes read "Open …".
- * Strips titled "Related Guides" omit prefixes — the heading already implies help topics.
+ * Help-only "Related Guides" strips omit prefixes — the heading already implies help topics.
  */
 export function formatHelpFollowUpLinkAccessibleName(href: string, label: string): string {
   const trimmedLabel = label.trim();

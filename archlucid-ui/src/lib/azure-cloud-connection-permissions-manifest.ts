@@ -160,7 +160,7 @@ export const AZURE_CLOUD_CONNECTION_IDENTITY_MODEL = {
     "Assign roles to the service principal object ID for the ArchLucid read-only enterprise application in your tenant.",
   federation:
     "Add a federated identity credential on the application registration that trusts ArchLucid's managed identity — no long-lived client secrets are stored in ArchLucid.",
-  storedMetadata: "Tenant ID, application (client) ID, and subscription ID(s) only",
+  storedMetadata: "Tenant ID, client/app ID, and subscription ID(s) only",
 } as const;
 
 export const AZURE_CLOUD_CONNECTION_VERIFICATION_BEHAVIOR = {

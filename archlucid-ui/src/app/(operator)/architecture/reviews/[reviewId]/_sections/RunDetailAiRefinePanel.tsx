@@ -3,10 +3,10 @@
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 
-import { ArchitectureIntelligenceRefineResultSummary } from "@/components/architecture-intelligence/ArchitectureIntelligenceRefineResultSummary";
 import { AiBudgetSpendNotice } from "@/components/ai-budget/AiBudgetSpendNotice";
+import { ArchitectureIntelligenceAnalysisDepthSelect } from "@/components/architecture-intelligence/ArchitectureIntelligenceAnalysisDepthSelect";
+import { ArchitectureIntelligenceRefineResultSummary } from "@/components/architecture-intelligence/ArchitectureIntelligenceRefineResultSummary";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
 import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import { useLlmMonthlyBudgetExecutionGate } from "@/hooks/use-llm-monthly-budget-execution-gate";
 import {
@@ -17,12 +17,7 @@ import {
   type ClosedLoopReasoningResult,
   type ClosedLoopReasoningSourceText,
 } from "@/lib/architecture/architecture-intelligence-api";
-import {
-  ARCHITECTURE_INTELLIGENCE_REVIEW_TIERS,
-  architectureIntelligenceReviewTierLabel,
-  isArchitectureIntelligenceReviewTier,
-  type ArchitectureIntelligenceReviewTier,
-} from "@/lib/architecture/architecture-intelligence-review-tier";
+import type { ArchitectureIntelligenceReviewTier } from "@/lib/architecture/architecture-intelligence-review-tier";
 import { buildArchitectureIntelligenceRunHref } from "@/lib/architecture/architecture-intelligence-run-href";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { whyDisabledLlmBudgetExhausted } from "@/lib/why-disabled-cta";
@@ -162,29 +157,13 @@ export function RunDetailAiRefinePanel(props: RunDetailAiRefinePanelProps) {
             . Refining publishes gated findings and recommendations back into this review.
           </p>
 
-          <div className="space-y-2">
-            <Label htmlFor="run-detail-ai-refine-depth">Analysis depth</Label>
-            <select
-              id="run-detail-ai-refine-depth"
-              data-testid="run-detail-ai-refine-depth"
-              className="flex h-9 w-full max-w-md rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm"
-              value={reviewTier}
-              disabled={busy || blocksLlmExecution}
-              onChange={(event) => {
-                const next = event.target.value;
-
-                if (isArchitectureIntelligenceReviewTier(next)) {
-                  setReviewTier(next);
-                }
-              }}
-            >
-              {ARCHITECTURE_INTELLIGENCE_REVIEW_TIERS.map((tier) => (
-                <option key={tier} value={tier}>
-                  {architectureIntelligenceReviewTierLabel(tier)}
-                </option>
-              ))}
-            </select>
-          </div>
+          <ArchitectureIntelligenceAnalysisDepthSelect
+            id="run-detail-ai-refine-depth"
+            testId="run-detail-ai-refine-depth"
+            value={reviewTier}
+            disabled={busy || blocksLlmExecution}
+            onValueChange={setReviewTier}
+          />
 
           <div className="flex flex-wrap gap-2">
             <Button

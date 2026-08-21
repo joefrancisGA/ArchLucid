@@ -20,9 +20,11 @@ import { Button } from "@/components/ui/button";
 
 import { Input } from "@/components/ui/input";
 
-import { Label } from "@/components/ui/label";
-
 import { Textarea } from "@/components/ui/textarea";
+
+import { FieldHelpTooltip } from "@/components/FieldHelpTooltip";
+
+import { FormFieldLabelWithHelp } from "@/components/FormFieldLabelWithHelp";
 
 import {
 
@@ -46,9 +48,23 @@ import { sanitizeHostedAzureValidationError } from "@/lib/sanitize-hosted-azure-
 
 import {
 
+  AZURE_CONNECTION_CLIENT_APP_ID_HINT,
+
+  AZURE_CONNECTION_CLIENT_APP_ID_LABEL,
+
+  AZURE_CONNECTION_IDS_STEP_LEAD,
+
   AZURE_CONNECTION_POST_SAVE_VALIDATE_LEAD,
 
   AZURE_CONNECTION_SAVE_VALIDATE_LEAD,
+
+  AZURE_CONNECTION_SUBSCRIPTION_IDS_HINT,
+
+  AZURE_CONNECTION_SUBSCRIPTION_IDS_LABEL,
+
+  AZURE_CONNECTION_TENANT_ID_HINT,
+
+  AZURE_CONNECTION_TENANT_ID_LABEL,
 
   AZURE_CONNECTION_VALIDATION_ADMIN_REQUIRED,
 
@@ -727,7 +743,13 @@ export function Tier2ConnectionWizard({
 
                   <div className="min-w-0">
 
-                    <dt className="text-muted-foreground">{identifier.label}</dt>
+                    <dt className="inline-flex items-center gap-1 text-muted-foreground">
+
+                      <span>{identifier.label}</span>
+
+                      <FieldHelpTooltip label={identifier.label} hint={identifier.hint} />
+
+                    </dt>
 
                     <dd className="break-all font-mono text-sm">
 
@@ -827,9 +849,7 @@ export function Tier2ConnectionWizard({
 
             <p className={cn("mt-1", OPERATOR_TYPOGRAPHY.helper)}>
 
-              Paste the Azure AD tenant ID, application (client) ID, and comma-separated subscription IDs from your
-
-              provisioning output. ArchLucid stores identifiers only — never client secrets.
+              {AZURE_CONNECTION_IDS_STEP_LEAD}
 
             </p>
 
@@ -841,7 +861,15 @@ export function Tier2ConnectionWizard({
 
             <div className="space-y-2">
 
-              <Label htmlFor="tier2TenantId">Azure Tenant ID</Label>
+              <FormFieldLabelWithHelp
+
+                htmlFor="tier2TenantId"
+
+                label={AZURE_CONNECTION_TENANT_ID_LABEL}
+
+                hint={AZURE_CONNECTION_TENANT_ID_HINT}
+
+              />
 
               <Input
 
@@ -883,7 +911,15 @@ export function Tier2ConnectionWizard({
 
             <div className="space-y-2">
 
-              <Label htmlFor="tier2ClientId">Client ID (Application ID)</Label>
+              <FormFieldLabelWithHelp
+
+                htmlFor="tier2ClientId"
+
+                label={AZURE_CONNECTION_CLIENT_APP_ID_LABEL}
+
+                hint={AZURE_CONNECTION_CLIENT_APP_ID_HINT}
+
+              />
 
               <Input
 
@@ -925,7 +961,15 @@ export function Tier2ConnectionWizard({
 
             <div className="space-y-2">
 
-              <Label htmlFor="tier2SubscriptionIds">Subscription IDs</Label>
+              <FormFieldLabelWithHelp
+
+                htmlFor="tier2SubscriptionIds"
+
+                label={AZURE_CONNECTION_SUBSCRIPTION_IDS_LABEL}
+
+                hint={AZURE_CONNECTION_SUBSCRIPTION_IDS_HINT}
+
+              />
 
               <Textarea
 
@@ -1017,7 +1061,7 @@ export function Tier2ConnectionWizard({
 
             <dd data-testid="tier2-summary-tenant">{tenantId.trim() || " — "}</dd>
 
-            <dt className="text-muted-foreground">Client ID</dt>
+            <dt className="text-muted-foreground">{AZURE_CONNECTION_CLIENT_APP_ID_LABEL}</dt>
 
             <dd data-testid="tier2-summary-client">{clientId.trim() || " — "}</dd>
 

@@ -41,6 +41,9 @@ describe("AwsConnectionSection", () => {
     });
 
     expect(screen.getByTestId("aws-connection-wizard-step-ids")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Help: AWS account ID" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Help: Primary region" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Help: Read-only IAM role ARN" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Next" })).toBeInTheDocument();
     expect(screen.queryByTestId("aws-connect-submit")).not.toBeInTheDocument();
 

@@ -1,5 +1,6 @@
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 import { ASK_REVIEW_QUESTIONS_CANONICAL_PATH } from "@/lib/ask-review-questions-evidence-copy";
+import { resolveRelatedFollowUpsTitle } from "@/lib/help/related-follow-ups-title";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import { REPEAT_REVIEW_LOOP_HELP_PAGE_TITLE } from "@/lib/repeat-review-loop-help-guide-content";
 import { REPEAT_REVIEW_LOOP_HELP_CANONICAL_PATH } from "@/lib/repeat-review-loop-help-evidence-copy";
@@ -11,7 +12,9 @@ export const PRIOR_MANIFEST_RETRIEVAL_HELP_RELATED_GUIDES: readonly EvidenceSour
   { label: "Architecture packages", href: inAppHelpHref("review-packages") },
 ] as const;
 
-export const PRIOR_MANIFEST_RETRIEVAL_HELP_RELATED_HEADING = "Related help" as const;
+export const PRIOR_MANIFEST_RETRIEVAL_HELP_RELATED_HEADING = resolveRelatedFollowUpsTitle(
+  PRIOR_MANIFEST_RETRIEVAL_HELP_RELATED_GUIDES,
+);
 
 export const PRIOR_MANIFEST_RETRIEVAL_HELP_RELATED_TEST_ID = "help-prior-manifest-retrieval-related-help";
 

@@ -1,6 +1,7 @@
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 import { CLOUD_CONNECTIONS_HELP_TOPIC_LABEL } from "@/lib/cloud-connections-evidence-copy";
 import { JIRA_INTEGRATION_HELP_TOPIC_LABEL } from "@/lib/jira-integration-evidence-copy";
+import { resolveRelatedFollowUpsTitle } from "@/lib/help/related-follow-ups-title";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import { TEAMS_INTEGRATION_HELP_TOPIC_LABEL } from "@/lib/teams-integration-evidence-copy";
 
@@ -11,7 +12,9 @@ export const INTEGRATION_READINESS_HELP_RELATED_GUIDES: readonly EvidenceSourceL
   { label: JIRA_INTEGRATION_HELP_TOPIC_LABEL, href: inAppHelpHref("jira-integration") },
 ] as const;
 
-export const INTEGRATION_READINESS_HELP_RELATED_HEADING = "Related help" as const;
+export const INTEGRATION_READINESS_HELP_RELATED_HEADING = resolveRelatedFollowUpsTitle(
+  INTEGRATION_READINESS_HELP_RELATED_GUIDES,
+);
 
 export const INTEGRATION_READINESS_HELP_RELATED_TEST_ID = "help-integration-readiness-related-help";
 

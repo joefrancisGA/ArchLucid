@@ -129,6 +129,7 @@ DraftIntakePatched
 DraftIntakeQuestionAnswered
 DraftIntakeQuestionSkipped
 DraftIntakeReasoned
+DraftIntakeReopened
 DraftIntakeSubmitted
 DraftIntakeTerminalPurged
 EmailOtpCodeRequested
