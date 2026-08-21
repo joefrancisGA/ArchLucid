@@ -1,12 +1,10 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import dynamic from "next/dynamic";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useMemo, useState } from "react";
 
 import { InlineGuidanceText } from "@/components/InlineGuidanceText";
-import { NewRunWizardSkeleton } from "@/components/skeletons/NewRunWizardSkeleton";
 import { Button } from "@/components/ui/button";
 import { isAcceleratorPackId } from "@/lib/accelerator-wizard-presets";
 import {
@@ -30,34 +28,24 @@ import {
   resolveInitialReviewsNewActivePath,
   type ReviewsNewActivePath,
 } from "./reviews-new-path-switcher-state";
-
-const FirstPilotIntakeWizard = dynamic(
-  () => import("./FirstPilotIntakeWizard").then((module) => module.FirstPilotIntakeWizard),
-  { loading: () => <NewRunWizardSkeleton /> },
-);
-
-const SocraticIntakeWizard = dynamic(
-  () => import("./SocraticIntakeWizard").then((module) => module.SocraticIntakeWizard),
-  { loading: () => <NewRunWizardSkeleton /> },
-);
-
-const NewRunWizardClient = dynamic(
-  () => import("./NewRunWizardClient").then((module) => module.NewRunWizardClient),
-  { loading: () => <NewRunWizardSkeleton /> },
-);
+import {
+  ReviewsNewFirstPilotIntakeWizardDeferred,
+  ReviewsNewNewRunWizardClientDeferred,
+  ReviewsNewSocraticIntakeWizardDeferred,
+} from "./reviews-new-path-switcher-deferred-chunks";
 
 function ReviewsNewActiveWizard(props: { readonly activePath: ReviewsNewActivePath }): React.JSX.Element {
   const { activePath } = props;
 
   if (activePath === "guided-intake") {
-    return <SocraticIntakeWizard />;
+    return <ReviewsNewSocraticIntakeWizardDeferred />;
   }
 
   if (activePath === "detailed") {
-    return <NewRunWizardClient embeddedInPathSwitcher />;
+    return <ReviewsNewNewRunWizardClientDeferred embeddedInPathSwitcher />;
   }
 
-  return <FirstPilotIntakeWizard />;
+  return <ReviewsNewFirstPilotIntakeWizardDeferred />;
 }
 
 /**

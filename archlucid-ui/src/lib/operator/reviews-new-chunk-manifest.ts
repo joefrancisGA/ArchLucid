@@ -121,4 +121,32 @@ export const REVIEWS_NEW_CHUNK_MANIFEST: readonly DeferredChunkManifestEntry[] =
     modulePath: "@/app/(operator)/architecture/reviews/new/SimplifiedPilotWizard",
     exportName: "SimplifiedPilotWizard",
   },
+  {
+    id: "reviews-new-first-pilot-intake-wizard",
+    label: "Loading first pilot intake wizard",
+    variant: "panel",
+    modulePath: "@/app/(operator)/architecture/reviews/new/FirstPilotIntakeWizard",
+    exportName: "FirstPilotIntakeWizard",
+  },
+  {
+    id: "reviews-new-socratic-intake-wizard",
+    label: "Loading guided intake wizard",
+    variant: "panel",
+    modulePath: "@/app/(operator)/architecture/reviews/new/SocraticIntakeWizard",
+    exportName: "SocraticIntakeWizard",
+  },
+  {
+    id: "reviews-new-new-run-wizard-client",
+    label: "Loading detailed review wizard",
+    variant: "panel",
+    modulePath: "@/app/(operator)/architecture/reviews/new/NewRunWizardClient",
+    exportName: "NewRunWizardClient",
+  },
+  {
+    id: "reviews-new-path-switcher",
+    label: "Loading review start paths",
+    variant: "panel",
+    modulePath: "@/app/(operator)/architecture/reviews/new/ReviewsNewPathSwitcher",
+    exportName: "ReviewsNewPathSwitcher",
+  },
 ] as const;

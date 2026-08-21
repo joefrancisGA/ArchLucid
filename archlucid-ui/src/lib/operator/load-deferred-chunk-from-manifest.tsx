@@ -524,6 +524,30 @@ function resolveDeferredChunkImportLoader(
           (module) => module.SimplifiedPilotWizard,
         ),
       ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "reviews-new-first-pilot-intake-wizard":
+      return deferredChunkLoader(() =>
+        import("@/app/(operator)/architecture/reviews/new/FirstPilotIntakeWizard").then(
+          (module) => module.FirstPilotIntakeWizard,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "reviews-new-socratic-intake-wizard":
+      return deferredChunkLoader(() =>
+        import("@/app/(operator)/architecture/reviews/new/SocraticIntakeWizard").then(
+          (module) => module.SocraticIntakeWizard,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "reviews-new-new-run-wizard-client":
+      return deferredChunkLoader(() =>
+        import("@/app/(operator)/architecture/reviews/new/NewRunWizardClient").then(
+          (module) => module.NewRunWizardClient,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "reviews-new-path-switcher":
+      return deferredChunkLoader(() =>
+        import("@/app/(operator)/architecture/reviews/new/ReviewsNewPathSwitcher").then(
+          (module) => module.ReviewsNewPathSwitcher,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
     case "reviews-hub-inventory":
       return deferredChunkLoader(() =>
         import("@/app/(operator)/architecture/reviews/_sections/ReviewsHubReviewInventory").then(
