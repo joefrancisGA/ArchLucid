@@ -15,11 +15,11 @@ export const RUN_DETAIL_ACTIVITY_PRE_COMMIT_SOURCES: readonly RunDetailActivityS
   { label: "Findings queue", href: "/governance/findings" },
   { label: "Search review evidence", href: "/insights/search-review-evidence" },
   { label: "Compare two reviews", href: "/insights/compare-two-reviews" },
-  { label: "Governance approval help", href: inAppHelpHref("governance-approval") },
+  { label: "Resolve outcomes help", href: inAppHelpHref("governance-approval") },
 ] as const;
 
 export const RUN_DETAIL_ACTIVITY_PRE_COMMIT_SOURCES_INTRO =
-  "Use these follow-ups when create-home Activity progress turns into findings triage, evidence search, or approval readiness.";
+  "Use these follow-ups when create-home Activity progress turns into findings triage, evidence search, or export readiness.";
 
 export const RUN_DETAIL_ACTIVITY_PRE_COMMIT_CLAIM_DISCIPLINE =
   "This create-home Activity tab shows assessment progress and baseline context before finalize. It is not a signed-record Sources trail";

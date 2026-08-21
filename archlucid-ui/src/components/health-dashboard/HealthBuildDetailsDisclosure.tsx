@@ -31,15 +31,15 @@ export function HealthBuildDetailsDisclosure(props: Props) {
         <dl className={cn("grid gap-2 sm:grid-cols-2", OPERATOR_TYPOGRAPHY.body)}>
           <div>
             <dt className="text-al-text-secondary">Release version</dt>
-            <dd className="m-0 text-al-text-primary">{props.version.informationalVersion ?? "—"}</dd>
+            <dd className="m-0 text-al-text-primary">{props.version.informationalVersion ?? " — "}</dd>
           </div>
           <div>
             <dt className="text-al-text-secondary">Environment</dt>
-            <dd className="m-0 text-al-text-primary">{props.version.environment ?? "—"}</dd>
+            <dd className="m-0 text-al-text-primary">{props.version.environment ?? " — "}</dd>
           </div>
           <div>
             <dt className="text-al-text-secondary">Build timestamp</dt>
-            <dd className="m-0 text-al-text-primary">{props.version.buildTimestamp ?? "—"}</dd>
+            <dd className="m-0 text-al-text-primary">{props.version.buildTimestamp ?? " — "}</dd>
           </div>
           <div>
             <dt className="text-al-text-secondary">Service uptime</dt>
@@ -47,7 +47,7 @@ export function HealthBuildDetailsDisclosure(props: Props) {
           </div>
           <div className="sm:col-span-2">
             <dt className="text-al-text-secondary">Source commit</dt>
-            <dd className={cn("m-0 font-mono text-al-text-primary", OPERATOR_TYPOGRAPHY.micro)}>{props.version.commitSha ?? "—"}</dd>
+            <dd className={cn("m-0 font-mono text-al-text-primary", OPERATOR_TYPOGRAPHY.micro)}>{props.version.commitSha ?? " — "}</dd>
           </div>
         </dl>
       )}

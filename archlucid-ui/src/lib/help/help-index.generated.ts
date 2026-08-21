@@ -4322,7 +4322,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "1-do-you-have-soc-2-type-ii",
     "sectionHeading": "1. Do you have SOC 2 Type II?",
-    "excerpt": "Answer: Today we publish a SOC 2 self-assessment and control mapping—SOC 2 Type II CPA attestation is not currently issued ([SOC 2 self-assessment](/help/soc2-self-assessment)). Type I followed by Type II is the typical SaaS roadmap once operating evidence exists alongside budget."
+    "excerpt": "Answer: Today we publish a SOC 2 self-assessment and control mapping — SOC 2 Type II CPA attestation is not currently issued ([SOC 2 self-assessment](/help/soc2-self-assessment)). Type I followed by Type II is the typical SaaS roadmap once operating evidence exists alongside budget."
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
@@ -4371,14 +4371,14 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "8-what-happens-if-archlucid-ceases-trading",
     "sectionHeading": "8. What happens if ArchLucid ceases trading?",
-    "excerpt": "Answer: Operational continuity hinges on contractual termination assistance, export rights, negotiated escrow arrangements, and staged migration timelines—explicit source-code escrow is negotiable rather than universally bundled in starter paper. Request MSA / Order Form language through legal / sales diligence."
+    "excerpt": "Answer: Operational continuity hinges on contractual termination assistance, export rights, negotiated escrow arrangements, and staged migration timelines — explicit source-code escrow is negotiable rather than universally bundled in starter paper. Request MSA / Order Form language through legal / sales diligence."
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "9-do-you-maintain-cyber-insurance",
     "sectionHeading": "9. Do you maintain cyber insurance?",
-    "excerpt": "Answer: Procurement should request current coverage limits, carrier, renewal date, and claims history directly from Vendor during diligence—figures change year to year. Do not treat informal marketing copy as a certificate of insurance."
+    "excerpt": "Answer: Procurement should request current coverage limits, carrier, renewal date, and claims history directly from Vendor during diligence — figures change year to year. Do not treat informal marketing copy as a certificate of insurance."
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",
@@ -4406,7 +4406,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "trust-progression-timeline-informal",
     "sectionHeading": "Trust progression timeline (informal)",
-    "excerpt": "Note: Dates are illustrative—bind via executed Order Form milestones when procuring regulated workloads. Stripped from `/help/procurement` buyer presentation (internal enablement)."
+    "excerpt": "Note: Dates are illustrative — bind via executed Order Form milestones when procuring regulated workloads. Stripped from `/help/procurement` buyer presentation (internal enablement)."
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",

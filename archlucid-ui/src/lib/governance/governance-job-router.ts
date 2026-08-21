@@ -60,7 +60,7 @@ export type GovernanceJobRouter = {
 
 /** Chooser heading - steers operators before they open the wrong governance home. */
 
-export const GOVERNANCE_JOB_ROUTER_HEADING = "Which governance queue am I in?" as const;
+export const GOVERNANCE_JOB_ROUTER_HEADING = "Which approval queue am I in?" as const;
 
 
 
@@ -68,11 +68,11 @@ export const GOVERNANCE_JOB_APPROVE_GOVERNANCE: GovernanceJobRouterOption = {
 
   id: "approve-governance",
 
-  label: "Approve governance",
+  label: "Resolve outcomes",
 
   whenToUse:
 
-    "Use the Approval queue to submit reviews for governance approval and record authorized decisions.",
+    "Use the Approval queue to submit reviews for resolve outcomes and record authorized decisions.",
 
   href: GOVERNANCE_APPROVAL_QUEUE_PATH,
 
@@ -88,7 +88,7 @@ export const GOVERNANCE_JOB_TRIAGE_FINDINGS: GovernanceJobRouterOption = {
 
   whenToUse:
 
-    "Use the findings queue to disposition findings, assign owners, and clear open governance items.",
+    "Use the findings queue to disposition findings, assign owners, and clear open review items.",
 
   href: GOVERNANCE_FINDINGS_CANONICAL_PATH,
 
@@ -120,7 +120,7 @@ export const GOVERNANCE_JOB_RECORD_DECISIONS: GovernanceJobRouterOption = {
 
   whenToUse:
 
-    "Use the Decision register to browse architecture decisions locked with sealed review records.",
+    "Use the Decision register to browse architecture decisions locked with finalized review records.",
 
   href: DECISION_REGISTER_CANONICAL_PATH,
 

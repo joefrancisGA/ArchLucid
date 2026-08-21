@@ -136,7 +136,7 @@ describe("IdentityProvidersOidcPageView", () => {
     expect(screen.getByTestId("identity-providers-oidc-loading")).toHaveTextContent(
       IDENTITY_PROVIDERS_OIDC_LOADING,
     );
-    expect(screen.queryByText("—")).not.toBeInTheDocument();
+    expect(screen.queryByText(" — ")).not.toBeInTheDocument();
   });
 
   it("shows empty state instead of em-dashes when OIDC payload is missing (TB-1914)", () => {
@@ -145,7 +145,7 @@ describe("IdentityProvidersOidcPageView", () => {
     expect(screen.getByTestId("identity-providers-oidc-empty")).toHaveTextContent(
       IDENTITY_PROVIDERS_OIDC_EMPTY,
     );
-    expect(screen.queryByText("—")).not.toBeInTheDocument();
+    expect(screen.queryByText(" — ")).not.toBeInTheDocument();
   });
 
   it("uses StatusTag instead of em-dashes when payload is present but authority and audience are empty", () => {
@@ -177,7 +177,7 @@ describe("IdentityProvidersOidcPageView", () => {
     expect(screen.getByTestId("identity-providers-oidc-role-mapping-status")).toHaveTextContent(
       IDENTITY_PROVIDERS_STATUS_NOT_CONFIGURED,
     );
-    expect(screen.queryByText("—")).not.toBeInTheDocument();
+    expect(screen.queryByText(" — ")).not.toBeInTheDocument();
   });
 
   it("warns when workspace uses local development sign-in with SSO wizard link", () => {

@@ -49,7 +49,7 @@ function formatPackDate(value: string | null | undefined): string {
   const raw = value?.trim() ?? "";
 
   if (raw.length === 0) {
-    return "—";
+    return " — ";
   }
 
   const ms = Date.parse(raw);
@@ -85,7 +85,7 @@ export function PolicyPackGenericDetail(props: PolicyPackGenericDetailProps): Re
   const description =
     packRecord.description.trim().length > 0
       ? packRecord.description.trim()
-      : "Review published versions, inspect how rules apply to this scope, and continue governance workflow steps from the policy pack library.";
+      : "Review published versions, inspect how rules apply to this scope, and continue approval workflow steps from the policy pack library.";
   const rulesResolution = resolveResponsibleAiPolicyRuleRows(packContent, {
     hasPackRecord: true,
     usePlatformTemplateFallback: false,
@@ -120,7 +120,7 @@ export function PolicyPackGenericDetail(props: PolicyPackGenericDetailProps): Re
             value={formatPackDate(packRecord.activatedUtc ?? packRecord.createdUtc)}
           />
           <InlineMetadataLine label="Pack type" value={packRecord.packType || "Custom"} />
-          <InlineMetadataLine label="Version" value={packRecord.currentVersion?.trim() || "—"} />
+          <InlineMetadataLine label="Version" value={packRecord.currentVersion?.trim() || " — "} />
         </CardContent>
       </Card>
 

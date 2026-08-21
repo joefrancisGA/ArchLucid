@@ -92,7 +92,7 @@ export type SponsorBusinessImpactCategoryCounts = {
 
 function formatUsd(value: number | null): string {
   if (typeof value !== "number" || !Number.isFinite(value)) {
-    return "—";
+    return " — ";
   }
 
   return new Intl.NumberFormat(undefined, {

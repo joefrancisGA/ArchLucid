@@ -17,7 +17,8 @@
         "sourceId": null,
         "properties": {
           "text": "Authenticate users"
-        }
+        },
+        "reasoningTrace": null
       },
       {
         "nodeId": "t1",
@@ -26,7 +27,8 @@
         "category": "network",
         "sourceType": null,
         "sourceId": null,
-        "properties": {}
+        "properties": {},
+        "reasoningTrace": null
       },
       {
         "nodeId": "s1",
@@ -38,7 +40,8 @@
         "properties": {
           "controlId": "AC-2",
           "status": "missing"
-        }
+        },
+        "reasoningTrace": null
       },
       {
         "nodeId": "c1",
@@ -51,7 +54,8 @@
           "budgetName": "Prod",
           "maxMonthlyCost": "5000",
           "costRisk": "high"
-        }
+        },
+        "reasoningTrace": null
       }
     ],
     "edges": [
@@ -62,7 +66,9 @@
         "edgeType": "RELATES_TO",
         "label": "relates to",
         "weight": 1,
-        "properties": {}
+        "inferenceSource": null,
+        "properties": {},
+        "reasoningTrace": null
       },
       {
         "edgeId": "p1",
@@ -71,7 +77,9 @@
         "edgeType": "PROTECTS",
         "label": "protects",
         "weight": 1,
-        "properties": {}
+        "inferenceSource": null,
+        "properties": {},
+        "reasoningTrace": null
       }
     ],
     "warnings": []

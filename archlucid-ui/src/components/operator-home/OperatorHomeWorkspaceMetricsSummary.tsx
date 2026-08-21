@@ -128,7 +128,7 @@ export function OperatorHomeWorkspaceMetricsSummary(props: OperatorHomeWorkspace
             }
           />
           <MetricItem
-            label="Governance warnings"
+            label="Review warnings"
             value={String(metrics.governanceWarnings)}
             href={OPERATOR_HOME_GOVERNANCE_WARNINGS_HREF}
           />
@@ -171,7 +171,7 @@ export function OperatorHomeWorkspaceMetricsSummary(props: OperatorHomeWorkspace
           }
         />
         <MetricItem
-          label="Governance warnings"
+          label="Review warnings"
           value={String(metrics.governanceWarnings)}
           href={OPERATOR_HOME_GOVERNANCE_WARNINGS_HREF}
         />

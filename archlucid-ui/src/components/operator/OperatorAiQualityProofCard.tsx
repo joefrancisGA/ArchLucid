@@ -14,7 +14,7 @@ import {
 
 function formatMetric(value: number | null, digits: number): string {
   if (value === null || !Number.isFinite(value)) {
-    return "—";
+    return " — ";
   }
 
   return value.toFixed(digits);

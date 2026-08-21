@@ -43,6 +43,7 @@ import {
 } from "@/lib/buyer/buyer-safe-review-navigation";
 import {
   BUYER_RUNS_DASHBOARD_NO_APPROVED_PACKAGES,
+  BUYER_RUNS_DASHBOARD_OPEN_ALL_REVIEWS_CTA,
   BUYER_RUNS_DASHBOARD_RECENT_LABEL_EMPTY,
   BUYER_RUNS_DASHBOARD_RECENT_SUMMARY,
   BUYER_RUNS_DASHBOARD_SECTION_HEADING,
@@ -477,7 +478,12 @@ export function RunsDashboardPanelClient({
                 ) : null}
               </div>
               )}
-              <div className={cn("flex flex-wrap items-center gap-2", buyerPolishedShell ? "" : OPERATOR_LAYOUT.inlineGap)}>
+              <div
+                className={cn(
+                  "flex flex-wrap items-center gap-2",
+                  buyerPolishedShell ? "justify-between" : OPERATOR_LAYOUT.inlineGap,
+                )}
+              >
                 {buyerPolishedShell ? (
                   <div
                     className="flex flex-wrap gap-1.5"
@@ -542,7 +548,17 @@ export function RunsDashboardPanelClient({
                     ))}
                   </TabsList>
                 )}
+                {buyerPolishedShell && hideHeading ? (
+                  <Link
+                    href={openAllReviewsHref}
+                    className={cn("inline-block shrink-0 font-semibold", OPERATOR_LINK.nav)}
+                    data-testid="runs-dashboard-open-all-reviews"
+                  >
+                    {BUYER_RUNS_DASHBOARD_OPEN_ALL_REVIEWS_CTA}
+                  </Link>
+                ) : null}
               </div>
+              {buyerPolishedShell && hideHeading ? null : (
               <p className={cn("m-0", OPERATOR_TYPE_SCALE.helper, "text-neutral-600 dark:text-neutral-400")}>
                 {isRecentListTab
                   ? buyerPolishedShell
@@ -558,6 +574,7 @@ export function RunsDashboardPanelClient({
                   ? "Reviews finalized, findings surfaced, and average time to finalization."
                   : null}
               </p>
+              )}
             </CardHeader>
           ) : null}
           <CardContent

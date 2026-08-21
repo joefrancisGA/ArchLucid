@@ -23,6 +23,15 @@ vi.mock("@/hooks/use-architecture-draft-registry-entries", () => ({
 
 import { ArchitectureDraftListClient } from "./ArchitectureDraftListClient";
 
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ push: vi.fn(), replace: vi.fn() }),
+}));
+
+vi.mock("@/lib/api/draft-intake-api", () => ({
+  getDraftRequest: vi.fn(),
+  reopenDraftRequest: vi.fn(),
+}));
+
 function entry(
   overrides: Partial<ArchitectureDraftRegistryEntry> & Pick<ArchitectureDraftRegistryEntry, "architectureId">,
 ): ArchitectureDraftRegistryEntry {

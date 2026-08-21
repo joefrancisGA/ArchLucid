@@ -24,7 +24,7 @@ export const enterpriseMutationControlDisabledTitle =
   "Requires elevated permissions in this workspace; the API still enforces every write.";
 
 /**
- * Audit CSV export uses **`RequireAuditor`** on the API (Auditor **or** Admin)—stricter than Execute-tier pack
+ * Audit CSV export uses **`RequireAuditor`** on the API (Auditor **or** Admin) — stricter than Execute-tier pack
  * mutations; align the Export button with **`/me` role claims**, not `useOperateCapability`.
  */
 export const auditExportControlDisabledTitle =
@@ -56,7 +56,7 @@ export const governanceResolutionRankReaderLine =
   "Policy pack and workflow changes require architect permission.";
 
 export const governanceResolutionRankOperatorLine =
-  "Change pack order on Policy packs or Governance workflow—not on this page.";
+  "Change pack order on Policy packs or Governance workflow — not on this page.";
 
 const governanceResolutionPageLead =
   "See which governance packs, controls, and workflow rules are currently effective for this workspace. Use this page to diagnose policy conflicts, precedence, and generated governance decisions.";
@@ -85,7 +85,7 @@ export const governanceResolutionRawOutputAccordionLabel = "Raw resolution outpu
 export const governanceResolutionRefreshPolicySectionHeading = "Refresh policy resolution";
 
 export const governanceResolutionChangeRelatedControlsLead =
-  "Refresh the effective policy after changing policy packs or governance workflow settings.";
+  "Refresh the effective policy after changing policy packs or approval workflow settings.";
 
 /**
  * Policy resolution — extra line under **Refresh policy resolution** when **`useOperateCapability()`** is
@@ -404,11 +404,11 @@ export const policyPacksPageLeadReaderBuyerPolished =
 
 /** Policy packs — outcome banner under headers (`policy-packs/page.tsx`). */
 export const policyPacksOutcomeBannerLine =
-  "Versions and assigns packs for this scope; enforcement applies through governance resolution and review finalization—not from this page alone.";
+  "Versions and assigns packs for this scope; enforcement applies through governance resolution and review finalization — not from this page alone.";
 
 /** Policy packs — delta demo checklist link (improvement #2, assessment LATEST_GPT55). */
 export const policyPacksDeltaDemoBannerLine =
-  "Demo the policy moat: same committed review, stricter pack enforcement, different pre-commit gate outcome — see the policy-pack delta demo script in product documentation.";
+  "Demo the policy moat: same committed review, stricter pack enforcement, different approval check outcome — see the policy-pack delta demo script in product documentation.";
 
 /** Policy packs — **Current policy packs** section heading (`policy-packs/page.tsx`). */
 export const policyPacksCurrentPacksHeadingOperator = "Current policy packs";

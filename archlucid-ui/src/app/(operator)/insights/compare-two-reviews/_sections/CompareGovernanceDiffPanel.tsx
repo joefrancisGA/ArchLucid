@@ -26,7 +26,7 @@ export type CompareGovernanceDiffPanelProps = {
 
 function formatRuleSetLabel(ruleSetId: string | null, ruleSetVersion: string | null): string {
   if (ruleSetId === null) {
-    return "—";
+    return " — ";
   }
 
   if (ruleSetVersion !== null && ruleSetVersion.length > 0) {
@@ -202,7 +202,7 @@ export function CompareGovernanceDiffPanel(props: CompareGovernanceDiffPanelProp
             >
               <StatusTag kind="needs-attention" label={`Changed ${change.field}`} />
               <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                {change.baselineValue ?? "—"} → {change.targetValue ?? "—"}
+                {change.baselineValue ?? " — "} → {change.targetValue ?? " — "}
               </p>
             </li>
           ))}

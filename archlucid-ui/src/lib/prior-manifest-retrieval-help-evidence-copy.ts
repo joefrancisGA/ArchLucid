@@ -34,7 +34,7 @@ export const PRIOR_MANIFEST_RETRIEVAL_HELP_SOURCES: readonly EvidenceSourceLink[
   { label: "Search review evidence", href: "/insights/search-review-evidence" },
   { label: "Ask review questions", href: "/insights/ask-review-questions" },
   { label: "Reviews", href: REVIEWS_LIST_PATH },
-  { label: "Sealed review records", href: SIGNED_RECORDS_LIST_PATH },
+  { label: "Finalized review records", href: SIGNED_RECORDS_LIST_PATH },
   { label: "Pilot guide", href: inAppHelpHref("pilot-guide") },
 ] as const;
 

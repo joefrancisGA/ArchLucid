@@ -45,7 +45,7 @@ describe("RunDetailGovernanceDecisionSection", () => {
 
     expect(screen.queryByTestId("run-detail-governance-sources")).toBeNull();
     expect(screen.getByTestId("run-detail-governance-help-cites")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Governance approval help" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Resolve outcomes help" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Audit trail help" })).toBeInTheDocument();
     expect(screen.getByTestId("run-detail-governance-claim-discipline")).toHaveTextContent(
       /Where governance decisions are recorded/i,

@@ -31,7 +31,7 @@ export function resolveSponsorScorecardHoursSavedDisplay(input: {
 
   if (input.reviewsCount <= 0) {
     return {
-      valueText: "—",
+      valueText: " — ",
       caption: "Not enough severity data",
     };
   }
@@ -40,7 +40,7 @@ export function resolveSponsorScorecardHoursSavedDisplay(input: {
 
   if (input.buyerPolished) {
     return {
-      valueText: "—",
+      valueText: " — ",
       caption: "Not enough severity data to estimate hours saved",
     };
   }

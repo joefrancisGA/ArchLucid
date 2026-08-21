@@ -15,7 +15,7 @@ describe("RunDetailEvidenceInventorySection", () => {
   it("explains sealed records and links to a new review for committed packages", () => {
     render(<RunDetailEvidenceInventorySection items={[]} hasManifest />);
 
-    expect(screen.getByText(/sealed review record is sealed/i)).toBeInTheDocument();
+    expect(screen.getByText(/finalized review record is locked/i)).toBeInTheDocument();
     expect(screen.queryByText(/Upload supporting files/i)).not.toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Start a new review" })).toHaveAttribute("href", REVIEWS_NEW_PATH);
   });

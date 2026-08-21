@@ -21,11 +21,12 @@ import { resolveOperatorHomeWorkspacePhase } from "@/lib/resolve-operator-home-w
  */
 export function OperatorHomeStickinessCockpit(): ReactElement | null {
   const hasCommittedArchitectureReview = useNavCommittedArchitectureReview();
-  const { hasWorkspaceReviews } = useOperatorHomeWorkspaceActivity();
+  const { hasWorkspaceReviews, hasOverviewReviewRows } = useOperatorHomeWorkspaceActivity();
   const draftEntries = useArchitectureDraftRegistryEntries();
   const commitQuery = useCorePilotCommitContextQuery();
   const workspacePhase = resolveOperatorHomeWorkspacePhase({
     hasWorkspaceReviews,
+    hasOverviewReviewRows,
     draftCount: draftEntries.length,
     hasCommittedManifest:
       hasCommittedArchitectureReview || commitQuery.data?.hasCommittedManifest === true,

@@ -61,7 +61,7 @@ export function GovernanceWorkflowQueryCard(props: GovernanceWorkflowQueryCardPr
     <>
       {hideGovernanceQueryLoadCard && activeRunId !== null ? (
         <p className={cn("mb-4 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-          Showing governance workflow for <strong>{buyerFacingReviewLinkLabelFromRunId(activeRunId)}</strong>.
+          Showing approval workflow for <strong>{buyerFacingReviewLinkLabelFromRunId(activeRunId)}</strong>.
         </p>
       ) : null}
 

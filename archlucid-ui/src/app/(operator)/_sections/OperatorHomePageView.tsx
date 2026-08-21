@@ -15,7 +15,7 @@ import {
 } from "@/lib/design-tokens";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { deriveOperatorHomeWorkspaceMetrics } from "@/lib/operator/operator-home-workspace-metrics";
-import { resolveOperatorHomeWorkspacePhase } from "@/lib/resolve-operator-home-workspace-phase";
+import { resolveOperatorHomeWorkspacePhase, deriveOperatorHomeWorkspacePhaseSignalsFromOverviewRuns } from "@/lib/resolve-operator-home-workspace-phase";
 import { OperatorHomeRefreshProvider } from "@/lib/operator/operator-home-refresh-context";
 import { OPERATOR_HOME_RECENT_REVIEWS_HEADING } from "@/lib/operator/operator-home-recent-reviews-heading";
 import {
@@ -154,9 +154,14 @@ function OperatorHomePageBody(props: {
     props.model.runsDashboard.items,
     props.model.runsDashboard.totalCount,
   );
+  const overviewPhaseSignals = deriveOperatorHomeWorkspacePhaseSignalsFromOverviewRuns(
+    props.model.runsDashboard.items,
+    props.model.runsDashboard.totalCount,
+  );
   const sections = composeOperatorHomeSections({
     phaseSignals: {
       hasWorkspaceReviews: workspaceMetrics.hasReviews,
+      hasOverviewReviewRows: overviewPhaseSignals.hasOverviewReviewRows,
       draftCount: 0,
       hasCommittedManifest: workspaceMetrics.reviewPackagesCommitted > 0,
       openFindingsCount: workspaceMetrics.openFindings,
@@ -169,6 +174,7 @@ function OperatorHomePageBody(props: {
   return (
     <OperatorHomeWorkspaceActivityProvider
       initialHasReviews={workspaceMetrics.hasReviews}
+      initialHasOverviewReviewRows={overviewPhaseSignals.hasOverviewReviewRows}
       initialOpenFindingsCount={workspaceMetrics.openFindings}
     >
       {sections.map((section) =>
@@ -190,15 +196,20 @@ function resolveOperatorHomeAttentionKindStripVisible(
     model.runsDashboard.items,
     model.runsDashboard.totalCount,
   );
+  const overviewPhaseSignals = deriveOperatorHomeWorkspacePhaseSignalsFromOverviewRuns(
+    model.runsDashboard.items,
+    model.runsDashboard.totalCount,
+  );
   const phase = resolveOperatorHomeWorkspacePhase({
     hasWorkspaceReviews: workspaceMetrics.hasReviews,
+    hasOverviewReviewRows: overviewPhaseSignals.hasOverviewReviewRows,
     draftCount: 0,
     hasCommittedManifest: workspaceMetrics.reviewPackagesCommitted > 0,
     openFindingsCount: workspaceMetrics.openFindings,
     governanceWarningsCount: workspaceMetrics.governanceWarnings,
   });
 
-  return phase !== "eval-empty" && workspaceMetrics.hasReviews;
+  return phase !== "eval-empty" && overviewPhaseSignals.hasOverviewReviewRows;
 }
 
 /** Landing page: hero CTA, workspace activity, and collapsed advanced guidance. */

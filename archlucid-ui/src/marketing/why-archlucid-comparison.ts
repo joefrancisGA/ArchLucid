@@ -79,6 +79,6 @@ export const WHY_ARCHLUCID_COMPARISON_ROWS: readonly WhyArchLucidComparisonRow[]
       "Static architecture decision logs **without traversable evidence linkage** often require readers to open many attachments per finding (**illustrative, not benchmarked** — category pattern, not a cited attachment-count study).",
     citation: "https://en.wikipedia.org/wiki/Data_provenance",
     narrativeParagraph:
-      "The provenance endpoint deliberately returns **422** until the sealed review record, graph snapshot, findings snapshot, and trace exist — that honesty avoids marketing a graph that is not there. The evidence-chain service is what feeds richer explanations and pilot deltas when data is present. The knowledge-graph doc is the operator-facing map of how to read the UI graph modes.",
+      "The provenance endpoint deliberately returns **422** until the finalized review record, graph snapshot, findings snapshot, and trace exist — that honesty avoids marketing a graph that is not there. The evidence-chain service is what feeds richer explanations and pilot deltas when data is present. The knowledge-graph doc is the operator-facing map of how to read the UI graph modes.",
   },
 ];

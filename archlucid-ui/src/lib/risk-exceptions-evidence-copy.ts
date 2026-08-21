@@ -24,5 +24,5 @@ export const RISK_EXCEPTIONS_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Decision register", href: GOVERNANCE_DECISION_REGISTER_PATH },
   { label: "Audit trail", href: GOVERNANCE_AUDIT_PATH },
   { label: "Findings help", href: inAppHelpHref("findings") },
-  { label: "Governance approval help", href: inAppHelpHref("governance-approval") },
+  { label: "Resolve outcomes help", href: inAppHelpHref("governance-approval") },
 ] as const;

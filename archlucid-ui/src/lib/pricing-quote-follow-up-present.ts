@@ -30,7 +30,7 @@ export function extractEmailDomain(workEmail: string): string {
   const atIndex = workEmail.lastIndexOf("@");
 
   if (atIndex < 0 || atIndex === workEmail.length - 1) {
-    return "—";
+    return " — ";
   }
 
   return workEmail.slice(atIndex + 1);
@@ -38,7 +38,7 @@ export function extractEmailDomain(workEmail: string): string {
 
 export function formatPricingQuoteAgeHours(ageHours: number): string {
   if (!Number.isFinite(ageHours) || ageHours < 0) {
-    return "—";
+    return " — ";
   }
 
   if (ageHours < 1) {
@@ -128,7 +128,7 @@ export function resolvePricingQuoteLastTouchLabel(row: PricingQuoteAgingRow): st
   const touched = row.firstResponseUtc?.trim();
 
   if (touched === undefined || touched.length === 0) {
-    return "—";
+    return " — ";
   }
 
   return formatPricingQuoteSubmittedUtc(touched);
@@ -210,7 +210,7 @@ export function buildPricingQuoteFollowUpSummaryTiles(
     {
       id: "oldest",
       label: "Oldest request age",
-      value: oldestAgeHours === null ? "—" : formatPricingQuoteAgeHours(oldestAgeHours),
+      value: oldestAgeHours === null ? " — " : formatPricingQuoteAgeHours(oldestAgeHours),
       tone: oldestAgeHours !== null && oldestAgeHours >= PRICING_QUOTE_SLA_WARN_HOURS ? "attention" : "neutral",
     },
     {

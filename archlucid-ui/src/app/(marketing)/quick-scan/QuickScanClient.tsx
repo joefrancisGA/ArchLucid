@@ -590,7 +590,7 @@ export function QuickScanClient(): ReactElement {
             <h2 className={MARKETING_TYPOGRAPHY.cardTitle}>Demonstration limits</h2>
             <ul className={cn("mt-3 space-y-2", MARKETING_TYPOGRAPHY.body)}>
               <li>Single-pass analysis with a concise output cap</li>
-              <li>No workspace persistence or governance workflow</li>
+              <li>No workspace persistence or approval workflow</li>
               <li>Daily demonstration capacity may apply</li>
             </ul>
           </section>

@@ -535,7 +535,7 @@ function mapActivityRow(event: AdminAiUsageEventRow, index: number): AiUsageActi
     occurredUtc: event.occurredUtc,
     subjectLabel: formatAiUsageFeatureLabel(event.feature),
     operationLabel: formatAiUsageFeatureLabel(event.feature),
-    modelLabel: event.providerKind.trim().length > 0 ? event.providerKind : "—",
+    modelLabel: event.providerKind.trim().length > 0 ? event.providerKind : " — ",
     initiatedByLabel: event.userId ?? "System / scheduled",
     triggerBadge,
     promptTokens: null,

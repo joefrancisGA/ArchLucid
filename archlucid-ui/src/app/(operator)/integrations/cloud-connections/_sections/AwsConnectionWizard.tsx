@@ -219,12 +219,12 @@ export function AwsConnectionWizard(props: Props): React.ReactElement {
             )}
           >
             <dt className="text-muted-foreground">Account ID</dt>
-            <dd data-testid="aws-wizard-summary-account">{accountId.trim() || "—"}</dd>
+            <dd data-testid="aws-wizard-summary-account">{accountId.trim() || " — "}</dd>
             <dt className="text-muted-foreground">Region</dt>
-            <dd data-testid="aws-wizard-summary-region">{region.trim() || "—"}</dd>
+            <dd data-testid="aws-wizard-summary-region">{region.trim() || " — "}</dd>
             <dt className="text-muted-foreground">Role ARN</dt>
             <dd className="break-all" data-testid="aws-wizard-summary-role">
-              {roleArn.trim() || "—"}
+              {roleArn.trim() || " — "}
             </dd>
           </dl>
 

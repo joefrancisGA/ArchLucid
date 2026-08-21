@@ -184,7 +184,7 @@ export function deriveRecommendedWorkspaceActions(input: {
     actions.push({
       id: "request-approval",
       title: "Request approval",
-      reason: "Governance approval has not been recorded for this finalized review.",
+      reason: "Resolve outcomes have not been recorded for this finalized review.",
       relatedFindingCount: null,
       ownerOrRole: "Governance approver",
       href: `/governance/approval-queue?runId=${encodeURIComponent(input.runId)}`,
@@ -209,7 +209,7 @@ export function deriveRecommendedWorkspaceActions(input: {
   if (manifestId.length > 0) {
     actions.push({
       id: "open-package",
-      title: "Open sealed review record",
+      title: "Open finalized review record",
       reason: "Exports and deliverables are available for this finalized review.",
       relatedFindingCount: null,
       ownerOrRole: null,

@@ -5,6 +5,7 @@ import {
   HUB_SECONDARY_FOLLOW_UPS_TITLES,
   HUB_SECONDARY_SOURCES_LAYOUT,
   hubSecondaryFollowUpsIntro,
+  isRelatedGuidesFollowUpsTitle,
 } from "@/lib/evidence-orientation/hub-secondary-follow-ups";
 
 describe("hub-secondary-follow-ups", () => {
@@ -20,6 +21,8 @@ describe("hub-secondary-follow-ups", () => {
 
   it("publishes contextual titles per hub surface", () => {
     expect(HUB_RELATED_GUIDES_FOLLOW_UPS_TITLE).toBe("Related Guides");
+    expect(isRelatedGuidesFollowUpsTitle(HUB_RELATED_GUIDES_FOLLOW_UPS_TITLE)).toBe(true);
+    expect(isRelatedGuidesFollowUpsTitle("Where to go next")).toBe(false);
     expect(HUB_SECONDARY_FOLLOW_UPS_TITLES.reviewsNew).toBe(HUB_RELATED_GUIDES_FOLLOW_UPS_TITLE);
     expect(HUB_SECONDARY_FOLLOW_UPS_TITLES.cloudConnections).toBe(HUB_RELATED_GUIDES_FOLLOW_UPS_TITLE);
     expect(HUB_SECONDARY_FOLLOW_UPS_TITLES.settingsHub).toBe("Related administration");

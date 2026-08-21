@@ -128,6 +128,7 @@ describe("ReviewsHubReviewInventory", () => {
       />,
     );
 
+    expect(screen.getByRole("columnheader", { name: "Pinned" })).toBeInTheDocument();
     expect(screen.getByRole("columnheader", { name: "Review" })).toBeInTheDocument();
     expect(screen.getByRole("columnheader", { name: "Architecture / system" })).toBeInTheDocument();
     expect(screen.getByRole("columnheader", { name: "Governance" })).toBeInTheDocument();
@@ -180,5 +181,7 @@ describe("ReviewsHubReviewInventory", () => {
 
     expect(screen.getByTestId("favorite-review-toggle")).toBeInTheDocument();
     expect(screen.getByTestId("favorite-review-toggle")).toHaveAttribute("data-run-id", "run-pin-1");
+    expect(screen.getByTestId("favorite-review-toggle")).toHaveAttribute("data-favorited", "false");
+    expect(screen.getByRole("columnheader", { name: "Pinned" })).toBeInTheDocument();
   });
 });

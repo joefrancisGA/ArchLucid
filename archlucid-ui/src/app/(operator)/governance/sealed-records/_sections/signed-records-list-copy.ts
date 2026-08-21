@@ -139,6 +139,6 @@ export function signedRecordsListRecordLookupFailureMessage(
 
 export const SIGNED_RECORDS_LIST_RETRY_RECORD_ACTION = "Retry";
 
-export const SIGNED_RECORDS_LIST_VERSION_UNKNOWN = "—";
+export const SIGNED_RECORDS_LIST_VERSION_UNKNOWN = " — ";
 
 export const SIGNED_RECORDS_LIST_PAGE_PATH = SIGNED_RECORDS_LIST_PATH;

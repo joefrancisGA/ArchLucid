@@ -318,7 +318,7 @@ const SITUATION_TOPICS: readonly HelpSearchPanelTopic[] = [
   {
     id: "resolve-blocking-findings",
     title: "Resolve findings that block approval",
-    description: "Work each blocking finding, record its decision, then return to governance approval.",
+    description: "Work each blocking finding, record its decision, then return to resolve outcomes.",
     keywords: ["blocked", "blocking", "approval", "findings", "disposition", "remediation"],
     action: { kind: "route", href: "/help/findings", helpSlug: "findings" },
   },

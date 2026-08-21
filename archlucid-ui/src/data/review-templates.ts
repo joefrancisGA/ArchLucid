@@ -85,7 +85,7 @@ Technical stack: TLS 1.2+ everywhere, encryption at rest enabled, SQL TDE on, no
 
 Please perform a HIPAA-aligned architecture review at the program level: identify gaps in access control, auditability, integrity, transmission security, and contingency planning. Map major components to reasonable safeguard categories and note where Organization must rely on organizational policies (training, workforce clearance) versus technical controls. Flag high-risk patterns such as shared admin accounts, broad SQL firewall openings, or PHI in non-production environments.
 
-Disaster recovery today is manual runbook restore from SQL geo-redundant backup with an untested quarterly drill. Incident response playbooks reference on-call pages but do not yet spell out breach notification timelines by jurisdiction. A vendor OCR service processes inbound fax images: image data is minimized but metadata might still imply patient identity—this integration needs explicit risk treatment.`,
+Disaster recovery today is manual runbook restore from SQL geo-redundant backup with an untested quarterly drill. Incident response playbooks reference on-call pages but do not yet spell out breach notification timelines by jurisdiction. A vendor OCR service processes inbound fax images: image data is minimized but metadata might still imply patient identity — this integration needs explicit risk treatment.`,
   },
   {
     id: "cost-optimization-review",

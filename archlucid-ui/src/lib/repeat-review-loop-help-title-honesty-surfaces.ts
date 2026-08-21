@@ -8,7 +8,7 @@ export const REPEAT_REVIEW_LOOP_HELP_INBOUND_LABEL = REPEAT_REVIEW_LOOP_HELP_PAG
 
 export const REPEAT_REVIEW_LOOP_HELP_TITLE_HONESTY_SOURCE_FILES: readonly string[] = [
   "src/lib/help/help-center-catalog.ts",
-  "src/lib/usability/page-help-topic-map.ts",
+  "src/lib/usability/page-help-topic-rows.ts",
   "src/lib/repeat-review-activation.ts",
   "src/lib/compare-repeat-review-help-ia-dual.ts",
   "src/components/RepeatReviewActivationPrompt.tsx",

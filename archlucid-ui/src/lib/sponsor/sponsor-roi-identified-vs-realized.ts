@@ -16,7 +16,7 @@ export const SPONSOR_ROI_IDENTIFIED_PENDING_DESCRIPTION =
   "Open findings and those awaiting evidence — estimated USD not yet realized through remediation.";
 export const SPONSOR_ROI_REALIZED_COMMITTED_LABEL = "Realized savings (committed & applied)";
 export const SPONSOR_ROI_REALIZED_COMMITTED_DESCRIPTION =
-  "Findings marked remediated in the governance workflow — defensible realized value, not headline potential.";
+  "Findings marked remediated in the approval workflow — defensible realized value, not headline potential.";
 
 /** Maps sponsor-report API fields to sponsor-facing identified vs realized buckets. */
 export function resolveSponsorRoiIdentifiedVsRealized(

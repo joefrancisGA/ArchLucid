@@ -48,7 +48,7 @@ describe("digest-preview-before-subscribe (TB-2211)", () => {
       digestTypeLabel: "Architecture digest",
     });
 
-    expect(specimen.toLine).toBe("—");
+    expect(specimen.toLine).toBe(" — ");
     expect(specimen.metaLine).toContain("Teams webhook");
     expect(specimen.subjectLine).toBe("Architecture digest");
   });

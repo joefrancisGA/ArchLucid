@@ -162,8 +162,8 @@ describe("digest-setup-gap-actions", () => {
   });
 
   it("formats instants or em dash", () => {
-    expect(formatDigestInstant(null)).toBe("—");
-    expect(formatDigestInstant("not-a-date")).toBe("—");
-    expect(formatDigestInstant("2026-07-08T12:00:00Z")).not.toBe("—");
+    expect(formatDigestInstant(null)).toBe(" — ");
+    expect(formatDigestInstant("not-a-date")).toBe(" — ");
+    expect(formatDigestInstant("2026-07-08T12:00:00Z")).not.toBe(" — ");
   });
 });

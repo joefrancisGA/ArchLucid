@@ -11,7 +11,7 @@ export function policyPackTypeDisplayLabel(packTypeRaw: string): string {
   const t = packTypeRaw.trim();
 
   if (t.length === 0) {
-    return "—";
+    return " — ";
   }
 
   switch (t) {
@@ -40,7 +40,7 @@ export function policyPackTypeBuyerDisplayLabel(packTypeRaw: string): string {
   const t = packTypeRaw.trim();
 
   if (t.length === 0) {
-    return "—";
+    return " — ";
   }
 
   switch (t) {

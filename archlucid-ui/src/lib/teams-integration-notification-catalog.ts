@@ -26,8 +26,8 @@ export const TEAMS_NOTIFICATION_CATEGORIES: readonly TeamsNotificationCategory[]
       },
       {
         eventType: "com.archlucid.manifest.finalized.v1",
-        label: "Sealed review record finalized",
-        description: "The authoritative architecture package was committed as the sealed review record.",
+        label: "Finalized review record committed",
+        description: "The authoritative architecture package was committed as the finalized review record.",
       },
       {
         eventType: "com.archlucid.authority.run.failed",
@@ -66,18 +66,18 @@ export const TEAMS_NOTIFICATION_CATEGORIES: readonly TeamsNotificationCategory[]
       {
         eventType: "com.archlucid.governance.approval.approved",
         label: "Approval approved",
-        description: "A governance approval request was approved.",
+        description: "A resolve outcomes request was approved.",
         recommended: true,
       },
       {
         eventType: "com.archlucid.governance.approval.rejected",
         label: "Approval rejected",
-        description: "A governance approval request was rejected or returned.",
+        description: "A resolve outcomes request was rejected or returned.",
       },
       {
         eventType: "com.archlucid.governance.promotion.activated",
         label: "Governance promotion activated",
-        description: "An approved review was authorized to advance in a governed environment.",
+        description: "An approved review was authorized to advance in an approved environment.",
         recommended: true,
       },
       {

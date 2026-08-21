@@ -33,5 +33,5 @@ export function trustEvidenceStatusTag(status: string): TrustEvidenceStatusTag {
     return { kind: "neutral", label: "Not applicable" };
   }
 
-  return { kind: "neutral", label: trimmed.length > 0 ? trimmed : "—" };
+  return { kind: "neutral", label: trimmed.length > 0 ? trimmed : " — " };
 }

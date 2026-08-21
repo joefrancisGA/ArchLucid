@@ -130,7 +130,7 @@ export function HelpProductGuide() {
             <li>
               Review{" "}
               <Link className={OPERATOR_LINK.inline} href={inAppHelpHref("governance-approval")}>
-                governance approval
+                resolve outcomes
               </Link>{" "}
               and the{" "}
               <Link className={OPERATOR_LINK.inline} href={inAppHelpHref("audit-trail")}>

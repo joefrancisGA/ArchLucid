@@ -32,7 +32,7 @@ export const ARCHITECTURE_INTELLIGENCE_REVIEW_HEADING =
   "Review workspace and Try another reasoning pass serve different purposes" as const;
 
 export const ARCHITECTURE_INTELLIGENCE_REVIEW_WHY_TWO =
-  "The review workspace is where you triage findings, capture evidence, and finalize a sealed review record. Try another reasoning pass is a review-adjacent tool for exploring alternative conclusions — it does not replace the review workspace." as const;
+  "The review workspace is where you triage findings, capture evidence, and finalize the review record. Try another reasoning pass is a review-adjacent tool for exploring alternative conclusions — it does not replace the review workspace." as const;
 
 export const ARCHITECTURE_INTELLIGENCE_REVIEW_COMPACT_LINE =
   "Review workspace is the package of record; Try another reasoning pass is an exploratory review tool." as const;

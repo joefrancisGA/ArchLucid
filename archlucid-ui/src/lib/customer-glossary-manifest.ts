@@ -134,7 +134,7 @@ export const CUSTOMER_GLOSSARY_TERMS: readonly CustomerGlossaryTerm[] = [
     id: "decision",
     label: "Decision",
     definition:
-      "A recorded disposition on review proposals—such as approve, waive, defer, or escalate—captured for governance and audit. Not the same as the finalized review record (the package that locks those decisions at finalize).",
+      "A recorded disposition on review proposals — such as approve, waive, defer, or escalate — captured for governance and audit. Not the same as the finalized review record (the package that locks those decisions at finalize).",
     category: "decisions-and-findings",
     relatedTermIds: ["governance-approval", "finding", "sealed-review-record"],
     detail:
@@ -154,18 +154,19 @@ export const CUSTOMER_GLOSSARY_TERMS: readonly CustomerGlossaryTerm[] = [
     id: "control",
     label: "Control",
     definition:
-      "A safeguard—process, tooling, entitlement, or monitoring—that mitigates risk or enforces policy during review and operations.",
+      "A safeguard — process, tooling, entitlement, or monitoring — that mitigates risk or enforces policy during review and operations.",
     category: "risk-and-controls",
     relatedTermIds: ["risk", "policy-pack"],
     visibility: "customer",
   },
   {
     id: "governance-approval",
-    label: "Governance approval",
+    label: "Resolve outcomes",
     definition:
       "A committed governance decision that affects rollout, waiver, exception, or escalation for a review or related record.",
     category: "governance",
     relatedTermIds: ["decision", "audit-trail"],
+    deprecatedAliases: ["Governance approval"],
     visibility: "customer",
   },
   {

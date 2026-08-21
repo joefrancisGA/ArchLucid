@@ -14,7 +14,7 @@ import { OPERATOR_KPI_CARD_DESCRIPTION, OPERATOR_KPI_CARD_TITLE, OPERATOR_TYPOGR
 
 function formatUsd(value: number | null | undefined): string {
   if (typeof value !== "number" || !Number.isFinite(value)) {
-    return "—";
+    return " — ";
   }
 
   return new Intl.NumberFormat(undefined, {

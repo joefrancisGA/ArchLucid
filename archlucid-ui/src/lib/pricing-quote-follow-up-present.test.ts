@@ -36,7 +36,7 @@ function dashboard(overrides: Partial<PricingQuoteAgingDashboard> = {}): Pricing
 describe("pricing-quote-follow-up-present", () => {
   it("extracts email domain", () => {
     expect(extractEmailDomain("buyer@acme.example")).toBe("acme.example");
-    expect(extractEmailDomain("invalid")).toBe("—");
+    expect(extractEmailDomain("invalid")).toBe(" — ");
   });
 
   it("maps SLA badges from breach status and age", () => {

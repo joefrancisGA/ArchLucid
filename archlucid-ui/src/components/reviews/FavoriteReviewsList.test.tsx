@@ -26,14 +26,13 @@ describe("FavoriteReviewsList", () => {
     window.localStorage.clear();
   });
 
-  it("shows empty hint when nothing is pinned", async () => {
+  it("renders nothing when nothing is pinned", async () => {
     render(<FavoriteReviewsList />);
 
-    expect(screen.getByTestId("favorite-reviews-list")).toBeInTheDocument();
     await waitFor(() => {
-      expect(screen.getByTestId("favorite-reviews-empty")).toBeInTheDocument();
+      expect(screen.queryByTestId("favorite-reviews-list")).not.toBeInTheDocument();
     });
-    expect(screen.getByText(/Pin architecture reviews/i)).toBeInTheDocument();
+    expect(screen.queryByTestId("favorite-reviews-empty")).not.toBeInTheDocument();
   });
 
   it("lists pinned architecture reviews with review links", async () => {

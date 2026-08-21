@@ -45,7 +45,7 @@ export const RETIRED_HELP_TOPIC_ALIAS_TRAFFIC_ENTRIES: readonly RetiredHelpTopic
     bannedBuyerCopy: ["/help/core-pilot"],
     buyerSurfaceGuards: [
       "src/lib/help/help-search-panel-catalog.ts",
-      "src/lib/usability/page-help-topic-map.ts",
+      "src/lib/usability/page-help-topic-rows.ts",
       "src/app/(operator)/help/_sections/HelpCorePilotGuideView.tsx",
     ],
   },
@@ -55,7 +55,7 @@ export const RETIRED_HELP_TOPIC_ALIAS_TRAFFIC_ENTRIES: readonly RetiredHelpTopic
     bannedBuyerCopy: ["/help/evidence-only-review"],
     buyerSurfaceGuards: [
       "src/lib/help/help-search-panel-catalog.ts",
-      "src/lib/usability/page-help-topic-map.ts",
+      "src/lib/usability/page-help-topic-rows.ts",
       "src/app/(operator)/help/_sections/HelpCorePilotGuideView.tsx",
     ],
   },
@@ -66,7 +66,7 @@ export const RETIRED_HELP_TOPIC_ALIAS_TRAFFIC_ENTRIES: readonly RetiredHelpTopic
     bannedBuyerCopy: ["/help/first-pilot-path"],
     buyerSurfaceGuards: [
       "src/lib/help/help-search-panel-catalog.ts",
-      "src/lib/usability/page-help-topic-map.ts",
+      "src/lib/usability/page-help-topic-rows.ts",
       "src/app/(operator)/help/_sections/HelpCorePilotGuideView.tsx",
     ],
   },
@@ -77,7 +77,7 @@ export const RETIRED_HELP_TOPIC_ALIAS_TRAFFIC_ENTRIES: readonly RetiredHelpTopic
     bannedBuyerCopy: ["/help/first-hour-operator-path"],
     buyerSurfaceGuards: [
       "src/lib/help/help-search-panel-catalog.ts",
-      "src/lib/usability/page-help-topic-map.ts",
+      "src/lib/usability/page-help-topic-rows.ts",
       "src/lib/evidence-intake-help-guide-content.ts",
     ],
   },
@@ -87,7 +87,7 @@ export const RETIRED_HELP_TOPIC_ALIAS_TRAFFIC_ENTRIES: readonly RetiredHelpTopic
     bannedBuyerCopy: ["/help/starting-reviews"],
     buyerSurfaceGuards: [
       "src/lib/help/help-search-panel-catalog.ts",
-      "src/lib/usability/page-help-topic-map.ts",
+      "src/lib/usability/page-help-topic-rows.ts",
       "src/app/(operator)/help/_sections/HelpReviewGuideView.tsx",
     ],
   },
@@ -98,7 +98,7 @@ export const RETIRED_HELP_TOPIC_ALIAS_TRAFFIC_ENTRIES: readonly RetiredHelpTopic
     buyerSurfaceGuards: [
       "src/app/(operator)/help/_sections/HelpReviewGuideView.tsx",
       "src/lib/empty-state-presets.ts",
-      "src/lib/usability/page-help-topic-map.ts",
+      "src/lib/usability/page-help-topic-rows.ts",
       "src/lib/bulk-evidence-upload-copy.ts",
       "src/lib/architecture/architecture-created-clarifications-sources.ts",
     ],
@@ -109,7 +109,7 @@ export const RETIRED_HELP_TOPIC_ALIAS_TRAFFIC_ENTRIES: readonly RetiredHelpTopic
     bannedBuyerCopy: ["/help/evaluator-workbook"],
     buyerSurfaceGuards: [
       "src/lib/help/help-search-panel-catalog.ts",
-      "src/lib/usability/page-help-topic-map.ts",
+      "src/lib/usability/page-help-topic-rows.ts",
       "src/lib/path-chooser-help-guide-content.ts",
       "src/app/(operator)/help/_sections/HelpPathChooserGuideView.tsx",
     ],
@@ -120,7 +120,7 @@ export const RETIRED_HELP_TOPIC_ALIAS_TRAFFIC_ENTRIES: readonly RetiredHelpTopic
     bannedBuyerCopy: ["/help/governance-api-contracts"],
     buyerSurfaceGuards: [
       "src/lib/help/help-search-panel-catalog.ts",
-      "src/lib/usability/page-help-topic-map.ts",
+      "src/lib/usability/page-help-topic-rows.ts",
       "src/app/(operator)/help/_sections/HelpApiContractsGuideView.tsx",
     ],
   },
@@ -131,7 +131,7 @@ export const RETIRED_HELP_TOPIC_ALIAS_TRAFFIC_ENTRIES: readonly RetiredHelpTopic
     bannedBuyerCopy: ["/help/data-handling-tenant-isolation"],
     buyerSurfaceGuards: [
       "src/lib/help/help-search-panel-catalog.ts",
-      "src/lib/usability/page-help-topic-map.ts",
+      "src/lib/usability/page-help-topic-rows.ts",
       "src/app/(operator)/help/_sections/HelpDataHandlingTenantIsolationGuideView.tsx",
     ],
   },
@@ -152,7 +152,7 @@ export const RETIRED_HELP_TOPIC_ALIAS_TRAFFIC_ENTRIES: readonly RetiredHelpTopic
     bannedBuyerCopy: ["/help/how-it-works"],
     buyerSurfaceGuards: [
       "src/lib/help/help-search-panel-catalog.ts",
-      "src/lib/usability/page-help-topic-map.ts",
+      "src/lib/usability/page-help-topic-rows.ts",
       "src/lib/getting-started-help-guide-content.ts",
       "src/app/(operator)/help/_sections/HelpGettingStartedGuideView.tsx",
     ],
@@ -163,7 +163,7 @@ export const RETIRED_HELP_TOPIC_ALIAS_TRAFFIC_ENTRIES: readonly RetiredHelpTopic
     bannedBuyerCopy: ["/help/product-overview"],
     buyerSurfaceGuards: [
       "src/lib/help/help-search-panel-catalog.ts",
-      "src/lib/usability/page-help-topic-map.ts",
+      "src/lib/usability/page-help-topic-rows.ts",
       "src/app/(operator)/help/_sections/HelpSponsorSummaryGuideView.tsx",
     ],
   },
@@ -177,7 +177,7 @@ export const RETIRED_HELP_TOPIC_ALIAS_TRAFFIC_ENTRIES: readonly RetiredHelpTopic
     buyerSurfaceGuards: [
       "src/lib/help/help-search-panel-catalog.ts",
       "src/lib/first-review-help-guide-content.ts",
-      "src/lib/usability/page-help-topic-map.ts",
+      "src/lib/usability/page-help-topic-rows.ts",
     ],
   },
   {
@@ -189,7 +189,7 @@ export const RETIRED_HELP_TOPIC_ALIAS_TRAFFIC_ENTRIES: readonly RetiredHelpTopic
     buyerSurfaceGuards: [
       "src/lib/help/help-search-panel-catalog.ts",
       "src/lib/first-value-20-help-guide-content.ts",
-      "src/lib/usability/page-help-topic-map.ts",
+      "src/lib/usability/page-help-topic-rows.ts",
       "src/components/usability/CorePilotProgressTrackerSummary.tsx",
       "src/components/usability/CorePilotProgressTrackerBanner.tsx",
     ],
@@ -203,7 +203,7 @@ export const RETIRED_HELP_TOPIC_ALIAS_TRAFFIC_ENTRIES: readonly RetiredHelpTopic
     bannedBuyerCopy: ["/help/pilot-nav-profile"],
     buyerSurfaceGuards: [
       "src/lib/help/help-search-panel-catalog.ts",
-      "src/lib/usability/page-help-topic-map.ts",
+      "src/lib/usability/page-help-topic-rows.ts",
       "src/lib/pilot-guide-help-evidence-copy.ts",
       "src/app/(operator)/help/_sections/HelpPilotGuideView.tsx",
     ],
@@ -219,7 +219,7 @@ export const RETIRED_HELP_TOPIC_ALIAS_TRAFFIC_ENTRIES: readonly RetiredHelpTopic
       "src/lib/help/help-center-catalog.ts",
       "src/lib/help/help-search-panel-catalog.ts",
       "src/lib/sponsor/sponsor-report-help-guide-content.ts",
-      "src/lib/usability/page-help-topic-map.ts",
+      "src/lib/usability/page-help-topic-rows.ts",
       "src/lib/roi-summary-sponsor-presentation.ts",
     ],
   },
@@ -231,7 +231,7 @@ export const RETIRED_HELP_TOPIC_ALIAS_TRAFFIC_ENTRIES: readonly RetiredHelpTopic
       "Deprecated pilot-outcomes help twin (Help topic) - folded into sponsor-report specialty (EXE); canon EXE = /help/sponsor-report.",
     bannedBuyerCopy: ["/help/pilot-outcomes"],
     buyerSurfaceGuards: [
-      "src/lib/usability/page-help-topic-map.ts",
+      "src/lib/usability/page-help-topic-rows.ts",
       "src/lib/product-documentation-registry.ts",
       "public/doc-index.json",
     ],

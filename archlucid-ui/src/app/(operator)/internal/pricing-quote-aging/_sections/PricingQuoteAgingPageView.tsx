@@ -360,7 +360,7 @@ export function PricingQuoteAgingPageView(props: Props) {
                         data-breach-status={row.breachStatus}
                       >
                         <EnterpriseTableCell>
-                          <div className="font-medium text-al-text-primary">{row.companyName || "—"}</div>
+                          <div className="font-medium text-al-text-primary">{row.companyName || " — "}</div>
                         </EnterpriseTableCell>
                         <EnterpriseTableCell>
                           <div>{row.workEmail}</div>
@@ -368,7 +368,7 @@ export function PricingQuoteAgingPageView(props: Props) {
                             {extractEmailDomain(row.workEmail)}
                           </div>
                         </EnterpriseTableCell>
-                        <EnterpriseTableCell>{row.tierInterest || "—"}</EnterpriseTableCell>
+                        <EnterpriseTableCell>{row.tierInterest || " — "}</EnterpriseTableCell>
                         <EnterpriseTableCell className={OPERATOR_TYPOGRAPHY.micro}>
                           {formatPricingQuoteSubmittedUtc(row.createdUtc)}
                         </EnterpriseTableCell>

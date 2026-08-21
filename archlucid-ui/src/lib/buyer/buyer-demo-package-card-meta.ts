@@ -27,10 +27,10 @@ const DEMO_PACKAGE_CARD_META: Readonly<Record<string, BuyerDemoPackageCardMeta>>
     packageOwner: "Taylor Morgan",
     riskOwner: "Taylor Morgan",
     approvalAuthority: "Jordan Lee (Architecture approver)",
-    lastAuditEvent: "Governance approval recorded",
+    lastAuditEvent: "Resolve outcomes recorded",
   },
   "claims-intake-pending-governance-002": {
-    decisionSummary: "Governance approval in progress · 2 findings under active review",
+    decisionSummary: "Resolve outcomes in progress · 2 findings under active review",
     decisionDate: "Jan 20, 2026",
     packageOwner: "Taylor Morgan",
     riskOwner: "Taylor Morgan",
@@ -39,10 +39,10 @@ const DEMO_PACKAGE_CARD_META: Readonly<Record<string, BuyerDemoPackageCardMeta>>
   },
   "claims-intake-in-progress-003": {
     decisionSummary: "In progress · findings and manifest not finalized",
-    decisionDate: "—",
+    decisionDate: " — ",
     packageOwner: "Taylor Morgan",
-    riskOwner: "—",
-    approvalAuthority: "—",
+    riskOwner: " — ",
+    approvalAuthority: " — ",
     lastAuditEvent: "Review pipeline started",
   },
 };

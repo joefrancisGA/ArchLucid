@@ -19,7 +19,7 @@ export const BUYER_MANIFEST_DELIVERABLE_DOCX_DESC =
 export const BUYER_MANIFEST_DELIVERABLE_ZIP_TITLE = "Review bundle (ZIP)";
 
 export const BUYER_MANIFEST_DELIVERABLE_ZIP_DESC =
-  "All sealed artifacts, evidence index, and review record in one archive.";
+  "All finalized artifacts, evidence index, and review record in one archive.";
 
 export const BUYER_MANIFEST_DELIVERABLE_MARKDOWN_TITLE = "Decision receipt (Markdown)";
 

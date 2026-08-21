@@ -72,6 +72,7 @@ describe("architecture-intelligence-api", () => {
       reviewTier: "Deep",
       declaredPriorities: ["security"],
     });
+    expect(body).not.toHaveProperty("tenantId");
     expect(body.sourceTexts).toEqual([
       {
         fileName: "architecture-description.txt",

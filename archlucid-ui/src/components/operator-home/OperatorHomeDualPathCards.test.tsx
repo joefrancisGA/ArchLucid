@@ -179,7 +179,7 @@ describe("OperatorHomeDualPathCards", () => {
   it("shows immediate loading feedback when starting the review architecture path", () => {
     render(<OperatorHomeDualPathCards emphasizedPath="review-architecture" />);
 
-    expect(screen.getByTestId("operator-home-review-architecture-specimen-preview")).toBeInTheDocument();
+    expect(screen.getByTestId("operator-home-explore-completed-review-specimen-preview")).toBeInTheDocument();
 
     fireEvent.click(screen.getByTestId("operator-home-review-architecture-cta"));
 
@@ -238,11 +238,21 @@ describe("OperatorHomeDualPathCards", () => {
     expect(screen.getByText(OPERATOR_HOME_CLOUD_CONNECT_ADMIN_HINT)).toBeInTheDocument();
   });
 
-  it("demotes all lifecycle card primaries when another surface owns the page primary", () => {
+  it("keeps the emphasized lifecycle card primary when another surface owns the page primary", () => {
     render(<OperatorHomeDualPathCards emphasizedPath="review-architecture" pagePrimaryOwnedElsewhere />);
 
     expect(screen.getByRole("button", { name: CREATE_ARCHITECTURE_LABEL })).toHaveClass("border-neutral-300");
-    expect(screen.getByRole("button", { name: OPERATOR_HOME_REVIEW_ARCHITECTURE_CTA })).toHaveClass("border-neutral-300");
+    expect(screen.getByRole("button", { name: OPERATOR_HOME_REVIEW_ARCHITECTURE_CTA })).not.toHaveClass("border-neutral-300");
     expect(screen.getByRole("link", { name: OPERATOR_HOME_OPEN_COMPLETED_REVIEW_CTA })).toHaveClass("border-neutral-300");
+  });
+
+  it("does not mark the lifecycle grid as a live region", () => {
+    render(<OperatorHomeDualPathCards />);
+
+    const grid = screen.getByTestId("operator-home-dual-path-cards").querySelector(".grid");
+
+    expect(grid).not.toBeNull();
+    expect(grid?.getAttribute("role")).toBeNull();
+    expect(grid?.getAttribute("aria-live")).toBeNull();
   });
 });

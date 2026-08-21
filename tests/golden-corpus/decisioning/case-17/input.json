@@ -18,7 +18,8 @@
         "properties": {
           "controlId": "SC-8",
           "status": "missing"
-        }
+        },
+        "reasoningTrace": null
       }
     ],
     "edges": [],

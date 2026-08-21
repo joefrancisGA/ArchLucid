@@ -30,7 +30,7 @@ export const GOVERNANCE_REVIEW_CONTEXT_PAGE_LEAD =
 export const GOVERNANCE_OVERVIEW_SAMPLE_CONTEXT_LABEL = "Sample review context";
 
 export const GOVERNANCE_OVERVIEW_SAMPLE_CONTEXT_LINE =
-  "Showing governance workflow for the Claims Intake sample review — illustrative demo data.";
+  "Showing approval workflow for the Claims Intake sample review — illustrative demo data.";
 
 export const GOVERNANCE_OVERVIEW_SAMPLE_OVERVIEW_LINE =
   "Sample workspace — counts and lists may use illustrative demo data until you load a live review.";
@@ -38,7 +38,7 @@ export const GOVERNANCE_OVERVIEW_SAMPLE_OVERVIEW_LINE =
 export const GOVERNANCE_OVERVIEW_SUBMIT_ACTION = "Submit review for approval";
 
 export const GOVERNANCE_OVERVIEW_SUBMIT_DISABLED_HINT =
-  "Select a review before submitting for governance approval.";
+  "Select a review before submitting for resolve outcomes.";
 
 export const GOVERNANCE_OVERVIEW_PENDING_ACTION = "View pending approvals";
 
@@ -103,7 +103,7 @@ export const GOVERNANCE_OVERVIEW_NO_PENDING = "No approval requests are waiting 
 export const GOVERNANCE_OVERVIEW_NO_PENDING_TITLE = "No reviews are awaiting approval";
 
 export const GOVERNANCE_OVERVIEW_NO_PENDING_DESCRIPTION =
-  "Start by selecting a completed review above and submitting it into the governance workflow.";
+  "Start by selecting a completed review above and submitting it into the approval workflow.";
 
 export const GOVERNANCE_OVERVIEW_IDLE_WORKSPACE_HINT =
   "Your workspace has no active governance items yet — load a completed review to begin the approval lifecycle.";
@@ -123,7 +123,7 @@ export const GOVERNANCE_OVERVIEW_APPROVAL_LIFECYCLE_STEPS = [
   "Released",
 ] as const;
 
-export const GOVERNANCE_OVERVIEW_HOW_IT_WORKS_TRIGGER = "How governance approvals work";
+export const GOVERNANCE_OVERVIEW_HOW_IT_WORKS_TRIGGER = "How resolve outcomes work";
 
 export const GOVERNANCE_OVERVIEW_HEADER_NEXT_ACTION =
   "Start from pending approvals or open the findings queue to clear blocking items.";

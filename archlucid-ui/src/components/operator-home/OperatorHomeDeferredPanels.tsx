@@ -1,37 +1,37 @@
 "use client";
 
-import dynamic from "next/dynamic";
+import type { ComponentType } from "react";
 
 import type { OperatorHomeRunsDashboardModel } from "@/app/(operator)/_sections/operator-home-runs-dashboard-model";
-import { cn } from "@/lib/utils";
 import { OPERATOR_SURFACE_CARD_CLASS } from "@/lib/design-tokens";
+import { createDeferredComponentFromManifest } from "@/lib/operator/load-deferred-chunk-from-manifest";
+import { cn } from "@/lib/utils";
 
-const RunsDashboardPanel = dynamic(
-  () => import("@/components/operator-home/RunsDashboardPanel").then((module) => module.RunsDashboardPanel),
-  {
-    ssr: false,
-    loading: () => (
-      <div
-        className={cn(OPERATOR_SURFACE_CARD_CLASS, "h-40 animate-pulse p-4")}
-        role="status"
-        aria-label="Loading recent reviews"
-        data-testid="home-block-runs-dashboard-loading"
-      />
-    ),
-  },
-);
+function runsDashboardDeferredLoading(): React.JSX.Element {
+  return (
+    <div
+      className={cn(OPERATOR_SURFACE_CARD_CLASS, "h-40 animate-pulse p-4")}
+      role="status"
+      aria-label="Loading recent reviews"
+      data-testid="home-block-runs-dashboard-loading"
+    />
+  );
+}
 
-const BeforeAfterDeltaPanel = dynamic(
-  () => import("@/components/BeforeAfterDeltaPanel").then((module) => module.BeforeAfterDeltaPanel),
-  { loading: () => null },
-);
+const RunsDashboardPanelDeferred: ComponentType<{
+  readonly hideHeading?: boolean;
+  readonly initialModel?: OperatorHomeRunsDashboardModel | null;
+}> = createDeferredComponentFromManifest("operator-home-runs-dashboard", {
+  loadingWrapper: () => runsDashboardDeferredLoading(),
+});
 
-const OperatorHomeWorkspaceStatusSection = dynamic(
-  () =>
-    import("@/components/operator-home/OperatorHomeWorkspaceStatusSection").then(
-      (module) => module.OperatorHomeWorkspaceStatusSection,
-    ),
-  { loading: () => null },
+const BeforeAfterDeltaPanelDeferred = createDeferredComponentFromManifest("operator-home-before-after-delta", {
+  suppressLoading: true,
+});
+
+const OperatorHomeWorkspaceStatusSectionDeferred = createDeferredComponentFromManifest(
+  "operator-home-workspace-status",
+  { suppressLoading: true },
 );
 
 type OperatorHomeRunsPanelProps = {
@@ -40,13 +40,15 @@ type OperatorHomeRunsPanelProps = {
 };
 
 export function OperatorHomeRunsPanel(props: OperatorHomeRunsPanelProps) {
-  return <RunsDashboardPanel hideHeading={props.hideHeading} initialModel={props.initialModel ?? null} />;
+  return (
+    <RunsDashboardPanelDeferred hideHeading={props.hideHeading} initialModel={props.initialModel ?? null} />
+  );
 }
 
 export function OperatorHomeDeltaPanel() {
-  return <BeforeAfterDeltaPanel />;
+  return <BeforeAfterDeltaPanelDeferred />;
 }
 
 export function OperatorHomeWorkspaceStatusPanel() {
-  return <OperatorHomeWorkspaceStatusSection />;
+  return <OperatorHomeWorkspaceStatusSectionDeferred />;
 }

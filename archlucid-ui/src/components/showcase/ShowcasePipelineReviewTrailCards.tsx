@@ -10,13 +10,13 @@ import type { PipelineTimelineItem } from "@/types/authority";
 
 function safeLocaleTime(iso: string): string {
   if (iso.trim().length === 0) {
-    return "—";
+    return " — ";
   }
 
   const d = new Date(iso);
 
   if (Number.isNaN(d.getTime())) {
-    return "—";
+    return " — ";
   }
 
   return d.toLocaleString();
@@ -103,7 +103,7 @@ export function ShowcasePipelineReviewTrailCards(props: {
                     className="rounded-md border border-neutral-300 bg-al-surface-raised px-2 py-1 font-medium text-al-text-primary no-underline hover:bg-[var(--al-layer-hover)] dark:border-neutral-600"
                     href={signedRecordDetailPath(manifest)}
                   >
-                    Sealed review record
+                    Finalized review record
                   </Link>
                 ) : null}
                 {showFinding ? (

@@ -6,6 +6,15 @@ import { ARCHITECTURE_DRAFT_GUIDANCE_DISMISS_STORAGE_KEY } from "@/lib/architect
 
 import { ArchitectureDraftListClient } from "./ArchitectureDraftListClient";
 
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ push: vi.fn(), replace: vi.fn() }),
+}));
+
+vi.mock("@/lib/api/draft-intake-api", () => ({
+  getDraftRequest: vi.fn(),
+  reopenDraftRequest: vi.fn(),
+}));
+
 const useArchitectureDraftRegistryEntries = vi.fn<() => readonly ArchitectureDraftRegistryEntry[]>();
 const useArchitectureDraftRegistryHydrated = vi.fn<() => boolean>();
 

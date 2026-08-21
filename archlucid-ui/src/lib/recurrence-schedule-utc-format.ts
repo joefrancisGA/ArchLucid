@@ -1,7 +1,7 @@
 /** Formats an ISO UTC timestamp for operator recurrence schedule surfaces. */
 export function formatRecurrenceScheduleUtcLabel(utc: string | null | undefined): string {
   if (!utc) {
-    return "—";
+    return " — ";
   }
 
   const parsed = new Date(utc);

@@ -6954,7 +6954,10 @@
             "type": "array"
           },
           "tenantId": {
-            "type": "string"
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "useGoldenFixture": {
             "type": "boolean"
@@ -10438,6 +10441,12 @@
               "type": "string"
             },
             "type": "array"
+          },
+          "suggestedFailureModeNote": {
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "topologyHints": {
             "items": {

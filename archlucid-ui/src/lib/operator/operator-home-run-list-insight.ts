@@ -77,10 +77,10 @@ export function formatRunHomeListInsightLine(run: RunSummary): string | null {
 
   if (run.hasFindingsSnapshot === true) {
     if (findings !== null) {
-      return `${findings} finding${findings === 1 ? "" : "s"} ready · finalize this review to lock approval readiness`;
+      return `${findings} finding${findings === 1 ? "" : "s"} ready · finalize this review to lock export readiness`;
     }
 
-    return "Findings ready · finalize this review to lock approval readiness";
+    return "Findings ready · finalize this review to lock export readiness";
   }
 
   if (findings !== null) {

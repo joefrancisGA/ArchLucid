@@ -28,13 +28,13 @@ import { fetchAdminRagHealth, type AdminRagCorpusHealthItem } from "@/lib/rag-he
 
 function formatUtc(iso: string | null): string {
   if (!iso) {
-    return "—";
+    return " — ";
   }
 
   const parsed = new Date(iso);
 
   if (Number.isNaN(parsed.getTime())) {
-    return "—";
+    return " — ";
   }
 
   return parsed.toISOString().replace("T", " ").slice(0, 16) + " UTC";
@@ -92,7 +92,7 @@ export function RagHealthAdminPageClient() {
         subtitle={
           <>
             Per-corpus chunk counts and last-indexed timestamps for this API host process. Embedding model:{" "}
-            <span className={cn("font-mono", OPERATOR_TYPOGRAPHY.micro)}>{embeddingModelId || "—"}</span>.
+            <span className={cn("font-mono", OPERATOR_TYPOGRAPHY.micro)}>{embeddingModelId || " — "}</span>.
           </>
         }
         actions={

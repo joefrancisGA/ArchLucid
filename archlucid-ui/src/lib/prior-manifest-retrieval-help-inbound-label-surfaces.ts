@@ -6,7 +6,7 @@ export const PRIOR_MANIFEST_RETRIEVAL_HELP_INBOUND_PATH_LABELS: Readonly<Record<
 } as const;
 
 export const PRIOR_MANIFEST_RETRIEVAL_HELP_INBOUND_LABEL_SOURCE_FILES: readonly string[] = [
-  "src/lib/usability/page-help-topic-map.ts",
+  "src/lib/usability/page-help-topic-rows.ts",
   "src/lib/contextual-help/prior-manifest-retrieval-rows.ts",
 ] as const;
 

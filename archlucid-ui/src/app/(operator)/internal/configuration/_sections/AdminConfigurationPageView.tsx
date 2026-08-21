@@ -146,7 +146,7 @@ export function AdminConfigurationPageView(props: Props) {
               <div className="flex flex-wrap items-center gap-2">
                 <span className={OPERATOR_TYPOGRAPHY.cardTitle}>Hosting environment</span>
                 <span className={cn("rounded-full bg-neutral-100 px-2 py-0.5 dark:bg-neutral-900", OPERATOR_TYPOGRAPHY.badge)}>
-                  {normalizePath(m.lint.hostingEnvironmentName ?? "").length > 0 ? m.lint.hostingEnvironmentName : "—"}
+                  {normalizePath(m.lint.hostingEnvironmentName ?? "").length > 0 ? m.lint.hostingEnvironmentName : " — "}
                 </span>
                 <span
                   className={cn(
@@ -226,14 +226,14 @@ export function AdminConfigurationPageView(props: Props) {
                   {items.map((row) => {
                     const setLabel = row.isSet === true ? "Yes" : "No";
                     const sources = formatSources(row.sources);
-                    const ev = row.effectiveValue ?? "—";
-                    const desc = normalizePath(row.description).length > 0 ? row.description : "—";
-                    const pathKey = normalizePath(row.configPath).length > 0 ? row.configPath : "—";
+                    const ev = row.effectiveValue ?? " — ";
+                    const desc = normalizePath(row.description).length > 0 ? row.description : " — ";
+                    const pathKey = normalizePath(row.configPath).length > 0 ? row.configPath : " — ";
 
                     return (
                       <EnterpriseTableRow key={pathKey}>
                         <EnterpriseTableCell className={cn("py-2 pr-3 font-mono text-al-text-primary", OPERATOR_TYPOGRAPHY.micro)}>
-                          {normalizePath(row.configPath).length > 0 ? row.configPath : "—"}
+                          {normalizePath(row.configPath).length > 0 ? row.configPath : " — "}
                         </EnterpriseTableCell>
                         <EnterpriseTableCell className="py-2 pr-3 text-al-text-primary">{setLabel}</EnterpriseTableCell>
                         <EnterpriseTableCell className={cn("py-2 pr-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{sources}</EnterpriseTableCell>

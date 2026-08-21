@@ -31,7 +31,7 @@ function formatRecordedAtLabel(value: string | null | undefined): string {
   const ms = parseRecordedAtMs(value);
 
   if (ms === null) {
-    return "—";
+    return " — ";
   }
 
   return new Intl.DateTimeFormat(undefined, { dateStyle: "medium" }).format(new Date(ms));

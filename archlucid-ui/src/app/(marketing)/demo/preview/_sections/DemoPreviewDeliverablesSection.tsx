@@ -70,7 +70,7 @@ export function DemoPreviewDeliverablesSection(props: DemoPreviewDeliverablesSec
                   month: "short",
                   day: "numeric",
                 })
-              : "—";
+              : " — ";
 
           return (
             <li

@@ -6,6 +6,7 @@ import { useMemo, useState } from "react";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { ArchitecturesHubListSkeleton } from "@/app/(operator)/architecture/architectures/_sections/ArchitecturesHubListSkeleton";
 import { ArchitectureDraftGuidanceDisclosure } from "@/components/architecture/ArchitectureDraftGuidanceDisclosure";
+import { ArchitectureDraftResumeControl } from "@/components/architecture/ArchitectureDraftResumeControl";
 import { WorkspaceScopeEmptyTeaching } from "@/components/WorkspaceScopeEmptyTeaching";
 import { useOperatorScopeRecord } from "@/hooks/use-operator-scope-record";
 import { PathChooserCreateObjectVocabularyRail } from "@/components/PathChooserCreateObjectVocabularyRail";
@@ -368,9 +369,13 @@ export function ArchitectureDraftListClient(): React.JSX.Element {
                   </EnterpriseTableCell>
                   <EnterpriseTableCell>
                     <div className="flex flex-wrap gap-2">
-                      <Button type="button" variant="outline" size="sm" asChild>
-                        <Link href={architectureDraftPath(entry.architectureId)}>Continue editing</Link>
-                      </Button>
+                      <ArchitectureDraftResumeControl
+                        architectureId={entry.architectureId}
+                        label="Continue editing"
+                        source="architectures-list"
+                        testId={`architecture-draft-continue-${entry.architectureId}`}
+                        ariaLabel={`Continue editing ${entry.displayName}`}
+                      />
                       {entry.linkedReviewId === null && entry.customerStatus !== "archived" ? (
                         <Button type="button" variant="primary" size="sm" asChild>
                           <Link href={startReviewFromArchitectureHref(entry.architectureId)}>Start review</Link>

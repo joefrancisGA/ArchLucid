@@ -8,7 +8,7 @@ export const SEARCH_REVIEW_EVIDENCE_CANONICAL_PATH = SEARCH_REVIEW_EVIDENCE_PATH
 export const SEARCH_REVIEW_EVIDENCE_HELP_TOPIC_LABEL = "How to search review evidence";
 
 export const SEARCH_REVIEW_EVIDENCE_CLAIM_DISCIPLINE =
- "Search review evidence returns snippets across findings, decisions, and sealed records — not a full audit export. Open the cited review, Evidence trail, or Audit before treating results as official.";
+ "Search review evidence returns snippets across findings, decisions, and finalized review records — not a full audit export. Open the cited review, Evidence trail, or Audit before treating results as official.";
 
 export const SEARCH_REVIEW_EVIDENCE_CLAIM_HEADING = "Retrieval launcher only" as const;
 

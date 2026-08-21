@@ -50,7 +50,7 @@ export const RECURRENCE_SCHEDULE_EXAMPLES: readonly RecurrenceScheduleExample[] 
     title: "Annual policy attestation",
     humanCadence: "Annually on January 1 at 08:00 UTC",
     cronExpression: "0 8 1 1 *",
-    whenToUse: "Confirm policy alignment and attestations once per year for governed systems.",
+    whenToUse: "Confirm policy alignment and attestations once per year for approved systems.",
   },
   {
     title: "Post-remediation follow-up",

@@ -195,7 +195,7 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
   },
   {
     slug: "governance-approval",
-    title: "Governance approval",
+    title: "Resolve outcomes",
     summary:
       "Learn how architecture work moves from submission to approval, revision, or rejection.",
     audience: "operator",
@@ -563,7 +563,7 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
   {
     slug: "decision-register",
     title: "Decision register",
-    summary: "Browse architecture decisions locked with sealed review records.",
+    summary: "Browse architecture decisions locked with finalized review records.",
     audience: "operator",
     sourcePaths: [],
     lastReviewed: "2026-08-13",
@@ -735,7 +735,7 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
   {
     slug: "search-review-evidence",
     title: "Search review evidence",
-    summary: "How to search findings, decisions, and signed review evidence across the workspace index.",
+    summary: "How to search findings, decisions, and finalized review evidence across the workspace index.",
     audience: "operator",
     sourcePaths: [],
     lastReviewed: "2026-08-13",

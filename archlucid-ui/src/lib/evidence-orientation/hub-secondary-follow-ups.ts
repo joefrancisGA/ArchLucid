@@ -18,6 +18,11 @@ export function hubSecondaryFollowUpsIntro(primaryWorkCue: string): string {
 /** Shared follow-up strip title for hub pages that surface help and adjacent tasks. */
 export const HUB_RELATED_GUIDES_FOLLOW_UPS_TITLE = "Related Guides" as const;
 
+/** Related Guides strips list help topics — the heading makes Read/Open prefixes redundant. */
+export function isRelatedGuidesFollowUpsTitle(title: string): boolean {
+  return title === HUB_RELATED_GUIDES_FOLLOW_UPS_TITLE;
+}
+
 export const HUB_SECONDARY_FOLLOW_UPS_TITLES = {
   operatorHome: "After a review",
   reviewsNew: HUB_RELATED_GUIDES_FOLLOW_UPS_TITLE,

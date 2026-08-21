@@ -29,7 +29,7 @@ describe("OperatorHomeReviewSummaryCard", () => {
     expect(screen.getByText("Findings")).toBeInTheDocument();
     expect(screen.getByText("3 findings")).toBeInTheDocument();
     expect(screen.getByTestId("run-home-list-insight-review-001")).toHaveTextContent(
-      "3 findings ready · finalize manifest",
+      "3 findings ready · finalize this review to lock export readiness",
     );
   });
 
@@ -67,6 +67,9 @@ describe("OperatorHomeReviewSummaryCard", () => {
       expect.arrayContaining(["Evidence trail:", "Audit trail:"]),
     );
     expect(proofMetadata.textContent).toMatch(/Audit trail:\s*Complete/);
+    expect(proofMetadata.textContent).toMatch(/Decision date:/);
+    expect(proofMetadata.textContent).toMatch(/Finalized review record:/);
+    expect(proofMetadata.textContent).toMatch(/Approver:/);
   });
 
   it("demotes featured primary CTA when command center owns the page primary", () => {

@@ -20,6 +20,10 @@ const marketingLayoutDeferredSource = readFileSync(
   "utf8",
 );
 const marketingLayoutSource = readFileSync(join(marketingAppDir, "..", "layout.tsx"), "utf8");
+const manifestLoaderSource = readFileSync(
+  join(marketingComponentsDir, "../../lib/operator/load-deferred-chunk-from-manifest.tsx"),
+  "utf8",
+);
 
 describe("welcome marketing deferred imports (TB-2028)", () => {
   it("keeps MarketingTierPricingSection off the welcome page static import graph", () => {
@@ -30,16 +34,19 @@ describe("welcome marketing deferred imports (TB-2028)", () => {
     expect(welcomePageSource).not.toMatch(/^"use client"/m);
   });
 
-  it("dynamic-imports pricing and defers marketing layout chrome", () => {
-    expect(deferredSource).toContain('import("./MarketingTierPricingSection")');
-    expect(deferredSource).toContain("next/dynamic");
-
-    expect(marketingLayoutDeferredSource).toContain(
-      'import("@/components/marketing/MarketingPublicFooter")',
-    );
-    expect(marketingLayoutDeferredSource).toContain(
-      'import("@/components/MarketingAnalyticsConsentBanner")',
-    );
+  it("dynamic-imports every marketing deferred module via manifest loaders", () => {
+    expect(deferredSource).toContain("createDeferredComponentFromManifest");
+    expect(deferredSource).not.toContain("next/dynamic");
+    expect(marketingLayoutDeferredSource).toContain("createDeferredComponentFromManifest");
+    expect(marketingLayoutDeferredSource).not.toContain("next/dynamic");
+    expect(manifestLoaderSource).toContain('import("@/components/marketing/MarketingTierPricingSection")');
+    expect(manifestLoaderSource).toContain('import("@/components/MarketingFirstTouchCapture")');
+    expect(manifestLoaderSource).toContain('import("@/components/MicrosoftClarityLoader")');
+    expect(manifestLoaderSource).toContain('import("@/components/marketing/MarketingPublicFooter")');
+    expect(manifestLoaderSource).toContain('import("@/components/MarketingAnalyticsConsentBanner")');
+    expect(deferredSource).toContain("marketing-welcome-tier-pricing-section");
+    expect(marketingLayoutDeferredSource).toContain("marketing-first-touch-capture");
+    expect(marketingLayoutDeferredSource).toContain("marketing-public-footer");
     expect(marketingLayoutSource).not.toContain('from "@/components/marketing/MarketingPublicFooter"');
     expect(marketingLayoutSource).not.toContain('from "@/components/MarketingAnalyticsConsentBanner"');
     expect(marketingLayoutSource).toContain("marketing-layout-deferred-chunks");

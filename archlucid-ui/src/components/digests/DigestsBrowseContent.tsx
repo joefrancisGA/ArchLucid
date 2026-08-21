@@ -88,7 +88,7 @@ function uniqueRecipients(attempts: readonly DigestDeliveryAttempt[]): string {
   ];
 
   if (destinations.length === 0) {
-    return "—";
+    return " — ";
   }
 
   if (destinations.length <= 2) {
@@ -514,7 +514,7 @@ export function DigestsBrowseContent(props: DigestsBrowseContentProps = {}): Rea
                     </div>
                     <div>
                       <dt className="font-medium text-al-text-primary">Review</dt>
-                      <dd className="m-0 font-mono">{selected.runId ?? "—"}</dd>
+                      <dd className="m-0 font-mono">{selected.runId ?? " — "}</dd>
                     </div>
                     {selected.comparedToRunId ? (
                       <div>

@@ -37,10 +37,10 @@ const STATUS_TAG_BASE =
 const BUYER_NEUTRAL_ATTENTION_TAG_CLASS = `${STATUS_TAG_BASE} border-neutral-300 bg-neutral-50 text-neutral-700 dark:border-neutral-600 dark:bg-neutral-900/60 dark:text-neutral-300`;
 
 const BUYER_FILTER_CHIP_ACTIVE_CLASS =
-  "border-neutral-500 bg-neutral-100 text-neutral-900 dark:border-neutral-500 dark:bg-neutral-800 dark:text-neutral-200";
+  "cursor-pointer border-neutral-500 bg-neutral-100 text-neutral-900 shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700 dark:border-neutral-500 dark:bg-neutral-800 dark:text-neutral-200";
 
 const BUYER_FILTER_CHIP_IDLE_CLASS =
-  "border-neutral-300 bg-neutral-100 text-neutral-700 hover:border-neutral-400 hover:bg-neutral-50 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-300 dark:hover:border-neutral-600";
+  "cursor-pointer border-neutral-300 bg-neutral-100 text-neutral-700 hover:border-neutral-400 hover:bg-neutral-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-300 dark:hover:border-neutral-600";
 
 export function isBuyerShellHomePresentation(): boolean {
   return isBuyerPolishedOperatorShellEnv();

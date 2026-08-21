@@ -212,7 +212,7 @@ describe("GovernanceWorkflowPageContent buyer-polished chrome (TB-1434)", () => 
     );
     expect(screen.getByTestId("layer-header-collapsible-guidance")).toBeInTheDocument();
     expect(screen.queryByTestId("governance-interactive-quickstart")).not.toBeInTheDocument();
-    expect(screen.queryAllByText("How governance approvals work")).toHaveLength(1);
+    expect(screen.queryAllByText("How resolve outcomes work")).toHaveLength(1);
     expect(screen.queryByTestId("governance-sample-overview-banner")).not.toBeInTheDocument();
     expect(screen.getByTestId("governance-overview-summary-authority")).toBeInTheDocument();
     expect(screen.queryByTestId("inline-guidance-governance-overview-next")).not.toBeInTheDocument();

@@ -57,7 +57,7 @@ export function ImpactPreviewEvidenceBasisSection(props: ImpactPreviewEvidenceBa
                   </Link>
                 )
               ) : (
-                "—"
+                " — "
               )}
             </dd>
           </div>

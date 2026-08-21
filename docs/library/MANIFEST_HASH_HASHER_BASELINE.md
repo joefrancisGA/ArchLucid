@@ -21,7 +21,7 @@ Any change to the production canonical projection (`ManifestHashService`) requir
 | **Hasher schema version** | `v1` (`ManifestHashService.HasherSchemaVersion`) |
 | **Fixture** | `BaseManifest` in `ArchLucid.Decisioning.Tests/ManifestHashServiceTests.cs` |
 | **Committed artifact** | [`tests/manifest-hash/hasher-baseline-v1.json`](../../tests/manifest-hash/hasher-baseline-v1.json) |
-| **Pinned SHA-256** | `4EA3362449DD7495917A4C2A46ACFB446C79FE173774B0301C11651A3EE38F1A` |
+| **Pinned SHA-256** | `7D0BC356E4E1C717CC5B936C0078D7119EFC97C43C4FA2E207855CE080878912` |
 
 Recompute locally:
 

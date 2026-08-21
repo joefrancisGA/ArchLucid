@@ -29,9 +29,9 @@ import { isProductBrandReviewTitle } from "./review-presentation";
 export const REVIEW_METADATA_NOT_RECORDED_REASONS = {
   governanceDecisionRecordedBy: "Not recorded — this record does not name who recorded the decision",
   reviewTemplate: "Not recorded — no review template captured for this package",
-  finalizedAt: "Not recorded — finalization timestamp missing from the sealed record",
+  finalizedAt: "Not recorded — finalization timestamp missing from the finalized review record",
   packageVersion: "Not recorded — rule set version missing",
-  signedReviewRecordId: "Not recorded — no sealed review record ID",
+  signedReviewRecordId: "Not recorded — no finalized review record ID",
 } as const;
 
 export function deriveSignedReviewRecordIdLabel(manifestId: string | null | undefined): string | null {

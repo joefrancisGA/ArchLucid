@@ -15,7 +15,7 @@ export type ReviewPackageEvidenceDensityStripProps = {
 
 function countDisplay(value: number | null): string {
   if (value === null || !Number.isFinite(value)) {
-    return "—";
+    return " — ";
   }
 
   return String(Math.max(0, Math.trunc(value)));

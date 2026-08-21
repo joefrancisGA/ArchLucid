@@ -12,7 +12,6 @@ import {
   OPERATOR_HOME_WORKSPACE_OVERVIEW_HEADING,
 } from "@/lib/buyer/buyer-polish-copy";
 import { OPERATOR_HOME_CARD_SECTION_HEADING } from "@/lib/design-tokens";
-import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { OPERATOR_HOME_SETUP_READINESS_HREF } from "@/lib/operator/operator-home-metric-hrefs";
 import { PUBLIC_DEMO_CORE_PILOT_COMMIT_CONTEXT } from "@/lib/core-pilot-commit-context";
 import { SHOWCASE_SAMPLE_REVIEW_REGISTRY } from "@/lib/showcase-sample-review-registry";
@@ -54,6 +53,7 @@ const workspaceActivityMock = vi.hoisted(() => ({
 vi.mock("@/components/operator-home/operator-home-workspace-activity-context", () => ({
   useOperatorHomeWorkspaceActivity: () => ({
     hasWorkspaceReviews: workspaceActivityMock.hasWorkspaceReviews,
+    hasOverviewReviewRows: workspaceActivityMock.hasWorkspaceReviews,
     hasActionNeededReviews: false,
     openFindingsCount: 0,
     recentRunIds: [],

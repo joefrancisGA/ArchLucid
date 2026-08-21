@@ -86,7 +86,7 @@ describe("pilot-scorecard-present", () => {
     const emptyCommitted = emptyWorkspace.find((metric) => metric.key === "totalRunsCommitted");
 
     expect(emptyCommitted?.metricState).toBe("unavailable");
-    expect(emptyCommitted?.value).toBe("—");
+    expect(emptyCommitted?.value).toBe(" — ");
     expect(emptyCommitted?.detail).toContain("Start an architecture review");
   });
 

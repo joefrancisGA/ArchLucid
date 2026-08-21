@@ -75,7 +75,7 @@ const enrichedRow = {
   manifestId: "manifest-abc",
   reviewHref: `/architecture/reviews/${finalizedRun.runId}`,
   signedRecordHref: "/governance/sealed-records/manifest-abc",
-  sealIntegrity: { kind: "ready" as const, label: "Sealed" },
+  sealIntegrity: { kind: "ready" as const, label: "Finalized" },
   sealDigestTruncated: "sha256-d…34567890",
   sealDigestFull: "sha256-deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef",
   recordLookupFailure: null,
@@ -127,7 +127,7 @@ describe("SignedRecordsListClient", () => {
       "href",
       "/governance/sealed-records/manifest-abc",
     );
-    expect(screen.getByTestId(`signed-record-integrity-${finalizedRun.runId}`)).toHaveTextContent("Sealed");
+    expect(screen.getByTestId(`signed-record-integrity-${finalizedRun.runId}`)).toHaveTextContent("Finalized");
     expect(screen.queryAllByRole("link", { name: "Open review" })).toHaveLength(0);
   });
 
@@ -177,7 +177,7 @@ describe("SignedRecordsListClient", () => {
         ...enrichedRow,
         runId: row.runId,
         reviewHref: row.reviewHref,
-        manifestVersion: "—",
+        manifestVersion: " — ",
         manifestId: null,
         signedRecordHref: null,
         sealIntegrity: null,
@@ -224,7 +224,7 @@ describe("SignedRecordsListClient", () => {
     expect(browseReviewsLink).toHaveAttribute("href", "/architecture/reviews");
     expect(browseReviewsLink.getAttribute("href")).not.toMatch(/projectId=/i);
 
-    expect(screen.getByRole("link", { name: "View sample sealed record" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "View sample finalized record" })).toBeInTheDocument();
   });
 
   it("shows the demo static banner when live list is empty and static fallback rows are injected", async () => {

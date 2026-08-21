@@ -16,7 +16,7 @@ const RECURRENCE_SCHEDULES_HUB_CONTEXTUAL_HELP = {
   whatToDoNext: "Create a schedule from a finalized review, then monitor cadence, status, and last-run health on this page.",
   whyEmpty: "Schedules appear after you create one for a finalized architecture review.",
   whereToConfigurePrerequisite:
-    "Finalize an architecture review and complete governance approval when your workspace requires it before scheduling follow-up.",
+    "Finalize an architecture review and complete resolve outcomes when your workspace requires it before scheduling follow-up.",
   whatToDoNextAction: {
     label: "Open architecture reviews",
     href: RECURRENCE_SCHEDULES_REVIEW_PACKAGES_HREF,

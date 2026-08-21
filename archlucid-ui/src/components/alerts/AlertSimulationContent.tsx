@@ -164,7 +164,7 @@ function OutcomeTable({ outcomes }: { outcomes: SimulatedAlertOutcome[] }) {
       <EnterpriseTableBody>
         {outcomes.map((o, i) => (
           <EnterpriseTableRow key={`${o.runId ?? "x"}-${i}`}>
-            <EnterpriseTableCell className="whitespace-nowrap">{o.runId ?? "—"}</EnterpriseTableCell>
+            <EnterpriseTableCell className="whitespace-nowrap">{o.runId ?? " — "}</EnterpriseTableCell>
             <EnterpriseTableCell>{o.ruleMatched ? "yes" : "no"}</EnterpriseTableCell>
             <EnterpriseTableCell>{o.wouldCreateAlert ? "yes" : "no"}</EnterpriseTableCell>
             <EnterpriseTableCell>{o.wouldBeSuppressed ? "yes" : "no"}</EnterpriseTableCell>
@@ -182,10 +182,10 @@ function OutcomeTable({ outcomes }: { outcomes: SimulatedAlertOutcome[] }) {
             </EnterpriseTableCell>
             <EnterpriseTableCell className={cn("align-top", OPERATOR_TYPOGRAPHY.helper)}>
               <div>
-                <strong>Reason:</strong> {o.suppressionReason || "—"}
+                <strong>Reason:</strong> {o.suppressionReason || " — "}
               </div>
               <div className="mt-1">
-                <strong>Dedupe:</strong> {o.deduplicationKey || "—"}
+                <strong>Dedupe:</strong> {o.deduplicationKey || " — "}
               </div>
             </EnterpriseTableCell>
           </EnterpriseTableRow>

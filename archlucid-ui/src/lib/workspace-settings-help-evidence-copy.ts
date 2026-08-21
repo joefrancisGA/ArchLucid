@@ -6,7 +6,7 @@ export const WORKSPACE_SETTINGS_HELP_CANONICAL_PATH = "/help/workspace-settings"
 export const WORKSPACE_SETTINGS_HELP_CLAIM_DISCIPLINE_HEADING = "What this guide is not";
 
 export const WORKSPACE_SETTINGS_HELP_CLAIM_DISCIPLINE =
-  "This guide is not the live Workspace settings Admin surface — open Workspace settings to edit tenant defaults. It is not workspace scope selection, and it is not where procurement goes for sealed review record citations. Open Assurance status when procurement needs trust citations beyond this orientation.";
+  "This guide is not the live Workspace settings Admin surface — open Workspace settings to edit tenant defaults. It is not workspace scope selection, and it is not where procurement goes for finalized review record citations. Open Assurance status when procurement needs trust citations beyond this orientation.";
 
 export const WORKSPACE_SETTINGS_HELP_FOLLOW_UPS_TITLE = "Where to go next";
 

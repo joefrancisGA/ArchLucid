@@ -99,7 +99,7 @@ export function AiUsageMonthlyBudgetPanel(props: Props) {
                 {budgetSummaryCopy ?? "Budget summary unavailable"}
               </p>
               <p className={cn("m-0 font-semibold tabular-nums text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)} aria-live="polite">
-                {props.kpi.budgetPercentUsed !== null ? `${props.kpi.budgetPercentUsed}% used` : "—"}
+                {props.kpi.budgetPercentUsed !== null ? `${props.kpi.budgetPercentUsed}% used` : " — "}
               </p>
             </div>
             <Progress
@@ -123,13 +123,13 @@ export function AiUsageMonthlyBudgetPanel(props: Props) {
             <div>
               <dt className="text-al-text-secondary">Remaining</dt>
               <dd className="m-0 font-medium tabular-nums text-al-text-primary">
-                {remainingUsd !== null ? formatCostReportingEstimatedUsd(remainingUsd, props.kpi.currency) : "—"}
+                {remainingUsd !== null ? formatCostReportingEstimatedUsd(remainingUsd, props.kpi.currency) : " — "}
               </dd>
             </div>
             <div>
               <dt className="text-al-text-secondary">Warning threshold</dt>
               <dd className="m-0 font-medium tabular-nums text-al-text-primary">
-                {props.warningThresholdPercent !== null ? `${props.warningThresholdPercent}%` : "—"}
+                {props.warningThresholdPercent !== null ? `${props.warningThresholdPercent}%` : " — "}
               </dd>
             </div>
             <div>
@@ -137,7 +137,7 @@ export function AiUsageMonthlyBudgetPanel(props: Props) {
               <dd className="m-0 font-medium tabular-nums text-al-text-primary">
                 {props.kpi.projectedMonthEndUsd !== null
                   ? `~${formatCostReportingEstimatedUsd(props.kpi.projectedMonthEndUsd, props.kpi.currency)}`
-                  : "—"}
+                  : " — "}
               </dd>
             </div>
           </dl>

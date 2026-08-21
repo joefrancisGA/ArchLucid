@@ -26,7 +26,7 @@ describe("GovernanceApprovalStoryCard", () => {
     expect(screen.getByText(/Approval decision — approval path complete/i)).toBeInTheDocument();
     expect(screen.getByText("Submitted for review")).toBeInTheDocument();
     expect(screen.getByText("Architecture review completed")).toBeInTheDocument();
-    expect(screen.getByText("Governance approval recorded")).toBeInTheDocument();
+    expect(screen.getByText("Resolve outcomes recorded")).toBeInTheDocument();
     expect(screen.getByText(/Recorded Jan 14, 2026.*ET/)).toBeInTheDocument();
     expect(screen.getByText("Approved finalized review record")).toBeInTheDocument();
     expect(

@@ -7,6 +7,7 @@ import {
   BUYER_ARCHITECTURE_PACKAGE_ORIGIN_CREATED_BADGE,
   BUYER_ARCHITECTURE_PACKAGE_ORIGIN_METADATA_LABEL,
   BUYER_ARCHITECTURE_PACKAGE_ORIGIN_REVIEWED_BADGE,
+  BUYER_ARCHITECTURE_PACKAGE_ORIGIN_REVIEWED_DISCLOSURE,
   BUYER_RUNS_DASHBOARD_FILTER_ALL,
   BUYER_RUNS_DASHBOARD_TAB_APPROVED,
   BUYER_RUNS_DASHBOARD_TAB_NEEDS_ATTENTION,
@@ -224,12 +225,18 @@ export function ArchitecturePackageOriginMetadataLine(props: ArchitecturePackage
   }
 
   return (
-    <InlineMetadataLine
-      label={BUYER_ARCHITECTURE_PACKAGE_ORIGIN_METADATA_LABEL}
-      value={resolved.label}
-      className={props.className}
-      testId={`architecture-package-origin-${resolved.origin}`}
-    />
+    <div className={props.className}>
+      <InlineMetadataLine
+        label={BUYER_ARCHITECTURE_PACKAGE_ORIGIN_METADATA_LABEL}
+        value={resolved.label}
+        testId={`architecture-package-origin-${resolved.origin}`}
+      />
+      {resolved.origin === "reviewed" ? (
+        <p className="m-0 mt-1 text-al-text-secondary text-xs leading-relaxed">
+          {BUYER_ARCHITECTURE_PACKAGE_ORIGIN_REVIEWED_DISCLOSURE}
+        </p>
+      ) : null}
+    </div>
   );
 }
 

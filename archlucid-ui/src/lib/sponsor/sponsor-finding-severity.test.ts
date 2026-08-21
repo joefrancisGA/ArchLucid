@@ -4,8 +4,8 @@ import { severityFromTrace, severitySortRank } from "./sponsor-finding-severity"
 
 describe("severityFromTrace", () => {
   it("maps empty to em dash", () => {
-    expect(severityFromTrace("")).toBe("—");
-    expect(severityFromTrace(null)).toBe("—");
+    expect(severityFromTrace("")).toBe(" — ");
+    expect(severityFromTrace(null)).toBe(" — ");
   });
 
   it("maps critical/high/severe to High (legacy display bucket)", () => {

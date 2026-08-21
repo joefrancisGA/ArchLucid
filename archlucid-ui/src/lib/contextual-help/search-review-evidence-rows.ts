@@ -20,7 +20,7 @@ const SEARCH_REVIEW_EVIDENCE_HUB_CONTEXTUAL_HELP = {
 
   whatIsThisPage:
 
-    "Search findings, decisions, and signed review evidence across the workspace index, optionally scoped to one review.",
+    "Search findings, decisions, and finalized review evidence across the workspace index, optionally scoped to one review.",
 
   whatToDoNext:
 
@@ -28,7 +28,7 @@ const SEARCH_REVIEW_EVIDENCE_HUB_CONTEXTUAL_HELP = {
 
   whyEmpty: "Matches appear after committed review evidence is indexed and your query finds relevant chunks.",
 
-  whereToConfigurePrerequisite: "Finalize reviews so findings and sealed records are available to search.",
+  whereToConfigurePrerequisite: "Finalize reviews so findings and finalized review records are available to search.",
 
 } as const;
 

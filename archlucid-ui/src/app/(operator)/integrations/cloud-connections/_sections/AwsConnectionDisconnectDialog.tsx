@@ -39,7 +39,7 @@ export function AwsConnectionDisconnectDialog(props: AwsConnectionDisconnectDial
         }
       }}
       title={resolveDisconnectTitle(accountId)}
-      description="Scheduled read-only inventory collection for this AWS account will stop. Previously collected inventory packages and any sealed review records that cite them are retained."
+      description="Scheduled read-only inventory collection for this AWS account will stop. Previously collected inventory packages and any finalized review records that cite them are retained."
       confirmLabel="Disconnect"
       variant="destructive"
       busy={props.busy}

@@ -101,7 +101,7 @@ describe("HelpDecisionRegisterGuideView", () => {
     }
 
     expect(screen.getByRole("link", { name: "Finalized review records" })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Governance approval help" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Resolve outcomes help" })).toBeInTheDocument();
 
     for (const heading of DECISION_REGISTER_HELP_GUIDE_HEADINGS) {
       expect(screen.getByRole("heading", { level: 2, name: heading.title })).toBeInTheDocument();

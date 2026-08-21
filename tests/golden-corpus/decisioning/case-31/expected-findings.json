@@ -36,14 +36,14 @@
     ]
   },
   {
-    "findingId": "d6046a3b-a81f-dd17-53d6-67530425bb91",
+    "findingId": "93488d7a-d488-ade4-cf24-945e736b41db",
     "findingType": "TopologyCoverageFinding",
     "category": "Topology",
     "severity": "Warning",
     "title": "Topology coverage is incomplete",
     "rationale": "The graph contains topology resources but is missing one or more workload-expected categories.",
     "relatedNodeIds": [
-      "t1"
+      "stor1"
     ],
     "payloadType": "TopologyCoverageFindingPayload",
     "rulesApplied": [

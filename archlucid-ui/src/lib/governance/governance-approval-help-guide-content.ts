@@ -12,13 +12,13 @@ import {
 } from "@/lib/governance/governance-route-paths";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
-export const GOVERNANCE_APPROVAL_HELP_PAGE_TITLE = "Governance approval";
+export const GOVERNANCE_APPROVAL_HELP_PAGE_TITLE = "Resolve outcomes";
 
 export const GOVERNANCE_APPROVAL_HELP_PAGE_SUBTITLE =
   "Learn how architecture work moves from submission to approval, revision, or rejection.";
 
 export const GOVERNANCE_APPROVAL_HELP_OVERVIEW =
-  "Governance approval connects a finalized architecture review to an auditable decision. Solution architects submit work for review, governance approvers record decisions, and supporting evidence stays linked for diligence and audit.";
+  "Resolve outcomes connects a finalized architecture review to an auditable decision. Solution architects submit work for review, governance approvers record decisions, and supporting evidence stays linked for diligence and audit.";
 
 export const GOVERNANCE_APPROVAL_HELP_ACTION_CARD_TITLE = "Record or track an approval";
 
@@ -86,7 +86,7 @@ export const GOVERNANCE_APPROVAL_HELP_ROLES: readonly GovernanceApprovalHelpRole
     description:
       "Prepare an architecture review, resolve required findings, and submit it for approval.",
     tasks: [
-      "Finalize the review and confirm the sealed review record version.",
+      "Finalize the review and confirm the finalized review record version.",
       "Confirm required fields, environments, and supporting evidence are complete.",
       "Resolve blocking findings or record an accepted disposition before submission.",
       "Submit the approval request with source and target environments.",
@@ -161,7 +161,7 @@ export const GOVERNANCE_APPROVAL_HELP_STATUS_ROWS: readonly GovernanceApprovalHe
     kind: "approved",
     meaning: "The approval decision is recorded and visible in the audit trail.",
     whoCanAct: "Governance leads with release permission after approval.",
-    nextAction: "Release the sealed review record to the target environment when required.",
+    nextAction: "Release the finalized review record to the target environment when required.",
   },
   {
     status: "Rejected",
@@ -173,14 +173,14 @@ export const GOVERNANCE_APPROVAL_HELP_STATUS_ROWS: readonly GovernanceApprovalHe
   {
     status: "Promoted",
     kind: "in-progress",
-    meaning: "An approved sealed review record was released toward the target environment.",
+    meaning: "An approved finalized review record was released toward the target environment.",
     whoCanAct: "Governance leads with release permission.",
     nextAction: "Complete activation for the target environment when required.",
   },
   {
     status: "Activated",
     kind: "ready",
-    meaning: "The sealed review record version is live for the target environment.",
+    meaning: "The finalized review record version is live for the target environment.",
     whoCanAct: "Readers with governance or audit access.",
     nextAction: "Use the audit trail and findings to confirm ongoing posture.",
   },
@@ -220,7 +220,7 @@ export const GOVERNANCE_APPROVAL_HELP_STATUS_PHASES: readonly GovernanceApproval
 ] as const;
 
 export const GOVERNANCE_APPROVAL_HELP_PREREQUISITES = [
-  "A finalized review exists with a sealed review record version.",
+  "A finalized review exists with a finalized review record version.",
   "Required submission fields are complete, including source and target environments.",
   "Blocking findings are resolved, remediated, or explicitly accepted with disposition.",
   "Supporting evidence is attached where your policy requires it.",
@@ -238,7 +238,7 @@ export const GOVERNANCE_APPROVAL_HELP_DECISION_OUTCOMES: readonly GovernanceAppr
     outcome: "Approved",
     bullets: [
       "The approval decision is recorded with reviewer identity and timestamp.",
-      "The request shows an approved state in the governance workflow and dashboard.",
+      "The request shows an approved state in the approval workflow and dashboard.",
       "Audit history is updated for procurement and internal assurance.",
       "Authorized users may release the review record to the target environment next.",
     ],
@@ -256,7 +256,7 @@ export const GOVERNANCE_APPROVAL_HELP_DECISION_OUTCOMES: readonly GovernanceAppr
     outcome: "Released and activated",
     bullets: [
       "After approval, a governance release records movement toward the target environment.",
-      "Activation confirms which sealed review record version is live for that environment.",
+      "Activation confirms which finalized review record version is live for that environment.",
       "Older activations may be superseded when a newer release lands.",
       "Audit trail entries capture who released and activated each step.",
     ],
@@ -308,7 +308,7 @@ export const GOVERNANCE_APPROVAL_HELP_TROUBLESHOOTING: readonly GovernanceApprov
   {
     issue: "Approval request not visible",
     resolution:
-      "Load the correct review on the governance workflow page or check the dashboard for pending items across reviews.",
+      "Load the correct review on the approval workflow page or check the dashboard for pending items across reviews.",
   },
   {
     issue: "Evidence appears missing",
@@ -338,7 +338,7 @@ export const GOVERNANCE_APPROVAL_HELP_TROUBLESHOOTING: readonly GovernanceApprov
   {
     issue: "Audit history not updating",
     resolution:
-      "Refresh the governance workflow or audit trail after a decision. If the UI still looks stale, verify the action completed without an error banner.",
+      "Refresh the approval workflow or audit trail after a decision. If the UI still looks stale, verify the action completed without an error banner.",
   },
 ] as const;
 
@@ -358,7 +358,7 @@ export const GOVERNANCE_APPROVAL_HELP_TECHNICAL_REFERENCE_SECTIONS = [
   {
     title: "Release and activation APIs",
     lines: [
-      "POST /v1/governance/promotions — release an approved sealed review record toward a target environment.",
+      "POST /v1/governance/promotions — release an approved finalized review record toward a target environment.",
       "POST /v1/governance/activations — activate a released record for an environment.",
       "GET /v1/governance/runs/{runId}/promotions and .../activations — review-scoped timeline data.",
     ],

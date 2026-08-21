@@ -56,6 +56,7 @@ import {
 import { applyGraphSelectionFocus } from "@/lib/graph-selection-highlight";
 import { useInpOffloadTask } from "@/lib/workers/inp-offload-client";
 import {
+  BUYER_COMPARE_OPEN_SIGNED_REVIEW_RECORD_CTA,
   BUYER_EVIDENCE_GRAPH_OPEN_DECISION_RECORD_CTA,
   BUYER_EVIDENCE_GRAPH_OPEN_FINDING_DETAIL_CTA,
 } from "@/lib/buyer/buyer-polish-copy";
@@ -686,7 +687,7 @@ export function GraphViewer({
                 <div className="mt-3 flex flex-col gap-2">
                   <Button type="button" variant="default" size="sm" className="h-9 w-full justify-center" asChild>
                     <Link href={signedRecordDetailPath(selectedNode.id.trim())}>
-                      Open sealed review record
+                      {BUYER_COMPARE_OPEN_SIGNED_REVIEW_RECORD_CTA}
                     </Link>
                   </Button>
                 </div>

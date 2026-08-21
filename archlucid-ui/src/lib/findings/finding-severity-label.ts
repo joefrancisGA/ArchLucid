@@ -4,7 +4,7 @@
  */
 export function findingSeverityLabel(severity: number | undefined): string {
   if (severity === undefined) {
-    return "—";
+    return " — ";
   }
 
   switch (severity) {

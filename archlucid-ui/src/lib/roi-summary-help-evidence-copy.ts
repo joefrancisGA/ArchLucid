@@ -10,7 +10,7 @@ export const ROI_SUMMARY_HELP_CLAIM_DISCIPLINE_HEADING = "What this guide does n
 export const ROI_SUMMARY_HELP_CLAIM_HEADING_ID = "help-roi-summary-claim-discipline-heading" as const;
 
 export const ROI_SUMMARY_HELP_CLAIM_DISCIPLINE =
-  "This guide explains how to read portfolio ROI framing — it is not a sealed review record or audited financial statement.";
+  "This guide explains how to read portfolio ROI framing — it is not a finalized review record or audited financial statement.";
 
 export const ROI_SUMMARY_HELP_FOLLOW_UPS_TITLE = "Where to go next";
 

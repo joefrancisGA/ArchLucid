@@ -64,7 +64,7 @@ export function PlanningThemesTable(props: PlanningThemesTableProps) {
                 <div className={cn("mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>{t.summary}</div>
               </EnterpriseTableCell>
               <EnterpriseTableCell className={planningNumericCellCls}>{t.evidenceSignalCount}</EnterpriseTableCell>
-              <EnterpriseTableCell className={planningThTdCls}>{t.affectedArtifactTypeOrWorkflowArea || "—"}</EnterpriseTableCell>
+              <EnterpriseTableCell className={planningThTdCls}>{t.affectedArtifactTypeOrWorkflowArea || " — "}</EnterpriseTableCell>
               <EnterpriseTableCell className={planningThTdCls}>
                 {planCount === 0 ? (
                   <span className={cn("text-neutral-400 dark:text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>

@@ -11,9 +11,11 @@ import { ALERT_RULES_HUB_CHUNK_MANIFEST } from "@/lib/operator/alert-rules-hub-c
 import { ALERTS_INBOX_CHUNK_MANIFEST } from "@/lib/operator/alerts-inbox-chunk-manifest";
 import { APP_SHELL_CHUNK_MANIFEST } from "@/lib/operator/app-shell-chunk-manifest";
 import { GOVERNANCE_WORKFLOW_CHUNK_MANIFEST } from "@/lib/operator/governance-workflow-chunk-manifest";
+import { MARKETING_CHUNK_MANIFEST } from "@/lib/operator/marketing-chunk-manifest";
 import { OPERATOR_HOME_CHUNK_MANIFEST } from "@/lib/operator/operator-home-chunk-manifest";
 import { OPERATOR_SHELL_TOP_BAR_CHUNK_MANIFEST } from "@/lib/operator/operator-shell-top-bar-chunk-manifest";
 import { POLICY_PACKS_AUTHORING_CHUNK_MANIFEST } from "@/lib/operator/policy-packs-authoring-chunk-manifest";
+import { REVIEWS_NEW_CHUNK_MANIFEST } from "@/lib/operator/reviews-new-chunk-manifest";
 import { REVIEWS_HUB_CHUNK_MANIFEST } from "@/lib/operator/reviews-hub-chunk-manifest";
 import { RUN_DETAIL_CHUNK_MANIFEST } from "@/lib/operator/run-detail-chunk-manifest";
 import { SIGNED_RECORDS_LIST_CHUNK_MANIFEST } from "@/lib/operator/signed-records-list-chunk-manifest";
@@ -81,6 +83,30 @@ function resolveDeferredChunkImportLoader(
         import("@/components/operator-home/RunsDashboardPanel").then(
           (module) => module.RunsDashboardPanel,
         ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "operator-home-before-after-delta":
+      return deferredChunkLoader(() =>
+        import("@/components/BeforeAfterDeltaPanel").then((module) => module.BeforeAfterDeltaPanel),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "operator-home-workspace-status":
+      return deferredChunkLoader(() =>
+        import("@/components/operator-home/OperatorHomeWorkspaceStatusSection").then(
+          (module) => module.OperatorHomeWorkspaceStatusSection,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "operator-home-welcome-onboarding":
+      return deferredChunkLoader(() =>
+        import("@/components/operator/OperatorWelcomeOnboarding").then(
+          (module) => module.OperatorWelcomeOnboarding,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "operator-home-trial-welcome-deep-link":
+      return deferredChunkLoader(() =>
+        import("@/components/trial/TrialWelcomeRunDeepLink").then((module) => module.TrialWelcomeRunDeepLink),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "operator-home-first-value-callout":
+      return deferredChunkLoader(() =>
+        import("@/components/FirstValueReachedCallout").then((module) => module.FirstValueReachedCallout),
       ) as () => Promise<ComponentType<Record<string, unknown>>>;
     case "operator-home-cto-demo-sponsor-landing":
       return deferredChunkLoader(() =>
@@ -381,6 +407,92 @@ function resolveDeferredChunkImportLoader(
     case "operator-shell-top-bar-account-settings":
       return deferredChunkLoader(() =>
         import("@/components/shell/AccountSettingsMenu").then((module) => module.AccountSettingsMenu),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "operator-shell-top-bar-llm-budget-pill":
+      return deferredChunkLoader(() =>
+        import("@/components/llm/LlmBudgetStatusPill").then((module) => module.LlmBudgetStatusPill),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "marketing-welcome-tier-pricing-section":
+      return deferredChunkLoader(() =>
+        import("@/components/marketing/MarketingTierPricingSection").then(
+          (module) => module.MarketingTierPricingSection,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "marketing-first-touch-capture":
+      return deferredChunkLoader(() =>
+        import("@/components/MarketingFirstTouchCapture").then((module) => module.MarketingFirstTouchCapture),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "marketing-microsoft-clarity-loader":
+      return deferredChunkLoader(() =>
+        import("@/components/MicrosoftClarityLoader").then((module) => module.MicrosoftClarityLoader),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "marketing-public-footer":
+      return deferredChunkLoader(() =>
+        import("@/components/marketing/MarketingPublicFooter").then((module) => module.MarketingPublicFooter),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "marketing-analytics-consent-banner":
+      return deferredChunkLoader(() =>
+        import("@/components/MarketingAnalyticsConsentBanner").then(
+          (module) => module.MarketingAnalyticsConsentBanner,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "reviews-new-quick-review-advanced-config":
+      return deferredChunkLoader(() =>
+        import("@/components/usability/QuickReviewAdvancedConfigAccordion").then(
+          (module) => module.QuickReviewAdvancedConfigAccordion,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "reviews-new-wizard-evidence-upload":
+      return deferredChunkLoader(() =>
+        import("@/components/usability/WizardEvidenceUploadZone").then((module) => module.WizardEvidenceUploadZone),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "reviews-new-wizard-package-preview":
+      return deferredChunkLoader(() =>
+        import("@/components/usability/WizardPackagePreview").then((module) => module.WizardPackagePreview),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "reviews-new-cto-demo-fast-create":
+      return deferredChunkLoader(() =>
+        import("@/components/cto-demo/CtoDemoFastCreatePanel").then((module) => module.CtoDemoFastCreatePanel),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "reviews-new-cto-demo-review-mode-callout":
+      return deferredChunkLoader(() =>
+        import("@/components/cto-demo/CtoDemoReviewModeCallout").then((module) => module.CtoDemoReviewModeCallout),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "reviews-new-draft-intake-decision-receipt":
+      return deferredChunkLoader(() =>
+        import("@/components/draft-intake/DraftIntakeDecisionReceiptCard").then(
+          (module) => module.DraftIntakeDecisionReceiptCard,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "reviews-new-wizard-step-advanced":
+      return deferredChunkLoader(() =>
+        import("@/components/wizard/steps/WizardStepAdvanced").then((module) => module.WizardStepAdvanced),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "reviews-new-wizard-step-cloud-inventory":
+      return deferredChunkLoader(() =>
+        import("@/components/wizard/steps/WizardStepCloudInventoryContext").then(
+          (module) => module.WizardStepCloudInventoryContext,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "reviews-new-wizard-step-baseline-zip":
+      return deferredChunkLoader(() =>
+        import("@/components/wizard/steps/WizardStepBaselineZip").then((module) => module.WizardStepBaselineZip),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "reviews-new-wizard-step-baseline-metrics":
+      return deferredChunkLoader(() =>
+        import("@/components/wizard/steps/WizardStepBaselineMetrics").then(
+          (module) => module.WizardStepBaselineMetrics,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "reviews-new-wizard-post-create-evidence":
+      return deferredChunkLoader(() =>
+        import("@/components/wizard/steps/WizardPostCreateEvidenceUploadPanel").then(
+          (module) => module.WizardPostCreateEvidenceUploadPanel,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "reviews-new-wizard-step-track":
+      return deferredChunkLoader(() =>
+        import("@/components/wizard/steps/WizardStepTrack").then((module) => module.WizardStepTrack),
       ) as () => Promise<ComponentType<Record<string, unknown>>>;
     case "reviews-hub-inventory":
       return deferredChunkLoader(() =>
@@ -891,6 +1003,11 @@ export const REVIEWS_HUB_DEFERRED_CHUNK_LOADER_IDS: readonly string[] = REVIEWS_
   (entry) => entry.id,
 );
 
+/** Reviews-new manifest ids that have registered import loaders (manifest import-test guard). */
+export const REVIEWS_NEW_DEFERRED_CHUNK_LOADER_IDS: readonly string[] = REVIEWS_NEW_CHUNK_MANIFEST.map(
+  (entry) => entry.id,
+);
+
 /** Run-detail manifest ids that have registered import loaders (manifest import-test guard). */
 export const RUN_DETAIL_DEFERRED_CHUNK_LOADER_IDS: readonly string[] = RUN_DETAIL_CHUNK_MANIFEST.map(
   (entry) => entry.id,
@@ -929,3 +1046,8 @@ export const APP_SHELL_DEFERRED_CHUNK_LOADER_IDS: readonly string[] = APP_SHELL_
 /** Operator shell top bar manifest ids that have registered import loaders (manifest import-test guard). */
 export const OPERATOR_SHELL_TOP_BAR_DEFERRED_CHUNK_LOADER_IDS: readonly string[] =
   OPERATOR_SHELL_TOP_BAR_CHUNK_MANIFEST.map((entry) => entry.id);
+
+/** Marketing manifest ids that have registered import loaders (manifest import-test guard). */
+export const MARKETING_DEFERRED_CHUNK_LOADER_IDS: readonly string[] = MARKETING_CHUNK_MANIFEST.map(
+  (entry) => entry.id,
+);

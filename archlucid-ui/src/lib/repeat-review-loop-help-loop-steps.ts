@@ -46,7 +46,7 @@ export const REPEAT_REVIEW_LOOP_HELP_LOOP_STEPS: readonly RepeatReviewLoopHelpLo
     href: GOVERNANCE_POLICY_PACKS_PATH,
     ctaLabel: "Open policy packs",
     secondaryHref: inAppHelpHref("governance-approval"),
-    secondaryLabel: "Governance approval guide",
+    secondaryLabel: "Resolve outcomes guide",
   },
   {
     stepNumber: 5,

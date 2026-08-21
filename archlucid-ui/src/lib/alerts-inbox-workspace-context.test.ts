@@ -128,7 +128,7 @@ describe("buildAlertsInboxEmptyStateProps", () => {
     expect(props.title).toBe(ALERTS_EMPTY_NO_RULES_TITLE);
     expect(props.description).toBe(ALERTS_EMPTY_NO_RULES_BODY);
     expect(props.description).toContain("critical and high-severity finding count");
-    expect(props.actions?.[0]?.label).toBe("Open governance setup");
+    expect(props.actions?.[0]?.label).toBe("Open approval setup");
     expect(props.actions?.[0]?.href).toBe("/governance/setup");
     expect(props.actions?.[1]?.label).toBe(ALERTS_CONFIGURE_RULES_LINK_LABEL);
     expect(props.actions?.[1]?.href).toBe(RULES_HREF);

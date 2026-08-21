@@ -35,7 +35,7 @@ export const ARCHITECTURE_INTELLIGENCE_SOURCES: readonly EvidenceOrientationLink
   {
     label: "Evidence trail help",
     href: inAppHelpHref("evidence-trail"),
-    when: "Learn how findings and sealed records connect in the evidence trail",
+    when: "Learn how findings and finalized review records connect in the evidence trail",
   },
   {
     label: "Audit",

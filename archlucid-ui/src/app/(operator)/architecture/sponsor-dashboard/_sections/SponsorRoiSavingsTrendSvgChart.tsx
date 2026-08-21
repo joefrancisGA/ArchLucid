@@ -21,7 +21,7 @@ function formatMonthLabel(isoUtc: string): string {
   const date = new Date(isoUtc);
 
   if (Number.isNaN(date.getTime())) {
-    return "—";
+    return " — ";
   }
 
   return date.toLocaleDateString(undefined, { month: "short", year: "2-digit", timeZone: "UTC" });

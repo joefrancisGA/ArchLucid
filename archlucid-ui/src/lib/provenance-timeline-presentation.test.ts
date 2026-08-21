@@ -14,7 +14,7 @@ describe("provenance timeline presentation", () => {
       label: "manifestCommitted",
     };
 
-    expect(provenanceTimelinePrimaryLabel(row)).toBe("Sealed review record committed");
+    expect(provenanceTimelinePrimaryLabel(row)).toBe("Finalized review record committed");
     expect(provenanceTimelineTechnicalKind(row)).toBe("manifestCommitted");
   });
 

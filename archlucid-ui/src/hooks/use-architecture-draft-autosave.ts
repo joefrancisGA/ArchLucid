@@ -9,16 +9,14 @@ import {
 } from "@/lib/architecture/architecture-draft-registry";
 import type { ArchitectureDraftFieldState } from "@/lib/architecture/architecture-draft-readiness";
 import {
+  buildArchitectureDraftPatchPayload,
   hasArchitectureDraftSaveableContent,
   validateArchitectureDraftIntegrity,
 } from "@/lib/architecture/architecture-draft-readiness";
-import {
-  structuredBriefFromDocument,
-  structuredBriefToPatchPayload,
-} from "@/lib/architecture/architecture-draft-structured-brief";
-import { buildDefaultActorSet, createDraftRequest, getDraftRequest, patchDraftRequest } from "@/lib/api/draft-intake-api";
+import { structuredBriefFromDocument } from "@/lib/architecture/architecture-draft-structured-brief";
+import { createDraftRequest, getDraftRequest, patchDraftRequest } from "@/lib/api/draft-intake-api";
+import { isApiRequestError } from "@/lib/api-request-error";
 import { CREATE_ARCHITECTURE_INTENT } from "@/lib/architecture/architecture-workflow-intent";
-import { normalizeActorSetForAdmission } from "@/lib/draft-intake-actor-suggestions";
 import type { ActorSet, DraftRequestResponse } from "@/types/draft-intake";
 
 /** `idle` = loaded / pristine — do not show "Saved" until a user-driven persist succeeds. */
@@ -73,6 +71,18 @@ function fieldsFromDraftDocument(draft: DraftRequestResponse): ArchitectureDraft
   };
 }
 
+function isNonRetryableDraftPatchError(error: unknown): boolean {
+  return isApiRequestError(error) && error.httpStatus === 400;
+}
+
+function draftPatchBlockedMessage(status: DraftRequestResponse["status"]): string {
+  if (status === "Admitted" || status === "RunSpawned" || status === "Submitted") {
+    return "This architecture draft is locked for review intake and can no longer be edited here. Refresh the page or return to the drafts list.";
+  }
+
+  return "This architecture draft can no longer be edited in its current state. Refresh the page or open it from the drafts list.";
+}
+
 function createIntentForDeferredDraft(fields: ArchitectureDraftFieldState): string {
   const trimmedIntent = fields.freeTextIntent.trim();
 
@@ -103,6 +113,7 @@ export function useArchitectureDraftAutosave(
   const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const inFlightSaveRef = useRef<Promise<boolean> | null>(null);
   const trailingSaveNeededRef = useRef(false);
+  const autosaveBlockedRef = useRef(false);
   const persistDraftRef = useRef<() => Promise<boolean>>(async () => false);
   const resolvedArchitectureIdRef = useRef<string | null>(
     deferCreateUntilFirstSave ? null : args.architectureId,
@@ -175,6 +186,8 @@ export function useArchitectureDraftAutosave(
     setConflictMessage(null);
 
     const savePromise = (async (): Promise<boolean> => {
+      let patchFailedNonRetryable = false;
+
       try {
         let architectureId = resolvedArchitectureIdRef.current ?? args.architectureId;
 
@@ -191,6 +204,14 @@ export function useArchitectureDraftAutosave(
 
         const latestServer = await getDraftRequest(architectureId);
 
+        if (latestServer.status !== "Drafting") {
+          setConflictMessage(draftPatchBlockedMessage(latestServer.status));
+          setSaveState("error");
+          patchFailedNonRetryable = true;
+
+          return false;
+        }
+
         if (
           serverUpdatedUtcRef.current !== null &&
           latestServer.updatedUtc !== serverUpdatedUtcRef.current
@@ -199,6 +220,7 @@ export function useArchitectureDraftAutosave(
             "This architecture was updated in another session. Refresh to load the latest version before saving again.",
           );
           setSaveState("error");
+          patchFailedNonRetryable = true;
 
           return false;
         }
@@ -207,16 +229,10 @@ export function useArchitectureDraftAutosave(
         const fieldsForPatch = fieldsRef.current;
         const actorSetForPatch = actorSetRef.current;
 
-        const patched = await patchDraftRequest(architectureId, {
-          freeTextIntent: fieldsForPatch.freeTextIntent.trim(),
-          businessOutcome: fieldsForPatch.businessOutcome.trim(),
-          systemName: fieldsForPatch.systemName.trim() || undefined,
-          actorSet: normalizeActorSetForAdmission(
-            actorSetForPatch.actors.length > 0 ? actorSetForPatch : buildDefaultActorSet(),
-          ),
-          workflowIntent: CREATE_ARCHITECTURE_INTENT,
-          structuredBrief: structuredBriefToPatchPayload(fieldsForPatch.structuredBrief),
-        });
+        const patched = await patchDraftRequest(
+          architectureId,
+          buildArchitectureDraftPatchPayload(fieldsForPatch, actorSetForPatch),
+        );
 
         if (sequence !== saveSequenceRef.current) {
           return false;
@@ -229,9 +245,15 @@ export function useArchitectureDraftAutosave(
         setSaveState("saved");
 
         return true;
-      } catch {
+      } catch (error) {
         if (sequence === saveSequenceRef.current) {
           setSaveState("error");
+        }
+
+        patchFailedNonRetryable = isNonRetryableDraftPatchError(error);
+
+        if (patchFailedNonRetryable) {
+          autosaveBlockedRef.current = true;
         }
 
         return false;
@@ -242,7 +264,9 @@ export function useArchitectureDraftAutosave(
           fieldsRef.current,
           persistedFieldsRef.current,
         );
-        const shouldRunTrailingSave = trailingSaveNeededRef.current || stillDirtyRelativeToBaseline;
+        const shouldRunTrailingSave =
+          !patchFailedNonRetryable &&
+          (trailingSaveNeededRef.current || stillDirtyRelativeToBaseline);
         trailingSaveNeededRef.current = false;
 
         if (shouldRunTrailingSave && hasArchitectureDraftSaveableContent(fieldsRef.current)) {
@@ -286,7 +310,11 @@ export function useArchitectureDraftAutosave(
   }, [enabled, isOnline]);
 
   useEffect(() => {
-    if (!enabled || !hasUnsavedChanges) {
+    autosaveBlockedRef.current = false;
+  }, [args.fields]);
+
+  useEffect(() => {
+    if (!enabled || !hasUnsavedChanges || autosaveBlockedRef.current) {
       return;
     }
 

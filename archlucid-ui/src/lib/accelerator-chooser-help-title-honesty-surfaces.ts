@@ -11,7 +11,7 @@ export const ACCELERATOR_CHOOSER_HELP_TITLE_HONESTY_SOURCE_FILES: readonly strin
   "src/lib/accelerator-chooser-help-guide-content.ts",
   "src/lib/product-documentation-registry.ts",
   "src/lib/help/help-center-catalog.ts",
-  "src/lib/usability/page-help-topic-map.ts",
+  "src/lib/usability/page-help-topic-rows.ts",
   "src/lib/contextual-help/help-topic-rows.ts",
   "src/lib/path-chooser-help-evidence-copy.ts",
   "src/lib/accelerator-chooser-home-inbound-copy.ts",

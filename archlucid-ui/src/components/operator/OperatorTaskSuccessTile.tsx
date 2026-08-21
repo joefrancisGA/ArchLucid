@@ -9,7 +9,7 @@ function safeNonNegativeWholeDisplay(value: unknown): string {
   const numeric = typeof value === "number" ? value : Number(value);
 
   if (!Number.isFinite(numeric) || numeric < 0) {
-    return "—";
+    return " — ";
   }
 
   return String(Math.floor(numeric));
@@ -20,13 +20,13 @@ function safeSessionsToFinalizedPercent(ratio: unknown, sessionsTotal: unknown):
   const r = typeof ratio === "number" ? ratio : Number(ratio);
 
   if (!Number.isFinite(sessions) || sessions <= 0 || !Number.isFinite(r)) {
-    return "—";
+    return " — ";
   }
 
   const pct = Math.round(r * 100);
 
   if (!Number.isFinite(pct)) {
-    return "—";
+    return " — ";
   }
 
   return `${Math.min(100, Math.max(0, pct))}%`;

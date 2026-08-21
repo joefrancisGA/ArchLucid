@@ -47,7 +47,7 @@ export const FINDINGS_QUEUE_SEARCH_EVIDENCE_FINDINGS_LINK: FindingsQueueSearchEv
   id: "findings-queue",
   label: "Findings queue",
   href: GOVERNANCE_FINDINGS_CANONICAL_PATH,
-  whenToUse: "Disposition risks, assign owners, and clear open governance items.",
+  whenToUse: "Disposition risks, assign owners, and clear open review items.",
 };
 
 export const FINDINGS_QUEUE_SEARCH_EVIDENCE_SEARCH_LINK: FindingsQueueSearchEvidenceLink = {

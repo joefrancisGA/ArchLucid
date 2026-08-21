@@ -241,7 +241,7 @@ export function ProductLearningPageView(props: Props) {
                   {m.bundle!.trends.trends.map((row) => (
                     <EnterpriseTableRow key={row.trendKey}>
                       <EnterpriseTableCell className={productLearningThTdClass}>
-                        <div>{row.artifactTypeOrHint || "—"}</div>
+                        <div>{row.artifactTypeOrHint || " — "}</div>
                         {row.windowLabel ? (
                           <div className={OPERATOR_TYPOGRAPHY.helper}>{row.windowLabel}</div>
                         ) : null}
@@ -252,7 +252,7 @@ export function ProductLearningPageView(props: Props) {
                       <EnterpriseTableCell className={productLearningNumericCellClass}>{row.needsFollowUpCount}</EnterpriseTableCell>
                       <EnterpriseTableCell className={productLearningNumericCellClass}>{row.distinctRunCount}</EnterpriseTableCell>
                       <EnterpriseTableCell className={cn(productLearningThTdClass, OPERATOR_TYPOGRAPHY.body)}>
-                        {row.repeatedThemeIndicator ?? "—"}
+                        {row.repeatedThemeIndicator ?? " — "}
                       </EnterpriseTableCell>
                     </EnterpriseTableRow>
                   ))}
@@ -331,7 +331,7 @@ export function ProductLearningPageView(props: Props) {
                       </EnterpriseTableCell>
                       <EnterpriseTableCell className={productLearningThTdClass}>{item.affectedArtifactTypeOrWorkflowArea}</EnterpriseTableCell>
                       <EnterpriseTableCell className={cn(productLearningThTdClass, OPERATOR_TYPOGRAPHY.body, "max-w-[280px]")}>{item.detailSummary}</EnterpriseTableCell>
-                      <EnterpriseTableCell className={cn(productLearningThTdClass, OPERATOR_TYPOGRAPHY.body)}>{item.suggestedNextAction ?? "—"}</EnterpriseTableCell>
+                      <EnterpriseTableCell className={cn(productLearningThTdClass, OPERATOR_TYPOGRAPHY.body)}>{item.suggestedNextAction ?? " — "}</EnterpriseTableCell>
                     </EnterpriseTableRow>
                   ))}
                 </EnterpriseTableBody>

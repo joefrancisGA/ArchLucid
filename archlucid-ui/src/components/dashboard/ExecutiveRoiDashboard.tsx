@@ -17,7 +17,7 @@ const ROI_PATH = `/api/proxy/${ApiV1Routes.analyticsRoi}`;
 
 function formatTimeSavedHours(hours: number): string {
   if (!Number.isFinite(hours) || hours <= 0) {
-    return "—";
+    return " — ";
   }
 
   const rounded = hours >= 10 ? Math.round(hours) : Math.round(hours * 10) / 10;
@@ -27,7 +27,7 @@ function formatTimeSavedHours(hours: number): string {
 
 function formatCount(value: number): string {
   if (!Number.isFinite(value) || value < 0) {
-    return "—";
+    return " — ";
   }
 
   return new Intl.NumberFormat(undefined, { maximumFractionDigits: 0 }).format(value);

@@ -455,7 +455,7 @@ export function RecommendationLearningOpsPageClient(props: Props) {
               <FieldRow label="Newest eligible outcome" value={formatOperationalTimestamp(status.newestEligibleOutcomeUtc)} />
               <FieldRow label="Last attempted build" value={formatOperationalTimestamp(status.lastAttemptedBuildUtc)} />
               <FieldRow label="Last build result" value={status.lastBuildResult ?? "Never"} />
-              <FieldRow label="Blocking reason" value={status.blockingReason ?? "—"} />
+              <FieldRow label="Blocking reason" value={status.blockingReason ?? " — "} />
             </dl>
             {insufficient ? (
               <div className="mt-4 flex flex-wrap gap-3">
@@ -495,7 +495,7 @@ export function RecommendationLearningOpsPageClient(props: Props) {
                 <FieldRow label="Last activated at" value={formatOperationalTimestamp(status.activeProfile.lastActivatedUtc)} />
                 <FieldRow label="Profile checksum" value={status.activeProfile.profileChecksum} copyable />
                 <FieldRow label="Storage location" value={status.activeProfile.storageLocation} />
-                <FieldRow label="Last validation result" value={status.activeProfile.lastValidationResult ?? "—"} />
+                <FieldRow label="Last validation result" value={status.activeProfile.lastValidationResult ?? " — "} />
               </dl>
             </article>
           ) : null}
@@ -630,7 +630,7 @@ export function RecommendationLearningOpsPageClient(props: Props) {
                       Roll back to this version
                     </Button>
                   ) : (
-                    "—"
+                    " — "
                   )}
                 </EnterpriseTableCell>
               </EnterpriseTableRow>

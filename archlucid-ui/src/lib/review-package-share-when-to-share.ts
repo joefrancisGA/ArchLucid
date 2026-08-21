@@ -20,7 +20,7 @@ export type ReviewPackageShareWhenToSharePreview = {
   readonly rows: readonly ReviewPackageShareWhenToShareRow[];
 };
 
-export const REVIEW_PACKAGE_SHARE_WHEN_TO_SHARE_TITLE = "When to share this sealed record" as const;
+export const REVIEW_PACKAGE_SHARE_WHEN_TO_SHARE_TITLE = "When to share this finalized review record" as const;
 
 const ROW_IDS: readonly ReviewPackageShareWhenToShareRowId[] = [
   "shareLink",
@@ -52,7 +52,7 @@ export function buildReviewPackageShareWhenToSharePreview(): ReviewPackageShareW
         id: "export",
         label: "Export deliverable",
         occasion:
-          "Use when sponsors or auditors need a formal deliverable from the sealed review record (ADR, packet, or similar).",
+          `Use when sponsors or auditors need a formal deliverable from the ${sealedReviewRecord.toLowerCase()} (ADR, packet, or similar).`,
       },
     ],
   };

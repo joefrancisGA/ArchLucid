@@ -20,7 +20,7 @@ export function formatApiKeyFingerprint(maskedSegment: string): string {
 
 export function formatApiKeyFingerprints(maskedSegments: readonly string[]): string {
   if (maskedSegments.length === 0) {
-    return "—";
+    return " — ";
   }
 
   if (maskedSegments.length === 1) {

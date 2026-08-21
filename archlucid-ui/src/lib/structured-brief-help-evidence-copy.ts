@@ -9,7 +9,7 @@ export const STRUCTURED_BRIEF_HELP_TOPIC_LABEL = "Structured brief fields" as co
 export const STRUCTURED_BRIEF_HELP_CLAIM_DISCIPLINE_HEADING = "What this guide is not";
 
 export const STRUCTURED_BRIEF_HELP_CLAIM_DISCIPLINE =
-  "This guide explains draft structured brief fields before review intake. It is not a sealed review record citation pack for procurement.";
+  "This guide explains draft structured brief fields before review intake. It is not a finalized review record citation pack for procurement.";
 
 export const STRUCTURED_BRIEF_HELP_FOLLOW_UPS_TITLE = "Where to go next";
 

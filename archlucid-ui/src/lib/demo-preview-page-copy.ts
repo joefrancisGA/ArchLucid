@@ -5,7 +5,7 @@ export const DEMO_PREVIEW_EYEBROW = "Interactive sample";
 export const DEMO_PREVIEW_HERO_TITLE = "See a finalized architecture review";
 
 export const DEMO_PREVIEW_HERO_SUPPORTING =
-  "Explore how ArchLucid connects review conclusions to evidence, decisions, governance approval, audit history, and reusable deliverables.";
+  "Explore how ArchLucid connects review conclusions to evidence, decisions, resolve outcomes, audit history, and reusable deliverables.";
 
 export const DEMO_PREVIEW_SAMPLE_TITLE = "Claims Intake Modernization";
 
@@ -23,7 +23,7 @@ export const DEMO_PREVIEW_THIRTY_SECOND_ACTION = "View the 30-second summary";
 export const DEMO_PREVIEW_SCHEDULE_DEMO_ACTION = "Schedule enterprise demo";
 
 export const DEMO_PREVIEW_SUGGESTED_PATH =
-  "Start with the sponsor report, then follow any conclusion into its evidence, approval history, and sealed record.";
+  "Start with the sponsor report, then follow any conclusion into its evidence, approval history, and finalized review record.";
 
 export const DEMO_PREVIEW_RESULT_HEADING = "Review result at a glance";
 
@@ -63,7 +63,7 @@ export const DEMO_PREVIEW_DELIVERABLES_SUPPORTING =
 export const DEMO_PREVIEW_SIGNIN_CALLOUT_HEADING = "Explore the complete review in your workspace";
 
 export const DEMO_PREVIEW_SIGNIN_CALLOUT_TEXT =
-  "Sign in to inspect the full evidence chain, interactive audit history, findings, and signed review artifacts.";
+  "Sign in to inspect the full evidence chain, interactive audit history, findings, and finalized review artifacts.";
 
 export const DEMO_PREVIEW_SIGNIN_ACTION = "Sign in";
 
@@ -94,7 +94,7 @@ export const DEMO_PREVIEW_ARTIFACT_SPONSOR_TITLE = "Sponsor report";
 
 export const DEMO_PREVIEW_ARTIFACT_SPONSOR_DESC = "Understand the decision and its business context.";
 
-export const DEMO_PREVIEW_ARTIFACT_SIGNED_TITLE = "Sealed review record";
+export const DEMO_PREVIEW_ARTIFACT_SIGNED_TITLE = "Finalized review record";
 
 export const DEMO_PREVIEW_ARTIFACT_SIGNED_DESC =
   "See the finalized findings, evidence, and accountability record.";
@@ -103,9 +103,9 @@ export const DEMO_PREVIEW_ARTIFACT_EVIDENCE_TITLE = "Evidence graph";
 
 export const DEMO_PREVIEW_ARTIFACT_EVIDENCE_DESC = "Trace conclusions to supporting evidence.";
 
-export const DEMO_PREVIEW_ARTIFACT_GOVERNANCE_TITLE = "Governance approval";
+export const DEMO_PREVIEW_ARTIFACT_GOVERNANCE_TITLE = "Resolve outcomes";
 
-export const DEMO_PREVIEW_ARTIFACT_GOVERNANCE_DESC = "Review the approval and monitored conditions.";
+export const DEMO_PREVIEW_ARTIFACT_GOVERNANCE_DESC = "Review resolve outcomes and monitored conditions.";
 
 export const DEMO_PREVIEW_ARTIFACT_AUDIT_TITLE = "Audit trail";
 

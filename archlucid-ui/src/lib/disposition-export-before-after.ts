@@ -3,6 +3,7 @@ import {
   DISPOSITION_EXPORT_IMPACT_SPONSOR_ROI_SECTION_HEADING,
   dispositionExportSponsorRoiBucketLabel,
 } from "@/lib/disposition-export-impact";
+import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
 
 /** Pre-disposition ROI line in SponsorReviewPacketComposer. */
 export const DISPOSITION_EXPORT_BEFORE_OPEN_ROI_BUCKET = "Open (estimated potential)";
@@ -100,7 +101,7 @@ export function buildDispositionExportBeforeAfter(
 
   const beforeLines = buildPacketSnippetLines({
     signedRecordLine:
-      "Sealed review record: committed snapshot (findings as recorded at finalize)",
+      `${SIGNED_MANIFEST_LABEL}: committed snapshot (findings as recorded at finalize)`,
     findingStatusLine: beforeFindingStatusLine(title, input.currentDisposition),
     roiBucketLine: `- ${beforeBucket}: includes this finding's projected impact`,
     topFindingsLine:
@@ -110,7 +111,7 @@ export function buildDispositionExportBeforeAfter(
 
   const afterLines = buildPacketSnippetLines({
     signedRecordLine:
-      "Sealed review record: unchanged — committed snapshot is not rewritten",
+      `${SIGNED_MANIFEST_LABEL}: unchanged — committed snapshot is not rewritten`,
     findingStatusLine: `Finding: ${title} — ${dispositionLabel}`,
     roiBucketLine: `- ${afterBucket}: includes this finding's projected impact`,
     topFindingsLine:

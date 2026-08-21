@@ -552,7 +552,7 @@ export function GovernanceWorkflowPageContent() {
             </span>
           ) : buyerPolishedShell && isReviewContext && !showBuyerApprovalStory ? (
             <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-              Production deployments and change-managed releases follow your enterprise process—this page does not configure
+              Production deployments and change-managed releases follow your enterprise process — this page does not configure
               releases.
             </span>
           ) : null

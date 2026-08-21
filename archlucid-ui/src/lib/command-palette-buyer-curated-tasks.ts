@@ -33,7 +33,7 @@ export const BUYER_COMMAND_PALETTE_CURATED_TASKS: readonly CuratedPaletteTask[] 
   {
     label: SIGNED_MANIFEST_LABEL,
     href: getShowcaseManifestHref(),
-    searchValue: "sealed review record package deliverables",
+    searchValue: "finalized review record package deliverables",
   },
   {
     label: "Policy pack basis",
@@ -49,7 +49,7 @@ export const BUYER_COMMAND_PALETTE_CURATED_TASKS: readonly CuratedPaletteTask[] 
     // Same page the sidebar and route title call "Approval queue" — retired wording stays searchable below.
     label: OPERATOR_NAV_LINK_LABELS.governanceWorkflow,
     href: `/governance/approval-queue?runId=${showcaseRunEnc}`,
-    searchValue: "governance approval workflow sign-off",
+    searchValue: "resolve outcomes workflow sign-off",
   },
   {
     // Same page the sidebar and route title call "Findings" — retired wording stays searchable below.

@@ -29,31 +29,31 @@ export const MUTATION_REVERSIBILITY_REGISTRY: Readonly<
     id: "governance_quick_approve",
     classification: "permanent",
     confirmationLead:
-      "This records a governance approval on the sealed review record. It cannot be undone from this workspace.",
+      "This records resolve outcomes on the finalized review record. It cannot be undone from this workspace.",
   },
   governance_workflow_approve: {
     id: "governance_workflow_approve",
     classification: "permanent",
     confirmationLead:
-      "Approving this request updates the governance workflow state. It cannot be undone from this workspace.",
+      "Approving this request updates the approval workflow state. It cannot be undone from this workspace.",
   },
   governance_workflow_reject: {
     id: "governance_workflow_reject",
     classification: "permanent",
     confirmationLead:
-      "Rejecting this request updates the governance workflow state. It cannot be undone from this workspace.",
+      "Rejecting this request updates the approval workflow state. It cannot be undone from this workspace.",
   },
   governance_workflow_promote: {
     id: "governance_workflow_promote",
     classification: "permanent",
     confirmationLead:
-      "Promoting this pack applies it to the target environment for future governed changes. It cannot be undone from this workspace.",
+      "Promoting this pack applies it to the target environment for future approved changes. It cannot be undone from this workspace.",
   },
   governance_workflow_activate: {
     id: "governance_workflow_activate",
     classification: "permanent",
     confirmationLead:
-      "Activating this pack applies its rules to future governed changes in this environment. It cannot be undone from this workspace.",
+      "Activating this pack applies its rules to future approved changes in this environment. It cannot be undone from this workspace.",
   },
   governance_bulk_disposition: {
     id: "governance_bulk_disposition",

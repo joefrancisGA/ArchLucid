@@ -36,7 +36,7 @@ function formatOptionalTimestamp(value: string | null, loading: boolean): string
   }
 
   if (value === null) {
-    return "—";
+    return " — ";
   }
 
   return formatRelativeTime(value);

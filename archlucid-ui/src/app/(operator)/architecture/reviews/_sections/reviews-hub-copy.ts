@@ -90,22 +90,20 @@ export const REVIEWS_HUB_RECENT_EMPTY_WITH_DRAFT_PRIMARY_LABEL = "Continue editi
 export const REVIEWS_HUB_INCLUDES_TITLE = "What each review contains";
 
 export const REVIEWS_HUB_INCLUDES_LEAD =
-  "A finalized review brings together findings, evidence, decisions, governance records, a sealed review record, and exports.";
+  "A finalized review brings together findings, evidence, decisions, governance records, a finalized review record, and exports.";
 
 export const REVIEWS_HUB_INCLUDES_ITEMS = [
   "Architecture description",
   "Findings",
   "Evidence graph",
-  "Sealed review record",
-  "Governance approval",
+  "Finalized review record",
+  "Resolve outcomes",
   "Exports",
 ] as const;
 
 
 export const REVIEWS_HUB_PINNED_REVIEWS_TITLE = "Pinned reviews";
 
-export const REVIEWS_HUB_PINNED_REVIEWS_EMPTY =
-  "Pin reviews you revisit often from the star on a row or review header.";
 export const REVIEWS_HUB_ADVANCED_LIST_DISCLOSURE = "Search and filter all reviews";
 
 export const REVIEWS_HUB_FILTER_SEARCH_PLACEHOLDER = "Search reviews, systems, owners, or references";

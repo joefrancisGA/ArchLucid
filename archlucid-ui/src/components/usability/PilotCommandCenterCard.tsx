@@ -15,12 +15,14 @@ import { OperatorHomeDualPathCards } from "@/components/operator-home/OperatorHo
 import { OperatorHomeWorkspaceMetricsSummary } from "@/components/operator-home/OperatorHomeWorkspaceMetricsSummary";
 import { useOperatorHomeWorkspaceActivity } from "@/components/operator-home/operator-home-workspace-activity-context";
 import { Button } from "@/components/ui/button";
+import { StatusTag } from "@/components/ui/status-tag";
 import { FirstPilotOperateUnlockVocabularyRail } from "@/components/FirstPilotOperateUnlockVocabularyRail";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import type { OperatorHomeRunsDashboardModel } from "@/app/(operator)/_sections/operator-home-runs-dashboard-model";
 import { useOperatorHomeEmptyDoThisNextAction } from "@/hooks/use-operator-home-empty-do-this-next-action";
 import {
   OPERATOR_HOME_COMMAND_CENTER_TAGLINE,
+  OPERATOR_HOME_DRAFT_ARCHITECTURE_EYEBROW,
   OPERATOR_HOME_RESUME_LATEST_DRAFT_CTA,
 } from "@/lib/buyer/buyer-polish-copy";
 import {
@@ -40,8 +42,10 @@ import {
   resolveOperatorHomeLifecycleEmphasizedPath,
   resolveLatestArchitectureDraftHref,
   resolveOperatorHomePhaseHeroCopy,
+  deriveOperatorHomeWorkspacePhaseSignalsFromOverviewRuns,
   resolveOperatorHomeWorkspacePhase,
 } from "@/lib/resolve-operator-home-workspace-phase";
+import { formatRunHomeListUpdatedLabel } from "@/lib/operator/operator-home-run-list-insight";
 import {
   GOLDEN_SPONSOR_PACKAGE_WALKTHROUGH_PRIMARY_CTA,
   buildGoldenSponsorPackageWalkthroughHref,
@@ -67,6 +71,8 @@ type PilotCommandCenterCardProps = {
   readonly governanceWarningsCount?: number;
   /** SSR/live signal that the workspace already has review packages. */
   readonly hasWorkspaceReviews?: boolean;
+  /** SSR/live signal that the runs dashboard lists at least one active row (including showcase). */
+  readonly hasOverviewReviewRows?: boolean;
   /** When the page header already carries the lead copy, omit the in-card tagline. */
   readonly suppressLeadCopy?: boolean;
   /** When the page header already exposes contextual help, omit the in-card help button. */
@@ -113,6 +119,21 @@ export function PilotCommandCenterCard(props: PilotCommandCenterCardProps = {}):
   );
   const hasWorkspaceReviews =
     (useSsrSeedCounts && props.hasWorkspaceReviews === true) || workspaceActivity.hasWorkspaceReviews;
+  const overviewRunsSignals = useMemo(() => {
+    if (runsDashboard === undefined) {
+      return null;
+    }
+
+    return deriveOperatorHomeWorkspacePhaseSignalsFromOverviewRuns(
+      runsDashboard.items,
+      runsDashboard.totalCount,
+    );
+  }, [runsDashboard]);
+  const hasOverviewReviewRows =
+    (useSsrSeedCounts &&
+      (props.hasOverviewReviewRows === true || props.hasWorkspaceReviews === true)) ||
+    workspaceActivity.hasOverviewReviewRows ||
+    overviewRunsSignals?.hasOverviewReviewRows === true;
   const commitQuery = useCorePilotCommitContextQuery({
     seedRunItems: runsDashboard?.items,
   });
@@ -122,6 +143,7 @@ export function PilotCommandCenterCard(props: PilotCommandCenterCardProps = {}):
   const phaseSignals = useMemo(
     () => ({
       hasWorkspaceReviews,
+      hasOverviewReviewRows,
       draftCount: draftEntries.length,
       hasCommittedManifest:
         hasCommittedArchitectureReview || commitQuery.data?.hasCommittedManifest === true,
@@ -133,6 +155,7 @@ export function PilotCommandCenterCard(props: PilotCommandCenterCardProps = {}):
       draftEntries.length,
       governanceWarningsCount,
       hasCommittedArchitectureReview,
+      hasOverviewReviewRows,
       hasWorkspaceReviews,
       openFindingsCount,
     ],
@@ -147,6 +170,14 @@ export function PilotCommandCenterCard(props: PilotCommandCenterCardProps = {}):
     latestDraft?.displayName ?? null,
   );
   const emphasizedPath = resolveOperatorHomeLifecycleEmphasizedPath(workspacePhase);
+  const draftLastEditedLabel =
+    latestDraft?.lastUpdatedUtc !== undefined && latestDraft.lastUpdatedUtc.trim().length > 0
+      ? formatRunHomeListUpdatedLabel({
+          runId: latestDraft.architectureId,
+          projectId: "default",
+          createdUtc: latestDraft.lastUpdatedUtc,
+        })
+      : null;
   const showLeadCopy = props.suppressLeadCopy !== true;
   const showContextualHelp = props.showContextualHelp !== false;
 
@@ -237,6 +268,17 @@ export function PilotCommandCenterCard(props: PilotCommandCenterCardProps = {}):
 
       {workspacePhase === "eval-with-drafts" ? (
         <div className={cn("space-y-4", OPERATOR_LAYOUT.inlineGap)}>
+          <div className="flex flex-wrap items-center gap-2" data-testid="operator-home-draft-hero-labels">
+            <p className={cn("m-0", OPERATOR_TYPE_SCALE.micro, "text-al-text-secondary")}>
+              {OPERATOR_HOME_DRAFT_ARCHITECTURE_EYEBROW}
+            </p>
+            <StatusTag kind="draft" label="Draft" data-testid="operator-home-draft-status-tag" />
+            {draftLastEditedLabel !== null ? (
+              <p className={cn("m-0", OPERATOR_TYPE_SCALE.micro, "text-al-text-secondary")}>
+                {draftLastEditedLabel}
+              </p>
+            ) : null}
+          </div>
           {resumeHref !== null ? (
             <div
               className={cn(

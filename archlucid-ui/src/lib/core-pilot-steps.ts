@@ -39,7 +39,7 @@ export const CORE_PILOT_STEPS: CorePilotStepBase[] = [
   },
   {
     title: "Finalize the review",
-    shortBody: "Finalize when ready — this locks the sealed review record, findings, and export surfaces.",
+    shortBody: "Finalize when ready — this locks the finalized review record, findings, and export surfaces.",
     detail:
       "Finalization produces the finalized architecture review. Governance policy may block finalize when blocking findings remain.",
     primaryHref: "/architecture/reviews",
@@ -73,9 +73,9 @@ export const CORE_PILOT_STEPS: CorePilotStepBase[] = [
   {
     title: "Review findings and sponsor exports",
     shortBody:
-      "Read governed findings, download sponsor artifacts, and share the proof packet with stakeholders.",
+      "Read findings, download sponsor artifacts, and share the proof packet with stakeholders.",
     detail:
-      "Open the sealed review record summary, findings table, and board-pack or markdown exports when your internal review is complete.",
+      "Open the finalized review record summary, findings table, and board-pack or markdown exports when your internal review is complete.",
     primaryHref: "/architecture/reviews",
     primaryLabel: "Inspect review",
   },

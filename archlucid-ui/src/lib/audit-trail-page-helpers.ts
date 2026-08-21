@@ -175,7 +175,7 @@ export function buyerAuditTrailGovernanceSummaryCounts(
 
 export function formatBuyerAuditTrailLastActivity(lastActivityUtc: string | null): string {
   if (lastActivityUtc === null || lastActivityUtc.trim().length === 0) {
-    return "—";
+    return " — ";
   }
 
   return formatIsoUtcForDisplay(lastActivityUtc);
@@ -213,7 +213,7 @@ export function auditTrailGovernanceEventLabel(eventType: string): string {
   }
 
   if (normalized.includes("governance.approval.recorded")) {
-    return "Governance approval completed";
+    return "Resolve outcomes completed";
   }
 
   if (normalized.includes("export") || normalized.includes("download")) {

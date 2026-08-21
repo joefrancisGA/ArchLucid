@@ -220,7 +220,7 @@ describe("buildCtoDemoRunOfShowMarkdown", () => {
 
     expect(markdown).toContain("Evidence graph");
 
-    expect(markdown).toContain("Governance approval");
+    expect(markdown).toContain("Resolve outcomes");
 
     expect(markdown).toContain("Audit trail");
 

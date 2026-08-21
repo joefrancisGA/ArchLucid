@@ -218,14 +218,14 @@ export function buyerPolishedRouteOrientation(
   if (path.startsWith(`/architecture/reviews/${SHOWCASE_STATIC_DEMO_RUN_ID}`)) {
     return {
       label: SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE,
-      line: "Sealed review record — findings, decisions, evidence trail, governance triage, and deliverables.",
+      line: "Finalized review record — findings, decisions, evidence trail, governance triage, and deliverables.",
     };
   }
 
   if (path !== "/architecture/reviews/new" && /^\/architecture\/reviews\/[^/]+$/.exec(path) !== null) {
     return {
       label: "Review record",
-      line: "Outcomes, findings, sealed review record, and evidence trail for this architecture review.",
+      line: "Outcomes, findings, finalized review record, and evidence trail for this architecture review.",
     };
   }
 
@@ -246,7 +246,7 @@ export function buyerPolishedRouteOrientation(
     if (searchRunId.length > 0) {
       return {
         label: EVIDENCE_TRAIL_SEARCH.scopedTitle,
-        line: "Find language across this review's summaries, sealed review record, and linked metadata.",
+        line: "Find language across this review's summaries, finalized review record, and linked metadata.",
       };
     }
 

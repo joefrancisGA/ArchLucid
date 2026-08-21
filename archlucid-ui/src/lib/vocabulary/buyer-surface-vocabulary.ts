@@ -85,7 +85,7 @@ export const BUYER_SPONSOR_SUMMARY_VOCABULARY = {
   howItWorksDescription:
     "Create a review from your architecture evidence, then finalize it when findings are ready for sponsor reporting. Metrics and sponsor exports populate after the first finalized review.",
   pageLead:
-    "Status, risk, ROI impact, and approval readiness for your current workspace — decision-first, with operator detail one click away.",
+    "Status, risk, ROI impact, and export readiness for your current workspace — decision-first, with operator detail one click away.",
   roiMetricsSrOnly: "Sponsor ROI metrics",
   emptyStateTitle: "No finalized reviews yet",
   emptyStateDescription:
@@ -161,7 +161,7 @@ export const BUYER_SPONSOR_SUMMARY_VOCABULARY = {
   nextActionSectionTitle: "Next action",
   nextActionLinkLabel: "Take action",
   primaryMetricsSectionTitle: "At a glance",
-  primaryMetricsSectionSrOnly: "Risk posture, ROI impact, and approval readiness",
+  primaryMetricsSectionSrOnly: "Risk posture, ROI impact, and export readiness",
   supportingMetricsSectionTitle: "Supporting metrics and trends",
   latestFindingsSectionTitle: "Latest findings and portfolio summary",
   executiveExportsTitle: "Sponsor exports",

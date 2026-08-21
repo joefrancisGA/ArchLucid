@@ -45,7 +45,7 @@ export function TeamsConnectionSummary(props: TeamsConnectionSummaryProps): Reac
         </div>
         <div>
           <dt className="font-medium text-al-text-secondary">{TEAMS_INTEGRATION_SECRET_NAME_LABEL}</dt>
-          <dd className="m-0 mt-1 font-mono text-al-text-primary">{props.conn.keyVaultSecretName ?? "—"}</dd>
+          <dd className="m-0 mt-1 font-mono text-al-text-primary">{props.conn.keyVaultSecretName ?? " — "}</dd>
         </div>
         <div className="sm:col-span-2">
           <dt className="font-medium text-al-text-secondary">Selected notifications</dt>

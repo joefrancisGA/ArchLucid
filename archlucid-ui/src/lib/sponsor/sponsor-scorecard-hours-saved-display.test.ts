@@ -26,7 +26,7 @@ describe("sponsor-scorecard-hours-saved-display (TB-1534)", () => {
       precommitBlocksExact: true,
     });
 
-    expect(display.valueText).toBe("—");
+    expect(display.valueText).toBe(" — ");
     expect(display.valueText).not.toBe(
       `${4 * SPONSOR_SCORECARD_AVERAGE_MANUAL_REVIEW_HOURS} h`,
     );

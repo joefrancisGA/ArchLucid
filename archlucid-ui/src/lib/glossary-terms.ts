@@ -16,13 +16,13 @@ export const GLOSSARY_TERMS = {
     docLink: "/help/glossary#term-review",
   },
   golden_manifest: {
-    term: "Sealed review record",
-    definition: "The provenance-backed record that closes a finalized review (what was decided, bound to lineage). PKI-style cryptographic signing is not claimed for current V1 storage unless a deployment explicitly enables it — treat \"signed\" as lineage / provenance closure unless an architecture note says otherwise. Former terms: *signed manifest*, *golden manifest*.",
+    term: "Finalized review record",
+    definition: "The provenance-backed record that closes a finalized review (what was decided, bound to lineage). PKI-style cryptographic signing is not claimed for current V1 storage unless a deployment explicitly enables it — treat \"signed\" as lineage / provenance closure unless an architecture note says otherwise. Former terms: *signed manifest*, *golden manifest*, *sealed review record*.",
     docLink: "/help/glossary#term-sealed-review-record",
   },
   review_package: {
     term: "Review package",
-    definition: "A finalized architecture review with sealed review record, evidence trail, findings, governance records, and deliverables — the unit buyers open from the reviews list.",
+    definition: "A finalized architecture review with finalized review record, evidence trail, findings, governance records, and deliverables — the unit buyers open from the reviews list.",
     docLink: "/help/glossary#term-review-package",
   },
   findings: {
@@ -42,7 +42,7 @@ export const GLOSSARY_TERMS = {
   },
   decision_trace: {
     term: "Decision trace",
-    definition: "A structured log of decisioning for a run—rules, applied findings, and outcome—used for provenance and replay.",
+    definition: "A structured log of decisioning for a run — rules, applied findings, and outcome — used for provenance and replay.",
     docLink: "/docs/library/GLOSSARY.md#decision-trace",
   },
   provenance: {
@@ -62,7 +62,7 @@ export const GLOSSARY_TERMS = {
   },
   knowledge_graph: {
     term: "Knowledge graph",
-    definition: "A typed graph of nodes and edges built from a context snapshot—used by finding engines and the graph UI.",
+    definition: "A typed graph of nodes and edges built from a context snapshot — used by finding engines and the graph UI.",
     docLink: "/docs/library/GLOSSARY.md#knowledge-graph",
   },
   artifact_bundle: {
@@ -82,7 +82,7 @@ export const GLOSSARY_TERMS = {
   },
   hosting_role: {
     term: "Hosting role",
-    definition: "Whether a process runs API, worker, or combined—controls which services and background jobs are active.",
+    definition: "Whether a process runs API, worker, or combined — controls which services and background jobs are active.",
     docLink: "/docs/library/GLOSSARY.md#hosting-role",
   },
   outbox: {
@@ -101,16 +101,16 @@ export const GLOSSARY_TERMS = {
   },
   governance_workflow: {
     term: "Governance workflow",
-    definition: "A committed decision in the governance workflow affecting merge, rollout, waiver, exception, or escalation — differentiated from UX affordances labelled \"Approve\" unless they write to governance state.",
+    definition: "A committed decision in the approval workflow affecting merge, rollout, waiver, exception, or escalation — differentiated from UX affordances labelled \"Approve\" unless they write to governance state.",
   },
   architecture_manifest: {
-    term: "Sealed review record",
+    term: "Finalized review record",
     definition: "A finalized architecture record containing decisions, findings, and evidence — ready for governance review and sponsor export.",
     docLink: "/docs/library/GLOSSARY.md#golden-manifest",
   },
   manifest_diff: {
     term: "Review comparison",
-    definition: "A field-level comparison between two finalized sealed review records (or their persisted projection), used in Compare to see what changed between reviews.",
+    definition: "A field-level comparison between two finalized review records (or their persisted projection), used in Compare to see what changed between reviews.",
     docLink: "/docs/library/COMPARISON_REPLAY.md",
   },
   comparison_record: {
@@ -120,7 +120,7 @@ export const GLOSSARY_TERMS = {
   },
   approval_request: {
     term: "Approval request",
-    definition: "A committed decision in the governance workflow affecting merge, rollout, waiver, exception, or escalation — differentiated from UX affordances labelled \"Approve\" unless they write to governance state.",
+    definition: "A committed decision in the approval workflow affecting merge, rollout, waiver, exception, or escalation — differentiated from UX affordances labelled \"Approve\" unless they write to governance state.",
     docLink: "/docs/library/GLOSSARY.md#governance-workflow",
   },
   governance_resolution: {

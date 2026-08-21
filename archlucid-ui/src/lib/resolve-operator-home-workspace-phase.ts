@@ -1,4 +1,7 @@
 import type { ArchitectureDraftRegistryEntry } from "@/lib/architecture/architecture-draft-registry";
+import { isDemoSeededOverviewInjectedRun } from "@/lib/demo-seeded-overview";
+import { deriveOperatorHomeWorkspaceMetrics } from "@/lib/operator/operator-home-workspace-metrics";
+import type { RunSummary } from "@/types/authority";
 import {
   OPERATOR_HOME_ACTIVE_REVIEWS_HEADING,
   OPERATOR_HOME_ACTIVE_REVIEWS_LEAD,
@@ -21,12 +24,35 @@ export type OperatorHomeWorkspacePhase =
   | "operational";
 
 export type OperatorHomeWorkspacePhaseSignals = {
+  /** Tenant reviews only — keeps empty-home sample CTAs visible when only demo rows exist (TB-1039). */
   readonly hasWorkspaceReviews: boolean;
+  /** Dashboard-equivalent occupancy — includes showcase/demo rows visible in Recent reviews. */
+  readonly hasOverviewReviewRows: boolean;
   readonly draftCount: number;
   readonly hasCommittedManifest: boolean;
   readonly openFindingsCount: number;
   readonly governanceWarningsCount: number;
 };
+
+/** Aligns fold phase with runs-dashboard effectiveItems (active rows, including showcase samples). */
+export function deriveOperatorHomeWorkspacePhaseSignalsFromOverviewRuns(
+  items: readonly RunSummary[],
+  totalCount?: number,
+): Pick<
+  OperatorHomeWorkspacePhaseSignals,
+  "hasOverviewReviewRows" | "openFindingsCount" | "governanceWarningsCount"
+> {
+  const activeItems = items.filter((run) => run.isArchived !== true);
+  const tenantItems = activeItems.filter((run) => !isDemoSeededOverviewInjectedRun(run));
+  const metrics = deriveOperatorHomeWorkspaceMetrics(tenantItems, tenantItems.length);
+  const resolvedTotalCount = typeof totalCount === "number" ? totalCount : activeItems.length;
+
+  return {
+    hasOverviewReviewRows: Math.max(resolvedTotalCount, activeItems.length) > 0,
+    openFindingsCount: metrics.openFindings,
+    governanceWarningsCount: metrics.governanceWarnings,
+  };
+}
 
 export type OperatorHomePhaseHeroCopy = {
   readonly phase: OperatorHomeWorkspacePhase;
@@ -39,6 +65,7 @@ export type OperatorHomePhaseHeroCopy = {
 export function resolveOperatorHomeWorkspacePhase(
   signals: OperatorHomeWorkspacePhaseSignals,
 ): OperatorHomeWorkspacePhase {
+  // Tenant reviews only — showcase/demo rows in Recent reviews must not flip hero phase (TB-1039).
   if (signals.hasCommittedManifest && signals.hasWorkspaceReviews) {
     return "operational";
   }
@@ -79,7 +106,7 @@ export function resolveOperatorHomeLifecycleEmphasizedPath(
   }
 
   if (phase === "eval-with-drafts") {
-    return null;
+    return "create-architecture";
   }
 
   return null;

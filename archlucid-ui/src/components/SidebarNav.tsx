@@ -3,7 +3,6 @@
 import { usePathname } from "next/navigation";
 import { Fragment, useEffect, useLayoutEffect, useState } from "react";
 
-import { CommandPaletteSidebarVocabularyRail } from "@/components/CommandPaletteSidebarVocabularyRail";
 import { SidebarRecentActivityCard } from "@/components/SidebarRecentActivityCard";
 import { SidebarNavCluster } from "@/components/sidebar-nav/SidebarNavCluster";
 import { RoleNavDensityExpandControl } from "@/components/sidebar-nav/RoleNavDensityExpandControl";
@@ -104,9 +103,6 @@ export function SidebarNav() {
 
   return (
     <div className="flex min-h-0 flex-col gap-0 pb-2">
-      <div className="px-3 pt-2">
-        <CommandPaletteSidebarVocabularyRail currentSurfaceId="sidebar" />
-      </div>
       <SidebarRecentActivityCard />
 
       {allRows.map((row) => {

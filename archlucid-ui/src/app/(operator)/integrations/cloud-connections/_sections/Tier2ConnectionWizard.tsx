@@ -1015,15 +1015,15 @@ export function Tier2ConnectionWizard({
 
             <dt className="text-muted-foreground">Tenant ID</dt>
 
-            <dd data-testid="tier2-summary-tenant">{tenantId.trim() || "—"}</dd>
+            <dd data-testid="tier2-summary-tenant">{tenantId.trim() || " — "}</dd>
 
             <dt className="text-muted-foreground">Client ID</dt>
 
-            <dd data-testid="tier2-summary-client">{clientId.trim() || "—"}</dd>
+            <dd data-testid="tier2-summary-client">{clientId.trim() || " — "}</dd>
 
             <dt className="text-muted-foreground">Subscriptions</dt>
 
-            <dd data-testid="tier2-summary-subscriptions">{subscriptionIds.trim() || "—"}</dd>
+            <dd data-testid="tier2-summary-subscriptions">{subscriptionIds.trim() || " — "}</dd>
 
           </dl>
 

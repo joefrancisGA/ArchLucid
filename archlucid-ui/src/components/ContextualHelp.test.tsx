@@ -36,7 +36,7 @@ describe("ContextualHelp", () => {
     });
 
     expect(await screen.findByRole("dialog", { name: /contextual help/i })).toBeInTheDocument();
-    expect(screen.getByText(/locks the sealed review record/i)).toBeInTheDocument();
+    expect(screen.getByText(/locks the finalized review record/i)).toBeInTheDocument();
 
     act(() => {
       fireEvent.click(button);

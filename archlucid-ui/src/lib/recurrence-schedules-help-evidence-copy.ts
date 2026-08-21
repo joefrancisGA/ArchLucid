@@ -37,7 +37,7 @@ export const RECURRENCE_SCHEDULES_HELP_SOURCES: readonly EvidenceSourceLinkWithW
   {
     label: "Approval queue",
     href: GOVERNANCE_APPROVAL_QUEUE_PATH,
-    when: "Route governance approvals when a scheduled follow-up requires sponsor sign-off",
+    when: "Route resolve outcomes when a scheduled follow-up requires sponsor sign-off",
   },
   {
     label: "Architecture digests help",
@@ -50,9 +50,9 @@ export const RECURRENCE_SCHEDULES_HELP_SOURCES: readonly EvidenceSourceLinkWithW
     when: "Understand how cloned follow-up reviews connect back to the anchored review",
   },
   {
-    label: "Governance approval help",
+    label: "Resolve outcomes help",
     href: inAppHelpHref("governance-approval"),
-    when: "Read approval workflow guidance when scheduled reviews need governance routing context",
+    when: "Read approval workflow guidance when scheduled reviews need approval routing context",
   },
 ] as const;
 

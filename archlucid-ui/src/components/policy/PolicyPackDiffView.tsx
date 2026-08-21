@@ -123,7 +123,7 @@ export function PolicyPackDiffView(props: PolicyPackDiffViewProps) {
                       data-diff-value="left"
                       className={cn("m-0 whitespace-pre-wrap break-words font-mono", OPERATOR_TYPOGRAPHY.helper)}
                     >
-                      {item.leftValue ?? "—"}
+                      {item.leftValue ?? " — "}
                     </pre>
                   </div>
                   <div>
@@ -132,7 +132,7 @@ export function PolicyPackDiffView(props: PolicyPackDiffViewProps) {
                       data-diff-value="right"
                       className={cn("m-0 whitespace-pre-wrap break-words font-mono", OPERATOR_TYPOGRAPHY.helper)}
                     >
-                      {item.rightValue ?? "—"}
+                      {item.rightValue ?? " — "}
                     </pre>
                   </div>
                 </div>

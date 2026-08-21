@@ -75,7 +75,7 @@ export const ALERTS_SUMMARY_LAST_EVALUATED_RULES_NOT_CONFIGURED = "Rules not con
 export const ALERTS_SUMMARY_LAST_EVALUATED_NEVER = "Never evaluated";
 
 /** Visible sentinel when Open/Acknowledged/Resolved/Blocking are not measured (TB-2104). */
-export const ALERTS_SUMMARY_COUNT_NOT_EVALUATED = "—";
+export const ALERTS_SUMMARY_COUNT_NOT_EVALUATED = " — ";
 
 /** Accessible name for count tiles when no alert rules exist (dash alone is not enough). */
 export const ALERTS_SUMMARY_COUNT_NOT_EVALUATED_NO_RULES_ARIA =
@@ -105,7 +105,7 @@ export const ALERTS_ACTION_OPEN_REVIEW_PACKAGES = "Open reviews";
 export const ALERTS_ACTION_START_ARCHITECTURE_REVIEW = "Start architecture review";
 /** @deprecated Use {@link ALERTS_CONFIGURE_RULES_LINK_LABEL} — one label for alerts + rules setup. */
 export const ALERTS_ACTION_CONFIGURE_ALERT_RULES = ALERTS_CONFIGURE_RULES_LINK_LABEL;
-export const ALERTS_ACTION_OPEN_GOVERNANCE_SETUP_GUIDE = "Open governance setup";
+export const ALERTS_ACTION_OPEN_GOVERNANCE_SETUP_GUIDE = "Open approval setup";
 export const ALERTS_ACTION_OPEN_GOVERNANCE_WORKFLOW = "Open resolve outcomes";
 
 /** @deprecated Use {@link ALERTS_CONFIGURE_RULES_LINK_LABEL}. */

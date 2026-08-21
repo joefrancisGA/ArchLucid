@@ -65,7 +65,7 @@ export const IMPACT_PREVIEW_HELP_OUTPUT_TILE_ITEMS: readonly ImpactPreviewHelpTi
 export const IMPACT_PREVIEW_HELP_HOW_TO_READ_STEPS = [
   "Select a finalized review baseline in the current workspace scope.",
   "Define the proposed change and run the impact preview simulation.",
-  "Open reviews, planning, or compare when the simulation needs governed follow-up.",
+  "Open reviews, planning, or compare when the simulation needs approved follow-up.",
 ] as const;
 
 export const IMPACT_PREVIEW_HELP_CLAIM_HEADING_ID = "help-impact-preview-claim-discipline-heading" as const;

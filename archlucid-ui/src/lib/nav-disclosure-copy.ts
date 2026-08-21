@@ -6,7 +6,7 @@
 export const SIDEBAR_SHOW_ALL_FEATURES = {
   show: "Show all sidebar links",
   hide: "Fewer sidebar links",
-  title: "Show governance workflow, compare, replay, and deeper analysis links in the sidebar.",
+  title: "Show approval workflow, compare, replay, and deeper analysis links in the sidebar.",
 } as const;
 
 /**
@@ -42,7 +42,7 @@ export const OPERATOR_ADVANCED_MODE = {
   show: "Enable advanced features",
   hide: "Hide advanced features",
   title:
-    "Show governance workflow, alerts, audit trail, and policy packs in the sidebar.",
+    "Show approval workflow, alerts, audit trail, and policy packs in the sidebar.",
   assistiveOn: "Advanced features on. Governance, audit, and alerting destinations are visible.",
   assistiveOff:
     "Advanced features off. Core Pilot review destinations stay visible until you enable governance tooling.",
@@ -69,12 +69,12 @@ export const NAV_DISCLOSURE = {
     hide: "Hide governance & audit tools",
     /** Announced when collapsed (not the visible button text on small breakpoints). */
     assistiveCollapsed:
-      "Adds governance workflow, alerts, and audit destinations to the sidebar when expanded.",
+      "Adds approval workflow, alerts, and audit destinations to the sidebar when expanded.",
   },
   advanced: {
     /** Settings checkbox: reveal advanced Enterprise Controls links. */
     show: "Show governance, audit & admin controls",
     title:
-      "Alert configuration, audit trail, governance workflow, planning, and admin-level controls.",
+      "Alert configuration, audit trail, approval workflow, planning, and admin-level controls.",
   },
 } as const;

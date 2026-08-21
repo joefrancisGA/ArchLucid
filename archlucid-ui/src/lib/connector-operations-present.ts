@@ -428,8 +428,8 @@ export function formatIntegrationEventBusTechnicalDetails(bus: IntegrationEventB
   const publisher = bus.publisherConfigured ? "configured" : "not configured";
   const outbox = bus.transactionalOutboxEnabled ? "enabled" : "off";
   const consumer = bus.consumerConfigured ? "configured" : "off";
-  const queue = bus.queueOrTopicName ?? "—";
-  const namespace = bus.fullyQualifiedNamespace ?? "—";
+  const queue = bus.queueOrTopicName ?? " — ";
+  const namespace = bus.fullyQualifiedNamespace ?? " — ";
   const legacy = bus.usesLegacyConnectionString ? "present" : "absent";
 
   return `Publisher: ${publisher} · Transactional outbox: ${outbox} · Consumer: ${consumer} · Queue/topic: ${queue} · Namespace: ${namespace} · Legacy connection string: ${legacy}`;

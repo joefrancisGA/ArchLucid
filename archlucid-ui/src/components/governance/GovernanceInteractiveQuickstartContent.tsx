@@ -48,7 +48,7 @@ export function GovernanceInteractiveQuickstartContent({
           </Link>
           {" — finalize so you have a review record version to submit."}
         </li>
-        <li>Request governance approval, then approve and advance the review when your role allows.</li>
+        <li>Request resolve outcomes, then approve and advance the review when your role allows.</li>
         <li>Record go-live by releasing the approved review record to the target environment.</li>
       </ol>
       {hideFirst30DaysLink ? null : (

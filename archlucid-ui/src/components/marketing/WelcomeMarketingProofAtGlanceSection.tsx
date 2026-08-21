@@ -36,7 +36,7 @@ export function WelcomeMarketingProofAtGlanceSection(): React.JSX.Element {
         <li className={cn(MARKETING_SURFACES.cardComfort, "ring-1 ring-teal-800/15 dark:ring-teal-500/20 lg:col-span-1")}>
           <p className={cn("m-0", MARKETING_TYPOGRAPHY.cardTitle)}>Evidence you can follow</p>
           <p className={cn("m-0 mt-2 text-al-text-secondary", MARKETING_TYPOGRAPHY.body)}>
-            Trace graph tie-outs and audit milestones—not an ephemeral chat transcript.
+            Trace graph tie-outs and audit milestones — not an ephemeral chat transcript.
           </p>
           <p className={cn("m-0 mt-4 font-medium", MARKETING_TYPOGRAPHY.meta)}>
             <Link className={MARKETING_SURFACES.inlineLink} href={WELCOME_SEE_IT_HREF}>

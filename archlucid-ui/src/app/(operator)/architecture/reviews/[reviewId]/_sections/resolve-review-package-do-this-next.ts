@@ -74,11 +74,11 @@ function sentenceForPrimaryAction(
 
       return "Resolve or assign all open findings before you finalize or share this review.";
     case "finalize-package":
-      return "Assessment finished — finalize this review to create a sealed review record.";
+      return "Assessment finished — finalize this review to create a finalized review record.";
     case "send-to-sponsor":
       return "This package is finalized — download or share the sponsor briefing export when you are ready.";
     case "open-governance-decision":
-      return "Governance approval is still pending before this package can move to sponsors.";
+      return "Resolve outcomes are still pending before this package can move to sponsors.";
     default: {
       const unreachable: never = action.kind;
       throw new Error(`Unhandled primary action kind ${unreachable}.`);

@@ -16,7 +16,7 @@ const HELP_TOPIC_PAGE = join(process.cwd(), "src", "app", "(operator)", "help", 
 
 const PRODUCT_SPONSOR_SUMMARY_HELP_SURFACES = [
   "archlucid-ui/src/lib/help/help-center-catalog.ts",
-  "archlucid-ui/src/lib/usability/page-help-topic-map.ts",
+  "archlucid-ui/src/lib/usability/page-help-topic-rows.ts",
 ] as const;
 
 describe("sponsor-report-help-route (EXE)", () => {

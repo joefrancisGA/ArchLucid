@@ -10,19 +10,19 @@ import { cn } from "@/lib/utils";
 
 type FavoriteReviewsListProps = {
   readonly className?: string;
-  readonly emptyHint?: string;
   readonly heading?: string;
 };
 
 const DEFAULT_HEADING = "Pinned reviews";
-const DEFAULT_EMPTY =
-  "Pin architecture reviews you revisit often — they appear here so you can skip inventory search.";
 
-/** Lists localStorage favorites with deep links into architecture reviews (TB-2206). */
-export function FavoriteReviewsList(props: FavoriteReviewsListProps): React.JSX.Element {
+/** Lists localStorage favorites with deep links into architecture reviews (TB-2206). Hidden when empty. */
+export function FavoriteReviewsList(props: FavoriteReviewsListProps): React.JSX.Element | null {
   const { favorites } = useFavoriteReviews();
   const heading = props.heading ?? DEFAULT_HEADING;
-  const emptyHint = props.emptyHint ?? DEFAULT_EMPTY;
+
+  if (favorites.length === 0) {
+    return null;
+  }
 
   return (
     <section
@@ -34,38 +34,32 @@ export function FavoriteReviewsList(props: FavoriteReviewsListProps): React.JSX.
         {heading}
       </h2>
 
-      {favorites.length === 0 ? (
-        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="favorite-reviews-empty">
-          {emptyHint}
-        </p>
-      ) : (
-        <ul className="m-0 list-none space-y-1 p-0">
-          {favorites.map((row) => {
-            const href = reviewDetailPath(row.runId);
-            const label =
-              row.title !== undefined && row.title.trim().length > 0
-                ? row.title.trim()
-                : row.runId;
+      <ul className="m-0 list-none space-y-1 p-0">
+        {favorites.map((row) => {
+          const href = reviewDetailPath(row.runId);
+          const label =
+            row.title !== undefined && row.title.trim().length > 0
+              ? row.title.trim()
+              : row.runId;
 
-            return (
-              <li
-                key={row.runId}
-                className="flex items-center gap-2 rounded-md border border-neutral-200 bg-al-surface-raised px-3 py-2 dark:border-neutral-800"
-                data-testid={`favorite-reviews-item-${row.runId}`}
+          return (
+            <li
+              key={row.runId}
+              className="flex items-center gap-2 rounded-md border border-neutral-200 bg-al-surface-raised px-3 py-2 dark:border-neutral-800"
+              data-testid={`favorite-reviews-item-${row.runId}`}
+            >
+              <Link
+                href={href}
+                className={cn(OPERATOR_LINK.nav, "min-w-0 flex-1 truncate font-medium")}
+                data-testid={`favorite-reviews-link-${row.runId}`}
               >
-                <Link
-                  href={href}
-                  className={cn(OPERATOR_LINK.nav, "min-w-0 flex-1 truncate font-medium")}
-                  data-testid={`favorite-reviews-link-${row.runId}`}
-                >
-                  {label}
-                </Link>
-                <FavoriteReviewToggle runId={row.runId} title={row.title} />
-              </li>
-            );
-          })}
-        </ul>
-      )}
+                {label}
+              </Link>
+              <FavoriteReviewToggle runId={row.runId} title={row.title} />
+            </li>
+          );
+        })}
+      </ul>
     </section>
   );
 }

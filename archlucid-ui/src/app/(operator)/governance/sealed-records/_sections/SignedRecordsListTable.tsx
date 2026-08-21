@@ -134,7 +134,7 @@ export function SignedRecordsListTable(props: SignedRecordsListTableProps): Reac
   return (
     <EnterpriseTable ariaLabel={SIGNED_RECORDS_LIST_PAGE_TITLE} data-testid="signed-records-list-table">
       <caption className="sr-only">
-        Sealed review records register — sort Review or Sealed columns to reorder the loaded page.
+        Finalized review records register — sort Review or Finalized columns to reorder the loaded page.
       </caption>
       <EnterpriseTableHead>
         <EnterpriseTableHeadRow>

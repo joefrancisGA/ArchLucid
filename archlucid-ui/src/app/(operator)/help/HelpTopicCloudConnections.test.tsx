@@ -62,7 +62,7 @@ describe("HelpCloudConnectionsGuideView (HCE)", () => {
     expect(screen.queryByRole("button", { name: "Connect Azure securely" })).toBeNull();
     expect(screen.queryByRole("link", { name: "Read the Azure connection guide" })).toBeNull();
     expect(screen.queryByTestId("help-center-documentation-badge")).toBeNull();
-    expect(screen.getByText(/sealed review record citations/i)).toBeInTheDocument();
+    expect(screen.getByText(/finalized review record citations/i)).toBeInTheDocument();
     expect(screen.queryByText(/Sources package/i)).toBeNull();
     expect(screen.queryByText(/claim discipline/i)).toBeNull();
     expect(screen.queryByText(/assurance cites/i)).toBeNull();

@@ -13,7 +13,7 @@ const GovernanceWorkflowPageContent = dynamic(
       <div
         className="min-h-48 animate-pulse rounded-md border border-neutral-200 bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-800"
         role="status"
-        aria-label="Loading governance workflow"
+        aria-label="Loading approval workflow"
         data-testid="governance-workflow-chunk-loading"
       />
     ),

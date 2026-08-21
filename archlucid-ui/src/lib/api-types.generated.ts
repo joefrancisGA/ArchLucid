@@ -103542,7 +103542,7 @@ export interface components {
             reviewTier?: components["schemas"]["ArchitectureIntelligenceReviewTier"];
             runId?: null | string;
             sourceTexts?: components["schemas"]["ClosedLoopReasoningSourceText"][];
-            tenantId?: string;
+            tenantId?: null | string;
             useGoldenFixture?: boolean;
             workspaceId?: null | string;
         };

@@ -122,9 +122,9 @@ export const HELP_TOPIC_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] =
     prefix: "/help/api-contracts",
     entry: {
       whatIsThisPage:
-        "Admin HTTP and OpenAPI contract reference for integrators — not the buyer Governance approval FAQ.",
+        "Admin HTTP and OpenAPI contract reference for integrators — not the buyer Resolve outcomes FAQ.",
       whatToDoNext:
-        "Open CLI usage for tooling, or Governance approval if you need buyer approval workflows.",
+        "Open CLI usage for tooling, or Resolve outcomes if you need buyer approval workflows.",
       whyEmpty: "Orientation and stripped contract reference always show when this Admin help topic loads.",
       whereToConfigurePrerequisite: "Admin access; treat OpenAPI as the contract of record when prose disagrees.",
     },

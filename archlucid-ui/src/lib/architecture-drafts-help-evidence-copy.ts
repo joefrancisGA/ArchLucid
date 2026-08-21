@@ -10,7 +10,7 @@ export const ARCHITECTURE_DRAFTS_HELP_CANONICAL_PATH = "/help/architecture-draft
 export const ARCHITECTURE_DRAFTS_HELP_CLAIM_DISCIPLINE_HEADING = "What this guide is not";
 
 export const ARCHITECTURE_DRAFTS_HELP_CLAIM_DISCIPLINE =
-  "This guide orients draft editing before review intake. It is not where procurement goes for sealed review record citations — open Sealed review records or Assurance status when procurement needs citations.";
+  "This guide orients draft editing before review intake. It is not where procurement goes for finalized review record citations — open Finalized review records or Assurance status when procurement needs citations.";
 
 export const ARCHITECTURE_DRAFTS_HELP_FOLLOW_UPS_TITLE = "Where to go next";
 

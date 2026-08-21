@@ -18,7 +18,7 @@ export type ReviewChainOfCustodySectionProps = {
 };
 
 function formatUtc(utc: string | null | undefined): string {
-  if (!utc) return "—";
+  if (!utc) return " — ";
 
   return new Date(utc).toISOString().replace("T", " ").replace(/\.\d{3}Z$/, " UTC");
 }

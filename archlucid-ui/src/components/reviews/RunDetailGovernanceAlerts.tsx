@@ -25,9 +25,9 @@ export function RunDetailGovernanceAlerts(props: RunDetailGovernanceAlertsProps)
           role="alert"
           data-testid="run-detail-governance-warning-banner"
         >
-          <p className="m-0 font-semibold">Governance warnings</p>
+          <p className="m-0 font-semibold">Review warnings</p>
           <p className="m-0 mt-1">
-            Open governance alerts are linked to this review. Resolve or document exceptions before sponsor handoff.
+            Open review alerts are linked to this review. Resolve or document exceptions before sponsor handoff.
           </p>
         </div>
       ) : null}

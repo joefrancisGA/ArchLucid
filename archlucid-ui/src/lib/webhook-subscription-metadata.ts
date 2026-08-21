@@ -83,7 +83,7 @@ export function summarizeMaskedWebhookSubscription(metadataJson: string): {
       ? "Stored — copy is not shown in the UI for security."
       : "Not configured for this subscription.";
 
-  const displayPayload = Object.keys(safe).length === 0 ? "—" : JSON.stringify(safe, null, 2);
+  const displayPayload = Object.keys(safe).length === 0 ? " — " : JSON.stringify(safe, null, 2);
 
   return {
     secretStatus,
