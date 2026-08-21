@@ -18,6 +18,8 @@ import { StatusTag } from "@/components/ui/status-tag";
 import {
   ADVISORY_SCANS_SCHEDULES_EXAMPLE_PREVIEW_HELPER,
   ADVISORY_SCANS_SCHEDULES_EXAMPLE_PREVIEW_LABEL,
+  ADVISORY_SCANS_SCHEDULES_LAST_SCAN_HEADER,
+  ADVISORY_SCANS_SCHEDULES_NEXT_SCAN_HEADER,
 } from "@/lib/advisory-copy";
 import { buildAdvisoryScheduleExamplePreviewView } from "@/lib/advisory-schedule-page-model";
 
@@ -52,13 +54,13 @@ export function AdvisoryScheduleExamplePreview(props: AdvisoryScheduleExamplePre
             <EnterpriseTableHeaderCell>Name</EnterpriseTableHeaderCell>
             <EnterpriseTableHeaderCell>Cadence</EnterpriseTableHeaderCell>
             <EnterpriseTableHeaderCell>Scope</EnterpriseTableHeaderCell>
-            <EnterpriseTableHeaderCell>Next run</EnterpriseTableHeaderCell>
-            <EnterpriseTableHeaderCell>Last run</EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell>{ADVISORY_SCANS_SCHEDULES_NEXT_SCAN_HEADER}</EnterpriseTableHeaderCell>
+            <EnterpriseTableHeaderCell>{ADVISORY_SCANS_SCHEDULES_LAST_SCAN_HEADER}</EnterpriseTableHeaderCell>
             <EnterpriseTableHeaderCell>Status</EnterpriseTableHeaderCell>
           </EnterpriseTableHeadRow>
         </EnterpriseTableHead>
         <EnterpriseTableBody>
-          <EnterpriseTableRow data-testid="advisory-schedule-example-row" aria-hidden="true">
+          <EnterpriseTableRow data-testid="advisory-schedule-example-row">
             <EnterpriseTableCell>
               <span className="font-medium text-neutral-900 dark:text-neutral-100">{example.name}</span>
             </EnterpriseTableCell>

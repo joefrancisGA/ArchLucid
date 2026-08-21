@@ -36,10 +36,9 @@ import {
   ADVISORY_SCANS_SCHEDULES_ADVANCED_HELPER,
   ADVISORY_SCANS_SCHEDULES_ADVANCED_SUMMARY,
   ADVISORY_SCANS_SCHEDULES_CREATE_WORKING,
+  ADVISORY_SCANS_SCHEDULES_NEXT_SCHEDULED_SCANS_LABEL,
   ADVISORY_SCANS_SCHEDULES_SAMPLE_BLOCKED,
   ADVISORY_SCANS_SCHEDULES_SCOPE_CURRENT,
-  ADVISORY_SCANS_SCHEDULES_SCOPE_HELPER,
-  ADVISORY_SCANS_SCHEDULES_SCOPE_SWITCHER_NOTE,
   ADVISORY_SCANS_SCHEDULES_TIMING_NOTE,
 } from "@/lib/advisory-copy";
 import { whyDisabledEnterpriseMutationControl } from "@/lib/why-disabled-cta";
@@ -155,29 +154,21 @@ export function AdvisoryScheduleCreateForm(props: AdvisoryScheduleCreateFormProp
 
   return (
     <section
+      id="advisory-schedule-create-form"
       className="rounded-lg border border-neutral-200 p-4 dark:border-neutral-700"
       data-testid="advisory-schedule-create-form"
     >
       <h3 className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>New schedule</h3>
 
-      {/* TB-1573: scope is inline near the form — not a persistent Schedule scope rail. */}
-      <div className="mt-2 space-y-1" data-testid="advisory-schedule-inline-scope">
-        <p className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
-          <span className={cn("font-medium text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-            {ADVISORY_SCANS_SCHEDULES_SCOPE_CURRENT}.{" "}
-          </span>
-          <span data-testid="advisory-schedule-project-scope-label">{props.projectLabel}</span>
-        </p>
-        <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-          {ADVISORY_SCANS_SCHEDULES_SCOPE_HELPER}
-        </p>
-        <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-          {ADVISORY_SCANS_SCHEDULES_SCOPE_SWITCHER_NOTE}
-        </p>
-        <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-          {ADVISORY_SCANS_SCHEDULES_TIMING_NOTE}
-        </p>
-      </div>
+      <p
+        className={cn("m-0 mt-2 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}
+        data-testid="advisory-schedule-inline-scope"
+      >
+        <span className={cn("font-medium text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+          {ADVISORY_SCANS_SCHEDULES_SCOPE_CURRENT}:
+        </span>{" "}
+        <span data-testid="advisory-schedule-project-scope-label">{props.projectLabel}</span>
+      </p>
 
       {props.sampleModeBlocked ? (
         <p
@@ -273,41 +264,47 @@ export function AdvisoryScheduleCreateForm(props: AdvisoryScheduleCreateFormProp
           </div>
 
           {form.frequency !== "custom" ? (
-            <div className="grid gap-3 sm:grid-cols-3">
-              <div className="grid gap-1.5">
-                <Label htmlFor="advisory-schedule-hour">Time</Label>
-                <select
-                  id="advisory-schedule-hour"
-                  className={SELECT_CLASS}
-                  value={form.hourOfDay}
-                  onChange={(event) => updateForm({ hourOfDay: Number(event.target.value) })}
-                  disabled={!props.canEdit}
-                  aria-label="Hour"
-                >
-                  {ADVISORY_SCHEDULE_HOUR_OPTIONS.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label.replace(":00", "")}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div className="grid gap-1.5">
-                <Label htmlFor="advisory-schedule-minute">Minutes</Label>
-                <select
-                  id="advisory-schedule-minute"
-                  className={SELECT_CLASS}
-                  value={form.minuteOfHour}
-                  onChange={(event) => updateForm({ minuteOfHour: Number(event.target.value) })}
-                  disabled={!props.canEdit}
-                  aria-label="Minutes"
-                >
-                  {ADVISORY_SCHEDULE_MINUTE_OPTIONS.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <fieldset className="grid min-w-0 gap-1.5 border-0 p-0">
+                <legend className={cn("font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>Time</legend>
+                <div className="flex items-center gap-1.5">
+                  <Label htmlFor="advisory-schedule-hour" className="sr-only">
+                    Hour
+                  </Label>
+                  <select
+                    id="advisory-schedule-hour"
+                    className={SELECT_CLASS}
+                    value={form.hourOfDay}
+                    onChange={(event) => updateForm({ hourOfDay: Number(event.target.value) })}
+                    disabled={!props.canEdit}
+                  >
+                    {ADVISORY_SCHEDULE_HOUR_OPTIONS.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label.replace(":00", "")}
+                      </option>
+                    ))}
+                  </select>
+                  <span className={cn("text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)} aria-hidden="true">
+                    :
+                  </span>
+                  <Label htmlFor="advisory-schedule-minute" className="sr-only">
+                    Minute
+                  </Label>
+                  <select
+                    id="advisory-schedule-minute"
+                    className={SELECT_CLASS}
+                    value={form.minuteOfHour}
+                    onChange={(event) => updateForm({ minuteOfHour: Number(event.target.value) })}
+                    disabled={!props.canEdit}
+                  >
+                    {ADVISORY_SCHEDULE_MINUTE_OPTIONS.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </fieldset>
               <div className="grid gap-1.5">
                 <Label htmlFor="advisory-schedule-timezone">Time zone</Label>
                 <select
@@ -347,7 +344,10 @@ export function AdvisoryScheduleCreateForm(props: AdvisoryScheduleCreateFormProp
                 OPERATOR_TYPOGRAPHY.helper,
               )}
             >
-              Next scheduled runs
+              {ADVISORY_SCANS_SCHEDULES_NEXT_SCHEDULED_SCANS_LABEL}
+            </p>
+            <p className={cn("m-0 mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+              {ADVISORY_SCANS_SCHEDULES_TIMING_NOTE}
             </p>
             {preview.loading ? (
               <p
@@ -365,26 +365,27 @@ export function AdvisoryScheduleCreateForm(props: AdvisoryScheduleCreateFormProp
             {preview.runs.length > 0 ? (
               <ol
                 className={cn(
-                  "m-0 mt-2 list-decimal space-y-1 pl-5 text-neutral-800 dark:text-neutral-200",
+                  "m-0 mt-2 list-decimal space-y-2 pl-5 text-neutral-800 dark:text-neutral-200",
                   OPERATOR_TYPOGRAPHY.body,
                 )}
               >
-                {preview.runs.map((run) => (
-                  <li key={run.iso}>
-                    <span>{run.primary}</span>
-                    <span
-                      className={cn("ml-2 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
-                    >
-                      {run.utcSecondary}
-                    </span>
+                {preview.runs.map((occurrence) => (
+                  <li key={occurrence.iso}>
+                    <dl className="m-0 grid gap-0.5 sm:grid-cols-[minmax(0,1fr)_auto] sm:gap-x-3">
+                      <div>
+                        <dt className="sr-only">Local time</dt>
+                        <dd className="m-0">{occurrence.primary}</dd>
+                      </div>
+                      <div>
+                        <dt className="sr-only">UTC</dt>
+                        <dd className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+                          ({occurrence.utcSecondary})
+                        </dd>
+                      </div>
+                    </dl>
                   </li>
                 ))}
               </ol>
-            ) : null}
-            {!advancedOpen ? (
-              <p className={cn("m-0 mt-2 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-                Generated expression (UTC): <code className="font-mono">{cronExpression}</code>
-              </p>
             ) : null}
           </div>
         ) : null}
@@ -405,6 +406,11 @@ export function AdvisoryScheduleCreateForm(props: AdvisoryScheduleCreateFormProp
               <p className={cn("m-0 mt-2 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
                 {ADVISORY_SCANS_SCHEDULES_ADVANCED_HELPER}
               </p>
+              {form.frequency !== "custom" ? (
+                <p className={cn("m-0 mt-2 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+                  Generated expression (UTC): <code className="font-mono">{cronExpression}</code>
+                </p>
+              ) : null}
               <div className="mt-3">
                 <CronExpressionBuilder
                   value={form.frequency === "custom" ? form.customCron : cronExpression}

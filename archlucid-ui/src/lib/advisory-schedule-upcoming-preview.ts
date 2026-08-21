@@ -1,7 +1,7 @@
 import { formatAdvisoryScheduleInstant } from "@/lib/advisory-schedule-form";
 import { previewRecurrenceScheduleRuns } from "@/lib/api/governance-stickiness-api";
 
-export const ADVISORY_SCHEDULE_PREVIEW_COUNT = 5;
+export const ADVISORY_SCHEDULE_PREVIEW_COUNT = 3;
 export const ADVISORY_SCHEDULE_PREVIEW_DEBOUNCE_MS = 250;
 
 export type AdvisorySchedulePreviewState = {
@@ -34,7 +34,7 @@ export async function loadAdvisoryScheduleUpcomingPreview(
     return {
       loading: false,
       isValid: false,
-      validationError: "Choose a frequency and time to preview upcoming runs.",
+      validationError: "Choose a frequency and time to preview upcoming scans.",
       runs: [],
     };
   }
@@ -74,7 +74,7 @@ export async function loadAdvisoryScheduleUpcomingPreview(
     return {
       loading: false,
       isValid: false,
-      validationError: "Could not load the upcoming-run preview. Check your connection and try again.",
+      validationError: "Could not load the upcoming-scan preview. Check your connection and try again.",
       runs: [],
     };
   }

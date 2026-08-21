@@ -698,8 +698,8 @@ export const advisorySchedulesCreateSectionHeadingReader = "New schedule";
 /** Advisory schedules — **Create schedule** submit when rank cannot mutate. */
 export const advisorySchedulesCreateScheduleButtonLabelReaderRank = "Create schedule";
 
-/** Advisory schedules — **Run now** when rank cannot mutate. */
-export const advisorySchedulesRunNowButtonLabelReaderRank = "Run now";
+/** Advisory schedules — **Scan now** when rank cannot mutate. */
+export const advisorySchedulesRunNowButtonLabelReaderRank = "Scan now";
 
 /** Advisory schedules — **Load executions** (`GET`). */
 export const advisorySchedulesLoadExecutionsButtonLabelReaderRank = "View history";

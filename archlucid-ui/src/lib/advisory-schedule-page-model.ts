@@ -19,10 +19,42 @@ export type AdvisoryScheduleListItemView = {
   readonly lastRunPrimary: string;
   readonly lastOutcome: string;
   readonly statusKind: "ready" | "draft";
-  readonly statusLabel: "Active" | "Paused";
+  readonly statusLabel: "Ready" | "Draft";
   readonly isEnabled: boolean;
   readonly cronExpression: string;
 };
+
+const EXAMPLE_WEEKLY_CRON_EXPRESSION = "0 8 * * 1";
+const MILLISECONDS_PER_WEEK = 7 * 24 * 60 * 60 * 1000;
+
+/** Monday 08:00 UTC for the example cron — next strictly after / last strictly before `referenceDate`. */
+export function resolveExampleWeeklyMondayInstants(
+  referenceDate: Date = new Date(),
+): { readonly nextUtc: string; readonly lastUtc: string } {
+  const referenceMs = referenceDate.getTime();
+  const referenceDay = referenceDate.getUTCDay();
+  const daysFromMonday = (referenceDay + 6) % 7;
+  const thisMondayMs = Date.UTC(
+    referenceDate.getUTCFullYear(),
+    referenceDate.getUTCMonth(),
+    referenceDate.getUTCDate() - daysFromMonday,
+    8,
+    0,
+    0,
+    0,
+  );
+
+  const nextUtc =
+    thisMondayMs <= referenceMs
+      ? new Date(thisMondayMs + MILLISECONDS_PER_WEEK).toISOString()
+      : new Date(thisMondayMs).toISOString();
+  const lastUtc =
+    thisMondayMs >= referenceMs
+      ? new Date(thisMondayMs - MILLISECONDS_PER_WEEK).toISOString()
+      : new Date(thisMondayMs).toISOString();
+
+  return { nextUtc, lastUtc };
+}
 
 export function resolveCurrentProjectLabel(
   projectLabel: string | null | undefined,
@@ -59,7 +91,7 @@ export function buildAdvisoryScheduleListItemView(
     lastRunPrimary: last.primary,
     lastOutcome: "—",
     statusKind: schedule.isEnabled ? "ready" : "draft",
-    statusLabel: schedule.isEnabled ? "Active" : "Paused",
+    statusLabel: schedule.isEnabled ? "Ready" : "Draft",
     isEnabled: schedule.isEnabled,
     cronExpression: schedule.cronExpression,
   };
@@ -99,25 +131,26 @@ export function withLatestExecutionOutcome(
 export function buildAdvisoryScheduleExamplePreviewView(
   projectLabel: string,
   displayTimeZoneId: string = resolveBrowserTimeZoneId(),
+  referenceDate: Date = new Date(),
 ): AdvisoryScheduleListItemView {
-  const next = formatAdvisoryScheduleInstant("2026-07-27T08:00:00.000Z", displayTimeZoneId);
-  const last = formatAdvisoryScheduleInstant("2026-07-20T08:00:00.000Z", displayTimeZoneId);
-  const cronExpression = "0 8 * * 1";
+  const { nextUtc, lastUtc } = resolveExampleWeeklyMondayInstants(referenceDate);
+  const next = formatAdvisoryScheduleInstant(nextUtc, displayTimeZoneId);
+  const last = formatAdvisoryScheduleInstant(lastUtc, displayTimeZoneId);
   const resolvedProjectLabel = resolveCurrentProjectLabel(projectLabel);
 
   return {
     scheduleId: "example-advisory-schedule",
     name: ADVISORY_SCANS_SCHEDULES_EXAMPLE_NAME,
     projectLabel: resolvedProjectLabel,
-    frequencyLabel: describeStoredCronExpression(cronExpression),
+    frequencyLabel: describeStoredCronExpression(EXAMPLE_WEEKLY_CRON_EXPRESSION),
     timeZoneLabel: "Stored as UTC schedule",
     nextRunPrimary: next.primary,
     nextRunUtcSecondary: next.utcSecondary,
     lastRunPrimary: last.primary,
     lastOutcome: "Completed",
     statusKind: "ready",
-    statusLabel: "Active",
+    statusLabel: "Ready",
     isEnabled: true,
-    cronExpression,
+    cronExpression: EXAMPLE_WEEKLY_CRON_EXPRESSION,
   };
 }
