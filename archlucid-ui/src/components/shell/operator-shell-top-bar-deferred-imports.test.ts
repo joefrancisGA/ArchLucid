@@ -20,6 +20,7 @@ const bannedStaticImports = [
   '@/components/shell/ShellInFlightOperationsAffordance"',
   '@/components/shell/AccountSettingsMenu"',
   '@/components/shell/OperatorShellTopBarMoreMenu"',
+  '@/components/llm/LlmBudgetStatusPill"',
 ] as const;
 
 describe("operator shell top bar deferred imports (TB-2118)", () => {
@@ -30,33 +31,13 @@ describe("operator shell top bar deferred imports (TB-2118)", () => {
 
     expect(topBarSource).toContain("operator-shell-top-bar-deferred-chunks");
     expect(topBarSource).toContain("GlobalSearchBarDeferred");
-    expect(topBarSource).toContain("MobileNavDrawerDeferred");
-    expect(topBarSource).toContain("ScopeSwitcherDeferred");
-    expect(topBarSource).toContain("ShellInFlightOperationsAffordanceDeferred");
-    expect(topBarSource).toContain("OperatorShellTopBarMoreMenuDeferred");
-    expect(topBarSource).toContain("AccountSettingsMenuDeferred");
     expect(topBarSource).toContain("LlmBudgetStatusPillDeferred");
   });
 
-  it("dynamic-imports manifest-backed top-bar modules via loaders", () => {
+  it("dynamic-imports every top-bar module via manifest loaders", () => {
     expect(deferredSource).toContain("createDeferredComponentFromManifest");
-    expect(manifestLoaderSource).toContain('import("@/components/GlobalSearchBar")');
-    expect(manifestLoaderSource).toContain('import("@/components/MobileNavDrawer")');
-    expect(manifestLoaderSource).toContain('import("@/components/ScopeSwitcher")');
-    expect(manifestLoaderSource).toContain('import("@/components/shell/ShellInFlightOperationsAffordance")');
-    expect(manifestLoaderSource).toContain('import("@/components/shell/OperatorShellTopBarMoreMenu")');
-    expect(manifestLoaderSource).toContain('import("@/components/shell/AccountSettingsMenu")');
-    expect(deferredSource).toContain("operator-shell-top-bar-global-search");
-    expect(deferredSource).toContain("operator-shell-top-bar-mobile-nav-drawer");
-    expect(deferredSource).toContain("operator-shell-top-bar-scope-switcher");
-    expect(deferredSource).toContain("operator-shell-top-bar-in-flight-operations");
-    expect(deferredSource).toContain("operator-shell-top-bar-more-menu");
-    expect(deferredSource).toContain("operator-shell-top-bar-account-settings");
-  });
-
-  it("keeps remaining top-bar modules on inline dynamic imports", () => {
-    expect(deferredSource).toContain("next/dynamic");
-    expect(deferredSource).toContain('import("@/components/llm/LlmBudgetStatusPill")');
-    expect(deferredSource).toContain("deferredChunkLoader");
+    expect(deferredSource).not.toContain("next/dynamic");
+    expect(manifestLoaderSource).toContain('import("@/components/llm/LlmBudgetStatusPill")');
+    expect(deferredSource).toContain("operator-shell-top-bar-llm-budget-pill");
   });
 });

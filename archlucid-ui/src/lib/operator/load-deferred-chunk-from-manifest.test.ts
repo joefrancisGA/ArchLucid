@@ -6,6 +6,7 @@ import {
   APP_SHELL_DEFERRED_CHUNK_LOADER_IDS,
   GOVERNANCE_WORKFLOW_DEFERRED_CHUNK_LOADER_IDS,
   loadDeferredChunkFromManifest,
+  MARKETING_DEFERRED_CHUNK_LOADER_IDS,
   OPERATOR_HOME_DEFERRED_CHUNK_LOADER_IDS,
   OPERATOR_SHELL_TOP_BAR_DEFERRED_CHUNK_LOADER_IDS,
   POLICY_PACKS_AUTHORING_DEFERRED_CHUNK_LOADER_IDS,
@@ -18,6 +19,7 @@ import { ALERT_RULES_HUB_CHUNK_MANIFEST } from "@/lib/operator/alert-rules-hub-c
 import { ALERTS_INBOX_CHUNK_MANIFEST } from "@/lib/operator/alerts-inbox-chunk-manifest";
 import { APP_SHELL_CHUNK_MANIFEST } from "@/lib/operator/app-shell-chunk-manifest";
 import { GOVERNANCE_WORKFLOW_CHUNK_MANIFEST } from "@/lib/operator/governance-workflow-chunk-manifest";
+import { MARKETING_CHUNK_MANIFEST } from "@/lib/operator/marketing-chunk-manifest";
 import { OPERATOR_HOME_CHUNK_MANIFEST } from "@/lib/operator/operator-home-chunk-manifest";
 import { OPERATOR_SHELL_TOP_BAR_CHUNK_MANIFEST } from "@/lib/operator/operator-shell-top-bar-chunk-manifest";
 import { POLICY_PACKS_AUTHORING_CHUNK_MANIFEST } from "@/lib/operator/policy-packs-authoring-chunk-manifest";
@@ -103,6 +105,13 @@ describe("loadDeferredChunkFromManifest (TB-2371)", () => {
   it("registers import loaders for every operator shell top bar manifest entry", () => {
     for (const entry of OPERATOR_SHELL_TOP_BAR_CHUNK_MANIFEST) {
       expect(OPERATOR_SHELL_TOP_BAR_DEFERRED_CHUNK_LOADER_IDS).toContain(entry.id);
+      expect(() => loadDeferredChunkFromManifest(entry.id)).not.toThrow();
+    }
+  });
+
+  it("registers import loaders for every marketing manifest entry", () => {
+    for (const entry of MARKETING_CHUNK_MANIFEST) {
+      expect(MARKETING_DEFERRED_CHUNK_LOADER_IDS).toContain(entry.id);
       expect(() => loadDeferredChunkFromManifest(entry.id)).not.toThrow();
     }
   });

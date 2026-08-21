@@ -44,4 +44,11 @@ export const OPERATOR_SHELL_TOP_BAR_CHUNK_MANIFEST: readonly DeferredChunkManife
     modulePath: "@/components/shell/AccountSettingsMenu",
     exportName: "AccountSettingsMenu",
   },
+  {
+    id: "operator-shell-top-bar-llm-budget-pill",
+    label: "Loading LLM budget status",
+    variant: "compact",
+    modulePath: "@/components/llm/LlmBudgetStatusPill",
+    exportName: "LlmBudgetStatusPill",
+  },
 ] as const;

@@ -11,6 +11,7 @@ import { ALERT_RULES_HUB_CHUNK_MANIFEST } from "@/lib/operator/alert-rules-hub-c
 import { ALERTS_INBOX_CHUNK_MANIFEST } from "@/lib/operator/alerts-inbox-chunk-manifest";
 import { APP_SHELL_CHUNK_MANIFEST } from "@/lib/operator/app-shell-chunk-manifest";
 import { GOVERNANCE_WORKFLOW_CHUNK_MANIFEST } from "@/lib/operator/governance-workflow-chunk-manifest";
+import { MARKETING_CHUNK_MANIFEST } from "@/lib/operator/marketing-chunk-manifest";
 import { OPERATOR_HOME_CHUNK_MANIFEST } from "@/lib/operator/operator-home-chunk-manifest";
 import { OPERATOR_SHELL_TOP_BAR_CHUNK_MANIFEST } from "@/lib/operator/operator-shell-top-bar-chunk-manifest";
 import { POLICY_PACKS_AUTHORING_CHUNK_MANIFEST } from "@/lib/operator/policy-packs-authoring-chunk-manifest";
@@ -381,6 +382,34 @@ function resolveDeferredChunkImportLoader(
     case "operator-shell-top-bar-account-settings":
       return deferredChunkLoader(() =>
         import("@/components/shell/AccountSettingsMenu").then((module) => module.AccountSettingsMenu),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "operator-shell-top-bar-llm-budget-pill":
+      return deferredChunkLoader(() =>
+        import("@/components/llm/LlmBudgetStatusPill").then((module) => module.LlmBudgetStatusPill),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "marketing-welcome-tier-pricing-section":
+      return deferredChunkLoader(() =>
+        import("@/components/marketing/MarketingTierPricingSection").then(
+          (module) => module.MarketingTierPricingSection,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "marketing-first-touch-capture":
+      return deferredChunkLoader(() =>
+        import("@/components/MarketingFirstTouchCapture").then((module) => module.MarketingFirstTouchCapture),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "marketing-microsoft-clarity-loader":
+      return deferredChunkLoader(() =>
+        import("@/components/MicrosoftClarityLoader").then((module) => module.MicrosoftClarityLoader),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "marketing-public-footer":
+      return deferredChunkLoader(() =>
+        import("@/components/marketing/MarketingPublicFooter").then((module) => module.MarketingPublicFooter),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "marketing-analytics-consent-banner":
+      return deferredChunkLoader(() =>
+        import("@/components/MarketingAnalyticsConsentBanner").then(
+          (module) => module.MarketingAnalyticsConsentBanner,
+        ),
       ) as () => Promise<ComponentType<Record<string, unknown>>>;
     case "reviews-hub-inventory":
       return deferredChunkLoader(() =>
@@ -929,3 +958,8 @@ export const APP_SHELL_DEFERRED_CHUNK_LOADER_IDS: readonly string[] = APP_SHELL_
 /** Operator shell top bar manifest ids that have registered import loaders (manifest import-test guard). */
 export const OPERATOR_SHELL_TOP_BAR_DEFERRED_CHUNK_LOADER_IDS: readonly string[] =
   OPERATOR_SHELL_TOP_BAR_CHUNK_MANIFEST.map((entry) => entry.id);
+
+/** Marketing manifest ids that have registered import loaders (manifest import-test guard). */
+export const MARKETING_DEFERRED_CHUNK_LOADER_IDS: readonly string[] = MARKETING_CHUNK_MANIFEST.map(
+  (entry) => entry.id,
+);
