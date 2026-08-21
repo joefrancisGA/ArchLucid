@@ -40,7 +40,10 @@ public sealed class FindingDispositionConcurrentRaceTests
         ConcurrentFindingReviewTrailRepository trailRepository = new();
         FindingDispositionService sut = CreateService(trailRepository);
 
-        RecordFindingDispositionRequest acceptRequest = CreateRequest(FindingDispositionKind.Accepted, "accept concurrent");
+        RecordFindingDispositionRequest acceptRequest = CreateRequest(
+            FindingDispositionKind.Accepted,
+            "accept concurrent",
+            tradeOffAcknowledgment: "accepting concurrent latency trade-off for lower cost");
         RecordFindingDispositionRequest remediateRequest = CreateRequest(FindingDispositionKind.Remediated, "remediate concurrent");
 
         Task<FindingDispositionEventDto> acceptTask = sut.RecordAsync(acceptRequest, Scope, "alice", CancellationToken.None);
@@ -60,7 +63,10 @@ public sealed class FindingDispositionConcurrentRaceTests
         FindingDispositionService sut = CreateService(trailRepository);
 
         await sut.RecordAsync(
-            CreateRequest(FindingDispositionKind.Accepted, "first writer"),
+            CreateRequest(
+                FindingDispositionKind.Accepted,
+                "first writer",
+                tradeOffAcknowledgment: "accepting first-writer trade-off for pilot scope"),
             Scope,
             "alice",
             CancellationToken.None);
@@ -116,7 +122,8 @@ public sealed class FindingDispositionConcurrentRaceTests
     private static RecordFindingDispositionRequest CreateRequest(
         FindingDispositionKind disposition,
         string rationale,
-        DateTimeOffset? revisitDueUtc = null)
+        DateTimeOffset? revisitDueUtc = null,
+        string? tradeOffAcknowledgment = null)
     {
         return new RecordFindingDispositionRequest
         {
@@ -124,6 +131,7 @@ public sealed class FindingDispositionConcurrentRaceTests
             Disposition = disposition,
             Rationale = rationale,
             RevisitDueUtc = revisitDueUtc,
+            TradeOffAcknowledgment = tradeOffAcknowledgment,
         };
     }
 }

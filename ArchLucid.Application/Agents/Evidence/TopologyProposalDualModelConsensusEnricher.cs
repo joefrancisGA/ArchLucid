@@ -99,25 +99,29 @@ public sealed class TopologyProposalDualModelConsensusEnricher(
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
         Guid? auditRunId = Guid.TryParse(runId, out Guid parsedRunId) ? parsedRunId : null;
 
-        await _auditService.LogAsync(
-            new AuditEvent
-            {
-                OccurredUtc = TimeProvider.System.UtcNowDateTime(),
-                EventType = AuditEventTypes.Agent.TopologyProposalConsensusEvaluated,
-                TenantId = scope.TenantId,
-                WorkspaceId = scope.WorkspaceId,
-                ProjectId = scope.ProjectId,
-                RunId = auditRunId,
-                DataJson = JsonSerializer.Serialize(new
+        await DurableAuditLogRetry.TryLogAsync(
+            cancellationToken => _auditService.LogAsync(
+                new AuditEvent
                 {
-                    runId,
-                    disagreementCount = mergeResult.DisagreementCount,
-                    secondaryModelTier = _options.SecondaryModelTier.ToString(),
-                    intersectionServices = mergeResult.MergedProposal.AddedServices.Count,
-                    intersectionDatastores = mergeResult.MergedProposal.AddedDatastores.Count,
-                    intersectionRelationships = mergeResult.MergedProposal.AddedRelationships.Count,
-                }),
-            },
+                    OccurredUtc = TimeProvider.System.UtcNowDateTime(),
+                    EventType = AuditEventTypes.Agent.TopologyProposalConsensusEvaluated,
+                    TenantId = scope.TenantId,
+                    WorkspaceId = scope.WorkspaceId,
+                    ProjectId = scope.ProjectId,
+                    RunId = auditRunId,
+                    DataJson = JsonSerializer.Serialize(new
+                    {
+                        runId,
+                        disagreementCount = mergeResult.DisagreementCount,
+                        secondaryModelTier = _options.SecondaryModelTier.ToString(),
+                        intersectionServices = mergeResult.MergedProposal.AddedServices.Count,
+                        intersectionDatastores = mergeResult.MergedProposal.AddedDatastores.Count,
+                        intersectionRelationships = mergeResult.MergedProposal.AddedRelationships.Count,
+                    }),
+                },
+                cancellationToken),
+            _logger,
+            nameof(TopologyProposalDualModelConsensusEnricher),
             cancellationToken);
     }
 }

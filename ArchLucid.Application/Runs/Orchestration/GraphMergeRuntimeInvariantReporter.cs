@@ -68,25 +68,29 @@ public sealed class GraphMergeRuntimeInvariantReporter(
             }
         }
 
-        await _auditService.LogAsync(
-            new AuditEvent
-            {
-                EventType = AuditEventTypes.GraphMergeInvariantViolation,
-                ActorUserId = "system",
-                ActorUserName = "system",
-                TenantId = scope.TenantId,
-                WorkspaceId = scope.WorkspaceId,
-                ProjectId = scope.ProjectId,
-                DataJson = JsonSerializer.Serialize(
-                    new
-                    {
-                        runId = mergedGraph.RunId,
-                        graphSnapshotId = mergedGraph.GraphSnapshotId,
-                        violationCount = violations.Count,
-                        violations = violations.Select(static v => new { kind = v.Kind.ToString(), message = v.Message }),
-                        auditOnly,
-                    })
-            },
+        await DurableAuditLogRetry.TryLogAsync(
+            cancellationToken => _auditService.LogAsync(
+                new AuditEvent
+                {
+                    EventType = AuditEventTypes.GraphMergeInvariantViolation,
+                    ActorUserId = "system",
+                    ActorUserName = "system",
+                    TenantId = scope.TenantId,
+                    WorkspaceId = scope.WorkspaceId,
+                    ProjectId = scope.ProjectId,
+                    DataJson = JsonSerializer.Serialize(
+                        new
+                        {
+                            runId = mergedGraph.RunId,
+                            graphSnapshotId = mergedGraph.GraphSnapshotId,
+                            violationCount = violations.Count,
+                            violations = violations.Select(static v => new { kind = v.Kind.ToString(), message = v.Message }),
+                            auditOnly,
+                        })
+                },
+                cancellationToken),
+            _logger,
+            nameof(GraphMergeRuntimeInvariantReporter),
             cancellationToken);
     }
 }

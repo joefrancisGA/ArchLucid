@@ -294,7 +294,7 @@ public sealed class ApplicationPackageCoverageBatchRc24Tests
                 configuration,
                 pack,
                 [finding],
-                new PreCommitGateResult { Blocked = true, Reason = "critical" });
+                new PreCommitGateResult { Blocked = true, Reason = "critical", BlockingFindingIds = ["find-1"] });
 
         snapshot.ConfigurationLabel.Should().Be("strict");
         snapshot.GateBlocked.Should().BeTrue();

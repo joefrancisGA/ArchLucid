@@ -64,7 +64,7 @@ _SPONSOR_OUTPUT_SURFACES: dict[str, tuple[str, ...]] = {
         "projectedDollarClaimsSponsorSafe",
     ),
     "archlucid-ui/src/lib/execution-mode-honesty.ts": (
-        "resolveExecutiveTrendSavingsUsd",
+        "resolveSponsorTrendSavingsUsd",
         "realModeSavingsUsd",
     ),
     "docs/library/SIMULATOR_ROI_SPONSOR_FORBID_CONTRACT.md": (
@@ -96,7 +96,7 @@ _SIMULATOR_ROI_FORBID_ANCHORS: dict[str, tuple[str, ...]] = {
         "TB-985",
     ),
     "archlucid-ui/src/lib/execution-mode-honesty.ts": (
-        "resolveExecutiveTrendSavingsUsd",
+        "resolveSponsorTrendSavingsUsd",
         "buyerPolished",
         "realModeSavingsUsd",
     ),
@@ -105,12 +105,12 @@ _SIMULATOR_ROI_FORBID_ANCHORS: dict[str, tuple[str, ...]] = {
         "isExternalSponsorPdfBlockedForExecutionMode",
         "projectedDollarClaimsSponsorSafe",
     ),
-    "archlucid-ui/src/components/EmailRunToSponsorBanner.tsx": (
+    "archlucid-ui/src/components/use-email-run-to-sponsor-banner.ts": (
         "isProjectedUsdSponsorBadgeVisible",
         "isExternalSponsorPdfBlockedForExecutionMode",
     ),
     "archlucid-ui/src/app/(operator)/architecture/sponsor-dashboard/_sections/SponsorRoiTrendSection.tsx": (
-        "resolveExecutiveTrendSavingsUsd",
+        "resolveSponsorTrendSavingsUsd",
     ),
     "ArchLucid.Application.Tests/Pilots/SponsorSimulatorRoiForbidAssertions.cs": (
         "TB-985",

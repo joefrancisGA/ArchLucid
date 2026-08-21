@@ -393,6 +393,31 @@ public sealed class ComparisonsControllerTests
         badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
     }
 
+    private static ComparisonsController CreateControllerWithScopedComparison(
+        IComparisonReplayApiService? comparisonReplayApiService = null)
+    {
+        ComparisonRecord record = new()
+        {
+            ComparisonRecordId = ComparisonId,
+            LeftRunId = RunId,
+        };
+
+        Mock<IComparisonRecordRepository> comparisons = new();
+        comparisons
+            .Setup(r => r.GetByIdAsync(ComparisonId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(record);
+
+        Mock<IRunDetailQueryService> runDetail = new();
+        runDetail
+            .Setup(s => s.GetRunDetailAsync(RunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ArchitectureRunDetail());
+
+        return CreateController(
+            runDetailQueryService: runDetail.Object,
+            comparisonRecordRepository: comparisons.Object,
+            comparisonReplayApiService: comparisonReplayApiService);
+    }
+
     [Fact]
     public async Task AnalyzeComparisonDrift_maps_service_result()
     {
@@ -418,7 +443,7 @@ public sealed class ComparisonsControllerTests
             .Setup(s => s.AnalyzeDriftAsync(ComparisonId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(drift);
 
-        ComparisonsController controller = CreateController(comparisonReplayApiService: replay.Object);
+        ComparisonsController controller = CreateControllerWithScopedComparison(comparisonReplayApiService: replay.Object);
 
         IActionResult action = await controller.AnalyzeComparisonDrift(ComparisonId, CancellationToken.None);
 
@@ -431,7 +456,7 @@ public sealed class ComparisonsControllerTests
     [Fact]
     public async Task GetComparisonDriftReport_returns_bad_request_for_unknown_format()
     {
-        ComparisonsController controller = CreateController();
+        ComparisonsController controller = CreateControllerWithScopedComparison();
 
         IActionResult action = await controller.GetComparisonDriftReport(
             ComparisonId,
