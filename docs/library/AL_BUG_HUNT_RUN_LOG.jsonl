@@ -30,3 +30,4 @@
 {"at":"2026-08-21T06:37:00.7743563Z","zoneId":"host-composition","outcome":"hit"}
 {"at":"2026-08-21T06:54:55.2296584Z","zoneId":"knowledge-graph-provenance","outcome":"hit"}
 {"at":"2026-08-21T07:14:36.0243362Z","zoneId":"application-governance-policy","outcome":"hit"}
+{"at":"2026-08-21T12:37:16.4050732Z","zoneId":"agent-runtime-evaluation","outcome":"hit"}
