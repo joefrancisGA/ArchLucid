@@ -41,6 +41,9 @@ export function resolveSponsorTrendSavingsUsd(
   return point.realModeSavingsUsd;
 }
 
+/** Guard pin alias — sponsor dashboard trend section references this identifier. */
+export const resolveExecutiveTrendSavingsUsd = resolveSponsorTrendSavingsUsd;
+
 export function isBuyerRealEvidenceMode(mode: Parameters<typeof formatStructuralExecutionModeLabel>[0]): boolean {
   return formatStructuralExecutionModeLabel(mode) === StructuralExecutionModeWire.Real;
 }

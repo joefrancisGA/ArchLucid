@@ -23,7 +23,7 @@ import {
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
 import { PILOT_BASELINE_WIZARD_OPEN_EVENT } from "@/lib/pilot-baseline-wizard-events";
-import { isProjectedUsdSponsorBadgeVisible } from "@/lib/pilot-proof-readiness";
+import { isExternalSponsorPdfBlockedForExecutionMode, isProjectedUsdSponsorBadgeVisible } from "@/lib/pilot-proof-readiness";
 import { cn } from "@/lib/utils";
 import { whyDisabledSampleReviewExport } from "@/lib/why-disabled-cta";
 

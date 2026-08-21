@@ -113,6 +113,10 @@ WORKBOOK_PATH_MIGRATIONS: dict[str, str] = {
     "/settings/ai-usage": "/administration/ai-usage",
     "/admin/ai-usage-cost": "/administration/ai-usage",
     "/quick-start": "/get-started",
+    "/onboarding/start": "/architecture/first-review-guide",
+    "/onboard": "/architecture/first-review-guide",
+    "/login": "/auth/signin",
+    "/operate/architecture-graph": "/insights/evidence-graph",
     "/administration/tenant": "/administration/workspace-settings",
     "/administration/tenant/recycle-bin": "/administration/workspace-settings/recycle-bin",
     "/governance/alerts?tab=inbox": "/governance/alerts",
@@ -419,6 +423,9 @@ def infer_section(path: str, *, help_alias_paths: set[str]) -> str:
     if path.startswith("/integrations"):
         return "Integrations"
     if path.startswith("/internal"):
+        if path == "/internal/failed-integration-messages":
+            return "Advisory"
+
         if path.startswith("/internal/integration-events"):
             return "Advisory"
         if path == "/internal/product-learning":
