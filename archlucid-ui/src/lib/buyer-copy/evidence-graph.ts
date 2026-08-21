@@ -152,12 +152,12 @@ export const OPERATOR_GRAPH_IDLE_BODY =
   "Create a review or open the Claims Intake sample graph to explore how evidence connects to findings and decisions.";
 
 export const OPERATOR_GRAPH_WHAT_YOU_WILL_SEE =
-  "The graph connects review inputs, evidence, policy references, findings, decisions, and sealed review records.";
+  "The graph connects review inputs, evidence, policy references, findings, decisions, and finalized review records.";
 
 export const BUYER_FINDING_EVIDENCE_TRACE_LABEL = "Evidence trace";
 
 export const BUYER_FINDING_SUPPORTING_EVIDENCE_TRACE = "Supporting evidence trace";
 
-export const BUYER_GRAPH_GOVERNANCE_NEXT_APPROVED = "View governance workflow";
+export const BUYER_GRAPH_GOVERNANCE_NEXT_APPROVED = "View resolve outcomes";
 
 export const BUYER_GRAPH_GOVERNANCE_NEXT_PENDING = "Continue to governance approval";

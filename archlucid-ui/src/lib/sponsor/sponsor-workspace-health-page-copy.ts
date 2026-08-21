@@ -24,7 +24,7 @@ export const SPONSOR_WORKSPACE_HEALTH_PAGE_LEAD_OPERATOR =
 
 export const SPONSOR_WORKSPACE_HEALTH_LAYER_GUIDANCE_TRIGGER = "About workspace health";
 
-export const SPONSOR_WORKSPACE_HEALTH_WORKFLOW_LINK_LABEL = "Open governance workflow";
+export const SPONSOR_WORKSPACE_HEALTH_WORKFLOW_LINK_LABEL = "Open resolve outcomes";
 
 export const SPONSOR_WORKSPACE_HEALTH_SESSION_SCOPE_SUMMARY = "Session scope";
 

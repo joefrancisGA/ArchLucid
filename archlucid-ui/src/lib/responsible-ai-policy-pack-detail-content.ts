@@ -148,7 +148,7 @@ export const RESPONSIBLE_AI_ACTION_OPEN_LIBRARY = "Open policy pack library";
 
 export const RESPONSIBLE_AI_ACTION_START_REVIEW = "Start review with this pack";
 
-export const RESPONSIBLE_AI_ACTION_GOVERNANCE = "Open governance workflow";
+export const RESPONSIBLE_AI_ACTION_GOVERNANCE = "Open resolve outcomes";
 
 export const RESPONSIBLE_AI_ACTION_OPEN_GOVERNANCE_SETUP = "Open governance setup";
 

@@ -167,7 +167,7 @@ export const GETTING_STARTED_HELP_WORKFLOW_STEPS: readonly GettingStartedWorkflo
     description: "Capture approvals, accepted risks, and remediation owners before finalizing.",
     expectedOutputs: "Architecture decisions and governance notes.",
     href: "/governance/approval-queue",
-    ctaLabel: "Open governance workflow",
+    ctaLabel: "Open resolve outcomes",
   },
   {
     stepNumber: 5,

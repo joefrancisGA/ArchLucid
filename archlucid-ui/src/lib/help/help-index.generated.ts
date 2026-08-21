@@ -500,7 +500,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Buyer security and procurement packet",
     "sectionSlug": "reviewer-check-5",
     "sectionHeading": "Reviewer check",
-    "excerpt": "1. Perform (or witness) a governance disposition on a pilot host; confirm an `AuditEvents` row for that action type. 2. Ask for the Required vs informational split (INV-003 / TB-953 tip) — do not accept “all telemetry is equally durable.” 3. For export/attest paths, confirm failure if the Required audit write cannot…"
+    "excerpt": "1. Perform (or witness) a resolve outcome on a pilot host; confirm an `AuditEvents` row for that action type. 2. Ask for the Required vs informational split (INV-003 / TB-953 tip) — do not accept “all telemetry is equally durable.” 3. For export/attest paths, confirm failure if the Required audit write cannot…"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",

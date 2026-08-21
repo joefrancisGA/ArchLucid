@@ -181,7 +181,7 @@ export function ManifestDetailSummaryPanel(props: ManifestDetailSummaryPanelProp
           </ul>
         ) : summary.warningCount > 0 ? (
           <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
-            Monitored-risk detail travels with the governed evidence bundle — use{" "}
+            Monitored-risk detail travels with the evidence bundle — use{" "}
             <Link className={OPERATOR_LINK.nav} href={`/architecture/reviews/${summary.runId}`}>
               review detail
             </Link>{" "}

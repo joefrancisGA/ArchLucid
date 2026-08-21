@@ -6,7 +6,7 @@ const baseInput = {
   runId: "run-1",
   architectureName: "Claims intake platform",
   architectureOverview:
-    "A governed workflow platform for analysts with Entra ID authentication, auditable evidence trails, and exportable architecture reviews for enterprise tenants.",
+    "A structured workflow platform for analysts with Entra ID authentication, auditable evidence trails, and exportable architecture reviews for enterprise tenants.",
   businessOutcome: "Reduce manual triage time and improve auditability for operations teams.",
   peopleAndSystems: [
     { label: "Claims analyst", kind: "Human" },

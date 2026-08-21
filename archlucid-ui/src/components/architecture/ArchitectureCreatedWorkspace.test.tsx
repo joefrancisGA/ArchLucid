@@ -48,7 +48,7 @@ describe("ArchitectureCreatedWorkspace", () => {
         baseline={{
           runId: "run-1",
           architectureName: "Claims platform",
-          architectureOverview: "A governed workflow platform for analysts with auditable evidence trails.",
+          architectureOverview: "A structured workflow platform for analysts with auditable evidence trails.",
           businessOutcome: "Reduce manual triage time.",
           peopleAndSystems: [{ label: "Analyst", kind: "Human" }],
           ownerLabel: "owner@example.com",
@@ -93,7 +93,7 @@ describe("ArchitectureCreatedWorkspace", () => {
         baseline={{
           runId: "run-1",
           architectureName: "Claims platform",
-          architectureOverview: "A governed workflow platform for analysts with auditable evidence trails.",
+          architectureOverview: "A structured workflow platform for analysts with auditable evidence trails.",
           businessOutcome: "Reduce manual triage time.",
           peopleAndSystems: [{ label: "Analyst", kind: "Human" }],
           ownerLabel: "owner@example.com",
@@ -133,7 +133,7 @@ describe("ArchitectureCreatedWorkspace", () => {
           runId: "run-1",
           architectureName: "Claims platform",
           architectureOverview:
-            "A governed workflow platform for analysts with Entra ID authentication, auditable evidence trails, and exportable architecture reviews for enterprise tenants.",
+            "A structured workflow platform for analysts with Entra ID authentication, auditable evidence trails, and exportable architecture reviews for enterprise tenants.",
           businessOutcome: "Reduce manual triage time and improve auditability for operations teams.",
           peopleAndSystems: [
             { label: "Claims analyst", kind: "Human" },
@@ -173,7 +173,7 @@ describe("ArchitectureCreatedWorkspace", () => {
         baseline={{
           runId: "run-1",
           architectureName: "Claims platform",
-          architectureOverview: "A governed workflow platform for analysts with auditable evidence trails.",
+          architectureOverview: "A structured workflow platform for analysts with auditable evidence trails.",
           businessOutcome: "Reduce manual triage time.",
           peopleAndSystems: [{ label: "Analyst", kind: "Human" }],
           ownerLabel: "owner@example.com",
@@ -213,7 +213,7 @@ describe("ArchitectureCreatedWorkspace", () => {
         baseline={{
           runId: "run-1",
           architectureName: "Claims platform",
-          architectureOverview: "A governed workflow platform for analysts with auditable evidence trails.",
+          architectureOverview: "A structured workflow platform for analysts with auditable evidence trails.",
           businessOutcome: "Reduce manual triage time.",
           peopleAndSystems: [{ label: "Analyst", kind: "Human" }],
           ownerLabel: "owner@example.com",

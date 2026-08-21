@@ -148,7 +148,7 @@ export function getShowcaseCreatedStaticDemoPayload(urlRunId: string): DemoCommi
         structured: null,
         confidence: null,
         provenance: null,
-        summary: "Demonstration narrative for a born-governed created copilot platform.",
+        summary: "Demonstration narrative for a finalized created copilot platform.",
         keyDrivers: [
           "Private connectivity for inference and retrieval",
           "Content safety and prompt governance",

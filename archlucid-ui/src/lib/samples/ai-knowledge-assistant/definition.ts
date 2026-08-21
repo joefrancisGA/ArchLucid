@@ -40,7 +40,7 @@ export const AI_KNOWLEDGE_ASSISTANT_CANONICAL_PROOF_HREF =
 
 /** Secondary created showcase sentence (TB-982 / GTM M-135). */
 export const AI_KNOWLEDGE_ASSISTANT_SECONDARY_BUYER_SENTENCE =
-  "Enterprise AI Knowledge Assistant is ArchLucid's governed copilot/RAG sample — a created architecture package for private inference, responsible-AI controls, and evidence you can finalize and export.";
+  "Enterprise AI Knowledge Assistant is ArchLucid's structured copilot/RAG sample — a created architecture package for private inference, responsible-AI controls, and evidence you can finalize and export.";
 
 /** Registry entry for the AI Knowledge Assistant created showcase (TB-982). */
 export const AI_KNOWLEDGE_ASSISTANT_SAMPLE_DEFINITION: SampleScenarioDefinition = {

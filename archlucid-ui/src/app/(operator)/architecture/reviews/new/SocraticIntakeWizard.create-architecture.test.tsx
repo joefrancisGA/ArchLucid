@@ -105,7 +105,7 @@ import {
 } from "@/lib/guided-intake-copy";
 
 const validIntent =
-  "We are designing a governed workflow platform for analysts with Entra ID authentication, auditable evidence trails, and exportable architecture reviews.";
+  "We are designing a structured workflow platform for analysts with Entra ID authentication, auditable evidence trails, and exportable architecture reviews.";
 
 const validOutcome = "Reduce cycle time for architecture reviews.";
 const validSystemName = "Governed review platform";

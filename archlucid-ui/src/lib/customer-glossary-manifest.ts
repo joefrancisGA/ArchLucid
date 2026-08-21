@@ -52,11 +52,11 @@ export const CUSTOMER_GLOSSARY_TERMS: readonly CustomerGlossaryTerm[] = [
     id: "review",
     label: "Review",
     definition:
-      "A structured evaluation of architecture change or design intent tied to evidence and policy. In ArchLucid, a review is the governed process from intake through finalized outputs.",
+      "A structured evaluation of architecture change or design intent tied to evidence and policy. In ArchLucid, a review is the structured review process from intake through finalized outputs.",
     category: "review-process",
     relatedTermIds: ["review-package", "architecture-draft"],
     detail:
-      "A review is the governed evaluation process from intake through finalized outputs such as the sealed review record, findings, and exports.",
+      "A review is the structured evaluation process from intake through finalized outputs such as the finalized review record, findings, and exports.",
     visibility: "customer",
   },
   {
