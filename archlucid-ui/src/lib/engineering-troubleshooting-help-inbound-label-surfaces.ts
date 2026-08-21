@@ -6,7 +6,7 @@ export const ENGINEERING_TROUBLESHOOTING_HELP_INBOUND_PATH_LABELS: Readonly<Reco
 } as const;
 
 export const ENGINEERING_TROUBLESHOOTING_HELP_INBOUND_LABEL_SOURCE_FILES: readonly string[] = [
-  "src/lib/usability/page-help-topic-map.ts",
+  "src/lib/usability/page-help-topic-rows.ts",
   "src/lib/cli-usage-help-evidence-copy.ts",
   "src/lib/developer-settings-evidence-copy.ts",
   "src/lib/api-contracts-help-guide-content.ts",

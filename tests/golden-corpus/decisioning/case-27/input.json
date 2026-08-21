@@ -15,7 +15,8 @@
         "category": "network",
         "sourceType": null,
         "sourceId": null,
-        "properties": {}
+        "properties": {},
+        "reasoningTrace": null
       }
     ],
     "edges": [],

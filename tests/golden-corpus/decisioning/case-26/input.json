@@ -17,7 +17,8 @@
         "sourceId": null,
         "properties": {
           "text": "Authenticate users"
-        }
+        },
+        "reasoningTrace": null
       }
     ],
     "edges": [],

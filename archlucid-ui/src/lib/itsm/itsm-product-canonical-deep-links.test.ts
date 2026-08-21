@@ -13,7 +13,7 @@ import { INTERNAL_ITSM_CONNECTORS_PATH } from "@/lib/internal-ops-route-paths";
 const repoRoot = join(process.cwd(), "..");
 
 const ITSM_PRODUCT_DEEP_LINK_SCAN_SURFACES = [
-  "archlucid-ui/src/lib/usability/page-help-topic-map.ts",
+  "archlucid-ui/src/lib/usability/page-help-topic-rows.ts",
   "archlucid-ui/src/lib/itsm/itsm-connectors-admin-scope.ts",
   "archlucid-ui/src/lib/itsm/itsm-oauth-callback-evidence-copy.ts",
   "archlucid-ui/src/app/(operator)/integrations/jira/_sections/JiraIntegrationAside.tsx",

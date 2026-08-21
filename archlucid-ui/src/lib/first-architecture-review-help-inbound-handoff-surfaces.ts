@@ -19,7 +19,7 @@ export const FIRST_ARCHITECTURE_REVIEW_INBOUND_HANDOFF_SOURCE_FILES: readonly st
   "src/lib/first-review-90min-playbook-alignment.ts",
   "src/components/CorePilotNextStepsCard.tsx",
   "src/lib/help/help-center-catalog.ts",
-  "src/lib/usability/page-help-topic-map.ts",
+  "src/lib/usability/page-help-topic-rows.ts",
   "src/lib/repeat-review-loop-help-guide-content.ts",
   "src/components/CorePilotChecklist.tsx",
   "src/components/CorePilotWizard.tsx",

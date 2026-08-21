@@ -19,7 +19,8 @@
           "budgetName": "Prod",
           "maxMonthlyCost": "2500",
           "costRisk": "medium"
-        }
+        },
+        "reasoningTrace": null
       }
     ],
     "edges": [],

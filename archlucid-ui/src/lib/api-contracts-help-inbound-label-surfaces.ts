@@ -6,7 +6,7 @@ export const API_CONTRACTS_HELP_INBOUND_PATH_LABELS: Readonly<Record<string, str
 } as const;
 
 export const API_CONTRACTS_HELP_INBOUND_LABEL_SOURCE_FILES: readonly string[] = [
-  "src/lib/usability/page-help-topic-map.ts",
+  "src/lib/usability/page-help-topic-rows.ts",
   "src/lib/vocabulary/developer-api-contracts-api-keys-vocabulary.ts",
   "src/lib/developer-settings-evidence-copy.ts",
   "src/lib/engineering-troubleshooting-help-guide-content.ts",
