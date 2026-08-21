@@ -14,6 +14,11 @@ const manifestLoaderSource = readFileSync(
   join(sectionsDir, "../../../lib/operator/load-deferred-chunk-from-manifest.tsx"),
   "utf8",
 );
+const belowFoldSource = readFileSync(join(sectionsDir, "OperatorHomeBelowFoldPanels.tsx"), "utf8");
+const advancedGuidancePanelSource = readFileSync(
+  join(sectionsDir, "../../../components/operator-home/OperatorHomeAdvancedGuidancePanel.tsx"),
+  "utf8",
+);
 const heroSource = readFileSync(
   join(sectionsDir, "../../../components/operator-home/BuyerPolishedHomeHeroSection.tsx"),
   "utf8",
@@ -64,11 +69,20 @@ describe("operator home deferred imports (TB-2145)", () => {
     expect(manifestLoaderSource).toContain('import("@/app/(operator)/_sections/OperatorHomeBelowFoldPanels")');
     expect(manifestLoaderSource).toContain('import("@/components/operator-home/BuyerPolishedHomeHeroSection")');
     expect(manifestLoaderSource).toContain('import("@/components/operator-home/OperatorHomeGate")');
-    expect(deferredSource).toContain('import("@/components/cto-demo/CtoDemoSponsorLandingRedirect")');
+    expect(manifestLoaderSource).toContain('import("@/components/cto-demo/CtoDemoSponsorLandingRedirect")');
+    expect(deferredSource).toContain("operator-home-cto-demo-sponsor-landing");
   });
 
   it("defers pilot command center in buyer-polished hero", () => {
     expect(heroSource).not.toContain('@/components/usability/PilotCommandCenterCard"');
     expect(heroSource).toContain("PilotCommandCenterCardDeferred");
+  });
+
+  it("defers advanced guidance off below-fold static import graph (TB-2371)", () => {
+    expect(belowFoldSource).not.toContain('@/components/operator-home/OperatorHomeAdvancedGuidanceSection"');
+    expect(belowFoldSource).toContain("OperatorHomeAdvancedGuidancePanel");
+    expect(advancedGuidancePanelSource).toContain("createDeferredComponentFromManifest");
+    expect(advancedGuidancePanelSource).toContain("operator-home-advanced-guidance");
+    expect(manifestLoaderSource).toContain('import("@/components/operator-home/OperatorHomeAdvancedGuidanceSection")');
   });
 });

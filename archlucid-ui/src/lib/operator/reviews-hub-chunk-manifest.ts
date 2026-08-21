@@ -34,8 +34,8 @@ export const REVIEWS_HUB_CHUNK_MANIFEST: readonly DeferredChunkManifestEntry[] =
     id: "reviews-hub-before-after-delta",
     label: "Loading review delta",
     variant: "compact",
-    modulePath: "@/app/(operator)/architecture/reviews/_sections/ReviewsHubBeforeAfterDeltaPanel",
-    exportName: "ReviewsHubBeforeAfterDeltaPanel",
+    modulePath: "@/components/BeforeAfterDeltaPanel",
+    exportName: "BeforeAfterDeltaPanel",
   },
   {
     id: "reviews-hub-index-before-after",
