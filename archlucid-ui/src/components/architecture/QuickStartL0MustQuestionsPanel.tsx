@@ -4,13 +4,16 @@ import { cn } from "@/lib/utils";
 import { useCallback, useMemo, useState } from "react";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
-import { DraftIntakeRequiredClarificationField } from "@/components/draft-intake/DraftIntakeRequiredClarificationField";
+import {
+  DraftIntakeRequiredClarificationField,
+  type ClarificationCardStatus,
+} from "@/components/draft-intake/DraftIntakeRequiredClarificationField";
+import { Button } from "@/components/ui/button";
 import { ARCHITECTURE_CREATION_UNIVERSAL_QUESTIONS } from "@/lib/architecture/architecture-creation-question-definition";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import {
-  isUniversalIntakeMustQuestionSatisfied,
-  UNIVERSAL_INTAKE_MUST_QUESTION_KEYS,
-} from "@/lib/universal-intake-must-completeness";
+import { guidedIntakeClarificationsAnsweredCounter } from "@/lib/guided-intake-copy";
+import { UNIVERSAL_INTAKE_MUST_QUESTION_KEYS } from "@/lib/universal-intake-must-completeness";
+import type { DraftElicitationQuestion } from "@/types/draft-intake";
 
 export type QuickStartL0MustQuestionsPanelProps = {
   readonly answers: Readonly<Record<string, string>>;
@@ -20,15 +23,75 @@ export type QuickStartL0MustQuestionsPanelProps = {
   readonly onSkippedQuestionKeysChange: (skippedQuestionKeys: ReadonlySet<string>) => void;
 };
 
+function isQuickStartClarificationHandled(
+  questionKey: string,
+  answers: Readonly<Record<string, string>>,
+  skippedQuestionKeys: ReadonlySet<string>,
+  savedLocallyQuestionKeys: ReadonlySet<string>,
+): boolean {
+  if (skippedQuestionKeys.has(questionKey)) {
+    return true;
+  }
+
+  if (savedLocallyQuestionKeys.has(questionKey)) {
+    return (answers[questionKey]?.trim() ?? "").length > 0;
+  }
+
+  return false;
+}
+
 /** Quick start L0 MUST interviewer — reuses Guided questions field chrome (TB-2283). */
 export function QuickStartL0MustQuestionsPanel(props: QuickStartL0MustQuestionsPanelProps) {
   const total = UNIVERSAL_INTAKE_MUST_QUESTION_KEYS.length;
-  const answeredCount = useMemo(
+  const [savedLocallyQuestionKeys, setSavedLocallyQuestionKeys] = useState<ReadonlySet<string>>(
+    () => new Set(),
+  );
+  const [viewAllClarifications, setViewAllClarifications] = useState(false);
+
+  const clarificationOrdinalByKey = useMemo(() => {
+    const ordinals = new Map<string, number>();
+
+    UNIVERSAL_INTAKE_MUST_QUESTION_KEYS.forEach((questionKey, index) => {
+      ordinals.set(questionKey, index + 1);
+    });
+
+    return ordinals;
+  }, []);
+
+  const activePendingQuestions = useMemo(
     () =>
-      UNIVERSAL_INTAKE_MUST_QUESTION_KEYS.filter((questionKey) =>
-        isUniversalIntakeMustQuestionSatisfied(questionKey, props.answers, props.skippedQuestionKeys),
-      ).length,
-    [props.answers, props.skippedQuestionKeys],
+      ARCHITECTURE_CREATION_UNIVERSAL_QUESTIONS.filter(
+        (question) =>
+          !isQuickStartClarificationHandled(
+            question.questionKey,
+            props.answers,
+            props.skippedQuestionKeys,
+            savedLocallyQuestionKeys,
+          ),
+      ),
+    [props.answers, props.skippedQuestionKeys, savedLocallyQuestionKeys],
+  );
+
+  const handledClarificationCount = total - activePendingQuestions.length;
+
+  const getClarificationOrdinal = useCallback(
+    (questionKey: string): number => clarificationOrdinalByKey.get(questionKey) ?? 0,
+    [clarificationOrdinalByKey],
+  );
+
+  const getClarificationStatus = useCallback(
+    (questionKey: string): ClarificationCardStatus => {
+      if (props.skippedQuestionKeys.has(questionKey)) {
+        return { kind: "draft", label: "Skipped" };
+      }
+
+      if (savedLocallyQuestionKeys.has(questionKey)) {
+        return { kind: "ready", label: "Answered" };
+      }
+
+      return { kind: "needs-attention", label: "Needs answer" };
+    },
+    [props.skippedQuestionKeys, savedLocallyQuestionKeys],
   );
 
   const handleAnswerChange = useCallback(
@@ -43,15 +106,32 @@ export function QuickStartL0MustQuestionsPanel(props: QuickStartL0MustQuestionsP
         nextSkipped.delete(questionKey);
         props.onSkippedQuestionKeysChange(nextSkipped);
       }
+
+      if (savedLocallyQuestionKeys.has(questionKey)) {
+        const nextSaved = new Set(savedLocallyQuestionKeys);
+        nextSaved.delete(questionKey);
+        setSavedLocallyQuestionKeys(nextSaved);
+      }
     },
-    [props],
+    [props, savedLocallyQuestionKeys],
   );
 
   const handleSaveAndContinue = useCallback(
-    (_questionKey: string) => {
-      // Quick start tracks answers inline; save-and-continue only dismisses the row affordance.
+    (questionKey: string) => {
+      const answer = props.answers[questionKey]?.trim() ?? "";
+
+      if (answer.length === 0) {
+        return;
+      }
+
+      setSavedLocallyQuestionKeys((current) => {
+        const next = new Set(current);
+        next.add(questionKey);
+
+        return next;
+      });
     },
-    [],
+    [props.answers],
   );
 
   const handleSkip = useCallback(
@@ -63,10 +143,45 @@ export function QuickStartL0MustQuestionsPanel(props: QuickStartL0MustQuestionsP
     [props],
   );
 
+  const primaryPendingQuestion = activePendingQuestions[0] ?? null;
+  const otherPendingQuestions =
+    viewAllClarifications && activePendingQuestions.length > 1 ? activePendingQuestions.slice(1) : [];
+
+  const renderClarificationField = (
+    question: DraftElicitationQuestion,
+    options: {
+      readonly isPrimary: boolean;
+      readonly isFocused: boolean;
+    },
+  ): React.JSX.Element => {
+    const questionKey = question.questionKey;
+
+    return (
+      <DraftIntakeRequiredClarificationField
+        key={questionKey}
+        question={question}
+        answer={props.answers[questionKey] ?? ""}
+        busy={props.busy}
+        clarificationIndex={getClarificationOrdinal(questionKey)}
+        clarificationTotal={total}
+        isPrimary={options.isPrimary}
+        isFocused={options.isFocused}
+        compactActions={viewAllClarifications}
+        showAllMode={viewAllClarifications}
+        showBaselineLabel={false}
+        clarificationStatus={getClarificationStatus(questionKey)}
+        canSaveAndContinue={(props.answers[questionKey]?.trim() ?? "").length > 0}
+        onAnswerChange={handleAnswerChange}
+        onSaveAndContinue={handleSaveAndContinue}
+        onSkip={handleSkip}
+      />
+    );
+  };
+
   return (
     <CollapsibleSection
       title="Required clarifications"
-      summaryLine={`${answeredCount} of ${total} answered or marked unknown`}
+      summaryLine={`${handledClarificationCount} of ${total} answered or marked unknown`}
       defaultOpen
       sectionTestId="first-pilot-l0-must-panel"
     >
@@ -74,22 +189,63 @@ export function QuickStartL0MustQuestionsPanel(props: QuickStartL0MustQuestionsP
         <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
           Quick start collects the same baseline facts Guided questions requires before analysis begins.
         </p>
-        {ARCHITECTURE_CREATION_UNIVERSAL_QUESTIONS.map((question, index) => (
-          <DraftIntakeRequiredClarificationField
-            key={question.questionKey}
-            question={question}
-            answer={props.answers[question.questionKey] ?? ""}
-            busy={props.busy}
-            clarificationIndex={index + 1}
-            clarificationTotal={total}
-            isPrimary={index === 0}
-            compactActions
-            canSaveAndContinue={(props.answers[question.questionKey]?.trim() ?? "").length > 0}
-            onAnswerChange={handleAnswerChange}
-            onSaveAndContinue={handleSaveAndContinue}
-            onSkip={handleSkip}
-          />
-        ))}
+
+        {primaryPendingQuestion !== null
+          ? renderClarificationField(primaryPendingQuestion, {
+              isPrimary: true,
+              isFocused: !viewAllClarifications,
+            })
+          : (
+            <p
+              className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="first-pilot-l0-must-complete"
+            >
+              All required clarifications are answered or marked unknown.
+            </p>
+          )}
+
+        {total > 1 && activePendingQuestions.length > 0 ? (
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            disabled={props.busy}
+            data-testid="first-pilot-view-all-clarifications"
+            onClick={() => {
+              setViewAllClarifications((current) => !current);
+            }}
+          >
+            {viewAllClarifications
+              ? "Show one at a time"
+              : `Show all ${activePendingQuestions.length} remaining clarifications`}
+          </Button>
+        ) : null}
+
+        {otherPendingQuestions.length > 0 ? (
+          <div className="space-y-3" data-testid="first-pilot-other-clarifications">
+            <p
+              className={cn(
+                "m-0 font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400",
+                OPERATOR_TYPOGRAPHY.tab,
+              )}
+            >
+              Other clarifications
+            </p>
+            {otherPendingQuestions.map((question) =>
+              renderClarificationField(question, {
+                isPrimary: false,
+                isFocused: false,
+              }),
+            )}
+          </div>
+        ) : null}
+
+        <p
+          className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="first-pilot-l0-must-progress"
+        >
+          {guidedIntakeClarificationsAnsweredCounter(handledClarificationCount, total)}
+        </p>
       </div>
     </CollapsibleSection>
   );

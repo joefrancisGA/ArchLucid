@@ -595,7 +595,7 @@ export function SocraticIntakeWizard() {
                 </li>
               ) : null}
             </ul>
-            <EvidenceGapForecastPanel presence={guidedIntakeEvidencePresence} />
+            <EvidenceGapForecastPanel presence={guidedIntakeEvidencePresence} presentation="summary" />
             {confirmedScopeLines.length > 0 ? (
               <section className="space-y-1" data-testid="socratic-confirmed-scope-summary">
                 <h3 className={cn("m-0 font-semibold", OPERATOR_TYPOGRAPHY.label)}>
