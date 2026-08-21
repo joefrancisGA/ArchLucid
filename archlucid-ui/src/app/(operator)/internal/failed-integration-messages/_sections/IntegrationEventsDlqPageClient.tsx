@@ -67,13 +67,13 @@ const bulkRetryPath = "/api/proxy/v1/internal/integrations/outbox/retry-dead-let
 
 function formatAgeUtc(deadLetteredUtc: string | undefined | null): string {
   if (deadLetteredUtc === undefined || deadLetteredUtc === null || deadLetteredUtc === "") {
-    return "—";
+    return " — ";
   }
 
   const deadLetteredMs = Date.parse(deadLetteredUtc);
 
   if (Number.isNaN(deadLetteredMs)) {
-    return "—";
+    return " — ";
   }
 
   const ageMs = Math.max(0, Date.now() - deadLetteredMs);
@@ -96,7 +96,7 @@ function formatAgeUtc(deadLetteredUtc: string | undefined | null): string {
 
 function truncateErrorMessage(message: string | undefined | null): string {
   if (message === undefined || message === null || message.trim() === "") {
-    return "—";
+    return " — ";
   }
 
   return truncateMiddle(message, 96);
@@ -499,9 +499,9 @@ export function IntegrationEventsDlqPageClient() {
                   const reviewHref = resolveReviewHref(row.runId);
                   const tenantLabel =
                     row.tenantId === undefined || row.tenantId === null || row.tenantId === ""
-                      ? "—"
+                      ? " — "
                       : truncateMiddle(row.tenantId, 18);
-                  const lastError = row.lastErrorMessage ?? "—";
+                  const lastError = row.lastErrorMessage ?? " — ";
 
                   return (
                     <EnterpriseTableRow key={row.outboxId}>
@@ -541,7 +541,7 @@ export function IntegrationEventsDlqPageClient() {
                         <span className={OPERATOR_TYPOGRAPHY.helper}>{row.retryCount}</span>
                       </EnterpriseTableCell>
                       <EnterpriseTableCell>
-                        <span className={OPERATOR_TYPOGRAPHY.helper} aria-label={lastError === "—" ? undefined : lastError}>
+                        <span className={OPERATOR_TYPOGRAPHY.helper} aria-label={lastError === " — " ? undefined : lastError}>
                           {truncateErrorMessage(row.lastErrorMessage)}
                         </span>
                       </EnterpriseTableCell>

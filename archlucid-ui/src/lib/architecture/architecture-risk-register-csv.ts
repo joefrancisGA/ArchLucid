@@ -76,7 +76,7 @@ export function buildArchitectureRiskRegisterCsv(rows: readonly ArchitectureRisk
 }
 
 function inspectPath(runId: string, findingId: string): string {
-  if (runId === "—" || runId.trim().length === 0) {
+  if (runId === " — " || runId.trim().length === 0) {
     return findingId;
   }
 

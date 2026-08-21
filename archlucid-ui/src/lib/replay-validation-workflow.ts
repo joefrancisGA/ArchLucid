@@ -192,7 +192,7 @@ export type ReplayValidationHistoryEntry = {
 
 export function formatReplayDurationLabel(durationMs: number | null): string {
   if (durationMs === null || durationMs < 0) {
-    return "—";
+    return " — ";
   }
 
   if (durationMs < 1000) {

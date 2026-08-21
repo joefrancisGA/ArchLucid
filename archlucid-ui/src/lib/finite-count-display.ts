@@ -3,7 +3,7 @@
  */
 export function finiteIntegerCountDisplay(value: unknown): string {
   if (typeof value !== "number" || !Number.isFinite(value)) {
-    return "—";
+    return " — ";
   }
 
   return String(Math.trunc(value));

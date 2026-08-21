@@ -86,7 +86,7 @@ export function resolveGovernanceFindingResourceGroup(
 
   const runLabel = row.runLabel.trim();
 
-  if (runLabel.length > 0 && runLabel !== "—" && !isUuidLike(runLabel)) {
+  if (runLabel.length > 0 && runLabel !== " — " && !isUuidLike(runLabel)) {
     return {
       key: `review:${runLabel}`,
       label: runLabel,
@@ -95,7 +95,7 @@ export function resolveGovernanceFindingResourceGroup(
 
   const category = row.category.trim();
 
-  if (category.length > 0 && category !== "—") {
+  if (category.length > 0 && category !== " — ") {
     return {
       key: `category:${category}`,
       label: category,

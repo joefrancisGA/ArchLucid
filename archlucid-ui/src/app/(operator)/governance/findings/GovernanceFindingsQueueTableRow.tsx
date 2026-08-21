@@ -46,7 +46,7 @@ function formatRiskRegisterUtcLabel(utc: string | null | undefined): string {
   const raw = (utc ?? "").trim();
 
   if (raw.length === 0) {
-    return "—";
+    return " — ";
   }
 
   const parsed = Date.parse(raw);
@@ -238,19 +238,19 @@ function GovernanceFindingsQueueOperationalRowCells(props: {
       </EnterpriseTableCell>
       <EnterpriseTableCell>{governanceQueueSeverityCell(row, false)}</EnterpriseTableCell>
       <EnterpriseTableCell className={DESIGN_TOKENS.table.cellSecondary}>
-        {row.recordKind === "finding" ? row.ownerUserId ?? "—" : "—"}
+        {row.recordKind === "finding" ? row.ownerUserId ?? " — " : " — "}
       </EnterpriseTableCell>
       <EnterpriseTableCell className={DESIGN_TOKENS.table.cellSecondary}>
         {governanceQueueDispositionLabel(row)}
       </EnterpriseTableCell>
       <EnterpriseTableCell className={DESIGN_TOKENS.table.cellSecondary}>
-        {row.recordKind === "finding" && row.agingDays !== undefined ? `${row.agingDays}d` : "—"}
+        {row.recordKind === "finding" && row.agingDays !== undefined ? `${row.agingDays}d` : " — "}
       </EnterpriseTableCell>
       <EnterpriseTableCell className={DESIGN_TOKENS.table.cellSecondary}>
-        {row.recordKind === "finding" ? formatRiskRegisterUtcLabel(row.waiverExpiresAtUtc) : "—"}
+        {row.recordKind === "finding" ? formatRiskRegisterUtcLabel(row.waiverExpiresAtUtc) : " — "}
       </EnterpriseTableCell>
       <EnterpriseTableCell className={DESIGN_TOKENS.table.cellSecondary}>
-        {row.recordKind === "finding" ? formatRiskRegisterUtcLabel(row.lastReviewedUtc) : "—"}
+        {row.recordKind === "finding" ? formatRiskRegisterUtcLabel(row.lastReviewedUtc) : " — "}
       </EnterpriseTableCell>
       <EnterpriseTableCell>
         <StatusTag kind={governanceQueueStatusTagKind(row.status)} label={row.status} />

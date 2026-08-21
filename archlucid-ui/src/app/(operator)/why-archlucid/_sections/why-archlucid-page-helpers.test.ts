@@ -12,7 +12,7 @@ describe("formatWhyPageInstant", () => {
   });
 
   it("returns em dash for empty input", () => {
-    expect(formatWhyPageInstant(null)).toBe("—");
-    expect(formatWhyPageInstant("")).toBe("—");
+    expect(formatWhyPageInstant(null)).toBe(" — ");
+    expect(formatWhyPageInstant("")).toBe(" — ");
   });
 });

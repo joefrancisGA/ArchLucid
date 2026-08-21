@@ -40,7 +40,7 @@ function resolveActivePackName(
     return fromSelected;
   }
 
-  return "—";
+  return " — ";
 }
 
 function resolveActivePackVersion(
@@ -53,7 +53,7 @@ function resolveActivePackVersion(
     return fromEffective;
   }
 
-  return selectedPack?.currentVersion?.trim() ?? "—";
+  return selectedPack?.currentVersion?.trim() ?? " — ";
 }
 
 export function PolicyPacksActivePackSummaryCard(props: PolicyPacksActivePackSummaryCardProps) {
@@ -83,7 +83,7 @@ export function PolicyPacksActivePackSummaryCard(props: PolicyPacksActivePackSum
         <div className="flex flex-wrap items-center gap-2">
           <p className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>{packName}</p>
           <StatusTag kind={isEnabled ? "ready" : "neutral"} label={isEnabled ? "Enabled in workspace" : "Not in scope"} />
-          {packVersion !== "—" ? <StatusTag kind="neutral" label={`Version ${packVersion}`} /> : null}
+          {packVersion !== " — " ? <StatusTag kind="neutral" label={`Version ${packVersion}`} /> : null}
         </div>
         <p className={cn("m-0 text-al-text-secondary", OPERATOR_KPI_CARD_DESCRIPTION)}>
           {formatActivePolicyPackSummaryBody(packName, enforcedRuleCount)}

@@ -43,7 +43,7 @@ export function PostCommitAdvancedAnalysisHint({
     compareWithPriorHref !== null ? !buyerPolishedShell : showcaseCompareHref !== null;
 
   const sidebarHint = buyerPolishedShell ? (
-    <>Deeper passes below are optional—most sponsors consume exported deliverables first.</>
+    <>Deeper passes below are optional — most sponsors consume exported deliverables first.</>
   ) : (
     <>
       Use the links below; choose <em>{SHOW_ALL_DESTINATIONS.show}</em> in the sidebar if a group is collapsed.
@@ -65,7 +65,7 @@ export function PostCommitAdvancedAnalysisHint({
           </>
         ) : (
           <>
-            This review has a finalized architecture snapshot. None of this is required to judge first-pilot value—only when you have a
+            This review has a finalized architecture snapshot. None of this is required to judge first-pilot value — only when you have a
             concrete question the first-review path does not answer (diff two reviews, re-validate the provenance chain, or
             explore a graph). {sidebarHint}
           </>

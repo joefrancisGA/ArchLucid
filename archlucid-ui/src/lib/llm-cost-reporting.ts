@@ -218,9 +218,9 @@ function parseWorkspaceProjectRow(entry: unknown): LlmCostWorkspaceProjectRow | 
 
   const o = entry as Record<string, unknown>;
   const workspaceId = pickString(o, ["workspaceId", "workspace_id"]);
-  const workspaceName = pickString(o, ["workspaceName", "workspace", "workspaceLabel"], "—");
+  const workspaceName = pickString(o, ["workspaceName", "workspace", "workspaceLabel"], " — ");
   const projectId = pickString(o, ["projectId", "project_id"]);
-  const projectName = pickString(o, ["projectName", "project", "projectLabel"], "—");
+  const projectName = pickString(o, ["projectName", "project", "projectLabel"], " — ");
   const estimatedCostUsd = pickFiniteNumber(o, ["estimatedCostUsd", "estimatedCost", "costUsd", "usd"]);
   const promptTokens = Math.max(0, Math.round(pickFiniteNumber(o, ["promptTokens", "inputTokens"], 0)));
   const completionTokens = Math.max(0, Math.round(pickFiniteNumber(o, ["completionTokens", "outputTokens"], 0)));
@@ -231,9 +231,9 @@ function parseWorkspaceProjectRow(entry: unknown): LlmCostWorkspaceProjectRow | 
 
   return {
     workspaceId,
-    workspaceName: workspaceName ?? "—",
+    workspaceName: workspaceName ?? " — ",
     projectId,
-    projectName: projectName ?? "—",
+    projectName: projectName ?? " — ",
     estimatedCostUsd,
     promptTokens,
     completionTokens,

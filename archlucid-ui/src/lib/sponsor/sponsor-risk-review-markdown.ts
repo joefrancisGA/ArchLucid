@@ -76,7 +76,7 @@ export function buildSponsorRiskReviewMarkdown(
       ? `Aggregate model confidence: ${formatAggregateModelConfidence(structuredConfidence)}.`
       : null,
     typeof summary.faithfulnessSupportRatio === "number" && Number.isFinite(summary.faithfulnessSupportRatio)
-      ? `Faithfulness support ratio: ${ratioPercentLabel(summary.faithfulnessSupportRatio, "—")}.`
+      ? `Faithfulness support ratio: ${ratioPercentLabel(summary.faithfulnessSupportRatio, " — ")}.`
       : null,
     faithfulnessWarningTrimmed.length > 0 ? faithfulnessWarningTrimmed : null,
     isDeterministicExplanationFallback(summary)

@@ -117,7 +117,7 @@ export function RunDetailCreateHomeActivityPanel(props: RunDetailCreateHomeActiv
           >
             Full provenance view
           </Link>
-          {props.provenanceAsOfLabel !== "—" ? (
+          {props.provenanceAsOfLabel !== " — " ? (
             <span className="text-al-text-secondary"> (as of {props.provenanceAsOfLabel})</span>
           ) : null}
         </p>

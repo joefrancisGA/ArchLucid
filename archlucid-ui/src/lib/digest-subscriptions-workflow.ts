@@ -136,7 +136,7 @@ export function maskDigestDestination(destination: string, canRevealDetails: boo
   const trimmed: string = destination.trim();
 
   if (trimmed.length === 0) {
-    return "—";
+    return " — ";
   }
 
   if (canRevealDetails) {
@@ -172,7 +172,7 @@ export function buildDigestSubscriptionReadinessSummary(
   const lastDelivery: string = formatDigestInstant(healthSnap?.latestDigestSubscriptionDeliveryUtc);
   const nextScheduled: string = scheduleEnabled
     ? formatDigestInstant(healthSnap?.earliestNextAdvisoryRunUtc)
-    : "—";
+    : " — ";
 
   const rows: DigestSubscriptionReadinessRow[] = [
     {

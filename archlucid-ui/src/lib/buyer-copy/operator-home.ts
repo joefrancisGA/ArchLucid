@@ -131,7 +131,7 @@ export const OPERATOR_HOME_COMPACT_STARTING_ACTIONS_HEADING = "Start another rev
 export const OPERATOR_HOME_ARCHITECTURE_LIFECYCLE_INTRO_LABEL = "Two ways in:";
 
 export const OPERATOR_HOME_ARCHITECTURE_LIFECYCLE_INTRO_BODY =
-  "Create an architecture from a description, uploaded evidence, or connected cloud inventory—or review an architecture you already have.";
+  "Create an architecture from a description, uploaded evidence, or connected cloud inventory — or review an architecture you already have.";
 
 export const OPERATOR_HOME_ARCHITECTURE_LIFECYCLE_INTRO =
   `${OPERATOR_HOME_ARCHITECTURE_LIFECYCLE_INTRO_LABEL} ${OPERATOR_HOME_ARCHITECTURE_LIFECYCLE_INTRO_BODY}`;
@@ -144,7 +144,7 @@ export const OPERATOR_HOME_CREATE_ARCHITECTURE_CARD_BODY =
 export const OPERATOR_HOME_REVIEW_ARCHITECTURE_CARD_TITLE = "Review architecture";
 
 export const OPERATOR_HOME_REVIEW_ARCHITECTURE_CARD_BODY =
-  "Attach architecture information you already have—diagrams, documents, inventory exports, or connected cloud evidence. It produces findings and evidence you can finalize into a finalized review record.";
+  "Attach architecture information you already have — diagrams, documents, inventory exports, or connected cloud evidence. It produces findings and evidence you can finalize into a finalized review record.";
 
 /** @deprecated Merged into {@link OPERATOR_HOME_REVIEW_ARCHITECTURE_CARD_BODY} on the home review card. */
 export const OPERATOR_HOME_REVIEW_ARCHITECTURE_SUPPORT = OPERATOR_HOME_REVIEW_ARCHITECTURE_CARD_BODY;

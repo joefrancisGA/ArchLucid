@@ -90,7 +90,7 @@ function formatCompositeAlertRuleCreatedLabel(createdUtc: string | null | undefi
 
   const formatted = formatInstantForLocale(trimmed);
 
-  if (formatted === "—") {
+  if (formatted === " — ") {
     return null;
   }
 

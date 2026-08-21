@@ -19,7 +19,7 @@ export const GLOSSARY_DEFINITIONS = {
     displayLabel: "Finalized review record",
     shortDefinition: "The finalized architecture review treated as source of truth for a review.",
     longDefinition:
-      "The finalized review record is the immutable, versioned design record for an architecture review—decisions, findings, and evidence together—used for approvals, exports, and diffs against other reviews.",
+      "The finalized review record is the immutable, versioned design record for an architecture review — decisions, findings, and evidence together — used for approvals, exports, and diffs against other reviews.",
   },
   finding: {
     displayLabel: "Finding",
@@ -29,9 +29,9 @@ export const GLOSSARY_DEFINITIONS = {
   },
   artifact: {
     displayLabel: "Artifact",
-    shortDefinition: "Generated output from a review—diagrams, documents, JSON, or bundles for sponsors.",
+    shortDefinition: "Generated output from a review — diagrams, documents, JSON, or bundles for sponsors.",
     longDefinition:
-      "Artifacts are versioned deliverables produced after decisioning—anything from diagrams to narrative packs—packaged for download or downstream systems.",
+      "Artifacts are versioned deliverables produced after decisioning — anything from diagrams to narrative packs — packaged for download or downstream systems.",
   },
   evidence_package: {
     displayLabel: "Evidence bundle",
@@ -49,7 +49,11 @@ export const GLOSSARY_DEFINITIONS = {
     displayLabel: "Resolve outcomes",
     shortDefinition: "Checkpoints where policy, reviewers, or thresholds must pass before advancing.",
     longDefinition:
+<<<<<<< HEAD
       "Resolve outcomes enforce required reviewers, policy packs, and risk thresholds before a review or deliverable state advances—blocking unsafe silent changes.",
+=======
+      "Governance approvals enforce required reviewers, policy packs, and risk thresholds before a review or deliverable state advances — blocking unsafe silent changes.",
+>>>>>>> b870e42bd6 (Normalize spaced em dashes across buyer-facing UI copy.)
   },
   policy_pack: {
     displayLabel: "Policy pack",
@@ -67,7 +71,7 @@ export const GLOSSARY_DEFINITIONS = {
     displayLabel: "Replay",
     shortDefinition: "Re-executing stored logic or outputs to reproduce deltas under current rules.",
     longDefinition:
-      "Replay recomputes comparison or governance views from saved review records and traces—useful when policies change and you need a consistent historical baseline.",
+      "Replay recomputes comparison or governance views from saved review records and traces — useful when policies change and you need a consistent historical baseline.",
   },
 } as const satisfies Readonly<Record<string, GlossaryDefinitionEntry>>;
 

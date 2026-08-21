@@ -128,7 +128,7 @@ export function GovernanceBypassAuditPanel(): React.JSX.Element {
                     <EnterpriseTableCell>{formatUtc(event.occurredUtc)}</EnterpriseTableCell>
                     <EnterpriseTableCell>{resolveAuditActorLabel(event)}</EnterpriseTableCell>
                     <EnterpriseTableCell className="max-w-md whitespace-normal">
-                      {payload.justification ?? "—"}
+                      {payload.justification ?? " — "}
                     </EnterpriseTableCell>
                     <EnterpriseTableCell>
                       {runId.length > 0 ? (
@@ -139,7 +139,7 @@ export function GovernanceBypassAuditPanel(): React.JSX.Element {
                           {runId}
                         </Link>
                       ) : (
-                        "—"
+                        " — "
                       )}
                     </EnterpriseTableCell>
                     <EnterpriseTableCell>{payload.blockingFindingIds.length}</EnterpriseTableCell>

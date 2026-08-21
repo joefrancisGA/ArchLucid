@@ -64,7 +64,8 @@ describe("operator home deferred imports (TB-2145)", () => {
     expect(manifestLoaderSource).toContain('import("@/app/(operator)/_sections/OperatorHomeBelowFoldPanels")');
     expect(manifestLoaderSource).toContain('import("@/components/operator-home/BuyerPolishedHomeHeroSection")');
     expect(manifestLoaderSource).toContain('import("@/components/operator-home/OperatorHomeGate")');
-    expect(deferredSource).toContain('import("@/components/cto-demo/CtoDemoSponsorLandingRedirect")');
+    expect(manifestLoaderSource).toContain('import("@/components/cto-demo/CtoDemoSponsorLandingRedirect")');
+    expect(deferredSource).toContain("operator-home-cto-demo-sponsor-landing");
   });
 
   it("defers pilot command center in buyer-polished hero", () => {

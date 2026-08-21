@@ -28,12 +28,12 @@ export function riskRegisterRows(entries: ArchitectureRiskRegisterEntry[]): Gove
         ? `Latest disposition: ${entry.latestDisposition}. Owner: ${entry.ownerUserId ?? "unassigned"}.`
         : "Open evidence trace to record disposition or a time-bounded waiver.";
     const runLabel =
-      systemName.length > 0 ? systemName : runId.length > 0 ? runId : "—";
+      systemName.length > 0 ? systemName : runId.length > 0 ? runId : " — ";
 
     return {
-      runId: runId.length > 0 ? runId : "—",
+      runId: runId.length > 0 ? runId : " — ",
       runLabel,
-      manifestId: (entry.manifestId ?? "").trim().length > 0 ? (entry.manifestId ?? "").trim() : "—",
+      manifestId: (entry.manifestId ?? "").trim().length > 0 ? (entry.manifestId ?? "").trim() : " — ",
       findingId: entry.findingId,
       title: entry.title,
       severity: entry.severity,
@@ -78,9 +78,9 @@ export function decisionRegisterRows(entries: ArchitectureDecisionRegisterEntry[
           : "Open the sealed review record for decision context and supporting findings.";
 
     return {
-      runId: runId.length > 0 ? runId : "—",
-      runLabel: runId.length > 0 ? runId : "—",
-      manifestId: manifestId.length > 0 ? manifestId : "—",
+      runId: runId.length > 0 ? runId : " — ",
+      runLabel: runId.length > 0 ? runId : " — ",
+      manifestId: manifestId.length > 0 ? manifestId : " — ",
       findingId: entry.decisionId,
       title: titleRaw.length > 0 ? titleRaw : entry.decisionId,
       severity: "Info",
@@ -103,7 +103,7 @@ export function traceRowsForRun(run: RunSummary, traces: FindingTraceConfidenceD
       const titleRaw = (t.findingTitle ?? findingId).trim();
       const manifestRaw = isDemoRunIdEligibleForStaticFallback(run.runId)
         ? SHOWCASE_STATIC_DEMO_MANIFEST_ID
-        : "—";
+        : " — ";
 
       const ruleHint = (t.ruleId ?? "").trim();
       const runDescription = (run.description ?? "").trim();
@@ -112,11 +112,11 @@ export function traceRowsForRun(run: RunSummary, traces: FindingTraceConfidenceD
       return {
         runId: run.runId,
         runLabel,
-        manifestId: manifestRaw.length > 0 ? manifestRaw : "—",
+        manifestId: manifestRaw.length > 0 ? manifestRaw : " — ",
         findingId,
         title: titleRaw.length > 0 ? titleRaw : findingId,
         severity: severityFromTrace(t.traceConfidenceLabel),
-        category: (t.ruleId ?? "—").replace(/;/g, ", "),
+        category: (t.ruleId ?? " — ").replace(/;/g, ", "),
         status: "Open",
         recommended:
           ruleHint.length > 0

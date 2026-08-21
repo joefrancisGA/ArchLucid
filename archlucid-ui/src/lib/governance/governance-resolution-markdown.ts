@@ -65,11 +65,11 @@ export function buildGovernanceResolutionMarkdown(
       const item = `${conflict.itemType} \`${conflict.itemKey}\``;
       const winnerLabel =
         winner === null
-          ? "—"
+          ? " — "
           : `${winner.policyPackName} (v${winner.version}, ${winner.scopeLevel})`;
       const losersLabel =
         losers.length === 0
-          ? "—"
+          ? " — "
           : losers.map((l) => `${l.policyPackName} (v${l.version}, ${l.scopeLevel})`).join("; ");
 
       lines.push(

@@ -56,7 +56,7 @@ export type LayerGuidanceBlock = {
   headline: string;
   /** When to use it (one sentence) */
   useWhen: string;
-  /** Optional framing relative to Pilot (first proof)—see PRODUCT_PACKAGING "Not required for first Pilot proof" sections. */
+  /** Optional framing relative to Pilot (first proof) — see PRODUCT_PACKAGING "Not required for first Pilot proof" sections. */
   firstPilotNote: string | null;
   /**
    * Optional one line for **Operate · governance** pages: who usually owns the surface vs Pilot default.
@@ -86,7 +86,7 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
     headline: "Trace review evidence from inputs to findings, decisions, and audit events.",
     useWhen: "Select a finalized review, choose a graph scope, load the graph, then inspect provenance.",
     firstPilotNote:
-      "Best once you have a finalized review—a graph complements architecture snapshot and finding tables when stakeholders need visuals.",
+      "Best once you have a finalized review — a graph complements architecture snapshot and finding tables when stakeholders need visuals.",
   },
   "integrations-operations": {
     layerBadge: "Integration readiness",
@@ -130,7 +130,7 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
     layerBadge: "Governance",
     headline: "Establish policies, alerts, approvals, and reporting for this workspace.",
     useWhen:
-      "Work the checklist in order—each step opens the configuration surface where changes are made and audited.",
+      "Work the checklist in order — each step opens the configuration surface where changes are made and audited.",
     firstPilotNote:
       "Optional after first Pilot proof when sponsors want a minimal enterprise cadence on one baseline.",
     enterpriseFootnote: "Configuration changes happen on the linked surfaces, not on this checklist page.",
@@ -144,7 +144,7 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
   },
   audit: {
     layerBadge: "Governance",
-    headline: "Tenant audit trail—who did what, when.",
+    headline: "Tenant audit trail — who did what, when.",
     useWhen: "Search and filter audit events; export requires Auditor or Admin access.",
     firstPilotNote: "Bounded export after Pilot proof when audit window and roles are clear.",
     enterpriseFootnote: "Search first; CSV export for auditors and admins.",
@@ -261,7 +261,7 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
   "alert-routing": {
     layerBadge: "Governance",
     headline: "Where fired alerts are delivered.",
-    useWhen: "Targets for fired alerts—not digest mail.",
+    useWhen: "Targets for fired alerts — not digest mail.",
     firstPilotNote: "Destinations after Pilot proof when fired alerts need routing.",
     enterpriseFootnote: "Delivery targets for fired alerts.",
   },

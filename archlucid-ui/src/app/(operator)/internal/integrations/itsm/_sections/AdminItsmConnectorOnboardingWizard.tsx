@@ -315,10 +315,10 @@ export function AdminItsmConnectorOnboardingWizard(props: Props): React.ReactEle
             {health ? (
               <ul className="m-0 list-none space-y-2 p-0">
                 <li className="rounded-md border border-al-border-subtle p-3 text-al-text-secondary">
-                  <span className="font-medium text-al-text-primary">Jira:</span> {health.jira?.summary ?? "—"}
+                  <span className="font-medium text-al-text-primary">Jira:</span> {health.jira?.summary ?? " — "}
                 </li>
                 <li className="rounded-md border border-al-border-subtle p-3 text-al-text-secondary">
-                  <span className="font-medium text-al-text-primary">ServiceNow:</span> {health.serviceNow?.summary ?? "—"}
+                  <span className="font-medium text-al-text-primary">ServiceNow:</span> {health.serviceNow?.summary ?? " — "}
                 </li>
               </ul>
             ) : null}

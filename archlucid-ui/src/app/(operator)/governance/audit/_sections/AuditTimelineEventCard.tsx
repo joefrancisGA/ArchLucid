@@ -114,13 +114,13 @@ export function AuditTimelineEventCard(props: AuditTimelineEventCardProps) {
               {buyerFacingReviewLinkLabelFromRunId(ev.runId)}
             </Link>
           ) : (
-            "—"
+            " — "
           )}
         </div>
       ) : null}
       {!buyerPolishedShell ? (
         <>
-          <div className={OPERATOR_TYPOGRAPHY.body}>Correlation: {ev.correlationId ?? "—"}</div>
+          <div className={OPERATOR_TYPOGRAPHY.body}>Correlation: {ev.correlationId ?? " — "}</div>
           {ev.otelTraceId ? (
             <div className={OPERATOR_TYPOGRAPHY.body}>
               Trace:{" "}
@@ -139,7 +139,7 @@ export function AuditTimelineEventCard(props: AuditTimelineEventCardProps) {
                 {buyerFacingReviewLinkLabelFromRunId(ev.runId)}
               </Link>
             ) : (
-              "—"
+              " — "
             )}
           </div>
         </>

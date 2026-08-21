@@ -49,7 +49,7 @@ function formatPackDate(value: string | null | undefined): string {
   const raw = value?.trim() ?? "";
 
   if (raw.length === 0) {
-    return "—";
+    return " — ";
   }
 
   const ms = Date.parse(raw);
@@ -120,7 +120,7 @@ export function PolicyPackGenericDetail(props: PolicyPackGenericDetailProps): Re
             value={formatPackDate(packRecord.activatedUtc ?? packRecord.createdUtc)}
           />
           <InlineMetadataLine label="Pack type" value={packRecord.packType || "Custom"} />
-          <InlineMetadataLine label="Version" value={packRecord.currentVersion?.trim() || "—"} />
+          <InlineMetadataLine label="Version" value={packRecord.currentVersion?.trim() || " — "} />
         </CardContent>
       </Card>
 

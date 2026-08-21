@@ -51,7 +51,7 @@ export function DeveloperSettingsBuildIdentityCard(): React.JSX.Element {
           <div>
             <dt className="text-al-text-secondary">API base URL</dt>
             <dd className={cn("m-0 break-all font-mono text-al-text-primary", OPERATOR_TYPOGRAPHY.helper)}>
-              {apiBaseUrl.length > 0 ? apiBaseUrl : "—"}
+              {apiBaseUrl.length > 0 ? apiBaseUrl : " — "}
             </dd>
           </div>
           <div className="sm:col-span-2">

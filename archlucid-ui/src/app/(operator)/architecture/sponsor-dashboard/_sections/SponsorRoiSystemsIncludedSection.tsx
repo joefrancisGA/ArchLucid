@@ -68,7 +68,7 @@ export function SponsorRoiSystemsIncludedSection(
           {summary.systems.map((system) => {
             const savingsDisplay =
               system.estimatedUsdSavings === null || system.estimatedUsdSavings === undefined
-                ? "—"
+                ? " — "
                 : presentSponsorEstimatedSavings(system.estimatedUsdSavings, {
                     loading: false,
                     summary,

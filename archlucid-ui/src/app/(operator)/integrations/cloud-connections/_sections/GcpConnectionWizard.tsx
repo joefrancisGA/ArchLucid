@@ -232,14 +232,14 @@ export function GcpConnectionWizard(props: Props): React.ReactElement {
             )}
           >
             <dt className="text-muted-foreground">Project ID</dt>
-            <dd data-testid="gcp-wizard-summary-project">{projectId.trim() || "—"}</dd>
+            <dd data-testid="gcp-wizard-summary-project">{projectId.trim() || " — "}</dd>
             <dt className="text-muted-foreground">Pool provider</dt>
             <dd className="break-all" data-testid="gcp-wizard-summary-pool">
-              {workloadIdentityPoolProvider.trim() || "—"}
+              {workloadIdentityPoolProvider.trim() || " — "}
             </dd>
             <dt className="text-muted-foreground">Service account</dt>
             <dd className="break-all" data-testid="gcp-wizard-summary-service-account">
-              {serviceAccountEmail.trim() || "—"}
+              {serviceAccountEmail.trim() || " — "}
             </dd>
           </dl>
 

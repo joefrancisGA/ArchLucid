@@ -37,6 +37,6 @@ describe("formatRoiSummaryUsdWithRateBasis", () => {
       isDefaultRate: true,
     });
 
-    expect(result.display).toBe("—");
+    expect(result.display).toBe(" — ");
   });
 });

@@ -55,13 +55,13 @@ export function WorkspaceBudgetStatusCard(props: Props) {
               <div>
                 <dt className="text-al-text-secondary">Monthly budget</dt>
                 <dd className="m-0 font-medium tabular-nums">
-                  {governance.monthlyBudgetUsd !== null ? `$${governance.monthlyBudgetUsd.toFixed(2)}` : "—"}
+                  {governance.monthlyBudgetUsd !== null ? `$${governance.monthlyBudgetUsd.toFixed(2)}` : " — "}
                 </dd>
               </div>
               <div>
                 <dt className="text-al-text-secondary">Warning threshold</dt>
                 <dd className="m-0 font-medium tabular-nums">
-                  {governance.warningThresholdPercent !== null ? `${governance.warningThresholdPercent}%` : "—"}
+                  {governance.warningThresholdPercent !== null ? `${governance.warningThresholdPercent}%` : " — "}
                 </dd>
               </div>
               <div>
@@ -86,7 +86,7 @@ export function WorkspaceBudgetStatusCard(props: Props) {
               </div>
               <div>
                 <dt className="text-al-text-secondary">Workspace kind</dt>
-                <dd className="m-0 font-medium">{governance.workspaceKind ?? "—"}</dd>
+                <dd className="m-0 font-medium">{governance.workspaceKind ?? " — "}</dd>
               </div>
               <div>
                 <dt className="text-al-text-secondary">Customer AI provider</dt>

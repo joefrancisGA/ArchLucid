@@ -55,9 +55,9 @@ describe("WizardStepReview", () => {
     );
 
     const priorRow = screen.getByText("Prior manifest").closest("dl");
-    expect(priorRow?.textContent).toContain("—");
+    expect(priorRow?.textContent).toContain(" — ");
 
-    expect(screen.getAllByText("—").length).toBeGreaterThan(0);
+    expect(screen.getAllByText(" — ").length).toBeGreaterThan(0);
   });
 
   it("shows the Start Architecture Review primary action when paired with WizardNavButtons on the review step", () => {

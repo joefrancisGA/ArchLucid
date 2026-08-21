@@ -106,7 +106,7 @@ export function WizardStepReview(props: { readonly focusedPilotModeEnabled?: boo
             <dt className="text-neutral-500">Cloud</dt>
             <dd className="m-0">{v.cloudProvider}</dd>
             <dt className="text-neutral-500">Prior manifest</dt>
-            <dd className="m-0">{v.priorManifestVersion?.trim() || "—"}</dd>
+            <dd className="m-0">{v.priorManifestVersion?.trim() || " — "}</dd>
           </dl>
         </ReadOnlyBlock>
 
@@ -158,11 +158,11 @@ export function WizardStepReview(props: { readonly focusedPilotModeEnabled?: boo
 
         <ReadOnlyBlock title="Advanced">
           <p className={cn("m-0 text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>Policy references</p>
-          <p className="m-0">{(v.policyReferences ?? []).join(", ") || "—"}</p>
+          <p className="m-0">{(v.policyReferences ?? []).join(", ") || " — "}</p>
           <p className={cn("mt-2 m-0 text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>{ARCHITECTURE_HINTS_BUYER_LABEL}</p>
-          <p className="m-0">{(v.topologyHints ?? []).join(", ") || "—"}</p>
+          <p className="m-0">{(v.topologyHints ?? []).join(", ") || " — "}</p>
           <p className={cn("mt-2 m-0 text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>Security baseline hints</p>
-          <p className="m-0">{(v.securityBaselineHints ?? []).join(", ") || "—"}</p>
+          <p className="m-0">{(v.securityBaselineHints ?? []).join(", ") || " — "}</p>
           <p className={cn("mt-2 m-0 text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>Documents</p>
           <p className="m-0">{(v.documents ?? []).filter((d) => d.name.trim()).length} attached</p>
           <p className={cn("mt-2 m-0 text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>Infrastructure declarations</p>

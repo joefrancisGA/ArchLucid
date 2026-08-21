@@ -528,7 +528,7 @@ export function PilotValueReportPageView(props: Props) {
                   {timelineRows.map((row) => (
                     <EnterpriseTableRow key={row.runId}>
                       <EnterpriseTableCell className={cn("py-2 pr-3", OPERATOR_TYPOGRAPHY.body)}>{row.systemName || row.runId}</EnterpriseTableCell>
-                      <EnterpriseTableCell className={cn("py-2 pr-3", OPERATOR_TYPOGRAPHY.helper)}>{row.systemName || "—"}</EnterpriseTableCell>
+                      <EnterpriseTableCell className={cn("py-2 pr-3", OPERATOR_TYPOGRAPHY.helper)}>{row.systemName || " — "}</EnterpriseTableCell>
                       <EnterpriseTableCell className={cn("py-2 pr-3", OPERATOR_TYPOGRAPHY.helper)}>{formatReviewDate(row.createdUtc)}</EnterpriseTableCell>
                       <EnterpriseTableCell className={cn("py-2 pr-3", OPERATOR_TYPOGRAPHY.helper)}>
                         {formatReviewDate(row.committedUtc)}

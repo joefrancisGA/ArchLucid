@@ -12,7 +12,7 @@ export function truncateSignedRecordsListSealDigest(manifestHash: string): strin
   const trimmed = manifestHash.trim();
 
   if (trimmed.length === 0) {
-    return "—";
+    return " — ";
   }
 
   if (trimmed.length <= 16) {

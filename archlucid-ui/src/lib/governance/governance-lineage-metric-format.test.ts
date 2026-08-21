@@ -12,11 +12,11 @@ describe("formatGovernanceLineageWholeCount", () => {
   });
 
   it("returns em dash for unusable inputs", () => {
-    expect(formatGovernanceLineageWholeCount(NaN)).toBe("—");
-    expect(formatGovernanceLineageWholeCount(Number.POSITIVE_INFINITY)).toBe("—");
-    expect(formatGovernanceLineageWholeCount("42")).toBe("—");
-    expect(formatGovernanceLineageWholeCount(null)).toBe("—");
-    expect(formatGovernanceLineageWholeCount(undefined)).toBe("—");
+    expect(formatGovernanceLineageWholeCount(NaN)).toBe(" — ");
+    expect(formatGovernanceLineageWholeCount(Number.POSITIVE_INFINITY)).toBe(" — ");
+    expect(formatGovernanceLineageWholeCount("42")).toBe(" — ");
+    expect(formatGovernanceLineageWholeCount(null)).toBe(" — ");
+    expect(formatGovernanceLineageWholeCount(undefined)).toBe(" — ");
   });
 });
 
@@ -26,7 +26,7 @@ describe("formatGovernanceLineageCompletenessPercent", () => {
   });
 
   it("returns em dash for unusable inputs", () => {
-    expect(formatGovernanceLineageCompletenessPercent(NaN)).toBe("—");
-    expect(formatGovernanceLineageCompletenessPercent(null)).toBe("—");
+    expect(formatGovernanceLineageCompletenessPercent(NaN)).toBe(" — ");
+    expect(formatGovernanceLineageCompletenessPercent(null)).toBe(" — ");
   });
 });

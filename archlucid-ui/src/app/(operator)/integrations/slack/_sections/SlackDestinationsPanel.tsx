@@ -120,7 +120,7 @@ export function SlackDestinationsPanel(props: SlackDestinationsPanelProps): Reac
                   </EnterpriseTableCell>
                   <EnterpriseTableCell>
                     <span className={OPERATOR_TYPOGRAPHY.helper}>
-                      {friendlyEventLabels.length > 0 ? friendlyEventLabels.join(", ") : "—"}
+                      {friendlyEventLabels.length > 0 ? friendlyEventLabels.join(", ") : " — "}
                     </span>
                   </EnterpriseTableCell>
                   <EnterpriseTableCell>

@@ -45,7 +45,7 @@ export function RunDetailProvenanceSummaryCard(props: RunDetailProvenanceSummary
               <div>
                 <dt className={definitionLabelClass}>Context snapshot</dt>
                 <dd className={monoValueClass}>
-                  {run.contextSnapshotId ?? "—"}
+                  {run.contextSnapshotId ?? " — "}
                   {run.contextSnapshotId ? (
                     <CopyIdButton value={run.contextSnapshotId} aria-label="Copy context snapshot ID" />
                   ) : null}
@@ -54,7 +54,7 @@ export function RunDetailProvenanceSummaryCard(props: RunDetailProvenanceSummary
               <div>
                 <dt className={definitionLabelClass}>Graph snapshot</dt>
                 <dd className={monoValueClass}>
-                  {run.graphSnapshotId ?? "—"}
+                  {run.graphSnapshotId ?? " — "}
                   {run.graphSnapshotId ? (
                     <CopyIdButton value={run.graphSnapshotId} aria-label="Copy graph snapshot ID" />
                   ) : null}
@@ -63,7 +63,7 @@ export function RunDetailProvenanceSummaryCard(props: RunDetailProvenanceSummary
               <div className="sm:col-span-2">
                 <dt className={definitionLabelClass}>Architecture request</dt>
                 <dd className={monoValueClass}>
-                  {architectureRequestId ?? "—"}
+                  {architectureRequestId ?? " — "}
                   {architectureRequestId ? (
                     <CopyIdButton value={architectureRequestId} aria-label="Copy architecture request ID" />
                   ) : null}

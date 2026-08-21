@@ -14,7 +14,7 @@ describe("AgentEvidenceFaithfulnessBadge", () => {
   it("renders em dash when ratio is absent", () => {
     const { container } = render(<AgentEvidenceFaithfulnessBadge ratio={null} />);
 
-    expect(container.textContent).toBe("—");
+    expect(container.textContent).toBe(" — ");
   });
 
   it("exposes heuristic disclaimer via FieldHelpTooltip for non-absent ratios", () => {

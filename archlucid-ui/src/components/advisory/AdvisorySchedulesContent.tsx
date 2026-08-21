@@ -77,13 +77,13 @@ import type { AdvisoryScanExecution, AdvisoryScanSchedule } from "@/types/adviso
 
 function formatAdvisorySchedulesLastLoaded(lastLoadedUtc: string | null): string {
   if (lastLoadedUtc === null) {
-    return "—";
+    return " — ";
   }
 
   const parsed = new Date(lastLoadedUtc);
 
   if (Number.isNaN(parsed.getTime())) {
-    return "—";
+    return " — ";
   }
 
   return parsed.toLocaleString(undefined, {

@@ -17,7 +17,7 @@ export function formatReportProblemAcknowledgement(referenceId: string): string 
   const id = referenceId.trim();
 
   if (id.length === 0) {
-    return REPORT_PROBLEM_ACKNOWLEDGEMENT_TEMPLATE.replace(REPORT_PROBLEM_ACK_REFERENCE_TOKEN, "—");
+    return REPORT_PROBLEM_ACKNOWLEDGEMENT_TEMPLATE.replace(REPORT_PROBLEM_ACK_REFERENCE_TOKEN, " — ");
   }
 
   return REPORT_PROBLEM_ACKNOWLEDGEMENT_TEMPLATE.replace(REPORT_PROBLEM_ACK_REFERENCE_TOKEN, id);
@@ -88,7 +88,7 @@ export const REPORT_PROBLEM_CANCEL_LABEL = "Cancel";
 
 export const REPORT_PROBLEM_ACK_HEADING = "Report submitted";
 
-export const REPORT_PROBLEM_MISSING_VALUE = "—";
+export const REPORT_PROBLEM_MISSING_VALUE = " — ";
 
 /** Tertiary mailto affordance may remain alongside Report problem (TB-786). */
 export const REPORT_PROBLEM_EMAIL_SUPPORT_LABEL = "Email support";

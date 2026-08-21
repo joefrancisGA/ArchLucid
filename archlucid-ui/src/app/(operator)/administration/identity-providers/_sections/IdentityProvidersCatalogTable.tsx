@@ -55,7 +55,7 @@ export function IdentityProvidersCatalogTable(props: IdentityProvidersCatalogTab
                     {props.showConfigPaths ? row.configPath : formatCustomerSettingLabel(row.configPath)}
                   </EnterpriseTableCell>
                   <EnterpriseTableCell className="py-2 pr-3 text-al-text-secondary">{row.isSet ? "yes" : "no"}</EnterpriseTableCell>
-                  <EnterpriseTableCell className="break-all py-2 pr-3 text-al-text-secondary">{row.effectiveValue ?? "—"}</EnterpriseTableCell>
+                  <EnterpriseTableCell className="break-all py-2 pr-3 text-al-text-secondary">{row.effectiveValue ?? " — "}</EnterpriseTableCell>
                 </EnterpriseTableRow>
               ))}
             </EnterpriseTableBody>

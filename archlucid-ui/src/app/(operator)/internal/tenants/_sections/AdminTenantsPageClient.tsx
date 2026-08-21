@@ -37,13 +37,13 @@ import {
 
 function formatUtc(iso: string | null | undefined): string {
   if (iso == null || iso.trim().length === 0) {
-    return "—";
+    return " — ";
   }
 
   const parsed = new Date(iso);
 
   if (Number.isNaN(parsed.getTime())) {
-    return "—";
+    return " — ";
   }
 
   return parsed.toISOString().replace("T", " ").slice(0, 16) + " UTC";
@@ -352,11 +352,11 @@ export function AdminTenantsPageClient() {
             return (
               <EnterpriseTableRow key={id || row.slug || row.name}>
                 <EnterpriseTableCell>
-                  <div className="font-medium">{row.name ?? "—"}</div>
-                  <div className={cn("font-mono text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>{id || "—"}</div>
+                  <div className="font-medium">{row.name ?? " — "}</div>
+                  <div className={cn("font-mono text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro)}>{id || " — "}</div>
                 </EnterpriseTableCell>
-                <EnterpriseTableCell>{row.slug ?? "—"}</EnterpriseTableCell>
-                <EnterpriseTableCell>{row.tier ?? "—"}</EnterpriseTableCell>
+                <EnterpriseTableCell>{row.slug ?? " — "}</EnterpriseTableCell>
+                <EnterpriseTableCell>{row.tier ?? " — "}</EnterpriseTableCell>
                 <EnterpriseTableCell>{lifecycleStatusTag(status)}</EnterpriseTableCell>
                 <EnterpriseTableCell>{formatUtc(row.createdUtc)}</EnterpriseTableCell>
                 <EnterpriseTableCell>

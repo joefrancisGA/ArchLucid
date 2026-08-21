@@ -177,7 +177,7 @@ describe("SignedRecordsListClient", () => {
         ...enrichedRow,
         runId: row.runId,
         reviewHref: row.reviewHref,
-        manifestVersion: "—",
+        manifestVersion: " — ",
         manifestId: null,
         signedRecordHref: null,
         sealIntegrity: null,

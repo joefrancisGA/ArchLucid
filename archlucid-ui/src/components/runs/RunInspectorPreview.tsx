@@ -53,7 +53,7 @@ function snapshotLabel(ok: boolean | undefined): string {
     return "✓";
   }
 
-  return "—";
+  return " — ";
 }
 
 export type RunInspectorPreviewProps = {

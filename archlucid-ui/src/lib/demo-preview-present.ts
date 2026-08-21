@@ -16,7 +16,7 @@ export type DemoPreviewAtAGlanceMetrics = {
 
 function formatCount(value: number | null | undefined): string {
   if (value === null || value === undefined || typeof value !== "number" || !Number.isFinite(value)) {
-    return "—";
+    return " — ";
   }
 
   return String(value);
@@ -53,7 +53,7 @@ export function computeDemoReviewDurationLabel(
   const end = ordered.length > 0 ? ordered[ordered.length - 1] : null;
 
   if (start === null || end === null || end < start) {
-    return "—";
+    return " — ";
   }
 
   const dayMs = 1000 * 60 * 60 * 24;
@@ -68,13 +68,13 @@ export function buildDemoPreviewAtAGlanceMetrics(payload: DemoCommitPagePreviewR
   const artifacts = Array.isArray(payload.artifacts) ? payload.artifacts : [];
 
   return {
-    status: manifest ? manifestStatusForDisplay(manifest.status) : "—",
-    overallAssessment: runExplanation?.overallAssessment?.trim() ?? "—",
+    status: manifest ? manifestStatusForDisplay(manifest.status) : " — ",
+    overallAssessment: runExplanation?.overallAssessment?.trim() ?? " — ",
     policyPack: manifest
       ? policyPackBuyerLabel(manifest.ruleSetId ?? "", manifest.ruleSetVersion ?? "")
-      : "—",
+      : " — ",
     decisions: manifest ? formatCount(manifest.decisionCount) : formatCount(runExplanation?.decisionCount),
-    monitoredRisks: manifest ? formatCount(manifest.warningCount) : "—",
+    monitoredRisks: manifest ? formatCount(manifest.warningCount) : " — ",
     unresolvedIssues: manifest
       ? formatCount(manifest.unresolvedIssueCount)
       : formatCount(runExplanation?.unresolvedIssueCount),

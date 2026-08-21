@@ -579,7 +579,7 @@ export const ENTERPRISE_STATUS_LABELS: Readonly<Record<EnterpriseStatusKind, str
   "approved-with-monitoring": "Approved with monitoring",
   "in-progress": "In progress",
   draft: "Draft",
-  neutral: "—",
+  neutral: " — ",
 };
 
 /** Non-interactive metadata label shell — flat soft labels, not buttons or filter chips. */

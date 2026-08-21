@@ -32,13 +32,13 @@ import { engagementScoreSeverityKind } from "@/lib/tenant-health-engagement-seve
 
 function formatUtc(iso: string | null): string {
   if (!iso) {
-    return "—";
+    return " — ";
   }
 
   const parsed = new Date(iso);
 
   if (Number.isNaN(parsed.getTime())) {
-    return "—";
+    return " — ";
   }
 
   return parsed.toISOString().replace("T", " ").slice(0, 16) + " UTC";

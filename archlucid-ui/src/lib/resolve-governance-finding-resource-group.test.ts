@@ -13,7 +13,7 @@ function sampleRow(overrides: Partial<GovernanceFindingQueueRow> = {}): Governan
   return {
     runId: "run-1",
     runLabel: "Enterprise Customer Intake Modernization Review",
-    manifestId: "—",
+    manifestId: " — ",
     findingId: "finding-1",
     title: "Sample finding",
     severity: "High",

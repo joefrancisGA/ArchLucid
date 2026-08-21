@@ -54,7 +54,7 @@ export function formatRoiSummarySponsorDate(isoUtc: string): string {
   const parsed = new Date(isoUtc);
 
   if (Number.isNaN(parsed.getTime())) {
-    return "—";
+    return " — ";
   }
 
   return SPONSOR_DATE.format(parsed);
@@ -64,7 +64,7 @@ export function formatRoiSummaryExclusiveEndDate(isoUtc: string): string {
   const parsed = new Date(isoUtc);
 
   if (Number.isNaN(parsed.getTime())) {
-    return "—";
+    return " — ";
   }
 
   parsed.setUTCDate(parsed.getUTCDate() - 1);
@@ -228,7 +228,7 @@ export function computeRoiSummaryPeriodMetrics(
 
 export function formatRoiSummaryHoursDisplay(hours: number): string {
   if (!Number.isFinite(hours) || hours <= 1e-9) {
-    return "—";
+    return " — ";
   }
 
   return formatHours(hours);
@@ -236,7 +236,7 @@ export function formatRoiSummaryHoursDisplay(hours: number): string {
 
 export function formatRoiSummaryUsdDisplay(hours: number, usdEstimate: number, showUsdEstimate: boolean): string {
   if (!showUsdEstimate) {
-    return "—";
+    return " — ";
   }
 
   return formatUsd(usdEstimate);
@@ -259,7 +259,7 @@ export function formatRoiSummaryUsdWithRateBasis(
 ): RoiSummaryUsdWithRateBasis {
   if (!showUsdEstimate) {
     return {
-      display: "—",
+      display: " — ",
       rateBasis: options.demoDerived === true ? "demo-derived" : "default-assumption",
       rateBasisLabel: "No dollar estimate in this period",
     };

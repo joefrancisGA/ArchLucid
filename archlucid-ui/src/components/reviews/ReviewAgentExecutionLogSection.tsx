@@ -26,11 +26,11 @@ export type ReviewAgentExecutionLogSectionProps = {
 };
 
 function confidenceLabel(confidence: number | string | null | undefined): string {
-  if (confidence === null || confidence === undefined) return "—";
+  if (confidence === null || confidence === undefined) return " — ";
 
   const n = typeof confidence === "string" ? parseFloat(confidence) : confidence;
 
-  if (!Number.isFinite(n)) return "—";
+  if (!Number.isFinite(n)) return " — ";
 
   return `${Math.round(n * 100)}%`;
 }

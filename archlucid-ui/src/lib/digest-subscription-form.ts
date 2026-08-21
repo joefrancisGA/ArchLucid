@@ -187,7 +187,7 @@ export function formatDeliveryResult(
   const latest: DigestDeliveryAttempt | null = resolveLatestDeliveryAttempt(attempts);
 
   if (latest === null) {
-    return "—";
+    return " — ";
   }
 
   if (latest.errorMessage?.trim()) {

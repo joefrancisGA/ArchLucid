@@ -32,7 +32,7 @@ export function buyerGovernanceApprovalDisplayLabel(gateLabel: string | undefine
   const t = (gateLabel ?? "").trim();
 
   if (t.length === 0) {
-    return "—";
+    return " — ";
   }
 
   if (t === "Passed") {

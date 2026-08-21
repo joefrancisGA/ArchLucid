@@ -100,5 +100,5 @@ export function whyHardCellDisplay(cell: WhyHardComparisonCell): string {
 
   if (cell === "partial") return "partial";
 
-  return "—";
+  return " — ";
 }

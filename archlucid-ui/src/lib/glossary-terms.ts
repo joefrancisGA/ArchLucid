@@ -42,7 +42,7 @@ export const GLOSSARY_TERMS = {
   },
   decision_trace: {
     term: "Decision trace",
-    definition: "A structured log of decisioning for a run—rules, applied findings, and outcome—used for provenance and replay.",
+    definition: "A structured log of decisioning for a run — rules, applied findings, and outcome — used for provenance and replay.",
     docLink: "/docs/library/GLOSSARY.md#decision-trace",
   },
   provenance: {
@@ -62,7 +62,7 @@ export const GLOSSARY_TERMS = {
   },
   knowledge_graph: {
     term: "Knowledge graph",
-    definition: "A typed graph of nodes and edges built from a context snapshot—used by finding engines and the graph UI.",
+    definition: "A typed graph of nodes and edges built from a context snapshot — used by finding engines and the graph UI.",
     docLink: "/docs/library/GLOSSARY.md#knowledge-graph",
   },
   artifact_bundle: {
@@ -82,7 +82,7 @@ export const GLOSSARY_TERMS = {
   },
   hosting_role: {
     term: "Hosting role",
-    definition: "Whether a process runs API, worker, or combined—controls which services and background jobs are active.",
+    definition: "Whether a process runs API, worker, or combined — controls which services and background jobs are active.",
     docLink: "/docs/library/GLOSSARY.md#hosting-role",
   },
   outbox: {

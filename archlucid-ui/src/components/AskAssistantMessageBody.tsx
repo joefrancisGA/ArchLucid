@@ -182,7 +182,7 @@ export function AskAssistantMessageBody(props: {
           <section key={`${section.key}-${index}`} aria-label={section.title} className="border-t border-neutral-100 pt-3 dark:border-neutral-800">
             <h4 className={cn("m-0 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>{section.title}</h4>
             <div className={`${bodyClass} mt-2`}>
-              {section.body.length > 0 ? renderTextWithUuidReviewLinks(section.body, buyerPolishedLinks) : "—"}
+              {section.body.length > 0 ? renderTextWithUuidReviewLinks(section.body, buyerPolishedLinks) : " — "}
             </div>
           </section>
         ))}
@@ -208,7 +208,7 @@ export function AskAssistantMessageBody(props: {
             <div className={`${bodyClass} mt-2`}>
               {section.body.length > 0
                 ? renderTextWithUuidReviewLinks(section.body, buyerPolishedLinks)
-                : "—"}
+                : " — "}
             </div>
           </section>
         ))}

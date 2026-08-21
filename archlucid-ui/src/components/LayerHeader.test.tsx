@@ -52,7 +52,7 @@ describe("LayerHeader", () => {
     render(<LayerHeader pageKey="audit" />);
 
     expect(screen.getByText("Governance")).toBeInTheDocument();
-    expect(screen.getByText(/Tenant audit trail—who did what, when/i)).toBeInTheDocument();
+    expect(screen.getByText(/Tenant audit trail — who did what, when/i)).toBeInTheDocument();
   });
 
   /**
@@ -62,7 +62,7 @@ describe("LayerHeader", () => {
     render(<LayerHeader pageKey="audit" />);
 
     expect(
-      screen.getByRole("complementary", { name: /Governance:.*Tenant audit trail—who did what, when/i }),
+      screen.getByRole("complementary", { name: /Governance:.*Tenant audit trail — who did what, when/i }),
     ).toBeInTheDocument();
   });
 

@@ -92,7 +92,7 @@ function PermissionValue({
         )}
         aria-label={`${permissionLabel} for ${roleName}: ${allowed ? ROLES_MATRIX_PERMISSION_LEGEND.allowed : ROLES_MATRIX_PERMISSION_LEGEND.denied}`}
       >
-        <span aria-hidden="true">{allowed ? "✓" : "—"}</span>
+        <span aria-hidden="true">{allowed ? "✓" : " — "}</span>
         <span className="sr-only">{allowed ? ROLES_MATRIX_PERMISSION_LEGEND.allowed : ROLES_MATRIX_PERMISSION_LEGEND.denied}</span>
       </span>
     </div>

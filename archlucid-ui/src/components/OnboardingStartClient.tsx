@@ -181,7 +181,7 @@ export function OnboardingStartClient() {
             <div>
               <dt className="text-neutral-500 dark:text-neutral-400">Days remaining</dt>
               <dd className="font-medium">
-                {typeof status.daysRemaining === "number" ? status.daysRemaining : "—"}
+                {typeof status.daysRemaining === "number" ? status.daysRemaining : " — "}
               </dd>
             </div>
             <div>

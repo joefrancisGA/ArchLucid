@@ -151,13 +151,13 @@ export function graphBuyerTrailMetadataLines(
         });
       }
 
-      technicalLines.push({ label: "Reference ID", value: value.length > 0 ? value : "—" });
+      technicalLines.push({ label: "Reference ID", value: value.length > 0 ? value : " — " });
 
       continue;
     }
 
     if (lower === "riskarea" || lower === "risk_domain" || lower === "riskdomain") {
-      summaryLines.push({ label: "Risk area", value: value.length > 0 ? value : "—" });
+      summaryLines.push({ label: "Risk area", value: value.length > 0 ? value : " — " });
 
       continue;
     }
@@ -168,25 +168,25 @@ export function graphBuyerTrailMetadataLines(
       lower === "businessmeaning" ||
       lower === "sponsorimpact"
     ) {
-      summaryLines.push({ label: "Why it matters", value: value.length > 0 ? value : "—" });
+      summaryLines.push({ label: "Why it matters", value: value.length > 0 ? value : " — " });
 
       continue;
     }
 
     if (lower === "evidence" || lower === "citations" || lower === "evidencecitations") {
-      summaryLines.push({ label: "Evidence citations", value: value.length > 0 ? value : "—" });
+      summaryLines.push({ label: "Evidence citations", value: value.length > 0 ? value : " — " });
 
       continue;
     }
 
     if (lower === "mitigation" || lower === "remediation") {
-      summaryLines.push({ label: "Mitigation", value: value.length > 0 ? value : "—" });
+      summaryLines.push({ label: "Mitigation", value: value.length > 0 ? value : " — " });
 
       continue;
     }
 
     if (lower === "relateddecisions" || lower === "manifestdecisions") {
-      summaryLines.push({ label: "Related decisions", value: value.length > 0 ? value : "—" });
+      summaryLines.push({ label: "Related decisions", value: value.length > 0 ? value : " — " });
 
       continue;
     }
@@ -195,31 +195,31 @@ export function graphBuyerTrailMetadataLines(
       const friendly = KNOWN_REFERENCE_SLUGS[value] ?? titleCaseSlug(value);
 
       summaryLines.push({ label: "Risk area", value: friendly });
-      technicalLines.push({ label: `Raw reference (${key})`, value: value.length > 0 ? value : "—" });
+      technicalLines.push({ label: `Raw reference (${key})`, value: value.length > 0 ? value : " — " });
 
       continue;
     }
 
     if (lower === "severity" || lower.endsWith("severity")) {
-      summaryLines.push({ label: "Severity", value: value.length > 0 ? value : "—" });
+      summaryLines.push({ label: "Severity", value: value.length > 0 ? value : " — " });
 
       continue;
     }
 
     if (lower === "rationale" || lower === "summary") {
-      summaryLines.push({ label: "Rationale", value: value.length > 0 ? value : "—" });
+      summaryLines.push({ label: "Rationale", value: value.length > 0 ? value : " — " });
 
       continue;
     }
 
     if (lower === "impact" || lower === "decisionimpact") {
-      summaryLines.push({ label: "Decision impact", value: value.length > 0 ? value : "—" });
+      summaryLines.push({ label: "Decision impact", value: value.length > 0 ? value : " — " });
 
       continue;
     }
 
     if (lower === "nextaction" || lower === "nextsteps") {
-      summaryLines.push({ label: "Next action", value: value.length > 0 ? value : "—" });
+      summaryLines.push({ label: "Next action", value: value.length > 0 ? value : " — " });
 
       continue;
     }
@@ -230,18 +230,18 @@ export function graphBuyerTrailMetadataLines(
       lower === "isblocking" ||
       lower === "blocking"
     ) {
-      summaryLines.push({ label: "Blocking status", value: value.length > 0 ? value : "—" });
+      summaryLines.push({ label: "Blocking status", value: value.length > 0 ? value : " — " });
 
       continue;
     }
 
     if (lower === "monitoringcadence" || lower === "monitoring_cadence") {
-      summaryLines.push({ label: "Monitoring cadence", value: value.length > 0 ? value : "—" });
+      summaryLines.push({ label: "Monitoring cadence", value: value.length > 0 ? value : " — " });
 
       continue;
     }
 
-    technicalLines.push({ label: key, value: value.length > 0 ? value : "—" });
+    technicalLines.push({ label: key, value: value.length > 0 ? value : " — " });
   }
 
   const inferredPhiFinding =

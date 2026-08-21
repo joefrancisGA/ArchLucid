@@ -302,7 +302,7 @@ export function WizardStepAdvanced() {
           <AdvancedChipList
             fieldName="securityBaselineHints"
             title="Security baseline hints"
-            hint="Short control expectations—encryption, identity, segmentation, logging—that reviewers want honored in the proposal."
+            hint="Short control expectations — encryption, identity, segmentation, logging — that reviewers want honored in the proposal."
             inputId="wizard-security-draft"
           />
         </CollapsibleSection>

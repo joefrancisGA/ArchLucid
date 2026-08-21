@@ -67,7 +67,7 @@ const BUYER_WELCOME_STEPS: ReadonlyArray<StepDef> = [
   {
     title: "Welcome to ArchLucid",
     description:
-      "Walk through a completed sponsor review—risk posture, evidence-linked findings, governance status, and audit-ready exports—without advanced tooling upfront.",
+      "Walk through a completed sponsor review — risk posture, evidence-linked findings, governance status, and audit-ready exports — without advanced tooling upfront.",
     Icon: Package,
   },
   {
@@ -79,7 +79,7 @@ const BUYER_WELCOME_STEPS: ReadonlyArray<StepDef> = [
   {
     title: "Optional pilot motion",
     description:
-      "When your team is ready to evaluate authoring workflows, use Reviews from Help or the pilot checklist—creation flows stay separate from this polished viewing path.",
+      "When your team is ready to evaluate authoring workflows, use Reviews from Help or the pilot checklist — creation flows stay separate from this polished viewing path.",
     Icon: Route,
   },
 ];

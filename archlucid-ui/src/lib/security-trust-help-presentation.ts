@@ -305,7 +305,7 @@ export function resolveSecurityTrustPostureStatusQualifier(statusLabel: string):
     return null;
   }
 
-  const qualifier = parts.slice(1).join("—").trim();
+  const qualifier = parts.slice(1).join(" — ").trim();
 
   return qualifier.length > 0 ? qualifier : null;
 }

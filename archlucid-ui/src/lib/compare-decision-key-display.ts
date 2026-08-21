@@ -6,7 +6,7 @@ export function decisionKeyDisplay(decisionKey: string): string {
   const k = decisionKey.trim();
 
   if (k.length === 0) {
-    return "—";
+    return " — ";
   }
 
   const map: Record<string, string> = {

@@ -16,11 +16,11 @@ describe("formatHours", () => {
   });
 
   it("returns em-dash for null/undefined/non-finite/negative", () => {
-    expect(formatHours(null)).toBe("—");
-    expect(formatHours(undefined)).toBe("—");
-    expect(formatHours(Number.NaN)).toBe("—");
-    expect(formatHours(Number.POSITIVE_INFINITY)).toBe("—");
-    expect(formatHours(-1)).toBe("—");
+    expect(formatHours(null)).toBe(" — ");
+    expect(formatHours(undefined)).toBe(" — ");
+    expect(formatHours(Number.NaN)).toBe(" — ");
+    expect(formatHours(Number.POSITIVE_INFINITY)).toBe(" — ");
+    expect(formatHours(-1)).toBe(" — ");
   });
 });
 
@@ -32,9 +32,9 @@ describe("formatFindings", () => {
   });
 
   it("returns em-dash for null/undefined/non-finite", () => {
-    expect(formatFindings(null)).toBe("—");
-    expect(formatFindings(undefined)).toBe("—");
-    expect(formatFindings(Number.NaN)).toBe("—");
+    expect(formatFindings(null)).toBe(" — ");
+    expect(formatFindings(undefined)).toBe(" — ");
+    expect(formatFindings(Number.NaN)).toBe(" — ");
   });
 });
 

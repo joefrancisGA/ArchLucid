@@ -22,7 +22,7 @@ export function GovernanceStatusTag({
   ...rest
 }: GovernanceStatusTagProps): ReactElement {
   const displaySource = label ?? status;
-  const display = displaySource.trim().length > 0 ? displaySource.trim() : "—";
+  const display = displaySource.trim().length > 0 ? displaySource.trim() : " — ";
   const kind = resolveEnterpriseStatusKind(display, "governance");
 
   return <StatusTag kind={kind} label={display} className={cn(className)} {...rest} />;

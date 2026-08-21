@@ -78,7 +78,7 @@ function llmUserPromptBlock(audit: FindingLlmAudit | null): FindingRawContextBlo
     kind: "llm-user-prompt",
     title: "LLM user prompt (redacted)",
     body,
-    meta: `Trace ${audit.traceId} · Model ${audit.modelDeploymentName?.trim() ? audit.modelDeploymentName : "—"}`,
+    meta: `Trace ${audit.traceId} · Model ${audit.modelDeploymentName?.trim() ? audit.modelDeploymentName : " — "}`,
   };
 }
 

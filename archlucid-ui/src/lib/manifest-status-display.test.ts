@@ -13,7 +13,7 @@ describe("manifestStatusForDisplay", () => {
   });
 
   it("returns em dash when empty", () => {
-    expect(manifestStatusForDisplay("")).toBe("—");
-    expect(manifestStatusForDisplay(null)).toBe("—");
+    expect(manifestStatusForDisplay("")).toBe(" — ");
+    expect(manifestStatusForDisplay(null)).toBe(" — ");
   });
 });

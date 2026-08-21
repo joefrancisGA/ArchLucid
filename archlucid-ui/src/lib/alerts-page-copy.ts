@@ -75,7 +75,7 @@ export const ALERTS_SUMMARY_LAST_EVALUATED_RULES_NOT_CONFIGURED = "Rules not con
 export const ALERTS_SUMMARY_LAST_EVALUATED_NEVER = "Never evaluated";
 
 /** Visible sentinel when Open/Acknowledged/Resolved/Blocking are not measured (TB-2104). */
-export const ALERTS_SUMMARY_COUNT_NOT_EVALUATED = "—";
+export const ALERTS_SUMMARY_COUNT_NOT_EVALUATED = " — ";
 
 /** Accessible name for count tiles when no alert rules exist (dash alone is not enough). */
 export const ALERTS_SUMMARY_COUNT_NOT_EVALUATED_NO_RULES_ARIA =

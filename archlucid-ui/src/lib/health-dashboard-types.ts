@@ -77,8 +77,8 @@ export function parseCircuitGatesFromHealthEntry(
       continue;
     }
     const row = g as Record<string, unknown>;
-    const name = String(row.name ?? "—");
-    const state = String(row.state ?? "—");
+    const name = String(row.name ?? " — ");
+    const state = String(row.state ?? " — ");
     const breakDurationSeconds =
       typeof row.breakDurationSeconds === "number" ? row.breakDurationSeconds : undefined;
     out.push({

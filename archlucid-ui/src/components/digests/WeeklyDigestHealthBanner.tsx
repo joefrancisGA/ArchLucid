@@ -67,7 +67,7 @@ function formatSponsorScheduleSummary(snap: WeeklyDigestHealthDto): string {
     return "Sponsor digest disabled";
   }
 
-  const dayName: string = EXEC_DIGEST_DAY_NAMES[snap.executiveDigestDayOfWeek] ?? "—";
+  const dayName: string = EXEC_DIGEST_DAY_NAMES[snap.executiveDigestDayOfWeek] ?? " — ";
   const timeLabel: string = formatExecDigestSendTimeLabel(snap.executiveDigestHourOfDay);
   const zoneLabel: string = formatIanaTimeZoneOptionLabel(snap.executiveDigestIanaTimeZoneId);
 
@@ -162,7 +162,7 @@ export function WeeklyDigestHealthBanner(props: WeeklyDigestHealthBannerProps): 
       ? String(snap.executiveDigestRecipientCount)
       : configured
         ? "0"
-        : "—";
+        : " — ";
   // Full metric grid only earns its space once the loop is actually running.
   const showMetricGrid: boolean = variant === "full" && !setupNeeded;
   const showCompactFacts: boolean =

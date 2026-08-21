@@ -41,7 +41,7 @@ export function HelpCopyableValue(props: HelpCopyableValueProps): React.ReactEle
             OPERATOR_TYPOGRAPHY.micro,
           )}
         >
-          {hasValue ? value : "—"}
+          {hasValue ? value : " — "}
         </code>
         <Button
           type="button"

@@ -83,6 +83,30 @@ function resolveDeferredChunkImportLoader(
           (module) => module.RunsDashboardPanel,
         ),
       ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "operator-home-before-after-delta":
+      return deferredChunkLoader(() =>
+        import("@/components/BeforeAfterDeltaPanel").then((module) => module.BeforeAfterDeltaPanel),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "operator-home-workspace-status":
+      return deferredChunkLoader(() =>
+        import("@/components/operator-home/OperatorHomeWorkspaceStatusSection").then(
+          (module) => module.OperatorHomeWorkspaceStatusSection,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "operator-home-welcome-onboarding":
+      return deferredChunkLoader(() =>
+        import("@/components/operator/OperatorWelcomeOnboarding").then(
+          (module) => module.OperatorWelcomeOnboarding,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "operator-home-trial-welcome-deep-link":
+      return deferredChunkLoader(() =>
+        import("@/components/trial/TrialWelcomeRunDeepLink").then((module) => module.TrialWelcomeRunDeepLink),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "operator-home-first-value-callout":
+      return deferredChunkLoader(() =>
+        import("@/components/FirstValueReachedCallout").then((module) => module.FirstValueReachedCallout),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
     case "operator-home-cto-demo-sponsor-landing":
       return deferredChunkLoader(() =>
         import("@/components/cto-demo/CtoDemoSponsorLandingRedirect").then(

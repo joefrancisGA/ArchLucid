@@ -24,7 +24,7 @@ export const enterpriseMutationControlDisabledTitle =
   "Requires elevated permissions in this workspace; the API still enforces every write.";
 
 /**
- * Audit CSV export uses **`RequireAuditor`** on the API (Auditor **or** Admin)—stricter than Execute-tier pack
+ * Audit CSV export uses **`RequireAuditor`** on the API (Auditor **or** Admin) — stricter than Execute-tier pack
  * mutations; align the Export button with **`/me` role claims**, not `useOperateCapability`.
  */
 export const auditExportControlDisabledTitle =
@@ -56,7 +56,7 @@ export const governanceResolutionRankReaderLine =
   "Policy pack and workflow changes require architect permission.";
 
 export const governanceResolutionRankOperatorLine =
-  "Change pack order on Policy packs or Governance workflow—not on this page.";
+  "Change pack order on Policy packs or Governance workflow — not on this page.";
 
 const governanceResolutionPageLead =
   "See which governance packs, controls, and workflow rules are currently effective for this workspace. Use this page to diagnose policy conflicts, precedence, and generated governance decisions.";
@@ -404,7 +404,7 @@ export const policyPacksPageLeadReaderBuyerPolished =
 
 /** Policy packs — outcome banner under headers (`policy-packs/page.tsx`). */
 export const policyPacksOutcomeBannerLine =
-  "Versions and assigns packs for this scope; enforcement applies through governance resolution and review finalization—not from this page alone.";
+  "Versions and assigns packs for this scope; enforcement applies through governance resolution and review finalization — not from this page alone.";
 
 /** Policy packs — delta demo checklist link (improvement #2, assessment LATEST_GPT55). */
 export const policyPacksDeltaDemoBannerLine =

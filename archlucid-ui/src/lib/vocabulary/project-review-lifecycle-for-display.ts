@@ -31,7 +31,7 @@ export function projectReviewLifecycleForDisplay(
   input: ProjectReviewLifecycleForDisplayInput,
 ): ProjectReviewLifecycleForDisplay {
   const status = (input.manifestStatus ?? "").trim();
-  let manifestStatusLabel = "—";
+  let manifestStatusLabel = " — ";
 
   if (/^committed$/i.test(status)) {
     manifestStatusLabel = REVIEW_LIFECYCLE_FINALIZED_STATE_LABEL;

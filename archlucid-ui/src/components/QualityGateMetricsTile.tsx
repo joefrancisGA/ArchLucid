@@ -13,7 +13,7 @@ import {
 
 function formatMetric(value: number | null | undefined, digits: number): string {
   if (value === null || value === undefined || !Number.isFinite(value)) {
-    return "—";
+    return " — ";
   }
 
   return value.toFixed(digits);

@@ -16,7 +16,7 @@ export function isProductionDeployEnvironment(): boolean {
 
 export function formatOperationalTimestamp(value: string | null | undefined): string {
   if (!value) {
-    return "—";
+    return " — ";
   }
 
   const parsed = new Date(value);

@@ -27,7 +27,7 @@ export function StatusPill({
   uppercase = true,
   ...rest
 }: StatusPillProps) {
-  const label = status.trim().length > 0 ? status : "—";
+  const label = status.trim().length > 0 ? status : " — ";
 
   return (
     <MetadataStatusLabel

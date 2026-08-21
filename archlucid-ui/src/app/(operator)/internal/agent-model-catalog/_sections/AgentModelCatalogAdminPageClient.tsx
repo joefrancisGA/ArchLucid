@@ -157,7 +157,7 @@ export function AgentModelCatalogAdminPageClient() {
                       <EnterpriseTableCell>{row.aliasId}</EnterpriseTableCell>
                       <EnterpriseTableCell>{row.lifecycleStatus}</EnterpriseTableCell>
                       <EnterpriseTableCell>{row.structuredOutputLevel}</EnterpriseTableCell>
-                      <EnterpriseTableCell>{row.deploymentName ?? "—"}</EnterpriseTableCell>
+                      <EnterpriseTableCell>{row.deploymentName ?? " — "}</EnterpriseTableCell>
                       <EnterpriseTableCell>
                         <div className="space-y-2">
                           {row.evaluations.length === 0 ? (

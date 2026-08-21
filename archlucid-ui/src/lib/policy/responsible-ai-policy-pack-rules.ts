@@ -76,7 +76,7 @@ export function resolveResponsibleAiPolicyRuleRows(
             ruleName: rule.title.trim().length > 0 ? rule.title : humanizeRuleKey(rule.id),
             severity: rule.severity,
             requirement: rule.description,
-            evidenceExpected: rule.evidenceHints.length > 0 ? rule.evidenceHints.join(", ") : "—",
+            evidenceExpected: rule.evidenceHints.length > 0 ? rule.evidenceHints.join(", ") : " — ",
           })),
           rulesSourceQualifier: null,
         };
@@ -90,7 +90,7 @@ export function resolveResponsibleAiPolicyRuleRows(
           ruleName: humanizeRuleKey(key),
           severity: "Low",
           requirement: "Compliance rule defined in published pack content.",
-          evidenceExpected: "—",
+          evidenceExpected: " — ",
         })),
         rulesSourceQualifier: RULE_KEYS_ONLY_SEVERITY_QUALIFIER,
       };

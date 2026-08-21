@@ -60,7 +60,7 @@ describe("buildSignedRecordsListRowsFromRuns", () => {
 
     const rows = buildSignedRecordsListRowsFromRuns([withVersion]);
 
-    expect(rows[0]?.manifestVersion).toBe("—");
+    expect(rows[0]?.manifestVersion).toBe(" — ");
     expect(rows[0]?.committedUtc).toBe("");
     expect(rows[0]?.manifestId).toBe("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee");
     expect(rows[0]?.signedRecordHref).toBe(

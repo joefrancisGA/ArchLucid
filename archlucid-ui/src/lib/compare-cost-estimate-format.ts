@@ -8,13 +8,13 @@ export type CompareCostEstimateFormat = {
  */
 export function formatCompareCostEstimateCell(value: unknown): CompareCostEstimateFormat {
   if (value === null || value === undefined) {
-    return { display: "—", unitUnknown: false };
+    return { display: " — ", unitUnknown: false };
   }
 
   const s = String(value).trim();
 
   if (s.length === 0) {
-    return { display: "—", unitUnknown: false };
+    return { display: " — ", unitUnknown: false };
   }
 
   if (/^[\$\u00a3\u20ac]/.test(s)) {

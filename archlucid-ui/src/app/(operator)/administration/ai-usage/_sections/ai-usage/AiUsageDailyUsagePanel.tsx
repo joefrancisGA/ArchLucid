@@ -36,7 +36,7 @@ function formatBucketLabel(isoUtc: string): string {
   const date = new Date(isoUtc);
 
   if (Number.isNaN(date.getTime())) {
-    return "—";
+    return " — ";
   }
 
   return `${String(date.getUTCMonth() + 1).padStart(2, "0")}/${String(date.getUTCDate()).padStart(2, "0")}`;

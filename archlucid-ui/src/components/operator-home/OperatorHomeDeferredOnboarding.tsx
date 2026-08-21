@@ -1,32 +1,29 @@
 "use client";
 
-import dynamic from "next/dynamic";
+import { createDeferredComponentFromManifest } from "@/lib/operator/load-deferred-chunk-from-manifest";
 
-const OperatorWelcomeOnboarding = dynamic(
-  () => import("@/components/operator/OperatorWelcomeOnboarding").then((module) => module.OperatorWelcomeOnboarding),
-  { loading: () => null, ssr: false },
-);
+const OperatorWelcomeOnboardingDeferred = createDeferredComponentFromManifest("operator-home-welcome-onboarding", {
+  suppressLoading: true,
+});
 
-const TrialWelcomeRunDeepLink = dynamic(
-  () => import("@/components/trial/TrialWelcomeRunDeepLink").then((module) => module.TrialWelcomeRunDeepLink),
-  { loading: () => null, ssr: false },
-);
+const TrialWelcomeRunDeepLinkDeferred = createDeferredComponentFromManifest("operator-home-trial-welcome-deep-link", {
+  suppressLoading: true,
+});
 
-const FirstValueReachedCallout = dynamic(
-  () => import("@/components/FirstValueReachedCallout").then((module) => module.FirstValueReachedCallout),
-  { loading: () => null, ssr: false },
-);
+const FirstValueReachedCalloutDeferred = createDeferredComponentFromManifest("operator-home-first-value-callout", {
+  suppressLoading: true,
+});
 
 /** Trial deep-link and welcome overlays — not needed for first paint of the home dashboard. */
 export function OperatorHomeDeferredOnboarding() {
   return (
     <>
-      <TrialWelcomeRunDeepLink />
-      <OperatorWelcomeOnboarding />
+      <TrialWelcomeRunDeepLinkDeferred />
+      <OperatorWelcomeOnboardingDeferred />
     </>
   );
 }
 
 export function OperatorHomeFirstValueCallout() {
-  return <FirstValueReachedCallout />;
+  return <FirstValueReachedCalloutDeferred />;
 }

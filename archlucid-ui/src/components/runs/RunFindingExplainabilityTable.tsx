@@ -42,7 +42,7 @@ function gapsSummary(row: FindingTraceConfidenceDto): string {
   const m = row.missingTraceFields?.filter((s) => s.trim().length > 0) ?? [];
 
   if (m.length === 0) {
-    return "—";
+    return " — ";
   }
 
   if (m.length <= 2) {
@@ -246,7 +246,7 @@ export function RunFindingExplainabilityTable({
                   {row.ruleId && row.ruleId.trim().length > 0 ? (
                     <FindingPolicyRuleBadge policyRuleId={row.ruleId} />
                   ) : (
-                    "—"
+                    " — "
                   )}
                 </div>
                 <div className={cn("tabular-nums text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
@@ -256,7 +256,7 @@ export function RunFindingExplainabilityTable({
                       evidenceRefCount={row.evidenceRefCount}
                     />
                   ) : (
-                    "—"
+                    " — "
                   )}
                 </div>
                 <div className={cn("min-w-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>{row.traceConfidenceLabel}</div>

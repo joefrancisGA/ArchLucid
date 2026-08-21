@@ -49,7 +49,7 @@ export function GovernanceApprovalStoryCard(props: {
     {
       label: "Architecture review completed",
       done: reviewed,
-      detail: reviewed ? `${BUYER_SHOWCASE_APPROVER_ROLE}: ${row.reviewedBy ?? "—"}` : "Pending reviewer action",
+      detail: reviewed ? `${BUYER_SHOWCASE_APPROVER_ROLE}: ${row.reviewedBy ?? " — "}` : "Pending reviewer action",
     },
     {
       label: "Resolve outcomes recorded",
@@ -87,9 +87,9 @@ export function GovernanceApprovalStoryCard(props: {
           {reviewed ? (
             <dl className={cn("m-0 mt-1 grid grid-cols-[auto_1fr] gap-x-3 gap-y-0.5 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
               <dt className="text-neutral-500 dark:text-neutral-500">{BUYER_SHOWCASE_APPROVER_ROLE}</dt>
-              <dd className="m-0 font-medium text-neutral-800 dark:text-neutral-200">{row.reviewedBy ?? "—"}</dd>
+              <dd className="m-0 font-medium text-neutral-800 dark:text-neutral-200">{row.reviewedBy ?? " — "}</dd>
               <dt className="text-neutral-500 dark:text-neutral-500">{BUYER_SHOWCASE_REQUEST_OWNER_ROLE}</dt>
-              <dd className="m-0 font-medium text-neutral-800 dark:text-neutral-200">{row.requestedBy ?? "—"}</dd>
+              <dd className="m-0 font-medium text-neutral-800 dark:text-neutral-200">{row.requestedBy ?? " — "}</dd>
               <dt className="text-neutral-500 dark:text-neutral-500">Residual-risk owner</dt>
               <dd className="m-0 font-medium text-neutral-800 dark:text-neutral-200">{BUYER_SHOWCASE_RESIDUAL_RISK_OWNER}</dd>
               {promoteReady ? (

@@ -175,7 +175,7 @@ export function buyerAuditTrailGovernanceSummaryCounts(
 
 export function formatBuyerAuditTrailLastActivity(lastActivityUtc: string | null): string {
   if (lastActivityUtc === null || lastActivityUtc.trim().length === 0) {
-    return "—";
+    return " — ";
   }
 
   return formatIsoUtcForDisplay(lastActivityUtc);

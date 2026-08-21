@@ -582,7 +582,7 @@ export function PilotScorecardPageView({ model }: PilotScorecardPageViewProps) {
                           Quarterly estimate
                         </p>
                         <p className={cn("m-0 mt-1 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
-                          {quarterlySavingsLabel ?? "—"}
+                          {quarterlySavingsLabel ?? " — "}
                         </p>
                       </div>
                       <div>
@@ -590,7 +590,7 @@ export function PilotScorecardPageView({ model }: PilotScorecardPageViewProps) {
                           Status quo annual labor
                         </p>
                         <p className={cn("m-0 mt-1 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
-                          {statusQuoCostLabel ?? "—"}
+                          {statusQuoCostLabel ?? " — "}
                         </p>
                       </div>
                     </div>

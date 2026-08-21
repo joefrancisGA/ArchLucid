@@ -19,7 +19,7 @@ export function SeeItPackageSummary(props: SeeItPackageSummaryProps): React.JSX.
 
   let monitoredLabel: string | null = null;
 
-  if (complianceGapDisplay !== "—" && complianceGapDisplay !== "0") {
+  if (complianceGapDisplay !== " — " && complianceGapDisplay !== "0") {
     monitoredLabel =
       complianceGapDisplay === "1"
         ? "1 monitored risk"

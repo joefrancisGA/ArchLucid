@@ -14,7 +14,7 @@ export const REVIEW_SCORECARD_PAGE_TITLE = BUYER_TERMINOLOGY.reviewScorecard;
 export const REVIEW_SCORECARD_PAGE_SUBTITLE =
   "See review throughput, governance effectiveness, and estimated ROI at a glance.";
 
-export const REVIEW_SCORECARD_EMPTY_VALUE = "—";
+export const REVIEW_SCORECARD_EMPTY_VALUE = " — ";
 
 export const REVIEW_SCORECARD_NOT_MEASURED_LABEL = "Not measured";
 

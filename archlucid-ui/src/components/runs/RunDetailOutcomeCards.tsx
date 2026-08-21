@@ -300,7 +300,7 @@ function PackageStatusStrip(props: PackageStatusStripProps) {
     props.governanceGateLabel !== undefined &&
     props.governanceGateLabel.trim().length > 0
       ? props.governanceGateLabel.trim()
-      : "—";
+      : " — ";
 
   const segmentInner = "min-w-0 flex-1 px-3 py-3 sm:px-4";
   const valueClass = cn("m-0 font-semibold tabular-nums text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body);
@@ -404,7 +404,7 @@ function PackageStatusStrip(props: PackageStatusStripProps) {
       <div className={segmentInner}>
         <p className={stripSegmentLabelClass()}>Approval status</p>
         <div className="mt-1 flex flex-wrap items-center gap-2">
-          {gate !== "—" ? (
+          {gate !== " — " ? (
             <GovernanceStatusTag status={gate} aria-label={`${approvalStatusLabel}: ${gate}`} />
           ) : (
             <p className={cn(valueClass, "mt-0")}>{gate}</p>

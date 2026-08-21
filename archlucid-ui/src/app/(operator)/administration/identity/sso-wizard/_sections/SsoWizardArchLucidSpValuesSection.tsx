@@ -43,12 +43,12 @@ export function SsoWizardArchLucidSpValuesSection(
         <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{SSO_WIZARD_OIDC_SP_VALUES_INTRO}</p>
         <HelpCopyableValue
           label={SSO_WIZARD_OIDC_SP_REDIRECT_URI_LABEL}
-          value={redirectUri || "—"}
+          value={redirectUri || " — "}
           testId="sso-wizard-oidc-redirect-uri"
         />
         <HelpCopyableValue
           label={SSO_WIZARD_OIDC_SP_CLIENT_ID_LABEL}
-          value={clientId || "—"}
+          value={clientId || " — "}
           testId="sso-wizard-oidc-client-id"
         />
       </div>

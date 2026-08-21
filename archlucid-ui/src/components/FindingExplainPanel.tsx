@@ -141,19 +141,19 @@ export function FindingExplainPanel({
           <dl className={cn("m-0 grid gap-2 text-violet-950 dark:text-violet-50 sm:grid-cols-2", OPERATOR_TYPOGRAPHY.helper)}>
             <div>
               <dt className="font-semibold">Review record version</dt>
-              <dd className="m-0 font-mono">{evidenceChain.manifestVersion?.trim() ? evidenceChain.manifestVersion : "—"}</dd>
+              <dd className="m-0 font-mono">{evidenceChain.manifestVersion?.trim() ? evidenceChain.manifestVersion : " — "}</dd>
             </div>
             <div>
               <dt className="font-semibold">Findings snapshot</dt>
-              <dd className="m-0 font-mono">{evidenceChain.findingsSnapshotId ?? "—"}</dd>
+              <dd className="m-0 font-mono">{evidenceChain.findingsSnapshotId ?? " — "}</dd>
             </div>
             <div>
               <dt className="font-semibold">Decision trace</dt>
-              <dd className="m-0 font-mono">{evidenceChain.decisionTraceId ?? "—"}</dd>
+              <dd className="m-0 font-mono">{evidenceChain.decisionTraceId ?? " — "}</dd>
             </div>
             <div>
               <dt className="font-semibold">Review record id</dt>
-              <dd className="m-0 font-mono">{evidenceChain.goldenManifestId ?? "—"}</dd>
+              <dd className="m-0 font-mono">{evidenceChain.goldenManifestId ?? " — "}</dd>
             </div>
           </dl>
           {evidenceChain.relatedGraphNodeIds.length > 0 ? (
@@ -258,7 +258,7 @@ export function FindingExplainPanel({
                   {audit.rawResponseRedacted.trim().length > 0 ? audit.rawResponseRedacted : "(empty)"}
                 </pre>
                 <p className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-                  Model: {audit.modelDeploymentName ?? "—"} · Agent: {buyerLabelForAgentType(audit.agentType)}
+                  Model: {audit.modelDeploymentName ?? " — "} · Agent: {buyerLabelForAgentType(audit.agentType)}
                 </p>
               </div>
             </DocumentLayout>

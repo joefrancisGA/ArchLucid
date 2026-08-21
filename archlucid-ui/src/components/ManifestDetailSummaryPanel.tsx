@@ -414,7 +414,7 @@ function countsGridTiles(summary: ManifestSummary, options: CountsGridTilesOptio
       <div className="rounded-lg border border-neutral-200 bg-neutral-50/80 p-3 dark:border-neutral-800 dark:bg-neutral-900/40">
         <p className={manifestTileLabelClass}>Decisions</p>
         <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.kpiValue)}>
-          {Number.isFinite(summary.decisionCount) ? summary.decisionCount : "—"}
+          {Number.isFinite(summary.decisionCount) ? summary.decisionCount : " — "}
         </p>
       </div>
       <div className="rounded-lg border border-neutral-200 bg-neutral-50/80 p-3 dark:border-neutral-800 dark:bg-neutral-900/40">
@@ -422,13 +422,13 @@ function countsGridTiles(summary: ManifestSummary, options: CountsGridTilesOptio
           {options.buyerPolishedLayout && isCuratedDemo ? "Monitored risks" : "Warnings"}
         </p>
         <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.kpiValue)}>
-          {Number.isFinite(summary.warningCount) ? summary.warningCount : "—"}
+          {Number.isFinite(summary.warningCount) ? summary.warningCount : " — "}
         </p>
       </div>
       <div className="rounded-lg border border-neutral-200 bg-neutral-50/80 p-3 dark:border-neutral-800 dark:bg-neutral-900/40">
         <p className={manifestTileLabelClass}>Unresolved</p>
         <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.kpiValue)}>
-          {Number.isFinite(summary.unresolvedIssueCount) ? summary.unresolvedIssueCount : "—"}
+          {Number.isFinite(summary.unresolvedIssueCount) ? summary.unresolvedIssueCount : " — "}
         </p>
       </div>
       {includeShowcaseTrailTiles ? (

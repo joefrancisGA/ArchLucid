@@ -88,18 +88,18 @@ export function WhyArchLucidSponsorPackBody(props: WhyArchLucidSponsorPackBodyPr
               <dd className="font-mono tabular-nums text-al-text-primary">
                 {sponsorPack.demoRunValueReportDelta.timeToCommittedManifestTotalSeconds != null
                   ? sponsorPack.demoRunValueReportDelta.timeToCommittedManifestTotalSeconds.toFixed(1)
-                  : "—"}{" "}
+                  : " — "}{" "}
                 s
               </dd>
             </div>
             <div>
               <dt className="text-al-text-secondary">LLM calls</dt>
-              <dd className="tabular-nums text-al-text-primary">{sponsorPack.demoRunValueReportDelta.llmCallCount ?? "—"}</dd>
+              <dd className="tabular-nums text-al-text-primary">{sponsorPack.demoRunValueReportDelta.llmCallCount ?? " — "}</dd>
             </div>
             <div>
               <dt className="text-al-text-secondary">{WHY_ARCHLUCID_VALUE_REPORT_DELTA_AUDIT_LABEL}</dt>
               <dd className="tabular-nums text-al-text-primary">
-                {sponsorPack.demoRunValueReportDelta.auditRowCount ?? "—"}
+                {sponsorPack.demoRunValueReportDelta.auditRowCount ?? " — "}
                 {sponsorPack.demoRunValueReportDelta.auditRowCountTruncated ? "+" : ""}
               </dd>
             </div>

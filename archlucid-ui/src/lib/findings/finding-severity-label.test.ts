@@ -12,6 +12,6 @@ describe("findingSeverityLabel", () => {
 
   it("falls back for unknown severity and undefined", () => {
     expect(findingSeverityLabel(99)).toBe("99");
-    expect(findingSeverityLabel(undefined)).toBe("—");
+    expect(findingSeverityLabel(undefined)).toBe(" — ");
   });
 });

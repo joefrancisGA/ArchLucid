@@ -44,7 +44,7 @@ describe("webhook-subscription-metadata", () => {
   it("handles invalid json gracefully", () => {
     const summary = summarizeMaskedWebhookSubscription("{ not-json");
 
-    expect(summary.displayMetadataJson).toBe("—");
+    expect(summary.displayMetadataJson).toBe(" — ");
     expect(summary.eventTypes.length).toBe(0);
     expect(hasWebhookSecretConfigured("")).toBe(false);
   });

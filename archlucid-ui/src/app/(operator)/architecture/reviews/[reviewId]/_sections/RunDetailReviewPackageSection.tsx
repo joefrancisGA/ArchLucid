@@ -45,7 +45,7 @@ export function RunDetailReviewPackageSection(
           </p>
           <ul className={cn("m-0 list-disc space-y-1 pl-5", OPERATOR_TYPOGRAPHY.body)}>
             <li>Finalized review record</li>
-            <li>Findings report ({props.findingCount ?? "—"} findings)</li>
+            <li>Findings report ({props.findingCount ?? " — "} findings)</li>
             <li>Evidence bundle ({props.artifactCount} artifact{props.artifactCount === 1 ? "" : "s"})</li>
             <li>Decisions</li>
           </ul>

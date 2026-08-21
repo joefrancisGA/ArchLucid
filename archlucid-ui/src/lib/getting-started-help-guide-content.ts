@@ -103,7 +103,7 @@ export const GETTING_STARTED_HELP_PLAIN_LANGUAGE_TERMS: readonly GettingStartedP
   {
     term: "Decision",
     definition:
-      "A recorded resolve outcome on review proposals—such as approve, waive, defer, or escalate—captured for governance and audit.",
+      "A recorded resolve outcome on review proposals — such as approve, waive, defer, or escalate — captured for governance and audit.",
   },
   {
     term: "Finalized review record",

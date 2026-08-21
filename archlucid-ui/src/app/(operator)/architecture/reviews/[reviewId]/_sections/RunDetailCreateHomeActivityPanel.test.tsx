@@ -13,7 +13,7 @@ const baseProps = {
   manifestId: null,
   showProgressTracker: false,
   statusLine: "Assessment has not started yet.",
-  provenanceAsOfLabel: "—",
+  provenanceAsOfLabel: " — ",
   preFinalizeReadyToFinalize: false,
   progressForPipelineUi: { runId: "run-abc", description: "Claims intake" },
   outcomeCards: <div data-testid="outcome-cards">Outcome</div>,

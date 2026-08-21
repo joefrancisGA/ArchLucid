@@ -74,7 +74,7 @@ export function AlertsInboxPageIntro({
                 correlationId={failure.correlationId}
               />
               <OperatorTryNext>
-                Confirm the API and proxy are up, then click <strong>Refresh</strong>. Alerts come from scheduled scans—if
+                Confirm the API and proxy are up, then click <strong>Refresh</strong>. Alerts come from scheduled scans — if
                 the list should not be empty, check worker schedules and open <Link className={OPERATOR_LINK.nav} href="/help">Help</Link>{" "}
                 for environment guidance.
               </OperatorTryNext>
