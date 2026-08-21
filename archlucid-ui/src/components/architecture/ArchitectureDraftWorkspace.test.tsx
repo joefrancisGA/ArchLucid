@@ -158,6 +158,7 @@ beforeEach(() => {
   getRunSummary.mockReset();
   saveDraft.mockReset();
   reloadDraft.mockReset();
+  reopenDraftRequest.mockReset();
   acknowledgeArchitectureDraftHandoff.mockReset();
   isArchitectureDraftHandoffAcknowledged.mockReturnValue(false);
   getDraftRequest.mockResolvedValue(spawnedDraft);
@@ -477,6 +478,60 @@ describe("ArchitectureDraftWorkspace", () => {
     });
 
     expect(screen.queryByTestId("architecture-draft-acknowledge-edit")).not.toBeInTheDocument();
+  });
+
+  it("warns at the top and freezes the form when the draft is already in review intake", async () => {
+    getDraftRequest.mockResolvedValue({
+      ...spawnedDraft,
+      status: "Admitted",
+      spawnedRunId: null,
+    });
+
+    render(<ArchitectureDraftWorkspace architectureId="arch-001" />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-draft-intake-mode-banner")).toBeInTheDocument();
+    });
+
+    expect(screen.queryByTestId("architecture-start-review")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("architecture-scope-understanding-check")).not.toBeInTheDocument();
+    expect(screen.getByTestId("architecture-draft-continue-intake")).toHaveAttribute(
+      "href",
+      "/architecture/reviews/new?path=guided-intake&sourceArchitectureId=arch-001",
+    );
+    expect(screen.getByTestId("architecture-draft-unlock-brief")).toBeInTheDocument();
+    expect(screen.getByLabelText(/Architecture overview/i)).toBeDisabled();
+  });
+
+  it("returns the brief to drafting when the operator unlocks intake", async () => {
+    getDraftRequest.mockResolvedValue({
+      ...spawnedDraft,
+      status: "Admitted",
+      spawnedRunId: null,
+    });
+    reopenDraftRequest.mockResolvedValue({
+      ...spawnedDraft,
+      status: "Drafting",
+      spawnedRunId: null,
+    });
+
+    render(<ArchitectureDraftWorkspace architectureId="arch-001" />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-draft-unlock-brief")).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId("architecture-draft-unlock-brief"));
+
+    await waitFor(() => {
+      expect(reopenDraftRequest).toHaveBeenCalledWith("arch-001");
+    });
+
+    await waitFor(() => {
+      expect(screen.queryByTestId("architecture-draft-intake-mode-banner")).not.toBeInTheDocument();
+    });
+
+    expect(screen.getByLabelText(/Architecture overview/i)).not.toBeDisabled();
   });
 
   it("hydrates system name and business outcome from the server draft", async () => {

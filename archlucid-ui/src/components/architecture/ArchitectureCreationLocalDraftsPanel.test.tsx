@@ -2,6 +2,15 @@ import { render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { ArchitectureCreationLocalDraftsPanel } from "@/components/architecture/ArchitectureCreationLocalDraftsPanel";
+
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ push: vi.fn(), replace: vi.fn() }),
+}));
+
+vi.mock("@/lib/api/draft-intake-api", () => ({
+  getDraftRequest: vi.fn(),
+  reopenDraftRequest: vi.fn(),
+}));
 import type { ArchitectureDraftRegistryEntry } from "@/lib/architecture/architecture-draft-registry";
 import { CONTINUE_DRAFT_LABEL } from "@/lib/architecture/architecture-workflow-labels";
 import {
@@ -62,9 +71,8 @@ describe("ArchitectureCreationLocalDraftsPanel (TB-1459)", () => {
     });
     expect(screen.getByRole("heading", { level: 2, name: ARCHITECTURE_CREATION_CONTINUE_SECTION_TITLE })).toBeInTheDocument();
     expect(screen.getByText(ARCHITECTURE_CREATION_RECENT_DRAFTS_BODY)).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: CONTINUE_DRAFT_LABEL })).toHaveAttribute(
-      "href",
-      "/architecture/architectures/draft-001",
+    expect(screen.getByTestId("architecture-creation-resume-draft-continue-draft-001")).toHaveTextContent(
+      CONTINUE_DRAFT_LABEL,
     );
     expect(screen.getByTestId("architecture-creation-resume-drafts-view-all")).toHaveAttribute(
       "href",

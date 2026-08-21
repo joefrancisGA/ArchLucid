@@ -333,7 +333,8 @@ public sealed class ArchitectureIntelligenceController(
         }
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-        request.TenantId = scope.TenantId.ToString("D");
+        string tenantId = scope.TenantId.ToString("D");
+        request.TenantId = tenantId;
         request.WorkspaceId = scope.WorkspaceId.ToString("D");
         request.ProjectId = scope.ProjectId.ToString("D");
 
@@ -342,7 +343,7 @@ public sealed class ArchitectureIntelligenceController(
 
         if (!hasContent && allowEmptySourcesForFixture && request.UseGoldenFixture)
         {
-            ClosedLoopReasoningRequest fixture = GoldenIncompleteArchitectureFixture.CreateRequest(request.TenantId);
+            ClosedLoopReasoningRequest fixture = GoldenIncompleteArchitectureFixture.CreateRequest(tenantId);
             request.SourceTexts = fixture.SourceTexts;
             request.DeclaredPriorities = fixture.DeclaredPriorities.Count > 0
                 ? fixture.DeclaredPriorities

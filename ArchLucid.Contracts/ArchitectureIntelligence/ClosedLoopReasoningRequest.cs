@@ -2,11 +2,15 @@ namespace ArchLucid.Contracts.ArchitectureIntelligence;
 
 public class ClosedLoopReasoningRequest
 {
-    public string TenantId
+    /// <summary>
+    /// Optional on inbound HTTP. Controllers stamp this from the authenticated scope before reasoning runs.
+    /// A non-nullable property would make <c>[ApiController]</c> reject bodies that omit it (HTTP 400).
+    /// </summary>
+    public string? TenantId
     {
         get;
         set;
-    } = null!;
+    }
 
     public string? RunId
     {

@@ -6954,7 +6954,10 @@
             "type": "array"
           },
           "tenantId": {
-            "type": "string"
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "useGoldenFixture": {
             "type": "boolean"

@@ -14,6 +14,15 @@ vi.mock("@/lib/architecture/architecture-draft-resume-telemetry", () => ({
 
 import { ReviewsHubResumeDrafts } from "./ReviewsHubResumeDrafts";
 
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ push: vi.fn(), replace: vi.fn() }),
+}));
+
+vi.mock("@/lib/api/draft-intake-api", () => ({
+  getDraftRequest: vi.fn(),
+  reopenDraftRequest: vi.fn(),
+}));
+
 beforeEach(() => {
   useArchitectureDraftRegistryEntries.mockReset();
 });
@@ -73,10 +82,7 @@ describe("ReviewsHubResumeDrafts", () => {
     expect(screen.getByTestId("reviews-hub-resume-drafts")).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Architectures ready for review" })).toBeInTheDocument();
     expect(screen.getByText("Ready for review")).toBeInTheDocument();
-    expect(screen.getByTestId("reviews-hub-resume-draft-continue-draft-001")).toHaveAttribute(
-      "href",
-      "/architecture/architectures/draft-001",
-    );
+    expect(screen.getByTestId("reviews-hub-resume-draft-continue-draft-001")).toHaveTextContent("Continue editing");
     expect(screen.getByTestId("reviews-hub-resume-draft-start-draft-001").getAttribute("href")).toContain(
       "/architecture/reviews/new",
     );

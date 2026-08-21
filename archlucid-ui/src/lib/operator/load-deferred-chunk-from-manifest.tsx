@@ -464,6 +464,36 @@ function resolveDeferredChunkImportLoader(
           (module) => module.DraftIntakeDecisionReceiptCard,
         ),
       ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "reviews-new-wizard-step-advanced":
+      return deferredChunkLoader(() =>
+        import("@/components/wizard/steps/WizardStepAdvanced").then((module) => module.WizardStepAdvanced),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "reviews-new-wizard-step-cloud-inventory":
+      return deferredChunkLoader(() =>
+        import("@/components/wizard/steps/WizardStepCloudInventoryContext").then(
+          (module) => module.WizardStepCloudInventoryContext,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "reviews-new-wizard-step-baseline-zip":
+      return deferredChunkLoader(() =>
+        import("@/components/wizard/steps/WizardStepBaselineZip").then((module) => module.WizardStepBaselineZip),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "reviews-new-wizard-step-baseline-metrics":
+      return deferredChunkLoader(() =>
+        import("@/components/wizard/steps/WizardStepBaselineMetrics").then(
+          (module) => module.WizardStepBaselineMetrics,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "reviews-new-wizard-post-create-evidence":
+      return deferredChunkLoader(() =>
+        import("@/components/wizard/steps/WizardPostCreateEvidenceUploadPanel").then(
+          (module) => module.WizardPostCreateEvidenceUploadPanel,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "reviews-new-wizard-step-track":
+      return deferredChunkLoader(() =>
+        import("@/components/wizard/steps/WizardStepTrack").then((module) => module.WizardStepTrack),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
     case "reviews-hub-inventory":
       return deferredChunkLoader(() =>
         import("@/app/(operator)/architecture/reviews/_sections/ReviewsHubReviewInventory").then(
