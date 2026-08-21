@@ -520,7 +520,7 @@ export function NewRunWizardClient(props: NewRunWizardClientProps = {}) {
               blocksLlmExecution={blocksLlmExecution}
               llmBudgetStatus={llmBudgetStatus}
               onPendingZipFileChange={evidence.handlePendingEvidenceFileChange}
-              onRunCreated={(id) => {
+              onRunCreated={(id: string) => {
                 setRunId(id);
               }}
             />
@@ -533,7 +533,7 @@ export function NewRunWizardClient(props: NewRunWizardClientProps = {}) {
               llmBudgetStatus={llmBudgetStatus}
               initialPresetId={presetDeeplinkPresetId ?? undefined}
               exampleTemplate={exampleTemplate}
-              onRunCreated={(id) => {
+              onRunCreated={(id: string) => {
                 setRunId(id);
               }}
             />
@@ -654,7 +654,7 @@ export function NewRunWizardClient(props: NewRunWizardClientProps = {}) {
               reviewCycleHours={baselineReviewCycleHours}
               confidence={baselineConfidence}
               fieldError={baselineMetricsError}
-              onReviewCycleHoursChange={(value) => {
+              onReviewCycleHoursChange={(value: string) => {
                 setBaselineReviewCycleHours(value);
 
                 if (baselineMetricsError !== null) {
