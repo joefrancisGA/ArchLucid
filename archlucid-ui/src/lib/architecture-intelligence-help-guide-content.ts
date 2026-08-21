@@ -87,7 +87,7 @@ export const ARCHITECTURE_INTELLIGENCE_HELP_GUIDE_HEADINGS: readonly HelpMarkdow
 
 /** Drift guard: overview stays positive-only; claim band owns the diligence negation once. */
 export const ARCHITECTURE_INTELLIGENCE_HELP_NEGATION_DRIFT_MARKERS = {
-  overviewMustNotContain: ["not a sealed-review diligence Sources package", "not a diligence Sources package"],
-  claimMustContain: "not a sealed-review diligence Sources package",
+  overviewMustNotContain: ["not a full audit export", "not a diligence Sources package"],
+  claimMustContain: "not a full audit export",
   retentionMustAppearOnce: "retained under your workspace data-retention policy",
 } as const;

@@ -18,7 +18,7 @@ export function OperatorHomeCompactStartingActionsSection(): React.JSX.Element {
       <OperatorHomeCardSectionTitle id="operator-home-compact-starting-actions-heading">
         {OPERATOR_HOME_COMPACT_STARTING_ACTIONS_HEADING}
       </OperatorHomeCardSectionTitle>
-      <OperatorHomeDualPathCards variant="compact" />
+      <OperatorHomeDualPathCards variant="compact" pagePrimaryOwnedElsewhere />
       <OperationalMetricsGate>
         <AcceleratorChooserCard />
       </OperationalMetricsGate>

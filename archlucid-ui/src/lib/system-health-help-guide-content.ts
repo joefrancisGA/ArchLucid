@@ -75,8 +75,8 @@ export const SYSTEM_HEALTH_HELP_GUIDE_HEADINGS: readonly HelpMarkdownHeading[] =
   { level: 2, id: "where-to-go-next", title: "Where to go next" },
 ];
 
-/** Drift guard: overview stays positive-only; claim band owns the diligence negation once. */
+/** Drift guard: overview stays positive-only; claim band owns the audit-export negation once. */
 export const SYSTEM_HEALTH_HELP_NEGATION_DRIFT_MARKERS = {
-  overviewMustNotContain: ["not a sealed-review diligence Sources trail", "not a diligence Sources trail"],
-  claimMustContain: "not a sealed-review diligence Sources trail",
+  overviewMustNotContain: ["not a full audit export", "not a diligence Sources trail"],
+  claimMustContain: "not a full audit export",
 } as const;

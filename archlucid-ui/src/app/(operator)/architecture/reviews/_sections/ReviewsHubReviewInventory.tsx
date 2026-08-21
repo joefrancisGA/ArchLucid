@@ -313,7 +313,7 @@ export function ReviewsHubReviewInventory(props: ReviewsHubReviewInventoryProps)
                 {
                   label: REVIEWS_HUB_RECENT_EMPTY_PRIMARY_LABEL,
                   href: "/architecture/reviews/new",
-                  variant: "primary",
+                  variant: "outline",
                 },
                 {
                   label: REVIEWS_HUB_RECENT_EMPTY_SECONDARY_LABEL,

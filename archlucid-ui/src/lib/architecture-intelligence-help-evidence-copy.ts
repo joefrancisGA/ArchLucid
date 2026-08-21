@@ -22,7 +22,7 @@ export const ARCHITECTURE_INTELLIGENCE_HELP_DATA_HANDLING_LINK = {
 } as const;
 
 export const ARCHITECTURE_INTELLIGENCE_HELP_CLAIM_DISCIPLINE =
-  "This guide explains closed-loop architecture reasoning and publish-to-findings — it is not a sealed-review diligence Sources package.";
+  "This guide explains closed-loop architecture reasoning and publish-to-findings — not a full audit export.";
 
 export const ARCHITECTURE_INTELLIGENCE_HELP_FOLLOW_UPS_TITLE = "Where to go next";
 
@@ -34,7 +34,7 @@ export const ARCHITECTURE_INTELLIGENCE_HELP_SOURCES: readonly EvidenceOrientatio
   {
     label: "Model governance help",
     href: MODEL_GOVERNANCE_HELP_CANONICAL_PATH,
-    when: "Review workspace execution profiles and governed aliases before changing model policy",
+    when: "Review workspace execution profiles and approved model aliases before changing model policy",
   },
   {
     label: "AI usage help",

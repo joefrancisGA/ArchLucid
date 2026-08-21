@@ -8,10 +8,10 @@ export const DATA_HANDLING_TENANT_ISOLATION_HELP_PAGE_EYEBROW = "Help topic" as 
 export const DATA_HANDLING_TENANT_ISOLATION_HELP_PAGE_TITLE = "Data handling and tenant isolation";
 
 export const DATA_HANDLING_TENANT_ISOLATION_HELP_PAGE_SUBTITLE =
-  "How review evidence flows, what stays in your tenant, and how logical isolation is enforced — with sponsor-safe diligence cites.";
+  "How review evidence flows, what stays in your tenant, and how data is isolated — with links for security reviewers.";
 
 export const DATA_HANDLING_TENANT_ISOLATION_HELP_PAGE_SUBTITLE_BUYER =
-  "Review evidence flow, tenant isolation layers, and sponsor-safe diligence cites for procurement questions." as const;
+  "Review evidence flow, tenant isolation layers, and security review links for procurement questions." as const;
 
 export const DATA_HANDLING_TENANT_ISOLATION_HELP_PRIMARY_CONTENT_ID =
   "help-data-handling-tenant-isolation-primary-content" as const;
@@ -31,7 +31,7 @@ export const DATA_HANDLING_TENANT_ISOLATION_HELP_OVERVIEW_CROSS_CHECK_PREFIX =
   "Cross-check isolation statements against Security and trust, the Trust Center, and";
 
 export const DATA_HANDLING_TENANT_ISOLATION_HELP_OVERVIEW_CROSS_CHECK_SUFFIX =
-  "before treating this page as a procurement attestation.";
+  "before treating this page as a signed compliance certificate.";
 
 export const DATA_HANDLING_TENANT_ISOLATION_HELP_OVERVIEW_CONTRACTED_PACK_FOLLOW_UP =
   "For your contracted security diligence pack, use your order documents or contact your account team.";

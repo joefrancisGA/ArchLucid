@@ -40,12 +40,15 @@ export type RunDetailGovernanceDecisionSectionProps = {
   readonly governanceGateLabel: string | null;
   readonly blockingFindingCount: number;
   readonly hasGovernanceWarnings: boolean;
+  /** When the review package Do-this-next strip owns the page primary, demote in-section CTAs to outline. */
+  readonly pagePrimaryOwnedElsewhere?: boolean;
 };
 
 /** Dedicated governance decision state for the review workspace. */
 export function RunDetailGovernanceDecisionSection(
   props: RunDetailGovernanceDecisionSectionProps,
 ): React.JSX.Element {
+  const pagePrimaryOwnedElsewhere = props.pagePrimaryOwnedElsewhere === true;
   const decision = (props.operatorGovernanceDecision ?? "").trim();
   const rationale = (props.operatorGovernanceDecisionRationale ?? "").trim();
   const decisionBy = (props.operatorGovernanceDecisionByUserId ?? "").trim();
@@ -139,7 +142,11 @@ export function RunDetailGovernanceDecisionSection(
           </div>
 
           <div className="mt-4 flex flex-wrap items-center gap-3">
-            <Button asChild data-testid="run-detail-governance-primary-cta">
+            <Button
+              asChild
+              variant={pagePrimaryOwnedElsewhere ? "outline" : "default"}
+              data-testid="run-detail-governance-primary-cta"
+            >
               <Link href={finalizeReadinessHref}>{RUN_DETAIL_GOVERNANCE_PRE_COMMIT_PRIMARY_CTA}</Link>
             </Button>
             <Link
@@ -267,7 +274,11 @@ export function RunDetailGovernanceDecisionSection(
       )}
       {showGovernanceCta ? (
         <div className="mt-4">
-          <Button asChild>
+          <Button
+            asChild
+            variant={pagePrimaryOwnedElsewhere ? "outline" : "default"}
+            data-testid="run-detail-governance-record-decision-cta"
+          >
             <Link href={runDetailGovernanceWorkflowHref(props.runId)}>Record governance decision</Link>
           </Button>
         </div>

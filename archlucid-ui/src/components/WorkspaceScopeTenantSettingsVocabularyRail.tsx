@@ -2,13 +2,13 @@
 
 import type { JSX } from "react";
 
+import { PairwiseVocabularyRailFromModel } from "@/components/vocabulary/PairwiseVocabularyRailFromModel";
 import {
+  buildWorkspaceScopeTenantSettingsPairwiseRail,
   buildWorkspaceScopeTenantSettingsVocabulary,
-  resolveWorkspaceScopeTenantSettingsPeerLink,
   type WorkspaceScopeTenantSettingsSurfaceId,
   type WorkspaceScopeTenantSettingsVocabularyModel,
 } from "@/lib/vocabulary/workspace-scope-tenant-settings-vocabulary";
-import { VocabularyRail } from "@/components/vocabulary/VocabularyRail";
 
 export type WorkspaceScopeTenantSettingsVocabularyRailProps = {
   readonly currentSurfaceId: WorkspaceScopeTenantSettingsSurfaceId;
@@ -23,26 +23,26 @@ export type WorkspaceScopeTenantSettingsVocabularyRailProps = {
 export function WorkspaceScopeTenantSettingsVocabularyRail(
   props: WorkspaceScopeTenantSettingsVocabularyRailProps,
 ): JSX.Element {
-  const model = props.model ?? buildWorkspaceScopeTenantSettingsVocabulary();
-  const peer = resolveWorkspaceScopeTenantSettingsPeerLink(props.currentSurfaceId);
-  const currentLink =
-    props.currentSurfaceId === "workspace-scope"
-      ? model.workspaceScopeLink
-      : model.tenantSettingsLink;
-  const currentLabel = props.currentLabel ?? currentLink.label;
+  const pairwiseModel =
+    props.model !== undefined
+      ? {
+          heading: props.model.heading,
+          whyTwo: props.model.whyTwo,
+          compactLine: props.model.compactLine,
+          currentLink: props.model.workspaceScopeLink,
+          peerLink: props.model.tenantSettingsLink,
+        }
+      : buildWorkspaceScopeTenantSettingsPairwiseRail();
 
   return (
-    <VocabularyRail
+    <PairwiseVocabularyRailFromModel
       testIdPrefix="workspace-scope-tenant-settings-vocabulary"
       currentSurfaceId={props.currentSurfaceId}
       variant={props.variant}
       className={props.className}
-      compactLine={model.compactLine}
       compactLinkPlacement="inline"
-      heading={model.heading}
-      whyTwo={model.whyTwo}
-      currentLabel={currentLabel}
-      links={[{ ...peer, testIdSuffix: "peer-link" }]}
+      model={pairwiseModel}
+      currentLabelOverride={props.currentLabel}
     />
   );
 }

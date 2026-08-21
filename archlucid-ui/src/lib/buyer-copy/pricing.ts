@@ -7,10 +7,10 @@
 export const BUYER_PRICING_FAIR_USE_OVERAGE_NOTE = "Higher volumes are handled through procurement terms.";
 
 export const BUYER_PRICING_ARCHITECTURE_PROOF_ENGINE_CLAUSE =
-  "for governed architecture review, evidence traceability, and audit-ready sealed review records";
+  "for architecture review, evidence traceability, and audit-ready sealed review records";
 
 export const BUYER_MARKETING_PRICING_PAGE_INTRO =
-  "Start with one architect, grow into a governed review practice, and use Enterprise when procurement, SSO, or private deployment is required.";
+  "Start with one architect, grow into an architecture review practice, and use Enterprise when procurement, SSO, or private deployment is required.";
 
 /** Sales-led posture: no self-serve checkout; quote and order form finalize commercial terms. */
 export const BUYER_SALES_LED_PRICING_NOTE =

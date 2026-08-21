@@ -24,7 +24,7 @@ export const PROCUREMENT_HELP_LEAD =
   "Buyer-safe answers for InfoSec questionnaires, resilience reviews, and enterprise procurement.";
 
 export const PROCUREMENT_HELP_CLAIM_DISCIPLINE =
-  "This Procurement FAQ orients buyers and architects on diligence questions and pack requests — it is help orientation, not a CPA SOC 2 attestation, a published third-party pen-test report, or a sealed-review diligence Sources package from your tenant. Open Assurance status, Trust Center, or settings Security & Trust when you need live assurance surfaces or NDA request paths.";
+  "This Procurement FAQ helps buyers and architects with common security questions — help orientation only. It is not a CPA-issued SOC 2 report, a published third-party pen-test report, or an audit export from your workspace. Open Assurance status, Trust Center, or Security & Trust when you need live assurance pages or NDA request paths.";
 
 export const PROCUREMENT_HELP_SOURCES_INTRO =
   "Use these follow-ups when procurement FAQ vocabulary turns into assurance hubs, isolation depth, or contract templates.";

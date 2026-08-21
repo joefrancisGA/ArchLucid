@@ -14,6 +14,7 @@
 
 import { BASELINE_SETTINGS_CANONICAL_PATH } from "@/lib/baseline-settings-evidence-copy";
 import { SPONSOR_REPORT_ROI_SUMMARY_PATH } from "@/lib/sponsor-report-navigation";
+import type { PairwiseVocabularyRailModel } from "@/lib/vocabulary/create-pairwise-vocabulary-rail";
 
 export type BaselineRoiSurfaceId = "baseline" | "roi-summary";
 
@@ -55,14 +56,27 @@ export const BASELINE_ROI_ROI_SUMMARY_LINK: BaselineRoiLink = {
   whenToUse: "Review portfolio KPIs for the reporting window.",
 };
 
-/** Full vocabulary model (heading, why-two copy, and deep links). */
-export function buildBaselineRoiVocabulary(): BaselineRoiVocabularyModel {
+/** Pairwise model for Baseline settings ↔ ROI summary (fixed routes). */
+export function buildBaselineRoiPairwiseRail(): PairwiseVocabularyRailModel<BaselineRoiSurfaceId> {
   return {
     heading: BASELINE_ROI_HEADING,
     whyTwo: BASELINE_ROI_WHY_TWO,
     compactLine: BASELINE_ROI_COMPACT_LINE,
-    baselineLink: BASELINE_ROI_BASELINE_LINK,
-    roiSummaryLink: BASELINE_ROI_ROI_SUMMARY_LINK,
+    currentLink: BASELINE_ROI_BASELINE_LINK,
+    peerLink: BASELINE_ROI_ROI_SUMMARY_LINK,
+  };
+}
+
+/** Full vocabulary model (heading, why-two copy, and deep links). */
+export function buildBaselineRoiVocabulary(): BaselineRoiVocabularyModel {
+  const rail = buildBaselineRoiPairwiseRail();
+
+  return {
+    heading: rail.heading,
+    whyTwo: rail.whyTwo,
+    compactLine: rail.compactLine,
+    baselineLink: rail.currentLink,
+    roiSummaryLink: rail.peerLink,
   };
 }
 

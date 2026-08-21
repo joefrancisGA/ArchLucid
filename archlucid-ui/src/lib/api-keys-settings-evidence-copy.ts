@@ -16,7 +16,7 @@ export const API_KEYS_SETTINGS_CANONICAL_PATH = CLI_USAGE_HELP_PATH;
 export const API_KEYS_SETTINGS_FOLLOW_UPS_TITLE = "Where to go next";
 
 export const API_KEYS_SETTINGS_SOURCES_INTRO =
-  "Use these follow-ups when key rotation turns into membership setup, audit trails, CLI usage, or assurance cites.";
+  "Use these follow-ups when key rotation turns into membership setup, audit trails, CLI usage, or official assurance materials.";
 
 /** Operator Sources — no self-href to the retired `/administration/api-keys` route. */
 export const API_KEYS_SETTINGS_SOURCES: readonly EvidenceSourceLink[] = [

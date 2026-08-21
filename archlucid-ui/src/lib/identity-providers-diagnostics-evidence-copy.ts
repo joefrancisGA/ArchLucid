@@ -9,7 +9,7 @@ export const IDENTITY_PROVIDERS_DIAGNOSTICS_HELP_TOPIC_LABEL = "How identity dia
 export const IDENTITY_PROVIDERS_DIAGNOSTICS_FOLLOW_UPS_TITLE = "Where to go next";
 
 export const IDENTITY_PROVIDERS_DIAGNOSTICS_SOURCES_INTRO =
-  "Use these follow-ups when diagnostic probes turn into SSO setup, role mapping, or assurance cites.";
+  "Use these follow-ups when diagnostic probes turn into SSO setup, role mapping, or official assurance materials.";
 
 /** Operator Sources - no self-href to identity diagnostics. */
 export const IDENTITY_PROVIDERS_DIAGNOSTICS_SOURCES: readonly EvidenceSourceLink[] =

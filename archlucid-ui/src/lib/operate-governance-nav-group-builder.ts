@@ -98,7 +98,7 @@ export class OperateGovernanceNavGroupBuilder extends NavGroupBuilderBase {
         {
           href: "/governance/decision-register",
           label: OPERATOR_NAV_LINK_LABELS.decisionRegister,
-          title: "Review signed decisions and dispositions",
+          title: "Review signed decisions and resolve outcomes",
           icon: Gavel,
           tier: "extended",
           requiredAuthority: "ReadAuthority",
@@ -164,7 +164,7 @@ export class OperateGovernanceNavGroupBuilder extends NavGroupBuilderBase {
           // String literal required: scripts/ci/assert_route_tier_policy_nav.py parses href:"..." only.
           href: GOVERNANCE_WORKSPACE_HEALTH_HREF as typeof GOVERNANCE_WORKSPACE_HEALTH_HREF & "/architecture/sponsor-dashboard#workspace-health",
           label: OPERATOR_NAV_LINK_LABELS.workspaceHealth,
-          title: "Workspace health — governance posture KPIs for the active workspace scope",
+          title: "Workspace health — approval and engagement KPIs for the active workspace scope",
           icon: HeartPulse,
           tier: "extended",
           requiredAuthority: "ReadAuthority",

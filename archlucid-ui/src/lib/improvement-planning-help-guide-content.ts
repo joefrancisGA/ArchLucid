@@ -85,7 +85,7 @@ export const IMPROVEMENT_PLANNING_HELP_OUTPUT_TILE_ITEMS: readonly ImprovementPl
   },
   {
     label: "Findings triage",
-    detail: "Follow linked findings when a plan needs governed disposition follow-up.",
+    detail: "Follow linked findings when a plan needs resolve follow-up.",
     href: GOVERNANCE_FINDINGS_PATH,
   },
 ] as const;
@@ -110,13 +110,13 @@ export const IMPROVEMENT_PLANNING_HELP_GUIDE_HEADINGS: readonly HelpMarkdownHead
   { level: 2, id: "where-to-go-next", title: "Where to go next" },
 ];
 
-/** Drift guard: overview stays positive-only; claim band owns the diligence negation once. */
+/** Drift guard: overview stays positive-only; claim band owns the audit-export negation once. */
 export const IMPROVEMENT_PLANNING_HELP_NEGATION_DRIFT_MARKERS = {
   overviewMustNotContain: [
-    "not a sealed-review diligence",
+    "not a full audit export",
     "sources package",
     "Sources package",
     "derived signal",
   ],
-  claimMustContain: "not a sealed-review diligence sources package",
+  claimMustContain: "not a full audit export",
 } as const;

@@ -27,7 +27,13 @@ import {
   parseQualityAttributeEntries,
   qualityAttributeMeetsMinimum,
   type ArchitectureDraftStructuredBriefState,
+  type IncomingStructuredBriefSuggestions,
 } from "@/lib/architecture/architecture-draft-structured-brief";
+import {
+  buildArchitectureDraftSuggestionSourceText,
+  buildDeterministicStructuredBriefSuggestionsFromText,
+  extractQualityAttributeSuggestionsFromText,
+} from "@/lib/architecture/architecture-draft-structured-brief-suggestions";
 import { OPERATOR_FORM_FIELD_LABEL_CLASS, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   GUIDED_INTAKE_STRUCTURED_BRIEF_FAILURE_MODE_HINT,
@@ -316,7 +322,11 @@ export function ArchitectureDraftStructuredBriefFields(
   };
 
   async function onSuggestFromOverview(): Promise<void> {
-    const freeTextDescription = props.freeTextIntent.trim();
+    const freeTextDescription = buildArchitectureDraftSuggestionSourceText({
+      architectureOverview: props.freeTextIntent,
+      systemName: props.systemName,
+      businessOutcome: props.businessOutcome,
+    }).trim();
 
     if (
       freeTextDescription.length < ARCHITECTURE_REQUEST_DRAFT_MIN_DESCRIPTION_CHARS
@@ -334,19 +344,46 @@ export function ArchitectureDraftStructuredBriefFields(
 
     try {
       const response = await draftArchitectureRequest({ freeTextDescription });
-      const incoming = {
+      const incoming: IncomingStructuredBriefSuggestions = {
         suggestedConstraints: response.suggestedConstraints ?? [],
         suggestedAssumptions: response.suggestedAssumptions ?? [],
         suggestedCapabilities: response.suggestedCapabilities ?? [],
       };
 
-      props.onStructuredBriefChange((current) => applyIncomingStructuredBriefSuggestions(current, incoming).brief);
+      let nextBrief = brief;
+      let addedSuggestionCount = 0;
 
-      const applied = applyIncomingStructuredBriefSuggestions(brief, incoming);
-      setSuggestEmpty(applied.addedSuggestionCount === 0);
-      setSuggestAddedCount(applied.addedSuggestionCount > 0 ? applied.addedSuggestionCount : null);
+      const llmApplied = applyIncomingStructuredBriefSuggestions(nextBrief, incoming);
+      nextBrief = llmApplied.brief;
+      addedSuggestionCount += llmApplied.addedSuggestionCount;
 
-      if (applied.addedSuggestionCount > 0) {
+      const deterministicApplied = applyIncomingStructuredBriefSuggestions(
+        nextBrief,
+        buildDeterministicStructuredBriefSuggestionsFromText(freeTextDescription),
+      );
+      nextBrief = deterministicApplied.brief;
+      addedSuggestionCount += deterministicApplied.addedSuggestionCount;
+
+      const qualitySuggestions = extractQualityAttributeSuggestionsFromText(freeTextDescription);
+
+      if (qualitySuggestions.length > 0) {
+        const existingQuality = parseQualityAttributeEntries(nextBrief.qualityAttribute);
+        const mergedQuality = mergeUniqueStrings(existingQuality, qualitySuggestions);
+
+        if (mergedQuality.length > existingQuality.length) {
+          nextBrief = {
+            ...nextBrief,
+            qualityAttribute: joinQualityAttributeEntries(mergedQuality),
+          };
+          addedSuggestionCount += mergedQuality.length - existingQuality.length;
+        }
+      }
+
+      props.onStructuredBriefChange(nextBrief);
+      setSuggestEmpty(addedSuggestionCount === 0);
+      setSuggestAddedCount(addedSuggestionCount > 0 ? addedSuggestionCount : null);
+
+      if (addedSuggestionCount > 0) {
         window.requestAnimationFrame(() => {
           document.getElementById("architecture-draft-constraints")?.scrollIntoView({
             behavior: "smooth",

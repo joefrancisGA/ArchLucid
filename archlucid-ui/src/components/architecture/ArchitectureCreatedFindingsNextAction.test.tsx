@@ -133,4 +133,17 @@ describe("ArchitectureCreatedFindingsNextAction", () => {
     screen.getByTestId("architecture-findings-activity-primary-action").click();
     expect(onNavigateActivity).toHaveBeenCalledTimes(1);
   });
+
+  it("demotes findings next-action CTAs when Do this next owns the page primary", () => {
+    render(
+      <ArchitectureCreatedFindingsNextAction
+        runId="run-1"
+        findings={[finding({ findingId: "f-high", severityValue: 3, findingOrder: 0 })]}
+        analysisStagesComplete={false}
+        pagePrimaryOwnedElsewhere
+      />,
+    );
+
+    expect(screen.getByTestId("architecture-findings-triage-primary-action")).toHaveClass("border-neutral-300");
+  });
 });

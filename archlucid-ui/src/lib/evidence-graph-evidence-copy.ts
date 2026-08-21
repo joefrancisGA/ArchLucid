@@ -16,7 +16,7 @@ export const EVIDENCE_GRAPH_CLAIM_DISCIPLINE_HEADING = "What the evidence graph 
 export const EVIDENCE_GRAPH_FOLLOW_UPS_TITLE = HUB_SECONDARY_FOLLOW_UPS_TITLES.evidenceGraph;
 
 export const EVIDENCE_GRAPH_CLAIM_DISCIPLINE =
-  "The evidence graph visualizes how evidence connects to findings, decisions, approvals, and audit records for a finalized review — it is not a sealed-review diligence Sources package.";
+  "The evidence graph shows how evidence links to findings, decisions, approvals, and audit records for a finalized review — not a full audit export.";
 
 export const EVIDENCE_GRAPH_SOURCES_INTRO = hubSecondaryFollowUpsIntro(
   "graph exploration needs review intake, search, compare, or evidence-trail methodology",

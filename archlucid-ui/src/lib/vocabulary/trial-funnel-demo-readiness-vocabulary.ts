@@ -15,6 +15,7 @@ import {
   INTERNAL_DEMO_READINESS_PATH,
   INTERNAL_TRIAL_FUNNEL_PATH,
 } from "@/lib/internal-ops-route-paths";
+import type { PairwiseVocabularyRailModel } from "@/lib/vocabulary/create-pairwise-vocabulary-rail";
 
 export type TrialFunnelDemoReadinessSurfaceId = "trial-funnel" | "demo-readiness";
 
@@ -56,14 +57,27 @@ export const TRIAL_FUNNEL_DEMO_READINESS_DEMO_READINESS_LINK: TrialFunnelDemoRea
   whenToUse: "Run employee-only CTO demo diagnostics before a live buyer walkthrough.",
 };
 
-/** Full vocabulary model (heading, why-two copy, and deep links). */
-export function buildTrialFunnelDemoReadinessVocabulary(): TrialFunnelDemoReadinessVocabularyModel {
+/** Pairwise model for Trial funnel ↔ Demo readiness (fixed routes). */
+export function buildTrialFunnelDemoReadinessPairwiseRail(): PairwiseVocabularyRailModel<TrialFunnelDemoReadinessSurfaceId> {
   return {
     heading: TRIAL_FUNNEL_DEMO_READINESS_HEADING,
     whyTwo: TRIAL_FUNNEL_DEMO_READINESS_WHY_TWO,
     compactLine: TRIAL_FUNNEL_DEMO_READINESS_COMPACT_LINE,
-    trialFunnelLink: TRIAL_FUNNEL_DEMO_READINESS_TRIAL_FUNNEL_LINK,
-    demoReadinessLink: TRIAL_FUNNEL_DEMO_READINESS_DEMO_READINESS_LINK,
+    currentLink: TRIAL_FUNNEL_DEMO_READINESS_TRIAL_FUNNEL_LINK,
+    peerLink: TRIAL_FUNNEL_DEMO_READINESS_DEMO_READINESS_LINK,
+  };
+}
+
+/** Full vocabulary model (heading, why-two copy, and deep links). */
+export function buildTrialFunnelDemoReadinessVocabulary(): TrialFunnelDemoReadinessVocabularyModel {
+  const rail = buildTrialFunnelDemoReadinessPairwiseRail();
+
+  return {
+    heading: rail.heading,
+    whyTwo: rail.whyTwo,
+    compactLine: rail.compactLine,
+    trialFunnelLink: rail.currentLink,
+    demoReadinessLink: rail.peerLink,
   };
 }
 

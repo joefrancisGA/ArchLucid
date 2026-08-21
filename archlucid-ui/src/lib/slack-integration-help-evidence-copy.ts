@@ -37,7 +37,7 @@ export const SLACK_INTEGRATION_HELP_SOURCES: readonly EvidenceSourceLinkWithWhen
   {
     label: "Audit",
     href: GOVERNANCE_AUDIT_PATH,
-    when: "Follow governed activity when destination or routing changes need audit context",
+    when: "Follow official activity records when destination or routing changes need audit context",
   },
   {
     label: "How alerts work",

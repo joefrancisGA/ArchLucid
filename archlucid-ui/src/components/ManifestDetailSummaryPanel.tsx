@@ -147,7 +147,7 @@ export function ManifestDetailSummaryPanel(props: ManifestDetailSummaryPanelProp
           <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
             Full decision text is included in the{" "}
             <Link className={OPERATOR_LINK.nav} href={`/architecture/reviews/${summary.runId}`}>
-              governed architecture review export
+              architecture review export
             </Link>{" "}
             and evidence bundle — use the download actions on this page when available.
           </p>

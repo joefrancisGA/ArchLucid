@@ -68,12 +68,12 @@ const PIPELINE_EVENT_BUYER_SUBTITLE: Record<string, string> = {
   RunSubmitted: "Hands off the review for formal review or governance steps.",
   ManifestGenerated: "Produces the versioned review backing decisions and exports.",
   ManifestFinalized:
-    "Finalizes the sealed review record as the authoritative record for decisions, deliverables, and audit.",
+    "Locks the finalized review as the official version used for approvals, exports, and audit history.",
   FindingsSnapshotSealed: "Freezes finding text and severities for traceability and remediation tickets.",
   ArtifactsGenerated: "Materializes sponsor and compliance deliverables attached to the review.",
   GovernanceApprovalRequested:
     "Creates an auditable governance checkpoint before any governed downstream handoff.",
-  "finalize.run": "Finalizes the sealed review record as the authoritative record for decisions, deliverables, and audit.",
+  "finalize.run": "Locks the finalized review as the official version used for approvals, exports, and audit history.",
   "run.finalized": "Closes the review with a durable outcome snapshot for governance and audit.",
   "context.snapshot.created": "Captures the ingested context used to justify findings and graph evidence.",
   "graph.snapshot.created": "Persists the architecture relationship graph used in the evidence trail.",

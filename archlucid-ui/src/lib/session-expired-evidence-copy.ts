@@ -7,7 +7,7 @@ export const SESSION_EXPIRED_CLAIM_DISCIPLINE_HEADING = "What session expired is
 export const SESSION_EXPIRED_FOLLOW_UPS_TITLE = "Where to go next";
 
 export const SESSION_EXPIRED_CLAIM_DISCIPLINE =
-  "This page explains that your ArchLucid session ended and how to sign in again — it is an authentication handoff, not a sealed-review diligence Sources package. After you sign in, open Assurance status or a finalized review when you need live workspace evidence.";
+  "This page explains that your ArchLucid session ended and how to sign in again — sign-in help only, not a full audit export. After you sign in, open Assurance status or a finalized review when you need live evidence.";
 
 export const SESSION_EXPIRED_SOURCES_INTRO =
   "Use these public follow-ups when you need product orientation before signing in again (authenticated workspace routes stay unavailable until you sign in).";

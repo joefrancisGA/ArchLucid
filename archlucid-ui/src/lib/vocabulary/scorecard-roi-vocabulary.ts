@@ -15,6 +15,7 @@
 
 import { ARCHITECTURE_SCORECARD_PATH } from "@/lib/architecture/architecture-scorecard-route";
 import { SPONSOR_REPORT_ROI_SUMMARY_PATH } from "@/lib/sponsor-report-navigation";
+import type { PairwiseVocabularyRailModel } from "@/lib/vocabulary/create-pairwise-vocabulary-rail";
 
 export type ScorecardRoiSurfaceId = "scorecard" | "roi-summary";
 
@@ -37,7 +38,7 @@ export const SCORECARD_ROI_HEADING =
   "Architecture scorecard and ROI summary serve different purposes" as const;
 
 export const SCORECARD_ROI_WHY_TWO =
-  "Architecture scorecard shows pilot operational KPIs and directional savings tiles for the current workspace window. ROI summary shows portfolio KPIs — review-cycle reduction, estimated effort saved, and governance-ready artifacts across the reporting window. Pilot scorecard tiles are not the same as portfolio ROI framing." as const;
+  "Architecture scorecard shows pilot KPIs and directional savings tiles for the current workspace window. ROI summary shows portfolio totals — review-cycle reduction, estimated effort saved, and export-ready artifacts across the reporting window. One pilot scorecard is not the same as portfolio ROI framing." as const;
 
 export const SCORECARD_ROI_COMPACT_LINE =
   "Scorecard is pilot operational KPIs; ROI summary is portfolio framing — open the other when you need both." as const;
@@ -56,14 +57,27 @@ export const SCORECARD_ROI_ROI_SUMMARY_LINK: ScorecardRoiLink = {
   whenToUse: "Review portfolio KPIs for the reporting window.",
 };
 
-/** Full vocabulary model (heading, why-two copy, and deep links). */
-export function buildScorecardRoiVocabulary(): ScorecardRoiVocabularyModel {
+/** Pairwise model for Architecture scorecard ↔ ROI summary (fixed routes). */
+export function buildScorecardRoiPairwiseRail(): PairwiseVocabularyRailModel<ScorecardRoiSurfaceId> {
   return {
     heading: SCORECARD_ROI_HEADING,
     whyTwo: SCORECARD_ROI_WHY_TWO,
     compactLine: SCORECARD_ROI_COMPACT_LINE,
-    scorecardLink: SCORECARD_ROI_SCORECARD_LINK,
-    roiSummaryLink: SCORECARD_ROI_ROI_SUMMARY_LINK,
+    currentLink: SCORECARD_ROI_SCORECARD_LINK,
+    peerLink: SCORECARD_ROI_ROI_SUMMARY_LINK,
+  };
+}
+
+/** Full vocabulary model (heading, why-two copy, and deep links). */
+export function buildScorecardRoiVocabulary(): ScorecardRoiVocabularyModel {
+  const rail = buildScorecardRoiPairwiseRail();
+
+  return {
+    heading: rail.heading,
+    whyTwo: rail.whyTwo,
+    compactLine: rail.compactLine,
+    scorecardLink: rail.currentLink,
+    roiSummaryLink: rail.peerLink,
   };
 }
 

@@ -257,7 +257,10 @@ export function PilotCommandCenterCard(props: PilotCommandCenterCardProps = {}):
               </Button>
             </div>
           ) : null}
-          <OperatorHomeDualPathCards emphasizedPath={emphasizedPath} />
+          <OperatorHomeDualPathCards
+            emphasizedPath={emphasizedPath}
+            pagePrimaryOwnedElsewhere={resumeHref !== null}
+          />
         </div>
       ) : null}
 

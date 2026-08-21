@@ -18,6 +18,7 @@ import {
   GOVERNANCE_ALERTS_PATH,
   GOVERNANCE_FINDINGS_PATH,
 } from "@/lib/governance/governance-route-paths";
+import type { PairwiseVocabularyRailModel } from "@/lib/vocabulary/create-pairwise-vocabulary-rail";
 
 export type AlertsFindingsSurfaceId = "alerts-inbox" | "findings-queue";
 
@@ -39,10 +40,10 @@ export type AlertsFindingsVocabularyModel = {
 export const ALERTS_FINDINGS_HEADING = "Alerts and findings stay separate" as const;
 
 export const ALERTS_FINDINGS_WHY_TWO =
-  "Alerts are raised notifications from rules; the findings queue is the risk-register for disposition. Acknowledge an alert without disposing the finding — or dispose a finding without clearing every related alert. Use both inboxes when triage and disposition both apply." as const;
+  "Alerts are raised notifications from rules. The findings queue is where you resolve underlying risks. You can acknowledge an alert without resolving the finding — use both when triage and resolution both apply." as const;
 
 export const ALERTS_FINDINGS_COMPACT_LINE =
-  "Alerts triage notifications; findings dispose risks — open the other inbox when you need both." as const;
+  "Alerts triage notifications; findings resolve risks — open the other inbox when you need both." as const;
 
 export const ALERTS_FINDINGS_ALERTS_LINK: AlertsFindingsLink = {
   id: "alerts-inbox",
@@ -58,14 +59,27 @@ export const ALERTS_FINDINGS_FINDINGS_LINK: AlertsFindingsLink = {
   whenToUse: "Disposition risks, assign owners, and clear open governance items.",
 };
 
-/** Full vocabulary model (heading, why-two copy, and deep links). */
-export function buildAlertsFindingsVocabulary(): AlertsFindingsVocabularyModel {
+/** Pairwise model for Alerts inbox ↔ Findings queue (fixed governance routes). */
+export function buildAlertsFindingsPairwiseRail(): PairwiseVocabularyRailModel<AlertsFindingsSurfaceId> {
   return {
     heading: ALERTS_FINDINGS_HEADING,
     whyTwo: ALERTS_FINDINGS_WHY_TWO,
     compactLine: ALERTS_FINDINGS_COMPACT_LINE,
-    alertsLink: ALERTS_FINDINGS_ALERTS_LINK,
-    findingsLink: ALERTS_FINDINGS_FINDINGS_LINK,
+    currentLink: ALERTS_FINDINGS_ALERTS_LINK,
+    peerLink: ALERTS_FINDINGS_FINDINGS_LINK,
+  };
+}
+
+/** Full vocabulary model (heading, why-two copy, and deep links). */
+export function buildAlertsFindingsVocabulary(): AlertsFindingsVocabularyModel {
+  const rail = buildAlertsFindingsPairwiseRail();
+
+  return {
+    heading: rail.heading,
+    whyTwo: rail.whyTwo,
+    compactLine: rail.compactLine,
+    alertsLink: rail.currentLink,
+    findingsLink: rail.peerLink,
   };
 }
 

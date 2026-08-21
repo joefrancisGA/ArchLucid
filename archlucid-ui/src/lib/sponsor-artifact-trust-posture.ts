@@ -69,7 +69,7 @@ export function resolveSponsorArtifactTrustPostures(
       postureBadge(
         "estimate",
         "Estimate",
-        "Projected dollar claims are not sponsor-safe — use qualitative ROI or capture buyer-provided baselines first.",
+        "Projected dollar claims are not export-ready — use qualitative ROI or capture buyer-provided baselines first.",
       ),
     );
   } else {
@@ -77,7 +77,7 @@ export function resolveSponsorArtifactTrustPostures(
       postureBadge(
         "evidence-backed",
         "Evidence-backed",
-        "Persisted proof fields attest sponsor-safe ROI basis and strict AI quality posture for this review.",
+        "Persisted proof fields attest export-ready ROI basis and strict AI quality posture for this review.",
       ),
     );
   }

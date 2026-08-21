@@ -2,13 +2,12 @@
 
 import type { JSX } from "react";
 
+import { PairwiseVocabularyRailFromModel } from "@/components/vocabulary/PairwiseVocabularyRailFromModel";
 import {
-  buildSecurityTrustHelpHubVocabulary,
-  resolveSecurityTrustHelpHubPeerLink,
+  buildSecurityTrustHelpHubPairwiseRail,
   type SecurityTrustHelpHubSurfaceId,
   type SecurityTrustHelpHubVocabularyModel,
 } from "@/lib/vocabulary/security-trust-help-hub-vocabulary";
-import { VocabularyRail } from "@/components/vocabulary/VocabularyRail";
 
 export type SecurityTrustHelpHubVocabularyRailProps = {
   readonly currentSurfaceId: SecurityTrustHelpHubSurfaceId;
@@ -21,25 +20,25 @@ export type SecurityTrustHelpHubVocabularyRailProps = {
 export function SecurityTrustHelpHubVocabularyRail(
   props: SecurityTrustHelpHubVocabularyRailProps,
 ): JSX.Element {
-  const model = props.model ?? buildSecurityTrustHelpHubVocabulary();
-  const peer = resolveSecurityTrustHelpHubPeerLink(props.currentSurfaceId);
-  const currentLink =
-    props.currentSurfaceId === "security-trust-help"
-      ? model.securityTrustHelpLink
-      : model.securityTrustHubLink;
+  const pairwiseModel =
+    props.model !== undefined
+      ? {
+          heading: props.model.heading,
+          whyTwo: props.model.whyTwo,
+          compactLine: props.model.compactLine,
+          currentLink: props.model.securityTrustHelpLink,
+          peerLink: props.model.securityTrustHubLink,
+        }
+      : buildSecurityTrustHelpHubPairwiseRail();
 
   return (
-    <VocabularyRail
+    <PairwiseVocabularyRailFromModel
       testIdPrefix="security-trust-help-hub-vocabulary"
       currentSurfaceId={props.currentSurfaceId}
       variant={props.variant}
       className={props.className}
-      compactLine={model.compactLine}
       compactLinkPlacement="inline"
-      heading={model.heading}
-      whyTwo={model.whyTwo}
-      currentLabel={currentLink.label}
-      links={[{ ...peer, testIdSuffix: "peer-link" }]}
+      model={pairwiseModel}
     />
   );
 }

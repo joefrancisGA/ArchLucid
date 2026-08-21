@@ -15,6 +15,7 @@ import {
   SETTINGS_USERS_ROLES_TAB_PATH,
   SETTINGS_USERS_USERS_TAB_PATH,
 } from "@/lib/settings-admin-route-paths";
+import type { PairwiseVocabularyRailModel } from "@/lib/vocabulary/create-pairwise-vocabulary-rail";
 
 export type CustomRolesUsersSurfaceId = "custom-roles" | "users";
 
@@ -56,14 +57,27 @@ export const CUSTOM_ROLES_USERS_USERS_LINK: CustomRolesUsersLink = {
   whenToUse: "Invite people, review members, and manage pending invitations.",
 };
 
-/** Full vocabulary model (heading, why-two copy, and deep links). */
-export function buildCustomRolesUsersVocabulary(): CustomRolesUsersVocabularyModel {
+/** Pairwise model for Custom roles ↔ Users people (fixed routes). */
+export function buildCustomRolesUsersPairwiseRail(): PairwiseVocabularyRailModel<CustomRolesUsersSurfaceId> {
   return {
     heading: CUSTOM_ROLES_USERS_HEADING,
     whyTwo: CUSTOM_ROLES_USERS_WHY_TWO,
     compactLine: CUSTOM_ROLES_USERS_COMPACT_LINE,
-    customRolesLink: CUSTOM_ROLES_USERS_CUSTOM_ROLES_LINK,
-    usersLink: CUSTOM_ROLES_USERS_USERS_LINK,
+    currentLink: CUSTOM_ROLES_USERS_CUSTOM_ROLES_LINK,
+    peerLink: CUSTOM_ROLES_USERS_USERS_LINK,
+  };
+}
+
+/** Full vocabulary model (heading, why-two copy, and deep links). */
+export function buildCustomRolesUsersVocabulary(): CustomRolesUsersVocabularyModel {
+  const rail = buildCustomRolesUsersPairwiseRail();
+
+  return {
+    heading: rail.heading,
+    whyTwo: rail.whyTwo,
+    compactLine: rail.compactLine,
+    customRolesLink: rail.currentLink,
+    usersLink: rail.peerLink,
   };
 }
 

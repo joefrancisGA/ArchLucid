@@ -23,7 +23,7 @@ describe("alerts-findings-vocabulary (TB-2319)", () => {
     expect(model.heading.toLowerCase()).toContain("findings");
     expect(model.whyTwo).toBe(ALERTS_FINDINGS_WHY_TWO);
     expect(model.whyTwo.toLowerCase()).toContain("acknowledge");
-    expect(model.whyTwo.toLowerCase()).toContain("disposition");
+    expect(model.whyTwo.toLowerCase()).toContain("resolve");
     expect(model.compactLine).toBe(ALERTS_FINDINGS_COMPACT_LINE);
 
     expect(model.alertsLink).toEqual(ALERTS_FINDINGS_ALERTS_LINK);

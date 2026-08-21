@@ -126,7 +126,7 @@ export function ReviewsHubRecentPackages(props: ReviewsHubRecentPackagesProps): 
             {REVIEWS_HUB_RECENT_EMPTY_BODY}
           </p>
           <div className="mt-4">
-            <Button variant="primary" size="sm" asChild>
+            <Button variant="outline" size="sm" asChild>
               <Link href="/architecture/reviews/new" data-testid="reviews-hub-recent-empty-start-review">
                 {REVIEWS_HUB_RECENT_EMPTY_PRIMARY_LABEL}
               </Link>

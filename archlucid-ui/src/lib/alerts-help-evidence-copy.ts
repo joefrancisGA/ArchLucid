@@ -7,7 +7,7 @@ export const ALERTS_HELP_CANONICAL_PATH = "/help/alerts" as const;
 export const ALERTS_HELP_CLAIM_DISCIPLINE_HEADING = "What this guide does not cover";
 
 export const ALERTS_HELP_CLAIM_DISCIPLINE =
-  "This guide explains how notifications are raised and routed — open Alert rules, the alerts inbox, or Audit when you need live configuration or governed trails.";
+  "This guide explains how notifications are raised and routed — open Alert rules, the alerts inbox, or Audit when you need live configuration or activity records.";
 
 export const ALERTS_HELP_FOLLOW_UPS_TITLE = "Where to go next";
 

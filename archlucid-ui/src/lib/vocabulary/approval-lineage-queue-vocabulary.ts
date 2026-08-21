@@ -14,6 +14,7 @@
 
 import { GOVERNANCE_APPROVAL_QUEUE_PATH } from "@/lib/governance/governance-route-paths";
 import { governanceApprovalRequestParentHref } from "@/lib/governance/governance-lineage-presentation";
+import type { PairwiseVocabularyRailModel } from "@/lib/vocabulary/create-pairwise-vocabulary-rail";
 
 export type ApprovalLineageQueueSurfaceId = "approval-lineage" | "approval-queue";
 
@@ -36,7 +37,7 @@ export const APPROVAL_LINEAGE_QUEUE_HEADING =
   "Approval lineage and Approval queue serve different purposes" as const;
 
 export const APPROVAL_LINEAGE_QUEUE_WHY_TWO =
-  "Approval lineage links one approval request to its architecture review, findings, and sealed review record version — a governance linkage view. The approval queue is the decision workflow to submit, approve, or reject requests. Lineage is not the queue." as const;
+  "Approval lineage shows what review, findings, and sealed review record version one approval request is tied to. The approval queue is where you submit, approve, or reject requests. Lineage is not the queue." as const;
 
 export const APPROVAL_LINEAGE_QUEUE_COMPACT_LINE =
   "Lineage links one approval request; the queue is the decision workflow — open the other when you need both." as const;
@@ -56,14 +57,27 @@ export const APPROVAL_LINEAGE_QUEUE_QUEUE_LINK: ApprovalLineageQueueLink = {
   whenToUse: "Submit, approve, or reject governance approval requests.",
 };
 
-/** Full vocabulary model (heading, why-two copy, and deep links). */
-export function buildApprovalLineageQueueVocabulary(): ApprovalLineageQueueVocabularyModel {
+/** Pairwise model for Approval lineage ↔ Approval queue (fixed governance routes). */
+export function buildApprovalLineageQueuePairwiseRail(): PairwiseVocabularyRailModel<ApprovalLineageQueueSurfaceId> {
   return {
     heading: APPROVAL_LINEAGE_QUEUE_HEADING,
     whyTwo: APPROVAL_LINEAGE_QUEUE_WHY_TWO,
     compactLine: APPROVAL_LINEAGE_QUEUE_COMPACT_LINE,
-    lineageLink: APPROVAL_LINEAGE_QUEUE_LINEAGE_LINK,
-    queueLink: APPROVAL_LINEAGE_QUEUE_QUEUE_LINK,
+    currentLink: APPROVAL_LINEAGE_QUEUE_LINEAGE_LINK,
+    peerLink: APPROVAL_LINEAGE_QUEUE_QUEUE_LINK,
+  };
+}
+
+/** Full vocabulary model (heading, why-two copy, and deep links). */
+export function buildApprovalLineageQueueVocabulary(): ApprovalLineageQueueVocabularyModel {
+  const rail = buildApprovalLineageQueuePairwiseRail();
+
+  return {
+    heading: rail.heading,
+    whyTwo: rail.whyTwo,
+    compactLine: rail.compactLine,
+    lineageLink: rail.currentLink,
+    queueLink: rail.peerLink,
   };
 }
 

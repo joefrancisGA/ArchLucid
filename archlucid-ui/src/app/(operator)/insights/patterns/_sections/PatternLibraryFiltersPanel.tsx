@@ -116,7 +116,7 @@ export function PatternLibraryFiltersPanel(props: PatternLibraryFiltersPanelProp
         />
         <FilterSelect
           id="pattern-filter-governance"
-          label="Governance posture"
+          label="Approval impact"
           value={filters.governance}
           options={[
             "All governance",

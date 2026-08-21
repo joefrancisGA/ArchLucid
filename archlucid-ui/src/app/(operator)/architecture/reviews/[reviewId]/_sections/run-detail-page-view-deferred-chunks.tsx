@@ -1,7 +1,5 @@
 "use client";
 
-import dynamic from "next/dynamic";
-
 import { DeferredChunkLoading, DEFERRED_CHUNK_LOADING_SURFACE_CLASS } from "@/components/ui/deferred-chunk-loading";
 import { createDeferredComponentFromManifest } from "@/lib/operator/load-deferred-chunk-from-manifest";
 import { RunDetailExplanationSkeleton } from "./RunDetailDeferredSkeleton";
@@ -33,83 +31,69 @@ export const RunDetailTechnologyBaselineSection = createDeferredComponentFromMan
   },
 );
 
-export const RunDetailHolisticCriticPanelDeferred = dynamic(
-  () => import("./RunDetailHolisticCriticPanel").then((module) => module.RunDetailHolisticCriticPanel),
-  { ssr: false, loading: () => null },
+export const RunDetailHolisticCriticPanelDeferred = createDeferredComponentFromManifest(
+  "run-detail-holistic-critic-panel",
+  { suppressLoading: true },
 );
 
-export const RunDetailExportDeliverableDialog = dynamic(
-  () =>
-    import("@/components/usability/ExportDeliverableDialog").then(
-      (module) => module.ExportDeliverableDialog,
-    ),
-  { ssr: false, loading: () => null },
+export const RunDetailExportDeliverableDialog = createDeferredComponentFromManifest(
+  "run-detail-export-deliverable-dialog",
+  { suppressLoading: true },
 );
 
-export const RunDetailGenerateAdrFromRunModal = dynamic(
-  () => import("@/components/GenerateAdrFromRunModal").then((module) => module.GenerateAdrFromRunModal),
-  { ssr: false, loading: () => null },
+export const RunDetailGenerateAdrFromRunModal = createDeferredComponentFromManifest(
+  "run-detail-generate-adr-from-run-modal",
+  { suppressLoading: true },
 );
 
-export const RunDetailCompareToBaselineCta = dynamic(
-  () => import("@/components/CompareToBaselineCta").then((module) => module.CompareToBaselineCta),
-  {
-    ssr: false,
-    loading: () => runDetailDeferredLoading("Loading compare to baseline", "h-9 w-44"),
-  },
+export const RunDetailCompareToBaselineCta = createDeferredComponentFromManifest(
+  "run-detail-compare-to-baseline-cta",
+  { loadingClassName: "h-9 w-44" },
 );
 
-export const RunDetailEstimatedLlmCostCardDeferred = dynamic(
-  () => import("@/components/runs/RunEstimatedLlmCostCard").then((module) => module.RunEstimatedLlmCostCard),
-  { ssr: false, loading: () => null },
+export const RunDetailEstimatedLlmCostCardDeferred = createDeferredComponentFromManifest(
+  "run-detail-estimated-llm-cost-card",
+  { suppressLoading: true },
 );
 
-export const RunDetailAgentResultsSummaryCardDeferred = dynamic(
-  () => import("@/components/runs/RunAgentResultsSummaryCard").then((module) => module.RunAgentResultsSummaryCard),
-  { ssr: false, loading: () => null },
+export const RunDetailAgentResultsSummaryCardDeferred = createDeferredComponentFromManifest(
+  "run-detail-agent-results-summary-card",
+  { suppressLoading: true },
 );
 
-export const RunDetailReviewAgentExecutionLogSectionDeferred = dynamic(
-  () =>
-    import("@/components/reviews/ReviewAgentExecutionLogSection").then(
-      (module) => module.ReviewAgentExecutionLogSection,
-    ),
-  { ssr: false, loading: () => null },
+export const RunDetailReviewAgentExecutionLogSectionDeferred = createDeferredComponentFromManifest(
+  "run-detail-review-agent-execution-log-section",
+  { suppressLoading: true },
 );
 
-export const RunDetailRetrievalGroundingSummaryCardDeferred = dynamic(
-  () =>
-    import("@/components/runs/RunRetrievalGroundingSummaryCard").then(
-      (module) => module.RunRetrievalGroundingSummaryCard,
-    ),
-  { ssr: false, loading: () => null },
+export const RunDetailRetrievalGroundingSummaryCardDeferred = createDeferredComponentFromManifest(
+  "run-detail-retrieval-grounding-summary-card",
+  { suppressLoading: true },
 );
 
-export const RunDetailRunMetadataSectionDeferred = dynamic(
-  () =>
-    import("./RunDetailRunMetadataSection").then((module) => module.RunDetailRunMetadataSection),
-  { ssr: false, loading: () => null },
+export const RunDetailRunMetadataSectionDeferred = createDeferredComponentFromManifest(
+  "run-detail-run-metadata-section",
+  { suppressLoading: true },
 );
 
-export const RunDetailLastFailureCardDeferred = dynamic(
-  () => import("@/components/runs/RunDetailLastFailureCard").then((module) => module.RunDetailLastFailureCard),
-  { ssr: false, loading: () => null },
+export const RunDetailLastFailureCardDeferred = createDeferredComponentFromManifest(
+  "run-detail-last-failure-card",
+  { suppressLoading: true },
 );
 
-export const RunDetailProgressTrackerDeferred = dynamic(
-  () => import("@/components/runs/RunProgressTracker").then((module) => module.RunProgressTracker),
-  { ssr: false, loading: () => null },
+export const RunDetailProgressTrackerDeferred = createDeferredComponentFromManifest(
+  "run-detail-progress-tracker",
+  { suppressLoading: true },
 );
 
-export const RunDetailTrustEvidenceCardSectionDeferred = dynamic(
-  () =>
-    import("@/components/runs/RunTrustEvidenceCardSection").then((module) => module.RunTrustEvidenceCardSection),
-  { ssr: false, loading: () => null },
+export const RunDetailTrustEvidenceCardSectionDeferred = createDeferredComponentFromManifest(
+  "run-detail-trust-evidence-card-section",
+  { suppressLoading: true },
 );
 
-export const RunDetailSampleReviewPackageSummaryDeferred = dynamic(
-  () => import("@/components/SampleReviewPackageSummary").then((module) => module.SampleReviewPackageSummary),
-  { ssr: false, loading: () => null },
+export const RunDetailSampleReviewPackageSummaryDeferred = createDeferredComponentFromManifest(
+  "run-detail-sample-review-package-summary",
+  { suppressLoading: true },
 );
 
 /** TB-2021 remainder — create-home workspace off sync First Load JS. */
@@ -118,105 +102,69 @@ export const RunDetailArchitectureCreatedWorkspaceDeferred = createDeferredCompo
   { suppressLoading: true },
 );
 
-export const RunDetailArchitectureCreateWorkItemSectionDeferred = dynamic(
-  () =>
-    import("@/components/architecture/ArchitectureCreateWorkItemSection").then(
-      (module) => module.ArchitectureCreateWorkItemSection,
-    ),
-  { ssr: false, loading: () => null },
+export const RunDetailArchitectureCreateWorkItemSectionDeferred = createDeferredComponentFromManifest(
+  "run-detail-architecture-create-work-item-section",
+  { suppressLoading: true },
 );
 
-export const RunDetailArchitectureSponsorSharingPanelDeferred = dynamic(
-  () =>
-    import("@/components/architecture/ArchitectureSponsorSharingPanel").then(
-      (module) => module.ArchitectureSponsorSharingPanel,
-    ),
-  { ssr: false, loading: () => null },
+export const RunDetailArchitectureSponsorSharingPanelDeferred = createDeferredComponentFromManifest(
+  "run-detail-architecture-sponsor-sharing-panel",
+  { suppressLoading: true },
 );
 
-export const RunDetailFirstWeekRouteGuidanceDeferred = dynamic(
-  () => import("@/components/FirstWeekRouteGuidance").then((module) => module.FirstWeekRouteGuidance),
-  { ssr: false, loading: () => null },
+export const RunDetailFirstWeekRouteGuidanceDeferred = createDeferredComponentFromManifest(
+  "run-detail-first-week-route-guidance",
+  { suppressLoading: true },
 );
 
-export const RunDetailColdOpenOrientationDeferred = dynamic(
-  () =>
-    import("@/components/reviews/RunDetailColdOpenOrientationClient").then(
-      (module) => module.RunDetailColdOpenOrientationClient,
-    ),
-  { ssr: false, loading: () => null },
+export const RunDetailColdOpenOrientationDeferred = createDeferredComponentFromManifest(
+  "run-detail-cold-open-orientation",
+  { suppressLoading: true },
 );
 
-export const RunDetailExplanationConfidenceBannerDeferred = dynamic(
-  () =>
-    import("@/components/runs/RunExplanationConfidenceBanner").then(
-      (module) => module.RunExplanationConfidenceBanner,
-    ),
-  { ssr: false, loading: () => null },
+export const RunDetailExplanationConfidenceBannerDeferred = createDeferredComponentFromManifest(
+  "run-detail-explanation-confidence-banner",
+  { suppressLoading: true },
 );
 
-export const RunDetailGovernanceAlertsDeferred = dynamic(
-  () =>
-    import("@/components/reviews/RunDetailGovernanceAlerts").then(
-      (module) => module.RunDetailGovernanceAlerts,
-    ),
-  { ssr: false, loading: () => null },
+export const RunDetailGovernanceAlertsDeferred = createDeferredComponentFromManifest(
+  "run-detail-governance-alerts",
+  { suppressLoading: true },
 );
-
-const outcomeCardsLoading = runDetailDeferredLoading("Loading outcome cards", "h-40");
 
 /** Activity-tab / details-gated outcome cards — not needed for first paint (TB-933). */
-export const RunDetailOutcomeCardsDeferred = dynamic(
-  () => import("@/components/runs/RunDetailOutcomeCards").then((module) => module.RunDetailOutcomeCards),
-  { ssr: false, loading: () => outcomeCardsLoading },
+export const RunDetailOutcomeCardsDeferred = createDeferredComponentFromManifest("run-detail-outcome-cards", {
+  loadingClassName: "h-40",
+});
+
+export const RunDetailWhatIfBranchCompareBannerDeferred = createDeferredComponentFromManifest(
+  "run-detail-what-if-branch-compare-banner",
+  { suppressLoading: true },
 );
 
-export const RunDetailWhatIfBranchCompareBannerDeferred = dynamic(
-  () =>
-    import("@/components/draft-intake/WhatIfBranchCompareBanner").then(
-      (module) => module.WhatIfBranchCompareBanner,
-    ),
-  { ssr: false, loading: () => null },
+export const RunDetailCommitBlockingFindingsBannerDeferred = createDeferredComponentFromManifest(
+  "run-detail-commit-blocking-findings-banner",
+  { suppressLoading: true },
 );
 
-export const RunDetailCommitBlockingFindingsBannerDeferred = dynamic(
-  () =>
-    import("@/components/usability/CommitBlockingFindingsBanner").then(
-      (module) => module.CommitBlockingFindingsBanner,
-    ),
-  { ssr: false, loading: () => null },
+export const RunDetailStalledReviewGuidanceCalloutDeferred = createDeferredComponentFromManifest(
+  "run-detail-stalled-review-guidance-callout",
+  { suppressLoading: true },
 );
 
-export const RunDetailStalledReviewGuidanceCalloutDeferred = dynamic(
-  () =>
-    import("@/components/usability/StalledReviewGuidanceCallout").then(
-      (module) => module.StalledReviewGuidanceCallout,
-    ),
-  { ssr: false, loading: () => null },
+export const RunDetailCtoDemoReviewRouteGuardDeferred = createDeferredComponentFromManifest(
+  "run-detail-cto-demo-review-route-guard",
+  { suppressLoading: true },
 );
 
-export const RunDetailCtoDemoReviewRouteGuardDeferred = dynamic(
-  () =>
-    import("@/components/cto-demo/CtoDemoReviewRouteGuard").then(
-      (module) => module.CtoDemoReviewRouteGuard,
-    ),
-  { ssr: false, loading: () => null },
+export const RunDetailPolicyPackImpactCalloutDeferred = createDeferredComponentFromManifest(
+  "run-detail-policy-pack-impact-callout",
+  { suppressLoading: true },
 );
 
-export const RunDetailPolicyPackImpactCalloutDeferred = dynamic(
-  () =>
-    import("@/components/findings/ReviewDetailPolicyPackImpactSection").then(
-      (module) => module.ReviewDetailPolicyPackImpactSection,
-    ),
-  { ssr: false, loading: () => null },
-);
-
-export const RunDetailOperatorTechnicalForensicsPanelDeferred = dynamic(
-  () =>
-    import("./RunDetailOperatorTechnicalForensicsPanel").then(
-      (module) => module.RunDetailOperatorTechnicalForensicsPanel,
-    ),
-  { ssr: false, loading: () => null },
+export const RunDetailOperatorTechnicalForensicsPanelDeferred = createDeferredComponentFromManifest(
+  "run-detail-operator-technical-forensics",
+  { suppressLoading: true },
 );
 
 const artifactsExportsLoading = (
@@ -226,12 +174,11 @@ const artifactsExportsLoading = (
 );
 
 /** TB-2021 — export button cluster is tab/Evidence-gated; keep off sync First Load JS. */
-export const RunDetailArtifactsExportsSectionDeferred = dynamic(
-  () =>
-    import("./RunDetailArtifactsExportsSection").then(
-      (module) => module.RunDetailArtifactsExportsSection,
-    ),
-  { ssr: false, loading: () => artifactsExportsLoading },
+export const RunDetailArtifactsExportsSectionDeferred = createDeferredComponentFromManifest(
+  "run-detail-artifacts-exports-section",
+  {
+    loadingWrapper: () => artifactsExportsLoading,
+  },
 );
 
 const workspaceShellLoading = (
@@ -260,152 +207,125 @@ const workspaceHeaderLoading = (
   </header>
 );
 
-const workspaceSummaryLoading = runDetailDeferredLoading("Loading decision snapshot", "h-48");
-
-const workspaceStickyActionsLoading = runDetailDeferredLoading(
-  "Loading review actions",
-  "h-14",
-  "hidden rounded-lg dark:bg-neutral-900/40 lg:block",
-);
-
-const sectionNavLoading = runDetailDeferredLoading("Loading section navigation", "h-10");
-
-const executiveBottomLineLoading = runDetailDeferredLoading("Loading sponsor report", "h-40");
-
 /** TB-2117 — workspace identity chrome off sync First Load JS. */
-export const RunDetailWorkspaceHeaderDeferred = dynamic(
-  () => import("./RunDetailWorkspaceChrome").then((module) => module.RunDetailWorkspaceHeader),
-  { ssr: false, loading: () => workspaceHeaderLoading },
+export const RunDetailWorkspaceHeaderDeferred = createDeferredComponentFromManifest(
+  "run-detail-workspace-header",
+  {
+    loadingWrapper: () => workspaceHeaderLoading,
+  },
 );
 
-export const RunDetailWorkspaceSummaryStripDeferred = dynamic(
-  () =>
-    import("./RunDetailWorkspaceSummaryStripTabAware").then(
-      (module) => module.RunDetailWorkspaceSummaryStripTabAware,
-    ),
-  { ssr: false, loading: () => workspaceSummaryLoading },
+export const RunDetailWorkspaceSummaryStripDeferred = createDeferredComponentFromManifest(
+  "run-detail-workspace-summary-strip",
+  { loadingClassName: "h-48" },
 );
 
-export const RunDetailWorkspaceBlockingBannerDeferred = dynamic(
-  () => import("./RunDetailWorkspaceChrome").then((module) => module.RunDetailWorkspaceBlockingBanner),
-  { ssr: false, loading: () => null },
+export const RunDetailWorkspaceBlockingBannerDeferred = createDeferredComponentFromManifest(
+  "run-detail-workspace-blocking-banner",
+  { suppressLoading: true },
 );
 
-export const RunDetailWorkspaceStickyActionsDeferred = dynamic(
-  () => import("./RunDetailWorkspaceStickyActions").then((module) => module.RunDetailWorkspaceStickyActions),
-  { ssr: false, loading: () => workspaceStickyActionsLoading },
+export const RunDetailWorkspaceStickyActionsDeferred = createDeferredComponentFromManifest(
+  "run-detail-workspace-sticky-actions",
+  {
+    loadingClassName: "h-14 hidden rounded-lg dark:bg-neutral-900/40 lg:block",
+  },
 );
 
-export const RunDetailSectionNavDeferred = dynamic(
-  () => import("@/components/runs/RunDetailSectionNav").then((module) => module.RunDetailSectionNav),
-  { ssr: false, loading: () => sectionNavLoading },
+export const RunDetailSectionNavDeferred = createDeferredComponentFromManifest("run-detail-section-nav", {
+  loadingClassName: "h-10",
+});
+
+export const RunDetailTabbedSectionNavDeferred = createDeferredComponentFromManifest(
+  "run-detail-tabbed-section-nav",
+  { loadingClassName: "h-10" },
 );
 
-export const RunDetailTabbedSectionNavDeferred = dynamic(
-  () => import("@/components/runs/RunDetailTabbedSectionNav").then((module) => module.RunDetailTabbedSectionNav),
-  { ssr: false, loading: () => sectionNavLoading },
+export const BeforeAfterDeltaPanelDeferred = createDeferredComponentFromManifest(
+  "run-detail-before-after-delta-panel",
+  { suppressLoading: true },
 );
 
-export const BeforeAfterDeltaPanelDeferred = dynamic(
-  () => import("@/components/BeforeAfterDeltaPanel").then((module) => module.BeforeAfterDeltaPanel),
-  { loading: () => null },
+export const RecurrenceSchedulePostCommitCardDeferred = createDeferredComponentFromManifest(
+  "run-detail-recurrence-schedule-post-commit-card",
+  { suppressLoading: true },
 );
 
-export const RecurrenceSchedulePostCommitCardDeferred = dynamic(
-  () =>
-    import("@/components/governance/RecurrenceSchedulePostCommitCard").then(
-      (module) => module.RecurrenceSchedulePostCommitCard,
-    ),
-  { loading: () => null },
+export const RunDetailRetrievalGroundingSectionDeferred = createDeferredComponentFromManifest(
+  "run-detail-retrieval-grounding-section",
+  { suppressLoading: true },
 );
 
-export const RunDetailRetrievalGroundingSectionDeferred = dynamic(
-  () =>
-    import("./RunDetailRetrievalGroundingSection").then(
-      (module) => module.RunDetailRetrievalGroundingSection,
-    ),
-  { loading: () => null },
+export const RunDetailAdvancedAnalysisSectionDeferred = createDeferredComponentFromManifest(
+  "run-detail-advanced-analysis-section",
+  { suppressLoading: true },
 );
 
-export const RunDetailAdvancedAnalysisSectionDeferred = dynamic(
-  () =>
-    import("./RunDetailAdvancedAnalysisSection").then((module) => module.RunDetailAdvancedAnalysisSection),
-  { loading: () => null },
+export const RunDetailSponsorBottomLineDeferred = createDeferredComponentFromManifest(
+  "run-detail-sponsor-bottom-line",
+  { loadingClassName: "h-40" },
 );
 
-export const RunDetailSponsorBottomLineDeferred = dynamic(
-  () => import("./RunDetailSponsorBottomLine").then((module) => module.RunDetailSponsorBottomLine),
-  { ssr: false, loading: () => executiveBottomLineLoading },
+export const RunDetailSponsorReportCtaCardDeferred = createDeferredComponentFromManifest(
+  "run-detail-sponsor-report-cta-card",
+  { suppressLoading: true },
 );
 
-export const RunDetailSponsorReportCtaCardDeferred = dynamic(
-  () =>
-    import("./RunDetailExecutiveSummaryCtaCard").then((module) => module.RunDetailSponsorReportCtaCard),
-  { ssr: false, loading: () => null },
+export const ReviewPackagePrimaryActionDeferred = createDeferredComponentFromManifest(
+  "run-detail-review-package-primary-action",
+  { suppressLoading: true },
 );
 
-export const ReviewPackagePrimaryActionDeferred = dynamic(
-  () =>
-    import("./ReviewPackagePrimaryActionTabAware").then((module) => module.ReviewPackagePrimaryActionTabAware),
-  { ssr: false, loading: () => null },
+export const ReviewPackageSponsorHandoffStripDeferred = createDeferredComponentFromManifest(
+  "run-detail-review-package-sponsor-handoff-strip",
+  { suppressLoading: true },
 );
 
-export const ReviewPackageSponsorHandoffStripDeferred = dynamic(
-  () =>
-    import("./ReviewPackageSponsorHandoffStrip").then((module) => module.ReviewPackageSponsorHandoffStrip),
-  { ssr: false, loading: () => null },
+export const ReviewPackageDoThisNextStripDeferred = createDeferredComponentFromManifest(
+  "run-detail-review-package-do-this-next-strip",
+  { suppressLoading: true },
 );
 
-export const ReviewPackageDoThisNextStripDeferred = dynamic(
-  () => import("./ReviewPackageDoThisNextStrip").then((module) => module.ReviewPackageDoThisNextStrip),
-  { ssr: false, loading: () => null },
+export const RunDetailGovernanceDecisionSectionDeferred = createDeferredComponentFromManifest(
+  "run-detail-governance-decision-section",
+  {
+    loadingWrapper: (_loading) => <RunDetailExplanationSkeleton />,
+  },
 );
 
-export const RunDetailGovernanceDecisionSectionDeferred = dynamic(
-  () =>
-    import("./RunDetailGovernanceDecisionSection").then((module) => module.RunDetailGovernanceDecisionSection),
-  { ssr: false, loading: () => <RunDetailExplanationSkeleton /> },
+export const RunDetailReviewPackageSectionDeferred = createDeferredComponentFromManifest(
+  "run-detail-review-package-section",
+  { suppressLoading: true },
 );
 
-export const RunDetailReviewPackageSectionDeferred = dynamic(
-  () => import("./RunDetailReviewPackageSection").then((module) => module.RunDetailReviewPackageSection),
-  { ssr: false, loading: () => null },
+export const RunDetailSubmittedArchitectureSectionDeferred = createDeferredComponentFromManifest(
+  "run-detail-submitted-architecture-section",
+  { suppressLoading: true },
 );
 
-export const RunDetailSubmittedArchitectureSectionDeferred = dynamic(
-  () =>
-    import("./RunDetailSubmittedArchitectureSection").then(
-      (module) => module.RunDetailSubmittedArchitectureSection,
-    ),
-  { ssr: false, loading: () => null },
+export const RunDetailGovernanceCtaDeferred = createDeferredComponentFromManifest(
+  "run-detail-governance-cta",
+  { suppressLoading: true },
 );
 
-export const RunDetailGovernanceCtaDeferred = dynamic(
-  () => import("./RunDetailGovernanceCta").then((module) => module.RunDetailGovernanceCta),
-  { ssr: false, loading: () => null },
+export const RunDetailCaptureEvidenceSectionDeferred = createDeferredComponentFromManifest(
+  "run-detail-capture-evidence-section",
+  { suppressLoading: true },
 );
 
-export const RunDetailCaptureEvidenceSectionDeferred = dynamic(
-  () => import("./RunDetailCaptureEvidenceSection").then((module) => module.RunDetailCaptureEvidenceSection),
-  { ssr: false, loading: () => null },
+export const RunDetailManifestSummarySectionDeferred = createDeferredComponentFromManifest(
+  "run-detail-manifest-summary-section",
+  { suppressLoading: true },
 );
 
-export const RunDetailManifestSummarySectionDeferred = dynamic(
-  () => import("./RunDetailManifestSummarySection").then((module) => module.RunDetailManifestSummarySection),
-  { ssr: false, loading: () => null },
+export const RunDetailBuyerPilotConversionSectionDeferred = createDeferredComponentFromManifest(
+  "run-detail-buyer-pilot-conversion-section",
+  { suppressLoading: true },
 );
 
-export const RunDetailBuyerPilotConversionSectionDeferred = dynamic(
-  () =>
-    import("./RunDetailBuyerPilotConversionSection").then(
-      (module) => module.RunDetailBuyerPilotConversionSection,
-    ),
-  { ssr: false, loading: () => null },
-);
-
-export const RunDetailBuyerModeFallbackBannerDeferred = dynamic(
-  () => import("./RunDetailBuyerModeFallbackBanner").then((module) => module.RunDetailBuyerModeFallbackBanner),
-  { ssr: false, loading: () => null },
+export const RunDetailBuyerModeFallbackBannerDeferred = createDeferredComponentFromManifest(
+  "run-detail-buyer-mode-fallback-banner",
+  { suppressLoading: true },
 );
 
 /** TB-2142 — evidence tab scope/inventory cluster off sync First Load JS. */
@@ -414,41 +334,35 @@ export const RunDetailEvidenceTabPanelDeferred = createDeferredComponentFromMani
 });
 
 /** TB-2142 — post-finalize share/export row off sync First Load JS. */
-export const RunDetailReviewPackageShareRowDeferred = dynamic(
-  () => import("./RunDetailReviewPackageShareRow").then((module) => module.RunDetailReviewPackageShareRow),
-  { ssr: false, loading: () => null },
+export const RunDetailReviewPackageShareRowDeferred = createDeferredComponentFromManifest(
+  "run-detail-review-package-share-row",
+  { suppressLoading: true },
 );
 
 /** TB-2142 — demo marketing chrome off sync First Load JS. */
-export const RunDetailDemoMarketingChromeDeferred = dynamic(
-  () => import("./RunDetailDemoMarketingChrome").then((module) => module.RunDetailDemoMarketingChrome),
-  { ssr: false, loading: () => null },
+export const RunDetailDemoMarketingChromeDeferred = createDeferredComponentFromManifest(
+  "run-detail-demo-marketing-chrome",
+  { suppressLoading: true },
 );
 
-export const RunDetailManifestSummaryAlertsDeferred = dynamic(
-  () => import("./RunDetailManifestSummaryAlerts").then((module) => module.RunDetailManifestSummaryAlerts),
-  { ssr: false, loading: () => null },
+export const RunDetailManifestSummaryAlertsDeferred = createDeferredComponentFromManifest(
+  "run-detail-manifest-summary-alerts",
+  { suppressLoading: true },
 );
 
-export const RunDetailRunActionsSectionDeferred = dynamic(
-  () => import("./RunDetailRunActionsSection").then((module) => module.RunDetailRunActionsSection),
-  { ssr: false, loading: () => null },
+export const RunDetailRunActionsSectionDeferred = createDeferredComponentFromManifest(
+  "run-detail-run-actions-section",
+  { suppressLoading: true },
 );
 
-export const HelpPageSituationRegistrarDeferred = dynamic(
-  () =>
-    import("@/components/help/HelpPageSituationRegistrar").then(
-      (module) => module.HelpPageSituationRegistrar,
-    ),
-  { ssr: false, loading: () => null },
+export const HelpPageSituationRegistrarDeferred = createDeferredComponentFromManifest(
+  "run-detail-help-page-situation-registrar",
+  { suppressLoading: true },
 );
 
-export const ReviewGenerationCreatedNoticeDeferred = dynamic(
-  () =>
-    import("@/components/review-intake/ReviewGenerationCreatedNotice").then(
-      (module) => module.ReviewGenerationCreatedNotice,
-    ),
-  { ssr: false, loading: () => null },
+export const ReviewGenerationCreatedNoticeDeferred = createDeferredComponentFromManifest(
+  "run-detail-review-generation-created-notice",
+  { suppressLoading: true },
 );
 
 /** Perf wave 8 — below-fold forensics/pipeline/provenance cluster off sync First Load JS. */
@@ -479,12 +393,9 @@ export const RunDetailRunExplanationCollapsibleDeferred = createDeferredComponen
 );
 
 /** Perf wave 12 — sponsor walkthrough destination off sync First Load JS. */
-export const GoldenSponsorPackageWalkthroughDestinationDeferred = dynamic(
-  () =>
-    import("@/components/golden-walkthrough/GoldenSponsorPackageWalkthroughDestination").then(
-      (module) => module.GoldenSponsorPackageWalkthroughDestination,
-    ),
-  { ssr: false, loading: () => null },
+export const GoldenSponsorPackageWalkthroughDestinationDeferred = createDeferredComponentFromManifest(
+  "run-detail-golden-sponsor-walkthrough",
+  { suppressLoading: true },
 );
 
 /** Perf wave 14 — create-home evidence archTab off sync First Load JS. */
@@ -505,21 +416,13 @@ export const RunDetailActivitySourcesPanelDeferred = createDeferredComponentFrom
   { loadingClassName: "h-32" },
 );
 
-const doThisNextResolvedLoading = runDetailDeferredLoading("Loading next step", "h-20");
-
 /** Perf wave 14 — review-package next-step resolver off sync First Load JS. */
-export const RunDetailReviewPackageDoThisNextResolvedDeferred = dynamic(
-  () =>
-    import("./RunDetailReviewPackageDoThisNextResolved").then(
-      (module) => module.RunDetailReviewPackageDoThisNextResolved,
-    ),
-  { ssr: false, loading: () => doThisNextResolvedLoading },
+export const RunDetailReviewPackageDoThisNextResolvedDeferred = createDeferredComponentFromManifest(
+  "run-detail-review-package-do-this-next-resolved",
+  { loadingClassName: "h-20" },
 );
 
-export const RunDetailReviewPackageSponsorHandoffGateDeferred = dynamic(
-  () =>
-    import("./RunDetailReviewPackageSponsorHandoffGate").then(
-      (module) => module.RunDetailReviewPackageSponsorHandoffGate,
-    ),
-  { ssr: false, loading: () => null },
+export const RunDetailReviewPackageSponsorHandoffGateDeferred = createDeferredComponentFromManifest(
+  "run-detail-review-package-sponsor-handoff-gate",
+  { suppressLoading: true },
 );

@@ -13,7 +13,7 @@ export const CLOUD_PROVIDER_CONNECTION_PATHS: Record<CloudProviderConnectionKey,
 };
 
 export const CLOUD_PROVIDER_CONNECTION_CLAIM_DISCIPLINE =
-  "Cloud provider connection pages configure read-only federated inventory collection — they are not a sealed-review diligence Sources package. Open Cloud connections or Connection status when you need operational readiness trails.";
+  "Cloud provider connection pages configure read-only federated inventory collection — not a full audit export. Open Cloud connections or Connection status for connector health.";
 
 export const CLOUD_PROVIDER_CONNECTION_SOURCES_INTRO =
   "Use these follow-ups when federation setup, connection health, or provider help needs attention before treating inventory as authoritative.";

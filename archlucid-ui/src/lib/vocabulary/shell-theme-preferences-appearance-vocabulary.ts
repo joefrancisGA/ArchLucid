@@ -14,6 +14,7 @@
  */
 
 import { ACCOUNT_PREFERENCES_PATH } from "@/lib/account-route-paths";
+import type { PairwiseVocabularyRailModel } from "@/lib/vocabulary/create-pairwise-vocabulary-rail";
 
 /**
  * Shell ColorModeToggle has no dedicated route (chrome control only).
@@ -71,14 +72,27 @@ export const SHELL_THEME_PREFERENCES_APPEARANCE_PREFERENCES_LINK: ShellThemePref
     whenToUse: "Set the durable account theme via ThemePreferenceSelector.",
   };
 
-/** Full vocabulary model (heading, why-two copy, and deep links). */
-export function buildShellThemePreferencesAppearanceVocabulary(): ShellThemePreferencesAppearanceVocabularyModel {
+/** Pairwise model for Shell theme toggle ↔ Preferences appearance (fixed routes). */
+export function buildShellThemePreferencesAppearancePairwiseRail(): PairwiseVocabularyRailModel<ShellThemePreferencesAppearanceSurfaceId> {
   return {
     heading: SHELL_THEME_PREFERENCES_APPEARANCE_HEADING,
     whyTwo: SHELL_THEME_PREFERENCES_APPEARANCE_WHY_TWO,
     compactLine: SHELL_THEME_PREFERENCES_APPEARANCE_COMPACT_LINE,
-    shellThemeToggleLink: SHELL_THEME_PREFERENCES_APPEARANCE_SHELL_LINK,
-    preferencesAppearanceLink: SHELL_THEME_PREFERENCES_APPEARANCE_PREFERENCES_LINK,
+    currentLink: SHELL_THEME_PREFERENCES_APPEARANCE_SHELL_LINK,
+    peerLink: SHELL_THEME_PREFERENCES_APPEARANCE_PREFERENCES_LINK,
+  };
+}
+
+/** Full vocabulary model (heading, why-two copy, and deep links). */
+export function buildShellThemePreferencesAppearanceVocabulary(): ShellThemePreferencesAppearanceVocabularyModel {
+  const rail = buildShellThemePreferencesAppearancePairwiseRail();
+
+  return {
+    heading: rail.heading,
+    whyTwo: rail.whyTwo,
+    compactLine: rail.compactLine,
+    shellThemeToggleLink: rail.currentLink,
+    preferencesAppearanceLink: rail.peerLink,
   };
 }
 

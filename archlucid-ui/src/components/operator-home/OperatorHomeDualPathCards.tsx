@@ -49,7 +49,29 @@ type SelectedHomePath = "explore-completed-review" | "create-architecture" | "re
 type OperatorHomeDualPathCardsProps = {
   readonly variant?: "prominent" | "compact";
   readonly emphasizedPath?: OperatorHomeLifecyclePath | null;
+  /** When resume draft or Do-this-next owns the page primary, keep lifecycle cards secondary. */
+  readonly pagePrimaryOwnedElsewhere?: boolean;
 };
+
+type LifecycleCardPath = Exclude<SelectedHomePath, null>;
+
+function resolveLifecycleCardButtonVariant(
+  path: LifecycleCardPath,
+  options: {
+    emphasizedPath: OperatorHomeLifecyclePath | null | undefined;
+    pagePrimaryOwnedElsewhere: boolean;
+  },
+): "primary" | "outline" {
+  if (options.pagePrimaryOwnedElsewhere) {
+    return "outline";
+  }
+
+  if (options.emphasizedPath !== null && options.emphasizedPath !== undefined && options.emphasizedPath !== path) {
+    return "outline";
+  }
+
+  return "primary";
+}
 
 function lifecycleCardClassName(
   path: Exclude<SelectedHomePath, null>,
@@ -100,6 +122,19 @@ function lifecycleRecommendedBadge(
 export function OperatorHomeDualPathCards(props: OperatorHomeDualPathCardsProps): React.JSX.Element {
   const variant = props.variant ?? "prominent";
   const emphasizedPath = props.emphasizedPath ?? null;
+  const pagePrimaryOwnedElsewhere = props.pagePrimaryOwnedElsewhere === true;
+  const createArchitectureVariant = resolveLifecycleCardButtonVariant("create-architecture", {
+    emphasizedPath,
+    pagePrimaryOwnedElsewhere,
+  });
+  const reviewArchitectureVariant = resolveLifecycleCardButtonVariant("review-architecture", {
+    emphasizedPath,
+    pagePrimaryOwnedElsewhere,
+  });
+  const exploreCompletedReviewVariant = resolveLifecycleCardButtonVariant("explore-completed-review", {
+    emphasizedPath,
+    pagePrimaryOwnedElsewhere,
+  });
   const reviewNavigation = useReviewIntakeNavigation();
   const createArchitectureNavigation = useCreateArchitectureNavigation();
   const canExecute = useOperateCapability();
@@ -162,7 +197,7 @@ export function OperatorHomeDualPathCards(props: OperatorHomeDualPathCardsProps)
           {canExecute ? (
             <div className="flex flex-col gap-2" data-testid="operator-home-create-architecture-actions">
               <ReviewStartLoadingButton
-                variant="primary"
+                variant={createArchitectureVariant}
                 size="sm"
                 className="h-8 w-fit"
                 idleLabel={CREATE_ARCHITECTURE_LABEL}
@@ -220,7 +255,7 @@ export function OperatorHomeDualPathCards(props: OperatorHomeDualPathCardsProps)
           </div>
           {canExecute ? (
             <ReviewStartLoadingButton
-              variant="primary"
+              variant={reviewArchitectureVariant}
               size="sm"
               className="h-8 w-fit"
               idleLabel={OPERATOR_HOME_REVIEW_ARCHITECTURE_CTA}
@@ -266,6 +301,7 @@ export function OperatorHomeDualPathCards(props: OperatorHomeDualPathCardsProps)
           </div>
           <OperatorHomeCompletedSampleAction
             compact={isCompact}
+            pagePrimaryOwnedElsewhere={exploreCompletedReviewVariant === "outline"}
             onOpenSample={() => {
               setSelectedPath("explore-completed-review");
               trackOperatorHomeLifecyclePathClick("explore-completed-review");

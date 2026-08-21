@@ -10,7 +10,7 @@ export const ADMIN_TENANTS_HELP_TOPIC_LABEL = "How tenant provisioning works" as
 export const ADMIN_TENANTS_FOLLOW_UPS_TITLE = "Where to go next";
 
 export const ADMIN_TENANTS_CLAIM_DISCIPLINE =
-  "Tenant provisioning and shut-off controls manage tenant lifecycle for platform administrators — they are not a sealed-review diligence Sources package. Open Tenant health or Audit when you need engagement scores or governed trails.";
+  "Tenant provisioning and shut-off controls manage tenant lifecycle for platform administrators — not a full audit export. Open Tenant health or Audit for engagement scores or activity records.";
 
 export const ADMIN_TENANTS_SOURCES_INTRO =
   "Use these follow-ups when a provisioned tenant needs engagement checks, isolation guidance, or onboarding help.";

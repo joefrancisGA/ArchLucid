@@ -91,7 +91,7 @@ export function resolveExplanationEvidenceBasisBadges(
       badge(
         "low-support",
         "Low support",
-        "Faithfulness support is below the sponsor-safe review threshold.",
+        "Faithfulness support is below the export-ready review threshold.",
         true,
       ),
     );

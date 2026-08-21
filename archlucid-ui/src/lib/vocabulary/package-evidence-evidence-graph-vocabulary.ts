@@ -38,7 +38,7 @@ export const PACKAGE_EVIDENCE_EVIDENCE_GRAPH_HEADING =
   "Package Evidence and Evidence graph serve different purposes" as const;
 
 export const PACKAGE_EVIDENCE_EVIDENCE_GRAPH_WHY_TWO =
-  "Package Evidence captures and inventories evidence for one architecture package. Evidence graph explores provenance and evidence trails across packages. Capturing evidence on one review is not the same as exploring the cross-package graph." as const;
+  "Package Evidence uploads and inventories evidence for one architecture review. Evidence graph maps how evidence connects across many reviews. Adding evidence to one review is not the same as exploring the cross-review graph." as const;
 
 export const PACKAGE_EVIDENCE_EVIDENCE_GRAPH_COMPACT_LINE =
   "Package Evidence is capture and inventory for one review; Evidence graph explores across packages." as const;

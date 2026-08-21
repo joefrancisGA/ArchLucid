@@ -14,6 +14,7 @@
  */
 
 import { SETTINGS_TENANT_PATH } from "@/lib/settings-admin-route-paths";
+import type { PairwiseVocabularyRailModel } from "@/lib/vocabulary/create-pairwise-vocabulary-rail";
 
 /**
  * Scope switcher has no dedicated route.
@@ -65,14 +66,27 @@ export const WORKSPACE_SCOPE_TENANT_SETTINGS_TENANT_LINK: WorkspaceScopeTenantSe
     whenToUse: "Configure tenant-wide defaults, quality gates, and cost settings.",
   };
 
-/** Full vocabulary model (heading, why-two copy, and deep links). */
-export function buildWorkspaceScopeTenantSettingsVocabulary(): WorkspaceScopeTenantSettingsVocabularyModel {
+/** Pairwise model for Workspace scope ↔ Tenant settings (fixed routes). */
+export function buildWorkspaceScopeTenantSettingsPairwiseRail(): PairwiseVocabularyRailModel<WorkspaceScopeTenantSettingsSurfaceId> {
   return {
     heading: WORKSPACE_SCOPE_TENANT_SETTINGS_HEADING,
     whyTwo: WORKSPACE_SCOPE_TENANT_SETTINGS_WHY_TWO,
     compactLine: WORKSPACE_SCOPE_TENANT_SETTINGS_COMPACT_LINE,
-    workspaceScopeLink: WORKSPACE_SCOPE_TENANT_SETTINGS_SCOPE_LINK,
-    tenantSettingsLink: WORKSPACE_SCOPE_TENANT_SETTINGS_TENANT_LINK,
+    currentLink: WORKSPACE_SCOPE_TENANT_SETTINGS_SCOPE_LINK,
+    peerLink: WORKSPACE_SCOPE_TENANT_SETTINGS_TENANT_LINK,
+  };
+}
+
+/** Full vocabulary model (heading, why-two copy, and deep links). */
+export function buildWorkspaceScopeTenantSettingsVocabulary(): WorkspaceScopeTenantSettingsVocabularyModel {
+  const rail = buildWorkspaceScopeTenantSettingsPairwiseRail();
+
+  return {
+    heading: rail.heading,
+    whyTwo: rail.whyTwo,
+    compactLine: rail.compactLine,
+    workspaceScopeLink: rail.currentLink,
+    tenantSettingsLink: rail.peerLink,
   };
 }
 

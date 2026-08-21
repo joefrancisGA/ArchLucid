@@ -22,7 +22,7 @@ export const NOTIFICATION_PREFERENCE_CENTER_SETTINGS_CLAIM_DISCIPLINE =
 export const NOTIFICATION_PREFERENCE_CENTER_SETTINGS_FOLLOW_UPS_TITLE = "Where to go next";
 
 export const NOTIFICATION_PREFERENCE_CENTER_SETTINGS_SOURCES_INTRO =
-  "Use these follow-ups when a channel card turns into digest subscriptions, alert routing, chat integration setup, or assurance cites.";
+  "Use these follow-ups when a channel card turns into digest subscriptions, alert routing, chat integration setup, or official assurance materials.";
 
 /** Operator Sources — no self-href to the notifications hub. */
 export const NOTIFICATION_PREFERENCE_CENTER_SETTINGS_SOURCES: readonly EvidenceSourceLink[] = [

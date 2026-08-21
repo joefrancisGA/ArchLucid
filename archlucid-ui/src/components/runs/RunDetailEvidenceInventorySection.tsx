@@ -19,6 +19,8 @@ export type RunDetailEvidenceInventorySectionProps = {
   readonly items: readonly RunDetailEvidenceInventoryItem[];
   /** True when the review record is committed (golden manifest present). */
   readonly hasManifest?: boolean;
+  /** When ReviewPackageDoThisNextStrip owns the filled page primary (TB-2175). */
+  readonly pagePrimaryOwnedElsewhere?: boolean;
 };
 
 function formatIngestedLabel(iso: string): string {
@@ -37,6 +39,7 @@ function formatCitingFindingsCount(count: number): string {
 
 export function RunDetailEvidenceInventorySection(props: RunDetailEvidenceInventorySectionProps): ReactElement {
   const { items } = props;
+  const startNewReviewVariant = props.pagePrimaryOwnedElsewhere === true ? "outline" : "primary";
 
   if (items.length === 0) {
     return (
@@ -47,7 +50,7 @@ export function RunDetailEvidenceInventorySection(props: RunDetailEvidenceInvent
             <EnterpriseCompactEmptyState
               title="No submitted source documents are listed"
               description="This sealed review record is sealed — source documents cannot be added after finalization. Start a new review to submit updated evidence."
-              actions={[{ label: "Start a new review", href: REVIEWS_NEW_PATH, variant: "primary" }]}
+              actions={[{ label: "Start a new review", href: REVIEWS_NEW_PATH, variant: startNewReviewVariant }]}
             />
           ) : (
             <EnterpriseCompactEmptyState

@@ -2,13 +2,14 @@
 
 import type { JSX } from "react";
 
+import { PairwiseVocabularyRailFromModel } from "@/components/vocabulary/PairwiseVocabularyRailFromModel";
 import {
+  buildPolicyPackDetailHubPairwiseRail,
   buildPolicyPackDetailHubVocabulary,
   resolvePolicyPackDetailHubPeerLink,
   type PolicyPackDetailHubSurfaceId,
   type PolicyPackDetailHubVocabularyModel,
 } from "@/lib/vocabulary/policy-pack-detail-hub-vocabulary";
-import { VocabularyRail } from "@/components/vocabulary/VocabularyRail";
 
 export type PolicyPackDetailHubVocabularyRailProps = {
   /** Surface hosting the strip — marks packs hub vs pack detail and links to the peer. */
@@ -30,23 +31,30 @@ export type PolicyPackDetailHubVocabularyRailProps = {
 export function PolicyPackDetailHubVocabularyRail(
   props: PolicyPackDetailHubVocabularyRailProps,
 ): JSX.Element {
-  const model = props.model ?? buildPolicyPackDetailHubVocabulary();
-  const peer = resolvePolicyPackDetailHubPeerLink(props.currentSurfaceId, props.policyPackId);
-  const currentLink =
-    props.currentSurfaceId === "policy-packs" ? model.packsHubLink : model.packDetailLink;
+  const pairwiseModel =
+    props.model !== undefined
+      ? {
+          heading: props.model.heading,
+          whyTwo: props.model.whyTwo,
+          compactLine: props.model.compactLine,
+          currentLink: props.model.packsHubLink,
+          peerLink: props.model.packDetailLink,
+        }
+      : buildPolicyPackDetailHubPairwiseRail();
+  const peerLinkOverride = resolvePolicyPackDetailHubPeerLink(
+    props.currentSurfaceId,
+    props.policyPackId,
+  );
 
   return (
-    <VocabularyRail
+    <PairwiseVocabularyRailFromModel
       testIdPrefix="policy-pack-detail-hub-vocabulary"
       currentSurfaceId={props.currentSurfaceId}
       variant={props.variant}
       className={props.className}
-      compactLine={model.compactLine}
       compactLinkPlacement="inline"
-      heading={model.heading}
-      whyTwo={model.whyTwo}
-      currentLabel={currentLink.label}
-      links={[{ ...peer, testIdSuffix: "peer-link" }]}
+      model={pairwiseModel}
+      peerLinkOverride={peerLinkOverride}
     />
   );
 }

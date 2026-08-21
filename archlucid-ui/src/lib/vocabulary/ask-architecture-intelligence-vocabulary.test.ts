@@ -13,13 +13,13 @@ import { ARCHITECTURE_INTELLIGENCE_PATH } from "@/lib/architecture/architecture-
 import { ASK_REVIEW_QUESTIONS_PATH } from "@/lib/ask-review-questions-route";
 
 describe("ask-architecture-intelligence-vocabulary (TB-2313)", () => {
-  it("explains signed-review Q&A vs closed-loop architecture reasoning", () => {
+  it("explains finalized-review Q&A vs exploratory reasoning pass", () => {
     const model = buildAskArchitectureIntelligenceVocabulary();
 
     expect(model.heading).toBe(ASK_ARCHITECTURE_INTELLIGENCE_HEADING);
     expect(model.whyTwo).toBe(ASK_ARCHITECTURE_INTELLIGENCE_WHY_TWO);
-    expect(model.whyTwo.toLowerCase()).toContain("signed review");
-    expect(model.whyTwo.toLowerCase()).toContain("closed-loop");
+    expect(model.whyTwo.toLowerCase()).toContain("finalized review");
+    expect(model.whyTwo.toLowerCase()).toContain("reasoning pass");
     expect(model.compactLine).toBe(ASK_ARCHITECTURE_INTELLIGENCE_COMPACT_LINE);
 
     expect(model.askReviewQuestionsLink).toEqual(ASK_ARCHITECTURE_INTELLIGENCE_ASK_LINK);

@@ -29,7 +29,7 @@ export const AZURE_BOARDS_HELP_PAT_NON_RECOVERABLE_WARNING =
 export const AZURE_BOARDS_HELP_CONNECTION_STATUS_HEADING = "Connection status for this workspace" as const;
 
 export const AZURE_BOARDS_HELP_CLAIM_DISCIPLINE =
-  "This Azure Boards integration guide orients architects on work-item creation from ArchLucid findings — it is help orientation, not a sealed-review diligence Sources package from your tenant. Open the Azure Boards integration settings or Integration readiness when you need live connector health.";
+  "This Azure Boards integration guide orients architects on work-item creation from ArchLucid findings — help only, not a full audit export from your workspace. Open Azure Boards integration settings or Integration readiness for live connector health.";
 
 export const AZURE_BOARDS_HELP_SOURCES_INTRO =
   "Use these follow-ups when Azure Boards vocabulary turns into live connector setup, readiness checks, or sibling ITSM destinations.";

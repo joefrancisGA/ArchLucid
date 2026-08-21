@@ -10,7 +10,7 @@ export const ADMIN_CONFIGURATION_HELP_TOPIC_LABEL = "How configuration summary w
 export const ADMIN_CONFIGURATION_FOLLOW_UPS_TITLE = "Where to go next";
 
 export const ADMIN_CONFIGURATION_SOURCES_INTRO =
-  "Use these follow-ups when a config key needs readiness checks, troubleshooting, or activity trails.";
+  "Use these follow-ups when a config key needs readiness checks, troubleshooting, or activity records.";
 
 
 /** Operator Sources — no self-href to /internal/configuration. */

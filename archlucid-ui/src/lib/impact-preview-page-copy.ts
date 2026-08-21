@@ -4,7 +4,7 @@ import { PLANNING_PATH } from "@/lib/planning-route";
 export const IMPACT_PREVIEW_PAGE_TITLE = "Impact preview" as const;
 
 export const IMPACT_PREVIEW_PAGE_SUBTITLE =
-  "Preview how a proposed architecture change may affect findings, risk, cost, and governance posture before implementation." as const;
+  "Preview how a proposed architecture change may affect findings, risk, cost, and approval impact before implementation." as const;
 
 export const IMPACT_PREVIEW_PAGE_SUBTITLE_BUYER =
   "Compare a proposed change against a baseline review before implementation." as const;
@@ -53,7 +53,7 @@ export const IMPACT_PREVIEW_ACTION_REQUEST_ACCESS = "Contact workspace admin" as
 
 export const IMPACT_PREVIEW_EMPTY_NO_CANDIDATES_TITLE = "No proposed changes available" as const;
 export const IMPACT_PREVIEW_EMPTY_NO_CANDIDATES_BODY =
-  "Create a proposed architecture change before running an impact preview. Impact preview compares the proposed change against a baseline review and estimates likely changes in findings, risk, cost, and governance posture." as const;
+  "Create a proposed architecture change before running an impact preview. Impact preview compares the proposed change against a baseline review and estimates likely changes in findings, risk, cost, and approval impact." as const;
 
 export const IMPACT_PREVIEW_EMPTY_NO_BASELINE_TITLE = "No baseline review available" as const;
 export const IMPACT_PREVIEW_EMPTY_NO_BASELINE_BODY =
@@ -71,7 +71,7 @@ export const IMPACT_PREVIEW_COMPARISON_SCOPE_LABEL = "Comparison scope" as const
 export const IMPACT_PREVIEW_SCOPE_FINDINGS = "Findings" as const;
 export const IMPACT_PREVIEW_SCOPE_RISK = "Risk" as const;
 export const IMPACT_PREVIEW_SCOPE_COST = "Cost" as const;
-export const IMPACT_PREVIEW_SCOPE_GOVERNANCE = "Governance posture" as const;
+export const IMPACT_PREVIEW_SCOPE_GOVERNANCE = "Approval impact" as const;
 export const IMPACT_PREVIEW_SCOPE_EVIDENCE = "Evidence affected" as const;
 
 export const IMPACT_PREVIEW_OUTPUT_PREVIEW_TITLE = "Impact preview will show" as const;
@@ -79,7 +79,7 @@ export const IMPACT_PREVIEW_OUTPUT_PREVIEW_ITEMS = [
   "Expected finding changes",
   "Risk changes",
   "Cost or effort estimate",
-  "Governance posture changes",
+  "Approval impact changes",
   "Affected evidence and decisions",
   "Recommended next actions",
 ] as const;
@@ -109,7 +109,7 @@ export const IMPACT_PREVIEW_DO_NOT_PROCEED_WITHOUT_REVIEW =
   "Do not proceed without review — route material changes through governance before implementation." as const;
 
 export const IMPACT_PREVIEW_DECISION_OWNERSHIP_NOTE =
-  "Simulation output informs review; accountable reviewers and governance owners retain disposition authority." as const;
+  "Simulation output informs review; accountable reviewers and governance owners retain resolve authority." as const;
 
 export const IMPACT_PREVIEW_EVIDENCE_BASIS_TITLE = "Evidence basis" as const;
 export const IMPACT_PREVIEW_EVIDENCE_LINKED_FINDINGS = "Linked findings" as const;

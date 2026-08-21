@@ -130,8 +130,8 @@ describe("ArchitectureDraftStructuredBriefFields", () => {
   it("adds a confirmed constraint through the full draft form state path", () => {
     function FullFormHarness(): React.JSX.Element {
       const [fields, setFields] = useState({
-        freeTextIntent: "Tenant migration platform with private networking and EU residency goals for governed reviews.",
-        businessOutcome: "Reduce cycle time for governed architecture reviews.",
+        freeTextIntent: "Tenant migration platform with private networking and EU residency goals for architecture reviews.",
+        businessOutcome: "Reduce cycle time for architecture reviews.",
         systemName: "Vertex",
         structuredBrief: emptyArchitectureDraftStructuredBrief(),
       });

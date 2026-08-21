@@ -8,7 +8,7 @@ export const WORKSPACE_SETTINGS_HELP_TOPIC_LABEL = "How workspace settings work"
 export const TENANT_SETTINGS_FOLLOW_UPS_TITLE = "Where to go next";
 
 export const TENANT_SETTINGS_SOURCES_INTRO =
-  "Use these follow-ups when tenant defaults turn into recycle-bin restore, digest schedules, or assurance cites.";
+  "Use these follow-ups when tenant defaults turn into recycle-bin restore, digest schedules, or official assurance materials.";
 
 /** Operator Sources - no self-href to tenant settings. */
 export const TENANT_SETTINGS_SOURCES: readonly EvidenceSourceLink[] = [

@@ -10,7 +10,7 @@ export const ARCHITECTURE_DRAFTS_CANONICAL_PATH = "/architecture/architectures";
 export const ARCHITECTURE_DRAFTS_HELP_TOPIC_LABEL = "How architecture drafts work";
 
 export const ARCHITECTURE_DRAFTS_CLAIM_DISCIPLINE =
-  "Architecture drafts let you save and resume system briefs before filing evidence for review — they are not a sealed-review diligence Sources package.";
+  "Architecture drafts let you save and resume system briefs before filing evidence for review — not a full audit export.";
 
 export const ARCHITECTURE_DRAFTS_SOURCES_INTRO =
   "Use these follow-ups when you need to create a new architecture, start review intake, or get oriented.";

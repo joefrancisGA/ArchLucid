@@ -2,21 +2,17 @@
 
 import type { JSX } from "react";
 
+import { PairwiseVocabularyRailFromModel } from "@/components/vocabulary/PairwiseVocabularyRailFromModel";
 import {
-  buildBaselineRoiVocabulary,
-  resolveBaselineRoiPeerLink,
+  buildBaselineRoiPairwiseRail,
   type BaselineRoiSurfaceId,
   type BaselineRoiVocabularyModel,
 } from "@/lib/vocabulary/baseline-roi-vocabulary";
-import { VocabularyRail } from "@/components/vocabulary/VocabularyRail";
 
 export type BaselineRoiVocabularyRailProps = {
-  /** Surface hosting the strip — marks the current job and links to the peer. */
   readonly currentSurfaceId: BaselineRoiSurfaceId;
-  /** Compact one-line strip (default) vs fuller why-two explanation. */
   readonly variant?: "compact" | "full";
   readonly className?: string;
-  /** Optional override for tests; defaults to {@link buildBaselineRoiVocabulary}. */
   readonly model?: BaselineRoiVocabularyModel;
 };
 
@@ -24,26 +20,26 @@ export type BaselineRoiVocabularyRailProps = {
  * TB-2275 — Compact vocabulary rail between baseline settings and ROI summary.
  * Distinct from TB-2265 (scorecard ≠ ROI) and TB-2258 (ROI ≠ sponsor export).
  */
-export function BaselineRoiVocabularyRail(
-  props: BaselineRoiVocabularyRailProps,
-): JSX.Element {
-  const model = props.model ?? buildBaselineRoiVocabulary();
-  const peer = resolveBaselineRoiPeerLink(props.currentSurfaceId);
-  const currentLink =
-    props.currentSurfaceId === "baseline" ? model.baselineLink : model.roiSummaryLink;
+export function BaselineRoiVocabularyRail(props: BaselineRoiVocabularyRailProps): JSX.Element {
+  const pairwiseModel =
+    props.model !== undefined
+      ? {
+          heading: props.model.heading,
+          whyTwo: props.model.whyTwo,
+          compactLine: props.model.compactLine,
+          currentLink: props.model.baselineLink,
+          peerLink: props.model.roiSummaryLink,
+        }
+      : buildBaselineRoiPairwiseRail();
 
   return (
-    <VocabularyRail
+    <PairwiseVocabularyRailFromModel
       testIdPrefix="baseline-roi-vocabulary"
       currentSurfaceId={props.currentSurfaceId}
       variant={props.variant}
       className={props.className}
-      compactLine={model.compactLine}
       compactLinkPlacement="inline"
-      heading={model.heading}
-      whyTwo={model.whyTwo}
-      currentLabel={currentLink.label}
-      links={[{ ...peer, testIdSuffix: "peer-link" }]}
+      model={pairwiseModel}
     />
   );
 }

@@ -41,10 +41,10 @@ export const ARCHITECTURE_INTELLIGENCE_EVIDENCE_GRAPH_HEADING =
   "Architecture intelligence and Evidence graph serve different purposes" as const;
 
 export const ARCHITECTURE_INTELLIGENCE_EVIDENCE_GRAPH_WHY_TWO =
-  "Architecture intelligence runs closed-loop architecture reasoning against a free-form description. Evidence graph visualizes provenance and linkage in an architecture package’s evidence trail. Reasoning is not graph exploration." as const;
+  "Architecture intelligence analyzes a written architecture description and suggests improvements. Evidence graph maps how evidence connects in a review's evidence trail. Reasoning is not graph exploration." as const;
 
 export const ARCHITECTURE_INTELLIGENCE_EVIDENCE_GRAPH_COMPACT_LINE =
-  "Architecture intelligence runs closed-loop reasoning; Evidence graph shows provenance linkage — open the other when you need both." as const;
+  "Architecture intelligence analyzes a description; Evidence graph shows evidence links — open the other when you need both." as const;
 
 export const ARCHITECTURE_INTELLIGENCE_EVIDENCE_GRAPH_INTELLIGENCE_LINK: ArchitectureIntelligenceEvidenceGraphLink =
   {

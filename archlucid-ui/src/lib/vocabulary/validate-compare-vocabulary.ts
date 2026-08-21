@@ -14,6 +14,7 @@
 
 import { COMPARE_TWO_REVIEWS_PATH } from "@/lib/compare-two-reviews-route";
 import { INTERNAL_REPLAY_PATH } from "@/lib/internal-ops-route-paths";
+import type { PairwiseVocabularyRailModel } from "@/lib/vocabulary/create-pairwise-vocabulary-rail";
 
 export type ValidateCompareSurfaceId = "validate-replay" | "compare";
 
@@ -35,7 +36,7 @@ export type ValidateCompareVocabularyModel = {
 export const VALIDATE_COMPARE_HEADING = "Validate and compare stay separate" as const;
 
 export const VALIDATE_COMPARE_WHY_TWO =
-  "Validate review re-checks one finalized architecture package (reconstruct, rebuild, or regenerate). Compare two reviews diffs two packages side by side. Running validation depth is not a pairwise diff." as const;
+  "Validate review re-runs checks on one finalized architecture review. Compare two reviews shows what changed between two reviews side by side. Re-checking one review is not the same as comparing two." as const;
 
 export const VALIDATE_COMPARE_COMPACT_LINE =
   "Validate re-checks one architecture package; Compare diffs two — open the other when you need both." as const;
@@ -54,14 +55,27 @@ export const VALIDATE_COMPARE_COMPARE_LINK: ValidateCompareLink = {
   whenToUse: "Diff two architecture packages side by side.",
 };
 
-/** Full vocabulary model (heading, why-two copy, and deep links). */
-export function buildValidateCompareVocabulary(): ValidateCompareVocabularyModel {
+/** Pairwise model for Validate review ↔ Compare two reviews (fixed routes). */
+export function buildValidateComparePairwiseRail(): PairwiseVocabularyRailModel<ValidateCompareSurfaceId> {
   return {
     heading: VALIDATE_COMPARE_HEADING,
     whyTwo: VALIDATE_COMPARE_WHY_TWO,
     compactLine: VALIDATE_COMPARE_COMPACT_LINE,
-    validateLink: VALIDATE_COMPARE_VALIDATE_LINK,
-    compareLink: VALIDATE_COMPARE_COMPARE_LINK,
+    currentLink: VALIDATE_COMPARE_VALIDATE_LINK,
+    peerLink: VALIDATE_COMPARE_COMPARE_LINK,
+  };
+}
+
+/** Full vocabulary model (heading, why-two copy, and deep links). */
+export function buildValidateCompareVocabulary(): ValidateCompareVocabularyModel {
+  const rail = buildValidateComparePairwiseRail();
+
+  return {
+    heading: rail.heading,
+    whyTwo: rail.whyTwo,
+    compactLine: rail.compactLine,
+    validateLink: rail.currentLink,
+    compareLink: rail.peerLink,
   };
 }
 

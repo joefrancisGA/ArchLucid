@@ -17,7 +17,7 @@ import { OPERATOR_NAV_GROUP_LABELS, OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n"
 import { NavGroupBuilderBase } from "@/lib/nav-group-builder-base";
 import { resolveArchitecturesListNavTitle } from "@/lib/operator/operator-nav-labels";
 
-const PORTFOLIO_OVERVIEW_NAV_TITLE = "Track ROI, risks, and governance posture";
+const PORTFOLIO_OVERVIEW_NAV_TITLE = "Track ROI, risks, and approval status";
 
 /** Pilot layer — default authenticated path; essentials omit `requiredAuthority` where invariant requires it. */
 export class PilotNavGroupBuilder extends NavGroupBuilderBase {

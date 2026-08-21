@@ -11,12 +11,12 @@ const SPONSOR_DASHBOARD_HELP_SCORECARD_PATH = "/insights/architecture-scorecard"
 export const SPONSOR_DASHBOARD_HELP_CLAIM_DISCIPLINE_HEADING = "What this guide does not cover";
 
 export const SPONSOR_DASHBOARD_HELP_CLAIM_DISCIPLINE =
-  "This guide explains sponsor dashboard KPIs, trends, and sponsor exports — use it to orient portfolio governance posture, then open Architecture reviews, Evidence trail, or Trust Center when you need sponsor-safe trails or assurance cites.";
+  "This guide explains sponsor dashboard KPIs, trends, and exports — open Architecture reviews, Evidence trail, or Trust Center when you need export-ready records.";
 
 export const SPONSOR_DASHBOARD_HELP_FOLLOW_UPS_TITLE = "Where to go next";
 
 export const SPONSOR_DASHBOARD_HELP_SOURCES_INTRO =
-  "Use these follow-ups when portfolio KPIs need architecture reviews, grounded Q&A, traceable ROI methodology, or assurance cites.";
+  "Use these follow-ups when portfolio KPIs need architecture reviews, grounded Q&A, traceable ROI methodology, or official assurance materials.";
 
 /** Help follow-ups — no self-href; scorecard lives in the feature grid. */
 export const SPONSOR_DASHBOARD_HELP_SOURCES: readonly EvidenceSourceLink[] = [

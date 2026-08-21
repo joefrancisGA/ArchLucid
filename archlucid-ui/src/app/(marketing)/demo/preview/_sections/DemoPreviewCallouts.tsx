@@ -47,7 +47,7 @@ export function DemoPreviewEvaluationCta() {
         Evaluate ArchLucid with one of your architecture reviews
       </h2>
       <p className={cn("m-0 mt-2 max-w-3xl text-neutral-700 dark:text-neutral-300", MARKETING_TYPOGRAPHY.body)}>
-        Walk through a governed review using your requirements, evidence sources, policy controls, and approval process.
+        Walk through a finalized review using your requirements, evidence sources, policy controls, and approval process.
       </p>
       <div className="mt-4 flex flex-wrap gap-3">
         <Button asChild variant="primary" data-testid="demo-preview-cta-signup">

@@ -57,11 +57,11 @@ describe("improvement-planning help negation drift guard", () => {
       IMPROVEMENT_PLANNING_HELP_NEGATION_DRIFT_MARKERS.claimMustContain,
     );
 
-    const diligenceNegationCount =
-      (IMPROVEMENT_PLANNING_HELP_OVERVIEW.match(/sources package/gi) ?? []).length +
-      (IMPROVEMENT_PLANNING_HELP_CLAIM_DISCIPLINE.match(/sources package/gi) ?? []).length;
+    const auditExportNegationCount =
+      (IMPROVEMENT_PLANNING_HELP_OVERVIEW.match(/full audit export/gi) ?? []).length +
+      (IMPROVEMENT_PLANNING_HELP_CLAIM_DISCIPLINE.match(/full audit export/gi) ?? []).length;
 
-    expect(diligenceNegationCount).toBe(1);
+    expect(auditExportNegationCount).toBe(1);
   });
 
   it("keeps overview and claim strip without long shared sentences", () => {

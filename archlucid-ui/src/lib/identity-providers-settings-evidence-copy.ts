@@ -9,7 +9,7 @@ export const IDENTITY_PROVIDERS_SETTINGS_HELP_TOPIC_LABEL = "How SSO and identit
 export const IDENTITY_PROVIDERS_SETTINGS_FOLLOW_UPS_TITLE = "Where to go next";
 
 export const IDENTITY_PROVIDERS_SETTINGS_SOURCES_INTRO =
-  "Use these follow-ups when SSO setup turns into domain enforcement, role mapping, membership, or assurance cites.";
+  "Use these follow-ups when SSO setup turns into domain enforcement, role mapping, membership, or official assurance materials.";
 
 /** Operator Sources - no self-href to the identity-providers hub. */
 export const IDENTITY_PROVIDERS_SETTINGS_SOURCES: readonly EvidenceSourceLink[] = [

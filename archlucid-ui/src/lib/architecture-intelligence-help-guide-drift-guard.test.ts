@@ -24,11 +24,11 @@ describe("architecture-intelligence help negation drift guard", () => {
       ARCHITECTURE_INTELLIGENCE_HELP_NEGATION_DRIFT_MARKERS.claimMustContain,
     );
 
-    const diligenceNegationCount =
-      (ARCHITECTURE_INTELLIGENCE_HELP_OVERVIEW.match(/Sources package/gi) ?? []).length +
-      (ARCHITECTURE_INTELLIGENCE_HELP_CLAIM_DISCIPLINE.match(/Sources package/gi) ?? []).length;
+    const auditExportNegationCount =
+      (ARCHITECTURE_INTELLIGENCE_HELP_OVERVIEW.match(/full audit export/gi) ?? []).length +
+      (ARCHITECTURE_INTELLIGENCE_HELP_CLAIM_DISCIPLINE.match(/full audit export/gi) ?? []).length;
 
-    expect(diligenceNegationCount).toBe(1);
+    expect(auditExportNegationCount).toBe(1);
   });
 
   it("states tenant retention exactly once across help copy constants", () => {

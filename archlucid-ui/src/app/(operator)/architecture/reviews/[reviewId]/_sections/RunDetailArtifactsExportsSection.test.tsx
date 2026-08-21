@@ -167,6 +167,34 @@ describe("RunDetailArtifactsExportsSection", () => {
     expect(screen.getByTestId("run-scoped-audit-export")).toHaveAttribute("data-run-id", "run-1");
   });
 
+  it("demotes pending-finalize deliverables CTA when Do this next owns the page primary", () => {
+    const feasibleSummary: ManifestSummary = {
+      ...manifestSummary,
+      feasibilityVerdict: {
+        kind: "Feasible",
+        summary: "All required controls satisfied.",
+      },
+    };
+
+    render(
+      <RunDetailArtifactsExportsSection
+        manifestId="manifest-1"
+        runId="run-1"
+        buyerPolishedArtifactTable={false}
+        artifacts={[]}
+        artifactsFailure={null}
+        artifactsMalformed={null}
+        goldenManifestJsonForExport={null}
+        manifestSummaryForUi={feasibleSummary}
+        manifestSummary={feasibleSummary}
+        trustEvidenceCard={null}
+        pagePrimaryOwnedElsewhere
+      />,
+    );
+
+    expect(screen.getByRole("link", { name: "Finalize this review" }).className).toContain("border-neutral-300");
+  });
+
   it("renders Report problem when deliverables API load fails (TB-791)", () => {
     render(
       <RunDetailArtifactsExportsSection

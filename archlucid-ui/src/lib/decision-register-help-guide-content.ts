@@ -94,8 +94,8 @@ export const DECISION_REGISTER_HELP_FIELD_EXAMPLES: readonly DecisionRegisterHel
 
 export const DECISION_REGISTER_HELP_HOW_TO_READ_STEPS = [
   "Filter the register to the workspace scope and time range you care about.",
-  "Open a decision card to read the recorded disposition and linked review.",
-  "Follow findings or audit trail when the decision needs live triage or assurance cites.",
+  "Open a decision card to read the recorded resolve outcome and linked review.",
+  "Follow findings or audit trail when the decision needs live triage or official assurance materials.",
 ] as const;
 
 export const DECISION_REGISTER_HELP_CLAIM_HEADING_ID = "help-decision-register-claim-discipline-heading" as const;

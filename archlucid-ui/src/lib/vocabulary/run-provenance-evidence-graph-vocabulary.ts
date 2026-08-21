@@ -37,7 +37,7 @@ export const RUN_PROVENANCE_EVIDENCE_GRAPH_HEADING =
   "Package provenance and Evidence graph serve different purposes" as const;
 
 export const RUN_PROVENANCE_EVIDENCE_GRAPH_WHY_TWO =
-  "Package provenance walks linkage for one architecture review. Evidence graph explores provenance and evidence trails across packages. Opening one package’s provenance walk is not the same as exploring the cross-package graph." as const;
+  "Package provenance shows where evidence for one architecture review came from and how it links together. Evidence graph explores those connections across many reviews. Walking one review's provenance is not the same as exploring the cross-package graph." as const;
 
 export const RUN_PROVENANCE_EVIDENCE_GRAPH_COMPACT_LINE =
   "Package provenance is per-review; Evidence graph explores across packages." as const;

@@ -13,6 +13,7 @@
 
 import { AUTH_DOMAINS_SETTINGS_CANONICAL_PATH } from "@/lib/auth-domains-settings-evidence-copy";
 import { ACCOUNT_SECURITY_PATH } from "@/lib/account-route-paths";
+import type { PairwiseVocabularyRailModel } from "@/lib/vocabulary/create-pairwise-vocabulary-rail";
 
 export type AccountSecurityAuthDomainsSurfaceId = "account-security" | "auth-domains";
 
@@ -54,14 +55,27 @@ export const ACCOUNT_SECURITY_AUTH_DOMAINS_DOMAINS_LINK: AccountSecurityAuthDoma
   whenToUse: "Verify email domain ownership and enable single sign-on enforcement.",
 };
 
-/** Full vocabulary model (heading, why-two copy, and deep links). */
-export function buildAccountSecurityAuthDomainsVocabulary(): AccountSecurityAuthDomainsVocabularyModel {
+/** Pairwise model for Sign-in methods ↔ Sign-in domains (fixed routes). */
+export function buildAccountSecurityAuthDomainsPairwiseRail(): PairwiseVocabularyRailModel<AccountSecurityAuthDomainsSurfaceId> {
   return {
     heading: ACCOUNT_SECURITY_AUTH_DOMAINS_HEADING,
     whyTwo: ACCOUNT_SECURITY_AUTH_DOMAINS_WHY_TWO,
     compactLine: ACCOUNT_SECURITY_AUTH_DOMAINS_COMPACT_LINE,
-    accountSecurityLink: ACCOUNT_SECURITY_AUTH_DOMAINS_SECURITY_LINK,
-    authDomainsLink: ACCOUNT_SECURITY_AUTH_DOMAINS_DOMAINS_LINK,
+    currentLink: ACCOUNT_SECURITY_AUTH_DOMAINS_SECURITY_LINK,
+    peerLink: ACCOUNT_SECURITY_AUTH_DOMAINS_DOMAINS_LINK,
+  };
+}
+
+/** Full vocabulary model (heading, why-two copy, and deep links). */
+export function buildAccountSecurityAuthDomainsVocabulary(): AccountSecurityAuthDomainsVocabularyModel {
+  const rail = buildAccountSecurityAuthDomainsPairwiseRail();
+
+  return {
+    heading: rail.heading,
+    whyTwo: rail.whyTwo,
+    compactLine: rail.compactLine,
+    accountSecurityLink: rail.currentLink,
+    authDomainsLink: rail.peerLink,
   };
 }
 

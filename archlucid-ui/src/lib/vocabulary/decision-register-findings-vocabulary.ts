@@ -38,16 +38,16 @@ export const DECISION_REGISTER_FINDINGS_HEADING =
   "Decision register and Findings queue serve different purposes" as const;
 
 export const DECISION_REGISTER_FINDINGS_WHY_TWO =
-  "The decision register records locked architecture dispositions from completed reviews. The findings queue is risk disposition work for open governance findings. Locked decisions are not the same list as findings triage." as const;
+  "The decision register shows final decisions from completed reviews. The findings queue is for open issues you still need to resolve. Final decisions are not the same list as open findings work." as const;
 
 export const DECISION_REGISTER_FINDINGS_COMPACT_LINE =
-  "Decision register holds locked dispositions; Findings queue triages open risk work." as const;
+  "Decision register holds final decisions; Findings queue triages open issues." as const;
 
 export const DECISION_REGISTER_FINDINGS_REGISTER_LINK: DecisionRegisterFindingsLink = {
   id: "decision-register",
   label: "Decision register",
   href: GOVERNANCE_DECISION_REGISTER_PATH,
-  whenToUse: "Browse locked architecture dispositions from completed reviews.",
+  whenToUse: "Browse final decisions from completed reviews.",
 };
 
 export const DECISION_REGISTER_FINDINGS_QUEUE_LINK: DecisionRegisterFindingsLink = {

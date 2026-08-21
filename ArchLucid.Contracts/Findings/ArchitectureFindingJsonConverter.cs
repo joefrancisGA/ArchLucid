@@ -195,7 +195,12 @@ public sealed class ArchitectureFindingJsonConverter : JsonConverter<Architectur
     private static FindingSeverity ReadSeverity(JsonElement severityElement)
     {
         if (severityElement.ValueKind == JsonValueKind.Number && severityElement.TryGetInt32(out int numeric))
+        {
+            if (!Enum.IsDefined(typeof(FindingSeverity), numeric))
+                throw new JsonException($"Unknown finding severity value '{numeric}'.");
+
             return (FindingSeverity)numeric;
+        }
 
         if (severityElement.ValueKind != JsonValueKind.String)
             return FindingSeverity.Info;

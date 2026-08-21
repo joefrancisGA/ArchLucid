@@ -27,12 +27,12 @@ export const SEARCH_REVIEW_EVIDENCE_HELP_SOURCES: readonly EvidenceOrientationLi
   {
     label: "Findings queue",
     href: GOVERNANCE_FINDINGS_PATH,
-    when: "Route disposition work when a search hit surfaces an open finding",
+    when: "Route triage work when a search hit surfaces an open finding",
   },
   {
     label: "Audit trail",
     href: GOVERNANCE_AUDIT_PATH,
-    when: "Follow governed activity when search hits need accountability cites",
+    when: "Follow official activity records when search hits need official assurance materials",
   },
   {
     label: "Evidence trail help",

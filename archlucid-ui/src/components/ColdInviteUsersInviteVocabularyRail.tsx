@@ -2,13 +2,12 @@
 
 import type { JSX } from "react";
 
+import { PairwiseVocabularyRailFromModel } from "@/components/vocabulary/PairwiseVocabularyRailFromModel";
 import {
-  buildColdInviteUsersInviteVocabulary,
-  resolveColdInviteUsersInvitePeerLink,
+  buildColdInviteUsersInvitePairwiseRail,
   type ColdInviteUsersInviteSurfaceId,
   type ColdInviteUsersInviteVocabularyModel,
 } from "@/lib/vocabulary/cold-invite-users-invite-vocabulary";
-import { VocabularyRail } from "@/components/vocabulary/VocabularyRail";
 
 export type ColdInviteUsersInviteVocabularyRailProps = {
   /** Surface hosting the strip — marks the current job and links to the peer. */
@@ -27,23 +26,25 @@ export type ColdInviteUsersInviteVocabularyRailProps = {
 export function ColdInviteUsersInviteVocabularyRail(
   props: ColdInviteUsersInviteVocabularyRailProps,
 ): JSX.Element {
-  const model = props.model ?? buildColdInviteUsersInviteVocabulary();
-  const peer = resolveColdInviteUsersInvitePeerLink(props.currentSurfaceId);
-  const currentLink =
-    props.currentSurfaceId === "cold-invite" ? model.coldInviteLink : model.usersInviteLink;
+  const pairwiseModel =
+    props.model !== undefined
+      ? {
+          heading: props.model.heading,
+          whyTwo: props.model.whyTwo,
+          compactLine: props.model.compactLine,
+          currentLink: props.model.coldInviteLink,
+          peerLink: props.model.usersInviteLink,
+        }
+      : buildColdInviteUsersInvitePairwiseRail();
 
   return (
-    <VocabularyRail
+    <PairwiseVocabularyRailFromModel
       testIdPrefix="cold-invite-users-invite-vocabulary"
       currentSurfaceId={props.currentSurfaceId}
       variant={props.variant}
       className={props.className}
-      compactLine={model.compactLine}
       compactLinkPlacement="inline"
-      heading={model.heading}
-      whyTwo={model.whyTwo}
-      currentLabel={currentLink.label}
-      links={[{ ...peer, testIdSuffix: "peer-link" }]}
+      model={pairwiseModel}
     />
   );
 }

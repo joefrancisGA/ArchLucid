@@ -14,6 +14,7 @@
 
 import { ASK_REVIEW_QUESTIONS_PATH } from "@/lib/ask-review-questions-route";
 import { SEARCH_REVIEW_EVIDENCE_PATH } from "@/lib/search-review-evidence-route";
+import type { PairwiseVocabularyRailModel } from "@/lib/vocabulary/create-pairwise-vocabulary-rail";
 
 export type AskSearchEvidenceSurfaceId = "ask" | "search";
 
@@ -54,14 +55,27 @@ export const ASK_SEARCH_EVIDENCE_SEARCH_LINK: AskSearchEvidenceLink = {
   whenToUse: "Find findings, decisions, and sealed review records across architecture packages.",
 };
 
-/** Full vocabulary model (heading, why-two copy, and deep links). */
-export function buildAskSearchEvidenceVocabulary(): AskSearchEvidenceVocabularyModel {
+/** Pairwise model for Ask review questions ↔ Search review evidence (fixed routes). */
+export function buildAskSearchEvidencePairwiseRail(): PairwiseVocabularyRailModel<AskSearchEvidenceSurfaceId> {
   return {
     heading: ASK_SEARCH_EVIDENCE_HEADING,
     whyTwo: ASK_SEARCH_EVIDENCE_WHY_TWO,
     compactLine: ASK_SEARCH_EVIDENCE_COMPACT_LINE,
-    askLink: ASK_SEARCH_EVIDENCE_ASK_LINK,
-    searchLink: ASK_SEARCH_EVIDENCE_SEARCH_LINK,
+    currentLink: ASK_SEARCH_EVIDENCE_ASK_LINK,
+    peerLink: ASK_SEARCH_EVIDENCE_SEARCH_LINK,
+  };
+}
+
+/** Full vocabulary model (heading, why-two copy, and deep links). */
+export function buildAskSearchEvidenceVocabulary(): AskSearchEvidenceVocabularyModel {
+  const rail = buildAskSearchEvidencePairwiseRail();
+
+  return {
+    heading: rail.heading,
+    whyTwo: rail.whyTwo,
+    compactLine: rail.compactLine,
+    askLink: rail.currentLink,
+    searchLink: rail.peerLink,
   };
 }
 

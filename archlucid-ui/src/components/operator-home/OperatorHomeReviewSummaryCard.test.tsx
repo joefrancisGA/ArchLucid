@@ -69,6 +69,33 @@ describe("OperatorHomeReviewSummaryCard", () => {
     expect(proofMetadata.textContent).toMatch(/Audit trail:\s*Complete/);
   });
 
+  it("demotes featured primary CTA when command center owns the page primary", () => {
+    const run: RunSummary = {
+      runId: SHOWCASE_STATIC_DEMO_RUN_ID,
+      projectId: "default",
+      description: "Claims Intake sample",
+      createdUtc: "2026-01-15T12:00:00.000Z",
+      hasFindingsSnapshot: true,
+      hasGoldenManifest: true,
+      hasGovernanceWarnings: true,
+      findingCount: 4,
+      warningCount: 1,
+    };
+
+    render(
+      <OperatorHomeReviewSummaryCard
+        run={run}
+        href={`/architecture/reviews/${SHOWCASE_STATIC_DEMO_RUN_ID}`}
+        buyerPolishedShell
+        variant="featured"
+        primaryAction={{ href: `/architecture/reviews/${SHOWCASE_STATIC_DEMO_RUN_ID}`, label: "Open review" }}
+        pagePrimaryOwnedElsewhere
+      />,
+    );
+
+    expect(screen.getByRole("link", { name: "Open review" }).className).toContain("border-neutral-300");
+  });
+
   it("states the governance verdict once, on the status tag", () => {
     const run: RunSummary = {
       runId: SHOWCASE_STATIC_DEMO_RUN_ID,

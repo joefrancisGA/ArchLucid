@@ -9,7 +9,7 @@ export const USERS_AND_ROLES_HELP_CANONICAL_PATH = "/help/users-and-roles" as co
 export const USERS_AND_ROLES_HELP_TOPIC_LABEL = "How users and roles work" as const;
 
 export const USERS_AND_ROLES_HELP_CLAIM_DISCIPLINE =
-  "This capability matrix describes built-in workspace roles for the current ArchLucid release — it is role orientation, not a tenant access attestation or audit trail of your workspace membership.";
+  "This capability matrix describes built-in workspace roles for the current ArchLucid release — role orientation only, not a live report of who has access in your workspace.";
 
 export const USERS_AND_ROLES_HELP_AS_OF_LABEL = "Built-in roles as of";
 

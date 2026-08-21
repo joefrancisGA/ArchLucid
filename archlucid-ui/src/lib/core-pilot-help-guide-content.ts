@@ -8,7 +8,7 @@ export const CORE_PILOT_HELP_START_REVIEW_HREF = "/architecture/reviews/new" as 
 export const CORE_PILOT_HELP_SUMMARY_TITLE = "First review path";
 
 export const CORE_PILOT_HELP_SUMMARY_COPY =
-  "Start with evidence, run the review, finalize the architecture review, then share sponsor-ready outputs.";
+  "Start with evidence, run the review, finalize the architecture review, then share export-ready outputs.";
 
 export type CorePilotHelpWorkflowStep = {
   readonly stepNumber: number;
@@ -56,7 +56,7 @@ export const CORE_PILOT_HELP_FIRST_VIEWPORT_STEPS: readonly CorePilotHelpFirstVi
   {
     stepNumber: 3,
     title: "Finalize and share",
-    description: "Run the review, finalize the package, and export sponsor-ready outputs.",
+    description: "Run the review, finalize the package, and share export-ready outputs.",
   },
 ];
 
@@ -173,7 +173,7 @@ export const CORE_PILOT_HELP_DISCLOSURE = {
     title: "What this guide covers",
     body:
       "This page is your guided path from an empty workspace to a finalized architecture review. " +
-      "It focuses on evidence intake, running the assessment, finalizing findings, and sharing sponsor-ready exports. " +
+      "It focuses on evidence intake, running the assessment, finalizing findings, and sharing export-ready exports. " +
       "Template-specific walkthroughs and deeper configuration live in related guides below.",
   },
   whenToUseCloudConnectors: {

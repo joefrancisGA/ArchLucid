@@ -54,7 +54,7 @@ export const PILOT_ROI_MEASUREMENT_HELP_BASELINE_LABELS: readonly PilotRoiMeasur
   },
   {
     label: "not-collected",
-    meaning: "No baseline captured yet — avoid sponsor-safe dollar savings claims.",
+    meaning: "No baseline captured yet — avoid projected dollar savings claims in exports.",
   },
 ] as const;
 

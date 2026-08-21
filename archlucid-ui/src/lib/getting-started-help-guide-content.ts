@@ -23,7 +23,7 @@ export const GETTING_STARTED_HELP_AUDIENCE_LINE =
   "For architects, pilot teams, and sponsors who want to understand the review flow before starting.";
 
 export const GETTING_STARTED_HELP_CLAIM_DISCIPLINE =
-  "This guide orients you through the review flow — it is not a sealed-review diligence Sources package. Open Security & Trust or a finalized review before treating onboarding copy as procurement evidence.";
+  "This guide orients you through the review flow — not a full audit export. Open Security & Trust or a finalized review before procurement.";
 
 export const GETTING_STARTED_HELP_SOURCES_INTRO =
   "Use these follow-ups when getting-started orientation turns into a first review, path choice, or assurance questions.";
@@ -59,7 +59,7 @@ export const GETTING_STARTED_HELP_QUICK_START_COPY =
 export const GETTING_STARTED_HELP_DIAGRAM_TITLE = "How ArchLucid works";
 
 export const GETTING_STARTED_HELP_DIAGRAM_SUMMARY =
-  "ArchLucid ingests architecture evidence, evaluates it against your standards, and produces a governed architecture review you can share.";
+  "ArchLucid ingests architecture evidence, evaluates it against your standards, and produces a finalized architecture review you can share.";
 
 export const GETTING_STARTED_HELP_DIAGRAM_STEPS = [
   "Evidence",
@@ -103,7 +103,7 @@ export const GETTING_STARTED_HELP_PLAIN_LANGUAGE_TERMS: readonly GettingStartedP
   {
     term: "Decision",
     definition:
-      "A recorded disposition on review proposals—such as approve, waive, defer, or escalate—captured for governance and audit.",
+      "A recorded resolve outcome on review proposals—such as approve, waive, defer, or escalate—captured for governance and audit.",
   },
   {
     term: "Sealed review record",

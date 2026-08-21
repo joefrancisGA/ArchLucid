@@ -3,7 +3,7 @@ import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
 export const PATTERN_LIBRARY_DETAIL_CLAIM_DISCIPLINE =
-  "Pattern detail copy is anonymized catalog guidance (or labeled sample data) — not a sealed-review diligence Sources package and not tenant-identifying usage. Open the Pattern library or start a review before briefing sponsors.";
+  "Pattern detail copy is anonymized catalog guidance (or labeled sample data) — not live tenant usage or a full audit export. Open the Pattern library or start a review before briefing sponsors.";
 
 export const PATTERN_LIBRARY_DETAIL_CLAIM_HEADING = "Anonymized pattern detail only" as const;
 

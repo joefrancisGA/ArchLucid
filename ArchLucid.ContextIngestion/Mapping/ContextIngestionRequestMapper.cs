@@ -25,7 +25,10 @@ public static class ContextIngestionRequestMapper
             Documents = request.Documents
                 .Select(d => new ContextDocumentReference
                 {
-                    Name = d.Name, ContentType = d.ContentType, Content = d.Content
+                    DocumentId = ContextIngestionStableReferenceIds.ForDocument(d.Name, d.ContentType),
+                    Name = d.Name,
+                    ContentType = d.ContentType,
+                    Content = d.Content,
                 })
                 .ToList(),
             PolicyReferences = request.PolicyReferences.ToList(),
@@ -41,7 +44,10 @@ public static class ContextIngestionRequestMapper
             InfrastructureDeclarations = request.InfrastructureDeclarations
                 .Select(x => new InfrastructureDeclarationReference
                 {
-                    Name = x.Name, Format = x.Format, Content = x.Content
+                    DeclarationId = ContextIngestionStableReferenceIds.ForInfrastructureDeclaration(x.Name, x.Format),
+                    Name = x.Name,
+                    Format = x.Format,
+                    Content = x.Content,
                 })
                 .ToList()
         };

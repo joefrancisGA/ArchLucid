@@ -63,7 +63,7 @@ const CORE_GLOSSARY: GlossaryEntry[] = [
   {
     term: "Compare",
     definition:
-      "Side-by-side diff of two reviews — findings, review record changes, and governance disposition deltas.",
+      "Side-by-side diff of two reviews — findings, review record changes, and resolve outcome deltas.",
   },
   {
     term: "Proof packet",

@@ -61,6 +61,38 @@ public sealed class ArchitectureRecommendationProposedChangeTests
 
     [Fact]
     [Trait("Category", "Unit")]
+    public void BuildRecommendations_indeterminate_insufficient_evidence_uses_suggestion_not_must_change()
+    {
+        ArchitectureRecommendationEngine sut = new();
+        SpecialistReviewFinding finding = new()
+        {
+            FindingId = "f-indeterminate",
+            Dimension = QualityDimension.Security,
+            Title = "Public endpoint lacks documented trust boundary",
+            Rationale = "No trust-boundary element is recorded for the public API.",
+            Conclusion = ReviewConclusion.Indeterminate,
+            EvidenceCondition = EvidenceCondition.Insufficient,
+            Severity = "Medium",
+            Confidence = 0.5,
+        };
+
+        ArchitectureRecommendation recommendation = sut.BuildRecommendations(
+            new ArchitectureKnowledgeModel
+            {
+                ModelId = "m",
+                TenantId = "t",
+            },
+            [finding],
+            ["Security"]).Single();
+
+        recommendation.ProposedChange.Should().Contain("Collect additional evidence");
+        recommendation.ProposedChange.Should().NotContain("require authentication");
+        recommendation.ProposedChange.Should().NotContain("before production exposure");
+        recommendation.ValidationMethod.Should().Contain("Attach evidence artifacts");
+    }
+
+    [Fact]
+    [Trait("Category", "Unit")]
     public void BuildRecommendations_marks_implementation_estimate_unavailable()
     {
         ArchitectureRecommendationEngine sut = new();

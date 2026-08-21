@@ -52,12 +52,12 @@ export function isTrustEvidenceFieldException(status: string): boolean {
 
 function readinessHeadline(exceptionCount: number): string {
   if (exceptionCount === 0) {
-    return "Evidence is complete for sponsor handoff.";
+    return "Evidence is ready to share with leadership.";
   }
 
   const noun = exceptionCount === 1 ? "field needs" : "fields need";
 
-  return `${exceptionCount} evidence ${noun} attention before sponsor handoff.`;
+  return `${exceptionCount} evidence ${noun} attention before sharing with leadership.`;
 }
 
 /** Partitions Evidence-basis fields into a verdict, the exceptions, and the satisfied remainder. */

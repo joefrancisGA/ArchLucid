@@ -13,7 +13,7 @@ export const FINDINGS_HELP_TOPIC_LABEL = "How findings work";
 export const FINDINGS_HELP_CLAIM_DISCIPLINE_HEADING = "What this guide does not cover";
 
 export const FINDINGS_HELP_CLAIM_DISCIPLINE =
-  "This guide explains how architecture concerns are inspected and resolved — open Findings, Audit, or a finalized architecture review when you need live or governed trails.";
+  "This guide explains how architecture concerns are inspected and resolved — open Findings, Audit, or a finalized architecture review when you need live records or export-ready activity.";
 
 export const FINDINGS_HELP_FOLLOW_UPS_TITLE = "Where to go next";
 

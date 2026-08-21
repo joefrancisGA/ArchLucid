@@ -13,6 +13,7 @@
 
 import { FIRST_ARCHITECTURE_REVIEW_HELP_PATH } from "@/lib/first-architecture-review-help-route";
 import { GETTING_STARTED_HELP_PATH } from "@/lib/getting-started-help-guide-content";
+import type { PairwiseVocabularyRailModel } from "@/lib/vocabulary/create-pairwise-vocabulary-rail";
 
 export type GettingStartedFirstArchitectureReviewSurfaceId =
   | "getting-started"
@@ -58,14 +59,27 @@ export const GETTING_STARTED_FIRST_ARCHITECTURE_REVIEW_FIRST_REVIEW_LINK: Gettin
     whenToUse: "Follow the guided path to complete your first review.",
   };
 
-/** Full vocabulary model (heading, why-two copy, and deep links). */
-export function buildGettingStartedFirstArchitectureReviewVocabulary(): GettingStartedFirstArchitectureReviewVocabularyModel {
+/** Pairwise model for Getting started ↔ Your first architecture review (fixed routes). */
+export function buildGettingStartedFirstArchitectureReviewPairwiseRail(): PairwiseVocabularyRailModel<GettingStartedFirstArchitectureReviewSurfaceId> {
   return {
     heading: GETTING_STARTED_FIRST_ARCHITECTURE_REVIEW_HEADING,
     whyTwo: GETTING_STARTED_FIRST_ARCHITECTURE_REVIEW_WHY_TWO,
     compactLine: GETTING_STARTED_FIRST_ARCHITECTURE_REVIEW_COMPACT_LINE,
-    gettingStartedLink: GETTING_STARTED_FIRST_ARCHITECTURE_REVIEW_GETTING_STARTED_LINK,
-    firstArchitectureReviewLink: GETTING_STARTED_FIRST_ARCHITECTURE_REVIEW_FIRST_REVIEW_LINK,
+    currentLink: GETTING_STARTED_FIRST_ARCHITECTURE_REVIEW_GETTING_STARTED_LINK,
+    peerLink: GETTING_STARTED_FIRST_ARCHITECTURE_REVIEW_FIRST_REVIEW_LINK,
+  };
+}
+
+/** Full vocabulary model (heading, why-two copy, and deep links). */
+export function buildGettingStartedFirstArchitectureReviewVocabulary(): GettingStartedFirstArchitectureReviewVocabularyModel {
+  const rail = buildGettingStartedFirstArchitectureReviewPairwiseRail();
+
+  return {
+    heading: rail.heading,
+    whyTwo: rail.whyTwo,
+    compactLine: rail.compactLine,
+    gettingStartedLink: rail.currentLink,
+    firstArchitectureReviewLink: rail.peerLink,
   };
 }
 

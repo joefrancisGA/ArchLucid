@@ -3,10 +3,10 @@ import { SPONSOR_REPORT_PATH } from "@/lib/sponsor-report-navigation";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
 export const SPONSOR_SUMMARY_CLAIM_DISCIPLINE =
-  "Period preview tiles and sponsor exports summarize finalized reviews and directional ROI for the selected window — they are not a sealed-review diligence Sources package by themselves. Open Evidence trail or Trust Center before treating this report as procurement evidence.";
+  "Period preview tiles and sponsor exports summarize finalized reviews and directional ROI for the selected window — not financial reporting or a full audit export. Open Evidence trail or Trust Center before treating this report as procurement evidence.";
 
 export const SPONSOR_SUMMARY_SOURCES_INTRO =
-  "Use these follow-ups when the sponsor report needs a fuller evidence trail, ROI methodology, or assurance cites.";
+  "Use these follow-ups when the sponsor report needs a fuller evidence trail, ROI methodology, or official assurance materials.";
 
 
 /** Operator Sources — no self-href to the sponsor report path. */

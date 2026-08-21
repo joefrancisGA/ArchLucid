@@ -30,7 +30,7 @@ export const QUICK_REVIEW_SAMPLE_BRIEF_CAPTION = "Sample — edit freely";
 
 export const BUYER_NEW_REVIEW_TOAST_CATEGORY = CREATE_ARCHITECTURE_LABEL;
 
-/** Form section heading when the user is defining the governed review artifact. */
+/** Form section heading when the user is defining the architecture review artifact. */
 export const CREATE_REVIEW_PACKAGE_HEADING = "Create review";
 
 export const BUYER_START_ARCHITECTURE_REVIEW_CTA = "Start an architecture review";

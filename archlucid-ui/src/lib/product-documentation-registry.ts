@@ -553,7 +553,7 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
   {
     slug: "recurrence-schedules",
     title: "Recurrence schedules",
-    summary: "Automate follow-up review cadences for governed architecture reviews.",
+    summary: "Automate follow-up review cadences for architecture reviews.",
     audience: "operator",
     // App-rendered specialty (`HelpRecurrenceSchedulesGuideView`).
     sourcePaths: [],
@@ -781,7 +781,7 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
   {
     slug: "model-governance",
     title: "AI and model governance",
-    summary: "Workspace execution profiles, governed model aliases, and profile mappings used on reviews.",
+    summary: "Workspace execution profiles, approved model aliases, and profile mappings used on reviews.",
     audience: "operator",
     sourcePaths: [],
     lastReviewed: "2026-08-13",

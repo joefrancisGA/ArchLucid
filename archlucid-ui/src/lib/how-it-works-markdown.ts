@@ -3,7 +3,7 @@ export const DATA_HANDLING_MARKDOWN = `# What ArchLucid does with your data
 
 ## What ArchLucid does
 
-ArchLucid takes your architecture brief and optional evidence context, applies policy packs, and produces a **governed architecture review** with findings, decisions, a **sealed review record**, and an audit trail. ArchLucid does not execute code in your environment and does not require write access to your systems.
+ArchLucid takes your architecture brief and optional evidence context, applies policy packs, and produces a **finalized architecture review** with findings, decisions, a **sealed review record**, and an audit trail. ArchLucid does not execute code in your environment and does not require write access to your systems.
 
 ## What leaves your tenant
 
@@ -13,7 +13,7 @@ ArchLucid does not send source code repositories, secrets, or credentials as par
 
 ## What stays in your tenant
 
-All findings, sealed review records, decisions, governance approvals, and audit log entries are stored in your ArchLucid tenant database. ArchLucid does not retain copies outside your tenant boundary for product analytics on governed review content.
+All findings, sealed review records, decisions, governance approvals, and audit log entries are stored in your ArchLucid tenant database. ArchLucid does not retain copies outside your tenant boundary for product analytics on architecture review content.
 
 ## What ArchLucid does not collect
 

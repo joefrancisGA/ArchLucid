@@ -13,6 +13,7 @@
  */
 
 import { GOVERNANCE_POLICY_PACKS_PATH, governancePolicyPackDetailPath } from "@/lib/governance/governance-route-paths";
+import type { PairwiseVocabularyRailModel } from "@/lib/vocabulary/create-pairwise-vocabulary-rail";
 
 export type PolicyPackDetailHubSurfaceId = "policy-packs" | "pack-detail";
 
@@ -55,14 +56,27 @@ export const POLICY_PACK_DETAIL_HUB_PACK_DETAIL_LINK: PolicyPackDetailHubLink = 
   whenToUse: "Inspect one policy pack’s narrative and metadata.",
 };
 
-/** Full vocabulary model (heading, why-two copy, and deep links). */
-export function buildPolicyPackDetailHubVocabulary(): PolicyPackDetailHubVocabularyModel {
+/** Pairwise model for Policy packs hub ↔ Pack detail (peer href may be scoped per pack). */
+export function buildPolicyPackDetailHubPairwiseRail(): PairwiseVocabularyRailModel<PolicyPackDetailHubSurfaceId> {
   return {
     heading: POLICY_PACK_DETAIL_HUB_HEADING,
     whyTwo: POLICY_PACK_DETAIL_HUB_WHY_TWO,
     compactLine: POLICY_PACK_DETAIL_HUB_COMPACT_LINE,
-    packsHubLink: POLICY_PACK_DETAIL_HUB_PACKS_LINK,
-    packDetailLink: POLICY_PACK_DETAIL_HUB_PACK_DETAIL_LINK,
+    currentLink: POLICY_PACK_DETAIL_HUB_PACKS_LINK,
+    peerLink: POLICY_PACK_DETAIL_HUB_PACK_DETAIL_LINK,
+  };
+}
+
+/** Full vocabulary model (heading, why-two copy, and deep links). */
+export function buildPolicyPackDetailHubVocabulary(): PolicyPackDetailHubVocabularyModel {
+  const rail = buildPolicyPackDetailHubPairwiseRail();
+
+  return {
+    heading: rail.heading,
+    whyTwo: rail.whyTwo,
+    compactLine: rail.compactLine,
+    packsHubLink: rail.currentLink,
+    packDetailLink: rail.peerLink,
   };
 }
 

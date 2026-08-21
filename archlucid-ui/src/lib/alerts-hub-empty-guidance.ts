@@ -70,7 +70,7 @@ export const compositeRulesEmptyGettingStartedOperator: EmptyStateGettingStarted
 export const compositeRulesEmptyGettingStartedReader: EmptyStateGettingStarted = {
   heading: "What composite rules do",
   steps: [
-    "They join several signals before firing — useful for nuanced governance thresholds.",
+    "Combine multiple checks (for example severity and category) before sending an alert.",
     "Authoring requires Execute+ — inspect existing definitions until an architect adds one.",
     "Simulation tab helps architects validate logic before traffic hits the inbox.",
   ],

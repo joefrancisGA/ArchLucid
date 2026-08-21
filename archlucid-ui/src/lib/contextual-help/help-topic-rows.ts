@@ -76,7 +76,7 @@ export const HELP_TOPIC_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] =
   {
     prefix: "/help/sponsor-report",
     entry: {
-      whatIsThisPage: `${SPONSOR_REPORT_HELP_TOPIC_LABEL} — sponsor-safe pilot proof, ROI framing, and what executives should expect in exports.`,
+      whatIsThisPage: `${SPONSOR_REPORT_HELP_TOPIC_LABEL} — export-ready pilot proof, ROI framing, and what executives should expect in exports.`,
       whatToDoNext:
         "Open the live sponsor value report or dashboard, then review Pilot ROI measurement when methodology needs clarity.",
       whyEmpty: "This guide is always available; live sponsor reports populate after finalized reviews exist.",

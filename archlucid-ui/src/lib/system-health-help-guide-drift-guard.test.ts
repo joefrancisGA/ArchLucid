@@ -67,11 +67,11 @@ describe("system health help negation drift guard", () => {
       expect(SYSTEM_HEALTH_HELP_CLAIM_DISCIPLINE).toContain(SYSTEM_HEALTH_HELP_OPERATOR_CLAIM_NEGATION);
       expect(SYSTEM_HEALTH_CLAIM_DISCIPLINE).toContain(SYSTEM_HEALTH_HELP_OPERATOR_CLAIM_NEGATION);
 
-      const diligenceNegationCount =
-        (SYSTEM_HEALTH_HELP_OVERVIEW.match(/sources trail/gi) ?? []).length +
-        (SYSTEM_HEALTH_HELP_CLAIM_DISCIPLINE.match(/sources trail/gi) ?? []).length;
+      const auditExportNegationCount =
+        (SYSTEM_HEALTH_HELP_OVERVIEW.match(/full audit export/gi) ?? []).length +
+        (SYSTEM_HEALTH_HELP_CLAIM_DISCIPLINE.match(/full audit export/gi) ?? []).length;
 
-      expect(diligenceNegationCount).toBe(1);
+      expect(auditExportNegationCount).toBe(1);
     }
   });
 

@@ -15,6 +15,7 @@
 
 import { GOVERNANCE_FINDINGS_CANONICAL_PATH } from "@/lib/governance/governance-findings-evidence-copy";
 import { SEARCH_REVIEW_EVIDENCE_PATH } from "@/lib/search-review-evidence-route";
+import type { PairwiseVocabularyRailModel } from "@/lib/vocabulary/create-pairwise-vocabulary-rail";
 
 export type FindingsQueueSearchEvidenceSurfaceId = "findings-queue" | "search-evidence";
 
@@ -37,7 +38,7 @@ export const FINDINGS_QUEUE_SEARCH_EVIDENCE_HEADING =
   "Findings queue and Search review evidence serve different purposes" as const;
 
 export const FINDINGS_QUEUE_SEARCH_EVIDENCE_WHY_TWO =
-  "The findings queue is the governance triage inbox for dispositioning risks, assigning owners, and clearing open items. Search review evidence finds findings, decisions, and sealed review records across architecture packages in the evidence trail. Use the findings queue to triage; open Search when you need to locate evidence across packages." as const;
+  "Findings queue is where you resolve and assign open risks. Search finds findings and records across reviews in the evidence trail. Triage in the queue; open Search when you need cross-review lookup." as const;
 
 export const FINDINGS_QUEUE_SEARCH_EVIDENCE_COMPACT_LINE =
   "Findings queue triages risks; Search finds evidence across architecture packages — open the other when you need both." as const;
@@ -56,14 +57,27 @@ export const FINDINGS_QUEUE_SEARCH_EVIDENCE_SEARCH_LINK: FindingsQueueSearchEvid
   whenToUse: "Find findings, decisions, and sealed review records across architecture packages.",
 };
 
-/** Full vocabulary model (heading, why-two copy, and deep links). */
-export function buildFindingsQueueSearchEvidenceVocabulary(): FindingsQueueSearchEvidenceVocabularyModel {
+/** Pairwise model for Findings queue ↔ Search review evidence (fixed routes). */
+export function buildFindingsQueueSearchEvidencePairwiseRail(): PairwiseVocabularyRailModel<FindingsQueueSearchEvidenceSurfaceId> {
   return {
     heading: FINDINGS_QUEUE_SEARCH_EVIDENCE_HEADING,
     whyTwo: FINDINGS_QUEUE_SEARCH_EVIDENCE_WHY_TWO,
     compactLine: FINDINGS_QUEUE_SEARCH_EVIDENCE_COMPACT_LINE,
-    findingsQueueLink: FINDINGS_QUEUE_SEARCH_EVIDENCE_FINDINGS_LINK,
-    searchEvidenceLink: FINDINGS_QUEUE_SEARCH_EVIDENCE_SEARCH_LINK,
+    currentLink: FINDINGS_QUEUE_SEARCH_EVIDENCE_FINDINGS_LINK,
+    peerLink: FINDINGS_QUEUE_SEARCH_EVIDENCE_SEARCH_LINK,
+  };
+}
+
+/** Full vocabulary model (heading, why-two copy, and deep links). */
+export function buildFindingsQueueSearchEvidenceVocabulary(): FindingsQueueSearchEvidenceVocabularyModel {
+  const rail = buildFindingsQueueSearchEvidencePairwiseRail();
+
+  return {
+    heading: rail.heading,
+    whyTwo: rail.whyTwo,
+    compactLine: rail.compactLine,
+    findingsQueueLink: rail.currentLink,
+    searchEvidenceLink: rail.peerLink,
   };
 }
 

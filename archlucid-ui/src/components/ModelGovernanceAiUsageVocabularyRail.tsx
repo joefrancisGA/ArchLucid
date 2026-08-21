@@ -2,13 +2,12 @@
 
 import type { JSX } from "react";
 
+import { PairwiseVocabularyRailFromModel } from "@/components/vocabulary/PairwiseVocabularyRailFromModel";
 import {
-  buildModelGovernanceAiUsageVocabulary,
-  resolveModelGovernanceAiUsagePeerLink,
+  buildModelGovernanceAiUsagePairwiseRail,
   type ModelGovernanceAiUsageSurfaceId,
   type ModelGovernanceAiUsageVocabularyModel,
 } from "@/lib/vocabulary/model-governance-ai-usage-vocabulary";
-import { VocabularyRail } from "@/components/vocabulary/VocabularyRail";
 
 export type ModelGovernanceAiUsageVocabularyRailProps = {
   /** Surface hosting the strip — marks the current admin job and links to the peer. */
@@ -28,25 +27,25 @@ export type ModelGovernanceAiUsageVocabularyRailProps = {
 export function ModelGovernanceAiUsageVocabularyRail(
   props: ModelGovernanceAiUsageVocabularyRailProps,
 ): JSX.Element {
-  const model = props.model ?? buildModelGovernanceAiUsageVocabulary();
-  const peer = resolveModelGovernanceAiUsagePeerLink(props.currentSurfaceId);
-  const currentLink =
-    props.currentSurfaceId === "model-governance"
-      ? model.modelGovernanceLink
-      : model.aiUsageLink;
+  const pairwiseModel =
+    props.model !== undefined
+      ? {
+          heading: props.model.heading,
+          whyTwo: props.model.whyTwo,
+          compactLine: props.model.compactLine,
+          currentLink: props.model.modelGovernanceLink,
+          peerLink: props.model.aiUsageLink,
+        }
+      : buildModelGovernanceAiUsagePairwiseRail();
 
   return (
-    <VocabularyRail
+    <PairwiseVocabularyRailFromModel
       testIdPrefix="model-governance-ai-usage-vocabulary"
       currentSurfaceId={props.currentSurfaceId}
       variant={props.variant}
       className={props.className}
-      compactLine={model.compactLine}
       compactLinkPlacement="inline"
-      heading={model.heading}
-      whyTwo={model.whyTwo}
-      currentLabel={currentLink.label}
-      links={[{ ...peer, testIdSuffix: "peer-link" }]}
+      model={pairwiseModel}
     />
   );
 }

@@ -38,10 +38,10 @@ export const PACKAGE_ACTIVITY_AUDIT_TRAIL_HEADING =
   "Package Activity and Audit trail serve different purposes" as const;
 
 export const PACKAGE_ACTIVITY_AUDIT_TRAIL_WHY_TWO =
-  "Package Activity shows assessment progress for one architecture package — pipeline stages and review activity on that package. Audit trail is the operator activity log for governance and review events across the workspace. Watching package progress is not the same as searching the operator audit log." as const;
+  "Package Activity shows progress on one architecture review — pipeline stages and review events on that review. Audit trail is the workspace-wide activity log for governance and review events. Watching one review's progress is not the same as searching the workspace log." as const;
 
 export const PACKAGE_ACTIVITY_AUDIT_TRAIL_COMPACT_LINE =
-  "Package Activity is assessment progress on one review; Audit trail is the operator activity log." as const;
+  "Package Activity is progress on one review; Audit trail is the workspace activity log." as const;
 
 /**
  * Peer from Audit trail without a run: Reviews hub, because Activity is

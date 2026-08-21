@@ -26,9 +26,15 @@ export type RunDetailCreateHomeActivityPanelProps = {
   readonly outcomeCards: ReactNode;
   readonly midDeferred: ReactNode;
   readonly sourcesPanel: ReactNode;
+  /** When Do this next owns the page primary, keep orientation links secondary. */
+  readonly pagePrimaryOwnedElsewhere?: boolean;
 };
 
-function RunDetailCreateHomeActivityOrientation(props: { readonly runId: string }): ReactElement {
+function RunDetailCreateHomeActivityOrientation(props: {
+  readonly runId: string;
+  readonly pagePrimaryOwnedElsewhere?: boolean;
+}): ReactElement {
+  const overviewVariant = props.pagePrimaryOwnedElsewhere === true ? "outline" : "primary";
   const overviewHref = buildReviewWorkspaceTabHref(props.runId, "overview");
   const findingsHref = buildReviewWorkspaceTabHref(props.runId, "findings");
   const clarificationsHref = buildReviewWorkspaceTabHref(props.runId, "decisions-remediation");
@@ -42,7 +48,7 @@ function RunDetailCreateHomeActivityOrientation(props: { readonly runId: string 
         {RUN_DETAIL_CREATE_HOME_ACTIVITY_ORIENTATION_LEAD}
       </p>
       <div className="flex flex-wrap gap-2">
-        <Button type="button" variant="primary" size="sm" asChild>
+        <Button type="button" variant={overviewVariant} size="sm" asChild>
           <Link href={overviewHref}>Open overview</Link>
         </Button>
         <Button type="button" variant="outline" size="sm" asChild>
@@ -89,7 +95,12 @@ export function RunDetailCreateHomeActivityPanel(props: RunDetailCreateHomeActiv
           </div>
         ) : null}
 
-        {!showTracker ? <RunDetailCreateHomeActivityOrientation runId={props.runId} /> : null}
+        {!showTracker ? (
+          <RunDetailCreateHomeActivityOrientation
+            runId={props.runId}
+            pagePrimaryOwnedElsewhere={props.pagePrimaryOwnedElsewhere}
+          />
+        ) : null}
 
         {showTracker && hasManifest ? (
           <RunDetailProgressTrackerDeferred

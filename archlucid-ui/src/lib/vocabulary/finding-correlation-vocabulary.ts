@@ -6,7 +6,7 @@ export const CROSS_REVIEW_FINDING_CORRELATION_PANEL_TITLE =
   `${CROSS_REVIEW_FINDING_CORRELATION_LABEL} (export parity)`;
 
 export const CROSS_REVIEW_FINDING_CORRELATION_SHORT =
-  "Matches findings across two finalized reviews for compare and replay exports (ADR 0063 policy rule + fingerprint, with possible-match honesty).";
+  "Finds the same or similar findings in two finalized reviews for compare and replay exports. Some matches are uncertain and labeled that way.";
 
 export const ITSM_TICKET_LINKAGE_LABEL = "ITSM ticket linkage";
 

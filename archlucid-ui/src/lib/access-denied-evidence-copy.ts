@@ -7,7 +7,7 @@ export const ACCESS_DENIED_CLAIM_DISCIPLINE_HEADING = "What access denied is not
 export const ACCESS_DENIED_FOLLOW_UPS_TITLE = "Where to go next";
 
 export const ACCESS_DENIED_CLAIM_DISCIPLINE =
-  "Access denied explains that your signed-in account lacks a recognized ArchLucid app role for this tenant — it is an authorization gate, not a sealed-review diligence Sources package. After an administrator grants a role, open Assurance status or a finalized review when you need workspace evidence.";
+  "Access denied explains that your signed-in account lacks a recognized ArchLucid app role for this tenant — authorization only, not a full audit export. After an administrator grants a role, open Assurance status or a finalized review when you need workspace evidence.";
 
 export const ACCESS_DENIED_SOURCES_INTRO =
   "Use these follow-ups when access is blocked or you need evaluation orientation before a workspace role is ready.";

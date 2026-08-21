@@ -2,13 +2,12 @@
 
 import type { JSX } from "react";
 
+import { PairwiseVocabularyRailFromModel } from "@/components/vocabulary/PairwiseVocabularyRailFromModel";
 import {
-  buildExtractUploadCloudConnectionsVocabulary,
-  resolveExtractUploadCloudConnectionsPeerLink,
+  buildExtractUploadCloudConnectionsPairwiseRail,
   type ExtractUploadCloudConnectionsSurfaceId,
   type ExtractUploadCloudConnectionsVocabularyModel,
 } from "@/lib/vocabulary/extract-upload-cloud-connections-vocabulary";
-import { VocabularyRail } from "@/components/vocabulary/VocabularyRail";
 
 export type ExtractUploadCloudConnectionsVocabularyRailProps = {
   /** Surface hosting the strip — marks the current evidence-intake job and links to the peer. */
@@ -28,25 +27,25 @@ export type ExtractUploadCloudConnectionsVocabularyRailProps = {
 export function ExtractUploadCloudConnectionsVocabularyRail(
   props: ExtractUploadCloudConnectionsVocabularyRailProps,
 ): JSX.Element {
-  const model = props.model ?? buildExtractUploadCloudConnectionsVocabulary();
-  const peer = resolveExtractUploadCloudConnectionsPeerLink(props.currentSurfaceId);
-  const currentLink =
-    props.currentSurfaceId === "extract-upload"
-      ? model.extractUploadLink
-      : model.cloudConnectionsLink;
+  const pairwiseModel =
+    props.model !== undefined
+      ? {
+          heading: props.model.heading,
+          whyTwo: props.model.whyTwo,
+          compactLine: props.model.compactLine,
+          currentLink: props.model.extractUploadLink,
+          peerLink: props.model.cloudConnectionsLink,
+        }
+      : buildExtractUploadCloudConnectionsPairwiseRail();
 
   return (
-    <VocabularyRail
+    <PairwiseVocabularyRailFromModel
       testIdPrefix="extract-upload-cloud-connections-vocabulary"
       currentSurfaceId={props.currentSurfaceId}
       variant={props.variant}
       className={props.className}
-      compactLine={model.compactLine}
       compactLinkPlacement="inline"
-      heading={model.heading}
-      whyTwo={model.whyTwo}
-      currentLabel={currentLink.label}
-      links={[{ ...peer, testIdSuffix: "peer-link" }]}
+      model={pairwiseModel}
     />
   );
 }

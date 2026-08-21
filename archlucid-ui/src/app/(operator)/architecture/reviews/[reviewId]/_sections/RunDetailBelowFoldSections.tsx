@@ -219,6 +219,7 @@ export function RunDetailBelowFoldSections(props: RunDetailBelowFoldSectionsProp
           <RecurrenceSchedulePostCommitCard
             runId={m.routeRunId}
             hasStickinessPrompt={Boolean(m.manifestId)}
+            pagePrimaryOwnedElsewhere
           />
         </>
       ) : null}
@@ -243,6 +244,7 @@ export function RunDetailBelowFoldSections(props: RunDetailBelowFoldSectionsProp
           trustEvidenceCard={m.resolvedDetail.trustEvidenceCard}
           usedStaticDemoRun={m.usedStaticDemoRun}
           requestId={m.resolvedDetail.run.architectureRequestId ?? (m.resolvedDetail.run as { requestId?: string }).requestId}
+          pagePrimaryOwnedElsewhere
         />
       ) : null}
 

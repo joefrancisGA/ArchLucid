@@ -17,7 +17,7 @@ export const EVIDENCE_TRACE_CONTEXTUAL_HELP = {
   whatIsThisPage:
     "Evidence trace — policy citations, evidence, reasoning, and audit linkage supporting one architecture finding.",
   whatToDoNext:
-    "Review the evidence region, return to finding detail for disposition, or open review provenance for the run trail.",
+    "Review the evidence region, go back to the finding to resolve it, or open review provenance to see the full evidence path.",
   whyEmpty: "Trace content appears after the finding payload loads for this review.",
   whereToConfigurePrerequisite:
     "Open a finding from a review or the governance findings queue before drilling into its evidence trace.",

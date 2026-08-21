@@ -2,7 +2,7 @@ import { diffComplianceRuleKeys, type ComplianceRuleKeyDiffItem } from "@/lib/po
 import type { EffectivePolicyPackSet, PolicyPackContentDocument } from "@/types/policy-packs";
 
 export const COMPARE_GOVERNANCE_CURRENT_EFFECTIVE_DISCLAIMER =
-  "Current effective policy pack assignments and compliance rule keys reflect the present scope — not a historical snapshot at each review commit. When committed packages include policy-at-commit metadata, those rows are shown separately below.";
+  "Current policy pack assignments and compliance rules show what's in effect today — not the rules frozen when each review was finalized. When a review saved its rules at commit time, those rows appear separately below.";
 
 export type CompareEffectivePackAssignmentAtCommitRow = {
   readonly policyPackId: string;

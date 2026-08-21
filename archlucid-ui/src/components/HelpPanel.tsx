@@ -55,7 +55,7 @@ const HELP_CORE_PILOT_PIN_DISMISSED_SESSION_KEY = "archlucid_help_core_pilot_pin
 const KEY_CONCEPTS: { label: string; text: string }[] = [
   { label: "Request", text: "The architecture intent you submit." },
   { label: "Architecture review", text: "The packaged review created from a request (context, graph, findings, sealed review record)." },
-  { label: SIGNED_MANIFEST_LABEL, text: "The governed architecture output produced when a review is finalized." },
+  { label: SIGNED_MANIFEST_LABEL, text: "The finalized architecture output produced when a review is finalized." },
   { label: "Artifacts", text: "Supporting files, findings, and review materials." },
 ];
 

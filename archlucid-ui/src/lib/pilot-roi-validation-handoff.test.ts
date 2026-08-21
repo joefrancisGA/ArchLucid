@@ -102,7 +102,7 @@ describe("buildPilotRoiValidationChecklistMarkdown", () => {
 
     expect(markdown).toContain("Run ID: run-abc");
     expect(markdown).toContain("ROI evidence confidence: Strong");
-    expect(markdown).toContain("Projected dollar claims sponsor-safe: yes");
+    expect(markdown).toContain("Projected dollar claims export-ready: yes");
     expect(markdown).toContain("Did a decision change because of a finding?");
     expect(markdown).toContain("paid-pilot-evidence-ledger.template.json");
   });

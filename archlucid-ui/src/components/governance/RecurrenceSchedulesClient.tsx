@@ -310,7 +310,7 @@ export default function RecurrenceSchedulesClient() {
   }
 
   const populatedSecondaryActions = [
-    { label: "View governed reviews", href: RECURRENCE_SCHEDULES_REVIEW_PACKAGES_HREF },
+    { label: "View architecture reviews", href: RECURRENCE_SCHEDULES_REVIEW_PACKAGES_HREF },
     { label: "View pending approvals", href: RECURRENCE_SCHEDULES_PENDING_APPROVALS_HREF },
     { label: "Open risk register", href: RECURRENCE_SCHEDULES_RISK_REGISTER_HREF },
   ] as const;
@@ -321,7 +321,7 @@ export default function RecurrenceSchedulesClient() {
 
   // Empty first viewport keeps one optional secondary link (TB-1133); populated keeps the full set.
   const secondaryActions = isEmpty
-    ? ([{ label: "View governed reviews", href: RECURRENCE_SCHEDULES_REVIEW_PACKAGES_HREF }] as const)
+    ? ([{ label: "View architecture reviews", href: RECURRENCE_SCHEDULES_REVIEW_PACKAGES_HREF }] as const)
     : populatedSecondaryActions;
 
   // Open-only + hide while panel is open so Create never toggles away in-progress fields (TB-1131).

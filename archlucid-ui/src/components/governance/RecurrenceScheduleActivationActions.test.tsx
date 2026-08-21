@@ -80,4 +80,19 @@ describe("RecurrenceScheduleActivationActions", () => {
       expect(onEnableRecurring).toHaveBeenCalledTimes(1);
     });
   });
+
+  it("demotes enable-recurring when another surface owns the page primary", () => {
+    render(
+      <RecurrenceScheduleActivationActions
+        mode="create"
+        cronExpression="0 8 * * 1"
+        pendingIsEnabled={false}
+        onSavePaused={vi.fn()}
+        onEnableRecurring={vi.fn()}
+        pagePrimaryOwnedElsewhere
+      />,
+    );
+
+    expect(screen.getByTestId("recurrence-enable-recurring").className).toContain("border-neutral-300");
+  });
 });

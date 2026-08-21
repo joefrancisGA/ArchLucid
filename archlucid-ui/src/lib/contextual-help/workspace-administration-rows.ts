@@ -78,7 +78,7 @@ export const WORKSPACE_ADMINISTRATION_CONTEXTUAL_HELP_ROWS: readonly PageContext
       whatIsThisPage:
         "Operator Security & Trust — procurement-oriented materials, tenant isolation posture, retention notes, and NDA-gated diligence requests for this workspace.",
       whatToDoNext:
-        "Open Assurance status or Trust Center for assurance surfaces, or Audit when you need governed activity trails.",
+        "Open Assurance status or Trust Center for assurance surfaces, or Audit when you need official activity records.",
       whyEmpty:
         "Public materials list here when published; NDA-gated packs require contacting security@archlucid.net.",
       whereToConfigurePrerequisite:
@@ -118,7 +118,7 @@ export const WORKSPACE_ADMINISTRATION_CONTEXTUAL_HELP_ROWS: readonly PageContext
     entry: {
       whatIsThisPage: `Security and trust help — ${SECURITY_TRUST_HELP_TOPIC_LABEL.toLowerCase()} for assurance, data handling, and diligence materials.`,
       whatToDoNext:
-        "Open Assurance status or Trust Center for live assurance surfaces, or Audit when you need governed trails.",
+        "Open Assurance status or Trust Center for official materials, or Audit for activity records.",
       whyEmpty: "This guide is always available; downloadable diligence packs appear on Trust Center when published.",
       whereToConfigurePrerequisite:
         "No configuration is required — this page is assurance orientation vocabulary only.",

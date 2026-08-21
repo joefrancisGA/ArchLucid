@@ -24,6 +24,8 @@ export type RecurrenceScheduleActivationActionsProps = {
   readonly onSaveChanges?: () => void;
   /** TB-2192 — when supplied, offers declining the proposal without creating any schedule. */
   readonly onDecline?: () => void;
+  /** When another surface owns the page primary, demote enable-recurring to outline. */
+  readonly pagePrimaryOwnedElsewhere?: boolean;
 };
 
 /** Explicit activation controls with AI-budget disclosure before enabling recurring assessments. */
@@ -38,10 +40,12 @@ export function RecurrenceScheduleActivationActions(props: RecurrenceScheduleAct
     onEnableRecurring,
     onSaveChanges,
     onDecline,
+    pagePrimaryOwnedElsewhere = false,
   } = props;
 
   const controlsDisabled = disabled || busy;
   const showSaveChanges = mode === "edit" && onSaveChanges !== undefined;
+  const enableRecurringVariant = pagePrimaryOwnedElsewhere ? "outline" : "default";
 
   return (
     <div className="space-y-3" data-testid="recurrence-activation-actions">
@@ -103,6 +107,7 @@ export function RecurrenceScheduleActivationActions(props: RecurrenceScheduleAct
           <Button
             type="button"
             size="sm"
+            variant={enableRecurringVariant}
             disabled={controlsDisabled}
             onClick={onEnableRecurring}
             data-testid="recurrence-enable-recurring"

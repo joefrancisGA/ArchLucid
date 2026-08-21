@@ -26,7 +26,7 @@ export const TROUBLESHOOTING_HELP_CLAIM_DISCIPLINE_HEADING = "What this guide do
 export const TROUBLESHOOTING_HELP_FOLLOW_UPS_TITLE = "Where to go next";
 
 export const TROUBLESHOOTING_HELP_CLAIM_DISCIPLINE =
-  "This guide helps architects unblock reviews and connections — open System health or Audit when you need operational status or governed trails.";
+  "This guide helps architects unblock reviews and connections — open System health or Audit when you need operational status or activity records.";
 
 export const TROUBLESHOOTING_HELP_CLAIM_HEADING_ID = "help-troubleshooting-claim-discipline-heading" as const;
 

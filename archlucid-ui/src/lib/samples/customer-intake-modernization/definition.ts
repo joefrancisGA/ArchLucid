@@ -30,7 +30,7 @@ export const CUSTOMER_INTAKE_CANONICAL_PROOF_HREF = `/showcase/${CUSTOMER_INTAKE
 
 /** Canonical buyer-facing primary sentence (TB-980 / GTM M-133 / M-135). */
 export const CUSTOMER_INTAKE_PRIMARY_BUYER_SENTENCE =
-  "ArchLucid's primary buyer-facing sample is Enterprise Customer Intake Modernization — a governed architecture package for modernizing how an enterprise intakes and processes customer work, with evidence-backed findings you can finalize and export.";
+  "ArchLucid's primary buyer-facing sample is Enterprise Customer Intake Modernization — an architecture review package for modernizing how an enterprise intakes and processes customer work, with evidence-backed findings you can finalize and export.";
 
 /** Registry entry for the generic enterprise intake sample spine (TB-980). */
 export const CUSTOMER_INTAKE_SAMPLE_DEFINITION: SampleScenarioDefinition = {

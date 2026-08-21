@@ -15,7 +15,7 @@ export const SETTINGS_HUB_CANONICAL_PATH = SETTINGS_ROOT_PATH;
 export const SETTINGS_HUB_FOLLOW_UPS_TITLE = HUB_SECONDARY_FOLLOW_UPS_TITLES.settingsHub;
 
 export const SETTINGS_HUB_SOURCES_INTRO = hubSecondaryFollowUpsIntro(
-  "administration scope turns into access control, assurance cites, or operational health checks after using the catalog above",
+  "administration scope turns into access control, official assurance materials, or operational health checks after using the catalog above",
 );
 
 /** Operator Sources — no self-href to `/administration`. */

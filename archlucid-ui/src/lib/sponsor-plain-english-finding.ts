@@ -40,7 +40,7 @@ export function sponsorSeverityUrgencyClause(severity: string | null | undefined
   const raw = nonEmpty(severity);
 
   if (raw === null) {
-    return "This review recorded a finding that still needs a human disposition.";
+    return "This review recorded a finding that still needs a human resolve decision.";
   }
 
   const key = normalizeSeverityKey(raw);
@@ -112,7 +112,7 @@ export function buildSponsorPlainEnglishFinding(
   } else if (title !== null) {
     parts.push(`The recorded finding is titled "${title}".`);
   } else {
-    parts.push("No sponsor-safe finding summary was supplied beyond severity and related notes.");
+    parts.push("No export-ready finding summary was supplied beyond severity and related notes.");
   }
 
   if (derivation !== null) {

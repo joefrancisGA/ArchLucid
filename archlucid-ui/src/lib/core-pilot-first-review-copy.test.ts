@@ -13,10 +13,10 @@ import {
  * Locks buyer-first Core Pilot chrome (“architecture review” in UI). See docs/CORE_PILOT.md (first-session checklist).
  */
 describe("core-pilot-first-review-copy (buyer first-run)", () => {
-  it("uses outcome-first governed packaging language in primary heading", () => {
-    expect(CORE_PILOT_FIRST_REVIEW_HEADING).toMatch(/governed/i);
+  it("uses outcome-first architecture review language in primary heading", () => {
     expect(CORE_PILOT_FIRST_REVIEW_HEADING).toMatch(/architecture review/i);
     expect(CORE_PILOT_FIRST_REVIEW_HEADING).not.toMatch(/\brun\b/i);
+    expect(CORE_PILOT_FIRST_REVIEW_HEADING).not.toMatch(/governed/i);
   });
 
   it("keeps compact checklist label", () => {

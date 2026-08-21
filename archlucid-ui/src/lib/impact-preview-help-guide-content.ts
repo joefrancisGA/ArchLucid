@@ -15,7 +15,7 @@ export const IMPACT_PREVIEW_HELP_PAGE_SUBTITLE =
   "Estimate before-and-after effects of proposed architecture changes against a finalized review baseline.";
 
 export const IMPACT_PREVIEW_HELP_OVERVIEW =
-  "Impact preview re-evaluates findings, risk, cost, and governance posture when you simulate a proposed change against a finalized review baseline.";
+  "Impact preview re-evaluates findings, risk, cost, and approval impact when you simulate a proposed change against a finalized review baseline.";
 
 export const IMPACT_PREVIEW_HELP_BASELINE_PRECONDITION =
   "Finalize an architecture review before running impact preview — simulations compare proposed changes against that finalized baseline.";
@@ -57,7 +57,7 @@ export const IMPACT_PREVIEW_HELP_OUTPUT_TILE_ITEMS: readonly ImpactPreviewHelpTi
   },
   {
     label: "Compare and replay",
-    detail: "Open compare when you need governed diff proof after the simulation.",
+    detail: "Open compare when you need a side-by-side record of what changed.",
     href: "/insights/compare-two-reviews",
   },
 ] as const;
@@ -86,9 +86,9 @@ export const IMPACT_PREVIEW_HELP_GUIDE_HEADINGS: readonly HelpMarkdownHeading[] 
 export const IMPACT_PREVIEW_HELP_NEGATION_DRIFT_MARKERS = {
   overviewMustNotContain: [
     "not production observation",
-    "not a sealed-review diligence",
+    "not a full audit export",
     "sources package",
     "Sources package",
   ],
-  claimMustContain: "not a sealed-review diligence sources package",
+  claimMustContain: "not a full audit export",
 } as const;

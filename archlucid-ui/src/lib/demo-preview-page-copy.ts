@@ -72,7 +72,7 @@ export const DEMO_PREVIEW_PUBLIC_SAMPLE_LINK = "What is included in the public s
 export const DEMO_PREVIEW_EVALUATION_HEADING = "Evaluate ArchLucid with one of your architecture reviews";
 
 export const DEMO_PREVIEW_EVALUATION_TEXT =
-  "Walk through a governed review using your requirements, evidence sources, policy controls, and approval process.";
+  "Walk through a finalized review using your requirements, evidence sources, policy controls, and approval process.";
 
 export const DEMO_PREVIEW_METRIC_STATUS = "Status";
 

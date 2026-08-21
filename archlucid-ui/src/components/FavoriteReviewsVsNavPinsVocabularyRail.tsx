@@ -2,13 +2,12 @@
 
 import type { JSX } from "react";
 
+import { PairwiseVocabularyRailFromModel } from "@/components/vocabulary/PairwiseVocabularyRailFromModel";
 import {
-  buildFavoriteReviewsVsNavPinsVocabulary,
-  resolveFavoriteReviewsVsNavPinsPeerLink,
+  buildFavoriteReviewsVsNavPinsPairwiseRail,
   type FavoriteReviewsVsNavPinsSurfaceId,
   type FavoriteReviewsVsNavPinsVocabularyModel,
 } from "@/lib/vocabulary/favorite-reviews-vs-nav-pins-vocabulary";
-import { VocabularyRail } from "@/components/vocabulary/VocabularyRail";
 
 export type FavoriteReviewsVsNavPinsVocabularyRailProps = {
   /** Surface hosting the strip — marks the current job and links to the peer. */
@@ -27,25 +26,25 @@ export type FavoriteReviewsVsNavPinsVocabularyRailProps = {
 export function FavoriteReviewsVsNavPinsVocabularyRail(
   props: FavoriteReviewsVsNavPinsVocabularyRailProps,
 ): JSX.Element {
-  const model = props.model ?? buildFavoriteReviewsVsNavPinsVocabulary();
-  const peer = resolveFavoriteReviewsVsNavPinsPeerLink(props.currentSurfaceId);
-  const currentLink =
-    props.currentSurfaceId === "favorite-reviews"
-      ? model.favoriteReviewsLink
-      : model.navPinsLink;
+  const pairwiseModel =
+    props.model !== undefined
+      ? {
+          heading: props.model.heading,
+          whyTwo: props.model.whyTwo,
+          compactLine: props.model.compactLine,
+          currentLink: props.model.favoriteReviewsLink,
+          peerLink: props.model.navPinsLink,
+        }
+      : buildFavoriteReviewsVsNavPinsPairwiseRail();
 
   return (
-    <VocabularyRail
+    <PairwiseVocabularyRailFromModel
       testIdPrefix="favorite-reviews-vs-nav-pins-vocabulary"
       currentSurfaceId={props.currentSurfaceId}
       variant={props.variant}
       className={props.className}
-      compactLine={model.compactLine}
       compactLinkPlacement="inline"
-      heading={model.heading}
-      whyTwo={model.whyTwo}
-      currentLabel={currentLink.label}
-      links={[{ ...peer, testIdSuffix: "peer-link" }]}
+      model={pairwiseModel}
     />
   );
 }

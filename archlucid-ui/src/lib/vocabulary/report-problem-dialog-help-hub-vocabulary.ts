@@ -15,6 +15,7 @@
 
 import { HELP_HUB_CANONICAL_PATH } from "@/lib/help/help-hub-evidence-copy";
 import { REPORT_PROBLEM_DIALOG_TITLE } from "@/lib/report-problem-copy";
+import type { PairwiseVocabularyRailModel } from "@/lib/vocabulary/create-pairwise-vocabulary-rail";
 
 /**
  * Dialog has no dedicated route.
@@ -67,14 +68,27 @@ export const REPORT_PROBLEM_DIALOG_HELP_HUB_HELP_LINK: ReportProblemDialogHelpHu
     whenToUse: "Browse how-to topics, guides, and runbooks from the Help hub.",
   };
 
-/** Full vocabulary model (heading, why-two copy, and deep links). */
-export function buildReportProblemDialogHelpHubVocabulary(): ReportProblemDialogHelpHubVocabularyModel {
+/** Pairwise model for Report a problem dialog ↔ Help hub (fixed routes). */
+export function buildReportProblemDialogHelpHubPairwiseRail(): PairwiseVocabularyRailModel<ReportProblemDialogHelpHubSurfaceId> {
   return {
     heading: REPORT_PROBLEM_DIALOG_HELP_HUB_HEADING,
     whyTwo: REPORT_PROBLEM_DIALOG_HELP_HUB_WHY_TWO,
     compactLine: REPORT_PROBLEM_DIALOG_HELP_HUB_COMPACT_LINE,
-    reportProblemDialogLink: REPORT_PROBLEM_DIALOG_HELP_HUB_DIALOG_LINK,
-    helpHubLink: REPORT_PROBLEM_DIALOG_HELP_HUB_HELP_LINK,
+    currentLink: REPORT_PROBLEM_DIALOG_HELP_HUB_DIALOG_LINK,
+    peerLink: REPORT_PROBLEM_DIALOG_HELP_HUB_HELP_LINK,
+  };
+}
+
+/** Full vocabulary model (heading, why-two copy, and deep links). */
+export function buildReportProblemDialogHelpHubVocabulary(): ReportProblemDialogHelpHubVocabularyModel {
+  const rail = buildReportProblemDialogHelpHubPairwiseRail();
+
+  return {
+    heading: rail.heading,
+    whyTwo: rail.whyTwo,
+    compactLine: rail.compactLine,
+    reportProblemDialogLink: rail.currentLink,
+    helpHubLink: rail.peerLink,
   };
 }
 

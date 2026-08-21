@@ -14,10 +14,10 @@ export const HELP_HUB_CLAIM_DISCIPLINE_HEADING = "What Help Center is not";
 export const HELP_HUB_FOLLOW_UPS_TITLE = "Where to go next";
 
 export const HELP_HUB_CLAIM_DISCIPLINE =
- "Help Center is an orientation launcher for guides and documentation — it is not a sealed-review diligence Sources package. Open a specialty guide, Audit, or Assurance status when you need live or evaluation trails.";
+ "Help Center orients you to guides and documentation — not a full audit export. Open a specialty guide, Audit, or Assurance status when you need official records.";
 
 export const HELP_HUB_SOURCES_INTRO =
- "Use these follow-ups when browsing Help turns into workflow orientation, assurance, or activity trails.";
+ "Use these follow-ups when browsing Help turns into workflow orientation, assurance, or activity records.";
 
 
 /** Operator Sources — no self-href to the Help hub. */

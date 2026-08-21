@@ -9,7 +9,7 @@ export const IDENTITY_PROVIDERS_SAML_HELP_TOPIC_LABEL = "How SAML federation wor
 export const IDENTITY_PROVIDERS_SAML_FOLLOW_UPS_TITLE = "Where to go next";
 
 export const IDENTITY_PROVIDERS_SAML_SOURCES_INTRO =
-  "Use these follow-ups when SAML SP configuration turns into SSO wizard steps, role mapping, diagnostics, or assurance cites.";
+  "Use these follow-ups when SAML SP configuration turns into SSO wizard steps, role mapping, diagnostics, or official assurance materials.";
 
 /** Operator Sources - no self-href to SAML settings. */
 export const IDENTITY_PROVIDERS_SAML_SOURCES: readonly EvidenceSourceLink[] = [

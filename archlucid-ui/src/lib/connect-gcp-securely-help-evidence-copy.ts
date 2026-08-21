@@ -12,14 +12,14 @@ export const CONNECT_GCP_SECURELY_CLAIM_HEADING_ID = "connect-gcp-securely-help-
 export const CONNECT_GCP_SECURELY_FOLLOW_UPS_TITLE = "Where to go next";
 
 export const CONNECT_GCP_SECURELY_CLAIM_DISCIPLINE =
-  "This guide explains how to attach GCP with Workload Identity Federation and Cloud Asset Viewer scope — it is connector setup orientation, not a sealed-review diligence Sources package. Open Assurance status or the live Cloud connections hub before treating setup guidance as assurance evidence.";
+  "This guide explains how to connect GCP read-only inventory — setup help only, not proof for auditors. Open Assurance status or the Cloud connections hub before treating setup guidance as security evidence.";
 
 export const CONNECT_GCP_SECURELY_CONFIGURE_ACTION = "Open GCP connection settings" as const;
 
 export const CONNECT_GCP_SECURELY_CONFIGURE_HREF = "/integrations/cloud-connections/gcp" as const;
 
 export const CONNECT_GCP_SECURELY_SOURCES_INTRO =
-  "Use these follow-ups when GCP setup needs the live hub, connection health, security orientation, or assurance cites.";
+  "Use these follow-ups when GCP setup needs the live hub, connection health, security orientation, or official assurance materials.";
 
 /** Operator Sources — no self-href to `/help/cloud-connections/gcp` or sibling cloud provider guides. */
 export const CONNECT_GCP_SECURELY_SOURCES: readonly EvidenceSourceLink[] = [

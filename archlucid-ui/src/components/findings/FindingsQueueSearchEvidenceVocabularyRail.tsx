@@ -2,21 +2,17 @@
 
 import type { JSX } from "react";
 
+import { PairwiseVocabularyRailFromModel } from "@/components/vocabulary/PairwiseVocabularyRailFromModel";
 import {
-  buildFindingsQueueSearchEvidenceVocabulary,
-  resolveFindingsQueueSearchEvidencePeerLink,
+  buildFindingsQueueSearchEvidencePairwiseRail,
   type FindingsQueueSearchEvidenceSurfaceId,
   type FindingsQueueSearchEvidenceVocabularyModel,
 } from "@/lib/vocabulary/findings-queue-search-evidence-vocabulary";
-import { VocabularyRail } from "@/components/vocabulary/VocabularyRail";
 
 export type FindingsQueueSearchEvidenceVocabularyRailProps = {
-  /** Surface hosting the strip — marks the current job and links to the peer. */
   readonly currentSurfaceId: FindingsQueueSearchEvidenceSurfaceId;
-  /** Compact one-line strip (default) vs fuller why-two explanation. */
   readonly variant?: "compact" | "full";
   readonly className?: string;
-  /** Optional override for tests; defaults to {@link buildFindingsQueueSearchEvidenceVocabulary}. */
   readonly model?: FindingsQueueSearchEvidenceVocabularyModel;
 };
 
@@ -28,25 +24,25 @@ export type FindingsQueueSearchEvidenceVocabularyRailProps = {
 export function FindingsQueueSearchEvidenceVocabularyRail(
   props: FindingsQueueSearchEvidenceVocabularyRailProps,
 ): JSX.Element {
-  const model = props.model ?? buildFindingsQueueSearchEvidenceVocabulary();
-  const peer = resolveFindingsQueueSearchEvidencePeerLink(props.currentSurfaceId);
-  const currentLink =
-    props.currentSurfaceId === "findings-queue"
-      ? model.findingsQueueLink
-      : model.searchEvidenceLink;
+  const pairwiseModel =
+    props.model !== undefined
+      ? {
+          heading: props.model.heading,
+          whyTwo: props.model.whyTwo,
+          compactLine: props.model.compactLine,
+          currentLink: props.model.findingsQueueLink,
+          peerLink: props.model.searchEvidenceLink,
+        }
+      : buildFindingsQueueSearchEvidencePairwiseRail();
 
   return (
-    <VocabularyRail
+    <PairwiseVocabularyRailFromModel
       testIdPrefix="findings-queue-search-evidence-vocabulary"
       currentSurfaceId={props.currentSurfaceId}
       variant={props.variant}
       className={props.className}
-      compactLine={model.compactLine}
       compactLinkPlacement="inline"
-      heading={model.heading}
-      whyTwo={model.whyTwo}
-      currentLabel={currentLink.label}
-      links={[{ ...peer, testIdSuffix: "peer-link" }]}
+      model={pairwiseModel}
     />
   );
 }

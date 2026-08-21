@@ -11,7 +11,7 @@ import {
 } from "@/lib/reviews-new-path-copy";
 
 export const REVIEWS_NEW_CLAIM_DISCIPLINE =
-  "Starting a review captures your architecture context for analysis — not a sealed-review diligence Sources trail.";
+  "Starting a review captures your architecture context for analysis — not a full audit export.";
 
 export const REVIEWS_NEW_FOLLOW_UPS_TITLE = HUB_SECONDARY_FOLLOW_UPS_TITLES.reviewsNew;
 

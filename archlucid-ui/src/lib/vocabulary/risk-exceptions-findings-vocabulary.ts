@@ -40,23 +40,23 @@ export const RISK_EXCEPTIONS_FINDINGS_HEADING =
   "Risk exceptions and findings stay separate" as const;
 
 export const RISK_EXCEPTIONS_FINDINGS_WHY_TWO =
-  "Risk exceptions are time-bounded waivers against findings — renew or revoke them here. The findings queue is the risk register for disposition and ownership on the underlying findings. A waiver does not dispose a finding, and disposing a finding is not the same as managing the exception register." as const;
+  "Risk exceptions are temporary approvals to accept a known risk — renew or revoke them here. The findings queue is where you resolve and assign findings. Approving a waiver does not close a finding, and closing a finding is not the same as managing the exception list." as const;
 
 export const RISK_EXCEPTIONS_FINDINGS_COMPACT_LINE =
-  "Risk exceptions waive findings; the findings queue disposes risks — open the other when you need both." as const;
+  "Risk exceptions approve known risks temporarily; the findings queue resolves findings — open the other when you need both." as const;
 
 export const RISK_EXCEPTIONS_FINDINGS_RISK_EXCEPTIONS_LINK: RiskExceptionsFindingsLink = {
   id: "risk-exceptions",
   label: "Risk exceptions",
   href: GOVERNANCE_EXCEPTIONS_PATH,
-  whenToUse: "Renew or revoke time-bounded waivers against findings.",
+  whenToUse: "Renew or revoke temporary risk approvals for findings.",
 };
 
 export const RISK_EXCEPTIONS_FINDINGS_FINDINGS_LINK: RiskExceptionsFindingsLink = {
   id: "findings-queue",
   label: "Findings queue",
   href: GOVERNANCE_FINDINGS_PATH,
-  whenToUse: "Disposition risks, assign owners, and clear open governance items.",
+  whenToUse: "Resolve findings, assign owners, and clear open governance items.",
 };
 
 /** Pairwise model for Risk exceptions ↔ Findings queue (fixed governance routes). */

@@ -14,6 +14,7 @@
 
 import { ADMINISTRATION_SYSTEM_HEALTH_PATH } from "@/lib/administration-route-paths";
 import { INTERNAL_RAG_HEALTH_PATH } from "@/lib/internal-ops-route-paths";
+import type { PairwiseVocabularyRailModel } from "@/lib/vocabulary/create-pairwise-vocabulary-rail";
 
 export type RagHealthSystemHealthSurfaceId = "rag-health" | "system-health";
 
@@ -55,14 +56,27 @@ export const RAG_HEALTH_SYSTEM_HEALTH_SYSTEM_LINK: RagHealthSystemHealthLink = {
   whenToUse: "Check platform readiness and critical dependency probes.",
 };
 
-/** Full vocabulary model (heading, why-two, and deep links). */
-export function buildRagHealthSystemHealthVocabulary(): RagHealthSystemHealthVocabularyModel {
+/** Pairwise model for RAG health ↔ System health (fixed routes). */
+export function buildRagHealthSystemHealthPairwiseRail(): PairwiseVocabularyRailModel<RagHealthSystemHealthSurfaceId> {
   return {
     heading: RAG_HEALTH_SYSTEM_HEALTH_HEADING,
     whyTwo: RAG_HEALTH_SYSTEM_HEALTH_WHY_TWO,
     compactLine: RAG_HEALTH_SYSTEM_HEALTH_COMPACT_LINE,
-    ragHealthLink: RAG_HEALTH_SYSTEM_HEALTH_RAG_LINK,
-    systemHealthLink: RAG_HEALTH_SYSTEM_HEALTH_SYSTEM_LINK,
+    currentLink: RAG_HEALTH_SYSTEM_HEALTH_RAG_LINK,
+    peerLink: RAG_HEALTH_SYSTEM_HEALTH_SYSTEM_LINK,
+  };
+}
+
+/** Full vocabulary model (heading, why-two, and deep links). */
+export function buildRagHealthSystemHealthVocabulary(): RagHealthSystemHealthVocabularyModel {
+  const rail = buildRagHealthSystemHealthPairwiseRail();
+
+  return {
+    heading: rail.heading,
+    whyTwo: rail.whyTwo,
+    compactLine: rail.compactLine,
+    ragHealthLink: rail.currentLink,
+    systemHealthLink: rail.peerLink,
   };
 }
 

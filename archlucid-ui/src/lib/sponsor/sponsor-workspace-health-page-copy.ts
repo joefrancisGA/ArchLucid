@@ -17,7 +17,7 @@ export const SPONSOR_WORKSPACE_HEALTH_PAGE_TITLE = TENANT_SYSTEM_WORKSPACE_HEALT
 export const SPONSOR_WORKSPACE_HEALTH_HEADING_ID = "sponsor-workspace-health-heading";
 
 export const SPONSOR_WORKSPACE_HEALTH_PAGE_LEAD_BUYER =
-  "Governance posture at a glance for your current workspace scope — counts and trends only.";
+  "Approval status at a glance for your current workspace scope — counts and trends only.";
 
 export const SPONSOR_WORKSPACE_HEALTH_PAGE_LEAD_OPERATOR =
   "Pre-commit posture, severity exposure, compliance drift, approval SLAs, and a hours-first value proxy — all within your current workspace scope.";
@@ -29,7 +29,7 @@ export const SPONSOR_WORKSPACE_HEALTH_WORKFLOW_LINK_LABEL = "Open governance wor
 export const SPONSOR_WORKSPACE_HEALTH_SESSION_SCOPE_SUMMARY = "Session scope";
 
 export const SPONSOR_WORKSPACE_HEALTH_CLAIM_DISCIPLINE =
-  "These tiles are scoped workspace aggregates and planning estimates — not a sealed-review diligence Sources trail. Hours and SLA figures are derived proxies.";
+  "These tiles are workspace KPI estimates — not a full audit export. Hours and SLA figures are planning proxies.";
 
 export const SPONSOR_WORKSPACE_HEALTH_SOURCES_INTRO =
   "Open row-level governance surfaces before briefing sponsors from these KPI tiles.";

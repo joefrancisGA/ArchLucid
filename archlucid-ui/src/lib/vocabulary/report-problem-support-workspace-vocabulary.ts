@@ -16,6 +16,7 @@
 
 import { SETTINGS_SUPPORT_PATH } from "@/lib/settings-admin-route-paths";
 import { SUPPORT_REPORT_PROBLEM_HELP_HREF } from "@/lib/support-workspace-present";
+import type { PairwiseVocabularyRailModel } from "@/lib/vocabulary/create-pairwise-vocabulary-rail";
 
 export type ReportProblemSupportWorkspaceSurfaceId =
   | "report-a-problem"
@@ -63,14 +64,27 @@ export const REPORT_PROBLEM_SUPPORT_WORKSPACE_SUPPORT_LINK: ReportProblemSupport
       "Contact support, download a redacted support bundle, and follow troubleshooting shortcuts.",
   };
 
-/** Full vocabulary model (heading, why-two copy, and deep links). */
-export function buildReportProblemSupportWorkspaceVocabulary(): ReportProblemSupportWorkspaceVocabularyModel {
+/** Pairwise model for Report a problem ↔ Support workspace (fixed routes). */
+export function buildReportProblemSupportWorkspacePairwiseRail(): PairwiseVocabularyRailModel<ReportProblemSupportWorkspaceSurfaceId> {
   return {
     heading: REPORT_PROBLEM_SUPPORT_WORKSPACE_HEADING,
     whyTwo: REPORT_PROBLEM_SUPPORT_WORKSPACE_WHY_TWO,
     compactLine: REPORT_PROBLEM_SUPPORT_WORKSPACE_COMPACT_LINE,
-    reportAProblemLink: REPORT_PROBLEM_SUPPORT_WORKSPACE_REPORT_A_PROBLEM_LINK,
-    supportWorkspaceLink: REPORT_PROBLEM_SUPPORT_WORKSPACE_SUPPORT_LINK,
+    currentLink: REPORT_PROBLEM_SUPPORT_WORKSPACE_REPORT_A_PROBLEM_LINK,
+    peerLink: REPORT_PROBLEM_SUPPORT_WORKSPACE_SUPPORT_LINK,
+  };
+}
+
+/** Full vocabulary model (heading, why-two copy, and deep links). */
+export function buildReportProblemSupportWorkspaceVocabulary(): ReportProblemSupportWorkspaceVocabularyModel {
+  const rail = buildReportProblemSupportWorkspacePairwiseRail();
+
+  return {
+    heading: rail.heading,
+    whyTwo: rail.whyTwo,
+    compactLine: rail.compactLine,
+    reportAProblemLink: rail.currentLink,
+    supportWorkspaceLink: rail.peerLink,
   };
 }
 

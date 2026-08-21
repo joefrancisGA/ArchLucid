@@ -20,11 +20,11 @@ describe("evidence-graph help negation drift guard", () => {
       EVIDENCE_GRAPH_HELP_NEGATION_DRIFT_MARKERS.claimMustContain,
     );
 
-    const diligenceNegationCount =
-      (EVIDENCE_GRAPH_HELP_OVERVIEW.match(/Sources package/gi) ?? []).length +
-      (EVIDENCE_GRAPH_HELP_CLAIM_DISCIPLINE.match(/Sources package/gi) ?? []).length;
+    const auditExportNegationCount =
+      (EVIDENCE_GRAPH_HELP_OVERVIEW.match(/full audit export/gi) ?? []).length +
+      (EVIDENCE_GRAPH_HELP_CLAIM_DISCIPLINE.match(/full audit export/gi) ?? []).length;
 
-    expect(diligenceNegationCount).toBe(1);
+    expect(auditExportNegationCount).toBe(1);
   });
 
   it("keeps overview distinct from the page subtitle", () => {

@@ -4,6 +4,7 @@ import dynamic from "next/dynamic";
 import type { ComponentType, JSX } from "react";
 
 import { DeferredChunkLoading } from "@/components/ui/deferred-chunk-loading";
+import { createDeferredComponentFromManifest } from "@/lib/operator/load-deferred-chunk-from-manifest";
 
 import type { SponsorComplianceDriftTrendSectionProps } from "./SponsorComplianceDriftTrendSection";
 import type { SponsorDashboardNextActionSectionProps } from "./SponsorDashboardNextActionSection";
@@ -35,79 +36,39 @@ export const OperatorWelcomeOnboardingDeferred: ComponentType = dynamic(
 );
 
 export const SponsorDashboardNextActionSectionDeferred: ComponentType<SponsorDashboardNextActionSectionProps> =
-  dynamic(
-    () =>
-      import("./SponsorDashboardNextActionSection").then(
-        (module) => module.SponsorDashboardNextActionSection,
-      ),
-    {
-      ssr: false,
-      loading: () => executiveDashboardDeferredLoading("Loading next action"),
-    },
-  );
+  createDeferredComponentFromManifest("sponsor-roi-dashboard-next-action", {
+    loadingTestId: "sponsor-dashboard-deferred-chunk-loading",
+  });
 
 export const SponsorDashboardPrimaryMetricsSectionDeferred: ComponentType<SponsorDashboardPrimaryMetricsSectionProps> =
-  dynamic(
-    () =>
-      import("./SponsorDashboardPrimaryMetricsSection").then(
-        (module) => module.SponsorDashboardPrimaryMetricsSection,
-      ),
-    {
-      ssr: false,
-      loading: () => executiveDashboardDeferredLoading("Loading primary metrics"),
-    },
-  );
+  createDeferredComponentFromManifest("sponsor-roi-dashboard-primary-metrics", {
+    loadingTestId: "sponsor-dashboard-deferred-chunk-loading",
+  });
 
-export const SponsorDashboardHowItWorksDeferred: ComponentType = dynamic(
-  () =>
-    import("@/components/sponsor/SponsorDashboardHowItWorks").then(
-      (module) => module.SponsorDashboardHowItWorks,
-    ),
-  {
-    ssr: false,
-    loading: () => executiveDashboardDeferredLoading("Loading dashboard guide"),
-  },
+export const SponsorDashboardHowItWorksDeferred: ComponentType = createDeferredComponentFromManifest(
+  "sponsor-roi-dashboard-how-it-works",
+  { loadingTestId: "sponsor-dashboard-deferred-chunk-loading" },
 );
 
-export const SponsorExportsSectionDeferred: ComponentType<SponsorExportsSectionProps> = dynamic(
-  () => import("./SponsorExportsSection").then((module) => module.SponsorExportsSection),
-  {
-    ssr: false,
-    loading: () => executiveDashboardDeferredLoading("Loading sponsor exports"),
-  },
-);
+export const SponsorExportsSectionDeferred: ComponentType<SponsorExportsSectionProps> =
+  createDeferredComponentFromManifest("sponsor-roi-dashboard-exports", {
+    loadingTestId: "sponsor-dashboard-deferred-chunk-loading",
+  });
 
 export const BusinessImpactSummaryWidgetDeferred: ComponentType<BusinessImpactSummaryWidgetProps> =
-  dynamic(
-    () =>
-      import("./BusinessImpactSummaryWidget").then((module) => module.BusinessImpactSummaryWidget),
-    {
-      ssr: false,
-      loading: () => executiveDashboardDeferredLoading("Loading business impact"),
-    },
-  );
+  createDeferredComponentFromManifest("sponsor-roi-dashboard-business-impact", {
+    loadingTestId: "sponsor-dashboard-deferred-chunk-loading",
+  });
 
 export const SponsorRoiSummarySectionDeferred: ComponentType<SponsorRoiSummarySectionProps> =
-  dynamic(
-    () =>
-      import("./SponsorRoiSummarySection").then((module) => module.SponsorRoiSummarySection),
-    {
-      ssr: false,
-      loading: () => executiveDashboardDeferredLoading("Loading ROI summary"),
-    },
-  );
+  createDeferredComponentFromManifest("sponsor-roi-dashboard-roi-summary", {
+    loadingTestId: "sponsor-dashboard-deferred-chunk-loading",
+  });
 
 export const SponsorComplianceDriftTrendSectionDeferred: ComponentType<SponsorComplianceDriftTrendSectionProps> =
-  dynamic(
-    () =>
-      import("./SponsorComplianceDriftTrendSection").then(
-        (module) => module.SponsorComplianceDriftTrendSection,
-      ),
-    {
-      ssr: false,
-      loading: () => executiveDashboardDeferredLoading("Loading compliance drift trend"),
-    },
-  );
+  createDeferredComponentFromManifest("sponsor-roi-dashboard-compliance-drift-trend", {
+    loadingTestId: "sponsor-dashboard-deferred-chunk-loading",
+  });
 
 export const SponsorRoiTrendSectionDeferred: ComponentType<SponsorRoiTrendSectionProps> =
   dynamic(

@@ -15,6 +15,7 @@
 import { DIGESTS_HUB_PATH } from "@/lib/digests-route-paths";
 import { NOTIFICATION_PREFERENCE_CENTER_PATH } from "@/lib/notification-preference-center";
 import { SETTINGS_NOTIFICATIONS_PATH } from "@/lib/settings-admin-route-paths";
+import type { PairwiseVocabularyRailModel } from "@/lib/vocabulary/create-pairwise-vocabulary-rail";
 
 export type DigestsNotificationsSurfaceId = "digests" | "notifications";
 
@@ -56,14 +57,27 @@ export const DIGESTS_NOTIFICATIONS_NOTIFICATIONS_LINK: DigestsNotificationsLink 
   whenToUse: "Open the preference launcher for digests, alerts, Teams, and Slack.",
 };
 
-/** Full vocabulary model (heading, why-two copy, and deep links). */
-export function buildDigestsNotificationsVocabulary(): DigestsNotificationsVocabularyModel {
+/** Pairwise model for Digests ↔ Notifications (fixed routes). */
+export function buildDigestsNotificationsPairwiseRail(): PairwiseVocabularyRailModel<DigestsNotificationsSurfaceId> {
   return {
     heading: DIGESTS_NOTIFICATIONS_HEADING,
     whyTwo: DIGESTS_NOTIFICATIONS_WHY_TWO,
     compactLine: DIGESTS_NOTIFICATIONS_COMPACT_LINE,
-    digestsLink: DIGESTS_NOTIFICATIONS_DIGESTS_LINK,
-    notificationsLink: DIGESTS_NOTIFICATIONS_NOTIFICATIONS_LINK,
+    currentLink: DIGESTS_NOTIFICATIONS_DIGESTS_LINK,
+    peerLink: DIGESTS_NOTIFICATIONS_NOTIFICATIONS_LINK,
+  };
+}
+
+/** Full vocabulary model (heading, why-two copy, and deep links). */
+export function buildDigestsNotificationsVocabulary(): DigestsNotificationsVocabularyModel {
+  const rail = buildDigestsNotificationsPairwiseRail();
+
+  return {
+    heading: rail.heading,
+    whyTwo: rail.whyTwo,
+    compactLine: rail.compactLine,
+    digestsLink: rail.currentLink,
+    notificationsLink: rail.peerLink,
   };
 }
 

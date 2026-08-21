@@ -23,9 +23,9 @@ describe("GovernanceApprovalStatusBanner", () => {
     expect(screen.getByText(/Scope: Claims Intake Demo/)).toBeInTheDocument();
     expect(screen.getByText(/Record: approval-claims-intake-001/)).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "View approval record" })).toBeInTheDocument();
-    expect(screen.queryByRole("link", { name: "View dispositions" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "View resolve outcomes" })).not.toBeInTheDocument();
     expect(screen.getByRole("link", { name: "View audit trail" })).toBeInTheDocument();
-    expect(screen.queryByText(/Approved for governed use with monitored PHI minimization control/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Approved for planning use with monitored PHI minimization control/)).not.toBeInTheDocument();
     expect(screen.queryByText(/→/)).not.toBeInTheDocument();
   });
 
@@ -46,10 +46,10 @@ describe("GovernanceApprovalStatusBanner", () => {
     expect(incomplete).toBeEmptyDOMElement();
   });
 
-  it("includes dispositions link when not on the risk register page", () => {
+  it("includes resolve outcomes link when not on the risk register page", () => {
     render(<GovernanceApprovalStatusBanner provenance={sampleProvenance} />);
 
-    expect(screen.getByRole("link", { name: "View dispositions" })).toHaveAttribute("href", "/governance/findings");
+    expect(screen.getByRole("link", { name: "View resolve outcomes" })).toHaveAttribute("href", "/governance/findings");
     expect(screen.getByRole("link", { name: "View approval record" })).toHaveAttribute(
       "href",
       "/governance/approval-queue",

@@ -3,7 +3,7 @@ import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 export const SHOWCASE_CANONICAL_PATH_PREFIX = "/showcase/" as const;
 
 export const SHOWCASE_CLAIM_DISCIPLINE =
-  "This showcase presents an illustrative finalized architecture sample for evaluation — it is not a sealed-review diligence Sources package from your tenant. Open Assurance status or start an evaluation when you need live workspace evidence.";
+  "This showcase presents an illustrative architecture sample for evaluation — not live workspace evidence. Open Assurance status or start an evaluation when you need real records from your tenant.";
 
 export const SHOWCASE_SOURCES_INTRO =
   "Use these evaluation links when the sample review turns into signup, assurance, or a live product tour.";

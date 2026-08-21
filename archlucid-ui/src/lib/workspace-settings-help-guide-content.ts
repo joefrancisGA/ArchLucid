@@ -112,6 +112,6 @@ export const WORKSPACE_SETTINGS_HELP_GUIDE_HEADINGS: readonly HelpMarkdownHeadin
 
 /** Drift guard: overview stays positive-only; claim band owns exclusions once. */
 export const WORKSPACE_SETTINGS_HELP_NEGATION_DRIFT_MARKERS = {
-  overviewMustNotContain: ["not a sealed-review diligence Sources package", "header switcher"],
+  overviewMustNotContain: ["not a full audit export", "header switcher"],
   claimMustContain: ["not the live Workspace settings Admin surface", "not workspace scope selection"],
 } as const;

@@ -15,6 +15,8 @@ import type { ReviewPackagePrimaryAction as ReviewPackagePrimaryActionModel } fr
 export type ReviewPackagePrimaryActionTabAwareProps = Omit<ReviewPackagePrimaryActionProps, "action"> & {
   readonly action: ReviewPackagePrimaryActionModel;
   readonly primaryActionContext: ResolveReviewPackagePrimaryActionInput;
+  /** When Do this next owns the page primary, demote the tab-aware duplicate to outline. */
+  readonly pagePrimaryOwnedElsewhere?: boolean;
 };
 
 export function ReviewPackagePrimaryActionTabAware(
@@ -37,6 +39,7 @@ export function ReviewPackagePrimaryActionTabAware(
       runId={props.runId}
       hasGoldenManifest={props.hasGoldenManifest}
       commitBlockedReason={props.commitBlockedReason}
+      demoted={props.demoted === true || props.pagePrimaryOwnedElsewhere === true}
     />
   );
 }

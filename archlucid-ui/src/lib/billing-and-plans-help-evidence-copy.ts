@@ -9,7 +9,7 @@ export const BILLING_AND_PLANS_HELP_TOPIC_LABEL = "How billing and plans work" a
 export const BILLING_AND_PLANS_HELP_CLAIM_DISCIPLINE_HEADING = "What this guide does not cover";
 
 export const BILLING_AND_PLANS_HELP_CLAIM_DISCIPLINE =
-  "This guide explains plans, trial, seats, invoices, and where billing actions live in the workspace — open Billing settings, Pricing, or Audit when you need live subscription controls or governed trails.";
+  "This guide explains plans, trial, seats, invoices, and where billing actions live in the workspace — open Billing settings, Pricing, or Audit when you need subscription controls or activity records.";
 
 export const BILLING_AND_PLANS_HELP_FOLLOW_UPS_TITLE = "Where to go next";
 

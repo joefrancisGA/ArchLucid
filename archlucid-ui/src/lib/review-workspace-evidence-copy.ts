@@ -4,10 +4,10 @@ import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 import { GOVERNANCE_AUDIT_PATH, GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
 
 export const REVIEW_WORKSPACE_CLAIM_DISCIPLINE =
-  "This review workspace is the package leave-behind for one architecture review — findings, decisions, and artifacts here are application-layer evidence, not a complete diligence Sources export package alone. Open Evidence graph, Audit, or signed-record detail when you need fuller sponsor-safe trails.";
+  "This review workspace holds one architecture review's findings, decisions, and artifacts — not a complete audit export alone. Open Evidence graph, Audit, or sealed-record detail when you need the full package.";
 
 export const REVIEW_WORKSPACE_SOURCES_INTRO =
-  "Use these follow-ups when package work needs evidence search, governance disposition, or activity trails.";
+  "Use these follow-ups when package work needs evidence search, governance triage, or activity records.";
 
 
 /** Build operator Sources for a run — never self-links the review detail path. */

@@ -1,8 +1,13 @@
 import type { DeferredChunkLoadingVariant } from "@/components/ui/deferred-chunk-loading";
 
+import { ALERT_RULES_HUB_CHUNK_MANIFEST } from "@/lib/operator/alert-rules-hub-chunk-manifest";
+import { GOVERNANCE_WORKFLOW_CHUNK_MANIFEST } from "@/lib/operator/governance-workflow-chunk-manifest";
 import { OPERATOR_HOME_CHUNK_MANIFEST } from "@/lib/operator/operator-home-chunk-manifest";
+import { POLICY_PACKS_AUTHORING_CHUNK_MANIFEST } from "@/lib/operator/policy-packs-authoring-chunk-manifest";
 import { REVIEWS_HUB_CHUNK_MANIFEST } from "@/lib/operator/reviews-hub-chunk-manifest";
 import { RUN_DETAIL_CHUNK_MANIFEST } from "@/lib/operator/run-detail-chunk-manifest";
+import { SIGNED_RECORDS_LIST_CHUNK_MANIFEST } from "@/lib/operator/signed-records-list-chunk-manifest";
+import { SPONSOR_ROI_DASHBOARD_CHUNK_MANIFEST } from "@/lib/operator/sponsor-roi-dashboard-chunk-manifest";
 
 export type DeferredChunkManifestEntry = {
   readonly id: string;
@@ -28,6 +33,11 @@ export const DEFERRED_CHUNK_MANIFEST: readonly DeferredChunkManifestEntry[] = [
   ...OPERATOR_HOME_CHUNK_MANIFEST,
   ...REVIEWS_HUB_CHUNK_MANIFEST,
   ...RUN_DETAIL_CHUNK_MANIFEST,
+  ...GOVERNANCE_WORKFLOW_CHUNK_MANIFEST,
+  ...POLICY_PACKS_AUTHORING_CHUNK_MANIFEST,
+  ...ALERT_RULES_HUB_CHUNK_MANIFEST,
+  ...SIGNED_RECORDS_LIST_CHUNK_MANIFEST,
+  ...SPONSOR_ROI_DASHBOARD_CHUNK_MANIFEST,
 ] as const;
 
 export function deferredChunkManifestEntry(id: string): DeferredChunkManifestEntry | undefined {

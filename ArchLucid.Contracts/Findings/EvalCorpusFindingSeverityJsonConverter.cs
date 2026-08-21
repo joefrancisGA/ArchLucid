@@ -11,7 +11,14 @@ public sealed class EvalCorpusFindingSeverityJsonConverter : JsonConverter<Findi
     public override FindingSeverity Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
         if (reader.TokenType == JsonTokenType.Number)
-            return (FindingSeverity)reader.GetInt32();
+        {
+            int ordinal = reader.GetInt32();
+
+            if (!Enum.IsDefined(typeof(FindingSeverity), ordinal))
+                throw new JsonException($"Unknown finding severity value '{ordinal}'.");
+
+            return (FindingSeverity)ordinal;
+        }
 
         if (reader.TokenType != JsonTokenType.String)
             throw new JsonException("Expected string or number for finding severity.");

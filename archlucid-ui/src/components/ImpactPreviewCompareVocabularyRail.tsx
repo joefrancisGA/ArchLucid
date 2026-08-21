@@ -2,21 +2,17 @@
 
 import type { JSX } from "react";
 
+import { PairwiseVocabularyRailFromModel } from "@/components/vocabulary/PairwiseVocabularyRailFromModel";
 import {
-  buildImpactPreviewCompareVocabulary,
-  resolveImpactPreviewComparePeerLink,
+  buildImpactPreviewComparePairwiseRail,
   type ImpactPreviewCompareSurfaceId,
   type ImpactPreviewCompareVocabularyModel,
 } from "@/lib/vocabulary/impact-preview-compare-vocabulary";
-import { VocabularyRail } from "@/components/vocabulary/VocabularyRail";
 
 export type ImpactPreviewCompareVocabularyRailProps = {
-  /** Surface hosting the strip — marks the current insight job and links to the peer. */
   readonly currentSurfaceId: ImpactPreviewCompareSurfaceId;
-  /** Compact one-line strip (default) vs fuller why-two explanation. */
   readonly variant?: "compact" | "full";
   readonly className?: string;
-  /** Optional override for tests; defaults to {@link buildImpactPreviewCompareVocabulary}. */
   readonly model?: ImpactPreviewCompareVocabularyModel;
 };
 
@@ -28,25 +24,25 @@ export type ImpactPreviewCompareVocabularyRailProps = {
 export function ImpactPreviewCompareVocabularyRail(
   props: ImpactPreviewCompareVocabularyRailProps,
 ): JSX.Element {
-  const model = props.model ?? buildImpactPreviewCompareVocabulary();
-  const peer = resolveImpactPreviewComparePeerLink(props.currentSurfaceId);
-  const currentLink =
-    props.currentSurfaceId === "impact-preview"
-      ? model.impactPreviewLink
-      : model.compareLink;
+  const pairwiseModel =
+    props.model !== undefined
+      ? {
+          heading: props.model.heading,
+          whyTwo: props.model.whyTwo,
+          compactLine: props.model.compactLine,
+          currentLink: props.model.impactPreviewLink,
+          peerLink: props.model.compareLink,
+        }
+      : buildImpactPreviewComparePairwiseRail();
 
   return (
-    <VocabularyRail
+    <PairwiseVocabularyRailFromModel
       testIdPrefix="impact-preview-compare-vocabulary"
       currentSurfaceId={props.currentSurfaceId}
       variant={props.variant}
       className={props.className}
-      compactLine={model.compactLine}
       compactLinkPlacement="inline"
-      heading={model.heading}
-      whyTwo={model.whyTwo}
-      currentLabel={currentLink.label}
-      links={[{ ...peer, testIdSuffix: "peer-link" }]}
+      model={pairwiseModel}
     />
   );
 }

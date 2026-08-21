@@ -85,7 +85,7 @@ export const AUDIT_TRAIL_HELP_ANATOMY_FIELDS: readonly AuditTrailHelpAnatomyFiel
 export const AUDIT_TRAIL_HELP_IMMUTABILITY_TITLE = "Immutability and export posture";
 
 export const AUDIT_TRAIL_HELP_IMMUTABILITY_INTRO =
-  "Audit trail rows are append-only under the application identity. Diligence reviewers should pair each immutability statement below with linked guidance — this help topic orients buyers; it is not itself a signed diligence Sources package.";
+  "Audit trail rows are append-only under the application identity. Procurement reviewers should pair each immutability statement below with linked guidance — this help topic orients buyers; it is not itself a full audit export.";
 
 export const AUDIT_TRAIL_HELP_APPEND_ONLY_ENFORCEMENT =
   "Append-only rows are enforced by a database-level deny on update and delete for the application role.";
@@ -130,7 +130,7 @@ export const AUDIT_TRAIL_HELP_EVIDENCE_TRAIL_INTRO =
 
 export const AUDIT_TRAIL_HELP_EVIDENCE_TRAIL_ITEMS = [
   "Input artifacts and evidence trail citations explain what was reviewed.",
-  "Findings and decisions capture architecture risk and governance disposition.",
+  "Findings and decisions capture architecture risk and resolve outcomes.",
   "Audit trail entries record authenticated actions — who submitted, approved, exported, or changed evidence.",
   "The sealed review record binds the committed architecture review state.",
 ] as const;

@@ -37,10 +37,10 @@ export const REPORT_PROBLEM_AUDIT_HEADING =
   "Report a problem and Audit trail serve different purposes" as const;
 
 export const REPORT_PROBLEM_AUDIT_WHY_TWO =
-  "Report a problem is support intake — structured defect reporting with correlation identifiers and a next-business-day response commitment. Audit trail is the governance audit trail for governance and review events. Opening support intake is not the same as searching the audit trail." as const;
+  "Report a problem opens a support ticket with the details support needs to investigate. Audit trail searches workspace activity records. Filing support intake is not the same as searching the activity log." as const;
 
 export const REPORT_PROBLEM_AUDIT_COMPACT_LINE =
-  "Report a problem is support intake; Audit trail is the governance audit trail — open the other when you need both." as const;
+  "Report a problem is support intake; Audit trail is the workspace activity log — open the other when you need both." as const;
 
 export const REPORT_PROBLEM_AUDIT_REPORT_PROBLEM_LINK: ReportProblemAuditLink = {
   id: "report-problem",

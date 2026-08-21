@@ -2,13 +2,12 @@
 
 import type { JSX } from "react";
 
+import { PairwiseVocabularyRailFromModel } from "@/components/vocabulary/PairwiseVocabularyRailFromModel";
 import {
-  buildFirstReviewGuideFirstArchitectureReviewVocabulary,
-  resolveFirstReviewGuideFirstArchitectureReviewPeerLink,
+  buildFirstReviewGuideFirstArchitectureReviewPairwiseRail,
   type FirstReviewGuideFirstArchitectureReviewSurfaceId,
   type FirstReviewGuideFirstArchitectureReviewVocabularyModel,
 } from "@/lib/vocabulary/first-review-guide-first-architecture-review-vocabulary";
-import { VocabularyRail } from "@/components/vocabulary/VocabularyRail";
 
 export type FirstReviewGuideFirstArchitectureReviewVocabularyRailProps = {
   /** Surface hosting the strip — marks the current job and links to the peer. */
@@ -27,25 +26,25 @@ export type FirstReviewGuideFirstArchitectureReviewVocabularyRailProps = {
 export function FirstReviewGuideFirstArchitectureReviewVocabularyRail(
   props: FirstReviewGuideFirstArchitectureReviewVocabularyRailProps,
 ): JSX.Element {
-  const model = props.model ?? buildFirstReviewGuideFirstArchitectureReviewVocabulary();
-  const peer = resolveFirstReviewGuideFirstArchitectureReviewPeerLink(props.currentSurfaceId);
-  const currentLink =
-    props.currentSurfaceId === "first-review-guide"
-      ? model.firstReviewGuideLink
-      : model.firstArchitectureReviewLink;
+  const pairwiseModel =
+    props.model !== undefined
+      ? {
+          heading: props.model.heading,
+          whyTwo: props.model.whyTwo,
+          compactLine: props.model.compactLine,
+          currentLink: props.model.firstReviewGuideLink,
+          peerLink: props.model.firstArchitectureReviewLink,
+        }
+      : buildFirstReviewGuideFirstArchitectureReviewPairwiseRail();
 
   return (
-    <VocabularyRail
+    <PairwiseVocabularyRailFromModel
       testIdPrefix="first-review-guide-first-architecture-review-vocabulary"
       currentSurfaceId={props.currentSurfaceId}
       variant={props.variant}
       className={props.className}
-      compactLine={model.compactLine}
       compactLinkPlacement="inline"
-      heading={model.heading}
-      whyTwo={model.whyTwo}
-      currentLabel={currentLink.label}
-      links={[{ ...peer, testIdSuffix: "peer-link" }]}
+      model={pairwiseModel}
     />
   );
 }

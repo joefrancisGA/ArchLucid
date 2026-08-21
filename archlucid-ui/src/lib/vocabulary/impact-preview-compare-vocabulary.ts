@@ -15,6 +15,7 @@
 
 import { COMPARE_TWO_REVIEWS_PATH } from "@/lib/compare-two-reviews-route";
 import { IMPACT_PREVIEW_PATH } from "@/lib/impact-preview-route";
+import type { PairwiseVocabularyRailModel } from "@/lib/vocabulary/create-pairwise-vocabulary-rail";
 
 export type ImpactPreviewCompareSurfaceId = "impact-preview" | "compare";
 
@@ -56,14 +57,27 @@ export const IMPACT_PREVIEW_COMPARE_COMPARE_LINK: ImpactPreviewCompareLink = {
   whenToUse: "Diff two finalized architecture packages side by side.",
 };
 
-/** Full vocabulary model (heading, why-two copy, and deep links). */
-export function buildImpactPreviewCompareVocabulary(): ImpactPreviewCompareVocabularyModel {
+/** Pairwise model for Impact preview ↔ Compare two reviews (fixed routes). */
+export function buildImpactPreviewComparePairwiseRail(): PairwiseVocabularyRailModel<ImpactPreviewCompareSurfaceId> {
   return {
     heading: IMPACT_PREVIEW_COMPARE_HEADING,
     whyTwo: IMPACT_PREVIEW_COMPARE_WHY_TWO,
     compactLine: IMPACT_PREVIEW_COMPARE_COMPACT_LINE,
-    impactPreviewLink: IMPACT_PREVIEW_COMPARE_IMPACT_PREVIEW_LINK,
-    compareLink: IMPACT_PREVIEW_COMPARE_COMPARE_LINK,
+    currentLink: IMPACT_PREVIEW_COMPARE_IMPACT_PREVIEW_LINK,
+    peerLink: IMPACT_PREVIEW_COMPARE_COMPARE_LINK,
+  };
+}
+
+/** Full vocabulary model (heading, why-two copy, and deep links). */
+export function buildImpactPreviewCompareVocabulary(): ImpactPreviewCompareVocabularyModel {
+  const rail = buildImpactPreviewComparePairwiseRail();
+
+  return {
+    heading: rail.heading,
+    whyTwo: rail.whyTwo,
+    compactLine: rail.compactLine,
+    impactPreviewLink: rail.currentLink,
+    compareLink: rail.peerLink,
   };
 }
 

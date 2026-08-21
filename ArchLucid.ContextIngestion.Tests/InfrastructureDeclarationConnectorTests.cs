@@ -2,7 +2,10 @@ using ArchLucid.ContextIngestion.Connectors;
 using ArchLucid.ContextIngestion.ConnectorStages;
 using ArchLucid.ContextIngestion.Delta;
 using ArchLucid.ContextIngestion.Infrastructure;
+using ArchLucid.ContextIngestion.Mapping;
 using ArchLucid.ContextIngestion.Models;
+using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Requests;
 
 using FluentAssertions;
 
@@ -107,6 +110,61 @@ public sealed class InfrastructureDeclarationConnectorTests
         delta.AddedCount.Should().Be(1, "storage-acct is new within the same declaration");
         delta.UnchangedCount.Should().Be(2, "hub-vnet and hub-subnet are unchanged");
         delta.RemovedCount.Should().Be(0);
+    }
+
+    [Fact]
+    public async Task DeltaAsync_ReMappedIdenticalArchitectureRequest_ReportsUnchangedResources()
+    {
+        ArchitectureRequest request = new()
+        {
+            Description = "1234567890 minimum len",
+            SystemName = "billing-api",
+            Environment = "prod",
+            CloudProvider = CloudProvider.Azure,
+            InfrastructureDeclarations =
+            [
+                new InfrastructureDeclarationRequest
+                {
+                    Name = "env.json",
+                    Format = "json",
+                    Content = """
+                              {
+                                "resources": [
+                                  { "type": "vnet", "name": "hub-vnet" },
+                                  { "type": "subnet", "name": "hub-subnet" }
+                                ]
+                              }
+                              """,
+                }
+            ]
+        };
+
+        InfrastructureDeclarationConnector connector = new(
+            new InfrastructureDeclarationsPayloadExtractor(),
+            new InfrastructureDeclarationsPayloadNormalizer([new JsonInfrastructureDeclarationParser(Microsoft.Extensions.Logging.Abstractions.NullLogger<JsonInfrastructureDeclarationParser>.Instance)]),
+            new SetDiffConnectorDeltaComputer());
+
+        ContextIngestionRequest firstMapped = ContextIngestionRequestMapper.FromArchitectureRequest(request);
+        RawContextPayload firstRaw = await connector.FetchAsync(firstMapped, CancellationToken.None);
+        NormalizedContextBatch firstBatch = await connector.NormalizeAsync(firstRaw, CancellationToken.None);
+
+        ContextSnapshot previous = new()
+        {
+            SnapshotId = Guid.NewGuid(),
+            RunId = Guid.NewGuid(),
+            ProjectId = firstMapped.ProjectId,
+            CanonicalObjects = firstBatch.CanonicalObjects,
+        };
+
+        ContextIngestionRequest secondMapped = ContextIngestionRequestMapper.FromArchitectureRequest(request);
+        RawContextPayload secondRaw = await connector.FetchAsync(secondMapped, CancellationToken.None);
+        NormalizedContextBatch secondBatch = await connector.NormalizeAsync(secondRaw, CancellationToken.None);
+
+        ContextDelta delta = await connector.DeltaAsync(secondBatch, previous, CancellationToken.None);
+
+        delta.AddedCount.Should().Be(0);
+        delta.RemovedCount.Should().Be(0);
+        delta.UnchangedCount.Should().Be(2);
     }
 
     private static CanonicalObject MakeInfraResource(string declarationId, string name, string resourceType)

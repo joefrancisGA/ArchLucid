@@ -13,10 +13,10 @@ export const AUTH_DOMAINS_SETTINGS_FOLLOW_UPS_TITLE = "Where to go next";
 export const AUTH_DOMAINS_SETTINGS_CLAIM_HEADING_ID = "auth-domains-settings-claim-discipline-heading" as const;
 
 export const AUTH_DOMAINS_SETTINGS_CLAIM_DISCIPLINE =
-  "This Sign-in domains page verifies email domain ownership and SSO enforcement readiness — it is not a sealed-review diligence Sources package. Open SSO and identity, Users and roles help, or Assurance status when you need federation setup, membership, or trust cites.";
+  "This Sign-in domains page verifies email domain ownership and SSO enforcement readiness — not a full audit export. Open SSO and identity, Users and roles help, or Assurance status when you need federation setup or membership.";
 
 export const AUTH_DOMAINS_SETTINGS_SOURCES_INTRO =
-  "Use these follow-ups when domain verification turns into identity-provider setup, recovery admins, or assurance cites.";
+  "Use these follow-ups when domain verification turns into identity-provider setup, recovery admins, or official assurance materials.";
 
 
 /** Operator Sources - no self-href to `/administration/auth-domains`. */

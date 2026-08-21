@@ -61,7 +61,7 @@ describe("architecture-draft-readiness", () => {
   it("requires a system name before review start even when overview and outcome are complete", () => {
     const namedReadyExceptName = {
       freeTextIntent: readyOverview,
-      businessOutcome: "Reduce cycle time for governed architecture reviews.",
+      businessOutcome: "Reduce cycle time for architecture reviews.",
       systemName: "",
       structuredBrief: readyStructuredBrief(),
     };
@@ -73,7 +73,7 @@ describe("architecture-draft-readiness", () => {
   it("blocks review start when only unknown sentinel placeholders are present (TB-2343)", () => {
     const withUnknownsOnly = {
       freeTextIntent: readyOverview,
-      businessOutcome: "Reduce cycle time for governed architecture reviews.",
+      businessOutcome: "Reduce cycle time for architecture reviews.",
       systemName: "Claims intake",
       structuredBrief: {
         ...emptyArchitectureDraftStructuredBrief(),
@@ -94,7 +94,7 @@ describe("architecture-draft-readiness", () => {
   it("allows mixed sentinel and real constraint while still requiring real assumption (TB-2343)", () => {
     const mixed = {
       freeTextIntent: readyOverview,
-      businessOutcome: "Reduce cycle time for governed architecture reviews.",
+      businessOutcome: "Reduce cycle time for architecture reviews.",
       systemName: "Claims intake",
       structuredBrief: {
         ...emptyArchitectureDraftStructuredBrief(),
@@ -131,7 +131,7 @@ describe("architecture-draft-readiness", () => {
   it("blocks review start when only legacy name/overview/outcome minimums are met (TB-2282)", () => {
     const legacyMinimumOnly = {
       freeTextIntent: readyOverview,
-      businessOutcome: "Reduce cycle time for governed architecture reviews.",
+      businessOutcome: "Reduce cycle time for architecture reviews.",
       systemName: "Claims intake",
       structuredBrief: emptyArchitectureDraftStructuredBrief(),
     };

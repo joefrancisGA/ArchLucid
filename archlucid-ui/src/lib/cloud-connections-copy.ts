@@ -32,7 +32,7 @@ export const CLOUD_CONNECTIONS_PROVIDER_AUTH_MODEL: Readonly<Record<"azure" | "a
 };
 
 export const CLOUD_CONNECTIONS_SECURITY_PREFLIGHT_INTRO =
-  "Review these items with your cloud or security team before enabling collection. This checklist is guidance only — ArchLucid does not record it as an attestation or add it to the audit trail.";
+  "Review these items with your cloud or security team before enabling collection. This checklist is guidance only — ArchLucid does not save it as proof or add it to the audit log.";
 
 export const CLOUD_CONNECTIONS_DETAIL_SECTIONS = [
   "Overview",

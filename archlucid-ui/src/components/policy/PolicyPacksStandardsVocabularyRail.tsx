@@ -2,13 +2,12 @@
 
 import type { JSX } from "react";
 
+import { PairwiseVocabularyRailFromModel } from "@/components/vocabulary/PairwiseVocabularyRailFromModel";
 import {
-  buildPolicyPacksStandardsVocabulary,
-  resolvePolicyPacksStandardsPeerLink,
+  buildPolicyPacksStandardsPairwiseRail,
   type PolicyPacksStandardsSurfaceId,
   type PolicyPacksStandardsVocabularyModel,
 } from "@/lib/vocabulary/policy-packs-standards-vocabulary";
-import { VocabularyRail } from "@/components/vocabulary/VocabularyRail";
 
 export type PolicyPacksStandardsVocabularyRailProps = {
   /** Surface hosting the strip — marks the current governance job and links to the peer. */
@@ -27,23 +26,25 @@ export type PolicyPacksStandardsVocabularyRailProps = {
 export function PolicyPacksStandardsVocabularyRail(
   props: PolicyPacksStandardsVocabularyRailProps,
 ): JSX.Element {
-  const model = props.model ?? buildPolicyPacksStandardsVocabulary();
-  const peer = resolvePolicyPacksStandardsPeerLink(props.currentSurfaceId);
-  const currentLink =
-    props.currentSurfaceId === "policy-packs" ? model.policyPacksLink : model.standardsLink;
+  const pairwiseModel =
+    props.model !== undefined
+      ? {
+          heading: props.model.heading,
+          whyTwo: props.model.whyTwo,
+          compactLine: props.model.compactLine,
+          currentLink: props.model.policyPacksLink,
+          peerLink: props.model.standardsLink,
+        }
+      : buildPolicyPacksStandardsPairwiseRail();
 
   return (
-    <VocabularyRail
+    <PairwiseVocabularyRailFromModel
       testIdPrefix="policy-packs-standards-vocabulary"
       currentSurfaceId={props.currentSurfaceId}
       variant={props.variant}
       className={props.className}
-      compactLine={model.compactLine}
       compactLinkPlacement="inline"
-      heading={model.heading}
-      whyTwo={model.whyTwo}
-      currentLabel={currentLink.label}
-      links={[{ ...peer, testIdSuffix: "peer-link" }]}
+      model={pairwiseModel}
     />
   );
 }

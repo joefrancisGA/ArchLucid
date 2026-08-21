@@ -20,7 +20,7 @@ export const API_CONTRACTS_HELP_JOB_MATRIX: readonly ApiContractsHelpJobMatrixRo
   {
     label: GOVERNANCE_APPROVAL_HELP_TOPIC_LABEL,
     href: inAppHelpHref("governance-approval"),
-    when: "Buyer approval workflows, finalize gates, and governance posture — not OpenAPI endpoint text",
+    when: "Buyer approval workflows and finalize gates — not OpenAPI endpoint text",
   },
   {
     label: CONFIGURATION_REFERENCE_HELP_TOPIC_LABEL,

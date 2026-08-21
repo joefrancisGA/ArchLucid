@@ -10,6 +10,10 @@ const sectionsDir = join(routeDir, "..", "_sections");
 const pageSource = readFileSync(join(routeDir, "page.tsx"), "utf8");
 const pageContentSource = readFileSync(join(sectionsDir, "GovernanceWorkflowPageContent.tsx"), "utf8");
 const deferredSource = readFileSync(join(sectionsDir, "governance-workflow-deferred-chunks.tsx"), "utf8");
+const manifestLoaderSource = readFileSync(
+  join(sectionsDir, "../../../../lib/operator/load-deferred-chunk-from-manifest.tsx"),
+  "utf8",
+);
 
 const bannedStaticImports = [
   './GovernanceOverviewPanel"',
@@ -55,22 +59,28 @@ describe("governance approval-queue deferred imports (TB-934 / wave 10)", () => 
     expect(pageContentSource).toContain("AdvancedOptionsAccordionDeferred");
   });
 
-  it("dynamic-imports each deferred governance workflow panel", () => {
-    expect(deferredSource).toContain("next/dynamic");
-    expect(deferredSource).toContain('import("./GovernanceOverviewPanel")');
-    expect(deferredSource).toContain('import("./GovernanceReviewContextBar")');
-    expect(deferredSource).toContain('import("./GovernanceWorkflowSubmitSection")');
-    expect(deferredSource).toContain('import("./GovernanceWorkflowApprovalsList")');
-    expect(deferredSource).toContain('import("./GovernanceWorkflowPromotionsActivationsSection")');
-    expect(deferredSource).toContain('import("./GovernanceWorkflowDialogs")');
-    expect(deferredSource).toContain('import("@/components/cto-demo/CtoDemoBuyerValueStrip")');
-    expect(deferredSource).toContain('import("@/components/cto-demo/CtoDemoSegregationCallout")');
-    expect(deferredSource).toContain('import("@/components/OperateCapabilityHints")');
-    expect(deferredSource).toContain('import("@/components/governance/GovernanceInteractiveQuickstartContent")');
-    expect(deferredSource).toContain('import("@/components/governance/GovernanceApprovalStoryCard")');
-    expect(deferredSource).toContain('import("@/components/AdvancedOptionsAccordion")');
+  it("dynamic-imports deferred governance workflow panels via manifest loaders", () => {
+    expect(deferredSource).toContain("createDeferredComponentFromManifest");
+    expect(deferredSource).not.toContain("next/dynamic");
+    expect(manifestLoaderSource).toContain('import("@/app/(operator)/governance/_sections/GovernanceOverviewPanel")');
+    expect(manifestLoaderSource).toContain('import("@/app/(operator)/governance/_sections/GovernanceReviewContextBar")');
+    expect(manifestLoaderSource).toContain('import("@/app/(operator)/governance/_sections/GovernanceWorkflowSubmitSection")');
+    expect(manifestLoaderSource).toContain('import("@/app/(operator)/governance/_sections/GovernanceWorkflowApprovalsList")');
+    expect(manifestLoaderSource).toContain(
+      'import("@/app/(operator)/governance/_sections/GovernanceWorkflowPromotionsActivationsSection")',
+    );
+    expect(manifestLoaderSource).toContain('import("@/app/(operator)/governance/_sections/GovernanceWorkflowDialogs")');
+    expect(manifestLoaderSource).toContain('import("@/components/cto-demo/CtoDemoBuyerValueStrip")');
+    expect(manifestLoaderSource).toContain('import("@/components/cto-demo/CtoDemoSegregationCallout")');
+    expect(manifestLoaderSource).toContain('import("@/components/OperateCapabilityHints")');
+    expect(manifestLoaderSource).toContain('import("@/components/governance/GovernanceInteractiveQuickstartContent")');
+    expect(manifestLoaderSource).toContain('import("@/components/governance/GovernanceApprovalStoryCard")');
+    expect(manifestLoaderSource).toContain('import("@/components/AdvancedOptionsAccordion")');
     expect(deferredSource).toContain("GovernanceApprovalStoryCardDeferred");
     expect(deferredSource).toContain("GovernanceReviewContextBarDeferred");
     expect(deferredSource).toContain("AdvancedOptionsAccordionDeferred");
+    expect(deferredSource).toContain("governance-workflow-cto-demo-buyer-value-strip");
+    expect(deferredSource).toContain("governance-workflow-cto-demo-segregation-callout");
+    expect(deferredSource).toContain("governance-workflow-cto-demo-governance-preview-hint");
   });
 });

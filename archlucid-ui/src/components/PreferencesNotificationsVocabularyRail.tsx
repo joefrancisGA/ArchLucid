@@ -2,13 +2,12 @@
 
 import type { JSX } from "react";
 
+import { PairwiseVocabularyRailFromModel } from "@/components/vocabulary/PairwiseVocabularyRailFromModel";
 import {
-  buildPreferencesNotificationsVocabulary,
-  resolvePreferencesNotificationsPeerLink,
+  buildPreferencesNotificationsPairwiseRail,
   type PreferencesNotificationsSurfaceId,
   type PreferencesNotificationsVocabularyModel,
 } from "@/lib/vocabulary/preferences-notifications-vocabulary";
-import { VocabularyRail } from "@/components/vocabulary/VocabularyRail";
 
 export type PreferencesNotificationsVocabularyRailProps = {
   readonly currentSurfaceId: PreferencesNotificationsSurfaceId;
@@ -21,25 +20,25 @@ export type PreferencesNotificationsVocabularyRailProps = {
 export function PreferencesNotificationsVocabularyRail(
   props: PreferencesNotificationsVocabularyRailProps,
 ): JSX.Element {
-  const model = props.model ?? buildPreferencesNotificationsVocabulary();
-  const peer = resolvePreferencesNotificationsPeerLink(props.currentSurfaceId);
-  const currentLink =
-    props.currentSurfaceId === "preferences"
-      ? model.preferencesLink
-      : model.notificationsLink;
+  const pairwiseModel =
+    props.model !== undefined
+      ? {
+          heading: props.model.heading,
+          whyTwo: props.model.whyTwo,
+          compactLine: props.model.compactLine,
+          currentLink: props.model.preferencesLink,
+          peerLink: props.model.notificationsLink,
+        }
+      : buildPreferencesNotificationsPairwiseRail();
 
   return (
-    <VocabularyRail
+    <PairwiseVocabularyRailFromModel
       testIdPrefix="preferences-notifications-vocabulary"
       currentSurfaceId={props.currentSurfaceId}
       variant={props.variant}
       className={props.className}
-      compactLine={model.compactLine}
       compactLinkPlacement="inline"
-      heading={model.heading}
-      whyTwo={model.whyTwo}
-      currentLabel={currentLink.label}
-      links={[{ ...peer, testIdSuffix: "peer-link" }]}
+      model={pairwiseModel}
     />
   );
 }

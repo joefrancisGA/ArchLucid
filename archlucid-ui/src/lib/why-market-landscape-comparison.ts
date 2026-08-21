@@ -22,7 +22,7 @@ export const WHY_MARKET_LANDSCAPE_MARKETING_ROWS: readonly WhyMarketLandscapeMar
   {
     dimension: "AI capability",
     archlucid:
-      "Purpose-built governed review workflow — multi-agent synthesis, deterministic replay, routed models behind human-reviewed outcomes.",
+      "Purpose-built finalized review workflow — multi-agent synthesis, deterministic replay, routed models behind human-reviewed outcomes.",
     githubCopilotAdHocArchitecture: "Typical fit: code completions and refactoring assistance in the editor.",
     manualChatgptClaude: "Often used for exploratory analysis; repeatability depends on prompting and transcripts.",
     structurizrWithAssist:

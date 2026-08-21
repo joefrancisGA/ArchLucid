@@ -70,7 +70,7 @@ export function formatOperatorHomeContinueDraftHeading(displayName: string): str
 export const OPERATOR_HOME_ACTIVE_REVIEWS_HEADING = "Reviews in progress";
 
 export const OPERATOR_HOME_ACTIVE_REVIEWS_LEAD =
-  "Open an in-progress review or start another governed review when your architecture is ready.";
+  "Open an in-progress review or start another architecture review when your architecture is ready.";
 
 export const OPERATOR_HOME_LIFECYCLE_RECOMMENDED_BADGE = "Recommended next";
 
@@ -91,14 +91,14 @@ export function formatOperatorHomeResumeDraftBridge(displayName: string, draftCo
   const safeCount = Number.isFinite(draftCount) ? Math.max(0, Math.trunc(draftCount)) : 0;
 
   if (trimmedName.length > 0 && safeCount === 1) {
-    return `Pick up "${trimmedName}" or start a governed review from the lifecycle steps below.`;
+    return `Pick up "${trimmedName}" or start an architecture review from the lifecycle steps below.`;
   }
 
   if (trimmedName.length > 0) {
-    return `Pick up "${trimmedName}" — your most recent draft — or start a governed review from the lifecycle steps below.`;
+    return `Pick up "${trimmedName}" — your most recent draft — or start an architecture review from the lifecycle steps below.`;
   }
 
-  return "Resume your most recent draft or start a governed review from the lifecycle steps below.";
+  return "Resume your most recent draft or start an architecture review from the lifecycle steps below.";
 }
 
 export const OPERATOR_HOME_EXPLORE_COMPLETED_REVIEW_TITLE = "Explore a completed review";
@@ -373,7 +373,7 @@ export const BUYER_HOME_EXAMPLE_PACKAGE_LEAD =
 
 export const BUYER_HOME_EXAMPLE_EXPLORE_LINK = "Explore example";
 
-export const BUYER_HOME_WELCOME_HEADING = "Explore one governed architecture review";
+export const BUYER_HOME_WELCOME_HEADING = "Explore one architecture review";
 
 export const BUYER_HOME_WELCOME_LEAD =
   "Start with the sponsor view, then the sealed review record, audit trail, and prioritized findings.";

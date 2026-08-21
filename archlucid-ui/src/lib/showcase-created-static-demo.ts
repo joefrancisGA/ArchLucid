@@ -97,7 +97,7 @@ export function getShowcaseCreatedStaticDemoPayload(urlRunId: string): DemoCommi
       unresolvedIssueCount: 0,
       status: "Committed",
       operatorSummary:
-        "Born-governed architecture review created from guided intake — APIM-fronted copilot, private RAG plane, " +
+        "Sample architecture review created from guided intake — APIM-fronted copilot, private RAG plane, " +
         "content-safety hooks, and explicit evidence limits where ArchLucid does not conclude.",
     },
     authorityChain: {

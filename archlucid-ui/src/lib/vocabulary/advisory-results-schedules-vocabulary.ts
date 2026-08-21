@@ -16,6 +16,7 @@ import {
   ADVISORY_SCANS_SCANS_HREF,
   ADVISORY_SCANS_SCHEDULES_HREF,
 } from "@/lib/advisory-scans-route";
+import type { PairwiseVocabularyRailModel } from "@/lib/vocabulary/create-pairwise-vocabulary-rail";
 
 export type AdvisoryResultsSchedulesSurfaceId =
   | "advisory-results"
@@ -59,14 +60,27 @@ export const ADVISORY_RESULTS_SCHEDULES_SCHEDULES_LINK: AdvisoryResultsSchedules
   whenToUse: "Automate recurring advisory scans on a cadence.",
 };
 
-/** Full vocabulary model (heading, why-two copy, and deep links). */
-export function buildAdvisoryResultsSchedulesVocabulary(): AdvisoryResultsSchedulesVocabularyModel {
+/** Pairwise model for Advisory scans ↔ Advisory schedules (fixed routes). */
+export function buildAdvisoryResultsSchedulesPairwiseRail(): PairwiseVocabularyRailModel<AdvisoryResultsSchedulesSurfaceId> {
   return {
     heading: ADVISORY_RESULTS_SCHEDULES_HEADING,
     whyTwo: ADVISORY_RESULTS_SCHEDULES_WHY_TWO,
     compactLine: ADVISORY_RESULTS_SCHEDULES_COMPACT_LINE,
-    resultsLink: ADVISORY_RESULTS_SCHEDULES_RESULTS_LINK,
-    schedulesLink: ADVISORY_RESULTS_SCHEDULES_SCHEDULES_LINK,
+    currentLink: ADVISORY_RESULTS_SCHEDULES_RESULTS_LINK,
+    peerLink: ADVISORY_RESULTS_SCHEDULES_SCHEDULES_LINK,
+  };
+}
+
+/** Full vocabulary model (heading, why-two copy, and deep links). */
+export function buildAdvisoryResultsSchedulesVocabulary(): AdvisoryResultsSchedulesVocabularyModel {
+  const rail = buildAdvisoryResultsSchedulesPairwiseRail();
+
+  return {
+    heading: rail.heading,
+    whyTwo: rail.whyTwo,
+    compactLine: rail.compactLine,
+    resultsLink: rail.currentLink,
+    schedulesLink: rail.peerLink,
   };
 }
 

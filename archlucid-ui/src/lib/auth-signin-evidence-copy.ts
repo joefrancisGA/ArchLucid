@@ -1,7 +1,7 @@
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
 export const AUTH_SIGNIN_CLAIM_DISCIPLINE =
-  "Sign-in chooses how you authenticate into ArchLucid — it is an authentication gate, not a sealed-review diligence Sources package. After you enter a workspace, open Assurance status or a finalized review when you need live workspace evidence.";
+  "Sign-in is authentication only — not a full audit export. After you enter a workspace, open Assurance status or a finalized review when you need live evidence.";
 
 export const AUTH_SIGNIN_SOURCES_INTRO =
   "Use these follow-ups when sign-in is blocked or you need product orientation before a workspace is ready.";

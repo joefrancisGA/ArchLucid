@@ -2,6 +2,8 @@ import {
   clearOperatorScopeCookie,
   writeOperatorScopeCookieFromHeaders,
 } from "@/lib/operator/operator-scope-cookie";
+import { clearOperatorShellStatusScopeAgnosticCaches } from "@/lib/operator/operator-shell-status-scope-cache";
+import { getOperatorQueryClient } from "@/lib/query/operator-query-client";
 import { isLikelySignedIn } from "@/lib/oidc/session";
 import { registrationScopeHeaders } from "@/lib/registration-session";
 import { DEV_SCOPE_PROJECT_ID, DEV_SCOPE_TENANT_ID, DEV_SCOPE_WORKSPACE_ID, getScopeHeaders } from "@/lib/scope";
@@ -62,6 +64,15 @@ export function readOperatorScopeFromStorage(): OperatorScopeRecord | null {
   }
 }
 
+function notifyOperatorScopeChanged(): void {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  window.dispatchEvent(new CustomEvent(ARCHLUCID_OPERATOR_SCOPE_CHANGED_EVENT));
+  clearOperatorShellStatusScopeAgnosticCaches(getOperatorQueryClient());
+}
+
 export function writeOperatorScopeToStorage(record: OperatorScopeRecord): void {
   if (typeof window === "undefined") {
     return;
@@ -82,7 +93,7 @@ export function writeOperatorScopeToStorage(record: OperatorScopeRecord): void {
       "x-workspace-id": record.workspaceId,
       "x-project-id": record.projectId,
     });
-    window.dispatchEvent(new CustomEvent(ARCHLUCID_OPERATOR_SCOPE_CHANGED_EVENT));
+    notifyOperatorScopeChanged();
   } catch {
     /* quota / private mode */
   }
@@ -95,7 +106,7 @@ export function clearOperatorScopeStorage(): void {
   try {
     window.localStorage.removeItem(STORAGE_KEY);
     clearOperatorScopeCookie();
-    window.dispatchEvent(new CustomEvent(ARCHLUCID_OPERATOR_SCOPE_CHANGED_EVENT));
+    notifyOperatorScopeChanged();
   } catch {
     /* */
   }

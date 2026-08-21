@@ -7,7 +7,7 @@ export const GLOSSARY_HELP_CANONICAL_PATH = "/help/glossary" as const;
 export const GLOSSARY_HELP_TOPIC_LABEL = "How to use the glossary" as const;
 
 export const GLOSSARY_HELP_CLAIM_DISCIPLINE_LEAD =
-  "This glossary defines product terms for architects and buyers — it is orientation vocabulary, not a sealed-review diligence Sources package.";
+  "This glossary defines product terms for architects and buyers — help only, not a full audit export.";
 
 export const GLOSSARY_HELP_CLAIM_DISCIPLINE_TAIL =
   "when you need live workflow or assurance trails.";

@@ -166,6 +166,20 @@ describe("IdentityProvidersSettingsPageView", () => {
     expect(screen.queryByTestId("identity-providers-settings-claim-discipline")).not.toBeInTheDocument();
   });
 
+  it("keeps SSO setup as the sole primary when a recommended next step is also shown", () => {
+    render(<IdentityProvidersSettingsPageView model={buildModel()} />);
+
+    expect(screen.getByTestId("identity-providers-sso-setup-cta-button")).toHaveClass(
+      "bg-[var(--al-primary-action-bg)]",
+    );
+    expect(screen.getByTestId("identity-providers-primary-next-step-button")).toHaveClass(
+      "border-neutral-300",
+    );
+    expect(screen.getByTestId("identity-providers-primary-next-step-button")).not.toHaveClass(
+      "bg-[var(--al-primary-action-bg)]",
+    );
+  });
+
   it("shows a retryable overview failure only when status probes are unavailable", () => {
 
     const refresh = vi.fn(async () => undefined);

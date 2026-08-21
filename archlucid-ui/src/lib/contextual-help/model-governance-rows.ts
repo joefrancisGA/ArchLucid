@@ -9,7 +9,7 @@ import { MODEL_GOVERNANCE_HELP_CANONICAL_PATH } from "@/lib/model-governance-hel
 
 const MODEL_GOVERNANCE_HUB_CONTEXTUAL_HELP = {
   whatIsThisPage:
-    "AI and model governance - manage the workspace default execution profile and governed model aliases used on reviews.",
+    "AI and model governance - manage the workspace default execution profile and approved model aliases used on reviews.",
   whatToDoNext:
     "Review the effective profile, set or clear a tenant override, then open AI usage when spend signals need attention.",
   whyEmpty:

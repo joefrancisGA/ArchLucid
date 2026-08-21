@@ -89,7 +89,7 @@ describe("useArchitectureDraftAutosave", () => {
     const intent = longIntent();
     const hydrated: ArchitectureDraftFieldState = {
       freeTextIntent: intent,
-      businessOutcome: "Reduce intake cycle time for governed reviews.",
+      businessOutcome: "Reduce intake cycle time for architecture reviews.",
       systemName: "B2B SaaS Tenant Migration Platform",
       structuredBrief: emptyArchitectureDraftStructuredBrief(),
     };
@@ -127,7 +127,7 @@ describe("useArchitectureDraftAutosave", () => {
     };
     const complete: ArchitectureDraftFieldState = {
       freeTextIntent: intentOnly.freeTextIntent,
-      businessOutcome: "Reduce intake cycle time for governed reviews.",
+      businessOutcome: "Reduce intake cycle time for architecture reviews.",
       systemName: "B2B SaaS Tenant Migration Platform",
       structuredBrief: emptyArchitectureDraftStructuredBrief(),
     };

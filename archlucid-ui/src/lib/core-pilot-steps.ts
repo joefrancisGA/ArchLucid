@@ -41,7 +41,7 @@ export const CORE_PILOT_STEPS: CorePilotStepBase[] = [
     title: "Finalize the review",
     shortBody: "Finalize when ready — this locks the sealed review record, findings, and export surfaces.",
     detail:
-      "Finalization produces the governed architecture review. Governance policy may block finalize when blocking findings remain.",
+      "Finalization produces the finalized architecture review. Governance policy may block finalize when blocking findings remain.",
     primaryHref: "/architecture/reviews",
     primaryLabel: "Finalize on review detail",
   },

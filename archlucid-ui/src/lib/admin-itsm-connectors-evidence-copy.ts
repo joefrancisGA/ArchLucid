@@ -14,7 +14,7 @@ export const ITSM_CONNECTORS_HELP_TOPIC_LABEL = "How ITSM connectors work" as co
 export const ADMIN_ITSM_CONNECTORS_FOLLOW_UPS_TITLE = "Where to go next";
 
 export const ADMIN_ITSM_CONNECTORS_CLAIM_DISCIPLINE =
-  "ITSM connectors configures deployment credentials and tenant routing overrides for Jira and ServiceNow — it is not a sealed-review diligence Sources package. Open buyer Integrations readiness or Audit when you need export posture or activity trails.";
+  "ITSM connectors configures deployment credentials and tenant routing overrides for Jira and ServiceNow — not a full audit export. Open Integrations readiness or Audit for export settings or activity records.";
 
 export const ADMIN_ITSM_CONNECTORS_SOURCES_INTRO =
   "Use these follow-ups when connector onboarding needs buyer export surfaces, readiness checks, or troubleshooting.";

@@ -2,13 +2,12 @@
 
 import type { JSX } from "react";
 
+import { PairwiseVocabularyRailFromModel } from "@/components/vocabulary/PairwiseVocabularyRailFromModel";
 import {
-  buildReportProblemSupportWorkspaceVocabulary,
-  resolveReportProblemSupportWorkspacePeerLink,
+  buildReportProblemSupportWorkspacePairwiseRail,
   type ReportProblemSupportWorkspaceSurfaceId,
   type ReportProblemSupportWorkspaceVocabularyModel,
 } from "@/lib/vocabulary/report-problem-support-workspace-vocabulary";
-import { VocabularyRail } from "@/components/vocabulary/VocabularyRail";
 
 export type ReportProblemSupportWorkspaceVocabularyRailProps = {
   readonly currentSurfaceId: ReportProblemSupportWorkspaceSurfaceId;
@@ -21,25 +20,25 @@ export type ReportProblemSupportWorkspaceVocabularyRailProps = {
 export function ReportProblemSupportWorkspaceVocabularyRail(
   props: ReportProblemSupportWorkspaceVocabularyRailProps,
 ): JSX.Element {
-  const model = props.model ?? buildReportProblemSupportWorkspaceVocabulary();
-  const peer = resolveReportProblemSupportWorkspacePeerLink(props.currentSurfaceId);
-  const currentLink =
-    props.currentSurfaceId === "report-a-problem"
-      ? model.reportAProblemLink
-      : model.supportWorkspaceLink;
+  const pairwiseModel =
+    props.model !== undefined
+      ? {
+          heading: props.model.heading,
+          whyTwo: props.model.whyTwo,
+          compactLine: props.model.compactLine,
+          currentLink: props.model.reportAProblemLink,
+          peerLink: props.model.supportWorkspaceLink,
+        }
+      : buildReportProblemSupportWorkspacePairwiseRail();
 
   return (
-    <VocabularyRail
+    <PairwiseVocabularyRailFromModel
       testIdPrefix="report-problem-support-workspace-vocabulary"
       currentSurfaceId={props.currentSurfaceId}
       variant={props.variant}
       className={props.className}
-      compactLine={model.compactLine}
       compactLinkPlacement="inline"
-      heading={model.heading}
-      whyTwo={model.whyTwo}
-      currentLabel={currentLink.label}
-      links={[{ ...peer, testIdSuffix: "peer-link" }]}
+      model={pairwiseModel}
     />
   );
 }

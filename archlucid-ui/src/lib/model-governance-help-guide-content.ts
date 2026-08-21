@@ -11,10 +11,10 @@ export const MODEL_GOVERNANCE_HELP_BREADCRUMB_TOPIC_TITLE = "AI and model govern
 export const MODEL_GOVERNANCE_HELP_PAGE_TITLE = "AI and model governance";
 
 export const MODEL_GOVERNANCE_HELP_PAGE_SUBTITLE =
-  "Manage the workspace default execution profile and governed model aliases used on reviews.";
+  "Manage the workspace default execution profile and approved model aliases used on reviews.";
 
 export const MODEL_GOVERNANCE_HELP_OVERVIEW =
-  "Model governance controls which execution profile and governed model aliases apply to architecture reviews in this workspace. Use it for workspace-wide AI policy.";
+  "Model governance controls which execution profile and approved model aliases apply to architecture reviews in this workspace. Use it for workspace-wide AI policy.";
 
 export const MODEL_GOVERNANCE_HELP_START_HERE_CARD_TITLE = "Start here";
 
@@ -84,10 +84,10 @@ export const MODEL_GOVERNANCE_HELP_GUIDE_HEADINGS: readonly HelpMarkdownHeading[
 /** Drift guard: overview stays positive-only; claim band owns the diligence negation once. */
 export const MODEL_GOVERNANCE_HELP_NEGATION_DRIFT_MARKERS = {
   overviewMustNotContain: [
-    "not a sealed-review diligence",
+    "not a full audit export",
     "sources package",
     "Sources package",
     "diligence Sources",
   ],
-  claimMustContain: "not a sealed-review diligence Sources package",
+  claimMustContain: "not a full audit export",
 } as const;

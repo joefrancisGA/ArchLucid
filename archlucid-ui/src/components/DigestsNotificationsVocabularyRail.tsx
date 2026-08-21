@@ -2,13 +2,12 @@
 
 import type { JSX } from "react";
 
+import { PairwiseVocabularyRailFromModel } from "@/components/vocabulary/PairwiseVocabularyRailFromModel";
 import {
-  buildDigestsNotificationsVocabulary,
-  resolveDigestsNotificationsPeerLink,
+  buildDigestsNotificationsPairwiseRail,
   type DigestsNotificationsSurfaceId,
   type DigestsNotificationsVocabularyModel,
 } from "@/lib/vocabulary/digests-notifications-vocabulary";
-import { VocabularyRail } from "@/components/vocabulary/VocabularyRail";
 
 export type DigestsNotificationsVocabularyRailProps = {
   /** Surface hosting the strip — marks the current job and links to the peer. */
@@ -27,23 +26,25 @@ export type DigestsNotificationsVocabularyRailProps = {
 export function DigestsNotificationsVocabularyRail(
   props: DigestsNotificationsVocabularyRailProps,
 ): JSX.Element {
-  const model = props.model ?? buildDigestsNotificationsVocabulary();
-  const peer = resolveDigestsNotificationsPeerLink(props.currentSurfaceId);
-  const currentLink =
-    props.currentSurfaceId === "digests" ? model.digestsLink : model.notificationsLink;
+  const pairwiseModel =
+    props.model !== undefined
+      ? {
+          heading: props.model.heading,
+          whyTwo: props.model.whyTwo,
+          compactLine: props.model.compactLine,
+          currentLink: props.model.digestsLink,
+          peerLink: props.model.notificationsLink,
+        }
+      : buildDigestsNotificationsPairwiseRail();
 
   return (
-    <VocabularyRail
+    <PairwiseVocabularyRailFromModel
       testIdPrefix="digests-notifications-vocabulary"
       currentSurfaceId={props.currentSurfaceId}
       variant={props.variant}
       className={props.className}
-      compactLine={model.compactLine}
       compactLinkPlacement="inline"
-      heading={model.heading}
-      whyTwo={model.whyTwo}
-      currentLabel={currentLink.label}
-      links={[{ ...peer, testIdSuffix: "peer-link" }]}
+      model={pairwiseModel}
     />
   );
 }

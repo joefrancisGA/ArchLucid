@@ -9,6 +9,10 @@ const hubDir = join(sectionsDir, "..");
 
 const hubSource = readFileSync(join(hubDir, "AlertRulesHubClient.tsx"), "utf8");
 const deferredSource = readFileSync(join(sectionsDir, "alert-rules-hub-deferred-chunks.tsx"), "utf8");
+const manifestLoaderSource = readFileSync(
+  join(sectionsDir, "../../../../../lib/operator/load-deferred-chunk-from-manifest.tsx"),
+  "utf8",
+);
 const conditionsSource = readFileSync(
   join(hubDir, "..", "..", "..", "..", "components", "alerts", "AlertRulesContent.tsx"),
   "utf8",
@@ -34,12 +38,17 @@ describe("alert-rules hub deferred imports (TB-2024)", () => {
     expect(hubSource).toContain("AlertSimulationTuningSectionDeferred");
   });
 
-  it("dynamic-imports each hub tab panel", () => {
-    expect(deferredSource).toContain('import("@/components/alerts/AlertRulesContent")');
-    expect(deferredSource).toContain('import("@/components/alerts/AlertRoutingContent")');
-    expect(deferredSource).toContain('import("@/components/alerts/CompositeAlertRulesContent")');
-    expect(deferredSource).toContain('import("@/components/alerts/AlertSimulationTuningSection")');
-    expect(deferredSource).toContain("next/dynamic");
+  it("dynamic-imports each hub tab panel via manifest loaders", () => {
+    expect(deferredSource).toContain("createDeferredComponentFromManifest");
+    expect(deferredSource).not.toContain("next/dynamic");
+    expect(manifestLoaderSource).toContain('import("@/components/alerts/AlertRulesContent")');
+    expect(manifestLoaderSource).toContain('import("@/components/alerts/AlertRoutingContent")');
+    expect(manifestLoaderSource).toContain('import("@/components/alerts/CompositeAlertRulesContent")');
+    expect(manifestLoaderSource).toContain('import("@/components/alerts/AlertSimulationTuningSection")');
+    expect(deferredSource).toContain("alert-rules-hub-conditions");
+    expect(deferredSource).toContain("alert-rules-hub-routing");
+    expect(deferredSource).toContain("alert-rules-hub-composite-rules");
+    expect(deferredSource).toContain("alert-rules-hub-simulation-tuning");
   });
 
   it("loads conditions rules and routing subscriptions via shared hub queries", () => {

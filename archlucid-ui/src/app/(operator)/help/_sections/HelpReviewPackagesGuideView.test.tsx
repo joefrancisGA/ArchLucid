@@ -154,7 +154,7 @@ describe("HelpReviewPackagesGuideView", () => {
   it("strips Related guides and the opening lede from body markdown", () => {
     expect(loaded?.markdown).toContain("## Related guides");
     expect(loaded?.markdown).toContain(
-      "Browse, inspect, and export governed architecture packages in the architect workspace.",
+      "Browse, inspect, and export architecture review packages in the architect workspace.",
     );
 
     const withoutRelated = stripReviewPackagesRelatedGuidesFromMarkdown(loaded!.markdown);
@@ -163,11 +163,11 @@ describe("HelpReviewPackagesGuideView", () => {
 
     expect(withoutRelated).not.toContain("## Related guides");
     expect(withoutLede).not.toContain(
-      "Browse, inspect, and export governed architecture packages in the architect workspace.",
+      "Browse, inspect, and export architecture review packages in the architect workspace.",
     );
     expect(body).not.toContain("## Related guides");
     expect(body).not.toContain(
-      "Browse, inspect, and export governed architecture packages in the architect workspace.",
+      "Browse, inspect, and export architecture review packages in the architect workspace.",
     );
     expect(body).toContain("What an architecture package contains");
   });

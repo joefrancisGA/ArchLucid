@@ -70,7 +70,7 @@ export const FINDINGS_HELP_ANATOMY_FIELDS: readonly FindingsHelpAnatomyField[] =
   { label: "Evidence", description: "Inputs, diagrams, or policy checks that support the finding." },
   { label: "Recommendation", description: "Suggested remediation, monitoring, or next step." },
   { label: "Owner", description: "The person accountable for follow-up when assigned." },
-  { label: "Governance disposition", description: "Recorded acceptance, waiver, remediation, or exception." },
+  { label: "Resolve outcome", description: "Recorded acceptance, waiver, remediation, or exception." },
 ] as const;
 
 export type FindingsHelpSeverityRow = {
@@ -202,7 +202,7 @@ export type FindingsHelpLifecycleStage = {
 export const FINDINGS_HELP_LIFECYCLE_STAGES: readonly FindingsHelpLifecycleStage[] = [
   {
     status: "Open",
-    meaning: "The finding is active and has no final governance disposition.",
+    meaning: "The finding is active and has no final resolve outcome.",
   },
   {
     status: "Under review",
@@ -265,7 +265,7 @@ export const FINDINGS_HELP_ACTIONS = [
 ] as const;
 
 export const FINDINGS_HELP_GOVERNANCE_INTRO =
-  "Findings connect day-to-day architecture work to governance oversight:";
+  "Findings connect day-to-day architecture work to approval tracking:";
 
 export const FINDINGS_HELP_GOVERNANCE_ITEMS = [
   "Findings influence whether a review is ready for approval or export.",
@@ -326,6 +326,6 @@ export const FINDINGS_HELP_GUIDE_HEADINGS: readonly HelpMarkdownHeading[] = [
 
 /** Drift guard: claim band owns diligence limits; overview stays affirmative. */
 export const FINDINGS_HELP_NEGATION_DRIFT_MARKERS = {
-  overviewMustNotContain: ["not a sealed-review diligence", "sources package"],
+  overviewMustNotContain: ["not a full audit export", "sources package"],
   claimMustNotContain: ["sources package", "sealed-review diligence"],
 } as const;

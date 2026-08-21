@@ -12,6 +12,10 @@ const authoringTabSource = readFileSync(join(sectionsDir, "PolicyPacksAuthoringT
 const generatorSectionSource = readFileSync(join(sectionsDir, "PolicyPackGeneratorSection.tsx"), "utf8");
 const wizardSource = readFileSync(join(sectionsDir, "PolicyRuleAuthoringWizard.tsx"), "utf8");
 const deferredChunksSource = readFileSync(join(sectionsDir, "policy-packs-authoring-deferred-chunks.tsx"), "utf8");
+const manifestLoaderSource = readFileSync(
+  join(sectionsDir, "../../../../../lib/operator/load-deferred-chunk-from-manifest.tsx"),
+  "utf8",
+);
 
 const bannedStaticImports = [
   './PolicyRuleAuthoringWizard"',
@@ -42,10 +46,21 @@ describe("policy packs bundle deferred imports (TB-698)", () => {
     expect(wizardSource).not.toContain('from "./PolicyPackVisualBuilder"');
   });
 
-  it("dynamic-imports all three authoring surfaces", () => {
-    expect(deferredChunksSource).toContain('import("./PolicyRuleAuthoringWizard")');
-    expect(deferredChunksSource).toContain('import("./PolicyPackNaturalLanguageBuilder")');
-    expect(deferredChunksSource).toContain('import("./PolicyPackVisualBuilder")');
-    expect(deferredChunksSource).toContain("ssr: false");
+  it("dynamic-imports all three authoring surfaces via manifest loaders", () => {
+    expect(deferredChunksSource).toContain("createDeferredComponentFromManifest");
+    expect(deferredChunksSource).not.toContain("next/dynamic");
+    expect(manifestLoaderSource).toContain(
+      'import("@/app/(operator)/governance/policy-packs/_sections/PolicyRuleAuthoringWizard")',
+    );
+    expect(manifestLoaderSource).toContain(
+      'import("@/app/(operator)/governance/policy-packs/_sections/PolicyPackNaturalLanguageBuilder")',
+    );
+    expect(manifestLoaderSource).toContain(
+      'import("@/app/(operator)/governance/policy-packs/_sections/PolicyPackVisualBuilder")',
+    );
+    expect(deferredChunksSource).toContain("policy-packs-authoring-wizard");
+    expect(deferredChunksSource).toContain("policy-packs-authoring-natural-language-builder");
+    expect(deferredChunksSource).toContain("policy-packs-authoring-visual-builder");
+    expect(deferredChunksSource).toContain('loadDeferredChunkFromManifest("policy-packs-authoring-wizard")');
   });
 });

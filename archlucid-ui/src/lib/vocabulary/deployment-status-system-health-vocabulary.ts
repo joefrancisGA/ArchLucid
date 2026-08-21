@@ -14,6 +14,7 @@
 
 import { ADMINISTRATION_SYSTEM_HEALTH_PATH } from "@/lib/administration-route-paths";
 import { INTERNAL_DEPLOYMENT_STATUS_PATH } from "@/lib/internal-ops-route-paths";
+import type { PairwiseVocabularyRailModel } from "@/lib/vocabulary/create-pairwise-vocabulary-rail";
 
 export type DeploymentStatusSystemHealthSurfaceId = "deployment-status" | "system-health";
 
@@ -55,14 +56,27 @@ export const DEPLOYMENT_STATUS_SYSTEM_HEALTH_SYSTEM_LINK: DeploymentStatusSystem
   whenToUse: "Check platform readiness and critical dependency probes.",
 };
 
-/** Full vocabulary model (heading, why-two, and deep links). */
-export function buildDeploymentStatusSystemHealthVocabulary(): DeploymentStatusSystemHealthVocabularyModel {
+/** Pairwise model for Deployment status ↔ System health (fixed routes). */
+export function buildDeploymentStatusSystemHealthPairwiseRail(): PairwiseVocabularyRailModel<DeploymentStatusSystemHealthSurfaceId> {
   return {
     heading: DEPLOYMENT_STATUS_SYSTEM_HEALTH_HEADING,
     whyTwo: DEPLOYMENT_STATUS_SYSTEM_HEALTH_WHY_TWO,
     compactLine: DEPLOYMENT_STATUS_SYSTEM_HEALTH_COMPACT_LINE,
-    deploymentStatusLink: DEPLOYMENT_STATUS_SYSTEM_HEALTH_DEPLOYMENT_LINK,
-    systemHealthLink: DEPLOYMENT_STATUS_SYSTEM_HEALTH_SYSTEM_LINK,
+    currentLink: DEPLOYMENT_STATUS_SYSTEM_HEALTH_DEPLOYMENT_LINK,
+    peerLink: DEPLOYMENT_STATUS_SYSTEM_HEALTH_SYSTEM_LINK,
+  };
+}
+
+/** Full vocabulary model (heading, why-two, and deep links). */
+export function buildDeploymentStatusSystemHealthVocabulary(): DeploymentStatusSystemHealthVocabularyModel {
+  const rail = buildDeploymentStatusSystemHealthPairwiseRail();
+
+  return {
+    heading: rail.heading,
+    whyTwo: rail.whyTwo,
+    compactLine: rail.compactLine,
+    deploymentStatusLink: rail.currentLink,
+    systemHealthLink: rail.peerLink,
   };
 }
 

@@ -14,6 +14,7 @@
 
 import { SCIM_PROVISIONING_CANONICAL_PATH } from "@/lib/scim-provisioning-evidence-copy";
 import { SSO_WIZARD_CANONICAL_PATH } from "@/lib/sso-wizard-evidence-copy";
+import type { PairwiseVocabularyRailModel } from "@/lib/vocabulary/create-pairwise-vocabulary-rail";
 
 export type SsoWizardScimSurfaceId = "sso-wizard" | "scim";
 
@@ -36,7 +37,7 @@ export const SSO_WIZARD_SCIM_HEADING =
   "SSO wizard and SCIM provisioning serve different purposes" as const;
 
 export const SSO_WIZARD_SCIM_WHY_TWO =
-  "The SSO wizard is guided setup that records and verifies single sign-on configuration for the workspace. SCIM provisioning issues directory-sync tokens so an identity provider can push users and groups. Configuring SSO sign-in is not SCIM directory sync — and issuing a SCIM token does not save SSO configuration." as const;
+  "The SSO wizard walks you through single sign-on setup for the workspace. SCIM provisioning sets up automatic user sync from your identity provider. Setting up sign-in and setting up user sync are separate steps." as const;
 
 export const SSO_WIZARD_SCIM_COMPACT_LINE =
   "SSO wizard records and verifies the sign-in connection; SCIM syncs directory people — open the other when you need both." as const;
@@ -55,14 +56,27 @@ export const SSO_WIZARD_SCIM_SCIM_LINK: SsoWizardScimLink = {
   whenToUse: "Create and verify SCIM tokens for directory sync.",
 };
 
-/** Full vocabulary model (heading, why-two copy, and deep links). */
-export function buildSsoWizardScimVocabulary(): SsoWizardScimVocabularyModel {
+/** Pairwise model for SSO wizard ↔ SCIM provisioning (fixed routes). */
+export function buildSsoWizardScimPairwiseRail(): PairwiseVocabularyRailModel<SsoWizardScimSurfaceId> {
   return {
     heading: SSO_WIZARD_SCIM_HEADING,
     whyTwo: SSO_WIZARD_SCIM_WHY_TWO,
     compactLine: SSO_WIZARD_SCIM_COMPACT_LINE,
-    ssoWizardLink: SSO_WIZARD_SCIM_SSO_WIZARD_LINK,
-    scimLink: SSO_WIZARD_SCIM_SCIM_LINK,
+    currentLink: SSO_WIZARD_SCIM_SSO_WIZARD_LINK,
+    peerLink: SSO_WIZARD_SCIM_SCIM_LINK,
+  };
+}
+
+/** Full vocabulary model (heading, why-two copy, and deep links). */
+export function buildSsoWizardScimVocabulary(): SsoWizardScimVocabularyModel {
+  const rail = buildSsoWizardScimPairwiseRail();
+
+  return {
+    heading: rail.heading,
+    whyTwo: rail.whyTwo,
+    compactLine: rail.compactLine,
+    ssoWizardLink: rail.currentLink,
+    scimLink: rail.peerLink,
   };
 }
 

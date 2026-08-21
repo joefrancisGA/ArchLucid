@@ -91,7 +91,7 @@ export const ADVISORY_SCANS_SAMPLE_DISPOSITION_SUMMARY = "Example dispositions (
 export const ADVISORY_SCANS_RECOMMENDATIONS_SECTION_TITLE = "Advisory recommendations";
 
 export const ADVISORY_SCANS_RECOMMENDATIONS_SECTION_BODY =
-  "Record governance disposition for each recommendation to feed follow-up workflows.";
+  "Record resolve outcome for each recommendation to feed follow-up workflows.";
 
 export const ADVISORY_SCANS_SUMMARY_SECTION_TITLE = "Scan summary";
 
@@ -127,16 +127,16 @@ export const ADVISORY_SCANS_DISPOSITION_REJECT_HINT = "Records why it will not b
 
 export const ADVISORY_SCANS_DISPOSITION_IMPLEMENTED_HINT = "Records completion";
 
-export const ADVISORY_SCANS_DISPOSITION_DIALOG_TITLE = "Record recommendation disposition";
+export const ADVISORY_SCANS_DISPOSITION_DIALOG_TITLE = "Record recommendation resolve";
 
 export const ADVISORY_SCANS_DISPOSITION_DIALOG_DESCRIPTION =
-  "Optional comment and rationale are stored with the governance disposition for audit and follow-up.";
+  "Optional comment and rationale are stored with the resolve outcome for audit and follow-up.";
 
 export const ADVISORY_SCANS_DISPOSITION_COMMENT_LABEL = "Comment (optional)";
 
 export const ADVISORY_SCANS_DISPOSITION_RATIONALE_LABEL = "Rationale (optional)";
 
-export const ADVISORY_SCANS_DISPOSITION_CONFIRM_LABEL = "Confirm disposition";
+export const ADVISORY_SCANS_DISPOSITION_CONFIRM_LABEL = "Confirm resolve";
 
 export const ADVISORY_SCANS_CARD_IMPACT_LABEL = "Impact level";
 
@@ -148,7 +148,7 @@ export const ADVISORY_SCANS_CARD_SUGGESTED_ACTION_LABEL = "Suggested action";
 
 export const ADVISORY_SCANS_CARD_OWNER_LABEL = "Owner or role";
 
-export const ADVISORY_SCANS_CARD_DISPOSITION_LABEL = "Governance disposition";
+export const ADVISORY_SCANS_CARD_DISPOSITION_LABEL = "Resolve outcome";
 
 export const ADVISORY_SCANS_SCHEDULES_PAGE_HEADING = "Schedule advisory scans";
 

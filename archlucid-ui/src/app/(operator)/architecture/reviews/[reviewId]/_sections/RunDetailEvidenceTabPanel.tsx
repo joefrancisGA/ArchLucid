@@ -43,6 +43,8 @@ type RunDetailEvidenceTabPanelProps = {
   readonly blockingFindingId: string | null;
   readonly blockingFindingTitle: string | null;
   readonly approvalBlocked: boolean;
+  /** When ReviewPackageDoThisNextStrip owns the filled page primary (TB-2175). */
+  readonly pagePrimaryOwnedElsewhere?: boolean;
 };
 
 /** Evidence tab body — deferred off sync First Load JS (TB-2142). */
@@ -93,7 +95,11 @@ export function RunDetailEvidenceTabPanel(props: RunDetailEvidenceTabPanelProps)
         readinessVerdict={scopeReadiness.verdict}
         evidenceCoverageLine={evidenceCoverageLine}
       />
-      <RunDetailEvidenceInventorySection items={props.items} hasManifest={hasManifest} />
+      <RunDetailEvidenceInventorySection
+        items={props.items}
+        hasManifest={hasManifest}
+        pagePrimaryOwnedElsewhere={props.pagePrimaryOwnedElsewhere}
+      />
       {!hasManifest ? (
         <RunDetailCaptureEvidenceSectionDeferred
           runId={props.runId}

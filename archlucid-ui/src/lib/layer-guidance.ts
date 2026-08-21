@@ -228,11 +228,11 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
     headline:
       "Define repeatable review cadences for finalized architecture reviews — quarterly control reviews, annual policy attestations, post-remediation follow-ups, and architecture board checkpoints.",
     useWhen:
-      "Create a schedule when a governed review must be re-reviewed on a fixed cadence so accepted risks, policy exceptions, and control obligations do not lapse after approval.",
+      "Create a schedule when a scheduled review must be re-reviewed on a fixed cadence so accepted risks, policy exceptions, and control obligations do not lapse after approval.",
     firstPilotNote:
       "After Pilot proof when governance leads need automated follow-up instead of calendar reminders for recurring architecture reviews.",
     enterpriseFootnote:
-      "Schedules clone a finalized review on the cadence you define; manage approvals and risk disposition on linked governance surfaces.",
+      "Schedules clone a finalized review on the cadence you define; manage approvals and risk resolve on linked governance surfaces.",
   },
   exceptions: {
     layerBadge: "Governance",

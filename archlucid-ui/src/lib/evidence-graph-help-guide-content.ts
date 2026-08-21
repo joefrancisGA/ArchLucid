@@ -82,8 +82,8 @@ export const EVIDENCE_GRAPH_HELP_GUIDE_HEADINGS: readonly HelpMarkdownHeading[] 
   { level: 2, id: "where-to-go-next", title: "Where to go next" },
 ];
 
-/** Drift guard: overview stays positive-only; claim band owns the diligence negation once. */
+/** Drift guard: overview stays positive-only; claim band owns the audit-export negation once. */
 export const EVIDENCE_GRAPH_HELP_NEGATION_DRIFT_MARKERS = {
-  overviewMustNotContain: ["not a sealed-review diligence Sources package", "not a diligence Sources package"],
-  claimMustContain: "not a sealed-review diligence Sources package",
+  overviewMustNotContain: ["not a full audit export", "not a diligence Sources package"],
+  claimMustContain: "not a full audit export",
 } as const;

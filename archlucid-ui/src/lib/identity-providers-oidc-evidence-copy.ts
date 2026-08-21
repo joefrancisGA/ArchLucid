@@ -10,7 +10,7 @@ export const IDENTITY_PROVIDERS_OIDC_HELP_TOPIC_LABEL = "How OIDC federation wor
 export const IDENTITY_PROVIDERS_OIDC_FOLLOW_UPS_TITLE = "Where to go next";
 
 export const IDENTITY_PROVIDERS_OIDC_SOURCES_INTRO =
-  "Use these follow-ups when OIDC discovery turns into SSO wizard steps, role mapping, or assurance cites.";
+  "Use these follow-ups when OIDC discovery turns into SSO wizard steps, role mapping, or official assurance materials.";
 
 /** Operator Sources - no self-href to OIDC settings. */
 export const IDENTITY_PROVIDERS_OIDC_SOURCES: readonly EvidenceSourceLink[] = [

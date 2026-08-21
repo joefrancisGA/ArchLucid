@@ -2,13 +2,12 @@
 
 import type { JSX } from "react";
 
+import { PairwiseVocabularyRailFromModel } from "@/components/vocabulary/PairwiseVocabularyRailFromModel";
 import {
-  buildReportProblemDialogHelpHubVocabulary,
-  resolveReportProblemDialogHelpHubPeerLink,
+  buildReportProblemDialogHelpHubPairwiseRail,
   type ReportProblemDialogHelpHubSurfaceId,
   type ReportProblemDialogHelpHubVocabularyModel,
 } from "@/lib/vocabulary/report-problem-dialog-help-hub-vocabulary";
-import { VocabularyRail } from "@/components/vocabulary/VocabularyRail";
 
 export type ReportProblemDialogHelpHubVocabularyRailProps = {
   readonly currentSurfaceId: ReportProblemDialogHelpHubSurfaceId;
@@ -21,25 +20,25 @@ export type ReportProblemDialogHelpHubVocabularyRailProps = {
 export function ReportProblemDialogHelpHubVocabularyRail(
   props: ReportProblemDialogHelpHubVocabularyRailProps,
 ): JSX.Element {
-  const model = props.model ?? buildReportProblemDialogHelpHubVocabulary();
-  const peer = resolveReportProblemDialogHelpHubPeerLink(props.currentSurfaceId);
-  const currentLink =
-    props.currentSurfaceId === "report-problem-dialog"
-      ? model.reportProblemDialogLink
-      : model.helpHubLink;
+  const pairwiseModel =
+    props.model !== undefined
+      ? {
+          heading: props.model.heading,
+          whyTwo: props.model.whyTwo,
+          compactLine: props.model.compactLine,
+          currentLink: props.model.reportProblemDialogLink,
+          peerLink: props.model.helpHubLink,
+        }
+      : buildReportProblemDialogHelpHubPairwiseRail();
 
   return (
-    <VocabularyRail
+    <PairwiseVocabularyRailFromModel
       testIdPrefix="report-problem-dialog-help-hub-vocabulary"
       currentSurfaceId={props.currentSurfaceId}
       variant={props.variant}
       className={props.className}
-      compactLine={model.compactLine}
       compactLinkPlacement="inline"
-      heading={model.heading}
-      whyTwo={model.whyTwo}
-      currentLabel={currentLink.label}
-      links={[{ ...peer, testIdSuffix: "peer-link" }]}
+      model={pairwiseModel}
     />
   );
 }

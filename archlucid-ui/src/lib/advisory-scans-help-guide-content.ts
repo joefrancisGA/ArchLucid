@@ -43,7 +43,7 @@ export const ADVISORY_SCANS_HELP_PAGE_SUBTITLE =
   "Generate prioritized follow-up recommendations from finalized architecture reviews.";
 
 export const ADVISORY_SCANS_HELP_OVERVIEW =
-  "Each recommendation includes impact level, evidence basis, suggested action, and governance disposition status so owners can triage follow-up in one place.";
+  "Each recommendation includes impact level, evidence basis, suggested action, and resolve status so owners can triage follow-up in one place.";
 
 export const ADVISORY_SCANS_HELP_START_HERE_ROLE_LINK = {
   label: "execute access or a management role",
@@ -201,7 +201,7 @@ export const ADVISORY_SCANS_HELP_DISPOSITION_ACTIONS: readonly AdvisoryScansHelp
 ] as const;
 
 export const ADVISORY_SCANS_HELP_DISPOSITION_AUDIT_NOTE =
-  "Optional comments and rationale persist with each governance disposition for audit and follow-up.";
+  "Optional comments and rationale persist with each resolve outcome for audit and follow-up.";
 
 export const ADVISORY_SCANS_HELP_HOW_DERIVATION_SENTENCE =
   "Recommendations come from review findings, evidence, governance rules, and optional comparison signals.";
@@ -323,7 +323,7 @@ export const ADVISORY_SCANS_HELP_HOW_TO_READ_STEPS: readonly AdvisoryScansHelpHo
     ],
   },
   {
-    parts: [{ type: "text", value: "Record a governance disposition on each recommendation to feed audit and follow-up workflows." }],
+    parts: [{ type: "text", value: "Record a resolve outcome on each recommendation to feed audit and follow-up workflows." }],
   },
 ] as const;
 
@@ -357,7 +357,7 @@ export const ADVISORY_SCANS_HELP_NEGATION_DRIFT_MARKERS = {
     "not a sealed review record",
     "governance approval",
     "automatic remediation",
-    "sealed-review diligence",
+    "not a full audit export",
     "Sources package",
     "sources package",
   ],

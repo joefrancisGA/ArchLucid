@@ -16,6 +16,7 @@ import {
   GOVERNANCE_ALERT_RULES_PATH,
   GOVERNANCE_ALERTS_PATH,
 } from "@/lib/governance/governance-route-paths";
+import type { PairwiseVocabularyRailModel } from "@/lib/vocabulary/create-pairwise-vocabulary-rail";
 
 export type AlertRulesAlertsInboxSurfaceId = "alert-rules" | "alerts-inbox";
 
@@ -57,14 +58,27 @@ export const ALERT_RULES_ALERTS_INBOX_INBOX_LINK: AlertRulesAlertsInboxLink = {
   whenToUse: "Acknowledge or resolve raised governance notifications.",
 };
 
-/** Full vocabulary model (heading, why-two copy, and deep links). */
-export function buildAlertRulesAlertsInboxVocabulary(): AlertRulesAlertsInboxVocabularyModel {
+/** Pairwise model for Alert rules ↔ Alerts inbox (fixed governance routes). */
+export function buildAlertRulesAlertsInboxPairwiseRail(): PairwiseVocabularyRailModel<AlertRulesAlertsInboxSurfaceId> {
   return {
     heading: ALERT_RULES_ALERTS_INBOX_HEADING,
     whyTwo: ALERT_RULES_ALERTS_INBOX_WHY_TWO,
     compactLine: ALERT_RULES_ALERTS_INBOX_COMPACT_LINE,
-    alertRulesLink: ALERT_RULES_ALERTS_INBOX_RULES_LINK,
-    alertsInboxLink: ALERT_RULES_ALERTS_INBOX_INBOX_LINK,
+    currentLink: ALERT_RULES_ALERTS_INBOX_RULES_LINK,
+    peerLink: ALERT_RULES_ALERTS_INBOX_INBOX_LINK,
+  };
+}
+
+/** Full vocabulary model (heading, why-two copy, and deep links). */
+export function buildAlertRulesAlertsInboxVocabulary(): AlertRulesAlertsInboxVocabularyModel {
+  const rail = buildAlertRulesAlertsInboxPairwiseRail();
+
+  return {
+    heading: rail.heading,
+    whyTwo: rail.whyTwo,
+    compactLine: rail.compactLine,
+    alertRulesLink: rail.currentLink,
+    alertsInboxLink: rail.peerLink,
   };
 }
 

@@ -2,13 +2,14 @@
 
 import type { JSX } from "react";
 
+import { PairwiseVocabularyRailFromModel } from "@/components/vocabulary/PairwiseVocabularyRailFromModel";
 import {
+  buildShellThemePreferencesAppearancePairwiseRail,
   buildShellThemePreferencesAppearanceVocabulary,
   resolveShellThemePreferencesAppearancePeerLink,
   type ShellThemePreferencesAppearanceSurfaceId,
   type ShellThemePreferencesAppearanceVocabularyModel,
 } from "@/lib/vocabulary/shell-theme-preferences-appearance-vocabulary";
-import { VocabularyRail } from "@/components/vocabulary/VocabularyRail";
 
 export type ShellThemePreferencesAppearanceVocabularyRailProps = {
   /** Surface hosting the strip — marks the current job and links to the peer when one exists. */
@@ -27,26 +28,26 @@ export type ShellThemePreferencesAppearanceVocabularyRailProps = {
 export function ShellThemePreferencesAppearanceVocabularyRail(
   props: ShellThemePreferencesAppearanceVocabularyRailProps,
 ): JSX.Element {
-  const model = props.model ?? buildShellThemePreferencesAppearanceVocabulary();
-  const peer = resolveShellThemePreferencesAppearancePeerLink(props.currentSurfaceId);
-  const currentLink =
-    props.currentSurfaceId === "shell-theme-toggle"
-      ? model.shellThemeToggleLink
-      : model.preferencesAppearanceLink;
+  const pairwiseModel =
+    props.model !== undefined
+      ? {
+          heading: props.model.heading,
+          whyTwo: props.model.whyTwo,
+          compactLine: props.model.compactLine,
+          currentLink: props.model.shellThemeToggleLink,
+          peerLink: props.model.preferencesAppearanceLink,
+        }
+      : buildShellThemePreferencesAppearancePairwiseRail();
+  const peerLinkOverride = resolveShellThemePreferencesAppearancePeerLink(props.currentSurfaceId);
 
   return (
-    <VocabularyRail
+    <PairwiseVocabularyRailFromModel
       testIdPrefix="shell-theme-preferences-appearance-vocabulary"
       currentSurfaceId={props.currentSurfaceId}
       variant={props.variant}
       className={props.className}
-      compactLine={model.compactLine}
-      heading={model.heading}
-      whyTwo={model.whyTwo}
-      currentLabel={currentLink.label}
-      links={
-        peer === null ? [] : [{ ...peer, testIdSuffix: "peer-link" }]
-      }
+      model={pairwiseModel}
+      peerLinkOverride={peerLinkOverride}
     />
   );
 }

@@ -2,13 +2,12 @@
 
 import type { JSX } from "react";
 
+import { PairwiseVocabularyRailFromModel } from "@/components/vocabulary/PairwiseVocabularyRailFromModel";
 import {
-  buildDigestsAdvisoryScansVocabulary,
-  resolveDigestsAdvisoryScansPeerLink,
+  buildDigestsAdvisoryScansPairwiseRail,
   type DigestsAdvisoryScansSurfaceId,
   type DigestsAdvisoryScansVocabularyModel,
 } from "@/lib/vocabulary/digests-advisory-scans-vocabulary";
-import { VocabularyRail } from "@/components/vocabulary/VocabularyRail";
 
 export type DigestsAdvisoryScansVocabularyRailProps = {
   readonly currentSurfaceId: DigestsAdvisoryScansSurfaceId;
@@ -21,23 +20,25 @@ export type DigestsAdvisoryScansVocabularyRailProps = {
 export function DigestsAdvisoryScansVocabularyRail(
   props: DigestsAdvisoryScansVocabularyRailProps,
 ): JSX.Element {
-  const model = props.model ?? buildDigestsAdvisoryScansVocabulary();
-  const peer = resolveDigestsAdvisoryScansPeerLink(props.currentSurfaceId);
-  const currentLink =
-    props.currentSurfaceId === "digests" ? model.digestsLink : model.advisoryScansLink;
+  const pairwiseModel =
+    props.model !== undefined
+      ? {
+          heading: props.model.heading,
+          whyTwo: props.model.whyTwo,
+          compactLine: props.model.compactLine,
+          currentLink: props.model.digestsLink,
+          peerLink: props.model.advisoryScansLink,
+        }
+      : buildDigestsAdvisoryScansPairwiseRail();
 
   return (
-    <VocabularyRail
+    <PairwiseVocabularyRailFromModel
       testIdPrefix="digests-advisory-scans-vocabulary"
       currentSurfaceId={props.currentSurfaceId}
       variant={props.variant}
       className={props.className}
-      compactLine={model.compactLine}
       compactLinkPlacement="inline"
-      heading={model.heading}
-      whyTwo={model.whyTwo}
-      currentLabel={currentLink.label}
-      links={[{ ...peer, testIdSuffix: "peer-link" }]}
+      model={pairwiseModel}
     />
   );
 }

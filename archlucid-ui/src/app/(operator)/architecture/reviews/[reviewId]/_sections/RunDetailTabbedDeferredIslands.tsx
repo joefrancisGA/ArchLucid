@@ -8,17 +8,14 @@ import type {
   RunDetailPageModel,
 } from "@/app/(operator)/architecture/reviews/[reviewId]/_sections/run-detail-page-model";
 import { RunDetailBelowFoldProjectContextSkeleton } from "@/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailDeferredSkeleton";
+import { loadDeferredChunkFromManifest } from "@/lib/operator/load-deferred-chunk-from-manifest";
 
-const PostCommitHabitLoopCard = dynamic(
-  () => import("@/components/PostCommitHabitLoopCard").then((module) => module.PostCommitHabitLoopCard),
-  { loading: () => null },
-);
+const PostCommitHabitLoopCard = dynamic(loadDeferredChunkFromManifest("run-detail-post-commit-habit-loop"), {
+  loading: () => null,
+});
 
 const RunDetailArchitectureGraphSection = dynamic(
-  () =>
-    import("@/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailArchitectureGraphSection").then(
-      (module) => module.RunDetailArchitectureGraphSection,
-    ),
+  loadDeferredChunkFromManifest("run-detail-architecture-graph-section"),
   {
     loading: () => (
       <section id="architecture-graph" className="scroll-mt-24">

@@ -9,6 +9,11 @@ internal static class ArchitectureRecommendationProposedChange
     {
         ArgumentNullException.ThrowIfNull(finding);
 
+        if (EvidenceOnlySupportsSuggestion(finding))
+        {
+            return BuildEvidenceCollectionProposedChange(finding);
+        }
+
         string title = (finding.Title ?? string.Empty).Trim();
         string titleLower = title.ToLowerInvariant();
 
@@ -73,12 +78,23 @@ internal static class ArchitectureRecommendationProposedChange
     {
         ArgumentNullException.ThrowIfNull(finding);
 
+        if (EvidenceOnlySupportsSuggestion(finding))
+        {
+            return
+                $"Without additional evidence, {finding.Dimension} decisions about \"{finding.Title}\" remain provisional.";
+        }
+
         return $"If unchanged, {finding.Dimension} risk from \"{finding.Title}\" may remain open for production decisions.";
     }
 
     internal static string BuildValidationMethod(SpecialistReviewFinding finding)
     {
         ArgumentNullException.ThrowIfNull(finding);
+
+        if (EvidenceOnlySupportsSuggestion(finding))
+        {
+            return "Attach evidence artifacts and re-run specialist review before selecting a design change.";
+        }
 
         if (finding.Dimension == QualityDimension.Reliability)
         {
@@ -96,5 +112,17 @@ internal static class ArchitectureRecommendationProposedChange
         }
 
         return "Re-run specialist review after the proposed change is applied to the architecture model.";
+    }
+
+    private static bool EvidenceOnlySupportsSuggestion(SpecialistReviewFinding finding)
+    {
+        return ProvenancePresentationMapper.MapFinding(finding) == ProvenancePresentationBucket.Unverified;
+    }
+
+    private static string BuildEvidenceCollectionProposedChange(SpecialistReviewFinding finding)
+    {
+        string title = (finding.Title ?? string.Empty).Trim();
+
+        return $"Collect additional evidence before changing the design for: {title}.";
     }
 }

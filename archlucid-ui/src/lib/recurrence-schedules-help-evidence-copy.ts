@@ -27,12 +27,12 @@ export const RECURRENCE_SCHEDULES_HELP_SOURCES: readonly EvidenceSourceLinkWithW
   {
     label: "Audit trail",
     href: GOVERNANCE_AUDIT_PATH,
-    when: "Trace enable, disable, and auto-disable events when schedule lifecycle needs assurance cites",
+    when: "Trace enable, disable, and auto-disable events when schedule lifecycle needs official assurance materials",
   },
   {
     label: "Governance findings",
     href: GOVERNANCE_FINDINGS_PATH,
-    when: "Triage findings raised when a follow-up cloned review surfaces new disposition work",
+    when: "Triage findings raised when a follow-up cloned review surfaces new triage work",
   },
   {
     label: "Approval queue",
@@ -70,7 +70,7 @@ export const RECURRENCE_SCHEDULES_HELP_HEALTH_CONSTRAINTS: readonly RecurrenceSc
   {
     label: "Enabled state",
     detail:
-      "Disable a schedule when you no longer need automated follow-up; re-enable it when the governed review should resume on cadence.",
+      "Disable a schedule when you no longer need automated follow-up; re-enable it when the scheduled review should resume on cadence.",
   },
   {
     label: "Last trigger outcome",

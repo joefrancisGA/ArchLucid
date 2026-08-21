@@ -2,13 +2,12 @@
 
 import type { JSX } from "react";
 
+import { PairwiseVocabularyRailFromModel } from "@/components/vocabulary/PairwiseVocabularyRailFromModel";
 import {
-  buildItsmConnectorsFindingTicketVocabulary,
-  resolveItsmConnectorsFindingTicketPeerLink,
+  buildItsmConnectorsFindingTicketPairwiseRail,
   type ItsmConnectorsFindingTicketSurfaceId,
   type ItsmConnectorsFindingTicketVocabularyModel,
 } from "@/lib/vocabulary/itsm-connectors-finding-ticket-vocabulary";
-import { VocabularyRail } from "@/components/vocabulary/VocabularyRail";
 
 export type ItsmConnectorsFindingTicketVocabularyRailProps = {
   readonly currentSurfaceId: ItsmConnectorsFindingTicketSurfaceId;
@@ -21,25 +20,25 @@ export type ItsmConnectorsFindingTicketVocabularyRailProps = {
 export function ItsmConnectorsFindingTicketVocabularyRail(
   props: ItsmConnectorsFindingTicketVocabularyRailProps,
 ): JSX.Element {
-  const model = props.model ?? buildItsmConnectorsFindingTicketVocabulary();
-  const peer = resolveItsmConnectorsFindingTicketPeerLink(props.currentSurfaceId);
-  const currentLink =
-    props.currentSurfaceId === "itsm-connectors"
-      ? model.itsmConnectorsLink
-      : model.findingTicketLinkageLink;
+  const pairwiseModel =
+    props.model !== undefined
+      ? {
+          heading: props.model.heading,
+          whyTwo: props.model.whyTwo,
+          compactLine: props.model.compactLine,
+          currentLink: props.model.itsmConnectorsLink,
+          peerLink: props.model.findingTicketLinkageLink,
+        }
+      : buildItsmConnectorsFindingTicketPairwiseRail();
 
   return (
-    <VocabularyRail
+    <PairwiseVocabularyRailFromModel
       testIdPrefix="itsm-connectors-finding-ticket-vocabulary"
       currentSurfaceId={props.currentSurfaceId}
       variant={props.variant}
       className={props.className}
-      compactLine={model.compactLine}
       compactLinkPlacement="inline"
-      heading={model.heading}
-      whyTwo={model.whyTwo}
-      currentLabel={currentLink.label}
-      links={[{ ...peer, testIdSuffix: "peer-link" }]}
+      model={pairwiseModel}
     />
   );
 }

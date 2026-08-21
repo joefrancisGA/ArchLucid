@@ -2,13 +2,12 @@
 
 import type { JSX } from "react";
 
+import { PairwiseVocabularyRailFromModel } from "@/components/vocabulary/PairwiseVocabularyRailFromModel";
 import {
-  buildScimIdentityProvidersVocabulary,
-  resolveScimIdentityProvidersPeerLink,
+  buildScimIdentityProvidersPairwiseRail,
   type ScimIdentityProvidersSurfaceId,
   type ScimIdentityProvidersVocabularyModel,
 } from "@/lib/vocabulary/scim-identity-providers-vocabulary";
-import { VocabularyRail } from "@/components/vocabulary/VocabularyRail";
 
 export type ScimIdentityProvidersVocabularyRailProps = {
   readonly currentSurfaceId: ScimIdentityProvidersSurfaceId;
@@ -21,25 +20,25 @@ export type ScimIdentityProvidersVocabularyRailProps = {
 export function ScimIdentityProvidersVocabularyRail(
   props: ScimIdentityProvidersVocabularyRailProps,
 ): JSX.Element {
-  const model = props.model ?? buildScimIdentityProvidersVocabulary();
-  const peer = resolveScimIdentityProvidersPeerLink(props.currentSurfaceId);
-  const currentLink =
-    props.currentSurfaceId === "scim-provisioning"
-      ? model.scimLink
-      : model.identityProvidersLink;
+  const pairwiseModel =
+    props.model !== undefined
+      ? {
+          heading: props.model.heading,
+          whyTwo: props.model.whyTwo,
+          compactLine: props.model.compactLine,
+          currentLink: props.model.scimLink,
+          peerLink: props.model.identityProvidersLink,
+        }
+      : buildScimIdentityProvidersPairwiseRail();
 
   return (
-    <VocabularyRail
+    <PairwiseVocabularyRailFromModel
       testIdPrefix="scim-identity-providers-vocabulary"
       currentSurfaceId={props.currentSurfaceId}
       variant={props.variant}
       className={props.className}
-      compactLine={model.compactLine}
       compactLinkPlacement="inline"
-      heading={model.heading}
-      whyTwo={model.whyTwo}
-      currentLabel={currentLink.label}
-      links={[{ ...peer, testIdSuffix: "peer-link" }]}
+      model={pairwiseModel}
     />
   );
 }

@@ -45,7 +45,7 @@ export const PATH_CHOOSER_HELP_EVALUATOR_SESSION_STEPS: readonly PathChooserHelp
   },
   {
     title: "Start an architecture review",
-    body: "Run or observe one governed review on your evidence or an accepted demo workspace.",
+    body: "Run or observe one finalized review on your evidence or an accepted demo workspace.",
     action: { label: BUYER_START_ARCHITECTURE_REVIEW_CTA, href: "/architecture/reviews/new" },
   },
   {
@@ -58,7 +58,7 @@ export const PATH_CHOOSER_HELP_EVALUATOR_SESSION_STEPS: readonly PathChooserHelp
   },
   {
     title: "Read pass / hold interpretation",
-    body: "Interpret proof disposition labels before external circulation.",
+    body: "Interpret proof status labels before external circulation.",
     action: {
       label: "Pass / hold interpretation",
       href: "#pass-hold-deferred-interpretation",

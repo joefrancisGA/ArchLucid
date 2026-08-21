@@ -2,7 +2,7 @@ import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 
 export const COMPARE_CLAIM_DISCIPLINE =
-  "Comparison output and AI narrative are directional diffs between two finalized reviews — not a sealed-review diligence Sources package by themselves. Open pair Sources after Compare before briefing sponsors.";
+  "Comparison output and AI narrative are side-by-side diffs between two finalized reviews — not a full audit export. Open Evidence trail or Audit before sharing with leadership.";
 
 export const COMPARE_SOURCES_INTRO =
   "Pick two finalized reviews below, then open Reviews, Evidence trail, or Compare help when you need orientation before treating the diff as authoritative.";

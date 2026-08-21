@@ -594,6 +594,7 @@ export function RunsDashboardPanelClient({
                 onRestoreArchivedRequest={(requestId) => {
                   void restoreArchivedRequest(requestId);
                 }}
+                pagePrimaryOwnedElsewhere={hideHeading}
               />
             </TabsContent>
 
@@ -617,6 +618,7 @@ export function RunsDashboardPanelClient({
                 onRestoreArchivedRequest={(requestId) => {
                   void restoreArchivedRequest(requestId);
                 }}
+                pagePrimaryOwnedElsewhere={hideHeading}
               />
             </TabsContent>
 
@@ -641,6 +643,7 @@ export function RunsDashboardPanelClient({
                   onRestoreArchivedRequest={(requestId) => {
                     void restoreArchivedRequest(requestId);
                   }}
+                  pagePrimaryOwnedElsewhere={hideHeading}
                 />
               ) : (
                 <RunsDashboardAttentionTab
@@ -673,6 +676,7 @@ export function RunsDashboardPanelClient({
                   onRestoreArchivedRequest={(requestId) => {
                     void restoreArchivedRequest(requestId);
                   }}
+                  pagePrimaryOwnedElsewhere={hideHeading}
                 />
               ) : (
                 <RunsDashboardOutcomesTab buyerPolishedShell={buyerPolishedShell} showcaseDemoRun={showcaseDemoRun} />

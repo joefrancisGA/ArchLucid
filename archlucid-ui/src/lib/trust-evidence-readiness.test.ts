@@ -46,7 +46,7 @@ describe("deriveTrustEvidenceReadiness", () => {
     ]);
 
     expect(readiness.verdict).toBe("complete");
-    expect(readiness.headline).toBe("Evidence is complete for sponsor handoff.");
+    expect(readiness.headline).toBe("Evidence is ready to share with leadership.");
     expect(readiness.readyCount).toBe(1);
     expect(readiness.totalCount).toBe(2);
     expect(readiness.exceptions).toHaveLength(0);
@@ -61,7 +61,7 @@ describe("deriveTrustEvidenceReadiness", () => {
     ]);
 
     expect(readiness.verdict).toBe("gaps");
-    expect(readiness.headline).toBe("2 evidence fields need attention before sponsor handoff.");
+    expect(readiness.headline).toBe("2 evidence fields need attention before sharing with leadership.");
     expect(readiness.exceptions.map((field) => field.key)).toEqual(["b", "c"]);
     expect(readiness.satisfied.map((field) => field.key)).toEqual(["a"]);
   });
@@ -72,7 +72,7 @@ describe("deriveTrustEvidenceReadiness", () => {
       readinessField("b", "Missing"),
     ]);
 
-    expect(readiness.headline).toBe("1 evidence field needs attention before sponsor handoff.");
+    expect(readiness.headline).toBe("1 evidence field needs attention before sharing with leadership.");
   });
 
   it("handles an empty field list as complete", () => {

@@ -19,4 +19,10 @@ describe("RunDetailEvidenceInventorySection", () => {
     expect(screen.queryByText(/Upload supporting files/i)).not.toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Start a new review" })).toHaveAttribute("href", REVIEWS_NEW_PATH);
   });
+
+  it("demotes start-new-review CTA when Do this next owns the page primary", () => {
+    render(<RunDetailEvidenceInventorySection items={[]} hasManifest pagePrimaryOwnedElsewhere />);
+
+    expect(screen.getByRole("link", { name: "Start a new review" }).className).toContain("border-neutral-300");
+  });
 });

@@ -11,6 +11,8 @@
  * escape hatch that reveals deeper analysis routes.
  */
 
+import type { PairwiseVocabularyRailModel } from "@/lib/vocabulary/create-pairwise-vocabulary-rail";
+
 /** Operator home hosts the first-pilot command center. */
 export const FIRST_PILOT_SURFACE_PATH = "/" as const;
 
@@ -60,14 +62,27 @@ export const FIRST_PILOT_OPERATE_UNLOCK_OPERATE_UNLOCK_LINK: FirstPilotOperateUn
   whenToUse: "Reveal Compare, evidence graph, Ask, and related analysis tools in nav.",
 };
 
-/** Full vocabulary model (heading, why-two copy, and deep links). */
-export function buildFirstPilotOperateUnlockVocabulary(): FirstPilotOperateUnlockVocabularyModel {
+/** Pairwise model for First pilot ↔ Operate unlock (fixed routes). */
+export function buildFirstPilotOperateUnlockPairwiseRail(): PairwiseVocabularyRailModel<FirstPilotOperateUnlockSurfaceId> {
   return {
     heading: FIRST_PILOT_OPERATE_UNLOCK_HEADING,
     whyTwo: FIRST_PILOT_OPERATE_UNLOCK_WHY_TWO,
     compactLine: FIRST_PILOT_OPERATE_UNLOCK_COMPACT_LINE,
-    firstPilotLink: FIRST_PILOT_OPERATE_UNLOCK_FIRST_PILOT_LINK,
-    operateUnlockLink: FIRST_PILOT_OPERATE_UNLOCK_OPERATE_UNLOCK_LINK,
+    currentLink: FIRST_PILOT_OPERATE_UNLOCK_FIRST_PILOT_LINK,
+    peerLink: FIRST_PILOT_OPERATE_UNLOCK_OPERATE_UNLOCK_LINK,
+  };
+}
+
+/** Full vocabulary model (heading, why-two copy, and deep links). */
+export function buildFirstPilotOperateUnlockVocabulary(): FirstPilotOperateUnlockVocabularyModel {
+  const rail = buildFirstPilotOperateUnlockPairwiseRail();
+
+  return {
+    heading: rail.heading,
+    whyTwo: rail.whyTwo,
+    compactLine: rail.compactLine,
+    firstPilotLink: rail.currentLink,
+    operateUnlockLink: rail.peerLink,
   };
 }
 

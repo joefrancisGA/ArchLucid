@@ -9,7 +9,7 @@ export const AUDIT_TRAIL_CLAIM_HEADING = "What the audit trail is not";
 export const AUDIT_TRAIL_FOLLOW_UPS_TITLE = "Where to go next";
 
 export const AUDIT_TRAIL_CLAIM_DISCIPLINE =
-  "Audit events are a workspace activity log for this workspace — not a sealed-review diligence Sources package by themselves. Integrity export/verify when available strengthens provenance for architects and reviewers.";
+  "Audit events are a workspace activity log — not a full audit export on their own. Export and verify tools, when available, help show the log was not tampered with.";
 
 export const AUDIT_TRAIL_SOURCES_INTRO =
   "Open the related architecture review or findings when an event needs follow-up; use Audit trail help for coverage expectations.";

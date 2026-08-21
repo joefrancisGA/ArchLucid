@@ -6,7 +6,7 @@ export const SPONSOR_DASHBOARD_PAGE_SUBTITLE_OPERATOR =
   BUYER_SPONSOR_SUMMARY_VOCABULARY.portfolioPageLead;
 
 export const SPONSOR_DASHBOARD_PAGE_SUBTITLE_BUYER =
-  "Track governance posture, ROI impact, and sponsor-ready proof across finalized reviews.";
+  BUYER_SPONSOR_SUMMARY_VOCABULARY.portfolioPageLead;
 
 /** Sponsor-safe lead on the sponsor dashboard — not env-gated (TB-1533). */
 export function executiveDashboardPageSubtitle(): string {

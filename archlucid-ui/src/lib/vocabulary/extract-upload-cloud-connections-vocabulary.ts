@@ -14,6 +14,7 @@
 
 import { EXTRACT_UPLOAD_SETTINGS_PATH } from "@/lib/core-pilot-steps";
 import { CLOUD_CONNECTIONS_PATH } from "@/lib/integrations-nav-paths";
+import type { PairwiseVocabularyRailModel } from "@/lib/vocabulary/create-pairwise-vocabulary-rail";
 
 export type ExtractUploadCloudConnectionsSurfaceId =
   | "extract-upload"
@@ -59,14 +60,27 @@ export const EXTRACT_UPLOAD_CLOUD_CONNECTIONS_CLOUD_LINK: ExtractUploadCloudConn
     whenToUse: "Configure Azure, AWS, or GCP inventory connections for architecture evidence.",
   };
 
-/** Full vocabulary model (heading, why-two copy, and deep links). */
-export function buildExtractUploadCloudConnectionsVocabulary(): ExtractUploadCloudConnectionsVocabularyModel {
+/** Pairwise model for Extract & Upload ↔ Cloud connections (fixed routes). */
+export function buildExtractUploadCloudConnectionsPairwiseRail(): PairwiseVocabularyRailModel<ExtractUploadCloudConnectionsSurfaceId> {
   return {
     heading: EXTRACT_UPLOAD_CLOUD_CONNECTIONS_HEADING,
     whyTwo: EXTRACT_UPLOAD_CLOUD_CONNECTIONS_WHY_TWO,
     compactLine: EXTRACT_UPLOAD_CLOUD_CONNECTIONS_COMPACT_LINE,
-    extractUploadLink: EXTRACT_UPLOAD_CLOUD_CONNECTIONS_EXTRACT_LINK,
-    cloudConnectionsLink: EXTRACT_UPLOAD_CLOUD_CONNECTIONS_CLOUD_LINK,
+    currentLink: EXTRACT_UPLOAD_CLOUD_CONNECTIONS_EXTRACT_LINK,
+    peerLink: EXTRACT_UPLOAD_CLOUD_CONNECTIONS_CLOUD_LINK,
+  };
+}
+
+/** Full vocabulary model (heading, why-two copy, and deep links). */
+export function buildExtractUploadCloudConnectionsVocabulary(): ExtractUploadCloudConnectionsVocabularyModel {
+  const rail = buildExtractUploadCloudConnectionsPairwiseRail();
+
+  return {
+    heading: rail.heading,
+    whyTwo: rail.whyTwo,
+    compactLine: rail.compactLine,
+    extractUploadLink: rail.currentLink,
+    cloudConnectionsLink: rail.peerLink,
   };
 }
 

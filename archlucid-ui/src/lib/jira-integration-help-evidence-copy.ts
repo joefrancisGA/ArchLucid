@@ -11,7 +11,7 @@ export const JIRA_INTEGRATION_HELP_CANONICAL_PATH = "/help/jira-integration" as 
 export const JIRA_INTEGRATION_HELP_CLAIM_DISCIPLINE_HEADING = "What this guide does not cover";
 
 export const JIRA_INTEGRATION_HELP_CLAIM_DISCIPLINE =
-  "This guide explains Jira outbound routing, connection health, and workspace mappings — use it to configure how findings create Jira work items, then open Integration readiness or Audit trail when procurement setup or governed activity needs follow-up.";
+  "This guide explains Jira outbound routing, connection health, and workspace mappings — use it to configure how findings create Jira work items, then open Integration readiness or Audit trail when procurement setup or official activity records need follow-up.";
 
 export const JIRA_INTEGRATION_HELP_FOLLOW_UPS_TITLE = "Where to go next";
 
@@ -37,6 +37,6 @@ export const JIRA_INTEGRATION_HELP_SOURCES: readonly EvidenceSourceLinkWithWhen[
   {
     label: "Audit trail",
     href: GOVERNANCE_AUDIT_PATH,
-    when: "Follow governed activity when connection or routing changes need audit context",
+    when: "Follow official activity records when connection or routing changes need audit context",
   },
 ] as const;

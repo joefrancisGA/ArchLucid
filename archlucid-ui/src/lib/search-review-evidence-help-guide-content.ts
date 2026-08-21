@@ -131,7 +131,7 @@ export const SEARCH_REVIEW_EVIDENCE_HELP_HIT_ANATOMY_FIELDS: readonly SearchRevi
 export const SEARCH_REVIEW_EVIDENCE_HELP_HOW_TO_READ_STEPS = [
   `Try a concrete phrase such as "${SEARCH_REVIEW_EVIDENCE_HELP_EXAMPLE_QUERY}" and optionally limit results to one finalized review.`,
   "Scan each hit's snippet, cited artifact, review link, and evidence trail link before opening deeper surfaces.",
-  "Open the cited review or evidence trail when search hits need fuller diligence before governance or sponsor briefings.",
+  "Open the cited review or evidence trail when search hits need fuller review records before governance or sponsor briefings.",
 ] as const;
 
 export const SEARCH_REVIEW_EVIDENCE_HELP_CLAIM_HEADING_ID = "help-search-review-evidence-claim-discipline-heading" as const;
@@ -152,10 +152,10 @@ export const SEARCH_REVIEW_EVIDENCE_HELP_GUIDE_HEADINGS: readonly HelpMarkdownHe
   { level: 2, id: "where-to-go-next", title: "Where to go next" },
 ];
 
-/** Drift guard: overview stays positive-only; claim band owns the diligence negation once. */
+/** Drift guard: overview stays positive-only; claim band owns the audit-export negation once. */
 export const SEARCH_REVIEW_EVIDENCE_HELP_NEGATION_DRIFT_MARKERS = {
-  overviewMustNotContain: ["not a sealed-review diligence Sources package", "not a diligence Sources package"],
-  claimMustContain: "not a sealed-review diligence Sources package",
+  overviewMustNotContain: ["not a full audit export", "not a diligence Sources package"],
+  claimMustContain: "not a full audit export",
 } as const;
 
 /** Reserved for nearby-surfaces copy when search needs review intake context. */

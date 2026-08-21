@@ -14,6 +14,7 @@
 
 import { GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
 import { ITSM_CONNECTORS_ADMIN_PATH } from "@/lib/itsm/itsm-connectors-admin-scope";
+import type { PairwiseVocabularyRailModel } from "@/lib/vocabulary/create-pairwise-vocabulary-rail";
 
 export type ItsmConnectorsFindingTicketSurfaceId =
   | "itsm-connectors"
@@ -63,14 +64,27 @@ export const ITSM_CONNECTORS_FINDING_TICKET_FINDINGS_PEER_LINK: ItsmConnectorsFi
     whenToUse: "Open a finding, then create or link an external ITSM ticket.",
   };
 
-/** Full vocabulary model. */
-export function buildItsmConnectorsFindingTicketVocabulary(): ItsmConnectorsFindingTicketVocabularyModel {
+/** Pairwise model for ITSM connectors ↔ Finding ticket linkage (fixed routes). */
+export function buildItsmConnectorsFindingTicketPairwiseRail(): PairwiseVocabularyRailModel<ItsmConnectorsFindingTicketSurfaceId> {
   return {
     heading: ITSM_CONNECTORS_FINDING_TICKET_HEADING,
     whyTwo: ITSM_CONNECTORS_FINDING_TICKET_WHY_TWO,
     compactLine: ITSM_CONNECTORS_FINDING_TICKET_COMPACT_LINE,
-    itsmConnectorsLink: ITSM_CONNECTORS_FINDING_TICKET_CONNECTORS_LINK,
-    findingTicketLinkageLink: ITSM_CONNECTORS_FINDING_TICKET_FINDINGS_PEER_LINK,
+    currentLink: ITSM_CONNECTORS_FINDING_TICKET_CONNECTORS_LINK,
+    peerLink: ITSM_CONNECTORS_FINDING_TICKET_FINDINGS_PEER_LINK,
+  };
+}
+
+/** Full vocabulary model. */
+export function buildItsmConnectorsFindingTicketVocabulary(): ItsmConnectorsFindingTicketVocabularyModel {
+  const rail = buildItsmConnectorsFindingTicketPairwiseRail();
+
+  return {
+    heading: rail.heading,
+    whyTwo: rail.whyTwo,
+    compactLine: rail.compactLine,
+    itsmConnectorsLink: rail.currentLink,
+    findingTicketLinkageLink: rail.peerLink,
   };
 }
 

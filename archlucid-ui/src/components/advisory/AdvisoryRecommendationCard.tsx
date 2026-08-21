@@ -62,7 +62,7 @@ function impactLabel(recommendation: RecommendationRecord): string {
   return "Not specified";
 }
 
-/** Single advisory recommendation with governance disposition actions. */
+/** Single advisory recommendation with resolve outcome actions. */
 export function AdvisoryRecommendationCard(props: AdvisoryRecommendationCardProps): React.JSX.Element {
   const { recommendation, onAction } = props;
   const evidenceLinks =

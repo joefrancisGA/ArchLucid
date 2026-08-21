@@ -53,6 +53,37 @@ describe("RunDetailGovernanceDecisionSection", () => {
     expect(screen.getByTestId("run-detail-governance-claim-discipline")).toHaveTextContent(/not the committed/i);
   });
 
+  it("demotes in-section governance CTAs to outline when Do this next owns the page primary", () => {
+    render(
+      <RunDetailGovernanceDecisionSection
+        {...baseProps}
+        manifestId={null}
+        pagePrimaryOwnedElsewhere
+      />,
+    );
+
+    expect(screen.getByTestId("run-detail-governance-primary-cta")).toHaveClass(
+      "border-neutral-300",
+    );
+  });
+
+  it("demotes post-finalize record decision CTA when Do this next owns the page primary", () => {
+    render(
+      <RunDetailGovernanceDecisionSection
+        {...baseProps}
+        manifestId="manifest-1"
+        buyerPolishedArtifactTable={false}
+        operatorGovernanceDecision={null}
+        manifestStatus="Draft"
+        pagePrimaryOwnedElsewhere
+      />,
+    );
+
+    expect(screen.getByTestId("run-detail-governance-record-decision-cta")).toHaveClass(
+      "border-neutral-300",
+    );
+  });
+
   it("shows open exceptions and warning banner when governance warnings are present", () => {
     render(
       <RunDetailGovernanceDecisionSection
