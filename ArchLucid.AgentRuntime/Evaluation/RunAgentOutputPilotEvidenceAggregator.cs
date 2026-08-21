@@ -56,7 +56,10 @@ public sealed class RunAgentOutputPilotEvidenceAggregator(
             await _agentEvidencePackageRepository.GetByRunIdAsync(traces[0].RunId, cancellationToken)
                 .ConfigureAwait(false);
 
-        foreach (AgentExecutionTrace trace in traces)
+        IReadOnlyList<AgentExecutionTrace> tracesForEvaluation =
+            AgentExecutionTraceLatestPerTaskSelector.Select(traces);
+
+        foreach (AgentExecutionTrace trace in tracesForEvaluation)
         {
             AgentOutputTraceQualityEvaluator.TraceQualityEvaluationResult? evaluated =
                 await AgentOutputTraceQualityEvaluator.TryEvaluateTraceAsync(
