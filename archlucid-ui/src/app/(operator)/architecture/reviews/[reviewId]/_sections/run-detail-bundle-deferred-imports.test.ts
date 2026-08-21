@@ -573,12 +573,21 @@ describe("run detail bundle deferred imports (TB-697 / TB-933 / TB-2021 / TB-211
     );
     expect(belowFoldSource).not.toContain('./RunDetailArtifactsExportsSection"');
     expect(belowFoldSource).toContain("RunDetailArtifactsExportsSectionDeferred");
-    expect(belowFoldSource).toContain('import("@/components/PostCommitHabitLoopCard")');
-    expect(belowFoldSource).toContain(
+    expect(belowFoldSource).toContain("RunDetailPostCommitHabitLoopCardDeferred");
+    expect(belowFoldSource).toContain("RecurrenceSchedulePostCommitCardDeferred");
+    expect(belowFoldSource).toContain("RunDetailAuthorityChainSectionDeferred");
+    expect(belowFoldSource).toContain("RunDetailRetrievalGroundingSectionDeferred");
+    expect(belowFoldSource).not.toContain("next/dynamic");
+    expect(manifestLoaderSource).toContain('import("@/components/PostCommitHabitLoopCard")');
+    expect(manifestLoaderSource).toContain(
       'import("@/components/governance/RecurrenceSchedulePostCommitCard")',
     );
-    expect(belowFoldSource).toContain('import("./RunDetailAuthorityChainSection")');
-    expect(belowFoldSource).toContain('import("./RunDetailRetrievalGroundingSection")');
+    expect(manifestLoaderSource).toContain(
+      'import("@/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailAuthorityChainSection")',
+    );
+    expect(manifestLoaderSource).toContain(
+      'import("@/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailRetrievalGroundingSection")',
+    );
   });
 
   it("dynamic-imports mid/decision-delta/explanation leaves (wave 10)", () => {
@@ -613,5 +622,9 @@ describe("run detail bundle deferred imports (TB-697 / TB-933 / TB-2021 / TB-211
     expect(belowFoldSource).toContain("RunDetailBelowFoldProjectContextSkeleton");
     expect(belowFoldSource).toMatch(/export function RunDetailBelowFoldSections/);
     expect(belowFoldSource).not.toContain("loadRunDetailBelowFoldDeferredModel");
+    expect(belowFoldSource).not.toContain("next/dynamic");
+    expect(belowFoldSource).toContain("RunDetailAuthorityChainSectionDeferred");
+    expect(belowFoldSource).toContain("RunDetailPostCommitHabitLoopCardDeferred");
+    expect(belowFoldSource).toContain("BeforeAfterDeltaPanelDeferred");
   });
 });

@@ -386,6 +386,50 @@ function resolveDeferredChunkImportLoader(
           (module) => module.ShellThemePreferencesAppearanceVocabularyRail,
         ),
       ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "app-shell-frictionless-trial-banner":
+      return deferredChunkLoader(() =>
+        import("@/components/FrictionlessTrialBanner").then((module) => module.FrictionlessTrialBanner),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "app-shell-main-affordances":
+      return deferredChunkLoader(() =>
+        import("@/components/shell/AppShellMainAffordances").then((module) => module.AppShellMainAffordances),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "app-shell-onboarding-tour":
+      return deferredChunkLoader(() =>
+        import("@/components/OnboardingTour").then((module) => module.OnboardingTour),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "app-shell-registration-onboarding-tour-auto-start":
+      return deferredChunkLoader(() =>
+        import("@/components/usability/RegistrationOnboardingTourAutoStart").then(
+          (module) => module.RegistrationOnboardingTourAutoStart,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "app-shell-help-search-panel":
+      return deferredChunkLoader(() =>
+        import("@/components/HelpSearchPanel").then((module) => module.HelpSearchPanel),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "app-shell-help-panel":
+      return deferredChunkLoader(() =>
+        import("@/components/HelpPanel").then((module) => module.HelpPanel),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "app-shell-sidebar-nav":
+      return deferredChunkLoader(() =>
+        import("@/components/SidebarNav").then((module) => module.SidebarNav),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "app-shell-status-banners":
+      return deferredChunkLoader(() =>
+        import("@/components/shell/AppShellStatusBanners").then((module) => module.AppShellStatusBanners),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "app-shell-trial-limit-modal-host":
+      return deferredChunkLoader(() =>
+        import("@/components/trial/TrialLimitModal").then((module) => module.TrialLimitModalHost),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "app-shell-cto-demo-journey-caption-bar":
+      return deferredChunkLoader(() =>
+        import("@/components/cto-demo/CtoDemoJourneyCaptionBar").then(
+          (module) => module.CtoDemoJourneyCaptionBar,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
     case "operator-shell-top-bar-global-search":
       return deferredChunkLoader(() =>
         import("@/components/GlobalSearchBar").then((module) => module.GlobalSearchBar),
@@ -878,6 +922,12 @@ function resolveDeferredChunkImportLoader(
       return deferredChunkLoader(() =>
         import("@/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailRetrievalGroundingSection").then(
           (module) => module.RunDetailRetrievalGroundingSection,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "run-detail-authority-chain-section":
+      return deferredChunkLoader(() =>
+        import("@/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailAuthorityChainSection").then(
+          (module) => module.RunDetailAuthorityChainSection,
         ),
       ) as () => Promise<ComponentType<Record<string, unknown>>>;
     case "run-detail-advanced-analysis-section":

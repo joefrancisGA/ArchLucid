@@ -1,7 +1,5 @@
 import { Suspense } from "react";
 
-import dynamic from "next/dynamic";
-
 import { GovernanceModePresentationGate } from "@/components/governance/GovernanceModePresentationGate";
 import { GovernanceApprovalAttestationBlock } from "@/components/reviews/GovernanceApprovalAttestationBlock";
 import { ReviewChainOfCustodySection } from "@/components/reviews/ReviewChainOfCustodySection";
@@ -29,61 +27,18 @@ import {
   loadRunDetailBelowFoldPipelineModel,
   loadRunDetailBelowFoldProjectContextModel,
 } from "./load-run-detail-deferred-model";
-import { RunDetailArtifactsExportsSectionDeferred } from "./run-detail-page-view-deferred-chunks";
+import {
+  BeforeAfterDeltaPanelDeferred,
+  RecurrenceSchedulePostCommitCardDeferred,
+  RunDetailArtifactsExportsSectionDeferred,
+  RunDetailAuthorityChainSectionDeferred,
+  RunDetailRetrievalGroundingSectionDeferred,
+} from "./run-detail-page-view-deferred-chunks";
+import {
+  RunDetailArchitectureGraphSectionDeferred,
+  RunDetailPostCommitHabitLoopCardDeferred,
+} from "./run-detail-tabbed-deferred-chunks";
 import type { RunDetailDeferredSectionContext, RunDetailPageModel } from "./run-detail-page-model";
-
-const BeforeAfterDeltaPanel = dynamic(
-  () => import("@/components/BeforeAfterDeltaPanel").then((module) => module.BeforeAfterDeltaPanel),
-  { loading: () => null },
-);
-
-const RunDetailArchitectureGraphSection = dynamic(
-  () =>
-    import("./RunDetailArchitectureGraphSection").then(
-      (module) => module.RunDetailArchitectureGraphSection,
-    ),
-  {
-    loading: () => (
-      <section id="architecture-graph" className="scroll-mt-24">
-        <div
-          className="h-64 animate-pulse rounded-md border border-neutral-200 bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-800"
-          role="status"
-          aria-label="Loading architecture graph"
-        />
-      </section>
-    ),
-  },
-);
-
-/** TB-2021 — below-fold client islands (habit loop / authority / grounding). */
-const PostCommitHabitLoopCard = dynamic(
-  () => import("@/components/PostCommitHabitLoopCard").then((module) => module.PostCommitHabitLoopCard),
-  { loading: () => null },
-);
-
-const RecurrenceSchedulePostCommitCard = dynamic(
-  () =>
-    import("@/components/governance/RecurrenceSchedulePostCommitCard").then(
-      (module) => module.RecurrenceSchedulePostCommitCard,
-    ),
-  { loading: () => null },
-);
-
-const RunDetailAuthorityChainSection = dynamic(
-  () =>
-    import("./RunDetailAuthorityChainSection").then(
-      (module) => module.RunDetailAuthorityChainSection,
-    ),
-  { loading: () => null },
-);
-
-const RunDetailRetrievalGroundingSection = dynamic(
-  () =>
-    import("./RunDetailRetrievalGroundingSection").then(
-      (module) => module.RunDetailRetrievalGroundingSection,
-    ),
-  { loading: () => null },
-);
 
 type RunDetailBelowFoldSectionsProps = {
   readonly model: RunDetailPageModel;
@@ -111,7 +66,7 @@ async function RunDetailBelowFoldProjectContextAsync(
   return (
     <>
       {m.resolvedDetail.run.graphSnapshotId ? (
-        <RunDetailArchitectureGraphSection
+        <RunDetailArchitectureGraphSectionDeferred
           runId={m.routeRunId}
           buyerPolishedArtifactTable={m.buyerPolishedArtifactTable}
           anchorRunCreatedUtc={m.resolvedDetail.run.createdUtc}
@@ -121,7 +76,7 @@ async function RunDetailBelowFoldProjectContextAsync(
       ) : null}
 
       {m.manifestId ? (
-        <PostCommitHabitLoopCard
+        <RunDetailPostCommitHabitLoopCardDeferred
           runId={m.routeRunId}
           showCompareCta={projectContext.canShowCompareReviewButton}
           buyerShowcaseQuickLinks={m.usedStaticDemoRun}
@@ -166,7 +121,7 @@ export function RunDetailBelowFoldSections(props: RunDetailBelowFoldSectionsProp
       </Suspense>
 
       <GovernanceModePresentationGate>
-        <RunDetailAuthorityChainSection run={m.resolvedDetail.run} manifestId={m.manifestId} />
+        <RunDetailAuthorityChainSectionDeferred run={m.resolvedDetail.run} manifestId={m.manifestId} />
       </GovernanceModePresentationGate>
 
       <GovernanceModePresentationGate>
@@ -216,7 +171,7 @@ export function RunDetailBelowFoldSections(props: RunDetailBelowFoldSectionsProp
 
       {m.manifestId && !ownedByAnotherTab ? (
         <>
-          <RecurrenceSchedulePostCommitCard
+          <RecurrenceSchedulePostCommitCardDeferred
             runId={m.routeRunId}
             hasStickinessPrompt={Boolean(m.manifestId)}
             pagePrimaryOwnedElsewhere
@@ -249,7 +204,7 @@ export function RunDetailBelowFoldSections(props: RunDetailBelowFoldSectionsProp
       ) : null}
 
       {!ownedByAnotherTab && !m.buyerPolishedArtifactTable && m.manifestId ? (
-        <RunDetailRetrievalGroundingSection
+        <RunDetailRetrievalGroundingSectionDeferred
           runId={m.routeRunId}
           showWhenFaithfulnessWarning={
             typeof m.explanationSummary?.faithfulnessWarning === "string"
@@ -259,7 +214,7 @@ export function RunDetailBelowFoldSections(props: RunDetailBelowFoldSectionsProp
       ) : null}
 
       {m.manifestId && !ownedByAnotherTab && !m.buyerPolishedArtifactTable ? (
-        <BeforeAfterDeltaPanel variant="inline" runId={m.routeRunId} />
+        <BeforeAfterDeltaPanelDeferred variant="inline" runId={m.routeRunId} />
       ) : null}
 
       {m.manifestId && !ownedByAnotherTab ? (
