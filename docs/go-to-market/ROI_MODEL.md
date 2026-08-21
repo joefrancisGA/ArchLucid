@@ -1,6 +1,6 @@
-> **Reviewed:** 2026-07-28
-
 > **Scope:** ArchLucid ROI model — full detail, tables, and links below — plus the operational cost guide for Azure/LLM footprint (formerly `COST_GUIDE.md`), the synthetic Contoso Retail case study (formerly `SYNTHETIC_CASE_STUDY_CONTOSO_RETAIL.md`), the Contoso worked-example ROI value-report mirror (formerly `WORKED_EXAMPLE_ROI.md`), and the quarterly aggregate ROI bulletin template (formerly the body of `AGGREGATE_ROI_BULLETIN_TEMPLATE.md`; that filename remains a path-stable alias for CLI/CI pins).
+
+> **Reviewed:** 2026-07-28
 
 > **Spine doc:** [`START_HERE.md`](../START_HERE.md).
 

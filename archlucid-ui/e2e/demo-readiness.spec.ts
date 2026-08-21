@@ -94,7 +94,7 @@ test.describe.parallel("demo-readiness — mock proof chain @demo-readiness", ()
     await page.goto(claimsShowcasePath);
     await page
       .getByRole("region", { name: /Explore in workspace/i })
-      .getByRole("link", { name: "Open sealed record", exact: true })
+      .getByRole("link", { name: "Open finalized record", exact: true })
       .click();
     await expect(page).toHaveURL(showcaseSignedManifestBrowserUrlPattern());
     await expect(page.getByRole("heading", { name: MANIFEST_DETAIL_PRIMARY_HEADING_PATTERN, level: 1 })).toBeVisible();

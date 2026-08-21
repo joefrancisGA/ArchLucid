@@ -2,8 +2,10 @@ import { expect, type Locator, type Page, type Response } from "@playwright/test
 
 import {
   buildReviewDetailTabHref,
+  REVIEW_DETAIL_TAB_PARAM,
   type ReviewDetailTabId,
 } from "@/lib/review-detail-workspace-tabs";
+import { REVIEW_FINDINGS_JOB_VIEW_PARAM } from "@/lib/findings/review-findings-job-view-url";
 
 import { expectAnyLocatorVisible } from "./locator-readiness";
 import { getAppMain } from "./app-main";
@@ -633,6 +635,25 @@ async function revealFindingWorkspaceCardInJobViewLanes(scope: Locator, card: Lo
 
     if (await card.isVisible().catch(() => false)) {
       return;
+    }
+  }
+
+  // disposition-closed findings are filtered out of visible toggles — deep-link the hidden lane when needed.
+  if (!(await card.isVisible().catch(() => false))) {
+    const page = scope.page();
+    const reviewPathMatch = /\/architecture\/reviews\/([^/?#]+)/i.exec(page.url());
+
+    if (reviewPathMatch !== null) {
+      const url = new URL(page.url());
+      url.pathname = `/architecture/reviews/${reviewPathMatch[1]}`;
+      url.searchParams.set(REVIEW_DETAIL_TAB_PARAM, "findings");
+      url.searchParams.set(REVIEW_FINDINGS_JOB_VIEW_PARAM, "disposition-closed");
+      await page.goto(url.toString());
+      await page.waitForLoadState("domcontentloaded");
+
+      if (await card.isVisible().catch(() => false)) {
+        return;
+      }
     }
   }
 }

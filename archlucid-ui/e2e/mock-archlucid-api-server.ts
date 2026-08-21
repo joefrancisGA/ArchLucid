@@ -419,6 +419,34 @@ export function startMockArchlucidApiServer(port: number): Promise<{ stop: () =>
         return;
       }
 
+      if (req.method === "POST" && pathname === "/v1/governance/recurrence-schedules/preview-next-runs") {
+        sendJson(res, 200, {
+          isValid: true,
+          validationError: null,
+          nextRunUtc: ["2026-08-25T12:00:00.000Z"],
+        });
+        return;
+      }
+
+      if (req.method === "GET" && pathname === "/v1/governance/recurrence-schedules") {
+        sendJson(res, 200, []);
+        return;
+      }
+
+      const policyPackVersionMatch = /^\/v1\/policy-packs\/([^/]+)\/versions\/([^/]+)$/.exec(pathname);
+
+      if (req.method === "GET" && policyPackVersionMatch) {
+        sendJson(res, 200, {
+          policyPackVersionId: `${policyPackVersionMatch[1]}-${policyPackVersionMatch[2]}`,
+          policyPackId: policyPackVersionMatch[1],
+          version: policyPackVersionMatch[2],
+          contentJson: JSON.stringify(getMockEffectiveContent()),
+          createdUtc: "2026-01-01T00:00:00.000Z",
+          isPublished: true,
+        });
+        return;
+      }
+
       /** Fire-and-forget client telemetry; real API accepts POST — avoid 405 noise in screenshot / mock E2E. */
       if (
         req.method === "POST" &&

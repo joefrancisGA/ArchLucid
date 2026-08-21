@@ -97,9 +97,10 @@ test.describe(
     await expectNoGenericErrorBoundary(page);
 
     await page.goto(BUYER_GOLDEN_PATH_HREFS.policyPackDetail);
+    await expect(page.getByTestId("healthcare-claims-policy-pack-detail")).toBeVisible({ timeout: 60_000 });
     await expect(
       page.getByRole("heading", { level: 1, name: /Healthcare Claims Policy Pack v/i }),
-    ).toBeVisible();
+    ).toBeVisible({ timeout: 60_000 });
     await expectNoGenericErrorBoundary(page);
   });
 });
