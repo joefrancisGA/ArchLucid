@@ -122,6 +122,23 @@ describe("DigestsHubClient", () => {
     });
   });
 
+  it("orients Get started with one related-surfaces line instead of four vocabulary rails", async () => {
+    render(<DigestsHubClient />);
+
+    expect(await screen.findByTestId("digests-related-surfaces")).toBeInTheDocument();
+    expect(screen.getByTestId("digests-related-surfaces-peer-notifications")).toBeInTheDocument();
+    expect(screen.getByTestId("digests-related-surfaces-peer-teams")).toBeInTheDocument();
+    expect(screen.getByTestId("digests-related-surfaces-peer-slack")).toBeInTheDocument();
+    expect(screen.getByTestId("digests-related-surfaces-peer-advisory-scans")).toBeInTheDocument();
+
+    expect(screen.queryByTestId("digests-notifications-vocabulary")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("digests-teams-slack-vocabulary")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("digests-advisory-scans-vocabulary")).not.toBeInTheDocument();
+    expect(
+      screen.queryByTestId("digests-browse-schedule-subscriptions-vocabulary"),
+    ).not.toBeInTheDocument();
+  });
+
   it("renders the tab list under the header without Sources follow-up chrome (TB-2092)", async () => {
     render(<DigestsHubClient />);
 
@@ -156,6 +173,7 @@ describe("DigestsHubClient", () => {
     expect(screen.queryByTestId("digests-notifications-vocabulary")).not.toBeInTheDocument();
     expect(screen.queryByTestId("digests-teams-slack-vocabulary")).not.toBeInTheDocument();
     expect(screen.queryByTestId("digests-advisory-scans-vocabulary")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("digests-related-surfaces")).not.toBeInTheDocument();
     expect(screen.queryByTestId("explain-this-view-banner")).not.toBeInTheDocument();
   });
 
@@ -230,6 +248,7 @@ describe("DigestsHubClient", () => {
     expect(screen.queryByTestId("digests-notifications-vocabulary")).not.toBeInTheDocument();
     expect(screen.queryByTestId("digests-teams-slack-vocabulary")).not.toBeInTheDocument();
     expect(screen.queryByTestId("digests-browse-schedule-subscriptions-vocabulary")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("digests-related-surfaces")).not.toBeInTheDocument();
     expect(screen.queryByTestId("digest-recurrence-schedule-vocabulary")).not.toBeInTheDocument();
   });
 });
