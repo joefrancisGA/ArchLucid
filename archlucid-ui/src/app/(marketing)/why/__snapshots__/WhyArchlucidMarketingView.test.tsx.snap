@@ -765,7 +765,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
                 <td
                   class="px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
                 >
-                  Typical fit: interactive Q&A — not a governed package with finalized sealed review record lineage by default.
+                  Typical fit: interactive Q&A — not a finalized architecture review package with evidence lineage by default.
                 </td>
                 <td
                   class="px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"
@@ -899,7 +899,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
               class="max-w-[320px] px-3 py-3 align-top font-medium text-neutral-900 dark:text-neutral-100"
               scope="row"
             >
-              Sponsor-ready export integrity
+              Export-ready output integrity
             </th>
             <td
               class="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"

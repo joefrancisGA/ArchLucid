@@ -30,7 +30,7 @@ const summary: RunExplanationSummary = {
     structured: null,
     confidence: 0.85,
     provenance: null,
-    summary: "The architecture review is sponsor-ready with two focused risks.",
+    summary: "The architecture review is export-ready with two focused risks.",
     keyDrivers: [],
     riskImplications: [],
     costImplications: [],
@@ -56,7 +56,7 @@ const summary: RunExplanationSummary = {
 };
 
 describe("RunDetailSponsorModeExplanationCard", () => {
-  it("summarizes sponsor-ready explanation with evidence labels", () => {
+  it("summarizes export-ready explanation with evidence labels", () => {
     render(
       <RunDetailSponsorModeExplanationCard
         explanationSummary={summary}

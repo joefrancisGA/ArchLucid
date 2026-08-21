@@ -18,7 +18,7 @@ export const ARCHITECTURE_CREATED_FINDINGS_SOURCES: readonly ArchitectureCreated
 ] as const;
 
 export const ARCHITECTURE_CREATED_FINDINGS_SOURCES_INTRO =
-  "Use these follow-ups when create-home Findings triage turns into the findings queue, evidence search, or governance readiness.";
+  "Use these follow-ups when create-home Findings triage turns into the findings queue, evidence search, or approval readiness.";
 
 export const ARCHITECTURE_CREATED_FINDINGS_CLAIM_DISCIPLINE =
   "This create-home Findings tab lists assessment findings before finalize. It is not a signed-record Sources trail";
@@ -32,4 +32,4 @@ export const ARCHITECTURE_CREATED_FINDINGS_IN_PROGRESS_ACTIVITY_LINK =
 export const ARCHITECTURE_CREATED_FINDINGS_IN_PROGRESS_CLARIFICATIONS_LINK = "Open clarifications";
 
 export const ARCHITECTURE_CREATED_FINDINGS_FINALIZE_ELIGIBLE_EMPTY =
-  "Assessment stages are complete and no findings were surfaced. You can finalize when governance readiness checks pass.";
+  "Assessment stages are complete and no findings were surfaced. You can finalize when approval readiness checks pass.";

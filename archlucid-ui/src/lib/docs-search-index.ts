@@ -35,7 +35,7 @@ const CURATED_DOCUMENTATION_SEARCH_ITEMS: readonly DocumentationSearchItem[] = [
   {
     category: "Guides",
     title: FIRST_ARCHITECTURE_REVIEW_PAGE_TITLE,
-    description: "Guided path from evidence intake to a finalized architecture review and sponsor-ready exports.",
+    description: "Guided path from evidence intake to a finalized architecture review and export-ready outputs.",
     relativeDocsPath: "docs/CORE_PILOT.md",
   },
   {

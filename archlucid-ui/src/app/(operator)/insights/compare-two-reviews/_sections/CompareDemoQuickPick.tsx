@@ -42,7 +42,7 @@ export function CompareDemoQuickPick(props: CompareDemoQuickPickProps) {
             Updated: Hardened PHI flow
           </span>
           <span className={cn("mt-1 block text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-            Pair with baseline for sponsor-ready before/after narrative.
+            Pair with baseline for export-ready before/after narrative.
           </span>
         </button>
       </div>

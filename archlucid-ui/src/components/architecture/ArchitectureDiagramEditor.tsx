@@ -34,12 +34,15 @@ export type ArchitectureDiagramEditorProps = {
   readonly storageWriteFailed: boolean;
   readonly onSaveMermaid: (mermaidSource: string) => void;
   readonly onActivateVersion: (versionId: string) => void;
+  /** When Do this next owns the page primary, keep save as outline. */
+  readonly pagePrimaryOwnedElsewhere?: boolean;
 };
 
 /** Hand-edit Mermaid source and browse device-local diagram version history. */
 export function ArchitectureDiagramEditor(props: ArchitectureDiagramEditorProps): React.JSX.Element {
   const [draftSource, setDraftSource] = useState(props.mermaidSource);
   const draftValid = useMemo(() => isValidMermaidArchitectureDiagram(draftSource), [draftSource]);
+  const saveMermaidVariant = props.pagePrimaryOwnedElsewhere === true ? "outline" : "primary";
 
   useEffect(() => {
     setDraftSource(props.mermaidSource);
@@ -95,7 +98,7 @@ export function ArchitectureDiagramEditor(props: ArchitectureDiagramEditorProps)
             <div className="flex flex-wrap gap-2">
               <Button
                 type="button"
-                variant="primary"
+                variant={saveMermaidVariant}
                 disabled={!draftValid}
                 data-testid="architecture-diagram-save-mermaid"
                 onClick={() => {

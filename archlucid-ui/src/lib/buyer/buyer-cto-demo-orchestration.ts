@@ -19,7 +19,7 @@ const SEED_SAMPLE_ROUTE = "/api/seed-sample";
  * so the two surfaces don't duplicate the same framing on spine pages.
  */
 export const BUYER_CTO_DEMO_AUDIENCE_CAPTION_LINES: readonly string[] = [
-  "Sponsor outcomes, residual risk posture, and sponsor-ready actions.",
+  "Sponsor outcomes, residual risk posture, and export-ready actions.",
   "Signed package — decisions, findings, and downloadable deliverables.",
   "Evidence-linked traceability from inputs through findings to decisions.",
   "Governance approvals and segregation-of-duties for this review.",

@@ -85,7 +85,7 @@ function buildFirstReviewCheckpointStrip(
     { id: "execute", label: "Execute", href: reviewHref, status: statusById.execute },
     { id: "commit", label: "Finalize", href: reviewHref, status: statusById.commit },
     { id: "export", label: "Export", href: committedReviewHref, status: statusById.export },
-    { id: "sponsor-ready", label: "Sponsor-ready", href: SPONSOR_DASHBOARD_HREF, status: statusById["sponsor-ready"] },
+    { id: "sponsor-ready", label: "Export-ready", href: SPONSOR_DASHBOARD_HREF, status: statusById["sponsor-ready"] },
   ] as const;
 }
 
@@ -160,7 +160,7 @@ function FirstReviewCheckpointStrip(props: {
         <StatusTag kind="neutral" label={`Step ${FIRST_REVIEW_CHECKPOINT_ORDER.indexOf(activeCheckpoint.id) + 1} of 5`} />
       </div>
       <p className={cn("m-0 mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-        Operator lens: finish the highlighted checkpoint. Sponsor lens: sponsor-ready starts once the review is committed and exported.
+        Operator lens: finish the highlighted checkpoint. Sponsor lens: export-ready starts once the review is committed and exported.
       </p>
       <ol className="m-0 mt-2 flex list-none flex-wrap gap-2 p-0">
         {checkpoints.map((checkpoint, index) => (
@@ -290,7 +290,7 @@ export function CorePilotNextStepsCard() {
           latestRunReadyToFinalize={latestRunReadyToFinalize}
         />
         <p className={cn("mb-3 mt-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
-          First review is finalized. Open the architecture review and findings — export sponsor-ready
+          First review is finalized. Open the architecture review and findings — share export-ready
           Markdown/PDF from review detail when needed; CLI shortcuts below speed support tickets.
         </p>
 

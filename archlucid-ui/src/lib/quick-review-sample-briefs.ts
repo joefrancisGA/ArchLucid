@@ -21,7 +21,7 @@ export const QUICK_REVIEW_SAMPLE_BRIEFS: readonly QuickReviewSampleBrief[] = [
     label: "Healthcare",
     vertical: "Healthcare",
     brief:
-      "Assess modernization of a Northstar Health member intake and claims-adjacent workflow from legacy on-premises systems to Azure. Current state: HL7/FHIR adapters, SQL Server clinical data store, manual PHI review queues, and batch eligibility checks. Target: Azure API Management for partner ingress, App Service for intake APIs, Azure SQL with column encryption for PHI subsets, Private Link to PaaS, Key Vault for secrets, and auditable change records for HIPAA-aligned retention. Business requires least-privilege access, explicit PHI classification at ingress, 99.9% availability for intake during open enrollment, EU residency for selected member cohorts, and sponsor-ready evidence for security review.",
+      "Assess modernization of a Northstar Health member intake and claims-adjacent workflow from legacy on-premises systems to Azure. Current state: HL7/FHIR adapters, SQL Server clinical data store, manual PHI review queues, and batch eligibility checks. Target: Azure API Management for partner ingress, App Service for intake APIs, Azure SQL with column encryption for PHI subsets, Private Link to PaaS, Key Vault for secrets, and auditable change records for HIPAA-aligned retention. Business requires least-privilege access, explicit PHI classification at ingress, 99.9% availability for intake during open enrollment, EU residency for selected member cohorts, and export-ready evidence for security review.",
   },
   {
     id: "financial",

@@ -103,7 +103,7 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
         } ${buyerPolished ? "monitored risks" : "warnings"}${buyerPolished ? "" : " (demo totals)"}`
       : run.hasArtifactBundle
         ? buyerPolished
-          ? "Browse sponsor-ready deliverables and exports from the full review. Open review detail when you need the complete workspace view."
+          ? "Browse export-ready deliverables and exports from the full review. Open review detail when you need the complete workspace view."
           : "Artifacts are summarized alongside the finalized review record — open the sealed record link below."
         : buyerPolished
           ? "Evidence bundle available from the sealed review record."
@@ -297,7 +297,7 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
                   </Button>
                 ) : null}
                 <Button variant="outline" size="sm" className="w-full" asChild>
-                  <Link href={`/governance/approval-queue?runId=${encodeURIComponent(run.runId)}`}>View governance approval</Link>
+                  <Link href={`/governance/approval-queue?runId=${encodeURIComponent(run.runId)}`}>View resolve outcomes</Link>
                 </Button>
                 <Button variant="outline" size="sm" className="w-full" asChild>
                   <Link href={auditTrailNavHref(run.runId)}>View audit trail</Link>

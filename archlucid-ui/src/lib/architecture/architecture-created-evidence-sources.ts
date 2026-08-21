@@ -18,7 +18,7 @@ export const ARCHITECTURE_CREATED_EVIDENCE_SOURCES: readonly ArchitectureCreated
 ] as const;
 
 export const ARCHITECTURE_CREATED_EVIDENCE_SOURCES_INTRO =
-  "Use these follow-ups when create-home Evidence upload turns into findings triage, search, or governance readiness.";
+  "Use these follow-ups when create-home Evidence upload turns into findings triage, search, or approval readiness.";
 
 export const ARCHITECTURE_CREATED_EVIDENCE_CLAIM_DISCIPLINE =
   "This create-home Evidence tab is for attaching capture before finalize. It is not a signed-record Sources trail";

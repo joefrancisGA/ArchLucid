@@ -86,6 +86,32 @@ describe("proxy route anonymous marketing paths", () => {
     expect(fetchMock).not.toHaveBeenCalled();
   });
 
+  it("rejects PATCH with deeply encoded dot traversal to operator draft", async () => {
+    let encoded = "%2e%2e";
+
+    for (let pass = 0; pass < 5; pass++) {
+      encoded = encoded.replace(/%/g, "%25");
+    }
+
+    const req = new NextRequest(
+      `http://localhost/api/proxy/v1/marketing/quick-scan/status/${encoded}/${encoded}/${encoded}/architecture/draft/draft-1`,
+      {
+        method: "PATCH",
+        headers: { "content-type": "application/json", "content-length": "2" },
+        body: "{}",
+      },
+    );
+
+    const res = await PATCH(req, {
+      params: Promise.resolve({
+        path: ["v1", "marketing", "quick-scan", "status", encoded, encoded, encoded, "architecture", "draft", "draft-1"],
+      }),
+    });
+
+    expect(res.status).toBe(400);
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
   it("rejects PATCH with double-encoded dot traversal to operator draft", async () => {
     const req = new NextRequest(
       "http://localhost/api/proxy/v1/marketing/quick-scan/%252e%252e/%252e%252e/architecture/draft/draft-1",

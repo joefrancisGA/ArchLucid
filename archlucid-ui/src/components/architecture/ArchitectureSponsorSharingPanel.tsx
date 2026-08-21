@@ -56,6 +56,8 @@ export type ArchitectureSponsorSharingPanelProps = {
   readonly architecture: BuildArchitectureCreatedHomeModelInput;
   readonly architectureSourceText: string;
   readonly findings: readonly QuickDecisionFinding[];
+  /** When Do this next owns the page primary, keep panel actions outline. */
+  readonly pagePrimaryOwnedElsewhere?: boolean;
 };
 
 function readinessStatusTagKind(status: SponsorReadinessStatus): EnterpriseStatusKind {
@@ -82,6 +84,8 @@ export function ArchitectureSponsorSharingPanel(
   props: ArchitectureSponsorSharingPanelProps,
 ): React.JSX.Element {
   const canShare = useOperateCapability();
+  const resolveReadinessVariant = props.pagePrimaryOwnedElsewhere === true ? "outline" : "primary";
+  const preliminarySubmitVariant = props.pagePrimaryOwnedElsewhere === true ? "outline" : "primary";
   const [dialogOpen, setDialogOpen] = useState(false);
   const [overrideConfirmed, setOverrideConfirmed] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -224,7 +228,7 @@ export function ArchitectureSponsorSharingPanel(
         ) : (
           <div className="flex flex-wrap gap-2">
             {assessment.issues.length > 0 ? (
-              <Button type="button" variant="primary" size="sm" asChild data-testid="architecture-sponsor-resolve">
+              <Button type="button" variant={resolveReadinessVariant} size="sm" asChild data-testid="architecture-sponsor-resolve">
                 <Link href={resolveHref}>{ARCHITECTURE_SPONSOR_RESOLVE_READINESS_ACTION}</Link>
               </Button>
             ) : null}
@@ -303,7 +307,7 @@ export function ArchitectureSponsorSharingPanel(
             </Button>
             <Button
               type="button"
-              variant="primary"
+              variant={preliminarySubmitVariant}
               disabled={!overrideConfirmed || busy}
               onClick={() => {
                 void copySponsorMarkdown(true, "preliminary-draft");

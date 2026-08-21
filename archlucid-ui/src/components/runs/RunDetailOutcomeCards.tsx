@@ -385,12 +385,12 @@ function PackageStatusStrip(props: PackageStatusStripProps) {
               className={cn("block rounded outline-none ring-offset-2 focus-visible:ring-2 focus-visible:ring-teal-600 dark:ring-offset-neutral-950", OPERATOR_LINK.inline)}
             >
               <p className={valueClass}>{finiteIntegerCountDisplay(props.artifactCount)}</p>
-              <p className={detailClass}>Sponsor-ready deliverables</p>
+              <p className={detailClass}>Export-ready deliverables</p>
             </Link>
           ) : (
             <>
               <p className={valueClass}>{finiteIntegerCountDisplay(props.artifactCount)}</p>
-              <p className={detailClass}>Sponsor-ready deliverables</p>
+              <p className={detailClass}>Export-ready deliverables</p>
             </>
           )}
         </div>

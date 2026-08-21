@@ -85,11 +85,11 @@ export const BUYER_SPONSOR_SUMMARY_VOCABULARY = {
   howItWorksDescription:
     "Create a review from your architecture evidence, then finalize it when findings are ready for sponsor reporting. Metrics and sponsor exports populate after the first finalized review.",
   pageLead:
-    "Status, risk, ROI impact, and governance readiness for your current workspace — decision-first, with operator detail one click away.",
+    "Status, risk, ROI impact, and approval readiness for your current workspace — decision-first, with operator detail one click away.",
   roiMetricsSrOnly: "Sponsor ROI metrics",
   emptyStateTitle: "No finalized reviews yet",
   emptyStateDescription:
-    "Finalize a review to populate sponsor metrics, remediation progress, ROI estimates, and sponsor-ready exports.",
+    "Finalize a review to populate sponsor metrics, remediation progress, ROI estimates, and export-ready outputs.",
   emptyStatePrimaryAction: BUYER_START_ARCHITECTURE_REVIEW_CTA,
   emptyStateSecondaryAction: "Load sample dashboard",
   emptyStateSecondaryHelper: "Populate this workspace with sample review data.",
@@ -129,7 +129,7 @@ export const BUYER_SPONSOR_SUMMARY_VOCABULARY = {
     "Stale architecture risks",
     "Estimated savings",
     "Compliance drift trends",
-    "Sponsor-ready exports",
+    "Export-ready outputs",
   ] as const,
   scorecardLayerContextLine: "Value metrics and recommended actions.",
   scorecardPageTitle: "Sponsor scorecard",
@@ -161,12 +161,12 @@ export const BUYER_SPONSOR_SUMMARY_VOCABULARY = {
   nextActionSectionTitle: "Next action",
   nextActionLinkLabel: "Take action",
   primaryMetricsSectionTitle: "At a glance",
-  primaryMetricsSectionSrOnly: "Risk posture, ROI impact, and governance readiness",
+  primaryMetricsSectionSrOnly: "Risk posture, ROI impact, and approval readiness",
   supportingMetricsSectionTitle: "Supporting metrics and trends",
   latestFindingsSectionTitle: "Latest findings and portfolio summary",
   executiveExportsTitle: "Sponsor exports",
   executiveExportsDescription:
-    "Sponsor-ready reports and board views from finalized reviews.",
+    "Export-ready reports and board views from finalized reviews.",
   sponsorExportsUnavailableFootnote: "Available after first finalized review",
   sponsorExportsPreviewSampleAction: "Preview sample",
   sponsorExportsScorecardTitle: "Sponsor scorecard",

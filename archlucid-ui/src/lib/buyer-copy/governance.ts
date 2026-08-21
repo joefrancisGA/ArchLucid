@@ -39,7 +39,7 @@ export const BUYER_RISK_REGISTER_EMPTY_TITLE = "No risks recorded for this revie
 export const BUYER_RISK_REGISTER_EMPTY_BODY =
   "Risks appear here when accepted findings, waivers, exceptions, or governance decisions create follow-up risk items.";
 
-export const BUYER_RISK_REGISTER_EMPTY_SECONDARY_ACTION = "View governance decisions";
+export const BUYER_RISK_REGISTER_EMPTY_SECONDARY_ACTION = "View resolve outcomes";
 
 export const BUYER_RISK_EXCEPTIONS_PAGE_TITLE = "Exceptions";
 
@@ -95,7 +95,7 @@ export const BUYER_GOVERNANCE_QUICK_APPROVE_LABEL = "Approve (no critical/high f
 
 export const BUYER_GOVERNANCE_FINDINGS_EMPTY = "Start from a review.";
 
-export const BUYER_GOVERNANCE_WORKFLOW_CTA = "Open governance workflow";
+export const BUYER_GOVERNANCE_WORKFLOW_CTA = "Open resolve outcomes";
 
 export const BUYER_POLICY_PACK_LEAD =
   "This pack encodes PHI minimization, audit-friendly artifact retention, and segregation expectations for regulated intake paths.";

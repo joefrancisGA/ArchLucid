@@ -106,7 +106,7 @@ export const ALERTS_ACTION_START_ARCHITECTURE_REVIEW = "Start architecture revie
 /** @deprecated Use {@link ALERTS_CONFIGURE_RULES_LINK_LABEL} — one label for alerts + rules setup. */
 export const ALERTS_ACTION_CONFIGURE_ALERT_RULES = ALERTS_CONFIGURE_RULES_LINK_LABEL;
 export const ALERTS_ACTION_OPEN_GOVERNANCE_SETUP_GUIDE = "Open governance setup";
-export const ALERTS_ACTION_OPEN_GOVERNANCE_WORKFLOW = "Open governance workflow";
+export const ALERTS_ACTION_OPEN_GOVERNANCE_WORKFLOW = "Open resolve outcomes";
 
 /** @deprecated Use {@link ALERTS_CONFIGURE_RULES_LINK_LABEL}. */
 export const ALERTS_ACTION_OPEN_STANDARDS_AND_RULES = ALERTS_CONFIGURE_RULES_LINK_LABEL;

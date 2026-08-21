@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { ArchitectureCreatedClarificationsPanel } from "@/components/architecture/ArchitectureCreatedClarificationsPanel";
+import { ArchitectureCreatedFindingsNextAction } from "@/components/architecture/ArchitectureCreatedFindingsNextAction";
 import { ArchitectureCreatedCompactFirstViewport } from "@/components/architecture/ArchitectureCreatedCompactFirstViewport";
 import { ArchitectureCreatedOverviewPanel } from "@/components/architecture/ArchitectureCreatedOverviewPanel";
 import { ArchitectureCreatedWorkspaceHeader } from "@/components/architecture/ArchitectureCreatedWorkspaceHeader";
@@ -69,6 +70,7 @@ export type ArchitectureCreatedWorkspaceProps = {
   readonly findingsTriageVisibleCount?: number;
   readonly panels: ArchitectureCreatedWorkspacePanels;
   readonly correctionHref: string | null;
+  readonly analysisStagesComplete?: boolean;
   /** When Do this next owns the page primary, demote tab-scoped filled CTAs below the strip. */
   readonly pagePrimaryOwnedElsewhere?: boolean;
 };
@@ -350,6 +352,15 @@ export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspace
             <ClarificationsFindingsVocabularyRail
               runId={props.baseline.runId}
               currentSurfaceId="findings"
+            />
+            <ArchitectureCreatedFindingsNextAction
+              runId={props.baseline.runId}
+              findings={props.findings}
+              analysisStagesComplete={props.analysisStagesComplete === true}
+              onNavigateActivity={() => {
+                navigateTab("activity");
+              }}
+              pagePrimaryOwnedElsewhere={props.pagePrimaryOwnedElsewhere}
             />
             {props.panels.findings}
           </div>

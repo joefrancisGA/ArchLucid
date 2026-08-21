@@ -68,7 +68,7 @@ export function guidedIntakeCreationArchitectureOverviewHelperText(trimmedLength
 }
 
 export const GUIDED_INTAKE_BUSINESS_OUTCOME_PLACEHOLDER =
-  "Example: Reduce intake cycle time, improve auditability, and give operations teams a single governed workflow for claims submissions.";
+  "Example: Reduce intake cycle time, improve auditability, and give operations teams a single structured workflow for claims submissions.";
 
 export const GUIDED_INTAKE_CREATION_BUSINESS_OUTCOME_MIN_HELPER =
   "Enter at least 10 characters describing the business outcome you expect.";

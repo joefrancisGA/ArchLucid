@@ -8,6 +8,44 @@ function containsPercentEncodedPathSeparator(value: string): boolean {
   return lower.includes("%2e") || lower.includes("%2f") || lower.includes("%5c");
 }
 
+function fullyDecodePercentEncoding(value: string, maxPasses = 8): string {
+  let working = value;
+
+  for (let decodePass = 0; decodePass < maxPasses && working.includes("%"); decodePass++) {
+    let decoded: string;
+
+    try {
+      decoded = decodeURIComponent(working);
+    } catch {
+      return working;
+    }
+
+    if (decoded === working) {
+      break;
+    }
+
+    working = decoded;
+  }
+
+  return working;
+}
+
+function resolvedPathDecodesToUnsafeTraversal(resolved: string): boolean {
+  const decoded = fullyDecodePercentEncoding(resolved);
+
+  if (decoded.includes("..")) {
+    return true;
+  }
+
+  const normalized = new URL(decoded, "http://archlucid.invalid/").pathname.replace(/^\//, "");
+
+  if (normalized.length === 0 || normalized.includes("..") || containsPercentEncodedPathSeparator(normalized)) {
+    return true;
+  }
+
+  return false;
+}
+
 function segmentDecodesToUnsafeTraversal(segment: string): boolean {
   if (containsPercentEncodedPathSeparator(segment)) {
     return true;
@@ -15,7 +53,7 @@ function segmentDecodesToUnsafeTraversal(segment: string): boolean {
 
   let working = segment;
 
-  for (let decodePass = 0; decodePass < 4 && working.includes("%"); decodePass++) {
+  for (let decodePass = 0; decodePass < 8 && working.includes("%"); decodePass++) {
     let decoded: string;
 
     try {
@@ -73,7 +111,12 @@ export function buildProxyUpstreamPath(pathSegments: readonly string[]): ProxyUp
   const joined = pathSegments.join("/");
   const resolved = new URL(joined, "http://archlucid.invalid/").pathname.replace(/^\//, "");
 
-  if (resolved.length === 0 || resolved.includes("..") || containsPercentEncodedPathSeparator(resolved)) {
+  if (
+    resolved.length === 0 ||
+    resolved.includes("..") ||
+    containsPercentEncodedPathSeparator(resolved) ||
+    resolvedPathDecodesToUnsafeTraversal(resolved)
+  ) {
     return { ok: false };
   }
 

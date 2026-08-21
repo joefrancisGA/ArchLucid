@@ -91,7 +91,7 @@ function governedCoverageLabel(payload: PilotRunDeltasProofSummaryJson | null): 
   const pct = coverage.governedPercentage;
   const pctLabel = typeof pct === "number" ? `${pct.toFixed(1)}%` : "n/a";
 
-  return `${governed} of ${total} governed (${pctLabel})`;
+  return `${governed} of ${total} evidence-backed (${pctLabel})`;
 }
 
 function buildWhySafeToSendBullets(

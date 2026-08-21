@@ -97,7 +97,7 @@ describe("buildRunDetailFirstScreenProofSummary", () => {
       },
     });
 
-    expect(summary.governedCoverageLabel).toBe("8 of 10 governed (80.0%)");
+    expect(summary.governedCoverageLabel).toBe("8 of 10 evidence-backed (80.0%)");
   });
 
   it("handles null governedPercentage gracefully", () => {
@@ -111,6 +111,6 @@ describe("buildRunDetailFirstScreenProofSummary", () => {
       },
     });
 
-    expect(summary.governedCoverageLabel).toBe("0 of 5 governed (n/a)");
+    expect(summary.governedCoverageLabel).toBe("0 of 5 evidence-backed (n/a)");
   });
 });

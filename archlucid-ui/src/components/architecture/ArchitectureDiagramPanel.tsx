@@ -549,6 +549,7 @@ export function ArchitectureDiagramPanel(props: ArchitectureDiagramPanelProps): 
           activeVersionId={activeVersionId}
           canEdit={props.canEdit}
           storageWriteFailed={storageWriteFailed}
+          pagePrimaryOwnedElsewhere={props.pagePrimaryOwnedElsewhere}
           onSaveMermaid={(nextSource) => {
             const appendResult = appendArchitectureDiagramVersion({
               runId: props.runId,

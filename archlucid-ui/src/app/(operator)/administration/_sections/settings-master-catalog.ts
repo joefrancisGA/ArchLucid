@@ -266,7 +266,7 @@ export const SETTINGS_MASTER_SECTIONS: readonly SettingsMasterSection[] = [
       {
         id: "model-governance",
         title: "AI and model governance",
-        description: "Workspace default execution profile, governed model aliases, and profile→alias mappings.",
+        description: "Workspace default execution profile, approved model aliases, and profile→alias mappings.",
         href: "/administration/model-governance",
         cta: "Open model governance",
         keywords: ["ai", "model", "governance", "alias", "profile", "llm"],

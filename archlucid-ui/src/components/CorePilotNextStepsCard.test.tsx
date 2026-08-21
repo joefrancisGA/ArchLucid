@@ -383,7 +383,7 @@ describe("CorePilotNextStepsCard", () => {
       });
     });
 
-    it("shows sponsor-ready as the final guided next action", async () => {
+    it("shows export-ready as the final guided next action", async () => {
       mockedFetchCorePilotCommitContext.mockResolvedValueOnce({
         hasCommittedManifest: true,
         latestRunId: "r1",

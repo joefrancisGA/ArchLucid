@@ -116,7 +116,7 @@ export function ArchitectureCreatedFindingsNextAction(
       <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
         Recommended next step
       </p>
-      <Button type="button" variant="primary" size="sm" className="mt-2 h-8" asChild>
+      <Button type="button" variant={actionVariant} size="sm" className="mt-2 h-8" asChild>
         <Link href={activityHref} prefetch={false} data-testid="architecture-findings-activity-primary-action">
           View assessment progress
         </Link>

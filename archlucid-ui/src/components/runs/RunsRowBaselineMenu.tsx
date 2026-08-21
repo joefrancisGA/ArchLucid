@@ -46,7 +46,7 @@ export function RunsRowBaselineMenu(props: { runId: string }) {
           href={`/governance/approval-queue?runId=${runEnc}`}
           className={OPERATOR_BODY_INLINE_LINK_CLASS}
         >
-          View governance approval
+          View resolve outcomes
         </Link>
         <Link href={auditTrailNavHref(props.runId)} className={OPERATOR_BODY_INLINE_LINK_CLASS}>
           View audit trail
