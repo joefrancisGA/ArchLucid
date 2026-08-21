@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { FavoriteReviewToggle } from "@/components/reviews/FavoriteReviewToggle";
+import { ReviewPinGlyph } from "@/components/reviews/ReviewPinGlyph";
 import { WorkspaceScopeEmptyTeaching } from "@/components/WorkspaceScopeEmptyTeaching";
 import { FilterChip } from "@/components/ui/filter-chip";
 import {
@@ -63,6 +64,8 @@ import {
 type ReviewsHubReviewInventoryProps = {
   readonly runs: readonly RunSummary[];
 };
+
+const PINNED_COLUMN_CLASS = "w-10 px-2";
 
 function subscribeOperatorScopeRecord(onStoreChange: () => void): () => void {
   if (typeof window === "undefined") {
@@ -197,24 +200,24 @@ function ReviewsHubInventoryRow(props: InventoryRowProps): React.JSX.Element {
       data-testid={row.isSampleReview ? "reviews-hub-sample-row" : `reviews-hub-row-${row.runId}`}
       style={props.style}
     >
+      <EnterpriseTableCell className={PINNED_COLUMN_CLASS}>
+        <FavoriteReviewToggle runId={row.runId} title={row.reviewTitle} />
+      </EnterpriseTableCell>
       <EnterpriseTableCell>
-        <div className="flex min-w-[12rem] items-start gap-2">
-          <div className="min-w-0 flex-1">
-            <Link
-              href={row.reviewHref}
-              className={cn(OPERATOR_LINK.nav, "font-medium")}
-              aria-label={`Open review ${row.reviewTitle}`}
-              data-testid={`reviews-hub-primary-action-${row.runId}`}
-            >
-              {row.reviewTitle}
-            </Link>
-            {row.isSampleReview ? (
-              <p className={cn("m-0 mt-0.5 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                Sample review
-              </p>
-            ) : null}
-          </div>
-          <FavoriteReviewToggle runId={row.runId} title={row.reviewTitle} />
+        <div className="min-w-[12rem]">
+          <Link
+            href={row.reviewHref}
+            className={cn(OPERATOR_LINK.nav, "font-medium")}
+            aria-label={`Open review ${row.reviewTitle}`}
+            data-testid={`reviews-hub-primary-action-${row.runId}`}
+          >
+            {row.reviewTitle}
+          </Link>
+          {row.isSampleReview ? (
+            <p className={cn("m-0 mt-0.5 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+              Sample review
+            </p>
+          ) : null}
         </div>
       </EnterpriseTableCell>
       <EnterpriseTableCell>{row.architectureName}</EnterpriseTableCell>
@@ -242,6 +245,10 @@ function ReviewsHubInventoryTableHead(): React.JSX.Element {
   return (
     <EnterpriseTableHead>
       <EnterpriseTableHeadRow>
+        <EnterpriseTableHeaderCell className={PINNED_COLUMN_CLASS}>
+          <span className="sr-only">Pinned</span>
+          <ReviewPinGlyph filled={false} className="h-3.5 w-3.5 text-al-text-secondary" />
+        </EnterpriseTableHeaderCell>
         <EnterpriseTableHeaderCell>Review</EnterpriseTableHeaderCell>
         <EnterpriseTableHeaderCell>Architecture / system</EnterpriseTableHeaderCell>
         <EnterpriseTableHeaderCell>Status</EnterpriseTableHeaderCell>
