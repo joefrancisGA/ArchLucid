@@ -14,7 +14,7 @@ export const BILLING_TIER_FEATURE_BULLETS: Readonly<Record<string, readonly stri
     "5 users · 1 workspace included",
     "Larger monthly AI allowance than Architect",
     "Basic governance for review findings",
-    "Sealed review records and comparison reviews",
+    "Finalized review records and comparison reviews",
     "Self-service start — no procurement call required",
   ],
   professional: [

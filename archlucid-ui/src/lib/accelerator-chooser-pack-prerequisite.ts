@@ -3,13 +3,13 @@ import type { AcceleratorChooserPrerequisiteStatus } from "@/lib/resolve-acceler
 export const ACCELERATOR_GREENFIELD_PACK_ID = "greenfield-web-app" as const;
 
 export const ACCELERATOR_PACK_PREREQUISITE_BLOCKED_MESSAGE =
-  "Needs a sealed review record first." as const;
+  "Needs a finalized review record first." as const;
 
 export const ACCELERATOR_PACK_CTA_PENDING_CHECKING_MESSAGE =
-  "Checking whether this tenant has a sealed review record…" as const;
+  "Checking whether this tenant has a finalized review record…" as const;
 
 export const ACCELERATOR_PACK_CTA_PENDING_UNKNOWN_MESSAGE =
-  "Sealed review record status is unavailable — verify access, then retry." as const;
+  "Finalized review record status is unavailable — verify access, then retry." as const;
 
 export type AcceleratorPackCtaState =
   | "ready"

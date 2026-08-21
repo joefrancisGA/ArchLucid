@@ -50,7 +50,7 @@ export const RECURRENCE_SCHEDULES_HELP_SOURCES: readonly EvidenceSourceLinkWithW
     when: "Understand how cloned follow-up reviews connect back to the anchored review",
   },
   {
-    label: "Governance approval help",
+    label: "Resolve outcomes help",
     href: inAppHelpHref("governance-approval"),
     when: "Read approval workflow guidance when scheduled reviews need governance routing context",
   },

@@ -181,7 +181,7 @@ export function deriveGovernanceLineageVersionAssertion(
   } else if (primaryVersion !== null) {
     assertionLabel = "Version alignment could not be determined from the available promotion records.";
   } else {
-    assertionLabel = "Sealed review record version not available.";
+    assertionLabel = "Finalized review record version not available.";
   }
 
   return {

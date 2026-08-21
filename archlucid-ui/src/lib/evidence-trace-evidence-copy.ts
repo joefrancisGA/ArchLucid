@@ -19,7 +19,7 @@ export const EVIDENCE_TRACE_SOURCES_INTRO =
 export const EVIDENCE_TRACE_SOURCES_STATIC: readonly EvidenceSourceLink[] = [
   { label: "Findings help", href: inAppHelpHref("findings") },
   { label: "Evidence trail help", href: inAppHelpHref("evidence-trail") },
-  { label: "Governance approval help", href: inAppHelpHref("governance-approval") },
+  { label: "Resolve outcomes help", href: inAppHelpHref("governance-approval") },
 ] as const;
 
 export function buildEvidenceTraceSources(

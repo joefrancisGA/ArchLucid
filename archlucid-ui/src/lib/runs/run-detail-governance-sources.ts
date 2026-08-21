@@ -7,7 +7,7 @@ export type RunDetailGovernanceSourceLink = {
 
 /** Inline help cites on create-home Governance tab before finalize (REG). */
 export const RUN_DETAIL_GOVERNANCE_PRE_COMMIT_HELP_CITES: readonly RunDetailGovernanceSourceLink[] = [
-  { label: "Governance approval help", href: inAppHelpHref("governance-approval") },
+  { label: "Resolve outcomes help", href: inAppHelpHref("governance-approval") },
   { label: "Audit trail help", href: inAppHelpHref("audit-trail") },
 ] as const;
 

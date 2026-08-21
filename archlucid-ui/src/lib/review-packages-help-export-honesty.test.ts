@@ -31,7 +31,7 @@ describe("review-packages help export honesty (TB-1403)", () => {
     expect(REVIEW_PACKAGES_HELP_EXPORT_ACTIONS.openSample.href).toContain("/architecture/reviews/");
     expect(REVIEW_PACKAGES_HELP_EXPORT_ACTIONS.startReview.href).toBe("/architecture/reviews/new");
     expect(REVIEW_PACKAGES_HELP_EMPTY_WORKSPACE_EXPORT_COPY).toMatch(/no packages yet/i);
-    expect(REVIEW_PACKAGES_HELP_EXPORT_BUYER_CLAIM).toMatch(/sealed review record/i);
+    expect(REVIEW_PACKAGES_HELP_EXPORT_BUYER_CLAIM).toMatch(/finalized review record/i);
     expect(REVIEW_PACKAGES_HELP_EXPORT_BUYER_CLAIM).not.toMatch(/signed manifest/i);
   });
 

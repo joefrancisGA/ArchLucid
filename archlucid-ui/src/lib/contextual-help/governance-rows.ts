@@ -55,7 +55,7 @@ export const GOVERNANCE_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] =
     prefix: "/governance/sealed-records",
     entry: {
       whatIsThisPage:
-        "Sealed review record — the finalized package of decisions, findings, and downloadable artifacts for one architecture review.",
+        "Finalized review record — the finalized package of decisions, findings, and downloadable artifacts for one architecture review.",
       whatToDoNext:
         "Review the summary and decisions, open related findings, or export the review bundle when downloads are ready.",
       whyEmpty: "A sealed review record appears after you finalize an architecture review.",

@@ -52,9 +52,9 @@ export const ARTIFACT_PREVIEW_SPONSOR_EXPORT_COMPACT_LINE =
 export const ARTIFACT_PREVIEW_SPONSOR_EXPORT_RECORDS_PEER_LINK: ArtifactPreviewSponsorExportLink =
   {
     id: "artifact-preview",
-    label: "Sealed review records (open Artifact preview)",
+    label: "Finalized review records (open Artifact preview)",
     href: SIGNED_RECORDS_LIST_PATH,
-    whenToUse: "Open a sealed review record, then preview a committed artifact in the shell.",
+    whenToUse: "Open a finalized review record, then preview a committed artifact in the shell.",
   };
 
 export const ARTIFACT_PREVIEW_SPONSOR_EXPORT_SPONSOR_LINK: ArtifactPreviewSponsorExportLink = {

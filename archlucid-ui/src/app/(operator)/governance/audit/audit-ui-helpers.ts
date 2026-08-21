@@ -91,7 +91,7 @@ export const AUDIT_EVENT_LIFECYCLE_STAGE_ORDER: ReadonlyArray<string> = [
   "Graph created",
   "Findings generated",
   "Review finalized",
-  "Governance approval recorded",
+  "Resolve outcomes recorded",
   "Artifacts bundled",
 ];
 
@@ -116,7 +116,7 @@ function lifecycleStageHeading(stage: ReviewAuditLifecycleStageValue): string | 
       return "Artifacts bundled";
 
     case ReviewAuditLifecycleStage.GovernanceHandoff:
-      return "Governance approval recorded";
+      return "Resolve outcomes recorded";
 
     default:
       return null;
@@ -151,10 +151,10 @@ export function auditEventLifecycleStageLabel(eventType: string): string | null 
       return "Review finalized";
 
     case "GovernanceApprovalRequested":
-      return "Governance approval recorded";
+      return "Governance approval requested";
 
     case "com.archlucid.governance.approval.recorded":
-      return "Governance approval recorded";
+      return "Resolve outcomes recorded";
 
     case "artifact.bundle.created":
       return "Artifacts bundled";

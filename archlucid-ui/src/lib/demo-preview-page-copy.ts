@@ -94,7 +94,7 @@ export const DEMO_PREVIEW_ARTIFACT_SPONSOR_TITLE = "Sponsor report";
 
 export const DEMO_PREVIEW_ARTIFACT_SPONSOR_DESC = "Understand the decision and its business context.";
 
-export const DEMO_PREVIEW_ARTIFACT_SIGNED_TITLE = "Sealed review record";
+export const DEMO_PREVIEW_ARTIFACT_SIGNED_TITLE = "Finalized review record";
 
 export const DEMO_PREVIEW_ARTIFACT_SIGNED_DESC =
   "See the finalized findings, evidence, and accountability record.";

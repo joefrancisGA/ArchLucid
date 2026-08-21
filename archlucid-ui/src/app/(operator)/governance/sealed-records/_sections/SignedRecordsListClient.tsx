@@ -219,7 +219,7 @@ export default function SignedRecordsListClient() {
   const workspaceScopeTeaching = resolveWorkspaceScopeEmptyTeachingForHub({
     listEmpty: showEmptyState,
     scopeRecord,
-    objectPlural: "sealed review records",
+    objectPlural: "finalized review records",
   });
   const freshnessLabel = operatorFreshnessMetadataWithClockLabel({
     prefix: SIGNED_RECORDS_LIST_LAST_REFRESHED_PREFIX,

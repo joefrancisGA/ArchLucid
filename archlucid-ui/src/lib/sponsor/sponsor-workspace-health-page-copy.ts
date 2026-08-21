@@ -41,11 +41,11 @@ export type SponsorWorkspaceHealthSourceLink = {
 
 /** Operator Sources — no self-href to `/governance/dashboard`. */
 export const SPONSOR_WORKSPACE_HEALTH_SOURCES: readonly SponsorWorkspaceHealthSourceLink[] = [
-  { label: "Governance approval queue", href: GOVERNANCE_APPROVAL_QUEUE_PATH },
+  { label: "Resolve outcomes queue", href: GOVERNANCE_APPROVAL_QUEUE_PATH },
   { label: "Findings", href: "/governance/findings" },
   { label: "Audit trail", href: GOVERNANCE_AUDIT_PATH },
   { label: "ROI summary", href: "/insights/roi-summary" },
-  { label: "Governance approval help", href: inAppHelpHref("governance-approval") },
+  { label: "Resolve outcomes help", href: inAppHelpHref("governance-approval") },
   { label: "How ArchLucid works", href: inAppHelpHref("getting-started", "how-archlucid-works") },
 ] as const;
 

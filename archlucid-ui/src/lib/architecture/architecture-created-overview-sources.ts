@@ -14,7 +14,7 @@ export const ARCHITECTURE_CREATED_OVERVIEW_SOURCES: readonly ArchitectureCreated
   { label: "Findings queue", href: "/governance/findings" },
   { label: "Search review evidence", href: "/insights/search-review-evidence" },
   { label: "Start review (guided intake)", href: "/architecture/reviews/new?path=guided-intake" },
-  { label: "Governance approval help", href: inAppHelpHref("governance-approval") },
+  { label: "Resolve outcomes help", href: inAppHelpHref("governance-approval") },
 ] as const;
 
 export const ARCHITECTURE_CREATED_OVERVIEW_SOURCES_INTRO =

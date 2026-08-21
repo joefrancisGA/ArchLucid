@@ -1,4 +1,4 @@
-export const GOVERNANCE_QUICK_APPROVE_SUCCESS_MESSAGE = "Governance approval recorded.";
+export const GOVERNANCE_QUICK_APPROVE_SUCCESS_MESSAGE = "Resolve outcomes recorded.";
 
 export const GOVERNANCE_QUICK_APPROVE_FAILURE_MESSAGE = "Quick approve failed.";
 

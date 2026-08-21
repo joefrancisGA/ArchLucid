@@ -84,7 +84,7 @@ describe("RunDetailWorkspaceHeader", () => {
     expect(screen.getByRole("heading", { level: 1, name: "Claims API" })).toBeInTheDocument();
     expect(screen.getByText("Claims platform review")).toBeInTheDocument();
     expect(screen.getByText("Review ID")).toBeInTheDocument();
-    expect(screen.getByText("Sealed review record ID")).toBeInTheDocument();
+    expect(screen.getByText("Finalized review record ID")).toBeInTheDocument();
     expect(screen.getByText("run-1")).toBeInTheDocument();
     expect(screen.getByText("Not recorded — this record does not name who recorded the decision")).toBeInTheDocument();
     expect(screen.getByText("Not recorded — no review template captured for this package")).toBeInTheDocument();

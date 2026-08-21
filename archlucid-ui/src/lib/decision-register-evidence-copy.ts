@@ -32,7 +32,7 @@ export const DECISION_REGISTER_SOURCES: readonly EvidenceSourceLinkWithWhen[] = 
     when: "Follow activity records when you need audit context for procurement",
   },
   {
-    label: "Governance approval help",
+    label: "Resolve outcomes help",
     href: inAppHelpHref("governance-approval"),
     when: "Read resolve workflow orientation before approving changes",
   },

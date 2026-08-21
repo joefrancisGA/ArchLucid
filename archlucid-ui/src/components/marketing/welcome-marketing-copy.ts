@@ -34,7 +34,7 @@ export const WELCOME_PRIMARY_CONTENT_ID = "welcome-primary-content" as const;
  */
 export const WELCOME_HERO_DIFFERENTIATORS: readonly string[] = [
   "Every finding traces to evidence",
-  "Sealed review records with an audit trail",
+  "Finalized review records with an audit trail",
   "Governance policy packs included",
   "Exports for ARB, audit, and procurement",
 ];

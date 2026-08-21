@@ -23,7 +23,7 @@ export const MARKETING_PRICING_TIER_HIGHLIGHTS: Readonly<Record<MarketingPricing
   ],
   team: [
     "Basic governance for review findings",
-    "Sealed review records and comparison reviews",
+    "Finalized review records and comparison reviews",
     "Self-service start — no procurement call required",
   ],
   professional: [
