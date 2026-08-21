@@ -517,7 +517,7 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
             title="Attach architecture evidence"
             description="Diagram, PDF export, or architecture document. Accepted: PDF, DOCX, Markdown, text, JSON, YAML, images."
             attachmentSummarySuffix="or add architecture context below"
-            onFilesSelected={(files) => {
+            onFilesSelected={(files: File[]) => {
               setEvidenceFiles(files);
               setLimitedEvidenceAnalysisAcknowledged(false);
               setClientValidationMessage(null);

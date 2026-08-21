@@ -42,6 +42,9 @@ public static partial class AuditEventTypes
     /// <summary>Intake draft abandoned by operator.</summary>
     public const string DraftIntakeAbandoned = "DraftIntake.Abandoned";
 
+    /// <summary>Admitted intake draft returned to drafting so the operator can edit the brief again.</summary>
+    public const string DraftIntakeReopened = "DraftIntake.Reopened";
+
     /// <summary>Request locked because a non-terminal run references it.</summary>
     public const string RequestLocked = "Request.Locked";
 

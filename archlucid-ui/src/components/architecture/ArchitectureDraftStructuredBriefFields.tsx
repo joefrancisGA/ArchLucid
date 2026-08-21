@@ -411,10 +411,7 @@ export function ArchitectureDraftStructuredBriefFields(
 
     if (
       freeTextDescription.length < ARCHITECTURE_REQUEST_DRAFT_MIN_DESCRIPTION_CHARS
-      || suggestBusy
-      || failureModeSuggestBusy
-      || props.disabled === true
-      || props.blocksLlmExecution === true
+      || !canSuggestFromOverview
     ) {
       return;
     }
@@ -466,13 +463,7 @@ export function ArchitectureDraftStructuredBriefFields(
   }
 
   async function onSuggestFailureMode(): Promise<void> {
-    if (
-      !canSuggestFailureMode
-      || failureModeSuggestBusy
-      || suggestBusy
-      || props.disabled === true
-      || props.blocksLlmExecution === true
-    ) {
+    if (!canSuggestFailureMode) {
       return;
     }
 

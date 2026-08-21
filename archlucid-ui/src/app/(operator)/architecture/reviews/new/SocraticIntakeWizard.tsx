@@ -59,6 +59,7 @@ import {
   guidedIntakeClarificationsAnsweredCounter,
   guidedIntakeCreationArchitectureOverviewHelperText,
 } from "@/lib/guided-intake-copy";
+import type { BranchDraftResponse } from "@/types/draft-intake";
 
 import {
   DraftIntakeDecisionReceiptCard,
@@ -653,7 +654,7 @@ export function SocraticIntakeWizard() {
             systemName={systemName}
             allQuestions={allQuestions}
             pendingQuestions={pendingQuestions}
-            onBranched={(response) => {
+            onBranched={(response: BranchDraftResponse) => {
               void applyBranchDraft(response);
             }}
           />
