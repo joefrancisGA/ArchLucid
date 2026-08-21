@@ -10442,6 +10442,12 @@
             },
             "type": "array"
           },
+          "suggestedFailureModeNote": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "topologyHints": {
             "items": {
               "type": "string"
