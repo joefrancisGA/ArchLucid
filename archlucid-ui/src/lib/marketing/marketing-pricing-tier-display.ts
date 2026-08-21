@@ -47,7 +47,7 @@ export type MarketingPricingFitRow = {
 export const MARKETING_PRICING_UNIVERSAL_INCLUDES: readonly string[] = [
   "Evidence-backed architecture reviews",
   "AI-assisted analysis and evidence Q&A",
-  "Exportable sealed review records",
+  "Exportable finalized review records",
   "Audit trail and evidence graph",
   "Policy packs",
 ];

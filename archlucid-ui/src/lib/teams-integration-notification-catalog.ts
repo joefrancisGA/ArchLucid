@@ -26,8 +26,8 @@ export const TEAMS_NOTIFICATION_CATEGORIES: readonly TeamsNotificationCategory[]
       },
       {
         eventType: "com.archlucid.manifest.finalized.v1",
-        label: "Sealed review record finalized",
-        description: "The authoritative architecture package was committed as the sealed review record.",
+        label: "Finalized review record committed",
+        description: "The authoritative architecture package was committed as the finalized review record.",
       },
       {
         eventType: "com.archlucid.authority.run.failed",

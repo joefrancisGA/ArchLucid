@@ -78,7 +78,7 @@ const PIPELINE_EVENT_BUYER_SUBTITLE: Record<string, string> = {
   "context.snapshot.created": "Captures the ingested context used to justify findings and graph evidence.",
   "graph.snapshot.created": "Persists the architecture relationship graph used in the evidence trail.",
   "findings.snapshot.created": "Persists generated findings before final review packaging.",
-  "manifest.committed": "Commits the sealed review record as the contract for deliverables and audits.",
+  "manifest.committed": "Commits the finalized review record as the contract for deliverables and audits.",
   "artifact.bundle.created": "Bundles downloadable outputs for sponsor and audit audiences.",
   Commit: "Hands off the review for formal review or governance steps.",
   context_snapshot: "Captures the ingested context used to justify findings and graph evidence.",
@@ -86,7 +86,7 @@ const PIPELINE_EVENT_BUYER_SUBTITLE: Record<string, string> = {
   findings_snapshot: "Persists generated findings before final review packaging.",
   "com.archlucid.authority.run.completed": "Closes the review with a durable outcome snapshot for governance and audit.",
   "com.archlucid.manifest.finalized.v1":
-    "Finalizes the sealed review record as the authoritative record for decisions, deliverables, and audit.",
+    "Finalizes the review record as the authoritative package for decisions, deliverables, and audit.",
   "com.archlucid.governance.approval.submitted":
     "Creates an auditable governance checkpoint before any governed downstream handoff.",
   "com.archlucid.governance.approval.recorded":

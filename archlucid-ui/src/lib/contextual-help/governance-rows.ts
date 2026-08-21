@@ -9,7 +9,7 @@ export const GOVERNANCE_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] =
     prefix: "/governance/decision-register",
     entry: {
       whatIsThisPage:
-        "Browse architecture decisions locked with sealed review records — category, confidence, findings, and lineage.",
+        "Browse architecture decisions locked with finalized review records — category, confidence, findings, and lineage.",
       whatToDoNext:
         "Filter by date or category, open a decision card, then follow the linked review or findings when needed.",
       whyEmpty: "Decisions appear after reviews are signed with recorded architecture decisions.",
@@ -58,7 +58,7 @@ export const GOVERNANCE_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] =
         "Finalized review record — the finalized package of decisions, findings, and downloadable artifacts for one architecture review.",
       whatToDoNext:
         "Review the summary and decisions, open related findings, or export the review bundle when downloads are ready.",
-      whyEmpty: "A sealed review record appears after you finalize an architecture review.",
+      whyEmpty: "A finalized review record appears after you finalize an architecture review.",
       whereToConfigurePrerequisite:
         "Finalize a review from the architecture review workspace before opening its sealed record.",
     },

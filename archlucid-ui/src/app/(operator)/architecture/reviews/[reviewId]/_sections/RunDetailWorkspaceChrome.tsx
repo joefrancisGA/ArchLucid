@@ -115,7 +115,7 @@ export function RunDetailWorkspaceHeader(props: RunDetailWorkspaceHeaderProps): 
               <span className="inline-flex min-w-0 items-center gap-1">
                 <span className="font-medium text-neutral-700 dark:text-neutral-300">Finalized review record ID</span>
                 <code className="max-w-[14rem] truncate font-mono select-all">{props.signedReviewRecordIdLabel}</code>
-                <CopyIdButton value={props.signedReviewRecordId} aria-label="Copy sealed review record ID" />
+                <CopyIdButton value={props.signedReviewRecordId} aria-label="Copy finalized review record ID" />
               </span>
             ) : null}
           </span>

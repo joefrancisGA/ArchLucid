@@ -17,7 +17,7 @@ export const DATA_HANDLING_TENANT_ISOLATION_HELP_CLAIM_DISCIPLINE =
 export const DATA_HANDLING_TENANT_ISOLATION_HELP_FOLLOW_UPS_TITLE = HELP_DILIGENCE_ARTIFACT_INDEX_TITLE;
 
 export const DATA_HANDLING_TENANT_ISOLATION_HELP_SOURCES_INTRO =
-  "Use these follow-ups when isolation, sealed review record, or audit trail claims need a cite trail beyond this guide.";
+  "Use these follow-ups when isolation, finalized review record, or audit trail claims need a cite trail beyond this guide.";
 
 export const DATA_HANDLING_TENANT_ISOLATION_HELP_SOURCES_DISCLOSURE_TITLE =
   HELP_DILIGENCE_ARTIFACT_INDEX_TITLE;
@@ -53,7 +53,7 @@ export const DATA_HANDLING_TENANT_ISOLATION_HELP_SOURCES: readonly EvidenceDilig
     access: "Signed-in help",
   },
   {
-    label: "Sealed review record",
+    label: "Finalized review record",
     href: inAppHelpHref("review-packages"),
     evidences: "Governed review outputs retained in your tenant",
     access: "Tenant workspace",

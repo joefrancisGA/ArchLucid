@@ -190,10 +190,10 @@ export function DemoPreviewGovernanceSection(props: DemoPreviewSponsorConclusion
       data-testid="demo-preview-governance-section"
     >
       <h2 className={cn("m-0 text-neutral-900 dark:text-neutral-50", MARKETING_TYPOGRAPHY.sectionTitle)}>
-        Governance approval
+        Resolve outcomes
       </h2>
       <p className={cn("m-0 mt-3 text-neutral-700 dark:text-neutral-300", MARKETING_TYPOGRAPHY.body)}>
-        Governance approval recorded with monitored conditions for PHI handling and intake continuity.
+        Resolve outcomes recorded with monitored conditions for PHI handling and intake continuity.
       </p>
       {manifest ? (
         <dl className="mt-4 grid gap-2 sm:grid-cols-2">
