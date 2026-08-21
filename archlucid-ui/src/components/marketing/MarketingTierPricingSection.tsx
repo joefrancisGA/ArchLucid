@@ -4,7 +4,7 @@ import { MARKETING_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { QueryClientProvider } from "@tanstack/react-query";
 import Link from "next/link";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import { StatusTag } from "@/components/StatusTag";
 import { Button } from "@/components/ui/button";
@@ -73,6 +73,7 @@ export function MarketingTierPricingSection(props: MarketingTierPricingSectionPr
 
 function MarketingTierPricingSectionInner(props: MarketingTierPricingSectionProps): React.JSX.Element {
   const quoteSectionDomId = props.quoteSectionDomId ?? "pricing-quote-request";
+  const [quotePanelOnPage, setQuotePanelOnPage] = useState(false);
   const initialPricing = props.initialPricing ?? null;
   const shouldFetch = initialPricing === null;
   const pricingQuery = useMarketingPublicPricingQuery({ enabled: shouldFetch });
@@ -96,6 +97,16 @@ function MarketingTierPricingSectionInner(props: MarketingTierPricingSectionProp
     panel.focus({ preventScroll: true });
     panel.scrollIntoView({ behavior: "smooth", block: "start" });
   }, [quoteSectionDomId]);
+
+  useEffect(() => {
+    if (typeof document === "undefined") {
+      return;
+    }
+
+    setQuotePanelOnPage(document.getElementById(quoteSectionDomId) !== null);
+  }, [quoteSectionDomId]);
+
+  const quoteButtonAriaControls = quotePanelOnPage ? quoteSectionDomId : undefined;
 
   return (
     <section
@@ -246,7 +257,7 @@ function MarketingTierPricingSectionInner(props: MarketingTierPricingSectionProp
                           variant={primaryCtaVariant}
                           size="default"
                           className="w-full"
-                          aria-controls={quoteSectionDomId}
+                          aria-controls={quoteButtonAriaControls}
                           onClick={() => focusQuotePanel()}
                         >
                           {cta.primaryLabel}
@@ -259,7 +270,7 @@ function MarketingTierPricingSectionInner(props: MarketingTierPricingSectionProp
                           variant={primaryCtaVariant}
                           size="default"
                           className="w-full"
-                          aria-controls={quoteSectionDomId}
+                          aria-controls={quoteButtonAriaControls}
                           onClick={() => focusQuotePanel()}
                         >
                           {cta.primaryLabel}

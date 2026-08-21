@@ -33,13 +33,14 @@ export function WhyArchLucidPageHeader(props: WhyArchLucidPageHeaderProps): Reac
   const orientation = whyArchLucidPageOrientation(buyerPolishedShell);
 
   return (
-    <OperatorPageHeader
-      navHref={WHY_ARCHLUCID_CANONICAL_PATH}
-      title={WHY_ARCHLUCID_PAGE_TITLE}
-      titleTestId="why-archlucid-page-title"
-      headingLevel="h1"
-      breadcrumb={<WhyArchLucidBreadcrumb />}
-      subtitle={
+    <>
+      <WhyArchLucidBreadcrumb />
+      <OperatorPageHeader
+        navHref={WHY_ARCHLUCID_CANONICAL_PATH}
+        title={WHY_ARCHLUCID_PAGE_TITLE}
+        titleTestId="why-archlucid-page-title"
+        headingLevel="h1"
+        subtitle={
         <>
           <span data-testid="why-archlucid-page-orientation">{orientation}</span>
           {buyerPolishedShell ? null : (
@@ -97,5 +98,6 @@ export function WhyArchLucidPageHeader(props: WhyArchLucidPageHeaderProps): Reac
         {lead}
       </p>
     </OperatorPageHeader>
+    </>
   );
 }

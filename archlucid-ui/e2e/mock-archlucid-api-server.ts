@@ -562,29 +562,14 @@ export function startMockArchlucidApiServer(port: number): Promise<{ stop: () =>
       const runSummaryMatch = runSummaryMatchV1 ?? runSummaryMatchLegacy;
 
       if (runSummaryMatch) {
-        const rid = runSummaryMatch[1];
+        const detail = resolveRunDetailBodyForRunId(runSummaryMatch[1]);
 
-        if (rid === FIXTURE_RUN_ID) {
-          sendJson(res, 200, jsonRunSummaryFromDetail(fixtureRunDetail()));
-          return;
+        if (detail === null) {
+          sendJson(res, 404, { detail: "Run summary not found." });
+        } else {
+          sendJson(res, 200, jsonRunSummaryFromDetail(detail));
         }
 
-        if (rid === MOCK_TRIAL_WELCOME_RUN_ID) {
-          sendJson(res, 200, jsonRunSummaryFromDetail(fixtureRunDetailForRunId(MOCK_TRIAL_WELCOME_RUN_ID)));
-          return;
-        }
-
-        if (rid === SHOWCASE_DEMO_RUN_ID || rid === SCREENSHOT_RUN_ID) {
-          sendJson(res, 200, jsonRunSummaryFromDetail(fixtureRunDetailAlignedToShowcase(rid)));
-          return;
-        }
-
-        if (rid === OPERATOR_DEMO_REVIEW_RUN_ID) {
-          sendJson(res, 200, jsonRunSummaryFromDetail(fixtureOperatorDemoReviewRunDetail(rid)));
-          return;
-        }
-
-        sendJson(res, 404, { detail: "Run summary not found." });
         return;
       }
 

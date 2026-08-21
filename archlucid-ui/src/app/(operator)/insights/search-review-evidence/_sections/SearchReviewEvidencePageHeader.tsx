@@ -13,17 +13,19 @@ export type SearchReviewEvidencePageHeaderProps = {
 /** Shared `/insights/search-review-evidence` hero — breadcrumb, help, and buyer-safe subtitle. */
 export function SearchReviewEvidencePageHeader(props: SearchReviewEvidencePageHeaderProps): React.JSX.Element {
   return (
-    <OperatorPageHeader
-      navHref={SEARCH_REVIEW_EVIDENCE_PATH}
-      title={props.title}
-      titleTestId="search-review-evidence-page-title"
-      subtitle={props.subtitle}
-      breadcrumb={<SearchReviewEvidenceBreadcrumb />}
-      actions={
-        <div className="flex flex-wrap items-center gap-2" data-testid="search-review-evidence-header-actions">
-          <PageContextualHelpButton />
-        </div>
-      }
-    />
+    <>
+      <SearchReviewEvidenceBreadcrumb />
+      <OperatorPageHeader
+        navHref={SEARCH_REVIEW_EVIDENCE_PATH}
+        title={props.title}
+        titleTestId="search-review-evidence-page-title"
+        subtitle={props.subtitle}
+        actions={
+          <div className="flex flex-wrap items-center gap-2" data-testid="search-review-evidence-header-actions">
+            <PageContextualHelpButton />
+          </div>
+        }
+      />
+    </>
   );
 }
