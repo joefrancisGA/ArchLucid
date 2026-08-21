@@ -93,4 +93,11 @@ export const OPERATOR_HOME_CHUNK_MANIFEST: readonly DeferredChunkManifestEntry[]
     modulePath: "@/components/cto-demo/CtoDemoSponsorLandingRedirect",
     exportName: "CtoDemoSponsorLandingRedirect",
   },
+  {
+    id: "operator-home-advanced-guidance",
+    label: "Loading advanced guidance",
+    variant: "panel",
+    modulePath: "@/components/operator-home/OperatorHomeAdvancedGuidanceSection",
+    exportName: "OperatorHomeAdvancedGuidanceSection",
+  },
 ] as const;

@@ -93,17 +93,19 @@ vi.mock("@/components/runs/RunsListProofHeadline", () => ({
   RunsListProofHeadline: () => null,
 }));
 
-vi.mock("./ReviewsHubBeforeAfterDeltaPanel", () => ({
-  ReviewsHubBeforeAfterDeltaPanel: () => null,
-}));
+vi.mock("./reviews-hub-deferred-chunks", async () => {
+  const { ReviewsHubReviewInventory } = await import("./ReviewsHubReviewInventory");
 
-vi.mock("@/components/runs/RunsIndexBeforeAfterPanel", () => ({
-  RunsIndexBeforeAfterPanel: () => null,
-}));
-
-vi.mock("@/components/runs/RunsListAggregateErrorBoundary", () => ({
-  RunsListAggregateErrorBoundary: () => <div data-testid="runs-list-advanced" />,
-}));
+  return {
+    OperatorWelcomeOnboardingDeferred: () => null,
+    ReviewsHubBeforeAfterDeltaPanelDeferred: () => null,
+    ReviewsHubExploreSamplesDeferred: () => null,
+    ReviewsHubPackageIncludesDeferred: () => null,
+    ReviewsHubReviewInventoryDeferred: ReviewsHubReviewInventory,
+    RunsIndexBeforeAfterPanelDeferred: () => null,
+    RunsListAggregateErrorBoundaryDeferred: () => <div data-testid="runs-list-advanced" />,
+  };
+});
 
 vi.mock("@/components/operator/OperatorDemoStaticBanner", () => ({
   OperatorDemoStaticBanner: () => null,

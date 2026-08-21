@@ -1,13 +1,10 @@
 "use client";
 
-import dynamic from "next/dynamic";
+import { createDeferredComponentFromManifest } from "@/lib/operator/load-deferred-chunk-from-manifest";
 
-const OperatorHomeAdvancedGuidanceSection = dynamic(
-  () =>
-    import("@/components/operator-home/OperatorHomeAdvancedGuidanceSection").then(
-      (module) => module.OperatorHomeAdvancedGuidanceSection,
-    ),
-  { loading: () => null, ssr: false },
+const OperatorHomeAdvancedGuidanceSectionDeferred = createDeferredComponentFromManifest(
+  "operator-home-advanced-guidance",
+  { suppressLoading: true },
 );
 
 type OperatorHomeAdvancedGuidancePanelProps = {
@@ -18,5 +15,5 @@ type OperatorHomeAdvancedGuidancePanelProps = {
 
 /** Collapsed onboarding rail — deferred because it sits below the fold on operator home. */
 export function OperatorHomeAdvancedGuidancePanel(props: OperatorHomeAdvancedGuidancePanelProps) {
-  return <OperatorHomeAdvancedGuidanceSection {...props} />;
+  return <OperatorHomeAdvancedGuidanceSectionDeferred {...props} />;
 }

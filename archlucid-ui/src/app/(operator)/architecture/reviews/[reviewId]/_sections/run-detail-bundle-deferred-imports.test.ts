@@ -42,6 +42,11 @@ const tabbedDeferredIslandsSource = readFileSync(
   "utf8",
 );
 
+const tabbedDeferredChunksSource = readFileSync(
+  join(sectionsDir, "run-detail-tabbed-deferred-chunks.tsx"),
+  "utf8",
+);
+
 const bannedStaticImports = [
   '@/components/runs/RunEstimatedLlmCostCard"',
   '@/components/runs/RunAgentResultsSummaryCard"',

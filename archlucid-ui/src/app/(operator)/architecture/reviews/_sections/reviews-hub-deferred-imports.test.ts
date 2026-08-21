@@ -9,7 +9,7 @@ const sectionsDir = dirname(fileURLToPath(import.meta.url));
 const pageViewSource = readFileSync(join(sectionsDir, "RunsPageView.tsx"), "utf8");
 const deferredSource = readFileSync(join(sectionsDir, "reviews-hub-deferred-chunks.tsx"), "utf8");
 const manifestLoaderSource = readFileSync(
-  join(sectionsDir, "../../../../lib/operator/load-deferred-chunk-from-manifest.tsx"),
+  join(sectionsDir, "../../../../../lib/operator/load-deferred-chunk-from-manifest.tsx"),
   "utf8",
 );
 
@@ -17,9 +17,10 @@ const bannedStaticImports = [
   '@/components/operator/OperatorWelcomeOnboarding"',
   './ReviewsHubExploreSamples"',
   './ReviewsHubPackageIncludes"',
-  './ReviewsHubBeforeAfterDeltaPanel"',
+  '@/components/BeforeAfterDeltaPanel"',
   '@/components/runs/RunsIndexBeforeAfterPanel"',
   '@/components/runs/RunsListAggregateErrorBoundary"',
+  '@/app/(operator)/architecture/reviews/_sections/ReviewsHubReviewInventory"',
 ] as const;
 
 describe("reviews hub deferred imports (TB-934)", () => {
@@ -33,6 +34,7 @@ describe("reviews hub deferred imports (TB-934)", () => {
     expect(pageViewSource).toContain("ReviewsHubExploreSamplesDeferred");
     expect(pageViewSource).toContain("ReviewsHubPackageIncludesDeferred");
     expect(pageViewSource).toContain("ReviewsHubBeforeAfterDeltaPanelDeferred");
+    expect(pageViewSource).toContain("ReviewsHubReviewInventoryDeferred");
     expect(pageViewSource).toContain("RunsIndexBeforeAfterPanelDeferred");
     expect(pageViewSource).toContain("RunsListAggregateErrorBoundaryDeferred");
   });
@@ -47,10 +49,13 @@ describe("reviews hub deferred imports (TB-934)", () => {
     expect(manifestLoaderSource).toContain(
       'import("@/app/(operator)/architecture/reviews/_sections/ReviewsHubPackageIncludes")',
     );
-    expect(manifestLoaderSource).toContain(
-      'import("@/app/(operator)/architecture/reviews/_sections/ReviewsHubBeforeAfterDeltaPanel")',
-    );
+    expect(manifestLoaderSource).toContain('import("@/components/BeforeAfterDeltaPanel")');
     expect(manifestLoaderSource).toContain('import("@/components/runs/RunsIndexBeforeAfterPanel")');
     expect(manifestLoaderSource).toContain('import("@/components/runs/RunsListAggregateErrorBoundary")');
+    expect(manifestLoaderSource).toContain(
+      'import("@/app/(operator)/architecture/reviews/_sections/ReviewsHubReviewInventory")',
+    );
+    expect(deferredSource).toContain("reviews-hub-inventory");
+    expect(deferredSource).toContain("reviews-hub-before-after-delta");
   });
 });
