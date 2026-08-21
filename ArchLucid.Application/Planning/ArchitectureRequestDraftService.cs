@@ -63,6 +63,19 @@ public sealed class ArchitectureRequestDraftService(
         };
     }
 
+    private static string? NormalizeFailureModeNote(params string?[] valueSets)
+    {
+        foreach (string? value in valueSets)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+                continue;
+
+            return value.Trim();
+        }
+
+        return null;
+    }
+
     private static string[] Normalize(params string[]?[] valueSets)
     {
         IEnumerable<string> merged = [];
@@ -136,6 +149,20 @@ public sealed class ArchitectureRequestDraftService(
 
         [JsonPropertyName("securityBaselineHints")]
         public string[]? SecurityBaselineHints
+        {
+            get;
+            init;
+        }
+
+        [JsonPropertyName("suggestedFailureModeNote")]
+        public string? SuggestedFailureModeNote
+        {
+            get;
+            init;
+        }
+
+        [JsonPropertyName("failureModeNote")]
+        public string? FailureModeNote
         {
             get;
             init;
