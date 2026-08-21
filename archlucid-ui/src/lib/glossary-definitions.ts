@@ -49,11 +49,7 @@ export const GLOSSARY_DEFINITIONS = {
     displayLabel: "Resolve outcomes",
     shortDefinition: "Checkpoints where policy, reviewers, or thresholds must pass before advancing.",
     longDefinition:
-<<<<<<< HEAD
-      "Resolve outcomes enforce required reviewers, policy packs, and risk thresholds before a review or deliverable state advances—blocking unsafe silent changes.",
-=======
-      "Governance approvals enforce required reviewers, policy packs, and risk thresholds before a review or deliverable state advances — blocking unsafe silent changes.",
->>>>>>> b870e42bd6 (Normalize spaced em dashes across buyer-facing UI copy.)
+      "Resolve outcomes enforce required reviewers, policy packs, and risk thresholds before a review or deliverable state advances — blocking unsafe silent changes.",
   },
   policy_pack: {
     displayLabel: "Policy pack",

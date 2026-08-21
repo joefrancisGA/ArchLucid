@@ -469,7 +469,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
           >
             ArchLucid:
           </span>
-           Committed sealed review record in SQL with review record id and audit trail
+           Committed finalized review record in SQL with review record id and audit trail
         </p>
         <p
           class="m-0 mt-1 dark:text-neutral-400 text-[15px] font-normal leading-6 text-al-text-secondary"
@@ -1328,7 +1328,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
                       class="inline-flex min-h-6 items-center break-words py-1 font-medium text-[var(--al-accent-link)] underline underline-offset-2 hover:text-[var(--al-accent-link-hover)]"
                       href="/help/governance-approval"
                     >
-                      Governance approval
+                      Resolve outcomes
                     </a>
                   </div>
                 </td>

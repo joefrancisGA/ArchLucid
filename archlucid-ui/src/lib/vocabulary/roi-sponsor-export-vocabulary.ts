@@ -10,7 +10,7 @@
  *   summary or architecture report for a finalized architecture package.
  *
  * They stay separate because portfolio KPI framing is not the same task as
- * handing off one sealed review record to a sponsor.
+ * handing off one finalized review record to a sponsor.
  */
 
 import { SPONSOR_DASHBOARD_HREF } from "@/lib/sponsor/sponsor-dashboard-route";

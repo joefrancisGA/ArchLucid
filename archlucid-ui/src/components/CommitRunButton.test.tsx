@@ -173,7 +173,7 @@ describe("CommitRunButton", () => {
 
     expect(within(dialog).getByTestId("finalize-consequence-preview")).toBeInTheDocument();
     expect(within(dialog).getByTestId("finalize-consequence-preview-locks")).toBeInTheDocument();
-    expect(within(dialog).getAllByText(/sealed review record/i).length).toBeGreaterThan(0);
+    expect(within(dialog).getAllByText(/finalized review record/i).length).toBeGreaterThan(0);
     expect(within(dialog).queryByText(/decision engine/i)).not.toBeInTheDocument();
   });
 });

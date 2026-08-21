@@ -404,7 +404,7 @@ describe("contextual-help-registry (TB-733)", () => {
   });
 
   it("resolves governance approval help Category-1 help (GO)", () => {
-    expect(contextualHelpForPathname("/help/governance-approval")?.whatIsThisPage).toContain("Governance approval");
+    expect(contextualHelpForPathname("/help/governance-approval")?.whatIsThisPage).toContain("Resolve outcomes");
     expect(contextualHelpForPathname("/help/governance-approval")?.whatToDoNext).toContain("approval queue");
   });
 

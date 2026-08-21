@@ -30,7 +30,7 @@ const DEMO_PACKAGE_CARD_META: Readonly<Record<string, BuyerDemoPackageCardMeta>>
     lastAuditEvent: "Resolve outcomes recorded",
   },
   "claims-intake-pending-governance-002": {
-    decisionSummary: "Governance approval in progress · 2 findings under active review",
+    decisionSummary: "Resolve outcomes in progress · 2 findings under active review",
     decisionDate: "Jan 20, 2026",
     packageOwner: "Taylor Morgan",
     riskOwner: "Taylor Morgan",
