@@ -67,8 +67,30 @@ describe("ArchitectureDraftStructuredBriefFields", () => {
     expect(screen.queryByTestId("architecture-draft-suggest-structured-brief-empty")).not.toBeInTheDocument();
     expect(mockedDraftArchitectureRequest).toHaveBeenCalledWith({
       freeTextDescription:
-        "Tenant migration platform with private networking and EU residency goals.",
+        "Architecture overview:\nTenant migration platform with private networking and EU residency goals.",
     });
+  });
+
+  it("falls back to deterministic suggestions when the API returns no new suggestions", async () => {
+    mockedDraftArchitectureRequest.mockResolvedValue({
+      suggestedConstraints: [],
+      suggestedAssumptions: [],
+      suggestedCapabilities: [],
+      topologyHints: [],
+      securityBaselineHints: [],
+    });
+
+    render(
+      <StructuredBriefHarness
+        freeTextIntent={`# Architecture Review Packet\n\n- Availability target is 99.9% for pilot.\n- RPO is 15 minutes; RTO is 4 hours.\n\n### ADR-001: Shared DB with TenantId`}
+      />,
+    );
+
+    fireEvent.click(screen.getByTestId("architecture-draft-suggest-structured-brief"));
+
+    expect(await screen.findByText("Shared DB with TenantId")).toBeInTheDocument();
+    expect(screen.getByText("Availability 99.9%")).toBeInTheDocument();
+    expect(screen.queryByTestId("architecture-draft-suggest-structured-brief-empty")).not.toBeInTheDocument();
   });
 
   it("shows an empty-state message when the API returns no new suggestions", async () => {

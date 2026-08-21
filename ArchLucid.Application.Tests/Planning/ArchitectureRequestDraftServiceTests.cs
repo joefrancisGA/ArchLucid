@@ -42,4 +42,33 @@ public sealed class ArchitectureRequestDraftServiceTests
         response.TopologyHints.Should().ContainSingle().Which.Should().Be("Hint A");
         response.SecurityBaselineHints.Should().ContainSingle().Which.Should().Be("Baseline A");
     }
+
+    [Fact]
+    public async Task DraftAsync_accepts_chat_intake_style_json_keys()
+    {
+        const string json = """
+                            {
+                              "constraints": ["Shared DB with TenantId"],
+                              "requiredCapabilities": ["Tenant audit export"],
+                              "assumptions": ["Pilot defers noisy-neighbor controls"],
+                              "topologyHints": ["Hint A"],
+                              "securityBaselineHints": ["Baseline A"]
+                            }
+                            """;
+
+        Mock<IAgentCompletionClient> client = new();
+        client
+            .Setup(c => c.CompleteJsonAsync(It.IsAny<string>(), It.IsAny<string>(), null, null, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(json);
+
+        ArchitectureRequestDraftService sut = new(client.Object);
+
+        DraftArchitectureRequestResponse response = await sut.DraftAsync(
+            new DraftArchitectureRequestInput { FreeTextDescription = "Vertex B2B SaaS tenant migration platform overview." },
+            CancellationToken.None);
+
+        response.SuggestedConstraints.Should().ContainSingle().Which.Should().Be("Shared DB with TenantId");
+        response.SuggestedCapabilities.Should().ContainSingle().Which.Should().Be("Tenant audit export");
+        response.SuggestedAssumptions.Should().ContainSingle().Which.Should().Be("Pilot defers noisy-neighbor controls");
+    }
 }

@@ -11,9 +11,13 @@ public sealed class ArchitectureRequestDraftService(
 {
     private const string DraftSystemPrompt =
         "You are an enterprise architecture intake assistant. " +
-        "Given this system description, produce a JSON object with keys: " +
+        "Given an architecture overview (possibly markdown with sections, tables, ADRs, and evidence), " +
+        "extract constraints, required capabilities, and assumptions the reviewer should treat as confirmed facts. " +
+        "Produce a JSON object with keys: " +
         "suggestedConstraints (string[]), suggestedCapabilities (string[]), suggestedAssumptions (string[]), " +
         "topologyHints (string[]), securityBaselineHints (string[]). " +
+        "Use those exact key names (not constraints/requiredCapabilities/assumptions). " +
+        "When the text mentions limits, deferrals, ADRs, SLOs, or trust boundaries, each array should contain at least one concise item. " +
         "Be specific and concise. Return ONLY valid JSON.";
 
     private static readonly JsonSerializerOptions JsonOptions = new()
@@ -49,21 +53,27 @@ public sealed class ArchitectureRequestDraftService(
 
         return new DraftArchitectureRequestResponse
         {
-            SuggestedConstraints = Normalize(response.SuggestedConstraints),
-            SuggestedCapabilities = Normalize(response.SuggestedCapabilities),
-            SuggestedAssumptions = Normalize(response.SuggestedAssumptions),
+            SuggestedConstraints = Normalize(response.SuggestedConstraints, response.Constraints),
+            SuggestedCapabilities = Normalize(response.SuggestedCapabilities, response.RequiredCapabilities),
+            SuggestedAssumptions = Normalize(response.SuggestedAssumptions, response.Assumptions),
             TopologyHints = Normalize(response.TopologyHints),
             SecurityBaselineHints = Normalize(response.SecurityBaselineHints)
         };
     }
 
-    private static string[] Normalize(string[]? values)
+    private static string[] Normalize(params string[]?[] valueSets)
     {
+        IEnumerable<string> merged = [];
 
-        if (values is null || values.Length == 0)
-            return [];
+        foreach (string[]? values in valueSets)
+        {
+            if (values is null || values.Length == 0)
+                continue;
 
-        return values
+            merged = merged.Concat(values);
+        }
+
+        return merged
             .Where(static value => !string.IsNullOrWhiteSpace(value))
             .Select(static value => value.Trim())
             .Distinct(StringComparer.OrdinalIgnoreCase)
@@ -88,6 +98,28 @@ public sealed class ArchitectureRequestDraftService(
 
         [JsonPropertyName("suggestedAssumptions")]
         public string[]? SuggestedAssumptions
+        {
+            get;
+            init;
+        }
+
+        // Chat-intake and older prompts sometimes return these alternate key names.
+        [JsonPropertyName("constraints")]
+        public string[]? Constraints
+        {
+            get;
+            init;
+        }
+
+        [JsonPropertyName("requiredCapabilities")]
+        public string[]? RequiredCapabilities
+        {
+            get;
+            init;
+        }
+
+        [JsonPropertyName("assumptions")]
+        public string[]? Assumptions
         {
             get;
             init;
