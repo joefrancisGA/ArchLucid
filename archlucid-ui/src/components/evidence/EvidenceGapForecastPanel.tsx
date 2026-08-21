@@ -10,17 +10,42 @@ import {
 import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
+export type EvidenceGapForecastPresentation = "expandable" | "summary";
+
 export type EvidenceGapForecastPanelProps = {
   readonly presence: EvidencePresenceFlags;
   readonly addEvidenceHref?: string | null;
+  readonly presentation?: EvidenceGapForecastPresentation;
 };
+
+function buildEvidenceGapForecastSummary(forecast: readonly EvidenceGapForecastEntry[]): string {
+  const headlines = forecast.map((entry) => formatEvidenceGapForecastHeadline(entry));
+
+  if (headlines.length === 1) {
+    return headlines[0] ?? "";
+  }
+
+  return `${headlines[0] ?? ""} (+${headlines.length - 1} more expected coverage gaps)`;
+}
 
 /** TB-2177: directional forecast of thinner finding domains when evidence classes are missing. */
 export function EvidenceGapForecastPanel(props: EvidenceGapForecastPanelProps): React.JSX.Element | null {
   const forecast = deriveEvidenceGapForecast(props.presence);
+  const presentation = props.presentation ?? "expandable";
 
   if (forecast.length === 0) {
     return null;
+  }
+
+  if (presentation === "summary") {
+    return (
+      <p
+        className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+        data-testid="evidence-gap-forecast-summary"
+      >
+        {buildEvidenceGapForecastSummary(forecast)}
+      </p>
+    );
   }
 
   return (
