@@ -11,7 +11,7 @@ import {
 describe("operator-co-architect-copy", () => {
   it("leads with review action entry copy", () => {
     expect(OPERATOR_CO_ARCHITECT_BRAND_LINE).toBe("Create or open a review");
-    expect(OPERATOR_CO_ARCHITECT_HOME_STRIP_BODY.toLowerCase()).toContain("audit-ready sealed review records");
+    expect(OPERATOR_CO_ARCHITECT_HOME_STRIP_BODY.toLowerCase()).toContain("audit-ready finalized review records");
     expect(OPERATOR_CO_ARCHITECT_HOME_STRIP_BODY.toLowerCase()).toContain("governance approval");
   });
 

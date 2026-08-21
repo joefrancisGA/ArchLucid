@@ -35,7 +35,7 @@ export const POLICY_PACK_BASIS_BANNER_TITLE = "Policy pack basis";
 
 export const POLICY_PACK_BASIS_BANNER_BODY = "Governance guardrails referenced by this review.";
 
-export const POLICY_PACK_BASIS_VIEW_SIGNED_RECORD = "View sealed review record";
+export const POLICY_PACK_BASIS_VIEW_SIGNED_RECORD = "View finalized review record";
 
 export const POLICY_PACK_BASIS_VIEW_EVIDENCE_TRAIL = "View evidence trail";
 

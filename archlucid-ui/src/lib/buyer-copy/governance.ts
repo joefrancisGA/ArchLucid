@@ -11,7 +11,7 @@ export const BUYER_GOVERNANCE_CHANGE_MANAGEMENT_FOOTNOTE =
   "Production execution remains controlled by the customer's enterprise change-management process.";
 
 export const BUYER_GOVERNANCE_APPROVAL_RECORD_LEAD =
-  "Governance approval — sealed review record approved with monitored PHI minimization control.";
+  "Resolve outcome — finalized review record approved with monitored PHI minimization control.";
 
 export const BUYER_GOVERNANCE_GOVERNED_USE_SCOPE =
   "Approved for implementation planning, subject to enterprise change control — not a production deployment authorization.";
@@ -56,7 +56,7 @@ export const BUYER_GOVERNANCE_FINDINGS_RISKS_SECTION_TITLE = "Monitored risks";
 export const BUYER_GOVERNANCE_DECISION_REGISTER_TITLE = "Decision register";
 
 export const BUYER_GOVERNANCE_DECISION_REGISTER_LEAD =
-  "Browse architecture decisions locked with each sealed review record — category, supporting findings, confidence, and lineage.";
+  "Browse architecture decisions locked with each finalized review record — category, supporting findings, confidence, and lineage.";
 
 export const BUYER_GOVERNANCE_FINDINGS_VIEW_OBSERVATION_CTA = "View finding and evidence";
 

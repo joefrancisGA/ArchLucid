@@ -3,7 +3,7 @@ import { EVIDENCE_TRAIL_SEARCH } from "@/lib/search-surface-disambiguation";
 /** Search page H1 when no review filter is set (TB-2196). */
 export const SEARCH_PAGE_TITLE = EVIDENCE_TRAIL_SEARCH.title;
 
-/** Search page subtitle — tenant-scoped retrieval over sealed review records and the evidence trail. */
+/** Search page subtitle — tenant-scoped retrieval over finalized review records and the evidence trail. */
 export const SEARCH_PAGE_SUBTITLE = EVIDENCE_TRAIL_SEARCH.pageSubtitle;
 
 /** Buyer-polished lead — shorter, sponsor-safe retrieval framing (SXX). */

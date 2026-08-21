@@ -96,7 +96,7 @@ export const HELP_TOPICS: HelpTopic[] = [
     id: "replay",
     title: "Validate review",
     keywords: ["verify", "drift", "validation"],
-    summary: "Validate whether a finalized review can still be reproduced and its sealed review record remains valid.",
+    summary: "Validate whether a finalized review can still be reproduced and its finalized review record remains valid.",
     docPath: "docs/library/COMPARISON_REPLAY.md",
     routes: ["/internal/validate-route"],
   },

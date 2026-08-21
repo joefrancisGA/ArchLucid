@@ -68,7 +68,7 @@ export const ADVISORY_SCANS_CHOOSE_REVIEW_LABEL = "Choose review";
 
 /** One-line advisory-only boundary near the generate action (no disclosure). */
 export const ADVISORY_SCANS_INLINE_CAPABILITY_BOUNDARY =
-  "An advisory scan produces prioritized recommendations from finalized reviews — not a sealed review record, governance approval, or automatic remediation.";
+  "An advisory scan produces prioritized recommendations from finalized reviews — not a finalized review record, resolve outcome, or automatic remediation.";
 
 export const ADVISORY_SCANS_LIST_HEADING = "Saved advisory scans";
 

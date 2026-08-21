@@ -3,7 +3,7 @@
  *
  * Why two surfaces exist:
  * - Sealed review records (`/governance/sealed-records`) is the *inventory* of
- *   finalized sealed review records for diligence and governance follow-up.
+ *   finalized review records for diligence and governance follow-up.
  * - Review detail (`/architecture/reviews/[reviewId]`) is the *architecture
  *   package* workspace for one review — findings, evidence, and finalize.
  *
@@ -33,19 +33,19 @@ export type SignedRecordsReviewDetailVocabularyModel = {
 };
 
 export const SIGNED_RECORDS_REVIEW_DETAIL_HEADING =
-  "Sealed review records and review detail serve different purposes" as const;
+  "Finalized review records and review detail serve different purposes" as const;
 
 export const SIGNED_RECORDS_REVIEW_DETAIL_WHY_TWO =
-  "Sealed review records lists all finalized reviews. Review detail is where you work on one review — findings, evidence, and finalize. The list is not the workspace." as const;
+  "Finalized review records lists all finalized reviews. Review detail is where you work on one review — findings, evidence, and finalize. The list is not the workspace." as const;
 
 export const SIGNED_RECORDS_REVIEW_DETAIL_COMPACT_LINE =
-  "Sealed review records lists finalized reviews; review detail is one active review — open the other when you need both." as const;
+  "Finalized review records lists finalized reviews; review detail is one active review — open the other when you need both." as const;
 
 export const SIGNED_RECORDS_REVIEW_DETAIL_SIGNED_RECORDS_LINK: SignedRecordsReviewDetailLink = {
   id: "signed-records",
-  label: "Sealed review records",
+  label: "Finalized review records",
   href: SIGNED_RECORDS_LIST_PATH,
-  whenToUse: "Browse all finalized sealed review records.",
+  whenToUse: "Browse all finalized review records.",
 };
 
 /** Review detail is per-package; href uses the reviews hub as the stable peer home. */

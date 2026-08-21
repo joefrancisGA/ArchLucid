@@ -6,7 +6,7 @@ export const DECISION_REGISTER_PAGE_SUBTITLE =
 export const DECISION_REGISTER_CLAIM_HEADING = "Register browse only";
 
 export const DECISION_REGISTER_PAGE_SUBTITLE_BUYER =
-  "Browse architecture decisions locked with sealed review records in this workspace — open a row when you need findings or lineage follow-up.";
+  "Browse architecture decisions locked with finalized review records in this workspace — open a row when you need findings or lineage follow-up.";
 
 export function decisionRegisterPageSubtitle(buyerPolishedShell: boolean): string {
   return buyerPolishedShell ? DECISION_REGISTER_PAGE_SUBTITLE_BUYER : DECISION_REGISTER_PAGE_SUBTITLE;
@@ -72,7 +72,7 @@ export const DECISION_REGISTER_FILTER_NO_MATCH_BODY =
 export const DECISION_REGISTER_EMPTY_TITLE = "No architecture decisions yet";
 
 export const DECISION_REGISTER_EMPTY_BODY =
-  "Finalize a review to lock its sealed review record. Architecture decisions from that package then appear here with findings and evidence lineage.";
+  "Finalize a review to lock its finalized review record. Architecture decisions from that package then appear here with findings and evidence lineage.";
 
 export const DECISION_REGISTER_EMPTY_ACTION_REVIEW_PACKAGES = "Open reviews";
 

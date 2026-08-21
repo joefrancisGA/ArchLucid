@@ -20,7 +20,7 @@ describe("signed-records-review-detail-vocabulary (TB-2272)", () => {
     expect(model.heading.toLowerCase()).toContain("sealed");
     expect(model.heading.toLowerCase()).toContain("review detail");
     expect(model.whyTwo).toBe(SIGNED_RECORDS_REVIEW_DETAIL_WHY_TWO);
-    expect(model.whyTwo.toLowerCase()).toContain("sealed review record");
+    expect(model.whyTwo.toLowerCase()).toContain("finalized review record");
     expect(model.whyTwo.toLowerCase()).toContain("architecture package");
     expect(model.compactLine).toBe(SIGNED_RECORDS_REVIEW_DETAIL_COMPACT_LINE);
 

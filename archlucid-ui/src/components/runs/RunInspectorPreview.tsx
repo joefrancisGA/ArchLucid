@@ -106,7 +106,7 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
           ? "Browse export-ready deliverables and exports from the full review. Open review detail when you need the complete workspace view."
           : "Artifacts are summarized alongside the finalized review record — open the sealed record link below."
         : buyerPolished
-          ? "Evidence bundle available from the sealed review record."
+          ? "Evidence bundle available from the finalized review record."
           : "Artifact bundle not reported in list payload";
 
   const hasFindingsLink = run.hasFindingsSnapshot === true || showcaseStory;

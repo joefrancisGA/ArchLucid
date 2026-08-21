@@ -14,7 +14,7 @@ export const OPERATOR_CO_ARCHITECT_HOME_STRIP_ARIA_LABEL =
   "Create or open a review — create from evidence or describe the architecture";
 
 export const OPERATOR_CO_ARCHITECT_HOME_STRIP_BODY =
-  "Create, finalize, and review architecture reviews with evidence, findings, governance approval, and audit-ready sealed review records.";
+  "Create, finalize, and review architecture reviews with evidence, findings, resolve outcomes, and audit-ready finalized review records.";
 
 export const OPERATOR_CO_ARCHITECT_HOME_STRIP_BODY_BUYER =
   "Create a new review from evidence, describe the architecture, or continue a review already in progress.";

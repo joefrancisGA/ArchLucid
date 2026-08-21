@@ -140,9 +140,9 @@ export const governanceWorkflowPageLeadReader =
   "Inspect how an architecture review moved through approval. Load a review below to view its approval history.";
 
 /** Governance workflow — submit card title (`governance/page.tsx`). */
-export const governanceWorkflowSubmitCardTitleOperator = "Submit for governance approval";
+export const governanceWorkflowSubmitCardTitleOperator = "Submit for resolve outcomes";
 
-export const governanceWorkflowSubmitCardTitleReader = "Submit for governance approval";
+export const governanceWorkflowSubmitCardTitleReader = "Submit for resolve outcomes";
 
 /** Governance workflow — load and list card title. */
 export const governanceWorkflowApprovalRequestsCardTitleOperator = "Approval requests for this review";
@@ -294,7 +294,7 @@ export const alertsPageLeadReader = "Filter and page.";
 
 /** Semantic search — subtitle under title (`search/page.tsx`). */
 export const semanticSearchPageSubtitleOperator =
-  "Find evidence, findings, decisions, and sealed review records across this workspace.";
+  "Find evidence, findings, decisions, and finalized review records across this workspace.";
 
 /** semanticSearchPageSubtitleOperator — expanded note for engineers (optional collapse). Kept out of the default subtitle. */
 export const semanticSearchPageDeploymentNoteDev =
@@ -359,7 +359,7 @@ export const governanceWorkflowNoApprovalsOperatorHint =
   "Submit a request above or choose a different review.";
 
 /** Governance workflow — Submit for approval when rank cannot mutate (shell soft-disable; API authoritative). */
-export const governanceWorkflowSubmitForApprovalButtonLabelReaderRank = "Submit for governance approval";
+export const governanceWorkflowSubmitForApprovalButtonLabelReaderRank = "Submit for resolve outcomes";
 
 /** Governance workflow — inline review Submit when rank cannot mutate. */
 export const governanceWorkflowReviewSubmitButtonLabelReaderRank = "Submit review (needs approver rights)";

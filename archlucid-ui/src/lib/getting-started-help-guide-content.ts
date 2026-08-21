@@ -72,12 +72,12 @@ export const GETTING_STARTED_HELP_DIAGRAM_STEPS = [
 export const GETTING_STARTED_HELP_PIPELINE_TEXT_STAGES = [
   "Architecture request opens a review session and feeds context ingestion.",
   "Authority pipeline stages: knowledge graph, findings, decisioning, and artifacts.",
-  "Governance gate: allow commits the sealed review record; block or warn policy holds finalize.",
-  "Committed outputs: sealed review record and downloadable exports.",
+  "Governance gate: allow commits the finalized review record; block or warn policy holds finalize.",
+  "Committed outputs: finalized review record and downloadable exports.",
 ] as const;
 
 export const GETTING_STARTED_HELP_PIPELINE_DIAGRAM_DESCRIPTION =
-  "Stages from architecture request through context ingestion, authority pipeline (knowledge graph, findings, decisioning, artifacts), governance gate (allow commits the sealed review record; block or warn policy holds finalize), and committed outputs (sealed review record and exports).";
+  "Stages from architecture request through context ingestion, authority pipeline (knowledge graph, findings, decisioning, artifacts), governance gate (allow commits the finalized review record; block or warn policy holds finalize), and committed outputs (finalized review record and exports).";
 
 export type GettingStartedPlainLanguageTerm = {
   readonly term: string;
@@ -203,7 +203,7 @@ export const GETTING_STARTED_HELP_NEXT_ACTION_CARDS: readonly GettingStartedActi
   },
   {
     title: GOLDEN_SPONSOR_PACKAGE_WALKTHROUGH_TITLE,
-    description: "Walk through a labeled sample from sealed review record to export-ready outputs.",
+    description: "Walk through a labeled sample from finalized review record to export-ready outputs.",
     href: sampleReviewHref,
     ctaLabel: GOLDEN_SPONSOR_PACKAGE_WALKTHROUGH_PRIMARY_CTA,
   },

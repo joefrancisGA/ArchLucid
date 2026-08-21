@@ -33,7 +33,7 @@ describe("StandardsRulesGovernanceStatusBanner", () => {
     expect(screen.getByText(/Jordan Lee/)).toBeInTheDocument();
     expect(screen.getByText(/Approved:/)).toBeInTheDocument();
     expect(screen.getByText(/claims-intake-approval-001/)).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "View sealed review record" })).toHaveClass("text-[13px]");
+    expect(screen.getByRole("link", { name: "View finalized review record" })).toHaveClass("text-[13px]");
     expect(screen.getByRole("link", { name: "View evidence trail" })).toHaveClass("text-[13px]");
     expect(screen.getByRole("link", { name: "View audit trail" })).toHaveClass("text-[13px]");
     expect(screen.queryByText(/→/)).not.toBeInTheDocument();

@@ -33,7 +33,7 @@ export const BUYER_MANIFEST_SUMMARY_MALFORMED_HEADING = "Review record summary r
 export const BUYER_MANIFEST_SUMMARY_MISSING_HEADING = "Review record summary missing.";
 
 export const BUYER_SEALED_MANIFEST_TOOLTIP =
-  "Finalized sealed review record: hash-verified, write-locked record after governance approval — not informal draft text.";
+  "Finalized review record: hash-verified, write-locked record after resolve outcomes — not informal draft text.";
 
 export const BUYER_MANIFEST_BUNDLE_DOWNLOAD_DETAILS_SUMMARY = "Download finalized review";
 
@@ -71,14 +71,14 @@ export const BUYER_OPEN_SIGNED_RECORD_CTA = "Open sealed record";
 export const BUYER_VIEW_SIGNED_REVIEW_RECORD_CTA = "View finalized review record";
 
 export const BUYER_REVIEW_DETAIL_EVIDENCE_BASIS_LINE =
-  "Blocking issues: 0 · Evidence basis: sealed review record, evidence trail, audit trail";
+  "Blocking issues: 0 · Evidence basis: finalized review record, evidence trail, audit trail";
 
 export const BUYER_DECISION_KEY_SUMMARY = "Decision key";
 
 export const BUYER_MANIFEST_HEADLINE_SUFFIX = "architecture review";
 
 export const BUYER_MANIFEST_AUTHORITY_SUMMARY =
-  "This sealed review record is the authoritative record for this review — decisions, findings, and downloadable deliverables.";
+  "This finalized review record is the authoritative record for this review — decisions, findings, and downloadable deliverables.";
 
 export const BUYER_MANIFEST_TOP_RISK_CTA = "View top risk and evidence";
 

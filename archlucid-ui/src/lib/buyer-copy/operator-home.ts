@@ -10,7 +10,7 @@ export const BUYER_HOME_SAMPLE_PACKAGE_HEADLINE =
   "Explore a completed example review";
 
 export const BUYER_HOME_SAMPLE_PACKAGE_SUBTITLE =
-  "Completed architecture review with sealed review record, evidence trail, and audit record.";
+  "Completed architecture review with finalized review record, evidence trail, and audit record.";
 
 export const BUYER_HOME_SAMPLE_PACKAGE_LEAD =
   "Review a completed example review with evidence trail, findings, governance approval, and audit-ready artifacts before creating your first review.";
@@ -137,7 +137,7 @@ export const OPERATOR_HOME_CREATE_ARCHITECTURE_CARD_BODY =
 export const OPERATOR_HOME_REVIEW_ARCHITECTURE_CARD_TITLE = "Review architecture";
 
 export const OPERATOR_HOME_REVIEW_ARCHITECTURE_CARD_BODY =
-  "Attach architecture information you already have—diagrams, documents, inventory exports, or connected cloud evidence. It produces findings and evidence you can finalize into a sealed review record.";
+  "Attach architecture information you already have—diagrams, documents, inventory exports, or connected cloud evidence. It produces findings and evidence you can finalize into a finalized review record.";
 
 /** @deprecated Merged into {@link OPERATOR_HOME_REVIEW_ARCHITECTURE_CARD_BODY} on the home review card. */
 export const OPERATOR_HOME_REVIEW_ARCHITECTURE_SUPPORT = OPERATOR_HOME_REVIEW_ARCHITECTURE_CARD_BODY;
@@ -376,7 +376,7 @@ export const BUYER_HOME_EXAMPLE_EXPLORE_LINK = "Explore example";
 export const BUYER_HOME_WELCOME_HEADING = "Explore one architecture review";
 
 export const BUYER_HOME_WELCOME_LEAD =
-  "Start with the sponsor view, then the sealed review record, audit trail, and prioritized findings.";
+  "Start with the sponsor view, then the finalized review record, audit trail, and prioritized findings.";
 
 /** Canonical home reviews zone heading — both operator shells (TB-347). */
 export const OPERATOR_HOME_RECENT_REVIEWS_HEADING = "Recent reviews";

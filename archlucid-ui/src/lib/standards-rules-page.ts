@@ -10,7 +10,7 @@ export const STANDARDS_RULES_BANNER_TITLE = "Governance approval record";
 export const STANDARDS_RULES_BANNER_BODY =
   "This review was approved using the standards and rules shown below.";
 
-export const STANDARDS_RULES_VIEW_SIGNED_RECORD = "View sealed review record";
+export const STANDARDS_RULES_VIEW_SIGNED_RECORD = "View finalized review record";
 
 export const STANDARDS_RULES_VIEW_EVIDENCE_TRAIL = "View evidence trail";
 

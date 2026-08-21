@@ -15,7 +15,7 @@ export const ASK_VS_FRONTIER_AI_ASK_IS_FOR_HEADING = "Ask is for" as const;
 
 export const ASK_VS_FRONTIER_AI_ASK_IS_FOR_BULLETS = [
   "Plain-language questions about a selected finalized review — findings, evidence, risks, and mitigations.",
-  "Answers scoped to that review's sealed review record and cited evidence when available.",
+  "Answers scoped to that review's finalized review record and cited evidence when available.",
   "Quick links into sponsor report, evidence trail, and audit anchors on the same package.",
 ] as const;
 
