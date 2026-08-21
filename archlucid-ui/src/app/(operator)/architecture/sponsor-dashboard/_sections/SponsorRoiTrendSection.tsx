@@ -18,7 +18,7 @@ import {
 } from "@/lib/sponsor/sponsor-time-range";
 import { BUYER_SPONSOR_DATA_SOURCE_NOTE } from "@/lib/buyer/buyer-polish-copy";
 import { OPERATOR_KPI_CARD_DESCRIPTION, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { EXECUTION_MODE_ROI_PERIOD_MIX_FOOTNOTE, resolveSponsorTrendSavingsUsd } from "@/lib/execution-mode-honesty";
+import { EXECUTION_MODE_ROI_PERIOD_MIX_FOOTNOTE, resolveExecutiveTrendSavingsUsd, resolveSponsorTrendSavingsUsd } from "@/lib/execution-mode-honesty";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { RULE_BASED_ANALYSIS_ONLY_BUYER_LABEL } from "@/lib/usability/canonical-product-terms";
 
@@ -147,7 +147,7 @@ export function SponsorRoiTrendSection({
             <SponsorRoiSavingsTrendSvgChart
               points={points.map((point) => ({
                 snapshotUtc: point.snapshotUtc,
-                totalEstimatedUsdSavings: resolveSponsorTrendSavingsUsd(point, buyerPolished),
+                totalEstimatedUsdSavings: resolveExecutiveTrendSavingsUsd(point, buyerPolished),
               }))}
             />
             <div>

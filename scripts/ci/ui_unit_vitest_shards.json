@@ -73,7 +73,10 @@
     {
       "id": "app-operator-e",
       "label": "app-operator-e (7/9)",
-      "paths": []
+      "paths": [
+        "src/app/(operator)/account",
+        "src/app/(operator)/operator-layout-deferred-imports.test.ts"
+      ]
     },
     {
       "id": "app-marketing",

@@ -5,7 +5,7 @@ import { CANONICAL_GET_STARTED_PATH } from "@/lib/legacy-quick-start-route";
 export const SEE_IT_CANONICAL_PATH = "/see-it" as const;
 
 export const SEE_IT_SCOPE_DISCLOSURE_BODY =
-  "This page shows a sample finalized review for evaluation only — not live data from your workspace. Open Assurance status or start an evaluation when you need real evidence.";
+  "This page shows a fabricated sample finalized review for evaluation only — not live data from your workspace. Open Assurance status or start an evaluation when you need real evidence.";
 
 /** Legacy claim text — prefer {@link SEE_IT_SCOPE_DISCLOSURE_BODY} in scope disclosure. */
 export const SEE_IT_CLAIM_DISCIPLINE = SEE_IT_SCOPE_DISCLOSURE_BODY;

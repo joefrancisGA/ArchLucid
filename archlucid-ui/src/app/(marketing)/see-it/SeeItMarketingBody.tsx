@@ -65,8 +65,8 @@ export function SeeItMarketingBody({ source, payload }: SeeItMarketingBodyProps)
 
   const previewDisclosure =
     source === "snapshot"
-      ? "Public read-only evaluation preview (finalized January 2026). Tenant-accurate reviews use a signed-in workspace."
-      : "Public read-only evaluation preview from the demo API. Tenant-accurate reviews use a signed-in workspace.";
+      ? "Public read-only evaluation preview (finalized January 2026). Illustrative sample only — tenant-accurate reviews use a signed-in workspace."
+      : "Public read-only evaluation preview from the demo API. Illustrative sample only — tenant-accurate reviews use a signed-in workspace.";
 
   return (
     <div className={cn("space-y-10", MARKETING_MOTION.revealIn)}>

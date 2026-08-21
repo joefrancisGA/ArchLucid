@@ -34,7 +34,7 @@ const BUYER_REVIEW_DETAIL_IN_PROGRESS_GUIDANCE: FirstWeekRouteGuidanceConfig = {
   useWhen: "The review is running or findings are ready but the finalized review record is not finalized yet.",
   bridgeCopy:
     "Stay on this page until you finalize — that locks the finalized review record and unlocks sponsor exports.",
-  // Primary CTA lives in ReviewPackageDoThisNextStrip above this callout.
+  primaryAction: { label: "Finalize review", href: BUYER_REVIEW_DETAIL_IN_PROGRESS_FINALIZE_ANCHOR },
   operateDeferralNote: "Skip graph and governance dashboards until after commit unless your pilot explicitly needs them.",
 };
 
