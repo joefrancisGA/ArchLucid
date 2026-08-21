@@ -494,6 +494,36 @@ function resolveDeferredChunkImportLoader(
       return deferredChunkLoader(() =>
         import("@/components/wizard/steps/WizardStepTrack").then((module) => module.WizardStepTrack),
       ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "reviews-new-intent-callout":
+      return deferredChunkLoader(() =>
+        import("@/app/(operator)/architecture/reviews/new/NewReviewIntentCallout").then(
+          (module) => module.NewReviewIntentCallout,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "reviews-new-socratic-advanced-rail":
+      return deferredChunkLoader(() =>
+        import("@/app/(operator)/architecture/reviews/new/SocraticIntakeWizardAdvancedRail").then(
+          (module) => module.SocraticIntakeWizardAdvancedRail,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "reviews-new-wizard-help-drawer":
+      return deferredChunkLoader(() =>
+        import("@/components/wizard/ArchitectureRequestWizardHelpDrawer").then(
+          (module) => module.ArchitectureRequestWizardHelpDrawer,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "reviews-new-quick-start-wizard":
+      return deferredChunkLoader(() =>
+        import("@/app/(operator)/architecture/reviews/new/QuickStartWizard").then(
+          (module) => module.QuickStartWizard,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "reviews-new-simplified-pilot-wizard":
+      return deferredChunkLoader(() =>
+        import("@/app/(operator)/architecture/reviews/new/SimplifiedPilotWizard").then(
+          (module) => module.SimplifiedPilotWizard,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
     case "reviews-hub-inventory":
       return deferredChunkLoader(() =>
         import("@/app/(operator)/architecture/reviews/_sections/ReviewsHubReviewInventory").then(
