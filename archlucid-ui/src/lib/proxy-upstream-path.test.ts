@@ -61,4 +61,27 @@ describe("buildProxyUpstreamPath", () => {
       ]),
     ).toEqual({ ok: false });
   });
+
+  it("rejects deeply encoded dot traversal segments", () => {
+    let encoded = "%2e%2e";
+
+    for (let pass = 0; pass < 5; pass++) {
+      encoded = encoded.replace(/%/g, "%25");
+    }
+
+    expect(
+      buildProxyUpstreamPath([
+        "v1",
+        "marketing",
+        "quick-scan",
+        "status",
+        encoded,
+        encoded,
+        encoded,
+        "architecture",
+        "draft",
+        "draft-1",
+      ]),
+    ).toEqual({ ok: false });
+  });
 });
