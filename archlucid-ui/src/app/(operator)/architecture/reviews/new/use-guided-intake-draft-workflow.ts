@@ -379,6 +379,9 @@ export function useGuidedIntakeDraftWorkflow(options: GuidedIntakeDraftWorkflowO
   const skipQuestion = useCallback(
     async (questionKey: string) => {
       if (draftId === null) {
+        setSubmitError(new Error("Draft is not ready yet. Go back and continue from the brief step."));
+        showError(REVIEWS_NEW_GUIDED_QUESTIONS_LABEL, "Draft is not ready yet. Continue from the brief step first.");
+
         return;
       }
 

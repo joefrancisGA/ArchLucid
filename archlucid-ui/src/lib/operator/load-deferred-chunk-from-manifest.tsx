@@ -8,7 +8,6 @@ import {
   type DeferredChunkManifestEntry,
 } from "@/lib/operator/deferred-chunk-manifest";
 import { ALERT_RULES_HUB_CHUNK_MANIFEST } from "@/lib/operator/alert-rules-hub-chunk-manifest";
-import { ALERTS_INBOX_CHUNK_MANIFEST } from "@/lib/operator/alerts-inbox-chunk-manifest";
 import { GOVERNANCE_WORKFLOW_CHUNK_MANIFEST } from "@/lib/operator/governance-workflow-chunk-manifest";
 import { OPERATOR_HOME_CHUNK_MANIFEST } from "@/lib/operator/operator-home-chunk-manifest";
 import { POLICY_PACKS_AUTHORING_CHUNK_MANIFEST } from "@/lib/operator/policy-packs-authoring-chunk-manifest";
@@ -238,42 +237,6 @@ function resolveDeferredChunkImportLoader(
       return deferredChunkLoader(() =>
         import("@/app/(operator)/architecture/sponsor-dashboard/_sections/SponsorComplianceDriftTrendSection").then(
           (module) => module.SponsorComplianceDriftTrendSection,
-        ),
-      ) as () => Promise<ComponentType<Record<string, unknown>>>;
-    case "sponsor-roi-dashboard-welcome-onboarding":
-      return deferredChunkLoader(() =>
-        import("@/components/operator/OperatorWelcomeOnboarding").then(
-          (module) => module.OperatorWelcomeOnboarding,
-        ),
-      ) as () => Promise<ComponentType<Record<string, unknown>>>;
-    case "sponsor-roi-dashboard-roi-trend":
-      return deferredChunkLoader(() =>
-        import("@/app/(operator)/architecture/sponsor-dashboard/_sections/SponsorRoiTrendSection").then(
-          (module) => module.SponsorRoiTrendSection,
-        ),
-      ) as () => Promise<ComponentType<Record<string, unknown>>>;
-    case "sponsor-roi-dashboard-environment-savings":
-      return deferredChunkLoader(() =>
-        import("@/app/(operator)/architecture/sponsor-dashboard/_sections/SponsorRoiEnvironmentSavingsSection").then(
-          (module) => module.SponsorRoiEnvironmentSavingsSection,
-        ),
-      ) as () => Promise<ComponentType<Record<string, unknown>>>;
-    case "sponsor-roi-dashboard-supporting-metrics":
-      return deferredChunkLoader(() =>
-        import("@/app/(operator)/architecture/sponsor-dashboard/_sections/SponsorDashboardSupportingMetricsSection").then(
-          (module) => module.SponsorDashboardSupportingMetricsSection,
-        ),
-      ) as () => Promise<ComponentType<Record<string, unknown>>>;
-    case "sponsor-roi-dashboard-workspace-health":
-      return deferredChunkLoader(() =>
-        import("@/components/SponsorWorkspaceHealthDashboard").then(
-          (module) => module.SponsorWorkspaceHealthDashboard,
-        ),
-      ) as () => Promise<ComponentType<Record<string, unknown>>>;
-    case "alerts-inbox-governance-context-panel":
-      return deferredChunkLoader(() =>
-        import("@/components/alerts/AlertsGovernanceContextPanel").then(
-          (module) => module.AlertsGovernanceContextPanel,
         ),
       ) as () => Promise<ComponentType<Record<string, unknown>>>;
     case "reviews-hub-inventory":
@@ -809,8 +772,3 @@ export const SIGNED_RECORDS_LIST_DEFERRED_CHUNK_LOADER_IDS: readonly string[] =
 /** Sponsor ROI dashboard manifest ids that have registered import loaders (manifest import-test guard). */
 export const SPONSOR_ROI_DASHBOARD_DEFERRED_CHUNK_LOADER_IDS: readonly string[] =
   SPONSOR_ROI_DASHBOARD_CHUNK_MANIFEST.map((entry) => entry.id);
-
-/** Alerts inbox manifest ids that have registered import loaders (manifest import-test guard). */
-export const ALERTS_INBOX_DEFERRED_CHUNK_LOADER_IDS: readonly string[] = ALERTS_INBOX_CHUNK_MANIFEST.map(
-  (entry) => entry.id,
-);

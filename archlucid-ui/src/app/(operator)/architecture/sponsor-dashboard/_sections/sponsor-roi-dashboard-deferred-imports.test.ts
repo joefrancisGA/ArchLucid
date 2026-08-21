@@ -21,7 +21,6 @@ const manifestLoaderSource = readFileSync(
 const bannedStaticImports = [
   '@/components/operator/OperatorWelcomeOnboarding"',
   '@/components/sponsor/SponsorDashboardHowItWorks"',
-  '@/components/SponsorWorkspaceHealthDashboard"',
   './SponsorDashboardNextActionSection"',
   './SponsorDashboardPrimaryMetricsSection"',
   './SponsorExportsSection"',
@@ -62,10 +61,8 @@ describe("sponsor dashboard deferred imports (TB-2061 / wave 10)", () => {
     expect(pageViewSource).toContain("SponsorDashboardSupportingMetricsSectionDeferred");
   });
 
-  it("dynamic-imports every sponsor dashboard panel via manifest loaders", () => {
+  it("dynamic-imports manifest-backed sponsor dashboard panels via loaders", () => {
     expect(deferredSource).toContain("createDeferredComponentFromManifest");
-    expect(deferredSource).not.toContain("next/dynamic");
-    expect(manifestLoaderSource).toContain('import("@/components/operator/OperatorWelcomeOnboarding")');
     expect(manifestLoaderSource).toContain(
       'import("@/app/(operator)/architecture/sponsor-dashboard/_sections/SponsorDashboardNextActionSection")',
     );
@@ -85,20 +82,23 @@ describe("sponsor dashboard deferred imports (TB-2061 / wave 10)", () => {
     expect(manifestLoaderSource).toContain(
       'import("@/app/(operator)/architecture/sponsor-dashboard/_sections/SponsorComplianceDriftTrendSection")',
     );
-    expect(manifestLoaderSource).toContain(
-      'import("@/app/(operator)/architecture/sponsor-dashboard/_sections/SponsorRoiTrendSection")',
+    expect(deferredSource).toContain("sponsor-roi-dashboard-next-action");
+    expect(deferredSource).toContain("sponsor-roi-dashboard-primary-metrics");
+    expect(deferredSource).toContain("sponsor-roi-dashboard-how-it-works");
+    expect(deferredSource).toContain("sponsor-roi-dashboard-exports");
+    expect(deferredSource).toContain("sponsor-roi-dashboard-business-impact");
+    expect(deferredSource).toContain("sponsor-roi-dashboard-roi-summary");
+    expect(deferredSource).toContain("sponsor-roi-dashboard-compliance-drift-trend");
+  });
+
+  it("keeps remaining below-fold panels on inline dynamic imports", () => {
+    expect(deferredSource).toContain("next/dynamic");
+    expect(deferredSource).toContain('import("@/components/operator/OperatorWelcomeOnboarding")');
+    expect(deferredSource).toContain('import("./SponsorRoiTrendSection")');
+    expect(deferredSource).toContain('import("./SponsorRoiEnvironmentSavingsSection")');
+    expect(deferredSource).toContain(
+      'import("./SponsorDashboardSupportingMetricsSection")',
     );
-    expect(manifestLoaderSource).toContain(
-      'import("@/app/(operator)/architecture/sponsor-dashboard/_sections/SponsorRoiEnvironmentSavingsSection")',
-    );
-    expect(manifestLoaderSource).toContain(
-      'import("@/app/(operator)/architecture/sponsor-dashboard/_sections/SponsorDashboardSupportingMetricsSection")',
-    );
-    expect(manifestLoaderSource).toContain('import("@/components/SponsorWorkspaceHealthDashboard")');
-    expect(deferredSource).toContain("sponsor-roi-dashboard-welcome-onboarding");
-    expect(deferredSource).toContain("sponsor-roi-dashboard-roi-trend");
-    expect(deferredSource).toContain("sponsor-roi-dashboard-environment-savings");
-    expect(deferredSource).toContain("sponsor-roi-dashboard-supporting-metrics");
-    expect(deferredSource).toContain("sponsor-roi-dashboard-workspace-health");
+    expect(deferredSource).toContain('import("@/components/SponsorWorkspaceHealthDashboard")');
   });
 });

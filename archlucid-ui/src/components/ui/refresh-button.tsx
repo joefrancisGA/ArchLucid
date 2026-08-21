@@ -4,7 +4,6 @@ import { RefreshCw } from "lucide-react";
 import * as React from "react";
 
 import { Button, type ButtonProps } from "@/components/ui/button";
-import { useMinimumBusyFeedback } from "@/lib/operator/refresh-minimum-busy";
 import { cn } from "@/lib/utils";
 
 /** Canonical visible label for a control that re-reads current data (GET) without mutating it. */
@@ -36,7 +35,6 @@ export type RefreshButtonProps = Omit<
  * The label stays static while busy and the icon spins instead. Swapping the text to
  * "Refreshing…" changes the button's width mid-click, which shifts every sibling in a
  * header action cluster; `aria-busy` carries the state for assistive tech instead.
- * Busy feedback stays visible for at least 200ms so fast refreshes still register with operators.
  */
 export function RefreshButton({
   busy = false,
@@ -47,8 +45,6 @@ export function RefreshButton({
   disabled,
   ...buttonProps
 }: RefreshButtonProps): React.JSX.Element {
-  const displayBusy = useMinimumBusyFeedback(busy);
-
   return (
     <Button
       {...buttonProps}
@@ -56,10 +52,10 @@ export function RefreshButton({
       variant={variant}
       size={size}
       className={className}
-      disabled={disabled === true || displayBusy}
-      aria-busy={displayBusy}
+      disabled={disabled === true || busy}
+      aria-busy={busy}
     >
-      <RefreshCw className={cn("size-3.5 shrink-0", displayBusy && "animate-spin")} aria-hidden />
+      <RefreshCw className={cn("size-3.5 shrink-0", busy && "animate-spin")} aria-hidden />
       {label}
     </Button>
   );

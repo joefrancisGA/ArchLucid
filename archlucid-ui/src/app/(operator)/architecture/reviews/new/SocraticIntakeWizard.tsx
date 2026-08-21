@@ -460,8 +460,9 @@ export function SocraticIntakeWizard() {
       ) : null}
 
       {step === 1 ? (
-        <Card data-testid="guided-intake-primary-panel">
-          <CardHeader>
+        <div className="pb-24" data-testid="socratic-clarifications-step">
+          <Card data-testid="guided-intake-primary-panel">
+            <CardHeader>
             <CardTitle>{INTAKE_STEPS[1].cardTitle}</CardTitle>
             <CardDescription>
               {isCreateArchitectureFlow
@@ -526,9 +527,7 @@ export function SocraticIntakeWizard() {
             {submitError !== null ? <GuidedIntakeRequestError error={submitError} /> : null}
           </CardContent>
         </Card>
-      ) : null}
 
-      {step === 1 ? (
         <div
           className={WIZARD_STICKY_FOOTER_CLASS}
           data-testid={WIZARD_STICKY_FOOTER_TEST_ID}
@@ -571,6 +570,7 @@ export function SocraticIntakeWizard() {
             </Button>
           </div>
         </div>
+        </div>
       ) : null}
 
       {step === 2 ? (
@@ -595,7 +595,7 @@ export function SocraticIntakeWizard() {
                 </li>
               ) : null}
             </ul>
-            <EvidenceGapForecastPanel presence={guidedIntakeEvidencePresence} />
+            <EvidenceGapForecastPanel presence={guidedIntakeEvidencePresence} presentation="summary" />
             {confirmedScopeLines.length > 0 ? (
               <section className="space-y-1" data-testid="socratic-confirmed-scope-summary">
                 <h3 className={cn("m-0 font-semibold", OPERATOR_TYPOGRAPHY.label)}>

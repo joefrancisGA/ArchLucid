@@ -1,7 +1,9 @@
 "use client";
 
-import type { ComponentType } from "react";
+import dynamic from "next/dynamic";
+import type { ComponentType, JSX } from "react";
 
+import { DeferredChunkLoading } from "@/components/ui/deferred-chunk-loading";
 import { createDeferredComponentFromManifest } from "@/lib/operator/load-deferred-chunk-from-manifest";
 
 import type { SponsorComplianceDriftTrendSectionProps } from "./SponsorComplianceDriftTrendSection";
@@ -13,9 +15,24 @@ import type { SponsorRoiSummarySectionProps } from "./SponsorRoiSummarySection";
 import type { SponsorExportsSectionProps } from "./SponsorExportsSection";
 import type { BusinessImpactSummaryWidgetProps } from "./BusinessImpactSummaryWidget";
 
-export const OperatorWelcomeOnboardingDeferred: ComponentType = createDeferredComponentFromManifest(
-  "sponsor-roi-dashboard-welcome-onboarding",
-  { loadingTestId: "sponsor-dashboard-deferred-chunk-loading" },
+function executiveDashboardDeferredLoading(label: string): JSX.Element {
+  return (
+    <DeferredChunkLoading
+      label={label}
+      testId="sponsor-dashboard-deferred-chunk-loading"
+    />
+  );
+}
+
+export const OperatorWelcomeOnboardingDeferred: ComponentType = dynamic(
+  () =>
+    import("@/components/operator/OperatorWelcomeOnboarding").then(
+      (module) => module.OperatorWelcomeOnboarding,
+    ),
+  {
+    ssr: false,
+    loading: () => executiveDashboardDeferredLoading("Loading welcome guidance"),
+  },
 );
 
 export const SponsorDashboardNextActionSectionDeferred: ComponentType<SponsorDashboardNextActionSectionProps> =
@@ -54,21 +71,44 @@ export const SponsorComplianceDriftTrendSectionDeferred: ComponentType<SponsorCo
   });
 
 export const SponsorRoiTrendSectionDeferred: ComponentType<SponsorRoiTrendSectionProps> =
-  createDeferredComponentFromManifest("sponsor-roi-dashboard-roi-trend", {
-    loadingTestId: "sponsor-dashboard-deferred-chunk-loading",
-  });
+  dynamic(
+    () => import("./SponsorRoiTrendSection").then((module) => module.SponsorRoiTrendSection),
+    {
+      ssr: false,
+      loading: () => executiveDashboardDeferredLoading("Loading ROI trend"),
+    },
+  );
 
-export const SponsorRoiEnvironmentSavingsSectionDeferred: ComponentType = createDeferredComponentFromManifest(
-  "sponsor-roi-dashboard-environment-savings",
-  { loadingTestId: "sponsor-dashboard-deferred-chunk-loading" },
+export const SponsorRoiEnvironmentSavingsSectionDeferred: ComponentType = dynamic(
+  () =>
+    import("./SponsorRoiEnvironmentSavingsSection").then(
+      (module) => module.SponsorRoiEnvironmentSavingsSection,
+    ),
+  {
+    ssr: false,
+    loading: () => executiveDashboardDeferredLoading("Loading environment savings"),
+  },
 );
 
 export const SponsorDashboardSupportingMetricsSectionDeferred: ComponentType<SponsorDashboardSupportingMetricsSectionProps> =
-  createDeferredComponentFromManifest("sponsor-roi-dashboard-supporting-metrics", {
-    loadingTestId: "sponsor-dashboard-deferred-chunk-loading",
-  });
+  dynamic(
+    () =>
+      import("./SponsorDashboardSupportingMetricsSection").then(
+        (module) => module.SponsorDashboardSupportingMetricsSection,
+      ),
+    {
+      ssr: false,
+      loading: () => executiveDashboardDeferredLoading("Loading supporting metrics"),
+    },
+  );
 
-export const SponsorWorkspaceHealthDashboardDeferred: ComponentType = createDeferredComponentFromManifest(
-  "sponsor-roi-dashboard-workspace-health",
-  { loadingTestId: "sponsor-dashboard-deferred-chunk-loading" },
+export const SponsorWorkspaceHealthDashboardDeferred: ComponentType = dynamic(
+  () =>
+    import("@/components/SponsorWorkspaceHealthDashboard").then(
+      (module) => module.SponsorWorkspaceHealthDashboard,
+    ),
+  {
+    ssr: false,
+    loading: () => executiveDashboardDeferredLoading("Loading workspace health"),
+  },
 );
