@@ -13,7 +13,7 @@ const ROI_SUMMARY_HUB_CONTEXTUAL_HELP = {
     "Portfolio KPI view for review-cycle reduction, estimated effort saved, and governance-ready artifacts across a reporting window.",
   whatToDoNext:
     "Compare rolling 30-day and pilot-to-date windows, then review confidence and data needs before citing hours or dollars.",
-  whyEmpty: "Estimates appear after finalized reviews or governance blocks exist in the selected period.",
+  whyEmpty: "Estimates appear after finalized reviews or approval-check blocks exist in the selected period.",
   whereToConfigurePrerequisite:
     "Loaded hourly cost and review-cycle baseline inputs live on Baseline settings.",
   whatToDoNextAction: {

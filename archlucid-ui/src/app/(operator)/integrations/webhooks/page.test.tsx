@@ -691,6 +691,135 @@ describe("WebhooksIntegrationPage", () => {
     expect(disclosure.textContent ?? "").not.toMatch(/keyed with your subscription signing secret/i);
   });
 
+  it("clears in-flight webhook test state when operator scope switches workspaces", async () => {
+    const { writeOperatorScopeToStorage } = await import("@/lib/operator/operator-scope-storage");
+    const subscriptionIdA = "11111111-1111-1111-1111-111111111111";
+    const subscriptionIdB = "22222222-2222-2222-2222-222222222222";
+
+    writeOperatorScopeToStorage({
+      tenantId: "tenant-a",
+      workspaceId: "workspace-a",
+      projectId: "project-a",
+      workspaceLabel: "Workspace A",
+      projectLabel: "Project A",
+    });
+
+    apiMocks.list.mockResolvedValue([
+      {
+        routingSubscriptionId: subscriptionIdA,
+        tenantId: "t",
+        workspaceId: "w",
+        projectId: "p",
+        name: "Hook A",
+        channelType: "OnCallWebhook",
+        destination: "https://listener.example/hook-a",
+        minimumSeverity: "High",
+        isEnabled: true,
+        createdUtc: "2026-01-01T00:00:00Z",
+        metadataJson: JSON.stringify({ webhookSharedSecret: "z".repeat(16) }),
+      },
+    ]);
+
+    let resolveTest: (() => void) | undefined;
+    apiMocks.test.mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          resolveTest = () =>
+            resolve({
+              transportSucceeded: true,
+              statusCode: 202,
+              reasonPhrase: "Accepted",
+              responseBodyTruncated: false,
+            });
+        }),
+    );
+
+    render(<WebhooksIntegrationPage />);
+
+    const testButtonA = await screen.findByTestId(`webhook-test-${subscriptionIdA}`);
+    fireEvent.click(testButtonA);
+    expect(testButtonA).toHaveTextContent(/Sending test event/i);
+
+    apiMocks.list.mockResolvedValue([
+      {
+        routingSubscriptionId: subscriptionIdB,
+        tenantId: "t",
+        workspaceId: "w",
+        projectId: "p",
+        name: "Hook B",
+        channelType: "OnCallWebhook",
+        destination: "https://listener.example/hook-b",
+        minimumSeverity: "High",
+        isEnabled: true,
+        createdUtc: "2026-01-01T00:00:00Z",
+        metadataJson: JSON.stringify({ webhookSharedSecret: "z".repeat(16) }),
+      },
+    ]);
+
+    writeOperatorScopeToStorage({
+      tenantId: "tenant-b",
+      workspaceId: "workspace-b",
+      projectId: "project-b",
+      workspaceLabel: "Workspace B",
+      projectLabel: "Project B",
+    });
+
+    const testButtonB = await screen.findByTestId(`webhook-test-${subscriptionIdB}`);
+    expect(testButtonB).not.toBeDisabled();
+    expect(testButtonB).toHaveTextContent(/Send test event/i);
+
+    resolveTest?.();
+
+    await waitFor(() => {
+      expect(screen.queryByTestId(`webhook-test-result-${subscriptionIdA}`)).toBeNull();
+    });
+  });
+
+  it("does not show save success in a new workspace when create completes after scope switch", async () => {
+    const { writeOperatorScopeToStorage } = await import("@/lib/operator/operator-scope-storage");
+    let resolveCreate: (() => void) | undefined;
+
+    writeOperatorScopeToStorage({
+      tenantId: "tenant-a",
+      workspaceId: "workspace-a",
+      projectId: "project-a",
+      workspaceLabel: "Workspace A",
+      projectLabel: "Project A",
+    });
+
+    apiMocks.create.mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          resolveCreate = () => resolve({});
+        }),
+    );
+
+    render(<WebhooksIntegrationPage />);
+    await waitFor(() => expect(apiMocks.list).toHaveBeenCalled());
+
+    fillValidWebhookForm();
+    fireEvent.click(screen.getByTestId("webhook-save-button"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("webhook-save-button")).toHaveTextContent(/Saving subscription/i);
+    });
+
+    writeOperatorScopeToStorage({
+      tenantId: "tenant-b",
+      workspaceId: "workspace-b",
+      projectId: "project-b",
+      workspaceLabel: "Workspace B",
+      projectLabel: "Project B",
+    });
+
+    resolveCreate?.();
+
+    await waitFor(() => {
+      expect(screen.getByTestId("webhook-save-button")).toHaveTextContent(/Save subscription/i);
+    });
+    expect(screen.queryByTestId("webhook-save-success-callout")).toBeNull();
+  });
+
   it("clears the signing secret when operator scope switches workspaces", async () => {
     const { writeOperatorScopeToStorage } = await import("@/lib/operator/operator-scope-storage");
 

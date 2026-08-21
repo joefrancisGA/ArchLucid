@@ -2,7 +2,7 @@
  * TB-2235 — Invitee first-screen specimen (finding → disposition → comment).
  *
  * Distinct from SpecimenDeliverablePreviewCallout (TB-2151), which previews a
- * creator's sealed review record before intake. This specimen teaches invited
+ * creator's Finalized review record before intake. This specimen teaches invited
  * reviewers the first three review actions in buyer nouns.
  */
 

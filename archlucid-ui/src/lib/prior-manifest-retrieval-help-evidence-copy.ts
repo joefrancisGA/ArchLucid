@@ -4,6 +4,7 @@ import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 import {
   PRIOR_MANIFEST_RETRIEVAL_HELP_RELATED_GUIDES,
+  PRIOR_MANIFEST_RETRIEVAL_HELP_RELATED_HEADING,
   priorManifestRetrievalHelpRelatedGuides,
 } from "@/lib/prior-manifest-retrieval-help-related-guides";
 
@@ -27,7 +28,7 @@ export const PRIOR_MANIFEST_RETRIEVAL_HELP_SOURCES_INTRO =
 
 export const PRIOR_MANIFEST_RETRIEVAL_HELP_RELATED = priorManifestRetrievalHelpRelatedGuides();
 
-export const PRIOR_MANIFEST_RETRIEVAL_HELP_RELATED_HEADING = "Related help" as const;
+export { PRIOR_MANIFEST_RETRIEVAL_HELP_RELATED_HEADING };
 
 /** Operator Sources — no self-href to `/help/prior-manifest-retrieval`. */
 export const PRIOR_MANIFEST_RETRIEVAL_HELP_SOURCES: readonly EvidenceSourceLink[] = [

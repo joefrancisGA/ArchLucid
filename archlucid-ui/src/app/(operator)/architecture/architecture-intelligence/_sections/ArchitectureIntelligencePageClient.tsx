@@ -7,6 +7,7 @@ import { ArchitectureIntelligencePageSkeleton } from "@/app/(operator)/architect
 import { ArchitectureIntelligenceProductContextLoadFailure } from "@/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligenceProductContextLoadFailure";
 import { ArchitectureIntelligenceReasoningResults } from "@/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligenceReasoningResults";
 import { AiBudgetSpendNotice } from "@/components/ai-budget/AiBudgetSpendNotice";
+import { ArchitectureIntelligenceAnalysisDepthSelect } from "@/components/architecture-intelligence/ArchitectureIntelligenceAnalysisDepthSelect";
 import { ArchitectureIntelligenceEvidenceGraphVocabularyRail } from "@/components/ArchitectureIntelligenceEvidenceGraphVocabularyRail";
 import { AskArchitectureIntelligenceVocabularyRail } from "@/components/AskArchitectureIntelligenceVocabularyRail";
 import { PageCapabilityBoundaryStrip } from "@/components/PageCapabilityBoundaryStrip";
@@ -42,8 +43,6 @@ export function ArchitectureIntelligencePageClient() {
     setPrioritiesRaw,
     reviewTier,
     setReviewTierIfValid,
-    reviewTiers,
-    reviewTierLabel,
     isBusy,
     blocksLlmExecution,
     canAnalyzeHydratedReview,
@@ -140,26 +139,16 @@ export function ArchitectureIntelligencePageClient() {
             />
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="architecture-review-tier">Analysis depth</Label>
-            <select
-              id="architecture-review-tier"
-              data-testid="architecture-intelligence-review-tier"
-              className="flex h-9 w-full max-w-md rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm"
-              value={reviewTier}
-              disabled={isBusy}
-              onChange={(event) => setReviewTierIfValid(event.target.value)}
-            >
-              {reviewTiers.map((tier) => (
-                <option key={tier} value={tier}>
-                  {reviewTierLabel(tier)}
-                </option>
-              ))}
-            </select>
-            <p className={cn(OPERATOR_TYPOGRAPHY.helper)} data-testid="architecture-intelligence-depth-hint">
-              Deeper analysis runs more specialist roles and accepts larger sources, so it costs more.
-            </p>
-          </div>
+          <ArchitectureIntelligenceAnalysisDepthSelect
+            id="architecture-review-tier"
+            testId="architecture-intelligence-review-tier"
+            value={reviewTier}
+            disabled={isBusy}
+            onValueChange={setReviewTierIfValid}
+          />
+          <p className={cn(OPERATOR_TYPOGRAPHY.helper)} data-testid="architecture-intelligence-depth-hint">
+            Deeper analysis runs more specialist roles and accepts larger sources, so it costs more.
+          </p>
 
           <AiBudgetSpendNotice
             action="Architecture reasoning"

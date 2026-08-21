@@ -139,7 +139,7 @@ export function useGuidedIntakeDraftWorkflow(options: GuidedIntakeDraftWorkflowO
 
     sourceArchitectureLoadedRef.current = true;
 
-    void getDraftRequest(sourceArchitectureId).then((draft) => {
+    void getDraftRequest(sourceArchitectureId).then(async (draft) => {
       setDraftId(draft.draftId);
       const formState = applyArchitectureCreationDraftToFormState(draft);
       setFreeTextIntent(formState.freeTextIntent);
@@ -151,12 +151,27 @@ export function useGuidedIntakeDraftWorkflow(options: GuidedIntakeDraftWorkflowO
           ? draft.document.actorSet
           : architectureCreationDefaultActorSet(),
       );
+
+      if (draft.status === "Admitted") {
+        const questions = await getDraftQuestions(draft.draftId);
+        setAllQuestions(questions.selection.allQuestions);
+        setRequiredMustQuestionKeys(questions.selection.requiredMustQuestionKeys);
+        setPendingQuestions(questions.selection.pendingMustQuestions);
+        setStep(1);
+
+        return;
+      }
+
+      if (draft.status === "Submitted") {
+        setStep(1);
+      }
     });
   }, [
     isCreateArchitectureFlow,
     setActorSet,
     setBusinessOutcome,
     setFreeTextIntent,
+    setStep,
     setSystemName,
     sourceArchitectureId,
   ]);

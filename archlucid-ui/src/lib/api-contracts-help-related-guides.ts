@@ -2,6 +2,7 @@ import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 import { CLI_USAGE_HELP_TOPIC_LABEL } from "@/lib/cli-usage-help-evidence-copy";
 import { CONFIGURATION_REFERENCE_HELP_TOPIC_LABEL } from "@/lib/configuration-reference-help-guide-content";
 import { ENGINEERING_TROUBLESHOOTING_HELP_TOPIC_LABEL } from "@/lib/engineering-troubleshooting-help-guide-content";
+import { resolveRelatedFollowUpsTitle } from "@/lib/help/related-follow-ups-title";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
 /** TB-2269 — at most three related diligence guides for the API contracts job. */
@@ -11,7 +12,7 @@ export const API_CONTRACTS_HELP_RELATED_GUIDES: readonly EvidenceSourceLink[] = 
   { label: CONFIGURATION_REFERENCE_HELP_TOPIC_LABEL, href: inAppHelpHref("configuration-reference") },
 ] as const;
 
-export const API_CONTRACTS_HELP_RELATED_HEADING = "Related help" as const;
+export const API_CONTRACTS_HELP_RELATED_HEADING = resolveRelatedFollowUpsTitle(API_CONTRACTS_HELP_RELATED_GUIDES);
 
 export const API_CONTRACTS_HELP_RELATED_TEST_ID = "help-api-contracts-related-help";
 

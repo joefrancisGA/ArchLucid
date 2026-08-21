@@ -4,7 +4,7 @@ import { BUYER_SIGNED_DECISION_RECORD_LABEL } from "@/lib/buyer/buyer-polish-cop
 import { GOVERNANCE_APPROVAL_QUEUE_PATH } from "@/lib/governance/governance-route-paths";
 import { SIGNED_RECORDS_LIST_PATH } from "@/lib/signed-records-paths";
 
-/** Governance trail for sealed review record detail (MMX). */
+/** Governance trail for Finalized review record detail (MMX). */
 export function GovernanceSealedRecordDetailBreadcrumb(): React.JSX.Element {
   return (
     <OperatorPageBreadcrumb

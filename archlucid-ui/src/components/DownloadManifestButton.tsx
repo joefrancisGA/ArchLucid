@@ -14,7 +14,7 @@ type DownloadManifestButtonProps = {
   readonly buyerPolishedLayout?: boolean;
 };
 
-/** One-click browser download of the committed golden manifest JSON for a review. */
+/** One-click browser download of the committed finalized review record JSON for a review. */
 export function DownloadManifestButton(props: DownloadManifestButtonProps): ReactElement {
   const { runId, className, buyerPolishedLayout } = props;
   const [downloading, setDownloading] = useState(false);

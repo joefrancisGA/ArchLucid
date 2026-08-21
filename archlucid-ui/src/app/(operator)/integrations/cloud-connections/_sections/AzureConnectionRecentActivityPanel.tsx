@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/enterprise-table";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { AZURE_CONNECTION_RECENT_ACTIVITY_EMPTY_STATE } from "@/lib/azure-cloud-connection-copy";
+import { CLOUD_CONNECTIONS_RECENT_ACTIVITY_EMPTY_TITLE } from "@/lib/cloud-connections-copy";
 import {
   azureConnectionStatusTagKind,
   formatAzureConnectionTimestamp,
@@ -65,10 +66,9 @@ export function AzureConnectionRecentActivityPanel(): React.ReactElement {
           hasConnection={false}
           hasSuccessfulPull={false}
           recommendedProviderId="azure"
-          emptyPhasePrimaryCtaHref="#connection-details"
         />
         <EnterpriseCompactEmptyState
-          title="No collection activity yet"
+          title={CLOUD_CONNECTIONS_RECENT_ACTIVITY_EMPTY_TITLE}
           description={AZURE_CONNECTION_RECENT_ACTIVITY_EMPTY_STATE}
           testId="azure-connection-recent-activity-empty"
         />

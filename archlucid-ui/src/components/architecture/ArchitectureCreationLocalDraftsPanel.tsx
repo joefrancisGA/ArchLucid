@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
+import { ArchitectureDraftResumeControl } from "@/components/architecture/ArchitectureDraftResumeControl";
 import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
 import { useArchitectureDraftRegistryEntries } from "@/hooks/use-architecture-draft-registry-entries";
@@ -10,8 +11,7 @@ import {
   ARCHITECTURE_DRAFT_STATUS_LABELS,
   architectureDraftCustomerStatusTagKind,
 } from "@/lib/architecture/architecture-draft-status";
-import { trackArchitectureDraftResumeClick } from "@/lib/architecture/architecture-draft-resume-telemetry";
-import { architectureDraftPath, ARCHITECTURES_LIST_PATH } from "@/lib/architecture/architecture-routes";
+import { ARCHITECTURES_LIST_PATH } from "@/lib/architecture/architecture-routes";
 import { CONTINUE_DRAFT_LABEL } from "@/lib/architecture/architecture-workflow-labels";
 import {
   ARCHITECTURE_CREATION_CONTINUE_SECTION_TITLE,
@@ -110,18 +110,14 @@ export function ArchitectureCreationLocalDraftsPanel(): React.JSX.Element | null
                 </span>
               </div>
               <div className="mt-2">
-                <Button variant="primary" size="sm" asChild>
-                  <Link
-                    href={architectureDraftPath(entry.architectureId)}
-                    title={entry.displayName}
-                    data-testid={`architecture-creation-resume-draft-continue-${entry.architectureId}`}
-                    onClick={() => {
-                      trackArchitectureDraftResumeClick("architectures-new", entry.architectureId);
-                    }}
-                  >
-                    {CONTINUE_DRAFT_LABEL}
-                  </Link>
-                </Button>
+                <ArchitectureDraftResumeControl
+                  architectureId={entry.architectureId}
+                  label={CONTINUE_DRAFT_LABEL}
+                  source="architectures-new"
+                  variant="primary"
+                  title={entry.displayName}
+                  testId={`architecture-creation-resume-draft-continue-${entry.architectureId}`}
+                />
               </div>
             </li>
           );

@@ -52,7 +52,7 @@ export type RoiSummaryHelpReportItem = {
 export const ROI_SUMMARY_HELP_REPORT_ITEMS: readonly RoiSummaryHelpReportItem[] = [
   {
     label: "Rolling 30 days",
-    detail: "A recent window for directional savings from finalized findings and governance blocks.",
+    detail: "A recent window for directional savings from finalized findings and approval-check blocks.",
   },
   {
     label: "Since pilot start",
@@ -60,7 +60,7 @@ export const ROI_SUMMARY_HELP_REPORT_ITEMS: readonly RoiSummaryHelpReportItem[] 
   },
   {
     label: "Hours saved",
-    detail: "Estimated review and rework time avoided from severity-weighted findings and governance blocks.",
+    detail: "Estimated review and rework time avoided from severity-weighted findings and approval-check blocks.",
   },
   {
     label: "USD estimate",
@@ -79,7 +79,7 @@ export const ROI_SUMMARY_HELP_DATA_NEEDS_SECTION_TITLE = "Data needs and confide
 export const ROI_SUMMARY_HELP_DATA_NEEDS_ITEMS = [
   "At least one finalized review in the selected period.",
   "Findings with severity counts toward the hours model.",
-  "Governance blocks or review-time baseline inputs sharpen the estimate.",
+  "Approval-check blocks or review-time baseline inputs sharpen the estimate.",
   "Loaded hourly cost unlocks a meaningful dollar estimate.",
   "Loaded hourly cost is saved in this browser only — it is not shared across people or devices.",
 ] as const;
@@ -92,7 +92,7 @@ export const ROI_SUMMARY_HELP_METHODOLOGY_BODY =
   `${roiSummaryBasisOfEstimateCopy()} ${ROI_HOURS_COEFFICIENTS_PROVENANCE}`;
 
 export const ROI_SUMMARY_HELP_METHODOLOGY_UNITS =
-  `Coefficients are hours per finding by severity and hours per governance block in a finalized review: ${HOURS_PER_CRITICAL} hours per Critical, ${HOURS_PER_HIGH} per High, ${HOURS_PER_MEDIUM} per Medium, and ${HOURS_PER_PRECOMMIT_BLOCK} per governance block.`;
+  `Coefficients are hours per finding by severity and hours per approval-check block in a finalized review: ${HOURS_PER_CRITICAL} hours per Critical, ${HOURS_PER_HIGH} per High, ${HOURS_PER_MEDIUM} per Medium, and ${HOURS_PER_PRECOMMIT_BLOCK} per approval-check block.`;
 
 export type RoiSummaryHelpMethodologyCoefficientRow = {
   readonly id: string;
@@ -107,7 +107,7 @@ export const ROI_SUMMARY_HELP_METHODOLOGY_COEFFICIENT_ROWS: readonly RoiSummaryH
     { id: "critical", label: "Critical finding", severity: "critical", hours: HOURS_PER_CRITICAL },
     { id: "high", label: "High finding", severity: "high", hours: HOURS_PER_HIGH },
     { id: "medium", label: "Medium finding", severity: "medium", hours: HOURS_PER_MEDIUM },
-    { id: "governance-block", label: "Governance block", hours: HOURS_PER_PRECOMMIT_BLOCK },
+    { id: "governance-block", label: "Approval-check block", hours: HOURS_PER_PRECOMMIT_BLOCK },
   ] as const;
 
 export const ROI_SUMMARY_HELP_DIRECTIONAL_DISCLAIMER = roiSummaryDirectionalDisclaimer();
@@ -119,7 +119,7 @@ export const ROI_SUMMARY_HELP_SIBLING_REPORTS = [
   {
     id: "sponsor-report",
     title: SPONSOR_REPORT_PAGE_TITLE,
-    description: "Period summary of review activity, findings, governance decisions, and measurable outcomes, plus sponsor exports.",
+    description: "Period summary of review activity, findings, approval decisions, and measurable outcomes, plus sponsor exports.",
     actionLabel: "Open sponsor report",
     href: SPONSOR_REPORT_PATH,
   },

@@ -27,7 +27,7 @@ export const REVIEW_INTAKE_EXAMPLE_TEMPLATES: readonly ReviewIntakeExampleTempla
     briefText:
       "Evaluate an AI or ML solution against responsible-AI expectations — model and data risk, transparency, human oversight, privacy, monitoring, and export readiness. Describe inference, training boundaries, and governance controls you need reviewed.",
     businessOutcome:
-      "An AI governance review with evidence-backed findings and clear governance decisions for stakeholders.",
+      "An AI governance review with evidence-backed findings and clear approval decisions for stakeholders.",
     systemName: "AI Solution",
     quickReviewSampleBriefId: "ai",
   },

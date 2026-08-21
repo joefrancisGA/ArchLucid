@@ -13,7 +13,7 @@ import { REVIEWS_LIST_PATH } from "@/lib/architecture/architecture-routes";
 import { SIGNED_RECORDS_LIST_PATH } from "@/lib/signed-records-paths";
 
 describe("signed-records-review-detail-vocabulary (TB-2272)", () => {
-  it("explains sealed review records inventory vs review detail package workspace", () => {
+  it("explains Finalized review records inventory vs review detail package workspace", () => {
     const model = buildSignedRecordsReviewDetailVocabulary();
 
     expect(model.heading).toBe(SIGNED_RECORDS_REVIEW_DETAIL_HEADING);

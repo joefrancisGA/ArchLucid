@@ -22,7 +22,7 @@ const payload: FindingInspectPayload = {
 };
 
 describe("FindingDetailOperationalActions", () => {
-  it("renders navigation as links with sealed review record vocabulary", () => {
+  it("renders navigation as links with Finalized review record vocabulary", () => {
     render(
       <FindingDetailOperationalActions
         runId="run-1"

@@ -2,7 +2,7 @@ import { OperatorPageBreadcrumb } from "@/components/operator/OperatorPageBreadc
 import { GOVERNANCE_APPROVAL_QUEUE_PATH } from "@/lib/governance/governance-route-paths";
 import { SIGNED_RECORDS_LIST_PAGE_TITLE } from "@/app/(operator)/governance/sealed-records/_sections/signed-records-list-copy";
 
-/** Governance trail for the sealed review records register (inventory list). */
+/** Governance trail for the Finalized review records register (inventory list). */
 export function GovernanceSealedRecordsListBreadcrumb(): React.JSX.Element {
   return (
     <OperatorPageBreadcrumb

@@ -114,6 +114,12 @@ function resolveDeferredChunkImportLoader(
           (module) => module.CtoDemoSponsorLandingRedirect,
         ),
       ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "operator-home-advanced-guidance":
+      return deferredChunkLoader(() =>
+        import("@/components/operator-home/OperatorHomeAdvancedGuidanceSection").then(
+          (module) => module.OperatorHomeAdvancedGuidanceSection,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
     case "governance-workflow-overview-panel":
       return deferredChunkLoader(() =>
         import("@/app/(operator)/governance/_sections/GovernanceOverviewPanel").then(
@@ -574,9 +580,7 @@ function resolveDeferredChunkImportLoader(
       ) as () => Promise<ComponentType<Record<string, unknown>>>;
     case "reviews-hub-before-after-delta":
       return deferredChunkLoader(() =>
-        import("@/app/(operator)/architecture/reviews/_sections/ReviewsHubBeforeAfterDeltaPanel").then(
-          (module) => module.ReviewsHubBeforeAfterDeltaPanel,
-        ),
+        import("@/components/BeforeAfterDeltaPanel").then((module) => module.BeforeAfterDeltaPanel),
       ) as () => Promise<ComponentType<Record<string, unknown>>>;
     case "reviews-hub-index-before-after":
       return deferredChunkLoader(() =>

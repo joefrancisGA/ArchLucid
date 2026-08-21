@@ -36,7 +36,7 @@ describe("customer-glossary-manifest", () => {
     const signedTerm = listCustomerFacingGlossaryTerms().find((term) => term.id === "sealed-review-record");
 
     expect(signedTerm?.label).toBe("Finalized review record");
-    expect(signedTerm?.deprecatedAliases).toContain("Sealed review record");
+    expect(signedTerm?.deprecatedAliases).toContain("Finalized review record");
     expect(signedTerm?.deprecatedAliases).toContain("Signed review record");
     expect(signedTerm?.deprecatedAliases).toContain("Signed manifest");
     expect(listCustomerFacingGlossaryTerms().some((term) => term.label === "Signed manifest")).toBe(false);

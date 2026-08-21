@@ -126,7 +126,7 @@ function ShowcaseSponsorReport({ payload }: { readonly payload: DemoCommitPagePr
       <h2 className="m-0 text-base font-semibold text-neutral-900 dark:text-neutral-50">Sponsor report</h2>
       <p className="mt-3 mb-0 text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">
         <strong className="font-medium text-neutral-900 dark:text-neutral-100">What changed:</strong> the architecture
-        moves from an underspecified intake hand-off to a governed package with explicit decisions and traceable
+        moves from an underspecified intake hand-off to an export-ready package with explicit decisions and traceable
         evidence.
       </p>
       <p className="mt-2 mb-0 text-sm leading-relaxed text-neutral-700 dark:text-neutral-300">

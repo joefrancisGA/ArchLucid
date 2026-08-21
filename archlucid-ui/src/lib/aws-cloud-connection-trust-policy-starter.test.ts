@@ -30,7 +30,7 @@ describe("aws-cloud-connection-trust-policy-starter", () => {
     const surfaces = [
       buildAwsTrustStarterPolicyTemplate(),
       AWS_TRUST_STARTER_TRUST_POLICY_REPLACE_HINT,
-      ...AWS_TRUST_STARTER_FEDERATION_IDENTIFIERS.map((row) => row.value),
+      ...AWS_TRUST_STARTER_FEDERATION_IDENTIFIERS.flatMap((row) => [row.value, row.hint]),
     ];
 
     for (const surface of surfaces) {

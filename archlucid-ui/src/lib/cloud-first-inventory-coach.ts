@@ -17,10 +17,8 @@ export type CloudFirstInventoryCoachInput = {
   readonly hasSuccessfulPull: boolean;
   readonly connectedProviderCount?: number;
   readonly totalProviderCount?: number;
-  /** Preferred Configure target when nothing is connected (must match visible platform scope). */
+  /** Preferred provider when nothing is connected (must match visible platform scope). */
   readonly recommendedProviderId?: CloudProviderId;
-  /** When set, empty-phase CTA links here instead of the hub provider detail path (e.g. `#connection-details`). */
-  readonly emptyPhasePrimaryCtaHref?: string;
 };
 
 export type CloudFirstInventoryCoachStepId = "attach" | "start-review";
@@ -35,7 +33,7 @@ export type CloudFirstInventoryCoachView = {
   readonly title: string;
   readonly body: string;
   readonly steps: readonly CloudFirstInventoryCoachStep[];
-  /** Null on the hub empty coach — provider cards already expose Configure actions. */
+  /** Null on empty — hub cards and provider Connection details already expose configure actions. */
   readonly primaryCtaLabel: string | null;
   readonly primaryCtaHref: string | null;
   /** When true, prefer this coach over idle empty-state copy. */
@@ -114,19 +112,29 @@ export function buildCloudFirstInventoryCoach(
         "Your cloud connection is saved. After the first successful pull, attach the inventory package to a review and start the review - do not stop at an idle collection list.",
       );
     case "empty": {
-      const recommendedProviderId = input.recommendedProviderId ?? CLOUD_PROVIDER_NEUTRAL_ORDER[0];
-      const providerLabel = EMPTY_COACH_PROVIDER_LABEL[recommendedProviderId];
-      const providerScopedEmpty = input.emptyPhasePrimaryCtaHref !== undefined;
+      const recommendedProviderId = input.recommendedProviderId;
+
+      if (recommendedProviderId !== undefined) {
+        const providerLabel = EMPTY_COACH_PROVIDER_LABEL[recommendedProviderId];
+
+        return {
+          phase,
+          title: CLOUD_FIRST_INVENTORY_COACH_EMPTY_TITLE,
+          body: `${providerLabel} is not connected yet. Complete Connection details on this page to attach read-only inventory to architecture reviews.`,
+          steps: [],
+          primaryCtaLabel: null,
+          primaryCtaHref: null,
+          replacesIdleEmpty: true,
+        };
+      }
 
       return {
         phase,
         title: CLOUD_FIRST_INVENTORY_COACH_EMPTY_TITLE,
-        body: providerScopedEmpty
-          ? `${providerLabel} is not connected yet. Complete connection details below to attach read-only inventory to architecture reviews.`
-          : `${connectedProviderCount} of ${totalProviderCount} cloud providers connected. Connecting adds read-only inventory packages to architecture reviews; evidence-only upload works without cloud vendor access.`,
+        body: `${connectedProviderCount} of ${totalProviderCount} cloud providers connected. Connecting adds read-only inventory packages to architecture reviews; evidence-only upload works without cloud vendor access.`,
         steps: [],
-        primaryCtaLabel: providerScopedEmpty ? `Configure ${providerLabel}` : null,
-        primaryCtaHref: providerScopedEmpty ? input.emptyPhasePrimaryCtaHref : null,
+        primaryCtaLabel: null,
+        primaryCtaHref: null,
         replacesIdleEmpty: true,
       };
     }

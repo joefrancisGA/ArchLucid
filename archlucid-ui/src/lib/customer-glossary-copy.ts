@@ -5,7 +5,7 @@ export const CUSTOMER_GLOSSARY_PAGE_INTRO =
 
 export const CUSTOMER_GLOSSARY_SEARCH_LABEL = "Search glossary terms";
 
-export const CUSTOMER_GLOSSARY_SEARCH_PLACEHOLDER = "e.g. finding, evidence trail, sealed review record";
+export const CUSTOMER_GLOSSARY_SEARCH_PLACEHOLDER = "e.g. finding, evidence trail, Finalized review record";
 
 export const CUSTOMER_GLOSSARY_EMPTY_STATE = "No glossary terms match your search.";
 

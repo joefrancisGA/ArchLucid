@@ -127,7 +127,7 @@ describe("splitSidebarLinksDailyVsMore", () => {
       link("/governance/approval-queue", "Approval"),
       link("/governance/findings", "Findings"),
       link("/governance/policy-packs", "Policy packs"),
-      link(SIGNED_RECORDS_LIST_PATH, "Sealed records"),
+      link(SIGNED_RECORDS_LIST_PATH, "Finalized review records"),
       link("/governance/advisory-scans", "Advisory scans"),
       link("/governance/alerts", "Alerts"),
       link(SPONSOR_DASHBOARD_WORKSPACE_HEALTH_HREF, "Workspace health"),

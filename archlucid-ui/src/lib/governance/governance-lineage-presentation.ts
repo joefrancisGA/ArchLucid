@@ -122,7 +122,7 @@ export function governanceLineageReviewCheckpointStatusTagPresentation(
   return { kind: "neutral", label: label.length > 0 ? label : " — " };
 }
 
-/** Maps sealed review record verification status to StatusTag presentation. */
+/** Maps Finalized review record verification status to StatusTag presentation. */
 export function governanceLineageVerificationStatusTagPresentation(
   verificationStatus: string,
 ): GovernanceLineageStatusTagPresentation {

@@ -1,13 +1,14 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const push = vi.fn();
+import type { DraftRequestResponse } from "@/types/draft-intake";
+
+const routerPush = vi.fn();
 const getDraftRequest = vi.fn();
 const reopenDraftRequest = vi.fn();
-const showError = vi.fn();
 
 vi.mock("next/navigation", () => ({
-  useRouter: () => ({ push, replace: vi.fn() }),
+  useRouter: () => ({ push: routerPush, replace: vi.fn() }),
 }));
 
 vi.mock("@/lib/api/draft-intake-api", () => ({
@@ -16,24 +17,14 @@ vi.mock("@/lib/api/draft-intake-api", () => ({
 }));
 
 vi.mock("@/lib/toast", () => ({
-  showError: (...args: unknown[]) => showError(...args),
-  showSuccess: vi.fn(),
+  showError: vi.fn(),
 }));
 
-vi.mock("@/lib/architecture/architecture-draft-resume-telemetry", () => ({
-  trackArchitectureDraftResumeClick: vi.fn(),
-}));
+import { ArchitectureDraftResumeControl } from "./ArchitectureDraftResumeControl";
 
-import { ArchitectureDraftResumeControl } from "@/components/architecture/ArchitectureDraftResumeControl";
-import {
-  ARCHITECTURE_DRAFT_INTAKE_MODE_CONTINUE_LABEL,
-  ARCHITECTURE_DRAFT_INTAKE_MODE_TITLE,
-  ARCHITECTURE_DRAFT_INTAKE_MODE_UNLOCK_LABEL,
-} from "@/lib/architecture/architecture-draft-intake-mode";
-
-function draftResponse(status: "Drafting" | "Admitted" | "RunSpawned") {
+function draft(status: DraftRequestResponse["status"]): DraftRequestResponse {
   return {
-    draftId: "draft-001",
+    draftId: "arch-001",
     tenantId: "tenant",
     workspaceId: "ws",
     projectId: "default",
@@ -42,7 +33,6 @@ function draftResponse(status: "Drafting" | "Admitted" | "RunSpawned") {
       freeTextIntent: "Claims intake",
       actorSet: { actors: [] },
     },
-    spawnedRunId: status === "RunSpawned" ? "run-001" : null,
     createdUtc: "2026-01-01T00:00:00.000Z",
     updatedUtc: "2026-01-02T00:00:00.000Z",
   };
@@ -50,87 +40,78 @@ function draftResponse(status: "Drafting" | "Admitted" | "RunSpawned") {
 
 describe("ArchitectureDraftResumeControl", () => {
   beforeEach(() => {
-    push.mockReset();
+    routerPush.mockReset();
     getDraftRequest.mockReset();
     reopenDraftRequest.mockReset();
-    showError.mockReset();
   });
 
-  it("opens the draft when it is still drafting", async () => {
-    getDraftRequest.mockResolvedValue(draftResponse("Drafting"));
+  it("navigates to the draft when the architecture is still drafting", async () => {
+    getDraftRequest.mockResolvedValue(draft("Drafting"));
 
     render(
       <ArchitectureDraftResumeControl
-        architectureId="draft-001"
+        architectureId="arch-001"
         label="Continue editing"
         source="architectures-list"
-        testId="resume-continue"
       />,
     );
 
-    fireEvent.click(screen.getByTestId("resume-continue"));
+    fireEvent.click(screen.getByRole("button", { name: "Continue editing" }));
 
     await waitFor(() => {
-      expect(push).toHaveBeenCalledWith("/architecture/architectures/draft-001");
+      expect(routerPush).toHaveBeenCalledWith("/architecture/architectures/arch-001");
     });
 
     expect(screen.queryByTestId("architecture-draft-intake-mode-dialog")).not.toBeInTheDocument();
   });
 
-  it("asks continue vs unlock before opening an admitted draft", async () => {
-    getDraftRequest.mockResolvedValue(draftResponse("Admitted"));
+  it("opens the intake dialog when the architecture is already admitted", async () => {
+    getDraftRequest.mockResolvedValue(draft("Admitted"));
 
     render(
       <ArchitectureDraftResumeControl
-        architectureId="draft-001"
+        architectureId="arch-001"
         label="Continue editing"
-        source="architectures-list"
-        testId="resume-continue"
+        source="reviews-hub"
       />,
     );
 
-    fireEvent.click(screen.getByTestId("resume-continue"));
+    fireEvent.click(screen.getByRole("button", { name: "Continue editing" }));
 
     await waitFor(() => {
-      expect(screen.getByTestId("architecture-draft-intake-mode-dialog")).toHaveTextContent(
-        ARCHITECTURE_DRAFT_INTAKE_MODE_TITLE,
-      );
+      expect(screen.getByTestId("architecture-draft-intake-mode-dialog")).toBeInTheDocument();
     });
 
-    expect(push).not.toHaveBeenCalled();
-
-    fireEvent.click(screen.getByRole("button", { name: ARCHITECTURE_DRAFT_INTAKE_MODE_CONTINUE_LABEL }));
-
-    expect(push).toHaveBeenCalledWith(
-      "/architecture/reviews/new?path=guided-intake&sourceArchitectureId=draft-001",
-    );
+    expect(routerPush).not.toHaveBeenCalled();
   });
 
-  it("unlocks an admitted draft then opens the editor", async () => {
-    getDraftRequest.mockResolvedValue(draftResponse("Admitted"));
-    reopenDraftRequest.mockResolvedValue(draftResponse("Drafting"));
+  it("reopens the draft then navigates after unlock", async () => {
+    getDraftRequest.mockResolvedValue(draft("Admitted"));
+    reopenDraftRequest.mockResolvedValue(draft("Drafting"));
 
     render(
       <ArchitectureDraftResumeControl
-        architectureId="draft-001"
+        architectureId="arch-001"
         label="Continue editing"
-        source="architectures-list"
-        testId="resume-continue"
+        source="architectures-new"
+        variant="primary"
       />,
     );
 
-    fireEvent.click(screen.getByTestId("resume-continue"));
+    fireEvent.click(screen.getByRole("button", { name: "Continue editing" }));
 
     await waitFor(() => {
-      expect(screen.getByRole("button", { name: ARCHITECTURE_DRAFT_INTAKE_MODE_UNLOCK_LABEL })).toBeInTheDocument();
+      expect(screen.getByTestId("architecture-draft-intake-mode-dialog-unlock")).toBeInTheDocument();
     });
 
-    fireEvent.click(screen.getByRole("button", { name: ARCHITECTURE_DRAFT_INTAKE_MODE_UNLOCK_LABEL }));
+    fireEvent.click(screen.getByTestId("architecture-draft-intake-mode-dialog-unlock"));
 
     await waitFor(() => {
-      expect(reopenDraftRequest).toHaveBeenCalledWith("draft-001");
+      expect(reopenDraftRequest).toHaveBeenCalledWith("arch-001");
     });
 
-    expect(push).toHaveBeenCalledWith("/architecture/architectures/draft-001");
+    await waitFor(() => {
+      expect(routerPush).toHaveBeenCalledWith("/architecture/architectures/arch-001");
+    });
   });
 });

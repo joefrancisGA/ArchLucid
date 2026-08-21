@@ -41,6 +41,9 @@ describe("GcpConnectionSection", () => {
     });
 
     expect(screen.getByTestId("gcp-connection-wizard-step-ids")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Help: GCP project ID" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Help: Workload Identity Pool provider" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Help: Read-only service account email" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Next" })).toBeInTheDocument();
     expect(screen.queryByTestId("gcp-connect-submit")).not.toBeInTheDocument();
 

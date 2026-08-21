@@ -94,6 +94,7 @@ describe("ArchitectureDraftListClient", () => {
 
     expect(updated.closest("time")?.getAttribute("dateTime")).toBe("2026-07-12T23:42:05.000Z");
     expect(updated.textContent ?? "").toMatch(/Updated .+ · /);
+    expect(screen.getByRole("button", { name: "Continue editing Healthcare Claims Platform" })).toBeInTheDocument();
   });
 
   it("shows a loading skeleton before registry hydrate (TB-1450)", () => {

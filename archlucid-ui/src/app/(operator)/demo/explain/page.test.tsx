@@ -77,7 +77,7 @@ const fixedPayload: DemoExplainResponse = {
   provenanceGraph: {
     nodes: [
       { id: "n-run", label: "Review baseline", type: "Review" },
-      { id: "n-manifest", label: "Sealed review record v3", type: "Manifest" },
+      { id: "n-manifest", label: "Finalized review record v3", type: "Manifest" },
       { id: "n-finding", label: "Public storage", type: "Finding" },
     ],
     edges: [

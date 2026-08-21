@@ -34,7 +34,7 @@ export const USERS_AND_ROLES_WORKSPACE_ACCESS_BODY =
 export const USERS_AND_ROLES_REVIEW_PARTICIPATION_HEADING = "Review participation";
 
 export const USERS_AND_ROLES_REVIEW_PARTICIPATION_BODY =
-  "Workspace administrators can invite reviewers from Settings. Invited colleagues can accept with a one-time email code or a work or school account when your tenant allows it. Reviewer invitations typically assign the Reader role so colleagues can view reviews, findings, and governance decisions without changing evidence or finalizing reviews.";
+  "Workspace administrators can invite reviewers from Settings. Invited colleagues can accept with a one-time email code or a work or school account when your tenant allows it. Reviewer invitations typically assign the Reader role so colleagues can view reviews, findings, and approval decisions without changing evidence or finalizing reviews.";
 
 export const USERS_AND_ROLES_MANAGING_ACCESS_HEADING = "Managing access";
 

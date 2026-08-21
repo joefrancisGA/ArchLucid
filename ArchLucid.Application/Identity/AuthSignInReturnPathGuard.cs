@@ -30,8 +30,7 @@ public static class AuthSignInReturnPathGuard
     private static string? TryNormalizeRelativePath(string candidate)
     {
         if (!candidate.StartsWith("/", StringComparison.Ordinal)
-            || candidate.StartsWith("//", StringComparison.Ordinal)
-            || candidate.StartsWith("/\\", StringComparison.Ordinal)
+            || ContainsProtocolRelativeTraversal(candidate)
             || candidate.Contains('\\', StringComparison.Ordinal)
             || candidate.Contains('@', StringComparison.Ordinal)
             || candidate.Contains("://", StringComparison.Ordinal))
@@ -40,6 +39,14 @@ public static class AuthSignInReturnPathGuard
         }
 
         return candidate;
+    }
+
+    private static bool ContainsProtocolRelativeTraversal(string path)
+    {
+        return path.StartsWith("//", StringComparison.Ordinal)
+            || path.StartsWith("/\\", StringComparison.Ordinal)
+            || path.Contains("//", StringComparison.Ordinal)
+            || path.Contains("/\\", StringComparison.Ordinal);
     }
 
     private static string? TryNormalizeAfterPercentDecoding(string candidate, string normalized)

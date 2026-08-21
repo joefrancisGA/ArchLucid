@@ -35,7 +35,7 @@ export function resolveAcceleratorChooserPrerequisitePresentation(input: {
   }
 
   // Stay on Checking until the signed-record id resolve finishes so the CTA never
-  // points at a review workspace while labeled as a sealed review record.
+  // points at a review workspace while labeled as a Finalized review record.
   if (input.manifestQueryPending === true) {
     return { status: "checking", signedRecordHref: null };
   }

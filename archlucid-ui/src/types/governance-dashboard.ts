@@ -49,7 +49,7 @@ export interface GovernanceLineageManifestSummary {
   decisionCount: number;
   unresolvedIssueCount: number;
   complianceGapCount: number;
-  /** Present when the sealed review record verification payload is available. */
+  /** Present when the Finalized review record verification payload is available. */
   signedBy?: string | null;
   signedUtc?: string | null;
   verificationStatus?: string | null;

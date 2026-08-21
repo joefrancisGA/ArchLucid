@@ -5,6 +5,7 @@ import {
 } from "@/lib/subprocessors-help-guide-content";
 import {
   SUBPROCESSORS_HELP_RELATED_GUIDES,
+  SUBPROCESSORS_HELP_RELATED_HEADING,
   subprocessorsHelpRelatedGuides,
 } from "@/lib/subprocessors-help-related-guides";
 
@@ -58,6 +59,4 @@ export const SUBPROCESSORS_HELP_PRIMARY_ACTION = {
 
 export const SUBPROCESSORS_HELP_RELATED = subprocessorsHelpRelatedGuides();
 
-export const SUBPROCESSORS_HELP_RELATED_HEADING = "Related help" as const;
-
-export { SUBPROCESSORS_HELP_RELATED_GUIDES };
+export { SUBPROCESSORS_HELP_RELATED_HEADING, SUBPROCESSORS_HELP_RELATED_GUIDES };

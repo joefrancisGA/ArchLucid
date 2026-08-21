@@ -18,7 +18,7 @@ export const DECISION_REGISTER_HELP_BREADCRUMB_TOPIC_TITLE = "Decision register"
 export const DECISION_REGISTER_HELP_PAGE_TITLE = "Decision register";
 
 export const DECISION_REGISTER_HELP_PAGE_SUBTITLE =
-  "Browse architecture decisions locked with sealed review records — category, confidence, findings, and lineage.";
+  "Browse architecture decisions locked with Finalized review records — category, confidence, findings, and lineage.";
 
 export const DECISION_REGISTER_HELP_OVERVIEW =
   "The decision register is the workspace index of architecture decisions recorded when reviews are finalized and sealed. Use it to filter and open decisions tied to signed review records — not to triage live findings.";

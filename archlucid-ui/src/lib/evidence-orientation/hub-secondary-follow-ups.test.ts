@@ -2,11 +2,13 @@ import { describe, expect, it } from "vitest";
 
 import {
   HUB_RELATED_GUIDES_FOLLOW_UPS_TITLE,
+  HUB_RELATED_RESOURCES_FOLLOW_UPS_TITLE,
   HUB_SECONDARY_FOLLOW_UPS_TITLES,
   HUB_SECONDARY_SOURCES_LAYOUT,
   hubSecondaryFollowUpsIntro,
   isRelatedGuidesFollowUpsTitle,
 } from "@/lib/evidence-orientation/hub-secondary-follow-ups";
+import { RELATED_GUIDES_FOLLOW_UPS_TITLE, RELATED_RESOURCES_FOLLOW_UPS_TITLE } from "@/lib/help/related-follow-ups-title";
 
 describe("hub-secondary-follow-ups", () => {
   it("uses the same columns layout as Where to go next strips", () => {
@@ -20,11 +22,13 @@ describe("hub-secondary-follow-ups", () => {
   });
 
   it("publishes contextual titles per hub surface", () => {
-    expect(HUB_RELATED_GUIDES_FOLLOW_UPS_TITLE).toBe("Related Guides");
+    expect(HUB_RELATED_GUIDES_FOLLOW_UPS_TITLE).toBe(RELATED_GUIDES_FOLLOW_UPS_TITLE);
+    expect(HUB_RELATED_RESOURCES_FOLLOW_UPS_TITLE).toBe(RELATED_RESOURCES_FOLLOW_UPS_TITLE);
     expect(isRelatedGuidesFollowUpsTitle(HUB_RELATED_GUIDES_FOLLOW_UPS_TITLE)).toBe(true);
+    expect(isRelatedGuidesFollowUpsTitle(HUB_RELATED_RESOURCES_FOLLOW_UPS_TITLE)).toBe(false);
     expect(isRelatedGuidesFollowUpsTitle("Where to go next")).toBe(false);
-    expect(HUB_SECONDARY_FOLLOW_UPS_TITLES.reviewsNew).toBe(HUB_RELATED_GUIDES_FOLLOW_UPS_TITLE);
-    expect(HUB_SECONDARY_FOLLOW_UPS_TITLES.cloudConnections).toBe(HUB_RELATED_GUIDES_FOLLOW_UPS_TITLE);
+    expect(HUB_SECONDARY_FOLLOW_UPS_TITLES.reviewsNew).toBe(HUB_RELATED_RESOURCES_FOLLOW_UPS_TITLE);
+    expect(HUB_SECONDARY_FOLLOW_UPS_TITLES.cloudConnections).toBe(HUB_RELATED_RESOURCES_FOLLOW_UPS_TITLE);
     expect(HUB_SECONDARY_FOLLOW_UPS_TITLES.settingsHub).toBe("Related administration");
     expect(HUB_SECONDARY_FOLLOW_UPS_TITLES.operatorHome).toBe("After a review");
   });

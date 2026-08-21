@@ -29,8 +29,23 @@ export const AWS_CONNECTION_VALIDATE_EMPTY_STATE =
 export const AWS_CONNECTION_VALIDATE_CONNECTED_LEAD =
   "Re-poll now in Connection details validates OIDC federation access and imports a fresh Resource Explorer inventory package.";
 
+export const AWS_CONNECTION_ACCOUNT_ID_LABEL = "AWS account ID";
+
+export const AWS_CONNECTION_ACCOUNT_ID_HINT =
+  "12-digit AWS account that owns the read-only IAM role.";
+
+export const AWS_CONNECTION_REGION_LABEL = "Primary region";
+
+export const AWS_CONNECTION_REGION_HINT =
+  "AWS region Resource Explorer uses for inventory collection.";
+
+export const AWS_CONNECTION_ROLE_ARN_LABEL = "Read-only IAM role ARN";
+
+export const AWS_CONNECTION_ROLE_ARN_HINT =
+  "ARN of the read-only IAM role that trusts ArchLucid through OIDC. ArchLucid does not store access keys.";
+
 export const AWS_CONNECTION_RECENT_ACTIVITY_EMPTY_STATE =
-  "No collection activity yet. Save a connection and run Re-poll now to import inventory.";
+  "Save a connection and run Re-poll now to import inventory.";
 
 export function formatAwsConnectionCollectionSuccessMessage(
   resourceCount: number,

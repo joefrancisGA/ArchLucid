@@ -35,7 +35,7 @@ describe("ArtifactPreviewSponsorExportVocabularyRail (TB-2303)", () => {
     expect(peer).toHaveAttribute("href", model.sponsorExportLink.href);
   });
 
-  it("renders sponsor-export strip with Sealed review records peer", () => {
+  it("renders sponsor-export strip with Finalized review records peer", () => {
     render(
       <ArtifactPreviewSponsorExportVocabularyRail currentSurfaceId="sponsor-export" />,
     );

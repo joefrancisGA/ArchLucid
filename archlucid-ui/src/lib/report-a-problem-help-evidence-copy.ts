@@ -5,6 +5,7 @@ import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import { REPORT_A_PROBLEM_HELP_PRIMARY_ACTIONS } from "@/lib/report-a-problem-help-guide-content";
 import {
   REPORT_A_PROBLEM_HELP_RELATED_GUIDES,
+  REPORT_A_PROBLEM_HELP_RELATED_HEADING,
   reportAProblemHelpRelatedGuides,
 } from "@/lib/report-a-problem-help-related-guides";
 import { SETTINGS_SUPPORT_PATH } from "@/lib/settings-admin-route-paths";
@@ -35,7 +36,7 @@ export const REPORT_A_PROBLEM_HELP_PRIMARY_ACTION: HelpTopicMarkdownPrimaryActio
 
 export const REPORT_A_PROBLEM_HELP_RELATED = reportAProblemHelpRelatedGuides();
 
-export const REPORT_A_PROBLEM_HELP_RELATED_HEADING = "Related help" as const;
+export { REPORT_A_PROBLEM_HELP_RELATED_HEADING };
 
 /** Operator Sources — no self-href to `/help/report-a-problem`. */
 export const REPORT_A_PROBLEM_HELP_SOURCES: readonly EvidenceAdminSourceLink[] = [

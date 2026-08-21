@@ -265,7 +265,7 @@ export function NewRunWizardClient(props: NewRunWizardClientProps = {}) {
     runId === null
       ? "No review started yet."
       : pollSummary
-        ? `Review ${runId} polled: context ${pollSummary.hasContextSnapshot ? "ready" : "pending"}, graph ${pollSummary.hasGraphSnapshot ? "ready" : "pending"}, findings ${pollSummary.hasFindingsSnapshot ? "ready" : "pending"}, sealed review record ${pollSummary.hasGoldenManifest ? "ready" : "pending"}.`
+        ? `Review ${runId} polled: context ${pollSummary.hasContextSnapshot ? "ready" : "pending"}, graph ${pollSummary.hasGraphSnapshot ? "ready" : "pending"}, findings ${pollSummary.hasFindingsSnapshot ? "ready" : "pending"}, Finalized review record ${pollSummary.hasGoldenManifest ? "ready" : "pending"}.`
         : `Review ${runId} created; loading summary.`;
 
   const skipEvidenceAndAdvance = () => {
@@ -520,7 +520,7 @@ export function NewRunWizardClient(props: NewRunWizardClientProps = {}) {
               blocksLlmExecution={blocksLlmExecution}
               llmBudgetStatus={llmBudgetStatus}
               onPendingZipFileChange={evidence.handlePendingEvidenceFileChange}
-              onRunCreated={(id) => {
+              onRunCreated={(id: string) => {
                 setRunId(id);
               }}
             />
@@ -533,7 +533,7 @@ export function NewRunWizardClient(props: NewRunWizardClientProps = {}) {
               llmBudgetStatus={llmBudgetStatus}
               initialPresetId={presetDeeplinkPresetId ?? undefined}
               exampleTemplate={exampleTemplate}
-              onRunCreated={(id) => {
+              onRunCreated={(id: string) => {
                 setRunId(id);
               }}
             />
@@ -654,7 +654,7 @@ export function NewRunWizardClient(props: NewRunWizardClientProps = {}) {
               reviewCycleHours={baselineReviewCycleHours}
               confidence={baselineConfidence}
               fieldError={baselineMetricsError}
-              onReviewCycleHoursChange={(value) => {
+              onReviewCycleHoursChange={(value: string) => {
                 setBaselineReviewCycleHours(value);
 
                 if (baselineMetricsError !== null) {

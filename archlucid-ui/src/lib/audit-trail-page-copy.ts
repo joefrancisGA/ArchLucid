@@ -21,7 +21,7 @@ export const AUDIT_TRAIL_PRODUCT_SAFE_INTRO =
 export const AUDIT_TRAIL_HOW_IT_WORKS_TITLE = "How audit trails work" as const;
 
 export const AUDIT_TRAIL_HOW_IT_WORKS_BODY =
-  "Audit events cannot be edited or deleted. They record creates, finalizations, governance decisions, and exports with who acted, what happened, and when. Filter or export when you need records for a security review." as const;
+  "Audit events cannot be edited or deleted. They record creates, finalizations, approval decisions, and exports with who acted, what happened, and when. Filter or export when you need records for a security review." as const;
 
 export const AUDIT_TRAIL_TECHNICAL_DETAILS_TITLE = "Technical details" as const;
 

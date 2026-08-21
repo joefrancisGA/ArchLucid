@@ -109,7 +109,7 @@ const MARKETING_FAQ_ITEM_TEMPLATES: ReadonlyArray<MarketingFaqItem> = [
     categoryId: "product-basics",
     question: "How is ArchLucid different from ChatGPT, Copilot, Claude, or Gemini?",
     answer:
-      "Frontier AI assistants can draft advice, but they do not commit a finalized review record, typed audit ledger, optional pre-commit approval check, or traversable evidence chain for your workspace. ArchLucid is built for repeatable, sponsor-exportable architecture proof.",
+      "Frontier AI assistants can draft advice, but they do not commit a finalized review record, typed audit ledger, optional approval check before finalize, or traversable evidence chain for your workspace. ArchLucid is built for repeatable, sponsor-exportable architecture proof.",
     relatedLinks: [{ label: "Why ArchLucid", href: "/why" }],
   },
   {

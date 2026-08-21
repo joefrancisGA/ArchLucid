@@ -15,6 +15,9 @@ public static partial class AuditEventTypes
     /// <summary>Pre-run manifest-free reasoning turn on an intake draft (SAQ-013).</summary>
     public const string DraftIntakeReasoned = "DraftIntake.Reasoned";
 
+    /// <summary>Admitted intake draft returned to drafting so the brief can be edited again.</summary>
+    public const string DraftIntakeReopened = "DraftIntake.Reopened";
+
     /// <summary>What-if branch draft cloned from a parent with a single override (R12).</summary>
     public const string DraftIntakeBranched = "DraftIntake.Branched";
 
@@ -38,6 +41,9 @@ public static partial class AuditEventTypes
 
     /// <summary>Intake draft abandoned by operator.</summary>
     public const string DraftIntakeAbandoned = "DraftIntake.Abandoned";
+
+    /// <summary>Admitted intake draft returned to drafting so the operator can edit the brief again.</summary>
+    public const string DraftIntakeReopened = "DraftIntake.Reopened";
 
     /// <summary>Request locked because a non-terminal run references it.</summary>
     public const string RequestLocked = "Request.Locked";

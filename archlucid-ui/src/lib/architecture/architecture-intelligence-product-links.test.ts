@@ -29,6 +29,7 @@ describe("architectureIntelligenceReviewTier", () => {
 
   it("labels each tier", () => {
     expect(architectureIntelligenceReviewTierLabel("Trial")).toContain("lowest");
+    expect(architectureIntelligenceReviewTierLabel("Standard")).toBe("Balanced (recommended)");
     expect(architectureIntelligenceReviewTierLabel("Deep")).toContain("highest");
   });
 });

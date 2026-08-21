@@ -107,7 +107,7 @@ export const SETTINGS_MASTER_SECTIONS: readonly SettingsMasterSection[] = [
       {
         id: "governance-queue",
         title: "Approval queue",
-        description: "Review and approve governance decisions for this workspace.",
+        description: "Review and approve decisions for this workspace.",
         href: "/governance/approval-queue",
         cta: "Open approval queue",
         keywords: ["governance", "approval", "workflow"],

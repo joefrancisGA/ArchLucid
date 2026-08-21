@@ -1,7 +1,5 @@
 /** Cloud connections page copy — cloud-neutral, no platform advocacy. */
 
-import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
-
 export const CLOUD_CONNECTIONS_PAGE_TITLE = "Cloud connections";
 
 export const CLOUD_CONNECTIONS_PAGE_SUBTITLE =
@@ -12,13 +10,6 @@ export const CLOUD_CONNECTIONS_OPTIONAL_NOTE =
 
 export const CLOUD_CONNECTIONS_HUB_VOCABULARY_DISCLOSURE_TITLE =
   "How this differs from Connection status and Extract & Upload";
-
-export const CLOUD_CONNECTIONS_SECURITY_ASSURANCE_TITLE = "Security assurance";
-
-export const CLOUD_CONNECTIONS_SECURITY_ASSURANCE_BODY =
-  "Cloud connections use read-only federated access. Review procurement materials and tenant isolation notes before enabling collection in production.";
-
-export const CLOUD_CONNECTIONS_SECURITY_ASSURANCE_LINK_LABEL = OPERATOR_NAV_LINK_LABELS.securityTrust;
 
 export const CLOUD_CONNECTIONS_PROVIDER_EVIDENCE_NONE = "None collected yet";
 
@@ -34,12 +25,16 @@ export const CLOUD_CONNECTIONS_PROVIDER_AUTH_MODEL: Readonly<Record<"azure" | "a
 export const CLOUD_CONNECTIONS_SECURITY_PREFLIGHT_INTRO =
   "Review these items with your cloud or security team before enabling collection. This checklist is guidance only — ArchLucid does not save it as proof or add it to the audit log.";
 
+export const CLOUD_CONNECTIONS_RECENT_ACTIVITY_TITLE = "Recent connection activity";
+
+export const CLOUD_CONNECTIONS_RECENT_ACTIVITY_EMPTY_TITLE = "No connection activity yet";
+
 export const CLOUD_CONNECTIONS_DETAIL_SECTIONS = [
   "Overview",
   "Security preflight",
   "Identity and access setup",
   "Connection details",
   "Validate connection",
-  "Recent connection activity",
+  CLOUD_CONNECTIONS_RECENT_ACTIVITY_TITLE,
   "Technical details",
 ] as const;

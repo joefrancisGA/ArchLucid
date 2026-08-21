@@ -53,6 +53,6 @@ describe("GovernanceBypassAuditPanel", () => {
 
     render(<GovernanceBypassAuditPanel />);
 
-    expect(await screen.findByText("No governance bypass events in the last 30 days.")).toBeInTheDocument();
+    expect(await screen.findByText("No approval bypass events in the last 30 days.")).toBeInTheDocument();
   });
 });

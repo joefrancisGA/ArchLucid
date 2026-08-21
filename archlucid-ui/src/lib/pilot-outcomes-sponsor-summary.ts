@@ -17,7 +17,7 @@ export function buildPilotOutcomesSponsorNarrative(report: PilotValueReportJson)
     findings === 1 ? "1 finding" : `${findings} findings`;
 
   const decisionPhrase =
-    decisions === 1 ? "1 governance decision" : `${decisions} governance decisions`;
+    decisions === 1 ? "1 approval decision" : `${decisions} approval decisions`;
 
   let materialClause = "";
 

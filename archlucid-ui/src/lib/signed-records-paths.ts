@@ -1,6 +1,6 @@
 import { reviewDetailPath } from "@/lib/architecture/architecture-routes";
 
-/** Canonical buyer-facing list path for sealed review records (TB-405 / IA-001). */
+/** Canonical buyer-facing list path for Finalized review records (TB-405 / IA-001). */
 export const SIGNED_RECORDS_LIST_PATH = "/governance/sealed-records";
 
 /** Legacy top-level path — retired bookmark; canonical is {@link SIGNED_RECORDS_LIST_PATH}. */
@@ -40,7 +40,7 @@ export function pathMatchesSignedRecordsDetailRoute(pathname: string): boolean {
   );
 }
 
-/** Canonical detail path for a sealed review record by manifest id. */
+/** Canonical detail path for a Finalized review record by manifest id. */
 export function signedRecordDetailPath(manifestId: string): string {
   return `${SIGNED_RECORDS_LIST_PATH}/${encodeURIComponent(manifestId.trim())}`;
 }
@@ -50,7 +50,7 @@ export function reviewSignedRecordPath(runId: string): string {
   return reviewDetailPath(runId);
 }
 
-/** Artifact row within a sealed review record. */
+/** Artifact row within a Finalized review record. */
 export function signedRecordArtifactPath(manifestId: string, artifactId: string): string {
   return `${signedRecordDetailPath(manifestId)}/artifacts/${encodeURIComponent(artifactId.trim())}`;
 }

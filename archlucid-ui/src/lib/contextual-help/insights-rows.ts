@@ -61,7 +61,7 @@ export const INSIGHTS_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] = [
     prefix: "/insights/sponsor-report",
     entry: {
       whatIsThisPage:
-        "Sponsor report — period summary of finalized reviews, material findings, governance decisions, and directional ROI, with sponsor exports. Absorbs the retired standalone pilot outcomes page.",
+        "Sponsor report — period summary of finalized reviews, material findings, approval decisions, and directional ROI, with sponsor exports. Absorbs the retired standalone pilot outcomes page.",
       whatToDoNext: "Set the reporting period, apply it, then generate sponsor exports when data is ready.",
       whyEmpty: "The report fills in after you finalize reviews in the selected period.",
       whereToConfigurePrerequisite: "ROI estimates use baseline settings from workspace configuration.",

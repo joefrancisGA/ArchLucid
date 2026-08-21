@@ -14,7 +14,7 @@ import type { PilotValueReportJson, PilotValueReportSeverityJson } from "@/types
 export const ROI_SUMMARY_METHODOLOGY_HELP_HREF = SPONSOR_SUMMARY_PILOT_ROI_MEASUREMENT_HELP_HREF;
 
 export const ROI_SUMMARY_PAGE_SUBTITLE =
-  "Estimate review-time savings from finalized findings, governance blocks, and avoided rework.";
+  "Estimate review-time savings from finalized findings, approval-check blocks, and avoided rework.";
 
 const SPONSOR_DATE = new Intl.DateTimeFormat("en-US", {
   month: "short",
@@ -118,7 +118,7 @@ export function countRoiSummaryFindings(severity: Pick<PilotValueReportSeverityJ
 }
 
 export function roiSummaryMethodologyFormula(): string {
-  return `${HOURS_PER_CRITICAL}×Critical + ${HOURS_PER_HIGH}×High + ${HOURS_PER_MEDIUM}×Medium + ${HOURS_PER_PRECOMMIT_BLOCK}×governance blocks`;
+  return `${HOURS_PER_CRITICAL}×Critical + ${HOURS_PER_HIGH}×High + ${HOURS_PER_MEDIUM}×Medium + ${HOURS_PER_PRECOMMIT_BLOCK}×approval-check blocks`;
 }
 
 export function deriveRoiSummaryConfidence(input: RoiSummaryPeriodInput): RoiSummaryConfidence {
@@ -362,11 +362,11 @@ export function roiSummaryZeroStateHeadline(): string {
 }
 
 export function roiSummaryZeroStateBody(): string {
-  return "Finalized reviews or governance blocks are needed before ArchLucid can calculate savings.";
+  return "Finalized reviews or approval-check blocks are needed before ArchLucid can calculate savings.";
 }
 
 export function roiSummaryBasisOfEstimateCopy(): string {
-  return "ArchLucid estimates savings from finalized review findings and governance blocks in the selected period.";
+  return "ArchLucid estimates savings from finalized review findings and approval-check blocks in the selected period.";
 }
 
 export function defaultLoadedHourlyUsdForDisplay(): number {

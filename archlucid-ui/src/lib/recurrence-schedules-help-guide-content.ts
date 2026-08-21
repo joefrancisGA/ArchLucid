@@ -81,7 +81,7 @@ export const RECURRENCE_SCHEDULES_HELP_AUTOMATION_ITEMS: readonly RecurrenceSche
 export const RECURRENCE_SCHEDULES_HELP_HOW_IT_WORKS_STEPS = [
   "Choose a finalized architecture review to anchor the schedule.",
   "Define the cadence — quarterly control checks, annual attestations, weekly remediation follow-ups, or board checkpoints.",
-  "When the cadence fires, open the cloned review, triage new findings, and route governance decisions on linked surfaces.",
+  "When the cadence fires, open the cloned review, triage new findings, and route approval decisions on linked surfaces.",
 ] as const;
 
 export const RECURRENCE_SCHEDULES_HELP_EXAMPLES_SECTION_TITLE = "Common schedule examples";

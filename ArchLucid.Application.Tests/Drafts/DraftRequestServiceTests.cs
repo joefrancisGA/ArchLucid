@@ -176,4 +176,90 @@ public sealed class DraftRequestServiceTests
             static o => o.CreateRunAsync(It.IsAny<ArchitectureRequest>(), null, It.IsAny<CancellationToken>()),
             Times.Once);
     }
+
+    [Fact]
+    public async Task ReopenAsync_ReturnsNull_WhenMissing()
+    {
+        DraftRequestResponse? reopened = await _service.ReopenAsync(
+            _scope,
+            Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+            CancellationToken.None);
+
+        reopened.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task ReopenAsync_Throws_WhenDrafting()
+    {
+        DraftRequestResponse created = await _service.CreateAsync(
+            _scope,
+            "user-1",
+            new CreateDraftRequest { FreeTextIntent = DraftIntakeTestIntents.ValidGrcWorkflow },
+            CancellationToken.None);
+
+        Func<Task> act = async () => await _service.ReopenAsync(_scope, created.DraftId, CancellationToken.None);
+
+        await act.Should().ThrowAsync<InvalidOperationException>()
+            .WithMessage("*cannot be reopened from status 'Drafting'*");
+    }
+
+    [Fact]
+    public async Task ReopenAsync_AdmitThenReopenThenPatch()
+    {
+        DraftRequestResponse created = await _service.CreateAsync(
+            _scope,
+            "user-1",
+            new CreateDraftRequest
+            {
+                FreeTextIntent = DraftIntakeTestIntents.ValidGrcWorkflow,
+            },
+            CancellationToken.None);
+
+        await _service.PatchAsync(
+            _scope,
+            created.DraftId,
+            new PatchDraftRequest
+            {
+                BusinessOutcome = "Faster audit prep",
+                ActorSet = new ActorSet
+                {
+                    Actors =
+                    [
+                        new ActorDescriptor
+                        {
+                            Kind = ActorKind.Human,
+                            TrustOrigin = TrustOrigin.Internal,
+                            Contract = InteractionContract.Sync,
+                            Origin = ActorOrigin.Asserted,
+                        },
+                    ],
+                },
+            },
+            CancellationToken.None);
+
+        DraftAdmissionResponse? admission = await _service.RequestAdmissionAsync(
+            _scope,
+            created.DraftId,
+            CancellationToken.None);
+
+        admission.Should().NotBeNull();
+        admission!.Admitted.Should().BeTrue();
+
+        DraftRequestResponse? reopened = await _service.ReopenAsync(_scope, created.DraftId, CancellationToken.None);
+
+        reopened.Should().NotBeNull();
+        reopened!.Status.Should().Be(DraftRequestStatus.Drafting);
+        reopened.Document.BusinessOutcome.Should().Be("Faster audit prep");
+        reopened.SpawnedRunId.Should().Be(admission.Draft.SpawnedRunId);
+
+        DraftRequestResponse? patched = await _service.PatchAsync(
+            _scope,
+            created.DraftId,
+            new PatchDraftRequest { BusinessOutcome = "Edited after unlock" },
+            CancellationToken.None);
+
+        patched.Should().NotBeNull();
+        patched!.Status.Should().Be(DraftRequestStatus.Drafting);
+        patched.Document.BusinessOutcome.Should().Be("Edited after unlock");
+    }
 }

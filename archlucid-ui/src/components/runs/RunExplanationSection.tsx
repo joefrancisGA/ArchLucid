@@ -234,7 +234,7 @@ export function RunExplanationSection({
         </span>
         <span className={cn("ml-3 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
           {buyerPolishedShell
-            ? `${summary.decisionCount} governance decisions · ${findingCountForStats} risk findings · ${summary.unresolvedIssueCount} open items`
+            ? `${summary.decisionCount} approval decisions · ${findingCountForStats} risk findings · ${summary.unresolvedIssueCount} open items`
             : `${summary.decisionCount} decisions · ${findingCountForStats} findings · ${summary.unresolvedIssueCount} unresolved · ${summary.complianceGapCount} compliance gaps`}
         </span>
         {deterministicFallback ? (

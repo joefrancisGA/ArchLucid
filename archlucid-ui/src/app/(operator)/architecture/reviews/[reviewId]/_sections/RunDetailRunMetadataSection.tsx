@@ -26,7 +26,7 @@ export function RunDetailRunMetadataSection(props: RunDetailRunMetadataSectionPr
           <h3 className={runDetailSectionHeadingClass}>Review</h3>
           <CardDescription>
             Review record summary and artifacts appear below when <GlossaryTooltip termKey="run">this review</GlossaryTooltip> has a{" "}
-            <GlossaryTooltip termKey="golden_manifest">sealed review record</GlossaryTooltip> (after finalization).
+            <GlossaryTooltip termKey="golden_manifest">Finalized review record</GlossaryTooltip> (after finalization).
           </CardDescription>
         </CardHeader>
         <CardContent className={cn("space-y-3 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>

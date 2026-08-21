@@ -593,6 +593,31 @@ public sealed class DraftRequestService(
             cancellationToken);
     }
 
+    /// <inheritdoc />
+    public async Task<DraftRequestResponse?> ReopenAsync(ScopeContext scope, Guid draftId, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+
+        DraftRequestResponse? existing = await GetAsync(scope, draftId, cancellationToken);
+
+        if (existing is null)
+            return null;
+
+        if (!DraftRequestStateMachine.AllowsReopen(existing.Status))
+            throw new InvalidOperationException($"Draft '{draftId}' cannot be reopened from status '{existing.Status}'.");
+
+        return await _draftRepository.UpdateAsync(
+            scope.TenantId,
+            scope.WorkspaceId,
+            scope.ProjectId,
+            draftId,
+            DraftRequestStatus.Drafting,
+            existing.Document,
+            existing.RedirectReason,
+            existing.SpawnedRunId,
+            cancellationToken);
+    }
+
     private async Task<string?> ResolveParentSpawnedRunIdAsync(
         ScopeContext scope,
         Guid? parentDraftId,

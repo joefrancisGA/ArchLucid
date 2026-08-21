@@ -35,7 +35,6 @@ vi.mock("@/lib/api/gcp-cloud-connections-api", () => ({
 }));
 
 import { CLOUD_CONNECTIONS_PLATFORM_SCOPE_PREFERENCES_HREF } from "@/lib/cloud-platform-scope-copy";
-import { CLOUD_CONNECTIONS_SECURITY_ASSURANCE_LINK_LABEL } from "@/lib/cloud-connections-copy";
 import { resetCloudPlatformScopeSessionStateForTests, writeCloudPlatformScopeToStorage } from "@/lib/cloud-platform-scope-storage";
 import { CLOUD_CONNECTIONS_SOURCES } from "@/lib/cloud-connections-evidence-copy";
 import { formatHelpFollowUpLinkAccessibleName } from "@/lib/help/help-follow-up-link-label";
@@ -79,14 +78,6 @@ describe("CloudConnectionsPageClient", () => {
     expect(screen.queryByTestId("connection-status-cloud-connections-vocabulary")).not.toBeInTheDocument();
     expect(screen.queryByTestId("extract-upload-cloud-connections-vocabulary")).not.toBeInTheDocument();
     expect(screen.getByTestId("cloud-connections-hub-vocabulary-disclosure")).toBeInTheDocument();
-    expect(screen.getByTestId("cloud-connections-security-assurance-band")).toBeInTheDocument();
-    expect(screen.getByTestId("cloud-connections-security-assurance-link")).toHaveTextContent(
-      CLOUD_CONNECTIONS_SECURITY_ASSURANCE_LINK_LABEL,
-    );
-    expect(screen.getByRole("link", { name: "Security & Trust" })).toHaveAttribute(
-      "href",
-      "/administration/security-trust",
-    );
     expect(screen.queryByTestId("cloud-first-inventory-coach")).not.toBeInTheDocument();
 
     for (const provider of ["aws", "azure", "gcp"] as const) {

@@ -36,7 +36,7 @@ export const AUDIT_TRAIL_HELP_SOURCE_OF_RECORD_HREF = inAppHelpHref("data-handli
 export const AUDIT_TRAIL_HELP_ACTION_PANEL_TITLE = "Related follow-ups" as const;
 
 export const AUDIT_TRAIL_HELP_ACTION_PANEL_INTRO =
-  "Use these links when audit trail vocabulary turns into live activity, governance decisions, or assurance materials.";
+  "Use these links when audit trail vocabulary turns into live activity, approval decisions, or assurance materials.";
 
 export const AUDIT_TRAIL_HELP_OVERVIEW =
   "The audit trail is the append-only ledger of authenticated actions across architecture reviews, resolve outcomes, decisions, and exports. It answers who acted, when, and in which workspace scope — separate from findings or application diagnostics.";

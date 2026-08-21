@@ -25,7 +25,7 @@ describe("cloud-connections-evidence-copy", () => {
     const sources = screen.getByTestId("cloud-connections-sources");
 
     for (const link of CLOUD_CONNECTIONS_SOURCES) {
-      expectFollowUpLink(within(sources), link, { rawLabel: true });
+      expectFollowUpLink(within(sources), link);
     }
 
     expect(

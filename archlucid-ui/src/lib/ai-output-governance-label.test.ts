@@ -7,7 +7,7 @@ describe("deriveAiOutputGovernanceLabel", () => {
     const model = deriveAiOutputGovernanceLabel({ findingId: "finding-abc" });
 
     expect(model.kind).toBe("governed");
-    expect(model.label).toBe("Governed finding");
+    expect(model.label).toBe("Tracked finding");
   });
 
   it("returns advisory when FindingId is absent", () => {

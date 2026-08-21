@@ -2,17 +2,16 @@
 
 import Link from "next/link";
 
+import { ArchitectureDraftResumeControl } from "@/components/architecture/ArchitectureDraftResumeControl";
 import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
 import { useArchitectureDraftRegistryEntries } from "@/hooks/use-architecture-draft-registry-entries";
 import { isArchitectureDraftEligibleToStartReview } from "@/lib/architecture/architecture-draft-ready-for-review";
-import { trackArchitectureDraftResumeClick } from "@/lib/architecture/architecture-draft-resume-telemetry";
 import {
   ARCHITECTURE_DRAFT_STATUS_LABELS,
   architectureDraftCustomerStatusTagKind,
 } from "@/lib/architecture/architecture-draft-status";
 import {
-  architectureDraftPath,
   ARCHITECTURES_LIST_PATH,
   startReviewFromArchitectureHref,
 } from "@/lib/architecture/architecture-routes";
@@ -95,18 +94,13 @@ export function ReviewsHubResumeDrafts(): React.JSX.Element | null {
                 </time>
               </div>
               <div className="mt-2 flex flex-wrap gap-2">
-                <Button variant="outline" size="sm" asChild>
-                  <Link
-                    href={architectureDraftPath(entry.architectureId)}
-                    aria-label={`${REVIEWS_HUB_RESUME_DRAFTS_CONTINUE_LABEL}: ${entry.displayName}`}
-                    data-testid={`reviews-hub-resume-draft-continue-${entry.architectureId}`}
-                    onClick={() => {
-                      trackArchitectureDraftResumeClick("reviews-hub", entry.architectureId);
-                    }}
-                  >
-                    {REVIEWS_HUB_RESUME_DRAFTS_CONTINUE_LABEL}
-                  </Link>
-                </Button>
+                <ArchitectureDraftResumeControl
+                  architectureId={entry.architectureId}
+                  label={REVIEWS_HUB_RESUME_DRAFTS_CONTINUE_LABEL}
+                  source="reviews-hub"
+                  testId={`reviews-hub-resume-draft-continue-${entry.architectureId}`}
+                  ariaLabel={`${REVIEWS_HUB_RESUME_DRAFTS_CONTINUE_LABEL}: ${entry.displayName}`}
+                />
                 {canStartReview ? (
                   <Button variant="outline" size="sm" asChild>
                     <Link

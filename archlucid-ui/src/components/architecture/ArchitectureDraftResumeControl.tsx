@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 
 import { ArchitectureDraftIntakeModeDialog } from "@/components/architecture/ArchitectureDraftIntakeModeDialog";
 import { Button } from "@/components/ui/button";
@@ -25,52 +25,35 @@ type ArchitectureDraftResumeControlProps = {
   readonly source: ArchitectureDraftResumeSource;
   readonly testId?: string;
   readonly ariaLabel?: string;
-  readonly variant?: "outline" | "primary";
+  readonly title?: string;
+  readonly variant?: "primary" | "outline";
 };
 
-function intakeResumeFailureMessage(error: unknown): string {
-  if (isApiRequestError(error) && error.httpStatus === 404) {
-    return "That architecture draft could not be found.";
-  }
-
-  return "Could not open this architecture draft. Try again.";
-}
-
-/** Continue-editing control that warns before opening a draft already in review intake. */
 export function ArchitectureDraftResumeControl(
   props: ArchitectureDraftResumeControlProps,
 ): React.JSX.Element {
   const router = useRouter();
-  const [busy, setBusy] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [intakeStatus, setIntakeStatus] = useState<DraftRequestStatus>("Admitted");
+  const [busy, setBusy] = useState(false);
+  const [status, setStatus] = useState<DraftRequestStatus | null>(null);
 
-  const draftPath = architectureDraftPath(props.architectureId);
-  const intakeHref = startReviewFromArchitectureHref(props.architectureId);
-  const canUnlock = architectureDraftAllowsBriefUnlock(intakeStatus);
+  const openDraft = useCallback(() => {
+    router.push(architectureDraftPath(props.architectureId));
+  }, [props.architectureId, router]);
 
-  const openDraft = () => {
-    trackArchitectureDraftResumeClick(props.source, props.architectureId);
-    router.push(draftPath);
-  };
-
-  const openIntake = () => {
-    trackArchitectureDraftResumeClick(props.source, props.architectureId);
-    router.push(intakeHref);
-  };
-
-  const handleContinueClick = async () => {
+  const handleClick = useCallback(async () => {
     if (busy) {
       return;
     }
 
+    trackArchitectureDraftResumeClick(props.source, props.architectureId);
     setBusy(true);
 
     try {
       const draft = await getDraftRequest(props.architectureId);
 
       if (isArchitectureDraftInReviewIntake(draft.status)) {
-        setIntakeStatus(draft.status);
+        setStatus(draft.status);
         setDialogOpen(true);
 
         return;
@@ -78,14 +61,22 @@ export function ArchitectureDraftResumeControl(
 
       openDraft();
     } catch (error) {
-      showError(intakeResumeFailureMessage(error));
+      showError(
+        "Could not open this architecture",
+        isApiRequestError(error) ? error.message : undefined,
+      );
     } finally {
       setBusy(false);
     }
-  };
+  }, [busy, openDraft, props.architectureId, props.source]);
 
-  const handleUnlock = async () => {
-    if (busy) {
+  const handleContinueIntake = useCallback(() => {
+    setDialogOpen(false);
+    router.push(startReviewFromArchitectureHref(props.architectureId));
+  }, [props.architectureId, router]);
+
+  const handleUnlock = useCallback(async () => {
+    if (!architectureDraftAllowsBriefUnlock(status)) {
       return;
     }
 
@@ -96,11 +87,14 @@ export function ArchitectureDraftResumeControl(
       setDialogOpen(false);
       openDraft();
     } catch (error) {
-      showError(intakeResumeFailureMessage(error));
+      showError(
+        "Could not unlock this architecture",
+        isApiRequestError(error) ? error.message : undefined,
+      );
     } finally {
       setBusy(false);
     }
-  };
+  }, [openDraft, props.architectureId, status]);
 
   return (
     <>
@@ -110,23 +104,21 @@ export function ArchitectureDraftResumeControl(
         size="sm"
         disabled={busy}
         aria-label={props.ariaLabel}
-        data-testid={props.testId}
+        title={props.title}
         onClick={() => {
-          void handleContinueClick();
+          void handleClick();
         }}
+        data-testid={props.testId}
       >
         {props.label}
       </Button>
       <ArchitectureDraftIntakeModeDialog
         open={dialogOpen}
-        status={intakeStatus}
-        canUnlock={canUnlock}
+        status={status}
+        canUnlock={architectureDraftAllowsBriefUnlock(status)}
         busy={busy}
         onOpenChange={setDialogOpen}
-        onContinueIntake={() => {
-          setDialogOpen(false);
-          openIntake();
-        }}
+        onContinueIntake={handleContinueIntake}
         onUnlock={() => {
           void handleUnlock();
         }}

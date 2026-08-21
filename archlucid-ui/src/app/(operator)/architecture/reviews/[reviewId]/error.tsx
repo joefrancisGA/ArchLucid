@@ -45,7 +45,7 @@ export default function RunDetailSegmentError({
           <strong className={OPERATOR_TYPOGRAPHY.cardTitle}>Sample review unavailable</strong>
           <p className={cn("mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
             {isBuyerPolished
-              ? "Open the sealed review record first, or use the read-only walkthrough below, to explore the Claims Intake outputs."
+              ? "Open the Finalized review record first, or use the read-only walkthrough below, to explore the Claims Intake outputs."
               : "Open the sample review or the public walkthrough below to explore the Claims Intake review outputs."}
           </p>
           {isDev ? (

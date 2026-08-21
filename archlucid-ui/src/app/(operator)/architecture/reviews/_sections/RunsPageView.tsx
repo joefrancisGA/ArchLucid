@@ -33,12 +33,12 @@ import {
   ReviewsHubBeforeAfterDeltaPanelDeferred,
   ReviewsHubExploreSamplesDeferred,
   ReviewsHubPackageIncludesDeferred,
+  ReviewsHubReviewInventoryDeferred,
   RunsIndexBeforeAfterPanelDeferred,
   RunsListAggregateErrorBoundaryDeferred,
 } from "./reviews-hub-deferred-chunks";
 import { ReviewsHubResumeDrafts } from "./ReviewsHubResumeDrafts";
 import { ReviewsHubPinnedReviews } from "./ReviewsHubPinnedReviews";
-import { ReviewsHubReviewInventory } from "./ReviewsHubReviewInventory";
 import { ReviewsHubSummaryRow } from "./ReviewsHubSummaryRow";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { InlineGuidanceText } from "@/components/InlineGuidanceText";
@@ -90,7 +90,7 @@ export function RunsPageView(props: Props) {
         <>
           <ReviewsHubSummaryRow summary={workspaceSummary} />
           <ReviewsHubPinnedReviews />
-          <ReviewsHubReviewInventory runs={m.runs} />
+          <ReviewsHubReviewInventoryDeferred runs={m.runs} />
           <ReviewsHubResumeDrafts />
           {hasReviews ? (
             <CollapsibleSection

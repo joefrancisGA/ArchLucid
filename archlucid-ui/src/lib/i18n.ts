@@ -28,7 +28,7 @@ export const DOMAIN_TERMS = {
   policyPackContentDocument: "Policy Pack Content Document",
   findingsSnapshot: "Findings Snapshot",
   artifactBundle: "Deliverables bundle",
-  preCommitGate: "Approval gate",
+  preCommitGate: "Approval check",
   governanceApproval: "Resolve outcomes",
 } as const;
 

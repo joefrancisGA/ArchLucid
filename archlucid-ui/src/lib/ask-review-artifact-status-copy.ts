@@ -11,7 +11,7 @@ export const ASK_REVIEW_UNCITED_RESPONSE_MARKER =
   "No cited findings linked — open evidence before signing off." as const;
 
 export const ASK_REVIEW_STREAMING_PROVISIONAL_MARKER =
-  "Provisional answer — not part of the sealed review record until finalized." as const;
+  "Provisional answer — not part of the Finalized review record until finalized." as const;
 
 export type AskReviewArtifactStatus = "finalized" | "draft" | "missing";
 

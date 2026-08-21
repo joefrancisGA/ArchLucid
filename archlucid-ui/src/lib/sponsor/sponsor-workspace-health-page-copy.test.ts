@@ -18,13 +18,13 @@ describe("sponsor-workspace-health-page-copy", () => {
 
   it("uses buyer-facing titles without numbered KPI prefixes", () => {
     expect(executiveWorkspaceHealthPageLead(true)).toContain("Approval status at a glance");
-    expect(executiveWorkspaceHealthKpiTitle("preCommitOutcomes", true)).toBe("Approval gate outcomes (30 days)");
+    expect(executiveWorkspaceHealthKpiTitle("preCommitOutcomes", true)).toBe("Approval check outcomes (30 days)");
     expect(executiveWorkspaceHealthKpiTitle("highCriticalExposure", true)).toBe("High / Critical exposure (90 days)");
     expect(executiveWorkspaceHealthKpiTitle("complianceDrift", true)).not.toMatch(/^\d+\./);
   });
 
   it("keeps numbered KPI prefixes for the full operator shell", () => {
-    expect(executiveWorkspaceHealthKpiTitle("preCommitOutcomes", false)).toBe("1. Pre-commit outcomes (30 days)");
-    expect(executiveWorkspaceHealthKpiTitle("valueProxy", false)).toBe("5. Pre-commit blocks as value proxy");
+    expect(executiveWorkspaceHealthKpiTitle("preCommitOutcomes", false)).toBe("1. Approval-check outcomes (30 days)");
+    expect(executiveWorkspaceHealthKpiTitle("valueProxy", false)).toBe("5. Approval-check blocks as value proxy");
   });
 });

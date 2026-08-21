@@ -1,33 +1,16 @@
 import { Suspense } from "react";
 
-import dynamic from "next/dynamic";
-
 import { loadRunDetailBelowFoldProjectContextModel } from "@/app/(operator)/architecture/reviews/[reviewId]/_sections/load-run-detail-deferred-model";
 import type {
   RunDetailDeferredSectionContext,
   RunDetailPageModel,
 } from "@/app/(operator)/architecture/reviews/[reviewId]/_sections/run-detail-page-model";
 import { RunDetailBelowFoldProjectContextSkeleton } from "@/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailDeferredSkeleton";
-import { loadDeferredChunkFromManifest } from "@/lib/operator/load-deferred-chunk-from-manifest";
 
-const PostCommitHabitLoopCard = dynamic(loadDeferredChunkFromManifest("run-detail-post-commit-habit-loop"), {
-  loading: () => null,
-});
-
-const RunDetailArchitectureGraphSection = dynamic(
-  loadDeferredChunkFromManifest("run-detail-architecture-graph-section"),
-  {
-    loading: () => (
-      <section id="architecture-graph" className="scroll-mt-24">
-        <div
-          className="h-64 animate-pulse rounded-md border border-neutral-200 bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-800"
-          role="status"
-          aria-label="Loading architecture graph"
-        />
-      </section>
-    ),
-  },
-);
+import {
+  RunDetailArchitectureGraphSectionDeferred,
+  RunDetailPostCommitHabitLoopCardDeferred,
+} from "./run-detail-tabbed-deferred-chunks";
 
 type TabbedDeferredIslandProps = {
   readonly model: RunDetailPageModel;
@@ -46,7 +29,7 @@ async function RunDetailArchitectureGraphIslandAsync(
   const projectContext = await loadRunDetailBelowFoldProjectContextModel(props.context);
 
   return (
-    <RunDetailArchitectureGraphSection
+    <RunDetailArchitectureGraphSectionDeferred
       runId={m.routeRunId}
       buyerPolishedArtifactTable={m.buyerPolishedArtifactTable}
       anchorRunCreatedUtc={m.resolvedDetail.run.createdUtc}
@@ -68,7 +51,7 @@ async function RunDetailPostCommitHabitIslandAsync(
   const projectContext = await loadRunDetailBelowFoldProjectContextModel(props.context);
 
   return (
-    <PostCommitHabitLoopCard
+    <RunDetailPostCommitHabitLoopCardDeferred
       runId={m.routeRunId}
       showCompareCta={projectContext.canShowCompareReviewButton}
       buyerShowcaseQuickLinks={m.usedStaticDemoRun}

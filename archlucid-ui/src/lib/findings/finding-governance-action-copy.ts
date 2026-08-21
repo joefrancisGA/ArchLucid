@@ -23,14 +23,14 @@ export const EVIDENCE_REFERENCE_HELP =
 export const EXPIRATION_LABEL = "Expiration (local time)";
 
 export const EXPIRATION_HELP =
-  "Stored in UTC. The sealed review record is not modified — expiration applies to the exception only.";
+  "Stored in UTC. The Finalized review record is not modified — expiration applies to the exception only.";
 
 export function remediationAssignmentTransitionCopy(): string {
   return "Records assignee and due date for ITSM sync. Reversible by updating or clearing the assignment. Audit history is recorded.";
 }
 
 export function dispositionTransitionCopy(disposition: FindingDispositionKind): string {
-  const base = "Appends a disposition event to the audit trail. The sealed review record is not automatically changed.";
+  const base = "Appends a disposition event to the audit trail. The Finalized review record is not automatically changed.";
 
   if (disposition === "Remediated") {
     return `${base} Monitoring may continue per review acceptance criteria.`;
@@ -52,7 +52,7 @@ export function markRemediatedTransitionCopy(): string {
 }
 
 export function createWaiverTransitionCopy(): string {
-  return "Creates a time-bounded risk exception with owner and evidence reference. Recorded in audit history. Revocable before expiration. Does not alter the sealed review record.";
+  return "Creates a time-bounded risk exception with owner and evidence reference. Recorded in audit history. Revocable before expiration. Does not alter the Finalized review record.";
 }
 
 export function validateRemediationOwnerInput(value: string): string | null {

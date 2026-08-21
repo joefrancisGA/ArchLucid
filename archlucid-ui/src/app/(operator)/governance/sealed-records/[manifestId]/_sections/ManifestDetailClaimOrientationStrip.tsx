@@ -6,7 +6,7 @@ import {
 } from "@/lib/signed-record-evidence-copy";
 import { SEALED_RECORD_DETAIL_CLAIM_HEADING } from "@/lib/sealed-record-detail-page-copy";
 
-/** Claim discipline + Sources index for sealed review record detail (MMX). */
+/** Claim discipline + Sources index for Finalized review record detail (MMX). */
 export function ManifestDetailClaimOrientationStrip(): React.JSX.Element {
   return (
     <EvidenceOrientationClaimAndSourcesStrip

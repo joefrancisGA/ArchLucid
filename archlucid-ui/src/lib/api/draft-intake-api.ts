@@ -102,6 +102,11 @@ export async function submitDraftRequest(draftId: string): Promise<SubmitDraftRe
   return apiPostJson<SubmitDraftResponse>(`${DRAFT_BASE}/${encodeURIComponent(draftId)}/submit`, {});
 }
 
+/** Return an admitted draft to drafting so the architecture brief can be edited again. */
+export async function reopenDraftRequest(draftId: string): Promise<DraftRequestResponse> {
+  return apiPostJson<DraftRequestResponse>(`${DRAFT_BASE}/${encodeURIComponent(draftId)}/reopen`, {});
+}
+
 /** Pre-run manifest-free reasoning on an admitted or drafting intake (SAQ-013). */
 export async function reasonDraftRequest(
   draftId: string,

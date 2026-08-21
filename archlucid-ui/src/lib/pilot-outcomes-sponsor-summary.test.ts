@@ -34,7 +34,7 @@ describe("buildPilotOutcomesSponsorNarrative", () => {
     expect(narrative).toContain("finalized 2 architecture reviews");
     expect(narrative).toContain("identified 5 findings");
     expect(narrative).toContain("2 material (critical or high) findings");
-    expect(narrative).toContain("2 governance decisions");
+    expect(narrative).toContain("2 approval decisions");
     expect(narrative).toContain("One item requires continuing monitoring");
   });
 

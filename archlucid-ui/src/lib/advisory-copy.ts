@@ -11,7 +11,7 @@ export const ADVISORY_SCANS_HOW_IT_WORKS_TITLE = "How advisory scans work";
 
 /** Folded value + trust copy — shown only inside How-it-works disclosure (TB-1125). */
 export const ADVISORY_SCANS_HOW_IT_WORKS_BODY =
-  "Use advisory scans after a review is finalized to identify changes, risks, tradeoffs, and implementation follow-up. Recommendations come from review findings, evidence, governance rules, and optional comparison signals.";
+  "Use advisory scans after a review is finalized to identify changes, risks, tradeoffs, and implementation follow-up. Recommendations come from review findings, evidence, policy rules, and optional comparison signals.";
 
 /** @deprecated Prefer `ADVISORY_SCANS_HOW_IT_WORKS_BODY` — first sentence only. */
 export const ADVISORY_SCANS_PAGE_VALUE_STATEMENT =
@@ -19,7 +19,7 @@ export const ADVISORY_SCANS_PAGE_VALUE_STATEMENT =
 
 /** @deprecated Prefer `ADVISORY_SCANS_HOW_IT_WORKS_BODY` — trust sentence only. */
 export const ADVISORY_SCANS_TRUST_COPY =
-  "Recommendations are generated from review findings, evidence, governance rules, and optional comparison signals.";
+  "Recommendations are generated from review findings, evidence, policy rules, and optional comparison signals.";
 
 export const ADVISORY_SCANS_FORM_SECTION_TITLE = "Generate advisory scan";
 

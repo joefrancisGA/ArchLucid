@@ -4,7 +4,7 @@ export const RUN_DETAIL_DELIVERABLES_INTRO =
   "Review the decisions, findings, and supporting evidence for this review. Download deliverables for offline review below.";
 
 export const RUN_DETAIL_DELIVERABLES_BUYER_TABLE_LEAD =
-  "Rows are grouped by sponsor and review-board consumers. Download evidence bundle is the diligence bundle. Download review summary captures a concise narrative handoff aligned to this sealed review record.";
+  "Rows are grouped by sponsor and review-board consumers. Download evidence bundle is the diligence bundle. Download review summary captures a concise narrative handoff aligned to this Finalized review record.";
 
 /** Post-finalize sponsor handoff — first viewport on review detail (TB-2132). */
 export const RUN_DETAIL_SPONSOR_HANDOFF_TITLE = "Send to sponsor";

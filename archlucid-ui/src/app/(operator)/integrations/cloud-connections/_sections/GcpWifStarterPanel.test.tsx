@@ -20,6 +20,7 @@ describe("GcpWifStarterPanel (P0-3, P0-6)", () => {
     render(<GcpWifStarterPanel />);
 
     expect(screen.getByTestId("gcp-wif-starter-unresolved-issuer")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Help: Token audience" })).toBeInTheDocument();
     expect(screen.getByTestId("gcp-wif-starter-unresolved-subject")).toBeInTheDocument();
     expect(screen.getByTestId("gcp-wif-starter-identifier-issuer")).not.toHaveTextContent("{ArchLucid");
     expect(screen.queryByLabelText(/Copy OIDC issuer/i)).not.toBeInTheDocument();

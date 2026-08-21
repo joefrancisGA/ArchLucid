@@ -1,4 +1,4 @@
-/** Governance setup surface. */
+/** Approval setup surface. */
 
 import type { PageContextualHelpRow } from "@/lib/contextual-help/types";
 import { GOVERNANCE_SETUP_CANONICAL_PATH } from "@/lib/governance/governance-setup-evidence-copy";
@@ -21,4 +21,4 @@ export const GOVERNANCE_SETUP_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpR
     },
   },
 ];
-
+

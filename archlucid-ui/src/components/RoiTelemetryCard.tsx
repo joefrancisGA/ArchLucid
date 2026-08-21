@@ -81,10 +81,10 @@ export function RoiTelemetryCard(props: RoiTelemetryCardProps) {
         </div>
         <div>
           <p className={cn("m-0 inline-flex items-center gap-1 uppercase tracking-wide text-al-text-secondary", OPERATOR_TYPOGRAPHY.tab)}>
-            Governance blocks
+            Approval-check blocks
             {!props.period.blocks.exact ? (
               <FieldHelpTooltip
-                label="Governance blocks"
+                label="Approval-check blocks"
                 hint="Audit search may be capped; count is a lower bound."
               />
             ) : null}

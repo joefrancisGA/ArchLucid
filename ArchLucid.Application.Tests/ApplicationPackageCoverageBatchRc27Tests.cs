@@ -150,6 +150,15 @@ public sealed class ApplicationPackageCoverageBatchRc27Tests
         DraftRequestStateMachine.AllowsAbandon(status).Should().Be(expected);
     }
 
+    [Theory]
+    [MemberData(nameof(AllDraftRequestStatuses))]
+    public void DraftRequestStateMachine_AllowsReopen_matches_Admitted_only(DraftRequestStatus status)
+    {
+        bool expected = status == DraftRequestStatus.Admitted;
+
+        DraftRequestStateMachine.AllowsReopen(status).Should().Be(expected);
+    }
+
     public static TheoryData<DraftRequestStatus> AllDraftRequestStatuses()
     {
         TheoryData<DraftRequestStatus> data = [];

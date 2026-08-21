@@ -488,7 +488,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
         <p
           class="m-0 dark:text-neutral-100 text-[15px] font-semibold leading-[22px] text-al-text-primary"
         >
-          Governance before commit
+          Approval before finalize
         </p>
         <p
           class="m-0 mt-2 dark:text-neutral-300 text-[17px] font-normal leading-7 text-al-text-primary"
@@ -879,7 +879,7 @@ exports[`WhyArchlucidMarketingView > matches snapshot (marketing /why layout + p
               class="max-w-[320px] px-3 py-3 align-top font-medium text-neutral-900 dark:text-neutral-100"
               scope="row"
             >
-              Approval gates
+              Approval checks
             </th>
             <td
               class="whitespace-nowrap px-3 py-3 align-top text-neutral-800 dark:text-neutral-200"

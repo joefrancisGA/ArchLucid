@@ -1,10 +1,10 @@
-/** Canonical Governance setup path (TB-1134 / TB-1135). */
+/** Canonical Approval setup path (TB-1134 / TB-1135). */
 export const GOVERNANCE_SETUP_HREF = "/governance/setup" as const;
 
-/** OperatorPageHeader subtitle on Governance setup — keep aligned with {@link GovernanceSetupGuidePageView}. */
+/** OperatorPageHeader subtitle on Approval setup — keep aligned with {@link GovernanceSetupGuidePageView}. */
 /**
  * Shared so the visible page title and the help-trigger collision guard read the same string. The
- * contextual help topic for this route is also labelled "Governance setup", which is why the trigger
+ * contextual help topic for this route is also labelled "Approval setup", which is why the trigger
  * renders as "Help" instead of repeating the title.
  */
 export const GOVERNANCE_SETUP_PAGE_TITLE = "Approval setup" as const;

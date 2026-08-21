@@ -46,7 +46,7 @@ export const ARTIFACT_PREVIEW_SPONSOR_EXPORT_COMPACT_LINE =
   "Artifact preview is one in-app output; Sponsor export is the leadership briefing download." as const;
 
 /**
- * Peer from Sponsor export: Sealed review records list, because artifact preview
+ * Peer from Sponsor export: Finalized review records list, because artifact preview
  * is manifest/artifact-scoped (open a record, then preview an artifact).
  */
 export const ARTIFACT_PREVIEW_SPONSOR_EXPORT_RECORDS_PEER_LINK: ArtifactPreviewSponsorExportLink =

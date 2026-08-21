@@ -14,7 +14,7 @@ vi.mock("@/lib/api/cloud-connections-api", () => ({
 }));
 
 describe("AzureConnectionRecentActivityPanel (P0-1)", () => {
-  it("uses Azure-specific empty coach CTA anchored to connection details", async () => {
+  it("keeps Azure-scoped empty coach without a Configure CTA on this page", async () => {
     render(
       <AzureConnectionDataProvider>
         <AzureConnectionRecentActivityPanel />
@@ -22,9 +22,12 @@ describe("AzureConnectionRecentActivityPanel (P0-1)", () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByTestId("cloud-first-inventory-coach-cta")).toHaveTextContent("Configure Azure");
+      expect(screen.getByTestId("cloud-first-inventory-coach")).toHaveTextContent("Azure");
     });
 
-    expect(screen.getByTestId("cloud-first-inventory-coach-cta")).toHaveAttribute("href", "#connection-details");
+    expect(screen.getByTestId("cloud-first-inventory-coach")).toHaveAttribute("data-phase", "empty");
+    expect(screen.queryByTestId("cloud-first-inventory-coach-cta")).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: /configure azure/i })).not.toBeInTheDocument();
+    expect(screen.getByTestId("azure-connection-recent-activity-empty")).toBeInTheDocument();
   });
 });

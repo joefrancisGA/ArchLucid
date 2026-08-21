@@ -6,7 +6,7 @@ import {
 } from "./pipeline-complete-on-summary";
 
 describe("pipeline-complete-on-summary", () => {
-  it("detects analysis stages complete without sealed review record", () => {
+  it("detects analysis stages complete without Finalized review record", () => {
     expect(
       analysisStagesCompleteOnSummary({
         runId: "r1",

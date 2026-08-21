@@ -159,7 +159,7 @@ export const FINDINGS_HELP_PROVENANCE_NON_CLAIM =
   "Provenance labeling describes how a finding was produced and whether evidence is attached. It does not claim accuracy rates, production validation, or that AI-generated findings are independently verified. Reviewers remain accountable for disposition decisions.";
 
 export const FINDINGS_HELP_EVIDENCE_INTRO =
-  "Evidence explains why a finding exists. From a finding, authorized users can review the supporting material and trace how it connects to architecture elements and governance rules.";
+  "Evidence explains why a finding exists. From a finding, authorized users can review the supporting material and trace how it connects to architecture elements and policy rules.";
 
 export const FINDINGS_HELP_EVIDENCE_ITEMS = [
   "Source evidence such as diagrams, documents, or cloud inventory",

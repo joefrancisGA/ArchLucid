@@ -117,7 +117,7 @@ export function getBuyerSafeReviewsTableLinkForRun(run: {
   return { href, label: "Continue review" };
 }
 
-/** Sealed review record for the same review — secondary table action next to {@link getBuyerSafeReviewsTableLink}. */
+/** Finalized review record for the same review — secondary table action next to {@link getBuyerSafeReviewsTableLink}. */
 export function getBuyerSafeSignedManifestTableLink(runId: string): PrimaryReviewExploreLink {
   const id = canonicalizeDemoRunId(runId.trim());
 

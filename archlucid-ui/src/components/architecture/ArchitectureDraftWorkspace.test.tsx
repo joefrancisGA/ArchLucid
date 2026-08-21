@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { ApiRequestError } from "@/lib/api-request-error";
 
 const getDraftRequest = vi.fn();
+const reopenDraftRequest = vi.fn();
 const getRunSummary = vi.fn();
 const saveDraft = vi.fn();
 const reloadDraft = vi.fn();
@@ -25,6 +26,7 @@ vi.mock("@/lib/api/draft-intake-api", async () => {
   return {
     ...actual,
     getDraftRequest: (...args: unknown[]) => getDraftRequest(...args),
+    reopenDraftRequest: (...args: unknown[]) => reopenDraftRequest(...args),
   };
 });
 
@@ -120,7 +122,7 @@ import { emptyArchitectureDraftStructuredBrief } from "@/lib/architecture/archit
 import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer/buyer-polish-copy";
 import { useArchitectureDraftAutosave } from "@/hooks/use-architecture-draft-autosave";
 import { useArchitectureDraftRegistryEntries } from "@/hooks/use-architecture-draft-registry-entries";
-import { showError } from "@/lib/toast";
+import { showError, showSuccess } from "@/lib/toast";
 
 const readyStructuredBriefDocument = {
   confirmedConstraints: ["Private endpoints required"],
@@ -400,6 +402,11 @@ describe("ArchitectureDraftWorkspace", () => {
     });
 
     expect(screen.getByTestId("draft-intake-advanced-section")).toBeInTheDocument();
+    expect(
+      screen.getByTestId("draft-intake-advanced-section").querySelector(
+        '[data-testid="architecture-draft-ai-refine-stub"]',
+      ),
+    ).toBeNull();
     expect(screen.getByTestId("architecture-draft-ai-budget-notice")).toHaveTextContent(
       "Architecture reasoning uses AI budget.",
     );
@@ -445,6 +452,7 @@ describe("ArchitectureDraftWorkspace", () => {
     });
 
     expect(screen.queryByTestId("draft-intake-advanced-section")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("architecture-draft-ai-refine-stub")).not.toBeInTheDocument();
   });
 
   it("locks the editor and promotes the linked review when a draft already spawned a review", async () => {
@@ -531,6 +539,7 @@ describe("ArchitectureDraftWorkspace", () => {
       expect(screen.queryByTestId("architecture-draft-intake-mode-banner")).not.toBeInTheDocument();
     });
 
+    expect(showSuccess).toHaveBeenCalledWith("Architecture unlocked — you can edit the brief.");
     expect(screen.getByLabelText(/Architecture overview/i)).not.toBeDisabled();
   });
 

@@ -3,6 +3,7 @@
 import { useCallback, useMemo, useState } from "react";
 
 import { CopyIdButton } from "@/components/CopyIdButton";
+import { FieldHelpTooltip } from "@/components/FieldHelpTooltip";
 import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
 import {
@@ -69,7 +70,12 @@ export function GcpWifStarterPanel(): React.ReactElement {
           <EnterpriseTableBody>
             {federationIdentifiers.map((identifier) => (
               <EnterpriseTableRow key={identifier.id} data-testid={`gcp-wif-starter-identifier-${identifier.id}`}>
-                <EnterpriseTableCell>{identifier.label}</EnterpriseTableCell>
+                <EnterpriseTableCell>
+                  <span className="inline-flex items-center gap-1">
+                    <span>{identifier.label}</span>
+                    <FieldHelpTooltip label={identifier.label} hint={identifier.hint} />
+                  </span>
+                </EnterpriseTableCell>
                 <EnterpriseTableCell>
                   <div className="flex flex-wrap items-center gap-2">
                     <span className={cn("font-mono text-sm", identifier.isPlaceholder ? "text-al-text-secondary" : undefined)}>

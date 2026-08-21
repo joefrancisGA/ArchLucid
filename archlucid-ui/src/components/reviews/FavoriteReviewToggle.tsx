@@ -44,7 +44,6 @@ export function FavoriteReviewToggle(props: FavoriteReviewToggleProps): React.JS
           )}
           aria-label={label}
           aria-pressed={favorited}
-          title={label}
           data-testid="favorite-review-toggle"
           data-favorited={favorited ? "true" : "false"}
           data-run-id={props.runId}
@@ -65,7 +64,6 @@ export function FavoriteReviewToggle(props: FavoriteReviewToggleProps): React.JS
           )}
           aria-label={label}
           aria-pressed={favorited}
-          title={label}
           data-testid="favorite-review-toggle"
           data-favorited={favorited ? "true" : "false"}
           data-run-id={props.runId}
