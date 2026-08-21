@@ -64,7 +64,7 @@ export const PACKAGE_GOVERNANCE_APPROVAL_QUEUE_QUEUE_LINK: PackageGovernanceAppr
     id: "approval-queue",
     label: "Approval queue",
     href: GOVERNANCE_APPROVAL_QUEUE_PATH,
-    whenToUse: "Approve or reject pending governance approval requests.",
+    whenToUse: "Approve or reject pending resolve outcome requests.",
   };
 
 /** Build vocabulary; pass runId when mounting on a package Governance / Policies tab. */

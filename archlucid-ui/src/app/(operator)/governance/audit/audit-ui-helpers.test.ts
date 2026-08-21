@@ -83,7 +83,7 @@ describe("auditEventLifecycleSortKey", () => {
 describe("audit lifecycle grouping", () => {
   it("maps PascalCase audit spine types into grouping headings via Contracts parity", () => {
     expect(auditEventLifecycleStageLabel("ManifestGenerated")).toBe("Review finalized");
-    expect(auditEventLifecycleStageLabel("GovernanceApprovalRequested")).toBe("Governance approval recorded");
+    expect(auditEventLifecycleStageLabel("GovernanceApprovalRequested")).toBe("Governance approval requested");
     expect(auditEventLifecycleStageLabel("RunSubmitted")).toBe("Review started");
   });
 
@@ -109,18 +109,18 @@ describe("audit lifecycle grouping", () => {
     expect(grouped[0]?.events[0]?.eventType).toBe("RunStarted");
   });
 
-  it("maps governance approval recorded to governance approval grouping", () => {
-    expect(auditEventLifecycleStageLabel("com.archlucid.governance.approval.recorded")).toBe("Governance approval recorded");
+  it("maps resolve outcomes recorded to resolve outcomes grouping", () => {
+    expect(auditEventLifecycleStageLabel("com.archlucid.governance.approval.recorded")).toBe("Resolve outcomes recorded");
   });
 
-  it("orders manifest, governance approval, then artifacts bundle in canonical lifecycle order", () => {
+  it("orders manifest, resolve outcomes, then artifacts bundle in canonical lifecycle order", () => {
     const grouped = groupAuditEventsByLifecycleStage([
       { eventType: "artifact.bundle.created" },
       { eventType: "com.archlucid.governance.approval.recorded" },
       { eventType: "finalize.run" },
     ]);
 
-    expect(grouped.map((g) => g.stage)).toEqual(["Review finalized", "Governance approval recorded", "Artifacts bundled"]);
+    expect(grouped.map((g) => g.stage)).toEqual(["Review finalized", "Resolve outcomes recorded", "Artifacts bundled"]);
   });
 });
 

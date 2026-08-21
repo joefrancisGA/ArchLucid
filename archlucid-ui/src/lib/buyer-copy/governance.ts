@@ -18,7 +18,7 @@ export const BUYER_GOVERNANCE_GOVERNED_USE_SCOPE =
 
 export const BUYER_GOVERNANCE_PAGE_TITLE = "Governance workflow";
 
-export const BUYER_GOVERNANCE_STATUS_BANNER_TITLE = "Governance approval record";
+export const BUYER_GOVERNANCE_STATUS_BANNER_TITLE = "Resolve outcome record";
 
 export const BUYER_GOVERNANCE_STATUS_BANNER_BODY =
   "Approved for planning use with monitored PHI minimization control. Production deployments remain controlled by enterprise change management.";

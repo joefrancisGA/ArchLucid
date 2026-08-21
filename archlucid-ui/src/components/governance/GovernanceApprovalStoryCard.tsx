@@ -52,7 +52,7 @@ export function GovernanceApprovalStoryCard(props: {
       detail: reviewed ? `${BUYER_SHOWCASE_APPROVER_ROLE}: ${row.reviewedBy ?? "—"}` : "Pending reviewer action",
     },
     {
-      label: "Governance approval recorded",
+      label: "Resolve outcomes recorded",
       done: approved,
       detail: approved ? `Recorded ${approvalTimestamp}` : row.status.trim() || "Not approved yet",
     },

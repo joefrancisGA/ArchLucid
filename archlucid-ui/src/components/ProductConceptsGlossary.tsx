@@ -13,7 +13,7 @@ const CORE_GLOSSARY: GlossaryEntry[] = [
   {
     term: "Architecture review",
     definition:
-      "A versioned, evidence-linked analysis package produced by ArchLucid. Contains findings, a sealed review record, and a full audit trail.",
+      "A versioned, evidence-linked analysis package produced by ArchLucid. Contains findings, a finalized review record, and a full audit trail.",
   },
   {
     term: "Finding",
@@ -26,9 +26,9 @@ const CORE_GLOSSARY: GlossaryEntry[] = [
       "The decision-traceability graph linking each finding back through the policy rule, evidence source, and agent reasoning that produced it.",
   },
   {
-    term: "Sealed review record",
+    term: "Finalized review record",
     definition:
-      "The signed, immutable summary of a finalized architecture review. Finalizing the review seals the package and triggers governance gates.",
+      "The immutable summary of a finalized architecture review. Finalizing the review locks the package and triggers governance gates.",
   },
   {
     term: "Policy pack",
@@ -36,7 +36,7 @@ const CORE_GLOSSARY: GlossaryEntry[] = [
       "A versioned rule set applied during analysis. Controls which checks run and how findings are classified (e.g. Azure CIS, custom governance).",
   },
   {
-    term: "Governance approval",
+    term: "Resolve outcomes",
     definition:
       "An architect or authority decision recorded against a finalized review — Approved, Approved with monitoring, or Rejected. Drives downstream workflow.",
   },

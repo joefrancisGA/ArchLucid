@@ -5,7 +5,7 @@ export const STANDARDS_RULES_PAGE_SUBTITLE =
 
 export const STANDARDS_RULES_HELP_TOPIC_LABEL = "How standards & rules work";
 
-export const STANDARDS_RULES_BANNER_TITLE = "Governance approval record";
+export const STANDARDS_RULES_BANNER_TITLE = "Resolve outcome record";
 
 export const STANDARDS_RULES_BANNER_BODY =
   "This review was approved using the standards and rules shown below.";

@@ -256,7 +256,7 @@ function useStreamlinedPilotOutcomeLabels(): {
       : "Policy pack",
     approvalStatusLabel: streamlinedPilotPath
       ? CORE_PILOT_PATH_STREAMLINED_LABELS.reviewApproval
-      : "Governance approval",
+      : "Resolve outcomes",
   };
 }
 

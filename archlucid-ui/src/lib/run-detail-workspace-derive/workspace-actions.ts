@@ -209,7 +209,7 @@ export function deriveRecommendedWorkspaceActions(input: {
   if (manifestId.length > 0) {
     actions.push({
       id: "open-package",
-      title: "Open sealed review record",
+      title: "Open finalized review record",
       reason: "Exports and deliverables are available for this finalized review.",
       relatedFindingCount: null,
       ownerOrRole: null,

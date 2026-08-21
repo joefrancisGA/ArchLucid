@@ -27,7 +27,7 @@ describe("StandardsRulesGovernanceStatusBanner", () => {
     );
 
     expect(screen.getByTestId("standards-rules-governance-status-banner")).toBeInTheDocument();
-    expect(screen.getByText("Governance approval record")).toBeInTheDocument();
+    expect(screen.getByText("Resolve outcome record")).toBeInTheDocument();
     expect(screen.getByText(/Enterprise Customer Intake Modernization Review/)).toBeInTheDocument();
     expect(screen.getByText(/Approver:/)).toBeInTheDocument();
     expect(screen.getByText(/Jordan Lee/)).toBeInTheDocument();

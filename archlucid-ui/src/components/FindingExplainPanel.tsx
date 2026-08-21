@@ -1,5 +1,6 @@
 ﻿"use client";
 
+import { BUYER_COMPARE_OPEN_SIGNED_REVIEW_RECORD_CTA } from "@/lib/buyer/buyer-polish-copy";
 import { cn } from "@/lib/utils";
 import { useCallback, useEffect, useState } from "react";
 
@@ -199,7 +200,7 @@ export function FindingExplainPanel({
               ? [{ href: graphEvidenceHref, label: "Open evidence graph" }]
               : []),
             ...(linkedManifestHref !== null && linkedManifestHref !== undefined
-              ? [{ href: linkedManifestHref, label: "Open sealed review record" }]
+              ? [{ href: linkedManifestHref, label: BUYER_COMPARE_OPEN_SIGNED_REVIEW_RECORD_CTA }]
               : []),
           ]}
           failure={failure}

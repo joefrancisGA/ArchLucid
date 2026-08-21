@@ -161,11 +161,12 @@ export const CUSTOMER_GLOSSARY_TERMS: readonly CustomerGlossaryTerm[] = [
   },
   {
     id: "governance-approval",
-    label: "Governance approval",
+    label: "Resolve outcomes",
     definition:
       "A committed governance decision that affects rollout, waiver, exception, or escalation for a review or related record.",
     category: "governance",
     relatedTermIds: ["decision", "audit-trail"],
+    deprecatedAliases: ["Governance approval"],
     visibility: "customer",
   },
   {

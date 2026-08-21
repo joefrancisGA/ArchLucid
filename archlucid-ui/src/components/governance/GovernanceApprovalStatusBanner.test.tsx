@@ -18,7 +18,7 @@ describe("GovernanceApprovalStatusBanner", () => {
     const banner = screen.getByTestId("governance-approval-status-banner");
     expect(banner.tagName.toLowerCase()).toBe("section");
     expect(banner).not.toHaveAttribute("role");
-    expect(screen.getByText("Governance approval record")).toBeInTheDocument();
+    expect(screen.getByText("Resolve outcome record")).toBeInTheDocument();
     expect(screen.getByText("Approver: Jordan Lee")).toBeInTheDocument();
     expect(screen.getByText(/Scope: Claims Intake Demo/)).toBeInTheDocument();
     expect(screen.getByText(/Record: approval-claims-intake-001/)).toBeInTheDocument();

@@ -4,17 +4,17 @@ import { GOVERNANCE_AUDIT_PATH, GOVERNANCE_DECISION_REGISTER_PATH, GOVERNANCE_FI
 import { SIGNED_RECORDS_LIST_PATH } from "@/lib/signed-records-paths";
 
 export const DECISION_REGISTER_CLAIM_DISCIPLINE =
-  "This register lists architecture decisions locked with sealed review records in the current workspace — each row links to the review, findings, and lineage that justified the recorded decision. It does not replace findings triage or official assurance materials.";
+  "This register lists architecture decisions locked with finalized review records in the current workspace — each row links to the review, findings, and lineage that justified the recorded decision. It does not replace findings triage or official assurance materials.";
 
 export const DECISION_REGISTER_SOURCES_INTRO =
-  "Open the related architecture review, sealed record, or findings when a decision needs follow-up; use Audit trail for activity context.";
+  "Open the related architecture review, finalized record, or findings when a decision needs follow-up; use Audit trail for activity context.";
 
 /** Operator Sources — no self-href to decision-register. */
 export const DECISION_REGISTER_SOURCES: readonly EvidenceSourceLinkWithWhen[] = [
   {
     label: "Architecture reviews",
     href: "/architecture/reviews",
-    when: "Open the review that produced the sealed record behind a decision",
+    when: "Open the review that produced the finalized record behind a decision",
   },
   {
     label: "Findings",
@@ -22,9 +22,9 @@ export const DECISION_REGISTER_SOURCES: readonly EvidenceSourceLinkWithWhen[] = 
     when: "Triage live risks when a decision needs resolve follow-up",
   },
   {
-    label: "Sealed review records",
+    label: "Finalized review records",
     href: SIGNED_RECORDS_LIST_PATH,
-    when: "Inspect the sealed package that locked each recorded decision",
+    when: "Inspect the finalized package that locked each recorded decision",
   },
   {
     label: "Audit trail",
@@ -39,7 +39,7 @@ export const DECISION_REGISTER_SOURCES: readonly EvidenceSourceLinkWithWhen[] = 
   {
     label: "How ArchLucid works",
     href: inAppHelpHref("getting-started", "how-archlucid-works"),
-    when: "Product orientation for architects new to sealed review records",
+    when: "Product orientation for architects new to finalized review records",
   },
 ] as const;
 

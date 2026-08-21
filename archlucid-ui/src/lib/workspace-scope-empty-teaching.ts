@@ -103,7 +103,7 @@ export function buildArchitecturesHubWorkspaceScopeEmptyTeaching(
 export function buildSignedRecordsHubWorkspaceScopeEmptyTeaching(
   record: OperatorScopeRecord | null,
 ): WorkspaceScopeEmptyTeachingCopy {
-  return buildHubWorkspaceScopeEmptyTeaching(record, "sealed review records");
+  return buildHubWorkspaceScopeEmptyTeaching(record, "finalized review records");
 }
 
 export function buildGovernanceFindingsHubWorkspaceScopeEmptyTeaching(

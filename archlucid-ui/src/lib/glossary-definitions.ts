@@ -13,13 +13,13 @@ export const GLOSSARY_DEFINITIONS = {
     displayLabel: "Architecture review",
     shortDefinition: "The end-to-end work unit from intake through finalized outputs for one architecture question.",
     longDefinition:
-      "An architecture review captures one question end-to-end: ingested context, graph and findings, decisioning, and synthesized artifacts culminating in a sealed review record you can govern and compare.",
+      "An architecture review captures one question end-to-end: ingested context, graph and findings, decisioning, and synthesized artifacts culminating in a finalized review record you can govern and compare.",
   },
   manifest: {
-    displayLabel: "Sealed review record",
-    shortDefinition: "The finalized, sealed architecture review treated as source of truth for a review.",
+    displayLabel: "Finalized review record",
+    shortDefinition: "The finalized architecture review treated as source of truth for a review.",
     longDefinition:
-      "The sealed review record is the immutable, versioned design record for an architecture review—decisions, findings, and evidence together—used for approvals, exports, and diffs against other reviews.",
+      "The finalized review record is the immutable, versioned design record for an architecture review—decisions, findings, and evidence together—used for approvals, exports, and diffs against other reviews.",
   },
   finding: {
     displayLabel: "Finding",

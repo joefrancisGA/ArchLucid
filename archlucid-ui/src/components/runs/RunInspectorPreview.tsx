@@ -186,7 +186,7 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
           <p className={cn("m-0 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
             Decision: Package finalized
           </p>
-          <InlineMetadataLine label="Governance approval" value="Approved with monitoring" />
+          <InlineMetadataLine label="Resolve outcomes" value="Approved with monitoring" />
           <InlineMetadataLine
             label="Remaining monitored risk"
             value={`${SHOWCASE_STATIC_DEMO_SPINE_COUNTS.warningCount} (tracked in finalized review record)`}
