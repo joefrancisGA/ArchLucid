@@ -15,7 +15,13 @@ import {
   CLOUD_CONNECTIONS_PAGE_TITLE,
   CLOUD_CONNECTIONS_PROVIDER_EVIDENCE_NONE,
 } from "@/lib/cloud-connections-copy";
-import { CLOUD_CONNECTIONS_PLATFORM_SCOPE_EMPTY_SELECTION } from "@/lib/cloud-platform-scope-copy";
+import {
+  CLOUD_CONNECTIONS_PLATFORM_SCOPE_EMPTY_SELECTION_LEAD,
+  CLOUD_CONNECTIONS_PLATFORM_SCOPE_EMPTY_SELECTION_MID,
+  CLOUD_CONNECTIONS_PLATFORM_SCOPE_EMPTY_SELECTION_REVIEW_LINK_LABEL,
+  CLOUD_CONNECTIONS_PLATFORM_SCOPE_PREFERENCES_HREF,
+  CLOUD_CONNECTIONS_PLATFORM_SCOPE_PREFERENCES_LINK_LABEL,
+} from "@/lib/cloud-platform-scope-copy";
 import { CLOUD_CONNECTIONS_PATH } from "@/lib/integrations-nav-paths";
 import {
   cloudConnectionIndicatesSuccessfulPull,
@@ -342,9 +348,17 @@ export function CloudConnectionsPageClient() {
 
         {visibleProviders.length === 0 ? (
           <p className={OPERATOR_TYPOGRAPHY.helper}>
-            {CLOUD_CONNECTIONS_PLATFORM_SCOPE_EMPTY_SELECTION}{" "}
+            {CLOUD_CONNECTIONS_PLATFORM_SCOPE_EMPTY_SELECTION_LEAD}{" "}
+            <Link
+              href={CLOUD_CONNECTIONS_PLATFORM_SCOPE_PREFERENCES_HREF}
+              className={OPERATOR_LINK.nav}
+              data-testid="cloud-platform-scope-empty-selection-preferences-link"
+            >
+              {CLOUD_CONNECTIONS_PLATFORM_SCOPE_PREFERENCES_LINK_LABEL}
+            </Link>
+            {CLOUD_CONNECTIONS_PLATFORM_SCOPE_EMPTY_SELECTION_MID}{" "}
             <Link href="/architecture/reviews/new" className={OPERATOR_LINK.nav}>
-              evidence-only review
+              {CLOUD_CONNECTIONS_PLATFORM_SCOPE_EMPTY_SELECTION_REVIEW_LINK_LABEL}
             </Link>
             .
           </p>

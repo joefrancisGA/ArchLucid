@@ -25,7 +25,7 @@ export const CLOUD_CONNECTIONS_FOLLOW_UPS_TITLE = HUB_SECONDARY_FOLLOW_UPS_TITLE
 
 
 export const CLOUD_CONNECTIONS_SOURCES_INTRO = hubSecondaryFollowUpsIntro(
-  "you need Connection status, provider help, or How ArchLucid works after choosing a cloud provider above",
+  "you need Connection status, cloud connections help, or How ArchLucid works after choosing a cloud provider above",
 );
 
 
