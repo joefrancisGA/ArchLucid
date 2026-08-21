@@ -31,14 +31,14 @@ function buildSpineSteps(data: GovernanceLineageResult): readonly GovernanceLine
 
   steps.push({
     id: "sealed-review-record",
-    title: "Sealed review record",
-    detail: data.manifest ? "Linked to this approval" : "No sealed review record linked",
+    title: "Finalized review record",
+    detail: data.manifest ? "Linked to this approval" : "No finalized review record linked",
     statusTag: data.manifest ? { kind: "ready", label: "Linked" } : { kind: "needs-attention", label: "Missing" },
   });
 
   steps.push({
     id: "governance-approval",
-    title: "Governance approval",
+    title: "Resolve outcomes",
     detail: data.approvalRequest.reviewedBy
       ? `Reviewed by ${data.approvalRequest.reviewedBy}`
       : "Awaiting reviewer action",
@@ -85,7 +85,7 @@ export function GovernanceApprovalLineageSpine(props: GovernanceApprovalLineageS
       <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
         {versionAssertion.primaryVersion !== null ? (
           <>
-            Sealed review record version{" "}
+            Finalized review record version{" "}
             <span className="font-mono text-al-text-primary">{versionAssertion.primaryVersion}</span>
             {" · "}
           </>

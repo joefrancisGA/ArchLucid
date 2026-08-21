@@ -75,7 +75,7 @@ export function decisionRegisterRows(entries: ArchitectureDecisionRegisterEntry[
         ? rationale
         : selectedOption.length > 0
           ? `Selected: ${selectedOption}`
-          : "Open the sealed review record for decision context and supporting findings.";
+          : "Open the finalized review record for decision context and supporting findings.";
 
     return {
       runId: runId.length > 0 ? runId : " — ",

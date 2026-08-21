@@ -54,7 +54,7 @@ export const REPLAY_VALIDATION_MODES: readonly ReplayValidationModeDefinition[] 
     title: "Rebuild derived outputs",
     summary: "Regenerates selected derived outputs and compares them with stored records.",
     bullets: [
-      "Regenerates the sealed review record and decision trace from stored inputs",
+      "Regenerates the finalized review record and decision trace from stored inputs",
       "May consume AI budget",
       "Replaces or compares stored manifest outputs when differences are detected",
     ],

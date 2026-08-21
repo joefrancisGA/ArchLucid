@@ -323,11 +323,11 @@ export function PilotScorecardPageView({ model }: PilotScorecardPageViewProps) {
                       drillDownLabel="View architecture reviews"
                     />
                     <ScorecardSummaryTile
-                      label="Governance approvals"
+                      label="Resolve outcomes"
                       value={governanceDisplay.value}
                       detail={
                         governanceDisplay.state === "measured"
-                          ? "Completed governance approvals in scope."
+                          ? "Completed resolve outcomes in scope."
                           : governanceDisplay.detail
                       }
                       empty={governanceDisplay.empty}
@@ -410,11 +410,11 @@ export function PilotScorecardPageView({ model }: PilotScorecardPageViewProps) {
                       drillDownLabel="View architecture reviews"
                     />
                     <ScorecardSummaryTile
-                      label="Governance approvals"
+                      label="Resolve outcomes"
                       value={governanceDisplay.value}
                       detail={
                         governanceDisplay.state === "measured"
-                          ? "Completed governance approvals in scope."
+                          ? "Completed resolve outcomes in scope."
                           : governanceDisplay.detail
                       }
                       empty={governanceDisplay.empty}

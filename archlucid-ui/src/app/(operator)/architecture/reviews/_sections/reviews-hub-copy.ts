@@ -90,14 +90,14 @@ export const REVIEWS_HUB_RECENT_EMPTY_WITH_DRAFT_PRIMARY_LABEL = "Continue editi
 export const REVIEWS_HUB_INCLUDES_TITLE = "What each review contains";
 
 export const REVIEWS_HUB_INCLUDES_LEAD =
-  "A finalized review brings together findings, evidence, decisions, governance records, a sealed review record, and exports.";
+  "A finalized review brings together findings, evidence, decisions, governance records, a finalized review record, and exports.";
 
 export const REVIEWS_HUB_INCLUDES_ITEMS = [
   "Architecture description",
   "Findings",
   "Evidence graph",
-  "Sealed review record",
-  "Governance approval",
+  "Finalized review record",
+  "Resolve outcomes",
   "Exports",
 ] as const;
 

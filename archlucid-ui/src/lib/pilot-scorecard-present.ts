@@ -155,7 +155,7 @@ function resolveCycleTimeDisplay(
     return {
       state: "unavailable",
       value: REVIEW_SCORECARD_EMPTY_VALUE,
-      detail: "Average review cycle time appears after a finalized sealed review record.",
+      detail: "Average review cycle time appears after a finalized review record.",
       empty: true,
       useKpiEmphasis: false,
     };

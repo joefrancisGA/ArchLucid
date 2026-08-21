@@ -66,7 +66,7 @@ export function RunDetailAuthorityChainSection(props: RunDetailAuthorityChainSec
                   className={cn("inline-block font-semibold", OPERATOR_LINK.nav)}
                   href={signedRecordDetailPath(manifestId)}
                 >
-                  Finalized sealed review record
+                  Finalized review record
                 </Link>
               ) : (
                 <span className={cn("font-mono", OPERATOR_TYPOGRAPHY.micro)}>—</span>

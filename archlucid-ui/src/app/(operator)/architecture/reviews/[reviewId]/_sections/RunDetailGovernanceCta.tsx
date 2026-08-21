@@ -26,7 +26,7 @@ export function RunDetailGovernanceCta(props: RunDetailGovernanceCtaProps): Reac
     >
       <CardHeader className={OPERATOR_CARD.header}>
         <CardTitle className={cn("text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
-          Governance approval
+          Resolve outcomes
         </CardTitle>
         <CardDescription className={OPERATOR_TYPOGRAPHY.helper}>
           This review is finalized. Continue in Governance to submit source and target environments for approval.

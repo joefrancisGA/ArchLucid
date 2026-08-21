@@ -9,7 +9,7 @@ const ARTIFACT_TYPE_COPY: Record<string, { label: string; description: string }>
   ReferenceArchitectureMarkdown: {
     label: "Reference architecture (Markdown)",
     description:
-      "Narrative reference architecture derived from the sealed review record — suitable for review and handoff as documentation.",
+      "Narrative reference architecture derived from the finalized review record — suitable for review and handoff as documentation.",
   },
   ArchitectureNarrative: {
     label: "Architecture narrative",
@@ -54,7 +54,7 @@ const ARTIFACT_TYPE_COPY: Record<string, { label: string; description: string }>
   JsonBundle: {
     label: "Architecture decision record",
     description:
-      "Structured decisions bundle linked to the sealed review record — open in a JSON viewer or download.",
+      "Structured decisions bundle linked to the finalized review record — open in a JSON viewer or download.",
   },
   MarkdownReport: {
     label: "Markdown report",
