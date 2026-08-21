@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   ALERT_RULES_HUB_DEFERRED_CHUNK_LOADER_IDS,
+  ALERTS_INBOX_DEFERRED_CHUNK_LOADER_IDS,
   GOVERNANCE_WORKFLOW_DEFERRED_CHUNK_LOADER_IDS,
   loadDeferredChunkFromManifest,
   OPERATOR_HOME_DEFERRED_CHUNK_LOADER_IDS,
@@ -12,6 +13,7 @@ import {
   SPONSOR_ROI_DASHBOARD_DEFERRED_CHUNK_LOADER_IDS,
 } from "@/lib/operator/load-deferred-chunk-from-manifest";
 import { ALERT_RULES_HUB_CHUNK_MANIFEST } from "@/lib/operator/alert-rules-hub-chunk-manifest";
+import { ALERTS_INBOX_CHUNK_MANIFEST } from "@/lib/operator/alerts-inbox-chunk-manifest";
 import { GOVERNANCE_WORKFLOW_CHUNK_MANIFEST } from "@/lib/operator/governance-workflow-chunk-manifest";
 import { OPERATOR_HOME_CHUNK_MANIFEST } from "@/lib/operator/operator-home-chunk-manifest";
 import { POLICY_PACKS_AUTHORING_CHUNK_MANIFEST } from "@/lib/operator/policy-packs-authoring-chunk-manifest";
@@ -76,6 +78,13 @@ describe("loadDeferredChunkFromManifest (TB-2371)", () => {
   it("registers import loaders for every sponsor ROI dashboard manifest entry", () => {
     for (const entry of SPONSOR_ROI_DASHBOARD_CHUNK_MANIFEST) {
       expect(SPONSOR_ROI_DASHBOARD_DEFERRED_CHUNK_LOADER_IDS).toContain(entry.id);
+      expect(() => loadDeferredChunkFromManifest(entry.id)).not.toThrow();
+    }
+  });
+
+  it("registers import loaders for every alerts inbox manifest entry", () => {
+    for (const entry of ALERTS_INBOX_CHUNK_MANIFEST) {
+      expect(ALERTS_INBOX_DEFERRED_CHUNK_LOADER_IDS).toContain(entry.id);
       expect(() => loadDeferredChunkFromManifest(entry.id)).not.toThrow();
     }
   });
