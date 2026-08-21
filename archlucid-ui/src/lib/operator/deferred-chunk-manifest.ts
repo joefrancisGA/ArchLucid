@@ -2,6 +2,7 @@ import type { DeferredChunkLoadingVariant } from "@/components/ui/deferred-chunk
 
 import { ALERT_RULES_HUB_CHUNK_MANIFEST } from "@/lib/operator/alert-rules-hub-chunk-manifest";
 import { ALERTS_INBOX_CHUNK_MANIFEST } from "@/lib/operator/alerts-inbox-chunk-manifest";
+import { APP_SHELL_CHUNK_MANIFEST } from "@/lib/operator/app-shell-chunk-manifest";
 import { GOVERNANCE_WORKFLOW_CHUNK_MANIFEST } from "@/lib/operator/governance-workflow-chunk-manifest";
 import { OPERATOR_HOME_CHUNK_MANIFEST } from "@/lib/operator/operator-home-chunk-manifest";
 import { POLICY_PACKS_AUTHORING_CHUNK_MANIFEST } from "@/lib/operator/policy-packs-authoring-chunk-manifest";
@@ -40,6 +41,7 @@ export const DEFERRED_CHUNK_MANIFEST: readonly DeferredChunkManifestEntry[] = [
   ...SIGNED_RECORDS_LIST_CHUNK_MANIFEST,
   ...SPONSOR_ROI_DASHBOARD_CHUNK_MANIFEST,
   ...ALERTS_INBOX_CHUNK_MANIFEST,
+  ...APP_SHELL_CHUNK_MANIFEST,
 ] as const;
 
 export function deferredChunkManifestEntry(id: string): DeferredChunkManifestEntry | undefined {

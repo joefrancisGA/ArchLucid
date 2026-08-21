@@ -9,6 +9,7 @@ import {
 } from "@/lib/operator/deferred-chunk-manifest";
 import { ALERT_RULES_HUB_CHUNK_MANIFEST } from "@/lib/operator/alert-rules-hub-chunk-manifest";
 import { ALERTS_INBOX_CHUNK_MANIFEST } from "@/lib/operator/alerts-inbox-chunk-manifest";
+import { APP_SHELL_CHUNK_MANIFEST } from "@/lib/operator/app-shell-chunk-manifest";
 import { GOVERNANCE_WORKFLOW_CHUNK_MANIFEST } from "@/lib/operator/governance-workflow-chunk-manifest";
 import { OPERATOR_HOME_CHUNK_MANIFEST } from "@/lib/operator/operator-home-chunk-manifest";
 import { POLICY_PACKS_AUTHORING_CHUNK_MANIFEST } from "@/lib/operator/policy-packs-authoring-chunk-manifest";
@@ -275,6 +276,32 @@ function resolveDeferredChunkImportLoader(
         import("@/components/alerts/AlertsGovernanceContextPanel").then(
           (module) => module.AlertsGovernanceContextPanel,
         ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "alerts-inbox-dialogs":
+      return deferredChunkLoader(() =>
+        import("@/components/alerts/AlertsInboxDialogs").then((module) => module.AlertsInboxDialogs),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "app-shell-workspace-footer":
+      return deferredChunkLoader(() =>
+        import("@/components/shell/AppShellWorkspaceFooter").then((module) => module.AppShellWorkspaceFooter),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "app-shell-idle-overlays":
+      return deferredChunkLoader(() =>
+        import("@/components/shell/AppShellIdleOverlays").then((module) => module.AppShellIdleOverlays),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "app-shell-dev-testing-shortcuts":
+      return deferredChunkLoader(() =>
+        import("@/components/dev-testing/DevTestingShellShortcuts").then(
+          (module) => module.DevTestingShellShortcuts,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "app-shell-telemetry-bundle":
+      return deferredChunkLoader(() =>
+        import("@/components/shell/AppShellTelemetryBundle").then((module) => module.AppShellTelemetryBundle),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "app-shell-session-idle-timeout":
+      return deferredChunkLoader(() =>
+        import("@/components/SessionIdleTimeoutGuard").then((module) => module.SessionIdleTimeoutGuard),
       ) as () => Promise<ComponentType<Record<string, unknown>>>;
     case "reviews-hub-inventory":
       return deferredChunkLoader(() =>
@@ -812,5 +839,10 @@ export const SPONSOR_ROI_DASHBOARD_DEFERRED_CHUNK_LOADER_IDS: readonly string[] 
 
 /** Alerts inbox manifest ids that have registered import loaders (manifest import-test guard). */
 export const ALERTS_INBOX_DEFERRED_CHUNK_LOADER_IDS: readonly string[] = ALERTS_INBOX_CHUNK_MANIFEST.map(
+  (entry) => entry.id,
+);
+
+/** App shell manifest ids that have registered import loaders (manifest import-test guard). */
+export const APP_SHELL_DEFERRED_CHUNK_LOADER_IDS: readonly string[] = APP_SHELL_CHUNK_MANIFEST.map(
   (entry) => entry.id,
 );

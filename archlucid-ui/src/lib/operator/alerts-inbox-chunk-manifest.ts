@@ -9,4 +9,11 @@ export const ALERTS_INBOX_CHUNK_MANIFEST: readonly DeferredChunkManifestEntry[] 
     modulePath: "@/components/alerts/AlertsGovernanceContextPanel",
     exportName: "AlertsGovernanceContextPanel",
   },
+  {
+    id: "alerts-inbox-dialogs",
+    label: "Loading alert dialogs",
+    variant: "panel",
+    modulePath: "@/components/alerts/AlertsInboxDialogs",
+    exportName: "AlertsInboxDialogs",
+  },
 ] as const;

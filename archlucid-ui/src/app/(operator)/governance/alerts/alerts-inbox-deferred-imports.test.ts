@@ -37,11 +37,12 @@ describe("alerts inbox deferred imports (wave 11 hub First Load)", () => {
     expect(interactiveSource).toContain("AlertsInboxDialogsDeferred");
   });
 
-  it("dynamic-imports governance context via manifest loaders", () => {
+  it("dynamic-imports every alerts inbox panel via manifest loaders", () => {
     expect(deferredSource).toContain("createDeferredComponentFromManifest");
+    expect(deferredSource).not.toContain("next/dynamic");
     expect(manifestLoaderSource).toContain('import("@/components/alerts/AlertsGovernanceContextPanel")');
+    expect(manifestLoaderSource).toContain('import("@/components/alerts/AlertsInboxDialogs")');
     expect(deferredSource).toContain("alerts-inbox-governance-context-panel");
-    expect(deferredSource).toContain("next/dynamic");
-    expect(deferredSource).toContain('import("@/components/alerts/AlertsInboxDialogs")');
+    expect(deferredSource).toContain("alerts-inbox-dialogs");
   });
 });

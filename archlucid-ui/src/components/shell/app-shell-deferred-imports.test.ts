@@ -11,6 +11,10 @@ const appShellSource = readFileSync(join(componentsDir, "AppShellClient.tsx"), "
 const deferredSource = readFileSync(join(shellDir, "app-shell-deferred-chunks.tsx"), "utf8");
 const topBarSource = readFileSync(join(shellDir, "OperatorShellTopBar.tsx"), "utf8");
 const topBarDeferredSource = readFileSync(join(shellDir, "operator-shell-top-bar-deferred-chunks.tsx"), "utf8");
+const manifestLoaderSource = readFileSync(
+  join(componentsDir, "../lib/operator/load-deferred-chunk-from-manifest.tsx"),
+  "utf8",
+);
 
 const bannedStaticImports = [
   '@/components/shell/OperatorShellTopBar"',
@@ -71,13 +75,23 @@ describe("operator shell deferred imports (TB-2118)", () => {
     expect(appShellSource).toContain("ShellThemePreferencesAppearanceVocabularyRailDeferred");
   });
 
-  it("dynamic-imports deferred shell modules", () => {
+  it("dynamic-imports manifest-backed app shell modules via loaders", () => {
+    expect(deferredSource).toContain("createDeferredComponentFromManifest");
+    expect(manifestLoaderSource).toContain('import("@/components/shell/AppShellWorkspaceFooter")');
+    expect(manifestLoaderSource).toContain('import("@/components/shell/AppShellIdleOverlays")');
+    expect(manifestLoaderSource).toContain('import("@/components/dev-testing/DevTestingShellShortcuts")');
+    expect(manifestLoaderSource).toContain('import("@/components/shell/AppShellTelemetryBundle")');
+    expect(manifestLoaderSource).toContain('import("@/components/SessionIdleTimeoutGuard")');
+    expect(deferredSource).toContain("app-shell-workspace-footer");
+    expect(deferredSource).toContain("app-shell-idle-overlays");
+    expect(deferredSource).toContain("app-shell-dev-testing-shortcuts");
+    expect(deferredSource).toContain("app-shell-telemetry-bundle");
+    expect(deferredSource).toContain("app-shell-session-idle-timeout");
+  });
+
+  it("keeps remaining shell modules on inline dynamic imports", () => {
+    expect(deferredSource).toContain("next/dynamic");
     expect(deferredSource).toContain('import("./OperatorShellTopBar")');
-    expect(deferredSource).toContain('import("./AppShellWorkspaceFooter")');
-    expect(deferredSource).toContain('import("./AppShellIdleOverlays")');
-    expect(deferredSource).toContain('import("@/components/dev-testing/DevTestingShellShortcuts")');
-    expect(deferredSource).toContain('import("./AppShellTelemetryBundle")');
-    expect(deferredSource).toContain('import("@/components/SessionIdleTimeoutGuard")');
     expect(deferredSource).toContain('import("@/components/AuthPanel")');
     expect(deferredSource).toContain('import("@/components/SyncActiveRunFromPathname")');
     expect(deferredSource).toContain('import("./AppShellMainContentGate")');
@@ -89,7 +103,6 @@ describe("operator shell deferred imports (TB-2118)", () => {
     expect(deferredSource).toContain('import("@/components/AuthorityThemeToggle")');
     expect(deferredSource).toContain('import("@/components/ShellThemePreferencesAppearanceVocabularyRail")');
     expect(deferredSource).toContain("deferredChunkLoader");
-    expect(deferredSource).toContain("next/dynamic");
   });
 
   it("keeps heavy top-bar modules off the sync import graph", () => {

@@ -12,6 +12,7 @@ import {
   OPERATOR_SHELL_MAX_WIDTH_CLASS,
 } from "@/lib/design-tokens";
 import { deferredChunkLoader } from "@/lib/import-deferred-chunk-with-retry";
+import { createDeferredComponentFromManifest } from "@/lib/operator/load-deferred-chunk-from-manifest";
 import { cn } from "@/lib/utils";
 
 const operatorTopBarLoading = (
@@ -38,33 +39,28 @@ export const OperatorShellTopBarDeferred = dynamic(
   { ssr: false, loading: () => operatorTopBarLoading },
 );
 
-export const AppShellWorkspaceFooterDeferred = dynamic(
-  () => import("./AppShellWorkspaceFooter").then((module) => module.AppShellWorkspaceFooter),
-  { ssr: false, loading: () => null },
+export const AppShellWorkspaceFooterDeferred = createDeferredComponentFromManifest(
+  "app-shell-workspace-footer",
+  { suppressLoading: true },
 );
 
-export const AppShellIdleOverlaysDeferred = dynamic(
-  () => import("./AppShellIdleOverlays").then((module) => module.AppShellIdleOverlays),
-  { ssr: false, loading: () => null },
+export const AppShellIdleOverlaysDeferred = createDeferredComponentFromManifest("app-shell-idle-overlays", {
+  suppressLoading: true,
+});
+
+export const DevTestingShellShortcutsDeferred = createDeferredComponentFromManifest(
+  "app-shell-dev-testing-shortcuts",
+  { suppressLoading: true },
 );
 
-export const DevTestingShellShortcutsDeferred = dynamic(
-  () =>
-    import("@/components/dev-testing/DevTestingShellShortcuts").then(
-      (module) => module.DevTestingShellShortcuts,
-    ),
-  { ssr: false, loading: () => null },
+export const AppShellTelemetryBundleDeferred = createDeferredComponentFromManifest(
+  "app-shell-telemetry-bundle",
+  { suppressLoading: true },
 );
 
-export const AppShellTelemetryBundleDeferred = dynamic(
-  () => import("./AppShellTelemetryBundle").then((module) => module.AppShellTelemetryBundle),
-  { ssr: false, loading: () => null },
-);
-
-export const SessionIdleTimeoutGuardDeferred = dynamic(
-  () =>
-    import("@/components/SessionIdleTimeoutGuard").then((module) => module.SessionIdleTimeoutGuard),
-  { ssr: false, loading: () => null },
+export const SessionIdleTimeoutGuardDeferred = createDeferredComponentFromManifest(
+  "app-shell-session-idle-timeout",
+  { suppressLoading: true },
 );
 
 export const AuthPanelDeferred = dynamic(
