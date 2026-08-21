@@ -48,11 +48,16 @@ public static class IntegrationWebhookPayloadSamples
                 IntegrationEventTypes.FindingsHighSeverityCapturedV1,
             "GovernanceApprovalSubmitted" or "governance-approval-submitted" =>
                 IntegrationEventTypes.GovernanceApprovalSubmittedV1,
+            "GovernanceApprovalApproved" or "governance-approval-approved" =>
+                IntegrationEventTypes.GovernanceApprovalApprovedV1,
+            "GovernanceApprovalRejected" or "governance-approval-rejected" =>
+                IntegrationEventTypes.GovernanceApprovalRejectedV1,
             "GovernancePromotionActivated" or "governance-promotion-activated" =>
                 IntegrationEventTypes.GovernancePromotionActivatedV1,
             "GovernancePolicyPackPublished" or "governance-policy-pack-published" =>
                 IntegrationEventTypes.GovernancePolicyPackPublishedV1,
             "AlertFired" or "alert-fired" => IntegrationEventTypes.AlertFiredV1,
+            "AlertAcknowledged" or "alert-acknowledged" => IntegrationEventTypes.AlertAcknowledgedV1,
             "AlertResolved" or "alert-resolved" => IntegrationEventTypes.AlertResolvedV1,
             "AdvisoryScanCompleted" or "advisory-scan-completed" =>
                 IntegrationEventTypes.AdvisoryScanCompletedV1,
