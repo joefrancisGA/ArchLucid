@@ -13,10 +13,10 @@ export const GOVERNANCE_APPROVAL_CONTEXTUAL_HELP_ROWS: readonly PageContextualHe
       whatIsThisPage:
         `Governance — ${GOVERNANCE_APPROVAL_HELP_TOPIC_LABEL.toLowerCase()} across findings, approvals, audit, and policy configuration.`,
       whatToDoNext:
-        "Open the approval queue, findings register, or governance setup when you need live decisions or configuration.",
+        "Open the approval queue, findings register, or approval setup when you need live decisions or configuration.",
       whyEmpty: "Governance surfaces populate after reviews produce findings, decisions, or approval requests.",
       whereToConfigurePrerequisite:
-        "Governance setup links policy, alerts, and approval expectations before day-to-day operations.",
+        "Approval setup links policy, alerts, and approval expectations before day-to-day operations.",
       whatToDoNextAction: {
         label: "Open approval queue",
         href: "/governance/approval-queue",

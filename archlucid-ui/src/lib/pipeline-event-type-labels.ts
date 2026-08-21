@@ -72,7 +72,7 @@ const PIPELINE_EVENT_BUYER_SUBTITLE: Record<string, string> = {
   FindingsSnapshotSealed: "Freezes finding text and severities for traceability and remediation tickets.",
   ArtifactsGenerated: "Materializes sponsor and compliance deliverables attached to the review.",
   GovernanceApprovalRequested:
-    "Creates an auditable resolve-outcomes checkpoint before any governed downstream handoff.",
+    "Creates an auditable resolve-outcomes checkpoint before any approved downstream handoff.",
   "finalize.run": "Locks the finalized review as the official version used for approvals, exports, and audit history.",
   "run.finalized": "Closes the review with a durable outcome snapshot for governance and audit.",
   "context.snapshot.created": "Captures the ingested context used to justify findings and graph evidence.",
@@ -88,11 +88,11 @@ const PIPELINE_EVENT_BUYER_SUBTITLE: Record<string, string> = {
   "com.archlucid.manifest.finalized.v1":
     "Finalizes the review record as the authoritative package for decisions, deliverables, and audit.",
   "com.archlucid.governance.approval.submitted":
-    "Creates an auditable resolve-outcomes checkpoint before any governed downstream handoff.",
+    "Creates an auditable resolve-outcomes checkpoint before any approved downstream handoff.",
   "com.archlucid.governance.approval.recorded":
     "Records that the required resolve outcomes sequence completed for this finalized review.",
   "com.archlucid.governance.promotion.activated":
-    "Records that an approved review was authorized to advance within the governed change boundary.",
+    "Records that an approved review was authorized to advance within the approved change boundary.",
 };
 
 export function pipelineEventTypeBuyerMilestoneSubtitle(eventType: string): string {

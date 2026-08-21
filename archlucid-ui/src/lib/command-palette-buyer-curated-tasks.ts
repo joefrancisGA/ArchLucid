@@ -49,7 +49,7 @@ export const BUYER_COMMAND_PALETTE_CURATED_TASKS: readonly CuratedPaletteTask[] 
     // Same page the sidebar and route title call "Approval queue" — retired wording stays searchable below.
     label: OPERATOR_NAV_LINK_LABELS.governanceWorkflow,
     href: `/governance/approval-queue?runId=${showcaseRunEnc}`,
-    searchValue: "governance approval workflow sign-off",
+    searchValue: "resolve outcomes workflow sign-off",
   },
   {
     // Same page the sidebar and route title call "Findings" — retired wording stays searchable below.

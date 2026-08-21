@@ -47,13 +47,13 @@ export const MUTATION_REVERSIBILITY_REGISTRY: Readonly<
     id: "governance_workflow_promote",
     classification: "permanent",
     confirmationLead:
-      "Promoting this pack applies it to the target environment for future governed changes. It cannot be undone from this workspace.",
+      "Promoting this pack applies it to the target environment for future approved changes. It cannot be undone from this workspace.",
   },
   governance_workflow_activate: {
     id: "governance_workflow_activate",
     classification: "permanent",
     confirmationLead:
-      "Activating this pack applies its rules to future governed changes in this environment. It cannot be undone from this workspace.",
+      "Activating this pack applies its rules to future approved changes in this environment. It cannot be undone from this workspace.",
   },
   governance_bulk_disposition: {
     id: "governance_bulk_disposition",

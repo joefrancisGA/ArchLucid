@@ -29,7 +29,7 @@ export function RunDetailGovernanceCta(props: RunDetailGovernanceCtaProps): Reac
           Resolve outcomes
         </CardTitle>
         <CardDescription className={OPERATOR_TYPOGRAPHY.helper}>
-          This review is finalized. Continue in Governance to submit source and target environments for approval.
+          This review is finalized. Continue in the approval queue to submit source and target environments for resolve outcomes.
         </CardDescription>
       </CardHeader>
       <CardContent className={OPERATOR_CARD.content}>

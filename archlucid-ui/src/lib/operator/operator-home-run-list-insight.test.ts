@@ -33,7 +33,7 @@ describe("operator-home-run-list-insight", () => {
     });
 
     expect(formatRunHomeListInsightLine(run)).toBe(
-      "4 findings ready · finalize this review to lock approval readiness",
+      "4 findings ready · finalize this review to lock export readiness",
     );
   });
 

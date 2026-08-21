@@ -29,7 +29,7 @@ describe("OperatorHomeReviewSummaryCard", () => {
     expect(screen.getByText("Findings")).toBeInTheDocument();
     expect(screen.getByText("3 findings")).toBeInTheDocument();
     expect(screen.getByTestId("run-home-list-insight-review-001")).toHaveTextContent(
-      "3 findings ready · finalize this review to lock approval readiness",
+      "3 findings ready · finalize this review to lock export readiness",
     );
   });
 

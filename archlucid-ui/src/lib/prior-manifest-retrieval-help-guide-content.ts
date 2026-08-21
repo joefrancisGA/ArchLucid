@@ -9,7 +9,7 @@ export const PRIOR_MANIFEST_RETRIEVAL_HELP_PAGE_SUBTITLE =
   "How finalized architecture reviews become searchable tenant memory for Ask — and when to use search or second-review tools instead.";
 
 export const PRIOR_MANIFEST_RETRIEVAL_HELP_OVERVIEW =
-  "After you finalize a review, its decisions and findings can ground Ask answers. Use this guide to understand what gets indexed, how to ask against a sealed record, and when to open search or repeat-review help instead.";
+  "After you finalize a review, its decisions and findings can ground Ask answers. Use this guide to understand what gets indexed, how to ask against a finalized review record, and when to open search or repeat-review help instead.";
 
 export const PRIOR_MANIFEST_RETRIEVAL_HELP_PRIMARY_ACTIONS = {
   openAsk: {

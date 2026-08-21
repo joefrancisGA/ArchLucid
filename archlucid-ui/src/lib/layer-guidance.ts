@@ -220,7 +220,7 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
     headline: "Submit finalized architecture outputs for governance review and promotion.",
     useWhen: "Pick one review and move from submission through approval, promotion, and activation.",
     firstPilotNote:
-      "After Pilot proof when your team promotes finalized architecture snapshots through governed stages.",
+      "After Pilot proof when your team promotes finalized architecture snapshots through approval workflow stages.",
     enterpriseFootnote: "Approvals follow the configured approval path for packages in this workspace.",
   },
   "recurrence-schedules": {

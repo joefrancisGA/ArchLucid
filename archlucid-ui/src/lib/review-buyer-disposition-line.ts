@@ -60,7 +60,7 @@ export function buyerHeaderStatusTwinPillCaption(input: BuyerReviewDispositionIn
  */
 export function buildBuyerReviewPackageDispositionLine(input: BuyerReviewDispositionInput): string {
   if (!input.hasGoldenManifest) {
-    return "Finalize the review to lock findings, monitored risks, and governance approval signals for this review.";
+    return "Finalize the review to lock findings, monitored risks, and resolve outcomes signals for this review.";
   }
 
   const findings = clampNonNegativeInt(input.findingCountDisplay);

@@ -32,7 +32,7 @@ export const EVIDENCE_GRAPH_SOURCES: readonly EvidenceSourceLinkWithWhen[] = [
   {
     label: "Search review evidence",
     href: "/insights/search-review-evidence",
-    when: "Search across findings and sealed records when graph questions need workspace-wide context",
+    when: "Search across findings and finalized review records when graph questions need workspace-wide context",
   },
   {
     label: "Compare two reviews",

@@ -28,7 +28,7 @@ const SEARCH_REVIEW_EVIDENCE_HUB_CONTEXTUAL_HELP = {
 
   whyEmpty: "Matches appear after committed review evidence is indexed and your query finds relevant chunks.",
 
-  whereToConfigurePrerequisite: "Finalize reviews so findings and sealed records are available to search.",
+  whereToConfigurePrerequisite: "Finalize reviews so findings and finalized review records are available to search.",
 
 } as const;
 

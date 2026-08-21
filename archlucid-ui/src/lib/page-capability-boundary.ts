@@ -40,7 +40,7 @@ export const PAGE_CAPABILITY_BOUNDARY_COMPARE: PageCapabilityBoundary = {
     "Mutate either review's sealed review record or attached evidence.",
     "Approve, reject, or finalize packages from the comparison view.",
     "Invent findings or architecture outside the two selected packages.",
-    "Replace the Decision register or governance approval workflows.",
+    "Replace the Decision register or resolve outcomes workflows.",
   ],
 };
 

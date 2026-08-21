@@ -52,7 +52,7 @@ export const RECURRENCE_SCHEDULES_HELP_SOURCES: readonly EvidenceSourceLinkWithW
   {
     label: "Resolve outcomes help",
     href: inAppHelpHref("governance-approval"),
-    when: "Read approval workflow guidance when scheduled reviews need governance routing context",
+    when: "Read approval workflow guidance when scheduled reviews need approval routing context",
   },
 ] as const;
 

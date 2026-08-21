@@ -10,7 +10,7 @@ export const ARCHITECTURE_SCORECARD_CLAIM_DISCIPLINE_HEADING = "What this scorec
 export const ARCHITECTURE_SCORECARD_FOLLOW_UPS_TITLE = "Where to go next";
 
 export const ARCHITECTURE_SCORECARD_CLAIM_DISCIPLINE =
-  "Savings figures are directional for pilot value discussions — not financial reporting, not a sealed review record, and not an evidence trail.";
+  "Savings figures are directional for pilot value discussions — not financial reporting, not a finalized review record, and not an evidence trail.";
 
 export const ARCHITECTURE_SCORECARD_SOURCES_INTRO =
   "Open ROI summary, reviews, or methodology help before briefing sponsors from these tiles.";

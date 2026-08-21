@@ -25,7 +25,7 @@ export const contextualHelpByKey: Record<string, ContextualHelpEntry> = {
 /** Accessible name fallbacks when help copy is empty — avoids legacy run-primary aria labels. */
 const CONTEXTUAL_HELP_KEY_FALLBACK_LABEL: Partial<Record<string, string>> = {
   "commit-manifest": "finalize review",
-  "governance-gate": "governance gate",
+  "governance-gate": "approval check",
 };
 
 /** First sentence (or short excerpt) of help copy — used for the trigger's accessible name. */

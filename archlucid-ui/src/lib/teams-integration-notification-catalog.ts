@@ -77,7 +77,7 @@ export const TEAMS_NOTIFICATION_CATEGORIES: readonly TeamsNotificationCategory[]
       {
         eventType: "com.archlucid.governance.promotion.activated",
         label: "Governance promotion activated",
-        description: "An approved review was authorized to advance in a governed environment.",
+        description: "An approved review was authorized to advance in an approved environment.",
         recommended: true,
       },
       {

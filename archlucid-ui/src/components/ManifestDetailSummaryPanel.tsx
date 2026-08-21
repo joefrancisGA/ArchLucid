@@ -156,7 +156,7 @@ export function ManifestDetailSummaryPanel(props: ManifestDetailSummaryPanelProp
         )}
         {decisionRestCount > 0 ? (
           <p className={cn("m-0 mt-2 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-            … and {decisionRestCount} more decisions in the governed export — open review detail or download the evidence
+            … and {decisionRestCount} more decisions in the export package — open review detail or download the evidence
             package for the full list.
           </p>
         ) : null}

@@ -57,7 +57,7 @@ export const AUDIT_EVIDENCE_TRAIL_EVIDENCE_GRAPH_LINK: AuditEvidenceTrailLink = 
   id: "evidence-graph",
   label: "Evidence graph",
   href: EVIDENCE_GRAPH_PATH,
-  whenToUse: "Inspect the signed-record evidence trail for an architecture package.",
+  whenToUse: "Inspect the finalized review record evidence trail for an architecture package.",
 };
 
 export const AUDIT_EVIDENCE_TRAIL_SEARCH_EVIDENCE_LINK: AuditEvidenceTrailLink = {

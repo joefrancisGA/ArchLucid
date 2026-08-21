@@ -52,7 +52,7 @@ export function buildReviewPackageShareWhenToSharePreview(): ReviewPackageShareW
         id: "export",
         label: "Export deliverable",
         occasion:
-          "Use when sponsors or auditors need a formal deliverable from the sealed review record (ADR, packet, or similar).",
+          `Use when sponsors or auditors need a formal deliverable from the ${sealedReviewRecord.toLowerCase()} (ADR, packet, or similar).`,
       },
     ],
   };

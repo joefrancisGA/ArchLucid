@@ -73,7 +73,7 @@ export const CORE_PILOT_STEPS: CorePilotStepBase[] = [
   {
     title: "Review findings and sponsor exports",
     shortBody:
-      "Read governed findings, download sponsor artifacts, and share the proof packet with stakeholders.",
+      "Read findings, download sponsor artifacts, and share the proof packet with stakeholders.",
     detail:
       "Open the finalized review record summary, findings table, and board-pack or markdown exports when your internal review is complete.",
     primaryHref: "/architecture/reviews",

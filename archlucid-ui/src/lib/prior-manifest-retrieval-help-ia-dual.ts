@@ -18,7 +18,7 @@ export const PRIOR_MANIFEST_RETRIEVAL_HELP_JOB_MATRIX_TEST_ID = "help-prior-mani
 export const PRIOR_MANIFEST_RETRIEVAL_HELP_JOB_MATRIX: readonly PriorManifestRetrievalHelpJobMatrixRow[] = [
   {
     label: "This Ask memory guide",
-    when: "What finalize indexes for conversational answers — select a sealed record and ask in plain language",
+    when: "What finalize indexes for conversational answers — select a finalized review record and ask in plain language",
     isCurrent: true,
   },
   {
