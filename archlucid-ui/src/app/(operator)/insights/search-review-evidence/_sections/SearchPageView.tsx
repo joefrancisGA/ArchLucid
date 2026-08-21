@@ -14,7 +14,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { SEARCH_EMPTY_COMPACT } from "@/lib/enterprise-compact-empty-state-presets";
 import { evidenceGraphHref } from "@/lib/evidence-graph-route";
-import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import {
+  OPERATOR_DISCLOSURE_TRIGGER_CLASS,
+  OPERATOR_FORM_FIELD_LABEL_CLASS,
+  OPERATOR_LAYOUT,
+  OPERATOR_TYPOGRAPHY,
+} from "@/lib/design-tokens";
 import { EVIDENCE_TRAIL_SEARCH } from "@/lib/search-surface-disambiguation";
 
 import type { SearchPageViewModel } from "./search-page-view-model";
@@ -127,6 +132,7 @@ export function SearchPageView({ model }: SearchPageViewProps) {
             preferAutoPick={false}
             committedOnly
             label={SEARCH_REVIEW_FILTER_LABEL}
+            labelClassName={OPERATOR_FORM_FIELD_LABEL_CLASS}
             placeholder={SEARCH_REVIEW_FILTER_PLACEHOLDER}
             value={runId}
             onChange={setRunId}
