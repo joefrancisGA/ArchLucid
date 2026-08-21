@@ -1447,11 +1447,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** API contracts; DTO serialization; OpenAPI models
 - **paths:** ArchLucid.Contracts/
 - **test-filter:** FullyQualifiedName~Contracts
-- **hunts:** 2
-- **bugs-found:** 2
+- **hunts:** 3
+- **bugs-found:** 3
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-20
-- **last-bug:** 2026-08-20
+- **last-hunt:** 2026-08-21
+- **last-bug:** 2026-08-21
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1461,6 +1461,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Enum serialization accepts an out-of-range value as the default variant — **hit 2026-08-19:** `ServiceType`, `DatastoreType`, `RuntimePlatform`, and `RelationshipType` JSON converters cast numeric ordinals without `Enum.IsDefined`; fixed on master in `47e7613370` (same pattern as `AgentType` in `4d4340387c`).
 - [x] (invalid) Contract change breaks backward compatibility without a version bump signal — versioning is policy/process, not a deserialization defect in these converters.
 - [x] (proven) `FindingSeverity` numeric ordinals bypass validation in eval-corpus and architecture-finding converters — `EvalCorpusFindingSeverityJsonConverter` and `ArchitectureFindingJsonConverter.ReadSeverity` cast out-of-range integers; fixed with `Enum.IsDefined` + regression tests.
+- [x] (proven) Case-variant unknown sentinel bypasses structured-brief readiness — **hit 2026-08-21:** `IsUnknownConfirmSentinel` used ordinal string equality so `"unknown — confirm before review"` counted as a confirmed quality-attribute chip and could unblock review start under TB-2343.
 
 ---
 
