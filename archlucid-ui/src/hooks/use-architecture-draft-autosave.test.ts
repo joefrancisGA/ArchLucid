@@ -264,6 +264,76 @@ describe("useArchitectureDraftAutosave", () => {
     expect(result.current.saveState).toBe("error");
   });
 
+  it("does not run a queued trailing save after a non-retryable 400", async () => {
+    const intentOnly: ArchitectureDraftFieldState = {
+      freeTextIntent: longIntent("intent-only"),
+      businessOutcome: "",
+      systemName: "",
+      structuredBrief: emptyArchitectureDraftStructuredBrief(),
+    };
+    const complete: ArchitectureDraftFieldState = {
+      freeTextIntent: intentOnly.freeTextIntent,
+      businessOutcome: "Reduce intake cycle time for architecture reviews.",
+      systemName: "B2B SaaS Tenant Migration Platform",
+      structuredBrief: emptyArchitectureDraftStructuredBrief(),
+    };
+
+    let resolveFirstPatch: ((value: unknown) => void) | null = null;
+
+    getDraftRequest
+      .mockResolvedValueOnce(draftResponse(intentOnly, "2026-08-11T12:00:00.000Z"))
+      .mockResolvedValueOnce(draftResponse(intentOnly, "2026-08-11T12:00:30.000Z"));
+    patchDraftRequest.mockImplementationOnce(
+      () =>
+        new Promise((_, reject) => {
+          resolveFirstPatch = reject;
+        }),
+    );
+
+    const { result, rerender } = renderHook(
+      (props: { fields: ArchitectureDraftFieldState }) =>
+        useArchitectureDraftAutosave({
+          architectureId: "draft-001",
+          fields: props.fields,
+          actorSet,
+        }),
+      { initialProps: { fields: intentOnly } },
+    );
+
+    let firstSave: Promise<boolean> | undefined;
+
+    await act(async () => {
+      firstSave = result.current.saveDraft();
+    });
+
+    await waitFor(() => {
+      expect(patchDraftRequest).toHaveBeenCalledTimes(1);
+    });
+
+    rerender({ fields: complete });
+
+    let queuedSave: Promise<boolean> | undefined;
+
+    await act(async () => {
+      queuedSave = result.current.saveDraft();
+    });
+
+    await act(async () => {
+      resolveFirstPatch?.(
+        new ApiRequestError("Draft is not mutable", {
+          problem: null,
+          correlationId: "corr-400",
+          httpStatus: 400,
+        }),
+      );
+      await firstSave;
+      await queuedSave;
+    });
+
+    expect(patchDraftRequest).toHaveBeenCalledTimes(1);
+    expect(result.current.saveState).toBe("error");
+  });
+
   it("skips PATCH when the server draft is no longer Drafting", async () => {
     const fields: ArchitectureDraftFieldState = {
       freeTextIntent: longIntent(),

@@ -256,6 +256,21 @@ describe("ArchitectureScopeUnderstandingCheckPanel", () => {
     expect(screen.queryByTestId("architecture-scope-understanding-ready")).not.toBeInTheDocument();
   });
 
+  it("shows a save error after scope is confirmed when draft persistence failed", () => {
+    render(
+      <ArchitectureScopeUnderstandingCheckPanel
+        input={{ architectureName: "Vertex" }}
+        draftSaveState="error"
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: SCOPE_UNDERSTANDING_CONFIRM_LABEL }));
+
+    expect(screen.getByTestId("architecture-scope-understanding-save-error")).toBeInTheDocument();
+    expect(screen.queryByTestId("architecture-scope-understanding-saving")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("architecture-scope-understanding-ready")).not.toBeInTheDocument();
+  });
+
   it("reopens the gate when the form changes after scope was confirmed", () => {
     const onGateChange = vi.fn();
 

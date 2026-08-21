@@ -74,6 +74,7 @@ import {
 } from "@/lib/architecture/architecture-scope-understanding-check";
 import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer/buyer-facing-review-title";
 import { CREATE_ARCHITECTURE_INTENT } from "@/lib/architecture/architecture-workflow-intent";
+import { GUIDED_INTAKE_ARCHITECTURE_INTENT_MIN_CHARS } from "@/lib/guided-intake-copy";
 import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer/buyer-polish-copy";
 import {
   ARCHITECTURE_CREATION_NEW_DRAFT_SECTION_TITLE,
@@ -413,9 +414,13 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
       // Confirmed scope belongs on the server copy of the brief only. Mirroring it into local
       // fields would put the block in the operator's own text and feed it back to the panel.
       if (!isNewDraft) {
-        await patchDraftRequest(props.architectureId, {
-          freeTextIntent: mergeScopeBulletsIntoBrief(scopeBullets, fields.freeTextIntent),
-        });
+        const mergedIntent = mergeScopeBulletsIntoBrief(scopeBullets, fields.freeTextIntent).trim();
+
+        if (mergedIntent.length >= GUIDED_INTAKE_ARCHITECTURE_INTENT_MIN_CHARS) {
+          await patchDraftRequest(props.architectureId, {
+            freeTextIntent: mergedIntent,
+          });
+        }
       }
 
       upsertArchitectureDraftRegistryEntry(
