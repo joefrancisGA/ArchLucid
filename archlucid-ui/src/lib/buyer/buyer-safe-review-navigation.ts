@@ -24,12 +24,12 @@ export function getShowcaseWalkthroughHref(): string {
   return `/showcase/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`;
 }
 
-/** Finalized sealed record for the Claims Intake static spine (canonical manifest detail). */
+/** Finalized sealed record for the primary static showcase spine (canonical manifest detail). */
 export function getShowcaseManifestHref(): string {
   return signedRecordDetailPath(SHOWCASE_STATIC_DEMO_MANIFEST_ID);
 }
 
-/** Evidence trail graph for the Claims Intake static spine (pre-focused finding node when available). */
+/** Evidence trail graph for the primary static showcase spine (pre-focused finding node when available). */
 export function getShowcaseEvidenceTrailHref(): string {
   return evidenceGraphHref({
     runId: SHOWCASE_STATIC_DEMO_RUN_ID,
@@ -37,12 +37,12 @@ export function getShowcaseEvidenceTrailHref(): string {
   });
 }
 
-/** Sponsor view (concise risk summary and outcomes) for the Claims Intake static spine. */
+/** Sponsor view (concise risk summary and outcomes) for the primary static showcase spine. */
 export function getShowcaseSponsorHref(): string {
   return getCanonicalReviewWorkspaceHref(SHOWCASE_STATIC_DEMO_RUN_ID);
 }
 
-/** Baseline vs updated Claims Intake comparison for the static buyer spine. */
+/** Baseline vs updated Customer Intake comparison for the static buyer spine. */
 export function getShowcaseCompareHref(): string {
   return comparePageHrefAdaptive(SHOWCASE_STATIC_DEMO_PRIOR_COMPARE_RUN_ID, SHOWCASE_STATIC_DEMO_LATER_COMPARE_RUN_ID);
 }

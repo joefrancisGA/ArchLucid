@@ -11,8 +11,12 @@ export function formatOperatorProjectIdDisplay(projectId: string): string {
     return isBuyerPolishedOperatorShellEnv() ? "Primary project" : "Primary workspace";
   }
 
-  if (trimmed === "claims-intake-sample-workspace" || trimmed === DEV_SCOPE_PROJECT_ID) {
-    return "Claims Intake sample workspace";
+  if (
+    trimmed === "claims-intake-sample-workspace" ||
+    trimmed === "customer-intake-sample-workspace" ||
+    trimmed === DEV_SCOPE_PROJECT_ID
+  ) {
+    return "Customer Intake sample workspace";
   }
 
   return projectId;

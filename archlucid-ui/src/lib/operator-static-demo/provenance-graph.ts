@@ -15,7 +15,7 @@ import {
   isShowcaseSpineStaticPayloadActiveForRun,
 } from "./eligibility";
 
-/** Curated linkage graph aligned with Claims Intake static showcase payloads (demo static operator mode only). */
+/** Curated linkage graph aligned with primary static showcase payloads (demo static operator mode only). */
 export function buildStaticDemoProvenanceGraphFromShowcase(urlRunId: string): ArchitectureRunProvenanceGraph {
 
   const d = getShowcaseStaticDemoPayload(urlRunId);

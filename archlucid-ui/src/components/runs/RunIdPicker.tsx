@@ -26,6 +26,8 @@ type RunIdPickerProps = {
   onSelect?: (runId: string) => void;
   placeholder: string;
   label: string;
+  /** Overrides default picker label typography (e.g. semibold form labels on search surfaces). */
+  labelClassName?: string;
   projectId?: string;
   inputId?: string;
   /** When true, empty/failed run lists use the two-row Compare demo pair when demo spine fallback is enabled. */
@@ -119,6 +121,7 @@ export function RunIdPicker({
   onSelect,
   placeholder,
   label,
+  labelClassName,
   projectId = "default",
   inputId,
   forCompare = false,
@@ -340,7 +343,13 @@ export function RunIdPicker({
 
   return (
     <div ref={containerRef} className="relative max-w-xl">
-      <Label htmlFor={controlId} className={cn("mb-1 block font-medium text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
+      <Label
+        htmlFor={controlId}
+        className={cn(
+          "mb-1 block",
+          labelClassName ?? cn("font-medium text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body),
+        )}
+      >
         {label}
       </Label>
       <Input

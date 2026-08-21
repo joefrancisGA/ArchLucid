@@ -44,7 +44,7 @@ The script waits up to **120 seconds** for `http://localhost:5000/health/ready`,
 
 **Do not open with `/architecture/reviews/new` or generation.** Trust ladder: show a **completed architecture package** first, then optionally bridge to creation.
 
-1. **Open a finalized package** — From home or **Architecture packages** (`/architecture/reviews`), open the seeded **hardened Contoso** review (`6e8c4a102b1f4c9a9d3e10b2a4f0c502` after startup seed; see [demo-quickstart.md](../archive/onboarding/demo-quickstart.md) Â§3) or the static showcase **Claims Intake Modernization** package at `/architecture/reviews/claims-intake-modernization` when running UI-only fixtures. You should land on review detail with findings and manifest linkage already present.
+1. **Open a finalized package** — From home or **Architecture packages** (`/architecture/reviews`), open the seeded **hardened Contoso** review (`6e8c4a102b1f4c9a9d3e10b2a4f0c502` after startup seed; see [demo-quickstart.md](../archive/onboarding/demo-quickstart.md) Â§3) or the static showcase **Enterprise Customer Intake Modernization** package at `/architecture/reviews/customer-intake-modernization` when running UI-only fixtures. For the regulated healthcare secondary sample, use `/architecture/reviews/claims-intake-modernization`. You should land on review detail with findings and manifest linkage already present.
 2. **Findings and explainability** — Open one finding. Walk the structured trace (what was examined, rules applied, evidence cited, confidence limits). Call out an **explicit non-conclusion** or evidence gap when the finding flags missing proof — do not imply the AI always concludes.
 3. **Finalize / architecture package** — Show the sealed review record / architecture package summary (finding counts, decision trail). This is the sponsor-ready package, not a chat transcript.
 4. **Export** — Download Markdown, DOCX, or ZIP from review detail or the export flow (consulting templates may require optional configuration).
@@ -272,7 +272,7 @@ Live-call demo scripts for the core pilot path, plus the shot-by-shot storyboard
 
 **Grounding:** V1 Pilot layer only. All routes exist in `archlucid-ui` unless noted as conditional. If a capability is behind a feature flag or commercial tier, say "when this is enabled for your tenant" — never imply universal availability.
 
-**Setup:** Run with Simulator agents for a deterministic timeline. Use the Contoso Retail demo tenant (Docker seed) or the static showcase tenant (`claims-intake-modernization`). Have the browser at 1440Ã—900, 100% zoom, bookmarks hidden.
+**Setup:** Run with Simulator agents for a deterministic timeline. Use the Contoso Retail demo tenant (Docker seed) or the static showcase tenant (`customer-intake-modernization`). Have the browser at 1440×900, 100% zoom, bookmarks hidden.
 
 **Demo honesty — Workspace B (M-111 / C4):** When you open the regulated Workspace B sample (`/architecture/reviews/61c60d76-2b80-93f9-46bb-2f66fd608b9b`, Meridian / Alpine), narrate findings as a **seed-backed curated storyline**. Engines are `AiGovernanceSeed` / `SecurityBaselineSeed` — not live Topology / Cost / Compliance / Critic agent traces. Show live multi-agent analysis on **Workspace A** (Product Tour) or a real pilot run. Durable buyer-facing live sample is **M-93** (dogfood).
 
@@ -292,7 +292,7 @@ Live-call demo scripts for the core pilot path, plus the shot-by-shot storyboard
 
 #### Scene 1 (0:30–1:15) — Open a finished package
 
-**Route:** `/architecture/reviews/claims-intake-modernization` (showcase) **or** Contoso hardened run `6e8c4a102b1f4c9a9d3e10b2a4f0c502` (Docker seed)
+**Route:** `/architecture/reviews/customer-intake-modernization` (primary showcase) **or** Contoso hardened run `6e8c4a102b1f4c9a9d3e10b2a4f0c502` (Docker seed)
 
 > "This is a completed architecture package — not a draft prompt. Status, findings, and manifest linkage are already here because the governed pipeline ran against real intake context.
 >
@@ -360,10 +360,10 @@ Live-call demo scripts for the core pilot path, plus the shot-by-shot storyboard
 
 | Phase | Time | Route(s) | Goal |
 |-------|------|----------|------|
-| Finished reviewed package | 0:00–8:00 | `/architecture/reviews/claims-intake-modernization` | Findings, traces, manifest (same spine as five-minute) |
+| Finished reviewed package | 0:00–8:00 | `/architecture/reviews/customer-intake-modernization` | Findings, traces, manifest (same spine as five-minute) |
 | Graph + Ask | 8:00–14:00 | `/graph`, `/ask` | Evidence trail and grounded Q&A on the opened package |
 | Created package bridge | 14:00–20:00 | Home → `/architecture/reviews/northwind-copilot-rag-platform` | Show **Created** origin; same findings/manifest shape (**TB-742**) |
-| **Compare reviewed vs created** | 20:00–26:00 | `/compare` | Left: `claims-intake-modernization` (Reviewed); Right: `northwind-copilot-rag-platform` (Created) — structured deltas, not generation speed |
+| **Compare reviewed vs created** | 20:00–26:00 | `/compare` | Left: `customer-intake-modernization` (Reviewed); Right: `northwind-copilot-rag-platform` (Created) — structured deltas, not generation speed |
 | Governance close | 26:00–30:00 | `/governance` or approval queue | Approval / promotion posture; offer pilot intake |
 
 **Compare talk track:** "Same noun — architecture package — two workflows. Reviewed intake vs born-governed creation. Compare shows semantic drift between packages, not which model typed faster."
@@ -381,7 +381,7 @@ Live-call demo scripts for the core pilot path, plus the shot-by-shot storyboard
 | Time | Scene | Architect workspace route(s) | VO (voiceover, ~300 words total) | Visual |
 |------|--------|------------------------------|-----------------------------------|--------|
 | 0:00–0:15 | Opening | Marketing or architect home | "Enterprise architecture review is still slow, inconsistent, and hard to prove. ArchLucid turns governed intake into auditable architecture packages you can diff and replay." | Split: messy wiki slide vs clean architecture package table (static slide ok). |
-| 0:15–0:35 | Finished package | `/architecture/reviews/claims-intake-modernization` | "Start from a completed package: status, findings, and architecture package linkage already on screen — not a blank wizard." | Review detail summary; pipeline complete. |
+| 0:15–0:35 | Finished package | `/architecture/reviews/customer-intake-modernization` | "Start from a completed package: status, findings, and architecture package linkage already on screen — not a blank wizard." | Review detail summary; pipeline complete. |
 | 0:35–0:55 | Findings + explainability | Finding panel or finding detail | "Findings carry structured traces — what was checked, which rules applied, and where confidence stops." | Expand explainability fields; optional evidence-gap tag. |
 | 0:55–1:15 | Package + export | Review detail → architecture package + artifacts | "Finalize produces a signed architecture package (API: golden manifest) and downloadable artifacts — the sponsor-ready package." | Package summary + one download row. |
 | 1:15–1:30 | Creation bridge | `/architecture/reviews/northwind-copilot-rag-platform` | "Creation follows the same pipeline; here is a Created sample in one click." | **Created** badge; brief. |
@@ -395,7 +395,7 @@ Trim governance or compare if time is tight — core story is **finished package
 
 1. **Stack:** Prefer `scripts/demo-start.ps1` / compose **full-stack** with **Simulator** agents so the timeline stays deterministic; use **DevelopmentBypass** locally per [CORE_PILOT.md](../CORE_PILOT.md).
 2. **Browser:** Chromium, 1440Ã—900 or 1920Ã—1080, **100%** zoom; hide bookmark bar; dark or light shell consistent throughout.
-3. **Data:** Contoso Docker seed for compare pairs; showcase routes `claims-intake-modernization` + `northwind-copilot-rag-platform` for finished-package + creation bridge without seed ([start the demo](#start-the-demo-one-command)).
+3. **Data:** Contoso Docker seed for compare pairs; showcase routes `customer-intake-modernization` + `northwind-copilot-rag-platform` for finished-package + creation bridge without seed ([start the demo](#start-the-demo-one-command)).
 4. **Audio:** Narrate at ~150 wpm; total VO above is ~260 words → ~1:45; pad with transitions or shorten scenes.
 5. **Tools:** OBS Studio or similar; capture **browser** only unless you show CLI; no secrets on screen.
 
@@ -453,20 +453,19 @@ Former standalone body: `docs/go-to-market/SAMPLE_PACKAGE_FUNNEL_ID_MATRIX.md` �
 
 **Path-stable alias:** [`SAMPLE_PACKAGE_FUNNEL_ID_MATRIX.md`](SAMPLE_PACKAGE_FUNNEL_ID_MATRIX.md).
 
-**Last reviewed:** 2026-07-30  
-**Status:** Honest co-primary documentation (two buyer-facing packages + one SE-only package). **M-107** + **M-133** Done — cold funnel stays **P-CLAIMS** until **TB-981**; long-term primary name = Enterprise Customer Intake. Package authoring / default flip: **TB-979**–**TB-981**.  
-**PA Q21 minimum:** `/see-it` Claims-static (Option A) — Contoso/unknown live payloads fall back to Claims snapshot; never Contoso under Healthcare Claims chrome. Owned with **M-178** / **TB-1028**. **Northwind** stays **off primary funnel**.
+**Last reviewed:** 2026-08-21  
+**Status:** Honest co-primary documentation (two buyer-facing packages + one SE-only package). **TB-981** Done — **P-ENTERPRISE-INTAKE** is the primary cold funnel; **P-CLAIMS** is regulated-depth secondary. Trial SQL co-primary (Contoso Product Tour) documented in surface alignment table.
 
-### M-107 owner decision (2026-07-29) — Option A Claims-static
+### TB-981 default flip (2026-08-12) — Enterprise Customer Intake primary
 
 | Decision | Value |
 |----------|--------|
-| Canonical anonymous public proof path | `/showcase/claims-intake-modernization` (**P-CLAIMS**) |
-| Welcome → `/see-it` → primary CTA | Claims sample / showcase — **not** Contoso `/demo/preview` |
-| `/see-it` body source | Prefer Claims live only; Contoso or unknown → checked-in Claims snapshot |
+| Canonical anonymous public proof path | `/showcase/customer-intake-modernization` (**P-ENTERPRISE-INTAKE**) |
+| Welcome → `/see-it` → primary CTA | Enterprise Customer Intake sample / showcase — **not** Contoso `/demo/preview` |
+| `/see-it` body source | Customer Intake static snapshot (Contoso/unknown live → same primary snapshot; fail-closed) |
 | Contoso `/demo/preview` | **Secondary** Product Tour / self-demo only (Contoso-labeled) |
-| Get-started vertical samples + Why Verify demo links | All → Claims showcase |
-| Still open (execution) | **TB-980** (author Enterprise package) · **TB-981** (default flip) |
+| Get-started vertical samples | Non-healthcare → Enterprise showcase; healthcare vertical → Claims showcase |
+| Regulated-depth secondary | `/showcase/claims-intake-modernization` (**P-CLAIMS**) — deep link only |
 
 Constant in UI: `CANONICAL_ANONYMOUS_PROOF_HREF` in `archlucid-ui/src/lib/showcase-static-demo.ts`.
 
@@ -474,25 +473,22 @@ Constant in UI: `CANONICAL_ANONYMOUS_PROOF_HREF` in `archlucid-ui/src/lib/showca
 
 | Pin | Value |
 |-----|--------|
-| Long-term primary scenario | **Enterprise Customer Intake Modernization** |
+| Primary scenario | **Enterprise Customer Intake Modernization** |
 | Secondary regulated-depth | **Healthcare Claims Intake Modernization** |
 | Contoso / Northwind in primary one-sentence or primary CTA org chrome | **Forbidden** |
-| Until **TB-981** | Cold funnel + routes stay on Claims spine (**M-107**); this ratification is naming/portfolio intent only |
 
-**PA one-sentence:** ArchLucid’s primary buyer-facing sample is Enterprise Customer Intake Modernization — a governed architecture proof package for modernizing how an enterprise intakes and processes customer work, with evidence-backed findings you can commit and export. **Never in that sentence:** Contoso, Northwind.
-
-**Does not authorize:** rename-in-place of routes/slugs/SQL seeds, deleting Contoso Product Tour internals, or flipping get-started/SEO defaults before **TB-980**/**TB-981**. Authoring the Enterprise Customer Intake package is **TB-980**; naming hierarchy / toxic-org matrix prose is **M-135**.
+**PA one-sentence:** ArchLucid’s primary buyer-facing sample is Enterprise Customer Intake Modernization — a governed architecture proof package for modernizing how an enterprise intakes and processes customer work, with evidence-backed findings you can finalize and export. **Never in that sentence:** Contoso, Northwind.
 
 Route contract / cache / privacy for Contoso `/demo/preview`: [Demo commit-page preview route contract](#demo-preview-route-contract-and-safety). Assessment: [`showcase_scenario_strategy_assessment_2026_07_23.md`](../architecture/showcase_scenario_strategy_assessment_2026_07_23.md) §17–§19.
 
 ### Verdict (what “aligned” means today)
 
-Marketing, trial, showcase, and SQL seeds are **not** one fictional universe. Treat them as **three named packages** and never mix labels across packages on the same page or CTA. Cold funnel proof CTAs use **P-CLAIMS** only. Long-term primary *name* is Enterprise Customer Intake — package not authored yet (**TB-980**).
+Marketing, trial, showcase, and SQL seeds are **not** one fictional universe. Treat them as **three named packages** and never mix labels across packages on the same page or CTA. Primary cold-funnel proof CTAs use **P-ENTERPRISE-INTAKE**. **P-CLAIMS** is the labeled regulated-depth secondary.
 
 | Package ID (internal) | Buyer-facing scenario name | Storyline / synthetic orgs | Primary use |
 |-----------------------|----------------------------|----------------------------|-------------|
-| **P-CLAIMS** | Healthcare Claims Intake Modernization | Static showcase / UI fixtures (`claims-intake-modernization`) | Public showcase, `/try`, Tier-1 UI routes, frictionless marketing (**current** cold funnel) |
-| **P-ENTERPRISE-INTAKE** (planned) | Enterprise Customer Intake Modernization | TBD sample-definition (**TB-979**/**TB-980**) | **Long-term primary** after **TB-981** flip — not a live route yet |
+| **P-ENTERPRISE-INTAKE** | Enterprise Customer Intake Modernization | Static showcase / UI fixtures (`customer-intake-modernization`) | Public showcase, `/try`, Tier-1 UI routes, frictionless marketing (**primary** cold funnel) |
+| **P-CLAIMS** | Healthcare Claims Intake Modernization | Static showcase / UI fixtures (`claims-intake-modernization`) | Regulated-depth secondary; healthcare get-started vertical |
 | **P-PRODUCT-TOUR** | Product Tour / self-demo (Workspace A) | Contoso Cloud Platform · Northwind Architects (fabricated) | Welcome **Try the self-demo**, `NEXT_PUBLIC_SELF_DEMO_URL`, preferred `trialSampleRunId` |
 | **P-REGULATED** | Alpine AI governance (Workspace B) | Meridian Advisory Group · Alpine Health | Regulated wedge demos, AI-gov / security-baseline seed engines |
 
@@ -500,13 +496,14 @@ Marketing, trial, showcase, and SQL seeds are **not** one fictional universe. Tr
 
 | Surface / knob | Package | Route / API | Stable ID(s) | Label rules |
 |----------------|---------|-------------|--------------|-------------|
-| Public showcase | **P-CLAIMS** | `/showcase/claims-intake-modernization` | Slug `claims-intake-modernization` | “Illustrative sample” / Healthcare Claims — **not** live Contoso preview |
-| Frictionless trial launcher | **P-CLAIMS** | `/try` → `/architecture/reviews/claims-intake-modernization` | Same slug | Same as showcase |
-| Operator Tier-1 review package | **P-CLAIMS** | `/architecture/reviews/claims-intake-modernization` (+ findings / provenance / snapshot) | Same slug; finding e.g. `phi-minimization-risk` | Static package; may inject client-only when demo pin empty (**TB-1039**) |
+| Public showcase (primary) | **P-ENTERPRISE-INTAKE** | `/showcase/customer-intake-modernization` | Slug `customer-intake-modernization` | “Illustrative sample” / Enterprise Customer Intake — **not** live Contoso preview |
+| Public showcase (regulated secondary) | **P-CLAIMS** | `/showcase/claims-intake-modernization` | Slug `claims-intake-modernization` | Healthcare Claims — explicit secondary deep link |
+| Frictionless trial launcher | **P-ENTERPRISE-INTAKE** | `/try` → `/architecture/reviews/customer-intake-modernization` | Same slug | Same as primary showcase |
+| Operator Tier-1 review package | **P-ENTERPRISE-INTAKE** | `/architecture/reviews/customer-intake-modernization` (+ findings / provenance / snapshot) | Same slug; finding e.g. `sensitive-data-minimization-risk` | Static package; may inject client-only when demo pin empty (**TB-1039**) |
 | Welcome secondary CTA “Try the self-demo” | **P-PRODUCT-TOUR** | `NEXT_PUBLIC_SELF_DEMO_URL` (default `/architecture/reviews/b6ab57c8-84b1-8ac6-28d8-d790efcd1dbf` → 301 → `/architecture/reviews/...`) | `DemoWorkspaceStableIds.ProductTourArchitectureReviewRunId` = `b6ab57c8-84b1-8ac6-28d8-d790efcd1dbf` | Contoso / Product Tour — **never** “Claims Intake” |
 | Post-registration “Open example review” | **P-PRODUCT-TOUR** (preferred) | `GET /v1/tenant/trial-status` → `trialSampleRunId` | Prefer Product Tour GUID above; if different, document beside `NEXT_PUBLIC_SELF_DEMO_URL` in the deploy runbook | Must match onboarding copy |
 | Anonymous live demo preview | **P-PRODUCT-TOUR** (Contoso seed) | `/demo/preview`, `GET /v1/demo/preview`, `/demo/explain` | Contoso authority baseline `6e8c4a10-2b1f-4c9a-9d3e-10b2a4f0c501` (`ContosoRetailDemoIdentifiers.AuthorityRunBaselineId`); hardened pair `…c502` | Banner/universe = Contoso (or unknown fail-closed) — **not** Healthcare Claims |
-| `/see-it` pitch + body | **P-CLAIMS** (M-107 Option A) | `/see-it` (Claims live or Claims snapshot; Contoso/unknown → snapshot) | Claims snapshot / Claims live only | Primary CTA → `/showcase/claims-intake-modernization` — never Contoso `/demo/preview` on this chain |
+| `/see-it` pitch + body | **P-ENTERPRISE-INTAKE** | `/see-it` (Customer Intake static; Contoso/unknown → snapshot) | Customer Intake snapshot / live only | Primary CTA → `/showcase/customer-intake-modernization` — never Contoso `/demo/preview` on this chain |
 | Workspace A deep link (Sales) | **P-PRODUCT-TOUR** | `/architecture/reviews/b6ab57c8-84b1-8ac6-28d8-d790efcd1dbf` | Workspace `2b2571e1-1884-62a2-1e8b-15a2a70a0342` · Project `9beb918c-83d4-1385-0486-21f341806c5c` | Scope headers must match |
 | Workspace B deep link (SE / regulated) | **P-REGULATED** | `/architecture/reviews/61c60d76-2b80-93f9-46bb-2f66fd608b9b` | Workspace `3f1a16c3-172e-5632-c53a-3ed16446f603` · Project `49074cdf-bdab-a5fa-789b-09a3e556a8f2` | Meridian/Alpine; seed engines — not live multi-agent (**M-111**) |
 | Northwind compare / creation bridge | **Off-funnel** | e.g. `northwind-copilot-rag-platform` in longer scripts | Fixture slugs only | Do **not** use in welcome → `/see-it` → primary CTA |
@@ -518,8 +515,8 @@ Pinned Workspace A/B GUID table (CI): [Demo workspaces — pinned fixture anchor
 
 | Mix | Why it fails |
 |-----|----------------|
-| Claims chrome / title + Contoso `GET /v1/demo/preview` payload | Dual universe — PA Q21 / **M-178** |
-| “Healthcare Claims” CTA → Product Tour GUID | Wrong package |
+| Customer Intake chrome / title + Contoso `GET /v1/demo/preview` payload | Dual universe — PA Q21 / **M-178** |
+| “Enterprise Customer Intake” CTA → Product Tour GUID | Wrong package |
 | Primary buyer one-sentence naming Contoso or Northwind as the customer | Toxic marketing (**M-135**) |
 | Northwind on welcome / `/see-it` / paid creatives | Off-funnel |
 | Implying showcase slug is the same SQL row as Product Tour / Contoso authority runs | Different stores (static vs seeded) |
@@ -528,9 +525,9 @@ Pinned Workspace A/B GUID table (CI): [Demo workspaces — pinned fixture anchor
 
 1. Set **`NEXT_PUBLIC_SELF_DEMO_URL`** to Workspace A (`/architecture/reviews/b6ab57c8-84b1-8ac6-28d8-d790efcd1dbf` preferred).
 2. Confirm **`trialSampleRunId`** for evaluator tenants matches that Product Tour run (or document the exception).
-3. Before paid creatives: open the exact URL the creative names — Claims showcase **or** Contoso preview — and match the banner.
-4. For regulated demos, bookmark Workspace B; do not reuse Claims or Contoso labels.
-5. After **M-133**: collapse creatives to Enterprise Customer Intake if ratified; until then paid/SEO proof creatives land on Claims showcase.
+3. Before paid creatives: open the exact URL the creative names — Enterprise showcase, Claims secondary, **or** Contoso preview — and match the banner.
+4. For regulated demos, bookmark Workspace B; do not reuse Claims or Contoso labels on primary funnel CTAs.
+5. Paid/SEO proof creatives should name **Enterprise Customer Intake** and land on `/showcase/customer-intake-modernization`.
 
 ### Residuals (not closed by M-134)
 
@@ -558,7 +555,7 @@ Give **marketing visitors** a **read-only** view of what the operator **commit p
 
 ### Why it exists
 
-- **Buyer outcome:** Contoso **`/demo/preview`** remains a secondary Product Tour surface; the **canonical anonymous proof** path is Claims showcase (**M-107** Option A) — welcome → `/see-it` → `/showcase/claims-intake-modernization`.
+- **Buyer outcome:** Contoso **`/demo/preview`** remains a secondary Product Tour surface; the **canonical anonymous proof** path is Enterprise Customer Intake showcase — welcome → `/see-it` → `/showcase/customer-intake-modernization`.
 - **Anchored in real services:** the payload is assembled server-side under the hard-pinned demo scope (same pattern as **`GET /v1/demo/explain`**).
 - **Cheap under spikes:** marketing links can go viral; the route is **cached** so repeat views do not hammer SQL.
 
@@ -606,7 +603,7 @@ Counters (no `tenant_id` label — single demo tenant):
 
 ### Marketing showcase (`/showcase/[runId]`)
 
-Curated slug **`claims-intake-modernization`** is **static-first**: the UI serves `getShowcaseStaticDemoPayload()` without blocking on `GET /v1/marketing/showcase/{runId}` when the slug is in the curated set (`showcase-page-resolution.ts`). If the marketing API returns **404** or an invalid body for a slug that has bundled static data, the page falls back to that payload instead of `DemoPreviewNotAvailable`.
+Curated slugs **`customer-intake-modernization`** (primary) and **`claims-intake-modernization`** (regulated secondary) are **static-first**: the UI serves `getShowcaseStaticDemoPayload()` without blocking on `GET /v1/marketing/showcase/{runId}` when the slug is in the curated set (`showcase-page-resolution.ts`). If the marketing API returns **404** or an invalid body for a slug that has bundled static data, the page falls back to that payload instead of `DemoPreviewNotAvailable`.
 
 **Deploy posture:** set **`SHOWCASE_STATIC_ONLY=1`** (or **`NEXT_PUBLIC_SHOWCASE_STATIC_ONLY=1`**) when production intentionally serves showcase pages from bundled static JSON only — the UI skips all upstream showcase fetches (same effect as leaving `ARCHLUCID_API_BASE_URL` unset for showcase resolution). Live Contoso GUID slugs still use the marketing API when a base URL is configured and static-only is off.
 
@@ -620,9 +617,9 @@ Former standalone body: `docs/go-to-market/SHOWCASE_NAMING_HIERARCHY.md` → thi
 
 **Path-stable alias:** [`SHOWCASE_NAMING_HIERARCHY.md`](SHOWCASE_NAMING_HIERARCHY.md).
 
-**Last reviewed:** 2026-07-30  
-**Status:** Shipped. Depends on **M-133** (Option D ratified) and **M-107** (Claims-static cold funnel).  
-**Pairs:** **M-137** (optional fictional-org trademark screen — only if narrative needs a company name) · engineering **TB-980**/**TB-982**
+**Last reviewed:** 2026-08-21  
+**Status:** Shipped. **TB-981** Done — Enterprise Customer Intake is primary cold funnel; Claims is regulated-depth secondary.  
+**Pairs:** **M-137** (optional fictional-org trademark screen — only if narrative needs a company name) · engineering **TB-982**
 
 ### Scenario-first naming hierarchy
 
@@ -630,27 +627,27 @@ Use this stack in buyer-facing UI, paid creatives, SEO, and SE talk tracks. Pref
 
 | Layer | Term (preferred) | Meaning | Example |
 |-------|------------------|---------|---------|
-| 1 | **Showcase** | Public, no-sign-in sample surface | `/showcase/claims-intake-modernization` |
-| 2 | **Scenario name** | Named architecture storyline (not a customer brand) | Healthcare Claims Intake Modernization · *(long-term primary)* Enterprise Customer Intake Modernization |
-| 3 | **Sample review** / **sample architecture package** | The review object buyers open | “Open healthcare claims sample review” |
+| 1 | **Showcase** | Public, no-sign-in sample surface | `/showcase/customer-intake-modernization` |
+| 2 | **Scenario name** | Named architecture storyline (not a customer brand) | Enterprise Customer Intake Modernization · Healthcare Claims Intake Modernization (secondary) |
+| 3 | **Sample review** / **sample architecture package** | The review object buyers open | “Open enterprise customer intake sample review” |
 | 4 | **Illustrative sample** | Disclosure that content is synthetic / not the visitor’s estate | Banner / footer disclosure |
 
-**Avoid as primary chrome:** “demo customer,” “Contoso review,” “Northwind package,” “live preview” for static Claims showcase, “seeded run” in buyer copy.
+**Avoid as primary chrome:** “demo customer,” “Contoso review,” “Northwind package,” “live preview” for static showcase, “seeded run” in buyer copy.
 
 **Synonyms allowed sparingly:** “example review” (operator empty states only). Prefer **sample** on marketing per [`COPY_TERMINOLOGY_AUDIT.md`](../ux-audits/COPY_TERMINOLOGY_AUDIT.md).
 
-#### Long-term vs current cold funnel
+#### Primary vs secondary samples
 
-| Role | Scenario name | Live today? |
-|------|---------------|-------------|
-| Long-term **primary** (name pin) | Enterprise Customer Intake Modernization | Not yet — **TB-980** / **TB-981** |
-| **Secondary** regulated-depth | Healthcare Claims Intake Modernization | **Yes** — canonical anonymous proof (**M-107**) |
-| Product Tour (secondary CTA) | Contoso-labeled self-demo / `/demo/preview` | Yes — never under Claims chrome |
+| Role | Scenario name | Route |
+|------|---------------|-------|
+| **Primary** (cold funnel) | Enterprise Customer Intake Modernization | `/showcase/customer-intake-modernization` |
+| **Secondary** regulated-depth | Healthcare Claims Intake Modernization | `/showcase/claims-intake-modernization` |
+| Product Tour (secondary CTA) | Contoso-labeled self-demo / `/demo/preview` | Yes — never under Customer Intake chrome |
 | Off-funnel | Northwind fixtures / longer SE scripts | Yes — not welcome → `/see-it` → primary CTA |
 
-**PA one-sentence (from M-133):** ArchLucid’s primary buyer-facing sample is Enterprise Customer Intake Modernization — a governed architecture proof package for modernizing how an enterprise intakes and processes customer work, with evidence-backed findings you can commit and export. **Never in that sentence:** Contoso, Northwind.
+**PA one-sentence (from M-133):** ArchLucid’s primary buyer-facing sample is Enterprise Customer Intake Modernization — a governed architecture proof package for modernizing how an enterprise intakes and processes customer work, with evidence-backed findings you can finalize and export. **Never in that sentence:** Contoso, Northwind.
 
-Until **TB-981**, public creatives that open Claims must name **Healthcare Claims Intake** (or “Claims sample”), not Enterprise Customer Intake as if the package already exists.
+Public creatives that open the primary funnel must name **Enterprise Customer Intake** and land on `/showcase/customer-intake-modernization`. Use **Healthcare Claims Intake** only when deep-linking the regulated secondary sample.
 
 ### PA Q4 — safe internal vs toxic marketing vs gray
 
@@ -765,7 +762,7 @@ Consent + kill-switch rules match the hero table above. Implementation: [`showca
 
 **Automated verification (CI):** [`showcase-telemetry.test.ts`](../../archlucid-ui/src/lib/marketing/showcase-telemetry.test.ts).
 
-**Manual verification (staging):** open `/showcase/claims-intake-modernization`, accept consent, confirm Clarity custom events include `claims-intake-modernization` scenario slug.
+**Manual verification (staging):** open `/showcase/customer-intake-modernization`, accept consent, confirm Clarity custom events include `customer-intake-modernization` scenario slug.
 
 
 **Automated verification (CI):** Vitest mocks `window.clarity` + consent — [`marketing-clarity-custom-event.test.ts`](../../archlucid-ui/src/lib/marketing/marketing-clarity-custom-event.test.ts), [`marketing-hero-cta-clarity.wiring.test.tsx`](../../archlucid-ui/src/components/marketing/marketing-hero-cta-clarity.wiring.test.tsx), [`HeroEarlyAccessCta.test.tsx`](../../archlucid-ui/src/components/marketing/HeroEarlyAccessCta.test.tsx).
@@ -900,10 +897,10 @@ If you add realism, prefer clearly fake domains (**`*.example`** / **`northwind-
 
 ## Operator Overview (authenticated home)
 
-**TB-1039:** When the active scope is a **pinned demo workspace** (Workspace A/B project/workspace GUIDs from the fixture manifest), the **Claims Intake Demo** buyer label, or local **dev-default** Claims Intake scope, an empty Overview must not look like a blank customer tenant:
+**TB-1039:** When the active scope is a **pinned demo workspace** (Workspace A/B project/workspace GUIDs from the fixture manifest), the **Customer Intake Demo** buyer label, or local **dev-default** Customer Intake scope, an empty Overview must not look like a blank customer tenant:
 
 1. Runs list uses the **scoped demo `projectId`** (not bare `default`) when the pin is Workspace A/B.
-2. If the list is still empty, the **browser** Overview injects the **canonical sample architecture package** row (Workspace A/B run GUID, or Claims Intake showcase `claims-intake-modernization`). Injection is **client-only** (not SSR) so production empty tenants never stick a fake row from DEV-default server scope.
+2. If the list is still empty, the **browser** Overview injects the **canonical sample architecture package** row (Workspace A/B run GUID, or Enterprise Customer Intake showcase `customer-intake-modernization`). Injection is **client-only** (not SSR) so production empty tenants never stick a fake row from DEV-default server scope.
 3. Empty-home **Do this next** leads with **Open sample package** (setup blockers skipped for demo/seeded pins). Injected rows do **not** count as real workspace reviews for empty-home gating.
 
 Real empty customer tenants (non-demo scope IDs / labels) keep TB-1036 / TB-1038 empty-tenant behavior. Implementation: `archlucid-ui/src/lib/demo-seeded-overview.ts`.

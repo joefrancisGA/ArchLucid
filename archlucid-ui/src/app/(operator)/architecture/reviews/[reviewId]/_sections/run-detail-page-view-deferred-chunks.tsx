@@ -1,8 +1,11 @@
 "use client";
 
+import type { ComponentType } from "react";
+
 import { DeferredChunkLoading, DEFERRED_CHUNK_LOADING_SURFACE_CLASS } from "@/components/ui/deferred-chunk-loading";
 import { createDeferredComponentFromManifest } from "@/lib/operator/load-deferred-chunk-from-manifest";
 import { RunDetailExplanationSkeleton } from "./RunDetailDeferredSkeleton";
+import type { RunDetailAuthorityChainSection } from "./RunDetailAuthorityChainSection";
 import { cn } from "@/lib/utils";
 
 function runDetailDeferredLoading(
@@ -255,6 +258,10 @@ export const RunDetailRetrievalGroundingSectionDeferred = createDeferredComponen
   "run-detail-retrieval-grounding-section",
   { suppressLoading: true },
 );
+
+export const RunDetailAuthorityChainSectionDeferred: ComponentType<
+  React.ComponentProps<typeof RunDetailAuthorityChainSection>
+> = createDeferredComponentFromManifest("run-detail-authority-chain-section", { suppressLoading: true });
 
 export const RunDetailAdvancedAnalysisSectionDeferred = createDeferredComponentFromManifest(
   "run-detail-advanced-analysis-section",

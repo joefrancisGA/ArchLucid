@@ -220,7 +220,7 @@ export const HELP_DOC_SEARCH_RECORDS: readonly HelpDocSearchRecord[] = [
     "docTitle": "Your first architecture review",
     "sectionSlug": "ready-to-begin",
     "sectionHeading": "Ready to begin?",
-    "excerpt": "- [Start architecture review](/architecture/reviews/new) - [Open sample review](/architecture/reviews/claims-intake-modernization)"
+    "excerpt": "- [Start architecture review](/architecture/reviews/new) - [Open sample review](/architecture/reviews/customer-intake-modernization)"
   },
   {
     "docPath": "docs/go-to-market/BUYER_SECURITY_PROCUREMENT_PACKET.md",

@@ -1,6 +1,6 @@
 "use client";
 
-import type { ComponentType } from "react";
+import type { ComponentType, JSX } from "react";
 
 import {
   OPERATOR_SHELL_CONTENT_PADDING_X_CLASS,
@@ -10,6 +10,8 @@ import { createDeferredComponentFromManifest } from "@/lib/operator/load-deferre
 import { cn } from "@/lib/utils";
 
 import type { AppShellKeyboardShortcutBoundary } from "@/components/shell/AppShellKeyboardShortcutBoundary";
+import type { HelpPanel } from "@/components/HelpPanel";
+import type { HelpSearchPanel } from "@/components/HelpSearchPanel";
 import type { ShellThemePreferencesAppearanceVocabularyRail } from "@/components/ShellThemePreferencesAppearanceVocabularyRail";
 
 const operatorTopBarLoading = (
@@ -104,3 +106,51 @@ export const ShellThemePreferencesAppearanceVocabularyRailDeferred: ComponentTyp
 > = createDeferredComponentFromManifest("app-shell-theme-preferences-vocabulary-rail", {
   suppressLoading: true,
 });
+
+const appShellSidebarNavLoadingWrapper = (): JSX.Element => (
+  <div className="min-h-[12rem] animate-pulse rounded-md bg-neutral-100 dark:bg-neutral-800" aria-hidden />
+);
+
+export const FrictionlessTrialBannerDeferred = createDeferredComponentFromManifest(
+  "app-shell-frictionless-trial-banner",
+  { suppressLoading: true },
+);
+
+export const AppShellMainAffordancesDeferred = createDeferredComponentFromManifest(
+  "app-shell-main-affordances",
+  { suppressLoading: true },
+);
+
+export const OnboardingTourDeferred = createDeferredComponentFromManifest("app-shell-onboarding-tour", {
+  suppressLoading: true,
+});
+
+export const RegistrationOnboardingTourAutoStartDeferred = createDeferredComponentFromManifest(
+  "app-shell-registration-onboarding-tour-auto-start",
+  { suppressLoading: true },
+);
+
+export const HelpSearchPanelDeferred: ComponentType<React.ComponentProps<typeof HelpSearchPanel>> =
+  createDeferredComponentFromManifest("app-shell-help-search-panel", { suppressLoading: true });
+
+export const HelpPanelDeferred: ComponentType<React.ComponentProps<typeof HelpPanel>> =
+  createDeferredComponentFromManifest("app-shell-help-panel", { suppressLoading: true });
+
+export const SidebarNavDeferred = createDeferredComponentFromManifest("app-shell-sidebar-nav", {
+  loadingWrapper: appShellSidebarNavLoadingWrapper,
+});
+
+export const AppShellStatusBannersDeferred = createDeferredComponentFromManifest(
+  "app-shell-status-banners",
+  { suppressLoading: true },
+);
+
+export const TrialLimitModalHostDeferred = createDeferredComponentFromManifest(
+  "app-shell-trial-limit-modal-host",
+  { suppressLoading: true },
+);
+
+export const CtoDemoJourneyCaptionBarDeferred = createDeferredComponentFromManifest(
+  "app-shell-cto-demo-journey-caption-bar",
+  { suppressLoading: true },
+);

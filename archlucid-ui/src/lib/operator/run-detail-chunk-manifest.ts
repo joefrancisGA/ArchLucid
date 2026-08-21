@@ -371,6 +371,13 @@ export const RUN_DETAIL_CHUNK_MANIFEST: readonly DeferredChunkManifestEntry[] = 
     exportName: "RunDetailRetrievalGroundingSection",
   },
   {
+    id: "run-detail-authority-chain-section",
+    label: "Loading authority chain",
+    variant: "panel",
+    modulePath: "@/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailAuthorityChainSection",
+    exportName: "RunDetailAuthorityChainSection",
+  },
+  {
     id: "run-detail-advanced-analysis-section",
     label: "Loading advanced analysis",
     variant: "panel",
@@ -470,7 +477,7 @@ export const RUN_DETAIL_CHUNK_MANIFEST: readonly DeferredChunkManifestEntry[] = 
   },
   {
     id: "run-detail-holistic-critic-panel",
-    label: "Loading holistic critic panel",
+    label: "Loading holistic critique panel",
     variant: "panel",
     modulePath: "@/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailHolisticCriticPanel",
     exportName: "RunDetailHolisticCriticPanel",

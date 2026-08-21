@@ -4,6 +4,7 @@ import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-
 import { helpPageSituationTopicIds, type HelpPageSituation } from "@/lib/help/help-page-situation";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import { REVIEW_TERMINOLOGY_BANNED_OPERATOR_PATTERNS } from "@/lib/review-terminology-surfaces";
+import { CUSTOMER_INTAKE_SAMPLE_RUN_ID } from "@/lib/samples/customer-intake-modernization/definition";
 
 export const HELP_SEARCH_PANEL_TITLE = "Help" as const;
 
@@ -136,8 +137,12 @@ const START_HERE_TOPICS: readonly HelpSearchPanelTopic[] = [
     id: "sample-review",
     title: "Run a sample review",
     description: "See how ArchLucid turns evidence into findings and review artifacts.",
-    keywords: ["sample", "example", "claims intake", "demo review", "walkthrough"],
-    action: { kind: "route", href: "/architecture/reviews/claims-intake-modernization", helpSlug: null },
+    keywords: ["sample", "example", "customer intake", "enterprise intake", "demo review", "walkthrough"],
+    action: {
+      kind: "route",
+      href: `/architecture/reviews/${CUSTOMER_INTAKE_SAMPLE_RUN_ID}`,
+      helpSlug: null,
+    },
   },
 ];
 
