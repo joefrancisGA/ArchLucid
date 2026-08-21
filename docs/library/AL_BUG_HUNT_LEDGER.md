@@ -377,11 +377,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** return path; sign-in redirect; open redirect
 - **paths:** ArchLucid.Application/Identity/AuthSignInReturnPathGuard.cs
 - **test-filter:** FullyQualifiedName~AuthSignInReturnPathGuardTests
-- **hunts:** 0
-- **bugs-found:** 0
+- **hunts:** 1
+- **bugs-found:** 1
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **last-hunt:** 2026-08-20
+- **last-bug:** 2026-08-20
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
@@ -390,6 +390,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] A protocol-relative or encoded external URL is accepted as an in-app return path â€” fixed earlier (`/%2f%2fevil.example`); regression in `TryNormalize_rejects_open_redirect_shapes`
 - [x] Backslash or `@` host smuggling bypasses the leading-slash check â€” retired: existing `TryNormalize_rejects_open_redirect_shapes` cases cover `/\\evil`, `/path@evil`, `/%40` decode
 - [x] Control characters in the return path still survive normalization â€” fixed: reject control chars after each percent-decode pass (`/%09//evil.example`, `/%00//evil.example`)
+- [x] Deeply nested percent-encoded slashes survive the three-pass decode cap (`/%2525252f%2525252fevil.example` accepted as in-app path) — fixed: eight-pass decode cap plus reject residual `%2f`/`%5c`/`%2e`; regression in `TryNormalize_rejects_open_redirect_shapes`
 
 ---
 
@@ -1048,24 +1049,25 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ## Zone: saml-jwt-bearer
 
 - **id:** saml-jwt-bearer
-- **status:** unseeded
+- **status:** open
 - **impact:** high
 - **aliases:** SAML; trial JWT; SCIM bearer; OIDC auth stack
 - **paths:** ArchLucid.Api/Auth/; ArchLucid.Core/Auth/Saml/
 - **test-filter:** FullyQualifiedName~Saml|FullyQualifiedName~LocalTrialJwt|FullyQualifiedName~ScimBearer
-- **hunts:** 0
-- **bugs-found:** 0
+- **hunts:** 1
+- **bugs-found:** 1
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **last-hunt:** 2026-08-21
+- **last-bug:** 2026-08-21
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
 ### Hypotheses
 
-- [ ] (candidate) SAML metadata parser accepts an entity id that does not match the configured IdP
-- [ ] (candidate) Trial JWT is accepted after the trial window has expired
-- [ ] (candidate) SCIM bearer token for tenant A authorizes provisioning writes for tenant B
+- [ ] (invalid) SAML metadata parser accepts an entity id that does not match the configured IdP — no separate configured IdP entity id; host SAML binds `AllowedIssuer` from fetched metadata `entityID` (`ArchLucidSaml2IdpMetadataBinder.ApplyResolvedEntity`)
+- [ ] (valid-no-repro) Trial JWT is accepted after the trial window has expired — trial expiry enforced by `TrialLimitGate` on mutating policies; JWT `exp` is access-token lifetime by design (`LocalTrialJwtIssuer`, `TrialLimitAuthorizationHandler`)
+- [ ] (invalid) SCIM bearer token for tenant A authorizes provisioning writes for tenant B — Argon hash is tenant-salted (`ScimArgonSecretHasherTests.VerifySecret_wrong_tenant_salt_returns_false`); scope uses `tenant_id` claim over headers (`HttpScopeContextProviderTests.GetCurrentScope_prefers_jwt_claim_over_header`)
+- [x] Future `auth_time` / `iat` passes step-up as recent authentication (`RecentAuthenticationEvaluator.HasRecentAuthentication`) — fixed: reject negative age; regression in `HasRecentAuthentication_returns_false_for_future_auth_time`
 
 ---
 
@@ -1150,11 +1152,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** UI auth; API proxy; edge proxy
 - **paths:** archlucid-ui/src/lib/auth/; archlucid-ui/src/app/api/proxy/; archlucid-ui/src/proxy.ts
 - **test-filter:** lib/auth|proxy-route|proxy.ts
-- **hunts:** 2
-- **bugs-found:** 2
+- **hunts:** 3
+- **bugs-found:** 3
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-19
-- **last-bug:** 2026-08-19
+- **last-hunt:** 2026-08-20
+- **last-bug:** 2026-08-20
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
@@ -1164,6 +1166,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (candidate) Return-destination helper accepts an external URL that bypasses host-gate - invalid: `isSafeReturnPath` rejects external URLs; host-gate runs on next navigation
 - [x] (proven) Anonymous marketing proxy path can reach a mutating operator API route via literal `..` segments - fixed: reject `..`/`.` proxy segments before upstream fetch
 - [x] (proven) `buildProxyUpstreamPath` — `%2e%2e` proxy segments decode to `..` during URL normalization and reach `architecture/draft/*` while literal `..` segments are rejected
+- [x] (proven) Double-encoded `%252e%252e` proxy segments bypass the `%2e` substring guard and still reach operator draft routes from anonymous marketing paths
 
 ---
 
@@ -1418,11 +1421,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 2
-- **bugs-found:** 2
+- **hunts:** 3
+- **bugs-found:** 3
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-20
-- **last-bug:** 2026-08-20
+- **last-hunt:** 2026-08-21
+- **last-bug:** 2026-08-21
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1432,6 +1435,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Teams trigger parse silently disables all notifications for unknown-only JSON — **hit 2026-08-20:** `ParseOrDefault` filtered unknown entries to an empty list instead of returning the documented all-on default when every stored trigger name was unrecognized
 - [x] (valid-no-repro) Tenant scope model treats empty workspace as a wildcard — `ActivityScopeTags` rejects `Guid.Empty` workspace ids; no wildcard semantics in Core tenancy models.
 - [x] (valid-no-repro) Configuration default enables a production-unsafe integration flag — ITSM/native and quick-scan defaults are gated by environment validators and hosted-SaaS overrides.
+- [x] (proven) Integration webhook simulate rejects governance approval and alert-acknowledged aliases — **hit 2026-08-21:** `ResolveEventType` switch omitted `GovernanceApprovalApproved`, `GovernanceApprovalRejected`, and `AlertAcknowledged` PascalCase/kebab aliases while sibling triggers were wired; CLI simulate-webhook threw for those event names.
 
 ---
 
@@ -1443,11 +1447,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** API contracts; DTO serialization; OpenAPI models
 - **paths:** ArchLucid.Contracts/
 - **test-filter:** FullyQualifiedName~Contracts
-- **hunts:** 2
-- **bugs-found:** 2
+- **hunts:** 3
+- **bugs-found:** 3
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-20
-- **last-bug:** 2026-08-20
+- **last-hunt:** 2026-08-21
+- **last-bug:** 2026-08-21
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1457,6 +1461,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Enum serialization accepts an out-of-range value as the default variant — **hit 2026-08-19:** `ServiceType`, `DatastoreType`, `RuntimePlatform`, and `RelationshipType` JSON converters cast numeric ordinals without `Enum.IsDefined`; fixed on master in `47e7613370` (same pattern as `AgentType` in `4d4340387c`).
 - [x] (invalid) Contract change breaks backward compatibility without a version bump signal — versioning is policy/process, not a deserialization defect in these converters.
 - [x] (proven) `FindingSeverity` numeric ordinals bypass validation in eval-corpus and architecture-finding converters — `EvalCorpusFindingSeverityJsonConverter` and `ArchitectureFindingJsonConverter.ReadSeverity` cast out-of-range integers; fixed with `Enum.IsDefined` + regression tests.
+- [x] (proven) Case-variant unknown sentinel bypasses structured-brief readiness — **hit 2026-08-21:** `IsUnknownConfirmSentinel` used ordinal string equality so `"unknown — confirm before review"` counted as a confirmed quality-attribute chip and could unblock review start under TB-2343.
 
 ---
 
@@ -1494,11 +1499,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 3
-- **bugs-found:** 3
+- **hunts:** 4
+- **bugs-found:** 4
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-20
-- **last-bug:** 2026-08-20
+- **last-hunt:** 2026-08-21
+- **last-bug:** 2026-08-21
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
@@ -1510,6 +1515,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Topology projected-spend enrichment overwrites parsed constraint spend when property keys use non-canonical casing — **hit 2026-08-19:** `CostConstraintProjectedSpendEnricher.HasProjectedSpend` used case-sensitive `ContainsKey` while deserialized `GraphNode.Properties` can use PascalCase keys
 - [x] (proven) Topology cost projection under-scales when instance-count property keys use PascalCase — **hit 2026-08-19:** `GraphTopologyInfrastructureCostNodes.ReadProperty` used case-sensitive `TryGetValue`, so `InstanceCount` on deserialized nodes defaulted quantity to 1
 - [x] (proven) Explicit parent-child containment edges omitted when `parentNodeId` uses PascalCase on a case-sensitive property bag — **hit 2026-08-20:** `DefaultGraphEdgeInferer` used case-sensitive `Properties.TryGetValue` for `parentNodeId`, `connectedToNodeIds`, and targeted topology id keys
+- [x] (proven) WAF alignment flag omitted when associated-findings property keys use PascalCase — **hit 2026-08-21:** `GraphMaterializationStages` read `associatedFindings` / `findings` from raw `CanonicalObject.Properties` with case-sensitive `TryGetValue` instead of the normalized node bag via `GraphNodePropertyReader`
 
 ---
 
@@ -1570,11 +1576,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** host composition; DI registration; startup modules
 - **paths:** ArchLucid.Host.Composition/
 - **test-filter:** FullyQualifiedName~Host.Composition|FullyQualifiedName~ServiceCollectionExtensions
-- **hunts:** 2
-- **bugs-found:** 2
+- **hunts:** 3
+- **bugs-found:** 3
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-20
-- **last-bug:** 2026-08-20
+- **last-hunt:** 2026-08-21
+- **last-bug:** 2026-08-21
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
@@ -1585,6 +1591,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) Composition registers two implementations for the same tenant-scoped interface — `ISponsorReportRecipientLookup` is registered in both weekly modules with the same implementation type; MS.DI last registration wins without functional divergence
 - [x] (proven) Weekly sponsor summary pipeline never wired into composition root — **hit 2026-08-19:** `RegisterWeeklySponsorSummaryServices` / worker infrastructure existed but were not called from `AddArchLucidApplicationServices`, so `IWeeklySponsorSummaryEmailDispatcher` was absent from DI
 - [x] (proven) Weekly sponsor summary container offload has no `IArchLucidJob` — **hit 2026-08-20:** `RegisterWeeklySponsorSummaryWorkerInfrastructure` skips `WeeklySponsorSummaryHostedService` when `Jobs:OffloadedToContainerJobs` includes `weekly-sponsor-summary`, but `RegisterArchLucidJobRunners` never registered a matching job so container offload silently dropped delivery
+- [x] (proven) Data-archival container offload drops agent trace blob cleanup — **hit 2026-08-21:** `RegisterAgentResultBlobCleanupHostedService` reused `ArchLucidJobsOffload.IsOffloaded(..., DataArchival)` so offloading `data-archival` unregistered `AgentResultBlobCleanupHostedService` even though no matching `IArchLucidJob` exists
 
 ---
 
@@ -1694,11 +1701,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** policy packs; governance coverage; before-after diff
 - **paths:** ArchLucid.Application/Governance/
 - **test-filter:** FullyQualifiedName~PolicyPack|FullyQualifiedName~Governance
-- **hunts:** 1
-- **bugs-found:** 1
+- **hunts:** 2
+- **bugs-found:** 2
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-20
-- **last-bug:** 2026-08-20
+- **last-hunt:** 2026-08-21
+- **last-bug:** 2026-08-21
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
@@ -1708,6 +1715,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) Coverage calculator counts a waived finding as still open — retired: no coverage calculator in `Governance/`; waiver expiry uses `GovernanceWaiverExpiryWindow` / `GovernanceDecisionsNeededSummaryCalculator` distinct-finding union, not open-finding counts
 - [x] (invalid) Default policy pack activation skips required approval metadata — retired: `DefaultPolicyPackSeeder` platform bootstrap calls `CreatePackAsync` / `PublishVersionAsync` / `AssignAsync` by design for bundled defaults, not operator approval flow
 - [x] (proven) Policy-pack before/after snapshot marks advisory findings as blocking commit — `PolicyPackBeforeAfterConfigurationSnapshotBuilder` used severity-only check instead of `PreCommitGateResult.BlockingFindingIds` (fixed 2026-08-20)
+- [x] (proven) Governance dry-run skips pre-commit enforcement for PascalCase metadata keys — **hit 2026-08-21:** `PolicyPackGovernanceDryRunService` read `blockCommitOnCritical` / `blockCommitMinimumSeverity` via case-sensitive `metadata.TryGetValue`, so JSON-deserialized metadata with `BlockCommitOnCritical` never activated the gate
 
 ---
 
@@ -1769,17 +1777,18 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** operator shell routes; operator pages
 - **paths:** archlucid-ui/src/app/(operator)/
 - **test-filter:** operator
-- **hunts:** 1
-- **bugs-found:** 1
+- **hunts:** 2
+- **bugs-found:** 2
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-20
-- **last-bug:** 2026-08-20
+- **last-hunt:** 2026-08-21
+- **last-bug:** 2026-08-21
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
 ### Hypotheses
 
 - [x] (proven) Architecture scorecard `usePilotScorecardPage.onSaveBaselines` PUT `/api/proxy/v1/pilots/scorecard/baselines` omitted `mergeRegistrationScopeForProxy` while reads use scoped `getPilotScorecard` — save lands on proxy dev-default tenant, refetch reads operator-selected tenant (save appears to no-op) — fixed 2026-08-20 (`use-pilot-scorecard-page.test.tsx`)
+- [x] (proven) Baseline settings GET/PUT `/api/proxy/v1/tenant/baseline` omitted `mergeRegistrationScopeForProxy` — load/save hit proxy dev-default tenant instead of operator-selected scope (baseline appears not to stick after save) — fixed 2026-08-21 (`page.test.tsx` forwards operator scope headers when loading and saving tenant baseline)
 - [x] (valid-no-repro) Stale react-query cache shows the previous tenant after scope switch — `usePilotScorecardQuery` scope-less key is a real gap on `/insights/architecture-scorecard`, but not reproved this hunt; sponsor/scorecard cache invalidation remains open if scope-switch stale data is reported
 - [x] (invalid) Error boundary hides a 403 and renders an empty success state — no operator-route locus where a 403 is caught and replaced with empty success; compare/governance surfaces surface load failures explicitly
 
@@ -1793,11 +1802,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** marketing pages; pricing; trust center UI
 - **paths:** archlucid-ui/src/app/(marketing)/
 - **test-filter:** marketing
-- **hunts:** 1
-- **bugs-found:** 1
+- **hunts:** 2
+- **bugs-found:** 2
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-20
-- **last-bug:** 2026-08-20
+- **last-hunt:** 2026-08-21
+- **last-bug:** 2026-08-21
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
@@ -1806,6 +1815,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) Marketing form submits PII to the wrong API environment — Quick Scan and pricing quote POST through `/api/proxy/v1/marketing/...` (`proxy-route-anonymous-marketing.test.ts`, `QuickScanClient.tsx`).
 - [x] (invalid) Pricing page shows an internal-only plan tier to anonymous visitors — anonymous pricing loads public `loadPricingDoc()`; no internal tier leak found in seed read.
 - [x] (proven) Trust Center evidence pack ZIP href used raw `/v1/marketing/trust-center/evidence-pack.zip` instead of `/api/proxy/...` — Next.js has no rewrite; anonymous download links 404. Fixed `TRUST_CENTER_EVIDENCE_PACK_ZIP_HREF`; regression in `trust-center-marketing.test.ts`.
+- [x] (proven) Sponsor digest deep-link `mapResponse` defaulted `signInUrl` to `/auth/sign-in` (no route) when API omitted the field — workspace sign-in CTA on `/digest/sponsor` links 404 instead of `/auth/signin` — fixed 2026-08-21 (`exec-digest-sponsor-deep-link-server.test.ts`)
 
 ---
 
@@ -1841,11 +1851,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** operator lib; operator scope; operator API client
 - **paths:** archlucid-ui/src/lib/operator/
 - **test-filter:** lib/operator
-- **hunts:** 1
-- **bugs-found:** 1
+- **hunts:** 2
+- **bugs-found:** 2
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-20
-- **last-bug:** 2026-08-20
+- **last-hunt:** 2026-08-21
+- **last-bug:** 2026-08-21
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
@@ -1853,4 +1863,5 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 - [x] (invalid) Operator API helper omits workspace scope on mutating requests — no mutating helpers under `operator/`; sole proxy GET uses `mergeRegistrationScopeForProxy` with full scope headers.
 - [x] (proven) Cached operator context survives tenant switch — `hydrateOperatorShellStatusCaches` writes trial/homepage/stickiness/etc. to scope-agnostic TanStack keys; scope change did not clear them. Fixed via `clearOperatorShellStatusScopeAgnosticCaches` on `writeOperatorScopeToStorage` / `clearOperatorScopeStorage`.
+- [x] (proven) Session stable shell cache survives tenant switch-back — `writeOperatorShellStableCache` kept prior-tenant snapshots in sessionStorage; switching away and back rehydrated stale trial/catalog/budget before bootstrap refetch. Fixed via `clearOperatorShellStableCache` on scope change (`operator-shell-status-scope-cache.test.ts`).
 - [x] (invalid) Error mapper surfaces another tenant's problem detail in the toast — `operator-connectivity-error-present.ts` is stateless; no cross-request error cache in this directory.

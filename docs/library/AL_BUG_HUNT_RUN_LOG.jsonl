@@ -18,3 +18,15 @@
 {"at":"2026-08-20T19:04:14.2688720Z","zoneId":"context-ingestion","outcome":"hit"}
 {"at":"2026-08-20T19:52:50.6434629Z","zoneId":"host-core-jobs","outcome":"hit"}
 {"at":"2026-08-20T20:14:24.3824761Z","zoneId":"architecture-recommendation","outcome":"hit"}
+{"at":"2026-08-21T01:38:15.7893061Z","zoneId":"ui-auth-proxy","outcome":"hit"}
+{"at":"2026-08-21T01:51:31.2559159Z","zoneId":"ui-auth-proxy","outcome":"hit"}
+{"at":"2026-08-21T02:37:26.6106581Z","zoneId":"auth-return-path","outcome":"hit"}
+{"at":"2026-08-21T05:20:08.0630516Z","zoneId":"saml-jwt-bearer","outcome":"hit"}
+{"at":"2026-08-21T05:27:40.3516604Z","zoneId":"ui-operator-routes","outcome":"hit"}
+{"at":"2026-08-21T05:35:08.9246436Z","zoneId":"ui-marketing-surfaces","outcome":"hit"}
+{"at":"2026-08-21T05:44:10.9993635Z","zoneId":"ui-operator-lib","outcome":"hit"}
+{"at":"2026-08-21T05:55:50.6769819Z","zoneId":"archlucid-core","outcome":"hit"}
+{"at":"2026-08-21T06:14:42.9780181Z","zoneId":"archlucid-contracts","outcome":"hit"}
+{"at":"2026-08-21T06:37:00.7743563Z","zoneId":"host-composition","outcome":"hit"}
+{"at":"2026-08-21T06:54:55.2296584Z","zoneId":"knowledge-graph-provenance","outcome":"hit"}
+{"at":"2026-08-21T07:14:36.0243362Z","zoneId":"application-governance-policy","outcome":"hit"}

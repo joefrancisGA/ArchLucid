@@ -41,6 +41,19 @@ function isStableLlmBudgetStatus(status: LlmMonthlyDollarBudgetStatus | undefine
   return status?.monthlyBudgetMonitoringActive !== true;
 }
 
+/** Drop session stable shell snapshots when operator scope changes — scope match alone is not enough after tenant switch-back. */
+export function clearOperatorShellStableCache(): void {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  try {
+    window.sessionStorage.removeItem(OPERATOR_SHELL_STABLE_CACHE_STORAGE_KEY);
+  } catch {
+    /* private mode */
+  }
+}
+
 export function readOperatorShellStableCache(): OperatorShellStableCachePayload | null {
   if (typeof window === "undefined") {
     return null;

@@ -1,3 +1,4 @@
+import { AUTH_SIGNIN_PATH } from "@/lib/auth-operator-route-paths";
 import { readServerApiBaseUrlFromEnv } from "@/lib/legacy-arch-env";
 import { MARKETING_UPSTREAM_FETCH_TIMEOUT_MS } from "@/lib/server-fetch-timeouts";
 
@@ -84,6 +85,6 @@ function mapResponse(payload: ExecDigestSponsorDeepLinkViewResponse): ExecDigest
     decisionNeededMarkdown: payload.decisionNeededMarkdown,
     runIdHex: payload.runIdHex,
     runSummaryMarkdown: payload.runSummaryMarkdown,
-    signInUrl: payload.signInUrl ?? "/auth/sign-in",
+    signInUrl: payload.signInUrl ?? AUTH_SIGNIN_PATH,
   };
 }

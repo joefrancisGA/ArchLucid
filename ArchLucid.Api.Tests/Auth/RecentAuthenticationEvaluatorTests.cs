@@ -37,4 +37,19 @@ public sealed class RecentAuthenticationEvaluatorTests
 
         Assert.False(RecentAuthenticationEvaluator.HasRecentAuthentication(principal, TimeProvider.System));
     }
+
+    [Fact]
+    public void HasRecentAuthentication_returns_false_for_future_auth_time()
+    {
+        long authTime = DateTimeOffset.UtcNow.AddHours(1).ToUnixTimeSeconds();
+
+        ClaimsPrincipal principal = new(
+            new ClaimsIdentity(
+            [
+                new Claim("auth_time", authTime.ToString())
+            ],
+            "Bearer"));
+
+        Assert.False(RecentAuthenticationEvaluator.HasRecentAuthentication(principal, TimeProvider.System));
+    }
 }

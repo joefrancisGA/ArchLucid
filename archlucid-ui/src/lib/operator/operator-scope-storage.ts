@@ -3,6 +3,7 @@ import {
   writeOperatorScopeCookieFromHeaders,
 } from "@/lib/operator/operator-scope-cookie";
 import { clearOperatorShellStatusScopeAgnosticCaches } from "@/lib/operator/operator-shell-status-scope-cache";
+import { clearOperatorShellStableCache } from "@/lib/operator/operator-shell-stable-cache";
 import { getOperatorQueryClient } from "@/lib/query/operator-query-client";
 import { isLikelySignedIn } from "@/lib/oidc/session";
 import { registrationScopeHeaders } from "@/lib/registration-session";
@@ -70,6 +71,7 @@ function notifyOperatorScopeChanged(): void {
   }
 
   window.dispatchEvent(new CustomEvent(ARCHLUCID_OPERATOR_SCOPE_CHANGED_EVENT));
+  clearOperatorShellStableCache();
   clearOperatorShellStatusScopeAgnosticCaches(getOperatorQueryClient());
 }
 

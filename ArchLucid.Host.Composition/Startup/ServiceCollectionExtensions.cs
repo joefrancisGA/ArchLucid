@@ -156,7 +156,7 @@ public static partial class ServiceCollectionExtensions
         RegisterIntegrationEventConsumer(services, configuration, hostingRole);
         RegisterAzureDevOpsCommitStatusPublisher(services, configuration);
         RegisterDataArchivalHostedService(services, configuration, hostingRole);
-        RegisterAgentResultBlobCleanupHostedService(services, configuration, hostingRole);
+        RegisterAgentResultBlobCleanupHostedService(services, hostingRole);
         RegisterSponsorRoiCacheWarmupHostedService(services, configuration, hostingRole);
         RegisterSponsorRoiSavingsGaugeHostedService(services, configuration, hostingRole);
         RegisterFirstTenantFunnelArchivalHostedService(services, configuration, hostingRole);

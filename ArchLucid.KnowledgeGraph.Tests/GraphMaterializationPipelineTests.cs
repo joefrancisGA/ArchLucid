@@ -57,6 +57,42 @@ public sealed class GraphMaterializationPipelineTests
     }
 
     [Fact]
+    public async Task RunAsync_Sets_WafAligned_when_associated_findings_key_uses_PascalCase()
+    {
+        ContextSnapshot snapshot = new()
+        {
+            SnapshotId = Guid.NewGuid(),
+            RunId = Guid.NewGuid(),
+            ProjectId = "project-1",
+            CanonicalObjects =
+            [
+                new CanonicalObject
+                {
+                    ObjectId = "svc-api",
+                    ObjectType = GraphNodeTypes.TopologyResource,
+                    Name = "api",
+                    SourceType = "Manual",
+                    SourceId = "svc-api",
+                    Properties = new Dictionary<string, string>
+                    {
+                        ["AssociatedFindings"] = "Aligned with WAF baseline"
+                    }
+                }
+            ],
+        };
+
+        List<GraphNode> nodes = [CreateContextNode(snapshot)];
+        GraphMaterializationContext context = new(snapshot, nodes);
+        GraphMaterializationPipeline pipeline = GraphMaterializationStages.CreateDefaultPipeline(new GraphNodeFactory());
+
+        await pipeline.RunAsync(context, CancellationToken.None);
+
+        GraphNode materialized = nodes.Should().ContainSingle(n => n.NodeId == "obj-svc-api").Subject;
+        materialized.Properties.Should().ContainKey("WafAligned");
+        materialized.Properties["WafAligned"].Should().Be("true");
+    }
+
+    [Fact]
     public async Task DefaultGraphBuilder_UsesPipelineWithoutChangingEmptySnapshotBehavior()
     {
         Mock<IGraphEdgeInferer> edgeInferer = new();

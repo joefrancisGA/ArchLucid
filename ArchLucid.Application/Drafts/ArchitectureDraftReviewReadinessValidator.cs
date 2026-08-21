@@ -27,12 +27,6 @@ public static class ArchitectureDraftReviewReadinessValidator
         if (document.BusinessOutcome?.Trim().Length < MinimumOutcomeLength)
             blockers.Add("business outcome");
 
-        if (!ListHasConfirmedEntry(document.StructuredBrief.ConfirmedConstraints))
-            blockers.Add("constraints");
-
-        if (!ListHasConfirmedEntry(document.StructuredBrief.ConfirmedAssumptions))
-            blockers.Add("assumptions");
-
         if (!HasConfirmedActor(document.ActorSet))
             blockers.Add("confirmed actor");
 
@@ -58,17 +52,6 @@ public static class ArchitectureDraftReviewReadinessValidator
         string? intent = document.WorkflowIntent?.Trim();
 
         return string.Equals(intent, ArchitectureWorkflowIntent.CreateArchitecture, StringComparison.OrdinalIgnoreCase);
-    }
-
-    private static bool ListHasConfirmedEntry(IReadOnlyList<string> items)
-    {
-        foreach (string item in items)
-        {
-            if (ArchitectureDraftStructuredBrief.IsConfirmedBriefEntry(item))
-                return true;
-        }
-
-        return false;
     }
 
     private static bool HasConfirmedActor(ActorSet actorSet)

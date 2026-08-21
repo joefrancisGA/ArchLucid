@@ -21,6 +21,7 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
 });
 
 import { showError, showSuccess } from "@/lib/toast";
+import { writeOperatorScopeToStorage } from "@/lib/operator/operator-scope-storage";
 import { BASELINE_SETTINGS_PAGE_TITLE, BASELINE_REVIEW_NOTE_SAVE_READINESS } from "@/lib/baseline-settings-present";
 import { BaselineSettingsClient } from "./BaselineSettingsClient";
 
@@ -151,6 +152,52 @@ describe("BaselineSettingsPage", () => {
 
     const puts = fetchMock.mock.calls.filter((c) => (c[1] as RequestInit | undefined)?.method === "PUT");
     expect(puts).toHaveLength(0);
+
+    vi.unstubAllGlobals();
+  });
+
+  it("forwards operator scope headers when loading and saving tenant baseline", async () => {
+    const tenantId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
+    const workspaceId = "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb";
+    const projectId = "cccccccc-cccc-cccc-cccc-cccccccccccc";
+    writeOperatorScopeToStorage({ tenantId, workspaceId, projectId });
+
+    const fetchMock = createFetchMock({
+      putResponse: {
+        ...emptyBaseline,
+        manualPrepHoursPerReview: 2,
+        capturedUtc: "2026-01-01T00:00:00Z",
+      },
+    });
+    vi.stubGlobal("fetch", fetchMock);
+    render(<BaselineSettingsClient />);
+
+    expect(await screen.findByTestId("baseline-manual-prep")).toBeInTheDocument();
+
+    const initialGet = fetchMock.mock.calls.find(
+      (call) =>
+        String(call[0]).endsWith("/api/proxy/v1/tenant/baseline") &&
+        ((call[1] as RequestInit | undefined)?.method ?? "GET") === "GET",
+    );
+    expect(initialGet).toBeDefined();
+    const getHeaders = new Headers((initialGet?.[1] as RequestInit | undefined)?.headers);
+    expect(getHeaders.get("x-tenant-id")).toBe(tenantId);
+    expect(getHeaders.get("x-workspace-id")).toBe(workspaceId);
+    expect(getHeaders.get("x-project-id")).toBe(projectId);
+
+    fireEvent.change(screen.getByTestId("baseline-manual-prep"), { target: { value: "2" } });
+    fireEvent.click(screen.getByTestId("baseline-save"));
+
+    await waitFor(() => {
+      const puts = fetchMock.mock.calls.filter((c) => (c[1] as RequestInit | undefined)?.method === "PUT");
+      expect(puts.length).toBeGreaterThan(0);
+    });
+
+    const putCall = fetchMock.mock.calls.find((c) => (c[1] as RequestInit | undefined)?.method === "PUT");
+    const putHeaders = new Headers((putCall?.[1] as RequestInit | undefined)?.headers);
+    expect(putHeaders.get("x-tenant-id")).toBe(tenantId);
+    expect(putHeaders.get("x-workspace-id")).toBe(workspaceId);
+    expect(putHeaders.get("x-project-id")).toBe(projectId);
 
     vi.unstubAllGlobals();
   });

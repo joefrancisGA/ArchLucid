@@ -11,7 +11,7 @@ namespace ArchLucid.Application.Tests.Drafts;
 public sealed class ArchitectureDraftReviewReadinessValidatorTests
 {
     [Fact]
-    public void EvaluateBlockers_WhenOnlyUnknownSentinelInStructuredBrief_ReturnsBlockers()
+    public void EvaluateBlockers_WhenOnlyUnknownQualityAttribute_ReturnsQualityAttributeBlocker()
     {
         DraftRequestDocument document = CreateReadyDocument();
         document.StructuredBrief.ConfirmedConstraints = [ArchitectureDraftStructuredBrief.UnknownConfirmBeforeReview];
@@ -20,27 +20,23 @@ public sealed class ArchitectureDraftReviewReadinessValidatorTests
 
         IReadOnlyList<string> blockers = ArchitectureDraftReviewReadinessValidator.EvaluateBlockers(document);
 
-        blockers.Should().Contain("constraints");
-        blockers.Should().Contain("assumptions");
-        blockers.Should().Contain("quality attributes");
+        blockers.Should().NotContain("constraints");
+        blockers.Should().NotContain("assumptions");
+        blockers.Should().Equal("quality attributes");
     }
 
     [Fact]
-    public void EvaluateBlockers_WhenMixedSentinelAndRealConstraint_StillRequiresRealAssumption()
+    public void EvaluateBlockers_WhenUnknownSentinelInConstraintsAndAssumptions_ReturnsEmpty()
     {
         DraftRequestDocument document = CreateReadyDocument();
-        document.StructuredBrief.ConfirmedConstraints =
-            [ArchitectureDraftStructuredBrief.UnknownConfirmBeforeReview, "Private endpoints required"];
+        document.StructuredBrief.ConfirmedConstraints = [ArchitectureDraftStructuredBrief.UnknownConfirmBeforeReview];
         document.StructuredBrief.ConfirmedAssumptions = [ArchitectureDraftStructuredBrief.UnknownConfirmBeforeReview];
 
-        IReadOnlyList<string> blockers = ArchitectureDraftReviewReadinessValidator.EvaluateBlockers(document);
-
-        blockers.Should().NotContain("constraints");
-        blockers.Should().Contain("assumptions");
+        ArchitectureDraftReviewReadinessValidator.EvaluateBlockers(document).Should().BeEmpty();
     }
 
     [Fact]
-    public void EnsureReviewReady_ThrowsWhenOnlyUnknownSentinelsPresent()
+    public void EnsureReviewReady_DoesNotThrowWhenConstraintsAndAssumptionsAreUnknown()
     {
         DraftRequestDocument document = CreateReadyDocument();
         document.StructuredBrief.ConfirmedConstraints = [ArchitectureDraftStructuredBrief.UnknownConfirmBeforeReview];
@@ -48,21 +44,20 @@ public sealed class ArchitectureDraftReviewReadinessValidatorTests
 
         Action act = () => ArchitectureDraftReviewReadinessValidator.EnsureReviewReady(document);
 
-        act.Should().Throw<InvalidOperationException>()
-            .WithMessage("*constraint*");
+        act.Should().NotThrow();
     }
 
     [Fact]
-    public void EvaluateBlockers_WhenLegacyMinimumOnly_ReturnsStructuredBriefBlockers()
+    public void EvaluateBlockers_WhenLegacyMinimumOnly_ReturnsQualityAttributeBlocker()
     {
         DraftRequestDocument document = CreateReadyDocument();
         document.StructuredBrief = new ArchitectureDraftStructuredBrief();
 
         IReadOnlyList<string> blockers = ArchitectureDraftReviewReadinessValidator.EvaluateBlockers(document);
 
-        blockers.Should().Contain("constraints");
-        blockers.Should().Contain("assumptions");
-        blockers.Should().Contain("quality attributes");
+        blockers.Should().NotContain("constraints");
+        blockers.Should().NotContain("assumptions");
+        blockers.Should().Equal("quality attributes");
     }
 
     [Fact]
@@ -70,6 +65,16 @@ public sealed class ArchitectureDraftReviewReadinessValidatorTests
     {
         DraftRequestDocument document = CreateReadyDocument();
         document.StructuredBrief.QualityAttribute = "defense in depth; zero trust";
+
+        ArchitectureDraftReviewReadinessValidator.EvaluateBlockers(document).Should().BeEmpty();
+    }
+
+    [Fact]
+    public void EvaluateBlockers_WhenConstraintsAndAssumptionsEmpty_ReturnsEmpty()
+    {
+        DraftRequestDocument document = CreateReadyDocument();
+        document.StructuredBrief.ConfirmedConstraints.Clear();
+        document.StructuredBrief.ConfirmedAssumptions.Clear();
 
         ArchitectureDraftReviewReadinessValidator.EvaluateBlockers(document).Should().BeEmpty();
     }
@@ -83,15 +88,26 @@ public sealed class ArchitectureDraftReviewReadinessValidatorTests
     }
 
     [Fact]
-    public void EnsureReviewReady_ThrowsForThinCreateArchitectureDraft()
+    public void EnsureReviewReady_DoesNotThrowWhenConstraintsAreEmpty()
     {
         DraftRequestDocument document = CreateReadyDocument();
         document.StructuredBrief.ConfirmedConstraints.Clear();
 
         Action act = () => ArchitectureDraftReviewReadinessValidator.EnsureReviewReady(document);
 
+        act.Should().NotThrow();
+    }
+
+    [Fact]
+    public void EnsureReviewReady_ThrowsWhenQualityAttributeMissing()
+    {
+        DraftRequestDocument document = CreateReadyDocument();
+        document.StructuredBrief.QualityAttribute = "";
+
+        Action act = () => ArchitectureDraftReviewReadinessValidator.EnsureReviewReady(document);
+
         act.Should().Throw<InvalidOperationException>()
-            .WithMessage("*constraint*");
+            .WithMessage("*quality attributes*");
     }
 
     [Fact]

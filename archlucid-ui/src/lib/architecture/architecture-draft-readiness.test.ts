@@ -70,8 +70,26 @@ describe("architecture-draft-readiness", () => {
     expect(validateArchitectureReviewReadiness(namedReadyExceptName, [assertedActor]).blockers).toEqual(["system-name"]);
   });
 
-  it("blocks review start when only unknown sentinel placeholders are present (TB-2343)", () => {
-    const withUnknownsOnly = {
+  it("does not block review start when constraints and assumptions are empty", () => {
+    const emptyLists = {
+      freeTextIntent: readyOverview,
+      businessOutcome: "Reduce cycle time for governed architecture reviews.",
+      systemName: "Claims intake",
+      structuredBrief: {
+        ...emptyArchitectureDraftStructuredBrief(),
+        qualityAttribute: "RTO 4 hours",
+      },
+    };
+
+    const result = validateArchitectureReviewReadiness(emptyLists, [assertedActor]);
+
+    expect(result.isValid).toBe(true);
+    expect(result.blockers).not.toContain("constraints");
+    expect(result.blockers).not.toContain("assumptions");
+  });
+
+  it("does not block review start when constraints and assumptions are unknown sentinels", () => {
+    const unknownLists = {
       freeTextIntent: readyOverview,
       businessOutcome: "Reduce cycle time for architecture reviews.",
       systemName: "Claims intake",
@@ -79,36 +97,32 @@ describe("architecture-draft-readiness", () => {
         ...emptyArchitectureDraftStructuredBrief(),
         confirmedConstraints: [ARCHITECTURE_DRAFT_UNKNOWN_CONFIRM_LABEL],
         confirmedAssumptions: [ARCHITECTURE_DRAFT_UNKNOWN_CONFIRM_LABEL],
-        qualityAttribute: ARCHITECTURE_DRAFT_UNKNOWN_CONFIRM_LABEL,
+        qualityAttribute: "RTO 4 hours",
       },
     };
 
-    const result = validateArchitectureReviewReadiness(withUnknownsOnly, [assertedActor]);
+    const result = validateArchitectureReviewReadiness(unknownLists, [assertedActor]);
 
-    expect(result.isValid).toBe(false);
-    expect(result.blockers).toContain("constraints");
-    expect(result.blockers).toContain("assumptions");
-    expect(result.blockers).toContain("quality-attributes");
+    expect(result.isValid).toBe(true);
+    expect(result.blockers).not.toContain("constraints");
+    expect(result.blockers).not.toContain("assumptions");
   });
 
-  it("allows mixed sentinel and real constraint while still requiring real assumption (TB-2343)", () => {
-    const mixed = {
+  it("blocks review start when only an unknown quality-attribute sentinel is present", () => {
+    const unknownQuality = {
       freeTextIntent: readyOverview,
       businessOutcome: "Reduce cycle time for architecture reviews.",
       systemName: "Claims intake",
       structuredBrief: {
         ...emptyArchitectureDraftStructuredBrief(),
-        confirmedConstraints: [ARCHITECTURE_DRAFT_UNKNOWN_CONFIRM_LABEL, "Private endpoints required"],
-        confirmedAssumptions: [ARCHITECTURE_DRAFT_UNKNOWN_CONFIRM_LABEL],
-        qualityAttribute: "p95 latency 200ms",
+        qualityAttribute: ARCHITECTURE_DRAFT_UNKNOWN_CONFIRM_LABEL,
       },
     };
 
-    const result = validateArchitectureReviewReadiness(mixed, [assertedActor]);
+    const result = validateArchitectureReviewReadiness(unknownQuality, [assertedActor]);
 
     expect(result.isValid).toBe(false);
-    expect(result.blockers).not.toContain("constraints");
-    expect(result.blockers).toContain("assumptions");
+    expect(result.blockers).toEqual(["quality-attributes"]);
   });
 
   it("allows review start with qualitative-only quality attributes", () => {
@@ -128,7 +142,7 @@ describe("architecture-draft-readiness", () => {
     expect(result.blockers).not.toContain("quality-attributes");
   });
 
-  it("blocks review start when only legacy name/overview/outcome minimums are met (TB-2282)", () => {
+  it("blocks a legacy-minimum draft on quality attributes, not constraints or assumptions (TB-2282)", () => {
     const legacyMinimumOnly = {
       freeTextIntent: readyOverview,
       businessOutcome: "Reduce cycle time for architecture reviews.",
@@ -139,8 +153,8 @@ describe("architecture-draft-readiness", () => {
     const result = validateArchitectureReviewReadiness(legacyMinimumOnly, [assertedActor]);
 
     expect(result.isValid).toBe(false);
-    expect(result.blockers).toContain("constraints");
-    expect(result.blockers).toContain("assumptions");
+    expect(result.blockers).not.toContain("constraints");
+    expect(result.blockers).not.toContain("assumptions");
     expect(result.blockers).toContain("quality-attributes");
   });
 

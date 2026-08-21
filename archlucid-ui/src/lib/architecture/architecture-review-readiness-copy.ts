@@ -7,8 +7,6 @@ export type ArchitectureReviewReadinessBlockerId =
   | "system-name"
   | "architecture-overview"
   | "business-outcome"
-  | "constraints"
-  | "assumptions"
   | "confirmed-actor"
   | "quality-attributes";
 
@@ -18,10 +16,6 @@ export const ARCHITECTURE_REVIEW_READINESS_BLOCKER_MESSAGES: Readonly<
   "system-name": "a system name",
   "architecture-overview": `an architecture overview of at least ${GUIDED_INTAKE_ARCHITECTURE_INTENT_MIN_CHARS} characters`,
   "business-outcome": `a business outcome of at least ${MIN_OUTCOME_CHARS} characters`,
-  constraints:
-    "at least one confirmed constraint (replace any “unknown — confirm before review” placeholder first)",
-  assumptions:
-    "at least one confirmed assumption (replace any “unknown — confirm before review” placeholder first)",
   "confirmed-actor": "at least one confirmed person or system in the actor list",
   "quality-attributes":
     "at least one quality attribute (numeric such as RTO 4h or p95 latency 200ms, or qualitative such as defense in depth)",

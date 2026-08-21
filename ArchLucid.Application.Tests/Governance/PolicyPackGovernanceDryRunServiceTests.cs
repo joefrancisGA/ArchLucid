@@ -107,6 +107,73 @@ public sealed class PolicyPackGovernanceDryRunServiceTests
     }
 
     [Fact]
+    public async Task EvaluateAsync_blocks_when_metadata_uses_PascalCase_enforcement_keys()
+    {
+        Guid runGuid = Guid.NewGuid();
+        Guid snapshotId = Guid.NewGuid();
+        InMemoryRunRepository runs = new();
+        await runs.SaveAsync(
+            new RunRecord
+            {
+                RunId = runGuid,
+                TenantId = TestScope.TenantId,
+                WorkspaceId = TestScope.WorkspaceId,
+                ScopeProjectId = TestScope.ProjectId,
+                ProjectId = "default",
+                ArchitectureRequestId = "req-dry-pascal",
+                LegacyRunStatus = "ReadyForCommit",
+                FindingsSnapshotId = snapshotId,
+                CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+            },
+            CancellationToken.None);
+
+        InMemoryFindingsSnapshotRepository findingsRepo = new();
+        await findingsRepo.SaveAsync(
+            new FindingsSnapshot
+            {
+                FindingsSnapshotId = snapshotId,
+                RunId = runGuid,
+                ContextSnapshotId = Guid.NewGuid(),
+                GraphSnapshotId = Guid.NewGuid(),
+                CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+                Findings =
+                [
+                    new Finding
+                    {
+                        FindingId = "f-crit",
+                        FindingType = "Compliance",
+                        Category = "c",
+                        EngineType = "e",
+                        Severity = FindingSeverity.Critical,
+                        Title = "t",
+                        Rationale = "r",
+                    },
+                ],
+            },
+            CancellationToken.None);
+
+        PolicyPackGovernanceDryRunServiceTestsFixture fixture = CreateSut(
+            runs,
+            findingsRepo,
+            new InMemoryGoldenManifestRepository(),
+            Options.Create(new PreCommitGovernanceGateOptions { PreCommitGateEnabled = true }));
+
+        PolicyPackGovernanceDryRunResult? result = await fixture.Sut.EvaluateAsync(
+            """{"metadata":{"BlockCommitOnCritical":"true"},"complianceRuleIds":[],"complianceRuleKeys":[],"alertRuleIds":[],"compositeAlertRuleIds":[],"advisoryDefaults":{}}""",
+            runGuid.ToString("N"),
+            null,
+            null,
+            null,
+            null,
+            CancellationToken.None);
+
+        result.Should().NotBeNull();
+        result!.GateResult.Blocked.Should().BeTrue(
+            "deserialized metadata dictionaries may lose OrdinalIgnoreCase comparer; enforcement keys must still resolve");
+        result.FailedChecks.Should().ContainSingle();
+    }
+
+    [Fact]
     public async Task EvaluateAsync_by_manifest_resolves_run_under_scope()
     {
         Guid runGuid = Guid.NewGuid();
