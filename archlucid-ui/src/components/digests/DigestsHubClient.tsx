@@ -43,10 +43,9 @@ import type { WeeklyDigestHealthDto } from "@/types/operate-rhythm";
 
 import { DigestsAdvisoryScansVocabularyRail } from "@/components/DigestsAdvisoryScansVocabularyRail";
 import { DigestsBrowseScheduleSubscriptionsVocabularyRail } from "@/components/DigestsBrowseScheduleSubscriptionsVocabularyRail";
-import { DigestsNotificationsVocabularyRail } from "@/components/DigestsNotificationsVocabularyRail";
-import { DigestsTeamsSlackVocabularyRail } from "@/components/DigestsTeamsSlackVocabularyRail";
 
 import { DigestsBrowseContent } from "./DigestsBrowseContent";
+import { DigestsRelatedSurfacesRail } from "./DigestsRelatedSurfacesRail";
 import { DigestSubscriptionsContent } from "./DigestSubscriptionsContent";
 import { ExecDigestScheduleContent } from "./ExecDigestScheduleContent";
 import { DigestsHubBreadcrumb } from "./DigestsHubBreadcrumb";
@@ -271,12 +270,7 @@ export function DigestsHubClient(): ReactElement {
         ) : activeTab === "subscriptions" ? (
           <DigestsBrowseScheduleSubscriptionsVocabularyRail currentSurfaceId="subscriptions" />
         ) : (
-          <>
-            <DigestsNotificationsVocabularyRail currentSurfaceId="digests" />
-            <DigestsTeamsSlackVocabularyRail currentSurfaceId="digests" />
-            <DigestsAdvisoryScansVocabularyRail currentSurfaceId="digests" />
-            <DigestsBrowseScheduleSubscriptionsVocabularyRail currentSurfaceId={activeTab} />
-          </>
+          <DigestsRelatedSurfacesRail />
         )}
 
         {activeTab === "schedule" ? (

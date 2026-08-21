@@ -89,13 +89,14 @@ describe("DigestsHubClient buyer-polished shell", () => {
     });
   });
 
-  it("renders schedule-tab buyer chrome with breadcrumb, orientation, and hidden vocabulary rail", async () => {
+  it("renders schedule-tab buyer chrome with orientation and hidden vocabulary rail", async () => {
     searchParams = new URLSearchParams("tab=schedule");
 
     render(<DigestsHubClient />);
 
     expect(await screen.findByText(DIGESTS_PAGE_SUBTITLE_BUYER)).toBeInTheDocument();
-    expect(screen.getByTestId("digests-hub-breadcrumb")).toBeInTheDocument();
+    // TB-2090 removed breadcrumbs system-wide; `OperatorPageHeader.breadcrumb` is ignored.
+    expect(screen.queryByTestId("digests-hub-breadcrumb")).toBeNull();
     expect(screen.getByTestId("digests-schedule-orientation-top")).toBeInTheDocument();
     expect(screen.getByTestId("digests-schedule-sources")).toBeInTheDocument();
     expect(screen.queryByTestId("digests-advisory-scans-vocabulary")).not.toBeInTheDocument();
