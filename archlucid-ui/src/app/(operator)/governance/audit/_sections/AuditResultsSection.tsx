@@ -381,7 +381,7 @@ export function AuditResultsSection(props: AuditResultsSectionProps) {
                         <Link className={OPERATOR_LINK.nav} href="/architecture/reviews/new">
                           Create follow-up review
                         </Link>{" "}
-                        when you need another governed package after completing this sample path.
+                        when you need another export-ready package after completing this sample path.
                       </p>
                     </div>
                   )}

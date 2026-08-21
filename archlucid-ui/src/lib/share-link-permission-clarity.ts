@@ -33,7 +33,7 @@ export const SHARE_LINK_PERMISSION_CLARITY_ROWS: readonly ShareLinkPermissionCla
     id: "canExport",
     label: "Can export",
     detail:
-      "Link recipients cannot create operator deliverables or download sealed review records from the link alone.",
+      "Link recipients cannot create operator deliverables or download Finalized review records from the link alone.",
   },
   {
     id: "vsInvite",

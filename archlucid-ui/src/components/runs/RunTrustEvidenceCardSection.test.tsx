@@ -1,4 +1,4 @@
-﻿import { render, screen, within } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import type { RunTrustEvidenceCard, TrustEvidenceFieldSnapshot } from "@/types/authority";
@@ -234,7 +234,7 @@ describe("RunTrustEvidenceCardSection", () => {
     expect(within(technical).getByText(/\/v1\/architecture\/review\/run-1\/evidence/)).toBeInTheDocument();
   });
 
-  it("buyer-polished shell maps golden manifest labels to sealed review record", () => {
+  it("buyer-polished shell maps golden manifest labels to Finalized review record", () => {
     buyerPolishedMock.mockReturnValue(true);
 
     render(<RunTrustEvidenceCardSection card={card()} runId={RUN_ID} />);

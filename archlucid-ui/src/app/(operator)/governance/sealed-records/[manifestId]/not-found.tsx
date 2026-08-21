@@ -14,7 +14,7 @@ export default function ManifestDetailNotFound() {
         <Link href="/architecture/reviews" className={OPERATOR_LINK.nav}>
           reviews
         </Link>{" "}
-        to reach its sealed review record.
+        to reach its Finalized review record.
       </p>
     </div>
   );

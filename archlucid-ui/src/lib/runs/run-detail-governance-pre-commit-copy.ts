@@ -8,7 +8,7 @@ export const RUN_DETAIL_GOVERNANCE_PRE_COMMIT_PRIMARY_CTA = "Review finalize rea
 
 export const RUN_DETAIL_GOVERNANCE_PRE_COMMIT_SECONDARY_CTA = "View assessment activity";
 
-export const RUN_DETAIL_GOVERNANCE_PRE_COMMIT_APPROVAL_GATE_LABEL = "Approval gate";
+export const RUN_DETAIL_GOVERNANCE_PRE_COMMIT_APPROVAL_GATE_LABEL = "Approval check";
 
 export const RUN_DETAIL_GOVERNANCE_PRE_COMMIT_APPROVAL_GATE_VALUE =
   "Available after you finalize this architecture review and create the finalized review record.";

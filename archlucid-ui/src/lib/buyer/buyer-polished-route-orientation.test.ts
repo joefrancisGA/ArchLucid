@@ -139,7 +139,7 @@ describe("buyerPolishedRouteOrientation", () => {
     expect(buyerPolishedRouteOrientation("/governance/alert-rules")?.line).not.toBe(GOVERNANCE_OVERVIEW_PAGE_LEAD);
   });
 
-  it("returns null for sealed review records list — not governance overview pending-approvals blurb", () => {
+  it("returns null for Finalized review records list — not governance overview pending-approvals blurb", () => {
     expect(buyerPolishedRouteOrientation("/governance/sealed-records")).toBeNull();
     expect(buyerPolishedRouteOrientation("/governance/sealed-records")?.line).not.toBe(GOVERNANCE_OVERVIEW_PAGE_LEAD);
   });

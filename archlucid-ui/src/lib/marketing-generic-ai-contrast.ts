@@ -14,7 +14,7 @@ export const MARKETING_GENERIC_AI_CONTRAST_POINTS: readonly MarketingGenericAiCo
     genericAi: "Chat transcript — no durable review record tied to your tenant",
   },
   {
-    label: "Governance before commit",
+    label: "Approval before finalize",
     archlucid: "Optional approval check blocks policy violations before the review record is canonical",
     genericAi: "No commit boundary — advice is not gated against your policy packs",
   },

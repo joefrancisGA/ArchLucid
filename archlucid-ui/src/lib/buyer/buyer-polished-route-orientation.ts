@@ -184,7 +184,7 @@ export function buyerPolishedRouteOrientation(
     return null;
   }
 
-  // Sealed review records list carries its own OperatorPageHeader subtitle — not governance overview strip.
+  // Finalized review records list carries its own OperatorPageHeader subtitle — not governance overview strip.
   if (path === SIGNED_RECORDS_LIST_PATH) {
     return null;
   }

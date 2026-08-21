@@ -11,7 +11,7 @@ import type { ArchitectureLinkageEdge, ArchitectureLinkageNode } from "@/types/a
 const sampleNodes: ArchitectureLinkageNode[] = [
   { id: "n-ctx", type: "ContextSnapshot", referenceId: "ctx-1", name: "Source context reviewed" },
   { id: "n-find", type: "Finding", referenceId: "f-1", name: "PHI minimization risk" },
-  { id: "n-manifest", type: "GoldenManifest", referenceId: "m-1", name: "Sealed review record" },
+  { id: "n-manifest", type: "GoldenManifest", referenceId: "m-1", name: "Finalized review record" },
 ];
 
 const sampleEdges: ArchitectureLinkageEdge[] = [
@@ -55,7 +55,7 @@ describe("computeProvenanceGraphLayout", () => {
     const nodes: ArchitectureLinkageNode[] = [
       { id: "n-run", type: "run", referenceId: "r-1", name: "Review started" },
       { id: "n-find", type: "Finding", referenceId: "f-1", name: "Risk" },
-      { id: "n-manifest", type: "goldenManifestPointer", referenceId: "m-1", name: "Sealed review record" },
+      { id: "n-manifest", type: "goldenManifestPointer", referenceId: "m-1", name: "Finalized review record" },
     ];
     const layout = computeProvenanceGraphLayout(nodes, sampleEdges);
     const run = layout.nodes.find((node) => node.id === "n-run");

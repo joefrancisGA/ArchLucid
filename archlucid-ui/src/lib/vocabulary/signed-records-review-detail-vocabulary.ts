@@ -1,8 +1,8 @@
 /**
- * TB-2272 — Sealed review records ≠ review detail vocabulary rail.
+ * TB-2272 — Finalized review records ≠ review detail vocabulary rail.
  *
  * Why two surfaces exist:
- * - Sealed review records (`/governance/sealed-records`) is the *inventory* of
+ * - Finalized review records (`/governance/sealed-records`) is the *inventory* of
  *   finalized review records for diligence and governance follow-up.
  * - Review detail (`/architecture/reviews/[reviewId]`) is the *architecture
  *   package* workspace for one review — findings, evidence, and finalize.
@@ -56,7 +56,7 @@ export const SIGNED_RECORDS_REVIEW_DETAIL_REVIEW_DETAIL_LINK: SignedRecordsRevie
   whenToUse: "Open an architecture package workspace for findings, evidence, and finalize.",
 };
 
-/** Pairwise model for Sealed review records ↔ Review detail (fixed routes). */
+/** Pairwise model for Finalized review records ↔ Review detail (fixed routes). */
 export function buildSignedRecordsReviewDetailPairwiseRail(): PairwiseVocabularyRailModel<SignedRecordsReviewDetailSurfaceId> {
   return {
     heading: SIGNED_RECORDS_REVIEW_DETAIL_HEADING,

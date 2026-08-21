@@ -146,8 +146,8 @@ export function GovernanceApprovalLineageDetailContent({ data }: GovernanceAppro
       {data.manifest ? (
         <Card>
           <CardHeader>
-            <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Sealed review record</CardTitle>
-            <CardDescription>Sealed review record associated with this approval</CardDescription>
+            <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Finalized review record</CardTitle>
+            <CardDescription>Finalized review record associated with this approval</CardDescription>
           </CardHeader>
           <CardContent className={cn("grid gap-3", OPERATOR_TYPOGRAPHY.body)}>
             {verificationStatus ? (

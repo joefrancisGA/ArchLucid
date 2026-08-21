@@ -32,7 +32,7 @@ export const GOVERNANCE_MODE_TEACHING_STEPS: readonly GovernanceModeTeachingStep
   {
     id: "labels",
     label: "Labels only",
-    body: `Sidebar groups and review chrome use ${GOVERNANCE_MODE_COPY.toggleLabel.toLowerCase()} vocabulary — for example sealed review record instead of approved design.`,
+    body: `Sidebar groups and review chrome use ${GOVERNANCE_MODE_COPY.toggleLabel.toLowerCase()} vocabulary — for example Finalized review record instead of approved design.`,
   },
   {
     id: "routes",

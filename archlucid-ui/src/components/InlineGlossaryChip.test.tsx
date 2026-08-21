@@ -27,11 +27,11 @@ describe("InlineGlossaryChip", () => {
 
     renderWithTooltip(
       <InlineGlossaryChip nounId="sealed-review-record" pulseOnFirstEncounter={false}>
-        sealed review record
+        Finalized review record
       </InlineGlossaryChip>,
     );
 
-    fireEvent.pointerMove(screen.getByText("sealed review record"));
+    fireEvent.pointerMove(screen.getByText("Finalized review record"));
 
     const tooltip = await screen.findByRole("tooltip");
     expect(tooltip).toHaveTextContent(entry.definition);

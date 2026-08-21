@@ -4,7 +4,7 @@ import type { DeferredChunkManifestEntry } from "@/lib/operator/deferred-chunk-m
 export const SIGNED_RECORDS_LIST_CHUNK_MANIFEST: readonly DeferredChunkManifestEntry[] = [
   {
     id: "signed-records-list-table",
-    label: "Loading sealed review records table",
+    label: "Loading Finalized review records table",
     variant: "section",
     modulePath: "@/app/(operator)/governance/sealed-records/_sections/SignedRecordsListTable",
     exportName: "SignedRecordsListTable",

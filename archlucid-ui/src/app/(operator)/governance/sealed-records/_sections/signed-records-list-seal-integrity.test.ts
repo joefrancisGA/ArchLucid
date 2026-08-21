@@ -30,7 +30,7 @@ describe("signed-records-list-seal-integrity", () => {
   it("marks committed manifests without unresolved issues as sealed", () => {
     expect(deriveSignedRecordsListSealIntegrity(committedManifest)).toEqual({
       kind: "ready",
-      label: "Sealed",
+      label: "Finalized",
     });
   });
 
@@ -55,7 +55,7 @@ describe("signed-records-list-seal-integrity", () => {
       }),
     ).toEqual({
       kind: "ready",
-      label: "Sealed",
+      label: "Finalized",
     });
   });
 });

@@ -79,7 +79,7 @@ describe("usability improvements", () => {
     expect(routeViewExplanationForPathname("/audit")).toBeNull();
   });
 
-  it("canonical product terms use audit trail and sealed review record", () => {
+  it("canonical product terms use audit trail and Finalized review record", () => {
     expect(AUDIT_TRAIL_LABEL).toBe("Audit trail");
     expect(SIGNED_MANIFEST_LABEL).toBe("Finalized review record");
   });

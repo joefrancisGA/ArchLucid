@@ -3,9 +3,9 @@
  *
  * Empty Decision register does not mean the tenant has no reviews or findings.
  * Architecture decisions appear after a review is finalized and decisions are
- * locked with the sealed review record. Findings triage is a different job —
+ * locked with the Finalized review record. Findings triage is a different job —
  * open the findings queue to disposition risks, or start a review to produce
- * a sealed review record that can populate this register.
+ * a Finalized review record that can populate this register.
  */
 
 import { REVIEWS_LIST_PATH, REVIEWS_NEW_PATH } from "@/lib/architecture/architecture-routes";
@@ -34,7 +34,7 @@ export const DECISION_REGISTER_EMPTY_TEACHING_TITLE =
   "No architecture decisions recorded yet" as const;
 
 export const DECISION_REGISTER_EMPTY_TEACHING_BODY =
-  "Finalize a review to lock its sealed review record. Architecture decisions from that package then appear here with findings and evidence lineage." as const;
+  "Finalize a review to lock its Finalized review record. Architecture decisions from that package then appear here with findings and evidence lineage." as const;
 
 export const DECISION_REGISTER_EMPTY_TEACHING_HONESTY =
   "An empty Decision register does not mean the findings queue is empty — triage risks there, then record decisions here after finalize." as const;

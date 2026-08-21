@@ -1,5 +1,5 @@
 /**
- * Sealed review record copy — sections, deliverables, and downloads.
+ * Finalized review record copy — sections, deliverables, and downloads.
  *
  * Re-exported by `./index.ts`; import from `@/lib/buyer/buyer-polish-copy` or `@/lib/buyer-copy`.
  */

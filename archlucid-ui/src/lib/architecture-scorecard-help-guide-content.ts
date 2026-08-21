@@ -33,7 +33,7 @@ export const ARCHITECTURE_SCORECARD_HELP_PAGE_SUBTITLE =
   "Learn what each scorecard tile means and how directional savings are derived before you brief sponsors.";
 
 export const ARCHITECTURE_SCORECARD_HELP_OVERVIEW =
-  "The architecture scorecard shows workspace throughput tiles and a directional review-time savings model for pilot discussions. Savings figures are not financial reporting and not a sealed review record.";
+  "The architecture scorecard shows workspace throughput tiles and a directional review-time savings model for pilot discussions. Savings figures are not financial reporting and not a Finalized review record.";
 
 export const ARCHITECTURE_SCORECARD_HELP_PRIMARY_ACTION = {
   label: "Open architecture scorecard",

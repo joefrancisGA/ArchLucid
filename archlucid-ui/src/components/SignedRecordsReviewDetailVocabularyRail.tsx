@@ -17,7 +17,7 @@ export type SignedRecordsReviewDetailVocabularyRailProps = {
 };
 
 /**
- * TB-2272 — Compact vocabulary rail between Sealed review records inventory and review detail.
+ * TB-2272 — Compact vocabulary rail between Finalized review records inventory and review detail.
  * Mount on signed-records list and RunDetailPageView (compact).
  */
 export function SignedRecordsReviewDetailVocabularyRail(

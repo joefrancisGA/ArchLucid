@@ -65,7 +65,7 @@ export const FIRST_VALUE_20_HELP_PRIMARY_ACTIONS = {
 export const FIRST_VALUE_20_HELP_RELATED_PAGES_TITLE = "Related help pages";
 
 export const FIRST_VALUE_20_HELP_SOURCES_INTRO =
-  "Backing help topics for freshness and scope — not a substitute for sealed review records.";
+  "Backing help topics for freshness and scope — not a substitute for Finalized review records.";
 
 export type FirstValue20HelpSourceLink = {
   readonly label: string;

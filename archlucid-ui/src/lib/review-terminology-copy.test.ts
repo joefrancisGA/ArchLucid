@@ -17,7 +17,7 @@ describe("review terminology copy", () => {
     );
   });
 
-  it("maps golden manifest jargon to sealed review record vocabulary", () => {
+  it("maps golden manifest jargon to Finalized review record vocabulary", () => {
     expect(buyerFacingManifestTerminology("Golden manifest snapshot")).toBe(
       `${SIGNED_MANIFEST_LABEL} snapshot`,
     );
@@ -29,7 +29,7 @@ describe("review terminology copy", () => {
     );
   });
 
-  it("maps signed decision record package synonym to sealed review record", () => {
+  it("maps signed decision record package synonym to Finalized review record", () => {
     expect(buyerFacingManifestTerminology("Open the signed decision record")).toBe(
       `Open the ${SIGNED_MANIFEST_LABEL}`,
     );

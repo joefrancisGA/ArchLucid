@@ -72,7 +72,7 @@ export function SignedRecordsListToolbar(props: SignedRecordsListToolbarProps): 
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">{SIGNED_RECORDS_LIST_FILTER_ALL_INTEGRITY}</SelectItem>
-            <SelectItem value="sealed">Sealed</SelectItem>
+            <SelectItem value="sealed">Finalized</SelectItem>
             <SelectItem value="needs-attention">Needs attention</SelectItem>
             <SelectItem value="unavailable">Record unavailable</SelectItem>
           </SelectContent>

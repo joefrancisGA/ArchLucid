@@ -57,7 +57,7 @@ export const FIRST_PILOT_OPERATING_RAIL_STEPS: FirstPilotOperatingRailStepDefini
   {
     id: "finalize-package",
     title: "Finalize the review",
-    shortBody: "Finalize the sealed review record on review detail to lock artifacts and exports.",
+    shortBody: "Finalize the Finalized review record on review detail to lock artifacts and exports.",
     primaryHref: "/architecture/reviews",
     primaryLabel: "Finalize on review detail",
     troubleshootHelpSlug: "governance-approval",

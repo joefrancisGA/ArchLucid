@@ -672,7 +672,7 @@ export function PolicyRuleAuthoringWizard(props: PolicyRuleAuthoringWizardProps)
             disabled={canPublishAfterTest}
           />
           <span>
-            Allow publish without a successful in-wizard test (not recommended when the pre-commit gate would block).
+            Allow publish without a successful in-wizard test (not recommended when the approval check would block).
           </span>
         </label>
 

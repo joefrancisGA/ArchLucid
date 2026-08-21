@@ -204,7 +204,7 @@ describe("HelpGlossaryPageView", () => {
     expect(screen.queryByTestId("glossary-letter-index")).not.toHaveTextContent("M");
   });
 
-  it("shows deprecated aliases for sealed review record without using Signed manifest as the label", () => {
+  it("shows deprecated aliases for Finalized review record without using Signed manifest as the label", () => {
     if (entry === undefined) {
       throw new Error("Expected glossary documentation entry.");
     }
