@@ -40,4 +40,23 @@ describe("SpecimenDeliverablePreviewCallout", () => {
       showcaseSpecimenFindingsHref(),
     );
   });
+
+  it("renders inline header links for returning tenants on reviews/new", () => {
+    render(
+      <p>
+        Optional cloud hint
+        <SpecimenDeliverablePreviewCallout variant="header-links" sectionTestId="reviews-new-specimen-preview" />
+      </p>,
+    );
+
+    expect(screen.getByTestId("reviews-new-specimen-preview-primary-link")).toHaveAttribute(
+      "href",
+      showcaseSpecimenSignedReviewRecordHref(),
+    );
+    expect(screen.getByTestId("reviews-new-specimen-preview-findings-link")).toHaveAttribute(
+      "href",
+      showcaseSpecimenFindingsHref(),
+    );
+    expect(screen.queryByRole("heading", { name: REVIEWS_NEW_SPECIMEN_PREVIEW_TITLE })).not.toBeInTheDocument();
+  });
 });
