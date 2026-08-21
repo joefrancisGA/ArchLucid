@@ -1,7 +1,7 @@
 "use client";
 
 import { Label } from "@/components/ui/label";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_FORM_FIELD_LABEL_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 type IntakeFieldLabelProps = {
@@ -27,7 +27,7 @@ function intakeFieldLabelSuffix(required: boolean): React.JSX.Element {
 
 /** Field label that states required/optional inline, so the operator never has to infer it. */
 export function IntakeFieldLabel(props: IntakeFieldLabelProps): React.JSX.Element {
-  const className = "font-semibold text-neutral-900 dark:text-neutral-100";
+  const className = OPERATOR_FORM_FIELD_LABEL_CLASS;
 
   if (props.asLegend === true) {
     return (

@@ -297,12 +297,12 @@ describe("SocraticIntakeWizard", () => {
       "placeholder",
       GUIDED_INTAKE_BUSINESS_OUTCOME_PLACEHOLDER,
     );
-    expect(screen.getByLabelText("Architecture intent (required)")).toBeInTheDocument();
+    expect(screen.getByLabelText("Architecture Intent (required)")).toBeInTheDocument();
     expect(screen.getByTestId("socratic-intent-helper")).toHaveTextContent(
       GUIDED_INTAKE_ARCHITECTURE_INTENT_MIN_HELPER,
     );
     expect(screen.getByRole("button", { name: GUIDED_INTAKE_CONTINUE_TO_CLARIFICATIONS })).toBeDisabled();
-    expect(screen.getByText(/step 1 of 3/i)).toBeInTheDocument();
+    expect(screen.getByTestId(WIZARD_STICKY_PROGRESS_TEST_ID)).toHaveTextContent(/step 1 of 3/i);
     const stickyChrome = screen.getByTestId(WIZARD_STICKY_PROGRESS_TEST_ID);
     expect(stickyChrome.className).toContain("sticky");
     expect(screen.getByRole("button", { name: GUIDED_INTAKE_CONTINUE_TO_CLARIFICATIONS })).toBeInTheDocument();
@@ -371,7 +371,7 @@ describe("SocraticIntakeWizard", () => {
       expect(admitDraftRequest).toHaveBeenCalledWith("draft-1");
     });
 
-    expect(screen.getByText(/step 2 of 3/i)).toBeInTheDocument();
+    expect(screen.getByTestId(WIZARD_STICKY_PROGRESS_TEST_ID)).toHaveTextContent(/step 2 of 3/i);
     expect(screen.getByTestId("draft-intake-reasoning-stub")).toBeInTheDocument();
     expect(screen.getByTestId("draft-intake-advanced-stub")).toBeInTheDocument();
     expect(screen.getByTestId("draft-intake-what-if-stub")).toBeInTheDocument();
@@ -458,7 +458,7 @@ describe("SocraticIntakeWizard", () => {
       );
     });
 
-    fireEvent.change(screen.getByLabelText(sampleQuestion.prompt), {
+    fireEvent.change(screen.getByRole("textbox", { name: /how is data protected/i }), {
       target: { value: "Encrypt data at rest and in transit." },
     });
     fireEvent.click(screen.getByTestId("socratic-save-and-continue"));
@@ -546,7 +546,7 @@ describe("SocraticIntakeWizard", () => {
       expect(screen.getByTestId("socratic-question")).toBeInTheDocument();
     });
 
-    fireEvent.change(screen.getByLabelText(sampleQuestion.prompt), {
+    fireEvent.change(screen.getByRole("textbox", { name: /how is data protected/i }), {
       target: { value: "Encrypt data at rest and in transit." },
     });
 

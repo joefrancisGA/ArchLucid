@@ -204,7 +204,7 @@ describe("DraftIntakeRequiredClarificationField", () => {
     expect(screen.queryByRole("textbox")).not.toBeInTheDocument();
     expect(screen.getByTestId("socratic-cloud-target-select")).toBeInTheDocument();
     expect(screen.getByTestId("socratic-cloud-target-control-hint")).toBeInTheDocument();
-    expect(screen.getByLabelText(cloudTargetQuestion.prompt)).toBeInTheDocument();
+    expect(screen.getByRole("combobox", { name: /which cloud provider/i })).toBeInTheDocument();
 
     fireEvent.click(screen.getByTestId("socratic-cloud-target-select"));
 

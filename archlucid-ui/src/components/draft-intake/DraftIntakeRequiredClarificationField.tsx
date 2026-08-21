@@ -72,7 +72,6 @@ export function DraftIntakeRequiredClarificationField(
   const controlId = clarificationControlId(props.question.questionKey);
   const labelId = `${controlId}-label`;
   const saveLabel = showAllMode ? GUIDED_INTAKE_SAVE_ANSWER_LABEL : GUIDED_INTAKE_SAVE_AND_CONTINUE_LABEL;
-  const saveVariant = showAllMode ? "outline" : "outline";
 
   return (
     <fieldset
@@ -175,7 +174,7 @@ export function DraftIntakeRequiredClarificationField(
         <Button
           type="button"
           size={actionSize}
-          variant={saveVariant}
+          variant="outline"
           disabled={props.busy || props.canSaveAndContinue !== true}
           onClick={() => {
             props.onSaveAndContinue(props.question.questionKey);

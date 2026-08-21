@@ -1,15 +1,11 @@
-import { useEffect, type JSX } from "react";
+import type { JSX } from "react";
 
 import type { ArchitectureScopeUnderstandingCheckPanelProps } from "@/components/architecture/ArchitectureScopeUnderstandingCheckPanel";
 
-/** Opens the TB-2176 scope gate immediately and exposes the confirm control intake wizard tests click. */
+/** Exposes the confirm control intake wizard tests click; gate stays closed until confirm. */
 export function ArchitectureScopeUnderstandingCheckPanelVitestMock(
   props: ArchitectureScopeUnderstandingCheckPanelProps,
 ): JSX.Element {
-  useEffect(() => {
-    props.onGateChange?.(true);
-  }, [props.onGateChange]);
-
   return (
     <button
       type="button"
