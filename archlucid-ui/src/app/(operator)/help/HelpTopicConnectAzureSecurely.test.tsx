@@ -187,7 +187,7 @@ describe("HelpConnectAzureSecurelyGuideView", () => {
       "href",
       "/integrations/cloud-connections/azure",
     );
-    expect(screen.getAllByRole("link", { name: "Configure Azure connection" })[0]).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "Configure Azure connection" })).toHaveAttribute(
       "href",
       "/integrations/cloud-connections/azure",
     );

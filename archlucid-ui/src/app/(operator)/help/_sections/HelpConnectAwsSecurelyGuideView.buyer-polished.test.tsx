@@ -27,9 +27,6 @@ import {
   CONNECT_AWS_SECURELY_CLAIM_DISCIPLINE_HEADING,
 } from "@/lib/connect-aws-securely-help-evidence-copy";
 import {
-  CONNECT_AWS_SECURELY_CONFIGURE_ACTION_FOOTER,
-} from "@/lib/connect-aws-securely-help-content";
-import {
   CONNECT_AWS_SECURELY_HELP_PRIMARY_CONTENT_ID,
   CONNECT_AWS_SECURELY_HELP_SKIP_LINK_LABEL,
 } from "@/lib/connect-aws-securely-help-page-copy";
@@ -70,8 +67,5 @@ describe("HelpConnectAwsSecurelyGuideView buyer-polished shell", () => {
 
     expect(primaryContent).toContainElement(orientation);
     expect(orientation.compareDocumentPosition(body) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-
-    expect(screen.getByRole("link", { name: CONNECT_AWS_SECURELY_CONFIGURE_ACTION_FOOTER })).toBeInTheDocument();
-    expect(screen.getByTestId("connect-aws-configure-action-footer")).toBeInTheDocument();
   });
 });

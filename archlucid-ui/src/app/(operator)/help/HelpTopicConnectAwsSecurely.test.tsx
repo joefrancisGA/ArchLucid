@@ -195,10 +195,6 @@ describe("HelpConnectAwsSecurelyGuideView", () => {
       "href",
       "/integrations/cloud-connections/aws",
     );
-    expect(screen.getByTestId("connect-aws-configure-action-footer")).toHaveAttribute(
-      "href",
-      "/integrations/cloud-connections/aws",
-    );
   });
 
   it("avoids internal taxonomy and jargon in primary copy", () => {
