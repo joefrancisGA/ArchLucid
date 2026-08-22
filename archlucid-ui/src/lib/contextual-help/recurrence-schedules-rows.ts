@@ -25,6 +25,11 @@ const RECURRENCE_SCHEDULES_HUB_CONTEXTUAL_HELP = {
     label: "Manage recurrence schedules",
     href: RECURRENCE_SCHEDULES_MANAGE_PATH,
   },
+  taskSteps: [
+    "Create a schedule from a finalized architecture review.",
+    "Set cadence and monitor last-run health on this page.",
+    "Follow cloned reviews through approval workflow when required.",
+  ],
 } as const;
 
 export const RECURRENCE_SCHEDULES_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] = [

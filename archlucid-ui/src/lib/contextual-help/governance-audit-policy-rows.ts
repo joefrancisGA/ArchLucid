@@ -21,6 +21,11 @@ const GOVERNANCE_POLICY_PACKS_HUB_CONTEXTUAL_HELP = {
   whyEmpty: "Packs appear after the library is populated for this workspace.",
   whereToConfigurePrerequisite:
     "Policy packs respect the workspace and project selected in the header switcher.",
+  taskSteps: [
+    "Open a pack to inspect rules and version history.",
+    "Compare packs in the library before applying one to reviews.",
+    "Apply a pack when starting or updating a review baseline.",
+  ],
 } as const;
 
 const GOVERNANCE_AUDIT_HUB_CONTEXTUAL_HELP = {
@@ -31,6 +36,11 @@ const GOVERNANCE_AUDIT_HUB_CONTEXTUAL_HELP = {
   whyEmpty: "Events appear after architects take actions that the audit coverage matrix records.",
   whereToConfigurePrerequisite:
     "Audit retention and export privileges follow workspace role and enterprise controls.",
+  taskSteps: [
+    "Filter by review or action type to narrow the trail.",
+    "Refresh the trail before exporting for auditors.",
+    "Open the related architecture review when context is missing.",
+  ],
 } as const;
 
 export const GOVERNANCE_AUDIT_POLICY_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] = [

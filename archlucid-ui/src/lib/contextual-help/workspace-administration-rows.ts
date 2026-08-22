@@ -57,6 +57,11 @@ export const WORKSPACE_ADMINISTRATION_CONTEXTUAL_HELP_ROWS: readonly PageContext
       whyEmpty: "Directory rows appear after invitations are accepted or users are provisioned for this tenant.",
       whereToConfigurePrerequisite:
         "SSO and identity-provider mapping may be required before enterprise users can sign in.",
+      taskSteps: [
+        "Invite teammates who need access to this workspace.",
+        "Open Roles and permissions to adjust authority.",
+        "Configure SSO when enterprise users cannot sign in yet.",
+      ],
     },
   },
   {

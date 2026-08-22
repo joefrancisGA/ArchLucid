@@ -30,6 +30,16 @@ const SEARCH_REVIEW_EVIDENCE_HUB_CONTEXTUAL_HELP = {
 
   whereToConfigurePrerequisite: "Finalize reviews so findings and finalized review records are available to search.",
 
+  taskSteps: [
+
+    "Enter a phrase and optionally limit results to one review.",
+
+    "Open a hit to read the supporting evidence chunk.",
+
+    "Follow Evidence trail or Sources before briefing sponsors.",
+
+  ],
+
 } as const;
 
 

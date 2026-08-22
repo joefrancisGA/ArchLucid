@@ -21,6 +21,11 @@ export const ENTERPRISE_ONBOARDING_CONTEXTUAL_HELP_ROWS: readonly PageContextual
         "Summary cards load after auth diagnostics respond; local development sign-in may be enabled until production SSO is configured.",
       whereToConfigurePrerequisite:
         "Changing federation settings needs Admin authority and a verified sign-in domain when enforcement is required.",
+      taskSteps: [
+        "Review federation status on the overview cards.",
+        "Open SAML or OIDC setup when the provider is not configured.",
+        "Validate role mapping before inviting shared users.",
+      ],
     },
   },
   {
