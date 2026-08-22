@@ -179,14 +179,14 @@ export function RunDetailWorkspaceSummaryStrip(
   return (
     <section
       id="review-summary"
-      className="scroll-mt-24 rounded-lg border border-neutral-200 bg-al-surface-raised p-4 dark:border-neutral-800"
+      className="scroll-mt-24 rounded-lg border border-neutral-200 bg-al-surface-raised p-3 dark:border-neutral-800"
       data-testid="run-detail-workspace-summary"
       aria-label="Decision snapshot"
     >
-      <h2 className={cn("m-0 mb-3 text-base font-semibold text-neutral-900 dark:text-neutral-100")}>
+      <h2 className={cn("m-0 mb-2 text-base font-semibold text-neutral-900 dark:text-neutral-100")}>
         Decision snapshot
       </h2>
-      <dl className={cn("m-0 grid gap-3 sm:grid-cols-2 lg:grid-cols-3", OPERATOR_TYPOGRAPHY.body)}>
+      <dl className={cn("m-0 grid gap-2 sm:grid-cols-2 lg:grid-cols-3", OPERATOR_TYPOGRAPHY.body)}>
         <div>
           <dt className="text-neutral-500 dark:text-neutral-400">{props.outcomeHeading}</dt>
           <dd className="m-0 mt-0.5 font-semibold text-neutral-900 dark:text-neutral-100">{props.reviewOutcome}</dd>

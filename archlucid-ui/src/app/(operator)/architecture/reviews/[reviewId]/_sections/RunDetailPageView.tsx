@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_PAGE_CONTAINER, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { GovernanceModePresentationGate } from "@/components/governance/GovernanceModePresentationGate";
+import { OperatorRelatedSurfacesDisclosure } from "@/components/operator/OperatorRelatedSurfacesDisclosure";
 import { SignedRecordsReviewDetailVocabularyRail } from "@/components/SignedRecordsReviewDetailVocabularyRail";
 import { ArchitectureIntelligenceReviewToolStrip } from "@/components/ArchitectureIntelligenceReviewToolStrip";
 import { detectStalledReview } from "@/lib/usability/stalled-review-detection";
@@ -483,19 +484,13 @@ export async function RunDetailPageView(props: {
         />
       </RunDetailWorkspaceDisclosureProvider>
 
-      <details
-        className="rounded-lg border border-neutral-200 dark:border-neutral-800"
-        data-testid="review-detail-related-surfaces-disclosure"
-      >
-        <summary className={cn("cursor-pointer px-4 py-2", OPERATOR_TYPOGRAPHY.cardTitle)}>Related surfaces</summary>
-        <div className="space-y-3 border-t border-neutral-200 px-4 py-3 dark:border-neutral-800">
-          <ArchitectureIntelligenceReviewToolStrip
-            runId={m.resolvedDetail.run.runId}
-            currentSurfaceId="review-workspace"
-          />
-          <SignedRecordsReviewDetailVocabularyRail currentSurfaceId="review-detail" />
-        </div>
-      </details>
+      <OperatorRelatedSurfacesDisclosure testId="review-detail-related-surfaces-disclosure">
+        <ArchitectureIntelligenceReviewToolStrip
+          runId={m.resolvedDetail.run.runId}
+          currentSurfaceId="review-workspace"
+        />
+        <SignedRecordsReviewDetailVocabularyRail currentSurfaceId="review-detail" />
+      </OperatorRelatedSurfacesDisclosure>
 
       {showArchitectureCreatedHome ? (
         <>

@@ -2,6 +2,7 @@ import { cn } from "@/lib/utils";
 
 import Link from "next/link";
 
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { StatusTag } from "@/components/StatusTag";
 import { HelpTopicPdfDownloadButton } from "@/components/help/HelpTopicPdfDownloadButton";
@@ -220,7 +221,7 @@ function SecurityTrustRelatedSurfacesDisclosure() {
 /** Procurement-oriented trust center (operator shell). */
 export function OperatorSecurityTrustPageView() {
   return (
-    <div className={OPERATOR_LAYOUT.sectionStack} data-testid="operator-security-trust-page">
+    <OperatorPageContainer variant="settings" className={OPERATOR_LAYOUT.sectionStack} data-testid="operator-security-trust-page">
       <OperatorPageHeader
         navHref={OPERATOR_SECURITY_TRUST_PAGE_NAV_HREF}
         title={OPERATOR_NAV_LINK_LABELS.securityTrust}
@@ -367,6 +368,6 @@ export function OperatorSecurityTrustPageView() {
       </section>
 
       <SecurityTrustRelatedSurfacesDisclosure />
-    </div>
+    </OperatorPageContainer>
   );
 }
