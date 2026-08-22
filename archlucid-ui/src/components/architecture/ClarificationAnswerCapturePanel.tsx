@@ -94,7 +94,6 @@ export function ClarificationAnswerCapturePanel(
               const draft = await createDraftRequest(
                 `Follow-up clarifications for review ${props.runId}`,
                 "start-review",
-                props.runId,
               );
               await patchDraftRequest(draft.draftId, {
                 structuredBrief: structuredBriefToPatchPayload({
@@ -104,7 +103,7 @@ export function ClarificationAnswerCapturePanel(
               });
               const submitted = await submitDraftRequest(draft.draftId);
               trackReviewPipelineInFlight(submitted.runId);
-              window.location.assign(buildReviewGenerationRedirect(submitted.runId));
+              window.location.assign(buildReviewGenerationRedirect(submitted.runId, "socratic-intake"));
             } catch (error) {
               showError(error instanceof Error ? error.message : "Could not submit clarifications.");
             } finally {
