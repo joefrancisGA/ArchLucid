@@ -21,6 +21,11 @@ const ARCHITECTURE_SCORECARD_HUB_CONTEXTUAL_HELP = {
     label: "Open baseline settings",
     href: "/administration/baseline",
   },
+  taskSteps: [
+    "Finalize reviews so throughput tiles populate for this workspace.",
+    "Tune ROI assumptions when sponsors ask how savings are estimated.",
+    "Open ROI summary when you need an exportable sponsor view.",
+  ],
 } as const;
 
 export const ARCHITECTURE_SCORECARD_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] = [
