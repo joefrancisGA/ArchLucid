@@ -62,6 +62,11 @@ export const ARCHITECTURE_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[]
         "Recent drafts appear after the architectures API responds; empty lists mean no drafts are saved yet.",
       whereToConfigurePrerequisite:
         "Drafting uses the workspace and project selected in the header switcher; creating a draft does not start a review.",
+      taskSteps: [
+        "Start a new draft or resume a recent saved brief.",
+        "Complete required architecture fields before saving.",
+        "Open Start a review when the brief is ready for evidence intake.",
+      ],
     },
   },
   {
