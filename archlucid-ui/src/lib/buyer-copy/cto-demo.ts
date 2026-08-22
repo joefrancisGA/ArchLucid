@@ -201,7 +201,7 @@ export const BUYER_CTO_DEMO_LATENCY_EXCEEDED = "Taking longer than expected — 
 export const BUYER_CTO_DEMO_AUDIT_CLOSING_HEADING = "Your diligence bundle is ready.";
 
 export const BUYER_CTO_DEMO_AUDIT_CLOSING_SUBTEXT =
-  "Download the board packet — a PDF summary of findings, decisions, and the governance record — to share with your sponsor or procurement team.";
+  "Download the board packet — a PDF summary of findings, decisions, and the policy record — to share with your sponsor or procurement team.";
 
 export const BUYER_CTO_DEMO_NEXT_STEPS_HEADING = "Next steps";
 

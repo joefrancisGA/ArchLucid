@@ -20,6 +20,11 @@ export const INSIGHTS_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] = [
         label: "Open Improvement planning",
         href: PLANNING_PATH,
       },
+      taskSteps: [
+        "Review plan status and linked themes.",
+        "Return to Improvement planning for peer plans.",
+        "Open reviews or findings when follow-up work is needed.",
+      ],
     },
   },
   {

@@ -24,3 +24,10 @@ export type PageContextualHelpRow = {
   readonly prefix: string;
   readonly entry: PageContextualHelpEntry;
 };
+
+/** Default drawer steps for `/help/*` mirror rows that orient architects to live settings hubs. */
+export const HELP_TOPIC_MIRROR_TASK_STEPS = [
+  "Open the live destination from the primary CTA.",
+  "Use Sources when this orientation must be cited.",
+  "Return to the hub when live configuration is required.",
+] as const satisfies readonly string[];

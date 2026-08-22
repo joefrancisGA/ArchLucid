@@ -32,6 +32,11 @@ const PROJECTS_RECYCLE_BIN_CONTEXTUAL_HELP = {
     "Empty means no soft-deleted projects remain in the retention window, or the recycle-bin API has not returned rows yet.",
   whereToConfigurePrerequisite:
     "Browsing needs Admin access; restore requires Execute authority. Retention and workspace scope live under Workspace settings.",
+  taskSteps: [
+    "Refresh the list of soft-deleted projects.",
+    "Restore a project when the name is free and you have Execute authority.",
+    "Open Architectures or Workspace settings to continue work.",
+  ],
 } as const;
 
 export const WORKSPACE_SETTINGS_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] = [

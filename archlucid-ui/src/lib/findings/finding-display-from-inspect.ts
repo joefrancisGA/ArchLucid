@@ -183,7 +183,7 @@ export function findingDetailLeadSentence(payload: FindingInspectPayload): strin
 
   if (area !== undefined && area.length > 0) {
     if (isBuyerPolishedOperatorShellEnv()) {
-      return `Recorded risk observation for ${area}. Residual disposition and monitoring cadence are documented in the governance record.`;
+      return `Recorded risk observation for ${area}. Residual disposition and monitoring cadence are documented in the policy record.`;
     }
 
     return `Outcome focuses on ${area}. Review evidence and the recommended action before closing or escalating.`;

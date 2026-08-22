@@ -124,7 +124,7 @@ export function buildSponsorPlainEnglishFinding(
   }
 
   parts.push(
-    "Share only with the linked evidence and governance record; this wording does not add proof.",
+    "Share only with the linked evidence and policy record; this wording does not add proof.",
   );
 
   return {

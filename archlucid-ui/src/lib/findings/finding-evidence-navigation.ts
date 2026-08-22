@@ -7,7 +7,7 @@ export const FINDING_EVIDENCE_TRACE_LEGACY_SEGMENT = "inspect";
 export const EVIDENCE_TRACE_PAGE_TITLE = "Evidence Trace";
 
 export const EVIDENCE_TRACE_PAGE_SUBTITLE =
-  "Inspect the policy, evidence, reasoning, audit linkage, and governance record supporting this finding.";
+  "Inspect the policy, evidence, reasoning, audit linkage, and approval record supporting this finding.";
 
 /** Finding detail page — parent surface of the evidence trace drill-down. */
 export function getFindingDetailHref(runId: string, findingId: string): string {
