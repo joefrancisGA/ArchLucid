@@ -13,6 +13,11 @@ export const ARCHITECTURE_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[]
       whatToDoNext: "Start a review, resume a draft, or explore a sample workspace.",
       whyEmpty: "Recent reviews and metrics appear after you create or finalize architecture reviews.",
       whereToConfigurePrerequisite: "Switch workspace or project scope from the header switcher when you work across teams.",
+      taskSteps: [
+        "Start a review when you have a system to evaluate.",
+        "Resume a draft if a brief is already in progress.",
+        "Switch workspace or project from the header when you work across teams.",
+      ],
     },
   },
   {

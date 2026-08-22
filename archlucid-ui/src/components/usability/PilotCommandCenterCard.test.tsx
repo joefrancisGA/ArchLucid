@@ -198,7 +198,7 @@ describe("PilotCommandCenterCard", () => {
       OPERATOR_NAV_LINK_LABELS.home,
     );
     fireEvent.click(screen.getByTestId("page-contextual-help-button"));
-    expect(screen.getByTestId("page-scoped-contextual-help-learn-more")).toHaveAttribute(
+    expect(await screen.findByTestId("page-scoped-contextual-help-learn-more")).toHaveAttribute(
       "href",
       "/help/first-architecture-review",
     );

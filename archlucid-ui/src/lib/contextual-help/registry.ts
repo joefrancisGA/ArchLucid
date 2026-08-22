@@ -1,6 +1,7 @@
 /**
- * Page-scoped context-sensitive help (Category 1 IA taxonomy) — short answers to up to four
- * questions per operator route. Long-form guides remain on `/help/{slug}` via `page-help-topic-map.ts`.
+ * Page-scoped context-sensitive help (Category 1 IA taxonomy) — short answers plus optional
+ * task steps per operator route, shown in the page-header help drawer.
+ * Long-form guides remain on `/help/{slug}` via `page-help-topic-map.ts`.
  *
  * Rows live in per-domain modules; this file only aggregates and resolves them.
  */

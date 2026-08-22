@@ -1,7 +1,11 @@
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
-import { PageScopedContextualHelpPanel } from "@/components/usability/PageScopedContextualHelpPanel";
+import {
+  OPEN_FULL_HELP_PAGE_LABEL,
+  PageScopedContextualHelpPanel,
+  pageHelpDrawerSectionDomId,
+} from "@/components/usability/PageScopedContextualHelpPanel";
 import type { PageContextualHelpEntry } from "@/lib/contextual-help-registry";
 
 const FULL_ENTRY: PageContextualHelpEntry = {
@@ -17,6 +21,7 @@ const FULL_ENTRY: PageContextualHelpEntry = {
     label: "Open Schedule tab",
     href: "/architecture/digests?tab=schedule",
   },
+  taskSteps: ["Complete the first step.", "Then finish the second step."],
 };
 
 const MINIMAL_ENTRY: PageContextualHelpEntry = {
@@ -37,7 +42,7 @@ function pressTrigger(): HTMLElement {
 }
 
 describe("PageScopedContextualHelpPanel", () => {
-  it("renders available fields and the learn more link", async () => {
+  it("renders available fields, task steps, and the full-help link in a right drawer", async () => {
     render(
       <PageScopedContextualHelpPanel
         entry={FULL_ENTRY}
@@ -48,11 +53,17 @@ describe("PageScopedContextualHelpPanel", () => {
 
     pressTrigger();
 
-    expect(await screen.findByTestId("page-scoped-contextual-help-panel")).toBeInTheDocument();
+    const panel = await screen.findByTestId("page-scoped-contextual-help-panel");
+
+    expect(panel.className).toMatch(/inset-y-0/);
+    expect(panel.className).toMatch(/right-0/);
+    expect(panel).toHaveAttribute("aria-modal", "false");
     expect(screen.getByText("Short page summary.")).toBeInTheDocument();
     expect(screen.getByText("Do the next thing.")).toBeInTheDocument();
     expect(screen.getByText("Empty because nothing happened yet.")).toBeInTheDocument();
     expect(screen.getByText("Configure prerequisites in settings UI.")).toBeInTheDocument();
+    expect(screen.getByText("Complete the first step.")).toBeInTheDocument();
+    expect(screen.getByText("Then finish the second step.")).toBeInTheDocument();
 
     const nextAction = screen.getByTestId("page-scoped-contextual-help-next-action");
 
@@ -65,6 +76,7 @@ describe("PageScopedContextualHelpPanel", () => {
     const learnMore = screen.getByTestId("page-scoped-contextual-help-learn-more");
 
     expect(learnMore).toHaveAttribute("href", "/help/review-packages");
+    expect(learnMore).toHaveTextContent(OPEN_FULL_HELP_PAGE_LABEL);
   });
 
   it("keeps field headings medium and primary after helper token merge", async () => {
@@ -96,8 +108,29 @@ describe("PageScopedContextualHelpPanel", () => {
 
     expect(screen.queryByText("Why is this empty?")).not.toBeInTheDocument();
     expect(screen.queryByText("Where to configure")).not.toBeInTheDocument();
+    expect(screen.queryByText("How to do this")).not.toBeInTheDocument();
     expect(screen.queryByTestId("page-scoped-contextual-help-learn-more")).not.toBeInTheDocument();
     expect(screen.queryByTestId("page-scoped-contextual-help-next-action")).not.toBeInTheDocument();
+  });
+
+  it("shows a generic fallback when the page has no Category-1 answers", async () => {
+    render(
+      <PageScopedContextualHelpPanel
+        entry={null}
+        triggerLabel="Reviews"
+        learnMoreHref="/help/review-packages"
+      />,
+    );
+
+    pressTrigger();
+
+    await screen.findByTestId("page-scoped-contextual-help-panel");
+
+    expect(screen.getByText("Open the full help page for guidance on this screen.")).toBeInTheDocument();
+    expect(screen.getByTestId("page-scoped-contextual-help-learn-more")).toHaveAttribute(
+      "href",
+      "/help/review-packages",
+    );
   });
 
   it("keeps the full topic in the accessible name when short trigger text is set", () => {
@@ -132,10 +165,11 @@ describe("PageScopedContextualHelpPanel", () => {
 
     pressTrigger();
 
-    const panel = await screen.findByRole("dialog", { name: /page help/i });
+    const panel = await screen.findByRole("dialog", { name: "Reviews" });
 
     expect(trigger).toHaveAttribute("aria-expanded", "true");
-    expect(trigger).toHaveAttribute("aria-controls", panel.getAttribute("id") as string);
+    expect(panel).toHaveAttribute("aria-label", "Help: Reviews");
+    expect(panel).toBeInTheDocument();
   });
 
   it("does not open on hover, because the panel carries focusable deep links", () => {
@@ -200,5 +234,68 @@ describe("PageScopedContextualHelpPanel", () => {
     await waitFor(() => {
       expect(document.activeElement).toBe(trigger);
     });
+  });
+
+  it("does not reset sibling form state when opened or closed", async () => {
+    render(
+      <form>
+        <label htmlFor="draft-name">Draft name</label>
+        <input id="draft-name" defaultValue="Keep me" />
+        <PageScopedContextualHelpPanel
+          entry={MINIMAL_ENTRY}
+          triggerLabel="Reviews"
+          learnMoreHref="/help/review-packages"
+        />
+      </form>,
+    );
+
+    const input = screen.getByLabelText("Draft name");
+
+    fireEvent.change(input, { target: { value: "Unsaved brief" } });
+    pressTrigger();
+
+    await screen.findByTestId("page-scoped-contextual-help-panel");
+
+    expect(input).toHaveValue("Unsaved brief");
+
+    act(() => {
+      fireEvent.keyDown(document, { key: "Escape", code: "Escape" });
+    });
+
+    await waitFor(() => {
+      expect(screen.queryByTestId("page-scoped-contextual-help-panel")).not.toBeInTheDocument();
+    });
+
+    expect(input).toHaveValue("Unsaved brief");
+  });
+
+  it("scrolls the requested section into view when the drawer opens", async () => {
+    const scrollIntoView = vi.fn();
+    const originalScrollIntoView = Element.prototype.scrollIntoView;
+
+    Element.prototype.scrollIntoView = scrollIntoView;
+
+    try {
+      render(
+        <PageScopedContextualHelpPanel
+          entry={FULL_ENTRY}
+          triggerLabel="Reviews"
+          learnMoreHref="/help/review-packages"
+          sectionId="what-to-do-next"
+        />,
+      );
+
+      pressTrigger();
+
+      await screen.findByTestId("page-scoped-contextual-help-panel");
+
+      expect(document.getElementById(pageHelpDrawerSectionDomId("what-to-do-next"))).toBeInTheDocument();
+
+      await waitFor(() => {
+        expect(scrollIntoView).toHaveBeenCalled();
+      });
+    } finally {
+      Element.prototype.scrollIntoView = originalScrollIntoView;
+    }
   });
 });

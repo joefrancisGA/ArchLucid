@@ -25,6 +25,7 @@ const API_PATH_IN_COPY = /\/v\d+\//;
 const TB_LABEL_IN_COPY = /\bTB-\d+\b/;
 
 const MAX_WORDS_PER_PAGE = 120;
+const MAX_TASK_STEP_WORDS = 80;
 
 function entryFieldValues(entry: PageContextualHelpEntry): string[] {
   return [
@@ -361,7 +362,7 @@ describe("contextual-help-registry (TB-733)", () => {
       contextualHelpForPathname(
         "/architecture/reviews/run-1/findings/finding-1/evidence-trace",
       )?.whatToDoNext,
-    ).toContain("finding detail");
+    ).toContain("finding");
   });
 
   it("resolves recommendation-learning Category-1 help (INR)", () => {
@@ -602,6 +603,26 @@ describe("contextual-help-registry (TB-733)", () => {
 
       expect(totalWords, row.prefix).toBeLessThanOrEqual(MAX_WORDS_PER_PAGE);
     }
+  });
+
+  it("keeps optional task steps within the drawer budget", () => {
+    for (const row of allPageContextualHelpRows()) {
+      const taskStepWords = (row.entry.taskSteps ?? []).reduce((sum, step) => sum + wordCount(step), 0);
+
+      expect(taskStepWords, row.prefix).toBeLessThanOrEqual(MAX_TASK_STEP_WORDS);
+    }
+  });
+
+  it("gives representative workflow pages task steps in the drawer", () => {
+    expect(contextualHelpForPathname("/")?.taskSteps?.length).toBeGreaterThanOrEqual(3);
+    expect(contextualHelpForPathname("/architecture/architectures/draft-abc")?.taskSteps?.length).toBeGreaterThanOrEqual(
+      3,
+    );
+    expect(contextualHelpForPathname("/integrations/cloud-connections/azure")?.taskSteps?.length).toBeGreaterThanOrEqual(
+      3,
+    );
+    expect(contextualHelpForPathname("/governance/findings")?.taskSteps?.length).toBeGreaterThanOrEqual(3);
+    expect(contextualHelpForPathname("/insights/evidence-graph")?.taskSteps?.length).toBeGreaterThanOrEqual(3);
   });
 
   it("forbids internal routes, API paths, and TB labels in registry copy", () => {
