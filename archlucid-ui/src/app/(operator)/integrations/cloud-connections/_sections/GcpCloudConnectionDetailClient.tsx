@@ -2,7 +2,6 @@
 
 import { EvidenceOrientationClaimAndSourcesStrip } from "@/components/evidence-orientation/EvidenceOrientationClaimAndSourcesStrip";
 import { EVIDENCE_SOURCES_STYLE } from "@/components/evidence-orientation/evidence-orientation-styles";
-import { Button } from "@/components/ui/button";
 import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { StatusTag } from "@/components/ui/status-tag";
 import { GCP_WIF_STARTER_IDENTITY_INTRO } from "@/lib/gcp-cloud-connection-wif-starter";
@@ -57,21 +56,11 @@ function GcpCloudConnectionHeaderStatus(): React.ReactElement {
 }
 
 function GcpCloudConnectionPageHeader(): React.ReactElement {
-  const { connections, isLoading, loadError } = useGcpConnectionData();
-  const showConnectPrimary = !isLoading && loadError === null && connections.length === 0;
-
   return (
     <CloudConnectionsProviderHeader
       providerLabel="GCP"
       overview="Read-only Cloud Asset Inventory through Workload Identity Federation."
       statusBadge={<GcpCloudConnectionHeaderStatus />}
-      primaryAction={
-        showConnectPrimary ? (
-          <Button asChild variant="primary" data-testid="gcp-connection-header-connect">
-            <a href="#connection-details">Connect GCP project</a>
-          </Button>
-        ) : undefined
-      }
     />
   );
 }

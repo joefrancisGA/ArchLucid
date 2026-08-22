@@ -7,8 +7,6 @@ import { EVIDENCE_SOURCES_STYLE } from "@/components/evidence-orientation/eviden
 
 import { EvidenceOrientationClaimAndSourcesStrip } from "@/components/evidence-orientation/EvidenceOrientationClaimAndSourcesStrip";
 
-import { Button } from "@/components/ui/button";
-
 import { StatusTag } from "@/components/ui/status-tag";
 
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
@@ -104,41 +102,13 @@ function AzureCloudConnectionHeaderStatus(): React.ReactElement {
 
 
 function AzureCloudConnectionPageHeader(): React.ReactElement {
-
-  const { connections, isLoading, loadError } = useAzureConnectionData();
-
-  const showConnectPrimary = !isLoading && loadError === null && connections.length === 0;
-
-
-
   return (
-
     <CloudConnectionsProviderHeader
-
       providerLabel="Azure"
-
       overview="Read-only subscription inventory and cost metadata through federated service principal access."
-
       statusBadge={<AzureCloudConnectionHeaderStatus />}
-
-      primaryAction={
-
-        showConnectPrimary ? (
-
-          <Button asChild variant="primary" data-testid="azure-connection-header-connect">
-
-            <a href="#connection-details">Connect Azure subscription</a>
-
-          </Button>
-
-        ) : undefined
-
-      }
-
     />
-
   );
-
 }
 
 

@@ -74,8 +74,7 @@ describe("AwsCloudConnectionDetailClient", () => {
       expect(screen.getByTestId("aws-connection-header-status")).toHaveTextContent("Not connected");
     });
 
-    expect(screen.getByTestId("aws-connection-header-connect")).toHaveTextContent("Connect AWS account");
-    expect(screen.getByTestId("aws-connection-header-connect")).toHaveAttribute("href", "#connection-details");
+    expect(screen.queryByTestId("aws-connection-header-connect")).not.toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Recent connection activity" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "View setup guide" })).toHaveAttribute(
       "href",
@@ -88,7 +87,7 @@ describe("AwsCloudConnectionDetailClient", () => {
     );
     expect(screen.getByTestId("cloud-connections-aws-sources")).toBeInTheDocument();
     const sources = screen.getByTestId("cloud-connections-aws-sources");
-    expect(within(sources).getByRole("link", { name: "Connection status" })).toHaveAttribute(
+    expect(within(sources).getByRole("link", { name: "Open Connection status" })).toHaveAttribute(
       "href",
       "/administration/connection-status",
     );
