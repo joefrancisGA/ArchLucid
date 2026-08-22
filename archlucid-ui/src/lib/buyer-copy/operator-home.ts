@@ -126,12 +126,12 @@ export const OPERATOR_HOME_COMPACT_STARTING_ACTIONS_HEADING = "Start another rev
 
 /**
  * Bold lead label on Overview subtitle (buyer-polished shell).
- * ADR 0067 — the pair is co-equal, so this lead must not number the paths or rank one above the other.
+ * ADR 0067 — two co-equal jobs (create vs review); create inputs below are combinable, not counted here.
  */
 export const OPERATOR_HOME_ARCHITECTURE_LIFECYCLE_INTRO_LABEL = "Two ways in:";
 
 export const OPERATOR_HOME_ARCHITECTURE_LIFECYCLE_INTRO_BODY =
-  "Create an architecture from a description, uploaded evidence, or connected cloud inventory — or review an architecture you already have.";
+  "Create an architecture from any combination of description, uploaded evidence, and connected cloud inventory — or review an architecture you already have.";
 
 export const OPERATOR_HOME_ARCHITECTURE_LIFECYCLE_INTRO =
   `${OPERATOR_HOME_ARCHITECTURE_LIFECYCLE_INTRO_LABEL} ${OPERATOR_HOME_ARCHITECTURE_LIFECYCLE_INTRO_BODY}`;
@@ -139,7 +139,7 @@ export const OPERATOR_HOME_ARCHITECTURE_LIFECYCLE_INTRO =
 export const OPERATOR_HOME_CREATE_ARCHITECTURE_CARD_TITLE = "Create architecture";
 
 export const OPERATOR_HOME_CREATE_ARCHITECTURE_CARD_BODY =
-  "Describe a new architecture, upload briefs and diagrams, or connect read-only cloud inventory from Azure, AWS, or Google Cloud. It produces an architecture draft you can revise, then review when ready.";
+  "Describe a new architecture, upload briefs and diagrams, and connect read-only cloud inventory from AWS, Azure, or Google Cloud — in any combination. It produces an architecture draft you can revise, then review when ready.";
 
 export const OPERATOR_HOME_REVIEW_ARCHITECTURE_CARD_TITLE = "Review architecture";
 
@@ -242,7 +242,7 @@ export function resolveOperatorHomeHeroHeading(hasWorkspaceActivity: boolean): s
 }
 
 export const PILOT_COMMAND_CENTER_LEAD =
-  "Create an architecture review from a design brief, uploaded evidence, or an optional cloud connection.";
+  "Create an architecture review from any combination of design brief, uploaded evidence, and connected cloud inventory.";
 
 /** Hero bridge copy when the tenant has no runs — zero-setup evaluation first. */
 export const PILOT_FIRST_HOUR_NO_RUN_BRIDGE_COPY =
@@ -299,7 +299,7 @@ export const OPERATOR_HOME_SETUP_STATUS_OPTIONAL = "Optional";
 export const OPERATOR_HOME_CONNECT_CLOUD_TITLE = "Connect cloud environment";
 
 export const OPERATOR_HOME_CONNECT_CLOUD_BODY =
-  "Import architecture evidence from Azure, AWS, or Google Cloud.";
+  "Import architecture evidence from AWS, Azure, or Google Cloud.";
 
 /** Primary CTA on home Step 1 for the cloud-as-architecture path. */
 export const OPERATOR_HOME_CONNECT_CLOUD_CTA = OPERATOR_HOME_CONNECT_CLOUD_TITLE;

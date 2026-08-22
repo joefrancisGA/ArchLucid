@@ -7,6 +7,7 @@ import { ReviewsHubHeaderActions } from "@/app/(operator)/architecture/reviews/_
 import { Button } from "@/components/ui/button";
 import {
   OPERATOR_HOME_ARCHITECTURE_LIFECYCLE_INTRO,
+  OPERATOR_HOME_ARCHITECTURE_LIFECYCLE_INTRO_BODY,
   OPERATOR_HOME_CREATE_ARCHITECTURE_CARD_BODY,
   OPERATOR_HOME_CREATE_ARCHITECTURE_CARD_TITLE,
   OPERATOR_HOME_INTENT_CHOOSER_HEADING,
@@ -86,6 +87,14 @@ function countPrimaryActions(container: HTMLElement): number {
  * opposite contract (`Step 1` / `Step 2` prefixes and a `One lifecycle` lead).
  */
 describe("ADR 0067 — Create architecture / Review peer parity", () => {
+  it("states that create inputs can be combined — not mutually exclusive paths", () => {
+    expect(OPERATOR_HOME_ARCHITECTURE_LIFECYCLE_INTRO_BODY).toMatch(/any combination/i);
+    expect(OPERATOR_HOME_CREATE_ARCHITECTURE_CARD_BODY).toMatch(/any combination/i);
+    expect(OPERATOR_HOME_ARCHITECTURE_LIFECYCLE_INTRO_BODY).not.toMatch(
+      /description, uploaded evidence, or connected cloud inventory/i,
+    );
+  });
+
   it("keeps ordinal and funnel framing off the pair", () => {
     expect(OPERATOR_HOME_CREATE_ARCHITECTURE_CARD_TITLE).not.toMatch(ORDINAL_STEP_PREFIX);
     expect(OPERATOR_HOME_REVIEW_ARCHITECTURE_CARD_TITLE).not.toMatch(ORDINAL_STEP_PREFIX);
