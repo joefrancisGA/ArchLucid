@@ -240,6 +240,11 @@ export const HELP_TOPIC_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] =
       whyEmpty: "This guide is always available; review metrics appear after you create or finalize reviews.",
       whereToConfigurePrerequisite:
         "Choose a workspace in the header scope switcher before starting a real (non-sample) review.",
+      taskSteps: [
+        "Choose workspace scope in the header switcher.",
+        "Start a review or open the sample walkthrough.",
+        "Use Choose your next step when your goal is not first-run intake.",
+      ],
     },
   },
   {
@@ -252,6 +257,11 @@ export const HELP_TOPIC_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] =
       whyEmpty: "This guide is always available; live dependency status appears on System health.",
       whereToConfigurePrerequisite:
         "Confirm workspace scope in the header switcher before diagnosing tenant-specific failures.",
+      taskSteps: [
+        "Open System health for dependency status.",
+        "Download a support bundle when logs are needed.",
+        "Open the matching common-issue card for your symptom.",
+      ],
     },
   },
   {
@@ -264,6 +274,11 @@ export const HELP_TOPIC_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] =
       whyEmpty: "This guide is always available; live inbox and rules appear after reviews raise alerts.",
       whereToConfigurePrerequisite:
         "Alert delivery often needs channel integrations configured under Integrations.",
+      taskSteps: [
+        "Open the alerts inbox for active notifications.",
+        "Review Alert rules conditions and destinations.",
+        "Configure integrations when delivery channels are missing.",
+      ],
     },
   },
   {
@@ -335,6 +350,11 @@ export const HELP_TOPIC_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] =
       whyEmpty: "This guide is always available; live pilot outcomes appear after reviews and sponsor reports exist.",
       whereToConfigurePrerequisite:
         "Running a pilot needs a workspace where architects can create and finalize architecture reviews.",
+      taskSteps: [
+        "Prepare workspace scope and reviewer access.",
+        "Start an architecture review for pilot evidence.",
+        "Open Your first architecture review for step-by-step guidance.",
+      ],
     },
   },
   {
@@ -347,6 +367,11 @@ export const HELP_TOPIC_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] =
       whyEmpty: "This guide is always available; live architecture reviews appear after you create them.",
       whereToConfigurePrerequisite:
         "Creating reviews needs a role that can start architecture reviews in this workspace.",
+      taskSteps: [
+        "Start an architecture review from the primary CTA.",
+        "Complete intake and verify evidence before finalize.",
+        "Open the sample review when you want a completed outcome first.",
+      ],
     },
   },
   {
