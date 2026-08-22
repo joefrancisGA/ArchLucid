@@ -15,7 +15,6 @@ import { OperatorHomeDualPathCards } from "@/components/operator-home/OperatorHo
 import { OperatorHomeWorkspaceMetricsSummary } from "@/components/operator-home/OperatorHomeWorkspaceMetricsSummary";
 import { useOperatorHomeWorkspaceActivity } from "@/components/operator-home/operator-home-workspace-activity-context";
 import { Button } from "@/components/ui/button";
-import { StatusTag } from "@/components/ui/status-tag";
 import { FirstPilotOperateUnlockVocabularyRail } from "@/components/FirstPilotOperateUnlockVocabularyRail";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import type { OperatorHomeRunsDashboardModel } from "@/app/(operator)/_sections/operator-home-runs-dashboard-model";
@@ -272,7 +271,6 @@ export function PilotCommandCenterCard(props: PilotCommandCenterCardProps = {}):
             <p className={cn("m-0", OPERATOR_TYPE_SCALE.micro, "text-al-text-secondary")}>
               {OPERATOR_HOME_DRAFT_ARCHITECTURE_EYEBROW}
             </p>
-            <StatusTag kind="draft" label="Draft" data-testid="operator-home-draft-status-tag" />
             {draftLastEditedLabel !== null ? (
               <p className={cn("m-0", OPERATOR_TYPE_SCALE.micro, "text-al-text-secondary")}>
                 {draftLastEditedLabel}
