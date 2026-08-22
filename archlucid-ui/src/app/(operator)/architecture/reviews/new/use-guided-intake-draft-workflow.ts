@@ -23,6 +23,10 @@ import {
   structuredBriefToPatchPayload,
   type ArchitectureDraftStructuredBriefState,
 } from "@/lib/architecture/architecture-draft-structured-brief";
+import {
+  buildArchitectureDraftRegistryEntry,
+  upsertArchitectureDraftRegistryEntry,
+} from "@/lib/architecture/architecture-draft-registry";
 import { recordArchitectureCreationHandoff } from "@/lib/architecture/architecture-creation-handoff";
 import { writeArchitectureCreationDraftId } from "@/lib/architecture/architecture-creation-session";
 import {
@@ -313,6 +317,8 @@ export function useGuidedIntakeDraftWorkflow(options: GuidedIntakeDraftWorkflowO
       await refreshQuestions(id);
       setViewAllClarifications(false);
       setStep(1);
+      const admittedDraft = await getDraftRequest(id);
+      upsertArchitectureDraftRegistryEntry(buildArchitectureDraftRegistryEntry(admittedDraft));
       showSuccess(GUIDED_INTAKE_READINESS_SUCCESS_TOAST);
     } catch (error) {
       setSubmitError(error);
@@ -449,6 +455,10 @@ export function useGuidedIntakeDraftWorkflow(options: GuidedIntakeDraftWorkflowO
 
     try {
       const result = await submitDraftRequest(draftId);
+      const submittedDraft = await getDraftRequest(draftId);
+      upsertArchitectureDraftRegistryEntry(
+        buildArchitectureDraftRegistryEntry(submittedDraft, { linkedReviewId: result.runId }),
+      );
       recordFirstTenantFunnelEvent("first_run_started");
       trackReviewPipelineInFlight(result.runId);
       clearSession();

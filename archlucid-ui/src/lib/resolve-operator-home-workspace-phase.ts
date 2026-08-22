@@ -8,9 +8,14 @@ import {
   OPERATOR_HOME_COMMAND_CENTER_TAGLINE,
   formatOperatorHomeContinueArchitectureLead,
   formatOperatorHomeContinueDraftHeading,
+  formatOperatorHomePastDraftingLead,
   OPERATOR_HOME_INTENT_CHOOSER_HEADING,
   OPERATOR_HOME_WORKSPACE_OVERVIEW_HEADING,
 } from "@/lib/buyer/buyer-polish-copy";
+import {
+  isArchitectureDraftPastDraftingOnRegistryEntry,
+  resolveOperatorHomeLatestDraftPrimaryAction,
+} from "@/lib/operator-home-latest-draft-primary-action";
 
 export type OperatorHomeLifecyclePath =
   | "explore-completed-review"
@@ -96,6 +101,7 @@ export function resolveOperatorHomeRequiresAttention(
 
 export function resolveOperatorHomeLifecycleEmphasizedPath(
   phase: OperatorHomeWorkspacePhase,
+  latestDraft?: ArchitectureDraftRegistryEntry | null,
 ): OperatorHomeLifecyclePath | null {
   if (phase === "eval-empty") {
     return "explore-completed-review";
@@ -106,6 +112,14 @@ export function resolveOperatorHomeLifecycleEmphasizedPath(
   }
 
   if (phase === "eval-with-drafts") {
+    if (
+      latestDraft !== null &&
+      latestDraft !== undefined &&
+      isArchitectureDraftPastDraftingOnRegistryEntry(latestDraft)
+    ) {
+      return "review-architecture";
+    }
+
     return "create-architecture";
   }
 
@@ -116,14 +130,23 @@ export function resolveOperatorHomePhaseHeroCopy(
   phase: OperatorHomeWorkspacePhase,
   signals: OperatorHomeWorkspacePhaseSignals,
   latestDraftDisplayName?: string | null,
+  latestDraft?: ArchitectureDraftRegistryEntry | null,
 ): OperatorHomePhaseHeroCopy {
   const requiresAttention = resolveOperatorHomeRequiresAttention(signals);
 
   if (phase === "eval-with-drafts") {
+    const displayName = latestDraftDisplayName ?? "";
+    const pastDrafting =
+      latestDraft !== null &&
+      latestDraft !== undefined &&
+      isArchitectureDraftPastDraftingOnRegistryEntry(latestDraft);
+
     return {
       phase,
-      heading: formatOperatorHomeContinueDraftHeading(latestDraftDisplayName ?? ""),
-      lead: formatOperatorHomeContinueArchitectureLead(signals.draftCount),
+      heading: formatOperatorHomeContinueDraftHeading(displayName),
+      lead: pastDrafting
+        ? formatOperatorHomePastDraftingLead(displayName)
+        : formatOperatorHomeContinueArchitectureLead(signals.draftCount),
       requiresAttention,
     };
   }
@@ -161,11 +184,5 @@ export function resolveLatestArchitectureDraftHref(
     return null;
   }
 
-  const architectureId = entries[0]?.architectureId?.trim() ?? "";
-
-  if (architectureId.length === 0) {
-    return null;
-  }
-
-  return `/architecture/architectures/${encodeURIComponent(architectureId)}`;
+  return resolveOperatorHomeLatestDraftPrimaryAction(entries[0])?.href ?? null;
 }

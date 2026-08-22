@@ -22,8 +22,8 @@ import { useOperatorHomeEmptyDoThisNextAction } from "@/hooks/use-operator-home-
 import {
   OPERATOR_HOME_COMMAND_CENTER_TAGLINE,
   OPERATOR_HOME_DRAFT_ARCHITECTURE_EYEBROW,
-  OPERATOR_HOME_RESUME_LATEST_DRAFT_CTA,
 } from "@/lib/buyer/buyer-polish-copy";
+import { resolveOperatorHomeLatestDraftPrimaryAction } from "@/lib/operator-home-latest-draft-primary-action";
 import {
   OPERATOR_CARD,
   OPERATOR_LAYOUT,
@@ -162,13 +162,16 @@ export function PilotCommandCenterCard(props: PilotCommandCenterCardProps = {}):
 
   const workspacePhase = resolveOperatorHomeWorkspacePhase(phaseSignals);
   const latestDraft = draftEntries[0] ?? null;
-  const resumeHref = resolveLatestArchitectureDraftHref(draftEntries);
+  const latestDraftPrimary = resolveOperatorHomeLatestDraftPrimaryAction(latestDraft);
+  const resumeHref = latestDraftPrimary?.href ?? null;
+  const resumeCtaLabel = latestDraftPrimary?.ctaLabel ?? "Resume latest draft";
   const heroCopy = resolveOperatorHomePhaseHeroCopy(
     workspacePhase,
     phaseSignals,
     latestDraft?.displayName ?? null,
+    latestDraft,
   );
-  const emphasizedPath = resolveOperatorHomeLifecycleEmphasizedPath(workspacePhase);
+  const emphasizedPath = resolveOperatorHomeLifecycleEmphasizedPath(workspacePhase, latestDraft);
   const draftLastEditedLabel =
     latestDraft?.lastUpdatedUtc !== undefined && latestDraft.lastUpdatedUtc.trim().length > 0
       ? formatRunHomeListUpdatedLabel({
@@ -216,8 +219,8 @@ export function PilotCommandCenterCard(props: PilotCommandCenterCardProps = {}):
     >
       <div className="heroHeader space-y-3">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-          <div className="min-w-0 space-y-3">
-            {showLeadCopy ? (
+          <div className="min-w-0 space-y-1">
+            {showLeadCopy && workspacePhase !== "eval-with-drafts" ? (
               <p
                 className={cn("m-0", OPERATOR_TYPE_SCALE.helper, "text-al-text-secondary")}
                 data-testid="pilot-command-center-tagline"
@@ -228,7 +231,32 @@ export function PilotCommandCenterCard(props: PilotCommandCenterCardProps = {}):
             <OperatorHomeCardSectionTitle id="pilot-command-center-heading">
               {heroCopy.heading}
             </OperatorHomeCardSectionTitle>
+            {workspacePhase === "eval-with-drafts" ? (
+              <>
+                <p
+                  className={cn("m-0", OPERATOR_TYPE_SCALE.micro, "text-al-text-secondary")}
+                  data-testid="operator-home-draft-hero-labels"
+                >
+                  {draftLastEditedLabel !== null
+                    ? `${OPERATOR_HOME_DRAFT_ARCHITECTURE_EYEBROW} — ${draftLastEditedLabel}`
+                    : OPERATOR_HOME_DRAFT_ARCHITECTURE_EYEBROW}
+                </p>
+                <p
+                  className={cn("m-0", OPERATOR_TYPE_SCALE.helper, "text-al-text-secondary")}
+                  data-testid="operator-home-resume-draft-bridge"
+                >
+                  {heroCopy.lead}
+                </p>
+              </>
+            ) : null}
           </div>
+          {workspacePhase === "eval-with-drafts" && resumeHref !== null ? (
+            <Button asChild variant="primary" size="sm" className={cn(heroCtaButtonClass, "shrink-0")}>
+              <Link href={resumeHref} data-testid="operator-home-resume-draft-primary">
+                {resumeCtaLabel}
+              </Link>
+            </Button>
+          ) : null}
           {showContextualHelp ? (
             <div className="shrink-0" data-testid="pilot-command-center-help">
               <PageContextualHelpButton />
@@ -266,40 +294,10 @@ export function PilotCommandCenterCard(props: PilotCommandCenterCardProps = {}):
       ) : null}
 
       {workspacePhase === "eval-with-drafts" ? (
-        <div className={cn("space-y-4", OPERATOR_LAYOUT.inlineGap)}>
-          <p
-            className={cn("m-0", OPERATOR_TYPE_SCALE.micro, "text-al-text-secondary")}
-            data-testid="operator-home-draft-hero-labels"
-          >
-            {draftLastEditedLabel !== null
-              ? `${OPERATOR_HOME_DRAFT_ARCHITECTURE_EYEBROW} — ${draftLastEditedLabel}`
-              : OPERATOR_HOME_DRAFT_ARCHITECTURE_EYEBROW}
-          </p>
-          {resumeHref !== null ? (
-            <div
-              className={cn(
-                "flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between",
-                OPERATOR_LAYOUT.inlineGap,
-              )}
-            >
-              <p
-                className={cn("m-0", OPERATOR_TYPE_SCALE.helper, "text-al-text-secondary")}
-                data-testid="operator-home-resume-draft-bridge"
-              >
-                {heroCopy.lead}
-              </p>
-              <Button asChild variant="primary" size="sm" className={cn(heroCtaButtonClass, "shrink-0")}>
-                <Link href={resumeHref} data-testid="operator-home-resume-draft-primary">
-                  {OPERATOR_HOME_RESUME_LATEST_DRAFT_CTA}
-                </Link>
-              </Button>
-            </div>
-          ) : null}
-          <OperatorHomeDualPathCards
-            emphasizedPath={emphasizedPath}
-            pagePrimaryOwnedElsewhere={resumeHref !== null}
-          />
-        </div>
+        <OperatorHomeDualPathCards
+          emphasizedPath={emphasizedPath}
+          pagePrimaryOwnedElsewhere={resumeHref !== null}
+        />
       ) : null}
 
       {workspacePhase === "active-reviews" ? (

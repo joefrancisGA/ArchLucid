@@ -4,7 +4,7 @@ import {
   customerFacingArchitectureDraftTitle,
 } from "@/lib/architecture/architecture-draft-status";
 import { architectureDraftSpawnedRunId } from "@/lib/architecture/architecture-draft-handoff-gate";
-import type { DraftRequestResponse } from "@/types/draft-intake";
+import type { DraftRequestResponse, DraftRequestStatus } from "@/types/draft-intake";
 
 const STORAGE_KEY = "archlucid_architecture_draft_registry_v1";
 
@@ -16,6 +16,8 @@ export type ArchitectureDraftRegistryEntry = {
   readonly lastUpdatedUtc: string;
   readonly linkedReviewId: string | null;
   readonly serverUpdatedUtc: string;
+  /** Server lifecycle from the last registry upsert — drives home resume vs review routing. */
+  readonly serverDraftStatus?: DraftRequestStatus;
 };
 
 type ArchitectureDraftRegistrySnapshot = {
@@ -69,7 +71,7 @@ function architectureDraftRegistrySignature(entries: readonly ArchitectureDraftR
   return entries
     .map(
       (entry) =>
-        `${entry.architectureId}:${entry.lastUpdatedUtc}:${entry.customerStatus}:${entry.linkedReviewId ?? ""}:${entry.displayName}:${entry.ownerLabel}`,
+        `${entry.architectureId}:${entry.lastUpdatedUtc}:${entry.customerStatus}:${entry.linkedReviewId ?? ""}:${entry.serverDraftStatus ?? ""}:${entry.displayName}:${entry.ownerLabel}`,
     )
     .join("|");
 }
@@ -151,6 +153,35 @@ export function removeArchitectureDraftRegistryEntry(architectureId: string): vo
   });
 }
 
+function deriveRegistryCustomerStatus(
+  draft: DraftRequestResponse,
+  options: {
+    readonly customerStatus?: ArchitectureDraftCustomerStatus;
+    readonly linkedReviewId?: string | null;
+  },
+): ArchitectureDraftCustomerStatus {
+  if (options.customerStatus === "archived") {
+    return "archived";
+  }
+
+  const linkedReviewId = options.linkedReviewId ?? architectureDraftSpawnedRunId(draft);
+
+  if (linkedReviewId !== null) {
+    return "ready-for-review";
+  }
+
+  if (
+    draft.status === "Admitted" ||
+    draft.status === "Submitted" ||
+    draft.status === "RunSpawned" ||
+    draft.status === "Redirected"
+  ) {
+    return "ready-for-review";
+  }
+
+  return options.customerStatus ?? "draft";
+}
+
 export function buildArchitectureDraftRegistryEntry(
   draft: DraftRequestResponse,
   options: {
@@ -159,13 +190,16 @@ export function buildArchitectureDraftRegistryEntry(
     readonly linkedReviewId?: string | null;
   } = {},
 ): ArchitectureDraftRegistryEntry {
+  const linkedReviewId = options.linkedReviewId ?? architectureDraftSpawnedRunId(draft);
+
   return {
     architectureId: draft.draftId,
     displayName: architectureDraftDisplayName(draft.document.systemName, draft.document.freeTextIntent),
-    customerStatus: options.customerStatus ?? "draft",
+    customerStatus: deriveRegistryCustomerStatus(draft, options),
     ownerLabel: options.ownerLabel ?? "You",
     lastUpdatedUtc: draft.updatedUtc,
-    linkedReviewId: options.linkedReviewId ?? architectureDraftSpawnedRunId(draft),
+    linkedReviewId,
     serverUpdatedUtc: draft.updatedUtc,
+    serverDraftStatus: draft.status,
   };
 }

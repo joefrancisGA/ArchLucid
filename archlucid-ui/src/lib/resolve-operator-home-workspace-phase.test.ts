@@ -114,6 +114,21 @@ describe("resolveOperatorHomeLifecycleEmphasizedPath", () => {
     expect(resolveOperatorHomeLifecycleEmphasizedPath("active-reviews")).toBe("review-architecture");
     expect(resolveOperatorHomeLifecycleEmphasizedPath("operational")).toBeNull();
   });
+
+  it("emphasizes review when the latest draft is already in intake", () => {
+    expect(
+      resolveOperatorHomeLifecycleEmphasizedPath("eval-with-drafts", {
+        architectureId: "draft-001",
+        displayName: "Vertex",
+        customerStatus: "draft",
+        ownerLabel: "You",
+        lastUpdatedUtc: "2026-01-02T00:00:00.000Z",
+        linkedReviewId: null,
+        serverUpdatedUtc: "2026-01-02T00:00:00.000Z",
+        serverDraftStatus: "Submitted",
+      }),
+    ).toBe("review-architecture");
+  });
 });
 
 describe("resolveOperatorHomeRequiresAttention", () => {
@@ -158,6 +173,30 @@ describe("resolveOperatorHomePhaseHeroCopy", () => {
     expect(copy.heading).toBe("Continue your architecture");
   });
 
+  it("uses past-drafting lead when the latest draft is already in intake", () => {
+    const copy = resolveOperatorHomePhaseHeroCopy(
+      "eval-with-drafts",
+      {
+        ...baseSignals,
+        draftCount: 1,
+      },
+      "Vertex",
+      {
+        architectureId: "draft-001",
+        displayName: "Vertex",
+        customerStatus: "ready-for-review",
+        ownerLabel: "You",
+        lastUpdatedUtc: "2026-01-02T00:00:00.000Z",
+        linkedReviewId: null,
+        serverUpdatedUtc: "2026-01-02T00:00:00.000Z",
+        serverDraftStatus: "Submitted",
+      },
+    );
+
+    expect(copy.lead).toContain("Vertex");
+    expect(copy.lead).toContain("review intake");
+  });
+
   it("uses active-review copy when reviews are in flight", () => {
     const copy = resolveOperatorHomePhaseHeroCopy("active-reviews", {
       ...baseSignals,
@@ -189,5 +228,24 @@ describe("resolveLatestArchitectureDraftHref", () => {
     ];
 
     expect(resolveLatestArchitectureDraftHref(entries)).toBe("/architecture/architectures/draft-001");
+  });
+
+  it("routes submitted drafts to scoped review intake", () => {
+    const entries: ArchitectureDraftRegistryEntry[] = [
+      {
+        architectureId: "draft-001",
+        displayName: "Vertex",
+        customerStatus: "ready-for-review",
+        ownerLabel: "You",
+        lastUpdatedUtc: "2026-01-02T00:00:00.000Z",
+        linkedReviewId: null,
+        serverUpdatedUtc: "2026-01-02T00:00:00.000Z",
+        serverDraftStatus: "Submitted",
+      },
+    ];
+
+    expect(resolveLatestArchitectureDraftHref(entries)).toBe(
+      "/architecture/reviews/new?path=guided-intake&sourceArchitectureId=draft-001",
+    );
   });
 });

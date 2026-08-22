@@ -4,6 +4,7 @@ import { architectureDraftPath, reviewDetailPath, REVIEWS_NEW_PATH } from "@/lib
 import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer/buyer-facing-review-title";
 import { isShowcaseStaticDemoRunId } from "@/lib/demo-run-canonical";
 import { SHOWCASE_BUYER_REVIEW_TITLE } from "@/lib/showcase-static-demo";
+import { resolveOperatorHomeLatestDraftPrimaryAction } from "@/lib/operator-home-latest-draft-primary-action";
 import {
   readWizardSessionSnapshot,
   WIZARD_SESSION_IDS,
@@ -160,11 +161,13 @@ function buildDraftItems(
           ? UNFINISHED_WORK_RAIL_STATUS_LABELS["architecture-draft"]
           : ARCHITECTURE_DRAFT_STATUS_LABELS[entry.customerStatus];
 
+      const draftPrimary = resolveOperatorHomeLatestDraftPrimaryAction(entry);
+
       return {
         id: `architecture-draft:${entry.architectureId}`,
         kind: "architecture-draft" as const,
         title: entry.displayName.trim().length > 0 ? entry.displayName : "Untitled architecture",
-        href: architectureDraftPath(entry.architectureId),
+        href: draftPrimary?.href ?? architectureDraftPath(entry.architectureId),
         statusLabel,
         updatedUtc: entry.lastUpdatedUtc,
       };

@@ -248,6 +248,32 @@ describe("PilotCommandCenterCard", () => {
     expect(screen.queryByTestId("operator-home-do-this-next")).toBeNull();
   });
 
+  it("routes submitted drafts to scoped review intake from home", () => {
+    vi.mocked(useArchitectureDraftRegistryEntries).mockReturnValue([
+      {
+        architectureId: "draft-vertex",
+        displayName: "Vertex",
+        customerStatus: "ready-for-review",
+        ownerLabel: "You",
+        lastUpdatedUtc: "2026-01-01T00:00:00.000Z",
+        linkedReviewId: null,
+        serverUpdatedUtc: "2026-01-01T00:00:00.000Z",
+        serverDraftStatus: "Submitted",
+      },
+    ]);
+
+    renderWithOperatorQuery(<PilotCommandCenterCard />);
+
+    expect(screen.getByTestId("operator-home-resume-draft-primary")).toHaveAttribute(
+      "href",
+      "/architecture/reviews/new?path=guided-intake&sourceArchitectureId=draft-vertex",
+    );
+    expect(screen.getByTestId("operator-home-resume-draft-primary")).toHaveTextContent(
+      "Continue in review intake",
+    );
+    expect(screen.getByTestId("operator-home-lifecycle-recommended-review-architecture")).toBeInTheDocument();
+  });
+
   it("shows workspace overview hero copy after committed workspace activity", () => {
     vi.mocked(useNavCommittedArchitectureReview).mockReturnValue(true);
     vi.mocked(fetchCorePilotCommitContext).mockResolvedValue(PUBLIC_DEMO_CORE_PILOT_COMMIT_CONTEXT);

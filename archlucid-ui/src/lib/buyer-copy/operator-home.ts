@@ -76,14 +76,28 @@ export const OPERATOR_HOME_LIFECYCLE_RECOMMENDED_BADGE = "Recommended next";
 
 export const OPERATOR_HOME_RESUME_LATEST_DRAFT_CTA = "Resume latest draft";
 
+export const OPERATOR_HOME_CONTINUE_REVIEW_INTAKE_CTA = "Continue in review intake";
+
+export const OPERATOR_HOME_CONTINUE_IN_REVIEW_CTA = "Continue in review";
+
 export function formatOperatorHomeContinueArchitectureLead(draftCount: number): string {
   const safeCount = Number.isFinite(draftCount) ? Math.max(0, Math.trunc(draftCount)) : 0;
 
   if (safeCount === 1) {
-    return "1 draft saved — start a review when you are ready.";
+    return "1 draft saved. Start a review when you are ready.";
   }
 
-  return `${safeCount} drafts saved — start a review when you are ready.`;
+  return `${safeCount} drafts saved. Start a review when you are ready.`;
+}
+
+export function formatOperatorHomePastDraftingLead(displayName: string): string {
+  const trimmedName = displayName.trim();
+
+  if (trimmedName.length > 0) {
+    return `${trimmedName} is already in review intake — continue from here instead of reopening the draft workspace.`;
+  }
+
+  return "This architecture is already in review intake — continue from here instead of reopening the draft workspace.";
 }
 
 export function formatOperatorHomeResumeDraftBridge(displayName: string, draftCount: number): string {
