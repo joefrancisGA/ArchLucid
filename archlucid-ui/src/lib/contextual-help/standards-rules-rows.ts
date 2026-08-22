@@ -20,6 +20,11 @@ const STANDARDS_RULES_HUB_CONTEXTUAL_HELP = {
     label: "Open findings",
     href: GOVERNANCE_FINDINGS_PATH,
   },
+  taskSteps: [
+    "Open a rule row to read enforcement mode and source pack.",
+    "Follow linked findings or evidence when resolution needs context.",
+    "Export a resolution snapshot when you need a citeable record.",
+  ],
 } as const;
 
 export const STANDARDS_RULES_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] = [

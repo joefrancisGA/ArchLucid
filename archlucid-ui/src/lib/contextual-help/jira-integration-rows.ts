@@ -15,6 +15,11 @@ const JIRA_INTEGRATION_HUB_CONTEXTUAL_HELP = {
   whyEmpty: "Health and settings load after this workspace can reach the ITSM connector configuration.",
   whereToConfigurePrerequisite:
     "Platform credentials are often configured by an administrator; tenant overrides on this page need Operate authority.",
+  taskSteps: [
+    "Test the connector to confirm Jira credentials and routing work.",
+    "Set project and severity mappings for outbound work items.",
+    "Open Integration readiness when the connector path is not ready yet.",
+  ],
 } as const;
 
 export const JIRA_INTEGRATION_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] = [
