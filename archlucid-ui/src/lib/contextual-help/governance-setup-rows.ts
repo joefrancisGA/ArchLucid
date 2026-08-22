@@ -18,6 +18,11 @@ export const GOVERNANCE_SETUP_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpR
         label: "Open policy packs",
         href: "/governance/policy-packs",
       },
+      taskSteps: [
+        "Complete policy, alert, and approval setup steps in order.",
+        "Open Policy packs when rule libraries need assignment.",
+        "Open Findings when live risks appear after setup is complete.",
+      ],
     },
   },
 ];

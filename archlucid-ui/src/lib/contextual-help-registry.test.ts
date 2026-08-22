@@ -633,6 +633,10 @@ describe("contextual-help-registry (TB-733)", () => {
     expect(contextualHelpForPathname("/integrations/jira")?.taskSteps?.length).toBeGreaterThanOrEqual(3);
     expect(contextualHelpForPathname("/governance/standards-and-rules")?.taskSteps?.length).toBeGreaterThanOrEqual(3);
     expect(contextualHelpForPathname("/administration/baseline")?.taskSteps?.length).toBeGreaterThanOrEqual(3);
+    expect(contextualHelpForPathname("/governance")?.taskSteps?.length).toBeGreaterThanOrEqual(3);
+    expect(contextualHelpForPathname("/insights/search-review-evidence")?.taskSteps?.length).toBeGreaterThanOrEqual(3);
+    expect(contextualHelpForPathname("/governance/policy-packs")?.taskSteps?.length).toBeGreaterThanOrEqual(3);
+    expect(contextualHelpForPathname("/governance/recurrence-schedules")?.taskSteps?.length).toBeGreaterThanOrEqual(3);
   });
 
   it("forbids internal routes, API paths, and TB labels in registry copy", () => {

@@ -20,6 +20,11 @@ export const RISK_EXCEPTIONS_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRo
         label: "Open findings queue",
         href: "/governance/findings",
       },
+      taskSteps: [
+        "Review expiring exceptions before they lapse.",
+        "Renew or revoke each waiver with audit-friendly justification.",
+        "Open Findings when the underlying concern still needs disposition.",
+      ],
     },
   },
 ];
