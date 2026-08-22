@@ -162,6 +162,15 @@ public interface IRunRepository
     Task<RunArchiveBatchResult> ArchiveRunsCreatedBeforeAsync(DateTimeOffset cutoffUtc, CancellationToken ct);
 
     /// <summary>
+    ///     Sets <see cref="RunRecord.ArchivedUtc" /> for runs in <paramref name="scope" /> with <c>CreatedUtc</c> strictly
+    ///     before <paramref name="cutoffUtc" /> that are not yet archived.
+    /// </summary>
+    Task<RunArchiveBatchResult> ArchiveRunsCreatedBeforeForScopeAsync(
+        ScopeContext scope,
+        DateTimeOffset cutoffUtc,
+        CancellationToken ct);
+
+    /// <summary>
     ///     Soft-archives up to 100 runs by primary key. Missing or already-archived ids are reported in
     ///     <see cref="RunArchiveByIdsResult.Failed" /> without failing the whole operation.
     /// </summary>

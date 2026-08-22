@@ -187,7 +187,7 @@ export function SlackDestinationForm(props: SlackDestinationFormProps): React.Re
           <Input
             id="slack-destination-name"
             className="mt-1"
-            placeholder="Governance alerts"
+            placeholder="Policy alerts"
             disabled={disabled}
             aria-describedby={`slack-destination-name-helper slack-destination-name-error${fieldDescribedBySuffix}`}
             aria-required="true"

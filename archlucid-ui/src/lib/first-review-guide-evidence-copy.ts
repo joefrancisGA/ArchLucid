@@ -6,7 +6,7 @@ import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 export const FIRST_REVIEW_GUIDE_CANONICAL_PATH = FIRST_REVIEW_GUIDE_PATH;
 
 export const FIRST_REVIEW_GUIDE_CLAIM_DISCIPLINE =
-  "This First review guide is onboarding checklist orientation — completing steps here does not create a full audit export. Start a review and Evidence intake when you are ready to file evidence.";
+  "This guide is onboarding checklist orientation — completing steps here does not create a full audit export. Start a review and Evidence intake when you are ready to file evidence.";
 
 export const FIRST_REVIEW_GUIDE_SOURCES_INTRO =
   "Use these when you are ready to create a draft, start review intake, or need first-architecture-review help.";

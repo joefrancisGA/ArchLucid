@@ -19,6 +19,7 @@ import {
   GUIDED_INTAKE_SAVE_AND_CONTINUE_LABEL,
   GUIDED_INTAKE_SAVE_ANSWER_LABEL,
 } from "@/lib/guided-intake-copy";
+import { UNIVERSAL_INTAKE_INFERRED_CLARIFICATION_HELPER } from "@/lib/universal-intake-answer-inference";
 import type { DraftElicitationQuestion } from "@/types/draft-intake";
 
 export const REQUIRED_CLARIFICATION_BASELINE_LABEL = "Required for baseline review";
@@ -51,6 +52,8 @@ export type DraftIntakeRequiredClarificationFieldProps = {
   readonly showBaselineLabel?: boolean;
   readonly canSaveAndContinue?: boolean;
   readonly clarificationStatus?: ClarificationCardStatus;
+  readonly isSuggested?: boolean;
+  readonly showRequirednessSuffix?: boolean;
   readonly onAnswerChange: (questionKey: string, value: string) => void;
   readonly onSaveAndContinue: (questionKey: string) => void;
   readonly onSkip: (questionKey: string) => void;
@@ -112,7 +115,21 @@ export function DraftIntakeRequiredClarificationField(
           {REQUIRED_CLARIFICATION_BASELINE_LABEL}
         </p>
       ) : null}
-      <IntakeFieldLabel htmlFor={labelId} label={props.question.prompt} required asLegend />
+      <IntakeFieldLabel
+        htmlFor={labelId}
+        label={props.question.prompt}
+        required
+        asLegend
+        showRequirednessSuffix={props.showRequirednessSuffix}
+      />
+      {props.isSuggested === true ? (
+        <p
+          className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+          data-testid="socratic-question-suggested-hint"
+        >
+          {UNIVERSAL_INTAKE_INFERRED_CLARIFICATION_HELPER}
+        </p>
+      ) : null}
       {isCloudTargetQuestion ? (
         <>
           <p

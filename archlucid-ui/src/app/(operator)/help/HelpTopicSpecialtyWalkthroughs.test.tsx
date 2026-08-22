@@ -74,7 +74,7 @@ describe("HelpSpecialtyWalkthroughTemplatesView", () => {
 
     const grid = screen.getByTestId("specialty-template-card-grid");
     expect(within(grid).getByText("SaaS readiness")).toBeInTheDocument();
-    expect(within(grid).getByText("AI governance")).toBeInTheDocument();
+    expect(within(grid).getByText("AI policy")).toBeInTheDocument();
     expect(within(grid).getByText("Healthcare claims")).toBeInTheDocument();
 
     const visibleText = document.body.textContent?.toLowerCase() ?? "";

@@ -526,7 +526,7 @@ export function useGuidedIntakeDraftWorkflow(options: GuidedIntakeDraftWorkflowO
     [clarificationOrdinalByKey],
   );
   const getClarificationStatus = useCallback(
-    (questionKey: string): { kind: EnterpriseStatusKind; label: string } => {
+    (questionKey: string): { kind: EnterpriseStatusKind; label: string } | undefined => {
       if (savedLocallyQuestionKeys.has(questionKey)) {
         const answer = answers[questionKey]?.trim() ?? "";
 
@@ -537,7 +537,7 @@ export function useGuidedIntakeDraftWorkflow(options: GuidedIntakeDraftWorkflowO
         return { kind: "draft", label: "Skipped" };
       }
 
-      return { kind: "needs-attention", label: "Needs answer" };
+      return undefined;
     },
     [answers, savedLocallyQuestionKeys],
   );

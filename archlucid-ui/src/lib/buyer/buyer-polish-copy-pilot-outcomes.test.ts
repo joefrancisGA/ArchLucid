@@ -32,7 +32,7 @@ describe("buyer-polish-copy pilot command center outcomes (TB-351)", () => {
       "Missing dependencies",
       "Hidden risks",
       "Cost drivers",
-      "Governance gaps",
+      "Policy gaps",
       "Evidence gaps",
       "Decision impact",
     ]);

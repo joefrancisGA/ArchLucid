@@ -12,7 +12,7 @@ export const GOVERNANCE_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] =
         "Browse architecture decisions locked with finalized review records — category, confidence, findings, and lineage.",
       whatToDoNext:
         "Filter by date or category, open a decision card, then follow the linked review or findings when needed.",
-      whyEmpty: "Decisions appear after reviews are signed with recorded architecture decisions.",
+      whyEmpty: "Decisions appear after reviews are finalized with recorded architecture decisions.",
       whereToConfigurePrerequisite:
         "Decision register respects the workspace and project selected in the header switcher.",
       whatToDoNextAction: {

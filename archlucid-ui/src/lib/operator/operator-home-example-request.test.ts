@@ -41,7 +41,7 @@ describe("operator-home-example-request", () => {
       resolveReviewIntakeExampleTemplate({ templateParam: "customer-intake-modernization" })?.title,
     ).toBe("Enterprise customer intake");
     expect(resolveReviewIntakeExampleTemplate({ templateParam: "saas-readiness" })?.title).toBe("SaaS readiness");
-    expect(resolveReviewIntakeExampleTemplate({ templateParam: "ai-governance" })?.title).toBe("AI governance");
+    expect(resolveReviewIntakeExampleTemplate({ templateParam: "ai-governance" })?.title).toBe("AI policy");
     expect(resolveReviewIntakeExampleTemplate({ exampleParam: "healthcare-claims-intake" })?.id).toBe(
       "customer-intake-modernization",
     );

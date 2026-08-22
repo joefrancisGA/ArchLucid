@@ -259,7 +259,7 @@ export const PILOT_COMMAND_CENTER_OUTCOMES = [
   "Missing dependencies",
   "Hidden risks",
   "Cost drivers",
-  "Governance gaps",
+  "Policy gaps",
   "Evidence gaps",
   "Decision impact",
 ] as const;

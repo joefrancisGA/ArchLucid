@@ -26,10 +26,10 @@ export const STANDARDS_RULES_SUMMARY_FRAMEWORKS_LABEL = "Frameworks referenced";
 export const STANDARDS_RULES_EMPTY_HEADING = "No rules applied to this review";
 
 export const STANDARDS_RULES_EMPTY_BODY =
-  "Rules appear here when a policy pack, standard, or governance configuration applies checks to a review.";
+  "Rules appear here when a policy pack, standard, or policy configuration applies checks to a review.";
 
 export const STANDARDS_RULES_VIEW_EXPLANATION_SUMMARY =
-  "Inspect the standards and checks applied to this review. Rules may come from policy packs, regulatory mappings, or workspace governance configuration.";
+  "Inspect the standards and checks applied to this review. Rules may come from policy packs, regulatory mappings, or workspace policy settings.";
 
 export const STANDARDS_RULES_VIEW_EXPLANATION_NEXT_ACTION =
   "Start with enforced rules, then open linked findings or evidence to understand why each rule mattered.";

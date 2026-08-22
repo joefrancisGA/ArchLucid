@@ -34,7 +34,7 @@ describe("RunsListBuyerFeaturedCard", () => {
     expect(screen.getByText(/Approved with monitoring · 1 monitored risk/i)).toBeInTheDocument();
     expect(screen.getByText(/Decision date/i)).toBeInTheDocument();
     expect(screen.getByTestId("runs-list-buyer-featured-card")).toHaveTextContent(/Review owner/i);
-    expect(screen.getByText(/Governance Approver/i)).toBeInTheDocument();
+    expect(screen.getByText(/Approval lead/i)).toBeInTheDocument();
     expect(screen.getByRole("link", { name: /open review/i })).toBeInTheDocument();
     expect(screen.getByText(/Audit trail/i)).toBeInTheDocument();
     expect(screen.getByText(/Complete/i)).toBeInTheDocument();

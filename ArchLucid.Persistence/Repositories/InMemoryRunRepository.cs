@@ -405,7 +405,24 @@ public sealed class InMemoryRunRepository(ITenantRepository? tenantRepository = 
     }
 
     /// <inheritdoc />
-    public Task<RunArchiveBatchResult> ArchiveRunsCreatedBeforeAsync(DateTimeOffset cutoffUtc, CancellationToken ct)
+    public Task<RunArchiveBatchResult> ArchiveRunsCreatedBeforeAsync(DateTimeOffset cutoffUtc, CancellationToken ct) =>
+        ArchiveRunsCreatedBeforeCoreAsync(cutoffUtc, scope: null, ct);
+
+    /// <inheritdoc />
+    public Task<RunArchiveBatchResult> ArchiveRunsCreatedBeforeForScopeAsync(
+        ScopeContext scope,
+        DateTimeOffset cutoffUtc,
+        CancellationToken ct)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+
+        return ArchiveRunsCreatedBeforeCoreAsync(cutoffUtc, scope, ct);
+    }
+
+    private Task<RunArchiveBatchResult> ArchiveRunsCreatedBeforeCoreAsync(
+        DateTimeOffset cutoffUtc,
+        ScopeContext? scope,
+        CancellationToken ct)
     {
         ct.ThrowIfCancellationRequested();
         DateTime cutoff = cutoffUtc.UtcDateTime;
@@ -418,6 +435,14 @@ public sealed class InMemoryRunRepository(ITenantRepository? tenantRepository = 
 
             if (r.ArchivedUtc.HasValue || r.CreatedUtc >= cutoff)
                 continue;
+
+            if (scope is not null
+                && (r.TenantId != scope.TenantId
+                    || r.WorkspaceId != scope.WorkspaceId
+                    || r.ScopeProjectId != scope.ProjectId))
+            {
+                continue;
+            }
 
             archived.Add(new ArchivedRunScopeRow { RunId = r.RunId, TenantId = r.TenantId, WorkspaceId = r.WorkspaceId, ScopeProjectId = r.ScopeProjectId });
 

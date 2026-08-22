@@ -21,6 +21,16 @@ describe("formatWizardEvidenceAttachmentSummary", () => {
 });
 
 describe("WizardEvidenceUploadZone", () => {
+  it("bolds the Accepted label in the description helper", () => {
+    render(
+      <WizardEvidenceUploadZone description="Diagram, PDF export, or architecture document. Accepted: PDF, DOCX." />,
+    );
+
+    const acceptedLabel = screen.getByText("Accepted:");
+    expect(acceptedLabel.tagName).toBe("SPAN");
+    expect(acceptedLabel).toHaveClass("font-semibold");
+  });
+
   it("shows inline attachment summary instead of a toast when files are selected", async () => {
     render(
       <WizardEvidenceUploadZone attachmentSummarySuffix="architecture context optional" />,
@@ -39,5 +49,6 @@ describe("WizardEvidenceUploadZone", () => {
     expect(screen.getByTestId("wizard-evidence-upload-attachments")).toHaveTextContent(
       "network-topology.pdf",
     );
+    expect(screen.getByRole("button", { name: "Remove network-topology.pdf" })).toBeInTheDocument();
   });
 });

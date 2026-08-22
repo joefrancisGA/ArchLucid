@@ -1,9 +1,12 @@
 "use client";
-import { EVIDENCE_UPLOAD_ACCEPT_EXTENSIONS_ATTR } from "@/lib/evidence-upload-accepted-formats";
+import {
+  EVIDENCE_UPLOAD_ACCEPT_EXTENSIONS_ATTR,
+  EVIDENCE_UPLOAD_ACCEPTED_FORMATS_ACCEPTED_PREFIX,
+} from "@/lib/evidence-upload-accepted-formats";
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
-import { useCallback, useState } from "react";
+import { useCallback, useState, type ReactNode } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -37,8 +40,24 @@ export function formatWizardEvidenceAttachmentSummary(
 }
 
 const DEFAULT_LABEL = "Attach evidence (optional)";
-const DEFAULT_DESCRIPTION =
-  "Accepted: PDF, DOCX, Markdown, text, JSON, YAML, images. Drag files here or browse.";
+const DEFAULT_DESCRIPTION = `${EVIDENCE_UPLOAD_ACCEPTED_FORMATS_ACCEPTED_PREFIX}. Drag files here or browse.`;
+const ACCEPTED_LABEL = "Accepted:";
+
+function renderWizardEvidenceUploadDescription(description: string): ReactNode {
+  const acceptedIndex = description.indexOf(ACCEPTED_LABEL);
+
+  if (acceptedIndex === -1) {
+    return description;
+  }
+
+  return (
+    <>
+      {description.slice(0, acceptedIndex)}
+      <span className="font-semibold">{ACCEPTED_LABEL}</span>
+      {description.slice(acceptedIndex + ACCEPTED_LABEL.length)}
+    </>
+  );
+}
 
 /** Drag-drop evidence upload with the same label + helper + control layout as other intake fields. */
 export function WizardEvidenceUploadZone(props: WizardEvidenceUploadZoneProps) {
@@ -127,28 +146,33 @@ export function WizardEvidenceUploadZone(props: WizardEvidenceUploadZoneProps) {
             <p className={cn("m-0 font-medium text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
               Attached evidence
             </p>
-            <ul className="m-0 flex list-none flex-wrap gap-2 p-0">
+            <ul className="m-0 flex list-none flex-col gap-2 p-0">
               {files.map((file, index) => (
                 <li
                   key={`${file.name}-${index}`}
-                  className={cn(
-                    "inline-flex max-w-full items-center gap-2 rounded-md border border-neutral-200 bg-white px-2 py-1 text-neutral-800 dark:border-neutral-700 dark:bg-neutral-950 dark:text-neutral-200",
-                    OPERATOR_TYPOGRAPHY.helper,
-                  )}
+                  className="flex max-w-full items-center gap-2"
+                  data-testid={`wizard-evidence-upload-attachment-${index}`}
                 >
-                  <span className="break-all">
-                    {file.name}
-                  </span>
-                  <button
+                  <div
+                    className={cn(
+                      "min-w-0 flex-1 rounded-md border border-neutral-200 bg-white px-2 py-1 text-neutral-800 dark:border-neutral-700 dark:bg-neutral-950 dark:text-neutral-200",
+                      OPERATOR_TYPOGRAPHY.helper,
+                    )}
+                  >
+                    <span className="break-all">{file.name}</span>
+                  </div>
+                  <Button
                     type="button"
-                    className="shrink-0 font-medium text-neutral-600 underline-offset-2 hover:text-red-700 hover:underline dark:text-neutral-400 dark:hover:text-red-400"
+                    variant="outline"
+                    size="sm"
+                    className="shrink-0"
                     aria-label={`Remove ${file.name}`}
                     onClick={() => {
                       removeFile(index);
                     }}
                   >
                     Remove
-                  </button>
+                  </Button>
                 </li>
               ))}
             </ul>
@@ -168,7 +192,9 @@ export function WizardEvidenceUploadZone(props: WizardEvidenceUploadZoneProps) {
       >
         {attachmentSummary}
       </p>
-      <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{description}</p>
+      <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
+        {renderWizardEvidenceUploadDescription(description)}
+      </p>
     </div>
   );
 }

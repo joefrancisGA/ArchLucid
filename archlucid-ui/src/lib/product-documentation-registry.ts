@@ -558,7 +558,7 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     // App-rendered specialty (`HelpRecurrenceSchedulesGuideView`).
     sourcePaths: [],
     lastReviewed: "2026-08-12",
-    releaseApplicability: "governance recurrence schedule orientation",
+    releaseApplicability: "recurrence schedule orientation",
   },
   {
     slug: "decision-register",
@@ -567,7 +567,7 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     audience: "operator",
     sourcePaths: [],
     lastReviewed: "2026-08-13",
-    releaseApplicability: "governance decision register orientation",
+    releaseApplicability: "decision register orientation",
   },
   {
     slug: "improvement-planning",
@@ -594,7 +594,7 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     audience: "operator",
     sourcePaths: [],
     lastReviewed: "2026-08-13",
-    releaseApplicability: "governance advisory scans orientation",
+    releaseApplicability: "advisory scans orientation",
   },
   {
     slug: "roi-summary",
@@ -631,7 +631,7 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     audience: "operator",
     sourcePaths: [],
     lastReviewed: "2026-08-13",
-    releaseApplicability: "Governance policy resolution, enforced rules, and diagnostic export",
+    releaseApplicability: "Policy resolution, enforced rules, and diagnostic export",
   },
   {
     slug: "baseline-settings",
@@ -814,7 +814,7 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     // App-rendered specialty (`HelpAlertsGuideView`) — copy owned in `alerts-help-guide-content.ts`.
     sourcePaths: [],
     lastReviewed: "2026-08-09",
-    releaseApplicability: "governance alerts orientation",
+    releaseApplicability: "policy alerts orientation",
   },
   {
     slug: "api-contracts",

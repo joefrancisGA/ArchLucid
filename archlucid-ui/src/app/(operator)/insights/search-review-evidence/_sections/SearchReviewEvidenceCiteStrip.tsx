@@ -29,7 +29,7 @@ export function SearchReviewEvidenceCiteStrip(props: SearchReviewEvidenceCiteStr
         Sources for this review
       </h3>
       <p className={cn("m-0 mt-1 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-        Open the signed review context, evidence trail, or audit trail before treating search snippets as
+        Open the finalized review context, evidence trail, or audit trail before treating search snippets as
         authoritative.
       </p>
       <ul className={cn("m-0 mt-2 flex list-none flex-wrap gap-x-3 gap-y-1 p-0", OPERATOR_TYPOGRAPHY.helper)}>

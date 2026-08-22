@@ -289,7 +289,7 @@ export function HelpFindingsGuideView(props: HelpFindingsGuideViewProps): React.
             aria-labelledby="findings-and-governance"
             className="space-y-3 border-t border-neutral-200 pt-6 dark:border-neutral-800"
           >
-            <HelpSectionHeading id="findings-and-governance">Findings and governance</HelpSectionHeading>
+            <HelpSectionHeading id="findings-and-governance">Findings and approval</HelpSectionHeading>
             <p className={cn("m-0 leading-relaxed", OPERATOR_TYPOGRAPHY.body)}>{FINDINGS_HELP_GOVERNANCE_INTRO}</p>
             <ul className={HELP_PAGE_LAYOUT.bulletList}>
               {FINDINGS_HELP_GOVERNANCE_ITEMS.map((item) => (

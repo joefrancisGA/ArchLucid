@@ -23,9 +23,9 @@ export const REVIEW_INTAKE_EXAMPLE_TEMPLATES: readonly ReviewIntakeExampleTempla
   },
   {
     id: "ai-governance",
-    title: "AI governance",
+    title: "AI policy",
     briefText:
-      "Evaluate an AI or ML solution against responsible-AI expectations — model and data risk, transparency, human oversight, privacy, monitoring, and export readiness. Describe inference, training boundaries, and governance controls you need reviewed.",
+      "Evaluate an AI or ML solution against responsible-AI expectations — model and data risk, transparency, human oversight, privacy, monitoring, and export readiness. Describe inference, training boundaries, and policy controls you need reviewed.",
     businessOutcome:
       "An AI policy review with evidence-backed findings and clear approval decisions for stakeholders.",
     systemName: "AI Solution",

@@ -20,12 +20,12 @@ describe("StandardsRulesPolicyPackReference", () => {
   it("omits provenance tag when label is absent", () => {
     render(
       <StandardsRulesPolicyPackReference
-        label="Workspace governance"
+        label="Workspace policy"
         href={null}
       />,
     );
 
-    expect(screen.getByText("Workspace governance")).toBeInTheDocument();
+    expect(screen.getByText("Workspace policy")).toBeInTheDocument();
     expect(screen.queryByTestId("standards-rules-policy-pack-provenance-tag")).not.toBeInTheDocument();
   });
 });

@@ -52,7 +52,7 @@ describe("formatHelpTopicApplicabilityMetadata", () => {
         sampleEntry({
           slug: "advisory-scans",
           lastReviewed: "2026-08-13",
-          releaseApplicability: "governance advisory scans orientation",
+          releaseApplicability: "advisory scans orientation",
         }),
       ),
     ).toBe("Guide last reviewed 2026-08-13");
@@ -76,7 +76,7 @@ describe("formatHelpTopicApplicabilityMetadata", () => {
         sampleEntry({
           slug: "decision-register",
           lastReviewed: "2026-08-13",
-          releaseApplicability: "governance decision register orientation",
+          releaseApplicability: "decision register orientation",
         }),
       ),
     ).toBe("Guide last reviewed 2026-08-13");
@@ -160,11 +160,11 @@ describe("formatHelpTopicApplicabilityMetadata", () => {
         sampleEntry({
           slug: "standards-and-rules",
           lastReviewed: "2026-08-13",
-          releaseApplicability: "Governance policy resolution, enforced rules, and diagnostic export",
+          releaseApplicability: "Policy resolution, enforced rules, and diagnostic export",
         }),
       ),
     ).toBe(
-      "Guide last reviewed 2026-08-13 · Governance policy resolution, enforced rules, and diagnostic export",
+      "Guide last reviewed 2026-08-13 · Policy resolution, enforced rules, and diagnostic export",
     );
   });
 

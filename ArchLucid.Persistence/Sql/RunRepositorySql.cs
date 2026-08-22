@@ -193,6 +193,34 @@ internal static class RunRepositorySql
                                                    EXEC dbo.Archival_CascadeFromArchivedRuns @Archived = @Archived;
                                                    """;
 
+    public const string ArchiveRunsCreatedBeforeInScope = """
+                                                            DECLARE @ArchivedScratch TABLE (
+                                                                RunId UNIQUEIDENTIFIER NOT NULL,
+                                                                TenantId UNIQUEIDENTIFIER NOT NULL,
+                                                                WorkspaceId UNIQUEIDENTIFIER NOT NULL,
+                                                                ScopeProjectId UNIQUEIDENTIFIER NOT NULL
+                                                            );
+
+                                                            DECLARE @Archived dbo.ArchivedRunIdList;
+
+                                                            UPDATE dbo.Runs
+                                                            SET ArchivedUtc = SYSUTCDATETIME()
+                                                            OUTPUT inserted.RunId, inserted.TenantId, inserted.WorkspaceId, inserted.ScopeProjectId
+                                                            INTO @ArchivedScratch
+                                                            WHERE ArchivedUtc IS NULL
+                                                              AND CreatedUtc < @Cutoff
+                                                              AND TenantId = @TenantId
+                                                              AND WorkspaceId = @WorkspaceId
+                                                              AND ScopeProjectId = @ScopeProjectId;
+
+                                                            INSERT INTO @Archived (RunId)
+                                                            SELECT RunId FROM @ArchivedScratch;
+
+                                                            SELECT RunId, TenantId, WorkspaceId, ScopeProjectId FROM @ArchivedScratch;
+
+                                                            EXEC dbo.Archival_CascadeFromArchivedRuns @Archived = @Archived;
+                                                            """;
+
     public const string ArchiveRunsByIds = """
                                            DECLARE @ArchivedScratch TABLE (
                                                RunId UNIQUEIDENTIFIER NOT NULL,

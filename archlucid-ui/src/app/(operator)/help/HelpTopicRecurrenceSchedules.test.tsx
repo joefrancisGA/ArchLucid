@@ -50,7 +50,7 @@ describe("HelpRecurrenceSchedulesGuideView", () => {
     expect(entry?.title).toBe(RECURRENCE_SCHEDULES_HELP_PAGE_TITLE);
     expect(entry?.summary).toBe("Automate follow-up review cadences for architecture reviews.");
     expect(entry?.lastReviewed).toBe("2026-08-12");
-    expect(entry?.releaseApplicability).toBe("governance recurrence schedule orientation");
+    expect(entry?.releaseApplicability).toBe("recurrence schedule orientation");
   });
 
   it("shows overview first and buyer-safe section order", () => {
@@ -63,7 +63,7 @@ describe("HelpRecurrenceSchedulesGuideView", () => {
     expect(screen.getByRole("heading", { level: 1, name: RECURRENCE_SCHEDULES_HELP_PAGE_TITLE })).toBeInTheDocument();
     expect(screen.getByText(RECURRENCE_SCHEDULES_HELP_PAGE_SUBTITLE)).toBeInTheDocument();
     expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent(
-      "Guide last reviewed 2026-08-12 · governance recurrence schedule orientation",
+      "Guide last reviewed 2026-08-12 · recurrence schedule orientation",
     );
 
     const overview = screen.getByTestId("help-recurrence-schedules-overview");

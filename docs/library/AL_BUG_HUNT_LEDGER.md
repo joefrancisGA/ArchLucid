@@ -1632,19 +1632,19 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** authority controllers; admin controllers
 - **paths:** ArchLucid.Api/Controllers/Authority/; ArchLucid.Api/Controllers/Admin/
 - **test-filter:** FullyQualifiedName~AuthorityController|FullyQualifiedName~AdminController
-- **hunts:** 3
-- **bugs-found:** 3
+- **hunts:** 4
+- **bugs-found:** 4
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-18
-- **last-bug:** 2026-08-18 â€” AdminController archive-by-ids archived runs globally without tenant scope
+- **last-hunt:** 2026-08-22
+- **last-bug:** 2026-08-22 — AdminController archive-batch archived runs globally without tenant scope
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
 ### Hypotheses
 
-- [x] Admin mutating endpoint lacks tenant binding on route parameters â€” (proven): `RunsController` request endpoints (2026-08-18); `AdminController.ArchiveRunsByIds` called global `ArchiveRunsByIdsAsync` without `GetByIdAsync(scope, â€¦)` filter (2026-08-18)
-- [x] Authority read returns artifacts for a run in another workspace â€” fixed ComparisonsController scoped load (2026-08-17)
-- [ ] Controller accepts a scope header that overrides the authenticated tenant
+- [x] Admin mutating endpoint lacks tenant binding on route parameters — (proven): `RunsController` request endpoints (2026-08-18); `AdminController.ArchiveRunsByIds` called global `ArchiveRunsByIdsAsync` without `GetByIdAsync(scope, …)` filter (2026-08-18); `AdminController.ArchiveRunsBatch` called global `ArchiveRunsCreatedBeforeAsync` without scoped cutoff filter (2026-08-22)
+- [x] Authority read returns artifacts for a run in another workspace — fixed ComparisonsController scoped load (2026-08-17)
+- [x] (valid-no-repro) Controller accepts a scope header that overrides the authenticated tenant — `ScopeIdentityBindingMiddleware` + `ScopeIdentityBindingIntegrationTests` (TB-072/TB-925) reject mismatched headers on Authority/Admin routes; `HttpScopeContextProvider` prefers claims over headers
 
 ---
 
