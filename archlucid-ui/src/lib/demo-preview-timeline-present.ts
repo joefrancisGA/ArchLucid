@@ -63,7 +63,7 @@ function resolveTimelineAction(
   }
 
   if (normalized.includes("finalize") || normalized.includes("manifest")) {
-    return { label: "Open signed review", href: manifestHref };
+    return { label: "Open finalized review", href: manifestHref };
   }
 
   if (normalized.includes("governance.approval")) {

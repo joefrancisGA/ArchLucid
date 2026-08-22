@@ -29,7 +29,7 @@ describe("demo-preview-timeline-present", () => {
     );
 
     expect(rows[0]?.action?.label).toBe("Open review");
-    expect(rows[1]?.action?.label).toBe("Open signed review");
+    expect(rows[1]?.action?.label).toBe("Open finalized review");
     expect(rows[0]?.action?.href).toBe("#artifact-signed-review-record");
   });
 });
