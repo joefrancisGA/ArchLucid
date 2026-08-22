@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test";
 
+import { waitForAppReady } from "./helpers/waits";
 import {
   START_REVIEW_PAGE_HEADING_PATTERN,
   MANIFEST_DETAIL_PRIMARY_HEADING_PATTERN,
@@ -73,6 +74,7 @@ test.describe("operator shell smoke", () => {
 test.describe("operator shell smoke — core proof path", () => {
   test("home through help without generic error boundary @smoke-core-path", async ({ page }) => {
     await page.goto("/");
+    await waitForAppReady(page);
     await expect(getAppMain(page).getByText(/Something went wrong/i)).toHaveCount(0);
 
     await page.goto("/architecture/reviews");
@@ -110,6 +112,7 @@ test.describe("operator shell smoke — core proof path", () => {
     await expect(getAppMain(page).getByText(/Something went wrong/i)).toHaveCount(0);
 
     await page.goto("/why-archlucid");
+    await waitForAppReady(page);
     await expect(page.getByTestId("why-archlucid-page-breadcrumb")).toBeVisible();
     await expect(getAppMain(page).getByText(/Something went wrong/i)).toHaveCount(0);
 
@@ -123,6 +126,7 @@ test.describe("operator shell smoke — core proof path", () => {
 test.describe("operator shell smoke — advanced surface path", () => {
   test("analysis and controls routes render primary headings @smoke-advanced-path", async ({ page }) => {
     await page.goto("/insights/ask-review-questions");
+    await waitForAppReady(page);
     await expect(askPageMainHeading(page)).toBeVisible();
     await expect(getAppMain(page).getByText(/Something went wrong/i)).toHaveCount(0);
 

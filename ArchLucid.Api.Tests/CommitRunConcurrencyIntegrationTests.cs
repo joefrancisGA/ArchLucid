@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
@@ -46,8 +46,7 @@ public sealed class CommitRunConcurrencyIntegrationTests
             await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
         string runId = created!.Run.RunId;
 
-        HttpResponseMessage executeResponse = await client.PostAsync($"/v1/architecture/review/{runId}/execute", null);
-        await executeResponse.EnsureSuccessForTestAsync();
+        await client.PostExecuteUnlessAuthorityPipelineCompleteAsync(runId);
         await GreenfieldCommittedRunReadinessPoll.WaitUntilRunManifestReadableForCommitAsync(client, runId);
         const int parallel = 8;
         Task<HttpResponseMessage>[] tasks = new Task<HttpResponseMessage>[parallel];

@@ -15,6 +15,7 @@ import {
   showcaseSignedManifestBrowserUrlPattern,
 } from "./helpers/buyer-golden-path";
 import { expectGraphPageReadySurface, expectMainHasNoHardFailureChrome, runsDashboardBuyerProofSummary } from "./helpers/operator-journey";
+import { waitForAppReady } from "./helpers/waits";
 
 const claimsShowcasePath = "/showcase/customer-intake-modernization";
 
@@ -220,6 +221,7 @@ test.describe.parallel("demo-readiness — mock proof chain @demo-readiness", ()
     page,
   }) => {
     await page.goto("/governance/policy-packs/e2e-policy-pack-001");
+    await waitForAppReady(page);
     await expect(page.getByTestId("policy-pack-detail-primary-content")).toBeVisible({ timeout: 30_000 });
     // Pack detail body uses buyer-polished empty-state copy; breadcrumb uses demo fixture titles — not `getRouteTitle`'s "Policy pack detail".
     await expect(

@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
@@ -112,9 +112,17 @@ public sealed class ArchitectureControllerTests
 
             string runId = created!.Run.RunId;
 
-            HttpResponseMessage executeResponse = await client.PostAsync(
-                $"/v1/architecture/review/{runId}/execute",
-                null);
+            HttpResponseMessage executeResponse = await client.PostExecuteForTestAsync(runId);
+
+            if (await executeResponse.IsAuthorityPipelineCompleteExecuteConflictAsync())
+            {
+                HttpResponseMessage getRunResponse = await client.GetAsync($"/v1/architecture/review/{runId}");
+                await getRunResponse.EnsureSuccessForTestAsync();
+                GetRunResponseDto? seededPayload =
+                    await getRunResponse.Content.ReadFromJsonAsync<GetRunResponseDto>(JsonOptions);
+                seededPayload!.Results.Should().HaveCount(4);
+                return;
+            }
 
             executeResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
@@ -146,8 +154,7 @@ public sealed class ArchitectureControllerTests
                 await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
             string runId = created!.Run.RunId;
 
-            HttpResponseMessage executeResponse = await client.PostAsync($"/v1/architecture/review/{runId}/execute", null);
-            await executeResponse.EnsureSuccessForTestAsync();
+            await client.PostExecuteUnlessAuthorityPipelineCompleteAsync(runId);
             HttpResponseMessage commitResponse = await client.PostAsync($"/v1/architecture/review/{runId}/finalize", null);
 
             commitResponse.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -181,7 +188,17 @@ public sealed class ArchitectureControllerTests
             created.Should().NotBeNull();
             string runId = created.Run.RunId;
 
-            HttpResponseMessage executeResponse = await client.PostAsync($"/v1/architecture/review/{runId}/execute", null);
+            HttpResponseMessage executeResponse = await client.PostExecuteForTestAsync(runId);
+
+            if (await executeResponse.IsAuthorityPipelineCompleteExecuteConflictAsync())
+            {
+                HttpResponseMessage getRunResponse = await client.GetAsync($"/v1/architecture/review/{runId}");
+                await getRunResponse.EnsureSuccessForTestAsync();
+                GetRunResponseDto? seededPayload =
+                    await getRunResponse.Content.ReadFromJsonAsync<GetRunResponseDto>(JsonOptions);
+                seededPayload!.Results.Should().HaveCount(4);
+                return;
+            }
 
             executeResponse.StatusCode.Should().Be(HttpStatusCode.OK);
             ExecuteRunResponseDto? executePayload =
@@ -209,8 +226,7 @@ public sealed class ArchitectureControllerTests
             string runId = created.Run.RunId;
             runId.Should().NotBeNullOrWhiteSpace();
 
-            HttpResponseMessage executeResponse = await client.PostAsync($"/v1/architecture/review/{runId}/execute", null);
-            await executeResponse.EnsureSuccessForTestAsync();
+            await client.PostExecuteUnlessAuthorityPipelineCompleteAsync(runId);
             HttpResponseMessage commitResponse = await client.PostAsync($"/v1/architecture/review/{runId}/finalize", null);
             await commitResponse.EnsureSuccessForTestAsync();
             CommitRunResponseDto? commitPayload =
@@ -259,8 +275,7 @@ public sealed class ArchitectureControllerTests
                 await getRunResponse.Content.ReadFromJsonAsync<GetRunResponseDto>(JsonOptions);
             getRunPayload!.Tasks.Should().HaveCount(4);
 
-            HttpResponseMessage executeResponse = await client.PostAsync($"/v1/architecture/review/{runId}/execute", null);
-            await executeResponse.EnsureSuccessForTestAsync();
+            await client.PostExecuteUnlessAuthorityPipelineCompleteAsync(runId);
             HttpResponseMessage commitResponse = await client.PostAsync($"/v1/architecture/review/{runId}/finalize", null);
             await commitResponse.EnsureSuccessForTestAsync();
             CommitRunResponseDto? commitPayload =

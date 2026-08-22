@@ -25,7 +25,7 @@ public sealed class ArchitectureAgentCompareTests(ArchLucidApiFactory factory) :
             await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
         string runId = created!.Run.RunId;
 
-        await Client.PostAsync($"/v1/architecture/review/{runId}/execute", null);
+        await Client.PostExecuteUnlessAuthorityPipelineCompleteAsync(runId);
 
         var replayRequest = new
         {

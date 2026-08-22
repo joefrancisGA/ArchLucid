@@ -1,4 +1,4 @@
-﻿using System.IO.Compression;
+using System.IO.Compression;
 using System.Net;
 using System.Net.Http.Json;
 using System.Text;
@@ -62,8 +62,7 @@ public sealed class ArchitectureRunCommitPathParityIntegrationTests
         created.Should().NotBeNull();
         string runId = created.Run.RunId;
 
-        HttpResponseMessage executeResponse = await client.PostAsync($"/v1/architecture/review/{runId}/execute", null);
-        await executeResponse.EnsureSuccessForTestAsync();
+        await client.PostExecuteUnlessAuthorityPipelineCompleteAsync(runId);
         HttpResponseMessage commitResponse = await client.PostAsync($"/v1/architecture/review/{runId}/finalize", null);
         commitResponse.StatusCode.Should().Be(HttpStatusCode.OK, "commit should succeed on authority path");
 

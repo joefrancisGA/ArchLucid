@@ -1,4 +1,4 @@
-﻿using System.Globalization;
+using System.Globalization;
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
@@ -73,8 +73,7 @@ public sealed class GoldenCohortSimulatorDriftTests(ArchLucidApiFactory factory)
 
             string runId = created.Run.RunId;
 
-            HttpResponseMessage executeResponse = await Client.PostAsync($"/v1/architecture/review/{runId}/execute", null);
-            await executeResponse.EnsureSuccessForTestAsync();
+            await Client.PostExecuteUnlessAuthorityPipelineCompleteAsync(runId);
             HttpResponseMessage commitResponse = await Client.PostAsync($"/v1/architecture/review/{runId}/finalize", null);
             await commitResponse.EnsureSuccessForTestAsync();
             string commitJson = await commitResponse.Content.ReadAsStringAsync();

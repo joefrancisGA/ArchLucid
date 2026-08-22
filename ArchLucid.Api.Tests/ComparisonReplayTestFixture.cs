@@ -33,8 +33,7 @@ public static class ComparisonReplayTestFixture
         CreateRunResponseDto? created =
             await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(jsonOptions);
         string runId = created!.Run.RunId;
-        HttpResponseMessage executeResponse = await client.PostAsync($"/v1/architecture/review/{runId}/execute", null);
-        await executeResponse.EnsureSuccessForTestAsync();
+        await client.PostExecuteUnlessAuthorityPipelineCompleteAsync(runId);
         return runId;
     }
 
@@ -58,8 +57,7 @@ public static class ComparisonReplayTestFixture
             await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(jsonOptions);
         string runId = created!.Run.RunId;
 
-        HttpResponseMessage executeResponse = await client.PostAsync($"/v1/architecture/review/{runId}/execute", null);
-        await executeResponse.EnsureSuccessForTestAsync();
+        await client.PostExecuteUnlessAuthorityPipelineCompleteAsync(runId);
 
         HttpResponseMessage commitResponse = await client.PostAsync($"/v1/architecture/review/{runId}/finalize", null);
         await commitResponse.EnsureSuccessForTestAsync();

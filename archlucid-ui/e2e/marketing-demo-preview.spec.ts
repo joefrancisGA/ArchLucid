@@ -5,10 +5,13 @@ import { expect, test } from "@playwright/test";
 
 import { showcaseTitleForRunId } from "@/lib/showcase-page-copy";
 
+import { waitForAppReady } from "./helpers/waits";
+
 test.describe("marketing-demo-preview", () => {
   test("/showcase/customer-intake-modernization loads hero and signup CTA without auth", async ({ page }) => {
     test.setTimeout(120_000);
     await page.goto("/showcase/customer-intake-modernization", { waitUntil: "load" });
+    await waitForAppReady(page);
     await expect(
       page.getByRole("heading", {
         name: showcaseTitleForRunId("customer-intake-modernization"),

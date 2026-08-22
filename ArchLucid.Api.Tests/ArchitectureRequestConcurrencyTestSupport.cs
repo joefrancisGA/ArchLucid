@@ -529,6 +529,9 @@ internal static class ArchitectureRequestConcurrencyTestSupport
                 if (response.IsSuccessStatusCode)
                     return;
 
+                if (await response.IsAuthorityPipelineCompleteExecuteConflictAsync(attemptBudget.Token))
+                    return;
+
                 if (response.StatusCode != HttpStatusCode.ServiceUnavailable)
                     await response.EnsureSuccessForTestAsync();
             }

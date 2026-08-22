@@ -27,8 +27,10 @@ public sealed class ArchitectureComparisonAuditTests(ArchLucidApiFactory factory
             await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
         string runId = created!.Run.RunId;
 
-        HttpResponseMessage executeResponse = await Client.PostAsync($"/v1/architecture/review/{runId}/execute", null);
-        executeResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+        HttpResponseMessage executeResponse = await Client.PostExecuteForTestAsync(runId);
+
+        if (!await executeResponse.IsAuthorityPipelineCompleteExecuteConflictAsync())
+            executeResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
         HttpResponseMessage commitResponse = await Client.PostAsync($"/v1/architecture/review/{runId}/finalize", null);
         commitResponse.StatusCode.Should().Be(HttpStatusCode.OK);

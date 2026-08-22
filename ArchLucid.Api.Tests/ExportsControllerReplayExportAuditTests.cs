@@ -2,10 +2,11 @@ using System.Security.Claims;
 
 using ArchLucid.Api.Controllers.Authority;
 using ArchLucid.Application.Analysis;
+using ArchLucid.Contracts.Architecture;
+using ArchLucid.Contracts.Metadata;
 using ArchLucid.Core.Audit;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Queries;
-
 using FluentAssertions;
 
 using Microsoft.AspNetCore.Http;
@@ -24,31 +25,43 @@ public sealed class ExportsControllerReplayExportAuditTests
     [SkippableFact]
     public async Task ReplayExportRecord_WhenReplayPersisted_LogsReplayExportRecordedWithDataJson()
     {
+        const string sourceExportId = "source-export";
+        const string victimRunId = "abc123def4567890abc123def4567890";
+
         Mock<IExportReplayService> replay = new();
         replay
             .Setup(r => r.ReplayAsync(It.IsAny<AppReplayExportRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(
                 new ReplayExportResult
                 {
-                    ExportRecordId = "source-export",
+                    ExportRecordId = sourceExportId,
                     RecordedReplayExportRecordId = "new-export-row",
-                    RunId = "abc123def4567890abc123def4567890",
+                    RunId = victimRunId,
                     Format = "docx",
                     FileName = "r.docx",
                     Content = []
                 });
 
+        Mock<IRunExportRecordRepository> exports = new();
+        exports
+            .Setup(r => r.GetByIdAsync(sourceExportId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunExportRecord { ExportRecordId = sourceExportId, RunId = victimRunId });
+
+        Mock<IRunDetailQueryService> runDetails = new();
+        runDetails
+            .Setup(r => r.GetRunDetailAsync(victimRunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ArchitectureRunDetail { Run = new ArchitectureRun { RunId = victimRunId } });
+
         Mock<IAuditService> audit = new();
 
         ExportsController sut = new(
-            Mock.Of<IRunDetailQueryService>(),
-            Mock.Of<IRunExportRecordRepository>(),
+            runDetails.Object,
+            exports.Object,
             Mock.Of<IComparisonAuditService>(),
             replay.Object,
             Mock.Of<IExportRecordDiffService>(),
             Mock.Of<IExportRecordDiffSummaryFormatter>(),
             audit.Object);
-
         DefaultHttpContext http = new()
         {
             User = new ClaimsPrincipal(new ClaimsIdentity([new Claim(ClaimTypes.NameIdentifier, "u")])),
