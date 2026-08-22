@@ -2,12 +2,16 @@ import Link from "next/link";
 
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { OperatorBrandedTransientFailure } from "@/components/operator/OperatorBrandedTransientFailure";
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { ReviewPackageLoadFailureView } from "@/components/ReviewPackageLoadFailureView";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { isApiNotFoundFailure, isApiTransientLoadFailure } from "@/lib/api-load-failure";
-import { OPERATOR_LINK } from "@/lib/design-tokens";
+import { OPERATOR_LAYOUT, OPERATOR_LINK } from "@/lib/design-tokens";
 import { REVIEW_PACKAGE_OPEN_FAILURE_HEADING } from "@/lib/review-generation-handoff";
+import { cn } from "@/lib/utils";
+
+const runDetailErrorShellClassName = cn(OPERATOR_LAYOUT.sectionStack, "px-1 py-2 sm:px-0");
 
 export function RunDetailPageFetchErrorView(props: {
   readonly runId: string;
@@ -18,7 +22,11 @@ export function RunDetailPageFetchErrorView(props: {
 }): React.JSX.Element {
   if (props.fromGeneration || isApiNotFoundFailure(props.loadFailure)) {
     return (
-      <div className="w-full max-w-[1200px] space-y-4 px-1 py-2 sm:px-0" data-testid="run-detail-load-failure">
+      <OperatorPageContainer
+        variant="dashboard"
+        className={runDetailErrorShellClassName}
+        data-testid="run-detail-load-failure"
+      >
         <OperatorPageHeader
           title={
             props.fromGeneration
@@ -34,14 +42,15 @@ export function RunDetailPageFetchErrorView(props: {
           loadFailure={props.loadFailure}
           attemptedRoute={props.attemptedRoute}
         />
-      </div>
+      </OperatorPageContainer>
     );
   }
 
   if (props.loadFailure !== null && isApiTransientLoadFailure(props.loadFailure)) {
     return (
-      <div
-        className="w-full max-w-[1200px] space-y-4 px-1 py-2 sm:px-0"
+      <OperatorPageContainer
+        variant="dashboard"
+        className={runDetailErrorShellClassName}
         data-testid="run-detail-load-failure"
       >
         <OperatorPageHeader title="Review detail" headingLevel="h1" />
@@ -50,13 +59,14 @@ export function RunDetailPageFetchErrorView(props: {
           retryLabel="Retry loading review"
           reportProblemSurfaceId="review-detail-hard-load-failure"
         />
-      </div>
+      </OperatorPageContainer>
     );
   }
 
   return (
-    <div
-      className="w-full max-w-[1200px] space-y-4 px-1 py-2 sm:px-0"
+    <OperatorPageContainer
+      variant="dashboard"
+      className={runDetailErrorShellClassName}
       data-testid="run-detail-load-failure"
     >
       <OperatorPageHeader title="Review detail" headingLevel="h1" />
@@ -70,6 +80,6 @@ export function RunDetailPageFetchErrorView(props: {
           ← Back to reviews
         </Link>
       </p>
-    </div>
+    </OperatorPageContainer>
   );
 }

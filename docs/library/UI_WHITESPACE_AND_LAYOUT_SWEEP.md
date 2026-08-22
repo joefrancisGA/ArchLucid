@@ -62,9 +62,9 @@ Shell max width stays `max-w-[1600px]` — do not nest duplicate `max-w-[1440px]
 | **3** | SP-4 `OperatorRelatedSurfacesDisclosure` + audit export header | Done |
 | **4** | Governance workflow spacing, workspace-health hash, sponsor nested width | Done |
 | **5** | Security-trust `settings`, run-detail disclosure + snapshot density | Done |
-| **6** | Remaining ad-hoc widths (governance workflow container, policy packs list, graph/provenance loading) | In progress |
-| **7** | Search/pattern library narrow surfaces (evaluate `workflow` vs `reading`) | Pending |
-| **8** | Run-detail / policy-pack detail route shells (`max-w-[1200px]` stragglers) | Pending |
+| **6** | Remaining ad-hoc widths (governance workflow container, policy packs list, graph/provenance loading) | Done |
+| **7** | Search/pattern library narrow surfaces (`workflow` + rail disclosure) | Done |
+| **8** | Run-detail & policy-pack detail route shells (`dashboard` alignment) | Done |
 | **9** | Regression — `npm run ux-audit` screenshots at 1440/1920 | Pending |
 
 ## Shared primitive: related surfaces disclosure

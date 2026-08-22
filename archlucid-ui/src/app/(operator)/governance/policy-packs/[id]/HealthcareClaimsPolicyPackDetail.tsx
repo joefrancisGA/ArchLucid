@@ -3,6 +3,7 @@ import Link from "next/link";
 
 import { GovernancePolicyPackBreadcrumb } from "@/components/governance/GovernancePolicyPackBreadcrumb";
 import { CopyIdButton } from "@/components/CopyIdButton";
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -37,7 +38,7 @@ export function HealthcareClaimsPolicyPackDetail(props: HealthcareClaimsPolicyPa
   const versionBadgeLabel = `Healthcare Claims policy pack · v${CLAIMS_INTAKE_RULE_SET_VERSION} · effective 2026-05-01`;
 
   return (
-    <div className={cn("w-full max-w-[1200px] p-4", OPERATOR_LAYOUT.sectionStack)} data-testid="healthcare-claims-policy-pack-detail">
+    <OperatorPageContainer variant="dashboard" className={OPERATOR_LAYOUT.sectionStack} data-testid="healthcare-claims-policy-pack-detail">
       <OperatorPageHeader
         navHref={GOVERNANCE_POLICY_PACKS_PATH}
         title={canonicalPackLabel}
@@ -131,6 +132,6 @@ export function HealthcareClaimsPolicyPackDetail(props: HealthcareClaimsPolicyPa
           </p>
         </CollapsibleContent>
       </Collapsible>
-    </div>
+    </OperatorPageContainer>
   );
 }

@@ -3,6 +3,7 @@ import { cn } from "@/lib/utils";
 
 import { CopyIdButton } from "@/components/CopyIdButton";
 import { InlineMetadataLine } from "@/components/InlineMetadataLine";
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -92,7 +93,7 @@ export function PolicyPackGenericDetail(props: PolicyPackGenericDetailProps): Re
   });
 
   return (
-    <div className={cn("w-full max-w-[1200px] p-4", OPERATOR_LAYOUT.sectionStack)} data-testid="policy-pack-generic-detail">
+    <OperatorPageContainer variant="dashboard" className={OPERATOR_LAYOUT.sectionStack} data-testid="policy-pack-generic-detail">
       <OperatorPageHeader
         navHref={GOVERNANCE_POLICY_PACKS_PATH}
         title={packName}
@@ -155,6 +156,6 @@ export function PolicyPackGenericDetail(props: PolicyPackGenericDetailProps): Re
           <CopyIdButton value={policyPackId} aria-label="Copy policy pack ID" />
         </CollapsibleContent>
       </Collapsible>
-    </div>
+    </OperatorPageContainer>
   );
 }

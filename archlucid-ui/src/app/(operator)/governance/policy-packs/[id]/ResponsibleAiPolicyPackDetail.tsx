@@ -3,6 +3,7 @@ import { cn } from "@/lib/utils";
 
 import { GovernancePolicyPackBreadcrumb } from "@/components/governance/GovernancePolicyPackBreadcrumb";
 import { CopyIdButton } from "@/components/CopyIdButton";
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -219,7 +220,7 @@ export function ResponsibleAiPolicyPackDetail(props: ResponsibleAiPolicyPackDeta
   );
 
   return (
-    <div className={cn("w-full max-w-[1200px] p-4", OPERATOR_LAYOUT.sectionStack)} data-testid="responsible-ai-policy-pack-detail">
+    <OperatorPageContainer variant="dashboard" className={OPERATOR_LAYOUT.sectionStack} data-testid="responsible-ai-policy-pack-detail">
       <OperatorPageHeader
         navHref={GOVERNANCE_POLICY_PACKS_PATH}
         title={RESPONSIBLE_AI_POLICY_PACK_PAGE_TITLE}
@@ -353,6 +354,6 @@ export function ResponsibleAiPolicyPackDetail(props: ResponsibleAiPolicyPackDeta
           </div>
         </CollapsibleContent>
       </Collapsible>
-    </div>
+    </OperatorPageContainer>
   );
 }

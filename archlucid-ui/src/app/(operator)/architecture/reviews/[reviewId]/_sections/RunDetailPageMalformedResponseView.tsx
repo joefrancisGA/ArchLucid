@@ -2,16 +2,18 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 import { OperatorMalformedCallout } from "@/components/operator/OperatorShellMessage";
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { FatalPageReportProblemSupportRow } from "@/components/support/FatalPageReportProblemAction";
 import { RunDetailMinimalChromeMount } from "@/components/runs/RunDetailMinimalChromeMount";
-import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export function RunDetailPageMalformedResponseView(props: { readonly message: string }): React.JSX.Element {
   return (
     <RunDetailMinimalChromeMount>
-      <div
-        className="w-full max-w-[1200px] space-y-4 px-1 py-2 sm:px-0"
+      <OperatorPageContainer
+        variant="dashboard"
+        className={cn(OPERATOR_LAYOUT.sectionStack, "px-1 py-2 sm:px-0")}
         data-testid="run-detail-load-failure"
       >
         <OperatorPageHeader title="Review detail" headingLevel="h1" />
@@ -32,7 +34,7 @@ export function RunDetailPageMalformedResponseView(props: { readonly message: st
             ← Back to reviews
           </Link>
         </p>
-      </div>
+      </OperatorPageContainer>
     </RunDetailMinimalChromeMount>
   );
 }
