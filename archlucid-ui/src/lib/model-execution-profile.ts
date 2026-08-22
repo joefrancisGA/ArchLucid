@@ -50,7 +50,7 @@ export function modelExecutionProfileDescriptor(profile: ModelExecutionProfile):
       };
     case "HighAssurance":
       return {
-        summary: "Strongest model tiers for high-stakes governance reviews.",
+        summary: "Strongest model tiers for high-stakes approval reviews.",
         tradeoffs: [
           "Higher token spend per review",
           "May increase agent run latency on some tasks",

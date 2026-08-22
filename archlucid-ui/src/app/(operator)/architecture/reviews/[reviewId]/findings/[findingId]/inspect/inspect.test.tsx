@@ -95,7 +95,7 @@ describe("FindingInspectView", () => {
 
     expect(view.getByTestId("finding-evidence-trace-region")).toBeTruthy();
     expect(view.getByTestId("finding-governance-action-region")).toBeTruthy();
-    expect(view.getByRole("heading", { name: "Take governance action" })).toBeTruthy();
+    expect(view.getByRole("heading", { name: "Act on this finding" })).toBeTruthy();
   });
 
   it("has no serious axe violations when reasoning summary is present", async () => {

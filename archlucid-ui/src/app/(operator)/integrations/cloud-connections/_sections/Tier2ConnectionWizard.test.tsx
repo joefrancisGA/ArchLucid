@@ -81,6 +81,23 @@ describe("Tier2ConnectionWizard", () => {
     expect(scriptRegion).toHaveTextContent('SUBSCRIPTION_ID="YOUR_SUBSCRIPTION_ID"');
   });
 
+  it("guides operators to Assurance status and Connection status when federation identifiers are unpublished", () => {
+    vi.stubEnv("NEXT_PUBLIC_ARCHLUCID_HOSTED_IDENTITY_TENANT_ID", "");
+    vi.stubEnv("NEXT_PUBLIC_ARCHLUCID_HOSTED_MANAGED_IDENTITY_OBJECT_ID", "");
+
+    render(<Tier2ConnectionWizard onSaved={vi.fn()} skipSecurityStep />);
+
+    expect(screen.getByTestId("tier2-federation-identifiers-sourcing")).toBeInTheDocument();
+    expect(screen.getAllByRole("link", { name: "Assurance status" })[0]).toHaveAttribute("href", "/assurance-status");
+    expect(screen.getAllByRole("link", { name: "Connection status" })[0]).toHaveAttribute(
+      "href",
+      "/administration/connection-status",
+    );
+    expect(screen.getByTestId("tier2-federation-identifiers")).toHaveTextContent("Not published in this UI build");
+    expect(screen.getByTestId("tier2-setup-script-unavailable")).toBeInTheDocument();
+    expect(screen.queryByRole("region", { name: "Azure CLI setup script" })).toBeNull();
+  });
+
   it("uses client/app ID in the helper, field label, and tooltip", () => {
     render(<Tier2ConnectionWizard onSaved={vi.fn()} skipSecurityStep />);
 

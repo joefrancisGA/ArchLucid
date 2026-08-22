@@ -11,7 +11,7 @@ const FINDINGS_QUEUE_HUB_CONTEXTUAL_HELP = {
   whatToDoNext: "Assign owners, review aging risks, and clear expiring exceptions.",
   whyEmpty: "Rows appear after findings are accepted or approval decisions are recorded in reviews.",
   whereToConfigurePrerequisite:
-    "Policy packs and governance workflow settings shape what becomes a tracked risk.",
+    "Policy packs and approval workflow settings shape what becomes a tracked risk.",
 } as const;
 
 export const FINDINGS_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] = [

@@ -21,7 +21,7 @@ export const BUYER_WHY_ARCHLUCID_SPONSOR_PACK_SOURCE_LINE =
 export const SPONSOR_REPORT_PAGE_TITLE = "Sponsor report";
 
 export const BUYER_VALUE_REPORT_PAGE_SUBTITLE =
-  "Generate export-ready summaries of finalized reviews, findings, governance activity, and estimated ROI.";
+  "Generate export-ready summaries of finalized reviews, findings, approval activity, and estimated ROI.";
 
 export const BUYER_VALUE_REPORT_OUTCOME_LEAD =
   "Choose a reporting period, review what the report contains, and export when finalized reviews exist in that window.";
@@ -29,7 +29,7 @@ export const BUYER_VALUE_REPORT_OUTCOME_LEAD =
 export const BUYER_VALUE_REPORT_HOW_IT_WORKS_TITLE = "How the sponsor report works";
 
 export const BUYER_VALUE_REPORT_HOW_IT_WORKS_DETAILS =
-  "The sponsor report aggregates finalized reviews, governance activity, and ROI estimates for the selected UTC period. Exports unlock after at least one finalized review falls in the window. Use ROI summary or Review scorecard for deeper drill-downs.";
+  "The sponsor report aggregates finalized reviews, approval activity, and ROI estimates for the selected UTC period. Exports unlock after at least one finalized review falls in the window. Use ROI summary or Review scorecard for deeper drill-downs.";
 
 export const BUYER_VALUE_REPORT_PERIOD_UTC_HELP = "Times are in UTC for consistent reporting.";
 
@@ -43,7 +43,7 @@ export const BUYER_VALUE_REPORT_INCLUDES_TITLE = "Sponsor report includes";
 export const BUYER_VALUE_REPORT_INCLUDES_ITEMS = [
   "Finalized reviews",
   "Key findings",
-  "Governance activity",
+  "Approval activity",
   "Decision summary",
   "ROI estimate",
   "Recommended next actions",
@@ -68,7 +68,7 @@ export const BUYER_SPONSOR_SUMMARY_LOAD_ERROR =
 export const BUYER_SPONSOR_SCORECARD_WINDOW_HELP = "Showing the selected time range.";
 
 export const BUYER_SPONSOR_COMPLIANCE_DRIFT_TREND_DESCRIPTION =
-  "Daily trend of findings opened when reviews capture snapshots versus findings resolved through governance review.";
+  "Daily trend of findings opened when reviews capture snapshots versus findings resolved through approval review.";
 
 export const BUYER_SPONSOR_ENVIRONMENT_SAVINGS_DESCRIPTION =
   "Estimated savings grouped by environment tag from finalized reviews in this workspace.";

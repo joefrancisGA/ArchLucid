@@ -200,7 +200,7 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
   },
   "value-report": {
     layerBadge: "Sponsor report",
-    headline: "Create an export-ready report summarizing finalized reviews, findings, governance activity, and estimated ROI.",
+    headline: "Create an export-ready report summarizing finalized reviews, findings, approval activity, and estimated ROI.",
     useWhen: "Generate sponsor and board-ready exports after you have finalized reviews in the selected period.",
     firstPilotNote: "After pilot outcomes when sponsors need a packaged value narrative.",
     enterpriseFootnote: "Standard tier required; cost estimate is hours-first from review severities.",
@@ -212,12 +212,12 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
     useWhen:
       "Use after changing policy pack assignments or approval workflow settings to confirm what is in effect.",
     firstPilotNote: "After Pilot proof when merge order or conflicts need review.",
-    enterpriseFootnote: "Read-only diagnostic; edits on Policy packs or Governance workflow.",
+    enterpriseFootnote: "Read-only diagnostic; edits on Policy packs or Resolve outcomes workflow.",
     omitReviewPackageScopeHelp: true,
   },
   "governance-workflow": {
     layerBadge: "Governance",
-    headline: "Submit finalized architecture outputs for approval workflow review and promotion.",
+    headline: "Submit finalized architecture outputs for resolve outcomes review and promotion.",
     useWhen: "Pick one review and move from submission through approval, promotion, and activation.",
     firstPilotNote:
       "After Pilot proof when your team promotes finalized architecture snapshots through approval workflow stages.",
@@ -332,7 +332,7 @@ const LAYER_GUIDANCE_BUYER_POLISH_PARTIAL: Partial<
       "Review administrators and governance reviewers use review detail for deep inspection; resolve outcomes remain the authoritative checkpoint.",
   },
   "policy-packs": {
-    useWhen: "See which governance packs apply in this workspace and how they combine.",
+    useWhen: "See which policy packs apply in this workspace and how they combine.",
     firstPilotNote: null,
   },
   "governance-workflow": {

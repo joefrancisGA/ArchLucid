@@ -30,7 +30,7 @@ export const ROI_SUMMARY_HELP_BREADCRUMB_TOPIC_TITLE = "ROI summary";
 export const ROI_SUMMARY_HELP_PAGE_SUBTITLE = ROI_SUMMARY_PAGE_SUBTITLE;
 
 export const ROI_SUMMARY_HELP_OVERVIEW =
-  "ROI summary is the portfolio KPI view for review-cycle reduction, estimated effort saved, and governance-ready artifacts across a reporting window. Use it for sponsor value discussions — not financial reporting.";
+  "ROI summary is the portfolio KPI view for review-cycle reduction, estimated effort saved, and export-ready artifacts across a reporting window. Use it for sponsor value discussions — not financial reporting.";
 
 export const ROI_SUMMARY_HELP_START_HERE_CARD_TITLE = "Start here";
 

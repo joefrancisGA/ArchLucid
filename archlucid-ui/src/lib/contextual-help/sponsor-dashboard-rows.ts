@@ -12,9 +12,9 @@ const SPONSOR_DASHBOARD_HUB_CONTEXTUAL_HELP = {
   whatIsThisPage:
     "Sponsor dashboard — portfolio ROI trends, sponsor exports, and workspace-health KPI tiles for approval and ROI status in the current scope.",
   whatToDoNext:
-    "Review KPI tiles and sponsor exports, then open Workspace health or Decisions needed for governance follow-up.",
+    "Review KPI tiles and sponsor exports, then open Workspace health or Decisions needed for approval follow-up.",
   whyEmpty:
-    "Tiles stay at zero until you finalize reviews and governance activity exists in the current workspace scope.",
+    "Tiles stay at zero until you finalize reviews and approval activity exists in the current workspace scope.",
   whereToConfigurePrerequisite:
     "Switch workspace or project scope from the header switcher — figures never roll up across workspaces.",
   whatToDoNextAction: {

@@ -28,6 +28,7 @@ using ArchLucid.Application.Exports;
 using ArchLucid.Application.Exports.ArchitectureReviewBoard;
 using ArchLucid.Application.Findings;
 using ArchLucid.Application.Governance;
+using ArchLucid.Application.Governance.PolicyPacks;
 using ArchLucid.Application.Governance.FindingDisposition;
 using ArchLucid.Application.Governance.FindingReview;
 using ArchLucid.Persistence.Caching;
@@ -242,6 +243,7 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IArchitectureRunCreateOrchestrator, ArchitectureRunCreateOrchestrator>();
         services.AddScoped<IArchitectureRunBatchCreateOrchestrator, ArchitectureRunBatchCreateOrchestrator>();
         services.AddScoped<IArchitectureRunExecuteOrchestrator, ArchitectureRunExecuteOrchestrator>();
+        services.AddScoped<IArchitectureRunArchiveService, ArchitectureRunArchiveService>();
         services.Configure<RunExecuteOwnershipLeaseOptions>(
             configuration.GetSection(RunExecuteOwnershipLeaseOptions.SectionName));
         services.TryAddSingleton<IWorkerHostDrainGate, WorkerHostDrainGate>();
@@ -279,6 +281,8 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<ITenantAgentOutputQualityGateModeService, TenantAgentOutputQualityGateModeService>();
         services.AddScoped<IWorkspaceModelExecutionProfileService, WorkspaceModelExecutionProfileService>();
         services.AddScoped<IWorkspaceAllowedEngineSetService, WorkspaceAllowedEngineSetService>();
+        services.AddScoped<IWorkspaceFocusedPilotPackSetService, WorkspaceFocusedPilotPackSetService>();
+        services.AddScoped<IFocusedPilotGovernanceScopeFactory, FocusedPilotGovernanceScopeFactory>();
         services.AddScoped<IModelExecutionProfileResolver, ModelExecutionProfileResolver>();
         services.AddScoped<IReviewModelAliasResolver, ReviewModelAliasResolver>();
         services.AddScoped<IAgentModelCatalogEvaluationRecorder, AgentModelCatalogEvaluationRecorder>();

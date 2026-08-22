@@ -2,7 +2,6 @@
 
 import { EvidenceOrientationClaimAndSourcesStrip } from "@/components/evidence-orientation/EvidenceOrientationClaimAndSourcesStrip";
 import { EVIDENCE_SOURCES_STYLE } from "@/components/evidence-orientation/evidence-orientation-styles";
-import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
 import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { AWS_TRUST_STARTER_IDENTITY_INTRO } from "@/lib/aws-cloud-connection-trust-policy-starter";
@@ -59,21 +58,11 @@ function AwsCloudConnectionHeaderStatus(): React.ReactElement {
 }
 
 function AwsCloudConnectionPageHeader(): React.ReactElement {
-  const { connections, isLoading, loadError } = useAwsConnectionData();
-  const showConnectPrimary = !isLoading && loadError === null && connections.length === 0;
-
   return (
     <CloudConnectionsProviderHeader
       providerLabel="AWS"
       overview="Read-only Resource Explorer inventory through a federated IAM role."
       statusBadge={<AwsCloudConnectionHeaderStatus />}
-      primaryAction={
-        showConnectPrimary ? (
-          <Button asChild variant="primary" data-testid="aws-connection-header-connect">
-            <a href="#connection-details">Connect AWS account</a>
-          </Button>
-        ) : undefined
-      }
     />
   );
 }

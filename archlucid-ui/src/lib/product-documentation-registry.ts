@@ -104,7 +104,7 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     slug: "getting-started",
     title: "Getting started",
     summary:
-      "Learn how ArchLucid turns architecture evidence into review findings, decisions, and governance-ready outputs.",
+      "Learn how ArchLucid turns architecture evidence into review findings, decisions, and export-ready outputs.",
     audience: "operator",
     sourcePaths: ["docs/library/customer-facing/CONCEPTS_IN_5_MINUTES.md"],
     lastReviewed: "2026-08-09",
@@ -599,7 +599,7 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
   {
     slug: "roi-summary",
     title: "ROI summary",
-    summary: "Portfolio KPI framing for review-cycle reduction, effort saved, and governance-ready artifacts.",
+    summary: "Portfolio KPI framing for review-cycle reduction, effort saved, and export-ready artifacts.",
     audience: "operator",
     // App-rendered specialty (`HelpRoiSummaryGuideView`).
     sourcePaths: [],

@@ -5,7 +5,6 @@ import { Badge } from "@/components/ui/badge";
 import { MARKETING_SURFACES, MARKETING_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   DEMO_PREVIEW_EYEBROW,
-  DEMO_PREVIEW_EXPLORE_REVIEW_ACTION,
   DEMO_PREVIEW_HERO_SUPPORTING,
   DEMO_PREVIEW_HERO_TITLE,
   DEMO_PREVIEW_ILLUSTRATIVE_BADGE,
@@ -52,10 +51,7 @@ export function DemoPreviewHero() {
       </p>
 
       <div className="flex flex-wrap items-center gap-3">
-        <Button asChild variant="primary" data-testid="demo-preview-explore-review">
-          <a href="#demo-preview-result-at-a-glance">{DEMO_PREVIEW_EXPLORE_REVIEW_ACTION}</a>
-        </Button>
-        <Button asChild variant="outline" data-testid="demo-preview-thirty-second">
+        <Button asChild variant="primary" data-testid="demo-preview-thirty-second">
           <Link href="/see-it">{DEMO_PREVIEW_THIRTY_SECOND_ACTION}</Link>
         </Button>
         <Link

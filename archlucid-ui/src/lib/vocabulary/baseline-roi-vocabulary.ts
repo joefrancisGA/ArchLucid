@@ -5,7 +5,7 @@
  * - Baseline settings (`/administration/baseline`) capture *measurement inputs* —
  *   review-cycle hours, people, and prep effort used as the ROI cost basis.
  * - ROI summary (`/insights/roi-summary`) is the *portfolio KPI* view for
- *   review-cycle reduction, effort saved, and governance-ready artifacts.
+ *   review-cycle reduction, effort saved, and export-ready artifacts.
  *
  * They stay separate because configuring the cost baseline is not the same task
  * as reading portfolio ROI framing. Distinct from TB-2265 (scorecard ≠ ROI) and
@@ -37,7 +37,7 @@ export const BASELINE_ROI_HEADING =
   "Baseline settings and ROI summary serve different purposes" as const;
 
 export const BASELINE_ROI_WHY_TWO =
-  "Baseline settings capture measurement inputs — review-cycle hours, people, and prep effort that form the ROI cost basis. ROI summary shows portfolio KPIs — review-cycle reduction, estimated effort saved, and governance-ready artifacts across the reporting window. Configuring the cost baseline is not the same as reading portfolio ROI framing." as const;
+  "Baseline settings capture measurement inputs — review-cycle hours, people, and prep effort that form the ROI cost basis. ROI summary shows portfolio KPIs — review-cycle reduction, estimated effort saved, and export-ready artifacts across the reporting window. Configuring the cost baseline is not the same as reading portfolio ROI framing." as const;
 
 export const BASELINE_ROI_COMPACT_LINE =
   "Baseline settings capture cost inputs; ROI summary shows portfolio framing — open the other when you need both." as const;

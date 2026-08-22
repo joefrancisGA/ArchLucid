@@ -47,4 +47,17 @@ public sealed class AuthSignInReturnPathGuardTests
 
         AuthSignInReturnPathGuard.TryNormalize($"/welcome{payload}").Should().BeNull();
     }
+
+    [Fact]
+    public void TryNormalize_rejects_residual_double_encoded_slashes_after_decode_cap()
+    {
+        string payload = "//evil.example";
+
+        for (int pass = 0; pass < 10; pass++)
+        {
+            payload = Uri.EscapeDataString(payload);
+        }
+
+        AuthSignInReturnPathGuard.TryNormalize($"/welcome{payload}").Should().BeNull();
+    }
 }

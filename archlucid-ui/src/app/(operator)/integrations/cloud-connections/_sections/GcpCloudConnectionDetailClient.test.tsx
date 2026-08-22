@@ -79,15 +79,14 @@ describe("GcpCloudConnectionDetailClient", () => {
     expect(screen.getByTestId("gcp-connection-recent-activity-panel")).toBeInTheDocument();
   });
 
-  it("shows connection status and header connect CTA when not connected (P0-2)", async () => {
+  it("shows connection status without a header scroll CTA when not connected (P0-2)", async () => {
     render(<GcpCloudConnectionDetailClient />);
 
     await waitFor(() => {
       expect(screen.getByTestId("gcp-connection-header-status")).toHaveTextContent("Not connected");
     });
 
-    expect(screen.getByTestId("gcp-connection-header-connect")).toHaveTextContent("Connect GCP project");
-    expect(screen.getByTestId("gcp-connection-header-connect")).toHaveAttribute("href", "#connection-details");
+    expect(screen.queryByTestId("gcp-connection-header-connect")).not.toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Recent connection activity" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "View setup guide" })).toHaveAttribute(
       "href",
@@ -108,7 +107,7 @@ describe("GcpCloudConnectionDetailClient", () => {
       );
     }
     const sources = screen.getByTestId("cloud-connections-gcp-sources");
-    expect(within(sources).getByRole("link", { name: "Connection status" })).toHaveAttribute(
+    expect(within(sources).getByRole("link", { name: "Open Connection status" })).toHaveAttribute(
       "href",
       "/administration/connection-status",
     );

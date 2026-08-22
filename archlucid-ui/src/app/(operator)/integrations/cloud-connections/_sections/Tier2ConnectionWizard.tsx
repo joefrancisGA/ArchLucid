@@ -89,6 +89,18 @@ import {
   readAzureHostedFederationConfig,
 } from "@/lib/azure-cloud-connection-federation-config";
 
+import {
+  AZURE_FEDERATION_IDENTIFIER_SOURCING_LEAD,
+  AZURE_FEDERATION_IDENTIFIER_SOURCING_MID,
+  AZURE_FEDERATION_IDENTIFIER_SOURCING_TAIL,
+  AZURE_FEDERATION_IDENTIFIER_UNPUBLISHED_VALUE,
+  AZURE_FEDERATION_SETUP_SCRIPT_UNAVAILABLE_LEAD,
+  AZURE_FEDERATION_SETUP_SCRIPT_UNAVAILABLE_MID,
+  AZURE_FEDERATION_SETUP_SCRIPT_UNAVAILABLE_TAIL,
+} from "@/lib/azure-cloud-connection-federation-identity-source";
+
+import { CONNECTION_STATUS_CANONICAL_PATH } from "@/lib/connection-status-evidence-copy";
+
 import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
 
 import { readFrictionlessTrialSessionEnabled } from "@/lib/frictionless-trial-session";
@@ -729,6 +741,21 @@ export function Tier2ConnectionWizard({
 
             <p className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>ArchLucid federation identifiers</p>
 
+            <p
+              className={cn("mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+              data-testid="tier2-federation-identifiers-sourcing"
+            >
+              {AZURE_FEDERATION_IDENTIFIER_SOURCING_LEAD}{" "}
+              <Link href="/assurance-status" className={OPERATOR_BODY_INLINE_LINK_CLASS}>
+                Assurance status
+              </Link>{" "}
+              {AZURE_FEDERATION_IDENTIFIER_SOURCING_MID}{" "}
+              <Link href={CONNECTION_STATUS_CANONICAL_PATH} className={OPERATOR_BODY_INLINE_LINK_CLASS}>
+                Connection status
+              </Link>{" "}
+              {AZURE_FEDERATION_IDENTIFIER_SOURCING_TAIL}
+            </p>
+
             <dl
 
               className={cn("mt-3 space-y-3", OPERATOR_TYPOGRAPHY.body)}
@@ -753,7 +780,7 @@ export function Tier2ConnectionWizard({
 
                     <dd className="break-all font-mono text-sm">
 
-                      {identifier.value.length > 0 ? identifier.value : "Unavailable in this environment"}
+                      {identifier.value.length > 0 ? identifier.value : AZURE_FEDERATION_IDENTIFIER_UNPUBLISHED_VALUE}
 
                     </dd>
 
@@ -808,9 +835,19 @@ export function Tier2ConnectionWizard({
             </div>
 
             {setupScript === null ? (
-              <p className={cn("mt-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                Federation identifiers are unavailable in this environment. Contact your ArchLucid administrator or use
-                the infrastructure templates instead of the CLI script.
+              <p
+                className={cn("mt-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+                data-testid="tier2-setup-script-unavailable"
+              >
+                {AZURE_FEDERATION_SETUP_SCRIPT_UNAVAILABLE_LEAD}{" "}
+                <Link href="/assurance-status" className={OPERATOR_BODY_INLINE_LINK_CLASS}>
+                  Assurance status
+                </Link>{" "}
+                {AZURE_FEDERATION_SETUP_SCRIPT_UNAVAILABLE_MID}{" "}
+                <Link href={CONNECTION_STATUS_CANONICAL_PATH} className={OPERATOR_BODY_INLINE_LINK_CLASS}>
+                  Connection status
+                </Link>{" "}
+                {AZURE_FEDERATION_SETUP_SCRIPT_UNAVAILABLE_TAIL}
               </p>
             ) : (
               <pre

@@ -18,7 +18,7 @@ export function alertsPageSubtitle(buyerPolishedShell: boolean): string {
 }
 
 export const ALERTS_CONTEXT_NOTE =
-  "Alerts appear when enabled rules detect findings that require acknowledgement, resolution, or governance review.";
+  "Alerts appear when enabled rules detect findings that require acknowledgement, resolution, or approval review.";
 
 export const ALERTS_HOW_ALERTS_WORK_LABEL = "How alerts work";
 

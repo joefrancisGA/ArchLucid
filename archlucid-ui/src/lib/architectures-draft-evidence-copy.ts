@@ -27,7 +27,7 @@ export const ARCHITECTURES_DRAFT_SOURCES: readonly EvidenceSourceLink[] = [
 
 export const ARCHITECTURES_DRAFT_CONTEXTUAL_HELP = {
   whatIsThisPage:
-    "Architecture draft workspace - refine a saved system brief before filing evidence for a governance review.",
+    "Architecture draft workspace - refine a saved system brief before filing evidence for a approval review.",
   whatToDoNext:
     "Update the draft fields, save when ready, then open Start a review when the brief is ready for evidence intake.",
   whyEmpty: "Draft fields load from the architectures API for this id; empty fields mean the draft has no content yet.",

@@ -107,6 +107,11 @@ export async function reopenDraftRequest(draftId: string): Promise<DraftRequestR
   return apiPostJson<DraftRequestResponse>(`${DRAFT_BASE}/${encodeURIComponent(draftId)}/reopen`, {});
 }
 
+/** Permanently abandons a draft in Drafting or Admitted — not reversible. */
+export async function abandonDraftRequest(draftId: string): Promise<DraftRequestResponse> {
+  return apiPostJson<DraftRequestResponse>(`${DRAFT_BASE}/${encodeURIComponent(draftId)}/abandon`, {});
+}
+
 /** Pre-run manifest-free reasoning on an admitted or drafting intake (SAQ-013). */
 export async function reasonDraftRequest(
   draftId: string,

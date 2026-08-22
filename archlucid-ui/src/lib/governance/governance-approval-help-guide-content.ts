@@ -53,7 +53,7 @@ export const GOVERNANCE_APPROVAL_HELP_WORKFLOW_STEPS = [
 ] as const;
 
 export const GOVERNANCE_APPROVAL_HELP_DIAGRAM_SUMMARY =
-  "Approval requests move from draft preparation through governance review to recorded outcomes. Diagram nodes match the approval-request status table on this page.";
+  "Approval requests move from draft preparation through approval review to recorded outcomes. Diagram nodes match the approval-request status table on this page.";
 
 /** Buyer-safe approval state machine — no API paths or eng jargon. */
 export const GOVERNANCE_APPROVAL_HELP_DIAGRAM_SOURCE = `stateDiagram-v2
@@ -145,7 +145,7 @@ export const GOVERNANCE_APPROVAL_HELP_STATUS_ROWS: readonly GovernanceApprovalHe
   {
     status: "Draft",
     kind: "draft",
-    meaning: "A request is being prepared but has not been sent for governance review.",
+    meaning: "A request is being prepared but has not been sent for approval review.",
     whoCanAct: "Users with submission permission on the review.",
     nextAction: "Complete environments, review record version, and comments, then submit.",
   },

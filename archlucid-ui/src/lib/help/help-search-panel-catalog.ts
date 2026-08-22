@@ -67,7 +67,7 @@ const START_HERE_TOPICS: readonly HelpSearchPanelTopic[] = [
   {
     id: "getting-started-help",
     title: "Getting started",
-    description: "Learn how ArchLucid turns architecture evidence into review findings and governance-ready outputs.",
+    description: "Learn how ArchLucid turns architecture evidence into review findings and export-ready outputs.",
     keywords: ["getting started", "concepts", "overview", "introduction"],
     action: { kind: "route", href: "/help/getting-started", helpSlug: "getting-started" },
   },

@@ -511,6 +511,35 @@ describe("ArchitectureDraftWorkspace", () => {
     expect(screen.getByLabelText(/Architecture overview/i)).toBeDisabled();
   });
 
+  it("refreshes draft lifecycle on tab resume when intake started elsewhere", async () => {
+    const draftingCopy = {
+      ...spawnedDraft,
+      status: "Drafting",
+      spawnedRunId: null,
+      document: { ...spawnedDraft.document, workflowIntent: "create-architecture" },
+    };
+    const admittedCopy = {
+      ...draftingCopy,
+      status: "Admitted",
+    };
+
+    getDraftRequest.mockResolvedValueOnce(draftingCopy).mockResolvedValueOnce(admittedCopy);
+
+    render(<ArchitectureDraftWorkspace architectureId="arch-001" />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-scope-understanding-check")).toBeInTheDocument();
+    });
+
+    document.dispatchEvent(new Event("visibilitychange"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-draft-intake-mode-banner")).toBeInTheDocument();
+    });
+
+    expect(getDraftRequest).toHaveBeenCalledTimes(2);
+  });
+
   it("returns the brief to drafting when the operator unlocks intake", async () => {
     getDraftRequest.mockResolvedValue({
       ...spawnedDraft,

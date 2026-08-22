@@ -57,7 +57,7 @@ export const GLOSSARY_TERMS = {
   },
   policy_pack: {
     term: "Policy pack",
-    definition: "A versioned bundle of rules, thresholds, and governance mappings applied to reviews (compliance, finding treatment, pre-finalize gates). Packs are assigned, published, and audited — not informal one-off prose.",
+    definition: "A versioned bundle of rules, thresholds, and policy mappings applied to reviews (compliance, finding treatment, approval checks before finalize). Packs are assigned, published, and audited — not informal one-off prose.",
     docLink: "/help/glossary#term-policy-pack",
   },
   knowledge_graph: {

@@ -1,6 +1,6 @@
 import type { FindingDispositionKind } from "@/lib/api/governance-stickiness-api";
 
-export const GOVERNANCE_ACTION_REGION_TITLE = "Take governance action";
+export const GOVERNANCE_ACTION_REGION_TITLE = "Act on this finding";
 
 export const GOVERNANCE_ACTION_REGION_LEAD =
   "Assign remediation, record disposition, create an exception, or connect the finding to external work tracking.";
@@ -18,7 +18,7 @@ export const EXCEPTION_OWNER_HELP =
 export const EVIDENCE_REFERENCE_LABEL = "Evidence reference";
 
 export const EVIDENCE_REFERENCE_HELP =
-  "Artifact URI, ticket ID, audit correlation ID, or signed review citation that supports this exception.";
+  "Artifact URI, ticket ID, audit correlation ID, or finalized review record citation that supports this exception.";
 
 export const EXPIRATION_LABEL = "Expiration (local time)";
 
@@ -37,7 +37,7 @@ export function dispositionTransitionCopy(disposition: FindingDispositionKind): 
   }
 
   if (disposition === "Deferred") {
-    return `${base} Sets a revisit date for governance follow-up.`;
+    return `${base} Sets a revisit date for approval follow-up.`;
   }
 
   if (disposition === "NeedsEvidence") {

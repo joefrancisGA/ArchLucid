@@ -184,4 +184,11 @@ export const APP_SHELL_CHUNK_MANIFEST: readonly DeferredChunkManifestEntry[] = [
     modulePath: "@/components/cto-demo/CtoDemoJourneyCaptionBar",
     exportName: "CtoDemoJourneyCaptionBar",
   },
+  {
+    id: "app-shell-client",
+    label: "Loading workspace shell",
+    variant: "section",
+    modulePath: "@/components/AppShellClient",
+    exportName: "AppShellClient",
+  },
 ] as const;

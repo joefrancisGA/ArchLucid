@@ -1,6 +1,6 @@
 "use client";
 
-import type { ComponentType } from "react";
+import type { ComponentType, JSX } from "react";
 
 import { createDeferredComponentFromManifest } from "@/lib/operator/load-deferred-chunk-from-manifest";
 
@@ -71,4 +71,18 @@ export const GovernanceApprovalStoryCardDeferred = createDeferredComponentFromMa
 export const AdvancedOptionsAccordionDeferred = createDeferredComponentFromManifest(
   "governance-workflow-advanced-options",
   { loadingTestId: "governance-workflow-deferred-chunk-loading" },
+);
+
+const governanceWorkflowPageContentLoadingWrapper = (): JSX.Element => (
+  <div
+    className="min-h-48 animate-pulse rounded-md border border-neutral-200 bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-800"
+    role="status"
+    aria-label="Loading approval workflow"
+    data-testid="governance-workflow-chunk-loading"
+  />
+);
+
+export const GovernanceWorkflowPageContentDeferred = createDeferredComponentFromManifest(
+  "governance-workflow-page-content",
+  { loadingWrapper: governanceWorkflowPageContentLoadingWrapper },
 );

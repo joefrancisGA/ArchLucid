@@ -99,7 +99,7 @@ export const ARCHITECTURE_SCORECARD_HELP_SIBLING_REPORTS = [
   {
     id: "roi-summary",
     title: "ROI summary",
-    description: "Portfolio KPI view for review-cycle reduction and governance-ready artifacts.",
+    description: "Portfolio KPI view for review-cycle reduction and export-ready artifacts.",
     actionLabel: "Open ROI summary",
     href: SPONSOR_REPORT_ROI_SUMMARY_PATH,
   },

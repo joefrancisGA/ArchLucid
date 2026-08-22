@@ -49,10 +49,10 @@ export const INTERNAL_OPS_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[]
     prefix: INTERNAL_TENANT_HEALTH_PATH,
     entry: {
       whatIsThisPage:
-        "Tenant health — internal customer-success scores for engagement, governance activity, and pilot funnel stage by tenant scope.",
+        "Tenant health — internal customer-success scores for engagement, approval activity, and pilot funnel stage by tenant scope.",
       whatToDoNext:
         "Refresh the table, sort attention to low engagement rows, then open System health or Audit when a tenant needs follow-up.",
-      whyEmpty: "Rows appear after tenant scopes have recorded review or governance activity.",
+      whyEmpty: "Rows appear after tenant scopes have recorded review or approval activity.",
       whereToConfigurePrerequisite:
         "This page requires tenant administrator access; customer tenants never see other tenants here.",
     },
