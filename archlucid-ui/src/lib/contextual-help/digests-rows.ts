@@ -25,6 +25,11 @@ const DIGESTS_HUB_CONTEXTUAL_HELP: PageContextualHelpEntry = {
     label: "Open Schedule tab",
     href: DIGESTS_SCHEDULE_TAB_PATH,
   },
+  taskSteps: [
+    "Open the Schedule tab to set cadence and recipients.",
+    "Preview or send a test digest before enabling production delivery.",
+    "Manage subscriptions on the Subscriptions tab when destinations change.",
+  ],
 };
 
 export const DIGESTS_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] = [

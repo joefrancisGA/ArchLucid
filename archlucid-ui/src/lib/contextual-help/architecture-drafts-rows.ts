@@ -15,6 +15,11 @@ const ARCHITECTURE_DRAFTS_HUB_CONTEXTUAL_HELP = {
   whyEmpty: "Drafts appear after the architectures API responds; empty lists mean no drafts are saved yet.",
   whereToConfigurePrerequisite:
     "Drafting uses the workspace and project selected in the header switcher; listing drafts does not start a review.",
+  taskSteps: [
+    "Open a draft to continue editing the architecture brief.",
+    "Create architecture when you need a new draft.",
+    "Start a review when the brief is ready for evidence intake.",
+  ],
 } as const;
 
 export const ARCHITECTURE_DRAFTS_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] = [

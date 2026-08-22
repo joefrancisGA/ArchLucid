@@ -19,6 +19,11 @@ export const GOVERNANCE_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] =
         label: "Open architecture reviews",
         href: REVIEWS_LIST_PATH,
       },
+      taskSteps: [
+        "Filter by date or category to narrow the register.",
+        "Open a decision card to read confidence and lineage.",
+        "Follow linked reviews or findings for supporting evidence.",
+      ],
     },
   },
   {
@@ -37,6 +42,11 @@ export const GOVERNANCE_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] =
         label: "Open architecture reviews",
         href: REVIEWS_LIST_PATH,
       },
+      taskSteps: [
+        "Select a finalized review as the scan baseline.",
+        "Generate a scan or open Schedules for recurring runs.",
+        "Follow recommendations back to findings or reviews.",
+      ],
     },
   },
   {
