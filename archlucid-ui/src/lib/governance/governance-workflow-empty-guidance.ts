@@ -32,7 +32,7 @@ export const governanceNoApprovalsGettingStartedReader: EmptyStateGettingStarted
   heading: "Why this can be empty",
   steps: [
     "No approval rows exist for this review yet — approval leads submit requests after finalize.",
-    "Try another review from the picker, or coordinate with a approval lead to submit.",
+    "Try another review from the picker, or coordinate with an approval lead to submit.",
     "You can still inspect environment releases and activations below once the review has history.",
   ],
 };
@@ -68,7 +68,7 @@ export const governanceActivationsEmptyGettingStartedReader: EmptyStateGettingSt
   heading: "What activations mean",
   steps: [
     "Activations record which finalized review record version is live for an environment.",
-    "A approval lead runs Activate after an environment release — nothing shows until that completes.",
+    "An approval lead runs Activate after an environment release — nothing shows until that completes.",
     "Use Audit trail if you need the portfolio-level paper trail.",
   ],
 };

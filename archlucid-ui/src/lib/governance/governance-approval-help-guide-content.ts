@@ -318,7 +318,7 @@ export const GOVERNANCE_APPROVAL_HELP_TROUBLESHOOTING: readonly GovernanceApprov
   {
     issue: "You lack permission to approve or submit",
     resolution:
-      "Ask a approval lead to confirm your role rank and workspace scope. Readers can inspect but not mutate workflow rows.",
+      "Ask an approval lead to confirm your role rank and workspace scope. Readers can inspect but not mutate workflow rows.",
   },
   {
     issue: "Policy blocks approval",
