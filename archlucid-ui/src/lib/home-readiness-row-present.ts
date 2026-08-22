@@ -17,7 +17,7 @@ const SPONSOR_READINESS_ROW_PRESENT: Readonly<Record<string, ReadinessRowPresent
   "storage-and-sql": { label: "SQL/storage configured", cta: "Check readiness" },
   "principal-authority": { label: "Review authority", cta: "View permissions" },
   "review-pipeline": { label: "Create, execute, and finalize review", cta: "Open review" },
-  "sample-review": { label: "Example review: ready", cta: "Open example" },
+  "sample-review": { label: "Sample review: ready", cta: "Open sample" },
   "azure-extractor": { label: READINESS_CLOUD_EVIDENCE_LABEL, cta: READINESS_AZURE_EXTRACTOR_CTA },
   "roi-baselines": { label: "ROI assumptions", cta: "Add ROI assumptions" },
   "procurement-classification": { label: "Procurement bundle", cta: "Generate export" },

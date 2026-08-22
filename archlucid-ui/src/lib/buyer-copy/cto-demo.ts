@@ -4,14 +4,14 @@
  * Re-exported by `./index.ts`; import from `@/lib/buyer/buyer-polish-copy` or `@/lib/buyer-copy`.
  */
 
-export const BUYER_HOME_START_CTO_DEMO_HEADING = "Open example review";
+export const BUYER_HOME_START_CTO_DEMO_HEADING = "Open sample review";
 
 export const BUYER_HOME_START_CTO_DEMO_LEAD =
   "Open a completed sample architecture review.";
 
-export const BUYER_HOME_START_CTO_DEMO_CTA = "Open example review";
+export const BUYER_HOME_START_CTO_DEMO_CTA = "Open sample review";
 
-export const BUYER_HOME_START_CTO_DEMO_ARIA = "Open example review — sample review walkthrough";
+export const BUYER_HOME_START_CTO_DEMO_ARIA = "Open sample review walkthrough";
 
 export const BUYER_CTO_DEMO_TOUR_HEADING = "CTO demo tour";
 
@@ -48,7 +48,7 @@ export const BUYER_CTO_DEMO_ENVIRONMENT_UNAVAILABLE_MESSAGE =
   "The demo environment is temporarily unavailable.";
 
 export const BUYER_CTO_DEMO_SAMPLE_MODE_NOTICE =
-  "Showing a saved example review for this walkthrough.";
+  "Showing a saved sample review for this walkthrough.";
 
 export const BUYER_CTO_DEMO_TRY_AGAIN_CTA = "Try again";
 
@@ -196,7 +196,7 @@ export const BUYER_CTO_DEMO_STATIC_PRESENTER_BANNER =
 
 export const BUYER_CTO_DEMO_LATENCY_OK = "Within demo latency budget";
 
-export const BUYER_CTO_DEMO_LATENCY_EXCEEDED = "Taking longer than expected — switch to example review.";
+export const BUYER_CTO_DEMO_LATENCY_EXCEEDED = "Taking longer than expected — switch to sample review.";
 
 export const BUYER_CTO_DEMO_AUDIT_CLOSING_HEADING = "Your diligence bundle is ready.";
 
@@ -242,7 +242,7 @@ export const BUYER_CTO_DEMO_ISOLATION_PROOF_BODY =
 export const BUYER_CTO_DEMO_GOVERNANCE_PREVIEW_BADGE = "Demo preview — read-only view";
 
 export const BUYER_CTO_DEMO_GOVERNANCE_PREVIEW_NOTE =
-  "In production, an architect with Execute authority approves here. This view shows the post-approval state from the example review.";
+  "In production, an architect with Execute authority approves here. This view shows the post-approval state from the sample review.";
 
 export const BUYER_CTO_DEMO_VALUE_STRIP_LABELS: readonly string[] = [
   "This sponsor report gives your sponsor a one-page risk and outcome verdict — no engineering context required.",

@@ -19,10 +19,10 @@ export const BUYER_WORKSPACE_DISPLAY_NAME = `${BUYER_WORKSPACE_SHORT_NAME} Works
 export const BUYER_EXAMPLE_WORKSPACE_TOOLTIP =
   `${BUYER_WORKSPACE_SHORT_NAME} workspace — demonstration data for architecture review walkthroughs.`;
 
-export const BUYER_SEED_EXAMPLE_REVIEW_CTA = "Load the example review";
+export const BUYER_SEED_EXAMPLE_REVIEW_CTA = "Load the sample review";
 
 export const BUYER_SEED_EXAMPLE_REVIEW_HINT =
-  "Loads the interactive example review so you can explore outputs before uploading your own architecture context.";
+  "Loads the interactive sample review so you can explore outputs before uploading your own architecture context.";
 
 /** Forbidden-state copy when a surface requires workspace administrator access. */
 export const FORBIDDEN_WORKSPACE_ADMIN_ACCESS_MESSAGE =
@@ -112,4 +112,4 @@ export function buyerDemoCapabilityUnavailableTitle(): string {
   return BUYER_DEMO_CAPABILITY_UNAVAILABLE_TITLE;
 }
 
-export const BUYER_EXAMPLE_COUNT_SUFFIX = "(example)";
+export const BUYER_EXAMPLE_COUNT_SUFFIX = "(sample)";

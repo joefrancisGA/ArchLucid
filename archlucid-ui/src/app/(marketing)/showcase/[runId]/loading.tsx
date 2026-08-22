@@ -11,7 +11,7 @@ export default function MarketingShowcaseLoading() {
       >
         <p className="m-0 text-sm font-medium text-neutral-800 dark:text-neutral-200">Loading showcase…</p>
         <p className="mt-2 m-0 text-xs text-neutral-500 dark:text-neutral-400">
-          Preparing the read-only completed example preview.
+          Preparing the read-only completed sample preview.
         </p>
       </div>
     </main>

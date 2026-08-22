@@ -27,7 +27,7 @@ export function RunsPageBuyerHelpTip(props: RunsPageBuyerHelpTipProps) {
       ? "Use Search reviews below to narrow by title or description. Each row opens the full review — finalized review record, evidence trail, findings, and deliverables — for that run."
       : demoMarketing
         ? "Demonstration workspace — suitable for understanding output shape and navigation, not as customer-specific ROI or compliance evidence."
-        : "Example review — illustrates structure and navigation for your workspace. Start a review on your own architecture when you are ready for customer-specific evidence.";
+        : "Sample review — illustrates structure and navigation for your workspace. Start a review on your own architecture when you are ready for customer-specific evidence.";
 
   return <FieldHelpTooltip label={label} hint={hint} />;
 }

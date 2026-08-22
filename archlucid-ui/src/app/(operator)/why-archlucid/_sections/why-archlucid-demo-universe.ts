@@ -44,11 +44,11 @@ export function whyArchLucidUniverseWalkthroughLead(universe: WhyArchLucidDemoUn
 export function whyArchLucidSponsorPackSourceLine(universe: WhyArchLucidDemoUniverse): string {
   switch (universe) {
     case "claims":
-      return "Aggregated proof from the evidence pack service — paired with the example Claims Intake review below.";
+      return "Aggregated proof from the evidence pack service — paired with the sample Claims Intake review below.";
     case "contoso":
-      return "Aggregated proof from the evidence pack service — paired with the example Retail baseline review below.";
+      return "Aggregated proof from the evidence pack service — paired with the sample Retail baseline review below.";
     case "unknown":
-      return "Aggregated proof from the evidence pack service — paired with the example demo review below.";
+      return "Aggregated proof from the evidence pack service — paired with the sample demo review below.";
     default: {
       const _exhaustive: never = universe;
 

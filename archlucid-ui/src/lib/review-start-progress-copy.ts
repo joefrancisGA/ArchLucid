@@ -14,7 +14,7 @@ export const OPERATOR_HOME_OPENING_WORKFLOW_LABEL = "Opening workflow…";
 
 export const OPERATOR_HOME_PREPARING_ARCHITECTURE_WORKSPACE_LABEL = "Preparing architecture workspace…";
 
-export const OPERATOR_HOME_OPENING_CREATION_EXAMPLE_LABEL = "Opening creation example…";
+export const OPERATOR_HOME_OPENING_CREATION_EXAMPLE_LABEL = "Opening creation sample…";
 
 export const OPERATOR_HOME_RUNNING_GUIDED_REVIEW_LABEL = "Running guided review…";
 

@@ -251,7 +251,7 @@ export function WizardStepEvidenceUpload(props: WizardStepEvidenceUploadProps) {
             data-testid="wizard-evidence-source-panel-demo"
           >
             <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-              Choose a bundled example review scenario — no scripts or uploads required. Demo outputs are labeled
+              Choose a bundled sample review scenario — no scripts or uploads required. Demo outputs are labeled
               Simulator.
             </p>
             <div className="mt-3">
