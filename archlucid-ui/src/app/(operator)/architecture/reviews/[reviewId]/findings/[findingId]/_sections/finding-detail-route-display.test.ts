@@ -2,6 +2,8 @@ import { describe, expect, it } from "vitest";
 
 import type { FindingInspectPayload } from "@/types/finding-inspect";
 
+import { BUYER_SHOWCASE_RESIDUAL_RISK_NEXT_REVIEW } from "@/lib/buyer/buyer-polish-copy";
+
 import {
   buyerFindingDecisionImpactCopy,
   buyerFindingNextStepCopy,
@@ -41,8 +43,18 @@ describe("finding-detail-route-display buyer summary copy", () => {
     expect(summary.disposition).toContain("monitoring");
     expect(summary.businessImpact).toContain("Non-blocking");
     expect(summary.requiredMonitoring.length).toBeGreaterThan(0);
-    expect(summary.nextReview.length).toBeGreaterThan(0);
+    expect(summary.nextReview).toBe(BUYER_SHOWCASE_RESIDUAL_RISK_NEXT_REVIEW);
     expect(summary.riskOwner.length).toBeGreaterThan(0);
+  });
+
+  it("uses showcase next review when persisted remediation due is in the past", () => {
+    const payload = emptyPayload({
+      remediationDueUtc: "2024-02-14T00:00:00Z",
+    });
+
+    expect(resolveFindingNextReviewLabel(payload, "sensitive-data-minimization-risk")).toBe(
+      BUYER_SHOWCASE_RESIDUAL_RISK_NEXT_REVIEW,
+    );
   });
 
   it("does not invent PHI monitoring for non-PHI findings", () => {

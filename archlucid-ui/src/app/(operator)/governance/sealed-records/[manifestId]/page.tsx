@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 
 import { OperatorBrandedNotFound } from "@/components/operator/OperatorBrandedNotFound";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
+import { resolveManifestDetailSectionTab } from "@/lib/manifest-detail-section-tabs";
 import { isInvalidManifestRouteId } from "@/lib/route-dynamic-param";
 
 import { loadManifestDetailPageModel } from "./_sections/load-manifest-detail-page-model";
@@ -15,10 +16,14 @@ import { ManifestDetailPageView } from "./_sections/ManifestDetailPageView";
 /** Server manifest detail route: validates id, loads model, renders view or error states. */
 export default async function ManifestDetailPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ manifestId: string }>;
+  searchParams: Promise<{ tab?: string }>;
 }) {
   const { manifestId } = await params;
+  const { tab } = await searchParams;
+  const initialTab = resolveManifestDetailSectionTab(tab ?? null);
 
   if (isInvalidManifestRouteId(manifestId)) {
     notFound();
@@ -56,5 +61,5 @@ export default async function ManifestDetailPage({
     return <ManifestDetailSummaryMissingView buyerPolishedLayout={result.buyerPolishedLayout} />;
   }
 
-  return <ManifestDetailPageView model={result.model} />;
+  return <ManifestDetailPageView model={result.model} initialTab={initialTab} />;
 }

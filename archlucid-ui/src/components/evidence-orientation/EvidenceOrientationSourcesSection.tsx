@@ -27,7 +27,7 @@ const SOURCES_COLUMNS_PANEL_CLASS =
 
 const SOURCES_COLUMNS_LIST_CLASS = "m-0 mt-2 grid list-none gap-x-3 gap-y-1 p-0 sm:grid-cols-2";
 
-/** Few follow-ups read better as a tight stack beside the intro — not a sparse two-column index. */
+/** A single follow-up reads better as a tight stack beside the intro — not a sparse two-column index. */
 const SOURCES_COLUMNS_COMPACT_LIST_CLASS = "m-0 mt-2 flex list-none flex-col gap-y-1 p-0 md:mt-0";
 
 export type EvidenceOrientationSourcesSectionProps = {
@@ -79,7 +79,7 @@ export function EvidenceOrientationSourcesSection({
   const introParagraph = <p className={style.intro}>{intro}</p>;
   const listClassNameResolved = listClassName ?? OPERATOR_TYPOGRAPHY.body;
   const columnsLinkListClass =
-    links.length <= 3 ? SOURCES_COLUMNS_COMPACT_LIST_CLASS : SOURCES_COLUMNS_LIST_CLASS;
+    links.length <= 1 ? SOURCES_COLUMNS_COMPACT_LIST_CLASS : SOURCES_COLUMNS_LIST_CLASS;
   const linkItems = links.map((link) => {
           const linkLabel = distinguishFollowUpDestinations
             ? formatHelpFollowUpLinkAccessibleName(link.href, link.label)

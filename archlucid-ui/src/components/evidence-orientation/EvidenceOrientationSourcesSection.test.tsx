@@ -130,7 +130,7 @@ describe("EvidenceOrientationSourcesSection", () => {
     expect(section.querySelector("p")?.className).not.toContain("max-w-3xl");
   });
 
-  it("uses a two-column index so follow-ups sit beside the intro", () => {
+  it("uses a two-column link index when multiple follow-ups sit beside the intro", () => {
     render(
       <EvidenceOrientationSourcesSection
         testId="cloud-connections-sources"
@@ -145,6 +145,23 @@ describe("EvidenceOrientationSourcesSection", () => {
     const section = screen.getByTestId("cloud-connections-sources");
     expect(section).toHaveAttribute("data-layout", "columns");
     expect(section).toHaveClass("md:grid", "md:grid-cols-[minmax(0,1fr)_auto]");
+    expect(section.querySelector("ul")).toHaveClass("sm:grid-cols-2");
+    expect(section.querySelector("ul")).not.toHaveClass("flex-col");
+  });
+
+  it("uses a compact single-column link list when only one follow-up sits beside the intro", () => {
+    render(
+      <EvidenceOrientationSourcesSection
+        testId="cloud-connections-sources"
+        headingId="where-to-go-next"
+        title="Where to go next"
+        intro="Follow-ups."
+        links={[LINKS[0]!]}
+        layout="columns"
+      />,
+    );
+
+    const section = screen.getByTestId("cloud-connections-sources");
     expect(section.querySelector("ul")).toHaveClass("flex-col");
     expect(section.querySelector("ul")).not.toHaveClass("sm:grid-cols-2");
   });

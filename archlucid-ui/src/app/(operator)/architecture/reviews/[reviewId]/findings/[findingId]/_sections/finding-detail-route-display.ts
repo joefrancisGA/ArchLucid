@@ -7,7 +7,7 @@ import {
   phiMinimizationRecommendedActionFallback,
 } from "@/lib/findings/finding-display-from-inspect";
 import {
-  BUYER_SHOWCASE_RESIDUAL_RISK_NEXT_REVIEW,
+  resolveBuyerShowcaseResidualRiskNextReviewIso,
   BUYER_SHOWCASE_RESIDUAL_RISK_OWNER,
 } from "@/lib/buyer/buyer-polish-copy";
 import { buyerFindingSeverityDisplayLabel } from "@/lib/buyer/buyer-finding-severity-display";
@@ -71,18 +71,55 @@ export function resolveFindingRiskOwnerLabel(
   return RISK_OWNER_NOT_ASSIGNED;
 }
 
+function isShowcasePhiMinimizationFinding(
+  payload: FindingInspectPayload | null,
+  findingId: string,
+): boolean {
+  return isPhiMinimizationFindingId(findingId) || (payload !== null && isPhiMinimizationSampleFinding(payload));
+}
+
+function isPastRemediationDueUtc(remediationDueUtc: string | null | undefined): boolean {
+  if (remediationDueUtc === null || remediationDueUtc === undefined) {
+    return false;
+  }
+
+  const trimmed = remediationDueUtc.trim();
+
+  if (trimmed.length === 0) {
+    return false;
+  }
+
+  const parsed = new Date(trimmed);
+
+  if (Number.isNaN(parsed.getTime())) {
+    return false;
+  }
+
+  const todayUtc = new Date();
+
+  todayUtc.setUTCHours(0, 0, 0, 0);
+  parsed.setUTCHours(0, 0, 0, 0);
+
+  return parsed.getTime() < todayUtc.getTime();
+}
+
 /** Prefer remediation due date; PHI showcase may supply demo cadence when payload has none. */
 export function resolveFindingNextReviewLabel(
   payload: FindingInspectPayload | null,
   findingId: string,
 ): string {
+  const showcasePhi = isShowcasePhiMinimizationFinding(payload, findingId);
   const dueLabel = formatFindingRemediationDueLabel(payload?.remediationDueUtc);
 
   if (dueLabel !== null) {
+    if (showcasePhi && isPastRemediationDueUtc(payload?.remediationDueUtc)) {
+      return BUYER_SHOWCASE_RESIDUAL_RISK_NEXT_REVIEW;
+    }
+
     return dueLabel;
   }
 
-  if (isPhiMinimizationFindingId(findingId) || (payload !== null && isPhiMinimizationSampleFinding(payload))) {
+  if (showcasePhi) {
     return BUYER_SHOWCASE_RESIDUAL_RISK_NEXT_REVIEW;
   }
 

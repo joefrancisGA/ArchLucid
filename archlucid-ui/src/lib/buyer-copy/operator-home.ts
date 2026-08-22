@@ -215,7 +215,7 @@ export const OPERATOR_HOME_WORKSPACE_EMPTY_BODY =
 
 /** Recent reviews outcome when only a demo/seeded or showcase sample is visible. */
 export const OPERATOR_HOME_RECENT_REVIEWS_EXAMPLE_ONLY_OUTCOME =
-  "Showing a completed sample review. Your own reviews will appear here.";
+  "Showing a completed sample review. Your reviews will appear here.";
 
 export const OPERATOR_HOME_LEARN_HOW_REVIEWS_WORK_CTA = "Learn how reviews work";
 
