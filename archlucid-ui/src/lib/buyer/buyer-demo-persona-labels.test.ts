@@ -23,7 +23,7 @@ describe("buyer-demo-persona-labels (TB-273 / 5CZ-demo)", () => {
     expect(buyerSafeActorDisplayName("Taylor Morgan", "com.archlucid.governance.approval.recorded")).toBe(
       "Review owner",
     );
-    expect(buyerSafeGovernanceActorLabel("Jordan Lee")).toBe("Governance Approver");
+    expect(buyerSafeGovernanceActorLabel("Jordan Lee")).toBe("Approval lead");
   });
 
   it("redacts demo-prefixed technical ids", () => {

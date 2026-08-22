@@ -4,7 +4,7 @@ import { isBuyerSafeDemoMarketingChromeEnv } from "@/lib/demo-ui-env";
 /** Neutral role titles for buyer-polished surfaces (TB-273 / BDA-003, 007, 022). */
 export const BUYER_DEMO_ARCHITECTURE_REVIEW_LEAD = "Architecture Review Lead";
 
-export const BUYER_DEMO_GOVERNANCE_APPROVER = "Governance Approver";
+export const BUYER_DEMO_GOVERNANCE_APPROVER = "Approval lead";
 
 export const BUYER_DEMO_ARCHITECTURE_REVIEWER_ROLE = "Architecture reviewer";
 

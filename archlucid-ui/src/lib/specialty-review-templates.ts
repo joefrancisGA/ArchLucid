@@ -35,7 +35,7 @@ export function resolveSpecialtyReviewPolicyPackHref(packId: string): string {
 export const SPECIALTY_REVIEW_TEMPLATES_PAGE_TITLE = "Specialty review templates";
 
 export const SPECIALTY_REVIEW_TEMPLATES_PAGE_SUBTITLE =
-  "Focused review guidance for SaaS, AI governance, and healthcare claims scenarios.";
+  "Focused review guidance for SaaS, AI model controls, and healthcare claims scenarios.";
 
 export const SPECIALTY_REVIEW_TEMPLATES_INTRO =
   "Each template prefills focused questions, evidence guidance, and policy-pack recommendations. You can change or remove template guidance before starting the review.";

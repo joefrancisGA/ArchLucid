@@ -36,7 +36,7 @@ export const NOTIFICATIONS_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[
         "Open notifications to scan channel status, then follow alerts or integration help when routing needs setup.",
       whyEmpty: "This guide is always available; channel cards reflect each destination's reported status.",
       whereToConfigurePrerequisite:
-        "Alerts help explains governance notification rules and routing destinations.",
+        "Alerts help explains policy notification rules and routing destinations.",
       whatToDoNextAction: {
         label: "Open notifications",
         href: NOTIFICATION_PREFERENCE_CENTER_PATH,

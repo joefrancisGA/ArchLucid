@@ -64,7 +64,7 @@ describe("report-problem-context (TB-783)", () => {
         workspaceId: "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
       },
       problem: {
-        title: "Governance queue unavailable",
+        title: "Approval queue unavailable",
         status: 503,
         errorCode: "GOVERNANCE_QUEUE_UNAVAILABLE",
         correlationId: "corr-from-problem",
@@ -74,7 +74,7 @@ describe("report-problem-context (TB-783)", () => {
 
     expect(context.tenantId).toBe("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
     expect(context.workspaceId).toBe("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
-    expect(context.errorTitle).toBe("Governance queue unavailable");
+    expect(context.errorTitle).toBe("Approval queue unavailable");
     expect(context.httpStatus).toBe(503);
     expect(context.errorCode).toBe("GOVERNANCE_QUEUE_UNAVAILABLE");
     expect(context.correlationId).toBe("corr-from-problem");

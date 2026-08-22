@@ -318,7 +318,7 @@ export const FINDINGS_HELP_GUIDE_HEADINGS: readonly HelpMarkdownHeading[] = [
   { level: 2, id: "severity-and-impact", title: "Severity and impact" },
   { level: 2, id: "inspect-the-evidence", title: "Inspect the evidence" },
   { level: 2, id: "respond-to-a-finding", title: "Respond to a finding" },
-  { level: 2, id: "findings-and-governance", title: "Findings and governance" },
+  { level: 2, id: "findings-and-governance", title: "Findings and approval" },
   { level: 2, id: "role-guidance", title: "What each role usually does" },
   { level: 2, id: FINDINGS_HELP_CLAIM_HEADING_ID, title: FINDINGS_HELP_CLAIM_DISCIPLINE_HEADING },
   { level: 2, id: "where-to-go-next", title: "Where to go next" },

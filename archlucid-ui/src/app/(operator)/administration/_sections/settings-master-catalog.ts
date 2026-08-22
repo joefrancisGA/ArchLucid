@@ -122,7 +122,7 @@ export const SETTINGS_MASTER_SECTIONS: readonly SettingsMasterSection[] = [
       {
         id: "governance-audit",
         title: "Audit trail",
-        description: "Browse configuration and governance events for this workspace.",
+        description: "Browse configuration and approval events for this workspace.",
         href: "/governance/audit",
         cta: "Open audit trail",
         keywords: ["audit", "history", "changes", "compliance"],
