@@ -17,8 +17,9 @@ describe("architecture-object-map (TB-2354)", () => {
     expect(draft).toContain(ARCHITECTURE_OBJECT_MAP_REVIEW_LABEL.toLowerCase());
     expect(draft).toContain(ARCHITECTURE_OBJECT_MAP_SEALED_LABEL.toLowerCase());
 
-    expect(review).toContain(ARCHITECTURE_OBJECT_MAP_DRAFT_LABEL.toLowerCase());
-    expect(review).toContain(ARCHITECTURE_OBJECT_MAP_SEALED_LABEL.toLowerCase());
+    expect(review).toContain(ARCHITECTURE_OBJECT_MAP_REVIEW_LABEL);
+    expect(review).toContain("saved architecture drafts");
+    expect(review).toContain("review records");
 
     expect(sealed).toContain(ARCHITECTURE_OBJECT_MAP_REVIEW_LABEL.toLowerCase());
     expect(sealed).toContain(ARCHITECTURE_OBJECT_MAP_DRAFT_LABEL.toLowerCase());
