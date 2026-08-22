@@ -1,9 +1,12 @@
 import { notFound } from "next/navigation";
 
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorBrandedNotFound } from "@/components/operator/OperatorBrandedNotFound";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { ReviewPackageLoadFailureView } from "@/components/ReviewPackageLoadFailureView";
+import { OPERATOR_LAYOUT } from "@/lib/design-tokens";
 import { isInvalidGuidOrSlugRouteToken } from "@/lib/route-dynamic-param";
+import { cn } from "@/lib/utils";
 import { CREATE_ARCHITECTURE_INTENT } from "@/lib/architecture/architecture-workflow-intent";
 import {
   isFromGenerationSearchParam,
@@ -14,6 +17,8 @@ import { loadRunDetailPageModel } from "./_sections/load-run-detail-page-model";
 import { RunDetailPageFetchErrorView } from "./_sections/RunDetailPageFetchErrorView";
 import { RunDetailPageMalformedResponseView } from "./_sections/RunDetailPageMalformedResponseView";
 import { RunDetailPageView } from "./_sections/RunDetailPageView";
+
+const runDetailShellClassName = cn(OPERATOR_LAYOUT.sectionStack, "px-1 py-2 sm:px-0");
 
 /** Server run-detail route: validates params, loads `RunDetailPageModel`, then renders view or error states. */
 export default async function RunDetailPage({
@@ -42,7 +47,7 @@ export default async function RunDetailPage({
   if (result.kind === "not-found") {
     if (fromGeneration || result.reason === "workspace-mismatch") {
       return (
-        <div className="w-full max-w-[1200px] px-1 py-2 sm:px-0" data-testid="run-detail-load-failure">
+        <OperatorPageContainer variant="dashboard" className={runDetailShellClassName} data-testid="run-detail-load-failure">
           <OperatorPageHeader title={REVIEW_PACKAGE_OPEN_FAILURE_HEADING} headingLevel="h1" />
           <ReviewPackageLoadFailureView
             runId={runId}
@@ -50,19 +55,19 @@ export default async function RunDetailPage({
             notFoundReason={result.reason}
             attemptedRoute={attemptedRoute}
           />
-        </div>
+        </OperatorPageContainer>
       );
     }
 
     return (
-      <div className="w-full max-w-[1200px] px-1 py-2 sm:px-0">
+      <OperatorPageContainer variant="dashboard" className={runDetailShellClassName}>
         <OperatorBrandedNotFound
           showProcessingHint
           retryLabel="Retry loading review"
           showSampleReviewLink
           variant="review"
         />
-      </div>
+      </OperatorPageContainer>
     );
   }
 

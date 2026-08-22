@@ -55,6 +55,29 @@ public sealed class RunToolInvocationForensicsBuilderTests
     }
 
     [Fact]
+    public void Build_trace_derived_rows_use_tool_slug_agent_type_labels()
+    {
+        IReadOnlyList<AgentExecutionTrace> traces =
+        [
+            new AgentExecutionTrace
+            {
+                TraceId = "t1",
+                RunId = "run-1",
+                TaskId = "task-1",
+                AgentType = AgentType.Topology,
+                UserPrompt = "x",
+                ParseSucceeded = true,
+                CreatedUtc = DateTime.UtcNow
+            }
+        ];
+
+        RunToolInvocationForensicsResponse response = RunToolInvocationForensicsBuilder.Build("run-1", traces);
+
+        response.Rows[0].AgentType.Should().Be("topology");
+        response.Rows[0].ToolName.Should().Be("topology-agent");
+    }
+
+    [Fact]
     public void Build_sets_blob_persistence_failure_flag()
     {
         IReadOnlyList<AgentExecutionTrace> traces =

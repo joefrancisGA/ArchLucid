@@ -1681,11 +1681,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** application agents; agent handlers wiring
 - **paths:** ArchLucid.Application/Agents/
 - **test-filter:** FullyQualifiedName~Application.Agents
-- **hunts:** 1
-- **bugs-found:** 1
+- **hunts:** 2
+- **bugs-found:** 2
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-20
-- **last-bug:** 2026-08-20
+- **last-hunt:** 2026-08-22
+- **last-bug:** 2026-08-22
 - **related-pd-tb:** none
 - **code-changed-since:** 12
 
@@ -1695,6 +1695,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) Handler result is cached across tenants with the same run id — retired: no cross-run result cache in `ArchLucid.Application/Agents/` (only catalog cache invalidation)
 - [x] (invalid) Agent registry resolves a handler without checking feature flags per tenant — retired: `RegisteredAgentHandlersInspector` lists DI handlers; execution routing lives outside this folder
 - [x] (proven) Reasoning-only LLM cost slices report Unavailable basis when estimator returns null — `AgentExecutionTraceRunLlmCostAggregator.ComputeCore` early-return ignored reasoning token counts (fixed 2026-08-20)
+- [x] (proven) Trace-derived tool forensics emit enum agent-type labels that disagree with structured ledger rows — `RunToolInvocationForensicsBuilder.BuildFromTraces` used `AgentType.ToString()` instead of `InferAgentTypeLabel(FormatToolName(...))`; regression in `Build_trace_derived_rows_use_tool_slug_agent_type_labels`
 
 ---
 

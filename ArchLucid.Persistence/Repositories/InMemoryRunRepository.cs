@@ -46,6 +46,7 @@ public sealed class InMemoryRunRepository(ITenantRepository? tenantRepository = 
         if (_store.Count >= MaxEntries && !_store.ContainsKey(run.RunId))
         {
             RunRecord? oldest = _store.Values.OrderBy(r => r.CreatedUtc).FirstOrDefault();
+
             if (oldest is not null)
                 _store.TryRemove(oldest.RunId, out _);
         }
@@ -621,8 +622,10 @@ public sealed class InMemoryRunRepository(ITenantRepository? tenantRepository = 
         // Null/empty statuses are treated as active — safer than falsely releasing lifecycle while status is uninitialized.
         if (string.IsNullOrWhiteSpace(legacyRunStatus))
             return true;
+
         if (string.Equals(legacyRunStatus, nameof(ArchitectureRunStatus.Committed), StringComparison.OrdinalIgnoreCase))
             return false;
+
         if (string.Equals(legacyRunStatus, nameof(ArchitectureRunStatus.Failed), StringComparison.OrdinalIgnoreCase))
             return false;
 

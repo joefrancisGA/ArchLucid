@@ -6,6 +6,7 @@ import { useQueryClient } from "@tanstack/react-query";
 
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OPERATOR_LAYOUT, OPERATOR_SHELL_SCROLL_OFFSET_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { findPatternLibraryRecord } from "@/lib/pattern-library-catalog";
 import {
@@ -112,7 +113,11 @@ export function PatternLibraryDetailClient(props: PatternLibraryDetailClientProp
   );
 
   return (
-    <div className={cn("w-full max-w-4xl", OPERATOR_LAYOUT.majorSectionGap)} data-testid="pattern-library-detail-page">
+    <OperatorPageContainer
+      variant="workflow"
+      className={OPERATOR_LAYOUT.majorSectionGap}
+      data-testid="pattern-library-detail-page"
+    >
       <PatternLibraryDetailPageHeader
         patternKey={record.patternKey}
         patternName={record.name}
@@ -254,6 +259,6 @@ export function PatternLibraryDetailClient(props: PatternLibraryDetailClientProp
           </section>
         </>
       ) : null}
-    </div>
+    </OperatorPageContainer>
   );
 }

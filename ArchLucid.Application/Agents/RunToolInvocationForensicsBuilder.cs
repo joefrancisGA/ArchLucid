@@ -200,7 +200,7 @@ public static class RunToolInvocationForensicsBuilder
 
                     TaskId = trace.TaskId,
 
-                    AgentType = trace.AgentType.ToString(),
+                    AgentType = InferAgentTypeLabel(FormatToolName(trace.AgentType)),
 
                     ToolName = FormatToolName(trace.AgentType),
 

@@ -6,6 +6,8 @@ import { AuditEvidenceTrailVocabularyRail } from "@/components/AuditEvidenceTrai
 import { DemoWorkspaceCapabilityUnavailablePanel } from "@/components/DemoWorkspaceCapabilityUnavailablePanel";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { FindingsQueueSearchEvidenceVocabularyRail } from "@/components/findings/FindingsQueueSearchEvidenceVocabularyRail";
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
+import { OperatorRelatedSurfacesDisclosure } from "@/components/operator/OperatorRelatedSurfacesDisclosure";
 import { PageCapabilityBoundaryStrip } from "@/components/PageCapabilityBoundaryStrip";
 import { RunIdPicker } from "@/components/runs/RunIdPicker";
 import { Button } from "@/components/ui/button";
@@ -78,41 +80,52 @@ export function SearchPageView({ model }: SearchPageViewProps) {
 
   if (isDemo) {
     return (
-      <div className={cn("max-w-4xl", OPERATOR_LAYOUT.majorSectionGap)} data-testid="search-review-evidence-page">
+      <OperatorPageContainer
+        variant="workflow"
+        className={OPERATOR_LAYOUT.majorSectionGap}
+        data-testid="search-review-evidence-page"
+      >
         <SearchReviewEvidencePageHeader title={pageTitle} subtitle={pageSubtitle} />
         <SearchReviewEvidenceBuyerChrome />
         {showVocabularyRails ? (
-          <>
+          <OperatorRelatedSurfacesDisclosure testId="search-related-surfaces-disclosure">
             <AskSearchEvidenceVocabularyRail currentSurfaceId="search" />
             <AuditEvidenceTrailVocabularyRail currentSurfaceId="search-evidence" />
             <FindingsQueueSearchEvidenceVocabularyRail currentSurfaceId="search-evidence" />
-          </>
-        ) : null}
-        <PageCapabilityBoundaryStrip surfaceId="searchReviewEvidence" />
+            <PageCapabilityBoundaryStrip surfaceId="searchReviewEvidence" className="mb-0" />
+          </OperatorRelatedSurfacesDisclosure>
+        ) : (
+          <PageCapabilityBoundaryStrip surfaceId="searchReviewEvidence" />
+        )}
         <DemoWorkspaceCapabilityUnavailablePanel
           layout="embedded"
           capability={SEARCH_PAGE_TITLE}
           description="In a connected tenant, architects search findings, decisions, and Finalized review records across the workspace evidence index."
         />
-      </div>
+      </OperatorPageContainer>
     );
   }
 
   return (
-    <div className={cn("max-w-4xl", OPERATOR_LAYOUT.majorSectionGap)} data-testid="search-review-evidence-page">
+    <OperatorPageContainer
+      variant="workflow"
+      className={OPERATOR_LAYOUT.majorSectionGap}
+      data-testid="search-review-evidence-page"
+    >
       <SearchReviewEvidencePageHeader title={pageTitle} subtitle={pageSubtitle} />
 
       <SearchReviewEvidenceBuyerChrome />
 
       {showVocabularyRails ? (
-        <>
+        <OperatorRelatedSurfacesDisclosure testId="search-related-surfaces-disclosure">
           <AskSearchEvidenceVocabularyRail currentSurfaceId="search" />
           <AuditEvidenceTrailVocabularyRail currentSurfaceId="search-evidence" />
           <FindingsQueueSearchEvidenceVocabularyRail currentSurfaceId="search-evidence" />
-        </>
-      ) : null}
-
-      <PageCapabilityBoundaryStrip surfaceId="searchReviewEvidence" />
+          <PageCapabilityBoundaryStrip surfaceId="searchReviewEvidence" className="mb-0" />
+        </OperatorRelatedSurfacesDisclosure>
+      ) : (
+        <PageCapabilityBoundaryStrip surfaceId="searchReviewEvidence" />
+      )}
       {scopedRunId.length > 0 ? <SearchReviewEvidenceCiteStrip runId={scopedRunId} /> : null}
 
       <Card className="max-w-xl border-neutral-200 dark:border-neutral-700" data-testid="search-review-evidence-form">
@@ -210,6 +223,6 @@ export function SearchPageView({ model }: SearchPageViewProps) {
           />
         ))}
       </div>
-    </div>
+    </OperatorPageContainer>
   );
 }
