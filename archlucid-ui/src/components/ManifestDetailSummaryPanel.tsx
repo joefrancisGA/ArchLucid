@@ -13,6 +13,7 @@ import {
   OPERATOR_DISCLOSURE_TRIGGER_CLASS,
   OPERATOR_LINK,
   OPERATOR_NAV_GROUP_LABEL,
+  OPERATOR_SHORT_HELPER_MEASURE_CLASS,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
 import { manifestStatusForDisplay } from "@/lib/manifest-status-display";
@@ -257,7 +258,13 @@ export function ManifestDetailSummaryPanel(props: ManifestDetailSummaryPanelProp
 
   const buyerManifestProvesCallout =
     (buyerPolishedLayout ?? false) && isCuratedDemo ? (
-      <p className={cn("m-0 max-w-prose leading-relaxed text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
+      <p
+        className={cn(
+          "m-0 leading-relaxed text-neutral-700 dark:text-neutral-300",
+          OPERATOR_SHORT_HELPER_MEASURE_CLASS,
+          OPERATOR_TYPOGRAPHY.body,
+        )}
+      >
         What this finalized review record proves: a versioned package with enumerated decisions, monitored risks
         under an explicit governance cadence, stable identifiers for audit correlation, and packaged deliverables wired
         to the evidence graph and audit trail.

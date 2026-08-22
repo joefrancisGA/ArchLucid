@@ -50,6 +50,7 @@ import {
   OPERATOR_LAYOUT,
   OPERATOR_LINK,
   OPERATOR_NAV_GROUP_LABEL,
+  OPERATOR_SHORT_HELPER_MEASURE_CLASS,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
@@ -300,7 +301,6 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
             </>
           )
         }
-        subtitleClassName="max-w-prose"
         actions={
           buyerPolishedLayout !== true ? (
             <Button variant="primary" size="sm" asChild>
@@ -321,7 +321,13 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
           <h2 id="manifest-authority-summary-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
             What this Finalized review record proves
           </h2>
-          <p className={cn("m-0 mt-2 max-w-prose leading-relaxed text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
+          <p
+            className={cn(
+              "m-0 mt-2 leading-relaxed text-al-text-primary",
+              OPERATOR_SHORT_HELPER_MEASURE_CLASS,
+              OPERATOR_TYPOGRAPHY.body,
+            )}
+          >
             {BUYER_MANIFEST_AUTHORITY_SUMMARY}
           </p>
         </section>

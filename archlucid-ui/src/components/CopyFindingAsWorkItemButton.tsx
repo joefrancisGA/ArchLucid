@@ -1,4 +1,5 @@
 "use client";
+
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
@@ -113,25 +114,18 @@ function WorkItemCopyControls({
   const selectTriggerClass = compact
     ? "h-7 w-full text-[0.65rem]"
     : prominent
-      ? (cn("h-9 w-[12rem]", OPERATOR_TYPOGRAPHY.helper))
-      : (cn("h-8 w-[11.5rem]", OPERATOR_TYPOGRAPHY.helper));
+      ? cn("h-9 w-[12rem]", OPERATOR_TYPOGRAPHY.helper)
+      : cn("h-8 w-[11.5rem]", OPERATOR_TYPOGRAPHY.helper);
 
-  const buttonClass = compact
-    ? "h-7 gap-1 px-2 text-[0.65rem]"
-    : prominent
-      ? (cn("h-9 gap-1.5", OPERATOR_TYPOGRAPHY.helper))
-      : (cn("h-8 gap-1.5", OPERATOR_TYPOGRAPHY.helper));
+  const buttonClass = compact ? "h-7 gap-1 px-2 text-[0.65rem]" : prominent ? "h-9 gap-1.5" : "h-8 gap-1.5";
 
   return (
     <div className={compact ? "flex min-w-0 flex-col gap-1.5" : "flex flex-wrap items-center gap-2"}>
       <Button
         type="button"
-        variant="default"
+        variant="primary"
         size="sm"
-        /* text-neutral-50 restores the "default" button variant's light label color against its own
-           always-dark bg-neutral-900 — OPERATOR_TYPOGRAPHY.helper's text-al-text-secondary in buttonClass
-           otherwise wins the text-color merge and mutes the label below 4.5:1 in dark mode. */
-        className={cn(buttonClass, "text-neutral-50")}
+        className={buttonClass}
         aria-label={QUICK_COPY_JIRA_ARIA}
         data-testid="copy-for-jira-button"
         onClick={onQuickCopyJira}

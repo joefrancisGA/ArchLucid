@@ -14,6 +14,7 @@ describe("claim-discipline-policy", () => {
     expect(shouldOmitClaimDisciplineBand("preferences-settings")).toBe(true);
     expect(shouldOmitClaimDisciplineBand("cloud-connections-gcp")).toBe(true);
     expect(shouldOmitClaimDisciplineBand("provenance")).toBe(true);
+    expect(shouldOmitClaimDisciplineBand("sealed-record-detail")).toBe(true);
   });
 
   it("keeps diligence-sensitive slugs", () => {
