@@ -433,7 +433,11 @@ export function RunsDashboardPanelClient({
       ) : null}
       {hideHeading && recentReviewsOutcomeLine !== null ? (
         <p
-          className={cn("m-0 mb-3", OPERATOR_TYPE_SCALE.helper, "text-al-text-secondary")}
+          className={cn(
+            "m-0 mb-3 leading-snug",
+            OPERATOR_TYPE_SCALE.helper,
+            "text-al-text-secondary",
+          )}
           data-testid="operator-home-recent-reviews-outcome"
         >
           {recentReviewsOutcomeLine}

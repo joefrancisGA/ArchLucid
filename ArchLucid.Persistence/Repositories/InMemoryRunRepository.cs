@@ -551,6 +551,28 @@ public sealed class InMemoryRunRepository(ITenantRepository? tenantRepository = 
     }
 
     /// <inheritdoc />
+    public Task<bool> ExistsActiveRunWithSystemNameInWorkspaceAsync(
+        ScopeContext scope,
+        string systemName,
+        CancellationToken ct)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+        ct.ThrowIfCancellationRequested();
+
+        if (string.IsNullOrWhiteSpace(systemName))
+            throw new ArgumentException("System name is required.", nameof(systemName));
+
+        string normalizedName = systemName.Trim().ToUpperInvariant();
+
+        bool exists = _store.Values.Any(r =>
+            MatchesWorkspace(r, scope) &&
+            !r.ArchivedUtc.HasValue &&
+            string.Equals(r.ProjectId.Trim(), normalizedName, StringComparison.OrdinalIgnoreCase));
+
+        return Task.FromResult(exists);
+    }
+
+    /// <inheritdoc />
     public Task<RunStaleUncommittedPurgeBatchResult> HardDeleteStaleUncommittedRunsBatchAsync(
         DateTimeOffset createdBeforeUtc,
         int batchSize,
@@ -671,6 +693,9 @@ public sealed class InMemoryRunRepository(ITenantRepository? tenantRepository = 
                r.WorkspaceId == scope.WorkspaceId &&
                r.ScopeProjectId == scope.ProjectId;
     }
+
+    private static bool MatchesWorkspace(RunRecord r, ScopeContext scope) =>
+        r.TenantId == scope.TenantId && r.WorkspaceId == scope.WorkspaceId;
 
     private byte[] NextFakeRowVersion()
     {

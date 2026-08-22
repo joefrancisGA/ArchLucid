@@ -196,6 +196,15 @@ public interface IRunRepository
         CancellationToken ct);
 
     /// <summary>
+    ///     Returns <see langword="true" /> when the workspace has at least one non-archived run whose
+    ///     <see cref="RunRecord.ProjectId" /> matches <paramref name="systemName" /> case-insensitively.
+    /// </summary>
+    Task<bool> ExistsActiveRunWithSystemNameInWorkspaceAsync(
+        ScopeContext scope,
+        string systemName,
+        CancellationToken ct);
+
+    /// <summary>
     ///     Hard-deletes up to <paramref name="batchSize" /> authority runs that are not committed (see
     ///     <see cref="ArchLucid.Contracts.Common.ArchitectureRunStatus.Committed" />) and whose <c>CreatedUtc</c> is strictly
     ///     before <paramref name="createdBeforeUtc" />, using <c>dbo.Archival_PurgeStaleUncommittedRunsBatch</c>.

@@ -2,6 +2,7 @@ using System.Text.Json;
 
 using ArchLucid.Api.Attributes;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Application;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Drafts;
 using ArchLucid.Application.Exports;
@@ -136,6 +137,7 @@ public sealed class DraftRequestsController(
     [ProducesResponseType(typeof(DraftRequestResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> PatchDraft(
         Guid draftId,
         [FromBody] PatchDraftRequest? body,
@@ -162,6 +164,10 @@ public sealed class DraftRequestsController(
                 cancellationToken);
 
             return Ok(updated);
+        }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
         }
         catch (InvalidOperationException ex)
         {
@@ -445,6 +451,7 @@ public sealed class DraftRequestsController(
     [ProducesResponseType(typeof(SubmitDraftResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> SubmitDraft(Guid draftId, CancellationToken cancellationToken)
     {
         ScopeContext scope = _scopeProvider.GetCurrentScope();
@@ -470,6 +477,10 @@ public sealed class DraftRequestsController(
                 cancellationToken);
 
             return Ok(result);
+        }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
         }
         catch (InvalidOperationException ex)
         {

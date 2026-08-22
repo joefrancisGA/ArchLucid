@@ -406,6 +406,8 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IExportReplayService, ExportReplayService>();
         services.AddScoped<IArchitectureRequestDraftService, ArchitectureRequestDraftService>();
         services.AddScoped<IArchitectureSynthesisKernel, ArchitectureSynthesisKernel>();
+        services.AddScoped<IWorkspaceSystemNameCollisionGuard, WorkspaceSystemNameCollisionGuard>();
+        services.AddScoped<IWorkspaceSystemNameCollisionGuard, WorkspaceSystemNameCollisionGuard>();
         services.AddScoped<IChatIntakeParserService, ChatIntakeParserService>();
         services.AddHttpClient(GitTerraformContentFetcher.HttpClientName)
             .ConfigureArchLucidOutboundSocketsHandler(OutboundHttpSocketsHandlerProfile.ExternalIntegration);

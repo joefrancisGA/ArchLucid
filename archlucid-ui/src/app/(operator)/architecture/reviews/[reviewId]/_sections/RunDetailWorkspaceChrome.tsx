@@ -11,6 +11,7 @@ import { StatusTag } from "@/components/ui/status-tag";
 import { FavoriteReviewToggle } from "@/components/reviews/FavoriteReviewToggle";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { REVIEWS_LIST_PATH } from "@/lib/architecture/architecture-routes";
+import { formatActionActorName } from "@/lib/action-actor-display";
 import { CTA_WIDTH, DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { clampReviewWorkspaceH1Title } from "@/lib/review-display-title";
 import { REVIEW_METADATA_NOT_RECORDED_REASONS } from "@/lib/run-detail-workspace-derive";
@@ -42,7 +43,7 @@ function buildReviewMetadataFields(props: RunDetailWorkspaceHeaderProps): readon
     {
       key: "governance-decision-recorded-by",
       label: "Approval decision recorded by",
-      value: props.reviewOwner,
+      value: formatActionActorName(props.reviewOwner),
       absentReason: REVIEW_METADATA_NOT_RECORDED_REASONS.governanceDecisionRecordedBy,
     },
     {

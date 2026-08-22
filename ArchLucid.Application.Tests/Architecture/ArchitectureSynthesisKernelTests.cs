@@ -181,6 +181,7 @@ public sealed class ArchitectureSynthesisKernelTests
             runRepository ?? Mock.Of<IRunRepository>(),
             scopeProvider ?? defaultScope.Object,
             contentSafety ?? Mock.Of<IRequestContentSafetyPrecheck>(),
+            WorkspaceSystemNameCollisionGuardTestDoubles.NoOp(),
             timeProvider ?? TimeProvider.System);
     }
 

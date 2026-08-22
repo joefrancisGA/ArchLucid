@@ -276,6 +276,20 @@ internal static class RunRepositorySql
                                                                  END;
                                                                  """;
 
+    public const string ExistsActiveRunWithSystemNameInWorkspace = """
+                                                                   SELECT CASE
+                                                                       WHEN EXISTS (
+                                                                           SELECT 1
+                                                                           FROM dbo.Runs
+                                                                           WHERE TenantId = @TenantId
+                                                                             AND WorkspaceId = @WorkspaceId
+                                                                             AND ArchivedUtc IS NULL
+                                                                             AND UPPER(ProjectId) = @NormalizedSystemName
+                                                                       ) THEN 1
+                                                                       ELSE 0
+                                                                   END;
+                                                                   """;
+
     public const string SelectAnchorGuardByScopedId = $"""
                                                        SELECT
                                                            {RunDetailReadSql.SelectAnchorGuardColumns}

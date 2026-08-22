@@ -553,6 +553,29 @@ public sealed class SqlRunRepository(
     }
 
     /// <inheritdoc />
+    public async Task<bool> ExistsActiveRunWithSystemNameInWorkspaceAsync(
+        ScopeContext scope,
+        string systemName,
+        CancellationToken ct)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+        PersistenceTenantScope.RequireScopedTenant(scope);
+
+        if (string.IsNullOrWhiteSpace(systemName))
+            throw new ArgumentException("System name is required.", nameof(systemName));
+
+        using IDbConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
+
+        int exists = await connection.QuerySingleAsync<int>(
+            new CommandDefinition(
+                RunRepositorySql.ExistsActiveRunWithSystemNameInWorkspace,
+                RunListQueryParameters.ForActiveRunWithSystemNameInWorkspace(scope, systemName),
+                cancellationToken: ct)).ConfigureAwait(false);
+
+        return exists == 1;
+    }
+
+    /// <inheritdoc />
     public async Task<RunStaleUncommittedPurgeBatchResult> HardDeleteStaleUncommittedRunsBatchAsync(
         DateTimeOffset createdBeforeUtc,
         int batchSize,

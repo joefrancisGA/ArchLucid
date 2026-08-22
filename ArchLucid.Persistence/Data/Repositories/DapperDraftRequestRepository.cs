@@ -310,6 +310,52 @@ public sealed class DapperDraftRequestRepository(ISqlConnectionFactory connectio
         return rows.Select(MapRow).ToList();
     }
 
+    /// <inheritdoc />
+    public async Task<bool> ExistsMutableDraftWithSystemNameInWorkspaceAsync(
+        Guid tenantId,
+        Guid workspaceId,
+        string systemName,
+        Guid? excludeDraftId,
+        CancellationToken cancellationToken)
+    {
+        PersistenceTenantScope.RequireEntityTenant(tenantId);
+
+        if (string.IsNullOrWhiteSpace(systemName))
+            throw new ArgumentException("System name is required.", nameof(systemName));
+
+        const string sql = """
+                           SELECT CASE
+                               WHEN EXISTS (
+                                   SELECT 1
+                                   FROM dbo.DraftRequests
+                                   WHERE TenantId = @TenantId
+                                     AND WorkspaceId = @WorkspaceId
+                                     AND Status IN (@DraftingStatus, @AdmittedStatus)
+                                     AND UPPER(LTRIM(RTRIM(JSON_VALUE(DocumentJson, '$.systemName')))) = @NormalizedSystemName
+                                     AND (@ExcludeDraftId IS NULL OR DraftId <> @ExcludeDraftId)
+                               ) THEN 1
+                               ELSE 0
+                           END;
+                           """;
+
+        await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
+        int exists = await connection.QuerySingleAsync<int>(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    TenantId = tenantId,
+                    WorkspaceId = workspaceId,
+                    NormalizedSystemName = systemName.Trim().ToUpperInvariant(),
+                    DraftingStatus = DraftRequestStatus.Drafting.ToString(),
+                    AdmittedStatus = DraftRequestStatus.Admitted.ToString(),
+                    ExcludeDraftId = excludeDraftId,
+                },
+                cancellationToken: cancellationToken));
+
+        return exists == 1;
+    }
+
     private static DraftRequestResponse MapRow(DraftRequestRow row)
     {
         DraftRequestDocument? document =

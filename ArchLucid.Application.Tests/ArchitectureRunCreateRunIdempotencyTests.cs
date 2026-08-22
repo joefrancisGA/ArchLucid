@@ -231,6 +231,7 @@ public sealed class ArchitectureRunCreateRunIdempotencyTests
             TimeProvider.System,
             new DefaultRequestContentSafetyPrecheck(),
             ArchitectureRunCreateOrchestratorTestSupport.CreatePolicyPackCloudBaselineApplicator(),
+            WorkspaceSystemNameCollisionGuardTestDoubles.NoOp(),
             NullLogger<ArchitectureRunCreateOrchestrator>.Instance);
     }
 }

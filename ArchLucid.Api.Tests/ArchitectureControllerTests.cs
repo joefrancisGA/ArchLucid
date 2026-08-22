@@ -116,10 +116,10 @@ public sealed class ArchitectureControllerTests
 
             if (await executeResponse.IsAuthorityPipelineCompleteExecuteConflictAsync())
             {
-                HttpResponseMessage getRunResponse = await client.GetAsync($"/v1/architecture/review/{runId}");
-                await getRunResponse.EnsureSuccessForTestAsync();
+                HttpResponseMessage seededGetRunResponse = await client.GetAsync($"/v1/architecture/review/{runId}");
+                await seededGetRunResponse.EnsureSuccessForTestAsync();
                 GetRunResponseDto? seededPayload =
-                    await getRunResponse.Content.ReadFromJsonAsync<GetRunResponseDto>(JsonOptions);
+                    await seededGetRunResponse.Content.ReadFromJsonAsync<GetRunResponseDto>(JsonOptions);
                 seededPayload!.Results.Should().HaveCount(4);
                 return;
             }

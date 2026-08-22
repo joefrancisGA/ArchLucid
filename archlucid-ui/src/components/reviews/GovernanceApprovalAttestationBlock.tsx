@@ -4,6 +4,7 @@ import type { ReactElement } from "react";
 
 import { CopyIdButton } from "@/components/CopyIdButton";
 import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { formatActionActorName } from "@/lib/action-actor-display";
 
 export type GovernanceApprovalAttestationBlockProps = {
   /** The governance decision value (e.g. "Approved", "ApprovedWithMonitoring", "Rejected"). */
@@ -73,16 +74,14 @@ export function GovernanceApprovalAttestationBlock({
             {formatUtc(decisionUtc)}
           </dd>
         </div>
-        {approvedByUserId ? (
-          <div>
-            <dt className={cn(OPERATOR_NAV_GROUP_LABEL, "font-medium text-neutral-500 dark:text-neutral-400")}>
-              Approver
-            </dt>
-            <dd className={cn("mt-0.5 font-mono text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.navHelper)}>
-              {approvedByUserId}
-            </dd>
-          </div>
-        ) : null}
+        <div>
+          <dt className={cn(OPERATOR_NAV_GROUP_LABEL, "font-medium text-neutral-500 dark:text-neutral-400")}>
+            Approver
+          </dt>
+          <dd className={cn("mt-0.5 font-mono text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.navHelper)}>
+            {formatActionActorName(approvedByUserId)}
+          </dd>
+        </div>
         <div>
           <dt className={cn(OPERATOR_NAV_GROUP_LABEL, "font-medium text-neutral-500 dark:text-neutral-400")}>
             Approval hash

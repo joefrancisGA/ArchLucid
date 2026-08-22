@@ -1,6 +1,7 @@
 using ArchLucid.Application.Drafts;
 using ArchLucid.Application.Drafts.QuestionSelection;
 using ArchLucid.Application.Runs.Orchestration;
+using ArchLucid.Application.Tests.Architecture;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Drafts;
 using ArchLucid.Contracts.Governance;
@@ -69,7 +70,8 @@ public sealed class DraftRequestServiceTests
             _contentSafety.Object,
             verdictBuilder,
             Mock.Of<IPriorPackageSemanticMergeService>(),
-            new FixedDraftIntakeBranchOptionsMonitor(new DraftIntakeBranchOptions()));
+            new FixedDraftIntakeBranchOptionsMonitor(new DraftIntakeBranchOptions()),
+            WorkspaceSystemNameCollisionGuardTestDoubles.NoOp());
     }
 
     [Fact]

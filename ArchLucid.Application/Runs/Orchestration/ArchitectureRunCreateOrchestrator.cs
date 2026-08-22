@@ -1,6 +1,7 @@
 using System.Security.Cryptography;
 using System.Text.Json;
 
+using ArchLucid.Application.Architecture;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Application.Common;
@@ -57,6 +58,7 @@ public sealed class ArchitectureRunCreateOrchestrator(
     TimeProvider timeProvider,
     IRequestContentSafetyPrecheck requestContentSafetyPrecheck,
     DefaultPolicyPackCloudBaselineApplicator defaultPolicyPackCloudBaselineApplicator,
+    IWorkspaceSystemNameCollisionGuard workspaceSystemNameCollisionGuard,
     ILogger<ArchitectureRunCreateOrchestrator> logger) : IArchitectureRunCreateOrchestrator
 {
     private readonly IOptions<ArchitectureRunCreateOptions> _createRunOptions = createRunOptions ?? throw new ArgumentNullException(nameof(createRunOptions));
@@ -104,6 +106,9 @@ public sealed class ArchitectureRunCreateOrchestrator(
     private readonly IArchLucidUnitOfWorkFactory _unitOfWorkFactory = unitOfWorkFactory ?? throw new ArgumentNullException(nameof(unitOfWorkFactory));
     private readonly IUsageMeteringService _usageMetering = usageMetering ?? throw new ArgumentNullException(nameof(usageMetering));
 
+    private readonly IWorkspaceSystemNameCollisionGuard _workspaceSystemNameCollisionGuard =
+        workspaceSystemNameCollisionGuard ?? throw new ArgumentNullException(nameof(workspaceSystemNameCollisionGuard));
+
     /// <inheritdoc/>
     public async Task<CreateRunResult> CreateRunAsync(ArchitectureRequest request, CreateRunIdempotencyState? idempotency = null,
         CancellationToken cancellationToken = default)
@@ -127,6 +132,11 @@ public sealed class ArchitectureRunCreateOrchestrator(
                 $"Request content failed safety precheck: {string.Join("; ", safety.Reasons)}", cancellationToken).ConfigureAwait(false);
             throw new RequestContentSafetyRejectedException(safety.Reasons);
         }
+
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        await _workspaceSystemNameCollisionGuard
+            .EnsureAvailableAsync(scope, request.SystemName, cancellationToken: cancellationToken)
+            .ConfigureAwait(false);
 
         // ReSharper disable once InvertIf
         if (idempotency is not null)

@@ -9,6 +9,7 @@ import { buildCanonicalObjectSecondaryView } from "@/lib/canonical-object-home-r
 import { GovernanceStatusTag } from "@/components/governance/GovernanceStatusTag";
 import { Button } from "@/components/ui/button";
 import { formatInstantForBuyerGovernance } from "@/lib/locale-datetime";
+import { formatActionActorName } from "@/lib/action-actor-display";
 import { formatRelativeTime } from "@/lib/relative-time";
 import type { GovernanceApprovalRequest } from "@/types/governance-workflow";
 
@@ -76,7 +77,7 @@ export function GovernanceApprovalInspectorPreview({ request }: GovernanceApprov
         <dt className={cn("font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
           Requested by
         </dt>
-        <dd className="m-0">{request.requestedBy}</dd>
+        <dd className="m-0">{formatActionActorName(request.requestedBy)}</dd>
         {reviewedLabel !== null && reviewedUtcRaw !== null ? (
           <>
             <dt className={cn("font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
@@ -90,14 +91,10 @@ export function GovernanceApprovalInspectorPreview({ request }: GovernanceApprov
             </dd>
           </>
         ) : null}
-        {request.reviewedBy !== null && request.reviewedBy.length > 0 ? (
-          <>
-            <dt className={cn("font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-              Reviewed by
-            </dt>
-            <dd className="m-0">{request.reviewedBy}</dd>
-          </>
-        ) : null}
+        <dt className={cn("font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
+          Reviewed by
+        </dt>
+        <dd className="m-0">{formatActionActorName(request.reviewedBy)}</dd>
         {request.requestComment !== null && request.requestComment.trim().length > 0 ? (
           <>
             <dt className={cn("font-medium uppercase tracking-wide text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>

@@ -21,6 +21,7 @@ public sealed class ArchitectureSynthesisKernel(
     IRunRepository runRepository,
     IScopeContextProvider scopeContextProvider,
     IRequestContentSafetyPrecheck requestContentSafetyPrecheck,
+    IWorkspaceSystemNameCollisionGuard workspaceSystemNameCollisionGuard,
     TimeProvider timeProvider) : IArchitectureSynthesisKernel
 {
     private readonly IArchitectureRequestDraftService _architectureRequestDraftService =
@@ -37,6 +38,9 @@ public sealed class ArchitectureSynthesisKernel(
 
     private readonly IRequestContentSafetyPrecheck _requestContentSafetyPrecheck =
         requestContentSafetyPrecheck ?? throw new ArgumentNullException(nameof(requestContentSafetyPrecheck));
+
+    private readonly IWorkspaceSystemNameCollisionGuard _workspaceSystemNameCollisionGuard =
+        workspaceSystemNameCollisionGuard ?? throw new ArgumentNullException(nameof(workspaceSystemNameCollisionGuard));
 
     private readonly TimeProvider _timeProvider =
         timeProvider ?? throw new ArgumentNullException(nameof(timeProvider));
@@ -65,6 +69,11 @@ public sealed class ArchitectureSynthesisKernel(
 
         if (!safety.IsAllowed)
             throw new RequestContentSafetyRejectedException(safety.Reasons);
+
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        await _workspaceSystemNameCollisionGuard
+            .EnsureAvailableAsync(scope, request.SystemName, cancellationToken: cancellationToken)
+            .ConfigureAwait(false);
 
         ArchitectureRequest? existing =
             await _requestRepository.GetByIdAsync(request.RequestId, cancellationToken);

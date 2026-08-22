@@ -1,4 +1,5 @@
 using ArchLucid.Application;
+using ArchLucid.Application.Architecture;
 using ArchLucid.Application.Drafts.PriorAnswerReuse;
 using ArchLucid.Application.Drafts.QuestionSelection;
 using ArchLucid.Application.Runs.Orchestration;
@@ -27,7 +28,8 @@ public sealed class DraftRequestService(
     IRequestContentSafetyPrecheck contentSafetyPrecheck,
     FeasibilityVerdictBuilder feasibilityVerdictBuilder,
     IPriorPackageSemanticMergeService priorPackageSemanticMergeService,
-    IOptionsMonitor<DraftIntakeBranchOptions> branchOptionsMonitor) : IDraftRequestService
+    IOptionsMonitor<DraftIntakeBranchOptions> branchOptionsMonitor,
+    IWorkspaceSystemNameCollisionGuard workspaceSystemNameCollisionGuard) : IDraftRequestService
 {
     private readonly IDraftAdmissionGate _admissionGate =
         admissionGate ?? throw new ArgumentNullException(nameof(admissionGate));
@@ -59,6 +61,9 @@ public sealed class DraftRequestService(
 
     private readonly IOptionsMonitor<DraftIntakeBranchOptions> _branchOptionsMonitor =
         branchOptionsMonitor ?? throw new ArgumentNullException(nameof(branchOptionsMonitor));
+
+    private readonly IWorkspaceSystemNameCollisionGuard _workspaceSystemNameCollisionGuard =
+        workspaceSystemNameCollisionGuard ?? throw new ArgumentNullException(nameof(workspaceSystemNameCollisionGuard));
 
     /// <inheritdoc />
     public async Task<DraftRequestResponse> CreateAsync(
@@ -128,6 +133,21 @@ public sealed class DraftRequestService(
 
         if (!DraftRequestStateMachine.IsMutable(existing.Status))
             throw new InvalidOperationException($"Draft '{draftId}' is not mutable in status '{existing.Status}'.");
+
+        if (patch.SystemName is not null && !string.IsNullOrWhiteSpace(patch.SystemName))
+        {
+            string trimmedName = patch.SystemName.Trim();
+            string? existingNormalized = WorkspaceSystemNameNormalizer.NormalizeOrNull(existing.Document.SystemName);
+            string? proposedNormalized = WorkspaceSystemNameNormalizer.NormalizeOrNull(trimmedName);
+
+            if (proposedNormalized is not null
+                && !string.Equals(existingNormalized, proposedNormalized, StringComparison.Ordinal))
+            {
+                await _workspaceSystemNameCollisionGuard
+                    .EnsureAvailableAsync(scope, trimmedName, draftId, cancellationToken)
+                    .ConfigureAwait(false);
+            }
+        }
 
         ApplyPatch(existing.Document, patch);
         SyncTransparencyFromDocument(existing.Document);
@@ -388,6 +408,13 @@ public sealed class DraftRequestService(
 
         EnsureMustQuestionsAnswered(existing.Document);
         ArchitectureDraftReviewReadinessValidator.EnsureReviewReady(existing.Document);
+
+        if (!string.IsNullOrWhiteSpace(existing.Document.SystemName))
+        {
+            await _workspaceSystemNameCollisionGuard
+                .EnsureAvailableAsync(scope, existing.Document.SystemName, draftId, cancellationToken)
+                .ConfigureAwait(false);
+        }
 
         ArchitectureRequest architectureRequest = _projector.Project(existing.Document, draftId);
 

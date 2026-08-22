@@ -182,6 +182,19 @@ internal static class RunListQueryParameters
         };
     }
 
+    public static object ForActiveRunWithSystemNameInWorkspace(ScopeContext scope, string systemName)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+        ArgumentException.ThrowIfNullOrWhiteSpace(systemName);
+
+        return new
+        {
+            scope.TenantId,
+            scope.WorkspaceId,
+            NormalizedSystemName = systemName.Trim().ToUpperInvariant(),
+        };
+    }
+
     /// <summary>Page size plus the probe row used to answer "is there more?".</summary>
     public static int Fetch(int take) => RunPagination.ClampTake(take) + 1;
 

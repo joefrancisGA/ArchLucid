@@ -90,32 +90,37 @@ export function FirstReviewGuideWalkthrough({
           data-testid={step.isNextStep ? "first-review-guide-next-step" : `first-review-guide-step-${step.index + 1}`}
           aria-current={step.isNextStep ? "step" : undefined}
         >
-          <div className="flex flex-wrap items-start gap-2">
-            <span className={cn("font-medium text-neutral-500", OPERATOR_TYPOGRAPHY.helper)} aria-hidden="true">
-              {step.index + 1}.
+          <div className="min-w-0 space-y-1">
+            <span className="sr-only">
+              Step {step.index + 1} of {totalSteps}
             </span>
-            <div className="min-w-0 flex-1 space-y-1">
-              <span className="sr-only">
-                Step {step.index + 1} of {totalSteps}
-              </span>
-              <div className="flex flex-wrap items-center gap-2">
-                <h3 className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>{step.title}</h3>
+            <div className="flex flex-wrap items-baseline gap-2">
+              <h3 className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>
+                <span
+                  className="font-semibold text-neutral-500 tabular-nums dark:text-neutral-400"
+                  aria-hidden="true"
+                >
+                  {step.index + 1}.{" "}
+                </span>
+                {step.title}
+              </h3>
+              {step.isNextStep && step.status === "not-started" ? null : (
                 <StatusTag kind={stepStatusTagKind(step.status)} label={step.statusLabel} />
-                {step.isNextStep ? (
-                  <span className={cn("font-medium text-teal-900 dark:text-teal-100", OPERATOR_TYPOGRAPHY.helper)}>
-                    {FIRST_REVIEW_GUIDE_NEXT_STEP_LABEL}
-                  </span>
-                ) : null}
-              </div>
-              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper, "text-neutral-700 dark:text-neutral-300")}>
-                {step.explanation}
-              </p>
-              {step.actionLabel !== null && step.actionHref !== null ? (
-                <Link href={step.actionHref} className={cn(OPERATOR_LINK.inline, OPERATOR_TYPOGRAPHY.body)}>
-                  {step.actionLabel}
-                </Link>
+              )}
+              {step.isNextStep ? (
+                <span className={cn("font-medium text-teal-900 dark:text-teal-100", OPERATOR_TYPOGRAPHY.helper)}>
+                  {FIRST_REVIEW_GUIDE_NEXT_STEP_LABEL}
+                </span>
               ) : null}
             </div>
+            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper, "text-neutral-700 dark:text-neutral-300")}>
+              {step.explanation}
+            </p>
+            {step.actionLabel !== null && step.actionHref !== null ? (
+              <Link href={step.actionHref} className={cn(OPERATOR_LINK.inline, OPERATOR_TYPOGRAPHY.body)}>
+                {step.actionLabel}
+              </Link>
+            ) : null}
           </div>
         </li>
       ))}

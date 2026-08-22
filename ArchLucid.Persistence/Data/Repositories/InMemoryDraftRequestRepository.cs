@@ -137,6 +137,30 @@ public sealed class InMemoryDraftRequestRepository : IDraftRequestRepository
     }
 
     /// <inheritdoc />
+    public Task<bool> ExistsMutableDraftWithSystemNameInWorkspaceAsync(
+        Guid tenantId,
+        Guid workspaceId,
+        string systemName,
+        Guid? excludeDraftId,
+        CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(systemName))
+            throw new ArgumentException("System name is required.", nameof(systemName));
+
+        string normalizedName = systemName.Trim().ToUpperInvariant();
+
+        bool exists = _drafts.Values.Any(stored =>
+            stored.TenantId == tenantId
+            && stored.WorkspaceId == workspaceId
+            && stored.DraftId != excludeDraftId
+            && stored.Status is DraftRequestStatus.Drafting or DraftRequestStatus.Admitted
+            && !string.IsNullOrWhiteSpace(stored.Document.SystemName)
+            && string.Equals(stored.Document.SystemName.Trim(), normalizedName, StringComparison.OrdinalIgnoreCase));
+
+        return Task.FromResult(exists);
+    }
+
+    /// <inheritdoc />
     public Task<IReadOnlyList<DraftRequestResponse>> ListRunSpawnedInScopeAsync(
         Guid tenantId,
         Guid workspaceId,

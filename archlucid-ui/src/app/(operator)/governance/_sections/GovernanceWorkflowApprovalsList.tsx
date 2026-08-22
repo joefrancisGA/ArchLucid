@@ -30,7 +30,7 @@ import {
   GOVERNANCE_WORKFLOW_RELEASE_TO_ENVIRONMENT_BUTTON,
   GOVERNANCE_WORKFLOW_RELEASE_TO_ENVIRONMENT_BUTTON_READER,
 } from "@/lib/governance/governance-workflow-release-copy";
-import { buyerSafeGovernanceActorLabel } from "@/lib/buyer/buyer-demo-persona-labels";
+import { formatActionActorName } from "@/lib/action-actor-display";
 import { buyerGovernanceWorkflowStatusLabel } from "@/lib/buyer/buyer-governance-workflow-status-labels";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import type { GovernanceApprovalRequest } from "@/types/governance-workflow";
@@ -151,7 +151,7 @@ export function GovernanceWorkflowApprovalsList(props: GovernanceWorkflowApprova
               <CardContent className={cn("grid gap-2", OPERATOR_TYPOGRAPHY.body)}>
                 <div>
                   <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>Requested by</span>{" "}
-                  {buyerPolishedShell ? buyerSafeGovernanceActorLabel(row.requestedBy) : row.requestedBy}
+                  {formatActionActorName(row.requestedBy)}
                 </div>
                 <div>
                   <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>Requested</span>{" "}
@@ -162,13 +162,11 @@ export function GovernanceWorkflowApprovalsList(props: GovernanceWorkflowApprova
                     <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>Comment</span> {row.requestComment}
                   </div>
                 ) : null}
-                {row.reviewedBy ? (
-                  <div>
-                    <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>Reviewed by</span>{" "}
-                    {buyerPolishedShell ? buyerSafeGovernanceActorLabel(row.reviewedBy) : row.reviewedBy}
-                    {row.reviewedUtc ? ` · ${formatGovernanceBusinessInstant(row.reviewedUtc)}` : null}
-                  </div>
-                ) : null}
+                <div>
+                  <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>Reviewed by</span>{" "}
+                  {formatActionActorName(row.reviewedBy)}
+                  {row.reviewedUtc ? ` · ${formatGovernanceBusinessInstant(row.reviewedUtc)}` : null}
+                </div>
                 {row.reviewComment ? (
                   <div>
                     <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>Review comment</span>{" "}

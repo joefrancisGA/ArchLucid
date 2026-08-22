@@ -21,6 +21,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
+import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import { showError, showInfo } from "@/lib/toast";
 import { OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
@@ -76,7 +77,10 @@ export function OperatorBillingWalletPanel() {
     setWalletFetchFailed(false);
 
     try {
-      const res = await fetch("/api/proxy/v1/billing/wallet", { headers: { Accept: "application/json" } });
+      const res = await fetch(
+        "/api/proxy/v1/billing/wallet",
+        mergeRegistrationScopeForProxy({ headers: { Accept: "application/json" } }),
+      );
 
       if (!res.ok) {
         setWallet(null);

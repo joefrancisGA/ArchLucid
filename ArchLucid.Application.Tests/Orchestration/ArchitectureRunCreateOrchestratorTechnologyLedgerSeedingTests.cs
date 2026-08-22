@@ -292,6 +292,7 @@ public sealed class ArchitectureRunCreateOrchestratorTechnologyLedgerSeedingTest
             TimeProvider.System,
             new DefaultRequestContentSafetyPrecheck(),
             ArchitectureRunCreateOrchestratorTestSupport.CreatePolicyPackCloudBaselineApplicator(),
+            WorkspaceSystemNameCollisionGuardTestDoubles.NoOp(),
             NullLogger<ArchitectureRunCreateOrchestrator>.Instance);
     }
 }

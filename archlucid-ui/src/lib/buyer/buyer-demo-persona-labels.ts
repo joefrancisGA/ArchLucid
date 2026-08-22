@@ -1,4 +1,5 @@
 import type { AuditEvent } from "@/lib/api";
+import { formatActionActorName } from "@/lib/action-actor-display";
 import { isBuyerSafeDemoMarketingChromeEnv } from "@/lib/demo-ui-env";
 
 /** Neutral role titles for buyer-polished surfaces (TB-273 / BDA-003, 007, 022). */
@@ -23,26 +24,8 @@ export function isScriptedDemoActorName(name: string | null | undefined): boolea
   return SCRIPTED_ACTOR_NAMES.has(name.trim());
 }
 
-export function buyerSafeActorDisplayName(name: string | null | undefined, eventType: string): string {
-  const trimmed = (name ?? "").trim();
-
-  if (trimmed.length === 0) {
-    return trimmed;
-  }
-
-  if (!isScriptedDemoActorName(trimmed)) {
-    return trimmed;
-  }
-
-  if (trimmed === "Jordan Lee") {
-    if (eventType.trim().toLowerCase() === "finalize.run") {
-      return BUYER_DEMO_ARCHITECTURE_REVIEWER_ROLE;
-    }
-
-    return BUYER_DEMO_GOVERNANCE_APPROVER;
-  }
-
-  return BUYER_DEMO_REVIEW_OWNER_ROLE;
+export function buyerSafeActorDisplayName(name: string | null | undefined, _eventType: string): string {
+  return formatActionActorName(name);
 }
 
 export function buyerSafeTechnicalIdLabel(raw: string | null | undefined): string {
@@ -75,19 +58,5 @@ export function sanitizeAuditEventsForBuyerPolishedShell(events: AuditEvent[]): 
 }
 
 export function buyerSafeGovernanceActorLabel(name: string | null | undefined): string {
-  const trimmed = (name ?? "").trim();
-
-  if (trimmed.length === 0) {
-    return trimmed;
-  }
-
-  if (trimmed === "Taylor Morgan") {
-    return BUYER_DEMO_ARCHITECTURE_REVIEW_LEAD;
-  }
-
-  if (trimmed === "Jordan Lee") {
-    return BUYER_DEMO_GOVERNANCE_APPROVER;
-  }
-
-  return trimmed;
+  return formatActionActorName(name);
 }

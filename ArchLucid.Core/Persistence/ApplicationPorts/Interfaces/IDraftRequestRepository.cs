@@ -60,4 +60,16 @@ public interface IDraftRequestRepository
         Guid excludeDraftId,
         int maxCount,
         CancellationToken cancellationToken);
+
+    /// <summary>
+    ///     Returns <see langword="true" /> when the workspace has a mutable draft
+    ///     (<see cref="DraftRequestStatus.Drafting" /> or <see cref="DraftRequestStatus.Admitted" />) whose document
+    ///     <c>systemName</c> matches <paramref name="systemName" /> case-insensitively.
+    /// </summary>
+    Task<bool> ExistsMutableDraftWithSystemNameInWorkspaceAsync(
+        Guid tenantId,
+        Guid workspaceId,
+        string systemName,
+        Guid? excludeDraftId,
+        CancellationToken cancellationToken);
 }

@@ -216,6 +216,17 @@ public sealed class CachingRunRepository(IRunRepository inner, IHotPathReadCache
     }
 
     /// <inheritdoc />
+    public Task<bool> ExistsActiveRunWithSystemNameInWorkspaceAsync(
+        ScopeContext scope,
+        string systemName,
+        CancellationToken ct)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+
+        return _inner.ExistsActiveRunWithSystemNameInWorkspaceAsync(scope, systemName, ct);
+    }
+
+    /// <inheritdoc />
     public async Task<RunStaleUncommittedPurgeBatchResult> HardDeleteStaleUncommittedRunsBatchAsync(
         DateTimeOffset createdBeforeUtc,
         int batchSize,

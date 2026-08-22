@@ -278,6 +278,7 @@ public sealed class ArchitectureRunCreateOrchestratorMissingArchitectureRequestT
             TimeProvider.System,
             new DefaultRequestContentSafetyPrecheck(),
             ArchitectureRunCreateOrchestratorTestSupport.CreatePolicyPackCloudBaselineApplicator(),
+            WorkspaceSystemNameCollisionGuardTestDoubles.NoOp(),
             NullLogger<ArchitectureRunCreateOrchestrator>.Instance);
     }
 }

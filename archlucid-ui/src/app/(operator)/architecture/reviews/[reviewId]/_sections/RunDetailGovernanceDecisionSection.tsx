@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
 import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY, operatorSemanticSurface } from "@/lib/design-tokens";
 import { buildArchitectureActivityFinalizeReadinessHref } from "@/lib/architecture/architecture-created-finalize-readiness-href";
+import { formatActionActorName } from "@/lib/action-actor-display";
 import { buildReviewWorkspaceTabHref } from "@/lib/unified-review-workspace-tabs";
 import {
   RUN_DETAIL_GOVERNANCE_PRE_COMMIT_APPROVAL_GATE_LABEL,
@@ -51,7 +52,7 @@ export function RunDetailGovernanceDecisionSection(
   const pagePrimaryOwnedElsewhere = props.pagePrimaryOwnedElsewhere === true;
   const decision = (props.operatorGovernanceDecision ?? "").trim();
   const rationale = (props.operatorGovernanceDecisionRationale ?? "").trim();
-  const decisionBy = (props.operatorGovernanceDecisionByUserId ?? "").trim();
+  const decisionBy = formatActionActorName(props.operatorGovernanceDecisionByUserId);
   const manifestFinalized = (props.manifestId ?? "").trim().length > 0;
   const showGovernanceCta = shouldShowRunDetailGovernanceCta({
     manifestId: props.manifestId,
@@ -231,12 +232,10 @@ export function RunDetailGovernanceDecisionSection(
             )}
           </dd>
         </div>
-        {decisionBy.length > 0 ? (
-          <div>
-            <dt className="text-neutral-500 dark:text-neutral-400">Decision owner</dt>
-            <dd className="m-0 mt-1 text-neutral-800 dark:text-neutral-200">{decisionBy}</dd>
-          </div>
-        ) : null}
+        <div>
+          <dt className="text-neutral-500 dark:text-neutral-400">Decision owner</dt>
+          <dd className="m-0 mt-1 text-neutral-800 dark:text-neutral-200">{decisionBy}</dd>
+        </div>
         <div>
           <dt className="text-neutral-500 dark:text-neutral-400">Blocking findings</dt>
           <dd className="m-0 mt-1 font-medium tabular-nums text-neutral-900 dark:text-neutral-100">
