@@ -13,6 +13,11 @@ export const MARKETING_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] = 
       whyEmpty: "Sections populate after the demo tenant snapshot and related read endpoints load.",
       whereToConfigurePrerequisite:
         "A seeded demo review is required; Claims/Retail labels stay withheld until the demo identity is unambiguous.",
+      taskSteps: [
+        "Inspect snapshot and sponsor pack sections.",
+        "Open marketing /why for buyer comparison context.",
+        "Open Assurance status when diligence orientation is needed.",
+      ],
     },
   },
   {
@@ -25,6 +30,11 @@ export const MARKETING_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] = 
       whyEmpty: "Panels appear after the demo explain API returns a seeded review payload.",
       whereToConfigurePrerequisite:
         "A seeded demo tenant review is required; this route stays hidden from buyer nav when demo explain is unavailable.",
+      taskSteps: [
+        "Inspect provenance and explanation panels.",
+        "Start a real review when you leave the demo path.",
+        "Open Validate review for live package trails.",
+      ],
     },
   },
 ];

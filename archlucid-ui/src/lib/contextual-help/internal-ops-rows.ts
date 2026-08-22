@@ -27,6 +27,11 @@ export const INTERNAL_OPS_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[]
         label: "Open Improvement planning",
         href: PLANNING_PATH,
       },
+      taskSteps: [
+        "Filter pilot feedback by time range.",
+        "Review ranked improvement opportunities.",
+        "Open Improvement planning when themes need plans.",
+      ],
     },
   },
   {
@@ -43,6 +48,11 @@ export const INTERNAL_OPS_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[]
         label: "Open System health",
         href: "/administration/system-health",
       },
+      taskSteps: [
+        "Review failing diagnostics probes first.",
+        "Open System health for buyer-safe posture.",
+        "Follow Troubleshooting when symptoms need runbooks.",
+      ],
     },
   },
   {
@@ -55,6 +65,11 @@ export const INTERNAL_OPS_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[]
       whyEmpty: "Rows appear after tenant scopes have recorded review or approval activity.",
       whereToConfigurePrerequisite:
         "This page requires tenant administrator access; customer tenants never see other tenants here.",
+      taskSteps: [
+        "Refresh tenant health scores for the selected scope.",
+        "Sort to low engagement or stalled pilots.",
+        "Open System health or Audit for tenant follow-up.",
+      ],
     },
   },
   {
@@ -67,6 +82,11 @@ export const INTERNAL_OPS_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[]
       whyEmpty: "A profile appears after eligible accepted, deferred, rejected, or implemented outcomes exist in scope.",
       whereToConfigurePrerequisite:
         "Preview and rebuild require ExecuteAuthority; this Internal Ops surface typically needs System Admin access.",
+      taskSteps: [
+        "Refresh eligibility counts for learning outcomes.",
+        "Preview a rebuild when enough outcomes exist.",
+        "Open Advisory scans or Pilot feedback for live trails.",
+      ],
     },
   },
   {
@@ -79,6 +99,11 @@ export const INTERNAL_OPS_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[]
       whyEmpty: "Rows appear after platform administrators provision tenant registry entries.",
       whereToConfigurePrerequisite:
         "This page requires tenant administrator access; customer tenants never see other tenants here.",
+      taskSteps: [
+        "Create a tenant when onboarding a new customer.",
+        "Shut off access when a tenant must be disabled.",
+        "Open Tenant health or Audit for follow-up.",
+      ],
     },
   },
   {
@@ -91,6 +116,11 @@ export const INTERNAL_OPS_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[]
       whyEmpty: "Cohort rows appear after trial tenants record signup and review activity in the selected period.",
       whereToConfigurePrerequisite:
         "This page requires tenant administrator access; customer tenants never see other tenants here.",
+      taskSteps: [
+        "Adjust the date range for the cohort view.",
+        "Refresh conversion KPIs for trial tenants.",
+        "Open Tenant health or Billing when follow-up is needed.",
+      ],
     },
   },
   {
@@ -103,6 +133,11 @@ export const INTERNAL_OPS_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[]
       whyEmpty: "Checklist rows appear after the internal readiness probe returns for this deployment.",
       whereToConfigurePrerequisite:
         "This page requires tenant administrator access; customer tenants never see this diagnostic.",
+      taskSteps: [
+        "Run the demo readiness checklist for this workspace.",
+        "Open System health when a dependency fails.",
+        "Open Trial funnel when conversion context is needed.",
+      ],
     },
   },
   {
@@ -115,6 +150,11 @@ export const INTERNAL_OPS_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[]
       whyEmpty: "Identity fields appear after the admin deployment-status probe returns for this environment.",
       whereToConfigurePrerequisite:
         "This page requires ArchLucid personnel access; customer tenants never see deployment identity here.",
+      taskSteps: [
+        "Refresh deployment status for this environment.",
+        "Confirm BUILD_ID agreement across frontend, API, and worker.",
+        "Open Diagnostics dashboard when deeper probes are needed.",
+      ],
     },
   },
 ];
