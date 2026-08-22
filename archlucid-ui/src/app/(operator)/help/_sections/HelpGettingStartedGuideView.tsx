@@ -235,7 +235,7 @@ export function HelpGettingStartedGuideView(props: HelpGettingStartedGuideViewPr
           <section aria-labelledby="plain-language-vocabulary" className="space-y-3">
             <HelpSectionHeading id="plain-language-vocabulary">Plain-language vocabulary</HelpSectionHeading>
             <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>
-              Seven terms you will see across review, governance, and export surfaces.
+              Seven terms you will see across review, approval, and export surfaces.
             </p>
             <PlainLanguageTable terms={GETTING_STARTED_HELP_PLAIN_LANGUAGE_TERMS} testId="getting-started-plain-language-table" />
           </section>

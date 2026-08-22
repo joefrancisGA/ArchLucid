@@ -13,7 +13,7 @@ export const ACCESSIBILITY_PUBLIC_CURRENT_STATUS =
   "We use automated checks and manual review to identify accessibility issues across public pages and core workflows. Known issues are tracked and prioritized with other product quality work. Automated checks help identify common issues such as missing labels, color contrast problems, keyboard navigation defects, and invalid ARIA usage.";
 
 export const ACCESSIBILITY_PUBLIC_WHAT_WE_TEST_SUMMARY =
-  "Automated accessibility checks are run against representative public pages and core product workflows, including navigation, review intake, evidence review, governance, policy, and reporting workflows.";
+  "Automated accessibility checks are run against representative public pages and core product workflows, including navigation, review intake, evidence review, approval, policy, and reporting workflows.";
 
 export const ACCESSIBILITY_PUBLIC_WHAT_WE_TEST_AREAS: readonly string[] = [
   "Public marketing pages",

@@ -15,4 +15,4 @@ export const REVIEW_ARCHIVE_SUCCESS_TOAST = "Review archived.";
 export const REVIEW_ARCHIVE_FAILURE_MESSAGE = "Could not archive this review. Try again.";
 
 export const REVIEW_ARCHIVE_SEALED_BLOCKED_MESSAGE =
-  "Sealed reviews cannot be archived. Committed architecture packages remain until tenant offboarding.";
+  "Finalized reviews cannot be archived. Committed architecture packages remain until tenant offboarding.";

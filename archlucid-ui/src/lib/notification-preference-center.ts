@@ -99,7 +99,7 @@ export const NOTIFICATION_PREFERENCE_CHANNELS: readonly NotificationPreferenceCh
   {
     id: "teams",
     title: OPERATOR_NAV_LINK_LABELS.microsoftTeams,
-    whatItDoes: "Teams channel posts for selected review, governance, and workspace events.",
+    whatItDoes: "Teams channel posts for selected review, approval, and workspace events.",
     href: INTEGRATIONS_TEAMS_PATH,
     statusHintKey: "configureInTeams",
     ctaLabel: "Configure Teams",
@@ -107,7 +107,7 @@ export const NOTIFICATION_PREFERENCE_CHANNELS: readonly NotificationPreferenceCh
   {
     id: "slack",
     title: OPERATOR_NAV_LINK_LABELS.slack,
-    whatItDoes: "Slack channel posts for selected review, governance, and workspace events.",
+    whatItDoes: "Slack channel posts for selected review, approval, and workspace events.",
     href: INTEGRATIONS_SLACK_PATH,
     statusHintKey: "configureInSlack",
     ctaLabel: "Configure Slack",

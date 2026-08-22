@@ -98,7 +98,7 @@ export function ManifestDetailSummaryPanel(props: ManifestDetailSummaryPanelProp
         className="rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 p-4"
       >
         <h3 id="manifest-policy-pack-heading" className={cn("m-0 text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>
-          Policy pack — governance guardrails
+          Policy pack — policy guardrails
         </h3>
         <p className={cn("m-0 mt-2 font-medium leading-snug text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
           {policyPackBuyerLabel(summary.ruleSetId, summary.ruleSetVersion)}

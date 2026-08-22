@@ -58,7 +58,7 @@ export const DEMO_PREVIEW_TECHNICAL_DETAILS_DISCLOSURE = "Technical details";
 export const DEMO_PREVIEW_DELIVERABLES_HEADING = "Included deliverables";
 
 export const DEMO_PREVIEW_DELIVERABLES_SUPPORTING =
-  "The finalized review provides reusable records for sponsors, architects, governance teams, and auditors.";
+  "The finalized review provides reusable records for sponsors, architects, approval teams, and auditors.";
 
 export const DEMO_PREVIEW_SIGNIN_CALLOUT_HEADING = "Explore the complete review in your workspace";
 

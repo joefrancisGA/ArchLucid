@@ -60,7 +60,7 @@ export const JIRA_INTEGRATION_HELP_FEATURE_ITEMS: readonly JiraIntegrationHelpIt
 export const JIRA_INTEGRATION_HELP_HOW_TO_READ_STEPS = [
   "Test the connector and confirm connection health for this workspace.",
   "Set project and severity mappings so outbound issues route to the right Jira project.",
-  "Open Integration readiness or Audit trail when connection or governance trails need follow-up.",
+  "Open Integration readiness or Audit trail when connection or approval trails need follow-up.",
 ] as const;
 
 export const JIRA_INTEGRATION_HELP_BEFORE_YOU_START_TITLE = "Before you start";
