@@ -11,7 +11,10 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { useAssignedToMeFindingsCountQuery } from "@/hooks/use-assigned-to-me-findings-count-query";
 import { useOperatorStickinessSnapshotQuery } from "@/hooks/use-operator-stickiness-snapshot-query";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
-import { GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
+import {
+  GOVERNANCE_APPROVAL_QUEUE_PATH,
+  GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH,
+} from "@/lib/governance/governance-route-paths";
 import { formatInstantForLocale } from "@/lib/locale-datetime";
 import { REVIEW_LIFECYCLE_FINALIZED_STATE_LABEL } from "@/lib/vocabulary/review-lifecycle-verb-map";
 
@@ -130,9 +133,11 @@ export function OperatorStickinessSnapshotCard(): ReactElement | null {
             <p className="m-0 tabular-nums">
               Assigned to you: <span className="font-medium">{assignedToMeCount}</span>
             </p>
-            <Link className={OPERATOR_LINK.optional} href="/governance/approval-queue">
-              {buyerPolishedShell ? "View resolve outcomes" : "Open resolve outcomes"}
-            </Link>
+            {data.pendingGovernanceApprovals > 0 ? (
+              <Link className={OPERATOR_LINK.optional} href={GOVERNANCE_APPROVAL_QUEUE_PATH}>
+                {buyerPolishedShell ? "View resolve outcomes" : "Open resolve outcomes"}
+              </Link>
+            ) : null}
             {assignedToMeCount > 0 ? (
               <Link className={OPERATOR_LINK.optional} href={GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH}>
                 Open assigned findings
