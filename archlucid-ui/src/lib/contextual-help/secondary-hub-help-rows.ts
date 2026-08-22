@@ -23,9 +23,9 @@ export const SECONDARY_HUB_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[
   {
     prefix: DECISION_REGISTER_HELP_CANONICAL_PATH,
     entry: {
-      whatIsThisPage: `Decision register — ${DECISION_REGISTER_HELP_TOPIC_LABEL.toLowerCase()} for signed architecture decisions.`,
+      whatIsThisPage: `Decision register — ${DECISION_REGISTER_HELP_TOPIC_LABEL.toLowerCase()} for finalized architecture decisions.`,
       whatToDoNext: "Open the decision register, filter by category, then follow linked reviews or findings.",
-      whyEmpty: "This guide is always available; decision rows appear after reviews are signed with recorded decisions.",
+      whyEmpty: "This guide is always available; decision rows appear after reviews are finalized with recorded decisions.",
       whereToConfigurePrerequisite:
         "Decision register respects the workspace and project selected in the header switcher.",
       whatToDoNextAction: {

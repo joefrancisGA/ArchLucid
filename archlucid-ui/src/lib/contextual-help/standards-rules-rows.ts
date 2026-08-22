@@ -10,7 +10,7 @@ const STANDARDS_RULES_HUB_CONTEXTUAL_HELP = {
     "Inspect standards and policy rules applied to a review, including enforcement mode, source pack, and linked evidence.",
   whatToDoNext:
     "Open linked findings or the evidence trail for a rule, then export a resolution snapshot when you need a citeable record.",
-  whyEmpty: "Rules appear after a policy pack or governance configuration applies checks to a review.",
+  whyEmpty: "Rules appear after a policy pack or policy configuration applies checks to a review.",
   whereToConfigurePrerequisite: "Assign and order policy packs for the current workspace and project scope.",
   whatToDoNextAction: {
     label: "Open policy packs",

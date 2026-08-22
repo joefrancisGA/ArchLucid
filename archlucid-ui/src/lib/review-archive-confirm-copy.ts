@@ -3,7 +3,7 @@ export const REVIEW_ARCHIVE_CONFIRM_TITLE = "Archive review?";
 export function reviewArchiveConfirmDescription(reviewTitle: string): string {
   const trimmed = reviewTitle.trim();
 
-  return `Archive "${trimmed}"? It will be hidden from default lists. This cannot be fully undone — audit events and any sealed evidence already recorded are not erased.`;
+  return `Archive "${trimmed}"? It will be hidden from default lists. This cannot be fully undone — audit events and any recorded evidence already captured are not erased.`;
 }
 
 export const REVIEW_ARCHIVE_CONFIRM_ACTION_LABEL = "Archive review";
