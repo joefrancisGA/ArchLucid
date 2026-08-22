@@ -21,7 +21,7 @@ export const PRICING_CATALOG_LADDER_EXCEPTIONS: ReadonlyArray<{
     fromId: "architect",
     toId: "team",
     kinds: ["seat", "credit", "review"],
-    reason: "Architect is a solo entry SKU; Team adds governance packaging, not a cheaper per-unit upgrade.",
+    reason: "Architect is a solo entry SKU; Team adds policy packaging, not a cheaper per-unit upgrade.",
   },
 ];
 

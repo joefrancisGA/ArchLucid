@@ -291,7 +291,7 @@ export const FINDINGS_HELP_ROLE_GUIDANCE: readonly FindingsHelpRoleGuidance[] = 
     guidance: "Validates evidence, severity, business impact, and recommended action.",
   },
   {
-    role: "Governance lead",
+    role: "Approval lead",
     guidance: "Records decisions, approvals, exceptions, and escalation requirements.",
   },
   {
@@ -304,7 +304,7 @@ export const FINDINGS_HELP_WHAT_IS_BODY =
   "During a review, ArchLucid compares architecture evidence against active policies and standards. When a gap or risk is detected, the product records a finding with severity, impact, and recommended action. Findings stay linked to the review so teams can investigate, govern, and report on them consistently.";
 
 export const FINDINGS_HELP_SEVERITY_INTRO =
-  "Severity reflects how urgently a finding should be addressed. Business impact explains why the issue matters to delivery, security, or compliance. Both appear on the finding and in governance summaries.";
+  "Severity reflects how urgently a finding should be addressed. Business impact explains why the issue matters to delivery, security, or compliance. Both appear on the finding and in approval summaries.";
 
 export const FINDINGS_HELP_RESPOND_INTRO =
   "Responding to a finding means reviewing evidence, recording a disposition, and tracking follow-up until the risk is resolved, accepted, or waived.";

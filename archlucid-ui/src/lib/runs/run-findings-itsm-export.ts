@@ -49,7 +49,7 @@ function escapeCsvCell(value: string): string {
 
 /** Pre-finalize marker stamped into exports when no Finalized review record exists yet. */
 export const PRE_FINALIZE_FINDINGS_EXPORT_MARKER =
-  "Pre-finalize assessment findings — not a Finalized review record";
+  "Assessment findings before finalize — not a Finalized review record";
 
 export type RunFindingsExportOptions = {
   readonly packageCommitted?: boolean;

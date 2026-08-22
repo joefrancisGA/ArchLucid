@@ -3,6 +3,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { StatusTag } from "@/components/ui/status-tag";
 import {
+  formatCiBuildNumberLabel,
   formatShortCommitSha,
   readClientDeploymentFingerprint,
 } from "@/lib/deployment-fingerprint";

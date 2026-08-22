@@ -230,7 +230,7 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
     useWhen:
       "Create a schedule when a scheduled review must be re-reviewed on a fixed cadence so accepted risks, policy exceptions, and control obligations do not lapse after approval.",
     firstPilotNote:
-      "After Pilot proof when governance leads need automated follow-up instead of calendar reminders for recurring architecture reviews.",
+      "After Pilot proof when approval leads need automated follow-up instead of calendar reminders for recurring architecture reviews.",
     enterpriseFootnote:
       "Schedules clone a finalized review on the cadence you define; manage approvals and risk resolve on linked approval surfaces.",
   },

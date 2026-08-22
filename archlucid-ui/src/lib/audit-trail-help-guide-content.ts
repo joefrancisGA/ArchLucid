@@ -144,10 +144,10 @@ export const AUDIT_TRAIL_HELP_ROLE_GUIDANCE: readonly AuditTrailHelpRoleGuidance
   {
     role: "Solution architect",
     guidance:
-      "Filter audit trail activity on a review to confirm submissions, evidence updates, and export requests before governance handoff.",
+      "Filter audit trail activity on a review to confirm submissions, evidence updates, and export requests before approval handoff.",
   },
   {
-    role: "Governance lead",
+    role: "Approval lead",
     guidance:
       "Trace approval, rejection, and release actions alongside resolve outcome history and decision register entries.",
   },

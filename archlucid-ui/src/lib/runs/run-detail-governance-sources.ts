@@ -12,4 +12,4 @@ export const RUN_DETAIL_GOVERNANCE_PRE_COMMIT_HELP_CITES: readonly RunDetailGove
 ] as const;
 
 export const RUN_DETAIL_GOVERNANCE_PRE_COMMIT_CLAIM_DISCIPLINE =
-  "This create-home tab orients assessment before finalize. It is not the committed governance decision surface.";
+  "This create-home tab orients assessment before finalize. It is not the committed approval decision surface.";

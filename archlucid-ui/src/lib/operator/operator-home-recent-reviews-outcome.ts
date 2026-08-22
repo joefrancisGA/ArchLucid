@@ -43,7 +43,7 @@ export function formatOperatorHomeRecentReviewsOutcome(
 
   if (metrics.governanceWarnings > 0) {
     pressureParts.push(
-      `${metrics.governanceWarnings} with governance warnings`,
+      `${metrics.governanceWarnings} with approval-check warnings`,
     );
   }
 

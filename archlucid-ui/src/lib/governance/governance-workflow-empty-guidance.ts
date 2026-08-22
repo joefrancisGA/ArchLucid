@@ -13,7 +13,7 @@ export const governanceWorkflowIdleGettingStartedOperator: EmptyStateGettingStar
 export const governanceWorkflowIdleGettingStartedReader: EmptyStateGettingStarted = {
   heading: "What this page shows",
   steps: [
-    "Governance leads pick a review and load approval requests, environment releases, and activations for that review.",
+    "Approval leads pick a review and load approval requests, environment releases, and activations for that review.",
     "Each step follows your organization's role policy for who may submit, approve, release, and activate.",
     "Use Findings or Reviews for context — this timeline stays inspection-first at your rank.",
   ],
@@ -31,8 +31,8 @@ export const governanceNoApprovalsGettingStartedOperator: EmptyStateGettingStart
 export const governanceNoApprovalsGettingStartedReader: EmptyStateGettingStarted = {
   heading: "Why this can be empty",
   steps: [
-    "No approval rows exist for this review yet — governance leads submit requests after finalize.",
-    "Try another review from the picker, or coordinate with a governance lead to submit.",
+    "No approval rows exist for this review yet — approval leads submit requests after finalize.",
+    "Try another review from the picker, or coordinate with a approval lead to submit.",
     "You can still inspect environment releases and activations below once the review has history.",
   ],
 };
@@ -68,7 +68,7 @@ export const governanceActivationsEmptyGettingStartedReader: EmptyStateGettingSt
   heading: "What activations mean",
   steps: [
     "Activations record which finalized review record version is live for an environment.",
-    "A governance lead runs Activate after a environment release — nothing shows until that completes.",
+    "A approval lead runs Activate after an environment release — nothing shows until that completes.",
     "Use Audit trail if you need the portfolio-level paper trail.",
   ],
 };

@@ -82,6 +82,7 @@ describe("DeveloperSettingsPageClient", () => {
     render(<DeveloperSettingsPageClient />);
 
     expect(screen.getByRole("heading", { level: 3, name: "Build and environment" })).toBeInTheDocument();
+    expect(screen.getByText("CI build")).toBeInTheDocument();
     expect(screen.getByRole("heading", { level: 3, name: "Branded theme evaluation" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { level: 3, name: "Local CLI demo" })).toBeInTheDocument();
   });

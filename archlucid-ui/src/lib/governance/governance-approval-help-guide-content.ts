@@ -160,21 +160,21 @@ export const GOVERNANCE_APPROVAL_HELP_STATUS_ROWS: readonly GovernanceApprovalHe
     status: "Approved",
     kind: "approved",
     meaning: "The approval decision is recorded and visible in the audit trail.",
-    whoCanAct: "Governance leads with release permission after approval.",
+    whoCanAct: "Approval leads with release permission after approval.",
     nextAction: "Release the finalized review record to the target environment when required.",
   },
   {
     status: "Rejected",
     kind: "blocked",
     meaning: "The reviewer declined the request. Rationale remains in the audit trail.",
-    whoCanAct: "Submitter or governance lead, per organization policy.",
+    whoCanAct: "Submitter or approval lead, per organization policy.",
     nextAction: "Revise the review or open a new request according to current process.",
   },
   {
     status: "Promoted",
     kind: "in-progress",
     meaning: "An approved finalized review record was released toward the target environment.",
-    whoCanAct: "Governance leads with release permission.",
+    whoCanAct: "Approval leads with release permission.",
     nextAction: "Complete activation for the target environment when required.",
   },
   {
@@ -318,7 +318,7 @@ export const GOVERNANCE_APPROVAL_HELP_TROUBLESHOOTING: readonly GovernanceApprov
   {
     issue: "You lack permission to approve or submit",
     resolution:
-      "Ask a governance lead to confirm your role rank and workspace scope. Readers can inspect but not mutate workflow rows.",
+      "Ask a approval lead to confirm your role rank and workspace scope. Readers can inspect but not mutate workflow rows.",
   },
   {
     issue: "Policy blocks approval",

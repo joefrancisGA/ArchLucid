@@ -184,8 +184,8 @@ export function buildPackagePrintSponsorSynopsis(summary: RunSummary): string | 
       : `${findings} finding${findings === 1 ? "" : "s"} recorded`;
   const warningsPhrase =
     warnings !== null && warnings > 0
-      ? ` ${warnings} governance warning${warnings === 1 ? "" : "s"} remain for attention.`
-      : " No open governance warnings on this summary.";
+      ? ` ${warnings} approval-check warning${warnings === 1 ? "" : "s"} remain for attention.`
+      : " No open approval-check warnings on this summary.";
 
   return `Sponsor synopsis for "${title}": finalized architecture review with ${findingsPhrase}.${warningsPhrase}`;
 }
