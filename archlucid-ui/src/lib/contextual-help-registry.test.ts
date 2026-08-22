@@ -627,6 +627,9 @@ describe("contextual-help-registry (TB-733)", () => {
     expect(contextualHelpForPathname("/architecture/digests")?.taskSteps?.length).toBeGreaterThanOrEqual(3);
     expect(contextualHelpForPathname("/governance/alert-rules")?.taskSteps?.length).toBeGreaterThanOrEqual(3);
     expect(contextualHelpForPathname("/insights/improvement-planning")?.taskSteps?.length).toBeGreaterThanOrEqual(3);
+    expect(contextualHelpForPathname("/insights/impact-preview")?.taskSteps?.length).toBeGreaterThanOrEqual(3);
+    expect(contextualHelpForPathname(SPONSOR_DASHBOARD_HREF)?.taskSteps?.length).toBeGreaterThanOrEqual(3);
+    expect(contextualHelpForPathname("/administration/system-health")?.taskSteps?.length).toBeGreaterThanOrEqual(3);
   });
 
   it("forbids internal routes, API paths, and TB labels in registry copy", () => {

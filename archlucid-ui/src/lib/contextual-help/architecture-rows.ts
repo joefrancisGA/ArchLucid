@@ -44,6 +44,11 @@ export const ARCHITECTURE_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[]
       whyEmpty: "Path choices appear immediately; review results appear after you submit intake.",
       whereToConfigurePrerequisite:
         "Reviews use the workspace and project selected in the header switcher.",
+      taskSteps: [
+        "Pick quick, guided, or detailed intake for this review.",
+        "Complete required fields before submitting evidence.",
+        "Submit intake to create the review and open the workspace.",
+      ],
     },
   },
   {

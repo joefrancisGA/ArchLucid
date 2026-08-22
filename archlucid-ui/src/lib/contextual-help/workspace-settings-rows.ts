@@ -16,6 +16,11 @@ const WORKSPACE_SETTINGS_HUB_CONTEXTUAL_HELP = {
     "Cards always render for authorized Admins; empty technical scope values mean the workspace switcher has not selected a tenant, workspace, or project yet.",
   whereToConfigurePrerequisite:
     "Changing tenant defaults needs Admin authority; active workspace and project selection lives in the header workspace switcher.",
+  taskSteps: [
+    "Confirm tenant, workspace, and project scope in the header switcher.",
+    "Adjust quality gates or cost settings when defaults need tuning.",
+    "Open Projects recycle bin when you need to restore deleted projects.",
+  ],
 } as const;
 
 const PROJECTS_RECYCLE_BIN_CONTEXTUAL_HELP = {

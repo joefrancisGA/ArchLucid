@@ -20,6 +20,11 @@ const SYSTEM_HEALTH_HUB_CONTEXTUAL_HELP = {
     label: "Open Connection status",
     href: "/administration/connection-status",
   },
+  taskSteps: [
+    "Refresh readiness to load the latest dependency checks.",
+    "Open Connection status when a connector needs configuration.",
+    "Follow troubleshooting help when a dependency stays unhealthy.",
+  ],
 } as const;
 
 export const SYSTEM_HEALTH_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] = [

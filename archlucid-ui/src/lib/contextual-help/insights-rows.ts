@@ -60,6 +60,11 @@ export const INSIGHTS_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] = [
         label: "Open architecture reviews",
         href: REVIEWS_LIST_PATH,
       },
+      taskSteps: [
+        "Select a finalized review as the impact baseline.",
+        "Define the proposed change and comparison scope.",
+        "Run the simulation and review before-and-after effects.",
+      ],
     },
   },
   {
@@ -74,6 +79,11 @@ export const INSIGHTS_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] = [
         label: "Open ROI summary",
         href: "/insights/roi-summary",
       },
+      taskSteps: [
+        "Set the reporting period and apply it to refresh the summary.",
+        "Review finalized reviews, findings, and approval decisions in scope.",
+        "Generate sponsor exports when the narrative is ready to share.",
+      ],
     },
   },
 ];
