@@ -5,7 +5,10 @@ import type { ReactNode } from "react";
 import { OperatorPageFreshnessMetadata } from "@/components/operator/OperatorPageFreshnessMetadata";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { RefreshButton } from "@/components/ui/refresh-button";
-import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import {
+  PageContextualHelpButton,
+  PAGE_HELP_SHORT_TRIGGER_TEXT,
+} from "@/components/usability/PageContextualHelpButton";
 import {
   OPERATOR_HOME_ARCHITECTURE_LIFECYCLE_INTRO,
   OPERATOR_HOME_ARCHITECTURE_LIFECYCLE_INTRO_BODY,
@@ -78,7 +81,7 @@ export function OperatorHomePageHeader(props: OperatorHomePageHeaderProps): Reac
       subtitleTestId="operator-home-page-subtitle"
       actions={
         <div className="flex flex-wrap items-center gap-2" data-testid="operator-home-header-actions">
-          <PageContextualHelpButton />
+          <PageContextualHelpButton triggerText={PAGE_HELP_SHORT_TRIGGER_TEXT} />
           <OperatorPageFreshnessMetadata
             testId="operator-home-data-currency"
             lastRefreshedAt={refreshing ? null : lastRefreshedAt}

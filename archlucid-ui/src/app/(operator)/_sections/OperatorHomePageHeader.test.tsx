@@ -12,7 +12,9 @@ vi.mock("next/navigation", () => ({
 }));
 
 vi.mock("@/components/usability/PageContextualHelpButton", () => ({
-  PageContextualHelpButton: () => <div data-testid="page-contextual-help-button" />,
+  PageContextualHelpButton: ({ triggerText }: { readonly triggerText?: string }) => (
+    <div data-testid="page-contextual-help-button">{triggerText ?? "Help"}</div>
+  ),
   PAGE_HELP_SHORT_TRIGGER_TEXT: "Help",
 }));
 
@@ -29,7 +31,7 @@ vi.mock("@/lib/operator/operator-home-refresh-context", () => ({
 import { OperatorHomePageHeader } from "@/app/(operator)/_sections/OperatorHomePageHeader";
 
 describe("OperatorHomePageHeader", () => {
-  it("renders Home title, help, data-currency metadata, and refresh", () => {
+  it("renders Home title, Help trigger, data-currency metadata, and refresh", () => {
     requestRefresh.mockReset();
 
     render(<OperatorHomePageHeader subtitle={operatorHomePageSubtitle(false)} />);
@@ -41,7 +43,7 @@ describe("OperatorHomePageHeader", () => {
     );
     expect(screen.getByTestId("operator-home-page-subtitle").className).not.toContain("max-w-2xl");
     expect(screen.getByTestId("operator-home-page-subtitle").className).toContain("text-[13px]");
-    expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
+    expect(screen.getByTestId("page-contextual-help-button")).toHaveTextContent("Help");
     expect(screen.getByTestId("operator-home-header-actions")).toBeInTheDocument();
     expect(screen.getByTestId("operator-home-data-currency")).toBeInTheDocument();
     expect(screen.getByTestId("operator-home-data-currency").textContent).toMatch(/^Updated:/);
