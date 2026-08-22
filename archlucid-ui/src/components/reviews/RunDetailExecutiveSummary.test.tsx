@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
-import { RunDetailSponsorReport } from "@/components/reviews/RunDetailSponsorReport";
+import { RunDetailSponsorReport } from "@/components/reviews/RunDetailExecutiveSummary";
 
 describe("RunDetailSponsorReport", () => {
   it("renders one authoritative sponsor report block", () => {

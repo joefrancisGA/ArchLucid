@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
-import { SponsorPageHeader } from "./SponsorPageHeader";
+import { SponsorPageHeader } from "./ExecutivePageHeader";
 
 describe("SponsorPageHeader", () => {
   it("renders eyebrow, title, and lead with canonical heading levels", () => {
