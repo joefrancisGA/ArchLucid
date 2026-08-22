@@ -35,3 +35,4 @@
 {"at":"2026-08-22T15:53:43.1622200Z","zoneId":"application-agents","outcome":"hit"}
 {"at":"2026-08-22T18:56:26.2658172Z","zoneId":"api-authority-admin-controllers","outcome":"hit"}
 {"at":"2026-08-22T20:51:42.4904268Z","zoneId":"auth-return-path","outcome":"hit"}
+{"at":"2026-08-22T23:21:26.1493261Z","zoneId":"ui-operator-routes","outcome":"hit"}

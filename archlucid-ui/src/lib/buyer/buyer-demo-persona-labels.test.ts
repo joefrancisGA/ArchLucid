@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
 import {
+  ACTION_ACTOR_UNAVAILABLE,
   buyerSafeActorDisplayName,
   buyerSafeGovernanceActorLabel,
   buyerSafeTechnicalIdLabel,
@@ -18,12 +19,13 @@ describe("buyer-demo-persona-labels (TB-273 / 5CZ-demo)", () => {
     process.env = { ...envBackup };
   });
 
-  it("maps scripted actor names to neutral role titles", () => {
-    expect(buyerSafeActorDisplayName("Jordan Lee", "finalize.run")).toBe("Architecture reviewer");
+  it("preserves actor names for action attribution and returns N/A when missing", () => {
+    expect(buyerSafeActorDisplayName("Jordan Lee", "finalize.run")).toBe("Jordan Lee");
     expect(buyerSafeActorDisplayName("Taylor Morgan", "com.archlucid.governance.approval.recorded")).toBe(
-      "Review owner",
+      "Taylor Morgan",
     );
-    expect(buyerSafeGovernanceActorLabel("Jordan Lee")).toBe("Approval lead");
+    expect(buyerSafeGovernanceActorLabel("Jordan Lee")).toBe("Jordan Lee");
+    expect(buyerSafeGovernanceActorLabel(null)).toBe(ACTION_ACTOR_UNAVAILABLE);
   });
 
   it("redacts demo-prefixed technical ids", () => {
@@ -49,7 +51,7 @@ describe("buyer-demo-persona-labels (TB-273 / 5CZ-demo)", () => {
       correlationId: "corr-intake-demo-request",
     });
 
-    expect(sanitized.actorUserName).not.toContain("Jordan");
+    expect(sanitized.actorUserName).toBe("Jordan Lee");
     expect(sanitized.tenantId).toBe("workspace");
     expect(sanitized.correlationId).toBe("Recorded in workspace audit trail");
   });

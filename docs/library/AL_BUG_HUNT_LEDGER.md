@@ -1784,11 +1784,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** operator shell routes; operator pages
 - **paths:** archlucid-ui/src/app/(operator)/
 - **test-filter:** operator
-- **hunts:** 2
-- **bugs-found:** 2
+- **hunts:** 3
+- **bugs-found:** 3
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-21
-- **last-bug:** 2026-08-21
+- **last-hunt:** 2026-08-22
+- **last-bug:** 2026-08-22
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
@@ -1798,6 +1798,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Baseline settings GET/PUT `/api/proxy/v1/tenant/baseline` omitted `mergeRegistrationScopeForProxy` — load/save hit proxy dev-default tenant instead of operator-selected scope (baseline appears not to stick after save) — fixed 2026-08-21 (`page.test.tsx` forwards operator scope headers when loading and saving tenant baseline)
 - [x] (valid-no-repro) Stale react-query cache shows the previous tenant after scope switch — `usePilotScorecardQuery` scope-less key is a real gap on `/insights/architecture-scorecard`, but not reproved this hunt; sponsor/scorecard cache invalidation remains open if scope-switch stale data is reported
 - [x] (invalid) Error boundary hides a 403 and renders an empty success state — no operator-route locus where a 403 is caught and replaced with empty success; compare/governance surfaces surface load failures explicitly
+- [x] (proven) Billing wallet GET/PUT `/api/proxy/v1/billing/wallet` omitted `mergeRegistrationScopeForProxy` — load/save hit proxy dev-default tenant instead of operator-selected scope (wallet settings appear not to stick after save) — fixed 2026-08-22 (`OperatorBillingWalletPanel.test.tsx`)
 
 ---
 
