@@ -15,7 +15,7 @@ export type UseReviewClarificationQuestionsOptions = {
 export function reviewClarificationQuestionsQueryKey(
   runId: string,
   priorRunId: string | null | undefined,
-): readonly [string, string, string | null] {
+): readonly ["review", "clarification-questions", string, string | null] {
   return ["review", "clarification-questions", runId, priorRunId ?? null] as const;
 }
 

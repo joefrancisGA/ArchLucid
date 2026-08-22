@@ -46,7 +46,7 @@ Full operation-level rows: **Operations → durable audit** and **Baseline mutat
 
 ---
 
-<!-- audit-core-const-count:389 -->
+<!-- audit-core-const-count:391 -->
 
 The HTML comment above is a **CI anchor**: `.github/workflows/ci.yml` runs `scripts/ci/assert_audit_const_count.py`, which parses every `public const string` across the `ArchLucid.Core/Audit/AuditEventTypes*.cs` family partials (top-level, `Run`, `Operation`, and `Baseline.*`), cross-checks names against the three appendix tables in this file, and compares the count to this comment. Update the comment whenever constants change, and extend the appendix rows below.
 
@@ -399,6 +399,7 @@ Neither weakens **DENY UPDATE/DELETE** on `dbo.AuditEvents` ([`051_AuditEvents_D
 | `ReviewTrailAccessed` | `ReviewTrailAccessed` | `AuthorityQueryController` (`GET …/pipeline-timeline`, `GET /v1/runs/{runId}/review-trail`) |
 | `ProvenanceAccessed` | `ProvenanceAccessed` | `AuthorityQueryController` (`GET …/provenance`, `GET /v1/runs/{runId}/review-trail/provenance`) |
 | `FindingsListAccessed` | `FindingsListAccessed` | `RunQueryController` (`GET …/architecture/run/{runId}/findings/export/csv`; `{ format, findingCount }` in `DataJson`) |
+| `ReviewClarificationQuestionsAccessed` | `ReviewClarificationQuestionsAccessed` | `ReviewClarificationQuestionsController` (`GET /v1/architecture/review/{runId}/clarification-questions`) |
 | `GovernanceApprovalRequested` | `GovernanceApprovalRequested` | `GovernanceController` (`POST /v1/governance/approval-requests`) |
 | `GovernanceSlackInteractivityDispatched` | `GovernanceSlackInteractivityDispatched` | `SlackInteractivityController` (`POST …/integrations/webhooks/slack/interactivity`; signature-verified dispatch) |
 | `ArtifactsGenerated` | `ArtifactsGenerated` | `AuthorityPipelineStagesExecutor` |
@@ -410,6 +411,7 @@ Neither weakens **DENY UPDATE/DELETE** on `dbo.AuditEvents` ([`051_AuditEvents_D
 | `RequestReleased` | `Request.Released` | `AuthorityDrivenArchitectureRunCommitOrchestrator` |
 | `ManifestSuperseded` | `ManifestSuperseded` | `ManifestFinalizationService` (post-finalize orphan Active cleanup + durable audit per superseded `ManifestId`; SQL transition via `IGoldenManifestRepository.SupersedeUnreferencedActiveGoldenManifestsAsync`) |
 | `ManifestArchived` | `ManifestArchived` | `AdminDiagnosticsService` (`ArchiveRuns*` / cascade — batch `ManifestArchived`) |
+| `ArchitectureReviewArchived` | `ArchitectureReviewArchived` | `ArchitectureRunArchiveService` (`POST /v1/architecture/runs/{runId}/archive`) |
 | `FindingsSnapshotSealed` | `FindingsSnapshotSealed` | `AuthorityPipelineStagesExecutor` |
 | `FindingRemediated` | `FindingRemediated` | `FindingReviewTrailAppendService` (`RecordDisposition` with `Remediated` disposition); `GovernanceStickinessController` (`POST /v1/governance/findings/{findingId}/dispositions`, `POST /v1/governance/findings/bulk-disposition`) |
 | `FindingReviewApproved` | `FindingReviewApproved` | `FindingReviewTrailAppendService` |

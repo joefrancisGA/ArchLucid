@@ -271,6 +271,8 @@ export type RunDetail = Omit<RunDetailDtoBase, "run" | keyof RunDetailSnapshots 
       operatorGovernanceDecisionRationale?: string | null;
       operatorGovernanceDecisionUtc?: string | null;
       operatorGovernanceDecisionByUserId?: string | null;
+      /** When true, the backing architecture request is archived and hidden from default lists. */
+      isArchived?: boolean | null;
     };
     contextSnapshot?: unknown;
     graphSnapshot?: unknown;

@@ -69,7 +69,6 @@ import { GuidedIntakeRequestError } from "./GuidedIntakeRequestError";
 import { IntakeFieldLabel } from "@/components/intake/IntakeFieldLabel";
 import { INTAKE_STEPS, INTAKE_WIZARD_STEPPER_STEPS, MIN_OUTCOME_CHARS } from "./guided-intake-steps";
 import { useGuidedIntakeWizard } from "./use-guided-intake-wizard";
-import type { BranchDraftResponse } from "@/types/draft-intake";
 
 /** Guided intake: write the brief, answer required clarifications, submit the review package. */
 export function SocraticIntakeWizard() {

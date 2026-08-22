@@ -44,8 +44,8 @@ export function buildReviewClarificationDeltaPresentation(
   if (stillOpenCount > 0) {
     parts.push(
       stillOpenCount === 1
-        ? "1 question still open from the prior run"
-        : `${stillOpenCount} questions still open from the prior run`,
+        ? "1 question still open from the prior review"
+        : `${stillOpenCount} questions still open from the prior review`,
     );
   }
 
