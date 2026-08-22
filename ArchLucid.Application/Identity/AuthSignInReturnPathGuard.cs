@@ -30,8 +30,7 @@ public static class AuthSignInReturnPathGuard
     private static string? TryNormalizeRelativePath(string candidate)
     {
         if (!candidate.StartsWith("/", StringComparison.Ordinal)
-            || candidate.StartsWith("//", StringComparison.Ordinal)
-            || candidate.StartsWith("/\\", StringComparison.Ordinal)
+            || ContainsProtocolRelativeTraversal(candidate)
             || candidate.Contains('\\', StringComparison.Ordinal)
             || candidate.Contains('@', StringComparison.Ordinal)
             || candidate.Contains("://", StringComparison.Ordinal))
@@ -40,6 +39,14 @@ public static class AuthSignInReturnPathGuard
         }
 
         return candidate;
+    }
+
+    private static bool ContainsProtocolRelativeTraversal(string path)
+    {
+        return path.StartsWith("//", StringComparison.Ordinal)
+            || path.StartsWith("/\\", StringComparison.Ordinal)
+            || path.Contains("//", StringComparison.Ordinal)
+            || path.Contains("/\\", StringComparison.Ordinal);
     }
 
     private static string? TryNormalizeAfterPercentDecoding(string candidate, string normalized)
@@ -74,10 +81,47 @@ public static class AuthSignInReturnPathGuard
             normalized = decodedNormalized;
         }
 
-        if (ContainsPercentEncodedPathSeparator(working))
+        if (ContainsResidualEncodedTraversal(working))
             return null;
 
         return normalized;
+    }
+
+    private static bool ContainsResidualEncodedTraversal(string candidate)
+    {
+        string working = candidate;
+
+        for (int decodePass = 0; decodePass < MaxPercentDecodePasses && working.Contains('%', StringComparison.Ordinal); decodePass++)
+        {
+            if (ContainsPercentEncodedPathSeparator(working))
+                return true;
+
+            string decoded;
+
+            try
+            {
+                decoded = Uri.UnescapeDataString(working);
+            }
+            catch (UriFormatException)
+            {
+                return true;
+            }
+
+            if (string.Equals(decoded, working, StringComparison.Ordinal))
+                break;
+
+            if (ContainsProtocolRelativeTraversal(decoded)
+                || decoded.Contains('\\', StringComparison.Ordinal)
+                || decoded.Contains('@', StringComparison.Ordinal)
+                || decoded.Contains("://", StringComparison.Ordinal))
+            {
+                return true;
+            }
+
+            working = decoded;
+        }
+
+        return ContainsPercentEncodedPathSeparator(working);
     }
 
     private static bool ContainsPercentEncodedPathSeparator(string candidate)
