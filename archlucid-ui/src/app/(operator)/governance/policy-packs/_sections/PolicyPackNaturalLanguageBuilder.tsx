@@ -50,7 +50,7 @@ export function PolicyPackNaturalLanguageBuilder(props: PolicyPackNaturalLanguag
       >
         <strong>Generated packs require human review before publish.</strong>{" "}
         <Link href={GOVERNANCE_POLICY_PACKS_PATH} className={OPERATOR_LINK.inline}>
-          Open Policy Packs editor
+          Open policy packs editor
         </Link>{" "}
         to refine rules before activation.
       </div>

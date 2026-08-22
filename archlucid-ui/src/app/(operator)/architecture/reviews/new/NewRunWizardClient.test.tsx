@@ -57,6 +57,7 @@ vi.mock("@/lib/api", () => ({
 import { NewRunWizardClient } from "./NewRunWizardClient";
 import { optIntoAdvancedNewRunWizardConfiguration } from "./new-run-wizard-test-helpers";
 import { buildWizardSessionStorageKey, WIZARD_SESSION_IDS } from "@/lib/wizard-session-persistence";
+import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer/buyer-polish-copy";
 
 const WIZARD_MODE_STORAGE_KEY = "archlucid_new_run_wizard_mode_v1";
 
@@ -223,7 +224,7 @@ describe("NewRunWizardClient", { timeout: 60_000 }, () => {
     expect(screen.getByRole("heading", { name: "Review & submit" })).toBeInTheDocument();
 
     await act(async () => {
-      fireEvent.click(screen.getByRole("button", { name: "Start Architecture Review" }));
+      fireEvent.click(screen.getByRole("button", { name: BUYER_START_ARCHITECTURE_REVIEW_CTA }));
       await new Promise((resolve) => setTimeout(resolve, 50));
     });
 

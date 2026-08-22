@@ -20,6 +20,7 @@ import { WizardStepReview } from "@/components/wizard/steps/WizardStepReview";
 import type { LlmMonthlyDollarBudgetStatus } from "@/hooks/use-llm-monthly-budget-execution-gate";
 import { useQuickFamilyWizardFlow } from "@/hooks/use-quick-family-wizard-flow";
 import { isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
+import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer/buyer-polish-copy";
 import { OPERATOR_LAYOUT } from "@/lib/design-tokens";
 import { SIMPLIFIED_PILOT_WIZARD_STEP_FIELD_GROUPS } from "@/lib/simplified-pilot-wizard-step-fields";
 import { applyWizardPreset, wizardPresets } from "@/lib/wizard-presets";
@@ -171,7 +172,7 @@ export function SimplifiedPilotWizard(props: SimplifiedPilotWizardProps) {
           isFirstStep={flow.isFirstStep}
           isLastInputStep={flow.isReviewStep}
           nextLabel="Next"
-          submitLabel="Start Architecture Review"
+          submitLabel={BUYER_START_ARCHITECTURE_REVIEW_CTA}
           submittingLabel="Creating…"
         />
       </WizardStickyFooter>

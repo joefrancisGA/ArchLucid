@@ -111,7 +111,7 @@ export function buildPolicyRulePreviewFallback(input: {
     ruleId,
     ruleTitle: ruleLabel ?? ruleId,
     description:
-      "Full rule text is stored in the assigned policy pack. Open Policy Packs to inspect the rule definition and thresholds.",
+      "Full rule text is stored in the assigned policy pack. Open policy packs to inspect the rule definition and thresholds.",
     remediationGuidance: "",
     severity: null,
     packId: packId ?? packName,

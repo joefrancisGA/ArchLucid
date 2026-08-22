@@ -200,14 +200,14 @@ test.describe("live-api-smoke", { tag: ["@founder", "@critical", "@release-smoke
 
     await forward.click();
 
-    await expect(page.getByRole("button", { name: "Start Architecture Review" })).toBeVisible({ timeout: 60_000 });
+    await expect(page.getByRole("button", { name: "Start an architecture review" })).toBeVisible({ timeout: 60_000 });
 
     const createRespPromise = page.waitForResponse(
       (r) => r.url().includes("/api/proxy/v1/architecture/request") && r.request().method() === "POST",
       { timeout: 120_000 },
     );
 
-    await page.getByRole("button", { name: "Start Architecture Review" }).click();
+    await page.getByRole("button", { name: "Start an architecture review" }).click();
 
     const createResp = await createRespPromise;
 

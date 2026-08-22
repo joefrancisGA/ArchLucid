@@ -14,11 +14,11 @@ const FULL_ENTRY: PageContextualHelpEntry = {
   whyEmpty: "Empty because nothing happened yet.",
   whereToConfigurePrerequisite: "Configure prerequisites in settings UI.",
   whatToDoNextAction: {
-    label: "Open Schedule tab",
+    label: "Open schedule tab",
     href: "/architecture/digests?tab=schedule",
   },
   whereToConfigureAction: {
-    label: "Open Schedule tab",
+    label: "Open schedule tab",
     href: "/architecture/digests?tab=schedule",
   },
   taskSteps: ["Complete the first step.", "Then finish the second step."],

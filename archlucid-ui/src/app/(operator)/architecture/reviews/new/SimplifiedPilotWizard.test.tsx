@@ -36,6 +36,7 @@ import { REVIEW_START_STEP_VALIDATION_MESSAGE } from "@/lib/review-start-progres
 import { showError } from "@/lib/toast";
 
 import { SimplifiedPilotWizard } from "./SimplifiedPilotWizard";
+import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer/buyer-polish-copy";
 
 function makeArchLucidPackageZip(): File {
   const manifest = {
@@ -150,7 +151,7 @@ describe("SimplifiedPilotWizard", () => {
       expect(screen.getByTestId("simplified-pilot-progress")).toHaveTextContent(/step 4 of 4/i);
     });
 
-    fireEvent.click(screen.getByRole("button", { name: "Start Architecture Review" }));
+    fireEvent.click(screen.getByRole("button", { name: BUYER_START_ARCHITECTURE_REVIEW_CTA }));
 
     await waitFor(() => {
       expect(createRun).toHaveBeenCalled();

@@ -90,7 +90,7 @@ export const SECONDARY_HUB_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[
       },
       taskSteps: [
         "Generate a scan from a finalized review baseline.",
-        "Open Schedules when recurring follow-up scans are needed.",
+        "Open schedules when recurring follow-up scans are needed.",
         "Follow recommendations back to findings or reviews.",
       ],
     },

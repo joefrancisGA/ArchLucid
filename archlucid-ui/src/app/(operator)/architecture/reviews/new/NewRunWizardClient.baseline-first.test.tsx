@@ -71,6 +71,7 @@ vi.mock("@/lib/upload-azure-extractor-package", () => ({
 }));
 
 import { NewRunWizardClient } from "./NewRunWizardClient";
+import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer/buyer-polish-copy";
 import { uploadBaselineWizardZip } from "@/testing/wizard-baseline-zip-test-helpers";
 
 const WIZARD_MODE_STORAGE_KEY = "archlucid_new_run_wizard_mode_v1";
@@ -200,7 +201,7 @@ describe("NewRunWizardClient baseline-first (?baseline=1)", { timeout: 60_000 },
     expect(screen.getByTestId("simplified-pilot-progress")).toHaveTextContent(/step 4 of 4/i);
 
     await act(async () => {
-      fireEvent.click(screen.getByRole("button", { name: "Start Architecture Review" }));
+      fireEvent.click(screen.getByRole("button", { name: BUYER_START_ARCHITECTURE_REVIEW_CTA }));
     });
 
     await waitFor(() => {

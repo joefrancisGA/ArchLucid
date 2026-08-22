@@ -1,13 +1,13 @@
 import { isInAppHelpFollowUpHref } from "@/lib/help/help-follow-up-link-label";
 
 /** Follow-up index when every link stays inside `/help/...`. */
-export const RELATED_GUIDES_FOLLOW_UPS_TITLE = "Related Guides" as const;
+export const RELATED_GUIDES_FOLLOW_UPS_TITLE = "Related guides" as const;
 
 /** Follow-up index when links mix in-app help topics and operator product routes. */
-export const RELATED_RESOURCES_FOLLOW_UPS_TITLE = "Related Resources" as const;
+export const RELATED_RESOURCES_FOLLOW_UPS_TITLE = "Related resources" as const;
 
-/** Sentence-case heading used on specialty help topic chrome (help-only lists). */
-export const RELATED_GUIDES_HELP_SECTION_TITLE = "Related guides" as const;
+/** @deprecated Use {@link RELATED_GUIDES_FOLLOW_UPS_TITLE}. */
+export const RELATED_GUIDES_HELP_SECTION_TITLE = RELATED_GUIDES_FOLLOW_UPS_TITLE;
 
 export type RelatedFollowUpsTitle =
   | typeof RELATED_GUIDES_FOLLOW_UPS_TITLE

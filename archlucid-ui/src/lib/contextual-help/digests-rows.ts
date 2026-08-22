@@ -13,22 +13,22 @@ import {
 const DIGESTS_HUB_CONTEXTUAL_HELP: PageContextualHelpEntry = {
   whatIsThisPage:
     "Send scheduled summaries of review activity, approval signals, findings, and advisory scans.",
-  whatToDoNext: "Open the Schedule tab to set timing and recipients, then preview or send a test digest.",
+  whatToDoNext: "Open the schedule tab to set timing and recipients, then preview or send a test digest.",
   whyEmpty: "Generated digests appear here after a schedule and recipients are configured.",
   whereToConfigurePrerequisite:
-    "Recipient subscriptions and sponsor rollup settings live on the Schedule tab.",
+    "Recipient subscriptions and sponsor rollup settings live on the schedule tab.",
   whatToDoNextAction: {
-    label: "Open Schedule tab",
+    label: "Open schedule tab",
     href: DIGESTS_SCHEDULE_TAB_PATH,
   },
   whereToConfigureAction: {
-    label: "Open Schedule tab",
+    label: "Open schedule tab",
     href: DIGESTS_SCHEDULE_TAB_PATH,
   },
   taskSteps: [
-    "Open the Schedule tab to set cadence and recipients.",
+    "Open the schedule tab to set cadence and recipients.",
     "Preview or send a test digest before enabling production delivery.",
-    "Manage subscriptions on the Subscriptions tab when destinations change.",
+    "Manage subscriptions on the subscriptions tab when destinations change.",
   ],
 };
 
@@ -49,16 +49,16 @@ export const DIGESTS_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] = [
     prefix: DIGESTS_HELP_CANONICAL_PATH,
     entry: {
       whatIsThisPage: `Architecture digests — ${DIGESTS_HELP_TOPIC_LABEL.toLowerCase()} for scheduled summaries, delivery, and browsing.`,
-      whatToDoNext: "Open the Digests hub Schedule tab to set cadence and recipients, then manage subscriptions.",
+      whatToDoNext: "Open the digests hub schedule tab to set cadence and recipients, then manage subscriptions.",
       whyEmpty: "This guide is always available; generated digests appear after schedule and recipients are configured.",
       whereToConfigurePrerequisite:
-        "Cadence and recipients live on Digests Schedule; destinations live on Subscriptions.",
+        "Cadence and recipients live on digests schedule; destinations live on subscriptions.",
       whatToDoNextAction: {
-        label: "Open Schedule tab",
+        label: "Open schedule tab",
         href: DIGESTS_SCHEDULE_TAB_PATH,
       },
       whereToConfigureAction: {
-        label: "Open Subscriptions tab",
+        label: "Open subscriptions tab",
         href: DIGESTS_SUBSCRIPTIONS_TAB_PATH,
       },
     },

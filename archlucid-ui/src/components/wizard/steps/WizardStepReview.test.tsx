@@ -4,6 +4,7 @@ import { describe, expect, it, vi } from "vitest";
 import { WizardNavButtons } from "@/components/wizard/WizardNavButtons";
 import { WizardStepReview } from "@/components/wizard/steps/WizardStepReview";
 import { WizardFormTestHarness } from "@/components/wizard/wizard-form-test-utils";
+import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer/buyer-polish-copy";
 import type { WizardFormValues } from "@/lib/wizard-schema";
 
 describe("WizardStepReview", () => {
@@ -60,17 +61,17 @@ describe("WizardStepReview", () => {
     expect(screen.getAllByText(" — ").length).toBeGreaterThan(0);
   });
 
-  it("shows the Start Architecture Review primary action when paired with WizardNavButtons on the review step", () => {
+  it("shows the start-review primary action when paired with WizardNavButtons on the review step", () => {
     const onSubmit = vi.fn();
 
     render(
       <WizardFormTestHarness values={richValues}>
         <WizardStepReview />
-        <WizardNavButtons onSubmit={onSubmit} isLastInputStep submitLabel="Start Architecture Review" canProceed />
+        <WizardNavButtons onSubmit={onSubmit} isLastInputStep submitLabel={BUYER_START_ARCHITECTURE_REVIEW_CTA} canProceed />
       </WizardFormTestHarness>,
     );
 
-    const createBtn = screen.getByRole("button", { name: "Start Architecture Review" });
+    const createBtn = screen.getByRole("button", { name: BUYER_START_ARCHITECTURE_REVIEW_CTA });
     expect(createBtn).toBeInTheDocument();
     fireEvent.click(createBtn);
     expect(onSubmit).toHaveBeenCalledTimes(1);

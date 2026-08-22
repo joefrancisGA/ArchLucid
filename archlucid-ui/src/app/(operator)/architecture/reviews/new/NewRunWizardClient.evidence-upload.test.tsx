@@ -77,6 +77,7 @@ vi.mock("@/app/(operator)/architecture/reviews/new/NewRunWizardDeferredChunks", 
 });
 
 import { NewRunWizardClient } from "./NewRunWizardClient";
+import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer/buyer-polish-copy";
 import { optIntoAdvancedNewRunWizardConfiguration } from "./new-run-wizard-test-helpers";
 
 const WIZARD_MODE_STORAGE_KEY = "archlucid_new_run_wizard_mode_v1";
@@ -248,7 +249,7 @@ describe("NewRunWizardClient (evidence upload step)", { timeout: 60_000 }, () =>
     await advanceFromIdentityToReview();
 
     await act(async () => {
-      fireEvent.click(screen.getByRole("button", { name: "Start Architecture Review" }));
+      fireEvent.click(screen.getByRole("button", { name: BUYER_START_ARCHITECTURE_REVIEW_CTA }));
       await new Promise((resolve) => setTimeout(resolve, 50));
     });
 
@@ -301,7 +302,7 @@ describe("NewRunWizardClient (evidence upload step)", { timeout: 60_000 }, () =>
     await advanceFromIdentityToReview();
 
     await act(async () => {
-      fireEvent.click(screen.getByRole("button", { name: "Start Architecture Review" }));
+      fireEvent.click(screen.getByRole("button", { name: BUYER_START_ARCHITECTURE_REVIEW_CTA }));
       await new Promise((resolve) => setTimeout(resolve, 50));
     });
 

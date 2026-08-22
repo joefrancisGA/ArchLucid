@@ -30,12 +30,12 @@ export const GOVERNANCE_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] =
     prefix: "/governance/advisory-scans",
     entry: {
       whatIsThisPage: "Generate prioritized follow-up recommendations from finalized reviews.",
-      whatToDoNext: "Select a finalized review and generate a scan, or open Schedules for recurring runs.",
+      whatToDoNext: "Select a finalized review and generate a scan, or open schedules for recurring runs.",
       whyEmpty: "Scans appear after you generate one from a finalized review.",
       whereToConfigurePrerequisite:
         "Finalize a review first; optional baseline comparison highlights drift.",
       whatToDoNextAction: {
-        label: "Open Schedules tab",
+        label: "Open schedules tab",
         href: ADVISORY_SCANS_SCHEDULES_HREF,
       },
       whereToConfigureAction: {
@@ -44,7 +44,7 @@ export const GOVERNANCE_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] =
       },
       taskSteps: [
         "Select a finalized review as the scan baseline.",
-        "Generate a scan or open Schedules for recurring runs.",
+        "Generate a scan or open schedules for recurring runs.",
         "Follow recommendations back to findings or reviews.",
       ],
     },

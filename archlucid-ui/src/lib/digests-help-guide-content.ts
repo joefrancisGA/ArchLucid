@@ -16,7 +16,7 @@ export const DIGESTS_HELP_OVERVIEW =
   "Architecture digests are summary reports generated after advisory scans and delivered to subscription destinations. Use Schedule for the separate sponsor sponsor rollup, Subscriptions for architecture digest destinations, and Browse for generated digests.";
 
 export const DIGESTS_HELP_PRIMARY_ACTION = {
-  label: "Open digests Schedule",
+  label: "Open digests schedule",
   href: DIGESTS_SCHEDULE_TAB_PATH,
 } as const;
 
@@ -62,12 +62,12 @@ export const DIGESTS_HELP_SAMPLE_DIGEST_LINES = [
   "Weekly advisory scan completed; 1 new finding surfaced.",
 ] as const;
 
-export const DIGESTS_HELP_SAMPLE_DIGEST_BROWSE_LABEL = "Open generated digests in Browse";
+export const DIGESTS_HELP_SAMPLE_DIGEST_BROWSE_LABEL = "Open generated digests in browse";
 
 export const DIGESTS_HELP_HOW_DIGESTS_WORK_STEPS = [
   "Enable an advisory scan schedule so architecture digests generate on a cadence.",
   "Add subscription destinations so recipients receive those digests after each scan.",
-  "Open Browse to inspect generated digests; use Schedule for the separate sponsor sponsor rollup.",
+  "Open browse to inspect generated digests; use schedule for the separate sponsor sponsor rollup.",
 ] as const;
 
 export const DIGESTS_HELP_DESTINATION_CARDS = [
@@ -75,21 +75,21 @@ export const DIGESTS_HELP_DESTINATION_CARDS = [
     id: "schedule",
     title: "Schedule",
     description: "Configure the sponsor sponsor rollup email (separate from advisory scan cadence).",
-    actionLabel: "Open Schedule",
+    actionLabel: "Open schedule",
     href: DIGESTS_SCHEDULE_TAB_PATH,
   },
   {
     id: "subscriptions",
     title: "Subscriptions",
     description: "Manage destinations that receive architecture digests after advisory scans.",
-    actionLabel: "Open Subscriptions",
+    actionLabel: "Open subscriptions",
     href: DIGESTS_SUBSCRIPTIONS_TAB_PATH,
   },
   {
     id: "browse",
     title: "Browse",
     description: "Inspect generated architecture digests and download exports.",
-    actionLabel: "Open Browse",
+    actionLabel: "Open browse",
     href: DIGESTS_BROWSE_TAB_PATH,
   },
 ] as const;

@@ -30,6 +30,7 @@ import { useWizardStepNavigation } from "@/hooks/use-wizard-step-navigation";
 import { useRunSummaryStream } from "@/hooks/useRunSummaryStream";
 import type { CloudInventoryPlatform } from "@/lib/cloud-inventory-platform";
 import { isApiRequestError } from "@/lib/api-request-error";
+import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer/buyer-polish-copy";
 import { isBuyerPolishedOperatorShellEnv, isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { showError, showSuccess } from "@/lib/toast";
@@ -695,7 +696,7 @@ export function NewRunWizardClient(props: NewRunWizardClientProps = {}) {
                 isFirstStep={isFirstStep}
                 isLastInputStep={isReviewStep}
                 nextLabel={stepIndex === 0 ? "Continue" : "Next"}
-                submitLabel="Start Architecture Review"
+                submitLabel={BUYER_START_ARCHITECTURE_REVIEW_CTA}
                 submittingLabel="Creating…"
               />
             </WizardStickyFooter>

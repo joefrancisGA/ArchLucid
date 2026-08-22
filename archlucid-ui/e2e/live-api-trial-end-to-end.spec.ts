@@ -308,7 +308,7 @@ test.describe("live-api-trial-end-to-end", () => {
     );
 
     const startReview = page.getByRole("button", {
-      name: /Start Architecture Review|Start an architecture review/i,
+      name: /Start an architecture review/i,
     });
     await expect(startReview).toBeEnabled({ timeout: 60_000 });
     await startReview.click();

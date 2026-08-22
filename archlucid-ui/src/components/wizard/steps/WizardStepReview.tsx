@@ -11,6 +11,7 @@ import { RunWizardCostPreviewCard } from "@/components/wizard/RunWizardCostPrevi
 import { WizardPolicyPackCloudMismatchCallout } from "@/components/wizard/WizardPolicyPackCloudMismatchCallout";
 import { WizardStepPanel } from "@/components/wizard/WizardStepPanel";
 import { GUIDED_INTAKE_STRUCTURED_BRIEF_REQUIRED_CAPABILITIES_LABEL } from "@/lib/guided-intake-copy";
+import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer/buyer-polish-copy";
 import { ARCHITECTURE_HINTS_BUYER_LABEL } from "@/lib/usability/canonical-product-terms";
 import { deriveWizardPolicyPackCloudMismatch } from "@/lib/wizard-payload";
 import type { WizardFormValues } from "@/lib/wizard-schema";
@@ -86,7 +87,7 @@ export function WizardStepReview(props: { readonly focusedPilotModeEnabled?: boo
   return (
     <WizardStepPanel
       title="Review & submit"
-      description="Confirm values below. Use Back to edit earlier steps. Start Architecture Review sends POST /v1/architecture/request."
+      description={`Confirm values below. Use Back to edit earlier steps. ${BUYER_START_ARCHITECTURE_REVIEW_CTA} sends POST /v1/architecture/request.`}
     >
       <div className="space-y-4">
         <ErrorList errors={formState.errors} />
