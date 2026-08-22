@@ -88,6 +88,17 @@ describe("operatorFreshnessMetadataWithClockLabel", () => {
     expect(label).not.toContain("title");
   });
 
+  it("omits the locale now relative when a clock timestamp is visible", () => {
+    const label = operatorFreshnessMetadataWithClockLabel({
+      prefix: "Updated",
+      lastRefreshedAt: new Date(),
+      refreshingLabel: null,
+    });
+
+    expect(label.toLowerCase()).not.toMatch(/\bnow\b/);
+    expect(label).toMatch(/^Updated: \d{1,2}:\d{2}:\d{2}/);
+  });
+
   it("prefers the in-flight label and omits the clock", () => {
     expect(
       operatorFreshnessMetadataWithClockLabel({

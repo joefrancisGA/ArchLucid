@@ -70,7 +70,9 @@ describe("OperatorHomeStickinessCockpit (TB-2191 / TB-2232 / TB-2331)", () => {
 
     render(<OperatorHomeStickinessCockpit />);
 
-    expect(screen.getByRole("heading", { name: SNAPSHOT_HEADING })).toBeInTheDocument();
+    const heading = screen.getByRole("heading", { name: SNAPSHOT_HEADING });
+    expect(heading).toBeInTheDocument();
+    expect(heading).toHaveClass("font-bold");
     expect(screen.queryByRole("heading", { name: "Recommended next steps" })).toBeNull();
   });
 

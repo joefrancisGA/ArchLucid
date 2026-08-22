@@ -18,7 +18,7 @@ import {
 } from "@/lib/architecture/architecture-routes";
 import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { parseIsoUtcMs } from "@/lib/format-iso-utc";
-import { formatRelativeTime } from "@/lib/relative-time";
+import { formatUpdatedRelativeWithAbsoluteParenthetical } from "@/lib/relative-time";
 import { cn } from "@/lib/utils";
 
 import {
@@ -91,7 +91,7 @@ export function ReviewsHubResumeDrafts(): React.JSX.Element | null {
                   dateTime={entry.lastUpdatedUtc}
                   className={cn(OPERATOR_TYPOGRAPHY.helper, "text-al-text-secondary")}
                 >
-                  Updated {formatRelativeTime(entry.lastUpdatedUtc)} ({absoluteUpdated})
+                  {formatUpdatedRelativeWithAbsoluteParenthetical(entry.lastUpdatedUtc, absoluteUpdated)}
                 </time>
               </div>
               <div className="mt-2 flex flex-wrap gap-2">

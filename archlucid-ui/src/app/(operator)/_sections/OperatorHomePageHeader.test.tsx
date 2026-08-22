@@ -1,7 +1,10 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
-import { OPERATOR_HOME_ARCHITECTURE_LIFECYCLE_INTRO_LABEL } from "@/lib/buyer/buyer-polish-copy";
+import {
+  OPERATOR_HOME_ARCHITECTURE_LIFECYCLE_INTRO_LABEL,
+  OPERATOR_HOME_DATA_CURRENCY_PREFIX,
+} from "@/lib/buyer/buyer-polish-copy";
 import { operatorHomePageSubtitle } from "@/lib/operator/operator-home-page-copy";
 
 vi.mock("next/navigation", () => ({
@@ -18,7 +21,7 @@ const requestRefresh = vi.fn();
 vi.mock("@/lib/operator/operator-home-refresh-context", () => ({
   useOperatorHomeRefresh: () => ({
     refreshing: false,
-    lastRefreshedAt: new Date("2026-07-09T12:00:00.000Z"),
+    lastRefreshedAt: new Date(),
     requestRefresh,
   }),
 }));
@@ -26,7 +29,7 @@ vi.mock("@/lib/operator/operator-home-refresh-context", () => ({
 import { OperatorHomePageHeader } from "@/app/(operator)/_sections/OperatorHomePageHeader";
 
 describe("OperatorHomePageHeader", () => {
-  it("renders Home title, help, and refresh without Last refreshed metadata", () => {
+  it("renders Home title, help, data-currency metadata, and refresh", () => {
     requestRefresh.mockReset();
 
     render(<OperatorHomePageHeader subtitle={operatorHomePageSubtitle(false)} />);
@@ -40,8 +43,15 @@ describe("OperatorHomePageHeader", () => {
     expect(screen.getByTestId("operator-home-page-subtitle").className).toContain("text-[13px]");
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
     expect(screen.getByTestId("operator-home-header-actions")).toBeInTheDocument();
+    expect(screen.getByTestId("operator-home-data-currency")).toBeInTheDocument();
+    expect(screen.getByTestId("operator-home-data-currency").textContent).toMatch(/^Updated:/);
+
+    const updatedPrefix = screen.getByText(`${OPERATOR_HOME_DATA_CURRENCY_PREFIX}:`);
+    expect(updatedPrefix.tagName).toBe("STRONG");
+    expect(updatedPrefix.className).toContain("font-bold");
+    expect(screen.getByTestId("operator-home-data-currency").textContent?.toLowerCase()).not.toMatch(/\bnow\b/);
+
     expect(screen.getByTestId("operator-home-refresh-button")).toBeInTheDocument();
-    expect(screen.queryByTestId("operator-home-last-refreshed")).toBeNull();
     expect(screen.queryByText("Last refreshed:")).toBeNull();
 
     fireEvent.click(screen.getByTestId("operator-home-refresh-button"));

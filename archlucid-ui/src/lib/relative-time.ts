@@ -46,3 +46,40 @@ export function formatRelativeTime(isoUtc: string, nowMs: number = Date.now()): 
 
   return rtf.format(-diffYear, "year");
 }
+
+/** True when {@link formatRelativeTime} would render the locale “now” instant for `nowMs`. */
+export function isLocaleRelativeNowIso(isoUtc: string, nowMs: number = Date.now()): boolean {
+  const nowRelativeLabel = formatRelativeTime(new Date(nowMs).toISOString(), nowMs);
+
+  return formatRelativeTime(isoUtc, nowMs) === nowRelativeLabel;
+}
+
+/** `Updated {relative} ({absolute})` — drops redundant locale “now” when absolute time is shown. */
+export function formatUpdatedRelativeWithAbsoluteParenthetical(
+  isoUtc: string,
+  absoluteLabel: string,
+): string {
+  if (isLocaleRelativeNowIso(isoUtc)) {
+    return `Updated ${absoluteLabel}`;
+  }
+
+  return `Updated ${formatRelativeTime(isoUtc)} (${absoluteLabel})`;
+}
+
+/** `Updated {absolute} · {relative}` — drops redundant locale “now” when absolute time is shown. */
+export function formatUpdatedAbsoluteWithRelative(
+  isoUtc: string,
+  absoluteLabel: string | null,
+): string {
+  const relative = formatRelativeTime(isoUtc);
+
+  if (absoluteLabel === null) {
+    return `Updated ${relative}`;
+  }
+
+  if (isLocaleRelativeNowIso(isoUtc)) {
+    return `Updated ${absoluteLabel}`;
+  }
+
+  return `Updated ${absoluteLabel} · ${relative}`;
+}
