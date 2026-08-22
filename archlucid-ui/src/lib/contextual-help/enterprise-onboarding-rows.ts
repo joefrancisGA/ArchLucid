@@ -39,6 +39,11 @@ export const ENTERPRISE_ONBOARDING_CONTEXTUAL_HELP_ROWS: readonly PageContextual
         "Wizard steps always render for authorized Admins; empty issuer or mapping fields mean metadata has not been fetched or claims are not filled yet.",
       whereToConfigurePrerequisite:
         "Activating SSO needs Admin authority and a reachable IdP metadata or discovery URL; current sign-in stays unchanged until the final activate step.",
+      taskSteps: [
+        "Choose identity provider and protocol.",
+        "Fetch metadata and map claims to ArchLucid roles.",
+        "Run test connection before activating SSO.",
+      ],
     },
   },
   {
@@ -52,6 +57,11 @@ export const ENTERPRISE_ONBOARDING_CONTEXTUAL_HELP_ROWS: readonly PageContextual
         "Active tokens appear after creation; an empty list means no inbound provisioning tokens exist yet for this tenant.",
       whereToConfigurePrerequisite:
         "Managing SCIM tokens needs Admin authority; pair tokens with SSO and identity setup before enforcing directory sync.",
+      taskSteps: [
+        "Copy the SCIM base URL for your IdP directory sync.",
+        "Create and verify a provisioning token.",
+        "Revoke tokens you no longer need.",
+      ],
     },
   },
   {

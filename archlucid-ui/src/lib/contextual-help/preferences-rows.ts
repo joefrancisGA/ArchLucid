@@ -16,6 +16,11 @@ const PREFERENCES_HUB_CONTEXTUAL_HELP = {
     "Theme controls are ready whenever you are signed in; saved preferences sync after the preferences API responds.",
   whereToConfigurePrerequisite:
     "No Admin role is required — preferences write only your own account record.",
+  taskSteps: [
+    "Choose a theme for this signed-in profile.",
+    "Save preferences when appearance changes should persist.",
+    "Open Sign-in methods when account security needs attention.",
+  ],
 } as const;
 
 export const PREFERENCES_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] = [

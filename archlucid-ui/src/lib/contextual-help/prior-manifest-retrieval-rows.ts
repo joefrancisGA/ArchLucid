@@ -15,6 +15,11 @@ const ASK_REVIEW_QUESTIONS_HUB_CONTEXTUAL_HELP = {
     "Select a review, ask about risk or evidence, then open cited findings or the evidence trail under the answer.",
   whyEmpty: "Threads appear after you ask a question against a selected review.",
   whereToConfigurePrerequisite: "Finalize or open a review so Ask can ground answers in its evidence.",
+  taskSteps: [
+    "Select a finalized review to ground the conversation.",
+    "Ask about risk, decisions, or cited evidence.",
+    "Open cited findings or the evidence trail from the answer.",
+  ],
 } as const;
 
 export const PRIOR_MANIFEST_RETRIEVAL_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] = [

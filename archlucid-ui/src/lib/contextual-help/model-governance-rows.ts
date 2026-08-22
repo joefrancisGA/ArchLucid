@@ -16,6 +16,11 @@ const MODEL_GOVERNANCE_HUB_CONTEXTUAL_HELP = {
     "Catalog rows load after the model-governance API responds; empty registries mean aliases are not published yet.",
   whereToConfigurePrerequisite:
     "Changing execution profiles needs Admin authority in this workspace.",
+  taskSteps: [
+    "Review the effective execution profile for this workspace.",
+    "Set or clear tenant overrides for approved model aliases.",
+    "Open AI usage when spend signals need follow-up.",
+  ],
 } as const;
 
 export const MODEL_GOVERNANCE_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] = [
