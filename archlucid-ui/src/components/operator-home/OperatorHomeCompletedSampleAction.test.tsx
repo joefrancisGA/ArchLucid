@@ -22,6 +22,12 @@ vi.mock("@/hooks/use-featured-completed-sample-query", () => ({
   useFeaturedCompletedSampleQuery: () => useFeaturedCompletedSampleQuery(),
 }));
 
+const resolveOperatorHomeCompletedSampleFallback = vi.fn(() => null);
+
+vi.mock("@/lib/resolve-operator-home-completed-sample-fallback", () => ({
+  resolveOperatorHomeCompletedSampleFallback: () => resolveOperatorHomeCompletedSampleFallback(),
+}));
+
 import { OperatorHomeCompletedSampleAction } from "@/components/operator-home/OperatorHomeCompletedSampleAction";
 import {
   OPERATOR_HOME_CHOOSE_SAMPLE_REVIEW_CTA,
@@ -38,6 +44,7 @@ vi.mock("@/lib/operator/operator-static-demo", () => ({
 describe("OperatorHomeCompletedSampleAction", () => {
   beforeEach(() => {
     useNavCallerAuthorityRank.mockReturnValue(3);
+    resolveOperatorHomeCompletedSampleFallback.mockReturnValue(null);
   });
 
   it("opens the configured featured sample when available", () => {
@@ -61,6 +68,34 @@ describe("OperatorHomeCompletedSampleAction", () => {
       "href",
       "/architecture/reviews/dddddddd-dddd-dddd-dddd-dddddddddddd",
     );
+  });
+
+  it("opens the curated showcase fallback when no workspace sample is configured", () => {
+    resolveOperatorHomeCompletedSampleFallback.mockReturnValue({
+      href: "/architecture/reviews/customer-intake-modernization",
+      label: OPERATOR_HOME_OPEN_COMPLETED_REVIEW_CTA,
+    });
+    useFeaturedCompletedSampleQuery.mockReturnValue({
+      isPending: false,
+      isError: false,
+      data: {
+        selectedRunId: null,
+        isConfigured: false,
+        isAvailable: false,
+        reviewTitle: null,
+        architectureName: null,
+        completedUtc: null,
+        isSampleApproved: false,
+      },
+    });
+
+    render(<OperatorHomeCompletedSampleAction />);
+
+    expect(screen.getByRole("link", { name: OPERATOR_HOME_OPEN_COMPLETED_REVIEW_CTA })).toHaveAttribute(
+      "href",
+      "/architecture/reviews/customer-intake-modernization",
+    );
+    expect(screen.queryByText(OPERATOR_HOME_MISSING_COMPLETED_SAMPLE_MESSAGE)).toBeNull();
   });
 
   it("shows owner picker affordance when no sample is configured", () => {
