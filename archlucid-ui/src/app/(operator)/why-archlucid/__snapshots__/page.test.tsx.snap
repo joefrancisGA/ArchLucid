@@ -435,7 +435,7 @@ exports[`WhyArchLucidPage (proof page snapshot) > matches the rendered layout sn
         class="text-xs font-normal leading-[18px] text-al-text-secondary"
         data-testid="why-archlucid-sponsor-pack-source"
       >
-        Aggregated proof from the evidence pack service — paired with the example Retail baseline review below.
+        Aggregated proof from the evidence pack service — paired with the sample Retail baseline review below.
       </p>
     </div>
     <div

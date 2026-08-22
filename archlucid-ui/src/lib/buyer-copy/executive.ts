@@ -12,7 +12,7 @@ export const BUYER_WHY_ARCHLUCID_SOURCES_LINE =
 
 /** Default matches Retail baseline seed wired by `/why-archlucid` (TB-1306 Contoso-labeled-live). */
 export const BUYER_WHY_ARCHLUCID_SPONSOR_PACK_SOURCE_LINE =
-  "Aggregated proof from the evidence pack service — paired with the example Retail baseline review below.";
+  "Aggregated proof from the evidence pack service — paired with the sample Retail baseline review below.";
 
 /**
  * Canonical title for the merged sponsor report at `/insights/sponsor-report` — the standalone

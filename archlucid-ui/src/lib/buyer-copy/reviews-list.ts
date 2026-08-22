@@ -11,7 +11,7 @@ export const BUYER_RUNS_DASHBOARD_RECENT_LABEL_EMPTY = "Architecture reviews";
 export const BUYER_RUNS_DASHBOARD_RECENT_SUMMARY =
   "Track findings, evidence, decisions, and finalized outputs from your architecture reviews.";
 
-export const BUYER_RUN_INSPECTOR_FINALIZED_LABEL = "Example · finalized";
+export const BUYER_RUN_INSPECTOR_FINALIZED_LABEL = "Sample · finalized";
 
 export const BUYER_RUNS_GETTING_STARTED_GUIDE = "getting-started guide";
 

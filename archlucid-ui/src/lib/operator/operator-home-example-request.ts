@@ -62,7 +62,7 @@ export const OPERATOR_HOME_EXAMPLE_DESCRIPTION = CUSTOMER_INTAKE_MODERNIZATION_T
 export const OPERATOR_HOME_EXAMPLE_SYSTEM_NAME = CUSTOMER_INTAKE_MODERNIZATION_TEMPLATE.systemName;
 
 /** Home card CTA — promise matches prefill behavior on `/architecture/reviews/new`. */
-export const OPERATOR_HOME_EXAMPLE_START_CTA = "Start from this example";
+export const OPERATOR_HOME_EXAMPLE_START_CTA = "Start from this sample";
 
 /**
  * Matched case-insensitively on run descriptions (with the static demo run id) so the home ribbon can find the

@@ -18,14 +18,14 @@ export function DemoPreviewFriendlyUnavailable() {
         This preview is not available right now.
       </p>
       <p className="mt-2 m-0 text-neutral-600 dark:text-neutral-400">
-        You can still explore a completed example output without signing in, or start from the product home.
+        You can still explore a completed sample output without signing in, or start from the product home.
       </p>
       <div className="mt-4 flex flex-wrap gap-3">
         <Link
           href={CANONICAL_ANONYMOUS_PROOF_HREF}
           className={MARKETING_PRIMARY_CTA_CLASS}
         >
-          View example output
+          View sample output
         </Link>
         <Link
           href="/get-started"
@@ -54,7 +54,7 @@ export function DemoPreviewNotAvailable() {
           href={CANONICAL_ANONYMOUS_PROOF_HREF}
           className={MARKETING_PRIMARY_CTA_CLASS}
         >
-          View example output
+          View sample output
         </Link>
         <Link
           href="/see-it"

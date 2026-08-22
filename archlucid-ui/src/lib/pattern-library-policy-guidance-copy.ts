@@ -4,9 +4,9 @@ export const PATTERN_LIBRARY_POLICY_PACKS_HUB_PATH = "/governance/policy-packs" 
 export const PATTERN_LIBRARY_POLICY_RULES_SECTION_TITLE = "Related policy rules (catalog guidance)";
 
 export const PATTERN_LIBRARY_POLICY_RULES_GUIDANCE_LEAD =
-  "Example rule themes from the pattern catalog — not live policy rules assigned in your workspace.";
+  "Sample rule themes from the pattern catalog — not live policy rules assigned in your workspace.";
 
 export const PATTERN_LIBRARY_POLICY_PACKS_GUIDANCE_LEAD =
-  "Example pack names from the pattern catalog — open the hub to review packs assigned in your workspace.";
+  "Sample pack names from the pattern catalog — open the hub to review packs assigned in your workspace.";
 
 export const PATTERN_LIBRARY_POLICY_PACKS_HUB_LINK_LABEL = "Open policy packs hub";
