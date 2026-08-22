@@ -14,6 +14,7 @@ import { generateHolisticCritique } from "@/lib/api/holistic-critic-api";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { SEALED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
 
 export type RunDetailHolisticCriticPanelProps = {
   readonly runId: string;
@@ -61,7 +62,7 @@ export function RunDetailHolisticCriticPanel(props: RunDetailHolisticCriticPanel
             className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
             data-testid="holistic-critic-readiness"
           >
-            Available after the review package is committed. Finish the review run so findings and explanation summary exist, then return here for an exploratory critique.
+            Available after the {SEALED_MANIFEST_LABEL.toLowerCase()} is committed. Finish the review run so findings and explanation summary exist, then return here for an exploratory critique.
           </p>
         ) : null}
         <Button

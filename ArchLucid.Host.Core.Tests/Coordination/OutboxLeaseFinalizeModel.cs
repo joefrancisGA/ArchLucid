@@ -49,6 +49,9 @@ public sealed class OutboxLeaseFinalizeModel
                 return Allow();
 
             case OutboxLeaseLifecycleEvent.Resume:
+                if (LifecycleState is not OutboxLeaseLifecycleState.Recovering)
+                    return Deny("Resume without prior crash.");
+
                 if (PackageState is PackageSealState.Sealed)
                     return Deny("Cannot resume on a sealed package.");
 
@@ -87,6 +90,9 @@ public sealed class OutboxLeaseFinalizeModel
             case OutboxLeaseLifecycleEvent.LateWrite:
                 if (PackageState is PackageSealState.Sealed)
                     return Deny("Late worker write on sealed package is forbidden.");
+
+                if (!LeaseHeld)
+                    return Deny("Late write without an active lease.");
 
                 return Allow();
 
