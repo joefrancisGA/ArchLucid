@@ -501,6 +501,7 @@ const architectureTabPanelEl = (
                 manifestId={m.manifestId}
                 hasCommitBlockingFailures={findingCoverageSummary?.hasCommitBlockingFailures === true}
                 operatorGovernanceDecision={m.resolvedDetail.run.operatorGovernanceDecision ?? null}
+                isArchived={m.resolvedDetail.run.isArchived === true}
               />
             ) : null}
           </div>

@@ -8,6 +8,7 @@ import { ArchitectureDraftDetailBreadcrumb } from "@/app/(operator)/architecture
 import { ArchitectureDraftDetailBuyerChrome } from "@/app/(operator)/architecture/architectures/_sections/ArchitectureDraftDetailBuyerChrome";
 import { ArchitectureCreationLocalDraftsPanel } from "@/components/architecture/ArchitectureCreationLocalDraftsPanel";
 import { ArchitectureDraftAiRefinePanel } from "@/components/architecture/ArchitectureDraftAiRefinePanel";
+import { ArchitectureDraftDeleteControl } from "@/components/architecture/ArchitectureDraftDeleteControl";
 import { ArchitectureDraftDetailLoadFailure } from "@/components/architecture/ArchitectureDraftDetailLoadFailure";
 import { ArchitectureDraftFormFields } from "@/components/architecture/ArchitectureDraftFormFields";
 import { ArchitectureDraftGuidanceDisclosure } from "@/components/architecture/ArchitectureDraftGuidanceDisclosure";
@@ -124,10 +125,14 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
   const exitTimeoutIdRef = useRef<number | null>(null);
   const loadDraftInFlightRef = useRef<Promise<void> | null>(null);
   const syncDraftInFlightRef = useRef<Promise<void> | null>(null);
+<<<<<<< HEAD
   const draftLifecycleRef = useRef<{
     status: DraftRequestResponse["status"] | null;
     spawnedRunId: string | null;
   }>({
+=======
+  const draftLifecycleRef = useRef<{ status: DraftRequestResponse["status"] | null; spawnedRunId: string | null }>({
+>>>>>>> 2679aa1d0c (Add governed delete for architecture drafts and archive for in-flight reviews.)
     status: null,
     spawnedRunId: null,
   });
@@ -334,7 +339,10 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
         const prior = draftLifecycleRef.current;
         const nextSpawnedRunId = architectureDraftSpawnedRunId(loaded);
 
+<<<<<<< HEAD
         // Tab focus is frequent; skip a form reset when intake/spawn state did not change.
+=======
+>>>>>>> 2679aa1d0c (Add governed delete for architecture drafts and archive for in-flight reviews.)
         if (prior.status === loaded.status && prior.spawnedRunId === nextSpawnedRunId) {
           return;
         }
@@ -617,8 +625,6 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
 
   return (
     <div className="space-y-4" data-testid="architecture-draft-workspace">
-      {isNewDraft ? <ArchitectureCreationLocalDraftsPanel /> : null}
-
       {isDetailDraft && buyerPolishedShell ? (
         <ArchitectureDraftDetailBreadcrumb draftLabel={workspaceHeading} />
       ) : null}
@@ -647,6 +653,15 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
         </div>
         <div className="flex shrink-0 flex-col items-start gap-2 sm:items-end">
           {isNewDraft ? null : <PageContextualHelpButton />}
+          {!isNewDraft ? (
+            <ArchitectureDraftDeleteControl
+              architectureId={props.architectureId}
+              displayName={workspaceHeading}
+              linkedReviewId={linkedReviewId}
+              serverStatus={draft?.status ?? null}
+              testId="architecture-draft-delete-workspace"
+            />
+          ) : null}
           <ArchitectureDraftSaveStatus
             saveState={saveState}
             lastSavedUtc={lastSavedUtc}
@@ -655,6 +670,10 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
           />
         </div>
       </div>
+
+      {buyerPolishedShell ? null : <ArchitectureDraftGuidanceDisclosure />}
+
+      {isNewDraft ? <ArchitectureCreationLocalDraftsPanel /> : null}
 
       {isDetailDraft && buyerPolishedShell ? <ArchitectureDraftDetailBuyerChrome /> : null}
 
@@ -678,8 +697,6 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
           }}
         />
       ) : null}
-
-      {buyerPolishedShell ? null : <ArchitectureDraftGuidanceDisclosure />}
 
       {conflictMessage !== null ? (
         <div className="space-y-2" data-testid="architecture-draft-conflict">

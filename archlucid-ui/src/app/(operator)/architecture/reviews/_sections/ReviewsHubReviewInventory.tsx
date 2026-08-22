@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { FavoriteReviewToggle } from "@/components/reviews/FavoriteReviewToggle";
+import { ReviewArchiveControl } from "@/components/reviews/ReviewArchiveControl";
 import { ReviewPinGlyph } from "@/components/reviews/ReviewPinGlyph";
 import { WorkspaceScopeEmptyTeaching } from "@/components/WorkspaceScopeEmptyTeaching";
 import { FilterChip } from "@/components/ui/filter-chip";
@@ -237,6 +238,9 @@ function ReviewsHubInventoryRow(props: InventoryRowProps): React.JSX.Element {
       <EnterpriseTableCell className="text-right tabular-nums">
         {finiteIntegerCountDisplay(row.riskCount)}
       </EnterpriseTableCell>
+      <EnterpriseTableCell>
+        <ReviewArchiveControl run={props.run} reviewTitle={row.reviewTitle} />
+      </EnterpriseTableCell>
     </EnterpriseTableRow>
   );
 }
@@ -258,6 +262,7 @@ function ReviewsHubInventoryTableHead(): React.JSX.Element {
         <EnterpriseTableHeaderCell>Last updated</EnterpriseTableHeaderCell>
         <EnterpriseTableHeaderCell className="text-right">Findings</EnterpriseTableHeaderCell>
         <EnterpriseTableHeaderCell className="text-right">Risks</EnterpriseTableHeaderCell>
+        <EnterpriseTableHeaderCell>Actions</EnterpriseTableHeaderCell>
       </EnterpriseTableHeadRow>
     </EnterpriseTableHead>
   );

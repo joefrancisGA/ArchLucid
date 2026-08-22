@@ -5,6 +5,7 @@ import { useMemo, useState } from "react";
 
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { ArchitecturesHubListSkeleton } from "@/app/(operator)/architecture/architectures/_sections/ArchitecturesHubListSkeleton";
+import { ArchitectureDraftDeleteControl } from "@/components/architecture/ArchitectureDraftDeleteControl";
 import { ArchitectureDraftGuidanceDisclosure } from "@/components/architecture/ArchitectureDraftGuidanceDisclosure";
 import { ArchitectureDraftResumeControl } from "@/components/architecture/ArchitectureDraftResumeControl";
 import { WorkspaceScopeEmptyTeaching } from "@/components/WorkspaceScopeEmptyTeaching";
@@ -381,6 +382,13 @@ export function ArchitectureDraftListClient(): React.JSX.Element {
                           <Link href={startReviewFromArchitectureHref(entry.architectureId)}>Start review</Link>
                         </Button>
                       ) : null}
+                      <ArchitectureDraftDeleteControl
+                        architectureId={entry.architectureId}
+                        displayName={entry.displayName}
+                        linkedReviewId={entry.linkedReviewId}
+                        customerStatus={entry.customerStatus}
+                        testId={`architecture-draft-delete-${entry.architectureId}`}
+                      />
                     </div>
                   </EnterpriseTableCell>
                 </EnterpriseTableRow>
