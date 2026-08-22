@@ -1,6 +1,8 @@
 import type { ApiProblemDetails } from "@/lib/api-problem";
 import {
+  formatCiBuildNumberLabel,
   formatShortCommitSha,
+  isKnownFingerprintValue,
   readClientDeploymentFingerprint,
 } from "@/lib/deployment-fingerprint";
 import type { VersionInfoResponse } from "@/lib/health-dashboard-types";
@@ -107,17 +109,32 @@ export function formatReportProblemProductVersion(
 
 export function formatReportProblemUiVersion(): string | null {
   const fingerprint = readClientDeploymentFingerprint();
-  const parts: string[] = [];
+  const identityParts: string[] = [];
 
-  if (fingerprint.frontendCommitSha !== "unknown") {
-    parts.push(formatShortCommitSha(fingerprint.frontendCommitSha));
+  if (isKnownFingerprintValue(fingerprint.frontendCommitSha)) {
+    identityParts.push(formatShortCommitSha(fingerprint.frontendCommitSha));
   }
 
-  if (fingerprint.buildTimestamp !== "unknown") {
-    parts.push(fingerprint.buildTimestamp);
+  if (isKnownFingerprintValue(fingerprint.buildTimestamp)) {
+    identityParts.push(fingerprint.buildTimestamp);
   }
 
-  return parts.length > 0 ? parts.join("@") : null;
+  const identity = identityParts.join("@");
+  const ciLabel = formatCiBuildNumberLabel(fingerprint.ciBuildNumber);
+
+  if (ciLabel !== null && identity.length > 0) {
+    return `${ciLabel} ${identity}`;
+  }
+
+  if (ciLabel !== null) {
+    return ciLabel;
+  }
+
+  if (identity.length === 0) {
+    return null;
+  }
+
+  return identity;
 }
 
 export function buildBrowserClientSummary(): string | null {

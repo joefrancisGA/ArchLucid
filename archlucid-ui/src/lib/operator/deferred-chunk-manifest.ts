@@ -7,6 +7,7 @@ import { GOVERNANCE_WORKFLOW_CHUNK_MANIFEST } from "@/lib/operator/governance-wo
 import { OPERATOR_SHELL_TOP_BAR_CHUNK_MANIFEST } from "@/lib/operator/operator-shell-top-bar-chunk-manifest";
 import { OPERATOR_HOME_CHUNK_MANIFEST } from "@/lib/operator/operator-home-chunk-manifest";
 import { POLICY_PACKS_AUTHORING_CHUNK_MANIFEST } from "@/lib/operator/policy-packs-authoring-chunk-manifest";
+import { REVIEWS_NEW_CHUNK_MANIFEST } from "@/lib/operator/reviews-new-chunk-manifest";
 import { REVIEWS_HUB_CHUNK_MANIFEST } from "@/lib/operator/reviews-hub-chunk-manifest";
 import { RUN_DETAIL_CHUNK_MANIFEST } from "@/lib/operator/run-detail-chunk-manifest";
 import { SIGNED_RECORDS_LIST_CHUNK_MANIFEST } from "@/lib/operator/signed-records-list-chunk-manifest";
@@ -24,6 +25,7 @@ export type DeferredChunkManifestEntry = {
 export const DEFERRED_CHUNK_MANIFEST: readonly DeferredChunkManifestEntry[] = [
   ...OPERATOR_HOME_CHUNK_MANIFEST,
   ...REVIEWS_HUB_CHUNK_MANIFEST,
+  ...REVIEWS_NEW_CHUNK_MANIFEST,
   ...RUN_DETAIL_CHUNK_MANIFEST,
   ...GOVERNANCE_WORKFLOW_CHUNK_MANIFEST,
   ...POLICY_PACKS_AUTHORING_CHUNK_MANIFEST,

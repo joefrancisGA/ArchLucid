@@ -26,12 +26,21 @@ describe("AppShellWorkspaceFooter", () => {
   it("hides the lone trust footer on governance routes where shell health is already suppressed", () => {
     render(<AppShellWorkspaceFooter hideWorkspaceHealthFooter />);
 
-    expect(screen.queryByTestId("trust-center-shell-link")).toBeNull();
+    expect(screen.queryByRole("contentinfo")).toBeNull();
   });
 
   it("still renders the trust footer shell on buyer-polished routes that keep workspace chrome", () => {
     render(<AppShellWorkspaceFooter hideWorkspaceHealthFooter={false} />);
 
     expect(screen.getByRole("contentinfo", { name: "Trust and compliance" })).toBeInTheDocument();
+  });
+
+  it("renders the operator workspace footer when buyer polish is off", () => {
+    demoEnv.buyerPolished = false;
+    demoEnv.demoMode = false;
+
+    render(<AppShellWorkspaceFooter hideWorkspaceHealthFooter={false} />);
+
+    expect(screen.getByRole("contentinfo", { name: "Workspace footer" })).toBeInTheDocument();
   });
 });

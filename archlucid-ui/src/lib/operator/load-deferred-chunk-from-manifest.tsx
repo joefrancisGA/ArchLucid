@@ -840,6 +840,118 @@ function resolveDeferredChunkImportLoader(
           (module) => module.RunDetailArchitectureGraphSection,
         ),
       ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "reviews-new-quick-review-advanced-config":
+      return deferredChunkLoader(() =>
+        import("@/components/usability/QuickReviewAdvancedConfigAccordion").then(
+          (module) => module.QuickReviewAdvancedConfigAccordion,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "reviews-new-wizard-evidence-upload":
+      return deferredChunkLoader(() =>
+        import("@/components/usability/WizardEvidenceUploadZone").then((module) => module.WizardEvidenceUploadZone),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "reviews-new-wizard-package-preview":
+      return deferredChunkLoader(() =>
+        import("@/components/usability/WizardPackagePreview").then((module) => module.WizardPackagePreview),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "reviews-new-cto-demo-fast-create":
+      return deferredChunkLoader(() =>
+        import("@/components/cto-demo/CtoDemoFastCreatePanel").then((module) => module.CtoDemoFastCreatePanel),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "reviews-new-cto-demo-review-mode-callout":
+      return deferredChunkLoader(() =>
+        import("@/components/cto-demo/CtoDemoReviewModeCallout").then((module) => module.CtoDemoReviewModeCallout),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "reviews-new-draft-intake-decision-receipt":
+      return deferredChunkLoader(() =>
+        import("@/components/draft-intake/DraftIntakeDecisionReceiptCard").then(
+          (module) => module.DraftIntakeDecisionReceiptCard,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "reviews-new-wizard-step-advanced":
+      return deferredChunkLoader(() =>
+        import("@/components/wizard/steps/WizardStepAdvanced").then((module) => module.WizardStepAdvanced),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "reviews-new-wizard-step-cloud-inventory":
+      return deferredChunkLoader(() =>
+        import("@/components/wizard/steps/WizardStepCloudInventoryContext").then(
+          (module) => module.WizardStepCloudInventoryContext,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "reviews-new-wizard-step-baseline-zip":
+      return deferredChunkLoader(() =>
+        import("@/components/wizard/steps/WizardStepBaselineZip").then((module) => module.WizardStepBaselineZip),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "reviews-new-wizard-step-baseline-metrics":
+      return deferredChunkLoader(() =>
+        import("@/components/wizard/steps/WizardStepBaselineMetrics").then(
+          (module) => module.WizardStepBaselineMetrics,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "reviews-new-wizard-post-create-evidence":
+      return deferredChunkLoader(() =>
+        import("@/components/wizard/steps/WizardPostCreateEvidenceUploadPanel").then(
+          (module) => module.WizardPostCreateEvidenceUploadPanel,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "reviews-new-wizard-step-track":
+      return deferredChunkLoader(() =>
+        import("@/components/wizard/steps/WizardStepTrack").then((module) => module.WizardStepTrack),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "reviews-new-intent-callout":
+      return deferredChunkLoader(() =>
+        import("@/app/(operator)/architecture/reviews/new/NewReviewIntentCallout").then(
+          (module) => module.NewReviewIntentCallout,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "reviews-new-socratic-advanced-rail":
+      return deferredChunkLoader(() =>
+        import("@/app/(operator)/architecture/reviews/new/SocraticIntakeWizardAdvancedRail").then(
+          (module) => module.SocraticIntakeWizardAdvancedRail,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "reviews-new-wizard-help-drawer":
+      return deferredChunkLoader(() =>
+        import("@/components/wizard/ArchitectureRequestWizardHelpDrawer").then(
+          (module) => module.ArchitectureRequestWizardHelpDrawer,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "reviews-new-quick-start-wizard":
+      return deferredChunkLoader(() =>
+        import("@/app/(operator)/architecture/reviews/new/QuickStartWizard").then(
+          (module) => module.QuickStartWizard,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "reviews-new-simplified-pilot-wizard":
+      return deferredChunkLoader(() =>
+        import("@/app/(operator)/architecture/reviews/new/SimplifiedPilotWizard").then(
+          (module) => module.SimplifiedPilotWizard,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "reviews-new-first-pilot-intake-wizard":
+      return deferredChunkLoader(() =>
+        import("@/app/(operator)/architecture/reviews/new/FirstPilotIntakeWizard").then(
+          (module) => module.FirstPilotIntakeWizard,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "reviews-new-socratic-intake-wizard":
+      return deferredChunkLoader(() =>
+        import("@/app/(operator)/architecture/reviews/new/SocraticIntakeWizard").then(
+          (module) => module.SocraticIntakeWizard,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "reviews-new-new-run-wizard-client":
+      return deferredChunkLoader(() =>
+        import("@/app/(operator)/architecture/reviews/new/NewRunWizardClient").then(
+          (module) => module.NewRunWizardClient,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "reviews-new-path-switcher":
+      return deferredChunkLoader(() =>
+        import("@/app/(operator)/architecture/reviews/new/ReviewsNewPathSwitcher").then(
+          (module) => module.ReviewsNewPathSwitcher,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
     default:
       throw new Error(`No deferred chunk import loader registered for manifest entry "${entryId}".`);
   }

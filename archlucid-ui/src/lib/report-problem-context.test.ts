@@ -84,14 +84,36 @@ describe("report-problem-context (TB-783)", () => {
     vi.stubEnv("NEXT_PUBLIC_BUILD_COMMIT_SHA", "abcdef1234567890abcdef1234567890abcdef12");
     vi.stubEnv("NEXT_PUBLIC_BUILD_TIMESTAMP", "2026-07-16T04:00:00Z");
     vi.stubEnv("NEXT_PUBLIC_DEPLOY_STAMP", "1842212345-1");
+    vi.stubEnv("NEXT_PUBLIC_CI_BUILD_NUMBER", "1842");
+
+    const context = buildReportProblemContext({
+      submittedAtUtc: "2026-07-16T00:00:00.000Z",
+    });
+
+    expect(context.uiVersion).toBe("Build 1842 abcdef123456@2026-07-16T04:00:00Z");
+    expect(context.uiCommitSha).toBe("abcdef1234567890abcdef1234567890abcdef12");
+    expect(context.deployStamp).toBe("1842212345-1");
+  });
+
+  it("keeps sha@timestamp ui version when the CI number is not baked in", () => {
+    vi.stubEnv("NEXT_PUBLIC_BUILD_COMMIT_SHA", "abcdef1234567890abcdef1234567890abcdef12");
+    vi.stubEnv("NEXT_PUBLIC_BUILD_TIMESTAMP", "2026-07-16T04:00:00Z");
 
     const context = buildReportProblemContext({
       submittedAtUtc: "2026-07-16T00:00:00.000Z",
     });
 
     expect(context.uiVersion).toBe("abcdef123456@2026-07-16T04:00:00Z");
-    expect(context.uiCommitSha).toBe("abcdef1234567890abcdef1234567890abcdef12");
-    expect(context.deployStamp).toBe("1842212345-1");
+  });
+
+  it("uses the CI build label alone when commit identity is missing", () => {
+    vi.stubEnv("NEXT_PUBLIC_CI_BUILD_NUMBER", "1842");
+
+    const context = buildReportProblemContext({
+      submittedAtUtc: "2026-07-16T00:00:00.000Z",
+    });
+
+    expect(context.uiVersion).toBe("Build 1842");
   });
 
   it("prefers API deploy stamp and commit sha from GET /version", () => {

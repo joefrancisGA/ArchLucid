@@ -139,6 +139,12 @@ def assert_workflows_declare_build_identity(repo: Path | None = None) -> list[st
                     f"{relative}: NEXT_PUBLIC_BUILD_COMMIT_SHA must use env.BUILD_ID"
                 )
 
+        if "NEXT_PUBLIC_CI_BUILD_NUMBER=${{ github.run_number }}" not in text:
+            if "archlucid-ui" in text:
+                errors.append(
+                    f"{relative}: NEXT_PUBLIC_CI_BUILD_NUMBER must use github.run_number"
+                )
+
         if "ARCHLUCID_BUILD_COMMIT_SHA=$BUILD_ID" not in text:
             errors.append(
                 f"{relative}: deploy env must set ARCHLUCID_BUILD_COMMIT_SHA=$BUILD_ID"

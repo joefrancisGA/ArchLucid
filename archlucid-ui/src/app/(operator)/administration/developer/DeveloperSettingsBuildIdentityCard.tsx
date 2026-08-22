@@ -3,6 +3,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { StatusTag } from "@/components/ui/status-tag";
 import {
+  formatCiBuildNumberLabel,
   formatShortCommitSha,
   readClientDeploymentFingerprint,
 } from "@/lib/deployment-fingerprint";
@@ -34,6 +35,12 @@ export function DeveloperSettingsBuildIdentityCard(): React.JSX.Element {
           className={cn("m-0 grid gap-3 sm:grid-cols-2", OPERATOR_TYPOGRAPHY.body)}
           data-testid="developer-settings-build-identity"
         >
+          <div>
+            <dt className="text-al-text-secondary">CI build</dt>
+            <dd className={cn("m-0 font-mono text-al-text-primary", OPERATOR_TYPOGRAPHY.helper)}>
+              {formatCiBuildNumberLabel(fingerprint.ciBuildNumber) ?? "—"}
+            </dd>
+          </div>
           <div>
             <dt className="text-al-text-secondary">UI commit</dt>
             <dd className={cn("m-0 font-mono text-al-text-primary", OPERATOR_TYPOGRAPHY.helper)}>
