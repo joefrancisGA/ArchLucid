@@ -1,4 +1,3 @@
-import dynamic from "next/dynamic";
 import type { ReactElement } from "react";
 
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
@@ -20,42 +19,12 @@ import type { RunDecisionExplainabilityModel } from "@/lib/runs/run-decision-exp
 import { cn } from "@/lib/utils";
 
 import { RunDetailSponsorModeExplanationCard } from "./RunDetailSponsorModeExplanationCard";
-
-const findingsWorkspaceLoading = (
-  <div
-    className="h-48 animate-pulse rounded-md border border-neutral-200 bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-800"
-    role="status"
-    aria-label="Loading findings workspace"
-  />
-);
-
-/** TB-2021 — keep QuickDecision / findings client graph out of sync First Load JS. */
-const FindingsWhatIfAnalysisPanel = dynamic(
-  () =>
-    import("@/components/findings/FindingsWhatIfAnalysisPanel").then(
-      (module) => module.FindingsWhatIfAnalysisPanel,
-    ),
-  { loading: () => null },
-);
-
-const RunDetailFindingsWorkspace = dynamic(
-  () =>
-    import("./RunDetailFindingsWorkspace").then((module) => module.RunDetailFindingsWorkspace),
-  { loading: () => findingsWorkspaceLoading },
-);
-
-const RunExplanationSection = dynamic(
-  () => import("@/components/runs/RunExplanationSection").then((module) => module.RunExplanationSection),
-  { loading: () => null },
-);
-
-const RunFindingExplainabilityTable = dynamic(
-  () =>
-    import("@/components/runs/RunFindingExplainabilityTable").then(
-      (module) => module.RunFindingExplainabilityTable,
-    ),
-  { loading: () => null },
-);
+import {
+  FindingsWhatIfAnalysisPanelDeferred,
+  RunDetailFindingsWorkspaceDeferred,
+  RunExplanationSectionDeferred,
+  RunFindingExplainabilityTableDeferred,
+} from "./run-detail-explanation-collapsible-deferred-chunks";
 
 type RunDetailRunExplanationCollapsibleProps = {
   readonly runId: string;
@@ -124,7 +93,7 @@ export function RunDetailRunExplanationCollapsible(
   return (
     <section id="run-explanation" className="scroll-mt-24 space-y-4">
       <div className="space-y-4" data-testid="run-detail-findings-section">
-        <RunDetailFindingsWorkspace
+        <RunDetailFindingsWorkspaceDeferred
           runId={runId}
           findings={quickDecisionFindings}
           buyerPolishedShell={buyerPolishedArtifactTable}
@@ -167,7 +136,7 @@ export function RunDetailRunExplanationCollapsible(
               Impact analysis
             </summary>
             <div className="mt-3">
-              <FindingsWhatIfAnalysisPanel
+              <FindingsWhatIfAnalysisPanelDeferred
                 findings={quickDecisionFindings}
                 baselineAnnualCostUsd={baselineAnnualCostUsd}
                 isIllustrativePricing={isIllustrativePricing}
@@ -206,7 +175,7 @@ export function RunDetailRunExplanationCollapsible(
         ) : null}
         {!explanationFailure ? (
           <>
-            <RunExplanationSection
+            <RunExplanationSectionDeferred
               summary={explanationSummary}
               loading={false}
               error={null}
@@ -230,7 +199,7 @@ export function RunDetailRunExplanationCollapsible(
                   defaultOpen={false}
                   sectionTestId="run-finding-explainability-collapsible"
                 >
-                  <RunFindingExplainabilityTable
+                  <RunFindingExplainabilityTableDeferred
                     runId={runId}
                     rows={traceRows}
                     findingWireSnapshots={findingWireSnapshots}

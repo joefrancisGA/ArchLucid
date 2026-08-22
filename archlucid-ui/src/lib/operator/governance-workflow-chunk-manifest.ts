@@ -86,4 +86,18 @@ export const GOVERNANCE_WORKFLOW_CHUNK_MANIFEST: readonly DeferredChunkManifestE
     modulePath: "@/components/OperateCapabilityHints",
     exportName: "CtoDemoGovernancePreviewHint",
   },
+  {
+    id: "governance-workflow-page-content",
+    label: "Loading approval workflow",
+    variant: "section",
+    modulePath: "@/app/(operator)/governance/_sections/GovernanceWorkflowPageContent",
+    exportName: "GovernanceWorkflowPageContent",
+  },
+  {
+    id: "governance-findings-queue-client",
+    label: "Loading findings queue",
+    variant: "section",
+    modulePath: "@/app/(operator)/governance/findings/GovernanceFindingsQueueClient",
+    exportName: "default",
+  },
 ] as const;

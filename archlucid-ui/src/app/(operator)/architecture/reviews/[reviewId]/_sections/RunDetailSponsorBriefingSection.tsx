@@ -1,5 +1,4 @@
 import { cn } from "@/lib/utils";
-import dynamic from "next/dynamic";
 import type { ReactElement } from "react";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
@@ -7,38 +6,10 @@ import { RunDetailAiReadinessGateCard } from "@/components/runs/RunDetailAiReadi
 import { BUYER_SPONSOR_BRIEFING_PACKAGE_LABEL } from "@/lib/buyer/buyer-polish-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
-const EmailRunToSponsorBanner = dynamic(
-  () => import("@/components/EmailRunToSponsorBanner").then((module) => module.EmailRunToSponsorBanner),
-  {
-    loading: () => (
-      <div
-        className={cn("rounded-md border border-neutral-200 p-4 text-al-text-secondary dark:border-neutral-700", OPERATOR_TYPOGRAPHY.body)}
-        role="status"
-        aria-live="polite"
-      >
-        Loading sponsor briefing…
-      </div>
-    ),
-  },
-);
-
-const PilotRoiValidationHandoffClient = dynamic(
-  () =>
-    import("@/components/pilots/PilotRoiValidationHandoffCard").then(
-      (module) => module.PilotRoiValidationHandoffClient,
-    ),
-  {
-    loading: () => (
-      <div
-        className={cn("rounded-md border border-neutral-200 p-4 text-al-text-secondary dark:border-neutral-700", OPERATOR_TYPOGRAPHY.body)}
-        role="status"
-        aria-live="polite"
-      >
-        Loading ROI validation handoff…
-      </div>
-    ),
-  },
-);
+import {
+  EmailRunToSponsorBannerDeferred,
+  PilotRoiValidationHandoffClientDeferred,
+} from "./run-detail-sponsor-briefing-deferred-chunks";
 
 type RunDetailSponsorBriefingSectionProps = {
   readonly runId: string;
@@ -101,9 +72,9 @@ export function RunDetailSponsorBriefingSection(props: RunDetailSponsorBriefingS
 
   const deliverables = (
     <>
-      <PilotRoiValidationHandoffClient runId={runId} curatedSampleRun={curatedSampleRun} className="mb-4" />
+      <PilotRoiValidationHandoffClientDeferred runId={runId} curatedSampleRun={curatedSampleRun} className="mb-4" />
       <RunDetailAiReadinessGateCard runId={runId} manifestId={manifestId} />
-      <EmailRunToSponsorBanner
+      <EmailRunToSponsorBannerDeferred
         runId={runId}
         manifestId={manifestId}
         curatedSampleRun={curatedSampleRun}

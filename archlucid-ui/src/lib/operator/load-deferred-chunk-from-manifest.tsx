@@ -188,6 +188,18 @@ function resolveDeferredChunkImportLoader(
       return deferredChunkLoader(() =>
         import("@/components/OperateCapabilityHints").then((module) => module.CtoDemoGovernancePreviewHint),
       ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "governance-workflow-page-content":
+      return deferredChunkLoader(() =>
+        import("@/app/(operator)/governance/_sections/GovernanceWorkflowPageContent").then(
+          (module) => module.GovernanceWorkflowPageContent,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "governance-findings-queue-client":
+      return deferredChunkLoader(() =>
+        import("@/app/(operator)/governance/findings/GovernanceFindingsQueueClient").then(
+          (module) => module.default,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
     case "policy-packs-authoring-wizard":
       return deferredChunkLoader(() =>
         import("@/app/(operator)/governance/policy-packs/_sections/PolicyRuleAuthoringWizard").then(
@@ -224,6 +236,12 @@ function resolveDeferredChunkImportLoader(
       return deferredChunkLoader(() =>
         import("@/components/alerts/AlertSimulationTuningSection").then(
           (module) => module.AlertSimulationTuningSection,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "signed-records-list-client":
+      return deferredChunkLoader(() =>
+        import("@/app/(operator)/governance/sealed-records/_sections/SignedRecordsListClient").then(
+          (module) => module.default,
         ),
       ) as () => Promise<ComponentType<Record<string, unknown>>>;
     case "signed-records-list-table":
@@ -429,6 +447,10 @@ function resolveDeferredChunkImportLoader(
         import("@/components/cto-demo/CtoDemoJourneyCaptionBar").then(
           (module) => module.CtoDemoJourneyCaptionBar,
         ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "app-shell-client":
+      return deferredChunkLoader(() =>
+        import("@/components/AppShellClient").then((module) => module.AppShellClient),
       ) as () => Promise<ComponentType<Record<string, unknown>>>;
     case "operator-shell-top-bar-global-search":
       return deferredChunkLoader(() =>
@@ -704,6 +726,38 @@ function resolveDeferredChunkImportLoader(
       return deferredChunkLoader(() =>
         import("@/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailRunExplanationCollapsible").then(
           (module) => module.RunDetailRunExplanationCollapsible,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "run-detail-findings-what-if-analysis-panel":
+      return deferredChunkLoader(() =>
+        import("@/components/findings/FindingsWhatIfAnalysisPanel").then(
+          (module) => module.FindingsWhatIfAnalysisPanel,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "run-detail-findings-workspace":
+      return deferredChunkLoader(() =>
+        import("@/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailFindingsWorkspace").then(
+          (module) => module.RunDetailFindingsWorkspace,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "run-detail-run-explanation-section":
+      return deferredChunkLoader(() =>
+        import("@/components/runs/RunExplanationSection").then((module) => module.RunExplanationSection),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "run-detail-run-finding-explainability-table":
+      return deferredChunkLoader(() =>
+        import("@/components/runs/RunFindingExplainabilityTable").then(
+          (module) => module.RunFindingExplainabilityTable,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "run-detail-email-run-to-sponsor-banner":
+      return deferredChunkLoader(() =>
+        import("@/components/EmailRunToSponsorBanner").then((module) => module.EmailRunToSponsorBanner),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "run-detail-pilot-roi-validation-handoff":
+      return deferredChunkLoader(() =>
+        import("@/components/pilots/PilotRoiValidationHandoffCard").then(
+          (module) => module.PilotRoiValidationHandoffClient,
         ),
       ) as () => Promise<ComponentType<Record<string, unknown>>>;
     case "run-detail-activity-sources":

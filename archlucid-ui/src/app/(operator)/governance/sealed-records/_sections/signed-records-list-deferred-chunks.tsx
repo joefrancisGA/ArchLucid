@@ -11,3 +11,8 @@ export const SignedRecordsListTableDeferred: ComponentType<SignedRecordsListTabl
   createDeferredComponentFromManifest("signed-records-list-table", {
     loadingTestId: "signed-records-list-deferred-chunk-loading",
   });
+
+export const SignedRecordsListClientDeferred = createDeferredComponentFromManifest(
+  "signed-records-list-client",
+  { loadingTestId: "signed-records-list-deferred-chunk-loading" },
+);
