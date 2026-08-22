@@ -370,7 +370,7 @@ public sealed class AdminDiagnosticsServiceNonSqlTests
             ChildCascade = new RunArchiveChildCascadeCounts()
         };
 
-        _ = runs.Setup(r => r.ArchiveRunsCreatedBeforeAsync(cutoff, It.IsAny<CancellationToken>())).ReturnsAsync(batch);
+        _ = runs.Setup(r => r.ArchiveRunsCreatedBeforeForScopeAsync(It.IsAny<ScopeContext>(), cutoff, It.IsAny<CancellationToken>())).ReturnsAsync(batch);
 
         _ = await sut.ArchiveRunsCreatedBeforeAsync(cutoff, CancellationToken.None);
 
@@ -418,7 +418,7 @@ public sealed class AdminDiagnosticsServiceNonSqlTests
         };
 
         DateTimeOffset cutoff = DateTimeOffset.Parse("2023-01-05T12:00:00Z", CultureInfo.InvariantCulture);
-        _ = runs.Setup(r => r.ArchiveRunsCreatedBeforeAsync(cutoff, It.IsAny<CancellationToken>())).ReturnsAsync(batch);
+        _ = runs.Setup(r => r.ArchiveRunsCreatedBeforeForScopeAsync(It.IsAny<ScopeContext>(), cutoff, It.IsAny<CancellationToken>())).ReturnsAsync(batch);
 
         _ = await sut.ArchiveRunsCreatedBeforeAsync(cutoff, CancellationToken.None);
 
@@ -500,6 +500,51 @@ public sealed class AdminDiagnosticsServiceNonSqlTests
                 It.Is<IReadOnlyList<Guid>>(ids => ids.SequenceEqual(new[] { inScopeRunId })),
                 It.IsAny<CancellationToken>()),
             Times.Once);
+    }
+
+    [Fact]
+    public async Task ArchiveRunsCreatedBeforeAsync_does_not_call_global_archival_without_scope()
+    {
+        Mock<IAuditService> audit = new();
+        Mock<IActorContext> actor = ActorMock();
+        Mock<IDbConnectionFactory> factory = new(MockBehavior.Strict);
+
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+            WorkspaceId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
+            ProjectId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc")
+        };
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(scope);
+
+        AdminDiagnosticsService sut = CreateDiagnosticsService(
+            factory,
+            SqlOptions(),
+            audit,
+            actor,
+            scopeProvider.Object,
+            out _,
+            out _,
+            out _,
+            out Mock<IRunRepository> runs);
+
+        DateTimeOffset cutoff = DateTimeOffset.Parse("2023-01-05T12:00:00Z", CultureInfo.InvariantCulture);
+        RunArchiveBatchResult batch = new() { UpdatedCount = 0 };
+
+        runs
+            .Setup(r => r.ArchiveRunsCreatedBeforeForScopeAsync(scope, cutoff, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(batch);
+
+        _ = await sut.ArchiveRunsCreatedBeforeAsync(cutoff, CancellationToken.None);
+
+        runs.Verify(
+            r => r.ArchiveRunsCreatedBeforeForScopeAsync(scope, cutoff, It.IsAny<CancellationToken>()),
+            Times.Once);
+        runs.Verify(
+            r => r.ArchiveRunsCreatedBeforeAsync(It.IsAny<DateTimeOffset>(), It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
     [Fact]
@@ -644,7 +689,7 @@ public sealed class AdminDiagnosticsServiceNonSqlTests
         };
 
         DateTimeOffset cutoff = DateTimeOffset.Parse("2022-02-02T02:02:02Z", CultureInfo.InvariantCulture);
-        _ = runs.Setup(r => r.ArchiveRunsCreatedBeforeAsync(cutoff, It.IsAny<CancellationToken>())).ReturnsAsync(batch);
+        _ = runs.Setup(r => r.ArchiveRunsCreatedBeforeForScopeAsync(It.IsAny<ScopeContext>(), cutoff, It.IsAny<CancellationToken>())).ReturnsAsync(batch);
 
         _ = await sut.ArchiveRunsCreatedBeforeAsync(cutoff, CancellationToken.None);
 

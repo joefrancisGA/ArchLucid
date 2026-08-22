@@ -417,24 +417,43 @@ public sealed class SqlRunRepository(
     /// <inheritdoc />
     [TenantScopeExempt(TenantScopeExemptReason.Operational, "Tenant-catalog retention archival; updates runs by CreatedUtc cutoff within the active catalog.")]
     public async Task<RunArchiveBatchResult> ArchiveRunsCreatedBeforeAsync(DateTimeOffset cutoffUtc,
+        CancellationToken ct) =>
+        await ArchiveRunsCreatedBeforeCoreAsync(RunRepositorySql.ArchiveRunsCreatedBefore, new { Cutoff = cutoffUtc.UtcDateTime }, ct)
+            .ConfigureAwait(false);
+
+    /// <inheritdoc />
+    public async Task<RunArchiveBatchResult> ArchiveRunsCreatedBeforeForScopeAsync(
+        ScopeContext scope,
+        DateTimeOffset cutoffUtc,
         CancellationToken ct)
     {
-        const string sql = RunRepositorySql.ArchiveRunsCreatedBefore;
+        ArgumentNullException.ThrowIfNull(scope);
+        PersistenceTenantScope.RequireScopedTenant(scope);
 
+        return await ArchiveRunsCreatedBeforeCoreAsync(
+            RunRepositorySql.ArchiveRunsCreatedBeforeInScope,
+            new
+            {
+                Cutoff = cutoffUtc.UtcDateTime,
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ScopeProjectId = scope.ProjectId
+            },
+            ct).ConfigureAwait(false);
+    }
+
+    private async Task<RunArchiveBatchResult> ArchiveRunsCreatedBeforeCoreAsync(
+        string sql,
+        object parameters,
+        CancellationToken ct)
+    {
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
         await using SqlTransaction tran = (SqlTransaction)await connection.BeginTransactionAsync(ct).ConfigureAwait(false);
 
         try
         {
             await using SqlMapper.GridReader multi = await connection.QueryMultipleAsync(
-                new CommandDefinition(
-                    sql,
-                    new
-                    {
-                        Cutoff = cutoffUtc.UtcDateTime
-                    },
-                    tran,
-                    cancellationToken: ct)).ConfigureAwait(false);
+                new CommandDefinition(sql, parameters, tran, cancellationToken: ct)).ConfigureAwait(false);
 
             List<ArchivedRunScopeRow> rows = (await multi.ReadAsync<ArchivedRunScopeRow>().ConfigureAwait(false)).ToList();
             RunArchiveChildCascadeCounts childCascade = (await multi.ReadAsync<RunArchiveChildCascadeCounts>().ConfigureAwait(false)).Single();

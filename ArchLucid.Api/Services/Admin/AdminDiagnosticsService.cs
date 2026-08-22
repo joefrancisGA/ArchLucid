@@ -850,8 +850,10 @@ public sealed class AdminDiagnosticsService(
         DateTimeOffset createdBeforeUtc,
         CancellationToken cancellationToken = default)
     {
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
         RunArchiveBatchResult result =
-            await _runRepository.ArchiveRunsCreatedBeforeAsync(createdBeforeUtc, cancellationToken);
+            await _runRepository.ArchiveRunsCreatedBeforeForScopeAsync(scope, createdBeforeUtc, cancellationToken)
+                .ConfigureAwait(false);
 
         if (result.UpdatedCount > 0)
 

@@ -316,9 +316,25 @@ public sealed class CachingRunRepository(IRunRepository inner, IHotPathReadCache
 
     /// <inheritdoc />
     public async Task<RunArchiveBatchResult> ArchiveRunsCreatedBeforeAsync(DateTimeOffset cutoffUtc,
+        CancellationToken ct) =>
+        await ArchiveRunsCreatedBeforeCoreAsync(
+            () => _inner.ArchiveRunsCreatedBeforeAsync(cutoffUtc, ct),
+            ct).ConfigureAwait(false);
+
+    /// <inheritdoc />
+    public async Task<RunArchiveBatchResult> ArchiveRunsCreatedBeforeForScopeAsync(
+        ScopeContext scope,
+        DateTimeOffset cutoffUtc,
+        CancellationToken ct) =>
+        await ArchiveRunsCreatedBeforeCoreAsync(
+            () => _inner.ArchiveRunsCreatedBeforeForScopeAsync(scope, cutoffUtc, ct),
+            ct).ConfigureAwait(false);
+
+    private async Task<RunArchiveBatchResult> ArchiveRunsCreatedBeforeCoreAsync(
+        Func<Task<RunArchiveBatchResult>> archive,
         CancellationToken ct)
     {
-        RunArchiveBatchResult batch = await _inner.ArchiveRunsCreatedBeforeAsync(cutoffUtc, ct);
+        RunArchiveBatchResult batch = await archive().ConfigureAwait(false);
 
         await InvalidateRunListCachesForArchivedRowsAsync(batch.ArchivedRuns, ct);
 
