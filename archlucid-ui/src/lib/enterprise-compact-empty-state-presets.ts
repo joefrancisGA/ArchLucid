@@ -329,21 +329,21 @@ export const GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_FILTER_NO_MATCH_COMPACT: Enterpr
     actions: [],
   });
 
-/** Governance workflow approvals list when the active review has no requests yet. */
+/** Resolve outcomes workflow approvals list when the active review has no requests yet. */
 export const GOVERNANCE_WORKFLOW_NO_APPROVALS_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps = {
   testId: "governance-workflow-no-approvals",
   title: "No approval requests for this review",
   description: "",
 };
 
-/** Governance workflow promotions timeline when no releases exist for the selected review. */
+/** Resolve outcomes workflow promotions timeline when no releases exist for the selected review. */
 export const GOVERNANCE_WORKFLOW_NO_PROMOTIONS_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps = {
   testId: "governance-workflow-no-promotions",
-  title: "No governance releases recorded yet",
+  title: "No environment releases recorded yet",
   description: "",
 };
 
-/** Governance workflow activations list when no environment activations exist yet. */
+/** Resolve outcomes workflow activations list when no environment activations exist yet. */
 export const GOVERNANCE_WORKFLOW_NO_ACTIVATIONS_EMPTY_COMPACT: EnterpriseCompactEmptyStateProps = {
   testId: "governance-workflow-no-activations",
   title: "No activations recorded yet",

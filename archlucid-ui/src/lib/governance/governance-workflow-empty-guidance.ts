@@ -2,7 +2,7 @@ import type { EmptyStateGettingStarted } from "@/components/EmptyState";
 
 /** `/governance` — no review selected yet in the workflow picker. */
 export const governanceWorkflowIdleGettingStartedOperator: EmptyStateGettingStarted = {
-  heading: "Governance workflow in three moves",
+  heading: "Resolve outcomes workflow in three moves",
   steps: [
     "Finalize a review on a review, then scroll to Submit for resolve outcomes (source → target environments).",
     "Load that review under Approval requests — approve or reject rows as a reviewer.",
@@ -13,7 +13,7 @@ export const governanceWorkflowIdleGettingStartedOperator: EmptyStateGettingStar
 export const governanceWorkflowIdleGettingStartedReader: EmptyStateGettingStarted = {
   heading: "What this page shows",
   steps: [
-    "Governance leads pick a review and load approval requests, governance releases, and activations for that review.",
+    "Governance leads pick a review and load approval requests, environment releases, and activations for that review.",
     "Each step follows your organization's role policy for who may submit, approve, release, and activate.",
     "Use Findings or Reviews for context — this timeline stays inspection-first at your rank.",
   ],
@@ -33,12 +33,12 @@ export const governanceNoApprovalsGettingStartedReader: EmptyStateGettingStarted
   steps: [
     "No approval rows exist for this review yet — governance leads submit requests after finalize.",
     "Try another review from the picker, or coordinate with a governance lead to submit.",
-    "You can still inspect governance releases and activations below once the review has history.",
+    "You can still inspect environment releases and activations below once the review has history.",
   ],
 };
 
 export const governancePromotionsEmptyGettingStartedOperator: EmptyStateGettingStarted = {
-  heading: "How governance releases appear",
+  heading: "How environment releases appear",
   steps: [
     "Approve a submitted request using Approve on its card.",
     "Click Release to environment on an approved row — that records the finalized review record moving toward the target.",
@@ -49,17 +49,17 @@ export const governancePromotionsEmptyGettingStartedOperator: EmptyStateGettingS
 export const governancePromotionsEmptyGettingStartedReader: EmptyStateGettingStarted = {
   heading: "Timeline insight",
   steps: [
-    "Governance releases show after approvers release to the target environment — empty means none yet for this review.",
+    "Environment releases show after approvers release to the target environment — empty means none yet for this review.",
     "Compare with Approval requests above to see pending work.",
     "Activations below confirm what landed in each environment.",
   ],
 };
 
 export const governanceActivationsEmptyGettingStartedOperator: EmptyStateGettingStarted = {
-  heading: "Activate after governance release",
+  heading: "Activate after environment release",
   steps: [
     "Release to the target environment first — activation binds the finalized review record to that environment.",
-    "Enter your audit-trail name, open Activate on a governance release card, and confirm.",
+    "Enter your audit-trail name, open Activate on a environment release card, and confirm.",
     "Refresh to see activation rows with timestamps for auditors.",
   ],
 };
@@ -68,7 +68,7 @@ export const governanceActivationsEmptyGettingStartedReader: EmptyStateGettingSt
   heading: "What activations mean",
   steps: [
     "Activations record which finalized review record version is live for an environment.",
-    "A governance lead runs Activate after a governance release — nothing shows until that completes.",
+    "A governance lead runs Activate after a environment release — nothing shows until that completes.",
     "Use Audit trail if you need the portfolio-level paper trail.",
   ],
 };
@@ -77,8 +77,8 @@ export const governanceActivationsEmptyGettingStartedReader: EmptyStateGettingSt
 export const governanceDashboardPlaceholderGettingStarted: EmptyStateGettingStarted = {
   heading: "What to use today",
   steps: [
-    "Open Governance workflow to move a single review through submit → approve → release → activate.",
+    "Open Resolve outcomes workflow to move a single review through submit → approve → release → activate.",
     "Track findings and policy drift from Findings and Policy packs when approvals need evidence.",
-    "Search Audit trail for immutable records of who changed governance state and when.",
+    "Search Audit trail for immutable records of who changed approval state and when.",
   ],
 };

@@ -1,5 +1,5 @@
 /**
- * Governance workflow, findings, risk register, and exceptions copy.
+ * Resolve outcomes workflow, findings, risk register, and exceptions copy.
  *
  * Re-exported by `./index.ts`; import from `@/lib/buyer/buyer-polish-copy` or `@/lib/buyer-copy`.
  */
@@ -16,7 +16,7 @@ export const BUYER_GOVERNANCE_APPROVAL_RECORD_LEAD =
 export const BUYER_GOVERNANCE_GOVERNED_USE_SCOPE =
   "Approved for implementation planning, subject to enterprise change control — not a production deployment authorization.";
 
-export const BUYER_GOVERNANCE_PAGE_TITLE = "Governance workflow";
+export const BUYER_GOVERNANCE_PAGE_TITLE = "Resolve outcomes workflow";
 
 export const BUYER_GOVERNANCE_STATUS_BANNER_TITLE = "Resolve outcome record";
 

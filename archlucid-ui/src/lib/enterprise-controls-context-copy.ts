@@ -56,7 +56,7 @@ export const governanceResolutionRankReaderLine =
   "Policy pack and workflow changes require architect permission.";
 
 export const governanceResolutionRankOperatorLine =
-  "Change pack order on Policy packs or Governance workflow — not on this page.";
+  "Change pack order on Policy packs or Resolve outcomes workflow — not on this page.";
 
 const governanceResolutionPageLead =
   "See which policy packs, controls, and workflow rules are currently effective for this workspace. Use this page to diagnose policy conflicts, precedence, and generated approval decisions.";
@@ -89,7 +89,7 @@ export const governanceResolutionChangeRelatedControlsLead =
 
 /**
  * Policy resolution — extra line under **Refresh policy resolution** when **`useOperateCapability()`** is
- * false (writes live on Policy packs and Governance workflow).
+ * false (writes live on Policy packs and Resolve outcomes workflow).
  */
 export const governanceResolutionChangeRelatedControlsReaderSupplement =
   "Changing policy packs or workflow settings requires elevated permissions.";
@@ -131,35 +131,35 @@ export const governanceDashboardOpenWorkflowReviewTitleOperator =
 export const governanceDashboardOpenWorkflowReviewTitleReader =
   "Open workflow for inspection; approve or reject actions need elevated permissions in this workspace.";
 
-/** Governance workflow — lead under page title when caller can mutate (Execute+ in shell). */
+/** Resolve outcomes workflow — lead under page title when caller can mutate (Execute+ in shell). */
 export const governanceWorkflowPageLeadOperator =
   "Submit finalized architecture outputs for approval review. Load a review to see approval status and the full approval trail.";
 
-/** Governance workflow — lead under page title for read tier (inspect-first layout already elevates Load). */
+/** Resolve outcomes workflow — lead under page title for read tier (inspect-first layout already elevates Load). */
 export const governanceWorkflowPageLeadReader =
   "Inspect how an architecture review moved through approval. Load a review below to view its approval history.";
 
-/** Governance workflow — submit card title (`governance/page.tsx`). */
+/** Resolve outcomes workflow — submit card title (`governance/page.tsx`). */
 export const governanceWorkflowSubmitCardTitleOperator = "Submit for resolve outcomes";
 
 export const governanceWorkflowSubmitCardTitleReader = "Submit for resolve outcomes";
 
-/** Governance workflow — load and list card title. */
+/** Resolve outcomes workflow — load and list card title. */
 export const governanceWorkflowApprovalRequestsCardTitleOperator = "Approval requests for this review";
 
 export const governanceWorkflowApprovalRequestsCardTitleReader = "Approval requests for this review";
 
-/** Governance workflow — promotions + activations section (`governance/page.tsx`). */
+/** Resolve outcomes workflow — promotions + activations section (`governance/page.tsx`). */
 export const governanceWorkflowPromotionsActivationsHeadingOperator = "Approval activity";
 
 export const governanceWorkflowPromotionsActivationsHeadingReader = "Approval activity";
 
-/** Governance workflow — activations list under promotions. */
+/** Resolve outcomes workflow — activations list under promotions. */
 export const governanceWorkflowActivationsSubheadingOperator = "Deployment releases";
 
 export const governanceWorkflowActivationsSubheadingReader = "Deployment releases";
 
-/** Governance workflow — reload lists for the active review (`GET`); shown next to **Load** after a review is selected. */
+/** Resolve outcomes workflow — reload lists for the active review (`GET`); shown next to **Load** after a review is selected. */
 export const governanceWorkflowRefreshRunDataTitle =
   "Reload approval requests and approval activity for the loaded review.";
 
@@ -216,7 +216,7 @@ export const alertRoutingDeliveryAttemptsButtonTitleReader =
 export const policyPacksShowDiffButtonLabelReaderRank = "Show diff (inspect)";
 
 /**
- * Governance workflow — inline review card when rank is below Execute (defense if UI state still shows the form;
+ * Resolve outcomes workflow — inline review card when rank is below Execute (defense if UI state still shows the form;
  * Approve/Reject entry points are normally disabled for Reader).
  */
 export const governanceWorkflowPendingReviewReaderNote =
@@ -340,7 +340,7 @@ export const auditLogRankOperatorLine =
 export const governanceDashboardPendingClearReaderSupplement =
   "Batch and row actions stay disabled here until elevated access applies (API).";
 
-/** Governance workflow — “Approval requests for a review” card description by rank. */
+/** Resolve outcomes workflow — “Approval requests for a review” card description by rank. */
 export const governanceWorkflowQueryCardDescriptionReader =
   "Load a review to see its approval requests. Approving, releasing to environment, and activating require approver rights on your account.";
 
@@ -358,13 +358,13 @@ export const governanceWorkflowNoApprovalsReaderHint =
 export const governanceWorkflowNoApprovalsOperatorHint =
   "Submit a request above or choose a different review.";
 
-/** Governance workflow — Submit for approval when rank cannot mutate (shell soft-disable; API authoritative). */
+/** Resolve outcomes workflow — Submit for approval when rank cannot mutate (shell soft-disable; API authoritative). */
 export const governanceWorkflowSubmitForApprovalButtonLabelReaderRank = "Submit for resolve outcomes";
 
-/** Governance workflow — inline review Submit when rank cannot mutate. */
+/** Resolve outcomes workflow — inline review Submit when rank cannot mutate. */
 export const governanceWorkflowReviewSubmitButtonLabelReaderRank = "Submit review (needs approver rights)";
 
-/** Governance workflow — row actions when rank cannot mutate (buttons stay disabled; label clarifies floor). */
+/** Resolve outcomes workflow — row actions when rank cannot mutate (buttons stay disabled; label clarifies floor). */
 export const governanceWorkflowApproveButtonLabelReaderRank = "Approve (needs approver rights)";
 
 export const governanceWorkflowRejectButtonLabelReaderRank = "Reject (needs approver rights)";
@@ -374,15 +374,15 @@ export const governanceWorkflowPromoteButtonLabelReaderRank =
 
 export const governanceWorkflowActivateButtonLabelReaderRank = "Activate (needs approver rights)";
 
-/** Governance workflow — under environment releases + activations for Execute+ (timeline + actions). */
+/** Resolve outcomes workflow — under environment releases + activations for Execute+ (timeline + actions). */
 export const governanceWorkflowPromotionsActivationsSectionLeadOperator =
   "Release approved rows to the target environment, then activate when ready.";
 
-/** Governance workflow — same section for read tier (Release/Activate buttons stay disabled in the shell). */
+/** Resolve outcomes workflow — same section for read tier (Release/Activate buttons stay disabled in the shell). */
 export const governanceWorkflowPromotionsActivationsSectionLeadReader =
   "Read-only timeline; Release to environment and Activate require approver rights (API).";
 
-/** Governance workflow — outcome banner under headers (`governance/page.tsx`): scope vs Policy packs / resolution. */
+/** Resolve outcomes workflow — outcome banner under headers (`governance/page.tsx`): scope vs Policy packs / resolution. */
 export const governanceWorkflowOutcomeBannerLine =
   "Tracks approvals for finalized architecture reviews. Outcomes are recorded in the audit trail.";
 
@@ -451,7 +451,7 @@ export const policyPacksPublishButtonLabelReaderRank = "Publish (architect permi
 
 export const policyPacksAssignButtonLabelReaderRank = "Assign (architect permission)";
 
-/** Governance workflow — Submit card description for read tier (operator copy stays inline on the page with API path). */
+/** Resolve outcomes workflow — Submit card description for read tier (operator copy stays inline on the page with API path). */
 export const governanceWorkflowSubmitCardDescriptionReader =
   "Submitting requests requires approver rights in this workspace. You can still review the workflow below.";
 
@@ -554,14 +554,14 @@ export const alertRoutingSubscriptionsEmptyReaderLine =
 
 export const alertRoutingSubscriptionsEmptyOperatorLine = "None yet.";
 
-/** Governance workflow — governance release timeline empty (after a run is loaded). */
+/** Resolve outcomes workflow — environment release timeline empty (after a run is loaded). */
 export const governanceWorkflowPromotionsEmptyReaderHint =
   "None yet. Rows appear after an architect releases an approved request to the target environment.";
 
 export const governanceWorkflowPromotionsEmptyOperatorHint =
   "Release an approved request to the target environment to see rows here.";
 
-/** Governance workflow — activations list empty. */
+/** Resolve outcomes workflow — activations list empty. */
 export const governanceWorkflowActivationsEmptyReaderHint =
   "None yet. Appear after an architect activates an environment release; inspect-only at your rank.";
 

@@ -242,7 +242,7 @@ export function SponsorWorkspaceHealthDashboard() {
           <p className={cn("m-0 max-w-prose text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
             Evaluation workspaces may not expose full KPI telemetry yet. Continue from{" "}
             <Link className={OPERATOR_LINK.nav} href="/governance/approval-queue">
-              Governance workflow
+              Resolve outcomes workflow
             </Link>{" "}
             for approvals and promotions.
           </p>
@@ -415,7 +415,7 @@ export function SponsorWorkspaceHealthDashboard() {
                 {executiveWorkspaceHealthKpiTitle("complianceDrift", buyerPolishedShell)}
               </h2>
               <Link href="/governance/approval-queue" className={OPERATOR_LINK.nav}>
-                Governance workflow
+                Resolve outcomes workflow
               </Link>
             </div>
             <p className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>Daily buckets (1440-minute) from compliance drift API.</p>

@@ -536,7 +536,7 @@ export function GovernanceWorkflowPageContent() {
   );
 
   return (
-    <MutationErrorBoundary title="Governance workflow failed to render">
+    <MutationErrorBoundary title="Resolve outcomes workflow failed to render">
     <TooltipProvider delayDuration={300}>
     <div className="w-full max-w-[1200px]">
       <OperatorPageHeader

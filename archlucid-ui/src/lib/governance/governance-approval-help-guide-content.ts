@@ -215,7 +215,7 @@ export const GOVERNANCE_APPROVAL_HELP_STATUS_PHASES: readonly GovernanceApproval
   {
     phase: "Superseded",
     meaning:
-      "A newer governance release or environment activation replaced an earlier record. Prior approval rows remain in the audit trail.",
+      "A newer environment release or environment activation replaced an earlier record. Prior approval rows remain in the audit trail.",
   },
 ] as const;
 
@@ -255,7 +255,7 @@ export const GOVERNANCE_APPROVAL_HELP_DECISION_OUTCOMES: readonly GovernanceAppr
   {
     outcome: "Released and activated",
     bullets: [
-      "After approval, a governance release records movement toward the target environment.",
+      "After approval, a environment release records movement toward the target environment.",
       "Activation confirms which finalized review record version is live for that environment.",
       "Older activations may be superseded when a newer release lands.",
       "Audit trail entries capture who released and activated each step.",
@@ -333,7 +333,7 @@ export const GOVERNANCE_APPROVAL_HELP_TROUBLESHOOTING: readonly GovernanceApprov
   {
     issue: "Stale or superseded request",
     resolution:
-      "Compare approval history on the review with the latest governance release and activation rows for the environment.",
+      "Compare approval history on the review with the latest environment release and activation rows for the environment.",
   },
   {
     issue: "Audit history not updating",
@@ -376,7 +376,7 @@ export const GOVERNANCE_APPROVAL_HELP_TECHNICAL_REFERENCE_SECTIONS = [
 
 export const GOVERNANCE_APPROVAL_HELP_GUIDE_HEADINGS: readonly HelpMarkdownHeading[] = [
   { level: 2, id: "overview", title: "Overview" },
-  { level: 2, id: "governance-workflow", title: "Governance workflow" },
+  { level: 2, id: "governance-workflow", title: "Resolve outcomes workflow" },
   { level: 2, id: "role-guides", title: "Role guides" },
   { level: 3, id: "solution-architect", title: "Solution architect" },
   { level: 3, id: "governance-approver", title: "Governance approver" },

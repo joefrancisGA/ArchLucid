@@ -250,7 +250,7 @@ export function HelpGovernanceApprovalGuideView(props: HelpGovernanceApprovalGui
             aria-labelledby="governance-workflow"
             className="space-y-3 border-t border-neutral-200 pt-6 dark:border-neutral-800"
           >
-            <HelpSectionHeading id="governance-workflow">Governance workflow</HelpSectionHeading>
+            <HelpSectionHeading id="governance-workflow">Resolve outcomes workflow</HelpSectionHeading>
             <GovernanceWorkflowStepper />
             <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>{GOVERNANCE_APPROVAL_HELP_DIAGRAM_SUMMARY}</p>
             <div

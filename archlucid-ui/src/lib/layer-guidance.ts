@@ -329,7 +329,7 @@ const LAYER_GUIDANCE_BUYER_POLISH_PARTIAL: Partial<
       "Scan dispositions alongside resolve outcomes — findings, recorded decisions, and follow-up monitors in one ledger.",
     firstPilotNote: null,
     enterpriseFootnote:
-      "Review administrators and governance reviewers use review detail for deep inspection; resolve outcomes remain the authoritative checkpoint.",
+      "Review administrators and approval reviewers use review detail for deep inspection; resolve outcomes remain the authoritative checkpoint.",
   },
   "policy-packs": {
     useWhen: "See which policy packs apply in this workspace and how they combine.",

@@ -175,7 +175,7 @@ export const SPECIALTY_REVIEW_TEMPLATES: readonly SpecialtyReviewTemplateDefinit
   {
     id: "ai-governance",
     intakeTemplateId: "ai-governance",
-    title: "AI governance",
+    title: "AI policy",
     purpose: "Evaluate an AI solution against responsible-AI, risk, evidence, and policy expectations.",
     bestFor: "Risk, compliance, and architecture leaders reviewing ML or generative-AI workloads.",
     focusAreas: [

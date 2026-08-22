@@ -100,12 +100,12 @@ export const GLOSSARY_TERMS = {
     definition: "The persisted, replayable ledger of authenticated actions across reviews, merges, approvals, retention, notifications, exports, and integrations — narrower than informal logging; wider than SIEM payloads alone. Audit trail retention norms are posture-specific.",
   },
   governance_workflow: {
-    term: "Governance workflow",
-    definition: "A committed decision in the approval workflow affecting merge, rollout, waiver, exception, or escalation — differentiated from UX affordances labelled \"Approve\" unless they write to governance state.",
+    term: "Resolve outcomes workflow",
+    definition: "A committed decision in the approval workflow affecting merge, rollout, waiver, exception, or escalation — differentiated from UX affordances labelled \"Approve\" unless they write to approval state.",
   },
   architecture_manifest: {
     term: "Finalized review record",
-    definition: "A finalized architecture record containing decisions, findings, and evidence — ready for governance review and sponsor export.",
+    definition: "A finalized architecture record containing decisions, findings, and evidence — ready for approval review and sponsor export.",
     docLink: "/docs/library/GLOSSARY.md#golden-manifest",
   },
   manifest_diff: {
@@ -120,7 +120,7 @@ export const GLOSSARY_TERMS = {
   },
   approval_request: {
     term: "Approval request",
-    definition: "A committed decision in the approval workflow affecting merge, rollout, waiver, exception, or escalation — differentiated from UX affordances labelled \"Approve\" unless they write to governance state.",
+    definition: "A committed decision in the approval workflow affecting merge, rollout, waiver, exception, or escalation — differentiated from UX affordances labelled \"Approve\" unless they write to approval state.",
     docLink: "/docs/library/GLOSSARY.md#governance-workflow",
   },
   governance_resolution: {

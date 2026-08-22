@@ -1,4 +1,4 @@
-/** Buyer-facing governance release vocabulary — avoids CI/CD "promote" on the workflow page (TB-510). */
+/** Buyer-facing environment release vocabulary — avoids CI/CD "promote" on the workflow page (TB-510). */
 
 export const GOVERNANCE_WORKFLOW_RELEASE_TO_ENVIRONMENT_BUTTON = "Release to environment";
 
@@ -20,20 +20,20 @@ export function governanceWorkflowReleaseConfirmDescription(
 export const GOVERNANCE_WORKFLOW_RELEASE_CONFIRM_BUTTON = "Release to environment";
 
 export const GOVERNANCE_WORKFLOW_AUDIT_NAME_REQUIRED_BEFORE_RELEASE =
-  "Enter your name for the audit trail before recording a governance release.";
+  "Enter your name for the audit trail before recording a environment release.";
 
 export const GOVERNANCE_WORKFLOW_RELEASE_SUCCESS_TOAST =
   "Review released to target environment.";
 
 export const GOVERNANCE_WORKFLOW_TIMELINE_LEAD =
-  "Selected review timeline · governance releases newest first; activations follow.";
+  "Selected review timeline · environment releases newest first; activations follow.";
 
-export const GOVERNANCE_WORKFLOW_NO_RELEASES_RECORDED_TITLE = "No governance releases recorded yet";
+export const GOVERNANCE_WORKFLOW_NO_RELEASES_RECORDED_TITLE = "No environment releases recorded yet";
 
-export const GOVERNANCE_WORKFLOW_RELEASE_CARD_TITLE_PREFIX = "Governance release";
+export const GOVERNANCE_WORKFLOW_RELEASE_CARD_TITLE_PREFIX = "Environment release";
 
 export const GOVERNANCE_WORKFLOW_ACTIVATE_TOOLTIP_TARGET_ENV =
-  "POST activation for this review record on the governance release target environment.";
+  "POST activation for this review record on the environment release target environment.";
 
 export const GOVERNANCE_WORKFLOW_AUDIT_TRAIL_ACTOR_LABEL =
   "Your name for the audit trail (release and activate)";
@@ -42,12 +42,12 @@ export const GOVERNANCE_WORKFLOW_AUDIT_TRAIL_ACTOR_PLACEHOLDER =
   "Display name recorded with release and activate actions";
 
 export const GOVERNANCE_WORKFLOW_AUDIT_TRAIL_ACTOR_HELPER =
-  "This is stored with governance release and activation records alongside your signed-in account.";
+  "This is stored with environment release and activation records alongside your signed-in account.";
 
 export const GOVERNANCE_WORKFLOW_SUBMIT_CARD_DESCRIPTION_OPERATOR =
   "Starts an approval request so reviewers can release your finalized review record from a source environment toward a target (for example staging to production).";
 
 export const GOVERNANCE_WORKFLOW_READER_LOAD_REVIEW_HINT =
-  "Load a review in the approval section below to inspect approvals, governance releases, and environment activity.";
+  "Load a review in the approval section below to inspect approvals, environment releases, and environment activity.";
 
-export const GOVERNANCE_WORKFLOW_RELEASE_RECORD_ID_SR_ONLY_PREFIX = "Governance release record id";
+export const GOVERNANCE_WORKFLOW_RELEASE_RECORD_ID_SR_ONLY_PREFIX = "Environment release record id";

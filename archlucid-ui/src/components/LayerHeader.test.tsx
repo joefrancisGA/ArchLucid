@@ -69,7 +69,7 @@ describe("LayerHeader", () => {
   it("renders governance resolution Governance footnote", () => {
     render(<LayerHeader pageKey="governance-resolution" />);
 
-    expect(screen.getByText(/Read-only diagnostic; edits on Policy packs or Governance workflow\./i)).toBeInTheDocument();
+    expect(screen.getByText(/Read-only diagnostic; edits on Policy packs or Resolve outcomes workflow\./i)).toBeInTheDocument();
   });
 
   it("renders Execute+ rank cue on Governance audit when caller rank is Execute+", () => {

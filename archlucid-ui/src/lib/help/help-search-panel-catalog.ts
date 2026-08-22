@@ -190,7 +190,7 @@ const INSIGHTS_TOPICS: readonly HelpSearchPanelTopic[] = [
 const GOVERNANCE_TOPICS: readonly HelpSearchPanelTopic[] = [
   {
     id: "governance-workflow",
-    title: "Governance workflow",
+    title: "Resolve outcomes workflow",
     description: "Approve, reject, promote, or monitor reviews.",
     keywords: ["governance", "approval", "promote", "workflow", "disposition"],
     action: { kind: "route", href: "/help/governance-approval", helpSlug: "governance-approval" },

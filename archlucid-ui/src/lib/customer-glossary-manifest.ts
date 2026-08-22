@@ -182,7 +182,7 @@ export const CUSTOMER_GLOSSARY_TERMS: readonly CustomerGlossaryTerm[] = [
     id: "policy-pack",
     label: "Policy pack",
     definition:
-      "A versioned bundle of rules, thresholds, and governance mappings applied to reviews in your workspace.",
+      "A versioned bundle of rules, thresholds, and policy mappings applied to reviews in your workspace.",
     category: "governance",
     relatedTermIds: ["finding", "control"],
     visibility: "customer",
