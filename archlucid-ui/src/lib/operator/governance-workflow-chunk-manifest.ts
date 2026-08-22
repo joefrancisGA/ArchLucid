@@ -4,7 +4,7 @@ import type { DeferredChunkManifestEntry } from "@/lib/operator/deferred-chunk-m
 export const GOVERNANCE_WORKFLOW_CHUNK_MANIFEST: readonly DeferredChunkManifestEntry[] = [
   {
     id: "governance-workflow-overview-panel",
-    label: "Loading governance overview",
+    label: "Loading approval overview",
     variant: "panel",
     modulePath: "@/app/(operator)/governance/_sections/GovernanceOverviewPanel",
     exportName: "GovernanceOverviewPanel",

@@ -296,7 +296,7 @@ export function GovernanceOverviewPanel(props: GovernanceOverviewPanelProps): Re
 
         {loadState.status === "loading" ? (
           <div className="mt-3">
-            <OperatorLoadingNotice>Loading governance summary…</OperatorLoadingNotice>
+            <OperatorLoadingNotice>Loading approval summary…</OperatorLoadingNotice>
           </div>
         ) : null}
 

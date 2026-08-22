@@ -49,21 +49,21 @@ export const FIRST_WEEK_ROUTE_GUIDANCE: Record<FirstWeekRouteGuidanceVariant, Fi
       "Each architecture review is tracked as one review — the same object from capture through finalized review record and export. Start with briefs, diagrams, or IaC only (evidence-only); cloud inventory ZIP (AWS, Azure, or GCP) is optional when you need live architecture structure or cost grounding.",
     primaryAction: { label: CREATE_ARCHITECTURE_LABEL, href: ARCHITECTURES_NEW_PATH },
     operateDeferralNote:
-      "Graph, Compare, and heavy governance surfaces stay out of the sidebar until after your first committed package.",
+      "Graph, Compare, and heavy approval surfaces stay out of the sidebar until after your first committed package.",
   },
   onboarding: {
     useWhen: "Follow this guided path to create and commit your first review.",
     bridgeCopy:
       "The checklist below walks one architecture review from capture to committed finalized review record.",
     primaryAction: { label: CREATE_ARCHITECTURE_LABEL, href: ARCHITECTURES_NEW_PATH },
-    operateDeferralNote: "Finish this path before exploring Operate analysis or governance lanes.",
+    operateDeferralNote: "Finish this path before exploring Operate analysis or approval lanes.",
   },
   "new-review": {
     useWhen: "You have enough context to start an architecture review.",
     bridgeCopy:
       "ArchLucid produces a defensible review — committed findings, evidence trail, and export-ready outputs. Default to evidence-only (no cloud target) unless you attach cloud inventory output.",
     operateDeferralNote:
-      "Policy packs and deeper governance can wait until after your first committed package. Cloud inventory ZIP is optional — see the InfoSec pre-read if security must approve the read-only script.",
+      "Policy packs and deeper approval can wait until after your first committed package. Cloud inventory ZIP is optional — see the InfoSec pre-read if security must approve the read-only script.",
   },
   "reviews-list": {
     useWhen: "You want to resume an in-progress review or open a committed review.",

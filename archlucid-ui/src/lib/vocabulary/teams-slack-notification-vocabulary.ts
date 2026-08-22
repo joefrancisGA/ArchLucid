@@ -3,7 +3,7 @@
  *
  * Why two channel surfaces exist:
  * - Microsoft Teams (`/integrations/teams`) configures Teams webhook delivery
- *   for governance alerts in this workspace.
+ *   for alerts in this workspace.
  * - Slack (`/integrations/slack`) configures Slack webhook destinations for the
  *   same alert routing task on a different channel.
  *
@@ -41,7 +41,7 @@ export const TEAMS_SLACK_NOTIFICATION_HEADING =
   "Teams and Slack are different notification channels" as const;
 
 export const TEAMS_SLACK_NOTIFICATION_WHY_TWO =
-  "Microsoft Teams and Slack each deliver governance alerts through their own webhook destinations. Configure the channel your workspace actually uses — setting up one destination does not configure the other." as const;
+  "Microsoft Teams and Slack each deliver alerts through their own webhook destinations. Configure the channel your workspace actually uses — setting up one destination does not configure the other." as const;
 
 export const TEAMS_SLACK_NOTIFICATION_COMPACT_LINE =
   "Teams and Slack are separate notification channels — open the other channel when you need that destination." as const;
@@ -50,7 +50,7 @@ export const TEAMS_SLACK_NOTIFICATION_TEAMS_LINK: TeamsSlackNotificationLink = {
   id: "teams",
   label: "Microsoft Teams",
   href: INTEGRATIONS_TEAMS_PATH,
-  whenToUse: "Configure Teams webhook delivery for governance alerts.",
+  whenToUse: "Configure Teams webhook delivery for alerts.",
   compactLineAnchor: "Teams",
 };
 
@@ -58,7 +58,7 @@ export const TEAMS_SLACK_NOTIFICATION_SLACK_LINK: TeamsSlackNotificationLink = {
   id: "slack",
   label: "Slack",
   href: INTEGRATIONS_SLACK_PATH,
-  whenToUse: "Configure Slack webhook destinations for governance alerts.",
+  whenToUse: "Configure Slack webhook destinations for alerts.",
 };
 
 /** Full vocabulary model (heading, why-two copy, and deep links). */

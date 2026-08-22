@@ -18,7 +18,7 @@ export function resolveAlertRoutingSubscriptionDisableDialogDescription(
   channel: AlertRoutingSubscriptionDisableChannel,
 ): string {
   if (channel === "slack") {
-    return "Governance alerts will no longer post to this Slack channel until you enable the destination again. Saved webhook credentials and delivery history stay in this workspace.";
+    return "Alerts will no longer post to this Slack channel until you enable the destination again. Saved webhook credentials and delivery history stay in this workspace.";
   }
 
   return "Outbound HTTPS deliveries for this subscription will stop until you enable it again. Signing secrets, event filters, and delivery history stay in this workspace.";

@@ -26,7 +26,7 @@ describe("teams-slack-notification-vocabulary (TB-2247)", () => {
     expect(model.heading.toLowerCase()).toContain("slack");
     expect(model.whyTwo).toBe(TEAMS_SLACK_NOTIFICATION_WHY_TWO);
     expect(model.whyTwo.toLowerCase()).toContain("webhook");
-    expect(model.whyTwo.toLowerCase()).toContain("governance alert");
+    expect(model.whyTwo.toLowerCase()).toContain("alert");
     expect(model.compactLine).toBe(TEAMS_SLACK_NOTIFICATION_COMPACT_LINE);
     expect(model.hubHref).toBe(SETTINGS_NOTIFICATIONS_PATH);
     expect(model.hubHref).toBe("/administration/notifications");

@@ -77,7 +77,7 @@ describe("HelpAlertsGuideView", () => {
     expect(screen.getByRole("heading", { name: "What can trigger an alert" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Where alerts are managed" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Resolving an alert" })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Related governance concepts" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Related approval concepts" })).toBeInTheDocument();
     expect(screen.getByTestId("help-topic-toc")).toBeInTheDocument();
     const desktopToc = screen.getByTestId("help-topic-toc");
     expect(within(desktopToc).getByRole("link", { name: "How alerts work" })).toHaveAttribute(

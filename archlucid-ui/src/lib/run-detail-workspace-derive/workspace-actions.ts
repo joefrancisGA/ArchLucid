@@ -153,7 +153,7 @@ export function deriveRecommendedWorkspaceActions(input: {
       title: `Record a decision for ${pendingDecision} finding${pendingDecision === 1 ? "" : "s"}`,
       reason: "Human review decisions are still open.",
       relatedFindingCount: pendingDecision,
-      ownerOrRole: "Governance reviewer",
+      ownerOrRole: "Approval reviewer",
       href: buildReviewDetailTabHref(input.runId, "decisions-remediation", { hash: "governance-decision" }),
       actionLabel: "Record decision",
     });

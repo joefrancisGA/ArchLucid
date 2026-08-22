@@ -39,7 +39,7 @@ export const ALERT_RULES_ALERTS_INBOX_HEADING =
   "Alert rules and the Alerts inbox serve different purposes" as const;
 
 export const ALERT_RULES_ALERTS_INBOX_WHY_TWO =
-  "Alert rules configure when and how governance alerts fire. The Alerts inbox is triage for raised notifications. Changing a rule does not acknowledge inbox rows, and acknowledging an alert does not edit the rule that raised it." as const;
+  "Alert rules configure when and how policy alerts fire. The Alerts inbox is triage for raised notifications. Changing a rule does not acknowledge inbox rows, and acknowledging an alert does not edit the rule that raised it." as const;
 
 export const ALERT_RULES_ALERTS_INBOX_COMPACT_LINE =
   "Alert rules configure firing; the Alerts inbox triages raised notifications." as const;

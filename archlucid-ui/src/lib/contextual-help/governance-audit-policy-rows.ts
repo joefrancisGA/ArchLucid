@@ -65,7 +65,7 @@ export const GOVERNANCE_AUDIT_POLICY_CONTEXTUAL_HELP_ROWS: readonly PageContextu
         "Open Policy packs for live assignments, Standards and rules for applied rules, or Findings when violations need triage.",
       whyEmpty: "This guide is always available; live pack rows appear after packs are assigned in this workspace.",
       whereToConfigurePrerequisite:
-        "Pack assignment needs a role that can manage governance policy for this workspace.",
+        "Pack assignment needs a role that can manage policy packs for this workspace.",
       whatToDoNextAction: {
         label: "Open Policy packs",
         href: GOVERNANCE_POLICY_PACKS_PATH,

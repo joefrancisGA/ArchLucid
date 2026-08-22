@@ -59,6 +59,8 @@ Describe 'start-local-api-and-ui.helpers.ps1' {
         $command | Should -Match '--launch-profile http'
         $command | Should -Match '--no-build'
         $command | Should -Match '\$LASTEXITCODE -ne 0'
+        $command | Should -Not -Match 'Write-Host \("'
+        $command | Should -Match "Write-Host \('API build failed with exit code \{0\}"
     }
 
     It 'skips build-server shutdown and explicit build when requested' {

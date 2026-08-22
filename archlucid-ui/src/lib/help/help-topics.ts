@@ -132,7 +132,7 @@ export const HELP_TOPICS: HelpTopic[] = [
     title: "Alerts",
     keywords: ["inbox", "ack", "noise"],
     summary:
-      "Learn how governance alerts are created, triaged in the inbox, and configured through alert rules.",
+      "Learn how alerts are created, triaged in the inbox, and configured through alert rules.",
     docPath: "docs/library/customer-facing/ALERTS_OPERATOR_GUIDE.md",
     routes: ["/alerts", "/alert-rules", "/governance/alerts", "/governance/alert-rules"],
   },

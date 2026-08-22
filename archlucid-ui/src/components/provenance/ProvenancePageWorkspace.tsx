@@ -251,7 +251,7 @@ export function ProvenancePageWorkspace(props: ProvenancePageWorkspaceProps): Re
                 {PROVENANCE_SECTION_GRAPH_LABEL}
               </h3>
               <p className={cn("mt-1", OPERATOR_TYPOGRAPHY.helper)}>
-                Explore how evidence, findings, decisions, governance records, and artifacts connect across this review.
+                Explore how evidence, findings, decisions, approval records, and artifacts connect across this review.
               </p>
               <div className="mt-3 w-full min-w-0">
                 <ProvenanceGraphErrorBoundary

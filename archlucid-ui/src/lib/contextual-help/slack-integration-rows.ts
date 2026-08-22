@@ -5,7 +5,7 @@ import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
 const SLACK_INTEGRATION_HUB_CONTEXTUAL_HELP = {
   whatIsThisPage:
-    "Slack integration — configure incoming webhook destinations that receive governance alerts for this workspace.",
+    "Slack integration — configure incoming webhook destinations that receive alerts for this workspace.",
   whatToDoNext:
     "Add or test a Slack destination, then open Alert rules when you need to change which events fire notifications.",
   whyEmpty: "Destinations appear after you save an incoming webhook URL for this workspace.",
@@ -22,7 +22,7 @@ export const SLACK_INTEGRATION_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelp
     prefix: "/help/slack-integration",
     entry: {
       whatIsThisPage:
-        "Slack notifications — how incoming webhook destinations route governance alerts and when to open alert rules.",
+        "Slack notifications — how incoming webhook destinations route alerts and when to open alert rules.",
       whatToDoNext:
         "Open Slack notifications to configure destinations, then follow alert rules when routing needs adjustment.",
       whyEmpty: "This guide is always available; destinations appear after you save a webhook URL.",

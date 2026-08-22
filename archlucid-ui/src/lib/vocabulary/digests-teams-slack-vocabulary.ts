@@ -5,7 +5,7 @@
  * - Digests (`/architecture/digests`) browse, schedule, and subscribe to
  *   architecture summary *email* content.
  * - Microsoft Teams (`/integrations/teams`) configures Teams webhook delivery
- *   for governance alerts.
+ *   for alerts.
  * - Slack (`/integrations/slack`) configures Slack webhook destinations.
  *
  * They stay separate because email digest cadence is not chat-channel alert
@@ -58,7 +58,7 @@ export const DIGESTS_TEAMS_SLACK_TEAMS_LINK: DigestsTeamsSlackLink = {
   id: "teams",
   label: "Microsoft Teams",
   href: INTEGRATIONS_TEAMS_PATH,
-  whenToUse: "Configure Teams webhook delivery for governance alerts.",
+  whenToUse: "Configure Teams webhook delivery for alerts.",
   compactLineAnchor: "Teams",
 };
 
@@ -66,7 +66,7 @@ export const DIGESTS_TEAMS_SLACK_SLACK_LINK: DigestsTeamsSlackLink = {
   id: "slack",
   label: "Slack",
   href: INTEGRATIONS_SLACK_PATH,
-  whenToUse: "Configure Slack webhook destinations for governance alerts.",
+  whenToUse: "Configure Slack webhook destinations for alerts.",
 };
 
 const ALL_LINKS: readonly DigestsTeamsSlackLink[] = [

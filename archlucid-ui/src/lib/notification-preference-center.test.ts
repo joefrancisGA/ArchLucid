@@ -161,7 +161,7 @@ describe("notification-preference-center (TB-2203)", () => {
       }),
     );
     expect(routingReady["alerts-inbox"].label).toBe("Connected");
-    expect(routingReady["alerts-inbox"].provenanceFact).toContain("3 open governance alerts");
+    expect(routingReady["alerts-inbox"].provenanceFact).toContain("3 open alerts");
     expect(routingReady["alert-rules"].label).toBe("Connected");
     expect(routingReady["alert-rules"].configureHint.toLowerCase()).toContain("alert rules");
   });

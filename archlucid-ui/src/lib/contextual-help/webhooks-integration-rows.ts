@@ -5,7 +5,7 @@ import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
 const WEBHOOKS_INTEGRATION_HUB_CONTEXTUAL_HELP = {
   whatIsThisPage:
-    "Webhooks — configure HTTPS webhook subscriptions that receive governance alerts for this workspace.",
+    "Webhooks — configure HTTPS webhook subscriptions that receive alerts for this workspace.",
   whatToDoNext:
     "Add or test a subscription, then open Alert rules when you need to change which events fire notifications.",
   whyEmpty: "Subscriptions appear after you save a webhook URL for this workspace.",
@@ -22,7 +22,7 @@ export const WEBHOOKS_INTEGRATION_CONTEXTUAL_HELP_ROWS: readonly PageContextualH
     prefix: "/help/webhooks-integration",
     entry: {
       whatIsThisPage:
-        "Webhooks — how HTTPS subscriptions receive governance alerts and when to open alert rules.",
+        "Webhooks — how HTTPS subscriptions receive alerts and when to open alert rules.",
       whatToDoNext:
         "Open webhooks to configure subscriptions, then follow alert rules when routing needs adjustment.",
       whyEmpty: "This guide is always available; subscriptions appear after you save a webhook URL.",

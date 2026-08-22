@@ -7,7 +7,7 @@
 export const BUYER_ASK_PAGE_TITLE = "Evidence-backed review questions";
 
 export const BUYER_ASK_PAGE_HERO =
-  "Ask plain-language questions about a finalized review. Answers cite review evidence when available and do not replace formal governance records.";
+  "Ask plain-language questions about a finalized review. Answers cite review evidence when available and do not replace formal approval records.";
 
 export const BUYER_ASK_CARD_TITLE = "Ask a question";
 
@@ -26,7 +26,7 @@ export const BUYER_ASK_RETRIEVAL_DEGRADED_LABEL =
   "Answer quality may be reduced when evidence search is limited.";
 
 export const BUYER_ASK_GROUNDING_ONCE =
-  "Answers are scoped to selected review evidence. Validate conclusions against the finalized Finalized review record — Ask does not replace formal governance records.";
+  "Answers are scoped to selected review evidence. Validate conclusions against the finalized Finalized review record — Ask does not replace formal approval records.";
 
 export const BUYER_ASK_REVIEW_ANCHORS_LINE =
   "Replies on this review can include quick links to sponsor report, review record, policy basis, evidence trail, and audit anchors where available.";

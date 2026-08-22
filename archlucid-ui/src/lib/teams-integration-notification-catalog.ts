@@ -55,7 +55,7 @@ export const TEAMS_NOTIFICATION_CATEGORIES: readonly TeamsNotificationCategory[]
   },
   {
     id: "governance-and-risk",
-    title: "Governance and risk",
+    title: "Approval and risk",
     items: [
       {
         eventType: "com.archlucid.governance.approval.submitted",
@@ -76,25 +76,25 @@ export const TEAMS_NOTIFICATION_CATEGORIES: readonly TeamsNotificationCategory[]
       },
       {
         eventType: "com.archlucid.governance.promotion.activated",
-        label: "Governance promotion activated",
+        label: "Environment release activated",
         description: "An approved review was authorized to advance in an approved environment.",
         recommended: true,
       },
       {
         eventType: "com.archlucid.alert.fired",
-        label: "Governance alert created",
+        label: "Alert created",
         description: "A rule detected a condition that needs attention.",
         recommended: true,
       },
       {
         eventType: "com.archlucid.alert.acknowledged",
-        label: "Governance alert acknowledged",
-        description: "An authorized user acknowledged a governance alert.",
+        label: "Alert acknowledged",
+        description: "An authorized user acknowledged a alert.",
       },
       {
         eventType: "com.archlucid.alert.resolved",
-        label: "Governance alert resolved",
-        description: "A governance alert was marked resolved.",
+        label: "Alert resolved",
+        description: "A alert was marked resolved.",
         recommended: true,
       },
       {

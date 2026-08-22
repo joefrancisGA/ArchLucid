@@ -8,7 +8,7 @@ export const TEAMS_INTEGRATION_HELP_CANONICAL_PATH = "/help/teams-integration" a
 export const TEAMS_INTEGRATION_HELP_CLAIM_DISCIPLINE_HEADING = "What this guide does not cover";
 
 export const TEAMS_INTEGRATION_HELP_CLAIM_DISCIPLINE =
-  "This guide explains how Teams destinations route governance alerts — configure incoming webhooks, test delivery, then open Alert rules or Integration readiness when routing or procurement setup needs follow-up.";
+  "This guide explains how Teams destinations route alerts — configure incoming webhooks, test delivery, then open Alert rules or Integration readiness when routing or procurement setup needs follow-up.";
 
 export const TEAMS_INTEGRATION_HELP_FOLLOW_UPS_TITLE = "Where to go next";
 

@@ -56,7 +56,7 @@ export const RISK_EXCEPTIONS_FINDINGS_FINDINGS_LINK: RiskExceptionsFindingsLink 
   id: "findings-queue",
   label: "Findings queue",
   href: GOVERNANCE_FINDINGS_PATH,
-  whenToUse: "Resolve findings, assign owners, and clear open governance items.",
+  whenToUse: "Resolve findings, assign owners, and clear open approval items.",
 };
 
 /** Pairwise model for Risk exceptions ↔ Findings queue (fixed governance routes). */

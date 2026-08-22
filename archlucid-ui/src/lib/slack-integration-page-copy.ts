@@ -1,7 +1,7 @@
 export const SLACK_INTEGRATION_PAGE_TITLE = "Slack notifications";
 
 export const SLACK_INTEGRATION_PAGE_SUBTITLE =
-  "Send ArchLucid governance alerts to the Slack channels your teams already monitor.";
+  "Send ArchLucid alerts to the Slack channels your teams already monitor.";
 
 export const SLACK_BREADCRUMB_INTEGRATIONS_LABEL = "Integrations";
 
@@ -36,7 +36,7 @@ export const SLACK_FIELD_DESTINATION_NAME_LABEL = "Destination name";
 export const SLACK_FIELD_WEBHOOK_URL_LABEL = "Slack incoming webhook URL";
 
 export const SLACK_INTEGRATION_HELP_SUMMARY =
-  "ArchLucid sends selected governance alert events to Slack through an incoming webhook. Webhook credentials are stored with the subscription and are not displayed again after saving.";
+  "ArchLucid sends selected alert events to Slack through an incoming webhook. Webhook credentials are stored with the subscription and are not displayed again after saving.";
 
 export const SLACK_INTEGRATION_SECURITY_NOTE =
   "Webhook credentials are hidden after saving. Use a dedicated Slack incoming webhook for ArchLucid notifications.";
@@ -51,7 +51,7 @@ export const SLACK_INTEGRATION_DESTINATIONS_TITLE = "Slack destinations";
 export const SLACK_INTEGRATION_EMPTY_TITLE = "No Slack destinations yet";
 
 export const SLACK_INTEGRATION_EMPTY_DESCRIPTION =
-  "Add a destination above to begin sending governance alerts to Slack.";
+  "Add a destination above to begin sending alerts to Slack.";
 
 export const SLACK_INTEGRATION_SECRET_HELPER =
   "Not required for standard Slack incoming webhooks. If provided, ArchLucid stores it with the destination and does not display it again after saving.";
@@ -64,7 +64,7 @@ export const SLACK_INTEGRATION_TEST_FAILURE =
 export const SLACK_INTEGRATION_SAVE_SUCCESS = "Slack destination saved.";
 
 export const SLACK_INTEGRATION_DISABLE_CONFIRM =
-  "Governance alerts will no longer post to this Slack channel until you enable the destination again. Saved webhook credentials and delivery history stay in this workspace.";
+  "Alerts will no longer post to this Slack channel until you enable the destination again. Saved webhook credentials and delivery history stay in this workspace.";
 
 export const SLACK_INTEGRATION_DISABLE_SUCCESS = "Slack destination disabled.";
 

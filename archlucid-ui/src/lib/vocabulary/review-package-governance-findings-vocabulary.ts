@@ -101,7 +101,7 @@ export function buildReviewPackageGovernanceFindingsVocabulary(
     whenToUse:
       trimmed.length > 0
         ? "Disposition risks and assign owners for this review in the workspace register."
-        : "Disposition risks, assign owners, and clear open governance items across reviews.",
+        : "Disposition risks, assign owners, and clear open approval items across reviews.",
   };
 
   return {
