@@ -26,9 +26,9 @@ export function GovernanceSealedRecordArtifactBreadcrumb(
 
   // Annotated so the trailing current-page crumb below can omit href, which the item type allows.
   const items: OperatorPageBreadcrumbItem[] = [
-    { label: "Governance", href: GOVERNANCE_APPROVAL_QUEUE_PATH },
+    { label: "Approval", href: GOVERNANCE_APPROVAL_QUEUE_PATH },
     { label: SIGNED_RECORDS_LIST_PAGE_TITLE, href: SIGNED_RECORDS_LIST_PATH },
-    { label: "Sealed record", href: signedRecordDetailPath(props.manifestId) },
+    { label: "Finalized review record", href: signedRecordDetailPath(props.manifestId) },
   ];
 
   if (props.runId !== null && props.runId.trim().length > 0) {

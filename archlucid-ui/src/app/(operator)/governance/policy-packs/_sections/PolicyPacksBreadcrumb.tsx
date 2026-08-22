@@ -8,7 +8,7 @@ export function PolicyPacksBreadcrumb(): React.JSX.Element {
     <OperatorPageBreadcrumb
       data-testid="policy-packs-breadcrumb"
       items={[
-        { label: "Governance", href: GOVERNANCE_APPROVAL_QUEUE_PATH },
+        { label: "Approval", href: GOVERNANCE_APPROVAL_QUEUE_PATH },
         { label: POLICY_PACKS_PAGE_TITLE },
       ]}
     />

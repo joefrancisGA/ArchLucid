@@ -96,7 +96,7 @@ export function TenantHealthAdminPageClient() {
         navHref={INTERNAL_TENANT_HEALTH_PATH}
         headingLevel="h1"
         title="Tenant health"
-        subtitle="Internal customer-success view of engagement, governance, and pilot funnel stage per tenant scope."
+        subtitle="Internal customer-success view of engagement, approval activity, and pilot funnel stage per tenant scope."
         actions={
           <>
             <RefreshButton busy={loading} onClick={() => void refresh()} />

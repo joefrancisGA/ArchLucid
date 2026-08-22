@@ -25,7 +25,7 @@ const architectPackage: PricingPackage = {
 describe("marketing-pricing-tier-display", () => {
   it("defines best-for copy for every public tier", () => {
     expect(MARKETING_PRICING_TIER_BEST_FOR.architect).toMatch(/solo architect/i);
-    expect(MARKETING_PRICING_TIER_BEST_FOR.professional).toMatch(/governance/i);
+    expect(MARKETING_PRICING_TIER_BEST_FOR.professional).toMatch(/approval/i);
   });
 
   it("builds included lines from catalog capacity fields", () => {

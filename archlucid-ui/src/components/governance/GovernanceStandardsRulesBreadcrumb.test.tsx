@@ -8,7 +8,7 @@ describe("GovernanceStandardsRulesBreadcrumb", () => {
     render(<GovernanceStandardsRulesBreadcrumb />);
 
     expect(screen.getByTestId("governance-standards-rules-breadcrumb")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Governance" })).toHaveAttribute("href", "/governance/approval-queue");
+    expect(screen.getByRole("link", { name: "Approval" })).toHaveAttribute("href", "/governance/approval-queue");
     expect(screen.getByText("Standards & rules")).toBeInTheDocument();
   });
 });

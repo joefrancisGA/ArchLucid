@@ -141,10 +141,10 @@ export function CompareGovernanceDiffPanel(props: CompareGovernanceDiffPanelProp
         id="compare-governance-diff-heading"
         className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}
       >
-        Effective governance diff
+        Policy pack diff
       </h2>
       <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-        Policy pack basis and compliance rule keys for governance buyers — alongside the manifest structural diff above.
+        Policy pack basis and compliance rule keys for approval and compliance buyers — alongside the manifest structural diff above.
       </p>
 
       {view.usesCurrentEffectiveOnly && props.hideCurrentEffectiveDisclaimer !== true ? (
@@ -158,7 +158,7 @@ export function CompareGovernanceDiffPanel(props: CompareGovernanceDiffPanelProp
 
       {softFailureMessage !== null ? (
         <p className={cn("m-0 mt-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="compare-governance-soft-failure">
-          Some governance inputs could not be loaded ({softFailureMessage}). Showing partial results.
+          Some policy inputs could not be loaded ({softFailureMessage}). Showing partial results.
         </p>
       ) : null}
 

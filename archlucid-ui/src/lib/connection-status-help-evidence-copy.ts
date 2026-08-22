@@ -12,7 +12,7 @@ export const CONNECTION_STATUS_HELP_CLAIM_DISCIPLINE =
 export const CONNECTION_STATUS_HELP_FOLLOW_UPS_TITLE = "Where to go next";
 
 export const CONNECTION_STATUS_HELP_SOURCES_INTRO =
-  "Use these follow-ups when readiness counts turn into connector setup, runtime checks, or governance trails.";
+  "Use these follow-ups when readiness counts turn into connector setup, runtime checks, or approval trails.";
 
 /** Configure — finish connector setup. */
 export const CONNECTION_STATUS_HELP_SOURCES_CONFIGURE: readonly EvidenceSourceLink[] = [

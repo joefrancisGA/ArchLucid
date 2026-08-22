@@ -87,13 +87,13 @@ const CURATED_DOCUMENTATION_SEARCH_ITEMS: readonly DocumentationSearchItem[] = [
     relativeDocsPath: "docs/go-to-market/trust-center.md",
   },
   {
-    category: "Governance",
+    category: "Approval",
     title: "Audit coverage matrix",
     description: "Maps operations to durable audit events.",
     relativeDocsPath: "docs/library/AUDIT_COVERAGE_MATRIX.md",
   },
   {
-    category: "Governance",
+    category: "Approval",
     title: "Approval check before finalize",
     description: "Blocks review finalize when severity thresholds breach.",
     relativeDocsPath: "docs/library/PRE_COMMIT_GOVERNANCE_GATE.md",

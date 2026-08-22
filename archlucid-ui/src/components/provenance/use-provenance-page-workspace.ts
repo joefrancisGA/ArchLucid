@@ -28,7 +28,7 @@ export const FILTER_OPTIONS: ReadonlyArray<{ id: ProvenanceNodeFilterCategory; l
   { id: "findings", label: "Findings" },
   { id: "controls", label: "Controls" },
   { id: "decisions", label: "Decisions" },
-  { id: "governance", label: "Governance" },
+  { id: "governance", label: "Approval" },
   { id: "artifacts", label: "Artifacts" },
 ];
 

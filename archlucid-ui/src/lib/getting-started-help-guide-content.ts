@@ -209,7 +209,7 @@ export const GETTING_STARTED_HELP_NEXT_ACTION_CARDS: readonly GettingStartedActi
   },
   {
     title: "Learn the vocabulary",
-    description: "Scan the plain-language terms used across review, governance, and exports.",
+    description: "Scan the plain-language terms used across review, approval, and exports.",
     href: "#plain-language-vocabulary",
     ctaLabel: "View vocabulary",
   },

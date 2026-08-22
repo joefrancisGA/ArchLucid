@@ -10,7 +10,7 @@ export function GovernanceSealedRecordDetailBreadcrumb(): React.JSX.Element {
     <OperatorPageBreadcrumb
       data-testid="governance-sealed-record-detail-breadcrumb"
       items={[
-        { label: "Governance", href: GOVERNANCE_APPROVAL_QUEUE_PATH },
+        { label: "Approval", href: GOVERNANCE_APPROVAL_QUEUE_PATH },
         { label: SIGNED_RECORDS_LIST_PAGE_TITLE, href: SIGNED_RECORDS_LIST_PATH },
         { label: BUYER_SIGNED_DECISION_RECORD_LABEL },
       ]}

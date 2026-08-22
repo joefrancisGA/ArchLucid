@@ -42,7 +42,7 @@ export const CUSTOMER_GLOSSARY_CATEGORY_LABELS: Readonly<Record<CustomerGlossary
   evidence: "Evidence",
   "decisions-and-findings": "Decisions and findings",
   "risk-and-controls": "Risk and controls",
-  governance: "Governance",
+  governance: "Approval",
   "organization-and-access": "Organization and access",
   deliverables: "Deliverables",
 };

@@ -124,12 +124,12 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     slug: "glossary",
     title: "Glossary",
     summary:
-      "Definitions for the terms used throughout ArchLucid reviews, evidence, governance, and administration.",
+      "Definitions for the terms used throughout ArchLucid reviews, evidence, approval, and administration.",
     audience: "operator",
     // App-rendered from `customer-glossary-manifest.ts` — not a markdown help body.
     sourcePaths: [],
     lastReviewed: CUSTOMER_GLOSSARY_CONTRACT_VERSION,
-    releaseApplicability: "product vocabulary for reviews, evidence, and governance",
+    releaseApplicability: "product vocabulary for reviews, evidence, and approval",
   },
   {
     slug: "evidence-intake",
@@ -385,7 +385,7 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     slug: "enterprise-onboarding",
     title: ENTERPRISE_ONBOARDING_HELP_PAGE_TITLE,
     summary:
-      "Checklist for configuring a hosted ArchLucid enterprise tenant: SSO, roles, governance, policy packs, audit export, and optional Azure cloud evidence.",
+      "Checklist for configuring a hosted ArchLucid enterprise tenant: SSO, roles, approval workflows, policy packs, audit export, and optional Azure cloud evidence.",
     audience: "operator",
     sourcePaths: ["docs/library/HOSTED_ENTERPRISE_ONBOARDING_CHECKLIST.md"],
     pdfStatus: "customer",
@@ -471,7 +471,7 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     slug: "specialty-walkthroughs",
     title: "Specialty review templates",
     summary:
-      "Start with focused guidance for a specific architecture, governance, or industry scenario.",
+      "Start with focused guidance for a specific architecture, approval, or industry scenario.",
     audience: "operator",
     sourcePaths: ["docs/library/walkthroughs/README.md"],
   },

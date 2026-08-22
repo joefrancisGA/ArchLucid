@@ -19,8 +19,8 @@ describe("LayerContextStrip", () => {
       },
       {
         id: "operate-governance" as const,
-        wantLabel: "Governance",
-        wantQuestion: "How do we govern, audit, and operationalize architecture decisions?"
+        wantLabel: "Approval",
+        wantQuestion: "How do we track approvals, audit evidence, and operationalize architecture decisions?"
       },
       {
         id: "operator-admin" as const,

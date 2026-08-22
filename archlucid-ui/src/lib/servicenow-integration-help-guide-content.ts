@@ -50,7 +50,7 @@ export const SERVICENOW_INTEGRATION_HELP_FEATURE_ITEMS: readonly ServiceNowInteg
 export const SERVICENOW_INTEGRATION_HELP_HOW_TO_READ_STEPS = [
   "Test the connector and confirm connection health for this workspace.",
   "Adjust incident routing and CMDB settings so outbound records land in the right ServiceNow tables.",
-  "Open Integration readiness or Audit trail when connection or governance trails need follow-up.",
+  "Open Integration readiness or Audit trail when connection or approval trails need follow-up.",
 ] as const;
 
 export const SERVICENOW_INTEGRATION_HELP_BEFORE_YOU_CONNECT_TITLE = "Before you connect";

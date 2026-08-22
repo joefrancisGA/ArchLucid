@@ -1,7 +1,7 @@
 export const CUSTOMER_GLOSSARY_PAGE_TITLE = "Glossary";
 
 export const CUSTOMER_GLOSSARY_PAGE_INTRO =
-  "Definitions for the terms used throughout ArchLucid reviews, evidence, governance, and administration.";
+  "Definitions for the terms used throughout ArchLucid reviews, evidence, approval, and administration.";
 
 export const CUSTOMER_GLOSSARY_SEARCH_LABEL = "Search glossary terms";
 

@@ -34,7 +34,7 @@ export const ARCHITECTURE_WORKSPACE_TAB_LABELS: Record<ArchitectureWorkspaceTabI
   clarifications: "Clarifications",
   findings: "Findings",
   evidence: "Evidence",
-  governance: "Governance",
+  governance: "Policies",
   activity: "Activity",
 };
 

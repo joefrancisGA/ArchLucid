@@ -436,7 +436,7 @@ describe("GovernanceFindingsQueueClient assigned-to-me mode", () => {
     renderGovernanceFindingsQueue("assigned-to-me");
 
     expect(await screen.findByTestId("governance-assigned-to-me-breadcrumb")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Governance" })).toHaveAttribute("href", "/governance/approval-queue");
+    expect(screen.getByRole("link", { name: "Approval" })).toHaveAttribute("href", "/governance/approval-queue");
     expect(screen.getByRole("link", { name: "Findings" })).toHaveAttribute("href", "/governance/findings");
     expect(screen.getByTestId("governance-assigned-to-me-workspace")).toHaveTextContent(
       BUYER_SCOPE_SAMPLE_WORKSPACE_COMPACT_LABEL,

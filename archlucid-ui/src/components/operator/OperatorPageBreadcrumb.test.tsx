@@ -8,7 +8,7 @@ describe("OperatorPageBreadcrumb", () => {
     const { container } = render(
       <OperatorPageBreadcrumb
         items={[
-          { label: "Governance", href: "/governance/approval-queue" },
+          { label: "Approval", href: "/governance/approval-queue" },
           { label: "Alert rules" },
         ]}
         data-testid="sample-breadcrumb"

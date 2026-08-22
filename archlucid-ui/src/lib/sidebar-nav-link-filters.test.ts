@@ -68,7 +68,7 @@ describe("presentSidebarNavLinkForCluster", () => {
       {
         href: "/administration",
         label: "Settings",
-        title: "Settings — searchable index of workspace, governance, integration, billing, and support configuration",
+        title: "Settings — searchable index of workspace, approval, integration, billing, and support configuration",
         tier: "essential",
         requiredAuthority: "ReadAuthority",
       },
@@ -77,7 +77,7 @@ describe("presentSidebarNavLinkForCluster", () => {
     );
 
     expect(presented.title).toBe(
-      "searchable index of workspace, governance, integration, billing, and support configuration",
+      "searchable index of workspace, approval, integration, billing, and support configuration",
     );
   });
 

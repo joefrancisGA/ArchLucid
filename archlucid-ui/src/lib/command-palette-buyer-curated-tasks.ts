@@ -38,7 +38,7 @@ export const BUYER_COMMAND_PALETTE_CURATED_TASKS: readonly CuratedPaletteTask[] 
   {
     label: "Policy pack basis",
     href: SHOWCASE_STATIC_DEMO_POLICY_PACK_DETAIL_HREF,
-    searchValue: "policy pack governance guardrails healthcare claims",
+    searchValue: "policy pack policy guardrails healthcare claims",
   },
   {
     label: BUYER_SURFACE_VOCABULARY.evidenceGraphNav,

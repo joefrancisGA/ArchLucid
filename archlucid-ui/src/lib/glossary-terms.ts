@@ -51,7 +51,7 @@ export const GLOSSARY_TERMS = {
     docLink: "/help/glossary#term-evidence-trail",
   },
   effective_governance: {
-    term: "Effective governance",
+    term: "Effective policy",
     definition: "The merged policy content for this scope, used for alerts, compliance, and advisory decisions.",
     docLink: "/docs/library/GLOSSARY.md#effective-governance",
   },

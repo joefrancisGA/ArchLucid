@@ -23,7 +23,7 @@ export const HELP_SEARCH_PANEL_SEARCH_PLACEHOLDER = "Search guides, topics, or s
 export const HELP_SEARCH_PANEL_EMPTY_TITLE = "No help topics found" as const;
 
 export const HELP_SEARCH_PANEL_EMPTY_HINT =
-  "Try searching for review, evidence, findings, governance, SSO, or export." as const;
+  "Try searching for review, evidence, findings, approval, SSO, or export." as const;
 
 export const HELP_SEARCH_PANEL_KEYBOARD_HINT = "↑↓ Navigate · Enter Open · Esc Close" as const;
 
@@ -81,8 +81,8 @@ const START_HERE_TOPICS: readonly HelpSearchPanelTopic[] = [
   {
     id: "how-archlucid-works",
     title: "How ArchLucid works",
-    description: "Product workflow from architecture evidence through findings, decisions, governance, and exports.",
-    keywords: ["how it works", "workflow", "review flow", "evidence", "exports", "governance"],
+    description: "Product workflow from architecture evidence through findings, decisions, approval, and exports.",
+    keywords: ["how it works", "workflow", "review flow", "evidence", "exports", "approval"],
     action: { kind: "route", href: "/help/getting-started#how-archlucid-works", helpSlug: "getting-started" },
   },
   {
@@ -115,14 +115,14 @@ const START_HERE_TOPICS: readonly HelpSearchPanelTopic[] = [
   {
     id: "product-faq",
     title: "Product FAQ",
-    description: "Evaluation, pricing, evidence, governance, and security answers for architects and sponsors.",
+    description: "Evaluation, pricing, evidence, approval, and security answers for architects and sponsors.",
     keywords: ["faq", "evaluation", "pricing", "trial", "architect license", "security", "azure", "aws", "gcp"],
     action: { kind: "route", href: "/faq", helpSlug: null },
   },
   {
     id: "glossary",
     title: "Glossary",
-    description: "Definitions for review, evidence, governance, and organization terms used in ArchLucid.",
+    description: "Definitions for review, evidence, approval, and organization terms used in ArchLucid.",
     keywords: ["glossary", "terms", "definitions", "finding", "risk", "control", "review", "evidence trail"],
     action: { kind: "route", href: "/help/glossary", helpSlug: "glossary" },
   },
@@ -171,7 +171,7 @@ const REVIEW_WORK_TOPICS: readonly HelpSearchPanelTopic[] = [
   {
     id: "review-artifacts",
     title: "Review artifacts and proof packet",
-    description: "Download outputs for sponsors, governance, procurement, or audit.",
+    description: "Download outputs for sponsors, procurement, or audit.",
     keywords: ["proof packet", "artifacts", "bundle", "audit", "sponsor export", "deliverables"],
     action: { kind: "route", href: "/help/review-packages", helpSlug: "review-packages" },
   },
@@ -370,7 +370,7 @@ export const HELP_SEARCH_PANEL_GROUPS: readonly HelpSearchPanelGroup[] = [
   { id: HELP_SEARCH_PANEL_START_HERE_GROUP_ID, heading: "Start here", topics: START_HERE_TOPICS },
   { id: "review-work", heading: "Review work", topics: REVIEW_WORK_TOPICS },
   { id: "insights", heading: "Insights", topics: INSIGHTS_TOPICS },
-  { id: "governance", heading: "Governance", topics: GOVERNANCE_TOPICS },
+  { id: "governance", heading: "Approval", topics: GOVERNANCE_TOPICS },
   { id: "setup", heading: "Setup", topics: SETUP_TOPICS },
   { id: "troubleshooting", heading: "Troubleshooting and support", topics: TROUBLESHOOTING_TOPICS },
 ];

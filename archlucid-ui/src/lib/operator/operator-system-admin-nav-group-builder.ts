@@ -162,7 +162,7 @@ export class OperatorSystemAdminNavGroupBuilder extends NavGroupBuilderBase {
 
           label: "Tenant health",
 
-          title: "Tenant health — engagement, governance, and pilot funnel stage per scope",
+          title: "Tenant health — engagement, approval activity, and pilot funnel stage per scope",
 
           icon: BarChart3,
 

@@ -17,7 +17,7 @@ export const HEALTH_READINESS_CATEGORIES: readonly HealthReadinessCategory[] = [
   { id: "core-application", title: "Core application" },
   { id: "data-stores", title: "Data stores" },
   { id: "evidence-retrieval", title: "Evidence and retrieval" },
-  { id: "governance-content", title: "Governance content" },
+  { id: "governance-content", title: "Approval content" },
   { id: "integrations", title: "Integrations" },
   { id: "background-workers", title: "Background workers" },
 ] as const;
