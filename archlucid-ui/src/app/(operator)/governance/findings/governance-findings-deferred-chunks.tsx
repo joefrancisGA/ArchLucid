@@ -6,8 +6,8 @@ import { createDeferredComponentFromManifest } from "@/lib/operator/load-deferre
 
 import type { GovernanceFindingsQueueClientProps } from "./GovernanceFindingsQueueClient";
 
-/** TB-2371 — findings queue off governance page First Load JS. */
+/** Findings queue client — deferred so route chrome paints first (TB-571 / wave 11 First Load). */
 export const GovernanceFindingsQueueClientDeferred: ComponentType<GovernanceFindingsQueueClientProps> =
   createDeferredComponentFromManifest("governance-findings-queue-client", {
-    loadingTestId: "governance-findings-queue-deferred-chunk-loading",
-  }) as ComponentType<GovernanceFindingsQueueClientProps>;
+    loadingTestId: "governance-findings-deferred-chunk-loading",
+  });
