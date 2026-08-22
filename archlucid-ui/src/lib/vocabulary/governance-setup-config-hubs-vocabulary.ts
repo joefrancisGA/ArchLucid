@@ -69,7 +69,7 @@ export const GOVERNANCE_SETUP_CONFIG_HUBS_POLICY_PACKS_LINK: GovernanceSetupConf
   id: "policy-packs",
   label: "Policy packs",
   href: GOVERNANCE_POLICY_PACKS_PATH,
-  whenToUse: "Author and activate enforceable governance rule sets.",
+  whenToUse: "Author and activate enforceable policy rule sets.",
 };
 
 export const GOVERNANCE_SETUP_CONFIG_HUBS_STANDARDS_LINK: GovernanceSetupConfigHubsLink = {

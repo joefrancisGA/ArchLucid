@@ -22,7 +22,7 @@ export function patternLibraryDetailSubtitle(
   buyerPolishedShell: boolean,
 ): string {
   if (buyerPolishedShell) {
-    return "Anonymized pattern guidance for reviews and governance comparisons.";
+    return "Anonymized pattern guidance for reviews and approval comparisons.";
   }
 
   return recordDescription;

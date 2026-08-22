@@ -31,7 +31,7 @@ const PROVENANCE_NODE_TYPE_LABEL_BY_KEY: Readonly<Record<string, string>> = {
   control: "Control / mitigation",
   mitigation: "Mitigation",
   auditevent: "Audit trail event",
-  governance: "Governance record",
+  governance: "Approval record",
   traceevent: "Trace event",
   reviewer: "Reviewer",
   riskowner: "Risk owner",

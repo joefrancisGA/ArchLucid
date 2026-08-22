@@ -55,7 +55,7 @@ export const REPEAT_REVIEW_LOOP_HELP_DIAGRAM_THEME_VARIABLES_DARK: Readonly<Reco
 export const REPEAT_REVIEW_LOOP_HELP_DIAGRAM_SOURCE = `flowchart LR
   FF[First finalize] --> CMP[Compare two reviews]
   CMP --> RPL[Replay regressions]
-  RPL --> DD[Governance dry-run]
+  RPL --> DD[Policy dry-run]
   DD --> SF[Second finalize]
   SF --> PRF[Collect export-ready proof]
   PRF -.->|Next cycle| CMP`;

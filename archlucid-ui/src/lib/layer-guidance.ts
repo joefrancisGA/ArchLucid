@@ -107,7 +107,7 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
     omitReviewPackageScopeHelp: true,
   },
   "governance-dashboard": {
-    layerBadge: "Governance",
+    layerBadge: "Approval",
     headline: "Workspace health — approval and value signals in your current scope.",
     useWhen:
       "Use after Pilot proof when sponsors need before-finalize outcomes, severity exposure, compliance drift, SLA posture, and a hours-first value proxy.",
@@ -127,7 +127,7 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
     omitReviewPackageScopeHelp: true,
   },
   "governance-setup": {
-    layerBadge: "Governance",
+    layerBadge: "Approval",
     headline: "Establish policies, alerts, approvals, and reporting for this workspace.",
     useWhen:
       "Work the checklist in order — each step opens the configuration surface where changes are made and audited.",
@@ -136,14 +136,14 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
     enterpriseFootnote: "Configuration changes happen on the linked surfaces, not on this checklist page.",
   },
   alerts: {
-    layerBadge: "Governance",
+    layerBadge: "Approval",
     headline: "Risk and compliance signals that need triage.",
     useWhen: "Work the inbox first; configure rules and routing on Alert rules.",
     firstPilotNote: "Inbox first; rule tooling after Pilot proof when volume warrants it.",
     enterpriseFootnote: "Inbox first; configuration tabs when your role allows.",
   },
   audit: {
-    layerBadge: "Governance",
+    layerBadge: "Approval",
     headline: "Tenant audit trail — who did what, when.",
     useWhen: "Search and filter audit events; export requires Auditor or Admin access.",
     firstPilotNote: "Bounded export after Pilot proof when audit window and roles are clear.",
@@ -158,9 +158,9 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
     omitReviewPackageScopeHelp: true,
   },
   "teams-notifications": {
-    layerBadge: "Governance",
+    layerBadge: "Approval",
     headline: "Microsoft Teams channel wiring for integration-event fan-out.",
-    useWhen: "After Service Bus topics are live and your team wants review / governance / alert cards in Teams.",
+    useWhen: "After Service Bus topics are live and your team wants review / approval / alert cards in Teams.",
     firstPilotNote:
       "After Pilot proof when Teams routing matters; store only a Key Vault secret id here.",
     enterpriseFootnote: "Read vs Execute matches API; Logic Apps resolves the secret at delivery time.",
@@ -175,7 +175,7 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
     omitReviewPackageScopeHelp: true,
   },
   "slack-notifications": {
-    layerBadge: "Governance",
+    layerBadge: "Approval",
     headline: "Slack channel wiring for architecture alert delivery.",
     useWhen: "When your team wants alert notifications in Slack channels via incoming webhook URLs.",
     firstPilotNote: "Optional until alert routing to Slack is part of your operating model.",
@@ -207,7 +207,7 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
     omitReviewPackageScopeHelp: true,
   },
   "governance-resolution": {
-    layerBadge: "Governance",
+    layerBadge: "Approval",
     headline: "Diagnose effective policy, conflicts, and precedence for this scope.",
     useWhen:
       "Use after changing policy pack assignments or approval workflow settings to confirm what is in effect.",
@@ -216,7 +216,7 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
     omitReviewPackageScopeHelp: true,
   },
   "governance-workflow": {
-    layerBadge: "Governance",
+    layerBadge: "Approval",
     headline: "Submit finalized architecture outputs for resolve outcomes review and promotion.",
     useWhen: "Pick one review and move from submission through approval, promotion, and activation.",
     firstPilotNote:
@@ -224,7 +224,7 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
     enterpriseFootnote: "Approvals follow the configured approval path for packages in this workspace.",
   },
   "recurrence-schedules": {
-    layerBadge: "Governance",
+    layerBadge: "Approval",
     headline:
       "Define repeatable review cadences for finalized architecture reviews — quarterly control reviews, annual policy attestations, post-remediation follow-ups, and architecture board checkpoints.",
     useWhen:
@@ -235,7 +235,7 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
       "Schedules clone a finalized review on the cadence you define; manage approvals and risk resolve on linked approval surfaces.",
   },
   exceptions: {
-    layerBadge: "Governance",
+    layerBadge: "Approval",
     headline: "Track active waivers, expirations, owners, and linked approval decisions.",
     useWhen:
       "Use this page to track owner, expiration, evidence, and the linked decision so exceptions do not become unmanaged risk.",
@@ -245,42 +245,42 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
       "Risk exceptions are approved waivers for findings that are not immediately remediated.",
   },
   "policy-packs": {
-    layerBadge: "Governance",
+    layerBadge: "Approval",
     headline: "Packs in scope, published versions, and effective policy.",
     useWhen: "Start by reviewing inventory and diffs; publish or assign when your role allows.",
     firstPilotNote: "After Pilot proof when you steward pack publish and assignment.",
     enterpriseFootnote: "Inspect registered packs and active policy rule layers for your scope.",
   },
   "alert-rules": {
-    layerBadge: "Governance",
+    layerBadge: "Approval",
     headline: "Finding thresholds that raise alerts after completed reviews.",
     useWhen: "Define thresholds here; triage raised alerts on Alerts.",
     firstPilotNote: "Threshold tuning after Pilot proof when reviews drive production signals.",
     enterpriseFootnote: "Thresholds on review findings.",
   },
   "alert-routing": {
-    layerBadge: "Governance",
+    layerBadge: "Approval",
     headline: "Where fired alerts are delivered.",
     useWhen: "Targets for fired alerts — not digest mail.",
     firstPilotNote: "Destinations after Pilot proof when fired alerts need routing.",
     enterpriseFootnote: "Delivery targets for fired alerts.",
   },
   "alert-simulation": {
-    layerBadge: "Governance",
+    layerBadge: "Approval",
     headline: "Dry-run rules against recent reviews.",
     useWhen: "What-if before changing production thresholds; triage on Alerts.",
     firstPilotNote: "What-if after Pilot proof before changing live thresholds.",
     enterpriseFootnote: "Simulation before production change.",
   },
   "alert-tuning": {
-    layerBadge: "Governance",
+    layerBadge: "Approval",
     headline: "Balance coverage vs. noise for one rule.",
     useWhen: "After simulation shows a tradeoff worth fixing.",
     firstPilotNote: "After Pilot proof when simulation evidence backs a live change.",
     enterpriseFootnote: "Tuning from simulation evidence.",
   },
   "composite-alert-rules": {
-    layerBadge: "Governance",
+    layerBadge: "Approval",
     headline: "Combine metrics with AND/OR before firing.",
     useWhen: "Use when one metric is not enough; add cooldown as needed.",
     firstPilotNote: "Composite rules after Pilot proof when AND/OR firing is in scope.",

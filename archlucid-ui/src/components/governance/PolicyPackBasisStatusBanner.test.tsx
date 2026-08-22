@@ -9,7 +9,7 @@ describe("PolicyPackBasisStatusBanner", () => {
 
     expect(screen.getByTestId("policy-pack-basis-status-banner")).toBeInTheDocument();
     expect(screen.getByText("Policy pack basis")).toBeInTheDocument();
-    expect(screen.getByText(/Governance guardrails referenced by this review/)).toBeInTheDocument();
+    expect(screen.getByText(/Policy guardrails referenced by this review/)).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "View finalized review record" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "View evidence trail" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "View audit trail" })).toBeInTheDocument();

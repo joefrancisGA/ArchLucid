@@ -33,7 +33,7 @@ export const POLICY_PACKS_RESOLUTION_LINK_HREF =
 
 export const POLICY_PACK_BASIS_BANNER_TITLE = "Policy pack basis";
 
-export const POLICY_PACK_BASIS_BANNER_BODY = "Governance guardrails referenced by this review.";
+export const POLICY_PACK_BASIS_BANNER_BODY = "Policy guardrails referenced by this review.";
 
 export const POLICY_PACK_BASIS_VIEW_SIGNED_RECORD = "View finalized review record";
 

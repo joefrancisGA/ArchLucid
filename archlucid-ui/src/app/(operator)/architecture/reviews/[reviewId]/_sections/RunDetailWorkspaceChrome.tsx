@@ -41,7 +41,7 @@ function buildReviewMetadataFields(props: RunDetailWorkspaceHeaderProps): readon
   return [
     {
       key: "governance-decision-recorded-by",
-      label: "Governance decision recorded by",
+      label: "Approval decision recorded by",
       value: props.reviewOwner,
       absentReason: REVIEW_METADATA_NOT_RECORDED_REASONS.governanceDecisionRecordedBy,
     },

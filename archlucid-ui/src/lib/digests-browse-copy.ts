@@ -94,7 +94,7 @@ export const DIGESTS_BROWSE_INCLUDES_SECTION_TITLE = "What digests include" as c
 
 export const DIGESTS_BROWSE_INCLUDES_ITEMS = [
   "Review activity",
-  "Governance signals",
+  "Approval signals",
   "Findings summary",
   "Advisory scan results",
   "Dashboard links",

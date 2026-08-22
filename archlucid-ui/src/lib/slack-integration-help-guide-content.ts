@@ -62,7 +62,7 @@ export const SLACK_INTEGRATION_HELP_FEATURE_ITEMS: readonly SlackIntegrationHelp
   },
   {
     label: "Alert routing",
-    detail: "Governance events post when matching alert rules fire and this destination stays enabled.",
+    detail: "Alerts post when matching alert rules fire and this destination stays enabled.",
   },
 ] as const;
 

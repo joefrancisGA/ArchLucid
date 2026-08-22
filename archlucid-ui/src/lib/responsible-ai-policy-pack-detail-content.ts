@@ -3,7 +3,7 @@ export const RESPONSIBLE_AI_POLICY_PACK_PAGE_TITLE = "Responsible AI policy pack
 export const RESPONSIBLE_AI_POLICY_PACK_BREADCRUMB_LABEL = "Responsible AI";
 
 export const RESPONSIBLE_AI_POLICY_PACK_SUBTITLE =
-  "Governance rules for responsible AI use, evidence requirements, review controls, and export readiness.";
+  "Policy rules for responsible AI use, evidence requirements, review controls, and export readiness.";
 
 export const RESPONSIBLE_AI_POLICY_PACK_DISPLAY_NAME = "Responsible AI";
 

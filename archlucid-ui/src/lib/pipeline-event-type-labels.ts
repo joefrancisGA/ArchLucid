@@ -36,7 +36,7 @@ const PIPELINE_EVENT_TYPE_LABELS: Record<string, string> = {
   "com.archlucid.governance.approval.approved": "Resolve outcomes approved",
   "com.archlucid.governance.approval.rejected": "Resolve outcomes rejected",
   "com.archlucid.governance.approval.recorded": "Resolve outcomes recorded",
-  "com.archlucid.governance.promotion.activated": "Governance promotion activated",
+  "com.archlucid.governance.promotion.activated": "Environment release activated",
   "com.archlucid.governance.policy-pack.published.v1": "Policy pack activated",
   "com.archlucid.alert.fired": "Alert fired",
   "com.archlucid.alert.acknowledged": "Alert acknowledged",

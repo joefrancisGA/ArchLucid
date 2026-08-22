@@ -136,7 +136,7 @@ describe("LayerHeader", () => {
   it("renders Execute+ rank cue for every Governance layer-guidance page key at Execute rank", () => {
     const governanceKeys = (Object.keys(LAYER_PAGE_GUIDANCE) as LayerGuidancePageKey[]).filter(
       (key) =>
-        LAYER_PAGE_GUIDANCE[key].layerBadge === "Governance" && LAYER_PAGE_GUIDANCE[key].enterpriseFootnote != null,
+        LAYER_PAGE_GUIDANCE[key].layerBadge === "Approval" && LAYER_PAGE_GUIDANCE[key].enterpriseFootnote != null,
     );
 
     expect(governanceKeys.length).toBeGreaterThan(0);

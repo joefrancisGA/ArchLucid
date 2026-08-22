@@ -112,7 +112,7 @@ export function resolvePreCommitGovernanceBlockView(
   const reason =
     problem.detail?.trim() ||
     problem.title?.trim() ||
-    "Governance policy blocked review finalization.";
+    "Policy rules blocked review finalization.";
 
   const severityOrdinal = readOptionalSeverityOrdinal(problem.minimumBlockingSeverity);
   const minimumBlockingSeverityLabel =

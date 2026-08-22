@@ -4,7 +4,7 @@
  * Why two surfaces exist:
  * - Pattern library (`/insights/patterns`) catalogs recurring architecture patterns
  *   observed across reviews.
- * - Policy packs (`/governance/policy-packs`) are enforceable governance rule sets
+ * - Policy packs (`/governance/policy-packs`) are enforceable policy rule sets
  *   applied to reviews and findings.
  *
  * They stay separate because browsing pattern intelligence is not the same task as
@@ -36,7 +36,7 @@ export const PATTERN_LIBRARY_POLICY_PACKS_HEADING =
   "Pattern library and Policy packs serve different purposes" as const;
 
 export const PATTERN_LIBRARY_POLICY_PACKS_WHY_TWO =
-  "The pattern library catalogs recurring architecture patterns from reviews. Policy packs are enforceable governance rule sets applied to reviews and findings. Browsing patterns does not author or activate policy packs." as const;
+  "The pattern library catalogs recurring architecture patterns from reviews. Policy packs are enforceable policy rule sets applied to reviews and findings. Browsing patterns does not author or activate policy packs." as const;
 
 export const PATTERN_LIBRARY_POLICY_PACKS_COMPACT_LINE =
   "Pattern library catalogs observed patterns; Policy packs enforce policy rules." as const;
@@ -52,7 +52,7 @@ export const PATTERN_LIBRARY_POLICY_PACKS_PACKS_LINK: PatternLibraryPolicyPacksL
   id: "policy-packs",
   label: "Policy packs",
   href: GOVERNANCE_POLICY_PACKS_PATH,
-  whenToUse: "Author, inspect, and activate enforceable governance rule sets.",
+  whenToUse: "Author, inspect, and activate enforceable policy rule sets.",
 };
 
 /** Pairwise model for Pattern library ↔ Policy packs (fixed routes). */

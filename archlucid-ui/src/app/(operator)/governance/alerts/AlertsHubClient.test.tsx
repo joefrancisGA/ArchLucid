@@ -37,7 +37,7 @@ vi.mock("@/lib/use-nav-surface", () => ({
     links: [],
     mutationCapability: false,
     layerGuidance: {
-      layerBadge: "Governance",
+      layerBadge: "Approval",
       headline: "Risk and compliance signals that need triage.",
       useWhen: "Work the inbox first; configure rules and routing on Alert rules.",
       firstPilotNote: null,

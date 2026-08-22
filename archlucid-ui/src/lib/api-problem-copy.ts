@@ -98,7 +98,7 @@ const ERROR_CODE_REMEDIATION: Record<string, string> = {
   UPSTREAM_INTEGRATION_FAILED:
     "An upstream identity or integration dependency failed. Verify OIDC/SAML settings, network reachability, and IdP metadata before retrying.",
   GOVERNANCE_PRE_COMMIT_BLOCKED:
-    "Governance policy blocked review finalization. Resolve critical findings or obtain approval per your policy pack before finalizing.",
+    "Policy rules blocked review finalization. Resolve critical findings or obtain approval per your policy pack before finalizing.",
   PROOF_PACKET_HOLD:
     "Proof collection returned HOLD. Open the proof status JSON, clear blocking findings, and rerun collect-first-pilot-proof before external send.",
   CONFIG_LINT_HOLD:

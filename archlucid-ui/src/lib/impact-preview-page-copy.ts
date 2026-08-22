@@ -23,7 +23,7 @@ export const IMPACT_PREVIEW_ORIENTATION =
   "Select a proposed change and baseline review to compare expected before-and-after outcomes." as const;
 
 export const IMPACT_PREVIEW_SCOPE_WHAT_IT_IS =
-  "Impact preview is a deterministic, repeatable what-if analysis that re-evaluates your governance policies and recorded findings against a proposed change — the same checks that ran in the review, so results are policy-consistent, not a fresh opinion." as const;
+  "Impact preview is a deterministic, repeatable what-if analysis that re-evaluates your policy packs and recorded findings against a proposed change — the same checks that ran in the review, so results are policy-consistent, not a fresh opinion." as const;
 
 export const IMPACT_PREVIEW_SCOPE_WHAT_IT_IS_NOT =
   "It does not observe or test your production systems; treat results as review-time analysis, not runtime validation." as const;

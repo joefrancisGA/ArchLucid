@@ -24,7 +24,7 @@ const LAYER_LABELS = [
   "Findings",
   "Controls and mitigations",
   "Decisions",
-  "Governance records",
+  "Approval records",
   "Finalized review record",
   "Final artifacts",
 ] as const;
@@ -238,8 +238,8 @@ const LEGEND_LABELS: Record<string, string> = {
   decision: "Decision",
   manifest: SIGNED_MANIFEST_LABEL,
   artifactBundle: "Artifact bundle",
-  governance: "Governance record",
-  governanceActor: "Governance actor",
+  governance: "Approval record",
+  governanceActor: "Approval actor",
   runLifecycle: "Review lifecycle",
   other: "Other",
 };

@@ -33,7 +33,7 @@ vi.mock("@/lib/use-nav-surface", () => ({
     links: [],
     mutationCapability: false,
     layerGuidance: {
-      layerBadge: "Governance",
+      layerBadge: "Approval",
       headline: "Workspace health — approval and value signals in your current scope.",
       useWhen: "Use after Pilot proof when sponsors need before-finalize outcomes.",
       firstPilotNote: null,

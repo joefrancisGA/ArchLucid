@@ -97,7 +97,7 @@ const BUILTIN_CAPABILITY_MATRIX: Readonly<Record<UsersAndRolesCapabilityId, Read
 
 const ROLE_RESTRICTIONS: Readonly<Record<BuiltinRoleName, string>> = {
   Admin: "Should be limited to people who manage workspace configuration, billing, and access.",
-  Operator: "Cannot manage users, billing, or activate governance policies without administrator rights.",
+  Operator: "Cannot manage users, billing, or activate policy packs without administrator rights.",
   Reader: "Cannot create or finalize reviews, change evidence, or manage workspace settings.",
   Auditor: "Read-focused with audit export; cannot change reviews, evidence, or workspace settings.",
 };
@@ -114,7 +114,7 @@ export const USERS_AND_ROLES_CAPABILITY_LABELS: Readonly<Record<UsersAndRolesCap
   "create-reviews": "Create architectures and start reviews",
   "finalize-reviews": "Finalize reviews",
   "finding-feedback": "Submit finding feedback",
-  "configure-governance": "Activate governance policies",
+  "configure-governance": "Activate policy packs",
   "author-policy-packs": "Author policy packs",
   "manage-integrations": "Configure integrations",
   "manage-users": "Manage users and roles",
@@ -159,7 +159,7 @@ export const USERS_AND_ROLES_FAQ: readonly UsersAndRolesFaqItem[] = [
     id: "admin-vs-operator",
     question: "What is the difference between an administrator and an architect?",
     answer:
-      "Administrators manage users, billing, integrations, and governance activation. Architects run reviews, finalize architecture reviews, and configure policy packs without full workspace administration. Identity mappings may still use the claim value Operator for the Architect role.",
+      "Administrators manage users, billing, integrations, and policy activation. Architects run reviews, finalize architecture reviews, and configure policy packs without full workspace administration. Identity mappings may still use the claim value Operator for the Architect role.",
   },
   {
     id: "reviewer-invite",

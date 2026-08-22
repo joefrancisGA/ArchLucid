@@ -35,7 +35,7 @@ export const DIGESTS_HELP_CONTENT_ITEMS: readonly DigestsHelpContentItem[] = [
     href: "/architecture/reviews",
   },
   {
-    label: "Governance signals",
+    label: "Approval signals",
     sourceSurface: "Resolve outcomes queue",
     href: "/governance/approval-queue",
   },

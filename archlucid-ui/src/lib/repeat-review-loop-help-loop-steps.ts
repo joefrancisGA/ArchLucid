@@ -41,7 +41,7 @@ export const REPEAT_REVIEW_LOOP_HELP_LOOP_STEPS: readonly RepeatReviewLoopHelpLo
   },
   {
     stepNumber: 4,
-    title: "Governance dry-run",
+    title: "Policy dry-run",
     description: "Exercise policy packs in dry-run before enforcing a blocking finalize gate.",
     href: GOVERNANCE_POLICY_PACKS_PATH,
     ctaLabel: "Open policy packs",

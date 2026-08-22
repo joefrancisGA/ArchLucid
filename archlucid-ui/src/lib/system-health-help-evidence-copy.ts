@@ -37,7 +37,7 @@ export const SYSTEM_HEALTH_HELP_SOURCES: readonly EvidenceOrientationLink[] = [
   {
     label: "Audit trail",
     href: GOVERNANCE_AUDIT_PATH,
-    when: "Open governance audit when official review records are the follow-up",
+    when: "Open audit trail when official review records are the follow-up",
   },
 ] as const;
 

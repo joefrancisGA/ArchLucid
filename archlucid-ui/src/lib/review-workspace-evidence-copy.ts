@@ -7,7 +7,7 @@ export const REVIEW_WORKSPACE_CLAIM_DISCIPLINE =
   "This review workspace holds one architecture review's findings, decisions, and artifacts — not a complete audit export alone. Open Evidence graph, Audit, or sealed-record detail when you need the full package.";
 
 export const REVIEW_WORKSPACE_SOURCES_INTRO =
-  "Use these follow-ups when package work needs evidence search, governance triage, or activity records.";
+  "Use these follow-ups when package work needs evidence search, findings triage, or activity records.";
 
 
 /** Build operator Sources for a run — never self-links the review detail path. */

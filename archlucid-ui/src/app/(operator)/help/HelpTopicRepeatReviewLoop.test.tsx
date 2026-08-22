@@ -210,7 +210,7 @@ describe("HelpTopicRepeatReviewLoop (TB-1396)", () => {
     expect(mermaid).toHaveTextContent("First finalize");
     expect(mermaid).toHaveTextContent("Compare two reviews");
     expect(mermaid).toHaveTextContent("Replay regressions");
-    expect(mermaid).toHaveTextContent("Governance dry-run");
+    expect(mermaid).toHaveTextContent("Policy dry-run");
     expect(mermaid).toHaveTextContent("Second finalize");
     expect(mermaid).toHaveTextContent("Collect export-ready proof");
     expect(mermaid).toHaveTextContent("Next cycle");

@@ -30,7 +30,7 @@ vi.mock("@/lib/demo-ui-env", () => ({
 vi.mock("@/lib/use-nav-surface", () => ({
   useNavSurface: () => ({
     layerGuidance: {
-      layerBadge: "Governance",
+      layerBadge: "Approval",
       headline: "Track active waivers, expirations, owners, and linked approval decisions.",
       useWhen: "Use this page to track owner, expiration, evidence, and the linked decision.",
       firstPilotNote: null,

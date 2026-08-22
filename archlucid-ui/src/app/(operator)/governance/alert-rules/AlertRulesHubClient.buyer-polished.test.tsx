@@ -30,7 +30,7 @@ vi.mock("@/lib/use-nav-surface", () => ({
     links: [],
     mutationCapability: false,
     layerGuidance: {
-      layerBadge: "Governance",
+      layerBadge: "Approval",
       headline: "Metric thresholds that raise alerts after scans.",
       useWhen: "Define thresholds here; triage fired alerts on Alerts.",
       firstPilotNote: null,
