@@ -104,7 +104,7 @@ export function GovernanceWorkflowSubmitSection(props: GovernanceWorkflowSubmitS
     missingSubmitFields.length === 0 ? "Ready to submit." : `Missing: ${missingSubmitFields.join(", ")}.`;
 
   return (
-    <section className="mb-10">
+    <section className="mb-6">
       {buyerPolishedShell && !canMutateWorkflow ? (
         <Card className="border border-neutral-200 bg-al-surface-raised dark:border-neutral-800">
           <CardHeader className="space-y-1">

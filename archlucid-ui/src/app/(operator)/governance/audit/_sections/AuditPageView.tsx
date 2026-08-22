@@ -1,6 +1,8 @@
 import Link from "next/link";
 
 import { cn } from "@/lib/utils";
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
+import { OperatorRelatedSurfacesDisclosure } from "@/components/operator/OperatorRelatedSurfacesDisclosure";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { Button } from "@/components/ui/button";
 import { AuditLogRankCue } from "@/components/EnterpriseControlsContextHints";
@@ -68,7 +70,10 @@ export function AuditPageView(props: AuditPageViewProps) {
   const buyerCompactFilters = buyerPolishedShell && props.displayEvents.length === 0 && !props.searching;
 
   return (
-    <div className={cn(OPERATOR_LAYOUT.sectionStack, buyerPolishedShell ? "max-w-6xl" : "max-w-4xl")}>
+    <OperatorPageContainer
+      variant="dashboard"
+      className={cn(OPERATOR_LAYOUT.sectionStack, buyerPolishedShell ? "max-w-6xl" : undefined)}
+    >
       {buyerPolishedShell ? (
         <a
           href={`#${GOVERNANCE_AUDIT_PRIMARY_CONTENT_ID}`}
@@ -125,6 +130,16 @@ export function AuditPageView(props: AuditPageViewProps) {
             </>
           ) : (
             <>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                disabled={!props.csvExportUiAllowed || props.exporting || props.searching}
+                onClick={() => void props.onExportCsv()}
+                data-testid="audit-header-export-button"
+              >
+                {props.exporting ? AUDIT_TRAIL_EXPORTING_ACTION : AUDIT_TRAIL_EXPORT_ACTION}
+              </Button>
               <CtoDemoAuditIntegrityExportButton />
               <CtoDemoAuditIntegrityVerifyButton />
             </>
@@ -135,11 +150,11 @@ export function AuditPageView(props: AuditPageViewProps) {
       {buyerPolishedShell ? <AuditPageBuyerChrome /> : null}
 
       {!buyerPolishedShell ? (
-        <>
+        <OperatorRelatedSurfacesDisclosure testId="audit-related-surfaces-disclosure">
           <AuditEvidenceTrailVocabularyRail currentSurfaceId="audit" />
           <PackageActivityAuditTrailVocabularyRail currentSurfaceId="audit-trail" />
           <ReportProblemAuditVocabularyRail currentSurfaceId="audit" />
-        </>
+        </OperatorRelatedSurfacesDisclosure>
       ) : null}
 
       <div
@@ -311,6 +326,6 @@ export function AuditPageView(props: AuditPageViewProps) {
         />
       ) : null}
       </div>
-    </div>
+    </OperatorPageContainer>
   );
 }

@@ -141,7 +141,7 @@ function SponsorRoiDashboardPortfolioSections({
       <section
         id={SPONSOR_DASHBOARD_WORKSPACE_HEALTH_SECTION_ID}
         aria-labelledby="sponsor-workspace-health-heading"
-        className="scroll-mt-6"
+        className="scroll-mt-24"
         data-testid="sponsor-dashboard-workspace-health-section"
       >
         <SponsorWorkspaceHealthDashboardDeferred />

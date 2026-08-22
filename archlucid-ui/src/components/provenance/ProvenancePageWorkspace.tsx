@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import { MessageSquareText, Search } from "lucide-react";
 import Link from "next/link";
 
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { ProvenanceGraphViewport } from "@/components/provenance/ProvenanceGraphViewport";
 import { ProvenanceGraphErrorBoundary } from "@/components/provenance/ProvenanceGraphErrorBoundary";
 import { ProvenanceSectionNav } from "@/components/provenance/ProvenanceSectionNav";
@@ -30,7 +31,7 @@ import {
 } from "@/components/ui/enterprise-table";
 import { Input } from "@/components/ui/input";
 import { StatusTag } from "@/components/ui/status-tag";
-import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { shouldOmitClaimDisciplineBand } from "@/lib/claim-discipline-policy";
 import { buyerTrailEdgeDisplayPhrase } from "@/lib/graph-mapper";
 import {
@@ -123,9 +124,9 @@ export function ProvenancePageWorkspace(props: ProvenancePageWorkspaceProps): Re
   } = useProvenancePageWorkspace(props);
 
   return (
-    <div className="w-full max-w-[1160px] p-4 print:w-full" data-testid="provenance-page-workspace">
-      <div className="flex flex-col gap-8 xl:flex-row xl:items-start xl:gap-10">
-        <article className="min-w-0 flex-1 space-y-6 text-neutral-800 dark:text-neutral-200">
+    <OperatorPageContainer variant="dashboard" className="print:w-full" data-testid="provenance-page-workspace">
+      <div className={cn("flex flex-col xl:flex-row xl:items-start", OPERATOR_LAYOUT.unrelatedClusterGap, "xl:gap-6")}>
+        <article className={cn("min-w-0 flex-1 text-neutral-800 dark:text-neutral-200", OPERATOR_LAYOUT.sectionStack)}>
           <ProvenanceSectionNav sections={sections} placement="inline-top" />
 
           {dataOrigin === "sample" ? <OperatorDemoStaticBanner emphasizeSampleData /> : null}
@@ -712,6 +713,6 @@ export function ProvenancePageWorkspace(props: ProvenancePageWorkspaceProps): Re
           transition: background 0.3s ease;
         }
       `}</style>
-    </div>
+    </OperatorPageContainer>
   );
 }

@@ -29,6 +29,7 @@ import { PolicyPacksPageHeader } from "./PolicyPacksPageHeader";
 import { PolicyPacksRegisteredListSection } from "./PolicyPacksRegisteredListSection";
 import { PolicyPacksWorkspaceSelectionSection } from "./PolicyPacksWorkspaceSelectionSection";
 import { PolicyPacksAdvancedAuthoringPanel } from "./PolicyPacksAdvancedAuthoringPanel";
+import { OperatorRelatedSurfacesDisclosure } from "@/components/operator/OperatorRelatedSurfacesDisclosure";
 import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { OperatorSuccessCallout } from "@/components/operator/OperatorSuccessCallout";
@@ -102,10 +103,12 @@ export function PolicyPacksPageView(props: Props) {
             density="compact"
             className="mb-3"
           />
-          <PolicyPacksStandardsVocabularyRail currentSurfaceId="policy-packs" />
-          <PatternLibraryPolicyPacksVocabularyRail currentSurfaceId="policy-packs" />
-          <PolicyPackDetailHubVocabularyRail currentSurfaceId="policy-packs" policyPackId={m.selectedPackId} />
-          <GovernanceSetupConfigHubsVocabularyRail currentSurfaceId="policy-packs" />
+          <OperatorRelatedSurfacesDisclosure testId="policy-packs-related-surfaces-disclosure">
+            <PolicyPacksStandardsVocabularyRail currentSurfaceId="policy-packs" />
+            <PatternLibraryPolicyPacksVocabularyRail currentSurfaceId="policy-packs" />
+            <PolicyPackDetailHubVocabularyRail currentSurfaceId="policy-packs" policyPackId={m.selectedPackId} />
+            <GovernanceSetupConfigHubsVocabularyRail currentSurfaceId="policy-packs" />
+          </OperatorRelatedSurfacesDisclosure>
         </>
       )}
 

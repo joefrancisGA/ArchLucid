@@ -680,7 +680,7 @@ export function GovernanceWorkflowPageContent() {
           ) : null}
 
           <div
-            className={cn("flex flex-col gap-10", !canMutateWorkflow && "flex-col-reverse")}
+            className={cn("flex flex-col gap-6", !canMutateWorkflow && "flex-col-reverse")}
             data-testid="governance-workflow-review-context-stack"
           >
           <div ref={submitSectionRef}>
@@ -705,12 +705,12 @@ export function GovernanceWorkflowPageContent() {
             />
           </div>
 
-          <Separator className="mb-10" />
+          <Separator className="mb-6" />
 
           <section
             ref={approvalsSectionRef}
             id="governance-approval-requests"
-            className="mb-10"
+            className="mb-6"
             data-testid="governance-approval-requests-section"
           >
             {showingStaticDemoGovernanceRecords ? (
@@ -761,10 +761,10 @@ export function GovernanceWorkflowPageContent() {
 
           {buyerPolishedShell ? null : (
             <>
-              <Separator className="mb-10" />
+              <Separator className="mb-6" />
 
               <div data-testid="governance-workflow-advanced-options">
-                <AdvancedOptionsAccordionDeferred triggerLabel={GOVERNANCE_WORKFLOW_ENVIRONMENT_RELEASES_ACCORDION_LABEL} className="mb-10">
+                <AdvancedOptionsAccordionDeferred triggerLabel={GOVERNANCE_WORKFLOW_ENVIRONMENT_RELEASES_ACCORDION_LABEL} className="mb-6">
                   <GovernanceWorkflowPromotionsActivationsSectionDeferred
                     canMutateWorkflow={canMutateWorkflow}
                     listsLoading={listsLoading}

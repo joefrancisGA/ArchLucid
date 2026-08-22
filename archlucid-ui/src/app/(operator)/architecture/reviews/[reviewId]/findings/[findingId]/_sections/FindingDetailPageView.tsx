@@ -19,6 +19,7 @@ import { FindingExplainPanel } from "@/components/FindingExplainPanel";
 import { SponsorPlainEnglishFindingPanel } from "@/components/findings/SponsorPlainEnglishFindingPanel";
 import { FindingExplainabilityTracePanel } from "@/components/findings/FindingExplainabilityTracePanel";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorEvidenceLimitsFooter } from "@/components/operator/OperatorEvidenceLimitsFooter";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
@@ -39,7 +40,7 @@ import { findingSeverityAudienceCopy } from "@/lib/findings/finding-explainabili
 import { getShowcaseManifestHref } from "@/lib/buyer/buyer-safe-review-navigation";
 import { isNextPublicDemoMode, isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
 import { isDemoRunIdEligibleForStaticFallback } from "@/lib/operator/operator-static-demo";
-import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { DESIGN_TOKENS, OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { getFindingEvidenceTraceHref } from "@/lib/findings/finding-evidence-navigation";
 import { graphEvidenceHrefFromInspect } from "@/lib/findings/finding-inspect-graph-evidence";
 import {
@@ -178,7 +179,7 @@ export function FindingDetailPageView(props: Props) {
       : findingDetailLeadFallback(decodedFindingId);
 
   return (
-    <div className="w-full max-w-[1440px] space-y-4 p-4">
+    <OperatorPageContainer variant="dashboard" className={OPERATOR_LAYOUT.sectionStack}>
       {showBuyerPolishedBody ? (
         <a
           href={`#${FINDING_DETAIL_PRIMARY_CONTENT_ID}`}
@@ -644,6 +645,6 @@ export function FindingDetailPageView(props: Props) {
             : null
         }
       />
-    </div>
+    </OperatorPageContainer>
   );
 }

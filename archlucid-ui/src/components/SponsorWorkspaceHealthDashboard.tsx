@@ -216,7 +216,7 @@ export function SponsorWorkspaceHealthDashboard() {
 
   if (isLoading) {
     return (
-      <div className="w-full max-w-[1440px] space-y-4">
+      <div className="space-y-4">
         {layerHeader}
         <SponsorWorkspaceHealthPageHero buyerPolishedShell={buyerPolishedShell} />
         <TenantSystemWorkspaceHealthVocabularyRail currentSurfaceId="workspace-health" />
@@ -229,7 +229,7 @@ export function SponsorWorkspaceHealthDashboard() {
 
   if (loadError !== null) {
     return (
-      <div className="w-full max-w-[1440px] space-y-4">
+      <div className="space-y-4">
         {layerHeader}
         <SponsorWorkspaceHealthPageHero buyerPolishedShell={buyerPolishedShell} />
         <TenantSystemWorkspaceHealthVocabularyRail currentSurfaceId="workspace-health" />
@@ -335,7 +335,7 @@ export function SponsorWorkspaceHealthDashboard() {
     );
 
   return (
-    <div className="w-full max-w-[1440px] space-y-4">
+    <div className="space-y-4">
       {layerHeader}
 
       <SponsorWorkspaceHealthPageHero buyerPolishedShell={buyerPolishedShell} />
