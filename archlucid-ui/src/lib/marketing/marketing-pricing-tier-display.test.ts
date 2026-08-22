@@ -51,7 +51,7 @@ describe("marketing-pricing-tier-display", () => {
   });
 
   it("exposes a fit qualifier for the recommended professional tier", () => {
-    expect(resolveMarketingTierFitQualifier("professional")).toBe("Governance program");
+    expect(resolveMarketingTierFitQualifier("professional")).toBe("Approval program");
     expect(resolveMarketingTierFitQualifier("team")).toBeNull();
   });
 

@@ -51,7 +51,7 @@ export const DRAFT_TOUR_STEPS: readonly OptInTourStep[] = [
       "Finalize to produce your architecture snapshot — the reviewed package you can export and share.",
   },
   {
-    title: "5. Governance and alerts",
+    title: "5. Approval and alerts",
     body:
       "After finalizing your first review, dashboards and alerts can highlight policy gaps and approval queues. These are " +
       "available when you are ready — they are not required for a successful first pilot.",

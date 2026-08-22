@@ -55,7 +55,7 @@ export const BUYER_COMMAND_PALETTE_CURATED_TASKS: readonly CuratedPaletteTask[] 
     // Same page the sidebar and route title call "Findings" — retired wording stays searchable below.
     label: OPERATOR_NAV_LINK_LABELS.findings,
     href: "/governance/findings",
-    searchValue: "findings risks dispositions review records governance queue",
+    searchValue: "findings risks dispositions review records findings queue",
   },
   {
     label: BUYER_COMPARE_OPEN_FULL_LINK_LABEL,

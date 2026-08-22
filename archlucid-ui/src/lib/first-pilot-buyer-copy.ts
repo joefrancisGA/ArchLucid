@@ -3,7 +3,7 @@ export const FIRST_PILOT_BUYER_COPY = {
   architectureReview: "architecture review",
   sampleArchitectureReview: "example architecture review",
   proofPipelineAction: "Generate the proof export for sign-off review",
-  governanceDryRun: "preview governance checks against the policy pack",
+  governanceDryRun: "preview policy checks against the policy pack",
   ingestEvidenceWithoutUpload:
     "Add a brief, documents, diagrams, or IaC — or upload a cloud inventory ZIP (AWS, Azure, or GCP) for production-faithful evidence. Open the example package to preview outputs before your own upload.",
 } as const;

@@ -28,10 +28,10 @@ export const ARCHITECTURE_INTELLIGENCE_CONTEXTUAL_HELP_ROWS: readonly PageContex
     entry: {
       whatIsThisPage: `Architecture intelligence — ${ARCHITECTURE_INTELLIGENCE_HELP_TOPIC_LABEL.toLowerCase()} and when to publish findings or start a review.`,
       whatToDoNext:
-        "Open architecture intelligence to run reasoning, then follow findings or review intake when output needs governance trails.",
+        "Open architecture intelligence to run reasoning, then follow findings or review intake when output needs approval trails.",
       whyEmpty: "This guide is always available; reasoning results appear after you submit a description and run a check.",
       whereToConfigurePrerequisite:
-        "Findings help covers triage when published output enters the governance queue.",
+        "Findings help covers triage when published output enters the findings queue.",
       whatToDoNextAction: {
         label: "Open architecture intelligence",
         href: ARCHITECTURE_INTELLIGENCE_CANONICAL_PATH,

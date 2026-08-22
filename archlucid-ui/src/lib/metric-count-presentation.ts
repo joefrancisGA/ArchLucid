@@ -28,7 +28,7 @@ const SCOPE_LABELS: Record<MetricCountScopeKind, string> = {
   workspace: "workspace",
   "this-review": "this review",
   "findings-tab": "findings tab",
-  "governance-filter": "governance queue",
+  "governance-filter": "findings queue",
 };
 
 const FILTER_SCOPE_LABELS: Partial<Record<RiskRegisterFilter, string>> = {
