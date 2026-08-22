@@ -130,7 +130,7 @@ describe("ReviewsHubReviewInventory", () => {
 
     expect(screen.getByRole("columnheader", { name: "Pinned" })).toBeInTheDocument();
     expect(screen.getByRole("columnheader", { name: "Review" })).toBeInTheDocument();
-    expect(screen.getByRole("columnheader", { name: "Architecture / system" })).toBeInTheDocument();
+    expect(screen.getByRole("columnheader", { name: "Architecture" })).toBeInTheDocument();
     expect(screen.getByRole("columnheader", { name: "Approval" })).toBeInTheDocument();
     expect(screen.getByRole("columnheader", { name: "Risks" })).toBeInTheDocument();
     expect(screen.getByTestId("reviews-hub-row-review-001")).toBeInTheDocument();

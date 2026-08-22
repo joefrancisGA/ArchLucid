@@ -26,7 +26,7 @@ import { StatusTag } from "@/components/ui/status-tag";
 import { useArchitectureDraftRegistryEntries } from "@/hooks/use-architecture-draft-registry-entries";
 import { showcaseSampleReviewPackageHref } from "@/lib/showcase-sample-review-registry";
 import { buyerFilterChipClass } from "@/lib/buyer/buyer-shell-home-present";
-import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { finiteIntegerCountDisplay } from "@/lib/finite-count-display";
 import {
   ARCHLUCID_OPERATOR_SCOPE_CHANGED_EVENT,
@@ -254,7 +254,7 @@ function ReviewsHubInventoryTableHead(): React.JSX.Element {
           <ReviewPinGlyph filled={false} className="h-3.5 w-3.5 text-al-text-secondary" />
         </EnterpriseTableHeaderCell>
         <EnterpriseTableHeaderCell>Review</EnterpriseTableHeaderCell>
-        <EnterpriseTableHeaderCell>Architecture / system</EnterpriseTableHeaderCell>
+        <EnterpriseTableHeaderCell>Architecture</EnterpriseTableHeaderCell>
         <EnterpriseTableHeaderCell>Status</EnterpriseTableHeaderCell>
         <EnterpriseTableHeaderCell>Approval</EnterpriseTableHeaderCell>
         <EnterpriseTableHeaderCell>Stage</EnterpriseTableHeaderCell>
@@ -337,7 +337,7 @@ export function ReviewsHubReviewInventory(props: ReviewsHubReviewInventoryProps)
           )}
         </div>
       ) : (
-        <>
+        <div className={OPERATOR_LAYOUT.sectionStack}>
           <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
             <div className="w-full max-w-md">
               <Input
@@ -380,7 +380,7 @@ export function ReviewsHubReviewInventory(props: ReviewsHubReviewInventoryProps)
           {useVirtualization ? (
             <div
               ref={parentRef}
-              className="mt-3 max-h-[min(32rem,70vh)] overflow-auto rounded-lg border border-neutral-200 dark:border-neutral-800"
+              className="max-h-[min(32rem,70vh)] overflow-auto rounded-lg border border-neutral-200 dark:border-neutral-800"
               data-testid="reviews-hub-packages-virtualized"
             >
               <EnterpriseTable
@@ -426,11 +426,11 @@ export function ReviewsHubReviewInventory(props: ReviewsHubReviewInventoryProps)
           )}
 
           {filteredRuns.length === 0 ? (
-            <p className={cn("mt-3 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} role="status">
+            <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} role="status">
               No reviews match the current search or filters.
             </p>
           ) : null}
-        </>
+        </div>
       )}
     </section>
   );
