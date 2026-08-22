@@ -10,7 +10,6 @@ import { useEffect, useRef, useState } from "react";
 import { HelpDrawerContent } from "@/components/help/HelpDrawerContent";
 import {
   Dialog,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -158,6 +157,7 @@ export function PageScopedContextualHelpPanel({
         modal={false}
         closeAriaLabel="Close help"
         aria-label={dialogLabel}
+        aria-describedby={undefined}
         data-testid="page-scoped-contextual-help-panel"
         onPointerDownOutside={(event) => {
           // Keep the current page usable while the operator follows the steps.
@@ -167,13 +167,10 @@ export function PageScopedContextualHelpPanel({
           event.preventDefault();
         }}
       >
-        <DialogHeader className="shrink-0 space-y-1 border-b border-neutral-200 px-5 pb-3 pt-5 pr-12 text-left dark:border-neutral-800">
+        <DialogHeader className="shrink-0 border-b border-neutral-200 px-5 pb-3 pt-5 pr-12 text-left dark:border-neutral-800">
           <DialogTitle className={cn("text-left", OPERATOR_TYPOGRAPHY.sectionTitle)}>
             {triggerLabel}
           </DialogTitle>
-          <DialogDescription className="text-left">
-            Guidance for this page. The current page stays open.
-          </DialogDescription>
         </DialogHeader>
 
         <div className="min-h-0 flex-1 space-y-4 overflow-y-auto px-5 py-4">

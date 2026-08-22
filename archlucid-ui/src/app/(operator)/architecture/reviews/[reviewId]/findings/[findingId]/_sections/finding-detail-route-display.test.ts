@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import type { FindingInspectPayload } from "@/types/finding-inspect";
 
-import { BUYER_SHOWCASE_RESIDUAL_RISK_NEXT_REVIEW } from "@/lib/buyer/buyer-polish-copy";
+import { resolveBuyerShowcaseResidualRiskNextReviewIso } from "@/lib/buyer/buyer-polish-copy";
 
 import {
   buyerFindingDecisionImpactCopy,
@@ -43,7 +43,7 @@ describe("finding-detail-route-display buyer summary copy", () => {
     expect(summary.disposition).toContain("monitoring");
     expect(summary.businessImpact).toContain("Non-blocking");
     expect(summary.requiredMonitoring.length).toBeGreaterThan(0);
-    expect(summary.nextReview).toBe(BUYER_SHOWCASE_RESIDUAL_RISK_NEXT_REVIEW);
+    expect(summary.nextReview).toBe(resolveBuyerShowcaseResidualRiskNextReviewIso(new Date("2026-08-22T12:00:00Z")));
     expect(summary.riskOwner.length).toBeGreaterThan(0);
   });
 

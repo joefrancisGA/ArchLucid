@@ -6,6 +6,7 @@ import { renderWithOperatorQuery } from "@/testing/render-with-operator-query";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import {
   OPERATOR_HOME_COMMAND_CENTER_TAGLINE,
+  OPERATOR_HOME_DRAFT_ARCHITECTURE_EYEBROW,
   OPERATOR_HOME_INTENT_CHOOSER_HEADING,
   OPERATOR_HOME_OPEN_SAMPLE_PACKAGE_CTA,
   OPERATOR_HOME_RESUME_LATEST_DRAFT_CTA,
@@ -231,6 +232,9 @@ describe("PilotCommandCenterCard", () => {
     expect(
       screen.getByRole("heading", { level: 2, name: "Claims intake" }),
     ).toBeInTheDocument();
+    expect(screen.getByTestId("operator-home-draft-hero-labels")).toHaveTextContent(
+      `${OPERATOR_HOME_DRAFT_ARCHITECTURE_EYEBROW} — Updated`,
+    );
     expect(screen.getByTestId("operator-home-resume-draft-primary")).toHaveAttribute(
       "href",
       "/architecture/architectures/draft-001",

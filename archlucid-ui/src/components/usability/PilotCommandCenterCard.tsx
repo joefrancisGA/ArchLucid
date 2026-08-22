@@ -267,16 +267,14 @@ export function PilotCommandCenterCard(props: PilotCommandCenterCardProps = {}):
 
       {workspacePhase === "eval-with-drafts" ? (
         <div className={cn("space-y-4", OPERATOR_LAYOUT.inlineGap)}>
-          <div className="flex flex-wrap items-center gap-2" data-testid="operator-home-draft-hero-labels">
-            <p className={cn("m-0", OPERATOR_TYPE_SCALE.micro, "text-al-text-secondary")}>
-              {OPERATOR_HOME_DRAFT_ARCHITECTURE_EYEBROW}
-            </p>
-            {draftLastEditedLabel !== null ? (
-              <p className={cn("m-0", OPERATOR_TYPE_SCALE.micro, "text-al-text-secondary")}>
-                {draftLastEditedLabel}
-              </p>
-            ) : null}
-          </div>
+          <p
+            className={cn("m-0", OPERATOR_TYPE_SCALE.micro, "text-al-text-secondary")}
+            data-testid="operator-home-draft-hero-labels"
+          >
+            {draftLastEditedLabel !== null
+              ? `${OPERATOR_HOME_DRAFT_ARCHITECTURE_EYEBROW} — ${draftLastEditedLabel}`
+              : OPERATOR_HOME_DRAFT_ARCHITECTURE_EYEBROW}
+          </p>
           {resumeHref !== null ? (
             <div
               className={cn(

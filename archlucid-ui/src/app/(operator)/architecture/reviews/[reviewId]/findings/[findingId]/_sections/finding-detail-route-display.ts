@@ -113,14 +113,14 @@ export function resolveFindingNextReviewLabel(
 
   if (dueLabel !== null) {
     if (showcasePhi && isPastRemediationDueUtc(payload?.remediationDueUtc)) {
-      return BUYER_SHOWCASE_RESIDUAL_RISK_NEXT_REVIEW;
+      return resolveBuyerShowcaseResidualRiskNextReviewIso();
     }
 
     return dueLabel;
   }
 
   if (showcasePhi) {
-    return BUYER_SHOWCASE_RESIDUAL_RISK_NEXT_REVIEW;
+    return resolveBuyerShowcaseResidualRiskNextReviewIso();
   }
 
   return NO_REMEDIATION_DUE_RECORDED;

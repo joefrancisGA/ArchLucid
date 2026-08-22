@@ -31,6 +31,7 @@ public static class AuthSignInReturnPathGuard
     {
         if (!candidate.StartsWith("/", StringComparison.Ordinal)
             || ContainsProtocolRelativeTraversal(candidate)
+            || ContainsSlashHomoglyph(candidate)
             || candidate.Contains('\\', StringComparison.Ordinal)
             || candidate.Contains('@', StringComparison.Ordinal)
             || candidate.Contains("://", StringComparison.Ordinal))
@@ -111,6 +112,7 @@ public static class AuthSignInReturnPathGuard
                 break;
 
             if (ContainsProtocolRelativeTraversal(decoded)
+                || ContainsSlashHomoglyph(decoded)
                 || decoded.Contains('\\', StringComparison.Ordinal)
                 || decoded.Contains('@', StringComparison.Ordinal)
                 || decoded.Contains("://", StringComparison.Ordinal))
@@ -145,4 +147,25 @@ public static class AuthSignInReturnPathGuard
 
         return false;
     }
+
+    private static bool ContainsSlashHomoglyph(string candidate)
+    {
+        foreach (char ch in candidate)
+        {
+            if (IsSlashHomoglyph(ch))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    // Browsers may normalize these to "/" or "\\" and treat the path as protocol-relative.
+    private static bool IsSlashHomoglyph(char ch) =>
+        ch == '\uFF0F' // ／ FULLWIDTH SOLIDUS
+        || ch == '\uFF3C' // ＼ FULLWIDTH REVERSE SOLIDUS
+        || ch == '\u2215' // ∕ DIVISION SLASH
+        || ch == '\u2044' // ⁄ FRACTION SLASH
+        || ch == '\uFE68'; // ﹨ SMALL REVERSE SOLIDUS
 }

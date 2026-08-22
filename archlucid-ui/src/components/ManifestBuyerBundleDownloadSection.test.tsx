@@ -12,7 +12,7 @@ describe("ManifestBuyerBundleDownloadSection", () => {
     const region = screen.getByTestId("manifest-buyer-bundle-download");
     expect(region.tagName).toBe("DETAILS");
     expect(region).toHaveAttribute("id", "manifest-bundle-zip");
-    expect(screen.getByText(BUYER_MANIFEST_BUNDLE_DOWNLOAD_DETAILS_SUMMARY)).toBeInTheDocument();
+    expect(region.querySelector("summary")).toHaveTextContent(BUYER_MANIFEST_BUNDLE_DOWNLOAD_DETAILS_SUMMARY);
   });
 
   it("renders an open card when expanded for a tab panel", () => {

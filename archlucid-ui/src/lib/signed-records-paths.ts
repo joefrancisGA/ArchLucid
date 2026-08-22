@@ -55,7 +55,7 @@ export function signedRecordArtifactPath(manifestId: string, artifactId: string)
   return `${signedRecordDetailPath(manifestId)}/artifacts/${encodeURIComponent(artifactId.trim())}`;
 }
 
-/** Manifest record page section anchor (`#manifest-decisions`, …). */
+/** Manifest record page section anchor (`#manifest-decisions`, …). Buyer detail maps these hashes onto `?tab=`. */
 export function signedRecordSectionPath(manifestId: string, sectionId: string): string {
   return `${signedRecordDetailPath(manifestId)}#${sectionId.trim()}`;
 }

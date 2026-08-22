@@ -1,8 +1,9 @@
-import { render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { fireEvent, render, screen } from "@testing-library/react";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { BUYER_MANIFEST_AUTHORITY_SUMMARY } from "@/lib/buyer/buyer-polish-copy";
 import { OPERATOR_SHORT_HELPER_MEASURE_CLASS } from "@/lib/design-tokens";
+import { MANIFEST_DETAIL_TABLIST_ARIA_LABEL } from "@/lib/manifest-detail-section-tabs";
 import {
   SEALED_RECORD_DETAIL_PRIMARY_CONTENT_ID,
   SEALED_RECORD_DETAIL_SKIP_LINK_LABEL,
@@ -74,15 +75,20 @@ function buildModel(overrides: Partial<ManifestDetailPageSuccessModel> = {}): Ma
 }
 
 describe("ManifestDetailPageView buyer polish", () => {
-  it("renders skip link, governance breadcrumb, and claim orientation above body", () => {
+  afterEach(() => {
+    window.history.replaceState({}, "", "/");
+  });
+
+  it("renders skip link, section tabs, and claim orientation above the Decision panel", () => {
     render(<ManifestDetailPageView model={buildModel()} />);
 
     const skipLink = screen.getByRole("link", { name: SEALED_RECORD_DETAIL_SKIP_LINK_LABEL });
     expect(skipLink).toHaveAttribute("href", `#${SEALED_RECORD_DETAIL_PRIMARY_CONTENT_ID}`);
 
-    const breadcrumb = screen.getByRole("navigation", { name: "Breadcrumb" });
-    expect(breadcrumb).toHaveTextContent("Approval");
-    expect(breadcrumb).toHaveTextContent("Finalized review records");
+    expect(screen.queryByRole("navigation", { name: "On this page" })).not.toBeInTheDocument();
+    expect(screen.getByRole("tablist", { name: MANIFEST_DETAIL_TABLIST_ARIA_LABEL })).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: "Decision" })).toHaveAttribute("aria-selected", "true");
+    expect(screen.getByRole("tab", { name: "Evidence" })).toHaveAttribute("aria-selected", "false");
 
     expect(screen.queryByRole("heading", { name: "What this finalized review record is not" })).not.toBeInTheDocument();
     expect(screen.getByTestId("sealed-record-detail-sources")).toBeInTheDocument();
@@ -90,9 +96,24 @@ describe("ManifestDetailPageView buyer polish", () => {
     const orientation = screen.getByTestId("sealed-record-detail-orientation-top");
     const primary = screen.getByTestId("sealed-record-detail-primary-content");
     const summary = screen.getByTestId("manifest-summary");
+    const tabs = screen.getByTestId("manifest-detail-section-tabs");
 
     expect(primary).toContainElement(orientation);
-    expect(orientation.compareDocumentPosition(summary) & Node.DOCUMENT_POSITION_PRECEDING).toBeTruthy();
+    expect(orientation.compareDocumentPosition(tabs) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(orientation.compareDocumentPosition(summary) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
+  it("keeps deliverables off the first viewport until Evidence is selected", () => {
+    render(<ManifestDetailPageView model={buildModel()} />);
+
+    expect(screen.queryByTestId("deliverable-grid")).not.toBeInTheDocument();
+    expect(screen.getByTestId("evidence-footer")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("tab", { name: "Evidence" }));
+
+    expect(screen.getByTestId("deliverable-grid")).toBeInTheDocument();
+    expect(screen.queryByTestId("manifest-summary")).not.toBeInTheDocument();
+    expect(screen.getByTestId("evidence-footer")).toBeInTheDocument();
   });
 
   it("lets the authority hero use the work-surface width instead of a prose cap", () => {

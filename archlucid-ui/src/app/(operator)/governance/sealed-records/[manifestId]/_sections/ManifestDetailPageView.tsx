@@ -1,4 +1,4 @@
-import { DELIVERABLES_BUNDLE_LABEL } from "@/lib/usability/canonical-product-terms";
+﻿import { DELIVERABLES_BUNDLE_LABEL } from "@/lib/usability/canonical-product-terms";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 
@@ -65,7 +65,7 @@ type ManifestDetailPageViewProps = {
   readonly initialTab?: ManifestDetailSectionTabId;
 };
 
-/** Server-rendered success layout: manifest summary, findings card, artifacts, footer. */
+/** Server-rendered success layout: header chrome, section tabs, evidence footer. */
 export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
   const model = props.model;
   const { manifestId, buyerPolishedLayout, summary, artifacts } = model;
@@ -490,132 +490,6 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
           {deliverablesCard}
         </>
       )}
-
-      {buyerPolishedLayout ? null : (
-      <Card unused-placeholder="remove">
-        id={buyerPolishedLayout ? "manifest-deliverables" : undefined}
-        className={buyerPolishedLayout ? "scroll-mt-24" : undefined}
-      >
-        <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-          <div className="min-w-0 flex-1 space-y-1.5">
-            <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>
-              {buyerPolishedLayout ? "Deliverables" : "Generated artifacts"}
-            </CardTitle>
-            <CardDescription>
-              {buyerPolishedLayout
-                ? "These deliverables package the sponsor decision, architecture review board record, and audit evidence for sign-off and diligence. Rows below list individual deliverable artifacts — prefer the consolidated package download when your workspace publishes a full bundle."
-                : "Outputs produced during this review — available for preview and download."}
-            </CardDescription>
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {!buyerPolishedLayout ? (
-            <div>
-              <Button variant="outline" size="sm" asChild>
-                <a href={getBundleDownloadUrl(manifestId)}>Download bundle (ZIP)</a>
-              </Button>
-            </div>
-          ) : null}
-
-          {model.artifactsFailure && (
-            <>
-              <p className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
-                {buyerPolishedLayout ? "Deliverables list could not be loaded." : "Artifact list could not be loaded."}
-              </p>
-              <OperatorApiProblem
-                problem={model.artifactsFailure.problem}
-                fallbackMessage={model.artifactsFailure.message}
-                correlationId={model.artifactsFailure.correlationId}
-                variant="warning"
-              />
-              <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-                {buyerPolishedLayout ? (
-                  <>
-                    Try reloading, or return to the review. You can still use Download finalized review when the
-                    bundle is available.
-                  </>
-                ) : (
-                  <>
-                    Try reloading, or return to the review detail page. You can still use Download bundle (ZIP) if the list
-                    endpoint is unavailable.
-                  </>
-                )}
-              </p>
-            </>
-          )}
-
-          {!model.artifactsFailure && model.artifactsMalformed && (
-            <>
-              <OperatorMalformedCallout>
-                <strong>
-                  {buyerPolishedLayout
-                    ? "Deliverables response was not usable."
-                    : "Artifact list response was not usable."}
-                </strong>
-                <p className="mt-2">{model.artifactsMalformed}</p>
-              </OperatorMalformedCallout>
-              <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-                {buyerPolishedLayout
-                  ? "Try reloading, or return to the review. ZIP download may still work."
-                  : "Try reloading, or return to the review detail page. Bundle download may still work."}
-              </p>
-            </>
-          )}
-
-          {!model.artifactsFailure && !model.artifactsMalformed && artifacts.length === 0 && (
-            <EnterpriseCompactEmptyState
-              {...MANIFEST_ARTIFACTS_LIST_EMPTY_COMPACT}
-              title={buyerPolishedLayout ? BUYER_MANIFEST_NO_DELIVERABLES_YET : MANIFEST_ARTIFACTS_LIST_EMPTY_COMPACT.title}
-              description={
-                buyerPolishedLayout ? (
-                  <p className="m-0">{BUYER_MANIFEST_DOWNLOAD_PREPARING}</p>
-                ) : (
-                  <>
-                    <p className="m-0">{MANIFEST_ARTIFACTS_LIST_EMPTY_COMPACT.description}</p>
-                    <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-                      This is a <strong>valid empty result</strong> (HTTP 200 with an empty list), not a failed artifact-list
-                      request. <strong>Bundle ZIP may return 404</strong> when no packaged bundle exists yet.
-                    </p>
-                  </>
-                )
-              }
-            />
-          )}
-
-          {!model.artifactsFailure && !model.artifactsMalformed && artifacts.length > 0 && buyerPolishedLayout ? (
-            <details className="group rounded-md border border-neutral-200/90 bg-neutral-50/40 p-3 dark:border-neutral-800 dark:bg-neutral-950/30">
-              <summary
-                className={cn(
-                  "cursor-pointer select-none text-al-text-primary outline-none marker:text-al-text-secondary focus-visible:ring-2 focus-visible:ring-teal-500/80",
-                  OPERATOR_DISCLOSURE_TRIGGER_CLASS,
-                )}
-              >
-                Show deliverable artifacts ({artifacts.length})
-              </summary>
-              <div className="mt-4">
-                <ArtifactListTable
-                  manifestId={manifestId}
-                  artifacts={artifacts}
-                  sponsorMode={buyerPolishedLayout}
-                  audienceSections={buyerPolishedLayout}
-                />
-              </div>
-            </details>
-          ) : null}
-          {!model.artifactsFailure && !model.artifactsMalformed && artifacts.length > 0 && !buyerPolishedLayout ? (
-            <ArtifactListTable
-              manifestId={manifestId}
-              artifacts={artifacts}
-              sponsorMode={buyerPolishedLayout}
-              audienceSections={buyerPolishedLayout}
-            />
-          ) : null}
-        </CardContent>
-      </Card>
-
-      {buyerPolishedLayout ? <ManifestBuyerBundleDownloadSection manifestId={manifestId} /> : null}
-
-      {diligenceAskCard}
 
       <OperatorEvidenceLimitsFooter
         runId={summary.runId}

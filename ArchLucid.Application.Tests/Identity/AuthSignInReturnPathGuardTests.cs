@@ -60,4 +60,13 @@ public sealed class AuthSignInReturnPathGuardTests
 
         AuthSignInReturnPathGuard.TryNormalize($"/welcome{payload}").Should().BeNull();
     }
+
+    [Theory]
+    [InlineData("/\uFF0F\uFF0Fevil.example")]
+    [InlineData("/%EF%BC%8F%EF%BC%8Fevil.example")]
+    [InlineData("/\uFF3C\uFF3Cevil.example")]
+    public void TryNormalize_rejects_unicode_slash_homoglyph_protocol_relative_paths(string path)
+    {
+        AuthSignInReturnPathGuard.TryNormalize(path).Should().BeNull();
+    }
 }

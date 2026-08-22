@@ -1,5 +1,4 @@
-import { render, screen } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
 
 import { MANIFEST_DETAIL_TABLIST_ARIA_LABEL } from "@/lib/manifest-detail-section-tabs";
@@ -33,11 +32,10 @@ describe("ManifestDetailSectionTabs", () => {
     expect(screen.queryByTestId("slot-diligence")).not.toBeInTheDocument();
   });
 
-  it("switches the visible panel when a tab is selected", async () => {
-    const user = userEvent.setup();
+  it("switches the visible panel when a tab is selected", () => {
     renderTabs();
 
-    await user.click(screen.getByRole("tab", { name: "Evidence" }));
+    fireEvent.click(screen.getByRole("tab", { name: "Evidence" }));
 
     expect(screen.getByRole("tab", { name: "Evidence" })).toHaveAttribute("aria-selected", "true");
     expect(screen.getByTestId("slot-evidence")).toBeInTheDocument();
