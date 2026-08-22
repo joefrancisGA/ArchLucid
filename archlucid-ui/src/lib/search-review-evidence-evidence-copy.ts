@@ -13,7 +13,7 @@ export const SEARCH_REVIEW_EVIDENCE_CLAIM_DISCIPLINE =
 export const SEARCH_REVIEW_EVIDENCE_CLAIM_HEADING = "Retrieval launcher only" as const;
 
 export const SEARCH_REVIEW_EVIDENCE_SOURCES_INTRO =
- "Use these follow-ups when search hits need review context, evidence trails, or governance queues.";
+ "Use these follow-ups when search hits need review context, evidence trails, or findings queue.";
 
 
 /** Operator Sources — no self-href to search-review-evidence. */

@@ -37,7 +37,7 @@ export function OperatorHomeExampleRequestPanel(): React.JSX.Element | null {
     >
       <CardHeader className={OPERATOR_CARD.header}>
         <CardTitle className={cn(OPERATOR_TYPE_SCALE.cardTitle, "text-neutral-900 dark:text-neutral-100")}>
-          Example request
+          Sample request
         </CardTitle>
         <p className={cn("m-0", OPERATOR_TYPE_SCALE.helper, "text-neutral-600 dark:text-neutral-400")}>
           {OPERATOR_HOME_EXAMPLE_DESCRIPTION}

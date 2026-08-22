@@ -94,7 +94,7 @@ export const PAGE_CAPABILITY_BOUNDARY_ADVISORY_SCANS: PageCapabilityBoundary = {
   items: [
     "Automatically remediate findings or cloud configuration.",
     "Finalize architecture packages or create finalized review records.",
-    "Replace the governance findings queue or Decision register.",
+    "Replace the findings queue or Decision register.",
     "Author or publish policy packs from a scan recommendation.",
   ],
 };

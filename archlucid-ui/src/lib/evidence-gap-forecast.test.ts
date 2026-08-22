@@ -5,9 +5,11 @@ import {
   deriveEvidencePresenceFromFileNames,
   deriveEvidencePresenceFromInventoryKinds,
   EVIDENCE_COVERAGE_CLASS_COUNT,
+  EVIDENCE_COVERAGE_DOCUMENT_ATTACHED_SUMMARY,
   formatEvidenceGapForecastHeadline,
   listEvidenceCoverageReferenceRows,
   summarizeEvidenceCoverage,
+  usesDocumentAttachedCoverageSummary,
   type EvidencePresenceFlags,
 } from "@/lib/evidence-gap-forecast";
 
@@ -103,6 +105,7 @@ describe("summarizeEvidenceCoverage", () => {
 
     expect(summary.missingCount).toBe(0);
     expect(summary.thinnerDomains).toEqual([]);
+    expect(summary.usesDocumentAttachedSummary).toBe(false);
     expect(summary.summaryLine).toBe("All 5 evidence classes present — no expected coverage gaps.");
   });
 
@@ -110,7 +113,28 @@ describe("summarizeEvidenceCoverage", () => {
     const summary = summarizeEvidenceCoverage(NO_EVIDENCE);
 
     expect(summary.presentCount).toBe(0);
+    expect(summary.usesDocumentAttachedSummary).toBe(false);
     expect(summary.thinnerDomains).toEqual(["cost", "resilience", "security", "decisions"]);
+  });
+
+  it("uses document-attached summary instead of 0-of-5 counts for generic uploads", () => {
+    const fileNames = ["ARCHITECTURAL_HANDBOOK_20240428.docx"];
+    const presence = deriveEvidencePresenceFromFileNames(fileNames);
+    const summary = summarizeEvidenceCoverage(presence, { attachmentFileNames: fileNames });
+
+    expect(presence.hasArchitectureBrief).toBe(true);
+    expect(summary.usesDocumentAttachedSummary).toBe(true);
+    expect(summary.summaryLine).toBe(EVIDENCE_COVERAGE_DOCUMENT_ATTACHED_SUMMARY);
+    expect(summary.summaryLine).not.toContain("0 of 5");
+  });
+
+  it("falls back to numeric summary when a specialist file is attached alongside a document", () => {
+    const fileNames = ["ARCHITECTURAL_HANDBOOK_20240428.docx", "main.tf"];
+    const presence = deriveEvidencePresenceFromFileNames(fileNames);
+    const summary = summarizeEvidenceCoverage(presence, { attachmentFileNames: fileNames });
+
+    expect(summary.usesDocumentAttachedSummary).toBe(false);
+    expect(summary.summaryLine).toContain("2 of 5 evidence classes present");
   });
 });
 
@@ -148,6 +172,57 @@ describe("deriveEvidencePresenceFromFileNames", () => {
     expect(presence.hasInfrastructureAsCode).toBe(true);
     expect(presence.hasArchitectureBrief).toBe(true);
     expect(presence.hasArchitectureDiagram).toBe(false);
+  });
+
+  it("treats generic architecture documents as the architecture-brief class", () => {
+    const presence = deriveEvidencePresenceFromFileNames([
+      "ARCHITECTURAL_HANDBOOK_20240428.docx",
+      "security-overview.pdf",
+    ]);
+
+    expect(presence.hasArchitectureBrief).toBe(true);
+    expect(presence.hasCloudInventory).toBe(false);
+  });
+});
+
+describe("usesDocumentAttachedCoverageSummary", () => {
+  it("returns true for generic document-only uploads", () => {
+    const fileNames = ["ARCHITECTURAL_HANDBOOK_20240428.docx"];
+    const presence = deriveEvidencePresenceFromFileNames(fileNames);
+
+    expect(
+      usesDocumentAttachedCoverageSummary({
+        attachmentFileNames: fileNames,
+        presence,
+      }),
+    ).toBe(true);
+  });
+
+  it("returns false when typed architecture context is already present", () => {
+    const fileNames = ["ARCHITECTURAL_HANDBOOK_20240428.docx"];
+    const presence = deriveEvidencePresenceFromFileNames(fileNames);
+
+    expect(
+      usesDocumentAttachedCoverageSummary({
+        attachmentFileNames: fileNames,
+        presence,
+        architectureContextPresent: true,
+      }),
+    ).toBe(false);
+  });
+});
+
+describe("formatEvidenceGapForecastHeadline", () => {
+  it("softens headlines when a generic document may already cover the topic", () => {
+    const entry = deriveEvidenceGapForecast(NO_EVIDENCE)[0];
+
+    expect(entry).toBeDefined();
+    expect(formatEvidenceGapForecastHeadline(entry!, { documentAttachedContext: true })).toContain(
+      "can still strengthen",
+    );
+    expect(formatEvidenceGapForecastHeadline(entry!, { documentAttachedContext: true })).not.toContain(
+      "Without",
+    );
   });
 });
 

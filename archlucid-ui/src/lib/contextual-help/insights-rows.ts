@@ -20,6 +20,11 @@ export const INSIGHTS_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] = [
         label: "Open Improvement planning",
         href: PLANNING_PATH,
       },
+      taskSteps: [
+        "Review plan status and linked themes.",
+        "Return to Improvement planning for peer plans.",
+        "Open reviews or findings when follow-up work is needed.",
+      ],
     },
   },
   {
@@ -35,6 +40,11 @@ export const INSIGHTS_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] = [
         label: "Open Pilot feedback",
         href: PRODUCT_LEARNING_PATH,
       },
+      taskSteps: [
+        "Capture review feedback or run pilot feedback analysis.",
+        "Review generated themes before promoting them into plans.",
+        "Open peer plans when you need to compare prioritized work.",
+      ],
     },
   },
   {
@@ -55,6 +65,11 @@ export const INSIGHTS_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] = [
         label: "Open architecture reviews",
         href: REVIEWS_LIST_PATH,
       },
+      taskSteps: [
+        "Select a finalized review as the impact baseline.",
+        "Define the proposed change and comparison scope.",
+        "Run the simulation and review before-and-after effects.",
+      ],
     },
   },
   {
@@ -69,6 +84,11 @@ export const INSIGHTS_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] = [
         label: "Open ROI summary",
         href: "/insights/roi-summary",
       },
+      taskSteps: [
+        "Set the reporting period and apply it to refresh the summary.",
+        "Review finalized reviews, findings, and approval decisions in scope.",
+        "Generate sponsor exports when the narrative is ready to share.",
+      ],
     },
   },
 ];

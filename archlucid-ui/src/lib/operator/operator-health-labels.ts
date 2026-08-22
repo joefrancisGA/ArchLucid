@@ -13,7 +13,7 @@ export const SERVICE_BUS_HEALTH_LABELS = {
 export const DATA_ARCHIVAL_HEALTH_LABELS = {
   bannerTitle: "Retention history may be incomplete",
   bannerBody:
-    "Governance metrics in this workspace may be stale until background retention catches up. Contact your ArchLucid administrator if this persists.",
+    "Approval metrics in this workspace may be stale until background retention catches up. Contact your ArchLucid administrator if this persists.",
   systemHealthLink: "System health",
   homeStripLabel: "Retention history",
 } as const;

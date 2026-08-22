@@ -3,6 +3,7 @@ import Link from "next/link";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import {
   deriveEvidenceGapForecast,
+  EVIDENCE_COVERAGE_DOCUMENT_ATTACHED_DETAIL_INTRO,
   EVIDENCE_COVERAGE_HELP_HREF,
   EVIDENCE_COVERAGE_HELP_LINK_LABEL,
   EVIDENCE_GAP_FORECAST_DISCLAIMER,
@@ -26,6 +27,8 @@ export type EvidenceGapForecastPresentation = "expandable" | "summary";
 
 export type EvidenceGapForecastPanelProps = {
   readonly presence: EvidencePresenceFlags;
+  readonly attachmentFileNames?: readonly string[];
+  readonly architectureContextPresent?: boolean;
   readonly addEvidenceHref?: string | null;
   readonly presentation?: EvidenceGapForecastPresentation;
 };
@@ -38,7 +41,12 @@ export function EvidenceGapForecastPanel(props: EvidenceGapForecastPanelProps): 
     return null;
   }
 
-  const summaryLine = summarizeEvidenceCoverage(props.presence).summaryLine;
+  const summary = summarizeEvidenceCoverage(props.presence, {
+    attachmentFileNames: props.attachmentFileNames,
+    architectureContextPresent: props.architectureContextPresent,
+  });
+  const summaryLine = summary.summaryLine;
+  const documentAttachedContext = summary.usesDocumentAttachedSummary;
   const presentation = props.presentation ?? "expandable";
 
   switch (presentation) {
@@ -56,9 +64,19 @@ export function EvidenceGapForecastPanel(props: EvidenceGapForecastPanelProps): 
             <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
               {EVIDENCE_GAP_FORECAST_DISCLAIMER} <CoverageHelpLink />
             </p>
+            {documentAttachedContext ? (
+              <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                {EVIDENCE_COVERAGE_DOCUMENT_ATTACHED_DETAIL_INTRO}
+              </p>
+            ) : null}
             <ul className={cn("m-0 list-none space-y-3 p-0", OPERATOR_TYPOGRAPHY.body)}>
               {forecast.map((entry) => (
-                <ForecastRow key={entry.missingClass} entry={entry} addEvidenceHref={props.addEvidenceHref} />
+                <ForecastRow
+                  key={entry.missingClass}
+                  entry={entry}
+                  addEvidenceHref={props.addEvidenceHref}
+                  documentAttachedContext={documentAttachedContext}
+                />
               ))}
             </ul>
           </div>
@@ -102,14 +120,17 @@ function CoverageHelpLink(): React.JSX.Element {
 type ForecastRowProps = {
   readonly entry: EvidenceGapForecastEntry;
   readonly addEvidenceHref: string | null | undefined;
+  readonly documentAttachedContext: boolean;
 };
 
 function ForecastRow(props: ForecastRowProps): React.JSX.Element {
-  const { entry, addEvidenceHref } = props;
+  const { entry, addEvidenceHref, documentAttachedContext } = props;
 
   return (
     <li data-testid={`evidence-gap-forecast-${entry.missingClass}`}>
-      <p className="m-0 font-medium text-al-text-primary">{formatEvidenceGapForecastHeadline(entry)}</p>
+      <p className="m-0 font-medium text-al-text-primary">
+        {formatEvidenceGapForecastHeadline(entry, { documentAttachedContext })}
+      </p>
       <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{entry.guidance}</p>
       {addEvidenceHref !== null && addEvidenceHref !== undefined && addEvidenceHref.length > 0 ? (
         <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)}>

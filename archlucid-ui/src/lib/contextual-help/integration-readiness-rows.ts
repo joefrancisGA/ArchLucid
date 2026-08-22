@@ -23,6 +23,11 @@ export const INTEGRATION_READINESS_CONTEXTUAL_HELP_ROWS: readonly PageContextual
       whyEmpty: "This page only appears after an OAuth redirect; status text replaces empty layouts.",
       whereToConfigurePrerequisite:
         "Starting OAuth requires Operate authority and a configured Atlassian app registration.",
+      taskSteps: [
+        "Wait for the OAuth redirect to complete consent.",
+        "Return to Jira integration settings on success.",
+        "Retry Connect with Atlassian when consent fails.",
+      ],
     },
   },
   {
@@ -35,6 +40,11 @@ export const INTEGRATION_READINESS_CONTEXTUAL_HELP_ROWS: readonly PageContextual
       whyEmpty: "An empty list means no dead-lettered outbox rows are waiting across tenants.",
       whereToConfigurePrerequisite:
         "Admin authority is required to retry or suppress; the queue spans all tenants, not only the header workspace.",
+      taskSteps: [
+        "Inspect the failing dead-letter event details.",
+        "Fix the connector or destination root cause.",
+        "Retry or suppress the event after the fix.",
+      ],
     },
   },
   {
@@ -55,6 +65,11 @@ export const INTEGRATION_READINESS_CONTEXTUAL_HELP_ROWS: readonly PageContextual
         label: "Open Jira integration",
         href: "/integrations/jira",
       },
+      taskSteps: [
+        "Review connector health probes for each provider.",
+        "Complete onboarding for deployment credentials.",
+        "Open buyer Jira or ServiceNow settings for workspace defaults.",
+      ],
     },
   },
   {
@@ -70,6 +85,11 @@ export const INTEGRATION_READINESS_CONTEXTUAL_HELP_ROWS: readonly PageContextual
         label: "Open Connection status",
         href: "/administration/connection-status",
       },
+      taskSteps: [
+        "Open Connection status for live connector labels.",
+        "Configure recommended chat connectors first.",
+        "Add optional ITSM destinations when ticketing exports are needed.",
+      ],
     },
   },
 ];

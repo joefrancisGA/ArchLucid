@@ -34,7 +34,7 @@ const OPERATOR_SHELL_COPY: FirstPilotOperatingRailShellCopy = {
 const BUYER_SHELL_COPY: FirstPilotOperatingRailShellCopy = {
   heading: "Guided review workflow",
   intro:
-    "Six steps from workspace readiness to a signed review. Complete the core review workflow first — governance, comparison, and audit views are most useful once the evidence record is finalized.",
+    "Six steps from workspace readiness to a finalized review. Complete the core review workflow first — approval, comparison, and audit views are most useful once the evidence record is finalized.",
   showHeaderHelpLink: false,
   headerHelpSlug: "first-architecture-review",
   headerHelpLabel: "Architecture review walkthrough",
@@ -59,7 +59,7 @@ const BUYER_STEP_TEXT_OVERRIDES: Record<FirstPilotOperatingRailStepId, FirstPilo
   "ingest-evidence": {
     title: "Add architecture evidence",
     shortBody:
-      "Upload an architecture evidence bundle, or open the example review to preview the output before your own upload.",
+      "Upload an architecture evidence bundle, or open the sample review to preview the output before your own upload.",
     primaryLabel: "Upload evidence",
   },
   "create-review": {

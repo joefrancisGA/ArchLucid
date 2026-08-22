@@ -6,6 +6,7 @@ import { useEffect } from "react";
 import { DemoWorkspaceCapabilityUnavailablePanel } from "@/components/DemoWorkspaceCapabilityUnavailablePanel";
 import { AiUsageBillingVocabularyRail } from "@/components/AiUsageBillingVocabularyRail";
 import { ModelGovernanceAiUsageVocabularyRail } from "@/components/ModelGovernanceAiUsageVocabularyRail";
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorOutboxDiagnosticsCard } from "@/components/operator/OperatorOutboxDiagnosticsCard";
 import { PageHeading } from "@/components/PageHeading";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -39,7 +40,7 @@ type Props = {
 
 function PageLoadingSkeleton() {
   return (
-    <div className={cn("w-full max-w-[1200px]", OPERATOR_LAYOUT.sectionStack)} data-testid="cost-reporting-page">
+    <OperatorPageContainer variant="workflow" className={OPERATOR_LAYOUT.sectionStack} data-testid="cost-reporting-page">
       <Skeleton className="h-8 w-64" />
       <Skeleton className="h-4 w-full max-w-3xl" />
       <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
@@ -48,7 +49,7 @@ function PageLoadingSkeleton() {
         ))}
       </div>
       <Skeleton className="h-48 w-full" />
-    </div>
+    </OperatorPageContainer>
   );
 }
 
@@ -85,11 +86,11 @@ export function CostReportingSettingsPageView(props: Props) {
 
   if (m.surface === "forbidden") {
     return (
-      <div className={cn("w-full max-w-[1200px]", OPERATOR_LAYOUT.sectionStack)} data-testid="cost-reporting-page">
+      <OperatorPageContainer variant="workflow" className={OPERATOR_LAYOUT.sectionStack} data-testid="cost-reporting-page">
         <p className={cn("m-0 text-rose-800 dark:text-rose-200", OPERATOR_TYPOGRAPHY.body)} role="alert" data-testid="cost-reporting-forbidden">
           This page requires workspace access (ReadAuthority). Sign in with a workspace-scoped account or API key.
         </p>
-      </div>
+      </OperatorPageContainer>
     );
   }
 
@@ -102,7 +103,7 @@ export function CostReportingSettingsPageView(props: Props) {
   const pageLoadFailed = derived.costReportingState === "error" && !m.loading;
 
   return (
-    <div className={cn("w-full max-w-[1200px]", OPERATOR_LAYOUT.sectionStack)} data-testid="cost-reporting-page">
+    <OperatorPageContainer variant="workflow" className={OPERATOR_LAYOUT.sectionStack} data-testid="cost-reporting-page">
       <PageHeading
         navHref={AI_USAGE_SETTINGS_PATH}
         title={OPERATOR_NAV_LINK_LABELS.aiUsage}
@@ -243,6 +244,6 @@ export function CostReportingSettingsPageView(props: Props) {
           ) : null}
         </>
       )}
-    </div>
+    </OperatorPageContainer>
   );
 }

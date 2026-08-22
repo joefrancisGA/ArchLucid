@@ -1,6 +1,7 @@
 /**
- * Page-scoped context-sensitive help (Category 1 IA taxonomy) — short answers to up to four
- * questions per operator route. Long-form guides remain on `/help/{slug}` via `page-help-topic-map.ts`.
+ * Page-scoped context-sensitive help (Category 1 IA taxonomy) — short answers plus optional
+ * task steps per operator route, shown in the page-header help drawer.
+ * Long-form guides remain on `/help/{slug}` via `page-help-topic-map.ts`.
  *
  * Rows live in per-domain modules; this file only aggregates and resolves them.
  */
@@ -59,7 +60,11 @@ import { INTEGRATION_READINESS_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-hel
 import { INTEGRATIONS_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/integrations-rows";
 import { INTERNAL_OPS_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/internal-ops-rows";
 import { MARKETING_CONTEXTUAL_HELP_ROWS } from "@/lib/contextual-help/marketing-rows";
-import type { PageContextualHelpEntry, PageContextualHelpRow } from "@/lib/contextual-help/types";
+import {
+  HELP_TOPIC_MIRROR_TASK_STEPS,
+  type PageContextualHelpEntry,
+  type PageContextualHelpRow,
+} from "@/lib/contextual-help/types";
 import {
   EVIDENCE_TRACE_CONTEXTUAL_HELP,
   pathIsFindingEvidenceTrace,
@@ -69,6 +74,24 @@ import {
   pathIsRunProvenance,
 } from "@/lib/provenance-evidence-copy";
 import { pathIsSettingsHubRoot } from "@/lib/settings-admin-route-paths";
+
+function ensureContextualHelpRowDefaults(row: PageContextualHelpRow): PageContextualHelpRow {
+  if ((row.entry.taskSteps?.length ?? 0) >= 3) {
+    return row;
+  }
+
+  if (row.prefix.startsWith("/help/")) {
+    return {
+      ...row,
+      entry: {
+        ...row.entry,
+        taskSteps: HELP_TOPIC_MIRROR_TASK_STEPS,
+      },
+    };
+  }
+
+  return row;
+}
 
 const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
   ...ADMINISTRATION_CONTEXTUAL_HELP_ROWS,
@@ -120,7 +143,7 @@ const PAGE_CONTEXTUAL_HELP: readonly PageContextualHelpRow[] = [
   ...MODEL_GOVERNANCE_CONTEXTUAL_HELP_ROWS,
   ...SERVICENOW_INTEGRATION_CONTEXTUAL_HELP_ROWS,
   ...SPONSOR_DASHBOARD_CONTEXTUAL_HELP_ROWS,
-];
+].map(ensureContextualHelpRowDefaults);
 
 /**
  * Longest prefix first, so a specific route wins over its hub. Sorted once at module load because

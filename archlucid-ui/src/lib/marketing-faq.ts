@@ -135,7 +135,7 @@ const MARKETING_FAQ_ITEM_TEMPLATES: ReadonlyArray<MarketingFaqItem> = [
     categoryId: "evaluation-first-review",
     question: "How does the evaluation workspace work?",
     answer:
-      "Start an evaluation workspace from the signup page, then sign in with a work or school account or a one-time email code. You can inspect sample findings, evidence trails, governance outputs, and reports before running your own review.",
+      "Start an evaluation workspace from the signup page, then sign in with a work or school account or a one-time email code. You can inspect sample findings, evidence trails, export-ready outputs, and reports before running your own review.",
     relatedLinks: [
       { label: "Start evaluation", href: "/signup" },
       { label: "Getting started help", href: inAppHelpHref("getting-started") },
@@ -200,7 +200,7 @@ const MARKETING_FAQ_ITEM_TEMPLATES: ReadonlyArray<MarketingFaqItem> = [
     categoryId: "evaluation-first-review",
     question: "Are demo workspaces real customer data?",
     answer:
-      "Demo workspaces use sample architecture data so evaluators can inspect findings, evidence trails, governance outputs, and reports without uploading customer data.",
+      "Demo workspaces use sample architecture data so evaluators can inspect findings, evidence trails, export-ready outputs, and reports without uploading customer data.",
     relatedLinks: [{ label: "Sample showcase", href: CANONICAL_ANONYMOUS_PROOF_HREF }],
   },
   {
@@ -208,7 +208,7 @@ const MARKETING_FAQ_ITEM_TEMPLATES: ReadonlyArray<MarketingFaqItem> = [
     categoryId: "pricing-ai",
     question: "How does pricing work?",
     answer:
-      "ArchLucid is packaged for individual architects, teams, professional review practices, and enterprise deployments. Plans include a defined AI usage allowance, with larger evaluations supported through prepaid credits or approved customer AI providers. Enterprise options can include SSO, directory sync, and advanced governance — specifics depend on your plan and diligence process.",
+      "ArchLucid is packaged for individual architects, teams, professional review practices, and enterprise deployments. Plans include a defined AI usage allowance, with larger evaluations supported through prepaid credits or approved customer AI providers. Enterprise options can include SSO, directory sync, and advanced approval controls — specifics depend on your plan and diligence process.",
     relatedLinks: [
       { label: "View pricing", href: "/pricing" },
       { label: "Procurement FAQ", href: inAppHelpHref("procurement") },

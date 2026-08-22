@@ -9,7 +9,7 @@ export function GovernanceFindingsAssignedToMeBreadcrumb(): JSX.Element {
     <OperatorPageBreadcrumb
       data-testid="governance-assigned-to-me-breadcrumb"
       items={[
-        { label: "Governance", href: GOVERNANCE_APPROVAL_QUEUE_PATH },
+        { label: "Approval", href: GOVERNANCE_APPROVAL_QUEUE_PATH },
         { label: "Findings", href: GOVERNANCE_FINDINGS_PATH },
         { label: "Assigned to me" },
       ]}

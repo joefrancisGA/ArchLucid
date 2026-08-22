@@ -257,7 +257,7 @@ export function DigestsBrowseContent(props: DigestsBrowseContentProps = {}): Rea
             Architecture digests
           </h2>
           <p className={cn("mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
-            Send scheduled summaries of review activity, governance signals, findings, and advisory scans.
+            Send scheduled summaries of review activity, approval signals, findings, and advisory scans.
           </p>
         </>
       ) : null}

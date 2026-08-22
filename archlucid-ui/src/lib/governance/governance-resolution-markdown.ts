@@ -25,7 +25,7 @@ export function buildGovernanceResolutionMarkdown(
   const lines: string[] = [
     "# Policy resolution snapshot",
     "",
-    "> **Point-in-time export.** This document reflects effective governance at the moment it was downloaded.",
+    "> **Point-in-time export.** This document reflects merged policy rules at the moment it was downloaded.",
     `> It is **not** a live view. Snapshot captured: **${snapshotAt}** (UTC).`,
     "",
     "## Scope",

@@ -13,6 +13,11 @@ export const ARCHITECTURE_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[]
       whatToDoNext: "Start a review, resume a draft, or explore a sample workspace.",
       whyEmpty: "Recent reviews and metrics appear after you create or finalize architecture reviews.",
       whereToConfigurePrerequisite: "Switch workspace or project scope from the header switcher when you work across teams.",
+      taskSteps: [
+        "Start a review when you have a system to evaluate.",
+        "Resume a draft if a brief is already in progress.",
+        "Switch workspace or project from the header when you work across teams.",
+      ],
     },
   },
   {
@@ -22,6 +27,11 @@ export const ARCHITECTURE_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[]
       whatToDoNext: "Start a review, resume a draft, or explore a sample workspace.",
       whyEmpty: "Summary metrics populate after you start or finalize architecture reviews.",
       whereToConfigurePrerequisite: "Switch workspace or project scope from the header switcher.",
+      taskSteps: [
+        "Start a review when you have a system ready for evaluation.",
+        "Resume a draft or open a recent review from the list.",
+        "Switch workspace or project from the header when scope changes.",
+      ],
     },
   },
   {
@@ -34,6 +44,11 @@ export const ARCHITECTURE_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[]
       whyEmpty: "Path choices appear immediately; review results appear after you submit intake.",
       whereToConfigurePrerequisite:
         "Reviews use the workspace and project selected in the header switcher.",
+      taskSteps: [
+        "Pick quick, guided, or detailed intake for this review.",
+        "Complete required fields before submitting evidence.",
+        "Submit intake to create the review and open the workspace.",
+      ],
     },
   },
   {
@@ -47,6 +62,11 @@ export const ARCHITECTURE_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[]
         "Recent drafts appear after the architectures API responds; empty lists mean no drafts are saved yet.",
       whereToConfigurePrerequisite:
         "Drafting uses the workspace and project selected in the header switcher; creating a draft does not start a review.",
+      taskSteps: [
+        "Start a new draft or resume a recent saved brief.",
+        "Complete required architecture fields before saving.",
+        "Open Start a review when the brief is ready for evidence intake.",
+      ],
     },
   },
   {
@@ -59,6 +79,11 @@ export const ARCHITECTURE_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[]
       whyEmpty: "Progress updates as you complete walkthrough steps; empty optional setup means those integrations are not required yet.",
       whereToConfigurePrerequisite:
         "Required setup uses the current workspace and project scope from the header switcher.",
+      taskSteps: [
+        "Clear required setup blockers on the checklist.",
+        "Follow the walkthrough next step until optional setup is understood.",
+        "Start a review when the workspace is ready for evidence intake.",
+      ],
     },
   },
 ];

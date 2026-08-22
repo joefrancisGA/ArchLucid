@@ -23,6 +23,11 @@ const CLOUD_CONNECTIONS_HUB_CONTEXTUAL_HELP = {
     "Provider cards stay Not connected until you configure a Tier 2 connection; evidence-only upload stays available anytime.",
   whereToConfigurePrerequisite:
     "Choose a workspace in the header scope switcher before changing which platforms appear — filters save per workspace.",
+  taskSteps: [
+    "Choose platforms to show for this workspace scope.",
+    "Open a provider card to configure federation.",
+    "Start an evidence-only review when no connector is needed.",
+  ],
 } as const;
 
 const AWS_CLOUD_CONNECTION_CONTEXTUAL_HELP = {
@@ -33,6 +38,11 @@ const AWS_CLOUD_CONNECTION_CONTEXTUAL_HELP = {
   whyEmpty: "Saved connections and last poll timestamps appear after you save a federated role.",
   whereToConfigurePrerequisite:
     "Creating the IAM trust role usually needs cloud-admin authority; saving the connection in ArchLucid needs Operate authority.",
+  taskSteps: [
+    "Complete security preflight for the target account.",
+    "Enter the federated IAM role ARN and save the connection.",
+    "Re-poll to validate read-only access.",
+  ],
 } as const;
 
 const AZURE_CLOUD_CONNECTION_CONTEXTUAL_HELP = {
@@ -43,6 +53,11 @@ const AZURE_CLOUD_CONNECTION_CONTEXTUAL_HELP = {
   whyEmpty: "Saved connections and recent collection runs appear after you validate federated credentials.",
   whereToConfigurePrerequisite:
     "Provisioning the service principal usually needs cloud-admin authority; saving the connection in ArchLucid needs Operate authority.",
+  taskSteps: [
+    "Complete security preflight for the target subscription.",
+    "Run the Tier 2 wizard and assign the documented read-only Azure roles.",
+    "Save, validate the connection, then return to Cloud connections for workspace status.",
+  ],
 } as const;
 
 const GCP_CLOUD_CONNECTION_CONTEXTUAL_HELP = {
@@ -53,6 +68,11 @@ const GCP_CLOUD_CONNECTION_CONTEXTUAL_HELP = {
   whyEmpty: "Saved connections and last poll timestamps appear after you save a project.",
   whereToConfigurePrerequisite:
     "Provisioning Workload Identity Federation usually needs cloud-admin authority; saving the connection in ArchLucid needs Operate authority.",
+  taskSteps: [
+    "Complete security preflight for the target project.",
+    "Record the pool provider and service-account email, then save.",
+    "Re-poll to validate Cloud Asset Inventory access.",
+  ],
 } as const;
 
 export const CLOUD_CONNECTIONS_INTEGRATION_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] = [

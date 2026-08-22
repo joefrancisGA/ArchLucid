@@ -74,7 +74,7 @@ describe("HelpSpecialtyWalkthroughTemplatesView", () => {
 
     const grid = screen.getByTestId("specialty-template-card-grid");
     expect(within(grid).getByText("SaaS readiness")).toBeInTheDocument();
-    expect(within(grid).getByText("AI governance")).toBeInTheDocument();
+    expect(within(grid).getByText("AI policy")).toBeInTheDocument();
     expect(within(grid).getByText("Healthcare claims")).toBeInTheDocument();
 
     const visibleText = document.body.textContent?.toLowerCase() ?? "";
@@ -147,7 +147,7 @@ describe("HelpSpecialtyWalkthroughTemplatesView", () => {
 
     const dialog = screen.getByTestId("specialty-template-preview-dialog");
     expect(within(dialog).getByRole("heading", { name: "Healthcare claims preview" })).toBeInTheDocument();
-    expect(within(dialog).getByText("Example review questions")).toBeInTheDocument();
+    expect(within(dialog).getByText("Sample review questions")).toBeInTheDocument();
     expect(within(dialog).getByRole("link", { name: /Healthcare Claims Policy Pack v3\.4\.1/i })).toHaveAttribute(
       "href",
       "/governance/policy-packs/demo-enterprise-privacy-pack",

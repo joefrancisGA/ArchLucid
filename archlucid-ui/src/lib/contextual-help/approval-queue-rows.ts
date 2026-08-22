@@ -26,6 +26,11 @@ export const APPROVAL_QUEUE_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow
         label: "Open workspace health",
         href: GOVERNANCE_WORKSPACE_HEALTH_HREF,
       },
+      taskSteps: [
+        "Load review context before submitting an approval request.",
+        "Approve or reject with an audit-friendly comment.",
+        "Open Findings or Workspace health when triage context is missing.",
+      ],
     },
   },
 ];

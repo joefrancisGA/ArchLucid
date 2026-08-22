@@ -4,7 +4,7 @@
 
 Use this page while you work through the **New architecture review** wizard. The default **Quick start** path is a single screen; you can also switch to guided questions or templates and imports. You can start from a saved architecture draft or attach evidence directly in the wizard — both paths use the fields below.
 
-This field reference describes the New architecture review wizard — it is product help, not a sealed review record or a finalized architecture review export. Match labels and requirements to the live wizard before treating a printed copy as procurement evidence.
+This guide describes the New architecture review wizard — it is product help, not a Finalized review record or a finalized architecture review export. Match labels and requirements to the live wizard before treating a printed copy as procurement evidence.
 
 ## Name the review
 

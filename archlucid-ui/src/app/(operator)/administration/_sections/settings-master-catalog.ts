@@ -51,7 +51,7 @@ export const SETTINGS_MASTER_SECTIONS: readonly SettingsMasterSection[] = [
     id: "notifications",
     navLabel: "Notifications",
     title: "Notifications",
-    description: "Digests, governance alerts, Teams, and Slack - what can ping this workspace.",
+    description: "Digests, policy alerts, Teams, and Slack - what can ping this workspace.",
     keywords: ["notification", "digest", "alert", "teams", "slack", "email", "ping"],
     tier: "common",
     destinations: [
@@ -98,8 +98,8 @@ export const SETTINGS_MASTER_SECTIONS: readonly SettingsMasterSection[] = [
   },
   {
     id: "governance",
-    navLabel: "Governance",
-    title: "Governance",
+    navLabel: "Approval",
+    title: "Approval",
     description: "Approval workflows, findings, and audit surfaces.",
     keywords: ["governance", "approval", "workflow", "audit", "findings"],
     tier: "common",
@@ -122,7 +122,7 @@ export const SETTINGS_MASTER_SECTIONS: readonly SettingsMasterSection[] = [
       {
         id: "governance-audit",
         title: "Audit trail",
-        description: "Browse configuration and governance events for this workspace.",
+        description: "Browse configuration and approval events for this workspace.",
         href: "/governance/audit",
         cta: "Open audit trail",
         keywords: ["audit", "history", "changes", "compliance"],

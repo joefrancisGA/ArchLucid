@@ -35,7 +35,7 @@ import { buyerDemoPackageCardMeta } from "@/lib/buyer/buyer-demo-package-card-me
 import { BUYER_PIPELINE_IN_PROGRESS_LABEL } from "@/lib/buyer/buyer-polish-copy";
 import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer/buyer-facing-review-title";
 import { buyerFilterChipClass } from "@/lib/buyer/buyer-shell-home-present";
-import { OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY, OPERATOR_LAYOUT } from "@/lib/design-tokens";
 import { isRunCommittedForBaseline } from "@/lib/compare-baseline-run";
 import { SHOWCASE_STATIC_DEMO_RUN_ID, SHOWCASE_STATIC_DEMO_SPINE_COUNTS } from "@/lib/showcase-static-demo";
 import type { RunSummary } from "@/types/authority";
@@ -370,7 +370,7 @@ export function RunsListClient(props: RunsListClientProps) {
   );
 
   return (
-    <div className="mt-4 space-y-4">
+    <div className={cn("mt-4", OPERATOR_LAYOUT.sectionStack)}>
       {listContextFilter === "orphan-candidates" ? (
         <div
           className={cn(
@@ -446,7 +446,7 @@ export function RunsListClient(props: RunsListClientProps) {
         </div>
       )}
 
-      <div className={cn(!viewportNarrow && "lg:flex lg:items-stretch lg:gap-4")}>
+      <div className={cn("pt-4", !viewportNarrow && "lg:flex lg:items-stretch lg:gap-4")}>
         <div className={cn("min-w-0 flex-1 space-y-4", !viewportNarrow && "lg:min-w-0")}>
           <div className="space-y-4">
             {showCompareSelection ? (

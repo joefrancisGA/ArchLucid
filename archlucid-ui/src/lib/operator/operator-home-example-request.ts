@@ -23,9 +23,9 @@ export const REVIEW_INTAKE_EXAMPLE_TEMPLATES: readonly ReviewIntakeExampleTempla
   },
   {
     id: "ai-governance",
-    title: "AI governance",
+    title: "AI policy",
     briefText:
-      "Evaluate an AI or ML solution against responsible-AI expectations — model and data risk, transparency, human oversight, privacy, monitoring, and export readiness. Describe inference, training boundaries, and governance controls you need reviewed.",
+      "Evaluate an AI or ML solution against responsible-AI expectations — model and data risk, transparency, human oversight, privacy, monitoring, and export readiness. Describe inference, training boundaries, and policy controls you need reviewed.",
     businessOutcome:
       "An AI policy review with evidence-backed findings and clear approval decisions for stakeholders.",
     systemName: "AI Solution",
@@ -62,7 +62,7 @@ export const OPERATOR_HOME_EXAMPLE_DESCRIPTION = CUSTOMER_INTAKE_MODERNIZATION_T
 export const OPERATOR_HOME_EXAMPLE_SYSTEM_NAME = CUSTOMER_INTAKE_MODERNIZATION_TEMPLATE.systemName;
 
 /** Home card CTA — promise matches prefill behavior on `/architecture/reviews/new`. */
-export const OPERATOR_HOME_EXAMPLE_START_CTA = "Start from this example";
+export const OPERATOR_HOME_EXAMPLE_START_CTA = "Start from this sample";
 
 /**
  * Matched case-insensitively on run descriptions (with the static demo run id) so the home ribbon can find the

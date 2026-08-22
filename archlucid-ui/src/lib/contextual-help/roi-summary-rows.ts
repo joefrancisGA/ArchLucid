@@ -24,6 +24,11 @@ const ROI_SUMMARY_HUB_CONTEXTUAL_HELP = {
     label: "Open sponsor report",
     href: SPONSOR_REPORT_PATH,
   },
+  taskSteps: [
+    "Compare rolling and pilot-to-date reporting windows.",
+    "Review confidence notes before citing hours or dollars.",
+    "Open baseline settings when assumptions need adjustment.",
+  ],
 } as const;
 
 export const ROI_SUMMARY_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] = [

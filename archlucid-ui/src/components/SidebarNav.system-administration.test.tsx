@@ -259,6 +259,6 @@ describe("SidebarNav — Internal section", () => {
       expect(governanceToggle).toHaveAttribute("aria-expanded", "true");
     });
 
-    expect(screen.getByRole("group", { name: "Governance" })).toBeInTheDocument();
+    expect(screen.getByRole("group", { name: "Approval" })).toBeInTheDocument();
   });
 });

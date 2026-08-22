@@ -243,7 +243,7 @@ export function OnboardingStartClient() {
             {hasSample ? (
               <Button asChild variant="outline">
                 <Link href={`/architecture/reviews/${sampleId}`} data-testid="onboarding-open-sample-run">
-                  Open example review
+                  Open sample review
                 </Link>
               </Button>
             ) : null}

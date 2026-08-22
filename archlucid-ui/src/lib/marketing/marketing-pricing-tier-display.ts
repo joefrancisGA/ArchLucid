@@ -10,7 +10,7 @@ import {
 export const MARKETING_PRICING_TIER_BEST_FOR: Readonly<Record<MarketingPricingTierId, string>> = {
   architect: "Solo architects proving value on one workspace",
   team: "Small teams coordinating architecture reviews",
-  professional: "Growing governance teams standardizing review practice",
+  professional: "Growing approval teams standardizing review practice",
   enterprise: "Enterprise procurement, SSO, and private deployment",
 };
 
@@ -22,7 +22,7 @@ export const MARKETING_PRICING_TIER_HIGHLIGHTS: Readonly<Record<MarketingPricing
     "Basic exports and sample workspace",
   ],
   team: [
-    "Basic governance for review findings",
+    "Basic approval tracking for review findings",
     "Finalized review records and comparison reviews",
     "Self-service start — no procurement call required",
   ],
@@ -61,7 +61,7 @@ export type MarketingPricingFitRecommendation = {
 export const MARKETING_PRICING_FIT_RECOMMENDATIONS: readonly MarketingPricingFitRecommendation[] = [
   { teamType: "Solo architect", recommendedPlan: "Architect" },
   { teamType: "Small review team", recommendedPlan: "Team" },
-  { teamType: "Governance program", recommendedPlan: "Professional / Enterprise" },
+  { teamType: "Approval program", recommendedPlan: "Professional / Enterprise" },
 ];
 
 /** Lightweight persona fit matrix — scan before comparing feature bullets. */
@@ -75,7 +75,7 @@ export const MARKETING_PRICING_FIT_MATRIX: readonly MarketingPricingFitRow[] = [
     tiers: { architect: false, team: true, professional: false, enterprise: false },
   },
   {
-    label: "Governance program",
+    label: "Approval program",
     tiers: { architect: false, team: false, professional: true, enterprise: true },
   },
 ];

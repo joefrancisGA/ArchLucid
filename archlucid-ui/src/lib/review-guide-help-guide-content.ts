@@ -16,7 +16,7 @@ export const REVIEW_GUIDE_HELP_OVERVIEW =
 
 /** Pins the export-claim sentence in REVIEW_GUIDE.md so it also reaches the generated PDF, not just the page. */
 export const REVIEW_GUIDE_HELP_CLAIM_DISCIPLINE =
-  "This field reference describes the New architecture review wizard — it is product help, not a Finalized review record or a finalized architecture review export. Match labels and requirements to the live wizard before treating a printed copy as procurement evidence.";
+  "This guide describes the New architecture review wizard — it is product help, not a Finalized review record or a finalized architecture review export. Match labels and requirements to the live wizard before treating a printed copy as procurement evidence.";
 
 export type ReviewGuideHelpRelatedLink = {
   readonly label: string;

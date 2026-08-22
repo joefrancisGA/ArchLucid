@@ -86,7 +86,7 @@ export const ADVISORY_SCANS_SAMPLE_SECTION_TITLE = "Sample advisory recommendati
 export const ADVISORY_SCANS_SAMPLE_BADGE_LABEL = "Sample recommendation";
 
 /** Collapsed demo disposition chrome under the sample card (TB-1126). */
-export const ADVISORY_SCANS_SAMPLE_DISPOSITION_SUMMARY = "Example dispositions (demo only)";
+export const ADVISORY_SCANS_SAMPLE_DISPOSITION_SUMMARY = "Sample dispositions (demo only)";
 
 export const ADVISORY_SCANS_RECOMMENDATIONS_SECTION_TITLE = "Advisory recommendations";
 
@@ -195,7 +195,7 @@ export const ADVISORY_SCANS_SCHEDULES_SCAN_STARTED = "Advisory scan started.";
 /** Vocabulary rail peer link on the schedules tab — distinct from the compact-line sentence. */
 export const ADVISORY_SCANS_SCHEDULES_RECURRENCE_PEER_LINK_LABEL = "Open recurrence schedules";
 
-export const ADVISORY_SCANS_SCHEDULES_EXAMPLE_PREVIEW_LABEL = "Example schedule (not live data)";
+export const ADVISORY_SCANS_SCHEDULES_EXAMPLE_PREVIEW_LABEL = "Sample schedule (not live data)";
 
 export const ADVISORY_SCANS_SCHEDULES_EXAMPLE_PREVIEW_HELPER =
   "Illustrates how a saved schedule appears after you create one for the current project scope.";

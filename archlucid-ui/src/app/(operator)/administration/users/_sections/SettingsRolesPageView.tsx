@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { PageHeading } from "@/components/PageHeading";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { DemoWorkspaceCapabilityUnavailablePanel } from "@/components/DemoWorkspaceCapabilityUnavailablePanel";
@@ -215,15 +216,15 @@ export function SettingsRolesPageView(props: Props) {
 
   if (m.surface === "authority_loading") {
     return (
-      <div className={cn("w-full max-w-[1200px]", OPERATOR_LAYOUT.sectionStack)} data-testid="settings-roles-page">
+      <OperatorPageContainer variant="workflow" className={OPERATOR_LAYOUT.sectionStack} data-testid="settings-roles-page">
         <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>Loading…</p>
-      </div>
+      </OperatorPageContainer>
     );
   }
 
   if (m.surface === "forbidden") {
     return (
-      <div className={cn("w-full max-w-[1200px]", OPERATOR_LAYOUT.sectionStack)} data-testid="settings-roles-page">
+      <OperatorPageContainer variant="workflow" className={OPERATOR_LAYOUT.sectionStack} data-testid="settings-roles-page">
         <p
           className={cn("m-0 text-rose-800 dark:text-rose-200", OPERATOR_TYPOGRAPHY.body)}
           role="alert"
@@ -231,7 +232,7 @@ export function SettingsRolesPageView(props: Props) {
         >
           {FORBIDDEN_WORKSPACE_ADMIN_ACCESS_MESSAGE}
         </p>
-      </div>
+      </OperatorPageContainer>
     );
   }
 
@@ -261,7 +262,7 @@ export function SettingsRolesPageView(props: Props) {
     pendingInvitationCount === null ? "Pending invitations" : `Pending invitations (${pendingInvitationCount})`;
 
   return (
-    <div className={cn("w-full max-w-[1200px]", OPERATOR_LAYOUT.sectionStack)} data-testid="settings-roles-page">
+    <OperatorPageContainer variant="workflow" className={OPERATOR_LAYOUT.sectionStack} data-testid="settings-roles-page">
       <PageHeading
         navHref="/administration/users"
         title={OPERATOR_NAV_LINK_LABELS.usersAndRoles}
@@ -495,6 +496,6 @@ export function SettingsRolesPageView(props: Props) {
           </TabsContent>
         ) : null}
       </Tabs>
-    </div>
+    </OperatorPageContainer>
   );
 }

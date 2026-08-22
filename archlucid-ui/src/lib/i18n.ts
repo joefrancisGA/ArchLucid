@@ -103,7 +103,7 @@ export const ALERTS_INBOX_LABELS = {
 export const OPERATOR_NAV_GROUP_LABELS = {
   reviewWork: "Architecture",
   analysis: "Insights",
-  governance: "Governance",
+  governance: "Approval",
   reports: "Reports",
   integrations: "Integrations",
   operations: "Operations",

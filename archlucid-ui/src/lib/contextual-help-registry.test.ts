@@ -25,6 +25,7 @@ const API_PATH_IN_COPY = /\/v\d+\//;
 const TB_LABEL_IN_COPY = /\bTB-\d+\b/;
 
 const MAX_WORDS_PER_PAGE = 120;
+const MAX_TASK_STEP_WORDS = 80;
 
 function entryFieldValues(entry: PageContextualHelpEntry): string[] {
   return [
@@ -361,7 +362,7 @@ describe("contextual-help-registry (TB-733)", () => {
       contextualHelpForPathname(
         "/architecture/reviews/run-1/findings/finding-1/evidence-trace",
       )?.whatToDoNext,
-    ).toContain("finding detail");
+    ).toContain("finding");
   });
 
   it("resolves recommendation-learning Category-1 help (INR)", () => {
@@ -602,6 +603,53 @@ describe("contextual-help-registry (TB-733)", () => {
 
       expect(totalWords, row.prefix).toBeLessThanOrEqual(MAX_WORDS_PER_PAGE);
     }
+  });
+
+  it("keeps optional task steps within the drawer budget", () => {
+    for (const row of allPageContextualHelpRows()) {
+      const taskStepWords = (row.entry.taskSteps ?? []).reduce((sum, step) => sum + wordCount(step), 0);
+
+      expect(taskStepWords, row.prefix).toBeLessThanOrEqual(MAX_TASK_STEP_WORDS);
+    }
+  });
+
+  it("includes task steps on every registered contextual help row", () => {
+    const missingTaskSteps = allPageContextualHelpRows()
+      .filter((row) => (row.entry.taskSteps?.length ?? 0) < 3)
+      .map((row) => row.prefix);
+
+    expect(missingTaskSteps).toEqual([]);
+  });
+
+  it("gives representative workflow pages task steps in the drawer", () => {
+    expect(contextualHelpForPathname("/")?.taskSteps?.length).toBeGreaterThanOrEqual(3);
+    expect(contextualHelpForPathname("/architecture/architectures/draft-abc")?.taskSteps?.length).toBeGreaterThanOrEqual(
+      3,
+    );
+    expect(contextualHelpForPathname("/integrations/cloud-connections/azure")?.taskSteps?.length).toBeGreaterThanOrEqual(
+      3,
+    );
+    expect(contextualHelpForPathname("/governance/findings")?.taskSteps?.length).toBeGreaterThanOrEqual(3);
+    expect(contextualHelpForPathname("/insights/evidence-graph")?.taskSteps?.length).toBeGreaterThanOrEqual(3);
+    expect(contextualHelpForPathname("/architecture/reviews")?.taskSteps?.length).toBeGreaterThanOrEqual(3);
+    expect(contextualHelpForPathname("/architecture/digests")?.taskSteps?.length).toBeGreaterThanOrEqual(3);
+    expect(contextualHelpForPathname("/governance/alert-rules")?.taskSteps?.length).toBeGreaterThanOrEqual(3);
+    expect(contextualHelpForPathname("/insights/improvement-planning")?.taskSteps?.length).toBeGreaterThanOrEqual(3);
+    expect(contextualHelpForPathname("/insights/impact-preview")?.taskSteps?.length).toBeGreaterThanOrEqual(3);
+    expect(contextualHelpForPathname(SPONSOR_DASHBOARD_HREF)?.taskSteps?.length).toBeGreaterThanOrEqual(3);
+    expect(contextualHelpForPathname("/administration/system-health")?.taskSteps?.length).toBeGreaterThanOrEqual(3);
+    expect(contextualHelpForPathname("/integrations/jira")?.taskSteps?.length).toBeGreaterThanOrEqual(3);
+    expect(contextualHelpForPathname("/governance/standards-and-rules")?.taskSteps?.length).toBeGreaterThanOrEqual(3);
+    expect(contextualHelpForPathname("/administration/baseline")?.taskSteps?.length).toBeGreaterThanOrEqual(3);
+    expect(contextualHelpForPathname("/governance")?.taskSteps?.length).toBeGreaterThanOrEqual(3);
+    expect(contextualHelpForPathname("/insights/search-review-evidence")?.taskSteps?.length).toBeGreaterThanOrEqual(3);
+    expect(contextualHelpForPathname("/governance/policy-packs")?.taskSteps?.length).toBeGreaterThanOrEqual(3);
+    expect(contextualHelpForPathname("/governance/recurrence-schedules")?.taskSteps?.length).toBeGreaterThanOrEqual(3);
+    expect(contextualHelpForPathname("/insights/ask-review-questions")?.taskSteps?.length).toBeGreaterThanOrEqual(3);
+    expect(contextualHelpForPathname("/help/getting-started")?.taskSteps?.length).toBeGreaterThanOrEqual(3);
+    expect(contextualHelpForPathname("/governance/approval-requests")?.taskSteps?.length).toBeGreaterThanOrEqual(3);
+    expect(contextualHelpForPathname("/internal/health")?.taskSteps?.length).toBeGreaterThanOrEqual(3);
+    expect(contextualHelpForPathname("/help/procurement")?.taskSteps?.length).toBeGreaterThanOrEqual(3);
   });
 
   it("forbids internal routes, API paths, and TB labels in registry copy", () => {

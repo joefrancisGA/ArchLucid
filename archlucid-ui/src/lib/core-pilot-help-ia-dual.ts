@@ -31,7 +31,7 @@ export const EVIDENCE_ONLY_REVIEW_HELP_FAST_PATH_HREF =
 
 export const CORE_PILOT_HELP_JOB_MATRIX: readonly CorePilotHelpJobMatrixRow[] = [
   {
-    label: "This first architecture review guide",
+    label: "This guide",
     when: "Full guided five-step path — start review, add evidence, monitor, finalize, and share outputs (cloud connectors optional)",
     isCurrent: true,
   },

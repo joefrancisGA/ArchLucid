@@ -13,13 +13,11 @@ import {
   OPERATOR_HOME_MISSING_COMPLETED_SAMPLE_MESSAGE,
   OPERATOR_HOME_OPEN_COMPLETED_REVIEW_CTA,
 } from "@/lib/buyer/buyer-polish-copy";
-import { getBuyerSafeReviewsTableLink } from "@/lib/buyer/buyer-safe-review-navigation";
 import { OPERATOR_TYPE_SCALE } from "@/lib/design-tokens";
 import { featuredCompletedSampleReviewHref } from "@/lib/fetch-tenant-homepage-settings-client";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
-import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator/operator-static-demo";
+import { resolveOperatorHomeCompletedSampleFallback } from "@/lib/resolve-operator-home-completed-sample-fallback";
 import { OPERATOR_HOME_OPENING_COMPLETED_REVIEW_LABEL } from "@/lib/review-start-progress-copy";
-import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -28,14 +26,6 @@ type OperatorHomeCompletedSampleActionProps = {
   readonly onOpenSample?: () => void;
   readonly pagePrimaryOwnedElsewhere?: boolean;
 };
-
-function resolveShowcaseCompletedSampleFallback(): { readonly href: string; readonly label: string } | null {
-  if (!isStaticDemoPayloadFallbackEnabled()) {
-    return null;
-  }
-
-  return getBuyerSafeReviewsTableLink(SHOWCASE_STATIC_DEMO_RUN_ID);
-}
 
 /** Opens the workspace-owner-selected completed sample or a safe missing-selection state. */
 export function OperatorHomeCompletedSampleAction(
@@ -47,7 +37,7 @@ export function OperatorHomeCompletedSampleAction(
 
   const canChooseSample = callerAuthorityRank >= AUTHORITY_RANK.AdminAuthority;
   const sample = sampleQuery.data;
-  const showcaseFallback = resolveShowcaseCompletedSampleFallback();
+  const showcaseFallback = resolveOperatorHomeCompletedSampleFallback();
   const sampleVariant = props.pagePrimaryOwnedElsewhere === true ? "outline" : "primary";
 
   if (sampleQuery.isPending) {

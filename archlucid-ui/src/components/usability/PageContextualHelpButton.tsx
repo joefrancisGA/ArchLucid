@@ -1,10 +1,5 @@
 "use client";
 
-import { cn } from "@/lib/utils";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-
-import Link from "next/link";
-import { CircleHelp } from "lucide-react";
 import { usePathname } from "next/navigation";
 
 import { contextualHelpForPathname } from "@/lib/contextual-help-registry";
@@ -26,7 +21,7 @@ export type PageContextualHelpButtonProps = {
   readonly triggerText?: string;
 };
 
-/** Contextual help for the current route — inline answers when migrated, otherwise `/help/{topic}`. */
+/** Contextual help for the current route — non-modal right drawer with Category-1 answers and a full-help link. */
 export function PageContextualHelpButton(props: PageContextualHelpButtonProps = {}) {
   const pathname = usePathname() ?? "/";
 
@@ -35,41 +30,24 @@ export function PageContextualHelpButton(props: PageContextualHelpButtonProps = 
   }
 
   const topic = pageHelpTopicForPathname(pathname);
-  const contextualEntry = contextualHelpForPathname(pathname);
-  const learnMoreHref =
-    topic?.slug != null && topic.slug.length > 0
-      ? inAppHelpHref(topic.slug, topic.hashFragment)
-      : null;
 
-  if (contextualEntry !== null && topic !== null) {
-    return (
-      <PageScopedContextualHelpPanel
-        entry={contextualEntry}
-        triggerLabel={topic.label}
-        triggerText={props.triggerText}
-        learnMoreHref={learnMoreHref}
-      />
-    );
-  }
-
-  if (topic === null || learnMoreHref == null) {
+  if (topic === null) {
     return null;
   }
 
-  const accessibleName: string = `Help: ${topic.label}`;
+  const contextualEntry = contextualHelpForPathname(pathname);
+  const learnMoreHref =
+    topic.slug != null && topic.slug.length > 0
+      ? inAppHelpHref(topic.slug, topic.hashFragment)
+      : null;
 
   return (
-    <Link
-      href={learnMoreHref}
-      className={PAGE_CONTEXTUAL_HELP_TRIGGER_CLASSNAME}
-      data-testid="page-contextual-help-button"
-      // Shortened text would otherwise leave the link named only "Help".
-      aria-label={props.triggerText === undefined ? undefined : accessibleName}
-    >
-      <CircleHelp className="h-4 w-4" aria-hidden />
-      <span className={cn("font-medium", OPERATOR_TYPOGRAPHY.helper)}>
-        {props.triggerText ?? topic.label}
-      </span>
-    </Link>
+    <PageScopedContextualHelpPanel
+      entry={contextualEntry}
+      triggerLabel={topic.label}
+      triggerText={props.triggerText}
+      learnMoreHref={learnMoreHref}
+      sectionId={topic.hashFragment}
+    />
   );
 }

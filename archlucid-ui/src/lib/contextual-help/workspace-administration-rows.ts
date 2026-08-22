@@ -45,6 +45,11 @@ export const WORKSPACE_ADMINISTRATION_CONTEXTUAL_HELP_ROWS: readonly PageContext
       whyEmpty: "The invitation form is ready when you have Admin authority in this workspace.",
       whereToConfigurePrerequisite:
         "Workspace Admin authority is required; SSO may need to be configured before invited users can sign in.",
+      taskSteps: [
+        "Enter the reviewer's email and send the invitation.",
+        "Open Users and roles for the full directory.",
+        "Configure SSO when invited users cannot sign in.",
+      ],
     },
   },
   {
@@ -57,6 +62,11 @@ export const WORKSPACE_ADMINISTRATION_CONTEXTUAL_HELP_ROWS: readonly PageContext
       whyEmpty: "Directory rows appear after invitations are accepted or users are provisioned for this tenant.",
       whereToConfigurePrerequisite:
         "SSO and identity-provider mapping may be required before enterprise users can sign in.",
+      taskSteps: [
+        "Invite teammates who need access to this workspace.",
+        "Open Roles and permissions to adjust authority.",
+        "Configure SSO when enterprise users cannot sign in yet.",
+      ],
     },
   },
   {
@@ -70,6 +80,11 @@ export const WORKSPACE_ADMINISTRATION_CONTEXTUAL_HELP_ROWS: readonly PageContext
         "Upload controls are ready when you have Admin or Execute authority; progress rows appear after a package is selected.",
       whereToConfigurePrerequisite:
         "Uploading packages needs workspace authority; cloud connectors are optional for evidence-only ZIP intake.",
+      taskSteps: [
+        "Copy the quick-start extractor command.",
+        "Upload a validated inventory ZIP package.",
+        "Open Start a review when the package is ready.",
+      ],
     },
   },
   {
@@ -83,6 +98,11 @@ export const WORKSPACE_ADMINISTRATION_CONTEXTUAL_HELP_ROWS: readonly PageContext
         "Public materials list here when published; NDA-gated packs require contacting security@archlucid.net.",
       whereToConfigurePrerequisite:
         "No workspace toggle is required — this page orients architects to published and NDA diligence paths.",
+      taskSteps: [
+        "Open Assurance status or Trust Center for published materials.",
+        "Request NDA-gated packs when procurement needs them.",
+        "Open Audit when official activity records are required.",
+      ],
     },
   },
   {
@@ -96,6 +116,11 @@ export const WORKSPACE_ADMINISTRATION_CONTEXTUAL_HELP_ROWS: readonly PageContext
         "Plan and usage cards appear after billing data loads for this tenant; wallet controls need Admin authority to mutate.",
       whereToConfigurePrerequisite:
         "Changing plans or payment methods needs a role that can manage workspace billing.",
+      taskSteps: [
+        "Review the current plan card for this workspace.",
+        "Compare Available plans before requesting a change.",
+        "Open AI usage or Billing help when spend methodology is unclear.",
+      ],
     },
   },
   {

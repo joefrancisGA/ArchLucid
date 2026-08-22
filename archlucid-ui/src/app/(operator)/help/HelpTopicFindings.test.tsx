@@ -103,7 +103,7 @@ describe("HelpFindingsGuideView", () => {
     expect(screen.getByRole("heading", { name: "Severity and impact" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Inspect the evidence" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Respond to a finding" })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Findings and governance" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Findings and approval" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "What each role usually does" })).toBeInTheDocument();
     expect(screen.getByTestId("help-topic-toc")).toBeInTheDocument();
     expect(screen.getByTestId("help-findings-anatomy-panel")).toBeInTheDocument();

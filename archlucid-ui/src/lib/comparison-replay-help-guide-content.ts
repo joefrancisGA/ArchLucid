@@ -31,7 +31,7 @@ export const COMPARISON_REPLAY_HELP_DEFERRED_JOB_DETAIL_HEADING = "## When to co
 export const COMPARISON_REPLAY_HELP_DECISION_COMPARE = {
   title: "Compare two reviews",
   summary:
-    "Pick two finalized Finalized review records and generate a delta narrative for sponsors, reviewers, or governance.",
+    "Pick two finalized review records and generate a delta narrative for sponsors, reviewers, or approval leads.",
 } as const;
 
 export const COMPARISON_REPLAY_HELP_DECISION_VALIDATE = {

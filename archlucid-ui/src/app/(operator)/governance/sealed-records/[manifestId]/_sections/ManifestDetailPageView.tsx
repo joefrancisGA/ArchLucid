@@ -32,10 +32,6 @@ import {
   BUYER_MANIFEST_DOWNLOAD_PREPARING,
   BUYER_MANIFEST_HEADLINE_SUFFIX,
   BUYER_MANIFEST_NO_DELIVERABLES_YET,
-  BUYER_MANIFEST_SECTION_DECISION,
-  BUYER_MANIFEST_SECTION_DILIGENCE,
-  BUYER_MANIFEST_SECTION_DOWNLOADS,
-  BUYER_MANIFEST_SECTION_EVIDENCE,
   BUYER_MANIFEST_TOP_RISK_CTA,
   BUYER_SIGNED_DECISION_RECORD_LABEL,
 } from "@/lib/buyer/buyer-polish-copy";
@@ -50,6 +46,7 @@ import {
   OPERATOR_LAYOUT,
   OPERATOR_LINK,
   OPERATOR_NAV_GROUP_LABEL,
+  OPERATOR_SHORT_HELPER_MEASURE_CLASS,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
@@ -58,17 +55,21 @@ import {
   SEALED_RECORD_DETAIL_SKIP_LINK_LABEL,
 } from "@/lib/sealed-record-detail-page-copy";
 import { MANIFEST_ARTIFACTS_LIST_EMPTY_COMPACT } from "@/lib/enterprise-compact-empty-state-presets";
+import type { ManifestDetailSectionTabId } from "@/lib/manifest-detail-section-tabs";
 import { ManifestDetailBuyerChrome } from "./ManifestDetailBuyerChrome";
+import { ManifestDetailSectionTabs } from "./ManifestDetailSectionTabs";
 import type { ManifestDetailPageSuccessModel } from "./manifest-detail-page-model";
 
 type ManifestDetailPageViewProps = {
   readonly model: ManifestDetailPageSuccessModel;
+  readonly initialTab?: ManifestDetailSectionTabId;
 };
 
 /** Server-rendered success layout: manifest summary, findings card, artifacts, footer. */
 export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
   const model = props.model;
   const { manifestId, buyerPolishedLayout, summary, artifacts } = model;
+  const initialTab = props.initialTab;
 
   const showcasePackage =
     summary.manifestId === SHOWCASE_STATIC_DEMO_MANIFEST_ID ||
@@ -219,6 +220,129 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
     </Card>
   ) : null;
 
+  const deliverablesCard = (
+    <Card
+      id={buyerPolishedLayout ? "manifest-deliverables" : undefined}
+      className={buyerPolishedLayout ? "scroll-mt-24" : undefined}
+    >
+      <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div className="min-w-0 flex-1 space-y-1.5">
+          <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>
+            {buyerPolishedLayout ? "Deliverables" : "Generated artifacts"}
+          </CardTitle>
+          <CardDescription>
+            {buyerPolishedLayout
+              ? "These deliverables package the sponsor decision, architecture review board record, and audit evidence for sign-off and diligence. Rows below list individual deliverable artifacts — prefer the consolidated package download when your workspace publishes a full bundle."
+              : "Outputs produced during this review — available for preview and download."}
+          </CardDescription>
+        </div>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        {!buyerPolishedLayout ? (
+          <div>
+            <Button variant="outline" size="sm" asChild>
+              <a href={getBundleDownloadUrl(manifestId)}>Download bundle (ZIP)</a>
+            </Button>
+          </div>
+        ) : null}
+
+        {model.artifactsFailure && (
+          <>
+            <p className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
+              {buyerPolishedLayout ? "Deliverables list could not be loaded." : "Artifact list could not be loaded."}
+            </p>
+            <OperatorApiProblem
+              problem={model.artifactsFailure.problem}
+              fallbackMessage={model.artifactsFailure.message}
+              correlationId={model.artifactsFailure.correlationId}
+              variant="warning"
+            />
+            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+              {buyerPolishedLayout ? (
+                <>
+                  Try reloading, or return to the review. You can still use Download finalized review when the
+                  bundle is available.
+                </>
+              ) : (
+                <>
+                  Try reloading, or return to the review detail page. You can still use Download bundle (ZIP) if the list
+                  endpoint is unavailable.
+                </>
+              )}
+            </p>
+          </>
+        )}
+
+        {!model.artifactsFailure && model.artifactsMalformed && (
+          <>
+            <OperatorMalformedCallout>
+              <strong>
+                {buyerPolishedLayout
+                  ? "Deliverables response was not usable."
+                  : "Artifact list response was not usable."}
+              </strong>
+              <p className="mt-2">{model.artifactsMalformed}</p>
+            </OperatorMalformedCallout>
+            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+              {buyerPolishedLayout
+                ? "Try reloading, or return to the review. ZIP download may still work."
+                : "Try reloading, or return to the review detail page. Bundle download may still work."}
+            </p>
+          </>
+        )}
+
+        {!model.artifactsFailure && !model.artifactsMalformed && artifacts.length === 0 && (
+          <EnterpriseCompactEmptyState
+            {...MANIFEST_ARTIFACTS_LIST_EMPTY_COMPACT}
+            title={buyerPolishedLayout ? BUYER_MANIFEST_NO_DELIVERABLES_YET : MANIFEST_ARTIFACTS_LIST_EMPTY_COMPACT.title}
+            description={
+              buyerPolishedLayout ? (
+                <p className="m-0">{BUYER_MANIFEST_DOWNLOAD_PREPARING}</p>
+              ) : (
+                <>
+                  <p className="m-0">{MANIFEST_ARTIFACTS_LIST_EMPTY_COMPACT.description}</p>
+                  <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+                    This is a <strong>valid empty result</strong> (HTTP 200 with an empty list), not a failed artifact-list
+                    request. <strong>Bundle ZIP may return 404</strong> when no packaged bundle exists yet.
+                  </p>
+                </>
+              )
+            }
+          />
+        )}
+
+        {!model.artifactsFailure && !model.artifactsMalformed && artifacts.length > 0 && buyerPolishedLayout ? (
+          <details className="group rounded-md border border-neutral-200/90 bg-neutral-50/40 p-3 dark:border-neutral-800 dark:bg-neutral-950/30">
+            <summary
+              className={cn(
+                "cursor-pointer select-none text-al-text-primary outline-none marker:text-al-text-secondary focus-visible:ring-2 focus-visible:ring-teal-500/80",
+                OPERATOR_DISCLOSURE_TRIGGER_CLASS,
+              )}
+            >
+              Show deliverable artifacts ({artifacts.length})
+            </summary>
+            <div className="mt-4">
+              <ArtifactListTable
+                manifestId={manifestId}
+                artifacts={artifacts}
+                sponsorMode={buyerPolishedLayout}
+                audienceSections={buyerPolishedLayout}
+              />
+            </div>
+          </details>
+        ) : null}
+        {!model.artifactsFailure && !model.artifactsMalformed && artifacts.length > 0 && !buyerPolishedLayout ? (
+          <ArtifactListTable
+            manifestId={manifestId}
+            artifacts={artifacts}
+            sponsorMode={buyerPolishedLayout}
+            audienceSections={buyerPolishedLayout}
+          />
+        ) : null}
+      </CardContent>
+    </Card>
+  );
+
   return (
     <OperatorPageContainer
       variant="dashboard"
@@ -300,7 +424,6 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
             </>
           )
         }
-        subtitleClassName="max-w-prose"
         actions={
           buyerPolishedLayout !== true ? (
             <Button variant="primary" size="sm" asChild>
@@ -321,61 +444,55 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
           <h2 id="manifest-authority-summary-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
             What this Finalized review record proves
           </h2>
-          <p className={cn("m-0 mt-2 max-w-prose leading-relaxed text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
+          <p
+            className={cn(
+              "m-0 mt-2 leading-relaxed text-al-text-primary",
+              OPERATOR_SHORT_HELPER_MEASURE_CLASS,
+              OPERATOR_TYPOGRAPHY.body,
+            )}
+          >
             {BUYER_MANIFEST_AUTHORITY_SUMMARY}
           </p>
         </section>
       ) : null}
 
       {buyerPolishedLayout ? (
-        <nav
-          aria-label="On this page"
-          className={cn(
-            "flex flex-wrap gap-x-4 gap-y-1 rounded-md border border-neutral-200 bg-neutral-50/90 px-3 py-2 text-al-text-primary shadow-sm dark:border-neutral-800 dark:bg-neutral-900/50",
-            OPERATOR_TYPOGRAPHY.body,
-          )}
-        >
-          <a className={OPERATOR_LINK.nav} href="#manifest-decision-group">
-            {BUYER_MANIFEST_SECTION_DECISION}
-          </a>
-          <a className={OPERATOR_LINK.nav} href="#manifest-deliverables">
-            {BUYER_MANIFEST_SECTION_EVIDENCE}
-          </a>
-          <a className={OPERATOR_LINK.nav} href="#manifest-bundle-zip">
-            {BUYER_MANIFEST_SECTION_DOWNLOADS}
-          </a>
-          <a className={OPERATOR_LINK.nav} href="#manifest-ask">
-            {BUYER_MANIFEST_SECTION_DILIGENCE}
-          </a>
-        </nav>
-      ) : null}
-
-      {buyerPolishedLayout ? (
-        <div id="manifest-decision-group" className={cn("scroll-mt-24", OPERATOR_LAYOUT.sectionStack)}>
-          {summary.warningCount > 0 || summary.unresolvedIssueCount > 0 ? monitoredRiskCard : null}
-          {overviewSummaryCard}
-          <div id="manifest-decisions" className={cn("scroll-mt-24", OPERATOR_LAYOUT.sectionStack)}>
-            {decisionsLeadCard}
-          </div>
-        </div>
+        <ManifestDetailSectionTabs
+          initialTab={initialTab}
+          decision={
+            <div id="manifest-decision-group" className={cn("scroll-mt-24", OPERATOR_LAYOUT.sectionStack)}>
+              {summary.warningCount > 0 || summary.unresolvedIssueCount > 0 ? monitoredRiskCard : null}
+              {overviewSummaryCard}
+              <div id="manifest-decisions" className={cn("scroll-mt-24", OPERATOR_LAYOUT.sectionStack)}>
+                {decisionsLeadCard}
+              </div>
+            </div>
+          }
+          evidence={
+            <>
+              <ManifestDeliverableGrid
+                manifestId={manifestId}
+                runId={summary.runId}
+                buyerPolished={buyerPolishedLayout}
+                systemName={showcaseBuyerManifestHeadline ? SHOWCASE_BUYER_REVIEW_TITLE : undefined}
+              />
+              {deliverablesCard}
+            </>
+          }
+          downloads={<ManifestBuyerBundleDownloadSection manifestId={manifestId} expanded />}
+          diligence={diligenceAskCard}
+        />
       ) : (
         <>
           {decisionsLeadCard}
           {overviewSummaryCard}
           {monitoredRiskCard}
+          {deliverablesCard}
         </>
       )}
 
-      {buyerPolishedLayout ? (
-        <ManifestDeliverableGrid
-          manifestId={manifestId}
-          runId={summary.runId}
-          buyerPolished={buyerPolishedLayout}
-          systemName={showcaseBuyerManifestHeadline ? SHOWCASE_BUYER_REVIEW_TITLE : undefined}
-        />
-      ) : null}
-
-      <Card
+      {buyerPolishedLayout ? null : (
+      <Card unused-placeholder="remove">
         id={buyerPolishedLayout ? "manifest-deliverables" : undefined}
         className={buyerPolishedLayout ? "scroll-mt-24" : undefined}
       >

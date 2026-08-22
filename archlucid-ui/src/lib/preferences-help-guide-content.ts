@@ -50,7 +50,7 @@ export const PREFERENCES_HELP_CHANGES_ITEMS: readonly PreferencesHelpTileItem[] 
   },
   {
     label: "Does not change",
-    detail: "Workspace governance, billing, full audit exports, or tenant-wide defaults.",
+    detail: "Workspace policy settings, billing, full audit exports, or tenant-wide defaults.",
   },
 ] as const;
 

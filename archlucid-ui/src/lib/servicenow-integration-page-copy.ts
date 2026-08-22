@@ -3,7 +3,7 @@
 export const SERVICENOW_INTEGRATION_PAGE_TITLE = "ServiceNow";
 
 export const SERVICENOW_PAGE_SUBTITLE =
-  "Send selected ArchLucid findings to ServiceNow as incidents and keep governance work connected to your operational workflow.";
+  "Send selected ArchLucid findings to ServiceNow as incidents and keep approval work connected to your operational workflow.";
 
 export const SERVICENOW_INTEGRATION_PAGE_DESCRIPTION = SERVICENOW_PAGE_SUBTITLE;
 

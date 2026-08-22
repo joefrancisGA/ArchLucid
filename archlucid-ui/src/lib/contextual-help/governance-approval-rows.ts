@@ -25,6 +25,11 @@ export const GOVERNANCE_APPROVAL_CONTEXTUAL_HELP_ROWS: readonly PageContextualHe
         label: "Open approval setup",
         href: "/governance/setup",
       },
+      taskSteps: [
+        "Open the approval queue when decisions are waiting.",
+        "Review findings when risks need triage before approval.",
+        "Open approval setup when policy or routing is not configured yet.",
+      ],
     },
   },
   {

@@ -16,6 +16,11 @@ const NOTIFICATIONS_HUB_CONTEXTUAL_HELP = {
     "Status tags load from each channel's API; when a destination cannot be read here, configure it on that page.",
   whereToConfigurePrerequisite:
     "Digests, alert rules, Teams, and Slack each save settings on their own pages — this hub does not store a unified preference profile.",
+  taskSteps: [
+    "Scan each channel card for delivery or configuration status.",
+    "Open the destination page when a channel needs subscriptions or routing.",
+    "Follow alerts or integration help when a connector is not configured yet.",
+  ],
 } as const;
 
 export const NOTIFICATIONS_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] = [
@@ -31,7 +36,7 @@ export const NOTIFICATIONS_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[
         "Open notifications to scan channel status, then follow alerts or integration help when routing needs setup.",
       whyEmpty: "This guide is always available; channel cards reflect each destination's reported status.",
       whereToConfigurePrerequisite:
-        "Alerts help explains governance notification rules and routing destinations.",
+        "Alerts help explains policy notification rules and routing destinations.",
       whatToDoNextAction: {
         label: "Open notifications",
         href: NOTIFICATION_PREFERENCE_CENTER_PATH,

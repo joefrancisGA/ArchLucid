@@ -18,7 +18,6 @@ import {
   SCOPE_CONTEXT_SOURCE_DEFAULT_LABEL,
   SCOPE_UNDERSTANDING_ADD_BUTTON_LABEL,
   SCOPE_UNDERSTANDING_ADD_EFFECT_HINT,
-  SCOPE_UNDERSTANDING_ADD_HINT,
   SCOPE_UNDERSTANDING_ADD_LABEL,
   SCOPE_UNDERSTANDING_ADD_PLACEHOLDER,
   canConfirmScopeUnderstanding,
@@ -138,7 +137,6 @@ export function ArchitectureScopeUnderstandingCheckPanel(
     [bullets, props.input],
   );
   const canAddBullet = editingAllowed && addValidation.status === "valid";
-  const showAddHint = editingAllowed && addValidation.status === "empty";
   const addErrorMessage =
     editingAllowed && addValidation.status === "invalid" ? addValidation.message : null;
 
@@ -165,10 +163,6 @@ export function ArchitectureScopeUnderstandingCheckPanel(
   const addFieldDescribedBy = (): string | undefined => {
     if (addErrorMessage !== null) {
       return "architecture-scope-understanding-add-error";
-    }
-
-    if (showAddHint) {
-      return "architecture-scope-understanding-add-hint";
     }
 
     return "architecture-scope-understanding-add-effect";
@@ -266,15 +260,6 @@ export function ArchitectureScopeUnderstandingCheckPanel(
             data-testid="architecture-scope-understanding-add-error"
           >
             {addErrorMessage}
-          </p>
-        ) : null}
-        {showAddHint ? (
-          <p
-            id="architecture-scope-understanding-add-hint"
-            className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-            data-testid="architecture-scope-understanding-add-hint"
-          >
-            {SCOPE_UNDERSTANDING_ADD_HINT}
           </p>
         ) : null}
         <p

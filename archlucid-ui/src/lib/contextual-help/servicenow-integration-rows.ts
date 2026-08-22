@@ -15,6 +15,11 @@ const SERVICENOW_INTEGRATION_HUB_CONTEXTUAL_HELP = {
   whyEmpty: "Health and settings load after this workspace can reach the ITSM connector configuration.",
   whereToConfigurePrerequisite:
     "Platform credentials are often configured by an administrator; tenant overrides on this page need Operate authority.",
+  taskSteps: [
+    "Test the connector to confirm ServiceNow credentials and routing work.",
+    "Adjust CMDB auto-create settings when incidents need asset linkage.",
+    "Open Integration readiness when the connector path is not ready yet.",
+  ],
 } as const;
 
 export const SERVICENOW_INTEGRATION_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] = [

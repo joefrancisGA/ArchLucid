@@ -35,12 +35,12 @@ export const WELCOME_PRIMARY_CONTENT_ID = "welcome-primary-content" as const;
 export const WELCOME_HERO_DIFFERENTIATORS: readonly string[] = [
   "Every finding traces to evidence",
   "Finalized review records with an audit trail",
-  "Governance policy packs included",
+  "Policy packs included",
   "Exports for ARB, audit, and procurement",
 ];
 
 export const WELCOME_HERO_CTA_SUBHEADING =
-  "See an architecture review built for governance — not slide decks alone.";
+  "See a policy-backed architecture review — not slide decks alone.";
 
 /**
  * Architect-led reassurance shown under the hero subheading: leads with self-serve inspection and
@@ -141,7 +141,7 @@ export const WELCOME_WORKFLOW_STEPS: readonly WelcomeWorkflowStep[] = [
 ] as const;
 
 export const WELCOME_WORKFLOW_INTRO =
-  "One six-stage vocabulary shared by buyers, architects, and governance partners.";
+  "One six-stage vocabulary shared by buyers, architects, and approval partners.";
 
 export type WelcomeUseCaseCard = {
   readonly id: string;
@@ -157,7 +157,7 @@ const DEFAULT_POLICY_PACKS_HREF = resolveInAppDocHref("docs/go-to-market/DEFAULT
 export const WELCOME_USE_CASE_CARDS: readonly WelcomeUseCaseCard[] = [
   {
     id: "ai-governance-security",
-    title: "AI governance + security baseline",
+    title: "AI policy + security baseline",
     body: "Responsible-AI and security-architecture rules seed every new tenant, so regulated reviews start review-ready instead of with an empty library.",
     // Workspace B Meridian/Alpine storyline — not WAF/CAF findings (M-06 C8).
     href: `/architecture/reviews/${DEMO_WORKSPACE_B_RUN_ID}`,

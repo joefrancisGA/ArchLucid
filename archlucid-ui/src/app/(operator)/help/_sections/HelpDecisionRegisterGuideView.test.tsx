@@ -44,7 +44,7 @@ describe("HelpDecisionRegisterGuideView", () => {
     expect(screen.getByTestId("help-decision-register-guide")).toBeInTheDocument();
     expect(screen.queryByTestId("help-topic-breadcrumb")).not.toBeInTheDocument();
     expect(screen.getByTestId("help-topic-registry-provenance")).toHaveTextContent(
-      "Guide last reviewed 2026-08-13 · governance decision register orientation",
+      "Guide last reviewed 2026-08-13 · decision register orientation",
     );
     expect(screen.getByTestId("help-decision-register-start-here-precondition")).toHaveTextContent(
       DECISION_REGISTER_HELP_START_HERE_PRECONDITION,

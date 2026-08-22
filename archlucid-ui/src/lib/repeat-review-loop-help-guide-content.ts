@@ -26,7 +26,7 @@ export const REPEAT_REVIEW_LOOP_HELP_OVERVIEW =
   "After one committed architecture review, ArchLucid helps you compare packages, replay checks, run approval dry-runs, and collect export-ready proof on follow-up reviews.";
 
 export const REPEAT_REVIEW_LOOP_HELP_DIAGRAM_SUMMARY =
-  "The repeat-review loop after your first finalize: compare, replay, dry-run governance, finalize again, and collect proof.";
+  "The repeat-review loop after your first finalize: compare, replay, policy dry-runs, finalize again, and collect proof.";
 
 /** Per-instance Mermaid theme — larger labels and higher contrast on raised surfaces. */
 export const REPEAT_REVIEW_LOOP_HELP_DIAGRAM_THEME_VARIABLES: Readonly<Record<string, string>> = {

@@ -4,7 +4,7 @@ const AGENT_TYPE_SPONSOR_LABELS: Record<string, string> = {
   SecurityReviewer: "Security analysis",
   CostReviewer: "Cost analysis",
   ComplianceReviewer: "Compliance analysis",
-  GovernanceReviewer: "Governance analysis",
+  GovernanceReviewer: "Policy analysis",
 };
 
 export function formatPilotOutcomesAgentTypeLabel(agentType: string): string {

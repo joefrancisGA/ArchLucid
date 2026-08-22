@@ -1,11 +1,13 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
+import { BUYER_MANIFEST_AUTHORITY_SUMMARY } from "@/lib/buyer/buyer-polish-copy";
+import { OPERATOR_SHORT_HELPER_MEASURE_CLASS } from "@/lib/design-tokens";
 import {
-  SEALED_RECORD_DETAIL_CLAIM_HEADING,
   SEALED_RECORD_DETAIL_PRIMARY_CONTENT_ID,
   SEALED_RECORD_DETAIL_SKIP_LINK_LABEL,
 } from "@/lib/sealed-record-detail-page-copy";
+import { SHOWCASE_STATIC_DEMO_MANIFEST_ID, SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import type { ManifestSummary } from "@/types/authority";
 
 import { ManifestDetailPageView } from "./ManifestDetailPageView";
@@ -79,10 +81,10 @@ describe("ManifestDetailPageView buyer polish", () => {
     expect(skipLink).toHaveAttribute("href", `#${SEALED_RECORD_DETAIL_PRIMARY_CONTENT_ID}`);
 
     const breadcrumb = screen.getByRole("navigation", { name: "Breadcrumb" });
-    expect(breadcrumb).toHaveTextContent("Governance");
+    expect(breadcrumb).toHaveTextContent("Approval");
     expect(breadcrumb).toHaveTextContent("Finalized review records");
 
-    expect(screen.getByRole("heading", { level: 2, name: SEALED_RECORD_DETAIL_CLAIM_HEADING })).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "What this finalized review record is not" })).not.toBeInTheDocument();
     expect(screen.getByTestId("sealed-record-detail-sources")).toBeInTheDocument();
 
     const orientation = screen.getByTestId("sealed-record-detail-orientation-top");
@@ -91,5 +93,26 @@ describe("ManifestDetailPageView buyer polish", () => {
 
     expect(primary).toContainElement(orientation);
     expect(orientation.compareDocumentPosition(summary) & Node.DOCUMENT_POSITION_PRECEDING).toBeTruthy();
+  });
+
+  it("lets the authority hero use the work-surface width instead of a prose cap", () => {
+    render(
+      <ManifestDetailPageView
+        model={buildModel({
+          manifestId: SHOWCASE_STATIC_DEMO_MANIFEST_ID,
+          summary: {
+            ...manifestSummary,
+            manifestId: SHOWCASE_STATIC_DEMO_MANIFEST_ID,
+            runId: SHOWCASE_STATIC_DEMO_RUN_ID,
+          },
+        })}
+      />,
+    );
+
+    const hero = screen.getByTestId("manifest-buyer-authority-summary");
+    expect(screen.getByRole("heading", { name: "What this Finalized review record proves" })).toBeInTheDocument();
+    expect(hero.textContent).toContain(BUYER_MANIFEST_AUTHORITY_SUMMARY);
+    expect(hero.querySelector("p")).toHaveClass(OPERATOR_SHORT_HELPER_MEASURE_CLASS);
+    expect(hero.querySelector("p")?.className).not.toContain("max-w-prose");
   });
 });

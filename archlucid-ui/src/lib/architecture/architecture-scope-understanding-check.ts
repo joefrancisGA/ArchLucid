@@ -50,10 +50,8 @@ export const SCOPE_UNDERSTANDING_HELPER =
   "Edit these lines or add your own, then confirm. Confirmed scope is saved into the intake brief the reviewer reads.";
 export const SCOPE_UNDERSTANDING_ADD_LABEL = "Add an in-scope item";
 export const SCOPE_UNDERSTANDING_ADD_PLACEHOLDER =
-  "Type a system, constraint, or boundary, then choose Add to scope";
+  "Type a system, constraint, or boundary, then choose Add to scope (or press Enter)";
 export const SCOPE_UNDERSTANDING_ADD_BUTTON_LABEL = "Add to scope";
-export const SCOPE_UNDERSTANDING_ADD_HINT =
-  "Type the item in the field, then choose Add to scope (or press Enter).";
 export const SCOPE_UNDERSTANDING_ADD_EFFECT_HINT =
   "Items you add become scope lines in the intake brief — write each one the way you would state the boundary to a reviewer.";
 /** Default pointer to the field that owns the architecture context text on the architecture draft page. */

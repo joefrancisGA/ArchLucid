@@ -26,7 +26,7 @@ export default function SignedRecordArtifactLoading(): React.JSX.Element {
           <OperatorPageBreadcrumb
             data-testid="governance-sealed-record-artifact-breadcrumb"
             items={[
-              { label: "Governance", href: GOVERNANCE_APPROVAL_QUEUE_PATH },
+              { label: "Approval", href: GOVERNANCE_APPROVAL_QUEUE_PATH },
               { label: SIGNED_RECORDS_LIST_PAGE_TITLE, href: SIGNED_RECORDS_LIST_PATH },
               { label: SIGNED_RECORD_ARTIFACT_PAGE_TITLE },
             ]}

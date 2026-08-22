@@ -142,7 +142,7 @@ describe("splitSidebarLinksDailyVsMore", () => {
 
 describe("sidebarMoreLinksLabel", () => {
   it("pluralizes", () => {
-    expect(sidebarMoreLinksLabel("Governance", 1)).toBe("1 more in Governance");
-    expect(sidebarMoreLinksLabel("Governance", 4)).toBe("4 more in Governance");
+    expect(sidebarMoreLinksLabel("Approval", 1)).toBe("1 more in Approval");
+    expect(sidebarMoreLinksLabel("Approval", 4)).toBe("4 more in Approval");
   });
 });

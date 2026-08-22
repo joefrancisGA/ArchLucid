@@ -79,7 +79,7 @@ export function CorePilotHelpPostStepperPanel(): React.JSX.Element {
               <Card className="border-neutral-200 dark:border-neutral-800">
                 <CardContent className={cn(OPERATOR_CARD.body, "space-y-3")}>
                   <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
-                    Recommended when connector access is not approved yet, or when your first session only has briefs,
+                    Recommended when connector access is not configured yet, or when your first session only has briefs,
                     diagrams, IaC, screenshots, exports, or policy documents.
                   </p>
                   <ol className={cn("m-0 list-decimal space-y-1.5 pl-5", OPERATOR_TYPOGRAPHY.body)}>

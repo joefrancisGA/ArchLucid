@@ -15,7 +15,7 @@ export const SEE_IT_HERO_LEAD_OPERATOR =
   "Evidence-backed proof export — finalized review record, findings, and audit trail — not a chat transcript.";
 
 export const SEE_IT_HERO_LEAD_BUYER =
-  "See sealed findings, audit trail, and exportable proof — not a chat transcript.";
+  "See finalized findings, audit trail, and exportable proof — not a chat transcript.";
 
 /** Marketing `/see-it` hero lead — shorter than the operator-oriented line. */
 export const SEE_IT_HERO_LEAD = SEE_IT_HERO_LEAD_BUYER;

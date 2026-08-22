@@ -49,11 +49,11 @@ export function GovernanceApprovalLineagePageView({ model }: GovernanceApprovalL
           title="Approval lineage"
           description={
             nextDemo
-              ? "Lineage detail is not available in this demo environment, or this approval id has no persisted lineage yet. Explore governance findings or a completed example review instead."
-              : "Lineage detail is not available for this approval in the guided review experience yet, or the service returned no linkage. Explore governance findings or a completed example review instead."
+              ? "Lineage detail is not available in this demo environment, or this approval id has no persisted lineage yet. Explore the findings queue or a completed sample review instead."
+              : "Lineage detail is not available for this approval in the guided review experience yet, or the service returned no linkage. Explore the findings queue or a completed sample review instead."
           }
           learnMoreHref="/governance/findings"
-          learnMoreLabel="Governance findings"
+          learnMoreLabel="Findings"
         />
         <div className="flex flex-wrap gap-2">
           <Button type="button" size="sm" variant="outline" onClick={() => void load()}>

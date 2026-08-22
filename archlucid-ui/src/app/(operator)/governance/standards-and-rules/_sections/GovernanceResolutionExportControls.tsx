@@ -96,7 +96,7 @@ export function GovernanceResolutionExportControls(
           id="governance-resolution-export-disabled-hint"
           className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
         >
-          Refresh governance resolution data before exporting a diagnostic report.
+          Refresh policy resolution data before exporting a diagnostic report.
         </p>
       ) : null}
     </section>

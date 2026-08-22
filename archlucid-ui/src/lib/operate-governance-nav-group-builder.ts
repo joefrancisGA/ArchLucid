@@ -98,7 +98,7 @@ export class OperateGovernanceNavGroupBuilder extends NavGroupBuilderBase {
         {
           href: "/governance/decision-register",
           label: OPERATOR_NAV_LINK_LABELS.decisionRegister,
-          title: "Review signed decisions and resolve outcomes",
+          title: "Review recorded decisions and resolve outcomes",
           icon: Gavel,
           tier: "extended",
           requiredAuthority: "ReadAuthority",

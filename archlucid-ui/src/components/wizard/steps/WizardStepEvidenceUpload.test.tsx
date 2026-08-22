@@ -94,7 +94,7 @@ describe("WizardStepEvidenceUpload", () => {
     fireEvent.click(screen.getByTestId("wizard-evidence-source-demo"));
 
     expect(screen.getByTestId("wizard-evidence-source-panel-demo")).toHaveTextContent(
-      "Choose a bundled example review scenario",
+      "Choose a bundled sample review scenario",
     );
     expect(screen.getByTestId("wizard-evidence-source-panel-demo").textContent?.toLowerCase()).not.toContain(
       "azure extractor package",

@@ -19,6 +19,11 @@ export const HELP_TOPIC_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] =
         "Open Trust Center or Assurance status for diligence artifacts, then review Sources before sponsor briefings.",
       whyEmpty: "This guide always shows isolation and data-handling content when the help topic loads.",
       whereToConfigurePrerequisite: "Confirm residency and subprocessors during procurement with your account team.",
+      taskSteps: [
+        "Review evidence flow and tenant scope vocabulary.",
+        "Open Trust Center for diligence artifacts.",
+        "Confirm Sources before sponsor briefings.",
+      ],
     },
   },
   {
@@ -30,6 +35,11 @@ export const HELP_TOPIC_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] =
         "Open Trust Center for the diligence pack, review Subprocessors, then expand the full template with counsel.",
       whyEmpty: "Orientation and CTAs always appear when this help topic loads; expand the disclosure for clauses.",
       whereToConfigurePrerequisite: "Execute a DPA only through your procurement counsel and account team.",
+      taskSteps: [
+        "Open Trust Center for the diligence pack.",
+        "Review Subprocessors with counsel.",
+        "Expand the full template only for negotiation work.",
+      ],
     },
   },
   {
@@ -42,6 +52,11 @@ export const HELP_TOPIC_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] =
       whyEmpty: "Orientation and CTAs always appear when this help topic loads.",
       whereToConfigurePrerequisite:
         "CPA attestation and third-party pen-test publication remain owner programs outside this page.",
+      taskSteps: [
+        "Open Trust Center for the diligence pack.",
+        "Use CAIQ or SIG for questionnaire pre-fills.",
+        "Read the control summary as readiness mapping only.",
+      ],
     },
   },
   {
@@ -52,6 +67,11 @@ export const HELP_TOPIC_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] =
         "Pick the matching goal branch, open the primary cite, then use Sources before treating orientation as diligence.",
       whyEmpty: "Branches always appear when this help topic loads.",
       whereToConfigurePrerequisite: "Start or finalize a review when your goal needs product evidence, not just orientation.",
+      taskSteps: [
+        "Pick the branch that matches your current goal.",
+        "Open the primary cited next action.",
+        "Use Sources before treating orientation as diligence.",
+      ],
     },
   },
   {
@@ -71,6 +91,11 @@ export const HELP_TOPIC_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] =
         label: "Open Improvement planning",
         href: PLANNING_PATH,
       },
+      taskSteps: [
+        "Open Pilot feedback for live aggregates.",
+        "Review ranked improvement opportunities.",
+        "Open Improvement planning when themes need plans.",
+      ],
     },
   },
   {
@@ -82,6 +107,11 @@ export const HELP_TOPIC_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] =
       whyEmpty: "This guide is always available; live sponsor reports populate after finalized reviews exist.",
       whereToConfigurePrerequisite:
         "Sponsor exports need a role that can read finalized architecture reviews in this workspace.",
+      taskSteps: [
+        "Open the live sponsor value report or dashboard.",
+        "Set the reporting period before exporting.",
+        "Review Pilot ROI methodology when assumptions need clarity.",
+      ],
     },
   },
   {
@@ -93,6 +123,11 @@ export const HELP_TOPIC_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] =
         "Open the matching settings CTA (SSO or identity providers), then expand the key catalog appendix only if needed.",
       whyEmpty: "This guide always shows configuration tasks when the help topic loads.",
       whereToConfigurePrerequisite: "Admin access to identity settings and the configuration summary.",
+      taskSteps: [
+        "Open the matching SSO or identity providers CTA.",
+        "Complete required configuration tasks in order.",
+        "Expand the key catalog appendix only when needed.",
+      ],
     },
   },
   {
@@ -105,6 +140,11 @@ export const HELP_TOPIC_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] =
       whyEmpty: "This reference always shows when the help topic loads.",
       whereToConfigurePrerequisite:
         "CLI and API automation need credentials and workspace scope configured for the target environment.",
+      taskSteps: [
+        "Start with customer Troubleshooting and System health.",
+        "Use CLI commands for non-interactive automation.",
+        "Open engineering troubleshooting when logs need deeper triage.",
+      ],
     },
   },
   {
@@ -116,6 +156,11 @@ export const HELP_TOPIC_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] =
         "Prefer Customer Troubleshooting and System health first, then use eng CLI/env detail; open Report a problem when filing a ticket.",
       whyEmpty: "This runbook always shows when the help topic loads for Admins.",
       whereToConfigurePrerequisite: "Admin access; Architects should use the customer Troubleshooting guide instead.",
+      taskSteps: [
+        "Confirm customer Troubleshooting steps were tried first.",
+        "Use engineering CLI and environment detail here.",
+        "Open Report a problem when filing a ticket.",
+      ],
     },
   },
   {
@@ -127,6 +172,11 @@ export const HELP_TOPIC_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] =
         "Open CLI usage for tooling, or Resolve outcomes if you need buyer approval workflows.",
       whyEmpty: "Orientation and stripped contract reference always show when this Admin help topic loads.",
       whereToConfigurePrerequisite: "Admin access; treat OpenAPI as the contract of record when prose disagrees.",
+      taskSteps: [
+        "Read orientation for HTTP and OpenAPI scope.",
+        "Open CLI usage when tooling setup is needed.",
+        "Open Resolve outcomes help for buyer approval workflows.",
+      ],
     },
   },
   {
@@ -147,6 +197,11 @@ export const HELP_TOPIC_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] =
         label: "Open Troubleshooting",
         href: "/help/troubleshooting",
       },
+      taskSteps: [
+        "Read this help topic for orientation.",
+        "Open Getting started for first-run workflow.",
+        "Open Troubleshooting when something is blocked.",
+      ],
     },
   },
   {
@@ -168,6 +223,11 @@ export const HELP_TOPIC_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] =
         label: "Start a review",
         href: "/architecture/reviews/new",
       },
+      taskSteps: [
+        "Finalize a first architecture review when packs are empty.",
+        "Pick the accelerator pack that matches the buyer job.",
+        "Start a review with the selected pack.",
+      ],
     },
   },
   {
@@ -188,6 +248,11 @@ export const HELP_TOPIC_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] =
         label: "Open Engineering troubleshooting",
         href: "/help/engineering-troubleshooting",
       },
+      taskSteps: [
+        "Open System health for live probe tiles.",
+        "Use this guide for assistant and observability context.",
+        "Open Engineering troubleshooting for CLI and log triage.",
+      ],
     },
   },
   {
@@ -208,6 +273,11 @@ export const HELP_TOPIC_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] =
         label: "Open Sign-in methods",
         href: "/account/security",
       },
+      taskSteps: [
+        "Sign in with your enabled method when ready.",
+        "Open Users and roles help for workspace access.",
+        "Open Sign-in methods for recovery or MFA changes.",
+      ],
     },
   },
   {
@@ -228,6 +298,11 @@ export const HELP_TOPIC_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] =
         label: "Open Trust Center",
         href: "/trust",
       },
+      taskSteps: [
+        "Use questionnaire pre-fills with procurement counsel.",
+        "Open SOC 2 self-assessment for related assurance context.",
+        "Open Trust Center for published diligence packs.",
+      ],
     },
   },
   {
@@ -240,6 +315,11 @@ export const HELP_TOPIC_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] =
       whyEmpty: "This guide is always available; review metrics appear after you create or finalize reviews.",
       whereToConfigurePrerequisite:
         "Choose a workspace in the header scope switcher before starting a real (non-sample) review.",
+      taskSteps: [
+        "Choose workspace scope in the header switcher.",
+        "Start a review or open the sample walkthrough.",
+        "Use Choose your next step when your goal is not first-run intake.",
+      ],
     },
   },
   {
@@ -252,6 +332,11 @@ export const HELP_TOPIC_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] =
       whyEmpty: "This guide is always available; live dependency status appears on System health.",
       whereToConfigurePrerequisite:
         "Confirm workspace scope in the header switcher before diagnosing tenant-specific failures.",
+      taskSteps: [
+        "Open System health for dependency status.",
+        "Download a support bundle when logs are needed.",
+        "Open the matching common-issue card for your symptom.",
+      ],
     },
   },
   {
@@ -264,6 +349,11 @@ export const HELP_TOPIC_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] =
       whyEmpty: "This guide is always available; live inbox and rules appear after reviews raise alerts.",
       whereToConfigurePrerequisite:
         "Alert delivery often needs channel integrations configured under Integrations.",
+      taskSteps: [
+        "Open the alerts inbox for active notifications.",
+        "Review Alert rules conditions and destinations.",
+        "Configure integrations when delivery channels are missing.",
+      ],
     },
   },
   {
@@ -276,6 +366,11 @@ export const HELP_TOPIC_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] =
       whyEmpty: "This FAQ is always available; NDA packs require contacting the security mailbox listed in the guide.",
       whereToConfigurePrerequisite:
         "No workspace toggle is required — this page is procurement orientation vocabulary only.",
+      taskSteps: [
+        "Open Assurance status or Trust Center for public materials.",
+        "Request NDA-gated packs through Security and Trust settings.",
+        "Use the security mailbox when counsel needs direct contact.",
+      ],
     },
   },
   {
@@ -288,6 +383,11 @@ export const HELP_TOPIC_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] =
       whyEmpty: "This guide is always available; live scope labels appear in the workspace header after sign-in.",
       whereToConfigurePrerequisite:
         "Changing tenant or project membership needs Admin authority in the target workspace.",
+      taskSteps: [
+        "Confirm tenant, workspace, and project in the header switcher.",
+        "Open Users and roles when access needs adjustment.",
+        "Open Users settings when invitations are required.",
+      ],
     },
   },
   {
@@ -300,6 +400,11 @@ export const HELP_TOPIC_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] =
       whyEmpty: "This guide is always available; live graph nodes appear after finalized reviews exist.",
       whereToConfigurePrerequisite:
         "Evidence graph depth follows finalized reviews in the current workspace and project scope.",
+      taskSteps: [
+        "Open the live Evidence graph for relationship context.",
+        "Use Search review evidence for workspace-wide retrieval.",
+        "Open Validate review when you need package-level trails.",
+      ],
     },
   },
   {
@@ -312,6 +417,11 @@ export const HELP_TOPIC_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] =
       whyEmpty: "This guide is always available; live intake drafts appear after you create architecture reviews.",
       whereToConfigurePrerequisite:
         "Creating reviews needs a role that can start architecture reviews in this workspace.",
+      taskSteps: [
+        "Open New architecture review to start intake.",
+        "Attach brief, diagram, document, or cloud evidence.",
+        "Verify intake completeness before finalize.",
+      ],
     },
   },
   {
@@ -324,6 +434,11 @@ export const HELP_TOPIC_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] =
       whyEmpty: "This guide is always available; live architecture reviews appear after you create them in this workspace.",
       whereToConfigurePrerequisite:
         "Creating reviews needs a role that can start architecture reviews in this workspace.",
+      taskSteps: [
+        "Start an architecture review from the reviews hub.",
+        "Use this guide for field-level intake reference.",
+        "Open First review guide when you need a walkthrough instead.",
+      ],
     },
   },
   {
@@ -335,6 +450,11 @@ export const HELP_TOPIC_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] =
       whyEmpty: "This guide is always available; live pilot outcomes appear after reviews and sponsor reports exist.",
       whereToConfigurePrerequisite:
         "Running a pilot needs a workspace where architects can create and finalize architecture reviews.",
+      taskSteps: [
+        "Prepare workspace scope and reviewer access.",
+        "Start an architecture review for pilot evidence.",
+        "Open Your first architecture review for step-by-step guidance.",
+      ],
     },
   },
   {
@@ -347,6 +467,11 @@ export const HELP_TOPIC_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] =
       whyEmpty: "This guide is always available; live architecture reviews appear after you create them.",
       whereToConfigurePrerequisite:
         "Creating reviews needs a role that can start architecture reviews in this workspace.",
+      taskSteps: [
+        "Start an architecture review from the primary CTA.",
+        "Complete intake and verify evidence before finalize.",
+        "Open the sample review when you want a completed outcome first.",
+      ],
     },
   },
   {
@@ -359,6 +484,11 @@ export const HELP_TOPIC_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] =
       whyEmpty: "Glossary terms are always listed; search filters the catalog without needing a live review.",
       whereToConfigurePrerequisite:
         "No configuration is required — this page is orientation vocabulary only.",
+      taskSteps: [
+        "Search for the product term you need to define.",
+        "Open Getting started for workflow orientation.",
+        "Open Assurance status when diligence vocabulary is the question.",
+      ],
     },
   },
 ];

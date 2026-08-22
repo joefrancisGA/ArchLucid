@@ -48,10 +48,10 @@ describe("LayerHeader", () => {
     expect(screen.getByTestId("layer-header-review-vocabulary")).toHaveTextContent(/finalized review record/i);
   });
 
-  it("renders Governance responsibility footnote on audit", () => {
+  it("renders Approval responsibility footnote on audit", () => {
     render(<LayerHeader pageKey="audit" />);
 
-    expect(screen.getByText("Governance")).toBeInTheDocument();
+    expect(screen.getByText("Approval")).toBeInTheDocument();
     expect(screen.getByText(/Tenant audit trail — who did what, when/i)).toBeInTheDocument();
   });
 

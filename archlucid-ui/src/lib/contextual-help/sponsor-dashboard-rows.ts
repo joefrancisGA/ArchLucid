@@ -21,6 +21,11 @@ const SPONSOR_DASHBOARD_HUB_CONTEXTUAL_HELP = {
     label: "Open approval queue",
     href: GOVERNANCE_APPROVAL_QUEUE_PATH,
   },
+  taskSteps: [
+    "Review KPI tiles and sponsor exports for the current scope.",
+    "Open Decisions needed when approvals are blocking progress.",
+    "Switch workspace or project from the header when figures look stale.",
+  ],
 } as const;
 
 export const SPONSOR_DASHBOARD_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] = [

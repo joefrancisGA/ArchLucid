@@ -166,7 +166,7 @@ describe("SlackIntegrationPageClient", () => {
     const webhookInput = screen.getByLabelText(`${SLACK_FIELD_WEBHOOK_URL_LABEL} (required)`);
 
     fireEvent.change(nameInput, {
-      target: { value: "Governance alerts" },
+      target: { value: "Policy alerts" },
     });
     fireEvent.blur(nameInput);
     fireEvent.change(webhookInput, {
@@ -191,7 +191,7 @@ describe("SlackIntegrationPageClient", () => {
     render(<SlackIntegrationPageClient />);
 
     fireEvent.change(await screen.findByLabelText(`${SLACK_FIELD_DESTINATION_NAME_LABEL} (required)`), {
-      target: { value: "Governance alerts" },
+      target: { value: "Policy alerts" },
     });
     fireEvent.blur(screen.getByLabelText(`${SLACK_FIELD_DESTINATION_NAME_LABEL} (required)`));
     fireEvent.change(screen.getByLabelText(`${SLACK_FIELD_WEBHOOK_URL_LABEL} (required)`), {
@@ -227,7 +227,7 @@ describe("SlackIntegrationPageClient", () => {
         tenantId: "t",
         workspaceId: "w",
         projectId: "p",
-        name: "Governance alerts",
+        name: "Policy alerts",
         channelType: "SlackWebhook",
         destination: "https://hooks.slack.com/services/SECRET/PATH",
         minimumSeverity: "High",
@@ -244,7 +244,7 @@ describe("SlackIntegrationPageClient", () => {
       expect(screen.getByTestId("slack-header-status-badge")).toHaveTextContent("1 active destination");
     });
     const table = await screen.findByTestId("slack-destinations-table");
-    expect(within(table).getByText("Governance alerts")).toBeInTheDocument();
+    expect(within(table).getByText("Policy alerts")).toBeInTheDocument();
     expect(screen.queryByText("https://hooks.slack.com/services/SECRET/PATH")).not.toBeInTheDocument();
     expect(screen.getByRole("table", { name: "Slack notification destinations" })).toBe(table);
     expect(screen.getByText("1 destination in this workspace.")).toBeInTheDocument();
@@ -257,7 +257,7 @@ describe("SlackIntegrationPageClient", () => {
         tenantId: "t",
         workspaceId: "w",
         projectId: "p",
-        name: "Governance alerts",
+        name: "Policy alerts",
         channelType: "SlackWebhook",
         destination: "https://hooks.slack.com/services/SECRET/PATH",
         minimumSeverity: "High",
@@ -284,7 +284,7 @@ describe("SlackIntegrationPageClient", () => {
         tenantId: "t",
         workspaceId: "w",
         projectId: "p",
-        name: "Governance alerts",
+        name: "Policy alerts",
         channelType: "SlackWebhook",
         destination: "https://hooks.slack.com/services/SECRET/PATH",
         minimumSeverity: "High",
@@ -299,7 +299,7 @@ describe("SlackIntegrationPageClient", () => {
 
     fireEvent.click(await screen.findByTestId("slack-toggle-sub-1"));
 
-    expect(screen.getByText(/Disable Slack destination Governance alerts/i)).toBeInTheDocument();
+    expect(screen.getByText(/Disable Slack destination Policy alerts/i)).toBeInTheDocument();
     expect(screen.getByText(/Alerts will no longer post/i)).toBeInTheDocument();
     expect(mockToggle).not.toHaveBeenCalled();
 

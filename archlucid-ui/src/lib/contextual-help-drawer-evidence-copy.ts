@@ -8,7 +8,7 @@ export const CONTEXTUAL_HELP_DRAWER_CLAIM_DISCIPLINE =
 export const CONTEXTUAL_HELP_DRAWER_CLAIM_HEADING = "Guidance only" as const;
 
 export const CONTEXTUAL_HELP_DRAWER_SOURCES_INTRO =
-  "Use these follow-ups when help topics need review context, evidence trails, or governance queues.";
+  "Use these follow-ups when help topics need review context, evidence trails, or findings queue.";
 
 /** Operator Sources for the shell contextual help drawer (HCD). */
 export const CONTEXTUAL_HELP_DRAWER_SOURCES: readonly EvidenceSourceLink[] = [

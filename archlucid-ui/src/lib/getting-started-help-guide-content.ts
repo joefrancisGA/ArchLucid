@@ -9,7 +9,7 @@ export const GETTING_STARTED_HELP_SUBTITLE =
 export const GETTING_STARTED_HELP_PAGE_SUBTITLE_OPERATOR = GETTING_STARTED_HELP_SUBTITLE;
 
 export const GETTING_STARTED_HELP_PAGE_SUBTITLE_BUYER =
-  "See how evidence becomes findings, decisions, and governance outputs before your first review.";
+  "See how evidence becomes findings, decisions, and export-ready outputs before your first review.";
 
 export const GETTING_STARTED_HELP_BREADCRUMB_TOPIC_TITLE = "Getting started" as const;
 
@@ -66,7 +66,7 @@ export const GETTING_STARTED_HELP_DIAGRAM_STEPS = [
   "Analyze",
   "Findings",
   "Decisions",
-  "Governance outputs",
+  "Export-ready outputs",
 ] as const;
 
 export const GETTING_STARTED_HELP_PIPELINE_TEXT_STAGES = [
@@ -165,7 +165,7 @@ export const GETTING_STARTED_HELP_WORKFLOW_STEPS: readonly GettingStartedWorkflo
     stepNumber: 4,
     title: "Record decisions",
     description: "Capture approvals, accepted risks, and remediation owners before finalizing.",
-    expectedOutputs: "Architecture decisions and governance notes.",
+    expectedOutputs: "Architecture decisions and approval notes.",
     href: "/governance/approval-queue",
     ctaLabel: "Open resolve outcomes",
   },
@@ -209,7 +209,7 @@ export const GETTING_STARTED_HELP_NEXT_ACTION_CARDS: readonly GettingStartedActi
   },
   {
     title: "Learn the vocabulary",
-    description: "Scan the plain-language terms used across review, governance, and exports.",
+    description: "Scan the plain-language terms used across review, approval, and exports.",
     href: "#plain-language-vocabulary",
     ctaLabel: "View vocabulary",
   },

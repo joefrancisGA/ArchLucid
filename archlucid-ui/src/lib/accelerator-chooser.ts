@@ -78,7 +78,7 @@ export const ACCELERATOR_CHOOSER_ENTRIES: readonly AcceleratorChooserEntry[] = [
     id: "ai-llm-workload" satisfies AcceleratorPackId,
     buyerJob: "AI / LLM workload policy",
     packLabel: "AI policy pack",
-    summary: "Responsible-AI governance storyline for model owners and platform architects.",
+    summary: "Responsible-AI policy storyline for model owners and platform architects.",
     requiredInputs: "Second-pass evidence and policy context from a prior finalized architecture review",
     technicalInputs: "second-run.json, policy-context.json",
     expectedOutputs: "Findings, evidence trail, and export-ready output",

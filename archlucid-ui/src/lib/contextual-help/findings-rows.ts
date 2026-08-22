@@ -12,6 +12,11 @@ const FINDINGS_QUEUE_HUB_CONTEXTUAL_HELP = {
   whyEmpty: "Rows appear after findings are accepted or approval decisions are recorded in reviews.",
   whereToConfigurePrerequisite:
     "Policy packs and approval workflow settings shape what becomes a tracked risk.",
+  taskSteps: [
+    "Open a finding to inspect evidence, severity, and owners.",
+    "Assign owners and review aging risks.",
+    "Clear expiring exceptions before they lapse.",
+  ],
 } as const;
 
 export const FINDINGS_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] = [
@@ -22,7 +27,7 @@ export const FINDINGS_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] = [
   {
     prefix: FINDINGS_HELP_PATH,
     entry: {
-      whatIsThisPage: `Findings — ${FINDINGS_HELP_TOPIC_LABEL.toLowerCase()} across inspection, severity, and governance resolution.`,
+      whatIsThisPage: `Findings — ${FINDINGS_HELP_TOPIC_LABEL.toLowerCase()} across inspection, severity, and approval resolution.`,
       whatToDoNext:
         "Open the findings queue, search supporting evidence, or check the decision register for related outcomes.",
       whyEmpty: "This guide is always available; live findings appear after reviews produce architecture concerns.",

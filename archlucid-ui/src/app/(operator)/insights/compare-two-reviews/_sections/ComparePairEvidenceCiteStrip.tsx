@@ -55,7 +55,7 @@ export function ComparePairEvidenceCiteStrip(props: ComparePairEvidenceCiteStrip
         Sources for this comparison
       </h3>
       <p className={cn("m-0 mt-1 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-        Open the signed review context, evidence trail, or audit trail for each side before treating AI narrative as
+        Open the finalized review context, evidence trail, or audit trail for each side before treating AI narrative as
         authoritative.
       </p>
       <div className="mt-3 grid gap-3 sm:grid-cols-2">

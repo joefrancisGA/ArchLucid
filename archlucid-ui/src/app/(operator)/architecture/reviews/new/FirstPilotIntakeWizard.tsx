@@ -33,6 +33,7 @@ import { FocusedPilotScopeDisclosureBanner } from "@/components/wizard/FocusedPi
 import { WizardSessionResumePrompt } from "@/components/wizard/WizardSessionResumePrompt";
 import { WizardSessionSaveStatus } from "@/components/wizard/WizardSessionSaveStatus";
 import { useLlmMonthlyBudgetExecutionGate } from "@/hooks/use-llm-monthly-budget-execution-gate";
+import { useInferredUniversalIntakeAnswers } from "@/hooks/use-inferred-universal-intake-answers";
 import { useWizardSessionPersistence } from "@/hooks/use-wizard-session-persistence";
 import {
   REVIEW_CREATION_PROGRESS_TIMEOUT_MS,
@@ -49,6 +50,8 @@ import {
 import { GUIDED_INTAKE_ARCHITECTURE_CONTEXT_LABEL } from "@/lib/guided-intake-copy";
 import { BUYER_START_ARCHITECTURE_REVIEW_CTA, CREATE_REVIEW_PACKAGE_HEADING } from "@/lib/buyer/buyer-polish-copy";
 import { deriveEvidencePresenceFromFileNames } from "@/lib/evidence-gap-forecast";
+import { ARCHITECTURE_DOCUMENT_READ_AFTER_UPLOAD_HELPER, evidenceFilesIncludeBinaryArchitectureDocument } from "@/lib/evidence-readable-text";
+import { EVIDENCE_UPLOAD_ACCEPTED_FORMATS_ACCEPTED_PREFIX } from "@/lib/evidence-upload-accepted-formats";
 import {
   REVIEW_START_CREATION_FAILED_MESSAGE,
   REVIEW_START_PREPARING_LABEL,
@@ -75,6 +78,7 @@ import { trackReviewPipelineInFlight } from "@/lib/operations/review-pipeline-in
 import {
   buildEvidenceBackedIntakeBrief,
   describeFirstPilotIntakeGap,
+  FIRST_PILOT_ARCHITECTURE_CONTEXT_MIN_HELPER,
   FIRST_PILOT_MIN_BRIEF_CHARS,
   formatFirstPilotIntakeWriteDestination,
   isFirstPilotIntakeReady,
@@ -190,6 +194,13 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
   const [reviewStandardsConfirmed, setReviewStandardsConfirmed] = useState(false);
   const [l0Answers, setL0Answers] = useState<Readonly<Record<string, string>>>({});
   const [l0SkippedQuestionKeys, setL0SkippedQuestionKeys] = useState<ReadonlySet<string>>(() => new Set());
+  const { inferredQuestionKeys: inferredL0QuestionKeys, markQuestionEdited: markL0QuestionEdited } =
+    useInferredUniversalIntakeAnswers({
+      briefText,
+      evidenceFiles,
+      answers: l0Answers,
+      onAnswersChange: setL0Answers,
+    });
   const [clientValidationMessage, setClientValidationMessage] = useState<string | null>(null);
   const [scopeGateOpen, setScopeGateOpen] = useState(false);
   const [scopeBullets, setScopeBullets] = useState<ScopeUnderstandingBullet[]>([]);
@@ -303,6 +314,10 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
   }, [briefText, evidenceFiles]);
 
   const evidenceFileNames = useMemo(() => evidenceFiles.map((file) => file.name), [evidenceFiles]);
+  const showBinaryDocumentReadAfterUploadHelper = useMemo(
+    () => evidenceFilesIncludeBinaryArchitectureDocument(evidenceFiles),
+    [evidenceFiles],
+  );
   const analyzableEvidenceInput = useMemo<QuickStartAnalyzableEvidenceInput>(
     () => ({
       operatorBrief: briefText,
@@ -515,7 +530,7 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
           <WizardEvidenceUploadZone
             labelId="first-pilot-evidence"
             title="Attach architecture evidence"
-            description="Diagram, PDF export, or architecture document. Accepted: PDF, DOCX, Markdown, text, JSON, YAML, images."
+            description={`Diagram, PDF export, or architecture document. ${EVIDENCE_UPLOAD_ACCEPTED_FORMATS_ACCEPTED_PREFIX}.`}
             attachmentSummarySuffix="or add architecture context below"
             onFilesSelected={(files: File[]) => {
               setEvidenceFiles(files);
@@ -523,6 +538,15 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
               setClientValidationMessage(null);
             }}
           />
+
+          {showBinaryDocumentReadAfterUploadHelper ? (
+            <p
+              className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="first-pilot-binary-document-read-after-upload"
+            >
+              {ARCHITECTURE_DOCUMENT_READ_AFTER_UPLOAD_HELPER}
+            </p>
+          ) : null}
 
           {showLimitedEvidenceAcknowledgment ? (
             <div
@@ -571,19 +595,25 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
               id="first-pilot-brief-hint"
               className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
             >
-              {briefText.trim().length}/{FIRST_PILOT_MIN_BRIEF_CHARS} characters minimum if you are not attaching
-              evidence.
+              {FIRST_PILOT_ARCHITECTURE_CONTEXT_MIN_HELPER}
             </p>
           </div>
 
-          <EvidenceGapForecastPanel presence={evidencePresence} presentation="expandable" />
+          <EvidenceGapForecastPanel
+            presence={evidencePresence}
+            attachmentFileNames={evidenceFileNames}
+            architectureContextPresent={briefText.trim().length >= FIRST_PILOT_MIN_BRIEF_CHARS}
+            presentation="expandable"
+          />
 
           <QuickStartL0MustQuestionsPanel
             answers={l0Answers}
             skippedQuestionKeys={l0SkippedQuestionKeys}
+            inferredQuestionKeys={inferredL0QuestionKeys}
             busy={creationProgress.isActive || blocksLlmExecution}
             onAnswersChange={setL0Answers}
             onSkippedQuestionKeysChange={setL0SkippedQuestionKeys}
+            onQuestionEdited={markL0QuestionEdited}
           />
 
           <ArchitectureScopeUnderstandingCheckPanel

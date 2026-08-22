@@ -64,7 +64,7 @@ export class OperatorAdminNavGroupBuilder extends NavGroupBuilderBase {
 
           label: OPERATOR_NAV_LINK_LABELS.settings,
 
-          title: "All settings — searchable index of workspace, governance, integration, billing, and support configuration",
+          title: "All settings — searchable index of workspace, approval, integration, billing, and support configuration",
 
           icon: Settings,
 

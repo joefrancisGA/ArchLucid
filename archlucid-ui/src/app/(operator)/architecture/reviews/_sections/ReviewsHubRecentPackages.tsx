@@ -94,7 +94,7 @@ function ReviewsHubRecentPackagesTableHead(): React.JSX.Element {
         <EnterpriseTableHeaderCell className="text-right">Findings</EnterpriseTableHeaderCell>
         <EnterpriseTableHeaderCell className="text-right">Risks</EnterpriseTableHeaderCell>
         <EnterpriseTableHeaderCell className="text-right">Evidence</EnterpriseTableHeaderCell>
-        <EnterpriseTableHeaderCell>Governance</EnterpriseTableHeaderCell>
+        <EnterpriseTableHeaderCell>Approval</EnterpriseTableHeaderCell>
         <EnterpriseTableHeaderCell>Action</EnterpriseTableHeaderCell>
       </EnterpriseTableHeadRow>
     </EnterpriseTableHead>

@@ -21,6 +21,11 @@ export const ENTERPRISE_ONBOARDING_CONTEXTUAL_HELP_ROWS: readonly PageContextual
         "Summary cards load after auth diagnostics respond; local development sign-in may be enabled until production SSO is configured.",
       whereToConfigurePrerequisite:
         "Changing federation settings needs Admin authority and a verified sign-in domain when enforcement is required.",
+      taskSteps: [
+        "Review federation status on the overview cards.",
+        "Open SAML or OIDC setup when the provider is not configured.",
+        "Validate role mapping before inviting shared users.",
+      ],
     },
   },
   {
@@ -34,6 +39,11 @@ export const ENTERPRISE_ONBOARDING_CONTEXTUAL_HELP_ROWS: readonly PageContextual
         "Wizard steps always render for authorized Admins; empty issuer or mapping fields mean metadata has not been fetched or claims are not filled yet.",
       whereToConfigurePrerequisite:
         "Activating SSO needs Admin authority and a reachable IdP metadata or discovery URL; current sign-in stays unchanged until the final activate step.",
+      taskSteps: [
+        "Choose identity provider and protocol.",
+        "Fetch metadata and map claims to ArchLucid roles.",
+        "Run test connection before activating SSO.",
+      ],
     },
   },
   {
@@ -47,12 +57,17 @@ export const ENTERPRISE_ONBOARDING_CONTEXTUAL_HELP_ROWS: readonly PageContextual
         "Active tokens appear after creation; an empty list means no inbound provisioning tokens exist yet for this tenant.",
       whereToConfigurePrerequisite:
         "Managing SCIM tokens needs Admin authority; pair tokens with SSO and identity setup before enforcing directory sync.",
+      taskSteps: [
+        "Copy the SCIM base URL for your IdP directory sync.",
+        "Create and verify a provisioning token.",
+        "Revoke tokens you no longer need.",
+      ],
     },
   },
   {
     prefix: ENTERPRISE_ONBOARDING_HELP_CANONICAL_PATH,
     entry: {
-      whatIsThisPage: `Enterprise onboarding checklist — ${ENTERPRISE_ONBOARDING_HELP_TOPIC_LABEL.toLowerCase()} for SSO, roles, governance, policy packs, audit export, and optional Azure evidence.`,
+      whatIsThisPage: `Enterprise onboarding checklist — ${ENTERPRISE_ONBOARDING_HELP_TOPIC_LABEL.toLowerCase()} for SSO, roles, approval workflows, policy packs, audit export, and optional Azure evidence.`,
       whatToDoNext:
         "Open Identity providers for SSO, Users and roles for access, then Assurance status for assurance orientation.",
       whyEmpty: "This guide is always available; live identity and role surfaces appear after workspace configuration.",

@@ -61,6 +61,6 @@ describe("create-home diagram band regression (TB-1845)", () => {
   });
 
   it("keeps Mermaid source disclosure honesty copy (TB-1844)", () => {
-    expect(ARCHITECTURE_DIAGRAM_MERMAID_SOURCE_DISCLOSURE).toMatch(/not the signed architecture record/i);
+    expect(ARCHITECTURE_DIAGRAM_MERMAID_SOURCE_DISCLOSURE).toMatch(/not the finalized architecture record/i);
   });
 });

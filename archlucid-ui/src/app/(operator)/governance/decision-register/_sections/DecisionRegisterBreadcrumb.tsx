@@ -8,7 +8,7 @@ export function DecisionRegisterBreadcrumb(): React.JSX.Element {
     <OperatorPageBreadcrumb
       data-testid="decision-register-breadcrumb"
       items={[
-        { label: "Governance", href: GOVERNANCE_APPROVAL_QUEUE_PATH },
+        { label: "Approval", href: GOVERNANCE_APPROVAL_QUEUE_PATH },
         { label: BUYER_GOVERNANCE_DECISION_REGISTER_TITLE },
       ]}
     />

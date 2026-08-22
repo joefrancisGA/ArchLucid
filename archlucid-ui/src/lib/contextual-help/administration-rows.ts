@@ -7,13 +7,18 @@ export const SETTINGS_HUB_HELP_TOPIC_LABEL = "Settings help" as const;
 
 export const SETTINGS_HUB_CONTEXTUAL_HELP: PageContextualHelpEntry = {
   whatIsThisPage:
-    "Settings hub — search and open workspace, governance, integration, security, billing, and support configuration pages.",
+    "Settings hub — search and open workspace, approval, integration, security, billing, and support configuration pages.",
   whatToDoNext:
     "Search or jump to a section, then open a destination page to change settings. Use the help control for short answers about this index.",
   whyEmpty:
     "Sections appear based on your authority and search; try clearing search or showing advanced settings when a destination is missing.",
   whereToConfigurePrerequisite:
     "Some destinations require Admin or Operator authority; personal preferences stay in the account menu.",
+  taskSteps: [
+    "Search or browse sections to find the settings destination you need.",
+    "Open a destination page to change workspace, integration, or security settings.",
+    "Use advanced settings when a card is hidden by default search filters.",
+  ],
 };
 
 export const ADMINISTRATION_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] = [
@@ -28,6 +33,11 @@ export const ADMINISTRATION_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow
         "Theme and CLI cards always render for authorized architects; empty results only appear inside the CLI demo after a command returns no output.",
       whereToConfigurePrerequisite:
         "Requires an authenticated Admin session with advanced/developer route access; customer settings hubs do not deep-link here.",
+      taskSteps: [
+        "Use the theme selector when evaluating branded visuals.",
+        "Try the CLI demo card to validate local tooling output.",
+        "Open Engineering troubleshooting or System health for runbooks.",
+      ],
     },
   },
 ];

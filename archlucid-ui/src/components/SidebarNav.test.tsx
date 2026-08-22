@@ -161,7 +161,7 @@ describe("SidebarNav (primary navigation)", () => {
       expect(screen.getByTestId("sidebar-group-toggle-operate-governance")).toHaveAttribute("aria-expanded", "true");
     });
 
-    expect(screen.getByRole("group", { name: "Governance" })).toBeInTheDocument();
+    expect(screen.getByRole("group", { name: "Approval" })).toBeInTheDocument();
     expect(screen.getByTestId("sidebar-group-toggle-operate-analysis")).toHaveAttribute("aria-expanded", "false");
   });
 

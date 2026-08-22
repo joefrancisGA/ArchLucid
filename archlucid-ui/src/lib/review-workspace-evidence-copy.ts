@@ -4,7 +4,7 @@ import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
 import { GOVERNANCE_AUDIT_PATH, GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
 
 export const REVIEW_WORKSPACE_CLAIM_DISCIPLINE =
-  "This review workspace holds one architecture review's findings, decisions, and artifacts — not a complete audit export alone. Open Evidence graph, Audit, or sealed-record detail when you need the full package.";
+  "This review workspace holds one architecture review's findings, decisions, and artifacts — not a complete audit export alone. Open Evidence graph, Audit, or finalized review record detail when you need the full package.";
 
 export const REVIEW_WORKSPACE_SOURCES_INTRO =
   "Use these follow-ups when package work needs evidence search, findings triage, or activity records.";

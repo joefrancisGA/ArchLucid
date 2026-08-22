@@ -9,7 +9,7 @@ export const SCOPE_HELP_PRIMARY_ACTION = {
 } as const;
 
 export const SCOPE_HELP_CLAIM_DISCIPLINE =
-  "This workspace and scope guide explains tenant, workspace, and project boundaries for architects — help only, not a full audit export. Open Users and roles or Data handling when you need access or isolation depth.";
+  "This guide explains tenant, workspace, and project boundaries for architects — help only, not a full audit export. Open Users and roles or Data handling when you need access or isolation depth.";
 
 export const SCOPE_HELP_CURRENT_SCOPE_PANEL_TITLE = "Your current scope";
 

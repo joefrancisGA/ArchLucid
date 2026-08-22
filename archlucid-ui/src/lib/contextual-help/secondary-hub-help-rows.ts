@@ -23,15 +23,20 @@ export const SECONDARY_HUB_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[
   {
     prefix: DECISION_REGISTER_HELP_CANONICAL_PATH,
     entry: {
-      whatIsThisPage: `Decision register — ${DECISION_REGISTER_HELP_TOPIC_LABEL.toLowerCase()} for signed architecture decisions.`,
+      whatIsThisPage: `Decision register — ${DECISION_REGISTER_HELP_TOPIC_LABEL.toLowerCase()} for finalized architecture decisions.`,
       whatToDoNext: "Open the decision register, filter by category, then follow linked reviews or findings.",
-      whyEmpty: "This guide is always available; decision rows appear after reviews are signed with recorded decisions.",
+      whyEmpty: "This guide is always available; decision rows appear after reviews are finalized with recorded decisions.",
       whereToConfigurePrerequisite:
         "Decision register respects the workspace and project selected in the header switcher.",
       whatToDoNextAction: {
         label: "Open decision register",
         href: DECISION_REGISTER_CANONICAL_PATH,
       },
+      taskSteps: [
+        "Open the decision register and filter by category.",
+        "Read confidence and lineage on each decision card.",
+        "Follow linked reviews or findings for supporting evidence.",
+      ],
     },
   },
   {
@@ -46,6 +51,11 @@ export const SECONDARY_HUB_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[
         label: "Open improvement planning",
         href: PLANNING_CANONICAL_PATH,
       },
+      taskSteps: [
+        "Capture review feedback or pilot feedback analysis.",
+        "Review generated themes before promoting them into plans.",
+        "Open Improvement planning to prioritize follow-up work.",
+      ],
     },
   },
   {
@@ -60,6 +70,11 @@ export const SECONDARY_HUB_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[
         label: "Open impact preview",
         href: IMPACT_PREVIEW_CANONICAL_PATH,
       },
+      taskSteps: [
+        "Select a finalized review as the simulation baseline.",
+        "Define the proposed change and comparison scope.",
+        "Run the simulation and review before-and-after effects.",
+      ],
     },
   },
   {
@@ -73,6 +88,11 @@ export const SECONDARY_HUB_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[
         label: "Open advisory scans",
         href: ADVISORY_SCANS_CANONICAL_PATH,
       },
+      taskSteps: [
+        "Generate a scan from a finalized review baseline.",
+        "Open Schedules when recurring follow-up scans are needed.",
+        "Follow recommendations back to findings or reviews.",
+      ],
     },
   },
 ];
