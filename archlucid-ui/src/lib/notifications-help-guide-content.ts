@@ -71,7 +71,7 @@ export const NOTIFICATIONS_HELP_WORKED_EXAMPLES: readonly NotificationsHelpWorke
   {
     scenario: "Alert-rule notification",
     detail:
-      "An enabled alert rule routes a governance finding notification to the alerts inbox and any configured destinations.",
+      "An enabled alert rule routes a finding notification to the alerts inbox and any configured destinations.",
   },
   {
     scenario: "Audit trail entry",

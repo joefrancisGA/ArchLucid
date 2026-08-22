@@ -283,7 +283,7 @@ describe("HelpDataHandlingTenantIsolationGuideView", () => {
 
     const content = screen.getByTestId("help-data-handling-tenant-isolation-content");
     expect(content).not.toHaveTextContent("Procurement FAQ");
-    expect(content).toHaveTextContent("Open the audit trail in your tenant governance workspace.");
+    expect(content).toHaveTextContent("Open the audit trail in your workspace.");
     const governanceAuditLinks = within(content)
       .getAllByRole("link")
       .filter(

@@ -198,7 +198,7 @@ function resolveSourcePackLabel(
 
 
 
-  return inferPolicyPackDisplayNameFromComplianceRuleKey(ruleKey) ?? "Workspace governance";
+  return inferPolicyPackDisplayNameFromComplianceRuleKey(ruleKey) ?? "Workspace policy";
 
 }
 
@@ -414,7 +414,7 @@ function mapRuleKey(
 
     ruleName: humanizeRuleKey(trimmedKey),
 
-    standardFramework: "Workspace governance",
+    standardFramework: "Workspace policy",
 
     category: "Compliance",
 

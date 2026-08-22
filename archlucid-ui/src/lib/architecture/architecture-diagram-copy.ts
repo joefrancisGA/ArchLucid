@@ -30,7 +30,7 @@ export const ARCHITECTURE_DIAGRAM_PREVIEW_CLIPPED_LABEL = "Preview clipped — o
 export const ARCHITECTURE_DIAGRAM_VIEW_MERMAID_ACTION = "View Mermaid source" as const;
 
 export const ARCHITECTURE_DIAGRAM_MERMAID_SOURCE_DISCLOSURE =
-  "Technical diagram source for review or export — not the signed architecture record." as const;
+  "Technical diagram source for review or export — not the finalized architecture record." as const;
 
 export const ARCHITECTURE_DIAGRAM_COPY_MERMAID_ACTION = "Copy Mermaid source" as const;
 

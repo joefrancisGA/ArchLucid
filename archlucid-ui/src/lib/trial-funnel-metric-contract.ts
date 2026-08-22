@@ -27,7 +27,7 @@ export const TRIAL_FUNNEL_STAGE_DEFINITIONS: readonly TrialFunnelStageDefinition
     stageId: "first-review-finalized",
     label: "First review finalized",
     definition:
-      "The first time a trial workspace commits a signed architecture review record (first review finalized).",
+      "The first time a trial workspace commits a finalized architecture review record (first review finalized).",
     qualifyingEvent: "TrialFirstRunCompleted audit event",
   },
   {

@@ -37,7 +37,7 @@ Tenant identity is decided at the host boundary, and API requests carry a tenant
 
 ## Audit trail {#audit-trail}
 
-Every inference that contributed to a finding can be traced through the append-only audit log and evidence trail — you can see what input produced each output. Open the [audit trail](/governance/audit) in your tenant governance workspace.
+Every inference that contributed to a finding can be traced through the append-only audit log and evidence trail — you can see what input produced each output. Open the [audit trail](/governance/audit) in your workspace.
 
 ## Cloud connectors are optional
 
