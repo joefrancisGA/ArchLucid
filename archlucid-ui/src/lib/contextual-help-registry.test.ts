@@ -613,6 +613,14 @@ describe("contextual-help-registry (TB-733)", () => {
     }
   });
 
+  it("includes task steps on every registered contextual help row", () => {
+    const missingTaskSteps = allPageContextualHelpRows()
+      .filter((row) => (row.entry.taskSteps?.length ?? 0) < 3)
+      .map((row) => row.prefix);
+
+    expect(missingTaskSteps).toEqual([]);
+  });
+
   it("gives representative workflow pages task steps in the drawer", () => {
     expect(contextualHelpForPathname("/")?.taskSteps?.length).toBeGreaterThanOrEqual(3);
     expect(contextualHelpForPathname("/architecture/architectures/draft-abc")?.taskSteps?.length).toBeGreaterThanOrEqual(

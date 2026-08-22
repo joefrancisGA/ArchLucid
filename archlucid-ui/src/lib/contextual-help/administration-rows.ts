@@ -33,6 +33,11 @@ export const ADMINISTRATION_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow
         "Theme and CLI cards always render for authorized architects; empty results only appear inside the CLI demo after a command returns no output.",
       whereToConfigurePrerequisite:
         "Requires an authenticated Admin session with advanced/developer route access; customer settings hubs do not deep-link here.",
+      taskSteps: [
+        "Use the theme selector when evaluating branded visuals.",
+        "Try the CLI demo card to validate local tooling output.",
+        "Open Engineering troubleshooting or System health for runbooks.",
+      ],
     },
   },
 ];

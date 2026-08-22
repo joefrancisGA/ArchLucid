@@ -79,6 +79,11 @@ export const ARCHITECTURE_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[]
       whyEmpty: "Progress updates as you complete walkthrough steps; empty optional setup means those integrations are not required yet.",
       whereToConfigurePrerequisite:
         "Required setup uses the current workspace and project scope from the header switcher.",
+      taskSteps: [
+        "Clear required setup blockers on the checklist.",
+        "Follow the walkthrough next step until optional setup is understood.",
+        "Start a review when the workspace is ready for evidence intake.",
+      ],
     },
   },
 ];
