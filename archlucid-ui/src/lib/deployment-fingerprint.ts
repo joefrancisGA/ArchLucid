@@ -4,15 +4,20 @@ export type ClientDeploymentFingerprint = {
   readonly buildTimestamp: string;
   /** CI/deploy stamp (`GITHUB_RUN_ID`-attempt) when CD bakes `NEXT_PUBLIC_DEPLOY_STAMP`. */
   readonly deployStamp: string;
+  /** Sequential GitHub Actions `run_number` when CD bakes `NEXT_PUBLIC_CI_BUILD_NUMBER`. */
+  readonly ciBuildNumber: string;
   readonly environment: string;
   readonly apiUpstreamHost: string;
 };
+
+export type DeploymentBuildFingerprintStripVariant = "full" | "compact";
 
 export function readClientDeploymentFingerprint(): ClientDeploymentFingerprint {
   return {
     frontendCommitSha: normalizeFingerprintValue(process.env.NEXT_PUBLIC_BUILD_COMMIT_SHA),
     buildTimestamp: normalizeFingerprintValue(process.env.NEXT_PUBLIC_BUILD_TIMESTAMP),
     deployStamp: normalizeFingerprintValue(process.env.NEXT_PUBLIC_DEPLOY_STAMP),
+    ciBuildNumber: normalizeFingerprintValue(process.env.NEXT_PUBLIC_CI_BUILD_NUMBER),
     environment: normalizeFingerprintValue(
       process.env.NEXT_PUBLIC_DEPLOY_ENV?.trim()
         ? process.env.NEXT_PUBLIC_DEPLOY_ENV
@@ -24,20 +29,33 @@ export function readClientDeploymentFingerprint(): ClientDeploymentFingerprint {
 
 export function formatShortCommitSha(commitSha: string): string {
   const trimmed = commitSha.trim();
-
-  if (trimmed.length <= 12) {
-    return trimmed;
-  }
-
+  if (trimmed.length <= 12) { return trimmed; }
   return trimmed.slice(0, 12);
+}
+
+export function isKnownFingerprintValue(value: string): boolean {
+  const trimmed = value.trim();
+  return trimmed.length > 0 && trimmed !== "unknown";
+}
+
+export function formatCiBuildNumberLabel(ciBuildNumber: string): string | null {
+  if (!isKnownFingerprintValue(ciBuildNumber)) { return null; }
+  return `Build ${ciBuildNumber.trim()}`;
+}
+
+export function formatDeploymentBuildFingerprintLine(fingerprint: ClientDeploymentFingerprint): string {
+  const parts: string[] = [];
+  const ciLabel = formatCiBuildNumberLabel(fingerprint.ciBuildNumber);
+  if (ciLabel !== null) { parts.push(ciLabel); }
+  parts.push(`UI build ${formatShortCommitSha(fingerprint.frontendCommitSha)}`);
+  parts.push(fingerprint.buildTimestamp);
+  parts.push(`env ${fingerprint.environment}`);
+  parts.push(`API ${fingerprint.apiUpstreamHost}`);
+  return parts.join(" · ");
 }
 
 function normalizeFingerprintValue(value: string | undefined): string {
   const trimmed = value?.trim() ?? "";
-
-  if (trimmed.length === 0) {
-    return "unknown";
-  }
-
+  if (trimmed.length === 0) { return "unknown"; }
   return trimmed;
 }
