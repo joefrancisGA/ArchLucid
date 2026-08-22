@@ -121,7 +121,7 @@ vi.mock("@/lib/use-nav-surface", () => ({
     mutationCapability: false,
     layerGuidance: {
       layerBadge: "Governance",
-      headline: "Submit finalized architecture outputs for governance review and promotion.",
+      headline: "Submit finalized architecture outputs for resolve outcomes review and promotion.",
       useWhen: "Pick one review and move from submission through approval.",
       firstPilotNote: null,
       enterpriseFootnote: "Approvals follow the configured approval path.",

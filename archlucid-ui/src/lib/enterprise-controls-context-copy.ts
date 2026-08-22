@@ -133,7 +133,7 @@ export const governanceDashboardOpenWorkflowReviewTitleReader =
 
 /** Governance workflow — lead under page title when caller can mutate (Execute+ in shell). */
 export const governanceWorkflowPageLeadOperator =
-  "Submit finalized architecture outputs for governance review. Load a review to see approval status and the full approval trail.";
+  "Submit finalized architecture outputs for approval review. Load a review to see approval status and the full approval trail.";
 
 /** Governance workflow — lead under page title for read tier (inspect-first layout already elevates Load). */
 export const governanceWorkflowPageLeadReader =
@@ -150,9 +150,9 @@ export const governanceWorkflowApprovalRequestsCardTitleOperator = "Approval req
 export const governanceWorkflowApprovalRequestsCardTitleReader = "Approval requests for this review";
 
 /** Governance workflow — promotions + activations section (`governance/page.tsx`). */
-export const governanceWorkflowPromotionsActivationsHeadingOperator = "Governance activity";
+export const governanceWorkflowPromotionsActivationsHeadingOperator = "Approval activity";
 
-export const governanceWorkflowPromotionsActivationsHeadingReader = "Governance activity";
+export const governanceWorkflowPromotionsActivationsHeadingReader = "Approval activity";
 
 /** Governance workflow — activations list under promotions. */
 export const governanceWorkflowActivationsSubheadingOperator = "Deployment releases";
@@ -161,7 +161,7 @@ export const governanceWorkflowActivationsSubheadingReader = "Deployment release
 
 /** Governance workflow — reload lists for the active review (`GET`); shown next to **Load** after a review is selected. */
 export const governanceWorkflowRefreshRunDataTitle =
-  "Reload approval requests and governance activity for the loaded review.";
+  "Reload approval requests and approval activity for the loaded review.";
 
 export const governanceWorkflowRefreshRunDataButtonLabel = "Refresh data";
 
@@ -404,7 +404,7 @@ export const policyPacksPageLeadReaderBuyerPolished =
 
 /** Policy packs — outcome banner under headers (`policy-packs/page.tsx`). */
 export const policyPacksOutcomeBannerLine =
-  "Versions and assigns packs for this scope; enforcement applies through governance resolution and review finalization — not from this page alone.";
+  "Versions and assigns packs for this scope; enforcement applies through effective policy resolution and review finalization — not from this page alone.";
 
 /** Policy packs — delta demo checklist link (improvement #2, assessment LATEST_GPT55). */
 export const policyPacksDeltaDemoBannerLine =
@@ -563,10 +563,10 @@ export const governanceWorkflowPromotionsEmptyOperatorHint =
 
 /** Governance workflow — activations list empty. */
 export const governanceWorkflowActivationsEmptyReaderHint =
-  "None yet. Appear after an architect activates a governance release; inspect-only at your rank.";
+  "None yet. Appear after an architect activates an environment release; inspect-only at your rank.";
 
 export const governanceWorkflowActivationsEmptyOperatorHint =
-  "Use Activate on a governance release card after releases exist.";
+  "Use Activate on an environment release card after releases exist.";
 
 /** Alerts inbox — filtered empty state (Reader: deemphasize triage/configure as primary path). */
 export const alertsFilteredEmptyDescriptionReader =

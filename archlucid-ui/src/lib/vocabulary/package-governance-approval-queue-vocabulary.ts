@@ -39,13 +39,13 @@ export type PackageGovernanceApprovalQueueVocabularyModel = {
 };
 
 export const PACKAGE_GOVERNANCE_APPROVAL_QUEUE_HEADING =
-  "Package Governance and Approval queue serve different purposes" as const;
+  "Finalize readiness and Approval queue serve different purposes" as const;
 
 export const PACKAGE_GOVERNANCE_APPROVAL_QUEUE_WHY_TWO =
-  "Package Governance checks this review before you finalize — policy alignment and readiness checks. The approval queue is where you approve or reject pending requests. Checking readiness is not the same as approving a request." as const;
+  "Finalize readiness checks this review before you finalize — policy alignment and approval checks. The approval queue is where you approve or reject pending requests. Checking readiness is not the same as approving a request." as const;
 
 export const PACKAGE_GOVERNANCE_APPROVAL_QUEUE_COMPACT_LINE =
-  "Package Governance checks readiness before finalize; Approval queue handles live approvals." as const;
+  "Finalize readiness checks policy alignment before finalize; Approval queue handles live approvals." as const;
 
 /**
  * Peer from Approval queue without a run: Reviews hub, because Governance is
@@ -54,7 +54,7 @@ export const PACKAGE_GOVERNANCE_APPROVAL_QUEUE_COMPACT_LINE =
 export const PACKAGE_GOVERNANCE_APPROVAL_QUEUE_REVIEWS_PEER_LINK: PackageGovernanceApprovalQueueLink =
   {
     id: "package-governance",
-    label: "Reviews (open Governance)",
+    label: "Reviews (open Policies)",
     href: REVIEWS_LIST_PATH,
     whenToUse: "Open an architecture package, then check policy alignment before you finalize.",
   };

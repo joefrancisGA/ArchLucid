@@ -186,7 +186,7 @@ export const SPECIALTY_REVIEW_TEMPLATES: readonly SpecialtyReviewTemplateDefinit
       "monitoring",
       "export readiness",
     ],
-    expectedOutput: "An AI governance review with evidence-backed findings and resolve outcomes.",
+    expectedOutput: "An AI policy review with evidence-backed findings and resolve outcomes.",
     supportsCloudContext: false,
     sampleReviewHref: "/architecture/reviews/61c60d76-2b80-93f9-46bb-2f66fd608b9b",
     policyPacks: [

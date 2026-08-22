@@ -14,7 +14,7 @@ const SPONSOR_DASHBOARD_HUB_CONTEXTUAL_HELP = {
   whatToDoNext:
     "Review KPI tiles and sponsor exports, then open Workspace health or Decisions needed for approval follow-up.",
   whyEmpty:
-    "Tiles stay at zero until you finalize reviews and governance activity exists in the current workspace scope.",
+    "Tiles stay at zero until you finalize reviews and approval activity exists in the current workspace scope.",
   whereToConfigurePrerequisite:
     "Switch workspace or project scope from the header switcher — figures never roll up across workspaces.",
   whatToDoNextAction: {

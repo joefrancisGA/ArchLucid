@@ -140,7 +140,7 @@ export function PolicyPackImpactPreviewPanel(props: PolicyPackImpactPreviewPanel
         </h2>
         <p className={cn("m-0 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
           Same finalized review, different enforcement posture — preview compliance rule key changes and whether the
-          pre-finalize gate would allow or block finalize. Read-only; nothing is persisted.
+          approval check before finalize would allow or block finalize. Read-only; nothing is persisted.
         </p>
       </div>
 
@@ -164,7 +164,7 @@ export function PolicyPackImpactPreviewPanel(props: PolicyPackImpactPreviewPanel
             </p>
           ) : (
             <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-              Select a pack with a published version to preview assignment key deltas; gate simulation still runs against
+              Select a pack with a published version to preview assignment key deltas; approval-check simulation still runs against
               current effective merge.
             </p>
           )}

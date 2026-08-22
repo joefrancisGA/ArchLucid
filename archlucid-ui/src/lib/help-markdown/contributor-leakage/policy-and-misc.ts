@@ -192,7 +192,7 @@ export function stripProductOverviewContributorLeakage(markdown: string): string
     )
     .replace(
       /Architecture decisions in ArchLucid are not just analyzed — they are governed\.[\s\S]*?regulators and auditors expect\./i,
-      "Architecture decisions in ArchLucid are not just analyzed — they are governed. **Policy packs** encode your governance rules. Approval workflows enforce segregation of duties. Pre-finalize gates can block finalized reviews when findings exceed severity thresholds. An append-only audit log records governance and review events for downstream audit.",
+      "Architecture decisions in ArchLucid are not just analyzed — they are governed. **Policy packs** encode your policy rules. Approval workflows enforce segregation of duties. Approval checks before finalize can block finalized reviews when findings exceed severity thresholds. An append-only audit log records approval and review events for downstream audit.",
     )
     .replace(/`?POSITIONING\.md`?/gi, "positioning guide")
     .replace(/POSITIONING\.md/gi, "positioning guide")

@@ -4,7 +4,7 @@ import type { GovernanceApprovalWorkflowPhase } from "@/app/(operator)/governanc
 export const GOVERNANCE_APPROVAL_REQUESTS_SECTION_TITLE = "Approval requests";
 
 export const GOVERNANCE_APPROVAL_REQUESTS_SECTION_LEAD =
-  "Formal requests submitted for governance review. Each approved or rejected request becomes an audit-trail decision tied to this review.";
+  "Formal requests submitted for approval review. Each approved or rejected request becomes an audit-trail decision tied to this review.";
 
 export const GOVERNANCE_APPROVAL_REQUESTS_COMPACT_SECTION_LEAD =
   "Supporting approval request for the approval decision above — the audit trail retains the full submit → review → approve sequence.";

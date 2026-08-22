@@ -16,10 +16,10 @@ export const ARCHITECTURE_DRAFTS_HELP_PAGE_EYEBROW = "Help topic" as const;
 export const ARCHITECTURE_DRAFTS_HELP_PAGE_TITLE = ARCHITECTURE_DRAFTS_LIST_LABEL;
 
 export const ARCHITECTURE_DRAFTS_HELP_PAGE_SUBTITLE =
-  "Browse, resume, and refine saved architecture drafts before filing evidence for a governance review.";
+  "Browse, resume, and refine saved architecture drafts before filing evidence for a approval review.";
 
 export const ARCHITECTURE_DRAFTS_HELP_PAGE_SUBTITLE_BUYER =
-  "Saved system briefs you can resume and refine before evidence intake for a governance review." as const;
+  "Saved system briefs you can resume and refine before evidence intake for a approval review." as const;
 
 export const ARCHITECTURE_DRAFTS_HELP_PRIMARY_CONTENT_ID = "help-architecture-drafts-primary-content" as const;
 
