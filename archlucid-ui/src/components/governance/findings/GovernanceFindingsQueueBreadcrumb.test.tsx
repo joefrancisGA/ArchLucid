@@ -10,7 +10,7 @@ describe("GovernanceFindingsQueueBreadcrumb", () => {
     render(<GovernanceFindingsQueueBreadcrumb />);
 
     expect(screen.getByTestId("governance-findings-breadcrumb")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Governance" })).toHaveAttribute("href", "/governance/approval-queue");
+    expect(screen.getByRole("link", { name: "Approval" })).toHaveAttribute("href", "/governance/approval-queue");
     expect(screen.getByText(BUYER_GOVERNANCE_FINDINGS_PAGE_TITLE)).toBeInTheDocument();
   });
 });

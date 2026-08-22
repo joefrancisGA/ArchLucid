@@ -31,7 +31,7 @@ function deliverableAudience(artifactType: string): string {
   }
 
   if (audience.toLowerCase().includes("governance")) {
-    return "Governance";
+    return "Approval";
   }
 
   return "Architecture";

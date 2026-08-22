@@ -12,7 +12,7 @@ export const CTO_DEMO_BLOCKED_ROUTES: readonly BlockedRouteEntry[] = [
   { prefix: SETTINGS_ROOT_PATH, label: "Settings", description: "Workspace preferences, API keys, and integration configuration." },
   { prefix: "/insights/search-review-evidence", label: EVIDENCE_TRAIL_SEARCH.title, description: "Search the evidence trail across reviews, findings, and decisions." },
   { prefix: "/internal/validate-route", label: "Validate review", description: "Check whether stored review output for a finalized package still validates." },
-  { prefix: "/insights/improvement-planning", label: "Planning", description: "Multi-quarter governance roadmap and remediation scheduling." },
+  { prefix: "/insights/improvement-planning", label: "Planning", description: "Multi-quarter approval roadmap and remediation scheduling." },
   { prefix: "/integrations", label: "Integrations", description: "Connect Jira, ServiceNow, Slack, and CI/CD pipelines. Native one-click ITSM ticket creation depends on deployment settings." },
   { prefix: IMPACT_PREVIEW_PATH, label: "Change simulation", description: "Preview the expected impact of proposed architecture changes before implementation." },
   { prefix: DIGESTS_HUB_PATH, label: "Digests", description: "Scheduled architecture digests and notification subscriptions." },

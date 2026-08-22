@@ -16,7 +16,7 @@ export function GovernancePolicyPackBreadcrumb(props: GovernancePolicyPackBreadc
       items={
         buyerPolishedShell
           ? [
-              { label: "Governance", href: GOVERNANCE_APPROVAL_QUEUE_PATH },
+              { label: "Approval", href: GOVERNANCE_APPROVAL_QUEUE_PATH },
               { label: "Policy packs", href: GOVERNANCE_POLICY_PACKS_PATH },
               { label: props.packLabel },
             ]

@@ -8,7 +8,7 @@ export function GovernanceStandardsRulesBreadcrumb(): React.JSX.Element {
     <OperatorPageBreadcrumb
       data-testid="governance-standards-rules-breadcrumb"
       items={[
-        { label: "Governance", href: GOVERNANCE_APPROVAL_QUEUE_PATH },
+        { label: "Approval", href: GOVERNANCE_APPROVAL_QUEUE_PATH },
         { label: STANDARDS_RULES_PAGE_TITLE },
       ]}
     />

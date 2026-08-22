@@ -8,7 +8,7 @@ export function RiskExceptionsBreadcrumb(): React.JSX.Element {
     <OperatorPageBreadcrumb
       data-testid="risk-exceptions-breadcrumb"
       items={[
-        { label: "Governance", href: GOVERNANCE_APPROVAL_QUEUE_PATH },
+        { label: "Approval", href: GOVERNANCE_APPROVAL_QUEUE_PATH },
         { label: BUYER_RISK_EXCEPTIONS_PAGE_TITLE },
       ]}
     />

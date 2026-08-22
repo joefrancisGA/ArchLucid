@@ -210,7 +210,7 @@ export function buyerPolishedRouteOrientation(
 
   if (path.startsWith("/governance")) {
     return {
-      label: "Governance",
+      label: "Approval",
       line: GOVERNANCE_OVERVIEW_PAGE_LEAD,
     };
   }

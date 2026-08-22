@@ -124,12 +124,12 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     slug: "glossary",
     title: "Glossary",
     summary:
-      "Definitions for the terms used throughout ArchLucid reviews, evidence, governance, and administration.",
+      "Definitions for the terms used throughout ArchLucid reviews, evidence, approval, and administration.",
     audience: "operator",
     // App-rendered from `customer-glossary-manifest.ts` — not a markdown help body.
     sourcePaths: [],
     lastReviewed: CUSTOMER_GLOSSARY_CONTRACT_VERSION,
-    releaseApplicability: "product vocabulary for reviews, evidence, and governance",
+    releaseApplicability: "product vocabulary for reviews, evidence, and approval",
   },
   {
     slug: "evidence-intake",

@@ -88,7 +88,7 @@ export function ReplayValidationResultPanel(props: ReplayValidationResultPanelPr
               <dd className="m-0">{String(result.validation.findingsPresent)}</dd>
             </div>
             <div>
-              <dt className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>Sealed record present</dt>
+              <dt className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>Finalized review record present</dt>
               <dd className="m-0">{String(result.validation.manifestPresent)}</dd>
             </div>
             <div>
@@ -100,7 +100,7 @@ export function ReplayValidationResultPanel(props: ReplayValidationResultPanelPr
               <dd className="m-0">{String(result.validation.artifactsPresent)}</dd>
             </div>
             <div>
-              <dt className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>Sealed record hash matches</dt>
+              <dt className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>Finalized review record hash matches</dt>
               <dd className="m-0">{String(result.validation.manifestHashMatches)}</dd>
             </div>
             <div>

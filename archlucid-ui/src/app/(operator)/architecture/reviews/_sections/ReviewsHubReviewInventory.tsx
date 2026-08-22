@@ -256,7 +256,7 @@ function ReviewsHubInventoryTableHead(): React.JSX.Element {
         <EnterpriseTableHeaderCell>Review</EnterpriseTableHeaderCell>
         <EnterpriseTableHeaderCell>Architecture / system</EnterpriseTableHeaderCell>
         <EnterpriseTableHeaderCell>Status</EnterpriseTableHeaderCell>
-        <EnterpriseTableHeaderCell>Governance</EnterpriseTableHeaderCell>
+        <EnterpriseTableHeaderCell>Approval</EnterpriseTableHeaderCell>
         <EnterpriseTableHeaderCell>Stage</EnterpriseTableHeaderCell>
         <EnterpriseTableHeaderCell>Owner</EnterpriseTableHeaderCell>
         <EnterpriseTableHeaderCell>Last updated</EnterpriseTableHeaderCell>

@@ -370,7 +370,7 @@ export const HELP_SEARCH_PANEL_GROUPS: readonly HelpSearchPanelGroup[] = [
   { id: HELP_SEARCH_PANEL_START_HERE_GROUP_ID, heading: "Start here", topics: START_HERE_TOPICS },
   { id: "review-work", heading: "Review work", topics: REVIEW_WORK_TOPICS },
   { id: "insights", heading: "Insights", topics: INSIGHTS_TOPICS },
-  { id: "governance", heading: "Governance", topics: GOVERNANCE_TOPICS },
+  { id: "governance", heading: "Approval", topics: GOVERNANCE_TOPICS },
   { id: "setup", heading: "Setup", topics: SETUP_TOPICS },
   { id: "troubleshooting", heading: "Troubleshooting and support", topics: TROUBLESHOOTING_TOPICS },
 ];

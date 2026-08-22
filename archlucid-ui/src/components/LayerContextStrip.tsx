@@ -28,8 +28,8 @@ const LAYER_COPY: Record<LayerId, { label: string; question: string; strip: stri
     labelClass: "text-al-text-primary",
   },
   "operate-governance": {
-    label: "Governance",
-    question: "How do we govern, audit, and operationalize architecture decisions?",
+    label: "Approval",
+    question: "How do we track approvals, audit evidence, and operationalize architecture decisions?",
     strip: `${layerStripBase} border-l-amber-600`,
     labelClass: "text-al-text-primary",
   },

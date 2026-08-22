@@ -68,7 +68,7 @@ export function HomeMaturityLayerCards() {
         <LayerCard
           icon={<Shield className="h-5 w-5 text-violet-600 dark:text-violet-400" aria-hidden />}
           title="Enterprise Controls"
-          items={["Governance", "Policy packs", AUDIT_TRAIL_LABEL, "Alerts"]}
+          items={["Approval", "Policy packs", AUDIT_TRAIL_LABEL, "Alerts"]}
           href="/governance/findings"
         />
         <LayerCard

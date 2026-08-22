@@ -28,7 +28,7 @@ export const CUSTOM_ROLE_PERMISSION_GROUPS: readonly PermissionGroup[] = [
     ],
   },
   {
-    area: "Governance",
+    area: "Approval",
     permissions: [
       { id: "Governance.Read", label: "Read governance" },
       { id: "Governance.SimulatePolicy", label: "Simulate policies" },

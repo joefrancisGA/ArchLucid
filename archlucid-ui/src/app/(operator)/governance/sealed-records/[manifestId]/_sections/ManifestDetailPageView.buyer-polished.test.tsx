@@ -79,7 +79,7 @@ describe("ManifestDetailPageView buyer polish", () => {
     expect(skipLink).toHaveAttribute("href", `#${SEALED_RECORD_DETAIL_PRIMARY_CONTENT_ID}`);
 
     const breadcrumb = screen.getByRole("navigation", { name: "Breadcrumb" });
-    expect(breadcrumb).toHaveTextContent("Governance");
+    expect(breadcrumb).toHaveTextContent("Approval");
     expect(breadcrumb).toHaveTextContent("Finalized review records");
 
     expect(screen.getByRole("heading", { level: 2, name: SEALED_RECORD_DETAIL_CLAIM_HEADING })).toBeInTheDocument();

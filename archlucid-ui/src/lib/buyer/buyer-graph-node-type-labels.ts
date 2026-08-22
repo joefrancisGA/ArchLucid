@@ -23,7 +23,7 @@ export function buyerGraphNodeTypeLabel(kind: string): string {
 
     case "governance":
     case "approval":
-      return "Governance";
+      return "Approval";
 
     case "audit":
     case "auditevent":
