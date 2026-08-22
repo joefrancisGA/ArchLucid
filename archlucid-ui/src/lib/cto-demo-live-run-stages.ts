@@ -10,7 +10,7 @@ export const CTO_DEMO_LIVE_RUN_STAGE_DEFINITIONS: readonly { readonly id: string
   { id: "brief", label: "Analyzing architecture brief…" },
   { id: "policy", label: "Applying policy pack…" },
   { id: "findings", label: "Identifying findings…" },
-  { id: "decisions", label: "Drafting signed decisions…" },
+  { id: "decisions", label: "Drafting recorded decisions…" },
   { id: "audit", label: "Generating audit record…" },
 ];
 

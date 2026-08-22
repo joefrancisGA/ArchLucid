@@ -125,7 +125,7 @@ export const ADVISORY_SCANS_HELP_OUTPUT_FIELDS: readonly AdvisoryScansHelpOutput
   },
   {
     label: ADVISORY_SCANS_CARD_DISPOSITION_LABEL,
-    detail: "Recorded Accept, Defer, Reject, or Mark implemented status for governance.",
+    detail: "Recorded Accept, Defer, Reject, or Mark implemented status for approval.",
   },
 ] as const;
 

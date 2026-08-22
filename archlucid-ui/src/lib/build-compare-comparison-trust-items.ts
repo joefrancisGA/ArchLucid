@@ -48,7 +48,7 @@ export function buildCompareComparisonTrustItems(input: {
     items.push({
       id: "governance-current-effective",
       severity: "medium",
-      headline: "Governance diff uses current effective policy only",
+      headline: "Policy diff uses current effective policy only",
       detail: COMPARE_GOVERNANCE_CURRENT_EFFECTIVE_DISCLAIMER,
     });
   }

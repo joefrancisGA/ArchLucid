@@ -34,7 +34,7 @@ export function CompareResultsSectionNav(props: CompareResultsSectionNavProps): 
   }
 
   if (props.showGovernanceDiff) {
-    items.push({ href: "#compare-governance-diff", label: "Governance diff" });
+    items.push({ href: "#compare-governance-diff", label: "Policy pack diff" });
   }
 
   if (props.showRawManifestDiff) {

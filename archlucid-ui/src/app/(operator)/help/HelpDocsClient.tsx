@@ -36,7 +36,7 @@ const HELP_DOCS_STATIC_ENTRIES: readonly DocIndexEntry[] = [
   },
   { title: "Reviews list", summary: "Browse reviews for the workspace.", category: "Operations", url: "/architecture/reviews" },
   {
-    title: "Governance findings",
+    title: "Findings queue",
     summary: "Review findings across reviews and policy signals.",
     category: "Operations",
     url: "/governance/findings",

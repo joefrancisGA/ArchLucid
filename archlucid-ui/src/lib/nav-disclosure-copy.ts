@@ -43,11 +43,11 @@ export const OPERATOR_ADVANCED_MODE = {
   hide: "Hide advanced features",
   title:
     "Show approval workflow, alerts, audit trail, and policy packs in the sidebar.",
-  assistiveOn: "Advanced features on. Governance, audit, and alerting destinations are visible.",
+  assistiveOn: "Advanced features on. Policy, audit, and alerting destinations are visible.",
   assistiveOff:
-    "Advanced features off. Core Pilot review destinations stay visible until you enable governance tooling.",
+    "Advanced features off. Core Pilot review destinations stay visible until you enable policy tooling.",
   footnote:
-    "Governance, audit, and alerting stay hidden until you turn this on — default for new workspaces.",
+    "Policy, audit, and alerting stay hidden until you turn this on — default for new workspaces.",
 } as const;
 
 export const NAV_DISCLOSURE = {
@@ -65,15 +65,15 @@ export const NAV_DISCLOSURE = {
    * “Show governance, audit & admin controls”.
    */
   advancedOperationsSidebar: {
-    show: "Show governance & audit tools",
-    hide: "Hide governance & audit tools",
+    show: "Show policy & audit tools",
+    hide: "Hide policy & audit tools",
     /** Announced when collapsed (not the visible button text on small breakpoints). */
     assistiveCollapsed:
       "Adds approval workflow, alerts, and audit destinations to the sidebar when expanded.",
   },
   advanced: {
     /** Settings checkbox: reveal advanced Enterprise Controls links. */
-    show: "Show governance, audit & admin controls",
+    show: "Show policy, audit & admin controls",
     title:
       "Alert configuration, audit trail, approval workflow, planning, and admin-level controls.",
   },

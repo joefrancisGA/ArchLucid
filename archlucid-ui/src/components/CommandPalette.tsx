@@ -86,7 +86,7 @@ function buyerPolishedCommandPaletteLabel(pathname: string): string {
   }
 
   if (path.startsWith("/governance")) {
-    return "Search governance record";
+    return "Search policy record";
   }
 
   const reviewPackageSubtree =

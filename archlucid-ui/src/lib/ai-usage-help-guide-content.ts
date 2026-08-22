@@ -65,7 +65,7 @@ export const AI_USAGE_HELP_HOW_IT_WORKS_SECTION_TITLE = "How AI usage works";
 export const AI_USAGE_HELP_HOW_TO_READ_STEPS = [
   "Review KPIs and honesty lines before interpreting quiet or zeroed periods.",
   "Filter by feature or model when a spike needs investigation.",
-  "Open Billing and plans or model governance when spend questions turn into plan or execution-profile changes.",
+  "Open Billing and plans or model controls when spend questions turn into plan or execution-profile changes.",
 ] as const;
 
 export const AI_USAGE_HELP_CLAIM_HEADING_ID = "help-ai-usage-claim-discipline-heading" as const;

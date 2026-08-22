@@ -110,7 +110,7 @@ describe("Compare verdict and trust banner", () => {
 
     expect(screen.getByTestId("compare-comparison-trust-banner")).toBeInTheDocument();
     expect(screen.getByTestId("compare-trust-visible-items")).toHaveTextContent(
-      "Governance diff uses current effective policy only",
+      "Policy diff uses current effective policy only",
     );
     expect(screen.getByText("Caution")).toBeInTheDocument();
   });
@@ -144,6 +144,6 @@ describe("Compare verdict and trust banner", () => {
 
     expect(screen.getByTestId("compare-comparison-trust-banner")).toBeInTheDocument();
     expect(screen.getByTestId("compare-verdict-summary")).toBeInTheDocument();
-    expect(screen.getAllByText("Governance diff uses current effective policy only").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Policy diff uses current effective policy only").length).toBeGreaterThan(0);
   });
 });

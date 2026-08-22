@@ -109,7 +109,7 @@ export function useCompareGovernanceDiff(
       } catch {
         if (!canceled) {
           setView(null);
-          setSoftFailureMessage("governance diff");
+          setSoftFailureMessage("policy pack diff");
           setLoading(false);
         }
 
