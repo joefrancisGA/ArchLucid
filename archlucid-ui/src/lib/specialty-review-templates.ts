@@ -175,8 +175,8 @@ export const SPECIALTY_REVIEW_TEMPLATES: readonly SpecialtyReviewTemplateDefinit
   {
     id: "ai-governance",
     intakeTemplateId: "ai-governance",
-    title: "AI governance",
-    purpose: "Evaluate an AI solution against responsible-AI, risk, evidence, and governance expectations.",
+    title: "AI policy",
+    purpose: "Evaluate an AI solution against responsible-AI, risk, evidence, and policy expectations.",
     bestFor: "Risk, compliance, and architecture leaders reviewing ML or generative-AI workloads.",
     focusAreas: [
       "model and data risk",
@@ -184,9 +184,9 @@ export const SPECIALTY_REVIEW_TEMPLATES: readonly SpecialtyReviewTemplateDefinit
       "human oversight",
       "privacy",
       "monitoring",
-      "approval readiness",
+      "export readiness",
     ],
-    expectedOutput: "An AI governance review with evidence-backed findings and governance decisions.",
+    expectedOutput: "An AI policy review with evidence-backed findings and resolve outcomes.",
     supportsCloudContext: false,
     sampleReviewHref: "/architecture/reviews/61c60d76-2b80-93f9-46bb-2f66fd608b9b",
     policyPacks: [
@@ -202,7 +202,7 @@ export const SPECIALTY_REVIEW_TEMPLATES: readonly SpecialtyReviewTemplateDefinit
       exampleQuestions: [
         "What data sources feed model training and inference, and how is sensitive data handled?",
         "Where is human review required before high-impact automated decisions?",
-        "How are model changes, prompts, and tool access governed and audited?",
+        "How are model changes, prompts, and tool access controlled and audited?",
       ],
       evidenceTypicallyRequested: [
         "Model and data-flow diagrams",
@@ -219,7 +219,7 @@ export const SPECIALTY_REVIEW_TEMPLATES: readonly SpecialtyReviewTemplateDefinit
         },
       ],
       likelyOutputs: [
-        "Governance findings tied to evidence",
+        "Policy findings tied to evidence",
         "Disposition on oversight and monitoring gaps",
         "Exportable review summary for stakeholders",
       ],
@@ -278,7 +278,7 @@ export const SPECIALTY_REVIEW_TEMPLATES: readonly SpecialtyReviewTemplateDefinit
       ],
       likelyOutputs: [
         "Findings with policy and evidence references",
-        "Pre-finalization governance checks when enabled",
+        "Approval checks before finalize when enabled",
         "Audit-ready review record",
       ],
       optionalIntegrations: [

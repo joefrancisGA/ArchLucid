@@ -12,7 +12,7 @@ export type ApiContractsHelpJobMatrixRow = {
 
 /** TB-2268 — explicit job split vs governance approval and configuration reference. */
 export const API_CONTRACTS_HELP_JOB_MATRIX_HEADING =
-  "Governance approval, configuration keys, or HTTP contract reference?";
+  "Resolve outcomes, configuration keys, or HTTP contract reference?";
 
 export const API_CONTRACTS_HELP_JOB_MATRIX_TEST_ID = "help-api-contracts-job-matrix";
 

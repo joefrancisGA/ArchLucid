@@ -27,7 +27,7 @@ describe("finalize-consequence-preview (TB-2224)", () => {
     const exportsUnlock = finalizeConsequencePreviewRowById("exportsUnlock");
 
     expect(locks.label).toBe("What locks");
-    expect(locks.detail.toLowerCase()).toContain("sealed review record");
+    expect(locks.detail.toLowerCase()).toContain("finalized review record");
     expect(editable.label).toBe("What stays editable");
     expect(editable.detail.toLowerCase()).toMatch(/disposition|comment/);
     expect(exportsUnlock.label).toBe("What exports unlock");

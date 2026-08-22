@@ -6,6 +6,12 @@ import { describe, expect, it } from "vitest";
 
 const routeDir = dirname(fileURLToPath(import.meta.url));
 
+const pathSwitcherDeferredSource = readFileSync(
+  join(routeDir, "reviews-new-path-switcher-deferred-chunks.tsx"),
+  "utf8",
+);
+const pageSource = readFileSync(join(routeDir, "page.tsx"), "utf8");
+const ownEvidenceSource = readFileSync(join(routeDir, "ReviewsNewOwnEvidenceStart.tsx"), "utf8");
 const pathSwitcherSource = readFileSync(join(routeDir, "ReviewsNewPathSwitcher.tsx"), "utf8");
 const intentCalloutDeferredSource = readFileSync(join(routeDir, "ReviewsNewDeferredIntentCallout.tsx"), "utf8");
 const newRunWizardClientSource = readFileSync(join(routeDir, "NewRunWizardClient.tsx"), "utf8");
@@ -43,6 +49,12 @@ const bannedIntentCalloutImports = ['@/app/(operator)/architecture/reviews/new/N
 
 const bannedSocraticAdvancedRailImports = [
   '@/app/(operator)/architecture/reviews/new/SocraticIntakeWizardAdvancedRail"',
+] as const;
+
+const bannedPathSwitcherWizardImports = [
+  '@/app/(operator)/architecture/reviews/new/FirstPilotIntakeWizard"',
+  '@/app/(operator)/architecture/reviews/new/SocraticIntakeWizard"',
+  '@/app/(operator)/architecture/reviews/new/NewRunWizardClient"',
 ] as const;
 
 describe("reviews new deferred imports (TB-2371 wave 1)", () => {
@@ -146,5 +158,38 @@ describe("reviews new deferred imports (TB-2371 wave 3)", () => {
     expect(manifestLoaderSource).toContain(
       'import("@/app/(operator)/architecture/reviews/new/SimplifiedPilotWizard")',
     );
+  });
+});
+
+describe("reviews new deferred imports (TB-2371 wave 4)", () => {
+  it("keeps path-switcher wizards off ReviewsNewPathSwitcher static import graph", () => {
+    for (const bannedImport of bannedPathSwitcherWizardImports) {
+      expect(pathSwitcherSource).not.toContain(bannedImport);
+    }
+
+    expect(pathSwitcherSource).toContain("reviews-new-path-switcher-deferred-chunks");
+    expect(pathSwitcherSource).toContain("ReviewsNewFirstPilotIntakeWizardDeferred");
+  });
+
+  it("keeps first pilot wizard off ReviewsNewOwnEvidenceStart static import graph", () => {
+    expect(ownEvidenceSource).not.toContain('@/app/(operator)/architecture/reviews/new/FirstPilotIntakeWizard"');
+    expect(ownEvidenceSource).toContain("ReviewsNewFirstPilotIntakeWizardDeferred");
+  });
+
+  it("loads path switcher from manifest on the reviews new page", () => {
+    expect(pageSource).not.toContain("next/dynamic");
+    expect(pageSource).toContain("ReviewsNewPathSwitcherDeferred");
+  });
+
+  it("dynamic-imports manifest-backed path-switcher route wizards via loaders", () => {
+    expect(pathSwitcherDeferredSource).toContain("createDeferredComponentFromManifest");
+    expect(manifestLoaderSource).toContain(
+      'import("@/app/(operator)/architecture/reviews/new/FirstPilotIntakeWizard")',
+    );
+    expect(manifestLoaderSource).toContain('import("@/app/(operator)/architecture/reviews/new/SocraticIntakeWizard")');
+    expect(manifestLoaderSource).toContain('import("@/app/(operator)/architecture/reviews/new/NewRunWizardClient")');
+    expect(manifestLoaderSource).toContain('import("@/app/(operator)/architecture/reviews/new/ReviewsNewPathSwitcher")');
+    expect(pathSwitcherDeferredSource).toContain("reviews-new-first-pilot-intake-wizard");
+    expect(pathSwitcherDeferredSource).toContain("reviews-new-path-switcher");
   });
 });

@@ -117,8 +117,8 @@ export function parseAdminUsersDirectoryPayload(json: unknown): AdminDirectoryUs
       continue;
     }
 
-    const displayName = String(record.displayName ?? record.name ?? "—");
-    const email = String(record.email ?? "—");
+    const displayName = String(record.displayName ?? record.name ?? " — ");
+    const email = String(record.email ?? " — ");
     const rank = record.authorityRank;
     const role = record.role ?? record.maxAuthority;
     const authorityLabel =
@@ -126,7 +126,7 @@ export function parseAdminUsersDirectoryPayload(json: unknown): AdminDirectoryUs
         ? role
         : typeof rank === "number" && Number.isFinite(rank)
           ? `Rank ${rank}`
-          : "—";
+          : " — ";
     const rankNumber = typeof rank === "number" && Number.isFinite(rank) ? rank : undefined;
 
     rows.push({ userId, displayName, email, authorityLabel, authorityRank: rankNumber });
@@ -171,7 +171,7 @@ export function parseAdminApiKeysDirectoryPayload(json: unknown): AdminDirectory
     }
 
     const displayName = String(record.displayName ?? record.name ?? record.label ?? "API key");
-    const hint = String(record.maskedKey ?? record.keyHint ?? record.hint ?? record.preview ?? "—");
+    const hint = String(record.maskedKey ?? record.keyHint ?? record.hint ?? record.preview ?? " — ");
     const rank = record.authorityRank;
     const role = record.role ?? record.maxAuthority ?? record.appRole;
     const authorityLabel =
@@ -179,7 +179,7 @@ export function parseAdminApiKeysDirectoryPayload(json: unknown): AdminDirectory
         ? role
         : typeof rank === "number" && Number.isFinite(rank)
           ? `Rank ${rank}`
-          : "—";
+          : " — ";
 
     const rankNumber = typeof rank === "number" && Number.isFinite(rank) ? rank : undefined;
 

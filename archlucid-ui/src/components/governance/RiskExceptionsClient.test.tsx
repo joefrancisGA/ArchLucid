@@ -31,7 +31,7 @@ vi.mock("@/lib/use-nav-surface", () => ({
   useNavSurface: () => ({
     layerGuidance: {
       layerBadge: "Governance",
-      headline: "Track active waivers, expirations, owners, and linked governance decisions.",
+      headline: "Track active waivers, expirations, owners, and linked approval decisions.",
       useWhen: "Use this page to track owner, expiration, evidence, and the linked decision.",
       firstPilotNote: null,
       enterpriseFootnote: "Risk exceptions are approved waivers for findings that are not immediately remediated.",
@@ -112,10 +112,10 @@ describe("RiskExceptionsClient", () => {
     render(<RiskExceptionsClient />);
 
     expect(
-      await screen.findByText("Track active waivers, expirations, owners, and linked governance decisions."),
+      await screen.findByText("Track active waivers, expirations, owners, and linked approval decisions."),
     ).toBeInTheDocument();
     expect(
-      screen.queryByText("Submit finalized architecture outputs for governance review and promotion."),
+      screen.queryByText("Submit finalized architecture outputs for resolve outcomes review and promotion."),
     ).not.toBeInTheDocument();
   });
 
@@ -129,7 +129,7 @@ describe("RiskExceptionsClient", () => {
     expect(screen.getByTestId("risk-exceptions-breadcrumb")).toBeInTheDocument();
     expect(screen.getByText(RISK_EXCEPTIONS_PAGE_SUBTITLE_BUYER)).toBeInTheDocument();
     expect(
-      screen.queryByText("Track active waivers, expirations, owners, and linked governance decisions."),
+      screen.queryByText("Track active waivers, expirations, owners, and linked approval decisions."),
     ).not.toBeInTheDocument();
     expect(screen.queryByTestId("risk-exceptions-findings-vocabulary")).not.toBeInTheDocument();
     expect(screen.getByRole("link", { name: BUYER_RISK_EXCEPTIONS_EMPTY_TERTIARY_ACTION })).toHaveAttribute(

@@ -7,7 +7,7 @@ export const REVIEWS_HUB_CLAIM_DISCIPLINE =
   "Architecture reviews lists draft, active, and finalized packages — not a full audit export by itself. Open a review workspace, Evidence graph, or Audit when you need export-ready records.";
 
 export const REVIEWS_HUB_SOURCES_INTRO =
-  "Use these follow-ups when list browsing turns into package detail, evidence search, or governance activity.";
+  "Use these follow-ups when list browsing turns into package detail, evidence search, or approval activity.";
 
 
 /** Operator Sources — no self-href to the reviews list hub. */

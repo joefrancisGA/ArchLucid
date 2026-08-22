@@ -3,7 +3,7 @@
  *
  * Why two surfaces exist:
  * - Getting started (`/help/getting-started`) orients architects and sponsors on
- *   how ArchLucid turns evidence into findings and governance-ready outputs.
+ *   how ArchLucid turns evidence into findings and export-ready outputs.
  * - Your first architecture review (`/help/first-architecture-review`) is the
  *   action-oriented guided path for completing a first review end-to-end.
  *
@@ -38,7 +38,7 @@ export const GETTING_STARTED_FIRST_ARCHITECTURE_REVIEW_HEADING =
   "Getting started and Your first architecture review serve different purposes" as const;
 
 export const GETTING_STARTED_FIRST_ARCHITECTURE_REVIEW_WHY_TWO =
-  "Getting started orients you on how ArchLucid turns architecture evidence into findings, decisions, and governance-ready outputs. Your first architecture review is the guided, action-oriented path for completing a first review end-to-end. Reading product orientation is not the same as walking the first-review checklist." as const;
+  "Getting started orients you on how ArchLucid turns architecture evidence into findings, decisions, and export-ready outputs. Your first architecture review is the guided, action-oriented path for completing a first review end-to-end. Reading product orientation is not the same as walking the first-review checklist." as const;
 
 export const GETTING_STARTED_FIRST_ARCHITECTURE_REVIEW_COMPACT_LINE =
   "Getting started is product orientation; Your first architecture review is the guided first-review path." as const;

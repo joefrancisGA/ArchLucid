@@ -36,7 +36,7 @@ const BUYER_REVIEW_DETAIL_IN_PROGRESS_GUIDANCE: FirstWeekRouteGuidanceConfig = {
     "Stay on this page until you finalize — that locks the finalized review record and unlocks sponsor exports.",
   primaryAction: { label: "Finalize review", href: BUYER_REVIEW_DETAIL_IN_PROGRESS_FINALIZE_ANCHOR },
   // Primary CTA also lives in ReviewPackageDoThisNextStrip above this callout.
-  operateDeferralNote: "Skip graph and governance dashboards until after commit unless your pilot explicitly needs them.",
+  operateDeferralNote: "Skip graph and approval dashboards until after commit unless your pilot explicitly needs them.",
 };
 
 export const FIRST_WEEK_ROUTE_GUIDANCE_REVIEW_DETAIL_COMMITTED_COLLAPSED_SUMMARY =

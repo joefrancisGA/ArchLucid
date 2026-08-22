@@ -6,6 +6,15 @@ import { ARCHITECTURE_DRAFT_GUIDANCE_DISMISS_STORAGE_KEY } from "@/lib/architect
 
 import { ArchitectureDraftListClient } from "./ArchitectureDraftListClient";
 
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ push: vi.fn(), replace: vi.fn() }),
+}));
+
+vi.mock("@/lib/api/draft-intake-api", () => ({
+  getDraftRequest: vi.fn(),
+  reopenDraftRequest: vi.fn(),
+}));
+
 const useArchitectureDraftRegistryEntries = vi.fn<() => readonly ArchitectureDraftRegistryEntry[]>();
 const useArchitectureDraftRegistryHydrated = vi.fn<() => boolean>();
 
@@ -85,6 +94,7 @@ describe("ArchitectureDraftListClient", () => {
 
     expect(updated.closest("time")?.getAttribute("dateTime")).toBe("2026-07-12T23:42:05.000Z");
     expect(updated.textContent ?? "").toMatch(/Updated .+ · /);
+    expect(screen.getByRole("button", { name: "Continue editing Healthcare Claims Platform" })).toBeInTheDocument();
   });
 
   it("shows a loading skeleton before registry hydrate (TB-1450)", () => {

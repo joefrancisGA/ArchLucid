@@ -140,7 +140,7 @@ export function PolicyPackImpactPreviewPanel(props: PolicyPackImpactPreviewPanel
         </h2>
         <p className={cn("m-0 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
           Same finalized review, different enforcement posture — preview compliance rule key changes and whether the
-          pre-finalize gate would allow or block finalize. Read-only; nothing is persisted.
+          approval check before finalize would allow or block finalize. Read-only; nothing is persisted.
         </p>
       </div>
 
@@ -164,7 +164,7 @@ export function PolicyPackImpactPreviewPanel(props: PolicyPackImpactPreviewPanel
             </p>
           ) : (
             <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-              Select a pack with a published version to preview assignment key deltas; gate simulation still runs against
+              Select a pack with a published version to preview assignment key deltas; approval-check simulation still runs against
               current effective merge.
             </p>
           )}
@@ -191,7 +191,7 @@ export function PolicyPackImpactPreviewPanel(props: PolicyPackImpactPreviewPanel
           <div
             className="grid gap-3 md:grid-cols-2"
             data-testid="policy-impact-preview-gate-delta"
-            aria-label="Pre-commit gate simulation delta"
+            aria-label="Approval check simulation delta"
           >
             <div className="rounded-md border border-neutral-200 bg-white p-3 dark:border-neutral-800 dark:bg-neutral-950/50">
               <p className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
@@ -221,7 +221,7 @@ export function PolicyPackImpactPreviewPanel(props: PolicyPackImpactPreviewPanel
             className={cn("m-0", DESIGN_TOKENS.callout.warn, OPERATOR_TYPOGRAPHY.body)}
             data-testid="policy-impact-preview-gate-changed"
           >
-            Gate outcome changes for this review under stricter enforcement — this is the policy-pack moat moment for
+            Approval check outcome changes for this review under stricter enforcement — this is the policy-pack moat moment for
             demos.
           </p>
         ) : null}

@@ -75,7 +75,7 @@ export function buildStaticDemoRunDetailFromShowcase(urlRunId: string): RunDetai
 
   return {
     executionFlavorBuyerSummary:
-      "Finalized signed review with traceable evidence, governed outcomes, and audit-ready deliverables.",
+      "Finalized review with traceable evidence, recorded outcomes, and audit-ready deliverables.",
     agentExecutionLlmCostEstimate: {
       estimatedCostUsd: null,
       tokenCounts: { prompt: 0, completion: 0 },
@@ -455,7 +455,7 @@ export function buildStaticDemoPrimaryFindingInspectPayload(effectiveRunId: stri
       ],
       reasoningSummary:
         "This monitored risk was recorded because sensitive-data minimization at intake requires observable controls at ingress, adapter " +
-        "boundaries, and OCR exception paths. Three evidence citations support the governance decision record.",
+        "boundaries, and OCR exception paths. Three evidence citations support the approval decision record.",
       recommendedActions: [
         "Validate ingress data-classification rules against production traffic patterns.",
         "Monitor unstructured attachment exception volumes weekly and escalate threshold breaches.",
@@ -502,7 +502,7 @@ export function buildStaticDemoPrimaryFindingInspectPayload(effectiveRunId: stri
     ],
     reasoningSummary:
       "This monitored risk was recorded because PHI minimization at intake requires observable controls at ingress, adapter " +
-      "boundaries, and OCR exception paths. Three evidence citations support the governance decision record.",
+      "boundaries, and OCR exception paths. Three evidence citations support the approval decision record.",
     recommendedActions: [
       "Validate ingress PHI classification rules against production traffic patterns.",
       "Monitor unstructured attachment exception volumes weekly and escalate threshold breaches.",

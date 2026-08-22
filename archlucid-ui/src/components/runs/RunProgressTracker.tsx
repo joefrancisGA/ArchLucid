@@ -53,7 +53,7 @@ import type { StageTimelineSummary } from "@/types/stage-timeline";
 export type RunProgressTrackerProps = {
   runId: string;
   initialSummary: RunSummary | null;
-  /** Create-home Activity: analysis stages finished, sealed review record not created yet. */
+  /** Create-home Activity: analysis stages finished, Finalized review record not created yet. */
   readonly preFinalizeReadyToFinalize?: boolean;
   /** Buyer-facing assessment copy instead of pipeline transport jargon. */
   readonly buyerAssessmentCopy?: boolean;
@@ -238,7 +238,7 @@ export function RunProgressTracker({
 
   const liveStatus = useMemo(() => {
     if (preFinalizeTerminal) {
-      return "Ready to finalize — use Finalize review to create the sealed review record for this architecture review.";
+      return "Ready to finalize — use Finalize review to create the finalized review record for this architecture review.";
     }
 
     if (buyerAssessmentCopy) {
@@ -409,7 +409,7 @@ export function RunProgressTracker({
         </li>
         {buyerAssessmentCopy ? (
           <li className="flex flex-wrap items-center gap-2" data-testid="run-progress-signed-record-row">
-            <span className={cn("w-36 font-medium", OPERATOR_TYPOGRAPHY.body)}>Sealed review record</span>
+            <span className={cn("w-36 font-medium", OPERATOR_TYPOGRAPHY.body)}>Finalized review record</span>
             <StatusTag
               kind={manifest ? "ready" : "draft"}
               label={manifest ? "Complete" : "Not created yet"}
@@ -417,7 +417,7 @@ export function RunProgressTracker({
           </li>
         ) : (
           <li className="flex flex-wrap items-center gap-2">
-            <span className={cn("w-36 font-medium", OPERATOR_TYPOGRAPHY.body)}>Sealed review record ready</span>
+            <span className={cn("w-36 font-medium", OPERATOR_TYPOGRAPHY.body)}>Finalized review record ready</span>
             <StatusTag kind={manifest ? "ready" : "draft"} label={manifest ? "Complete" : "Pending"} />
           </li>
         )}

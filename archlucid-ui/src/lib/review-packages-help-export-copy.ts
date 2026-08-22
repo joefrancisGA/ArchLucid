@@ -9,7 +9,7 @@ export const REVIEW_PACKAGES_HELP_EMPTY_WORKSPACE_EXPORT_COPY =
   "If your workspace has no packages yet, open the curated sample to see finalized exports, or start an architecture review to build your first package.";
 
 export const REVIEW_PACKAGES_HELP_EXPORT_BUYER_CLAIM =
-  "Sealed review record links and sponsor exports appear on the Evidence tab after you finalize the architecture review.";
+  "Finalized review record links and sponsor exports appear on the Evidence tab after you finalize the architecture review.";
 
 export const REVIEW_PACKAGES_HELP_SAMPLE_HONESTY =
   `${SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE} sample — illustrative only; not from your workspace.`;

@@ -1,7 +1,7 @@
 /** Formats pipeline duration for metric tiles (null/NaN → em dash). */
 export function formatPilotValueReportAvgCompletion(seconds: number | null): string {
   if (seconds === null || Number.isNaN(seconds)) {
-    return "—";
+    return " — ";
   }
 
   if (seconds >= 3600) {

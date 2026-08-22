@@ -4,19 +4,19 @@
  */
 export function formatInstantForLocale(iso: string | null | undefined): string {
   if (iso === null || iso === undefined) {
-    return "—";
+    return " — ";
   }
 
   const trimmed = iso.trim();
 
   if (trimmed.length === 0) {
-    return "—";
+    return " — ";
   }
 
   const ms = Date.parse(trimmed);
 
   if (!Number.isFinite(ms)) {
-    return "—";
+    return " — ";
   }
 
   return (
@@ -38,19 +38,19 @@ export function formatInstantForLocale(iso: string | null | undefined): string {
  */
 export function formatConversationListDate(iso: string | null | undefined): string {
   if (iso === null || iso === undefined) {
-    return "—";
+    return " — ";
   }
 
   const trimmed = iso.trim();
 
   if (trimmed.length === 0) {
-    return "—";
+    return " — ";
   }
 
   const ms = Date.parse(trimmed);
 
   if (!Number.isFinite(ms)) {
-    return "—";
+    return " — ";
   }
 
   return new Date(ms).toLocaleDateString("en-US", {
@@ -66,13 +66,13 @@ export function formatConversationListDate(iso: string | null | undefined): stri
  */
 export function formatInstantForBuyerGovernance(iso: string | null | undefined): string {
   if (iso === null || iso === undefined) {
-    return "—";
+    return " — ";
   }
 
   const trimmed = iso.trim();
 
   if (trimmed.length === 0) {
-    return "—";
+    return " — ";
   }
 
   const ms = Date.parse(trimmed);

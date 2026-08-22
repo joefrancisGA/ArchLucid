@@ -3,7 +3,7 @@ export function formatWebhookDestinationLabel(destination: string): string {
   const trimmed = destination.trim();
 
   if (trimmed.length === 0) {
-    return "—";
+    return " — ";
   }
 
   try {

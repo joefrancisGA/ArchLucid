@@ -19,7 +19,7 @@ import {
 } from "@/lib/sponsor-roi-baseline-gate";
 
 export type SponsorRoiBaselineGateNoticeProps = {
-  /** Finalized sealed review record — gate is not-applicable until true. */
+  /** Finalized Finalized review record — gate is not-applicable until true. */
   readonly isFinalized: boolean;
   readonly className?: string;
 };

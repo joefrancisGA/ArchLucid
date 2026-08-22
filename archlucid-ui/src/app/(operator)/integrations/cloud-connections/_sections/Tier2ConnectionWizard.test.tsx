@@ -34,7 +34,11 @@ vi.mock("@/lib/api/cloud-connections-api", () => ({
 }));
 
 import { configureTier2Connection, validateTier2ConnectionHostedRun } from "@/lib/api/cloud-connections-api";
-import { AZURE_CLOUD_CONNECTION_BANNED_COPY } from "@/lib/azure-cloud-connection-copy";
+import {
+  AZURE_CLOUD_CONNECTION_BANNED_COPY,
+  AZURE_CONNECTION_CLIENT_APP_ID_LABEL,
+  AZURE_CONNECTION_IDS_STEP_LEAD,
+} from "@/lib/azure-cloud-connection-copy";
 import { CLOUD_CONNECTION_SAVE_SUCCESS_MESSAGE } from "@/lib/admin-integration-mutation-outcome-copy";
 import { showError, showSuccess } from "@/lib/toast";
 
@@ -65,6 +69,8 @@ describe("Tier2ConnectionWizard", () => {
     render(<Tier2ConnectionWizard onSaved={vi.fn()} skipSecurityStep />);
 
     expect(screen.getByTestId("tier2-federation-identifiers")).toHaveTextContent(TENANT_ID);
+    expect(screen.getByRole("button", { name: "Help: ArchLucid tenant ID" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Help: ArchLucid managed identity object ID" })).toBeInTheDocument();
     expect(screen.getByTestId("tier2-federation-identifiers")).toHaveTextContent(MANAGED_IDENTITY_ID);
     expect(screen.getByText(/set SUBSCRIPTION_ID at the top of the script/i)).toBeInTheDocument();
 
@@ -73,6 +79,35 @@ describe("Tier2ConnectionWizard", () => {
     expect(scriptRegion).toHaveTextContent(MANAGED_IDENTITY_ID);
     expect(scriptRegion).not.toHaveTextContent("YOUR_ARCHLUCID_TENANT_ID");
     expect(scriptRegion).toHaveTextContent('SUBSCRIPTION_ID="YOUR_SUBSCRIPTION_ID"');
+  });
+
+  it("guides operators to Assurance status and Connection status when federation identifiers are unpublished", () => {
+    vi.stubEnv("NEXT_PUBLIC_ARCHLUCID_HOSTED_IDENTITY_TENANT_ID", "");
+    vi.stubEnv("NEXT_PUBLIC_ARCHLUCID_HOSTED_MANAGED_IDENTITY_OBJECT_ID", "");
+
+    render(<Tier2ConnectionWizard onSaved={vi.fn()} skipSecurityStep />);
+
+    expect(screen.getByTestId("tier2-federation-identifiers-sourcing")).toBeInTheDocument();
+    expect(screen.getAllByRole("link", { name: "Assurance status" })[0]).toHaveAttribute("href", "/assurance-status");
+    expect(screen.getAllByRole("link", { name: "Connection status" })[0]).toHaveAttribute(
+      "href",
+      "/administration/connection-status",
+    );
+    expect(screen.getByTestId("tier2-federation-identifiers")).toHaveTextContent("Not published in this UI build");
+    expect(screen.getByTestId("tier2-setup-script-unavailable")).toBeInTheDocument();
+    expect(screen.queryByRole("region", { name: "Azure CLI setup script" })).toBeNull();
+  });
+
+  it("uses client/app ID in the helper, field label, and tooltip", () => {
+    render(<Tier2ConnectionWizard onSaved={vi.fn()} skipSecurityStep />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Next" }));
+
+    expect(screen.getByText(AZURE_CONNECTION_IDS_STEP_LEAD)).toBeInTheDocument();
+    expect(screen.getByLabelText(AZURE_CONNECTION_CLIENT_APP_ID_LABEL)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Help: Client/App ID" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Help: Azure Tenant ID" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Help: Subscription IDs" })).toBeInTheDocument();
   });
 
   it("shows workspace binding on the save step (P0-4)", async () => {
@@ -111,7 +146,8 @@ describe("Tier2ConnectionWizard", () => {
     fireEvent.click(screen.getByRole("button", { name: "Next" }));
 
     await waitFor(() => {
-      expect(screen.getByText("Enter a valid Azure AD tenant GUID.")).toBeInTheDocument();
+      expect(screen.getByText("Enter a valid Azure tenant ID GUID.")).toBeInTheDocument();
+      expect(screen.getByText("Enter a valid client/app ID GUID.")).toBeInTheDocument();
     });
   });
 

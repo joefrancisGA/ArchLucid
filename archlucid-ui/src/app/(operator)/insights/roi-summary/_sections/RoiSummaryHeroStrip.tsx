@@ -57,7 +57,7 @@ export function RoiSummaryHeroStrip(props: Props) {
           hint={usd.rateBasisLabel}
         />
         <SponsorReportMetricCard title="Findings counted" value={String(metrics.findingsCounted)} />
-        <SponsorReportMetricCard title="Governance blocks counted" value={String(metrics.blocksCounted)} />
+        <SponsorReportMetricCard title="Approval-check blocks counted" value={String(metrics.blocksCounted)} />
         <SponsorReportMetricCard
           title="Data completeness"
           value={metrics.confidence.completenessLabel}

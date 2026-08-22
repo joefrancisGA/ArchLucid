@@ -1,6 +1,8 @@
 import { act, renderHook, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+import { ApiRequestError } from "@/lib/api-request-error";
+
 const createDraftRequest = vi.fn();
 const getDraftRequest = vi.fn();
 const patchDraftRequest = vi.fn();
@@ -199,5 +201,170 @@ describe("useArchitectureDraftAutosave", () => {
 
     expect(secondPatchBody.systemName).toBe(complete.systemName);
     expect(secondPatchBody.businessOutcome).toBe(complete.businessOutcome);
+  });
+
+  it("omits freeTextIntent from PATCH when the overview is still empty", async () => {
+    const fields: ArchitectureDraftFieldState = {
+      freeTextIntent: "",
+      businessOutcome: "Reduce intake cycle time for architecture reviews.",
+      systemName: "B2B SaaS Tenant Migration Platform",
+      structuredBrief: emptyArchitectureDraftStructuredBrief(),
+    };
+
+    getDraftRequest.mockResolvedValueOnce(draftResponse(fields, "2026-08-11T12:00:00.000Z"));
+    patchDraftRequest.mockResolvedValueOnce(draftResponse(fields, "2026-08-11T12:00:30.000Z"));
+
+    const { result } = renderHook(() =>
+      useArchitectureDraftAutosave({
+        architectureId: "draft-001",
+        fields,
+        actorSet,
+      }),
+    );
+
+    await act(async () => {
+      await result.current.saveDraft();
+    });
+
+    expect(patchDraftRequest).toHaveBeenCalledTimes(1);
+    const patchBody = patchDraftRequest.mock.calls[0]?.[1] as { freeTextIntent?: string };
+    expect(patchBody.freeTextIntent).toBeUndefined();
+  });
+
+  it("does not retry PATCH in a loop after a non-retryable 400", async () => {
+    const fields: ArchitectureDraftFieldState = {
+      freeTextIntent: longIntent(),
+      businessOutcome: "Reduce intake cycle time for architecture reviews.",
+      systemName: "B2B SaaS Tenant Migration Platform",
+      structuredBrief: emptyArchitectureDraftStructuredBrief(),
+    };
+
+    getDraftRequest.mockResolvedValue(draftResponse(fields, "2026-08-11T12:00:00.000Z"));
+    patchDraftRequest.mockRejectedValue(
+      new ApiRequestError("Draft is not mutable", {
+        problem: null,
+        correlationId: "corr-400",
+        httpStatus: 400,
+      }),
+    );
+
+    const { result } = renderHook(() =>
+      useArchitectureDraftAutosave({
+        architectureId: "draft-001",
+        fields,
+        actorSet,
+      }),
+    );
+
+    await act(async () => {
+      await result.current.saveDraft();
+    });
+
+    expect(patchDraftRequest).toHaveBeenCalledTimes(1);
+    expect(result.current.saveState).toBe("error");
+  });
+
+  it("does not run a queued trailing save after a non-retryable 400", async () => {
+    const intentOnly: ArchitectureDraftFieldState = {
+      freeTextIntent: longIntent("intent-only"),
+      businessOutcome: "",
+      systemName: "",
+      structuredBrief: emptyArchitectureDraftStructuredBrief(),
+    };
+    const complete: ArchitectureDraftFieldState = {
+      freeTextIntent: intentOnly.freeTextIntent,
+      businessOutcome: "Reduce intake cycle time for architecture reviews.",
+      systemName: "B2B SaaS Tenant Migration Platform",
+      structuredBrief: emptyArchitectureDraftStructuredBrief(),
+    };
+
+    let resolveFirstPatch: ((value: unknown) => void) | null = null;
+
+    getDraftRequest
+      .mockResolvedValueOnce(draftResponse(intentOnly, "2026-08-11T12:00:00.000Z"))
+      .mockResolvedValueOnce(draftResponse(intentOnly, "2026-08-11T12:00:30.000Z"));
+    patchDraftRequest.mockImplementationOnce(
+      () =>
+        new Promise((_, reject) => {
+          resolveFirstPatch = reject;
+        }),
+    );
+
+    const { result, rerender } = renderHook(
+      (props: { fields: ArchitectureDraftFieldState }) =>
+        useArchitectureDraftAutosave({
+          architectureId: "draft-001",
+          fields: props.fields,
+          actorSet,
+        }),
+      { initialProps: { fields: intentOnly } },
+    );
+
+    let firstSave: Promise<boolean> | undefined;
+
+    await act(async () => {
+      firstSave = result.current.saveDraft();
+    });
+
+    await waitFor(() => {
+      expect(patchDraftRequest).toHaveBeenCalledTimes(1);
+    });
+
+    rerender({ fields: complete });
+
+    let queuedSave: Promise<boolean> | undefined;
+
+    await act(async () => {
+      queuedSave = result.current.saveDraft();
+    });
+
+    await act(async () => {
+      resolveFirstPatch?.(
+        new ApiRequestError("Draft is not mutable", {
+          problem: null,
+          correlationId: "corr-400",
+          httpStatus: 400,
+        }),
+      );
+      await firstSave;
+      await queuedSave;
+    });
+
+    expect(patchDraftRequest).toHaveBeenCalledTimes(1);
+    expect(result.current.saveState).toBe("error");
+  });
+
+  it("skips PATCH when the server draft is no longer Drafting", async () => {
+    const fields: ArchitectureDraftFieldState = {
+      freeTextIntent: longIntent(),
+      businessOutcome: "Reduce intake cycle time for architecture reviews.",
+      systemName: "B2B SaaS Tenant Migration Platform",
+      structuredBrief: emptyArchitectureDraftStructuredBrief(),
+    };
+
+    const onImmutableDraftDetected = vi.fn();
+
+    getDraftRequest.mockResolvedValueOnce({
+      ...draftResponse(fields, "2026-08-11T12:00:00.000Z"),
+      status: "Admitted",
+    });
+
+    const { result } = renderHook(() =>
+      useArchitectureDraftAutosave({
+        architectureId: "draft-001",
+        fields,
+        actorSet,
+        onImmutableDraftDetected,
+      }),
+    );
+
+    await act(async () => {
+      await result.current.saveDraft();
+    });
+
+    expect(patchDraftRequest).not.toHaveBeenCalled();
+    expect(onImmutableDraftDetected).toHaveBeenCalledTimes(1);
+    expect(result.current.saveState).toBe("idle");
+    expect(result.current.conflictMessage).toBeNull();
   });
 });

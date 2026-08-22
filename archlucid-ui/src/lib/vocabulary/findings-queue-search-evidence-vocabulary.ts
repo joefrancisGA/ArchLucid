@@ -5,7 +5,7 @@
  * - Findings queue (`/governance/findings`) is the governance triage inbox for
  *   dispositioning risks, assigning owners, and clearing open items.
  * - Search review evidence (`/insights/search-review-evidence`) retrieves
- *   findings, decisions, and sealed review records across architecture packages
+ *   findings, decisions, and finalized review records across architecture packages
  *   in the evidence trail.
  *
  * They stay separate because triage disposition is not the same task as
@@ -47,7 +47,7 @@ export const FINDINGS_QUEUE_SEARCH_EVIDENCE_FINDINGS_LINK: FindingsQueueSearchEv
   id: "findings-queue",
   label: "Findings queue",
   href: GOVERNANCE_FINDINGS_CANONICAL_PATH,
-  whenToUse: "Disposition risks, assign owners, and clear open governance items.",
+  whenToUse: "Disposition risks, assign owners, and clear open review items.",
 };
 
 export const FINDINGS_QUEUE_SEARCH_EVIDENCE_SEARCH_LINK: FindingsQueueSearchEvidenceLink = {

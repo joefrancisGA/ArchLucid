@@ -37,8 +37,18 @@ const explanationDeferredSource = readFileSync(
   "utf8",
 );
 
+const sponsorBriefingSource = readFileSync(
+  join(sectionsDir, "RunDetailSponsorBriefingSection.tsx"),
+  "utf8",
+);
+
 const tabbedDeferredIslandsSource = readFileSync(
   join(sectionsDir, "RunDetailTabbedDeferredIslands.tsx"),
+  "utf8",
+);
+
+const tabbedDeferredChunksSource = readFileSync(
+  join(sectionsDir, "run-detail-tabbed-deferred-chunks.tsx"),
   "utf8",
 );
 
@@ -233,12 +243,13 @@ describe("run detail bundle deferred imports (TB-697 / TB-933 / TB-2021 / TB-211
     expect(deferredChunksSource).toContain('"run-detail-export-deliverable-dialog"');
     expect(deferredChunksSource).toContain('"run-detail-generate-adr-from-run-modal"');
     expect(deferredChunksSource).toContain('"run-detail-compare-to-baseline-cta"');
-    expect(tabbedDeferredIslandsSource).toContain('"run-detail-post-commit-habit-loop"');
-    expect(tabbedDeferredIslandsSource).toContain('"run-detail-architecture-graph-section"');
-    expect(tabbedDeferredIslandsSource).not.toContain('import("@/components/PostCommitHabitLoopCard")');
-    expect(tabbedDeferredIslandsSource).not.toContain(
-      'import("@/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailArchitectureGraphSection")',
-    );
+    expect(tabbedDeferredChunksSource).toContain("createDeferredComponentFromManifest");
+    expect(tabbedDeferredChunksSource).toContain('"run-detail-post-commit-habit-loop"');
+    expect(tabbedDeferredChunksSource).toContain('"run-detail-architecture-graph-section"');
+    expect(tabbedDeferredIslandsSource).toContain("run-detail-tabbed-deferred-chunks");
+    expect(tabbedDeferredIslandsSource).toContain("RunDetailPostCommitHabitLoopCardDeferred");
+    expect(tabbedDeferredIslandsSource).toContain("RunDetailArchitectureGraphSectionDeferred");
+    expect(tabbedDeferredIslandsSource).not.toContain("next/dynamic");
     expect(manifestLoaderSource).toContain('import("@/components/reviews/ReviewWorkspaceShell")');
     expect(manifestLoaderSource).toContain('import("@/components/reviews/RunDetailOverviewPanelClient")');
     expect(manifestLoaderSource).toContain('import("@/components/architecture/ArchitectureCreatedReviewWorkspaceShell")');
@@ -543,14 +554,18 @@ describe("run detail bundle deferred imports (TB-697 / TB-933 / TB-2021 / TB-211
     expect(explanationCollapsibleSource).not.toMatch(
       /import\s+\{\s*RunFindingExplainabilityTable\s*\}\s+from/,
     );
-    expect(explanationCollapsibleSource).toContain('import("./RunDetailFindingsWorkspace")');
-    expect(explanationCollapsibleSource).toContain(
-      'import("@/components/findings/FindingsWhatIfAnalysisPanel")',
+    expect(explanationCollapsibleSource).not.toContain("next/dynamic");
+    expect(explanationCollapsibleSource).toContain("run-detail-explanation-collapsible-deferred-chunks");
+    expect(explanationCollapsibleSource).toContain("RunDetailFindingsWorkspaceDeferred");
+    expect(explanationCollapsibleSource).toContain("FindingsWhatIfAnalysisPanelDeferred");
+    expect(explanationCollapsibleSource).toContain("RunExplanationSectionDeferred");
+    expect(explanationCollapsibleSource).toContain("RunFindingExplainabilityTableDeferred");
+    expect(manifestLoaderSource).toContain(
+      'import("@/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailFindingsWorkspace")',
     );
-    expect(explanationCollapsibleSource).toContain('import("@/components/runs/RunExplanationSection")');
-    expect(explanationCollapsibleSource).toContain(
-      'import("@/components/runs/RunFindingExplainabilityTable")',
-    );
+    expect(manifestLoaderSource).toContain('import("@/components/findings/FindingsWhatIfAnalysisPanel")');
+    expect(manifestLoaderSource).toContain('import("@/components/runs/RunExplanationSection")');
+    expect(manifestLoaderSource).toContain('import("@/components/runs/RunFindingExplainabilityTable")');
   });
 
   it("dynamic-imports below-fold habit/authority/grounding islands (TB-2021)", () => {
@@ -568,12 +583,21 @@ describe("run detail bundle deferred imports (TB-697 / TB-933 / TB-2021 / TB-211
     );
     expect(belowFoldSource).not.toContain('./RunDetailArtifactsExportsSection"');
     expect(belowFoldSource).toContain("RunDetailArtifactsExportsSectionDeferred");
-    expect(belowFoldSource).toContain('import("@/components/PostCommitHabitLoopCard")');
-    expect(belowFoldSource).toContain(
+    expect(belowFoldSource).toContain("RunDetailPostCommitHabitLoopCardDeferred");
+    expect(belowFoldSource).toContain("RecurrenceSchedulePostCommitCardDeferred");
+    expect(belowFoldSource).toContain("RunDetailAuthorityChainSectionDeferred");
+    expect(belowFoldSource).toContain("RunDetailRetrievalGroundingSectionDeferred");
+    expect(belowFoldSource).not.toContain("next/dynamic");
+    expect(manifestLoaderSource).toContain('import("@/components/PostCommitHabitLoopCard")');
+    expect(manifestLoaderSource).toContain(
       'import("@/components/governance/RecurrenceSchedulePostCommitCard")',
     );
-    expect(belowFoldSource).toContain('import("./RunDetailAuthorityChainSection")');
-    expect(belowFoldSource).toContain('import("./RunDetailRetrievalGroundingSection")');
+    expect(manifestLoaderSource).toContain(
+      'import("@/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailAuthorityChainSection")',
+    );
+    expect(manifestLoaderSource).toContain(
+      'import("@/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailRetrievalGroundingSection")',
+    );
   });
 
   it("dynamic-imports mid/decision-delta/explanation leaves (wave 10)", () => {
@@ -590,6 +614,26 @@ describe("run detail bundle deferred imports (TB-697 / TB-933 / TB-2021 / TB-211
     expect(explanationDeferredSource).not.toContain('./RunDetailRunExplanationCollapsible"');
     expect(explanationDeferredSource).toContain("RunDetailRunExplanationCollapsibleDeferred");
     expect(explanationDeferredSource).toContain("run-detail-page-view-deferred-chunks");
+
+    expect(explanationCollapsibleSource).not.toContain("next/dynamic");
+    expect(explanationCollapsibleSource).toContain("run-detail-explanation-collapsible-deferred-chunks");
+    expect(explanationCollapsibleSource).toContain("FindingsWhatIfAnalysisPanelDeferred");
+    expect(explanationCollapsibleSource).toContain("RunDetailFindingsWorkspaceDeferred");
+    expect(explanationCollapsibleSource).toContain("RunExplanationSectionDeferred");
+    expect(explanationCollapsibleSource).toContain("RunFindingExplainabilityTableDeferred");
+    expect(manifestLoaderSource).toContain('import("@/components/findings/FindingsWhatIfAnalysisPanel")');
+    expect(manifestLoaderSource).toContain(
+      'import("@/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailFindingsWorkspace")',
+    );
+    expect(manifestLoaderSource).toContain('import("@/components/runs/RunExplanationSection")');
+    expect(manifestLoaderSource).toContain('import("@/components/runs/RunFindingExplainabilityTable")');
+
+    expect(sponsorBriefingSource).not.toContain("next/dynamic");
+    expect(sponsorBriefingSource).toContain("run-detail-sponsor-briefing-deferred-chunks");
+    expect(sponsorBriefingSource).toContain("EmailRunToSponsorBannerDeferred");
+    expect(sponsorBriefingSource).toContain("PilotRoiValidationHandoffClientDeferred");
+    expect(manifestLoaderSource).toContain('import("@/components/EmailRunToSponsorBanner")');
+    expect(manifestLoaderSource).toContain('import("@/components/pilots/PilotRoiValidationHandoffCard")');
 
     expect(deferredChunksSource).toContain("ChangesSinceLastReviewBannerDeferred");
     expect(deferredChunksSource).toContain("RunSavingsSummaryDeferred");
@@ -608,5 +652,9 @@ describe("run detail bundle deferred imports (TB-697 / TB-933 / TB-2021 / TB-211
     expect(belowFoldSource).toContain("RunDetailBelowFoldProjectContextSkeleton");
     expect(belowFoldSource).toMatch(/export function RunDetailBelowFoldSections/);
     expect(belowFoldSource).not.toContain("loadRunDetailBelowFoldDeferredModel");
+    expect(belowFoldSource).not.toContain("next/dynamic");
+    expect(belowFoldSource).toContain("RunDetailAuthorityChainSectionDeferred");
+    expect(belowFoldSource).toContain("RunDetailPostCommitHabitLoopCardDeferred");
+    expect(belowFoldSource).toContain("BeforeAfterDeltaPanelDeferred");
   });
 });

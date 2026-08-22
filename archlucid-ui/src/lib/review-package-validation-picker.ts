@@ -41,7 +41,7 @@ export function reviewPackageStatusLabel(run: RunSummary): string {
 
 export function reviewPackageFinalizedDateLabel(run: RunSummary): string {
   if (run.hasGoldenManifest !== true) {
-    return "—";
+    return " — ";
   }
 
   return formatRecurrenceScheduleUtcLabel(run.createdUtc);
@@ -50,12 +50,12 @@ export function reviewPackageFinalizedDateLabel(run: RunSummary): string {
 export function reviewPackageOwnerLabel(run: RunSummary): string {
   void run;
 
-  return "—";
+  return " — ";
 }
 
 export function toReviewPackageValidationRow(
   run: RunSummary,
-  lastValidationLabel = "—",
+  lastValidationLabel = " — ",
 ): ReviewPackageValidationRow {
   return {
     run,
@@ -88,7 +88,7 @@ export function matchesReviewPackageValidationSearch(row: ReviewPackageValidatio
 
 export function formatLastValidationOutcomeLabel(outcome: ReplayValidationOutcome | null): string {
   if (outcome === null) {
-    return "—";
+    return " — ";
   }
 
   return replayValidationOutcomeLabel(outcome);

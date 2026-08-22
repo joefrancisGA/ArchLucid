@@ -37,7 +37,7 @@ export function modelExecutionProfileDescriptor(profile: ModelExecutionProfile):
         summary: "Lower token spend for routine architecture reviews.",
         tradeoffs: [
           "Uses economy model tiers across agent roles",
-          "May reduce depth on complex governance decisions",
+          "May reduce depth on complex approval decisions",
         ],
       };
     case "Balanced":
@@ -50,7 +50,7 @@ export function modelExecutionProfileDescriptor(profile: ModelExecutionProfile):
       };
     case "HighAssurance":
       return {
-        summary: "Strongest model tiers for high-stakes governance reviews.",
+        summary: "Strongest model tiers for high-stakes approval reviews.",
         tradeoffs: [
           "Higher token spend per review",
           "May increase agent run latency on some tasks",

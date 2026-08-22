@@ -120,7 +120,7 @@ export const ALERTS_HELP_TRIGGER_INTRO =
 export const ALERTS_HELP_TRIGGER_ITEMS = [
   "Configured thresholds on finding severity or status",
   "Compliance gaps against expected controls",
-  "Policy violations from active governance packs",
+  "Policy violations from active policy packs",
   "Drift or repeated findings across reviews",
   "Rules that combine multiple conditions",
 ] as const;
@@ -136,7 +136,7 @@ export const ALERTS_HELP_DESTINATION_CARDS = [
     id: "alert-rules",
     title: "Alert rules",
     description:
-      "Create thresholds, routing, combined conditions, and simulations that raise governance alerts.",
+      "Create thresholds, routing, combined conditions, and simulations that raise policy alerts.",
   },
 ] as const;
 
@@ -151,7 +151,7 @@ export const ALERTS_HELP_RESOLUTION_STEPS = [
 export const ALERTS_HELP_RELATED_CONCEPTS = [
   {
     title: "Policy packs",
-    description: "Define the governance expectations applied during reviews.",
+    description: "Define the policy expectations applied during reviews.",
     href: GOVERNANCE_POLICY_PACKS_PATH,
     linkLabel: "Open policy packs",
   },
@@ -163,7 +163,7 @@ export const ALERTS_HELP_RELATED_CONCEPTS = [
   },
   {
     title: "Audit trail",
-    description: "Trace who acknowledged, assigned, and resolved governance actions across this workspace.",
+    description: "Trace who acknowledged, assigned, and resolved approval actions across this workspace.",
     href: inAppHelpHref("audit-trail"),
     linkLabel: "Open audit trail help",
   },

@@ -15,6 +15,7 @@ import {
 import { resolveReviewIntakeExampleTemplateFromSearchParams } from "@/lib/operator/operator-home-example-request";
 import { POLICY_PACK_ID_QUERY_PARAM } from "@/lib/policy/policy-packs-deep-link";
 import { deriveGuidedIntakePolicyPackCloudMismatch } from "@/lib/review-quality/guided-intake-policy-pack-cloud-mismatch";
+import { readPriorRunIdFromSearch } from "@/lib/second-review-prior-package";
 import { WIZARD_SESSION_IDS, wizardSessionHasTextContent } from "@/lib/wizard-session-persistence";
 
 import {
@@ -50,6 +51,7 @@ export function useGuidedIntakeWizard() {
   const isCreateArchitectureFlow = isCreateArchitectureIntent(workflowIntent);
   const sourceArchitectureId = searchParams?.get(SOURCE_ARCHITECTURE_QUERY_PARAM)?.trim() ?? "";
   const deeplinkPolicyPackId = searchParams?.get(POLICY_PACK_ID_QUERY_PARAM)?.trim() ?? "";
+  const priorRunId = readPriorRunIdFromSearch(searchParams);
 
   const { stepIndex: step, setStepIndex: setStep } = useWizardStepNavigation({
     steps: INTAKE_STEP_DEFINITIONS,
@@ -75,6 +77,7 @@ export function useGuidedIntakeWizard() {
     form,
     isCreateArchitectureFlow,
     sourceArchitectureId,
+    priorRunId,
     setStep,
     navigate,
     clearSession,

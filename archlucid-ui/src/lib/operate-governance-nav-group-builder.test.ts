@@ -17,7 +17,7 @@ describe("OperateGovernanceNavGroupBuilder", () => {
     const setupGuide = group.links.find((link) => link.href === "/governance/setup");
 
     expect(setupGuide).toBeDefined();
-    expect(setupGuide?.label).toBe("Governance setup");
+    expect(setupGuide?.label).toBe("Approval setup");
     expect(setupGuide?.title?.toLowerCase()).not.toContain("evaluation");
     expect(setupGuide?.title?.toLowerCase()).not.toContain("pilot");
   });

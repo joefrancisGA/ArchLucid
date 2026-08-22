@@ -74,13 +74,20 @@ describe("AwsCloudConnectionDetailClient", () => {
       expect(screen.getByTestId("aws-connection-header-status")).toHaveTextContent("Not connected");
     });
 
+    expect(screen.queryByTestId("aws-connection-header-connect")).not.toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Recent connection activity" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "View setup guide" })).toHaveAttribute(
+      "href",
+      "/help/cloud-connections/aws",
+    );
+
     expect(screen.getByTestId("page-contextual-help-button")).toHaveTextContent("Help");
     expect(screen.getByTestId("cloud-connections-aws-claim-discipline")).toHaveTextContent(
       CLOUD_PROVIDER_CONNECTION_CLAIM_DISCIPLINE,
     );
     expect(screen.getByTestId("cloud-connections-aws-sources")).toBeInTheDocument();
     const sources = screen.getByTestId("cloud-connections-aws-sources");
-    expect(within(sources).getByRole("link", { name: "Connection status" })).toHaveAttribute(
+    expect(within(sources).getByRole("link", { name: "Open Connection status" })).toHaveAttribute(
       "href",
       "/administration/connection-status",
     );
@@ -101,5 +108,6 @@ describe("AwsCloudConnectionDetailClient", () => {
     });
 
     expect(screen.getByTestId("aws-connection-header-status")).not.toHaveTextContent("Not connected");
+    expect(screen.queryByTestId("aws-connection-header-connect")).not.toBeInTheDocument();
   });
 });

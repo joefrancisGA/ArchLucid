@@ -38,7 +38,7 @@ export function canonicalizeDemoRunId(runId: string): string {
   return DEMO_RUN_ID_ALIASES[t] ?? t;
 }
 
-/** True when `runId` is the canonical Claims Intake showcase slug or a legacy bookmark/API alias for it. */
+/** True when `runId` is the canonical primary showcase slug or a legacy bookmark/API alias for it. */
 export function isShowcaseStaticDemoRunId(runId: string): boolean {
   const trimmed = runId.trim();
 

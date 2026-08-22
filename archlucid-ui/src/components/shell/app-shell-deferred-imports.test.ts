@@ -37,6 +37,15 @@ const bannedStaticImports = [
   '@/components/ColorModeToggle"',
   '@/components/AuthorityThemeToggle"',
   '@/components/ShellThemePreferencesAppearanceVocabularyRail"',
+  '@/components/FrictionlessTrialBanner"',
+  '@/components/shell/AppShellMainAffordances"',
+  '@/components/OnboardingTour"',
+  '@/components/usability/RegistrationOnboardingTourAutoStart"',
+  '@/components/HelpSearchPanel"',
+  '@/components/SidebarNav"',
+  '@/components/shell/AppShellStatusBanners"',
+  '@/components/trial/TrialLimitModal"',
+  '@/components/cto-demo/CtoDemoJourneyCaptionBar"',
 ] as const;
 
 const bannedTopBarStaticImports = [
@@ -72,6 +81,17 @@ describe("operator shell deferred imports (TB-2118)", () => {
     expect(appShellSource).toContain("ColorModeToggleDeferred");
     expect(appShellSource).toContain("AuthorityThemeToggleDeferred");
     expect(appShellSource).toContain("ShellThemePreferencesAppearanceVocabularyRailDeferred");
+    expect(appShellSource).toContain("FrictionlessTrialBannerDeferred");
+    expect(appShellSource).toContain("AppShellMainAffordancesDeferred");
+    expect(appShellSource).toContain("OnboardingTourDeferred");
+    expect(appShellSource).toContain("RegistrationOnboardingTourAutoStartDeferred");
+    expect(appShellSource).toContain("HelpSearchPanelDeferred");
+    expect(appShellSource).toContain("HelpPanelDeferred");
+    expect(appShellSource).toContain("SidebarNavDeferred");
+    expect(appShellSource).toContain("AppShellStatusBannersDeferred");
+    expect(appShellSource).toContain("TrialLimitModalHostDeferred");
+    expect(appShellSource).toContain("CtoDemoJourneyCaptionBarDeferred");
+    expect(appShellSource).not.toContain("next/dynamic");
   });
 
   it("dynamic-imports every app shell module via manifest loaders", () => {
@@ -94,11 +114,25 @@ describe("operator shell deferred imports (TB-2118)", () => {
     expect(manifestLoaderSource).toContain('import("@/components/ColorModeToggle")');
     expect(manifestLoaderSource).toContain('import("@/components/AuthorityThemeToggle")');
     expect(manifestLoaderSource).toContain('import("@/components/ShellThemePreferencesAppearanceVocabularyRail")');
+    expect(manifestLoaderSource).toContain('import("@/components/FrictionlessTrialBanner")');
+    expect(manifestLoaderSource).toContain('import("@/components/shell/AppShellMainAffordances")');
+    expect(manifestLoaderSource).toContain('import("@/components/OnboardingTour")');
+    expect(manifestLoaderSource).toContain(
+      'import("@/components/usability/RegistrationOnboardingTourAutoStart")',
+    );
+    expect(manifestLoaderSource).toContain('import("@/components/HelpSearchPanel")');
+    expect(manifestLoaderSource).toContain('import("@/components/HelpPanel")');
+    expect(manifestLoaderSource).toContain('import("@/components/SidebarNav")');
+    expect(manifestLoaderSource).toContain('import("@/components/shell/AppShellStatusBanners")');
+    expect(manifestLoaderSource).toContain('import("@/components/trial/TrialLimitModal")');
+    expect(manifestLoaderSource).toContain('import("@/components/cto-demo/CtoDemoJourneyCaptionBar")');
     expect(deferredSource).toContain("operator-shell-top-bar");
     expect(deferredSource).toContain("app-shell-keyboard-shortcut-boundary");
     expect(deferredSource).toContain("app-shell-color-mode-toggle");
     expect(deferredSource).toContain("app-shell-authority-theme-toggle");
     expect(deferredSource).toContain("app-shell-theme-preferences-vocabulary-rail");
+    expect(deferredSource).toContain("app-shell-frictionless-trial-banner");
+    expect(deferredSource).toContain("app-shell-sidebar-nav");
   });
 
   it("keeps heavy top-bar modules off the sync import graph", () => {

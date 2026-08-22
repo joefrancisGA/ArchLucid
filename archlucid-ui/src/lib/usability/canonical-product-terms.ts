@@ -75,8 +75,8 @@ export const SPONSOR_BRIEFING_LABEL = "Sponsor briefing";
 /** Mid-sentence form of {@link SPONSOR_BRIEFING_EXPORT_LABEL}. */
 export const SPONSOR_BRIEFING_EXPORT_LABEL_LOWER = "sponsor briefing export";
 
-/** Governance gate before finalize (prefer over "pre-commit gate" in buyer copy). */
-export const APPROVAL_GATE_LABEL = "Approval gate";
+/** Approval check before finalize (prefer over "pre-commit gate" in buyer copy). */
+export const APPROVAL_GATE_LABEL = "Approval check";
 
 /** Downloadable outputs ZIP (prefer over "artifact bundle" in buyer copy). */
 export const DELIVERABLES_BUNDLE_LABEL = "Deliverables bundle";

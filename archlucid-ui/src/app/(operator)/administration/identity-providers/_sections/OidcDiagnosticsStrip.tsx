@@ -89,11 +89,11 @@ export function OidcDiagnosticsStrip(props: OidcDiagnosticsStripProps) {
           </div>
           <div>
             <dt className={OPERATOR_NAV_GROUP_LABEL}>Configured authority</dt>
-            <dd className="m-0 mt-1 break-all font-mono">{payload.configuredAuthority ?? "—"}</dd>
+            <dd className="m-0 mt-1 break-all font-mono">{payload.configuredAuthority ?? " — "}</dd>
           </div>
           <div>
             <dt className={OPERATOR_NAV_GROUP_LABEL}>Configured audience</dt>
-            <dd className="m-0 mt-1 break-all font-mono">{payload.configuredAudience ?? "—"}</dd>
+            <dd className="m-0 mt-1 break-all font-mono">{payload.configuredAudience ?? " — "}</dd>
           </div>
           {payload.openIdConfigurationUrl && props.showTechnicalDetails === true ? (
             <div>
@@ -136,6 +136,6 @@ function formatAuthModeLabel(authMode: string | null | undefined): string {
     case "ApiKey":
       return "API key";
     default:
-      return authMode ?? "—";
+      return authMode ?? " — ";
   }
 }

@@ -21,7 +21,7 @@ export const RECURRENCE_SCHEDULES_EMPTY_DESCRIPTION =
 export const RECURRENCE_SCHEDULES_EMPTY_SUPPORTING =
   "Schedules help ensure that accepted risks, policy exceptions, and approved architecture decisions are reviewed on time instead of being forgotten after approval.";
 
-export const RECURRENCE_SCHEDULES_HELPER_TITLE = "Governance workflow";
+export const RECURRENCE_SCHEDULES_HELPER_TITLE = "Resolve outcomes workflow";
 
 export const RECURRENCE_SCHEDULES_HELPER_BODY =
   "Use recurrence schedules to create follow-up architecture reviews when scheduled reviews need periodic re-review. Recipients and notifications are not configured on this page.";
@@ -50,7 +50,7 @@ export const RECURRENCE_SCHEDULE_EXAMPLES: readonly RecurrenceScheduleExample[] 
     title: "Annual policy attestation",
     humanCadence: "Annually on January 1 at 08:00 UTC",
     cronExpression: "0 8 1 1 *",
-    whenToUse: "Confirm policy alignment and attestations once per year for governed systems.",
+    whenToUse: "Confirm policy alignment and attestations once per year for approved systems.",
   },
   {
     title: "Post-remediation follow-up",

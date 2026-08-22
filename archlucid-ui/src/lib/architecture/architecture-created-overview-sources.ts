@@ -14,14 +14,14 @@ export const ARCHITECTURE_CREATED_OVERVIEW_SOURCES: readonly ArchitectureCreated
   { label: "Findings queue", href: "/governance/findings" },
   { label: "Search review evidence", href: "/insights/search-review-evidence" },
   { label: "Start review (guided intake)", href: "/architecture/reviews/new?path=guided-intake" },
-  { label: "Governance approval help", href: inAppHelpHref("governance-approval") },
+  { label: "Resolve outcomes help", href: inAppHelpHref("governance-approval") },
 ] as const;
 
 export const ARCHITECTURE_CREATED_OVERVIEW_SOURCES_INTRO =
   "Use these follow-ups when create-home Overview orientation turns into clarifications, findings triage, or a corrected intake pass.";
 
 export const ARCHITECTURE_CREATED_OVERVIEW_CLAIM_DISCIPLINE =
-  "This create-home Overview tab summarizes the submitted architecture brief before finalize. It is not a signed-record Sources trail.";
+  "This create-home Overview tab summarizes the submitted architecture brief before finalize. It is not a finalized review record export trail.";
 
 export const ARCHITECTURE_CREATED_OVERVIEW_EMPTY_HEADING = "No structured overview yet" as const;
 

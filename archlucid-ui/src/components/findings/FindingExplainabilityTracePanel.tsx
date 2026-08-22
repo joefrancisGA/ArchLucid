@@ -1,4 +1,5 @@
 "use client";
+import { BUYER_COMPARE_OPEN_SIGNED_REVIEW_RECORD_CTA } from "@/lib/buyer/buyer-polish-copy";
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
@@ -85,7 +86,7 @@ export function FindingExplainabilityTracePanel(props: FindingExplainabilityTrac
       ? [{ href: props.graphEvidenceHref, label: "Open evidence graph" }]
       : []),
     ...(props.linkedManifestHref !== null && props.linkedManifestHref !== undefined
-      ? [{ href: props.linkedManifestHref, label: "Open sealed review record" }]
+      ? [{ href: props.linkedManifestHref, label: BUYER_COMPARE_OPEN_SIGNED_REVIEW_RECORD_CTA }]
       : []),
   ];
 

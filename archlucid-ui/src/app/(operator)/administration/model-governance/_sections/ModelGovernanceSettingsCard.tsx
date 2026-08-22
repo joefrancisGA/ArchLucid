@@ -443,7 +443,7 @@ function GovernedAliasRegistryTable(props: { entries: ModelAliasRegistryEntryRes
               </EnterpriseTableCell>
               <EnterpriseTableCell>
                 {entry.capabilityTags.length === 0 ? (
-                  "—"
+                  " — "
                 ) : (
                   <div className="flex flex-wrap gap-1">
                     {entry.capabilityTags.map((tag) => (
@@ -458,7 +458,7 @@ function GovernedAliasRegistryTable(props: { entries: ModelAliasRegistryEntryRes
               </EnterpriseTableCell>
               <EnterpriseTableCell>
                 {entry.approvedTaskTypes.length === 0
-                  ? "—"
+                  ? " — "
                   : entry.approvedTaskTypes.map((task) => modelGovernanceAgentTypeLabel(task)).join(", ")}
               </EnterpriseTableCell>
             </EnterpriseTableRow>

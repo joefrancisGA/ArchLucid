@@ -10,6 +10,7 @@ import type { RunSummary } from "@/types/authority";
 
 type OperatorHomeWorkspaceActivityContextValue = {
   readonly hasWorkspaceReviews: boolean;
+  readonly hasOverviewReviewRows: boolean;
   readonly hasActionNeededReviews: boolean;
   readonly openFindingsCount: number;
   readonly recentRunIds: readonly string[];
@@ -20,6 +21,7 @@ type OperatorHomeWorkspaceActivityContextValue = {
 
 const defaultValue: OperatorHomeWorkspaceActivityContextValue = {
   hasWorkspaceReviews: false,
+  hasOverviewReviewRows: false,
   hasActionNeededReviews: false,
   openFindingsCount: 0,
   recentRunIds: [],
@@ -32,6 +34,7 @@ const OperatorHomeWorkspaceActivityContext =
 
 type OperatorHomeWorkspaceActivityProviderProps = {
   readonly initialHasReviews: boolean;
+  readonly initialHasOverviewReviewRows?: boolean;
   readonly initialOpenFindingsCount?: number;
   readonly initialRecentRunIds?: readonly string[];
   readonly children: ReactNode;
@@ -42,6 +45,9 @@ export function OperatorHomeWorkspaceActivityProvider(
   props: OperatorHomeWorkspaceActivityProviderProps,
 ): React.JSX.Element {
   const [hasWorkspaceReviews, setHasWorkspaceReviews] = useState(props.initialHasReviews);
+  const [hasOverviewReviewRows, setHasOverviewReviewRows] = useState(
+    props.initialHasOverviewReviewRows ?? props.initialHasReviews,
+  );
   const [hasActionNeededReviews, setHasActionNeededReviews] = useState(false);
   const [openFindingsCount, setOpenFindingsCount] = useState(props.initialOpenFindingsCount ?? 0);
   const [recentRunIds, setRecentRunIds] = useState<readonly string[]>(props.initialRecentRunIds ?? []);
@@ -55,6 +61,7 @@ export function OperatorHomeWorkspaceActivityProvider(
     const metrics = deriveOperatorHomeWorkspaceMetrics(realItems, realItems.length);
 
     setHasWorkspaceReviews(realItems.length > 0);
+    setHasOverviewReviewRows(activeItems.length > 0);
     setHasActionNeededReviews(realItems.some(isRunNeedingAttention));
     setOpenFindingsCount(metrics.openFindings);
     setRecentRunIds(activeItems.map((run) => run.runId));
@@ -73,6 +80,7 @@ export function OperatorHomeWorkspaceActivityProvider(
   const value = useMemo(
     (): OperatorHomeWorkspaceActivityContextValue => ({
       hasWorkspaceReviews,
+      hasOverviewReviewRows,
       hasActionNeededReviews,
       openFindingsCount,
       recentRunIds,
@@ -81,6 +89,7 @@ export function OperatorHomeWorkspaceActivityProvider(
     }),
     [
       hasActionNeededReviews,
+      hasOverviewReviewRows,
       hasWorkspaceReviews,
       liveRunsSnapshot,
       openFindingsCount,

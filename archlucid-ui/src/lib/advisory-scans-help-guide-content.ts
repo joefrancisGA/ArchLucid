@@ -157,7 +157,7 @@ export const ADVISORY_SCANS_HELP_SUMMARY_METRICS: readonly AdvisoryScansHelpSumm
   },
   {
     label: ADVISORY_SCANS_SUMMARY_ACCEPTED,
-    detail: "Recommendations accepted into governance follow-up.",
+    detail: "Recommendations accepted into approval follow-up.",
   },
   {
     label: ADVISORY_SCANS_SUMMARY_DEFERRED,
@@ -204,7 +204,7 @@ export const ADVISORY_SCANS_HELP_DISPOSITION_AUDIT_NOTE =
   "Optional comments and rationale persist with each resolve outcome for audit and follow-up.";
 
 export const ADVISORY_SCANS_HELP_HOW_DERIVATION_SENTENCE =
-  "Recommendations come from review findings, evidence, governance rules, and optional comparison signals.";
+  "Recommendations come from review findings, evidence, policy rules, and optional comparison signals.";
 
 export const ADVISORY_SCANS_HELP_AI_USAGE_DISCLOSURE_LEAD =
   "Scan generation runs asynchronously (tier B — typically seconds to a few minutes). Monitor estimated AI spend on the";
@@ -264,7 +264,7 @@ export const ADVISORY_SCANS_HELP_AI_USAGE_LINK = {
 
 export const ADVISORY_SCANS_HELP_RELATED_GOVERNANCE_SURFACES_HEADING_ID = "related-governance-surfaces" as const;
 
-export const ADVISORY_SCANS_HELP_RELATED_GOVERNANCE_SURFACES_TITLE = "Related governance surfaces" as const;
+export const ADVISORY_SCANS_HELP_RELATED_GOVERNANCE_SURFACES_TITLE = "Related approval surfaces" as const;
 
 export type AdvisoryScansHelpTileItem = {
   readonly label: string;

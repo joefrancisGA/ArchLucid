@@ -6,7 +6,7 @@
  *   *linkage view* for one approval request — review, findings, and signed
  *   review record version context.
  * - Approval queue (`/governance/approval-queue`) is the *decision workflow*
- *   hub to submit, approve, or reject governance approvals.
+ *   hub to submit, approve, or reject resolve outcomes.
  *
  * They stay separate because inspecting one request’s lineage is not the same
  * task as working the approval queue. Distinct from findings triage and audit.
@@ -37,7 +37,7 @@ export const APPROVAL_LINEAGE_QUEUE_HEADING =
   "Approval lineage and Approval queue serve different purposes" as const;
 
 export const APPROVAL_LINEAGE_QUEUE_WHY_TWO =
-  "Approval lineage shows what review, findings, and sealed review record version one approval request is tied to. The approval queue is where you submit, approve, or reject requests. Lineage is not the queue." as const;
+  "Approval lineage shows what review, findings, and finalized review record version one approval request is tied to. The approval queue is where you submit, approve, or reject requests. Lineage is not the queue." as const;
 
 export const APPROVAL_LINEAGE_QUEUE_COMPACT_LINE =
   "Lineage links one approval request; the queue is the decision workflow — open the other when you need both." as const;
@@ -47,14 +47,14 @@ export const APPROVAL_LINEAGE_QUEUE_LINEAGE_LINK: ApprovalLineageQueueLink = {
   id: "approval-lineage",
   label: "Approval lineage",
   href: governanceApprovalRequestParentHref(""),
-  whenToUse: "Inspect linkage for one approval request to review, findings, and sealed review record.",
+  whenToUse: "Inspect linkage for one approval request to review, findings, and finalized review record.",
 };
 
 export const APPROVAL_LINEAGE_QUEUE_QUEUE_LINK: ApprovalLineageQueueLink = {
   id: "approval-queue",
   label: "Approval queue",
   href: GOVERNANCE_APPROVAL_QUEUE_PATH,
-  whenToUse: "Submit, approve, or reject governance approval requests.",
+  whenToUse: "Submit, approve, or reject resolve outcomes requests.",
 };
 
 /** Pairwise model for Approval lineage ↔ Approval queue (fixed governance routes). */

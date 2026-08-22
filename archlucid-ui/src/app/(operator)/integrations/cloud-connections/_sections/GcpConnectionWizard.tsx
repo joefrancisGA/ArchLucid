@@ -5,12 +5,20 @@ import { useCallback, useMemo, useState } from "react";
 
 import { WizardNavButtons } from "@/components/wizard/WizardNavButtons";
 import { WizardStepper } from "@/components/wizard/WizardStepper";
+import { FormFieldLabelWithHelp } from "@/components/FormFieldLabelWithHelp";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { OperatorSuccessCallout } from "@/components/operator/OperatorSuccessCallout";
 import { configureGcpTier2Connection } from "@/lib/api/gcp-cloud-connections-api";
 import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { GCP_CONNECTION_SAVE_FAILED_ERROR } from "@/lib/gcp-cloud-connection-copy";
+import {
+  GCP_CONNECTION_POOL_PROVIDER_HINT,
+  GCP_CONNECTION_POOL_PROVIDER_LABEL,
+  GCP_CONNECTION_PROJECT_ID_HINT,
+  GCP_CONNECTION_PROJECT_ID_LABEL,
+  GCP_CONNECTION_SAVE_FAILED_ERROR,
+  GCP_CONNECTION_SERVICE_ACCOUNT_HINT,
+  GCP_CONNECTION_SERVICE_ACCOUNT_LABEL,
+} from "@/lib/gcp-cloud-connection-copy";
 import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";
 
 import {
@@ -155,7 +163,11 @@ export function GcpConnectionWizard(props: Props): React.ReactElement {
 
           <div className="grid max-w-xl gap-4">
             <div className="space-y-2">
-              <Label htmlFor="gcpWizardProjectId">GCP project ID</Label>
+              <FormFieldLabelWithHelp
+                htmlFor="gcpWizardProjectId"
+                label={GCP_CONNECTION_PROJECT_ID_LABEL}
+                hint={GCP_CONNECTION_PROJECT_ID_HINT}
+              />
               <Input
                 id="gcpWizardProjectId"
                 data-testid="gcp-project-id"
@@ -173,7 +185,11 @@ export function GcpConnectionWizard(props: Props): React.ReactElement {
               ) : null}
             </div>
             <div className="space-y-2">
-              <Label htmlFor="gcpWizardPoolProvider">Workload Identity Pool provider</Label>
+              <FormFieldLabelWithHelp
+                htmlFor="gcpWizardPoolProvider"
+                label={GCP_CONNECTION_POOL_PROVIDER_LABEL}
+                hint={GCP_CONNECTION_POOL_PROVIDER_HINT}
+              />
               <Input
                 id="gcpWizardPoolProvider"
                 data-testid="gcp-pool-provider"
@@ -191,7 +207,11 @@ export function GcpConnectionWizard(props: Props): React.ReactElement {
               ) : null}
             </div>
             <div className="space-y-2">
-              <Label htmlFor="gcpWizardServiceAccountEmail">Read-only service account email</Label>
+              <FormFieldLabelWithHelp
+                htmlFor="gcpWizardServiceAccountEmail"
+                label={GCP_CONNECTION_SERVICE_ACCOUNT_LABEL}
+                hint={GCP_CONNECTION_SERVICE_ACCOUNT_HINT}
+              />
               <Input
                 id="gcpWizardServiceAccountEmail"
                 data-testid="gcp-service-account-email"
@@ -232,14 +252,14 @@ export function GcpConnectionWizard(props: Props): React.ReactElement {
             )}
           >
             <dt className="text-muted-foreground">Project ID</dt>
-            <dd data-testid="gcp-wizard-summary-project">{projectId.trim() || "—"}</dd>
+            <dd data-testid="gcp-wizard-summary-project">{projectId.trim() || " — "}</dd>
             <dt className="text-muted-foreground">Pool provider</dt>
             <dd className="break-all" data-testid="gcp-wizard-summary-pool">
-              {workloadIdentityPoolProvider.trim() || "—"}
+              {workloadIdentityPoolProvider.trim() || " — "}
             </dd>
             <dt className="text-muted-foreground">Service account</dt>
             <dd className="break-all" data-testid="gcp-wizard-summary-service-account">
-              {serviceAccountEmail.trim() || "—"}
+              {serviceAccountEmail.trim() || " — "}
             </dd>
           </dl>
 

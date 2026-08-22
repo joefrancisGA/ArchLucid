@@ -49,7 +49,7 @@ const PIPELINE_STEPS: PipelineStepConfig[] = [
     stage: "Finalize",
     icon: Play,
     label: "Finalize review",
-    description: "Finalize the sealed review record and export deliverables.",
+    description: "Create the finalized review record and export deliverables.",
     href: "/architecture/reviews",
   },
   {

@@ -14,7 +14,7 @@ export const REVIEW_SCORECARD_PAGE_TITLE = BUYER_TERMINOLOGY.reviewScorecard;
 export const REVIEW_SCORECARD_PAGE_SUBTITLE =
   "See review throughput, governance effectiveness, and estimated ROI at a glance.";
 
-export const REVIEW_SCORECARD_EMPTY_VALUE = "—";
+export const REVIEW_SCORECARD_EMPTY_VALUE = " — ";
 
 export const REVIEW_SCORECARD_NOT_MEASURED_LABEL = "Not measured";
 
@@ -155,7 +155,7 @@ function resolveCycleTimeDisplay(
     return {
       state: "unavailable",
       value: REVIEW_SCORECARD_EMPTY_VALUE,
-      detail: "Average review cycle time appears after a finalized sealed review record.",
+      detail: "Average review cycle time appears after a finalized review record.",
       empty: true,
       useKpiEmphasis: false,
     };

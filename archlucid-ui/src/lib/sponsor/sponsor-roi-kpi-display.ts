@@ -21,7 +21,7 @@ export function presentSponsorKpiCount(
 
   if (typeof value !== "number" || !Number.isFinite(value) || value < 0) {
     return {
-      display: "—",
+      display: " — ",
       state: "missing",
       footnote: isBuyerPolishedOperatorShellEnv()
         ? "Not available for this workspace yet."

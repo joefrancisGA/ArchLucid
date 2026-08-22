@@ -78,7 +78,7 @@ export function buildSponsorLensCompareSummary(input: {
     pushBullet(
       bullets,
       governanceMaterialCount > 0
-        ? `${governanceMaterialCount} compliance rule key${governanceMaterialCount === 1 ? "" : "s"} differ — governance reviewers should scan the policy diff before export.`
+        ? `${governanceMaterialCount} compliance rule key${governanceMaterialCount === 1 ? "" : "s"} differ — approval reviewers should scan the policy diff before export.`
         : "Governance metadata differs between reviews — confirm policy pack assignments before sharing the sponsor packet.",
     );
   }

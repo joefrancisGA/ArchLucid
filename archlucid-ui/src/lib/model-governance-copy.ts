@@ -17,13 +17,13 @@ export const MODEL_GOVERNANCE_UNEXPECTED_ERROR_COPY =
   "Could not load model governance settings. Try again in a few minutes.";
 
 export const MODEL_GOVERNANCE_CATALOG_UNAVAILABLE_COPY =
-  "Governed alias catalog is temporarily unavailable. You can still change the workspace execution profile below.";
+  "Approved alias catalog is temporarily unavailable. You can still change the workspace execution profile below.";
 
 export const MODEL_GOVERNANCE_REGISTRY_EMPTY_COPY =
   "No approved model aliases are registered for this workspace yet. Alias entries appear here after platform configuration.";
 
 export const MODEL_GOVERNANCE_PROFILE_MAPPINGS_EMPTY_COPY =
-  "No profile-to-alias mappings are available yet. Mappings appear here when the governed alias catalog is configured.";
+  "No profile-to-alias mappings are available yet. Mappings appear here when the approved alias catalog is configured.";
 
 export const MODEL_GOVERNANCE_PROFILE_CONFIRM_TITLE_COPY = "Change workspace execution profile?";
 

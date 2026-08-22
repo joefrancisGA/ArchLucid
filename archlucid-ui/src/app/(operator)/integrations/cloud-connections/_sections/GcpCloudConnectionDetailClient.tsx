@@ -2,8 +2,7 @@
 
 import { EvidenceOrientationClaimAndSourcesStrip } from "@/components/evidence-orientation/EvidenceOrientationClaimAndSourcesStrip";
 import { EVIDENCE_SOURCES_STYLE } from "@/components/evidence-orientation/evidence-orientation-styles";
-import { Button } from "@/components/ui/button";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { StatusTag } from "@/components/ui/status-tag";
 import { GCP_WIF_STARTER_IDENTITY_INTRO } from "@/lib/gcp-cloud-connection-wif-starter";
 import { cloudSecurityPreflightTopics } from "@/lib/cloud-security-preflight-topics";
@@ -13,6 +12,8 @@ import {
   CLOUD_PROVIDER_CONNECTION_SOURCES_INTRO,
   cloudProviderConnectionSources,
 } from "@/lib/cloud-provider-connection-evidence-copy";
+import { inAppHelpHref } from "@/lib/product-documentation-registry";
+import Link from "next/link";
 
 import { CloudConnectionsProviderHeader } from "./CloudConnectionsProviderHeader";
 import { CloudProviderDetailLayout } from "./CloudProviderDetailLayout";
@@ -55,21 +56,11 @@ function GcpCloudConnectionHeaderStatus(): React.ReactElement {
 }
 
 function GcpCloudConnectionPageHeader(): React.ReactElement {
-  const { connections, isLoading, loadError } = useGcpConnectionData();
-  const showConnectPrimary = !isLoading && loadError === null && connections.length === 0;
-
   return (
     <CloudConnectionsProviderHeader
       providerLabel="GCP"
       overview="Read-only Cloud Asset Inventory through Workload Identity Federation."
       statusBadge={<GcpCloudConnectionHeaderStatus />}
-      primaryAction={
-        showConnectPrimary ? (
-          <Button asChild variant="primary" data-testid="gcp-connection-header-connect">
-            <a href="#connection-details">Connect GCP project</a>
-          </Button>
-        ) : undefined
-      }
     />
   );
 }
@@ -108,6 +99,11 @@ export function GcpCloudConnectionDetailClient() {
               <p>
                 GCP Workload Identity Federation binds ArchLucid&apos;s hosted identity to your service account without
                 downloadable JSON keys.
+              </p>
+              <p>
+                <Link href={inAppHelpHref("cloud-connections-gcp")} className={OPERATOR_BODY_INLINE_LINK_CLASS}>
+                  View setup guide
+                </Link>
               </p>
             </CloudSecurityPreflightTechnicalDetails>
           }

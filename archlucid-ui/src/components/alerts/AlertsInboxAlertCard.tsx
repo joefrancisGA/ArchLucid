@@ -92,7 +92,7 @@ export function AlertsInboxAlertCard(props: AlertsInboxAlertCardProps) {
               {props.alert.ruleId}
             </Link>
           ) : (
-            "—"
+            " — "
           )}
         </div>
         {reviewPackageHref !== null ? (

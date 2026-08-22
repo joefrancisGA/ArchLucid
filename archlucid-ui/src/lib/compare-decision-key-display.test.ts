@@ -10,7 +10,7 @@ describe("decisionKeyDisplay", () => {
   });
 
   it("returns dash for whitespace", () => {
-    expect(decisionKeyDisplay("   ")).toBe("—");
+    expect(decisionKeyDisplay("   ")).toBe(" — ");
   });
 
   it("dot-separates unknown keys", () => {

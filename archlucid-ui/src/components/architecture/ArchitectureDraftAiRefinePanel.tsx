@@ -3,12 +3,13 @@
 import Link from "next/link";
 import { useCallback, useMemo, useState } from "react";
 
-import { ArchitectureIntelligenceRefineResultSummary } from "@/components/architecture-intelligence/ArchitectureIntelligenceRefineResultSummary";
 import { AiBudgetSpendNotice } from "@/components/ai-budget/AiBudgetSpendNotice";
+import { ArchitectureIntelligenceAnalysisDepthSelect } from "@/components/architecture-intelligence/ArchitectureIntelligenceAnalysisDepthSelect";
+import { ArchitectureIntelligenceRefineResultSummary } from "@/components/architecture-intelligence/ArchitectureIntelligenceRefineResultSummary";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
 import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import { useLlmMonthlyBudgetExecutionGate } from "@/hooks/use-llm-monthly-budget-execution-gate";
+import { ARCHITECTURE_DRAFT_AI_REFINE_HEADING } from "@/lib/architecture/architecture-draft-ai-refine-copy";
 import type { ArchitectureDraftFieldState } from "@/lib/architecture/architecture-draft-readiness";
 import {
   buildArchitectureIntelligenceRunRequest,
@@ -17,15 +18,10 @@ import {
   runArchitectureIntelligenceReasoning,
   type ClosedLoopReasoningResult,
 } from "@/lib/architecture/architecture-intelligence-api";
-import {
-  ARCHITECTURE_INTELLIGENCE_REVIEW_TIERS,
-  architectureIntelligenceReviewTierLabel,
-  isArchitectureIntelligenceReviewTier,
-  type ArchitectureIntelligenceReviewTier,
-} from "@/lib/architecture/architecture-intelligence-review-tier";
+import type { ArchitectureIntelligenceReviewTier } from "@/lib/architecture/architecture-intelligence-review-tier";
 import { buildArchitectureIntelligenceRunHref } from "@/lib/architecture/architecture-intelligence-run-href";
 import { reviewDetailPath } from "@/lib/architecture/architecture-routes";
-import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { whyDisabledLlmBudgetExhausted } from "@/lib/why-disabled-cta";
 import { cn } from "@/lib/utils";
 
@@ -38,6 +34,7 @@ export type ArchitectureDraftAiRefinePanelProps = {
 /**
  * Operator-initiated closed-loop refinement from the architecture draft workspace.
  * Uses live form fields as source text. Publishes into product stores only when a linked review exists.
+ * First-class section — not nested under Advanced Options.
  */
 export function ArchitectureDraftAiRefinePanel(props: ArchitectureDraftAiRefinePanelProps) {
   const { fields, linkedReviewId = null, disabled = false } = props;
@@ -98,12 +95,24 @@ export function ArchitectureDraftAiRefinePanel(props: ArchitectureDraftAiRefineP
   ]);
 
   return (
-    <div className="space-y-3" data-testid="architecture-draft-ai-refine-panel">
-      <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-        {canPublish
-          ? "Closed-loop reasoning uses this draft’s overview and publishes gated findings into the linked review."
-          : "Closed-loop reasoning uses this draft’s overview to surface findings before you start a review. Publishing into product findings requires a linked review."}
-      </p>
+    <section
+      className={cn(DESIGN_TOKENS.callout.neutral, "space-y-3 p-4")}
+      data-testid="architecture-draft-ai-refine-panel"
+      aria-labelledby="architecture-draft-ai-refine-heading"
+    >
+      <div className="space-y-1">
+        <h2
+          id="architecture-draft-ai-refine-heading"
+          className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}
+        >
+          {ARCHITECTURE_DRAFT_AI_REFINE_HEADING}
+        </h2>
+        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+          {canPublish
+            ? "Closed-loop reasoning uses this draft’s overview and publishes gated findings into the linked review."
+            : "Closed-loop reasoning uses this draft’s overview to surface findings before you start a review. Publishing into product findings requires a linked review."}
+        </p>
+      </div>
 
       {architectureDescription.trim().length === 0 ? (
         <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} role="status">
@@ -111,29 +120,13 @@ export function ArchitectureDraftAiRefinePanel(props: ArchitectureDraftAiRefineP
         </p>
       ) : (
         <>
-          <div className="space-y-2">
-            <Label htmlFor="architecture-draft-ai-refine-depth">Analysis depth</Label>
-            <select
-              id="architecture-draft-ai-refine-depth"
-              data-testid="architecture-draft-ai-refine-depth"
-              className="flex h-9 w-full max-w-md rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm"
-              value={reviewTier}
-              disabled={busy || disabled || blocksLlmExecution}
-              onChange={(event) => {
-                const next = event.target.value;
-
-                if (isArchitectureIntelligenceReviewTier(next)) {
-                  setReviewTier(next);
-                }
-              }}
-            >
-              {ARCHITECTURE_INTELLIGENCE_REVIEW_TIERS.map((tier) => (
-                <option key={tier} value={tier}>
-                  {architectureIntelligenceReviewTierLabel(tier)}
-                </option>
-              ))}
-            </select>
-          </div>
+          <ArchitectureIntelligenceAnalysisDepthSelect
+            id="architecture-draft-ai-refine-depth"
+            testId="architecture-draft-ai-refine-depth"
+            value={reviewTier}
+            disabled={busy || disabled || blocksLlmExecution}
+            onValueChange={setReviewTier}
+          />
 
           <div className="flex flex-wrap gap-2">
             <Button
@@ -211,6 +204,6 @@ export function ArchitectureDraftAiRefinePanel(props: ArchitectureDraftAiRefineP
           ) : null}
         </>
       ) : null}
-    </div>
+    </section>
   );
 }

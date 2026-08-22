@@ -47,7 +47,7 @@ describe("marketing hero CTA → Clarity wiring", () => {
   it("clicking the inspect-sample-review CTA fires cta_self_demo_click with UTM dimensions", () => {
     render(<SelfDemoRequestCta />);
 
-    fireEvent.click(screen.getByRole("link", { name: /inspect a governed sample review/i }));
+    fireEvent.click(screen.getByRole("link", { name: /inspect a sample review/i }));
 
     expect(clarity.mock.calls).toContainEqual(["set", "cta_source", "hero"]);
     expect(clarity.mock.calls).toContainEqual(["set", "cta_utm_source", "src"]);

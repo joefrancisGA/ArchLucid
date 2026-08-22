@@ -1,4 +1,5 @@
 import type { FindingDispositionKind } from "@/lib/api/governance-stickiness-api";
+import { SIGNED_MANIFEST_LABEL } from "@/lib/usability/canonical-product-terms";
 
 /** Sponsor packet section that maps disposition to projected USD buckets (SponsorReviewPacketComposer). */
 export const DISPOSITION_EXPORT_IMPACT_SPONSOR_ROI_SECTION_HEADING = "ROI basis by disposition";
@@ -12,7 +13,7 @@ export type DispositionExportImpactLine = {
 };
 
 const SIGNED_RECORD_UNCHANGED_DETAIL =
-  "Unchanged — the committed sealed review record snapshot is not rewritten; disposition is recorded separately on the audit trail.";
+  `Unchanged — the committed ${SIGNED_MANIFEST_LABEL.toLowerCase()} snapshot is not rewritten; disposition is recorded separately on the audit trail.`;
 
 const AUDIT_TRAIL_INCLUDED_DETAIL =
   "Included — appends a disposition event to the finding review trail (audit history).";
@@ -78,7 +79,7 @@ export function getDispositionExportImpactLines(
 export function dispositionExportImpactSurfaceLabel(surface: DispositionExportImpactSurface): string {
   switch (surface) {
     case "signed_review_record":
-      return "Sealed review record";
+      return SIGNED_MANIFEST_LABEL;
     case "sponsor_packet":
       return "Sponsor packet";
     case "audit_trail":

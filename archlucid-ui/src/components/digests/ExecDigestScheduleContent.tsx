@@ -211,7 +211,7 @@ export function ExecDigestScheduleContent(props: ExecDigestScheduleContentProps 
                 </p>
               ) : null}
               <dl className="m-0 mt-3 grid gap-3 sm:grid-cols-2" data-testid="exec-digest-status-summary">
-                <OperatorFormSummaryRow label="Configured schedule" value={liveScheduleSummary ?? "—"} />
+                <OperatorFormSummaryRow label="Configured schedule" value={liveScheduleSummary ?? " — "} />
                 <OperatorFormSummaryRow
                   label="Next send"
                   value={formatExecDigestNextSendLabel(form, prefs.isConfigured)}

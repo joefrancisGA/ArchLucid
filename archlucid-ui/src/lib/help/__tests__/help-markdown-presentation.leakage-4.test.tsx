@@ -149,7 +149,7 @@ describe("help-markdown-presentation (leakage 4)", () => {
 
     expect(prepared).toContain("reviewid=abc");
     expect(prepared).toContain("/architecture/reviews/abc");
-    expect(prepared).toContain("sealed review record");
+    expect(prepared).toContain("finalized review record");
     expect(prepared).toContain("review not ready to finalize");
     for (const pattern of HELP_TOPIC_BANNED_COPY_PATTERNS) {
       expect(prepared, `should not contain "${pattern}"`).not.toContain(pattern);

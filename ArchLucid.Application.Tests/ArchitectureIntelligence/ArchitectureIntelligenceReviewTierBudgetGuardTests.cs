@@ -115,7 +115,7 @@ public sealed class ArchitectureIntelligenceReviewTierBudgetGuardTests
         Mock<ITenantAiBudgetPolicyResolver> resolver = new(MockBehavior.Strict);
         ArchitectureIntelligenceReviewTierBudgetGuard guard = new(resolver.Object, CreateEstimator(0.10m));
         ClosedLoopReasoningRequest request = CreateRequest();
-        request.TenantId = null!;
+        request.TenantId = null;
 
         ArchitectureIntelligenceBudgetDecision decision = await guard.EvaluateAsync(request);
 

@@ -7,11 +7,11 @@ import { GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-path
 
 const FINDINGS_QUEUE_HUB_CONTEXTUAL_HELP = {
   whatIsThisPage:
-    "Track architecture risks from accepted findings, waivers, exceptions, and governance decisions.",
+    "Track architecture risks from accepted findings, waivers, exceptions, and approval decisions.",
   whatToDoNext: "Assign owners, review aging risks, and clear expiring exceptions.",
-  whyEmpty: "Rows appear after findings are accepted or governance decisions are recorded in reviews.",
+  whyEmpty: "Rows appear after findings are accepted or approval decisions are recorded in reviews.",
   whereToConfigurePrerequisite:
-    "Policy packs and governance workflow settings shape what becomes a tracked risk.",
+    "Policy packs and approval workflow settings shape what becomes a tracked risk.",
 } as const;
 
 export const FINDINGS_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] = [

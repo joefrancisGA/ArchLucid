@@ -23,14 +23,14 @@ export function DemoPreviewGuidedCallouts() {
         </li>
         <li data-callout="provenance">
           <strong>Provenance &amp; review lifecycle</strong> — see how the review moved from captured context to the
-          committed sealed review record. Open <span className="font-medium">Full audit trail</span> for the vertical sequence.
+          committed finalized review record. Open <span className="font-medium">Full audit trail</span> for the vertical sequence.
         </li>
         <li data-callout="governance">
-          <strong>Governance approval</strong> — review record summary captures policy pack, decisions, and monitored risks for
+          <strong>Resolve outcomes</strong> — review record summary captures policy pack, decisions, and monitored risks for
           this architecture review.
         </li>
         <li data-callout="manifest">
-          <strong>Sealed review record &amp; deliverables</strong> — record plus exportable rows your team can attach to review
+          <strong>Finalized review record &amp; deliverables</strong> — record plus exportable rows your team can attach to review
           packs.
         </li>
       </ol>

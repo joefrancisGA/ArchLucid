@@ -61,8 +61,10 @@ export function expectClaimDisciplineHeading(
 export function expectFollowUpLink(
   region: Pick<Screen, "getByRole">,
   link: FollowUpLinkLike,
+  options?: { readonly rawLabel?: boolean },
 ): void {
-  expect(
-    region.getByRole("link", { name: followUpLinkAccessibleName(link.href, link.label) }),
-  ).toHaveAttribute("href", link.href);
+  const accessibleName =
+    options?.rawLabel === true ? link.label : followUpLinkAccessibleName(link.href, link.label);
+
+  expect(region.getByRole("link", { name: accessibleName })).toHaveAttribute("href", link.href);
 }

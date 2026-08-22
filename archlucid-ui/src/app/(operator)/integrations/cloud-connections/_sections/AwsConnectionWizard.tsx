@@ -5,12 +5,20 @@ import { useCallback, useMemo, useState } from "react";
 
 import { WizardNavButtons } from "@/components/wizard/WizardNavButtons";
 import { WizardStepper } from "@/components/wizard/WizardStepper";
+import { FormFieldLabelWithHelp } from "@/components/FormFieldLabelWithHelp";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { OperatorSuccessCallout } from "@/components/operator/OperatorSuccessCallout";
 import { configureAwsTier2Connection } from "@/lib/api/aws-cloud-connections-api";
 import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { AWS_CONNECTION_SAVE_FAILED_ERROR } from "@/lib/aws-cloud-connection-copy";
+import {
+  AWS_CONNECTION_ACCOUNT_ID_HINT,
+  AWS_CONNECTION_ACCOUNT_ID_LABEL,
+  AWS_CONNECTION_REGION_HINT,
+  AWS_CONNECTION_REGION_LABEL,
+  AWS_CONNECTION_ROLE_ARN_HINT,
+  AWS_CONNECTION_ROLE_ARN_LABEL,
+  AWS_CONNECTION_SAVE_FAILED_ERROR,
+} from "@/lib/aws-cloud-connection-copy";
 import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";
 
 import {
@@ -146,7 +154,11 @@ export function AwsConnectionWizard(props: Props): React.ReactElement {
 
           <div className="grid gap-4 sm:grid-cols-2 max-w-xl">
             <div className="space-y-2 sm:col-span-2">
-              <Label htmlFor="awsWizardAccountId">AWS account ID</Label>
+              <FormFieldLabelWithHelp
+                htmlFor="awsWizardAccountId"
+                label={AWS_CONNECTION_ACCOUNT_ID_LABEL}
+                hint={AWS_CONNECTION_ACCOUNT_ID_HINT}
+              />
               <Input
                 id="awsWizardAccountId"
                 data-testid="aws-account-id"
@@ -164,7 +176,11 @@ export function AwsConnectionWizard(props: Props): React.ReactElement {
               ) : null}
             </div>
             <div className="space-y-2">
-              <Label htmlFor="awsWizardRegion">Primary region</Label>
+              <FormFieldLabelWithHelp
+                htmlFor="awsWizardRegion"
+                label={AWS_CONNECTION_REGION_LABEL}
+                hint={AWS_CONNECTION_REGION_HINT}
+              />
               <Input
                 id="awsWizardRegion"
                 data-testid="aws-region"
@@ -182,7 +198,11 @@ export function AwsConnectionWizard(props: Props): React.ReactElement {
               ) : null}
             </div>
             <div className="space-y-2 sm:col-span-2">
-              <Label htmlFor="awsWizardRoleArn">Read-only IAM role ARN</Label>
+              <FormFieldLabelWithHelp
+                htmlFor="awsWizardRoleArn"
+                label={AWS_CONNECTION_ROLE_ARN_LABEL}
+                hint={AWS_CONNECTION_ROLE_ARN_HINT}
+              />
               <Input
                 id="awsWizardRoleArn"
                 data-testid="aws-role-arn"
@@ -219,12 +239,12 @@ export function AwsConnectionWizard(props: Props): React.ReactElement {
             )}
           >
             <dt className="text-muted-foreground">Account ID</dt>
-            <dd data-testid="aws-wizard-summary-account">{accountId.trim() || "—"}</dd>
+            <dd data-testid="aws-wizard-summary-account">{accountId.trim() || " — "}</dd>
             <dt className="text-muted-foreground">Region</dt>
-            <dd data-testid="aws-wizard-summary-region">{region.trim() || "—"}</dd>
+            <dd data-testid="aws-wizard-summary-region">{region.trim() || " — "}</dd>
             <dt className="text-muted-foreground">Role ARN</dt>
             <dd className="break-all" data-testid="aws-wizard-summary-role">
-              {roleArn.trim() || "—"}
+              {roleArn.trim() || " — "}
             </dd>
           </dl>
 

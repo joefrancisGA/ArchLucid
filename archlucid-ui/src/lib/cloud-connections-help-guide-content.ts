@@ -18,7 +18,7 @@ export const CLOUD_CONNECTIONS_HELP_ORIENTATION_LEAD =
   "This guide explains optional read-only cloud connectors and how to pick an evidence tier for architecture reviews.";
 
 export const CLOUD_CONNECTIONS_HELP_ORIENTATION_BOUNDARY_BEFORE_LINKS =
-  "It is not where procurement goes for sealed review record citations. Open";
+  "It is not where procurement goes for finalized review record citations. Open";
 
 export const CLOUD_CONNECTIONS_HELP_ORIENTATION_BOUNDARY_AFTER_LINKS =
   "before treating setup guidance as assurance evidence.";

@@ -35,8 +35,8 @@ describe("governance approval-queue deferred imports (TB-934 / wave 10)", () => 
     expect(pageSource).not.toContain(
       'import { GovernanceWorkflowPageContent } from "../_sections/GovernanceWorkflowPageContent"',
     );
-    expect(pageSource).toContain('import("../_sections/GovernanceWorkflowPageContent")');
-    expect(pageSource).toContain("next/dynamic");
+    expect(pageSource).toContain("GovernanceWorkflowPageContentDeferred");
+    expect(pageSource).not.toContain("next/dynamic");
     expect(pageSource).not.toContain('"use client"');
   });
 
@@ -82,5 +82,9 @@ describe("governance approval-queue deferred imports (TB-934 / wave 10)", () => 
     expect(deferredSource).toContain("governance-workflow-cto-demo-buyer-value-strip");
     expect(deferredSource).toContain("governance-workflow-cto-demo-segregation-callout");
     expect(deferredSource).toContain("governance-workflow-cto-demo-governance-preview-hint");
+    expect(deferredSource).toContain("governance-workflow-page-content");
+    expect(manifestLoaderSource).toContain(
+      'import("@/app/(operator)/governance/_sections/GovernanceWorkflowPageContent")',
+    );
   });
 });

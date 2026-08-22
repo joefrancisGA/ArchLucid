@@ -29,7 +29,7 @@ const executeTierNavLink = {
 
 /**
  * Single numeric floor for **Execute-class nav visibility** and **`useOperateCapability()`** (LayerHeader uses
- * the same comparison). If these diverge, Reader shells could show workflow while buttons soft-enable—or the inverse.
+ * the same comparison). If these diverge, Reader shells could show workflow while buttons soft-enable — or the inverse.
  */
 describe("authority Execute floor regression", () => {
   it("matches operateCapabilityFromRank for an ExecuteAuthority nav row across representative ranks", () => {

@@ -24,7 +24,7 @@ export const WHY_COMPARISON_TABLE_ROW_LABELS_IN_ORDER = [
   "Authentication fails closed by default (API keys disabled until enabled)",
   "Comparison replay can re-derive the same artifact and detect drift",
   "Findings carry typed payloads per category, not free-text",
-  "Governance gate can block configured high-severity changes before approval",
+  "Approval check can block configured high-severity changes before approval",
 ] as const;
 
 const WHY_HARD_ROW_CELLS: readonly Omit<WhyHardComparisonRow, "label">[] = [
@@ -90,7 +90,7 @@ export type WhyGovernanceSummaryRow = {
 export const WHY_GOVERNANCE_SUMMARY_ROWS: readonly WhyGovernanceSummaryRow[] = [
   { label: "Immutable review record", fullRowIndex: 0 },
   { label: "Evidence-linked findings", fullRowIndex: 5 },
-  { label: "Approval gates", fullRowIndex: 6 },
+  { label: "Approval checks", fullRowIndex: 6 },
   { label: "Export-ready output integrity", fullRowIndex: 4 },
   { label: "Auditable decision history", fullRowIndex: 1 },
 ];
@@ -100,5 +100,5 @@ export function whyHardCellDisplay(cell: WhyHardComparisonCell): string {
 
   if (cell === "partial") return "partial";
 
-  return "—";
+  return " — ";
 }

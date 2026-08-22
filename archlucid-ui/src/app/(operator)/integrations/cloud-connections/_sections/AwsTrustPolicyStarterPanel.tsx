@@ -4,6 +4,7 @@ import { useCallback, useMemo, useState } from "react";
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
+import { FieldHelpTooltip } from "@/components/FieldHelpTooltip";
 import {
   EnterpriseTable,
   EnterpriseTableBody,
@@ -82,7 +83,10 @@ export function AwsTrustPolicyStarterPanel(): React.ReactElement {
                   className={index % 2 === 0 ? HELP_PAGE_LAYOUT.tableRowOdd : HELP_PAGE_LAYOUT.tableRowEven}
                 >
                   <EnterpriseTableHeaderCell scope="row" className="align-top w-[38%]">
-                    {identifier.label}
+                    <span className="inline-flex items-center gap-1">
+                      <span>{identifier.label}</span>
+                      <FieldHelpTooltip label={identifier.label} hint={identifier.hint} />
+                    </span>
                   </EnterpriseTableHeaderCell>
                   <EnterpriseTableCell className="min-w-0 break-all font-mono text-sm align-top">
                     <div className="flex flex-wrap items-center gap-2">

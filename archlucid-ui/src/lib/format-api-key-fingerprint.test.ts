@@ -14,7 +14,7 @@ describe("formatApiKeyFingerprint", () => {
 
 describe("formatApiKeyFingerprints", () => {
   it("returns dash when empty", () => {
-    expect(formatApiKeyFingerprints([])).toBe("—");
+    expect(formatApiKeyFingerprints([])).toBe(" — ");
   });
 
   it("joins multiple fingerprints", () => {

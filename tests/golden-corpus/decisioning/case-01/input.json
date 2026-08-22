@@ -25,13 +25,26 @@
       ],
       "requiredCapabilities": [],
       "assumptions": [],
+      "draftActors": [],
+      "qualityAttributeSnapshot": null,
+      "failureModeNoteSnapshot": null,
       "priorManifestVersion": null,
       "inlineRequirements": [],
       "documents": [],
       "policyReferences": [],
       "topologyHints": [],
       "securityBaselineHints": [],
-      "infrastructureDeclarations": []
+      "infrastructureDeclarations": [],
+      "isArchived": false,
+      "maxTokensOverride": null,
+      "requestSource": null,
+      "wizardPresetUsed": null,
+      "intakeTransparencyTrail": null,
+      "intakeQuestionAnswers": {},
+      "workflowIntent": null,
+      "modelExecutionProfileOverride": null,
+      "modelAliasOverride": null,
+      "effectiveModelAliasId": null
     },
     "agentResults": [
       {
@@ -46,7 +59,10 @@
           "request"
         ],
         "confidence": 0.9,
+        "calibratedConfidence": null,
         "findings": [],
+        "checklistCoverage": [],
+        "insightDensityCuration": null,
         "proposedChanges": {
           "proposalId": "PROP-GOLD-1",
           "sourceAgent": 1,
@@ -57,6 +73,9 @@
               "serviceType": 1,
               "runtimePlatform": 1,
               "purpose": null,
+              "azureArmRegion": null,
+              "azurePricingSku": null,
+              "instanceCount": 1,
               "tags": [],
               "requiredControls": []
             }
@@ -66,7 +85,14 @@
           "requiredControls": [],
           "warnings": []
         },
-        "createdUtc": "2026-04-24T04:08:56.8869089Z"
+        "reasoningTrace": null,
+        "citations": null,
+        "createdUtc": "2026-08-21T18:53:20.571057Z",
+        "retrievalGroundingTrace": null,
+        "degradationReasonCode": null,
+        "taskStructuralExecutionMode": null,
+        "cacheServed": false,
+        "upstreamResultFingerprints": null
       }
     ],
     "evaluations": [],

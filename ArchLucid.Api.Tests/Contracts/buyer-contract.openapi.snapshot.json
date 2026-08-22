@@ -6954,7 +6954,10 @@
             "type": "array"
           },
           "tenantId": {
-            "type": "string"
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "useGoldenFixture": {
             "type": "boolean"
@@ -10438,6 +10441,12 @@
               "type": "string"
             },
             "type": "array"
+          },
+          "suggestedFailureModeNote": {
+            "type": [
+              "null",
+              "string"
+            ]
           },
           "topologyHints": {
             "items": {
@@ -23901,6 +23910,86 @@
           },
           "title": {
             "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "ReviewClarificationDelta": {
+        "properties": {
+          "priorRunId": {
+            "type": "string"
+          },
+          "resolvedByAssertionQuestionIds": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "resolvedByEvidenceQuestionIds": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "stillOpenQuestionIds": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "ReviewClarificationQuestion": {
+        "properties": {
+          "missingItem": {
+            "type": "string"
+          },
+          "prompt": {
+            "type": "string"
+          },
+          "questionId": {
+            "type": "string"
+          },
+          "severity": {
+            "$ref": "#/components/schemas/FindingSeverity"
+          },
+          "sourceFindingId": {
+            "type": "string"
+          },
+          "sourceFindingType": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "ReviewClarificationQuestionsResponse": {
+        "properties": {
+          "clarificationRoundAvailable": {
+            "type": "boolean"
+          },
+          "deltaFromPriorRun": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/ReviewClarificationDelta"
+              }
+            ]
+          },
+          "questions": {
+            "items": {
+              "$ref": "#/components/schemas/ReviewClarificationQuestion"
+            },
+            "type": "array"
+          },
+          "runId": {
+            "type": "string"
+          },
+          "totalDerivedCount": {
+            "format": "int32",
+            "type": "integer"
           }
         },
         "type": "object"
@@ -38215,6 +38304,9 @@
     },
     {
       "name": "Retrieval"
+    },
+    {
+      "name": "ReviewClarificationQuestions"
     },
     {
       "name": "ReviewsDemo"

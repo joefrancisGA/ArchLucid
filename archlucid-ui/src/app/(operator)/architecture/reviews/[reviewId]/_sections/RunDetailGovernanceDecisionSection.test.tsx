@@ -21,9 +21,9 @@ describe("RunDetailGovernanceDecisionSection", () => {
     render(<RunDetailGovernanceDecisionSection {...baseProps} manifestId={null} />);
 
     expect(screen.getByTestId("run-detail-governance-decision")).toHaveAttribute("data-package-committed", "false");
-    expect(screen.getByRole("heading", { name: "Governance after finalize" })).toBeInTheDocument();
-    expect(screen.queryByText("Record governance decision")).not.toBeInTheDocument();
-    expect(screen.queryByText("No governance decision recorded")).not.toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Approvals after finalize" })).toBeInTheDocument();
+    expect(screen.queryByText("Record approval decision")).not.toBeInTheDocument();
+    expect(screen.queryByText("No approval decision recorded")).not.toBeInTheDocument();
     expect(screen.getByText("What happens next")).toBeInTheDocument();
     expect(screen.queryByText("Awaiting decision")).not.toBeInTheDocument();
 
@@ -45,10 +45,10 @@ describe("RunDetailGovernanceDecisionSection", () => {
 
     expect(screen.queryByTestId("run-detail-governance-sources")).toBeNull();
     expect(screen.getByTestId("run-detail-governance-help-cites")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Governance approval help" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Resolve outcomes help" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Audit trail help" })).toBeInTheDocument();
     expect(screen.getByTestId("run-detail-governance-claim-discipline")).toHaveTextContent(
-      /Where governance decisions are recorded/i,
+      /Where approval decisions are recorded/i,
     );
     expect(screen.getByTestId("run-detail-governance-claim-discipline")).toHaveTextContent(/not the committed/i);
   });
@@ -104,7 +104,7 @@ describe("RunDetailGovernanceDecisionSection", () => {
 
     expect(screen.getByTestId("review-governance-secondary-view-strip")).toBeInTheDocument();
     expect(screen.getByText("Governance decision")).toBeInTheDocument();
-    expect(screen.getByText("No governance decision recorded")).toBeInTheDocument();
+    expect(screen.getByText("No approval decision recorded")).toBeInTheDocument();
     expect(screen.queryByText(/after you finalize this architecture package/i)).not.toBeInTheDocument();
     expect(screen.queryByTestId("run-detail-governance-sources")).not.toBeInTheDocument();
 

@@ -440,7 +440,7 @@ export function TrialFunnelOpsPageClient(): ReactElement {
                     <EnterpriseTableCell>{formatPercent(stage.percentOfTrialStarts, "trial starts")}</EnterpriseTableCell>
                     <EnterpriseTableCell>
                       {stage.stageId === "trial-started"
-                        ? "—"
+                        ? " — "
                         : formatPercent(stage.percentFromPreviousStage, "prior-stage completions")}
                     </EnterpriseTableCell>
                   </EnterpriseTableRow>
@@ -494,7 +494,7 @@ export function TrialFunnelOpsPageClient(): ReactElement {
                 <p className="m-0">
                   Observed range:{" "}
                   <span className="tabular-nums">
-                    ${cost.lowEstimatedUsd?.toFixed(2) ?? "—"}–${cost.highEstimatedUsd?.toFixed(2) ?? "—"}
+                    ${cost.lowEstimatedUsd?.toFixed(2) ?? " — "}–${cost.highEstimatedUsd?.toFixed(2) ?? " — "}
                   </span>
                 </p>
                 <p className="m-0">Sample: {cost.sampleSize} first completed review{cost.sampleSize === 1 ? "" : "s"}</p>
@@ -584,7 +584,7 @@ export function TrialFunnelOpsPageClient(): ReactElement {
                     <EnterpriseTableCell>{row.organizationName}</EnterpriseTableCell>
                     <EnterpriseTableCell>{formatUtcLabel(row.trialStartedUtc)}</EnterpriseTableCell>
                     <EnterpriseTableCell>{row.currentStageLabel}</EnterpriseTableCell>
-                    <EnterpriseTableCell className="tabular-nums">{row.daysInTrial ?? "—"}</EnterpriseTableCell>
+                    <EnterpriseTableCell className="tabular-nums">{row.daysInTrial ?? " — "}</EnterpriseTableCell>
                     <EnterpriseTableCell>{formatUtcLabel(row.lastMeaningfulActivityUtc)}</EnterpriseTableCell>
                     <EnterpriseTableCell>{row.firstReviewStatus}</EnterpriseTableCell>
                     <EnterpriseTableCell className="tabular-nums">

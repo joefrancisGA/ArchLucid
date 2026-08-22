@@ -19,7 +19,7 @@ export const APPROVAL_QUEUE_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Findings", href: GOVERNANCE_FINDINGS_PATH },
   { label: "Audit", href: GOVERNANCE_AUDIT_PATH },
   { label: "Workspace health", href: GOVERNANCE_WORKSPACE_HEALTH_HREF },
-  { label: "Governance approval help", href: inAppHelpHref("governance-approval") },
+  { label: "Resolve outcomes help", href: inAppHelpHref("governance-approval") },
   { label: "How ArchLucid works", href: inAppHelpHref("getting-started") },
 ] as const;
 

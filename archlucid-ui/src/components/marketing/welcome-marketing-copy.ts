@@ -34,7 +34,7 @@ export const WELCOME_PRIMARY_CONTENT_ID = "welcome-primary-content" as const;
  */
 export const WELCOME_HERO_DIFFERENTIATORS: readonly string[] = [
   "Every finding traces to evidence",
-  "Sealed review records with an audit trail",
+  "Finalized review records with an audit trail",
   "Governance policy packs included",
   "Exports for ARB, audit, and procurement",
 ];
@@ -57,7 +57,7 @@ export const WELCOME_HERO_CTA_SUBHEADING =
  * TB-473/474 renamed badges, so keep marketing copy on "sample review" for consistency.
  */
 export const WELCOME_HERO_EVALUATION_REASSURANCE =
-  "Inspect a governed sample review built on fabricated data, then bring your own architecture evidence when ready. No sales call required.";
+  "Inspect a sample review built on fabricated data, then bring your own architecture evidence when ready. No sales call required.";
 
 /** TB-1298 / TB-1280: honest see-it framing — no bare “30 seconds” / “30s”. */
 export const WELCOME_SEE_IT_CTA_LABEL = SEE_IT_PAGE_TITLE;

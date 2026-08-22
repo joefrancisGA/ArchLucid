@@ -22,7 +22,7 @@ export type RunToolInvocationForensicsPanelProps = {
 
 function formatDuration(durationMs: number | null | undefined): string {
   if (durationMs === null || durationMs === undefined || Number.isNaN(durationMs)) {
-    return "—";
+    return " — ";
   }
 
   if (durationMs < 1000) {

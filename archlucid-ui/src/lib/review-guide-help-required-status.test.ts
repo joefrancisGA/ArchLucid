@@ -12,7 +12,7 @@ describe("review-guide-help-required-status", () => {
     expect(isReviewGuideRequiredStatusLabel("Optional")).toBe(true);
     expect(isReviewGuideRequiredStatusLabel("Not applicable")).toBe(true);
     expect(isReviewGuideRequiredStatusLabel("Required without context")).toBe(false);
-    expect(isReviewGuideRequiredStatusLabel("—")).toBe(false);
+    expect(isReviewGuideRequiredStatusLabel(" — ")).toBe(false);
   });
 
   it("maps labels to StatusTag kinds", () => {

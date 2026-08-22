@@ -34,10 +34,14 @@ export function buildDefaultActorSet(): ActorSet {
 export async function createDraftRequest(
   freeTextIntent: string,
   workflowIntent?: "create-architecture" | "start-review",
+  priorRunId?: string | null,
 ): Promise<DraftRequestResponse> {
+  const trimmedPriorRunId = priorRunId?.trim() ?? "";
+
   return apiPostJson<DraftRequestResponse>(DRAFT_BASE, {
     freeTextIntent: freeTextIntent.trim(),
     ...(workflowIntent !== undefined ? { workflowIntent } : {}),
+    ...(trimmedPriorRunId.length > 0 ? { priorRunId: trimmedPriorRunId } : {}),
   });
 }
 
@@ -96,6 +100,16 @@ export async function skipDraftQuestion(
 
 export async function submitDraftRequest(draftId: string): Promise<SubmitDraftResponse> {
   return apiPostJson<SubmitDraftResponse>(`${DRAFT_BASE}/${encodeURIComponent(draftId)}/submit`, {});
+}
+
+/** Return an admitted draft to drafting so the architecture brief can be edited again. */
+export async function reopenDraftRequest(draftId: string): Promise<DraftRequestResponse> {
+  return apiPostJson<DraftRequestResponse>(`${DRAFT_BASE}/${encodeURIComponent(draftId)}/reopen`, {});
+}
+
+/** Permanently abandons a draft in Drafting or Admitted — not reversible. */
+export async function abandonDraftRequest(draftId: string): Promise<DraftRequestResponse> {
+  return apiPostJson<DraftRequestResponse>(`${DRAFT_BASE}/${encodeURIComponent(draftId)}/abandon`, {});
 }
 
 /** Pre-run manifest-free reasoning on an admitted or drafting intake (SAQ-013). */

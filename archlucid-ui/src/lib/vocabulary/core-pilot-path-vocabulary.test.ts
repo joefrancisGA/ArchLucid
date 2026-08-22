@@ -17,7 +17,7 @@ describe("core-pilot-path-vocabulary", () => {
 
   it("flags banned governance and policy-pack phrases in pilot-path surfaces", () => {
     const violations = listCorePilotPathCopyViolations({
-      bad: "Open Governance workflow and edit Policy Pack rules",
+      bad: "Open Resolve outcomes workflow and edit Policy Pack rules",
       good: CORE_PILOT_PATH_STREAMLINED_LABELS.firstIntakeLead,
     });
 

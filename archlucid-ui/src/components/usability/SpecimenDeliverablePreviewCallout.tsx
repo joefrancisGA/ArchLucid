@@ -10,7 +10,7 @@ import {
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   showcaseSpecimenFindingsHref,
-  showcaseSpecimenSignedReviewRecordHref,
+  showcaseSpecimenSealedReviewRecordHref,
 } from "@/lib/showcase-sample-review-registry";
 import { cn } from "@/lib/utils";
 
@@ -19,7 +19,7 @@ export type SpecimenDeliverablePreviewCalloutProps = {
   readonly sectionTestId?: string;
 };
 
-/** Pre-intake specimen preview — sealed review record + findings (TB-2151). */
+/** Pre-intake specimen preview — Finalized review record + findings (TB-2151). */
 export function SpecimenDeliverablePreviewCallout(
   props: SpecimenDeliverablePreviewCalloutProps,
 ): React.JSX.Element {
@@ -31,7 +31,7 @@ export function SpecimenDeliverablePreviewCallout(
       <>
         <span className="text-al-text-secondary"> · </span>
         <Link
-          href={showcaseSpecimenSignedReviewRecordHref()}
+          href={showcaseSpecimenSealedReviewRecordHref()}
           className={cn(OPERATOR_LINK.nav, OPERATOR_TYPOGRAPHY.helper)}
           data-testid={`${sectionTestId}-primary-link`}
         >
@@ -54,7 +54,7 @@ export function SpecimenDeliverablePreviewCallout(
       <div className="flex flex-wrap items-center gap-x-3 gap-y-1" data-testid={sectionTestId}>
         <Button asChild variant="outline" size="sm" className="h-8 w-fit">
           <Link
-            href={showcaseSpecimenSignedReviewRecordHref()}
+            href={showcaseSpecimenSealedReviewRecordHref()}
             data-testid={`${sectionTestId}-primary-cta`}
           >
             {REVIEWS_NEW_SPECIMEN_PREVIEW_PRIMARY_CTA}
@@ -90,7 +90,7 @@ export function SpecimenDeliverablePreviewCallout(
       </div>
       <div className="flex flex-wrap items-center gap-3">
         <Button asChild variant="outline" size="sm" className="h-8 w-fit" data-testid={`${sectionTestId}-primary-cta`}>
-          <Link href={showcaseSpecimenSignedReviewRecordHref()}>{REVIEWS_NEW_SPECIMEN_PREVIEW_PRIMARY_CTA}</Link>
+          <Link href={showcaseSpecimenSealedReviewRecordHref()}>{REVIEWS_NEW_SPECIMEN_PREVIEW_PRIMARY_CTA}</Link>
         </Button>
         <Link
           href={showcaseSpecimenFindingsHref()}

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 
 import { ArchitectureCreatedClarificationsEvidenceOrientationStrip } from "@/components/architecture/ArchitectureCreatedClarificationsEvidenceOrientationStrip";
+import { ClarificationAnswerCapturePanel } from "@/components/architecture/ClarificationAnswerCapturePanel";
 import { ArchitectureStructuredSectionView } from "@/components/architecture/ArchitectureStructuredSectionView";
 import { ArchitectureStructuringFailureNotice } from "@/components/architecture/ArchitectureStructuringFailureNotice";
 import { ClarificationGapRow } from "@/components/architecture/ClarificationGapRow";
@@ -17,6 +18,11 @@ import type { ArchitectureCreationUserAssertions } from "@/lib/architecture/arch
 import { buildReviewWorkspaceTabHref } from "@/lib/unified-review-workspace-tabs";
 import type { ArchitectureWorkspaceTabId } from "@/lib/architecture/architecture-workspace-tabs";
 import { REVIEWS_NEW_GUIDED_QUESTIONS_LABEL } from "@/lib/reviews-new-path-copy";
+import { buildReviewClarificationDeltaPresentation } from "@/lib/architecture/review-clarification-delta-presentation";
+import type {
+  ReviewClarificationDelta,
+  ReviewClarificationQuestion,
+} from "@/lib/review-clarification-questions-types";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export type ArchitectureCreatedClarificationsPanelProps = {
@@ -29,6 +35,10 @@ export type ArchitectureCreatedClarificationsPanelProps = {
   readonly onNavigateTab: (tab: ArchitectureWorkspaceTabId) => void;
   /** When Do this next owns the page primary, keep tab-scoped follow-ons as outline actions. */
   readonly pagePrimaryOwnedElsewhere?: boolean;
+  readonly clarificationQuestions?: readonly ReviewClarificationQuestion[];
+  readonly clarificationRoundAvailable?: boolean;
+  readonly clarificationDelta?: ReviewClarificationDelta | null;
+  readonly priorRunId?: string;
 };
 
 function hasOpenQuestionEntities(
@@ -69,10 +79,30 @@ export function ArchitectureCreatedClarificationsPanel(
   const isZeroGapSuccess =
     !parseResult.hasPartialParseFailure && !hasVisibleWorkQueue && !hasOpenQuestions;
   const reviewDiagramVariant = props.pagePrimaryOwnedElsewhere === true ? "outline" : "primary";
+  const deltaPresentation = buildReviewClarificationDeltaPresentation(props.clarificationDelta);
+  const clarificationQuestions = props.clarificationQuestions ?? [];
 
   return (
     <div className="space-y-5" data-testid="architecture-workspace-clarifications-panel">
       <h2 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>Clarifications</h2>
+
+      {deltaPresentation.summary !== null ? (
+        <p
+          className={cn("m-0 rounded-md border border-neutral-200 bg-al-surface-raised px-3 py-2 text-neutral-700 dark:border-neutral-800 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}
+          data-testid="architecture-clarifications-delta-strip"
+        >
+          {deltaPresentation.summary}
+        </p>
+      ) : null}
+
+      {props.clarificationRoundAvailable === true ? (
+        <ClarificationAnswerCapturePanel
+          runId={props.model.runId}
+          priorRunId={props.priorRunId ?? props.model.runId}
+          questions={clarificationQuestions}
+          freeTextIntent={props.sourceText}
+        />
+      ) : null}
 
       {!isZeroGapSuccess ? (
         <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>

@@ -6,6 +6,9 @@ public static partial class AuditEventTypes
     /// <summary>Bulk findings list read (<c>GET /v1/runs/{runId}/findings</c>).</summary>
     public const string FindingsListAccessed = "FindingsListAccessed";
 
+    /// <summary>Findings-derived clarification questions read (<c>GET /v1/architecture/review/{runId}/clarification-questions</c>).</summary>
+    public const string ReviewClarificationQuestionsAccessed = "ReviewClarificationQuestionsAccessed";
+
     /// <summary>Findings snapshot generation reached a sealed terminal generation status.</summary>
     public const string FindingsSnapshotSealed = "FindingsSnapshotSealed";
 

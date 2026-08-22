@@ -10,12 +10,14 @@ import { buildDemoSeededOverviewRunSummary } from "@/lib/demo-seeded-overview";
 import type { RunSummary } from "@/types/authority";
 
 function Probe(): React.JSX.Element {
-  const { recentRunIds, hasWorkspaceReviews, liveRunsSnapshot } = useOperatorHomeWorkspaceActivity();
+  const { recentRunIds, hasWorkspaceReviews, hasOverviewReviewRows, liveRunsSnapshot } =
+    useOperatorHomeWorkspaceActivity();
 
   return (
     <>
       <div data-testid="recent-run-ids">{recentRunIds.join(",")}</div>
       <div data-testid="has-workspace-reviews">{hasWorkspaceReviews ? "yes" : "no"}</div>
+      <div data-testid="has-overview-review-rows">{hasOverviewReviewRows ? "yes" : "no"}</div>
       <div data-testid="live-snapshot-state">{liveRunsSnapshot === null ? "none" : "live"}</div>
       <div data-testid="live-snapshot-total">{liveRunsSnapshot?.totalCount ?? -1}</div>
     </>
@@ -163,6 +165,7 @@ describe("OperatorHomeWorkspaceActivityProvider", () => {
     fireEvent.click(screen.getByRole("button", { name: "Report inject" }));
 
     expect(screen.getByTestId("has-workspace-reviews")).toHaveTextContent("no");
+    expect(screen.getByTestId("has-overview-review-rows")).toHaveTextContent("yes");
     expect(screen.getByTestId("recent-run-ids")).not.toHaveTextContent("");
   });
 });

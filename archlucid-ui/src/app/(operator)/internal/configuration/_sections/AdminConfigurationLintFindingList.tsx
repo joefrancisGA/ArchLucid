@@ -18,8 +18,8 @@ export function AdminConfigurationLintFindingList(props: Props) {
   return (
     <ul className={cn("m-0 mt-1 list-disc space-y-1 pl-5 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
       {items.map((f, i) => {
-        const rule = normalizePath(f.ruleName).length > 0 ? normalizePath(f.ruleName) : "—";
-        const msg = normalizePath(f.message).length > 0 ? normalizePath(f.message) : "—";
+        const rule = normalizePath(f.ruleName).length > 0 ? normalizePath(f.ruleName) : " — ";
+        const msg = normalizePath(f.message).length > 0 ? normalizePath(f.message) : " — ";
 
         return (
           <li key={`${rule}-${i}`}>

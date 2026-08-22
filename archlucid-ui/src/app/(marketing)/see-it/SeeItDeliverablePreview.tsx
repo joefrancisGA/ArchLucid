@@ -11,7 +11,7 @@ const PREVIEW_LAYERS = [
   {
     id: "sponsor-report",
     title: "Sponsor report",
-    detail: "Sponsor briefing · sealed review record",
+    detail: "Sponsor briefing · Finalized review record",
   },
   {
     id: "findings",
@@ -62,7 +62,7 @@ export function SeeItDeliverablePreview(): React.JSX.Element {
           />
         </div>
         <p className={cn("m-0 mt-1 text-al-text-secondary", MARKETING_TYPOGRAPHY.meta)}>
-          Sealed review record · Policy pack · Enterprise customer intake sample
+          Finalized review record · Policy pack · Enterprise customer intake sample
         </p>
       </div>
 

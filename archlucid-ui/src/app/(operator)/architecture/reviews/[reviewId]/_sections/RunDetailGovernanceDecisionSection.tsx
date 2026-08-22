@@ -194,7 +194,7 @@ export function RunDetailGovernanceDecisionSection(
       ? decision
       : manifestFinalized
         ? props.governanceGateLabel ?? "Awaiting decision"
-        : "No governance decision recorded";
+        : "No approval decision recorded";
 
   const findingsHref = buildReviewWorkspaceTabHref(props.runId, "findings");
   const decisionSecondaryViewPresentation = buildCanonicalObjectSecondaryView(
@@ -269,7 +269,7 @@ export function RunDetailGovernanceDecisionSection(
         </div>
       ) : (
         <p className={cn("m-0 mt-3 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
-          No governance decision recorded
+          No approval decision recorded
         </p>
       )}
       {showGovernanceCta ? (
@@ -279,7 +279,7 @@ export function RunDetailGovernanceDecisionSection(
             variant={pagePrimaryOwnedElsewhere ? "outline" : "default"}
             data-testid="run-detail-governance-record-decision-cta"
           >
-            <Link href={runDetailGovernanceWorkflowHref(props.runId)}>Record governance decision</Link>
+            <Link href={runDetailGovernanceWorkflowHref(props.runId)}>Record approval decision</Link>
           </Button>
         </div>
       ) : null}

@@ -83,7 +83,7 @@ export function formatAlertRoutingConfigProvenanceLine(
 
   const formatted = formatInstantForLocale(recordedUtc);
 
-  if (formatted === "—") {
+  if (formatted === " — ") {
     return null;
   }
 

@@ -111,7 +111,7 @@ describe("AzureCloudConnectionDetailClient", () => {
 
 
 
-  it("shows connection status and header connect CTA when not connected (P0-1, P0-2)", async () => {
+  it("shows connection status without a header scroll CTA when not connected (P0-1, P0-2)", async () => {
 
     render(<AzureCloudConnectionDetailClient />);
 
@@ -125,9 +125,7 @@ describe("AzureCloudConnectionDetailClient", () => {
 
 
 
-    expect(screen.getByTestId("azure-connection-header-connect")).toHaveTextContent("Connect Azure subscription");
-
-    expect(screen.getByTestId("azure-connection-header-connect")).toHaveAttribute("href", "#connection-details");
+    expect(screen.queryByTestId("azure-connection-header-connect")).not.toBeInTheDocument();
 
   });
 
@@ -155,7 +153,7 @@ describe("AzureCloudConnectionDetailClient", () => {
 
     const sources = screen.getByTestId("cloud-connections-azure-sources");
 
-    expect(within(sources).getByRole("link", { name: "Connection status" })).toHaveAttribute(
+    expect(within(sources).getByRole("link", { name: "Open Connection status" })).toHaveAttribute(
 
       "href",
 

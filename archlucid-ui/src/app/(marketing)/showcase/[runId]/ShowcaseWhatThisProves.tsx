@@ -97,7 +97,7 @@ export function ShowcaseOutcomeCards({ snapshot }: { readonly snapshot: Showcase
 
           label: "Findings surfaced",
 
-          value: snapshot.findingCount === null ? "—" : String(snapshot.findingCount),
+          value: snapshot.findingCount === null ? " — " : String(snapshot.findingCount),
 
         },
 

@@ -14,13 +14,18 @@ export const PREFERENCES_CLOUD_PLATFORMS_EMPTY_SELECTION_MESSAGE =
 export const PREFERENCES_CLOUD_PLATFORMS_SHOW_ALL_LABEL = "Show all platforms";
 
 /** Cloud connections hub — points readers to personal preferences instead of inline toggles. */
-export const CLOUD_CONNECTIONS_PLATFORM_SCOPE_PREFERENCES_NOTICE =
-  "To show or hide cloud platforms, open Personal preferences.";
+export const CLOUD_CONNECTIONS_PLATFORM_SCOPE_PREFERENCES_NOTICE_PREFIX =
+  "To show or hide cloud platforms, open";
 
 export const CLOUD_CONNECTIONS_PLATFORM_SCOPE_PREFERENCES_LINK_LABEL = "Personal preferences";
 
 export const CLOUD_CONNECTIONS_PLATFORM_SCOPE_PREFERENCES_HREF =
   `${ACCOUNT_PREFERENCES_PATH}#cloud-platforms-shown` as const;
 
-export const CLOUD_CONNECTIONS_PLATFORM_SCOPE_EMPTY_SELECTION =
-  "No platforms are selected. Turn platforms back on in Personal preferences, or use";
+export const CLOUD_CONNECTIONS_PLATFORM_SCOPE_EMPTY_SELECTION_LEAD =
+  "No platforms are selected. Turn platforms back on in";
+
+export const CLOUD_CONNECTIONS_PLATFORM_SCOPE_EMPTY_SELECTION_MID = ", or use";
+
+export const CLOUD_CONNECTIONS_PLATFORM_SCOPE_EMPTY_SELECTION_REVIEW_LINK_LABEL =
+  "evidence-only review";

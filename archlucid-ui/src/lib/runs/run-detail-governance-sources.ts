@@ -7,9 +7,9 @@ export type RunDetailGovernanceSourceLink = {
 
 /** Inline help cites on create-home Governance tab before finalize (REG). */
 export const RUN_DETAIL_GOVERNANCE_PRE_COMMIT_HELP_CITES: readonly RunDetailGovernanceSourceLink[] = [
-  { label: "Governance approval help", href: inAppHelpHref("governance-approval") },
+  { label: "Resolve outcomes help", href: inAppHelpHref("governance-approval") },
   { label: "Audit trail help", href: inAppHelpHref("audit-trail") },
 ] as const;
 
 export const RUN_DETAIL_GOVERNANCE_PRE_COMMIT_CLAIM_DISCIPLINE =
-  "This create-home tab orients assessment before finalize. It is not the committed governance decision surface.";
+  "This create-home tab orients assessment before finalize. It is not the committed approval decision surface.";

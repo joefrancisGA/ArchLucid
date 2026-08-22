@@ -22,14 +22,14 @@ export {
 } from "@/lib/operator/operator-health-labels";
 
 export const DOMAIN_TERMS = {
-  goldenManifest: "Sealed review record",
+  goldenManifest: "Finalized review record",
   decisionTrace: "Decision Trace",
   policyPack: "Policy Pack",
   policyPackContentDocument: "Policy Pack Content Document",
   findingsSnapshot: "Findings Snapshot",
   artifactBundle: "Deliverables bundle",
-  preCommitGate: "Approval gate",
-  governanceApproval: "Governance approval",
+  preCommitGate: "Approval check",
+  governanceApproval: "Resolve outcomes",
 } as const;
 
 export const ARCHITECTURE_REVIEW_LABELS = {
@@ -68,17 +68,17 @@ export const RUNS_DASHBOARD_LABELS = {
   packagingPreFinalPosture: "Reviews nearing finalization",
   reviewOutcomes: "Review outcomes",
   recentSummary: "Showing the latest architecture reviews for this workspace.",
-  attentionSummary: "Reviews with findings awaiting a finalized sealed review record.",
+  attentionSummary: "Reviews with findings awaiting a finalized review record.",
   attentionSummaryBuyer:
-    "Architecture reviews still moving toward a finalized sealed review record before sponsor sign-off.",
+    "Architecture reviews still moving toward a finalized review record before sponsor sign-off.",
   noReviewsNeedAttention: "No reviews currently need attention.",
   oneReviewNeedsAttention: "1 review needs attention.",
   reviewsNeedAttentionCount: (count: number) => `${count} reviews need attention.`,
   loadingReviews: "Loading reviews…",
   openFullReviewsList: "Open all reviews",
-  governanceWarningTitle: "Governance warnings",
-  governanceWarningHint: "Unresolved governance alerts or policy violations require governance lead follow-up.",
-  governanceWarningsOnly: "Has governance warnings",
+  governanceWarningTitle: "Review warnings",
+  governanceWarningHint: "Unresolved review alerts or policy violations need follow-up.",
+  governanceWarningsOnly: "Has review warnings",
   showArchived: "Show archived",
   restoreRequest: "Restore",
   restoringRequest: "Restoring…",
@@ -130,7 +130,7 @@ export const OPERATOR_NAV_LINK_LABELS = {
   assignedToMeFindings: "Assigned to me",
   riskExceptions: "Exceptions",
   decisionRegister: "Decision register",
-  sealedReviewRecords: "Sealed review records",
+  sealedReviewRecords: "Finalized review records",
   recurrenceSchedules: "Recurrence schedules",
   help: "Help",
   /** Baseline settings (`/administration/baseline`) — sidebar short form; the page H1 keeps the "— ROI measurement" qualifier. */
@@ -144,7 +144,7 @@ export const OPERATOR_NAV_LINK_LABELS = {
   governanceResolution: "Standards & rules",
   governanceWorkflow: "Approval queue",
   auditTrail: BUYER_SURFACE_VOCABULARY.auditTrail,
-  governanceSetupGuide: "Governance setup",
+  governanceSetupGuide: "Approval setup",
   workspaceHealth: "Workspace health",
   securityTrust: "Security & Trust",
   aiUsage: "AI usage",

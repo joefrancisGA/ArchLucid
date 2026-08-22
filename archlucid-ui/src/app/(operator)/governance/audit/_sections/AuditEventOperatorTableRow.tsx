@@ -50,7 +50,7 @@ export function AuditEventOperatorTableRow(props: AuditEventOperatorTableRowProp
         {(ev.correlationId ?? "").trim().length > 0 ? (
           <span className={cn("font-mono", OPERATOR_TYPOGRAPHY.micro)}>{ev.correlationId}</span>
         ) : (
-          "—"
+          " — "
         )}
       </EnterpriseTableCell>
       <EnterpriseTableCell>

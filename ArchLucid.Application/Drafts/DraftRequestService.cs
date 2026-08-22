@@ -593,6 +593,31 @@ public sealed class DraftRequestService(
             cancellationToken);
     }
 
+    /// <inheritdoc />
+    public async Task<DraftRequestResponse?> ReopenAsync(ScopeContext scope, Guid draftId, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+
+        DraftRequestResponse? existing = await GetAsync(scope, draftId, cancellationToken);
+
+        if (existing is null)
+            return null;
+
+        if (!DraftRequestStateMachine.AllowsReopen(existing.Status))
+            throw new InvalidOperationException($"Draft '{draftId}' cannot be reopened from status '{existing.Status}'.");
+
+        return await _draftRepository.UpdateAsync(
+            scope.TenantId,
+            scope.WorkspaceId,
+            scope.ProjectId,
+            draftId,
+            DraftRequestStatus.Drafting,
+            existing.Document,
+            existing.RedirectReason,
+            existing.SpawnedRunId,
+            cancellationToken);
+    }
+
     private async Task<string?> ResolveParentSpawnedRunIdAsync(
         ScopeContext scope,
         Guid? parentDraftId,
@@ -615,11 +640,19 @@ public sealed class DraftRequestService(
         {
             string intent = patch.FreeTextIntent.Trim();
 
-            if (intent.Length < DraftIntakeValidation.MinimumFreeTextIntentLength)
+            if (intent.Length == 0)
+            {
+                document.FreeTextIntent = string.Empty;
+            }
+            else if (intent.Length < DraftIntakeValidation.MinimumFreeTextIntentLength)
+            {
                 throw new InvalidOperationException(
                     $"FreeTextIntent must be at least {DraftIntakeValidation.MinimumFreeTextIntentLength} characters after trim.");
-
-            document.FreeTextIntent = intent;
+            }
+            else
+            {
+                document.FreeTextIntent = intent;
+            }
         }
 
         if (patch.SystemName is not null)
@@ -638,7 +671,10 @@ public sealed class DraftRequestService(
             document.WorkflowIntent = NormalizeWorkflowIntent(patch.WorkflowIntent);
 
         if (patch.StructuredBrief is not null)
+        {
+            document.StructuredBrief ??= new ArchitectureDraftStructuredBrief();
             ApplyStructuredBriefPatch(document.StructuredBrief, patch.StructuredBrief);
+        }
     }
 
     private static void ApplyStructuredBriefPatch(
@@ -659,8 +695,11 @@ public sealed class DraftRequestService(
         target.OperationalOwner = patch.OperationalOwner?.Trim();
     }
 
-    private static List<string> CopyTrimmedList(IReadOnlyList<string> items)
+    private static List<string> CopyTrimmedList(IReadOnlyList<string>? items)
     {
+        if (items is null)
+            return [];
+
         List<string> copied = [];
 
         foreach (string item in items)

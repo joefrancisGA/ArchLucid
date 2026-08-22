@@ -9,6 +9,7 @@ import { StatusTag } from "@/components/ui/status-tag";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { Tier2ConnectionResponse } from "@/lib/api/cloud-connections-api";
 import {
+  AZURE_CONNECTION_CLIENT_APP_ID_LABEL,
   AZURE_CONNECTION_CONNECTED_SUMMARY_LEAD,
   AZURE_CONNECTION_UPDATE_BUTTON_LABEL,
   AZURE_CONNECTION_VALIDATION_ADMIN_REQUIRED,
@@ -48,7 +49,7 @@ export function AzureConnectedConnectionSummary(props: Props): React.ReactElemen
           <StatusTag kind="ready" label="Connected" />
         </div>
         <dl className={cn("grid grid-cols-2 gap-2", OPERATOR_TYPOGRAPHY.body)}>
-          <dt className="text-muted-foreground">Client ID</dt>
+          <dt className="text-muted-foreground">{AZURE_CONNECTION_CLIENT_APP_ID_LABEL}</dt>
           <dd className="break-all">{connection.clientId}</dd>
           <dt className="text-muted-foreground">Subscriptions</dt>
           <dd>{formatAzureSubscriptionSummary(connection.subscriptionIds)}</dd>

@@ -2,6 +2,10 @@ import type { WizardStepDefinition } from "@/components/wizard/WizardStepper";
 
 import {
 
+  AZURE_CONNECTION_ARCHLUCID_TENANT_ID_HINT,
+
+  AZURE_CONNECTION_MANAGED_IDENTITY_OBJECT_ID_HINT,
+
   AZURE_CONNECTION_SETUP_SCRIPT_FEDERATION_DESCRIPTION,
 
   AZURE_CONNECTION_SETUP_SCRIPT_VALIDATION_NOTE,
@@ -22,7 +26,7 @@ export const TIER2_CONNECTION_WIZARD_STEPS: WizardStepDefinition[] = [
 
   { label: "Create Azure identity", description: "Azure CLI or IaC" },
 
-  { label: "Connection IDs", description: "Tenant, app, subscriptions" },
+  { label: "Connection IDs", description: "Tenant, client/app, subscriptions" },
 
   { label: "Save & validate", description: AZURE_CONNECTION_WIZARD_SAVE_STEP_DESCRIPTION },
 
@@ -34,7 +38,7 @@ export const TIER2_CONNECTION_DETAIL_WIZARD_STEPS: WizardStepDefinition[] = [
 
   { label: "Create Azure identity", description: "Azure CLI or IaC" },
 
-  { label: "Connection IDs", description: "Tenant, app, subscriptions" },
+  { label: "Connection IDs", description: "Tenant, client/app, subscriptions" },
 
   { label: "Save & validate", description: AZURE_CONNECTION_WIZARD_SAVE_STEP_DESCRIPTION },
 
@@ -228,7 +232,7 @@ az ad app federated-credential create --id "$APP_OBJECT_ID" --parameters "{
 
 
 
-# Record appId (client ID) and tenant ID from step 1 for the ArchLucid wizard.
+# Record the client/app ID (Azure CLI: appId) and tenant ID from step 1 for the ArchLucid wizard.
 
 `;
 
@@ -243,6 +247,8 @@ export type Tier2AzureFederationIdentifier = {
   readonly label: string;
 
   readonly value: string;
+
+  readonly hint: string;
 
 };
 
@@ -260,6 +266,8 @@ export function tier2AzureFederationIdentifiers(config: AzureHostedFederationCon
 
       value: config.tenantId,
 
+      hint: AZURE_CONNECTION_ARCHLUCID_TENANT_ID_HINT,
+
     },
 
     {
@@ -269,6 +277,8 @@ export function tier2AzureFederationIdentifiers(config: AzureHostedFederationCon
       label: "ArchLucid managed identity object ID",
 
       value: config.managedIdentityObjectId,
+
+      hint: AZURE_CONNECTION_MANAGED_IDENTITY_OBJECT_ID_HINT,
 
     },
 

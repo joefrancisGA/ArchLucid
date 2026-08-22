@@ -127,7 +127,7 @@ function GovernanceResolutionOperatorDiagnostics(props: { readonly model: Govern
                 OPERATOR_TYPOGRAPHY.micro,
               )}
             >
-              {m.data ? JSON.stringify(m.data.effectiveContent, null, 2) : "—"}
+              {m.data ? JSON.stringify(m.data.effectiveContent, null, 2) : " — "}
             </pre>
             <details className="max-w-3xl">
               <summary className={cn("cursor-pointer font-semibold text-al-text-secondary", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}>

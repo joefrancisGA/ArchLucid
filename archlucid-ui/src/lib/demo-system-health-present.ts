@@ -112,7 +112,7 @@ export function buildDemoOperationalChecks(): DemoOperationalCheck[] {
       id: "review-package-navigation",
       label: "Review navigation",
       status: "Healthy",
-      explanation: "Sample reviews open with findings, evidence, and sealed records.",
+      explanation: "Sample reviews open with findings, evidence, and finalized review records.",
     },
     {
       id: "evidence-graph",

@@ -1,52 +1,26 @@
-> **Reviewed:** 2026-08-06
+> **Reviewed:** 2026-08-21
 >
-> **Scope:** GTM **M-136** part (b) — LinkedIn / landing framing variants before **TB-981** default flip. Parts (a) telemetry and (c) live architect reactions remain owner.
+> **Scope:** GTM **M-136** part (b) — LinkedIn / landing framing variants. **TB-981** Done — primary sample is Enterprise Customer Intake.
 
 # Scenario framing variants (M-136 partial)
 
-**Last reviewed:** 2026-08-06  
-**Status:** Framing copy ready. **Still open for Done:** (a) **TB-978** scenario-tagged rates · (c) 3–5 opportunistic architect reactions via **G-REAL-06**/**G-REAL-07** / existing chats.  
+**Last reviewed:** 2026-08-21  
+**Status:** Primary framing (**Variant B**) is the default after **TB-981**. **Variant A** remains for regulated healthcare wedge creatives only.  
 **Naming lock:** [`SHOWCASE_NAMING_HIERARCHY.md`](SHOWCASE_NAMING_HIERARCHY.md)
 
 ---
 
-## Variant A — Regulated Claims wedge (matches live cold funnel)
+## Variant B — Enterprise intake primary (default cold funnel)
 
-**Use when:** LinkedIn / landing must open today’s package (`/showcase/claims-intake-modernization`).
-
-| Field | Copy |
-|-------|------|
-| Hook | Architecture review that leaves an evidence trail — not another diagram deck. |
-| Scenario line | Healthcare Claims Intake Modernization — illustrative sample, no signup. |
-| CTA | Open the Claims sample → `/showcase/claims-intake-modernization` (or welcome → `/see-it`) |
-| Disclosure | Illustrative sample. Not your tenant. Not a live Contoso preview. |
-| Avoid | Contoso, Northwind, “live customer demo,” promising Enterprise Customer Intake as if the package already shipped |
-
-**LinkedIn short post (paste):**
-
-```text
-Diagrams are not evidence.
-
-ArchLucid’s public sample is Healthcare Claims Intake Modernization —
-a governed architecture review with findings you can commit and export.
-
-Illustrative sample. No signup.
-→ archlucid.net/showcase/claims-intake-modernization
-```
-
----
-
-## Variant B — Enterprise intake primary sentence (name pin; honest about status)
-
-**Use when:** Testing comprehension of the **M-133** long-term primary name. Landing may still deep-link to Claims until **TB-981**.
+**Use when:** LinkedIn / landing opens the primary public sample (`/showcase/customer-intake-modernization`).
 
 | Field | Copy |
 |-------|------|
 | Hook | Modernize how the enterprise intakes customer work — with a review package sponsors can reopen. |
-| Scenario line | Primary sample direction: Enterprise Customer Intake Modernization. Today’s openable sample remains Healthcare Claims Intake (regulated depth). |
-| CTA | See today’s sample → Claims showcase; mention Enterprise as the portfolio direction |
-| Disclosure | Enterprise Customer Intake package authoring is in progress (**TB-980**). Do not imply a second live slug exists yet. |
-| Avoid | Contoso/Northwind; “new product already live under Enterprise slug” |
+| Scenario line | Enterprise Customer Intake Modernization — illustrative sample, no signup. |
+| CTA | Open the sample → `/showcase/customer-intake-modernization` (or welcome → `/see-it`) |
+| Disclosure | Illustrative sample. Not your tenant. Not a live Contoso preview. |
+| Avoid | Contoso, Northwind, “live customer demo,” naming Claims as the primary sample |
 
 **LinkedIn short post (paste):**
 
@@ -54,8 +28,33 @@ Illustrative sample. No signup.
 We’re aligning our buyer sample on Enterprise Customer Intake Modernization —
 governed architecture proof for how enterprises intake and process customer work.
 
-Today you can open the Healthcare Claims Intake illustrative sample
-(same proof shape; regulated-depth example).
+Illustrative sample. No signup.
+→ archlucid.net/showcase/customer-intake-modernization
+```
+
+---
+
+## Variant A — Regulated Claims wedge (secondary healthcare sample)
+
+**Use when:** Creative targets healthcare buyers and should deep-link the regulated-depth sample (`/showcase/claims-intake-modernization`).
+
+| Field | Copy |
+|-------|------|
+| Hook | Architecture review that leaves an evidence trail — not another diagram deck. |
+| Scenario line | Healthcare Claims Intake Modernization — regulated-depth illustrative sample. |
+| CTA | Open the Claims sample → `/showcase/claims-intake-modernization` |
+| Disclosure | Illustrative sample. Not your tenant. Secondary regulated example — not the generic primary sample. |
+| Avoid | Contoso, Northwind, implying this is ArchLucid’s only public sample |
+
+**LinkedIn short post (paste):**
+
+```text
+Diagrams are not evidence.
+
+ArchLucid’s healthcare sample is Claims Intake Modernization —
+a governed architecture review with findings you can finalize and export.
+
+Illustrative regulated-depth sample.
 → archlucid.net/showcase/claims-intake-modernization
 ```
 

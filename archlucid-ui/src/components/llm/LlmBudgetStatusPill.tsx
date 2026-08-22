@@ -30,7 +30,7 @@ function pillClassForBudgetLabel(label: string): string {
 }
 
 function buildPillLabel(status: LlmMonthlyDollarBudgetStatus, remainingPercent: number | null): string {
-  const display = remainingPercent !== null ? `${remainingPercent}%` : "—";
+  const display = remainingPercent !== null ? `${remainingPercent}%` : " — ";
   const paused =
     status.blocksAdditionalLlmExecution ||
     (status.hardCapUtilizationFraction !== null && status.hardCapUtilizationFraction >= 1);

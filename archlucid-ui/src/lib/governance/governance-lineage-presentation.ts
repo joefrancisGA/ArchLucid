@@ -51,7 +51,7 @@ export function governanceApprovalStatusTagPresentation(status: string): Governa
 
   const label = status.trim();
 
-  return { kind: "neutral", label: label.length > 0 ? label : "—" };
+  return { kind: "neutral", label: label.length > 0 ? label : " — " };
 }
 
 /** Maps risk posture strings to canonical StatusTag presentation. */
@@ -82,7 +82,7 @@ export function governanceRiskPostureStatusTagPresentation(
 
   const label = riskPosture.trim();
 
-  return { kind: "neutral", label: label.length > 0 ? label : "—" };
+  return { kind: "neutral", label: label.length > 0 ? label : " — " };
 }
 
 /** Maps architecture review checkpoint run status strings to StatusTag presentation. */
@@ -119,10 +119,10 @@ export function governanceLineageReviewCheckpointStatusTagPresentation(
 
   const label = status.trim();
 
-  return { kind: "neutral", label: label.length > 0 ? label : "—" };
+  return { kind: "neutral", label: label.length > 0 ? label : " — " };
 }
 
-/** Maps sealed review record verification status to StatusTag presentation. */
+/** Maps Finalized review record verification status to StatusTag presentation. */
 export function governanceLineageVerificationStatusTagPresentation(
   verificationStatus: string,
 ): GovernanceLineageStatusTagPresentation {
@@ -142,7 +142,7 @@ export function governanceLineageVerificationStatusTagPresentation(
 
   const label = verificationStatus.trim();
 
-  return { kind: "neutral", label: label.length > 0 ? label : "—" };
+  return { kind: "neutral", label: label.length > 0 ? label : " — " };
 }
 
 function trimVersion(value: string | null | undefined): string | null {
@@ -181,7 +181,7 @@ export function deriveGovernanceLineageVersionAssertion(
   } else if (primaryVersion !== null) {
     assertionLabel = "Version alignment could not be determined from the available promotion records.";
   } else {
-    assertionLabel = "Sealed review record version not available.";
+    assertionLabel = "Finalized review record version not available.";
   }
 
   return {

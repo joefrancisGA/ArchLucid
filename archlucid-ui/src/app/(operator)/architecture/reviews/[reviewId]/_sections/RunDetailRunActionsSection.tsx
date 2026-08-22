@@ -4,6 +4,7 @@ import type { ReactElement } from "react";
 import { ExportTrackedAnchor } from "@/components/ExportTrackedAnchor";
 import { GenerateSponsorValueReportButton } from "@/components/GenerateSponsorValueReportButton";
 import { ShareReviewPackageButton } from "@/components/ShareReviewPackageButton";
+import { ReviewArchiveControl } from "@/components/reviews/ReviewArchiveControl";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { getTraceabilityBundleDownloadUrl } from "@/lib/api";
@@ -20,6 +21,7 @@ type RunDetailRunActionsSectionProps = {
   readonly manifestId: string | null | undefined;
   readonly hasCommitBlockingFailures: boolean;
   readonly operatorGovernanceDecision?: string | null;
+  readonly isArchived?: boolean;
 };
 
 export function RunDetailRunActionsSection(props: RunDetailRunActionsSectionProps): ReactElement {
@@ -37,6 +39,15 @@ export function RunDetailRunActionsSection(props: RunDetailRunActionsSectionProp
             runId={runId}
             hasCommitBlockingFailures={hasCommitBlockingFailures}
             existingDecision={operatorGovernanceDecision}
+          />
+          <ReviewArchiveControl
+            run={{
+              runId,
+              hasGoldenManifest: manifestId !== null && manifestId !== undefined && manifestId.trim().length > 0,
+              isArchived: props.isArchived === true,
+            }}
+            reviewTitle={systemName}
+            redirectAfterArchive
           />
           {manifestId ? <GenerateSponsorValueReportButton /> : null}
           <ShareReviewPackageButton

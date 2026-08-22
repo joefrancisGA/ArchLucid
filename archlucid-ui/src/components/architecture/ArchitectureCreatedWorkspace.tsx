@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { ArchitectureCreatedClarificationsPanel } from "@/components/architecture/ArchitectureCreatedClarificationsPanel";
+import { useReviewClarificationQuestions } from "@/hooks/use-review-clarification-questions";
 import { ArchitectureCreatedFindingsNextAction } from "@/components/architecture/ArchitectureCreatedFindingsNextAction";
 import { ArchitectureCreatedCompactFirstViewport } from "@/components/architecture/ArchitectureCreatedCompactFirstViewport";
 import { ArchitectureCreatedOverviewPanel } from "@/components/architecture/ArchitectureCreatedOverviewPanel";
@@ -101,11 +102,28 @@ export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspace
   const [highlightedNodeId, setHighlightedNodeId] = useState<string | null>(null);
   const linkedLayoutMode = resolveArchitectureFindingsDualPaneLayoutMode(showFindingsLinkedView);
 
+  const clarificationQuestionsQuery = useReviewClarificationQuestions({
+    runId: props.baseline.runId,
+    priorRunId: props.baseline.clarificationPriorRunId ?? null,
+    enabled: props.analysisStagesComplete === true,
+  });
+
   const merged = useMemo(() => {
     const snapshot = readArchitectureCreationHandoff(props.baseline.runId);
+    const baselineMerged = mergeArchitectureCreatedHomeInput(props.baseline, snapshot);
+    const clarificationData = clarificationQuestionsQuery.data;
 
-    return mergeArchitectureCreatedHomeInput(props.baseline, snapshot);
-  }, [props.baseline]);
+    if (clarificationData === undefined) {
+      return baselineMerged;
+    }
+
+    return {
+      ...baselineMerged,
+      findingsDerivedQuestions: clarificationData.questions,
+      clarificationRoundAvailable: clarificationData.clarificationRoundAvailable,
+      clarificationPriorRunId: props.baseline.clarificationPriorRunId ?? props.baseline.runId,
+    };
+  }, [props.baseline, clarificationQuestionsQuery.data]);
 
   const model = useMemo(() => buildArchitectureCreatedHomeModel(merged), [merged]);
   const userAssertions = useMemo(
@@ -344,6 +362,10 @@ export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspace
             onDismissClarificationGap={dismissClarificationGap}
             onNavigateTab={navigateTab}
             pagePrimaryOwnedElsewhere={props.pagePrimaryOwnedElsewhere}
+            clarificationQuestions={clarificationQuestionsQuery.data?.questions ?? []}
+            clarificationRoundAvailable={clarificationQuestionsQuery.data?.clarificationRoundAvailable === true}
+            clarificationDelta={clarificationQuestionsQuery.data?.deltaFromPriorRun ?? null}
+            priorRunId={props.baseline.clarificationPriorRunId ?? props.baseline.runId}
           />
         </TabsContent>
 

@@ -21,7 +21,7 @@ export function WelcomeMarketingUseCasesSection() {
         Use cases — bundled policy packs
       </h2>
       <p className={cn("mt-3 max-w-3xl text-al-text-secondary", MARKETING_TYPOGRAPHY.lead)}>
-        Every net-new tenant ships curated governance packs, including AWS, Azure, and Google Cloud framework themes.
+        Every net-new tenant ships curated policy packs, including AWS, Azure, and Google Cloud framework themes.
       </p>
       <ul className="mt-6 grid list-none gap-4 p-0 md:grid-cols-3">
         {WELCOME_USE_CASE_CARDS.map((useCase) => (

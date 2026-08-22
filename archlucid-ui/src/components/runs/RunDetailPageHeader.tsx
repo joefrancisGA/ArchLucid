@@ -166,13 +166,13 @@ export function RunDetailPageHeader({
   const streamlinedPilotPath = isStreamlinedCorePilotPath(hasCommittedArchitectureReview);
   const approvalStatusLabel = streamlinedPilotPath
     ? CORE_PILOT_PATH_STREAMLINED_LABELS.reviewApproval
-    : "Governance approval";
+    : "Resolve outcomes";
   const approvalCheckLabel = streamlinedPilotPath
     ? CORE_PILOT_PATH_STREAMLINED_LABELS.approvalCheck
-    : "Governance gate";
+    : "Approval check";
   const reviewWarningsLabel = streamlinedPilotPath
     ? CORE_PILOT_PATH_STREAMLINED_LABELS.reviewWarnings
-    : "Governance warnings";
+    : "Review warnings";
   const finalizedBuyerChrome = buyerPolishedShell === true && hasGoldenManifest === true;
   const showExecutionFlavorOperator =
     Boolean(executionFlavorBuyerSummary) && buyerPolishedShell !== true;

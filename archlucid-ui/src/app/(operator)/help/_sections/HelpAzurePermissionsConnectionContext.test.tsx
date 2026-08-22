@@ -18,7 +18,7 @@ describe("HelpAzurePermissionsConnectionContext", () => {
     expect(screen.queryByText("Tenant ID")).not.toBeInTheDocument();
     expect(screen.queryByText("Application (client) ID")).not.toBeInTheDocument();
     expect(screen.queryByText("Subscription ID")).not.toBeInTheDocument();
-    expect(screen.queryByText("—")).not.toBeInTheDocument();
+    expect(screen.queryByText(" — ")).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /Copy Tenant ID unavailable/i })).not.toBeInTheDocument();
     expect(screen.getByText("Enterprise application name (suggested)")).toBeInTheDocument();
     expect(screen.getByText("Required roles")).toBeInTheDocument();

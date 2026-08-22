@@ -5,7 +5,7 @@
  * - Pilot guide (`/help/pilot-guide`) prepares an evaluation pilot (workspace
  *   navigation, pilot cadence, how to interpret pilot outputs).
  * - Getting started (`/help/getting-started`) orients on how ArchLucid turns
- *   evidence into findings and governance-ready outputs.
+ *   evidence into findings and export-ready outputs.
  * - Your first architecture review (`/help/first-architecture-review`) is the
  *   guided path for completing a first review end-to-end.
  *
@@ -44,7 +44,7 @@ export const PILOT_GUIDE_GETTING_STARTED_FIRST_REVIEW_HEADING =
   "Pilot guide, Getting started, and Your first architecture review serve different purposes" as const;
 
 export const PILOT_GUIDE_GETTING_STARTED_FIRST_REVIEW_WHY_THREE =
-  "Pilot guide prepares an evaluation pilot — navigation, cadence, and how to interpret pilot outputs. Getting started orients you on how ArchLucid turns evidence into findings and governance-ready outputs. Your first architecture review is the guided path for completing a first review end-to-end. Pilot prep is not product orientation, and orientation is not the first-review checklist." as const;
+  "Pilot guide prepares an evaluation pilot — navigation, cadence, and how to interpret pilot outputs. Getting started orients you on how ArchLucid turns evidence into findings and export-ready outputs. Your first architecture review is the guided path for completing a first review end-to-end. Pilot prep is not product orientation, and orientation is not the first-review checklist." as const;
 
 export const PILOT_GUIDE_GETTING_STARTED_FIRST_REVIEW_COMPACT_LINE =
   "Pilot guide is pilot prep; Getting started is product orientation; Your first architecture review is the guided first-review path." as const;

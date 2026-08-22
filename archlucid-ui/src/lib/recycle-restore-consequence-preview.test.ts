@@ -29,7 +29,7 @@ describe("recycle-restore-consequence-preview (TB-2278)", () => {
     expect(drafts.detail.toLowerCase()).toContain("architecture drafts");
     expect(packages.label.toLowerCase()).toContain("packages");
     expect(packages.detail.toLowerCase()).toContain("architecture packages");
-    expect(packages.detail.toLowerCase()).toContain("sealed review record");
+    expect(packages.detail.toLowerCase()).toContain("finalized review record");
   });
 
   it("avoids engine/agent jargon in the preview", () => {

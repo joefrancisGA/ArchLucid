@@ -1,7 +1,8 @@
 "use client";
 
-import { Star } from "lucide-react";
+import type { MouseEvent } from "react";
 
+import { ReviewPinGlyph } from "@/components/reviews/ReviewPinGlyph";
 import { Button } from "@/components/ui/button";
 import { useFavoriteReviews } from "@/hooks/use-favorite-reviews";
 import { cn } from "@/lib/utils";
@@ -14,8 +15,8 @@ type FavoriteReviewToggleProps = {
 };
 
 /**
- * Star toggle to pin an architecture review for quick return (TB-2206).
- * Persists in localStorage via {@link useFavoriteReviews}.
+ * Pin toggle for architecture reviews (TB-2206).
+ * Unfilled pin = not pinned; filled pin = pinned. Persists via {@link useFavoriteReviews}.
  */
 export function FavoriteReviewToggle(props: FavoriteReviewToggleProps): React.JSX.Element {
   const { isFavorite, toggleFavorite } = useFavoriteReviews();
@@ -23,33 +24,57 @@ export function FavoriteReviewToggle(props: FavoriteReviewToggleProps): React.JS
   const label = favorited ? "Unpin architecture review" : "Pin architecture review";
   const size = props.size ?? "icon";
 
-  return (
-    <Button
-      type="button"
-      variant="outline"
-      size={size}
-      className={cn(
-        size === "icon" ? "h-8 w-8 shrink-0 p-0" : "gap-1",
-        favorited ? "border-al-accent-interactive text-al-accent-interactive" : "text-neutral-500",
-        props.className,
-      )}
-      aria-label={label}
-      aria-pressed={favorited}
-      title={label}
-      data-testid="favorite-review-toggle"
-      data-favorited={favorited ? "true" : "false"}
-      data-run-id={props.runId}
-      onClick={(event) => {
-        event.preventDefault();
-        event.stopPropagation();
-        toggleFavorite({ runId: props.runId, title: props.title });
-      }}
-    >
-      <Star
-        className={cn("h-4 w-4", favorited ? "fill-current" : null)}
-        aria-hidden
-      />
-      {size === "sm" ? <span>{favorited ? "Pinned" : "Pin"}</span> : null}
-    </Button>
-  );
+  const onToggle = (event: MouseEvent<HTMLButtonElement>): void => {
+    event.preventDefault();
+    event.stopPropagation();
+    toggleFavorite({ runId: props.runId, title: props.title });
+  };
+
+  switch (size) {
+    case "sm":
+      return (
+        <Button
+          type="button"
+          variant="outline"
+          size={size}
+          className={cn(
+            "gap-1",
+            favorited ? "border-al-accent-interactive text-al-accent-interactive" : "text-neutral-500",
+            props.className,
+          )}
+          aria-label={label}
+          aria-pressed={favorited}
+          data-testid="favorite-review-toggle"
+          data-favorited={favorited ? "true" : "false"}
+          data-run-id={props.runId}
+          onClick={onToggle}
+        >
+          <ReviewPinGlyph filled={favorited} />
+          <span>{favorited ? "Pinned" : "Pin"}</span>
+        </Button>
+      );
+    case "icon":
+      return (
+        <button
+          type="button"
+          className={cn(
+            "inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-neutral-400 hover:text-al-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--al-accent-border-focus)] focus-visible:ring-offset-2",
+            favorited ? "text-al-accent-interactive" : null,
+            props.className,
+          )}
+          aria-label={label}
+          aria-pressed={favorited}
+          data-testid="favorite-review-toggle"
+          data-favorited={favorited ? "true" : "false"}
+          data-run-id={props.runId}
+          onClick={onToggle}
+        >
+          <ReviewPinGlyph filled={favorited} />
+        </button>
+      );
+    default: {
+      const _exhaustive: never = size;
+      return _exhaustive;
+    }
+  }
 }

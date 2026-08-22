@@ -93,7 +93,7 @@ export const IMPROVEMENT_PLANNING_HELP_OUTPUT_TILE_ITEMS: readonly ImprovementPl
 export const IMPROVEMENT_PLANNING_HELP_HOW_TO_READ_STEPS = [
   "Capture review feedback or record pilot feedback in product learning to generate themes.",
   "Open a theme or plan row to read status and linked review context.",
-  "Return to reviews or findings when a plan needs execution or governance follow-up.",
+  "Return to reviews or findings when a plan needs execution or approval follow-up.",
 ] as const;
 
 export const IMPROVEMENT_PLANNING_HELP_CLAIM_HEADING_ID = "help-improvement-planning-claim-discipline-heading" as const;

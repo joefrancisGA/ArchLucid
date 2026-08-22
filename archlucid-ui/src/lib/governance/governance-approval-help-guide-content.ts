@@ -12,13 +12,13 @@ import {
 } from "@/lib/governance/governance-route-paths";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
-export const GOVERNANCE_APPROVAL_HELP_PAGE_TITLE = "Governance approval";
+export const GOVERNANCE_APPROVAL_HELP_PAGE_TITLE = "Resolve outcomes";
 
 export const GOVERNANCE_APPROVAL_HELP_PAGE_SUBTITLE =
   "Learn how architecture work moves from submission to approval, revision, or rejection.";
 
 export const GOVERNANCE_APPROVAL_HELP_OVERVIEW =
-  "Governance approval connects a finalized architecture review to an auditable decision. Solution architects submit work for review, governance approvers record decisions, and supporting evidence stays linked for diligence and audit.";
+  "Resolve outcomes connects a finalized architecture review to an auditable decision. Solution architects submit work for review, approval leads record decisions, and supporting evidence stays linked for diligence and audit.";
 
 export const GOVERNANCE_APPROVAL_HELP_ACTION_CARD_TITLE = "Record or track an approval";
 
@@ -53,7 +53,7 @@ export const GOVERNANCE_APPROVAL_HELP_WORKFLOW_STEPS = [
 ] as const;
 
 export const GOVERNANCE_APPROVAL_HELP_DIAGRAM_SUMMARY =
-  "Approval requests move from draft preparation through governance review to recorded outcomes. Diagram nodes match the approval-request status table on this page.";
+  "Approval requests move from draft preparation through approval review to recorded outcomes. Diagram nodes match the approval-request status table on this page.";
 
 /** Buyer-safe approval state machine — no API paths or eng jargon. */
 export const GOVERNANCE_APPROVAL_HELP_DIAGRAM_SOURCE = `stateDiagram-v2
@@ -86,7 +86,7 @@ export const GOVERNANCE_APPROVAL_HELP_ROLES: readonly GovernanceApprovalHelpRole
     description:
       "Prepare an architecture review, resolve required findings, and submit it for approval.",
     tasks: [
-      "Finalize the review and confirm the sealed review record version.",
+      "Finalize the review and confirm the finalized review record version.",
       "Confirm required fields, environments, and supporting evidence are complete.",
       "Resolve blocking findings or record an accepted disposition before submission.",
       "Submit the approval request with source and target environments.",
@@ -95,10 +95,10 @@ export const GOVERNANCE_APPROVAL_HELP_ROLES: readonly GovernanceApprovalHelpRole
   },
   {
     id: "governance-approver",
-    title: "Governance approver",
+    title: "Approval lead",
     description: "Review evidence, assess findings, request changes, and record a decision.",
     tasks: [
-      "Open pending requests from the governance dashboard or the review workflow.",
+      "Open pending requests from the workspace health or the review workflow.",
       "Inspect findings, policy results, and linked evidence for the review.",
       "Confirm policy requirements and segregation-of-duties rules are satisfied.",
       "Approve or reject the request and add decision rationale in review comments.",
@@ -111,7 +111,7 @@ export const GOVERNANCE_APPROVAL_HELP_ROLES: readonly GovernanceApprovalHelpRole
     description: "Access approved assurance materials and review evidence made available for diligence.",
     tasks: [
       "Open the trust center for public and procurement-facing assurance artifacts.",
-      "Review evidence attached to approved reviews and recorded governance decisions.",
+      "Review evidence attached to approved reviews and recorded approval decisions.",
       "Request additional diligence materials through your organization's security contact.",
       "Understand which artifacts are public, restricted to authenticated users, or under NDA.",
     ],
@@ -119,7 +119,7 @@ export const GOVERNANCE_APPROVAL_HELP_ROLES: readonly GovernanceApprovalHelpRole
   {
     id: "platform-engineer",
     title: "Platform engineer",
-    description: "Attach CI, deployment, and operational evidence to support governance decisions.",
+    description: "Attach CI, deployment, and operational evidence to support approval decisions.",
     tasks: [
       "Attach CI and build evidence to the review before finalize.",
       "Link deployment and environment validation results reviewers can inspect.",
@@ -145,43 +145,43 @@ export const GOVERNANCE_APPROVAL_HELP_STATUS_ROWS: readonly GovernanceApprovalHe
   {
     status: "Draft",
     kind: "draft",
-    meaning: "A request is being prepared but has not been sent for governance review.",
+    meaning: "A request is being prepared but has not been sent for approval review.",
     whoCanAct: "Users with submission permission on the review.",
     nextAction: "Complete environments, review record version, and comments, then submit.",
   },
   {
     status: "Submitted",
     kind: "in-progress",
-    meaning: "The request is in the governance queue awaiting a reviewer decision.",
-    whoCanAct: "Governance approvers with review permission.",
+    meaning: "The request is in the approval queue awaiting a reviewer decision.",
+    whoCanAct: "Approval leads with review permission.",
     nextAction: "Open the request, inspect evidence, and approve or reject.",
   },
   {
     status: "Approved",
     kind: "approved",
     meaning: "The approval decision is recorded and visible in the audit trail.",
-    whoCanAct: "Governance leads with release permission after approval.",
-    nextAction: "Release the sealed review record to the target environment when required.",
+    whoCanAct: "Approval leads with release permission after approval.",
+    nextAction: "Release the finalized review record to the target environment when required.",
   },
   {
     status: "Rejected",
     kind: "blocked",
     meaning: "The reviewer declined the request. Rationale remains in the audit trail.",
-    whoCanAct: "Submitter or governance lead, per organization policy.",
+    whoCanAct: "Submitter or approval lead, per organization policy.",
     nextAction: "Revise the review or open a new request according to current process.",
   },
   {
     status: "Promoted",
     kind: "in-progress",
-    meaning: "An approved sealed review record was released toward the target environment.",
-    whoCanAct: "Governance leads with release permission.",
+    meaning: "An approved finalized review record was released toward the target environment.",
+    whoCanAct: "Approval leads with release permission.",
     nextAction: "Complete activation for the target environment when required.",
   },
   {
     status: "Activated",
     kind: "ready",
-    meaning: "The sealed review record version is live for the target environment.",
-    whoCanAct: "Readers with governance or audit access.",
+    meaning: "The finalized review record version is live for the target environment.",
+    whoCanAct: "Readers with approval or audit access.",
     nextAction: "Use the audit trail and findings to confirm ongoing posture.",
   },
 ] as const;
@@ -215,17 +215,17 @@ export const GOVERNANCE_APPROVAL_HELP_STATUS_PHASES: readonly GovernanceApproval
   {
     phase: "Superseded",
     meaning:
-      "A newer governance release or environment activation replaced an earlier record. Prior approval rows remain in the audit trail.",
+      "A newer environment release or environment activation replaced an earlier record. Prior approval rows remain in the audit trail.",
   },
 ] as const;
 
 export const GOVERNANCE_APPROVAL_HELP_PREREQUISITES = [
-  "A finalized review exists with a sealed review record version.",
+  "A finalized review exists with a finalized review record version.",
   "Required submission fields are complete, including source and target environments.",
   "Blocking findings are resolved, remediated, or explicitly accepted with disposition.",
   "Supporting evidence is attached where your policy requires it.",
   "You have submission permission for the review (Execute rank when enterprise controls apply).",
-  "Governance approvers and environment paths are configured for your organization.",
+  "Approval leads and environment paths are configured for your organization.",
 ] as const;
 
 export type GovernanceApprovalHelpDecisionOutcome = {
@@ -238,7 +238,7 @@ export const GOVERNANCE_APPROVAL_HELP_DECISION_OUTCOMES: readonly GovernanceAppr
     outcome: "Approved",
     bullets: [
       "The approval decision is recorded with reviewer identity and timestamp.",
-      "The request shows an approved state in the governance workflow and dashboard.",
+      "The request shows an approved state in the approval workflow and dashboard.",
       "Audit history is updated for procurement and internal assurance.",
       "Authorized users may release the review record to the target environment next.",
     ],
@@ -255,8 +255,8 @@ export const GOVERNANCE_APPROVAL_HELP_DECISION_OUTCOMES: readonly GovernanceAppr
   {
     outcome: "Released and activated",
     bullets: [
-      "After approval, a governance release records movement toward the target environment.",
-      "Activation confirms which sealed review record version is live for that environment.",
+      "After approval, a environment release records movement toward the target environment.",
+      "Activation confirms which finalized review record version is live for that environment.",
       "Older activations may be superseded when a newer release lands.",
       "Audit trail entries capture who released and activated each step.",
     ],
@@ -272,7 +272,7 @@ export type GovernanceApprovalHelpCommonAction = {
 export const GOVERNANCE_APPROVAL_HELP_COMMON_ACTIONS: readonly GovernanceApprovalHelpCommonAction[] = [
   {
     label: "Audit",
-    description: "Open immutable governance and workflow audit events.",
+    description: "Open immutable approval and workflow audit events.",
     href: GOVERNANCE_AUDIT_PATH,
   },
   {
@@ -308,7 +308,7 @@ export const GOVERNANCE_APPROVAL_HELP_TROUBLESHOOTING: readonly GovernanceApprov
   {
     issue: "Approval request not visible",
     resolution:
-      "Load the correct review on the governance workflow page or check the dashboard for pending items across reviews.",
+      "Load the correct review on the approval workflow page or check the dashboard for pending items across reviews.",
   },
   {
     issue: "Evidence appears missing",
@@ -318,7 +318,7 @@ export const GOVERNANCE_APPROVAL_HELP_TROUBLESHOOTING: readonly GovernanceApprov
   {
     issue: "You lack permission to approve or submit",
     resolution:
-      "Ask a governance lead to confirm your role rank and workspace scope. Readers can inspect but not mutate workflow rows.",
+      "Ask an approval lead to confirm your role rank and workspace scope. Readers can inspect but not mutate workflow rows.",
   },
   {
     issue: "Policy blocks approval",
@@ -333,12 +333,12 @@ export const GOVERNANCE_APPROVAL_HELP_TROUBLESHOOTING: readonly GovernanceApprov
   {
     issue: "Stale or superseded request",
     resolution:
-      "Compare approval history on the review with the latest governance release and activation rows for the environment.",
+      "Compare approval history on the review with the latest environment release and activation rows for the environment.",
   },
   {
     issue: "Audit history not updating",
     resolution:
-      "Refresh the governance workflow or audit trail after a decision. If the UI still looks stale, verify the action completed without an error banner.",
+      "Refresh the approval workflow or audit trail after a decision. If the UI still looks stale, verify the action completed without an error banner.",
   },
 ] as const;
 
@@ -358,7 +358,7 @@ export const GOVERNANCE_APPROVAL_HELP_TECHNICAL_REFERENCE_SECTIONS = [
   {
     title: "Release and activation APIs",
     lines: [
-      "POST /v1/governance/promotions — release an approved sealed review record toward a target environment.",
+      "POST /v1/governance/promotions — release an approved finalized review record toward a target environment.",
       "POST /v1/governance/activations — activate a released record for an environment.",
       "GET /v1/governance/runs/{runId}/promotions and .../activations — review-scoped timeline data.",
     ],
@@ -376,10 +376,10 @@ export const GOVERNANCE_APPROVAL_HELP_TECHNICAL_REFERENCE_SECTIONS = [
 
 export const GOVERNANCE_APPROVAL_HELP_GUIDE_HEADINGS: readonly HelpMarkdownHeading[] = [
   { level: 2, id: "overview", title: "Overview" },
-  { level: 2, id: "governance-workflow", title: "Governance workflow" },
+  { level: 2, id: "governance-workflow", title: "Resolve outcomes workflow" },
   { level: 2, id: "role-guides", title: "Role guides" },
   { level: 3, id: "solution-architect", title: "Solution architect" },
-  { level: 3, id: "governance-approver", title: "Governance approver" },
+  { level: 3, id: "governance-approver", title: "Approval lead" },
   { level: 3, id: "security-reviewer", title: "Security or procurement reviewer" },
   { level: 3, id: "platform-engineer", title: "Platform engineer" },
   { level: 2, id: "statuses", title: "Statuses" },

@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { ApiRequestError } from "@/lib/api-request-error";
 
 const getDraftRequest = vi.fn();
+const reopenDraftRequest = vi.fn();
 const getRunSummary = vi.fn();
 const saveDraft = vi.fn();
 const reloadDraft = vi.fn();
@@ -25,6 +26,7 @@ vi.mock("@/lib/api/draft-intake-api", async () => {
   return {
     ...actual,
     getDraftRequest: (...args: unknown[]) => getDraftRequest(...args),
+    reopenDraftRequest: (...args: unknown[]) => reopenDraftRequest(...args),
   };
 });
 
@@ -120,7 +122,7 @@ import { emptyArchitectureDraftStructuredBrief } from "@/lib/architecture/archit
 import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer/buyer-polish-copy";
 import { useArchitectureDraftAutosave } from "@/hooks/use-architecture-draft-autosave";
 import { useArchitectureDraftRegistryEntries } from "@/hooks/use-architecture-draft-registry-entries";
-import { showError } from "@/lib/toast";
+import { showError, showSuccess } from "@/lib/toast";
 
 const readyStructuredBriefDocument = {
   confirmedConstraints: ["Private endpoints required"],
@@ -158,6 +160,7 @@ beforeEach(() => {
   getRunSummary.mockReset();
   saveDraft.mockReset();
   reloadDraft.mockReset();
+  reopenDraftRequest.mockReset();
   acknowledgeArchitectureDraftHandoff.mockReset();
   isArchitectureDraftHandoffAcknowledged.mockReturnValue(false);
   getDraftRequest.mockResolvedValue(spawnedDraft);
@@ -399,6 +402,11 @@ describe("ArchitectureDraftWorkspace", () => {
     });
 
     expect(screen.getByTestId("draft-intake-advanced-section")).toBeInTheDocument();
+    expect(
+      screen.getByTestId("draft-intake-advanced-section").querySelector(
+        '[data-testid="architecture-draft-ai-refine-stub"]',
+      ),
+    ).toBeNull();
     expect(screen.getByTestId("architecture-draft-ai-budget-notice")).toHaveTextContent(
       "Architecture reasoning uses AI budget.",
     );
@@ -444,6 +452,7 @@ describe("ArchitectureDraftWorkspace", () => {
     });
 
     expect(screen.queryByTestId("draft-intake-advanced-section")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("architecture-draft-ai-refine-stub")).not.toBeInTheDocument();
   });
 
   it("locks the editor and promotes the linked review when a draft already spawned a review", async () => {
@@ -477,6 +486,90 @@ describe("ArchitectureDraftWorkspace", () => {
     });
 
     expect(screen.queryByTestId("architecture-draft-acknowledge-edit")).not.toBeInTheDocument();
+  });
+
+  it("warns at the top and freezes the form when the draft is already in review intake", async () => {
+    getDraftRequest.mockResolvedValue({
+      ...spawnedDraft,
+      status: "Admitted",
+      spawnedRunId: null,
+    });
+
+    render(<ArchitectureDraftWorkspace architectureId="arch-001" />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-draft-intake-mode-banner")).toBeInTheDocument();
+    });
+
+    expect(screen.queryByTestId("architecture-start-review")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("architecture-scope-understanding-check")).not.toBeInTheDocument();
+    expect(screen.getByTestId("architecture-draft-continue-intake")).toHaveAttribute(
+      "href",
+      "/architecture/reviews/new?path=guided-intake&sourceArchitectureId=arch-001",
+    );
+    expect(screen.getByTestId("architecture-draft-unlock-brief")).toBeInTheDocument();
+    expect(screen.getByLabelText(/Architecture overview/i)).toBeDisabled();
+  });
+
+  it("refreshes draft lifecycle on tab resume when intake started elsewhere", async () => {
+    const draftingCopy = {
+      ...spawnedDraft,
+      status: "Drafting",
+      spawnedRunId: null,
+      document: { ...spawnedDraft.document, workflowIntent: "create-architecture" },
+    };
+    const admittedCopy = {
+      ...draftingCopy,
+      status: "Admitted",
+    };
+
+    getDraftRequest.mockResolvedValueOnce(draftingCopy).mockResolvedValueOnce(admittedCopy);
+
+    render(<ArchitectureDraftWorkspace architectureId="arch-001" />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-scope-understanding-check")).toBeInTheDocument();
+    });
+
+    document.dispatchEvent(new Event("visibilitychange"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-draft-intake-mode-banner")).toBeInTheDocument();
+    });
+
+    expect(getDraftRequest).toHaveBeenCalledTimes(2);
+  });
+
+  it("returns the brief to drafting when the operator unlocks intake", async () => {
+    getDraftRequest.mockResolvedValue({
+      ...spawnedDraft,
+      status: "Admitted",
+      spawnedRunId: null,
+    });
+    reopenDraftRequest.mockResolvedValue({
+      ...spawnedDraft,
+      status: "Drafting",
+      spawnedRunId: null,
+    });
+
+    render(<ArchitectureDraftWorkspace architectureId="arch-001" />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-draft-unlock-brief")).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId("architecture-draft-unlock-brief"));
+
+    await waitFor(() => {
+      expect(reopenDraftRequest).toHaveBeenCalledWith("arch-001");
+    });
+
+    await waitFor(() => {
+      expect(screen.queryByTestId("architecture-draft-intake-mode-banner")).not.toBeInTheDocument();
+    });
+
+    expect(showSuccess).toHaveBeenCalledWith("Architecture unlocked — you can edit the brief.");
+    expect(screen.getByLabelText(/Architecture overview/i)).not.toBeDisabled();
   });
 
   it("hydrates system name and business outcome from the server draft", async () => {

@@ -2,7 +2,9 @@ import { render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { ArchitectureDraftAiRefinePanel } from "./ArchitectureDraftAiRefinePanel";
+import { ARCHITECTURE_DRAFT_AI_REFINE_HEADING } from "@/lib/architecture/architecture-draft-ai-refine-copy";
 import { emptyArchitectureDraftStructuredBrief } from "@/lib/architecture/architecture-draft-structured-brief";
+import { architectureIntelligenceReviewTierLabel } from "@/lib/architecture/architecture-intelligence-review-tier";
 
 const runReasoning = vi.fn();
 
@@ -64,6 +66,10 @@ describe("ArchitectureDraftAiRefinePanel", () => {
 
     render(<ArchitectureDraftAiRefinePanel fields={draftFields} linkedReviewId={null} />);
 
+    expect(screen.getByRole("heading", { name: ARCHITECTURE_DRAFT_AI_REFINE_HEADING })).toBeInTheDocument();
+    expect(screen.getByTestId("architecture-draft-ai-refine-depth")).toHaveTextContent(
+      architectureIntelligenceReviewTierLabel("Standard"),
+    );
     expect(screen.getByTestId("architecture-draft-ai-refine-run")).toHaveTextContent(
       "Refine architecture with AI",
     );

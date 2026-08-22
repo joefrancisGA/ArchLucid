@@ -5,7 +5,7 @@ import Link from "next/link";
 import {
   CLOUD_CONNECTIONS_PLATFORM_SCOPE_PREFERENCES_HREF,
   CLOUD_CONNECTIONS_PLATFORM_SCOPE_PREFERENCES_LINK_LABEL,
-  CLOUD_CONNECTIONS_PLATFORM_SCOPE_PREFERENCES_NOTICE,
+  CLOUD_CONNECTIONS_PLATFORM_SCOPE_PREFERENCES_NOTICE_PREFIX,
 } from "@/lib/cloud-platform-scope-copy";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
@@ -19,7 +19,7 @@ export function CloudPlatformScopePreferencesNotice() {
       )}
       data-testid="cloud-platform-scope-preferences-notice"
     >
-      {CLOUD_CONNECTIONS_PLATFORM_SCOPE_PREFERENCES_NOTICE}{" "}
+      {CLOUD_CONNECTIONS_PLATFORM_SCOPE_PREFERENCES_NOTICE_PREFIX}{" "}
       <Link
         href={CLOUD_CONNECTIONS_PLATFORM_SCOPE_PREFERENCES_HREF}
         className={cn(OPERATOR_LINK.inline, "font-medium")}

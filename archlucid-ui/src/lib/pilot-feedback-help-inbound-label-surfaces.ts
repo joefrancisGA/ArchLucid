@@ -7,6 +7,6 @@ export const PILOT_FEEDBACK_HELP_INBOUND_PATH_LABELS: Readonly<Record<string, st
 } as const;
 
 export const PILOT_FEEDBACK_HELP_INBOUND_LABEL_SOURCE_FILES: readonly string[] = [
-  "src/lib/usability/page-help-topic-map.ts",
+  "src/lib/usability/page-help-topic-rows.ts",
   "src/lib/contextual-help/help-topic-rows.ts",
 ] as const;

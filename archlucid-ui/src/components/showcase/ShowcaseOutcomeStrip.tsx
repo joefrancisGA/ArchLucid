@@ -64,7 +64,7 @@ export function ShowcaseOutcomeStrip(props: ShowcaseOutcomeStripProps): ReactEle
             {`1 · ${BUYER_SPONSOR_SUMMARY_VOCABULARY.reviewSponsorReportLabel}`}
           </span>
           <span className={outcomeCaptionClass}>
-            Sign in with a connected workspace to open the sponsor report and finalized sealed record.
+            Sign in with a connected workspace to open the sponsor report and finalized review record.
           </span>
         </div>
       )}
@@ -93,7 +93,7 @@ export function ShowcaseOutcomeStrip(props: ShowcaseOutcomeStripProps): ReactEle
           <span className={cn("font-semibold text-neutral-900 dark:text-neutral-50", OPERATOR_TYPOGRAPHY.cardTitle)}>
             {`3 · ${BUYER_SURFACE_VOCABULARY.evidenceGraphNav}`}
           </span>
-          <span className={outcomeCaptionClass}>See summarized posture on the finalized sealed review record</span>
+          <span className={outcomeCaptionClass}>See summarized posture on the finalized review record</span>
         </Link>
       ) : (
         <div className={disabledCardClass}>
@@ -106,17 +106,17 @@ export function ShowcaseOutcomeStrip(props: ShowcaseOutcomeStripProps): ReactEle
 
       {isRunDetailAvailable ? (
         <Link className={cardClass} href={`/governance/approval-queue?runId=${encRun}`}>
-          <span className={cn("font-semibold text-neutral-900 dark:text-neutral-50", OPERATOR_TYPOGRAPHY.cardTitle)}>4 · Governance approval</span>
+          <span className={cn("font-semibold text-neutral-900 dark:text-neutral-50", OPERATOR_TYPOGRAPHY.cardTitle)}>4 · Resolve outcomes</span>
           <span className={outcomeCaptionClass}>{governanceSubtitle}</span>
         </Link>
       ) : hasManifest ? (
         <Link className={cardClass} href={signedRecordDetailPath(encManifest)}>
-          <span className={cn("font-semibold text-neutral-900 dark:text-neutral-50", OPERATOR_TYPOGRAPHY.cardTitle)}>4 · Governance approval</span>
+          <span className={cn("font-semibold text-neutral-900 dark:text-neutral-50", OPERATOR_TYPOGRAPHY.cardTitle)}>4 · Resolve outcomes</span>
           <span className={outcomeCaptionClass}>{governanceSubtitle}</span>
         </Link>
       ) : (
         <div className={disabledCardClass}>
-          <span className={cn("font-semibold text-neutral-900 dark:text-neutral-50", OPERATOR_TYPOGRAPHY.cardTitle)}>4 · Governance approval</span>
+          <span className={cn("font-semibold text-neutral-900 dark:text-neutral-50", OPERATOR_TYPOGRAPHY.cardTitle)}>4 · Resolve outcomes</span>
           <span className={outcomeCaptionClass}>Unavailable for this preview</span>
         </div>
       )}
@@ -134,7 +134,7 @@ export function ShowcaseOutcomeStrip(props: ShowcaseOutcomeStripProps): ReactEle
             <span className={cn("font-semibold text-neutral-900 dark:text-neutral-50", OPERATOR_TYPOGRAPHY.cardTitle)}>
               {`5 · ${BUYER_SURFACE_VOCABULARY.auditTrail}`}
             </span>
-            <span className={outcomeCaptionClass}>PHI minimization posture — see related items in the sealed review record</span>
+            <span className={outcomeCaptionClass}>PHI minimization posture — see related items in the finalized review record</span>
           </Link>
         ) : (
           <div className={disabledCardClass}>

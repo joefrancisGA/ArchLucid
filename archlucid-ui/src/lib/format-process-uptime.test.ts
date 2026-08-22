@@ -12,6 +12,6 @@ describe("formatProcessUptime", () => {
   });
 
   it("returns em dash for invalid input", () => {
-    expect(formatProcessUptime(null)).toBe("—");
+    expect(formatProcessUptime(null)).toBe(" — ");
   });
 });

@@ -94,8 +94,8 @@ const CURATED_DOCUMENTATION_SEARCH_ITEMS: readonly DocumentationSearchItem[] = [
   },
   {
     category: "Governance",
-    title: "Pre-commit governance gate",
-    description: "Blocks manifest commit when severity thresholds breach.",
+    title: "Approval check before finalize",
+    description: "Blocks review finalize when severity thresholds breach.",
     relativeDocsPath: "docs/library/PRE_COMMIT_GOVERNANCE_GATE.md",
   },
   {

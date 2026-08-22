@@ -39,7 +39,7 @@ describe("GovernanceSetupGuidePageView", () => {
       />,
     );
 
-    expect(screen.getByTestId("governance-setup-page-title")).toHaveTextContent("Governance setup");
+    expect(screen.getByTestId("governance-setup-page-title")).toHaveTextContent("Approval setup");
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
     expect(screen.getByText(GOVERNANCE_SETUP_PAGE_SUBTITLE)).toBeInTheDocument();
     // TB-1135: no orphan program chip competing with the H1 product name.

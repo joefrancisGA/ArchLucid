@@ -46,7 +46,7 @@ export function PlanningSummarySection(props: PlanningSummarySectionProps) {
   const priorityValue =
     summary.maxPlanPriorityScore !== null && summary.maxPlanPriorityScore !== undefined
       ? String(summary.maxPlanPriorityScore)
-      : "—";
+      : " — ";
 
   return (
     <section className="mb-7" aria-labelledby="planning-summary-heading">
@@ -54,7 +54,7 @@ export function PlanningSummarySection(props: PlanningSummarySectionProps) {
         Summary
       </h2>
       <p className={cn("mt-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-        Generated {generatedUtc ? formatIsoUtcForDisplay(generatedUtc) : "—"} · {summary.themeCount} theme(s) ·{" "}
+        Generated {generatedUtc ? formatIsoUtcForDisplay(generatedUtc) : " — "} · {summary.themeCount} theme(s) ·{" "}
         {summary.planCount} plan(s)
       </p>
       <ul className={cardListCls}>

@@ -79,7 +79,7 @@ describe("RunInspectorPreview", () => {
 
     expect(Array.from(emphasizedLabels).map((node) => node.textContent)).toEqual(
       expect.arrayContaining([
-        "Governance approval:",
+        "Resolve outcomes:",
         "Remaining monitored risk:",
         "Evidence trail:",
         "Audit trail:",

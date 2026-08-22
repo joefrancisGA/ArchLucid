@@ -15,6 +15,9 @@ public static partial class AuditEventTypes
     /// <summary>Pre-run manifest-free reasoning turn on an intake draft (SAQ-013).</summary>
     public const string DraftIntakeReasoned = "DraftIntake.Reasoned";
 
+    /// <summary>Admitted intake draft returned to drafting so the brief can be edited again.</summary>
+    public const string DraftIntakeReopened = "DraftIntake.Reopened";
+
     /// <summary>What-if branch draft cloned from a parent with a single override (R12).</summary>
     public const string DraftIntakeBranched = "DraftIntake.Branched";
 

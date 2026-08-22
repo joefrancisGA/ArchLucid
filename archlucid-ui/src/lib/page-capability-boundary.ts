@@ -27,7 +27,7 @@ export const PAGE_CAPABILITY_BOUNDARY_ASK: PageCapabilityBoundary = {
   heading: PAGE_CAPABILITY_BOUNDARY_DISCLOSURE_SUMMARY,
   items: [
     "Approve, reject, or finalize architecture reviews.",
-    "Write dispositions into the Decision register or replace formal governance records.",
+    "Write dispositions into the Decision register or replace formal resolve outcomes records.",
     "Invent architecture or evidence outside the selected finalized review.",
     "Serve as an unaudited general-purpose chat transcript that becomes your system of record.",
   ],
@@ -37,21 +37,21 @@ export const PAGE_CAPABILITY_BOUNDARY_ASK: PageCapabilityBoundary = {
 export const PAGE_CAPABILITY_BOUNDARY_COMPARE: PageCapabilityBoundary = {
   heading: PAGE_CAPABILITY_BOUNDARY_DISCLOSURE_SUMMARY,
   items: [
-    "Mutate either review's sealed review record or attached evidence.",
+    "Mutate either review's finalized review record or attached evidence.",
     "Approve, reject, or finalize packages from the comparison view.",
     "Invent findings or architecture outside the two selected packages.",
-    "Replace the Decision register or governance approval workflows.",
+    "Replace the Decision register or resolve outcomes workflows.",
   ],
 };
 
-/** Governance findings / risk register - track governed risks; does not remediate or author policy. */
+/** Governance findings / risk register - track open risks; does not remediate or author policy. */
 export const PAGE_CAPABILITY_BOUNDARY_GOVERNANCE_FINDINGS: PageCapabilityBoundary = {
   heading: PAGE_CAPABILITY_BOUNDARY_DISCLOSURE_SUMMARY,
   items: [
     "Automatically remediate cloud or application configuration.",
     "Author or change policy packs and policy rules.",
-    "Invent risks that are not traceable to findings, waivers, exceptions, or governance decisions.",
-    "Replace the Decision register or sealed review record as the authority of record.",
+    "Invent risks that are not traceable to findings, waivers, exceptions, or resolve outcomes.",
+    "Replace the Decision register or finalized review record as the authority of record.",
   ],
 };
 
@@ -62,7 +62,7 @@ export const PAGE_CAPABILITY_BOUNDARY_ASSIGNED_FINDINGS: PageCapabilityBoundary 
     "Show findings assigned to other operators or unassigned workspace items.",
     "Automatically remediate cloud or application configuration.",
     "Replace the tenant findings queue or Decision register as the system of record.",
-    "Invent findings that are not traceable to reviews, evidence trails, or governance records.",
+    "Invent findings that are not traceable to reviews, evidence trails, or resolve outcomes records.",
   ],
 };
 
@@ -70,7 +70,7 @@ export const PAGE_CAPABILITY_BOUNDARY_ASSIGNED_FINDINGS: PageCapabilityBoundary 
 export const PAGE_CAPABILITY_BOUNDARY_ARCHITECTURE_INTELLIGENCE: PageCapabilityBoundary = {
   heading: PAGE_CAPABILITY_BOUNDARY_DISCLOSURE_SUMMARY,
   items: [
-    "Finalize an architecture package or create a sealed review record by itself.",
+    "Finalize an architecture package or create a finalized review record by itself.",
     "Approve, reject, or write Decision register dispositions.",
     "Deploy or change cloud infrastructure from reasoning output.",
     "Replace advisory scans, impact preview, or pairwise compare as the system of record.",
@@ -81,7 +81,7 @@ export const PAGE_CAPABILITY_BOUNDARY_ARCHITECTURE_INTELLIGENCE: PageCapabilityB
 export const PAGE_CAPABILITY_BOUNDARY_IMPACT_PREVIEW: PageCapabilityBoundary = {
   heading: PAGE_CAPABILITY_BOUNDARY_DISCLOSURE_SUMMARY,
   items: [
-    "Mutate the baseline architecture package or its sealed review record.",
+    "Mutate the baseline architecture package or its finalized review record.",
     "Approve, reject, or finalize packages from a simulation.",
     "Replace pairwise Compare of two finalized architecture packages.",
     "Author policy packs or write Decision register dispositions.",
@@ -93,7 +93,7 @@ export const PAGE_CAPABILITY_BOUNDARY_ADVISORY_SCANS: PageCapabilityBoundary = {
   heading: PAGE_CAPABILITY_BOUNDARY_DISCLOSURE_SUMMARY,
   items: [
     "Automatically remediate findings or cloud configuration.",
-    "Finalize architecture packages or create sealed review records.",
+    "Finalize architecture packages or create finalized review records.",
     "Replace the governance findings queue or Decision register.",
     "Author or publish policy packs from a scan recommendation.",
   ],

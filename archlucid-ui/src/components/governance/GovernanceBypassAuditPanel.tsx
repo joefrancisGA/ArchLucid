@@ -51,7 +51,7 @@ export function GovernanceBypassAuditPanel(): React.JSX.Element {
       const loaded = await listRecentGovernanceBypassAuditEvents({ days: 30, take: 25 });
       setEvents(loaded);
     } catch (error) {
-      setErrorMessage(error instanceof Error ? error.message : "Could not load governance bypass audit events.");
+      setErrorMessage(error instanceof Error ? error.message : "Could not load approval bypass audit events.");
     } finally {
       setLoading(false);
     }
@@ -70,13 +70,13 @@ export function GovernanceBypassAuditPanel(): React.JSX.Element {
         <div className="flex flex-wrap items-start justify-between gap-2">
           <div className="space-y-1">
             <h2 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
-              Pre-commit governance bypass audit
+              Approval-check bypass audit
             </h2>
             <p className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
               {buyerPolishedShell ? (
                 <>
-                  Recent break-glass commits that overrode pre-commit governance gates. Each event records the actor and
-                  justification from the commit request.
+                  Recent break-glass commits that overrode approval checks before finalize. Each event records the actor
+                  and justification from the commit request.
                 </>
               ) : (
                 <>
@@ -93,7 +93,7 @@ export function GovernanceBypassAuditPanel(): React.JSX.Element {
 
         {loading ? (
           <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} role="status">
-            Loading governance bypass events…
+            Loading approval bypass events…
           </p>
         ) : null}
 
@@ -104,11 +104,11 @@ export function GovernanceBypassAuditPanel(): React.JSX.Element {
         ) : null}
 
         {!loading && !errorMessage && events.length === 0 ? (
-          <OperatorEmptyState title="No governance bypass events in the last 30 days." />
+          <OperatorEmptyState title="No approval bypass events in the last 30 days." />
         ) : null}
 
         {!loading && !errorMessage && events.length > 0 ? (
-          <EnterpriseTable ariaLabel="Recent pre-commit governance bypass audit events">
+          <EnterpriseTable ariaLabel="Recent approval-check bypass audit events">
             <EnterpriseTableHead>
               <EnterpriseTableHeadRow>
                 <EnterpriseTableHeaderCell>When (UTC)</EnterpriseTableHeaderCell>
@@ -128,7 +128,7 @@ export function GovernanceBypassAuditPanel(): React.JSX.Element {
                     <EnterpriseTableCell>{formatUtc(event.occurredUtc)}</EnterpriseTableCell>
                     <EnterpriseTableCell>{resolveAuditActorLabel(event)}</EnterpriseTableCell>
                     <EnterpriseTableCell className="max-w-md whitespace-normal">
-                      {payload.justification ?? "—"}
+                      {payload.justification ?? " — "}
                     </EnterpriseTableCell>
                     <EnterpriseTableCell>
                       {runId.length > 0 ? (
@@ -139,7 +139,7 @@ export function GovernanceBypassAuditPanel(): React.JSX.Element {
                           {runId}
                         </Link>
                       ) : (
-                        "—"
+                        " — "
                       )}
                     </EnterpriseTableCell>
                     <EnterpriseTableCell>{payload.blockingFindingIds.length}</EnterpriseTableCell>

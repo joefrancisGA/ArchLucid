@@ -111,7 +111,7 @@ export function RunDetailRunGovernanceDispositionActions(
           <DialogHeader>
             <DialogTitle>Confirm review disposition</DialogTitle>
             <DialogDescription>
-              Record a review-level governance decision for operators and audit. This does not replace per-finding
+              Record a review-level approval decision for operators and audit. This does not replace per-finding
               dispositions.
             </DialogDescription>
           </DialogHeader>

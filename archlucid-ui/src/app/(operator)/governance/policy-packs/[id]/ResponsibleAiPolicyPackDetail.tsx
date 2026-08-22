@@ -91,7 +91,7 @@ function resolveVersionMetric(packRecord: PolicyPack | null): SummaryMetricValue
     return { value: version };
   }
 
-  return { value: "—", qualifier: RESPONSIBLE_AI_POLICY_PACK_NOT_PUBLISHED_QUALIFIER };
+  return { value: " — ", qualifier: RESPONSIBLE_AI_POLICY_PACK_NOT_PUBLISHED_QUALIFIER };
 }
 
 function resolveLastUpdatedMetric(packRecord: PolicyPack | null): SummaryMetricValue {
@@ -319,7 +319,7 @@ export function ResponsibleAiPolicyPackDetail(props: ResponsibleAiPolicyPackDeta
 
       <section className="space-y-2" aria-labelledby="policy-pack-governance-heading">
         <h3 id="policy-pack-governance-heading" className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}>
-          Governance workflow
+          Resolve outcomes workflow
         </h3>
         <p className={cn("m-0 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{RESPONSIBLE_AI_POLICY_PACK_GOVERNANCE_WORKFLOW}</p>
       </section>

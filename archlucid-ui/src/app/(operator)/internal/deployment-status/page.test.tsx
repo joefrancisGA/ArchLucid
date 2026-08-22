@@ -12,6 +12,7 @@ vi.mock("@/lib/deployment-fingerprint", () => ({
     frontendCommitSha: "frontendsha",
     buildTimestamp: "2026-07-17T00:00:00Z",
     deployStamp: "1842212345-1",
+    ciBuildNumber: "1842",
     environment: "test",
     apiUpstreamHost: "api.test",
   }),

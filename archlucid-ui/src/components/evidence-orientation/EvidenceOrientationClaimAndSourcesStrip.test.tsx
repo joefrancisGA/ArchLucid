@@ -4,6 +4,7 @@ import { describe, expect, it } from "vitest";
 import { EvidenceOrientationClaimAndSourcesStrip } from "@/components/evidence-orientation/EvidenceOrientationClaimAndSourcesStrip";
 import { EVIDENCE_SOURCES_STYLE } from "@/components/evidence-orientation/evidence-orientation-styles";
 import { WhereToGoNextPreferenceProvider } from "@/components/WhereToGoNextPreferenceProvider";
+import { HUB_RELATED_GUIDES_FOLLOW_UPS_TITLE } from "@/lib/evidence-orientation/hub-secondary-follow-ups";
 import { HELP_FOLLOW_UPS_DEFAULT_TITLE } from "@/lib/help/help-markdown-headings";
 import {
   WHERE_TO_GO_NEXT_STORAGE_KEY,
@@ -74,7 +75,12 @@ describe("EvidenceOrientationClaimAndSourcesStrip", () => {
         slug="preset-default"
         claim="Operator orientation."
         sourcesIntro="Follow-ups."
-        sources={[{ label: "Findings", href: "/governance/findings" }]}
+        sources={[
+          { label: "Findings", href: "/governance/findings" },
+          { label: "Reviews", href: "/architecture/reviews" },
+          { label: "Help", href: "/help" },
+          { label: "Settings", href: "/account/preferences" },
+        ]}
       />,
     );
 
@@ -105,6 +111,31 @@ describe("EvidenceOrientationClaimAndSourcesStrip", () => {
       ...EVIDENCE_SOURCES_STYLE.operatorMuted.panel.split(" "),
     );
     expect(screen.getByRole("list")).toHaveClass("flex-wrap");
+  });
+
+  it("renders Related Guides follow-ups without Read or Open prefixes", () => {
+    render(
+      <EvidenceOrientationClaimAndSourcesStrip
+        slug="reviews-new"
+        sourcesTitle={HUB_RELATED_GUIDES_FOLLOW_UPS_TITLE}
+        sourcesIntro="Follow-ups."
+        sources={[
+          { label: "First review guide", href: "/architecture/first-review-guide" },
+          { label: "How ArchLucid works", href: "/help/getting-started#how-archlucid-works" },
+        ]}
+      />,
+    );
+
+    expect(screen.getByRole("link", { name: "First review guide" })).toHaveAttribute(
+      "href",
+      "/architecture/first-review-guide",
+    );
+    expect(screen.getByRole("link", { name: "How ArchLucid works" })).toHaveAttribute(
+      "href",
+      "/help/getting-started#how-archlucid-works",
+    );
+    expect(screen.queryByRole("link", { name: "Open First review guide" })).toBeNull();
+    expect(screen.queryByRole("link", { name: "Read How ArchLucid works" })).toBeNull();
   });
 
   it("omits sources-only strips when Where to go next is turned off", () => {

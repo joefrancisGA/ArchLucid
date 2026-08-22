@@ -66,7 +66,7 @@ type PanelData = {
 const SECONDS_PER_HOUR = 3600;
 
 function formatHours(hours: number | null): string {
-  if (hours === null || !Number.isFinite(hours)) return "—";
+  if (hours === null || !Number.isFinite(hours)) return " — ";
 
   return hours.toFixed(2);
 }

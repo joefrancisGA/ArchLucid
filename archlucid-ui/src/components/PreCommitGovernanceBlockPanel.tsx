@@ -91,7 +91,7 @@ export function PreCommitGovernanceBlockPanel(props: PreCommitGovernanceBlockPan
           data-testid="pre-commit-governance-block-explanation"
         >
           <p className={cn("m-0 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.helper)}>
-            AI-assisted: why governance blocked finalization
+            AI-assisted: why finalization was blocked
           </p>
           <p className={cn("m-0 mt-1 leading-relaxed text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
             {block.blockExplanation}
@@ -112,14 +112,14 @@ export function PreCommitGovernanceBlockPanel(props: PreCommitGovernanceBlockPan
           className={OPERATOR_LINK.nav}
           data-testid="pre-commit-governance-block-troubleshooting-link"
         >
-          Governance bypass and override guidance →
+          Approval bypass and override guidance →
         </Link>
         <Link
           href={GOVERNANCE_WORKSPACE_HEALTH_HREF}
           className={OPERATOR_LINK.nav}
           data-testid="pre-commit-governance-block-audit-link"
         >
-          View governance bypass audit →
+          View approval bypass audit →
         </Link>
       </div>
     </div>

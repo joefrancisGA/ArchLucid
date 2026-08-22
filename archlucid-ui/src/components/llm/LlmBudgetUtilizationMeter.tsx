@@ -63,7 +63,7 @@ export function LlmBudgetUtilizationMeter() {
     tone === "critical"
       ? "Monthly budget reached — new AI-assisted workflows may be paused until the next billing month."
       : tone === "warn"
-        ? `Approaching the configured warn threshold (${warnPct ?? "—"}% of budget).`
+        ? `Approaching the configured warn threshold (${warnPct ?? " — "}% of budget).`
         : "Monthly budget utilization is within normal limits.";
   const labelId = "llm-budget-utilization-label";
   const displayPct = pct ?? 0;
@@ -86,7 +86,7 @@ export function LlmBudgetUtilizationMeter() {
           )}
           aria-live="polite"
         >
-          {pct !== null ? `${pct}% used` : "—"}
+          {pct !== null ? `${pct}% used` : " — "}
         </p>
       </div>
       <Progress
@@ -127,7 +127,7 @@ function indicatorClassForTone(tone: LlmBudgetUtilizationTone): string {
 
 function formatUsd(value: number | null): string {
   if (value === null || value === undefined || Number.isNaN(value)) {
-    return "—";
+    return " — ";
   }
 
   return `$${value.toFixed(2)}`;

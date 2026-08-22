@@ -174,6 +174,7 @@ export function useWebhooksSettings(): UseWebhooksSettingsResult {
 
   const scopeKey = `${scope.tenantId}:${scope.workspaceId}:${scope.projectId}`;
   const previousScopeKeyRef = useRef(scopeKey);
+  const scopeGenerationRef = useRef(0);
 
   useEffect(() => {
     void load();
@@ -185,6 +186,7 @@ export function useWebhooksSettings(): UseWebhooksSettingsResult {
     }
 
     previousScopeKeyRef.current = scopeKey;
+    scopeGenerationRef.current += 1;
 
     // Clear typed secrets and stale rows when the operator switches workspace/tenant/project.
     reset({ ...webhookSettingsDefaultValues });
@@ -192,6 +194,11 @@ export function useWebhooksSettings(): UseWebhooksSettingsResult {
     setSaveSuccessMessage(null);
     setItems([]);
     setTestResults({});
+    setTestingId(null);
+    setIsSaving(false);
+    isSavingRef.current = false;
+    setDisableBusy(false);
+    setEnableBusy(false);
     setPendingDisable(null);
     setPendingEnable(null);
     setDisableErrorMessage(null);
@@ -205,14 +212,23 @@ export function useWebhooksSettings(): UseWebhooksSettingsResult {
       return;
     }
 
+    const generation = scopeGenerationRef.current;
     setTestingId(routingSubscriptionId);
 
     try {
       const result = await testWebhookSubscription(routingSubscriptionId);
 
+      if (scopeGenerationRef.current !== generation) {
+        return;
+      }
+
       setTestResults((prev) => ({ ...prev, [routingSubscriptionId]: result }));
       presentWebhookConnectionTestToasts(result);
     } catch (error: unknown) {
+      if (scopeGenerationRef.current !== generation) {
+        return;
+      }
+
       setTestResults((prev) => {
         const next = { ...prev };
 
@@ -222,7 +238,9 @@ export function useWebhooksSettings(): UseWebhooksSettingsResult {
       });
       presentWebhookConnectionTestRequestFailure(error);
     } finally {
-      setTestingId(null);
+      if (scopeGenerationRef.current === generation) {
+        setTestingId(null);
+      }
     }
   }
 
@@ -313,6 +331,7 @@ export function useWebhooksSettings(): UseWebhooksSettingsResult {
 
     setFailure(null);
     setSaveSuccessMessage(null);
+    const generation = scopeGenerationRef.current;
     isSavingRef.current = true;
     setIsSaving(true);
 
@@ -325,18 +344,29 @@ export function useWebhooksSettings(): UseWebhooksSettingsResult {
         isEnabled: true,
         metadataJson: buildWebhookSubscriptionMetadata(values.secret, values.eventTypes),
       });
+
+      if (scopeGenerationRef.current !== generation) {
+        return;
+      }
+
       reset({ ...webhookSettingsDefaultValues });
       await load();
       setSaveSuccessMessage(WEBHOOK_SUBSCRIPTION_SAVE_SUCCESS_MESSAGE);
     } catch (error: unknown) {
+      if (scopeGenerationRef.current !== generation) {
+        return;
+      }
+
       const apiFailure = toApiLoadFailure(error);
       setFailure({
         ...apiFailure,
         message: formatWebhooksSaveError(apiFailure.message),
       });
     } finally {
-      isSavingRef.current = false;
-      setIsSaving(false);
+      if (scopeGenerationRef.current === generation) {
+        isSavingRef.current = false;
+        setIsSaving(false);
+      }
     }
   });
 

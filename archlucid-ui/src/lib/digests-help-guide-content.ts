@@ -36,7 +36,7 @@ export const DIGESTS_HELP_CONTENT_ITEMS: readonly DigestsHelpContentItem[] = [
   },
   {
     label: "Governance signals",
-    sourceSurface: "Governance approval queue",
+    sourceSurface: "Resolve outcomes queue",
     href: "/governance/approval-queue",
   },
   {
@@ -56,8 +56,8 @@ export const DIGESTS_HELP_SAMPLE_DIGEST_TITLE = "Example digest summary";
 export const DIGESTS_HELP_SAMPLE_DIGEST_PERIOD = "Week of 4–10 Aug 2026";
 
 export const DIGESTS_HELP_SAMPLE_DIGEST_LINES = [
-  "3 architecture reviews progressed; 1 sealed review record finalized.",
-  "2 governance approval requests awaiting architect action.",
+  "3 architecture reviews progressed; 1 finalized review record committed.",
+  "2 resolve outcome requests awaiting architect action.",
   "5 open findings — 2 critical severity in production scope.",
   "Weekly advisory scan completed; 1 new finding surfaced.",
 ] as const;
@@ -106,6 +106,6 @@ export const DIGESTS_HELP_GUIDE_HEADINGS: readonly HelpMarkdownHeading[] = [
 
 /** Drift guard: claim band owns diligence limits; overview and steps stay affirmative. */
 export const DIGESTS_HELP_NEGATION_DRIFT_MARKERS = {
-  overviewMustNotContain: ["not a sealed review record", "sealed review record evidence trail"],
+  overviewMustNotContain: ["not a finalized review record", "finalized review record evidence trail"],
   claimMustNotContain: ["sources package", "sealed-review diligence"],
 } as const;

@@ -323,11 +323,11 @@ export function PilotScorecardPageView({ model }: PilotScorecardPageViewProps) {
                       drillDownLabel="View architecture reviews"
                     />
                     <ScorecardSummaryTile
-                      label="Governance approvals"
+                      label="Resolve outcomes"
                       value={governanceDisplay.value}
                       detail={
                         governanceDisplay.state === "measured"
-                          ? "Completed governance approvals in scope."
+                          ? "Completed resolve outcomes in scope."
                           : governanceDisplay.detail
                       }
                       empty={governanceDisplay.empty}
@@ -410,11 +410,11 @@ export function PilotScorecardPageView({ model }: PilotScorecardPageViewProps) {
                       drillDownLabel="View architecture reviews"
                     />
                     <ScorecardSummaryTile
-                      label="Governance approvals"
+                      label="Resolve outcomes"
                       value={governanceDisplay.value}
                       detail={
                         governanceDisplay.state === "measured"
-                          ? "Completed governance approvals in scope."
+                          ? "Completed resolve outcomes in scope."
                           : governanceDisplay.detail
                       }
                       empty={governanceDisplay.empty}
@@ -582,7 +582,7 @@ export function PilotScorecardPageView({ model }: PilotScorecardPageViewProps) {
                           Quarterly estimate
                         </p>
                         <p className={cn("m-0 mt-1 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
-                          {quarterlySavingsLabel ?? "—"}
+                          {quarterlySavingsLabel ?? " — "}
                         </p>
                       </div>
                       <div>
@@ -590,7 +590,7 @@ export function PilotScorecardPageView({ model }: PilotScorecardPageViewProps) {
                           Status quo annual labor
                         </p>
                         <p className={cn("m-0 mt-1 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
-                          {statusQuoCostLabel ?? "—"}
+                          {statusQuoCostLabel ?? " — "}
                         </p>
                       </div>
                     </div>

@@ -18,11 +18,11 @@ export function alertsPageSubtitle(buyerPolishedShell: boolean): string {
 }
 
 export const ALERTS_CONTEXT_NOTE =
-  "Alerts appear when enabled rules detect findings that require acknowledgement, resolution, or governance review.";
+  "Alerts appear when enabled rules detect findings that require acknowledgement, resolution, or approval review.";
 
 export const ALERTS_HOW_ALERTS_WORK_LABEL = "How alerts work";
 
-/** Sentence case matches the sibling governance nav labels (Approval queue, Policy packs, Sealed review records). */
+/** Sentence case matches the sibling governance nav labels (Approval queue, Policy packs, Finalized review records). */
 export const ALERTS_CONFIGURATION_PAGE_TITLE = "Alert rules";
 
 export const ALERTS_CONFIGURATION_BREADCRUMB_GOVERNANCE_LABEL = "Governance";
@@ -75,7 +75,7 @@ export const ALERTS_SUMMARY_LAST_EVALUATED_RULES_NOT_CONFIGURED = "Rules not con
 export const ALERTS_SUMMARY_LAST_EVALUATED_NEVER = "Never evaluated";
 
 /** Visible sentinel when Open/Acknowledged/Resolved/Blocking are not measured (TB-2104). */
-export const ALERTS_SUMMARY_COUNT_NOT_EVALUATED = "—";
+export const ALERTS_SUMMARY_COUNT_NOT_EVALUATED = " — ";
 
 /** Accessible name for count tiles when no alert rules exist (dash alone is not enough). */
 export const ALERTS_SUMMARY_COUNT_NOT_EVALUATED_NO_RULES_ARIA =
@@ -105,7 +105,7 @@ export const ALERTS_ACTION_OPEN_REVIEW_PACKAGES = "Open reviews";
 export const ALERTS_ACTION_START_ARCHITECTURE_REVIEW = "Start architecture review";
 /** @deprecated Use {@link ALERTS_CONFIGURE_RULES_LINK_LABEL} — one label for alerts + rules setup. */
 export const ALERTS_ACTION_CONFIGURE_ALERT_RULES = ALERTS_CONFIGURE_RULES_LINK_LABEL;
-export const ALERTS_ACTION_OPEN_GOVERNANCE_SETUP_GUIDE = "Open governance setup";
+export const ALERTS_ACTION_OPEN_GOVERNANCE_SETUP_GUIDE = "Open approval setup";
 export const ALERTS_ACTION_OPEN_GOVERNANCE_WORKFLOW = "Open resolve outcomes";
 
 /** @deprecated Use {@link ALERTS_CONFIGURE_RULES_LINK_LABEL}. */

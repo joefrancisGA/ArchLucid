@@ -130,7 +130,7 @@ describe("HelpReviewPackagesGuideView", () => {
     const exportPanel = screen.getByTestId("help-review-packages-export-next-steps");
 
     expect(within(exportPanel).getByTestId("help-review-packages-export-buyer-claim").textContent).toMatch(
-      /sealed review record/i,
+      /finalized review record/i,
     );
     expect(within(exportPanel).getByTestId("help-review-packages-export-buyer-claim").textContent).not.toMatch(
       /signed manifest/i,

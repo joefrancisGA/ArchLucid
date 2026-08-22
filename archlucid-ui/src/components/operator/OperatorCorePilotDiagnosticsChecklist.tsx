@@ -112,7 +112,7 @@ export function OperatorCorePilotDiagnosticsChecklist() {
               <dd className={cn("m-0", OPERATOR_TYPOGRAPHY.executiveDashboardMetric)}>
                 {rates.firstSessionCompletedTotal > 0
                   ? `${Math.round(rates.firstRunCommittedPerSessionRatio * 100)}%`
-                  : "—"}
+                  : " — "}
               </dd>
             </div>
           </dl>

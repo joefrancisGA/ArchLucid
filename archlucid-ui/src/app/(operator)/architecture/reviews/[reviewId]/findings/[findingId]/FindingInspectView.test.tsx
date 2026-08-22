@@ -85,6 +85,6 @@ describe("FindingInspectView ERU Evidence pass (TB-1826–TB-1829)", () => {
     const footer = screen.getByTestId("operator-evidence-limits-footer");
     expect(footer.querySelector('a[href*="evidence-trace"]')).toBeNull();
 
-    expect(screen.getByRole("heading", { level: 2, name: "Take governance action" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 2, name: "Act on this finding" })).toBeInTheDocument();
   });
 });

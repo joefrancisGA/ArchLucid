@@ -151,7 +151,7 @@ describe("HelpGettingStartedGuideView", () => {
     const pipelineDiagram = screen.getByTestId("getting-started-pipeline-diagram");
     expect(
       within(pipelineDiagram).getByText(
-        "Authority pipeline from architecture request through governance gate and committed outputs:",
+        "Authority pipeline from architecture request through approval check and committed outputs:",
       ),
     ).toBeInTheDocument();
 
@@ -162,9 +162,9 @@ describe("HelpGettingStartedGuideView", () => {
 
     const mermaid = within(pipelineDiagram).getByTestId("mermaid-diagram");
     expect(mermaid).toHaveTextContent("subgraph pipeline [Authority pipeline]");
-    expect(mermaid).toHaveTextContent("gov{Governance gate}");
+    expect(mermaid).toHaveTextContent("gov{Approval check}");
     expect(mermaid).toHaveTextContent("SR[Finalized review record]");
-    expect(mermaid.getAttribute("data-description")).toMatch(/governance gate/i);
+    expect(mermaid.getAttribute("data-description")).toMatch(/approval check/i);
     expect(within(pipelineDiagram).queryByText(/Diagram source \(Mermaid\)/i)).not.toBeInTheDocument();
     expect(screen.queryByTestId("getting-started-pipeline-diagram-details")).not.toBeInTheDocument();
   });

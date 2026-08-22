@@ -42,6 +42,9 @@ public static partial class AuditEventTypes
     /// <summary>Golden manifest soft-archived (<c>ArchivedUtc</c> set).</summary>
     public const string ManifestArchived = "ManifestArchived";
 
+    /// <summary>Operator soft-archived an in-flight review (<c>POST /v1/architecture/runs/{runId}/archive</c>).</summary>
+    public const string ArchitectureReviewArchived = "ArchitectureReviewArchived";
+
     public const string ReplayExecuted = "ReplayExecuted";
 
     /// <summary>Workspace curation: <c>PATCH /v1/architecture/review/{{runId}}/pin</c> set or toggled <c>dbo.Runs.IsPinned</c>.</summary>

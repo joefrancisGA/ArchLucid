@@ -101,7 +101,7 @@ export function evaluateBuyerCtoDemoJourneyRoutesCheck(): BuyerCtoDemoReadinessC
       id: "journey-routes",
       label: "Five-step demo path",
       status: "pass",
-      detail: "Sponsor report, sealed review record, evidence trail, governance, and audit routes resolve.",
+      detail: "Sponsor report, finalized review record, evidence trail, resolve outcomes, and audit routes resolve.",
     };
   }
 
@@ -375,7 +375,7 @@ export function evaluateBuyerCtoDemoSpineOfflineCheck(): BuyerCtoDemoReadinessCh
       id: "spine-offline",
       label: "Offline spine payloads",
       status: "pass",
-      detail: "Graph, governance, audit, sealed review record, and compare static payloads are available for all five steps.",
+      detail: "Graph, resolve outcomes, audit, finalized review record, and compare static payloads are available for all five steps.",
     };
   }
 

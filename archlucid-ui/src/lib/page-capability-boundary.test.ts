@@ -77,7 +77,7 @@ describe("page-capability-boundary (TB-2197 / TB-2274)", () => {
       .toLowerCase();
 
     expect(corpus).toContain("decision register");
-    expect(corpus).toContain("sealed review record");
+    expect(corpus).toContain("finalized review record");
     expect(corpus).not.toMatch(/\bjob\b/);
     expect(corpus).not.toMatch(/\brun\b/);
   });

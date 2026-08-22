@@ -33,7 +33,7 @@ export const ARCHITECTURE_SCORECARD_HELP_PAGE_SUBTITLE =
   "Learn what each scorecard tile means and how directional savings are derived before you brief sponsors.";
 
 export const ARCHITECTURE_SCORECARD_HELP_OVERVIEW =
-  "The architecture scorecard shows workspace throughput tiles and a directional review-time savings model for pilot discussions. Savings figures are not financial reporting and not a sealed review record.";
+  "The architecture scorecard shows workspace throughput tiles and a directional review-time savings model for pilot discussions. Savings figures are not financial reporting and not a Finalized review record.";
 
 export const ARCHITECTURE_SCORECARD_HELP_PRIMARY_ACTION = {
   label: "Open architecture scorecard",
@@ -48,7 +48,7 @@ export type ArchitectureScorecardHelpTileItem = {
 export const ARCHITECTURE_SCORECARD_HELP_TILE_ITEMS: readonly ArchitectureScorecardHelpTileItem[] = [
   {
     label: "Throughput tiles",
-    detail: "Finalized reviews, governance activity, findings, and audit signals in the current scope.",
+    detail: "Finalized reviews, approval activity, findings, and audit signals in the current scope.",
   },
   {
     label: "Directional ROI",
@@ -73,7 +73,7 @@ export const ARCHITECTURE_SCORECARD_HELP_HOW_TO_READ_STEPS = [
 export const ARCHITECTURE_SCORECARD_HELP_METHODOLOGY_SECTION_TITLE = "Basis of estimate";
 
 export const ARCHITECTURE_SCORECARD_HELP_METHODOLOGY_BODY =
-  "Directional savings combine severity-weighted findings and governance blocks with review-cycle and cost assumptions from baseline settings.";
+  "Directional savings combine severity-weighted findings and approval-check blocks with review-cycle and cost assumptions from baseline settings.";
 
 export const ARCHITECTURE_SCORECARD_HELP_METHODOLOGY_FORMULA = roiSummaryMethodologyFormula();
 
@@ -86,7 +86,7 @@ export const ARCHITECTURE_SCORECARD_HELP_WORKED_EXAMPLE_TITLE = "Illustrative wo
 export const ARCHITECTURE_SCORECARD_HELP_WORKED_EXAMPLE_LINES = [
   `1 Critical finding → ${HOURS_PER_CRITICAL} h`,
   `2 High findings → ${HOURS_PER_HIGH * 2} h`,
-  `1 governance block → ${HOURS_PER_PRECOMMIT_BLOCK} h`,
+  `1 approval-check block → ${HOURS_PER_PRECOMMIT_BLOCK} h`,
   `Total: ${HOURS_PER_CRITICAL + HOURS_PER_HIGH * 2 + HOURS_PER_PRECOMMIT_BLOCK} h estimated review-time surfaced`,
   `At $${DEFAULT_LOADED_HOURLY_USD}/h loaded cost (baseline settings) → ~$${(HOURS_PER_CRITICAL + HOURS_PER_HIGH * 2 + HOURS_PER_PRECOMMIT_BLOCK) * DEFAULT_LOADED_HOURLY_USD} directional savings`,
 ] as const;
@@ -99,7 +99,7 @@ export const ARCHITECTURE_SCORECARD_HELP_SIBLING_REPORTS = [
   {
     id: "roi-summary",
     title: "ROI summary",
-    description: "Portfolio KPI view for review-cycle reduction and governance-ready artifacts.",
+    description: "Portfolio KPI view for review-cycle reduction and export-ready artifacts.",
     actionLabel: "Open ROI summary",
     href: SPONSOR_REPORT_ROI_SUMMARY_PATH,
   },

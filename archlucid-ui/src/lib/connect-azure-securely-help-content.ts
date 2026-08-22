@@ -113,7 +113,7 @@ export const CONNECT_AZURE_SECURELY_FORBIDDEN_ROLES_BODY =
 
 export const CONNECT_AZURE_SECURELY_RETAINED_ITEMS = [
   "Azure tenant ID",
-  "Application or client ID",
+  "Client/app ID",
   "Selected subscription or management-group scope",
   "Connection status",
   "Last validation time",

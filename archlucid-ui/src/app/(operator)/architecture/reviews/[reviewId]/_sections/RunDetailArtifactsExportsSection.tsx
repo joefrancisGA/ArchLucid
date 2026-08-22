@@ -186,7 +186,7 @@ export function RunDetailArtifactsExportsSection(
                   </>
                 ) : (
                   <>
-                    The artifacts request failed (network, 404, or server error)—distinct from an empty list or malformed
+                    The artifacts request failed (network, 404, or server error) — distinct from an empty list or malformed
                     JSON.
                   </>
                 )}

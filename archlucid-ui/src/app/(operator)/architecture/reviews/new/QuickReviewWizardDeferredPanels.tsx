@@ -1,32 +1,24 @@
 "use client";
 
-import dynamic from "next/dynamic";
+import { createDeferredComponentFromManifest } from "@/lib/operator/load-deferred-chunk-from-manifest";
 
-export const QuickReviewAdvancedConfigAccordion = dynamic(
-  () =>
-    import("@/components/usability/QuickReviewAdvancedConfigAccordion").then(
-      (module) => module.QuickReviewAdvancedConfigAccordion,
-    ),
-  { loading: () => null },
+export const QuickReviewAdvancedConfigAccordion = createDeferredComponentFromManifest(
+  "reviews-new-quick-review-advanced-config",
+  { suppressLoading: true },
 );
 
-export const WizardEvidenceUploadZone = dynamic(
-  () => import("@/components/usability/WizardEvidenceUploadZone").then((module) => module.WizardEvidenceUploadZone),
-  { loading: () => null },
-);
+export const WizardEvidenceUploadZone = createDeferredComponentFromManifest("reviews-new-wizard-evidence-upload", {
+  suppressLoading: true,
+});
 
-export const WizardPackagePreview = dynamic(
-  () => import("@/components/usability/WizardPackagePreview").then((module) => module.WizardPackagePreview),
-  { loading: () => null },
-);
+export const WizardPackagePreview = createDeferredComponentFromManifest("reviews-new-wizard-package-preview", {
+  suppressLoading: true,
+});
 
-export const CtoDemoFastCreatePanel = dynamic(
-  () => import("@/components/cto-demo/CtoDemoFastCreatePanel").then((module) => module.CtoDemoFastCreatePanel),
-  { loading: () => null },
-);
+export const CtoDemoFastCreatePanel = createDeferredComponentFromManifest("reviews-new-cto-demo-fast-create", {
+  suppressLoading: true,
+});
 
-export const CtoDemoReviewModeCallout = dynamic(
-  () =>
-    import("@/components/cto-demo/CtoDemoReviewModeCallout").then((module) => module.CtoDemoReviewModeCallout),
-  { loading: () => null },
-);
+export const CtoDemoReviewModeCallout = createDeferredComponentFromManifest("reviews-new-cto-demo-review-mode-callout", {
+  suppressLoading: true,
+});

@@ -25,15 +25,21 @@ import {
   type IncomingStructuredBriefSuggestions,
 } from "@/lib/architecture/architecture-draft-structured-brief";
 import {
+  applyFailureModeSuggestionIfEmpty,
   buildArchitectureDraftSuggestionSourceText,
   buildDeterministicStructuredBriefSuggestionsFromText,
   extractQualityAttributeSuggestionsFromText,
+  hasArchitectureContextForFailureModeSuggestion,
+  resolveFailureModeSuggestion,
 } from "@/lib/architecture/architecture-draft-structured-brief-suggestions";
 import { OPERATOR_FORM_FIELD_LABEL_CLASS, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   GUIDED_INTAKE_STRUCTURED_BRIEF_FAILURE_MODE_HINT,
   GUIDED_INTAKE_STRUCTURED_BRIEF_FAILURE_MODE_LABEL,
   GUIDED_INTAKE_STRUCTURED_BRIEF_FAILURE_MODE_PLACEHOLDER,
+  GUIDED_INTAKE_STRUCTURED_BRIEF_FAILURE_MODE_SUGGEST_BUTTON,
+  GUIDED_INTAKE_STRUCTURED_BRIEF_FAILURE_MODE_SUGGEST_EMPTY,
+  GUIDED_INTAKE_STRUCTURED_BRIEF_FAILURE_MODE_SUGGEST_SUCCESS,
   GUIDED_INTAKE_STRUCTURED_BRIEF_OPERATIONAL_OWNER_HINT,
   GUIDED_INTAKE_STRUCTURED_BRIEF_OPERATIONAL_OWNER_LABEL,
   GUIDED_INTAKE_STRUCTURED_BRIEF_OPERATIONAL_OWNER_PLACEHOLDER,
@@ -95,6 +101,96 @@ function confirmSuggestedListItem(
     [confirmedKey]: mergeExclusiveConfirmedItem(current[confirmedKey], value),
     [suggestedKey]: current[suggestedKey].filter((item) => item !== value),
   }));
+}
+
+type StructuredBriefSuggestionContextInput = Pick<
+  ArchitectureDraftStructuredBriefState,
+  | "confirmedConstraints"
+  | "confirmedAssumptions"
+  | "confirmedRequiredCapabilities"
+  | "qualityAttribute"
+>;
+
+function buildStructuredBriefSuggestionContext(
+  brief: ArchitectureDraftStructuredBriefState,
+): StructuredBriefSuggestionContextInput {
+  return {
+    confirmedConstraints: brief.confirmedConstraints,
+    confirmedAssumptions: brief.confirmedAssumptions,
+    confirmedRequiredCapabilities: brief.confirmedRequiredCapabilities,
+    qualityAttribute: brief.qualityAttribute,
+  };
+}
+
+function buildSuggestionSourceText(
+  props: ArchitectureDraftStructuredBriefFieldsProps,
+  brief: ArchitectureDraftStructuredBriefState,
+  includeStructuredBrief: boolean,
+): string {
+  return buildArchitectureDraftSuggestionSourceText({
+    architectureOverview: props.freeTextIntent,
+    systemName: props.systemName,
+    businessOutcome: props.businessOutcome,
+    structuredBrief: includeStructuredBrief ? buildStructuredBriefSuggestionContext(brief) : undefined,
+  }).trim();
+}
+
+function suggestionSourceMeetsMinimum(sourceText: string): boolean {
+  return sourceText.trim().length >= ARCHITECTURE_REQUEST_DRAFT_MIN_DESCRIPTION_CHARS;
+}
+
+function applyStructuredBriefSuggestionsFromDraftResponse(input: {
+  readonly brief: ArchitectureDraftStructuredBriefState;
+  readonly sourceText: string;
+  readonly response: Awaited<ReturnType<typeof draftArchitectureRequest>>;
+}): { readonly brief: ArchitectureDraftStructuredBriefState; readonly addedSuggestionCount: number } {
+  let nextBrief = input.brief;
+  let addedSuggestionCount = 0;
+
+  const incoming: IncomingStructuredBriefSuggestions = {
+    suggestedConstraints: input.response.suggestedConstraints ?? [],
+    suggestedAssumptions: input.response.suggestedAssumptions ?? [],
+    suggestedCapabilities: input.response.suggestedCapabilities ?? [],
+  };
+
+  const llmApplied = applyIncomingStructuredBriefSuggestions(nextBrief, incoming);
+  nextBrief = llmApplied.brief;
+  addedSuggestionCount += llmApplied.addedSuggestionCount;
+
+  const deterministicApplied = applyIncomingStructuredBriefSuggestions(
+    nextBrief,
+    buildDeterministicStructuredBriefSuggestionsFromText(input.sourceText),
+  );
+  nextBrief = deterministicApplied.brief;
+  addedSuggestionCount += deterministicApplied.addedSuggestionCount;
+
+  const qualitySuggestions = extractQualityAttributeSuggestionsFromText(input.sourceText);
+
+  if (qualitySuggestions.length > 0) {
+    const existingQuality = parseQualityAttributeEntries(nextBrief.qualityAttribute);
+    const mergedQuality = mergeUniqueStrings(existingQuality, qualitySuggestions);
+
+    if (mergedQuality.length > existingQuality.length) {
+      nextBrief = {
+        ...nextBrief,
+        qualityAttribute: joinQualityAttributeEntries(mergedQuality),
+      };
+      addedSuggestionCount += mergedQuality.length - existingQuality.length;
+    }
+  }
+
+  const failureModeSuggestion = resolveFailureModeSuggestion({
+    llmSuggestion: input.response.suggestedFailureModeNote,
+    sourceText: input.sourceText,
+  });
+  const failureModeApplied = applyFailureModeSuggestionIfEmpty(nextBrief, failureModeSuggestion);
+  nextBrief = failureModeApplied.brief;
+
+  if (failureModeApplied.applied) {
+    addedSuggestionCount += 1;
+  }
+
+  return { brief: nextBrief, addedSuggestionCount };
 }
 
 type ArchitectureDraftStructuredBriefFieldsProps = {
@@ -266,14 +362,37 @@ export function ArchitectureDraftStructuredBriefFields(
     problem: ApiProblemDetails | null;
     correlationId: string | null;
   } | null>(null);
+  const [failureModeSuggestBusy, setFailureModeSuggestBusy] = useState(false);
+  const [failureModeSuggestEmpty, setFailureModeSuggestEmpty] = useState(false);
+  const [failureModeSuggestApplied, setFailureModeSuggestApplied] = useState(false);
+  const [failureModeSuggestError, setFailureModeSuggestError] = useState<{
+    message: string;
+    problem: ApiProblemDetails | null;
+    correlationId: string | null;
+  } | null>(null);
   const markInvalid = props.markReviewReadinessInvalid === true;
   const brief = props.structuredBrief;
   const overviewTrimmedLength = props.freeTextIntent.trim().length;
+  const structuredBriefContext = buildStructuredBriefSuggestionContext(brief);
+  const failureModeSourceText = buildSuggestionSourceText(props, brief, true);
+  const hasFailureModeContext = hasArchitectureContextForFailureModeSuggestion({
+    architectureOverview: props.freeTextIntent,
+    structuredBrief: structuredBriefContext,
+  });
+  const canSuggestFailureMode =
+    hasFailureModeContext
+    && suggestionSourceMeetsMinimum(failureModeSourceText)
+    && props.disabled !== true
+    && props.blocksLlmExecution !== true
+    && !failureModeSuggestBusy
+    && !suggestBusy;
+
   const canSuggestFromOverview =
     overviewTrimmedLength >= ARCHITECTURE_REQUEST_DRAFT_MIN_DESCRIPTION_CHARS
     && props.disabled !== true
     && props.blocksLlmExecution !== true
-    && !suggestBusy;
+    && !suggestBusy
+    && !failureModeSuggestBusy;
 
   const updateBrief = (partial: Partial<ArchitectureDraftStructuredBriefState>) => {
     props.onStructuredBriefChange((current) => ({ ...current, ...partial }));
@@ -288,6 +407,102 @@ export function ArchitectureDraftStructuredBriefFields(
   };
 
   async function onSuggestFromOverview(): Promise<void> {
+    const freeTextDescription = buildSuggestionSourceText(props, brief, true);
+
+    if (
+      freeTextDescription.length < ARCHITECTURE_REQUEST_DRAFT_MIN_DESCRIPTION_CHARS
+      || !canSuggestFromOverview
+    ) {
+      return;
+    }
+
+    setSuggestBusy(true);
+    setSuggestError(null);
+    setSuggestEmpty(false);
+    setSuggestAddedCount(null);
+    setFailureModeSuggestApplied(false);
+    setFailureModeSuggestEmpty(false);
+
+    try {
+      const response = await draftArchitectureRequest({ freeTextDescription });
+      const applied = applyStructuredBriefSuggestionsFromDraftResponse({
+        brief,
+        sourceText: freeTextDescription,
+        response,
+      });
+
+      props.onStructuredBriefChange(applied.brief);
+      setSuggestEmpty(applied.addedSuggestionCount === 0);
+      setSuggestAddedCount(applied.addedSuggestionCount > 0 ? applied.addedSuggestionCount : null);
+
+      if (applied.addedSuggestionCount > 0) {
+        window.requestAnimationFrame(() => {
+          document.getElementById("architecture-draft-constraints")?.scrollIntoView({
+            behavior: "smooth",
+            block: "nearest",
+          });
+        });
+      }
+    } catch (error: unknown) {
+      if (isApiRequestError(error)) {
+        setSuggestError({
+          message: error.message,
+          problem: error.problem,
+          correlationId: error.correlationId,
+        });
+      } else {
+        setSuggestError({
+          message: error instanceof Error ? error.message : "Could not suggest structured brief items.",
+          problem: null,
+          correlationId: null,
+        });
+      }
+    } finally {
+      setSuggestBusy(false);
+    }
+  }
+
+  async function onSuggestFailureMode(): Promise<void> {
+    if (!canSuggestFailureMode) {
+      return;
+    }
+
+    setFailureModeSuggestBusy(true);
+    setFailureModeSuggestError(null);
+    setFailureModeSuggestEmpty(false);
+    setFailureModeSuggestApplied(false);
+
+    try {
+      const response = await draftArchitectureRequest({ freeTextDescription: failureModeSourceText });
+      const failureModeSuggestion = resolveFailureModeSuggestion({
+        llmSuggestion: response.suggestedFailureModeNote,
+        sourceText: failureModeSourceText,
+      });
+      const applied = applyFailureModeSuggestionIfEmpty(brief, failureModeSuggestion);
+
+      props.onStructuredBriefChange(applied.brief);
+      setFailureModeSuggestApplied(applied.applied);
+      setFailureModeSuggestEmpty(!applied.applied && (failureModeSuggestion?.trim().length ?? 0) === 0);
+    } catch (error: unknown) {
+      if (isApiRequestError(error)) {
+        setFailureModeSuggestError({
+          message: error.message,
+          problem: error.problem,
+          correlationId: error.correlationId,
+        });
+      } else {
+        setFailureModeSuggestError({
+          message: error instanceof Error ? error.message : "Could not suggest failure mode and recovery.",
+          problem: null,
+          correlationId: null,
+        });
+      }
+    } finally {
+      setFailureModeSuggestBusy(false);
+    }
+  }
+
+  async function onSuggestFromOverviewOld(): Promise<void> {
     const freeTextDescription = buildArchitectureDraftSuggestionSourceText({
       architectureOverview: props.freeTextIntent,
       systemName: props.systemName,

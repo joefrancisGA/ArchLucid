@@ -24,10 +24,10 @@ const monoCls = cn("font-mono break-all", OPERATOR_TYPOGRAPHY.helper);
 
 function formatScore(n: number | null | undefined): string {
   if (n === null || n === undefined) {
-    return "—";
+    return " — ";
   }
 
-  return Number.isFinite(n) ? n.toFixed(4) : "—";
+  return Number.isFinite(n) ? n.toFixed(4) : " — ";
 }
 
 export type SimulationRunDiffCardProps = {
@@ -107,9 +107,9 @@ export function SimulationRunDiffCard(props: SimulationRunDiffCardProps): ReactE
               ) : null}
               <dl className="m-0 grid grid-cols-[auto_1fr] items-baseline gap-x-3 gap-y-1">
                 <dt className="text-neutral-500 dark:text-neutral-400">Review status</dt>
-                <dd className="m-0">{parsed.shadow.runStatus ?? "—"}</dd>
+                <dd className="m-0">{parsed.shadow.runStatus ?? " — "}</dd>
                 <dt className="text-neutral-500 dark:text-neutral-400">Review record version</dt>
-                <dd className={cn("m-0 font-mono break-all", OPERATOR_TYPOGRAPHY.helper)}>{parsed.shadow.manifestVersion ?? "—"}</dd>
+                <dd className={cn("m-0 font-mono break-all", OPERATOR_TYPOGRAPHY.helper)}>{parsed.shadow.manifestVersion ?? " — "}</dd>
                 <dt className="text-neutral-500 dark:text-neutral-400">Has manifest</dt>
                 <dd className="m-0">{parsed.shadow.hasManifest ? "yes" : "no"}</dd>
                 <dt className="text-neutral-500 dark:text-neutral-400">Summary length</dt>

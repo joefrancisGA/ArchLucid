@@ -137,7 +137,7 @@ export function useFindingInspectGovernanceStickiness(
           setErrorMessage(
             buyerPolishedShell
               ? BUYER_DEMO_GOVERNANCE_WORKFLOW_UNAVAILABLE
-              : "Governance workflow data unavailable for this finding.",
+              : "Resolve outcomes workflow data unavailable for this finding.",
           );
         }
       }
@@ -157,7 +157,7 @@ export function useFindingInspectGovernanceStickiness(
     const failure = toApiLoadFailure(error);
 
     if (buyerPolishedShell) {
-      return "This governance action could not be saved right now. Your entries are preserved — try again in a moment.";
+      return "This finding update could not be saved right now. Your entries are preserved — try again in a moment.";
     }
 
     return failure.message;

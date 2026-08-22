@@ -3,7 +3,7 @@
  *
  * Why two surfaces exist:
  * - Ask review questions (`/insights/ask-review-questions`) answers questions
- *   about a finalized review and cites evidence from the sealed review record.
+ *   about a finalized review and cites evidence from the finalized review record.
  * - Try another reasoning pass (`/architecture/architecture-intelligence`) explores
  *   alternative architecture conclusions from a free-form description.
  *

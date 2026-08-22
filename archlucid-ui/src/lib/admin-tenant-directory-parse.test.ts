@@ -36,7 +36,7 @@ describe("admin-tenant-directory-parse", () => {
 
   it("maps ArchLucid policy names and ranks to app roles", () => {
     expect(archLucidAppRoleFromDirectoryFields("ExecuteAuthority")).toBe("Operator");
-    expect(archLucidAppRoleFromDirectoryFields("—", 3)).toBe("Admin");
+    expect(archLucidAppRoleFromDirectoryFields(" — ", 3)).toBe("Admin");
     expect(archLucidAppRoleFromDirectoryFields("Rank 2")).toBe("Operator");
     expect(archLucidAppRoleFromDirectoryFields("Auditor")).toBe("Auditor");
   });

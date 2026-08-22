@@ -110,7 +110,7 @@ export function FindingsWhatIfAnalysisPanel(props: FindingsWhatIfAnalysisPanelPr
           <div>
             <dt className={cn("font-medium uppercase text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>Projected new cost</dt>
             <dd className="mt-1 text-lg font-semibold tabular-nums text-teal-800 dark:text-teal-200">
-              {projected !== null ? formatUsd(projected) : "—"}
+              {projected !== null ? formatUsd(projected) : " — "}
             </dd>
           </div>
         </dl>

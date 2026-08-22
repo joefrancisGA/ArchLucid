@@ -1,13 +1,6 @@
 "use client";
 
-import dynamic from "next/dynamic";
-
-import { NewRunWizardSkeleton } from "@/components/skeletons/NewRunWizardSkeleton";
-
-const FirstPilotIntakeWizard = dynamic(
-  () => import("./FirstPilotIntakeWizard").then((module) => module.FirstPilotIntakeWizard),
-  { loading: () => <NewRunWizardSkeleton /> },
-);
+import { ReviewsNewFirstPilotIntakeWizardDeferred } from "./reviews-new-path-switcher-deferred-chunks";
 
 /**
  * Primary first-run path — describe or upload your own architecture evidence (TB-2136).
@@ -16,7 +9,7 @@ const FirstPilotIntakeWizard = dynamic(
 export function ReviewsNewOwnEvidenceStart(): React.JSX.Element {
   return (
     <section data-testid="reviews-new-own-evidence-start">
-      <FirstPilotIntakeWizard />
+      <ReviewsNewFirstPilotIntakeWizardDeferred />
     </section>
   );
 }

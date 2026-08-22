@@ -1,6 +1,5 @@
 "use client";
 
-import dynamic from "next/dynamic";
 import Link from "next/link";
 import { CircleHelp } from "lucide-react";
 import { Suspense, useEffect, useLayoutEffect, useRef, useState, useCallback, type ReactNode, type RefObject } from "react";
@@ -13,20 +12,30 @@ import { OperatorShellStatusQueryGate } from "@/components/shell/OperatorShellSt
 import {
   AppShellIdleOverlaysDeferred,
   AppShellKeyboardShortcutBoundaryDeferred,
+  AppShellMainAffordancesDeferred,
   AppShellMainContentGateDeferred,
+  AppShellStatusBannersDeferred,
   AppShellTelemetryBundleDeferred,
   AppShellWorkspaceFooterDeferred,
   AppToasterDeferred,
   AuthPanelDeferred,
   AuthorityThemeToggleDeferred,
   ColorModeToggleDeferred,
+  CtoDemoJourneyCaptionBarDeferred,
   DevTestingShellShortcutsDeferred,
+  FrictionlessTrialBannerDeferred,
+  HelpPanelDeferred,
+  HelpSearchPanelDeferred,
+  OnboardingTourDeferred,
   OperatorShellAccessRedirectsHostDeferred,
   OperatorShellTopBarDeferred,
+  RegistrationOnboardingTourAutoStartDeferred,
   RouteAnnouncerDeferred,
   SessionIdleTimeoutGuardDeferred,
   ShellThemePreferencesAppearanceVocabularyRailDeferred,
+  SidebarNavDeferred,
   SyncActiveRunFromPathnameDeferred,
+  TrialLimitModalHostDeferred,
 } from "@/components/shell/app-shell-deferred-chunks";
 import {
   OperatorChromeModeProvider,
@@ -60,76 +69,6 @@ import { useOperatorShellChromeDeferred } from "@/hooks/useOperatorShellChromeDe
 import { useRouteChangeFocus } from "@/hooks/useRouteChangeFocus";
 import type { HelpTabId } from "@/components/HelpPanel";
 import { resolveOperatorHelpRequestForPathname } from "@/lib/usability/resolve-operator-help-request";
-
-const FrictionlessTrialBanner = dynamic(
-  () =>
-    import("@/components/FrictionlessTrialBanner").then(
-      (module) => module.FrictionlessTrialBanner,
-    ),
-  { ssr: false },
-);
-
-const AppShellMainAffordances = dynamic(
-  () =>
-    import("@/components/shell/AppShellMainAffordances").then(
-      (module) => module.AppShellMainAffordances,
-    ),
-  { ssr: false, loading: () => null },
-);
-
-const OnboardingTour = dynamic(
-  () => import("@/components/OnboardingTour").then((module) => module.OnboardingTour),
-  { ssr: false },
-);
-
-const RegistrationOnboardingTourAutoStart = dynamic(
-  () =>
-    import("@/components/usability/RegistrationOnboardingTourAutoStart").then(
-      (module) => module.RegistrationOnboardingTourAutoStart,
-    ),
-  { ssr: false },
-);
-
-const HelpSearchPanel = dynamic(
-  () => import("@/components/HelpSearchPanel").then((module) => module.HelpSearchPanel),
-  { ssr: false },
-);
-
-const HelpPanel = dynamic(
-  () => import("@/components/HelpPanel").then((module) => module.HelpPanel),
-  { ssr: false },
-);
-
-const SidebarNav = dynamic(
-  () => import("@/components/SidebarNav").then((module) => module.SidebarNav),
-  {
-    ssr: false,
-    loading: () => (
-      <div
-        className="min-h-[12rem] animate-pulse rounded-md bg-neutral-100 dark:bg-neutral-800"
-        aria-hidden
-      />
-    ),
-  },
-);
-
-const AppShellStatusBanners = dynamic(
-  () => import("@/components/shell/AppShellStatusBanners").then((module) => module.AppShellStatusBanners),
-  { ssr: false },
-);
-
-const TrialLimitModalHost = dynamic(
-  () => import("@/components/trial/TrialLimitModal").then((module) => module.TrialLimitModalHost),
-  { ssr: false },
-);
-
-const CtoDemoJourneyCaptionBar = dynamic(
-  () =>
-    import("@/components/cto-demo/CtoDemoJourneyCaptionBar").then(
-      (module) => module.CtoDemoJourneyCaptionBar,
-    ),
-  { ssr: false },
-);
 
 type AppShellHelpOverlaysProps = {
   helpDocSearchOpen: boolean;
@@ -175,14 +114,14 @@ function AppShellHelpOverlays({
   return (
     <>
       {searchMounted ? (
-        <HelpSearchPanel
+        <HelpSearchPanelDeferred
           open={helpDocSearchOpen}
           onOpenChange={onHelpDocSearchOpenChange}
           onOpenGuidesPanel={handleOpenGuidesPanel}
         />
       ) : null}
       {guidesMounted ? (
-        <HelpPanel
+        <HelpPanelDeferred
           open={helpGuidesOpen}
           onOpenChange={onHelpGuidesOpenChange}
           initialTab={helpGuidesInitialTab}
@@ -385,7 +324,7 @@ function AppShellInner({ children }: AppShellClientProps) {
                 data-testid="app-shell-main"
                 className={cn(OPERATOR_SHELL_MAX_WIDTH_CLASS, OPERATOR_SHELL_MAIN_PADDING_CLASS, "flex flex-1 flex-col")}
               >
-                <AppShellStatusBanners variant="minimal" />
+                <AppShellStatusBannersDeferred variant="minimal" />
                 <AppShellKeyboardShortcutBoundaryDeferred onHelpRequested={openHelpSearch}>
                   <main
                     id="main-content"
@@ -400,7 +339,7 @@ function AppShellInner({ children }: AppShellClientProps) {
             </div>
             <AppToasterDeferred />
             <RouteAnnouncerDeferred />
-            <TrialLimitModalHost />
+            <TrialLimitModalHostDeferred />
             <AppShellHelpOverlays
               helpDocSearchOpen={helpDocSearchOpen}
               helpGuidesOpen={helpGuidesOpen}
@@ -433,10 +372,10 @@ function AppShellInner({ children }: AppShellClientProps) {
             data-testid="app-shell-sticky-header"
             className="sticky top-0 z-30 bg-neutral-50 shadow-sm dark:bg-neutral-950 print:hidden"
           >
-            <FrictionlessTrialBanner />
+            <FrictionlessTrialBannerDeferred />
             <OperatorShellTopBarDeferred onOpenHelpSearch={openHelpSearch} />
           </div>
-          <CtoDemoJourneyCaptionBar />
+          <CtoDemoJourneyCaptionBarDeferred />
           <div className={cn(OPERATOR_SHELL_MAX_WIDTH_CLASS, OPERATOR_SHELL_BODY_ROW_CLASS, "flex-1")}>
             <nav
               data-testid="sidebar-nav"
@@ -447,20 +386,20 @@ function AppShellInner({ children }: AppShellClientProps) {
                 OPERATOR_SHELL_SIDEBAR_WIDTH_CLASS,
               )}
             >
-              <SidebarNav />
+              <SidebarNavDeferred />
             </nav>
             <div
               data-testid="app-shell-main"
               className={cn("flex min-h-0 min-w-0 flex-1 flex-col print:px-0", OPERATOR_SHELL_MAIN_PADDING_CLASS)}
             >
-              <AppShellStatusBanners variant="full" />
+              <AppShellStatusBannersDeferred variant="full" />
               <AppShellKeyboardShortcutBoundaryDeferred onHelpRequested={openHelpSearch}>
                 <main
                   id="main-content"
                   tabIndex={-1}
                   className="outline-none focus:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:ring-offset-2 dark:focus-visible:ring-neutral-600"
                 >
-                  <AppShellMainAffordances />
+                  <AppShellMainAffordancesDeferred />
                   <SyncActiveRunFromPathnameDeferred />
                   <AppShellMainContentGateDeferred>{children}</AppShellMainContentGateDeferred>
                 </main>
@@ -473,7 +412,7 @@ function AppShellInner({ children }: AppShellClientProps) {
         </div>
         <AppToasterDeferred />
         <RouteAnnouncerDeferred />
-        <TrialLimitModalHost />
+        <TrialLimitModalHostDeferred />
         <AppShellHelpOverlays
           helpDocSearchOpen={helpDocSearchOpen}
           helpGuidesOpen={helpGuidesOpen}
@@ -482,9 +421,9 @@ function AppShellInner({ children }: AppShellClientProps) {
           onHelpGuidesOpenChange={setHelpGuidesOpen}
           onOpenGuidesPanel={openHelpGuidesPanel}
         />
-        <OnboardingTour />
+        <OnboardingTourDeferred />
         <Suspense fallback={null}>
-          <RegistrationOnboardingTourAutoStart />
+          <RegistrationOnboardingTourAutoStartDeferred />
         </Suspense>
         <AppShellIdleOverlaysDeferred />
       </TooltipProvider>

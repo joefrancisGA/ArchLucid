@@ -6,7 +6,7 @@ export const PROCUREMENT_HELP_INBOUND_PATH_LABELS: Readonly<Record<string, strin
 } as const;
 
 export const PROCUREMENT_HELP_INBOUND_LABEL_SOURCE_FILES: readonly string[] = [
-  "src/lib/usability/page-help-topic-map.ts",
+  "src/lib/usability/page-help-topic-rows.ts",
   "src/lib/enterprise-onboarding-hub-steps.ts",
   "src/lib/subprocessors-help-evidence-copy.ts",
   "src/lib/in-app-doc-href.ts",

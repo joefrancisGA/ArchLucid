@@ -1,6 +1,7 @@
 using ArchLucid.AgentRuntime;
 using ArchLucid.Application.AiProviders;
 using ArchLucid.Application.ArchitectureIntelligence;
+using ArchLucid.Application.Clarifications;
 using ArchLucid.Application.Billing;
 using ArchLucid.Application.Bootstrap;
 using ArchLucid.Application.Integrations;
@@ -136,6 +137,7 @@ public static partial class ServiceCollectionExtensions
         RegisterRetrieval(services, configuration);
         RegisterGovernance(services, configuration);
         services.AddArchitectureIntelligence();
+        services.AddReviewClarificationQuestions();
         services.Configure<ArchitectureIntelligencePipelineOptions>(
             configuration.GetSection(ArchitectureIntelligencePipelineOptions.SectionPath));
         services.Configure<AuthorityPipelineWorkProcessorOptions>(

@@ -62,7 +62,7 @@ describe("governance-approval-help-route (GO)", () => {
 
     expect(GOVERNANCE_APPROVAL_HELP_ROUTE_METADATA.robots).toEqual({ index: false, follow: false });
 
-    expect(GOVERNANCE_APPROVAL_HELP_ROUTE_METADATA.title).toBe("Governance approval");
+    expect(GOVERNANCE_APPROVAL_HELP_ROUTE_METADATA.title).toBe("Resolve outcomes");
 
     expect(GOVERNANCE_APPROVAL_HELP_ROUTE_METADATA.description?.toLowerCase()).toContain("submission");
 

@@ -14,11 +14,11 @@ export const ARCHITECTURE_CREATED_EVIDENCE_SOURCES: readonly ArchitectureCreated
   { label: "Evidence graph", href: "/insights/evidence-graph" },
   { label: "Search review evidence", href: "/insights/search-review-evidence" },
   { label: "Findings queue", href: "/governance/findings" },
-  { label: "Governance approval help", href: inAppHelpHref("governance-approval") },
+  { label: "Resolve outcomes help", href: inAppHelpHref("governance-approval") },
 ] as const;
 
 export const ARCHITECTURE_CREATED_EVIDENCE_SOURCES_INTRO =
-  "Use these follow-ups when create-home Evidence upload turns into findings triage, search, or approval readiness.";
+  "Use these follow-ups when create-home Evidence upload turns into findings triage, search, or export readiness.";
 
 export const ARCHITECTURE_CREATED_EVIDENCE_CLAIM_DISCIPLINE =
-  "This create-home Evidence tab is for attaching capture before finalize. It is not a signed-record Sources trail";
+  "This create-home Evidence tab is for attaching capture before finalize. It is not a finalized review record export trail";

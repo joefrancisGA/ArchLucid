@@ -150,7 +150,7 @@ export function HelpApiContractsGuideView(props: HelpApiContractsGuideViewProps)
               href={governanceApprovalHref}
               className={cn("underline-offset-2 hover:underline", DESIGN_TOKENS.accent.link)}
             >
-              Governance approval
+              Resolve outcomes
             </Link>{" "}
             instead of this HTTP contract reference.
           </p>

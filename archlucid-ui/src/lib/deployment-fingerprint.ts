@@ -29,7 +29,6 @@ export function readClientDeploymentFingerprint(): ClientDeploymentFingerprint {
 
 export function formatShortCommitSha(commitSha: string): string {
   const trimmed = commitSha.trim();
-
   if (trimmed.length <= 12) {
     return trimmed;
   }
@@ -72,7 +71,6 @@ export function formatDeploymentBuildFingerprintLine(fingerprint: ClientDeployme
 
 function normalizeFingerprintValue(value: string | undefined): string {
   const trimmed = value?.trim() ?? "";
-
   if (trimmed.length === 0) {
     return "unknown";
   }

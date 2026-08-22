@@ -1,4 +1,5 @@
 import type { EvidenceSourceLink } from "@/lib/evidence-surface-copy";
+import { resolveRelatedFollowUpsTitle } from "@/lib/help/related-follow-ups-title";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
 /** TB-1715 — at most three related help guides; Trust Center and procurement live in goal branches. */
@@ -8,7 +9,7 @@ export const PATH_CHOOSER_HELP_RELATED_GUIDES: readonly EvidenceSourceLink[] = [
   { label: "Security and trust", href: inAppHelpHref("security-trust") },
 ] as const;
 
-export const PATH_CHOOSER_HELP_RELATED_HEADING = "Related help" as const;
+export const PATH_CHOOSER_HELP_RELATED_HEADING = resolveRelatedFollowUpsTitle(PATH_CHOOSER_HELP_RELATED_GUIDES);
 
 export const PATH_CHOOSER_HELP_RELATED_TEST_ID = "help-path-chooser-related-next-steps";
 

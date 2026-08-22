@@ -15,6 +15,7 @@ export type DraftArchitectureRequestResponse = {
   suggestedAssumptions: string[];
   topologyHints: string[];
   securityBaselineHints: string[];
+  suggestedFailureModeNote?: string | null;
 };
 
 /** Calls POST /v1/architecture/request/draft to suggest wizard chip fields from a free-text brief. */

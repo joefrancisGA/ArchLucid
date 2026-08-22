@@ -5,7 +5,6 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useMemo, useState } from "react";
 
 import { InlineGuidanceText } from "@/components/InlineGuidanceText";
-import { NewRunWizardSkeleton } from "@/components/skeletons/NewRunWizardSkeleton";
 import { isAcceleratorPackId } from "@/lib/accelerator-wizard-presets";
 import {
   REVIEWS_NEW_BACK_TO_QUICK_START_CTA,

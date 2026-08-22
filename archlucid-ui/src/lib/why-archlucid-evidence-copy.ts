@@ -7,7 +7,7 @@ export const WHY_ARCHLUCID_CANONICAL_PATH = "/why-archlucid" as const;
 export const WHY_ARCHLUCID_HELP_TOPIC_LABEL = "Why ArchLucid" as const;
 
 export const WHY_ARCHLUCID_CLAIM_DISCIPLINE =
-  "This Why ArchLucid page is a demo over sample data and seeded outputs — not production audit records. Open the public /why comparison, Assurance status, or a finalized sealed review record when you need real evidence.";
+  "This Why ArchLucid page is a demo over sample data and seeded outputs — not production audit records. Open the public /why comparison, Assurance status, or a finalized review record when you need real evidence.";
 
 export const WHY_ARCHLUCID_CLAIM_HEADING = "Pilot proof only" as const;
 

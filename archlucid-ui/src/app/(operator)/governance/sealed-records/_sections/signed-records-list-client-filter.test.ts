@@ -11,7 +11,7 @@ const sampleRow: SignedRecordsListRow = {
   manifestId: "manifest-1",
   reviewHref: "/architecture/reviews/run-1",
   signedRecordHref: "/governance/sealed-records/manifest-1",
-  sealIntegrity: { kind: "ready", label: "Sealed" },
+  sealIntegrity: { kind: "ready", label: "Finalized" },
   sealDigestTruncated: "sha256-d…34567890",
   sealDigestFull: "sha256-deadbeef",
   recordLookupFailure: null,

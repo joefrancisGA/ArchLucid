@@ -45,7 +45,7 @@ export const FINDINGS_HELP_RELATED_PRODUCT_DOCS = {
 export const FINDINGS_HELP_READINESS_SECTION_TITLE = "Workspace finding summary";
 
 export const FINDINGS_HELP_READINESS_FORBIDDEN_MESSAGE =
-  "Live finding status needs a role that can view the governance findings queue.";
+  "Live finding status needs a role that can view the findings queue.";
 
 export const FINDINGS_HELP_WORKSPACE_SCOPE_FALLBACK_LABEL = "This workspace";
 
@@ -159,7 +159,7 @@ export const FINDINGS_HELP_PROVENANCE_NON_CLAIM =
   "Provenance labeling describes how a finding was produced and whether evidence is attached. It does not claim accuracy rates, production validation, or that AI-generated findings are independently verified. Reviewers remain accountable for disposition decisions.";
 
 export const FINDINGS_HELP_EVIDENCE_INTRO =
-  "Evidence explains why a finding exists. From a finding, authorized users can review the supporting material and trace how it connects to architecture elements and governance rules.";
+  "Evidence explains why a finding exists. From a finding, authorized users can review the supporting material and trace how it connects to architecture elements and policy rules.";
 
 export const FINDINGS_HELP_EVIDENCE_ITEMS = [
   "Source evidence such as diagrams, documents, or cloud inventory",
@@ -227,7 +227,7 @@ export const FINDINGS_HELP_LIFECYCLE_STAGES: readonly FindingsHelpLifecycleStage
 ] as const;
 
 export const FINDINGS_HELP_ACTIONS_INTRO =
-  "Authorized users with governance permissions can update findings. Readers without those permissions can still review severity, evidence, and disposition history.";
+  "Authorized users with permission to update findings can update findings. Readers without those permissions can still review severity, evidence, and disposition history.";
 
 export const FINDINGS_HELP_ACTIONS = [
   {
@@ -272,7 +272,7 @@ export const FINDINGS_HELP_GOVERNANCE_ITEMS = [
   "Severe unresolved findings may require explicit approval or an exception.",
   "Policy and standards results provide context for each finding.",
   "Decisions and exceptions become part of the audit trail.",
-  "Material findings may appear in sponsor and governance reporting.",
+  "Material findings may appear in sponsor and approval reporting.",
 ] as const;
 
 export type FindingsHelpRoleGuidance = {
@@ -291,7 +291,7 @@ export const FINDINGS_HELP_ROLE_GUIDANCE: readonly FindingsHelpRoleGuidance[] = 
     guidance: "Validates evidence, severity, business impact, and recommended action.",
   },
   {
-    role: "Governance lead",
+    role: "Approval lead",
     guidance: "Records decisions, approvals, exceptions, and escalation requirements.",
   },
   {
@@ -301,10 +301,10 @@ export const FINDINGS_HELP_ROLE_GUIDANCE: readonly FindingsHelpRoleGuidance[] = 
 ] as const;
 
 export const FINDINGS_HELP_WHAT_IS_BODY =
-  "During a review, ArchLucid compares architecture evidence against active policies and standards. When a gap or risk is detected, the product records a finding with severity, impact, and recommended action. Findings stay linked to the review so teams can investigate, govern, and report on them consistently.";
+  "During a review, ArchLucid compares architecture evidence against active policies and standards. When a gap or risk is detected, the product records a finding with severity, impact, and recommended action. Findings stay linked to the review so teams can investigate, track, and report on them consistently.";
 
 export const FINDINGS_HELP_SEVERITY_INTRO =
-  "Severity reflects how urgently a finding should be addressed. Business impact explains why the issue matters to delivery, security, or compliance. Both appear on the finding and in governance summaries.";
+  "Severity reflects how urgently a finding should be addressed. Business impact explains why the issue matters to delivery, security, or compliance. Both appear on the finding and in approval summaries.";
 
 export const FINDINGS_HELP_RESPOND_INTRO =
   "Responding to a finding means reviewing evidence, recording a disposition, and tracking follow-up until the risk is resolved, accepted, or waived.";

@@ -12,11 +12,12 @@ public sealed class ArchitectureRequestDraftService(
     private const string DraftSystemPrompt =
         "You are an enterprise architecture intake assistant. " +
         "Given an architecture overview (possibly markdown with sections, tables, ADRs, and evidence), " +
-        "extract constraints, required capabilities, and assumptions the reviewer should treat as confirmed facts. " +
+        "extract constraints, required capabilities, assumptions, and a failure-mode/recovery note the reviewer should treat as confirmed facts. " +
         "Produce a JSON object with keys: " +
         "suggestedConstraints (string[]), suggestedCapabilities (string[]), suggestedAssumptions (string[]), " +
-        "topologyHints (string[]), securityBaselineHints (string[]). " +
+        "topologyHints (string[]), securityBaselineHints (string[]), suggestedFailureModeNote (string or null). " +
         "Use those exact key names (not constraints/requiredCapabilities/assumptions). " +
+        "suggestedFailureModeNote should be one concise sentence on what breaks first and how operators recover (omit or null when unclear). " +
         "When the text mentions limits, deferrals, ADRs, SLOs, or trust boundaries, each array should contain at least one concise item. " +
         "Be specific and concise. Return ONLY valid JSON.";
 
@@ -57,8 +58,22 @@ public sealed class ArchitectureRequestDraftService(
             SuggestedCapabilities = Normalize(response.SuggestedCapabilities, response.RequiredCapabilities),
             SuggestedAssumptions = Normalize(response.SuggestedAssumptions, response.Assumptions),
             TopologyHints = Normalize(response.TopologyHints),
-            SecurityBaselineHints = Normalize(response.SecurityBaselineHints)
+            SecurityBaselineHints = Normalize(response.SecurityBaselineHints),
+            SuggestedFailureModeNote = NormalizeFailureModeNote(response.SuggestedFailureModeNote, response.FailureModeNote)
         };
+    }
+
+    private static string? NormalizeFailureModeNote(params string?[] valueSets)
+    {
+        foreach (string? value in valueSets)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+                continue;
+
+            return value.Trim();
+        }
+
+        return null;
     }
 
     private static string[] Normalize(params string[]?[] valueSets)
@@ -134,6 +149,20 @@ public sealed class ArchitectureRequestDraftService(
 
         [JsonPropertyName("securityBaselineHints")]
         public string[]? SecurityBaselineHints
+        {
+            get;
+            init;
+        }
+
+        [JsonPropertyName("suggestedFailureModeNote")]
+        public string? SuggestedFailureModeNote
+        {
+            get;
+            init;
+        }
+
+        [JsonPropertyName("failureModeNote")]
+        public string? FailureModeNote
         {
             get;
             init;

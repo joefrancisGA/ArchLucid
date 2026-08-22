@@ -20,7 +20,7 @@ export const SPONSOR_WORKSPACE_HEALTH_PAGE_LEAD_BUYER =
   "Approval status at a glance for your current workspace scope — counts and trends only.";
 
 export const SPONSOR_WORKSPACE_HEALTH_PAGE_LEAD_OPERATOR =
-  "Pre-commit posture, severity exposure, compliance drift, approval SLAs, and a hours-first value proxy — all within your current workspace scope.";
+  "Approval-check posture, severity exposure, compliance drift, approval SLAs, and a hours-first value proxy — all within your current workspace scope.";
 
 export const SPONSOR_WORKSPACE_HEALTH_LAYER_GUIDANCE_TRIGGER = "About workspace health";
 
@@ -32,7 +32,7 @@ export const SPONSOR_WORKSPACE_HEALTH_CLAIM_DISCIPLINE =
   "These tiles are workspace KPI estimates — not a full audit export. Hours and SLA figures are planning proxies.";
 
 export const SPONSOR_WORKSPACE_HEALTH_SOURCES_INTRO =
-  "Open row-level governance surfaces before briefing sponsors from these KPI tiles.";
+  "Open row-level approval and audit surfaces before briefing sponsors from these KPI tiles.";
 
 export type SponsorWorkspaceHealthSourceLink = {
   readonly label: string;
@@ -41,11 +41,11 @@ export type SponsorWorkspaceHealthSourceLink = {
 
 /** Operator Sources — no self-href to `/governance/dashboard`. */
 export const SPONSOR_WORKSPACE_HEALTH_SOURCES: readonly SponsorWorkspaceHealthSourceLink[] = [
-  { label: "Governance approval queue", href: GOVERNANCE_APPROVAL_QUEUE_PATH },
+  { label: "Resolve outcomes queue", href: GOVERNANCE_APPROVAL_QUEUE_PATH },
   { label: "Findings", href: "/governance/findings" },
   { label: "Audit trail", href: GOVERNANCE_AUDIT_PATH },
   { label: "ROI summary", href: "/insights/roi-summary" },
-  { label: "Governance approval help", href: inAppHelpHref("governance-approval") },
+  { label: "Resolve outcomes help", href: inAppHelpHref("governance-approval") },
   { label: "How ArchLucid works", href: inAppHelpHref("getting-started", "how-archlucid-works") },
 ] as const;
 
@@ -62,7 +62,7 @@ const SPONSOR_WORKSPACE_HEALTH_KPI_TITLES: Record<
 > = {
   preCommitOutcomes: {
     buyer: `${APPROVAL_GATE_LABEL} outcomes (30 days)`,
-    operator: "1. Pre-commit outcomes (30 days)",
+    operator: "1. Approval-check outcomes (30 days)",
   },
   highCriticalExposure: {
     buyer: "High / Critical exposure (90 days)",
@@ -78,7 +78,7 @@ const SPONSOR_WORKSPACE_HEALTH_KPI_TITLES: Record<
   },
   valueProxy: {
     buyer: `${APPROVAL_GATE_LABEL} blocks as value proxy`,
-    operator: "5. Pre-commit blocks as value proxy",
+    operator: "5. Approval-check blocks as value proxy",
   },
 };
 

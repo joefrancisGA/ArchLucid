@@ -4,7 +4,7 @@ import type { HelpMarkdownHeading } from "@/lib/help/help-markdown-headings";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
 export const GETTING_STARTED_HELP_SUBTITLE =
-  "Learn how ArchLucid turns architecture evidence into review findings, decisions, and governance-ready outputs.";
+  "Learn how ArchLucid turns architecture evidence into review findings, decisions, and export-ready outputs.";
 
 export const GETTING_STARTED_HELP_PAGE_SUBTITLE_OPERATOR = GETTING_STARTED_HELP_SUBTITLE;
 
@@ -72,12 +72,12 @@ export const GETTING_STARTED_HELP_DIAGRAM_STEPS = [
 export const GETTING_STARTED_HELP_PIPELINE_TEXT_STAGES = [
   "Architecture request opens a review session and feeds context ingestion.",
   "Authority pipeline stages: knowledge graph, findings, decisioning, and artifacts.",
-  "Governance gate: allow commits the finalized review record; block or warn policy holds finalize.",
+  "Approval check: allow commits the finalized review record; block or warn policy holds finalize.",
   "Committed outputs: finalized review record and downloadable exports.",
 ] as const;
 
 export const GETTING_STARTED_HELP_PIPELINE_DIAGRAM_DESCRIPTION =
-  "Stages from architecture request through context ingestion, authority pipeline (knowledge graph, findings, decisioning, artifacts), governance gate (allow commits the finalized review record; block or warn policy holds finalize), and committed outputs (finalized review record and exports).";
+  "Stages from architecture request through context ingestion, authority pipeline (knowledge graph, findings, decisioning, artifacts), approval check (allow commits the finalized review record; block or warn policy holds finalize), and committed outputs (finalized review record and exports).";
 
 export type GettingStartedPlainLanguageTerm = {
   readonly term: string;
@@ -103,7 +103,7 @@ export const GETTING_STARTED_HELP_PLAIN_LANGUAGE_TERMS: readonly GettingStartedP
   {
     term: "Decision",
     definition:
-      "A recorded resolve outcome on review proposals—such as approve, waive, defer, or escalate—captured for governance and audit.",
+      "A recorded resolve outcome on review proposals — such as approve, waive, defer, or escalate — captured for governance and audit.",
   },
   {
     term: "Finalized review record",
@@ -156,7 +156,7 @@ export const GETTING_STARTED_HELP_WORKFLOW_STEPS: readonly GettingStartedWorkflo
   {
     stepNumber: 3,
     title: "Review findings",
-    description: "Triage issues, confirm evidence coverage, and note items that need governance follow-up.",
+    description: "Triage issues, confirm evidence coverage, and note items that need approval follow-up.",
     expectedOutputs: "Prioritized findings ready for decisions.",
     href: "/governance/findings",
     ctaLabel: "Open findings queue",
@@ -249,7 +249,7 @@ export const GETTING_STARTED_HELP_TECHNICAL_TERMS: readonly GettingStartedPlainL
     definition: "Metadata attached to findings for audit and evidence inspection surfaces.",
   },
   {
-    term: "Approval gate",
+    term: "Approval check",
     definition: "Configurable blocker on finalize when severity thresholds are breached.",
   },
 ];
@@ -272,7 +272,7 @@ export const GETTING_STARTED_HELP_DIAGRAM_SOURCE = `flowchart LR
   end
   AR --> CI --> KG --> FD --> DV --> ART
   R -.created at start.- CI
-  FD --> gov{Governance gate}
+  FD --> gov{Approval check}
   gov -->|allow| SR
   gov -->|block / warn policy| gov
   SR --> PKG`;

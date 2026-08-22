@@ -15,7 +15,7 @@ function formatRecordedAt(value: string | null | undefined): string {
   const raw = value?.trim() ?? "";
 
   if (raw.length === 0) {
-    return "—";
+    return " — ";
   }
 
   const ms = Date.parse(raw);
@@ -67,7 +67,7 @@ export function DecisionRegisterDecisionCard(props: DecisionRegisterDecisionCard
         <dl className={cn("m-0 grid gap-2 sm:grid-cols-2", OPERATOR_TYPOGRAPHY.body)}>
           <div>
             <dt className="text-al-text-secondary">Category</dt>
-            <dd className="m-0 font-medium text-al-text-primary">{decision.category || "—"}</dd>
+            <dd className="m-0 font-medium text-al-text-primary">{decision.category || " — "}</dd>
           </div>
           <div>
             <dt className="text-al-text-secondary">Review</dt>

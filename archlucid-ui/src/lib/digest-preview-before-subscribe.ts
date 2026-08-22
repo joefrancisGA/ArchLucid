@@ -62,7 +62,7 @@ export const DIGEST_PREVIEW_SEND_TO_ME_UNAVAILABLE_REASON =
 
 export const DIGEST_PREVIEW_SPECIMEN_BADGE = "Specimen" as const;
 
-const PLACEHOLDER_DESTINATION = "—";
+const PLACEHOLDER_DESTINATION = " — ";
 
 function resolveArchitectureSubject(input: DigestPreviewBeforeSubscribeInput): string {
   const typeLabel = input.digestTypeLabel?.trim();

@@ -10,7 +10,8 @@ describe("AwsTrustPolicyStarterPanel", () => {
     expect(screen.getByTestId("aws-trust-starter-placeholder-issuer")).toHaveTextContent("Replace");
     expect(screen.getByTestId("aws-trust-starter-placeholder-subject")).toHaveTextContent("Replace");
     expect(screen.getByTestId("aws-trust-starter-placeholder-oidc-provider-arn")).toHaveTextContent("Replace");
-    expect(screen.getByTestId("aws-trust-starter-confirmed-audience")).toHaveTextContent("Confirmed");
+    expect(screen.getByRole("button", { name: "Help: Token audience" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Help: OIDC issuer (Entra ID)" })).toBeInTheDocument();
 
     expect(screen.getByRole("link", { name: "Connection status" })).toHaveAttribute(
       "href",

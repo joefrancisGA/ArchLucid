@@ -58,7 +58,11 @@ function renderFullDeploymentFingerprint(
   return (
     <p
       data-testid="deployment-build-fingerprint"
-      className={cn("m-0 inline-flex flex-wrap items-center gap-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro, className)}
+      className={cn(
+        "m-0 inline-flex flex-wrap items-center gap-1 text-al-text-secondary",
+        OPERATOR_TYPOGRAPHY.micro,
+        className,
+      )}
     >
       <span>{formatDeploymentBuildFingerprintLine(fingerprint)}</span>
       <FieldHelpTooltip

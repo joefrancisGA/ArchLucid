@@ -12,11 +12,11 @@ export type ContextualHelpEntry = {
  */
 export const contextualHelpByKey: Record<string, ContextualHelpEntry> = {
   "commit-manifest": {
-    text: "Finalizing locks the sealed review record and synthesizes artifacts. This is the primary pilot deliverable.",
+    text: "Finalizing locks the finalized review record and synthesizes artifacts. This is the primary pilot deliverable.",
     learnMoreUrl: "/docs/CORE_PILOT.md#review-states",
   },
   "governance-gate": {
-    text: "When enabled, governance approval rules check findings against severity thresholds before allowing finalization.",
+    text: "When enabled, resolve outcome rules check findings against severity thresholds before allowing finalization.",
     learnMoreUrl:
       "/docs/library/customer-facing/GOVERNANCE_APPROVAL_OPERATOR_GUIDE.md#governance-workflow",
   },
@@ -25,7 +25,7 @@ export const contextualHelpByKey: Record<string, ContextualHelpEntry> = {
 /** Accessible name fallbacks when help copy is empty — avoids legacy run-primary aria labels. */
 const CONTEXTUAL_HELP_KEY_FALLBACK_LABEL: Partial<Record<string, string>> = {
   "commit-manifest": "finalize review",
-  "governance-gate": "governance gate",
+  "governance-gate": "approval check",
 };
 
 /** First sentence (or short excerpt) of help copy — used for the trigger's accessible name. */

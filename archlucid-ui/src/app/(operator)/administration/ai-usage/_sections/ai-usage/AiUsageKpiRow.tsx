@@ -13,7 +13,7 @@ type Props = {
 
 function formatOptionalUsd(value: number | null, currency: string, approximate = false): string {
   if (value === null) {
-    return "—";
+    return " — ";
   }
 
   const formatted = formatCostReportingEstimatedUsd(value, currency);
@@ -23,7 +23,7 @@ function formatOptionalUsd(value: number | null, currency: string, approximate =
 
 function formatOptionalPercent(value: number | null): string {
   if (value === null) {
-    return "—";
+    return " — ";
   }
 
   return `${value}%`;

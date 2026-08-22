@@ -808,9 +808,9 @@ export function SsoWizardPageClient() {
                 />
               </div>
               <ul className={cn("m-0 list-disc space-y-1 pl-5", OPERATOR_TYPOGRAPHY.body)}>
-                <li>Protocol: {state.protocol === "oidc" ? "OpenID Connect" : state.protocol === "saml" ? "SAML 2.0" : "—"}</li>
+                <li>Protocol: {state.protocol === "oidc" ? "OpenID Connect" : state.protocol === "saml" ? "SAML 2.0" : " — "}</li>
                 <li>Issuer: {state.issuerUri}</li>
-                <li>Mapped roles (test): {state.mappedRoles.join(", ") || "—"}</li>
+                <li>Mapped roles (test): {state.mappedRoles.join(", ") || " — "}</li>
               </ul>
               <SsoActivateConsequencePreview />
             </div>

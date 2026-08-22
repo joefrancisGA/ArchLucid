@@ -2,21 +2,22 @@
 
 import { FavoriteReviewsVsNavPinsVocabularyRail } from "@/components/FavoriteReviewsVsNavPinsVocabularyRail";
 import { FavoriteReviewsList } from "@/components/reviews/FavoriteReviewsList";
+import { useFavoriteReviews } from "@/hooks/use-favorite-reviews";
 
-import {
-  REVIEWS_HUB_PINNED_REVIEWS_EMPTY,
-  REVIEWS_HUB_PINNED_REVIEWS_TITLE,
-} from "./reviews-hub-copy";
+import { REVIEWS_HUB_PINNED_REVIEWS_TITLE } from "./reviews-hub-copy";
 
-/** Pinned architecture packages on the reviews hub (TB-2206). */
-export function ReviewsHubPinnedReviews(): React.JSX.Element {
+/** Pinned architecture reviews on the reviews hub (TB-2206). Omitted when nothing is pinned. */
+export function ReviewsHubPinnedReviews(): React.JSX.Element | null {
+  const { favorites } = useFavoriteReviews();
+
+  if (favorites.length === 0) {
+    return null;
+  }
+
   return (
     <div className="mt-6" data-testid="reviews-hub-pinned-reviews">
       <FavoriteReviewsVsNavPinsVocabularyRail currentSurfaceId="favorite-reviews" />
-      <FavoriteReviewsList
-        heading={REVIEWS_HUB_PINNED_REVIEWS_TITLE}
-        emptyHint={REVIEWS_HUB_PINNED_REVIEWS_EMPTY}
-      />
+      <FavoriteReviewsList heading={REVIEWS_HUB_PINNED_REVIEWS_TITLE} />
     </div>
   );
 }

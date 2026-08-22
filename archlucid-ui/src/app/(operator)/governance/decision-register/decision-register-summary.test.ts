@@ -44,7 +44,7 @@ describe("deriveDecisionRegisterSummary", () => {
     expect(summary.recordedDecisions).toBe(2);
     expect(summary.highConfidenceDecisions).toBe(1);
     expect(summary.decisionsNeedingReview).toBe(1);
-    expect(summary.lastRecordedDecisionLabel).not.toBe("—");
+    expect(summary.lastRecordedDecisionLabel).not.toBe(" — ");
   });
 
   it("does not count a decision as high confidence when it also needs review", () => {

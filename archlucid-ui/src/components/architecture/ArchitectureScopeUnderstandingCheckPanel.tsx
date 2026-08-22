@@ -27,6 +27,7 @@ import {
   SCOPE_UNDERSTANDING_HEADING,
   SCOPE_UNDERSTANDING_HELPER,
   SCOPE_UNDERSTANDING_READY_HINT,
+  SCOPE_UNDERSTANDING_SAVE_ERROR_HINT,
   type DeriveScopeUnderstandingBulletsInput,
   type ScopeUnderstandingBullet,
 } from "@/lib/architecture/architecture-scope-understanding-check";
@@ -317,6 +318,14 @@ export function ArchitectureScopeUnderstandingCheckPanel(
           >
             <StatusTag kind="in-progress" label="Saving…" />
           </div>
+        ) : props.draftSaveState === "error" ? (
+          <p
+            className={cn("m-0 text-red-800 dark:text-red-300", OPERATOR_TYPOGRAPHY.helper)}
+            role="alert"
+            data-testid="architecture-scope-understanding-save-error"
+          >
+            {SCOPE_UNDERSTANDING_SAVE_ERROR_HINT}
+          </p>
         ) : (
           <p
             className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}

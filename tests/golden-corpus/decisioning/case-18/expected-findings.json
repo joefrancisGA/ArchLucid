@@ -18,7 +18,7 @@
     ]
   },
   {
-    "findingId": "997ac197-3d22-bb02-8f1c-c31f08402c92",
+    "findingId": "6ae9096c-8d7b-5abe-25ed-5e56673544c8",
     "findingType": "RequirementFinding",
     "category": "Requirement",
     "severity": "Info",
@@ -33,7 +33,7 @@
       "requirement-surface"
     ],
     "decisionsTaken": [
-      "Linked requirement to topology resources via RELATES_TO graph edges."
+      "Linked requirement to the sole in-scope topology resource (single-topology fallback)."
     ]
   },
   {

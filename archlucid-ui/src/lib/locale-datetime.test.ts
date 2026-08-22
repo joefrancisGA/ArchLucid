@@ -11,9 +11,9 @@ describe("formatInstantForLocale", () => {
   });
 
   it("returns em dash for empty or invalid input", () => {
-    expect(formatInstantForLocale("")).toBe("—");
-    expect(formatInstantForLocale("not-a-date")).toBe("—");
-    expect(formatInstantForLocale(null)).toBe("—");
-    expect(formatInstantForLocale(undefined)).toBe("—");
+    expect(formatInstantForLocale("")).toBe(" — ");
+    expect(formatInstantForLocale("not-a-date")).toBe(" — ");
+    expect(formatInstantForLocale(null)).toBe(" — ");
+    expect(formatInstantForLocale(undefined)).toBe(" — ");
   });
 });

@@ -131,7 +131,7 @@ describe("hub workspace scope empty teaching builders (TB-2387)", () => {
       "No architecture drafts in Payments",
     );
     expect(buildSignedRecordsHubWorkspaceScopeEmptyTeaching(scopedRecord).title).toBe(
-      "No sealed review records in Payments",
+      "No finalized review records in Payments",
     );
     expect(buildGovernanceFindingsHubWorkspaceScopeEmptyTeaching(scopedRecord).title).toBe(
       "No findings in Payments",

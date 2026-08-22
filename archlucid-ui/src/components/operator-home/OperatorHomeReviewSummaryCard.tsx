@@ -10,6 +10,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
 import { DemoDataBadge } from "@/components/usability/DemoDataBadge";
+import { buyerDemoPackageCardMeta } from "@/lib/buyer/buyer-demo-package-card-meta";
 import { isShowcaseStaticDemoRunId } from "@/lib/demo-run-canonical";
 import { isDemoSeededOverviewInjectedRun } from "@/lib/demo-seeded-overview";
 import { BUYER_FINDINGS_COUNT_WITH_MONITORED_RISK } from "@/lib/buyer/buyer-polish-copy";
@@ -27,7 +28,7 @@ import {
   resolveRunFindingCountDisplay,
   resolveRunWarningCountDisplay,
 } from "@/lib/operator/operator-home-run-list-insight";
-import { SHOWCASE_STATIC_DEMO_SPINE_COUNTS } from "@/lib/showcase-static-demo";
+import { SHOWCASE_STATIC_DEMO_MANIFEST_ID, SHOWCASE_STATIC_DEMO_SPINE_COUNTS } from "@/lib/showcase-static-demo";
 import { cn } from "@/lib/utils";
 import type { RunSummary } from "@/types/authority";
 
@@ -80,6 +81,7 @@ export function OperatorHomeReviewSummaryCard(props: OperatorHomeReviewSummaryCa
   const isExampleReview =
     isShowcaseDemo || isDemoSeededOverviewInjectedRun(props.run);
   const showcaseProofMetadata = variant === "featured" && isShowcaseDemo;
+  const showcaseProofMeta = showcaseProofMetadata ? buyerDemoPackageCardMeta(props.run.runId ?? "") : null;
   const insightText = [insightLine, updatedLabel].filter((part) => part !== null).join(" · ");
 
   return (
@@ -125,6 +127,13 @@ export function OperatorHomeReviewSummaryCard(props: OperatorHomeReviewSummaryCa
           </p>
           <InlineMetadataLine label="Evidence trail" value="Ready" />
           <InlineMetadataLine label="Audit trail" value="Complete" />
+          {showcaseProofMeta !== null ? (
+            <>
+              <InlineMetadataLine label="Decision date" value={showcaseProofMeta.decisionDate} />
+              <InlineMetadataLine label="Finalized review record" value={SHOWCASE_STATIC_DEMO_MANIFEST_ID} />
+              <InlineMetadataLine label="Approver" value={showcaseProofMeta.approvalAuthority} />
+            </>
+          ) : null}
         </div>
       ) : (
         <dl className="m-0 grid grid-cols-1 gap-x-4 gap-y-2 sm:grid-cols-2">

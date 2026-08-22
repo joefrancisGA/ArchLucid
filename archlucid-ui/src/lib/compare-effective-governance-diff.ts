@@ -124,7 +124,7 @@ function parseAtCommitPackAssignments(value: unknown): CompareEffectivePackAssig
 
     rows.push({
       policyPackId,
-      policyPackVersion: readTrimmedString(item.policyPackVersion) ?? "—",
+      policyPackVersion: readTrimmedString(item.policyPackVersion) ?? " — ",
       scopeLevel: readTrimmedString(item.scopeLevel) ?? "Project",
     });
   }

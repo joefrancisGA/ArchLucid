@@ -79,15 +79,19 @@ describe("GcpCloudConnectionDetailClient", () => {
     expect(screen.getByTestId("gcp-connection-recent-activity-panel")).toBeInTheDocument();
   });
 
-  it("shows connection status and header connect CTA when not connected (P0-2)", async () => {
+  it("shows connection status without a header scroll CTA when not connected (P0-2)", async () => {
     render(<GcpCloudConnectionDetailClient />);
 
     await waitFor(() => {
       expect(screen.getByTestId("gcp-connection-header-status")).toHaveTextContent("Not connected");
     });
 
-    expect(screen.getByTestId("gcp-connection-header-connect")).toHaveTextContent("Connect GCP project");
-    expect(screen.getByTestId("gcp-connection-header-connect")).toHaveAttribute("href", "#connection-details");
+    expect(screen.queryByTestId("gcp-connection-header-connect")).not.toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Recent connection activity" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "View setup guide" })).toHaveAttribute(
+      "href",
+      "/help/cloud-connections/gcp",
+    );
   });
 
   it("mounts claim-discipline sources matching the AWS cloud detail page (P0-3, P0-8)", async () => {
@@ -103,12 +107,26 @@ describe("GcpCloudConnectionDetailClient", () => {
       );
     }
     const sources = screen.getByTestId("cloud-connections-gcp-sources");
-    expect(within(sources).getByRole("link", { name: "Connection status" })).toHaveAttribute(
+    expect(within(sources).getByRole("link", { name: "Open Connection status" })).toHaveAttribute(
       "href",
       "/administration/connection-status",
     );
     expect(
       within(sources).queryByRole("link", { name: /integrations\/cloud-connections\/gcp/i }),
     ).not.toBeInTheDocument();
+  });
+
+  it("does not claim Not connected when the connection list fails to load", async () => {
+    const { listGcpTier2Connections } = await import("@/lib/api/gcp-cloud-connections-api");
+    vi.mocked(listGcpTier2Connections).mockRejectedValueOnce(new Error("network"));
+
+    render(<GcpCloudConnectionDetailClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("gcp-connection-header-status")).toHaveTextContent("Status unavailable");
+    });
+
+    expect(screen.getByTestId("gcp-connection-header-status")).not.toHaveTextContent("Not connected");
+    expect(screen.queryByTestId("gcp-connection-header-connect")).not.toBeInTheDocument();
   });
 });

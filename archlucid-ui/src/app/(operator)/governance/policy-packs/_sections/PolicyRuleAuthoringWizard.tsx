@@ -624,7 +624,7 @@ export function PolicyRuleAuthoringWizard(props: PolicyRuleAuthoringWizardProps)
               checked={blockOnCritical}
               onChange={(e) => setBlockOnCritical(e.target.checked)}
             />
-            Treat critical findings as blocking (pre-commit semantics)
+            Treat critical findings as blocking before finalize
           </label>
 
           <Button
@@ -672,7 +672,7 @@ export function PolicyRuleAuthoringWizard(props: PolicyRuleAuthoringWizardProps)
             disabled={canPublishAfterTest}
           />
           <span>
-            Allow publish without a successful in-wizard test (not recommended when the pre-commit gate would block).
+            Allow publish without a successful in-wizard test (not recommended when the approval check would block).
           </span>
         </label>
 

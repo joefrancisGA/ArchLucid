@@ -44,6 +44,6 @@ describe("RUN_DETAIL_KPI_SEMANTIC_CONTRACT (TB-320)", () => {
   it("presentRunDetailKpiFlag renders server booleans without inventing values", () => {
     expect(presentRunDetailKpiFlag(true).display).toBe("Yes");
     expect(presentRunDetailKpiFlag(false).display).toBe("No");
-    expect(presentRunDetailKpiFlag(undefined, { loading: true }).display).toBe("—");
+    expect(presentRunDetailKpiFlag(undefined, { loading: true }).display).toBe(" — ");
   });
 });

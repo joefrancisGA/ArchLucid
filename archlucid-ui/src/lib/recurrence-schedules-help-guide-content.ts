@@ -67,7 +67,7 @@ export const RECURRENCE_SCHEDULES_HELP_AUTOMATION_ITEMS: readonly RecurrenceSche
     href: RECURRENCE_SCHEDULES_REVIEW_PACKAGES_HREF,
   },
   {
-    label: "Governance approval when required",
+    label: "Resolve outcomes when required",
     sourceSurface: "Approval queue",
     href: RECURRENCE_SCHEDULES_PENDING_APPROVALS_HREF,
   },
@@ -81,7 +81,7 @@ export const RECURRENCE_SCHEDULES_HELP_AUTOMATION_ITEMS: readonly RecurrenceSche
 export const RECURRENCE_SCHEDULES_HELP_HOW_IT_WORKS_STEPS = [
   "Choose a finalized architecture review to anchor the schedule.",
   "Define the cadence — quarterly control checks, annual attestations, weekly remediation follow-ups, or board checkpoints.",
-  "When the cadence fires, open the cloned review, triage new findings, and route governance decisions on linked surfaces.",
+  "When the cadence fires, open the cloned review, triage new findings, and route approval decisions on linked surfaces.",
 ] as const;
 
 export const RECURRENCE_SCHEDULES_HELP_EXAMPLES_SECTION_TITLE = "Common schedule examples";
@@ -122,6 +122,6 @@ export const RECURRENCE_SCHEDULES_HELP_GUIDE_HEADINGS: readonly HelpMarkdownHead
 
 /** Drift guard: claim band owns diligence limits; overview and steps stay affirmative. */
 export const RECURRENCE_SCHEDULES_HELP_NEGATION_DRIFT_MARKERS = {
-  overviewMustNotContain: ["not a sealed review record", "digest delivery receipt"],
+  overviewMustNotContain: ["not a finalized review record", "digest delivery receipt"],
   claimMustNotContain: ["sources package", "sealed-review diligence"],
 } as const;

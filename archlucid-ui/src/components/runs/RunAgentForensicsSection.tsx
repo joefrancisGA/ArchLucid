@@ -38,21 +38,21 @@ function scoreForTrace(
 
 function ratioText(value: number | null | undefined): string {
   if (value === null || value === undefined || Number.isNaN(value))
-    return "—";
+    return " — ";
 
   return value.toFixed(2);
 }
 
 function wallClockDeltaFromPriorAgent(prevIso: string | null, curIso: string): string {
   if (!prevIso) {
-    return "—";
+    return " — ";
   }
 
   const prevMs = Date.parse(prevIso);
   const curMs = Date.parse(curIso);
 
   if (!Number.isFinite(prevMs) || !Number.isFinite(curMs) || curMs < prevMs) {
-    return "—";
+    return " — ";
   }
 
   const sec = Math.round((curMs - prevMs) / 1000);
@@ -94,7 +94,7 @@ function notesPreview(full: string | null | undefined): { text: string } {
   const s = full?.trim() ?? "";
 
   if (s.length === 0)
-    return { text: "—" };
+    return { text: " — " };
 
   if (s.length <= notesPreviewMax)
     return { text: s };
@@ -309,7 +309,7 @@ export async function RunAgentForensicsSection(props: { runId: string }) {
                 <EnterpriseTableRow key={t.traceId}>
                   <EnterpriseTableCell className="whitespace-nowrap">{buyerLabelForAgentType(t.agentType)}</EnterpriseTableCell>
                   <EnterpriseTableCell className="whitespace-nowrap font-mono text-neutral-600 dark:text-neutral-400">
-                    {t.modelAlias?.trim() ? t.modelAlias : "—"}
+                    {t.modelAlias?.trim() ? t.modelAlias : " — "}
                   </EnterpriseTableCell>
                   <EnterpriseTableCell className="whitespace-nowrap text-neutral-600 dark:text-neutral-400">
                     {wallClockDeltaFromPriorAgent(prevCreated, t.createdUtc)}
@@ -317,7 +317,7 @@ export async function RunAgentForensicsSection(props: { runId: string }) {
                   <EnterpriseTableCell className={cn("font-mono", OPERATOR_TYPOGRAPHY.helper)}>{t.traceId}</EnterpriseTableCell>
                   <EnterpriseTableCell>{t.parseSucceeded ? "yes" : "no"}</EnterpriseTableCell>
                   <EnterpriseTableCell>
-                    {t.blobUploadFailed === true ? "failed" : t.blobUploadFailed === false ? "ok" : "—"}
+                    {t.blobUploadFailed === true ? "failed" : t.blobUploadFailed === false ? "ok" : " — "}
                   </EnterpriseTableCell>
                   <EnterpriseTableCell>
                     {sc
@@ -325,26 +325,26 @@ export async function RunAgentForensicsSection(props: { runId: string }) {
                         ? "parse failure"
                         : sc.structuralCompletenessRatio.toFixed(2)
                       : evaluationFailure
-                        ? "—"
+                        ? " — "
                         : "n/a"}
                   </EnterpriseTableCell>
                   <EnterpriseTableCell className="whitespace-nowrap">
                     {!sc || evaluationFailure
-                      ? "—"
+                      ? " — "
                       : sc.isJsonParseFailure
-                        ? "—"
+                        ? " — "
                         : sem
                           ? ratioText(sem.overallSemanticScore)
                           : "n/a"}
                   </EnterpriseTableCell>
                   <EnterpriseTableCell className="whitespace-nowrap">
                     {!sc || evaluationFailure || sc.isJsonParseFailure || !sem
-                      ? "—"
+                      ? " — "
                       : ratioText(sem.heuristicOverallScore)}
                   </EnterpriseTableCell>
                   <EnterpriseTableCell className="whitespace-nowrap">
                     {!sc || evaluationFailure || sc.isJsonParseFailure || !sem
-                      ? "—"
+                      ? " — "
                       : ratioText(
                           sem.llmJudgeOverallQuality !== null &&
                             sem.llmJudgeOverallQuality !== undefined
@@ -354,7 +354,7 @@ export async function RunAgentForensicsSection(props: { runId: string }) {
                   </EnterpriseTableCell>
                   <EnterpriseTableCell className="align-middle">
                     {!sc || evaluationFailure || sc.isJsonParseFailure || !sem ? (
-                      "—"
+                      " — "
                     ) : (
                       <AgentEvidenceFaithfulnessBadge ratio={sem.agentResultFaithfulnessSupportRatio} />
                     )}
@@ -362,7 +362,7 @@ export async function RunAgentForensicsSection(props: { runId: string }) {
                   <EnterpriseTableCell
                     className={cn("max-w-[14rem] break-words text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
                   >
-                    {!sc || evaluationFailure || sc.isJsonParseFailure || !sem ? "—" : rawNotes.text}
+                    {!sc || evaluationFailure || sc.isJsonParseFailure || !sem ? " — " : rawNotes.text}
                   </EnterpriseTableCell>
                 </EnterpriseTableRow>
               );

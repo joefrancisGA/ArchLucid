@@ -120,7 +120,7 @@ export const IMPACT_PREVIEW_RESULT_ACTION_SAVE = "Save impact preview" as const;
 export const IMPACT_PREVIEW_SAVE_UNAVAILABLE_HINT =
   "Saving impact previews is not available in this release." as const;
 export const IMPACT_PREVIEW_RESULT_ACTION_ADVISORY = "Create advisory recommendation" as const;
-export const IMPACT_PREVIEW_RESULT_ACTION_GOVERNANCE = "Send to governance workflow" as const;
+export const IMPACT_PREVIEW_RESULT_ACTION_GOVERNANCE = "Send to approval workflow" as const;
 export const IMPACT_PREVIEW_RESULT_ACTION_EXPORT = "Export summary" as const;
 
 export const IMPACT_PREVIEW_HOW_IT_WORKS_TITLE = "How impact preview works" as const;

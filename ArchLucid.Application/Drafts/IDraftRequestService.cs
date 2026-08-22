@@ -30,6 +30,8 @@ public interface IDraftRequestService
 
     Task<DraftRequestResponse?> AbandonAsync(ScopeContext scope, Guid draftId, CancellationToken cancellationToken);
 
+    Task<DraftRequestResponse?> ReopenAsync(ScopeContext scope, Guid draftId, CancellationToken cancellationToken);
+
     Task<BranchDraftResponse?> BranchAsync(ScopeContext scope, Guid parentDraftId, string actorUserId,
         BranchDraftRequest request, CancellationToken cancellationToken);
 

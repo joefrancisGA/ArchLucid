@@ -45,14 +45,14 @@ describe("LayerHeader", () => {
     render(<LayerHeader pageKey="compare" />);
 
     expect(screen.getByTestId("layer-header-review-vocabulary")).toHaveTextContent(/Review and evidence trail/i);
-    expect(screen.getByTestId("layer-header-review-vocabulary")).toHaveTextContent(/sealed review record/i);
+    expect(screen.getByTestId("layer-header-review-vocabulary")).toHaveTextContent(/finalized review record/i);
   });
 
   it("renders Governance responsibility footnote on audit", () => {
     render(<LayerHeader pageKey="audit" />);
 
     expect(screen.getByText("Governance")).toBeInTheDocument();
-    expect(screen.getByText(/Tenant audit trail—who did what, when/i)).toBeInTheDocument();
+    expect(screen.getByText(/Tenant audit trail — who did what, when/i)).toBeInTheDocument();
   });
 
   /**
@@ -62,14 +62,14 @@ describe("LayerHeader", () => {
     render(<LayerHeader pageKey="audit" />);
 
     expect(
-      screen.getByRole("complementary", { name: /Governance:.*Tenant audit trail—who did what, when/i }),
+      screen.getByRole("complementary", { name: /Governance:.*Tenant audit trail — who did what, when/i }),
     ).toBeInTheDocument();
   });
 
   it("renders governance resolution Governance footnote", () => {
     render(<LayerHeader pageKey="governance-resolution" />);
 
-    expect(screen.getByText(/Read-only diagnostic; edits on Policy packs or Governance workflow\./i)).toBeInTheDocument();
+    expect(screen.getByText(/Read-only diagnostic; edits on Policy packs or Resolve outcomes workflow\./i)).toBeInTheDocument();
   });
 
   it("renders Execute+ rank cue on Governance audit when caller rank is Execute+", () => {

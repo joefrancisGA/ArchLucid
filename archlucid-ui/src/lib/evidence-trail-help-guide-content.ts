@@ -21,7 +21,7 @@ import {
 } from "@/lib/showcase-static-demo";
 
 export const EVIDENCE_TRAIL_HELP_HERO_OVERVIEW =
-  "Open the Evidence graph to trace how findings, artifacts, and governance decisions connect for a finalized architecture review.";
+  "Open the Evidence graph to trace how findings, artifacts, and approval decisions connect for a finalized architecture review.";
 
 export const EVIDENCE_TRAIL_HELP_ACTION_PANEL_TITLE = "Open the Evidence graph";
 

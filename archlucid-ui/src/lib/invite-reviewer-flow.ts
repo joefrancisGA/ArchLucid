@@ -10,7 +10,7 @@ export const SETTINGS_ROLES_USERS_TAB_PATH = SETTINGS_USERS_USERS_TAB_PATH;
 export const INVITE_REVIEWER_PAGE_TITLE = "Invite reviewer";
 
 export const INVITE_REVIEWER_PAGE_LEAD =
-  "Invite a colleague to participate in architecture reviews for this workspace. Reviewers are assigned the Reader role: they can view reviews, findings, and governance decisions, but cannot approve, finalize, or modify evidence.";
+  "Invite a colleague to participate in architecture reviews for this workspace. Reviewers are assigned the Reader role: they can view reviews, findings, and approval decisions, but cannot approve, finalize, or modify evidence.";
 
 export const INVITE_REVIEWER_DEFAULT_ROLE: ArchLucidAppRole = "Reader";
 
@@ -34,7 +34,7 @@ export type InviteReviewerReaderCapability = {
 export const INVITE_REVIEWER_READER_CAPABILITIES_HEADING = "Reader role capabilities:";
 
 export const INVITE_REVIEWER_READER_CAPABILITIES: readonly InviteReviewerReaderCapability[] = [
-  { allowed: true, label: "View reviews, findings, and governance decisions" },
+  { allowed: true, label: "View reviews, findings, and approval decisions" },
   { allowed: true, label: "Export finalized review records and audit CSVs" },
   { allowed: false, label: "Cannot approve governance requests" },
   { allowed: false, label: "Cannot finalize reviews" },

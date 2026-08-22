@@ -15,10 +15,10 @@ export const MARKETING_WHY_OG_DESCRIPTION =
   "See how ArchLucid compares on AI orchestration, governance, and audit-ready evidence — grounded in shipped product capabilities.";
 
 export const MARKETING_SEE_IT_OG_DESCRIPTION =
-  "No-install sample architecture review: sponsor report, sealed review record, evidence trail, and governance-ready outputs.";
+  "No-install sample architecture review: sponsor report, finalized review record, evidence trail, and export-ready outputs.";
 
 export const MARKETING_FAQ_OG_DESCRIPTION =
-  "Buyer-safe answers on evaluation, pricing, evidence, governance, and assurance for architects and sponsors evaluating ArchLucid.";
+  "Buyer-safe answers on evaluation, pricing, evidence, approval workflow, and assurance for architects and sponsors evaluating ArchLucid.";
 
 const OG_IMAGE_PATH = "/logo/og-default.png";
 const OG_IMAGE_WIDTH = 1200;

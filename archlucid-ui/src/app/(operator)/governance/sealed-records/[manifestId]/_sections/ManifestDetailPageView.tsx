@@ -280,7 +280,7 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
                 BUYER_MANIFEST_AUTHORITY_SUMMARY
               ) : (
                 <>
-                  This is the <InlineGlossaryChip nounId="sealed-review-record" pulseOnFirstEncounter={false}>sealed review record</InlineGlossaryChip> for the architecture review —{" "}
+                  This is the <InlineGlossaryChip nounId="sealed-review-record" pulseOnFirstEncounter={false}>Finalized review record</InlineGlossaryChip> for the architecture review —{" "}
                   <InlineGlossaryChip nounId="decision" pulseOnFirstEncounter={false}>decisions</InlineGlossaryChip>,{" "}
                   <InlineGlossaryChip nounId="finding" pulseOnFirstEncounter={false}>findings</InlineGlossaryChip>, and the files you
                   can open or download.
@@ -289,7 +289,7 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
             </>
           ) : (
             <>
-              A <InlineGlossaryChip nounId="sealed-review-record" pulseOnFirstEncounter={false}>sealed review record</InlineGlossaryChip> is the immutable authority for this review. It captures{" "}
+              A <InlineGlossaryChip nounId="sealed-review-record" pulseOnFirstEncounter={false}>Finalized review record</InlineGlossaryChip> is the immutable authority for this review. It captures{" "}
               <InlineGlossaryChip nounId="decision" pulseOnFirstEncounter={false}>decisions</InlineGlossaryChip>,{" "}
               <InlineGlossaryChip nounId="finding" pulseOnFirstEncounter={false}>findings</InlineGlossaryChip>, and
               the downloadable <InlineGlossaryChip nounId="deliverable" pulseOnFirstEncounter={false}>{DELIVERABLES_BUNDLE_LABEL.toLowerCase()}</InlineGlossaryChip> linked from review detail.
@@ -315,7 +315,7 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
           data-testid="manifest-buyer-authority-summary"
         >
           <h2 id="manifest-authority-summary-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
-            What this sealed review record proves
+            What this Finalized review record proves
           </h2>
           <p className={cn("m-0 mt-2 max-w-prose leading-relaxed text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
             {BUYER_MANIFEST_AUTHORITY_SUMMARY}

@@ -66,7 +66,7 @@ export const NOTIFICATIONS_HELP_WORKED_EXAMPLES: readonly NotificationsHelpWorke
   {
     scenario: "Teams channel post",
     detail:
-      "A governance approval event posts to a configured Microsoft Teams channel when Teams integration triggers are enabled.",
+      "A resolve outcomes event posts to a configured Microsoft Teams channel when Teams integration triggers are enabled.",
   },
   {
     scenario: "Alert-rule notification",

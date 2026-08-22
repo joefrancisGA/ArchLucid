@@ -242,7 +242,7 @@ export function SponsorWorkspaceHealthDashboard() {
           <p className={cn("m-0 max-w-prose text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
             Evaluation workspaces may not expose full KPI telemetry yet. Continue from{" "}
             <Link className={OPERATOR_LINK.nav} href="/governance/approval-queue">
-              Governance workflow
+              Resolve outcomes workflow
             </Link>{" "}
             for approvals and promotions.
           </p>
@@ -296,7 +296,7 @@ export function SponsorWorkspaceHealthDashboard() {
     (typeof criticalRaw90 === "number" && Number.isFinite(criticalRaw90) ? criticalRaw90 : 0);
 
   const onTimePct =
-    sla.onTimeDecisionRate === null ? "—" : `${Math.round(sla.onTimeDecisionRate * 100)}%`;
+    sla.onTimeDecisionRate === null ? " — " : `${Math.round(sla.onTimeDecisionRate * 100)}%`;
 
   const blockCountLabel = blocked30d.exact
     ? String(blocked30d.count)
@@ -358,7 +358,7 @@ export function SponsorWorkspaceHealthDashboard() {
               {buyerPolishedShell ? (
                 <>
                   Rolling 30-day counts from audit-backed governance checkpoints — hard blocks vs monitored-risk signals
-                  (non-blocking pre-commit guidance).
+                  (non-blocking approval guidance).
                 </>
               ) : (
                 <>
@@ -415,7 +415,7 @@ export function SponsorWorkspaceHealthDashboard() {
                 {executiveWorkspaceHealthKpiTitle("complianceDrift", buyerPolishedShell)}
               </h2>
               <Link href="/governance/approval-queue" className={OPERATOR_LINK.nav}>
-                Governance workflow
+                Resolve outcomes workflow
               </Link>
             </div>
             <p className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>Daily buckets (1440-minute) from compliance drift API.</p>
@@ -429,7 +429,7 @@ export function SponsorWorkspaceHealthDashboard() {
               {executiveWorkspaceHealthKpiTitle("approvalSla", buyerPolishedShell)}
             </h2>
             <p className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-              Derived from governance dashboard pending approvals and recent terminal decisions.
+              Derived from workspace health pending approvals and recent terminal decisions.
             </p>
             <ul className={cn("m-0 mt-2 list-none space-y-1 p-0 text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
               <li>Pending (sample cap): {dashboard.pendingCount}</li>

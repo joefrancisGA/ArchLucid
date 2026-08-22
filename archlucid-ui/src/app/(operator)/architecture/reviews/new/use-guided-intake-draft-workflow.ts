@@ -47,6 +47,7 @@ type GuidedIntakeDraftWorkflowOptions = {
   readonly form: GuidedIntakeBriefForm;
   readonly isCreateArchitectureFlow: boolean;
   readonly sourceArchitectureId: string;
+  readonly priorRunId?: string | null;
   readonly setStep: (stepIndex: number) => void;
   readonly navigate: (href: string) => void;
   readonly clearSession: () => void;
@@ -63,7 +64,15 @@ type GuidedIntakeDraftWorkflowOptions = {
 export type GuidedIntakeDraftWorkflow = ReturnType<typeof useGuidedIntakeDraftWorkflow>;
 
 export function useGuidedIntakeDraftWorkflow(options: GuidedIntakeDraftWorkflowOptions) {
-  const { clearSession, form, isCreateArchitectureFlow, navigate, setStep, sourceArchitectureId } = options;
+  const {
+    clearSession,
+    form,
+    isCreateArchitectureFlow,
+    navigate,
+    priorRunId,
+    setStep,
+    sourceArchitectureId,
+  } = options;
 
   const [busy, setBusy] = useState(false);
   const [submitError, setSubmitError] = useState<unknown | null>(null);
@@ -130,7 +139,7 @@ export function useGuidedIntakeDraftWorkflow(options: GuidedIntakeDraftWorkflowO
 
     sourceArchitectureLoadedRef.current = true;
 
-    void getDraftRequest(sourceArchitectureId).then((draft) => {
+    void getDraftRequest(sourceArchitectureId).then(async (draft) => {
       setDraftId(draft.draftId);
       const formState = applyArchitectureCreationDraftToFormState(draft);
       setFreeTextIntent(formState.freeTextIntent);
@@ -142,12 +151,27 @@ export function useGuidedIntakeDraftWorkflow(options: GuidedIntakeDraftWorkflowO
           ? draft.document.actorSet
           : architectureCreationDefaultActorSet(),
       );
+
+      if (draft.status === "Admitted") {
+        const questions = await getDraftQuestions(draft.draftId);
+        setAllQuestions(questions.selection.allQuestions);
+        setRequiredMustQuestionKeys(questions.selection.requiredMustQuestionKeys);
+        setPendingQuestions(questions.selection.pendingMustQuestions);
+        setStep(1);
+
+        return;
+      }
+
+      if (draft.status === "Submitted") {
+        setStep(1);
+      }
     });
   }, [
     isCreateArchitectureFlow,
     setActorSet,
     setBusinessOutcome,
     setFreeTextIntent,
+    setStep,
     setSystemName,
     sourceArchitectureId,
   ]);
@@ -192,6 +216,7 @@ export function useGuidedIntakeDraftWorkflow(options: GuidedIntakeDraftWorkflowO
         const created = await createDraftRequest(
           freeTextIntent.trim(),
           isCreateArchitectureFlow ? CREATE_ARCHITECTURE_INTENT : START_REVIEW_INTENT,
+          priorRunId,
         );
         id = created.draftId;
         setDraftId(id);
@@ -251,6 +276,7 @@ export function useGuidedIntakeDraftWorkflow(options: GuidedIntakeDraftWorkflowO
         const created = await createDraftRequest(
           freeTextIntent.trim(),
           isCreateArchitectureFlow ? CREATE_ARCHITECTURE_INTENT : START_REVIEW_INTENT,
+          priorRunId,
         );
         id = created.draftId;
         setDraftId(id);

@@ -6,7 +6,7 @@
 export function formatGovernanceLineageWholeCount(value: unknown): string {
   if (typeof value !== "number" || !Number.isFinite(value))
   {
-    return "—";
+    return " — ";
   }
 
   return String(Math.round(value));
@@ -16,7 +16,7 @@ export function formatGovernanceLineageWholeCount(value: unknown): string {
 export function formatGovernanceLineageCompletenessPercent(value: unknown): string {
   if (typeof value !== "number" || !Number.isFinite(value))
   {
-    return "—";
+    return " — ";
   }
 
   return `${(value * 100).toFixed(0)}%`;

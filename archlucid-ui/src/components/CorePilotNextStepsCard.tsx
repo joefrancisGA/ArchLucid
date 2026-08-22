@@ -101,7 +101,7 @@ function checkpointNextAction(
         ? "Next action: open Reviews and run Execute to generate findings."
         : "Next action: open this review and run Execute to generate findings.";
     case "commit":
-      return "Next action: open review detail and commit the signed review.";
+      return "Next action: open review detail and finalize the architecture review.";
     case "export":
       return "Next action: export sponsor-facing markdown or PDF from review detail.";
     case "sponsor-ready":

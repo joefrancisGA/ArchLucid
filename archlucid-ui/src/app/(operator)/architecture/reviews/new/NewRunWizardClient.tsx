@@ -265,7 +265,7 @@ export function NewRunWizardClient(props: NewRunWizardClientProps = {}) {
     runId === null
       ? "No review started yet."
       : pollSummary
-        ? `Review ${runId} polled: context ${pollSummary.hasContextSnapshot ? "ready" : "pending"}, graph ${pollSummary.hasGraphSnapshot ? "ready" : "pending"}, findings ${pollSummary.hasFindingsSnapshot ? "ready" : "pending"}, sealed review record ${pollSummary.hasGoldenManifest ? "ready" : "pending"}.`
+        ? `Review ${runId} polled: context ${pollSummary.hasContextSnapshot ? "ready" : "pending"}, graph ${pollSummary.hasGraphSnapshot ? "ready" : "pending"}, findings ${pollSummary.hasFindingsSnapshot ? "ready" : "pending"}, Finalized review record ${pollSummary.hasGoldenManifest ? "ready" : "pending"}.`
         : `Review ${runId} created; loading summary.`;
 
   const skipEvidenceAndAdvance = () => {

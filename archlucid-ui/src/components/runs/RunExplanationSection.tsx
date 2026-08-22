@@ -234,7 +234,7 @@ export function RunExplanationSection({
         </span>
         <span className={cn("ml-3 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
           {buyerPolishedShell
-            ? `${summary.decisionCount} governance decisions · ${findingCountForStats} risk findings · ${summary.unresolvedIssueCount} open items`
+            ? `${summary.decisionCount} approval decisions · ${findingCountForStats} risk findings · ${summary.unresolvedIssueCount} open items`
             : `${summary.decisionCount} decisions · ${findingCountForStats} findings · ${summary.unresolvedIssueCount} unresolved · ${summary.complianceGapCount} compliance gaps`}
         </span>
         {deterministicFallback ? (
@@ -402,11 +402,11 @@ export function RunExplanationSection({
             <dt>Model ID</dt>
             <dd className="m-0">{prov.modelId}</dd>
             <dt>Prompt template</dt>
-            <dd className="m-0">{prov.promptTemplateId ?? "—"}</dd>
+            <dd className="m-0">{prov.promptTemplateId ?? " — "}</dd>
             <dt>Prompt version</dt>
-            <dd className="m-0">{prov.promptTemplateVersion ?? "—"}</dd>
+            <dd className="m-0">{prov.promptTemplateVersion ?? " — "}</dd>
             <dt>Content hash</dt>
-            <dd className="m-0">{prov.promptContentHash ?? "—"}</dd>
+            <dd className="m-0">{prov.promptContentHash ?? " — "}</dd>
           </dl>
         </details>
       ) : null}

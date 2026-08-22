@@ -14,7 +14,7 @@ export type CompareDiffExpandableValueCellProps = {
 };
 
 export function CompareDiffExpandableValueCell(props: CompareDiffExpandableValueCellProps): ReactElement {
-  const display = props.value ?? "—";
+  const display = props.value ?? " — ";
   const [expanded, setExpanded] = useState(false);
   const needsExpansion = display.length > 96;
 

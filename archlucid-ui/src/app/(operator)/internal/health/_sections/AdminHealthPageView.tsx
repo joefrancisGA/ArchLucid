@@ -180,7 +180,7 @@ export function AdminHealthPageView(props: Props) {
                   <div className={cn("space-y-4", OPERATOR_TYPOGRAPHY.body)} data-testid="admin-health-config-lint-body">
                     <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
                       Hosting profile:{" "}
-                      <span className="font-medium text-al-text-primary">{m.configLint.hostingEnvironmentName ?? "—"}</span>
+                      <span className="font-medium text-al-text-primary">{m.configLint.hostingEnvironmentName ?? " — "}</span>
                     </p>
                     <div>
                       <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>Blocking</p>

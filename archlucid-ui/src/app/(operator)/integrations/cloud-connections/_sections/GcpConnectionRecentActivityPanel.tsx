@@ -3,6 +3,7 @@
 import { cn } from "@/lib/utils";
 
 import { CloudFirstInventoryCoach } from "@/components/integrations/CloudFirstInventoryCoach";
+import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { Skeleton } from "@/components/ui/skeleton";
 import { StatusTag } from "@/components/ui/status-tag";
 import {
@@ -14,7 +15,9 @@ import {
   EnterpriseTableRow,
 } from "@/components/ui/enterprise-table";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { CLOUD_CONNECTIONS_RECENT_ACTIVITY_EMPTY_TITLE } from "@/lib/cloud-connections-copy";
 import { cloudConnectionIndicatesSuccessfulPull } from "@/lib/cloud-first-inventory-coach";
+import { GCP_CONNECTION_RECENT_ACTIVITY_EMPTY_STATE } from "@/lib/gcp-cloud-connection-copy";
 import {
   formatGcpConnectionTimestamp,
   gcpConnectionStatusTagKind,
@@ -63,7 +66,11 @@ export function GcpConnectionRecentActivityPanel(): React.ReactElement {
           hasConnection={false}
           hasSuccessfulPull={false}
           recommendedProviderId="gcp"
-          emptyPhasePrimaryCtaHref="#connection-details"
+        />
+        <EnterpriseCompactEmptyState
+          title={CLOUD_CONNECTIONS_RECENT_ACTIVITY_EMPTY_TITLE}
+          description={GCP_CONNECTION_RECENT_ACTIVITY_EMPTY_STATE}
+          testId="gcp-connection-recent-activity-empty"
         />
       </div>
     );

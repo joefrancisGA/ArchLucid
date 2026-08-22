@@ -111,6 +111,11 @@ export const OPERATOR_HOME_BEST_FOR_EVALUATING_BADGE = "Best for evaluating Arch
 export const OPERATOR_HOME_MISSING_COMPLETED_SAMPLE_MESSAGE =
   "No completed sample has been selected for this workspace.";
 
+export const OPERATOR_HOME_COMPLETED_SAMPLE_FETCH_ERROR_MESSAGE =
+  "Could not load the completed sample for this workspace. Try refreshing the page.";
+
+export const OPERATOR_HOME_DRAFT_ARCHITECTURE_EYEBROW = "Draft architecture";
+
 export const OPERATOR_HOME_DATA_CURRENCY_PREFIX = "Updated";
 
 export const OPERATOR_HOME_CHOOSE_SAMPLE_REVIEW_CTA = "Choose sample review";
@@ -126,7 +131,7 @@ export const OPERATOR_HOME_COMPACT_STARTING_ACTIONS_HEADING = "Start another rev
 export const OPERATOR_HOME_ARCHITECTURE_LIFECYCLE_INTRO_LABEL = "Two ways in:";
 
 export const OPERATOR_HOME_ARCHITECTURE_LIFECYCLE_INTRO_BODY =
-  "Create an architecture from a description, uploaded evidence, or connected cloud inventory—or review an architecture you already have.";
+  "Create an architecture from a description, uploaded evidence, or connected cloud inventory — or review an architecture you already have.";
 
 export const OPERATOR_HOME_ARCHITECTURE_LIFECYCLE_INTRO =
   `${OPERATOR_HOME_ARCHITECTURE_LIFECYCLE_INTRO_LABEL} ${OPERATOR_HOME_ARCHITECTURE_LIFECYCLE_INTRO_BODY}`;
@@ -139,7 +144,7 @@ export const OPERATOR_HOME_CREATE_ARCHITECTURE_CARD_BODY =
 export const OPERATOR_HOME_REVIEW_ARCHITECTURE_CARD_TITLE = "Review architecture";
 
 export const OPERATOR_HOME_REVIEW_ARCHITECTURE_CARD_BODY =
-  "Attach architecture information you already have—diagrams, documents, inventory exports, or connected cloud evidence. It produces findings and evidence you can finalize into a finalized review record.";
+  "Attach architecture information you already have — diagrams, documents, inventory exports, or connected cloud evidence. It produces findings and evidence you can finalize into a finalized review record.";
 
 /** @deprecated Merged into {@link OPERATOR_HOME_REVIEW_ARCHITECTURE_CARD_BODY} on the home review card. */
 export const OPERATOR_HOME_REVIEW_ARCHITECTURE_SUPPORT = OPERATOR_HOME_REVIEW_ARCHITECTURE_CARD_BODY;
@@ -186,7 +191,7 @@ export const OPERATOR_HOME_SAMPLE_FINDINGS_HEADING = OPERATOR_HOME_EXPLORE_SAMPL
 export const OPERATOR_HOME_SAMPLE_FINDINGS_LEAD = OPERATOR_HOME_EXPLORE_SAMPLE_LEAD;
 
 export const OPERATOR_HOME_SAMPLE_FINDINGS_DEFENSIBLE_LAYER =
-  "Example review — not your workspace data. Open the full review for findings, evidence, and the sealed record.";
+  "Example review — not your workspace data. Open the full review for findings, evidence, and the finalized review record.";
 
 export const SAMPLE_REVIEW_AHA_FINDING_LABEL = "Finding";
 

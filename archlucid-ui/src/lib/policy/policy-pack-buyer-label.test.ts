@@ -23,7 +23,7 @@ describe("policyPackBuyerLabel", () => {
   });
 
   it("returns dash when empty", () => {
-    expect(policyPackBuyerLabel("", "")).toBe("—");
+    expect(policyPackBuyerLabel("", "")).toBe(" — ");
   });
 });
 

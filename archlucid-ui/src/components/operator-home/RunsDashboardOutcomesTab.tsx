@@ -32,7 +32,7 @@ export function RunsDashboardOutcomesTab(props: RunsDashboardOutcomesTabProps) {
             <StatusTag kind="ready" label="Outcome" />
             <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.cardTitle)}>Review finalized</p>
             <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.label)}>
-              Sealed review record pinned with governance-approved posture for sponsor readout.
+              Finalized review record pinned with governance-approved posture for sponsor readout.
             </p>
           </li>
           <li className={cn("px-3 py-2", OPERATOR_SURFACE_CARD_CLASS)}>

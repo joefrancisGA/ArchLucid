@@ -25,6 +25,7 @@ export type GcpWifStarterFederationIdentifier = {
   readonly id: string;
   readonly label: string;
   readonly value: string;
+  readonly hint: string;
   readonly isPlaceholder: boolean;
 };
 
@@ -47,12 +48,14 @@ export function buildGcpWifStarterFederationIdentifiers(
       value: tenantResolved
         ? formatGcpEntraOidcIssuerUri(config.tenantId)
         : "Tenant ID not published for this environment",
+      hint: "Entra issuer URL ArchLucid publishes for this environment. Use it as the OIDC issuer on the Workload Identity Pool provider.",
       isPlaceholder: !tenantResolved,
     },
     {
       id: "audience",
       label: "Token audience",
       value: GCP_WIF_TOKEN_AUDIENCE,
+      hint: "Must match api://AzureADTokenExchange on the Workload Identity Pool OIDC provider.",
       isPlaceholder: false,
     },
     {
@@ -61,12 +64,14 @@ export function buildGcpWifStarterFederationIdentifiers(
       value: subjectResolved
         ? config.managedIdentityObjectId
         : "Managed identity object ID not published for this environment",
+      hint: "Object ID of ArchLucid's managed identity. The federated credential subject must match this value.",
       isPlaceholder: !subjectResolved,
     },
     {
       id: "attribute-mapping",
       label: "Attribute mapping",
       value: "google.subject=assertion.sub,attribute.tenant=assertion.tid",
+      hint: "Maps the Entra token subject and tenant claims into GCP attributes for impersonation.",
       isPlaceholder: false,
     },
     {
@@ -77,6 +82,7 @@ export function buildGcpWifStarterFederationIdentifiers(
         GCP_WIF_POOL_ID,
         GCP_WIF_PROVIDER_ID,
       ),
+      hint: "Example resource name to paste into Connection details after you create the pool provider.",
       isPlaceholder: true,
     },
   ] as const;

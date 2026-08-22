@@ -106,7 +106,7 @@ export function ManifestDetailSummaryPanel(props: ManifestDetailSummaryPanelProp
         <p className={cn("m-0 mt-2 leading-snug text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
           {isCuratedDemo
             ? "Policy pack used for this review — defines checks referenced in diligence. Human approvals do not replace your change-management authority."
-            : "Defines referenced checks used in diligence; approvals stay human-governed and do not bypass deployment authority."}
+            : "Defines referenced checks used in diligence; approvals stay human-approved and do not bypass deployment authority."}
         </p>
         {buyerPolicyPackHref !== null ? (
           <p className={cn("m-0 mt-3", OPERATOR_TYPOGRAPHY.body)}>
@@ -156,7 +156,7 @@ export function ManifestDetailSummaryPanel(props: ManifestDetailSummaryPanelProp
         )}
         {decisionRestCount > 0 ? (
           <p className={cn("m-0 mt-2 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-            … and {decisionRestCount} more decisions in the governed export — open review detail or download the evidence
+            … and {decisionRestCount} more decisions in the export package — open review detail or download the evidence
             package for the full list.
           </p>
         ) : null}
@@ -223,7 +223,7 @@ export function ManifestDetailSummaryPanel(props: ManifestDetailSummaryPanelProp
               <span className={cn("font-mono", OPERATOR_TYPOGRAPHY.helper)}>{summary.manifestHash}</span>
             </dd>
             <dd className={cn("m-0 mt-1 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)} data-testid="manifest-determinism-statement">
-              Policy-consistent: outputs are governed by the same deterministic policy evaluation rules for identical inputs and policy pack versions.
+              Policy-consistent: outputs follow the same deterministic policy evaluation rules for identical inputs and policy pack versions.
             </dd>
           </>
         ) : null}
@@ -414,7 +414,7 @@ function countsGridTiles(summary: ManifestSummary, options: CountsGridTilesOptio
       <div className="rounded-lg border border-neutral-200 bg-neutral-50/80 p-3 dark:border-neutral-800 dark:bg-neutral-900/40">
         <p className={manifestTileLabelClass}>Decisions</p>
         <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.kpiValue)}>
-          {Number.isFinite(summary.decisionCount) ? summary.decisionCount : "—"}
+          {Number.isFinite(summary.decisionCount) ? summary.decisionCount : " — "}
         </p>
       </div>
       <div className="rounded-lg border border-neutral-200 bg-neutral-50/80 p-3 dark:border-neutral-800 dark:bg-neutral-900/40">
@@ -422,13 +422,13 @@ function countsGridTiles(summary: ManifestSummary, options: CountsGridTilesOptio
           {options.buyerPolishedLayout && isCuratedDemo ? "Monitored risks" : "Warnings"}
         </p>
         <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.kpiValue)}>
-          {Number.isFinite(summary.warningCount) ? summary.warningCount : "—"}
+          {Number.isFinite(summary.warningCount) ? summary.warningCount : " — "}
         </p>
       </div>
       <div className="rounded-lg border border-neutral-200 bg-neutral-50/80 p-3 dark:border-neutral-800 dark:bg-neutral-900/40">
         <p className={manifestTileLabelClass}>Unresolved</p>
         <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.kpiValue)}>
-          {Number.isFinite(summary.unresolvedIssueCount) ? summary.unresolvedIssueCount : "—"}
+          {Number.isFinite(summary.unresolvedIssueCount) ? summary.unresolvedIssueCount : " — "}
         </p>
       </div>
       {includeShowcaseTrailTiles ? (

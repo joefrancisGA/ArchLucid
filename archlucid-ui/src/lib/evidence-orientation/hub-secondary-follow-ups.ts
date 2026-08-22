@@ -1,4 +1,9 @@
 import type { EvidenceOrientationSourcesLayout } from "@/components/evidence-orientation/EvidenceOrientationSourcesSection";
+import {
+  RELATED_GUIDES_FOLLOW_UPS_TITLE,
+  RELATED_RESOURCES_FOLLOW_UPS_TITLE,
+  isHelpOnlyRelatedFollowUpsTitle,
+} from "@/lib/help/related-follow-ups-title";
 
 /** Two-column follow-up index beside intro — default for Where to go next strips. */
 export const WHERE_TO_GO_NEXT_SOURCES_LAYOUT: EvidenceOrientationSourcesLayout = "columns";
@@ -15,19 +20,27 @@ export function hubSecondaryFollowUpsIntro(primaryWorkCue: string): string {
   return `Use these when ${primaryWorkCue}. Primary actions on this page come first.`;
 }
 
-/** Shared follow-up strip title for hub pages that surface help and adjacent tasks. */
-export const HUB_RELATED_GUIDES_FOLLOW_UPS_TITLE = "Related Guides" as const;
+/** @deprecated Prefer {@link RELATED_GUIDES_FOLLOW_UPS_TITLE} from `related-follow-ups-title`. */
+export const HUB_RELATED_GUIDES_FOLLOW_UPS_TITLE = RELATED_GUIDES_FOLLOW_UPS_TITLE;
+
+/** Hub follow-up strips that mix in-app help with operator routes. */
+export const HUB_RELATED_RESOURCES_FOLLOW_UPS_TITLE = RELATED_RESOURCES_FOLLOW_UPS_TITLE;
+
+/** Related Guides strips list help topics — the heading makes Read/Open prefixes redundant. */
+export function isRelatedGuidesFollowUpsTitle(title: string): boolean {
+  return isHelpOnlyRelatedFollowUpsTitle(title);
+}
 
 export const HUB_SECONDARY_FOLLOW_UPS_TITLES = {
   operatorHome: "After a review",
-  reviewsNew: HUB_RELATED_GUIDES_FOLLOW_UPS_TITLE,
+  reviewsNew: HUB_RELATED_RESOURCES_FOLLOW_UPS_TITLE,
   settingsHub: "Related administration",
   governanceFindings: "Related governance",
   architecturesHub: "When you are ready",
   roiSummary: "Related reporting",
   evidenceGraph: "Related exploration",
   alertsInbox: "Related governance",
-  cloudConnections: HUB_RELATED_GUIDES_FOLLOW_UPS_TITLE,
+  cloudConnections: HUB_RELATED_RESOURCES_FOLLOW_UPS_TITLE,
   digestsSchedule: "Related digests",
   policyPacksHub: "Related governance",
 } as const;

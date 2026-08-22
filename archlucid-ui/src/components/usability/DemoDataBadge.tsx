@@ -20,8 +20,6 @@ export function DemoDataBadge(props: DemoDataBadgeProps) {
         props.className,
       )}
       data-testid="demo-data-badge"
-      role="status"
-      aria-label="Sample data"
     >
       Sample data
     </span>

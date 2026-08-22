@@ -81,7 +81,7 @@ export function DecisionsNeededSummaryCard(props: DecisionsNeededSummaryCardProp
         <div className="space-y-1">
           <h2 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>Decisions needed</h2>
           <p className={cn("m-0", OPERATOR_TYPOGRAPHY.label)}>
-            Open governance actions in the current workspace scope — refreshed every 30 seconds.
+            Open resolve outcomes actions in the current workspace scope — refreshed every 30 seconds.
           </p>
         </div>
 

@@ -95,16 +95,16 @@ export function EvidenceTrailBuyerTraceTable(props: EvidenceTrailBuyerTraceTable
               {explainGraphHref !== null ? (
                 <FindingEvidenceLinkChip href={explainGraphHref} evidenceRefCount={row.evidenceRefCount} />
               ) : (
-                "—"
+                " — "
               )}
             </div>
             <div className={cn("min-w-0 break-words text-al-text-primary", OPERATOR_TYPOGRAPHY.helper)}>
-              {row.ruleId && row.ruleId.trim().length > 0 ? row.ruleId : "—"}
+              {row.ruleId && row.ruleId.trim().length > 0 ? row.ruleId : " — "}
             </div>
             <div className={cn("min-w-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.helper)}>
               {row.traceConfidenceLabel && row.traceConfidenceLabel.trim().length > 0
                 ? row.traceConfidenceLabel
-                : "—"}
+                : " — "}
             </div>
             <div className={cn("flex min-w-0 flex-col gap-1", OPERATOR_TYPOGRAPHY.helper)}>
               <Link className="underline" href={reviewPackageHref}>

@@ -115,7 +115,7 @@ describe("HelpConnectGcpSecurelyGuideView", () => {
       "/help/cloud-connections/aws",
     );
 
-    expect(screen.getAllByRole("link", { name: CONNECT_GCP_SECURELY_CONFIGURE_ACTION })[0]).toHaveAttribute(
+    expect(screen.getByRole("link", { name: CONNECT_GCP_SECURELY_CONFIGURE_ACTION })).toHaveAttribute(
       "href",
       "/integrations/cloud-connections/gcp",
     );
@@ -123,7 +123,6 @@ describe("HelpConnectGcpSecurelyGuideView", () => {
       "href",
       "/integrations/cloud-connections/gcp",
     );
-    expect(screen.getByTestId("connect-gcp-configure-action-footer")).toBeInTheDocument();
     expect(screen.queryByTestId("help-topic-pdf-download-button")).toBeNull();
     expect(screen.getByTestId("help-topic-print-button")).toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();

@@ -60,7 +60,7 @@ describe("buildSignedRecordsListRowsFromRuns", () => {
 
     const rows = buildSignedRecordsListRowsFromRuns([withVersion]);
 
-    expect(rows[0]?.manifestVersion).toBe("—");
+    expect(rows[0]?.manifestVersion).toBe(" — ");
     expect(rows[0]?.committedUtc).toBe("");
     expect(rows[0]?.manifestId).toBe("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee");
     expect(rows[0]?.signedRecordHref).toBe(
@@ -89,7 +89,7 @@ describe("applyManifestSummaryToSignedRecordsListRow", () => {
 
     expect(enriched.committedUtc).toBe("2026-03-20T16:45:00.000Z");
     expect(enriched.manifestVersion).toBe("2.4.1");
-    expect(enriched.sealIntegrity?.label).toBe("Sealed");
+    expect(enriched.sealIntegrity?.label).toBe("Finalized");
     expect(enriched.sealDigestTruncated).toContain("sha256-d");
     expect(enriched.recordLookupFailure).toBeNull();
   });

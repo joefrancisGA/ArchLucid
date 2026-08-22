@@ -28,5 +28,5 @@ export const WHY_COMPARISON_VERIFY_LINK_ROWS: readonly WhyVerifyLink[][] = [
   ],
   [{ label: "Compare and replay", href: "/help/comparison-replay" }],
   [{ label: "Claims regulated-depth evidence trail", href: SECONDARY_CLAIMS_PROOF_HREF }],
-  [{ label: "Governance approval", href: "/help/governance-approval" }],
+  [{ label: "Resolve outcomes", href: "/help/governance-approval" }],
 ];

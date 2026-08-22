@@ -64,7 +64,7 @@ export function AdvisoryScanSummaryPanel(props: AdvisoryScanSummaryPanelProps): 
         <SummaryMetric label={ADVISORY_SCANS_SUMMARY_IMPLEMENTED} value={summary.implemented} />
         <SummaryMetric
           label={ADVISORY_SCANS_SUMMARY_LAST_SCAN}
-          value={summary.lastScanUtc !== null ? formatScanTimestamp(summary.lastScanUtc) : "—"}
+          value={summary.lastScanUtc !== null ? formatScanTimestamp(summary.lastScanUtc) : " — "}
         />
         <SummaryMetric
           label={ADVISORY_SCANS_SUMMARY_COMPARED_TO}

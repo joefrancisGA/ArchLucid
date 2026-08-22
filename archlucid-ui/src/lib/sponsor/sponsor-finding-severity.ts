@@ -6,7 +6,7 @@ export function severityFromTrace(label: string | null | undefined): string {
   const t = (label ?? "").trim();
 
   if (t.length === 0) {
-    return "—";
+    return " — ";
   }
 
   if (/\bcritical\b/i.test(t) || /\b(severe|high)\b/i.test(t)) {

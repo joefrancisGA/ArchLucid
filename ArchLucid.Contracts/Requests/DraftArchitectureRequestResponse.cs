@@ -31,4 +31,13 @@ public sealed class DraftArchitectureRequestResponse
         get;
         set;
     } = [];
+
+    /// <summary>
+    /// One concise failure-mode and recovery note for structured-brief operations fields (optional).
+    /// </summary>
+    public string? SuggestedFailureModeNote
+    {
+        get;
+        set;
+    }
 }

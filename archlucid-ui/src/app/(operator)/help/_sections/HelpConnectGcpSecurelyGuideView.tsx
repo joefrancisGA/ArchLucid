@@ -12,10 +12,8 @@ import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfCont
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { Card, CardContent } from "@/components/ui/card";
 import { StatusTag } from "@/components/ui/status-tag";
-import { Button } from "@/components/ui/button";
 import {
   CONNECT_GCP_SECURELY_BACK_TO_CONNECTIONS,
-  CONNECT_GCP_SECURELY_CONFIGURE_ACTION,
   CONNECT_GCP_SECURELY_CONFIGURE_HREF,
   CONNECT_GCP_SECURELY_CONNECTION_STATUS_HREF,
   CONNECT_GCP_SECURELY_CONNECTION_STATUS_LINK_LABEL,
@@ -384,12 +382,6 @@ export function HelpConnectGcpSecurelyGuideView(props: HelpConnectGcpSecurelyGui
               ))}
             </ul>
           </section>
-
-          <div className="border-t border-neutral-200 pt-6 dark:border-neutral-800">
-            <Button asChild variant="outline" size="sm" data-testid="connect-gcp-configure-action-footer">
-              <Link href={CONNECT_GCP_SECURELY_CONFIGURE_HREF}>{CONNECT_GCP_SECURELY_CONFIGURE_ACTION}</Link>
-            </Button>
-          </div>
         </div>
         <HelpTopicTableOfContents headings={CONNECT_GCP_SECURELY_TOC_HEADINGS} enableScrollSpy />
       </div>

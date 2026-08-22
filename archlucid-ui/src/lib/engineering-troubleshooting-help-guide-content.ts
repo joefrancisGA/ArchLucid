@@ -123,7 +123,7 @@ export const ENGINEERING_TROUBLESHOOTING_HELP_SYMPTOM_ROWS: readonly Engineering
       severity: "low",
     },
     {
-      symptom: "404 on review or sealed review record",
+      symptom: "404 on review or Finalized review record",
       firstCheck: "Verify review ID and tenant / workspace / project scope headers.",
       evidenceToAttach: "Scope headers + review ID",
       escalationDestinationLabel: "Customer Troubleshooting",

@@ -21,8 +21,8 @@ function buildAccessRequestEmailBodies(payload: AccessRequestPayload): { readonl
   const safeEmail = escapeHtml(payload.workEmail);
   const safeCompany = escapeHtml(payload.company);
   const safeRole = escapeHtml(payload.roleTitle);
-  const safeCloud = payload.cloudPlatformFocus === null ? "—" : escapeHtml(payload.cloudPlatformFocus);
-  const safeNote = payload.note === null ? "—" : escapeHtml(payload.note);
+  const safeCloud = payload.cloudPlatformFocus === null ? " — " : escapeHtml(payload.cloudPlatformFocus);
+  const safeNote = payload.note === null ? " — " : escapeHtml(payload.note);
   const subject = "ArchLucid: private beta access request";
 
   const html =
@@ -40,8 +40,8 @@ function buildAccessRequestEmailBodies(payload: AccessRequestPayload): { readonl
     `Work email: ${payload.workEmail}\n` +
     `Company: ${payload.company}\n` +
     `Role/title: ${payload.roleTitle}\n` +
-    `Cloud/platform focus: ${payload.cloudPlatformFocus ?? "—"}\n` +
-    `Note: ${payload.note ?? "—"}\n`;
+    `Cloud/platform focus: ${payload.cloudPlatformFocus ?? " — "}\n` +
+    `Note: ${payload.note ?? " — "}\n`;
 
   return { subject, html, text };
 }

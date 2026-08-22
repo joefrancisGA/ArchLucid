@@ -56,7 +56,7 @@ export type LayerGuidanceBlock = {
   headline: string;
   /** When to use it (one sentence) */
   useWhen: string;
-  /** Optional framing relative to Pilot (first proof)—see PRODUCT_PACKAGING "Not required for first Pilot proof" sections. */
+  /** Optional framing relative to Pilot (first proof) — see PRODUCT_PACKAGING "Not required for first Pilot proof" sections. */
   firstPilotNote: string | null;
   /**
    * Optional one line for **Operate · governance** pages: who usually owns the surface vs Pilot default.
@@ -86,7 +86,7 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
     headline: "Trace review evidence from inputs to findings, decisions, and audit events.",
     useWhen: "Select a finalized review, choose a graph scope, load the graph, then inspect provenance.",
     firstPilotNote:
-      "Best once you have a finalized review—a graph complements architecture snapshot and finding tables when stakeholders need visuals.",
+      "Best once you have a finalized review — a graph complements architecture snapshot and finding tables when stakeholders need visuals.",
   },
   "integrations-operations": {
     layerBadge: "Integration readiness",
@@ -117,20 +117,20 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
   "governance-findings": {
     layerBadge: "Findings",
     headline:
-      "Track architecture risks created from accepted findings, waivers, exceptions, and governance decisions.",
+      "Track architecture risks created from accepted findings, waivers, exceptions, and approval decisions.",
     useWhen:
       "Use this register to assign owners, monitor aging risks, review exceptions before expiry, and prepare audit evidence.",
     firstPilotNote:
       "After Pilot proof, use review detail for drill-down; this register queues portfolio-level owned risks and decisions.",
     enterpriseFootnote:
-      "Each risk should remain traceable to the review, evidence, policy rule, and sealed review record that produced it.",
+      "Each risk should remain traceable to the review, evidence, policy rule, and finalized review record that produced it.",
     omitReviewPackageScopeHelp: true,
   },
   "governance-setup": {
     layerBadge: "Governance",
     headline: "Establish policies, alerts, approvals, and reporting for this workspace.",
     useWhen:
-      "Work the checklist in order—each step opens the configuration surface where changes are made and audited.",
+      "Work the checklist in order — each step opens the configuration surface where changes are made and audited.",
     firstPilotNote:
       "Optional after first Pilot proof when sponsors want a minimal enterprise cadence on one baseline.",
     enterpriseFootnote: "Configuration changes happen on the linked surfaces, not on this checklist page.",
@@ -144,7 +144,7 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
   },
   audit: {
     layerBadge: "Governance",
-    headline: "Tenant audit trail—who did what, when.",
+    headline: "Tenant audit trail — who did what, when.",
     useWhen: "Search and filter audit events; export requires Auditor or Admin access.",
     firstPilotNote: "Bounded export after Pilot proof when audit window and roles are clear.",
     enterpriseFootnote: "Search first; CSV export for auditors and admins.",
@@ -185,14 +185,14 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
     layerBadge: "Sponsor report",
     headline: "Pilot outcomes from finalized reviews for sponsor sponsors.",
     useWhen:
-      "After you finalize a review, summarize pilot outcomes here — activity, findings, governance decisions, and exportable sponsor proof for the selected period.",
+      "After you finalize a review, summarize pilot outcomes here — activity, findings, approval decisions, and exportable sponsor proof for the selected period.",
     firstPilotNote:
       "First-use path: create review → execute analysis → finalize → open pilot outcomes on this page (or export from review detail).",
     omitReviewPackageScopeHelp: true,
   },
   "value-report-roi": {
     layerBadge: "Sponsor report",
-    headline: "Estimated hours saved from review findings and governance blocks.",
+    headline: "Estimated hours saved from review findings and approval-check blocks.",
     useWhen:
       "When champions need a defensible hours story before negotiating loaded cost internally; pairs with Workspace health.",
     firstPilotNote: "Hours-first estimate from finalized reviews in the selected period.",
@@ -200,7 +200,7 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
   },
   "value-report": {
     layerBadge: "Sponsor report",
-    headline: "Create an export-ready report summarizing finalized reviews, findings, governance activity, and estimated ROI.",
+    headline: "Create an export-ready report summarizing finalized reviews, findings, approval activity, and estimated ROI.",
     useWhen: "Generate sponsor and board-ready exports after you have finalized reviews in the selected period.",
     firstPilotNote: "After pilot outcomes when sponsors need a packaged value narrative.",
     enterpriseFootnote: "Standard tier required; cost estimate is hours-first from review severities.",
@@ -210,17 +210,17 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
     layerBadge: "Governance",
     headline: "Diagnose effective policy, conflicts, and precedence for this scope.",
     useWhen:
-      "Use after changing policy pack assignments or governance workflow settings to confirm what is in effect.",
+      "Use after changing policy pack assignments or approval workflow settings to confirm what is in effect.",
     firstPilotNote: "After Pilot proof when merge order or conflicts need review.",
-    enterpriseFootnote: "Read-only diagnostic; edits on Policy packs or Governance workflow.",
+    enterpriseFootnote: "Read-only diagnostic; edits on Policy packs or Resolve outcomes workflow.",
     omitReviewPackageScopeHelp: true,
   },
   "governance-workflow": {
     layerBadge: "Governance",
-    headline: "Submit finalized architecture outputs for governance review and promotion.",
+    headline: "Submit finalized architecture outputs for resolve outcomes review and promotion.",
     useWhen: "Pick one review and move from submission through approval, promotion, and activation.",
     firstPilotNote:
-      "After Pilot proof when your team promotes finalized architecture snapshots through governed stages.",
+      "After Pilot proof when your team promotes finalized architecture snapshots through approval workflow stages.",
     enterpriseFootnote: "Approvals follow the configured approval path for packages in this workspace.",
   },
   "recurrence-schedules": {
@@ -230,13 +230,13 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
     useWhen:
       "Create a schedule when a scheduled review must be re-reviewed on a fixed cadence so accepted risks, policy exceptions, and control obligations do not lapse after approval.",
     firstPilotNote:
-      "After Pilot proof when governance leads need automated follow-up instead of calendar reminders for recurring architecture reviews.",
+      "After Pilot proof when approval leads need automated follow-up instead of calendar reminders for recurring architecture reviews.",
     enterpriseFootnote:
-      "Schedules clone a finalized review on the cadence you define; manage approvals and risk resolve on linked governance surfaces.",
+      "Schedules clone a finalized review on the cadence you define; manage approvals and risk resolve on linked approval surfaces.",
   },
   exceptions: {
     layerBadge: "Governance",
-    headline: "Track active waivers, expirations, owners, and linked governance decisions.",
+    headline: "Track active waivers, expirations, owners, and linked approval decisions.",
     useWhen:
       "Use this page to track owner, expiration, evidence, and the linked decision so exceptions do not become unmanaged risk.",
     firstPilotNote:
@@ -249,7 +249,7 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
     headline: "Packs in scope, published versions, and effective policy.",
     useWhen: "Start by reviewing inventory and diffs; publish or assign when your role allows.",
     firstPilotNote: "After Pilot proof when you steward pack publish and assignment.",
-    enterpriseFootnote: "Inspect registered packs and active governance rule layers for your scope.",
+    enterpriseFootnote: "Inspect registered packs and active policy rule layers for your scope.",
   },
   "alert-rules": {
     layerBadge: "Governance",
@@ -261,7 +261,7 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
   "alert-routing": {
     layerBadge: "Governance",
     headline: "Where fired alerts are delivered.",
-    useWhen: "Targets for fired alerts—not digest mail.",
+    useWhen: "Targets for fired alerts — not digest mail.",
     firstPilotNote: "Destinations after Pilot proof when fired alerts need routing.",
     enterpriseFootnote: "Delivery targets for fired alerts.",
   },
@@ -298,7 +298,7 @@ const LAYER_GUIDANCE_BUYER_POLISH_PARTIAL: Partial<
   audit: {
     headline: "Audit trail for finalized review activity.",
     useWhen:
-      "See who acted, when, and why — filter when needed; download the governance evidence bundle when ready.",
+      "See who acted, when, and why — filter when needed; download the approval evidence bundle when ready.",
     firstPilotNote: null,
     enterpriseFootnote:
       "Audit exports are available only to authorized audit or workspace administrators.",
@@ -326,17 +326,17 @@ const LAYER_GUIDANCE_BUYER_POLISH_PARTIAL: Partial<
   "governance-findings": {
     headline: "Review records, decisions, and monitoring actions tied to this review.",
     useWhen:
-      "Scan dispositions alongside the governance approval — findings, recorded decisions, and follow-up monitors in one ledger.",
+      "Scan dispositions alongside resolve outcomes — findings, recorded decisions, and follow-up monitors in one ledger.",
     firstPilotNote: null,
     enterpriseFootnote:
-      "Review administrators and governance reviewers use review detail for deep inspection; governance approval remains the authoritative checkpoint.",
+      "Review administrators and approval reviewers use review detail for deep inspection; resolve outcomes remain the authoritative checkpoint.",
   },
   "policy-packs": {
-    useWhen: "See which governance packs apply in this workspace and how they combine.",
+    useWhen: "See which policy packs apply in this workspace and how they combine.",
     firstPilotNote: null,
   },
   "governance-workflow": {
-    headline: "Governance overview and review-scoped approval workflow.",
+    headline: "Approval overview and review-scoped approval workflow.",
     useWhen:
       "Start here for workspace governance status, then load a review to inspect or advance its approval path.",
     firstPilotNote: null,

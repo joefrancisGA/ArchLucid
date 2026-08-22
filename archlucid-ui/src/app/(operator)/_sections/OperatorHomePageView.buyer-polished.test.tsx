@@ -12,6 +12,7 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
 
 vi.mock("@/components/usability/PageContextualHelpButton", () => ({
   PageContextualHelpButton: () => <div data-testid="page-contextual-help-button" />,
+  PAGE_HELP_SHORT_TRIGGER_TEXT: "Help",
 }));
 
 vi.mock("./operator-home-page-view-deferred-chunks", () => ({
@@ -37,7 +38,11 @@ vi.mock("@/components/operator-home/UnfinishedWorkRail", () => ({
 
 vi.mock("@/lib/operator/operator-home-refresh-context", () => ({
   OperatorHomeRefreshProvider: ({ children }: { readonly children: React.ReactNode }) => <>{children}</>,
-  useOperatorHomeRefresh: () => ({ refreshing: false, requestRefresh: vi.fn() }),
+  useOperatorHomeRefresh: () => ({
+    refreshing: false,
+    lastRefreshedAt: new Date("2026-07-09T12:00:00.000Z"),
+    requestRefresh: vi.fn(),
+  }),
 }));
 
 import { OperatorHomePageView } from "./OperatorHomePageView";

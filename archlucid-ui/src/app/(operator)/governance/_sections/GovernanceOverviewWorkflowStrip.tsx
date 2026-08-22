@@ -9,7 +9,7 @@ export function GovernanceOverviewWorkflowStrip(): React.JSX.Element {
       className="rounded-md border border-neutral-200 bg-neutral-50/80 px-3 py-3 dark:border-neutral-800 dark:bg-neutral-900/40"
       data-testid="governance-overview-workflow-strip"
       role="note"
-      aria-label="Governance approval lifecycle"
+      aria-label="Resolve outcomes lifecycle"
     >
       <p className={cn("m-0 font-medium text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.helper)}>
         Approval lifecycle

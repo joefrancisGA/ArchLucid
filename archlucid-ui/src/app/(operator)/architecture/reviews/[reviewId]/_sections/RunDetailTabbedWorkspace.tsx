@@ -357,7 +357,10 @@ const architectureTabPanelEl = (
               <RunDetailExplanationConfidenceBannerDeferred summary={m.explanationSummary} />
             ) : null}
             {explanationDeferredEl}
-            <RunDetailHolisticCriticPanelDeferred runId={m.resolvedDetail.run.runId} />
+            <RunDetailHolisticCriticPanelDeferred
+              runId={m.resolvedDetail.run.runId}
+              hasGoldenManifest={Boolean(m.manifestId)}
+            />
           </>
         ),
         evidence: evidenceTabPanelEl,
@@ -498,6 +501,7 @@ const architectureTabPanelEl = (
                 manifestId={m.manifestId}
                 hasCommitBlockingFailures={findingCoverageSummary?.hasCommitBlockingFailures === true}
                 operatorGovernanceDecision={m.resolvedDetail.run.operatorGovernanceDecision ?? null}
+                isArchived={m.resolvedDetail.run.isArchived === true}
               />
             ) : null}
           </div>

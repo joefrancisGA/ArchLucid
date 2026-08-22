@@ -98,7 +98,7 @@ function UnfinishedWorkRailList(props: { readonly items: readonly UnfinishedWork
  */
 export function UnfinishedWorkRail(props: UnfinishedWorkRailProps): React.JSX.Element | null {
   const drafts = useArchitectureDraftRegistryEntries();
-  const { hasWorkspaceReviews, liveRunsSnapshot } = useOperatorHomeWorkspaceActivity();
+  const { hasWorkspaceReviews, hasOverviewReviewRows, liveRunsSnapshot } = useOperatorHomeWorkspaceActivity();
   const incompleteWizards = useSyncExternalStore(
     subscribeWizardSessions,
     getIncompleteWizardSnapshot,
@@ -108,6 +108,7 @@ export function UnfinishedWorkRail(props: UnfinishedWorkRailProps): React.JSX.El
   const activeDraftCount = drafts.filter((entry) => entry.customerStatus !== "archived").length;
   const workspacePhase = resolveOperatorHomeWorkspacePhase({
     hasWorkspaceReviews,
+    hasOverviewReviewRows,
     draftCount: activeDraftCount,
     hasCommittedManifest: false,
     openFindingsCount: 0,

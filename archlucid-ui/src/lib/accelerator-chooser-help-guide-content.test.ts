@@ -21,7 +21,7 @@ describe("accelerator-chooser-help-guide-content", () => {
   });
 
   it("defines workflow steps with signed-review prerequisite first", () => {
-    expect(ACCELERATOR_CHOOSER_HELP_WORKFLOW_STEPS[0]?.title).toBe("Confirm a sealed review record");
+    expect(ACCELERATOR_CHOOSER_HELP_WORKFLOW_STEPS[0]?.title).toBe("Confirm a finalized review record");
     expect(ACCELERATOR_CHOOSER_HELP_WORKFLOW_STEPS.length).toBe(3);
     expect(ACCELERATOR_CHOOSER_HELP_WORKFLOW_STEPS.every((step) => step.href.length > 0)).toBe(true);
     expect(ACCELERATOR_CHOOSER_HELP_WORKFLOW_STEPS[2]?.href).toBe("/help/repeat-review-loop");
@@ -41,7 +41,7 @@ describe("accelerator-chooser-help-guide-content", () => {
       expect(corpus).not.toMatch(pattern);
     }
 
-    expect(corpus.toLowerCase()).toContain("sealed review record");
+    expect(corpus.toLowerCase()).toContain("finalized review record");
     expect(corpus.toLowerCase()).not.toMatch(/\blog\b/);
   });
 });

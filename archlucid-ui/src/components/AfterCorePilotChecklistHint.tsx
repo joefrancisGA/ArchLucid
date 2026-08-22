@@ -42,21 +42,21 @@ const suggestions: Suggestion[] = [
   {
     title: "Set up governance alerts",
     href: "/governance/alert-rules",
-    description: "Inbox, routing, and rules on one hub—tune when architecture-risk signals need action.",
+    description: "Inbox, routing, and rules on one hub — tune when architecture-risk signals need action.",
     sidebarNote:
       "Alerts is under Governance (sidebar). Open Alerts, then use the Rules tab for configuration.",
   },
   {
     title: "Review policy packs",
     href: GOVERNANCE_POLICY_PACKS_PATH,
-    description: "Versions, effective content, and how governance rules attach to your scope.",
+    description: "Versions, effective content, and how policy rules attach to your scope.",
     sidebarNote: `Expand Governance in the sidebar, or use “${SHOW_ALL_DESTINATIONS.show}” if groups are hidden.`,
   },
 ];
 
 /**
  * After the Core Pilot checklist is complete, optional “what’s next” suggestions (not a second checklist)
- * with dismissal persisted in localStorage. Does not change sidebar toggles—only explains them.
+ * with dismissal persisted in localStorage. Does not change sidebar toggles — only explains them.
  */
 export function AfterCorePilotChecklistHint() {
   const { progress } = useCorePilotDerivedStepStatus();
@@ -117,7 +117,7 @@ export function AfterCorePilotChecklistHint() {
             When you have a real question that review detail cannot answer—<strong>what changed between two reviews</strong>,{" "}
             <strong>whether the evidence chain is still intact</strong>, or a <strong>visual graph</strong>—the links
             below point to deeper analysis. <strong>Enterprise Controls</strong> (governance, audit, alerts) stay in
-            the sidebar until sponsors or policy need them—not part of first-pilot success criteria.
+            the sidebar until sponsors or policy need them — not part of first-pilot success criteria.
           </p>
 
           <Collapsible defaultOpen className="rounded-md border border-teal-200/80 bg-white/70 dark:border-teal-900/60 dark:bg-teal-950/30">

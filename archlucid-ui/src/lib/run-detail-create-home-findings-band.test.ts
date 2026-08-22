@@ -49,7 +49,7 @@ describe("create-home findings band regression (TB-1855)", () => {
 
   it("keeps pre-finalize findings orientation copy (TB-1852)", () => {
     expect(RUN_DETAIL_CREATE_HOME_FINDINGS_ORIENTATION_LEAD).toMatch(/draft assessment results/i);
-    expect(RUN_DETAIL_CREATE_HOME_FINDINGS_ORIENTATION_LEAD).toMatch(/not a sealed review record/i);
+    expect(RUN_DETAIL_CREATE_HOME_FINDINGS_ORIENTATION_LEAD).toMatch(/not a finalized review record/i);
     expect(RUN_DETAIL_CREATE_HOME_FINDINGS_ACTIVITY_CTA_LABEL).toBe("View assessment progress");
   });
 

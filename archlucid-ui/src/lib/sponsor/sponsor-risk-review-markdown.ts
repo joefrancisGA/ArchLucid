@@ -76,7 +76,7 @@ export function buildSponsorRiskReviewMarkdown(
       ? `Aggregate model confidence: ${formatAggregateModelConfidence(structuredConfidence)}.`
       : null,
     typeof summary.faithfulnessSupportRatio === "number" && Number.isFinite(summary.faithfulnessSupportRatio)
-      ? `Faithfulness support ratio: ${ratioPercentLabel(summary.faithfulnessSupportRatio, "—")}.`
+      ? `Faithfulness support ratio: ${ratioPercentLabel(summary.faithfulnessSupportRatio, " — ")}.`
       : null,
     faithfulnessWarningTrimmed.length > 0 ? faithfulnessWarningTrimmed : null,
     isDeterministicExplanationFallback(summary)
@@ -143,7 +143,7 @@ export function buildSponsorRiskReviewMarkdown(
     "",
     evidenceParts.length > 0
       ? evidenceParts.join(" ")
-      : "Confidence metadata was not returned — use the sealed review record and finding detail as the authoritative record.",
+      : "Confidence metadata was not returned — use the finalized review record and finding detail as the authoritative record.",
     "",
     "## Prioritized findings (summary)",
     "",

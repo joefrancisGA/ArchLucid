@@ -14,7 +14,7 @@ vi.mock("@/lib/api/gcp-cloud-connections-api", () => ({
 }));
 
 describe("GcpConnectionRecentActivityPanel (P0-1)", () => {
-  it("uses GCP-specific empty coach CTA anchored to connection details", async () => {
+  it("keeps GCP-scoped empty coach without a Configure CTA on this page", async () => {
     render(
       <GcpConnectionDataProvider>
         <GcpConnectionRecentActivityPanel />
@@ -22,9 +22,10 @@ describe("GcpConnectionRecentActivityPanel (P0-1)", () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByTestId("cloud-first-inventory-coach-cta")).toHaveTextContent("Configure GCP");
+      expect(screen.getByTestId("cloud-first-inventory-coach")).toHaveTextContent("GCP");
     });
 
-    expect(screen.getByTestId("cloud-first-inventory-coach-cta")).toHaveAttribute("href", "#connection-details");
+    expect(screen.queryByTestId("cloud-first-inventory-coach-cta")).not.toBeInTheDocument();
+    expect(screen.getByTestId("gcp-connection-recent-activity-empty")).toBeInTheDocument();
   });
 });

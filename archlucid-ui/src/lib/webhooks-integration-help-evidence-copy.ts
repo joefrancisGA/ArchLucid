@@ -8,7 +8,7 @@ export const WEBHOOKS_INTEGRATION_HELP_CANONICAL_PATH = "/help/webhooks-integrat
 export const WEBHOOKS_INTEGRATION_HELP_CLAIM_DISCIPLINE_HEADING = "What this guide does not cover";
 
 export const WEBHOOKS_INTEGRATION_HELP_CLAIM_DISCIPLINE =
-  "This guide orients on subscription setup and signature verification — not delivery retry schedules, delivery-history forensics, or a sealed review record. Use Alert rules and Integration readiness when routing or procurement setup needs follow-up.";
+  "This guide orients on subscription setup and signature verification — not delivery retry schedules, delivery-history forensics, or a finalized review record. Use Alert rules and Integration readiness when routing or procurement setup needs follow-up.";
 
 export const WEBHOOKS_INTEGRATION_HELP_FOLLOW_UPS_TITLE = "Where to go next";
 

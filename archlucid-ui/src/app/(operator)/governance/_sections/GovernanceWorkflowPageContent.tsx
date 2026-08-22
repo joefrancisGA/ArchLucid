@@ -536,7 +536,7 @@ export function GovernanceWorkflowPageContent() {
   );
 
   return (
-    <MutationErrorBoundary title="Governance workflow failed to render">
+    <MutationErrorBoundary title="Resolve outcomes workflow failed to render">
     <TooltipProvider delayDuration={300}>
     <div className="w-full max-w-[1200px]">
       <OperatorPageHeader
@@ -552,7 +552,7 @@ export function GovernanceWorkflowPageContent() {
             </span>
           ) : buyerPolishedShell && isReviewContext && !showBuyerApprovalStory ? (
             <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-              Production deployments and change-managed releases follow your enterprise process—this page does not configure
+              Production deployments and change-managed releases follow your enterprise process — this page does not configure
               releases.
             </span>
           ) : null

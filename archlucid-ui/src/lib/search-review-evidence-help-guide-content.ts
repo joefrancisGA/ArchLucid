@@ -14,10 +14,10 @@ export const SEARCH_REVIEW_EVIDENCE_HELP_BREADCRUMB_TOPIC_TITLE = "Search review
 export const SEARCH_REVIEW_EVIDENCE_HELP_PAGE_EYEBROW = "Help topic" as const;
 
 export const SEARCH_REVIEW_EVIDENCE_HELP_PAGE_SUBTITLE =
-  "How to discover findings, decisions, and sealed review records across finalized packages in this workspace.";
+  "How to discover findings, decisions, and finalized review records across finalized packages in this workspace.";
 
 export const SEARCH_REVIEW_EVIDENCE_HELP_PAGE_SUBTITLE_BUYER =
-  "Find findings and sealed review records across finalized packages in this workspace." as const;
+  "Find findings and finalized review records across finalized packages in this workspace." as const;
 
 export const SEARCH_REVIEW_EVIDENCE_HELP_PRIMARY_CONTENT_ID = "help-search-review-evidence-primary-content" as const;
 
@@ -30,7 +30,7 @@ export function searchReviewEvidenceHelpPageSubtitle(buyerPolishedShell: boolean
 }
 
 export const SEARCH_REVIEW_EVIDENCE_HELP_OVERVIEW =
-  "Enter a phrase to scan finalized review evidence in this workspace. Each hit opens the cited finding, decision, or sealed review record so you can follow the evidence trail before briefing sponsors.";
+  "Enter a phrase to scan finalized review evidence in this workspace. Each hit opens the cited finding, decision, or finalized review record so you can follow the evidence trail before briefing sponsors.";
 
 export const SEARCH_REVIEW_EVIDENCE_HELP_START_HERE_CARD_TITLE = "Open search review evidence";
 
@@ -60,7 +60,7 @@ export type SearchReviewEvidenceHelpIndexedRow = {
 export const SEARCH_REVIEW_EVIDENCE_HELP_INDEXED_ROWS: readonly SearchReviewEvidenceHelpIndexedRow[] = [
   {
     term: "Indexed object types",
-    detail: "Findings, decisions, and sealed review records from finalized architecture packages.",
+    detail: "Findings, decisions, and finalized review records from finalized architecture packages.",
   },
   {
     term: "Freshness",
@@ -97,7 +97,7 @@ export const SEARCH_REVIEW_EVIDENCE_HELP_FEATURE_ITEMS: readonly SearchReviewEvi
   },
   {
     label: "Ask follow-up",
-    detail: "Use Ask review questions when plain-language answers need a selected sealed record.",
+    detail: "Use Ask review questions when plain-language answers need a selected finalized review record.",
     href: SEARCH_REVIEW_EVIDENCE_HELP_ASK_HREF,
   },
 ] as const;
@@ -112,11 +112,11 @@ export type SearchReviewEvidenceHelpHitAnatomyField = {
 export const SEARCH_REVIEW_EVIDENCE_HELP_HIT_ANATOMY_FIELDS: readonly SearchReviewEvidenceHelpHitAnatomyField[] = [
   {
     label: "Snippet",
-    description: "The matched phrase from the indexed finding, decision, or sealed review record.",
+    description: "The matched phrase from the indexed finding, decision, or finalized review record.",
   },
   {
     label: "Cited artifact",
-    description: "The object type behind the hit — finding, decision, or sealed review record.",
+    description: "The object type behind the hit — finding, decision, or finalized review record.",
   },
   {
     label: "Review",
@@ -131,7 +131,7 @@ export const SEARCH_REVIEW_EVIDENCE_HELP_HIT_ANATOMY_FIELDS: readonly SearchRevi
 export const SEARCH_REVIEW_EVIDENCE_HELP_HOW_TO_READ_STEPS = [
   `Try a concrete phrase such as "${SEARCH_REVIEW_EVIDENCE_HELP_EXAMPLE_QUERY}" and optionally limit results to one finalized review.`,
   "Scan each hit's snippet, cited artifact, review link, and evidence trail link before opening deeper surfaces.",
-  "Open the cited review or evidence trail when search hits need fuller review records before governance or sponsor briefings.",
+  "Open the cited review or evidence trail when search hits need fuller review records before resolve outcomes or sponsor briefings.",
 ] as const;
 
 export const SEARCH_REVIEW_EVIDENCE_HELP_CLAIM_HEADING_ID = "help-search-review-evidence-claim-discipline-heading" as const;

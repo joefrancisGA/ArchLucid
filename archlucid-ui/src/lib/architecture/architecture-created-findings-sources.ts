@@ -14,14 +14,14 @@ export const ARCHITECTURE_CREATED_FINDINGS_SOURCES: readonly ArchitectureCreated
   { label: "Findings queue", href: "/governance/findings" },
   { label: "Evidence trail help", href: inAppHelpHref("evidence-trail") },
   { label: "Search review evidence", href: "/insights/search-review-evidence" },
-  { label: "Governance approval help", href: inAppHelpHref("governance-approval") },
+  { label: "Resolve outcomes help", href: inAppHelpHref("governance-approval") },
 ] as const;
 
 export const ARCHITECTURE_CREATED_FINDINGS_SOURCES_INTRO =
-  "Use these follow-ups when create-home Findings triage turns into the findings queue, evidence search, or approval readiness.";
+  "Use these follow-ups when create-home Findings triage turns into the findings queue, evidence search, or export readiness.";
 
 export const ARCHITECTURE_CREATED_FINDINGS_CLAIM_DISCIPLINE =
-  "This create-home Findings tab lists assessment findings before finalize. It is not a signed-record Sources trail";
+  "This create-home Findings tab lists assessment findings before finalize. It is not a finalized review record export trail";
 
 export const ARCHITECTURE_CREATED_FINDINGS_IN_PROGRESS_EMPTY =
   "Assessment in progress — findings appear as each stage completes.";
@@ -32,4 +32,4 @@ export const ARCHITECTURE_CREATED_FINDINGS_IN_PROGRESS_ACTIVITY_LINK =
 export const ARCHITECTURE_CREATED_FINDINGS_IN_PROGRESS_CLARIFICATIONS_LINK = "Open clarifications";
 
 export const ARCHITECTURE_CREATED_FINDINGS_FINALIZE_ELIGIBLE_EMPTY =
-  "Assessment stages are complete and no findings were surfaced. You can finalize when approval readiness checks pass.";
+  "Assessment stages are complete and no findings were surfaced. You can finalize when export readiness checks pass.";

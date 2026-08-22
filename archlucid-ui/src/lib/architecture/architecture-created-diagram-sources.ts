@@ -14,11 +14,11 @@ export const ARCHITECTURE_CREATED_DIAGRAM_SOURCES: readonly ArchitectureCreatedD
   { label: "Evidence graph", href: "/insights/evidence-graph" },
   { label: "Findings queue", href: "/governance/findings" },
   { label: "Search review evidence", href: "/insights/search-review-evidence" },
-  { label: "Governance approval help", href: inAppHelpHref("governance-approval") },
+  { label: "Resolve outcomes help", href: inAppHelpHref("governance-approval") },
 ] as const;
 
 export const ARCHITECTURE_CREATED_DIAGRAM_SOURCES_INTRO =
-  "Use these follow-ups when create-home Diagram orientation turns into evidence capture, findings triage, or approval readiness.";
+  "Use these follow-ups when create-home Diagram orientation turns into evidence capture, findings triage, or export readiness.";
 
 export const ARCHITECTURE_CREATED_DIAGRAM_CLAIM_DISCIPLINE =
-  "This create-home Diagram tab shows an illustrative architecture sketch before finalize. It is not authoritative architecture structure, not a signed-record Sources trail,";
+  "This create-home Diagram tab shows an illustrative architecture sketch before finalize. It is not authoritative architecture structure, not a finalized review record export trail,";

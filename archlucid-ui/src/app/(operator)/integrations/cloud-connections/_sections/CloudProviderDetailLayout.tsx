@@ -2,7 +2,10 @@ import { cn } from "@/lib/utils";
 import type { ReactNode } from "react";
 
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { CLOUD_CONNECTIONS_SECURITY_PREFLIGHT_INTRO } from "@/lib/cloud-connections-copy";
+import {
+  CLOUD_CONNECTIONS_RECENT_ACTIVITY_TITLE,
+  CLOUD_CONNECTIONS_SECURITY_PREFLIGHT_INTRO,
+} from "@/lib/cloud-connections-copy";
 
 export type CloudProviderDetailSectionProps = {
   readonly id: string;
@@ -63,7 +66,7 @@ export function CloudProviderDetailLayout(props: CloudProviderDetailLayoutProps)
       <CloudProviderDetailSection id="validate-connection" title="Validate connection">
         {props.validateConnection}
       </CloudProviderDetailSection>
-      <CloudProviderDetailSection id="recent-activity" title="Recent collection activity">
+      <CloudProviderDetailSection id="recent-activity" title={CLOUD_CONNECTIONS_RECENT_ACTIVITY_TITLE}>
         {props.recentActivity}
       </CloudProviderDetailSection>
       <CloudProviderDetailSection id="technical-details" title="Technical details">

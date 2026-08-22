@@ -11,7 +11,6 @@ import { HelpConnectAwsSecurelyBreadcrumb } from "@/components/help/HelpConnectA
 import { HelpTopicRegistryProvenanceLine } from "@/components/help/HelpTopicRegistryProvenanceLine";
 import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfContents";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { StatusTag } from "@/components/ui/status-tag";
 import {
@@ -21,7 +20,6 @@ import {
 import { AWS_PERMISSIONS_TROUBLESHOOT_HEADING } from "@/lib/aws-cloud-connection-permissions-copy";
 import {
   CONNECT_AWS_SECURELY_BACK_TO_CONNECTIONS,
-  CONNECT_AWS_SECURELY_CONFIGURE_ACTION_FOOTER,
   CONNECT_AWS_SECURELY_CONFIGURE_HREF,
   CONNECT_AWS_SECURELY_CONNECTION_STATUS_HREF,
   CONNECT_AWS_SECURELY_CONNECTION_STATUS_LINK_LABEL,
@@ -361,19 +359,6 @@ export function HelpConnectAwsSecurelyGuideView(props: HelpConnectAwsSecurelyGui
                   <li key={item}>{item}</li>
                 ))}
               </ul>
-            </section>
-
-            <section
-              aria-labelledby="connect-aws-securely-next-step-heading"
-              className="space-y-3 border-t border-neutral-200 pt-6 dark:border-neutral-800"
-              data-testid="connect-aws-securely-next-step-section"
-            >
-              <h2 id="connect-aws-securely-next-step-heading" className="sr-only">
-                Next step
-              </h2>
-              <Button asChild variant="outline" size="sm" data-testid="connect-aws-configure-action-footer">
-                <Link href={CONNECT_AWS_SECURELY_CONFIGURE_HREF}>{CONNECT_AWS_SECURELY_CONFIGURE_ACTION_FOOTER}</Link>
-              </Button>
             </section>
           </div>
           <HelpTopicTableOfContents headings={CONNECT_AWS_SECURELY_TOC_HEADINGS} enableScrollSpy />

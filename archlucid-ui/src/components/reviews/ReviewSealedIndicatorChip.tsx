@@ -31,10 +31,10 @@ export function ReviewSealedIndicatorChip({
         OPERATOR_TYPOGRAPHY.navHelper,
         className,
       )}
-      aria-label={`Package sealed at ${formatted}`}
+      aria-label={`Package finalized at ${formatted}`}
     >
       <Lock className="h-3 w-3 shrink-0" aria-hidden />
-      <span>Sealed · {formatted}</span>
+      <span>Finalized · {formatted}</span>
     </span>
   );
 }

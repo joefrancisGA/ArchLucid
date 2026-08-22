@@ -4,7 +4,7 @@ function snapshotReady(flag: boolean | undefined): boolean {
   return flag === true;
 }
 
-/** Analysis stages (context, graph, findings) are present without requiring a sealed review record. */
+/** Analysis stages (context, graph, findings) are present without requiring a Finalized review record. */
 export function analysisStagesCompleteOnSummary(s: RunSummary | null): boolean {
   return (
     s !== null &&

@@ -42,11 +42,18 @@ function showcaseSampleReviewTabHref(
   return `${baseHref}?${params.toString()}`;
 }
 
-/** Specimen sealed review record tab for pre-intake preview (TB-2151). */
-export function showcaseSpecimenSignedReviewRecordHref(
+/** Specimen Finalized review record tab for pre-intake preview (TB-2151). */
+export function showcaseSpecimenSealedReviewRecordHref(
   runId: string = SHOWCASE_SAMPLE_REVIEW_REGISTRY.runId,
 ): string {
   return showcaseSampleReviewTabHref("review-package", runId);
+}
+
+/** @deprecated Prefer {@link showcaseSpecimenSealedReviewRecordHref}. */
+export function showcaseSpecimenSignedReviewRecordHref(
+  runId: string = SHOWCASE_SAMPLE_REVIEW_REGISTRY.runId,
+): string {
+  return showcaseSpecimenSealedReviewRecordHref(runId);
 }
 
 /** Specimen findings tab for pre-intake preview (TB-2151). */

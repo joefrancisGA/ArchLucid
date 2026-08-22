@@ -25,10 +25,15 @@ vi.mock("@/hooks/use-featured-completed-sample-query", () => ({
 import { OperatorHomeCompletedSampleAction } from "@/components/operator-home/OperatorHomeCompletedSampleAction";
 import {
   OPERATOR_HOME_CHOOSE_SAMPLE_REVIEW_CTA,
+  OPERATOR_HOME_COMPLETED_SAMPLE_FETCH_ERROR_MESSAGE,
   OPERATOR_HOME_CONTACT_WORKSPACE_OWNER_HINT,
   OPERATOR_HOME_MISSING_COMPLETED_SAMPLE_MESSAGE,
   OPERATOR_HOME_OPEN_COMPLETED_REVIEW_CTA,
 } from "@/lib/buyer/buyer-polish-copy";
+
+vi.mock("@/lib/operator/operator-static-demo", () => ({
+  isStaticDemoPayloadFallbackEnabled: () => false,
+}));
 
 describe("OperatorHomeCompletedSampleAction", () => {
   beforeEach(() => {
@@ -99,5 +104,19 @@ describe("OperatorHomeCompletedSampleAction", () => {
 
     expect(screen.getByText(OPERATOR_HOME_CONTACT_WORKSPACE_OWNER_HINT)).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: OPERATOR_HOME_CHOOSE_SAMPLE_REVIEW_CTA })).toBeNull();
+  });
+
+  it("shows fetch error copy when the featured sample query fails", () => {
+    useFeaturedCompletedSampleQuery.mockReturnValue({
+      isPending: false,
+      isError: true,
+      data: undefined,
+    });
+
+    render(<OperatorHomeCompletedSampleAction />);
+
+    expect(screen.getByTestId("operator-home-completed-sample-fetch-error")).toHaveTextContent(
+      OPERATOR_HOME_COMPLETED_SAMPLE_FETCH_ERROR_MESSAGE,
+    );
   });
 });

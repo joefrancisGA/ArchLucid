@@ -112,7 +112,7 @@ function showcaseInspectEvidenceLink(
   if (index === 0) {
     return linkFromKind(
       "manifestSection",
-      "Open PHI handling in sealed record",
+      "Open PHI handling in finalized review record",
       runDetailSectionHref(ctx.runId, "manifest-summary"),
       detail,
     );

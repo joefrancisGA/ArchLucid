@@ -44,7 +44,7 @@ export function SignedRecordsListSealedTimestamp(props: SignedRecordsListSealedT
   const formatted = formatSignedRecordsListSealedTimestamp(props.committedUtc);
 
   if (formatted === null) {
-    return <SignedRecordsListEmptyValue fieldLabel="Sealed date" />;
+    return <SignedRecordsListEmptyValue fieldLabel="Finalized date" />;
   }
 
   return (

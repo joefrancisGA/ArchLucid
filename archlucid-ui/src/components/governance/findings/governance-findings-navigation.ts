@@ -15,7 +15,7 @@ export function governanceFindingInspectHref(runId: string, findingId: string): 
 }
 
 export function governanceFindingManifestRecordHref(runId: string, manifestId: string): string {
-  if (manifestId !== "—") {
+  if (manifestId !== " — ") {
     return signedRecordDetailPath(manifestId);
   }
 

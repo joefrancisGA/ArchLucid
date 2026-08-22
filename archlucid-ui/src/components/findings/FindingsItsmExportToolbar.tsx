@@ -146,7 +146,7 @@ export function FindingsItsmExportToolbar({
         data-workspace-disclosure
       >
         <summary className={cn("cursor-pointer font-medium text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
-          Export pre-finalize findings
+          Export findings before finalize
         </summary>
         <p className={cn("m-0 mt-2 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
           {PRE_FINALIZE_FINDINGS_EXPORT_MARKER}

@@ -55,7 +55,7 @@ export const ARCHITECTURE_INTELLIGENCE_HELP_FEATURE_ITEMS: readonly Architecture
   },
   {
     label: "Publish to findings",
-    detail: "Attach approved output to the workspace findings trail when reasoning is ready for governance follow-up.",
+    detail: "Attach approved output to the workspace findings trail when reasoning is ready for approval follow-up.",
     href: GOVERNANCE_FINDINGS_PATH,
   },
   {

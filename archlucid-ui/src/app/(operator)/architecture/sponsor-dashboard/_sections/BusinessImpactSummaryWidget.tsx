@@ -23,7 +23,7 @@ import { Activity, DollarSign, Landmark, Scale, ShieldAlert, Workflow } from "lu
 
 function formatUsd(value: number | undefined): string {
   if (typeof value !== "number" || !Number.isFinite(value)) {
-    return "—";
+    return " — ";
   }
 
   return new Intl.NumberFormat(undefined, {
@@ -155,7 +155,7 @@ export function BusinessImpactSummaryWidget({
                   <div className="h-8 w-16 animate-pulse rounded bg-neutral-200 dark:bg-neutral-800" />
                 ) : (
                   <p className={OPERATOR_TYPOGRAPHY.kpiValue}>
-                    {hasCommittedRuns ? card.value : "—"}
+                    {hasCommittedRuns ? card.value : " — "}
                   </p>
                 )}
               </CardContent>

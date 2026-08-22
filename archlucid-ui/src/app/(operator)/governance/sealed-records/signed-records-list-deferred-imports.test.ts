@@ -20,8 +20,8 @@ const bannedClientImports = ['./SignedRecordsListTable"'] as const;
 describe("signed-records list deferred imports (TB-2061 / wave 11)", () => {
   it("keeps SignedRecordsListClient off the page static import graph", () => {
     expect(pageSource).not.toContain('import SignedRecordsListClient from "./_sections/SignedRecordsListClient"');
-    expect(pageSource).toContain('import("./_sections/SignedRecordsListClient")');
-    expect(pageSource).toContain("next/dynamic");
+    expect(pageSource).toContain("SignedRecordsListClientDeferred");
+    expect(pageSource).not.toContain("next/dynamic");
   });
 
   it("keeps the EnterpriseTable cluster off SignedRecordsListClient static import graph", () => {
@@ -39,6 +39,10 @@ describe("signed-records list deferred imports (TB-2061 / wave 11)", () => {
     expect(manifestLoaderSource).toContain(
       'import("@/app/(operator)/governance/sealed-records/_sections/SignedRecordsListTable")',
     );
+    expect(manifestLoaderSource).toContain(
+      'import("@/app/(operator)/governance/sealed-records/_sections/SignedRecordsListClient")',
+    );
     expect(deferredSource).toContain("signed-records-list-table");
+    expect(deferredSource).toContain("signed-records-list-client");
   });
 });

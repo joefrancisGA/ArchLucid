@@ -65,7 +65,7 @@ export const wizardPresets: WizardPreset[] = [
     values: {
       systemName: "AnalyticsDataLake",
       description:
-        "Enterprise analytics platform landing raw and curated datasets in object storage, orchestrated pipelines, Spark or SQL pools for transformation, and governed access for BI tools with row-level security expectations.",
+        "Enterprise analytics platform landing raw and curated datasets in object storage, orchestrated pipelines, Spark or SQL pools for transformation, and controlled access for BI tools with row-level security expectations.",
       constraints: ["Data residency and encryption at rest", "PII classification and retention policies"],
       requiredCapabilities: ["Object storage lakehouse", "Metadata catalog", "Lineage from ingestion to consumption"],
       securityBaselineHints: ["Private endpoints for storage and SQL", "Managed identities for pipeline principals"],

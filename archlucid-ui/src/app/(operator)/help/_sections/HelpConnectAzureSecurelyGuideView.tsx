@@ -324,12 +324,6 @@ export function HelpConnectAzureSecurelyGuideView(props: HelpConnectAzureSecurel
             </ul>
           </section>
 
-          <div className="border-t border-neutral-200 pt-6 dark:border-neutral-800">
-            <Button asChild variant="outline" size="sm">
-              <Link href={CONNECT_AZURE_SECURELY_CONFIGURE_HREF}>{CONNECT_AZURE_SECURELY_CONFIGURE_ACTION}</Link>
-            </Button>
-          </div>
-
           <ConnectAzureSecurelyHelpEvidenceOrientationStrip />
         </div>
         <HelpTopicTableOfContents headings={CONNECT_AZURE_SECURELY_TOC_HEADINGS} enableScrollSpy />

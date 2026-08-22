@@ -76,6 +76,30 @@ class TestOciBuildIdentity(unittest.TestCase):
         errors = assert_workflows_declare_build_identity(REPO_ROOT)
         self.assertEqual(errors, [], msg="\n".join(errors))
 
+    def test_assert_workflows_detects_missing_ci_build_number(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            workflow_dir = root / ".github" / "workflows"
+            workflow_dir.mkdir(parents=True)
+            stub = (
+                "BUILD_ID=deadbeef\n"
+                "env.BUILD_ID\n"
+                "BUILD_SHA=${{ env.BUILD_ID }}\n"
+                "NEXT_PUBLIC_BUILD_COMMIT_SHA=${{ env.BUILD_ID }}\n"
+                "ARCHLUCID_BUILD_COMMIT_SHA=$BUILD_ID\n"
+                "archlucid-ui\n"
+                "org.opencontainers.image.revision=${{ env.BUILD_ID }}\n"
+                "org.opencontainers.image.source=https://example.com\n"
+                "org.opencontainers.image.title=archlucid-api\n"
+                "org.opencontainers.image.created=2026-01-01T00:00:00Z\n"
+                "org.opencontainers.image.version=${{ env.BUILD_ID }}\n"
+            )
+            (workflow_dir / "cd.yml").write_text(stub, encoding="utf-8")
+            (workflow_dir / "cd-staging-on-merge.yml").write_text(stub, encoding="utf-8")
+
+            errors = assert_workflows_declare_build_identity(root)
+            self.assertTrue(any("NEXT_PUBLIC_CI_BUILD_NUMBER" in error for error in errors))
+
     def test_assert_workflows_detects_missing_revision_label(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)

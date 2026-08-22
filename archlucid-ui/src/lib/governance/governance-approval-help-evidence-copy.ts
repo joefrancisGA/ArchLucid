@@ -9,7 +9,7 @@ import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
 export const GOVERNANCE_APPROVAL_HELP_CANONICAL_PATH = "/help/governance-approval" as const;
 
-export const GOVERNANCE_APPROVAL_HELP_TOPIC_LABEL = "How governance approval works";
+export const GOVERNANCE_APPROVAL_HELP_TOPIC_LABEL = "How resolve outcomes work";
 
 export const GOVERNANCE_APPROVAL_HELP_CLAIM_DISCIPLINE_HEADING = "What this guide does not cover";
 

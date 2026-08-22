@@ -36,7 +36,7 @@ const SPONSOR_DASHBOARD_APP_LAYOUT = join(
 
 const PRODUCT_SPONSOR_DASHBOARD_SURFACES = [
   "archlucid-ui/src/lib/pilot-nav-group-builder.ts",
-  "archlucid-ui/src/lib/usability/page-help-topic-map.ts",
+  "archlucid-ui/src/lib/usability/page-help-topic-rows.ts",
   "archlucid-ui/src/lib/nav-disclosure-for-path.ts",
   "archlucid-ui/src/lib/sponsor/sponsor-kpi-drill-through-hrefs.ts",
 ] as const;

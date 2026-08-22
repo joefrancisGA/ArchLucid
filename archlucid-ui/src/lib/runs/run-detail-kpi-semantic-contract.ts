@@ -38,7 +38,7 @@ export function presentRunDetailKpiFlag(
   options?: { readonly loading?: boolean },
 ): { readonly display: string; readonly value: boolean | null } {
   if (options?.loading === true) {
-    return { display: "—", value: null };
+    return { display: " — ", value: null };
   }
 
   if (serverValue === true) {
@@ -49,5 +49,5 @@ export function presentRunDetailKpiFlag(
     return { display: "No", value: false };
   }
 
-  return { display: "—", value: null };
+  return { display: " — ", value: null };
 }

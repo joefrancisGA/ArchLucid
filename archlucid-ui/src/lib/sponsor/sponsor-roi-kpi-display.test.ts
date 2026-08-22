@@ -6,7 +6,7 @@ describe("presentSponsorKpiCount", () => {
   it("returns em dash for missing values", () => {
     const result = presentSponsorKpiCount(undefined, { loading: false });
 
-    expect(result.display).toBe("—");
+    expect(result.display).toBe(" — ");
     expect(result.state).toBe("missing");
   });
 

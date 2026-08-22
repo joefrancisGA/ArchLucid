@@ -39,7 +39,7 @@ export const PATTERN_LIBRARY_POLICY_PACKS_WHY_TWO =
   "The pattern library catalogs recurring architecture patterns from reviews. Policy packs are enforceable governance rule sets applied to reviews and findings. Browsing patterns does not author or activate policy packs." as const;
 
 export const PATTERN_LIBRARY_POLICY_PACKS_COMPACT_LINE =
-  "Pattern library catalogs observed patterns; Policy packs enforce governance rules." as const;
+  "Pattern library catalogs observed patterns; Policy packs enforce policy rules." as const;
 
 export const PATTERN_LIBRARY_POLICY_PACKS_LIBRARY_LINK: PatternLibraryPolicyPacksLink = {
   id: "pattern-library",

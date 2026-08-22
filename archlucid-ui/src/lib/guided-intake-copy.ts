@@ -154,6 +154,14 @@ export const GUIDED_INTAKE_STRUCTURED_BRIEF_FAILURE_MODE_HINT =
 export const GUIDED_INTAKE_STRUCTURED_BRIEF_FAILURE_MODE_PLACEHOLDER =
   "e.g. API outage; failover to secondary region";
 
+export const GUIDED_INTAKE_STRUCTURED_BRIEF_FAILURE_MODE_SUGGEST_BUTTON = "Suggest from context";
+
+export const GUIDED_INTAKE_STRUCTURED_BRIEF_FAILURE_MODE_SUGGEST_SUCCESS =
+  "Filled failure mode and recovery from architecture context.";
+
+export const GUIDED_INTAKE_STRUCTURED_BRIEF_FAILURE_MODE_SUGGEST_EMPTY =
+  "No failure mode suggestion found. Confirm constraints or refine the overview and try again.";
+
 export const GUIDED_INTAKE_STRUCTURED_BRIEF_OPERATIONAL_OWNER_LABEL = "Operational Owner";
 
 export const GUIDED_INTAKE_STRUCTURED_BRIEF_OPERATIONAL_OWNER_HINT =

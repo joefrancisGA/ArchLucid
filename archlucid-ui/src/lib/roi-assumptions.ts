@@ -94,7 +94,7 @@ export function formatHours(hours: number): string {
 
 export function formatUsd(amount: number): string {
   if (!Number.isFinite(amount)) {
-    return "—";
+    return " — ";
   }
 
   return new Intl.NumberFormat(undefined, { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(amount);

@@ -45,7 +45,7 @@ const EVIDENCE_TRAIL_GRAPH_MODES = [
 const EVIDENCE_TRAIL_LINEAGE_NODES = [
   "evidence and artifacts",
   "findings",
-  "governance decisions",
+  "approval decisions",
   "finalized review record",
   "exports and downloads",
 ] as const;

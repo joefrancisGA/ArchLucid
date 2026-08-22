@@ -95,7 +95,7 @@ export function FleetLlmCogsAdminPageClient() {
 
       <Card>
         <CardHeader className="pb-2">
-          <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>UTC month {data?.utcMonth ?? "—"}</CardTitle>
+          <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>UTC month {data?.utcMonth ?? " — "}</CardTitle>
         </CardHeader>
         <CardContent className={cn("space-y-4 overflow-x-auto", OPERATOR_TYPOGRAPHY.body)}>
           <div className={cn("grid gap-3 sm:grid-cols-4", OPERATOR_TYPOGRAPHY.body)}>
@@ -146,12 +146,12 @@ export function FleetLlmCogsAdminPageClient() {
                     ${row.estimatedUsdPressureUtcMonth.toFixed(2)}
                   </EnterpriseTableCell>
                   <EnterpriseTableCell className="tabular-nums">
-                    {row.hardCapUsdUtcMonth != null ? `$${row.hardCapUsdUtcMonth.toFixed(2)}` : "—"}
+                    {row.hardCapUsdUtcMonth != null ? `$${row.hardCapUsdUtcMonth.toFixed(2)}` : " — "}
                   </EnterpriseTableCell>
                   <EnterpriseTableCell className="tabular-nums">
                     {row.hardCapUtilizationFraction != null
                       ? `${Math.round(row.hardCapUtilizationFraction * 100)}%`
-                      : "—"}
+                      : " — "}
                   </EnterpriseTableCell>
                   <EnterpriseTableCell>{row.grossMarginRiskLabel}</EnterpriseTableCell>
                   <EnterpriseTableCell>

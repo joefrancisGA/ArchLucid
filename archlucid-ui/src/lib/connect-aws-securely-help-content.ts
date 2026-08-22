@@ -32,8 +32,6 @@ export const CONNECT_AWS_SECURELY_BACK_TO_CONNECTIONS = "Back to cloud connectio
 
 export const CONNECT_AWS_SECURELY_CONFIGURE_ACTION = "Configure AWS connection";
 
-export const CONNECT_AWS_SECURELY_CONFIGURE_ACTION_FOOTER = "Configure AWS connection (next step)";
-
 export const CONNECT_AWS_SECURELY_SECURITY_HEADING = "Security model";
 
 export const CONNECT_AWS_SECURELY_SECURITY_ITEMS = [

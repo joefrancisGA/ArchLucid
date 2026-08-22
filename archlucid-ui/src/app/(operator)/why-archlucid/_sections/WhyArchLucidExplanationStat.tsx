@@ -14,7 +14,7 @@ export function WhyArchLucidExplanationStat(props: WhyArchLucidExplanationStatPr
     <div className="rounded border border-neutral-200 bg-white p-2 dark:border-neutral-800 dark:bg-neutral-950">
       <p className={OPERATOR_NAV_GROUP_LABEL}>{label}</p>
       <p className={cn("tabular-nums text-al-text-primary font-semibold", OPERATOR_TYPOGRAPHY.body)}>
-        {v === null ? "—" : v}
+        {v === null ? " — " : v}
       </p>
     </div>
   );

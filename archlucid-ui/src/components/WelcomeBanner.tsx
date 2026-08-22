@@ -157,7 +157,7 @@ export function WelcomeBanner() {
     </>
   ) : buyerPolishedShell ? (
     <>
-      Start with the <strong>sponsor view</strong>, then the <strong>sealed review record</strong>, <strong>audit trail</strong>, and prioritized{" "}
+      Start with the <strong>sponsor view</strong>, then the <strong>finalized review record</strong>, <strong>audit trail</strong>, and prioritized{" "}
       <GlossaryTooltip termKey="findings">findings</GlossaryTooltip>.
     </>
   ) : (
@@ -229,7 +229,7 @@ export function WelcomeBanner() {
             <ul className="m-0 mb-2.5 list-none space-y-2 p-0">
               {(
                 [
-                  { id: "governed-manifest", label: "Sealed review record" as const, Icon: FileCheck2 },
+                  { id: "governed-manifest", label: "Finalized review record" as const, Icon: FileCheck2 },
                   { id: "actionable-findings", label: "Actionable findings" as const, Icon: Target },
                   {
                     id: "artifact-bundle",
@@ -247,7 +247,7 @@ export function WelcomeBanner() {
             </ul>
             <p className={cn("m-0 leading-relaxed text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
               {buyerPolishedShell
-                ? "Sponsor view for sponsors; sealed review record summary for the finalized package; optional read-only walkthrough when you want a guided tour."
+                ? "Sponsor view for sponsors; finalized review record summary for the finalized package; optional read-only walkthrough when you want a guided tour."
                 : "One request produces everything needed for review."}
             </p>
           </div>

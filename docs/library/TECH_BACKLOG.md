@@ -52255,3 +52255,19 @@ If the brief is short, `buildEvidenceBackedIntakeBrief` writes boilerplate from 
 **Peers:** Open **TB-2282**, **TB-2283**. Done **TB-2177**, **TB-2151**, **TB-2130**. Azure extractor ingest (Done ADR 0053 batch). Follow-on: title/decision naming (playbook item 4) if filed.
 
 **Size estimate:** M.
+
+## TB-2368 — Findings-derived clarification loop (API + inline capture) (P2) — **Done**
+
+**Shipped:** Deterministic clarification question derivation from coverage findings (cap 7, severity order, dedupe by question id); `GET /v1/architecture/review/{runId}/clarification-questions`; audit `ReviewClarificationQuestionsAccessed`; prior-run delta (`ReviewClarificationDelta`); operator assertion format `[finding-clarification] … [q=…]`; architecture clarifications tab gaps + `ClarificationAnswerCapturePanel`; guided intake `priorRunId` / `rerun` handoff. ADR [0059-findings-derived-clarification-questions](../architecture/adrs/0059-findings-derived-clarification-questions.md).
+
+**Regression:** `ReviewClarificationQuestionDeriverTests`, `ReviewClarificationDeltaComputerTests`, `ClarificationAnswerStructuredBriefProjectionTests`, `build-findings-derived-clarification-gaps.test.ts`, `resolve-clarification-follow-up-href.test.ts`.
+
+## TB-2369 — Clarification round outcome analytics on home + review list (P2) — **Open**
+
+**Problem:** Operators cannot see rollup of resolved-by-evidence vs resolved-by-assertion clarification deltas outside the clarifications tab.
+
+**Approach:** Surface `ReviewClarificationDelta` counts on review list rows and operator home attention partitions when `clarificationRoundAvailable` was true on the prior package.
+
+**Peers:** Done **TB-2368**. Related **TB-2367** review workspace shell.
+
+**Size estimate:** S.

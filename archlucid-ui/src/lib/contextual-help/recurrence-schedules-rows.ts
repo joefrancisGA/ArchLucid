@@ -16,7 +16,7 @@ const RECURRENCE_SCHEDULES_HUB_CONTEXTUAL_HELP = {
   whatToDoNext: "Create a schedule from a finalized review, then monitor cadence, status, and last-run health on this page.",
   whyEmpty: "Schedules appear after you create one for a finalized architecture review.",
   whereToConfigurePrerequisite:
-    "Finalize an architecture review and complete governance approval when your workspace requires it before scheduling follow-up.",
+    "Finalize an architecture review and complete resolve outcomes when your workspace requires it before scheduling follow-up.",
   whatToDoNextAction: {
     label: "Open architecture reviews",
     href: RECURRENCE_SCHEDULES_REVIEW_PACKAGES_HREF,
@@ -36,7 +36,7 @@ export const RECURRENCE_SCHEDULES_CONTEXTUAL_HELP_ROWS: readonly PageContextualH
     prefix: RECURRENCE_SCHEDULES_HELP_CANONICAL_PATH,
     entry: {
       whatIsThisPage: `Recurrence schedules — ${RECURRENCE_SCHEDULES_HELP_TOPIC_LABEL.toLowerCase()} and how automated re-review cadences differ from sponsor digest email.`,
-      whatToDoNext: "Open recurrence schedules to create or edit a cadence, then follow cloned reviews through governance surfaces.",
+      whatToDoNext: "Open recurrence schedules to create or edit a cadence, then follow cloned reviews through approval workflow surfaces.",
       whyEmpty: "This guide is always available; schedules appear after you create one from a finalized review.",
       whereToConfigurePrerequisite:
         "Anchor each schedule to a finalized architecture review before defining cadence.",
