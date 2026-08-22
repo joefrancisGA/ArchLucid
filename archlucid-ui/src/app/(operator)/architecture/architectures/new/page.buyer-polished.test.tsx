@@ -27,12 +27,12 @@ import {
 } from "@/lib/architectures-new-page-copy";
 
 describe("NewArchitecturePage buyer-polished shell", () => {
-  it("renders breadcrumb, buyer subtitle, and claim orientation strip", () => {
+  it("renders buyer subtitle and claim orientation strip", () => {
     render(<NewArchitecturePage />);
 
     expect(screen.getByTestId("architecture-new-page-title")).toHaveTextContent(CREATE_ARCHITECTURE_LABEL);
     expect(screen.getByText(ARCHITECTURES_NEW_PAGE_SUBTITLE_BUYER)).toBeInTheDocument();
-    expect(screen.getByTestId("architectures-new-breadcrumb")).toBeInTheDocument();
+    expect(screen.getByTestId("architectures-new-orientation-top")).toBeInTheDocument();
     expect(screen.getByText(ARCHITECTURES_NEW_CLAIM_HEADING)).toBeInTheDocument();
     expect(screen.getByText(ARCHITECTURES_NEW_CLAIM_DISCIPLINE)).toBeInTheDocument();
     expect(screen.getByTestId("architecture-draft-workspace")).toBeInTheDocument();

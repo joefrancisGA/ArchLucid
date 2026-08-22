@@ -10,5 +10,9 @@ export function ArchitecturesNewBuyerChrome(): React.JSX.Element | null {
     return null;
   }
 
-  return <ArchitecturesNewClaimOrientationStrip />;
+  return (
+    <div className="mb-6 text-left" data-testid="architectures-new-orientation-top">
+      <ArchitecturesNewClaimOrientationStrip />
+    </div>
+  );
 }
