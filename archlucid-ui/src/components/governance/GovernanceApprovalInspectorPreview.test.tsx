@@ -35,7 +35,7 @@ describe("GovernanceApprovalInspectorPreview", () => {
     const root = screen.getByTestId("governance-approval-inspector-preview");
 
     expect(screen.getByTestId("governance-approval-inspector-secondary-view-strip")).toBeInTheDocument();
-    expect(within(root).getByLabelText("Governance status: Submitted")).toBeInTheDocument();
+    expect(within(root).getByLabelText("Approval status: Submitted")).toBeInTheDocument();
     expect(within(root).getByRole("link", { name: sample.runId })).toHaveAttribute(
       "href",
       `/architecture/reviews/${encodeURIComponent(sample.runId)}`,

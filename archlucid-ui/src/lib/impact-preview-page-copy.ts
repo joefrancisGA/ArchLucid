@@ -88,7 +88,7 @@ export const IMPACT_PREVIEW_SUMMARY_FINDINGS_CHANGED = "Expected findings change
 export const IMPACT_PREVIEW_SUMMARY_RISKS_REDUCED = "Risks reduced" as const;
 export const IMPACT_PREVIEW_SUMMARY_RISKS_INTRODUCED = "Risks introduced" as const;
 export const IMPACT_PREVIEW_SUMMARY_COST_IMPACT = "Cost impact" as const;
-export const IMPACT_PREVIEW_SUMMARY_GOVERNANCE_STATUS = "Governance status" as const;
+export const IMPACT_PREVIEW_SUMMARY_GOVERNANCE_STATUS = "Approval status" as const;
 
 export const IMPACT_PREVIEW_BEFORE_AFTER_TITLE = "Before-and-after comparison" as const;
 export const IMPACT_PREVIEW_BEFORE_LABEL = "Current baseline" as const;
@@ -106,10 +106,10 @@ export const IMPACT_PREVIEW_RECOMMENDATION_DISCLAIMER =
   "Impact preview results are review-time analysis only — do not proceed without an accountable architecture review." as const;
 
 export const IMPACT_PREVIEW_DO_NOT_PROCEED_WITHOUT_REVIEW =
-  "Do not proceed without review — route material changes through governance before implementation." as const;
+  "Do not proceed without review — route material changes through approval before implementation." as const;
 
 export const IMPACT_PREVIEW_DECISION_OWNERSHIP_NOTE =
-  "Simulation output informs review; accountable reviewers and governance owners retain resolve authority." as const;
+  "Simulation output informs review; accountable reviewers and approval leads retain resolve authority." as const;
 
 export const IMPACT_PREVIEW_EVIDENCE_BASIS_TITLE = "Evidence basis" as const;
 export const IMPACT_PREVIEW_EVIDENCE_LINKED_FINDINGS = "Linked findings" as const;

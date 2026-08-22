@@ -72,7 +72,7 @@ export function isPackagedDemoDeployEnv(): boolean {
 }
 
 export const STATIC_DEMO_GOVERNANCE_FALLBACK_STATUS =
-  "Showing example approval records — live governance data unavailable. Refresh to reload live data.";
+  "Showing example approval records — live approval data unavailable. Refresh to reload live data.";
 
 let staticDemoFallbackOutsidePackagedDeployWarned = false;
 

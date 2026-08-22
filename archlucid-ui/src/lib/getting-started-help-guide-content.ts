@@ -103,12 +103,12 @@ export const GETTING_STARTED_HELP_PLAIN_LANGUAGE_TERMS: readonly GettingStartedP
   {
     term: "Decision",
     definition:
-      "A recorded resolve outcome on review proposals — such as approve, waive, defer, or escalate — captured for governance and audit.",
+      "A recorded resolve outcome on review proposals — such as approve, waive, defer, or escalate — captured for approval and audit.",
   },
   {
     term: "Finalized review record",
     definition:
-      "The immutable package locked when a review is finalized — the authoritative anchor for governance, exports, and evidence lineage.",
+      "The immutable package locked when a review is finalized — the authoritative anchor for approval, exports, and evidence lineage.",
   },
   {
     term: "Evidence trail",
@@ -118,7 +118,7 @@ export const GETTING_STARTED_HELP_PLAIN_LANGUAGE_TERMS: readonly GettingStartedP
   {
     term: "Policy pack",
     definition:
-      "Versioned governance standards and rules applied to reviews for your workspace or project.",
+      "Versioned policy standards and rules applied to reviews for your workspace or project.",
   },
   {
     term: "Resolve outcomes",

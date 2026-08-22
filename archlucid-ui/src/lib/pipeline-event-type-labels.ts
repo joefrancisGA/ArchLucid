@@ -64,8 +64,8 @@ export function pipelineEventTypeFriendlyLabel(eventType: string): string {
 /** One-line â€œwhy this milestone mattersâ€ for buyer-polished audit cards (falls back to generic). */
 const PIPELINE_EVENT_BUYER_SUBTITLE: Record<string, string> = {
   RunStarted: "Creates the review record and starts the evidence capture timeline.",
-  RunCompleted: "Closes the review with a durable outcome snapshot for governance and audit.",
-  RunSubmitted: "Hands off the review for formal review or governance steps.",
+  RunCompleted: "Closes the review with a durable outcome snapshot for approval and audit.",
+  RunSubmitted: "Hands off the review for formal review or approval steps.",
   ManifestGenerated: "Produces the versioned review backing decisions and exports.",
   ManifestFinalized:
     "Locks the finalized review as the official version used for approvals, exports, and audit history.",
@@ -74,17 +74,17 @@ const PIPELINE_EVENT_BUYER_SUBTITLE: Record<string, string> = {
   GovernanceApprovalRequested:
     "Creates an auditable resolve-outcomes checkpoint before any approved downstream handoff.",
   "finalize.run": "Locks the finalized review as the official version used for approvals, exports, and audit history.",
-  "run.finalized": "Closes the review with a durable outcome snapshot for governance and audit.",
+  "run.finalized": "Closes the review with a durable outcome snapshot for approval and audit.",
   "context.snapshot.created": "Captures the ingested context used to justify findings and graph evidence.",
   "graph.snapshot.created": "Persists the architecture relationship graph used in the evidence trail.",
   "findings.snapshot.created": "Persists generated findings before final review packaging.",
   "manifest.committed": "Commits the finalized review record as the contract for deliverables and audits.",
   "artifact.bundle.created": "Bundles downloadable outputs for sponsor and audit audiences.",
-  Commit: "Hands off the review for formal review or governance steps.",
+  Commit: "Hands off the review for formal review or approval steps.",
   context_snapshot: "Captures the ingested context used to justify findings and graph evidence.",
   graph_snapshot: "Persists the architecture relationship graph used in the evidence trail.",
   findings_snapshot: "Persists generated findings before final review packaging.",
-  "com.archlucid.authority.run.completed": "Closes the review with a durable outcome snapshot for governance and audit.",
+  "com.archlucid.authority.run.completed": "Closes the review with a durable outcome snapshot for approval and audit.",
   "com.archlucid.manifest.finalized.v1":
     "Finalizes the review record as the authoritative package for decisions, deliverables, and audit.",
   "com.archlucid.governance.approval.submitted":

@@ -11,10 +11,10 @@ export const GOVERNANCE_APPROVAL_CONTEXTUAL_HELP_ROWS: readonly PageContextualHe
     prefix: "/governance",
     entry: {
       whatIsThisPage:
-        `Governance — ${GOVERNANCE_APPROVAL_HELP_TOPIC_LABEL.toLowerCase()} across findings, approvals, audit, and policy configuration.`,
+        `Approval — ${GOVERNANCE_APPROVAL_HELP_TOPIC_LABEL.toLowerCase()} across findings, approvals, audit, and policy configuration.`,
       whatToDoNext:
         "Open the approval queue, findings register, or approval setup when you need live decisions or configuration.",
-      whyEmpty: "Governance surfaces populate after reviews produce findings, decisions, or approval requests.",
+      whyEmpty: "Approval surfaces populate after reviews produce findings, decisions, or approval requests.",
       whereToConfigurePrerequisite:
         "Approval setup links policy, alerts, and approval expectations before day-to-day operations.",
       whatToDoNextAction: {
@@ -34,7 +34,7 @@ export const GOVERNANCE_APPROVAL_CONTEXTUAL_HELP_ROWS: readonly PageContextualHe
         `Resolve outcomes — ${GOVERNANCE_APPROVAL_HELP_TOPIC_LABEL.toLowerCase()} across submit, review, and finalize for architects.`,
       whatToDoNext:
         "Open the approval queue or Workspace Health, then use Findings when you need the risk register behind a decision.",
-      whyEmpty: "This guide is always available; live approval queues appear after reviews enter governance.",
+      whyEmpty: "This guide is always available; live approval queues appear after reviews enter approval review.",
       whereToConfigurePrerequisite:
         "Approval authority follows workspace roles; confirm the header workspace before acting on requests.",
       whatToDoNextAction: {

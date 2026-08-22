@@ -29,7 +29,7 @@ export function standardsRulesHelpPageSubtitle(buyerPolishedShell: boolean): str
 }
 
 export const STANDARDS_RULES_HELP_OVERVIEW =
-  "This guide explains how to read the Standards & rules resolution view: enforced rule rows, policy pack sources, linked findings, and diagnostic export. Use it before you open the live governance surface or when sponsor questions need citeable resolution context.";
+  "This guide explains how to read the Standards & rules resolution view: enforced rule rows, policy pack sources, linked findings, and diagnostic export. Use it before you open the live Standards & rules view or when sponsor questions need citeable resolution context.";
 
 export const STANDARDS_RULES_HELP_RESOLUTION_SNAPSHOT_EXPORT_HREF =
   `${GOVERNANCE_STANDARDS_AND_RULES_PATH}#governance-change-controls-heading` as const;

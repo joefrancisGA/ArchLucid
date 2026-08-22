@@ -26,9 +26,9 @@ describe("TB-2286 governance StatusTag migration contract", () => {
 
 describe("GovernanceStatusTag", () => {
   it("renders StatusTag with governance resolver kind and left-accent shell", () => {
-    render(<GovernanceStatusTag status="Submitted" aria-label="Governance status: Submitted" />);
+    render(<GovernanceStatusTag status="Submitted" aria-label="Approval status: Submitted" />);
 
-    const tag = screen.getByLabelText("Governance status: Submitted");
+    const tag = screen.getByLabelText("Approval status: Submitted");
 
     expect(tag).toHaveTextContent("Submitted");
     expect(tag.className).toContain("border-l-[3px]");

@@ -32,7 +32,7 @@ export const DRAFT_TOUR_STEPS: readonly OptInTourStep[] = [
     title: "1. Workspace home",
     body:
       "Your starting point. The first-review checklist at the top walks you through your first architecture review — follow it in order. " +
-      "The analysis and governance sections below are optional until your first review is finalized.",
+      "The analysis and approval sections below are optional until your first review is finalized.",
   },
   {
     title: OPT_IN_TOUR_EVIDENCE_STEP.title,

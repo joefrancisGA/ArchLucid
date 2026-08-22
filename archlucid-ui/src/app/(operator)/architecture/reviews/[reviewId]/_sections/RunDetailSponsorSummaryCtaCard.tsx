@@ -23,7 +23,7 @@ export function RunDetailSponsorSummaryCtaCard(props: RunDetailSponsorSummaryCta
           Sponsor report
         </CardTitle>
         <CardDescription className={OPERATOR_TYPOGRAPHY.helper}>
-          Board-ready risk posture, evidence basis, and governance status. Start here before the Finalized review record and
+          Board-ready risk posture, evidence basis, and approval status. Start here before the Finalized review record and
           deliverables.
         </CardDescription>
       </CardHeader>

@@ -98,7 +98,7 @@ export function DecisionRegisterDecisionCard(props: DecisionRegisterDecisionCard
             </dd>
           </div>
           <div>
-            <dt className="text-al-text-secondary">Governance status</dt>
+            <dt className="text-al-text-secondary">Approval status</dt>
             <dd className="m-0 font-medium text-al-text-primary">{DECISION_REGISTER_GOVERNANCE_STATUS_SIGNED}</dd>
           </div>
         </dl>

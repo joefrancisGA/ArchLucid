@@ -9,6 +9,6 @@ describe("Compare workspace orientation", () => {
 
     expect(screen.getByTestId("compare-dimensions-preview")).toBeInTheDocument();
     expect(screen.getByText("Scope changes")).toBeInTheDocument();
-    expect(screen.getByText("Governance status changes")).toBeInTheDocument();
+    expect(screen.getByText("Approval status changes")).toBeInTheDocument();
   });
 });

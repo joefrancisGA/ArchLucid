@@ -45,7 +45,7 @@ export function GovernanceApprovalInspectorPreview({ request }: GovernanceApprov
         testId="governance-approval-inspector-secondary-view-strip"
       />
       <div className="flex flex-wrap items-center gap-2">
-        <GovernanceStatusTag status={request.status} aria-label={`Governance status: ${request.status}`} />
+        <GovernanceStatusTag status={request.status} aria-label={`Approval status: ${request.status}`} />
       </div>
 
       <dl className="m-0 grid gap-2 sm:grid-cols-[minmax(5rem,auto)_1fr] sm:gap-x-3">

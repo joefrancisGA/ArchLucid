@@ -190,7 +190,7 @@ export function PatternLibraryDetailClient(props: PatternLibraryDetailClientProp
               </ul>
             </DetailSection>
 
-            <DetailSection id="governance" title="Governance considerations">
+            <DetailSection id="governance" title="Approval considerations">
               <ul className="m-0 list-disc space-y-1 pl-5">
                 {record.governanceConsiderations.map((item) => (
                   <li key={item}>{item}</li>

@@ -70,7 +70,7 @@ export const MARKETING_FAQ_CATEGORIES: ReadonlyArray<MarketingFaqCategory> = [
   },
   {
     id: "governance-audit",
-    title: "Governance and audit",
+    title: "Approval and audit",
     intro: "Sponsor outputs, finalized review records, and approval workflows.",
   },
   {
@@ -239,7 +239,7 @@ const MARKETING_FAQ_ITEM_TEMPLATES: ReadonlyArray<MarketingFaqItem> = [
   {
     id: "governance-and-audit",
     categoryId: "governance-audit",
-    question: "How does ArchLucid support governance and audit?",
+    question: "How does ArchLucid support approval and audit?",
     answer:
       "Reviews can pass through approval workflows, produce finalized review records, and maintain an audit trail linking findings, evidence, and decisions. Exports support diligence and architecture review board accountability.",
   },
