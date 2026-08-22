@@ -393,6 +393,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] Deeply nested percent-encoded slashes survive the three-pass decode cap (`/%2525252f%2525252fevil.example` accepted as in-app path) — fixed: eight-pass decode cap plus reject residual `%2f`/`%5c`/`%2e`; regression in `TryNormalize_rejects_open_redirect_shapes`
 - [x] (proven) Embedded protocol-relative segments survive return-path normalization — fixed: `ContainsProtocolRelativeTraversal` rejects leading and embedded `//`/`/\`; regression in `TryNormalize_rejects_open_redirect_shapes` and `TryNormalize_rejects_deeply_encoded_embedded_protocol_relative_segment`
 - [x] (proven) Residual double-encoded slashes survive the eight-pass decode cap — **hit 2026-08-21:** `%252F%252F` residue evaded single-level `%2f` detection after the decode loop; regression in `TryNormalize_rejects_residual_double_encoded_slashes_after_decode_cap`
+- [x] (proven) Unicode slash homoglyphs bypass ASCII-only protocol-relative checks — **hit 2026-08-22:** fullwidth solidus (`／`, `%EF%BC%8F`) and fullwidth reverse solidus (`＼`) evaded `ContainsProtocolRelativeTraversal`; regression in `TryNormalize_rejects_unicode_slash_homoglyph_protocol_relative_paths`
 
 ---
 
