@@ -1,3 +1,4 @@
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
@@ -8,7 +9,7 @@ import { OPERATOR_LAYOUT } from "@/lib/design-tokens";
  */
 export default function AdminConfigurationLoading() {
   return (
-    <div className={cn("w-full max-w-[1200px]", OPERATOR_LAYOUT.sectionStack)} aria-busy>
+    <OperatorPageContainer variant="workflow" className={OPERATOR_LAYOUT.sectionStack} aria-busy>
       <div className="space-y-2">
         <Skeleton className="h-8 w-72" />
         <Skeleton className="h-4 w-full max-w-xl" />
@@ -31,6 +32,6 @@ export default function AdminConfigurationLoading() {
           </Card>
         );
       })}
-    </div>
+    </OperatorPageContainer>
   );
 }

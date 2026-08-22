@@ -28,6 +28,7 @@ import { AdminConfigurationEvidenceOrientationStrip } from "@/components/evidenc
 import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { INTERNAL_CONFIGURATION_PATH } from "@/lib/internal-ops-route-paths";
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 
 import { AdminConfigurationLintFindingList } from "./AdminConfigurationLintFindingList";
@@ -51,7 +52,7 @@ export function AdminConfigurationPageView(props: Props) {
   }
 
   return (
-    <div className={cn("w-full max-w-[1200px]", OPERATOR_LAYOUT.sectionStack)} data-testid="admin-configuration-page">
+    <OperatorPageContainer variant="workflow" className={OPERATOR_LAYOUT.sectionStack} data-testid="admin-configuration-page">
       <OperatorPageHeader
         navHref={INTERNAL_CONFIGURATION_PATH}
         title="Configuration summary"
@@ -248,6 +249,6 @@ export function AdminConfigurationPageView(props: Props) {
           </Card>
         );
       })}
-    </div>
+    </OperatorPageContainer>
   );
 }
