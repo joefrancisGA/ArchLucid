@@ -96,7 +96,7 @@ const HELP_CENTER_DISPLAY_OVERRIDES: Readonly<Partial<Record<string, HelpCenterD
   "enterprise-onboarding": {
     title: ENTERPRISE_ONBOARDING_HELP_PAGE_TITLE,
     summary:
-      "Configure an enterprise tenant — SSO, roles, governance, policy packs, audit export, and optional cloud connector evidence.",
+      "Configure an enterprise tenant — SSO, roles, approval workflows, policy packs, audit export, and optional cloud connector evidence.",
   },
   "first-architecture-review": {
     title: FIRST_ARCHITECTURE_REVIEW_PAGE_TITLE,

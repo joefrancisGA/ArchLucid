@@ -4,7 +4,7 @@
  */
 
 export const ACCESSIBILITY_PUBLIC_INTRO =
-  "ArchLucid is designed to support accessible use by architecture, governance, security, and compliance teams. We target WCAG 2.1 Level AA for public pages and core product workflows.";
+  "ArchLucid is designed to support accessible use by architecture, approval, security, and compliance teams. We target WCAG 2.1 Level AA for public pages and core product workflows.";
 
 export const ACCESSIBILITY_PUBLIC_STANDARD =
   "ArchLucid targets WCAG 2.1 Level AA. Automated testing supports our accessibility program but does not replace manual review or assistive-technology testing.";

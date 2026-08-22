@@ -15,7 +15,7 @@ export const CTO_DEMO_BLOCKED_ROUTES: readonly BlockedRouteEntry[] = [
   { prefix: "/insights/improvement-planning", label: "Planning", description: "Multi-quarter governance roadmap and remediation scheduling." },
   { prefix: "/integrations", label: "Integrations", description: "Connect Jira, ServiceNow, Slack, and CI/CD pipelines. Native one-click ITSM ticket creation depends on deployment settings." },
   { prefix: IMPACT_PREVIEW_PATH, label: "Change simulation", description: "Preview the expected impact of proposed architecture changes before implementation." },
-  { prefix: DIGESTS_HUB_PATH, label: "Digests", description: "Scheduled governance digests and notification subscriptions." },
+  { prefix: DIGESTS_HUB_PATH, label: "Digests", description: "Scheduled architecture digests and notification subscriptions." },
   { prefix: "/governance/advisory-scans", label: "Advisory scans", description: "Scheduled advisory scans and improvement recommendations." },
   { prefix: "/internal/product-learning", label: "Pilot feedback", description: "Feedback on review outputs and recurring improvement opportunities." },
   { prefix: "/internal/recommendation-learning", label: "Recommendation learning", description: "Inspect and rebuild recommendation-ranking profiles from historical review outcomes." },

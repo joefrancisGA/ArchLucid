@@ -52,7 +52,7 @@ export const ENTERPRISE_ONBOARDING_CONTEXTUAL_HELP_ROWS: readonly PageContextual
   {
     prefix: ENTERPRISE_ONBOARDING_HELP_CANONICAL_PATH,
     entry: {
-      whatIsThisPage: `Enterprise onboarding checklist — ${ENTERPRISE_ONBOARDING_HELP_TOPIC_LABEL.toLowerCase()} for SSO, roles, governance, policy packs, audit export, and optional Azure evidence.`,
+      whatIsThisPage: `Enterprise onboarding checklist — ${ENTERPRISE_ONBOARDING_HELP_TOPIC_LABEL.toLowerCase()} for SSO, roles, approval workflows, policy packs, audit export, and optional Azure evidence.`,
       whatToDoNext:
         "Open Identity providers for SSO, Users and roles for access, then Assurance status for assurance orientation.",
       whyEmpty: "This guide is always available; live identity and role surfaces appear after workspace configuration.",

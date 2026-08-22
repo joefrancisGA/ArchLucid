@@ -7,7 +7,7 @@ export const SETTINGS_HUB_HELP_TOPIC_LABEL = "Settings help" as const;
 
 export const SETTINGS_HUB_CONTEXTUAL_HELP: PageContextualHelpEntry = {
   whatIsThisPage:
-    "Settings hub — search and open workspace, governance, integration, security, billing, and support configuration pages.",
+    "Settings hub — search and open workspace, approval, integration, security, billing, and support configuration pages.",
   whatToDoNext:
     "Search or jump to a section, then open a destination page to change settings. Use the help control for short answers about this index.",
   whyEmpty:
