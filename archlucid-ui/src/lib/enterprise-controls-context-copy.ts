@@ -133,7 +133,7 @@ export const governanceDashboardOpenWorkflowReviewTitleReader =
 
 /** Resolve outcomes workflow — lead under page title when caller can mutate (Execute+ in shell). */
 export const governanceWorkflowPageLeadOperator =
-  "Submit finalized architecture outputs for approval review. Load a review to see approval status and the full approval trail.";
+  "Submit finalized architecture outputs for approval. Load a review to see approval status and the full approval trail.";
 
 /** Resolve outcomes workflow — lead under page title for read tier (inspect-first layout already elevates Load). */
 export const governanceWorkflowPageLeadReader =

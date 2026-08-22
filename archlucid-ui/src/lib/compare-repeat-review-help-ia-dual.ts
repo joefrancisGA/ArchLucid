@@ -41,7 +41,7 @@ export const REPEAT_REVIEW_LOOP_HELP_JOB_MATRIX: readonly CompareRepeatReviewHel
   },
   {
     label: "This repeat architecture review guide",
-    when: "Second-review habit loop checklist — compare, replay, governance, finalize again, and collect proof",
+    when: "Second-review habit loop checklist — compare, replay, approval, finalize again, and collect proof",
     isCurrent: true,
   },
 ] as const;
