@@ -129,7 +129,10 @@ public sealed class DigestEmailDispatcherIdempotencyTests
 
         Mock<IEmailTemplateRenderer> renderer = new();
         renderer.Setup(r => r.RenderHtmlAsync(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync("<p>x</p>");
+            .Returns<string, object, CancellationToken>((_, model, _) =>
+                model is WeeklySponsorSummaryEmailModel summary
+                    ? Task.FromResult(summary.SummaryMarkdown)
+                    : Task.FromResult("<p>x</p>"));
         renderer.Setup(r => r.RenderTextAsync(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync("x");
 

@@ -46,7 +46,7 @@ Proceed with claims intake modernization under monitored PHI minimization contro
 
 ---
 
-_This sponsor report was generated with AI assistance from review findings and severity counts. Review before sharing with sponsors._
+_This Sponsor report was generated with AI assistance from review findings and severity counts. Review before sharing with sponsors._
 
 ## Portfolio signals (live)
 

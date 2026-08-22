@@ -417,14 +417,16 @@ public sealed class ArchitectureControllerTests
                 await response.Content.ReadFromJsonAsync<List<ArchitectureRequestTemplateSummary>>(JsonOptions);
 
             items.Should().NotBeNull();
-            items.Should().HaveCount(5);
+            items.Should().HaveCount(7);
 
             string[] ids = items!.Select(i => i.Id).OrderBy(s => s).ToArray();
             ids.Should().Equal(
                 "hipaa-compliant-api",
                 "microservices-aks",
+                "microservices-gke",
                 "pci-dss-payment-gateway",
                 "serverless-api",
+                "serverless-api-aws",
                 "webapp-sql");
 
             items.Select(i => i.Id).Should().OnlyHaveUniqueItems();

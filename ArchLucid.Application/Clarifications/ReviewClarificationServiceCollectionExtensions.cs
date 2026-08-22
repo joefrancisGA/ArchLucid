@@ -3,9 +3,9 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace ArchLucid.Application.Clarifications;
 
-public static class ReviewClarificationServiceCollectionExtensions
+internal static class ReviewClarificationServiceCollectionExtensions
 {
-    public static IServiceCollection AddReviewClarificationQuestions(this IServiceCollection services)
+    internal static IServiceCollection AddReviewClarificationQuestions(this IServiceCollection services)
     {
         ArgumentNullException.ThrowIfNull(services);
 
