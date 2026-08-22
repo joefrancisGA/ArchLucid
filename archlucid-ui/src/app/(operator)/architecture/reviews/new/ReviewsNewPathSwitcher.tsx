@@ -7,13 +7,12 @@ import { Suspense, useEffect, useMemo, useState } from "react";
 
 import { InlineGuidanceText } from "@/components/InlineGuidanceText";
 import { NewRunWizardSkeleton } from "@/components/skeletons/NewRunWizardSkeleton";
-import { Button } from "@/components/ui/button";
 import { isAcceleratorPackId } from "@/lib/accelerator-wizard-presets";
 import {
   REVIEWS_NEW_BACK_TO_QUICK_START_CTA,
   REVIEWS_NEW_PATH_HINTS,
 } from "@/lib/reviews-new-path-copy";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { readBuyerCtoDemoTourActive } from "@/lib/buyer/buyer-cto-demo-tour";
 
 import { ReviewsNewDeferredIntentCallout } from "./ReviewsNewDeferredIntentCallout";
@@ -145,6 +144,18 @@ export function ReviewsNewPathSwitcher() {
             </>
           ) : (
             <>
+              {activePath !== "quick-review" ? (
+                <button
+                  type="button"
+                  className={cn("m-0 h-auto cursor-pointer border-0 bg-transparent p-0", OPERATOR_LINK.nav)}
+                  data-testid="reviews-new-back-to-quick-start"
+                  onClick={() => {
+                    selectPath("quick-review");
+                  }}
+                >
+                  {REVIEWS_NEW_BACK_TO_QUICK_START_CTA}
+                </button>
+              ) : null}
               <p
                 className={cn("m-0 leading-relaxed", OPERATOR_TYPOGRAPHY.helper)}
                 data-testid="reviews-new-path-hint"
@@ -156,19 +167,7 @@ export function ReviewsNewPathSwitcher() {
               </div>
               {activePath === "quick-review" ? (
                 <ReviewsNewMoreWaysToStart onSelectPath={selectPath} />
-              ) : (
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  data-testid="reviews-new-back-to-quick-start"
-                  onClick={() => {
-                    selectPath("quick-review");
-                  }}
-                >
-                  {REVIEWS_NEW_BACK_TO_QUICK_START_CTA}
-                </Button>
-              )}
+              ) : null}
             </>
           )}
         </div>
