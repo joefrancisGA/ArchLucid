@@ -1,5 +1,6 @@
 using ArchLucid.Application.Runs;
 using ArchLucid.Api.ProblemDetails;
+using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
 
 using Microsoft.AspNetCore.Authorization;
@@ -19,6 +20,7 @@ public sealed partial class RunsController
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [MutatingAuditExcluded("Audit: IArchitectureRunArchiveService logs ArchitectureReviewArchived via IAuditService.")]
     public async Task<IActionResult> ArchiveRun(
         [FromRoute] Guid runId,
         [FromServices] IArchitectureRunArchiveService archiveService,
