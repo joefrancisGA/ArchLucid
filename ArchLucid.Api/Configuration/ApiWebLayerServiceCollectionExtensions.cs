@@ -15,6 +15,7 @@ using ArchLucid.Core.Admin;
 using ArchLucid.Application.AwsExtractor;
 using ArchLucid.Application.GcpExtractor;
 using ArchLucid.Mcp.Tools;
+using ArchLucid.Application.Documents;
 using ArchLucid.Application.Import;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
@@ -94,6 +95,7 @@ public static class ApiWebLayerServiceCollectionExtensions
         services.AddScoped<IAuthenticatedPlatformUserResolver, AuthenticatedPlatformUserResolver>();
         services.AddScoped<IArchitectureRequestImportValidator, FluentArchitectureRequestImportValidator>();
         services.AddScoped<IImportRequestFileService, ImportRequestFileService>();
+        services.AddScoped<IDocumentTextExtractionService, DocumentTextExtractionService>();
         services.AddScoped<IArchitectureDefinitionCsvImportDryRunService, ArchitectureDefinitionCsvImportDryRunService>();
         services.AddHostedAzureExtractorIntegrationServices(configuration);
         services.AddHostedAwsExtractorIntegrationServices(configuration);

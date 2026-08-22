@@ -29,6 +29,9 @@ describe("resolveProxyMaxBodyBytes", () => {
     expect(resolveProxyMaxBodyBytes("v1/azure-extractor/upload", null)).toBe(PROXY_MAX_MULTIPART_BODY_BYTES);
     expect(resolveProxyMaxBodyBytes("v1/extractor/aws/upload", null)).toBe(PROXY_MAX_MULTIPART_BODY_BYTES);
     expect(resolveProxyMaxBodyBytes("v1/extractor/gcp/upload", null)).toBe(PROXY_MAX_MULTIPART_BODY_BYTES);
+    expect(resolveProxyMaxBodyBytes("v1/architecture/evidence/extract-text", null)).toBe(
+      PROXY_MAX_MULTIPART_BODY_BYTES,
+    );
     expect(
       resolveProxyMaxBodyBytes("v1/azure-extractor/upload-sessions/s1/chunks/0", "application/octet-stream"),
     ).toBe(PROXY_MAX_MULTIPART_BODY_BYTES);

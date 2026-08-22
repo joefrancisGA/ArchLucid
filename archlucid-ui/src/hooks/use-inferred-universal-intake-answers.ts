@@ -15,6 +15,7 @@ type UseInferredUniversalIntakeAnswersInput = {
 
 type UseInferredUniversalIntakeAnswersResult = {
   readonly inferredQuestionKeys: ReadonlySet<string>;
+  readonly isExtractingEvidenceText: boolean;
   readonly markQuestionEdited: (questionKey: string) => void;
 };
 
@@ -23,6 +24,7 @@ export function useInferredUniversalIntakeAnswers(
   input: UseInferredUniversalIntakeAnswersInput,
 ): UseInferredUniversalIntakeAnswersResult {
   const [inferredQuestionKeys, setInferredQuestionKeys] = useState<ReadonlySet<string>>(() => new Set());
+  const [isExtractingEvidenceText, setIsExtractingEvidenceText] = useState(false);
   const lockedQuestionKeysRef = useRef(new Set<string>());
   const onAnswersChangeRef = useRef(input.onAnswersChange);
   const answersRef = useRef(input.answers);
@@ -34,36 +36,45 @@ export function useInferredUniversalIntakeAnswers(
     let cancelled = false;
 
     async function applyInference(): Promise<void> {
-      const corpus = await buildArchitectureIntakeInferenceCorpus({
-        briefText: input.briefText,
-        evidenceFiles: input.evidenceFiles,
-      });
+      setIsExtractingEvidenceText(true);
 
-      if (cancelled) {
-        return;
-      }
+      try {
+        const corpus = await buildArchitectureIntakeInferenceCorpus({
+          briefText: input.briefText,
+          evidenceFiles: input.evidenceFiles,
+        });
 
-      const inferredAnswers = inferUniversalIntakeAnswersFromCorpus(corpus);
-      const { mergedAnswers, newlyInferredQuestionKeys } = mergeInferredUniversalIntakeAnswers({
-        currentAnswers: answersRef.current,
-        inferredAnswers,
-        lockedQuestionKeys: lockedQuestionKeysRef.current,
-      });
-
-      if (newlyInferredQuestionKeys.length === 0) {
-        return;
-      }
-
-      onAnswersChangeRef.current(mergedAnswers);
-      setInferredQuestionKeys((current) => {
-        const next = new Set(current);
-
-        for (const questionKey of newlyInferredQuestionKeys) {
-          next.add(questionKey);
+        if (cancelled) {
+          return;
         }
 
-        return next;
-      });
+        const inferredAnswers = inferUniversalIntakeAnswersFromCorpus(corpus);
+        const { mergedAnswers, newlyInferredQuestionKeys } = mergeInferredUniversalIntakeAnswers({
+          currentAnswers: answersRef.current,
+          inferredAnswers,
+          lockedQuestionKeys: lockedQuestionKeysRef.current,
+        });
+
+        if (newlyInferredQuestionKeys.length === 0) {
+          return;
+        }
+
+        onAnswersChangeRef.current(mergedAnswers);
+        setInferredQuestionKeys((current) => {
+          const next = new Set(current);
+
+          for (const questionKey of newlyInferredQuestionKeys) {
+            next.add(questionKey);
+          }
+
+          return next;
+        });
+      }
+      finally {
+        if (!cancelled) {
+          setIsExtractingEvidenceText(false);
+        }
+      }
     }
 
     void applyInference();
@@ -89,6 +100,7 @@ export function useInferredUniversalIntakeAnswers(
 
   return {
     inferredQuestionKeys,
+    isExtractingEvidenceText,
     markQuestionEdited,
   };
 }

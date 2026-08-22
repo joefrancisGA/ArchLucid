@@ -50,7 +50,11 @@ import {
 import { GUIDED_INTAKE_ARCHITECTURE_CONTEXT_LABEL } from "@/lib/guided-intake-copy";
 import { BUYER_START_ARCHITECTURE_REVIEW_CTA, CREATE_REVIEW_PACKAGE_HEADING } from "@/lib/buyer/buyer-polish-copy";
 import { deriveEvidencePresenceFromFileNames } from "@/lib/evidence-gap-forecast";
-import { ARCHITECTURE_DOCUMENT_READ_AFTER_UPLOAD_HELPER, evidenceFilesIncludeBinaryArchitectureDocument } from "@/lib/evidence-readable-text";
+import {
+  ARCHITECTURE_DOCUMENT_READ_AFTER_UPLOAD_HELPER,
+  ARCHITECTURE_DOCUMENT_TEXT_EXTRACTION_IN_PROGRESS_HELPER,
+  evidenceFilesIncludeBinaryArchitectureDocument,
+} from "@/lib/evidence-readable-text";
 import { EVIDENCE_UPLOAD_ACCEPTED_FORMATS_ACCEPTED_PREFIX } from "@/lib/evidence-upload-accepted-formats";
 import {
   REVIEW_START_CREATION_FAILED_MESSAGE,
@@ -194,8 +198,11 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
   const [reviewStandardsConfirmed, setReviewStandardsConfirmed] = useState(false);
   const [l0Answers, setL0Answers] = useState<Readonly<Record<string, string>>>({});
   const [l0SkippedQuestionKeys, setL0SkippedQuestionKeys] = useState<ReadonlySet<string>>(() => new Set());
-  const { inferredQuestionKeys: inferredL0QuestionKeys, markQuestionEdited: markL0QuestionEdited } =
-    useInferredUniversalIntakeAnswers({
+  const {
+    inferredQuestionKeys: inferredL0QuestionKeys,
+    isExtractingEvidenceText,
+    markQuestionEdited: markL0QuestionEdited,
+  } = useInferredUniversalIntakeAnswers({
       briefText,
       evidenceFiles,
       answers: l0Answers,
@@ -544,7 +551,9 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
               className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
               data-testid="first-pilot-binary-document-read-after-upload"
             >
-              {ARCHITECTURE_DOCUMENT_READ_AFTER_UPLOAD_HELPER}
+              {isExtractingEvidenceText
+                ? ARCHITECTURE_DOCUMENT_TEXT_EXTRACTION_IN_PROGRESS_HELPER
+                : ARCHITECTURE_DOCUMENT_READ_AFTER_UPLOAD_HELPER}
             </p>
           ) : null}
 

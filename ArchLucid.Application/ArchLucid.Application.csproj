@@ -18,6 +18,7 @@
     <PackageReference Include="Serilog" />
     <PackageReference Include="Konscious.Security.Cryptography.Argon2" />
     <PackageReference Include="DocumentFormat.OpenXml" />
+    <PackageReference Include="PdfPig" />
     <PackageReference Include="OpenTelemetry.Api" />
     <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" />
     <PackageReference Include="Polly" />

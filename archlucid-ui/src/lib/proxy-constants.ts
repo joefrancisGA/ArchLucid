@@ -23,6 +23,10 @@ export function isProxyLargeUploadRequest(pathForLog: string, contentType: strin
 
   const path = pathForLog.toLowerCase();
 
+  if (path.includes("/evidence/extract-text")) {
+    return true;
+  }
+
   if (path.includes("/evidence/bulk")) {
     return true;
   }

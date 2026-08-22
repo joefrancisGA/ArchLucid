@@ -922,6 +922,16 @@
       "nav_operator_href": null
     },
     {
+      "controller_file": "Authority/EvidenceDocumentTextExtractionController.cs",
+      "class_name": "EvidenceDocumentTextExtractionController",
+      "route_template": "v{version:apiVersion}/architecture/evidence",
+      "normalized_prefix": "/v1/architecture/evidence",
+      "commercial_tier": "none",
+      "class_policy": "ReadAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
       "controller_file": "Authority/ExportsController.cs",
       "class_name": "ExportsController",
       "route_template": "v{version:apiVersion}/architecture",
