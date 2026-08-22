@@ -5,6 +5,7 @@ import Link from "next/link";
 import { InlineGlossaryChip } from "@/components/InlineGlossaryChip";
 import { OperatorDemoStaticBanner } from "@/components/operator/OperatorDemoStaticBanner";
 import { GovernanceSealedRecordDetailBreadcrumb } from "@/components/governance/GovernanceSealedRecordDetailBreadcrumb";
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { SIGNED_RECORDS_LIST_PATH } from "@/lib/signed-records-paths";
 import { CtoDemoBuyerValueStrip } from "@/components/cto-demo/CtoDemoBuyerValueStrip";
@@ -219,7 +220,10 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
   ) : null;
 
   return (
-    <div className={cn("w-full max-w-[1200px] px-1 py-2 sm:px-0", OPERATOR_LAYOUT.sectionStack)}>
+    <OperatorPageContainer
+      variant="dashboard"
+      className={cn("px-1 py-2 sm:px-0", OPERATOR_LAYOUT.sectionStack)}
+    >
       {buyerPolishedLayout ? (
         <a
           href={`#${SEALED_RECORD_DETAIL_PRIMARY_CONTENT_ID}`}
@@ -502,6 +506,6 @@ export function ManifestDetailPageView(props: ManifestDetailPageViewProps) {
         showArchitectureReviewSummaryLink
       />
       </div>
-    </div>
+    </OperatorPageContainer>
   );
 }

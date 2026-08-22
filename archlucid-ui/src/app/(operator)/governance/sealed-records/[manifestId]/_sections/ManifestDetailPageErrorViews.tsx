@@ -4,6 +4,7 @@ import Link from "next/link";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { OperatorBrandedTransientFailure } from "@/components/operator/OperatorBrandedTransientFailure";
 import { OperatorErrorUiReferenceLine } from "@/components/operator/OperatorErrorUiReferenceLine";
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import {
   OperatorErrorCallout,
@@ -26,7 +27,7 @@ type ManifestDetailPageErrorFrameProps = {
 /** Shared chrome for manifest summary error states (back link + page title). */
 export function ManifestDetailPageErrorFrame(props: ManifestDetailPageErrorFrameProps) {
   return (
-    <div className="w-full max-w-[1200px] space-y-4 px-1 py-2 sm:px-0">
+    <OperatorPageContainer variant="dashboard" className="space-y-4 px-1 py-2 sm:px-0">
       <OperatorPageHeader
         title={props.buyerPolishedLayout ? "Architecture review" : "Finalized architecture review"}
         headingLevel="h1"
@@ -37,7 +38,7 @@ export function ManifestDetailPageErrorFrame(props: ManifestDetailPageErrorFrame
         }
       />
       {props.children}
-    </div>
+    </OperatorPageContainer>
   );
 }
 

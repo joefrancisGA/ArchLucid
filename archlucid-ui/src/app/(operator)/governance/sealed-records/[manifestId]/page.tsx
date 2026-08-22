@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 
 import { OperatorBrandedNotFound } from "@/components/operator/OperatorBrandedNotFound";
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { isInvalidManifestRouteId } from "@/lib/route-dynamic-param";
 
 import { loadManifestDetailPageModel } from "./_sections/load-manifest-detail-page-model";
@@ -27,9 +28,9 @@ export default async function ManifestDetailPage({
 
   if (result.kind === "not-found") {
     return (
-      <div className="w-full max-w-[1200px] px-1 py-2 sm:px-0">
+      <OperatorPageContainer variant="dashboard" className="px-1 py-2 sm:px-0">
         <OperatorBrandedNotFound showProcessingHint retryLabel="Retry loading review record" />
-      </div>
+      </OperatorPageContainer>
     );
   }
 

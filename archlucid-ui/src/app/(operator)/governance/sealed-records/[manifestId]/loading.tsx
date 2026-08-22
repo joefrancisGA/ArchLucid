@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_LINK } from "@/lib/design-tokens";
@@ -15,8 +16,9 @@ export default function ManifestDetailLoading() {
   const buyerPolishedLayout = isBuyerPolishedOperatorShellEnv();
 
   return (
-    <div
-      className="w-full max-w-[1200px] space-y-4 px-1 py-6 sm:px-0"
+    <OperatorPageContainer
+      variant="dashboard"
+      className="space-y-4 px-1 py-6 sm:px-0"
       data-testid="manifest-detail-loading-shell"
       role="status"
       aria-live="polite"
@@ -32,6 +34,6 @@ export default function ManifestDetailLoading() {
           </Link>
         }
       />
-    </div>
+    </OperatorPageContainer>
   );
 }
