@@ -266,7 +266,7 @@ export function ManifestDetailSummaryPanel(props: ManifestDetailSummaryPanelProp
         )}
       >
         What this finalized review record proves: a versioned package with enumerated decisions, monitored risks
-        under an explicit governance cadence, stable identifiers for audit correlation, and packaged deliverables wired
+        under an explicit policy cadence, stable identifiers for audit correlation, and packaged deliverables wired
         to the evidence graph and audit trail.
       </p>
     ) : null;
@@ -296,7 +296,7 @@ export function ManifestDetailSummaryPanel(props: ManifestDetailSummaryPanelProp
             <div className={cn("rounded-lg border border-neutral-200 bg-white p-3 shadow-sm dark:border-neutral-700 dark:bg-neutral-950", OPERATOR_TYPOGRAPHY.body)}>
               <p className={cn("m-0", OPERATOR_NAV_GROUP_LABEL, "font-medium text-neutral-500 dark:text-neutral-400")}>Monitored risks</p>
               <p className={cn("m-0 mt-1 text-al-text-primary", OPERATOR_TYPOGRAPHY.pageTitle)}>{summary.warningCount}</p>
-              <p className={cn("m-0 mt-2 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.navHelper)}>Tracked with governance cadence.</p>
+              <p className={cn("m-0 mt-2 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.navHelper)}>Tracked with policy cadence.</p>
             </div>
             <div className={cn("rounded-lg border border-neutral-200 bg-white p-3 shadow-sm dark:border-neutral-700 dark:bg-neutral-950", OPERATOR_TYPOGRAPHY.body)}>
               <p className={cn("m-0", OPERATOR_NAV_GROUP_LABEL, "font-medium text-neutral-500 dark:text-neutral-400")}>Unresolved blocking issues</p>

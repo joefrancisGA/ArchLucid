@@ -246,8 +246,8 @@ export function useArchitectureIntelligencePage(): UseArchitectureIntelligencePa
 
       if (inboundFrom === "findings") {
         return buyerPolishedShell
-          ? `Loaded product intake from governance findings for this review${extra}. Run reasoning, then publish gated findings back to this review.`
-          : `Loaded product intake from governance findings for run ${inboundRunId}${extra}. Run reasoning, then publish gated findings back to this review.`;
+          ? `Loaded product intake from the findings queue for this review${extra}. Run reasoning, then publish gated findings back to this review.`
+          : `Loaded product intake from the findings queue for run ${inboundRunId}${extra}. Run reasoning, then publish gated findings back to this review.`;
       }
 
       if (inboundFrom === "reviews") {
@@ -263,8 +263,8 @@ export function useArchitectureIntelligencePage(): UseArchitectureIntelligencePa
 
     if (inboundFrom === "findings") {
       return buyerPolishedShell
-        ? "Opened from governance findings for this review. Load failed or empty — paste a description or use the golden fixture."
-        : `Opened from governance findings for run ${inboundRunId}. Load failed or empty — paste a description or use the golden fixture.`;
+        ? "Opened from the findings queue for this review. Load failed or empty — paste a description or use the golden fixture."
+        : `Opened from the findings queue for run ${inboundRunId}. Load failed or empty — paste a description or use the golden fixture.`;
     }
 
     if (inboundFrom === "reviews") {

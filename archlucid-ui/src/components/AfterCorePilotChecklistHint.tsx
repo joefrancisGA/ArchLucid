@@ -116,7 +116,7 @@ export function AfterCorePilotChecklistHint() {
           <p className={cn("m-0 text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)} data-testid="after-core-pilot-intro">
             When you have a real question that review detail cannot answer—<strong>what changed between two reviews</strong>,{" "}
             <strong>whether the evidence chain is still intact</strong>, or a <strong>visual graph</strong>—the links
-            below point to deeper analysis. <strong>Enterprise Controls</strong> (governance, audit, alerts) stay in
+            below point to deeper analysis. <strong>Enterprise Controls</strong> (policy, audit, alerts) stay in
             the sidebar until sponsors or policy need them — not part of first-pilot success criteria.
           </p>
 

@@ -10,7 +10,7 @@ import { INTERNAL_REPLAY_PATH } from "@/lib/internal-ops-route-paths";
 
 const COMPARE_TWO_REVIEWS_HUB_CONTEXTUAL_HELP = {
   whatIsThisPage:
-    "Compare two finalized reviews to see what changed in scope, findings, decisions, governance, and evidence.",
+    "Compare two finalized reviews to see what changed in scope, findings, decisions, approval, and evidence.",
   whatToDoNext:
     "Pick baseline and updated reviews, run Compare, then open Sources for each side before briefing sponsors.",
   whyEmpty: "Results appear after you compare two finalized reviews.",

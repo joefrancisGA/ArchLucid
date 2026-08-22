@@ -39,7 +39,7 @@ export const WHY_BRAND_CATEGORY_DOWNLOAD_NOTE =
 
 /** Compact differentiation context — long-form comparisons live below the proof chain. */
 export const WHY_BRAND_CATEGORY_INTRO =
-  "Finalized architecture reviews whose findings, signed decisions, and exports share one traceable evidence trail — not disposable chat output.";
+  "Finalized architecture reviews whose findings, recorded decisions, and exports share one traceable evidence trail — not disposable chat output.";
 
 export const WHY_CLOSING_HEADING = "See what a finalized architecture decision actually looks like";
 
@@ -52,7 +52,7 @@ export const WHY_CLOSING_PRIMARY_CTA_HREF = "/see-it" as const;
 
 /** TB-1301: one supporting sentence above the fold — long differentiation detail lives below. */
 export const WHY_HERO_PITCH =
-  "Finalized architecture reviews with traceable evidence, signed decisions, and audit-ready exports — not another chat box.";
+  "Finalized architecture reviews with traceable evidence, recorded decisions, and audit-ready exports — not another chat box.";
 
 export const WHY_HERO_PRIMARY_CTA_LABEL = WHY_CLOSING_PRIMARY_CTA_LABEL;
 
