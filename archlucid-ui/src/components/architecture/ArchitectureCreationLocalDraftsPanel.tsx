@@ -22,7 +22,7 @@ import {
 } from "@/lib/create-vs-review-intake-copy";
 import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { parseIsoUtcMs } from "@/lib/format-iso-utc";
-import { formatRelativeTime } from "@/lib/relative-time";
+import { formatUpdatedRelativeWithAbsoluteParenthetical } from "@/lib/relative-time";
 import { cn } from "@/lib/utils";
 
 const ARCHITECTURE_CREATION_RESUME_PREVIEW_LIMIT = 3;
@@ -106,7 +106,7 @@ export function ArchitectureCreationLocalDraftsPanel(): React.JSX.Element | null
                 <span
                   className={cn(OPERATOR_TYPOGRAPHY.helper, "text-al-text-secondary")}
                 >
-                  Updated {formatRelativeTime(entry.lastUpdatedUtc)} ({absoluteUpdated})
+                  {formatUpdatedRelativeWithAbsoluteParenthetical(entry.lastUpdatedUtc, absoluteUpdated)}
                 </span>
               </div>
               <div className="mt-2">

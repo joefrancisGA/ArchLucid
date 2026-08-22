@@ -67,7 +67,11 @@ export function OperatorStickinessSnapshotCard(): ReactElement | null {
     <section aria-labelledby="stickiness-snapshot-heading">
       <h2
         id="stickiness-snapshot-heading"
-        className={cn("mb-3 font-bold uppercase tracking-wide text-neutral-600 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}
+        className={cn(
+          "mb-3 uppercase tracking-wide text-neutral-600 dark:text-neutral-300",
+          OPERATOR_TYPOGRAPHY.body,
+          "font-bold",
+        )}
       >
         Pilot &amp; repeat usage
       </h2>

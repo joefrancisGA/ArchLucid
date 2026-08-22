@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 
-import { formatRelativeTime } from "@/lib/relative-time";
+import {
+  formatRelativeTime,
+  formatUpdatedAbsoluteWithRelative,
+  formatUpdatedRelativeWithAbsoluteParenthetical,
+  isLocaleRelativeNowIso,
+} from "@/lib/relative-time";
 
 describe("formatRelativeTime", () => {
   it("formats past times relative to now", () => {
@@ -22,5 +27,26 @@ describe("formatRelativeTime", () => {
 
     expect(s.toLowerCase()).not.toContain("in ");
     expect(s.toLowerCase()).toMatch(/second|now|ago/);
+  });
+
+  it("formatUpdatedRelativeWithAbsoluteParenthetical drops locale now when absolute is shown", () => {
+    const now = Date.now();
+    const iso = new Date(now).toISOString();
+
+    expect(isLocaleRelativeNowIso(iso, now)).toBe(true);
+    expect(formatUpdatedRelativeWithAbsoluteParenthetical(iso, "Jul 9, 2026, 8:00 PM")).toBe(
+      "Updated Jul 9, 2026, 8:00 PM",
+    );
+    expect(formatUpdatedRelativeWithAbsoluteParenthetical(iso, "Jul 9, 2026, 8:00 PM").toLowerCase()).not.toMatch(
+      /\bnow\b/,
+    );
+  });
+
+  it("formatUpdatedAbsoluteWithRelative drops locale now when absolute is shown", () => {
+    const now = Date.now();
+    const iso = new Date(now).toISOString();
+
+    expect(formatUpdatedAbsoluteWithRelative(iso, "Jul 9, 2026")).toBe("Updated Jul 9, 2026");
+    expect(formatUpdatedAbsoluteWithRelative(iso, "Jul 9, 2026").toLowerCase()).not.toMatch(/\bnow\b/);
   });
 });

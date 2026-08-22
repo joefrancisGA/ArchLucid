@@ -17,11 +17,36 @@ import {
 } from "@/lib/buyer/buyer-polish-copy";
 import { OPERATOR_HOME_PAGE_TITLE } from "@/lib/operator/operator-home-page-copy";
 import { useOperatorHomeRefresh } from "@/lib/operator/operator-home-refresh-context";
-import { operatorFreshnessMetadataWithClockLabel } from "@/lib/operator/operator-last-refreshed-label";
+import {
+  OPERATOR_NOT_REFRESHED_LABEL,
+  operatorFreshnessMetadataClockValue,
+} from "@/lib/operator/operator-last-refreshed-label";
 
 export type OperatorHomePageHeaderProps = {
   readonly subtitle: string;
 };
+
+function operatorHomeFreshnessContent(input: {
+  readonly lastRefreshedAt: Date | null | undefined;
+  readonly refreshing: boolean;
+}): ReactNode {
+  if (input.refreshing) {
+    return "Refreshing…";
+  }
+
+  if (input.lastRefreshedAt === null || input.lastRefreshedAt === undefined) {
+    return OPERATOR_NOT_REFRESHED_LABEL;
+  }
+
+  return (
+    <>
+      <strong className="font-bold text-al-text-primary">
+        {OPERATOR_HOME_DATA_CURRENCY_PREFIX}:
+      </strong>{" "}
+      {operatorFreshnessMetadataClockValue(input.lastRefreshedAt)}
+    </>
+  );
+}
 
 function operatorHomeSubtitleContent(subtitle: string): ReactNode {
   if (subtitle !== OPERATOR_HOME_ARCHITECTURE_LIFECYCLE_INTRO) {
@@ -41,10 +66,9 @@ function operatorHomeSubtitleContent(subtitle: string): ReactNode {
 /** Shared `/` Overview hero — title, lead, contextual help, refresh, and data-currency timestamp. */
 export function OperatorHomePageHeader(props: OperatorHomePageHeaderProps): React.JSX.Element {
   const { refreshing, lastRefreshedAt, requestRefresh } = useOperatorHomeRefresh();
-  const freshnessLabel = operatorFreshnessMetadataWithClockLabel({
-    prefix: OPERATOR_HOME_DATA_CURRENCY_PREFIX,
+  const freshnessContent = operatorHomeFreshnessContent({
     lastRefreshedAt: refreshing ? null : lastRefreshedAt,
-    refreshingLabel: refreshing ? "Refreshing…" : null,
+    refreshing,
   });
 
   return (
@@ -62,7 +86,7 @@ export function OperatorHomePageHeader(props: OperatorHomePageHeaderProps): Reac
             testId="operator-home-data-currency"
             lastRefreshedAt={refreshing ? null : lastRefreshedAt}
           >
-            {freshnessLabel}
+            {freshnessContent}
           </OperatorPageFreshnessMetadata>
           <RefreshButton
             data-testid="operator-home-refresh-button"

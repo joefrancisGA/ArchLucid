@@ -56,13 +56,29 @@ export function operatorFreshnessMetadataWithClockLabel(
     return OPERATOR_NOT_REFRESHED_LABEL;
   }
 
-  const clockLabel = operatorLastRefreshedClockLabel(args.lastRefreshedAt);
+  return `${args.prefix}: ${operatorFreshnessMetadataClockValue(args.lastRefreshedAt)}`;
+}
+
+/**
+ * Clock-qualified freshness value without the header prefix.
+ * Drops the locale “now” relative when a clock is visible — the timestamp already says that.
+ */
+export function operatorFreshnessMetadataClockValue(lastRefreshedAt: Date): string {
+  const clockLabel = operatorLastRefreshedClockLabel(lastRefreshedAt);
+  const relativeLabel = operatorLastRefreshedLabel(lastRefreshedAt);
 
   if (clockLabel === null) {
-    return `${args.prefix}: ${operatorLastRefreshedLabel(args.lastRefreshedAt)}`;
+    return relativeLabel;
   }
 
-  return `${args.prefix}: ${operatorLastRefreshedLabel(args.lastRefreshedAt)} (${clockLabel})`;
+  const nowMs = Date.now();
+  const nowRelativeLabel = formatRelativeTime(new Date(nowMs).toISOString(), nowMs);
+
+  if (relativeLabel === nowRelativeLabel) {
+    return clockLabel;
+  }
+
+  return `${relativeLabel} (${clockLabel})`;
 }
 
 /** Exact locale timestamp string for visible clock parentheticals and `<time>` labels. */

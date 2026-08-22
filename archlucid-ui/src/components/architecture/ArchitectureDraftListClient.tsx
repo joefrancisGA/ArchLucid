@@ -70,7 +70,7 @@ import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture/architecture-workf
 import { buyerFilterChipClass } from "@/lib/buyer/buyer-shell-home-present";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { formatRelativeTime } from "@/lib/relative-time";
+import { formatUpdatedAbsoluteWithRelative } from "@/lib/relative-time";
 import { resolveWorkspaceScopeEmptyTeachingForHub } from "@/lib/workspace-scope-empty-teaching";
 import { cn } from "@/lib/utils";
 
@@ -97,14 +97,7 @@ const SORT_OPTIONS: ReadonlyArray<{ id: ArchitectureSortId; label: string }> = [
 ];
 
 function formatUpdatedListLabel(updatedUtc: string): string {
-  const absolute = formatArchitectureDraftCreatedLabel(updatedUtc);
-  const relative = formatRelativeTime(updatedUtc);
-
-  if (absolute === null) {
-    return `Updated ${relative}`;
-  }
-
-  return `Updated ${absolute} · ${relative}`;
+  return formatUpdatedAbsoluteWithRelative(updatedUtc, formatArchitectureDraftCreatedLabel(updatedUtc));
 }
 
 function matchesSearch(entry: ArchitectureDraftRegistryEntry, query: string): boolean {
