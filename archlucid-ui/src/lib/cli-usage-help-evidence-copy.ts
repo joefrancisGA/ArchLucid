@@ -6,7 +6,7 @@ export const CLI_USAGE_HELP_CANONICAL_PATH = "/help/cli-usage" as const;
 export const CLI_USAGE_HELP_TOPIC_LABEL = "How CLI usage works" as const;
 
 export const CLI_USAGE_HELP_CLAIM_DISCIPLINE =
-  "This CLI usage reference is an engineering runbook for non-interactive commands and environment detail — it is not customer self-serve diligence. Prefer customer Troubleshooting and System health before treating CLI output as certification evidence.";
+  "This guide is an engineering runbook for non-interactive commands and environment detail — it is not customer self-serve diligence. Prefer customer Troubleshooting and System health before treating CLI output as certification evidence.";
 
 export const CLI_USAGE_HELP_SOURCES_INTRO =
   "Use these follow-ups when CLI vocabulary turns into customer triage, eng troubleshooting, or API contracts.";

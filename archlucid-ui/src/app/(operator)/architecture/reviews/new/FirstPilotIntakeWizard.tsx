@@ -576,7 +576,12 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
             </p>
           </div>
 
-          <EvidenceGapForecastPanel presence={evidencePresence} presentation="expandable" />
+          <EvidenceGapForecastPanel
+            presence={evidencePresence}
+            attachmentFileNames={evidenceFileNames}
+            architectureContextPresent={briefText.trim().length >= FIRST_PILOT_MIN_BRIEF_CHARS}
+            presentation="expandable"
+          />
 
           <QuickStartL0MustQuestionsPanel
             answers={l0Answers}
