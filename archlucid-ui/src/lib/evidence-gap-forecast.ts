@@ -32,6 +32,14 @@ export const EVIDENCE_COVERAGE_HELP_HREF = "/help/evidence-intake#finding-covera
 
 export const EVIDENCE_COVERAGE_HELP_LINK_LABEL = "How evidence affects coverage";
 
+/** Summary line when only generic architecture documents are attached (docx/pdf), not specialist evidence. */
+export const EVIDENCE_COVERAGE_DOCUMENT_ATTACHED_SUMMARY =
+  "Architecture document attached — specialist evidence can still strengthen finding coverage.";
+
+/** Intro copy above per-class rows when a generic document may already cover some missing classes. */
+export const EVIDENCE_COVERAGE_DOCUMENT_ATTACHED_DETAIL_INTRO =
+  "The attached document may already cover some topics; the rows below show where specialist evidence can still strengthen findings.";
+
 const DOMAIN_LABELS: Record<FindingCoverageDomain, string> = {
   cost: "cost",
   resilience: "resilience",
@@ -125,8 +133,19 @@ export function deriveEvidenceGapForecast(flags: EvidencePresenceFlags): readonl
   return missingEntries(flags);
 }
 
-export function formatEvidenceGapForecastHeadline(entry: EvidenceGapForecastEntry): string {
+export type FormatEvidenceGapForecastHeadlineOptions = {
+  readonly documentAttachedContext?: boolean;
+};
+
+export function formatEvidenceGapForecastHeadline(
+  entry: EvidenceGapForecastEntry,
+  options?: FormatEvidenceGapForecastHeadlineOptions,
+): string {
   const domains = formatThinnerDomains(entry.thinnerDomains);
+
+  if (options?.documentAttachedContext === true) {
+    return `${entry.label} can still strengthen ${domains} findings.`;
+  }
 
   return `Without ${entry.label.toLowerCase()}, expect thinner ${domains} findings.`;
 }
@@ -137,8 +156,21 @@ export type EvidenceCoverageSummary = {
   readonly missingCount: number;
   /** Union of the domains every missing class would thin, in canonical order. */
   readonly thinnerDomains: readonly FindingCoverageDomain[];
+  /** True when generic document-only uploads use softer copy instead of an X-of-5 count. */
+  readonly usesDocumentAttachedSummary: boolean;
   /** Single-line status suitable for a disclosure summary row or an inline helper line. */
   readonly summaryLine: string;
+};
+
+export type DocumentAttachedCoverageInput = {
+  readonly attachmentFileNames: readonly string[];
+  readonly presence: EvidencePresenceFlags;
+  readonly architectureContextPresent?: boolean;
+};
+
+export type SummarizeEvidenceCoverageOptions = {
+  readonly attachmentFileNames?: readonly string[];
+  readonly architectureContextPresent?: boolean;
 };
 
 function unionThinnerDomains(
@@ -160,22 +192,73 @@ function formatEvidenceCoverageSummaryLine(
   return `${presentCount} of ${EVIDENCE_COVERAGE_CLASS_COUNT} evidence classes present — expect thinner ${formatThinnerDomains(thinnerDomains)} findings.`;
 }
 
+function isGenericArchitectureDocumentFileName(fileName: string): boolean {
+  const lower = fileName.toLowerCase();
+
+  return lower.endsWith(".docx") || lower.endsWith(".pdf") || lower.endsWith(".doc");
+}
+
+function fileNameImpliesSpecialistEvidenceClass(fileName: string): boolean {
+  const implied = fileNameImpliesClass(fileName);
+
+  return implied !== null && implied !== "architecture-brief";
+}
+
+/** True when only generic architecture documents are attached — avoids a misleading 0-of-5 count. */
+export function usesDocumentAttachedCoverageSummary(input: DocumentAttachedCoverageInput): boolean {
+
+  if (input.architectureContextPresent === true) {
+    return false;
+  }
+
+  if (input.attachmentFileNames.length === 0) {
+    return false;
+  }
+
+  const hasGenericDocument = input.attachmentFileNames.some(isGenericArchitectureDocumentFileName);
+
+  if (!hasGenericDocument) {
+    return false;
+  }
+
+  const hasSpecialistAttachment = input.attachmentFileNames.some(fileNameImpliesSpecialistEvidenceClass);
+
+  if (hasSpecialistAttachment) {
+    return false;
+  }
+
+  return true;
+}
+
 /**
  * Condenses the per-class forecast into one sentence so surfaces can lead with coverage state
  * and keep the per-class detail behind progressive disclosure.
  */
-export function summarizeEvidenceCoverage(flags: EvidencePresenceFlags): EvidenceCoverageSummary {
+export function summarizeEvidenceCoverage(
+  flags: EvidencePresenceFlags,
+  options?: SummarizeEvidenceCoverageOptions,
+): EvidenceCoverageSummary {
+  const attachmentFileNames = options?.attachmentFileNames ?? [];
+  const usesDocumentAttachedSummary = usesDocumentAttachedCoverageSummary({
+    attachmentFileNames,
+    presence: flags,
+    architectureContextPresent: options?.architectureContextPresent,
+  });
   const forecast = deriveEvidenceGapForecast(flags);
   const missingCount = forecast.length;
   const presentCount = EVIDENCE_COVERAGE_CLASS_COUNT - missingCount;
   const thinnerDomains = unionThinnerDomains(forecast);
+  const summaryLine = usesDocumentAttachedSummary
+    ? EVIDENCE_COVERAGE_DOCUMENT_ATTACHED_SUMMARY
+    : formatEvidenceCoverageSummaryLine(presentCount, thinnerDomains);
 
   return {
     presentCount,
     totalCount: EVIDENCE_COVERAGE_CLASS_COUNT,
     missingCount,
     thinnerDomains,
-    summaryLine: formatEvidenceCoverageSummaryLine(presentCount, thinnerDomains),
+    usesDocumentAttachedSummary,
+    summaryLine,
   };
 }
 
@@ -226,6 +309,10 @@ function fileNameImpliesClass(fileName: string): EvidenceGapClass | null {
   }
 
   if (lower.endsWith(".md") || lower.includes("brief")) {
+    return "architecture-brief";
+  }
+
+  if (lower.endsWith(".docx") || lower.endsWith(".pdf") || lower.endsWith(".doc")) {
     return "architecture-brief";
   }
 
