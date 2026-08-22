@@ -631,7 +631,7 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     audience: "operator",
     sourcePaths: [],
     lastReviewed: "2026-08-13",
-    releaseApplicability: "Governance policy resolution, enforced rules, and diagnostic export",
+    releaseApplicability: "Policy resolution, enforced rules, and diagnostic export",
   },
   {
     slug: "baseline-settings",

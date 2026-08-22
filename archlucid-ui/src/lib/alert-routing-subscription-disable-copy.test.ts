@@ -7,8 +7,8 @@ import {
 
 describe("alert-routing-subscription-disable-copy", () => {
   it("builds webhook disable dialog title and consequence copy", () => {
-    expect(resolveAlertRoutingSubscriptionDisableDialogTitle("webhook", "Governance alerts")).toBe(
-      "Disable webhook subscription Governance alerts?",
+    expect(resolveAlertRoutingSubscriptionDisableDialogTitle("webhook", "Policy alerts")).toBe(
+      "Disable webhook subscription Policy alerts?",
     );
     expect(resolveAlertRoutingSubscriptionDisableDialogDescription("webhook")).toContain(
       "Outbound HTTPS deliveries",

@@ -1,7 +1,7 @@
 export const TEAMS_INTEGRATION_PAGE_TITLE = "Microsoft Teams notifications";
 
 export const TEAMS_INTEGRATION_PAGE_SUBTITLE =
-  "Send selected ArchLucid governance and review notifications to a Microsoft Teams channel.";
+  "Send selected ArchLucid policy and review notifications to a Microsoft Teams channel.";
 
 export const TEAMS_INTEGRATION_SECURITY_NOTE =
   "ArchLucid stores a secret reference instead of the Teams webhook URL in the workspace database. The webhook remains in your organization's approved secret store and is read only when a notification is sent.";
@@ -16,7 +16,7 @@ export const TEAMS_INTEGRATION_CONNECT_SECTION_LEAD =
   "Reference the secret that contains your Teams incoming webhook URL, then choose which notifications to send.";
 
 export const TEAMS_INTEGRATION_HELP_SUMMARY =
-  "Microsoft Teams notifications route selected governance and review events to a channel your operators already monitor. Use this guide before configuring secret references, triggers, and test delivery.";
+  "Microsoft Teams notifications route selected policy and review events to a channel your operators already monitor. Use this guide before configuring secret references, triggers, and test delivery.";
 
 /** Shared setup sequence for `/integrations/teams` and `/help/teams-integration`. */
 export const TEAMS_INTEGRATION_BEFORE_YOU_CONNECT_STEPS = [

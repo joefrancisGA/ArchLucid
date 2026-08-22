@@ -160,11 +160,11 @@ describe("formatHelpTopicApplicabilityMetadata", () => {
         sampleEntry({
           slug: "standards-and-rules",
           lastReviewed: "2026-08-13",
-          releaseApplicability: "Governance policy resolution, enforced rules, and diagnostic export",
+          releaseApplicability: "Policy resolution, enforced rules, and diagnostic export",
         }),
       ),
     ).toBe(
-      "Guide last reviewed 2026-08-13 · Governance policy resolution, enforced rules, and diagnostic export",
+      "Guide last reviewed 2026-08-13 · Policy resolution, enforced rules, and diagnostic export",
     );
   });
 
