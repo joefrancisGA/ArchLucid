@@ -601,11 +601,8 @@ async function revealFindingWorkspaceCardInJobViewLanes(scope: Locator, card: Lo
     return;
   }
 
-  const toggleBar = scope.getByTestId("finding-job-view-toggle-bar");
-
-  if (!(await toggleBar.isVisible().catch(() => false))) {
-    return;
-  }
+  const page = scope.page();
+  const toggleBar = page.getByTestId("finding-job-view-toggle-bar");
 
   const jobViewOptions = [
     "needs-my-decision",
@@ -616,38 +613,39 @@ async function revealFindingWorkspaceCardInJobViewLanes(scope: Locator, card: Lo
     "verify-hypotheses",
     "resolve-contradictions",
     "deferred",
+    "disposition-closed",
   ] as const;
 
-  for (const option of jobViewOptions) {
-    const toggle = scope.getByTestId(`finding-job-view-${option}`);
+  if (await toggleBar.isVisible().catch(() => false)) {
+    for (const option of jobViewOptions) {
+      const toggle = toggleBar.getByTestId(`finding-job-view-${option}`);
 
-    if (!(await toggle.isVisible().catch(() => false))) {
-      continue;
-    }
+      if (!(await toggle.isVisible().catch(() => false))) {
+        continue;
+      }
 
-    const label = (await toggle.textContent()) ?? "";
+      const label = (await toggle.textContent()) ?? "";
 
-    if (!/\(\s*[1-9]\d*\s*\)/.test(label)) {
-      continue;
-    }
+      if (!/\(\s*[1-9]\d*\s*\)/.test(label)) {
+        continue;
+      }
 
-    await toggle.click();
+      await toggle.click();
 
-    if (await card.isVisible().catch(() => false)) {
-      return;
+      if (await card.isVisible().catch(() => false)) {
+        return;
+      }
     }
   }
 
-  // disposition-closed findings are filtered out of visible toggles — deep-link the hidden lane when needed.
-  if (!(await card.isVisible().catch(() => false))) {
-    const page = scope.page();
-    const reviewPathMatch = /\/architecture\/reviews\/([^/?#]+)/i.exec(page.url());
+  const reviewPathMatch = /\/architecture\/reviews\/([^/?#]+)/i.exec(page.url());
 
-    if (reviewPathMatch !== null) {
+  if (reviewPathMatch !== null) {
+    for (const jobView of jobViewOptions) {
       const url = new URL(page.url());
       url.pathname = `/architecture/reviews/${reviewPathMatch[1]}`;
       url.searchParams.set(REVIEW_DETAIL_TAB_PARAM, "findings");
-      url.searchParams.set(REVIEW_FINDINGS_JOB_VIEW_PARAM, "disposition-closed");
+      url.searchParams.set(REVIEW_FINDINGS_JOB_VIEW_PARAM, jobView);
       await page.goto(url.toString());
       await page.waitForLoadState("domcontentloaded");
 

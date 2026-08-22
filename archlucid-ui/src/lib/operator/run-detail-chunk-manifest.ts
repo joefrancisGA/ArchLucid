@@ -344,7 +344,7 @@ export const RUN_DETAIL_CHUNK_MANIFEST: readonly DeferredChunkManifestEntry[] = 
   },
   {
     id: "run-detail-governance-alerts",
-    label: "Loading governance alerts",
+    label: "Loading alerts",
     variant: "panel",
     modulePath: "@/components/reviews/RunDetailGovernanceAlerts",
     exportName: "RunDetailGovernanceAlerts",
@@ -456,7 +456,7 @@ export const RUN_DETAIL_CHUNK_MANIFEST: readonly DeferredChunkManifestEntry[] = 
   },
   {
     id: "run-detail-governance-decision-section",
-    label: "Loading governance decision",
+    label: "Loading approval decision",
     variant: "panel",
     modulePath: "@/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailGovernanceDecisionSection",
     exportName: "RunDetailGovernanceDecisionSection",
@@ -477,7 +477,7 @@ export const RUN_DETAIL_CHUNK_MANIFEST: readonly DeferredChunkManifestEntry[] = 
   },
   {
     id: "run-detail-governance-cta",
-    label: "Loading governance CTA",
+    label: "Loading approval CTA",
     variant: "panel",
     modulePath: "@/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailGovernanceCta",
     exportName: "RunDetailGovernanceCta",

@@ -219,7 +219,7 @@ export const SPECIALTY_REVIEW_TEMPLATES: readonly SpecialtyReviewTemplateDefinit
         },
       ],
       likelyOutputs: [
-        "Governance findings tied to evidence",
+        "Policy findings tied to evidence",
         "Disposition on oversight and monitoring gaps",
         "Exportable review summary for stakeholders",
       ],
@@ -278,7 +278,7 @@ export const SPECIALTY_REVIEW_TEMPLATES: readonly SpecialtyReviewTemplateDefinit
       ],
       likelyOutputs: [
         "Findings with policy and evidence references",
-        "Pre-finalization governance checks when enabled",
+        "Approval checks before finalize when enabled",
         "Audit-ready review record",
       ],
       optionalIntegrations: [

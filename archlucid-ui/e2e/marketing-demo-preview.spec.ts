@@ -3,14 +3,22 @@
  */
 import { expect, test } from "@playwright/test";
 
+import { showcaseTitleForRunId } from "@/lib/showcase-page-copy";
+
 test.describe("marketing-demo-preview", () => {
   test("/showcase/customer-intake-modernization loads hero and signup CTA without auth", async ({ page }) => {
     test.setTimeout(120_000);
     await page.goto("/showcase/customer-intake-modernization", { waitUntil: "load" });
-    await expect(page.getByRole("heading", { name: "See a finalized architecture review", level: 1 })).toBeVisible({
+    await expect(
+      page.getByRole("heading", {
+        name: showcaseTitleForRunId("customer-intake-modernization"),
+        level: 1,
+      }),
+    ).toBeVisible({
       timeout: 60_000,
     });
 
+    await expect(page.getByTestId("showcase-hero")).toBeVisible();
     await expect(page.getByTestId("demo-preview-result-at-a-glance")).toBeVisible();
     await expect(page.getByTestId("demo-preview-artifact-nav")).toBeVisible();
     await expect(page.getByTestId("demo-preview-sponsor-conclusion")).toBeVisible();
@@ -21,13 +29,10 @@ test.describe("marketing-demo-preview", () => {
     await expect(artifactNav.getByRole("button", { name: /1 · Sponsor report/i })).toBeVisible();
     await expect(artifactNav.getByRole("button", { name: /2 · Sealed review record/i })).toBeVisible();
 
-    const signup = page.locator('[data-testid="demo-preview-cta-signup"]');
-
-    await expect(signup).toBeVisible();
-    await expect(signup).toHaveAttribute("href", "/pricing#pricing-quote-request");
-    await expect(page.getByTestId("demo-preview-signup-cta").getByRole("link", { name: "Sign in" })).toHaveAttribute(
+    await expect(page.getByTestId("showcase-bottom-cta")).toBeVisible();
+    await expect(page.getByTestId("showcase-bottom-cta").getByRole("link", { name: "Start guided evaluation" })).toHaveAttribute(
       "href",
-      "/auth/signin",
+      "/signup",
     );
 
     await expect(page.getByTestId("demo-preview-guided-callouts")).toHaveCount(0);

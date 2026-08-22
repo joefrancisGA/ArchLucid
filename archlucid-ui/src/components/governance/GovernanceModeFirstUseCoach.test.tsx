@@ -1,5 +1,4 @@
-import { render, screen } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, beforeEach } from "vitest";
 
 import { GovernanceModeFirstUseCoach } from "@/components/governance/GovernanceModeFirstUseCoach";
@@ -23,12 +22,10 @@ describe("GovernanceModeFirstUseCoach (TB-2392)", () => {
     expect(screen.queryByTestId("governance-mode-first-use-coach")).not.toBeInTheDocument();
   });
 
-  it("persists dismiss to localStorage", async () => {
-    const user = userEvent.setup();
-
+  it("persists dismiss to localStorage", () => {
     render(<GovernanceModeFirstUseCoach enabled />);
 
-    await user.click(screen.getByTestId("governance-mode-first-use-coach-dismiss"));
+    fireEvent.click(screen.getByTestId("governance-mode-first-use-coach-dismiss"));
 
     expect(window.localStorage.getItem(GOVERNANCE_MODE_TEACHING_DISMISS_KEY)).toBe("1");
     expect(screen.queryByTestId("governance-mode-first-use-coach")).not.toBeInTheDocument();

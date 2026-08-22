@@ -108,9 +108,9 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
   },
   "governance-dashboard": {
     layerBadge: "Governance",
-    headline: "Workspace health — governance and value signals in your current scope.",
+    headline: "Workspace health — approval and value signals in your current scope.",
     useWhen:
-      "Use after Pilot proof when sponsors need pre-finalization outcomes, severity exposure, compliance drift, SLA posture, and a hours-first value proxy.",
+      "Use after Pilot proof when sponsors need before-finalize outcomes, severity exposure, compliance drift, SLA posture, and a hours-first value proxy.",
     firstPilotNote: "Optional until first Pilot proof; data is scoped to the active tenant/workspace/project.",
     enterpriseFootnote: "Read-only tiles; writes stay in workflow, findings queue, and audit.",
   },
@@ -298,7 +298,7 @@ const LAYER_GUIDANCE_BUYER_POLISH_PARTIAL: Partial<
   audit: {
     headline: "Audit trail for finalized review activity.",
     useWhen:
-      "See who acted, when, and why — filter when needed; download the governance evidence bundle when ready.",
+      "See who acted, when, and why — filter when needed; download the approval evidence bundle when ready.",
     firstPilotNote: null,
     enterpriseFootnote:
       "Audit exports are available only to authorized audit or workspace administrators.",
@@ -336,9 +336,9 @@ const LAYER_GUIDANCE_BUYER_POLISH_PARTIAL: Partial<
     firstPilotNote: null,
   },
   "governance-workflow": {
-    headline: "Governance overview and review-scoped approval workflow.",
+    headline: "Approval overview and review-scoped approval workflow.",
     useWhen:
-      "Start here for workspace governance status, then load a review to inspect or advance its approval path.",
+      "Start here for workspace approval status, then load a review to inspect or advance its approval path.",
     firstPilotNote: null,
     enterpriseFootnote:
       "Approvals follow the configured approval path for packages in this workspace.",

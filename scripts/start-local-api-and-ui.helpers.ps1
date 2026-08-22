@@ -132,7 +132,7 @@ function Get-LocalApiWindowCommand {
                 -UseTerminalLogger $UseTerminalLogger `
                 -RunAnalyzers $RunAnalyzers
         ))
-    $lines.Add('if ($LASTEXITCODE -ne 0) { Write-Host ("API build failed with exit code {0}. This window stays open." -f $LASTEXITCODE) } else { Write-Host ''Starting API (dotnet run --no-build)...''; ' + (
+    $lines.Add('if ($LASTEXITCODE -ne 0) { Write-Host (''API build failed with exit code {0}. This window stays open.'' -f $LASTEXITCODE) } else { Write-Host ''Starting API (dotnet run --no-build)...''; ' + (
             Get-LocalApiDotnetRunCommand `
                 -LaunchProfile $LaunchProfile `
                 -UseTerminalLogger $UseTerminalLogger `

@@ -20,7 +20,7 @@ export type FirstPilotOperatingRailShellCopy = {
 const OPERATOR_SHELL_COPY: FirstPilotOperatingRailShellCopy = {
   heading: "Full operating path",
   intro:
-    "Six steps from setup verification to a finalized review. Operate compare, governance dashboards, and future connectors stay secondary until you have a finalized review.",
+    "Six steps from setup verification to a finalized review. Operate compare, approval dashboards, and future connectors stay secondary until you have a finalized review.",
   showHeaderHelpLink: true,
   headerHelpSlug: "first-architecture-review",
   headerHelpLabel: "Architecture review walkthrough",
@@ -41,7 +41,7 @@ const BUYER_SHELL_COPY: FirstPilotOperatingRailShellCopy = {
   showStepTroubleshootLinks: false,
   minimizedExpandLabel: "Show guided workflow",
   completeMessage:
-    "Review workflow complete — share the sponsor export, then explore governance and audit surfaces when you need deeper assurance.",
+    "Review workflow complete — share the sponsor export, then explore approval and audit surfaces when you need deeper assurance.",
   hidePathLabel: "Hide workflow",
 };
 
@@ -75,7 +75,7 @@ const BUYER_STEP_TEXT_OVERRIDES: Record<FirstPilotOperatingRailStepId, FirstPilo
   },
   "finalize-package": {
     title: "Finalize the review",
-    shortBody: "Lock the Finalized review record on review detail to finalize governance records and exports.",
+    shortBody: "Lock the Finalized review record on review detail to finalize approval records and exports.",
     primaryLabel: "Finalize on review detail",
   },
   "sponsor-packet": {

@@ -157,7 +157,7 @@ export function useFindingInspectGovernanceStickiness(
     const failure = toApiLoadFailure(error);
 
     if (buyerPolishedShell) {
-      return "This governance action could not be saved right now. Your entries are preserved — try again in a moment.";
+      return "This finding update could not be saved right now. Your entries are preserved — try again in a moment.";
     }
 
     return failure.message;

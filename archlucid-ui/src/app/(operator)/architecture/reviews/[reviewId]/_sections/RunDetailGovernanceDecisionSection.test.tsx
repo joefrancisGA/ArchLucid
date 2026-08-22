@@ -22,8 +22,8 @@ describe("RunDetailGovernanceDecisionSection", () => {
 
     expect(screen.getByTestId("run-detail-governance-decision")).toHaveAttribute("data-package-committed", "false");
     expect(screen.getByRole("heading", { name: "Approvals after finalize" })).toBeInTheDocument();
-    expect(screen.queryByText("Record governance decision")).not.toBeInTheDocument();
-    expect(screen.queryByText("No governance decision recorded")).not.toBeInTheDocument();
+    expect(screen.queryByText("Record approval decision")).not.toBeInTheDocument();
+    expect(screen.queryByText("No approval decision recorded")).not.toBeInTheDocument();
     expect(screen.getByText("What happens next")).toBeInTheDocument();
     expect(screen.queryByText("Awaiting decision")).not.toBeInTheDocument();
 
@@ -103,8 +103,8 @@ describe("RunDetailGovernanceDecisionSection", () => {
     render(<RunDetailGovernanceDecisionSection {...baseProps} manifestId="manifest-1" />);
 
     expect(screen.getByTestId("review-governance-secondary-view-strip")).toBeInTheDocument();
-    expect(screen.getByText("Governance decision")).toBeInTheDocument();
-    expect(screen.getByText("No governance decision recorded")).toBeInTheDocument();
+    expect(screen.getByText("Approval decision")).toBeInTheDocument();
+    expect(screen.getByText("No approval decision recorded")).toBeInTheDocument();
     expect(screen.queryByText(/after you finalize this architecture package/i)).not.toBeInTheDocument();
     expect(screen.queryByTestId("run-detail-governance-sources")).not.toBeInTheDocument();
 

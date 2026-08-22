@@ -118,7 +118,7 @@ export function OperatorStickinessSnapshotCard(): ReactElement | null {
         </Card>
         <Card>
           <CardHeader className="pb-2">
-            <h3 className={cn("m-0 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>Governance habit</h3>
+            <h3 className={cn("m-0 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>Approval habit</h3>
           </CardHeader>
           <CardContent className={cn("space-y-2 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
             <p className="m-0 tabular-nums">

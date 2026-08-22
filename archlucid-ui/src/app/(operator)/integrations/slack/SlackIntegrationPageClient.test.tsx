@@ -300,7 +300,7 @@ describe("SlackIntegrationPageClient", () => {
     fireEvent.click(await screen.findByTestId("slack-toggle-sub-1"));
 
     expect(screen.getByText(/Disable Slack destination Governance alerts/i)).toBeInTheDocument();
-    expect(screen.getByText(/Governance alerts will no longer post/i)).toBeInTheDocument();
+    expect(screen.getByText(/Alerts will no longer post/i)).toBeInTheDocument();
     expect(mockToggle).not.toHaveBeenCalled();
 
     fireEvent.click(screen.getByRole("button", { name: "Disable" }));

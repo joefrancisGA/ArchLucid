@@ -59,7 +59,7 @@ import { computeWorkspaceHealthSlaStats } from "@/lib/workspace-health-sla";
 const WORKSPACE_HEALTH_POLL_MS = 30_000;
 
 const DEFAULT_SCOPE_FALLBACK =
-  "Figures use the authenticated tenant / workspace / project sent with each request — the same boundaries as governance and audit. Not a cross-workspace rollup.";
+  "Figures use the authenticated tenant / workspace / project sent with each request — the same boundaries as approval and audit. Not a cross-workspace rollup.";
 
 function rollingBounds(days: number): { fromUtc: string; toUtc: string } {
   const to = new Date();
@@ -357,7 +357,7 @@ export function SponsorWorkspaceHealthDashboard() {
             <p className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
               {buyerPolishedShell ? (
                 <>
-                  Rolling 30-day counts from audit-backed governance checkpoints — hard blocks vs monitored-risk signals
+                  Rolling 30-day counts from audit-backed approval checkpoints — hard blocks vs monitored-risk signals
                   (non-blocking approval guidance).
                 </>
               ) : (
@@ -429,7 +429,7 @@ export function SponsorWorkspaceHealthDashboard() {
               {executiveWorkspaceHealthKpiTitle("approvalSla", buyerPolishedShell)}
             </h2>
             <p className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-              Derived from governance dashboard pending approvals and recent terminal decisions.
+              Derived from workspace health pending approvals and recent terminal decisions.
             </p>
             <ul className={cn("m-0 mt-2 list-none space-y-1 p-0 text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
               <li>Pending (sample cap): {dashboard.pendingCount}</li>

@@ -87,7 +87,7 @@ export const ALERTS_SUMMARY_COUNT_NOT_EVALUATED_NEVER_RUN_ARIA =
 
 export const ALERTS_EMPTY_HEALTHY_TITLE = "No open alerts";
 export const ALERTS_EMPTY_HEALTHY_BODY =
-  "All evaluated governance alerts are clear for the selected status.";
+  "All evaluated alerts are clear for the selected status.";
 
 export const ALERTS_EMPTY_NO_REVIEWS_TITLE = "No alerts yet";
 export const ALERTS_EMPTY_NO_REVIEWS_BODY =

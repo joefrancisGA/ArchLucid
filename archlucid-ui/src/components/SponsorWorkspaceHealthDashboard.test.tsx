@@ -34,8 +34,8 @@ vi.mock("@/lib/use-nav-surface", () => ({
     mutationCapability: false,
     layerGuidance: {
       layerBadge: "Governance",
-      headline: "Workspace health — governance and value signals in your current scope.",
-      useWhen: "Use after Pilot proof when sponsors need pre-finalization outcomes.",
+      headline: "Workspace health — approval and value signals in your current scope.",
+      useWhen: "Use after Pilot proof when sponsors need before-finalize outcomes.",
       firstPilotNote: null,
       enterpriseFootnote: "Read-only tiles; writes stay in workflow, findings queue, and audit.",
       omitReviewPackageScopeHelp: undefined,

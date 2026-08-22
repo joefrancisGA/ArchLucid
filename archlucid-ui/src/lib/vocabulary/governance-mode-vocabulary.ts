@@ -8,9 +8,9 @@ export const GOVERNANCE_MODE_COPY = {
   toggleLabel: "Enable governance view",
   toggleTitle:
     "Show enterprise governance terminology, audit trail navigation, and compliance panels.",
-  toggleAssistiveOn: "Governance view on. Full governance labels and panels are visible.",
+  toggleAssistiveOn: "Approval view on. Full approval labels and panels are visible.",
   toggleAssistiveOff:
-    "Governance view off. Pilot-friendly review labels and a focused review detail layout.",
+    "Approval view off. Pilot-friendly review labels and a focused review detail layout.",
   toggleFootnote:
     "Default for new architects — turn on when you need policy packs, audit trail, and authority-chain detail.",
 } as const;

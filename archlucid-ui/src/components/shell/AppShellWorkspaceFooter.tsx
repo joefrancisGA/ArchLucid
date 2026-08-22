@@ -50,7 +50,8 @@ export function AppShellWorkspaceFooter({ hideWorkspaceHealthFooter }: AppShellW
         className="border-t border-neutral-200 bg-neutral-50/90 py-2 print:hidden dark:border-neutral-800 dark:bg-neutral-950/90"
         aria-label="Trust and compliance"
       >
-        <div className={cn(
+        <div
+          className={cn(
             OPERATOR_SHELL_MAX_WIDTH_CLASS,
             OPERATOR_SHELL_CONTENT_PADDING_X_CLASS,
             "flex items-center gap-3",

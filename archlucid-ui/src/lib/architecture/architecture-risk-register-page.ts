@@ -84,7 +84,7 @@ export const ARCHITECTURE_RISK_REGISTER_GLOSSARY = [
   {
     term: "Risk",
     definition:
-      "An owned architecture risk created when a finding or governance decision requires ongoing monitoring or follow-up.",
+      "An owned architecture risk created when a finding or approval decision requires ongoing monitoring or follow-up.",
   },
   {
     term: "Risk exception",
@@ -92,7 +92,7 @@ export const ARCHITECTURE_RISK_REGISTER_GLOSSARY = [
       "A time-bound policy exception for an accepted risk, with owner, rationale, and expiry tracked for audit readiness.",
   },
   {
-    term: "Governance decision",
+    term: "Approval decision",
     definition:
       "A recorded approval, rejection, or monitoring disposition tied to a finalized review and evidence trail.",
   },
@@ -109,7 +109,7 @@ export const ARCHITECTURE_RISK_REGISTER_GLOSSARY = [
   {
     term: "Audit trail",
     definition:
-      "The append-only log of governance actions, dispositions, and ownership changes in the workspace.",
+      "The append-only log of approval actions, dispositions, and ownership changes in the workspace.",
   },
 ] as const;
 

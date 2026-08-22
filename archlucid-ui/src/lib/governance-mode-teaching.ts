@@ -23,7 +23,7 @@ export type GovernanceModeTeachingModel = {
   readonly reminderLine: string;
 };
 
-export const GOVERNANCE_MODE_TEACHING_HEADING = "Governance view is on" as const;
+export const GOVERNANCE_MODE_TEACHING_HEADING = "Approval view is on" as const;
 
 export const GOVERNANCE_MODE_TEACHING_LEAD =
   "Navigation labels and panels now use enterprise governance terminology. Your permissions and routes did not change." as const;
@@ -49,7 +49,7 @@ export const GOVERNANCE_MODE_TEACHING_STEPS: readonly GovernanceModeTeachingStep
 export const GOVERNANCE_MODE_TEACHING_DISMISS_LABEL = "Dismiss" as const;
 
 export const GOVERNANCE_MODE_TEACHING_REMINDER_LINE =
-  "Governance view changes labels only — routes and permissions are unchanged." as const;
+  "Approval view changes labels only — routes and permissions are unchanged." as const;
 
 export function buildGovernanceModeTeaching(): GovernanceModeTeachingModel {
   return {

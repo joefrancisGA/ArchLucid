@@ -33,5 +33,5 @@ export const FINDING_DETAIL_CONTEXTUAL_HELP = {
     "Review the finding narrative, open Evidence trace for provenance depth, or return to the review findings list.",
   whyEmpty: "Finding content appears after the inspect payload loads for this review finding.",
   whereToConfigurePrerequisite:
-    "Open a finding from a review findings tab or the governance findings queue.",
+    "Open a finding from a review findings tab or the findings queue.",
 } as const;

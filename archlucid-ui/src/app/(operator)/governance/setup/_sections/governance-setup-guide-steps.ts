@@ -31,7 +31,7 @@ export const GOVERNANCE_SETUP_GUIDE_STEPS: readonly GovernanceSetupStepDefinitio
   {
     stepNumber: 3,
     title: "Configure alert ownership",
-    description: "Route important governance alerts to the teams responsible for responding.",
+    description: "Route important alerts to the teams responsible for responding.",
     outcome: "Critical signals reach owners instead of a silent inbox.",
     tracked: true,
     primaryActionLabel: ALERTS_CONFIGURE_RULES_LINK_LABEL,
@@ -50,7 +50,7 @@ export const GOVERNANCE_SETUP_GUIDE_STEPS: readonly GovernanceSetupStepDefinitio
   },
   {
     stepNumber: 5,
-    title: "Prepare governance reporting",
+    title: "Prepare approval reporting",
     description: "Confirm that sponsors can see posture, risk, drift, approvals, and value signals.",
     outcome: "Sponsors can brief from workspace health without assembling slides.",
     tracked: false,

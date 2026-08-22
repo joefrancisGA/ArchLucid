@@ -22,7 +22,7 @@ export const GLOSSARY_TERMS = {
   },
   review_package: {
     term: "Review package",
-    definition: "A finalized architecture review with finalized review record, evidence trail, findings, governance records, and deliverables — the unit buyers open from the reviews list.",
+    definition: "A finalized architecture review with finalized review record, evidence trail, findings, approval records, and deliverables — the unit buyers open from the reviews list.",
     docLink: "/help/glossary#term-review-package",
   },
   findings: {

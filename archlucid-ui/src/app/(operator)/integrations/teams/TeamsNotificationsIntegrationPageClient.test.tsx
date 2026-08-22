@@ -187,7 +187,7 @@ describe("TeamsNotificationsIntegrationPageClient", () => {
 
     expect(await screen.findByText("Review completed")).toBeInTheDocument();
     expect(screen.getByText("Approval requested")).toBeInTheDocument();
-    expect(screen.getByText("Governance alert created")).toBeInTheDocument();
+    expect(screen.getByText("Alert created")).toBeInTheDocument();
     expect(screen.queryByText("com.archlucid.authority.run.completed")).not.toBeInTheDocument();
   });
 

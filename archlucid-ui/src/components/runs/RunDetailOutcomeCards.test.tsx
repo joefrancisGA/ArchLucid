@@ -71,7 +71,7 @@ describe("RunDetailOutcomeCards", () => {
         warningCountDisplay={0}
         artifactCount={2}
         unresolvedIssueCountDisplay={0}
-        governanceGateLabel="No governance decision recorded"
+        governanceGateLabel="No approval decision recorded"
       />,
     );
 

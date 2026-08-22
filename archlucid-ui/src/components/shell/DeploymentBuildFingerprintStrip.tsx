@@ -17,6 +17,7 @@ type DeploymentBuildFingerprintStripProps = {
   readonly variant?: DeploymentBuildFingerprintStripVariant;
 };
 
+/** Low-risk footer marker to confirm which UI build and API host the shell is using. */
 export function DeploymentBuildFingerprintStrip(props: DeploymentBuildFingerprintStripProps): React.JSX.Element | null {
   const variant = props.variant ?? "full";
   const fingerprint = readClientDeploymentFingerprint();
@@ -35,9 +36,16 @@ export function DeploymentBuildFingerprintStrip(props: DeploymentBuildFingerprin
 
 function renderCompactCiBuildMark(ciBuildNumber: string, className: string | undefined): React.JSX.Element | null {
   const label = formatCiBuildNumberLabel(ciBuildNumber);
-  if (label === null) { return null; }
+
+  if (label === null) {
+    return null;
+  }
+
   return (
-    <p data-testid="deployment-build-fingerprint" className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro, className)}>
+    <p
+      data-testid="deployment-build-fingerprint"
+      className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro, className)}
+    >
       {label}
     </p>
   );
@@ -48,9 +56,19 @@ function renderFullDeploymentFingerprint(
   className: string | undefined,
 ): React.JSX.Element {
   return (
-    <p data-testid="deployment-build-fingerprint" className={cn("m-0 inline-flex flex-wrap items-center gap-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.micro, className)}>
+    <p
+      data-testid="deployment-build-fingerprint"
+      className={cn(
+        "m-0 inline-flex flex-wrap items-center gap-1 text-al-text-secondary",
+        OPERATOR_TYPOGRAPHY.micro,
+        className,
+      )}
+    >
       <span>{formatDeploymentBuildFingerprintLine(fingerprint)}</span>
-      <FieldHelpTooltip label="Deployment fingerprint" hint="CI build number, UI commit, timestamp, environment, and configured API host for this shell session." />
+      <FieldHelpTooltip
+        label="Deployment fingerprint"
+        hint="CI build number, UI commit, timestamp, environment, and configured API host for this shell session."
+      />
     </p>
   );
 }

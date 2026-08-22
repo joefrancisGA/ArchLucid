@@ -36,7 +36,7 @@ const BUYER_REVIEW_DETAIL_IN_PROGRESS_GUIDANCE: FirstWeekRouteGuidanceConfig = {
     "Stay on this page until you finalize — that locks the finalized review record and unlocks sponsor exports.",
   primaryAction: { label: "Finalize review", href: BUYER_REVIEW_DETAIL_IN_PROGRESS_FINALIZE_ANCHOR },
   // Primary CTA also lives in ReviewPackageDoThisNextStrip above this callout.
-  operateDeferralNote: "Skip graph and governance dashboards until after commit unless your pilot explicitly needs them.",
+  operateDeferralNote: "Skip graph and approval dashboards until after commit unless your pilot explicitly needs them.",
 };
 
 export const FIRST_WEEK_ROUTE_GUIDANCE_REVIEW_DETAIL_COMMITTED_COLLAPSED_SUMMARY =
@@ -49,21 +49,21 @@ export const FIRST_WEEK_ROUTE_GUIDANCE: Record<FirstWeekRouteGuidanceVariant, Fi
       "Each architecture review is tracked as one review — the same object from capture through finalized review record and export. Start with briefs, diagrams, or IaC only (evidence-only); cloud inventory ZIP (AWS, Azure, or GCP) is optional when you need live architecture structure or cost grounding.",
     primaryAction: { label: CREATE_ARCHITECTURE_LABEL, href: ARCHITECTURES_NEW_PATH },
     operateDeferralNote:
-      "Graph, Compare, and heavy governance surfaces stay out of the sidebar until after your first committed package.",
+      "Graph, Compare, and heavy approval surfaces stay out of the sidebar until after your first committed package.",
   },
   onboarding: {
     useWhen: "Follow this guided path to create and commit your first review.",
     bridgeCopy:
       "The checklist below walks one architecture review from capture to committed finalized review record.",
     primaryAction: { label: CREATE_ARCHITECTURE_LABEL, href: ARCHITECTURES_NEW_PATH },
-    operateDeferralNote: "Finish this path before exploring Operate analysis or governance lanes.",
+    operateDeferralNote: "Finish this path before exploring Operate analysis or approval lanes.",
   },
   "new-review": {
     useWhen: "You have enough context to start an architecture review.",
     bridgeCopy:
       "ArchLucid produces a defensible review — committed findings, evidence trail, and export-ready outputs. Default to evidence-only (no cloud target) unless you attach cloud inventory output.",
     operateDeferralNote:
-      "Policy packs and deeper governance can wait until after your first committed package. Cloud inventory ZIP is optional — see the InfoSec pre-read if security must approve the read-only script.",
+      "Policy packs and deeper approval can wait until after your first committed package. Cloud inventory ZIP is optional — see the InfoSec pre-read if security must approve the read-only script.",
   },
   "reviews-list": {
     useWhen: "You want to resume an in-progress review or open a committed review.",

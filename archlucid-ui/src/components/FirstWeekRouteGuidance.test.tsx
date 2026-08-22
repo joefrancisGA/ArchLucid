@@ -40,7 +40,7 @@ describe("FirstWeekRouteGuidance", () => {
     render(<FirstWeekRouteGuidance variant="review-detail-in-progress" />);
 
     expect(screen.queryByRole("link", { name: "Finalize this review" })).not.toBeInTheDocument();
-    expect(screen.getByText(/Skip graph and governance dashboards/i)).toBeInTheDocument();
+    expect(screen.getByText(/Skip graph and approval dashboards/i)).toBeInTheDocument();
   });
 
   it("renders buyer-polished in-progress guidance without a competing finalize CTA (BDA-001)", () => {

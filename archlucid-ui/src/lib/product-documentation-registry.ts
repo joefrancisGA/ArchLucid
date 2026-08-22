@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Customer-visible in-app documentation registry.
  * Source of truth: `docs/library/PRODUCT_DOCUMENTATION_PRESENTATION.md`.
  */
@@ -809,7 +809,7 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     slug: "alerts",
     title: "Alerts",
     summary:
-      "Learn how ArchLucid identifies governance risks, routes them to the right owners, and tracks resolution.",
+      "Learn how ArchLucid identifies policy and approval risks, routes them to the right owners, and tracks resolution.",
     audience: "operator",
     // App-rendered specialty (`HelpAlertsGuideView`) — copy owned in `alerts-help-guide-content.ts`.
     sourcePaths: [],

@@ -1,7 +1,7 @@
 export const RISK_EXCEPTIONS_PAGE_TITLE = "Exceptions";
 
 export const RISK_EXCEPTIONS_PAGE_SUBTITLE =
-  "Track approved waivers and deferred findings for this review, including owner, expiration, evidence, and linked governance decision.";
+  "Track approved waivers and deferred findings for this review, including owner, expiration, evidence, and linked approval decision.";
 
 export const RISK_EXCEPTIONS_TERM_CLARIFIER =
   "A risk exception is an approved waiver or deferred finding with owner, expiration, and evidence tracking.";

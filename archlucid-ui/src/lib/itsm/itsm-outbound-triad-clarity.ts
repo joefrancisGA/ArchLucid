@@ -32,7 +32,7 @@ export type ItsmOutboundTriadClarityModel = {
 export const ITSM_OUTBOUND_TRIAD_HEADING = "Three ITSM jobs on a finding" as const;
 
 export const ITSM_OUTBOUND_TRIAD_WHY_THREE =
-  "Creating a linked ticket opens work in Jira, ServiceNow, or Azure Boards. Disposition records the governance decision on the finding. Inbound human-review queue state reflects the last ITSM sync — it is not the disposition trail. Do each job intentionally; none replaces the others." as const;
+  "Creating a linked ticket opens work in Jira, ServiceNow, or Azure Boards. Disposition records the approval decision on the finding. Inbound human-review queue state reflects the last ITSM sync — it is not the disposition trail. Do each job intentionally; none replaces the others." as const;
 
 export const ITSM_OUTBOUND_TRIAD_COMPACT_LINE =
   "Create a ticket, disposition the finding, and check inbound human-review queue — three jobs, not one." as const;

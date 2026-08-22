@@ -258,7 +258,7 @@ describe("run-detail-workspace-derive", () => {
 
   it("falls back to key decision considerations when only theme labels exist", () => {
     const content = deriveSponsorBottomLineContent({
-      governanceDecisionLabel: "No governance decision recorded",
+      governanceDecisionLabel: "No approval decision recorded",
       governanceDecisionRationale: null,
       overallPosture: "Needs review",
       blockingFindingCount: 0,

@@ -25,7 +25,7 @@ const GOVERNANCE_POLICY_PACKS_HUB_CONTEXTUAL_HELP = {
 
 const GOVERNANCE_AUDIT_HUB_CONTEXTUAL_HELP = {
   whatIsThisPage:
-    "Search and export workspace audit events for reviews, governance actions, and integrity checks in this workspace.",
+    "Search and export workspace audit events for reviews, approval actions, and integrity checks in this workspace.",
   whatToDoNext:
     "Filter by review or action, refresh the trail, then export or open the related architecture review when needed.",
   whyEmpty: "Events appear after architects take actions that the audit coverage matrix records.",
@@ -65,7 +65,7 @@ export const GOVERNANCE_AUDIT_POLICY_CONTEXTUAL_HELP_ROWS: readonly PageContextu
         "Open Policy packs for live assignments, Standards and rules for applied rules, or Findings when violations need triage.",
       whyEmpty: "This guide is always available; live pack rows appear after packs are assigned in this workspace.",
       whereToConfigurePrerequisite:
-        "Pack assignment needs a role that can manage governance policy for this workspace.",
+        "Pack assignment needs a role that can manage policy packs for this workspace.",
       whatToDoNextAction: {
         label: "Open Policy packs",
         href: GOVERNANCE_POLICY_PACKS_PATH,

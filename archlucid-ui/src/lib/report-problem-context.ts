@@ -1,6 +1,8 @@
 import type { ApiProblemDetails } from "@/lib/api-problem";
 import {
+  formatCiBuildNumberLabel,
   formatShortCommitSha,
+  isKnownFingerprintValue,
   readClientDeploymentFingerprint,
 } from "@/lib/deployment-fingerprint";
 import type { VersionInfoResponse } from "@/lib/health-dashboard-types";

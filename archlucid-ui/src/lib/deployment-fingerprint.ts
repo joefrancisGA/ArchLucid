@@ -29,33 +29,51 @@ export function readClientDeploymentFingerprint(): ClientDeploymentFingerprint {
 
 export function formatShortCommitSha(commitSha: string): string {
   const trimmed = commitSha.trim();
-  if (trimmed.length <= 12) { return trimmed; }
+  if (trimmed.length <= 12) {
+    return trimmed;
+  }
+
   return trimmed.slice(0, 12);
 }
 
+/** True when CD (or a test stub) supplied a real fingerprint field instead of the local-dev sentinel. */
 export function isKnownFingerprintValue(value: string): boolean {
   const trimmed = value.trim();
+
   return trimmed.length > 0 && trimmed !== "unknown";
 }
 
+/** Discrete footer label such as `Build 1842`, or null when the CI number was not baked in. */
 export function formatCiBuildNumberLabel(ciBuildNumber: string): string | null {
-  if (!isKnownFingerprintValue(ciBuildNumber)) { return null; }
+  if (!isKnownFingerprintValue(ciBuildNumber)) {
+    return null;
+  }
+
   return `Build ${ciBuildNumber.trim()}`;
 }
 
+/** Full operator-footer line: CI number (when known), short SHA, timestamp, env, API host. */
 export function formatDeploymentBuildFingerprintLine(fingerprint: ClientDeploymentFingerprint): string {
   const parts: string[] = [];
   const ciLabel = formatCiBuildNumberLabel(fingerprint.ciBuildNumber);
-  if (ciLabel !== null) { parts.push(ciLabel); }
+
+  if (ciLabel !== null) {
+    parts.push(ciLabel);
+  }
+
   parts.push(`UI build ${formatShortCommitSha(fingerprint.frontendCommitSha)}`);
   parts.push(fingerprint.buildTimestamp);
   parts.push(`env ${fingerprint.environment}`);
   parts.push(`API ${fingerprint.apiUpstreamHost}`);
+
   return parts.join(" · ");
 }
 
 function normalizeFingerprintValue(value: string | undefined): string {
   const trimmed = value?.trim() ?? "";
-  if (trimmed.length === 0) { return "unknown"; }
+  if (trimmed.length === 0) {
+    return "unknown";
+  }
+
   return trimmed;
 }

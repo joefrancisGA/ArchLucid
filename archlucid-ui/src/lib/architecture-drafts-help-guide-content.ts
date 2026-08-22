@@ -34,7 +34,7 @@ export function architectureDraftsHelpPageSubtitle(buyerPolishedShell: boolean):
 export const ARCHITECTURE_DRAFTS_HELP_HOW_TO_SECTION_TITLE = "Step-by-step" as const;
 
 export const ARCHITECTURE_DRAFTS_HELP_OVERVIEW =
-  "Architecture drafts are saved system briefs you can edit before starting evidence intake. Drafting does not start a review — open Start a review when the brief is ready for governance analysis.";
+  "Architecture drafts are saved system briefs you can edit before starting evidence intake. Drafting does not start a review — open Start a review when the brief is ready for approval review.";
 
 export const ARCHITECTURE_DRAFTS_HELP_PRIMARY_ACTION = {
   label: "Start a review",
@@ -66,14 +66,14 @@ export const ARCHITECTURE_DRAFTS_HELP_FEATURE_ITEMS: readonly ArchitectureDrafts
   },
   {
     label: "Evidence intake",
-    detail: "When the brief is ready, open the primary action above to collect evidence for governance analysis.",
+    detail: "When the brief is ready, open the primary action above to collect evidence for approval review.",
   },
 ] as const;
 
 export const ARCHITECTURE_DRAFTS_HELP_HOW_TO_READ_STEPS = [
   "Open a saved draft or create a new architecture when you need a fresh brief.",
   "Refine draft fields, confirm constraints and assumptions, and save — listing and editing drafts does not start a review.",
-  "Open Start a review when the structured brief is ready for evidence intake and governance analysis.",
+  "Open Start a review when the structured brief is ready for evidence intake and approval review.",
 ] as const;
 
 export const ARCHITECTURE_DRAFTS_HELP_FIRST_REVIEW_HREF = "/help/first-architecture-review";

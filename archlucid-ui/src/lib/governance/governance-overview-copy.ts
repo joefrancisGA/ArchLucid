@@ -5,7 +5,7 @@ import { TENANT_SYSTEM_WORKSPACE_HEALTH_WORKSPACE_LINK } from "@/lib/vocabulary/
 export const GOVERNANCE_OVERVIEW_PAGE_TITLE = "Approval queue";
 
 export const GOVERNANCE_OVERVIEW_PAGE_LEAD =
-  "Workspace governance status, pending approvals, recent decisions, and review-scoped approval workflow.";
+  "Workspace approval status, pending approvals, recent decisions, and review-scoped approval workflow.";
 
 export const BUYER_GOVERNANCE_OVERVIEW_PAGE_LEAD =
   "Pending approvals, recent decisions, and review-scoped workflow for your workspace.";
@@ -47,12 +47,12 @@ export const GOVERNANCE_OVERVIEW_FINDINGS_ACTION = "Open findings queue";
 
 export const GOVERNANCE_OVERVIEW_LOAD_REVIEW_ACTION = "Load selected review";
 
-export const GOVERNANCE_OVERVIEW_BACK_ACTION = "Back to governance overview";
+export const GOVERNANCE_OVERVIEW_BACK_ACTION = "Back to approval overview";
 
-export const GOVERNANCE_OVERVIEW_SUMMARY_HEADING = "Governance summary";
+export const GOVERNANCE_OVERVIEW_SUMMARY_HEADING = "Approval summary";
 
 export const GOVERNANCE_OVERVIEW_SUMMARY_SCOPE_LINE =
-  "Workspace-scoped counts from governance dashboard and decisions-needed APIs.";
+  "Workspace-scoped counts from workspace health and decisions-needed APIs.";
 
 export const GOVERNANCE_OVERVIEW_SUMMARY_AUTHORITY_LINE =
   "Requesters cannot approve their own reviews (segregation of duties).";
@@ -74,7 +74,7 @@ export const GOVERNANCE_OVERVIEW_APPROVED_PACKAGES_DEFINITION =
 export const GOVERNANCE_OVERVIEW_BLOCKING_FINDINGS_LABEL = "Blocking findings";
 
 export const GOVERNANCE_OVERVIEW_BLOCKING_FINDINGS_DEFINITION =
-  "Open findings that block governance progress (unowned high-severity, stale, or awaiting evidence)";
+  "Open findings that block approval progress (unowned high-severity, stale, or awaiting evidence)";
 
 export const GOVERNANCE_OVERVIEW_BLOCKING_FINDINGS_BREAKDOWN_HEADING = "Blocking findings breakdown";
 
@@ -106,7 +106,7 @@ export const GOVERNANCE_OVERVIEW_NO_PENDING_DESCRIPTION =
   "Start by selecting a completed review above and submitting it into the approval workflow.";
 
 export const GOVERNANCE_OVERVIEW_IDLE_WORKSPACE_HINT =
-  "Your workspace has no active governance items yet — load a completed review to begin the approval lifecycle.";
+  "Your workspace has no active approval items yet — load a completed review to begin the approval lifecycle.";
 
 export const GOVERNANCE_OVERVIEW_LOAD_REVIEW_SECTION_TITLE = "Load a review";
 
