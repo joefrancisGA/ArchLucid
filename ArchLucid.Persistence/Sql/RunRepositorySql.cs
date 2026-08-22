@@ -47,6 +47,19 @@ internal static class RunRepositorySql
                                               AND ArchivedUtc IS NULL;
                                             """;
 
+    public const string SelectByScopedIdIncludingArchived = $"""
+                                                             SELECT
+                                                                 {RunDetailReadSql.SelectCoreColumns},
+                                                                 PackageOrigin,
+                                                                 {RunDetailReadSql.SelectGovernanceDispositionColumns},
+                                                                 {RunDetailReadSql.SelectCorrelatedWarningFlags}
+                                                             FROM dbo.Runs
+                                                             WHERE RunId = @RunId
+                                                               AND TenantId = @TenantId
+                                                               AND WorkspaceId = @WorkspaceId
+                                                               AND ScopeProjectId = @ScopeProjectId;
+                                                             """;
+
     public const string SelectByRunIdAdmin = $"""
                                               SELECT TOP (1)
                                                   {RunDetailReadSql.SelectCoreColumns},

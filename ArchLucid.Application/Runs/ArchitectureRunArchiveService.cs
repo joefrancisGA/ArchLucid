@@ -40,7 +40,7 @@ public sealed class ArchitectureRunArchiveService(
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
 
         RunRecord? run = await _runRepository
-            .GetByIdAsync(scope, runId, cancellationToken)
+            .GetByIdIncludingArchivedAsync(scope, runId, cancellationToken)
             .ConfigureAwait(false);
 
         if (run is null)

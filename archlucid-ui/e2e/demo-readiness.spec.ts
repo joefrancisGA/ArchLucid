@@ -220,10 +220,11 @@ test.describe.parallel("demo-readiness — mock proof chain @demo-readiness", ()
     page,
   }) => {
     await page.goto("/governance/policy-packs/e2e-policy-pack-001");
+    await expect(page.getByTestId("policy-pack-detail-primary-content")).toBeVisible({ timeout: 30_000 });
     // Pack detail body uses buyer-polished empty-state copy; breadcrumb uses demo fixture titles — not `getRouteTitle`'s "Policy pack detail".
     await expect(
-      page.getByRole("main").getByRole("link", { name: /Open policy pack library|Policy pack library|Policy packs|registry catalog/i }).first(),
-    ).toBeVisible();
+      getAppMain(page).getByRole("link", { name: /Open policy pack library|Policy pack library|Policy packs|registry catalog/i }).first(),
+    ).toBeVisible({ timeout: 30_000 });
     await expect(page.getByRole("heading", { level: 1, name: /^Governance workflow$/i })).toHaveCount(0);
   });
 

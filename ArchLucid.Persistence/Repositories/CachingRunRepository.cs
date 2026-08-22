@@ -34,6 +34,10 @@ public sealed class CachingRunRepository(IRunRepository inner, IHotPathReadCache
     }
 
     /// <inheritdoc />
+    public Task<RunRecord?> GetByIdIncludingArchivedAsync(ScopeContext scope, Guid runId, CancellationToken ct)
+        => _inner.GetByIdIncludingArchivedAsync(scope, runId, ct);
+
+    /// <inheritdoc />
     public Task<RunRecord?> GetByRunIdAdminAsync(Guid runId, CancellationToken ct)
         => _inner.GetByRunIdAdminAsync(runId, ct);
 

@@ -105,6 +105,31 @@ public sealed class SqlRunRepository(
         }
     }
 
+    public async Task<RunRecord?> GetByIdIncludingArchivedAsync(ScopeContext scope, Guid runId, CancellationToken ct)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+        PersistenceTenantScope.RequireScopedTenant(scope);
+
+        Stopwatch sw = Stopwatch.StartNew();
+
+        try
+        {
+            await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
+
+            return await connection.QuerySingleOrDefaultAsync<RunRecord>(
+                new CommandDefinition(
+                    RunRepositorySql.SelectByScopedIdIncludingArchived,
+                    RunRecordParameters.ForRun(scope, runId),
+                    cancellationToken: ct)).ConfigureAwait(false);
+        }
+        finally
+        {
+            ArchLucidInstrumentation.RecordNamedQueryLatencyMilliseconds(
+                NamedQueryTelemetryNames.GetRunByScopedId,
+                sw.Elapsed.TotalMilliseconds);
+        }
+    }
+
     [TenantScopeExempt(TenantScopeExemptReason.Operational, "Admin run lookup by id within the active tenant catalog.")]
     public async Task<RunRecord?> GetByRunIdAdminAsync(Guid runId, CancellationToken ct)
     {
