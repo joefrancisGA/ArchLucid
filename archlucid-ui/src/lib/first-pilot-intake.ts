@@ -21,6 +21,8 @@ export const DEFAULT_ARCHITECTURE_EVIDENCE_CATEGORY = "Architecture evidence";
 export const FIRST_PILOT_MIN_TITLE_CHARS = 2;
 export const FIRST_PILOT_MIN_BRIEF_CHARS = 100;
 export const FIRST_PILOT_EVIDENCE_ONLY_BRIEF_MIN_CHARS = 100;
+export const FIRST_PILOT_ARCHITECTURE_CONTEXT_MIN_HELPER =
+  `${FIRST_PILOT_MIN_BRIEF_CHARS} characters minimum if you are not attaching evidence.`;
 
 export type FirstPilotIntakeReadinessInput = {
   readonly title: string;

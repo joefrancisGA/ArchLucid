@@ -167,6 +167,7 @@ export function SocraticIntakeWizard() {
         compactActions={viewAllClarifications}
         showAllMode={viewAllClarifications}
         showBaselineLabel={false}
+        showRequirednessSuffix={false}
         clarificationStatus={getClarificationStatus(questionKey)}
         canSaveAndContinue={(answers[questionKey]?.trim() ?? "").length > 0}
         onAnswerChange={(nextQuestionKey, value) => {

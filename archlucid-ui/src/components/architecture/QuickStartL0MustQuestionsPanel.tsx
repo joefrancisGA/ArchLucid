@@ -12,15 +12,18 @@ import { Button } from "@/components/ui/button";
 import { ARCHITECTURE_CREATION_UNIVERSAL_QUESTIONS } from "@/lib/architecture/architecture-creation-question-definition";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { guidedIntakeClarificationsAnsweredCounter } from "@/lib/guided-intake-copy";
+import { UNIVERSAL_INTAKE_INFERRED_CLARIFICATION_HELPER } from "@/lib/universal-intake-answer-inference";
 import { UNIVERSAL_INTAKE_MUST_QUESTION_KEYS } from "@/lib/universal-intake-must-completeness";
 import type { DraftElicitationQuestion } from "@/types/draft-intake";
 
 export type QuickStartL0MustQuestionsPanelProps = {
   readonly answers: Readonly<Record<string, string>>;
   readonly skippedQuestionKeys: ReadonlySet<string>;
+  readonly inferredQuestionKeys?: ReadonlySet<string>;
   readonly busy: boolean;
   readonly onAnswersChange: (answers: Readonly<Record<string, string>>) => void;
   readonly onSkippedQuestionKeysChange: (skippedQuestionKeys: ReadonlySet<string>) => void;
+  readonly onQuestionEdited?: (questionKey: string) => void;
 };
 
 function isQuickStartClarificationHandled(
@@ -80,7 +83,7 @@ export function QuickStartL0MustQuestionsPanel(props: QuickStartL0MustQuestionsP
   );
 
   const getClarificationStatus = useCallback(
-    (questionKey: string): ClarificationCardStatus => {
+    (questionKey: string): ClarificationCardStatus | undefined => {
       if (props.skippedQuestionKeys.has(questionKey)) {
         return { kind: "draft", label: "Skipped" };
       }
@@ -89,13 +92,14 @@ export function QuickStartL0MustQuestionsPanel(props: QuickStartL0MustQuestionsP
         return { kind: "ready", label: "Answered" };
       }
 
-      return { kind: "needs-attention", label: "Needs answer" };
+      return undefined;
     },
     [props.skippedQuestionKeys, savedLocallyQuestionKeys],
   );
 
   const handleAnswerChange = useCallback(
     (questionKey: string, value: string) => {
+      props.onQuestionEdited?.(questionKey);
       props.onAnswersChange({
         ...props.answers,
         [questionKey]: value,
@@ -169,6 +173,8 @@ export function QuickStartL0MustQuestionsPanel(props: QuickStartL0MustQuestionsP
         compactActions={viewAllClarifications}
         showAllMode={viewAllClarifications}
         showBaselineLabel={false}
+        showRequirednessSuffix={false}
+        isSuggested={props.inferredQuestionKeys?.has(questionKey) === true}
         clarificationStatus={getClarificationStatus(questionKey)}
         canSaveAndContinue={(props.answers[questionKey]?.trim() ?? "").length > 0}
         onAnswerChange={handleAnswerChange}
@@ -189,6 +195,15 @@ export function QuickStartL0MustQuestionsPanel(props: QuickStartL0MustQuestionsP
         <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
           Quick start collects the same baseline facts Guided questions requires before analysis begins.
         </p>
+
+        {(props.inferredQuestionKeys?.size ?? 0) > 0 ? (
+          <p
+            className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="first-pilot-l0-inferred-helper"
+          >
+            {UNIVERSAL_INTAKE_INFERRED_CLARIFICATION_HELPER}
+          </p>
+        ) : null}
 
         {primaryPendingQuestion !== null
           ? renderClarificationField(primaryPendingQuestion, {
