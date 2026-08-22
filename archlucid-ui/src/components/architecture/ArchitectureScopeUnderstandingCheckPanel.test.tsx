@@ -9,8 +9,8 @@ import {
   SCOPE_ITEM_TOO_SHORT_MESSAGE,
   SCOPE_UNDERSTANDING_ADD_BUTTON_LABEL,
   SCOPE_UNDERSTANDING_ADD_EFFECT_HINT,
-  SCOPE_UNDERSTANDING_ADD_HINT,
   SCOPE_UNDERSTANDING_ADD_LABEL,
+  SCOPE_UNDERSTANDING_ADD_PLACEHOLDER,
   SCOPE_UNDERSTANDING_CONFIRM_BLOCKED_HINT,
   SCOPE_UNDERSTANDING_CONFIRM_LABEL,
   SCOPE_UNDERSTANDING_HEADING,
@@ -36,9 +36,7 @@ describe("ArchitectureScopeUnderstandingCheckPanel", () => {
     expect(screen.getByRole("heading", { name: SCOPE_UNDERSTANDING_HEADING })).toBeInTheDocument();
     expect(screen.getByText(SCOPE_UNDERSTANDING_HELPER)).toBeInTheDocument();
     expect(screen.getByLabelText(SCOPE_UNDERSTANDING_ADD_LABEL)).toBeInTheDocument();
-    expect(screen.getByTestId("architecture-scope-understanding-add-hint")).toHaveTextContent(
-      SCOPE_UNDERSTANDING_ADD_HINT,
-    );
+    expect(screen.getByPlaceholderText(SCOPE_UNDERSTANDING_ADD_PLACEHOLDER)).toBeInTheDocument();
     expect(screen.getByTestId("architecture-scope-understanding-add-effect")).toHaveTextContent(
       SCOPE_UNDERSTANDING_ADD_EFFECT_HINT,
     );
