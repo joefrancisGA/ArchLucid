@@ -11,6 +11,7 @@ import {
   splitVocabularyCompactLine,
 } from "@/lib/vocabulary/split-vocabulary-compact-line";
 
+import { VocabularyRailNoteText } from "@/components/vocabulary/VocabularyRailNoteText";
 import type {
   VocabularyRailCompactLinkPlacement,
   VocabularyRailLink,
@@ -47,7 +48,7 @@ function renderCompactNotes(
       {notes.map((note) => (
         <span key={note.testIdSuffix} data-testid={`${testIdPrefix}-${note.testIdSuffix}`}>
           {" "}
-          {note.text}
+          <VocabularyRailNoteText note={note} />
         </span>
       ))}
     </>

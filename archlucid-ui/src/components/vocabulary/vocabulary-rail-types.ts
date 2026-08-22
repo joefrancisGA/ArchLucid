@@ -17,6 +17,8 @@ export type VocabularyRailLink = {
 export type VocabularyRailNote = {
   readonly testIdSuffix: string;
   readonly text: string;
+  /** When set, rendered semibold before {@link text} (e.g. `Examples:`). */
+  readonly boldPrefix?: string;
 };
 
 export type VocabularyPeerLinkSource = {

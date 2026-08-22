@@ -8,6 +8,7 @@ import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 import { VocabularyRailCompactStrip } from "@/components/vocabulary/VocabularyRailCompactStrip";
+import { VocabularyRailNoteText } from "@/components/vocabulary/VocabularyRailNoteText";
 import type {
   VocabularyRailCompactLinkPlacement,
   VocabularyRailLink,
@@ -100,7 +101,7 @@ export function VocabularyRail(props: VocabularyRailProps): JSX.Element {
           className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
           data-testid={`${props.testIdPrefix}-${note.testIdSuffix}`}
         >
-          {note.text}
+          <VocabularyRailNoteText note={note} />
         </p>
       ))}
       <div className="flex flex-wrap gap-x-4 gap-y-1">

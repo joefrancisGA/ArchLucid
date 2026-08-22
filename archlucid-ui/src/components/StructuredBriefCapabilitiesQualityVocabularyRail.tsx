@@ -32,7 +32,8 @@ export function StructuredBriefCapabilitiesQualityVocabularyRail(
       notes={[
         {
           testIdSuffix: "examples",
-          text: "Examples: HTTPS ingress and managed database are capabilities; RTO 4h and p95 latency 200ms are quality attributes.",
+          boldPrefix: "Examples:",
+          text: "HTTPS ingress and managed database are capabilities; RTO 4h and p95 latency 200ms are quality attributes.",
         },
       ]}
       links={[
