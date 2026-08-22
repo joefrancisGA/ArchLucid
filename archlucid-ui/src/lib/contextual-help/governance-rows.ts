@@ -59,6 +59,11 @@ export const GOVERNANCE_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] =
       whyEmpty: "Rules and destinations appear after you create them for this workspace.",
       whereToConfigurePrerequisite:
         "Alert delivery often needs channel integrations (email, Teams, Slack, or webhooks) configured under Integrations.",
+      taskSteps: [
+        "Set Conditions for when completed reviews should raise alerts.",
+        "Open Notifications to add email, Teams, Slack, or webhook destinations.",
+        "Use Test alerts to simulate behavior before enabling production routing.",
+      ],
     },
   },
   {
@@ -71,6 +76,11 @@ export const GOVERNANCE_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] =
       whyEmpty: "A finalized review record appears after you finalize an architecture review.",
       whereToConfigurePrerequisite:
         "Finalize a review from the architecture review workspace before opening its finalized review record.",
+      taskSteps: [
+        "Review the summary and recorded architecture decisions.",
+        "Open related findings when follow-up work is still open.",
+        "Export the review bundle when downloads are ready for auditors.",
+      ],
     },
   },
 ];

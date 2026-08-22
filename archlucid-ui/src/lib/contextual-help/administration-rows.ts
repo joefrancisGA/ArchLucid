@@ -14,6 +14,11 @@ export const SETTINGS_HUB_CONTEXTUAL_HELP: PageContextualHelpEntry = {
     "Sections appear based on your authority and search; try clearing search or showing advanced settings when a destination is missing.",
   whereToConfigurePrerequisite:
     "Some destinations require Admin or Operator authority; personal preferences stay in the account menu.",
+  taskSteps: [
+    "Search or browse sections to find the settings destination you need.",
+    "Open a destination page to change workspace, integration, or security settings.",
+    "Use advanced settings when a card is hidden by default search filters.",
+  ],
 };
 
 export const ADMINISTRATION_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] = [

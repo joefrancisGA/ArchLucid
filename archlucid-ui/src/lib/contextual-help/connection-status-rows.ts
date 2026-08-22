@@ -21,6 +21,11 @@ const CONNECTION_STATUS_HUB_CONTEXTUAL_HELP = {
     label: "Open system health",
     href: "/administration/system-health",
   },
+  taskSteps: [
+    "Scan connector tiles for configured, recommended, or attention-needed status.",
+    "Open the matching integration page when setup is incomplete.",
+    "Open System health when runtime checks are failing after configuration.",
+  ],
 } as const;
 
 export const CONNECTION_STATUS_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] = [

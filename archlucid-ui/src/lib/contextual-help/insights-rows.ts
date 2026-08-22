@@ -35,6 +35,11 @@ export const INSIGHTS_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] = [
         label: "Open Pilot feedback",
         href: PRODUCT_LEARNING_PATH,
       },
+      taskSteps: [
+        "Capture review feedback or run pilot feedback analysis.",
+        "Review generated themes before promoting them into plans.",
+        "Open peer plans when you need to compare prioritized work.",
+      ],
     },
   },
   {
