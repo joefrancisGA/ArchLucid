@@ -10,6 +10,7 @@ import {
 import { ALERT_RULES_HUB_CHUNK_MANIFEST } from "@/lib/operator/alert-rules-hub-chunk-manifest";
 import { ALERTS_INBOX_CHUNK_MANIFEST } from "@/lib/operator/alerts-inbox-chunk-manifest";
 import { APP_SHELL_CHUNK_MANIFEST } from "@/lib/operator/app-shell-chunk-manifest";
+import { GOVERNANCE_FINDINGS_CHUNK_MANIFEST } from "@/lib/operator/governance-findings-chunk-manifest";
 import { GOVERNANCE_WORKFLOW_CHUNK_MANIFEST } from "@/lib/operator/governance-workflow-chunk-manifest";
 import { MARKETING_CHUNK_MANIFEST } from "@/lib/operator/marketing-chunk-manifest";
 import { OPERATOR_HOME_CHUNK_MANIFEST } from "@/lib/operator/operator-home-chunk-manifest";
@@ -1286,6 +1287,10 @@ export const REVIEWS_NEW_DEFERRED_CHUNK_LOADER_IDS: readonly string[] = REVIEWS_
 export const RUN_DETAIL_DEFERRED_CHUNK_LOADER_IDS: readonly string[] = RUN_DETAIL_CHUNK_MANIFEST.map(
   (entry) => entry.id,
 );
+
+/** Governance-findings manifest ids that have registered import loaders (manifest import-test guard). */
+export const GOVERNANCE_FINDINGS_DEFERRED_CHUNK_LOADER_IDS: readonly string[] =
+  GOVERNANCE_FINDINGS_CHUNK_MANIFEST.map((entry) => entry.id);
 
 /** Governance-workflow manifest ids that have registered import loaders (manifest import-test guard). */
 export const GOVERNANCE_WORKFLOW_DEFERRED_CHUNK_LOADER_IDS: readonly string[] =

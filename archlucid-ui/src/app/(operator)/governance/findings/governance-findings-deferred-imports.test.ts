@@ -4,31 +4,30 @@ import { fileURLToPath } from "node:url";
 
 import { describe, expect, it } from "vitest";
 
-const findingsDir = dirname(fileURLToPath(import.meta.url));
+const routeDir = dirname(fileURLToPath(import.meta.url));
 
-const pageSource = readFileSync(join(findingsDir, "page.tsx"), "utf8");
-const assignedPageSource = readFileSync(join(findingsDir, "assigned-to-me/page.tsx"), "utf8");
-const deferredSource = readFileSync(join(findingsDir, "governance-findings-deferred-chunks.tsx"), "utf8");
+const pageSource = readFileSync(join(routeDir, "page.tsx"), "utf8");
+const assignedPageSource = readFileSync(join(routeDir, "assigned-to-me/page.tsx"), "utf8");
+const deferredSource = readFileSync(join(routeDir, "governance-findings-deferred-chunks.tsx"), "utf8");
 const manifestLoaderSource = readFileSync(
-  join(findingsDir, "../../../../lib/operator/load-deferred-chunk-from-manifest.tsx"),
+  join(routeDir, "../../../../lib/operator/load-deferred-chunk-from-manifest.tsx"),
   "utf8",
 );
 
-describe("governance findings deferred imports (TB-2371)", () => {
-  it("keeps GovernanceFindingsQueueClient off page static import graphs", () => {
-    expect(pageSource).not.toContain("./GovernanceFindingsQueueClient");
-    expect(assignedPageSource).not.toContain("../GovernanceFindingsQueueClient");
+describe("governance findings deferred imports (TB-571 / wave 11)", () => {
+  it("keeps GovernanceFindingsQueueClient off the page static import graph", () => {
+    expect(pageSource).not.toContain('import GovernanceFindingsQueueClient from "./GovernanceFindingsQueueClient"');
     expect(pageSource).toContain("GovernanceFindingsQueueClientDeferred");
-    expect(assignedPageSource).toContain("GovernanceFindingsQueueClientDeferred");
     expect(pageSource).not.toContain("next/dynamic");
-    expect(assignedPageSource).not.toContain("next/dynamic");
+    expect(assignedPageSource).toContain("GovernanceFindingsQueueClientDeferred");
   });
 
-  it("dynamic-imports findings queue via manifest loaders", () => {
+  it("dynamic-imports the findings queue client via manifest loaders", () => {
     expect(deferredSource).toContain("createDeferredComponentFromManifest");
-    expect(deferredSource).toContain("governance-findings-queue-client");
+    expect(deferredSource).not.toContain("next/dynamic");
     expect(manifestLoaderSource).toContain(
       'import("@/app/(operator)/governance/findings/GovernanceFindingsQueueClient")',
     );
+    expect(deferredSource).toContain("governance-findings-queue-client");
   });
 });

@@ -3,6 +3,7 @@ import type { DeferredChunkLoadingVariant } from "@/components/ui/deferred-chunk
 import { ALERT_RULES_HUB_CHUNK_MANIFEST } from "@/lib/operator/alert-rules-hub-chunk-manifest";
 import { ALERTS_INBOX_CHUNK_MANIFEST } from "@/lib/operator/alerts-inbox-chunk-manifest";
 import { APP_SHELL_CHUNK_MANIFEST } from "@/lib/operator/app-shell-chunk-manifest";
+import { GOVERNANCE_FINDINGS_CHUNK_MANIFEST } from "@/lib/operator/governance-findings-chunk-manifest";
 import { GOVERNANCE_WORKFLOW_CHUNK_MANIFEST } from "@/lib/operator/governance-workflow-chunk-manifest";
 import { MARKETING_CHUNK_MANIFEST } from "@/lib/operator/marketing-chunk-manifest";
 import { OPERATOR_SHELL_TOP_BAR_CHUNK_MANIFEST } from "@/lib/operator/operator-shell-top-bar-chunk-manifest";
@@ -29,6 +30,7 @@ export const DEFERRED_CHUNK_MANIFEST: readonly DeferredChunkManifestEntry[] = [
   ...REVIEWS_NEW_CHUNK_MANIFEST,
   ...RUN_DETAIL_CHUNK_MANIFEST,
   ...GOVERNANCE_WORKFLOW_CHUNK_MANIFEST,
+  ...GOVERNANCE_FINDINGS_CHUNK_MANIFEST,
   ...POLICY_PACKS_AUTHORING_CHUNK_MANIFEST,
   ...ALERT_RULES_HUB_CHUNK_MANIFEST,
   ...SIGNED_RECORDS_LIST_CHUNK_MANIFEST,
