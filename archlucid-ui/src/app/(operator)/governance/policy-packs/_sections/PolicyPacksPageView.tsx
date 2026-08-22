@@ -29,6 +29,7 @@ import { PolicyPacksPageHeader } from "./PolicyPacksPageHeader";
 import { PolicyPacksRegisteredListSection } from "./PolicyPacksRegisteredListSection";
 import { PolicyPacksWorkspaceSelectionSection } from "./PolicyPacksWorkspaceSelectionSection";
 import { PolicyPacksAdvancedAuthoringPanel } from "./PolicyPacksAdvancedAuthoringPanel";
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorRelatedSurfacesDisclosure } from "@/components/operator/OperatorRelatedSurfacesDisclosure";
 import { LayerHeader } from "@/components/LayerHeader";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
@@ -86,7 +87,7 @@ export function PolicyPacksPageView(props: Props) {
   const enforcedRuleCount = enforcedRuleRows.length;
 
   return (
-    <div className="w-full max-w-[1440px]">
+    <OperatorPageContainer variant="dashboard" className={OPERATOR_LAYOUT.sectionStack}>
       {m.buyerPolishedShell ? <PolicyPackBasisStatusBanner className="mb-3" /> : null}
 
       <PolicyPacksPageHeader
@@ -315,6 +316,6 @@ export function PolicyPacksPageView(props: Props) {
       </Tabs>
 
       {m.buyerPolishedShell ? <PolicyPacksBuyerChrome /> : null}
-    </div>
+    </OperatorPageContainer>
   );
 }

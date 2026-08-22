@@ -12,6 +12,7 @@ import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { Separator } from "@/components/ui/separator";
 import { InlineGuidanceLabel } from "@/components/InlineGuidanceLabel";
 import { GovernanceJobRouterStrip } from "@/components/governance/GovernanceJobRouterStrip";
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -20,7 +21,7 @@ import { useGovernanceReviewContextQuery } from "@/hooks/use-governance-review-c
 import { useGovernanceWorkflowRunListsQuery } from "@/hooks/use-governance-workflow-run-lists-query";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
-import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { DESIGN_TOKENS, OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import {
@@ -538,7 +539,7 @@ export function GovernanceWorkflowPageContent() {
   return (
     <MutationErrorBoundary title="Resolve outcomes workflow failed to render">
     <TooltipProvider delayDuration={300}>
-    <div className="w-full max-w-[1200px]">
+    <OperatorPageContainer variant="workflow" className={OPERATOR_LAYOUT.sectionStack}>
       <OperatorPageHeader
         navHref="/governance/approval-queue"
         title={pageTitle}
@@ -798,7 +799,7 @@ export function GovernanceWorkflowPageContent() {
         activateBusyId={activateBusyId}
         onConfirmActivateFromPromotion={onConfirmActivateFromPromotion}
       />
-    </div>
+    </OperatorPageContainer>
     </TooltipProvider>
     </MutationErrorBoundary>
   );
