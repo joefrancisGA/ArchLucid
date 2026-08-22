@@ -9,6 +9,9 @@ using FluentAssertions;
 
 using Moq;
 
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
+
 namespace ArchLucid.Application.Tests.Runs;
 
 [Trait("Category", "Unit")]
@@ -75,9 +78,11 @@ public sealed class ArchitectureRunArchiveServiceTests
             await service.TryArchiveAsync(runId, CancellationToken.None);
 
         outcome.Should().Be(ArchitectureRunArchiveOutcome.Archived);
-        RunRecord? archived = await runs.GetByIdAsync(scope, runId, CancellationToken.None);
-        archived.Should().NotBeNull();
-        archived!.ArchivedUtc.Should().NotBeNull();
+
+        ArchitectureRunArchiveOutcome secondOutcome =
+            await service.TryArchiveAsync(runId, CancellationToken.None);
+
+        secondOutcome.Should().Be(ArchitectureRunArchiveOutcome.AlreadyArchived);
         captured.Should().NotBeNull();
         captured!.EventType.Should().Be(AuditEventTypes.ArchitectureReviewArchived);
     }
@@ -98,6 +103,7 @@ public sealed class ArchitectureRunArchiveServiceTests
             runs,
             scopeProvider.Object,
             auditService ?? new Mock<IAuditService>().Object,
-            actor.Object);
+            actor.Object,
+            NullLogger<ArchitectureRunArchiveService>.Instance);
     }
 }

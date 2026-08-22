@@ -7,6 +7,8 @@ using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Persistence.Serialization;
 
+using Microsoft.Extensions.Logging;
+
 namespace ArchLucid.Application.Runs;
 
 /// <inheritdoc />
@@ -14,7 +16,8 @@ public sealed class ArchitectureRunArchiveService(
     IRunRepository runRepository,
     IScopeContextProvider scopeContextProvider,
     IAuditService auditService,
-    IActorContext actorContext) : IArchitectureRunArchiveService
+    IActorContext actorContext,
+    ILogger<ArchitectureRunArchiveService> logger) : IArchitectureRunArchiveService
 {
     private readonly IRunRepository _runRepository =
         runRepository ?? throw new ArgumentNullException(nameof(runRepository));
@@ -27,6 +30,9 @@ public sealed class ArchitectureRunArchiveService(
 
     private readonly IActorContext _actorContext =
         actorContext ?? throw new ArgumentNullException(nameof(actorContext));
+
+    private readonly ILogger<ArchitectureRunArchiveService> _logger =
+        logger ?? throw new ArgumentNullException(nameof(logger));
 
     /// <inheritdoc />
     public async Task<ArchitectureRunArchiveOutcome> TryArchiveAsync(Guid runId, CancellationToken cancellationToken)
@@ -55,20 +61,25 @@ public sealed class ArchitectureRunArchiveService(
 
         string actor = _actorContext.GetActor();
 
-        await _auditService.LogAsync(
-            new AuditEvent
-            {
-                EventType = AuditEventTypes.ArchitectureReviewArchived,
-                ActorUserId = _actorContext.GetActorId(),
-                ActorUserName = actor,
-                TenantId = scope.TenantId,
-                WorkspaceId = scope.WorkspaceId,
-                ProjectId = scope.ProjectId,
-                DataJson = JsonSerializer.Serialize(
-                    new { runId = runId.ToString("D") },
-                    AuditJsonSerializationOptions.Instance),
-            },
-            cancellationToken).ConfigureAwait(false);
+        await DurableAuditLogRetry.LogOrThrowAsync(
+            ct => _auditService.LogAsync(
+                new AuditEvent
+                {
+                    EventType = AuditEventTypes.ArchitectureReviewArchived,
+                    ActorUserId = _actorContext.GetActorId(),
+                    ActorUserName = actor,
+                    TenantId = scope.TenantId,
+                    WorkspaceId = scope.WorkspaceId,
+                    ProjectId = scope.ProjectId,
+                    DataJson = JsonSerializer.Serialize(
+                        new { runId = runId.ToString("D") },
+                        AuditJsonSerializationOptions.Instance),
+                },
+                ct),
+            _logger,
+            $"ArchitectureReviewArchived:{runId:D}",
+            cancellationToken,
+            auditEventTypeForMetrics: AuditEventTypes.ArchitectureReviewArchived).ConfigureAwait(false);
 
         return ArchitectureRunArchiveOutcome.Archived;
     }

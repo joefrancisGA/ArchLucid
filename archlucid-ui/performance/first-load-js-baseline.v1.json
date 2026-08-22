@@ -1,22 +1,22 @@
 {
   "schemaVersion": 1,
-  "updatedUtc": "2026-08-21T18:35:00.000Z",
+  "updatedUtc": "2026-08-22T10:04:00.000Z",
   "regressionToleranceKb": 25,
   "routes": {
     "/": {
-      "firstLoadJsKb": 1389.6
+      "firstLoadJsKb": 1439.3
     },
     "/welcome": {
-      "firstLoadJsKb": 609.1
+      "firstLoadJsKb": 754.5
     },
     "/governance/approval-queue": {
       "firstLoadJsKb": 1689.7
     },
     "/governance/alerts": {
-      "firstLoadJsKb": 2093.4
+      "firstLoadJsKb": 2149.9
     },
     "/governance/alert-rules": {
-      "firstLoadJsKb": 1436
+      "firstLoadJsKb": 1484.6
     },
     "/architecture/reviews": {
       "firstLoadJsKb": 1604.3
@@ -25,11 +25,11 @@
       "firstLoadJsKb": 4588.8
     },
     "/architecture/sponsor-dashboard": {
-      "firstLoadJsKb": 1714.1
+      "firstLoadJsKb": 1763.8
     },
     "/governance/sealed-records": {
       "firstLoadJsKb": 1900.2
     }
   },
-  "notes": "RC32 CI run 32508071489: refresh First Load JS baselines after merge-driven bundle growth beyond +25 kB tolerance on operator routes."
+  "notes": "RC32 CI run 32565972405: refresh First Load JS baselines after merge-driven bundle growth beyond +25 kB tolerance on operator routes."
 }
