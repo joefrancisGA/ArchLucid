@@ -102,7 +102,6 @@ export function ClarificationAnswerCapturePanel(
           characters.
         </p>
       </div>
-<<<<<<< HEAD
 
       <ul className="m-0 list-none space-y-4 p-0">
         {props.questions.map((question) => {
@@ -130,49 +129,6 @@ export function ClarificationAnswerCapturePanel(
 
       <Button type="button" disabled={!allAnswersValid || busy} onClick={() => void submitAnswers()}>
         Submit clarification round
-=======
-      <Button
-        type="button"
-        variant="primary"
-        size="sm"
-        disabled={!canSubmit || busy}
-        data-testid="clarification-answer-submit"
-        onClick={() => {
-          void (async () => {
-            setBusy(true);
-            try {
-              const answeredAtUtc = new Date().toISOString();
-              const assumptionEntries = props.questions.map((question) =>
-                formatOperatorAssertedClarificationAnswer({
-                  questionId: question.questionId,
-                  priorRunId: props.runId,
-                  answeredAtUtc,
-                  answer: answers[question.questionId]?.trim() ?? "",
-                }),
-              );
-              const draft = await createDraftRequest(
-                `Follow-up clarifications for review ${props.runId}`,
-                "start-review",
-              );
-              await patchDraftRequest(draft.draftId, {
-                structuredBrief: structuredBriefToPatchPayload({
-                  ...emptyArchitectureDraftStructuredBrief(),
-                  confirmedAssumptions: mergeStructuredBriefAssumptions([], assumptionEntries),
-                }),
-              });
-              const submitted = await submitDraftRequest(draft.draftId);
-              trackReviewPipelineInFlight(submitted.runId);
-              window.location.assign(buildReviewGenerationRedirect(submitted.runId, "socratic-intake"));
-            } catch (error) {
-              showError(error instanceof Error ? error.message : "Could not submit clarifications.");
-            } finally {
-              setBusy(false);
-            }
-          })();
-        }}
-      >
-        Start follow-up review
->>>>>>> origin/master
       </Button>
     </section>
   );

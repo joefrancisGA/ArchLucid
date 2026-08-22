@@ -125,14 +125,10 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
   const exitTimeoutIdRef = useRef<number | null>(null);
   const loadDraftInFlightRef = useRef<Promise<void> | null>(null);
   const syncDraftInFlightRef = useRef<Promise<void> | null>(null);
-<<<<<<< HEAD
   const draftLifecycleRef = useRef<{
     status: DraftRequestResponse["status"] | null;
     spawnedRunId: string | null;
   }>({
-=======
-  const draftLifecycleRef = useRef<{ status: DraftRequestResponse["status"] | null; spawnedRunId: string | null }>({
->>>>>>> 2679aa1d0c (Add governed delete for architecture drafts and archive for in-flight reviews.)
     status: null,
     spawnedRunId: null,
   });
@@ -339,10 +335,7 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
         const prior = draftLifecycleRef.current;
         const nextSpawnedRunId = architectureDraftSpawnedRunId(loaded);
 
-<<<<<<< HEAD
         // Tab focus is frequent; skip a form reset when intake/spawn state did not change.
-=======
->>>>>>> 2679aa1d0c (Add governed delete for architecture drafts and archive for in-flight reviews.)
         if (prior.status === loaded.status && prior.spawnedRunId === nextSpawnedRunId) {
           return;
         }
