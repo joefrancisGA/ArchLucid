@@ -1,5 +1,6 @@
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Runs;
+using ArchLucid.Application.Tests.Architecture;
 using ArchLucid.Application.Tests.Orchestration;
 using ArchLucid.Application.Runs.Coordination;
 using ArchLucid.Application.Runs.Orchestration;

@@ -1,4 +1,5 @@
 import { formatInstantForBuyerGovernance } from "@/lib/locale-datetime";
+import { formatActionActorName } from "@/lib/action-actor-display";
 
 /** Sourced governance approval fields required before the status banner may render. */
 export type GovernanceApprovalProvenance = {
@@ -31,7 +32,7 @@ export function buildGovernanceApprovalProvenanceSummaryLines(
   provenance: GovernanceApprovalProvenance,
 ): readonly string[] {
   return [
-    `Approver: ${provenance.approverLabel.trim()}`,
+    `Approver: ${formatActionActorName(provenance.approverLabel)}`,
     `Approved: ${formatGovernanceApprovalProvenanceTimestamp(provenance.approvedAtUtc)}`,
     `Scope: ${provenance.scopeLabel.trim()}`,
     `Record: ${provenance.recordId.trim()}`,

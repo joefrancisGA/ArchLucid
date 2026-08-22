@@ -129,15 +129,18 @@ export function OperatorBillingWalletPanel() {
     setSaveInlineError(null);
 
     try {
-      const res = await fetch("/api/proxy/v1/billing/wallet", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json", Accept: "application/json" },
-        body: JSON.stringify({
-          autoReplenishEnabled: autoReplenish,
-          monthlyCapUsd,
-          rowVersionBase64: wallet.rowVersionBase64,
+      const res = await fetch(
+        "/api/proxy/v1/billing/wallet",
+        mergeRegistrationScopeForProxy({
+          method: "PUT",
+          headers: { "Content-Type": "application/json", Accept: "application/json" },
+          body: JSON.stringify({
+            autoReplenishEnabled: autoReplenish,
+            monthlyCapUsd,
+            rowVersionBase64: wallet.rowVersionBase64,
+          }),
         }),
-      });
+      );
 
       if (res.status === 409) {
         showError("AI usage credit settings could not be saved because another update happened first. Refresh and try again.");

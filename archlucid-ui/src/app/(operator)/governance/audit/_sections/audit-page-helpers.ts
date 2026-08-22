@@ -1,7 +1,6 @@
 import {
   auditBuyerEventIsSystemRecordedActor,
 } from "@/app/(operator)/governance/audit/audit-ui-helpers";
-import { buyerSafeActorDisplayName } from "@/lib/buyer/buyer-demo-persona-labels";
 import { buyerFacingReviewLinkLabelFromRunId } from "@/lib/buyer/buyer-facing-review-title";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
@@ -79,12 +78,6 @@ export function auditBuyerActorRoleLine(actorName: string, eventType: string): s
 
   if (auditBuyerEventIsSystemRecordedActor(name)) {
     return "Automatically recorded";
-  }
-
-  const roleFromScriptedName = buyerSafeActorDisplayName(name, eventType);
-
-  if (roleFromScriptedName !== name) {
-    return roleFromScriptedName;
   }
 
   if (eventType.trim().toLowerCase() === "finalize.run") {

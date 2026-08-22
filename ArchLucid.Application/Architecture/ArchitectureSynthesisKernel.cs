@@ -81,7 +81,6 @@ public sealed class ArchitectureSynthesisKernel(
         if (existing is null)
             await _requestRepository.CreateAsync(request, cancellationToken);
 
-        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
         Guid runGuid = Guid.NewGuid();
         DateTime createdUtc = _timeProvider.GetUtcNow().UtcDateTime;
         string projectSlug = string.IsNullOrWhiteSpace(request.SystemName)

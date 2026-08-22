@@ -10,6 +10,7 @@ import {
   governanceLineageReviewCheckpointStatusTagPresentation,
   type GovernanceLineageSpineStep,
 } from "@/lib/governance/governance-lineage-presentation";
+import { formatActionActorName } from "@/lib/action-actor-display";
 import type { GovernanceLineageResult } from "@/types/governance-dashboard";
 
 type GovernanceApprovalLineageSpineProps = {
@@ -39,9 +40,7 @@ function buildSpineSteps(data: GovernanceLineageResult): readonly GovernanceLine
   steps.push({
     id: "governance-approval",
     title: "Resolve outcomes",
-    detail: data.approvalRequest.reviewedBy
-      ? `Reviewed by ${data.approvalRequest.reviewedBy}`
-      : "Awaiting reviewer action",
+    detail: `Reviewed by ${formatActionActorName(data.approvalRequest.reviewedBy)}`,
     statusTag: approvalStatus,
   });
 
@@ -51,7 +50,7 @@ function buildSpineSteps(data: GovernanceLineageResult): readonly GovernanceLine
     steps.push({
       id: "promotion",
       title: "Promotion",
-      detail: `Promoted by ${latestPromotion.promotedBy}`,
+      detail: `Promoted by ${formatActionActorName(latestPromotion.promotedBy)}`,
       statusTag: { kind: "approved", label: "Recorded" },
     });
   } else {

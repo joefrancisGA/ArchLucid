@@ -11,6 +11,7 @@ import {
   formatGovernanceApprovalProvenanceTimestamp,
   type GovernanceApprovalProvenance,
 } from "@/lib/governance/governance-approval-provenance";
+import { formatActionActorName } from "@/lib/action-actor-display";
 import type { StandardsRulesGovernanceBannerHrefs } from "@/lib/governance/governance-resolution-page-presentation";
 import { STANDARDS_RULES_INLINE_LINK_CLASS } from "@/lib/standards-rules-table-presentation";
 import { DESIGN_TOKENS, OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -26,7 +27,7 @@ export type StandardsRulesGovernanceStatusBannerProps = {
 /** Compact governance context for Standards & rules — banner actions share table link typography. */
 export function StandardsRulesGovernanceStatusBanner(props: StandardsRulesGovernanceStatusBannerProps) {
   const { className, subjectLabel, provenance, hrefs } = props;
-  const approverLabel = provenance.approverLabel.trim();
+  const approverLabel = formatActionActorName(provenance.approverLabel);
   const approvedAtLabel = formatGovernanceApprovalProvenanceTimestamp(provenance.approvedAtUtc);
   const recordId = provenance.recordId.trim();
 
