@@ -623,6 +623,8 @@ describe("contextual-help-registry (TB-733)", () => {
     );
     expect(contextualHelpForPathname("/governance/findings")?.taskSteps?.length).toBeGreaterThanOrEqual(3);
     expect(contextualHelpForPathname("/insights/evidence-graph")?.taskSteps?.length).toBeGreaterThanOrEqual(3);
+    expect(contextualHelpForPathname("/architecture/reviews")?.taskSteps?.length).toBeGreaterThanOrEqual(3);
+    expect(contextualHelpForPathname("/architecture/digests")?.taskSteps?.length).toBeGreaterThanOrEqual(3);
   });
 
   it("forbids internal routes, API paths, and TB labels in registry copy", () => {
