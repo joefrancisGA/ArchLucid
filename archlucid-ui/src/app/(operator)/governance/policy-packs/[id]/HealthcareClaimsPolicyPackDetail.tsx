@@ -100,7 +100,7 @@ export function HealthcareClaimsPolicyPackDetail(props: HealthcareClaimsPolicyPa
             <div>
               <dt className={cn("font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>Operational readiness</dt>
               <dd className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
-                Aligns monitoring hooks with drift alerts visible on the governance findings queue.
+                Aligns monitoring hooks with drift alerts visible on the findings queue.
               </dd>
             </div>
           </dl>

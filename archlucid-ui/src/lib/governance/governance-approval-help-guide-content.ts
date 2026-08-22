@@ -18,7 +18,7 @@ export const GOVERNANCE_APPROVAL_HELP_PAGE_SUBTITLE =
   "Learn how architecture work moves from submission to approval, revision, or rejection.";
 
 export const GOVERNANCE_APPROVAL_HELP_OVERVIEW =
-  "Resolve outcomes connects a finalized architecture review to an auditable decision. Solution architects submit work for review, governance approvers record decisions, and supporting evidence stays linked for diligence and audit.";
+  "Resolve outcomes connects a finalized architecture review to an auditable decision. Solution architects submit work for review, approval leads record decisions, and supporting evidence stays linked for diligence and audit.";
 
 export const GOVERNANCE_APPROVAL_HELP_ACTION_CARD_TITLE = "Record or track an approval";
 
@@ -95,10 +95,10 @@ export const GOVERNANCE_APPROVAL_HELP_ROLES: readonly GovernanceApprovalHelpRole
   },
   {
     id: "governance-approver",
-    title: "Governance approver",
+    title: "Approval lead",
     description: "Review evidence, assess findings, request changes, and record a decision.",
     tasks: [
-      "Open pending requests from the governance dashboard or the review workflow.",
+      "Open pending requests from the workspace health or the review workflow.",
       "Inspect findings, policy results, and linked evidence for the review.",
       "Confirm policy requirements and segregation-of-duties rules are satisfied.",
       "Approve or reject the request and add decision rationale in review comments.",
@@ -152,8 +152,8 @@ export const GOVERNANCE_APPROVAL_HELP_STATUS_ROWS: readonly GovernanceApprovalHe
   {
     status: "Submitted",
     kind: "in-progress",
-    meaning: "The request is in the governance queue awaiting a reviewer decision.",
-    whoCanAct: "Governance approvers with review permission.",
+    meaning: "The request is in the approval queue awaiting a reviewer decision.",
+    whoCanAct: "Approval leads with review permission.",
     nextAction: "Open the request, inspect evidence, and approve or reject.",
   },
   {
@@ -181,7 +181,7 @@ export const GOVERNANCE_APPROVAL_HELP_STATUS_ROWS: readonly GovernanceApprovalHe
     status: "Activated",
     kind: "ready",
     meaning: "The finalized review record version is live for the target environment.",
-    whoCanAct: "Readers with governance or audit access.",
+    whoCanAct: "Readers with approval or audit access.",
     nextAction: "Use the audit trail and findings to confirm ongoing posture.",
   },
 ] as const;
@@ -225,7 +225,7 @@ export const GOVERNANCE_APPROVAL_HELP_PREREQUISITES = [
   "Blocking findings are resolved, remediated, or explicitly accepted with disposition.",
   "Supporting evidence is attached where your policy requires it.",
   "You have submission permission for the review (Execute rank when enterprise controls apply).",
-  "Governance approvers and environment paths are configured for your organization.",
+  "Approval leads and environment paths are configured for your organization.",
 ] as const;
 
 export type GovernanceApprovalHelpDecisionOutcome = {
@@ -272,7 +272,7 @@ export type GovernanceApprovalHelpCommonAction = {
 export const GOVERNANCE_APPROVAL_HELP_COMMON_ACTIONS: readonly GovernanceApprovalHelpCommonAction[] = [
   {
     label: "Audit",
-    description: "Open immutable governance and workflow audit events.",
+    description: "Open immutable approval and workflow audit events.",
     href: GOVERNANCE_AUDIT_PATH,
   },
   {
@@ -379,7 +379,7 @@ export const GOVERNANCE_APPROVAL_HELP_GUIDE_HEADINGS: readonly HelpMarkdownHeadi
   { level: 2, id: "governance-workflow", title: "Resolve outcomes workflow" },
   { level: 2, id: "role-guides", title: "Role guides" },
   { level: 3, id: "solution-architect", title: "Solution architect" },
-  { level: 3, id: "governance-approver", title: "Governance approver" },
+  { level: 3, id: "governance-approver", title: "Approval lead" },
   { level: 3, id: "security-reviewer", title: "Security or procurement reviewer" },
   { level: 3, id: "platform-engineer", title: "Platform engineer" },
   { level: 2, id: "statuses", title: "Statuses" },

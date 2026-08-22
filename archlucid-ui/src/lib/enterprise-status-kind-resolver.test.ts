@@ -38,7 +38,7 @@ describe("resolveEnterpriseStatusKind (TB-2285)", () => {
       ["Failed", "blocked"],
       ["Not required", "neutral"],
       ["Withdrawn", "neutral"],
-      ["No governance decision recorded", "neutral"],
+      ["No approval decision recorded", "neutral"],
     ] as const)("maps governance label %s → %s", (label, kind) => {
       expect(resolveEnterpriseStatusKind(label, "governance")).toBe(kind);
     });

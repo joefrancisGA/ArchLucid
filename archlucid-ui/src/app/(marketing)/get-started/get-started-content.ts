@@ -93,7 +93,7 @@ export const GET_STARTED_REVIEW_OUTPUTS = [
   },
   {
     title: "Audit history",
-    description: "A record of significant review and governance actions.",
+    description: "A record of significant review and approval actions.",
   },
   {
     title: "Sponsor report",

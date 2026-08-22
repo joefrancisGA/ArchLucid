@@ -60,7 +60,7 @@ export const TEAMS_NOTIFICATION_CATEGORIES: readonly TeamsNotificationCategory[]
       {
         eventType: "com.archlucid.governance.approval.submitted",
         label: "Approval requested",
-        description: "A governance decision requires review or approval.",
+        description: "An approval decision requires review or approval.",
         recommended: true,
       },
       {

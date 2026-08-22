@@ -52,7 +52,7 @@ export const GOVERNANCE_OVERVIEW_BACK_ACTION = "Back to governance overview";
 export const GOVERNANCE_OVERVIEW_SUMMARY_HEADING = "Governance summary";
 
 export const GOVERNANCE_OVERVIEW_SUMMARY_SCOPE_LINE =
-  "Workspace-scoped counts from governance dashboard and decisions-needed APIs.";
+  "Workspace-scoped counts from workspace health and decisions-needed APIs.";
 
 export const GOVERNANCE_OVERVIEW_SUMMARY_AUTHORITY_LINE =
   "Requesters cannot approve their own reviews (segregation of duties).";

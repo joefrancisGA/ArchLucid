@@ -25,7 +25,7 @@ const GOVERNANCE_POLICY_PACKS_HUB_CONTEXTUAL_HELP = {
 
 const GOVERNANCE_AUDIT_HUB_CONTEXTUAL_HELP = {
   whatIsThisPage:
-    "Search and export workspace audit events for reviews, governance actions, and integrity checks in this workspace.",
+    "Search and export workspace audit events for reviews, approval actions, and integrity checks in this workspace.",
   whatToDoNext:
     "Filter by review or action, refresh the trail, then export or open the related architecture review when needed.",
   whyEmpty: "Events appear after architects take actions that the audit coverage matrix records.",

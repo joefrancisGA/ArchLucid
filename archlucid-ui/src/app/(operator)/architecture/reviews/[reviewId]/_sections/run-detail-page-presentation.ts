@@ -323,7 +323,7 @@ export async function buildRunDetailPresentation(
   const governanceDecisionLabel =
     (model.resolvedDetail.run.operatorGovernanceDecision ?? "").trim().length > 0
       ? (model.resolvedDetail.run.operatorGovernanceDecision ?? "").trim()
-      : model.governanceGateLabel ?? "No governance decision recorded";
+      : model.governanceGateLabel ?? "No approval decision recorded";
 
   const finalizedAtUtc = deriveFinalizedAtUtc(model.resolvedDetail.run, model.manifestSummary, model.manifestId);
   const lastEvaluatedUtc = deriveLastEvaluatedLabel(model.resolvedDetail.run, model.manifestSummary);

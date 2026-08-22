@@ -163,7 +163,7 @@ export const ALERTS_HELP_RELATED_CONCEPTS = [
   },
   {
     title: "Audit trail",
-    description: "Trace who acknowledged, assigned, and resolved governance actions across this workspace.",
+    description: "Trace who acknowledged, assigned, and resolved approval actions across this workspace.",
     href: inAppHelpHref("audit-trail"),
     linkLabel: "Open audit trail help",
   },

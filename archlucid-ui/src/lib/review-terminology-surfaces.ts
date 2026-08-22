@@ -131,7 +131,7 @@ export const REVIEW_TERMINOLOGY_BANNED_PACKAGE_PATTERNS: readonly string[] = [
   "finalized review package",
   "completed review package",
   "sample review package",
-  "governance evidence package",
+  "approval evidence package",
   "sponsor briefing package",
   "proof package",
   "diligence package",

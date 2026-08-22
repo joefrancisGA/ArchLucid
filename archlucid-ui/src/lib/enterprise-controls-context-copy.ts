@@ -43,10 +43,10 @@ export const enterpriseNavHintOperatorRank = "";
  * `LayerHeader` rank-aware line under `enterpriseFootnote` on Enterprise Controls pages (same threshold as nav hints:
  * below Execute → reader framing).
  */
-export const layerHeaderEnterpriseReaderRankLine = "Governance controls — inspect view.";
+export const layerHeaderEnterpriseReaderRankLine = "Approval controls — inspect view.";
 
 export const layerHeaderEnterpriseOperatorRankLine =
-  "Governance controls record who submitted, reviewed, and approved architecture reviews in this workspace.";
+  "Approval controls record who submitted, reviewed, and approved architecture reviews in this workspace.";
 
 /** Deep execute tooling: only when resolved rank is below Execute (e.g. Reader deep-linked) */
 export const enterpriseExecutePageHintReaderRank = "Writes need elevated permissions in this workspace.";

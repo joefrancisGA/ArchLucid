@@ -20,7 +20,7 @@ export type FirstPilotOperatingRailShellCopy = {
 const OPERATOR_SHELL_COPY: FirstPilotOperatingRailShellCopy = {
   heading: "Full operating path",
   intro:
-    "Six steps from setup verification to a finalized review. Operate compare, governance dashboards, and future connectors stay secondary until you have a finalized review.",
+    "Six steps from setup verification to a finalized review. Operate compare, approval dashboards, and future connectors stay secondary until you have a finalized review.",
   showHeaderHelpLink: true,
   headerHelpSlug: "first-architecture-review",
   headerHelpLabel: "Architecture review walkthrough",

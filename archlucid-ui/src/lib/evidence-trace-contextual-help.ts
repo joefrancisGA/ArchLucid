@@ -20,5 +20,5 @@ export const EVIDENCE_TRACE_CONTEXTUAL_HELP = {
     "Review the evidence region, go back to the finding to resolve it, or open review provenance to see the full evidence path.",
   whyEmpty: "Trace content appears after the finding payload loads for this review.",
   whereToConfigurePrerequisite:
-    "Open a finding from a review or the governance findings queue before drilling into its evidence trace.",
+    "Open a finding from a review or the findings queue before drilling into its evidence trace.",
 } as const;

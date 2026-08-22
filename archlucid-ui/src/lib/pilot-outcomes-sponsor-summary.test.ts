@@ -52,6 +52,6 @@ describe("buildPilotOutcomesSponsorNarrative", () => {
 
     expect(narrative).toContain("1 architecture review");
     expect(narrative).toContain("1 finding");
-    expect(narrative).toContain("1 governance decision");
+    expect(narrative).toContain("1 approval decision");
   });
 });

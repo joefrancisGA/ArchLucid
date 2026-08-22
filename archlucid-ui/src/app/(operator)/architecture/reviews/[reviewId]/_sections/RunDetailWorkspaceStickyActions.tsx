@@ -87,7 +87,7 @@ export function RunDetailWorkspaceStickyActions(
           </div>
         ) : props.manifestId && activeTab !== "decisions-remediation" ? (
           <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-            Ready to record a governance decision?{" "}
+            Ready to record an approval decision?{" "}
             <Link
               className={OPERATOR_LINK.nav}
               href={`/governance/approval-queue?runId=${encodeURIComponent(props.runId)}#governance-approval-requests`}

@@ -15,7 +15,7 @@ export const BUYER_AUDIT_PACKAGE_READY_LEAD =
 export const BUYER_AUDIT_SYSTEM_EVENTS_EXPLANATION =
   "System-recorded events capture automated lifecycle steps.";
 
-export const BUYER_AUDIT_DOWNLOAD_CTA = "Download governance evidence bundle";
+export const BUYER_AUDIT_DOWNLOAD_CTA = "Download approval evidence bundle";
 
 export const BUYER_AUDIT_ENTERPRISE_WORKSPACE_LEAD =
   "When your team is ready for tenant-backed architecture reviews, procurement and workspace onboarding use a separate request flow.";
@@ -26,4 +26,4 @@ export const BUYER_AUDIT_ENTERPRISE_WORKSPACE_FOLLOWUP =
 export const BUYER_AUDIT_REFERENCE_ID_LABEL = "Reference ID";
 
 export const AUDIT_TRAIL_INTEGRITY_NOTE =
-  "Append-only audit trail — every create, finalize, governance decision, and export is recorded with actor, action type, and timestamp. Filter or sort below to inspect the complete event timeline.";
+  "Append-only audit trail — every create, finalize, approval decision, and export is recorded with actor, action type, and timestamp. Filter or sort below to inspect the complete event timeline.";

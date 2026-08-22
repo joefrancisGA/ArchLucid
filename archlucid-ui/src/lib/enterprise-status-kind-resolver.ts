@@ -76,7 +76,7 @@ function resolveGovernanceStatusKind(display: string): EnterpriseStatusKind | nu
 
     case "withdrawn":
     case "not required":
-    case "no governance decision recorded":
+    case "no approval decision recorded":
       return "neutral";
 
     default:

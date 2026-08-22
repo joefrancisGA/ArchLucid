@@ -15,7 +15,7 @@ export const APPROVAL_QUEUE_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow
         `Resolve outcomes queue — submit, approve, or reject architecture-review decisions for this workspace (${APPROVAL_QUEUE_HELP_TOPIC_LABEL.toLowerCase()}).`,
       whatToDoNext:
         "Load a review context, submit an approval request when ready, then approve or reject with an audit-friendly comment.",
-      whyEmpty: "Pending requests appear after a finalized architecture review is submitted for governance decision.",
+      whyEmpty: "Pending requests appear after a finalized architecture review is submitted for approval decision.",
       whereToConfigurePrerequisite:
         "Open Findings or Workspace health when you need triage or KPI context before deciding.",
       whatToDoNextAction: {

@@ -298,7 +298,7 @@ const LAYER_GUIDANCE_BUYER_POLISH_PARTIAL: Partial<
   audit: {
     headline: "Audit trail for finalized review activity.",
     useWhen:
-      "See who acted, when, and why — filter when needed; download the governance evidence bundle when ready.",
+      "See who acted, when, and why — filter when needed; download the approval evidence bundle when ready.",
     firstPilotNote: null,
     enterpriseFootnote:
       "Audit exports are available only to authorized audit or workspace administrators.",
@@ -336,7 +336,7 @@ const LAYER_GUIDANCE_BUYER_POLISH_PARTIAL: Partial<
     firstPilotNote: null,
   },
   "governance-workflow": {
-    headline: "Governance overview and review-scoped approval workflow.",
+    headline: "Approval overview and review-scoped approval workflow.",
     useWhen:
       "Start here for workspace governance status, then load a review to inspect or advance its approval path.",
     firstPilotNote: null,

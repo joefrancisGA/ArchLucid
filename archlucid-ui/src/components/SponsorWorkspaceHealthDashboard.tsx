@@ -429,7 +429,7 @@ export function SponsorWorkspaceHealthDashboard() {
               {executiveWorkspaceHealthKpiTitle("approvalSla", buyerPolishedShell)}
             </h2>
             <p className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-              Derived from governance dashboard pending approvals and recent terminal decisions.
+              Derived from workspace health pending approvals and recent terminal decisions.
             </p>
             <ul className={cn("m-0 mt-2 list-none space-y-1 p-0 text-neutral-800 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.body)}>
               <li>Pending (sample cap): {dashboard.pendingCount}</li>

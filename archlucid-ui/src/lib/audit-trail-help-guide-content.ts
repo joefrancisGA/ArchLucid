@@ -164,7 +164,7 @@ export const AUDIT_TRAIL_HELP_ROLE_GUIDANCE: readonly AuditTrailHelpRoleGuidance
 ] as const;
 
 export const AUDIT_TRAIL_HELP_LIVE_VS_HELP_BODY =
-  "This page explains audit trail concepts and immutability posture. Open audit trail from the header or governance navigation when you need searchable, filterable events and CSV export from your workspace.";
+  "This page explains audit trail concepts and immutability posture. Open audit trail from the header or approval navigation when you need searchable, filterable events and CSV export from your workspace.";
 
 /** TB-1250 / TB-1387: buyer audit trail help must not deep-link eng API contracts in primary copy. */
 export const AUDIT_TRAIL_HELP_RELATED_PRODUCT_DOCS = {

@@ -186,7 +186,7 @@ export function deriveRecommendedWorkspaceActions(input: {
       title: "Request approval",
       reason: "Resolve outcomes have not been recorded for this finalized review.",
       relatedFindingCount: null,
-      ownerOrRole: "Governance approver",
+      ownerOrRole: "Approval lead",
       href: `/governance/approval-queue?runId=${encodeURIComponent(input.runId)}`,
       actionLabel: "Record decision",
     });

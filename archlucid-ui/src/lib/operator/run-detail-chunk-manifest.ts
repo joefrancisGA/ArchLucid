@@ -456,7 +456,7 @@ export const RUN_DETAIL_CHUNK_MANIFEST: readonly DeferredChunkManifestEntry[] = 
   },
   {
     id: "run-detail-governance-decision-section",
-    label: "Loading governance decision",
+    label: "Loading approval decision",
     variant: "panel",
     modulePath: "@/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailGovernanceDecisionSection",
     exportName: "RunDetailGovernanceDecisionSection",
