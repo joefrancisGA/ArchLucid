@@ -38,7 +38,7 @@ export const ADVISORY_RECURRENCE_SCHEDULE_HEADING =
   "Advisory and recurrence schedules serve different purposes" as const;
 
 export const ADVISORY_RECURRENCE_SCHEDULE_WHY_TWO =
-  "Advisory schedules automate recurring advisory scans that surface governance findings on architecture packages. Recurrence schedules automate re-review of architecture reviews on a repeating cadence. Both are schedules, but one runs advisory scans and the other starts follow-up reviews — open the peer link when you need the other kind." as const;
+  "Advisory schedules automate recurring advisory scans that surface policy findings on architecture packages. Recurrence schedules automate re-review of architecture reviews on a repeating cadence. Both are schedules, but one runs advisory scans and the other starts follow-up reviews — open the peer link when you need the other kind." as const;
 
 export const ADVISORY_RECURRENCE_SCHEDULE_COMPACT_LINE =
   "Advisory schedules run scans; recurrence schedules re-review architecture reviews." as const;
@@ -47,7 +47,7 @@ export const ADVISORY_RECURRENCE_SCHEDULE_ADVISORY_LINK: AdvisoryRecurrenceSched
   id: "advisory-schedules",
   label: "Advisory schedules",
   href: ADVISORY_SCANS_SCHEDULES_HREF,
-  whenToUse: "Automate recurring advisory scans for governance findings.",
+  whenToUse: "Automate recurring advisory scans for policy findings.",
 };
 
 export const ADVISORY_RECURRENCE_SCHEDULE_RECURRENCE_LINK: AdvisoryRecurrenceScheduleLink = {

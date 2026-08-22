@@ -6,7 +6,7 @@ export const slackIntegrationEventCatalog = [
   {
     id: "archlucid.alert.recorded",
     label: "Alert created",
-    description: "Sent when a new governance alert is recorded.",
+    description: "Sent when a new alert is recorded.",
   },
   {
     id: "archlucid.alert.acknowledged",

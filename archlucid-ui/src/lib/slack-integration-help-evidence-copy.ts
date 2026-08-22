@@ -11,7 +11,7 @@ export const SLACK_INTEGRATION_HELP_CANONICAL_PATH = "/help/slack-integration" a
 export const SLACK_INTEGRATION_HELP_CLAIM_DISCIPLINE_HEADING = "What this guide does not cover";
 
 export const SLACK_INTEGRATION_HELP_CLAIM_DISCIPLINE =
-  "This guide explains Slack incoming-webhook destinations for alerts. It does not cover Slack app installation or workspace admin, per-channel Slack permissions, delivery retry guarantees, or which governance events fire — those live on Alert rules and in Slack admin.";
+  "This guide explains Slack incoming-webhook destinations for alerts. It does not cover Slack app installation or workspace admin, per-channel Slack permissions, delivery retry guarantees, or which alert events fire — those live on Alert rules and in Slack admin.";
 
 export const SLACK_INTEGRATION_HELP_FOLLOW_UPS_TITLE = "Where to go next";
 
@@ -22,7 +22,7 @@ export const SLACK_INTEGRATION_HELP_SOURCES: readonly EvidenceSourceLinkWithWhen
   {
     label: "Alert rules",
     href: GOVERNANCE_ALERT_RULES_PATH,
-    when: "Change which governance events fire Slack notifications",
+    when: "Change which alert events fire Slack notifications",
   },
   {
     label: "Integration readiness",

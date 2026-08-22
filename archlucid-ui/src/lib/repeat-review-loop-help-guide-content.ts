@@ -9,7 +9,7 @@ export const REPEAT_REVIEW_LOOP_HELP_PREREQUISITE_DETAIL =
   "Prerequisite: One successful Core Pilot finalize.";
 
 export const REPEAT_REVIEW_LOOP_HELP_PAGE_SUBTITLE =
-  "After the first finalized architecture review: compare, replay, governance dry-runs, and second-review proof checklist.";
+  "After the first finalized architecture review: compare, replay, policy dry-runs, and second-review proof checklist.";
 
 export const REPEAT_REVIEW_LOOP_HELP_PAGE_SUBTITLE_BUYER =
   "Compare, replay, and prove value after your first finalized review.";

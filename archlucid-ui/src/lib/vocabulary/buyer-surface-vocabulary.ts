@@ -107,7 +107,7 @@ export const BUYER_SPONSOR_SUMMARY_VOCABULARY = {
     },
     {
       title: "Decisions recorded",
-      description: "Approvals, deferrals, and governance outcomes",
+      description: "Approvals, deferrals, and approval outcomes",
     },
     {
       title: "Estimated savings",

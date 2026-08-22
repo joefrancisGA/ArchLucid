@@ -140,7 +140,7 @@ export const CORE_PILOT_HELP_DEFERRED_ITEMS: readonly CorePilotHelpDeferredItem[
   },
   {
     title: "Advanced policy packs",
-    description: "Add when governance templates are in scope for the pilot — not required for first value.",
+    description: "Add when policy templates are in scope for the pilot — not required for first value.",
   },
   {
     title: "ITSM and chat connectors",

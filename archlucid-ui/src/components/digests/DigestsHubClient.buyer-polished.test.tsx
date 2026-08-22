@@ -78,7 +78,7 @@ describe("DigestsHubClient buyer-polished shell", () => {
     expect(await screen.findByText(DIGESTS_BROWSE_PAGE_SUBTITLE_BUYER)).toBeInTheDocument();
     expect(
       screen.queryByText(
-        "Send scheduled summaries of review activity, governance signals, findings, and advisory scans.",
+        "Send scheduled summaries of review activity, approval signals, findings, and advisory scans.",
       ),
     ).not.toBeInTheDocument();
     // Setup-incomplete browse collapses the privacy note behind the get-started checklist.

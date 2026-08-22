@@ -49,7 +49,7 @@ export const ALERTS_FINDINGS_ALERTS_LINK: AlertsFindingsLink = {
   id: "alerts-inbox",
   label: "Alerts inbox",
   href: GOVERNANCE_ALERTS_PATH,
-  whenToUse: "Acknowledge or resolve raised governance notifications.",
+  whenToUse: "Acknowledge or resolve raised alerts.",
 };
 
 export const ALERTS_FINDINGS_FINDINGS_LINK: AlertsFindingsLink = {

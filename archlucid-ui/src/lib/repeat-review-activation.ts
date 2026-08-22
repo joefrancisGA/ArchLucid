@@ -50,7 +50,7 @@ export function resolveRepeatReviewActivation(input: {
     return {
       headline: "Plan your second committed review",
       summary:
-        "The first proof export is the baseline. A follow-up review shows progress when you compare against the prior manifest, replay authority for regressions, or tighten governance dry-runs before enforce.",
+        "The first proof export is the baseline. A follow-up review shows progress when you compare against the prior manifest, replay authority for regressions, or tighten policy dry-runs before enforce.",
       primaryHref: priorRunId.length > 0 ? secondReviewFromPriorHref(priorRunId) : "/architecture/reviews/new",
       primaryCta: "Start next review",
       actions: [

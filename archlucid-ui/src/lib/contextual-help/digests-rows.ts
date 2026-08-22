@@ -12,7 +12,7 @@ import {
 
 const DIGESTS_HUB_CONTEXTUAL_HELP: PageContextualHelpEntry = {
   whatIsThisPage:
-    "Send scheduled summaries of review activity, governance signals, findings, and advisory scans.",
+    "Send scheduled summaries of review activity, approval signals, findings, and advisory scans.",
   whatToDoNext: "Open the Schedule tab to set timing and recipients, then preview or send a test digest.",
   whyEmpty: "Generated digests appear here after a schedule and recipients are configured.",
   whereToConfigurePrerequisite:

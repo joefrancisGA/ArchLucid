@@ -146,7 +146,7 @@ export function deriveRoiSummaryConfidence(input: RoiSummaryPeriodInput): RoiSum
     return {
       level: "low",
       label: "Low confidence",
-      completenessLabel: "Findings or governance signals are still sparse",
+      completenessLabel: "Findings or approval signals are still sparse",
     };
   }
 
@@ -161,7 +161,7 @@ export function deriveRoiSummaryConfidence(input: RoiSummaryPeriodInput): RoiSum
   return {
     level: "good",
     label: "Good confidence",
-    completenessLabel: "Finalized findings and governance signals in period",
+    completenessLabel: "Finalized findings and approval signals in period",
   };
 }
 
@@ -192,7 +192,7 @@ export function deriveRoiSummaryDataNeeds(
       met: findingsCounted > 0,
     },
     {
-      label: "Governance block or review-time baseline",
+      label: "Approval-check block or review-time baseline",
       met: blocksCounted > 0 || hours > 1e-9,
     },
     {
@@ -292,7 +292,7 @@ export function interpretRoiSummaryMeaning(
   options?: { readonly isDefaultRate?: boolean; readonly demoDerived?: boolean },
 ): string {
   if (metrics.hours <= 1e-9) {
-    return "ArchLucid needs finalized reviews before it can estimate review-time savings for this period. Complete a review or add governance signals to unlock a directional value estimate.";
+    return "ArchLucid needs finalized reviews before it can estimate review-time savings for this period. Complete a review or add approval signals to unlock a directional value estimate.";
   }
 
   const hoursLabel = formatHours(metrics.hours);

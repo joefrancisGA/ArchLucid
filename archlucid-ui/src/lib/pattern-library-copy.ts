@@ -2,10 +2,10 @@
 export const PATTERN_LIBRARY_PAGE_TITLE = "Pattern library";
 
 export const PATTERN_LIBRARY_PAGE_SUBTITLE =
-  "Explore anonymized architecture patterns, adoption signals, domains, platforms, risks, and governance outcomes.";
+  "Explore anonymized architecture patterns, adoption signals, domains, platforms, risks, and approval outcomes.";
 
 export const PATTERN_LIBRARY_PAGE_SUBTITLE_BUYER =
-  "Anonymized architecture patterns with adoption, risk, and governance signals.";
+  "Anonymized architecture patterns with adoption, risk, and approval signals.";
 
 export function patternLibraryPageSubtitle(buyerPolishedShell: boolean): string {
   return buyerPolishedShell ? PATTERN_LIBRARY_PAGE_SUBTITLE_BUYER : PATTERN_LIBRARY_PAGE_SUBTITLE;
@@ -74,4 +74,4 @@ export const PATTERN_LIBRARY_NAV_UNAVAILABLE_TITLE =
   "Unlocks when anonymized pattern statistics meet the minimum tenant threshold across finalized reviews.";
 
 export const PATTERN_LIBRARY_WHAT_IS_PATTERN =
-  "A pattern is a recurring architecture shape ArchLucid observes across anonymized reviews — with adoption, risk, and governance signals to help you compare options.";
+  "A pattern is a recurring architecture shape ArchLucid observes across anonymized reviews — with adoption, risk, and approval signals to help you compare options.";

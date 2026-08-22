@@ -20,7 +20,7 @@ export const SYSTEM_HEALTH_SOURCES_INTRO =
 export const SYSTEM_HEALTH_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Connection status", href: "/administration/connection-status" },
   { label: "Architecture digests", href: DIGESTS_HUB_PATH },
-  { label: "Governance audit", href: GOVERNANCE_AUDIT_PATH },
+  { label: "Audit trail", href: GOVERNANCE_AUDIT_PATH },
   { label: "Troubleshooting help", href: inAppHelpHref("troubleshooting") },
   { label: "How ArchLucid works", href: inAppHelpHref("getting-started", "how-archlucid-works") },
 ] as const;

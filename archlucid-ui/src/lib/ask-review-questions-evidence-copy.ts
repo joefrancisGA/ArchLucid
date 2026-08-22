@@ -17,6 +17,6 @@ export const ASK_REVIEW_QUESTIONS_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Architecture reviews", href: REVIEWS_LIST_PATH },
   { label: "Evidence graph", href: "/insights/evidence-graph" },
   { label: "Search review evidence", href: "/insights/search-review-evidence" },
-  { label: "Governance findings", href: GOVERNANCE_FINDINGS_PATH },
+  { label: "Findings queue", href: GOVERNANCE_FINDINGS_PATH },
   { label: "Evidence trail help", href: inAppHelpHref("evidence-trail") },
 ] as const;

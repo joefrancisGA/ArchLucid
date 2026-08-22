@@ -17,7 +17,7 @@ export const WHY_MARKET_LANDSCAPE_MARKETING_ROWS: readonly WhyMarketLandscapeMar
     githubCopilotAdHocArchitecture: "Typical fit: per-seat developer tooling billed for IDE assistance.",
     manualChatgptClaude: "Typical fit: conversational assist with unstructured outputs and manual prompting.",
     structurizrWithAssist:
-      "Typical fit: modeling and diagram DSL with optional SaaS tiers; packaged governance evidence varies by rollout.",
+      "Typical fit: modeling and diagram DSL with optional SaaS tiers; packaged approval evidence varies by rollout.",
   },
   {
     dimension: "AI capability",
@@ -29,12 +29,12 @@ export const WHY_MARKET_LANDSCAPE_MARKETING_ROWS: readonly WhyMarketLandscapeMar
       "Typical fit: architecture modeling views; analytical depth tied to authored models and integrations.",
   },
   {
-    dimension: "Governance & audit posture",
+    dimension: "Approval & audit posture",
     archlucid:
       "Committed review records, segregation-of-duty gates, typed audit envelopes, and replay/export paths aligned to architecture review packs.",
     githubCopilotAdHocArchitecture: "Typical fit: developer workflow tooling — not an architecture-evidence catalog product.",
     manualChatgptClaude: "Typical fit: interactive Q&A — not a finalized architecture review record with evidence lineage by default.",
     structurizrWithAssist:
-      "Typical fit: documenting system context — governance promotion workflows differ from packaged review records.",
+      "Typical fit: documenting system context — environment release workflows differ from packaged review records.",
   },
 ];

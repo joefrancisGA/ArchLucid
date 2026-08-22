@@ -49,7 +49,7 @@ const ERROR_CODE_HEADINGS: Record<string, string> = {
   BATCH_REPLAY_ALL_FAILED: "Batch replay failed",
   QUALITY_GATE_REJECTED: "Quality gate rejected (not an outage)",
   UPSTREAM_INTEGRATION_FAILED: "Upstream integration failed",
-  GOVERNANCE_PRE_COMMIT_BLOCKED: "Governance blocked commit",
+  GOVERNANCE_PRE_COMMIT_BLOCKED: "Approval check blocked commit",
   PROOF_PACKET_HOLD: "Proof packet blocked",
   CONFIG_LINT_HOLD: "Config lint blocked",
   SPONSOR_HANDOFF_HOLD: "Sponsor handoff blocked",

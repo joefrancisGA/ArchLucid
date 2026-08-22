@@ -56,7 +56,7 @@ export function graphBuyerTrailDispositionLine(
     referenceId === SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID ||
     referencedSlug === SHOWCASE_STATIC_DEMO_PRIMARY_FINDING_ID
   ) {
-    return "Accepted with monitoring — non-blocking for go-live; governance cadence covers unstructured attachment exceptions.";
+    return "Accepted with monitoring — non-blocking for go-live; approval cadence covers unstructured attachment exceptions.";
   }
 
   return null;

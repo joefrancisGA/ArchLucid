@@ -7,10 +7,10 @@ export const DIGESTS_PAGE_SUBTITLE_BUYER =
   "Weekly sponsor digest for sponsor recipients in this workspace." as const;
 
 export const DIGESTS_BROWSE_PAGE_SUBTITLE =
-  "Send scheduled summaries of review activity, governance signals, findings, and advisory scans." as const;
+  "Send scheduled summaries of review activity, approval signals, findings, and advisory scans." as const;
 
 export const DIGESTS_BROWSE_PAGE_SUBTITLE_BUYER =
-  "Scheduled summaries of review activity, governance signals, and findings." as const;
+  "Scheduled summaries of review activity, approval signals, and findings." as const;
 
 export function digestsBrowsePageSubtitle(buyerPolishedShell: boolean): string {
   return buyerPolishedShell ? DIGESTS_BROWSE_PAGE_SUBTITLE_BUYER : DIGESTS_BROWSE_PAGE_SUBTITLE;

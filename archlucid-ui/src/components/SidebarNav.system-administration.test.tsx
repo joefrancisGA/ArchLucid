@@ -233,7 +233,7 @@ describe("SidebarNav — Internal section", () => {
     render(<SidebarNav />);
 
     expect(screen.queryByTestId("governance-mode-toggle")).toBeNull();
-    expect(screen.queryByText("Enable governance view")).toBeNull();
+    expect(screen.queryByText("Enable approval view")).toBeNull();
   });
 
   it("shows Governance as a collapsible section with a caret", async () => {

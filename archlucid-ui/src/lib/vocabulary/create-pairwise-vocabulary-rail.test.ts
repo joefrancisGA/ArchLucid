@@ -57,7 +57,7 @@ describe("createExternalPeerPairwiseVocabularyRail (TB-2365)", () => {
         id: "audit-trail",
         label: "Audit trail",
         href: GOVERNANCE_AUDIT_PATH,
-        whenToUse: "Search the operator activity log for governance and review events.",
+        whenToUse: "Search the operator activity log for approval and review events.",
       },
       buildExternalPeerHref: (scopedRunId) =>
         `${GOVERNANCE_AUDIT_PATH}?runId=${encodeURIComponent(scopedRunId)}`,

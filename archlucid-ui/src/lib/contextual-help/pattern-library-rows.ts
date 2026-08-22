@@ -10,7 +10,7 @@ import { REPEAT_REVIEW_LOOP_HELP_INBOUND_LABEL } from "@/lib/repeat-review-loop-
 
 const PATTERN_LIBRARY_HUB_CONTEXTUAL_HELP = {
   whatIsThisPage:
-    "Browse anonymized architecture patterns with adoption, risk, and governance signals from thresholded aggregates.",
+    "Browse anonymized architecture patterns with adoption, risk, and approval signals from thresholded aggregates.",
   whatToDoNext:
     "Filter the catalog, open a pattern detail, or start a review when a pattern fits your next change.",
   whyEmpty:

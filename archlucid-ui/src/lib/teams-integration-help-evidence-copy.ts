@@ -21,7 +21,7 @@ export const TEAMS_INTEGRATION_HELP_SOURCES: readonly EvidenceSourceLinkWithWhen
   {
     label: "Alert rules",
     href: GOVERNANCE_ALERT_RULES_PATH,
-    when: "Change which governance events fire Teams notifications",
+    when: "Change which alert events fire Teams notifications",
   },
   {
     label: "How alerts work",

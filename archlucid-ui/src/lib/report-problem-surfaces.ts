@@ -60,7 +60,7 @@ export const REPORT_PROBLEM_V1_SURFACES: readonly ReportProblemSurfaceEntry[] = 
     kind: "governance-queue-fatal",
     routePattern: "/governance/findings",
     componentPath: "app/(operator)/governance/findings",
-    description: "Governance findings queue cannot load.",
+    description: "Findings queue cannot load.",
   },
   {
     id: "review-commit-export-page-failure",

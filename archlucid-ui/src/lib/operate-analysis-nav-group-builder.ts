@@ -113,7 +113,7 @@ export class OperateAnalysisNavGroupBuilder extends NavGroupBuilderBase {
         // String literals required: scripts/ci/assert_route_tier_policy_nav.py parses href:"..." only.
         href: SPONSOR_REPORT_PATH as typeof SPONSOR_REPORT_PATH & "/insights/sponsor-report",
         label: SPONSOR_REPORT_PAGE_TITLE,
-        title: `${SPONSOR_REPORT_SECTION_LABEL} — finalized-review outcomes, governance signals, and sponsor exports`,
+        title: `${SPONSOR_REPORT_SECTION_LABEL} — finalized-review outcomes, approval signals, and sponsor exports`,
         icon: FileText,
         // Read-only viewing of the report; the DOCX / board-pack exports are Execute-gated in the page itself.
         tier: "extended",

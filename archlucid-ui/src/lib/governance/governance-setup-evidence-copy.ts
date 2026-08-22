@@ -14,7 +14,7 @@ export const GOVERNANCE_SETUP_SOURCES_INTRO =
 
 /** Operator Sources — no self-href to /governance/setup. */
 export const GOVERNANCE_SETUP_SOURCES: readonly EvidenceSourceLink[] = [
-  { label: "Governance findings", href: GOVERNANCE_FINDINGS_PATH },
+  { label: "Findings queue", href: GOVERNANCE_FINDINGS_PATH },
   { label: "Policy packs", href: GOVERNANCE_POLICY_PACKS_PATH },
   { label: "Alert rules", href: GOVERNANCE_ALERT_RULES_PATH },
   { label: "Audit trail", href: GOVERNANCE_AUDIT_PATH },

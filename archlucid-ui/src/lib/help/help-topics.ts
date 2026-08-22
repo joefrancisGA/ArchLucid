@@ -63,7 +63,7 @@ export const HELP_TOPICS: HelpTopic[] = [
     title: "Pilot guide",
     keywords: ["sidebar", "nav", "analysis", "governance", "unlock", "first review", "pilot"],
     summary:
-      "Prepare for a pilot and understand how the sidebar stays focused on the first-review path until finalize, then unlocks analysis and governance on demand.",
+      "Prepare for a pilot and understand how the sidebar stays focused on the first-review path until finalize, then unlocks analysis and approval on demand.",
     docPath: "docs/library/customer-facing/PILOT_GUIDE.md",
     routes: ["/", "/architecture/reviews", "/architecture/first-review-guide"],
   },

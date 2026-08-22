@@ -19,7 +19,7 @@ export const WEBHOOKS_INTEGRATION_HELP_SOURCES: readonly EvidenceSourceLinkWithW
   {
     label: "Alert rules",
     href: GOVERNANCE_ALERT_RULES_PATH,
-    when: "Change which governance events fire webhook deliveries",
+    when: "Change which alert events fire webhook deliveries",
   },
   {
     label: "Slack",

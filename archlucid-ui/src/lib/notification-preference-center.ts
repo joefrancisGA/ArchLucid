@@ -309,7 +309,7 @@ function resolveAlertsInboxDeliveryStatus(
     label: "Connected",
     provenanceFact:
       input.openAlertsCount === 1
-        ? "1 open governance alert."
+        ? "1 open alert."
         : `${input.openAlertsCount} open alerts.`,
     configureHint: configureHintForChannel("alerts-inbox"),
   };

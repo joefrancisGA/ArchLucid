@@ -2,10 +2,10 @@ import { GOVERNANCE_APPROVAL_QUEUE_PATH } from "@/lib/governance/governance-rout
 
 /** Canonical `/governance/alerts` inbox copy — keep header, empty state, and disclosures aligned. */
 export const ALERTS_PAGE_SUBTITLE =
-  "Triage governance and architecture-risk signals from review findings.";
+  "Triage approval and architecture-risk signals from review findings.";
 
 export const BUYER_ALERTS_PAGE_SUBTITLE =
-  "Triage governance signals from review findings in your workspace.";
+  "Triage approval signals from review findings in your workspace.";
 
 export const ALERTS_LAYER_GUIDANCE_TRIGGER = "About alert triage";
 
@@ -25,7 +25,7 @@ export const ALERTS_HOW_ALERTS_WORK_LABEL = "How alerts work";
 /** Sentence case matches the sibling governance nav labels (Approval queue, Policy packs, Finalized review records). */
 export const ALERTS_CONFIGURATION_PAGE_TITLE = "Alert rules";
 
-export const ALERTS_CONFIGURATION_BREADCRUMB_GOVERNANCE_LABEL = "Governance";
+export const ALERTS_CONFIGURATION_BREADCRUMB_GOVERNANCE_LABEL = "Approval";
 
 export const ALERTS_CONFIGURATION_BREADCRUMB_GOVERNANCE_HREF = GOVERNANCE_APPROVAL_QUEUE_PATH;
 

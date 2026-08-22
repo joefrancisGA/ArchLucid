@@ -27,6 +27,6 @@ describe("AlertsGovernanceContextPanel", () => {
 
 describe("alerts page copy", () => {
   it("keeps the inbox subtitle action-oriented", () => {
-    expect(ALERTS_PAGE_SUBTITLE).toContain("Triage governance");
+    expect(ALERTS_PAGE_SUBTITLE).toContain("Triage approval");
   });
 });

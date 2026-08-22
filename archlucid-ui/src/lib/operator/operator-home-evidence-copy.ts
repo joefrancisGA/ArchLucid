@@ -19,7 +19,7 @@ export const OPERATOR_HOME_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Architecture reviews", href: "/architecture/reviews" },
   { label: "Start review", href: "/architecture/reviews/new" },
   { label: "Sponsor dashboard", href: "/architecture/sponsor-dashboard" },
-  { label: "Governance findings", href: GOVERNANCE_FINDINGS_PATH },
+  { label: "Findings queue", href: GOVERNANCE_FINDINGS_PATH },
   { label: "First architecture review help", href: inAppHelpHref("first-architecture-review") },
 ] as const;
 

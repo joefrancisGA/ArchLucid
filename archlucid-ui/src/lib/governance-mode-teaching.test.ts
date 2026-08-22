@@ -13,6 +13,6 @@ describe("governance-mode-teaching (TB-2392)", () => {
     expect(model.heading).toBe(GOVERNANCE_MODE_TEACHING_HEADING);
     expect(model.steps).toHaveLength(GOVERNANCE_MODE_TEACHING_STEPS.length);
     expect(model.steps.map((step) => step.id)).toEqual(["labels", "routes", "revert"]);
-    expect(model.steps[0]?.body).toContain("governance view");
+    expect(model.steps[0]?.body).toContain("approval view");
   });
 });

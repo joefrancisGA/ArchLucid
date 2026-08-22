@@ -54,7 +54,7 @@ export const DECISION_REGISTER_FINDINGS_QUEUE_LINK: DecisionRegisterFindingsLink
   id: "findings-queue",
   label: "Findings queue",
   href: GOVERNANCE_FINDINGS_PATH,
-  whenToUse: "Triage and resolve open governance findings.",
+  whenToUse: "Triage and resolve open findings.",
 };
 
 /** Pairwise model for Decision register ↔ Findings queue (fixed governance routes). */

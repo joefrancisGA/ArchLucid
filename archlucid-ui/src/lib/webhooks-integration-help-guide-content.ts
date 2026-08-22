@@ -20,7 +20,7 @@ export const WEBHOOKS_INTEGRATION_HELP_PAGE_SUBTITLE =
   "Orient on HTTPS webhook subscriptions — delivery contract, signature verification, and where to configure subscriptions.";
 
 export const WEBHOOKS_INTEGRATION_HELP_OVERVIEW =
-  "Webhooks let ArchLucid deliver governance alert events to HTTPS endpoints your team operates. Subscriptions are workspace-scoped routing configuration.";
+  "Webhooks let ArchLucid deliver alert events to HTTPS endpoints your team operates. Subscriptions are workspace-scoped routing configuration.";
 
 export const WEBHOOKS_INTEGRATION_HELP_PRIMARY_ACTION = {
   label: "Open webhooks",
@@ -56,7 +56,7 @@ export const WEBHOOKS_INTEGRATION_HELP_FEATURE_ITEMS: readonly WebhooksIntegrati
 export const WEBHOOKS_INTEGRATION_HELP_HOW_TO_READ_STEPS = [
   "Add a subscription with destination URL, signing secret, and event filters.",
   "Send a successful test delivery before saving when the form requires it.",
-  "Open Alert rules when deliveries succeed but the wrong governance events fire.",
+  "Open Alert rules when deliveries succeed but the wrong alert events fire.",
   `Open Integration readiness to review connection status and outbound delivery prerequisites when a test event reports "${WEBHOOKS_TEST_FAILURE}"`,
 ] as const;
 

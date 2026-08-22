@@ -60,7 +60,7 @@ export type TeamsIntegrationHelpItem = {
 export const TEAMS_INTEGRATION_HELP_FEATURE_ITEMS: readonly TeamsIntegrationHelpItem[] = [
   {
     label: "Teams channel destination",
-    detail: "Route selected governance alert events to a Microsoft Teams channel your operators already monitor.",
+    detail: "Route selected alert events to a Microsoft Teams channel your operators already monitor.",
   },
   {
     label: "Secret reference",
@@ -68,12 +68,12 @@ export const TEAMS_INTEGRATION_HELP_FEATURE_ITEMS: readonly TeamsIntegrationHelp
   },
   {
     label: "Notification triggers",
-    detail: "Choose which governance events should post to Teams before saving the connector.",
+    detail: "Choose which alert events should post to Teams before saving the connector.",
   },
 ] as const;
 
 export const TEAMS_INTEGRATION_HELP_HOW_TO_READ_STEPS = [
-  "Governance alerts post to enabled Teams destinations when matching alert rules fire.",
+  "Alerts post to enabled Teams destinations when matching alert rules fire.",
   "Review delivery history on the Teams notifications page when channels miss expected posts.",
 ] as const;
 

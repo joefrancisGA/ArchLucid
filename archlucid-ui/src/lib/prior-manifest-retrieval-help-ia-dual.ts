@@ -24,7 +24,7 @@ export const PRIOR_MANIFEST_RETRIEVAL_HELP_JOB_MATRIX: readonly PriorManifestRet
   {
     label: REPEAT_REVIEW_LOOP_HELP_PAGE_TITLE,
     href: REPEAT_REVIEW_LOOP_HELP_CANONICAL_PATH,
-    when: "Second-review habit loop after the first finalize — compare, replay, governance dry-run, and sponsor proof",
+    when: "Second-review habit loop after the first finalize — compare, replay, policy dry-run, and sponsor proof",
   },
   {
     label: COMPARISON_REPLAY_HELP_IA_DUAL_INBOUND_LABEL,

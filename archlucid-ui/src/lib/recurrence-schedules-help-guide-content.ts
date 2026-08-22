@@ -73,7 +73,7 @@ export const RECURRENCE_SCHEDULES_HELP_AUTOMATION_ITEMS: readonly RecurrenceSche
   },
   {
     label: "Risk and finding disposition",
-    sourceSurface: "Governance findings",
+    sourceSurface: "Findings queue",
     href: RECURRENCE_SCHEDULES_RISK_REGISTER_HREF,
   },
 ] as const;

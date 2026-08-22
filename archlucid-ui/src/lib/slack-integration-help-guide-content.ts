@@ -54,7 +54,7 @@ export type SlackIntegrationHelpItem = {
 export const SLACK_INTEGRATION_HELP_FEATURE_ITEMS: readonly SlackIntegrationHelpItem[] = [
   {
     label: "Incoming webhooks",
-    detail: "ArchLucid posts selected governance alert events to Slack channels you configure.",
+    detail: "ArchLucid posts selected alert events to Slack channels you configure.",
   },
   {
     label: "Destination testing",

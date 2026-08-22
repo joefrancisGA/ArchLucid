@@ -20,7 +20,7 @@ export const RISK_EXCEPTIONS_SOURCES_INTRO =
 
 /** Operator Sources — no self-href to exceptions. */
 export const RISK_EXCEPTIONS_SOURCES: readonly EvidenceSourceLink[] = [
-  { label: "Governance findings", href: GOVERNANCE_FINDINGS_PATH },
+  { label: "Findings queue", href: GOVERNANCE_FINDINGS_PATH },
   { label: "Decision register", href: GOVERNANCE_DECISION_REGISTER_PATH },
   { label: "Audit trail", href: GOVERNANCE_AUDIT_PATH },
   { label: "Findings help", href: inAppHelpHref("findings") },

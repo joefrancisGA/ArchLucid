@@ -22,7 +22,7 @@ export const COMPARISON_REPLAY_HELP_JOB_MATRIX: readonly CompareRepeatReviewHelp
   {
     label: REPEAT_REVIEW_LOOP_HELP_PAGE_TITLE,
     href: REPEAT_REVIEW_LOOP_HELP_CANONICAL_PATH,
-    when: "Second-review habit loop after the first finalize — governance dry-run, second finalize, and sponsor proof",
+    when: "Second-review habit loop after the first finalize — policy dry-run, second finalize, and sponsor proof",
   },
   {
     label: "This Compare and replay guide",

@@ -6,7 +6,7 @@
  *   progress for one architecture package — pipeline stages and review activity
  *   on that package.
  * - Audit trail (`/governance/audit`) is the operator activity log for
- *   governance and review events across the workspace (filters, integrity
+ *   approval and review events across the workspace (filters, integrity
  *   export/verify).
  *
  * They stay separate because package assessment progress is not the operator
@@ -38,7 +38,7 @@ export const PACKAGE_ACTIVITY_AUDIT_TRAIL_HEADING =
   "Package Activity and Audit trail serve different purposes" as const;
 
 export const PACKAGE_ACTIVITY_AUDIT_TRAIL_WHY_TWO =
-  "Package Activity shows progress on one architecture review — pipeline stages and review events on that review. Audit trail is the workspace-wide activity log for governance and review events. Watching one review's progress is not the same as searching the workspace log." as const;
+  "Package Activity shows progress on one architecture review — pipeline stages and review events on that review. Audit trail is the workspace-wide activity log for approval and review events. Watching one review's progress is not the same as searching the workspace log." as const;
 
 export const PACKAGE_ACTIVITY_AUDIT_TRAIL_COMPACT_LINE =
   "Package Activity is progress on one review; Audit trail is the workspace activity log." as const;
@@ -59,7 +59,7 @@ export const PACKAGE_ACTIVITY_AUDIT_TRAIL_AUDIT_LINK: PackageActivityAuditTrailL
   id: "audit-trail",
   label: "Audit trail",
   href: GOVERNANCE_AUDIT_PATH,
-  whenToUse: "Search the operator activity log for governance and review events.",
+  whenToUse: "Search the operator activity log for approval and review events.",
 };
 
 /** Build vocabulary; pass runId when mounting on a package Activity tab. */

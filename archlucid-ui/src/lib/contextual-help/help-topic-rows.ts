@@ -258,7 +258,7 @@ export const HELP_TOPIC_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] =
     prefix: "/help/alerts",
     entry: {
       whatIsThisPage:
-        "How alerts work — how ArchLucid raises, routes, and resolves governance notifications for architects.",
+        "How alerts work — how ArchLucid raises, routes, and resolves alert notifications for architects.",
       whatToDoNext:
         "Open the alerts inbox or Alert rules, then confirm destinations and conditions for this workspace.",
       whyEmpty: "This guide is always available; live inbox and rules appear after reviews raise alerts.",

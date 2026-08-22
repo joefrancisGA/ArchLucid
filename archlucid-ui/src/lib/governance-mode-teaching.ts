@@ -26,7 +26,7 @@ export type GovernanceModeTeachingModel = {
 export const GOVERNANCE_MODE_TEACHING_HEADING = "Approval view is on" as const;
 
 export const GOVERNANCE_MODE_TEACHING_LEAD =
-  "Navigation labels and panels now use enterprise governance terminology. Your permissions and routes did not change." as const;
+  "Navigation labels and panels now use enterprise approval terminology. Your permissions and routes did not change." as const;
 
 export const GOVERNANCE_MODE_TEACHING_STEPS: readonly GovernanceModeTeachingStep[] = [
   {

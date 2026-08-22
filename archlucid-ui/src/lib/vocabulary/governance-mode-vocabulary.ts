@@ -5,9 +5,9 @@ import { isBuyerVocabularyPassActive } from "@/lib/demo-ui-env";
  * Presentation-layer labels toggled by governance mode — routes and API DTOs stay unchanged.
  */
 export const GOVERNANCE_MODE_COPY = {
-  toggleLabel: "Enable governance view",
+  toggleLabel: "Enable approval view",
   toggleTitle:
-    "Show enterprise governance terminology, audit trail navigation, and compliance panels.",
+    "Show enterprise approval terminology, audit trail navigation, and compliance panels.",
   toggleAssistiveOn: "Approval view on. Full approval labels and panels are visible.",
   toggleAssistiveOff:
     "Approval view off. Pilot-friendly review labels and a focused review detail layout.",

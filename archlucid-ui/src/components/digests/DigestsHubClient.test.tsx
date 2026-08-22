@@ -109,7 +109,7 @@ describe("DigestsHubClient", () => {
     expect(await screen.findByTestId("digests-page-title")).toHaveTextContent("Architecture digests");
     expect(
       screen.getByText(
-        "Send scheduled summaries of review activity, governance signals, findings, and advisory scans.",
+        "Send scheduled summaries of review activity, approval signals, findings, and advisory scans.",
       ),
     ).toBeInTheDocument();
     expect(screen.getByTestId("digests-hub-tablist")).toBeInTheDocument();

@@ -27,7 +27,7 @@ export function buildReviewWorkspaceSources(runId: string): readonly EvidenceSou
     { label: "Start a review", href: REVIEWS_NEW_PATH },
     { label: "Evidence graph", href: evidenceHref },
     { label: "Findings tab", href: findingsHref },
-    { label: "Governance findings", href: GOVERNANCE_FINDINGS_PATH },
+    { label: "Findings queue", href: GOVERNANCE_FINDINGS_PATH },
     { label: "Audit trail", href: GOVERNANCE_AUDIT_PATH },
     { label: "Review packages help", href: inAppHelpHref("review-packages") },
   ] as const;

@@ -35,7 +35,7 @@ export const SYSTEM_HEALTH_HELP_SOURCES: readonly EvidenceOrientationLink[] = [
     when: "Read troubleshooting when runtime failures persist after refresh",
   },
   {
-    label: "Governance audit",
+    label: "Audit trail",
     href: GOVERNANCE_AUDIT_PATH,
     when: "Open governance audit when official review records are the follow-up",
   },

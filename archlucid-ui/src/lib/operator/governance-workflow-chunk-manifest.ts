@@ -39,14 +39,14 @@ export const GOVERNANCE_WORKFLOW_CHUNK_MANIFEST: readonly DeferredChunkManifestE
   },
   {
     id: "governance-workflow-dialogs",
-    label: "Loading governance dialogs",
+    label: "Loading approval dialogs",
     variant: "panel",
     modulePath: "@/app/(operator)/governance/_sections/GovernanceWorkflowDialogs",
     exportName: "GovernanceWorkflowDialogs",
   },
   {
     id: "governance-workflow-interactive-quickstart",
-    label: "Loading governance quickstart",
+    label: "Loading approval quickstart",
     variant: "panel",
     modulePath: "@/components/governance/GovernanceInteractiveQuickstartContent",
     exportName: "GovernanceInteractiveQuickstartContent",
@@ -81,7 +81,7 @@ export const GOVERNANCE_WORKFLOW_CHUNK_MANIFEST: readonly DeferredChunkManifestE
   },
   {
     id: "governance-workflow-cto-demo-governance-preview-hint",
-    label: "Loading governance preview hint",
+    label: "Loading approval preview hint",
     variant: "compact",
     modulePath: "@/components/OperateCapabilityHints",
     exportName: "CtoDemoGovernancePreviewHint",

@@ -3,7 +3,7 @@
  *
  * Why three surfaces exist:
  * - Audit trail (`/governance/audit`) is the operator activity log for
- *   governance and review events (filters, integrity export/verify).
+ *   approval and review events (filters, integrity export/verify).
  * - Evidence graph (`/insights/evidence-graph`) is the finalized review record evidence
  *   trail visualization for an architecture package.
  * - Search review evidence (`/insights/search-review-evidence`) finds findings,
@@ -41,7 +41,7 @@ export const AUDIT_EVIDENCE_TRAIL_HEADING =
   "Audit trail and evidence surfaces serve different purposes" as const;
 
 export const AUDIT_EVIDENCE_TRAIL_WHY_THREE =
-  "Audit trail is the workspace activity log for governance and review events. Evidence graph shows how evidence connects in one architecture review. Search review evidence finds findings, decisions, and finalized review records across reviews. The activity log is not the same as one review's evidence path — open the peer link when you need review evidence or cross-review search." as const;
+  "Audit trail is the workspace activity log for approval and review events. Evidence graph shows how evidence connects in one architecture review. Search review evidence finds findings, decisions, and finalized review records across reviews. The activity log is not the same as one review's evidence path — open the peer link when you need review evidence or cross-review search." as const;
 
 export const AUDIT_EVIDENCE_TRAIL_COMPACT_LINE =
   "Audit is the activity log; Evidence graph and Search review evidence cover review evidence — open the peers when you need both." as const;
@@ -50,7 +50,7 @@ export const AUDIT_EVIDENCE_TRAIL_AUDIT_LINK: AuditEvidenceTrailLink = {
   id: "audit",
   label: "Audit trail",
   href: GOVERNANCE_AUDIT_PATH,
-  whenToUse: "Search and export the operator activity log for governance and review events.",
+  whenToUse: "Search and export the operator activity log for approval and review events.",
 };
 
 export const AUDIT_EVIDENCE_TRAIL_EVIDENCE_GRAPH_LINK: AuditEvidenceTrailLink = {

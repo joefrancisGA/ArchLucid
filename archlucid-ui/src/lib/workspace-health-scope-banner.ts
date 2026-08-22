@@ -35,8 +35,8 @@ export function formatSponsorWorkspaceScopeDescription(
     const project =
       record.projectLabel.trim().length > 0 ? record.projectLabel.trim() : fallback.project;
 
-    return `Active scope: tenant ${shortenId(record.tenantId)}, workspace “${workspace}”, project “${project}”. Matches SESSION_CONTEXT on governance and audit requests — not a cross-workspace sponsor rollup.`;
+    return `Active scope: tenant ${shortenId(record.tenantId)}, workspace “${workspace}”, project “${project}”. Matches SESSION_CONTEXT on approval and audit requests — not a cross-workspace sponsor rollup.`;
   }
 
-  return `Active scope: tenant ${shortenId(headers.tenantId)}, workspace ${shortenId(headers.workspaceId)}, project ${shortenId(headers.projectId)}. Matches SESSION_CONTEXT on governance and audit requests — not a cross-workspace sponsor rollup.`;
+  return `Active scope: tenant ${shortenId(headers.tenantId)}, workspace ${shortenId(headers.workspaceId)}, project ${shortenId(headers.projectId)}. Matches SESSION_CONTEXT on approval and audit requests — not a cross-workspace sponsor rollup.`;
 }

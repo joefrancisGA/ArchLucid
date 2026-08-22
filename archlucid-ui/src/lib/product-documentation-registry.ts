@@ -534,7 +534,7 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     slug: "repeat-review-loop",
     title: "Your repeat architecture review",
     summary:
-      "After the first finalized architecture review: compare, replay, governance dry-runs, and second-review proof checklist.",
+      "After the first finalized architecture review: compare, replay, policy dry-runs, and second-review proof checklist.",
     audience: "operator",
     sourcePaths: ["docs/library/REPEAT_REVIEW_LOOP.md"],
     lastReviewed: "2026-07-27",
@@ -543,7 +543,7 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
     slug: "digests",
     title: "Architecture digests",
     summary:
-      "Schedule summaries of review activity, governance signals, findings, and advisory scans for architects.",
+      "Schedule summaries of review activity, approval signals, findings, and advisory scans for architects.",
     audience: "operator",
     // App-rendered specialty (`HelpDigestsGuideView`) — TB-2049.
     sourcePaths: [],
@@ -645,7 +645,7 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
   {
     slug: "slack-integration",
     title: "Slack notifications",
-    summary: "Configure Slack incoming webhook destinations for governance alert delivery.",
+    summary: "Configure Slack incoming webhook destinations for alert delivery.",
     audience: "operator",
     sourcePaths: [],
     lastReviewed: "2026-08-13",
@@ -654,7 +654,7 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
   {
     slug: "teams-integration",
     title: "Microsoft Teams notifications",
-    summary: "Configure Microsoft Teams channel destinations for governance alert delivery.",
+    summary: "Configure Microsoft Teams channel destinations for alert delivery.",
     audience: "operator",
     sourcePaths: [],
     lastReviewed: "2026-08-13",
@@ -663,7 +663,7 @@ const PRODUCT_DOCUMENTATION_REGISTRY_INPUT: readonly ProductDocumentationRegistr
   {
     slug: "webhooks-integration",
     title: "Webhooks",
-    summary: "Configure HTTPS webhook subscriptions for governance alert delivery.",
+    summary: "Configure HTTPS webhook subscriptions for alert delivery.",
     audience: "operator",
     sourcePaths: [],
     lastReviewed: "2026-08-13",

@@ -15,7 +15,7 @@ export const REVIEWS_HUB_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Start a review", href: REVIEWS_NEW_PATH },
   { label: "Evidence graph", href: "/insights/evidence-graph" },
   { label: "Search review evidence", href: "/insights/search-review-evidence" },
-  { label: "Governance findings", href: GOVERNANCE_FINDINGS_PATH },
+  { label: "Findings queue", href: GOVERNANCE_FINDINGS_PATH },
   { label: "Audit trail", href: GOVERNANCE_AUDIT_PATH },
   { label: "Review packages help", href: inAppHelpHref("review-packages") },
 ] as const;

@@ -55,7 +55,7 @@ export const ALERT_RULES_ALERTS_INBOX_INBOX_LINK: AlertRulesAlertsInboxLink = {
   id: "alerts-inbox",
   label: "Alerts inbox",
   href: GOVERNANCE_ALERTS_PATH,
-  whenToUse: "Acknowledge or resolve raised governance notifications.",
+  whenToUse: "Acknowledge or resolve raised alerts.",
 };
 
 /** Pairwise model for Alert rules ↔ Alerts inbox (fixed governance routes). */

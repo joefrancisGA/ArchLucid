@@ -21,7 +21,7 @@ export const ALERTS_INBOX_SOURCES_INTRO = hubSecondaryFollowUpsIntro(
 /** Operator Sources — no self-href to the alerts inbox. */
 export const ALERTS_INBOX_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Alert rules", href: governanceAlertRulesTabHref("rules") },
-  { label: "Governance findings", href: GOVERNANCE_FINDINGS_PATH },
+  { label: "Findings queue", href: GOVERNANCE_FINDINGS_PATH },
   { label: "Audit trail", href: GOVERNANCE_AUDIT_PATH },
   { label: "Integrations (webhooks)", href: "/integrations/webhooks" },
   { label: "How alerts work", href: inAppHelpHref("alerts") },

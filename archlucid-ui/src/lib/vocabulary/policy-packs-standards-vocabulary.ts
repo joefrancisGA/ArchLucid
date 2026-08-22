@@ -38,7 +38,7 @@ export type PolicyPacksStandardsVocabularyModel = {
 export const POLICY_PACKS_STANDARDS_HEADING = "Policy packs and standards stay separate" as const;
 
 export const POLICY_PACKS_STANDARDS_WHY_TWO =
-  "Policy packs are the assignable governance templates you author and pin to a scope. Standards and rules show the effective compliance rules after pack precedence and conflict resolution. Changing a pack assignment is not the same as reading the live standards table." as const;
+  "Policy packs are the assignable policy templates you author and pin to a scope. Standards and rules show the effective compliance rules after pack precedence and conflict resolution. Changing a pack assignment is not the same as reading the live standards table." as const;
 
 export const POLICY_PACKS_STANDARDS_COMPACT_LINE =
   "Policy packs assign templates; Standards and rules show effective rules — open the other when you need both." as const;

@@ -30,7 +30,7 @@ export const RECURRENCE_SCHEDULES_HELP_SOURCES: readonly EvidenceSourceLinkWithW
     when: "Trace enable, disable, and auto-disable events when schedule lifecycle needs official assurance materials",
   },
   {
-    label: "Governance findings",
+    label: "Findings queue",
     href: GOVERNANCE_FINDINGS_PATH,
     when: "Triage findings raised when a follow-up cloned review surfaces new triage work",
   },

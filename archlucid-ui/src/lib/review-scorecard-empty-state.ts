@@ -4,7 +4,7 @@ import { SPONSOR_REPORT_ARCHITECTURE_SCORECARD_PATH } from "@/lib/sponsor-report
 export const REVIEW_SCORECARD_EMPTY_HEADING = "No finalized reviews yet";
 
 export const REVIEW_SCORECARD_EMPTY_DESCRIPTION =
-  "Finalize a review to populate scorecard metrics, governance outcomes, findings, and ROI estimates.";
+  "Finalize a review to populate scorecard metrics, approval outcomes, findings, and ROI estimates.";
 
 export const REVIEW_SCORECARD_EMPTY_PRIMARY_CTA = BUYER_START_ARCHITECTURE_REVIEW_CTA;
 export const REVIEW_SCORECARD_EMPTY_PRIMARY_HREF = "/architecture/reviews/new";

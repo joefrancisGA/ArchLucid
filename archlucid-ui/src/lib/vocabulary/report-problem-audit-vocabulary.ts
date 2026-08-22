@@ -5,11 +5,11 @@
  * - Report a problem (`/help/report-a-problem`) orients operators on *support
  *   intake* — structured defect reporting with correlation identifiers and a
  *   next-business-day response commitment.
- * - Audit trail (`/governance/audit`) is the *governance audit trail* for
- *   governance and review events (filters, integrity export/verify).
+ * - Audit trail (`/governance/audit`) is the *approval audit trail* for
+ *   approval and review events (filters, integrity export/verify).
  *
  * They stay separate because opening support intake is not the same task as
- * searching the governance audit trail. Distinct from TB-2255 (Audit ≠
+ * searching the approval audit trail. Distinct from TB-2255 (Audit ≠
  * evidence trail surfaces).
  */
 
@@ -53,7 +53,7 @@ export const REPORT_PROBLEM_AUDIT_AUDIT_LINK: ReportProblemAuditLink = {
   id: "audit",
   label: "Audit trail",
   href: GOVERNANCE_AUDIT_PATH,
-  whenToUse: "Search and export the governance audit trail for governance and review events.",
+  whenToUse: "Search and export the approval audit trail for approval and review events.",
 };
 
 /** Full vocabulary model (heading, why-two copy, and deep links). */

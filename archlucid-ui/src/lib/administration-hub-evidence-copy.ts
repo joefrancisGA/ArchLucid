@@ -14,5 +14,5 @@ export const ADMINISTRATION_HUB_SOURCES: readonly EvidenceSourceLink[] = [
   { label: "Connection status", href: "/administration/connection-status" },
   { label: "Users and roles", href: "/administration/users" },
   { label: "Audit trail", href: GOVERNANCE_AUDIT_PATH },
-  { label: "Governance findings", href: GOVERNANCE_FINDINGS_PATH },
+  { label: "Findings queue", href: GOVERNANCE_FINDINGS_PATH },
 ] as const;

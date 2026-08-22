@@ -11,7 +11,7 @@ export const RECURRENCE_SCHEDULES_SOURCES_INTRO =
 
 /** Operator Sources — no self-href to recurrence-schedules. */
 export const RECURRENCE_SCHEDULES_SOURCES: readonly EvidenceSourceLink[] = [
-  { label: "Governance findings", href: GOVERNANCE_FINDINGS_PATH },
+  { label: "Findings queue", href: GOVERNANCE_FINDINGS_PATH },
   { label: "Approval queue", href: GOVERNANCE_APPROVAL_QUEUE_PATH },
   { label: "Architecture reviews", href: "/architecture/reviews" },
   { label: "Audit trail", href: GOVERNANCE_AUDIT_PATH },

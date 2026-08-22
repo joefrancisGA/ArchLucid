@@ -10,7 +10,7 @@ import type { HelpMarkdownHeading } from "@/lib/help/help-markdown-headings";
 export const DIGESTS_HELP_PAGE_TITLE = "Architecture digests";
 
 export const DIGESTS_HELP_PAGE_SUBTITLE =
-  "Schedule summaries of review activity, governance signals, findings, and advisory scans for architects.";
+  "Schedule summaries of review activity, approval signals, findings, and advisory scans for architects.";
 
 export const DIGESTS_HELP_OVERVIEW =
   "Architecture digests are summary reports generated after advisory scans and delivered to subscription destinations. Use Schedule for the separate sponsor sponsor rollup, Subscriptions for architecture digest destinations, and Browse for generated digests.";
@@ -41,7 +41,7 @@ export const DIGESTS_HELP_CONTENT_ITEMS: readonly DigestsHelpContentItem[] = [
   },
   {
     label: "Findings summary",
-    sourceSurface: "Governance findings",
+    sourceSurface: "Findings queue",
     href: "/governance/findings",
   },
   {
