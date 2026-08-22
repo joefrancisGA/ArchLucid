@@ -36,6 +36,12 @@ export function DeveloperSettingsBuildIdentityCard(): React.JSX.Element {
           data-testid="developer-settings-build-identity"
         >
           <div>
+            <dt className="text-al-text-secondary">CI build</dt>
+            <dd className={cn("m-0 font-mono text-al-text-primary", OPERATOR_TYPOGRAPHY.helper)}>
+              {formatCiBuildNumberLabel(fingerprint.ciBuildNumber) ?? "—"}
+            </dd>
+          </div>
+          <div>
             <dt className="text-al-text-secondary">UI commit</dt>
             <dd className={cn("m-0 font-mono text-al-text-primary", OPERATOR_TYPOGRAPHY.helper)}>
               {formatShortCommitSha(fingerprint.frontendCommitSha)}
