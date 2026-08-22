@@ -141,7 +141,7 @@ export function RunsDashboardRecentTab(props: RunsDashboardRecentTabProps) {
             {SHOWCASE_BUYER_REVIEW_TITLE}
           </p>
           <p className={cn("m-0", OPERATOR_TYPE_SCALE.body, "text-neutral-600 dark:text-neutral-400")}>
-            Completed example review · Approved with monitoring
+            Completed sample review · Approved with monitoring
           </p>
           <p className={cn("m-0", OPERATOR_TYPE_SCALE.body, "text-neutral-600 dark:text-neutral-400")}>
             {props.buyerSafeHighlight ? (

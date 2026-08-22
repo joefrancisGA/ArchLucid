@@ -113,7 +113,7 @@ describe("WelcomeBanner — renders heading and CTAs", () => {
     expect(screen.getByText("Finalized review record")).toBeInTheDocument();
     expect(screen.getByText(/one request produces everything needed for review/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/What one completed architecture review delivers/i)).toBeInTheDocument();
-    const exampleLinks = screen.getAllByRole("link", { name: /see completed example/i });
+    const exampleLinks = screen.getAllByRole("link", { name: /see completed sample/i });
     expect(exampleLinks.length).toBeGreaterThanOrEqual(1);
     expect(exampleLinks[0]).toHaveAttribute("href", "/showcase/customer-intake-modernization");
     expect(screen.getByTestId("opt-in-tour-launcher")).toBeInTheDocument();
@@ -145,7 +145,7 @@ describe("WelcomeBanner — renders heading and CTAs", () => {
 
     expect(within(screen.getByRole("banner", { name: "Welcome" })).getByText(/Open in-progress architecture reviews/i)).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Create from evidence" })).toHaveAttribute("href", "/architecture/reviews/new");
-    expect(screen.getByRole("link", { name: /see completed example/i })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: /see completed sample/i })).toHaveAttribute(
       "href",
       "/showcase/customer-intake-modernization",
     );

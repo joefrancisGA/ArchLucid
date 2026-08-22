@@ -20,7 +20,7 @@ export const DEMO_EXPLAIN_ILLUSTRATIVE_SAMPLE_LABEL = "Illustrative sample";
 export const DEMO_EXPLAIN_PAGE_TITLE = "Sample review — evidence and explanation";
 
 export const DEMO_EXPLAIN_PAGE_LEAD =
-  "Walkthrough of how findings link to evidence and citations for the seeded example architecture review.";
+  "Walkthrough of how findings link to evidence and citations for the seeded sample architecture review.";
 
 export const DEMO_EXPLAIN_EVIDENCE_TRAIL_PANEL_TITLE = "Evidence trail";
 

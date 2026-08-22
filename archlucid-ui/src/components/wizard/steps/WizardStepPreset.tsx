@@ -175,17 +175,17 @@ export function WizardStepPreset(props: WizardStepPresetProps = {}) {
         <Card className="mb-6 border-neutral-200 bg-al-surface-raised dark:border-neutral-800">
           <CardHeader>
             <CardTitle className={cn("text-teal-950 dark:text-teal-50", OPERATOR_TYPOGRAPHY.cardTitle)}>
-              Claims Intake Modernization (example)
+              Claims Intake Modernization (sample)
             </CardTitle>
             <CardDescription className="text-teal-900/90 dark:text-teal-100/90">
-              Open the governed example pipeline we provisioned for your workspace, or continue below to author a brand-new
+              Open the governed sample review we provisioned for your workspace, or continue below to author a brand-new
               architecture request.
             </CardDescription>
           </CardHeader>
           <CardFooter>
             <Button asChild type="button" className={CTA_WIDTH.content}>
               <Link href={`/architecture/reviews/${featuredSampleRunId}`} data-testid="wizard-open-trial-sample-run">
-                Open example review
+                Open sample review
               </Link>
             </Button>
           </CardFooter>

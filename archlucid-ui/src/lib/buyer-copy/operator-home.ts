@@ -7,13 +7,13 @@
 import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture/architecture-workflow-labels";
 
 export const BUYER_HOME_SAMPLE_PACKAGE_HEADLINE =
-  "Explore a completed example review";
+  "Explore a completed sample review";
 
 export const BUYER_HOME_SAMPLE_PACKAGE_SUBTITLE =
   "Completed architecture review with finalized review record, evidence trail, and audit record.";
 
 export const BUYER_HOME_SAMPLE_PACKAGE_LEAD =
-  "Review a completed example review with evidence trail, findings, resolve outcomes, and audit-ready artifacts before creating your first review.";
+  "Review a completed sample review with evidence trail, findings, resolve outcomes, and audit-ready artifacts before creating your first review.";
 
 export const BUYER_HOME_PRIMARY_CTA = "Open sample finding";
 
@@ -34,17 +34,17 @@ export const OPERATOR_HOME_OPEN_SAMPLE_PACKAGE_CTA = "Open sample review";
 export const OPERATOR_HOME_DEMO_SEEDED_SAMPLE_BRIDGE =
   "This demo workspace includes a finished sample review — open it to see findings, evidence, and decisions.";
 
-export const OPERATOR_HOME_OPEN_CREATION_EXAMPLE_CTA = "Open creation example";
+export const OPERATOR_HOME_OPEN_CREATION_EXAMPLE_CTA = "Open creation sample";
 
 /** @deprecated Prefer {@link OPERATOR_HOME_OPEN_CREATION_EXAMPLE_CTA}. */
 export const OPERATOR_HOME_OPEN_CREATED_SAMPLE_CTA = OPERATOR_HOME_OPEN_CREATION_EXAMPLE_CTA;
 
-export const OPERATOR_HOME_CREATION_EXAMPLE_TITLE = "Architecture creation example";
+export const OPERATOR_HOME_CREATION_EXAMPLE_TITLE = "Architecture creation sample";
 
 export const OPERATOR_HOME_CREATION_EXAMPLE_BODY =
   "See how ArchLucid turns goals and constraints into an architecture.";
 
-export const OPERATOR_HOME_GUIDED_REVIEW_EXAMPLE_TITLE = "Guided review example";
+export const OPERATOR_HOME_GUIDED_REVIEW_EXAMPLE_TITLE = "Guided review sample";
 
 export const OPERATOR_HOME_GUIDED_REVIEW_EXAMPLE_BODY =
   "See how ArchLucid evaluates a sample architecture.";
@@ -191,7 +191,7 @@ export const OPERATOR_HOME_SAMPLE_FINDINGS_HEADING = OPERATOR_HOME_EXPLORE_SAMPL
 export const OPERATOR_HOME_SAMPLE_FINDINGS_LEAD = OPERATOR_HOME_EXPLORE_SAMPLE_LEAD;
 
 export const OPERATOR_HOME_SAMPLE_FINDINGS_DEFENSIBLE_LAYER =
-  "Example review — not your workspace data. Open the full review for findings, evidence, and the finalized review record.";
+  "Sample review — not your workspace data. Open the full review for findings, evidence, and the finalized review record.";
 
 export const SAMPLE_REVIEW_AHA_FINDING_LABEL = "Finding";
 
@@ -201,7 +201,7 @@ export const SAMPLE_REVIEW_AHA_EVIDENCE_LABEL = "Evidence support";
 
 export const SAMPLE_REVIEW_AHA_DECISION_LABEL = "Decision change";
 
-export const SAMPLE_REVIEW_AHA_DEMO_LABEL = "Example review";
+export const SAMPLE_REVIEW_AHA_DEMO_LABEL = "Sample review";
 
 export const SAMPLE_REVIEW_PACKAGE_AHA_HEADING = "Your first-value moment";
 
@@ -215,7 +215,7 @@ export const OPERATOR_HOME_WORKSPACE_EMPTY_BODY =
 
 /** Recent reviews outcome when only a demo/seeded or showcase sample is visible. */
 export const OPERATOR_HOME_RECENT_REVIEWS_EXAMPLE_ONLY_OUTCOME =
-  "Showing a completed example review. Your own reviews will appear here.";
+  "Showing a completed sample review. Your own reviews will appear here.";
 
 export const OPERATOR_HOME_LEARN_HOW_REVIEWS_WORK_CTA = "Learn how reviews work";
 
@@ -317,12 +317,12 @@ export const OPERATOR_HOME_SETUP_NEXT_OPEN_GUIDE = "Open the first review guide.
 
 export const OPERATOR_HOME_SETUP_NEXT_CHOOSE_PATH = "Create an architecture or start a review.";
 
-export const OPERATOR_HOME_EXAMPLES_AND_LEARNING_HEADING = "Examples and learning";
+export const OPERATOR_HOME_EXAMPLES_AND_LEARNING_HEADING = "Samples and learning";
 
 export const OPERATOR_HOME_LEARNING_RESOURCES_HEADING = "Learning resources";
 
 export const OPERATOR_HOME_LEARNING_RESOURCES_LEAD =
-  "Walk through creation and review examples without starting a live review.";
+  "Walk through creation and review samples without starting a live review.";
 
 export const OPERATOR_HOME_SETUP_NEXT_CONNECT_CLOUD = "Connect cloud";
 
@@ -371,14 +371,14 @@ export const OPERATOR_HOME_WORKSPACE_STATUS_COLLAPSED_SUMMARY =
 export const OPERATOR_HOME_WORKSPACE_STATUS_COLLAPSED_SUMMARY_FIRST_RUN =
   "Workspace readiness signals.";
 
-export const BUYER_HOME_EXAMPLE_PACKAGE_SHORTCUTS_ARIA = "Example review shortcuts";
+export const BUYER_HOME_EXAMPLE_PACKAGE_SHORTCUTS_ARIA = "Sample review shortcuts";
 
-export const BUYER_HOME_EXAMPLE_PACKAGE_HEADING = "Example review";
+export const BUYER_HOME_EXAMPLE_PACKAGE_HEADING = "Sample review";
 
 export const BUYER_HOME_EXAMPLE_PACKAGE_LEAD =
-  "Open a completed example to see the output, then start your own review.";
+  "Open a completed sample to see the output, then start your own review.";
 
-export const BUYER_HOME_EXAMPLE_EXPLORE_LINK = "Explore example";
+export const BUYER_HOME_EXAMPLE_EXPLORE_LINK = "Explore sample";
 
 export const BUYER_HOME_WELCOME_HEADING = "Explore one architecture review";
 

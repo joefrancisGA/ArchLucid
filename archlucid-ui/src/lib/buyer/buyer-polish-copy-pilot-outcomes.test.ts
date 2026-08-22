@@ -96,28 +96,28 @@ describe("buyer-polish-copy product concepts glossary (TB-469)", () => {
 });
 
 describe("buyer-polish-copy Why ArchLucid sponsor pack source (TB-470)", () => {
-  it("uses example review attribution without seeded framing", () => {
+  it("uses sample review attribution without seeded framing", () => {
     expect(BUYER_WHY_ARCHLUCID_SPONSOR_PACK_SOURCE_LINE).toBe(
-      "Aggregated proof from the evidence pack service — paired with the example Retail baseline review below.",
+      "Aggregated proof from the evidence pack service — paired with the sample Retail baseline review below.",
     );
     expect(BUYER_WHY_ARCHLUCID_SPONSOR_PACK_SOURCE_LINE.toLowerCase()).not.toMatch(/\bseed(ed)?\b/);
   });
 });
 
-describe("buyer-polish-copy operator home example review card (TB-471)", () => {
-  it("uses Open example review heading and CTA without CTO demo framing", () => {
-    expect(BUYER_HOME_START_CTO_DEMO_HEADING).toBe("Open example review");
-    expect(BUYER_HOME_START_CTO_DEMO_CTA).toBe("Open example review");
-    expect(BUYER_HOME_START_CTO_DEMO_ARIA).toBe("Open example review — sample review walkthrough");
+describe("buyer-polish-copy operator home sample review card (TB-471)", () => {
+  it("uses Open sample review heading and CTA without CTO demo framing", () => {
+    expect(BUYER_HOME_START_CTO_DEMO_HEADING).toBe("Open sample review");
+    expect(BUYER_HOME_START_CTO_DEMO_CTA).toBe("Open sample review");
+    expect(BUYER_HOME_START_CTO_DEMO_ARIA).toBe("Open sample review walkthrough");
     expect(BUYER_HOME_START_CTO_DEMO_HEADING.toLowerCase()).not.toContain("cto demo");
     expect(BUYER_HOME_START_CTO_DEMO_CTA.toLowerCase()).not.toContain("cto demo");
   });
 });
 
 describe("buyer-polish-copy governance preview note (TB-509)", () => {
-  it("uses production framing with example review and no pilot or demo jargon", () => {
+  it("uses production framing with sample review and no pilot or demo jargon", () => {
     expect(BUYER_CTO_DEMO_GOVERNANCE_PREVIEW_NOTE).toBe(
-      "In production, an architect with Execute authority approves here. This view shows the post-approval state from the example review.",
+      "In production, an architect with Execute authority approves here. This view shows the post-approval state from the sample review.",
     );
     expect(BUYER_CTO_DEMO_GOVERNANCE_PREVIEW_NOTE.toLowerCase()).not.toContain("live pilot");
     expect(BUYER_CTO_DEMO_GOVERNANCE_PREVIEW_NOTE.toLowerCase()).not.toContain("demonstration purposes");
@@ -126,16 +126,16 @@ describe("buyer-polish-copy governance preview note (TB-509)", () => {
 });
 
 describe("buyer-polish-copy sample review AHA badge (TB-473)", () => {
-  it("uses Example review label without demo-derived framing", () => {
-    expect(SAMPLE_REVIEW_AHA_DEMO_LABEL).toBe("Example review");
+  it("uses Sample review label without demo-derived framing", () => {
+    expect(SAMPLE_REVIEW_AHA_DEMO_LABEL).toBe("Sample review");
     expect(SAMPLE_REVIEW_AHA_DEMO_LABEL.toLowerCase()).not.toContain("demo-derived");
   });
 });
 
 describe("buyer-polish-copy sample findings defensible layer (TB-474)", () => {
-  it("uses example review caption without demo-derived or execution mode jargon", () => {
+  it("uses sample review caption without demo-derived or execution mode jargon", () => {
     expect(OPERATOR_HOME_SAMPLE_FINDINGS_DEFENSIBLE_LAYER).toBe(
-      "Example review — not your workspace data. Open the full review for findings, evidence, and the finalized review record.",
+      "Sample review — not your workspace data. Open the full review for findings, evidence, and the finalized review record.",
     );
     expect(OPERATOR_HOME_SAMPLE_FINDINGS_DEFENSIBLE_LAYER.toLowerCase()).not.toContain("demo-derived");
     expect(OPERATOR_HOME_SAMPLE_FINDINGS_DEFENSIBLE_LAYER.toLowerCase()).not.toContain("execution mode");
@@ -144,9 +144,9 @@ describe("buyer-polish-copy sample findings defensible layer (TB-474)", () => {
 });
 
 describe("buyer-polish-copy demo latency exceeded (TB-480)", () => {
-  it("uses example review fallback without seeded showcase jargon", () => {
+  it("uses sample review fallback without seeded showcase jargon", () => {
     expect(BUYER_CTO_DEMO_LATENCY_EXCEEDED).toBe(
-      "Taking longer than expected — switch to example review.",
+      "Taking longer than expected — switch to sample review.",
     );
     expect(BUYER_CTO_DEMO_LATENCY_EXCEEDED.toLowerCase()).not.toMatch(/\bseed(ed)?\b/);
     expect(BUYER_CTO_DEMO_LATENCY_EXCEEDED.toLowerCase()).not.toContain("showcase");

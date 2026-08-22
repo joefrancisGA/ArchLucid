@@ -33,7 +33,7 @@ describe("OperatorHomeExampleRequestPanel (TB-348)", () => {
     render(<OperatorHomeExampleRequestPanel />);
 
     expect(screen.getByTestId("operator-home-example-request-panel")).toBeInTheDocument();
-    expect(screen.getByText("Example request")).toBeInTheDocument();
+    expect(screen.getByText("Sample request")).toBeInTheDocument();
     expect(screen.getByText(OPERATOR_HOME_EXAMPLE_DESCRIPTION)).toBeInTheDocument();
     expect(screen.getByTestId("operator-home-example-request-use")).toHaveAttribute(
       "href",
