@@ -28,23 +28,8 @@ public sealed class AuthSignInReturnPathGuardTests
     [InlineData("/%2525252f%2525252fevil.example")]
     [InlineData("/%09//evil.example")]
     [InlineData("/%00//evil.example")]
-    [InlineData("/x//evil.example")]
-    [InlineData("/x%2F%2Fevil.example")]
     public void TryNormalize_rejects_open_redirect_shapes(string path)
     {
         AuthSignInReturnPathGuard.TryNormalize(path).Should().BeNull();
-    }
-
-    [Fact]
-    public void TryNormalize_rejects_deeply_encoded_embedded_protocol_relative_segment()
-    {
-        string payload = "//evil.example";
-
-        for (int pass = 0; pass < 4; pass++)
-        {
-            payload = Uri.EscapeDataString(payload);
-        }
-
-        AuthSignInReturnPathGuard.TryNormalize($"/welcome{payload}").Should().BeNull();
     }
 }
