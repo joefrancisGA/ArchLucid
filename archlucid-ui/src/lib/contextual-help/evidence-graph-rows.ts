@@ -18,6 +18,11 @@ const EVIDENCE_GRAPH_HUB_CONTEXTUAL_HELP = {
     label: "Start a review",
     href: "/architecture/reviews/new",
   },
+  taskSteps: [
+    "Select a finalized review or open the sample graph.",
+    "Explore how evidence connects to findings, decisions, and approvals.",
+    "Open a cited finding or the evidence trail when you need detail.",
+  ],
 } as const;
 
 export const EVIDENCE_GRAPH_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] = [

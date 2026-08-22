@@ -43,6 +43,11 @@ const AZURE_CLOUD_CONNECTION_CONTEXTUAL_HELP = {
   whyEmpty: "Saved connections and recent collection runs appear after you validate federated credentials.",
   whereToConfigurePrerequisite:
     "Provisioning the service principal usually needs cloud-admin authority; saving the connection in ArchLucid needs Operate authority.",
+  taskSteps: [
+    "Complete security preflight for the target subscription.",
+    "Run the Tier 2 wizard and assign the documented read-only Azure roles.",
+    "Save, validate the connection, then return to Cloud connections for workspace status.",
+  ],
 } as const;
 
 const GCP_CLOUD_CONNECTION_CONTEXTUAL_HELP = {

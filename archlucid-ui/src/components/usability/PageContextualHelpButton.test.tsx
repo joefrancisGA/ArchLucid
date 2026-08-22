@@ -27,7 +27,7 @@ const MINIMAL_ENTRY: PageContextualHelpEntry = {
 };
 
 describe("PageContextualHelpButton", () => {
-  it("prefers the contextual registry popover over a direct help link on migrated pages", () => {
+  it("opens the contextual help drawer instead of navigating away on migrated pages", async () => {
     mockUsePathname.mockReturnValue("/architecture/reviews");
     mockContextualHelpForPathname.mockReturnValue(MINIMAL_ENTRY);
 
@@ -41,14 +41,14 @@ describe("PageContextualHelpButton", () => {
 
     fireEvent.click(trigger);
 
-    expect(screen.getByTestId("page-scoped-contextual-help-panel")).toBeInTheDocument();
+    expect(await screen.findByTestId("page-scoped-contextual-help-panel")).toBeInTheDocument();
     expect(screen.getByTestId("page-scoped-contextual-help-learn-more")).toHaveAttribute(
       "href",
       "/help/review-packages",
     );
   });
 
-  it("shows contextual panel on Internal Ops recommendation-learning", () => {
+  it("shows contextual panel on Internal Ops recommendation-learning", async () => {
     mockUsePathname.mockReturnValue("/internal/recommendation-learning");
     mockContextualHelpForPathname.mockReturnValue(MINIMAL_ENTRY);
 
@@ -60,14 +60,14 @@ describe("PageContextualHelpButton", () => {
 
     fireEvent.click(trigger);
 
-    expect(screen.getByTestId("page-scoped-contextual-help-panel")).toBeInTheDocument();
+    expect(await screen.findByTestId("page-scoped-contextual-help-panel")).toBeInTheDocument();
     expect(screen.getByTestId("page-scoped-contextual-help-learn-more")).toHaveAttribute(
       "href",
       "/help/pilot-feedback",
     );
   });
 
-  it("uses Category-1 popover on architecture draft detail pages (ARR)", () => {
+  it("opens the Category-1 drawer on architecture draft detail pages (ARR)", async () => {
     mockUsePathname.mockReturnValue("/architecture/architectures/draft-abc");
     mockContextualHelpForPathname.mockReturnValue(MINIMAL_ENTRY);
 
@@ -79,10 +79,10 @@ describe("PageContextualHelpButton", () => {
 
     fireEvent.click(trigger);
 
-    expect(screen.getByTestId("page-scoped-contextual-help-panel")).toBeInTheDocument();
+    expect(await screen.findByTestId("page-scoped-contextual-help-panel")).toBeInTheDocument();
     expect(screen.getByTestId("page-scoped-contextual-help-learn-more")).toHaveAttribute(
       "href",
-      "/help/getting-started",
+      "/help/architecture-drafts",
     );
   });
 
@@ -94,7 +94,7 @@ describe("PageContextualHelpButton", () => {
     expect(container).toBeEmptyDOMElement();
   });
 
-  it("renders a borderless help link when Category-1 answers are not registered", () => {
+  it("opens the drawer with a full-help link when Category-1 answers are not registered", async () => {
     mockUsePathname.mockReturnValue("/architecture/reviews");
     mockContextualHelpForPathname.mockReturnValue(null);
 
@@ -102,8 +102,16 @@ describe("PageContextualHelpButton", () => {
 
     const trigger = screen.getByTestId("page-contextual-help-button");
 
-    expect(trigger.tagName).toBe("A");
+    expect(trigger.tagName).toBe("BUTTON");
     expect(trigger.className).not.toMatch(/\bborder(?:\s|-neutral|-transparent)/);
-    expect(trigger).toHaveAttribute("href", "/help/review-packages");
+
+    fireEvent.click(trigger);
+
+    expect(await screen.findByTestId("page-scoped-contextual-help-panel")).toBeInTheDocument();
+    expect(screen.getByText("Open the full help page for guidance on this screen.")).toBeInTheDocument();
+    expect(screen.getByTestId("page-scoped-contextual-help-learn-more")).toHaveAttribute(
+      "href",
+      "/help/review-packages",
+    );
   });
 });

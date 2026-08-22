@@ -4,7 +4,7 @@ export type PageContextualHelpAction = {
   readonly href: string;
 };
 
-/** The short answers one architect route offers in its contextual help popover. */
+/** The short answers one architect route offers in its contextual help drawer. */
 export type PageContextualHelpEntry = {
   readonly whatIsThisPage: string;
   readonly whatToDoNext: string;
@@ -12,6 +12,8 @@ export type PageContextualHelpEntry = {
   readonly whereToConfigurePrerequisite?: string;
   readonly whatToDoNextAction?: PageContextualHelpAction;
   readonly whereToConfigureAction?: PageContextualHelpAction;
+  /** Numbered task steps for the page-help drawer. Keep each step to one sentence. */
+  readonly taskSteps?: readonly string[];
 };
 
 /**

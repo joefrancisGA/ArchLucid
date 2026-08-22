@@ -56,7 +56,7 @@ export const OPERATOR_INLINE_LINK_TB1674_MIGRATED_SURFACES: readonly OperatorInl
   {
     id: "page-scoped-contextual-help-learn-more",
     modulePath: "components/usability/PageScopedContextualHelpPanel.tsx",
-    notes: "Page help Learn more — OPERATOR_LINK.optional.",
+    notes: "Page help Open full help page — OPERATOR_LINK.optional.",
   },
 ];
 

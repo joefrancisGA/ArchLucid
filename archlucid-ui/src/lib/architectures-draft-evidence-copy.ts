@@ -33,6 +33,11 @@ export const ARCHITECTURES_DRAFT_CONTEXTUAL_HELP = {
   whyEmpty: "Draft fields load from the architectures API for this id; empty fields mean the draft has no content yet.",
   whereToConfigurePrerequisite:
     "Drafting uses the workspace and project selected in the header switcher; saving a draft does not start a review.",
+  taskSteps: [
+    "Refine the system brief. Autosave keeps work; Save and exit stores a named draft.",
+    "Saving a draft does not start a review or submit evidence.",
+    "Open Start a review only when the brief is ready for evidence intake.",
+  ],
 } as const;
 
 /** True when the path is a saved architecture draft detail (not list or create-bootstrap). */
