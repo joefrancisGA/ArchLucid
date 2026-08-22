@@ -99,7 +99,7 @@ export function ArchitectureCreatedClarificationsEvidenceOrientationStrip(): Rea
       align="text-left"
       sourcesIntro={ARCHITECTURE_CREATED_CLARIFICATIONS_SOURCES_INTRO}
       sources={ARCHITECTURE_CREATED_CLARIFICATIONS_SOURCES}
-      claimHeading="Before finalize — gaps only"
+      claimHeading="Before finalize â€” gaps only"
       claim={ARCHITECTURE_CREATED_CLARIFICATIONS_CLAIM_DISCIPLINE}
     />
   );
@@ -112,7 +112,7 @@ export function ArchitectureCreatedFindingsEvidenceOrientationStrip(): React.JSX
       align="text-left"
       sourcesIntro={ARCHITECTURE_CREATED_FINDINGS_SOURCES_INTRO}
       sources={ARCHITECTURE_CREATED_FINDINGS_SOURCES}
-      claimHeading="Before finalize — findings only"
+      claimHeading="Before finalize â€” findings only"
       claim={ARCHITECTURE_CREATED_FINDINGS_CLAIM_DISCIPLINE}
     />
   );
@@ -126,7 +126,7 @@ export function ArchitectureCreatedOverviewEvidenceOrientationStrip(): React.JSX
       sourcesIntro={ARCHITECTURE_CREATED_OVERVIEW_SOURCES_INTRO}
       sources={ARCHITECTURE_CREATED_OVERVIEW_SOURCES}
       sourcesStyle={EVIDENCE_SOURCES_STYLE.evaluationInfoCallout}
-      claimHeading="Before finalize — orientation only"
+      claimHeading="Before finalize â€” orientation only"
       claim={ARCHITECTURE_CREATED_OVERVIEW_CLAIM_DISCIPLINE}
       claimStyle={EVIDENCE_CLAIM_STYLE.operatorNeutral}
     />
