@@ -15,6 +15,11 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import type { PageContextualHelpEntry } from "@/lib/contextual-help-registry";
+import {
+  dedupeDrawerRelatedLinks,
+  shouldShowDrawerSupplementDetail,
+  type PageHelpDrawerSupplement,
+} from "@/lib/help/page-help-drawer-supplement";
 import { PAGE_CONTEXTUAL_HELP_TRIGGER_CLASSNAME } from "@/components/usability/page-contextual-help-trigger";
 
 export const OPEN_FULL_HELP_PAGE_LABEL = "Open full help page";
@@ -26,6 +31,7 @@ export type PageScopedContextualHelpPanelProps = {
   /** Optional short visible trigger text (e.g. "Help"); defaults to `triggerLabel`. */
   readonly triggerText?: string;
   readonly learnMoreHref?: string | null;
+  readonly supplement?: PageHelpDrawerSupplement | null;
   /**
    * Optional drawer section id to scroll into view on open (for example `what-to-do-next`).
    * Unknown ids are ignored so future deep links can land on a subsection without a new API.
@@ -84,6 +90,42 @@ function TaskStepsList({ steps }: { readonly steps: readonly string[] }) {
   );
 }
 
+function KeyPointsList({ points }: { readonly points: readonly string[] }) {
+  return (
+    <div className="space-y-1" id={pageHelpDrawerSectionDomId("key-points")}>
+      <p className={cn(OPERATOR_TYPOGRAPHY.helper, "m-0 font-medium text-al-text-primary")}>Key points</p>
+      <ul className={cn("m-0 list-disc space-y-1 pl-5", OPERATOR_TYPOGRAPHY.helper)}>
+        {points.map((point) => (
+          <li key={point} className="m-0 pl-0.5">
+            {point}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+function RelatedLinksList({
+  links,
+}: {
+  readonly links: readonly { readonly label: string; readonly href: string }[];
+}) {
+  return (
+    <div className="space-y-1" id={pageHelpDrawerSectionDomId("related-links")}>
+      <p className={cn(OPERATOR_TYPOGRAPHY.helper, "m-0 font-medium text-al-text-primary")}>Related links</p>
+      <ul className={cn("m-0 list-none space-y-1 p-0", OPERATOR_TYPOGRAPHY.helper)}>
+        {links.map((link) => (
+          <li key={`${link.href}-${link.label}`} className="m-0">
+            <Link href={link.href} className={OPERATOR_LINK.inline}>
+              {link.label} →
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
 /**
  * Page-scoped contextual help: press the header trigger to open a non-modal right drawer.
  * Category-1 answers stay on the current page; Open full help page is the escape hatch to `/help/{slug}`.
@@ -93,6 +135,7 @@ export function PageScopedContextualHelpPanel({
   triggerLabel,
   triggerText,
   learnMoreHref,
+  supplement,
   sectionId,
 }: PageScopedContextualHelpPanelProps) {
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -100,6 +143,18 @@ export function PageScopedContextualHelpPanel({
   const visibleTriggerText = triggerText ?? triggerLabel;
   const dialogLabel = `Help: ${triggerLabel}`;
   const taskSteps = entry?.taskSteps;
+  const supplementDetail =
+    supplement?.detail != null &&
+    (entry == null || shouldShowDrawerSupplementDetail(supplement.detail, entry.whatIsThisPage))
+      ? supplement.detail
+      : null;
+  const supplementKeyPoints = supplement?.keyPoints ?? [];
+  const existingActionHrefs = [
+    entry?.whatToDoNextAction?.href,
+    entry?.whereToConfigureAction?.href,
+    learnMoreHref ?? undefined,
+  ].filter((href): href is string => href != null && href.trim().length > 0);
+  const supplementRelatedLinks = dedupeDrawerRelatedLinks(supplement?.relatedLinks, existingActionHrefs);
 
   useEffect(() => {
     if (!open) {
@@ -185,6 +240,11 @@ export function PageScopedContextualHelpPanel({
                 actionTestId="page-scoped-contextual-help-next-action"
               />
               {taskSteps != null && taskSteps.length > 0 ? <TaskStepsList steps={taskSteps} /> : null}
+              {supplementDetail != null ? (
+                <HelpField sectionId="more-detail" label="More detail" body={supplementDetail} />
+              ) : null}
+              {supplementKeyPoints.length > 0 ? <KeyPointsList points={supplementKeyPoints} /> : null}
+              {supplementRelatedLinks.length > 0 ? <RelatedLinksList links={supplementRelatedLinks} /> : null}
               {entry.whyEmpty != null ? (
                 <HelpField sectionId="why-empty" label="Why is this empty?" body={entry.whyEmpty} />
               ) : null}
@@ -197,6 +257,14 @@ export function PageScopedContextualHelpPanel({
                   actionTestId="page-scoped-contextual-help-configure-action"
                 />
               ) : null}
+            </>
+          ) : supplement?.detail != null || (supplement?.keyPoints?.length ?? 0) > 0 ? (
+            <>
+              {supplementDetail != null ? (
+                <HelpField sectionId="more-detail" label="More detail" body={supplementDetail} />
+              ) : null}
+              {supplementKeyPoints.length > 0 ? <KeyPointsList points={supplementKeyPoints} /> : null}
+              {supplementRelatedLinks.length > 0 ? <RelatedLinksList links={supplementRelatedLinks} /> : null}
             </>
           ) : (
             <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>

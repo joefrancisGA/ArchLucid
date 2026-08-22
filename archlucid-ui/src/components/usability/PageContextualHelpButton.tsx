@@ -3,6 +3,7 @@
 import { usePathname } from "next/navigation";
 
 import { contextualHelpForPathname } from "@/lib/contextual-help-registry";
+import { pageHelpDrawerSupplementForSlug } from "@/lib/help/page-help-drawer-supplement";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import { pageHelpTopicForPathname, pathnameIsInAppHelpTopic } from "@/lib/usability/page-help-topic-map";
 import { PAGE_CONTEXTUAL_HELP_TRIGGER_CLASSNAME } from "@/components/usability/page-contextual-help-trigger";
@@ -41,12 +42,15 @@ export function PageContextualHelpButton(props: PageContextualHelpButtonProps = 
       ? inAppHelpHref(topic.slug, topic.hashFragment)
       : null;
 
+  const supplement = pageHelpDrawerSupplementForSlug(topic.slug);
+
   return (
     <PageScopedContextualHelpPanel
       entry={contextualEntry}
       triggerLabel={topic.label}
       triggerText={props.triggerText}
       learnMoreHref={learnMoreHref}
+      supplement={supplement}
       sectionId={topic.hashFragment}
     />
   );

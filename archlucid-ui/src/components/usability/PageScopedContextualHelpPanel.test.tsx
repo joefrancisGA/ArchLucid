@@ -24,6 +24,15 @@ const FULL_ENTRY: PageContextualHelpEntry = {
   taskSteps: ["Complete the first step.", "Then finish the second step."],
 };
 
+const FINDINGS_SUPPLEMENT = {
+  detail:
+    "A finding is an evidence-backed architecture concern identified during a review. Findings describe the observed issue, its severity, the affected area, supporting evidence, and recommended action.",
+  keyPoints: [
+    "Title: Short statement of the architecture concern.",
+    "Severity: How urgent or material the risk is for the review.",
+  ],
+};
+
 const MINIMAL_ENTRY: PageContextualHelpEntry = {
   whatIsThisPage: "Only required fields.",
   whatToDoNext: "Next step only.",
@@ -77,6 +86,25 @@ describe("PageScopedContextualHelpPanel", () => {
 
     expect(learnMore).toHaveAttribute("href", "/help/review-packages");
     expect(learnMore).toHaveTextContent(OPEN_FULL_HELP_PAGE_LABEL);
+  });
+
+  it("renders drawer supplements after task steps", async () => {
+    render(
+      <PageScopedContextualHelpPanel
+        entry={FULL_ENTRY}
+        triggerLabel="Findings"
+        learnMoreHref="/help/findings"
+        supplement={FINDINGS_SUPPLEMENT}
+      />,
+    );
+
+    pressTrigger();
+
+    await screen.findByTestId("page-scoped-contextual-help-panel");
+
+    expect(screen.getByText("More detail")).toBeInTheDocument();
+    expect(screen.getByText(/evidence-backed architecture concern/)).toBeInTheDocument();
+    expect(screen.getByText("Key points")).toBeInTheDocument();
   });
 
   it("keeps field headings medium and primary after helper token merge", async () => {
