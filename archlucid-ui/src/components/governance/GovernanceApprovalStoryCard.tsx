@@ -11,7 +11,7 @@ import {
   BUYER_SHOWCASE_POLICY_PACK_LABEL,
   BUYER_SHOWCASE_REQUEST_OWNER_ROLE,
   BUYER_SHOWCASE_RESIDUAL_RISK_MONITORING_CADENCE,
-  BUYER_SHOWCASE_RESIDUAL_RISK_NEXT_REVIEW,
+  resolveBuyerShowcaseResidualRiskNextReviewIso,
   BUYER_SHOWCASE_RESIDUAL_RISK_OWNER,
 } from "@/lib/buyer/buyer-polish-copy";
 import { formatInstantForBuyerGovernance } from "@/lib/locale-datetime";
@@ -97,7 +97,7 @@ export function GovernanceApprovalStoryCard(props: {
                   <dt className="text-neutral-500 dark:text-neutral-500">Monitoring</dt>
                   <dd className="m-0 font-medium text-neutral-800 dark:text-neutral-200">{BUYER_SHOWCASE_RESIDUAL_RISK_MONITORING_CADENCE}</dd>
                   <dt className="text-neutral-500 dark:text-neutral-500">Next review</dt>
-                  <dd className="m-0 font-medium text-neutral-800 dark:text-neutral-200">{BUYER_SHOWCASE_RESIDUAL_RISK_NEXT_REVIEW}</dd>
+                  <dd className="m-0 font-medium text-neutral-800 dark:text-neutral-200">{resolveBuyerShowcaseResidualRiskNextReviewIso()}</dd>
                 </>
               ) : null}
             </dl>

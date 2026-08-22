@@ -3,7 +3,7 @@ import type { ReactElement } from "react";
 
 import {
   BUYER_SHOWCASE_RESIDUAL_RISK_MONITORING_CADENCE,
-  BUYER_SHOWCASE_RESIDUAL_RISK_NEXT_REVIEW,
+  resolveBuyerShowcaseResidualRiskNextReviewIso,
   BUYER_SHOWCASE_RESIDUAL_RISK_OWNER,
 } from "@/lib/buyer/buyer-polish-copy";
 import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -65,7 +65,7 @@ export function FindingInspectRecommendedActionSection({
             <dt className={cn("text-al-text-secondary", OPERATOR_NAV_GROUP_LABEL)}>
               Next review
             </dt>
-            <dd className="m-0 mt-0.5 text-al-text-primary">{BUYER_SHOWCASE_RESIDUAL_RISK_NEXT_REVIEW}</dd>
+            <dd className="m-0 mt-0.5 text-al-text-primary">{resolveBuyerShowcaseResidualRiskNextReviewIso()}</dd>
           </div>
         </dl>
       ) : null}

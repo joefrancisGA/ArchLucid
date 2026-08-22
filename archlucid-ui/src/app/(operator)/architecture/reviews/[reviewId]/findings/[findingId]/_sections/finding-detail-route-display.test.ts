@@ -53,7 +53,7 @@ describe("finding-detail-route-display buyer summary copy", () => {
     });
 
     expect(resolveFindingNextReviewLabel(payload, "sensitive-data-minimization-risk")).toBe(
-      BUYER_SHOWCASE_RESIDUAL_RISK_NEXT_REVIEW,
+      resolveBuyerShowcaseResidualRiskNextReviewIso(new Date("2026-08-22T12:00:00Z")),
     );
   });
 
