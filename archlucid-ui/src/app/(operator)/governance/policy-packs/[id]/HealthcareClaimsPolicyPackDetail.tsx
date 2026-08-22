@@ -127,7 +127,7 @@ export function HealthcareClaimsPolicyPackDetail(props: HealthcareClaimsPolicyPa
           </p>
           <p className="m-0">
             Resolve outcomes recorded against the finalized Claims Intake architecture package — cross-check the
-            Governance tab for promotion readiness.
+            Approval tab for promotion readiness.
           </p>
         </CollapsibleContent>
       </Collapsible>

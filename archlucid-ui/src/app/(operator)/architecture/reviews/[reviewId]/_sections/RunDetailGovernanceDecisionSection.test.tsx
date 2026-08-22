@@ -103,7 +103,7 @@ describe("RunDetailGovernanceDecisionSection", () => {
     render(<RunDetailGovernanceDecisionSection {...baseProps} manifestId="manifest-1" />);
 
     expect(screen.getByTestId("review-governance-secondary-view-strip")).toBeInTheDocument();
-    expect(screen.getByText("Governance decision")).toBeInTheDocument();
+    expect(screen.getByText("Approval decision")).toBeInTheDocument();
     expect(screen.getByText("No approval decision recorded")).toBeInTheDocument();
     expect(screen.queryByText(/after you finalize this architecture package/i)).not.toBeInTheDocument();
     expect(screen.queryByTestId("run-detail-governance-sources")).not.toBeInTheDocument();

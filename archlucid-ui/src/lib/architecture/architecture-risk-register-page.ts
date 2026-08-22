@@ -92,7 +92,7 @@ export const ARCHITECTURE_RISK_REGISTER_GLOSSARY = [
       "A time-bound policy exception for an accepted risk, with owner, rationale, and expiry tracked for audit readiness.",
   },
   {
-    term: "Governance decision",
+    term: "Approval decision",
     definition:
       "A recorded approval, rejection, or monitoring disposition tied to a finalized review and evidence trail.",
   },

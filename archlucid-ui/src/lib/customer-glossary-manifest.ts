@@ -72,7 +72,7 @@ export const CUSTOMER_GLOSSARY_TERMS: readonly CustomerGlossaryTerm[] = [
     id: "review-package",
     label: "Architecture review",
     definition:
-      "The durable record for one architecture review: findings, decisions, evidence links, finalized review record, governance records, and exportable deliverables.",
+      "The durable record for one architecture review: findings, decisions, evidence links, finalized review record, approval records, and exportable deliverables.",
     category: "review-process",
     relatedTermIds: ["review", "sealed-review-record", "deliverable"],
     detail:
@@ -134,7 +134,7 @@ export const CUSTOMER_GLOSSARY_TERMS: readonly CustomerGlossaryTerm[] = [
     id: "decision",
     label: "Decision",
     definition:
-      "A recorded disposition on review proposals — such as approve, waive, defer, or escalate — captured for governance and audit. Not the same as the finalized review record (the package that locks those decisions at finalize).",
+      "A recorded disposition on review proposals — such as approve, waive, defer, or escalate — captured for approval and audit. Not the same as the finalized review record (the package that locks those decisions at finalize).",
     category: "decisions-and-findings",
     relatedTermIds: ["governance-approval", "finding", "sealed-review-record"],
     detail:

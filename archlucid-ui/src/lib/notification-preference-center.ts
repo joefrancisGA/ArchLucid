@@ -51,7 +51,7 @@ export const NOTIFICATION_PREFERENCE_STATUS_HINTS: Readonly<
   Record<NotificationPreferenceStatusHintKey, string>
 > = {
   configureInDigests: "Configure email digests and subscriptions on Digests.",
-  configureInAlertsInbox: "Configure triage and resolution for governance alerts in the Alerts inbox.",
+  configureInAlertsInbox: "Configure triage and resolution for alerts in the Alerts inbox.",
   configureInAlertRules: "Configure alert conditions and notification routing on Alert rules.",
   configureInTeams: "Configure which events post to Microsoft Teams on the Teams integration page.",
   configureInSlack: "Configure which events post to Slack on the Slack integration page.",
@@ -83,7 +83,7 @@ export const NOTIFICATION_PREFERENCE_CHANNELS: readonly NotificationPreferenceCh
   {
     id: "alerts-inbox",
     title: OPERATOR_NAV_LINK_LABELS.alerts,
-    whatItDoes: "In-product governance alerts when enabled rules detect findings that need attention.",
+    whatItDoes: "In-product alerts when enabled rules detect findings that need attention.",
     href: "/governance/alerts",
     statusHintKey: "configureInAlertsInbox",
     ctaLabel: "Open alerts inbox",
@@ -299,7 +299,7 @@ function resolveAlertsInboxDeliveryStatus(
     return {
       kind: "ready",
       label: "Connected",
-      provenanceFact: "No open governance alerts right now.",
+      provenanceFact: "No open alerts right now.",
       configureHint: configureHintForChannel("alerts-inbox"),
     };
   }
@@ -310,7 +310,7 @@ function resolveAlertsInboxDeliveryStatus(
     provenanceFact:
       input.openAlertsCount === 1
         ? "1 open governance alert."
-        : `${input.openAlertsCount} open governance alerts.`,
+        : `${input.openAlertsCount} open alerts.`,
     configureHint: configureHintForChannel("alerts-inbox"),
   };
 }

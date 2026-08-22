@@ -96,7 +96,7 @@ export function RunDetailSponsorReport(
           </dd>
         </div>
         <div>
-          <dt className="text-neutral-500 dark:text-neutral-400">Governance decision</dt>
+          <dt className="text-neutral-500 dark:text-neutral-400">Approval decision</dt>
           <dd className="m-0 mt-0.5 font-semibold text-neutral-900 dark:text-neutral-100">
             {props.governanceDecisionLabel}
           </dd>

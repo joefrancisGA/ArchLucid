@@ -22,7 +22,7 @@ export const ASK_VS_FRONTIER_AI_ASK_IS_FOR_BULLETS = [
 export const ASK_VS_FRONTIER_AI_ASK_WILL_NOT_HEADING = "Ask will not" as const;
 
 export const ASK_VS_FRONTIER_AI_ASK_WILL_NOT_BULLETS = [
-  "Replace formal governance records, approvals, or the Decision register.",
+  "Replace formal approval records, approvals, or the Decision register.",
   "Invent architecture outside the selected review's evidence.",
   "Serve as an unaudited frontier-chat paste that becomes your system of record.",
 ] as const;

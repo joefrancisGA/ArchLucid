@@ -150,7 +150,7 @@ export function HelpAlertsGuideView(props: HelpAlertsGuideViewProps): React.Reac
             aria-labelledby="related-governance-concepts"
             className="space-y-3 border-t border-neutral-200 pt-6 dark:border-neutral-800"
           >
-            <HelpSectionHeading id="related-governance-concepts">Related governance concepts</HelpSectionHeading>
+            <HelpSectionHeading id="related-governance-concepts">Related approval concepts</HelpSectionHeading>
             <div className="grid gap-3" data-testid="help-alerts-related-concepts">
               {ALERTS_HELP_RELATED_CONCEPTS.map((concept) => (
                 <div

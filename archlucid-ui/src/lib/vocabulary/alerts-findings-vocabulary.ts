@@ -56,7 +56,7 @@ export const ALERTS_FINDINGS_FINDINGS_LINK: AlertsFindingsLink = {
   id: "findings-queue",
   label: "Findings queue",
   href: GOVERNANCE_FINDINGS_PATH,
-  whenToUse: "Disposition risks, assign owners, and clear open governance items.",
+  whenToUse: "Disposition risks, assign owners, and clear open approval items.",
 };
 
 /** Pairwise model for Alerts inbox ↔ Findings queue (fixed governance routes). */

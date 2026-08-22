@@ -47,7 +47,7 @@ export const POLICY_PACKS_STANDARDS_POLICY_PACKS_LINK: PolicyPacksStandardsLink 
   id: "policy-packs",
   label: "Policy packs",
   href: GOVERNANCE_POLICY_PACKS_PATH,
-  whenToUse: "Assign, author, or inspect governance policy packs for a scope.",
+  whenToUse: "Assign, author, or inspect policy packs for a scope.",
 };
 
 export const POLICY_PACKS_STANDARDS_STANDARDS_LINK: PolicyPacksStandardsLink = {

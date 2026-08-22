@@ -25,9 +25,9 @@ vi.mock("@/hooks/use-notification-channel-delivery-status", () => ({
       "alerts-inbox": {
         kind: "ready",
         label: "Connected",
-        provenanceFact: "No open governance alerts right now.",
+        provenanceFact: "No open alerts right now.",
         configureHint:
-          "Configure triage and resolution for governance alerts in the Alerts inbox.",
+          "Configure triage and resolution for alerts in the Alerts inbox.",
       },
       "alert-rules": {
         kind: "needs-attention",

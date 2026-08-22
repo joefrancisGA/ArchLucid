@@ -19,10 +19,10 @@ import { inAppHelpHref } from "@/lib/product-documentation-registry";
 export const ALERTS_HELP_PAGE_TITLE = OPERATOR_NAV_LINK_LABELS.alerts;
 
 export const ALERTS_HELP_PAGE_SUBTITLE =
-  "Learn how ArchLucid identifies governance risks, routes them to the right owners, and tracks resolution.";
+  "Learn how ArchLucid identifies policy and approval risks, routes them to the right owners, and tracks resolution.";
 
 export const ALERTS_HELP_OVERVIEW =
-  "Governance alerts are created when enabled rules detect findings that require attention. An alert is a follow-up work item driven by alert rules — it is not the same as finding severity. Alerts appear in the Alerts inbox, where authorized users can acknowledge, assign, waive, or resolve them.";
+  "Alerts are created when enabled rules detect findings that require attention. An alert is a follow-up work item driven by alert rules — it is not the same as finding severity. Alerts appear in the Alerts inbox, where authorized users can acknowledge, assign, waive, or resolve them.";
 
 export const ALERTS_HELP_PRIMARY_ACTIONS = {
   openInbox: {
@@ -34,7 +34,7 @@ export const ALERTS_HELP_PRIMARY_ACTIONS = {
     href: governanceAlertRulesTabHref("rules"),
   },
   governanceSetup: {
-    label: "Review governance setup",
+    label: "Review approval setup",
     href: ALERTS_ACTION_OPEN_GOVERNANCE_SETUP_GUIDE_HREF,
   },
 } as const;
@@ -83,7 +83,7 @@ export const ALERTS_HELP_ACTION_PANEL_CONSEQUENCES: Readonly<Record<AlertsHelpAc
   unavailable:
     "Retry from the readiness strip below, or open the alerts inbox or alert rules directly.",
   "rules-not-configured":
-    "Without enabled rules, governance risks will not surface as alerts in this workspace.",
+    "Without enabled rules, policy and approval risks will not surface as alerts in this workspace.",
   "ready-for-inbox":
     "Review, assign, and resolve alerts routed from your enabled rules.",
 };
@@ -105,7 +105,7 @@ export const ALERTS_HELP_MOST_RECENT_ALERT_ACTIVITY_NO_RULES = "Rules not config
 export const ALERTS_HELP_MOST_RECENT_ALERT_ACTIVITY_NONE = "No alert activity yet";
 
 export const ALERTS_HELP_READINESS_FORBIDDEN_MESSAGE =
-  "Live alert status needs a role that can manage governance alerts.";
+  "Live alert status needs a role that can manage alerts.";
 
 export const ALERTS_HELP_HOW_ALERTS_WORK_STEPS = [
   "A review identifies architecture findings.",
@@ -175,7 +175,7 @@ export const ALERTS_HELP_GUIDE_HEADINGS: readonly HelpMarkdownHeading[] = [
   { level: 2, id: "what-can-trigger-an-alert", title: "What can trigger an alert" },
   { level: 2, id: "where-alerts-are-managed", title: "Where alerts are managed" },
   { level: 2, id: "resolving-an-alert", title: "Resolving an alert" },
-  { level: 2, id: "related-governance-concepts", title: "Related governance concepts" },
+  { level: 2, id: "related-governance-concepts", title: "Related approval concepts" },
   { level: 2, id: ALERTS_HELP_CLAIM_HEADING_ID, title: ALERTS_HELP_CLAIM_DISCIPLINE_HEADING },
   { level: 2, id: "where-to-go-next", title: "Where to go next" },
 ];

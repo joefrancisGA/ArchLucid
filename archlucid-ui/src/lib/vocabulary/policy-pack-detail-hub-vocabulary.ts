@@ -3,7 +3,7 @@
  *
  * Why two policy-pack surfaces exist:
  * - Policy packs (`/governance/policy-packs`) is the hub to assign, author, and
- *   browse governance policy packs for a scope.
+ *   browse policy packs for a scope.
  * - Pack detail (`/governance/policy-packs/[id]`) inspects one pack’s narrative
  *   and metadata.
  *
@@ -36,7 +36,7 @@ export const POLICY_PACK_DETAIL_HUB_HEADING =
   "Pack detail and Policy packs serve different purposes" as const;
 
 export const POLICY_PACK_DETAIL_HUB_WHY_TWO =
-  "Policy packs is the hub to assign, author, and browse governance policy packs for a scope. Pack detail inspects one pack’s narrative and metadata. The library is not a single pack workspace." as const;
+  "Policy packs is the hub to assign, author, and browse policy packs for a scope. Pack detail inspects one pack’s narrative and metadata. The library is not a single pack workspace." as const;
 
 export const POLICY_PACK_DETAIL_HUB_COMPACT_LINE =
   "Policy packs assigns and browses the library; Pack detail inspects one pack — open the other when you need both." as const;
@@ -45,7 +45,7 @@ export const POLICY_PACK_DETAIL_HUB_PACKS_LINK: PolicyPackDetailHubLink = {
   id: "policy-packs",
   label: "Policy packs",
   href: GOVERNANCE_POLICY_PACKS_PATH,
-  whenToUse: "Assign, author, or browse governance policy packs for a scope.",
+  whenToUse: "Assign, author, or browse policy packs for a scope.",
 };
 
 /** Pack detail is per-pack; href uses the packs hub as the stable peer home. */

@@ -31,7 +31,7 @@ export const GOVERNANCE_SETUP_GUIDE_STEPS: readonly GovernanceSetupStepDefinitio
   {
     stepNumber: 3,
     title: "Configure alert ownership",
-    description: "Route important governance alerts to the teams responsible for responding.",
+    description: "Route important alerts to the teams responsible for responding.",
     outcome: "Critical signals reach owners instead of a silent inbox.",
     tracked: true,
     primaryActionLabel: ALERTS_CONFIGURE_RULES_LINK_LABEL,

@@ -5,7 +5,7 @@ import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
 const TEAMS_INTEGRATION_HUB_CONTEXTUAL_HELP = {
   whatIsThisPage:
-    "Microsoft Teams integration — configure a Teams channel destination that receives governance alerts for this workspace.",
+    "Microsoft Teams integration — configure a Teams channel destination that receives alerts for this workspace.",
   whatToDoNext:
     "Save or test the Teams connector, then open Alert rules when you need to change which events fire notifications.",
   whyEmpty: "Connection status appears after this workspace can load Teams notification settings.",
@@ -22,7 +22,7 @@ export const TEAMS_INTEGRATION_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelp
     prefix: "/help/teams-integration",
     entry: {
       whatIsThisPage:
-        "Teams notifications — how channel destinations route governance alerts and when to open alert rules.",
+        "Teams notifications — how channel destinations route alerts and when to open alert rules.",
       whatToDoNext:
         "Open Teams notifications to configure the connector, then follow alert rules when routing needs adjustment.",
       whyEmpty: "This guide is always available; connection status loads after notification settings respond.",

@@ -22,7 +22,7 @@ describe("AlertRoutingSubscriptionDisableDialog", () => {
     );
 
     expect(screen.getByRole("heading", { name: /Disable Slack destination Ops alerts/i })).toBeInTheDocument();
-    expect(screen.getByText(/Governance alerts will no longer post/i)).toBeInTheDocument();
+    expect(screen.getByText(/Alerts will no longer post/i)).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: "Disable" }));
 

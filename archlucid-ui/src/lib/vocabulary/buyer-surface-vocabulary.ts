@@ -34,7 +34,7 @@ export const BUYER_TERMINOLOGY = {
   evaluationFeedback: "Review feedback",
   evaluationValueReport: "Pilot outcomes",
   reviewScorecard: "Architecture scorecard",
-  governanceDashboard: "Governance dashboard",
+  governanceDashboard: "Workspace health",
   portfolioOverview: "Sponsor dashboard",
 } as const;
 

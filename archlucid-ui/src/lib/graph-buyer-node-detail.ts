@@ -263,7 +263,7 @@ export function graphBuyerTrailMetadataLines(
     attachStructuredField("Blocking status", "Non-blocking");
     attachStructuredField(
       "Monitoring cadence",
-      "Ongoing intake monitoring aligned to governance checkpoints",
+      "Ongoing intake monitoring aligned to approval checkpoints",
     );
   }
 

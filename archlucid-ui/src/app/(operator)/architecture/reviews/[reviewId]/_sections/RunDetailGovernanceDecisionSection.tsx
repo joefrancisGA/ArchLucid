@@ -215,7 +215,7 @@ export function RunDetailGovernanceDecisionSection(
         className="mb-3"
       />
       <h2 className={cn("m-0 mb-3 text-base font-semibold text-neutral-900 dark:text-neutral-100")}>
-        Governance decision
+        Approval decision
       </h2>
       <dl className={cn("m-0 grid gap-3 sm:grid-cols-2", OPERATOR_TYPOGRAPHY.body)}>
         <div>
