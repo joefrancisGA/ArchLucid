@@ -55,6 +55,11 @@ export const INTEGRATION_READINESS_CONTEXTUAL_HELP_ROWS: readonly PageContextual
         label: "Open Jira integration",
         href: "/integrations/jira",
       },
+      taskSteps: [
+        "Review connector health probes for each provider.",
+        "Complete onboarding for deployment credentials.",
+        "Open buyer Jira or ServiceNow settings for workspace defaults.",
+      ],
     },
   },
   {
@@ -70,6 +75,11 @@ export const INTEGRATION_READINESS_CONTEXTUAL_HELP_ROWS: readonly PageContextual
         label: "Open Connection status",
         href: "/administration/connection-status",
       },
+      taskSteps: [
+        "Open Connection status for live connector labels.",
+        "Configure recommended chat connectors first.",
+        "Add optional ITSM destinations when ticketing exports are needed.",
+      ],
     },
   },
 ];

@@ -24,6 +24,11 @@ const AI_USAGE_HUB_CONTEXTUAL_HELP = {
     label: "Open model governance",
     href: "/administration/model-governance",
   },
+  taskSteps: [
+    "Review KPIs and daily usage for this workspace.",
+    "Open Billing and plans when budget caps need adjustment.",
+    "Open Model governance when execution profiles drive spend.",
+  ],
 } as const;
 
 export const AI_USAGE_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] = [

@@ -19,6 +19,11 @@ export const APPROVAL_LINEAGE_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpR
         label: "Open approval queue",
         href: GOVERNANCE_APPROVAL_QUEUE_PATH,
       },
+      taskSteps: [
+        "Open the linked review or findings for full context.",
+        "Return to the approval queue to submit or decide.",
+        "Open Audit when you need the activity trail.",
+      ],
     },
   },
 ];
