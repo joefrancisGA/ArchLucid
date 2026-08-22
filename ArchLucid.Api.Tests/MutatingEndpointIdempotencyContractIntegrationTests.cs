@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using System.Net.Http.Json;
 
 using ArchLucid.Api.Tests.TestDtos;
@@ -55,8 +55,7 @@ public sealed class MutatingEndpointIdempotencyContractIntegrationTests(ArchLuci
         CreateRunResponseDto? created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
         string runId = created!.Run.RunId;
 
-        HttpResponseMessage executeResponse = await Client.PostAsync($"/v1/architecture/review/{runId}/execute", null);
-        await executeResponse.EnsureSuccessForTestAsync();
+        await Client.PostExecuteUnlessAuthorityPipelineCompleteAsync(runId);
 
         string idempotencyKey = "tb323-commit-" + Guid.NewGuid().ToString("N");
         object commitBody = new { notifySponsor = false };
@@ -98,8 +97,7 @@ public sealed class MutatingEndpointIdempotencyContractIntegrationTests(ArchLuci
         CreateRunResponseDto? created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
         string runId = created!.Run.RunId;
 
-        HttpResponseMessage executeResponse = await Client.PostAsync($"/v1/architecture/review/{runId}/execute", null);
-        await executeResponse.EnsureSuccessForTestAsync();
+        await Client.PostExecuteUnlessAuthorityPipelineCompleteAsync(runId);
         HttpResponseMessage commitResponse = await Client.PostAsync($"/v1/architecture/review/{runId}/finalize", null);
         await commitResponse.EnsureSuccessForTestAsync();
         CommitRunResponseDto? commitPayload =

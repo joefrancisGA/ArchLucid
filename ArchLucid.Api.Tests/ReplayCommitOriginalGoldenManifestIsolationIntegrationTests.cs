@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using System.Net.Http.Json;
 using System.Security.Cryptography;
 using System.Text;
@@ -27,8 +27,7 @@ public sealed class ReplayCommitOriginalGoldenManifestIsolationIntegrationTests(
         CreateRunResponseDto? created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
         string runId = created!.Run.RunId;
 
-        HttpResponseMessage executeResponse = await Client.PostAsync($"/v1/architecture/review/{runId}/execute", null);
-        await executeResponse.EnsureSuccessForTestAsync();
+        await Client.PostExecuteUnlessAuthorityPipelineCompleteAsync(runId);
         HttpResponseMessage commitResponse = await Client.PostAsync($"/v1/architecture/review/{runId}/finalize", null);
         await commitResponse.EnsureSuccessForTestAsync();
         HttpResponseMessage detailBeforeReplay = await Client.GetAsync($"/v1/authority/reviews/{runId}");

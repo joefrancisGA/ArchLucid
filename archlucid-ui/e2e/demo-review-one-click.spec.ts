@@ -6,6 +6,7 @@ import {
   operatorDemoReviewApiResponse,
 } from "./fixtures/operator-demo-review-run";
 import { expandFindingWorkspaceCard, openReviewDetailWorkspaceTab } from "./helpers/operator-journey";
+import { waitForAppReady } from "./helpers/waits";
 
 /**
  * Reliability guard for the one-click demo review path (assessment Tier 2 #7).
@@ -29,6 +30,7 @@ test.describe("demo review one-click reliability @demo-review", () => {
     });
 
     await page.goto(`/architecture/reviews/${encodeURIComponent(OPERATOR_DEMO_REVIEW_RUN_ID)}`);
+    await waitForAppReady(page);
 
     const reviewDetail = page.getByTestId("review-detail-root");
     await openReviewDetailWorkspaceTab(page, OPERATOR_DEMO_REVIEW_RUN_ID, "policies");

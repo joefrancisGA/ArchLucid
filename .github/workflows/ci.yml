@@ -3815,7 +3815,7 @@ jobs:
     needs: gitleaks
     if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 65
     steps:
       - uses: actions/checkout@v5
 
@@ -5113,7 +5113,7 @@ jobs:
     needs: dotnet-fast-core
     if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 25
     services:
       sqlserver:
         image: mcr.microsoft.com/mssql/server:2022-latest

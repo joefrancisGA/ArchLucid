@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
@@ -54,8 +54,7 @@ public sealed class ArchivalConcurrencyIntegrationTests
         string runId = created!.Run.RunId;
         Guid runKey = Guid.Parse(runId);
 
-        HttpResponseMessage executeResponse = await client.PostAsync($"/v1/architecture/review/{runId}/execute", null);
-        await executeResponse.EnsureSuccessForTestAsync();
+        await client.PostExecuteUnlessAuthorityPipelineCompleteAsync(runId);
         const int parallel = 5;
         object body = new { runIds = new[] { runKey } };
         Task<HttpResponseMessage>[] tasks = new Task<HttpResponseMessage>[parallel];

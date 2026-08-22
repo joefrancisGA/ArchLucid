@@ -1,4 +1,4 @@
-﻿using System.Net.Http.Json;
+using System.Net.Http.Json;
 using System.Text.Json;
 
 using ArchLucid.Api.Tests.TestDtos;
@@ -25,8 +25,7 @@ public sealed class ArchitectureRunDetailsTests(ArchLucidApiFactory factory) : I
             await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
         string runId = created!.Run.RunId;
 
-        HttpResponseMessage executeResponse = await Client.PostAsync($"/v1/architecture/review/{runId}/execute", null);
-        await executeResponse.EnsureSuccessForTestAsync();
+        await Client.PostExecuteUnlessAuthorityPipelineCompleteAsync(runId);
         HttpResponseMessage commitResponse = await Client.PostAsync($"/v1/architecture/review/{runId}/finalize", null);
         await commitResponse.EnsureSuccessForTestAsync();
         HttpResponseMessage runResponse = await Client.GetAsync($"/v1/architecture/review/{runId}");

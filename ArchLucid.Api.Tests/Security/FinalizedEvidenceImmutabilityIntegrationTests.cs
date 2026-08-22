@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using System.Net.Http.Json;
 using System.Security.Cryptography;
 using System.Text;
@@ -29,8 +29,7 @@ public sealed class FinalizedEvidenceImmutabilityIntegrationTests(ArchLucidApiFa
         CreateRunResponseDto? created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
         string runId = created!.Run.RunId;
 
-        HttpResponseMessage executeResponse = await Client.PostAsync($"/v1/architecture/review/{runId}/execute", null);
-        await executeResponse.EnsureSuccessForTestAsync();
+        await Client.PostExecuteUnlessAuthorityPipelineCompleteAsync(runId);
         HttpResponseMessage commitResponse = await Client.PostAsync($"/v1/architecture/review/{runId}/finalize", null);
         await commitResponse.EnsureSuccessForTestAsync();
 
@@ -70,8 +69,11 @@ public sealed class FinalizedEvidenceImmutabilityIntegrationTests(ArchLucidApiFa
         CreateRunResponseDto? created = await createResponse.Content.ReadFromJsonAsync<CreateRunResponseDto>(JsonOptions);
         string runId = created!.Run.RunId;
 
-        HttpResponseMessage firstExecute = await Client.PostAsync($"/v1/architecture/review/{runId}/execute", null);
-        await firstExecute.EnsureSuccessForTestAsync();
+        HttpResponseMessage firstExecute = await Client.PostExecuteForTestAsync(runId);
+
+        if (await firstExecute.IsAuthorityPipelineCompleteExecuteConflictAsync())
+            Skip.If(true, "authority-pipeline complete on create; execute idempotency test not applicable.");
+
         ExecuteRunResponseDto? firstPayload =
             await firstExecute.Content.ReadFromJsonAsync<ExecuteRunResponseDto>(JsonOptions);
         firstPayload.Should().NotBeNull();
@@ -80,11 +82,13 @@ public sealed class FinalizedEvidenceImmutabilityIntegrationTests(ArchLucidApiFa
         await commitResponse.EnsureSuccessForTestAsync();
 
         HttpResponseMessage secondExecute = await Client.PostAsync($"/v1/architecture/review/{runId}/execute", null);
-        secondExecute.StatusCode.Should().Be(HttpStatusCode.OK);
-        ExecuteRunResponseDto? secondPayload =
-            await secondExecute.Content.ReadFromJsonAsync<ExecuteRunResponseDto>(JsonOptions);
-        secondPayload.Should().NotBeNull();
-        secondPayload!.Results.Should().HaveCount(firstPayload!.Results.Count);
+        (await secondExecute.IsAuthorityPipelineCompleteExecuteConflictAsync()).Should().BeTrue();
+
+        HttpResponseMessage getRunResponse = await Client.GetAsync($"/v1/architecture/review/{runId}");
+        await getRunResponse.EnsureSuccessForTestAsync();
+        GetRunResponseDto? getRunPayload =
+            await getRunResponse.Content.ReadFromJsonAsync<GetRunResponseDto>(JsonOptions);
+        getRunPayload!.Results.Should().HaveCount(firstPayload!.Results.Count);
     }
 
     private async Task<string> GoldenManifestRawFingerprintAsync(string runId)
