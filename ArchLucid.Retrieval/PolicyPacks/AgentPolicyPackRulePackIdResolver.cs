@@ -1,6 +1,5 @@
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Governance.PolicyPacks;
-using ArchLucid.Core.Governance.PolicyPacks;
 using ArchLucid.Decisioning.Governance.PolicyPacks;
 using ArchLucid.Retrieval.Indexing;
 

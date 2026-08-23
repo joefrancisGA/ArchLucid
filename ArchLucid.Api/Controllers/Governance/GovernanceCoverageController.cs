@@ -4,6 +4,7 @@ using ArchLucid.Api.Models.Coverage;
 using ArchLucid.Application.Governance.Coverage;
 using ArchLucid.Contracts.Governance.Coverage;
 using ArchLucid.Contracts.Governance.PolicyPacks;
+using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
@@ -34,6 +35,7 @@ public sealed class GovernanceCoverageController(
     IScopeContextProvider scopeContextProvider) : ControllerBase
 {
     [HttpPost("coverage/preview")]
+    [MutatingAuditExcluded("Read-only coverage preview; does not persist domain mutations.")]
     [ProducesResponseType(typeof(CoveragePreviewResponse), StatusCodes.Status200OK)]
     public async Task<IActionResult> PreviewCoverage(
         [FromBody] CoveragePreviewRequest request,

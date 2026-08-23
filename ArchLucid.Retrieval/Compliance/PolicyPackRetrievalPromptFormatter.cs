@@ -34,7 +34,7 @@ public static class PolicyPackRetrievalPromptFormatter
         sb.AppendLine(blockTitle);
         sb.Append("- groundingMissing: false — cite these rules when stating ");
         sb.Append(objective);
-        sb.AppendLine(':');
+        sb.AppendLine(":");
 
         for (int i = 0; i < hits!.Count; i++)
         {
