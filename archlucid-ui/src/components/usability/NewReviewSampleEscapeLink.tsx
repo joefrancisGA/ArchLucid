@@ -6,7 +6,7 @@ import {
   NEW_REVIEW_SAMPLE_ESCAPE_CTA,
   NEW_REVIEW_SAMPLE_ESCAPE_HINT,
 } from "@/lib/buyer/buyer-polish-copy";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { showcaseSpecimenSignedReviewRecordHref } from "@/lib/showcase-sample-review-registry";
 
 const sampleReviewHref = showcaseSpecimenSignedReviewRecordHref();
@@ -22,9 +22,14 @@ export function NewReviewSampleEscapeLink(props: NewReviewSampleEscapeLinkProps)
 
   if (presentation === "inline") {
     return (
-      <Button asChild variant="outline" size="sm" data-testid="new-review-sample-escape-inline">
-        <Link href={sampleReviewHref}>{NEW_REVIEW_SAMPLE_ESCAPE_CTA}</Link>
-      </Button>
+      <p
+        className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+        data-testid="new-review-sample-escape-inline"
+      >
+        <Link href={sampleReviewHref} className={OPERATOR_LINK.nav}>
+          {NEW_REVIEW_SAMPLE_ESCAPE_CTA}
+        </Link>
+      </p>
     );
   }
 

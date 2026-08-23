@@ -6,12 +6,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { LlmMonthlyBudgetExceededBanner } from "@/components/llm/LlmMonthlyBudgetExceededBanner";
-import { ReviewStartInlineError } from "@/components/review-intake/ReviewStartInlineError";
-import { ReviewStartLoadingButton } from "@/components/review-intake/ReviewStartLoadingButton";
-import { ReviewStartStagedProgress } from "@/components/review-intake/ReviewStartStagedProgress";
-import { ReviewStartUnresolvedNotice } from "@/components/review-intake/ReviewStartUnresolvedNotice";
 import { ReviewIntakeExampleTemplateCallout } from "@/components/review-intake/ReviewIntakeExampleTemplateCallout";
-import { ReviewPathTimeEstimateBanner } from "@/components/ReviewPathTimeEstimateBanner";
 import { ArchitectureScopeUnderstandingCheckPanel } from "@/components/architecture/ArchitectureScopeUnderstandingCheckPanel";
 import { QuickStartL0MustQuestionsPanel } from "@/components/architecture/QuickStartL0MustQuestionsPanel";
 import { EvidenceGapForecastPanel } from "@/components/evidence/EvidenceGapForecastPanel";
@@ -19,7 +14,6 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { NewReviewSampleEscapeLink } from "@/components/usability/NewReviewSampleEscapeLink";
 import { PreExecuteCostEstimateNotice } from "@/components/usability/PreExecuteCostEstimateNotice";
 import {
   proofScopeToRequiredCapabilities,
@@ -30,7 +24,6 @@ import { CORE_PILOT_PATH_STREAMLINED_LABELS } from "@/lib/vocabulary/core-pilot-
 import { FocusedPilotPolicyPackAppliedCallout } from "@/components/wizard/FocusedPilotPolicyPackAppliedCallout";
 import { ReviewAssuranceCoverageSection } from "@/components/wizard/ReviewAssuranceCoverageSection";
 import { WizardSessionResumePrompt } from "@/components/wizard/WizardSessionResumePrompt";
-import { WizardSessionSaveStatus } from "@/components/wizard/WizardSessionSaveStatus";
 import { useLlmMonthlyBudgetExecutionGate } from "@/hooks/use-llm-monthly-budget-execution-gate";
 import { useInferredUniversalIntakeAnswers } from "@/hooks/use-inferred-universal-intake-answers";
 import { useWizardSessionPersistence } from "@/hooks/use-wizard-session-persistence";
@@ -47,7 +40,7 @@ import {
   type ScopeUnderstandingBullet,
 } from "@/lib/architecture/architecture-scope-understanding-check";
 import { GUIDED_INTAKE_ARCHITECTURE_CONTEXT_LABEL } from "@/lib/guided-intake-copy";
-import { BUYER_START_ARCHITECTURE_REVIEW_CTA, CREATE_REVIEW_PACKAGE_HEADING } from "@/lib/buyer/buyer-polish-copy";
+import { CREATE_REVIEW_PACKAGE_HEADING } from "@/lib/buyer/buyer-polish-copy";
 import { deriveEvidencePresenceFromFileNames } from "@/lib/evidence-gap-forecast";
 import {
   ARCHITECTURE_DOCUMENT_READ_AFTER_UPLOAD_HELPER,
@@ -55,10 +48,7 @@ import {
   evidenceFilesIncludeBinaryArchitectureDocument,
 } from "@/lib/evidence-readable-text";
 import { EVIDENCE_UPLOAD_ACCEPTED_FORMATS_ACCEPTED_PREFIX } from "@/lib/evidence-upload-accepted-formats";
-import {
-  REVIEW_START_CREATION_FAILED_MESSAGE,
-  REVIEW_START_PREPARING_LABEL,
-} from "@/lib/review-start-progress-copy";
+import { REVIEW_START_CREATION_FAILED_MESSAGE } from "@/lib/review-start-progress-copy";
 import { applyFocusedPilotModePolicyReferences } from "@/lib/focused-pilot-mode-policy-packs";
 import { CLOUD_TARGET_QUESTION_KEY } from "@/components/draft-intake/DraftIntakeRequiredClarificationField";
 import { ARCHITECTURE_DRAFT_UNKNOWN_CONFIRM_LABEL } from "@/lib/architecture/architecture-draft-structured-brief";
@@ -73,6 +63,8 @@ import {
 import { REVIEW_INTAKE_EVIDENCE_FIRST_PROGRESS_LEAD } from "@/lib/create-vs-review-intake-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { recordFirstTenantFunnelEvent } from "@/lib/first-tenant-funnel-telemetry";
+
+import { FirstPilotIntakeStartFooter } from "./FirstPilotIntakeStartFooter";
 import { trackReviewPipelineInFlight } from "@/lib/operations/review-pipeline-in-flight";
 import {
   buildEvidenceBackedIntakeBrief,
@@ -634,6 +626,7 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
             summaryLine={CORE_PILOT_PATH_STREAMLINED_LABELS.firstIntakeAdvancedNote}
             sectionTestId="first-pilot-standards-selection"
           >
+            <FocusedPilotPolicyPackAppliedCallout className="mb-3" />
             <ReviewAssuranceCoverageSection
               togglePresentation="choice"
               focusedPilotModeEnabled={focusedPilotModeEnabled}
@@ -641,81 +634,51 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
             />
           </CollapsibleSection>
 
-          <ReviewPathTimeEstimateBanner pathId="quick-review" />
-
-          {creationProgress.showStagedPanel && creationProgress.activeStageId !== null ? (
-            <ReviewStartStagedProgress
-              stages={creationProgress.stages}
-              activeStageId={creationProgress.activeStageId}
-              headline={REVIEW_START_PREPARING_LABEL}
-              detail={creationProgress.waitCopy?.detail ?? null}
-              testId="first-pilot-review-start-progress"
-            />
-          ) : null}
-
-          {clientValidationMessage !== null ? (
-            <ReviewStartInlineError message={clientValidationMessage} testId="first-pilot-validation-error" />
-          ) : null}
-
-          {creationProgress.outcome?.kind === "failed" ? (
-            <ReviewStartInlineError
-              message={creationProgress.outcome.message}
-              testId="first-pilot-submit-error"
-            />
-          ) : null}
-
-          {creationProgress.outcome?.kind === "unresolved" ? (
-            <ReviewStartUnresolvedNotice
-              onRecheck={() => {
-                void submitRun();
-              }}
-              isRechecking={creationProgress.isActive}
-              testId="first-pilot-unresolved-notice"
-            />
-          ) : null}
-
-          {intakeGap !== null ? (
-            <p
-              id="first-pilot-readiness"
-              className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}
-              data-testid="first-pilot-readiness"
-              role="status"
-            >
-              {intakeGap}
-            </p>
-          ) : null}
-
-          <p
-            className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
-            data-testid="first-pilot-write-destination"
+          <div
+            className="flex items-start gap-3 rounded-md border border-neutral-200 bg-white p-3 dark:border-neutral-800 dark:bg-neutral-950/40"
+            data-testid="first-pilot-review-standards-confirm"
           >
-            {writeDestination}
-          </p>
-
-          <div className="flex flex-wrap items-center gap-3">
-            <WizardSessionSaveStatus
-              saveState={wizardSession.saveState}
-              lastSavedUtc={wizardSession.lastSavedUtc}
-            />
-            <ReviewStartLoadingButton
-              type="button"
-              variant="primary"
-              disabled={creationProgress.isActive || blocksLlmExecution}
-              onClick={() => {
-                void submitRun();
+            <Checkbox
+              id="first-pilot-review-standards-confirm"
+              checked={reviewStandardsConfirmed}
+              onCheckedChange={(checked) => {
+                setReviewStandardsConfirmed(checked === true);
+                setClientValidationMessage(null);
               }}
-              data-testid="first-pilot-start"
-              idleLabel={BUYER_START_ARCHITECTURE_REVIEW_CTA}
-              loadingLabel={creationProgress.loadingLabel}
-              isLoading={creationProgress.isActive}
-              aria-describedby={intakeGap !== null ? "first-pilot-readiness" : undefined}
+              data-testid="first-pilot-review-standards-confirm-checkbox"
             />
-            <NewReviewSampleEscapeLink presentation="inline" />
+            <div className="space-y-1">
+              <Label
+                htmlFor="first-pilot-review-standards-confirm"
+                className={cn("font-medium text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}
+              >
+                {REVIEW_STANDARDS_CONFIRM_LABEL}
+              </Label>
+              {policyPackCloudMismatch !== null ? (
+                <p className={cn("m-0 text-amber-800 dark:text-amber-300", OPERATOR_TYPOGRAPHY.helper)} role="alert">
+                  {POLICY_PACK_CLOUD_MISMATCH_MESSAGE} {policyPackCloudMismatch}
+                </p>
+              ) : null}
+            </div>
           </div>
+
+          <FirstPilotIntakeStartFooter
+            writeDestination={writeDestination}
+            intakeGap={intakeGap}
+            creationProgress={creationProgress}
+            clientValidationMessage={clientValidationMessage}
+            wizardSaveState={wizardSession.saveState}
+            wizardLastSavedUtc={wizardSession.lastSavedUtc}
+            blocksLlmExecution={blocksLlmExecution}
+            onStartReview={() => {
+              void submitRun();
+            }}
+            onRecheckUnresolved={() => {
+              void submitRun();
+            }}
+          />
         </div>
       </section>
-
-      <FocusedPilotPolicyPackAppliedCallout />
     </div>
   );
 }
