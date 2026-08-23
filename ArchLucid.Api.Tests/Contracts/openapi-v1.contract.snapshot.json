@@ -3937,6 +3937,24 @@
             },
             "type": "array"
           },
+          "deniedAssumptions": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "deniedConstraints": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "deniedRequiredCapabilities": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
           "failureModeNote": {
             "type": [
               "null",
@@ -8638,6 +8656,130 @@
               "null",
               "string"
             ]
+          }
+        },
+        "type": "object"
+      },
+      "CoveragePreviewAssignmentResponse": {
+        "properties": {
+          "coverageType": {
+            "$ref": "#/components/schemas/CoverageType"
+          },
+          "evaluationVersion": {
+            "type": "string"
+          },
+          "includedInRunEvaluation": {
+            "type": "boolean"
+          },
+          "policyPackDisplayName": {
+            "type": "string"
+          },
+          "policyPackId": {
+            "type": "string"
+          },
+          "policyPackVersion": {
+            "type": "string"
+          },
+          "qualityDimension": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/QualityDimension"
+              }
+            ]
+          },
+          "recommendationConfidence": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/RecommendationConfidence"
+              }
+            ]
+          },
+          "recommendationRationale": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "recommendationTrigger": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "selectionState": {
+            "$ref": "#/components/schemas/CoverageSelectionState"
+          },
+          "triggeringEvidenceRef": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "CoveragePreviewRequest": {
+        "properties": {
+          "cloudProvider": {
+            "$ref": "#/components/schemas/CloudProvider"
+          },
+          "descriptionText": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "focusedPilotModeEnabled": {
+            "type": "boolean"
+          },
+          "securityIntakeAnswer": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "type": "object"
+      },
+      "CoveragePreviewResponse": {
+        "properties": {
+          "additionalOptionalCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "assignments": {
+            "items": {
+              "$ref": "#/components/schemas/CoveragePreviewAssignmentResponse"
+            },
+            "type": "array"
+          },
+          "contextualRecommendedCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "focusedPilotModeEnabled": {
+            "type": "boolean"
+          },
+          "organizationRequiredCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "platformOverlayCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "providerNeutralBaselineCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "summaryLine": {
+            "type": "string"
           }
         },
         "type": "object"
@@ -23878,6 +24020,16 @@
             "format": "uuid",
             "type": "string"
           },
+          "qualityDimension": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/QualityDimension"
+              }
+            ]
+          },
           "version": {
             "type": "string"
           }
@@ -24146,6 +24298,41 @@
             "type": "string"
           },
           "taskType": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "RewriteArchitectureOverviewInput": {
+        "properties": {
+          "businessOutcome": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "currentOverview": {
+            "minLength": 20,
+            "type": "string"
+          },
+          "structuredBrief": {
+            "$ref": "#/components/schemas/ArchitectureDraftStructuredBrief"
+          },
+          "systemName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        },
+        "required": [
+          "currentOverview"
+        ],
+        "type": "object"
+      },
+      "RewriteArchitectureOverviewResponse": {
+        "properties": {
+          "rewrittenOverview": {
             "type": "string"
           }
         },
@@ -26049,6 +26236,12 @@
           },
           "goldenManifestId": {
             "format": "uuid",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "governanceScopeJson": {
             "type": [
               "null",
               "string"
@@ -72876,6 +73069,231 @@
         "x-archlucid-audience": "operator"
       }
     },
+    "/v1/architecture/request/draft/overview-rewrite": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/*\u002Bjson": {
+              "schema": {
+                "anyOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/RewriteArchitectureOverviewInput"
+                  }
+                ]
+              }
+            },
+            "application/json": {
+              "schema": {
+                "anyOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/RewriteArchitectureOverviewInput"
+                  }
+                ]
+              }
+            },
+            "text/json": {
+              "schema": {
+                "anyOf": [
+                  {
+                    "type": "null"
+                  },
+                  {
+                    "$ref": "#/components/schemas/RewriteArchitectureOverviewInput"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RewriteArchitectureOverviewResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RewriteArchitectureOverviewResponse"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/RewriteArchitectureOverviewResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not Found."
+          },
+          "405": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Method Not Allowed."
+          },
+          "409": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Conflict."
+          },
+          "415": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unsupported Media Type."
+          },
+          "422": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unprocessable Entity."
+          },
+          "429": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Too Many Requests."
+          },
+          "500": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Internal Server Error."
+          },
+          "503": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Service Unavailable."
+          }
+        },
+        "tags": [
+          "Runs"
+        ],
+        "x-archlucid-audience": "operator"
+      }
+    },
     "/v1/architecture/request/draft/suggestion/explain": {
       "post": {
         "requestBody": {
@@ -117981,6 +118399,211 @@
               "text/plain": {
                 "schema": {
                   "$ref": "#/components/schemas/CoverageSummaryResponse"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Bad Request (validation or malformed input)."
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not Found."
+          },
+          "405": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Method Not Allowed."
+          },
+          "409": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Conflict."
+          },
+          "415": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unsupported Media Type."
+          },
+          "422": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unprocessable Entity."
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Too Many Requests"
+          },
+          "500": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Internal Server Error."
+          },
+          "503": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Service Unavailable."
+          }
+        },
+        "tags": [
+          "GovernanceCoverage"
+        ],
+        "x-archlucid-audience": "operator"
+      }
+    },
+    "/v1/governance/coverage/preview": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/*\u002Bjson": {
+              "schema": {
+                "$ref": "#/components/schemas/CoveragePreviewRequest"
+              }
+            },
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CoveragePreviewRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CoveragePreviewRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CoveragePreviewResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CoveragePreviewResponse"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/CoveragePreviewResponse"
                 }
               }
             },
