@@ -11,6 +11,12 @@
 
 .PARAMETER ConfigPath
     Optional path to al-api.config.json. Defaults to .cursor/al-api.config.json in repo root.
+
+.PARAMETER WorkOnCurrentBranch
+    When true, the cloud agent pushes to startingRef instead of a cursor/* branch.
+
+.PARAMETER StartingRef
+    Optional branch override (for example master). Falls back to config.startingRef, then master.
 #>
 [CmdletBinding()]
 param(
@@ -21,7 +27,13 @@ param(
     [string]$ImagePath,
 
     [Parameter(Mandatory = $false)]
-    [string]$ConfigPath
+    [string]$ConfigPath,
+
+    [Parameter(Mandatory = $false)]
+    [bool]$WorkOnCurrentBranch = $false,
+
+    [Parameter(Mandatory = $false)]
+    [string]$StartingRef
 )
 
 Set-StrictMode -Version Latest
@@ -164,7 +176,16 @@ if (-not $repoUrl) {
     throw "repoUrl is not set in config and could not be detected from git origin."
 }
 
-$startingRef = if ($config.startingRef) { $config.startingRef } else { "main" }
+if ($StartingRef -and $StartingRef.Trim().Length -gt 0) {
+    $startingRef = $StartingRef.Trim()
+}
+elseif ($config.startingRef -and $config.startingRef.ToString().Trim().Length -gt 0) {
+    $startingRef = $config.startingRef.ToString().Trim()
+}
+else {
+    $startingRef = 'master'
+}
+
 $autoCreatePr = if ($null -ne $config.autoCreatePR) { [bool]$config.autoCreatePR } else { $false }
 
 # Locked: /al-api always uses Composer 2.5 standard (non-Fast) for lower cost.
@@ -198,6 +219,7 @@ $body = @{
         }
     )
     autoCreatePR = $autoCreatePr
+    workOnCurrentBranch = $WorkOnCurrentBranch
 }
 
 $json = $body | ConvertTo-Json -Depth 8 -Compress:$false
@@ -224,15 +246,15 @@ $agentUrl = $response.agent.url
 $agentId = $response.agent.id
 $runId = $response.run.id
 
-Write-Output ""
-Write-Output "Cloud agent started"
-Write-Output "  Agent: $agentId"
-Write-Output "  Run:   $runId"
-Write-Output "  URL:   $agentUrl"
-Write-Output "  Model: $modelId (fast=$useFast)"
-Write-Output ""
+Write-Host ''
+Write-Host 'Cloud agent started'
+Write-Host "  Agent: $agentId"
+Write-Host "  Run:   $runId"
+Write-Host "  URL:   $agentUrl"
+Write-Host "  Model: $modelId (fast=$useFast)"
+Write-Host "  Branch: $startingRef (workOnCurrentBranch=$WorkOnCurrentBranch)"
+Write-Host ''
 
-# Return structured object for scripting
 return [PSCustomObject]@{
     AgentId = $agentId
     RunId = $runId
