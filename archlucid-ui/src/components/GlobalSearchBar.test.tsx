@@ -79,6 +79,28 @@ describe("GlobalSearchBar", () => {
     expect(screen.getByRole("combobox", { name: GLOBAL_SEARCH_ARIA_LABEL })).toHaveFocus();
   });
 
+  it("shows untitled review instead of raw run id when description is empty", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({
+          runs: [{ runId: "run-abc-123", description: "" }],
+          findings: [],
+          policyPacks: [],
+        }),
+      }),
+    );
+
+    render(<GlobalSearchBar />);
+
+    const input = screen.getByRole("combobox", { name: GLOBAL_SEARCH_ARIA_LABEL });
+    fireEvent.change(input, { target: { value: "ab" } });
+
+    expect(await screen.findByRole("button", { name: "Untitled review" })).toBeInTheDocument();
+    expect(screen.queryByText("run-abc-123")).not.toBeInTheDocument();
+  });
+
   it("shows a retryable error when the search API fails", async () => {
     vi.stubGlobal(
       "fetch",

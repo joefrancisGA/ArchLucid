@@ -22,6 +22,16 @@ import {
   type FindPageSearchEntry,
 } from "@/lib/find-page-search-index";
 
+function globalSearchRunLabel(run: { runId: string; description?: string | null }): string {
+  const description = run.description?.trim() ?? "";
+
+  if (description.length > 0) {
+    return description;
+  }
+
+  return "Untitled review";
+}
+
 export const OPEN_GLOBAL_SEARCH_EVENT = "archlucid-open-global-search";
 export const FOCUS_GLOBAL_SEARCH_EVENT = "archlucid-focus-global-search";
 
@@ -240,7 +250,7 @@ export function GlobalSearchBar(props: GlobalSearchBarProps) {
                         setOpen(false);
                       }}
                     >
-                      {run.description?.trim() || run.runId}
+                      {globalSearchRunLabel(run)}
                     </button>
                   </li>
                 ))}
