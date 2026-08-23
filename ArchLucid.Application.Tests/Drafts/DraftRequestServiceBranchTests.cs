@@ -1,5 +1,4 @@
 using ArchLucid.Application.Drafts;
-using ArchLucid.Application.Tests.Architecture;
 using ArchLucid.Application.Drafts.QuestionSelection;
 using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Contracts.Architecture;
@@ -23,7 +22,6 @@ namespace ArchLucid.Application.Tests.Drafts;
 public sealed class DraftRequestServiceBranchTests
 {
     private readonly IDraftRequestRepository _repository = new InMemoryDraftRequestRepository();
-    private readonly IDraftAdmissionGate _admissionGate = new DraftAdmissionGate();
     private readonly Mock<IEffectiveGovernanceLoader> _governanceLoader = new();
     private readonly Mock<IArchitectureRunCreateOrchestrator> _runCreateOrchestrator = new();
     private readonly Mock<IRequestContentSafetyPrecheck> _contentSafety = new();
@@ -60,20 +58,12 @@ public sealed class DraftRequestServiceBranchTests
                 Run = new ArchitectureRun { RunId = "branch-run", RequestId = "req-branch" },
             });
 
-        FeasibilityVerdictBuilder verdictBuilder = new(new FeasibilityVerdictValidator());
-
-        _service = new DraftRequestService(
+        _service = DraftRequestServiceTestFactory.CreateWithDefaults(
             _repository,
-            _admissionGate,
-            new PassThroughDraftSemanticAdmissionEvaluator(),
-            new QuestionSelectionEngine(_governanceLoader.Object),
-            new DraftRequestProjector(),
-            _runCreateOrchestrator.Object,
-            _contentSafety.Object,
-            verdictBuilder,
-            Mock.Of<IPriorPackageSemanticMergeService>(),
-            new FixedDraftIntakeBranchOptionsMonitor(new DraftIntakeBranchOptions { MaxBranchesPerParentDraft = 3 }),
-            WorkspaceSystemNameCollisionGuardTestDoubles.NoOp());
+            _governanceLoader,
+            _runCreateOrchestrator,
+            _contentSafety,
+            new DraftIntakeBranchOptions { MaxBranchesPerParentDraft = 3 });
     }
 
     [Fact]
