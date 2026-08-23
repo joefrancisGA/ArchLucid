@@ -1,7 +1,9 @@
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 
+import { PolicyAtCommitScopeSummary } from "@/components/policy/PolicyAtCommitScopeSummary";
 import { StatusTag } from "@/components/ui/status-tag";
+import type { CompareEffectiveGovernanceAtCommitSnapshot } from "@/lib/compare-effective-governance-diff";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { auditTrailNavHref } from "@/lib/audit-nav-paths";
 import { resolveReviewDetailPolicyPackHref } from "@/lib/group-findings-by-policy-pack";
@@ -15,6 +17,8 @@ export type ReviewDetailPolicyPackImpactCalloutProps = {
   readonly runId: string;
   readonly mappedFindingCount?: number | null;
   readonly totalFindingCount?: number | null;
+  /** Frozen pack assignments, dimensions, and exclusions at commit time. */
+  readonly effectiveGovernanceAtCommit?: CompareEffectiveGovernanceAtCommitSnapshot | null;
   /** TB-2322 — detail line when packs do not match stated cloud target. */
   readonly cloudMismatchDetail?: string | null;
   /** Secondary instances on the same route must not reuse the canonical Playwright test id. */
@@ -86,6 +90,10 @@ export function ReviewDetailPolicyPackImpactCallout(
               review.
             </p>
           ) : null}
+          <PolicyAtCommitScopeSummary
+            snapshot={props.effectiveGovernanceAtCommit}
+            testIdPrefix="review-detail-policy-at-commit"
+          />
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <StatusTag kind="ready" label={`Pack: ${packLabel}`} />

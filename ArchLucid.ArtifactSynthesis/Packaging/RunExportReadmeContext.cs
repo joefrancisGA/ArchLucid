@@ -51,4 +51,11 @@ public sealed record RunExportReadmeContext
         get;
         init;
     }
+
+    /// <summary>Pack assignment and coverage detail lines for README.txt.</summary>
+    public IReadOnlyList<string>? PolicyAtCommitDetailLines
+    {
+        get;
+        init;
+    }
 }
