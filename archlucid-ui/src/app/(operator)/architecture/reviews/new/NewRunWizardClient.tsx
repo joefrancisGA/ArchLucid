@@ -11,8 +11,7 @@ import { ReviewIntakeExampleTemplateCallout } from "@/components/review-intake/R
 import { WizardNavButtons } from "@/components/wizard/WizardNavButtons";
 import { WizardSessionResumePrompt } from "@/components/wizard/WizardSessionResumePrompt";
 import { WizardSessionSaveStatus } from "@/components/wizard/WizardSessionSaveStatus";
-import { PilotModePolicyPackToggle } from "@/components/wizard/PilotModePolicyPackToggle";
-import { FocusedPilotScopeDisclosureBanner } from "@/components/wizard/FocusedPilotScopeDisclosureBanner";
+import { ReviewAssuranceCoverageSection } from "@/components/wizard/ReviewAssuranceCoverageSection";
 import { WizardStepper } from "@/components/wizard/WizardStepper";
 import { WizardStickyFooter } from "@/components/wizard/WizardStickyFooter";
 import { WizardStepConstraints } from "@/components/wizard/steps/WizardStepConstraints";
@@ -633,11 +632,12 @@ export function NewRunWizardClient(props: NewRunWizardClientProps = {}) {
           ) : null}
           {stepIndex === 2 ? (
             <div className={OPERATOR_LAYOUT.sectionStack}>
-              <PilotModePolicyPackToggle
-                enabled={focusedPilotModeEnabled}
-                onEnabledChange={setFocusedPilotModeEnabled}
+              <ReviewAssuranceCoverageSection
+                focusedPilotModeEnabled={focusedPilotModeEnabled}
+                onFocusedPilotModeEnabledChange={setFocusedPilotModeEnabled}
+                cloudProvider={watchedWizardValues.cloudProvider}
+                descriptionText={watchedWizardValues.description}
               />
-              <FocusedPilotScopeDisclosureBanner focusedModeEnabled={focusedPilotModeEnabled} />
               <WizardStepIdentity />
               <WizardStepDescription />
             </div>

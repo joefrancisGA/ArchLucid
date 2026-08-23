@@ -1,5 +1,6 @@
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Governance.Coverage;
+using ArchLucid.Core.Governance.PolicyPacks;
 
 namespace ArchLucid.Application.Governance.DefaultPolicyPacks;
 
@@ -181,4 +182,10 @@ public static class DefaultPolicyPackCatalog
     /// <summary>Returns whether a bundled platform pack is part of the standard baseline for a cloud provider.</summary>
     public static bool IsStandardBaselineDisplayName(string displayName, CloudProvider cloudProvider) =>
         ResolveStandardBaselineDisplayNames(cloudProvider).Contains(displayName);
-}
+
+    /// <summary>
+    ///     Provider-branded overlays (WAF, CIS, landing zone) for a target cloud — not the six neutral baseline dimensions
+    ///     or cloud-neutral standard packs such as AI governance.
+    /// </summary>
+    public static bool IsPlatformOverlayDisplayName(string displayName, CloudProvider cloudProvider) =>
+        PlatformOverlayPolicyPacks.IsOverlayDisplayName(displayName, cloudProvider);

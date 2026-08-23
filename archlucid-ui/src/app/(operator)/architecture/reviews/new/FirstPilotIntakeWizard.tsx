@@ -28,8 +28,7 @@ import {
 import { readActiveTenantContext } from "@/lib/active-tenant-context-display";
 import { CORE_PILOT_PATH_STREAMLINED_LABELS } from "@/lib/vocabulary/core-pilot-path-vocabulary";
 import { FocusedPilotPolicyPackAppliedCallout } from "@/components/wizard/FocusedPilotPolicyPackAppliedCallout";
-import { PilotModePolicyPackToggle } from "@/components/wizard/PilotModePolicyPackToggle";
-import { FocusedPilotScopeDisclosureBanner } from "@/components/wizard/FocusedPilotScopeDisclosureBanner";
+import { ReviewAssuranceCoverageSection } from "@/components/wizard/ReviewAssuranceCoverageSection";
 import { WizardSessionResumePrompt } from "@/components/wizard/WizardSessionResumePrompt";
 import { WizardSessionSaveStatus } from "@/components/wizard/WizardSessionSaveStatus";
 import { useLlmMonthlyBudgetExecutionGate } from "@/hooks/use-llm-monthly-budget-execution-gate";
@@ -39,7 +38,8 @@ import {
   REVIEW_CREATION_PROGRESS_TIMEOUT_MS,
   useReviewCreationProgress,
 } from "@/hooks/use-review-creation-progress";
-import { createArchitectureRun, type CreateArchitectureRunRequestPayload } from "@/lib/api";
+import { mapNormalizedCloudProvider } from "@/lib/coverage-preview";
+import { deriveGuidedIntakeCloudTargetForMismatch } from "@/lib/review-quality/guided-intake-policy-pack-cloud-mismatch";
 import { getRunSummary } from "@/lib/api/architecture-runs";
 import { isApiRequestError } from "@/lib/api-request-error";
 import { ARCHITECTURE_REQUEST_DESCRIPTION_MAX_LENGTH } from "@/lib/architecture/architecture-request-limits";
@@ -645,14 +645,13 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
             summaryLine={CORE_PILOT_PATH_STREAMLINED_LABELS.firstIntakeAdvancedNote}
             sectionTestId="first-pilot-standards-selection"
           >
-            <PilotModePolicyPackToggle
-              presentation="choice"
-              enabled={focusedPilotModeEnabled}
-              onEnabledChange={setFocusedPilotModeEnabled}
-            />
-            <FocusedPilotScopeDisclosureBanner
-              focusedModeEnabled={focusedPilotModeEnabled}
-              className="mt-3"
+            <ReviewAssuranceCoverageSection
+              togglePresentation="choice"
+              focusedPilotModeEnabled={focusedPilotModeEnabled}
+              onFocusedPilotModeEnabledChange={setFocusedPilotModeEnabled}
+              cloudProvider={mapNormalizedCloudProvider(deriveGuidedIntakeCloudTargetForMismatch(l0Answers))}
+              securityIntakeAnswer={l0Answers["l0.pillar.security"]}
+              descriptionText={briefText}
             />
             <div
               className="mt-3 flex items-start gap-3 rounded-md border border-neutral-200 bg-white p-3 dark:border-neutral-800 dark:bg-neutral-950/40"

@@ -238,6 +238,7 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<TechnologyLedgerTopologyProposalSeeder>();
         services.AddScoped<ITechnologyLedgerRunCommandService, TechnologyLedgerRunCommandService>();
         services.AddScoped<ICoverageQueryService, CoverageQueryService>();
+        services.AddScoped<ICoveragePreviewService, CoveragePreviewService>();
         services.AddSingleton<CoverageAssignmentValidator>();
         services.AddScoped<IArchitectureRunCreateOrchestrator, ArchitectureRunCreateOrchestrator>();
         services.AddScoped<IArchitectureRunBatchCreateOrchestrator, ArchitectureRunBatchCreateOrchestrator>();

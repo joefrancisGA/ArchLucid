@@ -41,4 +41,18 @@ public sealed class FocusedPilotModePolicyPacksTests
         FocusedPilotModePolicyPacks.IsAllowedPackDisplayName("Azure Well-Architected Framework").Should().BeFalse();
         FocusedPilotModePolicyPacks.AllowedPackDisplayNames.Should().HaveCount(6);
     }
+
+    [Fact]
+    public void IsPackAllowedInFocusedReview_allows_pinned_and_overlay_packs()
+    {
+        FocusedPilotModePolicyPacks
+            .IsPackAllowedInFocusedReview("Azure Well-Architected Framework", isOrganizationRequired: false, isPlatformOverlayForRunCloud: true)
+            .Should()
+            .BeTrue();
+
+        FocusedPilotModePolicyPacks
+            .IsPackAllowedInFocusedReview("Custom Org Pack", isOrganizationRequired: true, isPlatformOverlayForRunCloud: false)
+            .Should()
+            .BeTrue();
+    }
 }
