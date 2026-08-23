@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { StatusTag } from "@/components/StatusTag";
+import { OperatorSectionLoadFailure } from "@/components/operator/OperatorSectionLoadFailure";
 import { useOperatorScopeQueryKey } from "@/hooks/use-operator-scope-query-key";
 import { useTenantWorkspacesListQuery } from "@/hooks/use-tenant-workspaces-list-query";
 import { readActiveTenantContext } from "@/lib/active-tenant-context-display";
@@ -114,6 +115,7 @@ export function ScopeHelpCurrentScopePanel(): React.JSX.Element {
     includeProject: !isSampleWorkspaceSession,
   });
   const switchingAvailable = isScopeSwitchingAvailable(workspaces);
+  const workspacesLoadFailed = !isSampleWorkspaceSession && workspacesQuery.isError;
 
   return (
     <section
@@ -147,9 +149,19 @@ export function ScopeHelpCurrentScopePanel(): React.JSX.Element {
           data-testid="scope-help-current-scope-status"
         />
         <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="scope-help-switching-state">
-          {switchingAvailable
-            ? SCOPE_HELP_CURRENT_SCOPE_SWITCHING_AVAILABLE
-            : SCOPE_HELP_CURRENT_SCOPE_SWITCHING_UNAVAILABLE}
+          {workspacesLoadFailed ? (
+            <OperatorSectionLoadFailure
+              message="Could not verify whether workspace switching is available."
+              onRetry={() => void workspacesQuery.refetch()}
+              retrying={workspacesQuery.isFetching}
+              testId="scope-help-workspaces-load-failure"
+              className="w-full"
+            />
+          ) : switchingAvailable ? (
+            SCOPE_HELP_CURRENT_SCOPE_SWITCHING_AVAILABLE
+          ) : (
+            SCOPE_HELP_CURRENT_SCOPE_SWITCHING_UNAVAILABLE
+          )}
         </p>
       </div>
     </section>
