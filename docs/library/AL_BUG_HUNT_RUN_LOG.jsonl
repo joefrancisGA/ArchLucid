@@ -110,3 +110,4 @@
 {"at": "2026-08-23T23:00:58.269002Z", "zoneId": "cli-tenant-isolation", "outcome": "hit"}
 {"at": "2026-08-23T23:03:56.272707Z", "zoneId": "ui-runs-list", "outcome": "hit"}
 {"at": "2026-08-23T23:09:14.369880Z", "zoneId": "cli-tenant-isolation", "outcome": "hit"}
+{"at": "2026-08-23T23:15:22.601812Z", "zoneId": "cli-terraform-evidence", "outcome": "hit"}

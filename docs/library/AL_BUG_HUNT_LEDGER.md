@@ -756,24 +756,25 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ## Zone: cli-terraform-evidence
 
 - **id:** cli-terraform-evidence
-- **status:** unseeded
+- **status:** open
 - **impact:** medium
 - **aliases:** terraform evidence; deployment evidence terraform
 - **paths:** ArchLucid.Cli/Commands/DeploymentEvidenceTerraformReference.cs
 - **test-filter:** FullyQualifiedName~DeploymentEvidenceTerraformReferenceTests
-- **hunts:** 0
-- **bugs-found:** 0
+- **hunts:** 1
+- **bugs-found:** 1
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **last-hunt:** 2026-08-23
+- **last-bug:** 2026-08-23
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
 ### Hypotheses
 
-- [ ] (candidate) ARM resource id is stored in the wrong Terraform attribute (name vs id)
-- [ ] (candidate) Module-wrapped resource is skipped so evidence omits a live ARM id
-- [ ] (candidate) Parser treats a comment containing `resource_id` as a real binding
+- [x] (proven) Deployment evidence omitted `infra/terraform-pilot` while listing other metadata-only composition roots — fixed by adding pilot as the first expected apply-order entry.
+- [x] (invalid) ARM resource id is stored in the wrong Terraform attribute (name vs id) — zone file is static apply-order text only; no ARM id parsing.
+- [x] (invalid) Module-wrapped resource is skipped so evidence omits a live ARM id — no Terraform module parsing in this zone.
+- [x] (invalid) Parser treats a comment containing `resource_id` as a real binding — no HCL parser in this zone.
 
 ---
 
