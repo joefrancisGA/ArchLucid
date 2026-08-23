@@ -24,11 +24,13 @@ import {
   GUIDED_INTAKE_CREATION_SYSTEM_NAME_LABEL,
 } from "@/lib/guided-intake-copy";
 import type { ApiProblemDetails } from "@/lib/api-problem";
+import { draftStatusAllowsWhatIfBranch } from "@/lib/draft-intake-branch-eligibility";
 import type {
   BranchDraftResponse,
   DraftBranchOverrideKind,
   DraftBranchQuotaResponse,
   DraftElicitationQuestion,
+  DraftRequestStatus,
 } from "@/types/draft-intake";
 
 const OVERRIDE_KIND_OPTIONS: ReadonlyArray<{
@@ -60,6 +62,7 @@ const OVERRIDE_KIND_OPTIONS: ReadonlyArray<{
 
 export type DraftIntakeWhatIfBranchPanelProps = {
   readonly draftId: string;
+  readonly draftStatus: DraftRequestStatus | null;
   readonly disabled?: boolean;
   readonly intent: string;
   readonly outcome: string;
@@ -85,8 +88,13 @@ function resolveInitialOverrideKind(
 }
 
 export function DraftIntakeWhatIfBranchPanel(props: DraftIntakeWhatIfBranchPanelProps) {
+  const branchAllowed = draftStatusAllowsWhatIfBranch(props.draftStatus);
   const defaultQuestionKey = props.questionOptions[0]?.questionKey ?? "";
   const suppressQuestionAnswerOverride = props.suppressQuestionAnswerOverride === true;
+
+  if (!branchAllowed) {
+    return null;
+  }
 
   const availableOverrideKinds = useMemo(() => {
     if (!suppressQuestionAnswerOverride) {
@@ -116,6 +124,10 @@ export function DraftIntakeWhatIfBranchPanel(props: DraftIntakeWhatIfBranchPanel
   const quotaAllowsBranch = quota?.canBranch !== false;
 
   useEffect(() => {
+    if (!branchAllowed) {
+      return;
+    }
+
     let canceled = false;
 
     async function loadQuota(): Promise<void> {
@@ -142,7 +154,7 @@ export function DraftIntakeWhatIfBranchPanel(props: DraftIntakeWhatIfBranchPanel
     return () => {
       canceled = true;
     };
-  }, [props.draftId]);
+  }, [branchAllowed, props.draftId]);
 
   useEffect(() => {
     if (suppressQuestionAnswerOverride && overrideKind === "QuestionAnswer") {
