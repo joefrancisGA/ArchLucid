@@ -31,7 +31,7 @@ export function isArchitectureDraftPastDraftingOnRegistryEntry(
   }
 
   // Legacy rows: Start a review from the draft workspace marks ready-for-review before intake opens.
-  if (entry.customerStatus === "ready-for-review") {
+  if (entry.customerStatus === "ready-for-review" && entry.serverDraftStatus !== "Submitted") {
     return true;
   }
 
@@ -58,6 +58,14 @@ export function resolveOperatorHomeLatestDraftPrimaryAction(
       href: reviewDetailPath(linkedReviewId),
       ctaLabel: OPERATOR_HOME_CONTINUE_IN_REVIEW_CTA,
       kind: "continue-review",
+    };
+  }
+
+  if (entry.serverDraftStatus === "Submitted") {
+    return {
+      href: architectureDraftPath(architectureId),
+      ctaLabel: OPERATOR_HOME_RESUME_LATEST_DRAFT_CTA,
+      kind: "resume-draft",
     };
   }
 

@@ -10,6 +10,7 @@ import { DraftIntakeClaimLabel } from "@/components/draft-intake/DraftIntakeClai
 import { DraftIntakeRequiredClarificationField, REQUIRED_CLARIFICATION_BASELINE_LABEL } from "@/components/draft-intake/DraftIntakeRequiredClarificationField";
 import { InlineMetadataLabel } from "@/components/InlineMetadataLabel";
 import { ReviewIntakeExampleTemplateCallout } from "@/components/review-intake/ReviewIntakeExampleTemplateCallout";
+import { ReviewStartInlineSpinner } from "@/components/review-intake/ReviewStartInlineSpinner";
 import { ReviewStartLoadingButton } from "@/components/review-intake/ReviewStartLoadingButton";
 import { WizardPolicyPackCloudMismatchCallout } from "@/components/wizard/WizardPolicyPackCloudMismatchCallout";
 import { ArchitectureScopeUnderstandingCheckPanel } from "@/components/architecture/ArchitectureScopeUnderstandingCheckPanel";
@@ -59,8 +60,8 @@ import {
   guidedIntakeArchitectureIntentHelperText,
   guidedIntakeClarificationsAnsweredCounter,
   guidedIntakeCreationArchitectureOverviewHelperText,
+  GUIDED_INTAKE_ALREADY_SUBMITTED_LEAD,
 } from "@/lib/guided-intake-copy";
-
 import {
   DraftIntakeDecisionReceiptCard,
   SocraticIntakeWizardAdvancedRail,
@@ -140,6 +141,7 @@ export function SocraticIntakeWizard() {
     submitDraft,
     isSubmitBlocked,
     linkedSpawnedRunId,
+    sourceArchitectureAccessBlocked,
     // Gates
     canAdvanceIntent,
     canReviewAnswers,
@@ -190,6 +192,27 @@ export function SocraticIntakeWizard() {
           void skipQuestion(nextQuestionKey);
         }}
       />
+    );
+  }
+
+  if (sourceArchitectureAccessBlocked) {
+    return (
+      <div
+        className={cn(OPERATOR_LAYOUT.mainWithStickyAside)}
+        data-testid="socratic-intake-wizard"
+      >
+        <div
+          className={cn(
+            "flex items-center gap-2 rounded-md border border-neutral-200 bg-neutral-50 px-3 py-3 text-neutral-700 dark:border-neutral-700 dark:bg-neutral-900/40 dark:text-neutral-300",
+            OPERATOR_TYPOGRAPHY.body,
+          )}
+          data-testid="guided-intake-access-blocked-redirect"
+          role="status"
+        >
+          <ReviewStartInlineSpinner />
+          <span>{GUIDED_INTAKE_ALREADY_SUBMITTED_LEAD}</span>
+        </div>
+      </div>
     );
   }
 

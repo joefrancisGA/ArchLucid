@@ -37,9 +37,8 @@ import { runDetailHrefWithParentRun } from "@/lib/draft-branch-compare-navigatio
 import { normalizeActorSetForAdmission } from "@/lib/draft-intake-actor-suggestions";
 import { recordFirstTenantFunnelEvent } from "@/lib/first-tenant-funnel-telemetry";
 import { GUIDED_INTAKE_READINESS_SUCCESS_TOAST } from "@/lib/guided-intake-copy";
-import { isGuidedIntakeDraftSubmitBlocked } from "@/lib/architecture/architecture-draft-intake-mode";
+import { isGuidedIntakeAccessBlocked, isGuidedIntakeDraftSubmitBlocked, resolveGuidedIntakeBlockedRedirectHref } from "@/lib/architecture/architecture-draft-intake-mode";
 import { architectureDraftSpawnedRunId } from "@/lib/architecture/architecture-draft-handoff-gate";
-import { reviewDetailPath } from "@/lib/architecture/architecture-routes";
 import {
   mergeAdmittedRequiredMustQuestionKeys,
   resolveGuidedIntakeClarificationProgress,
@@ -86,6 +85,7 @@ export function useGuidedIntakeDraftWorkflow(options: GuidedIntakeDraftWorkflowO
   } = options;
 
   const [busy, setBusy] = useState(false);
+  const [sourceArchitectureAccessBlocked, setSourceArchitectureAccessBlocked] = useState(false);
   const [submitError, setSubmitError] = useState<unknown | null>(null);
   const [draftId, setDraftId] = useState<string | null>(null);
   const [draftStatus, setDraftStatus] = useState<DraftRequestStatus | null>(null);
@@ -188,14 +188,19 @@ export function useGuidedIntakeDraftWorkflow(options: GuidedIntakeDraftWorkflowO
 
       const spawnedRunId = architectureDraftSpawnedRunId(draft);
 
-      if (draft.status === "RunSpawned" && spawnedRunId !== null) {
-        showSuccess("This architecture already has a review — opening it now.");
-        navigate(reviewDetailPath(spawnedRunId));
+      if (isGuidedIntakeAccessBlocked(draft.status)) {
+        setSourceArchitectureAccessBlocked(true);
+        showSuccess(
+          spawnedRunId !== null
+            ? "This architecture already has a review — opening it now."
+            : "This architecture already started a review — returning to the architecture draft.",
+        );
+        navigate(resolveGuidedIntakeBlockedRedirectHref(sourceArchitectureId, spawnedRunId));
 
         return;
       }
 
-      if (draft.status === "Admitted" || draft.status === "Submitted") {
+      if (draft.status === "Admitted") {
         const questions = await getDraftQuestions(draft.draftId);
         setAllQuestions(questions.selection.allQuestions);
         setRequiredMustQuestionKeys(questions.selection.requiredMustQuestionKeys);
@@ -636,6 +641,7 @@ export function useGuidedIntakeDraftWorkflow(options: GuidedIntakeDraftWorkflowO
     draftStatus,
     setDraftId,
     linkedSpawnedRunId,
+    sourceArchitectureAccessBlocked,
     isSubmitBlocked,
     parentDraftId,
     parentSpawnedRunId,

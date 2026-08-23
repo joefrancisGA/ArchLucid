@@ -22,9 +22,12 @@ function entry(
 }
 
 describe("isArchitectureDraftPastDraftingOnRegistryEntry", () => {
-  it("treats submitted and admitted server statuses as past drafting", () => {
-    expect(isArchitectureDraftPastDraftingOnRegistryEntry(entry({ serverDraftStatus: "Submitted" }))).toBe(true);
+  it("treats admitted server statuses as past drafting", () => {
     expect(isArchitectureDraftPastDraftingOnRegistryEntry(entry({ serverDraftStatus: "Admitted" }))).toBe(true);
+  });
+
+  it("keeps submitted server statuses on the architecture draft workspace", () => {
+    expect(isArchitectureDraftPastDraftingOnRegistryEntry(entry({ serverDraftStatus: "Submitted" }))).toBe(false);
   });
 
   it("treats legacy ready-for-review registry rows as past drafting", () => {
@@ -51,15 +54,15 @@ describe("resolveOperatorHomeLatestDraftPrimaryAction", () => {
     });
   });
 
-  it("routes submitted drafts without a spawned run to scoped review intake", () => {
+  it("routes submitted drafts without a spawned run back to the architecture draft workspace", () => {
     const action = resolveOperatorHomeLatestDraftPrimaryAction(
       entry({ serverDraftStatus: "Submitted" }),
     );
 
     expect(action).toEqual({
-      href: "/architecture/reviews/new?path=guided-intake&sourceArchitectureId=draft-001",
-      ctaLabel: "Continue in review intake",
-      kind: "continue-intake",
+      href: "/architecture/architectures/draft-001",
+      ctaLabel: "Resume latest draft",
+      kind: "resume-draft",
     });
   });
 
