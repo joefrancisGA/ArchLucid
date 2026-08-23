@@ -382,28 +382,13 @@ public sealed class EffectiveGovernanceResolver(
             candidates[0].WasSelected = true;
             effective.Add(id);
 
-            result.Decisions.Add(new GovernanceResolutionDecision
-            {
-                ItemType = itemType,
-                ItemKey = raw,
-                WinningPolicyPackId = candidates[0].PolicyPackId,
-                WinningPolicyPackName = candidates[0].PolicyPackName,
-                WinningVersion = candidates[0].Version,
-                WinningScopeLevel = candidates[0].ScopeLevel,
-                ResolutionReason = BuildResolutionReason(candidates),
-                Candidates = candidates
-            });
-
-            if (candidates.Count > 1)
-
-                result.Conflicts.Add(new GovernanceConflictRecord
-                {
-                    ItemType = itemType,
-                    ItemKey = raw,
-                    ConflictType = GovernanceConstants.ConflictTypes.DuplicateDefinition,
-                    Description = string.Format(GovernanceConstants.Notes.DuplicateDefinitionItem, itemType),
-                    Candidates = candidates
-                });
+            GovernanceFacetResolutionRecorder.RecordWinnerWithDuplicateConflict(
+                result,
+                itemType,
+                raw,
+                candidates,
+                BuildResolutionReason(candidates),
+                string.Format(GovernanceConstants.Notes.DuplicateDefinitionItem, itemType));
         }
 
         setter(result.EffectiveContent, effective);
@@ -453,28 +438,13 @@ public sealed class EffectiveGovernanceResolver(
                 .First(k => string.Equals(k, key, StringComparison.OrdinalIgnoreCase));
             effective.Add(canonical);
 
-            result.Decisions.Add(new GovernanceResolutionDecision
-            {
-                ItemType = itemType,
-                ItemKey = canonical,
-                WinningPolicyPackId = candidates[0].PolicyPackId,
-                WinningPolicyPackName = candidates[0].PolicyPackName,
-                WinningVersion = candidates[0].Version,
-                WinningScopeLevel = candidates[0].ScopeLevel,
-                ResolutionReason = BuildResolutionReason(candidates),
-                Candidates = candidates
-            });
-
-            if (candidates.Count > 1)
-
-                result.Conflicts.Add(new GovernanceConflictRecord
-                {
-                    ItemType = itemType,
-                    ItemKey = canonical,
-                    ConflictType = GovernanceConstants.ConflictTypes.DuplicateDefinition,
-                    Description = string.Format(GovernanceConstants.Notes.DuplicateDefinitionKey, itemType),
-                    Candidates = candidates
-                });
+            GovernanceFacetResolutionRecorder.RecordWinnerWithDuplicateConflict(
+                result,
+                itemType,
+                canonical,
+                candidates,
+                BuildResolutionReason(candidates),
+                string.Format(GovernanceConstants.Notes.DuplicateDefinitionKey, itemType));
         }
 
         setter(result.EffectiveContent, effective);
@@ -529,36 +499,19 @@ public sealed class EffectiveGovernanceResolver(
                 .First(k => string.Equals(k, key, StringComparison.OrdinalIgnoreCase));
             effective[canonicalKey] = candidates[0].ValueJson;
 
-            result.Decisions.Add(new GovernanceResolutionDecision
-            {
-                ItemType = itemType,
-                ItemKey = canonicalKey,
-                WinningPolicyPackId = candidates[0].PolicyPackId,
-                WinningPolicyPackName = candidates[0].PolicyPackName,
-                WinningVersion = candidates[0].Version,
-                WinningScopeLevel = candidates[0].ScopeLevel,
-                ResolutionReason = BuildResolutionReason(candidates),
-                Candidates = candidates
-            });
+            GovernanceFacetResolutionRecorder.RecordWinner(
+                result,
+                itemType,
+                canonicalKey,
+                candidates,
+                BuildResolutionReason(candidates));
 
-            if (candidates.Count <= 1)
-                continue;
-
-            int distinctValues = candidates
-                .Select(x => x.ValueJson)
-                .Distinct(StringComparer.OrdinalIgnoreCase)
-                .Count();
-
-            if (distinctValues > 1)
-
-                result.Conflicts.Add(new GovernanceConflictRecord
-                {
-                    ItemType = itemType,
-                    ItemKey = canonicalKey,
-                    ConflictType = GovernanceConstants.ConflictTypes.ValueConflict,
-                    Description = string.Format(GovernanceConstants.Notes.ValueConflict, itemType, canonicalKey),
-                    Candidates = candidates
-                });
+            GovernanceFacetResolutionRecorder.RecordValueConflict(
+                result,
+                itemType,
+                canonicalKey,
+                candidates,
+                string.Format(GovernanceConstants.Notes.ValueConflict, itemType, canonicalKey));
         }
 
         setter(result.EffectiveContent, effective);
@@ -616,52 +569,25 @@ public sealed class EffectiveGovernanceResolver(
                 .Select(static question => question.QuestionKey)
                 .First(k => string.Equals(k, key, StringComparison.OrdinalIgnoreCase));
 
-            result.Decisions.Add(new GovernanceResolutionDecision
-            {
-                ItemType = GovernanceConstants.ItemTypes.ElicitationQuestion,
-                ItemKey = canonicalKey,
-                WinningPolicyPackId = candidates[0].PolicyPackId,
-                WinningPolicyPackName = candidates[0].PolicyPackName,
-                WinningVersion = candidates[0].Version,
-                WinningScopeLevel = candidates[0].ScopeLevel,
-                ResolutionReason = BuildResolutionReason(candidates),
-                Candidates = candidates
-            });
+            GovernanceFacetResolutionRecorder.RecordWinnerWithDuplicateConflict(
+                result,
+                GovernanceConstants.ItemTypes.ElicitationQuestion,
+                canonicalKey,
+                candidates,
+                BuildResolutionReason(candidates),
+                string.Format(
+                    GovernanceConstants.Notes.DuplicateDefinitionKey,
+                    GovernanceConstants.ItemTypes.ElicitationQuestion));
 
-            if (candidates.Count > 1)
-
-                result.Conflicts.Add(new GovernanceConflictRecord
-                {
-                    ItemType = GovernanceConstants.ItemTypes.ElicitationQuestion,
-                    ItemKey = canonicalKey,
-                    ConflictType = GovernanceConstants.ConflictTypes.DuplicateDefinition,
-                    Description = string.Format(
-                        GovernanceConstants.Notes.DuplicateDefinitionKey,
-                        GovernanceConstants.ItemTypes.ElicitationQuestion),
-                    Candidates = candidates
-                });
-
-            if (candidates.Count <= 1)
-                continue;
-
-            int distinctValues = candidates
-                .Select(static candidate => candidate.ValueJson)
-                .Distinct(StringComparer.OrdinalIgnoreCase)
-                .Count();
-
-            if (distinctValues > 1)
-
-                result.Conflicts.Add(new GovernanceConflictRecord
-                {
-                    ItemType = GovernanceConstants.ItemTypes.ElicitationQuestion,
-                    ItemKey = canonicalKey,
-                    ConflictType = GovernanceConstants.ConflictTypes.ValueConflict,
-                    Description = string.Format(
-                        GovernanceConstants.Notes.ValueConflict,
-                        GovernanceConstants.ItemTypes.ElicitationQuestion,
-                        canonicalKey),
-                    Candidates = candidates
-                });
+            GovernanceFacetResolutionRecorder.RecordValueConflict(
+                result,
+                GovernanceConstants.ItemTypes.ElicitationQuestion,
+                canonicalKey,
+                candidates,
+                string.Format(
+                    GovernanceConstants.Notes.ValueConflict,
+                    GovernanceConstants.ItemTypes.ElicitationQuestion,
+                    canonicalKey));
         }
 
         result.EffectiveContent.ElicitationQuestions = effective;
