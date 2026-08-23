@@ -59,7 +59,7 @@ export const EXTRACT_UPLOAD_DEMO_ASIDE_DESCRIPTION =
 export const EXTRACT_UPLOAD_STEP_COLLECT_TITLE = "Step 1 — Collect inventory locally" as const;
 
 export const EXTRACT_UPLOAD_STEP_COLLECT_DESCRIPTION =
-  "Copy the quick-start command, run it from your ArchLucid checkout, then upload the ZIP in Step 2. Use -DryRun on the advanced script when you need a preview first." as const;
+  "Copy the quick-start command for your cloud provider, run it locally, then upload the ZIP in Step 2. Use preview mode on the advanced script when you need a dry run first." as const;
 
 export const EXTRACT_UPLOAD_STEP_UPLOAD_TITLE = "Step 2 — Upload ZIP" as const;
 
