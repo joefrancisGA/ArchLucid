@@ -126,6 +126,8 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IAdminRagHealthQuery, AdminRagHealthQuery>();
         services.AddScoped<IRetrievalIndexingService, RetrievalIndexingService>();
         services.AddScoped<AssignedPolicyPackRulePackIdResolver>();
+        services.AddScoped<AgentPolicyPackRulePackIdResolver>();
+        services.AddScoped<AgentPolicyPackRetrievalAppender>();
         services.AddSingleton<IRetrievalCitationFormatter, RetrievalCitationFormatter>();
         services.AddScoped<IManifestChunkSummaryCompletionClient, ManifestChunkSummaryCompletionClient>();
         services.AddScoped<IManifestChunkSummarizer, ManifestChunkSummarizer>();

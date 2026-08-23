@@ -86,9 +86,9 @@ public sealed class ComplianceAgentHandlerRetrievalTests
             audit.Object,
             scopeProvider.Object,
             ComplianceAgentHandlerTestDependencies.CreateEmptyTechnologyLedgerRepository(),
-            retrieval.Object,
-            ComplianceAgentHandlerTestDependencies.CreateCitationFormatter(),
-            ComplianceAgentHandlerTestDependencies.CreateNoOpGroundingTraceWriter(),
+            ComplianceAgentHandlerTestDependencies.CreatePolicyPackRetrievalAppender(
+                scopeProvider.Object,
+                retrieval.Object),
             AgentSchemaRemediationOptionsMonitorTestFactory.Create(),
             ComplianceAgentHandlerTestDependencies.CreateNullLogger());
 
@@ -183,9 +183,9 @@ public sealed class ComplianceAgentHandlerRetrievalTests
             audit.Object,
             scopeProvider.Object,
             ComplianceAgentHandlerTestDependencies.CreateEmptyTechnologyLedgerRepository(),
-            retrieval.Object,
-            ComplianceAgentHandlerTestDependencies.CreateCitationFormatter(),
-            ComplianceAgentHandlerTestDependencies.CreateNoOpGroundingTraceWriter(),
+            ComplianceAgentHandlerTestDependencies.CreatePolicyPackRetrievalAppender(
+                scopeProvider.Object,
+                retrieval.Object),
             AgentSchemaRemediationOptionsMonitorTestFactory.Create(),
             ComplianceAgentHandlerTestDependencies.CreateNullLogger());
 
@@ -301,9 +301,10 @@ public sealed class ComplianceAgentHandlerRetrievalTests
             audit.Object,
             scopeProvider.Object,
             ComplianceAgentHandlerTestDependencies.CreateEmptyTechnologyLedgerRepository(),
-            retrieval.Object,
-            ComplianceAgentHandlerTestDependencies.CreateCitationFormatter(),
-            groundingTraceWriter.Object,
+            ComplianceAgentHandlerTestDependencies.CreatePolicyPackRetrievalAppender(
+                scopeProvider.Object,
+                retrieval.Object,
+                groundingTraceWriter.Object),
             AgentSchemaRemediationOptionsMonitorTestFactory.Create(),
             ComplianceAgentHandlerTestDependencies.CreateNullLogger());
 

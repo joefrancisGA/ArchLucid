@@ -104,6 +104,7 @@ public sealed class RealAzureOpenAIEndToEndTests
             scopeProvider.Object,
             TopologyAgentHandlerTestFactory.CreateEmptyLedgerRepository(),
             ComplianceAgentHandlerTestDependencies.CreateEmptyRetrievalQueryService(),
+            ComplianceAgentHandlerTestDependencies.CreatePolicyPackRetrievalAppender(scopeProvider.Object),
             ComplianceAgentHandlerTestDependencies.CreateNoOpGroundingTraceWriter(),
             schemaRemediation,
             ComplianceAgentHandlerTestDependencies.CreateTopologyNullLogger());
@@ -117,9 +118,7 @@ public sealed class RealAzureOpenAIEndToEndTests
             audit.Object,
             scopeProvider.Object,
             TopologyAgentHandlerTestFactory.CreateEmptyLedgerRepository(),
-            ComplianceAgentHandlerTestDependencies.CreateEmptyRetrievalQueryService(),
-            ComplianceAgentHandlerTestDependencies.CreateCitationFormatter(),
-            ComplianceAgentHandlerTestDependencies.CreateNoOpGroundingTraceWriter(),
+            ComplianceAgentHandlerTestDependencies.CreatePolicyPackRetrievalAppender(scopeProvider.Object),
             schemaRemediation,
             ComplianceAgentHandlerTestDependencies.CreateNullLogger());
 
@@ -307,6 +306,7 @@ public sealed class RealAzureOpenAIEndToEndTests
             scopeProvider.Object,
             TopologyAgentHandlerTestFactory.CreateEmptyLedgerRepository(),
             ComplianceAgentHandlerTestDependencies.CreateEmptyRetrievalQueryService(),
+            ComplianceAgentHandlerTestDependencies.CreatePolicyPackRetrievalAppender(scopeProvider.Object),
             ComplianceAgentHandlerTestDependencies.CreateNoOpGroundingTraceWriter(),
             schemaRemediation,
             ComplianceAgentHandlerTestDependencies.CreateTopologyNullLogger());

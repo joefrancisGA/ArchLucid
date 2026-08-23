@@ -67,6 +67,7 @@ internal static class GoldenCohortLiveAoaiExecutorFactory
             scopeProvider.Object,
             TopologyAgentHandlerTestFactory.CreateEmptyLedgerRepository(),
             ComplianceAgentHandlerTestDependencies.CreateEmptyRetrievalQueryService(),
+            ComplianceAgentHandlerTestDependencies.CreatePolicyPackRetrievalAppender(scopeProvider.Object),
             ComplianceAgentHandlerTestDependencies.CreateNoOpGroundingTraceWriter(),
             schemaRemediation,
             ComplianceAgentHandlerTestDependencies.CreateTopologyNullLogger());
@@ -80,9 +81,7 @@ internal static class GoldenCohortLiveAoaiExecutorFactory
             audit.Object,
             scopeProvider.Object,
             TopologyAgentHandlerTestFactory.CreateEmptyLedgerRepository(),
-            ComplianceAgentHandlerTestDependencies.CreateEmptyRetrievalQueryService(),
-            ComplianceAgentHandlerTestDependencies.CreateCitationFormatter(),
-            ComplianceAgentHandlerTestDependencies.CreateNoOpGroundingTraceWriter(),
+            ComplianceAgentHandlerTestDependencies.CreatePolicyPackRetrievalAppender(scopeProvider.Object),
             schemaRemediation,
             ComplianceAgentHandlerTestDependencies.CreateNullLogger());
 

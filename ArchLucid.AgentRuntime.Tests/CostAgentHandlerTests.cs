@@ -59,6 +59,7 @@ public sealed class CostAgentHandlerTests
             scopeProvider.Object,
             ledgerRepository.Object,
             lookups,
+            ComplianceAgentHandlerTestDependencies.CreatePolicyPackRetrievalAppender(scopeProvider.Object),
             ComplianceAgentHandlerTestDependencies.CreateNoOpGroundingTraceWriter(),
             AgentSchemaRemediationOptionsMonitorTestFactory.Create(),
             Microsoft.Extensions.Logging.Abstractions.NullLogger<CostAgentHandler>.Instance);
