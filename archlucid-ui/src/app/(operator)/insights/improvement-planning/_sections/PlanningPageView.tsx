@@ -2,6 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import { DemoWorkspaceCapabilityUnavailablePanel } from "@/components/DemoWorkspaceCapabilityUnavailablePanel";
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { OperatorDemoStaticBanner } from "@/components/operator/OperatorDemoStaticBanner";
@@ -15,7 +16,7 @@ import { PlanningPlanDetailHubVocabularyRail } from "@/components/PlanningPlanDe
 import { PlanningReviewsVocabularyRail } from "@/components/PlanningReviewsVocabularyRail";
 import { Button } from "@/components/ui/button";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { IMPROVEMENT_PLANNING_PRIORITY_EXPLAIN } from "@/lib/planning-empty-orientation-copy";
 import {
   IMPROVEMENT_PLANNING_DEMO_DESCRIPTION,
@@ -65,7 +66,7 @@ export function PlanningPageView(props: Props) {
   }
 
   return (
-    <div className="max-w-5xl">
+    <OperatorPageContainer variant="dashboard" className={OPERATOR_LAYOUT.sectionStack}>
       <PlanningPageHeader
         subtitle={planningPageSubtitle(buyerPolishedShell)}
         refreshing={m.refreshing}
@@ -237,7 +238,7 @@ export function PlanningPageView(props: Props) {
           ) : null}
         </>
       ) : null}
-    </div>
+    </OperatorPageContainer>
   );
 }
 

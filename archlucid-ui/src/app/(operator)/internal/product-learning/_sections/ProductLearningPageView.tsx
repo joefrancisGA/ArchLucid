@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { OperatorLoadingNotice } from "@/components/operator/OperatorShellMessage";
 import { PilotFeedbackRecommendationLearningVocabularyRail } from "@/components/PilotFeedbackRecommendationLearningVocabularyRail";
@@ -28,6 +29,7 @@ import {
 import { BUYER_TERMINOLOGY, PILOT_FEEDBACK_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
 import {
   OPERATOR_KPI_CARD_TITLE,
+  OPERATOR_LAYOUT,
   OPERATOR_LINK,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
@@ -57,7 +59,7 @@ export function ProductLearningPageView(props: Props) {
   const showPopulatedSections = m.bundle !== null && !emptyDataset;
 
   return (
-    <div className="max-w-5xl">
+    <OperatorPageContainer variant="dashboard" className={OPERATOR_LAYOUT.sectionStack}>
       <OperatorPageHeader
         navHref={PRODUCT_LEARNING_PATH}
         title={BUYER_TERMINOLOGY.evaluationFeedback}
@@ -345,6 +347,6 @@ export function ProductLearningPageView(props: Props) {
           </p>
         </>
       ) : null}
-    </div>
+    </OperatorPageContainer>
   );
 }

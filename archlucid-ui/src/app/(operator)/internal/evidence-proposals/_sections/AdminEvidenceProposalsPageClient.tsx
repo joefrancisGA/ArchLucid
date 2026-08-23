@@ -6,6 +6,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { EvidenceProposalsEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { readApiFailureMessage } from "@/lib/api-error";
@@ -86,7 +87,7 @@ export function AdminEvidenceProposalsPageClient() {
   };
 
   return (
-    <div className={cn("w-full max-w-3xl", OPERATOR_LAYOUT.sectionStack)} data-testid="admin-evidence-proposals-page">
+    <OperatorPageContainer variant="dashboard" className={OPERATOR_LAYOUT.sectionStack} data-testid="admin-evidence-proposals-page">
       <OperatorPageHeader
         navHref={INTERNAL_EVIDENCE_PROPOSALS_PATH}
         title="Evidence proposals"
@@ -148,6 +149,6 @@ export function AdminEvidenceProposalsPageClient() {
           </li>
         ))}
       </ul>
-    </div>
+    </OperatorPageContainer>
   );
 }
