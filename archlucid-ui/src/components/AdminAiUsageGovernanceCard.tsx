@@ -4,13 +4,14 @@ import { cn } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { OperatorSectionLoadFailure } from "@/components/operator/OperatorSectionLoadFailure";
 import { fetchAdminAiUsageDashboard } from "@/lib/admin-ai-usage-dashboard";
 import { OPERATOR_CARD, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 import { OPERATOR_QUERY_STALE_MS } from "@/lib/query/operator-query-stale-time";
 
 export function AdminAiUsageGovernanceCard() {
-  const { data, isError, isLoading } = useQuery({
+  const { data, isError, isLoading, refetch, isFetching } = useQuery({
     queryKey: operatorQueryKeys.adminAiUsageDashboard,
     queryFn: fetchAdminAiUsageDashboard,
     staleTime: OPERATOR_QUERY_STALE_MS,
@@ -31,7 +32,21 @@ export function AdminAiUsageGovernanceCard() {
   }
 
   if (isError || data === undefined) {
-    return null;
+    return (
+      <Card data-testid="admin-ai-usage-governance-card">
+        <CardHeader className={OPERATOR_CARD.header}>
+          <CardTitle className={OPERATOR_TYPOGRAPHY.sectionTitle}>AI usage governance</CardTitle>
+        </CardHeader>
+        <CardContent className={OPERATOR_CARD.content}>
+          <OperatorSectionLoadFailure
+            message="Could not load AI usage governance data."
+            onRetry={() => void refetch()}
+            retrying={isFetching}
+            testId="admin-ai-usage-governance-load-failure"
+          />
+        </CardContent>
+      </Card>
+    );
   }
 
   const featureRows = Object.entries(data.usageByFeatureUsd).sort((a, b) => b[1] - a[1]);

@@ -21,6 +21,7 @@ import { GovernanceSetupFoundationPanel } from "./GovernanceSetupFoundationPanel
 import { GovernanceSetupGuideProgressSummary } from "./GovernanceSetupGuideProgressSummary";
 import { GovernanceSetupGuideStepRow } from "./GovernanceSetupGuideStepRow";
 import { GovernanceSetupOutcomesPanel } from "./GovernanceSetupOutcomesPanel";
+import { OperatorSectionLoadFailure } from "@/components/operator/OperatorSectionLoadFailure";
 import { summarizeGovernanceSetupProgress } from "./governance-setup-guide-steps";
 import type { GovernanceSetupGuideViewModel } from "./governance-setup-guide-types";
 
@@ -47,6 +48,15 @@ export function GovernanceSetupGuidePageView({ model }: GovernanceSetupGuidePage
       </OperatorPageHeader>
 
       <GovernanceSetupConfigHubsVocabularyRail currentSurfaceId="setup" />
+
+      {model.bundleLoadFailed === true ? (
+        <OperatorSectionLoadFailure
+          message="Could not load governance setup status. Your policy and alert configuration may still be saved — retry to refresh progress."
+          onRetry={() => window.location.reload()}
+          retryLabel="Reload page"
+          testId="governance-setup-bundle-load-failure"
+        />
+      ) : null}
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(240px,18rem)] lg:items-start">
         <div className="space-y-5 min-w-0">

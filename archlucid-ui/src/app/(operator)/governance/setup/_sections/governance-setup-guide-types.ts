@@ -27,4 +27,5 @@ export type GovernanceSetupGuideViewModel = {
   readonly stepStatuses: readonly GovernanceSetupStepStatus[];
   readonly steps: readonly GovernanceSetupStepDefinition[];
   readonly foundationIndicators: readonly GovernanceSetupFoundationIndicator[];
+  readonly bundleLoadFailed?: boolean;
 };
