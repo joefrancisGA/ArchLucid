@@ -6,6 +6,10 @@ export const ARCHITECTURE_REQUEST_DRAFT_MIN_DESCRIPTION_CHARS = 20;
 /** Body for POST /v1/architecture/request/draft. */
 export type DraftArchitectureRequestInput = {
   freeTextDescription: string;
+  /** Constraints already on the draft — avoids semantic duplicates in new suggestions. */
+  currentConstraints?: readonly string[];
+  /** Assumptions already on the draft — avoids semantic duplicates in new suggestions. */
+  currentAssumptions?: readonly string[];
 };
 
 /** Parsed intake suggestions from the architecture request draft endpoint. */
@@ -24,5 +28,7 @@ export async function draftArchitectureRequest(
 ): Promise<DraftArchitectureRequestResponse> {
   return apiPostJson<DraftArchitectureRequestResponse>("/v1/architecture/request/draft", {
     freeTextDescription: input.freeTextDescription,
+    currentConstraints: input.currentConstraints ?? [],
+    currentAssumptions: input.currentAssumptions ?? [],
   });
 }

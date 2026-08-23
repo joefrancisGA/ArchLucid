@@ -105299,6 +105299,8 @@ export interface components {
             verdict?: components["schemas"]["FeasibilityVerdict"];
         };
         DraftArchitectureRequestInput: {
+            currentAssumptions?: string[];
+            currentConstraints?: string[];
             freeTextDescription: string;
         };
         DraftArchitectureRequestResponse: {
@@ -105888,6 +105890,7 @@ export interface components {
             properties?: {
                 [key: string]: string;
             };
+            qualityDimension?: null | string;
             rationale?: string;
             recommendedActions?: string[];
             relatedNodeIds?: string[];

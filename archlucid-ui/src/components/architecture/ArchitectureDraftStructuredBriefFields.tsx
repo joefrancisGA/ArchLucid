@@ -411,7 +411,11 @@ export function ArchitectureDraftStructuredBriefFields(
     setFailureModeSuggestEmpty(false);
 
     try {
-      const response = await draftArchitectureRequest({ freeTextDescription });
+      const response = await draftArchitectureRequest({
+        freeTextDescription,
+        currentConstraints: [...brief.confirmedConstraints, ...brief.suggestedConstraints],
+        currentAssumptions: [...brief.confirmedAssumptions, ...brief.suggestedAssumptions],
+      });
       const applied = applyArchitectureDraftStructuredBriefSuggestionsFromDraftResponse({
         brief,
         sourceText: freeTextDescription,
@@ -472,7 +476,11 @@ export function ArchitectureDraftStructuredBriefFields(
     setFailureModeSuggestApplied(false);
 
     try {
-      const response = await draftArchitectureRequest({ freeTextDescription: failureModeSourceText });
+      const response = await draftArchitectureRequest({
+        freeTextDescription: failureModeSourceText,
+        currentConstraints: [...brief.confirmedConstraints, ...brief.suggestedConstraints],
+        currentAssumptions: [...brief.confirmedAssumptions, ...brief.suggestedAssumptions],
+      });
       const failureModeSuggestion = resolveFailureModeSuggestion({
         llmSuggestion: response.suggestedFailureModeNote,
         sourceText: failureModeSourceText,

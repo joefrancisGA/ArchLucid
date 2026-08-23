@@ -81,6 +81,40 @@ describe("ArchitectureDraftStructuredBriefFields", () => {
     expect(mockedDraftArchitectureRequest).toHaveBeenCalledWith({
       freeTextDescription:
         "Architecture overview:\nTenant migration platform with private networking and EU residency goals.",
+      currentConstraints: [],
+      currentAssumptions: [],
+    });
+  });
+
+  it("sends confirmed and suggested constraints and assumptions to the draft API", async () => {
+    mockedDraftArchitectureRequest.mockResolvedValue({
+      suggestedConstraints: [],
+      suggestedAssumptions: [],
+      suggestedCapabilities: [],
+      topologyHints: [],
+      securityBaselineHints: [],
+    });
+
+    render(
+      <StructuredBriefHarness
+        freeTextIntent={"Tenant migration platform with private networking and EU residency goals."}
+        initialBrief={{
+          ...emptyArchitectureDraftStructuredBrief(),
+          confirmedConstraints: ["Encryption at rest"],
+          suggestedAssumptions: ["Stable internet connection"],
+        }}
+      />,
+    );
+
+    fireEvent.click(screen.getByTestId("architecture-draft-suggest-structured-brief"));
+
+    await waitFor(() => {
+      expect(mockedDraftArchitectureRequest).toHaveBeenCalledWith({
+        freeTextDescription:
+          "Architecture overview:\nTenant migration platform with private networking and EU residency goals.\n\nConfirmed constraints:\n- Encryption at rest",
+        currentConstraints: ["Encryption at rest"],
+        currentAssumptions: ["Stable internet connection"],
+      });
     });
   });
 

@@ -10406,6 +10406,18 @@
       },
       "DraftArchitectureRequestInput": {
         "properties": {
+          "currentAssumptions": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "currentConstraints": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
           "freeTextDescription": {
             "minLength": 20,
             "type": "string"
