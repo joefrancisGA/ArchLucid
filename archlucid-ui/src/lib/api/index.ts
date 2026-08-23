@@ -17,6 +17,7 @@ export {
 } from "./http";
 export * from "./tenant-customer-success";
 export * from "./architecture-runs";
+export * from "./reviews-paged-inventory";
 export * from "./operations-api";
 export * from "./architecture-request-draft-api";
 export * from "./structured-brief-suggestion-explain-api";

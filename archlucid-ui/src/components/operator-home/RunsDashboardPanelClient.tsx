@@ -35,7 +35,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FilterChip } from "@/components/ui/filter-chip";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { listRunsByProjectPaged, restoreArchitectureRequest } from "@/lib/api";
+import { fetchPagedReviewsInventory, restoreArchitectureRequest } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure, uiFailureFromMessage } from "@/lib/api-load-failure";
 import { dedupeRunSummariesByRunId, normalizeRunSummaryForDemoPicker } from "@/lib/demo-run-canonical";
@@ -157,7 +157,10 @@ export function RunsDashboardPanelClient({
 
     try {
       // showArchived is client-side filter only until runs list declares includeArchived (avoids 400).
-      const raw: unknown = await listRunsByProjectPaged(projectId, 1, pageSize, {
+      const raw: unknown = await fetchPagedReviewsInventory({
+        projectId,
+        page: 1,
+        pageSize,
         cursor: "",
         scopeHeaders: getEffectiveBrowserProxyScopeHeaders(),
       });

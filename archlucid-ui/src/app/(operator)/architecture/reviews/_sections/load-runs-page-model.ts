@@ -1,12 +1,9 @@
 import { redirect } from "next/navigation";
 
-import {
-  listRunsByProjectPaged,
-  listRunsInScopePaged,
-  shouldListReviewsAcrossProjectSlugs,
-} from "@/lib/api";
+import { shouldListReviewsAcrossProjectSlugs } from "@/lib/api";
+import { fetchPagedReviewsInventory } from "@/lib/api/reviews-paged-inventory";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
-import { isApiNotFoundFailure, toApiLoadFailure } from "@/lib/api-load-failure";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { dedupeRunSummariesByRunId, normalizeRunSummaryForDemoPicker } from "@/lib/demo-run-canonical";
 import { coerceRunSummaryPaged } from "@/lib/operator/operator-response-guards";
 import { resolveServerScopeHeadersForProject } from "@/lib/server-run-scope";
@@ -33,30 +30,15 @@ export async function fetchReviewsHubPagedInventory(params: {
   readonly scopeHeaders: Record<string, string>;
   readonly listAcrossProjectSlugs: boolean;
 }): Promise<unknown> {
-  if (!params.listAcrossProjectSlugs) {
-    return listRunsByProjectPaged(params.projectId, params.page, params.pageSize, {
-      cursor: params.cursor ?? "",
-      scopeHeaders: params.scopeHeaders,
-    });
-  }
+  void params.listAcrossProjectSlugs;
 
-  try {
-    return await listRunsInScopePaged(params.page, params.pageSize, {
-      cursor: params.cursor ?? "",
-      scopeHeaders: params.scopeHeaders,
-    });
-  } catch (error) {
-    const failure = toApiLoadFailure(error);
-
-    if (!isApiNotFoundFailure(failure)) {
-      throw error;
-    }
-
-    return listRunsByProjectPaged(params.projectId, params.page, params.pageSize, {
-      cursor: params.cursor ?? "",
-      scopeHeaders: params.scopeHeaders,
-    });
-  }
+  return fetchPagedReviewsInventory({
+    projectId: params.projectId,
+    page: params.page,
+    pageSize: params.pageSize,
+    cursor: params.cursor,
+    scopeHeaders: params.scopeHeaders,
+  });
 }
 
 /**

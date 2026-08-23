@@ -1,19 +1,19 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { listRunsByProjectPaged, listRunsInScopePaged, shouldListReviewsAcrossProjectSlugs } from "@/lib/api";
-import { ApiRequestError } from "@/lib/api-request-error";
+import { shouldListReviewsAcrossProjectSlugs } from "@/lib/api";
 
-import { fetchReviewsHubPagedInventory, formatRunsPageProjectTitle } from "./load-runs-page-model";
-
-vi.mock("@/lib/api", async () => {
-  const actual = await vi.importActual<typeof import("@/lib/api")>("@/lib/api");
+vi.mock("@/lib/api/reviews-paged-inventory", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/api/reviews-paged-inventory")>();
 
   return {
     ...actual,
-    listRunsByProjectPaged: vi.fn(),
-    listRunsInScopePaged: vi.fn(),
+    fetchPagedReviewsInventory: vi.fn(),
   };
 });
+
+import { fetchPagedReviewsInventory } from "@/lib/api/reviews-paged-inventory";
+
+import { fetchReviewsHubPagedInventory, formatRunsPageProjectTitle } from "./load-runs-page-model";
 
 describe("formatRunsPageProjectTitle", () => {
   it("labels the active project with a clear prefix", () => {
@@ -35,73 +35,27 @@ describe("reviews hub project list mode", () => {
 
 describe("fetchReviewsHubPagedInventory", () => {
   beforeEach(() => {
-    vi.mocked(listRunsByProjectPaged).mockReset();
-    vi.mocked(listRunsInScopePaged).mockReset();
+    vi.mocked(fetchPagedReviewsInventory).mockReset();
   });
 
-  it("uses the project-slug list when an explicit project filter is set", async () => {
-    vi.mocked(listRunsByProjectPaged).mockResolvedValue({ items: [], totalCount: 0 });
+  it("delegates to fetchPagedReviewsInventory with the hub request shape", async () => {
+    vi.mocked(fetchPagedReviewsInventory).mockResolvedValue({ items: [], totalCount: 0 });
 
     await fetchReviewsHubPagedInventory({
       projectId: "claims-intake",
       page: 1,
       pageSize: 20,
       cursor: undefined,
-      scopeHeaders: {},
+      scopeHeaders: { "x-tenant-id": "t1" },
       listAcrossProjectSlugs: false,
     });
 
-    expect(listRunsByProjectPaged).toHaveBeenCalledTimes(1);
-    expect(listRunsInScopePaged).not.toHaveBeenCalled();
-  });
-
-  it("falls back to the project-slug list when scope-wide listing returns 404", async () => {
-    vi.mocked(listRunsInScopePaged).mockRejectedValue(
-      new ApiRequestError("missing", {
-        httpStatus: 404,
-        correlationId: null,
-        problem: { status: 404, errorCode: "RESOURCE_NOT_FOUND" },
-      }),
-    );
-    vi.mocked(listRunsByProjectPaged).mockResolvedValue({ items: [], totalCount: 0 });
-
-    await fetchReviewsHubPagedInventory({
-      projectId: "default",
+    expect(fetchPagedReviewsInventory).toHaveBeenCalledWith({
+      projectId: "claims-intake",
       page: 1,
       pageSize: 20,
       cursor: undefined,
-      scopeHeaders: { "X-ArchLucid-TenantId": "t1" },
-      listAcrossProjectSlugs: true,
+      scopeHeaders: { "x-tenant-id": "t1" },
     });
-
-    expect(listRunsInScopePaged).toHaveBeenCalledTimes(1);
-    // An absent cursor is normalized to the empty first-page cursor before the fallback call.
-    expect(listRunsByProjectPaged).toHaveBeenCalledWith("default", 1, 20, {
-      cursor: "",
-      scopeHeaders: { "X-ArchLucid-TenantId": "t1" },
-    });
-  });
-
-  it("rethrows non-404 scope-wide list failures", async () => {
-    vi.mocked(listRunsInScopePaged).mockRejectedValue(
-      new ApiRequestError("boom", {
-        httpStatus: 500,
-        correlationId: null,
-        problem: { status: 500, errorCode: "INTERNAL_ERROR" },
-      }),
-    );
-
-    await expect(
-      fetchReviewsHubPagedInventory({
-        projectId: "default",
-        page: 1,
-        pageSize: 20,
-        cursor: undefined,
-        scopeHeaders: {},
-        listAcrossProjectSlugs: true,
-      }),
-    ).rejects.toBeInstanceOf(ApiRequestError);
-
-    expect(listRunsByProjectPaged).not.toHaveBeenCalled();
   });
 });

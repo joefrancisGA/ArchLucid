@@ -1,4 +1,4 @@
-import { listRunsByProjectPaged } from "@/lib/api";
+import { fetchPagedReviewsInventory } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure, uiFailureFromMessage } from "@/lib/api-load-failure";
 import { dedupeRunSummariesByRunId, normalizeRunSummaryForDemoPicker } from "@/lib/demo-run-canonical";
@@ -32,7 +32,10 @@ export async function loadOperatorHomeRunsDashboardModel(): Promise<OperatorHome
   let usedStaticRunsFallback = false;
 
   try {
-    const raw: unknown = await listRunsByProjectPaged(projectId, page, pageSize, {
+    const raw: unknown = await fetchPagedReviewsInventory({
+      projectId,
+      page,
+      pageSize,
       cursor: "",
       scopeHeaders,
     });
