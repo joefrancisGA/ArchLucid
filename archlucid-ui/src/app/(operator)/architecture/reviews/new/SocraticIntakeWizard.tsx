@@ -37,6 +37,7 @@ import {
   WIZARD_STICKY_FOOTER_TEST_ID,
 } from "@/lib/wizard-sticky-progress";
 import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer/buyer-polish-copy";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { mapNormalizedCloudProvider } from "@/lib/coverage-preview";
 import { deriveGuidedIntakeCloudTargetForMismatch } from "@/lib/review-quality/guided-intake-policy-pack-cloud-mismatch";
 import {
@@ -65,6 +66,7 @@ import {
   DraftIntakeDecisionReceiptCard,
   SocraticIntakeWizardAdvancedRail,
 } from "./SocraticIntakeWizardDeferredPanels";
+import { ReviewsNewBuyerChrome } from "./ReviewsNewBuyerChrome";
 import { GuidedIntakeRequestError } from "./GuidedIntakeRequestError";
 import { IntakeFieldLabel } from "@/components/intake/IntakeFieldLabel";
 import { INTAKE_STEPS, INTAKE_WIZARD_STEPPER_STEPS, MIN_OUTCOME_CHARS } from "./guided-intake-steps";
@@ -72,6 +74,7 @@ import { useGuidedIntakeWizard } from "./use-guided-intake-wizard";
 
 /** Guided intake: write the brief, answer required clarifications, submit the review package. */
 export function SocraticIntakeWizard() {
+  const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const {
     // Intake context (query string, budget gate)
     exampleTemplate,
@@ -641,6 +644,8 @@ export function SocraticIntakeWizard() {
           </CardContent>
         </Card>
       ) : null}
+
+      {buyerPolishedShell ? <ReviewsNewBuyerChrome /> : null}
       </div>
 
       <aside

@@ -452,6 +452,48 @@ describe("SocraticIntakeWizard", () => {
     expect(stickyFooter).toContainElement(reviewButton);
   });
 
+  it("renders related resources in the wizard main column on the clarifications step", async () => {
+    createDraftRequest.mockResolvedValue({ draftId: "draft-1" });
+    patchDraftRequest.mockResolvedValue({ draftId: "draft-1", status: "Drafting" });
+    admitDraftRequest.mockResolvedValue({
+      admitted: true,
+      pendingMustQuestions: [sampleQuestion],
+      requiredMustQuestionKeys: ["l0.pillar.security"],
+      draft: { draftId: "draft-1" },
+      verdict: { kind: "Feasible", summary: "ok" },
+    });
+    getDraftQuestions.mockResolvedValue({
+      draftId: "draft-1",
+      status: "Admitted",
+      selection: {
+        allQuestions: [sampleQuestion],
+        requiredMustQuestionKeys: ["l0.pillar.security"],
+        pendingMustQuestions: [sampleQuestion],
+      },
+    });
+
+    render(<SocraticIntakeWizard />);
+
+    fillStep0ForAdmission();
+    fireEvent.click(screen.getByTestId("socratic-admit"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("socratic-clarifications-step")).toBeInTheDocument();
+    });
+
+    const wizard = screen.getByTestId("socratic-intake-wizard");
+    const mainColumn = wizard.firstElementChild as HTMLElement;
+    const orientation = screen.getByTestId("reviews-new-orientation-top");
+    const clarificationsStep = screen.getByTestId("socratic-clarifications-step");
+
+    expect(mainColumn).toContainElement(orientation);
+    expect(mainColumn).toContainElement(clarificationsStep);
+    expect(
+      orientation.compareDocumentPosition(clarificationsStep) & Node.DOCUMENT_POSITION_PRECEDING,
+    ).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "Related resources" })).toBeInTheDocument();
+  });
+
   it("advances from clarification 1 to clarification 2 after Save and continue", async () => {
     createDraftRequest.mockResolvedValue({ draftId: "draft-1" });
     patchDraftRequest.mockResolvedValue({ draftId: "draft-1", status: "Drafting" });

@@ -93,7 +93,7 @@ describe("ReviewsNewPageChrome buyer-polished shell (REN)", () => {
 });
 
 describe("ReviewsNewPageChrome buyer-polished shell (ENE)", () => {
-  it("renders skip link, breadcrumb, orientation strip, and guided-intake buyer subtitle", () => {
+  it("omits shell-level related resources on guided-intake so the wizard can tuck them under clarifications", () => {
     searchParamsGet.mockImplementation((key: string) => (key === "path" ? "guided-intake" : null));
 
     render(
@@ -102,22 +102,12 @@ describe("ReviewsNewPageChrome buyer-polished shell (ENE)", () => {
       </ReviewsNewPageShell>,
     );
 
-    expect(screen.getByRole("link", { name: REVIEWS_NEW_SKIP_LINK_LABEL })).toHaveAttribute(
-      "href",
-      `#${REVIEWS_NEW_PRIMARY_CONTENT_ID}`,
-    );
-    expect(screen.getByTestId("reviews-new-primary-content")).toHaveAttribute(
-      "id",
-      REVIEWS_NEW_PRIMARY_CONTENT_ID,
-    );
-    expect(screen.getByTestId("reviews-new-breadcrumb")).toBeInTheDocument();
-    expect(screen.getByText("Guided questions")).toBeInTheDocument();
-    expect(screen.getByTestId("reviews-new-orientation-top")).toBeInTheDocument();
-    expect(screen.getByTestId("reviews-new-settings-sources")).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Related resources" })).toBeInTheDocument();
     expect(screen.getByTestId("reviews-new-page-subtitle")).toHaveTextContent(
       BUYER_REVIEWS_NEW_GUIDED_INTAKE_PAGE_SUBTITLE,
     );
+    expect(screen.queryByTestId("reviews-new-orientation-top")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("reviews-new-settings-sources")).not.toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "Related resources" })).not.toBeInTheDocument();
     expect(screen.queryByTestId("reviews-new-optional-cloud-hint")).not.toBeInTheDocument();
     expect(screen.queryByTestId("page-contextual-help-button")).not.toBeInTheDocument();
     expect(reviewsNewPageSubtitle(true, "guided-intake")).toBe(BUYER_REVIEWS_NEW_GUIDED_INTAKE_PAGE_SUBTITLE);

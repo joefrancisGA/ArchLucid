@@ -1,5 +1,7 @@
 "use client";
 
+import { useSearchParams } from "next/navigation";
+
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
@@ -15,9 +17,16 @@ type ReviewsNewPageShellProps = {
   readonly children: React.ReactNode;
 };
 
+function reviewsNewBuyerChromeRendersInShell(pathQuery: string): boolean {
+  return pathQuery !== "guided-intake";
+}
+
 /** Shared `/architecture/reviews/new` layout — skip link, header, and intake workspace (RNX / REN / REQ / ENE). */
 export function ReviewsNewPageShell(props: ReviewsNewPageShellProps): React.JSX.Element {
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const searchParams = useSearchParams();
+  const pathQuery = searchParams?.get("path")?.trim() ?? "";
+  const showBuyerChromeInShell = buyerPolishedShell && reviewsNewBuyerChromeRendersInShell(pathQuery);
 
   return (
     <OperatorPageContainer variant="workflow" withContextRail={buyerPolishedShell}>
@@ -36,7 +45,7 @@ export function ReviewsNewPageShell(props: ReviewsNewPageShellProps): React.JSX.
         data-testid="reviews-new-primary-content"
       >
         {props.children}
-        {buyerPolishedShell ? <ReviewsNewBuyerChrome /> : null}
+        {showBuyerChromeInShell ? <ReviewsNewBuyerChrome /> : null}
       </div>
     </OperatorPageContainer>
   );
