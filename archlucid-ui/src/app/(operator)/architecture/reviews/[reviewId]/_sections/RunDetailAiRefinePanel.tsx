@@ -9,6 +9,8 @@ import { ArchitectureIntelligenceRefineResultSummary } from "@/components/archit
 import { Button } from "@/components/ui/button";
 import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import { useLlmMonthlyBudgetExecutionGate } from "@/hooks/use-llm-monthly-budget-execution-gate";
+import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
 import {
   buildArchitectureIntelligenceRunRequest,
   fetchArchitectureIntelligenceProductSourceContext,
@@ -20,6 +22,7 @@ import {
 import type { ArchitectureIntelligenceReviewTier } from "@/lib/architecture/architecture-intelligence-review-tier";
 import { buildArchitectureIntelligenceRunHref } from "@/lib/architecture/architecture-intelligence-run-href";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { whyDisabledLlmBudgetExhausted } from "@/lib/why-disabled-cta";
 import { cn } from "@/lib/utils";
 
@@ -43,47 +46,30 @@ export function RunDetailAiRefinePanel(props: RunDetailAiRefinePanelProps) {
   const [priorities, setPriorities] = useState<string[]>([]);
   const [reviewTier, setReviewTier] = useState<ArchitectureIntelligenceReviewTier>("Standard");
   const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<ApiLoadFailureState | null>(null);
   const [result, setResult] = useState<ClosedLoopReasoningResult | null>(null);
 
-  useEffect(() => {
-    let canceled = false;
-
+  const loadSourceContext = useCallback(async () => {
     setContextStatus("loading");
     setError(null);
     setResult(null);
 
-    void (async () => {
-      try {
-        const context = await fetchArchitectureIntelligenceProductSourceContext(runId);
-
-        if (canceled) {
-          return;
-        }
-
-        const sources = context.sourceTexts ?? [];
-        setHydratedSources(sources);
-        setArchitectureDescription(primaryDescriptionFromSources(sources));
-        setPriorities(context.declaredPriorities ?? []);
-        setContextStatus(sources.length > 0 ? "ready" : "empty");
-      } catch (cause) {
-        if (canceled) {
-          return;
-        }
-
-        setContextStatus("error");
-        setError(
-          cause instanceof Error
-            ? cause.message
-            : "Could not load architecture intake for this review.",
-        );
-      }
-    })();
-
-    return () => {
-      canceled = true;
-    };
+    try {
+      const context = await fetchArchitectureIntelligenceProductSourceContext(runId);
+      const sources = context.sourceTexts ?? [];
+      setHydratedSources(sources);
+      setArchitectureDescription(primaryDescriptionFromSources(sources));
+      setPriorities(context.declaredPriorities ?? []);
+      setContextStatus(sources.length > 0 ? "ready" : "empty");
+    } catch (cause) {
+      setContextStatus("error");
+      setError(toApiLoadFailure(cause));
+    }
   }, [runId]);
+
+  useEffect(() => {
+    void loadSourceContext();
+  }, [loadSourceContext]);
 
   const canRefine =
     contextStatus === "ready" &&
@@ -113,7 +99,7 @@ export function RunDetailAiRefinePanel(props: RunDetailAiRefinePanelProps) {
 
       setResult(next);
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : String(cause));
+      setError(toApiLoadFailure(cause));
     } finally {
       setBusy(false);
     }
@@ -197,16 +183,12 @@ export function RunDetailAiRefinePanel(props: RunDetailAiRefinePanelProps) {
       ) : null}
 
       {error !== null ? (
-        <p
-          role="alert"
-          data-testid="run-detail-ai-refine-error"
-          className={cn(
-            "rounded-md border border-rose-600/40 bg-al-surface-raised p-2 text-al-text-primary",
-            OPERATOR_TYPOGRAPHY.body,
-          )}
-        >
-          {error}
-        </p>
+        <div className="space-y-2" data-testid="run-detail-ai-refine-error">
+          <OperatorApiProblem failure={error} />
+          <Button type="button" variant="outline" size="sm" onClick={() => void loadSourceContext()}>
+            Try again
+          </Button>
+        </div>
       ) : null}
 
       {result !== null ? (
