@@ -89,6 +89,11 @@ public sealed class ArchitectureRecommendationProposedChangeTests
         recommendation.ProposedChange.Should().NotContain("require authentication");
         recommendation.ProposedChange.Should().NotContain("before production exposure");
         recommendation.ValidationMethod.Should().Contain("Attach evidence artifacts");
+        recommendation.AlternativeOptions.Select(option => option.Path).Should().NotContain(path =>
+            path.Contains("private network", StringComparison.OrdinalIgnoreCase)
+            || path.Contains("API gateway", StringComparison.OrdinalIgnoreCase));
+        recommendation.AlternativeOptions.Should().Contain(option =>
+            option.Path.Contains("additional evidence", StringComparison.OrdinalIgnoreCase));
     }
 
     [Fact]

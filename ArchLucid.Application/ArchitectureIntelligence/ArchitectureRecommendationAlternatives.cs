@@ -9,6 +9,11 @@ internal static class ArchitectureRecommendationAlternatives
     {
         ArgumentNullException.ThrowIfNull(finding);
 
+        if (ProvenancePresentationMapper.MapFinding(finding) == ProvenancePresentationBucket.Unverified)
+        {
+            return BuildEvidenceFirstAlternatives();
+        }
+
         if (finding.Dimension == QualityDimension.Security
             && finding.Title.Contains("trust boundary", StringComparison.OrdinalIgnoreCase))
         {
@@ -78,6 +83,19 @@ internal static class ArchitectureRecommendationAlternatives
             ];
         }
 
+        return
+        [
+            Create(
+                "Defer with documented exception and compensating controls",
+                "The exception, compensating controls, and expiry are recorded in the architecture package."),
+            Create(
+                "Collect additional evidence before changing the design",
+                "New evidence artifacts are attached and the finding is re-reviewed before the design changes."),
+        ];
+    }
+
+    private static IReadOnlyList<RecommendationAlternative> BuildEvidenceFirstAlternatives()
+    {
         return
         [
             Create(
