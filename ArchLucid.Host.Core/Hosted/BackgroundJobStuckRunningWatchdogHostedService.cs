@@ -62,20 +62,11 @@ public sealed class BackgroundJobStuckRunningWatchdogHostedService(
         {
             try
             {
-                await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
-
-                IBackgroundJobRepository repository =
-                    scope.ServiceProvider.GetRequiredService<IBackgroundJobRepository>();
-
-                TimeSpan staleAfter = ResolveStaleRunningThreshold(_backgroundJobsOptions);
-                int affected = await repository.ResetStaleRunningJobsOlderThanAsync(staleAfter, leaderToken);
-
-                if (affected > 0)
-
-                    _logger.LogWarning(
-                        "Reclaimed background jobs stuck Running > {Minutes} minutes: {Count}.",
-                        staleAfter.TotalMinutes,
-                        affected);
+                await BackgroundJobStuckRunningWatchdogBackgroundWork.RunSinglePassAsync(
+                    _scopeFactory,
+                    Options.Create(_backgroundJobsOptions),
+                    _logger,
+                    leaderToken);
             }
 
             catch (OperationCanceledException) when (leaderToken.IsCancellationRequested)

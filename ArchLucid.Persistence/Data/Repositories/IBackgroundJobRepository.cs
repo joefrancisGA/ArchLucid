@@ -44,7 +44,10 @@ public interface IBackgroundJobRepository
 
     /// <summary>
     ///     Reclaims stale <see cref="BackgroundJobRow.State"/> = <c>Running</c> rows missed when a worker vanished.
-    ///     Sets them back to <c>Pending</c>, increments retries, clears <see cref="BackgroundJobRow.StartedUtc"/>.
+    ///     Moves eligible rows to <c>Pending</c> (increments retries, clears <see cref="BackgroundJobRow.StartedUtc"/>)
+    ///     and marks exhausted rows <c>Failed</c>. Returns job ids moved to <c>Pending</c> for queue re-notification.
     /// </summary>
-    Task<int> ResetStaleRunningJobsOlderThanAsync(TimeSpan maxRunningAge, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<string>> ResetStaleRunningJobsOlderThanAsync(
+        TimeSpan maxRunningAge,
+        CancellationToken cancellationToken = default);
 }
