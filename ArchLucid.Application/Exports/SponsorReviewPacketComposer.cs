@@ -238,7 +238,7 @@ public static class SponsorReviewPacketComposer
 
     private static void AppendRoiBasisSection(StringBuilder sb, SponsorRoiSummaryResponse roiSummary)
     {
-        SponsorRoiClaimDisposition disposition = SponsorRoiExecutivePacketDispositionResolver.Resolve(roiSummary);
+        SponsorRoiClaimDisposition disposition = SponsorRoiPacketDispositionResolver.Resolve(roiSummary);
 
         sb.AppendLine("## ROI basis");
         sb.AppendLine();

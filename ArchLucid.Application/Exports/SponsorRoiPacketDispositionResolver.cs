@@ -4,7 +4,7 @@ using ArchLucid.Contracts.Roi;
 namespace ArchLucid.Application.Exports;
 
 /// <summary>Maps sponsor ROI summary evidence signals to sponsor claim disposition (presentation only).</summary>
-public static class SponsorRoiExecutivePacketDispositionResolver
+public static class SponsorRoiPacketDispositionResolver
 {
     public static SponsorRoiClaimDisposition Resolve(SponsorRoiSummaryResponse roiSummary)
     {

@@ -13,7 +13,7 @@ namespace ArchLucid.Application.Tests.Exports;
 
 [Trait("Suite", "Core")]
 [Trait("Category", "Unit")]
-public sealed class SponsorRoiSponsorPacketDispositionResolverTests
+public sealed class SponsorRoiPacketDispositionResolverTests
 {
     [Theory]
     [InlineData(SponsorRoiSavingsPricingBasis.UploadedActualAmortized, RoiCostEvidenceFreshness.Fresh, SponsorRoiClaimDisposition.Pass)]
@@ -31,7 +31,7 @@ public sealed class SponsorRoiSponsorPacketDispositionResolverTests
             CostEvidenceFreshnessStatus = freshness,
         };
 
-        SponsorRoiSponsorPacketDispositionResolver.Resolve(roi).Should().Be(expected);
+        SponsorRoiPacketDispositionResolver.Resolve(roi).Should().Be(expected);
     }
 
     [Fact]
