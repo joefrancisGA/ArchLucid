@@ -24,6 +24,28 @@ import { isSafeReturnPath } from "@/lib/navigation/safe-return-path";
 
 const EXPIRY_SKEW_MS = 60_000;
 
+function resolveExpiresInSeconds(expiresIn: number | undefined): number {
+  const defaultExpiresInSec = 3600;
+
+  if (expiresIn === undefined) {
+    return defaultExpiresInSec;
+  }
+
+  if (!Number.isFinite(expiresIn)) {
+    return defaultExpiresInSec;
+  }
+
+  if (expiresIn === 0) {
+    return 0;
+  }
+
+  if (expiresIn < 0) {
+    return defaultExpiresInSec;
+  }
+
+  return expiresIn;
+}
+
 function shouldClearOidcSessionOnRefreshFailure(error: unknown): boolean {
   if (!(error instanceof Error)) {
     return false;
@@ -87,7 +109,7 @@ export function persistTokenResponse(tokens: OidcTokenResponse): void {
     sessionStorage.setItem(OIDC_ID_TOKEN_KEY, tokens.id_token);
   }
 
-  const expiresInSec = typeof tokens.expires_in === "number" ? tokens.expires_in : 3600;
+  const expiresInSec = resolveExpiresInSeconds(tokens.expires_in);
   const expiresAtMs = Date.now() + expiresInSec * 1000;
 
   sessionStorage.setItem(OIDC_EXPIRES_AT_MS_KEY, String(expiresAtMs));

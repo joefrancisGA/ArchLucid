@@ -5,6 +5,7 @@ import {
   consumePostSignInReturnUrl,
   getAccessTokenForApi,
   isLikelySignedIn,
+  persistTokenResponse,
   storePostSignInReturnUrl,
 } from "@/lib/oidc/session";
 import {
@@ -67,6 +68,30 @@ describe("getAccessTokenForApi / isLikelySignedIn expiry parsing", () => {
   it("treats a non-numeric expires_at as expired instead of bypassing skew checks", () => {
     sessionStorage.setItem(OIDC_ACCESS_TOKEN_KEY, "stale-access");
     sessionStorage.setItem(OIDC_EXPIRES_AT_MS_KEY, "not-a-number");
+
+    expect(getAccessTokenForApi()).toBeUndefined();
+    expect(isLikelySignedIn()).toBe(false);
+  });
+});
+
+describe("persistTokenResponse", () => {
+  afterEach(() => {
+    sessionStorage.clear();
+  });
+
+  it("treats negative expires_in as the default lifetime instead of writing a past expiry", () => {
+    persistTokenResponse({ access_token: "tok", expires_in: -120 });
+
+    const expiresAtMs = Number(sessionStorage.getItem(OIDC_EXPIRES_AT_MS_KEY));
+
+    expect(Number.isFinite(expiresAtMs)).toBe(true);
+    expect(expiresAtMs).toBeGreaterThan(Date.now());
+    expect(isLikelySignedIn()).toBe(true);
+    expect(getAccessTokenForApi()).toBe("tok");
+  });
+
+  it("honors zero expires_in so callers refresh immediately", () => {
+    persistTokenResponse({ access_token: "tok", expires_in: 0 });
 
     expect(getAccessTokenForApi()).toBeUndefined();
     expect(isLikelySignedIn()).toBe(false);
