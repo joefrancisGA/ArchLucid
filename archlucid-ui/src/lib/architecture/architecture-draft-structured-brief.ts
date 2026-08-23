@@ -10,9 +10,30 @@ export type ArchitectureDraftStructuredBriefState = {
   readonly suggestedConstraints: readonly string[];
   readonly suggestedAssumptions: readonly string[];
   readonly suggestedRequiredCapabilities: readonly string[];
+  readonly deniedConstraints: readonly string[];
+  readonly deniedAssumptions: readonly string[];
+  readonly deniedRequiredCapabilities: readonly string[];
   readonly qualityAttribute: string;
   readonly failureModeNote: string;
   readonly operationalOwner: string;
+};
+
+export type StructuredBriefDeniedFieldKey =
+  | "deniedConstraints"
+  | "deniedAssumptions"
+  | "deniedRequiredCapabilities";
+
+export type StructuredBriefSuggestedFieldKey =
+  | "suggestedConstraints"
+  | "suggestedAssumptions"
+  | "suggestedRequiredCapabilities";
+
+export const STRUCTURED_BRIEF_SUGGESTED_TO_DENIED_KEY: Readonly<
+  Record<StructuredBriefSuggestedFieldKey, StructuredBriefDeniedFieldKey>
+> = {
+  suggestedConstraints: "deniedConstraints",
+  suggestedAssumptions: "deniedAssumptions",
+  suggestedRequiredCapabilities: "deniedRequiredCapabilities",
 };
 
 export function emptyArchitectureDraftStructuredBrief(): ArchitectureDraftStructuredBriefState {
@@ -23,6 +44,9 @@ export function emptyArchitectureDraftStructuredBrief(): ArchitectureDraftStruct
     suggestedConstraints: [],
     suggestedAssumptions: [],
     suggestedRequiredCapabilities: [],
+    deniedConstraints: [],
+    deniedAssumptions: [],
+    deniedRequiredCapabilities: [],
     qualityAttribute: "",
     failureModeNote: "",
     operationalOwner: "",
@@ -158,9 +182,10 @@ function countNewBriefSuggestionListItems(
   beforeItems: readonly string[],
   afterItems: readonly string[],
   confirmedItems: readonly string[],
+  deniedItems: readonly string[] = [],
 ): number {
   const existingKeys = new Set(
-    [...beforeItems, ...confirmedItems]
+    [...beforeItems, ...confirmedItems, ...deniedItems]
       .map((value) => value.trim().toLowerCase())
       .filter((value) => value.length > 0),
   );
@@ -186,12 +211,23 @@ export function countStructuredBriefSuggestionApplyDelta(
   after: ArchitectureDraftStructuredBriefState,
 ): number {
   const confirmableDelta =
-    countNewBriefSuggestionListItems(before.suggestedConstraints, after.suggestedConstraints, before.confirmedConstraints)
-    + countNewBriefSuggestionListItems(before.suggestedAssumptions, after.suggestedAssumptions, before.confirmedAssumptions)
+    countNewBriefSuggestionListItems(
+      before.suggestedConstraints,
+      after.suggestedConstraints,
+      before.confirmedConstraints,
+      before.deniedConstraints,
+    )
+    + countNewBriefSuggestionListItems(
+      before.suggestedAssumptions,
+      after.suggestedAssumptions,
+      before.confirmedAssumptions,
+      before.deniedAssumptions,
+    )
     + countNewBriefSuggestionListItems(
       before.suggestedRequiredCapabilities,
       after.suggestedRequiredCapabilities,
       before.confirmedRequiredCapabilities,
+      before.deniedRequiredCapabilities,
     );
 
   const qualityBefore = parseQualityAttributeEntries(before.qualityAttribute);
@@ -212,10 +248,11 @@ export type ApplyIncomingStructuredBriefSuggestionsResult = {
 function mergeSuggestedBriefList(
   confirmed: readonly string[],
   suggested: readonly string[],
+  denied: readonly string[],
   incoming: readonly string[],
 ): { readonly mergedSuggested: string[]; readonly addedCount: number } {
   const seen = new Set(
-    [...confirmed, ...suggested]
+    [...confirmed, ...suggested, ...denied]
       .map((value) => value.trim().toLowerCase())
       .filter((value) => value.length > 0),
   );
@@ -257,16 +294,19 @@ export function applyIncomingStructuredBriefSuggestions(
   const constraints = mergeSuggestedBriefList(
     current.confirmedConstraints,
     current.suggestedConstraints,
+    current.deniedConstraints,
     expandedIncoming.suggestedConstraints,
   );
   const assumptions = mergeSuggestedBriefList(
     current.confirmedAssumptions,
     current.suggestedAssumptions,
+    current.deniedAssumptions,
     expandedIncoming.suggestedAssumptions,
   );
   const capabilities = mergeSuggestedBriefList(
     current.confirmedRequiredCapabilities,
     current.suggestedRequiredCapabilities,
+    current.deniedRequiredCapabilities,
     expandedIncoming.suggestedCapabilities,
   );
 
@@ -299,6 +339,9 @@ export function structuredBriefFromDocument(
     suggestedConstraints: [...(brief.suggestedConstraints ?? [])],
     suggestedAssumptions: [...(brief.suggestedAssumptions ?? [])],
     suggestedRequiredCapabilities: [...(brief.suggestedRequiredCapabilities ?? [])],
+    deniedConstraints: [...(brief.deniedConstraints ?? [])],
+    deniedAssumptions: [...(brief.deniedAssumptions ?? [])],
+    deniedRequiredCapabilities: [...(brief.deniedRequiredCapabilities ?? [])],
     qualityAttribute: brief.qualityAttribute ?? "",
     failureModeNote: brief.failureModeNote ?? "",
     operationalOwner: brief.operationalOwner ?? "",
@@ -315,8 +358,38 @@ export function structuredBriefToPatchPayload(
     suggestedConstraints: [...brief.suggestedConstraints],
     suggestedAssumptions: [...brief.suggestedAssumptions],
     suggestedRequiredCapabilities: [...brief.suggestedRequiredCapabilities],
+    deniedConstraints: [...brief.deniedConstraints],
+    deniedAssumptions: [...brief.deniedAssumptions],
+    deniedRequiredCapabilities: [...brief.deniedRequiredCapabilities],
     qualityAttribute: brief.qualityAttribute.trim(),
     failureModeNote: brief.failureModeNote.trim(),
     operationalOwner: brief.operationalOwner.trim(),
+  };
+}
+
+/** True when confirmed or denied brief facts give the rewrite pass something to ground on. */
+export function structuredBriefHasRewriteGrounding(brief: ArchitectureDraftStructuredBriefState): boolean {
+  return (
+    brief.confirmedConstraints.length > 0
+    || brief.confirmedAssumptions.length > 0
+    || brief.confirmedRequiredCapabilities.length > 0
+    || brief.deniedConstraints.length > 0
+    || brief.deniedAssumptions.length > 0
+    || brief.deniedRequiredCapabilities.length > 0
+  );
+}
+
+/** Persists a denied suggestion and removes it from the suggested list. */
+export function denyStructuredBriefSuggestion(
+  current: ArchitectureDraftStructuredBriefState,
+  suggestedKey: StructuredBriefSuggestedFieldKey,
+  value: string,
+): ArchitectureDraftStructuredBriefState {
+  const deniedKey = STRUCTURED_BRIEF_SUGGESTED_TO_DENIED_KEY[suggestedKey];
+
+  return {
+    ...current,
+    [suggestedKey]: current[suggestedKey].filter((item) => item !== value),
+    [deniedKey]: mergeUniqueStrings(current[deniedKey], [value]),
   };
 }

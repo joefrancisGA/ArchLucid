@@ -180,6 +180,22 @@ export const GUIDED_INTAKE_STRUCTURED_BRIEF_OPERATIONAL_OWNER_HINT =
 
 export const GUIDED_INTAKE_STRUCTURED_BRIEF_OPERATIONAL_OWNER_PLACEHOLDER = "e.g. Platform SRE";
 
+export const GUIDED_INTAKE_OVERVIEW_REWRITE_BUTTON = "Rewrite architecture overview from the confirmed brief";
+
+export const GUIDED_INTAKE_OVERVIEW_REWRITE_DISABLED_HINT =
+  "Confirm or deny at least one structured-brief suggestion, then rewrite the overview from those facts.";
+
+export const GUIDED_INTAKE_OVERVIEW_REWRITE_PREVIEW_HEADING = "Proposed architecture overview";
+
+export const GUIDED_INTAKE_OVERVIEW_REWRITE_ACCEPT_BUTTON = "Accept overview";
+
+export const GUIDED_INTAKE_OVERVIEW_REWRITE_DISCARD_BUTTON = "Discard";
+
+export const GUIDED_INTAKE_OVERVIEW_REWRITE_RESUGGEST_BUTTON = "Suggest from overview again";
+
+export const GUIDED_INTAKE_OVERVIEW_REWRITE_RESUGGEST_HINT =
+  "After accepting the rewritten overview, run one more suggest pass to surface new gaps from the grounded text.";
+
 export const GUIDED_INTAKE_SUGGESTED_ACTORS_HEADING = "Suggested people and systems";
 
 export const GUIDED_INTAKE_ADD_SELECTED_ACTORS_BUTTON = "Add selected";

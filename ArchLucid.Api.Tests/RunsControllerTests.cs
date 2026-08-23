@@ -9,6 +9,7 @@ using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Drafts;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Feedback;
@@ -74,6 +75,37 @@ public sealed class RunsControllerTests
 
         ObjectResult bad = action.Should().BeOfType<ObjectResult>().Subject;
         bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+    }
+
+    [Fact]
+    public async Task RewriteArchitectureOverview_returns_rewritten_overview_when_valid()
+    {
+        Mock<IArchitectureOverviewRewriteService> rewriteService = new();
+        rewriteService
+            .Setup(s => s.RewriteAsync(It.IsAny<RewriteArchitectureOverviewInput>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RewriteArchitectureOverviewResponse
+            {
+                RewrittenOverview = "Grounded overview with EU data residency.",
+            });
+
+        RunsController controller = CreateController(overviewRewriteService: rewriteService.Object);
+
+        RewriteArchitectureOverviewInput input = new()
+        {
+            CurrentOverview = "Tenant migration platform with private networking and EU residency goals.",
+            StructuredBrief = new ArchitectureDraftStructuredBrief
+            {
+                ConfirmedConstraints = ["EU data residency"],
+            },
+        };
+
+        IActionResult action = await controller.RewriteArchitectureOverview(input, CancellationToken.None);
+
+        OkObjectResult ok = action.Should().BeOfType<OkObjectResult>().Subject;
+        RewriteArchitectureOverviewResponse response =
+            ok.Value.Should().BeOfType<RewriteArchitectureOverviewResponse>().Subject;
+
+        response.RewrittenOverview.Should().Contain("EU data residency");
     }
 
     [Fact]
@@ -318,6 +350,7 @@ public sealed class RunsControllerTests
     private static RunsController CreateController(
         IArchitectureApplicationService? architectureApplicationService = null,
         IArchitectureRequestDraftService? draftService = null,
+        IArchitectureOverviewRewriteService? overviewRewriteService = null,
         IStructuredBriefSuggestionExplainService? explainService = null,
         IArchitectureRunCreateOrchestrator? createOrchestrator = null,
         IArchitectureSynthesisKernel? synthesisKernel = null,
@@ -341,6 +374,7 @@ public sealed class RunsControllerTests
             Mock.Of<IArchitectureRunCommitOrchestrator>(),
             architectureApplicationService ?? Mock.Of<IArchitectureApplicationService>(),
             draftService ?? Mock.Of<IArchitectureRequestDraftService>(),
+            overviewRewriteService ?? Mock.Of<IArchitectureOverviewRewriteService>(),
             explainService ?? Mock.Of<IStructuredBriefSuggestionExplainService>(),
             Mock.Of<IChatIntakeParserService>(),
             Mock.Of<IConnectorIntakeParserService>(),
