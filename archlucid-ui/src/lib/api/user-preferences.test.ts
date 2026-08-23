@@ -1,5 +1,8 @@
 ﻿import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
+import { resetOperatorQueryClientForTests } from "@/lib/query/operator-query-client";
+
 const apiGetMock = vi.hoisted(() => vi.fn());
 const apiPutJsonMock = vi.hoisted(() => vi.fn());
 
@@ -24,6 +27,7 @@ describe("getUserPreferences", () => {
     vi.resetModules();
     apiGetMock.mockReset();
     apiPutJsonMock.mockReset();
+    resetOperatorQueryClientForTests();
     const mod = await import("@/lib/api/user-preferences");
     getUserPreferences = mod.getUserPreferences;
     invalidateUserPreferencesCache = mod.invalidateUserPreferencesCache;
@@ -33,6 +37,7 @@ describe("getUserPreferences", () => {
 
   afterEach(() => {
     resetUserPreferencesCacheForTests();
+    resetOperatorQueryClientForTests();
   });
 
   it("returns cloud platform scope from the API", async () => {
@@ -48,12 +53,138 @@ describe("getUserPreferences", () => {
       cloudPlatformScopeIsExplicit: true,
       whereToGoNextEnabled: true,
       whereToGoNextIsExplicit: false,
+      ianaTimeZoneId: "UTC",
+      ianaTimeZoneIsExplicit: false,
     });
 
     const preferences = await getUserPreferences();
 
     expect(preferences.cloudPlatformScope.azure).toBe(false);
     expect(preferences.cloudPlatformScopeIsExplicit).toBe(true);
+  });
+
+  it("dedupes concurrent reads into one network request via TanStack Query", async () => {
+    type UserPreferencesFixture = {
+      appearancePreference: "dark";
+      appearancePreferenceIsExplicit: true;
+      cloudPlatformScope: typeof DEFAULT_CLOUD_PLATFORM_SCOPE;
+      cloudPlatformScopeIsExplicit: false;
+      whereToGoNextEnabled: true;
+      whereToGoNextIsExplicit: false;
+      ianaTimeZoneId: "UTC";
+      ianaTimeZoneIsExplicit: false;
+    };
+
+    let resolveRequest: ((value: UserPreferencesFixture) => void) | undefined;
+
+    apiGetMock.mockImplementation(
+      () =>
+        new Promise<UserPreferencesFixture>((resolve) => {
+          resolveRequest = resolve;
+        }),
+    );
+
+    const firstPromise = getUserPreferences();
+    const secondPromise = getUserPreferences();
+
+    expect(apiGetMock).toHaveBeenCalledTimes(1);
+
+    resolveRequest?.({
+      appearancePreference: "dark",
+      appearancePreferenceIsExplicit: true,
+      cloudPlatformScope: DEFAULT_CLOUD_PLATFORM_SCOPE,
+      cloudPlatformScopeIsExplicit: false,
+      whereToGoNextEnabled: true,
+      whereToGoNextIsExplicit: false,
+      ianaTimeZoneId: "UTC",
+      ianaTimeZoneIsExplicit: false,
+    });
+
+    const [first, second] = await Promise.all([firstPromise, secondPromise]);
+
+    expect(first.appearancePreference).toBe("dark");
+    expect(second).toEqual(first);
+    expect(apiGetMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("returns the staleTime-cached value without a second GET", async () => {
+    apiGetMock.mockResolvedValue({
+      appearancePreference: "light",
+      appearancePreferenceIsExplicit: true,
+      cloudPlatformScope: DEFAULT_CLOUD_PLATFORM_SCOPE,
+      cloudPlatformScopeIsExplicit: false,
+      whereToGoNextEnabled: true,
+      whereToGoNextIsExplicit: false,
+      ianaTimeZoneId: "UTC",
+      ianaTimeZoneIsExplicit: false,
+    });
+
+    const first = await getUserPreferences();
+    const second = await getUserPreferences();
+
+    expect(first.appearancePreference).toBe("light");
+    expect(second).toEqual(first);
+    expect(apiGetMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("fetches again after invalidateUserPreferencesCache", async () => {
+    apiGetMock
+      .mockResolvedValueOnce({
+        appearancePreference: "light",
+        appearancePreferenceIsExplicit: true,
+        cloudPlatformScope: DEFAULT_CLOUD_PLATFORM_SCOPE,
+        cloudPlatformScopeIsExplicit: false,
+        whereToGoNextEnabled: true,
+        whereToGoNextIsExplicit: false,
+        ianaTimeZoneId: "UTC",
+        ianaTimeZoneIsExplicit: false,
+      })
+      .mockResolvedValueOnce({
+        appearancePreference: "dark",
+        appearancePreferenceIsExplicit: true,
+        cloudPlatformScope: DEFAULT_CLOUD_PLATFORM_SCOPE,
+        cloudPlatformScopeIsExplicit: false,
+        whereToGoNextEnabled: true,
+        whereToGoNextIsExplicit: false,
+        ianaTimeZoneId: "UTC",
+        ianaTimeZoneIsExplicit: false,
+      });
+
+    await getUserPreferences();
+    await invalidateUserPreferencesCache();
+    const refreshed = await getUserPreferences();
+
+    expect(refreshed.appearancePreference).toBe("dark");
+    expect(apiGetMock).toHaveBeenCalledTimes(2);
+  });
+
+  it("shares cache between imperative getUserPreferences calls (root vs operator tree)", async () => {
+    const { fetchUserPreferencesFromApi } = await import("@/lib/api/user-preferences");
+
+    apiGetMock.mockResolvedValue({
+      appearancePreference: "system",
+      appearancePreferenceIsExplicit: false,
+      cloudPlatformScope: DEFAULT_CLOUD_PLATFORM_SCOPE,
+      cloudPlatformScopeIsExplicit: false,
+      whereToGoNextEnabled: true,
+      whereToGoNextIsExplicit: false,
+      ianaTimeZoneId: "UTC",
+      ianaTimeZoneIsExplicit: false,
+    });
+
+    const { getOperatorQueryClient } = await import("@/lib/query/operator-query-client");
+    const queryClient = getOperatorQueryClient();
+
+    await queryClient.fetchQuery({
+      queryKey: operatorQueryKeys.userPreferences,
+      queryFn: fetchUserPreferencesFromApi,
+      staleTime: 30_000,
+    });
+
+    const viaImperative = await getUserPreferences();
+
+    expect(viaImperative.appearancePreference).toBe("system");
+    expect(apiGetMock).toHaveBeenCalledTimes(1);
   });
 });
 
@@ -66,6 +197,7 @@ describe("setUserCloudPlatformScope", () => {
     vi.resetModules();
     apiGetMock.mockReset();
     apiPutJsonMock.mockReset();
+    resetOperatorQueryClientForTests();
     const mod = await import("@/lib/api/user-preferences");
     getUserPreferences = mod.getUserPreferences;
     resetUserPreferencesCacheForTests = mod.resetUserPreferencesCacheForTests;
@@ -75,6 +207,7 @@ describe("setUserCloudPlatformScope", () => {
 
   afterEach(() => {
     resetUserPreferencesCacheForTests();
+    resetOperatorQueryClientForTests();
   });
 
   it("persists scope and seeds cache without a follow-up GET", async () => {
@@ -117,6 +250,7 @@ describe("setUserAppearancePreference", () => {
     vi.resetModules();
     apiGetMock.mockReset();
     apiPutJsonMock.mockReset();
+    resetOperatorQueryClientForTests();
     const mod = await import("@/lib/api/user-preferences");
     getUserPreferences = mod.getUserPreferences;
     resetUserPreferencesCacheForTests = mod.resetUserPreferencesCacheForTests;
@@ -126,9 +260,10 @@ describe("setUserAppearancePreference", () => {
 
   afterEach(() => {
     resetUserPreferencesCacheForTests();
+    resetOperatorQueryClientForTests();
   });
 
-  it("seeds the shared cache so a follow-up get does not hit the network", async () => {
+  it("seeds the shared TanStack cache so a follow-up get does not hit the network", async () => {
     apiPutJsonMock.mockResolvedValue(undefined);
 
     await setUserAppearancePreference("system");
@@ -158,6 +293,7 @@ describe("setUserWhereToGoNextEnabled", () => {
     vi.resetModules();
     apiGetMock.mockReset();
     apiPutJsonMock.mockReset();
+    resetOperatorQueryClientForTests();
     const mod = await import("@/lib/api/user-preferences");
     getUserPreferences = mod.getUserPreferences;
     resetUserPreferencesCacheForTests = mod.resetUserPreferencesCacheForTests;
@@ -167,6 +303,7 @@ describe("setUserWhereToGoNextEnabled", () => {
 
   afterEach(() => {
     resetUserPreferencesCacheForTests();
+    resetOperatorQueryClientForTests();
   });
 
   it("persists visibility and seeds cache without a follow-up GET", async () => {
@@ -194,6 +331,7 @@ describe("setUserIanaTimeZonePreference", () => {
     vi.resetModules();
     apiGetMock.mockReset();
     apiPutJsonMock.mockReset();
+    resetOperatorQueryClientForTests();
     const mod = await import("@/lib/api/user-preferences");
     getUserPreferences = mod.getUserPreferences;
     resetUserPreferencesCacheForTests = mod.resetUserPreferencesCacheForTests;
@@ -203,6 +341,7 @@ describe("setUserIanaTimeZonePreference", () => {
 
   afterEach(() => {
     resetUserPreferencesCacheForTests();
+    resetOperatorQueryClientForTests();
   });
 
   it("persists time zone and seeds cache without a follow-up GET", async () => {
