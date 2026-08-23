@@ -1,5 +1,5 @@
 import type { ApiProblemDetails } from "@/lib/api-problem";
-import { tryParseApiProblemDetails } from "@/lib/api-problem";
+import { readProblemDetailFromBody, tryParseApiProblemDetails } from "@/lib/api-problem";
 import { formatApiFailureMessage } from "@/lib/api-error";
 import type { CloudInventoryPlatform } from "@/lib/cloud-inventory-platform";
 import { uploadTier1InventoryPackage } from "@/lib/upload-tier1-inventory-package";
@@ -24,16 +24,6 @@ function resolveUploadFailureMessage(status: number, bodyText: string): string {
   const problem = tryParseApiProblemDetails(bodyText, "application/problem+json");
 
   return formatApiFailureMessage(problem, status, "", bodyText);
-}
-
-function parseProblemDetail(bodyText: string): string | undefined {
-  try {
-    const problem = JSON.parse(bodyText) as { detail?: string };
-
-    return typeof problem.detail === "string" ? problem.detail : undefined;
-  } catch {
-    return undefined;
-  }
 }
 
 export async function uploadWizardPendingInventoryEvidence(
@@ -102,7 +92,7 @@ export async function uploadWizardPendingDocumentEvidence(
       return { ok: true };
     }
 
-    const detail = parseProblemDetail(result.bodyText);
+    const detail = readProblemDetailFromBody(result.bodyText);
     const partialUploaded = parsePartialUploadCountFromDetail(detail);
 
     if (partialUploaded !== null && partialUploaded > 0) {

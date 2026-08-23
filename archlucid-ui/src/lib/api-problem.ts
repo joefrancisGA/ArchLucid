@@ -229,3 +229,8 @@ export function tryParseApiProblemDetails(text: string, contentType: string | nu
 
   return problem;
 }
+
+/** Reads RFC 9457 `detail` from a JSON response body when present. */
+export function readProblemDetailFromBody(bodyText: string): string | undefined {
+  return tryParseApiProblemDetails(bodyText, "application/problem+json")?.detail;
+}

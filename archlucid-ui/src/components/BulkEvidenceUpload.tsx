@@ -27,6 +27,7 @@ import {
   type BulkEvidenceUploadSummary,
 } from "@/lib/bulk-evidence-upload-outcome";
 import { formatUploadEta, estimateUploadSecondsRemaining } from "@/lib/format-upload-eta";
+import { readProblemDetailFromBody } from "@/lib/api-problem";
 
 import { Button } from "./ui/button";
 import { Progress } from "./ui/progress";
@@ -44,16 +45,6 @@ type BulkEvidenceUploadError = {
   readonly userMessage: string;
   readonly rawDetail?: string | null;
 };
-
-function parseProblemDetail(bodyText: string): string | undefined {
-  try {
-    const problem = JSON.parse(bodyText) as { detail?: string };
-
-    return typeof problem.detail === "string" ? problem.detail : undefined;
-  } catch {
-    return undefined;
-  }
-}
 
 function countNonEmptyFiles(files: File[]): number {
   return files.filter((file) => file.size > 0).length;
