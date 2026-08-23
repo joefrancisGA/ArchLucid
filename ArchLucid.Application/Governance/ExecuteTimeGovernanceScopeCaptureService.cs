@@ -6,6 +6,7 @@ using ArchLucid.Contracts.Governance.Coverage;
 using ArchLucid.Contracts.Governance.Resolution;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Governance.PolicyPacks;
 using ArchLucid.Core.Governance.Resolution;
 using ArchLucid.Core.Scoping;
@@ -175,10 +176,10 @@ public sealed class ExecuteTimeGovernanceScopeCaptureService(
             {
                 if (_logger.IsEnabled(LogLevel.Warning))
                 {
-                    _logger.LogWarning(
+                    _logger.LogWarningWithThreeSanitizedUserStrings(
                         "Skipping invalid execute-time coverage row for RunId={RunId}, PolicyPackId={PolicyPackId}: {Errors}",
                         runId,
-                        row.PolicyPackId,
+                        row.PolicyPackId.ToString(),
                         string.Join("; ", validation.Errors));
                 }
 
