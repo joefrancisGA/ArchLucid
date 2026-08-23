@@ -96,6 +96,16 @@ describe("persistTokenResponse", () => {
     expect(getAccessTokenForApi()).toBeUndefined();
     expect(isLikelySignedIn()).toBe(false);
   });
+
+  it("rejects a token response with a missing access_token instead of persisting the literal string undefined", () => {
+    expect(() =>
+      persistTokenResponse({ access_token: undefined as unknown as string, expires_in: 3600 }),
+    ).toThrow(/access_token/i);
+
+    expect(sessionStorage.getItem(OIDC_ACCESS_TOKEN_KEY)).toBeNull();
+    expect(isLikelySignedIn()).toBe(false);
+    expect(getAccessTokenForApi()).toBeUndefined();
+  });
 });
 
 describe("clearOidcSession", () => {

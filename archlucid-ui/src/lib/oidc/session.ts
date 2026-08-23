@@ -99,6 +99,10 @@ function removeOidcKeys(keys: readonly string[]): void {
 }
 
 export function persistTokenResponse(tokens: OidcTokenResponse): void {
+  if (typeof tokens.access_token !== "string" || tokens.access_token.trim().length === 0) {
+    throw new Error("OIDC token response missing access_token");
+  }
+
   sessionStorage.setItem(OIDC_ACCESS_TOKEN_KEY, tokens.access_token);
 
   if (tokens.refresh_token) {
