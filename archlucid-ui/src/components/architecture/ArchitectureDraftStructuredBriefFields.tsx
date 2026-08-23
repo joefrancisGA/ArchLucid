@@ -15,20 +15,18 @@ import { draftArchitectureRequest, ARCHITECTURE_REQUEST_DRAFT_MIN_DESCRIPTION_CH
 import { isApiRequestError } from "@/lib/api-request-error";
 import type { ApiProblemDetails } from "@/lib/api-problem";
 import {
-  applyIncomingStructuredBriefSuggestions,
+  countStructuredBriefSuggestionApplyDelta,
   joinQualityAttributeEntries,
   mergeExclusiveConfirmedItem,
   mergeUniqueStrings,
   parseQualityAttributeEntries,
   qualityAttributeMeetsMinimum,
   type ArchitectureDraftStructuredBriefState,
-  type IncomingStructuredBriefSuggestions,
 } from "@/lib/architecture/architecture-draft-structured-brief";
 import {
+  applyArchitectureDraftStructuredBriefSuggestionsFromDraftResponse,
   applyFailureModeSuggestionIfEmpty,
   buildArchitectureDraftSuggestionSourceText,
-  buildDeterministicStructuredBriefSuggestionsFromText,
-  extractQualityAttributeSuggestionsFromText,
   hasArchitectureContextForFailureModeSuggestion,
   resolveFailureModeSuggestion,
 } from "@/lib/architecture/architecture-draft-structured-brief-suggestions";
@@ -151,60 +149,6 @@ function buildSuggestionSourceText(
 
 function suggestionSourceMeetsMinimum(sourceText: string): boolean {
   return sourceText.trim().length >= ARCHITECTURE_REQUEST_DRAFT_MIN_DESCRIPTION_CHARS;
-}
-
-function applyStructuredBriefSuggestionsFromDraftResponse(input: {
-  readonly brief: ArchitectureDraftStructuredBriefState;
-  readonly sourceText: string;
-  readonly response: Awaited<ReturnType<typeof draftArchitectureRequest>>;
-}): { readonly brief: ArchitectureDraftStructuredBriefState; readonly addedSuggestionCount: number } {
-  let nextBrief = input.brief;
-  let addedSuggestionCount = 0;
-
-  const incoming: IncomingStructuredBriefSuggestions = {
-    suggestedConstraints: input.response.suggestedConstraints ?? [],
-    suggestedAssumptions: input.response.suggestedAssumptions ?? [],
-    suggestedCapabilities: input.response.suggestedCapabilities ?? [],
-  };
-
-  const llmApplied = applyIncomingStructuredBriefSuggestions(nextBrief, incoming);
-  nextBrief = llmApplied.brief;
-  addedSuggestionCount += llmApplied.addedSuggestionCount;
-
-  const deterministicApplied = applyIncomingStructuredBriefSuggestions(
-    nextBrief,
-    buildDeterministicStructuredBriefSuggestionsFromText(input.sourceText),
-  );
-  nextBrief = deterministicApplied.brief;
-  addedSuggestionCount += deterministicApplied.addedSuggestionCount;
-
-  const qualitySuggestions = extractQualityAttributeSuggestionsFromText(input.sourceText);
-
-  if (qualitySuggestions.length > 0) {
-    const existingQuality = parseQualityAttributeEntries(nextBrief.qualityAttribute);
-    const mergedQuality = mergeUniqueStrings(existingQuality, qualitySuggestions);
-
-    if (mergedQuality.length > existingQuality.length) {
-      nextBrief = {
-        ...nextBrief,
-        qualityAttribute: joinQualityAttributeEntries(mergedQuality),
-      };
-      addedSuggestionCount += mergedQuality.length - existingQuality.length;
-    }
-  }
-
-  const failureModeSuggestion = resolveFailureModeSuggestion({
-    llmSuggestion: input.response.suggestedFailureModeNote,
-    sourceText: input.sourceText,
-  });
-  const failureModeApplied = applyFailureModeSuggestionIfEmpty(nextBrief, failureModeSuggestion);
-  nextBrief = failureModeApplied.brief;
-
-  if (failureModeApplied.applied) {
-    addedSuggestionCount += 1;
-  }
-
-  return { brief: nextBrief, addedSuggestionCount };
 }
 
 type ArchitectureDraftStructuredBriefFieldsProps = {
@@ -452,17 +396,21 @@ export function ArchitectureDraftStructuredBriefFields(
 
     try {
       const response = await draftArchitectureRequest({ freeTextDescription });
-      const applied = applyStructuredBriefSuggestionsFromDraftResponse({
+      const applied = applyArchitectureDraftStructuredBriefSuggestionsFromDraftResponse({
         brief,
         sourceText: freeTextDescription,
-        response,
+        suggestedConstraints: response.suggestedConstraints ?? [],
+        suggestedAssumptions: response.suggestedAssumptions ?? [],
+        suggestedCapabilities: response.suggestedCapabilities ?? [],
+        suggestedFailureModeNote: response.suggestedFailureModeNote,
       });
+      const addedSuggestionCount = countStructuredBriefSuggestionApplyDelta(brief, applied.brief);
 
       props.onStructuredBriefChange(applied.brief);
-      setSuggestEmpty(applied.addedSuggestionCount === 0);
-      setSuggestAddedCount(applied.addedSuggestionCount > 0 ? applied.addedSuggestionCount : null);
+      setSuggestEmpty(addedSuggestionCount === 0);
+      setSuggestAddedCount(addedSuggestionCount > 0 ? addedSuggestionCount : null);
 
-      if (applied.addedSuggestionCount > 0) {
+      if (addedSuggestionCount > 0) {
         window.requestAnimationFrame(() => {
           document.getElementById("architecture-draft-constraints")?.scrollIntoView({
             behavior: "smooth",
@@ -526,95 +474,6 @@ export function ArchitectureDraftStructuredBriefFields(
       }
     } finally {
       setFailureModeSuggestBusy(false);
-    }
-  }
-
-  async function onSuggestFromOverviewOld(): Promise<void> {
-    const freeTextDescription = buildArchitectureDraftSuggestionSourceText({
-      architectureOverview: props.freeTextIntent,
-      systemName: props.systemName,
-      businessOutcome: props.businessOutcome,
-    }).trim();
-
-    if (
-      freeTextDescription.length < ARCHITECTURE_REQUEST_DRAFT_MIN_DESCRIPTION_CHARS
-      || suggestBusy
-      || props.disabled === true
-      || props.blocksLlmExecution === true
-    ) {
-      return;
-    }
-
-    setSuggestBusy(true);
-    setSuggestError(null);
-    setSuggestEmpty(false);
-    setSuggestAddedCount(null);
-
-    try {
-      const response = await draftArchitectureRequest({ freeTextDescription });
-      const incoming: IncomingStructuredBriefSuggestions = {
-        suggestedConstraints: response.suggestedConstraints ?? [],
-        suggestedAssumptions: response.suggestedAssumptions ?? [],
-        suggestedCapabilities: response.suggestedCapabilities ?? [],
-      };
-
-      let nextBrief = brief;
-      let addedSuggestionCount = 0;
-
-      const llmApplied = applyIncomingStructuredBriefSuggestions(nextBrief, incoming);
-      nextBrief = llmApplied.brief;
-      addedSuggestionCount += llmApplied.addedSuggestionCount;
-
-      const deterministicApplied = applyIncomingStructuredBriefSuggestions(
-        nextBrief,
-        buildDeterministicStructuredBriefSuggestionsFromText(freeTextDescription),
-      );
-      nextBrief = deterministicApplied.brief;
-      addedSuggestionCount += deterministicApplied.addedSuggestionCount;
-
-      const qualitySuggestions = extractQualityAttributeSuggestionsFromText(freeTextDescription);
-
-      if (qualitySuggestions.length > 0) {
-        const existingQuality = parseQualityAttributeEntries(nextBrief.qualityAttribute);
-        const mergedQuality = mergeUniqueStrings(existingQuality, qualitySuggestions);
-
-        if (mergedQuality.length > existingQuality.length) {
-          nextBrief = {
-            ...nextBrief,
-            qualityAttribute: joinQualityAttributeEntries(mergedQuality),
-          };
-          addedSuggestionCount += mergedQuality.length - existingQuality.length;
-        }
-      }
-
-      props.onStructuredBriefChange(nextBrief);
-      setSuggestEmpty(addedSuggestionCount === 0);
-      setSuggestAddedCount(addedSuggestionCount > 0 ? addedSuggestionCount : null);
-
-      if (addedSuggestionCount > 0) {
-        window.requestAnimationFrame(() => {
-          document.getElementById("architecture-draft-constraints")?.scrollIntoView({
-            behavior: "smooth",
-            block: "nearest",
-          });
-        });
-      }
-    } catch (error: unknown) {
-      if (isApiRequestError(error)) {
-        setSuggestError({
-          message: error.message,
-          problem: error.problem,
-          correlationId: error.correlationId,
-        });
-      } else {
-        setSuggestError({
-          message: error instanceof Error ? error.message : "Could not suggest structured brief items.",
-          problem: null,
-          correlationId: null,
-        });
-      }
-    } finally {
-      setSuggestBusy(false);
     }
   }
 

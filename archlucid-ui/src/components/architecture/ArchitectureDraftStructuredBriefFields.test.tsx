@@ -137,6 +137,30 @@ describe("ArchitectureDraftStructuredBriefFields", () => {
     expect(screen.getByRole("button", { name: "Remove EU data residency" })).toBeInTheDocument();
   });
 
+  it("splits multiline LLM suggestion strings into separate confirmable items", async () => {
+    mockedDraftArchitectureRequest.mockResolvedValue({
+      suggestedConstraints: ["EU data residency\nPrivate networking only\nAudit logging required"],
+      suggestedAssumptions: [],
+      suggestedCapabilities: [],
+      topologyHints: [],
+      securityBaselineHints: [],
+    });
+
+    render(
+      <StructuredBriefHarness freeTextIntent={"Tenant migration platform with private networking and EU residency goals."} />,
+    );
+
+    fireEvent.click(screen.getByTestId("architecture-draft-suggest-structured-brief"));
+
+    expect(await screen.findByText("EU data residency")).toBeInTheDocument();
+    expect(screen.getByText("Private networking only")).toBeInTheDocument();
+    expect(screen.getByText("Audit logging required")).toBeInTheDocument();
+    expect(screen.getAllByTestId("architecture-draft-constraints-suggestion")).toHaveLength(3);
+    expect(screen.getByTestId("architecture-draft-suggest-structured-brief-success")).toHaveTextContent(
+      "Added 3 suggestions below",
+    );
+  });
+
   it("falls back to deterministic suggestions when the API returns no new suggestions", async () => {
     mockedDraftArchitectureRequest.mockResolvedValue({
       suggestedConstraints: [],
@@ -156,6 +180,9 @@ describe("ArchitectureDraftStructuredBriefFields", () => {
 
     expect(await screen.findByText("Shared DB with TenantId")).toBeInTheDocument();
     expect(screen.getByText("Availability 99.9%")).toBeInTheDocument();
+    expect(screen.getByTestId("architecture-draft-suggest-structured-brief-success")).toHaveTextContent(
+      "Added 7 suggestions below",
+    );
     expect(screen.queryByTestId("architecture-draft-suggest-structured-brief-empty")).not.toBeInTheDocument();
   });
 

@@ -120,6 +120,90 @@ export type IncomingStructuredBriefSuggestions = {
   readonly suggestedCapabilities: readonly string[];
 };
 
+/** Strips list markers so newline-split LLM blobs become discrete confirmable suggestions. */
+function normalizeStructuredBriefSuggestionLine(line: string): string {
+  return line
+    .replace(/^[-*]\s+/, "")
+    .replace(/^\d+[.)]\s+/, "")
+    .trim();
+}
+
+/** Splits LLM-returned blobs that contain multiple newline-separated suggestions into discrete items. */
+export function expandStructuredBriefSuggestionItems(items: readonly string[]): string[] {
+  const expanded: string[] = [];
+
+  for (const item of items) {
+    const trimmed = item.trim();
+
+    if (trimmed.length === 0) {
+      continue;
+    }
+
+    const rawLines = trimmed.split(/\r?\n/).map((line) => line.trim()).filter((line) => line.length > 0);
+    const lines = rawLines.length > 0 ? rawLines : [trimmed];
+
+    for (const line of lines) {
+      const normalized = normalizeStructuredBriefSuggestionLine(line);
+
+      if (normalized.length > 0) {
+        expanded.push(normalized);
+      }
+    }
+  }
+
+  return expanded;
+}
+
+function countNewBriefSuggestionListItems(
+  beforeItems: readonly string[],
+  afterItems: readonly string[],
+  confirmedItems: readonly string[],
+): number {
+  const existingKeys = new Set(
+    [...beforeItems, ...confirmedItems]
+      .map((value) => value.trim().toLowerCase())
+      .filter((value) => value.length > 0),
+  );
+  let addedCount = 0;
+
+  for (const item of afterItems) {
+    const key = item.trim().toLowerCase();
+
+    if (key.length === 0 || existingKeys.has(key)) {
+      continue;
+    }
+
+    existingKeys.add(key);
+    addedCount += 1;
+  }
+
+  return addedCount;
+}
+
+/** Counts every structured-brief field populated by Suggest from overview for success messaging. */
+export function countStructuredBriefSuggestionApplyDelta(
+  before: ArchitectureDraftStructuredBriefState,
+  after: ArchitectureDraftStructuredBriefState,
+): number {
+  const confirmableDelta =
+    countNewBriefSuggestionListItems(before.suggestedConstraints, after.suggestedConstraints, before.confirmedConstraints)
+    + countNewBriefSuggestionListItems(before.suggestedAssumptions, after.suggestedAssumptions, before.confirmedAssumptions)
+    + countNewBriefSuggestionListItems(
+      before.suggestedRequiredCapabilities,
+      after.suggestedRequiredCapabilities,
+      before.confirmedRequiredCapabilities,
+    );
+
+  const qualityBefore = parseQualityAttributeEntries(before.qualityAttribute);
+  const qualityAfter = parseQualityAttributeEntries(after.qualityAttribute);
+  const qualityDelta = countNewBriefSuggestionListItems(qualityBefore, qualityAfter, []);
+
+  const failureModeDelta =
+    before.failureModeNote.trim().length === 0 && after.failureModeNote.trim().length > 0 ? 1 : 0;
+
+  return confirmableDelta + qualityDelta + failureModeDelta;
+}
+
 export type ApplyIncomingStructuredBriefSuggestionsResult = {
   readonly brief: ArchitectureDraftStructuredBriefState;
   readonly addedSuggestionCount: number;
@@ -164,20 +248,26 @@ export function applyIncomingStructuredBriefSuggestions(
   current: ArchitectureDraftStructuredBriefState,
   incoming: IncomingStructuredBriefSuggestions,
 ): ApplyIncomingStructuredBriefSuggestionsResult {
+  const expandedIncoming: IncomingStructuredBriefSuggestions = {
+    suggestedConstraints: expandStructuredBriefSuggestionItems(incoming.suggestedConstraints),
+    suggestedAssumptions: expandStructuredBriefSuggestionItems(incoming.suggestedAssumptions),
+    suggestedCapabilities: expandStructuredBriefSuggestionItems(incoming.suggestedCapabilities),
+  };
+
   const constraints = mergeSuggestedBriefList(
     current.confirmedConstraints,
     current.suggestedConstraints,
-    incoming.suggestedConstraints,
+    expandedIncoming.suggestedConstraints,
   );
   const assumptions = mergeSuggestedBriefList(
     current.confirmedAssumptions,
     current.suggestedAssumptions,
-    incoming.suggestedAssumptions,
+    expandedIncoming.suggestedAssumptions,
   );
   const capabilities = mergeSuggestedBriefList(
     current.confirmedRequiredCapabilities,
     current.suggestedRequiredCapabilities,
-    incoming.suggestedCapabilities,
+    expandedIncoming.suggestedCapabilities,
   );
 
   return {

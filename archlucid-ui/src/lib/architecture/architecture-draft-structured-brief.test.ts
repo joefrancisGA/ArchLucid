@@ -4,13 +4,41 @@ import {
   ARCHITECTURE_DRAFT_UNKNOWN_CONFIRM_LABEL,
   applyIncomingStructuredBriefSuggestions,
   emptyArchitectureDraftStructuredBrief,
+  expandStructuredBriefSuggestionItems,
   joinQualityAttributeEntries,
   mergeExclusiveConfirmedItem,
   parseQualityAttributeEntries,
   qualityAttributeMeetsMinimum,
 } from "@/lib/architecture/architecture-draft-structured-brief";
 
+describe("expandStructuredBriefSuggestionItems", () => {
+  it("splits newline-separated LLM blobs into discrete suggestions", () => {
+    expect(
+      expandStructuredBriefSuggestionItems([
+        "EU data residency\nPrivate networking only\nAudit logging required",
+      ]),
+    ).toEqual(["EU data residency", "Private networking only", "Audit logging required"]);
+  });
+
+  it("strips bullet and numbered-list prefixes from split lines", () => {
+    expect(
+      expandStructuredBriefSuggestionItems(["- EU data residency\n2. Private networking only"]),
+    ).toEqual(["EU data residency", "Private networking only"]);
+  });
+});
+
 describe("applyIncomingStructuredBriefSuggestions", () => {
+  it("expands multiline LLM blobs before merging suggestions", () => {
+    const applied = applyIncomingStructuredBriefSuggestions(emptyArchitectureDraftStructuredBrief(), {
+      suggestedConstraints: ["EU data residency\nPrivate networking only"],
+      suggestedAssumptions: [],
+      suggestedCapabilities: [],
+    });
+
+    expect(applied.addedSuggestionCount).toBe(2);
+    expect(applied.brief.suggestedConstraints).toEqual(["EU data residency", "Private networking only"]);
+  });
+
   it("merges new suggestions and skips confirmed duplicates", () => {
     const current = {
       ...emptyArchitectureDraftStructuredBrief(),
