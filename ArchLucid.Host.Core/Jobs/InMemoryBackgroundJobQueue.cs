@@ -134,8 +134,11 @@ public sealed class InMemoryBackgroundJobQueue(
                 BackgroundJobFile file = await executor.ExecuteAsync(item.WorkUnit, stoppingToken);
                 _files[item.JobId] = file;
 
-                BackgroundJobInfo done = _info[item.JobId];
-                _info[item.JobId] = done with
+                if (!_info.TryGetValue(item.JobId, out BackgroundJobInfo? afterSuccess) ||
+                    afterSuccess.State == BackgroundJobState.Canceled)
+                    continue;
+
+                _info[item.JobId] = afterSuccess with
                 {
                     State = BackgroundJobState.Succeeded,
                     CompletedUtc = TimeProvider.System.GetUtcNow(),
@@ -146,7 +149,10 @@ public sealed class InMemoryBackgroundJobQueue(
             }
             catch (Exception ex)
             {
-                BackgroundJobInfo failed = _info[item.JobId];
+                if (!_info.TryGetValue(item.JobId, out BackgroundJobInfo? failed) ||
+                    failed.State == BackgroundJobState.Canceled)
+                    continue;
+
                 int nextRetry = failed.RetryCount + 1;
 
                 if (nextRetry <= failed.MaxRetries)
@@ -162,6 +168,10 @@ public sealed class InMemoryBackgroundJobQueue(
 
                     int delayMs = (int)Math.Min(1000 * Math.Pow(2, nextRetry - 1), 30_000);
                     await Task.Delay(delayMs, stoppingToken);
+
+                    if (!_info.TryGetValue(item.JobId, out BackgroundJobInfo? beforeRequeue) ||
+                        beforeRequeue.State == BackgroundJobState.Canceled)
+                        continue;
 
                     if (!await _pendingJobs.WaitAsync(0, stoppingToken))
                     {

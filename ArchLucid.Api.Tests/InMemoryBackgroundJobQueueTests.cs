@@ -238,6 +238,41 @@ public sealed class InMemoryBackgroundJobQueueTests
     }
 
     [SkippableFact]
+    public async Task MarkCanceled_while_running_does_not_overwrite_with_succeeded()
+    {
+        TaskCompletionSource<bool> started = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        TaskCompletionSource<bool> release = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        Mock<ILogger<InMemoryBackgroundJobQueue>> logger = new();
+
+        InMemoryBackgroundJobQueue queue = CreateSystem(
+            logger,
+            m => m.Setup(x => x.ExecuteAsync(It.IsAny<BackgroundJobWorkUnit>(), It.IsAny<CancellationToken>()))
+                .Returns(async (BackgroundJobWorkUnit _, CancellationToken ct) =>
+                {
+                    started.TrySetResult(true);
+                    await release.Task.WaitAsync(ct);
+
+                    return OkFile();
+                }));
+
+        await queue.StartAsync(CancellationToken.None);
+
+        string jobId = await queue.EnqueueAsync(Work("cancel-while-running"));
+        await started.Task.WaitAsync(TimeSpan.FromSeconds(5));
+
+        await queue.MarkCanceledAsync(jobId);
+        release.TrySetResult(true);
+
+        await Task.Delay(300, CancellationToken.None);
+
+        BackgroundJobInfo? info = await queue.GetInfoAsync(jobId);
+        info.Should().NotBeNull();
+        info!.State.Should().Be(BackgroundJobState.Canceled, "cancel must win over a late success");
+
+        await queue.StopAsync(CancellationToken.None);
+    }
+
+    [SkippableFact]
     public async Task Enqueue_WithZeroRetries_FailsImmediately()
     {
         Mock<ILogger<InMemoryBackgroundJobQueue>> logger = new();
