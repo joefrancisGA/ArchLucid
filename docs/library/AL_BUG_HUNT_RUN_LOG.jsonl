@@ -87,3 +87,7 @@
 {"at":"2026-08-23T11:21:35.8221786Z","zoneId":"application-billing-logic","outcome":"hit"}
 {"at":"2026-08-23T11:30:00Z","zoneId":"content-safety-admission","outcome":"hit"}
 {"at":"2026-08-23T11:39:28.9579784Z","zoneId":"content-safety-admission","outcome":"hit"}
+{"at":"2026-08-23T11:40:08.643024Z","zoneId":"content-safety-admission","outcome":"dry"}
+{"at":"2026-08-23T11:40:45.8301131Z","zoneId":"capabilities-cost-mcp","outcome":"dry"}
+{"at":"2026-08-23T11:41:32.1592162Z","zoneId":"ui-host-gate","outcome":"dry"}
+{"at":"2026-08-23T11:42:15.6600516Z","zoneId":"retrieval","outcome":"dry"}
