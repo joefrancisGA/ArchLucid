@@ -7,6 +7,7 @@ import { useFormContext } from "react-hook-form";
 
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { Button } from "@/components/ui/button";
+import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { parseConnectorIntake } from "@/lib/api/architecture-connector-intake-api";
@@ -14,6 +15,7 @@ import { isApiRequestError } from "@/lib/api-request-error";
 import type { ApiProblemDetails } from "@/lib/api-problem";
 import { mergeConnectorIntakeIntoWizardValues } from "@/lib/connector-intake-to-wizard";
 import { useWizardAiSuggestedFields } from "@/lib/wizard-ai-suggested-fields";
+import { firstWhyDisabledCtaReason, whyDisabledBusy, whyDisabledIncompleteInput } from "@/lib/why-disabled-cta";
 import type { WizardFormValues } from "@/lib/wizard-schema";
 
 export type ConnectorIntakePanelProps = {
@@ -91,6 +93,16 @@ export function ConnectorIntakePanel(props: ConnectorIntakePanelProps) {
 
   const canImport =
     tab === "terraform" ? terraformJson.trim().length >= 20 : gitRepositoryUrl.trim().length > 0 && gitTerraformPath.trim().length > 0;
+  const importDisabledReason = firstWhyDisabledCtaReason([
+    busy ? whyDisabledBusy("Import") : null,
+    !canImport
+      ? whyDisabledIncompleteInput(
+          tab === "terraform"
+            ? "Paste terraform show -json output to import."
+            : "Enter repository URL and path to a .tf file to import.",
+        )
+      : null,
+  ]);
 
   return (
     <div
@@ -151,6 +163,7 @@ export function ConnectorIntakePanel(props: ConnectorIntakePanelProps) {
         <Button type="button" size="sm" disabled={!canImport || busy} onClick={() => void onImport()} data-testid="connector-intake-import-button">
           {busy ? "Importing…" : "Import infrastructure"}
         </Button>
+        <WhyDisabledCtaHint reason={!canImport || busy ? importDisabledReason : null} />
       </div>
       {error !== null ? (
         <div className="mt-3" role="alert">
