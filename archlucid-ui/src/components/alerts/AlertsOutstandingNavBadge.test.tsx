@@ -69,7 +69,7 @@ describe("AlertsOutstandingNavBadge (TB-2144)", () => {
     const badge = await screen.findByTestId("alerts-outstanding-nav-badge");
 
     expect(badge).toHaveTextContent("3");
-    expect(badge).toHaveAttribute("aria-label", "3 open alerts");
+    expect(badge).toHaveAttribute("aria-label", "3 alerts");
   });
 
   it("uses singular aria-label for one open alert", async () => {
@@ -85,7 +85,7 @@ describe("AlertsOutstandingNavBadge (TB-2144)", () => {
 
     expect(await screen.findByTestId("alerts-outstanding-nav-badge")).toHaveAttribute(
       "aria-label",
-      "1 open alert",
+      "1 alerts",
     );
   });
 

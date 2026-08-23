@@ -42,6 +42,7 @@ export function OperatorHomeStickinessCockpit(): ReactElement | null {
     <div
       className={OPERATOR_LAYOUT.majorSectionGap}
       data-testid="operator-home-stickiness-cockpit"
+      data-attention-partition="unfinished-work"
     >
       <OperatorStickinessSnapshotCard />
     </div>

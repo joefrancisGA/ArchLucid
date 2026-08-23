@@ -72,6 +72,8 @@ export const RUNS_DASHBOARD_LABELS = {
   attentionSummaryBuyer:
     "Architecture reviews still moving toward a finalized review record before sponsor sign-off.",
   noReviewsNeedAttention: "No reviews currently need attention.",
+  reviewsNeedAttentionShownInPartition: (partitionLabel: string) =>
+    `Reviews needing attention appear in ${partitionLabel} above.`,
   oneReviewNeedsAttention: "1 review needs attention.",
   reviewsNeedAttentionCount: (count: number) => `${count} reviews need attention.`,
   loadingReviews: "Loading reviews…",

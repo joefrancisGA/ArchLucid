@@ -12,6 +12,8 @@ import { RunsDashboardFilters } from "@/components/operator-home/RunsDashboardFi
 import { RunsDashboardOutcomesTab } from "@/components/operator-home/RunsDashboardOutcomesTab";
 import { RunsDashboardRecentTab } from "@/components/operator-home/RunsDashboardRecentTab";
 import { useOperatorHomeWorkspaceActivity } from "@/components/operator-home/operator-home-workspace-activity-context";
+import { filterRunsForHomeAttentionPreview } from "@/lib/operator/home-attention-dedup";
+import { operatorAttentionKindLabel } from "@/lib/operator/operator-attention-taxonomy";
 import {
   deriveRunsDashboardTabCounts,
   isRunApprovedPackage,
@@ -127,7 +129,7 @@ export function RunsDashboardPanelClient({
       DEFAULT_PROJECT_ID,
     );
   const pageSize = initialModel?.pageSize ?? OPERATOR_HOME_RUNS_DASHBOARD_PAGE_SIZE;
-  const { reportWorkspaceReviews } = useOperatorHomeWorkspaceActivity();
+  const { reportWorkspaceReviews, homeAttentionPreviewExcludedRunIds } = useOperatorHomeWorkspaceActivity();
   const homeRefresh = useOptionalOperatorHomeRefresh();
 
   useEffect(() => {
@@ -357,6 +359,16 @@ export function RunsDashboardPanelClient({
     () => filteredItems.filter(isRunNeedingAttention),
     [filteredItems],
   );
+
+  const homeAttentionPreviewItems = useMemo(() => {
+    if (!hideHeading) {
+      return filteredItems;
+    }
+
+    return filterRunsForHomeAttentionPreview(filteredItems, homeAttentionPreviewExcludedRunIds);
+  }, [filteredItems, hideHeading, homeAttentionPreviewExcludedRunIds]);
+
+  const homeAttentionPartitionLabel = hideHeading ? operatorAttentionKindLabel("unfinished-work") : undefined;
 
   const statusTabCounts = useMemo(() => deriveRunsDashboardTabCounts(filteredItems), [filteredItems]);
 
@@ -671,7 +683,10 @@ export function RunsDashboardPanelClient({
                   phase={phase}
                   failure={failure}
                   runListError={runListError}
-                  filteredItems={filteredItems}
+                  filteredItems={homeAttentionPreviewItems}
+                  attentionPartitionLabel={homeAttentionPartitionLabel}
+                  attentionPartitionId={hideHeading ? "unfinished-work" : undefined}
+                  totalAttentionCount={hideHeading ? attentionTabItems.length : undefined}
                 />
               )}
             </TabsContent>

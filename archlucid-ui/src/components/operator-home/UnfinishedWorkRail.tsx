@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useSyncExternalStore } from "react";
+import { useEffect, useMemo, useSyncExternalStore } from "react";
 
 import { useOperatorHomeWorkspaceActivity } from "@/components/operator-home/operator-home-workspace-activity-context";
 import { StatusTag } from "@/components/ui/status-tag";
@@ -19,6 +19,7 @@ import {
   type UnfinishedWorkRailItemKind,
 } from "@/lib/unfinished-work-rail";
 import { resolveOperatorHomeWorkspacePhase } from "@/lib/resolve-operator-home-workspace-phase";
+import { listHomeAttentionPreviewExcludedRunIds } from "@/lib/operator/home-attention-dedup";
 import { cn } from "@/lib/utils";
 import type { RunSummary } from "@/types/authority";
 
@@ -98,7 +99,8 @@ function UnfinishedWorkRailList(props: { readonly items: readonly UnfinishedWork
  */
 export function UnfinishedWorkRail(props: UnfinishedWorkRailProps): React.JSX.Element | null {
   const drafts = useArchitectureDraftRegistryEntries();
-  const { hasWorkspaceReviews, hasOverviewReviewRows, liveRunsSnapshot } = useOperatorHomeWorkspaceActivity();
+  const { hasWorkspaceReviews, hasOverviewReviewRows, liveRunsSnapshot, reportHomeAttentionPreviewExcludedRunIds } =
+    useOperatorHomeWorkspaceActivity();
   const incompleteWizards = useSyncExternalStore(
     subscribeWizardSessions,
     getIncompleteWizardSnapshot,
@@ -127,6 +129,15 @@ export function UnfinishedWorkRail(props: UnfinishedWorkRailProps): React.JSX.El
     [drafts, excludeKinds, incompleteWizards, runs],
   );
 
+  const homeAttentionPreviewExcludedRunIds = useMemo(
+    () => listHomeAttentionPreviewExcludedRunIds(items),
+    [items],
+  );
+
+  useEffect(() => {
+    reportHomeAttentionPreviewExcludedRunIds(homeAttentionPreviewExcludedRunIds);
+  }, [homeAttentionPreviewExcludedRunIds, reportHomeAttentionPreviewExcludedRunIds]);
+
   if (items.length === 0) {
     return null;
   }
@@ -135,6 +146,7 @@ export function UnfinishedWorkRail(props: UnfinishedWorkRailProps): React.JSX.El
     <section
       className="rounded-md border border-neutral-200 bg-neutral-50/40 p-4 dark:border-neutral-800 dark:bg-neutral-900/20"
       data-testid="unfinished-work-rail"
+      data-attention-partition="unfinished-work"
       aria-label={UNFINISHED_WORK_RAIL_TITLE}
     >
       <h2 className={cn("m-0 text-al-text-secondary", OPERATOR_NAV_GROUP_LABEL)}>{UNFINISHED_WORK_RAIL_TITLE}</h2>

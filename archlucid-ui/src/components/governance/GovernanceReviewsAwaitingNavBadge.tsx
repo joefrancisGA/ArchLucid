@@ -22,6 +22,7 @@ export function GovernanceReviewsAwaitingNavBadge() {
       )}
       aria-label={`${count} reviews ${operatorAttentionKindLabel("awaiting-approval").toLowerCase()}`}
       data-testid="governance-awaiting-action-nav-badge"
+      data-attention-partition="awaiting-approval"
     >
       {count}
     </span>
