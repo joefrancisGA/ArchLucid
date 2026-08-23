@@ -537,7 +537,7 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
             labelId="first-pilot-evidence"
             title="Attach architecture evidence"
             description={`Diagram, PDF export, or architecture document. ${EVIDENCE_UPLOAD_ACCEPTED_FORMATS_ACCEPTED_PREFIX}.`}
-            attachmentSummarySuffix="or add architecture context below"
+            attachmentSummarySuffix="architecture context optional"
             onFilesSelected={(files: File[]) => {
               setEvidenceFiles(files);
               setLimitedEvidenceAnalysisAcknowledged(false);
