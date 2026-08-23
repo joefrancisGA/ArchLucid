@@ -4,6 +4,7 @@
  * Re-exported by `./index.ts`; import from `@/lib/buyer/buyer-polish-copy` or `@/lib/buyer-copy`.
  */
 
+import { ARCHITECTURE_DRAFT_REFINE_BEFORE_REVIEW_SENTENCE } from "@/lib/architecture/architecture-draft-detail-page-copy";
 import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture/architecture-workflow-labels";
 
 export const BUYER_HOME_SAMPLE_PACKAGE_HEADLINE =
@@ -76,14 +77,28 @@ export const OPERATOR_HOME_LIFECYCLE_RECOMMENDED_BADGE = "Recommended next";
 
 export const OPERATOR_HOME_RESUME_LATEST_DRAFT_CTA = "Resume latest draft";
 
+export const OPERATOR_HOME_CONTINUE_REVIEW_INTAKE_CTA = "Continue in review intake";
+
+export const OPERATOR_HOME_CONTINUE_IN_REVIEW_CTA = "Continue in review";
+
 export function formatOperatorHomeContinueArchitectureLead(draftCount: number): string {
   const safeCount = Number.isFinite(draftCount) ? Math.max(0, Math.trunc(draftCount)) : 0;
 
   if (safeCount === 1) {
-    return "1 draft saved — start a review when you are ready.";
+    return `1 draft saved — ${ARCHITECTURE_DRAFT_REFINE_BEFORE_REVIEW_SENTENCE}`;
   }
 
-  return `${safeCount} drafts saved — start a review when you are ready.`;
+  return `${safeCount} drafts saved — ${ARCHITECTURE_DRAFT_REFINE_BEFORE_REVIEW_SENTENCE}`;
+}
+
+export function formatOperatorHomePastDraftingLead(displayName: string): string {
+  const trimmedName = displayName.trim();
+
+  if (trimmedName.length > 0) {
+    return `${trimmedName} is already in review intake — continue from here instead of reopening the draft workspace.`;
+  }
+
+  return "This architecture is already in review intake — continue from here instead of reopening the draft workspace.";
 }
 
 export function formatOperatorHomeResumeDraftBridge(displayName: string, draftCount: number): string {
@@ -110,6 +125,11 @@ export const OPERATOR_HOME_BEST_FOR_EVALUATING_BADGE = "Best for evaluating Arch
 
 export const OPERATOR_HOME_MISSING_COMPLETED_SAMPLE_MESSAGE =
   "No completed sample has been selected for this workspace.";
+
+export const OPERATOR_HOME_COMPLETED_SAMPLE_FETCH_ERROR_MESSAGE =
+  "Could not load the completed sample for this workspace. Try refreshing the page.";
+
+export const OPERATOR_HOME_DRAFT_ARCHITECTURE_EYEBROW = "Draft architecture";
 
 /** Bold prefix on Home header freshness line — qualifies the clock timestamp after refresh. */
 export const OPERATOR_HOME_DATA_CURRENCY_PREFIX = "Refreshed";

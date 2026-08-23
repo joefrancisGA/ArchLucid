@@ -4,6 +4,7 @@ import {
   ARCHITECTURE_DRAFT_DETAIL_DRAFTING_SCOPE_SENTENCE,
   ARCHITECTURE_DRAFT_DETAIL_PAGE_SUBTITLE_BUYER,
   ARCHITECTURE_DRAFT_DETAIL_PAGE_SUBTITLE_OPERATOR,
+  ARCHITECTURE_DRAFT_REFINE_BEFORE_REVIEW_SENTENCE,
   architectureDraftDetailPageSubtitle,
 } from "@/lib/architecture/architecture-draft-detail-page-copy";
 
@@ -25,5 +26,15 @@ describe("architecture-draft-detail-page-copy", () => {
     expect(
       ARCHITECTURE_DRAFT_DETAIL_PAGE_SUBTITLE_OPERATOR.startsWith(ARCHITECTURE_DRAFT_DETAIL_DRAFTING_SCOPE_SENTENCE),
     ).toBe(true);
+  });
+
+  it("uses architecture-draft refine bridge on buyer subtitle", () => {
+    expect(ARCHITECTURE_DRAFT_REFINE_BEFORE_REVIEW_SENTENCE).toBe(
+      "Refine this architecture draft before starting a review.",
+    );
+    expect(ARCHITECTURE_DRAFT_DETAIL_PAGE_SUBTITLE_BUYER).toContain(
+      ARCHITECTURE_DRAFT_REFINE_BEFORE_REVIEW_SENTENCE,
+    );
+    expect(ARCHITECTURE_DRAFT_DETAIL_PAGE_SUBTITLE_BUYER).not.toContain("saved brief on this device");
   });
 });

@@ -2,8 +2,12 @@
 export const ARCHITECTURE_DRAFT_DETAIL_DRAFTING_SCOPE_SENTENCE =
   "Drafting workspace — editing or saving does not start a review.";
 
+/** Shared refine-before-review bridge on draft detail and operator home draft hero. */
+export const ARCHITECTURE_DRAFT_REFINE_BEFORE_REVIEW_SENTENCE =
+  "Refine this architecture draft before starting a review." as const;
+
 export const ARCHITECTURE_DRAFT_DETAIL_PAGE_SUBTITLE_BUYER =
-  `${ARCHITECTURE_DRAFT_DETAIL_DRAFTING_SCOPE_SENTENCE} Refine this saved brief on this device before starting a review. Autosave keeps progress local to this browser until you file evidence.`;
+  `${ARCHITECTURE_DRAFT_DETAIL_DRAFTING_SCOPE_SENTENCE} ${ARCHITECTURE_DRAFT_REFINE_BEFORE_REVIEW_SENTENCE} Autosave keeps progress local to this browser until you file evidence.`;
 
 /** Operator draft-detail subtitle — not shared with `/architectures/new` (uses {@link ARCHITECTURE_DRAFT_WORKSPACE_LEAD}). */
 export const ARCHITECTURE_DRAFT_DETAIL_PAGE_SUBTITLE_OPERATOR =
