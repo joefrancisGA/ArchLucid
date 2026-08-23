@@ -119,6 +119,7 @@ public sealed class ContentSafetyEnforcingAgentCompletionClient(
             ThrowBlocked(userSafety, "user_prompt");
 
         StringBuilder completionJson = new();
+        List<string> bufferedChunks = [];
 
         await foreach (string chunk in AgentCompletionStreamingBridge.StreamJsonAsync(
                            _inner,
@@ -129,7 +130,7 @@ public sealed class ContentSafetyEnforcingAgentCompletionClient(
                            cancellationToken).ConfigureAwait(false))
         {
             completionJson.Append(chunk);
-            yield return chunk;
+            bufferedChunks.Add(chunk);
         }
 
         ContentSafetyResult outputSafety =
@@ -138,6 +139,9 @@ public sealed class ContentSafetyEnforcingAgentCompletionClient(
         if (!outputSafety.IsAllowed)
 
             ThrowBlocked(outputSafety, "completion_json");
+
+        foreach (string chunk in bufferedChunks)
+            yield return chunk;
     }
 
     private void ThrowBlocked(ContentSafetyResult result, string stageKey)
