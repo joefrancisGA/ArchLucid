@@ -41,6 +41,7 @@ import {
   EXTRACT_UPLOAD_ADVANCED_COMMAND_DISCLOSURE_SUMMARY,
   EXTRACT_UPLOAD_DEMO_ASIDE_DESCRIPTION,
   EXTRACT_UPLOAD_DEMO_ASIDE_TITLE,
+  EXTRACT_UPLOAD_DROP_ZONE_ARIA_LABEL,
   EXTRACT_UPLOAD_EVIDENCE_TRAIL_HREF,
   EXTRACT_UPLOAD_EVIDENCE_TRAIL_LINK_LABEL,
   EXTRACT_UPLOAD_SCRIPT_DOWNLOAD_LABEL,
@@ -48,6 +49,8 @@ import {
   EXTRACT_UPLOAD_STEP_COLLECT_TITLE,
   EXTRACT_UPLOAD_STEP_UPLOAD_DESCRIPTION,
   EXTRACT_UPLOAD_STEP_UPLOAD_TITLE,
+  EXTRACT_UPLOAD_UPLOAD_ERROR_TOAST_TITLE,
+  EXTRACT_UPLOAD_UPLOAD_SUCCESS_TOAST_MESSAGE,
   EXTRACT_UPLOAD_VALIDATE_CLI_COMMAND,
   EXTRACT_UPLOAD_VALIDATE_AWS_CLI_COMMAND,
   EXTRACT_UPLOAD_VALIDATE_DISCLOSURE_SUMMARY,
@@ -259,7 +262,7 @@ export function ExtractUploadSettingsPageClient() {
           apiError.message,
           apiError.correlationId ?? correlationId,
         );
-        showError("Azure upload", presentation.heading);
+        showError(EXTRACT_UPLOAD_UPLOAD_ERROR_TOAST_TITLE, presentation.heading);
 
         return;
       }
@@ -271,7 +274,7 @@ export function ExtractUploadSettingsPageClient() {
         setPackageId(null);
       }
 
-      showSuccess("Azure package uploaded — open Reviews to attach it to a review.");
+      showSuccess(EXTRACT_UPLOAD_UPLOAD_SUCCESS_TOAST_MESSAGE);
     } finally {
       setBusy(false);
     }
@@ -371,7 +374,7 @@ export function ExtractUploadSettingsPageClient() {
             </CardHeader>
             <CardContent className="space-y-3">
               <AzureExtractorZipDropZone
-                ariaLabel="Azure extractor ZIP upload"
+                ariaLabel={EXTRACT_UPLOAD_DROP_ZONE_ARIA_LABEL}
                 busy={busy}
                 testId="extract-upload-drop-zone"
                 hint={

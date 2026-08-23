@@ -71,3 +71,10 @@ export const EXTRACT_UPLOAD_ADVANCED_COMMAND_DISCLOSURE_SUMMARY =
 
 export const EXTRACT_UPLOAD_SCRIPT_DOWNLOAD_LABEL =
   "Download packager script — Azure example (inspect before running)" as const;
+
+export const EXTRACT_UPLOAD_DROP_ZONE_ARIA_LABEL = "Cloud inventory ZIP upload" as const;
+
+export const EXTRACT_UPLOAD_UPLOAD_ERROR_TOAST_TITLE = "Inventory upload" as const;
+
+export const EXTRACT_UPLOAD_UPLOAD_SUCCESS_TOAST_MESSAGE =
+  "Inventory package uploaded — open Reviews to attach it to a review." as const;
