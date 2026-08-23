@@ -25,6 +25,8 @@ type CollapsibleSectionProps = {
   sectionTestId?: string;
   /** Called when the native `<details>` open state changes. */
   onToggle?: (open: boolean) => void;
+  /** Optional layout classes on the root `<details>` (for example hub section spacing). */
+  className?: string;
   children: ReactNode;
 };
 
@@ -45,6 +47,7 @@ export function CollapsibleSection({
   summaryAriaLabel,
   sectionTestId,
   onToggle,
+  className,
   children,
 }: CollapsibleSectionProps) {
   const [internalOpen, setInternalOpen] = useState(defaultOpen);
@@ -53,7 +56,10 @@ export function CollapsibleSection({
 
   return (
     <details
-      className="mb-6 rounded-md border border-neutral-200 bg-white p-3 dark:border-neutral-800 dark:bg-neutral-950"
+      className={cn(
+        "mb-6 rounded-md border border-neutral-200 bg-white p-3 dark:border-neutral-800 dark:bg-neutral-950",
+        className,
+      )}
       data-testid={sectionTestId}
       data-workspace-disclosure
       open={open}

@@ -98,6 +98,7 @@ export function RunsPageView(props: Props) {
               summaryLine={REVIEWS_HUB_MORE_WAYS_SUMMARY}
               defaultOpen={false}
               sectionTestId="reviews-hub-more-ways"
+              className="mt-4"
             >
               <ReviewsHubExploreSamplesDeferred />
               <ReviewsHubPackageIncludesDeferred />
