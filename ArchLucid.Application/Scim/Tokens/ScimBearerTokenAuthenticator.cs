@@ -1,5 +1,6 @@
 using System.Security.Cryptography;
 
+using ArchLucid.Core.Codecs;
 using ArchLucid.Core.Scim;
 using ArchLucid.Core.Scim.Models;
 
@@ -48,28 +49,15 @@ public sealed class ScimBearerTokenAuthenticator(IScimTenantTokenRepository toke
         publicKey = pub.ToString();
         try
         {
-            secretBytes = Base64UrlDecode(sec.ToString());
-            return secretBytes.Length > 0;
+            if (!Base64UrlCodec.TryDecode(sec.ToString(), out byte[] decoded) || decoded.Length == 0)
+                return false;
+
+            secretBytes = decoded;
+            return true;
         }
         catch
         {
             return false;
         }
-    }
-
-    private static byte[] Base64UrlDecode(string s)
-    {
-        string padded = s.Replace("-", "+", StringComparison.Ordinal).Replace("_", "/", StringComparison.Ordinal);
-        switch (padded.Length % 4)
-        {
-            case 2:
-                padded += "==";
-                break;
-            case 3:
-                padded += "=";
-                break;
-        }
-
-        return Convert.FromBase64String(padded);
     }
 }

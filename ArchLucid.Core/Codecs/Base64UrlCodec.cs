@@ -1,6 +1,6 @@
-namespace ArchLucid.Core.Pagination;
+namespace ArchLucid.Core.Codecs;
 
-/// <summary>Shared Base64-url helpers for opaque pagination cursors.</summary>
+/// <summary>Shared Base64-url helpers for opaque tokens, cursors, and PKCE values.</summary>
 public static class Base64UrlCodec
 {
     public static string Encode(byte[] utf8Bytes)

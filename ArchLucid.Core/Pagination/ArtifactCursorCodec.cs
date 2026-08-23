@@ -1,5 +1,7 @@
 using System.Text.Json;
 
+using ArchLucid.Core.Codecs;
+
 namespace ArchLucid.Core.Pagination;
 
 /// <summary>Opaque cursors for artifact metadata rows (<c>SortOrder ASC, ArtifactId ASC</c>).</summary>

@@ -1,5 +1,7 @@
 using System.Text.Json;
 
+using ArchLucid.Core.Codecs;
+
 namespace ArchLucid.Core.Pagination;
 
 /// <summary>Opaque cursors for audit search (<c>OccurredUtc DESC, EventId DESC</c>).</summary>

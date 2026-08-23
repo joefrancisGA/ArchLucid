@@ -1,4 +1,4 @@
-using ArchLucid.Core.Pagination;
+using ArchLucid.Core.Codecs;
 
 using FluentAssertions;
 
