@@ -1,7 +1,5 @@
 "use client";
 
-import dynamic from "next/dynamic";
-
 import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import {
   OPERATOR_SHELL_CONTENT_PADDING_X_CLASS,
@@ -9,29 +7,11 @@ import {
 } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
-const TrustCenterShellLink = dynamic(
-  () =>
-    import("@/components/usability/TrustCenterShellLink").then(
-      (module) => module.TrustCenterShellLink,
-    ),
-  { ssr: false },
-);
-
-const SystemHealthStatusStrip = dynamic(
-  () =>
-    import("@/components/operator-home/SystemHealthStatusStrip").then(
-      (module) => module.SystemHealthStatusStrip,
-    ),
-  { ssr: false },
-);
-
-const DeploymentBuildFingerprintStrip = dynamic(
-  () =>
-    import("@/components/shell/DeploymentBuildFingerprintStrip").then(
-      (module) => module.DeploymentBuildFingerprintStrip,
-    ),
-  { ssr: false },
-);
+import {
+  DeploymentBuildFingerprintStripDeferred,
+  SystemHealthStatusStripDeferred,
+  TrustCenterShellLinkDeferred,
+} from "./app-shell-workspace-footer-deferred-chunks";
 
 type AppShellWorkspaceFooterProps = {
   readonly hideWorkspaceHealthFooter: boolean;
@@ -57,8 +37,8 @@ export function AppShellWorkspaceFooter({ hideWorkspaceHealthFooter }: AppShellW
             "flex items-center gap-3",
           )}
         >
-          <DeploymentBuildFingerprintStrip variant="compact" />
-          <TrustCenterShellLink variant="footer" className="ml-auto" />
+          <DeploymentBuildFingerprintStripDeferred variant="compact" />
+          <TrustCenterShellLinkDeferred variant="footer" className="ml-auto" />
         </div>
       </footer>
     );
@@ -74,8 +54,8 @@ export function AppShellWorkspaceFooter({ hideWorkspaceHealthFooter }: AppShellW
       aria-label="Workspace footer"
     >
       <div className={cn(OPERATOR_SHELL_MAX_WIDTH_CLASS, OPERATOR_SHELL_CONTENT_PADDING_X_CLASS, "flex flex-col gap-1")}>
-        <SystemHealthStatusStrip className="mb-0 min-w-0 flex-1" />
-        <DeploymentBuildFingerprintStrip />
+        <SystemHealthStatusStripDeferred className="mb-0 min-w-0 flex-1" />
+        <DeploymentBuildFingerprintStripDeferred />
       </div>
     </footer>
   );

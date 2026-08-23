@@ -1,7 +1,6 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import dynamic from "next/dynamic";
 import { useCallback, useMemo, useState } from "react";
 
 import { useSponsorRoiSummaryQuery } from "@/hooks/use-sponsor-roi-summary-query";
@@ -16,22 +15,6 @@ import {
   SponsorReportMarkdownFilename,
   type SponsorRoiSummary,
 } from "@/lib/sponsor-report-markdown";
-const SponsorRoiSystemicIssueTrendChart = dynamic(
-  () =>
-    import("@/components/SponsorRoiSystemicIssueTrendChart").then(
-      (module) => module.SponsorRoiSystemicIssueTrendChart,
-    ),
-  {
-    ssr: false,
-    loading: () => (
-      <div
-        className="h-64 w-full animate-pulse rounded-md bg-neutral-100 dark:bg-neutral-800"
-        role="status"
-        aria-label="Loading systemic issue trend chart"
-      />
-    ),
-  },
-);
 import { SponsorRoiIdentifiedVsRealizedPanel } from "./SponsorRoiIdentifiedVsRealizedPanel";
 import { SponsorRoiBoardPackEvidenceBanner } from "./SponsorRoiBoardPackEvidenceBanner";
 import { SponsorRoiProofStatusStrip } from "./SponsorRoiProofStatusStrip";
@@ -57,6 +40,8 @@ import {
   buildSponsorServerSavingsSummary,
   resolveRunSavingsUsd,
 } from "@/lib/roi-resolution-priority";
+
+import { SponsorRoiSystemicIssueTrendChartDeferred } from "./sponsor-roi-dashboard-deferred-chunks";
 
 const SPONSOR_ROI_SUMMARY_PATH = `/api/proxy/${ApiV1Routes.roiSponsorReport}`;
 
@@ -355,7 +340,7 @@ export function SponsorRoiSummarySection({
               Systemic issue trends (last 6 months)
             </h3>
             <div className="mt-3">
-              <SponsorRoiSystemicIssueTrendChart
+              <SponsorRoiSystemicIssueTrendChartDeferred
                 series={displayData.historicalTrends ?? []}
                 savingsPricingBasis={displayData.savingsPricingBasis}
               />

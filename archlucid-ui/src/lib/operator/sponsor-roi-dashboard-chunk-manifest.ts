@@ -86,4 +86,18 @@ export const SPONSOR_ROI_DASHBOARD_CHUNK_MANIFEST: readonly DeferredChunkManifes
     modulePath: "@/components/SponsorWorkspaceHealthDashboard",
     exportName: "SponsorWorkspaceHealthDashboard",
   },
+  {
+    id: "sponsor-roi-dashboard-page-view",
+    label: "Loading sponsor dashboard",
+    variant: "section",
+    modulePath: "@/app/(operator)/architecture/sponsor-dashboard/_sections/SponsorRoiDashboardPageView",
+    exportName: "SponsorRoiDashboardPageView",
+  },
+  {
+    id: "sponsor-roi-dashboard-systemic-issue-trend-chart",
+    label: "Loading systemic issue trend chart",
+    variant: "section",
+    modulePath: "@/components/SponsorRoiSystemicIssueTrendChart",
+    exportName: "SponsorRoiSystemicIssueTrendChart",
+  },
 ] as const;

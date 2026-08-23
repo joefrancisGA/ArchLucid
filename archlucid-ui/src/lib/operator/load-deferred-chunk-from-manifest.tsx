@@ -323,6 +323,18 @@ function resolveDeferredChunkImportLoader(
           (module) => module.SponsorWorkspaceHealthDashboard,
         ),
       ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "sponsor-roi-dashboard-page-view":
+      return deferredChunkLoader(() =>
+        import("@/app/(operator)/architecture/sponsor-dashboard/_sections/SponsorRoiDashboardPageView").then(
+          (module) => module.SponsorRoiDashboardPageView,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "sponsor-roi-dashboard-systemic-issue-trend-chart":
+      return deferredChunkLoader(() =>
+        import("@/components/SponsorRoiSystemicIssueTrendChart").then(
+          (module) => module.SponsorRoiSystemicIssueTrendChart,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
     case "alerts-inbox-governance-context-panel":
       return deferredChunkLoader(() =>
         import("@/components/alerts/AlertsGovernanceContextPanel").then(
@@ -340,6 +352,58 @@ function resolveDeferredChunkImportLoader(
     case "app-shell-idle-overlays":
       return deferredChunkLoader(() =>
         import("@/components/shell/AppShellIdleOverlays").then((module) => module.AppShellIdleOverlays),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "app-shell-idle-core-pilot-wizard-launcher":
+      return deferredChunkLoader(() =>
+        import("@/components/CorePilotWizard").then((module) => module.CorePilotWizardLauncher),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "app-shell-idle-pilot-baseline-wizard-launcher":
+      return deferredChunkLoader(() =>
+        import("@/components/PilotBaselineWizardLauncher").then(
+          (module) => module.PilotBaselineWizardLauncher,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "app-shell-idle-cto-demo-offline-auto-fallback-listener":
+      return deferredChunkLoader(() =>
+        import("@/components/cto-demo/CtoDemoOfflineAutoFallbackListener").then(
+          (module) => module.CtoDemoOfflineAutoFallbackListener,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "app-shell-idle-cto-demo-panic-mode-banner":
+      return deferredChunkLoader(() =>
+        import("@/components/cto-demo/CtoDemoPanicModeBanner").then(
+          (module) => module.CtoDemoPanicModeBanner,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "app-shell-idle-cto-demo-spotlight-overlay":
+      return deferredChunkLoader(() =>
+        import("@/components/cto-demo/CtoDemoSpotlightOverlay").then(
+          (module) => module.CtoDemoSpotlightOverlay,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "app-shell-idle-buyer-cto-demo-tour-overlay":
+      return deferredChunkLoader(() =>
+        import("@/components/BuyerCtoDemoTourOverlay").then((module) => module.BuyerCtoDemoTourOverlay),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "app-shell-footer-trust-center-shell-link":
+      return deferredChunkLoader(() =>
+        import("@/components/usability/TrustCenterShellLink").then((module) => module.TrustCenterShellLink),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "app-shell-footer-system-health-status-strip":
+      return deferredChunkLoader(() =>
+        import("@/components/operator-home/SystemHealthStatusStrip").then(
+          (module) => module.SystemHealthStatusStrip,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "app-shell-footer-deployment-build-fingerprint-strip":
+      return deferredChunkLoader(() =>
+        import("@/components/shell/DeploymentBuildFingerprintStrip").then(
+          (module) => module.DeploymentBuildFingerprintStrip,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "app-shell-command-palette":
+      return deferredChunkLoader(() =>
+        import("@/components/CommandPalette").then((module) => module.CommandPalette),
       ) as () => Promise<ComponentType<Record<string, unknown>>>;
     case "app-shell-dev-testing-shortcuts":
       return deferredChunkLoader(() =>

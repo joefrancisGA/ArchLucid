@@ -126,6 +126,9 @@ describe("operator shell deferred imports (TB-2118)", () => {
     expect(manifestLoaderSource).toContain('import("@/components/shell/AppShellStatusBanners")');
     expect(manifestLoaderSource).toContain('import("@/components/trial/TrialLimitModal")');
     expect(manifestLoaderSource).toContain('import("@/components/cto-demo/CtoDemoJourneyCaptionBar")');
+    expect(manifestLoaderSource).toContain('import("@/components/CommandPalette")');
+    expect(manifestLoaderSource).toContain('import("@/components/CorePilotWizard")');
+    expect(manifestLoaderSource).toContain('import("@/components/usability/TrustCenterShellLink")');
     expect(deferredSource).toContain("operator-shell-top-bar");
     expect(deferredSource).toContain("app-shell-keyboard-shortcut-boundary");
     expect(deferredSource).toContain("app-shell-color-mode-toggle");
@@ -143,5 +146,21 @@ describe("operator shell deferred imports (TB-2118)", () => {
     expect(topBarSource).toContain("operator-shell-top-bar-deferred-chunks");
     expect(topBarSource).toContain("GlobalSearchBarDeferred");
     expect(topBarSource).toContain("MobileNavDrawerDeferred");
+  });
+
+  it("keeps idle overlay and footer internals off static import graphs (wave 8)", () => {
+    const idleOverlaysSource = readFileSync(join(shellDir, "AppShellIdleOverlays.tsx"), "utf8");
+    const footerSource = readFileSync(join(shellDir, "AppShellWorkspaceFooter.tsx"), "utf8");
+    const commandPaletteLazySource = readFileSync(join(componentsDir, "CommandPaletteLazy.tsx"), "utf8");
+
+    expect(idleOverlaysSource).not.toContain("next/dynamic");
+    expect(idleOverlaysSource).toContain("app-shell-idle-overlays-deferred-chunks");
+    expect(footerSource).not.toContain("next/dynamic");
+    expect(footerSource).toContain("app-shell-workspace-footer-deferred-chunks");
+    expect(commandPaletteLazySource).not.toContain("next/dynamic");
+    expect(commandPaletteLazySource).toContain("app-shell-command-palette");
+    expect(manifestLoaderSource).toContain('import("@/components/operator-home/SystemHealthStatusStrip")');
+    expect(manifestLoaderSource).toContain('import("@/components/shell/DeploymentBuildFingerprintStrip")');
+    expect(manifestLoaderSource).toContain('import("@/components/BuyerCtoDemoTourOverlay")');
   });
 });

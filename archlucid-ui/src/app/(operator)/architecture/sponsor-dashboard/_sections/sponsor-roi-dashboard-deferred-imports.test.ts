@@ -38,9 +38,8 @@ describe("sponsor dashboard deferred imports (TB-2061 / wave 10)", () => {
     expect(pageSource).not.toContain(
       'import { SponsorRoiDashboardPageView } from "./_sections/SponsorRoiDashboardPageView"',
     );
-    expect(pageSource).toContain('import("./_sections/SponsorRoiDashboardPageView")');
-    expect(pageSource).toContain("next/dynamic");
-    expect(pageSource).toContain("sponsor-dashboard-chunk-loading");
+    expect(pageSource).toContain("SponsorRoiDashboardPageViewDeferred");
+    expect(pageSource).not.toContain("next/dynamic");
   });
 
   it("keeps below-fold panels off the page view static import graph", () => {
@@ -100,5 +99,20 @@ describe("sponsor dashboard deferred imports (TB-2061 / wave 10)", () => {
     expect(deferredSource).toContain("sponsor-roi-dashboard-environment-savings");
     expect(deferredSource).toContain("sponsor-roi-dashboard-supporting-metrics");
     expect(deferredSource).toContain("sponsor-roi-dashboard-workspace-health");
+    expect(deferredSource).toContain("sponsor-roi-dashboard-page-view");
+    expect(deferredSource).toContain("sponsor-roi-dashboard-systemic-issue-trend-chart");
+    expect(manifestLoaderSource).toContain(
+      'import("@/app/(operator)/architecture/sponsor-dashboard/_sections/SponsorRoiDashboardPageView")',
+    );
+    expect(manifestLoaderSource).toContain('import("@/components/SponsorRoiSystemicIssueTrendChart")');
+  });
+
+  it("keeps systemic issue trend chart off SponsorRoiSummarySection static import graph", () => {
+    const summarySource = readFileSync(join(sectionsDir, "SponsorRoiSummarySection.tsx"), "utf8");
+
+    expect(summarySource).not.toContain("next/dynamic");
+    expect(summarySource).not.toMatch(/import\s+\{\s*SponsorRoiSystemicIssueTrendChart\s*\}\s+from/);
+    expect(summarySource).toContain("SponsorRoiSystemicIssueTrendChartDeferred");
+    expect(summarySource).toContain("sponsor-roi-dashboard-deferred-chunks");
   });
 });
