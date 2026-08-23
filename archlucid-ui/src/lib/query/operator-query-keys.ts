@@ -3,6 +3,8 @@ import type { RunsByProjectPagedParams } from "@/lib/query/runs-by-project-paged
 import type { OperatorScopeQueryKey } from "@/lib/operator/operator-scope-query-key";
 
 export const operatorQueryKeys = {
+  /** Account-wide preferences — shared across root ColorModePreferenceProvider and operator shell (TB-2303). */
+  userPreferences: ["user", "preferences"] as const,
   tenantTrialStatus: ["operator", "tenant", "trial-status"] as const,
   tenantWorkspacesList: (scope: OperatorScopeQueryKey) =>
     ["operator", "tenant", "workspaces", scope] as const,
