@@ -1,7 +1,9 @@
 "use client";
 
-import type { ReactNode } from "react";
-
+import {
+  ArchitectureCreatedWorkspace,
+  type ArchitectureCreatedWorkspaceProps,
+} from "@/components/architecture/ArchitectureCreatedWorkspace";
 import {
   ReviewDetailWorkspace,
   type ReviewDetailWorkspaceProps,
@@ -12,15 +14,32 @@ export const REVIEW_WORKSPACE_ROOT_TEST_ID = "review-workspace-shell";
 
 export const REVIEW_WORKSPACE_TAB_STRIP_TEST_ID = "review-workspace-tab-strip";
 
-export type ReviewWorkspaceShellProps = ReviewDetailWorkspaceProps & {
-  readonly lifecycle: ReviewWorkspaceLifecycle;
+export type ReviewWorkspaceShellCreateHomeProps = {
+  readonly lifecycle: "create-home";
+  readonly createHome: ArchitectureCreatedWorkspaceProps;
 };
+
+export type ReviewWorkspaceShellCommittedProps = ReviewDetailWorkspaceProps & {
+  readonly lifecycle: "in-review" | "finalized";
+};
+
+export type ReviewWorkspaceShellProps = ReviewWorkspaceShellCreateHomeProps | ReviewWorkspaceShellCommittedProps;
 
 /** TB-2367 — shared review workspace shell for create-home and committed lifecycles. */
 export function ReviewWorkspaceShell(props: ReviewWorkspaceShellProps): React.JSX.Element {
+  if (props.lifecycle === "create-home") {
+    return (
+      <div data-testid={REVIEW_WORKSPACE_ROOT_TEST_ID} data-workspace-lifecycle={props.lifecycle}>
+        <ArchitectureCreatedWorkspace {...props.createHome} />
+      </div>
+    );
+  }
+
+  const committedProps = props as ReviewWorkspaceShellCommittedProps;
+
   return (
-    <div data-testid={REVIEW_WORKSPACE_ROOT_TEST_ID} data-workspace-lifecycle={props.lifecycle}>
-      <ReviewDetailWorkspace {...props} />
+    <div data-testid={REVIEW_WORKSPACE_ROOT_TEST_ID} data-workspace-lifecycle={committedProps.lifecycle}>
+      <ReviewDetailWorkspace {...committedProps} lifecycle={committedProps.lifecycle} />
     </div>
   );
 }

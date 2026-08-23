@@ -77,10 +77,10 @@ describe("ArchitectureCreatedWorkspace", () => {
     expect(screen.getByTestId("architecture-created-workspace")).toBeInTheDocument();
     expect(screen.getByTestId("architecture-created-workspace-header")).toBeInTheDocument();
     expect(screen.getByTestId("architecture-created-compact-first-viewport")).toBeInTheDocument();
-    expect(screen.getByTestId("architecture-workspace-tabs")).toBeInTheDocument();
+    expect(screen.getByTestId("review-detail-workspace-tabs")).toBeInTheDocument();
     expect(screen.getByTestId(REVIEW_WORKSPACE_TAB_STRIP_TEST_ID)).toBeInTheDocument();
     expect(screen.getByTestId("architecture-workspace-panel-overview")).toBeInTheDocument();
-    expect(screen.queryByTestId("findings-panel-slot")).not.toBeInTheDocument();
+    expect(screen.getByTestId("architecture-workspace-panel-findings")).toHaveAttribute("hidden");
   });
 
   it("uses compact context bar on governance tab instead of full first viewport", () => {
@@ -164,7 +164,7 @@ describe("ArchitectureCreatedWorkspace", () => {
       />,
     );
 
-    expect(screen.getByTestId("architecture-workspace-tab-clarifications")).toHaveTextContent("2");
+    expect(screen.getByTestId("review-detail-workspace-tab-decisions-remediation")).toHaveTextContent("2");
   });
 
   it("demotes compact first-viewport primary action when Do this next owns the page primary", () => {
