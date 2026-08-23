@@ -1,5 +1,5 @@
 using ArchLucid.Core.Scoping;
-using ArchLucid.Persistence.Tenancy;
+using ArchLucid.Persistence.Data.Infrastructure;
 
 namespace ArchLucid.Persistence.Findings;
 

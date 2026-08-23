@@ -1,5 +1,6 @@
 using ArchLucid.Contracts.Abstractions.Agents;
 using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Core.Audit;
@@ -30,7 +31,7 @@ public static class AgentHandlerCompletionExecutor
         string systemPrompt,
         string userPrompt,
         AgentPromptReproMetadata promptRepro,
-        string promptVariantKey,
+        string? promptVariantKey,
         Func<AgentResult, Task<AgentResult>>? finalizeResultAsync = null,
         bool applyFindingEnforcementTier = true,
         bool consumeTokenUsageOnFailure = false,
