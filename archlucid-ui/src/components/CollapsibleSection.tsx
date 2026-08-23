@@ -77,19 +77,27 @@ export function CollapsibleSection({
       <summary
         id={summaryId}
         aria-label={summaryAriaLabel}
-        className={cn("cursor-pointer select-none text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}
+        className={cn(
+          "flex cursor-pointer select-none flex-wrap items-center gap-x-2 text-al-text-primary",
+          OPERATOR_TYPOGRAPHY.cardTitle,
+        )}
       >
         {headingLevel === 2 ? (
-          <h2 className="m-0 font-semibold">{title}</h2>
+          <h2 className="m-0 inline font-semibold">{title}</h2>
         ) : headingLevel === 3 ? (
-          <h3 className="m-0 font-semibold">{title}</h3>
+          <h3 className="m-0 inline font-semibold">{title}</h3>
         ) : headingLevel === 4 ? (
-          <h4 className="m-0 font-semibold">{title}</h4>
+          <h4 className="m-0 inline font-semibold">{title}</h4>
         ) : (
           <span className="font-semibold">{title}</span>
         )}
         {summaryLine !== undefined && summaryLine.trim().length > 0 ? (
-          <span className={cn("mt-1 block font-normal text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+          <span
+            className={cn(
+              "mt-1 basis-full font-normal text-al-text-secondary",
+              OPERATOR_TYPOGRAPHY.helper,
+            )}
+          >
             {summaryLine}
           </span>
         ) : null}

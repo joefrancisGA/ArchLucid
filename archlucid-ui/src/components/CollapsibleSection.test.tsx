@@ -53,4 +53,18 @@ describe("CollapsibleSection", () => {
 
     expect(screen.getByText("Labeled").closest("summary")).toHaveAttribute("id", "section-summary-id");
   });
+
+  it("keeps heading titles inline with the disclosure marker when headingLevel is set", () => {
+    render(
+      <CollapsibleSection title="Expected finding coverage" headingLevel={2} summaryLine="Coverage preview">
+        <p>Inner</p>
+      </CollapsibleSection>,
+    );
+
+    const summary = screen.getByText("Expected finding coverage").closest("summary");
+
+    expect(summary).toHaveClass("flex");
+    expect(screen.getByRole("heading", { level: 2, name: "Expected finding coverage" })).toHaveClass("inline");
+    expect(screen.getByText("Coverage preview")).toHaveClass("basis-full");
+  });
 });
