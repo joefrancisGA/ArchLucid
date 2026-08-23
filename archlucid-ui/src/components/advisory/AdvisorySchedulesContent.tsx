@@ -7,6 +7,7 @@ import { useCallback, useEffect, useId, useMemo, useRef, useState, type ReactEle
 
 import { useAdvisoryScheduleReviewAvailability } from "@/hooks/use-advisory-schedule-review-availability";
 
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { AdvisoryScheduleCreateForm } from "@/components/advisory/AdvisoryScheduleCreateForm";
 import { AdvisoryRecurrenceScheduleVocabularyRail } from "@/components/AdvisoryRecurrenceScheduleVocabularyRail";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
@@ -369,7 +370,7 @@ export function AdvisorySchedulesContent(): ReactElement {
   );
 
   return (
-    <div className="w-full max-w-[1200px] py-4" data-testid="advisory-schedules-content">
+    <OperatorPageContainer variant="workflow" className="py-4" data-testid="advisory-schedules-content">
       <div className="min-w-0 space-y-4">
         <div className="m-0 flex flex-wrap items-start justify-between gap-2">
           <h2 className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
@@ -586,6 +587,6 @@ export function AdvisorySchedulesContent(): ReactElement {
           )}
         </section>
       </div>
-    </div>
+    </OperatorPageContainer>
   );
 }

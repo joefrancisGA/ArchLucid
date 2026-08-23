@@ -9,6 +9,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useAdvisoryRecommendationsQuery } from "@/hooks/use-advisory-recommendations-query";
 import { useOperatorScopeQueryKey } from "@/hooks/use-operator-scope-query-key";
 
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { AdvisoryRecommendationCard } from "@/components/advisory/AdvisoryRecommendationCard";
 import { AdvisoryRecommendationDispositionDialog } from "@/components/advisory/AdvisoryRecommendationDispositionDialog";
 import { AdvisorySampleRecommendationPreview } from "@/components/advisory/AdvisorySampleRecommendationPreview";
@@ -374,7 +375,7 @@ export function AdvisoryScansContent(props: AdvisoryScansContentProps = {}): Rea
   );
 
   return (
-    <div className="w-full max-w-[1200px]" data-testid="advisory-scans-content">
+    <OperatorPageContainer variant="workflow" data-testid="advisory-scans-content">
       {listHeader}
 
       <section
@@ -667,6 +668,6 @@ export function AdvisoryScansContent(props: AdvisoryScansContentProps = {}): Rea
           void submitDisposition(comment, rationale);
         }}
       />
-    </div>
+    </OperatorPageContainer>
   );
 }

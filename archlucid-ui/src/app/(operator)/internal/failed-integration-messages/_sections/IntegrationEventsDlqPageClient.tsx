@@ -30,6 +30,7 @@ import { RefreshButton } from "@/components/ui/refresh-button";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { IntegrationEventsDlqEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
 import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { INTERNAL_INTEGRATION_EVENTS_DLQ_PATH } from "@/lib/internal-ops-route-paths";
 import type { components } from "@/lib/api-types.generated";
@@ -329,8 +330,9 @@ export function IntegrationEventsDlqPageClient() {
   }, [canMutate, load]);
 
   return (
-    <div
-      className={cn("w-full max-w-[1200px]", OPERATOR_LAYOUT.sectionStack)}
+    <OperatorPageContainer
+      variant="dashboard"
+      className={OPERATOR_LAYOUT.sectionStack}
       data-testid="integration-events-dlq-page"
     >
       <OperatorPageHeader
@@ -647,6 +649,6 @@ export function IntegrationEventsDlqPageClient() {
           void suppress(suppressTargetId);
         }}
       />
-    </div>
+    </OperatorPageContainer>
   );
 }

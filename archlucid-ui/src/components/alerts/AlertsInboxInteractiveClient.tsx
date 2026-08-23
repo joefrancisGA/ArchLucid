@@ -1,5 +1,6 @@
 ﻿"use client";
 
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { AlertsInboxAlertListSection } from "@/components/alerts/AlertsInboxAlertListSection";
 import { AlertsInboxControls } from "@/components/alerts/AlertsInboxControls";
 import { AlertsInboxDialogsDeferred } from "@/components/alerts/alerts-inbox-deferred-chunks";
@@ -19,7 +20,7 @@ export function AlertsInboxInteractiveClient({ initialModel = null }: AlertsInbo
   const controller = useAlertsInboxController(initialModel);
 
   return (
-    <div className="w-full max-w-4xl">
+    <OperatorPageContainer variant="dashboard">
       <AlertsInboxPageIntro
         canMutateAlertInbox={controller.canMutateAlertInbox}
         buyerPolishedShell={controller.buyerPolishedShell}
@@ -91,7 +92,7 @@ export function AlertsInboxInteractiveClient({ initialModel = null }: AlertsInbo
           onClose: controller.closeActionLoopDialog,
         }}
       />
-    </div>
+    </OperatorPageContainer>
   );
 }
 

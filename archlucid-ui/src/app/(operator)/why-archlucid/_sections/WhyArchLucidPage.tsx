@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 
 import { cn } from "@/lib/utils";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OPERATOR_LAYOUT } from "@/lib/design-tokens";
 import { WHY_ARCHLUCID_PAGE_LOAD_RETRY_LABEL } from "@/lib/why-archlucid-page-copy";
 
@@ -141,8 +142,9 @@ export function WhyArchLucidPage() {
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
 
   return (
-    <div
-      className={cn("w-full max-w-[1200px] p-4", OPERATOR_LAYOUT.sectionStack)}
+    <OperatorPageContainer
+      variant="workflow"
+      className={cn("p-4", OPERATOR_LAYOUT.sectionStack)}
       data-testid="why-archlucid-page"
       aria-busy={state.loading}
     >
@@ -182,6 +184,6 @@ export function WhyArchLucidPage() {
           <WhyArchLucidPageFooter />
         </>
       ) : null}
-    </div>
+    </OperatorPageContainer>
   );
 }
