@@ -3,10 +3,8 @@ using ArchLucid.Api.Models;
 using ArchLucid.Application;
 using ArchLucid.Application.Architecture;
 using ArchLucid.Application.Common;
-using ArchLucid.Application.Notifications.Email;
 using ArchLucid.Application.Planning;
 using ArchLucid.Application.Runs;
-using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Drafts;
@@ -308,20 +306,25 @@ public sealed class RunsControllerTests
     }
 
     [Fact]
-    public async Task CreateRun_create_architecture_calls_synthesis_kernel_without_review_create()
+    public async Task CreateRun_create_architecture_calls_command_service_synthesis_path()
     {
-        Mock<IArchitectureSynthesisKernel> kernel = new();
-        kernel
-            .Setup(k => k.GenerateAsync(It.IsAny<ArchitectureRequest>(), It.IsAny<CreateRunIdempotencyState?>(),
+        Mock<IArchitectureRunCommandService> commands = new();
+        commands
+            .Setup(s => s.CreateRunAsync(
+                Scope,
+                It.IsAny<ArchitectureRequest>(),
+                It.IsAny<string?>(),
                 It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new ArchitectureSynthesisGenerateResult
+            .ReturnsAsync(new CreateRunCommandResult
             {
-                RunId = Guid.NewGuid().ToString("N"),
-                PackageOrigin = ArchitecturePackageOrigin.Created
+                SynthesisResult = new ArchitectureSynthesisGenerateResult
+                {
+                    RunId = Guid.NewGuid().ToString("N"),
+                    PackageOrigin = ArchitecturePackageOrigin.Created
+                }
             });
 
-        Mock<IArchitectureRunCreateOrchestrator> create = new();
-        RunsController controller = CreateController(createOrchestrator: create.Object, synthesisKernel: kernel.Object);
+        RunsController controller = CreateController(runCommandService: commands.Object);
 
         ArchitectureRequest request = new()
         {
@@ -335,16 +338,13 @@ public sealed class RunsControllerTests
 
         CreatedAtActionResult created = action.Should().BeOfType<CreatedAtActionResult>().Subject;
         created.StatusCode.Should().Be(StatusCodes.Status201Created);
-        kernel.Verify(
-            k => k.GenerateAsync(
+        commands.Verify(
+            s => s.CreateRunAsync(
+                Scope,
                 It.Is<ArchitectureRequest>(r => r.RequestId == "req-create-arch"),
-                It.IsAny<CreateRunIdempotencyState?>(),
+                It.IsAny<string?>(),
                 It.IsAny<CancellationToken>()),
             Times.Once);
-        create.Verify(
-            c => c.CreateRunAsync(It.IsAny<ArchitectureRequest>(), It.IsAny<CreateRunIdempotencyState?>(),
-                It.IsAny<CancellationToken>()),
-            Times.Never);
     }
 
     private static RunsController CreateController(
@@ -352,8 +352,7 @@ public sealed class RunsControllerTests
         IArchitectureRequestDraftService? draftService = null,
         IArchitectureOverviewRewriteService? overviewRewriteService = null,
         IStructuredBriefSuggestionExplainService? explainService = null,
-        IArchitectureRunCreateOrchestrator? createOrchestrator = null,
-        IArchitectureSynthesisKernel? synthesisKernel = null,
+        IArchitectureRunCommandService? runCommandService = null,
         IRunRepository? runRepository = null)
     {
         Mock<IScopeContextProvider> scopeProvider = new();
@@ -368,10 +367,7 @@ public sealed class RunsControllerTests
             .ReturnsAsync(new ValidationResult());
 
         return new RunsController(
-            createOrchestrator ?? Mock.Of<IArchitectureRunCreateOrchestrator>(),
-            Mock.Of<IArchitectureRunBatchCreateOrchestrator>(),
-            Mock.Of<IArchitectureRunExecuteOrchestrator>(),
-            Mock.Of<IArchitectureRunCommitOrchestrator>(),
+            runCommandService ?? Mock.Of<IArchitectureRunCommandService>(),
             architectureApplicationService ?? Mock.Of<IArchitectureApplicationService>(),
             draftService ?? Mock.Of<IArchitectureRequestDraftService>(),
             overviewRewriteService ?? Mock.Of<IArchitectureOverviewRewriteService>(),
@@ -379,16 +375,12 @@ public sealed class RunsControllerTests
             Mock.Of<IChatIntakeParserService>(),
             Mock.Of<IConnectorIntakeParserService>(),
             validator.Object,
-            Mock.Of<IReplayRunService>(),
             scopeProvider.Object,
             actor.Object,
             Mock.Of<IAuditService>(),
-            Mock.Of<ICommitSponsorEmailNotifier>(),
-            Mock.Of<ICommitRunIdempotencyCoordinator>(),
             runRepository ?? Mock.Of<IRunRepository>(),
             Mock.Of<IAuthorityQueryService>(),
             Mock.Of<IFindingFeedbackRepository>(),
-            synthesisKernel ?? Mock.Of<IArchitectureSynthesisKernel>(),
             NullLogger<RunsController>.Instance)
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
