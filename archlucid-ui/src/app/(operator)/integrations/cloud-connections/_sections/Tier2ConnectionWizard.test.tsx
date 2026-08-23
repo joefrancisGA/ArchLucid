@@ -143,12 +143,13 @@ describe("Tier2ConnectionWizard", () => {
     fireEvent.change(screen.getByTestId("tier2-subscription-ids"), {
       target: { value: "still-not-a-guid" },
     });
-    fireEvent.click(screen.getByRole("button", { name: "Next" }));
 
     await waitFor(() => {
       expect(screen.getByText("Enter a valid Azure tenant ID GUID.")).toBeInTheDocument();
       expect(screen.getByText("Enter a valid client/app ID GUID.")).toBeInTheDocument();
     });
+
+    expect(screen.getByRole("button", { name: "Next" })).toBeDisabled();
   });
 
   it("advances to save step when connection identifiers are valid", async () => {
