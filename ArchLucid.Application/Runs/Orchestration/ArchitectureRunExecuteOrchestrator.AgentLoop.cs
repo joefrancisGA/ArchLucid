@@ -45,7 +45,7 @@ public sealed partial class ArchitectureRunExecuteOrchestrator
         if (!safety.IsAllowed)
             throw new RequestContentSafetyRejectedException(safety.Reasons);
 
-        using (PilotModeGovernanceScope.BeginFromPolicyReferences(request.PolicyReferences))
+        using (PilotModeGovernanceScope.BeginFromPolicyReferences(request.PolicyReferences, request.CloudProvider))
         {
             ScopeContext executeScope = _scopeContextProvider.GetCurrentScope();
             IReadOnlyList<AgentTask> tasks = await taskRepository.GetByRunIdAsync(executeScope, runId, cancellationToken);

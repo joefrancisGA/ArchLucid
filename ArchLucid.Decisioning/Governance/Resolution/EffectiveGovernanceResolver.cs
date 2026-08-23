@@ -96,7 +96,12 @@ public sealed class EffectiveGovernanceResolver(
                     continue;
                 }
 
-                if (focusedPilotMode && !Core.Governance.PolicyPacks.FocusedPilotModePolicyPacks.IsAllowedPackDisplayName(pack.Name))
+                if (focusedPilotMode && !Core.Governance.PolicyPacks.FocusedPilotModePolicyPacks.IsPackAllowedInFocusedReview(
+                        pack.Name,
+                        assignment.IsPinned,
+                        Core.Governance.PolicyPacks.PlatformOverlayPolicyPacks.IsOverlayDisplayName(
+                            pack.Name,
+                            Core.Governance.PolicyPacks.PilotModeGovernanceScope.ActiveCloudProvider)))
                 {
                     skippedNotes.Add(
                         string.Format(

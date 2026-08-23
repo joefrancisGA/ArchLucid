@@ -2,12 +2,11 @@
 
 import { cn } from "@/lib/utils";
 import { useEffect, useMemo, useState } from "react";
-import { useFormContext } from "react-hook-form";
+import { useFormContext, useWatch } from "react-hook-form";
 
 import { LlmMonthlyBudgetExceededBanner } from "@/components/llm/LlmMonthlyBudgetExceededBanner";
 import { WizardNavButtons } from "@/components/wizard/WizardNavButtons";
-import { PilotModePolicyPackToggle } from "@/components/wizard/PilotModePolicyPackToggle";
-import { FocusedPilotScopeDisclosureBanner } from "@/components/wizard/FocusedPilotScopeDisclosureBanner";
+import { ReviewAssuranceCoverageSection } from "@/components/wizard/ReviewAssuranceCoverageSection";
 import { WizardStepHeading } from "@/components/wizard/WizardStepHeading";
 import { WizardStickyFooter } from "@/components/wizard/WizardStickyFooter";
 import { WizardStepDescription } from "@/components/wizard/steps/WizardStepDescription";
@@ -74,6 +73,7 @@ export function QuickStartWizard(props: QuickStartWizardProps) {
   });
 
   const { reset, setValue, clearErrors } = useFormContext<WizardFormValues>();
+  const watchedValues = useWatch<WizardFormValues>();
 
   const hasExampleTemplate = props.exampleTemplate !== null && props.exampleTemplate !== undefined;
 
@@ -171,11 +171,12 @@ export function QuickStartWizard(props: QuickStartWizardProps) {
               Using preset: <strong>{selectedPreset.label}</strong>
             </p>
           ) : null}
-          <PilotModePolicyPackToggle
-            enabled={focusedPilotModeEnabled}
-            onEnabledChange={setFocusedPilotModeEnabled}
+          <ReviewAssuranceCoverageSection
+            focusedPilotModeEnabled={focusedPilotModeEnabled}
+            onFocusedPilotModeEnabledChange={setFocusedPilotModeEnabled}
+            cloudProvider={watchedValues?.cloudProvider ?? "None"}
+            descriptionText={watchedValues?.description}
           />
-          <FocusedPilotScopeDisclosureBanner focusedModeEnabled={focusedPilotModeEnabled} />
           <WizardStepIdentity />
         </div>
       ) : null}

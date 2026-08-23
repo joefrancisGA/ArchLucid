@@ -7,6 +7,7 @@ import type { FieldErrors } from "react-hook-form";
 import { useFormContext } from "react-hook-form";
 
 import { Separator } from "@/components/ui/separator";
+import { AssuranceCoveragePreviewPanel } from "@/components/wizard/AssuranceCoveragePreviewPanel";
 import { RunWizardCostPreviewCard } from "@/components/wizard/RunWizardCostPreviewCard";
 import { WizardPolicyPackCloudMismatchCallout } from "@/components/wizard/WizardPolicyPackCloudMismatchCallout";
 import { WizardStepPanel } from "@/components/wizard/WizardStepPanel";
@@ -97,6 +98,12 @@ export function WizardStepReview(props: { readonly focusedPilotModeEnabled?: boo
         ) : null}
 
         <RunWizardCostPreviewCard />
+
+        <AssuranceCoveragePreviewPanel
+          cloudProvider={v.cloudProvider}
+          focusedPilotModeEnabled={focusedPilotModeEnabled}
+          descriptionText={v.description}
+        />
 
         <ReadOnlyBlock title="Identity">
           <dl className="m-0 grid gap-1 sm:grid-cols-[8rem_1fr]">

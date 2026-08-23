@@ -80,7 +80,12 @@ public sealed class CommittedEffectiveGovernanceSnapshotCapturer(
             if (!packById.TryGetValue(assignment.PolicyPackId, out PolicyPack? pack))
                 continue;
 
-            if (focusedPilotMode && !FocusedPilotModePolicyPacks.IsAllowedPackDisplayName(pack.Name))
+            if (focusedPilotMode && !FocusedPilotModePolicyPacks.IsPackAllowedInFocusedReview(
+                    pack.Name,
+                    assignment.IsPinned,
+                    PlatformOverlayPolicyPacks.IsOverlayDisplayName(
+                        pack.Name,
+                        PilotModeGovernanceScope.ActiveCloudProvider)))
                 continue;
 
             packRows.Add(
