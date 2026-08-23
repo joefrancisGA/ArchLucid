@@ -74,7 +74,8 @@ public sealed class PolicyPackResolver(
                     Name = pack.Name,
                     Version = version.Version,
                     PackType = pack.PackType,
-                    ContentJson = version.ContentJson
+                    ContentJson = version.ContentJson,
+                    QualityDimension = pack.QualityDimension,
                 });
         }
 

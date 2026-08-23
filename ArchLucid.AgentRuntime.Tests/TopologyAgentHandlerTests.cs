@@ -121,6 +121,7 @@ public sealed class TopologyAgentHandlerTests
             scopeProvider.Object,
             TopologyAgentHandlerTestFactory.CreateEmptyLedgerRepository(),
             ComplianceAgentHandlerTestDependencies.CreateEmptyRetrievalQueryService(),
+            ComplianceAgentHandlerTestDependencies.CreatePolicyPackRetrievalAppender(scopeProvider.Object),
             ComplianceAgentHandlerTestDependencies.CreateNoOpGroundingTraceWriter(),
             AgentSchemaRemediationOptionsMonitorTestFactory.Create(),
             ComplianceAgentHandlerTestDependencies.CreateTopologyNullLogger());
@@ -195,6 +196,7 @@ public sealed class TopologyAgentHandlerTests
             scopeProvider.Object,
             ledgerRepository.Object,
             ComplianceAgentHandlerTestDependencies.CreateEmptyRetrievalQueryService(),
+            ComplianceAgentHandlerTestDependencies.CreatePolicyPackRetrievalAppender(scopeProvider.Object),
             ComplianceAgentHandlerTestDependencies.CreateNoOpGroundingTraceWriter(),
             AgentSchemaRemediationOptionsMonitorTestFactory.Create(),
             ComplianceAgentHandlerTestDependencies.CreateTopologyNullLogger());
