@@ -438,6 +438,7 @@ describe("FirstPilotIntakeWizard", () => {
   it("surfaces the completed sample package link beside the primary CTA", () => {
     render(<FirstPilotIntakeWizard />);
 
+    expect(screen.getByTestId("first-pilot-intake-action-row")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: NEW_REVIEW_SAMPLE_ESCAPE_CTA })).toBeInTheDocument();
   });
 });
