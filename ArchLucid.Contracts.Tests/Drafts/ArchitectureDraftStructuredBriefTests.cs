@@ -37,4 +37,22 @@ public sealed class ArchitectureDraftStructuredBriefTests
         ArchitectureDraftStructuredBrief.QualityAttributeMeetsMinimum("unknown — confirm before review")
             .Should().BeFalse();
     }
+
+    [Theory]
+    [InlineData("Unknown - confirm before review")]
+    [InlineData("unknown – confirm before review")]
+    public void IsUnknownConfirmSentinel_treats_dash_variants_as_unknown(string variant)
+    {
+        ArchitectureDraftStructuredBrief.IsUnknownConfirmSentinel(variant)
+            .Should().BeTrue();
+    }
+
+    [Theory]
+    [InlineData("Unknown - confirm before review")]
+    [InlineData("unknown – confirm before review")]
+    public void QualityAttributeMeetsMinimum_rejects_dash_variant_unknown_sentinel(string variant)
+    {
+        ArchitectureDraftStructuredBrief.QualityAttributeMeetsMinimum(variant)
+            .Should().BeFalse();
+    }
 }

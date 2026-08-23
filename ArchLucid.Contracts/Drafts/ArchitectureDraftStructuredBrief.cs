@@ -13,7 +13,17 @@ public sealed class ArchitectureDraftStructuredBrief
 
     /// <summary>TB-2343: unknown placeholders are not confirmed facts for readiness or graph projection.</summary>
     public static bool IsUnknownConfirmSentinel(string? value) =>
-        string.Equals(value?.Trim(), UnknownConfirmBeforeReview, StringComparison.OrdinalIgnoreCase);
+        !string.IsNullOrWhiteSpace(value)
+        && string.Equals(
+            NormalizeUnknownSentinelKey(value),
+            NormalizeUnknownSentinelKey(UnknownConfirmBeforeReview),
+            StringComparison.Ordinal);
+
+    private static string NormalizeUnknownSentinelKey(string value) =>
+        value.Trim()
+            .Replace('\u2014', '-')
+            .Replace('\u2013', '-')
+            .ToLowerInvariant();
 
     /// <summary>TB-2343: non-empty brief list entries that are not the unknown sentinel.</summary>
     public static bool IsConfirmedBriefEntry(string? value) =>
