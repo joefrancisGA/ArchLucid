@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
+import { ACTION_ACTOR_UNAVAILABLE } from "@/lib/action-actor-display";
 import {
-  ACTION_ACTOR_UNAVAILABLE,
   buyerSafeActorDisplayName,
   buyerSafeGovernanceActorLabel,
   buyerSafeTechnicalIdLabel,
