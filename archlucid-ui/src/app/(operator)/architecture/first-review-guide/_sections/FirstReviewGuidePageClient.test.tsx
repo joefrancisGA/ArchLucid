@@ -33,12 +33,6 @@ vi.mock("./OnboardingOptionalSetupSection", () => ({
   OnboardingOptionalSetupSection: () => <div data-testid="onboarding-optional-setup-section-stub" />,
 }));
 
-vi.mock("@/components/FirstReviewGuideFirstArchitectureReviewVocabularyRail", () => ({
-  FirstReviewGuideFirstArchitectureReviewVocabularyRail: () => (
-    <div data-testid="first-review-guide-vocabulary-rail-stub" />
-  ),
-}));
-
 const loadedGuideState = {
   hasLoadedContext: true,
   isPending: false,
@@ -126,7 +120,6 @@ describe("FirstReviewGuidePageClient", () => {
     expect(screen.getByRole("heading", { name: FIRST_REVIEW_GUIDE_PROGRESS_SECTION_TITLE })).toBeInTheDocument();
     expect(screen.getByTestId("first-review-guide-walkthrough")).toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toHaveTextContent(PAGE_HELP_SHORT_TRIGGER_TEXT);
-    expect(screen.queryByTestId("first-review-guide-vocabulary-rail-stub")).toBeInTheDocument();
     expect(screen.queryByTestId("first-review-guide-header-loading")).not.toBeInTheDocument();
 
     const startReviewLinks = screen.getAllByRole("link", { name: /start review/i });

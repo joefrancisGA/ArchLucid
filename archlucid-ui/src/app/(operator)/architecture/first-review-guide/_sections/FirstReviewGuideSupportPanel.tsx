@@ -3,7 +3,6 @@
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 
-import { FirstReviewGuideFirstArchitectureReviewVocabularyRail } from "@/components/FirstReviewGuideFirstArchitectureReviewVocabularyRail";
 import { InAppHelpLink } from "@/components/InAppHelpLink";
 import { Button } from "@/components/ui/button";
 import {
@@ -12,29 +11,15 @@ import {
   FIRST_REVIEW_GUIDE_HELP_TITLE,
   FIRST_REVIEW_GUIDE_OUTCOMES,
   FIRST_REVIEW_GUIDE_OUTCOMES_TITLE,
+  FIRST_REVIEW_GUIDE_TEMPLATE_BODY,
   FIRST_REVIEW_GUIDE_TEMPLATE_CHOOSE_ACTION,
   FIRST_REVIEW_GUIDE_TEMPLATE_LABEL,
-  FIRST_REVIEW_GUIDE_TEMPLATE_SUGGESTION_DETAIL,
-  FIRST_REVIEW_GUIDE_TEMPLATE_SUGGESTION_LEAD,
 } from "@/lib/buyer/buyer-polish-copy";
-import { OPERATOR_LINK, OPERATOR_SURFACE_CARD_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_SURFACE_CARD_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { FIRST_ARCHITECTURE_REVIEW_PAGE_TITLE } from "@/lib/first-architecture-review-help-copy";
-import {
-  OPERATOR_HOME_EXAMPLE_TEMPLATE_ID,
-  REVIEW_INTAKE_EXAMPLE_TEMPLATES,
-  reviewIntakeExampleTemplateHref,
-} from "@/lib/operator/operator-home-example-request";
-
-function resolveDefaultTemplateTitle(): string {
-  const match = REVIEW_INTAKE_EXAMPLE_TEMPLATES.find((row) => row.id === OPERATOR_HOME_EXAMPLE_TEMPLATE_ID);
-
-  return match?.title ?? "Default template";
-}
+import { REVIEWS_NEW_DETAILED_HREF } from "@/lib/reviews-new-path-copy";
 
 export function FirstReviewGuideSupportPanel() {
-  const templateTitle = resolveDefaultTemplateTitle();
-  const templateHref = reviewIntakeExampleTemplateHref(OPERATOR_HOME_EXAMPLE_TEMPLATE_ID);
-
   return (
     <aside className="space-y-4" data-testid="first-review-guide-support-panel">
       <section
@@ -59,14 +44,10 @@ export function FirstReviewGuideSupportPanel() {
         <h3 id="first-review-guide-template-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
           {FIRST_REVIEW_GUIDE_TEMPLATE_LABEL}
         </h3>
-        <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.helper)}>
-          {FIRST_REVIEW_GUIDE_TEMPLATE_SUGGESTION_LEAD}{" "}
-          <span className="font-medium text-neutral-900 dark:text-neutral-100">{templateTitle}</span>
-        </p>
-        <p className={cn("m-0 mt-1", OPERATOR_TYPOGRAPHY.helper)}>{FIRST_REVIEW_GUIDE_TEMPLATE_SUGGESTION_DETAIL}</p>
+        <p className={cn("m-0 mt-2", OPERATOR_TYPOGRAPHY.helper)}>{FIRST_REVIEW_GUIDE_TEMPLATE_BODY}</p>
         <div className="mt-2">
           <Button asChild size="sm" variant="outline">
-            <Link href={templateHref}>{FIRST_REVIEW_GUIDE_TEMPLATE_CHOOSE_ACTION}</Link>
+            <Link href={REVIEWS_NEW_DETAILED_HREF}>{FIRST_REVIEW_GUIDE_TEMPLATE_CHOOSE_ACTION}</Link>
           </Button>
         </div>
       </section>
@@ -105,11 +86,6 @@ export function FirstReviewGuideSupportPanel() {
           </li>
         </ul>
       </section>
-
-      <FirstReviewGuideFirstArchitectureReviewVocabularyRail
-        currentSurfaceId="first-review-guide"
-        variant="compact"
-      />
     </aside>
   );
 }

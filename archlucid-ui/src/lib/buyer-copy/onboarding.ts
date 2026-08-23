@@ -42,14 +42,12 @@ export const FIRST_REVIEW_GUIDE_GET_MORE_ROI_COPY =
 
 export const FIRST_REVIEW_GUIDE_HELP_TITLE = "Need help?";
 
-export const FIRST_REVIEW_GUIDE_TEMPLATE_LABEL = "Suggested template";
+export const FIRST_REVIEW_GUIDE_TEMPLATE_LABEL = "Templates";
 
-export const FIRST_REVIEW_GUIDE_TEMPLATE_SUGGESTION_LEAD = "Suggested starting point:";
+export const FIRST_REVIEW_GUIDE_TEMPLATE_BODY =
+  "When you start a review, you can pick a template to prefill scope and evidence hints. Choose the one that matches what you are trying to accomplish.";
 
-export const FIRST_REVIEW_GUIDE_TEMPLATE_SUGGESTION_DETAIL =
-  "You can choose a different template when you start a review.";
-
-export const FIRST_REVIEW_GUIDE_TEMPLATE_CHOOSE_ACTION = "Choose template";
+export const FIRST_REVIEW_GUIDE_TEMPLATE_CHOOSE_ACTION = "Browse templates";
 
 export const FIRST_REVIEW_GUIDE_NEXT_STEP_LABEL = "Next step";
 
