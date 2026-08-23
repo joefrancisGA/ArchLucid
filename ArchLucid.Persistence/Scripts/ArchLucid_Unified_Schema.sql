@@ -10,7 +10,7 @@
   PURPOSE
     Consolidated declarative DDL (CREATE TABLE, CREATE INDEX, ALTER TABLE batches only) reflecting
     the final schema shape after sequential application of forward DbUp migrations
-    ArchLucid.Persistence/Migrations/001_*.sql … 319_*.sql (excluding Rollback/).
+    ArchLucid.Persistence/Migrations/001_*.sql … 322_*.sql (excluding Rollback/).
 
   HOW THIS ARTIFACT RELATES TO MIGRATIONS
     Forward migrations remain the authoritative upgrade path on existing databases.
@@ -683,11 +683,6 @@ IF OBJECT_ID(N'dbo.Runs', N'U') IS NOT NULL
 IF OBJECT_ID(N'dbo.Runs', N'U') IS NOT NULL
    AND COL_LENGTH(N'dbo.Runs', N'EngineProvenanceJson') IS NULL
     ALTER TABLE dbo.Runs ADD EngineProvenanceJson NVARCHAR(MAX) NULL;
-
-/* Brownfield: execute-time governance scope JSON (DbUp 321 parity). */
-IF OBJECT_ID(N'dbo.Runs', N'U') IS NOT NULL
-   AND COL_LENGTH(N'dbo.Runs', N'GovernanceScopeJson') IS NULL
-    ALTER TABLE dbo.Runs ADD GovernanceScopeJson NVARCHAR(MAX) NULL;
 
 GO
 
@@ -8314,6 +8309,71 @@ END;
 
 GO
 
+/* Brownfield: execute-time governance scope JSON (DbUp 321 + 322).
+   After ADR 0064 / migration 295, dbo.Runs is a synonym for dbo.Reviews. OBJECT_ID(..., N'U')
+   and COL_LENGTH both return NULL for a synonym, so resolve the physical table first. */
+DECLARE @governanceScopeTable sysname =
+    CASE
+        WHEN OBJECT_ID(N'dbo.Reviews', N'U') IS NOT NULL THEN N'dbo.Reviews'
+        WHEN OBJECT_ID(N'dbo.Runs', N'U') IS NOT NULL THEN N'dbo.Runs'
+    END;
+
+IF @governanceScopeTable IS NOT NULL
+   AND COL_LENGTH(@governanceScopeTable, N'GovernanceScopeJson') IS NULL
+BEGIN
+    DECLARE @addGovernanceScopeSql NVARCHAR(MAX) =
+        N'ALTER TABLE ' + @governanceScopeTable + N' ADD GovernanceScopeJson NVARCHAR(MAX) NULL;';
+
+    EXEC sp_executesql @addGovernanceScopeSql;
+END
+
+IF @governanceScopeTable IS NOT NULL
+BEGIN
+    DECLARE @sealGovernanceScopeTriggerSql NVARCHAR(MAX) = N'
+CREATE OR ALTER TRIGGER dbo.TR_Runs_SealCommittedHeader
+ON ' + @governanceScopeTable + N'
+AFTER UPDATE
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    IF NOT EXISTS (SELECT 1 FROM inserted)
+        RETURN;
+
+    IF EXISTS (
+        SELECT 1
+        FROM inserted AS i
+        INNER JOIN deleted AS d ON d.RunId = i.RunId
+        WHERE d.GoldenManifestId IS NOT NULL
+          AND (
+              EXISTS (SELECT i.RunId EXCEPT SELECT d.RunId)
+              OR EXISTS (SELECT i.ProjectId EXCEPT SELECT d.ProjectId)
+              OR EXISTS (SELECT i.TenantId EXCEPT SELECT d.TenantId)
+              OR EXISTS (SELECT i.WorkspaceId EXCEPT SELECT d.WorkspaceId)
+              OR EXISTS (SELECT i.ScopeProjectId EXCEPT SELECT d.ScopeProjectId)
+              OR EXISTS (SELECT i.CreatedUtc EXCEPT SELECT d.CreatedUtc)
+              OR EXISTS (SELECT i.ContextSnapshotId EXCEPT SELECT d.ContextSnapshotId)
+              OR EXISTS (SELECT i.GraphSnapshotId EXCEPT SELECT d.GraphSnapshotId)
+              OR EXISTS (SELECT i.FindingsSnapshotId EXCEPT SELECT d.FindingsSnapshotId)
+              OR EXISTS (SELECT i.GoldenManifestId EXCEPT SELECT d.GoldenManifestId)
+              OR EXISTS (SELECT i.DecisionTraceId EXCEPT SELECT d.DecisionTraceId)
+              OR EXISTS (SELECT i.ArtifactBundleId EXCEPT SELECT d.ArtifactBundleId)
+              OR EXISTS (SELECT i.CurrentManifestVersion EXCEPT SELECT d.CurrentManifestVersion)
+              OR EXISTS (SELECT i.StructuralExecutionMode EXCEPT SELECT d.StructuralExecutionMode)
+              OR EXISTS (SELECT i.OtelTraceId EXCEPT SELECT d.OtelTraceId)
+              OR EXISTS (SELECT i.EngineProvenanceJson EXCEPT SELECT d.EngineProvenanceJson)
+              OR EXISTS (SELECT i.GovernanceScopeJson EXCEPT SELECT d.GovernanceScopeJson)
+          ))
+    BEGIN
+        THROW 50310, N''Committed run header evidence anchors are immutable (TB-310).'', 1;
+    END;
+END;';
+
+    EXEC sp_executesql @sealGovernanceScopeTriggerSql;
+END
+
+GO
+
 /* 297: Tenant catalog migration fan-out state (TB-2045–TB-2047). */
 IF OBJECT_ID(N'dbo.TenantCatalogMigrations', N'U') IS NULL
 BEGIN
@@ -8427,4 +8487,81 @@ BEGIN
             InputUsdPerMillionTokens DECIMAL(18, 6) NULL,
             OutputUsdPerMillionTokens DECIMAL(18, 6) NULL,
             ReasoningUsdPerMillionTokens DECIMAL(18, 6) NULL;
+END;
+
+GO
+
+-- TB-2373: architecture posture pillar taxonomy — finding QualityDimension + pillar catalogs.
+IF OBJECT_ID(N'dbo.FindingRecords', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.FindingRecords', N'QualityDimension') IS NULL
+BEGIN
+    ALTER TABLE dbo.FindingRecords
+        ADD QualityDimension NVARCHAR(64) NULL;
+END;
+
+GO
+
+IF OBJECT_ID(N'dbo.FindingRecords', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.FindingRecords', N'QualityDimension') IS NOT NULL
+   AND NOT EXISTS (
+       SELECT 1 FROM sys.indexes
+       WHERE name = N'IX_FindingRecords_Scope_QualityDimension_Severity'
+         AND object_id = OBJECT_ID(N'dbo.FindingRecords'))
+BEGIN
+    CREATE NONCLUSTERED INDEX IX_FindingRecords_Scope_QualityDimension_Severity
+        ON dbo.FindingRecords (TenantId, WorkspaceId, ProjectId, QualityDimension, Severity)
+        INCLUDE (FindingId);
+END;
+
+GO
+
+IF OBJECT_ID(N'dbo.PillarCatalog', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.PillarCatalog
+    (
+        PillarKey              NVARCHAR(64)  NOT NULL PRIMARY KEY,
+        DisplayName            NVARCHAR(128) NOT NULL,
+        DisplayOrder           INT           NOT NULL,
+        IsReviewIntegrityAxis  BIT           NOT NULL CONSTRAINT DF_PillarCatalog_IsReviewIntegrityAxis DEFAULT (0)
+    );
+END;
+
+GO
+
+IF OBJECT_ID(N'dbo.PillarCategoryMap', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.PillarCategoryMap
+    (
+        SourceCategory     NVARCHAR(200) NOT NULL PRIMARY KEY,
+        PillarKey          NVARCHAR(64)  NULL,
+        IsReviewIntegrity  BIT           NOT NULL CONSTRAINT DF_PillarCategoryMap_IsReviewIntegrity DEFAULT (0),
+        CONSTRAINT FK_PillarCategoryMap_PillarCatalog
+            FOREIGN KEY (PillarKey) REFERENCES dbo.PillarCatalog (PillarKey)
+    );
+END;
+
+GO
+
+IF OBJECT_ID(N'dbo.PolicyPacks', N'U') IS NOT NULL
+   AND EXISTS (SELECT 1 FROM sys.check_constraints WHERE name = N'CK_PolicyPacks_QualityDimension')
+BEGIN
+    ALTER TABLE dbo.PolicyPacks DROP CONSTRAINT CK_PolicyPacks_QualityDimension;
+END;
+
+GO
+
+IF OBJECT_ID(N'dbo.PolicyPacks', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.PolicyPacks', N'QualityDimension') IS NOT NULL
+   AND NOT EXISTS (SELECT 1 FROM sys.check_constraints WHERE name = N'CK_PolicyPacks_QualityDimension')
+BEGIN
+    ALTER TABLE dbo.PolicyPacks
+        ADD CONSTRAINT CK_PolicyPacks_QualityDimension CHECK (
+            QualityDimension IS NULL OR QualityDimension IN (
+                N'Security',
+                N'ReliabilityAndResilience',
+                N'CostEffectiveness',
+                N'PerformanceAndScalability',
+                N'OperationalExcellence',
+                N'DataAndCompliance',
+                N'SustainabilityAndResourceEfficiency'));
 END;

@@ -23,6 +23,7 @@ public static class TenantSchemaSentinelManifest
                 new SchemaSentinelColumn { ColumnName = "RunId", SqlDataType = "uniqueidentifier" },
                 new SchemaSentinelColumn { ColumnName = "TenantId", SqlDataType = "uniqueidentifier" },
                 new SchemaSentinelColumn { ColumnName = "PackageOrigin", SqlDataType = "nvarchar" },
+                new SchemaSentinelColumn { ColumnName = "GovernanceScopeJson", SqlDataType = "nvarchar" },
             ],
         },
         new SchemaSentinelExpectation
