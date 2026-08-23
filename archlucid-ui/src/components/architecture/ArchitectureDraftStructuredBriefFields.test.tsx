@@ -43,7 +43,7 @@ function StructuredBriefHarness(props: {
 }
 
 describe("ArchitectureDraftStructuredBriefFields", () => {
-  it("shows suggested chips after a successful suggest call", async () => {
+  it("shows suggested items after a successful suggest call", async () => {
     mockedDraftArchitectureRequest.mockResolvedValue({
       suggestedConstraints: ["EU data residency"],
       suggestedAssumptions: ["Single-region pilot"],
@@ -69,6 +69,72 @@ describe("ArchitectureDraftStructuredBriefFields", () => {
       freeTextDescription:
         "Architecture overview:\nTenant migration platform with private networking and EU residency goals.",
     });
+  });
+
+  it("shows vertically stacked suggestions with confirm and deny actions", async () => {
+    mockedDraftArchitectureRequest.mockResolvedValue({
+      suggestedConstraints: ["EU data residency"],
+      suggestedAssumptions: [],
+      suggestedCapabilities: [],
+      topologyHints: [],
+      securityBaselineHints: [],
+    });
+
+    render(
+      <StructuredBriefHarness freeTextIntent={"Tenant migration platform with private networking and EU residency goals."} />,
+    );
+
+    fireEvent.click(screen.getByTestId("architecture-draft-suggest-structured-brief"));
+
+    const suggestion = await screen.findByTestId("architecture-draft-constraints-suggestion");
+    expect(within(suggestion).getByText("EU data residency")).toBeInTheDocument();
+    expect(within(suggestion).getByRole("button", { name: "Confirm" })).toBeInTheDocument();
+    expect(within(suggestion).getByRole("button", { name: "Deny" })).toBeInTheDocument();
+    expect(screen.queryByText("Suggested", { selector: "span" })).not.toBeInTheDocument();
+  });
+
+  it("removes a suggestion when denied", async () => {
+    mockedDraftArchitectureRequest.mockResolvedValue({
+      suggestedConstraints: ["EU data residency"],
+      suggestedAssumptions: [],
+      suggestedCapabilities: [],
+      topologyHints: [],
+      securityBaselineHints: [],
+    });
+
+    render(
+      <StructuredBriefHarness freeTextIntent={"Tenant migration platform with private networking and EU residency goals."} />,
+    );
+
+    fireEvent.click(screen.getByTestId("architecture-draft-suggest-structured-brief"));
+
+    const suggestion = await screen.findByTestId("architecture-draft-constraints-suggestion");
+    fireEvent.click(within(suggestion).getByRole("button", { name: "Deny" }));
+
+    expect(screen.queryByTestId("architecture-draft-constraints-suggestion")).not.toBeInTheDocument();
+    expect(screen.queryByText("EU data residency")).not.toBeInTheDocument();
+  });
+
+  it("moves a suggestion into confirmed items when confirmed", async () => {
+    mockedDraftArchitectureRequest.mockResolvedValue({
+      suggestedConstraints: ["EU data residency"],
+      suggestedAssumptions: [],
+      suggestedCapabilities: [],
+      topologyHints: [],
+      securityBaselineHints: [],
+    });
+
+    render(
+      <StructuredBriefHarness freeTextIntent={"Tenant migration platform with private networking and EU residency goals."} />,
+    );
+
+    fireEvent.click(screen.getByTestId("architecture-draft-suggest-structured-brief"));
+
+    const suggestion = await screen.findByTestId("architecture-draft-constraints-suggestion");
+    fireEvent.click(within(suggestion).getByRole("button", { name: "Confirm" }));
+
+    expect(screen.queryByTestId("architecture-draft-constraints-suggestion")).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Remove EU data residency" })).toBeInTheDocument();
   });
 
   it("falls back to deterministic suggestions when the API returns no new suggestions", async () => {

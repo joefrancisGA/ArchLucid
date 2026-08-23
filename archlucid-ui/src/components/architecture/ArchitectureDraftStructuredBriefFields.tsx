@@ -32,7 +32,7 @@ import {
   hasArchitectureContextForFailureModeSuggestion,
   resolveFailureModeSuggestion,
 } from "@/lib/architecture/architecture-draft-structured-brief-suggestions";
-import { OPERATOR_FORM_FIELD_LABEL_CLASS, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_FORM_FIELD_LABEL_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   GUIDED_INTAKE_STRUCTURED_BRIEF_FAILURE_MODE_HINT,
   GUIDED_INTAKE_STRUCTURED_BRIEF_FAILURE_MODE_LABEL,
@@ -48,9 +48,12 @@ import {
   GUIDED_INTAKE_STRUCTURED_BRIEF_QUALITY_ATTRIBUTES_PLACEHOLDER,
   GUIDED_INTAKE_STRUCTURED_BRIEF_REQUIRED_CAPABILITIES_HINT,
   GUIDED_INTAKE_STRUCTURED_BRIEF_REQUIRED_CAPABILITIES_LABEL,
+  GUIDED_INTAKE_CONFIRM_ACTOR_BUTTON,
+  GUIDED_INTAKE_DENY_SUGGESTION_BUTTON,
   GUIDED_INTAKE_STRUCTURED_BRIEF_SECTION_LABEL,
   GUIDED_INTAKE_STRUCTURED_BRIEF_SUGGEST_EMPTY,
   GUIDED_INTAKE_STRUCTURED_BRIEF_SUGGEST_EDITOR_LOCKED_HINT,
+  GUIDED_INTAKE_STRUCTURED_BRIEF_SUGGEST_HEADING,
   guidedIntakeStructuredBriefSuggestDisabledHint,
   guidedIntakeStructuredBriefSuggestSuccess,
 } from "@/lib/guided-intake-copy";
@@ -99,6 +102,17 @@ function confirmSuggestedListItem(
   onStructuredBriefChange((current) => ({
     ...current,
     [confirmedKey]: mergeExclusiveConfirmedItem(current[confirmedKey], value),
+    [suggestedKey]: current[suggestedKey].filter((item) => item !== value),
+  }));
+}
+
+function denySuggestedListItem(
+  onStructuredBriefChange: Dispatch<SetStateAction<ArchitectureDraftStructuredBriefState>>,
+  suggestedKey: SuggestedFieldKey,
+  value: string,
+): void {
+  onStructuredBriefChange((current) => ({
+    ...current,
     [suggestedKey]: current[suggestedKey].filter((item) => item !== value),
   }));
 }
@@ -221,6 +235,7 @@ function ConfirmableChipList(props: {
   readonly onAdd: (value: string) => void;
   readonly onRemove: (index: number) => void;
   readonly onConfirmSuggested: (value: string) => void;
+  readonly onDenySuggested: (value: string) => void;
 }): React.JSX.Element {
   const [draft, setDraft] = useState("");
   const isRequired = props.required !== false;
@@ -285,36 +300,44 @@ function ConfirmableChipList(props: {
         </Button>
       </div>
       {props.suggestedItems.length > 0 ? (
-        <div className="space-y-1">
+        <div className="space-y-2">
           <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper, "text-neutral-600 dark:text-neutral-400")}>
-            Suggested — confirm before review uses them.
+            {GUIDED_INTAKE_STRUCTURED_BRIEF_SUGGEST_HEADING}
           </p>
-          <ul className="flex list-none flex-wrap gap-2 p-0">
+          <ul className="m-0 list-none space-y-2 p-0">
             {props.suggestedItems.map((item) => (
-              <li key={`suggested-${props.inputId}-${item}`}>
-                <Badge variant="outline" className="gap-1 py-1 pl-2 pr-1 font-normal">
-                  <span className="max-w-[240px] truncate">{item}</span>
-                  <span
-                    className={cn(
-                      "rounded bg-violet-100 px-1 font-semibold uppercase tracking-wide text-violet-900 dark:bg-violet-950 dark:text-violet-100",
-                      OPERATOR_NAV_GROUP_LABEL,
-                    )}
-                  >
-                    Suggested
-                  </span>
+              <li
+                key={`suggested-${props.inputId}-${item}`}
+                className="space-y-2 rounded-md border border-neutral-200 p-3 dark:border-neutral-700"
+                data-testid={`${props.inputId}-suggestion`}
+              >
+                <p className={cn("m-0 text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
+                  {item}
+                </p>
+                <div className="flex flex-wrap gap-2">
                   <Button
                     type="button"
                     variant="outline"
                     size="sm"
-                    className="h-6 px-1"
+                    disabled={props.disabled}
+                    onClick={() => {
+                      props.onDenySuggested(item);
+                    }}
+                  >
+                    {GUIDED_INTAKE_DENY_SUGGESTION_BUTTON}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
                     disabled={props.disabled}
                     onClick={() => {
                       props.onConfirmSuggested(item);
                     }}
                   >
-                    Confirm
+                    {GUIDED_INTAKE_CONFIRM_ACTOR_BUTTON}
                   </Button>
-                </Badge>
+                </div>
               </li>
             ))}
           </ul>
@@ -404,6 +427,10 @@ export function ArchitectureDraftStructuredBriefFields(
     value: string,
   ) => {
     confirmSuggestedListItem(props.onStructuredBriefChange, confirmedKey, suggestedKey, value);
+  };
+
+  const denySuggested = (suggestedKey: SuggestedFieldKey, value: string) => {
+    denySuggestedListItem(props.onStructuredBriefChange, suggestedKey, value);
   };
 
   async function onSuggestFromOverview(): Promise<void> {
@@ -702,6 +729,9 @@ export function ArchitectureDraftStructuredBriefFields(
         onConfirmSuggested={(value) => {
           confirmSuggested("confirmedConstraints", "suggestedConstraints", value);
         }}
+        onDenySuggested={(value) => {
+          denySuggested("suggestedConstraints", value);
+        }}
       />
 
       <ConfirmableChipList
@@ -726,6 +756,9 @@ export function ArchitectureDraftStructuredBriefFields(
         }}
         onConfirmSuggested={(value) => {
           confirmSuggested("confirmedAssumptions", "suggestedAssumptions", value);
+        }}
+        onDenySuggested={(value) => {
+          denySuggested("suggestedAssumptions", value);
         }}
       />
 
@@ -754,6 +787,9 @@ export function ArchitectureDraftStructuredBriefFields(
         }}
         onConfirmSuggested={(value) => {
           confirmSuggested("confirmedRequiredCapabilities", "suggestedRequiredCapabilities", value);
+        }}
+        onDenySuggested={(value) => {
+          denySuggested("suggestedRequiredCapabilities", value);
         }}
       />
 
@@ -789,6 +825,7 @@ export function ArchitectureDraftStructuredBriefFields(
           }));
         }}
         onConfirmSuggested={() => undefined}
+        onDenySuggested={() => undefined}
       />
 
       <IntakeTextField

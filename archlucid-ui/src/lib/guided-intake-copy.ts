@@ -104,6 +104,11 @@ export const GUIDED_INTAKE_CREATION_SUGGEST_ACTORS_BUTTON = "Suggest from archit
 export const GUIDED_INTAKE_CREATION_SUGGEST_ACTORS_DISABLED_HINT =
   "Enter an architecture overview to generate suggestions.";
 
+export const GUIDED_INTAKE_STRUCTURED_BRIEF_SUGGEST_HEADING =
+  "Suggested — confirm before review uses them.";
+
+export const GUIDED_INTAKE_DENY_SUGGESTION_BUTTON = "Deny";
+
 export const GUIDED_INTAKE_STRUCTURED_BRIEF_SUGGEST_EMPTY =
   "No new suggestions were returned. Add constraints and assumptions manually, or refine the architecture overview and try again.";
 
