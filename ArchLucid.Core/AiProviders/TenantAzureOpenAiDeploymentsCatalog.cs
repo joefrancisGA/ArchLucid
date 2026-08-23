@@ -51,7 +51,10 @@ public static class TenantAzureOpenAiDeploymentsCatalog
                 }
             }
 
-            deployments = parsed;
+            deployments = parsed.ToDictionary(
+                static pair => pair.Key,
+                static pair => pair.Value,
+                StringComparer.OrdinalIgnoreCase);
 
             return true;
         }
