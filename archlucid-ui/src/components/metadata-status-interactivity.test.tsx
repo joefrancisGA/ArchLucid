@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { FilterChip } from "@/components/ui/filter-chip";
 import { SeverityTag } from "@/components/ui/severity-tag";
 import { StatusTag } from "@/components/StatusTag";
-import { StatusPill } from "@/components/StatusPill";
 import { DemoDataBadge } from "@/components/usability/DemoDataBadge";
 import { METADATA_STATUS_TAG_SHELL } from "@/lib/design-tokens";
 
@@ -47,7 +46,7 @@ describe("metadata status labels", () => {
       <>
         <StatusTag kind="ready" label="Ready" />
         <StatusTag kind="needs-attention" label="Needs attention" />
-        <StatusPill status="Pending" domain="pipeline" />
+        <StatusTag kind="in-progress" label="Pending" />
       </>,
     );
 
@@ -60,10 +59,10 @@ describe("metadata status labels", () => {
     }
   });
 
-  it("renders StatusPill Finalized and Sample demo badge as noninteractive spans", () => {
+  it("renders StatusTag Finalized and Sample demo badge as noninteractive spans", () => {
     render(
       <>
-        <StatusPill status="Finalized" domain="pipeline" />
+        <StatusTag kind="ready" label="Finalized" />
         <DemoDataBadge />
       </>,
     );

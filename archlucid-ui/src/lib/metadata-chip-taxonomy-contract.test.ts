@@ -19,13 +19,9 @@ describe("metadata chip taxonomy contract (TB-2284)", () => {
     expect(designSystem).toContain("**TB-2277**");
   });
 
-  it("marks StatusPill deprecated in source", () => {
-    const statusPill = readFileSync(
-      join(process.cwd(), "src", "components", "StatusPill.tsx"),
-      "utf8",
-    );
-
-    expect(statusPill).toContain("@deprecated TB-2284");
-    expect(statusPill).toContain("StatusTag");
+  it("removed deprecated StatusPill component from source", () => {
+    expect(() =>
+      readFileSync(join(process.cwd(), "src", "components", "StatusPill.tsx"), "utf8"),
+    ).toThrow();
   });
 });

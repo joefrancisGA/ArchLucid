@@ -18,7 +18,6 @@ const EXCLUDED_RELATIVE_PATHS = new Set([
   "src/lib/status-pill-drift-source-patterns.ts",
   "src/lib/status-pill-migration-inventory.ts",
   "src/lib/status-pill-domain-classes.ts",
-  "src/components/StatusPill.tsx",
   "src/lib/design-tokens.ts",
 ]);
 
