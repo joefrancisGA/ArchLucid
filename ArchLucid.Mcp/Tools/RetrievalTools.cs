@@ -36,13 +36,16 @@ public sealed class RetrievalTools(IRetrievalQueryService queryService)
         if (request.TenantId == Guid.Empty)
             throw new ArgumentException("TenantId is required.", nameof(request));
 
+        int requestedTopK = Math.Clamp(request.TopK, 1, 25);
+        int searchTopK = request.CorpusKindFilter.HasValue ? 25 : requestedTopK;
+
         RetrievalQuery query = new()
         {
             TenantId = request.TenantId,
             WorkspaceId = request.WorkspaceId,
             ProjectId = request.ProjectId,
             QueryText = request.QueryText,
-            TopK = Math.Clamp(request.TopK, 1, 25),
+            TopK = searchTopK,
             IncludePlatformCorpora = request.IncludePlatformCorpora
         };
 
@@ -59,6 +62,7 @@ public sealed class RetrievalTools(IRetrievalQueryService queryService)
         }
 
         return filtered
+            .Take(requestedTopK)
             .Select(static h => new RetrievalMcpToolHit
             {
                 DocumentId = h.DocumentId,

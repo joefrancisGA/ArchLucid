@@ -1864,24 +1864,25 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ## Zone: capabilities-cost-mcp
 
 - **id:** capabilities-cost-mcp
-- **status:** unseeded
+- **status:** open
 - **impact:** medium
 - **aliases:** capabilities cost; MCP server; cost estimation
 - **paths:** ArchLucid.Capabilities.Cost/; ArchLucid.Mcp/
 - **test-filter:** FullyQualifiedName~Capabilities.Cost|FullyQualifiedName~Mcp
-- **hunts:** 0
-- **bugs-found:** 0
+- **hunts:** 1
+- **bugs-found:** 1
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **last-hunt:** 2026-08-23
+- **last-bug:** 2026-08-23
 - **related-pd-tb:** none
-- **code-changed-since:** unknown
+- **code-changed-since:** no
 
 ### Hypotheses
 
-- [ ] (candidate) Cost estimate uses list price when tenant has a negotiated discount
-- [ ] (candidate) MCP tool invocation lacks tenant scope binding
-- [ ] (candidate) Cost module returns zero for an unknown SKU instead of failing closed
+- [x] (invalid) Cost estimate uses list price when tenant has a negotiated discount — zone paths surface graph cost findings and MCP retrieval only; no negotiated-discount or list-price estimation logic exists here.
+- [x] (invalid) MCP tool invocation lacks tenant scope binding — `McpRetrievalToolsController.SearchAsync` binds `TenantId`/`WorkspaceId`/`ProjectId` from `IScopeContextProvider`; `RetrievalTools` rejects `Guid.Empty` tenant.
+- [x] (invalid) Cost module returns zero for an unknown SKU instead of failing closed — `ArchLucid.Capabilities.Cost` has no SKU lookup; `PriceRowLookupAsync` returns retrieval hits (empty when none), not a zero cost.
+- [x] (proven) `RetrievalTools.SearchAsync` applies `CorpusKindFilter` after a TopK-limited search, dropping corpus-specific hits ranked below the search cap — **hit 2026-08-23 hunt #28:** `PriceRowLookupAsync` with `TopK=3` returned empty when the sole `AzureRetailPrice` hit ranked 13th; fixed by over-fetching to the 25-hit cap before post-filtering and then taking the requested TopK.
 
 ---
 
