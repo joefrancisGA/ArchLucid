@@ -71,3 +71,4 @@
 {"at":"2026-08-23T08:23:27.0247628Z","zoneId":"capabilities-cost-mcp","outcome":"hit"}
 {"at":"2026-08-23T08:30:09.3951597Z","zoneId":"ui-webhooks-settings","outcome":"hit"}
 {"at":"2026-08-23T08:38:29.0765582Z","zoneId":"auth-return-path","outcome":"hit"}
+{"at":"2026-08-23T08:47:31.7936979Z","zoneId":"application-agents","outcome":"hit"}

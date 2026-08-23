@@ -41,6 +41,28 @@ public sealed class ReviewRunEngineProvenanceAggregatorTests
     }
 
     [Fact]
+    public void Aggregate_reasoning_only_traces_include_reasoning_tokens_in_output_total()
+    {
+        RunRecord run = BuildRun(StructuralExecutionMode.Real);
+        AgentEvidencePackage evidence = BuildEvidence(includePolicies: false);
+        List<AgentExecutionTrace> traces =
+        [
+            BuildTrace("o1-preview", reasoningTokens: 300),
+        ];
+
+        ReviewRunEngineProvenance provenance = ReviewRunEngineProvenanceAggregator.Aggregate(
+            traces,
+            evidence,
+            run,
+            findingsSnapshot: null,
+            CreateCostEstimator());
+
+        provenance.TotalInputTokens.Should().BeNull();
+        provenance.TotalOutputTokens.Should().Be(300);
+        provenance.EstimatedCostUsd.Should().NotBeNull();
+    }
+
+    [Fact]
     public void Aggregate_azure_traces_produce_azure_openai_provider_kind_and_token_totals()
     {
         RunRecord run = BuildRun(StructuralExecutionMode.Real);
@@ -101,7 +123,8 @@ public sealed class ReviewRunEngineProvenanceAggregatorTests
         string deploymentName,
         string? promptReleaseLabel = null,
         int? inputTokens = null,
-        int? outputTokens = null)
+        int? outputTokens = null,
+        int? reasoningTokens = null)
     {
         return new AgentExecutionTrace
         {
@@ -109,6 +132,7 @@ public sealed class ReviewRunEngineProvenanceAggregatorTests
             PromptReleaseLabel = promptReleaseLabel,
             InputTokenCount = inputTokens,
             OutputTokenCount = outputTokens,
+            ReasoningTokenCount = reasoningTokens,
         };
     }
 
@@ -117,8 +141,8 @@ public sealed class ReviewRunEngineProvenanceAggregatorTests
         Mock<ILlmCostEstimator> estimator = new();
         estimator
             .Setup(e => e.EstimateUsd(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string?>(), It.IsAny<string?>()))
-            .Returns<int, int, int, string?, string?>((input, output, _, _, _) =>
-                input * 0.00001m + output * 0.00002m);
+            .Returns<int, int, int, string?, string?>((input, output, reasoning, _, _) =>
+                input * 0.00001m + output * 0.00002m + reasoning * 0.00003m);
 
         return estimator.Object;
     }
