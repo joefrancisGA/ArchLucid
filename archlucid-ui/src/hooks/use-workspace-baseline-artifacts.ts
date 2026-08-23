@@ -2,16 +2,17 @@
 
 import { useCallback, useEffect, useState } from "react";
 
+import { apiGet } from "@/lib/api/http";
 import { AUTH_MODE } from "@/lib/auth-config";
 import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { isJwtAuthMode } from "@/lib/oidc/config";
 import { isLikelySignedIn } from "@/lib/oidc/session";
-import { tryParseJsonResponseText } from "@/lib/parse-json-response-text";
-import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
+import type { components } from "@/lib/api-types.generated";
 
-type TenantWorkspaceBaselineArtifactsPayload = {
-  hasBaselineArtifacts?: unknown;
-};
+type TenantWorkspaceBaselineArtifactsPayload = Pick<
+  components["schemas"]["TenantWorkspaceBaselineArtifactsResponse"],
+  "hasBaselineArtifacts"
+>;
 
 /** Loads `/v1/tenant/workspace-baseline-artifacts` for sponsor dashboard baseline ZIP nudges. */
 
@@ -41,22 +42,9 @@ export function useWorkspaceBaselineArtifactsPresence(): {
     setLoading(true);
 
     try {
-      const headers = mergeRegistrationScopeForProxy({ headers: { Accept: "application/json" } });
-      const res = await fetch("/api/proxy/v1/tenant/workspace-baseline-artifacts", headers);
-
-      if (!res.ok) {
-        setHasBaselineArtifacts(null);
-
-        return;
-      }
-
-      const json = tryParseJsonResponseText<TenantWorkspaceBaselineArtifactsPayload>(await res.text());
-
-      if (json === null) {
-        setHasBaselineArtifacts(null);
-
-        return;
-      }
+      const json = await apiGet<TenantWorkspaceBaselineArtifactsPayload>(
+        "/v1/tenant/workspace-baseline-artifacts",
+      );
 
       setHasBaselineArtifacts(json.hasBaselineArtifacts === true);
     } catch {
