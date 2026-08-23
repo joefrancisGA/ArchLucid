@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState, type ReactElement } from "react";
 
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { TrialFunnelEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
 import { TrialFunnelDemoReadinessVocabularyRail } from "@/components/trial/TrialFunnelDemoReadinessVocabularyRail";
@@ -285,7 +286,7 @@ export function TrialFunnelOpsPageClient(): ReactElement {
   const timing = data?.timing;
 
   return (
-    <div className={cn("w-full max-w-[1440px]", OPERATOR_LAYOUT.sectionStack)} data-testid="trial-funnel-ops-page">
+    <OperatorPageContainer variant="dashboard" className={OPERATOR_LAYOUT.sectionStack} data-testid="trial-funnel-ops-page">
       <OperatorPageHeader
         navHref={INTERNAL_TRIAL_FUNNEL_PATH}
         title="Trial funnel"
@@ -633,6 +634,6 @@ export function TrialFunnelOpsPageClient(): ReactElement {
           </p>
         </CardContent>
       </Card>
-    </div>
+    </OperatorPageContainer>
   );
 }

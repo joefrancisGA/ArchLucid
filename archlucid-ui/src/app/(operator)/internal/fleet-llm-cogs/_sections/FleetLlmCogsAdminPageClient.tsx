@@ -17,6 +17,7 @@ import {
 import { EnterpriseTableSkeletonRows } from "@/components/ui/enterprise-table-skeleton-rows";
 import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
 import { FleetLlmCogsEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { OperatorSectionLoadFailure } from "@/components/operator/OperatorSectionLoadFailure";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
@@ -68,7 +69,7 @@ export function FleetLlmCogsAdminPageClient() {
   }
 
   return (
-    <div className={cn("w-full max-w-[1440px]", OPERATOR_LAYOUT.sectionStack)} data-testid="fleet-llm-cogs-page">
+    <OperatorPageContainer variant="dashboard" className={OPERATOR_LAYOUT.sectionStack} data-testid="fleet-llm-cogs-page">
       <OperatorPageHeader
         navHref={INTERNAL_FLEET_LLM_COGS_PATH}
         headingLevel="h1"
@@ -165,6 +166,6 @@ export function FleetLlmCogsAdminPageClient() {
           </EnterpriseTable>
         </CardContent>
       </Card>
-    </div>
+    </OperatorPageContainer>
   );
 }

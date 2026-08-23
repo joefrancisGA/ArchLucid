@@ -18,6 +18,7 @@ import {
 import { StatusTag } from "@/components/ui/status-tag";
 import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { AdminTenantsEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
 import { INTERNAL_TENANTS_PATH } from "@/lib/internal-ops-route-paths";
@@ -223,7 +224,7 @@ export function AdminTenantsPageClient() {
   }
 
   return (
-    <div className={cn("w-full max-w-[1440px]", OPERATOR_LAYOUT.sectionStack)} data-testid="admin-tenants-page">
+    <OperatorPageContainer variant="dashboard" className={OPERATOR_LAYOUT.sectionStack} data-testid="admin-tenants-page">
       <OperatorPageHeader
         navHref={INTERNAL_TENANTS_PATH}
         title="Tenants"
@@ -424,6 +425,6 @@ export function AdminTenantsPageClient() {
           void confirmPendingTenantAction();
         }}
       />
-    </div>
+    </OperatorPageContainer>
   );
 }

@@ -16,6 +16,7 @@ import {
 import { EnterpriseTableSkeletonRows } from "@/components/ui/enterprise-table-skeleton-rows";
 import { SeverityTag } from "@/components/ui/severity-tag";
 import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { TenantHealthEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
 import { OperatorSectionLoadFailure } from "@/components/operator/OperatorSectionLoadFailure";
@@ -91,7 +92,7 @@ export function TenantHealthAdminPageClient() {
   }
 
   return (
-    <div className={cn("w-full max-w-[1440px]", OPERATOR_LAYOUT.sectionStack)} data-testid="tenant-health-admin-page">
+    <OperatorPageContainer variant="dashboard" className={OPERATOR_LAYOUT.sectionStack} data-testid="tenant-health-admin-page">
       <OperatorPageHeader
         navHref={INTERNAL_TENANT_HEALTH_PATH}
         headingLevel="h1"
@@ -155,6 +156,6 @@ export function TenantHealthAdminPageClient() {
           ))}
         </EnterpriseTableBody>
       </EnterpriseTable>
-    </div>
+    </OperatorPageContainer>
   );
 }

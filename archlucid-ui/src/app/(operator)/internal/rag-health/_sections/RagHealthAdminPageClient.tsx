@@ -16,6 +16,7 @@ import {
 import { EnterpriseTableSkeletonRows } from "@/components/ui/enterprise-table-skeleton-rows";
 import { SeverityTag } from "@/components/ui/severity-tag";
 import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { OperatorSectionLoadFailure } from "@/components/operator/OperatorSectionLoadFailure";
 import { RagHealthSystemHealthVocabularyRail } from "@/components/RagHealthSystemHealthVocabularyRail";
@@ -84,7 +85,7 @@ export function RagHealthAdminPageClient() {
   }
 
   return (
-    <div className={cn("w-full max-w-[1440px]", OPERATOR_LAYOUT.sectionStack)} data-testid="rag-health-admin-page">
+    <OperatorPageContainer variant="dashboard" className={OPERATOR_LAYOUT.sectionStack} data-testid="rag-health-admin-page">
       <OperatorPageHeader
         navHref={INTERNAL_RAG_HEALTH_PATH}
         headingLevel="h1"
@@ -148,6 +149,6 @@ export function RagHealthAdminPageClient() {
           ))}
         </EnterpriseTableBody>
       </EnterpriseTable>
-    </div>
+    </OperatorPageContainer>
   );
 }

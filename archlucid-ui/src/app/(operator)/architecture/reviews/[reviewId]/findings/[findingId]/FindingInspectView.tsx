@@ -7,6 +7,7 @@ import {
   OperatorEvidenceLimitsFooter,
   type OperatorEvidenceLimitsExecutionProps,
 } from "@/components/operator/OperatorEvidenceLimitsFooter";
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { GOVERNANCE_FINDINGS_PATH } from "@/lib/governance/governance-route-paths";
 import { CanonicalObjectSecondaryViewStrip } from "@/components/usability/CanonicalObjectSecondaryViewStrip";
@@ -87,7 +88,7 @@ export function FindingInspectView({
   if (failure || !payload) {
     if (buyerPolishedShell && failure) {
       return (
-        <div className="w-full max-w-[1440px] space-y-4 p-6">
+        <OperatorPageContainer variant="dashboard" className="space-y-4 p-6">
           <OperatorPageHeader
             navHref={GOVERNANCE_FINDINGS_PATH}
             title="Evidence trace"
@@ -101,25 +102,25 @@ export function FindingInspectView({
             buyerPolishedShell
             failure={failure}
           />
-        </div>
+        </OperatorPageContainer>
       );
     }
 
     return (
-      <div className="w-full max-w-[1440px] space-y-4 p-6">
+      <OperatorPageContainer variant="dashboard" className="space-y-4 p-6">
         <OperatorPageHeader navHref={GOVERNANCE_FINDINGS_PATH} title="Technical inspection" headingLevel="h1" />
         <FindingOptionalArtifactUnavailable
           heading="Evidence trace unavailable"
           body={failure?.message ?? "Finding inspector unavailable."}
           failure={failure}
         />
-      </div>
+      </OperatorPageContainer>
     );
   }
 
   if (!sameAuthorityRunId(payload.runId, runId)) {
     return (
-      <div className="w-full max-w-[1440px] space-y-4 p-6">
+      <OperatorPageContainer variant="dashboard" className="space-y-4 p-6">
         <p className={cn("text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
           {buyerPolishedShell
             ? "This finding belongs to a different review than the one in this URL."
@@ -137,13 +138,13 @@ export function FindingInspectView({
         >
           Open the correct evidence trace
         </Link>
-      </div>
+      </OperatorPageContainer>
     );
   }
 
   if (!findingIdsAlignForInspectRoute(decodedFindingId, payload.findingId)) {
     return (
-      <div className="w-full max-w-[1440px] space-y-4 p-6">
+      <OperatorPageContainer variant="dashboard" className="space-y-4 p-6">
         <p className={cn("text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
           This inspection payload corresponds to finding{" "}
           <span className="font-mono">{payload.findingId}</span>, not{" "}
@@ -155,7 +156,7 @@ export function FindingInspectView({
         >
           Open the evidence trace for finding {payload.findingId}
         </Link>
-      </div>
+      </OperatorPageContainer>
     );
   }
 
@@ -179,7 +180,7 @@ export function FindingInspectView({
   const findingJobView = payload !== null ? classifyInspectPayloadJobView(payload) : null;
 
   return (
-    <div className={cn("w-full max-w-[1440px] p-4", OPERATOR_LAYOUT.sectionStack)} data-testid="finding-inspect-view">
+    <OperatorPageContainer variant="dashboard" className={cn("p-4", OPERATOR_LAYOUT.sectionStack)} data-testid="finding-inspect-view">
       <CanonicalObjectSecondaryViewStrip
         presentation={evidenceTraceSecondaryViewPresentation}
         testId="evidence-trace-secondary-view-strip"
@@ -305,6 +306,6 @@ export function FindingInspectView({
           promptTemplateVersion: payload.promptTemplateVersion ?? null,
         }}
       />
-    </div>
+    </OperatorPageContainer>
   );
 }

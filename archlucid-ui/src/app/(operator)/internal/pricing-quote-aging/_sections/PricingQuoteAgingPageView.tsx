@@ -5,6 +5,7 @@ import { useCallback, useState } from "react";
 
 import { DemoWorkspaceCapabilityUnavailablePanel } from "@/components/DemoWorkspaceCapabilityUnavailablePanel";
 import { PricingQuoteAgingEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { Badge } from "@/components/ui/badge";
@@ -201,15 +202,15 @@ export function PricingQuoteAgingPageView(props: Props) {
 
   if (m.surface === "authority_loading") {
     return (
-      <div className={cn("w-full max-w-[1440px]", OPERATOR_LAYOUT.sectionStack)} data-testid="pricing-quote-aging-page">
+      <OperatorPageContainer variant="dashboard" className={OPERATOR_LAYOUT.sectionStack} data-testid="pricing-quote-aging-page">
         <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>Loading…</p>
-      </div>
+      </OperatorPageContainer>
     );
   }
 
   if (m.surface === "forbidden") {
     return (
-      <div className={cn("w-full max-w-[1440px]", OPERATOR_LAYOUT.sectionStack)} data-testid="pricing-quote-aging-page">
+      <OperatorPageContainer variant="dashboard" className={OPERATOR_LAYOUT.sectionStack} data-testid="pricing-quote-aging-page">
         <p
           className={cn("m-0 text-rose-800 dark:text-rose-200", OPERATOR_TYPOGRAPHY.body)}
           role="alert"
@@ -217,7 +218,7 @@ export function PricingQuoteAgingPageView(props: Props) {
         >
           Pricing quote follow-up is restricted to internal sales operations with tenant administrator access.
         </p>
-      </div>
+      </OperatorPageContainer>
     );
   }
 
@@ -228,7 +229,7 @@ export function PricingQuoteAgingPageView(props: Props) {
     m.lastRefreshedAt === null ? null : `Updated ${formatRelativeTime(m.lastRefreshedAt.toISOString())}`;
 
   return (
-    <div className={cn("w-full max-w-[1440px]", OPERATOR_LAYOUT.sectionStack)} data-testid="pricing-quote-aging-page">
+    <OperatorPageContainer variant="dashboard" className={OPERATOR_LAYOUT.sectionStack} data-testid="pricing-quote-aging-page">
       <OperatorPageHeader
         navHref={INTERNAL_PRICING_QUOTE_AGING_PATH}
         title="Pricing quote follow-up"
@@ -414,6 +415,6 @@ export function PricingQuoteAgingPageView(props: Props) {
           </dl>
         </CollapsibleSection>
       ) : null}
-    </div>
+    </OperatorPageContainer>
   );
 }

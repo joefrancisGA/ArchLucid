@@ -18,6 +18,7 @@ import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { ValueReportOutcomesNav } from "@/components/usability/ValueReportOutcomesNav";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { SPONSOR_REPORT_PATH } from "@/lib/sponsor-report-navigation";
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import { firstWhyDisabledCtaReason, type WhyDisabledCtaReason } from "@/lib/why-disabled-cta";
@@ -141,7 +142,7 @@ export function PilotValueReportPageView(props: Props) {
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
 
   return (
-    <div className="w-full max-w-[1440px] space-y-4 print:w-full" data-testid="pilot-outcomes-page">
+    <OperatorPageContainer variant="dashboard" className="space-y-4 print:w-full" data-testid="pilot-outcomes-page">
       <a
         href={`#${PILOT_OUTCOMES_PRIMARY_CONTENT_ID}`}
         className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
@@ -566,6 +567,6 @@ export function PilotValueReportPageView(props: Props) {
         onClose={m.closeEmailPreview}
         onConfirm={m.confirmSendEmail}
       />
-    </div>
+    </OperatorPageContainer>
   );
 }

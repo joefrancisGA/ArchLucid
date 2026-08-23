@@ -9,6 +9,7 @@ import { useNavCallerAuthorityRank } from "@/components/operator/OperatorNavAuth
 import { AiUsageBillingVocabularyRail } from "@/components/AiUsageBillingVocabularyRail";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { OperatorBillingSettingsEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { useTenantTrialStatusQuery } from "@/hooks/use-tenant-trial-status-query";
 import { useTenantUsageStatusQuery } from "@/hooks/use-tenant-usage-status-query";
@@ -76,7 +77,7 @@ export function OperatorBillingSettingsClient(props: { readonly initialPlanId?: 
     (subscriptionLoadState !== "pending" && !currentPlanView.hasPaidPlan);
 
   return (
-    <div className="w-full max-w-[1440px] space-y-4 p-4" data-testid="operator-billing-plans-page">
+    <OperatorPageContainer variant="dashboard" className="space-y-4 p-4" data-testid="operator-billing-plans-page">
       <OperatorPageHeader
         navHref="/administration/billing"
         title="Billing & plans"
@@ -118,6 +119,6 @@ export function OperatorBillingSettingsClient(props: { readonly initialPlanId?: 
         </Link>{" "}
         or contact sales for Enterprise packaging.
       </p>
-    </div>
+    </OperatorPageContainer>
   );
 }

@@ -7,6 +7,7 @@ import { DemoExplainConversionCtaCard } from "@/components/DemoExplainConversion
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { OperatorLoadingNotice } from "@/components/operator/OperatorShellMessage";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
@@ -34,8 +35,9 @@ export function DemoExplainPageView(props: Props) {
 
   return (
     <>
-      <div
-        className={cn("w-full max-w-[1440px] p-4 pb-28 md:pb-24", OPERATOR_LAYOUT.sectionStack)}
+      <OperatorPageContainer
+        variant="dashboard"
+        className={cn("p-4 pb-28 md:pb-24", OPERATOR_LAYOUT.sectionStack)}
         data-testid="demo-explain-page"
         aria-busy={state.loading}
       >
@@ -73,7 +75,7 @@ export function DemoExplainPageView(props: Props) {
       ) : !state.error && !state.notFound && !state.loading && state.payload ? (
         <DemoExplainIncompleteNotice onRetry={() => router.refresh()} />
       ) : null}
-      </div>
+      </OperatorPageContainer>
 
       {state.payload && state.payload.provenanceGraph && state.payload.runExplanation ? (
         <DemoExplainConversionCtaCard />

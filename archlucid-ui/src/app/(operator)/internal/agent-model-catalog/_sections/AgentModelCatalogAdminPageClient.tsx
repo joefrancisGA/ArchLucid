@@ -18,6 +18,7 @@ import {
 import { EnterpriseTableSkeletonRows } from "@/components/ui/enterprise-table-skeleton-rows";
 import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
 import { AgentModelCatalogEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { OperatorSectionLoadFailure } from "@/components/operator/OperatorSectionLoadFailure";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
@@ -108,7 +109,7 @@ export function AgentModelCatalogAdminPageClient() {
   }
 
   return (
-    <div className={cn("w-full max-w-[1440px]", OPERATOR_LAYOUT.sectionStack)} data-testid="agent-model-catalog-page">
+    <OperatorPageContainer variant="dashboard" className={OPERATOR_LAYOUT.sectionStack} data-testid="agent-model-catalog-page">
       <OperatorPageHeader
         navHref={INTERNAL_AGENT_MODEL_CATALOG_PATH}
         headingLevel="h1"
@@ -202,6 +203,6 @@ export function AgentModelCatalogAdminPageClient() {
           </EnterpriseTable>
         </CardContent>
       </Card>
-    </div>
+    </OperatorPageContainer>
   );
 }

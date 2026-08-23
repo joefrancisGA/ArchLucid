@@ -7,6 +7,7 @@ import { HelpLazyDetails } from "@/components/help/HelpLazyDetails";
 import { PlatformBundledPolicyPacksEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { OperatorSectionLoadFailure } from "@/components/operator/OperatorSectionLoadFailure";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
@@ -189,8 +190,9 @@ export function AdminPlatformBundledPolicyPacksPageClient() {
   }
 
   return (
-    <div
-      className={cn("w-full max-w-[1440px]", OPERATOR_LAYOUT.sectionStack)}
+    <OperatorPageContainer
+      variant="dashboard"
+      className={OPERATOR_LAYOUT.sectionStack}
       data-testid="admin-platform-bundled-policy-packs-page"
     >
       <OperatorPageHeader
@@ -439,6 +441,6 @@ export function AdminPlatformBundledPolicyPacksPageClient() {
           }}
         />
       ) : null}
-    </div>
+    </OperatorPageContainer>
   );
 }
