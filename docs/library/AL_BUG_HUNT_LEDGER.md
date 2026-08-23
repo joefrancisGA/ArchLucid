@@ -1427,8 +1427,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 4
-- **bugs-found:** 4
+- **hunts:** 6
+- **bugs-found:** 6
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-23
 - **last-bug:** 2026-08-23
@@ -1442,7 +1442,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) Tenant scope model treats empty workspace as a wildcard — `ActivityScopeTags` rejects `Guid.Empty` workspace ids; no wildcard semantics in Core tenancy models.
 - [x] (valid-no-repro) Configuration default enables a production-unsafe integration flag — ITSM/native and quick-scan defaults are gated by environment validators and hosted-SaaS overrides.
 - [x] (proven) Integration webhook simulate rejects governance approval and alert-acknowledged aliases — **hit 2026-08-21:** `ResolveEventType` switch omitted `GovernanceApprovalApproved`, `GovernanceApprovalRejected`, and `AlertAcknowledged` PascalCase/kebab aliases while sibling triggers were wired; CLI simulate-webhook threw for those event names.
-- [x] (proven) Governance approval submitted simulate-webhook payload uses wrong field names — **hit 2026-08-23:** `CreateGovernanceApprovalSubmitted` emitted `submittedBy` and omitted `requestedBy`, `manifestVersion`, and environment fields required by `governance-approval-submitted.v1.schema.json` and `GovernanceWorkflowService` publisher shape.
+- [x] (proven) Tenant Azure OpenAI deployment catalog lookup is case-sensitive on JSON tier keys — **hit 2026-08-23:** `TenantAzureOpenAiDeploymentsCatalog.TryParse` returned a case-sensitive dictionary so `ResolveDeploymentName` missed `Default` / mixed-case tier keys and fell back to the raw tier name instead of the configured deployment; regression in `TenantAzureOpenAiDeploymentsCatalogTests`.
+- [x] (proven) Governance promotion webhook sample omits `environment` and schema activation fields so Service Bus `promotion_environment` routing is never resolved — **hit 2026-08-23:** `CreateGovernancePromotionActivated` emitted `targetEnvironment` / `promotionRecordId` instead of the publisher contract (`environment`, `activationId`, `manifestVersion`, `activatedBy`, `activatedUtc`); regression in `GovernancePromotionActivated_webhook_sample_matches_schema_and_resolves_promotion_environment`
+- [x] (proven) `IntegrationWebhookPayloadSamples.ResolveEventType` ignores `IntegrationEventTypes.MapToCanonical` for legacy `com.archiforge.*` vendor aliases — **hit 2026-08-23:** Service Bus dispatch and outbox priority map legacy strings but CLI simulate-webhook threw before payload creation; regression in `ResolveEventType_maps_legacy_vendor_alias_before_known_set_lookup`
 
 ---
 
@@ -1786,11 +1788,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** operator shell routes; operator pages
 - **paths:** archlucid-ui/src/app/(operator)/
 - **test-filter:** operator
-- **hunts:** 3
-- **bugs-found:** 3
+- **hunts:** 5
+- **bugs-found:** 5
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-22
-- **last-bug:** 2026-08-22
+- **last-hunt:** 2026-08-23
+- **last-bug:** 2026-08-23
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
@@ -1801,6 +1803,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) Stale react-query cache shows the previous tenant after scope switch — `usePilotScorecardQuery` scope-less key is a real gap on `/insights/architecture-scorecard`, but not reproved this hunt; sponsor/scorecard cache invalidation remains open if scope-switch stale data is reported
 - [x] (invalid) Error boundary hides a 403 and renders an empty success state — no operator-route locus where a 403 is caught and replaced with empty success; compare/governance surfaces surface load failures explicitly
 - [x] (proven) Billing wallet GET/PUT `/api/proxy/v1/billing/wallet` omitted `mergeRegistrationScopeForProxy` — load/save hit proxy dev-default tenant instead of operator-selected scope (wallet settings appear not to stick after save) — fixed 2026-08-22 (`OperatorBillingWalletPanel.test.tsx`)
+- [x] (proven) Architecture intelligence `getJson`/`postJson` in `architecture-intelligence-client-api.ts` omitted `mergeRegistrationScopeForProxy` — product-run source-context load and reasoning POSTs hit proxy dev-default tenant instead of operator-selected scope (hydrated review context wrong or missing after scope switch) — fixed 2026-08-23 (`architecture-intelligence-client-api.test.tsx`)
+- [x] (proven) `AdminEvidenceProposalsPageClient` GET `/api/proxy/v1/admin/evidence/proposals` and POST promote omitted `mergeRegistrationScopeForProxy` — list/promote hit proxy dev-default tenant instead of operator-selected scope (wrong tenant proposals shown or promote lands on wrong catalog) — fixed 2026-08-23 (`AdminEvidenceProposalsPageClient.test.tsx`)
 
 ---
 
@@ -1812,11 +1816,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** marketing pages; pricing; trust center UI
 - **paths:** archlucid-ui/src/app/(marketing)/
 - **test-filter:** marketing
-- **hunts:** 2
-- **bugs-found:** 2
+- **hunts:** 3
+- **bugs-found:** 3
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-21
-- **last-bug:** 2026-08-21
+- **last-hunt:** 2026-08-23
+- **last-bug:** 2026-08-23
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
@@ -1826,6 +1830,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) Pricing page shows an internal-only plan tier to anonymous visitors — anonymous pricing loads public `loadPricingDoc()`; no internal tier leak found in seed read.
 - [x] (proven) Trust Center evidence pack ZIP href used raw `/v1/marketing/trust-center/evidence-pack.zip` instead of `/api/proxy/...` — Next.js has no rewrite; anonymous download links 404. Fixed `TRUST_CENTER_EVIDENCE_PACK_ZIP_HREF`; regression in `trust-center-marketing.test.ts`.
 - [x] (proven) Sponsor digest deep-link `mapResponse` defaulted `signInUrl` to `/auth/sign-in` (no route) when API omitted the field — workspace sign-in CTA on `/digest/sponsor` links 404 instead of `/auth/signin` — fixed 2026-08-21 (`exec-digest-sponsor-deep-link-server.test.ts`)
+- [x] (proven) Marketing showcase page used raw `decodeURIComponent(runId)` and `encodeURIComponent(runId)` for API fetch — malformed `%` segments throw `URIError` (500) and encoded run keys double-encode for `/v1/marketing/showcase/{runKey}` — fixed 2026-08-23 (`showcase-page.test.tsx`)
 
 ---
 
