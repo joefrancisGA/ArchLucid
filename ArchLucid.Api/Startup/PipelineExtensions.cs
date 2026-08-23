@@ -146,8 +146,8 @@ internal static class PipelineExtensions
         app.UseMiddleware<ScopeResolutionGuardMiddleware>();
         app.UseRateLimiter();
         app.UseMiddleware<ArchLucidRateLimitTelemetryHeadersMiddleware>();
-        app.UseMiddleware<TrialSeatReservationMiddleware>();
         app.UseMiddleware<TenantErasureQuarantineMiddleware>();
+        app.UseMiddleware<TrialSeatReservationMiddleware>();
         app.UseAuthorization();
         app.UseMiddleware<EmptyErrorResponseNormalizationMiddleware>();
         app.UseMiddleware<LlmTokenUsageResponseMiddleware>();

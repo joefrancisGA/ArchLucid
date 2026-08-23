@@ -69,14 +69,101 @@ public sealed class TenantErasureQuarantineMiddlewareRequestCacheTests
 
         RequestDelegate pipeline = async context =>
         {
-            TrialSeatReservationMiddleware trialSeat = new(
-                new TenantErasureQuarantineMiddleware(terminal).InvokeAsync);
-            await trialSeat.InvokeAsync(context);
+            TenantErasureQuarantineMiddleware quarantine =
+                new(new TrialSeatReservationMiddleware(terminal).InvokeAsync);
+            await quarantine.InvokeAsync(context);
         };
 
         await pipeline(http);
 
         http.Response.StatusCode.Should().Be(StatusCodes.Status200OK);
         tenants.Verify(repository => repository.GetByIdAsync(TenantId, It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task Pipeline_erasure_quarantine_runs_before_trial_seat_claim_for_offboarded_trial()
+    {
+        InMemoryTenantRepository tenants = new();
+        await tenants.InsertTenantAsync(
+            TenantId,
+            "Quarantine Trial",
+            "quarantine-trial",
+            TenantTier.Standard,
+            null,
+            TenantDataRegions.Default,
+            CancellationToken.None);
+
+        DateTimeOffset trialStart = new(2026, 8, 1, 12, 0, 0, TimeSpan.Zero);
+        await tenants.CommitSelfServiceTrialAsync(
+            TenantId,
+            trialStart,
+            trialStart.AddDays(14),
+            runsLimit: 10,
+            seatsLimit: 3,
+            sampleRunId: Guid.NewGuid(),
+            baselineReviewCycleHours: null,
+            baselineReviewCycleSource: null,
+            baselineReviewCycleCapturedUtc: null,
+            companySize: null,
+            architectureTeamSize: null,
+            industryVertical: null,
+            industryVerticalOther: null,
+            CancellationToken.None);
+
+        DateTimeOffset offboardedUtc = new(2026, 8, 20, 12, 0, 0, TimeSpan.Zero);
+        (await tenants.TryStartTenantErasureOffboardAsync(
+                TenantId,
+                offboardedUtc,
+                offboardedUtc.AddDays(30),
+                CancellationToken.None))
+            .Should()
+            .BeTrue();
+
+        TenantRecord before = (await tenants.GetByIdAsync(TenantId, CancellationToken.None))!;
+        before.TrialSeatsUsed.Should().Be(0);
+
+        DefaultHttpContext http = new()
+        {
+            Request = { Path = "/v1/runs" },
+            User = new ClaimsPrincipal(
+                new ClaimsIdentity(
+                    [
+                        new Claim("sub", "user-1"),
+                        new Claim("tenant_id", TenantId.ToString("D")),
+                    ],
+                    "Bearer")),
+            Response = { Body = new MemoryStream() },
+        };
+
+        ServiceCollection services = [];
+        services.AddMemoryCache();
+        services.AddSingleton<IHttpContextAccessor>(_ => new HttpContextAccessor { HttpContext = http });
+        services.AddSingleton<IScopeContextProvider, HttpScopeContextProvider>();
+        services.AddSingleton<ITenantRepository>(tenants);
+        services.AddSingleton<ITenantGetByIdRequestCache, TenantGetByIdRequestCache>();
+        services.AddSingleton<ITenantTrialSeatSkipCache, TenantTrialSeatSkipCache>();
+        services.AddSingleton<TrialSeatAccountant>();
+        services.AddSingleton(TimeProvider.System);
+        http.RequestServices = services.BuildServiceProvider();
+
+        RequestDelegate terminal = context =>
+        {
+            context.Response.StatusCode = StatusCodes.Status200OK;
+
+            return Task.CompletedTask;
+        };
+
+        RequestDelegate pipeline = async context =>
+        {
+            TenantErasureQuarantineMiddleware quarantine =
+                new(new TrialSeatReservationMiddleware(terminal).InvokeAsync);
+            await quarantine.InvokeAsync(context);
+        };
+
+        await pipeline(http);
+
+        http.Response.StatusCode.Should().Be(StatusCodes.Status403Forbidden);
+        TenantRecord after = (await tenants.GetByIdAsync(TenantId, CancellationToken.None))!;
+        after.TrialSeatsUsed.Should().Be(0);
     }
 }

@@ -406,24 +406,24 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ## Zone: tenant-erasure
 
 - **id:** tenant-erasure
-- **status:** unseeded
+- **status:** open
 - **impact:** high
 - **aliases:** tenant delete; erasure; quarantine middleware
 - **paths:** ArchLucid.Application/Tenancy/TenantErasureCommandService.cs; ArchLucid.Api/Middleware/TenantErasureQuarantineMiddleware.cs
 - **test-filter:** FullyQualifiedName~TenantErasure
-- **hunts:** 0
-- **bugs-found:** 0
+- **hunts:** 1
+- **bugs-found:** 1
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **last-hunt:** 2026-08-23
+- **last-bug:** 2026-08-23
 - **related-pd-tb:** none
-- **code-changed-since:** unknown
+- **code-changed-since:** no
 
 ### Hypotheses
 
-- [ ] (candidate) Erasure proceeds while a legal hold is still active
-- [ ] (candidate) Quarantine middleware lets mutating requests through after erasure has started
-- [ ] (candidate) Erasure command deletes another tenantÎ“Ã‡Ã–s rows when ids collide in cache
+- [x] (invalid) Erasure proceeds while a legal hold is still active — `IsEligibleForScheduledHardPurge` and SQL list queries exclude rows with future `LegalHoldUntilUtc`; orphan cleanup skips active holds in `OrphanedTenantCatalogCleanupBackgroundWork`
+- [x] (proven) Quarantine middleware lets mutating requests through after erasure has started — **hit 2026-08-23:** `TrialSeatReservationMiddleware` ran before `TenantErasureQuarantineMiddleware`, so offboarded active-trial tenants still incremented `TrialSeatsUsed` before the 403; fixed by running erasure quarantine first in `PipelineExtensions`
+- [x] (invalid) Erasure command deletes another tenant's rows when ids collide in cache — `TenantGetByIdRequestCache` keys by `Guid` tenant id; no cross-tenant alias path in this zone
 
 ---
 
