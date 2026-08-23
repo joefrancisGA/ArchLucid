@@ -23,7 +23,7 @@ public static class IntegrationEventDlqRetryBackgroundWork
             scope.ServiceProvider.GetRequiredService<IIntegrationEventOutboxRepository>();
 
         IReadOnlyList<IntegrationEventOutboxDeadLetterRow> deadLetters =
-            await repository.ListDeadLettersAsync(100, cancellationToken).ConfigureAwait(false);
+            await repository.ListDeadLettersAsync(100, tenantId: null, cancellationToken).ConfigureAwait(false);
 
         DateTime utcNow = DateTime.UtcNow;
         int requeued = 0;
@@ -41,7 +41,9 @@ public static class IntegrationEventDlqRetryBackgroundWork
             if (!IntegrationEventDlqRetryPolicy.IsEligibleForAutoRetry(row, utcNow))
                 continue;
 
-            bool ok = await repository.ResetDeadLetterForRetryAsync(row.OutboxId, cancellationToken).ConfigureAwait(false);
+            bool ok = await repository
+                .ResetDeadLetterForRetryAsync(row.OutboxId, tenantId: null, cancellationToken)
+                .ConfigureAwait(false);
 
             if (ok)
                 requeued++;

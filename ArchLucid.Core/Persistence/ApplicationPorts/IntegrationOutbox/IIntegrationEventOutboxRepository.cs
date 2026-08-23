@@ -46,13 +46,19 @@ public interface IIntegrationEventOutboxRepository
 
     Task<long> CountIntegrationOutboxDeadLetterAsync(CancellationToken ct);
 
-    Task<IReadOnlyList<IntegrationEventOutboxDeadLetterRow>> ListDeadLettersAsync(int maxRows, CancellationToken ct);
+    /// <param name="tenantId">When set, only rows for that tenant are returned; null lists across all tenants (host automation).</param>
+    Task<IReadOnlyList<IntegrationEventOutboxDeadLetterRow>> ListDeadLettersAsync(
+        int maxRows,
+        Guid? tenantId,
+        CancellationToken ct);
 
     /// <summary>Clears dead-letter state so the row is eligible for publish retries again.</summary>
-    Task<bool> ResetDeadLetterForRetryAsync(Guid outboxId, CancellationToken ct);
+    /// <param name="tenantId">When set, the row must belong to that tenant or the reset is a no-op.</param>
+    Task<bool> ResetDeadLetterForRetryAsync(Guid outboxId, Guid? tenantId, CancellationToken ct);
 
     /// <summary>Marks a dead-letter row processed without republishing (operator suppress / acknowledge).</summary>
-    Task<bool> AcknowledgeDeadLetterAsync(Guid outboxId, CancellationToken ct);
+    /// <param name="tenantId">When set, the row must belong to that tenant or the acknowledge is a no-op.</param>
+    Task<bool> AcknowledgeDeadLetterAsync(Guid outboxId, Guid? tenantId, CancellationToken ct);
 
     /// <summary>Re-queues dead-letter rows matching optional tenant and event-type filters.</summary>
     Task<IntegrationOutboxDeadLetterBulkRetryResult> RetryMatchingDeadLettersAsync(
@@ -62,5 +68,6 @@ public interface IIntegrationEventOutboxRepository
         CancellationToken ct);
 
     /// <summary>Loads a dead-lettered row including payload bytes for operator replay tooling.</summary>
-    Task<IntegrationEventOutboxEntry?> TryGetDeadLetterEntryAsync(Guid outboxId, CancellationToken ct);
+    /// <param name="tenantId">When set, the row must belong to that tenant or null is returned.</param>
+    Task<IntegrationEventOutboxEntry?> TryGetDeadLetterEntryAsync(Guid outboxId, Guid? tenantId, CancellationToken ct);
 }
