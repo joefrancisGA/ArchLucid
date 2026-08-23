@@ -52,4 +52,5 @@
 {"at":"2026-08-23T05:24:46.1274091Z","zoneId":"api-authority-admin-controllers","outcome":"hit"}
 {"at":"2026-08-23T05:28:03.0799781Z","zoneId":"knowledge-graph-provenance","outcome":"hit"}
 {"at":"2026-08-23T05:34:22.1645313Z","zoneId":"commit-output-integrity","outcome":"hit"}
-{"at":"2026-08-23T05:43:06.9739500Z","zoneId":"alert-simulation","outcome":"dry"}
+{"at":"2026-08-23T05:43:06.97395Z","zoneId":"alert-simulation","outcome":"dry"}
+{"at":"2026-08-23T05:49:36.8719390Z","zoneId":"ui-host-gate","outcome":"hit"}
