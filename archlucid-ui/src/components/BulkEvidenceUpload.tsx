@@ -32,6 +32,7 @@ import { readProblemDetailFromBody } from "@/lib/api-problem";
 import { Button } from "./ui/button";
 import { Progress } from "./ui/progress";
 import { LongOperationWaitNotice } from "@/components/LongOperationWaitNotice";
+import { FolderAwareFileInput } from "@/components/FolderAwareFileInput";
 
 export interface BulkEvidenceUploadProps {
   runId: string;
@@ -179,7 +180,7 @@ export function BulkEvidenceUpload({ runId, embedded = false, onUploadSummary }:
         return;
       }
 
-      const detail = parseProblemDetail(result.bodyText);
+      const detail = readProblemDetailFromBody(result.bodyText);
       const partialUploaded = parsePartialUploadCountFromDetail(detail);
 
       if (partialUploaded !== null && partialUploaded > 0) {
@@ -275,12 +276,10 @@ export function BulkEvidenceUpload({ runId, embedded = false, onUploadSummary }:
         <Button type="button" variant="outline" size="sm" asChild>
           <label className="cursor-pointer">
             Select folder
-            <input
-              type="file"
+            <FolderAwareFileInput
               multiple
               className="hidden"
-              // @ts-expect-error - webkitdirectory is a non-standard attribute but supported in modern browsers
-              webkitdirectory=""
+              folderSelection
               ref={folderInputRef}
               data-testid="evidence-folder-input"
               onChange={(e) => {

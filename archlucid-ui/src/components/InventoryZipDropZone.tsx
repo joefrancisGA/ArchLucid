@@ -6,6 +6,7 @@ import { UploadCloud } from "lucide-react";
 import { useId, useRef, useState, type ReactNode } from "react";
 
 import { AzureExtractorUploadProgressBar } from "@/components/AzureExtractorUploadProgressBar";
+import { FolderAwareFileInput } from "@/components/FolderAwareFileInput";
 import { AZURE_EXTRACTOR_ZIP_ONLY_MESSAGE, isAzureExtractorZipFile } from "@/lib/is-azure-extractor-zip-file";
 
 export type InventoryZipDropZoneProps = {
@@ -142,13 +143,10 @@ export function InventoryZipDropZone(props: InventoryZipDropZoneProps) {
       />
       {onFolderSelected !== undefined ? (
         <>
-          <input
+          <FolderAwareFileInput
             id={folderInputId}
             ref={folderInputRef}
-            type="file"
-            // @ts-expect-error webkitdirectory is supported in Chromium-based browsers
-            webkitdirectory=""
-            directory=""
+            folderSelection
             multiple
             disabled={isDisabled}
             aria-hidden="true"

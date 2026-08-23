@@ -9,6 +9,7 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { useCallback, useState, type ReactNode } from "react";
 
 import { Button } from "@/components/ui/button";
+import { FolderAwareFileInput } from "@/components/FolderAwareFileInput";
 import { Label } from "@/components/ui/label";
 
 type WizardEvidenceUploadZoneProps = {
@@ -130,12 +131,10 @@ export function WizardEvidenceUploadZone(props: WizardEvidenceUploadZoneProps) {
           <Button type="button" variant="outline" size="sm" asChild>
             <label className="cursor-pointer">
               Browse folder
-              <input
-                type="file"
+              <FolderAwareFileInput
                 className="sr-only"
                 multiple
-                // @ts-expect-error - webkitdirectory is a non-standard attribute but supported in modern browsers
-                webkitdirectory=""
+                folderSelection
                 onChange={(event) => handleFiles(event.target.files)}
               />
             </label>
