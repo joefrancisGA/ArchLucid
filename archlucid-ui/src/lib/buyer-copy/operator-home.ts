@@ -76,6 +76,29 @@ export const OPERATOR_HOME_LIFECYCLE_RECOMMENDED_BADGE = "Recommended next";
 
 export const OPERATOR_HOME_RESUME_LATEST_DRAFT_CTA = "Resume latest draft";
 
+/** Eyebrow on eval-with-drafts home hero — saved draft architecture, not a lifecycle status. */
+export const OPERATOR_HOME_DRAFT_ARCHITECTURE_EYEBROW = "Draft architecture";
+
+export function formatOperatorHomeDraftArchitectureEyebrow(
+  draftLastEditedLabel: string | null,
+): string | null {
+  const eyebrow = OPERATOR_HOME_DRAFT_ARCHITECTURE_EYEBROW.trim();
+  const trimmedEditedLabel =
+    draftLastEditedLabel !== null && draftLastEditedLabel.trim().length > 0
+      ? draftLastEditedLabel.trim()
+      : null;
+
+  if (trimmedEditedLabel !== null) {
+    if (eyebrow.length === 0) {
+      return trimmedEditedLabel;
+    }
+
+    return `${eyebrow} — ${trimmedEditedLabel}`;
+  }
+
+  return eyebrow.length > 0 ? eyebrow : null;
+}
+
 export function formatOperatorHomeContinueArchitectureLead(draftCount: number): string {
   const safeCount = Number.isFinite(draftCount) ? Math.max(0, Math.trunc(draftCount)) : 0;
 
