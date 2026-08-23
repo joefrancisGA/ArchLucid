@@ -13,7 +13,7 @@ import {
   hasArchitectureDraftSaveableContent,
   validateArchitectureDraftIntegrity,
 } from "@/lib/architecture/architecture-draft-readiness";
-import { structuredBriefFromDocument } from "@/lib/architecture/architecture-draft-structured-brief";
+import { applyArchitectureCreationDraftToFormState } from "@/lib/architecture/architecture-creation-init";
 import { createDraftRequest, getDraftRequest, patchDraftRequest } from "@/lib/api/draft-intake-api";
 import { isApiRequestError } from "@/lib/api-request-error";
 import { CREATE_ARCHITECTURE_INTENT } from "@/lib/architecture/architecture-workflow-intent";
@@ -65,12 +65,7 @@ function fieldsAreEqual(left: ArchitectureDraftFieldState, right: ArchitectureDr
 }
 
 function fieldsFromDraftDocument(draft: DraftRequestResponse): ArchitectureDraftFieldState {
-  return {
-    freeTextIntent: draft.document.freeTextIntent,
-    businessOutcome: draft.document.businessOutcome ?? "",
-    systemName: draft.document.systemName ?? "",
-    structuredBrief: structuredBriefFromDocument(draft.document),
-  };
+  return applyArchitectureCreationDraftToFormState(draft);
 }
 
 function isNonRetryableDraftPatchError(error: unknown): boolean {
@@ -255,13 +250,7 @@ export function useArchitectureDraftAutosave(
       } finally {
         inFlightSaveRef.current = null;
 
-        const stillDirtyRelativeToBaseline = !fieldsAreEqual(
-          fieldsRef.current,
-          persistedFieldsRef.current,
-        );
-        const shouldRunTrailingSave =
-          !patchFailedNonRetryable &&
-          (trailingSaveNeededRef.current || stillDirtyRelativeToBaseline);
+        const shouldRunTrailingSave = !patchFailedNonRetryable && trailingSaveNeededRef.current;
         trailingSaveNeededRef.current = false;
 
         if (shouldRunTrailingSave && hasArchitectureDraftSaveableContent(fieldsRef.current)) {

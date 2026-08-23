@@ -32,6 +32,7 @@ vi.mock("@/lib/architecture/architecture-draft-registry", () => ({
   upsertArchitectureDraftRegistryEntry: vi.fn(),
 }));
 
+import { ARCHITECTURE_CREATION_BOOTSTRAP_INTENT } from "@/lib/architecture/architecture-creation-bootstrap";
 import { useArchitectureDraftAutosave } from "@/hooks/use-architecture-draft-autosave";
 import type { ArchitectureDraftFieldState } from "@/lib/architecture/architecture-draft-readiness";
 import { emptyArchitectureDraftStructuredBrief } from "@/lib/architecture/architecture-draft-structured-brief";
@@ -83,6 +84,143 @@ describe("useArchitectureDraftAutosave", () => {
     createDraftRequest.mockReset();
     getDraftRequest.mockReset();
     patchDraftRequest.mockReset();
+  });
+
+  it("does not immediately re-PATCH after saving only the architecture name on a bootstrap draft", async () => {
+    const systemNameOnly: ArchitectureDraftFieldState = {
+      freeTextIntent: "",
+      businessOutcome: "",
+      systemName: "Claims intake",
+      structuredBrief: emptyArchitectureDraftStructuredBrief(),
+    };
+
+    createDraftRequest.mockResolvedValueOnce({
+      draftId: "draft-001",
+      tenantId: "tenant",
+      workspaceId: "ws",
+      projectId: "default",
+      status: "Drafting",
+      document: {
+        freeTextIntent: ARCHITECTURE_CREATION_BOOTSTRAP_INTENT,
+        businessOutcome: "",
+        systemName: "",
+        actorSet,
+        workflowIntent: "create-architecture",
+        structuredBrief: emptyArchitectureDraftStructuredBrief(),
+      },
+      createdUtc: "2026-08-11T11:00:00.000Z",
+      updatedUtc: "2026-08-11T11:00:00.000Z",
+    });
+
+    getDraftRequest.mockResolvedValue(
+      draftResponse(
+        {
+          ...systemNameOnly,
+          freeTextIntent: ARCHITECTURE_CREATION_BOOTSTRAP_INTENT,
+        },
+        "2026-08-11T12:00:00.000Z",
+      ),
+    );
+
+    patchDraftRequest.mockResolvedValue(
+      draftResponse(
+        {
+          ...systemNameOnly,
+          freeTextIntent: ARCHITECTURE_CREATION_BOOTSTRAP_INTENT,
+        },
+        "2026-08-11T12:00:30.000Z",
+      ),
+    );
+
+    const { result, rerender } = renderHook(
+      (props: { fields: ArchitectureDraftFieldState }) =>
+        useArchitectureDraftAutosave({
+          architectureId: "new",
+          fields: props.fields,
+          actorSet,
+          deferCreateUntilFirstSave: true,
+        }),
+      {
+        initialProps: {
+          fields: {
+            freeTextIntent: "",
+            businessOutcome: "",
+            systemName: "",
+            structuredBrief: emptyArchitectureDraftStructuredBrief(),
+          },
+        },
+      },
+    );
+
+    rerender({ fields: systemNameOnly });
+
+    await act(async () => {
+      await result.current.saveDraft();
+    });
+
+    expect(createDraftRequest).toHaveBeenCalledTimes(1);
+    expect(getDraftRequest).toHaveBeenCalledTimes(1);
+    expect(patchDraftRequest).toHaveBeenCalledTimes(1);
+    expect(result.current.saveState).toBe("saved");
+
+    await act(async () => {
+      await new Promise((resolve) => {
+        setTimeout(resolve, 50);
+      });
+    });
+
+    expect(getDraftRequest).toHaveBeenCalledTimes(1);
+    expect(patchDraftRequest).toHaveBeenCalledTimes(1);
+  });
+
+  it("debounces autosave while the architecture name is being typed", async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+
+    const partialName: ArchitectureDraftFieldState = {
+      freeTextIntent: "",
+      businessOutcome: "",
+      systemName: "Cl",
+      structuredBrief: emptyArchitectureDraftStructuredBrief(),
+    };
+    const fullName: ArchitectureDraftFieldState = {
+      ...partialName,
+      systemName: "Claims intake",
+    };
+
+    getDraftRequest.mockResolvedValue(draftResponse(fullName, "2026-08-11T12:00:00.000Z"));
+    patchDraftRequest.mockResolvedValue(draftResponse(fullName, "2026-08-11T12:00:30.000Z"));
+
+    const { rerender } = renderHook(
+      (props: { fields: ArchitectureDraftFieldState }) =>
+        useArchitectureDraftAutosave({
+          architectureId: "draft-001",
+          fields: props.fields,
+          actorSet,
+        }),
+      { initialProps: { fields: partialName } },
+    );
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(500);
+    });
+
+    expect(patchDraftRequest).not.toHaveBeenCalled();
+
+    rerender({ fields: fullName });
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(500);
+    });
+
+    expect(patchDraftRequest).not.toHaveBeenCalled();
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(1200);
+    });
+
+    await waitFor(() => {
+      expect(patchDraftRequest).toHaveBeenCalledTimes(1);
+    });
   });
 
   it("acceptServerBaseline prevents a spurious save after hydrate", async () => {

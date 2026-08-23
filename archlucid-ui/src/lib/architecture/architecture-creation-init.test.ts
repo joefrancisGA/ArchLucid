@@ -61,7 +61,27 @@ describe("initializeArchitectureCreation", () => {
     expect(result.draftId).toBe("draft-new");
   });
 
-  it("clears bootstrap intent from form state", () => {
+  it("clears bootstrap intent from form state while preserving other saved fields", () => {
+    expect(
+      applyArchitectureCreationDraftToFormState({
+        draftId: "draft-new",
+        document: {
+          freeTextIntent: ARCHITECTURE_CREATION_BOOTSTRAP_INTENT,
+          systemName: "Claims intake",
+          businessOutcome: "Reduce manual routing",
+          actorSet: { actors: [] },
+        },
+        status: "Drafting",
+      } as never),
+    ).toEqual({
+      freeTextIntent: "",
+      businessOutcome: "Reduce manual routing",
+      systemName: "Claims intake",
+      structuredBrief: expect.any(Object),
+    });
+  });
+
+  it("clears bootstrap-only drafts to empty form fields", () => {
     expect(
       applyArchitectureCreationDraftToFormState({
         draftId: "draft-new",
@@ -72,6 +92,7 @@ describe("initializeArchitectureCreation", () => {
       freeTextIntent: "",
       businessOutcome: "",
       systemName: "",
+      structuredBrief: expect.any(Object),
     });
   });
 
@@ -93,6 +114,7 @@ describe("initializeArchitectureCreation", () => {
       freeTextIntent: "Vertex tenant migration.",
       businessOutcome: "faster and better",
       systemName: "Vertex",
+      structuredBrief: expect.any(Object),
     });
   });
 
