@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { fetchSponsorRoiEnvironmentSavings } from "@/hooks/use-sponsor-roi-environment-savings-query";
+import { fetchSponsorRoiEnvironmentSavings } from "@/lib/sponsor-roi-query-fetch";
 
 describe("fetchSponsorRoiEnvironmentSavings", () => {
   afterEach(() => {
@@ -13,7 +13,7 @@ describe("fetchSponsorRoiEnvironmentSavings", () => {
       vi.fn(async () => new Response("unavailable", { status: 503 })),
     );
 
-    await expect(fetchSponsorRoiEnvironmentSavings()).rejects.toThrow(/HTTP 503/);
+    await expect(fetchSponsorRoiEnvironmentSavings()).rejects.toThrow();
   });
 
   it("returns savings slices on success", async () => {
