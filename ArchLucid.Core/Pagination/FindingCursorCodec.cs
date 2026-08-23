@@ -16,7 +16,7 @@ public static class FindingCursorCodec
             Fri = findingRecordId
         };
         byte[] utf8 = JsonSerializer.SerializeToUtf8Bytes(dto, SerializerOptions);
-        return Base64UrlEncode(utf8);
+        return Base64UrlCodec.Encode(utf8);
     }
 
     public static (int SortOrder, Guid FindingRecordId)? TryDecode(string? encoded)
@@ -24,35 +24,15 @@ public static class FindingCursorCodec
         if (string.IsNullOrWhiteSpace(encoded))
             return null;
 
-        byte[] bytes = Base64UrlDecode(encoded.Trim());
+        if (!Base64UrlCodec.TryDecode(encoded, out byte[] bytes))
+            return null;
+
         FindingListCursorDto? dto = JsonSerializer.Deserialize<FindingListCursorDto>(bytes, SerializerOptions);
 
         if (dto is null || dto.Fri == Guid.Empty)
             return null;
 
         return (dto.So, dto.Fri);
-    }
-
-    private static string Base64UrlEncode(byte[] utf8Bytes)
-    {
-        string b64 = Convert.ToBase64String(utf8Bytes);
-        return b64.TrimEnd('=').Replace('+', '-').Replace('/', '_');
-    }
-
-    private static byte[] Base64UrlDecode(string b64Url)
-    {
-        string padded = b64Url.Replace('-', '+').Replace('_', '/');
-        switch (padded.Length % 4)
-        {
-            case 2:
-                padded += "==";
-                break;
-            case 3:
-                padded += "=";
-                break;
-        }
-
-        return Convert.FromBase64String(padded);
     }
 
     private sealed class FindingListCursorDto
