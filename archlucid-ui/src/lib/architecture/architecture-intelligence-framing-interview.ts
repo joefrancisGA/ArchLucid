@@ -4,6 +4,10 @@ import type { ClosedLoopReasoningResult } from "@/lib/architecture/architecture-
 export const ARCHITECTURE_FRAMING_INCOMPLETE_PUBLISH_BLOCK_REASON =
   "L0 framing incomplete: review cannot be sealed until MUST questions are answered.";
 
+/** Operator-facing guidance when refine returns open framing questions. */
+export const ARCHITECTURE_FRAMING_INCOMPLETE_GUIDANCE_MESSAGE =
+  "Answer the framing questions below to continue with architecture refinement";
+
 export type ArchitectureIntelligenceFramingQuestion = {
   readonly questionId: string;
   readonly prompt: string;
@@ -27,6 +31,21 @@ export function isFramingIncompletePublishBlock(result: ClosedLoopReasoningResul
       reason === ARCHITECTURE_FRAMING_INCOMPLETE_PUBLISH_BLOCK_REASON ||
       reason.includes("L0 framing incomplete"),
   );
+}
+
+export function resolvePublishBlockedAlertMessage(result: ClosedLoopReasoningResult): string {
+  if (
+    collectOpenFramingInterviewQuestions(result).length > 0 &&
+    (result.publishBlocked === true || isFramingIncompletePublishBlock(result))
+  ) {
+    return ARCHITECTURE_FRAMING_INCOMPLETE_GUIDANCE_MESSAGE;
+  }
+
+  const reasons = (result.publishBlockReasons ?? []).join(" · ");
+
+  return reasons.length > 0
+    ? `Publish blocked: ${reasons}`
+    : "Publish blocked: trust gate rejected publishable output.";
 }
 
 export function mergeFramingAnswerDefaults(

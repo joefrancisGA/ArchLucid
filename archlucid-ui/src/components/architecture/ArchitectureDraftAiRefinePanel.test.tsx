@@ -3,7 +3,10 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { ArchitectureDraftAiRefinePanel } from "./ArchitectureDraftAiRefinePanel";
 import { ARCHITECTURE_DRAFT_AI_REFINE_HEADING } from "@/lib/architecture/architecture-draft-ai-refine-copy";
-import { ARCHITECTURE_FRAMING_INCOMPLETE_PUBLISH_BLOCK_REASON } from "@/lib/architecture/architecture-intelligence-framing-interview";
+import {
+  ARCHITECTURE_FRAMING_INCOMPLETE_GUIDANCE_MESSAGE,
+  ARCHITECTURE_FRAMING_INCOMPLETE_PUBLISH_BLOCK_REASON,
+} from "@/lib/architecture/architecture-intelligence-framing-interview";
 import { emptyArchitectureDraftStructuredBrief } from "@/lib/architecture/architecture-draft-structured-brief";
 import { architectureIntelligenceReviewTierLabel } from "@/lib/architecture/architecture-intelligence-review-tier";
 
@@ -187,6 +190,10 @@ describe("ArchitectureDraftAiRefinePanel", () => {
     await waitFor(() => {
       expect(screen.getByTestId("architecture-draft-ai-refine-framing-panel")).toBeInTheDocument();
     });
+
+    expect(screen.getByTestId("architecture-draft-ai-refine-publish-blocked")).toHaveTextContent(
+      ARCHITECTURE_FRAMING_INCOMPLETE_GUIDANCE_MESSAGE,
+    );
 
     fireEvent.change(screen.getByTestId("architecture-draft-ai-refine-framing-system-boundary"), {
       target: {

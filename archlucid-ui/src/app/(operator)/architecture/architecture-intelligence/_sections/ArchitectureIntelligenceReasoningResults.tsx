@@ -8,6 +8,7 @@ import type {
   FramingQuestion,
   SpecialistReviewFinding,
 } from "@/app/(operator)/architecture/architecture-intelligence/_sections/architecture-intelligence-types";
+import { resolvePublishBlockedAlertMessage } from "@/lib/architecture/architecture-intelligence-framing-interview";
 import { governanceFindingInspectHref } from "@/components/governance/findings/governance-findings-navigation";
 import { SeverityTag } from "@/components/ui/severity-tag";
 import { Button } from "@/components/ui/button";
@@ -56,7 +57,7 @@ export function ArchitectureIntelligenceReasoningResults(props: ArchitectureInte
             OPERATOR_TYPOGRAPHY.body,
           )}
         >
-          Publish blocked: {(props.result.publishBlockReasons ?? []).join(" · ") || "trust gate rejected publishable output."}
+          {resolvePublishBlockedAlertMessage(props.result)}
         </p>
       ) : null}
 

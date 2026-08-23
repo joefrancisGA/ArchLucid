@@ -5,6 +5,7 @@ import {
   formatArchitectureIntelligenceSpendSummary,
   type ClosedLoopReasoningResult,
 } from "@/lib/architecture/architecture-intelligence-api";
+import { resolvePublishBlockedAlertMessage } from "@/lib/architecture/architecture-intelligence-framing-interview";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
@@ -45,8 +46,7 @@ export function ArchitectureIntelligenceRefineResultSummary(
             OPERATOR_TYPOGRAPHY.body,
           )}
         >
-          Publish blocked:{" "}
-          {(result.publishBlockReasons ?? []).join(" · ") || "trust gate rejected publishable output."}
+          {resolvePublishBlockedAlertMessage(result)}
         </p>
       ) : null}
 

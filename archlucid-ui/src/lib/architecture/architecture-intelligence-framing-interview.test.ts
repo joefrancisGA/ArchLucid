@@ -2,12 +2,14 @@ import { describe, expect, it } from "vitest";
 
 import type { ClosedLoopReasoningResult } from "@/lib/architecture/architecture-intelligence-api";
 import {
+  ARCHITECTURE_FRAMING_INCOMPLETE_GUIDANCE_MESSAGE,
   ARCHITECTURE_FRAMING_INCOMPLETE_PUBLISH_BLOCK_REASON,
   buildFramingAnswersPayload,
   collectOpenFramingInterviewQuestions,
   framingInterviewAnswersComplete,
   isFramingIncompletePublishBlock,
   mergeFramingAnswerDefaults,
+  resolvePublishBlockedAlertMessage,
 } from "@/lib/architecture/architecture-intelligence-framing-interview";
 
 function sampleResult(overrides: Partial<ClosedLoopReasoningResult> = {}): ClosedLoopReasoningResult {
@@ -32,6 +34,18 @@ describe("architecture-intelligence-framing-interview", () => {
   it("detects the framing publish block reason", () => {
     expect(isFramingIncompletePublishBlock(sampleResult())).toBe(true);
     expect(isFramingIncompletePublishBlock({ publishBlockReasons: ["Other gate"] })).toBe(false);
+  });
+
+  it("uses operator guidance when framing questions remain open", () => {
+    expect(resolvePublishBlockedAlertMessage(sampleResult())).toBe(
+      ARCHITECTURE_FRAMING_INCOMPLETE_GUIDANCE_MESSAGE,
+    );
+    expect(
+      resolvePublishBlockedAlertMessage({
+        publishBlocked: true,
+        publishBlockReasons: ["Trust gate rejected output."],
+      }),
+    ).toBe("Publish blocked: Trust gate rejected output.");
   });
 
   it("collects unanswered framing and evidence-driven questions", () => {
