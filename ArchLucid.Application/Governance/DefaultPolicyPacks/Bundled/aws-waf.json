@@ -1,18 +1,12 @@
 {
   "complianceRuleIds": [],
   "complianceRuleKeys": [
-    "waf-aws-001",
-    "waf-aws-002",
-    "waf-aws-003",
     "waf-aws-004",
     "waf-aws-005",
     "waf-aws-006",
     "waf-aws-007",
     "waf-aws-008",
-    "waf-aws-009",
     "waf-aws-010",
-    "waf-aws-011",
-    "waf-aws-012",
     "waf-aws-013",
     "waf-aws-014",
     "waf-aws-015",
@@ -30,10 +24,11 @@
     "templateId": "aws-waf-v1",
     "pack.displayName": "AWS Well-Architected Framework",
     "pack.category": "Architecture",
-    "pack.version": "1.0.0",
+    "pack.version": "1.1.0",
     "pack.isDefault": "true",
     "pack.description": "WAF pillar themes grounded in AWS inventory ZIP and Terraform aws_* evidence. Not an official AWS Well-Architected Review.",
     "frameworkMappingDisclaimer": "AWS WAF references are thematic mapping only.",
-    "curatedRulesArtifact": "docs/samples/policy-packs/aws-waf-rules-v1.json"
+    "curatedRulesArtifact": "docs/samples/policy-packs/aws-waf-rules-v1.json",
+    "overlayTrimNeutralBaseline": "2026-08-23"
   }
 }

@@ -8,13 +8,13 @@ internal static class PolicyPackDraftFewShotExamples
         return """
                [
                  {
-                   "id": "waf-az-001",
-                   "title": "Reliability — regional and zone redundancy documented",
-                   "description": "When resources.json lists workloads across multiple Azure regions or availability zones, the architecture narrative must explain failover, RTO/RPO, and traffic routing assumptions.",
+                   "id": "rel-base-002",
+                   "title": "Availability and recovery objectives defined by workload tier",
+                   "description": "Tiered workloads should state availability targets plus RTO/RPO (or an explicit decision that recovery objectives are not required for this lifecycle stage).",
                    "severity": "High",
-                   "remediationGuidance": "Document active/active vs active/passive stance in governance.RequiredControls.",
-                   "evidenceHints": ["governance.RequiredControls", "metadata.ChangeDescription"],
-                   "frameworkMappings": [{ "framework": "Microsoft Azure Well-Architected", "requirement": "Reliability — redundancy" }],
+                   "remediationGuidance": "Capture RTO/RPO or availability targets per workload tier in governance.PolicyConstraints.",
+                   "evidenceHints": ["governance.PolicyConstraints", "metadata.ChangeDescription"],
+                   "frameworkMappings": [{ "framework": "ArchLucid Architecture Quality Baseline", "requirement": "Reliability — recovery objectives" }],
                    "priority": "P0"
                  },
                  {

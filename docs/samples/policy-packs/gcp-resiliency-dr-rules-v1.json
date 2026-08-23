@@ -4,65 +4,13 @@
   "pack": {
     "name": "GCP Resiliency & Disaster Recovery",
     "description": "Multi-region GCE/Cloud SQL, Cloud DNS failover, and backup/DR themes for GCP workloads.",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "category": "Reliability",
     "isDefault": true,
     "suggestedPackType": "PlatformDefault",
     "policyPackContentDocumentPath": "docs/samples/policy-packs/gcp-resiliency-dr.json"
   },
   "rules": [
-    {
-      "id": "gcp-dr-001",
-      "title": "Availability targets documented per workload tier",
-      "description": "Each service tier must state availability objective (e.g., 99.9%, 99.99%) so reliability design can be assessed against business need.",
-      "severity": "High",
-      "priority": "P0",
-      "remediationGuidance": "Tag tier and SLA target on services[].Tags; document targets in governance.PolicyConstraints.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription",
-        "gcpExtractor.manifest.RawJson",
-        "gcpExtractor.manifest.ScopeId",
-        "gcpExtractor.manifest.Scope",
-        "gcpExtractor.manifest.CollectionTimestamp",
-        "gcpExtractor.manifest.SwitchesUsed"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "GCP Well-Architected",
-          "theme": "WAF Reliability \u2014 Define availability targets"
-        }
-      ]
-    },
-    {
-      "id": "gcp-dr-002",
-      "title": "RTO and RPO defined for tier-1 systems",
-      "description": "Business-critical components must document recovery time and recovery point objectives \u2014 not undefined best-effort DR.",
-      "severity": "Critical",
-      "priority": "P0",
-      "remediationGuidance": "Record RTO/RPO in governance.PolicyConstraints and metadata.ChangeDescription for tier-1 services and datastores.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription",
-        "gcpExtractor.manifest.RawJson",
-        "gcpExtractor.manifest.ScopeId",
-        "gcpExtractor.manifest.Scope",
-        "gcpExtractor.manifest.CollectionTimestamp",
-        "gcpExtractor.manifest.SwitchesUsed"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "GCP Well-Architected",
-          "theme": "WAF Reliability \u2014 RTO/RPO objectives"
-        }
-      ]
-    },
     {
       "id": "gcp-dr-003",
       "title": "Multi-region deployment for critical workloads",
@@ -160,64 +108,6 @@
       ]
     },
     {
-      "id": "gcp-dr-006",
-      "title": "Backup policy and retention documented",
-      "description": "All production datastores must document backup frequency, retention, and encryption for backup media.",
-      "severity": "Critical",
-      "priority": "P1",
-      "remediationGuidance": "Describe backup policy in governance.RequiredControls and datastores[].Tags.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription",
-        "gcpExtractor.manifest.manifest.RawJson",
-        "datastores[].DatastoreType",
-        "datastores[].RuntimePlatform",
-        "datastores[].Tags",
-        "relationships[].relationshipType",
-        "services[].Purpose",
-        "gcpExtractor.manifest.RawJson",
-        "gcpExtractor.manifest.ScopeId",
-        "gcpExtractor.manifest.Scope",
-        "gcpExtractor.manifest.CollectionTimestamp",
-        "gcpExtractor.manifest.SwitchesUsed"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "GCP Well-Architected",
-          "theme": "WAF Reliability \u2014 Backup strategy"
-        }
-      ]
-    },
-    {
-      "id": "gcp-dr-007",
-      "title": "Backup restore testing cadence",
-      "description": "Restore tests must be scheduled and documented \u2014 backups without tested restore provide false assurance.",
-      "severity": "High",
-      "priority": "P1",
-      "remediationGuidance": "Add restore-test cadence to governance.ComplianceTags and metadata.ChangeDescription.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription",
-        "gcpExtractor.manifest.RawJson",
-        "gcpExtractor.manifest.ScopeId",
-        "gcpExtractor.manifest.Scope",
-        "gcpExtractor.manifest.CollectionTimestamp",
-        "gcpExtractor.manifest.SwitchesUsed"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "GCP Well-Architected",
-          "theme": "WAF Reliability \u2014 Test restores"
-        }
-      ]
-    },
-    {
       "id": "gcp-dr-008",
       "title": "Geo-redundant storage for critical data",
       "description": "Blob, table, and queue tiers holding tier-1 data should document GRS or GZRS replication.",
@@ -277,7 +167,7 @@
       "frameworkMappings": [
         {
           "framework": "GCP Well-Architected",
-          "theme": "WAF Reliability — Cloud SQL cross-region replication"
+          "theme": "WAF Reliability \u2014 Cloud SQL cross-region replication"
         }
       ]
     },
@@ -342,200 +232,6 @@
         {
           "framework": "GCP Well-Architected",
           "theme": "WAF Reliability \u2014 Global traffic failover"
-        }
-      ]
-    },
-    {
-      "id": "gcp-dr-012",
-      "title": "Chaos engineering or fault injection themes",
-      "description": "Production-critical systems should reference game days, chaos experiments, or AZ failure drills.",
-      "severity": "Medium",
-      "priority": "P1",
-      "remediationGuidance": "Note resilience testing in governance.ComplianceTags and metadata.ChangeDescription.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription",
-        "gcpExtractor.manifest.RawJson",
-        "gcpExtractor.manifest.ScopeId",
-        "gcpExtractor.manifest.Scope",
-        "gcpExtractor.manifest.CollectionTimestamp",
-        "gcpExtractor.manifest.SwitchesUsed"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "GCP Well-Architected",
-          "theme": "WAF Reliability \u2014 Resilience testing"
-        }
-      ]
-    },
-    {
-      "id": "gcp-dr-013",
-      "title": "Dependency failure modes documented",
-      "description": "External SaaS, DNS, identity, and payment dependencies must list failure impact and degraded-mode behavior.",
-      "severity": "High",
-      "priority": "P1",
-      "remediationGuidance": "Enumerate dependencies on relationships[]; document fallback in services[].Purpose and metadata.ChangeDescription.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription",
-        "gcpExtractor.manifest.RawJson",
-        "gcpExtractor.manifest.ScopeId",
-        "gcpExtractor.manifest.Scope",
-        "gcpExtractor.manifest.CollectionTimestamp",
-        "gcpExtractor.manifest.SwitchesUsed"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "GCP Well-Architected",
-          "theme": "WAF Reliability \u2014 Dependency mapping"
-        }
-      ]
-    },
-    {
-      "id": "gcp-dr-014",
-      "title": "Circuit breaker and retry policies",
-      "description": "Inter-service calls must document retry, timeout, and circuit-breaker patterns preventing cascade failures.",
-      "severity": "Medium",
-      "priority": "P1",
-      "remediationGuidance": "Describe resilience patterns in governance.RequiredControls and services[].Tags for API consumers.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription",
-        "gcpExtractor.manifest.RawJson",
-        "gcpExtractor.manifest.ScopeId",
-        "gcpExtractor.manifest.Scope",
-        "gcpExtractor.manifest.CollectionTimestamp",
-        "gcpExtractor.manifest.SwitchesUsed"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "GCP Well-Architected",
-          "theme": "WAF Reliability \u2014 Transient fault handling"
-        }
-      ]
-    },
-    {
-      "id": "gcp-dr-015",
-      "title": "Queue-based load leveling for spikes",
-      "description": "Burst traffic paths should document buffering (Service Bus, Event Hubs) to protect downstream tiers.",
-      "severity": "Medium",
-      "priority": "P1",
-      "remediationGuidance": "Tag queue-mediated flows on relationships[] and services[].Tags.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription",
-        "gcpExtractor.manifest.RawJson",
-        "gcpExtractor.manifest.ScopeId",
-        "gcpExtractor.manifest.Scope",
-        "gcpExtractor.manifest.CollectionTimestamp",
-        "gcpExtractor.manifest.SwitchesUsed"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "GCP Well-Architected",
-          "theme": "WAF Reliability \u2014 Load leveling"
-        }
-      ]
-    },
-    {
-      "id": "gcp-dr-016",
-      "title": "Autoscaling rules documented",
-      "description": "Compute tiers must document scale-out/in triggers, limits, and warm-up time for traffic spikes.",
-      "severity": "High",
-      "priority": "P1",
-      "remediationGuidance": "Capture autoscale policy in governance.PolicyConstraints and services[].Tags.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription",
-        "gcpExtractor.manifest.manifest.RawJson",
-        "datastores[].DatastoreType",
-        "datastores[].RuntimePlatform",
-        "datastores[].Tags",
-        "relationships[].relationshipType",
-        "services[].Purpose",
-        "gcpExtractor.manifest.RawJson",
-        "gcpExtractor.manifest.ScopeId",
-        "gcpExtractor.manifest.Scope",
-        "gcpExtractor.manifest.CollectionTimestamp",
-        "gcpExtractor.manifest.SwitchesUsed"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "GCP Well-Architected",
-          "theme": "WAF Reliability \u2014 Autoscaling"
-        }
-      ]
-    },
-    {
-      "id": "gcp-dr-017",
-      "title": "Health probes and synthetic monitoring",
-      "description": "User-facing services must document health endpoints and synthetic transactions validating end-to-end paths.",
-      "severity": "High",
-      "priority": "P2",
-      "remediationGuidance": "List health check endpoints in governance.RequiredControls and services[].Tags.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription",
-        "gcpExtractor.manifest.RawJson",
-        "gcpExtractor.manifest.ScopeId",
-        "gcpExtractor.manifest.Scope",
-        "gcpExtractor.manifest.CollectionTimestamp",
-        "gcpExtractor.manifest.SwitchesUsed"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "GCP Well-Architected",
-          "theme": "WAF Reliability \u2014 Health monitoring"
-        }
-      ]
-    },
-    {
-      "id": "gcp-dr-018",
-      "title": "Cloud Deploy or GKE blue-green deployment patterns",
-      "description": "Production releases should document Cloud Deploy, GKE rolling updates, or blue/green deployment with automated rollback.",
-      "severity": "Medium",
-      "priority": "P2",
-      "remediationGuidance": "Describe deployment strategy in metadata.ChangeDescription and governance.RequiredControls.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription",
-        "gcpExtractor.manifest.manifest.RawJson",
-        "datastores[].DatastoreType",
-        "datastores[].RuntimePlatform",
-        "datastores[].Tags",
-        "relationships[].relationshipType",
-        "services[].Purpose",
-        "gcpExtractor.manifest.RawJson",
-        "gcpExtractor.manifest.ScopeId",
-        "gcpExtractor.manifest.Scope",
-        "gcpExtractor.manifest.CollectionTimestamp",
-        "gcpExtractor.manifest.SwitchesUsed"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "GCP Well-Architected",
-          "theme": "WAF Reliability \u2014 Safe deployment"
         }
       ]
     },
@@ -626,64 +322,6 @@
         {
           "framework": "GCP Well-Architected",
           "theme": "WAF Reliability \u2014 Managed maintenance"
-        }
-      ]
-    },
-    {
-      "id": "gcp-dr-022",
-      "title": "Capacity planning and quota headroom",
-      "description": "Subscriptions must document quota limits, reserved capacity, and headroom for growth and DR failover.",
-      "severity": "Medium",
-      "priority": "P2",
-      "remediationGuidance": "Note quota and capacity plans in governance.PolicyConstraints; align with gcpExtractor subscription metadata.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription",
-        "gcpExtractor.manifest.manifest.RawJson",
-        "datastores[].DatastoreType",
-        "datastores[].RuntimePlatform",
-        "datastores[].Tags",
-        "relationships[].relationshipType",
-        "services[].Purpose",
-        "gcpExtractor.manifest.RawJson",
-        "gcpExtractor.manifest.ScopeId",
-        "gcpExtractor.manifest.Scope",
-        "gcpExtractor.manifest.CollectionTimestamp",
-        "gcpExtractor.manifest.SwitchesUsed"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "GCP Well-Architected",
-          "theme": "WAF Reliability \u2014 Capacity management"
-        }
-      ]
-    },
-    {
-      "id": "gcp-dr-023",
-      "title": "DR runbook and communication plan",
-      "description": "Failover runbooks must identify roles, communication trees, and customer notification for major outages.",
-      "severity": "High",
-      "priority": "P2",
-      "remediationGuidance": "Reference DR runbook in governance.RequiredControls and metadata.ChangeDescription.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription",
-        "gcpExtractor.manifest.RawJson",
-        "gcpExtractor.manifest.ScopeId",
-        "gcpExtractor.manifest.Scope",
-        "gcpExtractor.manifest.CollectionTimestamp",
-        "gcpExtractor.manifest.SwitchesUsed"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "GCP Well-Architected",
-          "theme": "WAF Reliability \u2014 DR runbooks"
         }
       ]
     },
@@ -806,32 +444,6 @@
         {
           "framework": "GCP Well-Architected",
           "theme": "WAF Reliability \u2014 Observability DR"
-        }
-      ]
-    },
-    {
-      "id": "gcp-dr-028",
-      "title": "Post-incident review and reliability backlog",
-      "description": "Architecture should reference blameless postmortems feeding reliability improvements \u2014 not static DR docs only.",
-      "severity": "Low",
-      "priority": "P2",
-      "remediationGuidance": "Note PIR process in governance.ComplianceTags and metadata.ChangeDescription.",
-      "evidenceHints": [
-        "governance.PolicyConstraints",
-        "governance.RequiredControls",
-        "governance.ComplianceTags",
-        "services[].Tags",
-        "metadata.ChangeDescription",
-        "gcpExtractor.manifest.RawJson",
-        "gcpExtractor.manifest.ScopeId",
-        "gcpExtractor.manifest.Scope",
-        "gcpExtractor.manifest.CollectionTimestamp",
-        "gcpExtractor.manifest.SwitchesUsed"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "GCP Well-Architected",
-          "theme": "WAF Reliability \u2014 Continuous improvement"
         }
       ]
     }

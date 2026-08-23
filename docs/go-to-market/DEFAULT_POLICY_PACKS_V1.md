@@ -36,7 +36,7 @@ All rows below are seeded as **`PlatformDefault`** (Architect workspace: **Bundl
 |---|------------------|--------------|----------------------------|
 | 1 | AI Governance | AI Governance / Responsible AI | `ai-gov-001` … `020` | Full curated corpus |
 | 2 | Security baseline | Security Architecture Baseline | `sec-base-001` … `030` | Full curated corpus |
-| 3 | Azure WAF | Azure Well-Architected Framework | `waf-az-001` … `012` | Full curated corpus |
+| 3 | Azure WAF | Azure Well-Architected Framework | `waf-az-004` … `017` (11 rules) | Provider-specific overlay; generic Rel/Perf/Ops in packs #42–44 |
 | 4 | Azure CAF / LZ | Azure Landing Zone / Cloud Adoption Framework | `lz-caf-001` … `012` | Full curated corpus |
 | 5 | Privacy | GDPR Compliance Baseline | `gdpr-001` … | Expand per GDPR themes |
 | 6 | Compliance | SOC 2 Type II (Architecture Themes) | `soc2-001` … | Expand per TSC |
@@ -47,7 +47,7 @@ All rows below are seeded as **`PlatformDefault`** (Architect workspace: **Bundl
 | 11 | Healthcare | HIPAA / HITECH Safeguards | `hipaa-001` … | Expand per safeguard |
 | 12 | Payments | PCI-DSS (Architecture / Segmentation) | `pci-001` … | Expand per DSS area |
 | 13 | Security | Zero Trust Architecture | `zta-001` … | NIST 800-207 themes |
-| 14 | Reliability | Azure Resiliency & Disaster Recovery | `az-dr-001` … | |
+| 14 | Reliability | Azure Resiliency & Disaster Recovery | `az-dr-003` … `027` (14 rules) | Provider-specific overlay; generic reliability in pack #42 |
 | 15 | Platform | AKS Production Baseline | `aks-001` … | |
 | 16 | Data governance | Data Classification & Lineage | `data-class-001` … | |
 | 17 | Identity | Entra ID / IAM Architecture Baseline | `entra-iam-001` … | |
@@ -59,16 +59,16 @@ All rows below are seeded as **`PlatformDefault`** (Architect workspace: **Bundl
 | 23 | Data platform | Azure SQL / Cosmos DB Data-Layer Security | `az-data-001` … | |
 | 24 | Compliance | ARC-AMPE Architecture Themes (CMS ACA / Medicaid Partner Entities) | `arc-ampe-pillar-*`, `arc-ampe-id-*`, … | Spec: [`POLICY_PACK_ARC_AMPE_DESIGN.md`](../library/POLICY_PACK_ARC_AMPE_DESIGN.md) |
 | **25** | **Data platform security** | **Snowflake Security** | `sf-id-001`, `sf-rbac-001`, `sf-prot-001`, `sf-stage-001`, … | **Full curated corpus (57 rules)** — [`snowflake-security/README.md`](../samples/policy-packs/snowflake-security/README.md) |
-| 26 | Architecture | AWS Well-Architected Framework | `waf-aws-001` … | AWS inventory + Terraform `aws_*` evidence |
-| 27 | Architecture | Google Cloud Architecture Framework | `waf-gcp-001` … | GCP inventory + Terraform `google_*` evidence |
+| 26 | Architecture | AWS Well-Architected Framework | `waf-aws-004` … `017` (11 rules) | Provider-specific overlay; generic Rel/Perf/Ops in packs #42–44 |
+| 27 | Architecture | Google Cloud Architecture Framework | `waf-gcp-004` … `017` (11 rules) | Provider-specific overlay; generic Rel/Perf/Ops in packs #42–44 |
 | 28 | Security | CIS AWS Foundations Benchmark | `cis-aws-001` … | Peer to CIS Azure pack |
 | 29 | Security | CIS Google Cloud Platform Foundation Benchmark | `cis-gcp-001` … | Peer to CIS Azure pack |
 | 30 | Identity | AWS IAM / Identity Center Architecture Baseline | `iam-aws-001` … | Peer to Entra IAM pack |
 | 31 | Identity | GCP Cloud IAM Architecture Baseline | `iam-gcp-001` … | Peer to Entra IAM pack |
 | 32 | Platform | AWS Landing Zone / Control Tower | `lz-aws-001` … | Peer to Azure CAF/LZ pack |
 | 33 | Platform | GCP Landing Zone / Resource Hierarchy | `lz-gcp-001` … | Peer to Azure CAF/LZ pack |
-| 34 | Reliability | AWS Resiliency & Disaster Recovery | `aws-dr-001` … | Peer to Azure resiliency pack |
-| 35 | Reliability | GCP Resiliency & Disaster Recovery | `gcp-dr-001` … | Peer to Azure resiliency pack |
+| 34 | Reliability | AWS Resiliency & Disaster Recovery | `aws-dr-003` … `027` (14 rules) | Provider-specific overlay; generic reliability in pack #42 |
+| 35 | Reliability | GCP Resiliency & Disaster Recovery | `gcp-dr-003` … `027` (14 rules) | Provider-specific overlay; generic reliability in pack #42 |
 | 36 | Platform | EKS Production Baseline | `eks-001` … | Peer to AKS pack |
 | 37 | Platform | GKE Production Baseline | `gke-001` … | Peer to AKS pack |
 | 38 | Application platform | AWS Serverless & PaaS Security | `aws-paas-001` … | Peer to Azure PaaS pack |
