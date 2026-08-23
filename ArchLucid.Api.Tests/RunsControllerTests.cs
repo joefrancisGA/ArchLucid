@@ -77,6 +77,46 @@ public sealed class RunsControllerTests
     }
 
     [Fact]
+    public async Task ExplainStructuredBriefSuggestion_returns_bad_request_when_body_null()
+    {
+        RunsController controller = CreateController();
+
+        IActionResult action = await controller.ExplainStructuredBriefSuggestion(null, CancellationToken.None);
+
+        ObjectResult bad = action.Should().BeOfType<ObjectResult>().Subject;
+        bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+    }
+
+    [Fact]
+    public async Task ExplainStructuredBriefSuggestion_returns_explanation_when_valid()
+    {
+        Mock<IStructuredBriefSuggestionExplainService> explainService = new();
+        explainService
+            .Setup(s => s.ExplainAsync(It.IsAny<ExplainStructuredBriefSuggestionInput>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ExplainStructuredBriefSuggestionResponse
+            {
+                Explanation = "Your overview mentioned EU customers.",
+            });
+
+        RunsController controller = CreateController(explainService: explainService.Object);
+
+        ExplainStructuredBriefSuggestionInput input = new()
+        {
+            SourceText = "Tenant migration platform with private networking and EU residency goals.",
+            SuggestionKind = StructuredBriefSuggestionKind.Constraint,
+            SuggestionText = "EU data residency",
+        };
+
+        IActionResult action = await controller.ExplainStructuredBriefSuggestion(input, CancellationToken.None);
+
+        OkObjectResult ok = action.Should().BeOfType<OkObjectResult>().Subject;
+        ExplainStructuredBriefSuggestionResponse response =
+            ok.Value.Should().BeOfType<ExplainStructuredBriefSuggestionResponse>().Subject;
+
+        response.Explanation.Should().Contain("EU customers");
+    }
+
+    [Fact]
     public async Task ChatIntake_returns_bad_request_when_raw_text_missing()
     {
         RunsController controller = CreateController();
@@ -278,6 +318,7 @@ public sealed class RunsControllerTests
     private static RunsController CreateController(
         IArchitectureApplicationService? architectureApplicationService = null,
         IArchitectureRequestDraftService? draftService = null,
+        IStructuredBriefSuggestionExplainService? explainService = null,
         IArchitectureRunCreateOrchestrator? createOrchestrator = null,
         IArchitectureSynthesisKernel? synthesisKernel = null,
         IRunRepository? runRepository = null)
@@ -300,6 +341,7 @@ public sealed class RunsControllerTests
             Mock.Of<IArchitectureRunCommitOrchestrator>(),
             architectureApplicationService ?? Mock.Of<IArchitectureApplicationService>(),
             draftService ?? Mock.Of<IArchitectureRequestDraftService>(),
+            explainService ?? Mock.Of<IStructuredBriefSuggestionExplainService>(),
             Mock.Of<IChatIntakeParserService>(),
             Mock.Of<IConnectorIntakeParserService>(),
             validator.Object,

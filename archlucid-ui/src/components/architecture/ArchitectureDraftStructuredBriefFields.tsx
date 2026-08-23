@@ -3,6 +3,7 @@
 import type { Dispatch, SetStateAction } from "react";
 import { useState } from "react";
 
+import { StructuredBriefSuggestionExplainPanel } from "@/components/architecture/StructuredBriefSuggestionExplainPanel";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { InAppHelpLink } from "@/components/InAppHelpLink";
 import { StructuredBriefCapabilitiesQualityVocabularyRail } from "@/components/StructuredBriefCapabilitiesQualityVocabularyRail";
@@ -11,6 +12,7 @@ import { IntakeTextField } from "@/components/intake/IntakeTextField";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import type { StructuredBriefSuggestionKind } from "@/lib/api/structured-brief-suggestion-explain-api";
 import { draftArchitectureRequest, ARCHITECTURE_REQUEST_DRAFT_MIN_DESCRIPTION_CHARS } from "@/lib/api/architecture-request-draft-api";
 import { isApiRequestError } from "@/lib/api-request-error";
 import type { ApiProblemDetails } from "@/lib/api-problem";
@@ -168,6 +170,8 @@ function ConfirmableChipList(props: {
   readonly inputId: string;
   readonly items: readonly string[];
   readonly suggestedItems: readonly string[];
+  readonly suggestionKind?: StructuredBriefSuggestionKind;
+  readonly suggestionSourceText?: string;
   readonly invalid: boolean;
   readonly disabled: boolean;
   readonly required?: boolean;
@@ -258,7 +262,7 @@ function ConfirmableChipList(props: {
                 <p className={cn("m-0 text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
                   {item}
                 </p>
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap items-center gap-2">
                   <Button
                     type="button"
                     variant="outline"
@@ -281,6 +285,17 @@ function ConfirmableChipList(props: {
                   >
                     {GUIDED_INTAKE_CONFIRM_ACTOR_BUTTON}
                   </Button>
+                  {props.suggestionKind !== undefined
+                  && props.suggestionSourceText !== undefined
+                  && props.suggestionSourceText.trim().length >= ARCHITECTURE_REQUEST_DRAFT_MIN_DESCRIPTION_CHARS ? (
+                    <StructuredBriefSuggestionExplainPanel
+                      suggestionKind={props.suggestionKind}
+                      suggestionText={item}
+                      sourceText={props.suggestionSourceText}
+                      disabled={props.disabled}
+                      testId={`${props.inputId}-explain`}
+                    />
+                  ) : null}
                 </div>
               </li>
             ))}
@@ -571,6 +586,8 @@ export function ArchitectureDraftStructuredBriefFields(
         inputId="architecture-draft-constraints"
         items={brief.confirmedConstraints}
         suggestedItems={brief.suggestedConstraints}
+        suggestionKind="Constraint"
+        suggestionSourceText={failureModeSourceText}
         invalid={false}
         required={false}
         disabled={props.disabled === true}
@@ -599,6 +616,8 @@ export function ArchitectureDraftStructuredBriefFields(
         inputId="architecture-draft-assumptions"
         items={brief.confirmedAssumptions}
         suggestedItems={brief.suggestedAssumptions}
+        suggestionKind="Assumption"
+        suggestionSourceText={failureModeSourceText}
         invalid={false}
         required={false}
         disabled={props.disabled === true}
@@ -627,6 +646,8 @@ export function ArchitectureDraftStructuredBriefFields(
         inputId="architecture-draft-capabilities"
         items={brief.confirmedRequiredCapabilities}
         suggestedItems={brief.suggestedRequiredCapabilities}
+        suggestionKind="RequiredCapability"
+        suggestionSourceText={failureModeSourceText}
         invalid={false}
         required={false}
         disabled={props.disabled === true}
