@@ -1,8 +1,10 @@
 import { cn } from "@/lib/utils";
 import { RunIdPicker } from "@/components/runs/RunIdPicker";
 import { Button } from "@/components/ui/button";
+import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import { BUYER_COMPARE_CHANGE_REVIEWS_SUMMARY } from "@/lib/buyer/buyer-polish-copy";
 import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { firstWhyDisabledCtaReason, whyDisabledBusy, whyDisabledIncompleteInput } from "@/lib/why-disabled-cta";
 import type { RunSummary } from "@/types/authority";
 
 export type CompareRunPickersSectionProps = {
@@ -61,6 +63,13 @@ export function CompareRunPickersSection(props: CompareRunPickersSectionProps) {
   } = props;
 
   const compareActionsDisabled = loading || !leftTrim || !rightTrim || sameCanonicalRunIdsBlocked;
+  const compareDisabledReason = firstWhyDisabledCtaReason([
+    loading ? whyDisabledBusy("Comparison") : null,
+    !leftTrim || !rightTrim ? whyDisabledIncompleteInput("Choose a baseline and updated review to continue.") : null,
+    sameCanonicalRunIdsBlocked
+      ? { kind: "prerequisite", message: "These two selections resolve to the same review." }
+      : null,
+  ]);
   const showSummarizeForSponsor = (pairAligned && !loading) || aiLoading;
   const showSelectionHelper = !leftTrim || !rightTrim;
 
@@ -148,6 +157,7 @@ export function CompareRunPickersSection(props: CompareRunPickersSectionProps) {
             </Button>
           ) : null}
         </div>
+        <WhyDisabledCtaHint reason={compareActionsDisabled ? compareDisabledReason : null} />
         {showSelectionHelper ? (
           <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
             Choose a baseline and updated review to continue.
