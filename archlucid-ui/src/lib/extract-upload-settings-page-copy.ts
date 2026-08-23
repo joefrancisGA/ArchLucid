@@ -67,7 +67,7 @@ export const EXTRACT_UPLOAD_STEP_UPLOAD_DESCRIPTION =
   "Drag and drop or browse. Client-side checks validate the package format before upload." as const;
 
 export const EXTRACT_UPLOAD_ADVANCED_COMMAND_DISCLOSURE_SUMMARY =
-  "Advanced: full Get-ArchLucidAzurePackage.ps1 command" as const;
+  "Advanced: full inventory packager command (Azure example)" as const;
 
 export const EXTRACT_UPLOAD_SCRIPT_DOWNLOAD_LABEL =
-  "Download Get-ArchLucidAzurePackage.ps1 (inspect before running)" as const;
+  "Download packager script — Azure example (inspect before running)" as const;
