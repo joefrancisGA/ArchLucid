@@ -12562,6 +12562,12 @@
             },
             "type": "object"
           },
+          "qualityDimension": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
           "rationale": {
             "type": "string"
           },
