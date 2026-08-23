@@ -92,8 +92,8 @@ async function RunDetailBelowFoldProjectContextAsync(
  * Streams pipeline, graph, and technical appendices after first-screen run detail chrome.
  * Sync shell + nested Suspense so independent below-fold fetches do not block each other (TB-2026).
  *
- * Server Component only. `next/dynamic` from a `"use client"` module would run
- * `timelines-bundle` in the browser and re-fetch on every parent render.
+ * Server Component only. A client deferred-chunk wrapper would run timelines-bundle
+ * in the browser and re-fetch on every parent render.
  */
 export function RunDetailBelowFoldSections(props: RunDetailBelowFoldSectionsProps): React.JSX.Element {
   const m = props.model;

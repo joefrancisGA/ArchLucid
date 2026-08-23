@@ -17,8 +17,8 @@ describe("RunDetailBelowFoldSectionsDeferred", () => {
     const pageViewSource = readSectionSource("RunDetailPageView.tsx");
     const tabbedWorkspaceSource = readSectionSource("RunDetailTabbedWorkspace.tsx");
 
-    expect(wrapperSource).not.toContain('"use client"');
-    expect(wrapperSource).not.toContain("next/dynamic");
+    expect(wrapperSource.trimStart().startsWith('"use client"')).toBe(false);
+    expect(wrapperSource).not.toMatch(/from ["']next\/dynamic["']/);
     expect(wrapperSource).not.toContain("createDeferredComponentFromManifest");
     expect(wrapperSource).toContain("RunDetailBelowFoldSections");
     expect(deferredChunksSource).not.toContain('"run-detail-below-fold"');
