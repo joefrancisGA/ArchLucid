@@ -122,4 +122,83 @@ public sealed class EffectiveGovernanceSnapshotBuilderTests
         result.NotAssessedQualityDimensions.Should().Contain(row =>
             row.QualityDimension == QualityDimension.ReliabilityAndResilience.ToString());
     }
+
+    [Fact]
+    public async Task ResolveAsync_focused_pilot_includes_pinned_organization_pack_in_pack_assignments()
+    {
+        Guid tenantId = Guid.NewGuid();
+        Guid workspaceId = Guid.NewGuid();
+        Guid projectId = Guid.NewGuid();
+        Guid orgPackId = Guid.NewGuid();
+
+        ScopeContext scope = new()
+        {
+            TenantId = tenantId,
+            WorkspaceId = workspaceId,
+            ProjectId = projectId
+        };
+
+        PolicyPackAssignment pinnedOrgPack = new()
+        {
+            TenantId = tenantId,
+            WorkspaceId = workspaceId,
+            ProjectId = projectId,
+            PolicyPackId = orgPackId,
+            PolicyPackVersion = "3.1.0",
+            ScopeLevel = GovernanceScopeLevel.Project,
+            IsEnabled = true,
+            IsPinned = true
+        };
+
+        Mock<IEffectiveGovernanceResolver> resolver = new();
+        resolver
+            .Setup(r => r.ResolveAsync(tenantId, workspaceId, projectId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new EffectiveGovernanceResolutionResult
+            {
+                TenantId = tenantId,
+                WorkspaceId = workspaceId,
+                ProjectId = projectId
+            });
+
+        Mock<IPolicyPackAssignmentRepository> assignments = new();
+        assignments
+            .Setup(r => r.ListByScopeAsync(tenantId, workspaceId, projectId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync([pinnedOrgPack]);
+
+        Mock<IPolicyPackRepository> packs = new();
+        packs
+            .Setup(r => r.GetByIdsAsync(It.IsAny<IReadOnlyCollection<Guid>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(
+            [
+                new PolicyPack
+                {
+                    PolicyPackId = orgPackId,
+                    Name = "Enterprise PCI Segmentation Standard",
+                    TenantId = tenantId
+                }
+            ]);
+
+        ArchitectureRequest request = new()
+        {
+            CloudProvider = CloudProvider.Azure,
+            PolicyReferences = [FocusedPilotModePolicyPacks.ReferenceToken]
+        };
+
+        EffectiveGovernanceSnapshotBuilder sut = new();
+        EffectiveGovernanceSnapshotResolution result = await sut.ResolveAsync(
+            scope,
+            request,
+            resolver.Object,
+            assignments.Object,
+            packs.Object,
+            preloadedScopePolicyPackAssignments: null,
+            CancellationToken.None);
+
+        result.PackAssignments.Should().ContainSingle(row =>
+            row.PolicyPackId == orgPackId
+            && row.PolicyPackVersion == "3.1.0");
+        result.CoverageAssignments.Should().Contain(row =>
+            row.PolicyPackId == orgPackId
+            && row.ExclusionReason == null);
+    }
 }
