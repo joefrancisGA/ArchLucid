@@ -294,6 +294,6 @@ describe("HelpGovernanceApprovalGuideView", () => {
 
     const { container } = render(<HelpGovernanceApprovalGuideView entry={entry} />);
 
-    expect(container.querySelector('[data-testid="help-governance-approval-guide"]')).toHaveClass("max-w-[72rem]");
+    expect(container.querySelector('[data-testid="help-governance-approval-guide"]')).toHaveClass("max-w-[1200px]");
   });
 });

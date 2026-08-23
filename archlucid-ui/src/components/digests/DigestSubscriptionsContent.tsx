@@ -15,6 +15,7 @@ import { useDigestSubscriptionsQuery } from "@/hooks/use-digest-subscriptions-qu
 import { useOperatorScopeQueryKey } from "@/hooks/use-operator-scope-query-key";
 
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
+import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
 import { ConfirmationDialog } from "@/components/ConfirmationDialog";
 import { DigestSubscriptionCreateForm } from "@/components/digests/DigestSubscriptionCreateForm";
 import { DigestSubscriptionList } from "@/components/digests/DigestSubscriptionList";
@@ -214,7 +215,7 @@ export function DigestSubscriptionsContent(props: DigestSubscriptionsContentProp
   }
 
   return (
-    <div className="w-full max-w-[1400px] space-y-4" data-testid="digest-subscriptions-content">
+    <div className={cn(operatorPageContainerClass("dashboard"), "space-y-4")} data-testid="digest-subscriptions-content">
       <div>
         <h2 className={cn("m-0 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.pageTitle)}>
           {DIGEST_SUBSCRIPTIONS_PAGE_TITLE}

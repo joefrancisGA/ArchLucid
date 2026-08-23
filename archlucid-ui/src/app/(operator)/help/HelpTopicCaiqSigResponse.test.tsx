@@ -184,7 +184,7 @@ describe("HelpCaiqSigResponseGuideView (TB-1631)", () => {
 
     render(<HelpCaiqSigResponseGuideView entry={loaded.entry} markdown={loaded.markdown} />);
 
-    expect(screen.getByTestId(CAIQ_SIG_RESPONSE_HELP_GUIDE_TEST_ID)).toHaveClass("max-w-[72rem]");
+    expect(screen.getByTestId(CAIQ_SIG_RESPONSE_HELP_GUIDE_TEST_ID)).toHaveClass("max-w-[1200px]");
     expect(screen.getByTestId("help-topic-content").className).toContain("lg:max-w-[52rem]");
   });
 

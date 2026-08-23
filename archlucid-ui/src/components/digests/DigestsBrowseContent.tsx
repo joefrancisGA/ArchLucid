@@ -10,6 +10,7 @@ import { useArchitectureDigestsBrowseQuery } from "@/hooks/use-architecture-dige
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
+import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
 import { Button } from "@/components/ui/button";
 import { DigestsBrowseHistorySkeleton } from "@/components/digests/DigestsBrowseHistorySkeleton";
 import { DigestsBrowseIncludesPreview } from "@/components/digests/DigestsBrowseIncludesPreview";
@@ -250,7 +251,7 @@ export function DigestsBrowseContent(props: DigestsBrowseContentProps = {}): Rea
   const showEmptyComposition: boolean = !loading && digests.length === 0 && failure === null;
 
   return (
-    <div className="w-full max-w-[1400px]" data-testid="digests-browse-content">
+    <div className={operatorPageContainerClass("dashboard")} data-testid="digests-browse-content">
       {!hidePageHeader ? (
         <>
           <h2 className={cn("m-0 font-semibold text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.pageTitle)}>

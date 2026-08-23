@@ -264,7 +264,7 @@ describe("HelpAzurePermissionsGuideView", () => {
 
     const { container } = render(<HelpAzurePermissionsGuideView entry={entry} />);
 
-    expect(container.querySelector('[data-testid="help-azure-permissions-guide"]')).toHaveClass("max-w-[68rem]");
+    expect(container.querySelector('[data-testid="help-azure-permissions-guide"]')).toHaveClass("max-w-[1200px]");
   });
 
   it("places verify immediately after assign roles in the document", () => {

@@ -3,6 +3,7 @@ import { cn } from "@/lib/utils";
 import {
   OPERATOR_LAYOUT,
   OPERATOR_LINK,
+  OPERATOR_PAGE_CONTAINER,
   OPERATOR_SHELL_SCROLL_OFFSET_CLASS,
   OPERATOR_SHELL_STICKY_TOP_CLASS,
   OPERATOR_TYPE_SCALE,
@@ -18,13 +19,15 @@ export const HELP_PAGE_LAYOUT = {
     "border-b border-neutral-200 pb-6 dark:border-neutral-800",
     OPERATOR_LAYOUT.sectionHeadingStack,
   ),
-  contentGrid:
-    "grid w-full max-w-[72rem] grid-cols-1 gap-10 xl:grid-cols-[minmax(0,1fr)_16.5rem] xl:items-start",
+  contentGrid: cn(
+    "grid grid-cols-1 gap-10 xl:grid-cols-[minmax(0,1fr)_16.5rem] xl:items-start",
+    OPERATOR_PAGE_CONTAINER.variant.workflow,
+  ),
   technicalReferenceGrid:
     "grid grid-cols-1 justify-start gap-10 lg:grid-cols-[minmax(0,52rem)_16.5rem] lg:items-start",
   contentColumn: "min-w-0 w-full max-w-none",
   readingBody: OPERATOR_TYPE_SCALE.helpReadingBody,
-  technicalReferenceArticle: "w-full max-w-[72rem]",
+  technicalReferenceArticle: OPERATOR_PAGE_CONTAINER.variant.workflow,
   technicalReferenceColumn: "min-w-0 w-full max-w-none lg:max-w-[52rem]",
   technicalReferenceSkipLink: cn(
     "sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-white focus:px-3 focus:py-2 focus:shadow-md dark:focus:bg-neutral-950",

@@ -18,7 +18,7 @@ describe("help-page-layout", () => {
   it("left-aligns help content within the shell content pane", () => {
     expect(HELP_PAGE_LAYOUT.contentColumn).toContain("max-w-none");
     expect(HELP_PAGE_LAYOUT.contentGrid).toContain("gap-10");
-    expect(HELP_PAGE_LAYOUT.contentGrid).toContain("max-w-[72rem]");
+    expect(HELP_PAGE_LAYOUT.contentGrid).toContain("max-w-[1200px]");
     expect(HELP_PAGE_LAYOUT.contentGrid).not.toContain("mx-auto");
     expect(HELP_PAGE_LAYOUT.contentGrid).not.toContain("52rem");
   });
@@ -56,6 +56,6 @@ describe("help-page-layout", () => {
     expect(HELP_PAGE_LAYOUT.technicalReferenceGrid).toContain("52rem");
     expect(HELP_PAGE_LAYOUT.technicalReferenceGrid).toContain("justify-start");
     expect(HELP_PAGE_LAYOUT.technicalReferenceColumn).toContain("lg:max-w-[52rem]");
-    expect(HELP_PAGE_LAYOUT.technicalReferenceArticle).toContain("72rem");
+    expect(HELP_PAGE_LAYOUT.technicalReferenceArticle).toContain("1200px");
   });
 });

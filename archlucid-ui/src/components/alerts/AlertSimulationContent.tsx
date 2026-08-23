@@ -6,6 +6,7 @@ import { FieldHelpTooltip } from "@/components/FieldHelpTooltip";
 import { OperatorSegmentedModeToolbar } from "@/components/advisory/OperatorSegmentedModeToolbar";
 import { OperatorToolingWorkbenchPanels } from "@/components/advisory/OperatorToolingWorkbenchPanels";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
+import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
 import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -313,7 +314,7 @@ export function AlertSimulationContent() {
   );
 
   return (
-    <div className="max-w-[1100px]">
+    <div className={operatorPageContainerClass("workflow")}>
       <h3 id="alert-simulation-section-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>
         Simulate alerts
       </h3>
