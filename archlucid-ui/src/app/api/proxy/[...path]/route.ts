@@ -1,14 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import {
   CORRELATION_ID_HEADER,
-  TRACE_PARENT_HEADER,
   generateCorrelationId,
-  isSafeCorrelationId,
-  isValidTraceParent,
 } from "@/lib/correlation";
 import { resolveUpstreamApiBaseUrlForProxy } from "@/lib/config";
-import { readServerSideApiKey } from "@/lib/legacy-arch-env";
-import { isAnonymousMarketingProxyPath } from "@/lib/proxy-anonymous-marketing-paths";
 import { buildProxyUpstreamPath } from "@/lib/proxy-upstream-path";
 import { declaredPostBodyExceedsLimit, readRequestBodyBytesWithLimit } from "@/lib/proxy-body-read";
 import {
@@ -16,6 +11,14 @@ import {
   resolveProxyMaxBodyBytes,
 } from "@/lib/proxy-constants";
 import { enforceProxyRateLimit } from "@/lib/proxy-rate-limit";
+import {
+  IDEMPOTENCY_REPLAYED_HEADER,
+  buildProxyUpstreamHeaders,
+} from "@/lib/proxy/proxy-upstream-headers";
+import {
+  logProxyDiagnostic,
+  respondWithProxyProblem,
+} from "@/lib/proxy/proxy-problem-response";
 import {
   PROXY_UPSTREAM_FETCH_TIMEOUT_MS,
   PROXY_UPSTREAM_UPLOAD_FETCH_TIMEOUT_MS,
@@ -32,105 +35,8 @@ import {
   shouldLogSlowOrFailedRequest,
 } from "@/lib/telemetry/server-request-timing";
 
-const IDEMPOTENCY_KEY_HEADER = "Idempotency-Key";
-/** Matches `ArchitectureRunIdempotencyHashing.MaxIdempotencyKeyLength` on the API. */
-const MAX_IDEMPOTENCY_KEY_LENGTH = 256;
-const IDEMPOTENCY_REPLAYED_HEADER = "X-Idempotency-Replayed";
-
 /** Forwards JSON/binary calls to the upstream C# API (`GET`/`POST`/`PUT`/`PATCH`/`DELETE`). */
 type ForwardMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
-
-/**
- * Builds headers for the upstream C# API request.
- * Attaches API key, forwards browser Authorization header, and merges scope headers
- * In production-like posture, client scope headers are ignored (see `proxy-scope-resolution.ts`).
- */
-function buildUpstreamHeaders(request: NextRequest, proxyPath?: string): Headers {
-  const h = new Headers();
-  const key = readServerSideApiKey()?.trim() ?? "";
-  const authHeader = request.headers.get("authorization");
-  const browserBearer = authHeader?.trim() ?? "";
-  const serverBearerToken = process.env.ARCHLUCID_PROXY_BEARER_TOKEN?.trim() ?? "";
-  const skipPrivilegedUpstreamAuth =
-    proxyPath !== undefined &&
-    proxyPath.length > 0 &&
-    isAnonymousMarketingProxyPath(proxyPath);
-  const bearerToUse =
-    browserBearer.length > 0
-      ? browserBearer
-      : !skipPrivilegedUpstreamAuth && serverBearerToken.length > 0
-        ? `Bearer ${serverBearerToken}`
-        : "";
-  const hasBearer = bearerToUse.length > 0;
-
-  if (key && !hasBearer && !skipPrivilegedUpstreamAuth) {
-    h.set("X-Api-Key", key);
-  }
-
-  if (hasBearer) {
-    h.set("Authorization", bearerToUse);
-  }
-
-  for (const [k, v] of Object.entries(resolveProxyUpstreamScopeHeaders(request.headers, undefined, proxyPath))) {
-    h.set(k, v);
-  }
-
-  const incomingCorrelation = request.headers.get(CORRELATION_ID_HEADER);
-  const correlationId =
-    incomingCorrelation !== null &&
-    incomingCorrelation !== undefined &&
-    isSafeCorrelationId(incomingCorrelation)
-      ? incomingCorrelation.trim()
-      : generateCorrelationId();
-  h.set(CORRELATION_ID_HEADER, correlationId);
-
-  const incomingTraceParent = request.headers.get(TRACE_PARENT_HEADER);
-
-  if (typeof incomingTraceParent === "string" && isValidTraceParent(incomingTraceParent)) {
-    h.set(TRACE_PARENT_HEADER, incomingTraceParent.trim());
-  }
-
-  const incomingIdempotencyKey = request.headers.get(IDEMPOTENCY_KEY_HEADER)?.trim() ?? "";
-
-  if (
-    incomingIdempotencyKey.length > 0 &&
-    incomingIdempotencyKey.length <= MAX_IDEMPOTENCY_KEY_LENGTH
-  ) {
-    h.set(IDEMPOTENCY_KEY_HEADER, incomingIdempotencyKey);
-  }
-
-  return h;
-}
-
-/** One-line JSON for operators scraping UI server logs (no response bodies). */
-function logProxyDiagnostic(
-  event: string,
-  fields: Record<string, string | number | undefined>,
-): void {
-  const cleaned: Record<string, string | number> = {};
-
-  for (const [k, v] of Object.entries(fields)) {
-    if (v !== undefined) {
-      cleaned[k] = v;
-    }
-  }
-
-  console.warn(JSON.stringify({ component: "archlucid-ui-proxy", event, ...cleaned }));
-}
-
-/** Proxy-originated problem JSON: same shape as API hints; includes body + **X-Correlation-ID** for triage. */
-function respondWithProxyProblem(
-  status: number,
-  body: Record<string, unknown>,
-  correlationId: string,
-): NextResponse {
-  const id =
-    correlationId.trim().length > 0 ? correlationId.trim() : generateCorrelationId();
-  const res = NextResponse.json({ ...body, correlationId: id }, { status });
-  res.headers.set(CORRELATION_ID_HEADER, id);
-
-  return res;
-}
 
 /** Forwards `POST`/`PUT`/`PATCH` with JSON or multipart body; multipart evidence uploads allow up to 100 MB. */
 async function forwardMutatingWithBody(
@@ -281,7 +187,7 @@ async function forward(
   }
 
   const path = builtPath.path;
-  const upstreamHeaders = buildUpstreamHeaders(request, path);
+  const upstreamHeaders = buildProxyUpstreamHeaders(request, path);
   const correlationId =
     upstreamHeaders.get(CORRELATION_ID_HEADER)?.trim() ?? generateCorrelationId();
 
