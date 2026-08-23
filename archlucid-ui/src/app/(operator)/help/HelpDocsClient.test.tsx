@@ -43,6 +43,64 @@ describe("HelpDocsClient", () => {
     vi.unstubAllGlobals();
   });
 
+  it("does not duplicate a doc link when fetched index repeats the same url under another category", async () => {
+    const data = [
+      {
+        title: "Choose your next step",
+        summary: "Map your current goal from the generated doc index.",
+        category: "Go-to-Market",
+        url: "/help/choose-your-next-step",
+      },
+    ];
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        Promise.resolve({
+          ok: true,
+          json: async () => data,
+        } as Response),
+      ),
+    );
+
+    renderWithOperatorQuery(<HelpDocsClient />);
+
+    await screen.findByRole("link", { name: "Choose your next step" });
+
+    expect(screen.getAllByRole("link", { name: "Choose your next step" })).toHaveLength(1);
+
+    vi.unstubAllGlobals();
+  });
+
+  it("does not duplicate a doc link when fetched index uses a different title for the same url", async () => {
+    const data = [
+      {
+        title: "Platform health",
+        summary: "System health and observability signals.",
+        category: "Operations",
+        url: "/help/admin-diagnostics",
+      },
+    ];
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        Promise.resolve({
+          ok: true,
+          json: async () => data,
+        } as Response),
+      ),
+    );
+
+    renderWithOperatorQuery(<HelpDocsClient />);
+
+    await screen.findByRole("link", { name: "Admin diagnostics" });
+
+    expect(screen.queryByRole("link", { name: "Platform health" })).toBeNull();
+
+    vi.unstubAllGlobals();
+  });
+
   it("loads index and filters by title or summary", async () => {
     const data = [
       {
