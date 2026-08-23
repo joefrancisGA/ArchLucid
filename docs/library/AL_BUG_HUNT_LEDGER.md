@@ -1751,11 +1751,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 1
-- **bugs-found:** 1
+- **hunts:** 2
+- **bugs-found:** 2
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-20
-- **last-bug:** 2026-08-20
+- **last-hunt:** 2026-08-23
+- **last-bug:** 2026-08-23
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
@@ -1765,6 +1765,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) Migration copies rows without rewriting tenant id on child tables — retired: `TenantCatalogMigrationOrchestrator` coordinates suspend/projection refresh/verification; no catalog row-copy logic in `ArchLucid.Application/Tenancy/`
 - [x] (invalid) Trial bootstrap creates resources under a host catalog tenant id — retired: `TrialTenantBootstrapService` scopes `AmbientScopeContext` to `result.TenantId` and uses `ContosoRetailDemoIds.ForTenant(result.TenantId)`
 - [x] (proven) Migration verification passes without workspace/project scope on committed run candidate — `TenantMigrationVerificationProbe.RunAsync` omitted scope-id validation before scoped read probe (fixed 2026-08-20)
+- [x] (proven) Projection refresh stage advances before `RefreshAsync` completes — `TenantCatalogMigrationOrchestrator.RunProjectionRefreshAsync` updated stage to `ProjectionRefresh` before calling refresh; failed refresh blocked retry and allowed `RunVerificationAsync` to skip incomplete refresh (fixed 2026-08-23)
 
 ---
 

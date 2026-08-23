@@ -57,3 +57,4 @@
 {"at":"2026-08-23T05:57:08.3948778Z","zoneId":"extraction-router","outcome":"hit"}
 {"at":"2026-08-23T06:02:12.6943245Z","zoneId":"ui-help-docs","outcome":"hit"}
 {"at":"2026-08-23T06:10:49.7443636Z","zoneId":"notifications-pipeline","outcome":"hit"}
+{"at":"2026-08-23T06:18:09.3437278Z","zoneId":"application-tenancy-lifecycle","outcome":"hit"}

@@ -87,6 +87,63 @@ public sealed class TenantCatalogMigrationOrchestratorTests
     }
 
     [Fact]
+    public async Task RunProjectionRefreshAsync_keeps_catalog_attach_stage_when_refresh_throws()
+    {
+        InMemoryTenantCatalogMigrationRepository migrations = new();
+        Guid migrationId = Guid.NewGuid();
+        await migrations.InsertAsync(
+            new TenantCatalogMigrationRecord
+            {
+                MigrationId = migrationId,
+                TenantId = TenantId,
+                CorrelationId = "corr-refresh-fail",
+                Stage = TenantCatalogMigrationStage.CatalogAttachDetach,
+                StartedUtc = DateTimeOffset.UtcNow,
+            },
+            CancellationToken.None);
+
+        Mock<ITenantMigrationProjectionRefreshService> projection = new(MockBehavior.Strict);
+        projection
+            .Setup(service => service.RefreshAsync(TenantId, WorkspaceId, ProjectId, It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("projection refresh failed"));
+
+        TenantCatalogMigrationOrchestrator sut = CreateOrchestrator(
+            migrations,
+            projectionRefreshService: projection.Object);
+
+        await Assert.ThrowsAsync<InvalidOperationException>(
+            async () => await sut.RunProjectionRefreshAsync(TenantId, WorkspaceId, ProjectId, "admin", "Admin", CancellationToken.None));
+
+        TenantCatalogMigrationRecord? record =
+            await migrations.GetActiveByTenantIdAsync(TenantId, CancellationToken.None);
+        Assert.Equal(TenantCatalogMigrationStage.CatalogAttachDetach, record?.Stage);
+    }
+
+    [Fact]
+    public async Task RunVerificationAsync_returns_wrong_stage_before_projection_refresh_succeeds()
+    {
+        InMemoryTenantCatalogMigrationRepository migrations = new();
+        await migrations.InsertAsync(
+            new TenantCatalogMigrationRecord
+            {
+                MigrationId = Guid.NewGuid(),
+                TenantId = TenantId,
+                CorrelationId = "corr-no-refresh",
+                Stage = TenantCatalogMigrationStage.CatalogAttachDetach,
+                StartedUtc = DateTimeOffset.UtcNow,
+            },
+            CancellationToken.None);
+
+        TenantCatalogMigrationOrchestrator sut = CreateOrchestrator(migrations);
+
+        (TenantCatalogMigrationCommandOutcome outcome, TenantMigrationVerificationProbeResult? probe) =
+            await sut.RunVerificationAsync(TenantId, "admin", "Admin", CancellationToken.None);
+
+        Assert.Equal(TenantCatalogMigrationCommandOutcome.WrongStage, outcome);
+        Assert.Null(probe);
+    }
+
+    [Fact]
     public async Task RunVerificationAsync_allows_retry_after_failed_verification()
     {
         InMemoryTenantCatalogMigrationRepository migrations = new();
@@ -141,20 +198,30 @@ public sealed class TenantCatalogMigrationOrchestratorTests
 
     private static TenantCatalogMigrationOrchestrator CreateOrchestrator(
         InMemoryTenantCatalogMigrationRepository migrations,
-        ITenantMigrationVerificationProbe? verificationProbe = null)
+        ITenantMigrationVerificationProbe? verificationProbe = null,
+        ITenantMigrationProjectionRefreshService? projectionRefreshService = null)
     {
         Mock<ITenantRepository> tenants = new(MockBehavior.Loose);
         Mock<ITenantSuspendCommandService> suspend = new(MockBehavior.Loose);
-        Mock<ITenantMigrationProjectionRefreshService> projection = new(MockBehavior.Strict);
-        projection
-            .Setup(service => service.RefreshAsync(TenantId, WorkspaceId, ProjectId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(
-                new TenantMigrationProjectionRefreshResult
-                {
-                    RetrievalIndexingRowsProcessed = 3,
-                    RoiCacheKeysInvalidated = 1,
-                    TenantScopeCachesInvalidated = 7,
-                });
+        ITenantMigrationProjectionRefreshService projection;
+        if (projectionRefreshService is not null)
+        {
+            projection = projectionRefreshService;
+        }
+        else
+        {
+            Mock<ITenantMigrationProjectionRefreshService> projectionMock = new(MockBehavior.Strict);
+            projectionMock
+                .Setup(service => service.RefreshAsync(TenantId, WorkspaceId, ProjectId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(
+                    new TenantMigrationProjectionRefreshResult
+                    {
+                        RetrievalIndexingRowsProcessed = 3,
+                        RoiCacheKeysInvalidated = 1,
+                        TenantScopeCachesInvalidated = 7,
+                    });
+            projection = projectionMock.Object;
+        }
 
         ITenantMigrationVerificationProbe verification;
         if (verificationProbe is not null)
@@ -184,7 +251,7 @@ public sealed class TenantCatalogMigrationOrchestratorTests
             migrations,
             tenants.Object,
             suspend.Object,
-            projection.Object,
+            projection,
             verification,
             audit.Object,
             clock);
