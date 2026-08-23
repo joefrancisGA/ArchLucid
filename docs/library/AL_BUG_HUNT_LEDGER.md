@@ -1587,13 +1587,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** host composition; DI registration; startup modules
 - **paths:** ArchLucid.Host.Composition/
 - **test-filter:** FullyQualifiedName~Host.Composition|FullyQualifiedName~ServiceCollectionExtensions
-- **hunts:** 3
+- **hunts:** 4
 - **bugs-found:** 3
-- **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-21
+- **consecutive-dry-hunts:** 1
+- **last-hunt:** 2026-08-23
 - **last-bug:** 2026-08-21
 - **related-pd-tb:** none
-- **code-changed-since:** unknown
+- **code-changed-since:** yes
 
 ### Hypotheses
 
@@ -1603,6 +1603,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Weekly sponsor summary pipeline never wired into composition root — **hit 2026-08-19:** `RegisterWeeklySponsorSummaryServices` / worker infrastructure existed but were not called from `AddArchLucidApplicationServices`, so `IWeeklySponsorSummaryEmailDispatcher` was absent from DI
 - [x] (proven) Weekly sponsor summary container offload has no `IArchLucidJob` — **hit 2026-08-20:** `RegisterWeeklySponsorSummaryWorkerInfrastructure` skips `WeeklySponsorSummaryHostedService` when `Jobs:OffloadedToContainerJobs` includes `weekly-sponsor-summary`, but `RegisterArchLucidJobRunners` never registered a matching job so container offload silently dropped delivery
 - [x] (proven) Data-archival container offload drops agent trace blob cleanup — **hit 2026-08-21:** `RegisterAgentResultBlobCleanupHostedService` reused `ArchLucidJobsOffload.IsOffloaded(..., DataArchival)` so offloading `data-archival` unregistered `AgentResultBlobCleanupHostedService` even though no matching `IArchLucidJob` exists
+- [x] (valid-no-repro) Orphan-probe container offload drops `OrphanProbeArchLucidJob` — `InMemoryStorageProviderRegistrar` / `SqlStorageProviderRegistrar` register `IArchLucidJob` before the hosted-service gate; `ContainerJobsOffloadRegistrationTests` offload parity (2026-08-23)
+- [x] (valid-no-repro) Required-audit-trail-orphan-probe offload drops matching `IArchLucidJob` — same dual registration pattern as orphan-probe; `ContainerJobsOffloadRegistrationTests` (2026-08-23)
+- [x] (valid-no-repro) Audit-change-feed offload with Cosmos audit enabled drops `AuditEventChangeFeedArchLucidJob` — `RegisterCosmosPolyglotPersistence` registers job after hosted-service gate; `ContainerJobsOffloadRegistrationTests` (2026-08-23)
+- [x] (valid-no-repro) Logic App trial-email owner still registers `TrialLifecycleEmailScanHostedService` — `RegisterTrialLifecycleEmailHostedServices` gates on `TrialLifecycleEmailRoutingOptions.IsLogicAppOwnerMode`; `ContainerJobsOffloadRegistrationTests` (2026-08-23)
 
 ---
 
