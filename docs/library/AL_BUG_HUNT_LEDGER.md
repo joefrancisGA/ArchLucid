@@ -1800,6 +1800,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) Stale react-query cache shows the previous tenant after scope switch — `usePilotScorecardQuery` scope-less key is a real gap on `/insights/architecture-scorecard`, but not reproved this hunt; sponsor/scorecard cache invalidation remains open if scope-switch stale data is reported
 - [x] (invalid) Error boundary hides a 403 and renders an empty success state — no operator-route locus where a 403 is caught and replaced with empty success; compare/governance surfaces surface load failures explicitly
 - [x] (proven) Billing wallet GET/PUT `/api/proxy/v1/billing/wallet` omitted `mergeRegistrationScopeForProxy` — load/save hit proxy dev-default tenant instead of operator-selected scope (wallet settings appear not to stick after save) — fixed 2026-08-22 (`OperatorBillingWalletPanel.test.tsx`)
+- [x] (proven) Architecture intelligence `getJson`/`postJson` in `architecture-intelligence-client-api.ts` omitted `mergeRegistrationScopeForProxy` — product-run source-context load and reasoning POSTs hit proxy dev-default tenant instead of operator-selected scope (hydrated review context wrong or missing after scope switch) — fixed 2026-08-23 (`architecture-intelligence-client-api.test.tsx`)
 
 ---
 

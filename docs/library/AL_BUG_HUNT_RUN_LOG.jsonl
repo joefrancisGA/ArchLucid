@@ -8,14 +8,14 @@
 {"at":"2026-08-20T08:47:55.6565436Z","zoneId":"itsm-inbound-webhooks","outcome":"hit"}
 {"at":"2026-08-20T09:17:48.7863085Z","zoneId":"outbound-webhook-dry-run","outcome":"seed-only"}
 {"at":"2026-08-20T09:38:45.4121259Z","zoneId":"application-agents","outcome":"hit"}
-{"at":"2026-08-20T09:59:48.0756860Z","zoneId":"application-governance-policy","outcome":"hit"}
+{"at":"2026-08-20T09:59:48.075686Z","zoneId":"application-governance-policy","outcome":"hit"}
 {"at":"2026-08-20T10:20:51.5157517Z","zoneId":"application-tenancy-lifecycle","outcome":"hit"}
 {"at":"2026-08-20T10:51:37.6296076Z","zoneId":"host-core-coordination","outcome":"hit"}
 {"at":"2026-08-20T11:04:52.8926707Z","zoneId":"ui-operator-routes","outcome":"hit"}
 {"at":"2026-08-20T11:14:53.7720928Z","zoneId":"ui-marketing-surfaces","outcome":"hit"}
 {"at":"2026-08-20T17:37:41.0159684Z","zoneId":"ui-operator-lib","outcome":"hit"}
 {"at":"2026-08-20T17:54:36.5943513Z","zoneId":"archlucid-contracts","outcome":"hit"}
-{"at":"2026-08-20T19:04:14.2688720Z","zoneId":"context-ingestion","outcome":"hit"}
+{"at":"2026-08-20T19:04:14.268872Z","zoneId":"context-ingestion","outcome":"hit"}
 {"at":"2026-08-20T19:52:50.6434629Z","zoneId":"host-core-jobs","outcome":"hit"}
 {"at":"2026-08-20T20:14:24.3824761Z","zoneId":"architecture-recommendation","outcome":"hit"}
 {"at":"2026-08-21T01:38:15.7893061Z","zoneId":"ui-auth-proxy","outcome":"hit"}
@@ -32,7 +32,8 @@
 {"at":"2026-08-21T07:14:36.0243362Z","zoneId":"application-governance-policy","outcome":"hit"}
 {"at":"2026-08-21T12:37:16.4050732Z","zoneId":"agent-runtime-evaluation","outcome":"hit"}
 {"at":"2026-08-21T13:27:27.3698649Z","zoneId":"ui-auth-proxy","outcome":"hit"}
-{"at":"2026-08-22T15:53:43.1622200Z","zoneId":"application-agents","outcome":"hit"}
+{"at":"2026-08-22T15:53:43.16222Z","zoneId":"application-agents","outcome":"hit"}
 {"at":"2026-08-22T18:56:26.2658172Z","zoneId":"api-authority-admin-controllers","outcome":"hit"}
 {"at":"2026-08-22T23:21:26.1493261Z","zoneId":"ui-operator-routes","outcome":"hit"}
 {"at":"2026-08-23T02:04:50.678Z","zoneId":"context-ingestion","outcome":"hit"}
+{"at":"2026-08-23T02:32:30.6195531Z","zoneId":"ui-operator-routes","outcome":"hit"}
