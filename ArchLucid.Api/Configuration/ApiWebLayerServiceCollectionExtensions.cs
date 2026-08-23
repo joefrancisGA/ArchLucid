@@ -55,6 +55,7 @@ public static class ApiWebLayerServiceCollectionExtensions
             services.AddScoped<IEvolutionSimulationService, EvolutionSimulationService>();
         }
 
+        services.AddScoped<DataConsistencyRemediationExecutor>();
         services.AddScoped<IAdminDiagnosticsService, AdminDiagnosticsService>();
         services.AddSingleton<IHostBuildInfoAccessor, ApiHostBuildInfoAccessor>();
         services.Configure<DeploymentStatusOptions>(configuration.GetSection(DeploymentStatusOptions.SectionPath));

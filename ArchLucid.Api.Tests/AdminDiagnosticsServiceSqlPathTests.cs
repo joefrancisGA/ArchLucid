@@ -980,7 +980,8 @@ public sealed class AdminDiagnosticsServiceSqlPathTests
             CacheTelemetryProvider(),
             actor.Object,
             auditService,
-            MissingArchitectureRequestOptionsMonitor());
+            MissingArchitectureRequestOptionsMonitor(),
+            new DataConsistencyRemediationExecutor(connectionFactory, auditService));
     }
 
     private static IOptionsMonitor<MissingArchitectureRequestAutoRemediationOptions>

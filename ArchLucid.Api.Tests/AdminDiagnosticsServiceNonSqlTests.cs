@@ -1166,7 +1166,8 @@ public sealed class AdminDiagnosticsServiceNonSqlTests
             cacheTelemetrySnapshotProvider,
             actor.Object,
             audit.Object,
-            MissingArchitectureRequestOptionsMonitor());
+            MissingArchitectureRequestOptionsMonitor(),
+            new DataConsistencyRemediationExecutor(connectionFactory.Object, audit.Object));
     }
 
     private static ScopeContext DefaultScope() =>

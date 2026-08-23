@@ -38,7 +38,8 @@ public sealed class AdminDiagnosticsService(
     ICacheTelemetrySnapshotProvider cacheTelemetrySnapshotProvider,
     IActorContext actorContext,
     IAuditService auditService,
-    IOptionsMonitor<MissingArchitectureRequestAutoRemediationOptions> missingArchitectureRequestAutoRemediationOptions)
+    IOptionsMonitor<MissingArchitectureRequestAutoRemediationOptions> missingArchitectureRequestAutoRemediationOptions,
+    DataConsistencyRemediationExecutor remediationExecutor)
     : IAdminDiagnosticsService
 {
     private readonly IAdminOutboxSnapshotReader _adminOutboxSnapshotReader =
@@ -76,6 +77,9 @@ public sealed class AdminDiagnosticsService(
 
     private readonly IScopeContextProvider _scopeContextProvider =
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
+
+    private readonly DataConsistencyRemediationExecutor _remediationExecutor =
+        remediationExecutor ?? throw new ArgumentNullException(nameof(remediationExecutor));
 
     /// <inheritdoc />
     public async Task<AdminOutboxSnapshot> GetOutboxSnapshotAsync(CancellationToken cancellationToken = default)
@@ -354,80 +358,13 @@ public sealed class AdminDiagnosticsService(
         if (ArchLucidOptions.EffectiveIsInMemory(_archLucidOptions.Value.StorageProvider))
             return new OrphanComparisonRemediationResult(dryRun, 0, []);
 
-        int capped = Math.Clamp(maxRows, 1, PaginationDefaults.MaxListingTake);
-        DbConnection connection = (DbConnection)_connectionFactory.CreateConnection();
-        await using DbConnection _ = connection;
-        await connection.OpenAsync(cancellationToken);
+        DataConsistencyRemediationOutcome outcome = await _remediationExecutor.ExecuteAsync(
+            DataConsistencyRemediationDefinitions.OrphanComparisonRecords,
+            dryRun,
+            maxRows,
+            cancellationToken);
 
-        List<string> candidateIds = [];
-
-        await using (DbCommand selectCommand = connection.CreateCommand())
-        {
-            selectCommand.CommandText = DataConsistencyOrphanRemediationSql.SelectOrphanComparisonRecordIds;
-            DbParameter maxRowsParameter = selectCommand.CreateParameter();
-            maxRowsParameter.ParameterName = "@MaxRows";
-            maxRowsParameter.Value = capped;
-            selectCommand.Parameters.Add(maxRowsParameter);
-
-            await using DbDataReader reader = await selectCommand.ExecuteReaderAsync(cancellationToken);
-
-            while (await reader.ReadAsync(cancellationToken))
-
-                candidateIds.Add(reader.GetString(0));
-        }
-
-        if (dryRun)
-            return new OrphanComparisonRemediationResult(true, candidateIds.Count, candidateIds);
-
-        if (candidateIds.Count == 0)
-            return new OrphanComparisonRemediationResult(false, 0, []);
-
-        List<string> deletedIds = [];
-
-        await using DbTransaction transaction = await connection.BeginTransactionAsync(cancellationToken);
-
-        try
-        {
-            await using (DbCommand deleteCommand = connection.CreateCommand())
-            {
-                deleteCommand.Transaction = transaction;
-                deleteCommand.CommandText = DataConsistencyOrphanRemediationSql.DeleteOrphanComparisonRecordsWithOutput;
-                DbParameter maxRowsParameter = deleteCommand.CreateParameter();
-                maxRowsParameter.ParameterName = "@MaxRows";
-                maxRowsParameter.Value = capped;
-                deleteCommand.Parameters.Add(maxRowsParameter);
-
-                await using DbDataReader reader = await deleteCommand.ExecuteReaderAsync(cancellationToken);
-
-                while (await reader.ReadAsync(cancellationToken))
-
-                    deletedIds.Add(reader.GetString(0));
-            }
-
-            await transaction.CommitAsync(cancellationToken);
-        }
-        catch
-        {
-            await transaction.RollbackAsync(cancellationToken);
-            throw;
-        }
-
-        if (deletedIds.Count > 0)
-            await _auditService.LogAsync(
-                new AuditEvent
-                {
-                    EventType = AuditEventTypes.ComparisonRecordOrphansRemediated,
-                    DataJson = JsonSerializer.Serialize(
-                        new
-                        {
-                            dryRun = false,
-                            deletedCount = deletedIds.Count,
-                            comparisonRecordIds = deletedIds
-                        })
-                },
-                cancellationToken);
-
-        return new OrphanComparisonRemediationResult(false, deletedIds.Count, deletedIds);
+        return new OrphanComparisonRemediationResult(outcome.DryRun, outcome.RowCount, outcome.DeletedIds);
     }
 
     /// <inheritdoc />
@@ -439,97 +376,13 @@ public sealed class AdminDiagnosticsService(
         if (ArchLucidOptions.EffectiveIsInMemory(_archLucidOptions.Value.StorageProvider))
             return new OrphanGoldenManifestRemediationResult(dryRun, 0, []);
 
-        int capped = Math.Clamp(maxRows, 1, PaginationDefaults.MaxListingTake);
-        DbConnection connection = (DbConnection)_connectionFactory.CreateConnection();
-        await using DbConnection _ = connection;
-        await connection.OpenAsync(cancellationToken);
+        DataConsistencyRemediationOutcome outcome = await _remediationExecutor.ExecuteAsync(
+            DataConsistencyRemediationDefinitions.OrphanGoldenManifests,
+            dryRun,
+            maxRows,
+            cancellationToken);
 
-        List<string> candidateIds = [];
-
-        await using (DbCommand selectCommand = connection.CreateCommand())
-        {
-            selectCommand.CommandText = DataConsistencyOrphanRemediationSql.SelectOrphanGoldenManifestIds;
-            DbParameter maxRowsParameter = selectCommand.CreateParameter();
-            maxRowsParameter.ParameterName = "@MaxRows";
-            maxRowsParameter.Value = capped;
-            selectCommand.Parameters.Add(maxRowsParameter);
-
-            await using DbDataReader reader = await selectCommand.ExecuteReaderAsync(cancellationToken);
-
-            while (await reader.ReadAsync(cancellationToken))
-
-                candidateIds.Add(reader.GetGuid(0).ToString("D"));
-        }
-
-        if (dryRun)
-            return new OrphanGoldenManifestRemediationResult(true, candidateIds.Count, candidateIds);
-
-        if (candidateIds.Count == 0)
-            return new OrphanGoldenManifestRemediationResult(false, 0, []);
-
-        List<string> deletedIds = [];
-
-        await using DbTransaction transaction = await connection.BeginTransactionAsync(cancellationToken);
-
-        try
-        {
-            foreach (string manifestId in candidateIds)
-            {
-                await using DbCommand bundleDelete = connection.CreateCommand();
-                bundleDelete.Transaction = transaction;
-                bundleDelete.CommandText = "DELETE FROM dbo.ArtifactBundles WHERE ManifestId = @ManifestId;";
-                DbParameter mid = bundleDelete.CreateParameter();
-                mid.ParameterName = "@ManifestId";
-                mid.Value = Guid.Parse(manifestId, CultureInfo.InvariantCulture);
-                bundleDelete.Parameters.Add(mid);
-                await bundleDelete.ExecuteNonQueryAsync(cancellationToken);
-            }
-
-            foreach (string manifestId in candidateIds)
-            {
-                await using DbCommand deleteManifest = connection.CreateCommand();
-                deleteManifest.Transaction = transaction;
-                deleteManifest.CommandText = """
-                                             DELETE FROM dbo.GoldenManifests
-                                             OUTPUT deleted.ManifestId
-                                             WHERE ManifestId = @ManifestId;
-                                             """;
-                DbParameter mid = deleteManifest.CreateParameter();
-                mid.ParameterName = "@ManifestId";
-                mid.Value = Guid.Parse(manifestId, CultureInfo.InvariantCulture);
-                deleteManifest.Parameters.Add(mid);
-
-                await using DbDataReader reader = await deleteManifest.ExecuteReaderAsync(cancellationToken);
-
-                if (await reader.ReadAsync(cancellationToken))
-
-                    deletedIds.Add(reader.GetGuid(0).ToString("D"));
-            }
-
-            await transaction.CommitAsync(cancellationToken);
-        }
-        catch
-        {
-            await transaction.RollbackAsync(cancellationToken);
-            throw;
-        }
-
-        if (deletedIds.Count > 0)
-            await _auditService.LogAsync(
-                new AuditEvent
-                {
-                    EventType = AuditEventTypes.GoldenManifestOrphansRemediated,
-                    DataJson = JsonSerializer.Serialize(
-                        new
-                        {
-                            dryRun = false,
-                            deletedCount = deletedIds.Count,
-                            manifestIds = deletedIds
-                        })
-                },
-                cancellationToken);
-
-        return new OrphanGoldenManifestRemediationResult(false, deletedIds.Count, deletedIds);
+        return new OrphanGoldenManifestRemediationResult(outcome.DryRun, outcome.RowCount, outcome.DeletedIds);
     }
 
     /// <inheritdoc />
@@ -541,85 +394,13 @@ public sealed class AdminDiagnosticsService(
         if (ArchLucidOptions.EffectiveIsInMemory(_archLucidOptions.Value.StorageProvider))
             return new OrphanFindingsSnapshotRemediationResult(dryRun, 0, []);
 
-        int capped = Math.Clamp(maxRows, 1, PaginationDefaults.MaxListingTake);
-        DbConnection connection = (DbConnection)_connectionFactory.CreateConnection();
-        await using DbConnection _ = connection;
-        await connection.OpenAsync(cancellationToken);
+        DataConsistencyRemediationOutcome outcome = await _remediationExecutor.ExecuteAsync(
+            DataConsistencyRemediationDefinitions.OrphanFindingsSnapshots,
+            dryRun,
+            maxRows,
+            cancellationToken);
 
-        List<string> candidateIds = [];
-
-        await using (DbCommand selectCommand = connection.CreateCommand())
-        {
-            selectCommand.CommandText = DataConsistencyOrphanRemediationSql.SelectOrphanFindingsSnapshotIds;
-            DbParameter maxRowsParameter = selectCommand.CreateParameter();
-            maxRowsParameter.ParameterName = "@MaxRows";
-            maxRowsParameter.Value = capped;
-            selectCommand.Parameters.Add(maxRowsParameter);
-
-            await using DbDataReader reader = await selectCommand.ExecuteReaderAsync(cancellationToken);
-
-            while (await reader.ReadAsync(cancellationToken))
-
-                candidateIds.Add(reader.GetGuid(0).ToString("D"));
-        }
-
-        if (dryRun)
-            return new OrphanFindingsSnapshotRemediationResult(true, candidateIds.Count, candidateIds);
-
-        if (candidateIds.Count == 0)
-            return new OrphanFindingsSnapshotRemediationResult(false, 0, []);
-
-        List<string> deletedIds = [];
-
-        await using DbTransaction transaction = await connection.BeginTransactionAsync(cancellationToken);
-
-        try
-        {
-            foreach (string snapshotId in candidateIds)
-            {
-                await using DbCommand deleteSnapshot = connection.CreateCommand();
-                deleteSnapshot.Transaction = transaction;
-                deleteSnapshot.CommandText = """
-                                             DELETE FROM dbo.FindingsSnapshots
-                                             OUTPUT deleted.FindingsSnapshotId
-                                             WHERE FindingsSnapshotId = @FindingsSnapshotId;
-                                             """;
-                DbParameter sid = deleteSnapshot.CreateParameter();
-                sid.ParameterName = "@FindingsSnapshotId";
-                sid.Value = Guid.Parse(snapshotId, CultureInfo.InvariantCulture);
-                deleteSnapshot.Parameters.Add(sid);
-
-                await using DbDataReader reader = await deleteSnapshot.ExecuteReaderAsync(cancellationToken);
-
-                if (await reader.ReadAsync(cancellationToken))
-
-                    deletedIds.Add(reader.GetGuid(0).ToString("D"));
-            }
-
-            await transaction.CommitAsync(cancellationToken);
-        }
-        catch
-        {
-            await transaction.RollbackAsync(cancellationToken);
-            throw;
-        }
-
-        if (deletedIds.Count > 0)
-            await _auditService.LogAsync(
-                new AuditEvent
-                {
-                    EventType = AuditEventTypes.FindingsSnapshotOrphansRemediated,
-                    DataJson = JsonSerializer.Serialize(
-                        new
-                        {
-                            dryRun = false,
-                            deletedCount = deletedIds.Count,
-                            findingsSnapshotIds = deletedIds
-                        })
-                },
-                cancellationToken);
-
-        return new OrphanFindingsSnapshotRemediationResult(false, deletedIds.Count, deletedIds);
+        return new OrphanFindingsSnapshotRemediationResult(outcome.DryRun, outcome.RowCount, outcome.DeletedIds);
     }
 
     /// <inheritdoc />
