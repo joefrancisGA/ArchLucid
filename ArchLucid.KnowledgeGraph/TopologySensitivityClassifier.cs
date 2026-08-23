@@ -11,14 +11,14 @@ public static class TopologySensitivityClassifier
     {
         ArgumentNullException.ThrowIfNull(properties);
 
-        if (properties.TryGetValue(CanonicalGraphPropertyKeys.TopologySensitivity, out string? existing)
-            && !string.IsNullOrWhiteSpace(existing))
+        if (GraphNodePropertyReader.TryGetPropertyValue(properties, CanonicalGraphPropertyKeys.TopologySensitivity, out string? existing)
+            && existing is not null)
         {
             return existing.Trim();
         }
 
-        string category = properties.TryGetValue("category", out string? categoryRaw)
-            ? categoryRaw
+        string category = GraphNodePropertyReader.TryGetPropertyValue(properties, "category", out string? categoryRaw)
+            ? categoryRaw ?? string.Empty
             : string.Empty;
 
         if (string.Equals(category, GraphTopologyCategories.Identity, StringComparison.OrdinalIgnoreCase))
@@ -54,14 +54,15 @@ public static class TopologySensitivityClassifier
 
     private static bool IsPublicEdgeResource(string resourceName, IReadOnlyDictionary<string, string> properties)
     {
-        if (properties.TryGetValue("publicNetworkAccess", out string? publicAccess)
+        if (GraphNodePropertyReader.TryGetPropertyValue(properties, "publicNetworkAccess", out string? publicAccess)
+            && publicAccess is not null
             && IsTruthy(publicAccess))
         {
             return true;
         }
 
-        string resourceType = properties.TryGetValue("resourceType", out string? type)
-            ? type.ToLowerInvariant()
+        string resourceType = GraphNodePropertyReader.TryGetPropertyValue(properties, "resourceType", out string? type)
+            ? type!.ToLowerInvariant()
             : string.Empty;
 
         if (resourceType.Contains("microsoft.web/sites", StringComparison.Ordinal)
