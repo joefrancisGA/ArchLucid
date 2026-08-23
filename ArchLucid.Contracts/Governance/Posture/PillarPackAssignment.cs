@@ -40,4 +40,10 @@ public sealed class PillarPackAssignment
         get;
         init;
     }
+
+    public DateTimeOffset AssignedUtc
+    {
+        get;
+        init;
+    }
 }

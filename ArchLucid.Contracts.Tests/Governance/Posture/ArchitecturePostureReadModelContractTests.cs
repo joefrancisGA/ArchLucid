@@ -14,6 +14,9 @@ public sealed class ArchitecturePostureReadModelContractTests
     [InlineData(typeof(PillarFindingAggregate))]
     [InlineData(typeof(ReviewIntegrityAggregate))]
     [InlineData(typeof(ArchitecturePostureReadModel))]
+    [InlineData(typeof(PillarPosture))]
+    [InlineData(typeof(ArchitecturePostureSummary))]
+    [InlineData(typeof(ExaminationStateResolution))]
     public void Posture_contract_types_do_not_expose_score_ratio_or_percentage_properties(Type contractType)
     {
         IEnumerable<string> propertyNames = contractType

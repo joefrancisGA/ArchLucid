@@ -1,7 +1,7 @@
 namespace ArchLucid.Persistence.Sql;
 
 /// <summary>
-///     SQL for <see cref="Governance.Posture.SqlArchitecturePostureReader" /> (TB-2375).
+///     SQL for <see cref="Governance.Posture.SqlArchitecturePostureReader" /> (TB-2375, TB-2376).
 /// </summary>
 internal static class ArchitecturePostureReadSql
 {
@@ -11,7 +11,8 @@ internal static class ArchitecturePostureReadSql
     /// </summary>
     public const string ReadPostureBatch = """
         ;WITH latestSnapshot AS (
-            SELECT TOP (1) fs.FindingsSnapshotId
+            SELECT TOP (1) fs.FindingsSnapshotId,
+                           fs.CreatedUtc AS SnapshotCreatedUtc
             FROM dbo.FindingsSnapshots AS fs
             WHERE fs.TenantId = @TenantId
               AND fs.WorkspaceId = @WorkspaceId
@@ -60,7 +61,8 @@ internal static class ArchitecturePostureReadSql
                pp.Name AS PolicyPackName,
                ppa.PolicyPackVersion,
                ppa.ScopeLevel,
-               ppa.IsEnabled
+               ppa.IsEnabled,
+               ppa.AssignedUtc
         FROM dbo.PolicyPackAssignments AS ppa
         INNER JOIN dbo.PolicyPacks AS pp ON pp.PolicyPackId = ppa.PolicyPackId
         WHERE ppa.TenantId = @TenantId
@@ -73,7 +75,8 @@ internal static class ArchitecturePostureReadSql
           );
 
         ;WITH latestSnapshot AS (
-            SELECT TOP (1) fs.FindingsSnapshotId
+            SELECT TOP (1) fs.FindingsSnapshotId,
+                           fs.CreatedUtc AS SnapshotCreatedUtc
             FROM dbo.FindingsSnapshots AS fs
             WHERE fs.TenantId = @TenantId
               AND fs.WorkspaceId = @WorkspaceId
@@ -111,7 +114,13 @@ internal static class ArchitecturePostureReadSql
                SUM(CASE WHEN sf.IsReviewIntegrity = 1 THEN CASE WHEN sf.Severity = N'Info' THEN 1 ELSE 0 END ELSE 0 END) AS InfoCount,
                SUM(CASE WHEN sf.IsReviewIntegrity = 1 AND sf.Disposition IS NOT NULL THEN 1 ELSE 0 END) AS DispositionedCount,
                SUM(CASE WHEN sf.IsReviewIntegrity = 1 AND sf.IsMuted = 1 THEN 1 ELSE 0 END) AS MutedCount,
-               SUM(CASE WHEN sf.QualityDimension IS NULL AND ISNULL(sf.IsReviewIntegrity, 0) = 0 THEN 1 ELSE 0 END) AS UncategorizedCount
+               SUM(CASE WHEN sf.QualityDimension IS NULL AND ISNULL(sf.IsReviewIntegrity, 0) = 0 THEN 1 ELSE 0 END) AS UncategorizedCount,
+               (SELECT TOP (1) fs.CreatedUtc
+                FROM dbo.FindingsSnapshots AS fs
+                WHERE fs.TenantId = @TenantId
+                  AND fs.WorkspaceId = @WorkspaceId
+                  AND fs.ProjectId = @ProjectId
+                ORDER BY fs.CreatedUtc DESC) AS LatestSnapshotCreatedUtc
         FROM scopedFindings AS sf;
         """;
 }

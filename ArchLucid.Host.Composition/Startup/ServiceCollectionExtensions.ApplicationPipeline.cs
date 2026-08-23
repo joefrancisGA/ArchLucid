@@ -49,6 +49,7 @@ using ArchLucid.Application.Drafts.QuestionSelection;
 using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Application.Runs.Async;
 using ArchLucid.Application.Governance.Coverage;
+using ArchLucid.Application.Governance.Posture;
 using ArchLucid.Application.Runs.TechnologyLedger;
 using ArchLucid.Application.Runs.Sample;
 using ArchLucid.Core.Runs;
@@ -242,6 +243,8 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<ITechnologyLedgerRunCommandService, TechnologyLedgerRunCommandService>();
         services.AddScoped<ICoverageQueryService, CoverageQueryService>();
         services.AddScoped<ICoveragePreviewService, CoveragePreviewService>();
+        services.AddSingleton<IExaminationStateResolver, ExaminationStateResolver>();
+        services.AddScoped<IArchitecturePostureService, ArchitecturePostureService>();
         services.AddSingleton<CoverageAssignmentValidator>();
         services.AddScoped<IArchitectureRunCommandService, ArchitectureRunCommandService>();
         services.AddScoped<IArchitectureRunCreateOrchestrator, ArchitectureRunCreateOrchestrator>();

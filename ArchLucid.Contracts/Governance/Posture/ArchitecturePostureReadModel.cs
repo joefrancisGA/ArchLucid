@@ -26,4 +26,10 @@ public sealed class ArchitecturePostureReadModel
         get;
         init;
     }
+
+    public DateTimeOffset? LatestSnapshotCreatedUtc
+    {
+        get;
+        init;
+    }
 }

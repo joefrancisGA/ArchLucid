@@ -6,7 +6,7 @@ using Dapper;
 
 namespace ArchLucid.Persistence.Governance.Posture;
 
-/// <summary>SQL aggregate read for architecture posture (TB-2375).</summary>
+/// <summary>SQL aggregate read for architecture posture (TB-2375, TB-2376).</summary>
 public sealed class SqlArchitecturePostureReader(ISqlConnectionFactory connectionFactory) : IArchitecturePostureReader
 {
     public async Task<ArchitecturePostureReadModel> ReadAsync(
@@ -63,6 +63,7 @@ public sealed class SqlArchitecturePostureReader(ISqlConnectionFactory connectio
                 MutedCount = footer.MutedCount,
             },
             UncategorizedCount = footer.UncategorizedCount,
+            LatestSnapshotCreatedUtc = footer.LatestSnapshotCreatedUtc,
         };
     }
 
@@ -105,6 +106,12 @@ public sealed class SqlArchitecturePostureReader(ISqlConnectionFactory connectio
         }
 
         public int UncategorizedCount
+        {
+            get;
+            init;
+        }
+
+        public DateTimeOffset? LatestSnapshotCreatedUtc
         {
             get;
             init;
