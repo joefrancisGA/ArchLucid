@@ -9,12 +9,27 @@ vi.mock("next/navigation", () => ({
   useSearchParams: () => new URLSearchParams(),
 }));
 
+const apiHoisted = vi.hoisted(() => ({
+  listRunsByProjectPaged: vi.fn(),
+}));
+
 vi.mock("@/lib/api", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/api")>();
 
   return {
     ...actual,
-    listRunsByProjectPaged: vi.fn(),
+    listRunsByProjectPaged: apiHoisted.listRunsByProjectPaged,
+    fetchPagedReviewsInventory: vi.fn(async (params: {
+      readonly projectId: string;
+      readonly page: number;
+      readonly pageSize: number;
+      readonly cursor?: string | null;
+      readonly scopeHeaders?: Record<string, string>;
+    }) =>
+      apiHoisted.listRunsByProjectPaged(params.projectId, params.page, params.pageSize, {
+        cursor: params.cursor ?? "",
+        scopeHeaders: params.scopeHeaders,
+      })),
     restoreArchitectureRequest: vi.fn(),
   };
 });
@@ -61,7 +76,7 @@ import { RunsDashboardPanel } from "./RunsDashboardPanel";
 
 import type { RunSummary } from "@/types/authority";
 
-const listRuns = vi.mocked(listRunsByProjectPaged);
+const listRuns = vi.mocked(apiHoisted.listRunsByProjectPaged);
 
 function buildInitialModel(
   overrides: Partial<OperatorHomeRunsDashboardModel> = {},
