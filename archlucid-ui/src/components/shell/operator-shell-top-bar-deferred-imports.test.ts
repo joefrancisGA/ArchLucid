@@ -4,14 +4,13 @@ import { fileURLToPath } from "node:url";
 
 import { describe, expect, it } from "vitest";
 
+import { readDeferredChunkImportLoaderSource } from "@/lib/operator/deferred-chunk-import-loader-source.test-helper";
+
 const shellDir = dirname(fileURLToPath(import.meta.url));
 
 const topBarSource = readFileSync(join(shellDir, "OperatorShellTopBar.tsx"), "utf8");
 const deferredSource = readFileSync(join(shellDir, "operator-shell-top-bar-deferred-chunks.tsx"), "utf8");
-const manifestLoaderSource = readFileSync(
-  join(shellDir, "../../lib/operator/load-deferred-chunk-from-manifest.tsx"),
-  "utf8",
-);
+const manifestLoaderSource = readDeferredChunkImportLoaderSource();
 
 const bannedStaticImports = [
   '@/components/GlobalSearchBar"',

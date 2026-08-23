@@ -4,6 +4,8 @@ import { fileURLToPath } from "node:url";
 
 import { describe, expect, it } from "vitest";
 
+import { readDeferredChunkImportLoaderSource } from "@/lib/operator/deferred-chunk-import-loader-source.test-helper";
+
 const componentsDir = dirname(fileURLToPath(import.meta.url));
 const sectionsDir = join(componentsDir, "../../app/(operator)/_sections");
 
@@ -15,10 +17,7 @@ const workspaceContextSource = readFileSync(
 );
 const panelsDeferredSource = readFileSync(join(componentsDir, "OperatorHomeDeferredPanels.tsx"), "utf8");
 const onboardingDeferredSource = readFileSync(join(componentsDir, "OperatorHomeDeferredOnboarding.tsx"), "utf8");
-const manifestLoaderSource = readFileSync(
-  join(componentsDir, "../../lib/operator/load-deferred-chunk-from-manifest.tsx"),
-  "utf8",
-);
+const manifestLoaderSource = readDeferredChunkImportLoaderSource();
 
 const bannedStaticImports = [
   '@/components/operator-home/RunsDashboardPanel"',

@@ -4,6 +4,8 @@ import { fileURLToPath } from "node:url";
 
 import { describe, expect, it } from "vitest";
 
+import { readDeferredChunkImportLoaderSource } from "@/lib/operator/deferred-chunk-import-loader-source.test-helper";
+
 const marketingAppDir = dirname(fileURLToPath(import.meta.url));
 const marketingComponentsDir = join(marketingAppDir, "..", "..", "..", "components", "marketing");
 
@@ -20,10 +22,7 @@ const marketingLayoutDeferredSource = readFileSync(
   "utf8",
 );
 const marketingLayoutSource = readFileSync(join(marketingAppDir, "..", "layout.tsx"), "utf8");
-const manifestLoaderSource = readFileSync(
-  join(marketingComponentsDir, "../../lib/operator/load-deferred-chunk-from-manifest.tsx"),
-  "utf8",
-);
+const manifestLoaderSource = readDeferredChunkImportLoaderSource();
 
 describe("welcome marketing deferred imports (TB-2028)", () => {
   it("keeps MarketingTierPricingSection off the welcome page static import graph", () => {

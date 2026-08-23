@@ -4,16 +4,15 @@ import { fileURLToPath } from "node:url";
 
 import { describe, expect, it } from "vitest";
 
+import { readDeferredChunkImportLoaderSource } from "@/lib/operator/deferred-chunk-import-loader-source.test-helper";
+
 const routeDir = dirname(fileURLToPath(import.meta.url));
 const sectionsDir = join(routeDir, "..", "_sections");
 
 const pageSource = readFileSync(join(routeDir, "page.tsx"), "utf8");
 const pageContentSource = readFileSync(join(sectionsDir, "GovernanceWorkflowPageContent.tsx"), "utf8");
 const deferredSource = readFileSync(join(sectionsDir, "governance-workflow-deferred-chunks.tsx"), "utf8");
-const manifestLoaderSource = readFileSync(
-  join(sectionsDir, "../../../../lib/operator/load-deferred-chunk-from-manifest.tsx"),
-  "utf8",
-);
+const manifestLoaderSource = readDeferredChunkImportLoaderSource();
 
 const bannedStaticImports = [
   './GovernanceOverviewPanel"',

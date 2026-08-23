@@ -4,15 +4,14 @@ import { fileURLToPath } from "node:url";
 
 import { describe, expect, it } from "vitest";
 
+import { readDeferredChunkImportLoaderSource } from "@/lib/operator/deferred-chunk-import-loader-source.test-helper";
+
 const routeDir = dirname(fileURLToPath(import.meta.url));
 
 const pageSource = readFileSync(join(routeDir, "page.tsx"), "utf8");
 const assignedPageSource = readFileSync(join(routeDir, "assigned-to-me/page.tsx"), "utf8");
 const deferredSource = readFileSync(join(routeDir, "governance-findings-deferred-chunks.tsx"), "utf8");
-const manifestLoaderSource = readFileSync(
-  join(routeDir, "../../../../lib/operator/load-deferred-chunk-from-manifest.tsx"),
-  "utf8",
-);
+const manifestLoaderSource = readDeferredChunkImportLoaderSource();
 
 describe("governance findings deferred imports (TB-571 / wave 11)", () => {
   it("keeps GovernanceFindingsQueueClient off the page static import graph", () => {

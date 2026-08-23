@@ -4,6 +4,8 @@ import { fileURLToPath } from "node:url";
 
 import { describe, expect, it } from "vitest";
 
+import { readDeferredChunkImportLoaderSource } from "@/lib/operator/deferred-chunk-import-loader-source.test-helper";
+
 const routeDir = dirname(fileURLToPath(import.meta.url));
 
 const pathSwitcherDeferredSource = readFileSync(
@@ -20,10 +22,7 @@ const firstPilotSource = readFileSync(join(routeDir, "FirstPilotIntakeWizard.tsx
 const socraticSource = readFileSync(join(routeDir, "SocraticIntakeWizard.tsx"), "utf8");
 const quickReviewDeferredSource = readFileSync(join(routeDir, "QuickReviewWizardDeferredPanels.tsx"), "utf8");
 const socraticDeferredSource = readFileSync(join(routeDir, "SocraticIntakeWizardDeferredPanels.tsx"), "utf8");
-const manifestLoaderSource = readFileSync(
-  join(routeDir, "../../../../../lib/operator/load-deferred-chunk-from-manifest.tsx"),
-  "utf8",
-);
+const manifestLoaderSource = readDeferredChunkImportLoaderSource();
 
 const bannedQuickReviewImports = [
   '@/components/usability/QuickReviewAdvancedConfigAccordion"',

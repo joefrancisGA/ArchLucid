@@ -4,16 +4,15 @@ import { fileURLToPath } from "node:url";
 
 import { describe, expect, it } from "vitest";
 
+import { readDeferredChunkImportLoaderSource } from "@/lib/operator/deferred-chunk-import-loader-source.test-helper";
+
 const shellDir = dirname(fileURLToPath(import.meta.url));
 const componentsDir = join(shellDir, "..");
 
 const appShellSource = readFileSync(join(componentsDir, "AppShellClient.tsx"), "utf8");
 const deferredSource = readFileSync(join(shellDir, "app-shell-deferred-chunks.tsx"), "utf8");
 const topBarSource = readFileSync(join(shellDir, "OperatorShellTopBar.tsx"), "utf8");
-const manifestLoaderSource = readFileSync(
-  join(componentsDir, "../lib/operator/load-deferred-chunk-from-manifest.tsx"),
-  "utf8",
-);
+const manifestLoaderSource = readDeferredChunkImportLoaderSource();
 
 const bannedStaticImports = [
   '@/components/shell/OperatorShellTopBar"',

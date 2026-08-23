@@ -4,16 +4,15 @@ import { fileURLToPath } from "node:url";
 
 import { describe, expect, it } from "vitest";
 
+import { readDeferredChunkImportLoaderSource } from "@/lib/operator/deferred-chunk-import-loader-source.test-helper";
+
 const sectionsDir = dirname(fileURLToPath(import.meta.url));
 const operatorDir = join(sectionsDir, "..");
 
 const homePageViewSource = readFileSync(join(sectionsDir, "OperatorHomePageView.tsx"), "utf8");
 const homePageSource = readFileSync(join(operatorDir, "page.tsx"), "utf8");
 const deferredSource = readFileSync(join(sectionsDir, "operator-home-page-view-deferred-chunks.tsx"), "utf8");
-const manifestLoaderSource = readFileSync(
-  join(sectionsDir, "../../../lib/operator/load-deferred-chunk-from-manifest.tsx"),
-  "utf8",
-);
+const manifestLoaderSource = readDeferredChunkImportLoaderSource();
 const belowFoldSource = readFileSync(join(sectionsDir, "OperatorHomeBelowFoldPanels.tsx"), "utf8");
 const advancedGuidancePanelSource = readFileSync(
   join(sectionsDir, "../../../components/operator-home/OperatorHomeAdvancedGuidancePanel.tsx"),

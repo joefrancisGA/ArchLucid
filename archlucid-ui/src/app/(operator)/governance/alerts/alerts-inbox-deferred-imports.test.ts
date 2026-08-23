@@ -4,16 +4,15 @@ import { fileURLToPath } from "node:url";
 
 import { describe, expect, it } from "vitest";
 
+import { readDeferredChunkImportLoaderSource } from "@/lib/operator/deferred-chunk-import-loader-source.test-helper";
+
 const routeDir = dirname(fileURLToPath(import.meta.url));
 const componentsAlertsDir = join(routeDir, "..", "..", "..", "..", "components", "alerts");
 
 const chromeSource = readFileSync(join(routeDir, "AlertsHubChrome.tsx"), "utf8");
 const interactiveSource = readFileSync(join(componentsAlertsDir, "AlertsInboxInteractiveClient.tsx"), "utf8");
 const deferredSource = readFileSync(join(componentsAlertsDir, "alerts-inbox-deferred-chunks.tsx"), "utf8");
-const manifestLoaderSource = readFileSync(
-  join(componentsAlertsDir, "../../lib/operator/load-deferred-chunk-from-manifest.tsx"),
-  "utf8",
-);
+const manifestLoaderSource = readDeferredChunkImportLoaderSource();
 
 const bannedChromeImports = ['@/components/alerts/AlertsGovernanceContextPanel"'] as const;
 const bannedInteractiveImports = ['@/components/alerts/AlertsInboxDialogs"'] as const;
