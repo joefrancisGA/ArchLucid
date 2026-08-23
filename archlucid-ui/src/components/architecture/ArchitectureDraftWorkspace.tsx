@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 
 import { ArchitectureDraftDetailBreadcrumb } from "@/app/(operator)/architecture/architectures/_sections/ArchitectureDraftDetailBreadcrumb";
 import { ArchitectureDraftDetailBuyerChrome } from "@/app/(operator)/architecture/architectures/_sections/ArchitectureDraftDetailBuyerChrome";
@@ -68,6 +69,8 @@ import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { getRunSummary } from "@/lib/api/architecture-runs";
 import { isApiRequestError } from "@/lib/api-request-error";
 import { getDraftRequest, patchDraftRequest, reopenDraftRequest } from "@/lib/api/draft-intake-api";
+import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
+import { OPERATOR_QUERY_STALE_MS } from "@/lib/query/operator-query-stale-time";
 import {
   ARCHITECTURE_DRAFT_INTAKE_MODE_CONTINUE_LABEL,
   architectureDraftAllowsBriefUnlock,
@@ -93,6 +96,7 @@ type ArchitectureDraftWorkspaceProps = {
 /** Long-lived architecture draft editor — save and resume without starting a review. */
 export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProps): React.JSX.Element {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const isNewDraft = isArchitectureNewDraftSegment(props.architectureId);
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const isDetailDraft = !isNewDraft;
@@ -246,7 +250,11 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
       setLoadError(null);
 
       try {
-        const loaded = await getDraftRequest(props.architectureId);
+        const loaded = await queryClient.fetchQuery({
+          queryKey: operatorQueryKeys.architectureDraft(props.architectureId),
+          queryFn: () => getDraftRequest(props.architectureId),
+          staleTime: OPERATOR_QUERY_STALE_MS,
+        });
 
         if (loaded.document.workflowIntent !== undefined && loaded.document.workflowIntent !== CREATE_ARCHITECTURE_INTENT) {
           // Draft exists but is not a create-architecture draft — still allow editing with create intent on save.
@@ -288,7 +296,7 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
         loadDraftInFlightRef.current = null;
       }
     }
-  }, [applyLoadedDraftToForm, isNewDraft, props.architectureId]);
+  }, [applyLoadedDraftToForm, isNewDraft, props.architectureId, queryClient]);
 
   loadDraftRef.current = loadDraft;
 
@@ -314,7 +322,11 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
 
     const syncPromise = (async () => {
       try {
-        const loaded = await getDraftRequest(props.architectureId);
+        const loaded = await queryClient.fetchQuery({
+          queryKey: operatorQueryKeys.architectureDraft(props.architectureId),
+          queryFn: () => getDraftRequest(props.architectureId),
+          staleTime: OPERATOR_QUERY_STALE_MS,
+        });
         const prior = draftLifecycleRef.current;
         const nextSpawnedRunId = architectureDraftSpawnedRunId(loaded);
 

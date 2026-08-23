@@ -85,6 +85,8 @@ export const operatorQueryKeys = {
   ) =>
     ["operator", "digests", "subscription-attempts", scope, subscriptionId, refreshToken] as const,
   helpTopicMarkdown: (slug: string) => ["operator", "help", "topic-markdown", slug] as const,
+  architectureDraft: (architectureId: string) =>
+    ["operator", "architecture", "draft", architectureId] as const,
   helpDocsIndex: ["operator", "help", "docs-index"] as const,
   marketingPublicPricing: ["marketing", "pricing-json"] as const,
   pilotOutcomeSummary: ["operator", "pilots", "outcome-summary"] as const,
