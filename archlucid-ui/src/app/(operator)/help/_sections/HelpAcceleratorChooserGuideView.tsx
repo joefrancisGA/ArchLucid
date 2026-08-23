@@ -43,6 +43,7 @@ import {
 } from "@/lib/product-documentation-registry";
 import type { AcceleratorChooserPrerequisiteStatus } from "@/lib/resolve-accelerator-chooser-prerequisite-status";
 import { cn } from "@/lib/utils";
+import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 
 type HelpAcceleratorChooserGuideViewProps = {
@@ -150,7 +151,7 @@ export function HelpAcceleratorChooserGuideView(
 
   return (
     <article
-      className={cn(OPERATOR_LAYOUT.majorSectionGap, "w-full max-w-[72rem]")}
+      className={cn(operatorPageContainerClass("workflow"), OPERATOR_LAYOUT.majorSectionGap)}
       data-testid="help-accelerator-chooser-guide"
     >
       <HelpTopicHashScroll />

@@ -33,6 +33,7 @@ import {
 import { HELP_PAGE_LAYOUT, resolveHelpPageContentGridClass } from "@/lib/help/help-page-layout";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import { cn } from "@/lib/utils";
+import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
 
 type HelpDecisionRegisterGuideViewProps = {
   readonly entry: ProductDocumentationEntry;
@@ -57,7 +58,7 @@ export function HelpDecisionRegisterGuideView(props: HelpDecisionRegisterGuideVi
 
   return (
     <article
-      className={cn(OPERATOR_LAYOUT.majorSectionGap, "w-full max-w-[72rem]")}
+      className={cn(operatorPageContainerClass("workflow"), OPERATOR_LAYOUT.majorSectionGap)}
       data-testid="help-decision-register-guide"
     >
       <HelpTopicHashScroll />

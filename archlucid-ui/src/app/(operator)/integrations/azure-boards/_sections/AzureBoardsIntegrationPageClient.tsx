@@ -85,6 +85,7 @@ import {
   AZURE_BOARDS_TOKEN_REFERENCE_PLACEHOLDER,
 } from "@/lib/azure-boards-page-copy";
 import { cn } from "@/lib/utils";
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OPERATOR_DISCLOSURE_TRIGGER_CLASS, OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";
 import { isShowSystemAdministrationNavEnabled } from "@/lib/features";
@@ -486,8 +487,9 @@ export function AzureBoardsIntegrationPageClient(): React.ReactElement {
   }, [hasUnsavedConnectionEdits, refresh]);
 
   return (
-    <div
-      className={cn("w-full max-w-[68rem] px-4 py-4 sm:px-6 lg:px-8", OPERATOR_LAYOUT.majorSectionGap)}
+    <OperatorPageContainer
+      variant="workflow"
+      className={cn("px-4 py-4 sm:px-6 lg:px-8", OPERATOR_LAYOUT.majorSectionGap)}
       data-testid="integrations-azure-boards-page"
     >
       <AzureBoardsIntegrationPageHeader
@@ -871,6 +873,6 @@ export function AzureBoardsIntegrationPageClient(): React.ReactElement {
           />
         </div>
       )}
-    </div>
+    </OperatorPageContainer>
   );
 }

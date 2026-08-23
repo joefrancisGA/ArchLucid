@@ -47,6 +47,7 @@ import {
   RECURRENCE_SCHEDULES_HELP_HEALTH_CONSTRAINTS_TITLE,
 } from "@/lib/recurrence-schedules-help-evidence-copy";
 import { cn } from "@/lib/utils";
+import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
 
 type HelpRecurrenceSchedulesGuideViewProps = {
   readonly entry: ProductDocumentationEntry;
@@ -166,7 +167,7 @@ export function HelpRecurrenceSchedulesGuideView(
 
   return (
     <article
-      className={cn(OPERATOR_LAYOUT.majorSectionGap, "w-full max-w-[72rem]")}
+      className={cn(operatorPageContainerClass("workflow"), OPERATOR_LAYOUT.majorSectionGap)}
       data-testid="help-recurrence-schedules-guide"
     >
       <a

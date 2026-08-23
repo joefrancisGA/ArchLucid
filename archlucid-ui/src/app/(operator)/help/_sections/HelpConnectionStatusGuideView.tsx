@@ -32,6 +32,7 @@ import { CONNECTION_STATUS_HELP_CANONICAL_PATH } from "@/lib/connection-status-h
 import { CONNECTION_STATUS_HELP_STATUS_LEGEND } from "@/lib/connection-status-help-status-legend";
 import { resolveConnectorDisplayStatusTag } from "@/lib/connector-operations-present";
 import { cn } from "@/lib/utils";
+import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
 
 type HelpConnectionStatusGuideViewProps = {
   readonly entry: ProductDocumentationEntry;
@@ -55,7 +56,7 @@ export function HelpConnectionStatusGuideView(props: HelpConnectionStatusGuideVi
 
   return (
     <article
-      className={cn(OPERATOR_LAYOUT.majorSectionGap, "w-full max-w-[72rem]")}
+      className={cn(operatorPageContainerClass("workflow"), OPERATOR_LAYOUT.majorSectionGap)}
       data-testid="help-connection-status-guide"
     >
       <HelpTopicHashScroll />

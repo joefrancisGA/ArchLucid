@@ -20,6 +20,7 @@ import {
 } from "@/lib/alerts-help-guide-content";
 import { AlertsHelpEvidenceOrientationStrip } from "@/components/help/AlertsHelpEvidenceOrientationStrip";
 import { cn } from "@/lib/utils";
+import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
 import {
   DESIGN_TOKENS,
   OPERATOR_LAYOUT,
@@ -79,7 +80,7 @@ export function HelpAlertsGuideView(props: HelpAlertsGuideViewProps): React.Reac
   const { entry } = props;
 
   return (
-    <article className={cn(OPERATOR_LAYOUT.majorSectionGap, "w-full max-w-[72rem]")} data-testid="help-alerts-guide">
+    <article className={cn(operatorPageContainerClass("workflow"), OPERATOR_LAYOUT.majorSectionGap)} data-testid="help-alerts-guide">
       <HelpTopicHashScroll />
       <header className={HELP_PAGE_LAYOUT.articleHeader}>
         <HelpTopicTitleRow title={ALERTS_HELP_PAGE_TITLE} actions={<PageContextualHelpButton />} />

@@ -46,6 +46,7 @@ import { WORKSPACE_SETTINGS_HELP_TOPIC_LABEL } from "@/lib/tenant-settings-evide
 import { HELP_PAGE_LAYOUT, resolveHelpPageContentGridClass } from "@/lib/help/help-page-layout";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import { cn } from "@/lib/utils";
+import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
 
 type HelpWorkspaceSettingsGuideViewProps = {
   readonly entry: ProductDocumentationEntry;
@@ -71,7 +72,7 @@ export function HelpWorkspaceSettingsGuideView(props: HelpWorkspaceSettingsGuide
 
   return (
     <article
-      className={cn(OPERATOR_LAYOUT.majorSectionGap, "w-full max-w-[72rem]")}
+      className={cn(operatorPageContainerClass("workflow"), OPERATOR_LAYOUT.majorSectionGap)}
       data-testid="help-workspace-settings-guide"
     >
       <a

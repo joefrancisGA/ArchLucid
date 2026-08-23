@@ -35,6 +35,7 @@ import {
   type BillingHelpFaqItem,
 } from "@/lib/billing-help-guide-content";
 import { cn } from "@/lib/utils";
+import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
 import {
   DESIGN_TOKENS,
   OPERATOR_BODY_INLINE_LINK_CLASS,
@@ -144,7 +145,7 @@ export function HelpBillingAndPlansGuideView(props: HelpBillingAndPlansGuideView
 
   return (
     <article
-      className={cn(OPERATOR_LAYOUT.majorSectionGap, "w-full max-w-[72rem]")}
+      className={cn(operatorPageContainerClass("workflow"), OPERATOR_LAYOUT.majorSectionGap)}
       data-testid="help-billing-and-plans-guide"
     >
       <HelpTopicHashScroll />

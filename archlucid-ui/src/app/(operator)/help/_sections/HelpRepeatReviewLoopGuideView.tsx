@@ -49,6 +49,7 @@ import {
   REPEAT_REVIEW_LOOP_HELP_JOB_MATRIX_TEST_ID,
 } from "@/lib/compare-repeat-review-help-ia-dual";
 import { cn } from "@/lib/utils";
+import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
 import { useDocumentDarkMode } from "@/lib/use-document-dark-mode";
 
 type HelpRepeatReviewLoopGuideViewProps = {
@@ -75,7 +76,7 @@ export function HelpRepeatReviewLoopGuideView(props: HelpRepeatReviewLoopGuideVi
 
   return (
     <article
-      className={cn(OPERATOR_LAYOUT.majorSectionGap, "w-full max-w-[72rem]")}
+      className={cn(operatorPageContainerClass("workflow"), OPERATOR_LAYOUT.majorSectionGap)}
       data-testid="help-repeat-review-loop-guide"
     >
       <HelpTopicHashScroll />

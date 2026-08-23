@@ -33,6 +33,7 @@ import { JIRA_INTEGRATION_HELP_CANONICAL_PATH } from "@/lib/jira-integration-hel
 import { JIRA_INTEGRATION_HELP_TOPIC_LABEL } from "@/lib/jira-integration-evidence-copy";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import { cn } from "@/lib/utils";
+import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
 
 type HelpJiraIntegrationGuideViewProps = {
   readonly entry: ProductDocumentationEntry;
@@ -57,7 +58,7 @@ export function HelpJiraIntegrationGuideView(props: HelpJiraIntegrationGuideView
 
   return (
     <article
-      className={cn(OPERATOR_LAYOUT.majorSectionGap, "w-full max-w-[72rem]")}
+      className={cn(operatorPageContainerClass("workflow"), OPERATOR_LAYOUT.majorSectionGap)}
       data-testid="help-jira-integration-guide"
     >
       <HelpTopicHashScroll />

@@ -3,6 +3,7 @@ import { Suspense } from "react";
 import { ItsmAtlassianOAuthCallbackClient } from "@/app/(operator)/integrations/itsm/oauth/callback/ItsmAtlassianOAuthCallbackClient";
 import { ItsmAtlassianOAuthCallbackHeaderActions } from "@/app/(operator)/integrations/itsm/oauth/callback/ItsmAtlassianOAuthCallbackHeaderActions";
 import { ItsmAtlassianOAuthCallbackLoadingView } from "@/app/(operator)/integrations/itsm/oauth/callback/ItsmAtlassianOAuthCallbackLoadingView";
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { Card, CardContent } from "@/components/ui/card";
 import { OPERATOR_CARD, OPERATOR_LAYOUT } from "@/lib/design-tokens";
@@ -17,8 +18,9 @@ import { cn } from "@/lib/utils";
 
 function ItsmOAuthCallbackLoading(): React.ReactElement {
   return (
-    <div
-      className={cn("w-full max-w-[68rem] px-4 py-4 sm:px-6 lg:px-8", OPERATOR_LAYOUT.majorSectionGap)}
+    <OperatorPageContainer
+      variant="workflow"
+      className={cn("px-4 py-4 sm:px-6 lg:px-8", OPERATOR_LAYOUT.majorSectionGap)}
       data-testid="itsm-oauth-callback-page"
     >
       <a
@@ -47,7 +49,7 @@ function ItsmOAuthCallbackLoading(): React.ReactElement {
           </CardContent>
         </Card>
       </div>
-    </div>
+    </OperatorPageContainer>
   );
 }
 

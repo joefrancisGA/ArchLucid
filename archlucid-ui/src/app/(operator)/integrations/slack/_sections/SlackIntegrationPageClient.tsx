@@ -39,6 +39,7 @@ import {
 } from "@/lib/slack-integration-test-feedback";
 import { buildWebhookSubscriptionMetadata } from "@/lib/webhook-subscription-metadata";
 import { cn } from "@/lib/utils";
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import type { AlertRoutingSubscription } from "@/types/alert-routing";
 
 import { SlackDestinationForm } from "./SlackDestinationForm";
@@ -268,8 +269,9 @@ export function SlackIntegrationPageClient(): React.ReactElement {
   });
 
   return (
-    <div
-      className={cn("w-full max-w-[68rem] px-4 py-4 sm:px-6 lg:px-8", OPERATOR_LAYOUT.majorSectionGap)}
+    <OperatorPageContainer
+      variant="workflow"
+      className={cn("px-4 py-4 sm:px-6 lg:px-8", OPERATOR_LAYOUT.majorSectionGap)}
       data-testid="integrations-slack-page"
     >
       <SlackIntegrationPageHeader
@@ -355,6 +357,6 @@ export function SlackIntegrationPageClient(): React.ReactElement {
           void confirmDisableDestination();
         }}
       />
-    </div>
+    </OperatorPageContainer>
   );
 }

@@ -31,6 +31,7 @@ import {
 } from "@/lib/pilot-feedback-help-guide-content";
 import { PILOT_FEEDBACK_HELP_CANONICAL_PATH, PILOT_FEEDBACK_HELP_CLAIM_HEADING_ID } from "@/lib/pilot-feedback-help-evidence-copy";
 import { cn } from "@/lib/utils";
+import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
 
 type HelpPilotFeedbackGuideViewProps = {
   readonly entry: ProductDocumentationEntry;
@@ -77,7 +78,7 @@ export function HelpPilotFeedbackGuideView(props: HelpPilotFeedbackGuideViewProp
 
   return (
     <article
-      className={cn(OPERATOR_LAYOUT.majorSectionGap, "w-full max-w-[72rem]")}
+      className={cn(operatorPageContainerClass("workflow"), OPERATOR_LAYOUT.majorSectionGap)}
       data-testid="help-pilot-feedback-guide"
     >
       <HelpTopicHashScroll />

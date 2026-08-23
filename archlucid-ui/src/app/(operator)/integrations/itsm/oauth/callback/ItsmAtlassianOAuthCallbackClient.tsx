@@ -10,6 +10,7 @@ import { ItsmAtlassianOAuthCallbackBuyerChrome } from "@/app/(operator)/integrat
 import { ItsmAtlassianOAuthCallbackHeaderActions } from "@/app/(operator)/integrations/itsm/oauth/callback/ItsmAtlassianOAuthCallbackHeaderActions";
 import { CopyIdButton } from "@/components/CopyIdButton";
 import { ItsmOAuthCallbackEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -191,8 +192,9 @@ export function ItsmAtlassianOAuthCallbackClient(): React.ReactElement {
       : null;
 
   return (
-    <div
-      className={cn("w-full max-w-[68rem] px-4 py-4 sm:px-6 lg:px-8", OPERATOR_LAYOUT.majorSectionGap)}
+    <OperatorPageContainer
+      variant="workflow"
+      className={cn("px-4 py-4 sm:px-6 lg:px-8", OPERATOR_LAYOUT.majorSectionGap)}
       data-testid="itsm-oauth-callback-page"
     >
       <a
@@ -325,6 +327,6 @@ export function ItsmAtlassianOAuthCallbackClient(): React.ReactElement {
         </CardContent>
       </Card>
       </div>
-    </div>
+    </OperatorPageContainer>
   );
 }

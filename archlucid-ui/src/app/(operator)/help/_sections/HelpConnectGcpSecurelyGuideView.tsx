@@ -62,6 +62,7 @@ import type { HelpMarkdownHeading } from "@/lib/help/help-markdown-headings";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import { cn } from "@/lib/utils";
+import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
 
 const CONNECT_GCP_SECURELY_TOC_HEADINGS: readonly HelpMarkdownHeading[] = [
   { id: "security-model", title: CONNECT_GCP_SECURELY_SECURITY_HEADING, level: 2 },
@@ -154,7 +155,7 @@ export function HelpConnectGcpSecurelyGuideView(props: HelpConnectGcpSecurelyGui
 
   return (
     <article
-      className={cn(OPERATOR_LAYOUT.majorSectionGap, "w-full max-w-[68rem]")}
+      className={cn(operatorPageContainerClass("workflow"), OPERATOR_LAYOUT.majorSectionGap)}
       data-testid="help-connect-gcp-securely-guide"
     >
       <a

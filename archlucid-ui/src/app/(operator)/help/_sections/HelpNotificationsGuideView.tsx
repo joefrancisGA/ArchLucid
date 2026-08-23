@@ -36,6 +36,7 @@ import {
 } from "@/lib/notifications-help-evidence-copy";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import { cn } from "@/lib/utils";
+import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
 
 type HelpNotificationsGuideViewProps = {
   readonly entry: ProductDocumentationEntry;
@@ -60,7 +61,7 @@ export function HelpNotificationsGuideView(props: HelpNotificationsGuideViewProp
 
   return (
     <article
-      className={cn(OPERATOR_LAYOUT.majorSectionGap, "w-full max-w-[72rem]")}
+      className={cn(operatorPageContainerClass("workflow"), OPERATOR_LAYOUT.majorSectionGap)}
       data-testid="help-notifications-guide"
     >
       <HelpTopicHashScroll />

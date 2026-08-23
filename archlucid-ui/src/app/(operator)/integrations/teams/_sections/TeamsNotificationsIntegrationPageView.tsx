@@ -1,6 +1,7 @@
 "use client";
 
 import { ConfirmationDialog } from "@/components/ConfirmationDialog";
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { PageHeading } from "@/components/PageHeading";
 import { DemoWorkspaceCapabilityUnavailablePanel } from "@/components/DemoWorkspaceCapabilityUnavailablePanel";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
@@ -85,8 +86,9 @@ export function TeamsNotificationsIntegrationPageView(props: Props): React.React
   const teamsMutateReason = m.canMutate ? null : whyDisabledEnterpriseMutationControl();
 
   return (
-    <div
-      className={cn("w-full max-w-[68rem] px-4 py-4 sm:px-6 lg:px-8", OPERATOR_LAYOUT.majorSectionGap)}
+    <OperatorPageContainer
+      variant="workflow"
+      className={cn("px-4 py-4 sm:px-6 lg:px-8", OPERATOR_LAYOUT.majorSectionGap)}
       data-testid="integrations-teams-page"
     >
       <PageHeading
@@ -381,6 +383,6 @@ export function TeamsNotificationsIntegrationPageView(props: Props): React.React
           void m.confirmRemove();
         }}
       />
-    </div>
+    </OperatorPageContainer>
   );
 }

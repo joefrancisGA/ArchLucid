@@ -27,6 +27,7 @@ import { prepareHelpMarkdownForPresentation } from "@/lib/help/help-markdown-pre
 import { HELP_PAGE_LAYOUT, resolveHelpPageContentGridClass } from "@/lib/help/help-page-layout";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import { cn } from "@/lib/utils";
+import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
 
 type HelpAdminDiagnosticsGuideViewProps = {
   readonly entry: ProductDocumentationEntry;
@@ -48,7 +49,7 @@ export function HelpAdminDiagnosticsGuideView(
 
   return (
     <article
-      className={cn(OPERATOR_LAYOUT.majorSectionGap, "w-full max-w-[72rem]")}
+      className={cn(operatorPageContainerClass("workflow"), OPERATOR_LAYOUT.majorSectionGap)}
       data-testid="help-admin-diagnostics-guide"
     >
       <a href="#help-admin-diagnostics-content" className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}>

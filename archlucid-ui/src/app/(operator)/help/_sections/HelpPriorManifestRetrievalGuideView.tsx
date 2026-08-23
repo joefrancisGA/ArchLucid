@@ -38,6 +38,7 @@ import {
 } from "@/lib/prior-manifest-retrieval-help-ia-dual";
 import { PRIOR_MANIFEST_RETRIEVAL_HELP_RELATED_TEST_ID } from "@/lib/prior-manifest-retrieval-help-related-guides";
 import { cn } from "@/lib/utils";
+import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
 
 type HelpPriorManifestRetrievalGuideViewProps = {
   readonly entry: ProductDocumentationEntry;
@@ -60,7 +61,7 @@ export function HelpPriorManifestRetrievalGuideView(
 
   return (
     <article
-      className={cn(OPERATOR_LAYOUT.majorSectionGap, "w-full max-w-[72rem]")}
+      className={cn(operatorPageContainerClass("workflow"), OPERATOR_LAYOUT.majorSectionGap)}
       data-testid="help-prior-manifest-retrieval-guide"
     >
       <HelpTopicHashScroll />

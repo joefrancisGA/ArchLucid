@@ -37,6 +37,7 @@ import {
   FINDINGS_HELP_WHAT_IS_BODY,
 } from "@/lib/findings/findings-help-guide-content";
 import { cn } from "@/lib/utils";
+import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
 import {
   DESIGN_TOKENS,
   OPERATOR_BODY_INLINE_LINK_CLASS,
@@ -139,7 +140,7 @@ export function HelpFindingsGuideView(props: HelpFindingsGuideViewProps): React.
   void props.entry;
 
   return (
-    <article className={cn(OPERATOR_LAYOUT.majorSectionGap, "w-full max-w-[72rem]")} data-testid="help-findings-guide">
+    <article className={cn(operatorPageContainerClass("workflow"), OPERATOR_LAYOUT.majorSectionGap)} data-testid="help-findings-guide">
       <HelpTopicHashScroll />
       <header className={HELP_PAGE_LAYOUT.articleHeader}>
         <HelpTopicTitleRow title={FINDINGS_HELP_PAGE_TITLE} actions={<PageContextualHelpButton />} />

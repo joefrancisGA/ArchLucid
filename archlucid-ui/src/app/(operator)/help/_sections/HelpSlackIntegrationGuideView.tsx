@@ -32,7 +32,8 @@ import {
 } from "@/lib/slack-integration-help-guide-content";
 import { SLACK_INTEGRATION_HELP_CANONICAL_PATH } from "@/lib/slack-integration-help-evidence-copy";
 import { SLACK_INTEGRATION_HELP_TOPIC_LABEL } from "@/lib/slack-integration-evidence-copy";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/utils";
+import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
 
 type HelpSlackIntegrationGuideViewProps = {
   readonly entry: ProductDocumentationEntry;
@@ -57,7 +58,7 @@ export function HelpSlackIntegrationGuideView(props: HelpSlackIntegrationGuideVi
 
   return (
     <article
-      className={cn(OPERATOR_LAYOUT.majorSectionGap, "w-full max-w-[72rem]")}
+      className={cn(operatorPageContainerClass("workflow"), OPERATOR_LAYOUT.majorSectionGap)}
       data-testid="help-slack-integration-guide"
     >
       <HelpTopicHashScroll />

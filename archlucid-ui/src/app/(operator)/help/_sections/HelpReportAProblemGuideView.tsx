@@ -46,6 +46,7 @@ import {
 import { REPORT_A_PROBLEM_HELP_RELATED_TEST_ID } from "@/lib/report-a-problem-help-related-guides";
 import { ARCHLUCID_SUPPORT_EMAIL } from "@/lib/support-workspace-present";
 import { cn } from "@/lib/utils";
+import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
 
 type HelpReportAProblemGuideViewProps = {
   readonly entry: ProductDocumentationEntry;
@@ -66,7 +67,7 @@ export function HelpReportAProblemGuideView(
 
   return (
     <article
-      className={cn(OPERATOR_LAYOUT.majorSectionGap, "w-full max-w-[72rem]")}
+      className={cn(operatorPageContainerClass("workflow"), OPERATOR_LAYOUT.majorSectionGap)}
       data-testid="help-report-a-problem-guide"
     >
       <HelpTopicHashScroll />

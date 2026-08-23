@@ -32,6 +32,7 @@ import { PREFERENCES_HELP_CANONICAL_PATH } from "@/lib/preferences-help-evidence
 import { HELP_PAGE_LAYOUT, resolveHelpPageContentGridClass } from "@/lib/help/help-page-layout";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import { cn } from "@/lib/utils";
+import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
 
 type HelpPreferencesGuideViewProps = {
   readonly entry: ProductDocumentationEntry;
@@ -71,7 +72,7 @@ export function HelpPreferencesGuideView(props: HelpPreferencesGuideViewProps): 
   const readingBodyClass = cn("m-0 leading-relaxed", HELP_PAGE_LAYOUT.readingBody);
 
   return (
-    <article className={cn(OPERATOR_LAYOUT.majorSectionGap, "w-full max-w-[72rem]")} data-testid="help-preferences-guide">
+    <article className={cn(operatorPageContainerClass("workflow"), OPERATOR_LAYOUT.majorSectionGap)} data-testid="help-preferences-guide">
       <HelpTopicHashScroll />
 
       <HelpTopicGuidePageHeader

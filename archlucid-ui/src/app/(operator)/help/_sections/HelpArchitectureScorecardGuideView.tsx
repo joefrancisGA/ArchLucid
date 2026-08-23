@@ -40,6 +40,7 @@ import {
 } from "@/lib/architecture-scorecard-help-guide-content";
 import { ARCHITECTURE_SCORECARD_HELP_CANONICAL_PATH } from "@/lib/architecture-scorecard-help-evidence-copy";
 import { cn } from "@/lib/utils";
+import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
 
 type HelpArchitectureScorecardGuideViewProps = {
   readonly entry: ProductDocumentationEntry;
@@ -65,7 +66,7 @@ export function HelpArchitectureScorecardGuideView(
 
   return (
     <article
-      className={cn(OPERATOR_LAYOUT.majorSectionGap, "w-full max-w-[72rem]")}
+      className={cn(operatorPageContainerClass("workflow"), OPERATOR_LAYOUT.majorSectionGap)}
       data-testid="help-architecture-scorecard-guide"
     >
       <HelpTopicHashScroll />

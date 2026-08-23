@@ -30,6 +30,7 @@ import {
 } from "@/lib/structured-brief-help-guide-content";
 import { STRUCTURED_BRIEF_HELP_CANONICAL_PATH } from "@/lib/structured-brief-help-evidence-copy";
 import { cn } from "@/lib/utils";
+import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
 
 type HelpStructuredBriefGuideViewProps = {
   readonly entry: ProductDocumentationEntry;
@@ -55,7 +56,7 @@ export function HelpStructuredBriefGuideView(props: HelpStructuredBriefGuideView
 
   return (
     <article
-      className={cn(OPERATOR_LAYOUT.majorSectionGap, "w-full max-w-[72rem]")}
+      className={cn(operatorPageContainerClass("workflow"), OPERATOR_LAYOUT.majorSectionGap)}
       data-testid="help-structured-brief-guide"
     >
       <a

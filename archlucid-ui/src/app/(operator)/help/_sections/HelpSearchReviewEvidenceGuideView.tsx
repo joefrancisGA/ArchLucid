@@ -42,6 +42,7 @@ import {
   searchReviewEvidenceHelpPageSubtitle,
 } from "@/lib/search-review-evidence-help-guide-content";
 import { cn } from "@/lib/utils";
+import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
 
 type HelpSearchReviewEvidenceGuideViewProps = {
   readonly entry: ProductDocumentationEntry;
@@ -69,7 +70,7 @@ export function HelpSearchReviewEvidenceGuideView(
 
   return (
     <article
-      className={cn(OPERATOR_LAYOUT.majorSectionGap, "w-full max-w-[72rem]")}
+      className={cn(operatorPageContainerClass("workflow"), OPERATOR_LAYOUT.majorSectionGap)}
       data-testid="help-search-review-evidence-guide"
     >
       <a

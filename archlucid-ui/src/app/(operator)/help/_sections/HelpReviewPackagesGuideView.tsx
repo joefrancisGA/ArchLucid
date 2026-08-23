@@ -33,6 +33,7 @@ import {
 } from "@/lib/review-packages-help-export-copy";
 import { REVIEW_PACKAGES_HELP_PATH } from "@/lib/review-packages-help-route";
 import { cn } from "@/lib/utils";
+import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
 
 type HelpReviewPackagesGuideViewProps = {
   readonly entry: ProductDocumentationEntry;
@@ -51,7 +52,7 @@ export function HelpReviewPackagesGuideView(props: HelpReviewPackagesGuideViewPr
 
   return (
     <article
-      className={cn(OPERATOR_LAYOUT.majorSectionGap, "w-full max-w-[72rem]")}
+      className={cn(operatorPageContainerClass("workflow"), OPERATOR_LAYOUT.majorSectionGap)}
       data-testid="help-review-packages-guide"
     >
       <HelpTopicHashScroll />

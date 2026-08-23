@@ -80,6 +80,7 @@ import {
 } from "@/lib/azure-permissions-help-evidence-copy";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import { cn } from "@/lib/utils";
+import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
 
 const AZURE_PERMISSIONS_TOC_HEADINGS: readonly HelpMarkdownHeading[] = [
   { id: "required-roles-summary", title: "Roles to assign first", level: 2 },
@@ -165,7 +166,7 @@ export function HelpAzurePermissionsGuideView(props: HelpAzurePermissionsGuideVi
 
   return (
     <article
-      className={cn(OPERATOR_LAYOUT.majorSectionGap, "w-full max-w-[68rem]")}
+      className={cn(operatorPageContainerClass("workflow"), OPERATOR_LAYOUT.majorSectionGap)}
       data-testid="help-azure-permissions-guide"
     >
       <HelpTopicHashScroll />

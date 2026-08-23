@@ -8,6 +8,7 @@ import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { OperatorSuccessCallout } from "@/components/operator/OperatorSuccessCallout";
 import { WEBHOOKS_SUBSCRIPTIONS_EMPTY_COMPACT } from "@/lib/enterprise-compact-empty-state-presets";
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { PageHeading } from "@/components/PageHeading";
 import { WebhooksApiKeysVocabularyRail } from "@/components/WebhooksApiKeysVocabularyRail";
 import { WebhooksVsDlqVocabularyRail } from "@/components/WebhooksVsDlqVocabularyRail";
@@ -129,8 +130,9 @@ export function WebhooksSettingsClient() {
   } = useWebhooksSettings();
 
   return (
-    <div
-      className={cn("w-full max-w-[68rem] px-4 py-4 sm:px-6 lg:px-8", OPERATOR_LAYOUT.majorSectionGap)}
+    <OperatorPageContainer
+      variant="workflow"
+      className={cn("px-4 py-4 sm:px-6 lg:px-8", OPERATOR_LAYOUT.majorSectionGap)}
       data-testid="webhooks-page"
     >
       <PageHeading
@@ -679,6 +681,6 @@ export function WebhooksSettingsClient() {
           ) : null
         }
       />
-    </div>
+    </OperatorPageContainer>
   );
 }

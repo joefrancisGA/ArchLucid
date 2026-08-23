@@ -27,6 +27,7 @@ import {
   PILOT_GUIDE_HELP_PRIMARY_ACTIONS,
 } from "@/lib/pilot-guide-help-guide-content";
 import { cn } from "@/lib/utils";
+import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
 
 type HelpPilotGuideViewProps = {
   readonly entry: ProductDocumentationEntry;
@@ -44,7 +45,7 @@ export function HelpPilotGuideView(props: HelpPilotGuideViewProps): React.ReactE
 
   return (
     <article
-      className={cn(OPERATOR_LAYOUT.majorSectionGap, "w-full max-w-[72rem]")}
+      className={cn(operatorPageContainerClass("workflow"), OPERATOR_LAYOUT.majorSectionGap)}
       data-testid="help-pilot-guide"
     >
       <HelpTopicHashScroll />

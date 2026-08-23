@@ -49,6 +49,7 @@ import {
   subprocessorsHelpRelatedGuides,
 } from "@/lib/subprocessors-help-related-guides";
 import { cn } from "@/lib/utils";
+import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
 
 type HelpSubprocessorsGuideViewProps = {
   readonly entry: ProductDocumentationEntry;
@@ -74,7 +75,7 @@ export function HelpSubprocessorsGuideView(
 
   return (
     <article
-      className={cn(OPERATOR_LAYOUT.majorSectionGap, "w-full max-w-[72rem]")}
+      className={cn(operatorPageContainerClass("workflow"), OPERATOR_LAYOUT.majorSectionGap)}
       data-testid="help-subprocessors-guide"
     >
       <a

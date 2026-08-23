@@ -35,6 +35,7 @@ import {
   WEBHOOKS_SIGNATURE_VERIFICATION,
 } from "@/lib/webhooks-page-copy";
 import { cn } from "@/lib/utils";
+import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
 
 type HelpWebhooksIntegrationGuideViewProps = {
   readonly entry: ProductDocumentationEntry;
@@ -59,7 +60,7 @@ export function HelpWebhooksIntegrationGuideView(props: HelpWebhooksIntegrationG
 
   return (
     <article
-      className={cn(OPERATOR_LAYOUT.majorSectionGap, "w-full max-w-[72rem]")}
+      className={cn(operatorPageContainerClass("workflow"), OPERATOR_LAYOUT.majorSectionGap)}
       data-testid="help-webhooks-integration-guide"
     >
       <HelpTopicHashScroll />

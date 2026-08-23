@@ -1,6 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
@@ -391,8 +392,9 @@ export function ServiceNowIntegrationPageClient(): React.ReactElement {
   );
 
   return (
-    <div
-      className={cn("w-full max-w-[68rem] px-4 py-4 sm:px-6 lg:px-8", OPERATOR_LAYOUT.majorSectionGap)}
+    <OperatorPageContainer
+      variant="workflow"
+      className={cn("px-4 py-4 sm:px-6 lg:px-8", OPERATOR_LAYOUT.majorSectionGap)}
       data-testid="integrations-servicenow-page"
     >
       <ServiceNowIntegrationPageHeader
@@ -578,6 +580,6 @@ export function ServiceNowIntegrationPageClient(): React.ReactElement {
           />
         </div>
       )}
-    </div>
+    </OperatorPageContainer>
   );
 }

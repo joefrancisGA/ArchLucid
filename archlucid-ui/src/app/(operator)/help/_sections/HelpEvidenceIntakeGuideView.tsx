@@ -24,6 +24,7 @@ import {
 } from "@/lib/help/help-page-layout";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import { cn } from "@/lib/utils";
+import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
 
 type HelpEvidenceIntakeGuideViewProps = {
   readonly entry: ProductDocumentationEntry;
@@ -43,7 +44,7 @@ export function HelpEvidenceIntakeGuideView(props: HelpEvidenceIntakeGuideViewPr
 
   return (
     <article
-      className={cn(OPERATOR_LAYOUT.majorSectionGap, "w-full max-w-[72rem]")}
+      className={cn(operatorPageContainerClass("workflow"), OPERATOR_LAYOUT.majorSectionGap)}
       data-testid="help-evidence-intake-guide"
     >
       <HelpTopicHashScroll />

@@ -37,6 +37,7 @@ import { appendHelpClaimDisciplineTocHeadings } from "@/lib/help/help-markdown-h
 import { HELP_PAGE_LAYOUT, resolveHelpPageContentGridClass } from "@/lib/help/help-page-layout";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import { cn } from "@/lib/utils";
+import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
 
 type HelpContactSupportGuideViewProps = {
   readonly entry: ProductDocumentationEntry;
@@ -65,7 +66,7 @@ export function HelpContactSupportGuideView(props: HelpContactSupportGuideViewPr
 
   return (
     <article
-      className={cn(OPERATOR_LAYOUT.majorSectionGap, "w-full max-w-[72rem]")}
+      className={cn(operatorPageContainerClass("workflow"), OPERATOR_LAYOUT.majorSectionGap)}
       data-testid="help-contact-support-guide"
     >
       <a

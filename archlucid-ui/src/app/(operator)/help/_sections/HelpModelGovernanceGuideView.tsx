@@ -35,6 +35,7 @@ import { MODEL_GOVERNANCE_HELP_CANONICAL_PATH } from "@/lib/model-governance-hel
 import { MODEL_GOVERNANCE_HELP_TOPIC_LABEL } from "@/lib/model-governance-settings-evidence-copy";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import { cn } from "@/lib/utils";
+import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
 
 type HelpModelGovernanceGuideViewProps = {
   readonly entry: ProductDocumentationEntry;
@@ -59,7 +60,7 @@ export function HelpModelGovernanceGuideView(props: HelpModelGovernanceGuideView
 
   return (
     <article
-      className={cn(OPERATOR_LAYOUT.majorSectionGap, "w-full max-w-[72rem]")}
+      className={cn(operatorPageContainerClass("workflow"), OPERATOR_LAYOUT.majorSectionGap)}
       data-testid="help-model-governance-guide"
     >
       <HelpTopicHashScroll />

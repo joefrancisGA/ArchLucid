@@ -28,6 +28,7 @@ import {
   SYSTEM_HEALTH_HELP_TILE_ITEMS,
 } from "@/lib/system-health-help-guide-content";
 import { cn } from "@/lib/utils";
+import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
 
 type HelpSystemHealthGuideViewProps = {
   readonly entry: ProductDocumentationEntry;
@@ -51,7 +52,7 @@ export function HelpSystemHealthGuideView(props: HelpSystemHealthGuideViewProps)
   const readingBodyClass = cn("m-0 leading-relaxed", HELP_PAGE_LAYOUT.readingBody);
 
   return (
-    <article className={cn(OPERATOR_LAYOUT.majorSectionGap, "w-full max-w-[72rem]")} data-testid="help-system-health-guide">
+    <article className={cn(operatorPageContainerClass("workflow"), OPERATOR_LAYOUT.majorSectionGap)} data-testid="help-system-health-guide">
       <HelpTopicHashScroll />
 
       <HelpTopicGuidePageHeader

@@ -47,6 +47,7 @@ import {
 } from "@/lib/roi-summary-help-guide-content";
 import { ROI_SUMMARY_HELP_CANONICAL_PATH } from "@/lib/roi-summary-help-evidence-copy";
 import { cn } from "@/lib/utils";
+import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
 
 type HelpRoiSummaryGuideViewProps = {
   readonly entry: ProductDocumentationEntry;
@@ -93,7 +94,7 @@ export function HelpRoiSummaryGuideView(props: HelpRoiSummaryGuideViewProps): Re
 
   return (
     <article
-      className={cn(OPERATOR_LAYOUT.majorSectionGap, "w-full max-w-[72rem]")}
+      className={cn(operatorPageContainerClass("workflow"), OPERATOR_LAYOUT.majorSectionGap)}
       data-testid="help-roi-summary-guide"
     >
       <HelpTopicHashScroll />

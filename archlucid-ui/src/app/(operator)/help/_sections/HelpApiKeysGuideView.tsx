@@ -35,6 +35,7 @@ import {
 import { HELP_PAGE_LAYOUT, resolveHelpPageContentGridClass } from "@/lib/help/help-page-layout";
 import type { ProductDocumentationEntry } from "@/lib/product-documentation-registry";
 import { cn } from "@/lib/utils";
+import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
 
 type HelpApiKeysGuideViewProps = {
   readonly entry: ProductDocumentationEntry;
@@ -67,7 +68,7 @@ export function HelpApiKeysGuideView(_props: HelpApiKeysGuideViewProps): React.R
   const readingBodyClass = cn("m-0 max-w-3xl leading-relaxed", HELP_PAGE_LAYOUT.readingBody);
 
   return (
-    <article className={cn(OPERATOR_LAYOUT.majorSectionGap, "w-full max-w-[72rem]")} data-testid="help-api-keys-guide">
+    <article className={cn(operatorPageContainerClass("workflow"), OPERATOR_LAYOUT.majorSectionGap)} data-testid="help-api-keys-guide">
       <HelpTopicHashScroll />
 
       <OperatorPageHeader

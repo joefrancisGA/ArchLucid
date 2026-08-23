@@ -30,6 +30,7 @@ import {
 } from "@/lib/governance/governance-approval-help-guide-content";
 import { GovernanceApprovalHelpEvidenceOrientationStrip } from "@/components/help/GovernanceApprovalHelpEvidenceOrientationStrip";
 import { cn } from "@/lib/utils";
+import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
 import {
   DESIGN_TOKENS,
   OPERATOR_BODY_INLINE_LINK_CLASS,
@@ -193,7 +194,7 @@ export function HelpGovernanceApprovalGuideView(props: HelpGovernanceApprovalGui
 
   return (
     <article
-      className={cn(OPERATOR_LAYOUT.majorSectionGap, "w-full max-w-[72rem]")}
+      className={cn(operatorPageContainerClass("workflow"), OPERATOR_LAYOUT.majorSectionGap)}
       data-testid="help-governance-approval-guide"
     >
       <HelpTopicHashScroll />

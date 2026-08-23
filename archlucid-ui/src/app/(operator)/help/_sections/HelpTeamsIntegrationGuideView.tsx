@@ -41,6 +41,7 @@ import {
 import { TEAMS_INTEGRATION_HELP_CANONICAL_PATH } from "@/lib/teams-integration-help-evidence-copy";
 import { TEAMS_INTEGRATION_HELP_TOPIC_LABEL } from "@/lib/teams-integration-evidence-copy";
 import { cn } from "@/lib/utils";
+import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
 
 type HelpTeamsIntegrationGuideViewProps = {
   readonly entry: ProductDocumentationEntry;
@@ -66,7 +67,7 @@ export function HelpTeamsIntegrationGuideView(props: HelpTeamsIntegrationGuideVi
 
   return (
     <article
-      className={cn(OPERATOR_LAYOUT.majorSectionGap, "w-full max-w-[72rem]")}
+      className={cn(operatorPageContainerClass("workflow"), OPERATOR_LAYOUT.majorSectionGap)}
       data-testid="help-teams-integration-guide"
     >
       <a
