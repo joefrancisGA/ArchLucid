@@ -628,11 +628,11 @@ export function AdvisoryScansHelpEvidenceOrientationStrip(): React.JSX.Element {
 export function ReviewsNewEvidenceOrientationStrip(
   props: {
     readonly sources?: readonly EvidenceOrientationLink[];
-    readonly collapsedToDisclosure?: boolean;
   } = {},
 ): React.JSX.Element {
   const sources = props.sources ?? REVIEWS_NEW_ORIENTATION_SOURCES;
-  const strip = (
+
+  return (
     <EvidenceOrientationClaimAndSourcesStrip
       slug="reviews-new"
       sourcesTestId="reviews-new-settings-sources"
@@ -642,26 +642,5 @@ export function ReviewsNewEvidenceOrientationStrip(
       sourcesHeadingId="where-to-go-next"
       hubSecondary
     />
-  );
-
-  if (props.collapsedToDisclosure !== true) {
-    return strip;
-  }
-
-  return (
-    <details
-      className="rounded-md border border-neutral-200 bg-neutral-50/80 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-950/40"
-      data-testid="reviews-new-orientation-disclosure"
-    >
-      <summary
-        className={cn(
-          "cursor-pointer list-none font-medium text-neutral-900 marker:content-none dark:text-neutral-100 [&::-webkit-details-marker]:hidden",
-          OPERATOR_TYPOGRAPHY.body,
-        )}
-      >
-        Sources and follow-ups
-      </summary>
-      <div className="mt-3 border-t border-neutral-200 pt-3 dark:border-neutral-700">{strip}</div>
-    </details>
   );
 }

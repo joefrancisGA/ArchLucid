@@ -73,8 +73,8 @@ describe("ReviewsNewPageChrome buyer-polished shell (REN)", () => {
     );
     expect(screen.getByTestId("reviews-new-breadcrumb")).toBeInTheDocument();
     expect(screen.getByTestId("reviews-new-orientation-top")).toBeInTheDocument();
-    expect(screen.getByTestId("reviews-new-orientation-disclosure")).toBeInTheDocument();
     expect(screen.getByTestId("reviews-new-settings-sources")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Related resources" })).toBeInTheDocument();
     expect(screen.getByTestId("reviews-new-page-subtitle")).toHaveTextContent(
       BUYER_REVIEWS_NEW_DETAILED_PAGE_SUBTITLE,
     );
@@ -113,8 +113,8 @@ describe("ReviewsNewPageChrome buyer-polished shell (ENE)", () => {
     expect(screen.getByTestId("reviews-new-breadcrumb")).toBeInTheDocument();
     expect(screen.getByText("Guided questions")).toBeInTheDocument();
     expect(screen.getByTestId("reviews-new-orientation-top")).toBeInTheDocument();
-    expect(screen.getByTestId("reviews-new-orientation-disclosure")).toBeInTheDocument();
     expect(screen.getByTestId("reviews-new-settings-sources")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Related resources" })).toBeInTheDocument();
     expect(screen.getByTestId("reviews-new-page-subtitle")).toHaveTextContent(
       BUYER_REVIEWS_NEW_GUIDED_INTAKE_PAGE_SUBTITLE,
     );
