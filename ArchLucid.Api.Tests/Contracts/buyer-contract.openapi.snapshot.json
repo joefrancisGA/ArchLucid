@@ -38108,6 +38108,9 @@
       "name": "EvidenceBulkUpload"
     },
     {
+      "name": "EvidenceDocumentTextExtraction"
+    },
+    {
       "name": "EvidenceProposals"
     },
     {
