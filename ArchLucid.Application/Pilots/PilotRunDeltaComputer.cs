@@ -247,9 +247,14 @@ public sealed class PilotRunDeltaComputer(
     /// <summary>Returns severity counts in descending order (highest count first), grouped case-insensitively.</summary>
     private static IReadOnlyList<KeyValuePair<string, int>> AggregateFindingsBySeverity(ArchitectureRunDetail detail)
     {
-        return detail.Results.Where(_ => true).SelectMany(static r => r.Findings).Where(_ => true)
-            .GroupBy(static f => f.Severity.ToString(), StringComparer.OrdinalIgnoreCase).Select(g => new KeyValuePair<string, int>(g.Key, g.Count()))
-            .OrderByDescending(static p => p.Value).ThenBy(static p => p.Key, StringComparer.OrdinalIgnoreCase).ToList();
+        return detail.Results
+            .SelectMany(static r => r.Findings)
+            .Where(static f => !f.IsMuted)
+            .GroupBy(static f => f.Severity.ToString(), StringComparer.OrdinalIgnoreCase)
+            .Select(g => new KeyValuePair<string, int>(g.Key, g.Count()))
+            .OrderByDescending(static p => p.Value)
+            .ThenBy(static p => p.Key, StringComparer.OrdinalIgnoreCase)
+            .ToList();
     }
 
     private static IReadOnlyList<KeyValuePair<string, int>> AggregateFindingsBySeverity(IReadOnlyList<Finding> findings)
@@ -339,6 +344,7 @@ public sealed class PilotRunDeltaComputer(
     {
         IReadOnlyList<ArchitectureFinding> allFindings = detail.Results
             .SelectMany(static r => r.Findings)
+            .Where(static f => !f.IsMuted)
             .ToList();
 
         int total = allFindings.Count;
@@ -374,6 +380,7 @@ public sealed class PilotRunDeltaComputer(
         return detail.Results
             .Where(static r => r is not null)
             .SelectMany(static r => r.Findings ?? [])
+            .Where(static f => !f.IsMuted)
             .OrderByDescending(static f => (int)f.Severity)
             .FirstOrDefault();
     }

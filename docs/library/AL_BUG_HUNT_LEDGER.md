@@ -1285,19 +1285,20 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** buyer proof pack; board pack; pilot artifacts
 - **paths:** ArchLucid.Application/Pilots/
 - **test-filter:** FullyQualifiedName~BuyerProofPack|FullyQualifiedName~BoardPack
-- **hunts:** 1
-- **bugs-found:** 1
+- **hunts:** 2
+- **bugs-found:** 2
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-18
-- **last-bug:** 2026-08-18
+- **last-hunt:** 2026-08-23
+- **last-bug:** 2026-08-23
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** no
 
 ### Hypotheses
 
-- [ ] (candidate) Proof pack includes findings from a workspace outside the pilot scope
+- [x] (invalid) Proof pack includes findings from a workspace outside the pilot scope — `GetRunDetailAsync` and `ValueReportBuilder.BuildAsync` both honor current `ScopeContext`; no cross-workspace join in pack builders (`PilotReportCardService.EnsureScopeMatches` pattern elsewhere).
 - [x] (candidate) PDF builder silently drops a section when source data is missing — **partial 2026-08-18:** snapshot fallback populated severity counts but left governed-coverage and top-finding unset (buyer proof / first-value surfaces)
-- [ ] (candidate) Pack builder uses cached tenant data after a scope switch
+- [x] (invalid) Pack builder uses cached tenant data after a scope switch — `BuyerProofPackBuilder` / `BoardPackPdfBuilder` do not use `IMemoryCache`; only `PilotOutcomeSummaryService` caches and keys include workspace id.
+- [x] (proven) `PilotRunDeltaComputer` agent-results path counts operator-muted findings in severity buckets and can select a muted row as top finding while snapshot fallback and `FirstValueReportBuilder.FormatSponsorTopFindings` exclude `IsMuted` — buyer proof ZIP deltas JSON overstated suppressed findings (hunt 2026-08-23).
 
 ---
 
