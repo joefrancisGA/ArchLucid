@@ -228,6 +228,9 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IQuestionSelectionEngine, QuestionSelectionEngine>();
         services.AddScoped<IDraftRequestProjector, DraftRequestProjector>();
         services.AddScoped<IPriorPackageSemanticMergeService, PriorPackageSemanticMergeService>();
+        services.AddScoped<IDraftRequestCrudService, DraftRequestCrudService>();
+        services.AddScoped<IDraftAdmissionService, DraftAdmissionService>();
+        services.AddScoped<IDraftBranchingService, DraftBranchingService>();
         services.AddScoped<IDraftRequestService, DraftRequestService>();
         services.AddScoped<IDecisionReceiptService, DecisionReceiptService>();
         services.AddScoped<IDraftIntakeReaperService, DraftIntakeReaperService>();
