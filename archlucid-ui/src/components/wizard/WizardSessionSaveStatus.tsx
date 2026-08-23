@@ -10,6 +10,11 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 type WizardSessionSaveStatusProps = {
   readonly saveState: WizardSessionSaveState;
   readonly lastSavedUtc: string | null;
+  /**
+   * `inline` aligns the status row with adjacent h-9 action buttons; reassurance renders separately
+   * via {@link WizardSessionSaveReassurance}.
+   */
+  readonly layout?: "stacked" | "inline";
 };
 
 function formatLastSavedLabel(lastSavedUtc: string | null): string | null {
@@ -27,6 +32,30 @@ function formatLastSavedLabel(lastSavedUtc: string | null): string | null {
   return `Saved ${savedAt.toLocaleString()}`;
 }
 
+function renderWizardSessionSaveStatusContent(
+  saveState: WizardSessionSaveState,
+  lastSavedLabel: string | null,
+): React.JSX.Element | null {
+  if (saveState === "saved") {
+    return (
+      <>
+        <StatusTag kind="ready" label="Saved" />
+        {lastSavedLabel !== null ? <span className="text-al-text-secondary">{lastSavedLabel}</span> : null}
+      </>
+    );
+  }
+
+  if (saveState === "saving") {
+    return <StatusTag kind="in-progress" label="Saving…" />;
+  }
+
+  if (saveState === "unsaved") {
+    return <StatusTag kind="needs-attention" label="Unsaved changes" />;
+  }
+
+  return null;
+}
+
 /** Low-emphasis wizard session persistence indicator (TB-2157 / TB-1455 parity). */
 export function WizardSessionSaveStatus(props: WizardSessionSaveStatusProps): React.JSX.Element | null {
   if (props.saveState === "idle") {
@@ -34,6 +63,23 @@ export function WizardSessionSaveStatus(props: WizardSessionSaveStatusProps): Re
   }
 
   const lastSavedLabel = formatLastSavedLabel(props.lastSavedUtc);
+  const layout = props.layout ?? "stacked";
+  const statusContent = renderWizardSessionSaveStatusContent(props.saveState, lastSavedLabel);
+
+  if (layout === "inline") {
+    return (
+      <div
+        role="status"
+        aria-live="polite"
+        aria-atomic="true"
+        className={cn("flex h-9 items-center gap-2", OPERATOR_TYPOGRAPHY.helper)}
+        data-testid="wizard-session-save-status"
+        data-save-state={props.saveState}
+      >
+        {statusContent}
+      </div>
+    );
+  }
 
   return (
     <div
@@ -44,21 +90,23 @@ export function WizardSessionSaveStatus(props: WizardSessionSaveStatusProps): Re
       data-testid="wizard-session-save-status"
       data-save-state={props.saveState}
     >
-      <div className="flex flex-wrap items-center justify-end gap-2">
-        {props.saveState === "saved" ? (
-          <>
-            <StatusTag kind="ready" label="Saved" />
-            {lastSavedLabel !== null ? <span className="text-al-text-secondary">{lastSavedLabel}</span> : null}
-          </>
-        ) : null}
-        {props.saveState === "saving" ? <StatusTag kind="in-progress" label="Saving…" /> : null}
-        {props.saveState === "unsaved" ? <StatusTag kind="needs-attention" label="Unsaved changes" /> : null}
-      </div>
-      {props.saveState === "saved" || props.saveState === "saving" ? (
-        <span className="text-al-text-secondary" data-testid="wizard-session-autosave-reassurance">
-          {WIZARD_SESSION_AUTOSAVE_REASSURANCE}
-        </span>
-      ) : null}
+      <div className="flex flex-wrap items-center justify-end gap-2">{statusContent}</div>
+      <WizardSessionSaveReassurance saveState={props.saveState} />
     </div>
+  );
+}
+
+/** Autosave reassurance line for stacked save status or below an inline action row. */
+export function WizardSessionSaveReassurance(props: {
+  readonly saveState: WizardSessionSaveState;
+}): React.JSX.Element | null {
+  if (props.saveState !== "saved" && props.saveState !== "saving") {
+    return null;
+  }
+
+  return (
+    <span className="text-al-text-secondary" data-testid="wizard-session-autosave-reassurance">
+      {WIZARD_SESSION_AUTOSAVE_REASSURANCE}
+    </span>
   );
 }

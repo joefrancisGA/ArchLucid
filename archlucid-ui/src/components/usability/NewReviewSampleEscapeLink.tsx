@@ -22,7 +22,7 @@ export function NewReviewSampleEscapeLink(props: NewReviewSampleEscapeLinkProps)
 
   if (presentation === "inline") {
     return (
-      <Button asChild variant="outline" size="sm" data-testid="new-review-sample-escape-inline">
+      <Button asChild variant="outline" data-testid="new-review-sample-escape-inline">
         <Link href={sampleReviewHref}>{NEW_REVIEW_SAMPLE_ESCAPE_CTA}</Link>
       </Button>
     );

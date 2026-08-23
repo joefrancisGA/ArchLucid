@@ -30,7 +30,10 @@ import { CORE_PILOT_PATH_STREAMLINED_LABELS } from "@/lib/vocabulary/core-pilot-
 import { FocusedPilotPolicyPackAppliedCallout } from "@/components/wizard/FocusedPilotPolicyPackAppliedCallout";
 import { ReviewAssuranceCoverageSection } from "@/components/wizard/ReviewAssuranceCoverageSection";
 import { WizardSessionResumePrompt } from "@/components/wizard/WizardSessionResumePrompt";
-import { WizardSessionSaveStatus } from "@/components/wizard/WizardSessionSaveStatus";
+import {
+  WizardSessionSaveReassurance,
+  WizardSessionSaveStatus,
+} from "@/components/wizard/WizardSessionSaveStatus";
 import { useLlmMonthlyBudgetExecutionGate } from "@/hooks/use-llm-monthly-budget-execution-gate";
 import { useInferredUniversalIntakeAnswers } from "@/hooks/use-inferred-universal-intake-answers";
 import { useWizardSessionPersistence } from "@/hooks/use-wizard-session-persistence";
@@ -729,25 +732,32 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
             {writeDestination}
           </p>
 
-          <div className="flex flex-wrap items-center gap-3">
-            <WizardSessionSaveStatus
-              saveState={wizardSession.saveState}
-              lastSavedUtc={wizardSession.lastSavedUtc}
-            />
-            <ReviewStartLoadingButton
-              type="button"
-              variant="primary"
-              disabled={creationProgress.isActive || blocksLlmExecution}
-              onClick={() => {
-                void submitRun();
-              }}
-              data-testid="first-pilot-start"
-              idleLabel={BUYER_START_ARCHITECTURE_REVIEW_CTA}
-              loadingLabel={creationProgress.loadingLabel}
-              isLoading={creationProgress.isActive}
-              aria-describedby={intakeGap !== null ? "first-pilot-readiness" : undefined}
-            />
-            <NewReviewSampleEscapeLink presentation="inline" />
+          <div className="space-y-1">
+            <div
+              className="flex flex-wrap items-center gap-3"
+              data-testid="first-pilot-intake-action-row"
+            >
+              <WizardSessionSaveStatus
+                layout="inline"
+                saveState={wizardSession.saveState}
+                lastSavedUtc={wizardSession.lastSavedUtc}
+              />
+              <ReviewStartLoadingButton
+                type="button"
+                variant="primary"
+                disabled={creationProgress.isActive || blocksLlmExecution}
+                onClick={() => {
+                  void submitRun();
+                }}
+                data-testid="first-pilot-start"
+                idleLabel={BUYER_START_ARCHITECTURE_REVIEW_CTA}
+                loadingLabel={creationProgress.loadingLabel}
+                isLoading={creationProgress.isActive}
+                aria-describedby={intakeGap !== null ? "first-pilot-readiness" : undefined}
+              />
+              <NewReviewSampleEscapeLink presentation="inline" />
+            </div>
+            <WizardSessionSaveReassurance saveState={wizardSession.saveState} />
           </div>
         </div>
       </section>
