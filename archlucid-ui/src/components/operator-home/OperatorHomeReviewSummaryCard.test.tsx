@@ -2,7 +2,12 @@ import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { OperatorHomeReviewSummaryCard } from "@/components/operator-home/OperatorHomeReviewSummaryCard";
-import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
+import {
+  SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE,
+  SHOWCASE_STATIC_DEMO_MANIFEST_ID,
+  SHOWCASE_STATIC_DEMO_RUN_ID,
+} from "@/lib/showcase-static-demo";
+import { signedRecordDetailPath } from "@/lib/signed-records-paths";
 import type { RunSummary } from "@/types/authority";
 
 describe("OperatorHomeReviewSummaryCard", () => {
@@ -70,6 +75,14 @@ describe("OperatorHomeReviewSummaryCard", () => {
     expect(proofMetadata.textContent).toMatch(/Decision date:/);
     expect(proofMetadata.textContent).toMatch(/Finalized review record:/);
     expect(proofMetadata.textContent).toMatch(/Approver:/);
+
+    const finalizedRecordLink = screen.getByTestId("runs-dashboard-buyer-proof-finalized-record-link");
+
+    expect(finalizedRecordLink).toHaveTextContent(SHOWCASE_BUYER_REVIEW_PACKAGE_TITLE);
+    expect(finalizedRecordLink).toHaveAttribute("href", signedRecordDetailPath(SHOWCASE_STATIC_DEMO_MANIFEST_ID));
+    expect(finalizedRecordLink).toHaveAttribute("title", SHOWCASE_STATIC_DEMO_MANIFEST_ID);
+    expect(proofMetadata.textContent).not.toContain(SHOWCASE_STATIC_DEMO_MANIFEST_ID);
+    expect(screen.getByRole("button", { name: "Copy finalized review record ID" })).toBeInTheDocument();
   });
 
   it("demotes featured primary CTA when command center owns the page primary", () => {
