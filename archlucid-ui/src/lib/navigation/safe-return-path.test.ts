@@ -89,6 +89,16 @@ describe("isSafeReturnPath", () => {
 
     expect(isSafeReturnPath(`/welcome${payload}`)).toBe(false);
   });
+
+  it("rejects return paths that remain percent-encoded after the decode guard", () => {
+    let payload = "//evil.example";
+
+    for (let pass = 0; pass < 10; pass++) {
+      payload = encodeURIComponent(payload);
+    }
+
+    expect(isSafeReturnPath(`/welcome${payload}`)).toBe(false);
+  });
 });
 
 describe("resolveSafeReturnPath", () => {
