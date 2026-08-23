@@ -24,12 +24,14 @@ namespace ArchLucid.AgentRuntime.Evaluation;
 public sealed class AgentArchitectureFindingConfidenceEnricher(
     IAgentResultRepository agentResultRepository,
     IAgentExecutionTraceRepository traceRepository,
+    IAgentEvidencePackageRepository agentEvidencePackageRepository,
     IScopeContextProvider scopeContextProvider,
     IAgentOutputEvaluator structuralEvaluator,
     HeuristicOnlyAgentOutputSemanticEvaluator confidenceGateSemanticEvaluator,
     IAgentOutputQualityGate qualityGate,
     IOptions<AgentOutputQualityGateOptions> gateOptions,
     AgentOutputReferenceCaseRunEvaluator referenceCaseRunEvaluator,
+    IAgentResultEvidenceFaithfulnessChecker agentResultEvidenceFaithfulnessChecker,
     FindingConfidenceCalculator confidenceCalculator,
     ILogger<AgentArchitectureFindingConfidenceEnricher> logger) : IAgentArchitectureFindingConfidenceEnricher
 {
@@ -38,6 +40,9 @@ public sealed class AgentArchitectureFindingConfidenceEnricher(
 
     private readonly IAgentExecutionTraceRepository _traceRepository =
         traceRepository ?? throw new ArgumentNullException(nameof(traceRepository));
+
+    private readonly IAgentEvidencePackageRepository _agentEvidencePackageRepository =
+        agentEvidencePackageRepository ?? throw new ArgumentNullException(nameof(agentEvidencePackageRepository));
 
     private readonly IScopeContextProvider _scopeContextProvider =
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
@@ -56,6 +61,10 @@ public sealed class AgentArchitectureFindingConfidenceEnricher(
 
     private readonly AgentOutputReferenceCaseRunEvaluator _referenceCaseRunEvaluator =
         referenceCaseRunEvaluator ?? throw new ArgumentNullException(nameof(referenceCaseRunEvaluator));
+
+    private readonly IAgentResultEvidenceFaithfulnessChecker _agentResultEvidenceFaithfulnessChecker =
+        agentResultEvidenceFaithfulnessChecker ??
+        throw new ArgumentNullException(nameof(agentResultEvidenceFaithfulnessChecker));
 
     private readonly FindingConfidenceCalculator _confidenceCalculator =
         confidenceCalculator ?? throw new ArgumentNullException(nameof(confidenceCalculator));
@@ -81,6 +90,10 @@ public sealed class AgentArchitectureFindingConfidenceEnricher(
             IReadOnlyList<AgentExecutionTrace> traces =
                 await _traceRepository.GetByRunIdAsync(scope, runId.Trim(), cancellationToken);
 
+            AgentEvidencePackage? evidence =
+                await _agentEvidencePackageRepository.GetByRunIdAsync(runId.Trim(), cancellationToken)
+                    .ConfigureAwait(false);
+
             IReadOnlyList<AgentExecutionTrace> latestTraces =
                 AgentExecutionTraceLatestPerTaskSelector.Select(traces);
 
@@ -98,7 +111,9 @@ public sealed class AgentArchitectureFindingConfidenceEnricher(
                                         _structuralEvaluator,
                                         _confidenceGateSemanticEvaluator,
                                         _qualityGate,
-                                        cancellationToken).ConfigureAwait(false);
+                                        cancellationToken,
+                                        evidence,
+                                        _agentResultEvidenceFaithfulnessChecker).ConfigureAwait(false);
 
                 bool referenceMatched = traceForAgent is not null &&
                                         await _referenceCaseRunEvaluator.ComputeAnyPassingReferenceCaseAsync(traceForAgent, cancellationToken).ConfigureAwait(false);

@@ -212,12 +212,14 @@ public sealed class FindingsSnapshotEvaluationConfidenceEnricherTests
 
         return new FindingsSnapshotEvaluationConfidenceEnricher(
             traceRepository,
+            new InMemoryAgentEvidencePackageRepository(),
             scopeProvider,
             new AgentOutputEvaluator(),
             semanticFacade,
             new AgentOutputQualityGate(Options.Create(gateOptions)),
             Options.Create(gateOptions),
             referenceEvaluator,
+            new AgentResultEvidenceFaithfulnessChecker(Options.Create(new AgentFaithfulnessOptions())),
             new FindingConfidenceCalculator(),
             NullLogger<FindingsSnapshotEvaluationConfidenceEnricher>.Instance);
     }

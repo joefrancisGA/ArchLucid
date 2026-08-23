@@ -126,12 +126,14 @@ public sealed class AgentArchitectureFindingConfidenceEnricherTests
         AgentArchitectureFindingConfidenceEnricher sut = new(
             resultRepository.Object,
             traceRepository.Object,
+            new InMemoryAgentEvidencePackageRepository(),
             scopeProvider.Object,
             new AgentOutputEvaluator(),
             semanticFacade,
             new AgentOutputQualityGate(Options.Create(gateOptions)),
             Options.Create(gateOptions),
             referenceEvaluator,
+            new AgentResultEvidenceFaithfulnessChecker(Options.Create(new AgentFaithfulnessOptions())),
             new FindingConfidenceCalculator(),
             NullLogger<AgentArchitectureFindingConfidenceEnricher>.Instance);
 

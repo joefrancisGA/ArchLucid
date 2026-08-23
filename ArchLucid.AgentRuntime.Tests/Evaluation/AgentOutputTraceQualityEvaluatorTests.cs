@@ -631,6 +631,53 @@ public sealed class AgentOutputTraceQualityEvaluatorTests
         accepted.Should().BeFalse();
     }
 
+    [Fact]
+    public async Task ComputeQualityGateAcceptedForConfidenceAsync_returns_false_when_pilot_strict_faithfulness_below_floor()
+    {
+        AgentOutputQualityGateOptions options = new()
+        {
+            Enabled = true,
+            Mode = AgentOutputQualityGateMode.PilotStrict,
+            PilotStrictMinAgentResultFaithfulnessSupportRatio = 0.75,
+            StructuralRejectBelow = 0,
+            SemanticRejectBelow = 0,
+            StructuralWarnBelow = 1,
+            SemanticWarnBelow = 1,
+            PilotStrictMinEvidenceRefCount = 0
+        };
+
+        Mock<IAgentResultEvidenceFaithfulnessChecker> faith = new();
+        faith.Setup(c => c.Evaluate(It.IsAny<string>(), It.IsAny<AgentEvidencePackage>()))
+            .Returns(new AgentResultEvidenceFaithfulnessReport(1, 0, 0, 0, 0.1, []));
+
+        AgentExecutionTrace trace = new()
+        {
+            TraceId = "t1",
+            RunId = "r",
+            TaskId = "task",
+            AgentType = AgentType.Topology,
+            ParseSucceeded = true,
+            ParsedResultJson =
+                """
+                {"resultId":"a","taskId":"b","runId":"c","agentType":1,"claims":[{"text":"x","evidence":"y"}],"evidenceRefs":[],"confidence":0.5,"findings":[{"severity":"High","description":"Long enough description text","recommendation":"Fix it"}],"proposedChanges":null,"createdUtc":"2026-01-01T00:00:00Z","citations":[{"source":"stub"}]}
+                """
+        };
+
+        bool accepted =
+            await AgentOutputTraceQualityEvaluator.ComputeQualityGateAcceptedForConfidenceAsync(
+                trace,
+                options,
+                new AgentOutputEvaluator(),
+                SemanticShim,
+                new AgentOutputQualityGate(Options.Create(options)),
+                CancellationToken.None,
+                new AgentEvidencePackage(),
+                faith.Object);
+
+        accepted.Should().BeFalse(
+            because: "confidence enrichment must mirror PilotStrict faithfulness rejection when evidence is available");
+    }
+
     [Theory]
     [InlineData("{}")]
     [InlineData("{\"citations\":\"not-an-array\"}")]

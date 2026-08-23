@@ -1314,13 +1314,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** agent evaluation; evaluation runner
 - **paths:** ArchLucid.AgentRuntime/Evaluation/
 - **test-filter:** FullyQualifiedName~Evaluation
-- **hunts:** 3
-- **bugs-found:** 3
+- **hunts:** 4
+- **bugs-found:** 4
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-21
-- **last-bug:** 2026-08-21
+- **last-hunt:** 2026-08-23
+- **last-bug:** 2026-08-23
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** no
 
 ### Hypotheses
 
@@ -1330,6 +1330,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Architecture finding confidence enrichment uses the first trace per agent type — **hit 2026-08-18:** `AgentArchitectureFindingConfidenceEnricher` keyed traces by `AgentType` instead of `TaskId`, so multiple tasks of the same agent type inherited the wrong schema/reference signals.
 - [x] (proven) Findings snapshot confidence enrichment uses superseded or wrong trace — **hit 2026-08-19:** `FindingsSnapshotEvaluationConfidenceEnricher` grouped raw traces by `AgentType` and took `First()`, ignoring `AgentExecutionTraceLatestPerTaskSelector` and mis-scoring retried tasks.
 - [x] (proven) PilotStrict sponsor evidence gate evaluates superseded auto-retry traces — **hit 2026-08-21:** `RunAgentOutputPilotEvidenceAggregator.WouldPilotStrictBlockSponsorEvidenceAsync` iterated all persisted traces; a rejected first attempt blocked sponsor evidence even when the latest retry passed PilotStrict.
+- [x] (proven) Confidence enrichment ignores PilotStrict faithfulness rejection — **hit 2026-08-23:** `ComputeQualityGateAcceptedForConfidenceAsync` and both confidence enrichers evaluated traces without run evidence/faithfulness, so `schemaPassed` stayed true on outputs PilotStrict would reject for low agent-result faithfulness support.
 
 ---
 
