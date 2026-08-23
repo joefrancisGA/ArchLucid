@@ -115,7 +115,8 @@ vi.mock("@/components/usability/PageContextualHelpButton", async () => {
 });
 
 import { ArchitectureDraftWorkspace } from "./ArchitectureDraftWorkspace";
-import { ARCHITECTURE_DRAFT_WORKSPACE_LEAD, ARCHITECTURE_CREATION_AUTOSAVE_REASSURANCE, ARCHITECTURE_CREATION_NO_DRAFTS_GUIDANCE } from "@/lib/create-vs-review-intake-copy";
+import { ARCHITECTURE_DRAFT_DETAIL_PAGE_SUBTITLE_OPERATOR } from "@/lib/architecture/architecture-draft-detail-page-copy";
+import { ARCHITECTURE_CREATION_AUTOSAVE_REASSURANCE, ARCHITECTURE_CREATION_NO_DRAFTS_GUIDANCE } from "@/lib/create-vs-review-intake-copy";
 import { ARCHITECTURE_DRAFT_GUIDANCE_DISMISS_STORAGE_KEY } from "@/lib/architecture/architecture-draft-guidance-dismiss";
 import { ARCHITECTURE_NEW_DRAFT_SEGMENT } from "@/lib/architecture/architecture-routes";
 import { emptyArchitectureDraftStructuredBrief } from "@/lib/architecture/architecture-draft-structured-brief";
@@ -393,7 +394,7 @@ describe("ArchitectureDraftWorkspace", () => {
 
     await waitFor(() => {
       expect(screen.getByTestId("architecture-draft-workspace-lead")).toHaveTextContent(
-        ARCHITECTURE_DRAFT_WORKSPACE_LEAD,
+        ARCHITECTURE_DRAFT_DETAIL_PAGE_SUBTITLE_OPERATOR,
       );
     });
 
