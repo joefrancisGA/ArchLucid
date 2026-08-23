@@ -158,4 +158,80 @@ public sealed class AlertSimulationContextProviderTests
                 It.IsAny<CancellationToken>()),
             Times.Never);
     }
+
+    [Fact]
+    public async Task GetContextsAsync_when_authority_returns_foreign_workspace_run_returns_empty()
+    {
+        Guid tenantId = Guid.NewGuid();
+        Guid callerWorkspaceId = Guid.NewGuid();
+        Guid foreignWorkspaceId = Guid.NewGuid();
+        Guid projectId = Guid.NewGuid();
+        Guid runId = Guid.NewGuid();
+
+        Mock<IAuthorityQueryService> authority = new();
+        authority
+            .Setup(a => a.GetRunDetailAsync(
+                It.IsAny<ScopeContext>(),
+                runId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunDetailDto
+            {
+                Run = new RunRecord
+                {
+                    RunId = runId,
+                    TenantId = tenantId,
+                    WorkspaceId = foreignWorkspaceId,
+                    ScopeProjectId = projectId
+                },
+                GoldenManifest = new ManifestDocument
+                {
+                    RunId = runId,
+                    FindingsSnapshotId = Guid.NewGuid(),
+                    CreatedUtc = DateTime.UtcNow
+                },
+                FindingsSnapshot = new FindingsSnapshot
+                {
+                    RunId = runId,
+                    FindingsSnapshotId = Guid.NewGuid(),
+                    Findings =
+                    [
+                        new Finding
+                        {
+                            FindingId = "foreign-workspace-finding",
+                            Title = "Should not enter caller simulation context",
+                        }
+                    ]
+                }
+            });
+
+        Mock<IImprovementAdvisorService> advisor = new();
+        Mock<IComparisonService> comparison = new();
+        Mock<IRecommendationRepository> recommendations = new();
+        Mock<IRecommendationLearningService> learning = new();
+
+        AlertSimulationContextProvider provider = new(
+            authority.Object,
+            advisor.Object,
+            comparison.Object,
+            recommendations.Object,
+            learning.Object);
+
+        IReadOnlyList<AlertEvaluationContext> contexts = await provider.GetContextsAsync(
+            tenantId,
+            callerWorkspaceId,
+            projectId,
+            runId,
+            null,
+            5,
+            "default",
+            CancellationToken.None);
+
+        contexts.Should().BeEmpty();
+        advisor.Verify(
+            a => a.GeneratePlanAsync(
+                It.IsAny<ManifestDocument>(),
+                It.IsAny<FindingsSnapshot>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
 }
