@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { COMMAND_PALETTE_DISPLAY_SHORTCUT } from "@/lib/keyboard-shortcut-display";
+import { resolveCommandPaletteDisplayShortcut } from "@/lib/keyboard-shortcut-display";
 
 export type KeyboardShortcutBadgeProps = {
   readonly shortcut?: string;
@@ -9,10 +9,10 @@ export type KeyboardShortcutBadgeProps = {
 
 /**
  * Compact shortcut chip for shell chrome (command palette trigger, etc.).
- * Uses literal `Ctrl` text — never the macOS ⌘ glyph.
+ * Uses Cmd+K on Apple platforms and Ctrl+K elsewhere — never the ⌘ glyph.
  */
 export function KeyboardShortcutBadge(props: KeyboardShortcutBadgeProps) {
-  const { shortcut = COMMAND_PALETTE_DISPLAY_SHORTCUT, className } = props;
+  const { shortcut = resolveCommandPaletteDisplayShortcut(), className } = props;
 
   return (
     <span
