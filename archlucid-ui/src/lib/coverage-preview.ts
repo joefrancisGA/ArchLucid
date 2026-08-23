@@ -84,6 +84,7 @@ export function mapNormalizedCloudProvider(normalized: string): string {
     default:
       return "None";
   }
+}
 export function formatCoveragePreviewScopeNote(response: CoveragePreviewResponse): string {
   if (response.focusedPilotModeEnabled) {
     return "Focused first review: baseline dimensions, organization-required packs, and selected platform overlays evaluate this run. Contextual recommendations apply when selected.";
