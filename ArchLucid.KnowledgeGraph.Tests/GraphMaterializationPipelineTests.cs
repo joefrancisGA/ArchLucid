@@ -34,6 +34,32 @@ public sealed class GraphMaterializationPipelineTests
     }
 
     [Fact]
+    public async Task RunAsync_captures_stage_telemetry_when_enabled()
+    {
+        ContextSnapshot snapshot = new()
+        {
+            SnapshotId = Guid.NewGuid(),
+            RunId = Guid.NewGuid(),
+            ProjectId = "project-1",
+            SourceHashes = new Dictionary<string, string>
+            {
+                [ContextScopeMetadataKeys.Actors] = "[]",
+            },
+        };
+
+        List<GraphNode> nodes = [CreateContextNode(snapshot)];
+        GraphMaterializationContext context = new(snapshot, nodes);
+        GraphMaterializationPipeline pipeline = GraphMaterializationStages.CreateDefaultPipeline(new Mock<IGraphNodeFactory>(MockBehavior.Strict).Object);
+        GraphMaterializationPipelineOptions options = new() { StopAfterStageName = "request-actors" };
+
+        GraphMaterializationRunResult result = await pipeline.RunAsync(context, CancellationToken.None, options);
+
+        result.StageOutcomes.Should().HaveCount(3);
+        result.StageOutcomes[2].StageName.Should().Be("request-actors");
+        result.TotalElapsedMilliseconds.Should().BeGreaterThanOrEqualTo(0);
+    }
+
+    [Fact]
     public async Task RunAsync_AppliesMetadataMaterializersWhenCanonicalObjectsMissing()
     {
         ContextSnapshot snapshot = new()

@@ -12,6 +12,8 @@ public interface IGraphMaterializationStage
 
 public sealed class GraphMaterializationContext
 {
+    private bool _stageSkipped;
+
     public GraphMaterializationContext(ContextSnapshot snapshot, List<GraphNode> nodes)
     {
         Snapshot = snapshot ?? throw new ArgumentNullException(nameof(snapshot));
@@ -31,4 +33,16 @@ public sealed class GraphMaterializationContext
     public bool HasCanonicalQualityAttributes { get; set; }
 
     public bool HasCanonicalFailureModes { get; set; }
+
+    internal void BeginStage()
+    {
+        _stageSkipped = false;
+    }
+
+    internal void MarkStageSkipped()
+    {
+        _stageSkipped = true;
+    }
+
+    internal bool WasStageSkipped => _stageSkipped;
 }

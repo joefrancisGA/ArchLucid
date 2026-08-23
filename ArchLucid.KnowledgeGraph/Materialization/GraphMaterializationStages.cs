@@ -5,8 +5,25 @@ using ArchLucid.KnowledgeGraph.Models;
 
 namespace ArchLucid.KnowledgeGraph.Materialization;
 
+/// <summary>
+///     Canonical registrar for the ordered graph materialization pipeline (TB-2370).
+///     Stage order: canonical objects → request cost constraints → request actors → request assumptions →
+///     request quality attributes → request failure modes → cost projected-spend enrichment.
+/// </summary>
 public static class GraphMaterializationStages
 {
+    /// <summary>Documented default stage order; keep aligned with <see cref="CreateDefaultPipeline" />.</summary>
+    public static readonly IReadOnlyList<string> DefaultStageOrder =
+    [
+        "canonical-objects",
+        "request-cost-constraints",
+        "request-actors",
+        "request-assumptions",
+        "request-quality-attributes",
+        "request-failure-modes",
+        "cost-projected-spend-enrichment",
+    ];
+
     public static GraphMaterializationPipeline CreateDefaultPipeline(IGraphNodeFactory nodeFactory)
     {
         ArgumentNullException.ThrowIfNull(nodeFactory);
@@ -28,6 +45,12 @@ public static class GraphMaterializationStages
 
         public Task ApplyAsync(GraphMaterializationContext context, CancellationToken cancellationToken)
         {
+            if (context.Snapshot.CanonicalObjects.Count == 0)
+            {
+                context.MarkStageSkipped();
+                return Task.CompletedTask;
+            }
+
             foreach (CanonicalObject item in context.Snapshot.CanonicalObjects)
             {
                 GraphNode node = nodeFactory.CreateNode(item);
@@ -74,10 +97,16 @@ public static class GraphMaterializationStages
         public Task ApplyAsync(GraphMaterializationContext context, CancellationToken cancellationToken)
         {
             if (context.HasCanonicalCostConstraints)
+            {
+                context.MarkStageSkipped();
                 return Task.CompletedTask;
+            }
 
             if (!context.Snapshot.SourceHashes.TryGetValue(ContextScopeMetadataKeys.Constraints, out string? constraints))
+            {
+                context.MarkStageSkipped();
                 return Task.CompletedTask;
+            }
 
             context.Nodes.AddRange(
                 RequestCostConstraintMaterializer.MaterializeFromConstraintsMetadata(
@@ -95,10 +124,16 @@ public static class GraphMaterializationStages
         public Task ApplyAsync(GraphMaterializationContext context, CancellationToken cancellationToken)
         {
             if (context.HasCanonicalActors)
+            {
+                context.MarkStageSkipped();
                 return Task.CompletedTask;
+            }
 
             if (!context.Snapshot.SourceHashes.TryGetValue(ContextScopeMetadataKeys.Actors, out string? actorsJson))
+            {
+                context.MarkStageSkipped();
                 return Task.CompletedTask;
+            }
 
             context.Nodes.AddRange(
                 RequestActorMaterializer.MaterializeFromActorsJson(
@@ -116,10 +151,16 @@ public static class GraphMaterializationStages
         public Task ApplyAsync(GraphMaterializationContext context, CancellationToken cancellationToken)
         {
             if (context.HasCanonicalAssumptions)
+            {
+                context.MarkStageSkipped();
                 return Task.CompletedTask;
+            }
 
             if (!context.Snapshot.SourceHashes.TryGetValue(ContextScopeMetadataKeys.Assumptions, out string? assumptions))
+            {
+                context.MarkStageSkipped();
                 return Task.CompletedTask;
+            }
 
             context.Nodes.AddRange(
                 RequestAssumptionMaterializer.MaterializeFromAssumptionsMetadata(
@@ -137,12 +178,18 @@ public static class GraphMaterializationStages
         public Task ApplyAsync(GraphMaterializationContext context, CancellationToken cancellationToken)
         {
             if (context.HasCanonicalQualityAttributes)
+            {
+                context.MarkStageSkipped();
                 return Task.CompletedTask;
+            }
 
             if (!context.Snapshot.SourceHashes.TryGetValue(
                     ContextScopeMetadataKeys.QualityAttribute,
                     out string? qualityAttribute))
+            {
+                context.MarkStageSkipped();
                 return Task.CompletedTask;
+            }
 
             context.Nodes.AddRange(
                 RequestQualityAttributeMaterializer.MaterializeFromQualityAttribute(
@@ -160,12 +207,18 @@ public static class GraphMaterializationStages
         public Task ApplyAsync(GraphMaterializationContext context, CancellationToken cancellationToken)
         {
             if (context.HasCanonicalFailureModes)
+            {
+                context.MarkStageSkipped();
                 return Task.CompletedTask;
+            }
 
             if (!context.Snapshot.SourceHashes.TryGetValue(
                     ContextScopeMetadataKeys.FailureModeNote,
                     out string? failureModeNote))
+            {
+                context.MarkStageSkipped();
                 return Task.CompletedTask;
+            }
 
             context.Nodes.AddRange(
                 RequestFailureModeMaterializer.MaterializeFromFailureModeNote(
@@ -176,6 +229,7 @@ public static class GraphMaterializationStages
         }
     }
 
+    /// <summary>TB-2348 projected-spend enrichment; runs after all materializers so topology nodes are present.</summary>
     private sealed class CostConstraintProjectedSpendEnrichmentStage : IGraphMaterializationStage
     {
         public string Name => "cost-projected-spend-enrichment";
