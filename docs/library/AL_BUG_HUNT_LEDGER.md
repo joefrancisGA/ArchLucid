@@ -1379,19 +1379,20 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** retrieval indexing; embedding; pricing retrieval
 - **paths:** ArchLucid.Retrieval/
 - **test-filter:** FullyQualifiedName~Retrieval|FullyQualifiedName~Indexing
-- **hunts:** 1
-- **bugs-found:** 1
+- **hunts:** 2
+- **bugs-found:** 2
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-18
-- **last-bug:** 2026-08-18
+- **last-hunt:** 2026-08-23
+- **last-bug:** 2026-08-23
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** no
 
 ### Hypotheses
 
 - [x] (proven) Index query returns chunks from another tenant's corpus — **hit 2026-08-18:** Azure policy-pack OData filter omitted platform sentinel `tenantId`, allowing cross-tenant `PolicyPack` matches when `IncludePlatformCorpora` is on.
 - [x] (valid-no-repro) Pricing estimate uses the wrong model tariff for the tenant plan — EA multiplier and cache keys are tenant-scoped; covered by existing pricing tests.
 - [x] (valid-no-repro) Reindex job deletes vectors for the wrong workspace — `RetrievalIndexingService` validates scope and passes all four scope fields to delete.
+- [x] (proven) Structure-aware chunker splits fenced code blocks mid-fence when the fence segment exceeds `maxChars` — **hit 2026-08-23:** `StructureAwareTextChunker` fell back to `SimpleTextChunker` on the whole fence segment, emitting chunks with a single orphan ``` marker; fixed by re-wrapping inner splits with opener/closer fences.
 
 ---
 

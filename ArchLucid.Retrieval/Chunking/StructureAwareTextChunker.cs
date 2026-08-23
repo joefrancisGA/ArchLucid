@@ -36,6 +36,12 @@ public sealed class StructureAwareTextChunker : ITextChunker
                 continue;
             }
 
+            if (TryChunkOversizedCodeFence(segment, maxChars, overlap, out IReadOnlyList<string> fenceChunks))
+            {
+                chunks.AddRange(fenceChunks);
+                continue;
+            }
+
             chunks.AddRange(_fallback.Chunk(segment, maxChars, overlap));
         }
 
@@ -145,6 +151,55 @@ public sealed class StructureAwareTextChunker : ITextChunker
             segments.Add(segment);
 
         buffer.Clear();
+    }
+
+    private bool TryChunkOversizedCodeFence(
+        string segment,
+        int maxChars,
+        int overlap,
+        out IReadOnlyList<string> chunks)
+    {
+        chunks = [];
+
+        string trimmed = segment.Trim();
+        List<string> lines = trimmed.Split('\n').ToList();
+
+        if (lines.Count < 3)
+            return false;
+
+        string opener = lines[0].Trim();
+        string closer = lines[^1].Trim();
+
+        if (!IsCodeFenceDelimiter(opener) || !IsCodeFenceDelimiter(closer))
+            return false;
+
+        string inner = string.Join('\n', lines.Skip(1).Take(lines.Count - 2));
+
+        if (string.IsNullOrEmpty(inner))
+            return false;
+
+        int wrapOverhead = opener.Length + closer.Length + 2;
+
+        if (wrapOverhead >= maxChars)
+            return false;
+
+        int innerBudget = maxChars - wrapOverhead;
+        IReadOnlyList<string> innerChunks = _fallback.Chunk(inner, innerBudget, overlap);
+        List<string> wrapped = [];
+
+        foreach (string innerChunk in innerChunks)
+        {
+            if (string.IsNullOrWhiteSpace(innerChunk))
+                continue;
+
+            wrapped.Add($"{opener}\n{innerChunk.Trim()}\n{closer}");
+        }
+
+        if (wrapped.Count == 0)
+            return false;
+
+        chunks = wrapped;
+        return true;
     }
 
     private static bool IsMarkdownHeading(string trimmedLine)
