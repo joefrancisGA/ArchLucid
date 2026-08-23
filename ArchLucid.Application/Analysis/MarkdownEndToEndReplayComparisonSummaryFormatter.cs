@@ -1,5 +1,7 @@
 using System.Text;
 
+using ArchLucid.Application.Diffs;
+
 namespace ArchLucid.Application.Analysis;
 
 /// <summary>
@@ -43,8 +45,12 @@ public sealed class MarkdownEndToEndReplayComparisonSummaryFormatter
         {
             AppendSection(sb, "Manifest Added Services", report.ManifestDiff.AddedServices);
             AppendSection(sb, "Manifest Removed Services", report.ManifestDiff.RemovedServices);
+            AppendSection(sb, "Manifest Added Datastores", report.ManifestDiff.AddedDatastores);
+            AppendSection(sb, "Manifest Removed Datastores", report.ManifestDiff.RemovedDatastores);
             AppendSection(sb, "Manifest Added Required Controls", report.ManifestDiff.AddedRequiredControls);
             AppendSection(sb, "Manifest Removed Required Controls", report.ManifestDiff.RemovedRequiredControls);
+            AppendRelationshipSection(sb, "Manifest Added Relationships", report.ManifestDiff.AddedRelationships);
+            AppendRelationshipSection(sb, "Manifest Removed Relationships", report.ManifestDiff.RemovedRelationships);
         }
 
         if (report.ExportDiffs.Count > 0)
@@ -85,5 +91,20 @@ public sealed class MarkdownEndToEndReplayComparisonSummaryFormatter
             sb.AppendLine($"- {item}");
 
         sb.AppendLine();
+    }
+
+    private static void AppendRelationshipSection(
+        StringBuilder sb,
+        string title,
+        IReadOnlyCollection<RelationshipDiffItem> relationships)
+    {
+        if (relationships.Count == 0)
+            return;
+
+        List<string> items = relationships
+            .Select(rel => $"{rel.SourceId} -> {rel.TargetId} ({rel.RelationshipType})")
+            .ToList();
+
+        AppendSection(sb, title, items);
     }
 }

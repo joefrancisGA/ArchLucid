@@ -1231,19 +1231,19 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 1
-- **bugs-found:** 1
+- **hunts:** 2
+- **bugs-found:** 2
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-18
-- **last-bug:** 2026-08-18
+- **last-hunt:** 2026-08-23
+- **last-bug:** 2026-08-23
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** no
 
 ### Hypotheses
 
-- [ ] (candidate) Analysis compares runs from different tenants when scope keys collide
+- [x] (invalid) Analysis compares runs from different tenants when scope keys collide — rollup/compare loads runs via `IRunDetailQueryService` + `ScopeContext`; manifest reads are tenant-scoped; export records key on globally unique run GUIDs
 - [x] (candidate) Quality delta treats a failed run as higher quality than a succeeded run — **fixed 2026-08-18:** missing knowledge model substituted empty model, zeroing uncovered-mandatory "after" counts
-- [ ] (candidate) Compare summary omits a blocking finding that exists in the source run
+- [x] (proven) Compare summary omits manifest datastore/relationship diffs that exist in the source run — **fixed 2026-08-23:** `MarkdownEndToEndReplayComparisonSummaryFormatter` only listed services/controls while `EndToEndReplayComparisonExportService` already surfaced datastores and relationships
 
 ---
 
