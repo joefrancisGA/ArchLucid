@@ -27,7 +27,7 @@ internal static class FindingsSnapshotWriteSql
                                               (
                                                   FindingRecordId, FindingsSnapshotId, SortOrder,
                                                   TenantId, WorkspaceId, ProjectId,
-                                                  FindingId, FindingSchemaVersion, FindingType, Category, EngineType,
+                                                  FindingId, FindingSchemaVersion, FindingType, Category, QualityDimension, EngineType,
                                                   Severity, Title, Rationale, PayloadType, PayloadJson,
                                                   RequestInputRef, RunIdRef, AgentExecutionTraceId,
                                                   ModelDeploymentName, ModelVersion, PromptTemplateId, PromptTemplateVersion,

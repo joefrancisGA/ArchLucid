@@ -66,6 +66,7 @@ internal static class FindingRelationalWriter
             finding.FindingSchemaVersion,
             finding.FindingType,
             finding.Category,
+            finding.QualityDimension,
             finding.EngineType,
             Severity = finding.Severity.ToString(),
             finding.Title,

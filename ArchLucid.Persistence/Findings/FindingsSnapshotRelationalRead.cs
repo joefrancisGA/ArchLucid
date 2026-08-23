@@ -84,6 +84,7 @@ internal static class FindingsSnapshotRelationalRead
                 FindingSchemaVersion = rec.FindingSchemaVersion,
                 FindingType = rec.FindingType,
                 Category = rec.Category,
+                QualityDimension = rec.QualityDimension,
                 EngineType = rec.EngineType,
                 Severity = Enum.Parse<FindingSeverity>(rec.Severity, true),
                 Title = rec.Title,
@@ -424,6 +425,12 @@ internal static class FindingsSnapshotRelationalRead
             get;
             init;
         } = null!;
+
+        public string? QualityDimension
+        {
+            get;
+            init;
+        }
 
         public string EngineType
         {
