@@ -34,7 +34,7 @@ export function MarketingCustomPolicyPackAuthoringSection(
         Optional professional services
       </h2>
       <p className={cn("mt-3 max-w-3xl leading-relaxed text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
-        Need customer-specific governance policy packs beyond bundled defaults? ArchLucid offers fixed-scope professional
+        Need customer-specific policy packs beyond bundled defaults? ArchLucid offers fixed-scope professional
         services engagements — choose an IP tier that matches your confidentiality posture:
       </p>
       <ul className={cn("mt-3 list-disc space-y-1 pl-5 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>

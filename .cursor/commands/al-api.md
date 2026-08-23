@@ -1,4 +1,4 @@
-﻿# /al-api — Launch a Cloud Agent via API
+# /al-api — Launch a Cloud Agent via API
 
 You are invoking the **/al-api** slash command. Your job is to start a Cursor Cloud Agent through the local helper script, using **Composer 2.5 standard** (not Fast). This is hardcoded in the script and cannot be overridden.
 
@@ -20,7 +20,7 @@ If task text is empty, ask the user for a one-line task before continuing.
 
 **Windows (PowerShell):**
 ```powershell
-.\scripts\Invoke-AlApi.ps1 -Text "<TASK_TEXT>" [-ImagePath "<ABSOLUTE_IMAGE_PATH>"]
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/Invoke-AlApi.ps1 -Text "<TASK_TEXT>" [-ImagePath "<ABSOLUTE_IMAGE_PATH>"]
 ```
 
 **macOS/Linux:**
@@ -53,11 +53,7 @@ User message:
 
 You run:
 ```powershell
-.\scripts\Invoke-AlApi.ps1 -Text "Fix the login button alignment on mobile" -ImagePath "C:\path\to\repo\.cursor\tmp\al-api-screenshot.png"
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/Invoke-AlApi.ps1 -Text "Fix the login button alignment on mobile" -ImagePath "C:\path\to\repo\.cursor\tmp\al-api-screenshot.png"
 ```
 
 Then return the agent URL from the script output.
-
-## Related
-
-- `/al-bug-api` — launch `/al-bug` on a Cloud Agent (Composer 2.5 standard)

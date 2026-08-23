@@ -60,7 +60,7 @@ export type GovernanceJobRouter = {
 
 /** Chooser heading - steers operators before they open the wrong governance home. */
 
-export const GOVERNANCE_JOB_ROUTER_HEADING = "Which approval queue am I in?" as const;
+export const GOVERNANCE_JOB_ROUTER_HEADING = "What are you here to do?" as const;
 
 
 

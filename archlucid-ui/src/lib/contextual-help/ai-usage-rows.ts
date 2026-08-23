@@ -21,13 +21,13 @@ const AI_USAGE_HUB_CONTEXTUAL_HELP = {
     href: "/administration/billing",
   },
   whereToConfigureAction: {
-    label: "Open model governance",
+    label: "Open AI and model governance",
     href: "/administration/model-governance",
   },
   taskSteps: [
     "Review KPIs and daily usage for this workspace.",
     "Open Billing and plans when budget caps need adjustment.",
-    "Open Model governance when execution profiles drive spend.",
+    "Open AI and model governance when execution profiles drive spend.",
   ],
 } as const;
 
@@ -45,7 +45,7 @@ export const AI_USAGE_CONTEXTUAL_HELP_ROWS: readonly PageContextualHelpRow[] = [
     entry: {
       whatIsThisPage: `AI usage — ${AI_USAGE_HELP_TOPIC_LABEL.toLowerCase()} and how estimated spend differs from billing invoices.`,
       whatToDoNext:
-        "Open AI usage to review spend signals, then follow billing or model governance when plan or execution-profile changes are needed.",
+        "Open AI usage to review spend signals, then follow billing or AI and model governance when plan or execution-profile changes are needed.",
       whyEmpty: "This guide is always available; spend cards load after cost-reporting data responds.",
       whereToConfigurePrerequisite:
         "Billing and plans help covers subscription, wallet, and plan comparison controls.",

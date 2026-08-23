@@ -39,7 +39,7 @@ export const GOVERNANCE_APPROVAL_CONTEXTUAL_HELP_ROWS: readonly PageContextualHe
         `Resolve outcomes — ${GOVERNANCE_APPROVAL_HELP_TOPIC_LABEL.toLowerCase()} across submit, review, and finalize for architects.`,
       whatToDoNext:
         "Open the approval queue or Workspace Health, then use Findings when you need the risk register behind a decision.",
-      whyEmpty: "This guide is always available; live approval queues appear after reviews enter approval review.",
+      whyEmpty: "This guide is always available; live approval queues appear after reviews enter approval.",
       whereToConfigurePrerequisite:
         "Approval authority follows workspace roles; confirm the header workspace before acting on requests.",
       whatToDoNextAction: {

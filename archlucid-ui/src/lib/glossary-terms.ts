@@ -105,7 +105,7 @@ export const GLOSSARY_TERMS = {
   },
   architecture_manifest: {
     term: "Finalized review record",
-    definition: "A finalized architecture record containing decisions, findings, and evidence — ready for approval review and sponsor export.",
+    definition: "A finalized architecture record containing decisions, findings, and evidence — ready for approval and sponsor export.",
     docLink: "/docs/library/GLOSSARY.md#golden-manifest",
   },
   manifest_diff: {

@@ -11,12 +11,6 @@
 
 .PARAMETER ConfigPath
     Optional path to al-api.config.json. Defaults to .cursor/al-api.config.json in repo root.
-
-.PARAMETER WorkOnCurrentBranch
-    When true, the cloud agent pushes to startingRef instead of a cursor/* branch.
-
-.PARAMETER StartingRef
-    Optional branch override (for example master). Falls back to config.startingRef, then master.
 #>
 [CmdletBinding()]
 param(
@@ -27,13 +21,7 @@ param(
     [string]$ImagePath,
 
     [Parameter(Mandatory = $false)]
-    [string]$ConfigPath,
-
-    [Parameter(Mandatory = $false)]
-    [bool]$WorkOnCurrentBranch = $false,
-
-    [Parameter(Mandatory = $false)]
-    [string]$StartingRef
+    [string]$ConfigPath
 )
 
 Set-StrictMode -Version Latest
@@ -81,30 +69,31 @@ function Get-ApiKey {
 }
 
 function Get-OriginRepoUrl {
-    param(
-        [string]$RepoRoot
-    )
+  param(
+    [string]$RepoRoot
+  )
 
-    Push-Location $RepoRoot
-    try {
-        $remoteUrl = (git remote get-url origin 2>$null)
-        if (-not $remoteUrl) {
-            return $null
-        }
-
-        if ($remoteUrl -match '^git@([^:]+):(.+?)(?:\.git)?$') {
-            return "https://$($Matches[1])/$($Matches[2])"
-        }
-
-        if ($remoteUrl -match '^https?://') {
-            return ($remoteUrl -replace '\.git$', '')
-        }
-
-        return $remoteUrl
+  Push-Location $RepoRoot
+  try {
+    $remoteUrl = (git remote get-url origin 2>$null)
+    if (-not $remoteUrl) {
+      return $null
     }
-    finally {
-        Pop-Location
+
+    # Normalize git@github.com:org/repo.git and https forms to https://github.com/org/repo
+    if ($remoteUrl -match '^git@([^:]+):(.+?)(?:\.git)?$') {
+      return "https://$($Matches[1])/$($Matches[2])"
     }
+
+    if ($remoteUrl -match '^https?://') {
+      return ($remoteUrl -replace '\.git$', '')
+    }
+
+    return $remoteUrl
+  }
+  finally {
+    Pop-Location
+  }
 }
 
 function Get-MimeType {
@@ -175,18 +164,10 @@ if (-not $repoUrl) {
     throw "repoUrl is not set in config and could not be detected from git origin."
 }
 
-if ($StartingRef -and $StartingRef.Trim().Length -gt 0) {
-    $startingRef = $StartingRef.Trim()
-}
-elseif ($config.startingRef -and $config.startingRef.ToString().Trim().Length -gt 0) {
-    $startingRef = $config.startingRef.ToString().Trim()
-}
-else {
-    $startingRef = "master"
-}
-
+$startingRef = if ($config.startingRef) { $config.startingRef } else { "main" }
 $autoCreatePr = if ($null -ne $config.autoCreatePR) { [bool]$config.autoCreatePR } else { $false }
 
+# Locked: /al-api always uses Composer 2.5 standard (non-Fast) for lower cost.
 $modelId = "composer-2.5"
 $useFast = $false
 
@@ -217,7 +198,6 @@ $body = @{
         }
     )
     autoCreatePR = $autoCreatePr
-    workOnCurrentBranch = $WorkOnCurrentBranch
 }
 
 $json = $body | ConvertTo-Json -Depth 8 -Compress:$false
@@ -250,9 +230,9 @@ Write-Output "  Agent: $agentId"
 Write-Output "  Run:   $runId"
 Write-Output "  URL:   $agentUrl"
 Write-Output "  Model: $modelId (fast=$useFast)"
-Write-Output "  Branch: $startingRef (workOnCurrentBranch=$WorkOnCurrentBranch)"
 Write-Output ""
 
+# Return structured object for scripting
 return [PSCustomObject]@{
     AgentId = $agentId
     RunId = $runId

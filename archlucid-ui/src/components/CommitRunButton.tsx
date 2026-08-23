@@ -180,7 +180,7 @@ export function CommitRunButton({
               )}
               data-testid="commit-governance-block-explanation"
             >
-              <p className="m-0 font-semibold">AI-assisted: why governance blocked finalization</p>
+              <p className="m-0 font-semibold">AI-assisted: why policy blocked finalization</p>
               <p className="m-0 mt-2 leading-relaxed">{error.problem.blockExplanation}</p>
             </div>
           ) : null}

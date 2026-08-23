@@ -29,7 +29,7 @@ describe("governance-job-router (TB-2199 / TB-2230)", () => {
     const router = getGovernanceJobRouter();
 
     expect(router.heading).toBe(GOVERNANCE_JOB_ROUTER_HEADING);
-    expect(router.heading).toBe("Which approval queue am I in?");
+    expect(router.heading).toBe("What are you here to do?");
     expect(router.options).toEqual(buildGovernanceJobRouterOptions());
   });
 
@@ -67,7 +67,7 @@ describe("governance-job-router (TB-2199 / TB-2230)", () => {
     expect(corpus).toContain("finding");
     expect(corpus).not.toContain("risk");
     expect(corpus).toContain("decision");
-    expect(corpus).toContain("governance");
+    expect(corpus).toContain("approval");
     expect(corpus).toMatch(/submit|review/);
   });
 
