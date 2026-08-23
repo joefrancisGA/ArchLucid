@@ -107,7 +107,7 @@ describe("SettingsRolesMatrixSection", () => {
 
     expect(await screen.findByRole("columnheader", { name: /Architect/ })).toBeInTheDocument();
     expect(screen.queryByRole("columnheader", { name: /^Operator/ })).not.toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Clone Architect role" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Clone Architect role into the create form" })).toBeInTheDocument();
     expect(screen.getByText(/Last updated/i)).toBeInTheDocument();
 
     vi.unstubAllGlobals();
@@ -182,6 +182,78 @@ describe("SettingsRolesMatrixSection", () => {
     await screen.findByRole("heading", { name: "Create custom role" });
 
     expect(screen.getAllByText("High risk").length).toBeGreaterThan(0);
+
+    vi.unstubAllGlobals();
+  });
+
+  it("prefills the create form when cloning instead of writing a role immediately", async () => {
+    const fetchMock = vi.fn(
+      async () =>
+        new Response(JSON.stringify(rolesWithCustomColumn), { status: 200, headers: { "Content-Type": "application/json" } }),
+    );
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<SettingsRolesMatrixSection />);
+
+    await screen.findByTestId("settings-roles-builtin-summary");
+    const requestsAfterLoad = fetchMock.mock.calls.length;
+
+    fireEvent.click(screen.getByRole("button", { name: "Clone Architect role into the create form" }));
+
+    expect(screen.getByLabelText("Role name")).toHaveValue("Architect (custom)");
+    expect(fetchMock.mock.calls.length).toBe(requestsAfterLoad);
+
+    vi.unstubAllGlobals();
+  });
+
+  it("explains why the create button is unavailable", async () => {
+    stubRolesResponse(rolesWithCustomColumn);
+
+    render(<SettingsRolesMatrixSection />);
+
+    await screen.findByTestId("settings-roles-builtin-summary");
+
+    expect(screen.getByRole("button", { name: "Create custom role" })).toBeDisabled();
+    expect(screen.getByTestId("settings-roles-create-readiness")).toHaveTextContent(/enter a role name/i);
+
+    fireEvent.change(screen.getByLabelText("Role name"), { target: { value: "Reviewer minus" } });
+
+    expect(screen.getByRole("button", { name: "Create custom role" })).toBeEnabled();
+    expect(screen.queryByTestId("settings-roles-create-readiness")).not.toBeInTheDocument();
+
+    vi.unstubAllGlobals();
+  });
+
+  it("blocks seeding from a built-in role that the matrix could not load", async () => {
+    stubRolesResponse([rolesWithCustomColumn[1]]);
+
+    render(<SettingsRolesMatrixSection />);
+
+    await screen.findByTestId("settings-roles-builtin-summary");
+
+    fireEvent.change(screen.getByLabelText("Role name"), { target: { value: "Reviewer minus" } });
+
+    // Default start-from is Operator/Architect, which is absent from this payload.
+    expect(screen.getByTestId("settings-roles-create-readiness")).toHaveTextContent(/Architect could not be loaded/i);
+    expect(screen.getByRole("button", { name: "Create custom role" })).toBeDisabled();
+
+    vi.unstubAllGlobals();
+  });
+
+  it("shows a retryable inline error instead of an empty matrix when roles cannot be loaded", async () => {
+    const fetchMock = vi.fn(async () => new Response("", { status: 503 }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<SettingsRolesMatrixSection />);
+
+    const errorPanel = await screen.findByTestId("settings-roles-matrix-load-error");
+    expect(errorPanel).toHaveTextContent(/could not load roles/i);
+    expect(errorPanel).not.toHaveTextContent(/503/);
+    expect(screen.queryByTestId("settings-roles-matrix")).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Retry" }));
+
+    expect(fetchMock.mock.calls.length).toBeGreaterThan(1);
 
     vi.unstubAllGlobals();
   });
