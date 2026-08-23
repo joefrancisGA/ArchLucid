@@ -78,6 +78,75 @@ describe("ensureAccessTokenFresh", () => {
     expect(sessionStorage.getItem(OIDC_REFRESH_TOKEN_KEY)).toBe("rt-new");
   });
 
+  it("refreshes the replacement session when a stale refresh is still in-flight", async () => {
+    let releaseStaleRefresh: (() => void) | undefined;
+    let refreshCalls = 0;
+
+    vi.mocked(tokenClient.refreshAccessToken).mockImplementation(async () => {
+      refreshCalls += 1;
+
+      if (refreshCalls === 1) {
+        return new Promise((resolve) => {
+          releaseStaleRefresh = () => {
+            resolve({ access_token: "stale", expires_in: 3600, refresh_token: "rt-stale" });
+          };
+        });
+      }
+
+      return { access_token: "refreshed-new", expires_in: 3600, refresh_token: "rt-new" };
+    });
+
+    sessionStorage.setItem(OIDC_ACCESS_TOKEN_KEY, "old-access");
+    sessionStorage.setItem(OIDC_REFRESH_TOKEN_KEY, "old-refresh");
+    sessionStorage.setItem(OIDC_EXPIRES_AT_MS_KEY, String(Date.now()));
+
+    const stalePromise = ensureAccessTokenFresh();
+    await Promise.resolve();
+
+    clearOidcSession();
+    sessionStorage.setItem(OIDC_ACCESS_TOKEN_KEY, "new-access");
+    sessionStorage.setItem(OIDC_REFRESH_TOKEN_KEY, "new-refresh");
+    sessionStorage.setItem(OIDC_EXPIRES_AT_MS_KEY, String(Date.now()));
+
+    const replacementPromise = ensureAccessTokenFresh();
+
+    await new Promise((resolve) => setTimeout(resolve, 10));
+    expect(refreshCalls).toBe(2);
+
+    releaseStaleRefresh?.();
+    await Promise.all([stalePromise, replacementPromise]);
+
+    expect(sessionStorage.getItem(OIDC_ACCESS_TOKEN_KEY)).toBe("refreshed-new");
+  });
+
+  it("does not clear the session when refresh fails due to a transient network error", async () => {
+    vi.mocked(tokenClient.refreshAccessToken).mockRejectedValue(new TypeError("Failed to fetch"));
+
+    sessionStorage.setItem(OIDC_ACCESS_TOKEN_KEY, "old-access");
+    sessionStorage.setItem(OIDC_REFRESH_TOKEN_KEY, "old-refresh");
+    sessionStorage.setItem(OIDC_EXPIRES_AT_MS_KEY, String(Date.now()));
+
+    await ensureAccessTokenFresh();
+
+    expect(sessionStorage.getItem(OIDC_ACCESS_TOKEN_KEY)).toBe("old-access");
+    expect(sessionStorage.getItem(OIDC_REFRESH_TOKEN_KEY)).toBe("old-refresh");
+  });
+
+  it("still clears the session when refresh fails with invalid_grant", async () => {
+    vi.mocked(tokenClient.refreshAccessToken).mockRejectedValue(
+      new Error("invalid_grant: refresh token expired"),
+    );
+
+    sessionStorage.setItem(OIDC_ACCESS_TOKEN_KEY, "old-access");
+    sessionStorage.setItem(OIDC_REFRESH_TOKEN_KEY, "old-refresh");
+    sessionStorage.setItem(OIDC_EXPIRES_AT_MS_KEY, String(Date.now()));
+
+    await ensureAccessTokenFresh();
+
+    expect(sessionStorage.getItem(OIDC_ACCESS_TOKEN_KEY)).toBeNull();
+    expect(sessionStorage.getItem(OIDC_REFRESH_TOKEN_KEY)).toBeNull();
+  });
+
   it("does not resurrect tokens when clearOidcSession runs during an in-flight refresh", async () => {
     let releaseRefresh: (() => void) | undefined;
 

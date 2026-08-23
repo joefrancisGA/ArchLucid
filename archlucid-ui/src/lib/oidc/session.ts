@@ -24,6 +24,35 @@ import { isSafeReturnPath } from "@/lib/navigation/safe-return-path";
 
 const EXPIRY_SKEW_MS = 60_000;
 
+function shouldClearOidcSessionOnRefreshFailure(error: unknown): boolean {
+  if (!(error instanceof Error)) {
+    return false;
+  }
+
+  const message = error.message.toLowerCase();
+
+  if (
+    message.includes("failed to fetch") ||
+    message.includes("networkerror") ||
+    message.includes("network request failed") ||
+    message.includes("load failed")
+  ) {
+    return false;
+  }
+
+  if (/token endpoint error (5\d{2}|408)\b/.test(message)) {
+    return false;
+  }
+
+  return (
+    message.includes("invalid_grant") ||
+    message.includes("invalid_token") ||
+    message.includes("token endpoint error 400") ||
+    message.includes("token endpoint error 401") ||
+    message.includes("token endpoint error 403")
+  );
+}
+
 let refreshInFlight: Promise<void> | null = null;
 let refreshSessionGeneration = 0;
 
@@ -66,6 +95,7 @@ export function persistTokenResponse(tokens: OidcTokenResponse): void {
 
 export function clearOidcSession(): void {
   refreshSessionGeneration += 1;
+  refreshInFlight = null;
   removeOidcKeys([
     OIDC_ACCESS_TOKEN_KEY,
     OIDC_REFRESH_TOKEN_KEY,
@@ -193,8 +223,11 @@ export async function ensureAccessTokenFresh(): Promise<void> {
         if (generationAtStart === refreshSessionGeneration) {
           persistTokenResponse(tokens);
         }
-      } catch {
-        if (generationAtStart === refreshSessionGeneration) {
+      } catch (error: unknown) {
+        if (
+          generationAtStart === refreshSessionGeneration &&
+          shouldClearOidcSessionOnRefreshFailure(error)
+        ) {
           clearOidcSession();
         }
       } finally {

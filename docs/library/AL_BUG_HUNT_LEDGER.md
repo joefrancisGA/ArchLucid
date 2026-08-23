@@ -206,11 +206,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** output integrity; commit integrity
 - **paths:** ArchLucid.Application/Runs/Orchestration/CommitOutputIntegrityService.cs; ArchLucid.Application/Runs/Orchestration/RealCommitAgentOutputQualityGateEvaluator.cs; ArchLucid.Core/AgentEvaluation/AgentExecutionTraceLatestPerTaskSelector.cs
 - **test-filter:** FullyQualifiedName~AuthorityDrivenArchitectureRunCommitOrchestratorIntegrityTests|FullyQualifiedName~RealCommitAgentOutputQualityGateEvaluatorTests|FullyQualifiedName~AgentExecutionTraceLatestPerTaskSelectorTests
-- **hunts:** 4
+- **hunts:** 5
 - **bugs-found:** 4
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-23
-- **last-bug:** 2026-08-23
+- **last-bug:** 2026-08-23 — hunt #37: AttemptIndex must rank before CreatedUtc in latest-per-task selector
 - **related-pd-tb:** TB-2226
 - **code-changed-since:** 0
 
@@ -220,7 +220,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] Missing optional artifact is treated as a hash match Î“Ã‡Ã¶ retired: not applicable to commit quality-gate paths; superseded-retry trace selection was the real gap
 - [x] Integrity failure is logged but commit still proceeds Î“Ã‡Ã¶ retired: inverse bug found; superseded rejected traces incorrectly blocked commit after successful auto-retry
 - [x] Latest-per-task selector breaks on equal `CreatedUtc` and picks a superseded rejected schema-remediation attempt over a later accepted attempt Î“Ã‡Ã¶ fixed: tie-break on `AttemptIndex` then `TraceId` in `AgentExecutionTraceLatestPerTaskSelector`
-- [x] (proven) `AgentExecutionTraceLatestPerTaskSelector` sorts `CreatedUtc` before `AttemptIndex`, so a superseded rejected attempt with a newer timestamp blocks commit after a higher `AttemptIndex` accepted retry — fixed: order by `AttemptIndex` then `CreatedUtc` then `TraceId`
+- [x] (proven) `AgentExecutionTraceLatestPerTaskSelector` sorts `CreatedUtc` before `AttemptIndex`, so a superseded rejected attempt with a newer timestamp blocks commit after a higher `AttemptIndex` accepted retry — **hit 2026-08-23 hunt #37:** order by `AttemptIndex` then `CreatedUtc` then `TraceId`
 
 ---
 
@@ -454,22 +454,24 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **impact:** high
 - **aliases:** run repository; sql run scope
 - **paths:** ArchLucid.Persistence/Repositories/SqlRunRepository.cs
-- **test-filter:** FullyQualifiedName~SqlRunRepositoryScopeIsolationSqlIntegrationTests
-- **hunts:** 1
-- **bugs-found:** 0
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-08-16
-- **last-bug:** never
+- **test-filter:** FullyQualifiedName~SqlRunRepositoryScopeIsolationSqlIntegrationTests|FullyQualifiedName~RunRepositoryWorkspaceSystemNameSqlTests
+- **hunts:** 2
+- **bugs-found:** 1
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-08-23
+- **last-bug:** 2026-08-23 — hunt #38: workspace system-name collision SQL must trim ProjectId
 - **related-pd-tb:** none
-- **code-changed-since:** unknown
+- **code-changed-since:** 0
 
 2026-08-16 dry hunt: listed hypotheses do not hold on `SqlRunRepository`. `SelectByScopedId` and `Update` already require `TenantId` + `WorkspaceId` + `ScopeProjectId`; `GetById_wrong_scope_returns_null_when_run_saved_under_other_tenant` covers cross-tenant get. List shapes use `RunListWarningFlagSql.ScopeWhereTail` with `r.TenantId = @TenantId` always; `WorkspaceId` is a non-nullable `Guid` (empty workspace is not a security boundary). Cross-tenant update matches 0 rows and throws. Admin/archive paths are `[TenantScopeExempt]` by catalog routing, not Layer D bleed.
 
 ### Hypotheses
 
-- [x] Get-by-id returns a run that belongs to a different tenant
-- [x] List query omits tenant predicate when workspace filter is empty
-- [x] Update succeeds against a run id from another tenant in the same database
+- [x] (valid-no-repro) Get-by-id returns a run that belongs to a different tenant — `GetById_wrong_scope_returns_null_when_run_saved_under_other_tenant`
+- [x] (valid-no-repro) List query omits tenant predicate when workspace filter is empty — `RunListWarningFlagSql.ScopeWhereTail` always binds `r.TenantId`
+- [x] (valid-no-repro) Update succeeds against a run id from another tenant in the same database — scoped `WHERE` matches 0 rows
+- [x] (valid-no-repro) Workspace system-name collision returns true for another tenant's active run — InMemory cross-tenant guard test
+- [x] (proven) `ExistsActiveRunWithSystemNameInWorkspace` compares `UPPER(ProjectId)` without trimming so padded slugs bypass the workspace collision guard — **hit 2026-08-23 hunt #38:** `LTRIM(RTRIM(ProjectId))` before `UPPER`
 
 ---
 
@@ -1064,20 +1066,21 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** SAML; trial JWT; SCIM bearer; OIDC auth stack
 - **paths:** ArchLucid.Api/Auth/; ArchLucid.Core/Auth/Saml/
 - **test-filter:** FullyQualifiedName~Saml|FullyQualifiedName~LocalTrialJwt|FullyQualifiedName~ScimBearer
-- **hunts:** 1
-- **bugs-found:** 1
+- **hunts:** 2
+- **bugs-found:** 2
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-21
-- **last-bug:** 2026-08-21
+- **last-hunt:** 2026-08-23
+- **last-bug:** 2026-08-23 — SAML scope claim promotion skipped when IdP attribute type casing differed from configured claim type
 - **related-pd-tb:** none
-- **code-changed-since:** unknown
+- **code-changed-since:** yes
 
 ### Hypotheses
 
-- [ ] (invalid) SAML metadata parser accepts an entity id that does not match the configured IdP — no separate configured IdP entity id; host SAML binds `AllowedIssuer` from fetched metadata `entityID` (`ArchLucidSaml2IdpMetadataBinder.ApplyResolvedEntity`)
-- [ ] (valid-no-repro) Trial JWT is accepted after the trial window has expired — trial expiry enforced by `TrialLimitGate` on mutating policies; JWT `exp` is access-token lifetime by design (`LocalTrialJwtIssuer`, `TrialLimitAuthorizationHandler`)
-- [ ] (invalid) SCIM bearer token for tenant A authorizes provisioning writes for tenant B — Argon hash is tenant-salted (`ScimArgonSecretHasherTests.VerifySecret_wrong_tenant_salt_returns_false`); scope uses `tenant_id` claim over headers (`HttpScopeContextProviderTests.GetCurrentScope_prefers_jwt_claim_over_header`)
+- [x] (invalid) SAML metadata parser accepts an entity id that does not match the configured IdP — no separate configured IdP entity id; host SAML binds `AllowedIssuer` from fetched metadata `entityID` (`ArchLucidSaml2IdpMetadataBinder.ApplyResolvedEntity`)
+- [x] (valid-no-repro) Trial JWT is accepted after the trial window has expired — trial expiry enforced by `TrialLimitGate` on mutating policies; JWT `exp` is access-token lifetime by design (`LocalTrialJwtIssuer`, `TrialLimitAuthorizationHandler`)
+- [x] (invalid) SCIM bearer token for tenant A authorizes provisioning writes for tenant B — Argon hash is tenant-salted (`ScimArgonSecretHasherTests.VerifySecret_wrong_tenant_salt_returns_false`); scope uses `tenant_id` claim over headers (`HttpScopeContextProviderTests.GetCurrentScope_prefers_jwt_claim_over_header`)
 - [x] Future `auth_time` / `iat` passes step-up as recent authentication (`RecentAuthenticationEvaluator.HasRecentAuthentication`) — fixed: reject negative age; regression in `HasRecentAuthentication_returns_false_for_future_auth_time`
+- [x] (proven) SAML inbound scope claims (`tenant_id`, `workspace_id`, `project_id`, `oid`) not promoted when configured source claim type casing differs from assertion — **hit 2026-08-23:** `PromoteSingleValueIfMissing` used case-sensitive `FindFirst` while role promotion was case-insensitive; aligned lookup in `ArchLucidSamlInboundClaimsNormalizer`.
 
 ---
 
@@ -1368,8 +1371,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** identity repository; authentication identity dapper
 - **paths:** ArchLucid.Persistence/Identity/
 - **test-filter:** FullyQualifiedName~AuthenticationIdentity|FullyQualifiedName~IdentityRepository
-- **hunts:** 1
-- **bugs-found:** 1
+- **hunts:** 2
+- **bugs-found:** 2
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-23
 - **last-bug:** 2026-08-23
@@ -1382,7 +1385,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) Link/unlink writes succeed without scoping to the caller tenant — persistence repos are record-oriented; caller tenant enforcement lives in application services.
 - [x] (valid-no-repro) Cached identity read returns stale data after a tenant-scoped upsert — `CachingSecondaryReferenceDataRepositoryTests` proves eviction after upsert/insert for tenant IdP config and sign-in domains.
 - [x] (proven) `InMemoryAuthenticationIdentityRepository.ReEnableAsync` reclaimed a disabled external key while another active identity already held it — **hit 2026-08-23:** in-memory store ignored the SQL filtered unique index (`UX_AuthenticationIdentities_ExternalKey WHERE DisabledUtc IS NULL`) and dual-activated the same external key.
-- [ ] (hunt-ready) `InMemoryTenantSignInEmailDomainRepository.FindByNormalizedDomainAsync` / `ListByTenantIdAsync` return soft-removed domains (`RemovedUtc` set) that `DapperTenantSignInEmailDomainRepository` excludes via `RemovedUtc IS NULL`.
+- [x] (proven) `InMemoryTenantSignInEmailDomainRepository.FindByNormalizedDomainAsync` / `ListByTenantIdAsync` return soft-removed domains (`RemovedUtc` set) that `DapperTenantSignInEmailDomainRepository` excludes via `RemovedUtc IS NULL` — **hit 2026-08-23:** in-memory reads ignored soft-delete filter on all three query methods; dev/test routing could resurrect removed sign-in domains.
 
 ---
 
@@ -1419,8 +1422,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 5
-- **bugs-found:** 6
+- **hunts:** 7
+- **bugs-found:** 8
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-23
 - **last-bug:** 2026-08-23
@@ -1438,6 +1441,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Concurrent `ensureAccessTokenFresh` calls fire duplicate refresh requests — **hit 2026-08-23:** parallel API callers each entered `ensureAccessTokenFresh` without a single-flight guard, so the IdP rejected the second refresh (`invalid_grant`) and the catch-all handler called `clearOidcSession`, logging the operator out after an otherwise successful refresh; fixed by deduping in-flight refresh with a shared promise.
 - [x] (proven) Non-numeric `OIDC_EXPIRES_AT_MS_KEY` bypasses expiry skew so `getAccessTokenForApi` returns a stale access token — **hit 2026-08-23:** `getExpiresAtMs` used `Number(raw)` without validating finiteness, so corrupted session storage (`"not-a-number"`) yielded `NaN` and `Date.now() >= NaN - skew` stayed false while `isLikelySignedIn` already returned false; fixed by treating non-finite parsed values as expired.
 - [x] (proven) In-flight token refresh resurrects OIDC session after `clearOidcSession` — **hit 2026-08-23 hunt #34:** `ensureAccessTokenFresh` always called `persistTokenResponse` when the IdP refresh completed, so sign-out or idle-timeout clears that ran mid-flight wrote tokens back into `sessionStorage`; fixed by tracking a session generation counter bumped on clear and skipping persist/clear side effects for stale refreshes.
+- [x] (proven) Stale in-flight refresh blocks token refresh for a replacement session after `clearOidcSession` — **hit 2026-08-23 hunt #36:** `clearOidcSession` bumped the generation counter but left `refreshInFlight` set, so the first `ensureAccessTokenFresh` on a new sign-in awaited the prior session's refresh instead of starting one with the new refresh token; fixed by clearing the in-flight guard when session keys are removed.
+- [x] (proven) Transient OIDC refresh network failure clears the operator session — **hit 2026-08-23 hunt #41:** `ensureAccessTokenFresh` catch-all called `clearOidcSession` on any refresh rejection, so a flaky `Failed to fetch` during background renew wiped tokens while the refresh token was still valid; fixed by clearing only on OAuth auth failures (`invalid_grant`, 401/403) and leaving the session intact for network/5xx errors.
 
 ---
 
@@ -1690,11 +1695,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 1
-- **bugs-found:** 1
+- **hunts:** 2
+- **bugs-found:** 2
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-19
-- **last-bug:** 2026-08-19
+- **last-hunt:** 2026-08-23
+- **last-bug:** 2026-08-23
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
@@ -1703,7 +1708,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `PolicyPacksController.Publish` / `PolicyPacksAppService.TryPublishVersionAsync` — cross-tenant publish: caller scope tenant B + pack id owned by tenant A → HTTP 200 and version row upserted (reads already 404 on scope mismatch; publish omitted tenant/workspace/project check)
 - [x] (invalid) Tenancy suspend endpoint affects a tenant id from the body not the principal — no suspend action under `ArchLucid.Api/Controllers/Tenancy/`
 - [x] (invalid) List endpoint omits tenant predicate when workspace filter is empty — `PolicyPacksController.ListVisiblePacksAsync` always passes `scope.TenantId` into `ListByScopeAsync` (`WHERE TenantId = @TenantId`)
-- [ ] (hunt-ready) `PolicyPacksController.SimulateBulk` — pack id from another tenant scope → dry-run evaluates foreign pack content (only `IsDeleted` checked, not tenant/workspace/project vs `scope`)
+- [x] (proven) `PolicyPacksController.SimulateBulk` — pack id from another tenant scope → dry-run evaluates foreign pack content (only `IsDeleted` checked, not tenant/workspace/project vs `scope`) (2026-08-23)
 
 ---
 
