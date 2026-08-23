@@ -169,7 +169,7 @@ export const OPERATOR_HOME_COMPACT_STARTING_ACTIONS_HEADING = "Start another rev
 export const OPERATOR_HOME_ARCHITECTURE_LIFECYCLE_INTRO_LABEL = "Two ways in:";
 
 export const OPERATOR_HOME_ARCHITECTURE_LIFECYCLE_INTRO_BODY =
-  "Create an architecture from a description, uploaded evidence, or connected cloud inventory — or review an architecture you already have.";
+  "Create an architecture from any combination of description, uploaded evidence, or connected cloud inventory — or review an architecture you already have.";
 
 export const OPERATOR_HOME_ARCHITECTURE_LIFECYCLE_INTRO =
   `${OPERATOR_HOME_ARCHITECTURE_LIFECYCLE_INTRO_LABEL} ${OPERATOR_HOME_ARCHITECTURE_LIFECYCLE_INTRO_BODY}`;
@@ -177,7 +177,7 @@ export const OPERATOR_HOME_ARCHITECTURE_LIFECYCLE_INTRO =
 export const OPERATOR_HOME_CREATE_ARCHITECTURE_CARD_TITLE = "Create architecture";
 
 export const OPERATOR_HOME_CREATE_ARCHITECTURE_CARD_BODY =
-  "Describe a new architecture, upload briefs and diagrams, or connect read-only cloud inventory from Azure, AWS, or Google Cloud. It produces an architecture draft you can revise, then review when ready.";
+  "Use any combination of a description, uploaded briefs and diagrams, or read-only cloud inventory from Azure, AWS, or Google Cloud. It produces an architecture draft you can revise, then review when ready.";
 
 export const OPERATOR_HOME_REVIEW_ARCHITECTURE_CARD_TITLE = "Review architecture";
 

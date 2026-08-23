@@ -91,7 +91,7 @@ describe("ADR 0067 — Create architecture / Review peer parity", () => {
     expect(OPERATOR_HOME_ARCHITECTURE_LIFECYCLE_INTRO_BODY).toMatch(/any combination/i);
     expect(OPERATOR_HOME_CREATE_ARCHITECTURE_CARD_BODY).toMatch(/any combination/i);
     expect(OPERATOR_HOME_ARCHITECTURE_LIFECYCLE_INTRO_BODY).not.toMatch(
-      /description, uploaded evidence, or connected cloud inventory/i,
+      /from a description, uploaded evidence, or connected cloud inventory/i,
     );
   });
 
