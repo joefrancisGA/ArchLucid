@@ -1,4 +1,3 @@
-using System.Globalization;
 using System.Text.Json;
 
 namespace ArchLucid.Core.Pagination;
@@ -12,7 +11,7 @@ public static class AuditEventCursorCodec
     {
         AuditListCursorDto dto = new()
         {
-            Ou = FormatRoundTrip(occurredUtc),
+            Ou = UtcCursorDateTimeCodec.FormatRoundTripUtc(occurredUtc),
             Ei = eventId
         };
         byte[] utf8 = JsonSerializer.SerializeToUtf8Bytes(dto, SerializerOptions);
@@ -31,17 +30,11 @@ public static class AuditEventCursorCodec
         if (dto is null || string.IsNullOrWhiteSpace(dto.Ou) || dto.Ei == Guid.Empty)
             return null;
 
-        if (!DateTime.TryParse(dto.Ou, null, DateTimeStyles.RoundtripKind, out DateTime oc))
+        if (!UtcCursorDateTimeCodec.TryParseRoundTripUtc(dto.Ou, out DateTime occurredUtc))
             return null;
 
-        return (Normalize(oc), dto.Ei);
+        return (occurredUtc, dto.Ei);
     }
-
-    private static string FormatRoundTrip(DateTime dt) =>
-        DateTime.SpecifyKind(dt, DateTimeKind.Utc).ToString("o");
-
-    private static DateTime Normalize(DateTime dt) =>
-        dt.Kind is DateTimeKind.Utc ? dt : DateTime.SpecifyKind(dt.ToUniversalTime(), DateTimeKind.Utc);
 
     private sealed class AuditListCursorDto
     {
