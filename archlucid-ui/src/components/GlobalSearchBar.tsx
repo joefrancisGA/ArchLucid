@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 
 import { Input } from "@/components/ui/input";
+import { SeverityTag } from "@/components/ui/severity-tag";
 import {
   COMMAND_PALETTE_ARIA_KEYSHORTCUTS,
   GLOBAL_SEARCH_ARIA_LABEL,
@@ -274,7 +275,7 @@ export function GlobalSearchBar(props: GlobalSearchBarProps) {
                       }}
                     >
                       <span className="font-medium">{finding.title}</span>
-                      <span className={cn("ml-2 text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>{finding.severity}</span>
+                      <SeverityTag severity={finding.severity} className="ml-2 align-middle" />
                     </button>
                   </li>
                 ))}

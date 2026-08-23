@@ -101,6 +101,28 @@ describe("GlobalSearchBar", () => {
     expect(screen.queryByText("run-abc-123")).not.toBeInTheDocument();
   });
 
+  it("shows canonical severity tags for finding hits", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({
+          runs: [],
+          findings: [{ runId: "run-1", findingId: "f-1", title: "Open egress path", severity: "Critical" }],
+          policyPacks: [],
+        }),
+      }),
+    );
+
+    render(<GlobalSearchBar />);
+
+    const input = screen.getByRole("combobox", { name: GLOBAL_SEARCH_ARIA_LABEL });
+    fireEvent.change(input, { target: { value: "ab" } });
+
+    expect(await screen.findByLabelText("Severity: Critical")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Open egress path/ })).toBeInTheDocument();
+  });
+
   it("shows a retryable error when the search API fails", async () => {
     vi.stubGlobal(
       "fetch",
