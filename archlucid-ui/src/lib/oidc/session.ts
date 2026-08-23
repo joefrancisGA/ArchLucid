@@ -24,6 +24,9 @@ import { isSafeReturnPath } from "@/lib/navigation/safe-return-path";
 
 const EXPIRY_SKEW_MS = 60_000;
 
+let refreshInFlight: Promise<void> | null = null;
+let refreshSessionGeneration = 0;
+
 function readSessionKey(key: string): string | null {
   if (typeof sessionStorage === "undefined") {
     return null;
@@ -62,6 +65,7 @@ export function persistTokenResponse(tokens: OidcTokenResponse): void {
 }
 
 export function clearOidcSession(): void {
+  refreshSessionGeneration += 1;
   removeOidcKeys([
     OIDC_ACCESS_TOKEN_KEY,
     OIDC_REFRESH_TOKEN_KEY,
@@ -70,6 +74,7 @@ export function clearOidcSession(): void {
     OIDC_OAUTH_STATE_KEY,
     OIDC_CODE_VERIFIER_KEY,
     OIDC_NONCE_KEY,
+    OIDC_POST_SIGN_IN_RETURN_URL_KEY,
   ]);
   clearCachedColorModePreference();
 }
@@ -129,8 +134,9 @@ export function consumePostSignInReturnUrl(): string | null {
 
 function getExpiresAtMs(): number {
   const raw = readSessionKey(OIDC_EXPIRES_AT_MS_KEY) ?? "0";
+  const parsed = Number(raw);
 
-  return Number(raw);
+  return Number.isFinite(parsed) ? parsed : 0;
 }
 
 /**
@@ -173,18 +179,31 @@ export async function ensureAccessTokenFresh(): Promise<void> {
     return;
   }
 
-  try {
-    const doc = await loadDiscoveryDocument(authority);
-    const tokens = await refreshAccessToken({
-      tokenEndpoint: doc.token_endpoint,
-      clientId,
-      refreshToken: refresh,
-    });
+  if (!refreshInFlight) {
+    const generationAtStart = refreshSessionGeneration;
+    refreshInFlight = (async () => {
+      try {
+        const doc = await loadDiscoveryDocument(authority);
+        const tokens = await refreshAccessToken({
+          tokenEndpoint: doc.token_endpoint,
+          clientId,
+          refreshToken: refresh,
+        });
 
-    persistTokenResponse(tokens);
-  } catch {
-    clearOidcSession();
+        if (generationAtStart === refreshSessionGeneration) {
+          persistTokenResponse(tokens);
+        }
+      } catch {
+        if (generationAtStart === refreshSessionGeneration) {
+          clearOidcSession();
+        }
+      } finally {
+        refreshInFlight = null;
+      }
+    })();
   }
+
+  await refreshInFlight;
 }
 
 export function readSignedInDisplayName(): string | null {
