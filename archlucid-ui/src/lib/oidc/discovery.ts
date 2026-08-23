@@ -23,13 +23,19 @@ export function loadDiscoveryDocument(authority: string): Promise<OidcDiscoveryD
     return cached;
   }
 
-  const promise = fetch(url, { cache: "no-store" }).then(async (response) => {
-    if (!response.ok) {
-      throw new Error(`OIDC discovery failed (${response.status}): ${url}`);
-    }
+  const promise = fetch(url, { cache: "no-store" })
+    .then(async (response) => {
+      if (!response.ok) {
+        throw new Error(`OIDC discovery failed (${response.status}): ${url}`);
+      }
 
-    return (await response.json()) as OidcDiscoveryDocument;
-  });
+      return (await response.json()) as OidcDiscoveryDocument;
+    })
+    .catch((error: unknown) => {
+      discoveryPromises.delete(url);
+
+      throw error;
+    });
 
   discoveryPromises.set(url, promise);
 
