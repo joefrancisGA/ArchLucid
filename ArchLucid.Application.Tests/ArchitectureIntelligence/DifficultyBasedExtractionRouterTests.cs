@@ -38,6 +38,44 @@ public sealed class DifficultyBasedExtractionRouterTests
     }
 
     [Fact]
+    public void Extract_tags_component_after_current_state_section_even_when_target_state_appears_first()
+    {
+        IReadOnlyList<ArchitectureModelElement> elements = _router.Extract(
+            """
+            Target state will use microservices.
+            Current state is a monolith.
+            Component: Orders API
+            """,
+            "src-reverse-section-order");
+
+        ArchitectureModelElement component = elements
+            .Should()
+            .ContainSingle(element => element.Kind == ArchitectureElementKind.Component)
+            .Subject;
+
+        component.LifecycleScope.Should().Be(ArchitectureLifecycleScope.CurrentState);
+    }
+
+    [Fact]
+    public void Extract_tags_component_after_as_is_section_even_when_to_be_appears_first()
+    {
+        IReadOnlyList<ArchitectureModelElement> elements = _router.Extract(
+            """
+            to-be: microservices
+            as-is: monolith
+            Component: Orders API
+            """,
+            "src-reverse-as-is-to-be");
+
+        ArchitectureModelElement component = elements
+            .Should()
+            .ContainSingle(element => element.Kind == ArchitectureElementKind.Component)
+            .Subject;
+
+        component.LifecycleScope.Should().Be(ArchitectureLifecycleScope.CurrentState);
+    }
+
+    [Fact]
     public void Extract_does_not_treat_tabular_contradiction_as_directly_established()
     {
         // Pipe tables look "structured" but contradiction markers require AmbiguousExtraction provenance.
