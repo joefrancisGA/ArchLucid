@@ -1,6 +1,7 @@
 import { cn } from "@/lib/utils";
 import type { ReactElement } from "react";
 
+import { InlineGuidanceLabel } from "@/components/InlineGuidanceLabel";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   FOCUSED_PILOT_MODE_PACK_DISPLAY_NAMES,
@@ -31,9 +32,17 @@ export function FocusedPilotScopeDisclosureBanner(
         {REVIEW_SCOPE_WORKSPACE_DISAMBIGUATION}
       </p>
       <p className={cn("m-0 mt-2 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
-        {focusedModeEnabled
-          ? `Focused review scope: ${FOCUSED_PILOT_MODE_PACK_DISPLAY_NAMES.join(", ")}.`
-          : "Expanded review scope: every standard enabled for this workspace may contribute findings."}
+        {focusedModeEnabled ? (
+          <>
+            <InlineGuidanceLabel label="Focused review scope" />{" "}
+            {FOCUSED_PILOT_MODE_PACK_DISPLAY_NAMES.join(", ")}.
+          </>
+        ) : (
+          <>
+            <InlineGuidanceLabel label="Expanded review scope" /> every standard enabled for this
+            workspace may contribute findings.
+          </>
+        )}
       </p>
     </div>
   );

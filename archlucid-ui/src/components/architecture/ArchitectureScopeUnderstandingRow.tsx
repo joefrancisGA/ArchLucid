@@ -10,7 +10,7 @@ import {
   SCOPE_ITEM_MAX_LENGTH,
   type ScopeUnderstandingBullet,
 } from "@/lib/architecture/architecture-scope-understanding-check";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_FORM_FIELD_LABEL_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 export type ArchitectureScopeUnderstandingRowProps = {
@@ -22,7 +22,7 @@ export type ArchitectureScopeUnderstandingRowProps = {
   readonly onRemove: (bulletId: string) => void;
 };
 
-const LABEL_COLUMN_CLASS = "min-w-[11rem] text-al-text-secondary";
+const LABEL_COLUMN_CLASS = "min-w-[11rem]";
 
 /**
  * Operator-added rows all share one label, so they are named by their value to keep every Remove
@@ -50,14 +50,11 @@ export function ArchitectureScopeUnderstandingRow(
   return (
     <li className="flex flex-wrap items-start gap-2" data-testid={`architecture-scope-row-${bullet.id}`}>
       {bullet.label.length === 0 ? null : editable ? (
-        <Label
-          htmlFor={inputId}
-          className={cn(LABEL_COLUMN_CLASS, "pt-2", OPERATOR_TYPOGRAPHY.label)}
-        >
+        <Label htmlFor={inputId} className={cn(LABEL_COLUMN_CLASS, "pt-2")}>
           {bullet.label}
         </Label>
       ) : (
-        <span className={cn(LABEL_COLUMN_CLASS, OPERATOR_TYPOGRAPHY.label)}>{bullet.label}</span>
+        <span className={cn(LABEL_COLUMN_CLASS, OPERATOR_FORM_FIELD_LABEL_CLASS)}>{bullet.label}</span>
       )}
 
       <div className="min-w-[12rem] flex-1 space-y-1">
