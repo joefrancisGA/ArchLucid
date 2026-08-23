@@ -315,5 +315,6 @@ Copy the **Bugs found (24h)** and **Dry runs (24h)** values from the `-Rolling24
 ## Related commands
 
 - `/al-defect` — production defect intake (`PD-###`) from operator reports
+- `/al-bug-api` — same hunt workflow via Cloud Agent API on `master`
 - `/ship-next-improvement` — ship the next backlog / assessment item
 - `/check-compiler-errors` — optional deeper compile verification
