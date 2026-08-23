@@ -7,6 +7,8 @@ using ArchLucid.Core.Governance.PolicyPacks;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Governance;
 
+using FluentAssertions;
+
 namespace ArchLucid.Application.Tests.Governance.Coverage;
 
 [Trait("Suite", "Core")]

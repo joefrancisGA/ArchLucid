@@ -189,3 +189,4 @@ public static class DefaultPolicyPackCatalog
     /// </summary>
     public static bool IsPlatformOverlayDisplayName(string displayName, CloudProvider cloudProvider) =>
         PlatformOverlayPolicyPacks.IsOverlayDisplayName(displayName, cloudProvider);
+}

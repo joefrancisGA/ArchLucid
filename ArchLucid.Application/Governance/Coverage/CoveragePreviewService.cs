@@ -207,7 +207,7 @@ public sealed class CoveragePreviewService(
                         assignment,
                         CoverageType.AdditionalOptional,
                         CoverageSelectionState.OptionalAndSelected,
-                        included: true));
+                        includedInRunEvaluation: true));
 
                 seenPackIds.Add(assignment.PolicyPackId);
             }
