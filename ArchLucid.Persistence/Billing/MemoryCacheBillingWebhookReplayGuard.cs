@@ -1,3 +1,5 @@
+using System.Collections.Concurrent;
+
 using ArchLucid.Core.Billing;
 
 using Microsoft.Extensions.Caching.Memory;
@@ -14,6 +16,8 @@ public sealed class MemoryCacheBillingWebhookReplayGuard(IMemoryCache memoryCach
 
     private readonly TimeProvider _clock = clock ?? throw new ArgumentNullException(nameof(clock));
 
+    private readonly ConcurrentDictionary<string, byte> _claimedKeys = new(StringComparer.Ordinal);
+
     /// <inheritdoc />
     public Task<bool> HasSeenAsync(string providerName, string eventId, CancellationToken cancellationToken)
     {
@@ -22,7 +26,11 @@ public sealed class MemoryCacheBillingWebhookReplayGuard(IMemoryCache memoryCach
         ArgumentException.ThrowIfNullOrWhiteSpace(providerName);
         ArgumentException.ThrowIfNullOrWhiteSpace(eventId);
 
-        return Task.FromResult(_memoryCache.TryGetValue(BuildCacheKey(providerName, eventId), out _));
+        string cacheKey = BuildCacheKey(providerName, eventId);
+
+        return Task.FromResult(
+            _claimedKeys.ContainsKey(cacheKey)
+            || _memoryCache.TryGetValue(cacheKey, out _));
     }
 
     /// <inheritdoc />
@@ -33,13 +41,9 @@ public sealed class MemoryCacheBillingWebhookReplayGuard(IMemoryCache memoryCach
         ArgumentException.ThrowIfNullOrWhiteSpace(providerName);
         ArgumentException.ThrowIfNullOrWhiteSpace(eventId);
 
-        MemoryCacheEntryOptions entryOptions = new()
-        {
-            AbsoluteExpiration = _clock.GetUtcNow().Add(Retention),
-            Size = 1,
-        };
-
-        _memoryCache.Set(BuildCacheKey(providerName, eventId), true, entryOptions);
+        string cacheKey = BuildCacheKey(providerName, eventId);
+        _claimedKeys.TryAdd(cacheKey, 0);
+        _memoryCache.Set(cacheKey, true, CreateEntryOptions(cacheKey));
 
         return Task.CompletedTask;
     }
@@ -51,22 +55,46 @@ public sealed class MemoryCacheBillingWebhookReplayGuard(IMemoryCache memoryCach
         ArgumentException.ThrowIfNullOrWhiteSpace(providerName);
         ArgumentException.ThrowIfNullOrWhiteSpace(eventId);
 
-        string key = BuildCacheKey(providerName, eventId);
-        
-        if (_memoryCache.TryGetValue(key, out _))
+        string cacheKey = BuildCacheKey(providerName, eventId);
+
+        if (!_claimedKeys.TryAdd(cacheKey, 0))
             return Task.FromResult(false);
 
-        MemoryCacheEntryOptions entryOptions = new()
+        try
+        {
+            _memoryCache.Set(cacheKey, true, CreateEntryOptions(cacheKey));
+        }
+        catch
+        {
+            _claimedKeys.TryRemove(cacheKey, out _);
+
+            throw;
+        }
+
+        return Task.FromResult(true);
+    }
+
+    private MemoryCacheEntryOptions CreateEntryOptions(string cacheKey)
+    {
+        MemoryCacheEntryOptions options = new()
         {
             AbsoluteExpiration = _clock.GetUtcNow().Add(Retention),
             Size = 1,
         };
 
-        _memoryCache.Set(key, true, entryOptions);
+        options.RegisterPostEvictionCallback(
+            static (key, _, _, state) =>
+            {
+                if (key is not string evictedKey || state is not ConcurrentDictionary<string, byte> claimedKeys)
+                    return;
 
-        return Task.FromResult(true);
+                claimedKeys.TryRemove(evictedKey, out _);
+            },
+            _claimedKeys);
+
+        return options;
     }
 
     internal static string BuildCacheKey(string providerName, string eventId) =>
-        $"billing-webhook-replay:{providerName.Trim().ToLowerInvariant()}:{eventId.Trim()}";
+        $"billing-webhook-replay:{providerName.Trim().ToLowerInvariant()}:{eventId.Trim().ToLowerInvariant()}";
 }

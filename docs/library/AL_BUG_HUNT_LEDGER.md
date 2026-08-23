@@ -1006,24 +1006,25 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ## Zone: billing-webhooks
 
 - **id:** billing-webhooks
-- **status:** unseeded
+- **status:** open
 - **impact:** high
 - **aliases:** stripe webhook; marketplace webhook; billing webhook replay
 - **paths:** ArchLucid.Api/Controllers/Billing/BillingStripeWebhookController.cs; ArchLucid.Api/Controllers/Billing/BillingMarketplaceWebhookController.cs; ArchLucid.Application/Budgeting/LlmTenantWalletStripeWebhookProcessor.cs; ArchLucid.Persistence/Billing/MemoryCacheBillingWebhookReplayGuard.cs
 - **test-filter:** FullyQualifiedName~BillingStripeWebhook|FullyQualifiedName~BillingMarketplaceWebhook|FullyQualifiedName~LlmTenantWalletStripeWebhook|FullyQualifiedName~MemoryCacheBillingWebhookReplayGuard
-- **hunts:** 0
-- **bugs-found:** 0
+- **hunts:** 1
+- **bugs-found:** 1
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **last-hunt:** 2026-08-23
+- **last-bug:** 2026-08-23
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
 ### Hypotheses
 
-- [ ] (candidate) Replay guard accepts the same Stripe event id twice under concurrent delivery
-- [ ] (candidate) Marketplace webhook credits a tenant that does not match the subscription payload
-- [ ] (candidate) Invalid signature still returns 2xx so the provider stops retrying
+- [x] (proven) Replay guard treated event-id case variants as distinct keys — fixed by normalizing event ids to lowercase in cache keys.
+- [x] (proven) `TryRegisterEventAsync` allowed duplicate concurrent registrations — fixed with atomic `ConcurrentDictionary` claims like ITSM replay guard.
+- [x] (invalid) Tenant resolution lives in `AzureMarketplaceBillingProvider`; verified JWT claim precedence is intentional when `TenantIdClaimType` is configured.
+- [x] (invalid) Stripe and Marketplace controllers return 400 BadRequest when provider rejects invalid signatures.
 
 ---
 
