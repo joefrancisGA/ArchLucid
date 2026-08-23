@@ -21,7 +21,10 @@ public sealed class LlmTenantWalletStripeWebhookProcessor(ILlmTenantWalletServic
         if (string.IsNullOrWhiteSpace(paymentIntentId))
             return;
 
-        if (!Guid.TryParse(tenantIdRaw, out Guid tenantId) || tenantId == Guid.Empty)
+        if (string.IsNullOrWhiteSpace(tenantIdRaw))
+            return;
+
+        if (!Guid.TryParse(tenantIdRaw.Trim(), out Guid tenantId) || tenantId == Guid.Empty)
             return;
 
         if (string.Equals(eventType, "payment_intent.succeeded", StringComparison.OrdinalIgnoreCase))
