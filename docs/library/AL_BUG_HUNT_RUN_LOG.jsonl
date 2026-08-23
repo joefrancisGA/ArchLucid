@@ -104,3 +104,4 @@
 {"at":"2026-08-23T21:05:12.389277Z","zoneId":"tenant-erasure","outcome":"hit"}
 {"at": "2026-08-23T21:13:26.126144Z", "zoneId": "finding-disposition", "outcome": "hit"}
 {"at": "2026-08-23T21:17:55.296880Z", "zoneId": "finding-disposition", "outcome": "hit"}
+{"at": "2026-08-23T21:22:37.106054Z", "zoneId": "weekly-digest-email", "outcome": "hit"}

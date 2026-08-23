@@ -606,24 +606,25 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ## Zone: weekly-digest-email
 
 - **id:** weekly-digest-email
-- **status:** unseeded
+- **status:** open
 - **impact:** low
 - **aliases:** weekly digest; executive summary email
 - **paths:** ArchLucid.Application/Notifications/Email/WeeklyExecutiveSummaryEmailDispatcher.cs
 - **test-filter:** FullyQualifiedName~WeeklyExecutiveSummaryJobTests
-- **hunts:** 0
-- **bugs-found:** 0
+- **hunts:** 1
+- **bugs-found:** 1
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **last-hunt:** 2026-08-23
+- **last-bug:** 2026-08-23
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
 ### Hypotheses
 
-- [ ] (candidate) Digest email includes findings from a tenant the recipient cannot access
-- [ ] (candidate) Dispatcher treats a send failure as success and skips retry
-- [ ] (candidate) Unsubscribed address still receives the weekly summary
+- [x] (invalid) Digest email includes findings from a tenant the recipient cannot access — dispatcher only renders pre-built `summaryMarkdown`; tenant scoping lives in the delivery scanner and export service.
+- [x] (valid-no-repro) Dispatcher treats a send failure as success and skips retry — send failures throw; ledger reservation before send is intentional TB-089 idempotency (duplicate ACA retries blocked).
+- [x] (invalid) Unsubscribed address still receives the weekly summary — unsubscribe filtering is not in the dispatcher; sponsor report path has no unsubscribe URL parameter (unlike exec digest).
+- [x] (proven) Whitespace-only recipient lists reserve the weekly ledger and return success without sending any email — fixed by normalizing mailboxes before ledger reservation.
 
 ---
 
