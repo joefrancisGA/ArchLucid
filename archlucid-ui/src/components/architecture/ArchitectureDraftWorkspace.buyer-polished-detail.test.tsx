@@ -84,7 +84,7 @@ vi.mock("@/components/architecture/ArchitectureDraftAiRefinePanel", () => ({
 
 import { ArchitectureDraftWorkspace } from "@/components/architecture/ArchitectureDraftWorkspace";
 import {
-  ARCHITECTURE_DRAFT_DETAIL_CLAIM_HEADING,
+  ARCHITECTURE_DRAFT_DETAIL_DRAFTING_SCOPE_SENTENCE,
   ARCHITECTURE_DRAFT_DETAIL_PAGE_SUBTITLE_BUYER,
 } from "@/lib/architecture/architecture-draft-detail-page-copy";
 import {
@@ -127,17 +127,17 @@ beforeEach(() => {
 });
 
 describe("ArchitectureDraftWorkspace buyer-polished detail shell", () => {
-  it("renders breadcrumb, buyer subtitle, claim strip, and hides guidance disclosure", async () => {
+  it("renders buyer subtitle with drafting scope, sources strip, and hides guidance disclosure", async () => {
     render(<ArchitectureDraftWorkspace architectureId="arch-001" />);
 
     await waitFor(() => {
       expect(screen.getByTestId("architecture-draft-workspace-title")).toHaveTextContent("Claims intake");
     });
 
-    expect(screen.getByTestId("architecture-draft-detail-breadcrumb")).toBeInTheDocument();
-    expect(screen.getByText(ARCHITECTURE_DRAFT_DETAIL_PAGE_SUBTITLE_BUYER)).toBeInTheDocument();
-    expect(screen.getByText(ARCHITECTURE_DRAFT_DETAIL_CLAIM_HEADING)).toBeInTheDocument();
-    expect(screen.getByText(ARCHITECTURES_DRAFT_CLAIM_DISCIPLINE)).toBeInTheDocument();
+    const workspaceLead = screen.getByTestId("architecture-draft-workspace-lead");
+    expect(workspaceLead).toHaveTextContent(ARCHITECTURE_DRAFT_DETAIL_PAGE_SUBTITLE_BUYER);
+    expect(workspaceLead).toHaveTextContent(ARCHITECTURE_DRAFT_DETAIL_DRAFTING_SCOPE_SENTENCE);
+    expect(screen.queryByText(ARCHITECTURES_DRAFT_CLAIM_DISCIPLINE)).not.toBeInTheDocument();
     expect(screen.getByRole("heading", { name: ARCHITECTURES_DRAFT_FOLLOW_UPS_TITLE })).toBeInTheDocument();
     expect(screen.queryByRole("heading", { name: "Diligence artifact index" })).not.toBeInTheDocument();
     expect(screen.queryByTestId("architecture-draft-guidance-disclosure")).not.toBeInTheDocument();
