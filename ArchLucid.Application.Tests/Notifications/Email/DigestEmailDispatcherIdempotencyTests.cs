@@ -85,6 +85,7 @@ public sealed class DigestEmailDispatcherIdempotencyTests
 
         Mock<IEmailTemplateRenderer> renderer = new();
         renderer.Setup(r => r.RenderHtmlAsync(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<CancellationToken>()))
+            .Callback(() => order.Add("render"))
             .ReturnsAsync("<p>x</p>");
         renderer.Setup(r => r.RenderTextAsync(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync("x");
@@ -110,7 +111,72 @@ public sealed class DigestEmailDispatcherIdempotencyTests
             cancellationToken: CancellationToken.None);
 
         sent.Should().BeTrue();
-        order.Should().Equal("ledger", "send");
+        order.Should().Equal("render", "ledger", "send");
+    }
+
+    [Fact]
+    public async Task WeeklySponsorReportEmailDispatcher_render_failure_does_not_block_retry()
+    {
+        InMemorySentEmailLedger ledger = new();
+        int renderAttempts = 0;
+        Mock<IEmailProvider> provider = new();
+        provider.SetupGet(p => p.ProviderName).Returns("test-provider");
+        provider.Setup(p => p.SendAsync(It.IsAny<EmailMessage>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<IEmailTemplateRenderer> renderer = new();
+        renderer.Setup(r => r.RenderHtmlAsync(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<CancellationToken>()))
+            .Returns(() =>
+            {
+                renderAttempts++;
+
+                if (renderAttempts == 1)
+                    return Task.FromException<string>(new InvalidOperationException("render failed"));
+
+                return Task.FromResult("<p>ok</p>");
+            });
+        renderer.Setup(r => r.RenderTextAsync(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync("ok");
+
+        Mock<IOptionsMonitor<EmailNotificationOptions>> options = new();
+        options.Setup(o => o.CurrentValue).Returns(new EmailNotificationOptions { ProductDisplayName = "ArchLucid" });
+
+        WeeklySponsorReportEmailDispatcher sut = new(
+            renderer.Object,
+            provider.Object,
+            ledger,
+            options.Object,
+            NullLogger<WeeklySponsorReportEmailDispatcher>.Instance);
+
+        Guid tenantId = Guid.Parse("ffffffff-ffff-ffff-ffff-ffffffffffff");
+        const string isoWeek = "2026-W11";
+
+        Func<Task> firstAttempt = () => sut.TryDispatchAsync(
+            tenantId,
+            isoWeek,
+            runIdHex: "a1b2c3d4",
+            summaryMarkdown: "summary",
+            runDetailUrl: "https://example.test/runs/a1b2c3d4",
+            weekLabel: "W11",
+            toMailboxes: ["exec@example.test"],
+            cancellationToken: CancellationToken.None);
+
+        await firstAttempt.Should().ThrowAsync<InvalidOperationException>();
+
+        bool secondAttempt = await sut.TryDispatchAsync(
+            tenantId,
+            isoWeek,
+            runIdHex: "a1b2c3d4",
+            summaryMarkdown: "summary",
+            runDetailUrl: "https://example.test/runs/a1b2c3d4",
+            weekLabel: "W11",
+            toMailboxes: ["exec@example.test"],
+            cancellationToken: CancellationToken.None);
+
+        secondAttempt.Should().BeTrue("template render failures must not reserve the weekly ledger");
+        provider.Verify(
+            p => p.SendAsync(It.IsAny<EmailMessage>(), It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 
     [Fact]
