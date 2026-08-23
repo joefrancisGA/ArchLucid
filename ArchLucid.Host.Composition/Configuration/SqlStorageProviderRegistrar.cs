@@ -107,6 +107,7 @@ using ArchLucid.Persistence.FineTuning;
 using ArchLucid.Persistence.Findings;
 using ArchLucid.Persistence.GoToMarket;
 using ArchLucid.Persistence.Governance;
+using ArchLucid.Persistence.Governance.Posture;
 using ArchLucid.Persistence.Identity;
 using ArchLucid.Persistence.IntegrationOutbox;
 using ArchLucid.Persistence.Integrations;
@@ -519,6 +520,7 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
         services.AddScoped<IRiskExceptionRepository, SqlRiskExceptionRepository>();
         services.AddScoped<IArchitectureReviewRecurrenceScheduleRepository, DapperArchitectureReviewRecurrenceScheduleRepository>();
         services.AddScoped<IArchitectureRiskRegisterQuery, ArchitectureRiskRegisterReader>();
+        services.AddScoped<IArchitecturePostureReader, SqlArchitecturePostureReader>();
         services.AddScoped<IAgentToolInvocationRecordRepository, SqlAgentToolInvocationRecordRepository>();
         services.AddScoped<IArchitectureDecisionRegisterQuery, ArchitectureDecisionRegisterReader>();
         services.AddScoped<IImportedArchitectureRequestRepository, SqlImportedArchitectureRequestRepository>();
