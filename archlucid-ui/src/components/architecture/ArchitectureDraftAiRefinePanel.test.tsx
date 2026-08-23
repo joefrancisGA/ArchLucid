@@ -1,12 +1,14 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { ArchitectureDraftAiRefinePanel } from "./ArchitectureDraftAiRefinePanel";
 import { ARCHITECTURE_DRAFT_AI_REFINE_HEADING } from "@/lib/architecture/architecture-draft-ai-refine-copy";
+import { ARCHITECTURE_FRAMING_INCOMPLETE_PUBLISH_BLOCK_REASON } from "@/lib/architecture/architecture-intelligence-framing-interview";
 import { emptyArchitectureDraftStructuredBrief } from "@/lib/architecture/architecture-draft-structured-brief";
 import { architectureIntelligenceReviewTierLabel } from "@/lib/architecture/architecture-intelligence-review-tier";
 
 const runReasoning = vi.fn();
+const continueReasoning = vi.fn();
 
 const budgetGate = vi.hoisted(() => ({
   blocksLlmExecution: false,
@@ -38,6 +40,7 @@ vi.mock("@/lib/architecture/architecture-intelligence-api", async (importOrigina
   return {
     ...actual,
     runArchitectureIntelligenceReasoning: (...args: unknown[]) => runReasoning(...args),
+    continueArchitectureIntelligenceReasoning: (...args: unknown[]) => continueReasoning(...args),
   };
 });
 
@@ -51,6 +54,7 @@ const draftFields = {
 describe("ArchitectureDraftAiRefinePanel", () => {
   beforeEach(() => {
     runReasoning.mockReset();
+    continueReasoning.mockReset();
     budgetGate.blocksLlmExecution = false;
   });
 
@@ -143,5 +147,69 @@ describe("ArchitectureDraftAiRefinePanel", () => {
     expect(screen.getByTestId("architecture-draft-ai-refine-run")).toBeDisabled();
     expect(screen.getByTestId("architecture-draft-ai-refine-disabled-hint")).toHaveTextContent(/AI budget/i);
     expect(screen.getByTestId("architecture-draft-ai-refine-budget-blocked")).toBeInTheDocument();
+  });
+
+  it("shows framing questions and continues with answers when publish is blocked", async () => {
+    runReasoning.mockResolvedValue({
+      runId: "ai-run-framing",
+      model: { elements: [{ id: "1" }] },
+      integrityPassedFindingIds: [],
+      publishedToProduct: false,
+      publishBlocked: true,
+      publishBlockReasons: [ARCHITECTURE_FRAMING_INCOMPLETE_PUBLISH_BLOCK_REASON],
+      interview: {
+        framingQuestions: [
+          {
+            questionId: "system-boundary",
+            prompt: "What is inside and outside the system boundary?",
+            isAnswered: false,
+          },
+        ],
+      },
+    });
+
+    continueReasoning.mockResolvedValue({
+      runId: "ai-run-framing",
+      model: { elements: [{ id: "1" }, { id: "2" }] },
+      integrityPassedFindingIds: ["f1"],
+      publishedToProduct: false,
+      publishBlocked: false,
+      publishBlockReasons: [],
+      interview: {
+        framingQuestions: [],
+      },
+    });
+
+    render(<ArchitectureDraftAiRefinePanel fields={draftFields} linkedReviewId={null} />);
+
+    fireEvent.click(screen.getByTestId("architecture-draft-ai-refine-run"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-draft-ai-refine-framing-panel")).toBeInTheDocument();
+    });
+
+    fireEvent.change(screen.getByTestId("architecture-draft-ai-refine-framing-system-boundary"), {
+      target: {
+        value: "API and database in scope; legacy mainframe out of scope.",
+      },
+    });
+
+    fireEvent.click(screen.getByTestId("architecture-draft-ai-refine-framing-resubmit"));
+
+    await waitFor(() => {
+      expect(continueReasoning).toHaveBeenCalledWith(
+        "ai-run-framing",
+        expect.objectContaining({
+          continueFromExistingRun: true,
+          framingAnswers: {
+            "system-boundary": "API and database in scope; legacy mainframe out of scope.",
+          },
+        }),
+      );
+    });
+
+    await waitFor(() => {
+      expect(screen.queryByTestId("architecture-draft-ai-refine-publish-blocked")).not.toBeInTheDocument();
+    });
   });
 });

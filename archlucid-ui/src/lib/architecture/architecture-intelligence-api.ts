@@ -6,10 +6,22 @@ export type ClosedLoopReasoningSourceText = {
   content: string;
 };
 
+export type ArchitectureIntelligenceFramingQuestion = {
+  questionId: string;
+  prompt: string;
+  isAnswered?: boolean;
+  confirmedAnswer?: string | null;
+  source?: string;
+};
+
 export type ClosedLoopReasoningResult = {
   model?: { elements?: unknown[]; modelId?: string };
   specialistReviews?: Array<{ findings?: Array<{ title?: string; severity?: string }> }>;
   recommendations?: unknown[];
+  interview?: {
+    framingQuestions?: ArchitectureIntelligenceFramingQuestion[];
+    evidenceDrivenQuestions?: ArchitectureIntelligenceFramingQuestion[];
+  };
   publishBlocked?: boolean;
   publishBlockReasons?: string[];
   integrityPassedFindingIds?: string[];
@@ -53,6 +65,16 @@ export async function runArchitectureIntelligenceReasoning(
   return postJson<ClosedLoopReasoningResult>("/api/proxy/v1/architecture-intelligence/run", body);
 }
 
+export async function continueArchitectureIntelligenceReasoning(
+  runId: string,
+  body: Record<string, unknown>,
+): Promise<ClosedLoopReasoningResult> {
+  return postJson<ClosedLoopReasoningResult>(
+    `/api/proxy/v1/architecture-intelligence/runs/${encodeURIComponent(runId)}/continue`,
+    body,
+  );
+}
+
 export function primaryDescriptionFromSources(sources: ClosedLoopReasoningSourceText[]): string {
   const descriptionSource =
     sources.find((source) => source.fileName === DEFAULT_ARCHITECTURE_FILE_NAME) ?? sources[0];
@@ -68,6 +90,7 @@ export function buildArchitectureIntelligenceRunRequest(options: {
   readonly hydratedSourceTexts?: ClosedLoopReasoningSourceText[];
   readonly publishToProduct?: boolean;
   readonly reviewTier?: ArchitectureIntelligenceReviewTier;
+  readonly continueFromExistingRun?: boolean;
 }): Record<string, unknown> {
   const trimmedDescription = options.architectureDescription.trim();
   const hydrated = options.hydratedSourceTexts ?? [];
@@ -101,7 +124,7 @@ export function buildArchitectureIntelligenceRunRequest(options: {
     framingAnswers: options.framingAnswers ?? {},
     useGoldenFixture: false,
     runId: options.runId ?? undefined,
-    continueFromExistingRun: false,
+    continueFromExistingRun: options.continueFromExistingRun ?? false,
     publishToProduct: options.publishToProduct ?? false,
     reviewTier: options.reviewTier ?? "Standard",
   };
