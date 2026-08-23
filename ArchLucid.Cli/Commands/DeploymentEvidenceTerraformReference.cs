@@ -9,6 +9,7 @@ internal static class DeploymentEvidenceTerraformReference
     {
         return
         [
+            "infra/terraform-pilot — canonical default profile (metadata + cost knobs; no Azure apply).",
             "infra/terraform-foundation — metadata composition root (wave 1; no Azure apply).",
             "infra/terraform-platform — metadata composition root (wave 2; no Azure apply).",
             "infra/terraform-app — metadata composition root (wave 3; no Azure apply).",
