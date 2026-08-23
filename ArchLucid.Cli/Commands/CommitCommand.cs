@@ -23,6 +23,7 @@ internal static class CommitCommand
         {
             Console.WriteLine($"Error: {result?.Error ?? "Finalize failed (API: commit)"}");
             CliOperatorHints.WriteAfterApiFailure(result?.HttpStatusCode, result?.Error);
+            CliApiFailureDiagnostics.Write(stderr: null, result?.CorrelationId, result?.Error);
 
             return CliExitCode.OperationFailed;
         }

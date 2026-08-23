@@ -63,6 +63,7 @@ internal static class RunCommand
         {
             Console.WriteLine($"Error: {result.Error}");
             CliOperatorHints.WriteAfterApiFailure(result.StatusCode, result.Error);
+            CliApiFailureDiagnostics.Write(stderr: null, result.CorrelationId, result.Error);
 
             return CliExitCode.OperationFailed;
         }
