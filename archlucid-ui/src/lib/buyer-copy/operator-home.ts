@@ -111,6 +111,9 @@ export const OPERATOR_HOME_BEST_FOR_EVALUATING_BADGE = "Best for evaluating Arch
 export const OPERATOR_HOME_MISSING_COMPLETED_SAMPLE_MESSAGE =
   "No completed sample has been selected for this workspace.";
 
+/** Bold prefix on Home header freshness line — qualifies the clock timestamp after refresh. */
+export const OPERATOR_HOME_DATA_CURRENCY_PREFIX = "Refreshed";
+
 export const OPERATOR_HOME_CHOOSE_SAMPLE_REVIEW_CTA = "Choose sample review";
 
 export const OPERATOR_HOME_CONTACT_WORKSPACE_OWNER_HINT = "Contact the workspace owner.";
