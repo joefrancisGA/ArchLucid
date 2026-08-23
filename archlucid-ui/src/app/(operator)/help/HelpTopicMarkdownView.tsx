@@ -284,7 +284,7 @@ export function HelpTopicMarkdownView(props: HelpTopicMarkdownViewProps): React.
 
         <p className={`m-0 max-w-3xl ${OPERATOR_TYPOGRAPHY.label}`}>
 
-          Engineering runbook â€” CLI commands, environment variables, and log detail. For symptom-first operator help,
+          Engineering runbook  —  CLI commands, environment variables, and log detail. For symptom-first operator help,
 
           open{" "}
 

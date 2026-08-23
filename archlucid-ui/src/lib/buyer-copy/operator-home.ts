@@ -7,13 +7,13 @@
 import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture/architecture-workflow-labels";
 
 export const BUYER_HOME_SAMPLE_PACKAGE_HEADLINE =
-  "Explore a completed sample review";
+  "Explore a completed example review";
 
 export const BUYER_HOME_SAMPLE_PACKAGE_SUBTITLE =
-  "Completed architecture review with finalized review record, evidence trail, and audit record.";
+  "Completed architecture review with sealed review record, evidence trail, and audit record.";
 
 export const BUYER_HOME_SAMPLE_PACKAGE_LEAD =
-  "Review a completed sample review with evidence trail, findings, resolve outcomes, and audit-ready artifacts before creating your first review.";
+  "Review a completed example review with evidence trail, findings, governance approval, and audit-ready artifacts before creating your first review.";
 
 export const BUYER_HOME_PRIMARY_CTA = "Open sample finding";
 
@@ -34,17 +34,17 @@ export const OPERATOR_HOME_OPEN_SAMPLE_PACKAGE_CTA = "Open sample review";
 export const OPERATOR_HOME_DEMO_SEEDED_SAMPLE_BRIDGE =
   "This demo workspace includes a finished sample review — open it to see findings, evidence, and decisions.";
 
-export const OPERATOR_HOME_OPEN_CREATION_EXAMPLE_CTA = "Open creation sample";
+export const OPERATOR_HOME_OPEN_CREATION_EXAMPLE_CTA = "Open creation example";
 
 /** @deprecated Prefer {@link OPERATOR_HOME_OPEN_CREATION_EXAMPLE_CTA}. */
 export const OPERATOR_HOME_OPEN_CREATED_SAMPLE_CTA = OPERATOR_HOME_OPEN_CREATION_EXAMPLE_CTA;
 
-export const OPERATOR_HOME_CREATION_EXAMPLE_TITLE = "Architecture creation sample";
+export const OPERATOR_HOME_CREATION_EXAMPLE_TITLE = "Architecture creation example";
 
 export const OPERATOR_HOME_CREATION_EXAMPLE_BODY =
   "See how ArchLucid turns goals and constraints into an architecture.";
 
-export const OPERATOR_HOME_GUIDED_REVIEW_EXAMPLE_TITLE = "Guided review sample";
+export const OPERATOR_HOME_GUIDED_REVIEW_EXAMPLE_TITLE = "Guided review example";
 
 export const OPERATOR_HOME_GUIDED_REVIEW_EXAMPLE_BODY =
   "See how ArchLucid evaluates a sample architecture.";
@@ -70,34 +70,20 @@ export function formatOperatorHomeContinueDraftHeading(displayName: string): str
 export const OPERATOR_HOME_ACTIVE_REVIEWS_HEADING = "Reviews in progress";
 
 export const OPERATOR_HOME_ACTIVE_REVIEWS_LEAD =
-  "Open an in-progress review or start another architecture review when your architecture is ready.";
+  "Open an in-progress review or start another governed review when your architecture is ready.";
 
 export const OPERATOR_HOME_LIFECYCLE_RECOMMENDED_BADGE = "Recommended next";
 
 export const OPERATOR_HOME_RESUME_LATEST_DRAFT_CTA = "Resume latest draft";
 
-export const OPERATOR_HOME_CONTINUE_REVIEW_INTAKE_CTA = "Continue in review intake";
-
-export const OPERATOR_HOME_CONTINUE_IN_REVIEW_CTA = "Continue in review";
-
 export function formatOperatorHomeContinueArchitectureLead(draftCount: number): string {
   const safeCount = Number.isFinite(draftCount) ? Math.max(0, Math.trunc(draftCount)) : 0;
 
   if (safeCount === 1) {
-    return "1 draft saved. Start a review when you are ready.";
+    return "1 draft saved — start a review when you are ready.";
   }
 
-  return `${safeCount} drafts saved. Start a review when you are ready.`;
-}
-
-export function formatOperatorHomePastDraftingLead(displayName: string): string {
-  const trimmedName = displayName.trim();
-
-  if (trimmedName.length > 0) {
-    return `${trimmedName} is already in review intake — continue from here instead of reopening the draft workspace.`;
-  }
-
-  return "This architecture is already in review intake — continue from here instead of reopening the draft workspace.";
+  return `${safeCount} drafts saved — start a review when you are ready.`;
 }
 
 export function formatOperatorHomeResumeDraftBridge(displayName: string, draftCount: number): string {
@@ -105,14 +91,14 @@ export function formatOperatorHomeResumeDraftBridge(displayName: string, draftCo
   const safeCount = Number.isFinite(draftCount) ? Math.max(0, Math.trunc(draftCount)) : 0;
 
   if (trimmedName.length > 0 && safeCount === 1) {
-    return `Pick up "${trimmedName}" or start an architecture review from the lifecycle steps below.`;
+    return `Pick up "${trimmedName}" or start a governed review from the lifecycle steps below.`;
   }
 
   if (trimmedName.length > 0) {
-    return `Pick up "${trimmedName}" — your most recent draft — or start an architecture review from the lifecycle steps below.`;
+    return `Pick up "${trimmedName}" — your most recent draft — or start a governed review from the lifecycle steps below.`;
   }
 
-  return "Resume your most recent draft or start an architecture review from the lifecycle steps below.";
+  return "Resume your most recent draft or start a governed review from the lifecycle steps below.";
 }
 
 export const OPERATOR_HOME_EXPLORE_COMPLETED_REVIEW_TITLE = "Explore a completed review";
@@ -125,13 +111,6 @@ export const OPERATOR_HOME_BEST_FOR_EVALUATING_BADGE = "Best for evaluating Arch
 export const OPERATOR_HOME_MISSING_COMPLETED_SAMPLE_MESSAGE =
   "No completed sample has been selected for this workspace.";
 
-export const OPERATOR_HOME_COMPLETED_SAMPLE_FETCH_ERROR_MESSAGE =
-  "Could not load the completed sample for this workspace. Try refreshing the page.";
-
-export const OPERATOR_HOME_DRAFT_ARCHITECTURE_EYEBROW = "Draft architecture";
-
-export const OPERATOR_HOME_DATA_CURRENCY_PREFIX = "Updated";
-
 export const OPERATOR_HOME_CHOOSE_SAMPLE_REVIEW_CTA = "Choose sample review";
 
 export const OPERATOR_HOME_CONTACT_WORKSPACE_OWNER_HINT = "Contact the workspace owner.";
@@ -140,12 +119,12 @@ export const OPERATOR_HOME_COMPACT_STARTING_ACTIONS_HEADING = "Start another rev
 
 /**
  * Bold lead label on Overview subtitle (buyer-polished shell).
- * ADR 0067 — two co-equal jobs (create vs review); create inputs below are combinable, not counted here.
+ * ADR 0067 — the pair is co-equal, so this lead must not number the paths or rank one above the other.
  */
 export const OPERATOR_HOME_ARCHITECTURE_LIFECYCLE_INTRO_LABEL = "Two ways in:";
 
 export const OPERATOR_HOME_ARCHITECTURE_LIFECYCLE_INTRO_BODY =
-  "Create an architecture from any combination of description, uploaded evidence, and connected cloud inventory — or review an architecture you already have.";
+  "Create an architecture from a description, uploaded evidence, or connected cloud inventory — or review an architecture you already have.";
 
 export const OPERATOR_HOME_ARCHITECTURE_LIFECYCLE_INTRO =
   `${OPERATOR_HOME_ARCHITECTURE_LIFECYCLE_INTRO_LABEL} ${OPERATOR_HOME_ARCHITECTURE_LIFECYCLE_INTRO_BODY}`;
@@ -153,12 +132,12 @@ export const OPERATOR_HOME_ARCHITECTURE_LIFECYCLE_INTRO =
 export const OPERATOR_HOME_CREATE_ARCHITECTURE_CARD_TITLE = "Create architecture";
 
 export const OPERATOR_HOME_CREATE_ARCHITECTURE_CARD_BODY =
-  "Describe a new architecture, upload briefs and diagrams, and connect read-only cloud inventory from AWS, Azure, or Google Cloud — in any combination. It produces an architecture draft you can revise, then review when ready.";
+  "Describe a new architecture, upload briefs and diagrams, or connect read-only cloud inventory from Azure, AWS, or Google Cloud. It produces an architecture draft you can revise, then review when ready.";
 
 export const OPERATOR_HOME_REVIEW_ARCHITECTURE_CARD_TITLE = "Review architecture";
 
 export const OPERATOR_HOME_REVIEW_ARCHITECTURE_CARD_BODY =
-  "Attach architecture information you already have — diagrams, documents, inventory exports, or connected cloud evidence. It produces findings and evidence you can finalize into a finalized review record.";
+  "Attach architecture information you already have — diagrams, documents, inventory exports, or connected cloud evidence. It produces findings and evidence you can finalize into a sealed review record.";
 
 /** @deprecated Merged into {@link OPERATOR_HOME_REVIEW_ARCHITECTURE_CARD_BODY} on the home review card. */
 export const OPERATOR_HOME_REVIEW_ARCHITECTURE_SUPPORT = OPERATOR_HOME_REVIEW_ARCHITECTURE_CARD_BODY;
@@ -205,7 +184,7 @@ export const OPERATOR_HOME_SAMPLE_FINDINGS_HEADING = OPERATOR_HOME_EXPLORE_SAMPL
 export const OPERATOR_HOME_SAMPLE_FINDINGS_LEAD = OPERATOR_HOME_EXPLORE_SAMPLE_LEAD;
 
 export const OPERATOR_HOME_SAMPLE_FINDINGS_DEFENSIBLE_LAYER =
-  "Sample review — not your workspace data. Open the full review for findings, evidence, and the finalized review record.";
+  "Example review — not your workspace data. Open the full review for findings, evidence, and the sealed record.";
 
 export const SAMPLE_REVIEW_AHA_FINDING_LABEL = "Finding";
 
@@ -215,7 +194,7 @@ export const SAMPLE_REVIEW_AHA_EVIDENCE_LABEL = "Evidence support";
 
 export const SAMPLE_REVIEW_AHA_DECISION_LABEL = "Decision change";
 
-export const SAMPLE_REVIEW_AHA_DEMO_LABEL = "Sample review";
+export const SAMPLE_REVIEW_AHA_DEMO_LABEL = "Example review";
 
 export const SAMPLE_REVIEW_PACKAGE_AHA_HEADING = "Your first-value moment";
 
@@ -229,7 +208,7 @@ export const OPERATOR_HOME_WORKSPACE_EMPTY_BODY =
 
 /** Recent reviews outcome when only a demo/seeded or showcase sample is visible. */
 export const OPERATOR_HOME_RECENT_REVIEWS_EXAMPLE_ONLY_OUTCOME =
-  "Showing a completed sample review. Your reviews will appear here.";
+  "Showing a completed example review. Your own reviews will appear here.";
 
 export const OPERATOR_HOME_LEARN_HOW_REVIEWS_WORK_CTA = "Learn how reviews work";
 
@@ -256,7 +235,7 @@ export function resolveOperatorHomeHeroHeading(hasWorkspaceActivity: boolean): s
 }
 
 export const PILOT_COMMAND_CENTER_LEAD =
-  "Create an architecture review from any combination of design brief, uploaded evidence, and connected cloud inventory.";
+  "Create an architecture review from a design brief, uploaded evidence, or an optional cloud connection.";
 
 /** Hero bridge copy when the tenant has no runs — zero-setup evaluation first. */
 export const PILOT_FIRST_HOUR_NO_RUN_BRIDGE_COPY =
@@ -273,7 +252,7 @@ export const PILOT_COMMAND_CENTER_OUTCOMES = [
   "Missing dependencies",
   "Hidden risks",
   "Cost drivers",
-  "Policy gaps",
+  "Governance gaps",
   "Evidence gaps",
   "Decision impact",
 ] as const;
@@ -313,7 +292,7 @@ export const OPERATOR_HOME_SETUP_STATUS_OPTIONAL = "Optional";
 export const OPERATOR_HOME_CONNECT_CLOUD_TITLE = "Connect cloud environment";
 
 export const OPERATOR_HOME_CONNECT_CLOUD_BODY =
-  "Import architecture evidence from AWS, Azure, or Google Cloud.";
+  "Import architecture evidence from Azure, AWS, or Google Cloud.";
 
 /** Primary CTA on home Step 1 for the cloud-as-architecture path. */
 export const OPERATOR_HOME_CONNECT_CLOUD_CTA = OPERATOR_HOME_CONNECT_CLOUD_TITLE;
@@ -331,12 +310,12 @@ export const OPERATOR_HOME_SETUP_NEXT_OPEN_GUIDE = "Open the first review guide.
 
 export const OPERATOR_HOME_SETUP_NEXT_CHOOSE_PATH = "Create an architecture or start a review.";
 
-export const OPERATOR_HOME_EXAMPLES_AND_LEARNING_HEADING = "Samples and learning";
+export const OPERATOR_HOME_EXAMPLES_AND_LEARNING_HEADING = "Examples and learning";
 
 export const OPERATOR_HOME_LEARNING_RESOURCES_HEADING = "Learning resources";
 
 export const OPERATOR_HOME_LEARNING_RESOURCES_LEAD =
-  "Walk through creation and review samples without starting a live review.";
+  "Walk through creation and review examples without starting a live review.";
 
 export const OPERATOR_HOME_SETUP_NEXT_CONNECT_CLOUD = "Connect cloud";
 
@@ -385,19 +364,19 @@ export const OPERATOR_HOME_WORKSPACE_STATUS_COLLAPSED_SUMMARY =
 export const OPERATOR_HOME_WORKSPACE_STATUS_COLLAPSED_SUMMARY_FIRST_RUN =
   "Workspace readiness signals.";
 
-export const BUYER_HOME_EXAMPLE_PACKAGE_SHORTCUTS_ARIA = "Sample review shortcuts";
+export const BUYER_HOME_EXAMPLE_PACKAGE_SHORTCUTS_ARIA = "Example review shortcuts";
 
-export const BUYER_HOME_EXAMPLE_PACKAGE_HEADING = "Sample review";
+export const BUYER_HOME_EXAMPLE_PACKAGE_HEADING = "Example review";
 
 export const BUYER_HOME_EXAMPLE_PACKAGE_LEAD =
-  "Open a completed sample to see the output, then start your own review.";
+  "Open a completed example to see the output, then start your own review.";
 
-export const BUYER_HOME_EXAMPLE_EXPLORE_LINK = "Explore sample";
+export const BUYER_HOME_EXAMPLE_EXPLORE_LINK = "Explore example";
 
-export const BUYER_HOME_WELCOME_HEADING = "Explore one architecture review";
+export const BUYER_HOME_WELCOME_HEADING = "Explore one governed architecture review";
 
 export const BUYER_HOME_WELCOME_LEAD =
-  "Start with the sponsor view, then the finalized review record, audit trail, and prioritized findings.";
+  "Start with the sponsor view, then the sealed review record, audit trail, and prioritized findings.";
 
 /** Canonical home reviews zone heading — both operator shells (TB-347). */
 export const OPERATOR_HOME_RECENT_REVIEWS_HEADING = "Recent reviews";

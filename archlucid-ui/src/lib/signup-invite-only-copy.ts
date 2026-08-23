@@ -10,7 +10,7 @@ export const SIGNUP_INVITE_ONLY_PANEL_LEAD =
   "Enter your work email below. We review each request and send an evaluation workspace invitation when approved.";
 
 export const SIGNUP_INVITE_ONLY_FORM_INTRO =
-  "This starts a guided evaluation workspace request — not instant product access, checkout, or a procurement diligence trail.";
+  "This starts a guided evaluation workspace reques — ot instant product access, checkout, or a procurement diligence trail.";
 
 /** Primary submit — action on filled fields, not a click-to-reveal gate. */
 export const SIGNUP_INVITE_ONLY_SUBMIT_LABEL = "Send evaluation request";
@@ -35,7 +35,7 @@ export const SIGNUP_INVITE_ONLY_OUTCOMES: readonly SignupInviteOnlyOutcome[] = [
   },
   {
     label: "Response time",
-    detail: "Human follow-up on typical requests — see confirmation email for timing.",
+    detail: "Human follow-up on typical request — ee confirmation email for timing.",
   },
 ] as const;
 
@@ -74,7 +74,7 @@ export const SIGNUP_PROCESS_STEPS: readonly SignupProcessStep[] = [
 ] as const;
 
 export const SIGNUP_DEMO_PATH_NOTE =
-  "Need a live walkthrough before requesting access? Use Request demo on Pricing for a guided session — this form starts an evaluation workspace, not a sales demo.";
+  "Need a live walkthrough before requesting access? Use Request demo on Pricing for a guided sessio — his form starts an evaluation workspace, not a sales demo.";
 
 export type SignupAssuranceFact = {
   readonly label: string;
@@ -88,7 +88,7 @@ export const SIGNUP_ASSURANCE_FACTS: readonly SignupAssuranceFact[] = [
   {
     label: "Tenant-scoped workspace",
     detail:
-      "Each evaluation workspace is isolated to your organization — no shared demo tenant across unrelated buyers.",
+      "Each evaluation workspace is isolated to your organizatio — o shared demo tenant across unrelated buyers.",
   },
   {
     label: "No payment to start",
@@ -97,7 +97,7 @@ export const SIGNUP_ASSURANCE_FACTS: readonly SignupAssuranceFact[] = [
   {
     label: "Trust materials on request",
     detail:
-      "Security overview, data handling, and scope claims are in our Trust Center — not overstated on this form.",
+      "Security overview, data handling, and scope claims are in our Trust Cente — ot overstated on this form.",
   },
   {
     label: "Inspect before you commit",

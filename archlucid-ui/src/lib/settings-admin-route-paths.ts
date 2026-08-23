@@ -6,10 +6,10 @@ export { DIGESTS_SCHEDULE_TAB_PATH };
 /** Canonical Administration hub (searchable settings index). */
 export const SETTINGS_ROOT_PATH = "/administration" as const;
 
-/** Legacy hub segment â€” permanent redirect to {@link SETTINGS_ROOT_PATH}. */
+/** Legacy hub segment  —  permanent redirect to {@link SETTINGS_ROOT_PATH}. */
 export const LEGACY_ADMINISTRATION_SETTINGS_ROOT_PATH = "/administration/settings" as const;
 
-/** Retired Settings hub root â€” no App Router page and no next.config redirect. */
+/** Retired Settings hub root  —  no App Router page and no next.config redirect. */
 export const LEGACY_SETTINGS_ROOT_PATH = "/settings" as const;
 
 /** Canonical tenant-administration URLs (TB-406). */
@@ -21,7 +21,7 @@ export const SETTINGS_USERS_USERS_TAB_PATH = `${SETTINGS_USERS_PATH}?tab=users`;
 
 export const SETTINGS_USERS_KEYS_TAB_PATH = `${SETTINGS_USERS_PATH}?tab=keys`;
 
-/** Legacy roles index â€” retired bookmark; canonical is {@link SETTINGS_USERS_ROLES_TAB_PATH}. */
+/** Legacy roles index  —  retired bookmark; canonical is {@link SETTINGS_USERS_ROLES_TAB_PATH}. */
 export const LEGACY_SETTINGS_ROLES_PATH = "/settings/roles";
 
 export type SettingsUsersTabId = "users" | "roles" | "keys";
@@ -80,7 +80,7 @@ export function pathIsSettingsHubRoot(pathname: string): boolean {
   return pathname === SETTINGS_ROOT_PATH || pathname === LEGACY_ADMINISTRATION_SETTINGS_ROOT_PATH;
 }
 
-/** Legacy browser paths â€” permanent redirects to canonical (TB-406). */
+/** Legacy browser paths  —  permanent redirects to canonical (TB-406). */
 export const LEGACY_ADMIN_USERS_PATH = "/admin/users";
 
 export const LEGACY_WORKSPACE_SECURITY_TRUST_PATH = "/workspace/security-trust";
@@ -100,7 +100,7 @@ export function pathMatchesLegacySettingsRoles(pathname: string): boolean {
   return pathMatchesRoutePrefix(pathname, LEGACY_SETTINGS_ROLES_PATH);
 }
 
-/** Canonical users hub pathname for tab navigation â€” upgrades legacy rewrite paths. */
+/** Canonical users hub pathname for tab navigation  —  upgrades legacy rewrite paths. */
 export function settingsUsersNavigationPathname(pathname: string): string {
   const normalized = normalizeSettingsAdminPathname(pathname);
 

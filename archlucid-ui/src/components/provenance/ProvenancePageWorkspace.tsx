@@ -238,7 +238,7 @@ export function ProvenancePageWorkspace(props: ProvenancePageWorkspaceProps): Re
 
           {viewMode === "graph" && activeFilters.size > 0 ? (
             <p className={cn("m-0 text-amber-800 dark:text-amber-200", OPERATOR_TYPOGRAPHY.micro)} role="status">
-              Filters hide graph elements for focus only â€” all provenance data remains available in the tables view.
+              Filters hide graph elements for focus only  —  all provenance data remains available in the tables view.
               Showing {graphVisibleNodeCount} of {graph.nodes.length} nodes in the graph.
             </p>
           ) : null}

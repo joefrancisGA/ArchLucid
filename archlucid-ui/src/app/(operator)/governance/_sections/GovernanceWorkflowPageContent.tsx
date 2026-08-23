@@ -12,7 +12,6 @@ import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { Separator } from "@/components/ui/separator";
 import { InlineGuidanceLabel } from "@/components/InlineGuidanceLabel";
 import { GovernanceJobRouterStrip } from "@/components/governance/GovernanceJobRouterStrip";
-import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -21,7 +20,7 @@ import { useGovernanceReviewContextQuery } from "@/hooks/use-governance-review-c
 import { useGovernanceWorkflowRunListsQuery } from "@/hooks/use-governance-workflow-run-lists-query";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
-import { DESIGN_TOKENS, OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import {
@@ -537,9 +536,9 @@ export function GovernanceWorkflowPageContent() {
   );
 
   return (
-    <MutationErrorBoundary title="Resolve outcomes workflow failed to render">
+    <MutationErrorBoundary title="Governance workflow failed to render">
     <TooltipProvider delayDuration={300}>
-    <OperatorPageContainer variant="workflow" className={OPERATOR_LAYOUT.sectionStack}>
+    <div className="w-full max-w-[1200px]">
       <OperatorPageHeader
         navHref="/governance/approval-queue"
         title={pageTitle}
@@ -553,7 +552,7 @@ export function GovernanceWorkflowPageContent() {
             </span>
           ) : buyerPolishedShell && isReviewContext && !showBuyerApprovalStory ? (
             <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-              Production deployments and change-managed releases follow your enterprise process — this page does not configure
+              Production deployments and change-managed releases follow your enterprise proces — his page does not configure
               releases.
             </span>
           ) : null
@@ -681,7 +680,7 @@ export function GovernanceWorkflowPageContent() {
           ) : null}
 
           <div
-            className={cn("flex flex-col gap-6", !canMutateWorkflow && "flex-col-reverse")}
+            className={cn("flex flex-col gap-10", !canMutateWorkflow && "flex-col-reverse")}
             data-testid="governance-workflow-review-context-stack"
           >
           <div ref={submitSectionRef}>
@@ -706,12 +705,12 @@ export function GovernanceWorkflowPageContent() {
             />
           </div>
 
-          <Separator className="mb-6" />
+          <Separator className="mb-10" />
 
           <section
             ref={approvalsSectionRef}
             id="governance-approval-requests"
-            className="mb-6"
+            className="mb-10"
             data-testid="governance-approval-requests-section"
           >
             {showingStaticDemoGovernanceRecords ? (
@@ -762,10 +761,10 @@ export function GovernanceWorkflowPageContent() {
 
           {buyerPolishedShell ? null : (
             <>
-              <Separator className="mb-6" />
+              <Separator className="mb-10" />
 
               <div data-testid="governance-workflow-advanced-options">
-                <AdvancedOptionsAccordionDeferred triggerLabel={GOVERNANCE_WORKFLOW_ENVIRONMENT_RELEASES_ACCORDION_LABEL} className="mb-6">
+                <AdvancedOptionsAccordionDeferred triggerLabel={GOVERNANCE_WORKFLOW_ENVIRONMENT_RELEASES_ACCORDION_LABEL} className="mb-10">
                   <GovernanceWorkflowPromotionsActivationsSectionDeferred
                     canMutateWorkflow={canMutateWorkflow}
                     listsLoading={listsLoading}
@@ -799,7 +798,7 @@ export function GovernanceWorkflowPageContent() {
         activateBusyId={activateBusyId}
         onConfirmActivateFromPromotion={onConfirmActivateFromPromotion}
       />
-    </OperatorPageContainer>
+    </div>
     </TooltipProvider>
     </MutationErrorBoundary>
   );

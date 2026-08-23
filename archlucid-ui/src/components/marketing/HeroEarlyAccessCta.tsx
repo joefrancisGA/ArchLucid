@@ -43,7 +43,7 @@ export function HeroEarlyAccessCta(props: HeroEarlyAccessCtaProps) {
   const defaultOpen = props.defaultOpen === true;
   const intro =
     props.intro ??
-    "Request a conversation — this is not instant product access, checkout, or the same as a walkthrough-led pilot.";
+    "Request a conversatio — his is not instant product access, checkout, or the same as a walkthrough-led pilot.";
   const submitLabel = props.submitLabel ?? "Submit";
   const thanksCopy = props.thanksCopy ?? THANKS_COPY;
   const openButtonLabel = props.openButtonLabel ?? "Join early access";

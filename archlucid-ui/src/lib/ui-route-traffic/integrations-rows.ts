@@ -26,7 +26,7 @@ export const INTEGRATIONS_TRAFFIC_ROWS: readonly UiRouteTrafficRow[] = [
     rowId: "IIO",
     path: ITSM_ATLASSIAN_OAUTH_CALLBACK_PATH,
     section: "Integrations",
-    note: "Atlassian OAuth consent return (Integrations) - ItsmAtlassianOAuthCallbackClient with PageContextualHelpButton (topic map integration-readiness; Category-1 registry), Learn more / claim-discipline (Sources follow-up removed TB-2092) orientation strip, consent status + return to Jira settings. Live App Router page; not redirect-blocked (TB-1776 hub carve-out). Score 40/100 (2026-08-05) â€” OAuth handshake surface hard-caps higher Evidence. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a sealed-record diligence Sources trail.",
+    note: "Atlassian OAuth consent return (Integrations) - ItsmAtlassianOAuthCallbackClient with PageContextualHelpButton (topic map integration-readiness; Category-1 registry), Learn more / claim-discipline (Sources follow-up removed TB-2092) orientation strip, consent status + return to Jira settings. Live App Router page; not redirect-blocked (TB-1776 hub carve-out). Score 40/100 (2026-08-05)  —  OAuth handshake surface hard-caps higher Evidence. Owner pass: Evidence chrome shipped; cannot improve further toward 80 without turning this into a sealed-record diligence Sources trail.",
     noteMustContain: ["ItsmAtlassianOAuthCallbackClient", "Sources"],
     noteMustNotContainLower: ["blocked-by-redirect", "blocked by redirect"],
   },

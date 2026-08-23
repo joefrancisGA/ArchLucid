@@ -19,7 +19,7 @@ export function WelcomeMarketingProofAtGlanceSection(): React.JSX.Element {
         Proof at a glance
       </h2>
       <p className={cn("mt-3 max-w-3xl text-al-text-secondary", MARKETING_TYPOGRAPHY.lead)}>
-        Inspect finalized outputs before you bring your own architecture evidence.
+        Inspect governed outputs before you bring your own architecture evidence.
       </p>
       <ul className="m-0 mt-8 grid list-none gap-4 p-0 lg:grid-cols-3">
         <li className={cn(MARKETING_SURFACES.cardComfort, "lg:col-span-1")}>
@@ -36,7 +36,7 @@ export function WelcomeMarketingProofAtGlanceSection(): React.JSX.Element {
         <li className={cn(MARKETING_SURFACES.cardComfort, "ring-1 ring-teal-800/15 dark:ring-teal-500/20 lg:col-span-1")}>
           <p className={cn("m-0", MARKETING_TYPOGRAPHY.cardTitle)}>Evidence you can follow</p>
           <p className={cn("m-0 mt-2 text-al-text-secondary", MARKETING_TYPOGRAPHY.body)}>
-            Trace graph tie-outs and audit milestones — not an ephemeral chat transcript.
+            Trace graph tie-outs and audit milestone — ot an ephemeral chat transcript.
           </p>
           <p className={cn("m-0 mt-4 font-medium", MARKETING_TYPOGRAPHY.meta)}>
             <Link className={MARKETING_SURFACES.inlineLink} href={WELCOME_SEE_IT_HREF}>
@@ -45,7 +45,7 @@ export function WelcomeMarketingProofAtGlanceSection(): React.JSX.Element {
           </p>
         </li>
         <li className={cn(MARKETING_SURFACES.cardComfort, "lg:col-span-1")}>
-          <p className={cn("m-0", MARKETING_TYPOGRAPHY.cardTitle)}>Buyer-ready posture</p>
+          <p className={cn("m-0", MARKETING_TYPOGRAPHY.cardTitle)}>Procurement-ready posture</p>
           <p className={cn("m-0 mt-2 text-al-text-secondary", MARKETING_TYPOGRAPHY.body)}>
             Published Trust Center materials and downloadable diligence anchors.
           </p>

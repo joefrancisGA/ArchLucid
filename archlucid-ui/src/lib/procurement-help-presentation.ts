@@ -60,7 +60,7 @@ export function parseProcurementFaqQuestionNumber(headingTitle: string): number 
 export function rewriteProcurementFaqBuyerPresentation(markdown: string): string {
   return markdown
     .replace(
-      /\*\*Answer:\*\* Today we publish a \*\*SOC 2 self-assessment\*\* and control mapping—SOC 2 \*\*Type II\*\* CPA attestation is \*\*not currently issued\*\* \(\[SOC 2 self-assessment\]\(\/help\/soc2-self-assessment\)\)\. Type \*\*I\*\* followed by Type \*\*II\*\* is the typical SaaS roadmap once operating evidence exists alongside budget\./gi,
+      /\*\*Answer:\*\* Today we publish a \*\*SOC 2 self-assessment\*\* and control mappin — OC 2 \*\*Type II\*\* CPA attestation is \*\*not currently issued\*\* \(\[SOC 2 self-assessment\]\(\/help\/soc2-self-assessment\)\)\. Type \*\*I\*\* followed by Type \*\*II\*\* is the typical SaaS roadmap once operating evidence exists alongside budget\./gi,
       "**Answer:** Today we publish a [SOC 2 self-assessment](/help/soc2-self-assessment) and control mapping. SOC 2 Type II CPA attestation is not currently issued. Type I followed by Type II is the typical SaaS roadmap once operating evidence exists alongside budget.",
     )
     .replace(
@@ -112,7 +112,7 @@ export function rewriteProcurementFaqBuyerPresentation(markdown: string): string
       `[Request a custom policy pack quote](${PROCUREMENT_HELP_CUSTOM_POLICY_PACK_QUOTE_HREF})`,
     )
     .replace(
-      /directly from ArchLucid during diligence — \[request coverage details\]\([^)]+\)—figures/gi,
+      /directly from ArchLucid during diligence — \[request coverage details\]\([^)]+\ — igures/gi,
       `directly from ArchLucid during diligence — [request coverage details](${PROCUREMENT_HELP_NDA_REQUEST_HREF}) — figures`,
     )
     .replace(

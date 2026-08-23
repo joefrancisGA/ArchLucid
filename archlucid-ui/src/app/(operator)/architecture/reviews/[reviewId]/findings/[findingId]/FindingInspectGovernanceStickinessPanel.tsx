@@ -319,7 +319,7 @@ export function FindingInspectGovernanceStickinessPanel(
         </p>
         {activeWaiver ? (
           <p className="m-0 text-neutral-700 dark:text-neutral-300">
-            Active waiver expires {activeWaiver.expiresAtUtc} â€” owner {activeWaiver.ownerUserId}
+            Active waiver expires {activeWaiver.expiresAtUtc}  —  owner {activeWaiver.ownerUserId}
           </p>
         ) : (
           <>
@@ -411,8 +411,8 @@ export function FindingInspectGovernanceStickinessPanel(
           <ul className="m-0 list-disc space-y-1 pl-5">
             {history.map((event) => (
               <li key={event.eventId}>
-                {event.disposition} â€” {event.occurredAtUtc}
-                {event.rationale ? ` â€” ${event.rationale}` : ""}
+                {event.disposition}  —  {event.occurredAtUtc}
+                {event.rationale ? `  —  ${event.rationale}` : ""}
               </li>
             ))}
           </ul>

@@ -58,7 +58,7 @@ const OPERATOR_WELCOME_STEPS: ReadonlyArray<StepDef> = [
   {
     title: "Review AI findings",
     description:
-      "When the review completes, open it to read findings, evidence, and narrative. Finalize when you are ready to lock the finalized review record and sponsor exports.",
+      "When the review completes, open it to read findings, evidence, and narrative. Finalize when you are ready to lock the sealed review record and sponsor exports.",
     Icon: CheckCircle2,
   },
 ];
@@ -67,19 +67,19 @@ const BUYER_WELCOME_STEPS: ReadonlyArray<StepDef> = [
   {
     title: "Welcome to ArchLucid",
     description:
-      "Walk through a completed sponsor review — risk posture, evidence-linked findings, approval status, and audit-ready exports — without advanced tooling upfront.",
+      "Walk through a completed sponsor revie — isk posture, evidence-linked findings, governance status, and audit-ready export — ithout advanced tooling upfront.",
     Icon: Package,
   },
   {
     title: "Start from sponsor report",
     description:
-      "Open the sponsor workspace first for export-ready posture and citations; drill into finalized review record, evidence traceability, and deliverables when you need deeper proof.",
+      "Open the sponsor workspace first for sponsor-ready posture and citations; drill into sealed review record, evidence traceability, and deliverables when you need deeper proof.",
     Icon: Users,
   },
   {
     title: "Optional pilot motion",
     description:
-      "When your team is ready to evaluate authoring workflows, use Reviews from Help or the pilot checklist — creation flows stay separate from this polished viewing path.",
+      "When your team is ready to evaluate authoring workflows, use Reviews from Help or the pilot checklis — reation flows stay separate from this polished viewing path.",
     Icon: Route,
   },
 ];

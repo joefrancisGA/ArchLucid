@@ -13,13 +13,13 @@ export const GLOSSARY_DEFINITIONS = {
     displayLabel: "Architecture review",
     shortDefinition: "The end-to-end work unit from intake through finalized outputs for one architecture question.",
     longDefinition:
-      "An architecture review captures one question end-to-end: ingested context, graph and findings, decisioning, and synthesized artifacts culminating in a finalized review record you can govern and compare.",
+      "An architecture review captures one question end-to-end: ingested context, graph and findings, decisioning, and synthesized artifacts culminating in a sealed review record you can govern and compare.",
   },
   manifest: {
-    displayLabel: "Finalized review record",
-    shortDefinition: "The finalized architecture review treated as source of truth for a review.",
+    displayLabel: "Sealed review record",
+    shortDefinition: "The finalized, sealed architecture review treated as source of truth for a review.",
     longDefinition:
-      "The finalized review record is the immutable, versioned design record for an architecture review — decisions, findings, and evidence together — used for approvals, exports, and diffs against other reviews.",
+      "The sealed review record is the immutable, versioned design record for an architecture revie — ecisions, findings, and evidence togethe — sed for approvals, exports, and diffs against other reviews.",
   },
   finding: {
     displayLabel: "Finding",
@@ -29,9 +29,9 @@ export const GLOSSARY_DEFINITIONS = {
   },
   artifact: {
     displayLabel: "Artifact",
-    shortDefinition: "Generated output from a review — diagrams, documents, JSON, or bundles for sponsors.",
+    shortDefinition: "Generated output from a revie — iagrams, documents, JSON, or bundles for sponsors.",
     longDefinition:
-      "Artifacts are versioned deliverables produced after decisioning — anything from diagrams to narrative packs — packaged for download or downstream systems.",
+      "Artifacts are versioned deliverables produced after decisionin — nything from diagrams to narrative pack — ackaged for download or downstream systems.",
   },
   evidence_package: {
     displayLabel: "Evidence bundle",
@@ -46,10 +46,10 @@ export const GLOSSARY_DEFINITIONS = {
       "The authority chain is the trusted sequence from context through engines and governance: each step declares inputs, rules, and outputs so overrides and replay stay explainable.",
   },
   governance_gate: {
-    displayLabel: "Resolve outcomes",
+    displayLabel: "Governance approval",
     shortDefinition: "Checkpoints where policy, reviewers, or thresholds must pass before advancing.",
     longDefinition:
-      "Resolve outcomes enforce required reviewers, policy packs, and risk thresholds before a review or deliverable state advances — blocking unsafe silent changes.",
+      "Governance approvals enforce required reviewers, policy packs, and risk thresholds before a review or deliverable state advance — locking unsafe silent changes.",
   },
   policy_pack: {
     displayLabel: "Policy pack",
@@ -67,7 +67,7 @@ export const GLOSSARY_DEFINITIONS = {
     displayLabel: "Replay",
     shortDefinition: "Re-executing stored logic or outputs to reproduce deltas under current rules.",
     longDefinition:
-      "Replay recomputes comparison or governance views from saved review records and traces — useful when policies change and you need a consistent historical baseline.",
+      "Replay recomputes comparison or governance views from saved review records and trace — seful when policies change and you need a consistent historical baseline.",
   },
 } as const satisfies Readonly<Record<string, GlossaryDefinitionEntry>>;
 

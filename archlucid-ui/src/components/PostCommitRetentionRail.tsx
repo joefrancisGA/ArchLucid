@@ -50,9 +50,9 @@ export function PostCommitRetentionRail({
         <CardDescription className={cn("text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
           {buyerPolishedShell
             ? showcaseSpine
-              ? "After the sample review, continue Sponsor Report → finalized review record → evidence trail → resolve outcomes → audit trail."
-              : "Finalized package — use Sponsor Report, then finalized review record, evidence trail, resolve outcomes, and audit trail in order."
-            : "You have a finalized review. Pick the next loop that fits your team — navigation stays inside this workspace."}
+              ? "After the sample review, continue Sponsor Report → sealed review record → evidence trail → governance approval → audit trail."
+              : "Finalized package — use Sponsor Report, then sealed review record, evidence trail, governance, and audit trail in order."
+            : "You have a finalized review. Pick the next loop that fits your tea — avigation stays inside this workspace."}
         </CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
@@ -62,7 +62,7 @@ export function PostCommitRetentionRail({
               Sponsor report is already the prominent CTA on review detail; this rail continues the package path.
             */}
             <Button type="button" asChild variant="default" size="sm" className="justify-center sm:justify-start">
-              <Link href={`/governance/approval-queue?runId=${encodeURIComponent(runId)}`}>View resolve outcomes</Link>
+              <Link href={`/governance/approval-queue?runId=${encodeURIComponent(runId)}`}>View governance approval</Link>
             </Button>
             {goldenManifestId !== null && goldenManifestId.trim().length > 0 ? (
               <Button type="button" asChild variant="secondary" size="sm" className="justify-center sm:justify-start">

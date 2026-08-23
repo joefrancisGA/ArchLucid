@@ -60,8 +60,6 @@ export type RunDetailArtifactsExportsSectionProps = {
   readonly deliverablesDefaultOpen?: boolean;
   /** Curated sample review — no backend export target for architecture-review-board DOCX. */
   readonly usedStaticDemoRun?: boolean;
-  /** When ReviewPackageDoThisNextStrip owns the filled page primary (TB-2175). */
-  readonly pagePrimaryOwnedElsewhere?: boolean;
 };
 
 function resolveFeasibilityVerdict(
@@ -94,10 +92,7 @@ export function RunDetailArtifactsExportsSection(
     requestId,
     deliverablesDefaultOpen,
     usedStaticDemoRun = false,
-    pagePrimaryOwnedElsewhere = false,
   } = props;
-
-  const pendingFinalizeActionVariant = pagePrimaryOwnedElsewhere ? "outline" : "primary";
 
   const feasibilityVerdict = resolveFeasibilityVerdict(manifestSummaryForUi, manifestSummary);
   const showDecisionReceipt =
@@ -186,7 +181,7 @@ export function RunDetailArtifactsExportsSection(
                   </>
                 ) : (
                   <>
-                    The artifacts request failed (network, 404, or server error) — distinct from an empty list or malformed
+                    The artifacts request failed (network, 404, or server error — istinct from an empty list or malformed
                     JSON.
                   </>
                 )}
@@ -246,7 +241,7 @@ export function RunDetailArtifactsExportsSection(
                   {
                     label: "Finalize this review",
                     href: BUYER_REVIEW_DETAIL_IN_PROGRESS_FINALIZE_ANCHOR,
-                    variant: pendingFinalizeActionVariant,
+                    variant: "primary",
                   },
                 ]}
                 footer={<OperatorSectionRetryButton label="Reload" />}

@@ -1,9 +1,18 @@
-import { fireEvent, render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { act, fireEvent, render, screen } from "@testing-library/react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+import { REFRESH_MINIMUM_BUSY_MS } from "@/lib/operator/refresh-minimum-busy";
 import { REFRESH_BUTTON_LABEL, RefreshButton } from "@/components/ui/refresh-button";
 
 describe("RefreshButton", () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
   it("renders the icon alongside the word so the accessible name stays 'Refresh'", () => {
     render(<RefreshButton onClick={vi.fn()} />);
 
@@ -56,5 +65,23 @@ describe("RefreshButton", () => {
     render(<RefreshButton disabled onClick={vi.fn()} />);
 
     expect(screen.getByRole("button", { name: REFRESH_BUTTON_LABEL })).toBeDisabled();
+  });
+
+  it("keeps the busy affordance visible for the minimum feedback window after parent busy clears", () => {
+    const { rerender } = render(<RefreshButton busy onClick={vi.fn()} />);
+
+    const button = screen.getByRole("button", { name: REFRESH_BUTTON_LABEL });
+    expect(button).toHaveAttribute("aria-busy", "true");
+
+    act(() => {
+      rerender(<RefreshButton busy={false} onClick={vi.fn()} />);
+    });
+    expect(button).toHaveAttribute("aria-busy", "true");
+
+    act(() => {
+      vi.advanceTimersByTime(REFRESH_MINIMUM_BUSY_MS);
+    });
+
+    expect(button).toHaveAttribute("aria-busy", "false");
   });
 });
