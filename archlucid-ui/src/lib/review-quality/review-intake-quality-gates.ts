@@ -1,16 +1,5 @@
-export const REVIEW_STANDARDS_CONFIRM_LABEL =
-  "I confirm the review standards selected above match the bar I want for this package.";
-
-export const REVIEW_STANDARDS_CONFIRM_GAP =
-  "Confirm the review standards before starting analysis.";
-
 export const POLICY_PACK_CLOUD_MISMATCH_MESSAGE =
   "Selected policy packs may not match the stated cloud target. Adjust packs or cloud target before starting.";
-
-/** TB-2306: focused scope default is not a silent choice — operator must confirm. */
-export function isReviewStandardsConfirmSatisfied(confirmed: boolean): boolean {
-  return confirmed;
-}
 
 /** TB-2322: Azure packs on AWS target (and similar) produce the wrong governance bar. */
 export function evaluatePolicyPackCloudMismatch(

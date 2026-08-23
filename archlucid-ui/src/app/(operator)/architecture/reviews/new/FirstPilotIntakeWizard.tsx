@@ -65,10 +65,6 @@ import { ARCHITECTURE_DRAFT_UNKNOWN_CONFIRM_LABEL } from "@/lib/architecture/arc
 import { readIncrementalRereviewFromSearch } from "@/lib/review-quality/incremental-rereview-handoff";
 import {
   evaluatePolicyPackCloudMismatch,
-  isReviewStandardsConfirmSatisfied,
-  POLICY_PACK_CLOUD_MISMATCH_MESSAGE,
-  REVIEW_STANDARDS_CONFIRM_GAP,
-  REVIEW_STANDARDS_CONFIRM_LABEL,
 } from "@/lib/review-quality/review-intake-quality-gates";
 import {
   priorPackageInheritedTitle,
@@ -120,7 +116,6 @@ type FirstPilotIntakeSessionState = {
   readonly runTitle: string;
   readonly briefText: string;
   readonly focusedPilotModeEnabled: boolean;
-  readonly reviewStandardsConfirmed: boolean;
   readonly l0Answers: Readonly<Record<string, string>>;
   readonly l0SkippedQuestionKeys: readonly string[];
 };
@@ -194,7 +189,6 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
   const [evidenceFiles, setEvidenceFiles] = useState<File[]>([]);
   const [limitedEvidenceAnalysisAcknowledged, setLimitedEvidenceAnalysisAcknowledged] = useState(false);
   const [focusedPilotModeEnabled, setFocusedPilotModeEnabled] = useState(true);
-  const [reviewStandardsConfirmed, setReviewStandardsConfirmed] = useState(false);
   const [l0Answers, setL0Answers] = useState<Readonly<Record<string, string>>>({});
   const [l0SkippedQuestionKeys, setL0SkippedQuestionKeys] = useState<ReadonlySet<string>>(() => new Set());
   const {
@@ -219,17 +213,15 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
       runTitle,
       briefText,
       focusedPilotModeEnabled,
-      reviewStandardsConfirmed,
       l0Answers,
       l0SkippedQuestionKeys: [...l0SkippedQuestionKeys],
     }),
-    [briefText, focusedPilotModeEnabled, l0Answers, l0SkippedQuestionKeys, reviewStandardsConfirmed, runTitle],
+    [briefText, focusedPilotModeEnabled, l0Answers, l0SkippedQuestionKeys, runTitle],
   );
   const handleSessionRestore = useCallback((snapshot: { state: FirstPilotIntakeSessionState }) => {
     setRunTitle(snapshot.state.runTitle);
     setBriefText(snapshot.state.briefText);
     setFocusedPilotModeEnabled(snapshot.state.focusedPilotModeEnabled);
-    setReviewStandardsConfirmed(snapshot.state.reviewStandardsConfirmed);
     setL0Answers(snapshot.state.l0Answers);
     setL0SkippedQuestionKeys(new Set(snapshot.state.l0SkippedQuestionKeys));
   }, []);
@@ -366,7 +358,6 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
 
   const canStart =
     isFirstPilotIntakeReady(intakeReadiness) &&
-    isReviewStandardsConfirmSatisfied(reviewStandardsConfirmed) &&
     policyPackCloudMismatch === null &&
     scopeGateOpen &&
     resolvedBrief.length <= ARCHITECTURE_REQUEST_DESCRIPTION_MAX_LENGTH &&
@@ -375,7 +366,6 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
 
   const intakeGap =
     describeFirstPilotIntakeGap(intakeReadiness) ??
-    (!isReviewStandardsConfirmSatisfied(reviewStandardsConfirmed) ? REVIEW_STANDARDS_CONFIRM_GAP : null) ??
     policyPackCloudMismatch;
 
   const submitRun = async () => {
@@ -649,33 +639,6 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
               focusedPilotModeEnabled={focusedPilotModeEnabled}
               onFocusedPilotModeEnabledChange={setFocusedPilotModeEnabled}
             />
-            <div
-              className="mt-3 flex items-start gap-3 rounded-md border border-neutral-200 bg-white p-3 dark:border-neutral-800 dark:bg-neutral-950/40"
-              data-testid="first-pilot-review-standards-confirm"
-            >
-              <Checkbox
-                id="first-pilot-review-standards-confirm"
-                checked={reviewStandardsConfirmed}
-                onCheckedChange={(checked) => {
-                  setReviewStandardsConfirmed(checked === true);
-                  setClientValidationMessage(null);
-                }}
-                data-testid="first-pilot-review-standards-confirm-checkbox"
-              />
-              <div className="space-y-1">
-                <Label
-                  htmlFor="first-pilot-review-standards-confirm"
-                  className={cn("font-medium text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}
-                >
-                  {REVIEW_STANDARDS_CONFIRM_LABEL}
-                </Label>
-                {policyPackCloudMismatch !== null ? (
-                  <p className={cn("m-0 text-amber-800 dark:text-amber-300", OPERATOR_TYPOGRAPHY.helper)} role="alert">
-                    {POLICY_PACK_CLOUD_MISMATCH_MESSAGE} {policyPackCloudMismatch}
-                  </p>
-                ) : null}
-              </div>
-            </div>
           </CollapsibleSection>
 
           <ReviewPathTimeEstimateBanner pathId="quick-review" />

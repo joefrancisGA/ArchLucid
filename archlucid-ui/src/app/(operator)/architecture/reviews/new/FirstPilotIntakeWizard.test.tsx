@@ -91,7 +91,6 @@ function prepareQuickStartEvidenceReady(): void {
   fireEvent.click(screen.getByTestId("first-pilot-upload-stub"));
   satisfyAllQuickStartL0MustQuestions();
   confirmScopeUnderstanding();
-  fireEvent.click(screen.getByTestId("first-pilot-review-standards-confirm-checkbox"));
 }
 
 describe("FirstPilotIntakeWizard", () => {
@@ -282,7 +281,6 @@ describe("FirstPilotIntakeWizard", () => {
     expect(createRun).not.toHaveBeenCalled();
 
     fireEvent.click(screen.getByTestId("first-pilot-limited-evidence-ack-checkbox"));
-    fireEvent.click(screen.getByTestId("first-pilot-review-standards-confirm-checkbox"));
     expect(screen.queryByTestId("first-pilot-readiness")).toBeNull();
   });
 
@@ -314,7 +312,6 @@ describe("FirstPilotIntakeWizard", () => {
     });
     satisfyAllQuickStartL0MustQuestions();
     confirmScopeUnderstanding();
-    fireEvent.click(screen.getByTestId("first-pilot-review-standards-confirm-checkbox"));
 
     const startButton = screen.getByRole("button", { name: BUYER_START_ARCHITECTURE_REVIEW_CTA });
     expect(startButton).not.toBeDisabled();
@@ -371,6 +368,8 @@ describe("FirstPilotIntakeWizard", () => {
     expect(screen.getByTestId("pilot-mode-policy-pack-toggle-all")).not.toBeChecked();
     expect(screen.queryByTestId("quick-review-proof-scope")).not.toBeInTheDocument();
     expect(screen.queryByText(/What do you want proven/i)).not.toBeInTheDocument();
+    expect(screen.queryByTestId("focused-pilot-scope-disclosure-banner")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("first-pilot-review-standards-confirm")).not.toBeInTheDocument();
   });
 
   it("sends every proof dimension regardless of the review-scope choice", async () => {
@@ -387,7 +386,6 @@ describe("FirstPilotIntakeWizard", () => {
     fireEvent.click(screen.getByTestId("pilot-mode-policy-pack-toggle-all"));
     satisfyAllQuickStartL0MustQuestions();
     confirmScopeUnderstanding();
-    fireEvent.click(screen.getByTestId("first-pilot-review-standards-confirm-checkbox"));
     fireEvent.click(screen.getByRole("button", { name: BUYER_START_ARCHITECTURE_REVIEW_CTA }));
 
     await waitFor(() => {

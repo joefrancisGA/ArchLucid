@@ -30,7 +30,7 @@ export const CORE_PILOT_PATH_STREAMLINED_LABELS = {
   reviewScopeChoiceLegend: "Which standards should evaluate this review?",
   reviewScopeRecommendedLabel: "Recommended standards (default)",
   reviewScopeRecommendedDescription:
-    "Use the six default architecture-quality standards listed above. Keeps your first review shorter and the findings actionable.",
+    "Use ArchLucid's six default architecture-quality standards. Keeps your first review shorter and the findings actionable.",
   reviewScopeAllLabel: "Every standard enabled for this workspace",
   reviewScopeAllDescription:
     "Any standard your workspace has enabled can also contribute findings. Expect a longer review and more findings to work through.",
