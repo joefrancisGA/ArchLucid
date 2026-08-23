@@ -104,6 +104,10 @@ export const REVIEWS_HUB_INCLUDES_ITEMS = [
 
 export const REVIEWS_HUB_PINNED_REVIEWS_TITLE = "Pinned reviews";
 
+export const REVIEWS_HUB_ALL_REVIEWS_TITLE = "Reviews";
+
+export const REVIEWS_HUB_SHOW_ARCHIVED_REVIEWS_LABEL = "Show archived reviews";
+
 export const REVIEWS_HUB_ADVANCED_LIST_DISCLOSURE = "Search and filter all reviews";
 
 export const REVIEWS_HUB_FILTER_SEARCH_PLACEHOLDER = "Search reviews, systems, owners, or references";

@@ -22,8 +22,11 @@ import {
   EnterpriseTableRow,
 } from "@/components/ui/enterprise-table";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { StatusTag } from "@/components/ui/status-tag";
 import { useArchitectureDraftRegistryEntries } from "@/hooks/use-architecture-draft-registry-entries";
+import { useArchivedReviewsClientCache } from "@/hooks/use-archived-reviews-client-cache";
+import { useFavoriteReviews } from "@/hooks/use-favorite-reviews";
 import { showcaseSampleReviewPackageHref } from "@/lib/showcase-sample-review-registry";
 import { buyerFilterChipClass } from "@/lib/buyer/buyer-shell-home-present";
 import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -41,11 +44,13 @@ import {
 import type { RunSummary } from "@/types/authority";
 
 import {
+  REVIEWS_HUB_ALL_REVIEWS_TITLE,
   REVIEWS_HUB_FILTER_FINALIZED_LABEL,
   REVIEWS_HUB_FILTER_MORE_LABEL,
   REVIEWS_HUB_FILTER_NEEDS_ATTENTION_LABEL,
   REVIEWS_HUB_FILTER_SEARCH_PLACEHOLDER,
   REVIEWS_HUB_FILTER_UPDATED_RECENTLY_LABEL,
+  REVIEWS_HUB_PINNED_REVIEWS_TITLE,
   REVIEWS_HUB_RECENT_EMPTY_BODY,
   REVIEWS_HUB_RECENT_EMPTY_PRIMARY_LABEL,
   REVIEWS_HUB_RECENT_EMPTY_SECONDARY_LABEL,
@@ -54,6 +59,7 @@ import {
   REVIEWS_HUB_RECENT_EMPTY_WITH_DRAFTS_BODY,
   REVIEWS_HUB_RECENT_EMPTY_WITH_SOLE_DRAFT_BODY,
   REVIEWS_HUB_PAGE_TITLE,
+  REVIEWS_HUB_SHOW_ARCHIVED_REVIEWS_LABEL,
 } from "./reviews-hub-copy";
 import { toReviewsHubReviewRowDisplay } from "./reviews-hub-package-display";
 import { reviewsHubOverallStatusTagKind, type ReviewsHubOverallStatus } from "./reviews-hub-review-status";
@@ -159,6 +165,29 @@ function matchesFilter(run: RunSummary, filter: ReviewFilterId): boolean {
   return row.overallStatus === filter;
 }
 
+function mergeRunsWithArchivedCache(
+  runs: readonly RunSummary[],
+  archivedRuns: readonly RunSummary[],
+): RunSummary[] {
+  const byId = new Map<string, RunSummary>();
+
+  for (const run of runs) {
+    byId.set(run.runId, run);
+  }
+
+  for (const archivedRun of archivedRuns) {
+    if (!byId.has(archivedRun.runId)) {
+      byId.set(archivedRun.runId, archivedRun);
+    }
+  }
+
+  return [...byId.values()];
+}
+
+function isArchivedRun(run: RunSummary): boolean {
+  return run.isArchived === true;
+}
+
 function ReviewFilterChip(props: {
   readonly option: { id: ReviewFilterId; label: string };
   readonly selected: boolean;
@@ -239,7 +268,11 @@ function ReviewsHubInventoryRow(props: InventoryRowProps): React.JSX.Element {
         {finiteIntegerCountDisplay(row.riskCount)}
       </EnterpriseTableCell>
       <EnterpriseTableCell>
-        <ReviewArchiveControl run={props.run} reviewTitle={row.reviewTitle} />
+        <ReviewArchiveControl
+          run={props.run}
+          reviewTitle={row.reviewTitle}
+          archivedRunSnapshot={props.run}
+        />
       </EnterpriseTableCell>
     </EnterpriseTableRow>
   );
@@ -268,29 +301,126 @@ function ReviewsHubInventoryTableHead(): React.JSX.Element {
   );
 }
 
-/** Filterable review inventory for `/architecture/reviews`. */
-export function ReviewsHubReviewInventory(props: ReviewsHubReviewInventoryProps): React.JSX.Element {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [activeFilter, setActiveFilter] = useState<ReviewFilterId>("all");
-  const draftEntries = useArchitectureDraftRegistryEntries();
-  const rows = useMemo(() => props.runs.map(toReviewsHubReviewRowDisplay), [props.runs]);
-  const draftCount = draftEntries.length;
-  const hasDrafts = draftCount > 0;
-  const moreFilterSelected = MORE_FILTER_OPTIONS.some((option) => option.id === activeFilter);
+type ReviewsHubInventoryTableProps = {
+  readonly runs: readonly RunSummary[];
+  readonly ariaLabel: string;
+  readonly tableTestId: string;
+  readonly virtualizedTestId?: string;
+};
+
+function ReviewsHubInventoryTable(props: ReviewsHubInventoryTableProps): React.JSX.Element {
   const parentRef = useRef<HTMLDivElement>(null);
-
-  const filteredRuns = useMemo(() => {
-    return props.runs.filter((run) => matchesSearch(run, searchQuery) && matchesFilter(run, activeFilter));
-  }, [activeFilter, props.runs, searchQuery]);
-
-  const useVirtualization = shouldVirtualizeReviewsList(filteredRuns.length);
+  const useVirtualization = shouldVirtualizeReviewsList(props.runs.length);
 
   const rowVirtualizer = useVirtualizer({
-    count: useVirtualization ? filteredRuns.length : 0,
+    count: useVirtualization ? props.runs.length : 0,
     getScrollElement: () => parentRef.current,
     estimateSize: () => REVIEWS_LIST_ROW_ESTIMATE_PX,
     overscan: 8,
   });
+
+  if (props.runs.length === 0) {
+    return (
+      <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} role="status">
+        No reviews match the current search or filters.
+      </p>
+    );
+  }
+
+  if (useVirtualization) {
+    return (
+      <div
+        ref={parentRef}
+        className="max-h-[min(32rem,70vh)] overflow-auto rounded-lg border border-neutral-200 dark:border-neutral-800"
+        data-testid={props.virtualizedTestId ?? `${props.tableTestId}-virtualized`}
+      >
+        <EnterpriseTable ariaLabel={props.ariaLabel} data-testid={props.tableTestId} className="border-0">
+          <ReviewsHubInventoryTableHead />
+          <EnterpriseTableBody
+            style={{
+              height: `${rowVirtualizer.getTotalSize()}px`,
+              position: "relative",
+            }}
+          >
+            {rowVirtualizer.getVirtualItems().map((virtualRow) => {
+              const run = props.runs[virtualRow.index];
+              const rowStyle: CSSProperties = {
+                position: "absolute",
+                top: 0,
+                left: 0,
+                width: "100%",
+                transform: `translateY(${virtualRow.start}px)`,
+                display: "table",
+                tableLayout: "fixed",
+              };
+
+              return <ReviewsHubInventoryRow key={run.runId} run={run} style={rowStyle} />;
+            })}
+          </EnterpriseTableBody>
+        </EnterpriseTable>
+      </div>
+    );
+  }
+
+  return (
+    <div className="overflow-x-auto">
+      <EnterpriseTable ariaLabel={props.ariaLabel} data-testid={props.tableTestId}>
+        <ReviewsHubInventoryTableHead />
+        <EnterpriseTableBody>
+          {props.runs.map((run) => (
+            <ReviewsHubInventoryRow key={run.runId} run={run} />
+          ))}
+        </EnterpriseTableBody>
+      </EnterpriseTable>
+    </div>
+  );
+}
+
+/** Filterable review inventory for `/architecture/reviews`. */
+export function ReviewsHubReviewInventory(props: ReviewsHubReviewInventoryProps): React.JSX.Element {
+  const [searchQuery, setSearchQuery] = useState("");
+  const [activeFilter, setActiveFilter] = useState<ReviewFilterId>("all");
+  const [showArchived, setShowArchived] = useState(false);
+  const { isFavorite } = useFavoriteReviews();
+  const { archivedRuns } = useArchivedReviewsClientCache();
+  const draftEntries = useArchitectureDraftRegistryEntries();
+  const mergedRuns = useMemo(
+    () => mergeRunsWithArchivedCache(props.runs, archivedRuns),
+    [archivedRuns, props.runs],
+  );
+  const rows = useMemo(() => mergedRuns.map(toReviewsHubReviewRowDisplay), [mergedRuns]);
+  const draftCount = draftEntries.length;
+  const hasDrafts = draftCount > 0;
+  const moreFilterSelected = MORE_FILTER_OPTIONS.some((option) => option.id === activeFilter);
+  const archivedCount = useMemo(
+    () => mergedRuns.filter((run) => isArchivedRun(run)).length,
+    [mergedRuns],
+  );
+  const showArchivedDisabled = archivedCount === 0;
+
+  const visibilityFilteredRuns = useMemo(() => {
+    if (showArchived) {
+      return mergedRuns;
+    }
+
+    return mergedRuns.filter((run) => !isArchivedRun(run));
+  }, [mergedRuns, showArchived]);
+
+  const filteredRuns = useMemo(() => {
+    return visibilityFilteredRuns.filter(
+      (run) => matchesSearch(run, searchQuery) && matchesFilter(run, activeFilter),
+    );
+  }, [activeFilter, searchQuery, visibilityFilteredRuns]);
+
+  const pinnedFilteredRuns = useMemo(
+    () => filteredRuns.filter((run) => isFavorite(run.runId)),
+    [filteredRuns, isFavorite],
+  );
+
+  const unpinnedFilteredRuns = useMemo(
+    () => filteredRuns.filter((run) => !isFavorite(run.runId)),
+    [filteredRuns, isFavorite],
+  );
 
   const sampleHref = showcaseSampleReviewPackageHref();
   const scopeRecord = useSyncExternalStore(
@@ -374,62 +504,55 @@ export function ReviewsHubReviewInventory(props: ReviewsHubReviewInventoryProps)
                   ))}
                 </div>
               </details>
+              <div className="flex items-center gap-2">
+                <input
+                  id="reviews-hub-show-archived"
+                  type="checkbox"
+                  className="h-4 w-4 rounded border-neutral-300 text-teal-700 focus:ring-neutral-400 dark:border-neutral-600"
+                  checked={showArchived}
+                  disabled={showArchivedDisabled}
+                  onChange={(event) => {
+                    setShowArchived(event.target.checked);
+                  }}
+                  data-testid="reviews-hub-show-archived"
+                />
+                <Label
+                  htmlFor="reviews-hub-show-archived"
+                  className={cn(OPERATOR_TYPOGRAPHY.helper, "font-medium")}
+                >
+                  {REVIEWS_HUB_SHOW_ARCHIVED_REVIEWS_LABEL}
+                </Label>
+              </div>
             </div>
           </div>
 
-          {useVirtualization ? (
-            <div
-              ref={parentRef}
-              className="max-h-[min(32rem,70vh)] overflow-auto rounded-lg border border-neutral-200 dark:border-neutral-800"
-              data-testid="reviews-hub-packages-virtualized"
-            >
-              <EnterpriseTable
-                ariaLabel={REVIEWS_HUB_PAGE_TITLE}
-                data-testid="reviews-hub-packages-table"
-                className="border-0"
-              >
-                <ReviewsHubInventoryTableHead />
-                <EnterpriseTableBody
-                  style={{
-                    height: `${rowVirtualizer.getTotalSize()}px`,
-                    position: "relative",
-                  }}
-                >
-                  {rowVirtualizer.getVirtualItems().map((virtualRow) => {
-                    const run = filteredRuns[virtualRow.index];
-                    const rowStyle: CSSProperties = {
-                      position: "absolute",
-                      top: 0,
-                      left: 0,
-                      width: "100%",
-                      transform: `translateY(${virtualRow.start}px)`,
-                      display: "table",
-                      tableLayout: "fixed",
-                    };
-
-                    return <ReviewsHubInventoryRow key={run.runId} run={run} style={rowStyle} />;
-                  })}
-                </EnterpriseTableBody>
-              </EnterpriseTable>
+          {pinnedFilteredRuns.length > 0 ? (
+            <div className={OPERATOR_LAYOUT.sectionStack} data-testid="reviews-hub-pinned-reviews">
+              <h2 className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}>
+                {REVIEWS_HUB_PINNED_REVIEWS_TITLE}
+              </h2>
+              <ReviewsHubInventoryTable
+                runs={pinnedFilteredRuns}
+                ariaLabel={REVIEWS_HUB_PINNED_REVIEWS_TITLE}
+                tableTestId="reviews-hub-pinned-packages-table"
+                virtualizedTestId="reviews-hub-pinned-packages-virtualized"
+              />
             </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <EnterpriseTable ariaLabel={REVIEWS_HUB_PAGE_TITLE} data-testid="reviews-hub-packages-table">
-                <ReviewsHubInventoryTableHead />
-                <EnterpriseTableBody>
-                  {filteredRuns.map((run) => (
-                    <ReviewsHubInventoryRow key={run.runId} run={run} />
-                  ))}
-                </EnterpriseTableBody>
-              </EnterpriseTable>
-            </div>
-          )}
-
-          {filteredRuns.length === 0 ? (
-            <p className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} role="status">
-              No reviews match the current search or filters.
-            </p>
           ) : null}
+
+          <div className={OPERATOR_LAYOUT.sectionStack}>
+            {pinnedFilteredRuns.length > 0 ? (
+              <h2 className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}>
+                {REVIEWS_HUB_ALL_REVIEWS_TITLE}
+              </h2>
+            ) : null}
+            <ReviewsHubInventoryTable
+              runs={unpinnedFilteredRuns}
+              ariaLabel={REVIEWS_HUB_PAGE_TITLE}
+              tableTestId="reviews-hub-packages-table"
+              virtualizedTestId="reviews-hub-packages-virtualized"
+            />
+          </div>
         </div>
       )}
     </section>

@@ -21,6 +21,8 @@ import {
   reviewArchiveConfirmDescription,
 } from "@/lib/review-archive-confirm-copy";
 import { invalidateRunsByProjectPagedCache } from "@/lib/runs-by-project-paged-client";
+import { addArchivedReviewToClientCache } from "@/lib/archived-reviews-client-cache";
+import { ARCHIVED_REVIEWS_CLIENT_CACHE_CHANGED_EVENT } from "@/hooks/use-archived-reviews-client-cache";
 import type { RunSummary } from "@/types/authority";
 
 export type ReviewArchiveControlProps = {
@@ -30,6 +32,8 @@ export type ReviewArchiveControlProps = {
   readonly testId?: string;
   readonly redirectAfterArchive?: boolean;
   readonly onArchived?: () => void;
+  /** Full summary snapshot for browser-local archived inventory when the list API omits archived rows. */
+  readonly archivedRunSnapshot?: RunSummary;
 };
 
 /** Soft-archives an in-flight review with irreversibility warnings. */
@@ -43,6 +47,11 @@ export function ReviewArchiveControl(props: ReviewArchiveControlProps): React.JS
   const eligible = canArchiveReview(props.run);
 
   const finishArchive = useCallback(async () => {
+    if (props.archivedRunSnapshot !== undefined) {
+      addArchivedReviewToClientCache({ ...props.archivedRunSnapshot, isArchived: true });
+      window.dispatchEvent(new Event(ARCHIVED_REVIEWS_CLIENT_CACHE_CHANGED_EVENT));
+    }
+
     await invalidateRunsByProjectPagedCache();
     toast.success(REVIEW_ARCHIVE_SUCCESS_TOAST);
     props.onArchived?.();

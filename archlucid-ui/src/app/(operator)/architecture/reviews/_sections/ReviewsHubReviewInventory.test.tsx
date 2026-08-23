@@ -2,9 +2,15 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { RunSummary } from "@/types/authority";
+import { writeArchivedReviewsClientCache } from "@/lib/archived-reviews-client-cache";
+import { writeFavoriteReviews } from "@/lib/favorite-reviews";
 
 const listArchitectureDraftRegistryEntries = vi.fn();
 const readOperatorScopeFromStorage = vi.fn();
+
+vi.mock("@/components/reviews/ReviewArchiveControl", () => ({
+  ReviewArchiveControl: () => <button type="button">Archive review</button>,
+}));
 
 vi.mock("@/lib/architecture/architecture-draft-registry", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/architecture/architecture-draft-registry")>();
@@ -48,6 +54,7 @@ vi.mock("next/link", () => ({
 import { ReviewsHubReviewInventory } from "./ReviewsHubReviewInventory";
 
 beforeEach(() => {
+  window.localStorage.clear();
   listArchitectureDraftRegistryEntries.mockReset();
   listArchitectureDraftRegistryEntries.mockReturnValue([]);
   readOperatorScopeFromStorage.mockReset();
@@ -165,6 +172,7 @@ describe("ReviewsHubReviewInventory", () => {
     expect(screen.getByTestId("reviews-hub-row-finalized")).toBeInTheDocument();
     expect(screen.queryByTestId("reviews-hub-row-draft")).toBeNull();
   });
+
   it("renders a pin toggle on each inventory row (TB-2206)", () => {
     render(
       <ReviewsHubReviewInventory
@@ -183,5 +191,70 @@ describe("ReviewsHubReviewInventory", () => {
     expect(screen.getByTestId("favorite-review-toggle")).toHaveAttribute("data-run-id", "run-pin-1");
     expect(screen.getByTestId("favorite-review-toggle")).toHaveAttribute("data-favorited", "false");
     expect(screen.getByRole("columnheader", { name: "Pinned" })).toBeInTheDocument();
+  });
+
+  it("splits pinned reviews into a dedicated top table", () => {
+    writeFavoriteReviews([
+      { runId: "run-pinned", title: "Pinned package", pinnedAt: "2026-08-10T12:00:00.000Z" },
+    ]);
+
+    render(
+      <ReviewsHubReviewInventory
+        runs={[
+          {
+            runId: "run-pinned",
+            projectId: "default",
+            description: "Pinned package",
+            createdUtc: "2026-08-10T12:00:00.000Z",
+          } satisfies RunSummary,
+          {
+            runId: "run-other",
+            projectId: "default",
+            description: "Other package",
+            createdUtc: "2026-08-09T12:00:00.000Z",
+          } satisfies RunSummary,
+        ]}
+      />,
+    );
+
+    expect(screen.getByTestId("reviews-hub-pinned-reviews")).toBeInTheDocument();
+    expect(screen.getByTestId("reviews-hub-pinned-packages-table")).toBeInTheDocument();
+    expect(screen.getByTestId("reviews-hub-packages-table")).toBeInTheDocument();
+    expect(screen.getAllByTestId("reviews-hub-row-run-pinned")).toHaveLength(1);
+    expect(screen.getAllByTestId("reviews-hub-row-run-other")).toHaveLength(1);
+    expect(screen.getByText("Reviews")).toBeInTheDocument();
+  });
+
+  it("hides archived reviews by default and shows them when the checkbox is selected", () => {
+    writeArchivedReviewsClientCache([
+      {
+        runId: "archived-review",
+        projectId: "default",
+        description: "Archived package",
+        createdUtc: "2026-08-01T12:00:00.000Z",
+        isArchived: true,
+      } satisfies RunSummary,
+    ]);
+
+    render(
+      <ReviewsHubReviewInventory
+        runs={[
+          {
+            runId: "active-review",
+            projectId: "default",
+            description: "Active package",
+            createdUtc: "2026-08-10T12:00:00.000Z",
+          } satisfies RunSummary,
+        ]}
+      />,
+    );
+
+    expect(screen.queryByTestId("reviews-hub-row-archived-review")).toBeNull();
+    expect(screen.getByTestId("reviews-hub-row-active-review")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByTestId("reviews-hub-show-archived"));
+
+    expect(screen.getByTestId("reviews-hub-row-archived-review")).toBeInTheDocument();
+    expect(screen.getByTestId("reviews-hub-row-active-review")).toBeInTheDocument();
   });
 });
