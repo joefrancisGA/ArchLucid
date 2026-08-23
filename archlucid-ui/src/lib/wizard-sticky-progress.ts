@@ -33,3 +33,10 @@ export const WIZARD_STICKY_FOOTER_CLASS = cn(
 
 /** Stable selector for sticky wizard footer chrome. */
 export const WIZARD_STICKY_FOOTER_TEST_ID = "wizard-sticky-footer";
+
+/**
+ * Scroll clearance so the last fields in a long step are not hidden under
+ * {@link WIZARD_STICKY_FOOTER_CLASS}. Apply on the scrollable step body — not the
+ * wrapper that also contains the sticky footer (avoids a dead band before follow-ups).
+ */
+export const WIZARD_STICKY_FOOTER_SCROLL_CLEARANCE_CLASS = "pb-24";
