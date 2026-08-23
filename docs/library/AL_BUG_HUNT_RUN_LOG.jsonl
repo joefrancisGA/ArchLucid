@@ -81,3 +81,4 @@
 {"at":"2026-08-23T10:24:13.40036Z","zoneId":"sql-run-repository","outcome":"hit"}
 {"at":"2026-08-23T10:27:41.212944Z","zoneId":"persistence-identity","outcome":"hit"}
 {"at":"2026-08-23T10:44:14.5925299Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
+{"at":"2026-08-23T10:56:14.1262962Z","zoneId":"ui-oidc","outcome":"hit"}
