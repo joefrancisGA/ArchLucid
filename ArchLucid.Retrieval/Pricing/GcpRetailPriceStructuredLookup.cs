@@ -19,30 +19,16 @@ public sealed class InMemoryGcpRetailPriceStructuredLookup : IGcpRetailPriceStru
     }
 
     /// <inheritdoc />
-    public bool TryLookup(string serviceName, string region, string? machineType, out GcpRetailPriceRow row)
-    {
-        ArgumentException.ThrowIfNullOrWhiteSpace(serviceName);
-        ArgumentException.ThrowIfNullOrWhiteSpace(region);
-
-        foreach (GcpRetailPriceRow candidate in _rows)
-        {
-            if (!candidate.ServiceName.Equals(serviceName, StringComparison.OrdinalIgnoreCase))
-                continue;
-
-            if (!candidate.Region.Equals(region, StringComparison.OrdinalIgnoreCase))
-                continue;
-
-            if (!string.IsNullOrWhiteSpace(machineType)
-                && !candidate.MachineType.Equals(machineType, StringComparison.OrdinalIgnoreCase))
-                continue;
-
-            row = candidate;
-            return true;
-        }
-
-        row = null!;
-        return false;
-    }
+    public bool TryLookup(string serviceName, string region, string? machineType, out GcpRetailPriceRow row) =>
+        InMemoryRetailPriceLookupMatcher.TryMatch(
+            _rows,
+            serviceName,
+            region,
+            machineType,
+            static candidate => candidate.ServiceName,
+            static candidate => candidate.Region,
+            static candidate => candidate.MachineType,
+            out row);
 
     /// <inheritdoc />
     public string FormatForPrompt(GcpRetailPriceRow row)
