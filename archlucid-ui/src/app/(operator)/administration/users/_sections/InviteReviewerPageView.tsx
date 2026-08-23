@@ -3,6 +3,7 @@
 import Link from "next/link";
 
 import { DemoWorkspaceCapabilityUnavailablePanel } from "@/components/DemoWorkspaceCapabilityUnavailablePanel";
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -46,15 +47,15 @@ export function InviteReviewerPageView(props: Props) {
 
   if (m.surface === "authority_loading") {
     return (
-      <div className={cn("w-full max-w-[720px]", OPERATOR_LAYOUT.sectionStack)} data-testid="invite-reviewer-page">
+      <OperatorPageContainer variant="reading" className={OPERATOR_LAYOUT.sectionStack} data-testid="invite-reviewer-page">
         <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>Loading…</p>
-      </div>
+      </OperatorPageContainer>
     );
   }
 
   if (m.surface === "forbidden") {
     return (
-      <div className={cn("w-full max-w-[720px]", OPERATOR_LAYOUT.sectionStack)} data-testid="invite-reviewer-page">
+      <OperatorPageContainer variant="reading" className={OPERATOR_LAYOUT.sectionStack} data-testid="invite-reviewer-page">
         <InviteReviewerPageHeader buyerPolishedShell={buyerPolishedShell} />
         <Card>
           <CardContent className="pt-6">
@@ -71,12 +72,12 @@ export function InviteReviewerPageView(props: Props) {
             </div>
           </CardContent>
         </Card>
-      </div>
+      </OperatorPageContainer>
     );
   }
 
   return (
-    <div className={cn("w-full max-w-[720px]", OPERATOR_LAYOUT.sectionStack)} data-testid="invite-reviewer-page">
+    <OperatorPageContainer variant="reading" className={OPERATOR_LAYOUT.sectionStack} data-testid="invite-reviewer-page">
       <InviteReviewerPageHeader buyerPolishedShell={buyerPolishedShell} />
       <Card>
         <CardHeader>
@@ -94,7 +95,7 @@ export function InviteReviewerPageView(props: Props) {
         </Link>
         .
       </p>
-    </div>
+    </OperatorPageContainer>
   );
 }
 

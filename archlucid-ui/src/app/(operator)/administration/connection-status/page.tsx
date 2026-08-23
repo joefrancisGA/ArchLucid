@@ -1,18 +1,19 @@
 import Link from "next/link";
 
 import { ConnectorOperationsDashboard } from "@/components/integrations/ConnectorOperationsDashboard";
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { ConnectionStatusEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
 import { INTEGRATIONS_READINESS_PATH } from "@/lib/integrations-nav-paths";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
-import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { CLOUD_CONNECTIONS_PATH, INTEGRATIONS_WEBHOOKS_PATH } from "@/lib/integrations-nav-paths";
 import { cn } from "@/lib/utils";
 
 export default function AdministrationConnectionStatusPage() {
   return (
-    <div className="w-full max-w-[1120px] space-y-4 px-1 py-4 sm:px-0">
+    <OperatorPageContainer variant="workflow" className={cn("px-1 py-4 sm:px-0", OPERATOR_LAYOUT.sectionStack)}>
       <OperatorPageHeader
         navHref={INTEGRATIONS_READINESS_PATH}
         title={OPERATOR_NAV_LINK_LABELS.connectionStatus}
@@ -38,6 +39,6 @@ export default function AdministrationConnectionStatusPage() {
       />
       <ConnectionStatusEvidenceOrientationStrip />
       <ConnectorOperationsDashboard />
-    </div>
+    </OperatorPageContainer>
   );
 }

@@ -2,12 +2,13 @@ import { cn } from "@/lib/utils";
 import { notFound } from "next/navigation";
 
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { ProvenancePageWorkspace, type ProvenanceReviewContext } from "@/components/provenance/ProvenancePageWorkspace";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { isApiNotFoundFailure, toApiLoadFailure } from "@/lib/api-load-failure";
 import { isInvalidGuidOrSlugRouteToken } from "@/lib/route-dynamic-param";
 import { tryStaticDemoProvenanceGraph } from "@/lib/operator/operator-static-demo";
-import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { type ApiResponseWithTrace, getArchitectureRunProvenance, getRunSummary } from "@/lib/api";
 import { provenanceReviewContextFromSummary } from "@/lib/provenance-review-context";
 import type { ArchitectureRunProvenanceGraph } from "@/types/architecture-provenance";
@@ -78,7 +79,7 @@ export default async function RunProvenancePage({
       "Provenance could not be loaded (review missing, broken review record reference, or transport error).";
 
     return (
-      <div className="w-full max-w-3xl p-4">
+      <OperatorPageContainer variant="workflow" className={cn("p-4", OPERATOR_LAYOUT.sectionStack)}>
         <h2 className={OPERATOR_TYPOGRAPHY.pageTitle}>Provenance</h2>
         <OperatorApiProblem
           problem={loadFailure?.problem ?? null}
@@ -96,7 +97,7 @@ export default async function RunProvenancePage({
           for this review for an interactive trail, or use the public sample walkthrough when this coordinator view is
           unavailable.
         </p>
-      </div>
+      </OperatorPageContainer>
     );
   }
 

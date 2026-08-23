@@ -6,12 +6,13 @@ import Link from "next/link";
 import { EVIDENCE_SOURCES_STYLE } from "@/components/evidence-orientation/evidence-orientation-styles";
 
 import { EvidenceOrientationClaimAndSourcesStrip } from "@/components/evidence-orientation/EvidenceOrientationClaimAndSourcesStrip";
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 
 import { StatusTag } from "@/components/ui/status-tag";
 
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 
-import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { cloudSecurityPreflightTopics } from "@/lib/cloud-security-preflight-topics";
 
@@ -226,13 +227,13 @@ export function AzureCloudConnectionDetailClient() {
 
     <AzureConnectionDataProvider>
 
-      <div className="w-full max-w-3xl space-y-4" data-testid="cloud-connection-detail-azure">
+      <OperatorPageContainer variant="workflow" className={OPERATOR_LAYOUT.sectionStack} data-testid="cloud-connection-detail-azure">
 
         <AzureCloudConnectionPageHeader />
 
         <AzureConnectionDetailBody />
 
-      </div>
+      </OperatorPageContainer>
 
     </AzureConnectionDataProvider>
 

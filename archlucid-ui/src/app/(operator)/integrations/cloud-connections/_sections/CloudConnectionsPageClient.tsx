@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { IntegrationZoneRecoveryCard } from "@/components/integrations/IntegrationZoneRecoveryCard";
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { CloudPlatformScopePreferencesNotice } from "@/components/preferences/CloudPlatformScopePreferencesNotice";
 import { listAwsTier2Connections } from "@/lib/api/aws-cloud-connections-api";
 import { listTier2Connections } from "@/lib/api/cloud-connections-api";
@@ -284,7 +285,11 @@ export function CloudConnectionsPageClient() {
   const showConnectionContent = !isLoading && !allZonesFailed;
 
   return (
-    <div className={cn("w-full max-w-[1120px] px-1 py-4 sm:px-0", OPERATOR_LAYOUT.sectionStack)} data-testid="cloud-connections-page">
+    <OperatorPageContainer
+      variant="workflow"
+      className={cn("px-1 py-4 sm:px-0", OPERATOR_LAYOUT.sectionStack)}
+      data-testid="cloud-connections-page"
+    >
       <PageHeading
         navHref={CLOUD_CONNECTIONS_PATH}
         title={CLOUD_CONNECTIONS_PAGE_TITLE}
@@ -367,6 +372,6 @@ export function CloudConnectionsPageClient() {
 
         <CloudConnectionsHubVocabularyDisclosure />
       </section>
-    </div>
+    </OperatorPageContainer>
   );
 }
