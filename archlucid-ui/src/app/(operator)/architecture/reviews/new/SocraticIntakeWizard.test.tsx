@@ -285,7 +285,53 @@ describe("SocraticIntakeWizard", () => {
     expect(document.querySelector(".border-sky-300")).toBeNull();
   });
 
-  it("blocks submit step when the saved architecture draft is already Submitted", async () => {
+  it("redirects to the linked review when the saved architecture draft is Submitted", async () => {
+    const sourceArchitectureId = "5c0b5e6e-87aa-4eab-a477-c1fb45cc46f0";
+
+    searchParamsGet.mockImplementation((key: string) =>
+      key === "sourceArchitectureId" ? sourceArchitectureId : null,
+    );
+
+    getDraftRequest.mockResolvedValue({
+      draftId: sourceArchitectureId,
+      tenantId: "tenant-1",
+      workspaceId: "workspace-1",
+      projectId: "project-1",
+      status: "Submitted",
+      spawnedRunId: "run-vertex-2",
+      document: {
+        freeTextIntent: VALID_GUIDED_INTENT,
+        systemName: "Vertex 2",
+        businessOutcome: "Reduce manual triage time by thirty percent.",
+        actorSet: {
+          actors: [
+            {
+              label: "Claims analyst",
+              kind: "Human",
+              trustOrigin: "Internal",
+              contract: "Sync",
+              origin: "Asserted",
+              confidence: 100,
+            },
+          ],
+        },
+      },
+      createdUtc: "2026-08-05T12:00:00Z",
+      updatedUtc: "2026-08-05T12:00:00Z",
+    });
+
+    render(<SocraticIntakeWizard />);
+
+    await waitFor(() => {
+      expect(routerPush).toHaveBeenCalledWith("/architecture/reviews/run-vertex-2");
+    });
+
+    expect(screen.getByTestId("guided-intake-access-blocked-redirect")).toBeInTheDocument();
+    expect(screen.queryByTestId("guided-intake-primary-panel")).toBeNull();
+    expect(submitDraftRequest).not.toHaveBeenCalled();
+  });
+
+  it("redirects to the architecture draft when Submitted has no linked review yet", async () => {
     const sourceArchitectureId = "5c0b5e6e-87aa-4eab-a477-c1fb45cc46f0";
 
     searchParamsGet.mockImplementation((key: string) =>
@@ -318,20 +364,15 @@ describe("SocraticIntakeWizard", () => {
       createdUtc: "2026-08-05T12:00:00Z",
       updatedUtc: "2026-08-05T12:00:00Z",
     });
-    getDraftQuestions.mockResolvedValue({
-      draftId: sourceArchitectureId,
-      status: "Submitted",
-      selection: { allQuestions: [], requiredMustQuestionKeys: [], pendingMustQuestions: [] },
-    });
 
     render(<SocraticIntakeWizard />);
 
     await waitFor(() => {
-      expect(screen.getByTestId("guided-intake-already-submitted-callout")).toBeInTheDocument();
+      expect(routerPush).toHaveBeenCalledWith(`/architecture/architectures/${sourceArchitectureId}`);
     });
 
-    expect(screen.queryByTestId("socratic-submit")).toBeNull();
-    expect(submitDraftRequest).not.toHaveBeenCalled();
+    expect(screen.getByTestId("guided-intake-access-blocked-redirect")).toBeInTheDocument();
+    expect(screen.queryByTestId("guided-intake-primary-panel")).toBeNull();
   });
 
   it("redirects to the linked review when the saved architecture draft is RunSpawned", async () => {

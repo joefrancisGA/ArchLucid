@@ -7,9 +7,12 @@ import { ArchitectureDraftIntakeModeDialog } from "@/components/architecture/Arc
 import { Button } from "@/components/ui/button";
 import { getDraftRequest, reopenDraftRequest } from "@/lib/api/draft-intake-api";
 import { isApiRequestError } from "@/lib/api-request-error";
+import { architectureDraftSpawnedRunId } from "@/lib/architecture/architecture-draft-handoff-gate";
 import {
   architectureDraftAllowsBriefUnlock,
   isArchitectureDraftInReviewIntake,
+  isGuidedIntakeAccessBlocked,
+  resolveGuidedIntakeBlockedRedirectHref,
 } from "@/lib/architecture/architecture-draft-intake-mode";
 import {
   trackArchitectureDraftResumeClick,
@@ -51,6 +54,17 @@ export function ArchitectureDraftResumeControl(
 
     try {
       const draft = await getDraftRequest(props.architectureId);
+
+      if (isGuidedIntakeAccessBlocked(draft.status)) {
+        router.push(
+          resolveGuidedIntakeBlockedRedirectHref(
+            props.architectureId,
+            architectureDraftSpawnedRunId(draft),
+          ),
+        );
+
+        return;
+      }
 
       if (isArchitectureDraftInReviewIntake(draft.status)) {
         setStatus(draft.status);

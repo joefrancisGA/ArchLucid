@@ -125,7 +125,7 @@ describe("resolveOperatorHomeLifecycleEmphasizedPath", () => {
         lastUpdatedUtc: "2026-01-02T00:00:00.000Z",
         linkedReviewId: null,
         serverUpdatedUtc: "2026-01-02T00:00:00.000Z",
-        serverDraftStatus: "Submitted",
+        serverDraftStatus: "Admitted",
       }),
     ).toBe("review-architecture");
   });
@@ -189,7 +189,7 @@ describe("resolveOperatorHomePhaseHeroCopy", () => {
         lastUpdatedUtc: "2026-01-02T00:00:00.000Z",
         linkedReviewId: null,
         serverUpdatedUtc: "2026-01-02T00:00:00.000Z",
-        serverDraftStatus: "Submitted",
+        serverDraftStatus: "Admitted",
       },
     );
 
@@ -230,7 +230,7 @@ describe("resolveLatestArchitectureDraftHref", () => {
     expect(resolveLatestArchitectureDraftHref(entries)).toBe("/architecture/architectures/draft-001");
   });
 
-  it("routes submitted drafts to scoped review intake", () => {
+  it("routes submitted drafts to the architecture draft workspace", () => {
     const entries: ArchitectureDraftRegistryEntry[] = [
       {
         architectureId: "draft-001",
@@ -244,8 +244,6 @@ describe("resolveLatestArchitectureDraftHref", () => {
       },
     ];
 
-    expect(resolveLatestArchitectureDraftHref(entries)).toBe(
-      "/architecture/reviews/new?path=guided-intake&sourceArchitectureId=draft-001",
-    );
+    expect(resolveLatestArchitectureDraftHref(entries)).toBe("/architecture/architectures/draft-001");
   });
 });
