@@ -1,0 +1,80 @@
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+
+import { isJwtAuthMode, getOidcAuthority, getOidcClientId } from "@/lib/oidc/config";
+import * as discovery from "@/lib/oidc/discovery";
+import { ensureAccessTokenFresh } from "@/lib/oidc/session";
+import {
+  OIDC_ACCESS_TOKEN_KEY,
+  OIDC_EXPIRES_AT_MS_KEY,
+  OIDC_REFRESH_TOKEN_KEY,
+} from "@/lib/oidc/storage-keys";
+import * as tokenClient from "@/lib/oidc/token-client";
+
+const discoveryDoc = {
+  issuer: "https://login.example.com/tenant",
+  authorization_endpoint: "https://login.example.com/authorize",
+  token_endpoint: "https://login.example.com/token",
+};
+
+describe("ensureAccessTokenFresh", () => {
+  beforeEach(() => {
+    sessionStorage.clear();
+    vi.stubEnv("NEXT_PUBLIC_ARCHLUCID_AUTH_MODE", "jwt");
+    vi.stubEnv("NEXT_PUBLIC_OIDC_AUTHORITY", "https://login.example.com/tenant");
+    vi.stubEnv("NEXT_PUBLIC_OIDC_CLIENT_ID", "test-client");
+    vi.spyOn(discovery, "loadDiscoveryDocument").mockResolvedValue(discoveryDoc);
+    vi.spyOn(tokenClient, "refreshAccessToken");
+  });
+
+  afterEach(() => {
+    sessionStorage.clear();
+    vi.unstubAllEnvs();
+    vi.restoreAllMocks();
+  });
+
+  it("refreshes an expired access token when jwt mode is enabled", async () => {
+    vi.mocked(tokenClient.refreshAccessToken).mockResolvedValue({
+      access_token: "refreshed",
+      expires_in: 3600,
+      refresh_token: "rt-new",
+    });
+
+    sessionStorage.setItem(OIDC_ACCESS_TOKEN_KEY, "old-access");
+    sessionStorage.setItem(OIDC_REFRESH_TOKEN_KEY, "old-refresh");
+    sessionStorage.setItem(OIDC_EXPIRES_AT_MS_KEY, String(Date.now()));
+
+    expect(isJwtAuthMode()).toBe(true);
+    expect(getOidcAuthority()).toBe("https://login.example.com/tenant");
+    expect(getOidcClientId()).toBe("test-client");
+
+    await ensureAccessTokenFresh();
+
+    expect(tokenClient.refreshAccessToken).toHaveBeenCalledTimes(1);
+    expect(sessionStorage.getItem(OIDC_ACCESS_TOKEN_KEY)).toBe("refreshed");
+  });
+
+  it("dedupes concurrent refresh attempts so a duplicate failure does not clear the session", async () => {
+    let refreshCalls = 0;
+
+    vi.mocked(tokenClient.refreshAccessToken).mockImplementation(async () => {
+      refreshCalls += 1;
+      await new Promise((resolve) => setTimeout(resolve, 25));
+
+      if (refreshCalls > 1) {
+        throw new Error("invalid_grant");
+      }
+
+      return { access_token: "refreshed", expires_in: 3600, refresh_token: "rt-new" };
+    });
+
+    sessionStorage.setItem(OIDC_ACCESS_TOKEN_KEY, "old-access");
+    sessionStorage.setItem(OIDC_REFRESH_TOKEN_KEY, "old-refresh");
+    sessionStorage.setItem(OIDC_EXPIRES_AT_MS_KEY, String(Date.now()));
+
+    await Promise.all([ensureAccessTokenFresh(), ensureAccessTokenFresh()]);
+
+    expect(tokenClient.refreshAccessToken).toHaveBeenCalledTimes(1);
+    expect(sessionStorage.getItem(OIDC_ACCESS_TOKEN_KEY)).toBe("refreshed");
+    expect(sessionStorage.getItem(OIDC_REFRESH_TOKEN_KEY)).toBe("rt-new");
+  });
+});

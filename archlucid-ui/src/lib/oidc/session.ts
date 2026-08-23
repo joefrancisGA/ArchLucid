@@ -24,6 +24,8 @@ import { isSafeReturnPath } from "@/lib/navigation/safe-return-path";
 
 const EXPIRY_SKEW_MS = 60_000;
 
+let refreshInFlight: Promise<void> | null = null;
+
 function readSessionKey(key: string): string | null {
   if (typeof sessionStorage === "undefined") {
     return null;
@@ -174,18 +176,26 @@ export async function ensureAccessTokenFresh(): Promise<void> {
     return;
   }
 
-  try {
-    const doc = await loadDiscoveryDocument(authority);
-    const tokens = await refreshAccessToken({
-      tokenEndpoint: doc.token_endpoint,
-      clientId,
-      refreshToken: refresh,
-    });
+  if (!refreshInFlight) {
+    refreshInFlight = (async () => {
+      try {
+        const doc = await loadDiscoveryDocument(authority);
+        const tokens = await refreshAccessToken({
+          tokenEndpoint: doc.token_endpoint,
+          clientId,
+          refreshToken: refresh,
+        });
 
-    persistTokenResponse(tokens);
-  } catch {
-    clearOidcSession();
+        persistTokenResponse(tokens);
+      } catch {
+        clearOidcSession();
+      } finally {
+        refreshInFlight = null;
+      }
+    })();
   }
+
+  await refreshInFlight;
 }
 
 export function readSignedInDisplayName(): string | null {

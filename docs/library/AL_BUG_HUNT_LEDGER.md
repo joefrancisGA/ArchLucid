@@ -1416,13 +1416,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 2
-- **bugs-found:** 3
+- **hunts:** 3
+- **bugs-found:** 4
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-23
 - **last-bug:** 2026-08-23
 - **related-pd-tb:** none
-- **code-changed-since:** 0
+- **code-changed-since:** yes
 
 ### Hypotheses
 
@@ -1432,6 +1432,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Scheme-less OIDC authority builds a relative discovery URL against the SPA origin — **hit 2026-08-23:** `discoveryUrlForAuthority` concatenated `/.well-known/...` without normalizing a missing scheme, so `fetch` resolved against the app origin; fixed by prefixing `https://` when the authority omits `://`.
 - [x] (proven) `clearOidcSession` leaves a stale post-sign-in return URL for the next sign-in — **hit 2026-08-23:** session clears omitted `OIDC_POST_SIGN_IN_RETURN_URL_KEY`, so an aborted sign-in could redirect a later login to an old path; fixed by clearing the return-url key with the other OIDC session keys.
 - [x] (proven) Failed OIDC discovery fetch is cached permanently — **hit 2026-08-23:** `loadDiscoveryDocument` stored rejected promises in `discoveryPromises`, so a transient 503/network error blocked all later sign-in, refresh, and logout discovery until a full page reload; fixed by evicting the cache entry in `.catch` before rethrowing.
+- [x] (proven) Concurrent `ensureAccessTokenFresh` calls fire duplicate refresh requests — **hit 2026-08-23:** parallel API callers each entered `ensureAccessTokenFresh` without a single-flight guard, so the IdP rejected the second refresh (`invalid_grant`) and the catch-all handler called `clearOidcSession`, logging the operator out after an otherwise successful refresh; fixed by deduping in-flight refresh with a shared promise.
 
 ---
 
