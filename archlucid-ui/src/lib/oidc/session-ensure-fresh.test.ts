@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { isJwtAuthMode, getOidcAuthority, getOidcClientId } from "@/lib/oidc/config";
 import * as discovery from "@/lib/oidc/discovery";
-import { ensureAccessTokenFresh } from "@/lib/oidc/session";
+import { clearOidcSession, ensureAccessTokenFresh } from "@/lib/oidc/session";
 import {
   OIDC_ACCESS_TOKEN_KEY,
   OIDC_EXPIRES_AT_MS_KEY,
@@ -76,5 +76,32 @@ describe("ensureAccessTokenFresh", () => {
     expect(tokenClient.refreshAccessToken).toHaveBeenCalledTimes(1);
     expect(sessionStorage.getItem(OIDC_ACCESS_TOKEN_KEY)).toBe("refreshed");
     expect(sessionStorage.getItem(OIDC_REFRESH_TOKEN_KEY)).toBe("rt-new");
+  });
+
+  it("does not resurrect tokens when clearOidcSession runs during an in-flight refresh", async () => {
+    let releaseRefresh: (() => void) | undefined;
+
+    vi.mocked(tokenClient.refreshAccessToken).mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          releaseRefresh = () => {
+            resolve({ access_token: "refreshed", expires_in: 3600, refresh_token: "rt-new" });
+          };
+        }),
+    );
+
+    sessionStorage.setItem(OIDC_ACCESS_TOKEN_KEY, "old-access");
+    sessionStorage.setItem(OIDC_REFRESH_TOKEN_KEY, "old-refresh");
+    sessionStorage.setItem(OIDC_EXPIRES_AT_MS_KEY, String(Date.now()));
+
+    const refreshPromise = ensureAccessTokenFresh();
+
+    await Promise.resolve();
+    clearOidcSession();
+    releaseRefresh?.();
+    await refreshPromise;
+
+    expect(sessionStorage.getItem(OIDC_ACCESS_TOKEN_KEY)).toBeNull();
+    expect(sessionStorage.getItem(OIDC_REFRESH_TOKEN_KEY)).toBeNull();
   });
 });

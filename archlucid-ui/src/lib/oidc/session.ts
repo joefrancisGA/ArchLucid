@@ -25,6 +25,7 @@ import { isSafeReturnPath } from "@/lib/navigation/safe-return-path";
 const EXPIRY_SKEW_MS = 60_000;
 
 let refreshInFlight: Promise<void> | null = null;
+let refreshSessionGeneration = 0;
 
 function readSessionKey(key: string): string | null {
   if (typeof sessionStorage === "undefined") {
@@ -64,6 +65,7 @@ export function persistTokenResponse(tokens: OidcTokenResponse): void {
 }
 
 export function clearOidcSession(): void {
+  refreshSessionGeneration += 1;
   removeOidcKeys([
     OIDC_ACCESS_TOKEN_KEY,
     OIDC_REFRESH_TOKEN_KEY,
@@ -178,6 +180,7 @@ export async function ensureAccessTokenFresh(): Promise<void> {
   }
 
   if (!refreshInFlight) {
+    const generationAtStart = refreshSessionGeneration;
     refreshInFlight = (async () => {
       try {
         const doc = await loadDiscoveryDocument(authority);
@@ -187,9 +190,13 @@ export async function ensureAccessTokenFresh(): Promise<void> {
           refreshToken: refresh,
         });
 
-        persistTokenResponse(tokens);
+        if (generationAtStart === refreshSessionGeneration) {
+          persistTokenResponse(tokens);
+        }
       } catch {
-        clearOidcSession();
+        if (generationAtStart === refreshSessionGeneration) {
+          clearOidcSession();
+        }
       } finally {
         refreshInFlight = null;
       }
