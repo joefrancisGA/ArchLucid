@@ -54,7 +54,7 @@ export const EXTRACT_UPLOAD_VALIDATE_GCP_CLI_COMMAND =
 export const EXTRACT_UPLOAD_DEMO_ASIDE_TITLE = "Try demo data" as const;
 
 export const EXTRACT_UPLOAD_DEMO_ASIDE_DESCRIPTION =
-  "Upload a bundled synthetic Azure extractor ZIP — same schema as Get-ArchLucidAzurePackage.ps1 output — without running the extractor locally." as const;
+  "Upload a bundled synthetic cloud inventory ZIP — same format as read-only packager output — without running a script locally." as const;
 
 export const EXTRACT_UPLOAD_STEP_COLLECT_TITLE = "Step 1 — Collect inventory locally" as const;
 
