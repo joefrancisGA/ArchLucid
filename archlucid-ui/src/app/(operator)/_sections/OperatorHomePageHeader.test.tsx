@@ -46,7 +46,7 @@ describe("OperatorHomePageHeader", () => {
     expect(screen.getByTestId("page-contextual-help-button")).toHaveTextContent("Help");
     expect(screen.getByTestId("operator-home-header-actions")).toBeInTheDocument();
     expect(screen.getByTestId("operator-home-data-currency")).toBeInTheDocument();
-    expect(screen.getByTestId("operator-home-data-currency").textContent).toMatch(/^Updated:/);
+    expect(screen.getByTestId("operator-home-data-currency").textContent).toMatch(/^Refreshed:/);
 
     const updatedPrefix = screen.getByText(`${OPERATOR_HOME_DATA_CURRENCY_PREFIX}:`);
     expect(updatedPrefix.tagName).toBe("STRONG");
