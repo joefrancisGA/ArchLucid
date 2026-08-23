@@ -58,7 +58,8 @@ describe("WizardStepReview", () => {
     const priorRow = screen.getByText("Prior manifest").closest("dl");
     expect(priorRow?.textContent).toContain(" — ");
 
-    expect(screen.getAllByText(" — ").length).toBeGreaterThan(0);
+    const advancedSection = screen.getByRole("heading", { name: "Advanced" }).closest("section");
+    expect(advancedSection?.textContent).toContain(" — ");
   });
 
   it("shows the start-review primary action when paired with WizardNavButtons on the review step", () => {

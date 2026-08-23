@@ -174,8 +174,6 @@ export function QuickStartWizard(props: QuickStartWizardProps) {
           <ReviewAssuranceCoverageSection
             focusedPilotModeEnabled={focusedPilotModeEnabled}
             onFocusedPilotModeEnabledChange={setFocusedPilotModeEnabled}
-            cloudProvider={watchedValues?.cloudProvider ?? "None"}
-            descriptionText={watchedValues?.description}
           />
           <WizardStepIdentity />
         </div>

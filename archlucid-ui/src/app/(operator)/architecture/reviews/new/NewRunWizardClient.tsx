@@ -635,8 +635,6 @@ export function NewRunWizardClient(props: NewRunWizardClientProps = {}) {
               <ReviewAssuranceCoverageSection
                 focusedPilotModeEnabled={focusedPilotModeEnabled}
                 onFocusedPilotModeEnabledChange={setFocusedPilotModeEnabled}
-                cloudProvider={watchedWizardValues.cloudProvider}
-                descriptionText={watchedWizardValues.description}
               />
               <WizardStepIdentity />
               <WizardStepDescription />

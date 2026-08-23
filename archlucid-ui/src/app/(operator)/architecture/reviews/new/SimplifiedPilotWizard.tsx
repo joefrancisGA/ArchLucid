@@ -119,8 +119,6 @@ export function SimplifiedPilotWizard(props: SimplifiedPilotWizardProps) {
           <ReviewAssuranceCoverageSection
             focusedPilotModeEnabled={focusedPilotModeEnabled}
             onFocusedPilotModeEnabledChange={setFocusedPilotModeEnabled}
-            cloudProvider={watchedValues?.cloudProvider ?? "None"}
-            descriptionText={watchedValues?.description}
           />
           <WizardStepIdentity />
           <WizardStepDescription />

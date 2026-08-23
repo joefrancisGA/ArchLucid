@@ -38,7 +38,6 @@ import {
 } from "@/lib/wizard-sticky-progress";
 import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer/buyer-polish-copy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
-import { mapNormalizedCloudProvider } from "@/lib/coverage-preview";
 import { deriveGuidedIntakeCloudTargetForMismatch } from "@/lib/review-quality/guided-intake-policy-pack-cloud-mismatch";
 import {
   GUIDED_INTAKE_ARCHITECTURE_INTENT_PLACEHOLDER,
@@ -421,9 +420,6 @@ export function SocraticIntakeWizard() {
               focusedPilotModeEnabled={focusedPilotModeEnabled}
               onFocusedPilotModeEnabledChange={setFocusedPilotModeEnabled}
               togglePresentation={isCreateArchitectureFlow ? "scope-card" : "checkbox"}
-              cloudProvider={mapNormalizedCloudProvider(deriveGuidedIntakeCloudTargetForMismatch(answers))}
-              securityIntakeAnswer={answers["l0.pillar.security"]}
-              descriptionText={`${freeTextIntent}\n${businessOutcome}`}
               className={isCreateArchitectureFlow ? "max-w-md" : undefined}
             />
 

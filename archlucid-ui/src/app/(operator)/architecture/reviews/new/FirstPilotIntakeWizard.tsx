@@ -38,7 +38,6 @@ import {
   REVIEW_CREATION_PROGRESS_TIMEOUT_MS,
   useReviewCreationProgress,
 } from "@/hooks/use-review-creation-progress";
-import { mapNormalizedCloudProvider } from "@/lib/coverage-preview";
 import { deriveGuidedIntakeCloudTargetForMismatch } from "@/lib/review-quality/guided-intake-policy-pack-cloud-mismatch";
 import { getRunSummary } from "@/lib/api/architecture-runs";
 import { isApiRequestError } from "@/lib/api-request-error";
@@ -649,9 +648,6 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
               togglePresentation="choice"
               focusedPilotModeEnabled={focusedPilotModeEnabled}
               onFocusedPilotModeEnabledChange={setFocusedPilotModeEnabled}
-              cloudProvider={mapNormalizedCloudProvider(deriveGuidedIntakeCloudTargetForMismatch(l0Answers))}
-              securityIntakeAnswer={l0Answers["l0.pillar.security"]}
-              descriptionText={briefText}
             />
             <div
               className="mt-3 flex items-start gap-3 rounded-md border border-neutral-200 bg-white p-3 dark:border-neutral-800 dark:bg-neutral-950/40"
