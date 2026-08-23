@@ -275,7 +275,12 @@ describe("ArchitectureDraftStructuredBriefFields", () => {
     fireEvent.click(within(suggestion).getByRole("button", { name: "Confirm" }));
 
     expect(screen.queryByTestId("architecture-draft-constraints-suggestion")).not.toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Remove EU data residency" })).toBeInTheDocument();
+
+    const confirmedRow = screen.getByTestId("architecture-draft-constraints-confirmed");
+    expect(within(confirmedRow).getByText("EU data residency")).toBeInTheDocument();
+    expect(within(confirmedRow).getByRole("button", { name: "Remove EU data residency" })).toBeInTheDocument();
+    expect(confirmedRow.className).not.toMatch(/truncate/);
+    expect(confirmedRow.querySelector(".max-w-\\[240px\\]")).toBeNull();
   });
 
   it("splits multiline LLM suggestion strings into separate confirmable items", async () => {
@@ -375,7 +380,7 @@ describe("ArchitectureDraftStructuredBriefFields", () => {
     expect(screen.queryByTestId("architecture-draft-capabilities-mark-unknown")).not.toBeInTheDocument();
   });
 
-  it("uses chip lists for quality attributes instead of a plain text field", () => {
+  it("uses list fields for quality attributes instead of a plain text field", () => {
     render(
       <StructuredBriefHarness freeTextIntent={"Tenant migration platform with private networking and EU residency goals."} />,
     );
@@ -389,6 +394,29 @@ describe("ArchitectureDraftStructuredBriefFields", () => {
     ).not.toBeInTheDocument();
     expect(screen.getByText(/Numeric targets \(latency, RTO, throughput\)/i)).toBeInTheDocument();
     expect(screen.getByText(/qualitative ones \(defense in depth, zero trust\)/i)).toBeInTheDocument();
+  });
+
+  it("renders confirmed items as stacked rows with full text and a labeled Remove button", () => {
+    const longConstraint =
+      "EU data residency for all customer records including backups and audit logs across every region";
+
+    render(
+      <StructuredBriefHarness
+        freeTextIntent={"Tenant migration platform with private networking and EU residency goals."}
+        initialBrief={{
+          ...emptyArchitectureDraftStructuredBrief(),
+          confirmedConstraints: [longConstraint],
+        }}
+      />,
+    );
+
+    const confirmedRow = screen.getByTestId("architecture-draft-constraints-confirmed");
+    expect(within(confirmedRow).getByText(longConstraint)).toBeInTheDocument();
+    expect(within(confirmedRow).getByRole("button", { name: `Remove ${longConstraint}` })).toHaveTextContent(
+      "Remove",
+    );
+    expect(confirmedRow.className).not.toMatch(/truncate/);
+    expect(confirmedRow.querySelector(".max-w-\\[240px\\]")).toBeNull();
   });
 
   it("uses single-line inputs for optional narrative fields", () => {
@@ -427,10 +455,12 @@ describe("ArchitectureDraftStructuredBriefFields", () => {
     fireEvent.change(constraintInput!, { target: { value: "EU data residency" } });
     fireEvent.click(screen.getByTestId("architecture-draft-constraints-add"));
 
-    expect(screen.getByText("EU data residency")).toBeInTheDocument();
+    const confirmedRow = screen.getByTestId("architecture-draft-constraints-confirmed");
+    expect(within(confirmedRow).getByText("EU data residency")).toBeInTheDocument();
+    expect(within(confirmedRow).getByRole("button", { name: "Remove EU data residency" })).toBeInTheDocument();
   });
 
-  it("still renders a legacy unknown constraint chip so it can be removed", () => {
+  it("still renders a legacy unknown constraint row so it can be removed", () => {
     render(
       <StructuredBriefHarness
         freeTextIntent={"Tenant migration platform with private networking and EU residency goals."}
@@ -441,13 +471,14 @@ describe("ArchitectureDraftStructuredBriefFields", () => {
       />,
     );
 
-    expect(screen.getByText(ARCHITECTURE_DRAFT_UNKNOWN_CONFIRM_LABEL)).toBeInTheDocument();
+    const confirmedRow = screen.getByTestId("architecture-draft-constraints-confirmed");
+    expect(within(confirmedRow).getByText(ARCHITECTURE_DRAFT_UNKNOWN_CONFIRM_LABEL)).toBeInTheDocument();
 
     fireEvent.click(
-      screen.getByRole("button", { name: `Remove ${ARCHITECTURE_DRAFT_UNKNOWN_CONFIRM_LABEL}` }),
+      within(confirmedRow).getByRole("button", { name: `Remove ${ARCHITECTURE_DRAFT_UNKNOWN_CONFIRM_LABEL}` }),
     );
 
-    expect(screen.queryByText(ARCHITECTURE_DRAFT_UNKNOWN_CONFIRM_LABEL)).not.toBeInTheDocument();
+    expect(screen.queryByTestId("architecture-draft-constraints-confirmed")).not.toBeInTheDocument();
   });
 
   it("disables suggest when the monthly AI budget blocks execution", () => {
