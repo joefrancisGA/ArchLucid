@@ -3,7 +3,7 @@ import {
   architectureDraftDisplayName,
   customerFacingArchitectureDraftTitle,
 } from "@/lib/architecture/architecture-draft-status";
-import { architectureDraftSpawnedRunId } from "@/lib/architecture/architecture-draft-handoff-gate";
+import { architectureDraftSpawnedRunId, architectureDraftHasLinkedReview } from "@/lib/architecture/architecture-draft-handoff-gate";
 import type { DraftRequestResponse, DraftRequestStatus } from "@/types/draft-intake";
 
 const STORAGE_KEY = "archlucid_architecture_draft_registry_v1";
@@ -202,4 +202,13 @@ export function buildArchitectureDraftRegistryEntry(
     serverUpdatedUtc: draft.updatedUtc,
     serverDraftStatus: draft.status,
   };
+}
+
+/** Drafts that still belong on home as unfinished architecture work (not archived, no spawned review). */
+export function countUnlinkedArchitectureDraftRegistryEntries(
+  entries: readonly ArchitectureDraftRegistryEntry[],
+): number {
+  return entries.filter(
+    (entry) => entry.customerStatus !== "archived" && !architectureDraftHasLinkedReview(entry),
+  ).length;
 }

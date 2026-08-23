@@ -37,6 +37,9 @@ import { runDetailHrefWithParentRun } from "@/lib/draft-branch-compare-navigatio
 import { normalizeActorSetForAdmission } from "@/lib/draft-intake-actor-suggestions";
 import { recordFirstTenantFunnelEvent } from "@/lib/first-tenant-funnel-telemetry";
 import { GUIDED_INTAKE_READINESS_SUCCESS_TOAST } from "@/lib/guided-intake-copy";
+import { isGuidedIntakeDraftSubmitBlocked } from "@/lib/architecture/architecture-draft-intake-mode";
+import { architectureDraftSpawnedRunId } from "@/lib/architecture/architecture-draft-handoff-gate";
+import { reviewDetailPath } from "@/lib/architecture/architecture-routes";
 import {
   mergeAdmittedRequiredMustQuestionKeys,
   resolveGuidedIntakeClarificationProgress,
@@ -86,6 +89,7 @@ export function useGuidedIntakeDraftWorkflow(options: GuidedIntakeDraftWorkflowO
   const [submitError, setSubmitError] = useState<unknown | null>(null);
   const [draftId, setDraftId] = useState<string | null>(null);
   const [draftStatus, setDraftStatus] = useState<DraftRequestStatus | null>(null);
+  const [linkedSpawnedRunId, setLinkedSpawnedRunId] = useState<string | null>(null);
   const [parentDraftId, setParentDraftId] = useState<string | null>(null);
   const [parentSpawnedRunId, setParentSpawnedRunId] = useState<string | null>(null);
   const [redirectReason, setRedirectReason] = useState<string | null>(null);
@@ -169,6 +173,7 @@ export function useGuidedIntakeDraftWorkflow(options: GuidedIntakeDraftWorkflowO
     void getDraftRequest(sourceArchitectureId).then(async (draft) => {
       setDraftId(draft.draftId);
       setDraftStatus(draft.status);
+      setLinkedSpawnedRunId(architectureDraftSpawnedRunId(draft));
       applyAdmittedRequiredMustQuestionKeysFromDocument(draft.document);
       const formState = applyArchitectureCreationDraftToFormState(draft);
       setFreeTextIntent(formState.freeTextIntent);
@@ -181,7 +186,16 @@ export function useGuidedIntakeDraftWorkflow(options: GuidedIntakeDraftWorkflowO
           : architectureCreationDefaultActorSet(),
       );
 
-      if (draft.status === "Admitted" || draft.status === "Submitted" || draft.status === "RunSpawned") {
+      const spawnedRunId = architectureDraftSpawnedRunId(draft);
+
+      if (draft.status === "RunSpawned" && spawnedRunId !== null) {
+        showSuccess("This architecture already has a review — opening it now.");
+        navigate(reviewDetailPath(spawnedRunId));
+
+        return;
+      }
+
+      if (draft.status === "Admitted" || draft.status === "Submitted") {
         const questions = await getDraftQuestions(draft.draftId);
         setAllQuestions(questions.selection.allQuestions);
         setRequiredMustQuestionKeys(questions.selection.requiredMustQuestionKeys);
@@ -194,6 +208,7 @@ export function useGuidedIntakeDraftWorkflow(options: GuidedIntakeDraftWorkflowO
   }, [
     applyAdmittedRequiredMustQuestionKeysFromDocument,
     isCreateArchitectureFlow,
+    navigate,
     setActorSet,
     setBusinessOutcome,
     setFreeTextIntent,
@@ -497,6 +512,7 @@ export function useGuidedIntakeDraftWorkflow(options: GuidedIntakeDraftWorkflowO
       const result = await submitDraftRequest(draftId);
       const submittedDraft = await getDraftRequest(draftId);
       setDraftStatus(submittedDraft.status);
+      setLinkedSpawnedRunId(architectureDraftSpawnedRunId(submittedDraft));
       upsertArchitectureDraftRegistryEntry(
         buildArchitectureDraftRegistryEntry(submittedDraft, { linkedReviewId: result.runId }),
       );
@@ -611,6 +627,7 @@ export function useGuidedIntakeDraftWorkflow(options: GuidedIntakeDraftWorkflowO
   const allClarificationsHandled =
     pendingQuestions.length === 0 ||
     pendingQuestions.every((question) => savedLocallyQuestionKeys.has(question.questionKey));
+  const isSubmitBlocked = isGuidedIntakeDraftSubmitBlocked(draftStatus);
 
   return {
     busy,
@@ -618,6 +635,8 @@ export function useGuidedIntakeDraftWorkflow(options: GuidedIntakeDraftWorkflowO
     draftId,
     draftStatus,
     setDraftId,
+    linkedSpawnedRunId,
+    isSubmitBlocked,
     parentDraftId,
     parentSpawnedRunId,
     redirectReason,

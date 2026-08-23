@@ -256,6 +256,16 @@ export const GUIDED_INTAKE_SOURCE_ARCHITECTURE_HINT_LEAD = "Reviewing saved arch
 export const GUIDED_INTAKE_SOURCE_ARCHITECTURE_HINT_TAIL =
   "Later edits to the architecture draft will not change this review's evidence basis.";
 
+export const GUIDED_INTAKE_ALREADY_SUBMITTED_LEAD = "This architecture already started a review.";
+
+export const GUIDED_INTAKE_ALREADY_SUBMITTED_BODY =
+  "Submit is not available again for this saved architecture draft. Open the existing review to continue, or start a new architecture draft if you need a separate review.";
+
+export const GUIDED_INTAKE_ALREADY_SUBMITTED_STUCK_BODY =
+  "Submit already ran for this draft and is still finishing on the server. Open the review if one exists, or retry later with the correlation id from troubleshooting if no review appears.";
+
+export const GUIDED_INTAKE_ALREADY_SUBMITTED_OPEN_REVIEW_CTA = "Open review";
+
 export const GUIDED_INTAKE_WHAT_IF_BRANCH_HINT_LEAD = "What-if branch.";
 
 /** Blocker phrase for the in-scope confirmation gate on step 0, listed with the missing fields. */

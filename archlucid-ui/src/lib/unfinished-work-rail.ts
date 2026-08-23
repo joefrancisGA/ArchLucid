@@ -1,4 +1,5 @@
 import type { ArchitectureDraftRegistryEntry } from "@/lib/architecture/architecture-draft-registry";
+import { architectureDraftHasLinkedReview } from "@/lib/architecture/architecture-draft-handoff-gate";
 import { ARCHITECTURE_DRAFT_STATUS_LABELS } from "@/lib/architecture/architecture-draft-status";
 import { architectureDraftPath, reviewDetailPath, REVIEWS_NEW_PATH } from "@/lib/architecture/architecture-routes";
 import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer/buyer-facing-review-title";
@@ -154,6 +155,7 @@ function buildDraftItems(
 ): UnfinishedWorkRailItem[] {
   return drafts
     .filter((entry) => entry.customerStatus !== "archived")
+    .filter((entry) => !architectureDraftHasLinkedReview(entry))
     .filter((entry) => (entry.architectureId?.trim().length ?? 0) > 0)
     .map((entry) => {
       const statusLabel =

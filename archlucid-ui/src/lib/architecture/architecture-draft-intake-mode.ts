@@ -1,5 +1,12 @@
 import type { DraftRequestStatus } from "@/types/draft-intake";
 
+/** Guided intake cannot submit (or advance to the submit step) from these server statuses. */
+export function isGuidedIntakeDraftSubmitBlocked(
+  status: DraftRequestStatus | string | null | undefined,
+): boolean {
+  return status === "Submitted" || status === "RunSpawned";
+}
+
 export const ARCHITECTURE_DRAFT_INTAKE_MODE_TITLE =
   "This architecture is already in review intake";
 

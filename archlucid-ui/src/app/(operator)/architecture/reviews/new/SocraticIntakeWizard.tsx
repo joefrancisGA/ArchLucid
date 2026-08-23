@@ -68,6 +68,7 @@ import {
 } from "./SocraticIntakeWizardDeferredPanels";
 import { ReviewsNewBuyerChrome } from "./ReviewsNewBuyerChrome";
 import { GuidedIntakeRequestError } from "./GuidedIntakeRequestError";
+import { GuidedIntakeAlreadySubmittedCallout } from "./GuidedIntakeAlreadySubmittedCallout";
 import { IntakeFieldLabel } from "@/components/intake/IntakeFieldLabel";
 import { INTAKE_STEPS, INTAKE_WIZARD_STEPPER_STEPS, MIN_OUTCOME_CHARS } from "./guided-intake-steps";
 import { useGuidedIntakeWizard } from "./use-guided-intake-wizard";
@@ -138,6 +139,8 @@ export function SocraticIntakeWizard() {
     saveAndContinue,
     skipQuestion,
     submitDraft,
+    isSubmitBlocked,
+    linkedSpawnedRunId,
     // Gates
     canAdvanceIntent,
     canReviewAnswers,
@@ -241,6 +244,10 @@ export function SocraticIntakeWizard() {
           </Link>
           . {GUIDED_INTAKE_SOURCE_ARCHITECTURE_HINT_TAIL}
         </p>
+      ) : null}
+
+      {isSubmitBlocked ? (
+        <GuidedIntakeAlreadySubmittedCallout linkedSpawnedRunId={linkedSpawnedRunId} />
       ) : null}
 
       {llmBudgetStatus !== null ? <LlmMonthlyBudgetExceededBanner status={llmBudgetStatus} /> : null}
@@ -565,6 +572,10 @@ export function SocraticIntakeWizard() {
               variant="primary"
               disabled={!canReviewAnswers}
               onClick={() => {
+                if (isSubmitBlocked) {
+                  return;
+                }
+
                 if (pendingQuestions.length === 0) {
                   setStep(2);
                   return;
@@ -581,7 +592,7 @@ export function SocraticIntakeWizard() {
         </div>
       ) : null}
 
-      {step === 2 ? (
+      {step === 2 && !isSubmitBlocked ? (
         <Card data-testid="guided-intake-primary-panel">
           <CardHeader>
             <CardTitle>{INTAKE_STEPS[2].cardTitle}</CardTitle>

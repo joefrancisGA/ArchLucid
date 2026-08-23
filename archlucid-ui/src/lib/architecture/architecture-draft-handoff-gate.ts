@@ -19,6 +19,17 @@ export function architectureDraftSpawnedRunId(draft: DraftRequestResponse | null
   return spawnedRunId;
 }
 
+type LinkedReviewProbe = {
+  readonly linkedReviewId?: string | null;
+};
+
+/** True when a draft registry row already spawned (or is linked to) a review run. */
+export function architectureDraftHasLinkedReview(entry: LinkedReviewProbe | null | undefined): boolean {
+  const linkedReviewId = entry?.linkedReviewId?.trim() ?? "";
+
+  return linkedReviewId.length > 0;
+}
+
 export function isArchitectureDraftHandoffAcknowledged(architectureId: string): boolean {
   if (typeof window === "undefined") {
     return false;

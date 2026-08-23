@@ -149,6 +149,34 @@ describe("buildUnfinishedWorkRailItems (TB-2209)", () => {
     });
   });
 
+  it("excludes spawned drafts that already have a linked review", () => {
+    const items = buildUnfinishedWorkRailItems({
+      drafts: [
+        draft({
+          architectureId: "arch-spawned",
+          displayName: "Vertex 2",
+          linkedReviewId: "run-mid",
+          customerStatus: "ready-for-review",
+        }),
+      ],
+      runs: [
+        run({
+          runId: "run-mid",
+          description: "Vertex 2 review",
+          hasFindingsSnapshot: false,
+          hasGoldenManifest: false,
+        }),
+      ],
+      incompleteWizards: [],
+    });
+
+    expect(items).toHaveLength(1);
+    expect(items[0]).toMatchObject({
+      kind: "review-in-progress",
+      title: "Vertex 2 review",
+    });
+  });
+
   it("orders by urgency then recency and respects maxItems", () => {
     const items = buildUnfinishedWorkRailItems({
       drafts: [
