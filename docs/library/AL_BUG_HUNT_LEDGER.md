@@ -1268,8 +1268,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** marketplace billing; checkout mutation; billing application layer
 - **paths:** ArchLucid.Application/Billing/
 - **test-filter:** FullyQualifiedName~Marketplace|FullyQualifiedName~BillingCheckout|FullyQualifiedName~TenantLlmCostReporting
-- **hunts:** 1
-- **bugs-found:** 1
+- **hunts:** 2
+- **bugs-found:** 2
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-23
 - **last-bug:** 2026-08-23
@@ -1282,6 +1282,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) Checkout session is created without binding the caller tenant id — checkout session creation lives in `ArchLucid.Api/Controllers/Billing/` and `Persistence/Billing`, not `ArchLucid.Application/Billing/`.
 - [x] (invalid) Idempotent replay of a billing event double-applies seat or credit changes — replay guard and `TryInsertWebhookEventAsync` are in `AzureMarketplaceBillingProvider` (Persistence), not Application mutation handlers.
 - [x] (proven) `TenantLlmCostReportingService.BuildDashboardAsync` sets `ByWorkspaceProject[].WorkspaceName` from `tenant.Name` instead of the scoped workspace display name — operators see tenant label on workspace breakdown rows (fixed 2026-08-23; `TenantLlmCostReportingServiceTests`).
+- [x] (proven) `TenantLlmCostTopRunRanker.RankAsync` lists runs via `ListRunsByProjectAsync(..., "default", ...)` so create flows that map `SystemName` onto the run project slug yield an empty Top Runs panel — fixed 2026-08-23; `TenantLlmCostTopRunRankerTests.RankAsync_includes_runs_whose_project_slug_is_not_default`.
 
 ---
 
