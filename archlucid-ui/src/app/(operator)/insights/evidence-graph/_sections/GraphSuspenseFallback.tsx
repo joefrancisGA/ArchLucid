@@ -7,8 +7,7 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 export function GraphSuspenseFallback() {
   return (
     <OperatorPageContainer
-      variant="dashboard"
-      className={isBuyerPolishedOperatorShellEnv() ? "max-w-6xl" : undefined}
+      variant={isBuyerPolishedOperatorShellEnv() ? "workflow" : "dashboard"}
     >
       <OperatorLoadingNotice>
         <strong>Loading graph.</strong>
