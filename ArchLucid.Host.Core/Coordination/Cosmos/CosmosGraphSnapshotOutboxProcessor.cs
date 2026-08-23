@@ -93,9 +93,15 @@ public sealed class CosmosGraphSnapshotOutboxProcessor(
     {
         ArgumentNullException.ThrowIfNull(configured);
 
-        if (configured.LeaseDurationSeconds < 60)
-            configured.LeaseDurationSeconds = 60;
+        int leaseDurationSeconds = configured.LeaseDurationSeconds < 60 ? 60 : configured.LeaseDurationSeconds;
 
-        return configured;
+        return new CosmosGraphSnapshotOutboxProcessorOptions
+        {
+            LeaseDurationSeconds = leaseDurationSeconds,
+            MaxAttemptsBeforeDeadLetter = configured.MaxAttemptsBeforeDeadLetter,
+            RetryBackoffBaseSeconds = configured.RetryBackoffBaseSeconds,
+            RetryBackoffMaxSeconds = configured.RetryBackoffMaxSeconds,
+            PollIntervalSeconds = configured.PollIntervalSeconds,
+        };
     }
 }
