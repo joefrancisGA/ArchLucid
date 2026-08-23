@@ -10,7 +10,7 @@ describe("GovernanceAvailableSidebarNudge", () => {
     );
 
     expect(screen.getByTestId("governance-available-nav-nudge")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Open resolve outcomes" })).toHaveAttribute("href", "/governance/approval-queue");
+    expect(screen.getByRole("link", { name: "Open approval queue" })).toHaveAttribute("href", "/governance/approval-queue");
   });
 
   it("hides before first commit", () => {
