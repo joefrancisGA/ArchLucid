@@ -4,6 +4,8 @@ using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
 
+using Disposition = ArchLucid.Contracts.Findings.FindingDisposition;
+
 namespace ArchLucid.Application.Governance.FindingDisposition;
 
 public sealed class FindingDispositionService(
@@ -43,8 +45,11 @@ public sealed class FindingDispositionService(
             OccurredAtUtc = TimeProvider.System.UtcNowDateTime(),
             RunId = request.RunId,
             Disposition = request.Disposition,
-            RevisitDueUtc = request.RevisitDueUtc,
-            EvidenceRequestText = request.EvidenceRequestText,
+            RevisitDueUtc = request.Disposition == Disposition.Deferred ? request.RevisitDueUtc : null,
+            EvidenceRequestText = request.Disposition == Disposition.NeedsEvidence
+                && !string.IsNullOrWhiteSpace(request.EvidenceRequestText)
+                ? request.EvidenceRequestText.Trim()
+                : null,
         };
 
         await _trailAppendService.AppendAsync(record, cancellationToken);
@@ -82,6 +87,10 @@ public sealed class FindingDispositionService(
     private static string? BuildDispositionNotes(RecordFindingDispositionRequest request)
     {
         string? rationale = string.IsNullOrWhiteSpace(request.Rationale) ? null : request.Rationale.Trim();
+
+        if (request.Disposition != Disposition.Accepted)
+            return rationale;
+
         string? tradeOff = string.IsNullOrWhiteSpace(request.TradeOffAcknowledgment)
             ? null
             : request.TradeOffAcknowledgment.Trim();
