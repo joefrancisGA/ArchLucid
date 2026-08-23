@@ -115,3 +115,4 @@
 {"at": "2026-08-23T23:26:21.438803Z", "zoneId": "billing-webhooks", "outcome": "hit"}
 {"at": "2026-08-23T23:44:04.387693Z", "zoneId": "billing-webhooks", "outcome": "hit"}
 {"at": "2026-08-23T23:47:57.066493Z", "zoneId": "itsm-inbound-webhooks", "outcome": "hit"}
+{"at": "2026-08-23T23:52:04.655497Z", "zoneId": "agent-runtime-safety", "outcome": "hit"}

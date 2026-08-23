@@ -1237,24 +1237,24 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ## Zone: agent-runtime-safety
 
 - **id:** agent-runtime-safety
-- **status:** unseeded
+- **status:** open
 - **impact:** high
 - **aliases:** content safety guard; prompt injection sanitizer; agent evidence untrusted input
 - **paths:** ArchLucid.AgentRuntime/Safety/; ArchLucid.AgentRuntime/PromptInjection/
 - **test-filter:** FullyQualifiedName~AzureContentSafetyGuard|FullyQualifiedName~AgentEvidenceUntrustedInputSanitizer|FullyQualifiedName~PromptInjection
-- **hunts:** 0
-- **bugs-found:** 0
+- **hunts:** 1
+- **bugs-found:** 1
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **last-hunt:** 2026-08-23
+- **last-bug:** 2026-08-23
 - **related-pd-tb:** none
-- **code-changed-since:** unknown
+- **code-changed-since:** no
 
 ### Hypotheses
 
-- [ ] (candidate) Content safety guard maps a blocked category to allow on SDK failure
-- [ ] (candidate) Untrusted evidence delimiter is stripped so injection payload reaches the model prompt
-- [ ] (candidate) Sanitizer runs after the prompt is assembled instead of before
+- [x] (valid-no-repro) Content safety guard maps a blocked category to allow on SDK failure — intentional fail-open when `FailClosedOnSdkError=false` (`AzureContentSafetyGuardSdkFailureTests`).
+- [x] (proven) Untrusted evidence delimiter is stripped so injection payload reaches the model prompt — embedded `</untrusted_input>` / `<untrusted_input>` broke the outer wrapper; fixed with ZWSP tag neutralization in `AzureResourceTagPromptSanitizer`.
+- [x] (valid-no-repro) Sanitizer runs after the prompt is assembled instead of before — `ArchitectureRunExecuteOrchestrator.AgentLoop` calls `SanitizeAsync` before `agentExecutor.ExecuteAsync`.
 
 ---
 
