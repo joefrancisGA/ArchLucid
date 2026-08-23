@@ -34,6 +34,7 @@ import {
 } from "@/lib/design-tokens";
 import {
   WIZARD_STICKY_FOOTER_CLASS,
+  WIZARD_STICKY_FOOTER_SCROLL_CLEARANCE_CLASS,
   WIZARD_STICKY_FOOTER_TEST_ID,
 } from "@/lib/wizard-sticky-progress";
 import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer/buyer-polish-copy";
@@ -471,8 +472,11 @@ export function SocraticIntakeWizard() {
       ) : null}
 
       {step === 1 ? (
-        <div className="pb-24" data-testid="socratic-clarifications-step">
-          <Card data-testid="guided-intake-primary-panel">
+        <div data-testid="socratic-clarifications-step">
+          <Card
+            className={WIZARD_STICKY_FOOTER_SCROLL_CLEARANCE_CLASS}
+            data-testid="guided-intake-primary-panel"
+          >
             <CardHeader>
             <CardTitle>{INTAKE_STEPS[1].cardTitle}</CardTitle>
             <CardDescription>

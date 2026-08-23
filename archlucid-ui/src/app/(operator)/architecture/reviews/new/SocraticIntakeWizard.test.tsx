@@ -574,10 +574,15 @@ describe("SocraticIntakeWizard", () => {
       expect(screen.getByTestId("socratic-clarifications-step")).toBeInTheDocument();
     });
 
+    const clarificationsStep = screen.getByTestId("socratic-clarifications-step");
+    const primaryPanel = screen.getByTestId("guided-intake-primary-panel");
+
+    expect(clarificationsStep.className).not.toContain("pb-24");
+    expect(primaryPanel.className).toContain("pb-24");
+
     const wizard = screen.getByTestId("socratic-intake-wizard");
     const mainColumn = wizard.firstElementChild as HTMLElement;
     const orientation = screen.getByTestId("reviews-new-orientation-top");
-    const clarificationsStep = screen.getByTestId("socratic-clarifications-step");
 
     expect(mainColumn).toContainElement(orientation);
     expect(mainColumn).toContainElement(clarificationsStep);
