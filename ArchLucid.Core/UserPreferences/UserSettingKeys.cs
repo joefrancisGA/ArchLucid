@@ -11,4 +11,7 @@ public static class UserSettingKeys
 
     /// <summary>Whether Where to go next follow-up strips are shown: <c>true</c> or <c>false</c>.</summary>
     public const string WhereToGoNextEnabled = "WhereToGoNextEnabled";
+
+    /// <summary>Personal IANA time zone id for date and time display (for example <c>UTC</c> or <c>America/New_York</c>).</summary>
+    public const string IanaTimeZoneId = "IanaTimeZoneId";
 }

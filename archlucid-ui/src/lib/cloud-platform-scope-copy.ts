@@ -11,8 +11,6 @@ export const PREFERENCES_CLOUD_PLATFORMS_LEAD =
 export const PREFERENCES_CLOUD_PLATFORMS_EMPTY_SELECTION_MESSAGE =
   "Keep at least one cloud platform visible so Integrations and connection flows stay reachable.";
 
-export const PREFERENCES_CLOUD_PLATFORMS_SHOW_ALL_LABEL = "Show all platforms";
-
 /** Cloud connections hub — points readers to personal preferences instead of inline toggles. */
 export const CLOUD_CONNECTIONS_PLATFORM_SCOPE_PREFERENCES_NOTICE_PREFIX =
   "To show or hide cloud platforms, open";
