@@ -8,7 +8,7 @@ export const EXTRACT_UPLOAD_SETTINGS_PAGE_SUBTITLE =
   "Run the read-only cloud inventory script locally for your provider, validate the ZIP, then upload it for architecture reviews." as const;
 
 export const EXTRACT_UPLOAD_SETTINGS_PAGE_SUBTITLE_BUYER =
-  "Collect a read-only Azure inventory ZIP locally, validate it, and upload it to start architecture reviews." as const;
+  "Collect a read-only cloud inventory ZIP locally (Azure, AWS, or Google Cloud), validate it, and upload it to start architecture reviews." as const;
 
 export const EXTRACT_UPLOAD_SETTINGS_PRIMARY_CONTENT_ID = "extract-upload-settings-primary-content" as const;
 
