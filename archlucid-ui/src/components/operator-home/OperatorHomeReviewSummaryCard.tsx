@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { CopyIdButton } from "@/components/CopyIdButton";
 import { InlineMetadataLabel } from "@/components/InlineMetadataLabel";
 import { InlineMetadataLine } from "@/components/InlineMetadataLine";
 import {
@@ -11,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { StatusTag } from "@/components/ui/status-tag";
 import { DemoDataBadge } from "@/components/usability/DemoDataBadge";
 import { buyerDemoPackageCardMeta } from "@/lib/buyer/buyer-demo-package-card-meta";
+import { finalizedReviewRecordDisplayLabel } from "@/lib/buyer/finalized-review-record-display-label";
 import { isShowcaseStaticDemoRunId } from "@/lib/demo-run-canonical";
 import { isDemoSeededOverviewInjectedRun } from "@/lib/demo-seeded-overview";
 import { BUYER_FINDINGS_COUNT_WITH_MONITORED_RISK } from "@/lib/buyer/buyer-polish-copy";
@@ -28,6 +30,7 @@ import {
   resolveRunFindingCountDisplay,
   resolveRunWarningCountDisplay,
 } from "@/lib/operator/operator-home-run-list-insight";
+import { signedRecordDetailPath } from "@/lib/signed-records-paths";
 import { SHOWCASE_STATIC_DEMO_MANIFEST_ID, SHOWCASE_STATIC_DEMO_SPINE_COUNTS } from "@/lib/showcase-static-demo";
 import { cn } from "@/lib/utils";
 import type { RunSummary } from "@/types/authority";
@@ -130,7 +133,27 @@ export function OperatorHomeReviewSummaryCard(props: OperatorHomeReviewSummaryCa
           {showcaseProofMeta !== null ? (
             <>
               <InlineMetadataLine label="Decision date" value={showcaseProofMeta.decisionDate} />
-              <InlineMetadataLine label="Finalized review record" value={SHOWCASE_STATIC_DEMO_MANIFEST_ID} />
+              <InlineMetadataLine
+                label="Finalized review record"
+                value={
+                  <span className="inline-flex min-w-0 items-center gap-1">
+                    <Link
+                      href={signedRecordDetailPath(SHOWCASE_STATIC_DEMO_MANIFEST_ID)}
+                      className={OPERATOR_LINK.nav}
+                      title={SHOWCASE_STATIC_DEMO_MANIFEST_ID}
+                      data-testid="runs-dashboard-buyer-proof-finalized-record-link"
+                    >
+                      {finalizedReviewRecordDisplayLabel(props.run, SHOWCASE_STATIC_DEMO_MANIFEST_ID, {
+                        cardTitle: title,
+                      })}
+                    </Link>
+                    <CopyIdButton
+                      value={SHOWCASE_STATIC_DEMO_MANIFEST_ID}
+                      aria-label="Copy finalized review record ID"
+                    />
+                  </span>
+                }
+              />
               <InlineMetadataLine label="Approver" value={showcaseProofMeta.approvalAuthority} />
             </>
           ) : null}
