@@ -16,7 +16,10 @@ type OperatorHomeWorkspaceActivityContextValue = {
   readonly recentRunIds: readonly string[];
   /** Null until the runs panel reports — consumers fall back to their server-rendered snapshot. */
   readonly liveRunsSnapshot: OperatorHomeLiveRunsSnapshot | null;
+  /** Run ids already shown on unfinished-work rail awaiting-disposition rows (TB-2369). */
+  readonly homeAttentionPreviewExcludedRunIds: readonly string[];
   readonly reportWorkspaceReviews: (items: readonly RunSummary[], totalCount?: number) => void;
+  readonly reportHomeAttentionPreviewExcludedRunIds: (runIds: readonly string[]) => void;
 };
 
 const defaultValue: OperatorHomeWorkspaceActivityContextValue = {
@@ -26,7 +29,9 @@ const defaultValue: OperatorHomeWorkspaceActivityContextValue = {
   openFindingsCount: 0,
   recentRunIds: [],
   liveRunsSnapshot: null,
+  homeAttentionPreviewExcludedRunIds: [],
   reportWorkspaceReviews: () => {},
+  reportHomeAttentionPreviewExcludedRunIds: () => {},
 };
 
 const OperatorHomeWorkspaceActivityContext =
@@ -52,6 +57,17 @@ export function OperatorHomeWorkspaceActivityProvider(
   const [openFindingsCount, setOpenFindingsCount] = useState(props.initialOpenFindingsCount ?? 0);
   const [recentRunIds, setRecentRunIds] = useState<readonly string[]>(props.initialRecentRunIds ?? []);
   const [liveRunsSnapshot, setLiveRunsSnapshot] = useState<OperatorHomeLiveRunsSnapshot | null>(null);
+  const [homeAttentionPreviewExcludedRunIds, setHomeAttentionPreviewExcludedRunIds] = useState<
+    readonly string[]
+  >([]);
+
+  const reportHomeAttentionPreviewExcludedRunIds = useCallback((runIds: readonly string[]) => {
+    setHomeAttentionPreviewExcludedRunIds((current) =>
+      current.length === runIds.length && current.every((runId, index) => runId === runIds[index])
+        ? current
+        : runIds,
+    );
+  }, []);
 
   const reportWorkspaceReviews = useCallback((items: readonly RunSummary[], totalCount?: number) => {
     const activeItems = items.filter((run) => run.isArchived !== true);
@@ -85,15 +101,19 @@ export function OperatorHomeWorkspaceActivityProvider(
       openFindingsCount,
       recentRunIds,
       liveRunsSnapshot,
+      homeAttentionPreviewExcludedRunIds,
       reportWorkspaceReviews,
+      reportHomeAttentionPreviewExcludedRunIds,
     }),
     [
       hasActionNeededReviews,
       hasOverviewReviewRows,
       hasWorkspaceReviews,
+      homeAttentionPreviewExcludedRunIds,
       liveRunsSnapshot,
       openFindingsCount,
       recentRunIds,
+      reportHomeAttentionPreviewExcludedRunIds,
       reportWorkspaceReviews,
     ],
   );

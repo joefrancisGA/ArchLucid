@@ -2,6 +2,7 @@
 
 import { useAlertsInboxSummaryQuery } from "@/components/alerts/use-alerts-inbox-queries";
 import { useOperatorShellStatusConcernFetchEnabled } from "@/components/shell/OperatorShellStatusQueryGate";
+import { operatorAttentionKindLabel } from "@/lib/operator/operator-attention-taxonomy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
@@ -21,8 +22,13 @@ export function AlertsOutstandingNavBadge(): React.JSX.Element | null {
         "ml-1 inline-flex min-w-[1.25rem] items-center justify-center rounded-full bg-amber-600 px-1.5 font-bold text-white",
         OPERATOR_TYPOGRAPHY.badge,
       )}
-      aria-label={count === 1 ? "1 open alert" : `${count} open alerts`}
+      aria-label={
+        count === 1
+          ? `1 ${operatorAttentionKindLabel("alerts").toLowerCase()}`
+          : `${count} ${operatorAttentionKindLabel("alerts").toLowerCase()}`
+      }
       data-testid="alerts-outstanding-nav-badge"
+      data-attention-partition="alerts"
     >
       {count}
     </span>

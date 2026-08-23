@@ -24,7 +24,7 @@ import {
 } from "@/components/ui/enterprise-table";
 import { Label } from "@/components/ui/label";
 import { RunsListCompareSelectionBar } from "@/components/usability/RunsListCompareSelectionBar";
-import { workQueueSectionHeading } from "@/lib/runs/run-work-queue-groups";
+import { workQueueSectionHeading, runWorkQueueAttentionPartition } from "@/lib/runs/run-work-queue-groups";
 import { formatRelativeTime } from "@/lib/relative-time";
 import { isNextPublicDemoMode, isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { formatOperatorProjectIdDisplay } from "@/lib/operator/operator-project-display";
@@ -493,7 +493,13 @@ export function RunsListClient(props: RunsListClientProps) {
               const headingId = `runs-queue-${section.groupId}`;
 
               return (
-                <section key={section.groupId} aria-labelledby={headingId} className="space-y-2">
+                <section
+                  key={section.groupId}
+                  aria-labelledby={headingId}
+                  className="space-y-2"
+                  data-testid={headingId}
+                  data-attention-partition={runWorkQueueAttentionPartition(section.groupId)}
+                >
                   <h3
                     id={headingId}
                     className={cn("m-0", OPERATOR_NAV_GROUP_LABEL)}

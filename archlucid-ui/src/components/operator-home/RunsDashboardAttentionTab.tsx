@@ -17,14 +17,28 @@ export type RunsDashboardAttentionTabProps = {
   readonly failure: ApiLoadFailureState | null;
   readonly runListError: boolean;
   readonly filteredItems: RunSummary[];
+  /** Partition label for home dedup surfaces (TB-2369). */
+  readonly attentionPartitionLabel?: string;
+  /** Total attention count before home unfinished-rail dedup. */
+  readonly totalAttentionCount?: number;
+  /** Partition id for inventory markers on home attention preview. */
+  readonly attentionPartitionId?: string;
 };
 
 export function RunsDashboardAttentionTab(props: RunsDashboardAttentionTabProps) {
   const attentionRuns = props.filteredItems.filter(isRunNeedingAttention);
   const attentionPreview = attentionRuns.slice(0, 3);
+  const totalAttentionCount =
+    typeof props.totalAttentionCount === "number" && Number.isFinite(props.totalAttentionCount)
+      ? Math.max(0, Math.trunc(props.totalAttentionCount))
+      : attentionRuns.length;
+  const suppressedByUnfinishedRail = totalAttentionCount > 0 && attentionRuns.length === 0;
 
   return (
-    <div data-testid="runs-dashboard-tab-attention">
+    <div
+      data-testid="runs-dashboard-tab-attention"
+      data-attention-partition={props.attentionPartitionId ?? undefined}
+    >
       {props.phase === "loading" ? (
         <p className={cn("m-0 text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
           {RUNS_DASHBOARD_LABELS.loadingReviews}
@@ -45,10 +59,20 @@ export function RunsDashboardAttentionTab(props: RunsDashboardAttentionTabProps)
         <>
           {attentionRuns.length === 0 ? (
             <p className={cn("m-0 leading-relaxed text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
-              {RUNS_DASHBOARD_LABELS.noReviewsNeedAttention}
+              {suppressedByUnfinishedRail && props.attentionPartitionLabel !== undefined
+                ? RUNS_DASHBOARD_LABELS.reviewsNeedAttentionShownInPartition(props.attentionPartitionLabel)
+                : RUNS_DASHBOARD_LABELS.noReviewsNeedAttention}
             </p>
           ) : (
             <>
+              {props.attentionPartitionLabel !== undefined ? (
+                <p
+                  className={cn("m-0 font-medium text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}
+                  data-testid="runs-dashboard-attention-partition-label"
+                >
+                  {props.attentionPartitionLabel}
+                </p>
+              ) : null}
               <p className={cn("m-0 font-medium text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
                 {attentionRuns.length === 1
                   ? RUNS_DASHBOARD_LABELS.oneReviewNeedsAttention
