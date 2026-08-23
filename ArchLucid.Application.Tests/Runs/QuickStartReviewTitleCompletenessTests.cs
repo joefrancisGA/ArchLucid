@@ -48,6 +48,20 @@ public sealed class QuickStartReviewTitleCompletenessTests
         failures.Should().BeEmpty();
     }
 
+    [Fact]
+    public void Try_collect_failures_accepts_short_title_when_analyzable_evidence_is_pending()
+    {
+        ArchitectureRequest request = BuildQuickStartRequest("#Al-Lucid");
+        request.IntakeQuestionAnswers[QuickStartIntakeMetadataKeys.PendingEvidenceFileNamesKey] = "ARCHITECTS_HANDBOOK_202409.docx";
+        request.IntakeQuestionAnswers[QuickStartIntakeMetadataKeys.OperatorBriefCharacterCountKey] = "0";
+        List<FluentValidation.Results.ValidationFailure> failures = [];
+
+        bool hadFailures = QuickStartReviewTitleCompleteness.TryCollectFailures(request, failures);
+
+        hadFailures.Should().BeFalse();
+        failures.Should().BeEmpty();
+    }
+
     private static ArchitectureRequest BuildQuickStartRequest(string systemName)
     {
         return new ArchitectureRequest

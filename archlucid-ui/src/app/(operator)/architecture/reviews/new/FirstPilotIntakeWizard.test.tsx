@@ -91,6 +91,7 @@ function prepareQuickStartEvidenceReady(): void {
   fireEvent.click(screen.getByTestId("first-pilot-upload-stub"));
   satisfyAllQuickStartL0MustQuestions();
   confirmScopeUnderstanding();
+  fireEvent.click(screen.getByTestId("first-pilot-review-standards-confirm-checkbox"));
 }
 
 describe("FirstPilotIntakeWizard", () => {
@@ -136,7 +137,9 @@ describe("FirstPilotIntakeWizard", () => {
     expect(startButton).toHaveAttribute("aria-describedby", "first-pilot-readiness");
 
     fireEvent.click(startButton);
-    expect(screen.getByTestId("first-pilot-validation-error")).toBeInTheDocument();
+    expect(screen.getByTestId("first-pilot-validation-error")).toHaveTextContent(
+      "Add a review title and attach evidence or add architecture context (at least 100 characters) to start.",
+    );
 
     fireEvent.change(screen.getByTestId("first-pilot-title"), {
       target: { value: "Retail API modernization review" },
@@ -146,8 +149,23 @@ describe("FirstPilotIntakeWizard", () => {
       "Attach evidence or add architecture context to start.",
     );
     fireEvent.click(screen.getByRole("button", { name: BUYER_START_ARCHITECTURE_REVIEW_CTA }));
-    expect(screen.getByTestId("first-pilot-validation-error")).toBeInTheDocument();
+    expect(screen.getByTestId("first-pilot-validation-error")).toHaveTextContent(
+      "Attach evidence or add architecture context to start.",
+    );
     expect(showError).not.toHaveBeenCalled();
+  });
+
+  it("accepts a short project title with attached evidence instead of requiring system-plus-decision wording", () => {
+    render(<FirstPilotIntakeWizard />);
+
+    fireEvent.change(screen.getByTestId("first-pilot-title"), {
+      target: { value: "#Al-Lucid" },
+    });
+    fireEvent.click(screen.getByTestId("first-pilot-upload-stub"));
+
+    const readiness = screen.getByTestId("first-pilot-readiness");
+    expect(readiness).not.toHaveTextContent(/system and the decision/i);
+    expect(readiness).not.toHaveTextContent(/either attach architecture evidence or provide enough context/i);
   });
 
   it("surfaces intake readiness inline without toast (TB-2113)", () => {
@@ -173,7 +191,7 @@ describe("FirstPilotIntakeWizard", () => {
     });
 
     expect(screen.getByTestId("first-pilot-readiness")).toHaveTextContent(
-      "Architecture context needs at least 100 characters (20 so far), or attach evidence instead.",
+      /Architecture Context needs at least 100 characters \(20 so far\), or attach evidence instead\./i,
     );
     fireEvent.click(screen.getByRole("button", { name: BUYER_START_ARCHITECTURE_REVIEW_CTA }));
     expect(screen.getByTestId("first-pilot-validation-error")).toBeInTheDocument();
@@ -281,6 +299,7 @@ describe("FirstPilotIntakeWizard", () => {
     expect(createRun).not.toHaveBeenCalled();
 
     fireEvent.click(screen.getByTestId("first-pilot-limited-evidence-ack-checkbox"));
+    fireEvent.click(screen.getByTestId("first-pilot-review-standards-confirm-checkbox"));
     expect(screen.queryByTestId("first-pilot-readiness")).toBeNull();
   });
 
@@ -312,6 +331,7 @@ describe("FirstPilotIntakeWizard", () => {
     });
     satisfyAllQuickStartL0MustQuestions();
     confirmScopeUnderstanding();
+    fireEvent.click(screen.getByTestId("first-pilot-review-standards-confirm-checkbox"));
 
     const startButton = screen.getByRole("button", { name: BUYER_START_ARCHITECTURE_REVIEW_CTA });
     expect(startButton).not.toBeDisabled();
@@ -368,8 +388,6 @@ describe("FirstPilotIntakeWizard", () => {
     expect(screen.getByTestId("pilot-mode-policy-pack-toggle-all")).not.toBeChecked();
     expect(screen.queryByTestId("quick-review-proof-scope")).not.toBeInTheDocument();
     expect(screen.queryByText(/What do you want proven/i)).not.toBeInTheDocument();
-    expect(screen.queryByTestId("focused-pilot-scope-disclosure-banner")).not.toBeInTheDocument();
-    expect(screen.queryByTestId("first-pilot-review-standards-confirm")).not.toBeInTheDocument();
   });
 
   it("sends every proof dimension regardless of the review-scope choice", async () => {
@@ -386,6 +404,7 @@ describe("FirstPilotIntakeWizard", () => {
     fireEvent.click(screen.getByTestId("pilot-mode-policy-pack-toggle-all"));
     satisfyAllQuickStartL0MustQuestions();
     confirmScopeUnderstanding();
+    fireEvent.click(screen.getByTestId("first-pilot-review-standards-confirm-checkbox"));
     fireEvent.click(screen.getByRole("button", { name: BUYER_START_ARCHITECTURE_REVIEW_CTA }));
 
     await waitFor(() => {

@@ -6,8 +6,14 @@ import {
 } from "@/lib/first-pilot-analyzable-evidence";
 import {
   describeFirstPilotReviewTitleGap,
-  isFirstPilotReviewTitleAcceptable,
+  isFirstPilotReviewTitleReady,
 } from "@/lib/first-pilot-review-title-quality";
+import {
+  isReviewStandardsConfirmSatisfied,
+  POLICY_PACK_CLOUD_MISMATCH_MESSAGE,
+  REVIEW_STANDARDS_CONFIRM_GAP,
+} from "@/lib/review-quality/review-intake-quality-gates";
+import { SCOPE_UNDERSTANDING_CONFIRM_BLOCKED_HINT } from "@/lib/architecture/architecture-scope-understanding-check";
 import { GUIDED_INTAKE_ARCHITECTURE_CONTEXT_LABEL } from "@/lib/guided-intake-copy";
 import {
   describeUniversalIntakeMustGap,
@@ -74,9 +80,9 @@ export function buildEvidenceBackedIntakeBrief(title: string, files: readonly Fi
 }
 
 export function isFirstPilotIntakeReady(input: FirstPilotIntakeReadinessInput): boolean {
-  const titleReady = isFirstPilotReviewTitleAcceptable(input.title);
   const briefReady = input.brief.trim().length >= FIRST_PILOT_MIN_BRIEF_CHARS;
   const evidenceReady = input.evidenceFileCount > 0;
+  const titleReady = isFirstPilotReviewTitleReady(input.title, { evidenceAttached: evidenceReady });
   const l0Ready = isUniversalIntakeMustComplete(input.l0Must);
   const analyzableEvidenceReady = hasQuickStartAnalyzableEvidenceClass(toAnalyzableEvidenceInput(input));
 
@@ -96,11 +102,11 @@ export function describeFirstPilotIntakeGap(input: FirstPilotIntakeReadinessInpu
     return null;
   }
 
-  const titleReady = isFirstPilotReviewTitleAcceptable(input.title);
   const briefLength = input.brief.trim().length;
   const evidenceReady = input.evidenceFileCount > 0;
+  const titleReady = isFirstPilotReviewTitleReady(input.title, { evidenceAttached: evidenceReady });
   const l0Gap = describeUniversalIntakeMustGap(input.l0Must);
-  const titleGap = describeFirstPilotReviewTitleGap(input.title);
+  const titleGap = describeFirstPilotReviewTitleGap(input.title, { evidenceAttached: evidenceReady });
 
   if (!titleReady && !evidenceReady && briefLength === 0 && input.title.trim().length === 0) {
     return `Add a review title and attach evidence or add architecture context (at least ${FIRST_PILOT_MIN_BRIEF_CHARS} characters) to start.`;
@@ -126,6 +132,42 @@ export function describeFirstPilotIntakeGap(input: FirstPilotIntakeReadinessInpu
 
   if (l0Gap !== null) {
     return l0Gap;
+  }
+
+  return null;
+}
+
+export type FirstPilotStartBlockerInput = {
+  readonly intake: FirstPilotIntakeReadinessInput;
+  readonly reviewStandardsConfirmed: boolean;
+  readonly policyPackCloudMismatch: string | null;
+  readonly scopeGateOpen: boolean;
+  readonly briefExceedsMaxLength: boolean;
+  readonly maxBriefLength: number;
+};
+
+/** Names the first blocker for the quick-start start CTA, including gates outside intake readiness. */
+export function describeFirstPilotStartBlocker(input: FirstPilotStartBlockerInput): string | null {
+  const intakeGap = describeFirstPilotIntakeGap(input.intake);
+
+  if (intakeGap !== null) {
+    return intakeGap;
+  }
+
+  if (!isReviewStandardsConfirmSatisfied(input.reviewStandardsConfirmed)) {
+    return REVIEW_STANDARDS_CONFIRM_GAP;
+  }
+
+  if (input.policyPackCloudMismatch !== null) {
+    return `${POLICY_PACK_CLOUD_MISMATCH_MESSAGE} ${input.policyPackCloudMismatch}`;
+  }
+
+  if (!input.scopeGateOpen) {
+    return SCOPE_UNDERSTANDING_CONFIRM_BLOCKED_HINT;
+  }
+
+  if (input.briefExceedsMaxLength) {
+    return `Brief must not exceed ${input.maxBriefLength} characters.`;
   }
 
   return null;

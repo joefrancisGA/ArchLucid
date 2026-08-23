@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   buildEvidenceBackedIntakeBrief,
   describeFirstPilotIntakeGap,
+  describeFirstPilotStartBlocker,
   formatFirstPilotIntakeWriteDestination,
   isFirstPilotIntakeReady,
   normalizeFirstPilotReviewTitle,
@@ -91,7 +92,45 @@ describe("first-pilot-intake", () => {
     ).toBe(false);
   });
 
-  it("isFirstPilotIntakeReady rejects activity-only titles even with evidence", () => {
+  it("isFirstPilotIntakeReady accepts a short project title when analyzable evidence is attached", () => {
+    expect(
+      isFirstPilotIntakeReady({
+        title: "#Al-Lucid",
+        brief: "",
+        evidenceFileCount: 1,
+        evidenceFileNames: ["ARCHITECTS_HANDBOOK_202409.docx"],
+        limitedEvidenceAnalysisAcknowledged: false,
+        l0Must: completeL0Must,
+      }),
+    ).toBe(true);
+  });
+
+  it("isFirstPilotIntakeReady still rejects banned placeholder titles with evidence", () => {
+    expect(
+      isFirstPilotIntakeReady({
+        title: "Architecture review",
+        brief: "",
+        evidenceFileCount: 1,
+        ...analyzableEvidenceDefaults,
+        l0Must: completeL0Must,
+      }),
+    ).toBe(false);
+  });
+
+  it("isFirstPilotIntakeReady rejects activity-only titles without evidence", () => {
+    expect(
+      isFirstPilotIntakeReady({
+        title: "Retail API review",
+        brief: "",
+        evidenceFileCount: 0,
+        evidenceFileNames: [],
+        limitedEvidenceAnalysisAcknowledged: false,
+        l0Must: completeL0Must,
+      }),
+    ).toBe(false);
+  });
+
+  it("isFirstPilotIntakeReady accepts activity-style titles when evidence is attached", () => {
     expect(
       isFirstPilotIntakeReady({
         title: "Retail API review",
@@ -100,7 +139,7 @@ describe("first-pilot-intake", () => {
         ...analyzableEvidenceDefaults,
         l0Must: completeL0Must,
       }),
-    ).toBe(false);
+    ).toBe(true);
   });
 
   it("normalizeFirstPilotReviewTitle trims without inventing a default title", () => {
@@ -190,5 +229,28 @@ describe("first-pilot-intake", () => {
         workspaceLabel: "Retail modernization",
       }),
     ).toBe("This review will be created in Retail modernization (Contoso Retail).");
+  });
+
+  it("describeFirstPilotStartBlocker surfaces scope confirmation after intake is ready", () => {
+    const readyIntake = {
+      title: "#Al-Lucid",
+      brief: "",
+      evidenceFileCount: 1,
+      evidenceFileNames: ["ARCHITECTS_HANDBOOK_202409.docx"],
+      limitedEvidenceAnalysisAcknowledged: false,
+      l0Must: completeL0Must,
+    };
+
+    expect(describeFirstPilotIntakeGap(readyIntake)).toBeNull();
+    expect(
+      describeFirstPilotStartBlocker({
+        intake: readyIntake,
+        reviewStandardsConfirmed: true,
+        policyPackCloudMismatch: null,
+        scopeGateOpen: false,
+        briefExceedsMaxLength: false,
+        maxBriefLength: 10_000,
+      }),
+    ).toMatch(/in-scope item/i);
   });
 });

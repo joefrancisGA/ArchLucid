@@ -54,6 +54,9 @@ function hasSystemAndDecision(normalized: string): boolean {
   return DECISION_TOKENS.some((token) => lower.includes(token));
 }
 
+/** Minimum trimmed title length for evidence-backed quick start (brief-only path uses system+decision). */
+export const FIRST_PILOT_EVIDENCE_BACKED_MIN_TITLE_CHARS = 2;
+
 /** True when the review title names a system and a decision, not an activity placeholder. */
 export function isFirstPilotReviewTitleAcceptable(title: string): boolean {
   const normalized = normalizeTitle(title);
@@ -73,20 +76,66 @@ export function isFirstPilotReviewTitleAcceptable(title: string): boolean {
   return hasSystemAndDecision(normalized);
 }
 
+/**
+ * Evidence-backed quick start only needs a non-placeholder title — attached files carry the architecture context.
+ * Brief-only intake still requires {@link isFirstPilotReviewTitleAcceptable}.
+ */
+export function isFirstPilotReviewTitleAcceptableWithEvidence(title: string): boolean {
+  const normalized = normalizeTitle(title);
+
+  if (normalized.length < FIRST_PILOT_EVIDENCE_BACKED_MIN_TITLE_CHARS) {
+    return false;
+  }
+
+  if (isUnusableReviewTitleCandidate(normalized)) {
+    return false;
+  }
+
+  if (isBannedActivityTitle(normalized)) {
+    return false;
+  }
+
+  return true;
+}
+
+export function isFirstPilotReviewTitleReady(
+  title: string,
+  options: { readonly evidenceAttached: boolean },
+): boolean {
+  if (options.evidenceAttached) {
+    return isFirstPilotReviewTitleAcceptableWithEvidence(title);
+  }
+
+  return isFirstPilotReviewTitleAcceptable(title);
+}
+
 /** Field error when the title is empty, banned, or missing a system + decision. */
-export function describeFirstPilotReviewTitleGap(title: string): string | null {
-  if (isFirstPilotReviewTitleAcceptable(title)) {
+export function describeFirstPilotReviewTitleGap(
+  title: string,
+  options?: { readonly evidenceAttached?: boolean },
+): string | null {
+  const evidenceAttached = options?.evidenceAttached === true;
+
+  if (isFirstPilotReviewTitleReady(title, { evidenceAttached })) {
     return null;
   }
 
   const normalized = normalizeTitle(title);
 
   if (normalized.length === 0) {
-    return "Add a review title that names the system and the decision.";
+    return evidenceAttached
+      ? "Add a review title before starting."
+      : "Add a review title that names the system and the decision.";
   }
 
   if (isBannedActivityTitle(normalized) || isUnusableReviewTitleCandidate(normalized)) {
-    return `Use a title that names the system and the decision, for example “${FIRST_PILOT_REVIEW_TITLE_QUALITY_EXAMPLE}”.`;
+    return evidenceAttached
+      ? `Use a specific review title instead of a placeholder, for example “${FIRST_PILOT_REVIEW_TITLE_QUALITY_EXAMPLE}”.`
+      : `Use a title that names the system and the decision, for example “${FIRST_PILOT_REVIEW_TITLE_QUALITY_EXAMPLE}”.`;
+  }
+
+  if (evidenceAttached) {
+    return `Add a review title with at least ${FIRST_PILOT_EVIDENCE_BACKED_MIN_TITLE_CHARS} characters.`;
   }
 
   return `Name the system and the decision in the title, for example “${FIRST_PILOT_REVIEW_TITLE_QUALITY_EXAMPLE}”.`;

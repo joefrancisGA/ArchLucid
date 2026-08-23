@@ -52,16 +52,50 @@ public static class QuickStartReviewTitleCompleteness
             return false;
         }
 
-        if (IsAcceptable(request.SystemName))
+        if (!IsAcceptableForRequest(request))
+        {
+            failures.Add(
+                new FluentValidation.Results.ValidationFailure(
+                    nameof(ArchitectureRequest.SystemName),
+                    "Quick start requires a review title that names the system and the decision, "
+                    + $"for example “{QualityExample}”. Placeholder titles such as “Architecture review” or “Test review” are not accepted."));
+
+            return true;
+        }
+
+        return false;
+    }
+
+    internal static bool IsAcceptableForRequest(ArchitectureRequest request)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+
+        if (HasEvidenceBackedTitleRelaxation(request))
+        {
+            return IsAcceptableWithEvidence(request.SystemName);
+        }
+
+        return IsAcceptable(request.SystemName);
+    }
+
+    internal static bool IsAcceptableWithEvidence(string? title)
+    {
+        string normalized = NormalizeTitle(title);
+
+        if (normalized.Length < 2)
         {
             return false;
         }
 
-        failures.Add(
-            new FluentValidation.Results.ValidationFailure(
-                nameof(ArchitectureRequest.SystemName),
-                "Quick start requires a review title that names the system and the decision, "
-                + $"for example “{QualityExample}”. Placeholder titles such as “Architecture review” or “Test review” are not accepted."));
+        if (IsUnusableCandidate(normalized))
+        {
+            return false;
+        }
+
+        if (BannedActivityTitles.Contains(normalized))
+        {
+            return false;
+        }
 
         return true;
     }
@@ -118,5 +152,14 @@ public static class QuickStartReviewTitleCompleteness
         string lower = normalized.ToLowerInvariant();
 
         return DecisionTokens.Any(token => lower.Contains(token, StringComparison.Ordinal));
+    }
+
+    private static bool HasEvidenceBackedTitleRelaxation(ArchitectureRequest request)
+    {
+        IReadOnlyDictionary<string, string> answers = request.IntakeQuestionAnswers
+            ?? new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+
+        return QuickStartAnalyzableEvidenceCompleteness.HasAnalyzableEvidenceClass(request)
+            || QuickStartAnalyzableEvidenceCompleteness.DecodePendingEvidenceFileNames(answers).Count > 0;
     }
 }

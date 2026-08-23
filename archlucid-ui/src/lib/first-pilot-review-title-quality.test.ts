@@ -4,6 +4,7 @@ import {
   describeFirstPilotReviewTitleGap,
   FIRST_PILOT_REVIEW_TITLE_QUALITY_EXAMPLE,
   isFirstPilotReviewTitleAcceptable,
+  isFirstPilotReviewTitleAcceptableWithEvidence,
 } from "@/lib/first-pilot-review-title-quality";
 
 describe("first-pilot-review-title-quality", () => {
@@ -22,5 +23,12 @@ describe("first-pilot-review-title-quality", () => {
     expect(isFirstPilotReviewTitleAcceptable("weekly review")).toBe(false);
     expect(isFirstPilotReviewTitleAcceptable("Retail API")).toBe(false);
     expect(describeFirstPilotReviewTitleGap("Test review")).toMatch(/system and the decision/i);
+  });
+
+  it("accepts short project titles when evidence carries the architecture context", () => {
+    expect(isFirstPilotReviewTitleAcceptableWithEvidence("#Al-Lucid")).toBe(true);
+    expect(isFirstPilotReviewTitleAcceptableWithEvidence("Retail API review")).toBe(true);
+    expect(describeFirstPilotReviewTitleGap("#Al-Lucid", { evidenceAttached: true })).toBeNull();
+    expect(isFirstPilotReviewTitleAcceptableWithEvidence("Architecture review")).toBe(false);
   });
 });

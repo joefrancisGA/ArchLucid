@@ -33,6 +33,7 @@ import {
 } from "@/hooks/use-review-creation-progress";
 import { deriveGuidedIntakeCloudTargetForMismatch } from "@/lib/review-quality/guided-intake-policy-pack-cloud-mismatch";
 import { getRunSummary } from "@/lib/api/architecture-runs";
+import { createArchitectureRun } from "@/lib/api";
 import { isApiRequestError } from "@/lib/api-request-error";
 import { ARCHITECTURE_REQUEST_DESCRIPTION_MAX_LENGTH } from "@/lib/architecture/architecture-request-limits";
 import {
@@ -55,6 +56,8 @@ import { ARCHITECTURE_DRAFT_UNKNOWN_CONFIRM_LABEL } from "@/lib/architecture/arc
 import { readIncrementalRereviewFromSearch } from "@/lib/review-quality/incremental-rereview-handoff";
 import {
   evaluatePolicyPackCloudMismatch,
+  POLICY_PACK_CLOUD_MISMATCH_MESSAGE,
+  REVIEW_STANDARDS_CONFIRM_LABEL,
 } from "@/lib/review-quality/review-intake-quality-gates";
 import {
   priorPackageInheritedTitle,
@@ -68,11 +71,10 @@ import { FirstPilotIntakeStartFooter } from "./FirstPilotIntakeStartFooter";
 import { trackReviewPipelineInFlight } from "@/lib/operations/review-pipeline-in-flight";
 import {
   buildEvidenceBackedIntakeBrief,
-  describeFirstPilotIntakeGap,
+  describeFirstPilotStartBlocker,
   FIRST_PILOT_ARCHITECTURE_CONTEXT_MIN_HELPER,
   FIRST_PILOT_MIN_BRIEF_CHARS,
   formatFirstPilotIntakeWriteDestination,
-  isFirstPilotIntakeReady,
   normalizeFirstPilotReviewTitle,
 } from "@/lib/first-pilot-intake";
 import {
@@ -108,6 +110,7 @@ type FirstPilotIntakeSessionState = {
   readonly runTitle: string;
   readonly briefText: string;
   readonly focusedPilotModeEnabled: boolean;
+  readonly reviewStandardsConfirmed: boolean;
   readonly l0Answers: Readonly<Record<string, string>>;
   readonly l0SkippedQuestionKeys: readonly string[];
 };
@@ -181,6 +184,7 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
   const [evidenceFiles, setEvidenceFiles] = useState<File[]>([]);
   const [limitedEvidenceAnalysisAcknowledged, setLimitedEvidenceAnalysisAcknowledged] = useState(false);
   const [focusedPilotModeEnabled, setFocusedPilotModeEnabled] = useState(true);
+  const [reviewStandardsConfirmed, setReviewStandardsConfirmed] = useState(false);
   const [l0Answers, setL0Answers] = useState<Readonly<Record<string, string>>>({});
   const [l0SkippedQuestionKeys, setL0SkippedQuestionKeys] = useState<ReadonlySet<string>>(() => new Set());
   const {
@@ -205,15 +209,17 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
       runTitle,
       briefText,
       focusedPilotModeEnabled,
+      reviewStandardsConfirmed,
       l0Answers,
       l0SkippedQuestionKeys: [...l0SkippedQuestionKeys],
     }),
-    [briefText, focusedPilotModeEnabled, l0Answers, l0SkippedQuestionKeys, runTitle],
+    [briefText, focusedPilotModeEnabled, l0Answers, l0SkippedQuestionKeys, reviewStandardsConfirmed, runTitle],
   );
   const handleSessionRestore = useCallback((snapshot: { state: FirstPilotIntakeSessionState }) => {
     setRunTitle(snapshot.state.runTitle);
     setBriefText(snapshot.state.briefText);
     setFocusedPilotModeEnabled(snapshot.state.focusedPilotModeEnabled);
+    setReviewStandardsConfirmed(snapshot.state.reviewStandardsConfirmed);
     setL0Answers(snapshot.state.l0Answers);
     setL0SkippedQuestionKeys(new Set(snapshot.state.l0SkippedQuestionKeys));
   }, []);
@@ -348,19 +354,38 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
       : cloudTargetAnswer.toLowerCase();
   const policyPackCloudMismatch = evaluatePolicyPackCloudMismatch(cloudTargetForMismatch, policyReferences);
 
-  const canStart =
-    isFirstPilotIntakeReady(intakeReadiness) &&
-    policyPackCloudMismatch === null &&
-    scopeGateOpen &&
-    resolvedBrief.length <= ARCHITECTURE_REQUEST_DESCRIPTION_MAX_LENGTH &&
-    !creationProgress.isActive &&
-    !blocksLlmExecution;
+  const startBlockerInput = useMemo(
+    () => ({
+      intake: intakeReadiness,
+      reviewStandardsConfirmed,
+      policyPackCloudMismatch,
+      scopeGateOpen,
+      briefExceedsMaxLength: resolvedBrief.length > ARCHITECTURE_REQUEST_DESCRIPTION_MAX_LENGTH,
+      maxBriefLength: ARCHITECTURE_REQUEST_DESCRIPTION_MAX_LENGTH,
+    }),
+    [
+      intakeReadiness,
+      policyPackCloudMismatch,
+      resolvedBrief.length,
+      reviewStandardsConfirmed,
+      scopeGateOpen,
+    ],
+  );
 
-  const intakeGap =
-    describeFirstPilotIntakeGap(intakeReadiness) ??
-    policyPackCloudMismatch;
+  const startBlocker = describeFirstPilotStartBlocker(startBlockerInput);
+
+  const canStart =
+    startBlocker === null && !creationProgress.isActive && !blocksLlmExecution;
 
   const submitRun = async () => {
+    const submitBlocker = describeFirstPilotStartBlocker(startBlockerInput);
+
+    if (submitBlocker !== null) {
+      setClientValidationMessage(submitBlocker);
+
+      return;
+    }
+
     if (!canStart) {
       setClientValidationMessage(FIRST_PILOT_INTAKE_SUBMIT_VALIDATION_MESSAGE);
 
@@ -664,7 +689,7 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
 
           <FirstPilotIntakeStartFooter
             writeDestination={writeDestination}
-            intakeGap={intakeGap}
+            intakeGap={startBlocker}
             creationProgress={creationProgress}
             clientValidationMessage={clientValidationMessage}
             wizardSaveState={wizardSession.saveState}
