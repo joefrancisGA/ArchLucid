@@ -467,3 +467,7 @@ docs/architecture/ui_route_traffic_estimates.md
 # Local Azure OpenAI credentials for real-mode / golden-cohort runs (never commit)
 secrets/
 !secrets/local-real-aoai.env.example
+
+# al-api (local secrets and temp screenshots)
+.cursor/al-api.config.json
+.cursor/tmp/
