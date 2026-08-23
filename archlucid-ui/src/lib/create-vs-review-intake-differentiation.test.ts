@@ -39,11 +39,10 @@ describe("create vs review intake differentiation (TB-747)", () => {
     const workspaceSource = readUiSource("components/architecture/ArchitectureDraftWorkspace.tsx");
 
     expect(newPageSource).toContain("ArchitectureDraftWorkspace");
-    expect(workspaceSource).toContain("ARCHITECTURE_DRAFT_WORKSPACE_LEAD");
+    expect(newPageSource).toContain("ArchitecturesNewPageSubtitle");
+    expect(workspaceSource).toContain("architectureDraftDetailPageSubtitle");
     expect(workspaceSource).toContain("architecture-draft-workspace-lead");
-    expect(workspaceSource).toContain("ARCHITECTURE_CREATION_RESUME_FIRST_WORKSPACE_LEAD");
-    expect(workspaceSource).toContain("ARCHITECTURE_CREATION_NEW_DRAFT_SECTION_TITLE");
-    expect(workspaceSource).toContain("architecture-creation-new-draft-section-title");
+    expect(workspaceSource).toContain("isNewDraft ? null : (");
     expect(workspaceSource).toContain("{isNewDraft ? null : <PageContextualHelpButton />}");
   });
 

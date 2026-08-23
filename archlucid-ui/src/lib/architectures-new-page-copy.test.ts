@@ -3,12 +3,12 @@ import { describe, expect, it } from "vitest";
 import {
   ARCHITECTURES_NEW_CLAIM_HEADING,
   ARCHITECTURES_NEW_PAGE_SUBTITLE_BUYER,
+  ARCHITECTURES_NEW_PAGE_SUBTITLE_BUYER_WITH_DRAFTS,
   architecturesNewPageSubtitle,
-  architecturesNewWorkspaceLead,
 } from "@/lib/architectures-new-page-copy";
 import {
   ARCHITECTURE_CREATION_PAGE_SUBTITLE,
-  ARCHITECTURE_DRAFT_WORKSPACE_LEAD,
+  ARCHITECTURE_CREATION_PAGE_SUBTITLE_WITH_DRAFTS,
 } from "@/lib/create-vs-review-intake-copy";
 
 describe("architectures-new-page-copy", () => {
@@ -17,9 +17,9 @@ describe("architectures-new-page-copy", () => {
     expect(architecturesNewPageSubtitle(false, false)).toBe(ARCHITECTURE_CREATION_PAGE_SUBTITLE);
   });
 
-  it("uses buyer workspace lead only in polished shell", () => {
-    expect(architecturesNewWorkspaceLead(true, false)).toContain("first save");
-    expect(architecturesNewWorkspaceLead(false, false)).toBe(ARCHITECTURE_DRAFT_WORKSPACE_LEAD);
+  it("switches page subtitle when local drafts exist", () => {
+    expect(architecturesNewPageSubtitle(true, true)).toBe(ARCHITECTURES_NEW_PAGE_SUBTITLE_BUYER_WITH_DRAFTS);
+    expect(architecturesNewPageSubtitle(false, true)).toBe(ARCHITECTURE_CREATION_PAGE_SUBTITLE_WITH_DRAFTS);
   });
 
   it("keeps claim heading drafting-first", () => {

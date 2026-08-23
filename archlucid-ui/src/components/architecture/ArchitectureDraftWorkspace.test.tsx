@@ -115,7 +115,7 @@ vi.mock("@/components/usability/PageContextualHelpButton", async () => {
 });
 
 import { ArchitectureDraftWorkspace } from "./ArchitectureDraftWorkspace";
-import { ARCHITECTURE_DRAFT_WORKSPACE_LEAD, ARCHITECTURE_CREATION_AUTOSAVE_REASSURANCE, ARCHITECTURE_CREATION_NEW_DRAFT_SECTION_TITLE, ARCHITECTURE_CREATION_NO_DRAFTS_GUIDANCE, ARCHITECTURE_CREATION_RESUME_FIRST_WORKSPACE_LEAD } from "@/lib/create-vs-review-intake-copy";
+import { ARCHITECTURE_DRAFT_WORKSPACE_LEAD, ARCHITECTURE_CREATION_AUTOSAVE_REASSURANCE, ARCHITECTURE_CREATION_NO_DRAFTS_GUIDANCE } from "@/lib/create-vs-review-intake-copy";
 import { ARCHITECTURE_DRAFT_GUIDANCE_DISMISS_STORAGE_KEY } from "@/lib/architecture/architecture-draft-guidance-dismiss";
 import { ARCHITECTURE_NEW_DRAFT_SEGMENT } from "@/lib/architecture/architecture-routes";
 import { emptyArchitectureDraftStructuredBrief } from "@/lib/architecture/architecture-draft-structured-brief";
@@ -219,12 +219,8 @@ describe("ArchitectureDraftWorkspace", () => {
 
     expect(getDraftRequest).not.toHaveBeenCalled();
     expect(screen.getByTestId("architecture-draft-workspace")).toBeInTheDocument();
-    expect(screen.getByTestId("architecture-creation-new-draft-section-title")).toHaveTextContent(
-      ARCHITECTURE_CREATION_NEW_DRAFT_SECTION_TITLE,
-    );
-    expect(screen.getByTestId("architecture-draft-workspace-lead")).toHaveTextContent(
-      ARCHITECTURE_DRAFT_WORKSPACE_LEAD,
-    );
+    expect(screen.queryByTestId("architecture-creation-new-draft-section-title")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("architecture-draft-workspace-lead")).not.toBeInTheDocument();
 
     await waitFor(() => {
       expect(screen.getByTestId("architecture-creation-no-drafts-guidance")).toHaveTextContent(
@@ -260,7 +256,7 @@ describe("ArchitectureDraftWorkspace", () => {
     expect(screen.queryByTestId("architecture-creation-no-drafts-guidance")).toBeNull();
   });
 
-  it("uses resume-first workspace lead on /new when registry entries exist (TB-1462)", async () => {
+  it("omits workspace hero copy on /new when registry entries exist (TB-1462)", async () => {
     vi.mocked(useArchitectureDraftRegistryEntries).mockReturnValue([
       {
         architectureId: "draft-001",
@@ -276,10 +272,10 @@ describe("ArchitectureDraftWorkspace", () => {
     render(<ArchitectureDraftWorkspace architectureId={ARCHITECTURE_NEW_DRAFT_SEGMENT} />);
 
     await waitFor(() => {
-      expect(screen.getByTestId("architecture-draft-workspace-lead")).toHaveTextContent(
-        ARCHITECTURE_CREATION_RESUME_FIRST_WORKSPACE_LEAD,
-      );
+      expect(screen.getByTestId("architecture-creation-resume-drafts")).toBeInTheDocument();
     });
+
+    expect(screen.queryByTestId("architecture-draft-workspace-lead")).not.toBeInTheDocument();
   });
 
   it("renders an H1 workspace title on edit routes (TB-1451)", async () => {

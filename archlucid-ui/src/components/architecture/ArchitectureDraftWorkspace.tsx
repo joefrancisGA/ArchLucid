@@ -28,7 +28,6 @@ import { ReviewStartLoadingButton } from "@/components/review-intake/ReviewStart
 import { ReviewStartNavigationStallNotice } from "@/components/review-intake/ReviewStartNavigationStallNotice";
 import { ReviewStartStagedProgress } from "@/components/review-intake/ReviewStartStagedProgress";
 import { Card, CardContent } from "@/components/ui/card";
-import { useArchitectureDraftRegistryEntries } from "@/hooks/use-architecture-draft-registry-entries";
 import { useArchitectureDraftAutosave, type ArchitectureDraftSaveState } from "@/hooks/use-architecture-draft-autosave";
 import { useLlmMonthlyBudgetExecutionGate } from "@/hooks/use-llm-monthly-budget-execution-gate";
 import { useReviewStartNavigationProgress } from "@/hooks/use-review-start-navigation-progress";
@@ -58,7 +57,6 @@ import {
 import { formatArchitectureReviewReadinessMessage } from "@/lib/architecture/architecture-review-readiness-copy";
 import { emptyArchitectureDraftStructuredBrief } from "@/lib/architecture/architecture-draft-structured-brief";
 import { architectureDraftDetailPageSubtitle } from "@/lib/architecture/architecture-draft-detail-page-copy";
-import { architecturesNewWorkspaceLead } from "@/lib/architectures-new-page-copy";
 import {
   ARCHITECTURES_LIST_PATH,
   architectureDraftPath,
@@ -83,9 +81,6 @@ import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer/buyer-facing-revi
 import { CREATE_ARCHITECTURE_INTENT } from "@/lib/architecture/architecture-workflow-intent";
 import { GUIDED_INTAKE_ARCHITECTURE_INTENT_MIN_CHARS } from "@/lib/guided-intake-copy";
 import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer/buyer-polish-copy";
-import {
-  ARCHITECTURE_CREATION_NEW_DRAFT_SECTION_TITLE,
-} from "@/lib/create-vs-review-intake-copy";
 import { OPERATOR_LINK, OPERATOR_PAGE_LEAD_MEASURE, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { showError, showSuccess } from "@/lib/toast";
 import { cn } from "@/lib/utils";
@@ -119,7 +114,6 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
   const [saveActionError, setSaveActionError] = useState<string | null>(null);
   const [handoffAcknowledged, setHandoffAcknowledged] = useState(false);
   const [linkedReviewTitle, setLinkedReviewTitle] = useState("Untitled review");
-  const [registryHydrated, setRegistryHydrated] = useState(false);
   const [unlockBusy, setUnlockBusy] = useState(false);
   const previousSaveStateRef = useRef<ArchitectureDraftSaveState>("saved");
   const exitTimeoutIdRef = useRef<number | null>(null);
@@ -140,14 +134,7 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
   const intakeModeActive = isArchitectureDraftInReviewIntake(draft?.status);
   const canUnlockBrief = architectureDraftAllowsBriefUnlock(draft?.status);
   const editorLocked = handoffEditorLocked || intakeModeActive || exitPending;
-  const localDraftRegistryEntries = useArchitectureDraftRegistryEntries();
 
-  useEffect(() => {
-    setRegistryHydrated(true);
-  }, []);
-
-  const hasLocalDraftsOnCreatePath =
-    isNewDraft && registryHydrated && localDraftRegistryEntries.length > 0;
   // Reasoning needs a real draft id — unavailable on /new until the first deferred create succeeds.
   const refinementDraftId = draft?.draftId?.trim() || (isNewDraft ? null : props.architectureId.trim() || null);
 
@@ -210,12 +197,8 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
     [fields.freeTextIntent, fields.systemName],
   );
 
-  const workspaceHeading = isNewDraft ? ARCHITECTURE_CREATION_NEW_DRAFT_SECTION_TITLE : displayName;
-  const WorkspaceHeadingTag = isNewDraft ? "h2" : "h1";
-
-  const workspaceLead = isNewDraft
-    ? architecturesNewWorkspaceLead(buyerPolishedShell, hasLocalDraftsOnCreatePath)
-    : architectureDraftDetailPageSubtitle(buyerPolishedShell);
+  const workspaceHeading = displayName;
+  const workspaceLead = architectureDraftDetailPageSubtitle(buyerPolishedShell);
 
   const reviewReadiness = useMemo(
     () => validateArchitectureReviewReadiness(fields, actorSet.actors),
@@ -622,28 +605,36 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
         <ArchitectureDraftDetailBreadcrumb draftLabel={workspaceHeading} />
       ) : null}
 
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-        <div className="min-w-0 space-y-1">
-          <WorkspaceHeadingTag
-            className={cn("m-0", OPERATOR_TYPOGRAPHY.pageTitle)}
-            data-testid={
-              isNewDraft ? "architecture-creation-new-draft-section-title" : "architecture-draft-workspace-title"
-            }
-          >
-            {workspaceHeading}
-          </WorkspaceHeadingTag>
-          <p className={cn("m-0", OPERATOR_PAGE_LEAD_MEASURE, OPERATOR_TYPOGRAPHY.helper)} data-testid="architecture-draft-workspace-lead">
-            {workspaceLead}
-          </p>
-          {linkedReviewId !== null ? (
-            <Link
-              href={reviewDetailPath(linkedReviewId)}
-              className={cn(OPERATOR_LINK.inline, OPERATOR_TYPOGRAPHY.helper)}
+      <div
+        className={cn(
+          "flex flex-col gap-3 sm:flex-row sm:items-start",
+          isNewDraft ? "sm:justify-end" : "sm:justify-between",
+        )}
+      >
+        {isNewDraft ? null : (
+          <div className="min-w-0 space-y-1">
+            <h1
+              className={cn("m-0", OPERATOR_TYPOGRAPHY.pageTitle)}
+              data-testid="architecture-draft-workspace-title"
             >
-              Open linked review
-            </Link>
-          ) : null}
-        </div>
+              {workspaceHeading}
+            </h1>
+            <p
+              className={cn("m-0", OPERATOR_PAGE_LEAD_MEASURE, OPERATOR_TYPOGRAPHY.helper)}
+              data-testid="architecture-draft-workspace-lead"
+            >
+              {workspaceLead}
+            </p>
+            {linkedReviewId !== null ? (
+              <Link
+                href={reviewDetailPath(linkedReviewId)}
+                className={cn(OPERATOR_LINK.inline, OPERATOR_TYPOGRAPHY.helper)}
+              >
+                Open linked review
+              </Link>
+            ) : null}
+          </div>
+        )}
         <div className="flex shrink-0 flex-col items-start gap-2 sm:items-end">
           {isNewDraft ? null : <PageContextualHelpButton />}
           {!isNewDraft ? (

@@ -20,15 +20,11 @@ export const ARCHITECTURE_DRAFT_WORKSPACE_LEAD =
 
 /** `/architectures/new` page subtitle — subordinate to H1 {@link CREATE_ARCHITECTURE_LABEL} (TB-1461). */
 export const ARCHITECTURE_CREATION_PAGE_SUBTITLE =
-  "Resume a saved architecture draft from this device, or start a new draft in the form below.";
+  "Describe the system, the outcome it must deliver, and the people and systems it touches. Start a new draft below — autosave keeps drafts on this device.";
 
 /** `/architectures/new` page subtitle when browser-local drafts exist (TB-1462). */
 export const ARCHITECTURE_CREATION_PAGE_SUBTITLE_WITH_DRAFTS =
-  "Continue a saved architecture draft below, or start a new draft in the form when you are ready.";
-
-/** Workspace lead on `/architectures/new` when browser-local drafts exist (TB-1462). */
-export const ARCHITECTURE_CREATION_RESUME_FIRST_WORKSPACE_LEAD =
-  "Your saved drafts are listed first. Continue one to pick up where you left off, or start a new architecture draft below.";
+  "Continue a saved draft below, or describe a new system — outcome, people, and systems it touches. Autosave applies on this device only.";
 
 /** Form section heading on `/architectures/new` before the draft is named or persisted (TB-1461). */
 export const ARCHITECTURE_CREATION_NEW_DRAFT_SECTION_TITLE = "New architecture draft";

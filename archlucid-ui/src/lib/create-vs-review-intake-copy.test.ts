@@ -7,7 +7,6 @@ import {
   ARCHITECTURE_CREATION_NO_DRAFTS_GUIDANCE,
   ARCHITECTURE_CREATION_PAGE_SUBTITLE,
   ARCHITECTURE_CREATION_PAGE_SUBTITLE_WITH_DRAFTS,
-  ARCHITECTURE_CREATION_RESUME_FIRST_WORKSPACE_LEAD,
   ARCHITECTURE_CREATION_RECENT_DRAFTS_BODY,
   ARCHITECTURE_CREATION_RECENT_DRAFTS_SECTION_TITLE,
   ARCHITECTURE_CREATION_VIEW_ALL_DRAFTS_LABEL,
@@ -43,11 +42,10 @@ describe("create-vs-review-intake-copy (TB-1461)", () => {
   });
 
   it("uses architecture draft vocabulary on create-path section titles and page subtitle", () => {
-    expect(ARCHITECTURE_CREATION_PAGE_SUBTITLE.toLowerCase()).toContain("architecture draft");
-    expect(ARCHITECTURE_CREATION_PAGE_SUBTITLE.toLowerCase()).toContain("new draft");
+    expect(ARCHITECTURE_CREATION_PAGE_SUBTITLE.toLowerCase()).toContain("draft");
+    expect(ARCHITECTURE_CREATION_PAGE_SUBTITLE.toLowerCase()).toContain("system");
     expect(ARCHITECTURE_CREATION_PAGE_SUBTITLE_WITH_DRAFTS.toLowerCase()).toContain("continue");
-    expect(ARCHITECTURE_CREATION_PAGE_SUBTITLE_WITH_DRAFTS.toLowerCase()).toContain("saved architecture draft");
-    expect(ARCHITECTURE_CREATION_RESUME_FIRST_WORKSPACE_LEAD.toLowerCase()).toContain("continue");
+    expect(ARCHITECTURE_CREATION_PAGE_SUBTITLE_WITH_DRAFTS.toLowerCase()).toContain("saved draft");
     expect(ARCHITECTURE_CREATION_CONTINUE_SECTION_TITLE.toLowerCase()).toContain("architecture draft");
     expect(ARCHITECTURE_CREATION_RECENT_DRAFTS_SECTION_TITLE.toLowerCase()).toContain("architecture draft");
     expect(ARCHITECTURE_CREATION_NEW_DRAFT_SECTION_TITLE.toLowerCase()).toContain("architecture draft");
