@@ -9,7 +9,6 @@ internal static class DeploymentEvidenceTerraformReference
     {
         return
         [
-            "infra/terraform-pilot — canonical default profile (metadata + cost knobs; no Azure apply).",
             "infra/terraform-foundation — metadata composition root (wave 1; no Azure apply).",
             "infra/terraform-platform — metadata composition root (wave 2; no Azure apply).",
             "infra/terraform-app — metadata composition root (wave 3; no Azure apply).",
@@ -29,6 +28,7 @@ internal static class DeploymentEvidenceTerraformReference
             "infra/terraform",
             "infra/terraform-monitoring",
             "infra/terraform-orchestrator — legacy isolation path only (-LegacyLeafRoots).",
+            "infra/terraform-pilot — canonical default profile (metadata + cost knobs; no Azure apply).",
         ];
     }
 }

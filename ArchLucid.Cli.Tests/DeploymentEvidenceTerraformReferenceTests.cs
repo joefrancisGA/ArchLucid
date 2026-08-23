@@ -16,12 +16,17 @@ public sealed class DeploymentEvidenceTerraformReferenceTests
         roots.Should().Contain(r => r.Contains("infra/terraform-foundation", StringComparison.Ordinal));
         roots.Should().Contain(r => r.Contains("infra/terraform-pilot", StringComparison.Ordinal));
 
-        int pilotIndex = IndexOfPath(roots, "infra/terraform-pilot");
         int foundationIndex = IndexOfPath(roots, "infra/terraform-foundation");
+        int privateIndex = IndexOfPath(roots, "infra/terraform-private");
+        int monitoringIndex = IndexOfPath(roots, "infra/terraform-monitoring");
+        int orchestratorIndex = IndexOfPath(roots, "infra/terraform-orchestrator");
+        int pilotIndex = IndexOfPath(roots, "infra/terraform-pilot");
 
-        pilotIndex.Should().BeGreaterThanOrEqualTo(0);
         foundationIndex.Should().BeGreaterThanOrEqualTo(0);
-        pilotIndex.Should().BeLessThan(foundationIndex);
+        privateIndex.Should().BeGreaterThan(foundationIndex);
+        monitoringIndex.Should().BeGreaterThan(privateIndex);
+        orchestratorIndex.Should().BeGreaterThan(monitoringIndex);
+        pilotIndex.Should().BeGreaterThan(orchestratorIndex);
 
         roots.Should().Contain(r => r.Contains("infra/terraform-redis", StringComparison.Ordinal));
         roots.Should().Contain(r => r.Contains("infra/terraform-cosmos", StringComparison.Ordinal));
