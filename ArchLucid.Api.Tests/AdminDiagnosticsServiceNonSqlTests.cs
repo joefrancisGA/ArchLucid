@@ -10,6 +10,7 @@ using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Integration;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Host.Core.Configuration;
+using ArchLucid.Host.Core.DataConsistency;
 using ArchLucid.Persistence.Admin;
 using ArchLucid.Persistence.Data.Infrastructure;
 using ArchLucid.Persistence.IntegrationOutbox;
@@ -1166,7 +1167,8 @@ public sealed class AdminDiagnosticsServiceNonSqlTests
             cacheTelemetrySnapshotProvider,
             actor.Object,
             audit.Object,
-            MissingArchitectureRequestOptionsMonitor());
+            MissingArchitectureRequestOptionsMonitor(),
+            new DataConsistencyRemediationExecutor(connectionFactory.Object, audit.Object));
     }
 
     private static ScopeContext DefaultScope() =>
