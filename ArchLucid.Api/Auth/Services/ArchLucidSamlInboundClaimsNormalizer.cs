@@ -82,7 +82,10 @@ internal static class ArchLucidSamlInboundClaimsNormalizer
         if (string.IsNullOrWhiteSpace(sourceClaimType))
             return;
 
-        Claim? incoming = identity.FindFirst(sourceClaimType.Trim());
+        string normalizedSource = sourceClaimType.Trim();
+
+        Claim? incoming = identity.Claims.FirstOrDefault(c =>
+            string.Equals(c.Type, normalizedSource, StringComparison.OrdinalIgnoreCase));
 
         if (incoming is null || string.IsNullOrWhiteSpace(incoming.Value))
             return;

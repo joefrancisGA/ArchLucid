@@ -75,3 +75,4 @@
 {"at":"2026-08-23T08:53:41.2664934Z","zoneId":"ui-oidc","outcome":"hit"}
 {"at":"2026-08-23T09:01:58.8448514Z","zoneId":"agent-runtime-evaluation","outcome":"hit"}
 {"at":"2026-08-23T09:14:22.8058955Z","zoneId":"ui-oidc","outcome":"hit"}
+{"at":"2026-08-23T09:44:20.1158542Z","zoneId":"saml-jwt-bearer","outcome":"hit"}
