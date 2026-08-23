@@ -53,7 +53,7 @@ export function RunDetailOverviewTab(props: RunDetailOverviewTabProps): React.JS
 
 
       <RunDetailArchitectureSummaryCard
-
+        key="run-detail-overview-architecture-summary"
         architectureTitle={props.architectureTitle}
 
         architectureText={props.architectureText}
