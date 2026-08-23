@@ -215,7 +215,16 @@ export function GlobalSearchBar(props: GlobalSearchBarProps) {
             </div>
           ) : null}
           {!loading && !searchError && !hasResults ? (
-            <p className={cn("m-0 px-3 py-2 text-neutral-500", OPERATOR_TYPOGRAPHY.body)}>No matches.</p>
+            <div className="px-3 py-2">
+              <p className={cn("m-0 text-neutral-500", OPERATOR_TYPOGRAPHY.body)}>No pages, reviews, or findings matched.</p>
+              <p className={cn("m-0 mt-1 text-neutral-500", OPERATOR_TYPOGRAPHY.helper)}>
+                Try a review title or keyword, or{" "}
+                <Link href="/help" className="text-al-link underline-offset-2 hover:underline" onClick={() => setOpen(false)}>
+                  browse help topics
+                </Link>
+                .
+              </p>
+            </div>
           ) : null}
           {!loading && findPageMatches.length > 0 ? (
             <section className="border-b border-neutral-100 px-3 py-2 dark:border-neutral-800">

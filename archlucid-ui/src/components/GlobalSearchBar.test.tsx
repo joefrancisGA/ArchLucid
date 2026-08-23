@@ -140,5 +140,16 @@ describe("GlobalSearchBar", () => {
     expect(await screen.findByRole("alert")).toHaveTextContent("Search is temporarily unavailable.");
     expect(screen.getByRole("button", { name: "Try again" })).toBeInTheDocument();
     expect(screen.queryByText("No matches.")).not.toBeInTheDocument();
+    expect(screen.queryByText(/No pages, reviews, or findings matched/)).not.toBeInTheDocument();
+  });
+
+  it("shows actionable guidance when search returns no matches", async () => {
+    render(<GlobalSearchBar />);
+
+    const input = screen.getByRole("combobox", { name: GLOBAL_SEARCH_ARIA_LABEL });
+    fireEvent.change(input, { target: { value: "zzxynomatch999" } });
+
+    expect(await screen.findByText(/No pages, reviews, or findings matched/)).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "browse help topics" })).toHaveAttribute("href", "/help");
   });
 });
