@@ -19,15 +19,15 @@ public sealed class GraphEdgeJsonConverter : JsonConverter<GraphEdge>
 
         return new GraphEdge
         {
-            EdgeId = ReadFirstString(root, "edgeId", "id") ?? "",
-            FromNodeId = ReadFirstString(root, "fromNodeId", "from", "source") ?? "",
-            ToNodeId = ReadFirstString(root, "toNodeId", "to", "target") ?? "",
-            EdgeType = ReadFirstString(root, "edgeType", "type", "relation") ?? "",
-            Label = ReadFirstString(root, "label"),
-            Weight = ReadFirstDouble(root, "weight") ?? 1d,
-            InferenceSource = ReadFirstString(root, "inferenceSource"),
-            ReasoningTrace = ReadFirstString(root, "reasoningTrace"),
-            Properties = ReadProperties(root, options)
+            EdgeId = GraphJsonElementReaders.ReadFirstString(root, "edgeId", "id") ?? "",
+            FromNodeId = GraphJsonElementReaders.ReadFirstString(root, "fromNodeId", "from", "source") ?? "",
+            ToNodeId = GraphJsonElementReaders.ReadFirstString(root, "toNodeId", "to", "target") ?? "",
+            EdgeType = GraphJsonElementReaders.ReadFirstString(root, "edgeType", "type", "relation") ?? "",
+            Label = GraphJsonElementReaders.ReadFirstString(root, "label"),
+            Weight = GraphJsonElementReaders.ReadFirstDouble(root, "weight") ?? 1d,
+            InferenceSource = GraphJsonElementReaders.ReadFirstString(root, "inferenceSource"),
+            ReasoningTrace = GraphJsonElementReaders.ReadFirstString(root, "reasoningTrace"),
+            Properties = GraphJsonElementReaders.ReadProperties(root, options)
         };
     }
 
@@ -55,65 +55,4 @@ public sealed class GraphEdgeJsonConverter : JsonConverter<GraphEdge>
         JsonSerializer.Serialize(writer, value.Properties, options);
         writer.WriteEndObject();
     }
-
-    private static Dictionary<string, string> ReadProperties(JsonElement root, JsonSerializerOptions options)
-    {
-        if (!TryGetIgnoreCase(root, "properties", out JsonElement propsEl) || propsEl.ValueKind != JsonValueKind.Object)
-#pragma warning disable IDE0028 // Simplify collection initialization
-            return new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-#pragma warning restore IDE0028 // Simplify collection initialization
-
-        // STJ Dictionary deserialize is case-sensitive; edge property lookups must stay ignore-case after restore.
-        Dictionary<string, string>? deserialized =
-            JsonSerializer.Deserialize<Dictionary<string, string>>(propsEl.GetRawText(), options);
-
-        if (deserialized is null)
-#pragma warning disable IDE0028 // Simplify collection initialization
-            return new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-#pragma warning restore IDE0028 // Simplify collection initialization
-
-#pragma warning disable IDE0028 // Simplify collection initialization
-        return new Dictionary<string, string>(deserialized, StringComparer.OrdinalIgnoreCase);
-#pragma warning restore IDE0028 // Simplify collection initialization
-    }
-
-    private static string? ReadFirstString(JsonElement root, params string[] names)
-    {
-        foreach (string name in names)
-
-            if (TryGetIgnoreCase(root, name, out JsonElement el) && el.ValueKind == JsonValueKind.String)
-                return el.GetString();
-
-        return null;
-    }
-
-    private static double? ReadFirstDouble(JsonElement root, params string[] names)
-    {
-        foreach (string name in names)
-
-            if (TryGetIgnoreCase(root, name, out JsonElement el))
-            {
-                if (el.ValueKind == JsonValueKind.Number && el.TryGetDouble(out double d))
-                    return d;
-
-                if (el.ValueKind == JsonValueKind.String && double.TryParse(el.GetString(), out double parsed))
-                    return parsed;
-            }
-
-        return null;
-    }
-
-    private static bool TryGetIgnoreCase(JsonElement obj, string name, out JsonElement value)
-    {
-        foreach (JsonProperty p in obj.EnumerateObject()
-                     .Where(p => p.Name.Equals(name, StringComparison.OrdinalIgnoreCase)))
-        {
-            value = p.Value;
-            return true;
-        }
-
-        value = default;
-        return false;
-    }
 }
-

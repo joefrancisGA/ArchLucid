@@ -20,14 +20,14 @@ public sealed class GraphNodeJsonConverter : JsonConverter<GraphNode>
 
         return new GraphNode
         {
-            NodeId = ReadFirstString(root, "nodeId", "id") ?? "",
-            NodeType = ReadFirstString(root, "nodeType", "type") ?? "",
-            Label = ReadFirstString(root, "label", "name") ?? "",
-            Category = ReadFirstString(root, "category"),
-            SourceType = ReadFirstString(root, "sourceType"),
-            SourceId = ReadFirstString(root, "sourceId"),
-            ReasoningTrace = ReadFirstString(root, "reasoningTrace"),
-            Properties = ReadProperties(root, options)
+            NodeId = GraphJsonElementReaders.ReadFirstString(root, "nodeId", "id") ?? "",
+            NodeType = GraphJsonElementReaders.ReadFirstString(root, "nodeType", "type") ?? "",
+            Label = GraphJsonElementReaders.ReadFirstString(root, "label", "name") ?? "",
+            Category = GraphJsonElementReaders.ReadFirstString(root, "category"),
+            SourceType = GraphJsonElementReaders.ReadFirstString(root, "sourceType"),
+            SourceId = GraphJsonElementReaders.ReadFirstString(root, "sourceId"),
+            ReasoningTrace = GraphJsonElementReaders.ReadFirstString(root, "reasoningTrace"),
+            Properties = GraphJsonElementReaders.ReadProperties(root, options)
         };
     }
 
@@ -57,58 +57,4 @@ public sealed class GraphNodeJsonConverter : JsonConverter<GraphNode>
         JsonSerializer.Serialize(writer, value.Properties, options);
         writer.WriteEndObject();
     }
-
-    private static Dictionary<string, string> ReadProperties(JsonElement root, JsonSerializerOptions options)
-    {
-        if (!TryGetIgnoreCase(root, "properties", out JsonElement propsEl) || propsEl.ValueKind != JsonValueKind.Object)
-#pragma warning disable IDE0028 // Simplify collection initialization
-            return new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-#pragma warning restore IDE0028 // Simplify collection initialization
-
-        try
-        {
-            // STJ Dictionary deserialize is case-sensitive; graph property lookups (resourceId, etc.) are ignore-case.
-            Dictionary<string, string>? deserialized =
-                JsonSerializer.Deserialize<Dictionary<string, string>>(propsEl.GetRawText(), options);
-
-            if (deserialized is null)
-#pragma warning disable IDE0028 // Simplify collection initialization
-                return new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-#pragma warning restore IDE0028 // Simplify collection initialization
-
-#pragma warning disable IDE0028 // Simplify collection initialization
-            return new Dictionary<string, string>(deserialized, StringComparer.OrdinalIgnoreCase);
-#pragma warning restore IDE0028 // Simplify collection initialization
-        }
-        catch (JsonException)
-        {
-#pragma warning disable IDE0028 // Simplify collection initialization
-            return new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-#pragma warning restore IDE0028 // Simplify collection initialization
-        }
-    }
-
-    private static string? ReadFirstString(JsonElement root, params string[] names)
-    {
-        foreach (string name in names)
-
-            if (TryGetIgnoreCase(root, name, out JsonElement el) && el.ValueKind == JsonValueKind.String)
-                return el.GetString();
-
-        return null;
-    }
-
-    private static bool TryGetIgnoreCase(JsonElement obj, string name, out JsonElement value)
-    {
-        foreach (JsonProperty p in obj.EnumerateObject()
-                     .Where(p => p.Name.Equals(name, StringComparison.OrdinalIgnoreCase)))
-        {
-            value = p.Value;
-            return true;
-        }
-
-        value = default;
-        return false;
-    }
 }
-
