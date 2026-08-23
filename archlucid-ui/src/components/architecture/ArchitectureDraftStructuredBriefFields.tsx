@@ -1,7 +1,7 @@
 "use client";
 
 import type { Dispatch, SetStateAction } from "react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { StructuredBriefSuggestionExplainPanel } from "@/components/architecture/StructuredBriefSuggestionExplainPanel";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
@@ -18,12 +18,14 @@ import { isApiRequestError } from "@/lib/api-request-error";
 import type { ApiProblemDetails } from "@/lib/api-problem";
 import {
   countStructuredBriefSuggestionApplyDelta,
+  denyStructuredBriefSuggestion,
   joinQualityAttributeEntries,
   mergeExclusiveConfirmedItem,
   mergeUniqueStrings,
   parseQualityAttributeEntries,
   qualityAttributeMeetsMinimum,
   type ArchitectureDraftStructuredBriefState,
+  type StructuredBriefSuggestedFieldKey,
 } from "@/lib/architecture/architecture-draft-structured-brief";
 import {
   applyArchitectureDraftStructuredBriefSuggestionsFromDraftResponse,
@@ -64,10 +66,7 @@ type ListFieldKey =
   | "confirmedAssumptions"
   | "confirmedRequiredCapabilities";
 
-type SuggestedFieldKey =
-  | "suggestedConstraints"
-  | "suggestedAssumptions"
-  | "suggestedRequiredCapabilities";
+type SuggestedFieldKey = StructuredBriefSuggestedFieldKey;
 
 function addConfirmedListItem(
   onStructuredBriefChange: Dispatch<SetStateAction<ArchitectureDraftStructuredBriefState>>,
@@ -111,10 +110,7 @@ function denySuggestedListItem(
   suggestedKey: SuggestedFieldKey,
   value: string,
 ): void {
-  onStructuredBriefChange((current) => ({
-    ...current,
-    [suggestedKey]: current[suggestedKey].filter((item) => item !== value),
-  }));
+  onStructuredBriefChange((current) => denyStructuredBriefSuggestion(current, suggestedKey, value));
 }
 
 type StructuredBriefSuggestionContextInput = Pick<
@@ -162,6 +158,8 @@ type ArchitectureDraftStructuredBriefFieldsProps = {
   readonly blocksLlmExecution?: boolean;
   readonly markReviewReadinessInvalid?: boolean;
   readonly onStructuredBriefChange: Dispatch<SetStateAction<ArchitectureDraftStructuredBriefState>>;
+  readonly onBriefConfirmOrDeny?: () => void;
+  readonly suggestFromOverviewNonce?: number;
 };
 
 function ConfirmableChipList(props: {
@@ -386,11 +384,14 @@ export function ArchitectureDraftStructuredBriefFields(
     value: string,
   ) => {
     confirmSuggestedListItem(props.onStructuredBriefChange, confirmedKey, suggestedKey, value);
+    props.onBriefConfirmOrDeny?.();
   };
 
   const denySuggested = (suggestedKey: SuggestedFieldKey, value: string) => {
     denySuggestedListItem(props.onStructuredBriefChange, suggestedKey, value);
+    props.onBriefConfirmOrDeny?.();
   };
+
 
   async function onSuggestFromOverview(): Promise<void> {
     const freeTextDescription = buildSuggestionSourceText(props, brief, true);
@@ -451,6 +452,14 @@ export function ArchitectureDraftStructuredBriefFields(
       setSuggestBusy(false);
     }
   }
+
+  useEffect(() => {
+    if (props.suggestFromOverviewNonce === undefined || props.suggestFromOverviewNonce < 1) {
+      return;
+    }
+
+    void onSuggestFromOverview();
+  }, [props.suggestFromOverviewNonce]);
 
   async function onSuggestFailureMode(): Promise<void> {
     if (!canSuggestFailureMode) {
@@ -598,6 +607,7 @@ export function ArchitectureDraftStructuredBriefFields(
             "suggestedConstraints",
             value,
           );
+          props.onBriefConfirmOrDeny?.();
         }}
         onRemove={(index) => {
           removeConfirmedListItem(props.onStructuredBriefChange, "confirmedConstraints", index);
@@ -628,6 +638,7 @@ export function ArchitectureDraftStructuredBriefFields(
             "suggestedAssumptions",
             value,
           );
+          props.onBriefConfirmOrDeny?.();
         }}
         onRemove={(index) => {
           removeConfirmedListItem(props.onStructuredBriefChange, "confirmedAssumptions", index);
@@ -661,6 +672,7 @@ export function ArchitectureDraftStructuredBriefFields(
             "suggestedRequiredCapabilities",
             value,
           );
+          props.onBriefConfirmOrDeny?.();
         }}
         onRemove={(index) => {
           removeConfirmedListItem(props.onStructuredBriefChange, "confirmedRequiredCapabilities", index);

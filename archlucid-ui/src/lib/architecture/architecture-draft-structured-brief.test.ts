@@ -3,12 +3,14 @@ import { describe, expect, it } from "vitest";
 import {
   ARCHITECTURE_DRAFT_UNKNOWN_CONFIRM_LABEL,
   applyIncomingStructuredBriefSuggestions,
+  denyStructuredBriefSuggestion,
   emptyArchitectureDraftStructuredBrief,
   expandStructuredBriefSuggestionItems,
   joinQualityAttributeEntries,
   mergeExclusiveConfirmedItem,
   parseQualityAttributeEntries,
   qualityAttributeMeetsMinimum,
+  structuredBriefHasRewriteGrounding,
 } from "@/lib/architecture/architecture-draft-structured-brief";
 
 describe("expandStructuredBriefSuggestionItems", () => {
@@ -74,6 +76,48 @@ describe("applyIncomingStructuredBriefSuggestions", () => {
     expect(applied.addedSuggestionCount).toBe(0);
     expect(applied.brief.suggestedConstraints).toEqual([]);
     expect(applied.brief.suggestedAssumptions).toEqual([]);
+  });
+
+  it("skips denied items when merging new suggestions", () => {
+    const current = {
+      ...emptyArchitectureDraftStructuredBrief(),
+      deniedConstraints: ["EU data residency"],
+    };
+
+    const applied = applyIncomingStructuredBriefSuggestions(current, {
+      suggestedConstraints: ["EU data residency", "Private networking only"],
+      suggestedAssumptions: [],
+      suggestedCapabilities: [],
+    });
+
+    expect(applied.addedSuggestionCount).toBe(1);
+    expect(applied.brief.suggestedConstraints).toEqual(["Private networking only"]);
+  });
+});
+
+describe("denyStructuredBriefSuggestion", () => {
+  it("persists denied items and removes them from suggested lists", () => {
+    const current = {
+      ...emptyArchitectureDraftStructuredBrief(),
+      suggestedConstraints: ["EU data residency"],
+    };
+
+    const denied = denyStructuredBriefSuggestion(current, "suggestedConstraints", "EU data residency");
+
+    expect(denied.suggestedConstraints).toEqual([]);
+    expect(denied.deniedConstraints).toEqual(["EU data residency"]);
+  });
+});
+
+describe("structuredBriefHasRewriteGrounding", () => {
+  it("is true when confirmed or denied facts exist", () => {
+    expect(structuredBriefHasRewriteGrounding(emptyArchitectureDraftStructuredBrief())).toBe(false);
+    expect(
+      structuredBriefHasRewriteGrounding({
+        ...emptyArchitectureDraftStructuredBrief(),
+        deniedAssumptions: ["Single-region pilot"],
+      }),
+    ).toBe(true);
   });
 });
 

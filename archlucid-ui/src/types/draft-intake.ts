@@ -48,6 +48,9 @@ export type DraftRequestDocument = {
     suggestedConstraints?: string[];
     suggestedAssumptions?: string[];
     suggestedRequiredCapabilities?: string[];
+    deniedConstraints?: string[];
+    deniedAssumptions?: string[];
+    deniedRequiredCapabilities?: string[];
     qualityAttribute?: string;
     failureModeNote?: string;
     operationalOwner?: string;

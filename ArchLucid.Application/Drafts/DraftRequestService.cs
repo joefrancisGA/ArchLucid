@@ -717,6 +717,9 @@ public sealed class DraftRequestService(
         target.SuggestedConstraints = CopyTrimmedList(patch.SuggestedConstraints);
         target.SuggestedAssumptions = CopyTrimmedList(patch.SuggestedAssumptions);
         target.SuggestedRequiredCapabilities = CopyTrimmedList(patch.SuggestedRequiredCapabilities);
+        target.DeniedConstraints = CopyTrimmedList(patch.DeniedConstraints);
+        target.DeniedAssumptions = CopyTrimmedList(patch.DeniedAssumptions);
+        target.DeniedRequiredCapabilities = CopyTrimmedList(patch.DeniedRequiredCapabilities);
         target.QualityAttribute = patch.QualityAttribute?.Trim();
         target.FailureModeNote = patch.FailureModeNote?.Trim();
         target.OperationalOwner = patch.OperationalOwner?.Trim();

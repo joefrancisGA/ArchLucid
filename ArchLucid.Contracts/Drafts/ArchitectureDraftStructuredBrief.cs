@@ -71,6 +71,27 @@ public sealed class ArchitectureDraftStructuredBrief
         set;
     } = [];
 
+    [JsonPropertyName("deniedConstraints")]
+    public List<string> DeniedConstraints
+    {
+        get;
+        set;
+    } = [];
+
+    [JsonPropertyName("deniedAssumptions")]
+    public List<string> DeniedAssumptions
+    {
+        get;
+        set;
+    } = [];
+
+    [JsonPropertyName("deniedRequiredCapabilities")]
+    public List<string> DeniedRequiredCapabilities
+    {
+        get;
+        set;
+    } = [];
+
     /// <summary>RTO/RPO, latency, volume, cost ceiling, or qualitative targets such as defense in depth.</summary>
     [JsonPropertyName("qualityAttribute")]
     public string? QualityAttribute

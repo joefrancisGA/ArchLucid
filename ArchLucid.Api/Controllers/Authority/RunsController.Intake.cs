@@ -45,6 +45,32 @@ public sealed partial class RunsController
         return Ok(response);
     }
 
+    [HttpPost("request/draft/overview-rewrite")]
+    [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
+    [MutatingAuditExcluded("Overview rewrite is advisory-only and does not persist domain mutations.")]
+    [ProducesResponseType(typeof(RewriteArchitectureOverviewResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> RewriteArchitectureOverview(
+        [FromBody] RewriteArchitectureOverviewInput? input,
+        CancellationToken cancellationToken)
+    {
+        if (input is null)
+            return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+
+        if (string.IsNullOrWhiteSpace(input.CurrentOverview))
+            return this.BadRequestProblem("CurrentOverview is required.", ProblemTypes.ValidationFailed);
+
+        if (input.CurrentOverview.Trim().Length < MinimumIntakeTextLength)
+            return this.BadRequestProblem(
+                $"CurrentOverview must be at least {MinimumIntakeTextLength} characters.",
+                ProblemTypes.ValidationFailed);
+
+        RewriteArchitectureOverviewResponse response =
+            await architectureOverviewRewriteService.RewriteAsync(input, cancellationToken);
+
+        return Ok(response);
+    }
+
     [HttpPost("request/draft/suggestion/explain")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [MutatingAuditExcluded("Explain endpoint is advisory-only and does not persist domain mutations.")]

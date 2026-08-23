@@ -1,9 +1,11 @@
 "use client";
 
+import { useState } from "react";
 import type { Dispatch, SetStateAction } from "react";
 
 import { cn } from "@/lib/utils";
 
+import { ArchitectureDraftOverviewRewritePanel } from "@/components/architecture/ArchitectureDraftOverviewRewritePanel";
 import { DraftIntakeActorEditor } from "@/components/draft-intake/DraftIntakeActorEditor";
 import { IntakeFieldLabel } from "@/components/intake/IntakeFieldLabel";
 import { Input } from "@/components/ui/input";
@@ -40,6 +42,8 @@ type ArchitectureDraftFormFieldsProps = {
 
 /** Fixed starting architecture questions for draft editing. */
 export function ArchitectureDraftFormFields(props: ArchitectureDraftFormFieldsProps): React.JSX.Element {
+  const [briefConfirmOrDenyCount, setBriefConfirmOrDenyCount] = useState(0);
+  const [suggestFromOverviewNonce, setSuggestFromOverviewNonce] = useState(0);
   const intentTrimmedLength = props.fields.freeTextIntent.trim().length;
   const outcomeTrimmedLength = props.fields.businessOutcome.trim().length;
   const outcomeMeetsMinimum = outcomeTrimmedLength >= MIN_OUTCOME_CHARS;
@@ -98,6 +102,21 @@ export function ArchitectureDraftFormFields(props: ArchitectureDraftFormFieldsPr
         >
           {ARCHITECTURE_DRAFT_ALTERNATIVES_HINT}
         </p>
+        <ArchitectureDraftOverviewRewritePanel
+          currentOverview={props.fields.freeTextIntent}
+          systemName={props.fields.systemName}
+          businessOutcome={props.fields.businessOutcome}
+          structuredBrief={props.fields.structuredBrief}
+          briefConfirmOrDenyCount={briefConfirmOrDenyCount}
+          disabled={props.disabled === true}
+          blocksLlmExecution={props.blocksLlmExecution === true}
+          onOverviewAccepted={(rewrittenOverview) => {
+            props.onFieldsChange((fields) => ({ ...fields, freeTextIntent: rewrittenOverview }));
+          }}
+          onRequestResuggestFromOverview={() => {
+            setSuggestFromOverviewNonce((current) => current + 1);
+          }}
+        />
       </div>
 
       <div className="space-y-2">
@@ -144,6 +163,10 @@ export function ArchitectureDraftFormFields(props: ArchitectureDraftFormFieldsPr
         disabled={props.disabled === true}
         blocksLlmExecution={props.blocksLlmExecution === true}
         markReviewReadinessInvalid={markInvalid}
+        onBriefConfirmOrDeny={() => {
+          setBriefConfirmOrDenyCount((current) => current + 1);
+        }}
+        suggestFromOverviewNonce={suggestFromOverviewNonce}
         onStructuredBriefChange={(updater) => {
           props.onFieldsChange((fields) => ({
             ...fields,

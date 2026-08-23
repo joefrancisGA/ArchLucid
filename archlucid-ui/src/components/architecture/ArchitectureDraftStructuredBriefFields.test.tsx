@@ -189,6 +189,39 @@ describe("ArchitectureDraftStructuredBriefFields", () => {
     expect(screen.queryByText("EU data residency")).not.toBeInTheDocument();
   });
 
+  it("does not re-suggest a denied constraint on a later suggest pass", async () => {
+    mockedDraftArchitectureRequest.mockResolvedValue({
+      suggestedConstraints: ["EU data residency"],
+      suggestedAssumptions: [],
+      suggestedCapabilities: [],
+      topologyHints: [],
+      securityBaselineHints: [],
+    });
+
+    function StatefulHarness(): React.JSX.Element {
+      const [structuredBrief, setStructuredBrief] = useState(emptyArchitectureDraftStructuredBrief());
+
+      return (
+        <ArchitectureDraftStructuredBriefFields
+          structuredBrief={structuredBrief}
+          freeTextIntent={"Tenant migration platform with private networking and EU residency goals."}
+          onStructuredBriefChange={setStructuredBrief}
+        />
+      );
+    }
+
+    render(<StatefulHarness />);
+
+    fireEvent.click(screen.getByTestId("architecture-draft-suggest-structured-brief"));
+    const suggestion = await screen.findByTestId("architecture-draft-constraints-suggestion");
+    fireEvent.click(within(suggestion).getByRole("button", { name: "Deny" }));
+
+    fireEvent.click(screen.getByTestId("architecture-draft-suggest-structured-brief"));
+
+    expect(screen.queryByText("EU data residency")).not.toBeInTheDocument();
+    expect(mockedDraftArchitectureRequest).toHaveBeenCalledTimes(2);
+  });
+
   it("moves a suggestion into confirmed items when confirmed", async () => {
     mockedDraftArchitectureRequest.mockResolvedValue({
       suggestedConstraints: ["EU data residency"],

@@ -406,6 +406,7 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IDeterminismCheckService, DeterminismCheckService>();
         services.AddScoped<IExportReplayService, ExportReplayService>();
         services.AddScoped<IArchitectureRequestDraftService, ArchitectureRequestDraftService>();
+        services.AddScoped<IArchitectureOverviewRewriteService, ArchitectureOverviewRewriteService>();
         services.AddScoped<IStructuredBriefSuggestionExplainService, StructuredBriefSuggestionExplainService>();
         services.AddScoped<IArchitectureSynthesisKernel, ArchitectureSynthesisKernel>();
         services.AddScoped<IWorkspaceSystemNameCollisionGuard, WorkspaceSystemNameCollisionGuard>();
