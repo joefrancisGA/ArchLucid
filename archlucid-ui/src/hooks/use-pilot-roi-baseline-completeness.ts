@@ -2,17 +2,18 @@
 
 import { useCallback, useEffect, useState } from "react";
 
+import { apiGet } from "@/lib/api/http";
 import { AUTH_MODE } from "@/lib/auth-config";
 import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { isJwtAuthMode } from "@/lib/oidc/config";
 import { isLikelySignedIn } from "@/lib/oidc/session";
 import { isPilotRoiBaselineComplete } from "@/lib/pilot-roi-baseline-completeness";
-import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
+import type { components } from "@/lib/api-types.generated";
 
-type TenantBaselineRoiGatePayload = {
-  baselineReviewCycleHours?: unknown;
-  manualPrepHoursPerReview?: unknown;
-};
+type TenantBaselineRoiGatePayload = Pick<
+  components["schemas"]["TenantBaselineResponse"],
+  "baselineReviewCycleHours" | "manualPrepHoursPerReview"
+>;
 
 export type UsePilotRoiBaselineCompletenessOptions = {
   /**
@@ -52,16 +53,7 @@ export function usePilotRoiBaselineCompleteness(
     setLoading(true);
 
     try {
-      const headers = mergeRegistrationScopeForProxy({ headers: { Accept: "application/json" } });
-      const baselineRes = await fetch("/api/proxy/v1/tenant/baseline", headers);
-
-      if (!baselineRes.ok) {
-        setComplete(null);
-
-        return;
-      }
-
-      const baselineJson = (await baselineRes.json()) as TenantBaselineRoiGatePayload;
+      const baselineJson = await apiGet<TenantBaselineRoiGatePayload>("/v1/tenant/baseline");
 
       setComplete(
         isPilotRoiBaselineComplete({
