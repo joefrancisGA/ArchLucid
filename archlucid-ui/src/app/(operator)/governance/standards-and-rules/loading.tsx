@@ -1,3 +1,4 @@
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { GovernanceStandardsRulesBreadcrumb } from "@/components/governance/GovernanceStandardsRulesBreadcrumb";
 import { GOVERNANCE_STANDARDS_AND_RULES_PATH } from "@/lib/governance/governance-route-paths";
@@ -10,8 +11,9 @@ import {
 /** Structured navigation shell while the standards-and-rules client chunk loads. */
 export default function GovernanceResolutionLoading() {
   return (
-    <div
-      className="w-full max-w-[1440px] space-y-4"
+    <OperatorPageContainer
+      variant="dashboard"
+      className="space-y-4"
       data-testid="standards-rules-loading-shell"
       role="status"
       aria-live="polite"
@@ -24,6 +26,6 @@ export default function GovernanceResolutionLoading() {
         breadcrumb={<GovernanceStandardsRulesBreadcrumb />}
       />
       <p className="m-0 text-al-text-secondary">{STANDARDS_RULES_LOADING_STATUS}</p>
-    </div>
+    </OperatorPageContainer>
   );
 }

@@ -7,6 +7,7 @@ import { GovernanceSealedRecordsListBreadcrumb } from "@/components/governance/G
 import { ArchitectureObjectMapStrip } from "@/components/operator/ArchitectureObjectMapStrip";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { OperatorDemoStaticBanner } from "@/components/operator/OperatorDemoStaticBanner";
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { OperatorPageFreshnessMetadata } from "@/components/operator/OperatorPageFreshnessMetadata";
 import { SignedRecordsReviewDetailVocabularyRail } from "@/components/SignedRecordsReviewDetailVocabularyRail";
@@ -240,7 +241,7 @@ export default function SignedRecordsListClient() {
   );
 
   return (
-    <div className="w-full max-w-[1440px]">
+    <OperatorPageContainer variant="dashboard">
       <OperatorPageHeader
         navHref={SIGNED_RECORDS_LIST_PATH}
         title={SIGNED_RECORDS_LIST_PAGE_TITLE}
@@ -399,6 +400,6 @@ export default function SignedRecordsListClient() {
           onNext={goToNextPage}
         />
       ) : null}
-    </div>
+    </OperatorPageContainer>
   );
 }

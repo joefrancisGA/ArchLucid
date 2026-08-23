@@ -17,6 +17,7 @@ import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { OperatorDemoStaticBanner } from "@/components/operator/OperatorDemoStaticBanner";
 import { OperatorEvidenceLimitsFooter } from "@/components/operator/OperatorEvidenceLimitsFooter";
 import { OperatorPageFreshnessMetadata } from "@/components/operator/OperatorPageFreshnessMetadata";
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { GovernanceSetupConfigHubsVocabularyRail } from "@/components/governance/GovernanceSetupConfigHubsVocabularyRail";
 import { PolicyPacksStandardsVocabularyRail } from "@/components/policy/PolicyPacksStandardsVocabularyRail";
@@ -244,7 +245,7 @@ export function GovernanceResolutionPageView(props: Props) {
 
   if (m.buyerPolishedShell) {
     return (
-      <div className="w-full max-w-[1440px]">
+      <OperatorPageContainer variant="dashboard">
         {usesShowcaseRuleRows ? (
           <div className="mb-3">
             <OperatorDemoStaticBanner emphasizeSampleData />
@@ -349,7 +350,7 @@ export function GovernanceResolutionPageView(props: Props) {
             ) : null}
           </>
         ) : null}
-      </div>
+      </OperatorPageContainer>
     );
   }
 

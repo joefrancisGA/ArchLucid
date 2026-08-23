@@ -10,6 +10,7 @@ import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmpty
 import { EnterpriseInlineErrorNotification } from "@/components/EnterpriseInlineErrorNotification";
 import { FindingsQueueSearchEvidenceVocabularyRail } from "@/components/findings/FindingsQueueSearchEvidenceVocabularyRail";
 import { LayerHeader } from "@/components/LayerHeader";
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { OperatorPageFreshnessMetadata } from "@/components/operator/OperatorPageFreshnessMetadata";
 import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
@@ -389,7 +390,7 @@ export default function GovernanceFindingsQueueClient({
   ) : undefined;
 
   return (
-    <div className="w-full max-w-[1440px]">
+    <OperatorPageContainer variant="dashboard">
       {!isAssignedToMe ? (
         <a
           href={`#${GOVERNANCE_FINDINGS_PRIMARY_CONTENT_ID}`}
@@ -710,6 +711,6 @@ export default function GovernanceFindingsQueueClient({
           <GovernanceFindingsBuyerChrome scopedRunId={scopedRunId} />
         ) : null}
       </div>
-    </div>
+    </OperatorPageContainer>
   );
 }

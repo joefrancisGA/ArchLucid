@@ -1,3 +1,4 @@
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { GovernanceSealedRecordsListBreadcrumb } from "@/components/governance/GovernanceSealedRecordsListBreadcrumb";
 import { SIGNED_RECORDS_LIST_PATH } from "@/lib/signed-records-paths";
@@ -11,8 +12,9 @@ import {
 /** Structured navigation shell while the deferred list chunk loads — avoids anonymous pulse blocks. */
 export default function SignedRecordsListLoading() {
   return (
-    <div
-      className="w-full max-w-[1440px] space-y-4"
+    <OperatorPageContainer
+      variant="dashboard"
+      className="space-y-4"
       data-testid="signed-records-list-loading-shell"
       role="status"
       aria-live="polite"
@@ -25,6 +27,6 @@ export default function SignedRecordsListLoading() {
         breadcrumb={<GovernanceSealedRecordsListBreadcrumb />}
       />
       <p className="m-0 text-al-text-secondary">{SIGNED_RECORDS_LIST_LOADING_STATUS}</p>
-    </div>
+    </OperatorPageContainer>
   );
 }
