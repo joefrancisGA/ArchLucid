@@ -284,7 +284,7 @@ internal static class RunRepositorySql
                                                                            WHERE TenantId = @TenantId
                                                                              AND WorkspaceId = @WorkspaceId
                                                                              AND ArchivedUtc IS NULL
-                                                                             AND UPPER(ProjectId) = @NormalizedSystemName
+                                                                             AND UPPER(LTRIM(RTRIM(ProjectId))) = @NormalizedSystemName
                                                                        ) THEN 1
                                                                        ELSE 0
                                                                    END;
