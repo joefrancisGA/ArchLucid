@@ -10,6 +10,7 @@ import {
   RUN_DETAIL_CREATE_HOME_ACTIVITY_TECHNICAL_DETAIL_SUMMARY,
 } from "@/lib/runs/run-detail-create-home-activity-copy";
 import type { RunSummary } from "@/types/authority";
+import type { ReviewPipelineDiagnosticContext } from "@/lib/review-pipeline-stall-diagnosis";
 import { cn } from "@/lib/utils";
 
 import { RunDetailProgressTrackerDeferred } from "./run-detail-page-view-deferred-chunks";
@@ -23,6 +24,7 @@ export type RunDetailCreateHomeActivityPanelProps = {
   readonly provenanceAsOfLabel: string;
   readonly preFinalizeReadyToFinalize: boolean;
   readonly progressForPipelineUi: RunSummary;
+  readonly pipelineDiagnosticContext?: ReviewPipelineDiagnosticContext | null;
   readonly outcomeCards: ReactNode;
   readonly midDeferred: ReactNode;
   readonly sourcesPanel: ReactNode;
@@ -91,6 +93,7 @@ export function RunDetailCreateHomeActivityPanel(props: RunDetailCreateHomeActiv
               initialSummary={props.progressForPipelineUi}
               preFinalizeReadyToFinalize={props.preFinalizeReadyToFinalize}
               buyerAssessmentCopy
+              diagnosticContext={props.pipelineDiagnosticContext}
             />
           </div>
         ) : null}
@@ -106,6 +109,7 @@ export function RunDetailCreateHomeActivityPanel(props: RunDetailCreateHomeActiv
           <RunDetailProgressTrackerDeferred
             runId={props.routeRunId}
             initialSummary={props.progressForPipelineUi}
+            diagnosticContext={props.pipelineDiagnosticContext}
           />
         ) : null}
 

@@ -45,10 +45,14 @@ import {
   resolveReviewPipelineTimeoutMessage,
   shouldShowReviewPipelineBackgroundSafety,
 } from "@/lib/review-execution-background-safety-copy";
+import { isReviewPipelineDebugEnabled } from "@/lib/review-pipeline-debug-policy";
+import type { ReviewPipelineDiagnosticContext } from "@/lib/review-pipeline-stall-diagnosis";
 import { resolveCurrentPipelineStageLabel } from "@/lib/resolve-active-pipeline-stage";
 import { formatWorkspaceReviewDurationBand } from "@/lib/workspace-review-duration-estimate";
 import type { RunSummary } from "@/types/authority";
 import type { StageTimelineSummary } from "@/types/stage-timeline";
+
+import { ReviewPipelineDevTelemetryPanel } from "./ReviewPipelineDevTelemetryPanel";
 
 export type RunProgressTrackerProps = {
   runId: string;
@@ -57,6 +61,8 @@ export type RunProgressTrackerProps = {
   readonly preFinalizeReadyToFinalize?: boolean;
   /** Buyer-facing assessment copy instead of pipeline transport jargon. */
   readonly buyerAssessmentCopy?: boolean;
+  /** Optional run-detail fields for dev telemetry and stall diagnosis. */
+  readonly diagnosticContext?: ReviewPipelineDiagnosticContext | null;
 };
 
 function stageDone(flag: boolean | undefined): boolean {
@@ -103,8 +109,10 @@ export function RunProgressTracker({
   initialSummary,
   preFinalizeReadyToFinalize,
   buyerAssessmentCopy = false,
+  diagnosticContext = null,
 }: RunProgressTrackerProps) {
   const buyerPolished = isBuyerPolishedOperatorShellEnv();
+  const pipelineDebugEnabled = isReviewPipelineDebugEnabled();
   const [preFinalizeTerminal, setPreFinalizeTerminal] = useState(() =>
     resolvePreFinalizeTerminal(initialSummary, preFinalizeReadyToFinalize),
   );
@@ -116,6 +124,10 @@ export function RunProgressTracker({
   );
   const [stageTimeline, setStageTimeline] = useState<StageTimelineSummary[]>([]);
   const [notificationPermission, setNotificationPermission] = useState(() => getDesktopNotificationPermission());
+  const [pollCount, setPollCount] = useState(0);
+  const [lastPollAtIso, setLastPollAtIso] = useState<string | null>(null);
+  const [lastPollError, setLastPollError] = useState<string | null>(null);
+  const [lastSummaryChangeAtIso, setLastSummaryChangeAtIso] = useState<string | null>(null);
 
   const { estimate: durationEstimate, loading: durationLoading } = useWorkspaceReviewDurationEstimate(
     pollEnabled && clientPhase === "polling",
@@ -130,6 +142,14 @@ export function RunProgressTracker({
     initialSummary,
     retryToken: pollSession,
   });
+
+  useEffect(() => {
+    if (summary === null) {
+      return;
+    }
+
+    setLastSummaryChangeAtIso(new Date().toISOString());
+  }, [summary]);
 
   const backgroundSafetyMessage = useMemo(() => {
     if (!shouldShowReviewPipelineBackgroundSafety(summary?.structuralExecutionMode)) {
@@ -200,9 +220,16 @@ export function RunProgressTracker({
 
         if (!canceled) {
           setStageTimeline(timeline);
+          setPollCount((count) => count + 1);
+          setLastPollAtIso(new Date().toISOString());
+          setLastPollError(null);
         }
-      } catch {
-        /* keep summary stream */
+      } catch (error: unknown) {
+        if (!canceled) {
+          setPollCount((count) => count + 1);
+          setLastPollAtIso(new Date().toISOString());
+          setLastPollError(error instanceof Error ? error.message : "Stage timeline fetch failed");
+        }
       }
     };
 
@@ -451,6 +478,27 @@ export function RunProgressTracker({
 
       {activeSummary?.description ? (
         <p className={cn("mt-4 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>{activeSummary.description}</p>
+      ) : null}
+
+      {pipelineDebugEnabled ? (
+        <ReviewPipelineDevTelemetryPanel
+          snapshot={{
+            runId,
+            summary,
+            initialSummary,
+            diagnosticContext,
+            stageTimeline,
+            streamPhase,
+            sseConnected,
+            clientPhase,
+            pollSession,
+            pollMaxMs,
+            pollCount,
+            lastPollAtIso,
+            lastPollError,
+            lastSummaryChangeAtIso,
+          }}
+        />
       ) : null}
     </section>
   );

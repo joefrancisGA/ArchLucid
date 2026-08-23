@@ -381,6 +381,7 @@ export async function RunDetailPageView(props: {
                           provenanceAsOfLabel={createHomeActivityProvenanceAsOfLabel}
                           preFinalizeReadyToFinalize={createHomePreFinalizeReadyToFinalize}
                           progressForPipelineUi={m.progressForPipelineUi}
+                          pipelineDiagnosticContext={m.pipelineDiagnosticContext}
                           outcomeCards={createHomeActivityOutcomeCardsEl}
                           midDeferred={
                             <Suspense fallback={<RunDetailMidDeferredSkeleton />}>
@@ -467,6 +468,8 @@ export async function RunDetailPageView(props: {
                     <RunDetailStalledReviewGuidanceCalloutDeferred
                       elapsedMinutes={stalled.elapsedMinutes}
                       runId={m.resolvedDetail.run.runId}
+                      summary={m.progressForPipelineUi}
+                      diagnosticContext={m.pipelineDiagnosticContext}
                     />
                   ) : null;
                 })()
@@ -635,7 +638,11 @@ export async function RunDetailPageView(props: {
           ) : null}
 
           {m.showProgressTracker && m.manifestId ? (
-            <RunDetailProgressTrackerDeferred runId={m.routeRunId} initialSummary={m.progressForPipelineUi} />
+            <RunDetailProgressTrackerDeferred
+              runId={m.routeRunId}
+              initialSummary={m.progressForPipelineUi}
+              diagnosticContext={m.pipelineDiagnosticContext}
+            />
           ) : null}
 
           {buyerFinalizedPackage ? null : sectionNavEl}
