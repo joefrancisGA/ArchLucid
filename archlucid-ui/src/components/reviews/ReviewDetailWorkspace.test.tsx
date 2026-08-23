@@ -48,7 +48,7 @@ describe("ReviewDetailWorkspace", () => {
     );
 
     expect(screen.getByTestId("review-detail-workspace")).toBeInTheDocument();
-    expect(screen.getByTestId("review-workspace-tab-strip").className).toContain("overflow-y-hidden");
+    expect(screen.getByTestId("review-detail-workspace-tabs").className).toContain("overflow-y-hidden");
     expect(screen.getByRole("tab", { name: /Overview/i })).toHaveAttribute("aria-selected", "true");
     expect(screen.getByTestId("panel-overview")).toBeInTheDocument();
     expect(screen.getByRole("tab", { name: /Findings/i })).toHaveTextContent("3");

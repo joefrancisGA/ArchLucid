@@ -22,7 +22,7 @@ describe("ArchitectureCreatedReviewWorkspaceShell (TB-2367)", () => {
           runId: "run-1",
           architectureName: "Claims platform",
           architectureOverview: "Overview",
-          businessOutcome: null,
+          businessOutcome: "",
           peopleAndSystems: [],
           ownerLabel: null,
           lastUpdatedLabel: "Jul 11, 2026",

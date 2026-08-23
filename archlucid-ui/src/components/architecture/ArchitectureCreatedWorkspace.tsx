@@ -22,7 +22,6 @@ import {
   resolveArchitectureFindingsDualPaneLayoutMode,
 } from "@/lib/architecture/architecture-findings-dual-pane";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   countClarificationGaps,
   countOpenClarifications,
@@ -37,23 +36,20 @@ import { readArchitectureCreationHandoff } from "@/lib/architecture/architecture
 import type { ArchitectureCreationUserAssertions } from "@/lib/architecture/architecture-structured-content-types";
 import { buildArchitectureCorrectionHref } from "@/lib/architecture/architecture-correction-href";
 import {
-  ARCHITECTURE_WORKSPACE_TAB_LABELS,
   ARCHITECTURE_WORKSPACE_TAB_PARAM,
   type ArchitectureWorkspaceTabId,
   resolveArchitectureWorkspaceTabFromHash,
   resolveArchitectureWorkspaceTab,
   resolveArchitectureWorkspaceTabFromSearchParams,
 } from "@/lib/architecture/architecture-workspace-tabs";
-import { REVIEW_DETAIL_TAB_PARAM } from "@/lib/review-detail-workspace-tabs";
-import { REVIEW_WORKSPACE_TAB_STRIP_TEST_ID } from "@/components/reviews/ReviewWorkspaceShell";
-import { mapArchitectureTabToReviewTab } from "@/lib/unified-review-workspace-tabs";
 import {
-  architectureOpenClarificationsPresentation,
-  formatMetricCountHeadline,
-} from "@/lib/metric-count-presentation";
+  REVIEW_DETAIL_TAB_PARAM,
+  type ReviewDetailTabId,
+} from "@/lib/review-detail-workspace-tabs";
+import { ReviewWorkspaceTabStrip } from "@/components/reviews/ReviewWorkspaceTabStrip";
+import { mapArchitectureTabToReviewTab } from "@/lib/unified-review-workspace-tabs";
+import { resolveReviewWorkspaceVisibleTabs } from "@/lib/resolve-review-workspace-visible-tabs";
 import type { QuickDecisionFinding } from "@/lib/quick-decision-summary-derive";
-import { cn } from "@/lib/utils";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export type ArchitectureCreatedWorkspacePanels = {
   readonly findings: ReactNode;
@@ -139,6 +135,27 @@ export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspace
     searchParams.get(REVIEW_DETAIL_TAB_PARAM),
     searchParams.get(ARCHITECTURE_WORKSPACE_TAB_PARAM),
   );
+  const activeReviewTab = mapArchitectureTabToReviewTab(activeTab);
+  const resolvedTabs = useMemo(
+    () =>
+      resolveReviewWorkspaceVisibleTabs({
+        lifecycle: "create-home",
+        manifestId: null,
+        showProgressTracker: false,
+        runCompleted: false,
+      }),
+    [],
+  );
+
+  const navigateReviewTab = useCallback(
+    (tab: ReviewDetailTabId) => {
+      const params = new URLSearchParams(searchParams.toString());
+      params.set(REVIEW_DETAIL_TAB_PARAM, tab);
+      params.delete(ARCHITECTURE_WORKSPACE_TAB_PARAM);
+      router.push(`${pathname}?${params.toString()}`, { scroll: false });
+    },
+    [pathname, router, searchParams],
+  );
 
   const navigateTab = useCallback(
     (tab: ArchitectureWorkspaceTabId) => {
@@ -181,11 +198,6 @@ export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspace
   );
   const clarificationGapCount = countClarificationGaps(visibleClarificationGaps);
   const clarificationsCount = countOpenClarifications(clarificationGapCount, openQuestionCount);
-  const clarificationsPresentation = architectureOpenClarificationsPresentation(
-    props.baseline.runId,
-    clarificationsCount,
-  );
-  const clarificationsTabAriaLabel = formatMetricCountHeadline(clarificationsPresentation);
   const diagramClarifyHref = buildArchitectureCorrectionHref(props.baseline.runId, props.correctionHref);
   const compactViewportMode =
     activeTab === "clarifications" ||
@@ -212,61 +224,19 @@ export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspace
         pagePrimaryOwnedElsewhere={props.pagePrimaryOwnedElsewhere}
       />
 
-      <Tabs value={activeTab} onValueChange={(value) => navigateTab(resolveArchitectureWorkspaceTab(value))}>
-        <div
-          className="-mx-1 overflow-x-auto px-1"
-          data-testid={REVIEW_WORKSPACE_TAB_STRIP_TEST_ID}
-        >
-          <TabsList aria-label="Architecture workspace sections" data-testid="architecture-workspace-tabs">
-            {(Object.keys(ARCHITECTURE_WORKSPACE_TAB_LABELS) as ArchitectureWorkspaceTabId[]).map((tabId) => {
-              const count =
-                tabId === "clarifications" && clarificationsCount > 0
-                  ? clarificationsCount
-                  : tabId === "diagram" && diagramInferredCount > 0
-                    ? diagramInferredCount
-                    : tabId === "findings" && findingsCount > 0
-                      ? findingsCount
-                      : null;
-              const findingsTabAriaLabel =
-                tabId === "findings" && findingsCount > 0
-                  ? `${findingsCount} assessment finding${findingsCount === 1 ? "" : "s"} · this review · findings tab`
-                  : undefined;
+      <ReviewWorkspaceTabStrip
+        lifecycle="create-home"
+        activeTab={activeReviewTab}
+        resolvedTabs={resolvedTabs}
+        tabCounts={{
+          findings: findingsCount > 0 ? findingsCount : null,
+          decisionsRemediation: clarificationsCount > 0 ? clarificationsCount : null,
+          architecture: diagramInferredCount > 0 ? diagramInferredCount : null,
+        }}
+        onTabChange={navigateReviewTab}
+      />
 
-              return (
-                <TabsTrigger
-                  key={tabId}
-                  value={tabId}
-                  data-testid={`architecture-workspace-tab-${tabId}`}
-                  className="whitespace-nowrap"
-                >
-                  {ARCHITECTURE_WORKSPACE_TAB_LABELS[tabId]}
-                  {count !== null ? (
-                    <span
-                      className={cn(
-                        "ml-2 inline-flex min-w-[1.25rem] items-center justify-center rounded-full bg-neutral-200 px-1.5 py-0.5 text-xs font-semibold text-neutral-700 dark:bg-neutral-800 dark:text-neutral-200",
-                        OPERATOR_TYPOGRAPHY.helper,
-                      )}
-                      aria-label={tabId === "clarifications" ? clarificationsTabAriaLabel : findingsTabAriaLabel}
-                      data-testid={
-                        tabId === "clarifications"
-                          ? "architecture-workspace-clarifications-count"
-                          : tabId === "diagram"
-                            ? "architecture-workspace-diagram-count"
-                            : tabId === "findings"
-                              ? "architecture-workspace-findings-count"
-                              : undefined
-                      }
-                    >
-                      {count}
-                    </span>
-                  ) : null}
-                </TabsTrigger>
-              );
-            })}
-          </TabsList>
-        </div>
-
-        <TabsContent value="overview" data-testid="architecture-workspace-panel-overview">
+      <div hidden={activeTab !== "overview"} data-testid="architecture-workspace-panel-overview">
           <div className="space-y-4">
             <OverviewDiagramVocabularyRail
               runId={props.baseline.runId}
@@ -283,9 +253,9 @@ export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspace
               pagePrimaryOwnedElsewhere={props.pagePrimaryOwnedElsewhere}
             />
           </div>
-        </TabsContent>
+      </div>
 
-        <TabsContent value="diagram" data-testid="architecture-workspace-panel-diagram">
+      <div hidden={activeTab !== "diagram"} data-testid="architecture-workspace-panel-diagram">
           <div className="space-y-4">
             <OverviewDiagramVocabularyRail
               runId={props.baseline.runId}
@@ -346,9 +316,9 @@ export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspace
               />
             )}
           </div>
-        </TabsContent>
+      </div>
 
-        <TabsContent value="clarifications" data-testid="architecture-workspace-panel-clarifications">
+      <div hidden={activeTab !== "clarifications"} data-testid="architecture-workspace-panel-clarifications">
           <ClarificationsFindingsVocabularyRail
             runId={props.baseline.runId}
             currentSurfaceId="clarifications"
@@ -367,9 +337,9 @@ export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspace
             clarificationDelta={clarificationQuestionsQuery.data?.deltaFromPriorRun ?? null}
             priorRunId={props.baseline.clarificationPriorRunId ?? props.baseline.runId}
           />
-        </TabsContent>
+      </div>
 
-        <TabsContent value="findings" data-testid="architecture-workspace-panel-findings">
+      <div hidden={activeTab !== "findings"} data-testid="architecture-workspace-panel-findings">
           <div className="space-y-4">
             <ClarificationsFindingsVocabularyRail
               runId={props.baseline.runId}
@@ -386,9 +356,9 @@ export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspace
             />
             {props.panels.findings}
           </div>
-        </TabsContent>
+      </div>
 
-        <TabsContent value="evidence" data-testid="architecture-workspace-panel-evidence">
+      <div hidden={activeTab !== "evidence"} data-testid="architecture-workspace-panel-evidence">
           <div className="space-y-4">
             <PackageEvidenceEvidenceGraphVocabularyRail
               runId={props.baseline.runId}
@@ -396,9 +366,9 @@ export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspace
             />
             {props.panels.evidence}
           </div>
-        </TabsContent>
+      </div>
 
-        <TabsContent value="governance" data-testid="architecture-workspace-panel-governance">
+      <div hidden={activeTab !== "governance"} data-testid="architecture-workspace-panel-governance">
           <div className="space-y-4">
             <PackageGovernanceApprovalQueueVocabularyRail
               runId={props.baseline.runId}
@@ -406,9 +376,9 @@ export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspace
             />
             {props.panels.governance}
           </div>
-        </TabsContent>
+      </div>
 
-        <TabsContent value="activity" data-testid="architecture-workspace-panel-activity">
+      <div hidden={activeTab !== "activity"} data-testid="architecture-workspace-panel-activity">
           <div className="space-y-4">
             <PackageActivityAuditTrailVocabularyRail
               runId={props.baseline.runId}
@@ -416,8 +386,7 @@ export function ArchitectureCreatedWorkspace(props: ArchitectureCreatedWorkspace
             />
             {props.panels.activity}
           </div>
-        </TabsContent>
-      </Tabs>
+      </div>
     </div>
   );
 }
