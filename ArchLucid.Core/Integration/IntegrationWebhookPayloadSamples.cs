@@ -252,12 +252,15 @@ public static class IntegrationWebhookPayloadSamples
         return new
         {
             schemaVersion = 1,
-            promotionRecordId = Guid.NewGuid().ToString("D"),
-            runId = Guid.NewGuid(),
             tenantId = Guid.NewGuid(),
             workspaceId = Guid.NewGuid(),
             projectId = Guid.NewGuid(),
-            targetEnvironment = "production"
+            activationId = Guid.NewGuid().ToString("D"),
+            runId = Guid.NewGuid().ToString("D"),
+            manifestVersion = "v1",
+            environment = "production",
+            activatedBy = "cli-simulator@archlucid.local",
+            activatedUtc = TimeProvider.System.GetUtcNow().ToString("O")
         };
     }
 

@@ -97,6 +97,30 @@ public sealed class CorePackageCoverageBatchRc27Tests
             .WithMessage("*Unknown event type alias*");
     }
 
+    [Fact]
+    public void GovernancePromotionActivated_webhook_sample_matches_schema_and_resolves_promotion_environment()
+    {
+        byte[] utf8 = IntegrationWebhookPayloadSamples.CreatePayloadUtf8(
+            IntegrationEventTypes.GovernancePromotionActivatedV1);
+
+        using JsonDocument document = JsonDocument.Parse(utf8);
+        JsonElement root = document.RootElement;
+
+        root.TryGetProperty("activationId", out _).Should().BeTrue();
+        root.TryGetProperty("environment", out _).Should().BeTrue();
+        root.TryGetProperty("manifestVersion", out _).Should().BeTrue();
+        root.TryGetProperty("activatedBy", out _).Should().BeTrue();
+        root.TryGetProperty("activatedUtc", out _).Should().BeTrue();
+
+        IReadOnlyDictionary<string, object>? props =
+            IntegrationEventServiceBusApplicationProperties.TryResolveForPublish(
+                IntegrationEventTypes.GovernancePromotionActivatedV1,
+                utf8);
+
+        props.Should().NotBeNull();
+        props.Should().ContainKey(IntegrationEventServiceBusApplicationProperties.PromotionEnvironmentPropertyName);
+    }
+
     [Theory]
     [InlineData(IntegrationEventTypes.AuthorityRunCompletedV1)]
     [InlineData(IntegrationEventTypes.ManifestFinalizedV1)]

@@ -1427,8 +1427,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 4
-- **bugs-found:** 4
+- **hunts:** 5
+- **bugs-found:** 5
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-23
 - **last-bug:** 2026-08-23
@@ -1443,6 +1443,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) Configuration default enables a production-unsafe integration flag — ITSM/native and quick-scan defaults are gated by environment validators and hosted-SaaS overrides.
 - [x] (proven) Integration webhook simulate rejects governance approval and alert-acknowledged aliases — **hit 2026-08-21:** `ResolveEventType` switch omitted `GovernanceApprovalApproved`, `GovernanceApprovalRejected`, and `AlertAcknowledged` PascalCase/kebab aliases while sibling triggers were wired; CLI simulate-webhook threw for those event names.
 - [x] (proven) Tenant Azure OpenAI deployment catalog lookup is case-sensitive on JSON tier keys — **hit 2026-08-23:** `TenantAzureOpenAiDeploymentsCatalog.TryParse` returned a case-sensitive dictionary so `ResolveDeploymentName` missed `Default` / mixed-case tier keys and fell back to the raw tier name instead of the configured deployment; regression in `TenantAzureOpenAiDeploymentsCatalogTests`.
+- [x] (proven) Governance promotion webhook sample omits `environment` and schema activation fields so Service Bus `promotion_environment` routing is never resolved — **hit 2026-08-23:** `CreateGovernancePromotionActivated` emitted `targetEnvironment` / `promotionRecordId` instead of the publisher contract (`environment`, `activationId`, `manifestVersion`, `activatedBy`, `activatedUtc`); regression in `GovernancePromotionActivated_webhook_sample_matches_schema_and_resolves_promotion_environment`
 
 ---
 
