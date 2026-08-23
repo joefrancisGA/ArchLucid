@@ -43,6 +43,7 @@ export function GlobalSearchBar(props: GlobalSearchBarProps) {
   const [query, setQuery] = useState("");
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [searchError, setSearchError] = useState(false);
   const [results, setResults] = useState<GlobalSearchResponse | null>(null);
 
   const fetchResults = useCallback(async (q: string) => {
@@ -50,10 +51,12 @@ export function GlobalSearchBar(props: GlobalSearchBarProps) {
 
     if (trimmed.length < 2) {
       setResults(null);
+      setSearchError(false);
       return;
     }
 
     setLoading(true);
+    setSearchError(false);
 
     try {
       const opts = mergeRegistrationScopeForProxy({ cache: "no-store", headers: { Accept: "application/json" } });
@@ -61,11 +64,15 @@ export function GlobalSearchBar(props: GlobalSearchBarProps) {
 
       if (!res.ok) {
         setResults(null);
+        setSearchError(true);
         return;
       }
 
       const body = (await res.json()) as GlobalSearchResponse;
       setResults(body);
+    } catch {
+      setResults(null);
+      setSearchError(true);
     } finally {
       setLoading(false);
     }
@@ -182,7 +189,21 @@ export function GlobalSearchBar(props: GlobalSearchBarProps) {
           className="absolute left-0 right-0 top-full z-50 mt-1 max-h-80 overflow-y-auto rounded-md border border-neutral-200 bg-white shadow-lg dark:border-neutral-700 dark:bg-neutral-950"
         >
           {loading ? <p className={cn("m-0 px-3 py-2 text-neutral-500", OPERATOR_TYPOGRAPHY.body)}>Searching…</p> : null}
-          {!loading && !hasResults ? (
+          {!loading && searchError ? (
+            <div className="px-3 py-2">
+              <p className={cn("m-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)} role="alert">
+                Search is temporarily unavailable.
+              </p>
+              <button
+                type="button"
+                className={cn("mt-1 text-al-link underline-offset-2 hover:underline", OPERATOR_TYPOGRAPHY.helper)}
+                onClick={() => void fetchResults(query)}
+              >
+                Try again
+              </button>
+            </div>
+          ) : null}
+          {!loading && !searchError && !hasResults ? (
             <p className={cn("m-0 px-3 py-2 text-neutral-500", OPERATOR_TYPOGRAPHY.body)}>No matches.</p>
           ) : null}
           {!loading && findPageMatches.length > 0 ? (

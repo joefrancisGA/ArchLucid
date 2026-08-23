@@ -78,4 +78,23 @@ describe("GlobalSearchBar", () => {
 
     expect(screen.getByRole("combobox", { name: GLOBAL_SEARCH_ARIA_LABEL })).toHaveFocus();
   });
+
+  it("shows a retryable error when the search API fails", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({
+        ok: false,
+        json: async () => ({}),
+      }),
+    );
+
+    render(<GlobalSearchBar />);
+
+    const input = screen.getByRole("combobox", { name: GLOBAL_SEARCH_ARIA_LABEL });
+    fireEvent.change(input, { target: { value: "ab" } });
+
+    expect(await screen.findByRole("alert")).toHaveTextContent("Search is temporarily unavailable.");
+    expect(screen.getByRole("button", { name: "Try again" })).toBeInTheDocument();
+    expect(screen.queryByText("No matches.")).not.toBeInTheDocument();
+  });
 });
