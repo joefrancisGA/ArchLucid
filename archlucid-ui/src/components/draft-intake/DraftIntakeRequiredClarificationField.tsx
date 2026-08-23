@@ -19,13 +19,13 @@ import {
   GUIDED_INTAKE_SAVE_AND_CONTINUE_LABEL,
   GUIDED_INTAKE_SAVE_ANSWER_LABEL,
 } from "@/lib/guided-intake-copy";
+import { CLOUD_TARGET_QUESTION_KEY } from "@/lib/architecture/architecture-creation-question-definition";
 import { UNIVERSAL_INTAKE_INFERRED_CLARIFICATION_HELPER } from "@/lib/universal-intake-answer-inference";
 import type { DraftElicitationQuestion } from "@/types/draft-intake";
 
-export const REQUIRED_CLARIFICATION_BASELINE_LABEL = "Required for baseline review";
+export { CLOUD_TARGET_QUESTION_KEY };
 
-/** L0 MUST question key — answers are exact CloudProvider enum names. */
-export const CLOUD_TARGET_QUESTION_KEY = "l0.pillar.cloud-target";
+export const REQUIRED_CLARIFICATION_BASELINE_LABEL = "Required for baseline review";
 
 const CLOUD_TARGET_OPTIONS = [
   { value: "None", label: "Cloud-neutral (no specific provider)" },

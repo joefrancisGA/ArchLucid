@@ -1,4 +1,4 @@
-import { CLOUD_TARGET_QUESTION_KEY } from "@/components/draft-intake/DraftIntakeRequiredClarificationField";
+import { CLOUD_TARGET_QUESTION_KEY } from "@/lib/architecture/architecture-creation-question-definition";
 import { deriveStatedConstraintContextFromTexts } from "@/lib/review-quality/stated-constraint-context";
 import { UNIVERSAL_INTAKE_MUST_QUESTION_KEYS } from "@/lib/universal-intake-must-completeness";
 

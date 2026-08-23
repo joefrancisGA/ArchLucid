@@ -1,4 +1,4 @@
-import { CLOUD_TARGET_QUESTION_KEY } from "@/components/draft-intake/DraftIntakeRequiredClarificationField";
+import { CLOUD_TARGET_QUESTION_KEY } from "@/lib/architecture/architecture-creation-question-definition";
 import { ARCHITECTURE_DRAFT_UNKNOWN_CONFIRM_LABEL } from "@/lib/architecture/architecture-draft-structured-brief";
 import { applyFocusedPilotModePolicyReferences } from "@/lib/focused-pilot-mode-policy-packs";
 import { normalizeCloudProviderForMismatchCheck } from "@/lib/review-quality/policy-pack-cloud-mismatch-for-review";

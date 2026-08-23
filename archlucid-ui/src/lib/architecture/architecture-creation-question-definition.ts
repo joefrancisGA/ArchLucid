@@ -6,6 +6,9 @@ import type { DraftElicitationQuestion } from "@/types/draft-intake";
  */
 export const ARCHITECTURE_CREATION_QUESTION_DEFINITION_VERSION = "l0-universal-v1" as const;
 
+/** L0 MUST question key — answers are exact CloudProvider enum names. */
+export const CLOUD_TARGET_QUESTION_KEY = "l0.pillar.cloud-target" as const;
+
 export const ARCHITECTURE_CREATION_DISCOVERY_TOPICS = [
   "Business goal and intended users",
   "Scope and functional requirements",
@@ -69,7 +72,7 @@ export const ARCHITECTURE_CREATION_UNIVERSAL_QUESTIONS: readonly DraftElicitatio
     ruleKeys: [],
   },
   {
-    questionKey: "l0.pillar.cloud-target",
+    questionKey: CLOUD_TARGET_QUESTION_KEY,
     prompt: "Which cloud provider is this architecture targeting — or is it intentionally cloud-neutral?",
     tier: "Must",
     answerKind: "Enum",

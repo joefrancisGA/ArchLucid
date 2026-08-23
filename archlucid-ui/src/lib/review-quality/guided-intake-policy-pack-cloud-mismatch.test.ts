@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { CLOUD_TARGET_QUESTION_KEY } from "@/components/draft-intake/DraftIntakeRequiredClarificationField";
+import { CLOUD_TARGET_QUESTION_KEY } from "@/lib/architecture/architecture-creation-question-definition";
 
 import {
   deriveGuidedIntakePolicyPackCloudMismatch,
