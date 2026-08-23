@@ -1,6 +1,10 @@
 import { afterEach, describe, expect, it } from "vitest";
 
-import { consumePostSignInReturnUrl, storePostSignInReturnUrl } from "@/lib/oidc/session";
+import {
+  clearOidcSession,
+  consumePostSignInReturnUrl,
+  storePostSignInReturnUrl,
+} from "@/lib/oidc/session";
 
 describe("storePostSignInReturnUrl / consumePostSignInReturnUrl", () => {
   afterEach(() => {
@@ -44,6 +48,19 @@ describe("storePostSignInReturnUrl / consumePostSignInReturnUrl", () => {
 
   it("does not store a backslash-prefixed URL", () => {
     storePostSignInReturnUrl("/\\evil.example");
+
+    expect(consumePostSignInReturnUrl()).toBeNull();
+  });
+});
+
+describe("clearOidcSession", () => {
+  afterEach(() => {
+    sessionStorage.clear();
+  });
+
+  it("clears a stored post-sign-in return URL", () => {
+    storePostSignInReturnUrl("/architecture/reviews/123");
+    clearOidcSession();
 
     expect(consumePostSignInReturnUrl()).toBeNull();
   });

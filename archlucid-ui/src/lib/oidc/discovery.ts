@@ -8,7 +8,9 @@ export type OidcDiscoveryDocument = {
 const discoveryPromises = new Map<string, Promise<OidcDiscoveryDocument>>();
 
 function discoveryUrlForAuthority(authority: string): string {
-  const base = authority.replace(/\/+$/, "");
+  const trimmed = authority.trim();
+  const withScheme = trimmed.includes("://") ? trimmed : `https://${trimmed}`;
+  const base = withScheme.replace(/\/+$/, "");
 
   return `${base}/.well-known/openid-configuration`;
 }

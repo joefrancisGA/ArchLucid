@@ -1411,24 +1411,26 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ## Zone: ui-oidc
 
 - **id:** ui-oidc
-- **status:** unseeded
+- **status:** open
 - **impact:** high
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 0
-- **bugs-found:** 0
+- **hunts:** 1
+- **bugs-found:** 2
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **last-hunt:** 2026-08-23
+- **last-bug:** 2026-08-23
 - **related-pd-tb:** none
-- **code-changed-since:** unknown
+- **code-changed-since:** 0
 
 ### Hypotheses
 
-- [ ] (candidate) Authority host check accepts a look-alike domain as the configured issuer
-- [ ] (candidate) OIDC redirect builds a return URL that leaves the operator origin
-- [ ] (candidate) Silent renew uses a stale authority after tenant IdP switch
+- [x] (invalid) Authority host check accepts a look-alike domain as the configured issuer — locus is `archlucid-ui/src/lib/auth/oidc-authority-host.ts`, outside this zone; covered by `oidc-authority-host.test.ts`.
+- [x] (valid-no-repro) OIDC redirect builds a return URL that leaves the operator origin — `storePostSignInReturnUrl` / `isSafeReturnPath` reject absolute, protocol-relative, and smuggled paths; covered by `session.test.ts` and `safe-return-path.test.ts`.
+- [x] (invalid) Silent renew uses a stale authority after tenant IdP switch — `ensureAccessTokenFresh` reads `getOidcAuthority()` on each refresh; discovery cache is keyed by normalized discovery URL, not a frozen authority snapshot.
+- [x] (proven) Scheme-less OIDC authority builds a relative discovery URL against the SPA origin — **hit 2026-08-23:** `discoveryUrlForAuthority` concatenated `/.well-known/...` without normalizing a missing scheme, so `fetch` resolved against the app origin; fixed by prefixing `https://` when the authority omits `://`.
+- [x] (proven) `clearOidcSession` leaves a stale post-sign-in return URL for the next sign-in — **hit 2026-08-23:** session clears omitted `OIDC_POST_SIGN_IN_RETURN_URL_KEY`, so an aborted sign-in could redirect a later login to an old path; fixed by clearing the return-url key with the other OIDC session keys.
 
 ---
 

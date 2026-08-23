@@ -70,6 +70,7 @@ export function clearOidcSession(): void {
     OIDC_OAUTH_STATE_KEY,
     OIDC_CODE_VERIFIER_KEY,
     OIDC_NONCE_KEY,
+    OIDC_POST_SIGN_IN_RETURN_URL_KEY,
   ]);
   clearCachedColorModePreference();
 }
