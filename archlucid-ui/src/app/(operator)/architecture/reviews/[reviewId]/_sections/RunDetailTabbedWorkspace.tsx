@@ -373,7 +373,7 @@ const architectureTabPanelEl = (
                 runId={m.resolvedDetail.run.runId}
                 totalFindingCount={m.findingCountDisplay}
                 architectureRequestId={m.resolvedDetail.run.architectureRequestId}
-                packAssignments={m.manifestSummaryForUi?.effectiveGovernanceAtCommit?.packAssignments}
+                effectiveGovernanceAtCommit={reviewPolicyPackCallout.effectiveGovernanceAtCommit}
               />
             ) : null}
             {m.manifestId && m.manifestSummaryForUi ? (

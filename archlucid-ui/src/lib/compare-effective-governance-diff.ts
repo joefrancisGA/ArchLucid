@@ -10,6 +10,15 @@ export type CompareEffectivePackAssignmentAtCommitRow = {
   readonly scopeLevel: string;
 };
 
+export type CompareEffectiveCoverageAssignmentAtCommitRow = {
+  readonly policyPackId: string;
+  readonly policyPackVersion: string;
+  readonly coverageType: string;
+  readonly selectionState: string;
+  readonly qualityDimension: string | null;
+  readonly exclusionReason: string | null;
+};
+
 export type CompareEffectiveGovernanceAtCommitSnapshot = {
   readonly generatedUtc: string | null;
   readonly ruleSetHash: string | null;
@@ -17,6 +26,7 @@ export type CompareEffectiveGovernanceAtCommitSnapshot = {
   readonly complianceRuleKeys: readonly string[];
   readonly conflictCount: number;
   readonly packAssignments: readonly CompareEffectivePackAssignmentAtCommitRow[];
+  readonly coverageAssignments: readonly CompareEffectiveCoverageAssignmentAtCommitRow[];
   readonly hasEffectivePolicy: boolean;
 };
 
@@ -104,6 +114,37 @@ function readFiniteNumber(value: unknown): number | null {
   return value;
 }
 
+function parseAtCommitCoverageAssignments(value: unknown): CompareEffectiveCoverageAssignmentAtCommitRow[] {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  const rows: CompareEffectiveCoverageAssignmentAtCommitRow[] = [];
+
+  for (const item of value) {
+    if (!isRecord(item)) {
+      continue;
+    }
+
+    const policyPackId = readTrimmedString(item.policyPackId);
+
+    if (policyPackId === null) {
+      continue;
+    }
+
+    rows.push({
+      policyPackId,
+      policyPackVersion: readTrimmedString(item.policyPackVersion) ?? " — ",
+      coverageType: readTrimmedString(item.coverageType) ?? "Unknown",
+      selectionState: readTrimmedString(item.selectionState) ?? "Unknown",
+      qualityDimension: readTrimmedString(item.qualityDimension),
+      exclusionReason: readTrimmedString(item.exclusionReason),
+    });
+  }
+
+  return rows;
+}
+
 function parseAtCommitPackAssignments(value: unknown): CompareEffectivePackAssignmentAtCommitRow[] {
   if (!Array.isArray(value)) {
     return [];
@@ -147,6 +188,7 @@ function parseEffectiveGovernanceAtCommit(value: unknown): CompareEffectiveGover
     complianceRuleKeys,
     conflictCount: readFiniteNumber(value.conflictCount) ?? 0,
     packAssignments: parseAtCommitPackAssignments(value.packAssignments),
+    coverageAssignments: parseAtCommitCoverageAssignments(value.coverageAssignments),
     hasEffectivePolicy: readBoolean(value.hasEffectivePolicy),
   };
 }

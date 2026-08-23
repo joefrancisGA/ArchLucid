@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 
-import type { CompareEffectivePackAssignmentAtCommitRow } from "@/lib/compare-effective-governance-diff";
+import type { CompareEffectiveGovernanceAtCommitSnapshot } from "@/lib/compare-effective-governance-diff";
 import { getArchitectureRequest } from "@/lib/api";
 import { evaluatePolicyPackCloudMismatchForReview } from "@/lib/review-quality/policy-pack-cloud-mismatch-for-review";
 
@@ -16,7 +16,8 @@ export type ReviewDetailPolicyPackImpactSectionProps = Omit<
   "cloudMismatchDetail"
 > & {
   readonly architectureRequestId?: string | null;
-  readonly packAssignments?: readonly CompareEffectivePackAssignmentAtCommitRow[] | null;
+  /** @deprecated Prefer effectiveGovernanceAtCommit; retained for deferred chunk callers. */
+  readonly packAssignments?: CompareEffectiveGovernanceAtCommitSnapshot["packAssignments"] | null;
 };
 
 /**
@@ -45,7 +46,7 @@ export function ReviewDetailPolicyPackImpactSection(
           props.ruleSetId,
           props.ruleSetVersion,
           request.policyReferences,
-          props.packAssignments,
+          props.effectiveGovernanceAtCommit?.packAssignments ?? props.packAssignments,
         );
 
         if (!cancelled) {
@@ -65,6 +66,7 @@ export function ReviewDetailPolicyPackImpactSection(
     props.architectureRequestId,
     props.ruleSetId,
     props.ruleSetVersion,
+    props.effectiveGovernanceAtCommit,
     props.packAssignments,
   ]);
 
@@ -75,6 +77,7 @@ export function ReviewDetailPolicyPackImpactSection(
       runId={props.runId}
       mappedFindingCount={props.mappedFindingCount}
       totalFindingCount={props.totalFindingCount}
+      effectiveGovernanceAtCommit={props.effectiveGovernanceAtCommit}
       variant={props.variant}
       cloudMismatchDetail={cloudMismatchDetail}
     />

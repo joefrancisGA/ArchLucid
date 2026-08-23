@@ -2,6 +2,7 @@ import {
   formatProofConfidenceLabelFromTrustStatus,
   PROOF_CONFIDENCE_FIELD_LABEL,
 } from "@/lib/proof-confidence-taxonomy";
+import { parseCompareManifestGovernanceSnapshot } from "@/lib/compare-effective-governance-diff";
 import type { ManifestSummary, RunTrustEvidenceCard } from "@/types/authority";
 
 export type GoldenManifestMarkdownOptions = {
@@ -312,6 +313,46 @@ function formatPolicySection(policy: Record<string, unknown> | null, lines: stri
   }
 }
 
+function pushPolicyAtCommitMarkdownLines(manifest: Record<string, unknown>, lines: string[]): void {
+  const snapshot = parseCompareManifestGovernanceSnapshot(manifest).atCommit;
+
+  if (snapshot === null) {
+    return;
+  }
+
+  lines.push("## Policy scope at commit");
+  lines.push("");
+
+  if (!snapshot.hasEffectivePolicy) {
+    lines.push("_No effective policy pack assignments or compliance rule keys were recorded at commit._");
+    lines.push("");
+    return;
+  }
+
+  lines.push(
+    `- **Pack assignments:** ${snapshot.packAssignments.length} · **Compliance rule keys:** ${snapshot.complianceRuleKeyCount}${
+      snapshot.conflictCount > 0 ? ` · **Merge conflicts:** ${snapshot.conflictCount}` : ""
+    }`,
+  );
+
+  for (const row of snapshot.packAssignments) {
+    lines.push(`- Pack \`${row.policyPackId}\` v${row.policyPackVersion} (${row.scopeLevel})`);
+  }
+
+  for (const row of snapshot.coverageAssignments) {
+    const dimension = row.qualityDimension ?? "unspecified dimension";
+    const exclusion =
+      row.exclusionReason !== null && row.exclusionReason.length > 0
+        ? ` · excluded: ${row.exclusionReason}`
+        : "";
+    lines.push(
+      `- Coverage \`${row.policyPackId}\` v${row.policyPackVersion} · ${dimension} · ${row.coverageType} · ${row.selectionState}${exclusion}`,
+    );
+  }
+
+  lines.push("");
+}
+
 function formatManifestDocumentShape(m: Record<string, unknown>): string {
   const lines: string[] = [];
   const meta = isRecord(m.metadata) ? m.metadata : null;
@@ -361,7 +402,7 @@ function formatManifestDocumentShape(m: Record<string, unknown>): string {
     lines.push(`- **Review record version:** ${manifestVersion}`);
   }
 
-  lines.push("");
+  pushPolicyAtCommitMarkdownLines(m, lines);
 
   lines.push("## Objectives");
   lines.push("");
@@ -633,7 +674,15 @@ function formatManifestSummaryFallback(summary: ManifestSummary, runId?: string 
   lines.push(`- **Status:** ${summary.status}`);
   lines.push(`- **Policy pack:** ${summary.ruleSetId} @ ${summary.ruleSetVersion}`);
   lines.push(`- **Review record hash:** \`${summary.manifestHash}\``);
-  lines.push("");
+
+  if (summary.effectiveGovernanceAtCommit !== undefined && summary.effectiveGovernanceAtCommit !== null) {
+    pushPolicyAtCommitMarkdownLines(
+      { effectiveGovernanceAtCommit: summary.effectiveGovernanceAtCommit },
+      lines,
+    );
+  } else {
+    lines.push("");
+  }
 
   lines.push("## Objectives");
   lines.push("");

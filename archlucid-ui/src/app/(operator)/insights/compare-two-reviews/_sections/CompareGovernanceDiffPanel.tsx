@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
 import type { ReactElement } from "react";
-import Link from "next/link";
 
+import { PolicyAtCommitScopeSummary } from "@/components/policy/PolicyAtCommitScopeSummary";
 import { StatusTag } from "@/components/ui/status-tag";
 import { DeferredChunkLoading } from "@/components/ui/deferred-chunk-loading";
 import {
@@ -10,9 +10,7 @@ import {
   type CompareGovernanceDiffView,
   type CompareManifestGovernanceSnapshot,
 } from "@/lib/compare-effective-governance-diff";
-import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
-import { governancePolicyPackDetailPath } from "@/lib/governance/governance-route-paths";
-import { policyPackBuyerGovernanceDetailHref } from "@/lib/policy/policy-pack-buyer-label";
+import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { POLICY_PACK_CLOUD_MISMATCH_MESSAGE } from "@/lib/review-quality/review-intake-quality-gates";
 
 export type CompareGovernanceDiffPanelProps = {
@@ -64,9 +62,7 @@ function renderAtCommitSnapshot(
         data-testid={`${testIdPrefix}-empty-at-commit`}
       >
         <p className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>{label}</p>
-        <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-          Policy at commit: no effective policy pack assignments or compliance rule keys were recorded.
-        </p>
+        <PolicyAtCommitScopeSummary snapshot={snapshot} testIdPrefix={`${testIdPrefix}-scope`} />
       </div>
     );
   }
@@ -77,31 +73,9 @@ function renderAtCommitSnapshot(
       data-testid={`${testIdPrefix}-at-commit`}
     >
       <p className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>{label}</p>
-      <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-        Policy at commit · {snapshot.packAssignments.length} pack assignment(s) · {snapshot.complianceRuleKeyCount} compliance rule key(s)
-        {snapshot.conflictCount > 0 ? ` · ${snapshot.conflictCount} merge conflict(s)` : null}
-      </p>
-      {snapshot.packAssignments.length > 0 ? (
-        <ul className="m-0 mt-2 list-none space-y-1 p-0">
-          {snapshot.packAssignments.map((row) => {
-            const packHref =
-              policyPackBuyerGovernanceDetailHref(row.policyPackId) ??
-              governancePolicyPackDetailPath(row.policyPackId);
-
-            return (
-              <li
-                key={`${row.policyPackId}-${row.policyPackVersion}-${row.scopeLevel}`}
-                className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-              >
-                <Link className={cn(OPERATOR_LINK.inline, "font-mono", OPERATOR_TYPOGRAPHY.micro)} href={packHref}>
-                  {row.policyPackId}
-                </Link>{" "}
-                · v{row.policyPackVersion} · {row.scopeLevel}
-              </li>
-            );
-          })}
-        </ul>
-      ) : null}
+      <div className="mt-2">
+        <PolicyAtCommitScopeSummary snapshot={snapshot} testIdPrefix={`${testIdPrefix}-scope`} />
+      </div>
     </div>
   );
 }
