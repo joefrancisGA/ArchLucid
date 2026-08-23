@@ -5,12 +5,7 @@ import { useEffect, useState } from "react";
 
 import { ArchitectureDraftResumeControl } from "@/components/architecture/ArchitectureDraftResumeControl";
 import { Button } from "@/components/ui/button";
-import { StatusTag } from "@/components/ui/status-tag";
 import { useArchitectureDraftRegistryEntries } from "@/hooks/use-architecture-draft-registry-entries";
-import {
-  ARCHITECTURE_DRAFT_STATUS_LABELS,
-  architectureDraftCustomerStatusTagKind,
-} from "@/lib/architecture/architecture-draft-status";
 import { ARCHITECTURES_LIST_PATH } from "@/lib/architecture/architecture-routes";
 import { CONTINUE_DRAFT_LABEL } from "@/lib/architecture/architecture-workflow-labels";
 import {
@@ -98,17 +93,9 @@ export function ArchitectureCreationLocalDraftsPanel(): React.JSX.Element | null
               <p className={cn("m-0 line-clamp-2 break-words font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
                 {entry.displayName}
               </p>
-              <div className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1">
-                <StatusTag
-                  kind={architectureDraftCustomerStatusTagKind(entry.customerStatus)}
-                  label={ARCHITECTURE_DRAFT_STATUS_LABELS[entry.customerStatus]}
-                />
-                <span
-                  className={cn(OPERATOR_TYPOGRAPHY.helper, "text-al-text-secondary")}
-                >
-                  {formatUpdatedRelativeWithAbsoluteParenthetical(entry.lastUpdatedUtc, absoluteUpdated)}
-                </span>
-              </div>
+              <p className={cn("m-0 mt-1.5 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+                {formatUpdatedRelativeWithAbsoluteParenthetical(entry.lastUpdatedUtc, absoluteUpdated)}
+              </p>
               <div className="mt-2">
                 <ArchitectureDraftResumeControl
                   architectureId={entry.architectureId}
