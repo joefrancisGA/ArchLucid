@@ -1,6 +1,8 @@
 import type { CloudPlatformScope } from "@/lib/cloud-platform-scope-storage";
 import * as httpApi from "@/lib/api/http";
 import type { ColorModePreference } from "@/lib/color-mode-preference";
+import { getOperatorQueryClient } from "@/lib/query/operator-query-client";
+import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 
 export type CloudPlatformScopeDto = {
   readonly "evidence-only": boolean;
@@ -45,53 +47,72 @@ const DEFAULT_CLOUD_PLATFORM_SCOPE_DTO: CloudPlatformScopeDto = {
 
 const DEFAULT_IANA_TIME_ZONE_ID = "UTC";
 
-const USER_PREFERENCES_CACHE_TTL_MS = 30_000;
+/** Matches prior module-level TTL; TanStack `staleTime` for cross-tree dedupe (TB-2303). */
+export const USER_PREFERENCES_STALE_MS = 30_000;
 
-type CacheEntry = {
-  readonly value: UserPreferencesResponse;
-  readonly expiresAtMs: number;
-};
-
-let cacheEntry: CacheEntry | null = null;
-let inFlight: Promise<UserPreferencesResponse> | null = null;
-/** Bumped on invalidate so a late in-flight response cannot re-seed the cache. */
-let cacheGeneration = 0;
-
-function readFreshCache(nowMs: number): UserPreferencesResponse | null {
-  if (cacheEntry === null) {
-    return null;
-  }
-
-  if (cacheEntry.expiresAtMs <= nowMs) {
-    cacheEntry = null;
-    return null;
-  }
-
-  return cacheEntry.value;
-}
-
-function writeCache(value: UserPreferencesResponse, generation: number): void {
-  if (generation !== cacheGeneration) {
-    return;
-  }
-
-  cacheEntry = {
-    value,
-    expiresAtMs: Date.now() + USER_PREFERENCES_CACHE_TTL_MS,
+function defaultUserPreferencesResponse(): UserPreferencesResponse {
+  return {
+    appearancePreference: "system",
+    appearancePreferenceIsExplicit: false,
+    cloudPlatformScope: DEFAULT_CLOUD_PLATFORM_SCOPE_DTO,
+    cloudPlatformScopeIsExplicit: false,
+    whereToGoNextEnabled: true,
+    whereToGoNextIsExplicit: false,
+    ianaTimeZoneId: DEFAULT_IANA_TIME_ZONE_ID,
+    ianaTimeZoneIsExplicit: false,
   };
 }
 
-export function invalidateUserPreferencesCache(): void {
-  cacheEntry = null;
-  inFlight = null;
-  cacheGeneration += 1;
+function readCachedUserPreferences(): UserPreferencesResponse {
+  if (typeof window === "undefined") {
+    return defaultUserPreferencesResponse();
+  }
+
+  const queryClient = getOperatorQueryClient();
+  const cached = queryClient.getQueryData<UserPreferencesResponse>(operatorQueryKeys.userPreferences);
+
+  if (cached === undefined) {
+    return defaultUserPreferencesResponse();
+  }
+
+  return cached;
 }
 
-/** Test-only: clear TTL cache and generation so suites stay isolated. */
+function patchUserPreferencesCache(patch: Partial<UserPreferencesResponse>): void {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  const queryClient = getOperatorQueryClient();
+
+  queryClient.setQueryData<UserPreferencesResponse>(operatorQueryKeys.userPreferences, {
+    ...readCachedUserPreferences(),
+    ...patch,
+  });
+}
+
+/** Raw fetch for TanStack `queryFn` and SSR callers. */
+export async function fetchUserPreferencesFromApi(): Promise<UserPreferencesResponse> {
+  return httpApi.apiGet<UserPreferencesResponse>("/v1/user/preferences");
+}
+
+export async function invalidateUserPreferencesCache(): Promise<void> {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  await getOperatorQueryClient().invalidateQueries({ queryKey: operatorQueryKeys.userPreferences });
+}
+
+/** Test-only: drop TanStack cache between Vitest cases. */
 export function resetUserPreferencesCacheForTests(): void {
-  cacheEntry = null;
-  inFlight = null;
-  cacheGeneration = 0;
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  const queryClient = getOperatorQueryClient();
+
+  queryClient.removeQueries({ queryKey: operatorQueryKeys.userPreferences });
 }
 
 export function toCloudPlatformScopeDto(scope: CloudPlatformScope): CloudPlatformScopeDto {
@@ -113,30 +134,17 @@ export function fromCloudPlatformScopeDto(dto: CloudPlatformScopeDto): CloudPlat
 }
 
 export async function getUserPreferences(): Promise<UserPreferencesResponse> {
-  const nowMs = Date.now();
-  const cached = readFreshCache(nowMs);
-
-  if (cached !== null) {
-    return cached;
+  if (typeof window === "undefined") {
+    return fetchUserPreferencesFromApi();
   }
 
-  if (inFlight !== null) {
-    return inFlight;
-  }
+  const queryClient = getOperatorQueryClient();
 
-  const generation = cacheGeneration;
-
-  inFlight = httpApi
-    .apiGet<UserPreferencesResponse>("/v1/user/preferences")
-    .then((value) => {
-      writeCache(value, generation);
-      return value;
-    })
-    .finally(() => {
-      inFlight = null;
-    });
-
-  return inFlight;
+  return queryClient.fetchQuery({
+    queryKey: operatorQueryKeys.userPreferences,
+    queryFn: fetchUserPreferencesFromApi,
+    staleTime: USER_PREFERENCES_STALE_MS,
+  });
 }
 
 export async function setUserAppearancePreference(value: ColorModePreference): Promise<void> {
@@ -145,21 +153,10 @@ export async function setUserAppearancePreference(value: ColorModePreference): P
     { value } satisfies SetAppearancePreferenceRequest,
   );
 
-  const cached = readFreshCache(Date.now());
-
-  writeCache(
-    {
-      appearancePreference: value,
-      appearancePreferenceIsExplicit: true,
-      cloudPlatformScope: cached?.cloudPlatformScope ?? DEFAULT_CLOUD_PLATFORM_SCOPE_DTO,
-      cloudPlatformScopeIsExplicit: cached?.cloudPlatformScopeIsExplicit ?? false,
-      whereToGoNextEnabled: cached?.whereToGoNextEnabled ?? true,
-      whereToGoNextIsExplicit: cached?.whereToGoNextIsExplicit ?? false,
-      ianaTimeZoneId: cached?.ianaTimeZoneId ?? DEFAULT_IANA_TIME_ZONE_ID,
-      ianaTimeZoneIsExplicit: cached?.ianaTimeZoneIsExplicit ?? false,
-    },
-    cacheGeneration,
-  );
+  patchUserPreferencesCache({
+    appearancePreference: value,
+    appearancePreferenceIsExplicit: true,
+  });
 }
 
 export async function setUserCloudPlatformScope(scope: CloudPlatformScope): Promise<void> {
@@ -170,21 +167,10 @@ export async function setUserCloudPlatformScope(scope: CloudPlatformScope): Prom
     { scope: dto } satisfies SetCloudPlatformScopeRequest,
   );
 
-  const cached = readFreshCache(Date.now());
-
-  writeCache(
-    {
-      appearancePreference: cached?.appearancePreference ?? "system",
-      appearancePreferenceIsExplicit: cached?.appearancePreferenceIsExplicit ?? false,
-      cloudPlatformScope: dto,
-      cloudPlatformScopeIsExplicit: true,
-      whereToGoNextEnabled: cached?.whereToGoNextEnabled ?? true,
-      whereToGoNextIsExplicit: cached?.whereToGoNextIsExplicit ?? false,
-      ianaTimeZoneId: cached?.ianaTimeZoneId ?? DEFAULT_IANA_TIME_ZONE_ID,
-      ianaTimeZoneIsExplicit: cached?.ianaTimeZoneIsExplicit ?? false,
-    },
-    cacheGeneration,
-  );
+  patchUserPreferencesCache({
+    cloudPlatformScope: dto,
+    cloudPlatformScopeIsExplicit: true,
+  });
 }
 
 export async function setUserWhereToGoNextEnabled(enabled: boolean): Promise<void> {
@@ -193,21 +179,10 @@ export async function setUserWhereToGoNextEnabled(enabled: boolean): Promise<voi
     { enabled } satisfies SetWhereToGoNextVisibilityRequest,
   );
 
-  const cached = readFreshCache(Date.now());
-
-  writeCache(
-    {
-      appearancePreference: cached?.appearancePreference ?? "system",
-      appearancePreferenceIsExplicit: cached?.appearancePreferenceIsExplicit ?? false,
-      cloudPlatformScope: cached?.cloudPlatformScope ?? DEFAULT_CLOUD_PLATFORM_SCOPE_DTO,
-      cloudPlatformScopeIsExplicit: cached?.cloudPlatformScopeIsExplicit ?? false,
-      whereToGoNextEnabled: enabled,
-      whereToGoNextIsExplicit: true,
-      ianaTimeZoneId: cached?.ianaTimeZoneId ?? DEFAULT_IANA_TIME_ZONE_ID,
-      ianaTimeZoneIsExplicit: cached?.ianaTimeZoneIsExplicit ?? false,
-    },
-    cacheGeneration,
-  );
+  patchUserPreferencesCache({
+    whereToGoNextEnabled: enabled,
+    whereToGoNextIsExplicit: true,
+  });
 }
 
 export async function setUserIanaTimeZonePreference(ianaTimeZoneId: string): Promise<void> {
@@ -216,19 +191,8 @@ export async function setUserIanaTimeZonePreference(ianaTimeZoneId: string): Pro
     { ianaTimeZoneId } satisfies SetIanaTimeZonePreferenceRequest,
   );
 
-  const cached = readFreshCache(Date.now());
-
-  writeCache(
-    {
-      appearancePreference: cached?.appearancePreference ?? "system",
-      appearancePreferenceIsExplicit: cached?.appearancePreferenceIsExplicit ?? false,
-      cloudPlatformScope: cached?.cloudPlatformScope ?? DEFAULT_CLOUD_PLATFORM_SCOPE_DTO,
-      cloudPlatformScopeIsExplicit: cached?.cloudPlatformScopeIsExplicit ?? false,
-      whereToGoNextEnabled: cached?.whereToGoNextEnabled ?? true,
-      whereToGoNextIsExplicit: cached?.whereToGoNextIsExplicit ?? false,
-      ianaTimeZoneId,
-      ianaTimeZoneIsExplicit: true,
-    },
-    cacheGeneration,
-  );
+  patchUserPreferencesCache({
+    ianaTimeZoneId,
+    ianaTimeZoneIsExplicit: true,
+  });
 }
