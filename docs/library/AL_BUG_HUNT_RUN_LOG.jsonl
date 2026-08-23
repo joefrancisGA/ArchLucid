@@ -108,3 +108,4 @@
 {"at": "2026-08-23T21:25:59.857192Z", "zoneId": "weekly-digest-email", "outcome": "hit"}
 {"at": "2026-08-23T22:57:06.854610Z", "zoneId": "cli-tenant-isolation", "outcome": "hit"}
 {"at": "2026-08-23T23:00:58.269002Z", "zoneId": "cli-tenant-isolation", "outcome": "hit"}
+{"at": "2026-08-23T23:03:56.272707Z", "zoneId": "ui-runs-list", "outcome": "hit"}

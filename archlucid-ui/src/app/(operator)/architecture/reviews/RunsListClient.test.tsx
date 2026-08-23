@@ -169,6 +169,25 @@ describe("RunsListClient inspector", () => {
     expect(screen.getByTestId(`runs-row-baseline-menu-${committed.runId}`)).toBeInTheDocument();
   });
 
+  it("does not open inspector when Space activates a compare checkbox", () => {
+    const secondRun: RunSummary = {
+      ...sampleRun,
+      runId: "00000000-0000-0000-0000-0000000000bb",
+      description: "Second review",
+    };
+
+    render(
+      <RunsListClient runs={[sampleRun, secondRun]} projectId="default" page={1} pageSize={20} totalCount={2} />,
+    );
+
+    const checkbox = within(screen.getByTestId(`runs-row-${sampleRun.runId}`)).getByRole("checkbox");
+
+    fireEvent.keyDown(checkbox, { key: " ", code: "Space" });
+
+    expect(screen.queryByTestId("run-inspector-preview")).toBeNull();
+    expect(screen.getByTestId("run-inspector-empty")).toBeInTheDocument();
+  });
+
   it("buyer-polished: uses finalized section heading and scope chips", () => {
     buyerPolishedShellVitestOverride.value = true;
 

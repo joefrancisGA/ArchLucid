@@ -1,5 +1,7 @@
 "use client";
 
+import type { KeyboardEvent, MouseEvent } from "react";
+
 import { SPONSOR_DASHBOARD_HREF } from "@/lib/sponsor-dashboard-route";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
@@ -217,7 +219,11 @@ function runListPrimaryTitle(run: RunSummary): string {
   return buyerFacingReviewTitleFromSummary(run);
 }
 
-function activateRowKeyboard(e: React.KeyboardEvent<HTMLTableRowElement>, run: RunSummary, select: (r: RunSummary) => void) {
+function activateRowKeyboard(
+  e: KeyboardEvent<HTMLTableRowElement>,
+  run: RunSummary,
+  onActivate: (run: RunSummary, event: MouseEvent<HTMLTableRowElement>) => void,
+) {
   if (e.key !== "Enter" && e.key !== " ") {
     return;
   }
@@ -226,8 +232,12 @@ function activateRowKeyboard(e: React.KeyboardEvent<HTMLTableRowElement>, run: R
     return;
   }
 
+  if ((e.target as HTMLElement).closest('input[type="checkbox"]')) {
+    return;
+  }
+
   e.preventDefault();
-  select(run);
+  onActivate(run, e as unknown as MouseEvent<HTMLTableRowElement>);
 }
 
 function displayRelativeCreated(run: RunSummary): string {
@@ -549,7 +559,7 @@ export function RunsListClient(props: RunsListClientProps) {
                                   onRowActivate(run, e);
                                 }}
                                 onKeyDown={(e) => {
-                                  activateRowKeyboard(e, run, setSelectedRun);
+                                  activateRowKeyboard(e, run, onRowActivate);
                                 }}
                               >
                                 {showCompareSelection ? (
