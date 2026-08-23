@@ -532,24 +532,25 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ## Zone: finding-disposition
 
 - **id:** finding-disposition
-- **status:** unseeded
+- **status:** open
 - **impact:** medium
 - **aliases:** disposition; finding decision
 - **paths:** ArchLucid.Application/Governance/FindingDisposition/FindingDispositionService.cs; ArchLucid.Application/Governance/FindingDisposition/FindingDispositionValidation.cs
 - **test-filter:** FullyQualifiedName~FindingDispositionValidationTests
-- **hunts:** 0
-- **bugs-found:** 0
+- **hunts:** 1
+- **bugs-found:** 1
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **last-hunt:** 2026-08-23
+- **last-bug:** 2026-08-23
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
 ### Hypotheses
 
-- [ ] (candidate) Disposition writes succeed for a finding that belongs to another tenant
-- [ ] (candidate) Validation accepts a closed finding as still actionable
-- [ ] (candidate) Required rationale is skipped when the disposition kind is reject
+- [x] (invalid) Disposition writes succeed for a finding that belongs to another tenant — trail append uses `scope.TenantId`; no cross-tenant leak path in zone files.
+- [x] (valid-no-repro) Validation accepts a closed finding as still actionable — disposition is append-only by design (`FINDING_CONCURRENT_DISPOSITION_CONFLICT_CONTRACT.md`); no finding-state gate in validation.
+- [x] (invalid) Required rationale is skipped when the disposition kind is reject — `RejectedAsNotApplicable` requires rationale in `FindingDispositionValidation.Validate`.
+- [x] (proven) Deferred disposition rejects empty rationale while operator UI gates (TB-2305) require rationale only for Accepted and RejectedAsNotApplicable — fixed by removing Deferred from `requiresRationale`.
 
 ---
 

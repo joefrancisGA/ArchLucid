@@ -11,7 +11,22 @@ namespace ArchLucid.Application.Tests.Governance.FindingDisposition;
 public sealed class FindingDispositionValidationTests
 {
     [Fact]
-    public void Validate_null_ratio_disposition_requires_revisit()
+    public void Validate_deferred_without_rationale_passes_when_revisit_set()
+    {
+        RecordFindingDispositionRequest request = new()
+        {
+            FindingId = "f1",
+            Disposition = Disposition.Deferred,
+            RevisitDueUtc = DateTimeOffset.UtcNow.AddDays(30),
+        };
+
+        Action act = () => FindingDispositionValidation.Validate(request);
+
+        act.Should().NotThrow();
+    }
+
+    [Fact]
+    public void Validate_deferred_disposition_requires_revisit()
     {
         RecordFindingDispositionRequest request = new()
         {

@@ -18,7 +18,6 @@ public static class FindingDispositionValidation
             throw new ArgumentException("Finding id is required.", nameof(request));
 
         bool requiresRationale = request.Disposition is Disposition.Accepted
-            or Disposition.Deferred
             or Disposition.RejectedAsNotApplicable;
 
         if (requiresRationale)
