@@ -4,15 +4,14 @@ import { fileURLToPath } from "node:url";
 
 import { describe, expect, it } from "vitest";
 
+import { readDeferredChunkImportLoaderSource } from "@/lib/operator/deferred-chunk-import-loader-source.test-helper";
+
 const operatorAppDir = dirname(fileURLToPath(import.meta.url));
 
 const layoutSource = readFileSync(join(operatorAppDir, "layout.tsx"), "utf8");
 const layoutClientSource = readFileSync(join(operatorAppDir, "OperatorLayoutClient.tsx"), "utf8");
 const deferredSource = readFileSync(join(operatorAppDir, "operator-layout-deferred-chunks.tsx"), "utf8");
-const manifestLoaderSource = readFileSync(
-  join(operatorAppDir, "../../lib/operator/load-deferred-chunk-from-manifest.tsx"),
-  "utf8",
-);
+const manifestLoaderSource = readDeferredChunkImportLoaderSource();
 
 describe("operator layout deferred imports", () => {
   it("keeps AppShellClient off the operator layout static import graph", () => {

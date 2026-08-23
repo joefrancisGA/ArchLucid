@@ -4,6 +4,8 @@ import { fileURLToPath } from "node:url";
 
 import { describe, expect, it } from "vitest";
 
+import { readDeferredChunkImportLoaderSource } from "@/lib/operator/deferred-chunk-import-loader-source.test-helper";
+
 const sectionsDir = dirname(fileURLToPath(import.meta.url));
 
 const pageViewSource = readFileSync(join(sectionsDir, "RunDetailPageView.tsx"), "utf8");
@@ -13,10 +15,7 @@ const deferredChunksSource = readFileSync(
   "utf8",
 );
 
-const manifestLoaderSource = readFileSync(
-  join(sectionsDir, "../../../../../../lib/operator/load-deferred-chunk-from-manifest.tsx"),
-  "utf8",
-);
+const manifestLoaderSource = readDeferredChunkImportLoaderSource();
 
 const explanationCollapsibleSource = readFileSync(
   join(sectionsDir, "RunDetailRunExplanationCollapsible.tsx"),
