@@ -21,7 +21,7 @@ import type { OperatorHomeRunsDashboardModel } from "@/app/(operator)/_sections/
 import { useOperatorHomeEmptyDoThisNextAction } from "@/hooks/use-operator-home-empty-do-this-next-action";
 import {
   OPERATOR_HOME_COMMAND_CENTER_TAGLINE,
-  OPERATOR_HOME_DRAFT_ARCHITECTURE_EYEBROW,
+  formatOperatorHomeDraftArchitectureEyebrow,
 } from "@/lib/buyer/buyer-polish-copy";
 import { resolveOperatorHomeLatestDraftPrimaryAction } from "@/lib/operator-home-latest-draft-primary-action";
 import {
@@ -180,6 +180,7 @@ export function PilotCommandCenterCard(props: PilotCommandCenterCardProps = {}):
           createdUtc: latestDraft.lastUpdatedUtc,
         })
       : null;
+  const draftHeroEyebrowLabel = formatOperatorHomeDraftArchitectureEyebrow(draftLastEditedLabel);
   const showLeadCopy = props.suppressLeadCopy !== true;
   const showContextualHelp = props.showContextualHelp !== false;
 
@@ -233,14 +234,14 @@ export function PilotCommandCenterCard(props: PilotCommandCenterCardProps = {}):
             </OperatorHomeCardSectionTitle>
             {workspacePhase === "eval-with-drafts" ? (
               <>
-                <p
-                  className={cn("m-0", OPERATOR_TYPE_SCALE.micro, "text-al-text-secondary")}
-                  data-testid="operator-home-draft-hero-labels"
-                >
-                  {draftLastEditedLabel !== null
-                    ? `${OPERATOR_HOME_DRAFT_ARCHITECTURE_EYEBROW} — ${draftLastEditedLabel}`
-                    : OPERATOR_HOME_DRAFT_ARCHITECTURE_EYEBROW}
-                </p>
+                {draftHeroEyebrowLabel !== null ? (
+                  <p
+                    className={cn("m-0", OPERATOR_TYPE_SCALE.micro, "text-al-text-secondary")}
+                    data-testid="operator-home-draft-hero-labels"
+                  >
+                    {draftHeroEyebrowLabel}
+                  </p>
+                ) : null}
                 <p
                   className={cn("m-0", OPERATOR_TYPE_SCALE.helper, "text-al-text-secondary")}
                   data-testid="operator-home-resume-draft-bridge"

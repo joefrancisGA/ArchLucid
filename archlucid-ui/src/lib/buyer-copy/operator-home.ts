@@ -81,6 +81,30 @@ export const OPERATOR_HOME_CONTINUE_REVIEW_INTAKE_CTA = "Continue in review inta
 
 export const OPERATOR_HOME_CONTINUE_IN_REVIEW_CTA = "Continue in review";
 
+/** Eyebrow on eval-with-drafts home hero — saved draft architecture, not a lifecycle status. */
+export const OPERATOR_HOME_DRAFT_ARCHITECTURE_EYEBROW = "Draft architecture";
+
+export function formatOperatorHomeDraftArchitectureEyebrow(
+  draftLastEditedLabel: string | null,
+): string | null {
+  const eyebrow = OPERATOR_HOME_DRAFT_ARCHITECTURE_EYEBROW.trim();
+  const trimmedEditedLabel =
+    draftLastEditedLabel !== null && draftLastEditedLabel.trim().length > 0
+      ? draftLastEditedLabel.trim()
+      : null;
+
+  if (trimmedEditedLabel !== null) {
+
+    if (eyebrow.length === 0) {
+      return trimmedEditedLabel;
+    }
+
+    return `${eyebrow} — ${trimmedEditedLabel}`;
+  }
+
+  return eyebrow.length > 0 ? eyebrow : null;
+}
+
 export function formatOperatorHomeContinueArchitectureLead(draftCount: number): string {
   const safeCount = Number.isFinite(draftCount) ? Math.max(0, Math.trunc(draftCount)) : 0;
 
@@ -128,8 +152,6 @@ export const OPERATOR_HOME_MISSING_COMPLETED_SAMPLE_MESSAGE =
 
 export const OPERATOR_HOME_COMPLETED_SAMPLE_FETCH_ERROR_MESSAGE =
   "Could not load the completed sample for this workspace. Try refreshing the page.";
-
-export const OPERATOR_HOME_DRAFT_ARCHITECTURE_EYEBROW = "Draft architecture";
 
 /** Bold prefix on Home header freshness line — qualifies the clock timestamp after refresh. */
 export const OPERATOR_HOME_DATA_CURRENCY_PREFIX = "Refreshed";
