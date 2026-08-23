@@ -74,7 +74,7 @@ public sealed class WeeklySponsorSummaryEmailDispatcher(
 
         string html = await _templateRenderer.RenderHtmlAsync(TemplateId, model, cancellationToken);
         string text = await _templateRenderer.RenderTextAsync(TemplateId, model, cancellationToken);
-        string subject = $"{productName} weekly sponsor report — {weekLabel}";
+        string subject = $"{productName} weekly sponsor summary — {weekLabel}";
 
         foreach (string mailbox in toMailboxes)
         {
@@ -98,7 +98,7 @@ public sealed class WeeklySponsorSummaryEmailDispatcher(
             catch (Exception ex) when (!cancellationToken.IsCancellationRequested)
             {
                 if (_logger.IsEnabled(LogLevel.Error))
-                    _logger.LogError(ex, "Weekly sponsor report email send failed for tenant {TenantId}.", tenantId);
+                    _logger.LogError(ex, "Weekly sponsor summary email send failed for tenant {TenantId}.", tenantId);
 
                 throw;
             }

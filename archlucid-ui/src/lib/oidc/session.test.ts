@@ -1,6 +1,16 @@
 import { afterEach, describe, expect, it } from "vitest";
 
-import { consumePostSignInReturnUrl, storePostSignInReturnUrl } from "@/lib/oidc/session";
+import {
+  clearOidcSession,
+  consumePostSignInReturnUrl,
+  getAccessTokenForApi,
+  isLikelySignedIn,
+  storePostSignInReturnUrl,
+} from "@/lib/oidc/session";
+import {
+  OIDC_ACCESS_TOKEN_KEY,
+  OIDC_EXPIRES_AT_MS_KEY,
+} from "@/lib/oidc/storage-keys";
 
 describe("storePostSignInReturnUrl / consumePostSignInReturnUrl", () => {
   afterEach(() => {
@@ -44,6 +54,33 @@ describe("storePostSignInReturnUrl / consumePostSignInReturnUrl", () => {
 
   it("does not store a backslash-prefixed URL", () => {
     storePostSignInReturnUrl("/\\evil.example");
+
+    expect(consumePostSignInReturnUrl()).toBeNull();
+  });
+});
+
+describe("getAccessTokenForApi / isLikelySignedIn expiry parsing", () => {
+  afterEach(() => {
+    sessionStorage.clear();
+  });
+
+  it("treats a non-numeric expires_at as expired instead of bypassing skew checks", () => {
+    sessionStorage.setItem(OIDC_ACCESS_TOKEN_KEY, "stale-access");
+    sessionStorage.setItem(OIDC_EXPIRES_AT_MS_KEY, "not-a-number");
+
+    expect(getAccessTokenForApi()).toBeUndefined();
+    expect(isLikelySignedIn()).toBe(false);
+  });
+});
+
+describe("clearOidcSession", () => {
+  afterEach(() => {
+    sessionStorage.clear();
+  });
+
+  it("clears a stored post-sign-in return URL", () => {
+    storePostSignInReturnUrl("/architecture/reviews/123");
+    clearOidcSession();
 
     expect(consumePostSignInReturnUrl()).toBeNull();
   });

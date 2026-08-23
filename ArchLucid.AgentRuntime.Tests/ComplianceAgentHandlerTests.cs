@@ -102,9 +102,7 @@ public sealed class ComplianceAgentHandlerTests
             audit.Object,
             scopeProvider.Object,
             ComplianceAgentHandlerTestDependencies.CreateEmptyTechnologyLedgerRepository(),
-            ComplianceAgentHandlerTestDependencies.CreateEmptyRetrievalQueryService(),
-            ComplianceAgentHandlerTestDependencies.CreateCitationFormatter(),
-            ComplianceAgentHandlerTestDependencies.CreateNoOpGroundingTraceWriter(),
+            ComplianceAgentHandlerTestDependencies.CreatePolicyPackRetrievalAppender(scopeProvider.Object),
             AgentSchemaRemediationOptionsMonitorTestFactory.Create(),
             ComplianceAgentHandlerTestDependencies.CreateNullLogger());
 
@@ -202,9 +200,7 @@ public sealed class ComplianceAgentHandlerTests
             audit.Object,
             scopeProvider.Object,
             ledgerRepository.Object,
-            ComplianceAgentHandlerTestDependencies.CreateEmptyRetrievalQueryService(),
-            ComplianceAgentHandlerTestDependencies.CreateCitationFormatter(),
-            ComplianceAgentHandlerTestDependencies.CreateNoOpGroundingTraceWriter(),
+            ComplianceAgentHandlerTestDependencies.CreatePolicyPackRetrievalAppender(scopeProvider.Object),
             AgentSchemaRemediationOptionsMonitorTestFactory.Create(),
             ComplianceAgentHandlerTestDependencies.CreateNullLogger());
         ArchitectureRequest request = new()

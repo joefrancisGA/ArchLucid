@@ -1,5 +1,7 @@
 import { ImpactPreviewBreadcrumb } from "@/components/insights/ImpactPreviewBreadcrumb";
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
+import { OPERATOR_LAYOUT } from "@/lib/design-tokens";
 import { IMPACT_PREVIEW_PATH } from "@/lib/impact-preview-route";
 import {
   IMPACT_PREVIEW_LOADING_STATUS,
@@ -10,8 +12,9 @@ import {
 /** Structured navigation shell while the impact-preview client chunk loads. */
 export default function ImpactPreviewLoading() {
   return (
-    <div
-      className="max-w-5xl space-y-4"
+    <OperatorPageContainer
+      variant="workflow"
+      className={OPERATOR_LAYOUT.sectionStack}
       data-testid="impact-preview-loading-shell"
       role="status"
       aria-live="polite"
@@ -24,6 +27,6 @@ export default function ImpactPreviewLoading() {
         breadcrumb={<ImpactPreviewBreadcrumb />}
       />
       <p className="m-0 text-al-text-secondary">{IMPACT_PREVIEW_LOADING_STATUS}</p>
-    </div>
+    </OperatorPageContainer>
   );
 }

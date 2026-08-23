@@ -193,6 +193,51 @@ public sealed class InMemoryBackgroundJobQueueTests
     }
 
     [SkippableFact]
+    public async Task MarkCanceledAsync_while_pending_prevents_execution_when_dequeued()
+    {
+        TaskCompletionSource<bool> firstJobBarrier = new();
+        Mock<ILogger<InMemoryBackgroundJobQueue>> logger = new();
+        int executeCount = 0;
+
+        InMemoryBackgroundJobQueue queue = CreateSystem(
+            logger,
+            m => m.Setup(x => x.ExecuteAsync(It.IsAny<BackgroundJobWorkUnit>(), It.IsAny<CancellationToken>()))
+                .Returns<BackgroundJobWorkUnit, CancellationToken>(async (_, ct) =>
+                {
+                    executeCount++;
+
+                    if (executeCount == 1)
+                        await firstJobBarrier.Task.WaitAsync(ct);
+
+                    return OkFile();
+                }));
+
+        await queue.StartAsync(CancellationToken.None);
+
+        string blockingJobId = await queue.EnqueueAsync(Work("blocker"));
+        await Task.Delay(50, CancellationToken.None);
+
+        string canceledJobId = await queue.EnqueueAsync(Work("canceled"));
+
+        await queue.MarkCanceledAsync(canceledJobId, CancellationToken.None);
+
+        BackgroundJobInfo? canceledBeforeRelease = await queue.GetInfoAsync(canceledJobId);
+        canceledBeforeRelease.Should().NotBeNull();
+        canceledBeforeRelease!.State.Should().Be(BackgroundJobState.Canceled);
+
+        firstJobBarrier.SetResult(true);
+
+        await Task.Delay(300, CancellationToken.None);
+
+        BackgroundJobInfo? canceledAfterDrain = await queue.GetInfoAsync(canceledJobId);
+        canceledAfterDrain.Should().NotBeNull();
+        canceledAfterDrain!.State.Should().Be(BackgroundJobState.Canceled);
+        executeCount.Should().Be(1, "only the blocking job should have executed");
+
+        await queue.StopAsync(CancellationToken.None);
+    }
+
+    [SkippableFact]
     public async Task Enqueue_WithZeroRetries_FailsImmediately()
     {
         Mock<ILogger<InMemoryBackgroundJobQueue>> logger = new();

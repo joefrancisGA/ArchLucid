@@ -5,7 +5,7 @@ using ArchLucid.Contracts.Governance;
 namespace ArchLucid.Application.Drafts.QuestionSelection;
 
 /// <summary>
-///     Canonical L0 MUST questions from the five Well-Architected pillars and the actor-set model (ADR 0051 / R7).
+///     Canonical L0 MUST questions from the six architecture-quality dimensions and the actor-set model (ADR 0051 / R7).
 /// </summary>
 public static class UniversalIntakeQuestions
 {
@@ -61,6 +61,15 @@ public static class UniversalIntakeQuestions
             QuestionKey = "l0.pillar.performance",
             Prompt =
                 "What performance or scale expectations matter (users, throughput, latency)?",
+            Tier = ElicitationQuestionTier.Must,
+            AnswerKind = ElicitationAnswerKind.Text,
+            Source = ElicitationQuestionSource.L0Universal,
+        },
+        new()
+        {
+            QuestionKey = "l0.pillar.sustainability",
+            Prompt =
+                "What resource-efficiency or sustainability expectations apply (utilization, idle capacity, retention, or none for this lifecycle stage)?",
             Tier = ElicitationQuestionTier.Must,
             AnswerKind = ElicitationAnswerKind.Text,
             Source = ElicitationQuestionSource.L0Universal,

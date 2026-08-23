@@ -83,3 +83,13 @@
 {"at":"2026-08-23T10:44:14.5925299Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
 {"at":"2026-08-23T10:56:14.1262962Z","zoneId":"ui-oidc","outcome":"hit"}
 {"at":"2026-08-23T11:01:15.9392853Z","zoneId":"ui-oidc","outcome":"hit"}
+{"at":"2026-08-23T11:13:37.2789128Z","zoneId":"orchestrator-transient-retry","outcome":"hit"}
+{"at":"2026-08-23T11:21:35.8221786Z","zoneId":"application-billing-logic","outcome":"hit"}
+{"at":"2026-08-23T11:30:00Z","zoneId":"content-safety-admission","outcome":"hit"}
+{"at":"2026-08-23T11:39:28.9579784Z","zoneId":"content-safety-admission","outcome":"hit"}
+{"at":"2026-08-23T11:40:08.643024Z","zoneId":"content-safety-admission","outcome":"dry"}
+{"at":"2026-08-23T11:40:45.8301131Z","zoneId":"capabilities-cost-mcp","outcome":"dry"}
+{"at":"2026-08-23T11:41:32.1592162Z","zoneId":"ui-host-gate","outcome":"dry"}
+{"at":"2026-08-23T11:42:15.6600516Z","zoneId":"retrieval","outcome":"dry"}
+{"at":"2026-08-23T15:32:54.1199885Z","zoneId":"host-core-jobs","outcome":"hit"}
+{"at":"2026-08-23T15:43:56.9884432Z","zoneId":"host-core-jobs","outcome":"hit"}

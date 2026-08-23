@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import { ClientErrorBoundary } from "@/components/ClientErrorBoundary";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { INTERNAL_REPLAY_PATH } from "@/lib/internal-ops-route-paths";
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { ReplayEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
@@ -54,7 +55,7 @@ export function ReplayFormView(props: Props) {
   ]);
 
   return (
-    <div className={cn("mx-auto w-full max-w-6xl", OPERATOR_LAYOUT.sectionStack)} data-testid="replay-validation-workspace">
+    <OperatorPageContainer variant="workflow" className={OPERATOR_LAYOUT.sectionStack} data-testid="replay-validation-workspace">
       <OperatorPageHeader navHref={INTERNAL_REPLAY_PATH} title="Validate review" helpKey="replay-run" actions={<PageContextualHelpButton />} />
       <ReplayEvidenceOrientationStrip />
       <ValidateCompareVocabularyRail currentSurfaceId="validate-replay" />
@@ -152,6 +153,6 @@ export function ReplayFormView(props: Props) {
       ) : null}
 
       <ReplayValidationHistorySection runId={m.runIdTrimmed} entries={m.historyEntries} />
-    </div>
+    </OperatorPageContainer>
   );
 }

@@ -439,7 +439,101 @@ PACKS: list[dict] = [
                 "High",
                 "P0",
             ),
+            rule(
+                "sust-base-010",
+                "Managed-service utilization versus self-managed overhead",
+                "Prefer managed services where they reduce idle operational overhead and duplicated capacity; self-managed stacks should justify the resource-efficiency tradeoff.",
+                "Document managed-vs-self-managed rationale in metadata.ChangeDescription when both paths are plausible.",
+                "ArchLucid Architecture Quality Baseline",
+                "Sustainability — managed-service utilization",
+                "Medium",
+                "P1",
+            ),
+            rule(
+                "sust-base-011",
+                "Explicit resource-efficiency tradeoffs recorded",
+                "When sustainability, cost, reliability, or performance goals conflict, record the accepted tradeoff rather than leaving resource waste implicit.",
+                "Capture resource-efficiency tradeoffs in governance.PolicyConstraints or metadata.ChangeDescription.",
+                "ArchLucid Architecture Quality Baseline",
+                "Sustainability — explicit tradeoffs",
+                "Medium",
+                "P1",
+            ),
         ],
+    },
+]
+
+SUSTAINABILITY_ELICITATION_QUESTIONS: list[dict] = [
+    {
+        "questionKey": "sust.screening.utilization",
+        "prompt": (
+            "For continuously allocated compute or storage, what utilization assumptions apply "
+            "or why is always-on capacity required?"
+        ),
+        "tier": "Should",
+        "answerKind": "Text",
+        "ruleKeys": ["sust-base-001"],
+    },
+    {
+        "questionKey": "sust.screening.idle-capacity",
+        "prompt": (
+            "How does this design handle idle periods (scale-to-zero, scheduling, or accepted idle capacity)?"
+        ),
+        "tier": "Should",
+        "answerKind": "Text",
+        "ruleKeys": ["sust-base-002"],
+    },
+    {
+        "questionKey": "sust.screening.right-sizing",
+        "prompt": "How were compute SKUs and accelerators sized against stated workload need?",
+        "tier": "Should",
+        "answerKind": "Text",
+        "ruleKeys": ["sust-base-003", "sust-base-009"],
+    },
+    {
+        "questionKey": "sust.screening.data-lifecycle",
+        "prompt": "What retention and storage lifecycle limits apply to primary data stores?",
+        "tier": "Should",
+        "answerKind": "Text",
+        "ruleKeys": ["sust-base-004", "sust-base-008"],
+    },
+    {
+        "questionKey": "sust.screening.replication-transfer",
+        "prompt": "Why is cross-region replication or large data movement required for this design?",
+        "tier": "Should",
+        "answerKind": "Text",
+        "ruleKeys": ["sust-base-005"],
+    },
+    {
+        "questionKey": "sust.screening.caching-efficiency",
+        "prompt": "Where expensive recomputation or inference loops exist, what caching or batching was considered?",
+        "tier": "Should",
+        "answerKind": "Text",
+        "ruleKeys": ["sust-base-006"],
+    },
+    {
+        "questionKey": "sust.screening.consumption-observability",
+        "prompt": "How will resource consumption be observed for the most resource-heavy components?",
+        "tier": "Should",
+        "answerKind": "Text",
+        "ruleKeys": ["sust-base-007"],
+    },
+    {
+        "questionKey": "sust.screening.managed-vs-self-managed",
+        "prompt": "When managed services could replace self-managed capacity, what resource-efficiency rationale applies?",
+        "tier": "Should",
+        "answerKind": "Text",
+        "ruleKeys": ["sust-base-010"],
+    },
+    {
+        "questionKey": "sust.screening.tradeoffs",
+        "prompt": (
+            "Where sustainability conflicts with cost, reliability, or performance, "
+            "what tradeoff was accepted?"
+        ),
+        "tier": "Should",
+        "answerKind": "Text",
+        "ruleKeys": ["sust-base-011"],
     },
 ]
 
@@ -462,10 +556,10 @@ def build_curated(pack: dict) -> dict:
     }
 
 
-def build_content(pack: dict) -> dict:
+def build_content(pack: dict, curated: dict) -> dict:
     slug = pack["slug"]
     rule_ids = [r["id"] for r in pack["rules"]]
-    return {
+    content: dict = {
         "complianceRuleIds": [],
         "complianceRuleKeys": rule_ids,
         "alertRuleIds": [],
@@ -484,6 +578,7 @@ def build_content(pack: dict) -> dict:
             "pack.description": pack["description"],
             "frameworkMappingDisclaimer": pack["disclaimer"],
             "curatedRulesArtifact": f"docs/samples/policy-packs/{slug}-rules-v1.json",
+            "pack.curatedRules.v1": json.dumps(curated, separators=(",", ":"), ensure_ascii=False),
             "pack.qualityDimension": {
                 "reliability-and-resilience": "ReliabilityAndResilience",
                 "performance-and-scalability": "PerformanceAndScalability",
@@ -492,6 +587,30 @@ def build_content(pack: dict) -> dict:
             }[slug],
         },
     }
+
+    if slug == "sustainability-and-resource-efficiency":
+        content["elicitationQuestions"] = SUSTAINABILITY_ELICITATION_QUESTIONS
+
+    return content
+
+
+def refresh_sustainability_ga_starter_rules(ga: dict, pack: dict) -> None:
+    rule_lookup = {item["id"]: item for item in pack["rules"]}
+
+    for index, entry in enumerate(ga["rules"]):
+        rule_id = entry.get("ruleId")
+
+        if not isinstance(rule_id, str) or not rule_id.startswith("sust-base-"):
+            continue
+
+        curated = rule_lookup.get(rule_id)
+
+        if curated is None:
+            continue
+
+        ga["rules"][index]["controlName"] = curated["title"]
+        ga["rules"][index]["description"] = curated["description"]
+        ga["rules"][index]["controlId"] = rule_id.upper()
 
 
 def main() -> None:
@@ -510,7 +629,7 @@ def main() -> None:
         file_name = f"{slug}.json"
 
         curated = build_curated(pack)
-        content = build_content(pack)
+        content = build_content(pack, curated)
         text = json.dumps(content, indent=2) + "\n"
 
         rules_path.write_text(json.dumps(curated, indent=2) + "\n", encoding="utf-8")
@@ -549,6 +668,9 @@ def main() -> None:
 
         ga["rules"].append(stub)
         existing_ids.add(stub["ruleId"])
+
+    sustainability_pack = next(p for p in PACKS if p["slug"] == "sustainability-and-resource-efficiency")
+    refresh_sustainability_ga_starter_rules(ga, sustainability_pack)
 
     GA_RULES.write_text(json.dumps(ga, indent=2) + "\n", encoding="utf-8")
 

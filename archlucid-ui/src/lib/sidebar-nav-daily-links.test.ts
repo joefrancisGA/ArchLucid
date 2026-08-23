@@ -5,11 +5,6 @@ import {
   splitSidebarLinksDailyVsMore,
 } from "@/lib/sidebar-nav-daily-links";
 import type { NavLinkItem } from "@/lib/nav-config.types";
-import {
-  SPONSOR_DASHBOARD_HREF,
-  SPONSOR_DASHBOARD_WORKSPACE_HEALTH_HREF,
-} from "@/lib/sponsor/sponsor-dashboard-route";
-import { SIGNED_RECORDS_LIST_PATH } from "@/lib/signed-records-paths";
 
 function link(href: string, label: string): NavLinkItem {
   return {
@@ -124,19 +119,16 @@ describe("splitSidebarLinksDailyVsMore", () => {
 
   it("promotes an active more-link when its href includes a fragment anchor", () => {
     const links = [
-      link("/governance/approval-queue", "Approval"),
-      link("/governance/findings", "Findings"),
       link("/governance/policy-packs", "Policy packs"),
-      link(SIGNED_RECORDS_LIST_PATH, "Finalized review records"),
-      link("/governance/advisory-scans", "Advisory scans"),
-      link("/governance/alerts", "Alerts"),
-      link(SPONSOR_DASHBOARD_WORKSPACE_HEALTH_HREF, "Workspace health"),
-      link("/governance/audit", "Audit"),
+      link("/governance/standards-and-rules", "Standards & rules"),
+      link("/governance/setup", "Approval setup"),
+      link("/governance/alert-rules", "Alert rules"),
+      link("/governance/recurrence-schedules", "Recurrence schedules"),
     ];
-    const split = splitSidebarLinksDailyVsMore("operate-governance", links, SPONSOR_DASHBOARD_HREF);
+    const split = splitSidebarLinksDailyVsMore("operate-policy", links, "/governance/recurrence-schedules");
 
-    expect(split.daily.map((row) => row.href)).toContain(SPONSOR_DASHBOARD_WORKSPACE_HEALTH_HREF);
-    expect(split.more.map((row) => row.href)).not.toContain(SPONSOR_DASHBOARD_WORKSPACE_HEALTH_HREF);
+    expect(split.daily.map((row) => row.href)).toContain("/governance/recurrence-schedules");
+    expect(split.more.map((row) => row.href)).not.toContain("/governance/recurrence-schedules");
   });
 });
 

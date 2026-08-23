@@ -35,6 +35,8 @@ public sealed class UserPreferencesControllerTests
         body.CloudPlatformScopeIsExplicit.Should().BeFalse();
         body.WhereToGoNextEnabled.Should().BeTrue();
         body.WhereToGoNextIsExplicit.Should().BeFalse();
+        body.IanaTimeZoneId.Should().Be(IanaTimeZonePreferenceValues.Default);
+        body.IanaTimeZoneIsExplicit.Should().BeFalse();
     }
 
     [SkippableFact]
@@ -146,6 +148,66 @@ public sealed class UserPreferencesControllerTests
             Times.Once);
     }
 
+    [SkippableFact]
+    public async Task GetPreferences_ReturnsStoredIanaTimeZone()
+    {
+        Mock<IUserSettingsRepository> repository = CreateRepositoryMock();
+        repository
+            .Setup(repo => repo.TryGetAsync("jwt:user-1", UserSettingKeys.IanaTimeZoneId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync("America/New_York");
+
+        UserPreferencesController sut = CreateController(repository.Object);
+
+        IActionResult result = await sut.GetPreferences(CancellationToken.None);
+
+        OkObjectResult ok = (OkObjectResult)result;
+        UserPreferencesResponse body = ok.Value.Should().BeOfType<UserPreferencesResponse>().Subject;
+        body.IanaTimeZoneId.Should().Be("America/New_York");
+        body.IanaTimeZoneIsExplicit.Should().BeTrue();
+    }
+
+    [SkippableFact]
+    public async Task SetIanaTimeZonePreference_ReturnsNoContentWhenValid()
+    {
+        Mock<IUserSettingsRepository> repository = CreateRepositoryMock();
+        UserPreferencesController sut = CreateController(repository.Object);
+
+        IActionResult result = await sut.SetIanaTimeZonePreference(
+            new SetIanaTimeZonePreferenceRequest { IanaTimeZoneId = "America/Chicago" },
+            CancellationToken.None);
+
+        result.Should().BeOfType<NoContentResult>();
+
+        repository.Verify(
+            repo => repo.UpsertAsync(
+                "jwt:user-1",
+                UserSettingKeys.IanaTimeZoneId,
+                "America/Chicago",
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [SkippableFact]
+    public async Task SetIanaTimeZonePreference_NormalizesUtcAliases()
+    {
+        Mock<IUserSettingsRepository> repository = CreateRepositoryMock();
+        UserPreferencesController sut = CreateController(repository.Object);
+
+        IActionResult result = await sut.SetIanaTimeZonePreference(
+            new SetIanaTimeZonePreferenceRequest { IanaTimeZoneId = "Etc/UTC" },
+            CancellationToken.None);
+
+        result.Should().BeOfType<NoContentResult>();
+
+        repository.Verify(
+            repo => repo.UpsertAsync(
+                "jwt:user-1",
+                UserSettingKeys.IanaTimeZoneId,
+                "UTC",
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
     private static Mock<IUserSettingsRepository> CreateRepositoryMock()
     {
         Mock<IUserSettingsRepository> repository = new();
@@ -157,6 +219,9 @@ public sealed class UserPreferencesControllerTests
             .ReturnsAsync((string?)null);
         repository
             .Setup(repo => repo.TryGetAsync("jwt:user-1", UserSettingKeys.WhereToGoNextEnabled, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((string?)null);
+        repository
+            .Setup(repo => repo.TryGetAsync("jwt:user-1", UserSettingKeys.IanaTimeZoneId, It.IsAny<CancellationToken>()))
             .ReturnsAsync((string?)null);
 
         return repository;

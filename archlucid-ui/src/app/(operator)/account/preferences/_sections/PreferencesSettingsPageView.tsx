@@ -3,6 +3,7 @@
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { CloudPlatformScopePanel } from "@/components/preferences/CloudPlatformScopePanel";
+import { TimeZonePreferencePanel } from "@/components/preferences/TimeZonePreferencePanel";
 import { WhereToGoNextPreferencePanel } from "@/components/preferences/WhereToGoNextPreferencePanel";
 import { PreferencesNotificationsVocabularyRail } from "@/components/PreferencesNotificationsVocabularyRail";
 import { ThemePreferenceSelector } from "@/components/ThemePreferenceSelector";
@@ -11,6 +12,7 @@ import { PageContextualHelpButton } from "@/components/usability/PageContextualH
 import { PreferencesSettingsEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
 import { ACCOUNT_PREFERENCES_PATH } from "@/lib/account-route-paths";
 import { PREFERENCES_CLOUD_PLATFORMS_HEADING } from "@/lib/cloud-platform-scope-copy";
+import { PREFERENCES_TIME_ZONE_HEADING } from "@/lib/iana-time-zone-preference-copy";
 import {
   PREFERENCES_FOLLOW_UP_LINK_STRIPS_ANCHOR_ID,
   PREFERENCES_WHERE_TO_GO_NEXT_HEADING,
@@ -18,6 +20,7 @@ import {
 import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { PREFERENCES_HELP_TOPIC_LABEL } from "@/lib/preferences-settings-evidence-copy";
 import { useCloudPlatformScope } from "@/lib/use-cloud-platform-scope";
+import { useIanaTimeZonePreference } from "@/lib/use-iana-time-zone-preference";
 import { useWhereToGoNextPreference } from "@/components/WhereToGoNextPreferenceProvider";
 import { cn } from "@/lib/utils";
 
@@ -29,6 +32,12 @@ export function PreferencesSettingsPageView() {
     accountSyncState: whereToGoNextAccountSyncState,
     setAndPersist: setWhereToGoNextAndPersist,
   } = useWhereToGoNextPreference();
+  const {
+    ianaTimeZoneId,
+    mounted: timeZoneMounted,
+    accountSyncState: timeZoneAccountSyncState,
+    setAndPersist: setTimeZoneAndPersist,
+  } = useIanaTimeZonePreference();
 
   return (
     <OperatorPageContainer variant="settings" className={OPERATOR_LAYOUT.sectionStack} data-testid="preferences-settings-page">
@@ -54,6 +63,25 @@ export function PreferencesSettingsPageView() {
             </p>
           </div>
           <ThemePreferenceSelector fieldsetLabelledById="preferences-theme-label" />
+        </CardContent>
+      </Card>
+      <Card id="time-zone" data-testid="preferences-time-zone-card">
+        <CardHeader>
+          <CardTitle id="preferences-time-zone-heading" as="h2" className={OPERATOR_TYPOGRAPHY.cardTitle}>
+            {PREFERENCES_TIME_ZONE_HEADING}
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {timeZoneMounted ? (
+            <TimeZonePreferencePanel
+              ianaTimeZoneId={ianaTimeZoneId}
+              onIanaTimeZoneIdChange={setTimeZoneAndPersist}
+              accountSyncState={timeZoneAccountSyncState}
+              labelledById="preferences-time-zone-heading"
+            />
+          ) : (
+            <div aria-hidden="true" className="h-20 w-full" data-testid="time-zone-preference-loading" />
+          )}
         </CardContent>
       </Card>
       <Card id="cloud-platforms-shown" data-testid="preferences-cloud-platforms-card">

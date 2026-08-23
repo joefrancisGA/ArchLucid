@@ -111,7 +111,9 @@ describe("nav-config structure", () => {
     const analysis = NAV_GROUPS.find((group) => group.id === "operate-analysis");
 
     expect(analysis?.label).toBe("Insights");
-    expect(analysis?.caption).toBe("Explore evidence, findings, decisions, and sponsor value reports across reviews.");
+    expect(analysis?.caption).toBe(
+      "Explore evidence, findings, decisions, sponsor value reports, and workspace health KPIs across reviews.",
+    );
   });
 
   it("sets requiredAuthority on every Analysis nav link", () => {
@@ -167,6 +169,7 @@ describe("nav-config structure", () => {
   it("keeps buyer-polished operate group membership aligned", () => {
     const analysisHrefs = NAV_GROUPS.find((group) => group.id === "operate-analysis")!.links.map((link) => link.href);
     const governanceHrefs = NAV_GROUPS.find((group) => group.id === "operate-governance")!.links.map((link) => link.href);
+    const policyHrefs = NAV_GROUPS.find((group) => group.id === "operate-policy")!.links.map((link) => link.href);
     const integrationsHrefs = NAV_GROUPS.find((group) => group.id === "operate-integrations")!.links.map((link) => link.href);
     const systemAdminHrefs = NAV_GROUPS.find((group) => group.id === "operator-system-admin")!.links.map((link) => link.href);
 
@@ -183,6 +186,7 @@ describe("nav-config structure", () => {
       "/insights/patterns",
       "/insights/sponsor-report",
       "/insights/roi-summary",
+      "/architecture/sponsor-dashboard#workspace-health",
     ]);
 
     const pilotHrefs = NAV_GROUPS.find((group) => group.id === "pilot")!.links.map((link) => link.href);
@@ -194,17 +198,18 @@ describe("nav-config structure", () => {
       "/governance/findings",
       "/governance/findings/assigned-to-me",
       "/governance/exceptions",
-      "/governance/policy-packs",
-      "/governance/standards-and-rules",
       "/governance/decision-register",
       "/governance/sealed-records",
       "/governance/advisory-scans",
       "/governance/audit",
       "/governance/alerts",
+    ]);
+    expect(policyHrefs).toEqual([
+      "/governance/policy-packs",
+      "/governance/standards-and-rules",
       "/governance/alert-rules",
       "/governance/recurrence-schedules",
       "/governance/setup",
-      "/architecture/sponsor-dashboard#workspace-health",
     ]);
     expect(integrationsHrefs).toEqual([
       "/integrations/cloud-connections",
@@ -295,11 +300,29 @@ describe("nav-config structure", () => {
 
     for (const link of governance!.links) {
       expect(
-        link.href === "/governance/approval-queue"
-          || link.href === "/architecture/sponsor-dashboard#workspace-health"
-          || link.href.startsWith("/governance/"),
+        link.href === "/governance/approval-queue" || link.href.startsWith("/governance/"),
         link.href,
       ).toBe(true);
+    }
+  });
+
+  it("keeps policy nav hrefs under /governance/* (TB-405)", () => {
+    const policy = NAV_GROUPS.find((group) => group.id === "operate-policy");
+
+    expect(policy).toBeDefined();
+
+    for (const link of policy!.links) {
+      expect(link.href.startsWith("/governance/"), link.href).toBe(true);
+    }
+  });
+
+  it("sets requiredAuthority on every Policy nav link", () => {
+    const policy = NAV_GROUPS.find((group) => group.id === "operate-policy");
+
+    expect(policy).toBeDefined();
+
+    for (const link of policy!.links) {
+      expect(link.requiredAuthority, link.href).toBeDefined();
     }
   });
 

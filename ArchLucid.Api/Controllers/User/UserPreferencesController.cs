@@ -51,11 +51,16 @@ public sealed class UserPreferencesController(
             userId,
             UserSettingKeys.WhereToGoNextEnabled,
             cancellationToken);
+        string? ianaTimeZoneStored = await _userSettingsRepository.TryGetAsync(
+            userId,
+            UserSettingKeys.IanaTimeZoneId,
+            cancellationToken);
 
         string appearancePreference = AppearancePreferenceValues.NormalizeOrNull(appearanceStored)
             ?? AppearancePreferenceValues.Default;
         CloudPlatformScopeDto cloudPlatformScope = CloudPlatformScopeValues.NormalizeOrDefault(cloudScopeStored);
         bool whereToGoNextEnabled = WhereToGoNextVisibilityValues.ParseOrDefault(whereToGoNextStored);
+        string ianaTimeZoneId = IanaTimeZonePreferenceValues.NormalizeOrDefault(ianaTimeZoneStored);
 
         return Ok(new UserPreferencesResponse
         {
@@ -67,6 +72,9 @@ public sealed class UserPreferencesController(
                 && CloudPlatformScopeValues.TryParse(cloudScopeStored) is not null,
             WhereToGoNextEnabled = whereToGoNextEnabled,
             WhereToGoNextIsExplicit = whereToGoNextStored is not null,
+            IanaTimeZoneId = ianaTimeZoneId,
+            IanaTimeZoneIsExplicit = ianaTimeZoneStored is not null
+                && IanaTimeZonePreferenceValues.NormalizeOrNull(ianaTimeZoneStored) is not null,
         });
     }
 
@@ -151,6 +159,40 @@ public sealed class UserPreferencesController(
             userId,
             UserSettingKeys.WhereToGoNextEnabled,
             serialized,
+            cancellationToken);
+
+        return NoContent();
+    }
+
+    /// <summary>Persists the authenticated user's personal IANA time zone preference.</summary>
+    [HttpPut("time-zone")]
+    [MutatingAuditExcluded("Personal time zone stored in dbo.UserSettings; no durable tenant audit row required.")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> SetIanaTimeZonePreference(
+        [FromBody] SetIanaTimeZonePreferenceRequest? body,
+        CancellationToken cancellationToken)
+    {
+        if (body is null)
+        {
+            return this.BadRequestProblem("Request body is required.", ProblemTypes.ValidationFailed);
+        }
+
+        string? normalized = IanaTimeZonePreferenceValues.NormalizeOrNull(body.IanaTimeZoneId);
+
+        if (normalized is null)
+        {
+            return this.BadRequestProblem(
+                "ianaTimeZoneId must be a recognized IANA time zone id.",
+                ProblemTypes.ValidationFailed);
+        }
+
+        string userId = _actorContext.GetActorId();
+
+        await _userSettingsRepository.UpsertAsync(
+            userId,
+            UserSettingKeys.IanaTimeZoneId,
+            normalized,
             cancellationToken);
 
         return NoContent();

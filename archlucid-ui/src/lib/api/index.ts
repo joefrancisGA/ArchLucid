@@ -19,6 +19,7 @@ export * from "./tenant-customer-success";
 export * from "./architecture-runs";
 export * from "./operations-api";
 export * from "./architecture-request-draft-api";
+export * from "./structured-brief-suggestion-explain-api";
 export * from "./architecture-chat-intake-api";
 export * from "./draft-intake-api";
 export * from "./policy-pack-draft-api";

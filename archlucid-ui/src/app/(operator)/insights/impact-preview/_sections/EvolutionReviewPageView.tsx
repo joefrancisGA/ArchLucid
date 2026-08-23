@@ -4,6 +4,7 @@ import { useLayoutEffect } from "react";
 
 import { cn } from "@/lib/utils";
 import { DemoWorkspaceCapabilityUnavailablePanel } from "@/components/DemoWorkspaceCapabilityUnavailablePanel";
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { ImpactPreviewCompareVocabularyRail } from "@/components/ImpactPreviewCompareVocabularyRail";
 import { PageCapabilityBoundaryStrip } from "@/components/PageCapabilityBoundaryStrip";
 import { OperatorEvidenceLimitsFooter } from "@/components/operator/OperatorEvidenceLimitsFooter";
@@ -11,7 +12,7 @@ import { OperatorLoadingNotice } from "@/components/operator/OperatorShellMessag
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import type { EnterpriseStatusKind } from "@/lib/design-tokens";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   IMPACT_PREVIEW_DETAIL_LOAD_RETRY_LABEL,
   IMPACT_PREVIEW_LIST_LOAD_RETRY_LABEL,
@@ -124,7 +125,7 @@ export function EvolutionReviewPageView(props: Props): React.JSX.Element {
     (hasSimulationResults || (m.detail?.simulationRuns.length ?? 0) > 0);
 
   return (
-    <div className="max-w-5xl space-y-5" data-testid="impact-preview-page">
+    <OperatorPageContainer variant="workflow" className={OPERATOR_LAYOUT.sectionStack} data-testid="impact-preview-page">
       <ImpactPreviewPageHeader
         subtitle={impactPreviewPageSubtitle(buyerPolishedShell)}
         listLoading={m.listLoading}
@@ -270,6 +271,6 @@ export function EvolutionReviewPageView(props: Props): React.JSX.Element {
           ) : null}
         </>
       ) : null}
-    </div>
+    </OperatorPageContainer>
   );
 }

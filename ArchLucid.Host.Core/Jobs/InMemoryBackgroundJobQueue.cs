@@ -118,6 +118,12 @@ public sealed class InMemoryBackgroundJobQueue(
             if (!_info.TryGetValue(item.JobId, out BackgroundJobInfo? current))
                 continue;
 
+            if (current.State is BackgroundJobState.Canceled)
+                continue;
+
+            if (current.State is not BackgroundJobState.Pending and not BackgroundJobState.Running)
+                continue;
+
             _info[item.JobId] = current with { State = BackgroundJobState.Running, StartedUtc = current.StartedUtc ?? TimeProvider.System.GetUtcNow() };
 
             try

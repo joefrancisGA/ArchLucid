@@ -1,8 +1,9 @@
 ﻿"use client";
 
 import { EvidenceOrientationClaimAndSourcesStrip } from "@/components/evidence-orientation/EvidenceOrientationClaimAndSourcesStrip";
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { EVIDENCE_SOURCES_STYLE } from "@/components/evidence-orientation/evidence-orientation-styles";
-import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { StatusTag } from "@/components/ui/status-tag";
 import { GCP_WIF_STARTER_IDENTITY_INTRO } from "@/lib/gcp-cloud-connection-wif-starter";
 import { cloudSecurityPreflightTopics } from "@/lib/cloud-security-preflight-topics";
@@ -68,7 +69,7 @@ function GcpCloudConnectionPageHeader(): React.ReactElement {
 export function GcpCloudConnectionDetailClient() {
   return (
     <GcpConnectionDataProvider>
-      <div className="w-full max-w-3xl space-y-4" data-testid="cloud-connection-detail-gcp">
+      <OperatorPageContainer variant="workflow" className={OPERATOR_LAYOUT.sectionStack} data-testid="cloud-connection-detail-gcp">
         <GcpCloudConnectionPageHeader />
         <CloudProviderDetailLayout
           providerLabel="GCP"
@@ -116,7 +117,7 @@ export function GcpCloudConnectionDetailClient() {
           claimElement="aside"
           sourcesStyle={EVIDENCE_SOURCES_STYLE.operatorMuted}
         />
-      </div>
+      </OperatorPageContainer>
     </GcpConnectionDataProvider>
   );
 }

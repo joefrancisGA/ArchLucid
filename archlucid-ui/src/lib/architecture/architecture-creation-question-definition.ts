@@ -16,6 +16,7 @@ export const ARCHITECTURE_CREATION_DISCOVERY_TOPICS = [
   "Security, data sensitivity, and trust boundaries",
   "Cost constraints and operational ownership",
   "Performance and scale expectations",
+  "Resource efficiency and sustainability expectations",
   "Cloud or deployment target",
 ] as const;
 
@@ -66,6 +67,15 @@ export const ARCHITECTURE_CREATION_UNIVERSAL_QUESTIONS: readonly DraftElicitatio
   {
     questionKey: "l0.pillar.performance",
     prompt: "What performance or scale expectations matter (users, throughput, latency)?",
+    tier: "Must",
+    answerKind: "Text",
+    source: "L0Universal",
+    ruleKeys: [],
+  },
+  {
+    questionKey: "l0.pillar.sustainability",
+    prompt:
+      "What resource-efficiency or sustainability expectations apply (utilization, idle capacity, retention, or none for this lifecycle stage)?",
     tier: "Must",
     answerKind: "Text",
     source: "L0Universal",

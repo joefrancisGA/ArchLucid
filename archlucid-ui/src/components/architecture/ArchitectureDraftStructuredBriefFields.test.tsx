@@ -1,12 +1,14 @@
 import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { useState } from "react";
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi, beforeEach } from "vitest";
 
 import { ArchitectureDraftFormFields } from "@/components/architecture/ArchitectureDraftFormFields";
 import { ArchitectureDraftStructuredBriefFields } from "@/components/architecture/ArchitectureDraftStructuredBriefFields";
 import { architectureCreationDefaultActorSet } from "@/lib/architecture/architecture-creation-init";
 import { draftArchitectureRequest } from "@/lib/api/architecture-request-draft-api";
+import { explainStructuredBriefSuggestion } from "@/lib/api/structured-brief-suggestion-explain-api";
 import { ApiRequestError } from "@/lib/api-request-error";
+import { clearStructuredBriefSuggestionExplainCache } from "@/lib/architecture/structured-brief-suggestion-explain-cache";
 import {
   ARCHITECTURE_DRAFT_UNKNOWN_CONFIRM_LABEL,
   emptyArchitectureDraftStructuredBrief,
@@ -19,7 +21,13 @@ vi.mock("@/lib/api/architecture-request-draft-api", () => ({
   draftArchitectureRequest: vi.fn(),
 }));
 
+vi.mock("@/lib/api/structured-brief-suggestion-explain-api", () => ({
+  explainStructuredBriefSuggestion: vi.fn(),
+  buildStructuredBriefSuggestionExplainCacheKey: vi.fn(async () => "cache-key-structured-brief"),
+}));
+
 const mockedDraftArchitectureRequest = vi.mocked(draftArchitectureRequest);
+const mockedExplainStructuredBriefSuggestion = vi.mocked(explainStructuredBriefSuggestion);
 
 function StructuredBriefHarness(props: {
   readonly initialBrief?: ArchitectureDraftStructuredBriefState;
@@ -43,6 +51,11 @@ function StructuredBriefHarness(props: {
 }
 
 describe("ArchitectureDraftStructuredBriefFields", () => {
+  beforeEach(() => {
+    clearStructuredBriefSuggestionExplainCache();
+    mockedExplainStructuredBriefSuggestion.mockReset();
+  });
+
   it("shows suggested items after a successful suggest call", async () => {
     mockedDraftArchitectureRequest.mockResolvedValue({
       suggestedConstraints: ["EU data residency"],
@@ -68,10 +81,44 @@ describe("ArchitectureDraftStructuredBriefFields", () => {
     expect(mockedDraftArchitectureRequest).toHaveBeenCalledWith({
       freeTextDescription:
         "Architecture overview:\nTenant migration platform with private networking and EU residency goals.",
+      currentConstraints: [],
+      currentAssumptions: [],
     });
   });
 
-  it("shows vertically stacked suggestions with confirm and deny actions", async () => {
+  it("sends confirmed and suggested constraints and assumptions to the draft API", async () => {
+    mockedDraftArchitectureRequest.mockResolvedValue({
+      suggestedConstraints: [],
+      suggestedAssumptions: [],
+      suggestedCapabilities: [],
+      topologyHints: [],
+      securityBaselineHints: [],
+    });
+
+    render(
+      <StructuredBriefHarness
+        freeTextIntent={"Tenant migration platform with private networking and EU residency goals."}
+        initialBrief={{
+          ...emptyArchitectureDraftStructuredBrief(),
+          confirmedConstraints: ["Encryption at rest"],
+          suggestedAssumptions: ["Stable internet connection"],
+        }}
+      />,
+    );
+
+    fireEvent.click(screen.getByTestId("architecture-draft-suggest-structured-brief"));
+
+    await waitFor(() => {
+      expect(mockedDraftArchitectureRequest).toHaveBeenCalledWith({
+        freeTextDescription:
+          "Architecture overview:\nTenant migration platform with private networking and EU residency goals.\n\nConfirmed constraints:\n- Encryption at rest",
+        currentConstraints: ["Encryption at rest"],
+        currentAssumptions: ["Stable internet connection"],
+      });
+    });
+  });
+
+  it("shows vertically stacked suggestions with confirm, deny, and explain actions", async () => {
     mockedDraftArchitectureRequest.mockResolvedValue({
       suggestedConstraints: ["EU data residency"],
       suggestedAssumptions: [],
@@ -90,7 +137,68 @@ describe("ArchitectureDraftStructuredBriefFields", () => {
     expect(within(suggestion).getByText("EU data residency")).toBeInTheDocument();
     expect(within(suggestion).getByRole("button", { name: "Confirm" })).toBeInTheDocument();
     expect(within(suggestion).getByRole("button", { name: "Deny" })).toBeInTheDocument();
+    expect(within(suggestion).getByRole("button", { name: /Explain/i })).toBeInTheDocument();
     expect(screen.queryByText("Suggested", { selector: "span" })).not.toBeInTheDocument();
+  });
+
+  it("fetches explanation on demand when Explain is opened", async () => {
+    mockedDraftArchitectureRequest.mockResolvedValue({
+      suggestedConstraints: ["EU data residency"],
+      suggestedAssumptions: [],
+      suggestedCapabilities: [],
+      topologyHints: [],
+      securityBaselineHints: [],
+    });
+    mockedExplainStructuredBriefSuggestion.mockResolvedValue({
+      explanation:
+        "Your overview mentioned EU customers. Confirming this tells the review to keep data in EU regions.",
+    });
+
+    render(
+      <StructuredBriefHarness freeTextIntent={"Tenant migration platform with private networking and EU residency goals."} />,
+    );
+
+    fireEvent.click(screen.getByTestId("architecture-draft-suggest-structured-brief"));
+
+    const suggestion = await screen.findByTestId("architecture-draft-constraints-suggestion");
+    fireEvent.click(within(suggestion).getByRole("button", { name: /Explain/i }));
+
+    expect(
+      await within(suggestion).findByText(/Confirming this tells the review to keep data in EU regions/i),
+    ).toBeInTheDocument();
+    expect(mockedExplainStructuredBriefSuggestion).toHaveBeenCalledTimes(1);
+  });
+
+  it("still allows confirm after explain fetch fails", async () => {
+    mockedDraftArchitectureRequest.mockResolvedValue({
+      suggestedConstraints: ["EU data residency"],
+      suggestedAssumptions: [],
+      suggestedCapabilities: [],
+      topologyHints: [],
+      securityBaselineHints: [],
+    });
+    mockedExplainStructuredBriefSuggestion.mockRejectedValue(
+      new ApiRequestError("Explain failed.", {
+        problem: null,
+        correlationId: null,
+        httpStatus: 500,
+      }),
+    );
+
+    render(
+      <StructuredBriefHarness freeTextIntent={"Tenant migration platform with private networking and EU residency goals."} />,
+    );
+
+    fireEvent.click(screen.getByTestId("architecture-draft-suggest-structured-brief"));
+
+    const suggestion = await screen.findByTestId("architecture-draft-constraints-suggestion");
+    fireEvent.click(within(suggestion).getByRole("button", { name: /Explain/i }));
+    expect(await within(suggestion).findByText("Explain failed.")).toBeInTheDocument();
+
+    fireEvent.click(within(suggestion).getByRole("button", { name: "Confirm" }));
+
+    expect(screen.queryByTestId("architecture-draft-constraints-suggestion")).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Remove EU data residency" })).toBeInTheDocument();
   });
 
   it("removes a suggestion when denied", async () => {
@@ -115,6 +223,39 @@ describe("ArchitectureDraftStructuredBriefFields", () => {
     expect(screen.queryByText("EU data residency")).not.toBeInTheDocument();
   });
 
+  it("does not re-suggest a denied constraint on a later suggest pass", async () => {
+    mockedDraftArchitectureRequest.mockResolvedValue({
+      suggestedConstraints: ["EU data residency"],
+      suggestedAssumptions: [],
+      suggestedCapabilities: [],
+      topologyHints: [],
+      securityBaselineHints: [],
+    });
+
+    function StatefulHarness(): React.JSX.Element {
+      const [structuredBrief, setStructuredBrief] = useState(emptyArchitectureDraftStructuredBrief());
+
+      return (
+        <ArchitectureDraftStructuredBriefFields
+          structuredBrief={structuredBrief}
+          freeTextIntent={"Tenant migration platform with private networking and EU residency goals."}
+          onStructuredBriefChange={setStructuredBrief}
+        />
+      );
+    }
+
+    render(<StatefulHarness />);
+
+    fireEvent.click(screen.getByTestId("architecture-draft-suggest-structured-brief"));
+    const suggestion = await screen.findByTestId("architecture-draft-constraints-suggestion");
+    fireEvent.click(within(suggestion).getByRole("button", { name: "Deny" }));
+
+    fireEvent.click(screen.getByTestId("architecture-draft-suggest-structured-brief"));
+
+    expect(screen.queryByText("EU data residency")).not.toBeInTheDocument();
+    expect(mockedDraftArchitectureRequest).toHaveBeenCalledTimes(2);
+  });
+
   it("moves a suggestion into confirmed items when confirmed", async () => {
     mockedDraftArchitectureRequest.mockResolvedValue({
       suggestedConstraints: ["EU data residency"],
@@ -137,6 +278,30 @@ describe("ArchitectureDraftStructuredBriefFields", () => {
     expect(screen.getByRole("button", { name: "Remove EU data residency" })).toBeInTheDocument();
   });
 
+  it("splits multiline LLM suggestion strings into separate confirmable items", async () => {
+    mockedDraftArchitectureRequest.mockResolvedValue({
+      suggestedConstraints: ["EU data residency\nPrivate networking only\nAudit logging required"],
+      suggestedAssumptions: [],
+      suggestedCapabilities: [],
+      topologyHints: [],
+      securityBaselineHints: [],
+    });
+
+    render(
+      <StructuredBriefHarness freeTextIntent={"Tenant migration platform with private networking and EU residency goals."} />,
+    );
+
+    fireEvent.click(screen.getByTestId("architecture-draft-suggest-structured-brief"));
+
+    expect(await screen.findByText("EU data residency")).toBeInTheDocument();
+    expect(screen.getByText("Private networking only")).toBeInTheDocument();
+    expect(screen.getByText("Audit logging required")).toBeInTheDocument();
+    expect(screen.getAllByTestId("architecture-draft-constraints-suggestion")).toHaveLength(3);
+    expect(screen.getByTestId("architecture-draft-suggest-structured-brief-success")).toHaveTextContent(
+      "Added 3 suggestions below",
+    );
+  });
+
   it("falls back to deterministic suggestions when the API returns no new suggestions", async () => {
     mockedDraftArchitectureRequest.mockResolvedValue({
       suggestedConstraints: [],
@@ -156,6 +321,9 @@ describe("ArchitectureDraftStructuredBriefFields", () => {
 
     expect(await screen.findByText("Shared DB with TenantId")).toBeInTheDocument();
     expect(screen.getByText("Availability 99.9%")).toBeInTheDocument();
+    expect(screen.getByTestId("architecture-draft-suggest-structured-brief-success")).toHaveTextContent(
+      "Added 7 suggestions below",
+    );
     expect(screen.queryByTestId("architecture-draft-suggest-structured-brief-empty")).not.toBeInTheDocument();
   });
 

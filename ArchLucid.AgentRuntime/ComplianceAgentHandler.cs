@@ -1,4 +1,3 @@
-using System.Text;
 using System.Text.Json;
 
 using ArchLucid.AgentRuntime.Prompts;
@@ -10,12 +9,9 @@ using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Persistence.TechnologyLedger;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Audit;
-using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Retrieval;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
-using ArchLucid.Retrieval.Compliance;
-using ArchLucid.Retrieval.Evaluation;
 
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -35,9 +31,7 @@ public sealed class ComplianceAgentHandler(
     IAuditService auditService,
     IScopeContextProvider scopeContextProvider,
     ITechnologyLedgerRepository technologyLedgerRepository,
-    IRetrievalQueryService retrievalQueryService,
-    IRetrievalCitationFormatter retrievalCitationFormatter,
-    IRetrievalGroundingTraceWriter retrievalGroundingTraceWriter,
+    AgentPolicyPackRetrievalAppender policyPackRetrievalAppender,
     IOptionsMonitor<AgentSchemaRemediationOptions> schemaRemediationOptions,
     ILogger<ComplianceAgentHandler> logger)
     : IAgentHandler
@@ -53,14 +47,8 @@ public sealed class ComplianceAgentHandler(
     private readonly ITechnologyLedgerRepository _technologyLedgerRepository =
         technologyLedgerRepository ?? throw new ArgumentNullException(nameof(technologyLedgerRepository));
 
-    private readonly IRetrievalQueryService _retrievalQueryService =
-        retrievalQueryService ?? throw new ArgumentNullException(nameof(retrievalQueryService));
-
-    private readonly IRetrievalCitationFormatter _retrievalCitationFormatter =
-        retrievalCitationFormatter ?? throw new ArgumentNullException(nameof(retrievalCitationFormatter));
-
-    private readonly IRetrievalGroundingTraceWriter _retrievalGroundingTraceWriter =
-        retrievalGroundingTraceWriter ?? throw new ArgumentNullException(nameof(retrievalGroundingTraceWriter));
+    private readonly AgentPolicyPackRetrievalAppender _policyPackRetrievalAppender =
+        policyPackRetrievalAppender ?? throw new ArgumentNullException(nameof(policyPackRetrievalAppender));
 
     private readonly ILogger<ComplianceAgentHandler> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
@@ -107,11 +95,9 @@ public sealed class ComplianceAgentHandler(
             AgentUserPromptComposer.BuildComplianceUserPrompt(runId, request, evidence, task, effectiveCloudTarget),
             ledgerEntries);
         IReadOnlyList<RetrievalHit> policyPackHits = [];
-        (baseUserPrompt, policyPackHits) = await AppendPolicyPackRetrievalAsync(
-            request,
-            runId,
-            baseUserPrompt,
-            cancellationToken).ConfigureAwait(false);
+        (baseUserPrompt, policyPackHits) = await _policyPackRetrievalAppender
+            .AppendAsync(AgentType.Compliance, request, runId, baseUserPrompt, cancellationToken)
+            .ConfigureAwait(false);
 
         return await AgentHandlerCompletionExecutor.CompleteWithSchemaRemediationAsync(
             tierCompletionRouter,
@@ -133,122 +119,10 @@ public sealed class ComplianceAgentHandler(
             finalizeResultAsync: parsed =>
             {
                 string parsedJson = JsonSerializer.Serialize(parsed, TraceJsonOptions);
-                RecordRetrievalFaithfulness(policyPackHits, parsedJson, tenantId);
+                AgentPolicyPackRetrievalAppender.RecordRetrievalFaithfulness(policyPackHits, parsedJson, tenantId);
 
                 return Task.FromResult(parsed);
             },
             cancellationToken: cancellationToken);
-    }
-
-    private async Task<(string Prompt, IReadOnlyList<RetrievalHit> Hits)> AppendPolicyPackRetrievalAsync(
-        ArchitectureRequest request,
-        string runId,
-        string baseUserPrompt,
-        CancellationToken cancellationToken)
-    {
-        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-
-        try
-        {
-            RetrievalQuery query = new()
-            {
-                TenantId = scope.TenantId,
-                WorkspaceId = scope.WorkspaceId,
-                ProjectId = scope.ProjectId,
-                QueryText = CompliancePolicyPackRetrievalPromptFormatter.BuildPolicyQueryText(request),
-                TopK = 6,
-                IncludePlatformCorpora = true,
-            };
-
-            IReadOnlyList<RetrievalHit> hits =
-                await _retrievalQueryService.SearchAsync(query, cancellationToken).ConfigureAwait(false);
-
-            if (hits.Count == 0 && _logger.IsEnabled(LogLevel.Warning))
-            {
-                _logger.LogWarning(
-                    "Compliance agent policy-pack retrieval returned zero hits for tenant {TenantId}.",
-                    scope.TenantId);
-            }
-
-            string block = CompliancePolicyPackRetrievalPromptFormatter.FormatPolicyPackBlock(
-                hits,
-                _retrievalCitationFormatter);
-            string prompt = baseUserPrompt.TrimEnd() + "\n\n" + block + "\n";
-
-            await AppendGroundingTraceAsync(scope, runId, query, hits, cancellationToken).ConfigureAwait(false);
-
-            return (prompt, hits);
-        }
-        catch (Exception ex) when (ex is not OperationCanceledException)
-        {
-            if (_logger.IsEnabled(LogLevel.Warning))
-            {
-                _logger.LogWarning(
-                    ex,
-                    "Compliance agent policy-pack retrieval failed; continuing fail-open for tenant {TenantId}.",
-                    scope.TenantId);
-            }
-
-            RetrievalQuery failedQuery = new()
-            {
-                TenantId = scope.TenantId,
-                WorkspaceId = scope.WorkspaceId,
-                ProjectId = scope.ProjectId,
-                QueryText = CompliancePolicyPackRetrievalPromptFormatter.BuildPolicyQueryText(request),
-                TopK = 6,
-                IncludePlatformCorpora = true,
-            };
-
-            await AppendGroundingTraceAsync(scope, runId, failedQuery, [], cancellationToken).ConfigureAwait(false);
-
-            string prompt = baseUserPrompt.TrimEnd()
-                + "\n\n"
-                + CompliancePolicyPackRetrievalPromptFormatter.FormatPolicyPackBlock([], _retrievalCitationFormatter)
-                + "\n";
-
-            return (prompt, []);
-        }
-    }
-
-    private static void RecordRetrievalFaithfulness(IReadOnlyList<RetrievalHit> hits, string agentOutputText, Guid tenantId)
-    {
-        if (hits.Count == 0)
-            return;
-
-        RetrievalFaithfulnessEvaluator.EvaluateAndRecord(hits, agentOutputText, tenantId);
-    }
-
-    private async Task AppendGroundingTraceAsync(
-        ScopeContext scope,
-        string runId,
-        RetrievalQuery query,
-        IReadOnlyList<RetrievalHit> hits,
-        CancellationToken cancellationToken)
-    {
-        if (!AgentRunIdParser.TryParse(runId, out Guid runGuid))
-            return;
-
-        RetrievalGroundingTraceInsert insert = RetrievalGroundingTraceBuilder.Build(
-            scope,
-            runGuid,
-            AgentType.Compliance.ToString(),
-            query,
-            hits);
-
-        try
-        {
-            await _retrievalGroundingTraceWriter.AppendAsync(insert, cancellationToken).ConfigureAwait(false);
-        }
-        catch (Exception ex) when (ex is not OperationCanceledException)
-        {
-            if (_logger.IsEnabled(LogLevel.Warning))
-            {
-                // codeql[cs/log-forging]: run id sanitized for log sink (CWE-117).
-                _logger.LogWarning(
-                    ex,
-                    "Failed to persist retrieval grounding trace for compliance agent run {RunId}.",
-                    LogSanitizer.Sanitize(runId));
-            }
-        }
     }
 }

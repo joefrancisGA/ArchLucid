@@ -822,7 +822,7 @@ public sealed class AdminDiagnosticsServiceNonSqlTests
             LastErrorMessage = "timeout"
         };
 
-        _ = integration.Setup(i => i.ListDeadLettersAsync(25, It.IsAny<CancellationToken>()))
+        _ = integration.Setup(i => i.ListDeadLettersAsync(25, DefaultScope().TenantId, 0, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<IntegrationEventOutboxDeadLetterRow> { row });
 
         IReadOnlyList<IntegrationEventOutboxDeadLetterRow> letters =
@@ -832,7 +832,7 @@ public sealed class AdminDiagnosticsServiceNonSqlTests
         Assert.Equal(row.OutboxId, letters[0].OutboxId);
         Assert.Equal(IntegrationEventTypes.AlertFiredV1, letters[0].EventType);
         integration.Verify(
-            i => i.ListDeadLettersAsync(25, It.IsAny<CancellationToken>()),
+            i => i.ListDeadLettersAsync(25, DefaultScope().TenantId, 0, It.IsAny<CancellationToken>()),
             Times.Once);
     }
 
@@ -855,14 +855,14 @@ public sealed class AdminDiagnosticsServiceNonSqlTests
 
         Guid outboxId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");
 
-        _ = integration.Setup(i => i.ResetDeadLetterForRetryAsync(outboxId, It.IsAny<CancellationToken>()))
+        _ = integration.Setup(i => i.ResetDeadLetterForRetryAsync(outboxId, DefaultScope().TenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(true);
 
         bool ok = await sut.RetryIntegrationOutboxDeadLetterAsync(outboxId, CancellationToken.None);
 
         Assert.True(ok);
         integration.Verify(
-            i => i.ResetDeadLetterForRetryAsync(outboxId, It.IsAny<CancellationToken>()),
+            i => i.ResetDeadLetterForRetryAsync(outboxId, DefaultScope().TenantId, It.IsAny<CancellationToken>()),
             Times.Once);
         audit.Verify(
             service => service.LogAsync(
@@ -890,7 +890,7 @@ public sealed class AdminDiagnosticsServiceNonSqlTests
 
         Guid outboxId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
 
-        _ = integration.Setup(i => i.AcknowledgeDeadLetterAsync(outboxId, It.IsAny<CancellationToken>()))
+        _ = integration.Setup(i => i.AcknowledgeDeadLetterAsync(outboxId, DefaultScope().TenantId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(true);
 
         bool ok = await sut.SuppressIntegrationOutboxDeadLetterAsync(
@@ -900,13 +900,52 @@ public sealed class AdminDiagnosticsServiceNonSqlTests
 
         Assert.True(ok);
         integration.Verify(
-            i => i.AcknowledgeDeadLetterAsync(outboxId, It.IsAny<CancellationToken>()),
+            i => i.AcknowledgeDeadLetterAsync(outboxId, DefaultScope().TenantId, It.IsAny<CancellationToken>()),
             Times.Once);
         audit.Verify(
             service => service.LogAsync(
                 It.Is<AuditEvent>(e => e.EventType == AuditEventTypes.IntegrationOutboxDeadLetterSuppressed),
                 It.IsAny<CancellationToken>()),
             Times.Once);
+    }
+
+    [Fact]
+    public async Task RetryIntegrationOutboxDeadLetterAsync_passes_current_tenant_scope_to_repository()
+    {
+        Mock<IAuditService> audit = new();
+        Mock<IActorContext> actor = ActorMock();
+        Mock<IDbConnectionFactory> factory = new(MockBehavior.Strict);
+
+        ScopeContext scope = DefaultScope();
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(scope);
+
+        AdminDiagnosticsService sut = CreateDiagnosticsService(
+            factory,
+            SqlOptions(),
+            audit,
+            actor,
+            scopeProvider.Object,
+            out _,
+            out Mock<IIntegrationEventOutboxRepository> integration,
+            out _,
+            out _);
+
+        Guid outboxId = Guid.Parse("ffffffff-ffff-ffff-ffff-ffffffffffff");
+
+        _ = integration
+            .Setup(i => i.ResetDeadLetterForRetryAsync(outboxId, scope.TenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
+
+        bool ok = await sut.RetryIntegrationOutboxDeadLetterAsync(outboxId, CancellationToken.None);
+
+        Assert.False(ok);
+        integration.Verify(
+            i => i.ResetDeadLetterForRetryAsync(outboxId, scope.TenantId, It.IsAny<CancellationToken>()),
+            Times.Once);
+        audit.Verify(
+            service => service.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
     [Fact]

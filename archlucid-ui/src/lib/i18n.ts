@@ -106,6 +106,7 @@ export const OPERATOR_NAV_GROUP_LABELS = {
   reviewWork: "Architecture",
   analysis: "Insights",
   governance: "Approval",
+  policy: "Policy",
   reports: "Reports",
   integrations: "Integrations",
   operations: "Operations",

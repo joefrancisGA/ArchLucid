@@ -19,7 +19,7 @@ internal static class FindingsSnapshotSqlBuilder
         // (...Sha256FROM dbo.FindingRecords) unless we insert an explicit separator.
         string baseColumns = """
                              SELECT
-                                 FindingRecordId, SortOrder, FindingId, FindingSchemaVersion, FindingType, Category, EngineType,
+                                 FindingRecordId, SortOrder, FindingId, FindingSchemaVersion, FindingType, Category, QualityDimension, EngineType,
                                  Severity, Title, Rationale, PayloadType, PayloadJson,
                                  RequestInputRef, RunIdRef, AgentExecutionTraceId,
                                  ModelDeploymentName, ModelVersion, PromptTemplateId, PromptTemplateVersion,

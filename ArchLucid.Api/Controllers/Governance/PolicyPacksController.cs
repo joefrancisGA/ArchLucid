@@ -744,11 +744,16 @@ public sealed class PolicyPacksController(
         if (request.RunIds.Count > 50)
             return this.BadRequestProblem("At most 50 run ids are allowed per request.", ProblemTypes.ValidationFailed);
 
+        ScopeContext scope = scopeProvider.GetCurrentScope();
         PolicyPack? pack = await packRepository.GetByIdAsync(policyPackId, cancellationToken);
 
-        if (pack is null || pack.IsDeleted)
+        if (pack is null ||
+            pack.IsDeleted ||
+            pack.TenantId != scope.TenantId ||
+            pack.WorkspaceId != scope.WorkspaceId ||
+            pack.ProjectId != scope.ProjectId)
             return this.NotFoundProblem(
-                $"Policy pack '{policyPackId}' was not found.",
+                $"Policy pack '{policyPackId}' was not found in the current scope.",
                 ProblemTypes.ResourceNotFound);
 
         PolicyPackVersion? versionRow = await versionRepository.GetByPackAndVersionAsync(

@@ -71,8 +71,8 @@ export function AuditPageView(props: AuditPageViewProps) {
 
   return (
     <OperatorPageContainer
-      variant="dashboard"
-      className={cn(OPERATOR_LAYOUT.sectionStack, buyerPolishedShell ? "max-w-6xl" : undefined)}
+      variant={buyerPolishedShell ? "workflow" : "dashboard"}
+      className={OPERATOR_LAYOUT.sectionStack}
     >
       {buyerPolishedShell ? (
         <a

@@ -12,14 +12,17 @@ import {
 
 describe("filterNavLinksForOperatorShell", () => {
   const enterprise = NAV_GROUPS.find((g) => g.id === "operate-governance");
+  const policy = NAV_GROUPS.find((g) => g.id === "operate-policy");
 
   it("shows ReadAuthority governance links for Reader when disclosure flags are off (tiering retired)", () => {
     expect(enterprise).toBeDefined();
+    expect(policy).toBeDefined();
 
     const visible = filterNavLinksForOperatorShell(enterprise!.links, AUTHORITY_RANK.ReadAuthority, true);
+    const policyVisible = filterNavLinksForOperatorShell(policy!.links, AUTHORITY_RANK.ReadAuthority, true);
 
     expect(visible.some((l) => l.href === "/governance/alerts")).toBe(true);
-    expect(visible.some((l) => l.href === "/governance/policy-packs")).toBe(true);
+    expect(policyVisible.some((l) => l.href === "/governance/policy-packs")).toBe(true);
     expect(visible.some((l) => l.href === "/governance/findings")).toBe(true);
     expect(visible.some((l) => l.href === "/governance/approval-queue")).toBe(true);
     expect(visible.length).toBeGreaterThan(0);
@@ -27,10 +30,12 @@ describe("filterNavLinksForOperatorShell", () => {
 
   it("keeps the same Reader governance set when extended disclosure is on (tiering retired)", () => {
     expect(enterprise).toBeDefined();
+    expect(policy).toBeDefined();
 
     const visible = filterNavLinksForOperatorShell(enterprise!.links, AUTHORITY_RANK.ReadAuthority, true);
+    const policyVisible = filterNavLinksForOperatorShell(policy!.links, AUTHORITY_RANK.ReadAuthority, true);
 
-    expect(visible.some((l) => l.href === "/governance/policy-packs")).toBe(true);
+    expect(policyVisible.some((l) => l.href === "/governance/policy-packs")).toBe(true);
     expect(visible.some((l) => l.href === "/governance/alerts")).toBe(true);
     expect(visible.some((l) => l.href === "/governance/audit")).toBe(true);
     expect(visible.some((l) => l.href === "/governance/findings")).toBe(true);
@@ -39,19 +44,21 @@ describe("filterNavLinksForOperatorShell", () => {
 
   it("keeps Alerts, Audit, approval queue, and policy packs for Reader when only advanced flag is on", () => {
     expect(enterprise).toBeDefined();
+    expect(policy).toBeDefined();
 
     const visible = filterNavLinksForOperatorShell(enterprise!.links, AUTHORITY_RANK.ReadAuthority, true);
+    const policyVisible = filterNavLinksForOperatorShell(policy!.links, AUTHORITY_RANK.ReadAuthority, true);
 
     expect(visible.some((l) => l.href === "/governance/alerts")).toBe(true);
     expect(visible.some((l) => l.href === "/governance/audit")).toBe(true);
     expect(visible.some((l) => l.href === "/governance/approval-queue")).toBe(true);
-    expect(visible.some((l) => l.href === "/governance/policy-packs")).toBe(true);
+    expect(policyVisible.some((l) => l.href === "/governance/policy-packs")).toBe(true);
   });
 
   it("shows policy packs for Admin rank when extended links are enabled", () => {
-    expect(enterprise).toBeDefined();
+    expect(policy).toBeDefined();
 
-    const visible = filterNavLinksForOperatorShell(enterprise!.links, AUTHORITY_RANK.AdminAuthority, true);
+    const visible = filterNavLinksForOperatorShell(policy!.links, AUTHORITY_RANK.AdminAuthority, true);
 
     expect(visible.some((l) => l.href === "/governance/policy-packs")).toBe(true);
   });
@@ -71,10 +78,12 @@ describe("filterNavLinksForOperatorShell", () => {
 
   it("shows extended and advanced governance links when disclosure flags are off (tiering retired)", () => {
     expect(enterprise).toBeDefined();
+    expect(policy).toBeDefined();
 
     const visible = filterNavLinksForOperatorShell(enterprise!.links, AUTHORITY_RANK.ExecuteAuthority, true);
+    const policyVisible = filterNavLinksForOperatorShell(policy!.links, AUTHORITY_RANK.ExecuteAuthority, true);
 
-    expect(visible.some((l) => l.href === "/governance/policy-packs")).toBe(true);
+    expect(policyVisible.some((l) => l.href === "/governance/policy-packs")).toBe(true);
     expect(visible.some((l) => l.href === "/governance/approval-queue")).toBe(true);
     expect(visible.some((l) => l.href === "/governance/alerts")).toBe(true);
   });

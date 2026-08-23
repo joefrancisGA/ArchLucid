@@ -54,7 +54,12 @@ public sealed class PolicyPackResolver(
             if (pack is null)
                 continue;
 
-            if (focusedPilotMode && !FocusedPilotModePolicyPacks.IsAllowedPackDisplayName(pack.Name))
+            if (focusedPilotMode && !FocusedPilotModePolicyPacks.IsPackAllowedInFocusedReview(
+                    pack.Name,
+                    assignment.IsPinned,
+                    PlatformOverlayPolicyPacks.IsOverlayDisplayName(
+                        pack.Name,
+                        PilotModeGovernanceScope.ActiveCloudProvider)))
                 continue;
 
             if (!await platformAvailability.IsGloballyActiveAsync(pack, ct))
@@ -74,7 +79,8 @@ public sealed class PolicyPackResolver(
                     Name = pack.Name,
                     Version = version.Version,
                     PackType = pack.PackType,
-                    ContentJson = version.ContentJson
+                    ContentJson = version.ContentJson,
+                    QualityDimension = pack.QualityDimension,
                 });
         }
 

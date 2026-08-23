@@ -89,6 +89,10 @@ function isSafeReturnPathAfterPercentDecoding(candidate: string): boolean {
     return false;
   }
 
+  if (working.includes("%")) {
+    return false;
+  }
+
   return true;
 }
 

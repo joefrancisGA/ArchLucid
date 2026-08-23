@@ -65,4 +65,26 @@ public sealed class OrchestratorTransientDbRetryTests
         await act.Should().ThrowAsync<TimeoutException>();
         attempts.Should().Be(1);
     }
+
+    [SkippableFact]
+    public async Task ExecuteAsync_retries_deadlock_when_aggregate_exception_lists_it_after_non_transient_sql()
+    {
+        int attempts = 0;
+        SqlException fkViolation = SqlExceptionTestFactory.Create(547);
+        SqlException deadlock = SqlExceptionTestFactory.Create(1205);
+
+        await OrchestratorTransientDbRetry.ExecuteAsync(
+            _ =>
+            {
+                attempts++;
+
+                if (attempts == 1)
+                    throw new AggregateException(fkViolation, deadlock);
+
+                return Task.CompletedTask;
+            },
+            CancellationToken.None);
+
+        attempts.Should().Be(2);
+    }
 }

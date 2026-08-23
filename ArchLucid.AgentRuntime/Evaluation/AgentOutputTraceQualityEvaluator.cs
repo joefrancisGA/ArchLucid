@@ -521,13 +521,34 @@ public static class AgentOutputTraceQualityEvaluator
     /// <summary>
     ///     Confidence enrichment signal — mirrors trace gate semantics without histogram emission.
     /// </summary>
-    public static async Task<bool> ComputeQualityGateAcceptedForConfidenceAsync(
+    public static Task<bool> ComputeQualityGateAcceptedForConfidenceAsync(
         AgentExecutionTrace trace,
         AgentOutputQualityGateOptions options,
         IAgentOutputEvaluator structuralEvaluator,
         IAgentOutputSemanticEvaluator semanticEvaluator,
         IAgentOutputQualityGate qualityGate,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken,
+        AgentEvidencePackage? evidencePackage = null,
+        IAgentResultEvidenceFaithfulnessChecker? agentResultFaithfulnessChecker = null) =>
+        ComputeQualityGateAcceptedForConfidenceAsyncCore(
+            trace,
+            options,
+            structuralEvaluator,
+            semanticEvaluator,
+            qualityGate,
+            cancellationToken,
+            evidencePackage,
+            agentResultFaithfulnessChecker);
+
+    private static async Task<bool> ComputeQualityGateAcceptedForConfidenceAsyncCore(
+        AgentExecutionTrace trace,
+        AgentOutputQualityGateOptions options,
+        IAgentOutputEvaluator structuralEvaluator,
+        IAgentOutputSemanticEvaluator semanticEvaluator,
+        IAgentOutputQualityGate qualityGate,
+        CancellationToken cancellationToken,
+        AgentEvidencePackage? evidencePackage,
+        IAgentResultEvidenceFaithfulnessChecker? agentResultFaithfulnessChecker)
     {
         TraceQualityEvaluationResult? result =
             await TryEvaluateTraceAsync(
@@ -536,7 +557,9 @@ public static class AgentOutputTraceQualityEvaluator
                 structuralEvaluator,
                 semanticEvaluator,
                 qualityGate,
-                cancellationToken).ConfigureAwait(false);
+                cancellationToken,
+                evidencePackage,
+                agentResultFaithfulnessChecker).ConfigureAwait(false);
 
         return result is { GateOutcome: not AgentOutputQualityGateOutcome.Rejected };
     }

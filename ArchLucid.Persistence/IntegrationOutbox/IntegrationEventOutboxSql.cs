@@ -54,12 +54,13 @@ internal static class IntegrationEventOutboxSql
                                           """;
 
     public const string ListDeadLetters = """
-                                          SELECT TOP (@Take)
-                                              OutboxId, RunId, TenantId, EventType, DeadLetteredUtc, RetryCount, LastErrorMessage
+                                          SELECT OutboxId, RunId, TenantId, EventType, DeadLetteredUtc, RetryCount, LastErrorMessage
                                           FROM dbo.IntegrationEventOutbox
                                           WHERE DeadLetteredUtc IS NOT NULL
                                             AND ProcessedUtc IS NULL
-                                          ORDER BY DeadLetteredUtc DESC;
+                                            AND (@TenantId IS NULL OR TenantId = @TenantId)
+                                          ORDER BY DeadLetteredUtc DESC
+                                          OFFSET @Skip ROWS FETCH NEXT @Take ROWS ONLY;
                                           """;
 
     public const string ResetDeadLetterForRetry = """
@@ -69,7 +70,8 @@ internal static class IntegrationEventOutboxSql
                                                       NextRetryUtc = NULL,
                                                       LastErrorMessage = NULL
                                                   WHERE OutboxId = @OutboxId
-                                                    AND DeadLetteredUtc IS NOT NULL;
+                                                    AND DeadLetteredUtc IS NOT NULL
+                                                    AND (@TenantId IS NULL OR TenantId = @TenantId);
                                                   """;
 
     public const string AcknowledgeDeadLetter = """
@@ -77,7 +79,8 @@ internal static class IntegrationEventOutboxSql
                                                 SET ProcessedUtc = SYSUTCDATETIME()
                                                 WHERE OutboxId = @OutboxId
                                                   AND DeadLetteredUtc IS NOT NULL
-                                                  AND ProcessedUtc IS NULL;
+                                                  AND ProcessedUtc IS NULL
+                                                  AND (@TenantId IS NULL OR TenantId = @TenantId);
                                                 """;
 
     public const string SelectMatchingDeadLetterIds = """
@@ -107,6 +110,7 @@ internal static class IntegrationEventOutboxSql
                                                 FROM dbo.IntegrationEventOutbox
                                                 WHERE OutboxId = @OutboxId
                                                   AND DeadLetteredUtc IS NOT NULL
-                                                  AND ProcessedUtc IS NULL;
+                                                  AND ProcessedUtc IS NULL
+                                                  AND (@TenantId IS NULL OR TenantId = @TenantId);
                                                 """;
 }

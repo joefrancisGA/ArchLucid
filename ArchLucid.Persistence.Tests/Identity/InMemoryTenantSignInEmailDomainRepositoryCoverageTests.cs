@@ -70,4 +70,37 @@ public sealed class InMemoryTenantSignInEmailDomainRepositoryCoverageTests
         Func<Task> duplicate = () => sut.InsertAsync(seeded, CancellationToken.None);
         await duplicate.Should().ThrowAsync<InvalidOperationException>();
     }
+
+    [Fact]
+    public async Task FindByNormalizedDomainAsync_ListByTenantIdAsync_and_TryGetAsync_exclude_soft_removed_domains()
+    {
+        InMemoryTenantSignInEmailDomainRepository sut = new();
+        Guid tenantId = Guid.NewGuid();
+        DateTimeOffset now = TimeProvider.System.GetUtcNow();
+
+        TenantSignInEmailDomainRecord active = new()
+        {
+            TenantId = tenantId,
+            NormalizedDomain = "active.example",
+            CreatedUtc = now,
+        };
+        TenantSignInEmailDomainRecord removed = new()
+        {
+            TenantId = tenantId,
+            NormalizedDomain = "removed.example",
+            CreatedUtc = now,
+            RemovedUtc = now,
+        };
+
+        sut.Seed(active);
+        sut.Seed(removed);
+
+        (await sut.FindByNormalizedDomainAsync("removed.example", CancellationToken.None)).Should().BeNull();
+        (await sut.TryGetAsync(tenantId, "removed.example", CancellationToken.None)).Should().BeNull();
+
+        (await sut.ListByTenantIdAsync(tenantId, CancellationToken.None))
+            .Select(row => row.NormalizedDomain)
+            .Should()
+            .Equal("active.example");
+    }
 }

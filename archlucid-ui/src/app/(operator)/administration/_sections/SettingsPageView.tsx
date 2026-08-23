@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { AdminPrerequisitesReadinessBoard } from "@/components/administration/AdminPrerequisitesReadinessBoard";
 import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
 import { SupportBundleDownloadButton } from "@/components/SupportBundleDownloadButton";
@@ -54,7 +55,7 @@ export function SettingsPageView() {
   const canViewPrerequisitesBoard = callerAuthorityRank >= AUTHORITY_RANK.AdminAuthority;
 
   return (
-    <div className={cn("w-full max-w-6xl", OPERATOR_LAYOUT.sectionStack)} data-testid="settings-page">
+    <OperatorPageContainer variant="settings" className={OPERATOR_LAYOUT.sectionStack} data-testid="settings-page">
       <a
         href={`#${SETTINGS_MASTER_PRIMARY_CONTENT_ID}`}
         className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
@@ -161,6 +162,6 @@ export function SettingsPageView() {
 
         {buyerPolishedShell ? <SettingsMasterBuyerChrome /> : null}
       </div>
-    </div>
+    </OperatorPageContainer>
   );
 }

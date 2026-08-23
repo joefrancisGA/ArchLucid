@@ -1,13 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useFormContext } from "react-hook-form";
+import { useFormContext, useWatch } from "react-hook-form";
 
 import { AdvancedOptionsAccordion } from "@/components/AdvancedOptionsAccordion";
 import { LlmMonthlyBudgetExceededBanner } from "@/components/llm/LlmMonthlyBudgetExceededBanner";
 import { WizardNavButtons } from "@/components/wizard/WizardNavButtons";
-import { PilotModePolicyPackToggle } from "@/components/wizard/PilotModePolicyPackToggle";
-import { FocusedPilotScopeDisclosureBanner } from "@/components/wizard/FocusedPilotScopeDisclosureBanner";
+import { ReviewAssuranceCoverageSection } from "@/components/wizard/ReviewAssuranceCoverageSection";
 import { WizardStepHeading } from "@/components/wizard/WizardStepHeading";
 import { WizardStickyFooter } from "@/components/wizard/WizardStickyFooter";
 import { WizardStepAdvanced } from "@/components/wizard/steps/WizardStepAdvanced";
@@ -67,6 +66,7 @@ export function SimplifiedPilotWizard(props: SimplifiedPilotWizardProps) {
   } = useWizardBaselineMetricsActions();
 
   const { reset } = useFormContext<WizardFormValues>();
+  const watchedValues = useWatch<WizardFormValues>();
 
   const buildPayloadOptions = (): WizardCreateRunPayloadOptions => ({
     requestSource: "wizard",
@@ -116,11 +116,12 @@ export function SimplifiedPilotWizard(props: SimplifiedPilotWizardProps) {
 
       {flow.stepIndex === 0 ? (
         <div className={OPERATOR_LAYOUT.sectionStack}>
-          <PilotModePolicyPackToggle
-            enabled={focusedPilotModeEnabled}
-            onEnabledChange={setFocusedPilotModeEnabled}
+          <ReviewAssuranceCoverageSection
+            focusedPilotModeEnabled={focusedPilotModeEnabled}
+            onFocusedPilotModeEnabledChange={setFocusedPilotModeEnabled}
+            cloudProvider={watchedValues?.cloudProvider ?? "None"}
+            descriptionText={watchedValues?.description}
           />
-          <FocusedPilotScopeDisclosureBanner focusedModeEnabled={focusedPilotModeEnabled} />
           <WizardStepIdentity />
           <WizardStepDescription />
           <AdvancedOptionsAccordion triggerLabel="Advanced configuration">

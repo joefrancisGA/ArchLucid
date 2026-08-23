@@ -103,7 +103,7 @@ public sealed class CloudInventoryExtractorChunkedUploadEndpointTests(Greenfield
             """;
 
         _ = cmd.Parameters.AddWithValue("@id", packageId);
-        _ = cmd.Parameters.AddWithValue("@provider", provider.ToString());
+        _ = cmd.Parameters.AddWithValue("@provider", (int)provider);
 
         object? scalar = await cmd.ExecuteScalarAsync();
 

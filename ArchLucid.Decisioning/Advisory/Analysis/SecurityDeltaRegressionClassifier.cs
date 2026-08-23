@@ -30,7 +30,10 @@ internal static class SecurityDeltaRegressionClassifier
     {
         string normalized = status.Trim().ToLowerInvariant();
 
-        if (ContainsAny(normalized, "noncompliant", "non-compliant", "fail", "failed", "off", "disabled", "missing", "gap", "at risk"))
+        if (IsNegatedPositiveStatus(normalized))
+            return 0;
+
+        if (ContainsAny(normalized, "noncompliant", "non-compliant", "non compliant", "fail", "failed", "off", "disabled", "missing", "gap", "at risk"))
             return 0;
 
         if (ContainsAny(normalized, "partial", "planned", "in progress", "pending", "stated"))
@@ -40,6 +43,21 @@ internal static class SecurityDeltaRegressionClassifier
             return 2;
 
         return 1;
+    }
+
+    private static bool IsNegatedPositiveStatus(string normalized)
+    {
+        return ContainsAny(
+            normalized,
+            "not compliant",
+            "not_compliant",
+            "not enabled",
+            "not_enabled",
+            "not implemented",
+            "not met",
+            "not satisfied",
+            "not passed",
+            "not pass");
     }
 
     private static bool ContainsAny(string value, params string[] tokens)

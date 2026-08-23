@@ -1,34 +1,20 @@
 {
   "complianceRuleIds": [],
   "complianceRuleKeys": [
-    "aws-dr-001",
-    "aws-dr-002",
     "aws-dr-003",
     "aws-dr-004",
     "aws-dr-005",
-    "aws-dr-006",
-    "aws-dr-007",
     "aws-dr-008",
     "aws-dr-009",
     "aws-dr-010",
     "aws-dr-011",
-    "aws-dr-012",
-    "aws-dr-013",
-    "aws-dr-014",
-    "aws-dr-015",
-    "aws-dr-016",
-    "aws-dr-017",
-    "aws-dr-018",
     "aws-dr-019",
     "aws-dr-020",
     "aws-dr-021",
-    "aws-dr-022",
-    "aws-dr-023",
     "aws-dr-024",
     "aws-dr-025",
     "aws-dr-026",
-    "aws-dr-027",
-    "aws-dr-028"
+    "aws-dr-027"
   ],
   "alertRuleIds": [],
   "compositeAlertRuleIds": [],
@@ -41,10 +27,11 @@
     "templateId": "aws-resiliency-dr-v1",
     "pack.displayName": "AWS Resiliency & Disaster Recovery",
     "pack.category": "Reliability",
-    "pack.version": "1.0.0",
+    "pack.version": "1.1.0",
     "pack.isDefault": "true",
     "pack.description": "Multi-AZ, Route 53, AWS Backup, and cross-region replication themes for AWS workloads.",
     "frameworkMappingDisclaimer": "DR mapping is thematic only.",
-    "curatedRulesArtifact": "docs/samples/policy-packs/aws-resiliency-dr-rules-v1.json"
+    "curatedRulesArtifact": "docs/samples/policy-packs/aws-resiliency-dr-rules-v1.json",
+    "overlayTrimNeutralBaseline": "2026-08-23"
   }
 }

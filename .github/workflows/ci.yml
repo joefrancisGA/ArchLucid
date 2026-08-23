@@ -439,6 +439,14 @@ jobs:
         continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_assert_route_tier_policy_nav.py"
 
+      - name: Nav authority controller parity guard (TB-882)
+        continue-on-error: true
+        run: python scripts/ci/check_nav_authority_controller_parity.py
+
+      - name: Nav authority controller parity guard unit tests (TB-882)
+        continue-on-error: true
+        run: python -m unittest discover -s scripts/ci/tests -p "test_check_nav_authority_controller_parity.py"
+
       - name: Route tenant scope binding guard (TB-277)
         continue-on-error: true
         run: python scripts/ci/assert_route_tenant_scope_guard.py

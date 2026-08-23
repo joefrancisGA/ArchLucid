@@ -142,6 +142,8 @@ describe("setUserAppearancePreference", () => {
       cloudPlatformScopeIsExplicit: false,
       whereToGoNextEnabled: true,
       whereToGoNextIsExplicit: false,
+      ianaTimeZoneId: "UTC",
+      ianaTimeZoneIsExplicit: false,
     });
     expect(apiGetMock).not.toHaveBeenCalled();
   });
@@ -179,6 +181,42 @@ describe("setUserWhereToGoNextEnabled", () => {
     expect(apiGetMock).not.toHaveBeenCalled();
     expect(apiPutJsonMock).toHaveBeenCalledWith("/v1/user/preferences/where-to-go-next", {
       enabled: false,
+    });
+  });
+});
+
+describe("setUserIanaTimeZonePreference", () => {
+  let getUserPreferences: typeof import("@/lib/api/user-preferences").getUserPreferences;
+  let resetUserPreferencesCacheForTests: typeof import("@/lib/api/user-preferences").resetUserPreferencesCacheForTests;
+  let setUserIanaTimeZonePreference: typeof import("@/lib/api/user-preferences").setUserIanaTimeZonePreference;
+
+  beforeEach(async () => {
+    vi.resetModules();
+    apiGetMock.mockReset();
+    apiPutJsonMock.mockReset();
+    const mod = await import("@/lib/api/user-preferences");
+    getUserPreferences = mod.getUserPreferences;
+    resetUserPreferencesCacheForTests = mod.resetUserPreferencesCacheForTests;
+    setUserIanaTimeZonePreference = mod.setUserIanaTimeZonePreference;
+    resetUserPreferencesCacheForTests();
+  });
+
+  afterEach(() => {
+    resetUserPreferencesCacheForTests();
+  });
+
+  it("persists time zone and seeds cache without a follow-up GET", async () => {
+    apiPutJsonMock.mockResolvedValue(undefined);
+
+    await setUserIanaTimeZonePreference("America/Chicago");
+
+    const preferences = await getUserPreferences();
+
+    expect(preferences.ianaTimeZoneId).toBe("America/Chicago");
+    expect(preferences.ianaTimeZoneIsExplicit).toBe(true);
+    expect(apiGetMock).not.toHaveBeenCalled();
+    expect(apiPutJsonMock).toHaveBeenCalledWith("/v1/user/preferences/time-zone", {
+      ianaTimeZoneId: "America/Chicago",
     });
   });
 });

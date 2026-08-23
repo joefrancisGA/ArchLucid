@@ -18,8 +18,6 @@ public sealed class TenantLlmCostTopRunRanker(
     IAgentExecutionTraceRepository traceRepository,
     ILlmCostEstimator costEstimator) : ITenantLlmCostTopRunRanker
 {
-    private const string DefaultProjectSlug = "default";
-
     private readonly IScopeContextProvider _scopeContextProvider =
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
 
@@ -41,8 +39,9 @@ public sealed class TenantLlmCostTopRunRanker(
         int takeCap = Math.Clamp(take, 1, 10);
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
 
-        IReadOnlyList<RunSummaryDto> summaries = await _authorityQueryService
-            .ListRunsByProjectAsync(scope, DefaultProjectSlug, scanCap, cancellationToken)
+        // Create maps SystemName onto the run project slug, so listing only "default" misses real reviews.
+        (IReadOnlyList<RunSummaryDto> summaries, _) = await _authorityQueryService
+            .ListRunsInScopeKeysetAsync(scope, cursorCreatedUtc: null, cursorRunId: null, scanCap, cancellationToken)
             .ConfigureAwait(false);
 
         List<string> runHexIds = summaries

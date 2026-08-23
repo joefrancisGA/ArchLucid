@@ -4,6 +4,7 @@ using ArchLucid.ArtifactSynthesis.Docx.Models;
 using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.ArtifactSynthesis.Packaging;
 using ArchLucid.ArtifactSynthesis.Sanitization;
+using ArchLucid.Contracts.Governance.Resolution;
 using ArchLucid.Core.Comparison;
 using ArchLucid.Core.Diagrams;
 using ArchLucid.Core.Explanation;
@@ -312,17 +313,23 @@ public sealed class DocxExportService(
         }
 
         WordDocumentBuilder.AddHeading(body, "Appendix B — Provenance Summary");
-        WordDocumentBuilder.AddSimpleTable(
-            body,
-            [
-                ("Metric", "Value"),
-                ("Rule set", $"{manifest.RuleSetId} {manifest.RuleSetVersion}"),
-                ("Manifest hash", manifest.ManifestHash),
-                ("Source findings", manifest.Provenance.SourceFindingIds.Count.ToString()),
-                ("Source graph nodes", manifest.Provenance.SourceGraphNodeIds.Count.ToString()),
-                ("Applied rules", manifest.Provenance.AppliedRuleIds.Count.ToString())
-            ],
-            true);
+        List<(string, string)> provenanceRows =
+        [
+            ("Metric", "Value"),
+            ("Rule set", $"{manifest.RuleSetId} {manifest.RuleSetVersion}"),
+            ("Manifest hash", manifest.ManifestHash),
+            ("Source findings", manifest.Provenance.SourceFindingIds.Count.ToString()),
+            ("Source graph nodes", manifest.Provenance.SourceGraphNodeIds.Count.ToString()),
+            ("Applied rules", manifest.Provenance.AppliedRuleIds.Count.ToString())
+        ];
+
+        foreach ((string label, string value) in CommittedEffectiveGovernanceSnapshotExportFormatter.FormatProvenanceAppendixRows(
+                     manifest.EffectiveGovernanceAtCommit))
+        {
+            provenanceRows.Add((label, value));
+        }
+
+        WordDocumentBuilder.AddSimpleTable(body, provenanceRows, true);
     }
 
     private async Task AppendArchitectureDiagramSectionAsync(

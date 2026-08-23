@@ -220,9 +220,14 @@ public sealed class DapperIntegrationEventOutboxRepository(ISqlConnectionFactory
     }
 
     /// <inheritdoc />
-    public async Task<IReadOnlyList<IntegrationEventOutboxDeadLetterRow>> ListDeadLettersAsync(int maxRows, CancellationToken ct)
+    public async Task<IReadOnlyList<IntegrationEventOutboxDeadLetterRow>> ListDeadLettersAsync(
+        int maxRows,
+        Guid? tenantId,
+        int skip,
+        CancellationToken ct)
     {
         int take = Math.Clamp(maxRows, 1, 500);
+        int offset = Math.Max(0, skip);
 
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
@@ -230,7 +235,9 @@ public sealed class DapperIntegrationEventOutboxRepository(ISqlConnectionFactory
         IEnumerable<DeadLetterRow> rows = await connection.QueryAsync<DeadLetterRow>(
             new CommandDefinition(IntegrationEventOutboxSql.ListDeadLetters, new
             {
-                Take = take
+                Take = take,
+                TenantId = tenantId,
+                Skip = offset
             }, cancellationToken: ct));
 
         List<IntegrationEventOutboxDeadLetterRow> list = [];
@@ -258,28 +265,30 @@ public sealed class DapperIntegrationEventOutboxRepository(ISqlConnectionFactory
     }
 
     /// <inheritdoc />
-    public async Task<bool> ResetDeadLetterForRetryAsync(Guid outboxId, CancellationToken ct)
+    public async Task<bool> ResetDeadLetterForRetryAsync(Guid outboxId, Guid? tenantId, CancellationToken ct)
     {
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
 
         int rows = await connection.ExecuteAsync(new CommandDefinition(IntegrationEventOutboxSql.ResetDeadLetterForRetry, new
         {
-            OutboxId = outboxId
+            OutboxId = outboxId,
+            TenantId = tenantId
         }, cancellationToken: ct));
 
         return rows > 0;
     }
 
     /// <inheritdoc />
-    public async Task<bool> AcknowledgeDeadLetterAsync(Guid outboxId, CancellationToken ct)
+    public async Task<bool> AcknowledgeDeadLetterAsync(Guid outboxId, Guid? tenantId, CancellationToken ct)
     {
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
 
         int rows = await connection.ExecuteAsync(new CommandDefinition(IntegrationEventOutboxSql.AcknowledgeDeadLetter, new
         {
-            OutboxId = outboxId
+            OutboxId = outboxId,
+            TenantId = tenantId
         }, cancellationToken: ct));
 
         return rows > 0;
@@ -337,13 +346,19 @@ public sealed class DapperIntegrationEventOutboxRepository(ISqlConnectionFactory
     }
 
     /// <inheritdoc />
-    public async Task<IntegrationEventOutboxEntry?> TryGetDeadLetterEntryAsync(Guid outboxId, CancellationToken ct)
+    public async Task<IntegrationEventOutboxEntry?> TryGetDeadLetterEntryAsync(
+        Guid outboxId,
+        Guid? tenantId,
+        CancellationToken ct)
     {
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
 
         IntegrationEventOutboxRow? row = await connection.QuerySingleOrDefaultAsync<IntegrationEventOutboxRow>(
-            new CommandDefinition(IntegrationEventOutboxSql.TryGetDeadLetterEntry, new { OutboxId = outboxId }, cancellationToken: ct));
+            new CommandDefinition(
+                IntegrationEventOutboxSql.TryGetDeadLetterEntry,
+                new { OutboxId = outboxId, TenantId = tenantId },
+                cancellationToken: ct));
 
         if (row?.EventType is null || row.PayloadUtf8 is null)
             return null;

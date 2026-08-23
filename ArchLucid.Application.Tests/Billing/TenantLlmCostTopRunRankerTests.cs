@@ -35,12 +35,13 @@ public sealed class TenantLlmCostTopRunRankerTests
 
         Mock<IAuthorityQueryService> authority = new();
         authority
-            .Setup(static service => service.ListRunsByProjectAsync(
+            .Setup(static service => service.ListRunsInScopeKeysetAsync(
                 It.IsAny<ScopeContext>(),
-                "default",
+                null,
+                null,
                 It.IsAny<int>(),
                 It.IsAny<CancellationToken>()))
-            .ReturnsAsync(
+            .ReturnsAsync((
             [
                 new RunSummaryDto
                 {
@@ -56,7 +57,8 @@ public sealed class TenantLlmCostTopRunRankerTests
                     CreatedUtc = DateTime.UtcNow,
                     GoldenManifestId = Guid.NewGuid(),
                 },
-            ]);
+            ],
+            false));
 
         string runAHex = runA.ToString("N");
         string runBHex = runB.ToString("N");
@@ -131,6 +133,97 @@ public sealed class TenantLlmCostTopRunRankerTests
     }
 
     [Fact]
+    public async Task RankAsync_includes_runs_whose_project_slug_is_not_default()
+    {
+        Guid runId = Guid.Parse("55555555-5555-5555-5555-555555555555");
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.Parse("66666666-6666-6666-6666-666666666666"),
+            WorkspaceId = Guid.Parse("77777777-7777-7777-7777-777777777777"),
+            ProjectId = Guid.Parse("88888888-8888-8888-8888-888888888888"),
+        };
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(static provider => provider.GetCurrentScope()).Returns(scope);
+
+        Mock<IAuthorityQueryService> authority = new();
+        authority
+            .Setup(static service => service.ListRunsInScopeKeysetAsync(
+                It.IsAny<ScopeContext>(),
+                null,
+                null,
+                It.IsAny<int>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync((
+            [
+                new RunSummaryDto
+                {
+                    RunId = runId,
+                    ProjectId = "REQ-AUTH-LIST-SCOPE-001",
+                    CreatedUtc = DateTime.UtcNow,
+                    GoldenManifestId = Guid.NewGuid(),
+                },
+            ],
+            false));
+        authority
+            .Setup(static service => service.ListRunsByProjectAsync(
+                It.IsAny<ScopeContext>(),
+                "default",
+                It.IsAny<int>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Array.Empty<RunSummaryDto>());
+
+        string runHex = runId.ToString("N");
+        Dictionary<string, IReadOnlyList<AgentExecutionTraceLlmCostSlice>> slicesByRunId =
+            new(StringComparer.OrdinalIgnoreCase)
+            {
+                [runHex] =
+                [
+                    new AgentExecutionTraceLlmCostSlice
+                    {
+                        InputTokenCount = 200,
+                        OutputTokenCount = 100,
+                        ModelDeploymentName = "gpt-test",
+                    },
+                ],
+            };
+
+        Mock<IAgentExecutionTraceRepository> traces = new();
+        traces
+            .Setup(repository => repository.GetLlmCostSlicesByRunIdsAsync(
+                It.IsAny<ScopeContext>(),
+                It.IsAny<IReadOnlyCollection<string>>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(slicesByRunId);
+
+        Mock<ILlmCostEstimator> estimator = new();
+        estimator
+            .Setup(static est => est.EstimateUsd(200, 100, 0, "gpt-test"))
+            .Returns(0.55m);
+
+        TenantLlmCostTopRunRanker ranker = new(
+            scopeProvider.Object,
+            authority.Object,
+            traces.Object,
+            estimator.Object);
+
+        IReadOnlyList<ArchLucid.Contracts.Billing.LlmCostTopRunRowResponse> rows =
+            await ranker.RankAsync(maxRunsToScan: 5, take: 1);
+
+        rows.Should().ContainSingle();
+        rows[0].RunId.Should().Be(runHex);
+        rows[0].EstimatedCostUsd.Should().Be(0.55m);
+
+        authority.Verify(
+            service => service.ListRunsByProjectAsync(
+                It.IsAny<ScopeContext>(),
+                It.IsAny<string>(),
+                It.IsAny<int>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
     public async Task RankAsync_skips_runs_with_no_trace_slices()
     {
         Guid runWithoutTraces = Guid.Parse("11111111-1111-1111-1111-111111111111");
@@ -146,12 +239,13 @@ public sealed class TenantLlmCostTopRunRankerTests
 
         Mock<IAuthorityQueryService> authority = new();
         authority
-            .Setup(static service => service.ListRunsByProjectAsync(
+            .Setup(static service => service.ListRunsInScopeKeysetAsync(
                 It.IsAny<ScopeContext>(),
-                "default",
+                null,
+                null,
                 It.IsAny<int>(),
                 It.IsAny<CancellationToken>()))
-            .ReturnsAsync(
+            .ReturnsAsync((
             [
                 new RunSummaryDto
                 {
@@ -160,7 +254,8 @@ public sealed class TenantLlmCostTopRunRankerTests
                     CreatedUtc = DateTime.UtcNow,
                     GoldenManifestId = Guid.NewGuid(),
                 },
-            ]);
+            ],
+            false));
 
         // Batch result omits the run entirely, which is what the SQL grouping returns for a run with no traces.
         Mock<IAgentExecutionTraceRepository> traces = new();

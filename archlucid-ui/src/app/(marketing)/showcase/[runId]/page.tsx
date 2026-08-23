@@ -15,6 +15,7 @@ import {
   SHOWCASE_OFFLINE_ILLUSTRATIVE_DISCLOSURE,
 } from "@/lib/showcase-disclosure-copy";
 import {
+  decodeShowcaseRunId,
   hasCuratedShowcaseStaticPayload,
   isShowcaseStaticFirstRunId,
 } from "@/lib/showcase-page-resolution";
@@ -339,7 +340,7 @@ async function fetchShowcasePayload(
 /** Public marketing projection of finalized run preview (dynamic API path; static fallback when no API URL). */
 export default async function MarketingShowcasePage(props: PageProps) {
   const { runId } = await props.params;
-  const decodedRunId = decodeURIComponent(runId);
+  const decodedRunId = decodeShowcaseRunId(runId);
   const base = resolveShowcaseApiBase();
 
   if (!base || isShowcaseStaticFirstRunId(decodedRunId)) {
@@ -355,7 +356,7 @@ export default async function MarketingShowcasePage(props: PageProps) {
     );
   }
 
-  const encoded = encodeURIComponent(runId);
+  const encoded = encodeURIComponent(decodedRunId);
   const url = `${base}/v1/marketing/showcase/${encoded}`;
   const bundle = await fetchShowcasePayload(url);
 

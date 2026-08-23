@@ -98,6 +98,55 @@ public sealed class SqlFindingsSnapshotRepositorySqlIntegrationTests(SqlServerPe
     }
 
     [SkippableFact]
+    public async Task Save_then_GetById_round_trips_quality_dimension_column()
+    {
+        Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);
+        SqlConnectionFactory factory = new(fixture.ConnectionString);
+        await using SqlConnection connection = await factory.CreateOpenConnectionAsync(CancellationToken.None);
+
+        Guid runId = Guid.NewGuid();
+        Guid contextId = Guid.NewGuid();
+        Guid graphId = Guid.NewGuid();
+        await SeedAuthorityParentsAsync(connection, runId, contextId, graphId, CancellationToken.None);
+
+        SqlFindingsSnapshotRepository repository = new(factory, new TestReadOnlyDbConnectionFactory(factory), Empty);
+
+        Guid findingsId = Guid.NewGuid();
+        const string pillarKey = "Security";
+        FindingsSnapshot snapshot = new()
+        {
+            FindingsSnapshotId = findingsId,
+            RunId = runId,
+            ContextSnapshotId = contextId,
+            GraphSnapshotId = graphId,
+            CreatedUtc = new DateTime(2026, 8, 21, 12, 0, 0, DateTimeKind.Utc),
+            SchemaVersion = FindingsSchema.CurrentSnapshotVersion,
+            Findings =
+            [
+                new Finding
+                {
+                    FindingId = "f-pillar",
+                    FindingType = "SecurityGapFinding",
+                    Category = "Security",
+                    QualityDimension = pillarKey,
+                    EngineType = "TestEngine",
+                    Severity = FindingSeverity.Error,
+                    Title = "Pillar",
+                    Rationale = "Because",
+                }
+            ]
+        };
+
+        FindingsSnapshotMigrator.Apply(snapshot);
+        await repository.SaveAsync(snapshot, CancellationToken.None);
+
+        FindingsSnapshot? loaded = await repository.GetByIdAsync(Empty.GetCurrentScope(), findingsId, CancellationToken.None);
+        loaded.Should().NotBeNull();
+        loaded!.Findings.Should().ContainSingle();
+        loaded.Findings[0].QualityDimension.Should().Be(pillarKey);
+    }
+
+    [SkippableFact]
     public async Task Save_then_GetById_round_trips_insight_density_columns()
     {
         Skip.IfNot(fixture.IsSqlServerAvailable, SqlServerPersistenceFixture.SqlServerUnavailableSkipReason);

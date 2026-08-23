@@ -52,7 +52,8 @@ public sealed class RunExportAuthorityMaterialLoader(IAuthorityQueryService auth
             RuleSetLabel = string.IsNullOrWhiteSpace(ruleSetLine) ? null : ruleSetLine,
             RuleSetId = string.IsNullOrWhiteSpace(golden.RuleSetId) ? null : golden.RuleSetId,
             RuleSetHash = string.IsNullOrWhiteSpace(golden.RuleSetHash) ? null : golden.RuleSetHash,
-            PolicyAtCommitSummary = BuildPolicyAtCommitSummary(golden.EffectiveGovernanceAtCommit),
+            PolicyAtCommitSummary = CommittedEffectiveGovernanceSnapshotExportFormatter.FormatReadmeHeadline(golden.EffectiveGovernanceAtCommit),
+            PolicyAtCommitDetailLines = CommittedEffectiveGovernanceSnapshotExportFormatter.FormatReadmeDetailLines(golden.EffectiveGovernanceAtCommit),
             OperatorShellReviewRelativePath = $"/reviews/{runId:D}"
         };
 
@@ -64,16 +65,5 @@ public sealed class RunExportAuthorityMaterialLoader(IAuthorityQueryService auth
                 TraceJson = traceJson,
                 ReadmeContext = readmeContext
             });
-    }
-
-    private static string? BuildPolicyAtCommitSummary(CommittedEffectiveGovernanceSnapshotDescriptor? snapshot)
-    {
-        if (snapshot is null)
-            return null;
-
-        if (!snapshot.HasEffectivePolicy)
-            return "no effective policy assignments or compliance rule keys";
-
-        return $"{snapshot.PackAssignments.Count} pack assignment(s), {snapshot.ComplianceRuleKeyCount} compliance rule key(s)";
     }
 }

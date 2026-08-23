@@ -16,6 +16,7 @@ const INLINE_REQUIREMENT_LABELS: Readonly<Record<string, string>> = {
   "l0.pillar.reliability": "Reliability",
   "l0.pillar.operations": "Operations",
   "l0.pillar.performance": "Performance",
+  "l0.pillar.sustainability": "Sustainability",
 };
 
 const CONSTRAINT_LABELS: Readonly<Record<string, string>> = {

@@ -116,10 +116,10 @@ public sealed class ArchitectureControllerTests
 
             if (await executeResponse.IsAuthorityPipelineCompleteExecuteConflictAsync())
             {
-                HttpResponseMessage seededGetRunResponse = await client.GetAsync($"/v1/architecture/review/{runId}");
-                await seededGetRunResponse.EnsureSuccessForTestAsync();
+                HttpResponseMessage seededRunResponse = await client.GetAsync($"/v1/architecture/review/{runId}");
+                await seededRunResponse.EnsureSuccessForTestAsync();
                 GetRunResponseDto? seededPayload =
-                    await seededGetRunResponse.Content.ReadFromJsonAsync<GetRunResponseDto>(JsonOptions);
+                    await seededRunResponse.Content.ReadFromJsonAsync<GetRunResponseDto>(JsonOptions);
                 seededPayload!.Results.Should().HaveCount(4);
                 return;
             }
@@ -417,14 +417,16 @@ public sealed class ArchitectureControllerTests
                 await response.Content.ReadFromJsonAsync<List<ArchitectureRequestTemplateSummary>>(JsonOptions);
 
             items.Should().NotBeNull();
-            items.Should().HaveCount(5);
+            items.Should().HaveCount(7);
 
             string[] ids = items!.Select(i => i.Id).OrderBy(s => s).ToArray();
             ids.Should().Equal(
                 "hipaa-compliant-api",
                 "microservices-aks",
+                "microservices-gke",
                 "pci-dss-payment-gateway",
                 "serverless-api",
+                "serverless-api-aws",
                 "webapp-sql");
 
             items.Select(i => i.Id).Should().OnlyHaveUniqueItems();

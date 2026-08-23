@@ -1,3 +1,4 @@
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -7,7 +8,8 @@ using ArchLucid.Core.Llm;
 namespace ArchLucid.Application.Planning;
 
 public sealed class ArchitectureRequestDraftService(
-    IAgentCompletionClient completionClient) : IArchitectureRequestDraftService
+    IAgentCompletionClient completionClient,
+    IArchitectureRequestDraftSemanticUniquePass semanticUniquePass) : IArchitectureRequestDraftService
 {
     private const string DraftSystemPrompt =
         "You are an enterprise architecture intake assistant. " +
@@ -19,6 +21,9 @@ public sealed class ArchitectureRequestDraftService(
         "Use those exact key names (not constraints/requiredCapabilities/assumptions). " +
         "suggestedFailureModeNote should be one concise sentence on what breaks first and how operators recover (omit or null when unclear). " +
         "When the text mentions limits, deferrals, ADRs, SLOs, or trust boundaries, each array should contain at least one concise item. " +
+        "Each array item must express exactly one distinct fact or obligation — one idea per item. " +
+        "Do not include paraphrases of the same fact; keep the more specific wording only. " +
+        "Do not restate items already listed in current constraints or current assumptions supplied by the caller. " +
         "Be specific and concise. Return ONLY valid JSON.";
 
     private static readonly JsonSerializerOptions JsonOptions = new()
@@ -28,6 +33,9 @@ public sealed class ArchitectureRequestDraftService(
 
     private readonly IAgentCompletionClient _completionClient = completionClient
                                                                 ?? throw new ArgumentNullException(nameof(completionClient));
+
+    private readonly IArchitectureRequestDraftSemanticUniquePass _semanticUniquePass = semanticUniquePass
+        ?? throw new ArgumentNullException(nameof(semanticUniquePass));
 
     public async Task<DraftArchitectureRequestResponse> DraftAsync(
         DraftArchitectureRequestInput input,
@@ -39,9 +47,11 @@ public sealed class ArchitectureRequestDraftService(
         if (string.IsNullOrWhiteSpace(input.FreeTextDescription))
             throw new ArgumentException("FreeTextDescription is required.", nameof(input));
 
+        string userPrompt = BuildDraftUserPrompt(input);
+
         string responseJson = await _completionClient.CompleteJsonAsync(
             DraftSystemPrompt,
-            input.FreeTextDescription.Trim(),
+            userPrompt,
             maxTokens: null,
             temperature: null,
             cancellationToken: cancellationToken);
@@ -52,15 +62,61 @@ public sealed class ArchitectureRequestDraftService(
         if (response is null)
             throw new InvalidOperationException("Draft response was empty.");
 
+        string[] normalizedConstraints = Normalize(response.SuggestedConstraints, response.Constraints);
+        string[] normalizedAssumptions = Normalize(response.SuggestedAssumptions, response.Assumptions);
+        string[] existingConstraints = ArchitectureRequestDraftSemanticUniquePass.NormalizeExact(input.CurrentConstraints);
+        string[] existingAssumptions = ArchitectureRequestDraftSemanticUniquePass.NormalizeExact(input.CurrentAssumptions);
+
+        string[] filteredConstraints = await _semanticUniquePass.FilterDuplicatesAsync(
+            ArchitectureRequestDraftListKind.Constraints,
+            existingConstraints,
+            normalizedConstraints,
+            cancellationToken);
+
+        string[] filteredAssumptions = await _semanticUniquePass.FilterDuplicatesAsync(
+            ArchitectureRequestDraftListKind.Assumptions,
+            existingAssumptions,
+            normalizedAssumptions,
+            cancellationToken);
+
         return new DraftArchitectureRequestResponse
         {
-            SuggestedConstraints = Normalize(response.SuggestedConstraints, response.Constraints),
+            SuggestedConstraints = filteredConstraints,
             SuggestedCapabilities = Normalize(response.SuggestedCapabilities, response.RequiredCapabilities),
-            SuggestedAssumptions = Normalize(response.SuggestedAssumptions, response.Assumptions),
+            SuggestedAssumptions = filteredAssumptions,
             TopologyHints = Normalize(response.TopologyHints),
             SecurityBaselineHints = Normalize(response.SecurityBaselineHints),
             SuggestedFailureModeNote = NormalizeFailureModeNote(response.SuggestedFailureModeNote, response.FailureModeNote)
         };
+    }
+
+    internal static string BuildDraftUserPrompt(DraftArchitectureRequestInput input)
+    {
+        StringBuilder builder = new();
+        builder.AppendLine("Architecture overview:");
+        builder.AppendLine(input.FreeTextDescription.Trim());
+        builder.AppendLine();
+        builder.AppendLine("Current constraints already on the draft (do not restate or paraphrase):");
+        AppendListItems(builder, input.CurrentConstraints);
+        builder.AppendLine();
+        builder.AppendLine("Current assumptions already on the draft (do not restate or paraphrase):");
+        AppendListItems(builder, input.CurrentAssumptions);
+
+        return builder.ToString();
+    }
+
+    private static void AppendListItems(StringBuilder builder, string[]? items)
+    {
+        string[] normalized = ArchitectureRequestDraftSemanticUniquePass.NormalizeExact(items ?? []);
+
+        if (normalized.Length == 0)
+        {
+            builder.AppendLine("(none)");
+            return;
+        }
+
+        foreach (string item in normalized)
+            builder.AppendLine($"- {item}");
     }
 
     private static string? NormalizeFailureModeNote(params string?[] valueSets)

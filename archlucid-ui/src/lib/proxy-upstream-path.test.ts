@@ -84,4 +84,27 @@ describe("buildProxyUpstreamPath", () => {
       ]),
     ).toEqual({ ok: false });
   });
+
+  it("rejects nine-level encoded dot traversal segments that bypass the eight-pass guard", () => {
+    let encoded = "%2e%2e";
+
+    for (let pass = 0; pass < 9; pass++) {
+      encoded = encoded.replace(/%/g, "%25");
+    }
+
+    expect(
+      buildProxyUpstreamPath([
+        "v1",
+        "marketing",
+        "quick-scan",
+        "status",
+        encoded,
+        encoded,
+        encoded,
+        "architecture",
+        "draft",
+        "draft-1",
+      ]),
+    ).toEqual({ ok: false });
+  });
 });

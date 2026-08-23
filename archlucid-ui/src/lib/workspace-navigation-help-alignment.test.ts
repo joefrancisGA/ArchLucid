@@ -34,6 +34,7 @@ describe("workspace-navigation-help-alignment", () => {
       "operate-analysis",
       "operate-architect-advanced",
       "operate-governance",
+      "operate-policy",
       "operate-integrations",
     ]);
   });

@@ -352,6 +352,20 @@ public sealed class RbacBoundaryIntegrationTests(ApiKeyReaderAndAdminArchLucidAp
             return true;
         }
 
+        if (string.Equals(name, "aliasId", StringComparison.OrdinalIgnoreCase))
+        {
+            value = "rbac-probe-alias";
+
+            return true;
+        }
+
+        if (string.Equals(name, "taskType", StringComparison.OrdinalIgnoreCase))
+        {
+            value = "topology";
+
+            return true;
+        }
+
         if (string.Equals(name, "project", StringComparison.OrdinalIgnoreCase))
         {
             value = "rbac-probe-project";

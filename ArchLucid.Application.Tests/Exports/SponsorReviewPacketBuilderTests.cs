@@ -1,10 +1,14 @@
 using ArchLucid.Application.Exports;
 using ArchLucid.Application.Governance;
 using ArchLucid.Application.Roi;
+using ArchLucid.Contracts.Agents;
+using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Metadata;
 using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Governance;
+using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Roi;
 using ArchLucid.Core.Scoping;
 
@@ -43,6 +47,63 @@ public sealed class SponsorReviewPacketBuilderTests
         string? markdown = await sut.BuildMarkdownAsync(RunId, CancellationToken.None);
 
         markdown.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task BuildMarkdownAsync_counts_error_severity_findings_as_high_in_sponsor_report()
+    {
+        ArchitectureRunDetail detail = new()
+        {
+            Run = new ArchitectureRun
+            {
+                RunId = RunId,
+                Status = ArchitectureRunStatus.Committed,
+                CurrentManifestVersion = "v1"
+            },
+            Manifest = new GoldenManifest
+            {
+                RunId = RunId,
+                SystemName = "Contoso",
+                Services = [],
+                Datastores = [],
+                Relationships = [],
+                Governance = new ManifestGovernance(),
+                Metadata = new ManifestMetadata { ManifestVersion = "v1", CreatedUtc = DateTime.UtcNow }
+            },
+            Results =
+            [
+                new AgentResult
+                {
+                    Findings =
+                    [
+                        new ArchitectureFinding
+                        {
+                            Severity = FindingSeverity.Critical,
+                            Message = "Critical gap",
+                            Category = "Security"
+                        },
+                        new ArchitectureFinding
+                        {
+                            Severity = FindingSeverity.Error,
+                            Message = "High gap",
+                            Category = "Security"
+                        }
+                    ]
+                }
+            ]
+        };
+
+        Mock<IRunDetailQueryService> runDetails = new();
+        runDetails
+            .Setup(x => x.GetRunDetailAsync(RunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(detail);
+
+        SponsorReviewPacketBuilder sut = CreateSut(runDetails.Object);
+
+        string? markdown = await sut.BuildMarkdownAsync(RunId, CancellationToken.None);
+
+        markdown.Should().NotBeNull();
+        markdown.Should().Contain("1 critical and 1 high findings");
     }
 
     [Fact]

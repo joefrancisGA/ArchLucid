@@ -85,6 +85,23 @@ public sealed class InboundWebhookPipelineOrderIntegrationTests
     }
 
     [Fact]
+    public async Task Jira_webhook_malformed_json_with_valid_token_returns_400_not_500()
+    {
+        await using WebApplicationFactory<Program> factory = CreateFactory();
+        using HttpClient client = factory.CreateClient();
+
+        using HttpRequestMessage request = new(HttpMethod.Post, "/v1/integrations/webhooks/jira");
+        request.Content = new StringContent("not-json-but-small", Encoding.UTF8, "application/json");
+        request.Headers.TryAddWithoutValidation("X-Jira-Token", JiraSecret);
+
+        using HttpResponseMessage response = await client.SendAsync(request);
+
+        response.StatusCode.Should().Be(
+            HttpStatusCode.BadRequest,
+            "authenticated inbound webhooks must reject malformed JSON with 400 instead of surfacing JsonException as 500");
+    }
+
+    [Fact]
     public async Task Jira_webhook_response_echoes_trimmed_x_correlation_id_header()
     {
         await using WebApplicationFactory<Program> factory = CreateFactory();

@@ -201,18 +201,21 @@ export function OperatorHomeDualPathCards(props: OperatorHomeDualPathCardsProps)
             ) : null}
           </div>
           {canExecute ? (
-            <div className="flex flex-col gap-2" data-testid="operator-home-create-architecture-actions">
-              <ReviewStartLoadingButton
-                variant={createArchitectureVariant}
-                size="sm"
-                className="h-8 w-fit"
-                idleLabel={CREATE_ARCHITECTURE_LABEL}
-                loadingLabel={createArchitectureNavigation.loadingLabel}
-                isLoading={createArchitectureNavigation.isNavigating && selectedPath === "create-architecture"}
-                onClick={startCreateArchitecture}
-                data-testid="operator-home-create-architecture-cta"
-              />
-              <div data-testid="operator-home-connect-cloud-path">
+            <div className="space-y-2" data-testid="operator-home-create-architecture-actions">
+              <div
+                className="flex flex-wrap items-center gap-2"
+                data-testid="operator-home-connect-cloud-path"
+              >
+                <ReviewStartLoadingButton
+                  variant={createArchitectureVariant}
+                  size="sm"
+                  className="h-8 w-fit"
+                  idleLabel={CREATE_ARCHITECTURE_LABEL}
+                  loadingLabel={createArchitectureNavigation.loadingLabel}
+                  isLoading={createArchitectureNavigation.isNavigating && selectedPath === "create-architecture"}
+                  onClick={startCreateArchitecture}
+                  data-testid="operator-home-create-architecture-cta"
+                />
                 <OperatorHomeNavigateLoadingButton
                   variant="outline"
                   size="sm"
@@ -225,12 +228,12 @@ export function OperatorHomeDualPathCards(props: OperatorHomeDualPathCardsProps)
                   }}
                   data-testid="operator-home-connect-cloud"
                 />
-                {!canManageCloudConnections ? (
-                  <p className={cn("m-0 pt-1", OPERATOR_TYPE_SCALE.micro, "text-al-text-secondary")}>
-                    {OPERATOR_HOME_CLOUD_CONNECT_ADMIN_HINT}
-                  </p>
-                ) : null}
               </div>
+              {!canManageCloudConnections ? (
+                <p className={cn("m-0", OPERATOR_TYPE_SCALE.micro, "text-al-text-secondary")}>
+                  {OPERATOR_HOME_CLOUD_CONNECT_ADMIN_HINT}
+                </p>
+              ) : null}
             </div>
           ) : (
             <p className={cn("m-0", OPERATOR_TYPE_SCALE.micro, "text-al-text-secondary")}>

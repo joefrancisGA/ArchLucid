@@ -22,6 +22,7 @@ python3 scripts/ci/assert_openapi_mutations_in_audit_matrix.py
 python3 scripts/ci/check_audit_matrix.py
 python3 scripts/ci/detect_mutating_route_idempotency_drift.py
 python3 scripts/ci/assert_route_tier_policy_nav.py
+python3 scripts/ci/check_nav_authority_controller_parity.py
 python3 scripts/ci/check_api_latency_tiers.py
 python3 scripts/ci/assert_ui_route_traffic_workbook_canonical.py
 python3 scripts/ci/test_coordinator_parity_probe.py

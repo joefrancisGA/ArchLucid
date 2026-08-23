@@ -34,6 +34,7 @@ public sealed class CostAgentHandler(
     IScopeContextProvider scopeContextProvider,
     ITechnologyLedgerRepository technologyLedgerRepository,
     CostRetailGroundingLookups retailGroundingLookups,
+    AgentPolicyPackRetrievalAppender policyPackRetrievalAppender,
     IRetrievalGroundingTraceWriter retrievalGroundingTraceWriter,
     IOptionsMonitor<AgentSchemaRemediationOptions> schemaRemediationOptions,
     ILogger<CostAgentHandler> logger)
@@ -52,6 +53,9 @@ public sealed class CostAgentHandler(
 
     private readonly CostRetailGroundingLookups _retailGroundingLookups =
         retailGroundingLookups ?? throw new ArgumentNullException(nameof(retailGroundingLookups));
+
+    private readonly AgentPolicyPackRetrievalAppender _policyPackRetrievalAppender =
+        policyPackRetrievalAppender ?? throw new ArgumentNullException(nameof(policyPackRetrievalAppender));
 
     private readonly IRetrievalGroundingTraceWriter _retrievalGroundingTraceWriter =
         retrievalGroundingTraceWriter ?? throw new ArgumentNullException(nameof(retrievalGroundingTraceWriter));
@@ -111,6 +115,9 @@ public sealed class CostAgentHandler(
                 retailGrounding),
             ledgerEntries);
         await TryPersistRetailGroundingTraceAsync(runId, request, retailGrounding, cancellationToken);
+        baseUserPrompt = (await _policyPackRetrievalAppender
+            .AppendAsync(AgentType.Cost, request, runId, baseUserPrompt, cancellationToken)
+            .ConfigureAwait(false)).Prompt;
 
         return await AgentHandlerCompletionExecutor.CompleteWithSchemaRemediationAsync(
             tierCompletionRouter,

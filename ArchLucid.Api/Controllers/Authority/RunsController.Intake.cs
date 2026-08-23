@@ -45,6 +45,61 @@ public sealed partial class RunsController
         return Ok(response);
     }
 
+    [HttpPost("request/draft/overview-rewrite")]
+    [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
+    [MutatingAuditExcluded("Overview rewrite is advisory-only and does not persist domain mutations.")]
+    [ProducesResponseType(typeof(RewriteArchitectureOverviewResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> RewriteArchitectureOverview(
+        [FromBody] RewriteArchitectureOverviewInput? input,
+        CancellationToken cancellationToken)
+    {
+        if (input is null)
+            return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+
+        if (string.IsNullOrWhiteSpace(input.CurrentOverview))
+            return this.BadRequestProblem("CurrentOverview is required.", ProblemTypes.ValidationFailed);
+
+        if (input.CurrentOverview.Trim().Length < MinimumIntakeTextLength)
+            return this.BadRequestProblem(
+                $"CurrentOverview must be at least {MinimumIntakeTextLength} characters.",
+                ProblemTypes.ValidationFailed);
+
+        RewriteArchitectureOverviewResponse response =
+            await architectureOverviewRewriteService.RewriteAsync(input, cancellationToken);
+
+        return Ok(response);
+    }
+
+    [HttpPost("request/draft/suggestion/explain")]
+    [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
+    [MutatingAuditExcluded("Explain endpoint is advisory-only and does not persist domain mutations.")]
+    [ProducesResponseType(typeof(ExplainStructuredBriefSuggestionResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> ExplainStructuredBriefSuggestion(
+        [FromBody] ExplainStructuredBriefSuggestionInput? input,
+        CancellationToken cancellationToken)
+    {
+        if (input is null)
+            return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+
+        if (string.IsNullOrWhiteSpace(input.SourceText))
+            return this.BadRequestProblem("SourceText is required.", ProblemTypes.ValidationFailed);
+
+        if (input.SourceText.Trim().Length < MinimumIntakeTextLength)
+            return this.BadRequestProblem(
+                $"SourceText must be at least {MinimumIntakeTextLength} characters.",
+                ProblemTypes.ValidationFailed);
+
+        if (string.IsNullOrWhiteSpace(input.SuggestionText))
+            return this.BadRequestProblem("SuggestionText is required.", ProblemTypes.ValidationFailed);
+
+        ExplainStructuredBriefSuggestionResponse response =
+            await structuredBriefSuggestionExplainService.ExplainAsync(input, cancellationToken);
+
+        return Ok(response);
+    }
+
     [HttpPost("chat-intake")]
     [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
     [MutatingAuditExcluded("Chat intake is advisory-only and does not persist domain mutations.")]

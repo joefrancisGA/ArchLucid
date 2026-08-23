@@ -29,9 +29,25 @@ namespace ArchLucid.Api.Controllers.Governance;
 [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status429TooManyRequests)]
 public sealed class GovernanceCoverageController(
     ICoverageQueryService coverageQueryService,
+    ICoveragePreviewService coveragePreviewService,
     IPolicyPackRepository policyPackRepository,
     IScopeContextProvider scopeContextProvider) : ControllerBase
 {
+    [HttpPost("coverage/preview")]
+    [ProducesResponseType(typeof(CoveragePreviewResponse), StatusCodes.Status200OK)]
+    public async Task<IActionResult> PreviewCoverage(
+        [FromBody] CoveragePreviewRequest request,
+        CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+        CoveragePreviewInput input = CoveragePreviewMapper.ToInput(request);
+        CoveragePreviewResult preview = await coveragePreviewService.PreviewAsync(scope, input, cancellationToken);
+        CoveragePreviewResponse response = CoveragePreviewMapper.ToResponse(preview);
+
+        return Ok(response);
+    }
+
     [HttpGet("coverage")]
     [ProducesResponseType(typeof(CoverageSummaryResponse), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetScopeCoverage(CancellationToken cancellationToken)

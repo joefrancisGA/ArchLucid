@@ -32,9 +32,7 @@ public static class IntegrationWebhookPayloadSamples
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(eventTypeAlias);
 
-        // Match IntegrationEventServiceBusMessageDispatch / outbox priority: legacy com.archiforge.* aliases
-        // must resolve before the friendly-name switch and KnownEventTypes membership check.
-        string normalized = IntegrationEventTypes.MapToCanonical(eventTypeAlias);
+        string normalized = eventTypeAlias.Trim();
 
         return normalized switch
         {
@@ -210,12 +208,15 @@ public static class IntegrationWebhookPayloadSamples
         return new
         {
             schemaVersion = 1,
-            approvalRequestId = Guid.NewGuid().ToString("D"),
-            runId = Guid.NewGuid(),
             tenantId = Guid.NewGuid(),
             workspaceId = Guid.NewGuid(),
             projectId = Guid.NewGuid(),
-            submittedBy = "cli-simulator@archlucid.local"
+            approvalRequestId = Guid.NewGuid().ToString("D"),
+            runId = Guid.NewGuid().ToString("D"),
+            manifestVersion = "v1",
+            sourceEnvironment = "dev",
+            targetEnvironment = "test",
+            requestedBy = "cli-simulator@archlucid.local"
         };
     }
 
@@ -254,15 +255,12 @@ public static class IntegrationWebhookPayloadSamples
         return new
         {
             schemaVersion = 1,
+            promotionRecordId = Guid.NewGuid().ToString("D"),
+            runId = Guid.NewGuid(),
             tenantId = Guid.NewGuid(),
             workspaceId = Guid.NewGuid(),
             projectId = Guid.NewGuid(),
-            activationId = Guid.NewGuid().ToString("D"),
-            runId = Guid.NewGuid().ToString("D"),
-            manifestVersion = "v1",
-            environment = "production",
-            activatedBy = "cli-simulator@archlucid.local",
-            activatedUtc = TimeProvider.System.GetUtcNow().ToString("O")
+            targetEnvironment = "production"
         };
     }
 

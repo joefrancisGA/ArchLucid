@@ -6,7 +6,7 @@ import { PREFERENCES_CLOUD_PLATFORMS_EMPTY_SELECTION_MESSAGE } from "@/lib/cloud
 import { DEFAULT_CLOUD_PLATFORM_SCOPE } from "@/lib/cloud-platform-scope-storage";
 
 describe("CloudPlatformScopePanel", () => {
-  it("blocks hiding the last visible provider and offers show-all reset", () => {
+  it("blocks hiding the last visible provider", () => {
     const onScopeChange = vi.fn();
 
     render(
@@ -22,8 +22,6 @@ describe("CloudPlatformScopePanel", () => {
     expect(screen.getByTestId("cloud-platform-scope-empty-selection")).toHaveTextContent(
       PREFERENCES_CLOUD_PLATFORMS_EMPTY_SELECTION_MESSAGE,
     );
-
-    fireEvent.click(screen.getByTestId("cloud-platform-scope-show-all"));
-    expect(onScopeChange).toHaveBeenCalledWith(DEFAULT_CLOUD_PLATFORM_SCOPE);
+    expect(screen.queryByTestId("cloud-platform-scope-show-all")).not.toBeInTheDocument();
   });
 });

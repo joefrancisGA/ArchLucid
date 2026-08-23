@@ -6,6 +6,7 @@ import { useCallback, useState } from "react";
 
 import { DemoWorkspaceCapabilityUnavailablePanel } from "@/components/DemoWorkspaceCapabilityUnavailablePanel";
 import { SETTINGS_SUPPORT_PATH } from "@/lib/settings-admin-route-paths";
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { ReportProblemSupportWorkspaceVocabularyRail } from "@/components/ReportProblemSupportWorkspaceVocabularyRail";
 import { Badge } from "@/components/ui/badge";
@@ -92,7 +93,7 @@ export function AdminSupportPageView({ model }: AdminSupportPageViewProps) {
   const downloadDisabled = model.downloading || !model.canGenerateBundle;
 
   return (
-    <div className={cn("w-full max-w-[1280px]", OPERATOR_LAYOUT.sectionStack)} data-testid="admin-support-page">
+    <OperatorPageContainer variant="workflow" className={OPERATOR_LAYOUT.sectionStack} data-testid="admin-support-page">
       <a
         href={`#${ADMIN_SUPPORT_PRIMARY_CONTENT_ID}`}
         className={HELP_PAGE_LAYOUT.technicalReferenceSkipLink}
@@ -271,7 +272,7 @@ export function AdminSupportPageView({ model }: AdminSupportPageViewProps) {
         </SupportSection>
       </div>
       </div>
-    </div>
+    </OperatorPageContainer>
   );
 }
 

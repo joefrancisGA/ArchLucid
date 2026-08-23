@@ -101,7 +101,9 @@ public sealed class AdminDiagnosticsService(
         int maxRows,
         CancellationToken cancellationToken = default)
     {
-        return _integrationEventOutbox.ListDeadLettersAsync(maxRows, cancellationToken);
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+
+        return _integrationEventOutbox.ListDeadLettersAsync(maxRows, scope.TenantId, skip: 0, cancellationToken);
     }
 
     /// <inheritdoc />
@@ -109,8 +111,10 @@ public sealed class AdminDiagnosticsService(
         Guid outboxId,
         CancellationToken cancellationToken = default)
     {
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+
         bool ok = await _integrationEventOutbox
-            .ResetDeadLetterForRetryAsync(outboxId, cancellationToken)
+            .ResetDeadLetterForRetryAsync(outboxId, scope.TenantId, cancellationToken)
             .ConfigureAwait(false);
 
         if (ok)
@@ -133,8 +137,10 @@ public sealed class AdminDiagnosticsService(
         IntegrationOutboxDeadLetterSuppressRequest? request,
         CancellationToken cancellationToken = default)
     {
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+
         bool ok = await _integrationEventOutbox
-            .AcknowledgeDeadLetterAsync(outboxId, cancellationToken)
+            .AcknowledgeDeadLetterAsync(outboxId, scope.TenantId, cancellationToken)
             .ConfigureAwait(false);
 
         if (ok)
@@ -199,8 +205,12 @@ public sealed class AdminDiagnosticsService(
         Guid outboxId,
         CancellationToken cancellationToken = default)
     {
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+
         IntegrationEventOutboxEntry? entry =
-            await _integrationEventOutbox.TryGetDeadLetterEntryAsync(outboxId, cancellationToken).ConfigureAwait(false);
+            await _integrationEventOutbox
+                .TryGetDeadLetterEntryAsync(outboxId, scope.TenantId, cancellationToken)
+                .ConfigureAwait(false);
 
         if (entry is null)
             return null;

@@ -841,4 +841,71 @@ public sealed class PilotRunDeltaComputerTests
         deltas.TopFindingSeverity.Should().Be("Critical");
         deltas.TopFindingEvidenceChain.Should().NotBeNull();
     }
+
+    [SkippableFact]
+    public async Task ComputeAsync_WhenAgentResultsIncludeMutedFindings_ExcludesThemFromCountsAndTopFinding()
+    {
+        Guid runGuid = Guid.Parse("abababab-1111-2222-3333-444444444444");
+        ArchitectureRunDetail detail = BuildDetail(runGuid, isDemoSeed: false);
+        detail.Results =
+        [
+            new AgentResult
+            {
+                TaskId = "t-muted",
+                RunId = detail.Run.RunId,
+                AgentType = AgentType.Topology,
+                Findings =
+                [
+                    new ArchitectureFinding
+                    {
+                        FindingId = "muted-critical",
+                        Severity = FindingSeverity.Critical,
+                        Message = "operator-muted noise",
+                        IsMuted = true,
+                    },
+                    new ArchitectureFinding
+                    {
+                        FindingId = "active-warning",
+                        Severity = FindingSeverity.Warning,
+                        Message = "active finding",
+                    },
+                ],
+            },
+        ];
+
+        Mock<IFindingEvidenceChainService> evidence = new();
+        evidence.Setup(e => e.BuildAsync(detail.Run.RunId, "active-warning", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new FindingEvidenceChainResponse
+            {
+                RunId = detail.Run.RunId,
+                FindingId = "active-warning",
+                ManifestVersion = "v9",
+            });
+
+        Mock<IScopeContextProvider> scope = new();
+        scope.Setup(s => s.GetCurrentScope()).Returns(new ScopeContext
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+        });
+
+        PilotRunDeltaComputer sut = CreatePilotDeltaComputer(
+            evidence.Object,
+            Mock.Of<IAgentExecutionTraceRepository>(),
+            Mock.Of<IAuditRepository>(),
+            LooseArtifacts().Object,
+            scope.Object);
+
+        PilotRunDeltas deltas = await sut.ComputeAsync(detail);
+
+        deltas.FindingsBySeverity.Should().ContainSingle();
+        deltas.FindingsBySeverity[0].Key.Should().Be("Warning");
+        deltas.FindingsBySeverity[0].Value.Should().Be(1);
+        deltas.TopFindingId.Should().Be("active-warning");
+        deltas.TopFindingSeverity.Should().Be("Warning");
+        deltas.GovernedFindingCoverage.IsAvailable.Should().BeFalse();
+        evidence.Verify(e => e.BuildAsync(detail.Run.RunId, "active-warning", It.IsAny<CancellationToken>()), Times.Once);
+        evidence.Verify(e => e.BuildAsync(detail.Run.RunId, "muted-critical", It.IsAny<CancellationToken>()), Times.Never);
+    }
 }

@@ -6,6 +6,7 @@ import { Workflow } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { FindingCorrelationVocabularyDisambiguation } from "@/components/findings/FindingCorrelationVocabularyDisambiguation";
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { ItsmConnectorsBuyerJiraServicenowVocabularyRail } from "@/components/itsm/ItsmConnectorsBuyerJiraServicenowVocabularyRail";
 import { ItsmConnectorsFindingTicketVocabularyRail } from "@/components/itsm/ItsmConnectorsFindingTicketVocabularyRail";
 import { PageHeading } from "@/components/PageHeading";
@@ -123,7 +124,7 @@ export function AdminItsmConnectorsPageClient(): React.ReactElement {
   );
 
   return (
-    <div className={cn("w-full max-w-3xl", OPERATOR_LAYOUT.sectionStack)} data-testid="admin-itsm-connectors-page">
+    <OperatorPageContainer variant="workflow" className={OPERATOR_LAYOUT.sectionStack} data-testid="admin-itsm-connectors-page">
       <PageHeading
         navHref={ITSM_CONNECTORS_ADMIN_PATH}
         title={ITSM_CONNECTORS_ADMIN_LABEL}
@@ -224,6 +225,6 @@ export function AdminItsmConnectorsPageClient(): React.ReactElement {
       </Card>
 
       <FindingCorrelationVocabularyDisambiguation testId="admin-itsm-correlation-vocabulary" />
-    </div>
+    </OperatorPageContainer>
   );
 }

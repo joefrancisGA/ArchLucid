@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Text.Json;
 
 using ArchLucid.Api.Http;
 using ArchLucid.Api.ProblemDetails;
@@ -119,18 +120,22 @@ public sealed class ItsmInboundWebhooksController(
         if (!TryVerifyWebhookSecurity(_options.CurrentValue, sharedSecret, rawBody, token, out IActionResult? reject))
             return reject!;
 
-        using JsonDocument doc = JsonDocument.Parse(rawBody);
+        if (!TryParseWebhookJson(rawBody, out JsonDocument? doc, out IActionResult? parseReject))
+            return parseReject!;
 
-        ItsmInboundWebhookProcessResult r =
-            await _sync.TryProcessJiraIssueUpdateAsync(doc.RootElement, ct, payloadUtf8Bytes, ResolveDeliveryId(), tenantId).ConfigureAwait(false);
+        using (doc)
+        {
+            ItsmInboundWebhookProcessResult r =
+                await _sync.TryProcessJiraIssueUpdateAsync(doc.RootElement, ct, payloadUtf8Bytes, ResolveDeliveryId(), tenantId).ConfigureAwait(false);
 
-        if (r.DurableAuditEvent is not null)
-            await _auditService.LogAsync(r.DurableAuditEvent, ct).ConfigureAwait(false);
+            if (r.DurableAuditEvent is not null)
+                await _auditService.LogAsync(r.DurableAuditEvent, ct).ConfigureAwait(false);
 
-        if (!r.Accepted)
-            return this.BadRequestProblem("Unrecognized Jira webhook payload.", ProblemTypes.ValidationFailed);
+            if (!r.Accepted)
+                return this.BadRequestProblem("Unrecognized Jira webhook payload.", ProblemTypes.ValidationFailed);
 
-        return Ok();
+            return Ok();
+        }
     }
 
     private async Task<IActionResult> ProcessServiceNowAsync(Guid? tenantId, CancellationToken ct)
@@ -168,18 +173,43 @@ public sealed class ItsmInboundWebhooksController(
         if (!TryVerifyWebhookSecurity(_options.CurrentValue, sharedSecret, rawBody, token, out IActionResult? reject))
             return reject!;
 
-        using JsonDocument doc = JsonDocument.Parse(rawBody);
+        if (!TryParseWebhookJson(rawBody, out JsonDocument? doc, out IActionResult? parseReject))
+            return parseReject!;
 
-        ItsmInboundWebhookProcessResult r =
-            await _sync.TryProcessServiceNowIncidentUpdateAsync(doc.RootElement, ct, payloadUtf8Bytes, ResolveDeliveryId(), tenantId).ConfigureAwait(false);
+        using (doc)
+        {
+            ItsmInboundWebhookProcessResult r =
+                await _sync.TryProcessServiceNowIncidentUpdateAsync(doc.RootElement, ct, payloadUtf8Bytes, ResolveDeliveryId(), tenantId).ConfigureAwait(false);
 
-        if (r.DurableAuditEvent is not null)
-            await _auditService.LogAsync(r.DurableAuditEvent, ct).ConfigureAwait(false);
+            if (r.DurableAuditEvent is not null)
+                await _auditService.LogAsync(r.DurableAuditEvent, ct).ConfigureAwait(false);
 
-        if (!r.Accepted)
-            return this.BadRequestProblem("Unrecognized ServiceNow webhook payload.", ProblemTypes.ValidationFailed);
+            if (!r.Accepted)
+                return this.BadRequestProblem("Unrecognized ServiceNow webhook payload.", ProblemTypes.ValidationFailed);
 
-        return Ok();
+            return Ok();
+        }
+    }
+
+    private bool TryParseWebhookJson(
+        string rawBody,
+        [NotNullWhen(true)] out JsonDocument? doc,
+        out IActionResult? reject)
+    {
+        try
+        {
+            doc = JsonDocument.Parse(rawBody);
+            reject = null;
+
+            return true;
+        }
+        catch (JsonException)
+        {
+            doc = null;
+            reject = this.BadRequestProblem("Malformed ITSM webhook JSON body.", ProblemTypes.ValidationFailed);
+
+            return false;
+        }
     }
 
     private async Task<string?> ResolveInboundSecretAsync(

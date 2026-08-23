@@ -1,9 +1,10 @@
 "use client";
 
 import { EvidenceOrientationClaimAndSourcesStrip } from "@/components/evidence-orientation/EvidenceOrientationClaimAndSourcesStrip";
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { EVIDENCE_SOURCES_STYLE } from "@/components/evidence-orientation/evidence-orientation-styles";
 import { StatusTag } from "@/components/ui/status-tag";
-import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { AWS_TRUST_STARTER_IDENTITY_INTRO } from "@/lib/aws-cloud-connection-trust-policy-starter";
 import { awsConnectionStatusTagKind } from "@/lib/aws-connection-present";
 import {
@@ -120,10 +121,10 @@ function AwsCloudConnectionDetailBody(): React.ReactElement {
 export function AwsCloudConnectionDetailClient() {
   return (
     <AwsConnectionDataProvider>
-      <div className="w-full max-w-3xl space-y-4" data-testid="cloud-connection-detail-aws">
+      <OperatorPageContainer variant="workflow" className={OPERATOR_LAYOUT.sectionStack} data-testid="cloud-connection-detail-aws">
         <AwsCloudConnectionPageHeader />
         <AwsCloudConnectionDetailBody />
-      </div>
+      </OperatorPageContainer>
     </AwsConnectionDataProvider>
   );
 }

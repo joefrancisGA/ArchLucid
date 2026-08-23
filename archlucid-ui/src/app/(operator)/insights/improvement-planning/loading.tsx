@@ -1,5 +1,7 @@
 import { ImprovementPlanningBreadcrumb } from "@/components/insights/ImprovementPlanningBreadcrumb";
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
+import { OPERATOR_LAYOUT } from "@/lib/design-tokens";
 import { PLANNING_PATH } from "@/lib/planning-route";
 import {
   IMPROVEMENT_PLANNING_LOADING_STATUS,
@@ -10,8 +12,9 @@ import {
 /** Structured navigation shell while the improvement-planning client chunk loads. */
 export default function PlanningLoading() {
   return (
-    <div
-      className="max-w-5xl space-y-4"
+    <OperatorPageContainer
+      variant="dashboard"
+      className={OPERATOR_LAYOUT.sectionStack}
       data-testid="improvement-planning-loading-shell"
       role="status"
       aria-live="polite"
@@ -25,6 +28,6 @@ export default function PlanningLoading() {
         breadcrumb={<ImprovementPlanningBreadcrumb />}
       />
       <p className="m-0 text-al-text-secondary">{IMPROVEMENT_PLANNING_LOADING_STATUS}</p>
-    </div>
+    </OperatorPageContainer>
   );
 }

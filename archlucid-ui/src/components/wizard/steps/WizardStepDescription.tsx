@@ -95,7 +95,11 @@ export function WizardStepDescription() {
     setSuggestError(null);
 
     try {
-      const response = await draftArchitectureRequest({ freeTextDescription });
+      const response = await draftArchitectureRequest({
+        freeTextDescription,
+        currentConstraints: current.constraints ?? [],
+        currentAssumptions: current.assumptions ?? [],
+      });
       const current = getValues();
 
       const nextConstraints = mergeUniqueStrings(current.constraints ?? [], response.suggestedConstraints ?? []);

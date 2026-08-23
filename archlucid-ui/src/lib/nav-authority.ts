@@ -34,6 +34,7 @@
  * **`nav-config.ts`** owns link metadata. Contributor order: **docs/PRODUCT_PACKAGING.md** §3 *Contributor drift guard*;
  * Stage 1 framing: **docs/COMMERCIAL_BOUNDARY_HARDENING_SEQUENCE.md** §4.
  *
+ * @see `nav-authority-controller-parity.test.ts` — TB-882 CI manifest mirror: nav `requiredAuthority` vs mapped controller primary `HttpGet` policies; curated heading/label parity.
  * @see `authority-seam-regression.test.ts` — `/me` claims → rank vs Enterprise nav vs mutation capability; config-wide Execute rows vs Read; Auditor Enterprise parity; rank **`0`** vs **`ReadAuthority`**; nav ordering after **`filterNavLinksByAuthority`**; **`/alerts`** **`advanced`** tier; Enterprise nav **monotonicity** Read→Execute→Admin; Advanced default shell **`/insights/ask-review-questions`**-only; **`/governance`** visible at Execute rank when **`showAdvanced`**; **`LAYER_PAGE_GUIDANCE`** Enterprise (**`enterpriseFootnote`**) vs Advanced (no footnote) for **`LayerHeader`** packaging parity.
  * @see `authority-execute-floor-regression.test.ts` — **one boolean for Execute-class:** synthetic **`ExecuteAuthority`** **`NavLinkItem`** visibility vs **`operateCapabilityFromRank`** across ranks; real **`operate-governance`** monotonic filtered counts; Reader list keeps **`/alerts`**, omits **`/governance`**.
  * @see `authority-shaped-ui-regression.test.ts` — **every** real **`nav-config`** **`ExecuteAuthority`** row: hidden at **Read**, visible at **Execute** (new links cannot drift untested).

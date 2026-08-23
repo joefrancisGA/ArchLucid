@@ -157,24 +157,35 @@ export function useWebhooksSettings(): UseWebhooksSettingsResult {
     [webhookRows],
   );
 
+  const scopeKey = `${scope.tenantId}:${scope.workspaceId}:${scope.projectId}`;
+  const previousScopeKeyRef = useRef(scopeKey);
+  const scopeGenerationRef = useRef(0);
+
   const load = useCallback(async () => {
+    const generation = scopeGenerationRef.current;
     setLoading(true);
     setFailure(null);
 
     try {
       const data = await listAlertRoutingSubscriptions();
 
+      if (scopeGenerationRef.current !== generation) {
+        return;
+      }
+
       setItems(data);
     } catch (error: unknown) {
+      if (scopeGenerationRef.current !== generation) {
+        return;
+      }
+
       setFailure(toApiLoadFailure(error));
     } finally {
-      setLoading(false);
+      if (scopeGenerationRef.current === generation) {
+        setLoading(false);
+      }
     }
   }, []);
-
-  const scopeKey = `${scope.tenantId}:${scope.workspaceId}:${scope.projectId}`;
-  const previousScopeKeyRef = useRef(scopeKey);
-  const scopeGenerationRef = useRef(0);
 
   useEffect(() => {
     void load();

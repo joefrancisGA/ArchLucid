@@ -820,6 +820,91 @@ describe("WebhooksIntegrationPage", () => {
     expect(screen.queryByTestId("webhook-save-success-callout")).toBeNull();
   });
 
+  it("does not show subscriptions from a previous workspace when list completes after scope switch", async () => {
+    const { writeOperatorScopeToStorage } = await import("@/lib/operator/operator-scope-storage");
+    const subscriptionIdA = "11111111-1111-1111-1111-111111111111";
+    const subscriptionIdB = "22222222-2222-2222-2222-222222222222";
+
+    writeOperatorScopeToStorage({
+      tenantId: "tenant-a",
+      workspaceId: "workspace-a",
+      projectId: "project-a",
+      workspaceLabel: "Workspace A",
+      projectLabel: "Project A",
+    });
+
+    let resolveListA: (rows: unknown[]) => void = () => {};
+    let listCallCount = 0;
+    apiMocks.list.mockImplementation(() => {
+      listCallCount += 1;
+
+      if (listCallCount === 1) {
+        return new Promise((resolve) => {
+          resolveListA = resolve as (rows: unknown[]) => void;
+        });
+      }
+
+      return Promise.resolve([
+        {
+          routingSubscriptionId: subscriptionIdB,
+          tenantId: "t",
+          workspaceId: "w",
+          projectId: "p",
+          name: "Hook B",
+          channelType: "OnCallWebhook",
+          destination: "https://listener.example/hook-b",
+          minimumSeverity: "High",
+          isEnabled: true,
+          createdUtc: "2026-01-01T00:00:00Z",
+          metadataJson: JSON.stringify({ webhookSharedSecret: "z".repeat(16) }),
+        },
+      ]);
+    });
+
+    render(<WebhooksIntegrationPage />);
+
+    await waitFor(() => {
+      expect(apiMocks.list).toHaveBeenCalledTimes(1);
+    });
+
+    writeOperatorScopeToStorage({
+      tenantId: "tenant-b",
+      workspaceId: "workspace-b",
+      projectId: "project-b",
+      workspaceLabel: "Workspace B",
+      projectLabel: "Project B",
+    });
+
+    await waitFor(() => {
+      expect(apiMocks.list).toHaveBeenCalledTimes(2);
+    });
+
+    expect(await screen.findByTestId(`webhook-subscription-${subscriptionIdB}`)).toBeInTheDocument();
+    expect(screen.queryByTestId(`webhook-subscription-${subscriptionIdA}`)).toBeNull();
+
+    resolveListA([
+      {
+        routingSubscriptionId: subscriptionIdA,
+        tenantId: "t",
+        workspaceId: "w",
+        projectId: "p",
+        name: "Hook A",
+        channelType: "OnCallWebhook",
+        destination: "https://listener.example/hook-a",
+        minimumSeverity: "High",
+        isEnabled: true,
+        createdUtc: "2026-01-01T00:00:00Z",
+        metadataJson: JSON.stringify({ webhookSharedSecret: "z".repeat(16) }),
+      },
+    ]);
+
+    await waitFor(() => {
+      expect(screen.queryByTestId(`webhook-subscription-${subscriptionIdA}`)).toBeNull();
+    });
+    expect(screen.getByTestId(`webhook-subscription-${subscriptionIdB}`)).toBeInTheDocument();
+    expect(screen.queryByText("Hook A")).toBeNull();
+  });
+
   it("clears the signing secret when operator scope switches workspaces", async () => {
     const { writeOperatorScopeToStorage } = await import("@/lib/operator/operator-scope-storage");
 

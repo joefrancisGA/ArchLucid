@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { cn } from "@/lib/utils";
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OPERATOR_LAYOUT } from "@/lib/design-tokens";
 
 /**
@@ -8,7 +8,7 @@ import { OPERATOR_LAYOUT } from "@/lib/design-tokens";
  */
 export default function AdminHealthLoading() {
   return (
-    <div className={cn("w-full max-w-3xl", OPERATOR_LAYOUT.sectionStack)} aria-busy>
+    <OperatorPageContainer variant="dashboard" className={OPERATOR_LAYOUT.sectionStack} aria-busy>
       <div className="space-y-2">
         <Skeleton className="h-8 w-64" />
         <Skeleton className="h-4 w-full max-w-lg" />
@@ -27,6 +27,6 @@ export default function AdminHealthLoading() {
           </Card>
         );
       })}
-    </div>
+    </OperatorPageContainer>
   );
 }

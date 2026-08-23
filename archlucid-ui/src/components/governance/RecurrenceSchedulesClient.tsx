@@ -10,6 +10,7 @@ import { DigestRecurrenceScheduleVocabularyRail } from "@/components/DigestRecur
 import { AdvisoryRecurrenceScheduleVocabularyRail } from "@/components/AdvisoryRecurrenceScheduleVocabularyRail";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 const GOVERNANCE_RECURRENCE_SCHEDULES_PATH = "/governance/recurrence-schedules" as const;
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { OperatorSectionLoadFailure } from "@/components/operator/OperatorSectionLoadFailure";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
@@ -350,8 +351,9 @@ export default function RecurrenceSchedulesClient() {
   );
 
   return (
-    <div
-      className="w-full max-w-[1440px] space-y-4"
+    <OperatorPageContainer
+      variant="dashboard"
+      className="space-y-4"
       data-testid="recurrence-schedules-page"
       data-empty-composition={isEmpty ? "true" : "false"}
     >
@@ -641,6 +643,6 @@ export default function RecurrenceSchedulesClient() {
             });
         }}
       />
-    </div>
+    </OperatorPageContainer>
   );
 }

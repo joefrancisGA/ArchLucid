@@ -167,20 +167,20 @@ public sealed class InMemoryIntegrationEventOutboxRepositoryTests
         (await sut.CountIntegrationOutboxDeadLetterAsync(CancellationToken.None)).Should().Be(1);
 
         IReadOnlyList<IntegrationEventOutboxDeadLetterRow> letters =
-            await sut.ListDeadLettersAsync(10, CancellationToken.None);
+            await sut.ListDeadLettersAsync(10, tenantId: null, skip: 0, CancellationToken.None);
 
         letters.Should().ContainSingle();
         letters[0].OutboxId.Should().Be(id);
         letters[0].TenantId.Should().Be(tenant);
         letters[0].LastErrorMessage.Should().Be("boom");
 
-        bool reset = await sut.ResetDeadLetterForRetryAsync(id, CancellationToken.None);
+        bool reset = await sut.ResetDeadLetterForRetryAsync(id, tenantId: null, CancellationToken.None);
         reset.Should().BeTrue();
 
         (await sut.CountIntegrationOutboxDeadLetterAsync(CancellationToken.None)).Should().Be(0);
         (await sut.DequeuePendingAsync(10, CancellationToken.None)).Should().ContainSingle(x => x.OutboxId == id);
 
-        bool missing = await sut.ResetDeadLetterForRetryAsync(Guid.NewGuid(), CancellationToken.None);
+        bool missing = await sut.ResetDeadLetterForRetryAsync(Guid.NewGuid(), tenantId: null, CancellationToken.None);
         missing.Should().BeFalse();
     }
 
@@ -204,14 +204,53 @@ public sealed class InMemoryIntegrationEventOutboxRepositoryTests
             "give up",
             CancellationToken.None);
 
-        bool suppressed = await sut.AcknowledgeDeadLetterAsync(id, CancellationToken.None);
+        bool suppressed = await sut.AcknowledgeDeadLetterAsync(id, tenantId: null, CancellationToken.None);
         suppressed.Should().BeTrue();
 
         (await sut.CountIntegrationOutboxDeadLetterAsync(CancellationToken.None)).Should().Be(0);
         (await sut.DequeuePendingAsync(10, CancellationToken.None)).Should().BeEmpty();
 
-        bool missing = await sut.AcknowledgeDeadLetterAsync(Guid.NewGuid(), CancellationToken.None);
+        bool missing = await sut.AcknowledgeDeadLetterAsync(Guid.NewGuid(), tenantId: null, CancellationToken.None);
         missing.Should().BeFalse();
+    }
+
+    [SkippableFact]
+    public async Task Dead_letter_operations_honor_tenant_filter()
+    {
+        InMemoryIntegrationEventOutboxRepository sut = new();
+        Guid tenantA = Guid.NewGuid();
+        Guid tenantB = Guid.NewGuid();
+        Guid workspace = Guid.NewGuid();
+        Guid project = Guid.NewGuid();
+
+        await sut.EnqueueAsync(null, "tenant-a", null, new byte[] { 1 }, tenantA, workspace, project, CancellationToken.None);
+        await sut.EnqueueAsync(null, "tenant-b", null, new byte[] { 2 }, tenantB, workspace, project, CancellationToken.None);
+
+        IReadOnlyList<IntegrationEventOutboxEntry> batch = await sut.DequeuePendingAsync(10, CancellationToken.None);
+        Guid tenantAId = batch.Single(e => e.TenantId == tenantA).OutboxId;
+        Guid tenantBId = batch.Single(e => e.TenantId == tenantB).OutboxId;
+
+        foreach (Guid id in new[] { tenantAId, tenantBId })
+        {
+            await sut.RecordPublishFailureAsync(
+                id,
+                3,
+                null,
+                TimeProvider.System.UtcNowDateTime(),
+                "boom",
+                CancellationToken.None);
+        }
+
+        (await sut.ListDeadLettersAsync(10, tenantA, skip: 0, CancellationToken.None)).Should().ContainSingle(x => x.OutboxId == tenantAId);
+        (await sut.ListDeadLettersAsync(10, tenantB, skip: 0, CancellationToken.None)).Should().ContainSingle(x => x.OutboxId == tenantBId);
+
+        (await sut.ResetDeadLetterForRetryAsync(tenantBId, tenantA, CancellationToken.None)).Should().BeFalse();
+        (await sut.ResetDeadLetterForRetryAsync(tenantAId, tenantA, CancellationToken.None)).Should().BeTrue();
+
+        (await sut.AcknowledgeDeadLetterAsync(tenantBId, tenantA, CancellationToken.None)).Should().BeFalse();
+        (await sut.AcknowledgeDeadLetterAsync(tenantBId, tenantB, CancellationToken.None)).Should().BeTrue();
+
+        (await sut.TryGetDeadLetterEntryAsync(tenantBId, tenantA, CancellationToken.None)).Should().BeNull();
     }
 
     [SkippableFact]

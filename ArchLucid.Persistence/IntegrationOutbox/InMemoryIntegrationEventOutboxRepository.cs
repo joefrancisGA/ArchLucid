@@ -172,15 +172,22 @@ public sealed class InMemoryIntegrationEventOutboxRepository : IIntegrationEvent
     }
 
     /// <inheritdoc />
-    public Task<IReadOnlyList<IntegrationEventOutboxDeadLetterRow>> ListDeadLettersAsync(int maxRows, CancellationToken ct)
+    public Task<IReadOnlyList<IntegrationEventOutboxDeadLetterRow>> ListDeadLettersAsync(
+        int maxRows,
+        Guid? tenantId,
+        int skip,
+        CancellationToken ct)
     {
         int take = Math.Clamp(maxRows, 1, 500);
+        int offset = Math.Max(0, skip);
 
         lock (_gate)
         {
             List<IntegrationEventOutboxDeadLetterRow> list = _rows
                 .Where(e => e.DeadLetteredUtc is not null)
+                .Where(e => tenantId is null || e.TenantId == tenantId)
                 .OrderByDescending(e => e.DeadLetteredUtc)
+                .Skip(offset)
                 .Take(take)
                 .Select(
                     e => new IntegrationEventOutboxDeadLetterRow
@@ -200,11 +207,14 @@ public sealed class InMemoryIntegrationEventOutboxRepository : IIntegrationEvent
     }
 
     /// <inheritdoc />
-    public Task<bool> ResetDeadLetterForRetryAsync(Guid outboxId, CancellationToken ct)
+    public Task<bool> ResetDeadLetterForRetryAsync(Guid outboxId, Guid? tenantId, CancellationToken ct)
     {
         lock (_gate)
         {
-            int idx = _rows.FindIndex(e => e.OutboxId == outboxId && e.DeadLetteredUtc is not null);
+            int idx = _rows.FindIndex(
+                e => e.OutboxId == outboxId
+                     && e.DeadLetteredUtc is not null
+                     && (tenantId is null || e.TenantId == tenantId));
 
             if (idx < 0)
                 return Task.FromResult(false);
@@ -235,11 +245,14 @@ public sealed class InMemoryIntegrationEventOutboxRepository : IIntegrationEvent
     }
 
     /// <inheritdoc />
-    public Task<bool> AcknowledgeDeadLetterAsync(Guid outboxId, CancellationToken ct)
+    public Task<bool> AcknowledgeDeadLetterAsync(Guid outboxId, Guid? tenantId, CancellationToken ct)
     {
         lock (_gate)
         {
-            int idx = _rows.FindIndex(e => e.OutboxId == outboxId && e.DeadLetteredUtc is not null);
+            int idx = _rows.FindIndex(
+                e => e.OutboxId == outboxId
+                     && e.DeadLetteredUtc is not null
+                     && (tenantId is null || e.TenantId == tenantId));
 
             if (idx < 0)
                 return Task.FromResult(false);
@@ -310,12 +323,18 @@ public sealed class InMemoryIntegrationEventOutboxRepository : IIntegrationEvent
     }
 
     /// <inheritdoc />
-    public Task<IntegrationEventOutboxEntry?> TryGetDeadLetterEntryAsync(Guid outboxId, CancellationToken ct)
+    public Task<IntegrationEventOutboxEntry?> TryGetDeadLetterEntryAsync(
+        Guid outboxId,
+        Guid? tenantId,
+        CancellationToken ct)
     {
         lock (_gate)
         {
             IntegrationEventOutboxEntry? entry =
-                _rows.FirstOrDefault(e => e.OutboxId == outboxId && e.DeadLetteredUtc is not null);
+                _rows.FirstOrDefault(
+                    e => e.OutboxId == outboxId
+                         && e.DeadLetteredUtc is not null
+                         && (tenantId is null || e.TenantId == tenantId));
 
             return Task.FromResult(entry);
         }

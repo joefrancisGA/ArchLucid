@@ -5,6 +5,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 
 import { ASK_REVIEW_QUESTIONS_PATH } from "@/lib/ask-review-questions-route";
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { useWorkspaceActiveRun } from "@/components/WorkspaceActiveRunContext";
@@ -25,6 +26,7 @@ import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator/operator-stat
 import { tryStaticDemoConversationMessages } from "@/lib/ask-static-demo-messages";
 import { formatConversationListDate, formatConversationListDatePolished } from "@/lib/locale-datetime";
 import { BUYER_ASK_PAGE_HERO, BUYER_ASK_PAGE_TITLE } from "@/lib/buyer/buyer-polish-copy";
+import { OPERATOR_LAYOUT } from "@/lib/design-tokens";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import type { ConversationMessage, ConversationThread } from "@/types/conversation";
 import { AskMainPanel } from "@/app/(operator)/insights/ask-review-questions/_sections/AskMainPanel";
@@ -458,7 +460,7 @@ export function AskPageContent() {
   const showThreadHistoryPanel = threads.length > 0;
 
   return (
-    <div className="max-w-5xl">
+    <OperatorPageContainer variant="workflow" className={OPERATOR_LAYOUT.sectionStack}>
       <OperatorPageHeader
         navHref={ASK_REVIEW_QUESTIONS_PATH}
         title={buyerPolishedShell ? BUYER_ASK_PAGE_TITLE : "Ask review questions"}
@@ -528,6 +530,6 @@ export function AskPageContent() {
             retrievalDegraded={retrievalDegraded}
           />
         </div>
-    </div>
+    </OperatorPageContainer>
   );
 }

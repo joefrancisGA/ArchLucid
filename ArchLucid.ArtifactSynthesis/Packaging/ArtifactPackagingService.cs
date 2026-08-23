@@ -137,6 +137,12 @@ public class ArtifactPackagingService(IArtifactContentTypeResolver contentTypeRe
 
                     readme.AppendLine($"Policy at commit: {readmeContext.PolicyAtCommitSummary}");
 
+                if (readmeContext.PolicyAtCommitDetailLines is { Count: > 0 } detailLines)
+                {
+                    foreach (string line in detailLines)
+                        readme.AppendLine(line);
+                }
+
                 if (!string.IsNullOrWhiteSpace(readmeContext.ManifestHash))
 
                     readme.AppendLine($"Manifest hash: {readmeContext.ManifestHash}");

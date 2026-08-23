@@ -27,6 +27,16 @@ public class Finding
         set;
     } = null!;
 
+    /// <summary>
+    ///     Canonical architecture pillar key from <see cref="Governance.Posture.ArchitecturePillar" />
+    ///     when the finding engine declares one (TB-2373).
+    /// </summary>
+    public string? QualityDimension
+    {
+        get;
+        set;
+    }
+
     public string EngineType
     {
         get;

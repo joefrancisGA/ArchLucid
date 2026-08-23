@@ -238,6 +238,7 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<TechnologyLedgerTopologyProposalSeeder>();
         services.AddScoped<ITechnologyLedgerRunCommandService, TechnologyLedgerRunCommandService>();
         services.AddScoped<ICoverageQueryService, CoverageQueryService>();
+        services.AddScoped<ICoveragePreviewService, CoveragePreviewService>();
         services.AddSingleton<CoverageAssignmentValidator>();
         services.AddScoped<IArchitectureRunCreateOrchestrator, ArchitectureRunCreateOrchestrator>();
         services.AddScoped<IArchitectureRunBatchCreateOrchestrator, ArchitectureRunBatchCreateOrchestrator>();
@@ -405,7 +406,10 @@ public static partial class ServiceCollectionExtensions
         services.AddHostedService<ArchitectureRunAsyncOperationHostedService>();
         services.AddScoped<IDeterminismCheckService, DeterminismCheckService>();
         services.AddScoped<IExportReplayService, ExportReplayService>();
+        services.AddScoped<IArchitectureRequestDraftSemanticUniquePass, ArchitectureRequestDraftSemanticUniquePass>();
         services.AddScoped<IArchitectureRequestDraftService, ArchitectureRequestDraftService>();
+        services.AddScoped<IArchitectureOverviewRewriteService, ArchitectureOverviewRewriteService>();
+        services.AddScoped<IStructuredBriefSuggestionExplainService, StructuredBriefSuggestionExplainService>();
         services.AddScoped<IArchitectureSynthesisKernel, ArchitectureSynthesisKernel>();
         services.AddScoped<IWorkspaceSystemNameCollisionGuard, WorkspaceSystemNameCollisionGuard>();
         services.AddScoped<IChatIntakeParserService, ChatIntakeParserService>();

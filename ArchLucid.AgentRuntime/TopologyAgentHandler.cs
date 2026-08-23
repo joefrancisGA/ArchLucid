@@ -35,6 +35,7 @@ public sealed class TopologyAgentHandler(
     IScopeContextProvider scopeContextProvider,
     ITechnologyLedgerRepository technologyLedgerRepository,
     IRetrievalQueryService retrievalQueryService,
+    AgentPolicyPackRetrievalAppender policyPackRetrievalAppender,
     IRetrievalGroundingTraceWriter retrievalGroundingTraceWriter,
     IOptionsMonitor<AgentSchemaRemediationOptions> schemaRemediationOptions,
     ILogger<TopologyAgentHandler> logger)
@@ -53,6 +54,9 @@ public sealed class TopologyAgentHandler(
 
     private readonly IRetrievalQueryService _retrievalQueryService =
         retrievalQueryService ?? throw new ArgumentNullException(nameof(retrievalQueryService));
+
+    private readonly AgentPolicyPackRetrievalAppender _policyPackRetrievalAppender =
+        policyPackRetrievalAppender ?? throw new ArgumentNullException(nameof(policyPackRetrievalAppender));
 
     private readonly IRetrievalGroundingTraceWriter _retrievalGroundingTraceWriter =
         retrievalGroundingTraceWriter ?? throw new ArgumentNullException(nameof(retrievalGroundingTraceWriter));
@@ -99,6 +103,9 @@ public sealed class TopologyAgentHandler(
             ledgerEntries);
         baseUserPrompt = await AppendExemplarStylePriorAsync(runId, request, baseUserPrompt, cancellationToken)
             .ConfigureAwait(false);
+        baseUserPrompt = (await _policyPackRetrievalAppender
+            .AppendAsync(AgentType.Topology, request, runId, baseUserPrompt, cancellationToken)
+            .ConfigureAwait(false)).Prompt;
 
         return await AgentHandlerCompletionExecutor.CompleteWithSchemaRemediationAsync(
             tierCompletionRouter,

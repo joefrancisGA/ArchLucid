@@ -84,4 +84,30 @@ public sealed class CosmosGraphSnapshotOutboxProcessorTests
         ambientDuringCosmosSave.ProjectId.Should().Be(projectId);
         outbox.Verify(o => o.MarkProcessedAsync(outboxId, It.IsAny<CancellationToken>()), Times.Once);
     }
+
+    [Fact]
+    public async Task ProcessPendingBatchAsync_clamps_short_lease_without_mutating_bound_options()
+    {
+        CosmosGraphSnapshotOutboxProcessorOptions boundOptions = new() { LeaseDurationSeconds = 30 };
+
+        Mock<ICosmosGraphSnapshotOutboxRepository> outbox = new();
+        outbox
+            .Setup(o => o.DequeuePendingAsync(25, 60, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Array.Empty<CosmosGraphSnapshotOutboxEntry>());
+
+        ServiceCollection services = [];
+        services.AddScoped(_ => outbox.Object);
+        ServiceProvider provider = services.BuildServiceProvider();
+
+        CosmosGraphSnapshotOutboxProcessor sut = new(
+            provider.GetRequiredService<IServiceScopeFactory>(),
+            Options.Create(boundOptions),
+            TimeProvider.System,
+            NullLogger<CosmosGraphSnapshotOutboxProcessor>.Instance);
+
+        await sut.ProcessPendingBatchAsync(CancellationToken.None);
+
+        boundOptions.LeaseDurationSeconds.Should().Be(30, "VerifyOptions must not mutate the IOptions binding");
+        outbox.Verify(o => o.DequeuePendingAsync(25, 60, It.IsAny<CancellationToken>()), Times.Once);
+    }
 }

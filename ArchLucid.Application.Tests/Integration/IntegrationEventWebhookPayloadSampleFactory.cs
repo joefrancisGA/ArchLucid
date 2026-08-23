@@ -2,6 +2,7 @@ using ArchLucid.Application.DataConsistency;
 using ArchLucid.Application.Notifications.Email;
 using ArchLucid.Core.Billing;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.Integration;
 using ArchLucid.Decisioning.Alerts;
 
 namespace ArchLucid.Application.Tests.Integration;
@@ -20,10 +21,21 @@ internal static class IntegrationEventWebhookPayloadSampleFactory
         return schemaFile switch
         {
             "authority-run-completed.v1.schema.json" => CreateAuthorityRunCompleted(),
+            "authority-run-failed.v1.schema.json" =>
+                IntegrationWebhookPayloadSamples.CreatePayload(IntegrationEventTypes.AuthorityRunFailedV1),
+            "authority-run-quality-gate-rejected.v1.schema.json" =>
+                IntegrationWebhookPayloadSamples.CreatePayload(IntegrationEventTypes.AuthorityRunQualityGateRejectedV1),
+            "findings-high-severity-captured.v1.schema.json" =>
+                IntegrationWebhookPayloadSamples.CreatePayload(IntegrationEventTypes.FindingsHighSeverityCapturedV1),
             "manifest-finalized.v1.schema.json" => CreateManifestFinalized(),
             "governance-approval-submitted.v1.schema.json" => CreateGovernanceApprovalSubmitted(),
+            "governance-approval-approved.v1.schema.json" => CreateGovernanceApprovalApproved(),
+            "governance-approval-rejected.v1.schema.json" => CreateGovernanceApprovalRejected(),
             "governance-promotion-activated.v1.schema.json" => CreateGovernancePromotionActivated(),
+            "governance-policy-pack-published.v1.schema.json" =>
+                IntegrationWebhookPayloadSamples.CreatePayload(IntegrationEventTypes.GovernancePolicyPackPublishedV1),
             "alert-fired.v1.schema.json" => CreateAlertFired(),
+            "alert-acknowledged.v1.schema.json" => CreateAlertAcknowledged(),
             "alert-resolved.v1.schema.json" => CreateAlertResolved(),
             "advisory-scan-completed.v1.schema.json" => CreateAdvisoryScanCompleted(),
             "data-consistency-check-completed.v1.schema.json" => CreateDataConsistencyCheckCompleted(),

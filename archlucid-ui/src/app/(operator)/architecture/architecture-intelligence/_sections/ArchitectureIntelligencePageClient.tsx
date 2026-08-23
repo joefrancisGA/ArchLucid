@@ -1,5 +1,6 @@
 "use client";
 
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { ArchitectureIntelligenceBuyerChrome } from "@/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligenceBuyerChrome";
 import { ArchitectureIntelligenceGoldenResults } from "@/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligenceGoldenResults";
 import { ArchitectureIntelligencePageHeader } from "@/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligencePageHeader";
@@ -63,8 +64,9 @@ export function ArchitectureIntelligencePageClient() {
   } = useArchitectureIntelligencePage();
 
   return (
-    <div
-      className={cn("w-full", buyerPolishedShell ? "max-w-6xl" : "max-w-3xl", OPERATOR_LAYOUT.majorSectionGap)}
+    <OperatorPageContainer
+      variant={buyerPolishedShell ? "workflow" : "reading"}
+      className={OPERATOR_LAYOUT.majorSectionGap}
       data-testid="architecture-intelligence-page"
     >
       <ArchitectureIntelligencePageHeader subtitle={pageSubtitle} />
@@ -249,6 +251,6 @@ export function ArchitectureIntelligencePageClient() {
       ) : null}
 
       {runState?.kind === "golden" ? <ArchitectureIntelligenceGoldenResults result={runState.result} /> : null}
-    </div>
+    </OperatorPageContainer>
   );
 }

@@ -42,4 +42,18 @@ public sealed class UserPreferencesResponse
         get;
         set;
     }
+
+    /// <summary>Personal IANA time zone for date and time display.</summary>
+    public string IanaTimeZoneId
+    {
+        get;
+        set;
+    } = IanaTimeZonePreferenceValues.Default;
+
+    /// <summary>True when the user has an explicit stored time zone row.</summary>
+    public bool IanaTimeZoneIsExplicit
+    {
+        get;
+        set;
+    }
 }

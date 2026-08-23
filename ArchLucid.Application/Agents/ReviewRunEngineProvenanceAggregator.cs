@@ -28,8 +28,16 @@ public static class ReviewRunEngineProvenanceAggregator
         AgentExecutionTraceRunLlmCostSummary costSummary =
             AgentExecutionTraceRunLlmCostAggregator.Compute(traces, costEstimator);
 
+        long reasoningTokens = 0;
+
+        foreach (AgentExecutionTrace trace in traces)
+            reasoningTokens += trace.ReasoningTokenCount ?? 0;
+
         int? inputTokens = costSummary.PromptTokens > 0 ? (int)Math.Min(costSummary.PromptTokens, int.MaxValue) : null;
-        int? outputTokens = costSummary.CompletionTokens > 0 ? (int)Math.Min(costSummary.CompletionTokens, int.MaxValue) : null;
+        long combinedOutputTokens = costSummary.CompletionTokens + reasoningTokens;
+        int? outputTokens = combinedOutputTokens > 0
+            ? (int)Math.Min(combinedOutputTokens, int.MaxValue)
+            : null;
 
         return new ReviewRunEngineProvenance
         {

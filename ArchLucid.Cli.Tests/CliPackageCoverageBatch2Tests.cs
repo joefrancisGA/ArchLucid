@@ -60,11 +60,49 @@ public sealed class CliPackageCoverageBatch2Tests
     [Fact]
     public void DeploymentEvidenceGitReader_dirty_flag_is_false_for_clean_porcelain()
     {
-        bool? dirty = DeploymentEvidenceGitReader.TryReadDirty(Environment.CurrentDirectory);
+        string tempRoot = Path.Combine(Path.GetTempPath(), "archlucid-cli-git-" + Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(tempRoot);
 
-        if (dirty is null)
-            return;
+        try
+        {
+            RunGit(tempRoot, "init");
+            RunGit(tempRoot, "config user.email cli-test@archlucid.local");
+            RunGit(tempRoot, "config user.name ArchLucid Cli Test");
+            File.WriteAllText(Path.Combine(tempRoot, "README.md"), "clean");
+            RunGit(tempRoot, "add README.md");
+            RunGit(tempRoot, "commit -m init");
 
-        dirty.Should().BeFalse();
+            bool? dirty = DeploymentEvidenceGitReader.TryReadDirty(tempRoot);
+
+            dirty.Should().NotBeNull();
+            dirty.Should().BeFalse();
+        }
+        finally
+        {
+            if (Directory.Exists(tempRoot))
+            {
+                Directory.Delete(tempRoot, recursive: true);
+            }
+        }
+    }
+
+    private static void RunGit(string workingDirectory, string arguments)
+    {
+        System.Diagnostics.ProcessStartInfo startInfo = new()
+        {
+            FileName = "git",
+            Arguments = arguments,
+            WorkingDirectory = workingDirectory,
+            RedirectStandardOutput = true,
+            RedirectStandardError = true,
+            UseShellExecute = false,
+            CreateNoWindow = true,
+        };
+
+        using System.Diagnostics.Process process = System.Diagnostics.Process.Start(startInfo)
+            ?? throw new InvalidOperationException("Failed to start git.");
+
+        process.WaitForExit();
+        process.ExitCode.Should().Be(0, because: process.StandardError.ReadToEnd());
     }
 }

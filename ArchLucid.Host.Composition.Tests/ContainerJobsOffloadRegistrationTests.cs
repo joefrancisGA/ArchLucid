@@ -1,8 +1,10 @@
+using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Host.Composition.Startup;
 using ArchLucid.Host.Core.Hosted;
 using ArchLucid.Host.Core.Hosting;
 using ArchLucid.Host.Core.Jobs;
+using ArchLucid.Persistence.Cosmos;
 using ArchLucid.TestSupport;
 
 using FluentAssertions;
@@ -126,6 +128,104 @@ public sealed class ContainerJobsOffloadRegistrationTests
 
         hasHosted.Should().BeTrue(
             "agent trace blob cleanup is not a container job; offloading data-archival must not drop it from the worker");
+    }
+
+    [Fact]
+    public void
+        AddArchLucidApplicationServices_Worker_offloads_orphan_probe_still_registers_OrphanProbeArchLucidJob()
+    {
+        Dictionary<string, string?> data = CreateWorkerCompositionDictionary();
+        data["Jobs:OffloadedToContainerJobs:0"] = ArchLucidJobNames.OrphanProbe;
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        ServiceCollection services = CreateCoreServices(configuration);
+
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Worker);
+
+        bool hasJob = services.Any(static d =>
+            d.ServiceType == typeof(IArchLucidJob)
+            && d.ImplementationType == typeof(OrphanProbeArchLucidJob));
+
+        bool hasHosted = services.Any(static d =>
+            d.ServiceType == typeof(IHostedService)
+            && d.ImplementationType == typeof(DataConsistencyOrphanProbeHostedService));
+
+        hasJob.Should().BeTrue(
+            "orphan-probe must resolve via ArchLucidJobRunner when offloaded from the worker host");
+        hasHosted.Should().BeFalse();
+    }
+
+    [Fact]
+    public void
+        AddArchLucidApplicationServices_Worker_offloads_required_audit_trail_orphan_probe_still_registers_job()
+    {
+        Dictionary<string, string?> data = CreateWorkerCompositionDictionary();
+        data["Jobs:OffloadedToContainerJobs:0"] = ArchLucidJobNames.RequiredAuditTrailOrphanProbe;
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        ServiceCollection services = CreateCoreServices(configuration);
+
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Worker);
+
+        bool hasJob = services.Any(static d =>
+            d.ServiceType == typeof(IArchLucidJob)
+            && d.ImplementationType == typeof(RequiredAuditTrailOrphanProbeArchLucidJob));
+
+        bool hasHosted = services.Any(static d =>
+            d.ServiceType == typeof(IHostedService)
+            && d.ImplementationType == typeof(RequiredAuditTrailOrphanProbeHostedService));
+
+        hasJob.Should().BeTrue(
+            "required-audit-trail-orphan-probe must resolve via ArchLucidJobRunner when offloaded from the worker host");
+        hasHosted.Should().BeFalse();
+    }
+
+    [Fact]
+    public void
+        AddArchLucidApplicationServices_Worker_offloads_audit_change_feed_with_cosmos_audit_registers_job_not_hosted_service()
+    {
+        Dictionary<string, string?> data = CreateWorkerCompositionDictionary();
+        data["Jobs:OffloadedToContainerJobs:0"] = ArchLucidJobNames.AuditChangeFeed;
+        data["CosmosDb:AuditEventsEnabled"] = "true";
+        data["CosmosDb:ConnectionString"] = "AccountEndpoint=https://unit-test.documents.azure.com:443/;AccountKey=dGVzdA==";
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        ServiceCollection services = CreateCoreServices(configuration);
+
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Worker);
+
+        bool hasJob = services.Any(static d =>
+            d.ServiceType == typeof(IArchLucidJob)
+            && d.ImplementationType == typeof(AuditEventChangeFeedArchLucidJob));
+
+        bool hasHosted = services.Any(static d =>
+            d.ServiceType == typeof(IHostedService)
+            && d.ImplementationType == typeof(AuditEventChangeFeedHostedService));
+
+        hasJob.Should().BeTrue(
+            "audit-change-feed must resolve via ArchLucidJobRunner when offloaded from the worker host");
+        hasHosted.Should().BeFalse();
+    }
+
+    [Fact]
+    public void
+        AddArchLucidApplicationServices_Worker_logic_app_owner_mode_does_not_register_TrialLifecycleEmailScanHostedService()
+    {
+        Dictionary<string, string?> data = CreateWorkerCompositionDictionary();
+        data[TrialLifecycleEmailRoutingOptions.OwnerConfigurationKey] =
+            TrialLifecycleEmailRoutingOptions.OwnerModes.LogicApp;
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        ServiceCollection services = CreateCoreServices(configuration);
+
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Worker);
+
+        bool hasHosted = services.Any(static d =>
+            d.ServiceType == typeof(IHostedService)
+            && d.ImplementationType == typeof(TrialLifecycleEmailScanHostedService));
+
+        hasHosted.Should().BeFalse(
+            "Logic App ownership must skip the in-process trial lifecycle email scan hosted service");
     }
 
     [Fact]

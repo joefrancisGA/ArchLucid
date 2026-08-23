@@ -6,6 +6,7 @@ using ArchLucid.Contracts.Exports;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Contracts.Roi;
+using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Core.Scoping;
 
 namespace ArchLucid.Application.Exports;
@@ -71,10 +72,8 @@ public sealed class SponsorReviewPacketBuilder(
         ArchitectureRunDetail detail,
         IReadOnlyList<ArchitectureFinding> topFindings)
     {
-        int critical = topFindings.Count(static f =>
-            string.Equals(f.Severity.ToString(), "Critical", StringComparison.OrdinalIgnoreCase));
-        int high = topFindings.Count(static f =>
-            string.Equals(f.Severity.ToString(), "High", StringComparison.OrdinalIgnoreCase));
+        int critical = topFindings.Count(static f => f.Severity == FindingSeverity.Critical);
+        int high = topFindings.Count(static f => f.Severity == FindingSeverity.Error);
 
         string systemName = detail.Manifest?.SystemName ?? detail.Run.RunId;
 

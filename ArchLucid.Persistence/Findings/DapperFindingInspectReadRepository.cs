@@ -168,7 +168,10 @@ public sealed class DapperFindingInspectReadRepository(ISqlConnectionFactory con
                 string first = ids[0].Trim();
 
                 if (first.Length > 0)
-                    return (first, string.IsNullOrWhiteSpace(firstRuleText) ? first : firstRuleText.Trim());
+                {
+                    // Trace rule text rows are not keyed by decision rule id; do not pair an unrelated SortOrder=0 label.
+                    return (first, first);
+                }
             }
         }
         catch (JsonException)

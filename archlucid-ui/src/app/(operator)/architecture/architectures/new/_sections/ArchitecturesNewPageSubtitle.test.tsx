@@ -4,9 +4,9 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { ArchitecturesNewPageSubtitle } from "@/app/(operator)/architecture/architectures/new/_sections/ArchitecturesNewPageSubtitle";
 import type { ArchitectureDraftRegistryEntry } from "@/lib/architecture/architecture-draft-registry";
 import {
-  ARCHITECTURE_CREATION_PAGE_SUBTITLE,
-  ARCHITECTURE_CREATION_PAGE_SUBTITLE_WITH_DRAFTS,
-} from "@/lib/create-vs-review-intake-copy";
+  ARCHITECTURES_NEW_PAGE_SUBTITLE_OPERATOR,
+  ARCHITECTURES_NEW_PAGE_SUBTITLE_OPERATOR_WITH_DRAFTS,
+} from "@/lib/architectures-new-page-copy";
 
 const useArchitectureDraftRegistryEntries = vi.fn();
 
@@ -48,7 +48,7 @@ describe("ArchitecturesNewPageSubtitle (TB-1462)", () => {
     render(<ArchitecturesNewPageSubtitle />);
 
     await waitFor(() => {
-      expect(screen.getByText(ARCHITECTURE_CREATION_PAGE_SUBTITLE_WITH_DRAFTS)).toBeInTheDocument();
+      expect(screen.getByText(ARCHITECTURES_NEW_PAGE_SUBTITLE_OPERATOR_WITH_DRAFTS)).toBeInTheDocument();
     });
   });
 
@@ -58,7 +58,7 @@ describe("ArchitecturesNewPageSubtitle (TB-1462)", () => {
     render(<ArchitecturesNewPageSubtitle />);
 
     await waitFor(() => {
-      expect(screen.getByText(ARCHITECTURE_CREATION_PAGE_SUBTITLE)).toBeInTheDocument();
+      expect(screen.getByText(ARCHITECTURES_NEW_PAGE_SUBTITLE_OPERATOR)).toBeInTheDocument();
     });
   });
 });

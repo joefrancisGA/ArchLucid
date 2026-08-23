@@ -1,10 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { AiBudgetSpendNotice } from "@/components/ai-budget/AiBudgetSpendNotice";
 import { ArchitectureIntelligenceAnalysisDepthSelect } from "@/components/architecture-intelligence/ArchitectureIntelligenceAnalysisDepthSelect";
+import { ArchitectureIntelligenceFramingInterviewPanel } from "@/components/architecture-intelligence/ArchitectureIntelligenceFramingInterviewPanel";
 import { ArchitectureIntelligenceRefineResultSummary } from "@/components/architecture-intelligence/ArchitectureIntelligenceRefineResultSummary";
 import { Button } from "@/components/ui/button";
 import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
@@ -14,10 +15,18 @@ import type { ArchitectureDraftFieldState } from "@/lib/architecture/architectur
 import {
   buildArchitectureIntelligenceRunRequest,
   buildArchitectureIntelligenceSourcesFromDraftFields,
+  continueArchitectureIntelligenceReasoning,
   primaryDescriptionFromSources,
   runArchitectureIntelligenceReasoning,
   type ClosedLoopReasoningResult,
 } from "@/lib/architecture/architecture-intelligence-api";
+import {
+  buildFramingAnswersPayload,
+  collectOpenFramingInterviewQuestions,
+  framingInterviewAnswersComplete,
+  isFramingIncompletePublishBlock,
+  mergeFramingAnswerDefaults,
+} from "@/lib/architecture/architecture-intelligence-framing-interview";
 import type { ArchitectureIntelligenceReviewTier } from "@/lib/architecture/architecture-intelligence-review-tier";
 import { buildArchitectureIntelligenceRunHref } from "@/lib/architecture/architecture-intelligence-run-href";
 import { reviewDetailPath } from "@/lib/architecture/architecture-routes";
@@ -44,6 +53,8 @@ export function ArchitectureDraftAiRefinePanel(props: ArchitectureDraftAiRefineP
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<ClosedLoopReasoningResult | null>(null);
+  const [activeRunId, setActiveRunId] = useState<string | null>(null);
+  const [framingAnswers, setFramingAnswers] = useState<Record<string, string>>({});
 
   const hydratedSources = useMemo(
     () => buildArchitectureIntelligenceSourcesFromDraftFields(fields),
@@ -60,6 +71,59 @@ export function ArchitectureDraftAiRefinePanel(props: ArchitectureDraftAiRefineP
     !disabled &&
     !blocksLlmExecution;
 
+  const openFramingQuestions = useMemo(
+    () => (result === null ? [] : collectOpenFramingInterviewQuestions(result)),
+    [result],
+  );
+
+  const showFramingInterview =
+    result !== null &&
+    openFramingQuestions.length > 0 &&
+    (result.publishBlocked === true || isFramingIncompletePublishBlock(result));
+
+  useEffect(() => {
+    if (!showFramingInterview) {
+      return;
+    }
+
+    setFramingAnswers((current) => mergeFramingAnswerDefaults(openFramingQuestions, current));
+  }, [openFramingQuestions, showFramingInterview]);
+
+  const canResubmitFramingAnswers = framingInterviewAnswersComplete(
+    openFramingQuestions,
+    framingAnswers,
+  );
+
+  const buildRunRequest = useCallback(
+    (options?: { framingAnswers?: Record<string, string>; continueFromExistingRun?: boolean }) => {
+      const runId = activeRunId ?? (canPublish ? linkedReviewId : result?.runId ?? null);
+
+      return buildArchitectureIntelligenceRunRequest({
+        architectureDescription,
+        runId,
+        hydratedSourceTexts: hydratedSources,
+        publishToProduct: canPublish,
+        reviewTier,
+        framingAnswers: options?.framingAnswers ?? {},
+        continueFromExistingRun: options?.continueFromExistingRun ?? false,
+      });
+    },
+    [
+      activeRunId,
+      architectureDescription,
+      canPublish,
+      hydratedSources,
+      linkedReviewId,
+      result?.runId,
+      reviewTier,
+    ],
+  );
+
+  const applyReasoningResult = useCallback((next: ClosedLoopReasoningResult) => {
+    setResult(next);
+    setActiveRunId(next.runId?.trim() || null);
+  }, []);
+
   const refine = useCallback(async () => {
     if (!canRefine) {
       return;
@@ -69,29 +133,56 @@ export function ArchitectureDraftAiRefinePanel(props: ArchitectureDraftAiRefineP
     setError(null);
 
     try {
-      const next = await runArchitectureIntelligenceReasoning(
-        buildArchitectureIntelligenceRunRequest({
-          architectureDescription,
-          runId: canPublish ? linkedReviewId : null,
-          hydratedSourceTexts: hydratedSources,
-          publishToProduct: canPublish,
-          reviewTier,
+      const next = await runArchitectureIntelligenceReasoning(buildRunRequest());
+      applyReasoningResult(next);
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : String(cause));
+    } finally {
+      setBusy(false);
+    }
+  }, [applyReasoningResult, buildRunRequest, canRefine]);
+
+  const resubmitFramingAnswers = useCallback(async () => {
+    const runId = activeRunId ?? result?.runId?.trim() ?? linkedReviewId?.trim() ?? "";
+
+    if (runId.length === 0) {
+      setError("Run refine first to obtain a reasoning run id.");
+
+      return;
+    }
+
+    if (!canResubmitFramingAnswers) {
+      return;
+    }
+
+    setBusy(true);
+    setError(null);
+
+    try {
+      const payload = buildFramingAnswersPayload(openFramingQuestions, framingAnswers);
+      const next = await continueArchitectureIntelligenceReasoning(
+        runId,
+        buildRunRequest({
+          framingAnswers: payload,
+          continueFromExistingRun: true,
         }),
       );
 
-      setResult(next);
+      applyReasoningResult(next);
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : String(cause));
     } finally {
       setBusy(false);
     }
   }, [
-    architectureDescription,
-    canPublish,
-    canRefine,
-    hydratedSources,
+    activeRunId,
+    applyReasoningResult,
+    buildRunRequest,
+    canResubmitFramingAnswers,
+    framingAnswers,
     linkedReviewId,
-    reviewTier,
+    openFramingQuestions,
+    result?.runId,
   ]);
 
   return (
@@ -189,6 +280,24 @@ export function ArchitectureDraftAiRefinePanel(props: ArchitectureDraftAiRefineP
             result={result}
             testIdPrefix="architecture-draft-ai-refine"
           />
+          {showFramingInterview ? (
+            <ArchitectureIntelligenceFramingInterviewPanel
+              questions={openFramingQuestions}
+              answers={framingAnswers}
+              busy={busy}
+              canResubmit={canResubmitFramingAnswers && !disabled && !blocksLlmExecution}
+              testIdPrefix="architecture-draft-ai-refine-framing"
+              onAnswerChange={(questionId, value) => {
+                setFramingAnswers((current) => ({
+                  ...current,
+                  [questionId]: value,
+                }));
+              }}
+              onResubmit={() => {
+                void resubmitFramingAnswers();
+              }}
+            />
+          ) : null}
           {!canPublish && !result.budgetRejected ? (
             <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
               Start a review when you are ready to capture these findings on a product run.

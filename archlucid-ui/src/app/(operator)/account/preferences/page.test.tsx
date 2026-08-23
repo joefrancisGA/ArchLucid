@@ -20,6 +20,15 @@ vi.mock("@/lib/use-cloud-platform-scope", () => ({
   }),
 }));
 
+vi.mock("@/lib/use-iana-time-zone-preference", () => ({
+  useIanaTimeZonePreference: () => ({
+    ianaTimeZoneId: "UTC",
+    mounted: true,
+    accountSyncState: "idle",
+    setAndPersist: vi.fn(),
+  }),
+}));
+
 vi.mock("@/components/WhereToGoNextPreferenceProvider", () => ({
   useWhereToGoNextPreference: () => ({
     enabled: true,
@@ -40,13 +49,16 @@ describe("PreferencesSettingsPage", () => {
 
     expect(screen.getByTestId("preferences-settings-page-title")).toHaveTextContent("Preferences");
     expect(screen.getByTestId("preferences-appearance-card")).toBeInTheDocument();
-    expect(screen.getByText(/syncs across browsers where you sign in/i)).toBeInTheDocument();
+    expect(screen.getByTestId("preferences-appearance-card")).toHaveTextContent(
+      /syncs across browsers where you sign in/i,
+    );
     expect(screen.getByTestId("theme-preference-selector-stub")).toBeInTheDocument();
     expect(
       screen.queryByTestId("shell-theme-preferences-appearance-vocabulary"),
     ).not.toBeInTheDocument();
     expect(screen.getByTestId("preferences-notifications-vocabulary")).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Appearance" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Time zone" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Cloud platforms shown" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: PREFERENCES_WHERE_TO_GO_NEXT_HEADING })).toBeInTheDocument();
     expect(screen.getByTestId("preferences-follow-up-link-strips-card")).toHaveAttribute("id", "follow-up-link-strips");

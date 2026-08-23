@@ -1,0 +1,744 @@
+{
+  "version": 1,
+  "entries": [
+    {
+      "nav_href": "/administration",
+      "nav_required_authority": "ReadAuthority",
+      "nav_source_file": "operator/operator-admin-nav-group-builder.ts",
+      "controller_primary_get_policy_strictest": null,
+      "controller_primary_get_policy_loosest": null,
+      "controller_files": [],
+      "parity": "unmapped"
+    },
+    {
+      "nav_href": "/administration/ai-usage",
+      "nav_required_authority": "AdminAuthority",
+      "nav_source_file": "operator/operator-admin-nav-group-builder.ts",
+      "controller_primary_get_policy_strictest": "AdminAuthority",
+      "controller_primary_get_policy_loosest": "AdminAuthority",
+      "controller_files": [
+        {
+          "controller_file": "Admin/AdminLlmCostTuningController.cs",
+          "primary_get_policy": "AdminAuthority",
+          "method": "GetCustomHandlers",
+          "http_get_route": "custom-handlers"
+        },
+        {
+          "controller_file": "Admin/MeteringAdminController.cs",
+          "primary_get_policy": "AdminAuthority",
+          "method": "GetSummaryAsync",
+          "http_get_route": "summary"
+        }
+      ],
+      "parity": "match"
+    },
+    {
+      "nav_href": "/administration/baseline",
+      "nav_required_authority": "AdminAuthority",
+      "nav_source_file": "operator/operator-admin-nav-group-builder.ts",
+      "controller_primary_get_policy_strictest": null,
+      "controller_primary_get_policy_loosest": null,
+      "controller_files": [],
+      "parity": "unmapped"
+    },
+    {
+      "nav_href": "/administration/billing",
+      "nav_required_authority": "ReadAuthority",
+      "nav_source_file": "operator/operator-admin-nav-group-builder.ts",
+      "controller_primary_get_policy_strictest": null,
+      "controller_primary_get_policy_loosest": null,
+      "controller_files": [],
+      "parity": "unmapped"
+    },
+    {
+      "nav_href": "/administration/connection-status",
+      "nav_required_authority": "AdminAuthority",
+      "nav_source_file": "operator/operator-admin-nav-group-builder.ts",
+      "controller_primary_get_policy_strictest": "ReadAuthority",
+      "controller_primary_get_policy_loosest": "ReadAuthority",
+      "controller_files": [
+        {
+          "controller_file": "Integrations/TenantItsmConnectorConnectionsController.cs",
+          "primary_get_policy": "ReadAuthority",
+          "method": "ListConnections",
+          "http_get_route": null
+        },
+        {
+          "controller_file": "Integrations/TenantItsmOutboundSettingsController.cs",
+          "primary_get_policy": "ReadAuthority",
+          "method": "GetAsync",
+          "http_get_route": null
+        }
+      ],
+      "parity": "nav_stricter_than_controller",
+      "exemption": "connection_status_admin_nav_hub"
+    },
+    {
+      "nav_href": "/administration/identity-providers",
+      "nav_required_authority": "AdminAuthority",
+      "nav_source_file": "operator/operator-admin-nav-group-builder.ts",
+      "controller_primary_get_policy_strictest": null,
+      "controller_primary_get_policy_loosest": null,
+      "controller_files": [],
+      "parity": "unmapped"
+    },
+    {
+      "nav_href": "/administration/notifications",
+      "nav_required_authority": "ReadAuthority",
+      "nav_source_file": "operator/operator-admin-nav-group-builder.ts",
+      "controller_primary_get_policy_strictest": null,
+      "controller_primary_get_policy_loosest": null,
+      "controller_files": [],
+      "parity": "unmapped"
+    },
+    {
+      "nav_href": "/administration/scim-provisioning",
+      "nav_required_authority": "AdminAuthority",
+      "nav_source_file": "operator/operator-admin-nav-group-builder.ts",
+      "controller_primary_get_policy_strictest": null,
+      "controller_primary_get_policy_loosest": null,
+      "controller_files": [],
+      "parity": "unmapped"
+    },
+    {
+      "nav_href": "/administration/security-trust",
+      "nav_required_authority": "ReadAuthority",
+      "nav_source_file": "operator/operator-admin-nav-group-builder.ts",
+      "controller_primary_get_policy_strictest": null,
+      "controller_primary_get_policy_loosest": null,
+      "controller_files": [
+        {
+          "controller_file": "Admin/SecurityTrustPublicationController.cs",
+          "primary_get_policy": null,
+          "method": null
+        }
+      ],
+      "parity": "unmapped"
+    },
+    {
+      "nav_href": "/administration/support",
+      "nav_required_authority": "ExecuteAuthority",
+      "nav_source_file": "operator/operator-admin-nav-group-builder.ts",
+      "controller_primary_get_policy_strictest": null,
+      "controller_primary_get_policy_loosest": null,
+      "controller_files": [
+        {
+          "controller_file": "Admin/SupportBundleController.cs",
+          "primary_get_policy": null,
+          "method": null
+        }
+      ],
+      "parity": "unmapped"
+    },
+    {
+      "nav_href": "/administration/system-health",
+      "nav_required_authority": "AdminAuthority",
+      "nav_source_file": "operator/operator-admin-nav-group-builder.ts",
+      "controller_primary_get_policy_strictest": null,
+      "controller_primary_get_policy_loosest": null,
+      "controller_files": [],
+      "parity": "unmapped"
+    },
+    {
+      "nav_href": "/administration/workspace-settings/recycle-bin",
+      "nav_required_authority": "ReadAuthority",
+      "nav_source_file": "operator/operator-admin-nav-group-builder.ts",
+      "controller_primary_get_policy_strictest": null,
+      "controller_primary_get_policy_loosest": null,
+      "controller_files": [],
+      "parity": "unmapped"
+    },
+    {
+      "nav_href": "/architecture/digests",
+      "nav_required_authority": "ReadAuthority",
+      "nav_source_file": "pilot-nav-group-builder.ts",
+      "controller_primary_get_policy_strictest": "ReadAuthority",
+      "controller_primary_get_policy_loosest": "ReadAuthority",
+      "controller_files": [
+        {
+          "controller_file": "Advisory/DigestSubscriptionsController.cs",
+          "primary_get_policy": "ReadAuthority",
+          "method": "List",
+          "http_get_route": null
+        }
+      ],
+      "parity": "match"
+    },
+    {
+      "nav_href": "/governance/advisory-scans",
+      "nav_required_authority": "ReadAuthority",
+      "nav_source_file": "operate-governance-nav-group-builder.ts",
+      "controller_primary_get_policy_strictest": "ReadAuthority",
+      "controller_primary_get_policy_loosest": "ReadAuthority",
+      "controller_files": [
+        {
+          "controller_file": "Advisory/AdvisoryController.cs",
+          "primary_get_policy": "ReadAuthority",
+          "method": "GetImprovements",
+          "http_get_route": "runs/{runId:guid}/improvements"
+        }
+      ],
+      "parity": "match"
+    },
+    {
+      "nav_href": "/governance/alert-rules",
+      "nav_required_authority": "ReadAuthority",
+      "nav_source_file": "operate-policy-nav-group-builder.ts",
+      "controller_primary_get_policy_strictest": null,
+      "controller_primary_get_policy_loosest": null,
+      "controller_files": [],
+      "parity": "unmapped"
+    },
+    {
+      "nav_href": "/governance/alerts",
+      "nav_required_authority": "ReadAuthority",
+      "nav_source_file": "operate-governance-nav-group-builder.ts",
+      "controller_primary_get_policy_strictest": "ReadAuthority",
+      "controller_primary_get_policy_loosest": "ReadAuthority",
+      "controller_files": [
+        {
+          "controller_file": "Alerts/AlertRoutingSubscriptionsController.cs",
+          "primary_get_policy": "ReadAuthority",
+          "method": "List",
+          "http_get_route": null
+        },
+        {
+          "controller_file": "Alerts/AlertRulesController.cs",
+          "primary_get_policy": "ReadAuthority",
+          "method": "List",
+          "http_get_route": null
+        },
+        {
+          "controller_file": "Alerts/AlertSimulationController.cs",
+          "primary_get_policy": null,
+          "method": null
+        },
+        {
+          "controller_file": "Alerts/AlertTuningController.cs",
+          "primary_get_policy": null,
+          "method": null
+        },
+        {
+          "controller_file": "Alerts/AlertsController.cs",
+          "primary_get_policy": "ReadAuthority",
+          "method": "List",
+          "http_get_route": null
+        },
+        {
+          "controller_file": "Alerts/CompositeAlertRulesController.cs",
+          "primary_get_policy": "ReadAuthority",
+          "method": "List",
+          "http_get_route": null
+        }
+      ],
+      "parity": "match"
+    },
+    {
+      "nav_href": "/governance/approval-queue",
+      "nav_required_authority": "ReadAuthority",
+      "nav_source_file": "operate-governance-nav-group-builder.ts",
+      "controller_primary_get_policy_strictest": "ReadAuthority",
+      "controller_primary_get_policy_loosest": "ReadAuthority",
+      "controller_files": [
+        {
+          "controller_file": "Governance/GovernanceController.cs",
+          "primary_get_policy": "ReadAuthority",
+          "method": "GetDashboard",
+          "http_get_route": "dashboard"
+        }
+      ],
+      "parity": "match"
+    },
+    {
+      "nav_href": "/governance/audit",
+      "nav_required_authority": "ReadAuthority",
+      "nav_source_file": "operate-governance-nav-group-builder.ts",
+      "controller_primary_get_policy_strictest": "ReadAuthority",
+      "controller_primary_get_policy_loosest": "ReadAuthority",
+      "controller_files": [
+        {
+          "controller_file": "Admin/AuditController.cs",
+          "primary_get_policy": "ReadAuthority",
+          "method": "GetAudit",
+          "http_get_route": null
+        }
+      ],
+      "parity": "match"
+    },
+    {
+      "nav_href": "/governance/decision-register",
+      "nav_required_authority": "ReadAuthority",
+      "nav_source_file": "operate-governance-nav-group-builder.ts",
+      "controller_primary_get_policy_strictest": null,
+      "controller_primary_get_policy_loosest": null,
+      "controller_files": [],
+      "parity": "unmapped"
+    },
+    {
+      "nav_href": "/governance/exceptions",
+      "nav_required_authority": "ReadAuthority",
+      "nav_source_file": "operate-governance-nav-group-builder.ts",
+      "controller_primary_get_policy_strictest": null,
+      "controller_primary_get_policy_loosest": null,
+      "controller_files": [],
+      "parity": "unmapped"
+    },
+    {
+      "nav_href": "/governance/findings",
+      "nav_required_authority": "ReadAuthority",
+      "nav_source_file": "operate-governance-nav-group-builder.ts",
+      "controller_primary_get_policy_strictest": "ReadAuthority",
+      "controller_primary_get_policy_loosest": "ReadAuthority",
+      "controller_files": [
+        {
+          "controller_file": "Findings/FindingInspectController.cs",
+          "primary_get_policy": "ReadAuthority",
+          "method": "GetInspectAsync",
+          "http_get_route": "{findingId}/inspect"
+        },
+        {
+          "controller_file": "Findings/FindingMuteController.cs",
+          "primary_get_policy": null,
+          "method": null
+        },
+        {
+          "controller_file": "Findings/FindingRemediationAssignmentController.cs",
+          "primary_get_policy": null,
+          "method": null
+        }
+      ],
+      "parity": "match"
+    },
+    {
+      "nav_href": "/governance/findings/assigned-to-me",
+      "nav_required_authority": "ReadAuthority",
+      "nav_source_file": "operate-governance-nav-group-builder.ts",
+      "controller_primary_get_policy_strictest": null,
+      "controller_primary_get_policy_loosest": null,
+      "controller_files": [],
+      "parity": "unmapped"
+    },
+    {
+      "nav_href": "/governance/policy-packs",
+      "nav_required_authority": "ReadAuthority",
+      "nav_source_file": "operate-policy-nav-group-builder.ts",
+      "controller_primary_get_policy_strictest": "ReadAuthority",
+      "controller_primary_get_policy_loosest": "ReadAuthority",
+      "controller_files": [
+        {
+          "controller_file": "Governance/PolicyPacksController.cs",
+          "primary_get_policy": "ReadAuthority",
+          "method": "List",
+          "http_get_route": null
+        }
+      ],
+      "parity": "match"
+    },
+    {
+      "nav_href": "/governance/recurrence-schedules",
+      "nav_required_authority": "ReadAuthority",
+      "nav_source_file": "operate-policy-nav-group-builder.ts",
+      "controller_primary_get_policy_strictest": null,
+      "controller_primary_get_policy_loosest": null,
+      "controller_files": [],
+      "parity": "unmapped"
+    },
+    {
+      "nav_href": "/governance/sealed-records",
+      "nav_required_authority": "ReadAuthority",
+      "nav_source_file": "operate-governance-nav-group-builder.ts",
+      "controller_primary_get_policy_strictest": null,
+      "controller_primary_get_policy_loosest": null,
+      "controller_files": [],
+      "parity": "unmapped"
+    },
+    {
+      "nav_href": "/governance/setup",
+      "nav_required_authority": "ReadAuthority",
+      "nav_source_file": "operate-policy-nav-group-builder.ts",
+      "controller_primary_get_policy_strictest": null,
+      "controller_primary_get_policy_loosest": null,
+      "controller_files": [],
+      "parity": "unmapped"
+    },
+    {
+      "nav_href": "/governance/standards-and-rules",
+      "nav_required_authority": "ReadAuthority",
+      "nav_source_file": "operate-policy-nav-group-builder.ts",
+      "controller_primary_get_policy_strictest": "ReadAuthority",
+      "controller_primary_get_policy_loosest": "ReadAuthority",
+      "controller_files": [
+        {
+          "controller_file": "Governance/GovernanceResolutionController.cs",
+          "primary_get_policy": "ReadAuthority",
+          "method": "Resolve",
+          "http_get_route": null
+        }
+      ],
+      "parity": "match"
+    },
+    {
+      "nav_href": "/insights/ask-review-questions",
+      "nav_required_authority": "ReadAuthority",
+      "nav_source_file": "operate-analysis-nav-group-builder.ts",
+      "controller_primary_get_policy_strictest": "ReadAuthority",
+      "controller_primary_get_policy_loosest": "ReadAuthority",
+      "controller_files": [
+        {
+          "controller_file": "Planning/AskController.cs",
+          "primary_get_policy": "ReadAuthority",
+          "method": "GetTemplates",
+          "http_get_route": "templates"
+        }
+      ],
+      "parity": "match"
+    },
+    {
+      "nav_href": "/insights/compare-two-reviews",
+      "nav_required_authority": "ReadAuthority",
+      "nav_source_file": "operate-analysis-nav-group-builder.ts",
+      "controller_primary_get_policy_strictest": "ReadAuthority",
+      "controller_primary_get_policy_loosest": "ReadAuthority",
+      "controller_files": [
+        {
+          "controller_file": "Authority/RunComparisonController.cs",
+          "primary_get_policy": "ReadAuthority",
+          "method": "CompareAgentResults",
+          "http_get_route": "review/compare/agents"
+        },
+        {
+          "controller_file": "Planning/ComparisonController.cs",
+          "primary_get_policy": "ReadAuthority",
+          "method": "CompareRuns",
+          "http_get_route": null
+        }
+      ],
+      "parity": "match"
+    },
+    {
+      "nav_href": "/insights/evidence-graph",
+      "nav_required_authority": "ReadAuthority",
+      "nav_source_file": "operate-analysis-nav-group-builder.ts",
+      "controller_primary_get_policy_strictest": "ReadAuthority",
+      "controller_primary_get_policy_loosest": "ReadAuthority",
+      "controller_files": [
+        {
+          "controller_file": "Planning/GraphController.cs",
+          "primary_get_policy": "ReadAuthority",
+          "method": "GetArchitectureGraphTemporalSnapshot",
+          "http_get_route": "snapshot"
+        }
+      ],
+      "parity": "match"
+    },
+    {
+      "nav_href": "/insights/impact-preview",
+      "nav_required_authority": "ReadAuthority",
+      "nav_source_file": "operate-analysis-nav-group-builder.ts",
+      "controller_primary_get_policy_strictest": "ReadAuthority",
+      "controller_primary_get_policy_loosest": "ReadAuthority",
+      "controller_files": [
+        {
+          "controller_file": "Evolution/EvolutionController.cs",
+          "primary_get_policy": "ReadAuthority",
+          "method": "ListCandidates",
+          "http_get_route": "candidates"
+        }
+      ],
+      "parity": "match"
+    },
+    {
+      "nav_href": "/insights/improvement-planning",
+      "nav_required_authority": "ReadAuthority",
+      "nav_source_file": "operate-analysis-nav-group-builder.ts",
+      "controller_primary_get_policy_strictest": null,
+      "controller_primary_get_policy_loosest": null,
+      "controller_files": [],
+      "parity": "unmapped"
+    },
+    {
+      "nav_href": "/insights/patterns",
+      "nav_required_authority": "ReadAuthority",
+      "nav_source_file": "operate-analysis-nav-group-builder.ts",
+      "controller_primary_get_policy_strictest": null,
+      "controller_primary_get_policy_loosest": null,
+      "controller_files": [],
+      "parity": "unmapped"
+    },
+    {
+      "nav_href": "/insights/roi-summary",
+      "nav_required_authority": "ReadAuthority",
+      "nav_source_file": "operate-analysis-nav-group-builder.ts",
+      "controller_primary_get_policy_strictest": "ReadAuthority",
+      "controller_primary_get_policy_loosest": "ReadAuthority",
+      "controller_files": [
+        {
+          "controller_file": "Tenancy/TenantMeasuredRoiController.cs",
+          "primary_get_policy": "ReadAuthority",
+          "method": "GetAsync",
+          "http_get_route": null
+        }
+      ],
+      "parity": "match"
+    },
+    {
+      "nav_href": "/insights/search-review-evidence",
+      "nav_required_authority": "ReadAuthority",
+      "nav_source_file": "operate-analysis-nav-group-builder.ts",
+      "controller_primary_get_policy_strictest": "ReadAuthority",
+      "controller_primary_get_policy_loosest": "ReadAuthority",
+      "controller_files": [
+        {
+          "controller_file": "Planning/RetrievalController.cs",
+          "primary_get_policy": "ReadAuthority",
+          "method": "Search",
+          "http_get_route": "search"
+        }
+      ],
+      "parity": "match"
+    },
+    {
+      "nav_href": "/integrations/azure-boards",
+      "nav_required_authority": "AdminAuthority",
+      "nav_source_file": "operate-integrations-nav-group-builder.ts",
+      "controller_primary_get_policy_strictest": null,
+      "controller_primary_get_policy_loosest": null,
+      "controller_files": [],
+      "parity": "unmapped"
+    },
+    {
+      "nav_href": "/integrations/cloud-connections",
+      "nav_required_authority": "ExecuteAuthority",
+      "nav_source_file": "operate-integrations-nav-group-builder.ts",
+      "controller_primary_get_policy_strictest": "ExecuteAuthority",
+      "controller_primary_get_policy_loosest": "ExecuteAuthority",
+      "controller_files": [
+        {
+          "controller_file": "Admin/HostedAwsExtractorRunController.cs",
+          "primary_get_policy": null,
+          "method": null
+        },
+        {
+          "controller_file": "Admin/HostedGcpExtractorRunController.cs",
+          "primary_get_policy": null,
+          "method": null
+        },
+        {
+          "controller_file": "Authority/AwsTier2ConnectionController.cs",
+          "primary_get_policy": "ExecuteAuthority",
+          "method": "ListConnectionsAsync",
+          "http_get_route": null
+        },
+        {
+          "controller_file": "Authority/GcpTier2ConnectionController.cs",
+          "primary_get_policy": "ExecuteAuthority",
+          "method": "ListConnectionsAsync",
+          "http_get_route": null
+        }
+      ],
+      "parity": "match"
+    },
+    {
+      "nav_href": "/integrations/jira",
+      "nav_required_authority": "AdminAuthority",
+      "nav_source_file": "operate-integrations-nav-group-builder.ts",
+      "controller_primary_get_policy_strictest": null,
+      "controller_primary_get_policy_loosest": null,
+      "controller_files": [],
+      "parity": "unmapped"
+    },
+    {
+      "nav_href": "/integrations/servicenow",
+      "nav_required_authority": "AdminAuthority",
+      "nav_source_file": "operate-integrations-nav-group-builder.ts",
+      "controller_primary_get_policy_strictest": null,
+      "controller_primary_get_policy_loosest": null,
+      "controller_files": [],
+      "parity": "unmapped"
+    },
+    {
+      "nav_href": "/integrations/slack",
+      "nav_required_authority": "ReadAuthority",
+      "nav_source_file": "operate-integrations-nav-group-builder.ts",
+      "controller_primary_get_policy_strictest": null,
+      "controller_primary_get_policy_loosest": null,
+      "controller_files": [],
+      "parity": "unmapped"
+    },
+    {
+      "nav_href": "/integrations/teams",
+      "nav_required_authority": "ReadAuthority",
+      "nav_source_file": "operate-integrations-nav-group-builder.ts",
+      "controller_primary_get_policy_strictest": null,
+      "controller_primary_get_policy_loosest": null,
+      "controller_files": [],
+      "parity": "unmapped"
+    },
+    {
+      "nav_href": "/integrations/webhooks",
+      "nav_required_authority": "ExecuteAuthority",
+      "nav_source_file": "operate-integrations-nav-group-builder.ts",
+      "controller_primary_get_policy_strictest": null,
+      "controller_primary_get_policy_loosest": null,
+      "controller_files": [],
+      "parity": "unmapped"
+    },
+    {
+      "nav_href": "/internal/agent-model-catalog",
+      "nav_required_authority": "AdminAuthority",
+      "nav_source_file": "operator/operator-system-admin-nav-group-builder.ts",
+      "controller_primary_get_policy_strictest": null,
+      "controller_primary_get_policy_loosest": null,
+      "controller_files": [],
+      "parity": "unmapped"
+    },
+    {
+      "nav_href": "/internal/configuration",
+      "nav_required_authority": "AdminAuthority",
+      "nav_source_file": "operator/operator-system-admin-nav-group-builder.ts",
+      "controller_primary_get_policy_strictest": null,
+      "controller_primary_get_policy_loosest": null,
+      "controller_files": [],
+      "parity": "unmapped"
+    },
+    {
+      "nav_href": "/internal/demo-readiness",
+      "nav_required_authority": "AdminAuthority",
+      "nav_source_file": "operator/operator-system-admin-nav-group-builder.ts",
+      "controller_primary_get_policy_strictest": null,
+      "controller_primary_get_policy_loosest": null,
+      "controller_files": [],
+      "parity": "unmapped"
+    },
+    {
+      "nav_href": "/internal/deployment-status",
+      "nav_required_authority": "AdminAuthority",
+      "nav_source_file": "operator/operator-system-admin-nav-group-builder.ts",
+      "controller_primary_get_policy_strictest": null,
+      "controller_primary_get_policy_loosest": null,
+      "controller_files": [],
+      "parity": "unmapped"
+    },
+    {
+      "nav_href": "/internal/evidence-proposals",
+      "nav_required_authority": "AdminAuthority",
+      "nav_source_file": "operator/operator-system-admin-nav-group-builder.ts",
+      "controller_primary_get_policy_strictest": null,
+      "controller_primary_get_policy_loosest": null,
+      "controller_files": [],
+      "parity": "unmapped"
+    },
+    {
+      "nav_href": "/internal/failed-integration-messages",
+      "nav_required_authority": "AdminAuthority",
+      "nav_source_file": "operator/operator-system-admin-nav-group-builder.ts",
+      "controller_primary_get_policy_strictest": null,
+      "controller_primary_get_policy_loosest": null,
+      "controller_files": [],
+      "parity": "unmapped"
+    },
+    {
+      "nav_href": "/internal/fleet-llm-cogs",
+      "nav_required_authority": "AdminAuthority",
+      "nav_source_file": "operator/operator-system-admin-nav-group-builder.ts",
+      "controller_primary_get_policy_strictest": null,
+      "controller_primary_get_policy_loosest": null,
+      "controller_files": [],
+      "parity": "unmapped"
+    },
+    {
+      "nav_href": "/internal/health",
+      "nav_required_authority": "AdminAuthority",
+      "nav_source_file": "operator/operator-system-admin-nav-group-builder.ts",
+      "controller_primary_get_policy_strictest": "AdminAuthority",
+      "controller_primary_get_policy_loosest": "AdminAuthority",
+      "controller_files": [
+        {
+          "controller_file": "Diagnostics/ConfigurationHealthController.cs",
+          "primary_get_policy": "AdminAuthority",
+          "method": "GetAsync",
+          "http_get_route": "configuration-health"
+        }
+      ],
+      "parity": "match"
+    },
+    {
+      "nav_href": "/internal/platform-bundled-policy-packs",
+      "nav_required_authority": "AdminAuthority",
+      "nav_source_file": "operator/operator-system-admin-nav-group-builder.ts",
+      "controller_primary_get_policy_strictest": null,
+      "controller_primary_get_policy_loosest": null,
+      "controller_files": [],
+      "parity": "unmapped"
+    },
+    {
+      "nav_href": "/internal/pricing-quote-aging",
+      "nav_required_authority": "AdminAuthority",
+      "nav_source_file": "operator/operator-system-admin-nav-group-builder.ts",
+      "controller_primary_get_policy_strictest": null,
+      "controller_primary_get_policy_loosest": null,
+      "controller_files": [],
+      "parity": "unmapped"
+    },
+    {
+      "nav_href": "/internal/recommendation-learning",
+      "nav_required_authority": "ReadAuthority",
+      "nav_source_file": "operator/operator-system-admin-nav-group-builder.ts",
+      "controller_primary_get_policy_strictest": "ReadAuthority",
+      "controller_primary_get_policy_loosest": "ReadAuthority",
+      "controller_files": [
+        {
+          "controller_file": "Advisory/RecommendationLearningController.cs",
+          "primary_get_policy": "ReadAuthority",
+          "method": "GetLatest",
+          "http_get_route": "latest"
+        }
+      ],
+      "parity": "match"
+    },
+    {
+      "nav_href": "/internal/tenant-health",
+      "nav_required_authority": "AdminAuthority",
+      "nav_source_file": "operator/operator-system-admin-nav-group-builder.ts",
+      "controller_primary_get_policy_strictest": null,
+      "controller_primary_get_policy_loosest": null,
+      "controller_files": [],
+      "parity": "unmapped"
+    },
+    {
+      "nav_href": "/internal/tenants",
+      "nav_required_authority": "AdminAuthority",
+      "nav_source_file": "operator/operator-system-admin-nav-group-builder.ts",
+      "controller_primary_get_policy_strictest": null,
+      "controller_primary_get_policy_loosest": null,
+      "controller_files": [],
+      "parity": "unmapped"
+    },
+    {
+      "nav_href": "/internal/trial-funnel",
+      "nav_required_authority": "AdminAuthority",
+      "nav_source_file": "operator/operator-system-admin-nav-group-builder.ts",
+      "controller_primary_get_policy_strictest": null,
+      "controller_primary_get_policy_loosest": null,
+      "controller_files": [],
+      "parity": "unmapped"
+    },
+    {
+      "nav_href": "/internal/validate-route",
+      "nav_required_authority": "ExecuteAuthority",
+      "nav_source_file": "operator/operator-system-admin-nav-group-builder.ts",
+      "controller_primary_get_policy_strictest": "ReadAuthority",
+      "controller_primary_get_policy_loosest": "ReadAuthority",
+      "controller_files": [
+        {
+          "controller_file": "Planning/ComparisonsController.cs",
+          "primary_get_policy": "ReadAuthority",
+          "method": "SearchComparisonRecords",
+          "http_get_route": "comparisons"
+        }
+      ],
+      "parity": "nav_stricter_than_controller",
+      "exemption": "internal_validate_route_execute_nav"
+    }
+  ]
+}

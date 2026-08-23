@@ -109,6 +109,12 @@ export const GUIDED_INTAKE_STRUCTURED_BRIEF_SUGGEST_HEADING =
 
 export const GUIDED_INTAKE_DENY_SUGGESTION_BUTTON = "Deny";
 
+export const GUIDED_INTAKE_EXPLAIN_SUGGESTION_BUTTON = "Explain";
+
+export const GUIDED_INTAKE_EXPLAIN_SUGGESTION_LOADING = "Loading explanation…";
+
+export const GUIDED_INTAKE_EXPLAIN_SUGGESTION_RETRY_BUTTON = "Retry";
+
 export const GUIDED_INTAKE_STRUCTURED_BRIEF_SUGGEST_EMPTY =
   "No new suggestions were returned. Add constraints and assumptions manually, or refine the architecture overview and try again.";
 
@@ -173,6 +179,22 @@ export const GUIDED_INTAKE_STRUCTURED_BRIEF_OPERATIONAL_OWNER_HINT =
   "Team or role accountable for runbooks and on-call.";
 
 export const GUIDED_INTAKE_STRUCTURED_BRIEF_OPERATIONAL_OWNER_PLACEHOLDER = "e.g. Platform SRE";
+
+export const GUIDED_INTAKE_OVERVIEW_REWRITE_BUTTON = "Rewrite architecture overview from the confirmed brief";
+
+export const GUIDED_INTAKE_OVERVIEW_REWRITE_DISABLED_HINT =
+  "Confirm or deny at least one structured-brief suggestion, then rewrite the overview from those facts.";
+
+export const GUIDED_INTAKE_OVERVIEW_REWRITE_PREVIEW_HEADING = "Proposed architecture overview";
+
+export const GUIDED_INTAKE_OVERVIEW_REWRITE_ACCEPT_BUTTON = "Accept overview";
+
+export const GUIDED_INTAKE_OVERVIEW_REWRITE_DISCARD_BUTTON = "Discard";
+
+export const GUIDED_INTAKE_OVERVIEW_REWRITE_RESUGGEST_BUTTON = "Suggest from overview again";
+
+export const GUIDED_INTAKE_OVERVIEW_REWRITE_RESUGGEST_HINT =
+  "After accepting the rewritten overview, run one more suggest pass to surface new gaps from the grounded text.";
 
 export const GUIDED_INTAKE_SUGGESTED_ACTORS_HEADING = "Suggested people and systems";
 

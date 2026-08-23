@@ -19,7 +19,7 @@ public sealed class InMemoryTenantSignInEmailDomainRepository : ITenantSignInEma
 
         _byDomain.TryGetValue(normalizedDomain, out TenantSignInEmailDomainRecord? row);
 
-        return Task.FromResult(row);
+        return Task.FromResult(row?.RemovedUtc is null ? row : null);
     }
 
     public Task<IReadOnlyList<TenantSignInEmailDomainRecord>> ListByTenantIdAsync(
@@ -29,7 +29,7 @@ public sealed class InMemoryTenantSignInEmailDomainRepository : ITenantSignInEma
         _ = cancellationToken;
 
         IReadOnlyList<TenantSignInEmailDomainRecord> rows = _byDomain.Values
-            .Where(row => row.TenantId == tenantId)
+            .Where(row => row.TenantId == tenantId && row.RemovedUtc is null)
             .OrderBy(row => row.NormalizedDomain, StringComparer.Ordinal)
             .ToList();
 
@@ -48,7 +48,7 @@ public sealed class InMemoryTenantSignInEmailDomainRepository : ITenantSignInEma
             return Task.FromResult<TenantSignInEmailDomainRecord?>(null);
         }
 
-        return Task.FromResult(row.TenantId == tenantId ? row : null);
+        return Task.FromResult(row.TenantId == tenantId && row.RemovedUtc is null ? row : null);
     }
 
     public Task InsertAsync(TenantSignInEmailDomainRecord record, CancellationToken cancellationToken)

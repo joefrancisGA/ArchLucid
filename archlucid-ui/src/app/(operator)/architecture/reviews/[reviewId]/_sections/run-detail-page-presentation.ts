@@ -1,5 +1,6 @@
 import type { ArchitectureCreatedHomeModel, BuildArchitectureCreatedHomeModelInput } from "@/lib/architecture/architecture-created-home-model";
 import { buildArchitectureCreatedHomeModel } from "@/lib/architecture/architecture-created-home-model";
+import type { CompareEffectiveGovernanceAtCommitSnapshot } from "@/lib/compare-effective-governance-diff";
 import { deriveArchitectureGapBaselineFromSubmittedText } from "@/lib/derive-architecture-gap-baseline";
 import { isReviewFindingDispositionClosed } from "@/lib/findings/finding-job-view";
 import { isBuyerGoldenReviewPackagePageReady } from "@/lib/buyer/buyer-golden-spine-run-id";
@@ -49,6 +50,7 @@ export type ShowcasePolicyPackStrip = {
 export type ReviewPolicyPackCallout = {
   readonly ruleSetId: string;
   readonly ruleSetVersion: string;
+  readonly effectiveGovernanceAtCommit?: CompareEffectiveGovernanceAtCommitSnapshot | null;
 };
 
 /**
@@ -185,6 +187,7 @@ function resolveReviewPolicyPackCallout(model: RunDetailPageModel): ReviewPolicy
   return {
     ruleSetId: model.manifestSummaryForUi.ruleSetId,
     ruleSetVersion: model.manifestSummaryForUi.ruleSetVersion,
+    effectiveGovernanceAtCommit: model.manifestSummaryForUi.effectiveGovernanceAtCommit ?? null,
   };
 }
 

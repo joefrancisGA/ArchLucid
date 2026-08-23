@@ -16,6 +16,8 @@ export type UserPreferencesResponse = {
   cloudPlatformScopeIsExplicit: boolean;
   whereToGoNextEnabled: boolean;
   whereToGoNextIsExplicit: boolean;
+  ianaTimeZoneId: string;
+  ianaTimeZoneIsExplicit: boolean;
 };
 
 export type SetAppearancePreferenceRequest = {
@@ -30,12 +32,18 @@ export type SetWhereToGoNextVisibilityRequest = {
   enabled: boolean;
 };
 
+export type SetIanaTimeZonePreferenceRequest = {
+  ianaTimeZoneId: string;
+};
+
 const DEFAULT_CLOUD_PLATFORM_SCOPE_DTO: CloudPlatformScopeDto = {
   "evidence-only": true,
   azure: true,
   aws: true,
   gcp: true,
 };
+
+const DEFAULT_IANA_TIME_ZONE_ID = "UTC";
 
 const USER_PREFERENCES_CACHE_TTL_MS = 30_000;
 
@@ -147,6 +155,8 @@ export async function setUserAppearancePreference(value: ColorModePreference): P
       cloudPlatformScopeIsExplicit: cached?.cloudPlatformScopeIsExplicit ?? false,
       whereToGoNextEnabled: cached?.whereToGoNextEnabled ?? true,
       whereToGoNextIsExplicit: cached?.whereToGoNextIsExplicit ?? false,
+      ianaTimeZoneId: cached?.ianaTimeZoneId ?? DEFAULT_IANA_TIME_ZONE_ID,
+      ianaTimeZoneIsExplicit: cached?.ianaTimeZoneIsExplicit ?? false,
     },
     cacheGeneration,
   );
@@ -170,6 +180,8 @@ export async function setUserCloudPlatformScope(scope: CloudPlatformScope): Prom
       cloudPlatformScopeIsExplicit: true,
       whereToGoNextEnabled: cached?.whereToGoNextEnabled ?? true,
       whereToGoNextIsExplicit: cached?.whereToGoNextIsExplicit ?? false,
+      ianaTimeZoneId: cached?.ianaTimeZoneId ?? DEFAULT_IANA_TIME_ZONE_ID,
+      ianaTimeZoneIsExplicit: cached?.ianaTimeZoneIsExplicit ?? false,
     },
     cacheGeneration,
   );
@@ -191,6 +203,31 @@ export async function setUserWhereToGoNextEnabled(enabled: boolean): Promise<voi
       cloudPlatformScopeIsExplicit: cached?.cloudPlatformScopeIsExplicit ?? false,
       whereToGoNextEnabled: enabled,
       whereToGoNextIsExplicit: true,
+      ianaTimeZoneId: cached?.ianaTimeZoneId ?? DEFAULT_IANA_TIME_ZONE_ID,
+      ianaTimeZoneIsExplicit: cached?.ianaTimeZoneIsExplicit ?? false,
+    },
+    cacheGeneration,
+  );
+}
+
+export async function setUserIanaTimeZonePreference(ianaTimeZoneId: string): Promise<void> {
+  await httpApi.apiPutJson<void>(
+    "/v1/user/preferences/time-zone",
+    { ianaTimeZoneId } satisfies SetIanaTimeZonePreferenceRequest,
+  );
+
+  const cached = readFreshCache(Date.now());
+
+  writeCache(
+    {
+      appearancePreference: cached?.appearancePreference ?? "system",
+      appearancePreferenceIsExplicit: cached?.appearancePreferenceIsExplicit ?? false,
+      cloudPlatformScope: cached?.cloudPlatformScope ?? DEFAULT_CLOUD_PLATFORM_SCOPE_DTO,
+      cloudPlatformScopeIsExplicit: cached?.cloudPlatformScopeIsExplicit ?? false,
+      whereToGoNextEnabled: cached?.whereToGoNextEnabled ?? true,
+      whereToGoNextIsExplicit: cached?.whereToGoNextIsExplicit ?? false,
+      ianaTimeZoneId,
+      ianaTimeZoneIsExplicit: true,
     },
     cacheGeneration,
   );

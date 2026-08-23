@@ -25,7 +25,7 @@ describe("group-findings-by-policy-pack", () => {
     const findings = [
       finding({ findingId: "f1", title: "A", policyRuleId: "sec-base-001" }),
       finding({ findingId: "f2", title: "B", policyRuleId: "sec-base-010" }),
-      finding({ findingId: "f3", title: "C", policyRuleId: "waf-az-003" }),
+      finding({ findingId: "f3", title: "C", policyRuleId: "waf-az-004" }),
     ];
 
     const summary = summarizeQuickDecisionFindingsByPolicyPack(findings);
@@ -42,7 +42,7 @@ describe("group-findings-by-policy-pack", () => {
         groupKey: "azure well-architected framework",
         packDisplayName: "Azure Well-Architected Framework",
         findingCount: 1,
-        packHref: "/governance/policy-packs?ruleId=waf-az-003",
+        packHref: "/governance/policy-packs?ruleId=waf-az-004",
       },
     ]);
     expect(grouped).toHaveLength(2);

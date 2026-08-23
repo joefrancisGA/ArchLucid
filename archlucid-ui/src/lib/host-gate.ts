@@ -1,7 +1,15 @@
 import { ASK_REVIEW_QUESTIONS_PATH, LEGACY_ASK_PATH } from "@/lib/ask-review-questions-route";
 import { COMPARE_TWO_REVIEWS_PATH, LEGACY_COMPARE_PATH } from "@/lib/compare-two-reviews-route";
 import { EVIDENCE_GRAPH_PATH, LEGACY_GRAPH_PATH } from "@/lib/evidence-graph-route";
-import { ARCHITECTURE_SCORECARD_PATH, LEGACY_SCORECARD_PATH } from "@/lib/architecture/architecture-scorecard-route";
+import {
+  ARCHITECTURE_SCORECARD_PATH,
+  LEGACY_SCORECARD_PATH,
+  LEGACY_SPONSOR_REPORT_ARCHITECTURE_SCORECARD_PATH,
+} from "@/lib/architecture/architecture-scorecard-route";
+import {
+  LEGACY_ALERT_ROUTING_PATH,
+  LEGACY_GOVERNANCE_RESOLUTION_PATH,
+} from "@/lib/governance/governance-route-paths";
 import { IMPACT_PREVIEW_PATH, LEGACY_EVOLUTION_REVIEW_PATH } from "@/lib/impact-preview-route";
 import { PATTERN_LIBRARY_PATH } from "@/lib/pattern-library-route";
 import { PLANNING_PATH, LEGACY_INSIGHTS_PLANNING_PATH, LEGACY_PLANNING_PATH } from "@/lib/planning-route";
@@ -9,7 +17,14 @@ import { LEGACY_PRODUCT_LEARNING_PATH, PRODUCT_LEARNING_PATH } from "@/lib/produ
 import { LEGACY_SEARCH_PATH, SEARCH_REVIEW_EVIDENCE_PATH } from "@/lib/search-review-evidence-route";
 import { DIGESTS_HUB_PATH, LEGACY_DIGESTS_HUB_PATH } from "@/lib/digests-route-paths";
 import { MARKETING_SITEMAP_PATHNAMES } from "@/lib/marketing/public-marketing-seo-paths";
-import { RETIRED_PILOT_OUTCOMES_PATH, RETIRED_SPONSOR_SUMMARY_PATH } from "@/lib/sponsor-report-navigation";
+import { LEGACY_SETTINGS_ROOT_PATH } from "@/lib/settings-admin-route-paths";
+import {
+  LEGACY_SPONSOR_REPORT_ROOT_PATH,
+  RETIRED_PILOT_OUTCOMES_PATH,
+  RETIRED_SPONSOR_SUMMARY_PATH,
+  SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH,
+} from "@/lib/sponsor-report-navigation";
+import { LEGACY_OPERATOR_SYSTEM_HEALTH_PATH } from "@/lib/ui-route-traffic-administration-system-health";
 import {
   RETIRED_LOGIN_BOOKMARK_PATH,
   RETIRED_ONBOARD_BOOKMARK_PATH,
@@ -75,6 +90,10 @@ const LEGACY_OPERATOR_PATH_PREFIXES: readonly string[] = [
   "/audit",
   "/digest-subscriptions",
   "/value-report",
+  "/dashboard",
+  "/portfolio",
+  "/admin",
+  "/replay",
   LEGACY_COMPARE_PATH,
   LEGACY_GRAPH_PATH,
   LEGACY_PRODUCT_LEARNING_PATH,
@@ -85,6 +104,13 @@ const LEGACY_OPERATOR_PATH_PREFIXES: readonly string[] = [
   LEGACY_DIGESTS_HUB_PATH,
   LEGACY_PLANNING_PATH,
   LEGACY_INSIGHTS_PLANNING_PATH,
+  LEGACY_ALERT_ROUTING_PATH,
+  LEGACY_GOVERNANCE_RESOLUTION_PATH,
+  LEGACY_SETTINGS_ROOT_PATH,
+  LEGACY_SPONSOR_REPORT_ROOT_PATH,
+  LEGACY_SPONSOR_REPORT_ARCHITECTURE_SCORECARD_PATH,
+  LEGACY_OPERATOR_SYSTEM_HEALTH_PATH,
+  SPONSOR_REPORT_EXECUTIVE_SUMMARY_PATH,
   RETIRED_PILOT_OUTCOMES_PATH,
   RETIRED_SPONSOR_SUMMARY_PATH,
   RETIRED_LOGIN_BOOKMARK_PATH,

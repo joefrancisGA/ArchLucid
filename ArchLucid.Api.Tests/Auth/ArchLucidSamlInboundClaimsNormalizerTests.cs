@@ -43,6 +43,36 @@ public sealed class ArchLucidSamlInboundClaimsNormalizerTests
     }
 
     [Fact]
+    public void Apply_promotes_scope_claims_when_source_claim_type_differs_by_case()
+    {
+        Guid tenantId = ScopeIds.DefaultTenant;
+        Guid workspaceId = Guid.NewGuid();
+        Guid projectId = Guid.NewGuid();
+
+        ClaimsIdentity identity = CreateSamlIdentity(
+            new Claim("HTTP://IDP.EXAMPLE/TENANT", tenantId.ToString()),
+            new Claim("http://idp.example/WORKSPACE", workspaceId.ToString()),
+            new Claim("http://idp.example/Project", projectId.ToString()),
+            new Claim("HTTP://IDP.EXAMPLE/OID", "00000000-0000-0000-0000-0000000000ad"));
+
+        ArchLucidSamlInboundClaimsNormalizer.Apply(
+            identity,
+            new ArchLucidSamlAuthOptions
+            {
+                Enabled = true,
+                TenantIdClaimType = "http://idp.example/tenant",
+                WorkspaceIdClaimType = "http://idp.example/workspace",
+                ProjectIdClaimType = "http://idp.example/project",
+                DirectoryObjectIdClaimType = "http://idp.example/oid"
+            });
+
+        identity.FindFirst("tenant_id")?.Value.Should().Be(tenantId.ToString());
+        identity.FindFirst("workspace_id")?.Value.Should().Be(workspaceId.ToString());
+        identity.FindFirst("project_id")?.Value.Should().Be(projectId.ToString());
+        identity.FindFirst("oid")?.Value.Should().Be("00000000-0000-0000-0000-0000000000ad");
+    }
+
+    [Fact]
     public void Apply_promotes_role_sources_scope_and_oid()
     {
         Guid tenantId = ScopeIds.DefaultTenant;

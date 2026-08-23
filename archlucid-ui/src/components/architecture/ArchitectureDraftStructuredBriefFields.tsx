@@ -1,8 +1,9 @@
 "use client";
 
 import type { Dispatch, SetStateAction } from "react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
+import { StructuredBriefSuggestionExplainPanel } from "@/components/architecture/StructuredBriefSuggestionExplainPanel";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { InAppHelpLink } from "@/components/InAppHelpLink";
 import { StructuredBriefCapabilitiesQualityVocabularyRail } from "@/components/StructuredBriefCapabilitiesQualityVocabularyRail";
@@ -11,24 +12,25 @@ import { IntakeTextField } from "@/components/intake/IntakeTextField";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import type { StructuredBriefSuggestionKind } from "@/lib/api/structured-brief-suggestion-explain-api";
 import { draftArchitectureRequest, ARCHITECTURE_REQUEST_DRAFT_MIN_DESCRIPTION_CHARS } from "@/lib/api/architecture-request-draft-api";
 import { isApiRequestError } from "@/lib/api-request-error";
 import type { ApiProblemDetails } from "@/lib/api-problem";
 import {
-  applyIncomingStructuredBriefSuggestions,
+  countStructuredBriefSuggestionApplyDelta,
+  denyStructuredBriefSuggestion,
   joinQualityAttributeEntries,
   mergeExclusiveConfirmedItem,
   mergeUniqueStrings,
   parseQualityAttributeEntries,
   qualityAttributeMeetsMinimum,
   type ArchitectureDraftStructuredBriefState,
-  type IncomingStructuredBriefSuggestions,
+  type StructuredBriefSuggestedFieldKey,
 } from "@/lib/architecture/architecture-draft-structured-brief";
 import {
+  applyArchitectureDraftStructuredBriefSuggestionsFromDraftResponse,
   applyFailureModeSuggestionIfEmpty,
   buildArchitectureDraftSuggestionSourceText,
-  buildDeterministicStructuredBriefSuggestionsFromText,
-  extractQualityAttributeSuggestionsFromText,
   hasArchitectureContextForFailureModeSuggestion,
   resolveFailureModeSuggestion,
 } from "@/lib/architecture/architecture-draft-structured-brief-suggestions";
@@ -64,10 +66,7 @@ type ListFieldKey =
   | "confirmedAssumptions"
   | "confirmedRequiredCapabilities";
 
-type SuggestedFieldKey =
-  | "suggestedConstraints"
-  | "suggestedAssumptions"
-  | "suggestedRequiredCapabilities";
+type SuggestedFieldKey = StructuredBriefSuggestedFieldKey;
 
 function addConfirmedListItem(
   onStructuredBriefChange: Dispatch<SetStateAction<ArchitectureDraftStructuredBriefState>>,
@@ -111,10 +110,7 @@ function denySuggestedListItem(
   suggestedKey: SuggestedFieldKey,
   value: string,
 ): void {
-  onStructuredBriefChange((current) => ({
-    ...current,
-    [suggestedKey]: current[suggestedKey].filter((item) => item !== value),
-  }));
+  onStructuredBriefChange((current) => denyStructuredBriefSuggestion(current, suggestedKey, value));
 }
 
 type StructuredBriefSuggestionContextInput = Pick<
@@ -153,60 +149,6 @@ function suggestionSourceMeetsMinimum(sourceText: string): boolean {
   return sourceText.trim().length >= ARCHITECTURE_REQUEST_DRAFT_MIN_DESCRIPTION_CHARS;
 }
 
-function applyStructuredBriefSuggestionsFromDraftResponse(input: {
-  readonly brief: ArchitectureDraftStructuredBriefState;
-  readonly sourceText: string;
-  readonly response: Awaited<ReturnType<typeof draftArchitectureRequest>>;
-}): { readonly brief: ArchitectureDraftStructuredBriefState; readonly addedSuggestionCount: number } {
-  let nextBrief = input.brief;
-  let addedSuggestionCount = 0;
-
-  const incoming: IncomingStructuredBriefSuggestions = {
-    suggestedConstraints: input.response.suggestedConstraints ?? [],
-    suggestedAssumptions: input.response.suggestedAssumptions ?? [],
-    suggestedCapabilities: input.response.suggestedCapabilities ?? [],
-  };
-
-  const llmApplied = applyIncomingStructuredBriefSuggestions(nextBrief, incoming);
-  nextBrief = llmApplied.brief;
-  addedSuggestionCount += llmApplied.addedSuggestionCount;
-
-  const deterministicApplied = applyIncomingStructuredBriefSuggestions(
-    nextBrief,
-    buildDeterministicStructuredBriefSuggestionsFromText(input.sourceText),
-  );
-  nextBrief = deterministicApplied.brief;
-  addedSuggestionCount += deterministicApplied.addedSuggestionCount;
-
-  const qualitySuggestions = extractQualityAttributeSuggestionsFromText(input.sourceText);
-
-  if (qualitySuggestions.length > 0) {
-    const existingQuality = parseQualityAttributeEntries(nextBrief.qualityAttribute);
-    const mergedQuality = mergeUniqueStrings(existingQuality, qualitySuggestions);
-
-    if (mergedQuality.length > existingQuality.length) {
-      nextBrief = {
-        ...nextBrief,
-        qualityAttribute: joinQualityAttributeEntries(mergedQuality),
-      };
-      addedSuggestionCount += mergedQuality.length - existingQuality.length;
-    }
-  }
-
-  const failureModeSuggestion = resolveFailureModeSuggestion({
-    llmSuggestion: input.response.suggestedFailureModeNote,
-    sourceText: input.sourceText,
-  });
-  const failureModeApplied = applyFailureModeSuggestionIfEmpty(nextBrief, failureModeSuggestion);
-  nextBrief = failureModeApplied.brief;
-
-  if (failureModeApplied.applied) {
-    addedSuggestionCount += 1;
-  }
-
-  return { brief: nextBrief, addedSuggestionCount };
-}
-
 type ArchitectureDraftStructuredBriefFieldsProps = {
   readonly structuredBrief: ArchitectureDraftStructuredBriefState;
   readonly freeTextIntent: string;
@@ -216,6 +158,8 @@ type ArchitectureDraftStructuredBriefFieldsProps = {
   readonly blocksLlmExecution?: boolean;
   readonly markReviewReadinessInvalid?: boolean;
   readonly onStructuredBriefChange: Dispatch<SetStateAction<ArchitectureDraftStructuredBriefState>>;
+  readonly onBriefConfirmOrDeny?: () => void;
+  readonly suggestFromOverviewNonce?: number;
 };
 
 function ConfirmableChipList(props: {
@@ -224,6 +168,8 @@ function ConfirmableChipList(props: {
   readonly inputId: string;
   readonly items: readonly string[];
   readonly suggestedItems: readonly string[];
+  readonly suggestionKind?: StructuredBriefSuggestionKind;
+  readonly suggestionSourceText?: string;
   readonly invalid: boolean;
   readonly disabled: boolean;
   readonly required?: boolean;
@@ -314,7 +260,7 @@ function ConfirmableChipList(props: {
                 <p className={cn("m-0 text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
                   {item}
                 </p>
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap items-center gap-2">
                   <Button
                     type="button"
                     variant="outline"
@@ -337,6 +283,17 @@ function ConfirmableChipList(props: {
                   >
                     {GUIDED_INTAKE_CONFIRM_ACTOR_BUTTON}
                   </Button>
+                  {props.suggestionKind !== undefined
+                  && props.suggestionSourceText !== undefined
+                  && props.suggestionSourceText.trim().length >= ARCHITECTURE_REQUEST_DRAFT_MIN_DESCRIPTION_CHARS ? (
+                    <StructuredBriefSuggestionExplainPanel
+                      suggestionKind={props.suggestionKind}
+                      suggestionText={item}
+                      sourceText={props.suggestionSourceText}
+                      disabled={props.disabled}
+                      testId={`${props.inputId}-explain`}
+                    />
+                  ) : null}
                 </div>
               </li>
             ))}
@@ -427,11 +384,14 @@ export function ArchitectureDraftStructuredBriefFields(
     value: string,
   ) => {
     confirmSuggestedListItem(props.onStructuredBriefChange, confirmedKey, suggestedKey, value);
+    props.onBriefConfirmOrDeny?.();
   };
 
   const denySuggested = (suggestedKey: SuggestedFieldKey, value: string) => {
     denySuggestedListItem(props.onStructuredBriefChange, suggestedKey, value);
+    props.onBriefConfirmOrDeny?.();
   };
+
 
   async function onSuggestFromOverview(): Promise<void> {
     const freeTextDescription = buildSuggestionSourceText(props, brief, true);
@@ -451,143 +411,22 @@ export function ArchitectureDraftStructuredBriefFields(
     setFailureModeSuggestEmpty(false);
 
     try {
-      const response = await draftArchitectureRequest({ freeTextDescription });
-      const applied = applyStructuredBriefSuggestionsFromDraftResponse({
+      const response = await draftArchitectureRequest({
+        freeTextDescription,
+        currentConstraints: [...brief.confirmedConstraints, ...brief.suggestedConstraints],
+        currentAssumptions: [...brief.confirmedAssumptions, ...brief.suggestedAssumptions],
+      });
+      const applied = applyArchitectureDraftStructuredBriefSuggestionsFromDraftResponse({
         brief,
         sourceText: freeTextDescription,
-        response,
-      });
-
-      props.onStructuredBriefChange(applied.brief);
-      setSuggestEmpty(applied.addedSuggestionCount === 0);
-      setSuggestAddedCount(applied.addedSuggestionCount > 0 ? applied.addedSuggestionCount : null);
-
-      if (applied.addedSuggestionCount > 0) {
-        window.requestAnimationFrame(() => {
-          document.getElementById("architecture-draft-constraints")?.scrollIntoView({
-            behavior: "smooth",
-            block: "nearest",
-          });
-        });
-      }
-    } catch (error: unknown) {
-      if (isApiRequestError(error)) {
-        setSuggestError({
-          message: error.message,
-          problem: error.problem,
-          correlationId: error.correlationId,
-        });
-      } else {
-        setSuggestError({
-          message: error instanceof Error ? error.message : "Could not suggest structured brief items.",
-          problem: null,
-          correlationId: null,
-        });
-      }
-    } finally {
-      setSuggestBusy(false);
-    }
-  }
-
-  async function onSuggestFailureMode(): Promise<void> {
-    if (!canSuggestFailureMode) {
-      return;
-    }
-
-    setFailureModeSuggestBusy(true);
-    setFailureModeSuggestError(null);
-    setFailureModeSuggestEmpty(false);
-    setFailureModeSuggestApplied(false);
-
-    try {
-      const response = await draftArchitectureRequest({ freeTextDescription: failureModeSourceText });
-      const failureModeSuggestion = resolveFailureModeSuggestion({
-        llmSuggestion: response.suggestedFailureModeNote,
-        sourceText: failureModeSourceText,
-      });
-      const applied = applyFailureModeSuggestionIfEmpty(brief, failureModeSuggestion);
-
-      props.onStructuredBriefChange(applied.brief);
-      setFailureModeSuggestApplied(applied.applied);
-      setFailureModeSuggestEmpty(!applied.applied && (failureModeSuggestion?.trim().length ?? 0) === 0);
-    } catch (error: unknown) {
-      if (isApiRequestError(error)) {
-        setFailureModeSuggestError({
-          message: error.message,
-          problem: error.problem,
-          correlationId: error.correlationId,
-        });
-      } else {
-        setFailureModeSuggestError({
-          message: error instanceof Error ? error.message : "Could not suggest failure mode and recovery.",
-          problem: null,
-          correlationId: null,
-        });
-      }
-    } finally {
-      setFailureModeSuggestBusy(false);
-    }
-  }
-
-  async function onSuggestFromOverviewOld(): Promise<void> {
-    const freeTextDescription = buildArchitectureDraftSuggestionSourceText({
-      architectureOverview: props.freeTextIntent,
-      systemName: props.systemName,
-      businessOutcome: props.businessOutcome,
-    }).trim();
-
-    if (
-      freeTextDescription.length < ARCHITECTURE_REQUEST_DRAFT_MIN_DESCRIPTION_CHARS
-      || suggestBusy
-      || props.disabled === true
-      || props.blocksLlmExecution === true
-    ) {
-      return;
-    }
-
-    setSuggestBusy(true);
-    setSuggestError(null);
-    setSuggestEmpty(false);
-    setSuggestAddedCount(null);
-
-    try {
-      const response = await draftArchitectureRequest({ freeTextDescription });
-      const incoming: IncomingStructuredBriefSuggestions = {
         suggestedConstraints: response.suggestedConstraints ?? [],
         suggestedAssumptions: response.suggestedAssumptions ?? [],
         suggestedCapabilities: response.suggestedCapabilities ?? [],
-      };
+        suggestedFailureModeNote: response.suggestedFailureModeNote,
+      });
+      const addedSuggestionCount = countStructuredBriefSuggestionApplyDelta(brief, applied.brief);
 
-      let nextBrief = brief;
-      let addedSuggestionCount = 0;
-
-      const llmApplied = applyIncomingStructuredBriefSuggestions(nextBrief, incoming);
-      nextBrief = llmApplied.brief;
-      addedSuggestionCount += llmApplied.addedSuggestionCount;
-
-      const deterministicApplied = applyIncomingStructuredBriefSuggestions(
-        nextBrief,
-        buildDeterministicStructuredBriefSuggestionsFromText(freeTextDescription),
-      );
-      nextBrief = deterministicApplied.brief;
-      addedSuggestionCount += deterministicApplied.addedSuggestionCount;
-
-      const qualitySuggestions = extractQualityAttributeSuggestionsFromText(freeTextDescription);
-
-      if (qualitySuggestions.length > 0) {
-        const existingQuality = parseQualityAttributeEntries(nextBrief.qualityAttribute);
-        const mergedQuality = mergeUniqueStrings(existingQuality, qualitySuggestions);
-
-        if (mergedQuality.length > existingQuality.length) {
-          nextBrief = {
-            ...nextBrief,
-            qualityAttribute: joinQualityAttributeEntries(mergedQuality),
-          };
-          addedSuggestionCount += mergedQuality.length - existingQuality.length;
-        }
-      }
-
-      props.onStructuredBriefChange(nextBrief);
+      props.onStructuredBriefChange(applied.brief);
       setSuggestEmpty(addedSuggestionCount === 0);
       setSuggestAddedCount(addedSuggestionCount > 0 ? addedSuggestionCount : null);
 
@@ -615,6 +454,58 @@ export function ArchitectureDraftStructuredBriefFields(
       }
     } finally {
       setSuggestBusy(false);
+    }
+  }
+
+  useEffect(() => {
+    if (props.suggestFromOverviewNonce === undefined || props.suggestFromOverviewNonce < 1) {
+      return;
+    }
+
+    void onSuggestFromOverview();
+  }, [props.suggestFromOverviewNonce]);
+
+  async function onSuggestFailureMode(): Promise<void> {
+    if (!canSuggestFailureMode) {
+      return;
+    }
+
+    setFailureModeSuggestBusy(true);
+    setFailureModeSuggestError(null);
+    setFailureModeSuggestEmpty(false);
+    setFailureModeSuggestApplied(false);
+
+    try {
+      const response = await draftArchitectureRequest({
+        freeTextDescription: failureModeSourceText,
+        currentConstraints: [...brief.confirmedConstraints, ...brief.suggestedConstraints],
+        currentAssumptions: [...brief.confirmedAssumptions, ...brief.suggestedAssumptions],
+      });
+      const failureModeSuggestion = resolveFailureModeSuggestion({
+        llmSuggestion: response.suggestedFailureModeNote,
+        sourceText: failureModeSourceText,
+      });
+      const applied = applyFailureModeSuggestionIfEmpty(brief, failureModeSuggestion);
+
+      props.onStructuredBriefChange(applied.brief);
+      setFailureModeSuggestApplied(applied.applied);
+      setFailureModeSuggestEmpty(!applied.applied && (failureModeSuggestion?.trim().length ?? 0) === 0);
+    } catch (error: unknown) {
+      if (isApiRequestError(error)) {
+        setFailureModeSuggestError({
+          message: error.message,
+          problem: error.problem,
+          correlationId: error.correlationId,
+        });
+      } else {
+        setFailureModeSuggestError({
+          message: error instanceof Error ? error.message : "Could not suggest failure mode and recovery.",
+          problem: null,
+          correlationId: null,
+        });
+      }
+    } finally {
+      setFailureModeSuggestBusy(false);
     }
   }
 
@@ -712,6 +603,8 @@ export function ArchitectureDraftStructuredBriefFields(
         inputId="architecture-draft-constraints"
         items={brief.confirmedConstraints}
         suggestedItems={brief.suggestedConstraints}
+        suggestionKind="Constraint"
+        suggestionSourceText={failureModeSourceText}
         invalid={false}
         required={false}
         disabled={props.disabled === true}
@@ -722,6 +615,7 @@ export function ArchitectureDraftStructuredBriefFields(
             "suggestedConstraints",
             value,
           );
+          props.onBriefConfirmOrDeny?.();
         }}
         onRemove={(index) => {
           removeConfirmedListItem(props.onStructuredBriefChange, "confirmedConstraints", index);
@@ -740,6 +634,8 @@ export function ArchitectureDraftStructuredBriefFields(
         inputId="architecture-draft-assumptions"
         items={brief.confirmedAssumptions}
         suggestedItems={brief.suggestedAssumptions}
+        suggestionKind="Assumption"
+        suggestionSourceText={failureModeSourceText}
         invalid={false}
         required={false}
         disabled={props.disabled === true}
@@ -750,6 +646,7 @@ export function ArchitectureDraftStructuredBriefFields(
             "suggestedAssumptions",
             value,
           );
+          props.onBriefConfirmOrDeny?.();
         }}
         onRemove={(index) => {
           removeConfirmedListItem(props.onStructuredBriefChange, "confirmedAssumptions", index);
@@ -768,6 +665,8 @@ export function ArchitectureDraftStructuredBriefFields(
         inputId="architecture-draft-capabilities"
         items={brief.confirmedRequiredCapabilities}
         suggestedItems={brief.suggestedRequiredCapabilities}
+        suggestionKind="RequiredCapability"
+        suggestionSourceText={failureModeSourceText}
         invalid={false}
         required={false}
         disabled={props.disabled === true}
@@ -781,6 +680,7 @@ export function ArchitectureDraftStructuredBriefFields(
             "suggestedRequiredCapabilities",
             value,
           );
+          props.onBriefConfirmOrDeny?.();
         }}
         onRemove={(index) => {
           removeConfirmedListItem(props.onStructuredBriefChange, "confirmedRequiredCapabilities", index);

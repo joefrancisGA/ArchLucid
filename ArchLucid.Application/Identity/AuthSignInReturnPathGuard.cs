@@ -167,5 +167,8 @@ public static class AuthSignInReturnPathGuard
         || ch == '\uFF3C' // ＼ FULLWIDTH REVERSE SOLIDUS
         || ch == '\u2215' // ∕ DIVISION SLASH
         || ch == '\u2044' // ⁄ FRACTION SLASH
-        || ch == '\uFE68'; // ﹨ SMALL REVERSE SOLIDUS
+        || ch == '\uFE68' // ﹨ SMALL REVERSE SOLIDUS
+        || ch == '\u2571' // ╱ BOX DRAWINGS LIGHT DIAGONAL UPPER RIGHT TO LOWER LEFT
+        || ch == '\u29F6' // ⧶ SOLIDUS WITH OVERLAY
+        || ch == '\u29F8'; // ⧸ BIG SOLIDUS
 }

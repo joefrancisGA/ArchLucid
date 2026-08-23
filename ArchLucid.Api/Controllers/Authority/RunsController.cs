@@ -64,6 +64,8 @@ public sealed partial class RunsController(
     IArchitectureRunCommitOrchestrator architectureRunCommitOrchestrator,
     IArchitectureApplicationService architectureApplicationService,
     IArchitectureRequestDraftService architectureRequestDraftService,
+    IArchitectureOverviewRewriteService architectureOverviewRewriteService,
+    IStructuredBriefSuggestionExplainService structuredBriefSuggestionExplainService,
     IChatIntakeParserService chatIntakeParserService,
     IConnectorIntakeParserService connectorIntakeParserService,
     IValidator<ArchitectureRequest> architectureRequestValidator,

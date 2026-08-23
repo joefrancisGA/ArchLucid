@@ -367,7 +367,20 @@ public sealed partial class ArchitectureRunExecuteOrchestrator(
         if (!RunKernelCompleteness.IsAuthorityPipelineComplete(run.GoldenManifestId, manifest: null, stages))
             return;
 
-        throw new ConflictException(
-            $"Run '{runId}' is authority-pipeline complete and cannot be executed via the agent-task loop.");
+        if (run.Status is ArchitectureRunStatus.Committed)
+        {
+            throw new ConflictException(
+                $"Run '{runId}' is authority-pipeline complete and cannot be executed via the agent-task loop.");
+        }
+
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        IReadOnlyList<AgentResult> results =
+            await _resultRepository.GetByRunIdAsync(scope, runId, cancellationToken, null, null);
+
+        if (RunKernelCompleteness.IsAgentTaskLoopComplete(_runStateTransitionService, run.Status, results))
+        {
+            throw new ConflictException(
+                $"Run '{runId}' is authority-pipeline complete and cannot be executed via the agent-task loop.");
+        }
     }
 }

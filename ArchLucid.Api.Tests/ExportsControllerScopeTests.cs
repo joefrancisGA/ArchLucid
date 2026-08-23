@@ -63,7 +63,8 @@ public sealed class ExportsControllerScopeTests
         IActionResult result = await sut.GetExportRecord(ExportRecordId, CancellationToken.None);
 
         OkObjectResult ok = result.Should().BeOfType<OkObjectResult>().Subject;
-        RunExportRecordResponse body = ok.Value.Should().BeOfType<RunExportRecordResponse>().Subject;
+        Api.Models.RunExportRecordResponse body =
+            ok.Value.Should().BeOfType<Api.Models.RunExportRecordResponse>().Subject;
         body.Record.ExportRecordId.Should().Be(ExportRecordId);
     }
 

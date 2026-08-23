@@ -340,25 +340,55 @@ public sealed partial class DifficultyBasedExtractionRouter : IDifficultyBasedEx
 
     private static ArchitectureLifecycleScope InferLifecycleScopeForIndex(string sourceText, int matchIndex)
     {
-        int targetStateIndex = sourceText.IndexOf("target state", StringComparison.OrdinalIgnoreCase);
-        int currentStateIndex = sourceText.IndexOf("current state", StringComparison.OrdinalIgnoreCase);
-        int asIsIndex = sourceText.IndexOf("as-is", StringComparison.OrdinalIgnoreCase);
-        int toBeIndex = sourceText.IndexOf("to-be", StringComparison.OrdinalIgnoreCase);
+        List<(int Index, ArchitectureLifecycleScope Scope)> boundaries = [];
 
-        int targetBoundary = targetStateIndex >= 0 ? targetStateIndex : toBeIndex;
+        AddLifecycleBoundaries(sourceText, "target state", ArchitectureLifecycleScope.TargetState, boundaries);
+        AddLifecycleBoundaries(sourceText, "to-be", ArchitectureLifecycleScope.TargetState, boundaries);
+        AddLifecycleBoundaries(sourceText, "current state", ArchitectureLifecycleScope.CurrentState, boundaries);
+        AddLifecycleBoundaries(sourceText, "as-is", ArchitectureLifecycleScope.CurrentState, boundaries);
 
-        if (targetBoundary >= 0 && matchIndex > targetBoundary)
+        if (boundaries.Count == 0)
         {
-            return ArchitectureLifecycleScope.TargetState;
+            return ArchitectureLifecycleScope.Unspecified;
         }
 
-        if (currentStateIndex >= 0 && matchIndex > currentStateIndex
-            || asIsIndex >= 0 && matchIndex > asIsIndex)
+        boundaries.Sort(static (left, right) => left.Index.CompareTo(right.Index));
+
+        ArchitectureLifecycleScope scope = ArchitectureLifecycleScope.Unspecified;
+
+        foreach ((int index, ArchitectureLifecycleScope sectionScope) in boundaries)
         {
-            return ArchitectureLifecycleScope.CurrentState;
+            if (index >= matchIndex)
+            {
+                break;
+            }
+
+            scope = sectionScope;
         }
 
-        return ArchitectureLifecycleScope.Unspecified;
+        return scope;
+    }
+
+    private static void AddLifecycleBoundaries(
+        string sourceText,
+        string marker,
+        ArchitectureLifecycleScope scope,
+        List<(int Index, ArchitectureLifecycleScope Scope)> boundaries)
+    {
+        int searchStart = 0;
+
+        while (searchStart < sourceText.Length)
+        {
+            int index = sourceText.IndexOf(marker, searchStart, StringComparison.OrdinalIgnoreCase);
+
+            if (index < 0)
+            {
+                break;
+            }
+
+            boundaries.Add((index, scope));
+            searchStart = index + marker.Length;
+        }
     }
 
     [GeneratedRegex(@"(?im)^(?:component|service)\s*[:\-]\s*(?<name>.+)$")]

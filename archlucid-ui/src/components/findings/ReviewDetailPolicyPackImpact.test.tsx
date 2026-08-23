@@ -13,11 +13,41 @@ describe("ReviewDetailPolicyPackImpactCallout", () => {
         runId="run-abc"
         mappedFindingCount={4}
         totalFindingCount={5}
+        effectiveGovernanceAtCommit={{
+          generatedUtc: null,
+          ruleSetHash: null,
+          complianceRuleKeyCount: 2,
+          complianceRuleKeys: [],
+          conflictCount: 0,
+          hasEffectivePolicy: true,
+          packAssignments: [
+            {
+              policyPackId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+              policyPackVersion: "3.4.1",
+              scopeLevel: "Project",
+            },
+          ],
+          coverageAssignments: [
+            {
+              policyPackId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+              policyPackVersion: "3.4.1",
+              coverageType: "QualityDimension",
+              selectionState: "Excluded",
+              qualityDimension: "Security",
+              exclusionReason: "Focused pilot scope",
+            },
+          ],
+        }}
         cloudMismatchDetail="Azure-focused policy packs are selected while the cloud target is AWS."
       />,
     );
 
     expect(screen.getByTestId("review-detail-policy-pack-impact-callout")).toBeInTheDocument();
+    expect(screen.getByTestId("review-detail-policy-at-commit-packs")).toBeInTheDocument();
+    expect(screen.getByTestId("review-detail-policy-at-commit-coverage")).toHaveTextContent("Security");
+    expect(screen.getByTestId("review-detail-policy-at-commit-coverage")).toHaveTextContent(
+      "Focused pilot scope",
+    );
     expect(screen.getByTestId("review-detail-policy-pack-cloud-mismatch")).toHaveTextContent(
       "Azure-focused policy packs",
     );

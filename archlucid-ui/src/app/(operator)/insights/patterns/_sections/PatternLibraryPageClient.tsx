@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { PatternLibraryPolicyPacksVocabularyRail } from "@/components/PatternLibraryPolicyPacksVocabularyRail";
@@ -78,7 +79,7 @@ export function PatternLibraryPageClient(): React.JSX.Element {
   };
 
   return (
-    <div className={cn("w-full max-w-6xl", OPERATOR_LAYOUT.majorSectionGap)} data-testid="pattern-library-page">
+    <OperatorPageContainer variant="workflow" className={OPERATOR_LAYOUT.majorSectionGap} data-testid="pattern-library-page">
       <PatternLibraryPageHeader
         subtitle={patternLibraryPageSubtitle(buyerPolishedShell)}
         provenance={provenance}
@@ -146,6 +147,6 @@ export function PatternLibraryPageClient(): React.JSX.Element {
           </p>
         </>
       ) : null}
-    </div>
+    </OperatorPageContainer>
   );
 }

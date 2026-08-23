@@ -4,17 +4,14 @@ import { useState } from "react";
 
 import { PreferenceAccountSyncStatus } from "@/components/preferences/PreferenceAccountSyncStatus";
 import { PreferenceCheckbox } from "@/components/preferences/PreferenceCheckbox";
-import { Button } from "@/components/ui/button";
 import {
   PREFERENCES_CLOUD_PLATFORMS_EMPTY_SELECTION_MESSAGE,
   PREFERENCES_CLOUD_PLATFORMS_LEAD,
   PREFERENCES_CLOUD_PLATFORMS_SCOPE_TAG,
-  PREFERENCES_CLOUD_PLATFORMS_SHOW_ALL_LABEL,
 } from "@/lib/cloud-platform-scope-copy";
 import {
   CLOUD_PLATFORM_SCOPE_ACCOUNT_SYNC_LOCAL_ONLY_MESSAGE,
   CLOUD_PROVIDER_NEUTRAL_ORDER,
-  DEFAULT_CLOUD_PLATFORM_SCOPE,
   type CloudPlatformScope,
   type CloudProviderId,
 } from "@/lib/cloud-platform-scope-storage";
@@ -58,11 +55,6 @@ export function CloudPlatformScopePanel({
     });
   };
 
-  const showAllPlatforms = () => {
-    setEmptySelectionMessage(null);
-    onScopeChange(DEFAULT_CLOUD_PLATFORM_SCOPE);
-  };
-
   return (
     <section className="space-y-3" data-testid="cloud-platform-scope-panel" aria-labelledby={labelledById}>
       <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
@@ -103,11 +95,6 @@ export function CloudPlatformScopePanel({
           {emptySelectionMessage}
         </p>
       ) : null}
-      <div className="flex flex-wrap items-center gap-3">
-        <Button type="button" variant="outline" onClick={showAllPlatforms} data-testid="cloud-platform-scope-show-all">
-          {PREFERENCES_CLOUD_PLATFORMS_SHOW_ALL_LABEL}
-        </Button>
-      </div>
       <PreferenceAccountSyncStatus
         accountSyncState={accountSyncState}
         localOnlyMessage={CLOUD_PLATFORM_SCOPE_ACCOUNT_SYNC_LOCAL_ONLY_MESSAGE}

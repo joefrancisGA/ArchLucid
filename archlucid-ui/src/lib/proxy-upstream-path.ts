@@ -8,6 +8,10 @@ function containsPercentEncodedPathSeparator(value: string): boolean {
   return lower.includes("%2e") || lower.includes("%2f") || lower.includes("%5c");
 }
 
+function stillContainsPercentEncoding(value: string): boolean {
+  return value.includes("%");
+}
+
 function fullyDecodePercentEncoding(value: string, maxPasses = 8): string {
   let working = value;
 
@@ -40,6 +44,10 @@ function resolvedPathDecodesToUnsafeTraversal(resolved: string): boolean {
   const normalized = new URL(decoded, "http://archlucid.invalid/").pathname.replace(/^\//, "");
 
   if (normalized.length === 0 || normalized.includes("..") || containsPercentEncodedPathSeparator(normalized)) {
+    return true;
+  }
+
+  if (stillContainsPercentEncoding(normalized)) {
     return true;
   }
 
@@ -82,7 +90,7 @@ function segmentDecodesToUnsafeTraversal(segment: string): boolean {
     working = decoded;
   }
 
-  return containsPercentEncodedPathSeparator(working);
+  return stillContainsPercentEncoding(working) || containsPercentEncodedPathSeparator(working);
 }
 
 function isUnsafeProxyPathSegment(segment: string): boolean {

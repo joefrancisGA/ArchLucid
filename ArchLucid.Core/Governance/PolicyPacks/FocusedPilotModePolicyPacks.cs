@@ -58,12 +58,29 @@ public static class FocusedPilotModePolicyPacks
         return false;
     }
 
-    /// <summary>Returns whether the pack display name is allowed during focused review scope.</summary>
+    /// <summary>Returns whether the pack display name is one of the six provider-neutral baseline dimensions.</summary>
     public static bool IsAllowedPackDisplayName(string? displayName)
     {
         if (string.IsNullOrWhiteSpace(displayName))
             return false;
 
         return AllowedDisplayNames.Contains(displayName.Trim());
+    }
+
+    /// <summary>
+    ///     Focused first-review scope: six baseline dimensions plus organization-required packs and selected platform overlays.
+    /// </summary>
+    public static bool IsPackAllowedInFocusedReview(
+        string? displayName,
+        bool isOrganizationRequired,
+        bool isPlatformOverlayForRunCloud)
+    {
+        if (isOrganizationRequired)
+            return true;
+
+        if (isPlatformOverlayForRunCloud)
+            return true;
+
+        return IsAllowedPackDisplayName(displayName);
     }
 }
