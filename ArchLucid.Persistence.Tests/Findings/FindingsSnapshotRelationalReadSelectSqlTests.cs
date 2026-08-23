@@ -19,7 +19,7 @@ public sealed class FindingsSnapshotRelationalReadSelectSqlTests
             ProjectId = Guid.Parse("33333333-3333-3333-3333-333333333333"),
         };
 
-        string sql = FindingsSnapshotRelationalRead.BuildFindingRecordsSelectSql(
+        string sql = FindingsSnapshotSqlBuilder.BuildFindingRecordsSelectSql(
             scope,
             includeInsightDensityColumns);
 
