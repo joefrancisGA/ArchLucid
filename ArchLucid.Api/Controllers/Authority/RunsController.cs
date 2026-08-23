@@ -8,7 +8,6 @@ using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Architecture;
-using ArchLucid.Application.Notifications.Email;
 using ArchLucid.Application.Planning;
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Orchestration;
@@ -58,10 +57,7 @@ namespace ArchLucid.Api.Controllers.Authority;
 [ProducesResponseType(StatusCodes.Status401Unauthorized)]
 [ProducesResponseType(StatusCodes.Status403Forbidden)]
 public sealed partial class RunsController(
-    IArchitectureRunCreateOrchestrator architectureRunCreateOrchestrator,
-    IArchitectureRunBatchCreateOrchestrator architectureRunBatchCreateOrchestrator,
-    IArchitectureRunExecuteOrchestrator architectureRunExecuteOrchestrator,
-    IArchitectureRunCommitOrchestrator architectureRunCommitOrchestrator,
+    IArchitectureRunCommandService architectureRunCommandService,
     IArchitectureApplicationService architectureApplicationService,
     IArchitectureRequestDraftService architectureRequestDraftService,
     IArchitectureOverviewRewriteService architectureOverviewRewriteService,
@@ -69,16 +65,12 @@ public sealed partial class RunsController(
     IChatIntakeParserService chatIntakeParserService,
     IConnectorIntakeParserService connectorIntakeParserService,
     IValidator<ArchitectureRequest> architectureRequestValidator,
-    IReplayRunService replayRunService,
     IScopeContextProvider scopeContextProvider,
     IActorContext actorContext,
     IAuditService auditService,
-    ICommitSponsorEmailNotifier commitSponsorEmailNotifier,
-    ICommitRunIdempotencyCoordinator commitRunIdempotencyCoordinator,
     IRunRepository runRepository,
     IAuthorityQueryService authorityQuery,
     IFindingFeedbackRepository findingFeedbackRepository,
-    IArchitectureSynthesisKernel architectureSynthesisKernel,
     ILogger<RunsController> logger)
     : ControllerBase
 {
@@ -121,6 +113,7 @@ public sealed partial class RunsController(
 
         string user = actorContext.GetActor();
         string correlationId = HttpContext.TraceIdentifier;
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
 
         if (!TryReadIdempotencyKeyHeader(out string? idempotencyKey, out IActionResult? badIdempotencyHeader))
         {
@@ -128,17 +121,17 @@ public sealed partial class RunsController(
             return badIdempotencyHeader;
         }
 
-        CreateRunIdempotencyState? idempotency = BuildCreateRunIdempotency(idempotencyKey, request);
-
         try
         {
-            if (string.Equals(
-                    request.WorkflowIntent,
-                    ArchitectureWorkflowIntent.CreateArchitecture,
-                    StringComparison.OrdinalIgnoreCase))
+            CreateRunCommandResult commandResult = await architectureRunCommandService.CreateRunAsync(
+                scope,
+                request,
+                idempotencyKey,
+                cancellationToken);
+
+            if (commandResult.IsSynthesisPath)
             {
-                ArchitectureSynthesisGenerateResult generated =
-                    await architectureSynthesisKernel.GenerateAsync(request, idempotency, cancellationToken);
+                ArchitectureSynthesisGenerateResult generated = commandResult.SynthesisResult!;
 
                 ArchitectureRun createdRun = new()
                 {
@@ -159,8 +152,7 @@ public sealed partial class RunsController(
                     generatedResponse);
             }
 
-            CreateRunResult result =
-                await architectureRunCreateOrchestrator.CreateRunAsync(request, idempotency, cancellationToken);
+            CreateRunResult result = commandResult.StandardResult!;
 
             CreateArchitectureRunResponse response =
                 RunResponseMapper.ToCreateRunResponse(result.Run, result.EvidenceBundle, result.Tasks);
@@ -224,9 +216,12 @@ public sealed partial class RunsController(
         if (!TryReadIdempotencyKeyHeader(out string? idempotencyKey, out IActionResult? badRequest))
             return badRequest!;
 
-        BatchCreateRunOrchestrationResult result = await architectureRunBatchCreateOrchestrator.CreateBatchAsync(
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+
+        BatchCreateRunOrchestrationResult result = await architectureRunCommandService.CreateRunBatchAsync(
+            scope,
             requests,
-            BuildBatchCreateRunIdempotency(idempotencyKey, requests),
+            idempotencyKey,
             correlationId,
             cancellationToken);
 
@@ -278,35 +273,6 @@ public sealed partial class RunsController(
         return true;
     }
 
-    /// <summary>Fingerprints the whole submitted array so a retry with a different batch payload is rejected.</summary>
-    private CreateRunIdempotencyState? BuildBatchCreateRunIdempotency(
-        string? idempotencyKey,
-        IReadOnlyList<ArchitectureRequest> requests) =>
-        string.IsNullOrWhiteSpace(idempotencyKey)
-            ? null
-            : BuildCreateRunIdempotency(
-                idempotencyKey,
-                ArchitectureRunIdempotencyHashing.HashIdempotencyKey(JsonSerializer.Serialize(requests)));
-
-    private CreateRunIdempotencyState? BuildCreateRunIdempotency(string? idempotencyKey, ArchitectureRequest request) =>
-        string.IsNullOrWhiteSpace(idempotencyKey)
-            ? null
-            : BuildCreateRunIdempotency(
-                idempotencyKey,
-                ArchitectureRunIdempotencyHashing.FingerprintRequest(request));
-
-    private CreateRunIdempotencyState BuildCreateRunIdempotency(string idempotencyKey, byte[] requestFingerprint)
-    {
-        ScopeContext scope = scopeContextProvider.GetCurrentScope();
-
-        return new CreateRunIdempotencyState(
-            scope.TenantId,
-            scope.WorkspaceId,
-            scope.ProjectId,
-            ArchitectureRunIdempotencyHashing.HashIdempotencyKey(idempotencyKey),
-            requestFingerprint);
-    }
-
     /// <summary>
     ///     Dispatches all pending tasks for <paramref name="runId" /> through the agent executor and persists results.
     /// </summary>
@@ -344,7 +310,7 @@ public sealed partial class RunsController(
             }
 
             ExecuteRunResult result =
-                await architectureRunExecuteOrchestrator.ExecuteRunAsync(runId, cancellationToken);
+                await architectureRunCommandService.ExecuteRunAsync(runId, cancellationToken);
 
             ExecuteRunResponse response = RunResponseMapper.ToExecuteRunResponse(result.RunId, result.Results);
 
@@ -405,7 +371,7 @@ public sealed partial class RunsController(
 
         try
         {
-            ExecuteRunResult result = await architectureRunExecuteOrchestrator.ExecuteSelectiveRunAsync(
+            ExecuteRunResult result = await architectureRunCommandService.ExecuteRunSelectiveAsync(
                 runId,
                 new SelectiveAgentExecuteRequest
                 {
@@ -493,15 +459,13 @@ public sealed partial class RunsController(
             return badIdempotencyHeader;
         }
 
-        CommitRunIdempotencyState? idempotency = idempotencyKey is null
-            ? null
-            : CommitRunIdempotencyState.Create(scope, runId, request, idempotencyKey);
-
         try
         {
-            CommitRunIdempotencyOutcome outcome = await commitRunIdempotencyCoordinator.CommitAsync(
-                idempotency,
-                token => architectureRunCommitOrchestrator.CommitRunAsync(runId, request, token),
+            CommitRunIdempotencyOutcome outcome = await architectureRunCommandService.CommitRunAsync(
+                scope,
+                runId,
+                request,
+                idempotencyKey,
                 cancellationToken);
 
             CommitRunResult result = outcome.Result;
@@ -523,16 +487,6 @@ public sealed partial class RunsController(
                 result.Warnings.Count,
                 user,
                 correlationId);
-
-            if (request?.NotifySponsor != true)
-                return Ok(response);
-
-            // A replay already sent the sponsor mail on the original commit.
-            if (!outcome.IdempotentReplay)
-            {
-                await commitSponsorEmailNotifier
-                    .NotifyAfterCommitAsync(scope.TenantId, runId, cancellationToken);
-            }
 
             return Ok(response);
         }
@@ -593,7 +547,7 @@ public sealed partial class RunsController(
 
         try
         {
-            ReplayRunResult result = await replayRunService.ReplayAsync(
+            ReplayRunResult result = await architectureRunCommandService.ReplayRunAsync(
                 runId,
                 request.ExecutionMode,
                 request.CommitReplay,

@@ -240,6 +240,7 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<ICoverageQueryService, CoverageQueryService>();
         services.AddScoped<ICoveragePreviewService, CoveragePreviewService>();
         services.AddSingleton<CoverageAssignmentValidator>();
+        services.AddScoped<IArchitectureRunCommandService, ArchitectureRunCommandService>();
         services.AddScoped<IArchitectureRunCreateOrchestrator, ArchitectureRunCreateOrchestrator>();
         services.AddScoped<IArchitectureRunBatchCreateOrchestrator, ArchitectureRunBatchCreateOrchestrator>();
         services.AddScoped<IArchitectureRunExecuteOrchestrator, ArchitectureRunExecuteOrchestrator>();
