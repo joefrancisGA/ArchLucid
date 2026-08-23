@@ -147,6 +147,63 @@ describe("ensureAccessTokenFresh", () => {
     expect(sessionStorage.getItem(OIDC_REFRESH_TOKEN_KEY)).toBeNull();
   });
 
+  it("does not clear the replacement refresh guard when a stale refresh finally runs", async () => {
+    let releaseStaleRefresh: (() => void) | undefined;
+    let releaseReplacementRefresh: (() => void) | undefined;
+    let refreshCalls = 0;
+
+    vi.mocked(tokenClient.refreshAccessToken).mockImplementation(async () => {
+      refreshCalls += 1;
+
+      if (refreshCalls === 1) {
+        return new Promise((resolve) => {
+          releaseStaleRefresh = () => {
+            resolve({ access_token: "stale", expires_in: 3600, refresh_token: "rt-stale" });
+          };
+        });
+      }
+
+      if (refreshCalls === 2) {
+        return new Promise((resolve) => {
+          releaseReplacementRefresh = () => {
+            resolve({ access_token: "refreshed-new", expires_in: 3600, refresh_token: "rt-new" });
+          };
+        });
+      }
+
+      throw new Error(`unexpected refresh call ${refreshCalls}`);
+    });
+
+    sessionStorage.setItem(OIDC_ACCESS_TOKEN_KEY, "old-access");
+    sessionStorage.setItem(OIDC_REFRESH_TOKEN_KEY, "old-refresh");
+    sessionStorage.setItem(OIDC_EXPIRES_AT_MS_KEY, String(Date.now()));
+
+    const stalePromise = ensureAccessTokenFresh();
+    await Promise.resolve();
+
+    clearOidcSession();
+    sessionStorage.setItem(OIDC_ACCESS_TOKEN_KEY, "new-access");
+    sessionStorage.setItem(OIDC_REFRESH_TOKEN_KEY, "new-refresh");
+    sessionStorage.setItem(OIDC_EXPIRES_AT_MS_KEY, String(Date.now()));
+
+    const replacementPromise = ensureAccessTokenFresh();
+    await Promise.resolve();
+    expect(refreshCalls).toBe(2);
+
+    releaseStaleRefresh?.();
+    await stalePromise;
+
+    const thirdPromise = ensureAccessTokenFresh();
+    await Promise.resolve();
+
+    expect(refreshCalls).toBe(2);
+
+    releaseReplacementRefresh?.();
+    await Promise.all([replacementPromise, thirdPromise]);
+
+    expect(sessionStorage.getItem(OIDC_ACCESS_TOKEN_KEY)).toBe("refreshed-new");
+  });
+
   it("does not resurrect tokens when clearOidcSession runs during an in-flight refresh", async () => {
     let releaseRefresh: (() => void) | undefined;
 
