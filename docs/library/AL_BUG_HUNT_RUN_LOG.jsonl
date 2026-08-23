@@ -51,3 +51,4 @@
 {"at":"2026-08-23T04:58:56.8277095Z","zoneId":"ui-auth-proxy","outcome":"hit"}
 {"at":"2026-08-23T05:24:46.1274091Z","zoneId":"api-authority-admin-controllers","outcome":"hit"}
 {"at":"2026-08-23T05:28:03.0799781Z","zoneId":"knowledge-graph-provenance","outcome":"hit"}
+{"at":"2026-08-23T05:34:22.1645313Z","zoneId":"commit-output-integrity","outcome":"hit"}

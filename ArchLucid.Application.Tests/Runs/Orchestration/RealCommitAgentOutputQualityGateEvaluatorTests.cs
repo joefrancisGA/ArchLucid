@@ -196,4 +196,45 @@ public sealed class RealCommitAgentOutputQualityGateEvaluatorTests
 
         reasons.Should().BeEmpty();
     }
+
+    [Fact]
+    public void GetBlockingReasons_when_superseded_rejected_has_newer_created_utc_ignores_it_for_higher_attempt_index_accepted_trace()
+    {
+        ArchitectureRun run = new() { StructuralExecutionMode = StructuralExecutionMode.Real };
+        AgentOutputQualityGateOptions options = new()
+        {
+            Enabled = true,
+            Mode = AgentOutputQualityGateMode.PilotStrict,
+        };
+        const string taskId = "task-skewed-timestamp";
+        DateTime olderUtc = new(2026, 4, 1, 8, 0, 0, DateTimeKind.Utc);
+        DateTime newerUtc = new(2026, 4, 1, 8, 5, 0, DateTimeKind.Utc);
+        AgentExecutionTrace supersededRejected = new()
+        {
+            TraceId = "trace-attempt-0",
+            TaskId = taskId,
+            AgentType = AgentType.Topology,
+            CreatedUtc = newerUtc,
+            AttemptIndex = 0,
+            RecordedQualityGateOutcome = AgentOutputQualityGateOutcome.Rejected,
+            QualityRejected = true,
+        };
+        AgentExecutionTrace acceptedRetry = new()
+        {
+            TraceId = "trace-attempt-2",
+            TaskId = taskId,
+            AgentType = AgentType.Topology,
+            CreatedUtc = olderUtc,
+            AttemptIndex = 2,
+            RecordedQualityGateOutcome = AgentOutputQualityGateOutcome.Accepted,
+        };
+
+        IReadOnlyList<string> reasons =
+            RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons(
+                run,
+                options,
+                [supersededRejected, acceptedRetry]);
+
+        reasons.Should().BeEmpty();
+    }
 }
