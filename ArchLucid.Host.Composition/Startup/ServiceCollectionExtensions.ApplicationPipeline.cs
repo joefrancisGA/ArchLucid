@@ -313,6 +313,7 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<SponsorRoiTenantPricingContextResolver>();
         services.AddScoped<RoiCostEvidenceCollectionResolver>();
         services.AddScoped<RoiCostEvidenceFreshnessEvaluator>();
+        services.AddScoped<SponsorRoiPricingLabelResolver>();
         services.AddScoped<SponsorRoiSummaryService>();
         services.AddScoped<ISponsorRoiSummaryService>(static sp =>
             new CachingSponsorRoiSummaryService(

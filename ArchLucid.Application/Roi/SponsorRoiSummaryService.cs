@@ -29,9 +29,7 @@ public sealed class SponsorRoiSummaryService(
     ITenantEstimatedUsdSavingsResolver tenantEstimatedUsdSavingsResolver,
     ITenantRepository tenantRepository,
     IScimUserRepository scimUserRepository,
-    SponsorRoiTenantPricingContextResolver SponsorRoiTenantPricingContextResolver,
-    RoiCostEvidenceFreshnessEvaluator roiCostEvidenceFreshnessEvaluator,
-    RoiCostEvidenceCollectionResolver roiCostEvidenceCollectionResolver,
+    SponsorRoiPricingLabelResolver sponsorRoiPricingLabelResolver,
     IScopeContextProvider scopeContextProvider,
     IFindingReviewTrailRepository findingReviewTrailRepository,
     IRiskExceptionService riskExceptionService,
@@ -57,6 +55,9 @@ public sealed class SponsorRoiSummaryService(
     private readonly ITenantRepository _tenantRepository = tenantRepository ?? throw new ArgumentNullException(nameof(tenantRepository));
     private readonly IScimUserRepository _scimUserRepository = scimUserRepository ?? throw new ArgumentNullException(nameof(scimUserRepository));
 
+    private readonly SponsorRoiPricingLabelResolver _sponsorRoiPricingLabelResolver =
+        sponsorRoiPricingLabelResolver ?? throw new ArgumentNullException(nameof(sponsorRoiPricingLabelResolver));
+
     private readonly IPilotScorecardMetricsReader _pilotScorecardMetricsReader =
         pilotScorecardMetricsReader ?? throw new ArgumentNullException(nameof(pilotScorecardMetricsReader));
 
@@ -64,15 +65,6 @@ public sealed class SponsorRoiSummaryService(
 
     private readonly IRunDetailQueryService _runDetailQueryService =
         runDetailQueryService ?? throw new ArgumentNullException(nameof(runDetailQueryService));
-
-    private readonly SponsorRoiTenantPricingContextResolver _SponsorRoiTenantPricingContextResolver =
-        SponsorRoiTenantPricingContextResolver ?? throw new ArgumentNullException(nameof(SponsorRoiTenantPricingContextResolver));
-
-    private readonly RoiCostEvidenceFreshnessEvaluator _roiCostEvidenceFreshnessEvaluator =
-        roiCostEvidenceFreshnessEvaluator ?? throw new ArgumentNullException(nameof(roiCostEvidenceFreshnessEvaluator));
-
-    private readonly RoiCostEvidenceCollectionResolver _roiCostEvidenceCollectionResolver =
-        roiCostEvidenceCollectionResolver ?? throw new ArgumentNullException(nameof(roiCostEvidenceCollectionResolver));
 
     private readonly IScopeContextProvider _scopeContextProvider =
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
@@ -167,7 +159,7 @@ public sealed class SponsorRoiSummaryService(
             cancellationToken).ConfigureAwait(false);
 
         SponsorRoiPricingLabels pricingLabels =
-            await ResolveSponsorRoiPricingLabelsAsync(latestDetails, cancellationToken).ConfigureAwait(false);
+            await _sponsorRoiPricingLabelResolver.ResolveAsync(latestDetails, cancellationToken).ConfigureAwait(false);
 
         IReadOnlyList<RiskExceptionRecord> activeWaiversForExpiry =
             await _riskExceptionService.ListActiveAsync(tenantId, projectId, cancellationToken).ConfigureAwait(false);
@@ -569,7 +561,7 @@ public sealed class SponsorRoiSummaryService(
             .ToList();
 
         SponsorRoiPricingLabels pricingLabels =
-            await ResolveSponsorRoiPricingLabelsAsync(latestDetails, cancellationToken).ConfigureAwait(false);
+            await _sponsorRoiPricingLabelResolver.ResolveAsync(latestDetails, cancellationToken).ConfigureAwait(false);
 
         return new SponsorRoiExportResponse
         {
@@ -583,51 +575,6 @@ public sealed class SponsorRoiSummaryService(
             CostEvidenceStaleAfterDays = pricingLabels.Freshness.StaleAfterDays,
         };
     }
-
-    private async Task<SponsorRoiPricingLabels> ResolveSponsorRoiPricingLabelsAsync(
-        IReadOnlyList<ArchitectureRunDetail> latestDetails,
-        CancellationToken cancellationToken)
-    {
-        (decimal eaDiscountMultiplier, _) = await _SponsorRoiTenantPricingContextResolver
-            .ResolveAsync(cancellationToken)
-            .ConfigureAwait(false);
-
-        RoiCostEvidenceFreshnessSnapshot freshness = await _roiCostEvidenceFreshnessEvaluator
-            .EvaluateAsync(cancellationToken)
-            .ConfigureAwait(false);
-
-        SponsorRoiCostFindingPricingSignalScanner.PricingSignals signals =
-            SponsorRoiCostFindingPricingSignalScanner.Scan(latestDetails);
-
-        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-        bool hasExtractorPackages = await _roiCostEvidenceCollectionResolver
-            .HasAnyUploadedInventoryPackagesAsync(scope, cancellationToken)
-            .ConfigureAwait(false);
-
-        bool hasUploadedCostEvidence = hasExtractorPackages || signals.HasUploadedExtractorEvidence;
-
-        string savingsPricingBasis = SponsorRoiSavingsPricingBasis.Resolve(
-            eaDiscountMultiplier,
-            hasUploadedCostEvidence,
-            signals.HasHeuristicCostEvidence);
-
-        string savingsPricingBasisDescription = SponsorRoiSavingsPricingBasisDescriptionBuilder.Build(
-            savingsPricingBasis,
-            eaDiscountMultiplier,
-            freshness);
-
-        return new SponsorRoiPricingLabels(
-            eaDiscountMultiplier,
-            savingsPricingBasis,
-            savingsPricingBasisDescription,
-            freshness);
-    }
-
-    private sealed record SponsorRoiPricingLabels(
-        decimal EaDiscountMultiplier,
-        string SavingsPricingBasis,
-        string SavingsPricingBasisDescription,
-        RoiCostEvidenceFreshnessSnapshot Freshness);
 
     private async Task<List<(RunSummary Summary, ArchitectureRunDetail Detail)>> CollectCommittedRunsForTrendsAsync(
         CancellationToken cancellationToken)
