@@ -75,8 +75,8 @@ import {
   RunDetailOverviewPanelClientDeferred,
   HelpPageSituationRegistrarDeferred,
   ReviewGenerationCreatedNoticeDeferred,
-  RunDetailBelowFoldSectionsDeferred,
 } from "./run-detail-page-view-deferred-chunks";
+import { RunDetailBelowFoldSectionsDeferred } from "./RunDetailBelowFoldSectionsDeferred";
 import { resolveRunDetailSponsorBriefingSection } from "./RunDetailSponsorBriefingSection";
 import { RunDetailMidDeferredSections } from "./RunDetailMidDeferredSections";
 import { RunDetailTabbedWorkspace } from "./RunDetailTabbedWorkspace";
