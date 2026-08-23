@@ -263,9 +263,12 @@ export function CompareResultsPanel(props: CompareResultsPanelProps) {
       {legacyFailure && (
         <>
           <p className={cn("mb-2 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
-            Supplementary review-level comparison failed.
+            Detailed comparison unavailable.
           </p>
           <OperatorApiProblem failure={legacyFailure} />
+          <p className={cn("mt-2 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
+            The structured summary below may still be available while this detailed diff is retried.
+          </p>
           <OperatorTryNext>
             Confirm both reviews exist and are in scope (same tenant/project as the shell). Re-pick reviews from{" "}
             <Link className={OPERATOR_LINK.nav} href="/architecture/reviews">Reviews</Link> or review detail, then click <strong>Compare</strong>{" "}
@@ -277,12 +280,12 @@ export function CompareResultsPanel(props: CompareResultsPanelProps) {
       {legacyMalformed && (
         <>
           <OperatorMalformedCallout>
-            <strong>Supplementary comparison response was not usable.</strong>
+            <strong>Detailed comparison response was not usable.</strong>
             <p className="mt-2">{legacyMalformed}</p>
           </OperatorMalformedCallout>
           <OperatorTryNext>
             Align API and UI versions (<code>GET /version</code>). If the structured summary succeeded below, use that
-            section for review while the supplementary comparison is investigated.
+            section for review while the detailed comparison is investigated.
           </OperatorTryNext>
         </>
       )}
@@ -294,10 +297,10 @@ export function CompareResultsPanel(props: CompareResultsPanelProps) {
           </p>
           <OperatorApiProblem failure={goldenFailure} variant="warning" />
           <p className={cn("mt-2 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
-            The supplementary comparison may still have succeeded; check the sections below.
+            The detailed comparison may still have succeeded; check the sections below.
           </p>
           <OperatorTryNext>
-            Verify both reviews have finalized sealed review records in scope. If only the supplementary diff is needed for
+            Verify both reviews have finalized sealed review records in scope. If only the detailed diff is needed for
             now, expand <strong>Review-level diff</strong> after confirming the pair in the summary panel.
           </OperatorTryNext>
         </>
