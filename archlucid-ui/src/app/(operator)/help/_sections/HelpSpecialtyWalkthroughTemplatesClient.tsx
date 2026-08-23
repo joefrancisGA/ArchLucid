@@ -354,7 +354,7 @@ export function HelpSpecialtyWalkthroughTemplatesClient(
   return (
     <article data-testid="help-specialty-walkthrough-templates" aria-busy={navigation.isNavigating}>
       <HelpTopicHashScroll />
-      <OperatorPageContainer variant="reading" className="w-full max-w-[1100px] space-y-4">
+      <OperatorPageContainer variant="workflow" className="space-y-4">
         <header className="space-y-4 border-b border-neutral-200 p-4 pb-4 dark:border-neutral-800">
           <HelpTopicTitleRow title={SPECIALTY_REVIEW_TEMPLATES_PAGE_TITLE} actions={<PageContextualHelpButton />} />
           <p className={cn("m-0 max-w-3xl", OPERATOR_TYPOGRAPHY.helper)}>{SPECIALTY_REVIEW_TEMPLATES_PAGE_SUBTITLE}</p>

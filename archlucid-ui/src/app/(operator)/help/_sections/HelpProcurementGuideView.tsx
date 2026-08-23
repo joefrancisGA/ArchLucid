@@ -7,6 +7,7 @@ import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfCont
 import { ProcurementHelpEvidenceOrientationStrip } from "@/components/help/ProcurementHelpEvidenceOrientationStrip";
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
+import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { DESIGN_TOKENS, OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { extractHelpMarkdownHeadings } from "@/lib/help/help-markdown-headings";
@@ -52,7 +53,7 @@ export function HelpProcurementGuideView(props: HelpProcurementGuideViewProps): 
 
   return (
     <article
-      className={cn(OPERATOR_LAYOUT.majorSectionGap, "w-full max-w-[90rem]")}
+      className={cn(operatorPageContainerClass("dashboard"), OPERATOR_LAYOUT.majorSectionGap)}
       data-testid="help-procurement-guide"
     >
       <HelpTopicHashScroll />

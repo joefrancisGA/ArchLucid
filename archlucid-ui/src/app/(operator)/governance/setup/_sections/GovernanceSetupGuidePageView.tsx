@@ -1,5 +1,6 @@
 import { EvidenceOrientationClaimAndSourcesStrip } from "@/components/evidence-orientation/EvidenceOrientationClaimAndSourcesStrip";
 import { EVIDENCE_SOURCES_STYLE } from "@/components/evidence-orientation/evidence-orientation-styles";
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import {
   PageContextualHelpButton,
@@ -16,6 +17,7 @@ import {
   GOVERNANCE_SETUP_SOURCES,
   GOVERNANCE_SETUP_SOURCES_INTRO,
 } from "@/lib/governance/governance-setup-evidence-copy";
+import { OPERATOR_LAYOUT } from "@/lib/design-tokens";
 
 import { GovernanceSetupFoundationPanel } from "./GovernanceSetupFoundationPanel";
 import { GovernanceSetupGuideProgressSummary } from "./GovernanceSetupGuideProgressSummary";
@@ -24,6 +26,7 @@ import { GovernanceSetupOutcomesPanel } from "./GovernanceSetupOutcomesPanel";
 import { OperatorSectionLoadFailure } from "@/components/operator/OperatorSectionLoadFailure";
 import { summarizeGovernanceSetupProgress } from "./governance-setup-guide-steps";
 import type { GovernanceSetupGuideViewModel } from "./governance-setup-guide-types";
+import { cn } from "@/lib/utils";
 
 type GovernanceSetupGuidePageViewProps = {
   readonly model: GovernanceSetupGuideViewModel;
@@ -33,8 +36,9 @@ export function GovernanceSetupGuidePageView({ model }: GovernanceSetupGuidePage
   const progress = summarizeGovernanceSetupProgress(model.stepStatuses, model.steps);
 
   return (
-    <div
-      className="w-full max-w-5xl space-y-5 px-1 py-4 sm:px-0"
+    <OperatorPageContainer
+      variant="workflow"
+      className={cn("px-1 py-4 sm:px-0", OPERATOR_LAYOUT.sectionStack)}
       data-testid="governance-setup-guide-page"
     >
       <OperatorPageHeader
@@ -94,6 +98,6 @@ export function GovernanceSetupGuidePageView({ model }: GovernanceSetupGuidePage
 
         <GovernanceSetupOutcomesPanel />
       </div>
-    </div>
+    </OperatorPageContainer>
   );
 }

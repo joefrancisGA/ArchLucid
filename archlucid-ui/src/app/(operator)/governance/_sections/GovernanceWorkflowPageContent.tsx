@@ -12,6 +12,7 @@ import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { Separator } from "@/components/ui/separator";
 import { InlineGuidanceLabel } from "@/components/InlineGuidanceLabel";
 import { GovernanceJobRouterStrip } from "@/components/governance/GovernanceJobRouterStrip";
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -538,7 +539,7 @@ export function GovernanceWorkflowPageContent() {
   return (
     <MutationErrorBoundary title="Governance workflow failed to render">
     <TooltipProvider delayDuration={300}>
-    <div className="w-full max-w-[1200px]">
+    <OperatorPageContainer variant="workflow">
       <OperatorPageHeader
         navHref="/governance/approval-queue"
         title={pageTitle}
@@ -798,7 +799,7 @@ export function GovernanceWorkflowPageContent() {
         activateBusyId={activateBusyId}
         onConfirmActivateFromPromotion={onConfirmActivateFromPromotion}
       />
-    </div>
+    </OperatorPageContainer>
     </TooltipProvider>
     </MutationErrorBoundary>
   );

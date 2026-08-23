@@ -8,6 +8,7 @@ import { HelpTopicTableOfContents } from "@/components/help/HelpTopicTableOfCont
 import { ReviewGuideHelpHeaderAsOfLine } from "@/components/help/ReviewGuideHelpHeaderAsOfLine";
 import { MarketingAccessibilityMarkdownFragment } from "@/components/marketing/MarketingAccessibilityMarkdownFragment";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
+import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
 import { Button } from "@/components/ui/button";
 import {
   DESIGN_TOKENS,
@@ -34,8 +35,10 @@ type HelpReviewGuideViewProps = {
   readonly markdown: string;
 };
 
-const REVIEW_GUIDE_CONTENT_GRID =
-  "grid w-full max-w-[90rem] grid-cols-1 gap-10 xl:grid-cols-[minmax(0,1fr)_16.5rem] xl:items-start";
+const REVIEW_GUIDE_CONTENT_GRID = cn(
+  operatorPageContainerClass("dashboard"),
+  "grid grid-cols-1 gap-10 xl:grid-cols-[minmax(0,1fr)_16.5rem] xl:items-start",
+);
 
 /** Specialty review wizard field-reference for `/help/review-guide` (HR). */
 export function HelpReviewGuideView(props: HelpReviewGuideViewProps): React.ReactElement {
@@ -49,7 +52,7 @@ export function HelpReviewGuideView(props: HelpReviewGuideViewProps): React.Reac
 
   return (
     <article
-      className={cn(OPERATOR_LAYOUT.majorSectionGap, "w-full max-w-[90rem]")}
+      className={cn(operatorPageContainerClass("dashboard"), OPERATOR_LAYOUT.majorSectionGap)}
       data-testid="help-review-guide"
     >
       <HelpTopicHashScroll />
