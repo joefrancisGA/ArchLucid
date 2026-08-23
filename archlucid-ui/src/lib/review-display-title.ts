@@ -23,6 +23,12 @@ const ISO_DATE_PATTERN = /^\d{4}-\d{2}-\d{2}(?:[tT\s].*)?$/;
 
 const METADATA_DATE_FRAGMENT_PATTERN = /^(?:reviewed|updated|created|modified|date|status)\s*:\s*.+$/i;
 
+/** Synthetic evaluation packets store a canonical heading inside the review body. */
+const ARCHITECTURE_REVIEW_PACKET_TITLE_PATTERN =
+  /Architecture Review Packet:\s*(.+?)(?=\s+(?:Classification|Domain|\*\*|[1-9]+\.)|\s{2,}|$)/i;
+
+const MARKDOWN_HEADING_LINE_PATTERN = /^#{1,6}\s+(.+)$/;
+
 /** True when the text is the auto-generated intake brief rather than operator-authored content. */
 export function isGeneratedIntakeBrief(text: string | null | undefined): boolean {
   return GENERATED_INTAKE_BRIEF_PATTERN.test((text ?? "").trim());
@@ -44,6 +50,58 @@ function firstSentence(text: string): string {
   const match: RegExpExecArray | null = /^(.+?[.!?])(?:\s|$)/.exec(text);
 
   return match === null ? text : match[1];
+}
+
+function extractArchitectureReviewPacketTitle(text: string): string | null {
+  const strippedBlob = stripInlineMarkdownFromReviewText(text);
+  const match = ARCHITECTURE_REVIEW_PACKET_TITLE_PATTERN.exec(strippedBlob);
+
+  if (match === null) {
+    return null;
+  }
+
+  const title = `Architecture Review Packet: ${match[1].trim()}`;
+
+  return isUnusableReviewTitleCandidate(title) ? null : clampTitle(title);
+}
+
+function extractMarkdownHeadingTitle(text: string): string | null {
+  for (const rawLine of text.split(/\r?\n/)) {
+    const strippedLine = stripLinePrefixMarkdown(rawLine.trim());
+    const headingMatch = MARKDOWN_HEADING_LINE_PATTERN.exec(strippedLine);
+
+    if (headingMatch === null) {
+      continue;
+    }
+
+    const normalized = clampTitle(headingMatch[1]);
+
+    if (!isUnusableReviewTitleCandidate(normalized)) {
+      return normalized;
+    }
+  }
+
+  return null;
+}
+
+function firstUsableLineTitle(text: string): string {
+  for (const rawLine of text.split(/\r?\n/)) {
+    const strippedLine = stripLinePrefixMarkdown(rawLine.trim());
+
+    if (strippedLine.length === 0) {
+      continue;
+    }
+
+    const normalized = clampTitle(firstSentence(strippedLine));
+
+    if (!isUnusableReviewTitleCandidate(normalized)) {
+      return normalized;
+    }
+  }
+
+  const fallbackLine = firstNonEmptyLine(text);
+
+  return fallbackLine.length > 0 ? clampTitle(firstSentence(fallbackLine)) : "";
 }
 
 function stripLinePrefixMarkdown(line: string): string {
@@ -155,11 +213,27 @@ export function toReviewDisplayTitle(candidate: string | null | undefined): stri
   }
 
   const generatedTitle: string | null = extractGeneratedIntakeBriefTitle(trimmed);
-  const titleCandidate: string =
-    generatedTitle !== null && generatedTitle.length > 0
-      ? generatedTitle
-      : firstSentence(firstNonEmptyLine(trimmed));
-  const normalized: string = clampTitle(titleCandidate);
+
+  if (generatedTitle !== null && generatedTitle.length > 0) {
+    const normalizedGeneratedTitle = clampTitle(generatedTitle);
+
+    return isUnusableReviewTitleCandidate(normalizedGeneratedTitle) ? "" : normalizedGeneratedTitle;
+  }
+
+  const architectureReviewPacketTitle = extractArchitectureReviewPacketTitle(trimmed);
+
+  if (architectureReviewPacketTitle !== null) {
+    return architectureReviewPacketTitle;
+  }
+
+  const markdownHeadingTitle = extractMarkdownHeadingTitle(trimmed);
+
+  if (markdownHeadingTitle !== null) {
+    return markdownHeadingTitle;
+  }
+
+  const titleCandidate = firstUsableLineTitle(trimmed);
+  const normalized: string = titleCandidate;
 
   // The quoted title inside a generated brief is screened too — a brief can quote a bare date.
   return isUnusableReviewTitleCandidate(normalized) ? "" : normalized;

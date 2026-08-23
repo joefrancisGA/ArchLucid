@@ -76,6 +76,31 @@ describe("buildUnfinishedWorkRailItems (TB-2209)", () => {
     expect(items).toEqual([]);
   });
 
+  it("uses a short normalized title for architecture review packet descriptions", () => {
+    const architectureReviewPacketDescription = [
+      "> **Reviewed:** 2026-07-26",
+      "# Architecture Review Packet: B2B SaaS Tenant Migration Platform",
+      "**Classification:** Synthetic sanitized packet.",
+      "Domain: Multi-tenant SaaS / tenant migration / audit exports.",
+    ].join("\n\n");
+
+    const items = buildUnfinishedWorkRailItems({
+      drafts: [],
+      runs: [
+        run({
+          runId: "tenant-migration-run",
+          description: architectureReviewPacketDescription,
+          hasFindingsSnapshot: false,
+          hasGoldenManifest: false,
+        }),
+      ],
+      incompleteWizards: [],
+    });
+
+    expect(items).toHaveLength(1);
+    expect(items[0]?.title).toBe("Architecture Review Packet: B2B SaaS Tenant Migration Platform");
+  });
+
   it("classifies mid-execute vs awaiting disposition", () => {
     const items = buildUnfinishedWorkRailItems({
       drafts: [],

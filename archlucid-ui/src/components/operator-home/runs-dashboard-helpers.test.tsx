@@ -10,10 +10,32 @@ import {
   isRunNeedingAttention,
   resolveRunHomeStatusTag,
   resolveShowcaseDemoRunForItems,
+  runListPrimaryTitle,
   runsDashboardTabLabel,
 } from "@/components/operator-home/runs-dashboard-helpers";
 import { render, screen } from "@testing-library/react";
 import type { RunSummary } from "@/types/authority";
+
+describe("runListPrimaryTitle", () => {
+  const architectureReviewPacketDescription = [
+    "> **Reviewed:** 2026-07-26",
+    "# Architecture Review Packet: B2B SaaS Tenant Migration Platform",
+    "**Classification:** Synthetic sanitized packet.",
+    "Domain: Multi-tenant SaaS / tenant migration / audit exports.",
+    "1. Business context",
+    "2. System overview",
+  ].join("\n\n");
+
+  it("uses a short normalized title instead of the full review packet body", () => {
+    expect(
+      runListPrimaryTitle({
+        runId: "tenant-migration-run",
+        projectId: "default",
+        description: architectureReviewPacketDescription,
+      }),
+    ).toBe("Architecture Review Packet: B2B SaaS Tenant Migration Platform");
+  });
+});
 
 describe("runsDashboardTabLabel (TB-667)", () => {
   it("uses operator vocabulary in full-operator shell", () => {

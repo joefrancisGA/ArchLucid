@@ -17,19 +17,14 @@ import {
   EnterpriseTableHeaderCell,
   EnterpriseTableRow,
 } from "@/components/ui/enterprise-table";
+import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer/buyer-facing-review-title";
 import { getBuyerSafeReviewsTableLink } from "@/lib/buyer/buyer-safe-review-navigation";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { tryStaticDemoRunSummariesPaged } from "@/lib/operator/operator-static-demo";
 import type { RunSummary } from "@/types/authority";
 
 function runListPrimaryTitle(run: RunSummary): string {
-  const d = run.description?.trim() ?? "";
-
-  if (d.length > 0) {
-    return d;
-  }
-
-  return "Untitled review";
+  return buyerFacingReviewTitleFromSummary(run);
 }
 
 function RunsListMinimalDemoTable({ runs }: { readonly runs: RunSummary[] }) {

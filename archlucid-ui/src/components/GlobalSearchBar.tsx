@@ -17,20 +17,16 @@ import {
 import { GLOBAL_FIND_PAGE_SEARCH } from "@/lib/search-surface-disambiguation";
 import { GOVERNANCE_POLICY_PACKS_PATH } from "@/lib/governance/governance-route-paths";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
+import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer/buyer-facing-review-title";
 import {
   searchFindPageHelpEntries,
   searchFindPageIndex,
   type FindPageSearchEntry,
 } from "@/lib/find-page-search-index";
+import type { RunSummary } from "@/types/authority";
 
-function globalSearchRunLabel(run: { runId: string; description?: string | null }): string {
-  const description = run.description?.trim() ?? "";
-
-  if (description.length > 0) {
-    return description;
-  }
-
-  return "Untitled review";
+function globalSearchRunLabel(run: { runId: string; description?: string | null; displayName?: string | null }): string {
+  return buyerFacingReviewTitleFromSummary(run as RunSummary);
 }
 
 export const OPEN_GLOBAL_SEARCH_EVENT = "archlucid-open-global-search";

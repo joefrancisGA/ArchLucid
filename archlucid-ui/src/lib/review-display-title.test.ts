@@ -143,4 +143,22 @@ describe("isUnusableReviewTitleCandidate", () => {
   it("returns empty display titles for unusable document fragments", () => {
     expect(toReviewDisplayTitle("> Reviewed: 2026-07-26")).toBe("");
   });
+
+  it("extracts the architecture review packet heading from a multi-line body", () => {
+    const description = [
+      "> **Reviewed:** 2026-07-26",
+      "# Architecture Review Packet: B2B SaaS Tenant Migration Platform",
+      "**Classification:** Synthetic sanitized packet.",
+      "Domain: Multi-tenant SaaS / tenant migration / audit exports.",
+    ].join("\n\n");
+
+    expect(toReviewDisplayTitle(description)).toBe("Architecture Review Packet: B2B SaaS Tenant Migration Platform");
+  });
+
+  it("extracts the architecture review packet heading from a collapsed single-line body", () => {
+    const description =
+      "> **Reviewed:** 2026-07-26 # Architecture Review Packet: B2B SaaS Tenant Migration Platform **Classification:** Synthetic sanitized packet.";
+
+    expect(toReviewDisplayTitle(description)).toBe("Architecture Review Packet: B2B SaaS Tenant Migration Platform");
+  });
 });

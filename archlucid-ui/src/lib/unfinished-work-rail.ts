@@ -4,7 +4,6 @@ import { ARCHITECTURE_DRAFT_STATUS_LABELS } from "@/lib/architecture/architectur
 import { architectureDraftPath, reviewDetailPath, REVIEWS_NEW_PATH } from "@/lib/architecture/architecture-routes";
 import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer/buyer-facing-review-title";
 import { isShowcaseStaticDemoRunId } from "@/lib/demo-run-canonical";
-import { SHOWCASE_BUYER_REVIEW_TITLE } from "@/lib/showcase-static-demo";
 import { resolveOperatorHomeLatestDraftPrimaryAction } from "@/lib/operator-home-latest-draft-primary-action";
 import {
   readWizardSessionSnapshot,
@@ -124,16 +123,6 @@ function isMidExecuteRun(run: RunSummary): boolean {
 }
 
 function resolveReviewTitle(run: RunSummary): string {
-  if (isShowcaseStaticDemoRunId(run.runId ?? "")) {
-    return SHOWCASE_BUYER_REVIEW_TITLE;
-  }
-
-  const description = run.description?.trim() ?? "";
-
-  if (description.length > 0) {
-    return description;
-  }
-
   return buyerFacingReviewTitleFromSummary(run);
 }
 

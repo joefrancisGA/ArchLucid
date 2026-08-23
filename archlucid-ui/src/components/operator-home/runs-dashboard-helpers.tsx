@@ -21,22 +21,12 @@ import {
   type ArchitecturePackageOriginToken,
 } from "@/lib/architecture/architecture-package-origin";
 import { OPERATOR_HOME_EXAMPLE_RUN_DESCRIPTION_TOKEN } from "@/lib/operator/operator-home-example-request";
-import { SHOWCASE_BUYER_REVIEW_TITLE, SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
+import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import type { RunSummary } from "@/types/authority";
 
 import type { RunsDashboardTabId } from "@/components/operator-home/runs-dashboard-load-phase";
 
 export function runListPrimaryTitle(run: RunSummary): string {
-  if (isShowcaseStaticDemoRunId(run.runId ?? "")) {
-    return SHOWCASE_BUYER_REVIEW_TITLE;
-  }
-
-  const d = run.description?.trim() ?? "";
-
-  if (d.length > 0) {
-    return d;
-  }
-
   return buyerFacingReviewTitleFromSummary(run);
 }
 
