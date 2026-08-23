@@ -129,10 +129,7 @@ public sealed class DigestEmailDispatcherIdempotencyTests
 
         Mock<IEmailTemplateRenderer> renderer = new();
         renderer.Setup(r => r.RenderHtmlAsync(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<CancellationToken>()))
-            .Returns<string, object, CancellationToken>((_, model, _) =>
-                model is WeeklySponsorSummaryEmailModel summary
-                    ? Task.FromResult(summary.SummaryMarkdown)
-                    : Task.FromResult("<p>x</p>"));
+            .ReturnsAsync("<p>x</p>");
         renderer.Setup(r => r.RenderTextAsync(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync("x");
 
@@ -177,5 +174,51 @@ public sealed class DigestEmailDispatcherIdempotencyTests
         summarySent.Should().BeTrue("distinct weekly email classes must not share one tenant/week ledger key");
         sentMessages.Should().HaveCount(2);
         sentMessages.Select(m => m.HtmlBody).Should().Contain("summary body");
+    }
+
+    [Fact]
+    public async Task WeeklySponsorSummaryEmailDispatcher_subject_labels_summary_not_report()
+    {
+        Guid tenantId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+        const string isoWeek = "2026-W09";
+        InMemorySentEmailLedger ledger = new();
+        List<EmailMessage> sentMessages = [];
+
+        Mock<IEmailProvider> provider = new();
+        provider.SetupGet(p => p.ProviderName).Returns("test-provider");
+        provider.Setup(p => p.SendAsync(It.IsAny<EmailMessage>(), It.IsAny<CancellationToken>()))
+            .Callback<EmailMessage, CancellationToken>((message, _) => sentMessages.Add(message))
+            .Returns(Task.CompletedTask);
+
+        Mock<IEmailTemplateRenderer> renderer = new();
+        renderer.Setup(r => r.RenderHtmlAsync(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync("<p>x</p>");
+        renderer.Setup(r => r.RenderTextAsync(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync("x");
+
+        Mock<IOptionsMonitor<EmailNotificationOptions>> options = new();
+        options.Setup(o => o.CurrentValue).Returns(new EmailNotificationOptions { ProductDisplayName = "ArchLucid" });
+
+        WeeklySponsorSummaryEmailDispatcher summaryDispatcher = new(
+            renderer.Object,
+            provider.Object,
+            ledger,
+            options.Object,
+            NullLogger<WeeklySponsorSummaryEmailDispatcher>.Instance);
+
+        bool summarySent = await summaryDispatcher.TryDispatchAsync(
+            tenantId,
+            isoWeek,
+            runIdHex: "b1b2c3d4",
+            summaryMarkdown: "summary body",
+            runDetailUrl: "https://example.test/runs/b1b2c3d4",
+            weekLabel: "W09",
+            toMailboxes: ["exec@example.test"],
+            cancellationToken: CancellationToken.None);
+
+        summarySent.Should().BeTrue();
+        sentMessages.Should().ContainSingle();
+        sentMessages[0].Subject.Should().Contain("sponsor summary", "summary email must not reuse report subject copy");
+        sentMessages[0].Subject.Should().NotContain("sponsor report");
     }
 }
