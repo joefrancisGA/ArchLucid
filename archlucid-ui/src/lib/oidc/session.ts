@@ -66,6 +66,7 @@ export function persistTokenResponse(tokens: OidcTokenResponse): void {
 
 export function clearOidcSession(): void {
   refreshSessionGeneration += 1;
+  refreshInFlight = null;
   removeOidcKeys([
     OIDC_ACCESS_TOKEN_KEY,
     OIDC_REFRESH_TOKEN_KEY,
