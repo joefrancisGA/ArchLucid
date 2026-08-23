@@ -4,6 +4,7 @@ import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import type { ChangesSinceLastReviewCopy } from "@/lib/changes-since-last-review-summary";
 import type { ArtifactDescriptor, ManifestSummary, RunDetail, RunSummary } from "@/types/authority";
 import type { RunExplanationSummary } from "@/types/explanation";
+import type { ReviewPipelineDiagnosticContext } from "@/lib/review-pipeline-stall-diagnosis";
 
 export type RunDetailChangesSinceLastReviewBanner = {
   readonly priorReviewDateLabel: string;
@@ -25,6 +26,7 @@ export type RunDetailPageModel = {
   readonly goldenManifestJsonForExport: unknown | null;
   readonly progressForPipelineUi: RunSummary;
   readonly showProgressTracker: boolean;
+  readonly pipelineDiagnosticContext: ReviewPipelineDiagnosticContext | null;
   readonly manifestSummary: ManifestSummary | null;
   readonly manifestSummaryForUi: ManifestSummary | null;
   readonly manifestSummaryFailure: ApiLoadFailureState | null;

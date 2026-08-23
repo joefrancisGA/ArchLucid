@@ -25,6 +25,7 @@ import {
   tryStaticDemoRunDetail,
 } from "@/lib/operator/operator-static-demo";
 import { policyPackBuyerLabel } from "@/lib/policy/policy-pack-buyer-label";
+import { reviewPipelineDiagnosticContextFromRunDetail } from "@/lib/review-pipeline-diagnostic-context";
 import {
   resolveQuickDecisionFindingsForRunDetail,
   severityBadgeLabel,
@@ -278,6 +279,11 @@ export async function loadRunDetailPageModel(runId: string): Promise<LoadRunDeta
     severityLabelForFinding: severityBadgeLabel,
   });
 
+  const pipelineDiagnosticContext = reviewPipelineDiagnosticContextFromRunDetail(
+    resolvedDetail.run,
+    runDetailTraceId,
+  );
+
   const model: RunDetailPageModel = {
     routeRunId: runId,
     resolvedDetail,
@@ -290,6 +296,7 @@ export async function loadRunDetailPageModel(runId: string): Promise<LoadRunDeta
     goldenManifestJsonForExport,
     progressForPipelineUi,
     showProgressTracker,
+    pipelineDiagnosticContext,
     manifestSummary,
     manifestSummaryForUi,
     manifestSummaryFailure,

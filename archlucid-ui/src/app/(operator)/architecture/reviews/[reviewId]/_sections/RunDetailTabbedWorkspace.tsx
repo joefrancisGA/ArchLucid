@@ -512,11 +512,19 @@ const architectureTabPanelEl = (
             <RunDetailActivityTabSectionNav hasManifestId={Boolean(m.manifestId)} />
             {!m.manifestId && m.showProgressTracker ? (
               <div id="pipeline-timeline" className="scroll-mt-24">
-                <RunDetailProgressTrackerDeferred runId={m.routeRunId} initialSummary={m.progressForPipelineUi} />
+                <RunDetailProgressTrackerDeferred
+                  runId={m.routeRunId}
+                  initialSummary={m.progressForPipelineUi}
+                  diagnosticContext={m.pipelineDiagnosticContext}
+                />
               </div>
             ) : null}
             {m.showProgressTracker && m.manifestId ? (
-              <RunDetailProgressTrackerDeferred runId={m.routeRunId} initialSummary={m.progressForPipelineUi} />
+              <RunDetailProgressTrackerDeferred
+                runId={m.routeRunId}
+                initialSummary={m.progressForPipelineUi}
+                diagnosticContext={m.pipelineDiagnosticContext}
+              />
             ) : null}
             <p className={cn("m-0", OPERATOR_TYPOGRAPHY.body)}>
               <Link
