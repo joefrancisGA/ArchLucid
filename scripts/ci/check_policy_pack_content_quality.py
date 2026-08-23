@@ -12,6 +12,80 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 BUNDLED_DIR = REPO_ROOT / "ArchLucid.Application/Governance/DefaultPolicyPacks/Bundled"
 MANIFEST_PATH = BUNDLED_DIR / "bundled-policy-packs-v1.manifest.json"
 DOC_PATH = REPO_ROOT / "docs/go-to-market/DEFAULT_POLICY_PACKS_V1.md"
+SAMPLES_DIR = "docs/samples/policy-packs"
+
+# Generic rules removed from provider overlay packs — owned by neutral baseline packs (#42–44).
+OVERLAY_TRIM_PACKS: list[tuple[str, str, frozenset[str]]] = [
+    ("azure-waf", "waf-az", frozenset({"001", "002", "003", "009", "011", "012"})),
+    ("aws-waf", "waf-aws", frozenset({"001", "002", "003", "009", "011", "012"})),
+    ("gcp-architecture-framework", "waf-gcp", frozenset({"001", "002", "003", "009", "011", "012"})),
+    (
+        "azure-resiliency-dr",
+        "az-dr",
+        frozenset(
+            {
+                "001",
+                "002",
+                "006",
+                "007",
+                "012",
+                "013",
+                "014",
+                "015",
+                "016",
+                "017",
+                "018",
+                "022",
+                "023",
+                "028",
+            }
+        ),
+    ),
+    (
+        "aws-resiliency-dr",
+        "aws-dr",
+        frozenset(
+            {
+                "001",
+                "002",
+                "006",
+                "007",
+                "012",
+                "013",
+                "014",
+                "015",
+                "016",
+                "017",
+                "018",
+                "022",
+                "023",
+                "028",
+            }
+        ),
+    ),
+    (
+        "gcp-resiliency-dr",
+        "gcp-dr",
+        frozenset(
+            {
+                "001",
+                "002",
+                "006",
+                "007",
+                "012",
+                "013",
+                "014",
+                "015",
+                "016",
+                "017",
+                "018",
+                "022",
+                "023",
+                "028",
+            }
+        ),
+    ),
+]
 
 REQUIRED_METADATA_KEYS = ("pack.displayName", "pack.description")
 FORBIDDEN_CERTIFICATION_PHRASES = (
@@ -123,6 +197,39 @@ def _collect_certification_violations(text: str, rel_path: str) -> list[str]:
         for phrase in FORBIDDEN_CERTIFICATION_PHRASES:
             if phrase in lower and not _line_has_negated_certification_claim(line, phrase):
                 violations.append(f"{rel_path}:{line_no}: unsupported certification language {phrase!r}")
+
+    return violations
+
+
+def _overlay_trim_violations(root: Path) -> list[str]:
+    violations: list[str] = []
+
+    for slug, prefix, trimmed_suffixes in OVERLAY_TRIM_PACKS:
+        curated_path = root / SAMPLES_DIR / f"{slug}-rules-v1.json"
+
+        if not curated_path.is_file():
+            continue
+
+        curated = json.loads(curated_path.read_text(encoding="utf-8"))
+        rules = curated.get("rules") or []
+
+        for rule in rules:
+            if not isinstance(rule, dict):
+                continue
+
+            rule_id = str(rule.get("id", "")).strip()
+            marker = f"{prefix}-"
+
+            if not rule_id.startswith(marker):
+                continue
+
+            suffix = rule_id[len(marker) :]
+
+            if suffix in trimmed_suffixes:
+                violations.append(
+                    f"{curated_path.relative_to(root)}: rule {rule_id!r} duplicates provider-neutral baseline "
+                    f"and must be removed from overlay pack {slug!r}"
+                )
 
     return violations
 
@@ -280,6 +387,8 @@ def policy_pack_content_quality_violations(root: Path) -> list[str]:
                     f"{doc_path.relative_to(root)}: documented bundled count {documented_count} "
                     f"!= manifest contentFiles {manifest_count}"
                 )
+
+    violations.extend(_overlay_trim_violations(root))
 
     return violations
 

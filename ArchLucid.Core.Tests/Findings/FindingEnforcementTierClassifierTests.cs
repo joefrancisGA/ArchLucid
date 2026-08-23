@@ -14,7 +14,7 @@ public sealed class FindingEnforcementTierClassifierTests
         ArchitectureFinding finding = new()
         {
             Message = "Reliability redundancy is undocumented.",
-            PolicyRuleId = "waf-az-001",
+            PolicyRuleId = "waf-az-004",
         };
 
         FindingEnforcementTierClassifier.ClassifyArchitectureFinding(finding)
@@ -28,7 +28,7 @@ public sealed class FindingEnforcementTierClassifierTests
         ArchitectureFinding finding = new()
         {
             Message = "AWS reliability baseline gap.",
-            PolicyRuleId = "waf-aws-001",
+            PolicyRuleId = "waf-aws-004",
         };
 
         FindingEnforcementTierClassifier.ClassifyArchitectureFinding(finding)

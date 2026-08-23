@@ -4,74 +4,13 @@
   "pack": {
     "name": "Azure Well-Architected Framework (extractor-aligned)",
     "description": "Reviewer prompts mapped to Microsoft Azure Well-Architected Framework pillar themes. Grounded in read-only Azure extractor ZIP output (manifest.json, resources.json, optional policy-compliance.json and retail-prices.json) plus golden architecture manifest governance fields. Not an official Microsoft Well-Architected assessment or certification.",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "category": "Architecture",
     "isDefault": true,
     "suggestedPackType": "PlatformDefault",
     "policyPackContentDocumentPath": "docs/samples/policy-packs/azure-waf.json"
   },
   "rules": [
-    {
-      "id": "waf-az-001",
-      "title": "Reliability \u2014 regional and zone redundancy documented",
-      "description": "When resources.json lists workloads across multiple Azure regions or availability zones, the architecture narrative must explain failover, RTO/RPO, and traffic routing assumptions.",
-      "severity": "High",
-      "remediationGuidance": "Correlate location fields on Microsoft.Compute/virtualMachines, Microsoft.Sql/servers, and paired storage rows in resources.json; document active/active vs active/passive stance in governance.RequiredControls and metadata.ChangeDescription.",
-      "evidenceHints": [
-        "azureExtractor.manifest.RawJson",
-        "azureExtractor.manifest.ScopeDescriptor",
-        "governance.RequiredControls",
-        "metadata.ChangeDescription"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "Microsoft Azure Well-Architected",
-          "requirement": "Reliability \u2014 Design for failure and redundancy (pillar theme)"
-        }
-      ],
-      "priority": "P0"
-    },
-    {
-      "id": "waf-az-002",
-      "title": "Reliability \u2014 backup and recovery expectations for stateful services",
-      "description": "SQL, storage, and Cosmos-class data planes inventoried in resources.json must show documented backup retention and restore testing commitments.",
-      "severity": "High",
-      "remediationGuidance": "Align datastores[].DatastoreType and RuntimePlatform with governance.PolicyConstraints naming backup cadence; cite extractor CollectionTimestamp when comparing inventory freshness to DR drill records.",
-      "evidenceHints": [
-        "datastores[].DatastoreType",
-        "datastores[].RuntimePlatform",
-        "governance.PolicyConstraints",
-        "azureExtractor.manifest.CollectionTimestamp"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "Microsoft Azure Well-Architected",
-          "requirement": "Reliability \u2014 Backup and disaster recovery (pillar theme)"
-        }
-      ],
-      "priority": "P0"
-    },
-    {
-      "id": "waf-az-003",
-      "title": "Reliability \u2014 health monitoring for compute and PaaS hosts",
-      "description": "App Service, Container Apps, AKS, and load-balanced VM tiers should declare health probe and autoscale expectations traceable to manifest services.",
-      "severity": "Medium",
-      "remediationGuidance": "Record probe and scaling policies on services[].Tags and RequiredControls; when diagnostic exports exist in RawJson, confirm Application Insights or platform health signals are enabled.",
-      "evidenceHints": [
-        "services[].Tags",
-        "services[].RequiredControls",
-        "services[].RuntimePlatform",
-        "azureExtractor.manifest.RawJson",
-        "azureExtractor.manifest.SwitchesUsed"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "Microsoft Azure Well-Architected",
-          "requirement": "Reliability \u2014 Monitoring and health models (pillar theme)"
-        }
-      ],
-      "priority": "P1"
-    },
     {
       "id": "waf-az-004",
       "title": "Security \u2014 sensitive PaaS uses private connectivity",
@@ -174,26 +113,6 @@
       "priority": "P2"
     },
     {
-      "id": "waf-az-009",
-      "title": "Operational Excellence \u2014 centralized logging and diagnostics",
-      "description": "Platform diagnostics should converge to Log Analytics or equivalent sinks when Azure workloads emit audit and resource logs.",
-      "severity": "High",
-      "remediationGuidance": "Tag observability commitments on services[].Tags; cite extractor ScriptVersion and RawJson summaries when diagnostic settings exports accompany the package.",
-      "evidenceHints": [
-        "services[].Tags",
-        "azureExtractor.manifest.ScriptVersion",
-        "azureExtractor.manifest.RawJson",
-        "governance.RequiredControls"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "Microsoft Azure Well-Architected",
-          "requirement": "Operational Excellence \u2014 Observability (pillar theme)"
-        }
-      ],
-      "priority": "P2"
-    },
-    {
       "id": "waf-az-010",
       "title": "Operational Excellence \u2014 extractor evidence freshness documented",
       "description": "Architecture reviews citing Azure inventory must record when evidence was collected and which extractor switches shaped the ZIP contents.",
@@ -210,46 +129,6 @@
         {
           "framework": "Microsoft Azure Well-Architected",
           "requirement": "Operational Excellence \u2014 Operational procedures and evidence hygiene (pillar theme)"
-        }
-      ],
-      "priority": "P2"
-    },
-    {
-      "id": "waf-az-011",
-      "title": "Performance Efficiency \u2014 autoscale and SKU tier choices explained",
-      "description": "Compute and PaaS SKUs (VM sizes, App Service plans, SQL tiers) inventoried in resources.json require performance rationale when latency or throughput SLOs apply.",
-      "severity": "Medium",
-      "remediationGuidance": "Document scale rules and SKU decisions in governance.PolicyConstraints; relate Microsoft.Web/serverfarms and Microsoft.Sql/servers SKUs to services[].Purpose narratives.",
-      "evidenceHints": [
-        "azureExtractor.manifest.RawJson",
-        "services[].Purpose",
-        "services[].RuntimePlatform",
-        "governance.PolicyConstraints"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "Microsoft Azure Well-Architected",
-          "requirement": "Performance Efficiency \u2014 Select appropriate compute and data services (pillar theme)"
-        }
-      ],
-      "priority": "P2"
-    },
-    {
-      "id": "waf-az-012",
-      "title": "Performance Efficiency \u2014 edge delivery for internet-facing HTTP APIs",
-      "description": "Externally reachable APIs should describe CDN, Azure Front Door, or Application Gateway caching and TLS termination patterns that reduce origin load.",
-      "severity": "Medium",
-      "remediationGuidance": "Note edge attachment on ingress services[].Tags and relationships; when Microsoft.Cdn or Microsoft.Network/frontDoors rows appear in resources.json, tie caching policies to governance.RequiredControls.",
-      "evidenceHints": [
-        "services[].Tags",
-        "relationships[].relationshipType",
-        "azureExtractor.manifest.RawJson",
-        "governance.RequiredControls"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "Microsoft Azure Well-Architected",
-          "requirement": "Performance Efficiency \u2014 Use caching and content delivery (pillar theme)"
         }
       ],
       "priority": "P2"

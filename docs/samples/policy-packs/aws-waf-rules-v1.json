@@ -4,89 +4,13 @@
   "pack": {
     "name": "AWS Well-Architected Framework",
     "description": "Reviewer prompts mapped to AWS Well-Architected Framework pillar themes. Grounded in read-only AWS inventory ZIP output and Terraform aws_* evidence. Not an official AWS Well-Architected Review or certification.",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "category": "Architecture",
     "isDefault": true,
     "suggestedPackType": "PlatformDefault",
     "policyPackContentDocumentPath": "docs/samples/policy-packs/aws-waf.json"
   },
   "rules": [
-    {
-      "id": "waf-aws-001",
-      "title": "Reliability \u2014 regional and zone redundancy documented",
-      "description": "When resources.json lists workloads across multiple AWS regions or availability zones, the architecture narrative must explain failover, RTO/RPO, and traffic routing assumptions.",
-      "severity": "High",
-      "remediationGuidance": "Correlate location fields on aws_Compute/virtualMachines, aws_Sql/servers, and paired storage rows in resources.json; document active/active vs active/passive stance in governance.RequiredControls and metadata.ChangeDescription.",
-      "evidenceHints": [
-        "awsExtractor.manifest.manifest.RawJson",
-        "awsExtractor.manifest.manifest.ScopeDescriptor",
-        "governance.RequiredControls",
-        "metadata.ChangeDescription",
-        "awsExtractor.manifest.RawJson",
-        "awsExtractor.manifest.ScopeId",
-        "awsExtractor.manifest.Scope",
-        "awsExtractor.manifest.CollectionTimestamp",
-        "awsExtractor.manifest.SwitchesUsed"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "Microsoft AWS Well-Architected",
-          "requirement": "Reliability \u2014 Design for failure and redundancy (pillar theme)"
-        }
-      ],
-      "priority": "P0"
-    },
-    {
-      "id": "waf-aws-002",
-      "title": "Reliability \u2014 backup and recovery expectations for stateful services",
-      "description": "SQL, storage, and DynamoDB-class data planes inventoried in resources.json must show documented backup retention and restore testing commitments.",
-      "severity": "High",
-      "remediationGuidance": "Align datastores[].DatastoreType and RuntimePlatform with governance.PolicyConstraints naming backup cadence; cite extractor CollectionTimestamp when comparing inventory freshness to DR drill records.",
-      "evidenceHints": [
-        "datastores[].DatastoreType",
-        "datastores[].RuntimePlatform",
-        "governance.PolicyConstraints",
-        "awsExtractor.manifest.manifest.CollectionTimestamp",
-        "awsExtractor.manifest.RawJson",
-        "awsExtractor.manifest.ScopeId",
-        "awsExtractor.manifest.Scope",
-        "awsExtractor.manifest.CollectionTimestamp",
-        "awsExtractor.manifest.SwitchesUsed"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "Microsoft AWS Well-Architected",
-          "requirement": "Reliability \u2014 Backup and disaster recovery (pillar theme)"
-        }
-      ],
-      "priority": "P0"
-    },
-    {
-      "id": "waf-aws-003",
-      "title": "Reliability \u2014 health monitoring for compute and PaaS hosts",
-      "description": "Elastic Beanstalk or Lambda, ECS Fargate or App Runner, EKS, and load-balanced VM tiers should declare health probe and autoscale expectations traceable to manifest services.",
-      "severity": "Medium",
-      "remediationGuidance": "Record probe and scaling policies on services[].Tags and RequiredControls; when diagnostic exports exist in RawJson, confirm Application Insights or platform health signals are enabled.",
-      "evidenceHints": [
-        "services[].Tags",
-        "services[].RequiredControls",
-        "services[].RuntimePlatform",
-        "awsExtractor.manifest.manifest.RawJson",
-        "awsExtractor.manifest.manifest.SwitchesUsed",
-        "awsExtractor.manifest.RawJson",
-        "awsExtractor.manifest.ScopeId",
-        "awsExtractor.manifest.Scope",
-        "awsExtractor.manifest.CollectionTimestamp",
-        "awsExtractor.manifest.SwitchesUsed"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "Microsoft AWS Well-Architected",
-          "requirement": "Reliability \u2014 Monitoring and health models (pillar theme)"
-        }
-      ],
-      "priority": "P1"
-    },
     {
       "id": "waf-aws-004",
       "title": "Security \u2014 sensitive PaaS uses private connectivity",
@@ -214,31 +138,6 @@
       "priority": "P2"
     },
     {
-      "id": "waf-aws-009",
-      "title": "Operational Excellence \u2014 centralized logging and diagnostics",
-      "description": "Platform diagnostics should converge to Log Analytics or equivalent sinks when AWS workloads emit audit and resource logs.",
-      "severity": "High",
-      "remediationGuidance": "Tag observability commitments on services[].Tags; cite extractor ScriptVersion and RawJson summaries when diagnostic settings exports accompany the package.",
-      "evidenceHints": [
-        "services[].Tags",
-        "awsExtractor.manifest.manifest.ScriptVersion",
-        "awsExtractor.manifest.manifest.RawJson",
-        "governance.RequiredControls",
-        "awsExtractor.manifest.RawJson",
-        "awsExtractor.manifest.ScopeId",
-        "awsExtractor.manifest.Scope",
-        "awsExtractor.manifest.CollectionTimestamp",
-        "awsExtractor.manifest.SwitchesUsed"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "Microsoft AWS Well-Architected",
-          "requirement": "Operational Excellence \u2014 Observability (pillar theme)"
-        }
-      ],
-      "priority": "P2"
-    },
-    {
       "id": "waf-aws-010",
       "title": "Operational Excellence \u2014 extractor evidence freshness documented",
       "description": "Architecture reviews citing AWS inventory must record when evidence was collected and which extractor switches shaped the ZIP contents.",
@@ -260,56 +159,6 @@
         {
           "framework": "Microsoft AWS Well-Architected",
           "requirement": "Operational Excellence \u2014 Operational procedures and evidence hygiene (pillar theme)"
-        }
-      ],
-      "priority": "P2"
-    },
-    {
-      "id": "waf-aws-011",
-      "title": "Performance Efficiency \u2014 autoscale and SKU tier choices explained",
-      "description": "Compute and PaaS SKUs (VM sizes, Elastic Beanstalk or Lambda plans, SQL tiers) inventoried in resources.json require performance rationale when latency or throughput SLOs apply.",
-      "severity": "Medium",
-      "remediationGuidance": "Document scale rules and SKU decisions in governance.PolicyConstraints; relate aws_Web/serverfarms and aws_Sql/servers SKUs to services[].Purpose narratives.",
-      "evidenceHints": [
-        "awsExtractor.manifest.manifest.RawJson",
-        "services[].Purpose",
-        "services[].RuntimePlatform",
-        "governance.PolicyConstraints",
-        "awsExtractor.manifest.RawJson",
-        "awsExtractor.manifest.ScopeId",
-        "awsExtractor.manifest.Scope",
-        "awsExtractor.manifest.CollectionTimestamp",
-        "awsExtractor.manifest.SwitchesUsed"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "Microsoft AWS Well-Architected",
-          "requirement": "Performance Efficiency \u2014 Select appropriate compute and data services (pillar theme)"
-        }
-      ],
-      "priority": "P2"
-    },
-    {
-      "id": "waf-aws-012",
-      "title": "Performance Efficiency \u2014 edge delivery for internet-facing HTTP APIs",
-      "description": "Externally reachable APIs should describe CDN, AWS Front Door, or Application Gateway caching and TLS termination patterns that reduce origin load.",
-      "severity": "Medium",
-      "remediationGuidance": "Note edge attachment on ingress services[].Tags and relationships; when aws_Cdn or aws_Network/frontDoors rows appear in resources.json, tie caching policies to governance.RequiredControls.",
-      "evidenceHints": [
-        "services[].Tags",
-        "relationships[].relationshipType",
-        "awsExtractor.manifest.manifest.RawJson",
-        "governance.RequiredControls",
-        "awsExtractor.manifest.RawJson",
-        "awsExtractor.manifest.ScopeId",
-        "awsExtractor.manifest.Scope",
-        "awsExtractor.manifest.CollectionTimestamp",
-        "awsExtractor.manifest.SwitchesUsed"
-      ],
-      "frameworkMappings": [
-        {
-          "framework": "Microsoft AWS Well-Architected",
-          "requirement": "Performance Efficiency \u2014 Use caching and content delivery (pillar theme)"
         }
       ],
       "priority": "P2"
