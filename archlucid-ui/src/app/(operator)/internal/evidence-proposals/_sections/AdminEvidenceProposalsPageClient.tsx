@@ -15,6 +15,7 @@ import {
   EVIDENCE_PROPOSALS_PROMOTE_UNEXPECTED_ERROR,
 } from "@/lib/evidence-proposals-page-copy";
 import { INTERNAL_EVIDENCE_PROPOSALS_PATH } from "@/lib/internal-ops-route-paths";
+import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 
 type EvidenceProposalRow = {
   resultId: string;
@@ -36,7 +37,10 @@ export function AdminEvidenceProposalsPageClient() {
     setError(null);
 
     try {
-      const response = await fetch("/api/proxy/v1/admin/evidence/proposals");
+      const response = await fetch(
+        "/api/proxy/v1/admin/evidence/proposals",
+        mergeRegistrationScopeForProxy(),
+      );
 
       if (!response.ok) {
         setError(await readApiFailureMessage(response));
@@ -62,9 +66,10 @@ export function AdminEvidenceProposalsPageClient() {
     setError(null);
 
     try {
-      const response = await fetch(`/api/proxy/v1/admin/evidence/proposals/${resultId}/promote`, {
-        method: "POST",
-      });
+      const response = await fetch(
+        `/api/proxy/v1/admin/evidence/proposals/${resultId}/promote`,
+        mergeRegistrationScopeForProxy({ method: "POST" }),
+      );
 
       if (!response.ok) {
         setError(await readApiFailureMessage(response));

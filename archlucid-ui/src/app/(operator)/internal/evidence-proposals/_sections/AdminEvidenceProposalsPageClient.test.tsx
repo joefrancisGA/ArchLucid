@@ -1,11 +1,17 @@
-import { fireEvent, render, screen } from "@testing-library/react";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("@/components/usability/PageContextualHelpButton", () => ({
   PageContextualHelpButton: () => <div data-testid="page-contextual-help-button" />,
 }));
 
+import { writeOperatorScopeToStorage } from "@/lib/operator/operator-scope-storage";
+
 import { AdminEvidenceProposalsPageClient } from "@/app/(operator)/internal/evidence-proposals/_sections/AdminEvidenceProposalsPageClient";
+
+const tenantId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
+const workspaceId = "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb";
+const projectId = "cccccccc-cccc-cccc-cccc-cccccccccccc";
 
 const HTML_STACK_BODY =
   "<html>at Foo.cs:12\n--- INNER ---\nNullReferenceException: boom</html>";
@@ -20,8 +26,59 @@ const PENDING_PROPOSAL = {
 };
 
 describe("AdminEvidenceProposalsPageClient", () => {
+  beforeEach(() => {
+    writeOperatorScopeToStorage({ tenantId, workspaceId, projectId });
+  });
+
   afterEach(() => {
     vi.unstubAllGlobals();
+  });
+
+  it("forwards operator scope headers when loading and promoting evidence proposals", async () => {
+    const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const url = typeof input === "string" ? input : input.toString();
+
+      if (url.includes("/promote") && (init?.method ?? "GET") === "POST") {
+        return new Response(JSON.stringify({ catalogEntryId: "entry-1" }), { status: 200 });
+      }
+
+      return new Response(JSON.stringify([PENDING_PROPOSAL]), { status: 200 });
+    });
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<AdminEvidenceProposalsPageClient />);
+
+    fireEvent.click(await screen.findByRole("button", { name: "Promote to catalog" }));
+
+    await waitFor(() => {
+      expect(fetchMock.mock.calls.some((call) => (call[1] as RequestInit | undefined)?.method === "POST")).toBe(true);
+    });
+
+    const initialGet = fetchMock.mock.calls.find(
+      (call) =>
+        String(call[0]).includes("/api/proxy/v1/admin/evidence/proposals") &&
+        !String(call[0]).includes("/promote") &&
+        ((call[1] as RequestInit | undefined)?.method ?? "GET") === "GET",
+    );
+    expect(initialGet).toBeDefined();
+
+    const getHeaders = new Headers((initialGet?.[1] as RequestInit | undefined)?.headers);
+    expect(getHeaders.get("x-tenant-id")).toBe(tenantId);
+    expect(getHeaders.get("x-workspace-id")).toBe(workspaceId);
+    expect(getHeaders.get("x-project-id")).toBe(projectId);
+
+    const promoteCall = fetchMock.mock.calls.find(
+      (call) =>
+        String(call[0]).includes("/promote") &&
+        (call[1] as RequestInit | undefined)?.method === "POST",
+    );
+    expect(promoteCall).toBeDefined();
+
+    const promoteHeaders = new Headers((promoteCall?.[1] as RequestInit | undefined)?.headers);
+    expect(promoteHeaders.get("x-tenant-id")).toBe(tenantId);
+    expect(promoteHeaders.get("x-workspace-id")).toBe(workspaceId);
+    expect(promoteHeaders.get("x-project-id")).toBe(projectId);
   });
 
   it("renders the claim-discipline orientation strip on the live admin page", async () => {
