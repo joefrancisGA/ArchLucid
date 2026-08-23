@@ -5,7 +5,7 @@ import { SETTINGS_ROOT_PATH } from "@/lib/settings-admin-route-paths";
 export const EXTRACT_UPLOAD_SETTINGS_PAGE_TITLE = "Extract & Upload" as const;
 
 export const EXTRACT_UPLOAD_SETTINGS_PAGE_SUBTITLE =
-  "Run the read-only Azure extractor locally, validate the ZIP, then upload it for architecture reviews." as const;
+  "Run the read-only cloud inventory script locally for your provider, validate the ZIP, then upload it for architecture reviews." as const;
 
 export const EXTRACT_UPLOAD_SETTINGS_PAGE_SUBTITLE_BUYER =
   "Collect a read-only Azure inventory ZIP locally, validate it, and upload it to start architecture reviews." as const;
