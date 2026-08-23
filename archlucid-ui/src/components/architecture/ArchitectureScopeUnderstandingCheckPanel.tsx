@@ -206,10 +206,7 @@ export function ArchitectureScopeUnderstandingCheckPanel(
         className="space-y-2 border-t border-al-border-subtle pt-3"
         data-testid="architecture-scope-understanding-add"
       >
-        <Label
-          htmlFor="architecture-scope-understanding-new"
-          className={cn("font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.label)}
-        >
+        <Label htmlFor="architecture-scope-understanding-new">
           {SCOPE_UNDERSTANDING_ADD_LABEL}
         </Label>
         <div className="flex flex-wrap items-center gap-2">

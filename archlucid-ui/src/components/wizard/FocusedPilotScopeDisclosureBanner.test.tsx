@@ -2,6 +2,7 @@ import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { FocusedPilotScopeDisclosureBanner } from "@/components/wizard/FocusedPilotScopeDisclosureBanner";
+import { INLINE_GUIDANCE_LABEL_CLASS } from "@/lib/design-tokens";
 import { REVIEW_SCOPE_WORKSPACE_DISAMBIGUATION } from "@/lib/focused-pilot-mode-policy-packs";
 
 describe("FocusedPilotScopeDisclosureBanner", () => {
@@ -12,6 +13,10 @@ describe("FocusedPilotScopeDisclosureBanner", () => {
     expect(screen.getByText(REVIEW_SCOPE_WORKSPACE_DISAMBIGUATION)).toBeInTheDocument();
     expect(screen.getByText(/Focused review scope:/)).toBeInTheDocument();
     expect(screen.getByText(/Security Architecture Baseline/)).toBeInTheDocument();
+
+    const focusedScopeLabel = screen.getByText("Focused review scope:");
+    expect(focusedScopeLabel.tagName).toBe("STRONG");
+    expect(focusedScopeLabel).toHaveClass(INLINE_GUIDANCE_LABEL_CLASS.split(" ")[0]);
   });
 
   it("shows expanded scope copy when focused mode is off", () => {

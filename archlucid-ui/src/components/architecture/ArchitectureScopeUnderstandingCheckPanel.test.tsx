@@ -50,6 +50,8 @@ describe("ArchitectureScopeUnderstandingCheckPanel", () => {
       />,
     );
 
+    const systemLabel = screen.getByText("Primary System or Architecture");
+    expect(systemLabel).toHaveClass("font-semibold");
     expect(screen.getByLabelText(scopeBulletBehavior("system").label)).toHaveValue("Vertex");
     expect(screen.getByLabelText(scopeBulletBehavior("outcome").label)).toHaveValue("Faster review cycles");
   });
