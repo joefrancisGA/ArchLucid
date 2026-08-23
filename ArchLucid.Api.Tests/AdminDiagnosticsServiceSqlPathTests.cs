@@ -11,6 +11,7 @@ using ArchLucid.Core.Integration;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Pagination;
 using ArchLucid.Host.Core.Configuration;
+using ArchLucid.Host.Core.DataConsistency;
 using ArchLucid.Persistence.Coordination.Retrieval;
 using ArchLucid.Persistence.Data.Infrastructure;
 using ArchLucid.Persistence.Admin;
@@ -980,7 +981,8 @@ public sealed class AdminDiagnosticsServiceSqlPathTests
             CacheTelemetryProvider(),
             actor.Object,
             auditService,
-            MissingArchitectureRequestOptionsMonitor());
+            MissingArchitectureRequestOptionsMonitor(),
+            new DataConsistencyRemediationExecutor(connectionFactory, auditService));
     }
 
     private static IOptionsMonitor<MissingArchitectureRequestAutoRemediationOptions>

@@ -22,6 +22,7 @@ using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Http;
 using ArchLucid.Host.Composition.Startup;
 using ArchLucid.Host.Core.Configuration;
+using ArchLucid.Host.Core.DataConsistency;
 using ArchLucid.Host.Core.Http;
 using ArchLucid.Host.Core.Services.Governance;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
@@ -55,6 +56,7 @@ public static class ApiWebLayerServiceCollectionExtensions
             services.AddScoped<IEvolutionSimulationService, EvolutionSimulationService>();
         }
 
+        services.AddScoped<IDataConsistencyRemediationExecutor, DataConsistencyRemediationExecutor>();
         services.AddScoped<IAdminDiagnosticsService, AdminDiagnosticsService>();
         services.AddSingleton<IHostBuildInfoAccessor, ApiHostBuildInfoAccessor>();
         services.Configure<DeploymentStatusOptions>(configuration.GetSection(DeploymentStatusOptions.SectionPath));

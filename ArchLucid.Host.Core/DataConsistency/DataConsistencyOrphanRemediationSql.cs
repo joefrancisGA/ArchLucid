@@ -61,6 +61,27 @@ public static class DataConsistencyOrphanRemediationSql
                                                           ORDER BY f.CreatedUtc ASC;
                                                           """;
 
+    /// <summary>Deletes <c>dbo.ArtifactBundles</c> for a single orphan golden manifest.</summary>
+    public const string DeleteArtifactBundlesByManifestId = "DELETE FROM dbo.ArtifactBundles WHERE ManifestId = @ManifestId;";
+
+    /// <summary>
+    ///     Deletes a single orphan <c>dbo.GoldenManifests</c> row and returns <c>deleted.ManifestId</c>.
+    /// </summary>
+    public const string DeleteGoldenManifestByManifestIdWithOutput = """
+                                                                    DELETE FROM dbo.GoldenManifests
+                                                                    OUTPUT deleted.ManifestId
+                                                                    WHERE ManifestId = @ManifestId;
+                                                                    """;
+
+    /// <summary>
+    ///     Deletes a single orphan <c>dbo.FindingsSnapshots</c> row and returns <c>deleted.FindingsSnapshotId</c>.
+    /// </summary>
+    public const string DeleteFindingsSnapshotByIdWithOutput = """
+                                                               DELETE FROM dbo.FindingsSnapshots
+                                                               OUTPUT deleted.FindingsSnapshotId
+                                                               WHERE FindingsSnapshotId = @FindingsSnapshotId;
+                                                               """;
+
     /// <summary>
     /// Soft deletes orphan <c>dbo.GraphSnapshots</c> and <c>dbo.GraphSnapshotEdges</c>.
     /// </summary>
