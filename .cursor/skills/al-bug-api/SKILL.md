@@ -20,13 +20,17 @@ Follow `.cursor/commands/al-bug-api.md`.
 /al-bug-api --find-only
 /al-bug-api --status
 /al-bug-api --refresh
+/al-bug-api --wait
+/al-bug-api --loop
 ```
 
 ## Quick workflow
 
 1. **`--status`** → `.\scripts\Invoke-AlBugApi.ps1 -Status` (local picker only; stop).
-2. **Otherwise** → `.\scripts\Invoke-AlBugApi.ps1` with parsed flags; return agent URL.
-3. Do **not** hunt locally unless the user also asked for `/al-bug`.
+2. **`--loop`** → `.\scripts\Invoke-AlBugApi.ps1 -Loop` (sequential hunts; Ctrl+C to stop).
+3. **`--wait`** → launch + poll until terminal status.
+4. **Otherwise** → `.\scripts\Invoke-AlBugApi.ps1` with parsed flags; return agent URL.
+5. Do **not** hunt locally unless the user also asked for `/al-bug`.
 
 Cloud agent follows `.cursor/commands/al-bug.md` with `workOnCurrentBranch=true` on `master` (or override).
 
@@ -35,3 +39,4 @@ Cloud agent follows `.cursor/commands/al-bug.md` with `workOnCurrentBranch=true`
 - `/al-bug` — local hunt loop
 - `/al-api` — generic cloud task launcher
 - `scripts/Invoke-AlBugApi.ps1` — bug-hunt prompt + API call
+- `scripts/Wait-AlApiRun.ps1` — run status polling

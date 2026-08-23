@@ -25,6 +25,9 @@ Same surface as `/al-bug`, except **`--status`** is local-only (no cloud launch)
 /al-bug-api master --find-only
 /al-bug-api --status
 /al-bug-api --refresh
+/al-bug-api --wait
+/al-bug-api --loop
+/al-bug-api --loop --max-hunts 10
 ```
 
 - **`master`** (optional) — explicit branch target for the cloud agent.
@@ -32,6 +35,9 @@ Same surface as `/al-bug`, except **`--status`** is local-only (no cloud launch)
 - **`--find-only`** — cloud agent stops after Phase 1 (repro only).
 - **`--status`** — run `al-bug-pick-zone.ps1 -Preview` **locally** and stop (no API call).
 - **`--refresh`** — pass `-Refresh` to the picker (local `--status` or embedded in cloud prompt).
+- **`--wait`** — after launch, poll until the run finishes and print final status.
+- **`--loop`** — launch hunts **sequentially**; wait for each run before the next. Stop with Ctrl+C.
+- **`--max-hunts N`** — with `--loop`, stop after N hunts (omit for unlimited).
 - **Optional screenshot** — attach an image; save to `.cursor/tmp/` and pass `-ImagePath` to the script.
 
 ---
@@ -60,8 +66,21 @@ Print the picker preview and **stop** (no cloud agent).
   [-Hint '<hint>'] `
   [-FindOnly] `
   [-Refresh] `
+  [-Wait] `
+  [-Loop] `
+  [-MaxHunts 0] `
+  [-PollIntervalSeconds 30] `
   [-ImagePath '<absolute path>']
 ```
+
+**Continuous sequential hunts:**
+
+```powershell
+.\scripts\Invoke-AlBugApi.ps1 -Loop
+.\scripts\Invoke-AlBugApi.ps1 -Loop -MaxHunts 10 -PollIntervalSeconds 20
+```
+
+Stop with **Ctrl+C**.
 
 6. Reply with:
    - Agent URL (clickable)
@@ -98,6 +117,7 @@ Then return the agent URL from the script output.
 
 - `.cursor/commands/al-bug-api.md` — this workflow
 - `.cursor/commands/al-bug.md` — workflow the cloud agent must follow
-- `scripts/Invoke-AlBugApi.ps1` — prompt builder + launcher
+- `scripts/Invoke-AlBugApi.ps1` — prompt builder + launcher (`-Wait`, `-Loop`)
+- `scripts/Wait-AlApiRun.ps1` — poll run until terminal status
 - `scripts/Invoke-AlApi.ps1` — shared Cloud Agents API client
 - `.cursor/al-api.config.example.json` — config template
