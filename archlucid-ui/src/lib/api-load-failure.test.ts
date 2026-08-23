@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { ApiRequestError } from "./api-request-error";
 import {
+  isApiLoadFailureState,
   isApiNotFoundFailure,
   isApiTimeoutLoadFailure,
   isApiTransientLoadFailure,
@@ -66,6 +67,13 @@ describe("toApiLoadFailure", () => {
       retryAfterSeconds: null,
     });
     expect(failure.correlationId).toEqual(expect.any(String));
+  });
+
+  it("passes through ApiLoadFailureState", () => {
+    const failure = toApiLoadFailure(new Error("oops"));
+
+    expect(isApiLoadFailureState(failure)).toBe(true);
+    expect(toApiLoadFailure(failure)).toBe(failure);
   });
 });
 

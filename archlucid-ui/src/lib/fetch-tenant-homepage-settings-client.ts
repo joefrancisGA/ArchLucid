@@ -1,3 +1,4 @@
+import { proxyJsonGet, proxyJsonPut } from "@/lib/proxy-json-client";
 import type {
   FeaturedCompletedSampleCandidate,
   TenantHomepageSettingsPutRequest,
@@ -51,31 +52,18 @@ function coerceCandidate(payload: ApiFeaturedCompletedSampleCandidate): Featured
 }
 
 export async function fetchTenantHomepageSettingsClient(): Promise<TenantHomepageSettingsResponse> {
-  const response = await fetch("/api/proxy/v1/tenant/homepage-settings", {
-    credentials: "include",
+  const payload = await proxyJsonGet<ApiTenantHomepageSettingsResponse>("/api/proxy/v1/tenant/homepage-settings", {
     cache: "no-store",
   });
-
-  if (!response.ok) {
-    throw new Error("Unable to load workspace homepage settings.");
-  }
-
-  const payload = (await response.json()) as ApiTenantHomepageSettingsResponse;
 
   return coerceHomepageSettings(payload);
 }
 
 export async function fetchFeaturedCompletedSampleCandidatesClient(): Promise<FeaturedCompletedSampleCandidate[]> {
-  const response = await fetch("/api/proxy/v1/tenant/homepage-settings/eligible-samples", {
-    credentials: "include",
-    cache: "no-store",
-  });
-
-  if (!response.ok) {
-    throw new Error("Unable to load eligible sample reviews.");
-  }
-
-  const payload = (await response.json()) as ApiFeaturedCompletedSampleCandidate[];
+  const payload = await proxyJsonGet<ApiFeaturedCompletedSampleCandidate[]>(
+    "/api/proxy/v1/tenant/homepage-settings/eligible-samples",
+    { cache: "no-store" },
+  );
 
   return payload
     .map(coerceCandidate)
@@ -85,20 +73,10 @@ export async function fetchFeaturedCompletedSampleCandidatesClient(): Promise<Fe
 export async function putTenantHomepageSettingsClient(
   body: TenantHomepageSettingsPutRequest,
 ): Promise<TenantHomepageSettingsResponse> {
-  const response = await fetch("/api/proxy/v1/tenant/homepage-settings", {
-    method: "PUT",
-    credentials: "include",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      selectedRunId: body.selectedRunId,
-    }),
-  });
-
-  if (!response.ok) {
-    throw new Error("Unable to save workspace homepage settings.");
-  }
-
-  const payload = (await response.json()) as ApiTenantHomepageSettingsResponse;
+  const payload = await proxyJsonPut<ApiTenantHomepageSettingsResponse>(
+    "/api/proxy/v1/tenant/homepage-settings",
+    { selectedRunId: body.selectedRunId },
+  );
 
   return coerceHomepageSettings(payload);
 }

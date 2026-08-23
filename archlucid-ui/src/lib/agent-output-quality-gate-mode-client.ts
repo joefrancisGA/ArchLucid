@@ -1,5 +1,12 @@
 import type { components } from "@/lib/api-types.generated";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
+import { applyCorrelationHeaders } from "@/lib/api/http";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
+import {
+  normalizeProxyJsonResponseFailure,
+  proxyJsonGet,
+  proxyJsonPut,
+} from "@/lib/proxy-json-client";
 import { getOperatorQueryClient } from "@/lib/query/operator-query-client";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 
@@ -38,54 +45,34 @@ export function parseAgentOutputQualityGateMode(
 }
 
 export async function fetchAgentOutputQualityGateMode(): Promise<TenantAgentOutputQualityGateModeResponse> {
-  const res = await fetch(
-    MODE_PROXY_PATH,
-    mergeRegistrationScopeForProxy({
-      headers: { Accept: "application/json" },
-      cache: "no-store",
-    }),
-  );
-
-  if (!res.ok) {
-    throw new Error(
-      res.status === 401 || res.status === 403
-        ? "Admin session required to manage quality gate mode."
-        : `Quality gate settings unavailable (HTTP ${res.status}).`,
-    );
-  }
-
-  const parsed = parseAgentOutputQualityGateMode(await res.json());
+  const payload = await proxyJsonGet<TenantAgentOutputQualityGateModeResponse>(MODE_PROXY_PATH, {
+    cache: "no-store",
+  });
+  const parsed = parseAgentOutputQualityGateMode(payload);
 
   if (parsed == null) {
-    throw new Error("Unexpected quality gate mode response from the API.");
+    throw toApiLoadFailure(new Error("Unexpected quality gate mode response from the API."));
   }
 
   return parsed;
 }
 
 export async function updateAgentOutputQualityGateMode(mode: QualityGateMode): Promise<void> {
-  const res = await fetch(
-    MODE_PROXY_PATH,
-    mergeRegistrationScopeForProxy({
-      method: "PUT",
-      headers: { Accept: "application/json", "Content-Type": "application/json" },
-      body: JSON.stringify({ mode }),
-    }),
-  );
-
-  if (!res.ok) {
-    throw new Error(`Failed to update quality gate mode (HTTP ${res.status}).`);
-  }
+  await proxyJsonPut<void>(MODE_PROXY_PATH, { mode });
 }
 
 export async function clearAgentOutputQualityGateModeOverride(): Promise<void> {
-  const res = await fetch(
-    MODE_PROXY_PATH,
-    mergeRegistrationScopeForProxy({ method: "DELETE", headers: { Accept: "application/json" } }),
-  );
+  const scoped = mergeRegistrationScopeForProxy({
+    credentials: "include",
+    method: "DELETE",
+    headers: { Accept: "application/json" },
+  });
+  const { headers, correlationId } = applyCorrelationHeaders(scoped.headers ?? {});
+  const response = await fetch(MODE_PROXY_PATH, { ...scoped, headers });
+  const text = await response.text();
 
-  if (!res.ok) {
-    throw new Error(`Failed to reset quality gate mode (HTTP ${res.status}).`);
+  if (!response.ok) {
+    throw normalizeProxyJsonResponseFailure(response, text, correlationId);
   }
 }
 

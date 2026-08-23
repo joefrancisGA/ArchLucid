@@ -8,6 +8,7 @@ import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthor
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useTenantWorkspacesListQuery } from "@/hooks/use-tenant-workspaces-list-query";
+import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { deleteTenantWorkspaceProject } from "@/lib/delete-tenant-workspace-project";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
@@ -102,9 +103,7 @@ export function TenantWorkspaceProjectsCard(): React.JSX.Element {
   const error =
     actionError
     ?? (workspacesQuery.isError
-      ? workspacesQuery.error instanceof Error
-        ? workspacesQuery.error.message
-        : "Could not load projects."
+      ? toApiLoadFailure(workspacesQuery.error).message
       : workspaceContext.loadError);
 
   async function confirmDelete(): Promise<void> {

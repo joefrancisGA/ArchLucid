@@ -1,14 +1,8 @@
 import type { PatternInsightCard } from "@/lib/pattern-library-aggregate-threshold";
+import { proxyJsonGet } from "@/lib/proxy-json-client";
 
 export async function fetchPatternLibraryInsightCards(): Promise<PatternInsightCard[]> {
-  const res = await fetch("/api/proxy/v1/analytics/patterns", {
-    headers: { Accept: "application/json" },
-  });
-  const text = await res.text();
+  const payload = await proxyJsonGet<PatternInsightCard[]>("/api/proxy/v1/analytics/patterns");
 
-  if (!res.ok) {
-    throw new Error(text.length > 0 ? text : `Request failed (${res.status})`);
-  }
-
-  return text.length > 0 ? (JSON.parse(text) as PatternInsightCard[]) : [];
+  return payload ?? [];
 }

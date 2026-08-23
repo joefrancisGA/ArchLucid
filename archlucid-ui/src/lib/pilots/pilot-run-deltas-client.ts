@@ -1,5 +1,5 @@
 import type { PilotRunDeltasProofSummaryJson } from "@/lib/pilot-proof-readiness";
-import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
+import { proxyJsonGet } from "@/lib/proxy-json-client";
 
 /**
  * Reads persisted proof signals for one review (`GET /v1/pilots/runs/{runId}/pilot-run-deltas`).
@@ -9,17 +9,8 @@ import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-s
  * `no-store` keeps a sponsor-send decision off a browser-cached copy of an earlier attempt.
  */
 export async function fetchPilotRunDeltas(runId: string): Promise<PilotRunDeltasProofSummaryJson> {
-  const response = await fetch(
+  return proxyJsonGet<PilotRunDeltasProofSummaryJson>(
     `/api/proxy/v1/pilots/runs/${encodeURIComponent(runId)}/pilot-run-deltas`,
-    mergeRegistrationScopeForProxy({
-      cache: "no-store",
-      headers: { Accept: "application/json" },
-    }),
+    { cache: "no-store" },
   );
-
-  if (!response.ok) {
-    throw new Error(`pilot-run-deltas request failed with status ${response.status}.`);
-  }
-
-  return (await response.json()) as PilotRunDeltasProofSummaryJson;
 }

@@ -1,28 +1,15 @@
 import { ApiV1Routes } from "@/lib/api-v1-routes";
-import { buildApiRequestErrorFromParts } from "@/lib/api-error";
-import { applyCorrelationHeaders } from "@/lib/api/http";
-import type { SponsorRoiSummary } from "@/lib/sponsor/sponsor-report-markdown";
-import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
+import { proxyJsonGet } from "@/lib/proxy-json-client";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 import { getOperatorQueryClient } from "@/lib/query/operator-query-client";
 import { OPERATOR_QUERY_STALE_MS } from "@/lib/query/operator-query-stale-time";
+import type { SponsorRoiSummary } from "@/lib/sponsor/sponsor-report-markdown";
 
 const SPONSOR_ROI_SUMMARY_PATH = `/api/proxy/${ApiV1Routes.roiSponsorReport}`;
 
 /** Browser fetch for sponsor ROI summary with correlation id on all failure paths (TB-271). */
 export async function fetchSponsorRoiSummaryClient(): Promise<SponsorRoiSummary> {
-  const baseInit = mergeRegistrationScopeForProxy({ headers: { Accept: "application/json" } });
-  const { headers, correlationId } = applyCorrelationHeaders(baseInit.headers ?? {});
-
-  const response = await fetch(SPONSOR_ROI_SUMMARY_PATH, { ...baseInit, headers });
-
-  if (!response.ok) {
-    const bodyText = await response.text();
-
-    throw buildApiRequestErrorFromParts(response, bodyText, correlationId);
-  }
-
-  return (await response.json()) as SponsorRoiSummary;
+  return proxyJsonGet<SponsorRoiSummary>(SPONSOR_ROI_SUMMARY_PATH);
 }
 
 /** Imperative read through the shared TanStack Query cache (TB-562). */
