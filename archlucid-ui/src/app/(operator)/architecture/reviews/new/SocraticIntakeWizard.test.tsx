@@ -465,7 +465,7 @@ describe("SocraticIntakeWizard", () => {
     const stickyChrome = screen.getByTestId(WIZARD_STICKY_PROGRESS_TEST_ID);
     expect(stickyChrome.className).toContain("sticky");
     expect(screen.getByRole("button", { name: GUIDED_INTAKE_CONTINUE_TO_CLARIFICATIONS })).toBeInTheDocument();
-    expect(screen.getByTestId("draft-intake-claim-label-structural-admission")).toBeInTheDocument();
+    expect(screen.queryByTestId("draft-intake-claim-label-structural-admission")).not.toBeInTheDocument();
   });
 
   it("shows under-minimum intent helper copy and blocks continue until 100 characters", () => {

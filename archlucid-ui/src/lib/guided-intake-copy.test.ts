@@ -6,7 +6,6 @@ import { describe, expect, it } from "vitest";
 
 import {
   GUIDED_INTAKE_CREATION_ARCHITECTURE_OVERVIEW_PLACEHOLDER,
-  GUIDED_INTAKE_DRAFT_GUIDANCE_CALLOUT,
   GUIDED_INTAKE_NOT_READY_RECEIPT_TITLE,
   GUIDED_INTAKE_READINESS_SUCCESS_TOAST,
   GUIDED_INTAKE_READY_DRAFT_CLAIM_LABEL,
@@ -57,7 +56,6 @@ describe("guided-intake buyer jargon (TB-1878)", () => {
     expect(GUIDED_INTAKE_STEP2_SUBMIT_DESCRIPTION).not.toMatch(/authority pipeline/i);
     expect(GUIDED_INTAKE_READY_DRAFT_CLAIM_LABEL).toMatch(/ready to submit/i);
     expect(GUIDED_INTAKE_NOT_READY_RECEIPT_TITLE).toMatch(/review not started/i);
-    expect(GUIDED_INTAKE_DRAFT_GUIDANCE_CALLOUT).not.toMatch(/admission/i);
   });
 
   it("keeps guided-intake path hint free of admission-gate jargon", () => {
@@ -68,7 +66,6 @@ describe("guided-intake buyer jargon (TB-1878)", () => {
   it("forbids admission/Socratic jargon in guided intake buyer copy constants", () => {
     expectNoBannedBuyerPhrases(
       [
-        GUIDED_INTAKE_DRAFT_GUIDANCE_CALLOUT,
         GUIDED_INTAKE_READINESS_SUCCESS_TOAST,
         GUIDED_INTAKE_STEP2_CARD_DESCRIPTION,
         GUIDED_INTAKE_STEP2_SUBMIT_DESCRIPTION,

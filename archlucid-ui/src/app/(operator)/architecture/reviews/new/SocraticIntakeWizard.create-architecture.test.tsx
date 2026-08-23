@@ -160,13 +160,13 @@ describe("SocraticIntakeWizard create-architecture intent", () => {
     expect(admitDraftRequest).not.toHaveBeenCalled();
   });
 
-  it("uses create-architecture labels and shows wizard progress plus draft claim label", () => {
+  it("uses create-architecture labels and shows wizard progress", () => {
     render(<SocraticIntakeWizard />);
 
     expect(screen.getByLabelText(`${GUIDED_INTAKE_CREATION_SYSTEM_NAME_LABEL} (required)`)).toBeInTheDocument();
     expect(screen.getByLabelText(`${GUIDED_INTAKE_CREATION_ARCHITECTURE_OVERVIEW_LABEL} (required)`)).toBeInTheDocument();
     expect(screen.getByTestId("wizard-sticky-progress")).toHaveTextContent(/step 1 of 3/i);
-    expect(screen.getByTestId("draft-intake-claim-label-architecture-creation-draft")).toBeInTheDocument();
+    expect(screen.queryByTestId("draft-intake-claim-label-architecture-creation-draft")).not.toBeInTheDocument();
     expect(screen.getByTestId("pilot-mode-policy-pack-toggle-selected-standards")).toBeInTheDocument();
   });
 

@@ -248,9 +248,6 @@ export const GUIDED_INTAKE_REVIEW_ANSWERS_DISABLED_HINT =
 export const GUIDED_INTAKE_CREATION_DRAFT_GUIDANCE_CALLOUT =
   "Architecture draft only. Nothing is submitted for review until you explicitly create a review.";
 
-export const GUIDED_INTAKE_DRAFT_GUIDANCE_CALLOUT =
-  "Draft guidance only. Nothing is added to review evidence until you submit.";
-
 export const GUIDED_INTAKE_STEP2_CARD_DESCRIPTION =
   "Submit your answers to start the architecture review.";
 
