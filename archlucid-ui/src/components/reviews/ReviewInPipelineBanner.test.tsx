@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { ReviewDetailWorkspace } from "@/components/reviews/ReviewDetailWorkspace";
@@ -79,12 +79,51 @@ describe("ReviewDetailWorkspace in-pipeline banner (TB-2385)", () => {
       />,
     );
 
-    expect(screen.getByTestId("review-in-pipeline-banner")).toBeInTheDocument();
+    expect(
+      within(screen.getByTestId("review-detail-workspace-panel-findings")).getByTestId(
+        "review-in-pipeline-banner",
+      ),
+    ).toBeInTheDocument();
     expect(screen.getByTestId("panel-findings")).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("tab", { name: /Activity/i }));
 
-    expect(screen.queryByTestId("review-in-pipeline-banner")).not.toBeInTheDocument();
+    expect(
+      within(screen.getByTestId("review-detail-workspace-panel-activity")).queryByTestId(
+        "review-in-pipeline-banner",
+      ),
+    ).not.toBeInTheDocument();
     expect(screen.getByTestId("panel-activity")).toBeInTheDocument();
+  });
+
+  it("does not warn when in-pipeline banner and overview panel are keyed siblings", () => {
+    const keyWarnings: string[] = [];
+    const consoleError = vi.spyOn(console, "error").mockImplementation((...args: unknown[]) => {
+      const message = args.map((arg) => String(arg)).join(" ");
+
+      if (message.includes('Each child in a list should have a unique "key" prop')) {
+        keyWarnings.push(message);
+      }
+    });
+
+    window.history.replaceState({}, "", "/architecture/reviews/run-abc?reviewTab=overview");
+
+    render(
+      <ReviewDetailWorkspace
+        runId="run-abc"
+        panels={{
+          ...panels,
+          overview: (
+            <div key="review-detail-overview-panel" className="space-y-4" data-testid="panel-overview">
+              Overview
+            </div>
+          ),
+        }}
+        inPipelineBanner={<ReviewInPipelineBanner runId="run-abc" initialSummary={inPipelineSummary} />}
+      />,
+    );
+
+    expect(keyWarnings).toEqual([]);
+    consoleError.mockRestore();
   });
 });

@@ -307,7 +307,7 @@ const architectureTabPanelEl = (
       }}
       panels={{
         overview: (
-          <div className="space-y-4">
+          <div key="review-detail-overview-panel" className="space-y-4">
             <RunDetailColdOpenOrientationDeferred
               runId={m.resolvedDetail.run.runId}
               packageTitle={reviewDisplayTitle}

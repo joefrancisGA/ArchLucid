@@ -2,6 +2,7 @@
 
 import {
   createContext,
+  Fragment,
   useCallback,
   useContext,
   useEffect,
@@ -84,8 +85,8 @@ function panelWithInPipelineBanner(
 
   return (
     <div className="space-y-4">
-      {inPipelineBanner}
-      {panel}
+      <Fragment key={`${tabId}-in-pipeline-banner`}>{inPipelineBanner}</Fragment>
+      <Fragment key={`${tabId}-panel`}>{panel}</Fragment>
     </div>
   );
 }
