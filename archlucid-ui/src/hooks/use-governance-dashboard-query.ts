@@ -1,13 +1,8 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
-
 import { getGovernanceDashboard } from "@/lib/api/policy-governance-api";
+import { createOperatorQueryHook } from "@/lib/query/create-operator-query-hook";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
-import {
-  OPERATOR_QUERY_GC_MS,
-  OPERATOR_QUERY_STALE_MS,
-} from "@/lib/query/operator-query-stale-time";
 import type { GovernanceDashboardSummary } from "@/types/governance-dashboard";
 
 type UseGovernanceDashboardQueryOptions = {
@@ -23,14 +18,11 @@ export function useGovernanceDashboardQuery(options?: UseGovernanceDashboardQuer
   const maxDecisions = options?.maxDecisions ?? 20;
   const maxChanges = options?.maxChanges ?? 20;
 
-  return useQuery<GovernanceDashboardSummary>({
+  return createOperatorQueryHook<GovernanceDashboardSummary>({
     queryKey: operatorQueryKeys.governanceDashboard(maxPending, maxDecisions, maxChanges),
     queryFn: () => getGovernanceDashboard(maxPending, maxDecisions, maxChanges),
     enabled: options?.enabled ?? true,
     refetchInterval: options?.refetchIntervalMs ?? false,
     refetchIntervalInBackground: false,
-    staleTime: OPERATOR_QUERY_STALE_MS,
-    gcTime: OPERATOR_QUERY_GC_MS,
-    retry: false,
   });
 }
