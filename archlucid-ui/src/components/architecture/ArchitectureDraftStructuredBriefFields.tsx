@@ -9,7 +9,6 @@ import { InAppHelpLink } from "@/components/InAppHelpLink";
 import { StructuredBriefCapabilitiesQualityVocabularyRail } from "@/components/StructuredBriefCapabilitiesQualityVocabularyRail";
 import { IntakeFieldLabel } from "@/components/intake/IntakeFieldLabel";
 import { IntakeTextField } from "@/components/intake/IntakeTextField";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import type { StructuredBriefSuggestionKind } from "@/lib/api/structured-brief-suggestion-explain-api";
@@ -149,6 +148,26 @@ function suggestionSourceMeetsMinimum(sourceText: string): boolean {
   return sourceText.trim().length >= ARCHITECTURE_REQUEST_DRAFT_MIN_DESCRIPTION_CHARS;
 }
 
+function StructuredBriefListRow(props: {
+  readonly item: string;
+  readonly testId?: string;
+  readonly children: React.ReactNode;
+}): React.JSX.Element {
+  return (
+    <li
+      className="space-y-2 rounded-md border border-neutral-200 p-3 dark:border-neutral-700"
+      data-testid={props.testId}
+    >
+      <p className={cn("m-0 text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
+        {props.item}
+      </p>
+      <div className="flex flex-wrap items-center gap-2">
+        {props.children}
+      </div>
+    </li>
+  );
+}
+
 type ArchitectureDraftStructuredBriefFieldsProps = {
   readonly structuredBrief: ArchitectureDraftStructuredBriefState;
   readonly freeTextIntent: string;
@@ -252,75 +271,70 @@ function ConfirmableChipList(props: {
           </p>
           <ul className="m-0 list-none space-y-2 p-0">
             {props.suggestedItems.map((item) => (
-              <li
+              <StructuredBriefListRow
                 key={`suggested-${props.inputId}-${item}`}
-                className="space-y-2 rounded-md border border-neutral-200 p-3 dark:border-neutral-700"
-                data-testid={`${props.inputId}-suggestion`}
+                item={item}
+                testId={`${props.inputId}-suggestion`}
               >
-                <p className={cn("m-0 text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
-                  {item}
-                </p>
-                <div className="flex flex-wrap items-center gap-2">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  disabled={props.disabled}
+                  onClick={() => {
+                    props.onDenySuggested(item);
+                  }}
+                >
+                  {GUIDED_INTAKE_DENY_SUGGESTION_BUTTON}
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  disabled={props.disabled}
+                  onClick={() => {
+                    props.onConfirmSuggested(item);
+                  }}
+                >
+                  {GUIDED_INTAKE_CONFIRM_ACTOR_BUTTON}
+                </Button>
+                {props.suggestionKind !== undefined
+                && props.suggestionSourceText !== undefined
+                && props.suggestionSourceText.trim().length >= ARCHITECTURE_REQUEST_DRAFT_MIN_DESCRIPTION_CHARS ? (
+                  <StructuredBriefSuggestionExplainPanel
+                    suggestionKind={props.suggestionKind}
+                    suggestionText={item}
+                    sourceText={props.suggestionSourceText}
                     disabled={props.disabled}
-                    onClick={() => {
-                      props.onDenySuggested(item);
-                    }}
-                  >
-                    {GUIDED_INTAKE_DENY_SUGGESTION_BUTTON}
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    disabled={props.disabled}
-                    onClick={() => {
-                      props.onConfirmSuggested(item);
-                    }}
-                  >
-                    {GUIDED_INTAKE_CONFIRM_ACTOR_BUTTON}
-                  </Button>
-                  {props.suggestionKind !== undefined
-                  && props.suggestionSourceText !== undefined
-                  && props.suggestionSourceText.trim().length >= ARCHITECTURE_REQUEST_DRAFT_MIN_DESCRIPTION_CHARS ? (
-                    <StructuredBriefSuggestionExplainPanel
-                      suggestionKind={props.suggestionKind}
-                      suggestionText={item}
-                      sourceText={props.suggestionSourceText}
-                      disabled={props.disabled}
-                      testId={`${props.inputId}-explain`}
-                    />
-                  ) : null}
-                </div>
-              </li>
+                    testId={`${props.inputId}-explain`}
+                  />
+                ) : null}
+              </StructuredBriefListRow>
             ))}
           </ul>
         </div>
       ) : null}
       {props.items.length > 0 ? (
-        <ul className="flex list-none flex-wrap gap-2 p-0">
+        <ul className="m-0 list-none space-y-2 p-0">
           {props.items.map((item, index) => (
-            <li key={`${props.inputId}-${index}-${item.slice(0, 12)}`}>
-              <Badge variant="outline" className="gap-1 py-1 pl-2 pr-1 font-normal">
-                <span className="max-w-[240px] truncate">{item}</span>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  className="h-6 px-1 text-neutral-600"
-                  disabled={props.disabled}
-                  onClick={() => {
-                    props.onRemove(index);
-                  }}
-                  aria-label={`Remove ${item}`}
-                >
-                  ×
-                </Button>
-              </Badge>
-            </li>
+            <StructuredBriefListRow
+              key={`${props.inputId}-${index}-${item.slice(0, 12)}`}
+              item={item}
+              testId={`${props.inputId}-confirmed`}
+            >
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                disabled={props.disabled}
+                onClick={() => {
+                  props.onRemove(index);
+                }}
+                aria-label={`Remove ${item}`}
+              >
+                Remove
+              </Button>
+            </StructuredBriefListRow>
           ))}
         </ul>
       ) : (
