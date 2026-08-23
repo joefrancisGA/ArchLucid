@@ -133,7 +133,7 @@ export function applyArchitectureCreationDraftToFormState(draft: DraftRequestRes
   readonly systemName: string;
   readonly structuredBrief: ReturnType<typeof structuredBriefFromDocument>;
 } {
-  if (draft === null || isArchitectureCreationBootstrapIntent(draft.document.freeTextIntent)) {
+  if (draft === null) {
     return {
       freeTextIntent: "",
       businessOutcome: "",
@@ -142,10 +142,14 @@ export function applyArchitectureCreationDraftToFormState(draft: DraftRequestRes
     };
   }
 
+  const bootstrapIntent = isArchitectureCreationBootstrapIntent(draft.document.freeTextIntent);
+
   // Drafts saved before the scope block moved out of the form fields can still carry it inline.
   return {
-    freeTextIntent: stripScopeUnderstandingSection(draft.document.freeTextIntent),
-    businessOutcome: stripScopeUnderstandingSection(draft.document.businessOutcome),
+    freeTextIntent: bootstrapIntent
+      ? ""
+      : stripScopeUnderstandingSection(draft.document.freeTextIntent),
+    businessOutcome: stripScopeUnderstandingSection(draft.document.businessOutcome ?? ""),
     systemName: draft.document.systemName ?? "",
     structuredBrief: structuredBriefFromDocument(draft.document),
   };
