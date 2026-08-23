@@ -369,6 +369,7 @@ public static partial class ServiceCollectionExtensions
         });
         services.AddScoped<AgentOutputReferenceCaseRunEvaluator>();
         services.AddScoped<AgentOutputEvaluationRecorder>();
+        services.AddScoped<AgentEvaluationConfidencePipeline>();
         services.AddScoped<IAgentArchitectureFindingConfidenceEnricher, AgentArchitectureFindingConfidenceEnricher>();
         services.AddScoped<IFindingsSnapshotEvaluationConfidenceEnricher, FindingsSnapshotEvaluationConfidenceEnricher>();
         services.AddScoped<IAgentOutputTraceEvaluationHook, AgentOutputTraceEvaluationHook>();

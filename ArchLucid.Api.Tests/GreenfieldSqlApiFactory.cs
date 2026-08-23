@@ -1,8 +1,5 @@
 using ArchLucid.TestSupport;
 
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Data.SqlClient;
-
 namespace ArchLucid.Api.Tests;
 
 /// <summary>
@@ -11,73 +8,42 @@ namespace ArchLucid.Api.Tests;
 ///     Host startup must run DbUp then <c>ISchemaBootstrapper</c> — same path as greenfield deployments and CI
 ///     <c>api-greenfield-boot</c>.
 /// </summary>
-public class GreenfieldSqlApiFactory : BaseIntegrationTestFixture, IAsyncLifetime
+public class GreenfieldSqlApiFactory : SqlIntegrationTestWebAppFactoryBase
 {
-    private const string LogPrefix = nameof(GreenfieldSqlApiFactory);
-
-    private readonly IntegrationTestWebAppFactoryHostLifecycle _hostLifecycle = new();
-    private readonly IntegrationTestStorageProviderEnvironment _storageProviderEnvironment = new("Sql");
-    private readonly IntegrationTestSqlCatalogEnvironment? _sqlCatalogEnvironment;
+    private static readonly SqlCatalogProvisioningProfile GreenfieldCatalogProfile = new(
+        DatabaseNamePrefix: "ArchLucidGreenfield_",
+        PinSqlCatalogEnvironment: true,
+        PinSystemCatalogToSameDatabase: true,
+        PinSingleCatalogTopology: true,
+        WrapProvisioningErrors: true,
+        ProvisioningErrorMessage:
+            "GreenfieldSqlApiFactory could not prepare an ephemeral SQL catalog. "
+            + "Set environment variable "
+            + ArchLucid.TestSupport.TestDatabaseEnvironment.PersistenceSqlEnvironmentVariable
+            + " or "
+            + ArchLucid.TestSupport.TestDatabaseEnvironment.ApiIntegrationSqlEnvironmentVariable
+            + " to a reachable SQL Server (Linux/macOS require this). On Windows, ensure localhost accepts the connection. "
+            + "See docs/BUILD.md (API integration tests).");
 
     /// <summary>Creates the factory and ensures the catalog exists without applying migrations (host does that on boot).</summary>
     public GreenfieldSqlApiFactory()
+        : base("Sql", GreenfieldCatalogProfile)
     {
-        try
-        {
-            string databaseName = "ArchLucidGreenfield_" + Guid.NewGuid().ToString("N");
-            string raw = SqlServerIntegrationTestConnections.CreateEphemeralApiDatabaseConnectionString(databaseName);
-            SqlConnectionStringBuilder builder = new(raw)
-            {
-                // Parallel integration tests (same host process) can open many connections at once; CI SQL is slower than local.
-                MaxPoolSize = 200,
-                ConnectTimeout = 120
-            };
-
-            SqlConnectionString = builder.ConnectionString;
-            SqlServerTestCatalogCommands.EnsureCatalogExists(SqlConnectionString);
-            _sqlCatalogEnvironment = new IntegrationTestSqlCatalogEnvironment(
-                SqlConnectionString,
-                pinSystemCatalogToSameDatabase: true,
-                pinSingleCatalogTopology: true);
-        }
-        catch (Exception ex)
-        {
-            throw new InvalidOperationException(
-                "GreenfieldSqlApiFactory could not prepare an ephemeral SQL catalog. "
-                + "Set environment variable "
-                + TestDatabaseEnvironment.PersistenceSqlEnvironmentVariable
-                + " or "
-                + TestDatabaseEnvironment.ApiIntegrationSqlEnvironmentVariable
-                + " to a reachable SQL Server (Linux/macOS require this). On Windows, ensure localhost accepts the connection. "
-                + "See docs/BUILD.md (API integration tests).",
-                ex);
-        }
-    }
-
-    /// <summary>ADO.NET connection string for the empty catalog the API migrates on startup.</summary>
-    public string SqlConnectionString
-    {
-        get;
     }
 
     /// <inheritdoc />
-    protected override void ConfigureWebHost(IWebHostBuilder builder)
-    {
-        base.ConfigureWebHost(builder);
+    protected override string FactoryLogPrefix => nameof(GreenfieldSqlApiFactory);
 
-        ApplySqlPersistenceHostOverrides(builder, SqlConnectionString, GetAdditionalHostConfigurationOverrides());
-    }
+    /// <inheritdoc />
+    protected override bool UsesSqlPersistenceHostOverrides => true;
 
-    /// <summary>Subclasses add test-only host keys merged into the single early Sql <c>UseConfiguration</c> bootstrap.</summary>
-    protected virtual IReadOnlyDictionary<string, string?>? GetAdditionalHostConfigurationOverrides()
-    {
-        return null;
-    }
+    /// <inheritdoc />
+    protected override TimeSpan HttpClientTimeout =>
+        ArchitectureRequestConcurrencyTestSupport.GreenfieldSqlArchitectureRequestBurstHttpTimeout;
 
-    protected override void AddCustomSettings(Dictionary<string, string?> settings)
+    /// <inheritdoc />
+    protected override void ApplySqlCatalogCustomSettings(Dictionary<string, string?> settings)
     {
-        settings["ArchLucid:StorageProvider"] = "Sql";
-        settings["ConnectionStrings:ArchLucid"] = SqlConnectionString;
         // Pin control-plane + tenant-plane to the same ephemeral catalog so /v1/register duplicate gates
         // cannot split inserts and lookups across different SQL catalogs when env/config layers SqlTopology.
         settings["ArchLucid:SqlTopology:Mode"] = "SingleCatalog";
@@ -104,22 +70,13 @@ public class GreenfieldSqlApiFactory : BaseIntegrationTestFixture, IAsyncLifetim
     }
 
     /// <inheritdoc />
-    protected override void ConfigureClient(HttpClient client)
-    {
-        base.ConfigureClient(client);
-
-        // Worst wall clock for one POST: 3 min applock wait + 5 min pipeline + cold SQL headroom.
-        client.Timeout = ArchitectureRequestConcurrencyTestSupport.GreenfieldSqlArchitectureRequestBurstHttpTimeout;
-    }
-
-    /// <inheritdoc />
-    public async Task InitializeAsync()
+    public override async Task InitializeAsync()
     {
         GreenfieldSqlIntegrationWarmup.SkipIfShardWarmupAlreadyTimedOut();
 
         try
         {
-            await EnsureServicesStartedAsync().ConfigureAwait(false);
+            await base.InitializeAsync().ConfigureAwait(false);
         }
         catch (WarmupTimedOutException)
         {
@@ -129,29 +86,34 @@ public class GreenfieldSqlApiFactory : BaseIntegrationTestFixture, IAsyncLifetim
     }
 
     /// <inheritdoc />
-    Task IAsyncLifetime.DisposeAsync()
+    protected override Task PrepareForClientCreationAsync()
     {
+        RepinSqlCatalogEnvironmentVariables();
+
         return Task.CompletedTask;
     }
 
-    internal Task<IServiceProvider> EnsureServicesStartedAsync()
+    /// <inheritdoc />
+    protected override void OnPrepareHostStartup()
     {
-        return _hostLifecycle.EnsureServicesStartedAsync(LogPrefix, StartServicesCoreAsync);
+        RepinSqlCatalogEnvironmentVariables();
     }
 
-    /// <summary>
-    ///     Ensures the host is started under the greenfield bootstrap budget, then returns an <see cref="HttpClient" />.
-    /// </summary>
-    internal async Task<HttpClient> CreateBoundedClientAsync()
+    /// <inheritdoc />
+    protected override Task RunUnderHostStartupGateAsync(Func<CancellationToken, Task> startupWork)
     {
-        // Keep process env aligned for any late configuration reloads / sibling factory dispose races.
-        RepinSqlCatalogEnvironmentVariables();
+        return ArchitectureRequestConcurrencyTestSupport.RunGreenfieldSqlFactoryBootstrapAsync(startupWork);
+    }
 
-        await EnsureServicesStartedAsync().ConfigureAwait(false);
+    /// <inheritdoc />
+    protected override async Task OnAfterHostStartedAsync(IServiceProvider services, CancellationToken cancellationToken)
+    {
+        HttpClient healthClient = CreateClient();
+        ArchitectureRequestConcurrencyTestSupport.AlignHttpClientTimeoutForSqlIdempotencyLockChain(
+            healthClient,
+            ArchitectureRequestConcurrencyTestSupport.GreenfieldSqlArchitectureRequestBurstHttpTimeout);
 
-        return await IntegrationTestHostStartup.EnsureCompletedAsync(
-            () => CreateClient(),
-            IntegrationTestHostStartup.DefaultClientCreationTimeout).ConfigureAwait(false);
+        await HealthReadyProbe.EnsureReadyAsync(healthClient, cancellationToken).ConfigureAwait(false);
     }
 
     /// <summary>
@@ -163,81 +125,5 @@ public class GreenfieldSqlApiFactory : BaseIntegrationTestFixture, IAsyncLifetim
         Environment.SetEnvironmentVariable("ConnectionStrings__ArchLucid", SqlConnectionString);
         Environment.SetEnvironmentVariable("ConnectionStrings__ArchLucidSystem", SqlConnectionString);
         Environment.SetEnvironmentVariable("ArchLucid__SqlTopology__Mode", "SingleCatalog");
-    }
-
-    private Task<IServiceProvider> StartServicesCoreAsync()
-    {
-        return IntegrationTestStorageProviderHostGate.RunExclusiveAsync(StartServicesCoreUnderGateAsync);
-    }
-
-    private async Task<IServiceProvider> StartServicesCoreUnderGateAsync()
-    {
-        IServiceProvider? resolvedServices = null;
-
-        await ArchitectureRequestConcurrencyTestSupport.RunGreenfieldSqlFactoryBootstrapAsync(async cancellationToken =>
-        {
-            // Other ArchLucidEnvMutation factories pin ConnectionStrings__* in their ctors (outside this gate).
-            // Re-assert this factory's catalog immediately before host build so Program's AddEnvironmentVariables()
-            // cannot freeze a sibling greenfield/PersistenceTests catalog while fixture.SqlConnectionString differs.
-            RepinSqlCatalogEnvironmentVariables();
-
-            _storageProviderEnvironment.Apply();
-
-            Console.Error.WriteLine(
-                $"[{LogPrefix}] Host startup beginning at {DateTime.UtcNow:HH:mm:ss.fff}Z");
-
-            resolvedServices = await IntegrationTestHostStartup.EnsureStartedAsync(() =>
-            {
-                IServiceProvider services = Services;
-                HttpClient client = CreateClient();
-
-                Console.Error.WriteLine(
-                    $"[{LogPrefix}] Services resolved + CreateClient complete at {DateTime.UtcNow:HH:mm:ss.fff}Z");
-
-                return services;
-            }).ConfigureAwait(false);
-
-            HttpClient healthClient = CreateClient();
-            ArchitectureRequestConcurrencyTestSupport.AlignHttpClientTimeoutForSqlIdempotencyLockChain(
-                healthClient,
-                ArchitectureRequestConcurrencyTestSupport.GreenfieldSqlArchitectureRequestBurstHttpTimeout);
-
-            await HealthReadyProbe.EnsureReadyAsync(healthClient, cancellationToken).ConfigureAwait(false);
-        }).ConfigureAwait(false);
-
-        return resolvedServices
-            ?? throw new InvalidOperationException("Greenfield SQL host startup did not resolve services.");
-    }
-
-    /// <inheritdoc />
-    protected override void Dispose(bool disposing)
-    {
-        if (disposing)
-        {
-            _sqlCatalogEnvironment?.Dispose();
-            _storageProviderEnvironment.Dispose();
-        }
-
-        base.Dispose(disposing);
-
-        if (!disposing)
-            return;
-
-        IntegrationTestOwnedSqlCatalogDispose.TryDropOwnedCatalog(SqlConnectionString);
-    }
-
-    /// <summary>
-    ///     Bounds host teardown so a wedged SQL hosted service or connection cannot consume the CI
-    ///     blame-hang inactivity window. Mirrors the guard added to <see cref="AlertLifecycleWebAppFactory" />
-    ///     for CI #2168/#2195 — applied here because greenfield SQL host teardown is heavier (active
-    ///     connections, outbox workers) and the missing cap was identified in CI #2224.
-    /// </summary>
-    public override ValueTask DisposeAsync()
-    {
-        return IntegrationTestOwnedSqlCatalogDispose.DisposeHostAndDropOwnedCatalogAsync(
-            LogPrefix,
-            _hostLifecycle,
-            () => base.DisposeAsync(),
-            SqlConnectionString);
     }
 }
