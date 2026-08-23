@@ -206,6 +206,7 @@ describe("RunsPageView page chrome", () => {
     expect(screen.getByTestId("reviews-hub-row-review-001")).toBeInTheDocument();
     expect(screen.queryByTestId("reviews-hub-recent-empty")).toBeNull();
     expect(screen.getByTestId("reviews-hub-more-ways")).toBeInTheDocument();
+    expect(screen.getByTestId("reviews-hub-more-ways")).toHaveClass("mt-4");
     expect(screen.queryByTestId("runs-list-advanced")).toBeNull();
   });
 });
