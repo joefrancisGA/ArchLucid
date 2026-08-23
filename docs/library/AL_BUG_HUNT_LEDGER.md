@@ -873,14 +873,14 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ## Zone: ui-host-gate
 
 - **id:** ui-host-gate
-- **status:** open
+- **status:** cooling
 - **impact:** medium
 - **aliases:** host gate; split site host
 - **paths:** archlucid-ui/src/lib/host-gate.ts
 - **test-filter:** host-gate
-- **hunts:** 2
+- **hunts:** 3
 - **bugs-found:** 2
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-08-23
 - **last-bug:** 2026-08-23
 - **related-pd-tb:** none
@@ -891,6 +891,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Operator path is treated as marketing on the public host (or the reverse) — **hit 2026-08-23:** `/dashboard`, `/portfolio`, `/admin/*`, and other legacy bookmarks were absent from `LEGACY_OPERATOR_PATH_PREFIXES`, so split-host marketing requests stayed `next` instead of redirecting to the app origin.
 - [x] (proven) Retired bookmark is not redirected and 404s instead of the shim — **hit 2026-08-23:** `/alert-routing` and hard-retired executive-dashboard bookmarks were not classified as operator paths; marketing host served its own 404 chrome instead of forwarding to the app 404 shim.
 - [x] Split-site origin check allows the operator app origin as a public page Î“Ã‡Ã¶ fixed: `normalizeRequestHost` no longer strips ports; request Host must match `URL.host` from configured origins (localhost:3000 vs :3001)
+
+2026-08-23 dry hunt #48: no open hypotheses; `host-gate.test.ts` (10) passes on split-host redirect matrix.
 
 ---
 
