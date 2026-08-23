@@ -1257,24 +1257,25 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ## Zone: application-billing-logic
 
 - **id:** application-billing-logic
-- **status:** unseeded
+- **status:** open
 - **impact:** high
 - **aliases:** marketplace billing; checkout mutation; billing application layer
 - **paths:** ArchLucid.Application/Billing/
-- **test-filter:** FullyQualifiedName~Marketplace|FullyQualifiedName~BillingCheckout
-- **hunts:** 0
-- **bugs-found:** 0
+- **test-filter:** FullyQualifiedName~Marketplace|FullyQualifiedName~BillingCheckout|FullyQualifiedName~TenantLlmCostReporting
+- **hunts:** 1
+- **bugs-found:** 1
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **last-hunt:** 2026-08-23
+- **last-bug:** 2026-08-23
 - **related-pd-tb:** none
-- **code-changed-since:** unknown
+- **code-changed-since:** no
 
 ### Hypotheses
 
-- [ ] (candidate) Marketplace mutation handler applies a subscription change to the wrong tenant
-- [ ] (candidate) Checkout session is created without binding the caller tenant id
-- [ ] (candidate) Idempotent replay of a billing event double-applies seat or credit changes
+- [x] (invalid) Marketplace mutation handler applies a subscription change to the wrong tenant — `MarketplaceChange*WebhookMutationHandler` receives resolved `tenantId` from persistence; no alternate tenant lookup in Application layer.
+- [x] (invalid) Checkout session is created without binding the caller tenant id — checkout session creation lives in `ArchLucid.Api/Controllers/Billing/` and `Persistence/Billing`, not `ArchLucid.Application/Billing/`.
+- [x] (invalid) Idempotent replay of a billing event double-applies seat or credit changes — replay guard and `TryInsertWebhookEventAsync` are in `AzureMarketplaceBillingProvider` (Persistence), not Application mutation handlers.
+- [x] (proven) `TenantLlmCostReportingService.BuildDashboardAsync` sets `ByWorkspaceProject[].WorkspaceName` from `tenant.Name` instead of the scoped workspace display name — operators see tenant label on workspace breakdown rows (fixed 2026-08-23; `TenantLlmCostReportingServiceTests`).
 
 ---
 

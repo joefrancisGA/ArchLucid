@@ -88,7 +88,12 @@ public sealed class TenantLlmCostReportingService(
             };
         }
 
-        TenantRecord? tenant = await _tenantRepository.GetByIdAsync(scope.TenantId, cancellationToken).ConfigureAwait(false);
+        IReadOnlyList<TenantWorkspaceListItem> workspaces = await _tenantRepository
+            .ListWorkspacesAsync(scope.TenantId, cancellationToken)
+            .ConfigureAwait(false);
+        string workspaceName = workspaces
+                                 .FirstOrDefault(workspace => workspace.WorkspaceId == scope.WorkspaceId)?.Name
+                             ?? scope.WorkspaceId.ToString("D", System.Globalization.CultureInfo.InvariantCulture);
         LlmMonthlyTenantDollarBudgetOptions opts = _budgetOptionsMonitor.CurrentValue;
         decimal hardCap = opts.Enabled ? opts.HardCutoffUsdPerUtcMonth + monthState.PurchasedCapBumpUsd : 0m;
 
@@ -97,7 +102,7 @@ public sealed class TenantLlmCostReportingService(
             new()
             {
                 WorkspaceId = scope.WorkspaceId,
-                WorkspaceName = tenant?.Name ?? scope.TenantId.ToString("D"),
+                WorkspaceName = workspaceName,
                 ProjectId = scope.ProjectId,
                 ProjectName = "Current project",
                 EstimatedCostUsd = monthPressure,
