@@ -706,24 +706,24 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ## Zone: cli-tenant-isolation
 
 - **id:** cli-tenant-isolation
-- **status:** unseeded
+- **status:** open
 - **impact:** high
 - **aliases:** tenant isolation cli; negative isolation test
 - **paths:** ArchLucid.Cli/Commands/TenantIsolationNegativeTestCommand.cs; ArchLucid.Cli/Commands/TenantIsolationNegativeTestRunner.cs
 - **test-filter:** FullyQualifiedName~TenantIsolationNegativeTestRunnerTests
-- **hunts:** 0
-- **bugs-found:** 0
+- **hunts:** 1
+- **bugs-found:** 1
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **last-hunt:** 2026-08-23
+- **last-bug:** 2026-08-23
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
 ### Hypotheses
 
-- [ ] (candidate) Runner reports pass when a cross-tenant probe actually returned 200
-- [ ] (candidate) Probe uses the victim tenantÎ“Ã‡Ã–s token instead of the attacker token
-- [ ] (candidate) Aggregator treats skipped probes as isolation successes
+- [x] (proven) Offline replay trusted manifest `verdict: pass` even when `observedStatusCode` was 200 on deny-status probes — fixed by deriving deny verdicts from observed status unless manifest marks skip.
+- [x] (invalid) Probe uses the victim tenant's token instead of the attacker token — live mode applies alternate scope headers on a second client; same credential probes cross-tenant scope by design.
+- [x] (valid-no-repro) Aggregator treats skipped probes as isolation successes — `DeriveOverallVerdict` returns Pass when probes are Pass+Skip with no Fail; explicit Skip overall exits success by design for infra errors.
 
 ---
 

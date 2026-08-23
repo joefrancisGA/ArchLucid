@@ -133,19 +133,21 @@ internal sealed class TenantIsolationNegativeTestRunner
         string scenarioName,
         TenantIsolationNegativeTestManifestProbe probe)
     {
-        TenantIsolationNegativeTestVerdict verdict = probe.Verdict switch
-        {
-            "pass" => TenantIsolationNegativeTestVerdict.Pass,
-            "fail" => TenantIsolationNegativeTestVerdict.Fail,
-            "skip" => TenantIsolationNegativeTestVerdict.Skip,
-            _ => TenantIsolationNegativeTestAggregator.EvaluateDenyStatus(probe.ObservedStatusCode ?? 0),
-        };
+        TenantIsolationNegativeTestVerdict verdict;
 
         if (string.Equals(probe.ExpectedOutcome, "exclude-run-id", StringComparison.OrdinalIgnoreCase))
         {
             verdict = probe.ForeignRunIdVisible
                 ? TenantIsolationNegativeTestVerdict.Fail
                 : TenantIsolationNegativeTestVerdict.Pass;
+        }
+        else if (string.Equals(probe.Verdict, "skip", StringComparison.OrdinalIgnoreCase))
+        {
+            verdict = TenantIsolationNegativeTestVerdict.Skip;
+        }
+        else
+        {
+            verdict = TenantIsolationNegativeTestAggregator.EvaluateDenyStatus(probe.ObservedStatusCode ?? 0);
         }
 
         return new TenantIsolationNegativeTestProbeResult
