@@ -111,80 +111,25 @@ public sealed class CostAgentHandler(
                 retailGrounding),
             ledgerEntries);
         await TryPersistRetailGroundingTraceAsync(runId, request, retailGrounding, cancellationToken);
-        string lastCompletionJson = string.Empty;
 
-        try
-        {
-            (IAgentCompletionClient completionClient, IAgentCompletionClient remediationClient) =
-                AgentHandlerLlmResolution.ResolveCompletionClients(
-                    tierCompletionRouter,
-                    schemaRemediationClient,
-                    AgentType.Cost,
-                    task);
-
-            (string rawJson, AgentResult parsed) = await LlmAgentSchemaCompletion.CompleteAsync(
-                completionClient,
-                resultParser,
-                schemaRemediationOptions,
-                AgentType.Cost,
-                runId,
-                task.TaskId,
-                systemPrompt,
-                baseUserPrompt,
-                request.MaxTokensOverride,
-                remediationClient,
-                _logger,
-                traceRecorder,
-                promptRepro,
-                cancellationToken);
-
-            lastCompletionJson = rawJson;
-
-            parsed.PromptVariantKey = systemResolved.PromptVariantKey;
-            AgentResultFindingEnforcementTierApplier.Apply(parsed);
-
-            return parsed;
-        }
-        catch (Exception ex)
-        {
-            AgentCompletionTokenUsage.TryPeek(out int? inTok, out int? outTok, out int? reasoningTok);
-            AgentCompletionModelMetadata.TryConsume(out string? modelDeploy, out string? modelVer);
-
-            if (ex is AgentResultSchemaViolationException schemaViolation)
-
-                AgentResultSchemaViolationAudit.ScheduleLog(
-                    auditService,
-                    _scopeContextProvider,
-                    schemaViolation,
-                    runId,
-                    task.TaskId,
-                    modelDeploy,
-                    modelVer);
-
-            if (!AgentSchemaRemediationTraceSupport.ShouldSkipHandlerFailureTrace(ex))
-            {
-                await traceRecorder.RecordAsync(
-                    runId,
-                    task.TaskId,
-                    AgentType.Cost,
-                    systemPrompt,
-                    baseUserPrompt,
-                    lastCompletionJson,
-                    null,
-                    false,
-                    ex.Message,
-                    promptRepro,
-                    inTok,
-                    outTok,
-                    reasoningTok,
-                    modelDeploy,
-                    modelVer,
-                    failureReasonCode: AgentHandlerExecutionFailureReason.ResolveFailureReasonCode(ex),
-                    cancellationToken: cancellationToken);
-            }
-
-            throw;
-        }
+        return await AgentHandlerCompletionExecutor.CompleteWithSchemaRemediationAsync(
+            tierCompletionRouter,
+            schemaRemediationClient,
+            resultParser,
+            schemaRemediationOptions,
+            traceRecorder,
+            auditService,
+            _scopeContextProvider,
+            _logger,
+            AgentType.Cost,
+            runId,
+            task,
+            request,
+            systemPrompt,
+            baseUserPrompt,
+            promptRepro,
+            systemResolved.PromptVariantKey,
+            cancellationToken: cancellationToken);
     }
 
     internal static string BuildUserPrompt(

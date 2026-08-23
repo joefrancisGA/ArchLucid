@@ -99,80 +99,25 @@ public sealed class TopologyAgentHandler(
             ledgerEntries);
         baseUserPrompt = await AppendExemplarStylePriorAsync(runId, request, baseUserPrompt, cancellationToken)
             .ConfigureAwait(false);
-        string lastCompletionJson = string.Empty;
 
-        try
-        {
-            (IAgentCompletionClient completionClient, IAgentCompletionClient remediationClient) =
-                AgentHandlerLlmResolution.ResolveCompletionClients(
-                    tierCompletionRouter,
-                    schemaRemediationClient,
-                    AgentType.Topology,
-                    task);
-
-            (string rawJson, AgentResult parsed) = await LlmAgentSchemaCompletion.CompleteAsync(
-                completionClient,
-                resultParser,
-                schemaRemediationOptions,
-                AgentType.Topology,
-                runId,
-                task.TaskId,
-                systemPrompt,
-                baseUserPrompt,
-                request.MaxTokensOverride,
-                remediationClient,
-                _logger,
-                traceRecorder,
-                promptRepro,
-                cancellationToken);
-
-            lastCompletionJson = rawJson;
-
-            parsed.PromptVariantKey = systemResolved.PromptVariantKey;
-            AgentResultFindingEnforcementTierApplier.Apply(parsed);
-
-            return parsed;
-        }
-        catch (Exception ex)
-        {
-            AgentCompletionTokenUsage.TryPeek(out int? inTok, out int? outTok, out int? reasoningTok);
-            AgentCompletionModelMetadata.TryConsume(out string? modelDeploy, out string? modelVer);
-
-            if (ex is AgentResultSchemaViolationException sv)
-
-                AgentResultSchemaViolationAudit.ScheduleLog(
-                    auditService,
-                    _scopeContextProvider,
-                    sv,
-                    runId,
-                    task.TaskId,
-                    modelDeploy,
-                    modelVer);
-
-            if (!AgentSchemaRemediationTraceSupport.ShouldSkipHandlerFailureTrace(ex))
-            {
-                await traceRecorder.RecordAsync(
-                    runId,
-                    task.TaskId,
-                    AgentType.Topology,
-                    systemPrompt,
-                    baseUserPrompt,
-                    lastCompletionJson,
-                    null,
-                    false,
-                    ex.Message,
-                    promptRepro,
-                    inTok,
-                    outTok,
-                    reasoningTok,
-                    modelDeploy,
-                    modelVer,
-                    failureReasonCode: AgentHandlerExecutionFailureReason.ResolveFailureReasonCode(ex),
-                    cancellationToken: cancellationToken);
-            }
-
-            throw;
-        }
+        return await AgentHandlerCompletionExecutor.CompleteWithSchemaRemediationAsync(
+            tierCompletionRouter,
+            schemaRemediationClient,
+            resultParser,
+            schemaRemediationOptions,
+            traceRecorder,
+            auditService,
+            _scopeContextProvider,
+            _logger,
+            AgentType.Topology,
+            runId,
+            task,
+            request,
+            systemPrompt,
+            baseUserPrompt,
+            promptRepro,
+            systemResolved.PromptVariantKey,
+            cancellationToken: cancellationToken);
     }
 
     private async Task<string> AppendExemplarStylePriorAsync(

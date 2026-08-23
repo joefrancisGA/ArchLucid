@@ -113,83 +113,31 @@ public sealed class ComplianceAgentHandler(
             baseUserPrompt,
             cancellationToken).ConfigureAwait(false);
 
-        string lastCompletionJson = string.Empty;
-
-        try
-        {
-            (IAgentCompletionClient completionClient, IAgentCompletionClient remediationClient) =
-                AgentHandlerLlmResolution.ResolveCompletionClients(
-                    tierCompletionRouter,
-                    schemaRemediationClient,
-                    AgentType.Compliance,
-                    task);
-
-            (string rawJson, AgentResult parsed) = await LlmAgentSchemaCompletion.CompleteAsync(
-                completionClient,
-                resultParser,
-                schemaRemediationOptions,
-                AgentType.Compliance,
-                runId,
-                task.TaskId,
-                systemPrompt,
-                baseUserPrompt,
-                request.MaxTokensOverride,
-                remediationClient,
-                _logger,
-                traceRecorder,
-                promptRepro,
-                cancellationToken);
-
-            lastCompletionJson = rawJson;
-
-            string parsedJson = JsonSerializer.Serialize(parsed, TraceJsonOptions);
-            RecordRetrievalFaithfulness(policyPackHits, parsedJson, tenantId);
-
-            parsed.PromptVariantKey = systemResolved.PromptVariantKey;
-            AgentResultFindingEnforcementTierApplier.Apply(parsed);
-
-            return parsed;
-        }
-        catch (Exception ex)
-        {
-            AgentCompletionTokenUsage.TryPeek(out int? inTok, out int? outTok, out int? reasoningTok);
-            AgentCompletionModelMetadata.TryConsume(out string? modelDeploy, out string? modelVer);
-
-            if (ex is AgentResultSchemaViolationException sv)
-
-                AgentResultSchemaViolationAudit.ScheduleLog(
-                    auditService,
-                    _scopeContextProvider,
-                    sv,
-                    runId,
-                    task.TaskId,
-                    modelDeploy,
-                    modelVer);
-
-            if (!AgentSchemaRemediationTraceSupport.ShouldSkipHandlerFailureTrace(ex))
+        return await AgentHandlerCompletionExecutor.CompleteWithSchemaRemediationAsync(
+            tierCompletionRouter,
+            schemaRemediationClient,
+            resultParser,
+            schemaRemediationOptions,
+            traceRecorder,
+            auditService,
+            _scopeContextProvider,
+            _logger,
+            AgentType.Compliance,
+            runId,
+            task,
+            request,
+            systemPrompt,
+            baseUserPrompt,
+            promptRepro,
+            systemResolved.PromptVariantKey,
+            finalizeResultAsync: parsed =>
             {
-                await traceRecorder.RecordAsync(
-                    runId,
-                    task.TaskId,
-                    AgentType.Compliance,
-                    systemPrompt,
-                    baseUserPrompt,
-                    lastCompletionJson,
-                    null,
-                    false,
-                    ex.Message,
-                    promptRepro,
-                    inTok,
-                    outTok,
-                    reasoningTok,
-                    modelDeploy,
-                    modelVer,
-                    failureReasonCode: AgentHandlerExecutionFailureReason.ResolveFailureReasonCode(ex),
-                    cancellationToken: cancellationToken);
-            }
+                string parsedJson = JsonSerializer.Serialize(parsed, TraceJsonOptions);
+                RecordRetrievalFaithfulness(policyPackHits, parsedJson, tenantId);
 
-            throw;
-        }
+                return Task.FromResult(parsed);
+            },
+            cancellationToken: cancellationToken);
     }
 
     private async Task<(string Prompt, IReadOnlyList<RetrievalHit> Hits)> AppendPolicyPackRetrievalAsync(

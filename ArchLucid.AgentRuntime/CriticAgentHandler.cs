@@ -96,84 +96,36 @@ public sealed class CriticAgentHandler(
             AgentUserPromptComposer.BuildCriticUserPrompt(runId, request, evidence, task, effectiveCloudTarget),
             ledgerEntries);
 
-        string lastCompletionJson = string.Empty;
-
-        try
-        {
-            (IAgentCompletionClient completionClient, IAgentCompletionClient remediationClient) =
-                AgentHandlerLlmResolution.ResolveCompletionClients(
-                    tierCompletionRouter,
-                    schemaRemediationClient,
-                    AgentType.Critic,
-                    task);
-
-            (string rawJson, AgentResult parsed) = await LlmAgentSchemaCompletion.CompleteAsync(
-                completionClient,
-                resultParser,
-                schemaRemediationOptions,
-                AgentType.Critic,
-                runId,
-                task.TaskId,
-                systemPrompt,
-                baseUserPrompt,
-                request.MaxTokensOverride,
-                remediationClient,
-                logger: null,
-                traceRecorder,
-                promptRepro,
-                cancellationToken);
-
-            lastCompletionJson = rawJson;
-
-            parsed.PromptVariantKey = systemResolved.PromptVariantKey;
-            CriticFindingConfidenceNormalizer.Apply(parsed);
-            CriticFindingObviousnessPruner.Apply(parsed, _insightDensityGate);
-            await _insightDensityLlmJudge
-                .ApplyToArchitectureFindingsAsync(parsed.Findings, evidence, request, cancellationToken)
-                .ConfigureAwait(false);
-            ArchitectureFindingChecklistCoverageRouter.Apply(parsed);
-
-            return parsed;
-        }
-        catch (Exception ex)
-        {
-            AgentCompletionTokenUsage.TryConsume(out int? inTok, out int? outTok, out int? reasoningTok);
-            AgentCompletionModelMetadata.TryConsume(out string? modelDeploy, out string? modelVer);
-
-            if (ex is AgentResultSchemaViolationException sv)
-
-                AgentResultSchemaViolationAudit.ScheduleLog(
-                    auditService,
-                    _scopeContextProvider,
-                    sv,
-                    runId,
-                    task.TaskId,
-                    modelDeploy,
-                    modelVer);
-
-            if (!AgentSchemaRemediationTraceSupport.ShouldSkipHandlerFailureTrace(ex))
+        return await AgentHandlerCompletionExecutor.CompleteWithSchemaRemediationAsync(
+            tierCompletionRouter,
+            schemaRemediationClient,
+            resultParser,
+            schemaRemediationOptions,
+            traceRecorder,
+            auditService,
+            _scopeContextProvider,
+            logger: null,
+            AgentType.Critic,
+            runId,
+            task,
+            request,
+            systemPrompt,
+            baseUserPrompt,
+            promptRepro,
+            systemResolved.PromptVariantKey,
+            finalizeResultAsync: async parsed =>
             {
-                await traceRecorder.RecordAsync(
-                    runId,
-                    task.TaskId,
-                    AgentType.Critic,
-                    systemPrompt,
-                    baseUserPrompt,
-                    lastCompletionJson,
-                    null,
-                    false,
-                    ex.Message,
-                    promptRepro,
-                    inTok,
-                    outTok,
-                    reasoningTok,
-                    modelDeploy,
-                    modelVer,
-                    failureReasonCode: AgentHandlerExecutionFailureReason.ResolveFailureReasonCode(ex),
-                    cancellationToken: cancellationToken);
-            }
+                CriticFindingConfidenceNormalizer.Apply(parsed);
+                CriticFindingObviousnessPruner.Apply(parsed, _insightDensityGate);
+                await _insightDensityLlmJudge
+                    .ApplyToArchitectureFindingsAsync(parsed.Findings, evidence, request, cancellationToken)
+                    .ConfigureAwait(false);
+                ArchitectureFindingChecklistCoverageRouter.Apply(parsed);
 
-            throw;
-        }
+                return parsed;
+            },
+            applyFindingEnforcementTier: false,
+            consumeTokenUsageOnFailure: true,
+            cancellationToken: cancellationToken);
     }
 }
