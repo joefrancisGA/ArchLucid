@@ -1,5 +1,15 @@
 import { parseIsoUtcMs } from "@/lib/format-iso-utc";
 
+/** Calendar-day distance in the browser locale's local timezone (not elapsed 24h buckets). */
+function diffLocalCalendarDays(fromMs: number, toMs: number): number {
+  const from = new Date(fromMs);
+  const to = new Date(toMs);
+  const fromStart = new Date(from.getFullYear(), from.getMonth(), from.getDate());
+  const toStart = new Date(to.getFullYear(), to.getMonth(), to.getDate());
+
+  return Math.round((toStart.getTime() - fromStart.getTime()) / (24 * 60 * 60 * 1000));
+}
+
 /**
  * Human-readable relative time for UI lists (e.g. "2 hours ago").
  */
@@ -30,7 +40,7 @@ export function formatRelativeTime(isoUtc: string, nowMs: number = Date.now()): 
     return rtf.format(-diffHour, "hour");
   }
 
-  const diffDay = Math.round(diffHour / 24);
+  const diffDay = diffLocalCalendarDays(t, nowMs);
 
   if (Math.abs(diffDay) < 30) {
     return rtf.format(-diffDay, "day");
