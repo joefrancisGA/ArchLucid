@@ -16,6 +16,9 @@ import {
   EXTRACT_UPLOAD_EVIDENCE_TRAIL_HREF,
   EXTRACT_UPLOAD_INVENTORY_ON_FILE_STATUS_LABEL,
   EXTRACT_UPLOAD_NO_INVENTORY_STATUS_LABEL,
+  EXTRACT_UPLOAD_VALIDATE_AWS_CLI_COMMAND,
+  EXTRACT_UPLOAD_VALIDATE_CLI_COMMAND,
+  EXTRACT_UPLOAD_VALIDATE_GCP_CLI_COMMAND,
 } from "@/lib/extract-upload-settings-page-copy";
 import { ExtractUploadSettingsPageClient } from "./ExtractUploadSettingsPageClient";
 import { showError } from "@/lib/toast";
@@ -125,6 +128,9 @@ describe("ExtractUploadSettingsPageClient", () => {
     expect(screen.queryByText("Step 3 — Upload ZIP")).not.toBeInTheDocument();
     expect(screen.getByTestId("extract-upload-demo-aside")).toBeInTheDocument();
     expect(screen.getByTestId("extract-upload-validate-disclosure")).toBeInTheDocument();
+    expect(screen.getByText(EXTRACT_UPLOAD_VALIDATE_CLI_COMMAND)).toBeInTheDocument();
+    expect(screen.getByText(EXTRACT_UPLOAD_VALIDATE_AWS_CLI_COMMAND)).toBeInTheDocument();
+    expect(screen.getByText(EXTRACT_UPLOAD_VALIDATE_GCP_CLI_COMMAND)).toBeInTheDocument();
   });
 
   it("renders structured upload failure with semantic error code and doc link", async () => {

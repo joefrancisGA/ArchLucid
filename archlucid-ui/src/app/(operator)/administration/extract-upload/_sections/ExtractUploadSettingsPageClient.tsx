@@ -49,7 +49,9 @@ import {
   EXTRACT_UPLOAD_STEP_UPLOAD_DESCRIPTION,
   EXTRACT_UPLOAD_STEP_UPLOAD_TITLE,
   EXTRACT_UPLOAD_VALIDATE_CLI_COMMAND,
+  EXTRACT_UPLOAD_VALIDATE_AWS_CLI_COMMAND,
   EXTRACT_UPLOAD_VALIDATE_DISCLOSURE_SUMMARY,
+  EXTRACT_UPLOAD_VALIDATE_GCP_CLI_COMMAND,
 } from "@/lib/extract-upload-settings-page-copy";
 import { ExtractUploadSettingsPageHeader } from "./ExtractUploadSettingsPageHeader";
 import { ExtractUploadSettingsBuyerChrome } from "./ExtractUploadSettingsBuyerChrome";
@@ -423,16 +425,25 @@ export function ExtractUploadSettingsPageClient() {
             <summary className={cn("cursor-pointer text-al-text-primary", OPERATOR_DISCLOSURE_TRIGGER_CLASS)}>
               {EXTRACT_UPLOAD_VALIDATE_DISCLOSURE_SUMMARY}
             </summary>
-            <p className={cn("m-0 mt-3 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
-              <code
-                className={cn(
-                  "inline-block whitespace-pre-wrap break-words rounded bg-neutral-100 px-1 py-0.5 dark:bg-neutral-800",
-                  OPERATOR_TYPOGRAPHY.micro,
-                )}
-              >
-                {EXTRACT_UPLOAD_VALIDATE_CLI_COMMAND}
-              </code>
-            </p>
+            <div className={cn("m-0 mt-3 space-y-2 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
+              {[
+                { label: "Azure", command: EXTRACT_UPLOAD_VALIDATE_CLI_COMMAND },
+                { label: "AWS", command: EXTRACT_UPLOAD_VALIDATE_AWS_CLI_COMMAND },
+                { label: "Google Cloud", command: EXTRACT_UPLOAD_VALIDATE_GCP_CLI_COMMAND },
+              ].map((entry) => (
+                <p key={entry.label} className="m-0">
+                  <span className="font-medium">{entry.label}:</span>{" "}
+                  <code
+                    className={cn(
+                      "inline-block whitespace-pre-wrap break-words rounded bg-neutral-100 px-1 py-0.5 dark:bg-neutral-800",
+                      OPERATOR_TYPOGRAPHY.micro,
+                    )}
+                  >
+                    {entry.command}
+                  </code>
+                </p>
+              ))}
+            </div>
           </details>
 
           <section
