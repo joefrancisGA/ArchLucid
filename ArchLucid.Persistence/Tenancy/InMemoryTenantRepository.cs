@@ -189,8 +189,8 @@ public sealed partial class InMemoryTenantRepository : ITenantRepository
             TenantErasureRequestedUtc = clearErasureQuarantine
                 ? null
                 : offboardedUtc ?? source.TenantErasureRequestedUtc,
-            TenantErasureApprovedUtc = source.TenantErasureApprovedUtc,
-            TenantErasureApprovedByUserId = source.TenantErasureApprovedByUserId
+            TenantErasureApprovedUtc = clearErasureQuarantine ? null : source.TenantErasureApprovedUtc,
+            TenantErasureApprovedByUserId = clearErasureQuarantine ? null : source.TenantErasureApprovedByUserId
         };
     }
 

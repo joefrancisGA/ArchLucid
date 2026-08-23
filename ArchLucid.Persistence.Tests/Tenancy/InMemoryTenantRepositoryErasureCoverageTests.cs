@@ -102,7 +102,10 @@ public sealed class InMemoryTenantRepositoryErasureCoverageTests
         orphanCleanup.Should().Contain(id);
 
         (await sut.TryRestoreTenantErasureQuarantineAsync(id, CancellationToken.None)).Should().BeTrue();
-        (await sut.GetByIdAsync(id, CancellationToken.None))!.OffboardedUtc.Should().BeNull();
+        TenantRecord? restored = await sut.GetByIdAsync(id, CancellationToken.None);
+        restored!.OffboardedUtc.Should().BeNull();
+        restored.TenantErasureApprovedUtc.Should().BeNull();
+        restored.TenantErasureApprovedByUserId.Should().BeNull();
         (await sut.TryRestoreTenantErasureQuarantineAsync(id, CancellationToken.None)).Should().BeFalse();
     }
 
