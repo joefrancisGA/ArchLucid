@@ -14,6 +14,28 @@ export type ApiLoadFailureState = {
   retryAfterSeconds: number | null;
 };
 
+/** True when `value` is already a normalized proxy/API load failure payload. */
+export function isApiLoadFailureState(value: unknown): value is ApiLoadFailureState {
+  if (value === null || typeof value !== "object") {
+    return false;
+  }
+
+  // ApiRequestError carries the same fields but must be mapped via toApiLoadFailure.
+  if (value instanceof Error) {
+    return false;
+  }
+
+  const candidate = value as ApiLoadFailureState;
+
+  return (
+    typeof candidate.message === "string"
+    && "problem" in candidate
+    && "correlationId" in candidate
+    && "httpStatus" in candidate
+    && "retryAfterSeconds" in candidate
+  );
+}
+
 const NOT_FOUND_ERROR_CODES = new Set([
   "RESOURCE_NOT_FOUND",
   "RUN_NOT_FOUND",
@@ -132,6 +154,10 @@ export function resolveApiLoadFailurePresentation(
 }
 
 export function toApiLoadFailure(error: unknown): ApiLoadFailureState {
+  if (isApiLoadFailureState(error)) {
+    return error;
+  }
+
   if (isApiRequestError(error)) {
     maybeReportApiServerErrorFromUnknown(error);
 

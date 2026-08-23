@@ -5,7 +5,7 @@ import type { AlertsInboxSummaryApiDto } from "@/lib/api/alerts-api";
 import type { GovernanceReviewsAwaitingActionResponse } from "@/lib/api/governance-stickiness-api";
 import type { TenantCatalogMigrationStatus } from "@/lib/fetch-tenant-catalog-migration-status";
 import type { LlmMonthlyDollarBudgetStatus } from "@/lib/llm-monthly-budget-status";
-import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
+import { proxyJsonGet } from "@/lib/proxy-json-client";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
 import type { OperatorScopeQueryKey } from "@/lib/operator/operator-scope-query-key";
 import type { TeamExpansionNudgeStatusPayload } from "@/lib/team-expansion-nudge-trigger";
@@ -121,16 +121,7 @@ function mapStickinessSnapshot(
 
 /** Aggregated operator shell status (`GET /v1/operator/shell-status`). */
 export async function fetchOperatorShellStatus(): Promise<OperatorShellStatusPayload> {
-  const res = await fetch(
-    "/api/proxy/v1/operator/shell-status",
-    mergeRegistrationScopeForProxy({ headers: { Accept: "application/json" } }),
-  );
-
-  if (!res.ok) {
-    throw new Error("operator-shell-status-unavailable");
-  }
-
-  const dto = (await res.json()) as OperatorShellStatusApiDto;
+  const dto = await proxyJsonGet<OperatorShellStatusApiDto>("/api/proxy/v1/operator/shell-status");
 
   return {
     trialStatus: dto.trialStatus ?? null,

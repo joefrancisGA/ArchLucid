@@ -40,12 +40,12 @@ describe("operator shell status client", () => {
   it("hydrates the LLM budget query cache before fetchAndHydrate returns", async () => {
     vi.stubGlobal(
       "fetch",
-      vi.fn(async () => ({
-        ok: true,
-        json: async () => ({
-          llmMonthlyBudgetStatus: LLM_BUDGET,
+      vi.fn(async () =>
+        new Response(JSON.stringify({ llmMonthlyBudgetStatus: LLM_BUDGET }), {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
         }),
-      })),
+      ),
     );
 
     const queryClient = createOperatorQueryClient();

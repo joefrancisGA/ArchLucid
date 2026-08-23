@@ -1,5 +1,5 @@
 import type { components } from "@/lib/openapi-schemas";
-import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
+import { proxyJsonGet } from "@/lib/proxy-json-client";
 
 type AdminIdentityProvidersPageBundleResponse = {
   readonly identityProviderDiagnostics: components["schemas"]["AdminIdentityProviderDiagnosticsResponse"];
@@ -9,15 +9,10 @@ type AdminIdentityProvidersPageBundleResponse = {
 };
 
 export async function fetchIdentityProvidersPageBundle(): Promise<AdminIdentityProvidersPageBundleResponse> {
-  const response = await fetch("/api/proxy/v1/admin/diagnostics/identity-providers-page-bundle", {
-    ...mergeRegistrationScopeForProxy({ headers: { Accept: "application/json" }, cache: "no-store" }),
-  });
-
-  if (!response.ok) {
-    throw Object.assign(new Error("Identity providers page bundle unavailable"), { status: response.status });
-  }
-
-  return (await response.json()) as AdminIdentityProvidersPageBundleResponse;
+  return proxyJsonGet<AdminIdentityProvidersPageBundleResponse>(
+    "/api/proxy/v1/admin/diagnostics/identity-providers-page-bundle",
+    { cache: "no-store" },
+  );
 }
 
 export type { AdminIdentityProvidersPageBundleResponse };
