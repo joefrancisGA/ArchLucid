@@ -197,6 +197,7 @@ public sealed class ArchitectureRunExecuteOrchestratorQualityGateBlockingTests
             gateOptions,
             new RunStateTransitionService(),
             Mock.Of<IRunEngineProvenanceCaptureService>(),
+            Mock.Of<IExecuteTimeGovernanceScopeCaptureService>(),
             ArchitectureRunExecuteOrchestratorTestFactory.CreateDefaultTopologyProposalSeeder(),
             ArchitectureRunExecuteOrchestratorTestFactory.CreatePermissiveDemoExpensiveActionGate(),
             ArchitectureRunExecuteOrchestratorTestFactory.CreatePassThroughRunScopedLlmBudgetReservationService(),

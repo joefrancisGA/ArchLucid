@@ -158,6 +158,7 @@ internal static class RunRepositorySql
                                      RetryCount = @RetryCount,
                                      LastFailureReason = @LastFailureReason,
                                      EngineProvenanceJson = @EngineProvenanceJson,
+                                     GovernanceScopeJson = @GovernanceScopeJson,
                                      PackageOrigin = @PackageOrigin
                                  OUTPUT inserted.RowVersionStamp INTO @RunUpdateOutput
                                  WHERE RunId = @RunId

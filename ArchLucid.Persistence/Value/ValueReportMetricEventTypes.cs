@@ -23,6 +23,7 @@ internal static class ValueReportMetricEventTypes
         AuditEventTypes.GovernanceEnvironmentActivated,
         AuditEventTypes.GovernanceDryRunRequested,
         AuditEventTypes.GovernanceDryRunValidationAttempted,
+        AuditEventTypes.RunGovernanceScopeResolved,
         AuditEventTypes.Baseline.Governance.ApprovalRequestSubmitted,
         AuditEventTypes.Baseline.Governance.ApprovalRequestApproved,
         AuditEventTypes.Baseline.Governance.ApprovalRequestRejected,

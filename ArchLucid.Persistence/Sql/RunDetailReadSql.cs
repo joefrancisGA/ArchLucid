@@ -13,7 +13,7 @@ internal static class RunDetailReadSql
                                             ArchitectureRequestId, LegacyRunStatus, CompletedUtc, CurrentManifestVersion, OtelTraceId,
                                             IsDemoWelcomeRun, IsPublicShowcase, IsSample, IsPinned, RealModeFellBackToSimulator, PilotAoaiDeploymentSnapshot,
                                             StructuralExecutionMode,
-                                            RetryCount, LastFailureReason, EngineProvenanceJson,
+                                            RetryCount, LastFailureReason, EngineProvenanceJson, GovernanceScopeJson,
                                             RowVersionStamp AS RowVersion
                                             """;
 
@@ -34,6 +34,6 @@ internal static class RunDetailReadSql
                                                    ContextSnapshotId, GraphSnapshotId, FindingsSnapshotId,
                                                    GoldenManifestId, DecisionTraceId, ArtifactBundleId,
                                                    CurrentManifestVersion, OtelTraceId, StructuralExecutionMode,
-                                                   EngineProvenanceJson
+                                                   EngineProvenanceJson, GovernanceScopeJson
                                                    """;
 }

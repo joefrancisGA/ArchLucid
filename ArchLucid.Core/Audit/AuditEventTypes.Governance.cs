@@ -89,6 +89,12 @@ public static partial class AuditEventTypes
     public const string RunOperatorGovernanceDispositionRecorded = "RunOperatorGovernanceDispositionRecorded";
 
     /// <summary>
+    ///     Durable audit when a review run's effective governance scope is resolved and persisted at execute time (
+    ///     <c>dbo.Runs.GovernanceScopeJson</c>).
+    /// </summary>
+    public const string RunGovernanceScopeResolved = "RunGovernanceScopeResolved";
+
+    /// <summary>
     ///     Stable namespaced strings for trusted-baseline mutation audit (<c>IBaselineMutationAuditService</c> → structured
     ///     <c>ILogger</c> only).
     ///     They are <b>not</b> written to <c>dbo.AuditEvents</c>.

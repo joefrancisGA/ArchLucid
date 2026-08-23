@@ -1,4 +1,3 @@
-using ArchLucid.Contracts.Governance.PolicyPacks;
 using ArchLucid.Contracts.Governance.Resolution;
 using ArchLucid.Core.Governance.PolicyPacks;
 using ArchLucid.Core.Governance.Resolution;
@@ -27,6 +26,8 @@ public sealed class CommittedEffectiveGovernanceSnapshotCapturer(
     private readonly IScopeContextProvider _scopeContextProvider =
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
 
+    private readonly EffectiveGovernanceSnapshotBuilder _snapshotBuilder = new();
+
     /// <inheritdoc />
     public Task ApplyToManifestAsync(ManifestDocument manifest, CancellationToken cancellationToken = default) =>
         ApplyToManifestAsync(manifest, options: null, cancellationToken);
@@ -39,13 +40,15 @@ public sealed class CommittedEffectiveGovernanceSnapshotCapturer(
     {
         ArgumentNullException.ThrowIfNull(manifest);
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+
         EffectiveGovernanceResolutionResult resolution = await _effectiveGovernanceResolver.ResolveAsync(
             scope.TenantId,
             scope.WorkspaceId,
             scope.ProjectId,
             cancellationToken);
 
-        IReadOnlyList<PolicyPackAssignment> assignments = options?.PreloadedScopePolicyPackAssignments
+        IReadOnlyList<ArchLucid.Contracts.Governance.PolicyPacks.PolicyPackAssignment> assignments =
+            options?.PreloadedScopePolicyPackAssignments
             ?? await _policyPackAssignmentRepository.ListByScopeAsync(
                 scope.TenantId,
                 scope.WorkspaceId,
@@ -54,9 +57,9 @@ public sealed class CommittedEffectiveGovernanceSnapshotCapturer(
 
         bool focusedPilotMode = PilotModeGovernanceScope.IsActive;
         List<CommittedGovernancePackAssignmentSnapshot> packRows = [];
-        List<PolicyPackAssignment> applicableAssignments = [];
+        List<ArchLucid.Contracts.Governance.PolicyPacks.PolicyPackAssignment> applicableAssignments = [];
 
-        foreach (PolicyPackAssignment assignment in assignments)
+        foreach (ArchLucid.Contracts.Governance.PolicyPacks.PolicyPackAssignment assignment in assignments)
         {
             if (!AppliesToScope(assignment, scope.TenantId, scope.WorkspaceId, scope.ProjectId))
                 continue;
@@ -67,17 +70,18 @@ public sealed class CommittedEffectiveGovernanceSnapshotCapturer(
             applicableAssignments.Add(assignment);
         }
 
-        IReadOnlyList<PolicyPack> loadedPacks = applicableAssignments.Count == 0
-            ? Array.Empty<PolicyPack>()
+        IReadOnlyList<ArchLucid.Contracts.Governance.PolicyPacks.PolicyPack> loadedPacks = applicableAssignments.Count == 0
+            ? Array.Empty<ArchLucid.Contracts.Governance.PolicyPacks.PolicyPack>()
             : await _policyPackRepository.GetByIdsAsync(
                 applicableAssignments.Select(static assignment => assignment.PolicyPackId).Distinct().ToList(),
                 cancellationToken);
 
-        Dictionary<Guid, PolicyPack> packById = loadedPacks.ToDictionary(static pack => pack.PolicyPackId);
+        Dictionary<Guid, ArchLucid.Contracts.Governance.PolicyPacks.PolicyPack> packById =
+            loadedPacks.ToDictionary(static pack => pack.PolicyPackId);
 
-        foreach (PolicyPackAssignment assignment in applicableAssignments)
+        foreach (ArchLucid.Contracts.Governance.PolicyPacks.PolicyPackAssignment assignment in applicableAssignments)
         {
-            if (!packById.TryGetValue(assignment.PolicyPackId, out PolicyPack? pack))
+            if (!packById.TryGetValue(assignment.PolicyPackId, out ArchLucid.Contracts.Governance.PolicyPacks.PolicyPack? pack))
                 continue;
 
             if (focusedPilotMode && !FocusedPilotModePolicyPacks.IsPackAllowedInFocusedReview(
@@ -127,7 +131,7 @@ public sealed class CommittedEffectiveGovernanceSnapshotCapturer(
     }
 
     private static bool AppliesToScope(
-        PolicyPackAssignment assignment,
+        ArchLucid.Contracts.Governance.PolicyPacks.PolicyPackAssignment assignment,
         Guid tenantId,
         Guid workspaceId,
         Guid projectId)

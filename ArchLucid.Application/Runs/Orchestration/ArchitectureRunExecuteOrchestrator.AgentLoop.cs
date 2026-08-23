@@ -165,6 +165,7 @@ public sealed partial class ArchitectureRunExecuteOrchestrator
                 cancellationToken);
 
             await TryPersistEngineProvenanceAsync(runId, evidence, cancellationToken);
+            await TryPersistGovernanceScopeAsync(runId, request, cancellationToken);
             await TryApplyExecuteCompletionLegacyStatusAsync(runId, results, cancellationToken);
             await baselineMutationAudit.RecordAsync(AuditEventTypes.Baseline.Architecture.RunExecuteSucceeded, actor, runId, $"ResultCount={results.Count}",
                 cancellationToken);
@@ -196,6 +197,30 @@ public sealed partial class ArchitectureRunExecuteOrchestrator
                 logger.LogWarning(
                     ex,
                     "Engine provenance capture failed for RunId={RunId}; execute outcome unchanged.",
+                    LogSanitizer.Sanitize(runId));
+            }
+        }
+    }
+
+
+    private async Task TryPersistGovernanceScopeAsync(
+        string runId,
+        ArchitectureRequest request,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            await _executeTimeGovernanceScopeCaptureService
+                .TryCaptureAndPersistAsync(runId, request, cancellationToken)
+                .ConfigureAwait(false);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            if (logger.IsEnabled(LogLevel.Warning))
+            {
+                logger.LogWarning(
+                    ex,
+                    "Governance scope capture failed for RunId={RunId}; execute outcome unchanged.",
                     LogSanitizer.Sanitize(runId));
             }
         }

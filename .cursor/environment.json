@@ -1,0 +1,4 @@
+{
+  "name": "ArchLucid",
+  "install": "./scripts/cloud-agent-install.sh"
+}

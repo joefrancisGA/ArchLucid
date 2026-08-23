@@ -372,6 +372,7 @@ public sealed class MultiAgentFailureModeChaosSuiteTests
             Options.Create(gateOptions ?? new AgentOutputQualityGateOptions()),
             new RunStateTransitionService(),
             Mock.Of<IRunEngineProvenanceCaptureService>(),
+            Mock.Of<IExecuteTimeGovernanceScopeCaptureService>(),
             tail.TopologyProposalSeeder,
             tail.DemoExpensiveActionGate,
             budgetService ?? tail.RunScopedLlmBudgetReservationService,

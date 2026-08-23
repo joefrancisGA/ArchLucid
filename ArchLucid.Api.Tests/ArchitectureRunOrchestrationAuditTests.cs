@@ -2,6 +2,7 @@ using ArchLucid.Application.AiUsage;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Decisions;
 using ArchLucid.Application.Evidence;
+using ArchLucid.Application.Governance;
 using ArchLucid.Application.Operations;
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.ExecuteOwnership;
@@ -132,6 +133,7 @@ public sealed class ArchitectureRunOrchestrationAuditTests
             Options.Create(new AgentOutputQualityGateOptions()),
             new RunStateTransitionService(),
             Mock.Of<IRunEngineProvenanceCaptureService>(),
+            Mock.Of<IExecuteTimeGovernanceScopeCaptureService>(),
             new TechnologyLedgerTopologyProposalSeeder(
                 new InMemoryTechnologyLedgerRepository(),
                 scopeContextProvider,

@@ -48,6 +48,7 @@ internal static class RunRecordParameters
             run.RetryCount,
             run.LastFailureReason,
             run.EngineProvenanceJson,
+            run.GovernanceScopeJson,
             run.PackageOrigin
         };
     }
@@ -89,6 +90,7 @@ internal static class RunRecordParameters
             run.RetryCount,
             run.LastFailureReason,
             run.EngineProvenanceJson,
+            run.GovernanceScopeJson,
             run.PackageOrigin,
             run.RowVersion
         };

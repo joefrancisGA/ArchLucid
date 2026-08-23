@@ -235,6 +235,7 @@ public sealed class ArchitectureRunExecuteOrchestratorPartialBudgetTests
             Options.Create(gateOptions),
             new RunStateTransitionService(),
             Mock.Of<IRunEngineProvenanceCaptureService>(),
+            Mock.Of<IExecuteTimeGovernanceScopeCaptureService>(),
             ArchitectureRunExecuteOrchestratorTestFactory.CreateDefaultTopologyProposalSeeder(),
             ArchitectureRunExecuteOrchestratorTestFactory.CreatePermissiveDemoExpensiveActionGate(),
             ArchitectureRunExecuteOrchestratorTestFactory.CreatePassThroughRunScopedLlmBudgetReservationService(),

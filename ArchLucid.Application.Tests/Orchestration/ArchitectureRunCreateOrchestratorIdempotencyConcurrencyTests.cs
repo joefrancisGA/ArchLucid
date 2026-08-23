@@ -200,6 +200,7 @@ public sealed class ArchitectureRunCreateOrchestratorIdempotencyConcurrencyTests
             TimeProvider.System,
             new DefaultRequestContentSafetyPrecheck(),
             ArchitectureRunCreateOrchestratorTestSupport.CreatePolicyPackCloudBaselineApplicator(),
+            Mock.Of<IWorkspaceSystemNameCollisionGuard>(),
             NullLogger<ArchitectureRunCreateOrchestrator>.Instance);
 
         const int parallel = 64;
@@ -319,6 +320,7 @@ public sealed class ArchitectureRunCreateOrchestratorIdempotencyConcurrencyTests
             TimeProvider.System,
             new DefaultRequestContentSafetyPrecheck(),
             ArchitectureRunCreateOrchestratorTestSupport.CreatePolicyPackCloudBaselineApplicator(),
+            Mock.Of<IWorkspaceSystemNameCollisionGuard>(),
             NullLogger<ArchitectureRunCreateOrchestrator>.Instance);
 
         const int parallel = 64;

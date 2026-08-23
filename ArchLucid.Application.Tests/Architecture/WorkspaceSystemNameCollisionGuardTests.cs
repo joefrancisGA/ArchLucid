@@ -1,4 +1,5 @@
 using ArchLucid.Application;
+using ArchLucid.Application.Architecture;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;

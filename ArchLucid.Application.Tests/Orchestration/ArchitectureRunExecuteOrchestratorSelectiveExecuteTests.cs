@@ -237,6 +237,7 @@ public sealed class ArchitectureRunExecuteOrchestratorSelectiveExecuteTests
             Options.Create(new AgentOutputQualityGateOptions()),
             new RunStateTransitionService(),
             Mock.Of<IRunEngineProvenanceCaptureService>(),
+            Mock.Of<IExecuteTimeGovernanceScopeCaptureService>(),
             ArchitectureRunExecuteOrchestratorTestFactory.CreateDefaultTopologyProposalSeeder(scopeProvider.Object),
             ArchitectureRunExecuteOrchestratorTestFactory.CreatePermissiveDemoExpensiveActionGate(),
             ArchitectureRunExecuteOrchestratorTestFactory.CreatePassThroughRunScopedLlmBudgetReservationService(),

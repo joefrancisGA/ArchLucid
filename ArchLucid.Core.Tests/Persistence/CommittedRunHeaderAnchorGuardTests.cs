@@ -75,6 +75,21 @@ public sealed class CommittedRunHeaderAnchorGuardTests
             .Which.RunId.Should().Be(persisted.RunId);
     }
 
+    [Fact]
+    public void EnsureAnchorsUnchangedIfCommitted_throws_when_governance_scope_mutates_on_committed_run()
+    {
+        Guid manifestId = Guid.NewGuid();
+        RunRecord persisted = CreateRun(goldenManifestId: manifestId);
+        persisted.GovernanceScopeJson = """{"packAssignments":[]}""";
+        RunRecord proposed = CreateRun(goldenManifestId: manifestId);
+        proposed.GovernanceScopeJson = """{"packAssignments":[{"policyPackId":"changed"}]}""";
+
+        Action act = () => CommittedRunHeaderAnchorGuard.EnsureAnchorsUnchangedIfCommitted(persisted, proposed);
+
+        act.Should().Throw<RunEvidenceAnchorImmutableException>()
+            .Which.RunId.Should().Be(persisted.RunId);
+    }
+
     private static RunRecord CreateRun(Guid? goldenManifestId)
     {
         return new RunRecord

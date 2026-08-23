@@ -142,6 +142,12 @@ public sealed class SponsorRoiBackgroundTenantRollupIsolationTests
             packageRepository.Object,
             cloudInventoryRepository.Object);
 
+        SponsorRoiPricingLabelResolver pricingLabelResolver = new(
+            CreateAmbientPricingContextResolver(),
+            freshnessEvaluator,
+            collectionResolver,
+            ambientScopeProvider.Object);
+
         Mock<IFindingsSnapshotRepository> findingsSnapshots = new();
         findingsSnapshots
             .Setup(repo => repo.GetByIdAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
@@ -165,9 +171,7 @@ public sealed class SponsorRoiBackgroundTenantRollupIsolationTests
             savingsResolver.Object,
             tenantRepository.Object,
             Mock.Of<IScimUserRepository>(),
-            CreateAmbientPricingContextResolver(),
-            freshnessEvaluator,
-            collectionResolver,
+            pricingLabelResolver,
             ambientScopeProvider.Object,
             CreateEmptyFindingReviewTrailRepository(),
             CreateEmptyRiskExceptionService(),

@@ -684,6 +684,11 @@ IF OBJECT_ID(N'dbo.Runs', N'U') IS NOT NULL
    AND COL_LENGTH(N'dbo.Runs', N'EngineProvenanceJson') IS NULL
     ALTER TABLE dbo.Runs ADD EngineProvenanceJson NVARCHAR(MAX) NULL;
 
+/* Brownfield: execute-time governance scope JSON (DbUp 321 parity). */
+IF OBJECT_ID(N'dbo.Runs', N'U') IS NOT NULL
+   AND COL_LENGTH(N'dbo.Runs', N'GovernanceScopeJson') IS NULL
+    ALTER TABLE dbo.Runs ADD GovernanceScopeJson NVARCHAR(MAX) NULL;
+
 GO
 
 IF OBJECT_ID(N'dbo.Runs', N'U') IS NOT NULL

@@ -76,6 +76,9 @@ public static class CommittedRunHeaderAnchorGuard
         if (!string.Equals(persisted.EngineProvenanceJson, proposed.EngineProvenanceJson, StringComparison.Ordinal))
             return true;
 
+        if (!string.Equals(persisted.GovernanceScopeJson, proposed.GovernanceScopeJson, StringComparison.Ordinal))
+            return true;
+
         return false;
     }
 }

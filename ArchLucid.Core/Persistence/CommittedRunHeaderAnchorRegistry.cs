@@ -31,6 +31,7 @@ public static class CommittedRunHeaderAnchorRegistry
         "CurrentManifestVersion",
         "StructuralExecutionMode",
         "OtelTraceId",
-        "EngineProvenanceJson"
+        "EngineProvenanceJson",
+        "GovernanceScopeJson"
     ];
 }

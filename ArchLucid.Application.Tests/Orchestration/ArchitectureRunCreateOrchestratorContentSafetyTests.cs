@@ -67,6 +67,7 @@ public sealed class ArchitectureRunCreateOrchestratorContentSafetyTests
             TimeProvider.System,
             new DefaultRequestContentSafetyPrecheck(),
             ArchitectureRunCreateOrchestratorTestSupport.CreatePolicyPackCloudBaselineApplicator(),
+            Mock.Of<IWorkspaceSystemNameCollisionGuard>(),
             NullLogger<ArchitectureRunCreateOrchestrator>.Instance);
 
         ArchitectureRequest request = new()

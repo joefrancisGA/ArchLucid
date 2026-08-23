@@ -187,6 +187,16 @@ public sealed class RunRecord
         set;
     }
 
+    /// <summary>
+    ///     JSON-serialized <see cref="ArchLucid.Contracts.Governance.Resolution.ExecutedEffectiveGovernanceSnapshotDescriptor" />;
+    ///     null until first execute captures review scope.
+    /// </summary>
+    public string? GovernanceScopeJson
+    {
+        get;
+        set;
+    }
+
     /// <summary>Count of user/API-initiated retries after <see cref="LegacyRunStatus" /> <c>Failed</c>.</summary>
     public int RetryCount
     {

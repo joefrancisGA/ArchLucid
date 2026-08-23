@@ -113,6 +113,15 @@ internal static class SponsorRoiSummaryServiceTestSupport
             packageRepository.Object,
             cloudInventoryRepository.Object);
 
+        SponsorRoiTenantPricingContextResolver tenantPricingContextResolver =
+            pricingContextResolver ?? CreateDefaultPricingContextResolver(resolvedScope);
+
+        SponsorRoiPricingLabelResolver pricingLabelResolver = new(
+            tenantPricingContextResolver,
+            freshnessEvaluator,
+            collectionResolver,
+            scopeProvider.Object);
+
         Mock<IFindingsSnapshotRepository> findingsSnapshots = new();
         findingsSnapshots
             .Setup(repo => repo.GetByIdAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
@@ -130,9 +139,7 @@ internal static class SponsorRoiSummaryServiceTestSupport
             tenantEstimatedUsdSavingsResolver,
             tenantRepository ?? Mock.Of<ITenantRepository>(),
             scimUserRepository ?? Mock.Of<IScimUserRepository>(),
-            pricingContextResolver ?? CreateDefaultPricingContextResolver(resolvedScope),
-            freshnessEvaluator,
-            collectionResolver,
+            pricingLabelResolver,
             scopeProvider.Object,
             findingReviewTrailRepository ?? reviewTrail.Object,
             riskExceptions.Object,

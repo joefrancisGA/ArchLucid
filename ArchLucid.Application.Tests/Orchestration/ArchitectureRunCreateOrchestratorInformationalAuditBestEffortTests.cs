@@ -140,6 +140,7 @@ public sealed class ArchitectureRunCreateOrchestratorInformationalAuditBestEffor
             TimeProvider.System,
             new DefaultRequestContentSafetyPrecheck(),
             ArchitectureRunCreateOrchestratorTestSupport.CreatePolicyPackCloudBaselineApplicator(),
+            Mock.Of<IWorkspaceSystemNameCollisionGuard>(),
             NullLogger<ArchitectureRunCreateOrchestrator>.Instance);
 
         CreateRunResult result = await sut.CreateRunAsync(request, null, CancellationToken.None);

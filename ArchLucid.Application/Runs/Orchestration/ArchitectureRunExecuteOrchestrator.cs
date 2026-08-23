@@ -6,6 +6,7 @@ using ArchLucid.Application.Budgeting;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Decisions;
 using ArchLucid.Application.Evidence;
+using ArchLucid.Application.Governance;
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.ExecuteOwnership;
 using ArchLucid.Application.Operations;
@@ -65,6 +66,7 @@ public sealed partial class ArchitectureRunExecuteOrchestrator(
     IOptions<AgentOutputQualityGateOptions> agentOutputQualityGateOptions,
     IRunStateTransitionService runStateTransitionService,
     IRunEngineProvenanceCaptureService runEngineProvenanceCaptureService,
+    IExecuteTimeGovernanceScopeCaptureService executeTimeGovernanceScopeCaptureService,
     TechnologyLedgerTopologyProposalSeeder technologyLedgerTopologyProposalSeeder,
     DemoExpensiveActionGate demoExpensiveActionGate,
     IRunScopedLlmBudgetReservationService runScopedLlmBudgetReservationService,
@@ -131,6 +133,9 @@ public sealed partial class ArchitectureRunExecuteOrchestrator(
 
     private readonly IRunEngineProvenanceCaptureService _runEngineProvenanceCaptureService =
         runEngineProvenanceCaptureService ?? throw new ArgumentNullException(nameof(runEngineProvenanceCaptureService));
+
+    private readonly IExecuteTimeGovernanceScopeCaptureService _executeTimeGovernanceScopeCaptureService =
+        executeTimeGovernanceScopeCaptureService ?? throw new ArgumentNullException(nameof(executeTimeGovernanceScopeCaptureService));
 
     private readonly TechnologyLedgerTopologyProposalSeeder _technologyLedgerTopologyProposalSeeder =
         technologyLedgerTopologyProposalSeeder ?? throw new ArgumentNullException(nameof(technologyLedgerTopologyProposalSeeder));
