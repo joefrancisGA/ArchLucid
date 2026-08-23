@@ -1,6 +1,6 @@
 # Operator shell navigation contract (`nav-config`)
 
-Canonical implementation: `src/lib/nav-config.ts`, built by the **six** **`NavGroupBuilder`** classes in `src/lib/pilot-nav-group-builder.ts`, `operate-analysis-nav-group-builder.ts`, `operate-governance-nav-group-builder.ts`, `operate-integrations-nav-group-builder.ts`, `operator/operator-admin-nav-group-builder.ts`, and `operator/operator-system-admin-nav-group-builder.ts`.
+Canonical implementation: `src/lib/nav-config.ts`, built by the **seven** **`NavGroupBuilder`** classes in `src/lib/pilot-nav-group-builder.ts`, `operate-analysis-nav-group-builder.ts`, `operate-governance-nav-group-builder.ts`, `operate-policy-nav-group-builder.ts`, `operate-integrations-nav-group-builder.ts`, `operator/operator-admin-nav-group-builder.ts`, and `operator/operator-system-admin-nav-group-builder.ts`.
 
 This document replaces the historical mega-comment on `nav-config.ts`. **API authorization stays on the server**; this file describes **UI shaping only**.
 
@@ -40,13 +40,14 @@ Removed **workflow-mode presets** (Pilot operator, Full navigator, Governance re
 
 ## Nav groups → buyer layers
 
-**6** groups, **69** configured links (`flattenNavLinks()`). Group `id`s are stable (used as `localStorage` keys); only the label is user-visible.
+**7** groups, **69** configured links (`flattenNavLinks()`). Group `id`s are stable (used as `localStorage` keys); only the label is user-visible.
 
 | Group `id`              | Label          | `surface`         | Layer   | Links | Notes |
 |-------------------------|----------------|-------------------|---------|------:|--------|
 | `pilot`                 | Architecture   | `review-workflow` | Pilot   | 6 | request · run · finalize · review; essentials omit `requiredAuthority` |
-| `operate-analysis`      | Insights       | `review-workflow` | Operate | 10 | analysis slice — compare, replay, graph, Q&A, advisory, … |
-| `operate-governance`    | Governance     | `review-workflow` | Operate | 15 | governance slice — policy, audit, alerts, trust — Execute+ for writes where noted |
+| `operate-analysis`      | Insights       | `review-workflow` | Operate | 11 | analysis slice — compare, graph, Q&A, sponsor value, workspace health KPIs, … |
+| `operate-governance`    | Approval       | `review-workflow` | Operate | 9 | decide/track loop — queue, findings, decisions, audit, alerts |
+| `operate-policy`        | Policy         | `review-workflow` | Operate | 5 | policy packs, standards, alert rules, schedules, approval setup |
 | `operate-integrations`  | Integrations   | `review-workflow` | Operate | 7 | connector configuration and outbound event surfaces |
 | `operator-admin`        | Administration | `platform-admin`  | Admin   | 14 | system health, tenant cost, settings, support, users |
 | `operator-system-admin` | Internal       | `system-admin`    | Admin   | 17 | employee-only; behind `isShowSystemAdministrationNavEnabled()` |
@@ -61,18 +62,19 @@ When adding or moving a route, follow the **ordered checklist** in **`docs/libra
 
 ### Route namespace policy (TB-404)
 
-Operator sidebar groups imply a URL prefix in the address bar. **69** nav hrefs span **6** groups. The **TB-405–408** route moves have landed, so only **1** registered cross-namespace exception remains.
+Operator sidebar groups imply a URL prefix in the address bar. **69** nav hrefs span **7** groups. The **TB-405–408** route moves have landed, so only **1** registered cross-namespace exception remains.
 
 | Nav group `id` | Canonical prefix(es) | Notes |
 |----------------|----------------------|--------|
 | `pilot` | *(none — heterogeneous top-level review paths)* | Prefix enforcement skipped; review paths live at `/`, `/architecture/*`. |
 | `operate-analysis` | *(none)* | Prefix enforcement skipped: `/insights/ask-review-questions`, `/insights/compare-two-reviews`, `/insights/impact-preview`, … |
-| `operate-governance` | `/governance` | All governance nav hrefs under `/governance/*` (TB-405), except the one registered exception below. |
+| `operate-governance` | `/governance` | Approval-loop nav hrefs under `/governance/*` (TB-405). |
+| `operate-policy` | `/governance` | Policy/setup nav hrefs under `/governance/*` (TB-405). |
 | `operate-integrations` | `/integrations` | All Integrations nav hrefs under `/integrations/*` (TB-407). |
 | `operator-admin` | `/administration` | All Administration nav hrefs under `/administration/*` (TB-406). |
 | `operator-system-admin` | `/internal` | Internal operations moved `/admin/*` → `/internal/*`; legacy `/admin/*` are redirects only. |
 
-**Registered exceptions (1):** `operate-governance` → `GOVERNANCE_WORKSPACE_HEALTH_HREF`. Workspace-health KPIs were merged onto the sponsor dashboard when standalone `/governance/dashboard` was retired, so the nav row deep-links to the `#workspace-health` anchor instead of owning a `/governance/*` page.
+**Registered exceptions (1):** `operate-analysis` → `GOVERNANCE_WORKSPACE_HEALTH_HREF`. Workspace-health KPIs were merged onto the sponsor dashboard when standalone `/governance/dashboard` was retired, so the Insights nav row deep-links to the `#workspace-health` anchor instead of owning a `/insights/*` page.
 
 **Exception registry (source of truth):** `src/lib/nav-route-namespace-exceptions.ts`  
 **Prefix matcher + policies:** `src/lib/nav-route-namespace-policy.ts`  
@@ -129,7 +131,8 @@ UI hint only; API still 401/403.
 - **Omit** on Pilot *essentials* (home, getting-started, new run, runs) so Reader-signed-in pilots keep the default path.
 - **Analysis · extended:** inspection/diff surfaces that are `ReadAuthority` on the API (`GraphController`, `AuthorityCompareController`) use **`ReadAuthority`**. **Replay** stays **`ExecuteAuthority`** (`AuthorityReplayController`).
 - **Operate · analysis (`operate-analysis`):** every link sets **`requiredAuthority`**. Read/analytics pages → **`ReadAuthority`** unless the API primary workflow is Execute-class (planning, evolution candidates; advisory **schedules** and digest **subscriptions** are hub tabs under **`/governance/advisory-scans`** and **`/digests`** with in-page Execute gating). Link `title` strings use **“Label — short description”** for tooltips (same convention as governance slice).
-- **Operate · governance (`operate-governance`):** **inbox / dashboards / audit / policy pack browsing / alert tooling** whose controllers are class-scoped **`ReadAuthority`** → **`ReadAuthority`**. **Governance workflow** (mutations) → **`ExecuteAuthority`**.
+- **Operate · approval (`operate-governance`):** **approval queue / findings / decisions / audit / alerts** whose controllers are class-scoped **`ReadAuthority`** → **`ReadAuthority`**. **Governance workflow** (mutations) → **`ExecuteAuthority`**.
+- **Operate · policy (`operate-policy`):** **policy packs / standards / alert rules / schedules / setup** whose controllers are class-scoped **`ReadAuthority`** → **`ReadAuthority`**.
 - **Operator admin (`operator-admin`, `platform-admin` surface):** tenant directory and support use **`/administration/users`** and **`/administration/support`** (legacy `/admin/*` redirect); **`/administration/security-trust`** replaces **`/workspace/security-trust`**. **`AdminAuthority`** on user management. Other admin destinations use **`ReadAuthority`** / **`ExecuteAuthority`** as appropriate. Elsewhere under Operate, do not label list/browse pages **`AdminAuthority`** when the API is Read-class — POST-only admin actions stay on server policy.
 
 ## UI shaping vs API authorization (boundary)

@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { OperateAnalysisNavGroupBuilder } from "@/lib/operate-analysis-nav-group-builder";
 import { OperateGovernanceNavGroupBuilder } from "@/lib/operate-governance-nav-group-builder";
+import { SPONSOR_DASHBOARD_WORKSPACE_HEALTH_HREF } from "@/lib/sponsor/sponsor-dashboard-route";
 import { GOVERNANCE_EXCEPTIONS_PATH } from "@/lib/governance/governance-route-paths";
 
 describe("OperateAnalysisNavGroupBuilder", () => {
@@ -9,7 +10,9 @@ describe("OperateAnalysisNavGroupBuilder", () => {
     const group = new OperateAnalysisNavGroupBuilder().build();
 
     expect(group.label).toBe("Insights");
-    expect(group.caption).toBe("Explore evidence, findings, decisions, and sponsor value reports across reviews.");
+    expect(group.caption).toBe(
+      "Explore evidence, findings, decisions, sponsor value reports, and workspace health KPIs across reviews.",
+    );
   });
 
   it("lists Evidence graph first in Insights nav (TB-519)", () => {
@@ -35,11 +38,13 @@ describe("OperateAnalysisNavGroupBuilder", () => {
       "/insights/patterns",
       "/insights/sponsor-report",
       "/insights/roi-summary",
+      SPONSOR_DASHBOARD_WORKSPACE_HEALTH_HREF,
     ]);
-    expect(group.links.at(-3)?.label).toBe("Pattern library");
-    expect(group.links.at(-3)?.navBadge).toBeUndefined();
-    expect(group.links.at(-2)?.label).toBe("Sponsor report");
-    expect(group.links.at(-1)?.label).toBe("ROI summary");
+    expect(group.links.at(-4)?.label).toBe("Pattern library");
+    expect(group.links.at(-4)?.navBadge).toBeUndefined();
+    expect(group.links.at(-3)?.label).toBe("Sponsor report");
+    expect(group.links.at(-2)?.label).toBe("ROI summary");
+    expect(group.links.at(-1)?.label).toBe("Workspace health");
   });
 
   it("keeps the merged sponsor report read-gated so viewers reach it and exports stay Execute-gated", () => {

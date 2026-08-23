@@ -31,6 +31,7 @@ describe("role-shaped-nav-density", () => {
     expect(DEFAULT_NAV_GROUP_IDS_BY_ROLE_NAV_DENSITY_PERSONA.architect).not.toContain("operate-governance");
 
     expect(DEFAULT_NAV_GROUP_IDS_BY_ROLE_NAV_DENSITY_PERSONA.governance).toContain("operate-governance");
+    expect(DEFAULT_NAV_GROUP_IDS_BY_ROLE_NAV_DENSITY_PERSONA.governance).toContain("operate-policy");
     expect(DEFAULT_NAV_GROUP_IDS_BY_ROLE_NAV_DENSITY_PERSONA.governance).not.toContain("operate-analysis");
 
     expect(DEFAULT_NAV_GROUP_IDS_BY_ROLE_NAV_DENSITY_PERSONA.admin).toContain("operator-admin");
@@ -57,6 +58,7 @@ describe("role-shaped-nav-density", () => {
     const collapsed = filterNavGroupsByRoleDensity(rows, "governance", false);
 
     expect(collapsed.some((row) => row.group.id === "operate-governance")).toBe(true);
+    expect(collapsed.some((row) => row.group.id === "operate-policy")).toBe(true);
     expect(collapsed.some((row) => row.group.id === "operate-analysis")).toBe(false);
   });
 });

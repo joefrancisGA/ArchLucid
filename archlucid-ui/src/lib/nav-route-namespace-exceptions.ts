@@ -7,11 +7,11 @@ import { GOVERNANCE_WORKSPACE_HEALTH_HREF } from "@/lib/governance/governance-ro
  */
 export const NAV_ROUTE_NAMESPACE_EXCEPTIONS: readonly NavRouteNamespaceException[] = [
   {
-    navGroupId: "operate-governance",
+    navGroupId: "operate-analysis",
     href: GOVERNANCE_WORKSPACE_HEALTH_HREF,
-    canonicalPrefixes: ["/governance"],
+    canonicalPrefixes: ["/insights"],
     exceptionReason:
       "Workspace health KPIs were merged onto the sponsor dashboard when standalone /governance/dashboard was retired, "
-      + "so the governance nav row deep-links to the #workspace-health anchor instead of owning a /governance/* page.",
+      + "so the Insights nav row deep-links to the #workspace-health anchor instead of owning a /insights/* page.",
   },
 ];

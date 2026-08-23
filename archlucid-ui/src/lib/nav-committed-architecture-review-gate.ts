@@ -63,8 +63,8 @@ function navPathWithoutQuery(href: string): string {
   return navHrefPathPart(href);
 }
 
-/** Operate · governance workspace health uses a sponsor-dashboard fragment href but stays post-commit in the sidebar. */
-function isPreCommitOperateGovernanceOnlyNavLink(href: string): boolean {
+/** Insights workspace health uses a sponsor-dashboard fragment href but stays post-commit in the sidebar. */
+function isPreCommitOperateInsightsOnlyNavLink(href: string): boolean {
   return href === GOVERNANCE_WORKSPACE_HEALTH_HREF;
 }
 
@@ -140,7 +140,7 @@ export function filterNavLinksByCommittedArchitectureReviewGate(
   }
 
   const eligible = links.filter((link) => {
-    if (isPreCommitOperateGovernanceOnlyNavLink(link.href)) {
+    if (isPreCommitOperateInsightsOnlyNavLink(link.href)) {
       return false;
     }
 

@@ -14,7 +14,7 @@ export const DEFAULT_NAV_GROUP_IDS_BY_ROLE_NAV_DENSITY_PERSONA: Readonly<
   Record<RoleNavDensityPersona, readonly string[]>
 > = {
   architect: ["pilot", "operate-analysis"],
-  governance: ["pilot", "operate-governance"],
+  governance: ["pilot", "operate-governance", "operate-policy"],
   admin: ["pilot", "operator-admin"],
 };
 

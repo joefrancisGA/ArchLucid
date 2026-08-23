@@ -31,10 +31,14 @@ export const SIDEBAR_DAILY_HREFS_BY_GROUP: Readonly<Record<string, readonly stri
   "operate-governance": [
     "/governance/approval-queue",
     "/governance/findings",
-    "/governance/policy-packs",
     SIGNED_RECORDS_LIST_PATH,
     "/governance/advisory-scans",
     "/governance/alerts",
+  ],
+  "operate-policy": [
+    "/governance/policy-packs",
+    "/governance/standards-and-rules",
+    "/governance/setup",
   ],
   // Routine configuration leads; System health and Support are break-glass pages and Support is also
   // published as an inline bundle card on the settings hub, so neither needs a first-viewport slot.
