@@ -21,8 +21,11 @@ public static class ContextIngestionStableReferenceIds
 
     private static string StableId(string kind, string part1, string part2)
     {
+        // Content types and declaration formats are matched case-insensitively by parsers and
+        // SupportedContextDocumentContentTypes; stable ids must not churn on casing alone.
         byte[] hash = SHA256.HashData(
-            Encoding.UTF8.GetBytes($"{kind}|{part1.Trim()}|{part2.Trim()}"));
+            Encoding.UTF8.GetBytes(
+                $"{kind}|{part1.Trim()}|{part2.Trim().ToLowerInvariant()}"));
 
         return Convert.ToHexString(hash.AsSpan(0, 16)).ToLowerInvariant();
     }

@@ -1,4 +1,4 @@
-﻿{"at":"2026-08-19T23:26:47.3674912Z","zoneId":"host-composition","outcome":"hit"}
+{"at":"2026-08-19T23:26:47.3674912Z","zoneId":"host-composition","outcome":"hit"}
 {"at":"2026-08-20T02:43:58.4109123Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
 {"at":"2026-08-20T02:52:02.9922187Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
 {"at":"2026-08-20T04:21:33.4722134Z","zoneId":"ui-auth-proxy","outcome":"hit"}
@@ -34,5 +34,5 @@
 {"at":"2026-08-21T13:27:27.3698649Z","zoneId":"ui-auth-proxy","outcome":"hit"}
 {"at":"2026-08-22T15:53:43.1622200Z","zoneId":"application-agents","outcome":"hit"}
 {"at":"2026-08-22T18:56:26.2658172Z","zoneId":"api-authority-admin-controllers","outcome":"hit"}
-{"at":"2026-08-22T20:51:42.4904268Z","zoneId":"auth-return-path","outcome":"hit"}
 {"at":"2026-08-22T23:21:26.1493261Z","zoneId":"ui-operator-routes","outcome":"hit"}
+{"at":"2026-08-23T02:04:50.678Z","zoneId":"context-ingestion","outcome":"hit"}
