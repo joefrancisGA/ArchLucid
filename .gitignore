@@ -471,3 +471,7 @@ secrets/
 # al-api (local secrets and temp screenshots)
 .cursor/al-api.config.json
 .cursor/tmp/
+
+# al-api (local secrets and temp screenshots)
+.cursor/al-api.config.json
+.cursor/tmp/
