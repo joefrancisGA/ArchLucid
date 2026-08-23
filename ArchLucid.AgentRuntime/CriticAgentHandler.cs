@@ -49,11 +49,6 @@ public sealed class CriticAgentHandler(
     private readonly IInsightDensityLlmJudge _insightDensityLlmJudge =
         insightDensityLlmJudge ?? throw new ArgumentNullException(nameof(insightDensityLlmJudge));
 
-    private static readonly JsonSerializerOptions TraceJsonOptions = new(JsonSerializerDefaults.Web)
-    {
-        WriteIndented = true
-    };
-
     public AgentType AgentType => AgentType.Critic;
 
     /// <inheritdoc />

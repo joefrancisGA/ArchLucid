@@ -40,11 +40,6 @@ public sealed class CostAgentHandler(
     ILogger<CostAgentHandler> logger)
     : IAgentHandler
 {
-    private static readonly JsonSerializerOptions TraceJsonOptions = new(JsonSerializerDefaults.Web)
-    {
-        WriteIndented = true
-    };
-
     private readonly IScopeContextProvider _scopeContextProvider =
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
 

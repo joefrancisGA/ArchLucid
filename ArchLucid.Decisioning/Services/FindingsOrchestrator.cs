@@ -28,45 +28,6 @@ public partial class FindingsOrchestrator(
 
     private readonly TimeProvider _clock = timeProvider ?? TimeProvider.System;
 
-    /// <summary>
-    ///     Initialises the orchestrator without a payload validator or logger.
-    /// </summary>
-    /// <remarks>
-    ///     No payload validation is performed when using this overload.
-    ///     Prefer the primary constructor with an explicit <see cref="IFindingPayloadValidator" />
-    ///     injected from the DI container.
-    /// </remarks>
-    [Obsolete("Use the primary constructor that accepts IFindingPayloadValidator, ILogger<FindingsOrchestrator>, " +
-              "IOptions<HumanReviewFindingOptions>, IInsightDensityGate, and optional TimeProvider.")]
-    public FindingsOrchestrator(IEnumerable<IFindingEngine> engines)
-        : this(
-            engines,
-            new NoOpFindingPayloadValidator(),
-            SilentLogger.Instance,
-            Options.Create(new HumanReviewFindingOptions()),
-            DeterministicInsightDensityGate.CreateDefault(),
-            TimeProvider.System,
-            effectfulEngines: null)
-    {
-    }
-
-    /// <summary>
-    ///     Initialises the orchestrator with a validator but without a logger.
-    /// </summary>
-    /// <remarks>
-    ///     No structured logging is emitted when using this overload.
-    ///     Prefer the primary constructor that also accepts <see cref="ILogger{TCategoryName}" />.
-    /// </remarks>
-    [Obsolete("Use the primary constructor that also accepts ILogger<FindingsOrchestrator>, " +
-              "IOptions<HumanReviewFindingOptions>, and IInsightDensityGate.")]
-    public FindingsOrchestrator(
-        IEnumerable<IFindingEngine> engines,
-        IFindingPayloadValidator validator)
-        : this(engines, validator, SilentLogger.Instance, Options.Create(new HumanReviewFindingOptions()),
-            DeterministicInsightDensityGate.CreateDefault(), TimeProvider.System, effectfulEngines: null)
-    {
-    }
-
     public async Task<FindingsSnapshot> GenerateFindingsSnapshotAsync(
         Guid runId,
         Guid contextSnapshotId,
@@ -310,50 +271,4 @@ public partial class FindingsOrchestrator(
         Level = LogLevel.Warning,
         Message = "Findings snapshot built with engine failures: RunId={RunId} FailedEngineCount={FailedEngineCount}")]
     private partial void LogPartialEngineFailures(Guid runId, int failedEngineCount);
-
-    private sealed class NoOpFindingPayloadValidator : IFindingPayloadValidator
-    {
-        public void Validate(Finding finding)
-        {
-        }
-    }
-
-    /// <summary>ILogger that discards all output (no dependency on NullLogger from logging abstractions).</summary>
-    private sealed class SilentLogger : ILogger<FindingsOrchestrator>
-    {
-        public static readonly ILogger<FindingsOrchestrator> Instance = new SilentLogger();
-
-        private SilentLogger()
-        {
-        }
-
-        public IDisposable BeginScope<TState>(TState state) where TState : notnull
-        {
-            return NullScope.Instance;
-        }
-
-        public bool IsEnabled(LogLevel logLevel)
-        {
-            return false;
-        }
-
-        public void Log<TState>(
-            LogLevel logLevel,
-            EventId eventId,
-            TState state,
-            Exception? exception,
-            Func<TState, Exception?, string> formatter)
-        {
-        }
-
-        private sealed class NullScope : IDisposable
-        {
-            // ReSharper disable once MemberHidesStaticFromOuterClass
-            public static readonly NullScope Instance = new();
-
-            public void Dispose()
-            {
-            }
-        }
-    }
 }
