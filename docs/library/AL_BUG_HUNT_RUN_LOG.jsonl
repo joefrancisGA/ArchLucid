@@ -78,4 +78,5 @@
 {"at":"2026-08-23T09:44:20.1158542Z","zoneId":"saml-jwt-bearer","outcome":"hit"}
 {"at":"2026-08-23T09:59:52.2936213Z","zoneId":"ui-oidc","outcome":"hit"}
 {"at":"2026-08-23T10:14:06.239294Z","zoneId":"commit-output-integrity","outcome":"hit"}
-{"at":"2026-08-23T10:24:13.4003600Z","zoneId":"sql-run-repository","outcome":"hit"}
+{"at":"2026-08-23T10:24:13.40036Z","zoneId":"sql-run-repository","outcome":"hit"}
+{"at":"2026-08-23T10:27:41.2129440Z","zoneId":"persistence-identity","outcome":"hit"}
