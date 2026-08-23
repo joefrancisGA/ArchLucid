@@ -143,12 +143,12 @@ public sealed class TenantCatalogMigrationOrchestrator(
         if (active.Stage != TenantCatalogMigrationStage.CatalogAttachDetach)
             return (TenantCatalogMigrationCommandOutcome.WrongStage, null);
 
-        await _migrationRepository
-            .UpdateStageAsync(active.MigrationId, TenantCatalogMigrationStage.ProjectionRefresh, cancellationToken)
-            .ConfigureAwait(false);
-
         TenantMigrationProjectionRefreshResult refresh = await _projectionRefreshService
             .RefreshAsync(tenantId, workspaceId, projectId, cancellationToken)
+            .ConfigureAwait(false);
+
+        await _migrationRepository
+            .UpdateStageAsync(active.MigrationId, TenantCatalogMigrationStage.ProjectionRefresh, cancellationToken)
             .ConfigureAwait(false);
 
         await AppendPlatformAuditAsync(
