@@ -103,7 +103,7 @@ public sealed class AdminDiagnosticsService(
     {
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
 
-        return _integrationEventOutbox.ListDeadLettersAsync(maxRows, scope.TenantId, cancellationToken);
+        return _integrationEventOutbox.ListDeadLettersAsync(maxRows, scope.TenantId, skip: 0, cancellationToken);
     }
 
     /// <inheritdoc />

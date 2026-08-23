@@ -822,7 +822,7 @@ public sealed class AdminDiagnosticsServiceNonSqlTests
             LastErrorMessage = "timeout"
         };
 
-        _ = integration.Setup(i => i.ListDeadLettersAsync(25, DefaultScope().TenantId, It.IsAny<CancellationToken>()))
+        _ = integration.Setup(i => i.ListDeadLettersAsync(25, DefaultScope().TenantId, 0, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<IntegrationEventOutboxDeadLetterRow> { row });
 
         IReadOnlyList<IntegrationEventOutboxDeadLetterRow> letters =
@@ -832,7 +832,7 @@ public sealed class AdminDiagnosticsServiceNonSqlTests
         Assert.Equal(row.OutboxId, letters[0].OutboxId);
         Assert.Equal(IntegrationEventTypes.AlertFiredV1, letters[0].EventType);
         integration.Verify(
-            i => i.ListDeadLettersAsync(25, DefaultScope().TenantId, It.IsAny<CancellationToken>()),
+            i => i.ListDeadLettersAsync(25, DefaultScope().TenantId, 0, It.IsAny<CancellationToken>()),
             Times.Once);
     }
 

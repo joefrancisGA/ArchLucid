@@ -1124,13 +1124,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** background jobs; hosted services; durable job queue
 - **paths:** ArchLucid.Host.Core/Jobs/; ArchLucid.Host.Core/Hosted/
 - **test-filter:** FullyQualifiedName~ArchLucidJob|FullyQualifiedName~BackgroundJob|FullyQualifiedName~Hosted
-- **hunts:** 3
-- **bugs-found:** 3
+- **hunts:** 4
+- **bugs-found:** 4
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-23
-- **last-bug:** 2026-08-23 — canceled pending in-memory background jobs still executed after dequeue
+- **last-bug:** 2026-08-23 — integration DLQ auto-retry skipped eligible dead letters behind permanently failed list cap
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** no
 
 ### Hypotheses
 
@@ -1138,6 +1138,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] Leader-elected hosted service runs the same outbox drain on every replica â€” retired: intentional when `HostLeaderElection:Enabled` is false; default is enabled
 - [x] Stuck-running watchdog marks a healthy job failed and it is retried into duplicate side effects â€” fixed stale threshold to exceed processor visibility (2026-08-17)
 - [x] (proven) MarkCanceledAsync on a pending in-memory job still runs after dequeue — `InMemoryBackgroundJobQueue` overwrote `Canceled` with `Running` when the channel item was processed; fixed by skipping canceled and non-runnable states before execution (2026-08-23)
+- [x] (proven) Integration event DLQ auto-retry never requeues eligible dead letters when permanently failed rows fill the first list cap — **hit 2026-08-23:** `IntegrationEventDlqRetryBackgroundWork` listed only the first 100 dead-letter rows; 100 newer permanently failed rows hid an eligible older row from `ResetDeadLetterForRetryAsync`
 
 ---
 

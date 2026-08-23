@@ -175,9 +175,11 @@ public sealed class InMemoryIntegrationEventOutboxRepository : IIntegrationEvent
     public Task<IReadOnlyList<IntegrationEventOutboxDeadLetterRow>> ListDeadLettersAsync(
         int maxRows,
         Guid? tenantId,
+        int skip,
         CancellationToken ct)
     {
         int take = Math.Clamp(maxRows, 1, 500);
+        int offset = Math.Max(0, skip);
 
         lock (_gate)
         {
@@ -185,6 +187,7 @@ public sealed class InMemoryIntegrationEventOutboxRepository : IIntegrationEvent
                 .Where(e => e.DeadLetteredUtc is not null)
                 .Where(e => tenantId is null || e.TenantId == tenantId)
                 .OrderByDescending(e => e.DeadLetteredUtc)
+                .Skip(offset)
                 .Take(take)
                 .Select(
                     e => new IntegrationEventOutboxDeadLetterRow

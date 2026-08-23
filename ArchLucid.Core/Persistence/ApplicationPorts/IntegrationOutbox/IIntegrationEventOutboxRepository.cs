@@ -47,9 +47,11 @@ public interface IIntegrationEventOutboxRepository
     Task<long> CountIntegrationOutboxDeadLetterAsync(CancellationToken ct);
 
     /// <param name="tenantId">When set, only rows for that tenant are returned; null lists across all tenants (host automation).</param>
+    /// <param name="skip">Rows to skip for pagination (host DLQ auto-retry scans beyond the first page).</param>
     Task<IReadOnlyList<IntegrationEventOutboxDeadLetterRow>> ListDeadLettersAsync(
         int maxRows,
         Guid? tenantId,
+        int skip,
         CancellationToken ct);
 
     /// <summary>Clears dead-letter state so the row is eligible for publish retries again.</summary>

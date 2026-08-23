@@ -223,9 +223,11 @@ public sealed class DapperIntegrationEventOutboxRepository(ISqlConnectionFactory
     public async Task<IReadOnlyList<IntegrationEventOutboxDeadLetterRow>> ListDeadLettersAsync(
         int maxRows,
         Guid? tenantId,
+        int skip,
         CancellationToken ct)
     {
         int take = Math.Clamp(maxRows, 1, 500);
+        int offset = Math.Max(0, skip);
 
 
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
@@ -234,7 +236,8 @@ public sealed class DapperIntegrationEventOutboxRepository(ISqlConnectionFactory
             new CommandDefinition(IntegrationEventOutboxSql.ListDeadLetters, new
             {
                 Take = take,
-                TenantId = tenantId
+                TenantId = tenantId,
+                Skip = offset
             }, cancellationToken: ct));
 
         List<IntegrationEventOutboxDeadLetterRow> list = [];

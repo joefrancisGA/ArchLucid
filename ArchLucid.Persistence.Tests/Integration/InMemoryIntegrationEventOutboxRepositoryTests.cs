@@ -167,7 +167,7 @@ public sealed class InMemoryIntegrationEventOutboxRepositoryTests
         (await sut.CountIntegrationOutboxDeadLetterAsync(CancellationToken.None)).Should().Be(1);
 
         IReadOnlyList<IntegrationEventOutboxDeadLetterRow> letters =
-            await sut.ListDeadLettersAsync(10, tenantId: null, CancellationToken.None);
+            await sut.ListDeadLettersAsync(10, tenantId: null, skip: 0, CancellationToken.None);
 
         letters.Should().ContainSingle();
         letters[0].OutboxId.Should().Be(id);
@@ -241,8 +241,8 @@ public sealed class InMemoryIntegrationEventOutboxRepositoryTests
                 CancellationToken.None);
         }
 
-        (await sut.ListDeadLettersAsync(10, tenantA, CancellationToken.None)).Should().ContainSingle(x => x.OutboxId == tenantAId);
-        (await sut.ListDeadLettersAsync(10, tenantB, CancellationToken.None)).Should().ContainSingle(x => x.OutboxId == tenantBId);
+        (await sut.ListDeadLettersAsync(10, tenantA, skip: 0, CancellationToken.None)).Should().ContainSingle(x => x.OutboxId == tenantAId);
+        (await sut.ListDeadLettersAsync(10, tenantB, skip: 0, CancellationToken.None)).Should().ContainSingle(x => x.OutboxId == tenantBId);
 
         (await sut.ResetDeadLetterForRetryAsync(tenantBId, tenantA, CancellationToken.None)).Should().BeFalse();
         (await sut.ResetDeadLetterForRetryAsync(tenantAId, tenantA, CancellationToken.None)).Should().BeTrue();

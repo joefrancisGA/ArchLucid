@@ -54,13 +54,13 @@ internal static class IntegrationEventOutboxSql
                                           """;
 
     public const string ListDeadLetters = """
-                                          SELECT TOP (@Take)
-                                              OutboxId, RunId, TenantId, EventType, DeadLetteredUtc, RetryCount, LastErrorMessage
+                                          SELECT OutboxId, RunId, TenantId, EventType, DeadLetteredUtc, RetryCount, LastErrorMessage
                                           FROM dbo.IntegrationEventOutbox
                                           WHERE DeadLetteredUtc IS NOT NULL
                                             AND ProcessedUtc IS NULL
                                             AND (@TenantId IS NULL OR TenantId = @TenantId)
-                                          ORDER BY DeadLetteredUtc DESC;
+                                          ORDER BY DeadLetteredUtc DESC
+                                          OFFSET @Skip ROWS FETCH NEXT @Take ROWS ONLY;
                                           """;
 
     public const string ResetDeadLetterForRetry = """

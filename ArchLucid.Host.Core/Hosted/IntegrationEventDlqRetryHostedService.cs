@@ -22,31 +22,45 @@ public static class IntegrationEventDlqRetryBackgroundWork
         IIntegrationEventOutboxRepository repository =
             scope.ServiceProvider.GetRequiredService<IIntegrationEventOutboxRepository>();
 
-        IReadOnlyList<IntegrationEventOutboxDeadLetterRow> deadLetters =
-            await repository.ListDeadLettersAsync(100, tenantId: null, cancellationToken).ConfigureAwait(false);
-
         DateTime utcNow = DateTime.UtcNow;
         int requeued = 0;
         int permanentlyFailed = 0;
+        const int batchSize = 100;
+        int skip = 0;
 
-        foreach (IntegrationEventOutboxDeadLetterRow row in deadLetters)
+        while (true)
         {
-            if (IntegrationEventDlqRetryPolicy.IsPermanentlyFailed(row))
-            {
-                permanentlyFailed++;
+            IReadOnlyList<IntegrationEventOutboxDeadLetterRow> deadLetters =
+                await repository.ListDeadLettersAsync(batchSize, tenantId: null, skip, cancellationToken)
+                    .ConfigureAwait(false);
 
-                continue;
+            if (deadLetters.Count == 0)
+                break;
+
+            foreach (IntegrationEventOutboxDeadLetterRow row in deadLetters)
+            {
+                if (IntegrationEventDlqRetryPolicy.IsPermanentlyFailed(row))
+                {
+                    permanentlyFailed++;
+
+                    continue;
+                }
+
+                if (!IntegrationEventDlqRetryPolicy.IsEligibleForAutoRetry(row, utcNow))
+                    continue;
+
+                bool ok = await repository
+                    .ResetDeadLetterForRetryAsync(row.OutboxId, tenantId: null, cancellationToken)
+                    .ConfigureAwait(false);
+
+                if (ok)
+                    requeued++;
             }
 
-            if (!IntegrationEventDlqRetryPolicy.IsEligibleForAutoRetry(row, utcNow))
-                continue;
+            skip += deadLetters.Count;
 
-            bool ok = await repository
-                .ResetDeadLetterForRetryAsync(row.OutboxId, tenantId: null, cancellationToken)
-                .ConfigureAwait(false);
-
-            if (ok)
-                requeued++;
+            if (deadLetters.Count < batchSize)
+                break;
         }
 
         if (permanentlyFailed > 0)
