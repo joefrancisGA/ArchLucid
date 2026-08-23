@@ -1336,13 +1336,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** decisioning engine; findings merge; advisory alerts
 - **paths:** ArchLucid.Decisioning/
 - **test-filter:** FullyQualifiedName~Decisioning|FullyQualifiedName~FindingsMerge
-- **hunts:** 2
-- **bugs-found:** 2
+- **hunts:** 3
+- **bugs-found:** 3
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-19
-- **last-bug:** 2026-08-19
+- **last-hunt:** 2026-08-23
+- **last-bug:** 2026-08-23
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** no
 
 ### Hypotheses
 
@@ -1350,6 +1350,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Advisory alert fires for a finding outside the run scope — **hit 2026-08-18:** `AlertEvaluator` / `AlertMetricSnapshotBuilder` did not filter `RecommendationRecords` by `context.RunId`.
 - [x] (proven) Comparison security improvements emit false `SecurityRegression` advisory signals — **hit 2026-08-19:** `ImprovementSignalAnalyzer` treated any `SecurityDelta` status change as regression, including NonCompliant→Compliant and newly added controls.
 - [x] (valid-no-repro) Compliance gate passes when required evidence nodes are absent — `GraphComplianceEvaluator` flags uncovered required nodes; golden path tests confirm.
+- [x] (proven) `SecurityDeltaRegressionClassifier` treats negated compliant phrases as good status — **hit 2026-08-23:** substring match on `compliant` ranked `Not Compliant` and `Non Compliant` as rank 2, so Compliant→Not Compliant deltas emitted no `SecurityRegression` signal.
 
 ---
 
