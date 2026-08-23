@@ -623,8 +623,7 @@ export function ProvenanceGraphViewport(props: ProvenanceGraphViewportProps): Re
             variant="outline"
             size="icon"
             className="h-8 w-8 bg-white/95 dark:bg-neutral-950/95"
-            aria-label="Zoom in"
-            title="Zoom in (Ctrl + scroll)"
+            aria-label="Zoom in (Ctrl + scroll)"
             onClick={() => zoomBy(PROVENANCE_GRAPH_ZOOM_STEP)}
           >
             <Plus className="h-4 w-4" aria-hidden="true" />
@@ -634,8 +633,7 @@ export function ProvenanceGraphViewport(props: ProvenanceGraphViewportProps): Re
             variant="outline"
             size="icon"
             className="h-8 w-8 bg-white/95 dark:bg-neutral-950/95"
-            aria-label="Zoom out"
-            title="Zoom out (Ctrl + scroll)"
+            aria-label="Zoom out (Ctrl + scroll)"
             onClick={() => zoomBy(1 / PROVENANCE_GRAPH_ZOOM_STEP)}
           >
             <Minus className="h-4 w-4" aria-hidden="true" />
@@ -646,7 +644,6 @@ export function ProvenanceGraphViewport(props: ProvenanceGraphViewportProps): Re
             size="icon"
             className="h-8 w-8 bg-white/95 dark:bg-neutral-950/95"
             aria-label="Fit graph to view"
-            title="Fit to view"
             onClick={() => fitToView()}
           >
             <Maximize2 className="h-4 w-4" aria-hidden="true" />
@@ -657,7 +654,6 @@ export function ProvenanceGraphViewport(props: ProvenanceGraphViewportProps): Re
             size="icon"
             className="h-8 w-8 bg-white/95 dark:bg-neutral-950/95"
             aria-label="Reset graph layout"
-            title="Reset layout"
             onClick={resetLayout}
           >
             <RefreshCw className="h-4 w-4" aria-hidden="true" />
@@ -668,7 +664,6 @@ export function ProvenanceGraphViewport(props: ProvenanceGraphViewportProps): Re
             size="icon"
             className="h-8 w-8 bg-white/95 dark:bg-neutral-950/95"
             aria-label={expanded ? "Exit expanded graph view" : "Expand graph view"}
-            title={expanded ? "Exit expanded view" : "Expanded view"}
             onClick={() => setExpanded((value) => !value)}
           >
             {expanded ? <Shrink className="h-4 w-4" aria-hidden="true" /> : <Expand className="h-4 w-4" aria-hidden="true" />}
