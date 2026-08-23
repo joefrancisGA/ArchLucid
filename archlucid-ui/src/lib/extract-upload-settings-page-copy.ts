@@ -64,7 +64,7 @@ export const EXTRACT_UPLOAD_STEP_COLLECT_DESCRIPTION =
 export const EXTRACT_UPLOAD_STEP_UPLOAD_TITLE = "Step 2 — Upload ZIP" as const;
 
 export const EXTRACT_UPLOAD_STEP_UPLOAD_DESCRIPTION =
-  "Drag and drop or browse. Client-side checks validate manifest.json schemaVersion before the API call." as const;
+  "Drag and drop or browse. Client-side checks validate the package format before upload." as const;
 
 export const EXTRACT_UPLOAD_ADVANCED_COMMAND_DISCLOSURE_SUMMARY =
   "Advanced: full Get-ArchLucidAzurePackage.ps1 command" as const;
