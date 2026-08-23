@@ -64,3 +64,4 @@
 {"at":"2026-08-23T06:58:24.8863278Z","zoneId":"application-pilots","outcome":"hit"}
 {"at":"2026-08-23T07:07:02.7476117Z","zoneId":"finding-inspect-sql","outcome":"hit"}
 {"at":"2026-08-23T07:18:49.5000707Z","zoneId":"application-billing-logic","outcome":"hit"}
+{"at":"2026-08-23T07:24:25.8294976Z","zoneId":"persistence-identity","outcome":"hit"}

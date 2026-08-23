@@ -1360,24 +1360,26 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ## Zone: persistence-identity
 
 - **id:** persistence-identity
-- **status:** unseeded
+- **status:** open
 - **impact:** high
 - **aliases:** identity repository; authentication identity dapper
 - **paths:** ArchLucid.Persistence/Identity/
 - **test-filter:** FullyQualifiedName~AuthenticationIdentity|FullyQualifiedName~IdentityRepository
-- **hunts:** 0
-- **bugs-found:** 0
+- **hunts:** 1
+- **bugs-found:** 1
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **last-hunt:** 2026-08-23
+- **last-bug:** 2026-08-23
 - **related-pd-tb:** none
-- **code-changed-since:** unknown
+- **code-changed-since:** no
 
 ### Hypotheses
 
-- [ ] (candidate) Identity lookup by email returns a user from another tenant
-- [ ] (candidate) Link/unlink writes succeed without scoping to the caller tenant
-- [ ] (candidate) Cached identity read returns stale data after a tenant-scoped upsert
+- [x] (invalid) Identity lookup by email returns a user from another tenant — `IAuthenticationIdentityRepository` has no email lookup; sign-in domain routing uses global domain keys by design.
+- [x] (invalid) Link/unlink writes succeed without scoping to the caller tenant — persistence repos are record-oriented; caller tenant enforcement lives in application services.
+- [x] (valid-no-repro) Cached identity read returns stale data after a tenant-scoped upsert — `CachingSecondaryReferenceDataRepositoryTests` proves eviction after upsert/insert for tenant IdP config and sign-in domains.
+- [x] (proven) `InMemoryAuthenticationIdentityRepository.ReEnableAsync` reclaimed a disabled external key while another active identity already held it — **hit 2026-08-23:** in-memory store ignored the SQL filtered unique index (`UX_AuthenticationIdentities_ExternalKey WHERE DisabledUtc IS NULL`) and dual-activated the same external key.
+- [ ] (hunt-ready) `InMemoryTenantSignInEmailDomainRepository.FindByNormalizedDomainAsync` / `ListByTenantIdAsync` return soft-removed domains (`RemovedUtc` set) that `DapperTenantSignInEmailDomainRepository` excludes via `RemovedUtc IS NULL`.
 
 ---
 

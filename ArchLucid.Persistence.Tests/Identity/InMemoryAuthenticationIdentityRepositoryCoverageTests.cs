@@ -114,6 +114,51 @@ public sealed class InMemoryAuthenticationIdentityRepositoryCoverageTests
     }
 
     [Fact]
+    public async Task ReEnableAsync_returns_false_when_another_active_identity_claims_external_key()
+    {
+        InMemoryAuthenticationIdentityRepository sut = new();
+        AuthenticationIdentityInsert sharedKey = new()
+        {
+            ProviderType = AuthenticationProviderType.MicrosoftIdentity,
+            NormalizedIssuer = "issuer",
+            Subject = "subject",
+        };
+
+        AuthenticationIdentityRecord disabled = await sut.InsertAsync(
+            new AuthenticationIdentityInsert
+            {
+                UserId = Guid.NewGuid(),
+                ProviderType = sharedKey.ProviderType,
+                NormalizedIssuer = sharedKey.NormalizedIssuer,
+                Subject = sharedKey.Subject,
+            },
+            CancellationToken.None);
+
+        await sut.DisableAsync(disabled.Id, DateTimeOffset.UtcNow, CancellationToken.None);
+
+        await sut.InsertAsync(
+            new AuthenticationIdentityInsert
+            {
+                UserId = Guid.NewGuid(),
+                ProviderType = sharedKey.ProviderType,
+                NormalizedIssuer = sharedKey.NormalizedIssuer,
+                Subject = sharedKey.Subject,
+            },
+            CancellationToken.None);
+
+        ExternalIdentityKey key = new()
+        {
+            ProviderType = sharedKey.ProviderType,
+            NormalizedIssuer = sharedKey.NormalizedIssuer,
+            Subject = sharedKey.Subject,
+        };
+
+        (await sut.ReEnableAsync(disabled.Id, CancellationToken.None)).Should().BeFalse();
+        (await sut.FindByExternalKeyAsync(key, CancellationToken.None))!.Id.Should().NotBe(disabled.Id);
+        (await sut.GetByIdAsync(disabled.Id, CancellationToken.None))!.DisabledUtc.Should().NotBeNull();
+    }
+
+    [Fact]
     public async Task FindAnyByExternalKeyAsync_returns_disabled_row_when_no_active_match()
     {
         InMemoryAuthenticationIdentityRepository sut = new();

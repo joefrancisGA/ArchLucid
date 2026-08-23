@@ -190,8 +190,6 @@ public sealed class InMemoryAuthenticationIdentityRepository : IAuthenticationId
             DisabledUtc = null
         };
 
-        _byId[identityId] = updated;
-
         string storageKey = BuildStorageKey(new ExternalIdentityKey
         {
             ProviderType = existing.ProviderType,
@@ -201,6 +199,12 @@ public sealed class InMemoryAuthenticationIdentityRepository : IAuthenticationId
             TenantIdentityProviderId = existing.TenantIdentityProviderId
         });
 
+        if (_activeExternalKeys.TryGetValue(storageKey, out Guid occupantId) && occupantId != identityId)
+        {
+            return Task.FromResult(false);
+        }
+
+        _byId[identityId] = updated;
         _activeExternalKeys[storageKey] = identityId;
 
         return Task.FromResult(true);
