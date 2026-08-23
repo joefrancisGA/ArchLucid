@@ -9,6 +9,7 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export type RunsListCompareSelectionBarProps = {
   readonly selectedRunIds: readonly string[];
+  readonly selectionNotice?: string | null;
   readonly onClear: () => void;
   readonly className?: string;
 };
@@ -40,6 +41,11 @@ export function RunsListCompareSelectionBar(props: RunsListCompareSelectionBarPr
         {count} review{count === 1 ? "" : "s"} selected
         {count === 1 ? " — select one more to compare" : null}
       </span>
+      {props.selectionNotice !== null && props.selectionNotice !== undefined && props.selectionNotice.length > 0 ? (
+        <p className={cn("m-0 w-full text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} role="status">
+          {props.selectionNotice}
+        </p>
+      ) : null}
       {canCompare && compareHref !== null ? (
         <Button asChild size="sm" variant="primary">
           <Link href={compareHref} data-testid="runs-list-compare-selected">

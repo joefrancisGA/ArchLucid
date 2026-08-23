@@ -268,6 +268,7 @@ export function RunsListClient(props: RunsListClientProps) {
     selectedRun,
     setSelectedRun,
     compareSelection,
+    compareSelectionNotice,
     paginationAnnouncement,
     mobileInspectorShellRef,
     viewportNarrow,
@@ -452,6 +453,7 @@ export function RunsListClient(props: RunsListClientProps) {
             {showCompareSelection ? (
               <RunsListCompareSelectionBar
                 selectedRunIds={compareSelection}
+                selectionNotice={compareSelectionNotice}
                 onClear={clearCompareSelection}
               />
             ) : null}

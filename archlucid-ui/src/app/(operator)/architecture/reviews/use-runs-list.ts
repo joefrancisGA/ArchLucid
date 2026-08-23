@@ -39,6 +39,7 @@ export type UseRunsListResult = {
   selectedRun: RunSummary | null;
   setSelectedRun: (run: RunSummary | null) => void;
   compareSelection: string[];
+  compareSelectionNotice: string | null;
   paginationAnnouncement: string;
   mobileInspectorShellRef: RefObject<HTMLDivElement | null>;
   viewportNarrow: boolean;
@@ -86,6 +87,7 @@ export function useRunsList(props: RunsListClientProps): UseRunsListResult {
   const [sortOrder, setSortOrder] = useState<SortOrder>("createdDesc");
   const [selectedRun, setSelectedRun] = useState<RunSummary | null>(null);
   const [compareSelection, setCompareSelection] = useState<string[]>([]);
+  const [compareSelectionNotice, setCompareSelectionNotice] = useState<string | null>(null);
   const [paginationAnnouncement, setPaginationAnnouncement] = useState("");
   const mobileInspectorShellRef = useRef<HTMLDivElement>(null);
   const viewportNarrow = useViewportNarrow();
@@ -218,12 +220,18 @@ export function useRunsList(props: RunsListClientProps): UseRunsListResult {
   const toggleCompareSelection = useCallback((runId: string) => {
     setCompareSelection((current) => {
       if (current.includes(runId)) {
+        setCompareSelectionNotice(null);
+
         return current.filter((id) => id !== runId);
       }
 
       if (current.length >= 2) {
+        setCompareSelectionNotice("Only two reviews can be compared — oldest selection was replaced.");
+
         return [current[1]!, runId];
       }
+
+      setCompareSelectionNotice(null);
 
       return [...current, runId];
     });
@@ -231,6 +239,7 @@ export function useRunsList(props: RunsListClientProps): UseRunsListResult {
 
   const clearCompareSelection = useCallback(() => {
     setCompareSelection([]);
+    setCompareSelectionNotice(null);
   }, []);
 
   const filterStatusLine = runsListPageFilterStatusLine(
@@ -256,6 +265,7 @@ export function useRunsList(props: RunsListClientProps): UseRunsListResult {
     selectedRun,
     setSelectedRun,
     compareSelection,
+    compareSelectionNotice,
     paginationAnnouncement,
     mobileInspectorShellRef,
     viewportNarrow,
