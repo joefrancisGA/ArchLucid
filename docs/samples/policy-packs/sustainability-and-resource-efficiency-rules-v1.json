@@ -217,6 +217,52 @@
           "requirement": "Sustainability \u2014 AI and accelerator efficiency"
         }
       ]
+    },
+    {
+      "id": "sust-base-010",
+      "title": "Managed-service utilization versus self-managed overhead",
+      "description": "Prefer managed services where they reduce idle operational overhead and duplicated capacity; self-managed stacks should justify the resource-efficiency tradeoff.",
+      "severity": "Medium",
+      "priority": "P1",
+      "remediationGuidance": "Document managed-vs-self-managed rationale in metadata.ChangeDescription when both paths are plausible.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "datastores[]",
+        "metadata.ChangeDescription",
+        "relationships"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "ArchLucid Architecture Quality Baseline",
+          "requirement": "Sustainability \u2014 managed-service utilization"
+        }
+      ]
+    },
+    {
+      "id": "sust-base-011",
+      "title": "Explicit resource-efficiency tradeoffs recorded",
+      "description": "When sustainability, cost, reliability, or performance goals conflict, record the accepted tradeoff rather than leaving resource waste implicit.",
+      "severity": "Medium",
+      "priority": "P1",
+      "remediationGuidance": "Capture resource-efficiency tradeoffs in governance.PolicyConstraints or metadata.ChangeDescription.",
+      "evidenceHints": [
+        "governance.PolicyConstraints",
+        "governance.RequiredControls",
+        "governance.ComplianceTags",
+        "services[].Tags",
+        "datastores[]",
+        "metadata.ChangeDescription",
+        "relationships"
+      ],
+      "frameworkMappings": [
+        {
+          "framework": "ArchLucid Architecture Quality Baseline",
+          "requirement": "Sustainability \u2014 explicit tradeoffs"
+        }
+      ]
     }
   ]
 }

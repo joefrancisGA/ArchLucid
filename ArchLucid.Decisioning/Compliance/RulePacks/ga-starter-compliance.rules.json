@@ -9136,101 +9136,123 @@
     {
       "ruleId": "sust-base-001",
       "controlId": "SUST-BASE-001",
-      "controlName": "GA Sustainability starter rule (catalog stub)",
+      "controlName": "Utilization assumptions for continuously allocated capacity",
       "appliesToCategory": "sustainability",
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
       "priority": "P0",
-      "description": "Stub for sust-base-001; see docs/samples/policy-packs/sustainability-and-resource-efficiency-rules-v1.json for narrative."
+      "description": "Continuously allocated compute/storage should state utilization assumptions or why always-on capacity is required. Do not invent carbon percentages."
     },
     {
       "ruleId": "sust-base-002",
       "controlId": "SUST-BASE-002",
-      "controlName": "GA Sustainability starter rule (catalog stub)",
+      "controlName": "Idle-capacity and scheduling strategy",
       "appliesToCategory": "sustainability",
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
       "priority": "P0",
-      "description": "Stub for sust-base-002; see docs/samples/policy-packs/sustainability-and-resource-efficiency-rules-v1.json for narrative."
+      "description": "Workloads with idle periods should describe scale-to-zero, scheduling, or accepted idle waste \u2014 distinct from pure cost optimization when environmental impact is in scope."
     },
     {
       "ruleId": "sust-base-003",
       "controlId": "SUST-BASE-003",
-      "controlName": "GA Sustainability starter rule (catalog stub)",
+      "controlName": "Right-sizing and accelerator proportionality",
       "appliesToCategory": "sustainability",
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
       "priority": "P0",
-      "description": "Stub for sust-base-003; see docs/samples/policy-packs/sustainability-and-resource-efficiency-rules-v1.json for narrative."
+      "description": "SKU/accelerator choices (including GPUs) should be proportional to stated need; oversized accelerators without justification are a resource-efficiency finding."
     },
     {
       "ruleId": "sust-base-004",
       "controlId": "SUST-BASE-004",
-      "controlName": "GA Sustainability starter rule (catalog stub)",
+      "controlName": "Data retention and storage lifecycle discipline",
       "appliesToCategory": "sustainability",
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
       "priority": "P1",
-      "description": "Stub for sust-base-004; see docs/samples/policy-packs/sustainability-and-resource-efficiency-rules-v1.json for narrative."
+      "description": "Retention and storage lifecycle should match business need; unbounded retention is a resource-efficiency and sustainability concern as well as a cost one."
     },
     {
       "ruleId": "sust-base-005",
       "controlId": "SUST-BASE-005",
-      "controlName": "GA Sustainability starter rule (catalog stub)",
+      "controlName": "Unnecessary replication and data movement minimized",
       "appliesToCategory": "sustainability",
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
       "priority": "P1",
-      "description": "Stub for sust-base-005; see docs/samples/policy-packs/sustainability-and-resource-efficiency-rules-v1.json for narrative."
+      "description": "Cross-region replication and large data movement should be justified; defaulting to global copies without need wastes resources."
     },
     {
       "ruleId": "sust-base-006",
       "controlId": "SUST-BASE-006",
-      "controlName": "GA Sustainability starter rule (catalog stub)",
+      "controlName": "Recomputation versus caching tradeoff considered",
       "appliesToCategory": "sustainability",
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
       "priority": "P1",
-      "description": "Stub for sust-base-006; see docs/samples/policy-packs/sustainability-and-resource-efficiency-rules-v1.json for narrative."
+      "description": "Expensive recomputation loops (including AI inference context replay) should consider caching/batching where quality allows."
     },
     {
       "ruleId": "sust-base-007",
       "controlId": "SUST-BASE-007",
-      "controlName": "GA Sustainability starter rule (catalog stub)",
+      "controlName": "Consumption observability for resource-heavy workloads",
       "appliesToCategory": "sustainability",
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
       "priority": "P1",
-      "description": "Stub for sust-base-007; see docs/samples/policy-packs/sustainability-and-resource-efficiency-rules-v1.json for narrative."
+      "description": "Resource-heavy designs (AI/ML, large data, always-on fleets) should identify how consumption is observed so efficiency regressions are visible."
     },
     {
       "ruleId": "sust-base-008",
       "controlId": "SUST-BASE-008",
-      "controlName": "GA Sustainability starter rule (catalog stub)",
+      "controlName": "Resource retirement and disposal path",
       "appliesToCategory": "sustainability",
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
       "priority": "P2",
-      "description": "Stub for sust-base-008; see docs/samples/policy-packs/sustainability-and-resource-efficiency-rules-v1.json for narrative."
+      "description": "Temporary environments, abandoned capacity, and retired data paths should have a disposal/retirement expectation."
     },
     {
       "ruleId": "sust-base-009",
       "controlId": "SUST-BASE-009",
-      "controlName": "GA Sustainability starter rule (catalog stub)",
+      "controlName": "AI/accelerator efficiency screening when accelerators are in scope",
       "appliesToCategory": "sustainability",
       "requiredNodeType": "SecurityBaseline",
       "requiredEdgeType": "PROTECTS",
       "severity": "Warning",
       "priority": "P0",
-      "description": "Stub for sust-base-009; see docs/samples/policy-packs/sustainability-and-resource-efficiency-rules-v1.json for narrative."
+      "description": "When GPUs/accelerators or generative AI are in scope, justify model size, inference frequency, batching, and always-on vs scheduled capacity without inventing emissions math."
+    },
+    {
+      "ruleId": "sust-base-010",
+      "controlId": "SUST-BASE-010",
+      "controlName": "Managed-service utilization versus self-managed overhead",
+      "appliesToCategory": "sustainability",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P1",
+      "description": "Prefer managed services where they reduce idle operational overhead and duplicated capacity; self-managed stacks should justify the resource-efficiency tradeoff."
+    },
+    {
+      "ruleId": "sust-base-011",
+      "controlId": "SUST-BASE-011",
+      "controlName": "Explicit resource-efficiency tradeoffs recorded",
+      "appliesToCategory": "sustainability",
+      "requiredNodeType": "SecurityBaseline",
+      "requiredEdgeType": "PROTECTS",
+      "severity": "Warning",
+      "priority": "P1",
+      "description": "When sustainability, cost, reliability, or performance goals conflict, record the accepted tradeoff rather than leaving resource waste implicit."
     }
   ]
 }

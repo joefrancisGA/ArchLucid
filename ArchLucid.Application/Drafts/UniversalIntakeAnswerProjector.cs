@@ -18,6 +18,7 @@ public static class UniversalIntakeAnswerProjector
             ["l0.pillar.reliability"] = "Reliability",
             ["l0.pillar.operations"] = "Operations",
             ["l0.pillar.performance"] = "Performance",
+            ["l0.pillar.sustainability"] = "Sustainability",
         };
 
     private static readonly IReadOnlyDictionary<string, string> ConstraintLabels =

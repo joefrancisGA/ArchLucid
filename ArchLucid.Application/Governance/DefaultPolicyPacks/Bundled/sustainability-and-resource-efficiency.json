@@ -9,7 +9,9 @@
     "sust-base-006",
     "sust-base-007",
     "sust-base-008",
-    "sust-base-009"
+    "sust-base-009",
+    "sust-base-010",
+    "sust-base-011"
   ],
   "alertRuleIds": [],
   "compositeAlertRuleIds": [],
@@ -27,6 +29,92 @@
     "pack.description": "Provider-neutral environmental sustainability and resource-efficiency screening \u2014 utilization assumptions, idle capacity, right-sizing, data retention/lifecycle, and proportional accelerator use. Does not fabricate carbon-emission percentages; thematic architecture guidance only.",
     "frameworkMappingDisclaimer": "Sustainability themes screen architecture resource efficiency only. Do not interpret findings as measured carbon accounting or ESG certification.",
     "curatedRulesArtifact": "docs/samples/policy-packs/sustainability-and-resource-efficiency-rules-v1.json",
+    "pack.curatedRules.v1": "{\"schemaVersion\":1,\"kind\":\"archlucid.policyPack.curatedRules.v1\",\"pack\":{\"name\":\"Sustainability and Resource Efficiency\",\"description\":\"Provider-neutral environmental sustainability and resource-efficiency screening \u2014 utilization assumptions, idle capacity, right-sizing, data retention/lifecycle, and proportional accelerator use. Does not fabricate carbon-emission percentages; thematic architecture guidance only.\",\"version\":\"1.0.0\",\"category\":\"Sustainability\",\"isDefault\":true,\"suggestedPackType\":\"PlatformDefault\",\"policyPackContentDocumentPath\":\"docs/samples/policy-packs/sustainability-and-resource-efficiency.json\"},\"rules\":[{\"id\":\"sust-base-001\",\"title\":\"Utilization assumptions for continuously allocated capacity\",\"description\":\"Continuously allocated compute/storage should state utilization assumptions or why always-on capacity is required. Do not invent carbon percentages.\",\"severity\":\"Medium\",\"priority\":\"P0\",\"remediationGuidance\":\"Document utilization assumptions or always-on justification in metadata.ChangeDescription; avoid numeric emissions claims without methodology.\",\"evidenceHints\":[\"governance.PolicyConstraints\",\"governance.RequiredControls\",\"governance.ComplianceTags\",\"services[].Tags\",\"datastores[]\",\"metadata.ChangeDescription\",\"relationships\"],\"frameworkMappings\":[{\"framework\":\"ArchLucid Architecture Quality Baseline\",\"requirement\":\"Sustainability \u2014 utilization assumptions\"}]},{\"id\":\"sust-base-002\",\"title\":\"Idle-capacity and scheduling strategy\",\"description\":\"Workloads with idle periods should describe scale-to-zero, scheduling, or accepted idle waste \u2014 distinct from pure cost optimization when environmental impact is in scope.\",\"severity\":\"Medium\",\"priority\":\"P0\",\"remediationGuidance\":\"Capture idle/scheduling strategy in governance.PolicyConstraints.\",\"evidenceHints\":[\"governance.PolicyConstraints\",\"governance.RequiredControls\",\"governance.ComplianceTags\",\"services[].Tags\",\"datastores[]\",\"metadata.ChangeDescription\",\"relationships\"],\"frameworkMappings\":[{\"framework\":\"ArchLucid Architecture Quality Baseline\",\"requirement\":\"Sustainability \u2014 idle-resource management\"}]},{\"id\":\"sust-base-003\",\"title\":\"Right-sizing and accelerator proportionality\",\"description\":\"SKU/accelerator choices (including GPUs) should be proportional to stated need; oversized accelerators without justification are a resource-efficiency finding.\",\"severity\":\"High\",\"priority\":\"P0\",\"remediationGuidance\":\"Justify compute/accelerator sizing against workload assumptions in metadata.ChangeDescription and services[].Tags.\",\"evidenceHints\":[\"governance.PolicyConstraints\",\"governance.RequiredControls\",\"governance.ComplianceTags\",\"services[].Tags\",\"datastores[]\",\"metadata.ChangeDescription\",\"relationships\"],\"frameworkMappings\":[{\"framework\":\"ArchLucid Architecture Quality Baseline\",\"requirement\":\"Sustainability \u2014 right-sizing and accelerators\"}]},{\"id\":\"sust-base-004\",\"title\":\"Data retention and storage lifecycle discipline\",\"description\":\"Retention and storage lifecycle should match business need; unbounded retention is a resource-efficiency and sustainability concern as well as a cost one.\",\"severity\":\"Medium\",\"priority\":\"P1\",\"remediationGuidance\":\"Document retention/lifecycle for datastores[] in governance.RequiredControls.\",\"evidenceHints\":[\"governance.PolicyConstraints\",\"governance.RequiredControls\",\"governance.ComplianceTags\",\"services[].Tags\",\"datastores[]\",\"metadata.ChangeDescription\",\"relationships\"],\"frameworkMappings\":[{\"framework\":\"ArchLucid Architecture Quality Baseline\",\"requirement\":\"Sustainability \u2014 data retention and lifecycle\"}]},{\"id\":\"sust-base-005\",\"title\":\"Unnecessary replication and data movement minimized\",\"description\":\"Cross-region replication and large data movement should be justified; defaulting to global copies without need wastes resources.\",\"severity\":\"Medium\",\"priority\":\"P1\",\"remediationGuidance\":\"Explain replication/data-movement necessity in relationships and governance.PolicyConstraints.\",\"evidenceHints\":[\"governance.PolicyConstraints\",\"governance.RequiredControls\",\"governance.ComplianceTags\",\"services[].Tags\",\"datastores[]\",\"metadata.ChangeDescription\",\"relationships\"],\"frameworkMappings\":[{\"framework\":\"ArchLucid Architecture Quality Baseline\",\"requirement\":\"Sustainability \u2014 unnecessary replication and transfer\"}]},{\"id\":\"sust-base-006\",\"title\":\"Recomputation versus caching tradeoff considered\",\"description\":\"Expensive recomputation loops (including AI inference context replay) should consider caching/batching where quality allows.\",\"severity\":\"Medium\",\"priority\":\"P1\",\"remediationGuidance\":\"Document recomputation vs caching/batching choices for heavy paths in metadata.ChangeDescription.\",\"evidenceHints\":[\"governance.PolicyConstraints\",\"governance.RequiredControls\",\"governance.ComplianceTags\",\"services[].Tags\",\"datastores[]\",\"metadata.ChangeDescription\",\"relationships\"],\"frameworkMappings\":[{\"framework\":\"ArchLucid Architecture Quality Baseline\",\"requirement\":\"Sustainability \u2014 recomputation versus caching\"}]},{\"id\":\"sust-base-007\",\"title\":\"Consumption observability for resource-heavy workloads\",\"description\":\"Resource-heavy designs (AI/ML, large data, always-on fleets) should identify how consumption is observed so efficiency regressions are visible.\",\"severity\":\"Medium\",\"priority\":\"P1\",\"remediationGuidance\":\"Map consumption signals to governance.RequiredControls for AI/data/high-scale contexts.\",\"evidenceHints\":[\"governance.PolicyConstraints\",\"governance.RequiredControls\",\"governance.ComplianceTags\",\"services[].Tags\",\"datastores[]\",\"metadata.ChangeDescription\",\"relationships\"],\"frameworkMappings\":[{\"framework\":\"ArchLucid Architecture Quality Baseline\",\"requirement\":\"Sustainability \u2014 consumption observability\"}]},{\"id\":\"sust-base-008\",\"title\":\"Resource retirement and disposal path\",\"description\":\"Temporary environments, abandoned capacity, and retired data paths should have a disposal/retirement expectation.\",\"severity\":\"Low\",\"priority\":\"P2\",\"remediationGuidance\":\"Document retirement/disposal expectations in governance.PolicyConstraints.\",\"evidenceHints\":[\"governance.PolicyConstraints\",\"governance.RequiredControls\",\"governance.ComplianceTags\",\"services[].Tags\",\"datastores[]\",\"metadata.ChangeDescription\",\"relationships\"],\"frameworkMappings\":[{\"framework\":\"ArchLucid Architecture Quality Baseline\",\"requirement\":\"Sustainability \u2014 resource retirement\"}]},{\"id\":\"sust-base-009\",\"title\":\"AI/accelerator efficiency screening when accelerators are in scope\",\"description\":\"When GPUs/accelerators or generative AI are in scope, justify model size, inference frequency, batching, and always-on vs scheduled capacity without inventing emissions math.\",\"severity\":\"High\",\"priority\":\"P0\",\"remediationGuidance\":\"For AI/accelerator workloads, record model/inference efficiency rationale in metadata.ChangeDescription; flag missing evidence rather than fabricating carbon deltas.\",\"evidenceHints\":[\"governance.PolicyConstraints\",\"governance.RequiredControls\",\"governance.ComplianceTags\",\"services[].Tags\",\"datastores[]\",\"metadata.ChangeDescription\",\"relationships\"],\"frameworkMappings\":[{\"framework\":\"ArchLucid Architecture Quality Baseline\",\"requirement\":\"Sustainability \u2014 AI and accelerator efficiency\"}]},{\"id\":\"sust-base-010\",\"title\":\"Managed-service utilization versus self-managed overhead\",\"description\":\"Prefer managed services where they reduce idle operational overhead and duplicated capacity; self-managed stacks should justify the resource-efficiency tradeoff.\",\"severity\":\"Medium\",\"priority\":\"P1\",\"remediationGuidance\":\"Document managed-vs-self-managed rationale in metadata.ChangeDescription when both paths are plausible.\",\"evidenceHints\":[\"governance.PolicyConstraints\",\"governance.RequiredControls\",\"governance.ComplianceTags\",\"services[].Tags\",\"datastores[]\",\"metadata.ChangeDescription\",\"relationships\"],\"frameworkMappings\":[{\"framework\":\"ArchLucid Architecture Quality Baseline\",\"requirement\":\"Sustainability \u2014 managed-service utilization\"}]},{\"id\":\"sust-base-011\",\"title\":\"Explicit resource-efficiency tradeoffs recorded\",\"description\":\"When sustainability, cost, reliability, or performance goals conflict, record the accepted tradeoff rather than leaving resource waste implicit.\",\"severity\":\"Medium\",\"priority\":\"P1\",\"remediationGuidance\":\"Capture resource-efficiency tradeoffs in governance.PolicyConstraints or metadata.ChangeDescription.\",\"evidenceHints\":[\"governance.PolicyConstraints\",\"governance.RequiredControls\",\"governance.ComplianceTags\",\"services[].Tags\",\"datastores[]\",\"metadata.ChangeDescription\",\"relationships\"],\"frameworkMappings\":[{\"framework\":\"ArchLucid Architecture Quality Baseline\",\"requirement\":\"Sustainability \u2014 explicit tradeoffs\"}]}]}",
     "pack.qualityDimension": "SustainabilityAndResourceEfficiency"
-  }
+  },
+  "elicitationQuestions": [
+    {
+      "questionKey": "sust.screening.utilization",
+      "prompt": "For continuously allocated compute or storage, what utilization assumptions apply or why is always-on capacity required?",
+      "tier": "Should",
+      "answerKind": "Text",
+      "ruleKeys": [
+        "sust-base-001"
+      ]
+    },
+    {
+      "questionKey": "sust.screening.idle-capacity",
+      "prompt": "How does this design handle idle periods (scale-to-zero, scheduling, or accepted idle capacity)?",
+      "tier": "Should",
+      "answerKind": "Text",
+      "ruleKeys": [
+        "sust-base-002"
+      ]
+    },
+    {
+      "questionKey": "sust.screening.right-sizing",
+      "prompt": "How were compute SKUs and accelerators sized against stated workload need?",
+      "tier": "Should",
+      "answerKind": "Text",
+      "ruleKeys": [
+        "sust-base-003",
+        "sust-base-009"
+      ]
+    },
+    {
+      "questionKey": "sust.screening.data-lifecycle",
+      "prompt": "What retention and storage lifecycle limits apply to primary data stores?",
+      "tier": "Should",
+      "answerKind": "Text",
+      "ruleKeys": [
+        "sust-base-004",
+        "sust-base-008"
+      ]
+    },
+    {
+      "questionKey": "sust.screening.replication-transfer",
+      "prompt": "Why is cross-region replication or large data movement required for this design?",
+      "tier": "Should",
+      "answerKind": "Text",
+      "ruleKeys": [
+        "sust-base-005"
+      ]
+    },
+    {
+      "questionKey": "sust.screening.caching-efficiency",
+      "prompt": "Where expensive recomputation or inference loops exist, what caching or batching was considered?",
+      "tier": "Should",
+      "answerKind": "Text",
+      "ruleKeys": [
+        "sust-base-006"
+      ]
+    },
+    {
+      "questionKey": "sust.screening.consumption-observability",
+      "prompt": "How will resource consumption be observed for the most resource-heavy components?",
+      "tier": "Should",
+      "answerKind": "Text",
+      "ruleKeys": [
+        "sust-base-007"
+      ]
+    },
+    {
+      "questionKey": "sust.screening.managed-vs-self-managed",
+      "prompt": "When managed services could replace self-managed capacity, what resource-efficiency rationale applies?",
+      "tier": "Should",
+      "answerKind": "Text",
+      "ruleKeys": [
+        "sust-base-010"
+      ]
+    },
+    {
+      "questionKey": "sust.screening.tradeoffs",
+      "prompt": "Where sustainability conflicts with cost, reliability, or performance, what tradeoff was accepted?",
+      "tier": "Should",
+      "answerKind": "Text",
+      "ruleKeys": [
+        "sust-base-011"
+      ]
+    }
+  ]
 }

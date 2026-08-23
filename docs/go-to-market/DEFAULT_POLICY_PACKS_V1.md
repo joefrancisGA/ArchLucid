@@ -78,7 +78,7 @@ All rows below are seeded as **`PlatformDefault`** (Architect workspace: **Bundl
 | 42 | Reliability | Reliability and Resilience | `rel-base-001` … `008` | Provider-neutral architecture-quality baseline |
 | 43 | Performance | Performance and Scalability | `perf-base-001` … `008` | Provider-neutral architecture-quality baseline |
 | 44 | Operations | Operational Excellence | `ops-base-001` … `008` | Provider-neutral architecture-quality baseline |
-| 45 | Sustainability | Sustainability and Resource Efficiency | `sust-base-001` … `009` | Provider-neutral environmental / resource-efficiency baseline (no fabricated carbon claims) |
+| 45 | Sustainability | Sustainability and Resource Efficiency | `sust-base-001` … `011` | Provider-neutral environmental / resource-efficiency baseline (no fabricated carbon claims) |
 
 **Appendices (selected):** **[`POLICY_PACK_APPENDIX_AI_GOVERNANCE_V1.md`](../library/POLICY_PACK_APPENDIX_AI_GOVERNANCE_V1.md)** · **[`POLICY_PACK_APPENDIX_SECURITY_BASELINE_V1.md`](../library/POLICY_PACK_APPENDIX_SECURITY_BASELINE_V1.md)**
 
