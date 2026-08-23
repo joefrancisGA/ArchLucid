@@ -114,12 +114,27 @@ public sealed class ApplicationPackageCoverageBatchRc27Tests
 
     [Theory]
     [MemberData(nameof(AllDraftRequestStatuses))]
-    public void DraftRequestStateMachine_AllowsBranch_matches_Admitted_or_RunSpawned(
+    public void DraftRequestStateMachine_AllowsBranch_matches_Admitted_Submitted_or_RunSpawned(
         DraftRequestStatus status)
     {
-        bool expected = status is DraftRequestStatus.Admitted or DraftRequestStatus.RunSpawned;
+        bool expected = status is DraftRequestStatus.Admitted
+            or DraftRequestStatus.Submitted
+            or DraftRequestStatus.RunSpawned;
 
         DraftRequestStateMachine.AllowsBranch(status).Should().Be(expected);
+    }
+
+    [Theory]
+    [MemberData(nameof(AllDraftRequestStatuses))]
+    public void DraftRequestStateMachine_AllowsQuestionSelectionRead_matches_post_admit_statuses(
+        DraftRequestStatus status)
+    {
+        bool expected = status is DraftRequestStatus.Drafting
+            or DraftRequestStatus.Admitted
+            or DraftRequestStatus.Submitted
+            or DraftRequestStatus.RunSpawned;
+
+        DraftRequestStateMachine.AllowsQuestionSelectionRead(status).Should().Be(expected);
     }
 
     [Theory]

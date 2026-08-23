@@ -343,7 +343,7 @@ public sealed class DraftRequestService(
             existing.Document,
             cancellationToken);
 
-        existing.Document.RequiredMustQuestionKeys = selection.RequiredMustQuestionKeys.ToList();
+        existing.Document.RequiredMustQuestionKeys = ExtractAllMustQuestionKeys(selection);
 
         DraftRequestResponse? admitted = await _draftRepository.UpdateAsync(
             scope.TenantId,
@@ -372,7 +372,7 @@ public sealed class DraftRequestService(
         if (existing is null)
             return null;
 
-        if (!DraftRequestStateMachine.AllowsQuestionAnswers(existing.Status))
+        if (!DraftRequestStateMachine.AllowsQuestionSelectionRead(existing.Status))
         {
             throw new InvalidOperationException(
                 $"Draft '{draftId}' does not expose questions in status '{existing.Status}'.");
@@ -539,7 +539,7 @@ public sealed class DraftRequestService(
                 branchDocument,
                 cancellationToken);
 
-            branchDocument.RequiredMustQuestionKeys = selection.RequiredMustQuestionKeys.ToList();
+            branchDocument.RequiredMustQuestionKeys = ExtractAllMustQuestionKeys(selection);
 
             branch = await _draftRepository.UpdateAsync(
                 scope.TenantId,
@@ -921,5 +921,14 @@ public sealed class DraftRequestService(
             return ArchitectureWorkflowIntent.StartReview;
 
         return null;
+    }
+
+    private static List<string> ExtractAllMustQuestionKeys(QuestionSelectionResult selection)
+    {
+        return selection.AllQuestions
+            .Where(static question => question.Tier == ElicitationQuestionTier.Must)
+            .Select(static question => question.QuestionKey)
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToList();
     }
 }

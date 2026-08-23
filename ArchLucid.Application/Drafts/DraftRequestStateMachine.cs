@@ -12,13 +12,22 @@ public static class DraftRequestStateMachine
     public static bool AllowsQuestionAnswers(DraftRequestStatus status) =>
         status is DraftRequestStatus.Drafting or DraftRequestStatus.Admitted;
 
+    /// <summary>Returns <see langword="true" /> when the L0/L1 question catalog may be read (includes post-submit parents).</summary>
+    public static bool AllowsQuestionSelectionRead(DraftRequestStatus status) =>
+        status is DraftRequestStatus.Drafting
+            or DraftRequestStatus.Admitted
+            or DraftRequestStatus.Submitted
+            or DraftRequestStatus.RunSpawned;
+
     /// <summary>Returns <see langword="true" /> when pre-run intake reasoning may be invoked (SAQ-013).</summary>
     public static bool AllowsReasoning(DraftRequestStatus status) =>
         status is DraftRequestStatus.Drafting or DraftRequestStatus.Admitted;
 
     /// <summary>Returns <see langword="true" /> when a what-if branch may be cloned from the draft (R12).</summary>
     public static bool AllowsBranch(DraftRequestStatus status) =>
-        status is DraftRequestStatus.Admitted or DraftRequestStatus.RunSpawned;
+        status is DraftRequestStatus.Admitted
+            or DraftRequestStatus.Submitted
+            or DraftRequestStatus.RunSpawned;
 
     /// <summary>Returns <see langword="true" /> when admission may be requested.</summary>
     public static bool AllowsAdmission(DraftRequestStatus status) => status == DraftRequestStatus.Drafting;

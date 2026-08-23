@@ -37,6 +37,10 @@ import { runDetailHrefWithParentRun } from "@/lib/draft-branch-compare-navigatio
 import { normalizeActorSetForAdmission } from "@/lib/draft-intake-actor-suggestions";
 import { recordFirstTenantFunnelEvent } from "@/lib/first-tenant-funnel-telemetry";
 import { GUIDED_INTAKE_READINESS_SUCCESS_TOAST } from "@/lib/guided-intake-copy";
+import {
+  mergeAdmittedRequiredMustQuestionKeys,
+  resolveGuidedIntakeClarificationProgress,
+} from "@/lib/guided-intake-clarification-progress";
 import { trackReviewPipelineInFlight } from "@/lib/operations/review-pipeline-in-flight";
 import { buildReviewGenerationRedirect } from "@/lib/review-generation-handoff";
 import { REVIEWS_NEW_GUIDED_QUESTIONS_LABEL } from "@/lib/reviews-new-path-copy";
@@ -88,6 +92,7 @@ export function useGuidedIntakeDraftWorkflow(options: GuidedIntakeDraftWorkflowO
   const [redirectVerdict, setRedirectVerdict] = useState<ManifestFeasibilityVerdict | null>(null);
   const [allQuestions, setAllQuestions] = useState<DraftElicitationQuestion[]>([]);
   const [requiredMustQuestionKeys, setRequiredMustQuestionKeys] = useState<string[]>([]);
+  const [admittedRequiredMustQuestionKeys, setAdmittedRequiredMustQuestionKeys] = useState<string[]>([]);
   const [pendingQuestions, setPendingQuestions] = useState<DraftElicitationQuestion[]>([]);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [savedLocallyQuestionKeys, setSavedLocallyQuestionKeys] = useState<ReadonlySet<string>>(
@@ -99,6 +104,15 @@ export function useGuidedIntakeDraftWorkflow(options: GuidedIntakeDraftWorkflowO
   );
   const creationInitStartedRef = useRef(false);
   const sourceArchitectureLoadedRef = useRef(false);
+
+  const applyAdmittedRequiredMustQuestionKeysFromDocument = useCallback(
+    (document: { requiredMustQuestionKeys?: string[] } | undefined) => {
+      setAdmittedRequiredMustQuestionKeys((current) =>
+        mergeAdmittedRequiredMustQuestionKeys(current, document?.requiredMustQuestionKeys),
+      );
+    },
+    [],
+  );
 
   const {
     actorSet,
@@ -135,8 +149,15 @@ export function useGuidedIntakeDraftWorkflow(options: GuidedIntakeDraftWorkflowO
       setAllQuestions([...result.questionSelection.allQuestions]);
       setRequiredMustQuestionKeys([...result.questionSelection.requiredMustQuestionKeys]);
       setPendingQuestions([...result.questionSelection.pendingMustQuestions]);
+      applyAdmittedRequiredMustQuestionKeysFromDocument(result.draft);
     });
-  }, [isCreateArchitectureFlow, setBusinessOutcome, setFreeTextIntent, setSystemName]);
+  }, [
+    applyAdmittedRequiredMustQuestionKeysFromDocument,
+    isCreateArchitectureFlow,
+    setBusinessOutcome,
+    setFreeTextIntent,
+    setSystemName,
+  ]);
 
   useEffect(() => {
     if (sourceArchitectureId.length === 0 || isCreateArchitectureFlow || sourceArchitectureLoadedRef.current) {
@@ -148,6 +169,7 @@ export function useGuidedIntakeDraftWorkflow(options: GuidedIntakeDraftWorkflowO
     void getDraftRequest(sourceArchitectureId).then(async (draft) => {
       setDraftId(draft.draftId);
       setDraftStatus(draft.status);
+      applyAdmittedRequiredMustQuestionKeysFromDocument(draft.document);
       const formState = applyArchitectureCreationDraftToFormState(draft);
       setFreeTextIntent(formState.freeTextIntent);
       setBusinessOutcome(formState.businessOutcome);
@@ -159,7 +181,7 @@ export function useGuidedIntakeDraftWorkflow(options: GuidedIntakeDraftWorkflowO
           : architectureCreationDefaultActorSet(),
       );
 
-      if (draft.status === "Admitted") {
+      if (draft.status === "Admitted" || draft.status === "Submitted" || draft.status === "RunSpawned") {
         const questions = await getDraftQuestions(draft.draftId);
         setAllQuestions(questions.selection.allQuestions);
         setRequiredMustQuestionKeys(questions.selection.requiredMustQuestionKeys);
@@ -168,12 +190,9 @@ export function useGuidedIntakeDraftWorkflow(options: GuidedIntakeDraftWorkflowO
 
         return;
       }
-
-      if (draft.status === "Submitted") {
-        setStep(1);
-      }
     });
   }, [
+    applyAdmittedRequiredMustQuestionKeysFromDocument,
     isCreateArchitectureFlow,
     setActorSet,
     setBusinessOutcome,
@@ -217,10 +236,11 @@ export function useGuidedIntakeDraftWorkflow(options: GuidedIntakeDraftWorkflowO
       );
       setAnswers({});
       setSavedLocallyQuestionKeys(new Set());
+      applyAdmittedRequiredMustQuestionKeysFromDocument(branch.document);
       await refreshQuestions(branch.draftId);
       showSuccess("What-if branch created — you are now editing the branch draft.");
     },
-    [refreshQuestions, setActorSet, setBusinessOutcome, setFreeTextIntent, setSystemName],
+    [applyAdmittedRequiredMustQuestionKeysFromDocument, refreshQuestions, setActorSet, setBusinessOutcome, setFreeTextIntent, setSystemName],
   );
 
   const runCreateArchitectureContinuation = useCallback(async () => {
@@ -330,11 +350,13 @@ export function useGuidedIntakeDraftWorkflow(options: GuidedIntakeDraftWorkflowO
       setPendingQuestions(admission.pendingMustQuestions);
       setRequiredMustQuestionKeys(admission.requiredMustQuestionKeys);
       setDraftStatus(admission.status);
+      applyAdmittedRequiredMustQuestionKeysFromDocument(admission.draft.document);
       setSavedLocallyQuestionKeys(new Set());
       await refreshQuestions(id);
       setViewAllClarifications(false);
       setStep(1);
       const admittedDraft = await getDraftRequest(id);
+      applyAdmittedRequiredMustQuestionKeysFromDocument(admittedDraft.document);
       upsertArchitectureDraftRegistryEntry(buildArchitectureDraftRegistryEntry(admittedDraft));
       showSuccess(GUIDED_INTAKE_READINESS_SUCCESS_TOAST);
     } catch (error) {
@@ -354,6 +376,7 @@ export function useGuidedIntakeDraftWorkflow(options: GuidedIntakeDraftWorkflowO
     focusedPilotModeEnabled,
     freeTextIntent,
     isCreateArchitectureFlow,
+    applyAdmittedRequiredMustQuestionKeysFromDocument,
     refreshQuestions,
     setStep,
     structuredBrief,
@@ -535,12 +558,25 @@ export function useGuidedIntakeDraftWorkflow(options: GuidedIntakeDraftWorkflowO
     systemName,
   ]);
 
-  const totalRequiredClarifications = Math.max(requiredMustQuestionKeys.length, pendingQuestions.length);
+  const activePendingQuestions = useMemo(
+    () => pendingQuestions.filter((question) => !savedLocallyQuestionKeys.has(question.questionKey)),
+    [pendingQuestions, savedLocallyQuestionKeys],
+  );
+  const clarificationProgress = resolveGuidedIntakeClarificationProgress({
+    admittedRequiredMustQuestionKeys,
+    pendingSelectionRequiredKeys: requiredMustQuestionKeys,
+    allQuestions,
+    activePendingCount: activePendingQuestions.length,
+  });
+  const totalRequiredClarifications = clarificationProgress.totalRequired;
+  const handledClarificationCount = clarificationProgress.handledCount;
   const clarificationOrdinalByKey = useMemo(() => {
     const orderedKeys =
-      requiredMustQuestionKeys.length > 0
-        ? requiredMustQuestionKeys
-        : allQuestions.filter((question) => question.tier === "Must").map((question) => question.questionKey);
+      admittedRequiredMustQuestionKeys.length > 0
+        ? admittedRequiredMustQuestionKeys
+        : requiredMustQuestionKeys.length > 0
+          ? requiredMustQuestionKeys
+          : allQuestions.filter((question) => question.tier === "Must").map((question) => question.questionKey);
     const ordinals = new Map<string, number>();
 
     orderedKeys.forEach((questionKey, index) => {
@@ -548,7 +584,7 @@ export function useGuidedIntakeDraftWorkflow(options: GuidedIntakeDraftWorkflowO
     });
 
     return ordinals;
-  }, [allQuestions, requiredMustQuestionKeys]);
+  }, [admittedRequiredMustQuestionKeys, allQuestions, requiredMustQuestionKeys]);
   const getClarificationOrdinal = useCallback(
     (questionKey: string): number => clarificationOrdinalByKey.get(questionKey) ?? 0,
     [clarificationOrdinalByKey],
@@ -569,15 +605,6 @@ export function useGuidedIntakeDraftWorkflow(options: GuidedIntakeDraftWorkflowO
     },
     [answers, savedLocallyQuestionKeys],
   );
-  const activePendingQuestions = useMemo(
-    () => pendingQuestions.filter((question) => !savedLocallyQuestionKeys.has(question.questionKey)),
-    [pendingQuestions, savedLocallyQuestionKeys],
-  );
-  const resolvedClarificationCount = Math.max(
-    0,
-    totalRequiredClarifications - activePendingQuestions.length,
-  );
-  const handledClarificationCount = resolvedClarificationCount;
   const primaryPendingQuestion = activePendingQuestions[0] ?? null;
   const otherPendingQuestions =
     viewAllClarifications && activePendingQuestions.length > 1 ? activePendingQuestions.slice(1) : [];
@@ -603,7 +630,6 @@ export function useGuidedIntakeDraftWorkflow(options: GuidedIntakeDraftWorkflowO
     setViewAllClarifications,
     totalRequiredClarifications,
     activePendingQuestions,
-    resolvedClarificationCount,
     handledClarificationCount,
     getClarificationOrdinal,
     getClarificationStatus,

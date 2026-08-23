@@ -91,6 +91,68 @@ public sealed class DraftRequestServiceQuestionTests
     }
 
     [Fact]
+    public async Task RequestAdmissionAsync_PreservesFullMustBaseline_WhenMustQuestionsAlreadyAnswered()
+    {
+        DraftRequestResponse created = await CreateAdmissibleDraftAsync();
+
+        foreach (DraftElicitationQuestion mustQuestion in UniversalIntakeQuestions.MustQuestions)
+        {
+            await _service.AnswerQuestionAsync(
+                _scope,
+                created.DraftId,
+                new AnswerDraftQuestionRequest
+                {
+                    QuestionKey = mustQuestion.QuestionKey,
+                    Answer = "Already covered in prior intake.",
+                },
+                CancellationToken.None);
+        }
+
+        DraftAdmissionResponse? admission = await _service.RequestAdmissionAsync(
+            _scope,
+            created.DraftId,
+            CancellationToken.None);
+
+        admission!.Admitted.Should().BeTrue();
+        admission.RequiredMustQuestionKeys.Should().BeEmpty();
+        admission.PendingMustQuestions.Should().BeEmpty();
+        admission.Draft.Document.RequiredMustQuestionKeys.Should().HaveCount(UniversalIntakeQuestions.MustQuestions.Count);
+    }
+
+    [Fact]
+    public async Task GetQuestionsAsync_AllowsSubmittedDraft_ForReadOnlySelection()
+    {
+        DraftRequestResponse created = await CreateAdmissibleDraftAsync();
+
+        DraftAdmissionResponse? admission = await _service.RequestAdmissionAsync(
+            _scope,
+            created.DraftId,
+            CancellationToken.None);
+
+        foreach (string mustKey in admission!.RequiredMustQuestionKeys)
+        {
+            await _service.AnswerQuestionAsync(
+                _scope,
+                created.DraftId,
+                new AnswerDraftQuestionRequest { QuestionKey = mustKey, Answer = "Covered in design." },
+                CancellationToken.None);
+        }
+
+        await _service.SubmitAsync(_scope, created.DraftId, CancellationToken.None);
+
+        DraftRequestResponse? submitted = await _service.GetAsync(_scope, created.DraftId, CancellationToken.None);
+        submitted!.Status.Should().Be(DraftRequestStatus.RunSpawned);
+
+        DraftQuestionsResponse? questions = await _service.GetQuestionsAsync(
+            _scope,
+            created.DraftId,
+            CancellationToken.None);
+
+        questions.Should().NotBeNull();
+        questions!.Selection.AllQuestions.Should().NotBeEmpty();
+    }
+
+    [Fact]
     public async Task SubmitAsync_RequiresMustAnswers_BeforeRunSpawn()
     {
         DraftRequestResponse created = await CreateAdmissibleDraftAsync();
