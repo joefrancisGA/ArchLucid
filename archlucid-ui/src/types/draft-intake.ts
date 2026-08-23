@@ -40,6 +40,8 @@ export type DraftRequestDocument = {
   businessOutcome?: string;
   actorSet: ActorSet;
   parentDraftId?: string;
+  questionAnswers?: Record<string, string>;
+  requiredMustQuestionKeys?: string[];
   workflowIntent?: "create-architecture" | "start-review";
   structuredBrief?: {
     confirmedConstraints?: string[];

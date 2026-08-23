@@ -179,19 +179,44 @@ function fillStep0ForAdmission(): void {
 }
 
 function mockAdmittedDraftWithoutClarifications(): void {
+  const admittedMustKeys = ["l0.pillar.security", "l0.pillar.reliability"];
+  const allQuestions = [sampleQuestion, secondQuestion];
+
   createDraftRequest.mockResolvedValue({ draftId: "draft-1" });
   patchDraftRequest.mockResolvedValue({ draftId: "draft-1", status: "Drafting" });
   admitDraftRequest.mockResolvedValue({
     admitted: true,
     pendingMustQuestions: [],
     requiredMustQuestionKeys: [],
-    draft: { draftId: "draft-1" },
+    draft: {
+      draftId: "draft-1",
+      document: { requiredMustQuestionKeys: admittedMustKeys },
+    },
     verdict: { kind: "Feasible", summary: "ok" },
   });
   getDraftQuestions.mockResolvedValue({
     draftId: "draft-1",
     status: "Admitted",
-    selection: { allQuestions: [], requiredMustQuestionKeys: [], pendingMustQuestions: [] },
+    selection: {
+      allQuestions,
+      requiredMustQuestionKeys: [],
+      pendingMustQuestions: [],
+    },
+  });
+  getDraftRequest.mockResolvedValue({
+    draftId: "draft-1",
+    tenantId: "tenant-1",
+    workspaceId: "workspace-1",
+    projectId: "project-1",
+    status: "Admitted",
+    document: {
+      freeTextIntent: VALID_GUIDED_INTENT,
+      businessOutcome: "Reduce manual triage time by thirty percent.",
+      actorSet: { actors: [] },
+      requiredMustQuestionKeys: admittedMustKeys,
+    },
+    createdUtc: "2026-08-05T12:00:00Z",
+    updatedUtc: "2026-08-05T12:00:00Z",
   });
 }
 
@@ -667,6 +692,21 @@ describe("SocraticIntakeWizard", () => {
     await waitFor(() => {
       expect(answerDraftQuestion).not.toHaveBeenCalled();
       expect(screen.getByTestId("socratic-submit")).toBeInTheDocument();
+    });
+  });
+
+  it("shows handled clarification count when every required clarification is already answered", async () => {
+    mockAdmittedDraftWithoutClarifications();
+
+    render(<SocraticIntakeWizard />);
+
+    fillStep0ForAdmission();
+    fireEvent.click(screen.getByTestId("socratic-admit"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("socratic-clarifications-answered-counter")).toHaveTextContent(
+        "2 of 2 answered",
+      );
     });
   });
 
