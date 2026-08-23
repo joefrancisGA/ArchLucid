@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 import { LayerHeader } from "@/components/LayerHeader";
 import { COMPARE_TWO_REVIEWS_PATH } from "@/lib/compare-two-reviews-route";
@@ -19,6 +19,7 @@ import { compareGoldenManifestRuns, compareRuns, explainComparisonRuns, getRunSu
 import { fetchComparisonNarrativeViaAsk } from "@/lib/api/conversation-api";
 import {
   compareRunIdsAreSameAfterDemoCanonicalization,
+  comparePageHrefAdaptive,
   readCompareRunIdsFromSearchParams,
 } from "@/lib/compare-url-query-params";
 import { BUYER_COMPARE_PAGE_TITLE, BUYER_COMPARE_PRIMARY_ACTION_LABEL } from "@/lib/buyer/buyer-polish-copy";
@@ -59,6 +60,7 @@ import {
  * Compare form: two review IDs; structured manifest diff and optional legacy diff on Compare; optional AI explanation.
  */
 export function CompareForm() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const compareGenerationRef = useRef(0);
   const aiGenerationRef = useRef(0);
@@ -84,6 +86,29 @@ export function CompareForm() {
   const [lastComparedPair, setLastComparedPair] = useState<ComparedPair | null>(null);
   const [leftPickedSummary, setLeftPickedSummary] = useState<RunSummary | null>(null);
   const [rightPickedSummary, setRightPickedSummary] = useState<RunSummary | null>(null);
+
+  const syncSelectionToUrl = useCallback(
+    (priorRunId: string, laterRunId: string) => {
+      router.replace(comparePageHrefAdaptive(priorRunId, laterRunId), { scroll: false });
+    },
+    [router],
+  );
+
+  const handleLeftRunIdChange = useCallback(
+    (runId: string) => {
+      setLeftRunId(runId);
+      syncSelectionToUrl(runId, rightRunId);
+    },
+    [rightRunId, syncSelectionToUrl],
+  );
+
+  const handleRightRunIdChange = useCallback(
+    (runId: string) => {
+      setRightRunId(runId);
+      syncSelectionToUrl(leftRunId, runId);
+    },
+    [leftRunId, syncSelectionToUrl],
+  );
 
   const hydratePickedSummariesForPair = useCallback(async (leftAtStart: string, rightAtStart: string) => {
     const [leftSummary, rightSummary] = await Promise.all([
@@ -493,8 +518,8 @@ export function CompareForm() {
           rightPickerLabel={rightPickerLabel}
           leftRunId={leftRunId}
           rightRunId={rightRunId}
-          onLeftRunIdChange={setLeftRunId}
-          onRightRunIdChange={setRightRunId}
+          onLeftRunIdChange={handleLeftRunIdChange}
+          onRightRunIdChange={handleRightRunIdChange}
           leftFootnote={leftFootnote}
           rightFootnote={rightFootnote}
           leftTrim={leftTrim}
