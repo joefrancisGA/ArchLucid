@@ -1947,7 +1947,7 @@ All **P0** **V1**: visible-boundary button contract + design-system rule (**TB-2
 | TB-906 | **Done** (2026-08-14) ? Redis + Cosmos managed-identity data plane ? Cosmos MI auth path + SQL RBAC; Redis residual documented; see `## TB-906` below | Trustworthiness P2 ? **V1**; owner-promoted from V2 2026-07-20; WAF Security pillar 2026-07-20; extends TB-080/TB-100 pattern | M |
 | TB-907 | **Done** (2026-08-14) ? Key Vault secret expiry + rotation automation ? `expiration_date` on TF-managed secrets + rotation table + scheduled audit; see `## TB-907` below | Trustworthiness P2 ? **V1**; owner-promoted from V2 2026-07-20; WAF Security pillar 2026-07-20 | M |
 | TB-909 | ~~Cost anomaly detection + subscription rollup budget ? `azurerm_cost_anomaly_alert` + one subscription-scope budget (formula-derived: sum of per-RG budgets + 20% headroom) over the per-RG budgets; deliberately not folded into TB-903's gate; see `## TB-909` below~~ ? **Done** (2026-07-21) | Cost-effectiveness P2 ? **V1**; `infra/terraform-monitoring/subscription_cost_management.tf` | S |
-| TB-882 | Automated nav-authority/label-consistency guard ? CI check that `NavLinkItem.requiredAuthority` is not looser than target controller `[Authorize]` policy; snapshot/alias test that operator page headings match `nav-config` sidebar labels; see `## TB-882` below | Correctness P2 ? **V1**; **Hold for reassessment** (`LATEST_GPT55.md` ?17 Tier 3); revisit after G-REAL-06 or next drift instance | M |
+| TB-882 | ~~Automated nav-authority/label-consistency guard — CI check that `NavLinkItem.requiredAuthority` matches controller primary GET policy; heading/label snapshot tests~~ **Done 2026-08-23** — `scripts/ci/check_nav_authority_controller_parity.py` + manifest/exemptions; Vitest `nav-authority-controller-parity.test.ts`; see `## TB-882` below | Correctness P2 ? **V1** | M |
 | TB-883 | RAG-V2 live-model Graph-RAG ablation signal ? capture optional `retrievalHits` on `*.real.json` exemplars; Phase B faithfulness script reports Graph-RAG ? vs all-on by filtering `KnowledgeGraphNodeNeighbor`; see `## TB-883` below | AI/Agent readiness P2 ? **V1**; **Hold for reassessment** (`LATEST_GPT55.md` ?17 Tier 3); revisit after G-REAL-06 | M |
 | TB-884 | Policy-pack attribution signal ? read-side `% of findings attributable to assigned policy-pack rules` over `RulesApplied` + pack rule sets; CI/script summary; see `## TB-884` below | Differentiability P2 ? **V1**; **Hold for reassessment** (`LATEST_GPT55.md` ?17 Tier 3); revisit after G-REAL-06 | M |
 | TB-885 | Policy-pack compounding-evidence ledger ? dry-run older vs newer pack versions against same historical run; JSON+MD ledger of incremental catches; see `## TB-885` below | Differentiability P2 ? **V1**; **Hold for reassessment** (`LATEST_GPT55.md` ?17 Tier 3); revisit after G-REAL-06 | L |
@@ -23673,27 +23673,21 @@ Private-beta access-path P0: prove tenant scope cannot be steered by forged x-te
 
 ## TB-882 ? Automated nav-authority/label-consistency guard (P2)
 
-**Window:** V1 ? **Hold for reassessment** (`LATEST_GPT55.md` ?17 Tier 3). Revisit after G-REAL-06 or the next nav-authority/label drift instance. Not Cursor-shippable while held.
+**Status:** **Done** (2026-08-23).
+
+**Window:** V1.
 
 **Why:** Seventeen closed defects (TB-606, TB-612?TB-616, TB-622?TB-624, TB-625?TB-633) share one shape: sidebar `requiredAuthority` / label disagrees with controller `[Authorize]` or page heading. UI-only nav tests do not cross-check ASP.NET policies.
 
-**Approach:**
+**Shipped:**
 
-1. CI/test check: for each `NavLinkItem` with a known controller route, `requiredAuthority` must not be looser than the primary GET action's enforced policy (TB-623 shape).
-2. Snapshot/alias test: curated operator pages' heading text matches (or allow-listed alias of) `nav-config` sidebar label (TB-606/612/622 shape).
-3. Detector only ? do not change live policies or copy in this TB; open separate fix TBs if the guard finds new drift.
+1. `scripts/ci/check_nav_authority_controller_parity.py` — compares nav `requiredAuthority` to mapped controllers' primary `HttpGet` policies; manifest at `scripts/ci/data/nav_authority_controller_parity_manifest.json`; exemptions at `scripts/ci/data/nav_authority_controller_parity_exemptions.json`.
+2. `archlucid-ui/src/lib/nav-authority-controller-parity.test.ts` — Vitest mirror + curated heading/label parity rows.
+3. Extended `operator-nav-labels.test.ts` and existing `nav-route-title-parity.test.ts` coverage.
 
-**Acceptance:**
-
-- CI fails on looser-nav-than-controller and on non-allow-listed heading/label drift.
-- Existing `authority-seam-regression.test.ts`, `authority-execute-floor-regression.test.ts`, `nav-config.structure.test.ts` unchanged and green.
-- Clean pass on `master` as of TB-633 baseline (zero false positives on already-fixed nav).
-
-**Affected files:** `archlucid-ui/src/lib/nav-*.test.ts` (new parity test); optionally `scripts/ci/check_nav_authority_controller_parity.py`.
+**Acceptance:** met — CI fails on looser-nav-than-controller and non-exempt stricter-nav drift; zero false positives on TB-633 baseline.
 
 **Refs:** `LATEST_GPT55.md` ?17 Tier 3 detail; `nav-authority.ts` documented UI/server boundary.
-
-**Size estimate:** M.
 
 ---
 

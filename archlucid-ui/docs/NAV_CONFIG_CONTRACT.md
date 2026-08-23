@@ -60,6 +60,8 @@ Group labels come from `OPERATOR_NAV_GROUP_LABELS` in `src/lib/i18n.ts` except `
 
 When adding or moving a route, follow the **ordered checklist** in **`docs/library/PRODUCT_PACKAGING.md`** §3 *Contributor drift guard* (API policy → nav config → `layer-guidance` / `LayerHeader` → **`useOperateCapability`** → packaging doc). Verify **C#** `[Authorize(Policy = …)]` still matches each link’s **`requiredAuthority`** string.
 
+**TB-882 authority parity (CI):** `python scripts/ci/check_nav_authority_controller_parity.py` cross-checks nav `requiredAuthority` against mapped controllers' primary `HttpGet` policies (`scripts/ci/data/nav_authority_controller_parity_manifest.json`). Regenerate with `--sync` when nav or controller policies change; document intentional stricter/looser nav in `scripts/ci/data/nav_authority_controller_parity_exemptions.json`. Vitest: `nav-authority-controller-parity.test.ts`, `nav-route-title-parity.test.ts`.
+
 ### Route namespace policy (TB-404)
 
 Operator sidebar groups imply a URL prefix in the address bar. **69** nav hrefs span **7** groups. The **TB-405–408** route moves have landed, so only **1** registered cross-namespace exception remains.

@@ -84,4 +84,15 @@ describe("operator-nav-labels", () => {
     expect(resolveNavLinkPresentation(source, false, false).label).toBe("Reviews");
     expect(resolveNavLinkPresentation(source, false, true).label).toBe("Reviews");
   });
+
+  it("TB-882: curated operator surfaces keep sidebar labels aligned with route titles", () => {
+    expect(resolveNavLinkPresentation(
+      {
+        href: "/internal/trial-funnel",
+        label: "Trial funnel",
+        title: "Trial funnel — trial activation, review completion, conversion, and estimated first-review AI cost",
+      },
+      true,
+    ).label).toBe("Trial funnel");
+  });
 });
