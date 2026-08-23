@@ -464,7 +464,7 @@ public sealed class ItsmInboundWebhookSyncServiceTests
     }
 
     [Fact]
-    public async Task When_correlated_finding_row_missing_is_rejected_with_tenant_scoped_audit()
+    public async Task When_correlated_finding_row_missing_is_acknowledged_with_tenant_scoped_audit()
     {
         Mock<IItsmFindingCorrelationRepository> correlations = new();
         correlations
@@ -481,7 +481,7 @@ public sealed class ItsmInboundWebhookSyncServiceTests
             """{"issue":{"key":"KK-77","fields":{"status":{"name":"Done"}}}}""");
         ItsmInboundWebhookProcessResult r = await sut.TryProcessJiraIssueUpdateAsync(doc.RootElement, CancellationToken.None);
 
-        r.Accepted.Should().BeFalse();
+        r.Accepted.Should().BeTrue();
         r.DurableAuditEvent!.EventType.Should().Be(AuditEventTypes.IntegrationJiraInboundWebhookRejected);
         r.DurableAuditEvent.TenantId.Should().Be(TenantA);
         JsonDocument ap = JsonDocument.Parse(r.DurableAuditEvent.DataJson);

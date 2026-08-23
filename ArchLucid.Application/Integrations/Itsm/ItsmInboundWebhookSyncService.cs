@@ -149,7 +149,7 @@ public sealed class ItsmInboundWebhookSyncService(
         if (!await _correlations.FindingRecordExistsAsync(row.TenantId, row.FindingId, row.FindingRecordId, ct).ConfigureAwait(false))
         {
             return new ItsmInboundWebhookProcessResult(
-                false,
+                true,
                 RejectedAudit(
                     AuditEventTypes.IntegrationJiraInboundWebhookRejected,
                     "jira-webhook",
@@ -325,7 +325,7 @@ public sealed class ItsmInboundWebhookSyncService(
         if (!await _correlations.FindingRecordExistsAsync(row.TenantId, row.FindingId, row.FindingRecordId, ct).ConfigureAwait(false))
         {
             return new ItsmInboundWebhookProcessResult(
-                false,
+                true,
                 RejectedAudit(
                     AuditEventTypes.IntegrationServiceNowInboundWebhookRejected,
                     "servicenow-webhook",

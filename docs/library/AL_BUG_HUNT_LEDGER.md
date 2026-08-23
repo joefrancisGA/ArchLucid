@@ -1164,8 +1164,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** ITSM webhook; ServiceNow inbound; connector secret
 - **paths:** ArchLucid.Api/Controllers/Integrations/ItsmInboundWebhooksController.cs; ArchLucid.Application/Integrations/Itsm/; ArchLucid.Persistence/Integrations/MemoryCacheItsmInboundWebhookReplayGuard.cs
 - **test-filter:** FullyQualifiedName~ItsmInboundWebhook
-- **hunts:** 3
-- **bugs-found:** 3
+- **hunts:** 4
+- **bugs-found:** 4
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-23
 - **last-bug:** 2026-08-23
@@ -1174,6 +1174,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 
 ### Hypotheses
 
+- [x] (proven) Stale ITSM correlation with missing finding row returned HTTP 400 — fixed by acknowledging (`Accepted=true`) while still emitting tenant-scoped rejected audit.
 - [x] (candidate) Webhook accepted when the shared secret does not match the connector config - invalid: WebhookSecrets.SecureEquals rejects before parse
 - [x] (proven) Replay guard allows duplicate delivery of the same event id — **hit 2026-08-20:** `MemoryCacheItsmInboundWebhookReplayGuard.TryClaimAsync` used `IMemoryCache.GetOrCreate`, whose factory can run twice under concurrency; event ids were also case-sensitive so `delivery-1` and `DELIVERY-1` bypassed dedupe
 - [x] (candidate) Inbound payload is applied to a tenant inferred from the body instead of the authenticated connector - fixed: tenant-scoped routes use TryGetByExternalKeyForTenantAsync
