@@ -1,4 +1,5 @@
 import { PatternLibraryBreadcrumb } from "@/components/insights/PatternLibraryBreadcrumb";
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import {
   PATTERN_LIBRARY_LOADING_STATUS,
@@ -10,8 +11,9 @@ import { PATTERN_LIBRARY_PATH } from "@/lib/pattern-library-route";
 /** Structured navigation shell while the pattern-library client chunk loads. */
 export default function PatternLibraryLoading() {
   return (
-    <div
-      className="max-w-6xl space-y-4"
+    <OperatorPageContainer
+      variant="workflow"
+      className="space-y-4"
       data-testid="pattern-library-loading-shell"
       role="status"
       aria-live="polite"
@@ -25,6 +27,6 @@ export default function PatternLibraryLoading() {
         breadcrumb={<PatternLibraryBreadcrumb />}
       />
       <p className="m-0 text-al-text-secondary">{PATTERN_LIBRARY_LOADING_STATUS}</p>
-    </div>
+    </OperatorPageContainer>
   );
 }

@@ -355,7 +355,7 @@ export function GovernanceResolutionPageView(props: Props) {
   }
 
   return (
-    <div className="max-w-6xl">
+    <OperatorPageContainer variant="workflow">
       <LayerHeader pageKey="governance-resolution" density="compact"
 />
       <OperatorPageHeader
@@ -378,6 +378,6 @@ export function GovernanceResolutionPageView(props: Props) {
         </div>
       ) : null}
       <GovernanceResolutionOperatorDiagnostics model={m} />
-    </div>
+    </OperatorPageContainer>
   );
 }

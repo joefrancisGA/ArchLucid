@@ -16,6 +16,7 @@ import { RiskExceptionsLoadFailure } from "@/app/(operator)/governance/exception
 import { RiskExceptionsLoadingSkeleton } from "@/app/(operator)/governance/exceptions/_sections/RiskExceptionsLoadingSkeleton";
 import { riskExceptionsPageSubtitle } from "@/app/(operator)/governance/exceptions/risk-exceptions-page-copy";
 import { GOVERNANCE_EXCEPTIONS_PATH } from "@/lib/governance/governance-route-paths";
+import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { RiskExceptionsFindingsVocabularyRail } from "@/components/RiskExceptionsFindingsVocabularyRail";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
@@ -204,7 +205,7 @@ export default function RiskExceptionsClient() {
   }
 
   return (
-    <div className="w-full max-w-[1440px]">
+    <OperatorPageContainer variant="dashboard">
       {buyerPolishedShell ? (
         <GovernanceApprovalStatusBanner className="mb-3" />
       ) : (
@@ -435,6 +436,6 @@ export default function RiskExceptionsClient() {
           });
         }}
       />
-    </div>
+    </OperatorPageContainer>
   );
 }
