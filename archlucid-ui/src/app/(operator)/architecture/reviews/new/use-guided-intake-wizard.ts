@@ -132,6 +132,14 @@ export function useGuidedIntakeWizard() {
     clearSessionRef.current = wizardSession.clearSession;
   }, [wizardSession.clearSession]);
 
+  useEffect(() => {
+    if (!workflow.isSubmitBlocked || step < 2) {
+      return;
+    }
+
+    setStep(1);
+  }, [step, setStep, workflow.isSubmitBlocked]);
+
   const policyPackCloudMismatch = useMemo(
     () =>
       deriveGuidedIntakePolicyPackCloudMismatch(
@@ -143,12 +151,13 @@ export function useGuidedIntakeWizard() {
   );
 
   const canAdvanceIntent = form.advanceBlockers.length === 0 && !workflow.busy;
-  const canReviewAnswers = workflow.allClarificationsHandled && !workflow.busy;
+  const canReviewAnswers = workflow.allClarificationsHandled && !workflow.busy && !workflow.isSubmitBlocked;
   // Scope is gated on step 0 and already persisted on the draft, so it is not re-gated here.
   const canSubmit =
     workflow.draftId !== null &&
     workflow.allClarificationsHandled &&
     !workflow.busy &&
+    !workflow.isSubmitBlocked &&
     !blocksLlmExecution &&
     policyPackCloudMismatch === null;
 

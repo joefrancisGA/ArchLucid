@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useMemo } from "react";
 
 import { useArchitectureDraftRegistryEntries } from "@/hooks/use-architecture-draft-registry-entries";
+import { countUnlinkedArchitectureDraftRegistryEntries } from "@/lib/architecture/architecture-draft-registry";
 import { useCorePilotCommitContextQuery } from "@/hooks/use-core-pilot-commit-context-query";
 
 import { useNavCommittedArchitectureReview } from "@/components/operator/OperatorNavAuthorityProvider";
@@ -143,7 +144,7 @@ export function PilotCommandCenterCard(props: PilotCommandCenterCardProps = {}):
     () => ({
       hasWorkspaceReviews,
       hasOverviewReviewRows,
-      draftCount: draftEntries.length,
+      draftCount: countUnlinkedArchitectureDraftRegistryEntries(draftEntries),
       hasCommittedManifest:
         hasCommittedArchitectureReview || commitQuery.data?.hasCommittedManifest === true,
       openFindingsCount,

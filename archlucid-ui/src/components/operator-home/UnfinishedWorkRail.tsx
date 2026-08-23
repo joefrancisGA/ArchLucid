@@ -6,6 +6,7 @@ import { useEffect, useMemo, useSyncExternalStore } from "react";
 import { useOperatorHomeWorkspaceActivity } from "@/components/operator-home/operator-home-workspace-activity-context";
 import { StatusTag } from "@/components/ui/status-tag";
 import { useArchitectureDraftRegistryEntries } from "@/hooks/use-architecture-draft-registry-entries";
+import { countUnlinkedArchitectureDraftRegistryEntries } from "@/lib/architecture/architecture-draft-registry";
 import {
   OPERATOR_NAV_GROUP_LABEL,
   OPERATOR_TYPOGRAPHY,
@@ -107,7 +108,7 @@ export function UnfinishedWorkRail(props: UnfinishedWorkRailProps): React.JSX.El
     getIncompleteWizardServerSnapshot,
   );
   const runs = liveRunsSnapshot?.items ?? props.runs;
-  const activeDraftCount = drafts.filter((entry) => entry.customerStatus !== "archived").length;
+  const activeDraftCount = countUnlinkedArchitectureDraftRegistryEntries(drafts);
   const workspacePhase = resolveOperatorHomeWorkspacePhase({
     hasWorkspaceReviews,
     hasOverviewReviewRows,

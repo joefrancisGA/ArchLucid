@@ -6,6 +6,7 @@ import { useNavCommittedArchitectureReview } from "@/components/operator/Operato
 import { OperatorStickinessSnapshotCard } from "@/components/operator/OperatorStickinessSnapshotCard";
 import { useOperatorHomeWorkspaceActivity } from "@/components/operator-home/operator-home-workspace-activity-context";
 import { useArchitectureDraftRegistryEntries } from "@/hooks/use-architecture-draft-registry-entries";
+import { countUnlinkedArchitectureDraftRegistryEntries } from "@/lib/architecture/architecture-draft-registry";
 import { useCorePilotCommitContextQuery } from "@/hooks/use-core-pilot-commit-context-query";
 import { OPERATOR_LAYOUT } from "@/lib/design-tokens";
 import { resolveOperatorHomeWorkspacePhase } from "@/lib/resolve-operator-home-workspace-phase";
@@ -27,7 +28,7 @@ export function OperatorHomeStickinessCockpit(): ReactElement | null {
   const workspacePhase = resolveOperatorHomeWorkspacePhase({
     hasWorkspaceReviews,
     hasOverviewReviewRows,
-    draftCount: draftEntries.length,
+    draftCount: countUnlinkedArchitectureDraftRegistryEntries(draftEntries),
     hasCommittedManifest:
       hasCommittedArchitectureReview || commitQuery.data?.hasCommittedManifest === true,
     openFindingsCount: 0,

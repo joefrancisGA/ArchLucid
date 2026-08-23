@@ -10,6 +10,7 @@ import {
   architectureDraftAllowsBriefUnlock,
   architectureDraftIntakeModeLead,
   isArchitectureDraftInReviewIntake,
+  isGuidedIntakeDraftSubmitBlocked,
 } from "./architecture-draft-intake-mode";
 
 describe("architecture-draft-intake-mode", () => {
@@ -34,5 +35,13 @@ describe("architecture-draft-intake-mode", () => {
     expect(ARCHITECTURE_DRAFT_INTAKE_MODE_CONTINUE_LABEL).toBe("Continue in review intake");
     expect(ARCHITECTURE_DRAFT_INTAKE_MODE_UNLOCK_LABEL).toBe("Unlock to edit this brief");
     expect(ARCHITECTURE_DRAFT_INTAKE_MODE_CANCEL_LABEL).toBe("Stay here");
+  });
+
+  it("blocks guided intake submit for Submitted and RunSpawned server statuses", () => {
+    expect(isGuidedIntakeDraftSubmitBlocked("Submitted")).toBe(true);
+    expect(isGuidedIntakeDraftSubmitBlocked("RunSpawned")).toBe(true);
+    expect(isGuidedIntakeDraftSubmitBlocked("Admitted")).toBe(false);
+    expect(isGuidedIntakeDraftSubmitBlocked("Drafting")).toBe(false);
+    expect(isGuidedIntakeDraftSubmitBlocked(null)).toBe(false);
   });
 });

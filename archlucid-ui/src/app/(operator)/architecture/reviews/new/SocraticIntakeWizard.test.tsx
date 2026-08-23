@@ -199,6 +199,8 @@ describe("SocraticIntakeWizard", () => {
   beforeEach(() => {
     searchParamsGet.mockImplementation(() => null);
     getDraftRequest.mockReset();
+    routerPush.mockReset();
+    window.sessionStorage.clear();
   });
 
   it("shows the saved architecture system name instead of the draft id in the banner", async () => {
@@ -256,6 +258,97 @@ describe("SocraticIntakeWizard", () => {
     expect(screen.getByTestId("guided-intake-primary-panel")).toBeInTheDocument();
     expect(document.querySelector(".border-teal-200")).toBeNull();
     expect(document.querySelector(".border-sky-300")).toBeNull();
+  });
+
+  it("blocks submit step when the saved architecture draft is already Submitted", async () => {
+    const sourceArchitectureId = "5c0b5e6e-87aa-4eab-a477-c1fb45cc46f0";
+
+    searchParamsGet.mockImplementation((key: string) =>
+      key === "sourceArchitectureId" ? sourceArchitectureId : null,
+    );
+
+    getDraftRequest.mockResolvedValue({
+      draftId: sourceArchitectureId,
+      tenantId: "tenant-1",
+      workspaceId: "workspace-1",
+      projectId: "project-1",
+      status: "Submitted",
+      document: {
+        freeTextIntent: VALID_GUIDED_INTENT,
+        systemName: "Vertex 2",
+        businessOutcome: "Reduce manual triage time by thirty percent.",
+        actorSet: {
+          actors: [
+            {
+              label: "Claims analyst",
+              kind: "Human",
+              trustOrigin: "Internal",
+              contract: "Sync",
+              origin: "Asserted",
+              confidence: 100,
+            },
+          ],
+        },
+      },
+      createdUtc: "2026-08-05T12:00:00Z",
+      updatedUtc: "2026-08-05T12:00:00Z",
+    });
+    getDraftQuestions.mockResolvedValue({
+      draftId: sourceArchitectureId,
+      status: "Submitted",
+      selection: { allQuestions: [], requiredMustQuestionKeys: [], pendingMustQuestions: [] },
+    });
+
+    render(<SocraticIntakeWizard />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("guided-intake-already-submitted-callout")).toBeInTheDocument();
+    });
+
+    expect(screen.queryByTestId("socratic-submit")).toBeNull();
+    expect(submitDraftRequest).not.toHaveBeenCalled();
+  });
+
+  it("redirects to the linked review when the saved architecture draft is RunSpawned", async () => {
+    const sourceArchitectureId = "5c0b5e6e-87aa-4eab-a477-c1fb45cc46f0";
+
+    searchParamsGet.mockImplementation((key: string) =>
+      key === "sourceArchitectureId" ? sourceArchitectureId : null,
+    );
+
+    getDraftRequest.mockResolvedValue({
+      draftId: sourceArchitectureId,
+      tenantId: "tenant-1",
+      workspaceId: "workspace-1",
+      projectId: "project-1",
+      status: "RunSpawned",
+      spawnedRunId: "run-vertex-2",
+      document: {
+        freeTextIntent: VALID_GUIDED_INTENT,
+        systemName: "Vertex 2",
+        businessOutcome: "Reduce manual triage time by thirty percent.",
+        actorSet: {
+          actors: [
+            {
+              label: "Claims analyst",
+              kind: "Human",
+              trustOrigin: "Internal",
+              contract: "Sync",
+              origin: "Asserted",
+              confidence: 100,
+            },
+          ],
+        },
+      },
+      createdUtc: "2026-08-05T12:00:00Z",
+      updatedUtc: "2026-08-05T12:00:00Z",
+    });
+
+    render(<SocraticIntakeWizard />);
+
+    await waitFor(() => {
+      expect(routerPush).toHaveBeenCalledWith("/architecture/reviews/run-vertex-2");
+    });
   });
 
   it("keeps step 0 on one primary intake panel without colored banner cards (TB-1879)", () => {
@@ -678,6 +771,21 @@ describe("SocraticIntakeWizard", () => {
       runId: "branch-run",
       requestId: "req-branch",
       parentSpawnedRunId: "parent-run",
+    });
+    getDraftRequest.mockResolvedValue({
+      draftId: "draft-1",
+      tenantId: "tenant-1",
+      workspaceId: "workspace-1",
+      projectId: "project-1",
+      status: "RunSpawned",
+      spawnedRunId: "branch-run",
+      document: {
+        freeTextIntent: VALID_GUIDED_INTENT,
+        businessOutcome: "Reduce manual triage time by thirty percent.",
+        actorSet: { actors: [] },
+      },
+      createdUtc: "2026-08-05T12:00:00Z",
+      updatedUtc: "2026-08-05T12:00:00Z",
     });
 
     render(<SocraticIntakeWizard />);
