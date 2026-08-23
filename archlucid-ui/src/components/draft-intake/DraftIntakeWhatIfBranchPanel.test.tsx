@@ -39,6 +39,7 @@ describe("DraftIntakeWhatIfBranchPanel", () => {
     render(
       <DraftIntakeWhatIfBranchPanel
         draftId="parent-1"
+        draftStatus="Admitted"
         intent="Keep latency under three seconds."
         outcome="Reduce triage time."
         systemName="Claims intake"
@@ -86,6 +87,7 @@ describe("DraftIntakeWhatIfBranchPanel", () => {
     render(
       <DraftIntakeWhatIfBranchPanel
         draftId="parent-1"
+        draftStatus="Admitted"
         intent="Intent"
         outcome="Outcome"
         systemName=""
@@ -112,6 +114,7 @@ describe("DraftIntakeWhatIfBranchPanel", () => {
     render(
       <DraftIntakeWhatIfBranchPanel
         draftId="parent-1"
+        draftStatus="Admitted"
         intent="Keep latency under three seconds."
         outcome="Reduce triage time."
         systemName="Claims intake"
@@ -134,5 +137,22 @@ describe("DraftIntakeWhatIfBranchPanel", () => {
 
     expect(screen.queryByTestId("draft-intake-what-if-question")).not.toBeInTheDocument();
     expect(screen.getByTestId("draft-intake-what-if-value")).toHaveValue("Reduce triage time.");
+  });
+
+  it("renders nothing and skips branch quota when draft status does not allow branching", () => {
+    render(
+      <DraftIntakeWhatIfBranchPanel
+        draftId="parent-1"
+        draftStatus="Submitted"
+        intent="Intent"
+        outcome="Outcome"
+        systemName=""
+        questionOptions={[]}
+        onBranched={vi.fn()}
+      />,
+    );
+
+    expect(screen.queryByTestId("draft-intake-what-if-panel")).not.toBeInTheDocument();
+    expect(getDraftBranchQuota).not.toHaveBeenCalled();
   });
 });

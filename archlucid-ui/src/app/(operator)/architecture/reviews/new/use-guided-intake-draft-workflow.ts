@@ -41,7 +41,7 @@ import { trackReviewPipelineInFlight } from "@/lib/operations/review-pipeline-in
 import { buildReviewGenerationRedirect } from "@/lib/review-generation-handoff";
 import { REVIEWS_NEW_GUIDED_QUESTIONS_LABEL } from "@/lib/reviews-new-path-copy";
 import { showError, showSuccess } from "@/lib/toast";
-import type { BranchDraftResponse, DraftElicitationQuestion } from "@/types/draft-intake";
+import type { BranchDraftResponse, DraftElicitationQuestion, DraftRequestStatus } from "@/types/draft-intake";
 import type { ManifestFeasibilityVerdict } from "@/types/feasibility-verdict";
 import type { EnterpriseStatusKind } from "@/lib/design-tokens";
 
@@ -81,6 +81,7 @@ export function useGuidedIntakeDraftWorkflow(options: GuidedIntakeDraftWorkflowO
   const [busy, setBusy] = useState(false);
   const [submitError, setSubmitError] = useState<unknown | null>(null);
   const [draftId, setDraftId] = useState<string | null>(null);
+  const [draftStatus, setDraftStatus] = useState<DraftRequestStatus | null>(null);
   const [parentDraftId, setParentDraftId] = useState<string | null>(null);
   const [parentSpawnedRunId, setParentSpawnedRunId] = useState<string | null>(null);
   const [redirectReason, setRedirectReason] = useState<string | null>(null);
@@ -122,6 +123,7 @@ export function useGuidedIntakeDraftWorkflow(options: GuidedIntakeDraftWorkflowO
     void initializeArchitectureCreation().then(async (result) => {
       if (result.draftId !== null) {
         setDraftId(result.draftId);
+        setDraftStatus(result.draft?.status ?? null);
         await patchDraftRequest(result.draftId, { workflowIntent: CREATE_ARCHITECTURE_INTENT });
       }
 
@@ -145,6 +147,7 @@ export function useGuidedIntakeDraftWorkflow(options: GuidedIntakeDraftWorkflowO
 
     void getDraftRequest(sourceArchitectureId).then(async (draft) => {
       setDraftId(draft.draftId);
+      setDraftStatus(draft.status);
       const formState = applyArchitectureCreationDraftToFormState(draft);
       setFreeTextIntent(formState.freeTextIntent);
       setBusinessOutcome(formState.businessOutcome);
@@ -180,6 +183,16 @@ export function useGuidedIntakeDraftWorkflow(options: GuidedIntakeDraftWorkflowO
     sourceArchitectureId,
   ]);
 
+  useEffect(() => {
+    if (draftId === null || draftStatus !== null) {
+      return;
+    }
+
+    void getDraftRequest(draftId).then((draft) => {
+      setDraftStatus(draft.status);
+    });
+  }, [draftId, draftStatus]);
+
   const refreshQuestions = useCallback(async (id: string) => {
     const questions = await getDraftQuestions(id);
     setAllQuestions(questions.selection.allQuestions);
@@ -191,6 +204,7 @@ export function useGuidedIntakeDraftWorkflow(options: GuidedIntakeDraftWorkflowO
     async (response: BranchDraftResponse) => {
       const branch = response.branch;
       setDraftId(branch.draftId);
+      setDraftStatus(branch.status);
       setParentDraftId(response.parentDraftId);
       setParentSpawnedRunId(response.parentSpawnedRunId ?? null);
       setFreeTextIntent(branch.document.freeTextIntent);
@@ -224,6 +238,7 @@ export function useGuidedIntakeDraftWorkflow(options: GuidedIntakeDraftWorkflowO
         );
         id = created.draftId;
         setDraftId(id);
+        setDraftStatus(created.status);
         writeArchitectureCreationDraftId(id);
       }
 
@@ -284,6 +299,7 @@ export function useGuidedIntakeDraftWorkflow(options: GuidedIntakeDraftWorkflowO
         );
         id = created.draftId;
         setDraftId(id);
+        setDraftStatus(created.status);
       }
 
       // Confirmed scope goes onto the server copy of the brief before admission: a draft is immutable
@@ -313,6 +329,7 @@ export function useGuidedIntakeDraftWorkflow(options: GuidedIntakeDraftWorkflowO
 
       setPendingQuestions(admission.pendingMustQuestions);
       setRequiredMustQuestionKeys(admission.requiredMustQuestionKeys);
+      setDraftStatus(admission.status);
       setSavedLocallyQuestionKeys(new Set());
       await refreshQuestions(id);
       setViewAllClarifications(false);
@@ -456,6 +473,7 @@ export function useGuidedIntakeDraftWorkflow(options: GuidedIntakeDraftWorkflowO
     try {
       const result = await submitDraftRequest(draftId);
       const submittedDraft = await getDraftRequest(draftId);
+      setDraftStatus(submittedDraft.status);
       upsertArchitectureDraftRegistryEntry(
         buildArchitectureDraftRegistryEntry(submittedDraft, { linkedReviewId: result.runId }),
       );
@@ -571,6 +589,7 @@ export function useGuidedIntakeDraftWorkflow(options: GuidedIntakeDraftWorkflowO
     busy,
     submitError,
     draftId,
+    draftStatus,
     setDraftId,
     parentDraftId,
     parentSpawnedRunId,

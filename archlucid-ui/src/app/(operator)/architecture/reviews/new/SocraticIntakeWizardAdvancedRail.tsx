@@ -3,10 +3,11 @@
 import { DraftIntakeAdvancedSection } from "@/components/draft-intake/DraftIntakeAdvancedSection";
 import { DraftIntakeReasoningPanel } from "@/components/draft-intake/DraftIntakeReasoningPanel";
 import { DraftIntakeWhatIfBranchPanel } from "@/components/draft-intake/DraftIntakeWhatIfBranchPanel";
-import type { BranchDraftResponse, DraftElicitationQuestion } from "@/types/draft-intake";
+import type { BranchDraftResponse, DraftElicitationQuestion, DraftRequestStatus } from "@/types/draft-intake";
 
 export type SocraticIntakeWizardAdvancedRailProps = {
   readonly draftId: string;
+  readonly draftStatus: DraftRequestStatus | null;
   readonly busy: boolean;
   readonly blocksLlmExecution: boolean;
   readonly freeTextIntent: string;
@@ -28,6 +29,7 @@ export function SocraticIntakeWizardAdvancedRail(props: SocraticIntakeWizardAdva
       />
       <DraftIntakeWhatIfBranchPanel
         draftId={props.draftId}
+        draftStatus={props.draftStatus}
         intent={props.freeTextIntent}
         outcome={props.businessOutcome}
         systemName={props.systemName}

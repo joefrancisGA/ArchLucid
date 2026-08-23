@@ -109,6 +109,7 @@ export function SocraticIntakeWizard() {
     busy,
     submitError,
     draftId,
+    draftStatus,
     parentDraftId,
     parentSpawnedRunId,
     redirectReason,
@@ -650,6 +651,7 @@ export function SocraticIntakeWizard() {
         {draftId !== null && step >= 1 ? (
           <SocraticIntakeWizardAdvancedRail
             draftId={draftId}
+            draftStatus={draftStatus}
             busy={busy}
             blocksLlmExecution={blocksLlmExecution}
             freeTextIntent={freeTextIntent}
