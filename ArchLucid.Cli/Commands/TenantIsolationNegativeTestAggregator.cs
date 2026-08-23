@@ -23,7 +23,9 @@ internal static class TenantIsolationNegativeTestAggregator
             : TenantIsolationNegativeTestVerdict.Pass;
     }
 
-    internal static TenantIsolationNegativeTestVerdict DeriveOverallVerdict(IReadOnlyList<TenantIsolationNegativeTestProbeResult> probes)
+    internal static TenantIsolationNegativeTestVerdict DeriveOverallVerdict(
+        IReadOnlyList<TenantIsolationNegativeTestProbeResult> probes,
+        bool liveApiMode = false)
     {
         if (probes.Any(static probe => probe.Verdict == TenantIsolationNegativeTestVerdict.Fail))
             return TenantIsolationNegativeTestVerdict.Fail;
@@ -31,7 +33,17 @@ internal static class TenantIsolationNegativeTestAggregator
         if (probes.Count == 0 || probes.All(static probe => probe.Verdict == TenantIsolationNegativeTestVerdict.Skip))
             return TenantIsolationNegativeTestVerdict.Skip;
 
+        if (liveApiMode && HasSkippedCrossTenantProbe(probes))
+            return TenantIsolationNegativeTestVerdict.Skip;
+
         return TenantIsolationNegativeTestVerdict.Pass;
+    }
+
+    private static bool HasSkippedCrossTenantProbe(IReadOnlyList<TenantIsolationNegativeTestProbeResult> probes)
+    {
+        return probes.Any(static probe =>
+            probe.Verdict == TenantIsolationNegativeTestVerdict.Skip
+            && !string.Equals(probe.Name, "primary-scope-run-visible", StringComparison.Ordinal));
     }
 
     internal static int CountUnexpectedSuccesses(IReadOnlyList<TenantIsolationNegativeTestProbeResult> probes)

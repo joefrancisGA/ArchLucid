@@ -93,9 +93,9 @@ internal static class TenantIsolationNegativeTestCommand
             Console.WriteLine(markdown);
         }
 
-        return finalReport.OverallVerdict == TenantIsolationNegativeTestVerdict.Fail
-            ? CliExitCode.OperationFailed
-            : CliExitCode.Success;
+        return finalReport.OverallVerdict == TenantIsolationNegativeTestVerdict.Pass
+            ? CliExitCode.Success
+            : CliExitCode.OperationFailed;
     }
 
     private static async Task WriteArtifactsAsync(
@@ -204,6 +204,7 @@ internal static class TenantIsolationNegativeTestCommand
         sb.AppendLine();
         sb.AppendLine("- Non-destructive cross-tenant read probes only; no authorization model changes.");
         sb.AppendLine("- Non-zero exit when any probe unexpectedly succeeds (cross-tenant leak).");
+        sb.AppendLine("- Non-zero exit in live-api mode when cross-tenant isolation could not be verified (overall SKIP).");
 
         return sb.ToString();
     }

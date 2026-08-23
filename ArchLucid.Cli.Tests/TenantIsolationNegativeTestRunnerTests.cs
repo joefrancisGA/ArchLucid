@@ -24,6 +24,34 @@ public sealed class TenantIsolationNegativeTestRunnerTests
     }
 
     [Fact]
+    public void DeriveOverallVerdict_LiveModeDowngradesPassWhenCrossTenantProbeSkipped()
+    {
+        List<TenantIsolationNegativeTestProbeResult> probes =
+        [
+            new() { Name = "primary-scope-run-visible", Verdict = TenantIsolationNegativeTestVerdict.Pass },
+            new() { Name = "cross-tenant-run-get", Verdict = TenantIsolationNegativeTestVerdict.Skip },
+        ];
+
+        TenantIsolationNegativeTestAggregator.DeriveOverallVerdict(probes, liveApiMode: true)
+            .Should()
+            .Be(TenantIsolationNegativeTestVerdict.Skip);
+    }
+
+    [Fact]
+    public void DeriveOverallVerdict_OfflineModeAllowsPassWhenCrossTenantProbeSkipped()
+    {
+        List<TenantIsolationNegativeTestProbeResult> probes =
+        [
+            new() { Name = "offline-scenario:cross-tenant-run-list", Verdict = TenantIsolationNegativeTestVerdict.Skip },
+            new() { Name = "offline-scenario:cross-tenant-run-get", Verdict = TenantIsolationNegativeTestVerdict.Pass },
+        ];
+
+        TenantIsolationNegativeTestAggregator.DeriveOverallVerdict(probes, liveApiMode: false)
+            .Should()
+            .Be(TenantIsolationNegativeTestVerdict.Pass);
+    }
+
+    [Fact]
     public void DeriveOverallVerdict_FailsWhenAnyProbeFails()
     {
         List<TenantIsolationNegativeTestProbeResult> probes =
@@ -168,6 +196,54 @@ public sealed class TenantIsolationNegativeTestRunnerTests
 
         report.Probes.Should().Contain(probe =>
             probe.Name == "cross-tenant-run-list" && probe.Verdict == TenantIsolationNegativeTestVerdict.Skip);
+        report.OverallVerdict.Should().Be(TenantIsolationNegativeTestVerdict.Skip);
+    }
+
+    [Fact]
+    public async Task RunLiveAsync_WithAllCrossTenantServerErrors_ReportsOverallSkip()
+    {
+        StubHandler handler = new()
+        {
+            OnRequest = req =>
+            {
+                string path = req.RequestUri!.AbsolutePath;
+                string? tenant = req.Headers.TryGetValues("X-Tenant-Id", out IEnumerable<string>? values)
+                    ? values.FirstOrDefault()
+                    : null;
+
+                if (string.Equals(tenant, "44444444-4444-4444-4444-444444444444", StringComparison.OrdinalIgnoreCase))
+                    return Task.FromResult(JsonResponse(HttpStatusCode.InternalServerError, new { title = "Server error" }));
+
+                if (path.EndsWith($"/v1/architecture/review/{RunId}", StringComparison.Ordinal))
+                    return Task.FromResult(JsonResponse(HttpStatusCode.OK, new { run = new { runId = RunId } }));
+
+                return Task.FromResult(JsonResponse(HttpStatusCode.NotFound, new { }));
+            },
+        };
+
+        using HttpClient primaryClient = CreateClient(handler);
+        using HttpClient alternateClient = CreateClient(handler);
+        CliScopeHeaders.ApplyExplicit(
+            alternateClient,
+            "44444444-4444-4444-4444-444444444444",
+            "55555555-5555-5555-5555-555555555555",
+            "66666666-6666-6666-6666-666666666666");
+
+        TenantIsolationNegativeTestRunner runner = new();
+        TenantIsolationNegativeTestReport report = await runner.RunLiveAsync(
+            Directory.GetCurrentDirectory(),
+            primaryClient,
+            alternateClient,
+            new TenantIsolationNegativeTestOptions { RunId = RunId });
+
+        report.OverallVerdict.Should().Be(TenantIsolationNegativeTestVerdict.Skip);
+        report.Probes.Should().OnlyContain(probe =>
+            probe.Verdict == TenantIsolationNegativeTestVerdict.Pass
+            || probe.Verdict == TenantIsolationNegativeTestVerdict.Skip);
+        report.Probes.Should().Contain(probe =>
+            probe.Name == "primary-scope-run-visible" && probe.Verdict == TenantIsolationNegativeTestVerdict.Pass);
+        report.Probes.Should().Contain(probe =>
+            probe.Verdict == TenantIsolationNegativeTestVerdict.Skip && probe.Name != "primary-scope-run-visible");
     }
 
     [Fact]

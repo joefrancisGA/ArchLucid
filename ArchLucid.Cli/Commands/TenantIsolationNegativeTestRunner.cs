@@ -111,7 +111,8 @@ internal sealed class TenantIsolationNegativeTestRunner
         bool liveApiMode,
         IReadOnlyList<TenantIsolationNegativeTestProbeResult> probes)
     {
-        TenantIsolationNegativeTestVerdict overallVerdict = TenantIsolationNegativeTestAggregator.DeriveOverallVerdict(probes);
+        TenantIsolationNegativeTestVerdict overallVerdict =
+            TenantIsolationNegativeTestAggregator.DeriveOverallVerdict(probes, liveApiMode);
 
         return new TenantIsolationNegativeTestReport
         {
