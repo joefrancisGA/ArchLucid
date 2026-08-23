@@ -232,7 +232,7 @@ public sealed class EndToEndReplayComparisonService(
         result.RequestIdsDiffer = !string.Equals(leftRun.RequestId, rightRun.RequestId, StringComparison.OrdinalIgnoreCase);
         result.ManifestVersionsDiffer = !string.Equals(leftRun.CurrentManifestVersion, rightRun.CurrentManifestVersion, StringComparison.OrdinalIgnoreCase);
         result.StatusDiffers = !Equals(leftRun.Status, rightRun.Status);
-        result.CompletionStateDiffers = leftRun.CompletedUtc is null != rightRun.CompletedUtc is null;
+        result.CompletionStateDiffers = !EqualityComparer<DateTime?>.Default.Equals(leftRun.CompletedUtc, rightRun.CompletedUtc);
         result.ExecutionModesDiffer = leftRun.StructuralExecutionMode != rightRun.StructuralExecutionMode;
         result.ModelAliasIdsDiffer = !string.Equals(
             leftEngineProvenance?.ModelAliasId,

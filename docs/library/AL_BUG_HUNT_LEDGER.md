@@ -1254,8 +1254,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 2
-- **bugs-found:** 2
+- **hunts:** 3
+- **bugs-found:** 3
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-23
 - **last-bug:** 2026-08-23
@@ -1267,6 +1267,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) Analysis compares runs from different tenants when scope keys collide — rollup/compare loads runs via `IRunDetailQueryService` + `ScopeContext`; manifest reads are tenant-scoped; export records key on globally unique run GUIDs
 - [x] (candidate) Quality delta treats a failed run as higher quality than a succeeded run — **fixed 2026-08-18:** missing knowledge model substituted empty model, zeroing uncovered-mandatory "after" counts
 - [x] (proven) Compare summary omits manifest datastore/relationship diffs that exist in the source run — **fixed 2026-08-23:** `MarkdownEndToEndReplayComparisonSummaryFormatter` only listed services/controls while `EndToEndReplayComparisonExportService` already surfaced datastores and relationships
+- [x] (proven) `CompletionStateDiffers` false when both runs completed at different times — **hit 2026-08-23:** `BuildRunDiff` only set the flag for null-vs-non-null `CompletedUtc`; export showed "Completion State Differs: No" while `ChangedFields` listed `CompletedUtc`
 
 ---
 

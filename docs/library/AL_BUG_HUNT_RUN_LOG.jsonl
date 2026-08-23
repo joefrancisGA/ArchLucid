@@ -96,5 +96,6 @@
 {"at":"2026-08-23T16:17:13.3732911Z","zoneId":"host-core-jobs","outcome":"hit"}
 {"at":"2026-08-23T16:35:04.8615976Z","zoneId":"host-core-jobs","outcome":"hit"}
 {"at":"2026-08-23T16:40:50.3671450Z","zoneId":"application-governance-policy","outcome":"hit"}
-{"at": "2026-08-23T16:58:29Z", "zoneId": "ui-oidc", "outcome": "hit"}
-{"at": "2026-08-23T17:04:54Z", "zoneId": "architecture-recommendation", "outcome": "hit"}
+{"at":"2026-08-23T16:58:29Z","zoneId":"ui-oidc","outcome":"hit"}
+{"at":"2026-08-23T17:04:54Z","zoneId":"architecture-recommendation","outcome":"hit"}
+{"at":"2026-08-23T17:35:57.066395Z","zoneId":"application-analysis","outcome":"hit"}
