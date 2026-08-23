@@ -123,8 +123,7 @@ public sealed class AgentArchitectureFindingConfidenceEnricherTests
             new NoOpAgentOutputEvaluationResultRepository(),
             NullLogger<AgentOutputReferenceCaseRunEvaluator>.Instance);
 
-        AgentArchitectureFindingConfidenceEnricher sut = new(
-            resultRepository.Object,
+        AgentEvaluationConfidencePipeline pipeline = new(
             traceRepository.Object,
             new InMemoryAgentEvidencePackageRepository(),
             scopeProvider.Object,
@@ -134,7 +133,11 @@ public sealed class AgentArchitectureFindingConfidenceEnricherTests
             Options.Create(gateOptions),
             referenceEvaluator,
             new AgentResultEvidenceFaithfulnessChecker(Options.Create(new AgentFaithfulnessOptions())),
-            new FindingConfidenceCalculator(),
+            new FindingConfidenceCalculator());
+
+        AgentArchitectureFindingConfidenceEnricher sut = new(
+            resultRepository.Object,
+            pipeline,
             NullLogger<AgentArchitectureFindingConfidenceEnricher>.Instance);
 
         await sut.TryEnrichRunAsync(runId, CancellationToken.None);

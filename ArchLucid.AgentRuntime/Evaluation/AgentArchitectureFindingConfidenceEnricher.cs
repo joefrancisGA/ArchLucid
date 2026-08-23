@@ -1,19 +1,13 @@
-using ArchLucid.AgentRuntime.Evaluation.ReferenceCases;
 using ArchLucid.Contracts.Agents;
-using ArchLucid.Core.AgentEvaluation;
-using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Decisioning.Findings;
 using ArchLucid.Decisioning.Findings.Factories;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.Persistence.Data.Repositories;
 
-using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
-using ArchLucid.Core.Scoping;
 
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 
 namespace ArchLucid.AgentRuntime.Evaluation;
 
@@ -23,51 +17,14 @@ namespace ArchLucid.AgentRuntime.Evaluation;
 /// </summary>
 public sealed class AgentArchitectureFindingConfidenceEnricher(
     IAgentResultRepository agentResultRepository,
-    IAgentExecutionTraceRepository traceRepository,
-    IAgentEvidencePackageRepository agentEvidencePackageRepository,
-    IScopeContextProvider scopeContextProvider,
-    IAgentOutputEvaluator structuralEvaluator,
-    HeuristicOnlyAgentOutputSemanticEvaluator confidenceGateSemanticEvaluator,
-    IAgentOutputQualityGate qualityGate,
-    IOptions<AgentOutputQualityGateOptions> gateOptions,
-    AgentOutputReferenceCaseRunEvaluator referenceCaseRunEvaluator,
-    IAgentResultEvidenceFaithfulnessChecker agentResultEvidenceFaithfulnessChecker,
-    FindingConfidenceCalculator confidenceCalculator,
+    AgentEvaluationConfidencePipeline confidencePipeline,
     ILogger<AgentArchitectureFindingConfidenceEnricher> logger) : IAgentArchitectureFindingConfidenceEnricher
 {
     private readonly IAgentResultRepository _agentResultRepository =
         agentResultRepository ?? throw new ArgumentNullException(nameof(agentResultRepository));
 
-    private readonly IAgentExecutionTraceRepository _traceRepository =
-        traceRepository ?? throw new ArgumentNullException(nameof(traceRepository));
-
-    private readonly IAgentEvidencePackageRepository _agentEvidencePackageRepository =
-        agentEvidencePackageRepository ?? throw new ArgumentNullException(nameof(agentEvidencePackageRepository));
-
-    private readonly IScopeContextProvider _scopeContextProvider =
-        scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
-
-    private readonly IAgentOutputEvaluator _structuralEvaluator =
-        structuralEvaluator ?? throw new ArgumentNullException(nameof(structuralEvaluator));
-
-    private readonly HeuristicOnlyAgentOutputSemanticEvaluator _confidenceGateSemanticEvaluator =
-        confidenceGateSemanticEvaluator ?? throw new ArgumentNullException(nameof(confidenceGateSemanticEvaluator));
-
-    private readonly IAgentOutputQualityGate _qualityGate =
-        qualityGate ?? throw new ArgumentNullException(nameof(qualityGate));
-
-    private readonly IOptions<AgentOutputQualityGateOptions> _gateOptions =
-        gateOptions ?? throw new ArgumentNullException(nameof(gateOptions));
-
-    private readonly AgentOutputReferenceCaseRunEvaluator _referenceCaseRunEvaluator =
-        referenceCaseRunEvaluator ?? throw new ArgumentNullException(nameof(referenceCaseRunEvaluator));
-
-    private readonly IAgentResultEvidenceFaithfulnessChecker _agentResultEvidenceFaithfulnessChecker =
-        agentResultEvidenceFaithfulnessChecker ??
-        throw new ArgumentNullException(nameof(agentResultEvidenceFaithfulnessChecker));
-
-    private readonly FindingConfidenceCalculator _confidenceCalculator =
-        confidenceCalculator ?? throw new ArgumentNullException(nameof(confidenceCalculator));
+    private readonly AgentEvaluationConfidencePipeline _confidencePipeline =
+        confidencePipeline ?? throw new ArgumentNullException(nameof(confidencePipeline));
 
     private readonly ILogger<AgentArchitectureFindingConfidenceEnricher> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
@@ -80,78 +37,59 @@ public sealed class AgentArchitectureFindingConfidenceEnricher(
 
         try
         {
-            ScopeContext scope = AmbientScopeContext.CurrentOverride ?? _scopeContextProvider.GetCurrentScope();
-            IReadOnlyList<AgentResult> results =
-                await _agentResultRepository.GetByRunIdAsync(scope, runId.Trim(), cancellationToken);
-
-            if (results.Count == 0)
-                return;
-
-            IReadOnlyList<AgentExecutionTrace> traces =
-                await _traceRepository.GetByRunIdAsync(scope, runId.Trim(), cancellationToken);
-
-            AgentEvidencePackage? evidence =
-                await _agentEvidencePackageRepository.GetByRunIdAsync(runId.Trim(), cancellationToken)
-                    .ConfigureAwait(false);
-
-            IReadOnlyList<AgentExecutionTrace> latestTraces =
-                AgentExecutionTraceLatestPerTaskSelector.Select(traces);
-
-            Dictionary<string, AgentExecutionTrace> traceByTaskId = latestTraces
-                .ToDictionary(static t => t.TaskId, static t => t, StringComparer.OrdinalIgnoreCase);
-
-            foreach (AgentResult result in results)
-            {
-                traceByTaskId.TryGetValue(result.TaskId, out AgentExecutionTrace? traceForAgent);
-
-                bool schemaPassed = traceForAgent is not null &&
-                                    await AgentOutputTraceQualityEvaluator.ComputeQualityGateAcceptedForConfidenceAsync(
-                                        traceForAgent,
-                                        _gateOptions.Value,
-                                        _structuralEvaluator,
-                                        _confidenceGateSemanticEvaluator,
-                                        _qualityGate,
-                                        cancellationToken,
-                                        evidence,
-                                        _agentResultEvidenceFaithfulnessChecker).ConfigureAwait(false);
-
-                bool referenceMatched = traceForAgent is not null &&
-                                        await _referenceCaseRunEvaluator.ComputeAnyPassingReferenceCaseAsync(traceForAgent, cancellationToken).ConfigureAwait(false);
-
-                bool touched = false;
-
-                foreach (ArchitectureFinding finding in result.Findings)
+            await _confidencePipeline.TryEnrichCoreAsync(
+                runId,
+                async (context, ct) =>
                 {
-                    if (finding.EvidenceRefs.Count == 0)
+                    IReadOnlyList<AgentResult> results =
+                        await _agentResultRepository
+                            .GetByRunIdAsync(context.Scope, runId.Trim(), ct)
+                            .ConfigureAwait(false);
+
+                    if (results.Count == 0)
+                        return;
+
+                    foreach (AgentResult result in results)
                     {
-                        finding.ConfidenceLevel = FindingConfidenceLevel.Low;
-                        finding.EvaluationConfidenceScore = 44;
-                        touched = true;
-                        continue;
+                        context.TraceByTaskId.TryGetValue(result.TaskId, out AgentExecutionTrace? traceForAgent);
+
+                        (bool schemaPassed, bool referenceMatched) =
+                            await _confidencePipeline
+                                .EvaluateTraceSignalsAsync(traceForAgent, context.Evidence, ct)
+                                .ConfigureAwait(false);
+
+                        bool touched = false;
+
+                        foreach (ArchitectureFinding finding in result.Findings)
+                        {
+                            if (finding.EvidenceRefs.Count == 0)
+                            {
+                                finding.ConfidenceLevel = FindingConfidenceLevel.Low;
+                                finding.EvaluationConfidenceScore = 44;
+                                touched = true;
+                                continue;
+                            }
+
+                            Finding shaped = FindingFactory.CreateFromAgentArchitectureFinding(finding, result, traceForAgent);
+
+                            FindingConfidenceCalculationResult calculated = _confidencePipeline.ComputeFindingConfidence(
+                                shaped,
+                                schemaPassed,
+                                referenceMatched);
+
+                            if (calculated.Status != FindingConfidenceStatus.Computed)
+                                continue;
+
+                            finding.EvaluationConfidenceScore = calculated.Score;
+                            finding.ConfidenceLevel = calculated.Level;
+                            touched = true;
+                        }
+
+                        if (touched)
+                            await _agentResultRepository.CreateAsync(result, ct).ConfigureAwait(false);
                     }
-
-                    Finding shaped = FindingFactory.CreateFromAgentArchitectureFinding(finding, result, traceForAgent);
-
-                    TraceCompletenessScore completeness = ExplainabilityTraceCompletenessAnalyzer.AnalyzeFinding(shaped);
-
-                    decimal? traceRatio = shaped.Trace is null ? null : (decimal)completeness.CompletenessRatio;
-
-                    FindingConfidenceCalculationResult calculated = _confidenceCalculator.Calculate(
-                        schemaPassed,
-                        referenceMatched,
-                        traceRatio);
-
-                    if (calculated.Status != FindingConfidenceStatus.Computed)
-                        continue;
-
-                    finding.EvaluationConfidenceScore = calculated.Score;
-                    finding.ConfidenceLevel = calculated.Level;
-                    touched = true;
-                }
-
-                if (touched)
-                    await _agentResultRepository.CreateAsync(result, cancellationToken);
-            }
+                },
+                cancellationToken).ConfigureAwait(false);
         }
         catch (OperationCanceledException)
         {

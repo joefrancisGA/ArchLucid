@@ -1,17 +1,10 @@
-using ArchLucid.AgentRuntime.Evaluation.ReferenceCases;
 using ArchLucid.Contracts.Agents;
-using ArchLucid.Core.AgentEvaluation;
-using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Findings;
 using ArchLucid.Decisioning.Findings;
-using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Decisioning.Models;
-using ArchLucid.Persistence.Data.Repositories;
-
-using ArchLucid.Core.Configuration;
-using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Persistence.Ports;
 
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 
 namespace ArchLucid.AgentRuntime.Evaluation;
 
@@ -19,49 +12,12 @@ namespace ArchLucid.AgentRuntime.Evaluation;
 ///     Best-effort enrichment of persisted findings snapshots using agent execution traces (never throws).
 /// </summary>
 public sealed class FindingsSnapshotEvaluationConfidenceEnricher(
-    IAgentExecutionTraceRepository traceRepository,
-    IAgentEvidencePackageRepository agentEvidencePackageRepository,
-    IScopeContextProvider scopeContextProvider,
-    IAgentOutputEvaluator structuralEvaluator,
-    HeuristicOnlyAgentOutputSemanticEvaluator confidenceGateSemanticEvaluator,
-    IAgentOutputQualityGate qualityGate,
-    IOptions<AgentOutputQualityGateOptions> gateOptions,
-    AgentOutputReferenceCaseRunEvaluator referenceCaseRunEvaluator,
-    IAgentResultEvidenceFaithfulnessChecker agentResultEvidenceFaithfulnessChecker,
-    FindingConfidenceCalculator confidenceCalculator,
+    AgentEvaluationConfidencePipeline confidencePipeline,
     ILogger<FindingsSnapshotEvaluationConfidenceEnricher> logger)
     : IFindingsSnapshotEvaluationConfidenceEnricher
 {
-    private readonly IAgentExecutionTraceRepository _traceRepository =
-        traceRepository ?? throw new ArgumentNullException(nameof(traceRepository));
-
-    private readonly IAgentEvidencePackageRepository _agentEvidencePackageRepository =
-        agentEvidencePackageRepository ?? throw new ArgumentNullException(nameof(agentEvidencePackageRepository));
-
-    private readonly IScopeContextProvider _scopeContextProvider =
-        scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
-
-    private readonly IAgentOutputEvaluator _structuralEvaluator =
-        structuralEvaluator ?? throw new ArgumentNullException(nameof(structuralEvaluator));
-
-    private readonly HeuristicOnlyAgentOutputSemanticEvaluator _confidenceGateSemanticEvaluator =
-        confidenceGateSemanticEvaluator ?? throw new ArgumentNullException(nameof(confidenceGateSemanticEvaluator));
-
-    private readonly IAgentOutputQualityGate _qualityGate =
-        qualityGate ?? throw new ArgumentNullException(nameof(qualityGate));
-
-    private readonly IOptions<AgentOutputQualityGateOptions> _gateOptions =
-        gateOptions ?? throw new ArgumentNullException(nameof(gateOptions));
-
-    private readonly AgentOutputReferenceCaseRunEvaluator _referenceCaseRunEvaluator =
-        referenceCaseRunEvaluator ?? throw new ArgumentNullException(nameof(referenceCaseRunEvaluator));
-
-    private readonly IAgentResultEvidenceFaithfulnessChecker _agentResultEvidenceFaithfulnessChecker =
-        agentResultEvidenceFaithfulnessChecker ??
-        throw new ArgumentNullException(nameof(agentResultEvidenceFaithfulnessChecker));
-
-    private readonly FindingConfidenceCalculator _confidenceCalculator =
-        confidenceCalculator ?? throw new ArgumentNullException(nameof(confidenceCalculator));
+    private readonly AgentEvaluationConfidencePipeline _confidencePipeline =
+        confidencePipeline ?? throw new ArgumentNullException(nameof(confidencePipeline));
 
     private readonly ILogger<FindingsSnapshotEvaluationConfidenceEnricher> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
@@ -77,54 +33,33 @@ public sealed class FindingsSnapshotEvaluationConfidenceEnricher(
         try
         {
             string runKey = snapshot.RunId.ToString("N");
-            ScopeContext scope = AmbientScopeContext.CurrentOverride ?? _scopeContextProvider.GetCurrentScope();
-            IReadOnlyList<AgentExecutionTrace> traces =
-                await _traceRepository.GetByRunIdAsync(scope, runKey, cancellationToken);
 
-            AgentEvidencePackage? evidence =
-                await _agentEvidencePackageRepository.GetByRunIdAsync(runKey, cancellationToken)
-                    .ConfigureAwait(false);
+            await _confidencePipeline.TryEnrichCoreAsync(
+                runKey,
+                async (context, ct) =>
+                {
+                    foreach (Finding finding in snapshot.Findings)
+                    {
+                        AgentExecutionTrace? trace =
+                            AgentEvaluationConfidencePipeline.ResolveTraceForSnapshotFinding(finding, context);
 
-            IReadOnlyList<AgentExecutionTrace> latestTraces =
-                AgentExecutionTraceLatestPerTaskSelector.Select(traces);
+                        (bool schemaPassed, bool referenceMatched) =
+                            await _confidencePipeline.EvaluateTraceSignalsAsync(trace, context.Evidence, ct)
+                                .ConfigureAwait(false);
 
-            Dictionary<AgentType, AgentExecutionTrace> traceByAgentType = latestTraces
-                .GroupBy(static t => t.AgentType)
-                .ToDictionary(static g => g.Key, static g => g.First());
+                        FindingConfidenceCalculationResult calculated = _confidencePipeline.ComputeFindingConfidence(
+                            finding,
+                            schemaPassed,
+                            referenceMatched);
 
-            foreach (Finding finding in snapshot.Findings)
-            {
-                AgentExecutionTrace? trace = ResolveTraceForFinding(finding, latestTraces, traceByAgentType);
+                        if (calculated.Status != FindingConfidenceStatus.Computed)
+                            continue;
 
-                bool schemaPassed = trace is not null &&
-                                    await AgentOutputTraceQualityEvaluator.ComputeQualityGateAcceptedForConfidenceAsync(
-                                        trace,
-                                        _gateOptions.Value,
-                                        _structuralEvaluator,
-                                        _confidenceGateSemanticEvaluator,
-                                        _qualityGate,
-                                        cancellationToken,
-                                        evidence,
-                                        _agentResultEvidenceFaithfulnessChecker).ConfigureAwait(false);
-
-                bool referenceMatched = trace is not null &&
-                                        await _referenceCaseRunEvaluator.ComputeAnyPassingReferenceCaseAsync(trace, cancellationToken).ConfigureAwait(false);
-
-                TraceCompletenessScore completeness = ExplainabilityTraceCompletenessAnalyzer.AnalyzeFinding(finding);
-
-                decimal? traceRatio = finding.Trace is null ? null : (decimal)completeness.CompletenessRatio;
-
-                FindingConfidenceCalculationResult calculated = _confidenceCalculator.Calculate(
-                    schemaPassed,
-                    referenceMatched,
-                    traceRatio);
-
-                if (calculated.Status != FindingConfidenceStatus.Computed)
-                    continue;
-
-                finding.EvaluationConfidenceScore = calculated.Score;
-                finding.ConfidenceLevel = calculated.Level;
-            }
+                        finding.EvaluationConfidenceScore = calculated.Score;
+                        finding.ConfidenceLevel = calculated.Level;
+                    }
+                },
+                cancellationToken).ConfigureAwait(false);
         }
         catch (OperationCanceledException)
         {
@@ -139,37 +74,5 @@ public sealed class FindingsSnapshotEvaluationConfidenceEnricher(
                     "Findings snapshot evaluation confidence enrichment failed for run {RunId}; snapshot saved without enrichment.",
                     snapshot.RunId.ToString("N"));
         }
-    }
-
-    private static AgentExecutionTrace? ResolveTraceForFinding(
-        Finding finding,
-        IReadOnlyList<AgentExecutionTrace> traces,
-        IReadOnlyDictionary<AgentType, AgentExecutionTrace> traceByAgentType)
-    {
-        string? key = finding.AgentExecutionTraceId ?? finding.Trace.SourceAgentExecutionTraceId;
-
-        if (!string.IsNullOrWhiteSpace(key))
-
-            foreach (AgentExecutionTrace trace in traces)
-            {
-                if (TraceIdsLikelyMatch(trace.TraceId, key))
-                    return trace;
-            }
-
-        if (Enum.TryParse(finding.EngineType, ignoreCase: true, out AgentType engineType) &&
-            traceByAgentType.TryGetValue(engineType, out AgentExecutionTrace? byEngine))
-            return byEngine;
-
-        return null;
-    }
-
-    private static bool TraceIdsLikelyMatch(string persistedTraceId, string findingKey)
-    {
-        if (string.Equals(persistedTraceId, findingKey, StringComparison.OrdinalIgnoreCase))
-            return true;
-
-        int n = Math.Min(32, Math.Min(persistedTraceId.Length, findingKey.Length));
-
-        return n != 0 && persistedTraceId.AsSpan(0, n).Equals(findingKey.AsSpan(0, n), StringComparison.OrdinalIgnoreCase);
     }
 }

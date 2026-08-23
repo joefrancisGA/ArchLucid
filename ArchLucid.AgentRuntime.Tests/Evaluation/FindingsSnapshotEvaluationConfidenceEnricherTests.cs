@@ -210,7 +210,7 @@ public sealed class FindingsSnapshotEvaluationConfidenceEnricherTests
             new NoOpAgentOutputEvaluationResultRepository(),
             NullLogger<AgentOutputReferenceCaseRunEvaluator>.Instance);
 
-        return new FindingsSnapshotEvaluationConfidenceEnricher(
+        AgentEvaluationConfidencePipeline pipeline = new(
             traceRepository,
             new InMemoryAgentEvidencePackageRepository(),
             scopeProvider,
@@ -220,7 +220,10 @@ public sealed class FindingsSnapshotEvaluationConfidenceEnricherTests
             Options.Create(gateOptions),
             referenceEvaluator,
             new AgentResultEvidenceFaithfulnessChecker(Options.Create(new AgentFaithfulnessOptions())),
-            new FindingConfidenceCalculator(),
+            new FindingConfidenceCalculator());
+
+        return new FindingsSnapshotEvaluationConfidenceEnricher(
+            pipeline,
             NullLogger<FindingsSnapshotEvaluationConfidenceEnricher>.Instance);
     }
 
