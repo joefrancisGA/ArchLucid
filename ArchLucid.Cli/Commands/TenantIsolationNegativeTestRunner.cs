@@ -137,9 +137,14 @@ internal sealed class TenantIsolationNegativeTestRunner
 
         if (string.Equals(probe.ExpectedOutcome, "exclude-run-id", StringComparison.OrdinalIgnoreCase))
         {
-            verdict = probe.ForeignRunIdVisible
-                ? TenantIsolationNegativeTestVerdict.Fail
-                : TenantIsolationNegativeTestVerdict.Pass;
+            if (string.Equals(probe.Verdict, "skip", StringComparison.OrdinalIgnoreCase))
+            {
+                verdict = TenantIsolationNegativeTestVerdict.Skip;
+            }
+            else
+            {
+                verdict = EvaluateExcludeRunIdProbeVerdict(probe.ObservedStatusCode ?? 0, probe.ForeignRunIdVisible);
+            }
         }
         else if (string.Equals(probe.Verdict, "skip", StringComparison.OrdinalIgnoreCase))
         {
@@ -202,11 +207,14 @@ internal sealed class TenantIsolationNegativeTestRunner
 
         if (string.Equals(definition.ExpectedOutcome, "exclude-run-id", StringComparison.OrdinalIgnoreCase))
         {
+            int statusCode = (int)response.StatusCode;
             bool containsRunId = TenantIsolationNegativeTestAggregator.TryFindRunIdInRunList(body, runId);
-            verdict = TenantIsolationNegativeTestAggregator.EvaluateListExclusion(containsRunId);
-            observedOutcome = containsRunId
-                ? $"HTTP {(int)response.StatusCode}; foreign runId present"
-                : $"HTTP {(int)response.StatusCode}; foreign runId absent";
+            verdict = EvaluateExcludeRunIdProbeVerdict(statusCode, containsRunId);
+            observedOutcome = statusCode >= 500
+                ? $"HTTP {statusCode}; skipped server error"
+                : containsRunId
+                    ? $"HTTP {statusCode}; foreign runId present"
+                    : $"HTTP {statusCode}; foreign runId absent";
         }
         else
         {
@@ -225,6 +233,16 @@ internal sealed class TenantIsolationNegativeTestRunner
             Verdict = verdict,
             Evidence = definition.Description,
         };
+    }
+
+    private static TenantIsolationNegativeTestVerdict EvaluateExcludeRunIdProbeVerdict(int statusCode, bool foreignRunIdVisible)
+    {
+        if (statusCode >= 500)
+            return TenantIsolationNegativeTestVerdict.Skip;
+
+        return foreignRunIdVisible
+            ? TenantIsolationNegativeTestVerdict.Fail
+            : TenantIsolationNegativeTestVerdict.Pass;
     }
 
     private static string ResolveManifestPath(string repositoryRoot, TenantIsolationNegativeTestOptions options)
