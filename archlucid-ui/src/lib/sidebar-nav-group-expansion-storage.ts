@@ -7,6 +7,7 @@ export type SidebarCollapsibleNavGroupId =
   | "pilot"
   | "operate-analysis"
   | "operate-governance"
+  | "operate-policy"
   | "operate-integrations"
   | "operator-admin"
   | "operator-system-admin";
@@ -23,6 +24,7 @@ export const SIDEBAR_NAV_GROUP_DEFAULT_EXPANSION: SidebarNavGroupExpansionState 
   pilot: true,
   "operate-analysis": false,
   "operate-governance": false,
+  "operate-policy": false,
   "operate-integrations": false,
   "operator-admin": false,
   "operator-system-admin": false,
@@ -93,6 +95,7 @@ function migrateLegacySidebarExpansion(): SidebarNavGroupExpansionState {
     pilot: true,
     "operate-analysis": analysisExpanded || reportsExpanded,
     "operate-governance": governanceExpanded,
+    "operate-policy": governanceExpanded,
     "operate-integrations": integrationsExpanded,
     "operator-admin": showAdministration,
     "operator-system-admin": false,
@@ -121,6 +124,7 @@ function parseStoredExpansion(raw: string): SidebarNavGroupExpansionState | null
         || record["operate-reports"] === true
         || legacyOperationsExpanded,
       "operate-governance": record["operate-governance"] === true,
+      "operate-policy": record["operate-policy"] === true || record["operate-governance"] === true,
       "operate-integrations": record["operate-integrations"] === true || legacyOperationsExpanded,
       "operator-admin":
         record["operator-admin"] === true || legacyPlatformOpsExpanded || legacyOperationsExpanded,
@@ -179,6 +183,7 @@ export function isSidebarCollapsibleNavGroupId(groupId: string): groupId is Side
     groupId === "pilot" ||
     groupId === "operate-analysis" ||
     groupId === "operate-governance" ||
+    groupId === "operate-policy" ||
     groupId === "operate-integrations" ||
     groupId === "operator-admin" ||
     groupId === "operator-system-admin"

@@ -19,8 +19,8 @@ describe("findSidebarNavGroupIdsForActivePath", () => {
   it("returns governance when a governance child route is active", () => {
     const rows = listNavGroupsVisibleInOperatorShell(NAV_GROUPS, 3, "all", true);
 
-    expect(findSidebarNavGroupIdsForActivePath(rows, "/governance/policy-packs")).toEqual(["operate-governance"]);
-    expect(findSidebarNavGroupIdsForActivePath(rows, "/governance/standards-and-rules")).toEqual(["operate-governance"]);
+    expect(findSidebarNavGroupIdsForActivePath(rows, "/governance/policy-packs")).toEqual(["operate-policy"]);
+    expect(findSidebarNavGroupIdsForActivePath(rows, "/governance/standards-and-rules")).toEqual(["operate-policy"]);
   });
 
   it("returns administration when security and trust is active", () => {

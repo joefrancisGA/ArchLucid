@@ -18,6 +18,7 @@ describe("operate-nav-progressive-unlock", () => {
     expect(isOperateNavGroupId("operate-analysis")).toBe(true);
     expect(isOperateNavGroupId("operate-architect-advanced")).toBe(false);
     expect(isOperateNavGroupId("operate-governance")).toBe(true);
+    expect(isOperateNavGroupId("operate-policy")).toBe(true);
     expect(isOperateNavGroupId("operate-integrations")).toBe(true);
     expect(isOperateNavGroupId("pilot")).toBe(false);
     expect(isOperateNavGroupId("operator-admin")).toBe(false);
@@ -36,6 +37,7 @@ describe("operate-nav-progressive-unlock", () => {
 
     expect(postCommitIds).toContain("operate-analysis");
     expect(postCommitIds).toContain("operate-governance");
+    expect(postCommitIds).toContain("operate-policy");
     expect(postCommitIds).toContain("operate-integrations");
     expect(postCommitIds).toContain("operator-admin");
   });
@@ -43,13 +45,15 @@ describe("operate-nav-progressive-unlock", () => {
   it("shows extended governance hrefs regardless of unlock phase when authority allows", () => {
     const rows = listNavGroupsVisibleInOperatorShell(NAV_GROUPS, AUTHORITY_RANK.ExecuteAuthority, "all", true);
     const governance = rows.find((row) => row.group.id === "operate-governance");
-    const hrefs = governance?.visibleLinks.map((link) => link.href) ?? [];
+    const policy = rows.find((row) => row.group.id === "operate-policy");
+    const governanceHrefs = governance?.visibleLinks.map((link) => link.href) ?? [];
+    const policyHrefs = policy?.visibleLinks.map((link) => link.href) ?? [];
 
-    expect(hrefs).toContain("/governance/approval-queue");
-    expect(hrefs).toContain("/governance/audit");
-    expect(hrefs).toContain("/governance/findings");
-    expect(hrefs).toContain("/governance/policy-packs");
-    expect(hrefs).toContain("/governance/exceptions");
+    expect(governanceHrefs).toContain("/governance/approval-queue");
+    expect(governanceHrefs).toContain("/governance/audit");
+    expect(governanceHrefs).toContain("/governance/findings");
+    expect(governanceHrefs).toContain("/governance/exceptions");
+    expect(policyHrefs).toContain("/governance/policy-packs");
   });
 
   it("shows advanced-tier approval queue without showAdvanced when authority allows", () => {

@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vitest";
 
-import { SPONSOR_DASHBOARD_WORKSPACE_HEALTH_HREF } from "@/lib/sponsor/sponsor-dashboard-route";
 import { OperateGovernanceNavGroupBuilder } from "@/lib/operate-governance-nav-group-builder";
 
 describe("OperateGovernanceNavGroupBuilder", () => {
@@ -12,21 +11,24 @@ describe("OperateGovernanceNavGroupBuilder", () => {
     expect(workflowLink?.label).toBe("Approval queue");
   });
 
-  it("includes Governance setup in governance nav (TB-520 / TB-1135)", () => {
+  it("keeps the decide-and-track loop only in Approval nav", () => {
     const group = new OperateGovernanceNavGroupBuilder().build();
-    const setupGuide = group.links.find((link) => link.href === "/governance/setup");
 
-    expect(setupGuide).toBeDefined();
-    expect(setupGuide?.label).toBe("Approval setup");
-    expect(setupGuide?.title?.toLowerCase()).not.toContain("evaluation");
-    expect(setupGuide?.title?.toLowerCase()).not.toContain("pilot");
-  });
-
-  it("places Workspace health last in governance nav", () => {
-    const group = new OperateGovernanceNavGroupBuilder().build();
-    const lastLink = group.links[group.links.length - 1];
-
-    expect(lastLink?.href).toBe(SPONSOR_DASHBOARD_WORKSPACE_HEALTH_HREF);
-    expect(lastLink?.label).toBe("Workspace health");
+    expect(group.links.map((link) => link.href)).toEqual([
+      "/governance/approval-queue",
+      "/governance/findings",
+      "/governance/findings/assigned-to-me",
+      "/governance/exceptions",
+      "/governance/decision-register",
+      "/governance/sealed-records",
+      "/governance/advisory-scans",
+      "/governance/audit",
+      "/governance/alerts",
+    ]);
+    expect(group.caption).toBe(
+      "Approve findings, track exceptions and decisions, and monitor audit trail and alerts.",
+    );
+    expect(group.links.some((link) => link.href === "/governance/policy-packs")).toBe(false);
+    expect(group.links.some((link) => link.href === "/governance/setup")).toBe(false);
   });
 });

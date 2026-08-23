@@ -21,6 +21,7 @@ describe("sidebar-nav-group-expansion-storage", () => {
       pilot: true,
       "operate-analysis": true,
       "operate-governance": false,
+      "operate-policy": false,
       "operate-integrations": false,
       "operator-admin": true,
       "operator-system-admin": false,
@@ -30,6 +31,7 @@ describe("sidebar-nav-group-expansion-storage", () => {
       pilot: true,
       "operate-analysis": true,
       "operate-governance": false,
+      "operate-policy": false,
       "operate-integrations": false,
       "operator-admin": true,
       "operator-system-admin": false,
@@ -51,6 +53,7 @@ describe("sidebar-nav-group-expansion-storage", () => {
 
     expect(state["operate-analysis"]).toBe(true);
     expect(state["operate-governance"]).toBe(true);
+    expect(state["operate-policy"]).toBe(true);
     expect(state["operate-integrations"]).toBe(true);
   });
 
@@ -61,6 +64,7 @@ describe("sidebar-nav-group-expansion-storage", () => {
         pilot: true,
         "operate-analysis": false,
         "operate-governance": false,
+        "operate-policy": false,
         "operate-reports": true,
         "operate-integrations": false,
         "operator-admin": false,
