@@ -87,6 +87,14 @@ public partial class FindingsOrchestrator(
                 if (string.IsNullOrWhiteSpace(finding.Category))
                     finding.Category = engine.Category;
 
+                if (string.IsNullOrWhiteSpace(finding.QualityDimension)
+                    && FindingEngineArchitecturePillarResolver.TryResolveStorageKey(
+                        engine.Category,
+                        out string pillarStorageKey))
+                {
+                    finding.QualityDimension = pillarStorageKey;
+                }
+
                 if (!TryAcceptValidatedFinding(
                         validator,
                         finding,

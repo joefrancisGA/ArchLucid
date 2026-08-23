@@ -27,10 +27,10 @@ public sealed class CommittedReviewStandardsSnapshotCapturer : ICommittedReviewS
             .ToList();
 
         List<string> reviewedDimensions = findings.Findings
-            .Where(finding => !string.IsNullOrWhiteSpace(finding.Category))
-            .Select(finding => finding.Category.Trim())
+            .Where(finding => !string.IsNullOrWhiteSpace(finding.QualityDimension))
+            .Select(finding => finding.QualityDimension!.Trim())
             .Distinct(StringComparer.OrdinalIgnoreCase)
-            .OrderBy(category => category, StringComparer.OrdinalIgnoreCase)
+            .OrderBy(dimension => dimension, StringComparer.OrdinalIgnoreCase)
             .ToList();
 
         manifest.ReviewStandardsAtCommit = new CommittedReviewStandardsSnapshotDescriptor

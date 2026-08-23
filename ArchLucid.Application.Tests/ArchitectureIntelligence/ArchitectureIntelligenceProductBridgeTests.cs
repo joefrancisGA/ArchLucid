@@ -2,6 +2,7 @@ using ArchLucid.Application.ArchitectureIntelligence;
 using ArchLucid.Contracts.Advisory.Workflow;
 using ArchLucid.Contracts.ArchitectureIntelligence;
 using ArchLucid.Contracts.Findings;
+using ArchLucid.Contracts.Governance.Posture;
 using FluentAssertions;
 
 namespace ArchLucid.Application.Tests.ArchitectureIntelligence;
@@ -35,6 +36,8 @@ public sealed class ArchitectureIntelligenceProductBridgeTests
         findings.Should().ContainSingle();
         findings[0].Severity.Should().Be(FindingSeverity.Error);
         findings[0].Title.Should().Be(finding.Title);
+        findings[0].QualityDimension.Should().Be(
+            ArchitecturePillarRollup.ToStorageKey(ArchitecturePillarRollup.FromSpecialistDimension(QualityDimension.Security)));
         findings[0].Properties.Should().ContainKey("architectureIntelligence.provenance");
         findings[0].Properties.Should().ContainKey("architectureIntelligence.provenancePresentation");
         findings[0].Properties["architectureIntelligence.provenancePresentation"]

@@ -365,6 +365,40 @@ public sealed class FindingsOrchestratorTests
         FindingsSnapshot snapshot = await sut.GenerateFindingsSnapshotAsync(Guid.NewGuid(), Guid.NewGuid(), graph, CancellationToken.None);
 
         snapshot.Findings.Single().Category.Should().Be("Requirement");
+        snapshot.Findings.Single().QualityDimension.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task GenerateFindingsSnapshotAsync_stamps_quality_dimension_for_architecture_pillar_categories()
+    {
+        GraphSnapshot graph = EmptyGraph();
+        Finding securityFinding = CreateFinding("sec-1", "security-gap", "Gap", FindingSeverity.Warning);
+        securityFinding.QualityDimension = null;
+
+        Finding topologyFinding = CreateFinding("top-1", "topology-gap", "Topology gap", FindingSeverity.Warning);
+        topologyFinding.Category = "Topology";
+        topologyFinding.QualityDimension = null;
+
+        Mock<IFindingEngine> securityEngine = CreateEngine("security-gap", "Security", [securityFinding]);
+        Mock<IFindingEngine> topologyEngine = CreateEngine("topology-gap", "Topology", [topologyFinding]);
+        Mock<IFindingPayloadValidator> validator = new();
+        validator.Setup(v => v.Validate(It.IsAny<Finding>()));
+
+        FindingsOrchestrator sut = new(
+            [securityEngine.Object, topologyEngine.Object],
+            validator.Object,
+            NullLogger<FindingsOrchestrator>.Instance,
+            Options.Create(new HumanReviewFindingOptions()),
+            InsightDensityGate);
+
+        FindingsSnapshot snapshot = await sut.GenerateFindingsSnapshotAsync(
+            Guid.NewGuid(),
+            Guid.NewGuid(),
+            graph,
+            CancellationToken.None);
+
+        snapshot.Findings.Single(f => f.FindingId == "sec-1").QualityDimension.Should().Be("Security");
+        snapshot.Findings.Single(f => f.FindingId == "top-1").QualityDimension.Should().BeNull();
     }
 
     [Fact]

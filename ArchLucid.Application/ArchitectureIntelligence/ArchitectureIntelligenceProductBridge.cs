@@ -2,6 +2,7 @@ using System.Text.Json;
 using ArchLucid.Contracts.Advisory.Workflow;
 using ArchLucid.Contracts.ArchitectureIntelligence;
 using ArchLucid.Contracts.Findings;
+using ArchLucid.Contracts.Governance.Posture;
 
 namespace ArchLucid.Application.ArchitectureIntelligence;
 
@@ -167,6 +168,8 @@ public static class ArchitectureIntelligenceProductBridge
             FindingId = finding.FindingId,
             FindingType = FindingType,
             Category = Category,
+            QualityDimension = ArchitecturePillarRollup.ToStorageKey(
+                ArchitecturePillarRollup.FromSpecialistDimension(finding.Dimension)),
             EngineType = EngineType,
             Severity = MapSeverity(finding.Severity),
             Title = finding.Title,
