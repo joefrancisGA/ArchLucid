@@ -154,6 +154,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - [x] (proven) `azurerm_data_factory` Terraform address omitted from `LooksLikeTerraformServiceSourceId` — **hit 2026-08-24:** `data_factory` was only in the datastore list; `azurerm_data_factory.main` on Data-category nodes dropped `svc-` synthetic aliases; regression in gate + merge tests
 - [x] (proven) `azurerm_redis_cache` Terraform address omitted from `LooksLikeTerraformServiceSourceId` — **hit 2026-08-24:** `redis_cache` was only in the datastore list; `azurerm_redis_cache.main` on Data-category nodes dropped `svc-` synthetic aliases; regression in gate + merge tests
 - [x] (proven) `azurerm_cosmosdb_account` Terraform address omitted from `LooksLikeTerraformServiceSourceId` — **hit 2026-08-24:** `cosmosdb` was only in the datastore list; `azurerm_cosmosdb_account.main` on Data-category nodes dropped `svc-` synthetic aliases; regression in gate + merge tests
+- [x] (proven) `azurerm_mssql_server` Terraform address omitted from `LooksLikeTerraformServiceSourceId` — **hit 2026-08-24:** `mssql` was only in the datastore list; `azurerm_mssql_server.main` on Data-category nodes dropped `svc-` synthetic aliases; regression in gate + merge tests
 
 ---
 
