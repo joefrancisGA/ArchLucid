@@ -55,7 +55,12 @@ public sealed class GetOnlyHostedAzureArmReadClient(
                     HostedAzureArmResourceRecord? mapped = MapResource(item);
 
                     if (mapped is not null)
+                    {
                         resources.Add(mapped);
+                        continue;
+                    }
+
+                    LogSkippedArmRow(item);
                 }
             }
 
@@ -77,6 +82,20 @@ public sealed class GetOnlyHostedAzureArmReadClient(
         }
 
         return resources;
+    }
+
+    private void LogSkippedArmRow(JsonElement item)
+    {
+        if (!_logger.IsEnabled(LogLevel.Warning))
+            return;
+
+        string? resourceId = TryGetStringValue(item, "id");
+        string? resourceType = TryGetStringValue(item, "type");
+
+        _logger.LogWarning(
+            "Hosted Azure extractor skipped ARM resource row missing id or type. Id={ResourceId}, Type={ResourceType}",
+            resourceId,
+            resourceType);
     }
 
     private static HostedAzureArmResourceRecord? MapResource(JsonElement item)
@@ -155,16 +174,21 @@ public sealed class GetOnlyHostedAzureArmReadClient(
 
     private static bool TryGetString(JsonElement item, string propertyName, out string? value)
     {
-        value = null;
+        value = TryGetStringValue(item, propertyName);
 
+        return value is not null;
+    }
+
+    private static string? TryGetStringValue(JsonElement item, string propertyName)
+    {
         if (!item.TryGetProperty(propertyName, out JsonElement element) ||
             element.ValueKind != JsonValueKind.String)
         {
-            return false;
+            return null;
         }
 
-        value = element.GetString();
+        string? parsed = element.GetString();
 
-        return !string.IsNullOrWhiteSpace(value);
+        return string.IsNullOrWhiteSpace(parsed) ? null : parsed;
     }
 }

@@ -18,8 +18,6 @@ public sealed class HostedAwsExtractorClient(
     IAwsOidcWebIdentityTokenProvider webIdentityTokenProvider,
     ILogger<HostedAwsExtractorClient> logger) : IHostedAwsExtractorClient
 {
-    private const int MaxResultsPerSearch = 50;
-
     private readonly IAwsOidcWebIdentityTokenProvider _webIdentityTokenProvider =
         webIdentityTokenProvider ?? throw new ArgumentNullException(nameof(webIdentityTokenProvider));
 
@@ -35,6 +33,10 @@ public sealed class HostedAwsExtractorClient(
         ArgumentException.ThrowIfNullOrWhiteSpace(request.Region);
         ArgumentException.ThrowIfNullOrWhiteSpace(request.RoleArn);
 
+        string accountId = request.AccountId.Trim();
+        string roleArn = request.RoleArn.Trim();
+        AwsIamRoleArn.EnsureAccountMatches(accountId, roleArn);
+
         string webIdentityToken = await _webIdentityTokenProvider
             .GetWebIdentityTokenAsync(cancellationToken)
             .ConfigureAwait(false);
@@ -42,7 +44,7 @@ public sealed class HostedAwsExtractorClient(
         RegionEndpoint region = RegionEndpoint.GetBySystemName(request.Region.Trim());
 
         SessionAWSCredentials sessionCredentials = await AssumeRoleAsync(
-                request.RoleArn.Trim(),
+                roleArn,
                 webIdentityToken,
                 region,
                 cancellationToken)
@@ -57,7 +59,7 @@ public sealed class HostedAwsExtractorClient(
         string collectorVersion = typeof(HostedAwsExtractorClient).Assembly.GetName().Version?.ToString() ?? "1.0.0";
 
         byte[] zipBytes = AwsInventoryZipPackager.BuildZip(
-            request.AccountId.Trim(),
+            accountId,
             collectorVersion,
             resources);
 
@@ -73,7 +75,7 @@ public sealed class HostedAwsExtractorClient(
         return new HostedAwsExtractorCollectionResult
         {
             ZipBytes = zipBytes,
-            OriginalFileName = $"archlucid-aws-{request.AccountId.Trim()}.zip",
+            OriginalFileName = $"archlucid-aws-{accountId}.zip",
             ResourceCount = resources.Count
         };
     }
@@ -114,30 +116,8 @@ public sealed class HostedAwsExtractorClient(
     {
         using AmazonResourceExplorer2Client explorerClient = new(sessionCredentials, region);
 
-        SearchResponse response = await explorerClient
-            .SearchAsync(
-                new SearchRequest
-                {
-                    QueryString = "arn:aws:*",
-                    MaxResults = MaxResultsPerSearch
-                },
-                cancellationToken)
+        return await AwsResourceExplorerInventoryCollector
+            .CollectAsync(explorerClient, region.SystemName, cancellationToken)
             .ConfigureAwait(false);
-
-        List<AwsInventoryResourceEntry> resources = new();
-
-        if (response.Resources is null)
-            return resources;
-
-        foreach (Resource resource in response.Resources)
-        {
-            resources.Add(new AwsInventoryResourceEntry(
-                resource.Arn ?? string.Empty,
-                resource.ResourceType ?? string.Empty,
-                region.SystemName,
-                null));
-        }
-
-        return resources;
     }
 }

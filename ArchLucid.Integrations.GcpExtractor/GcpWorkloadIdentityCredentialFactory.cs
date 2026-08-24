@@ -35,10 +35,14 @@ public sealed class GcpWorkloadIdentityCredentialFactory(
 
     internal static string NormalizeAudience(string workloadIdentityPoolProvider)
     {
-        if (workloadIdentityPoolProvider.StartsWith("//iam.googleapis.com/", StringComparison.Ordinal))
-            return workloadIdentityPoolProvider;
+        const string audiencePrefix = "//iam.googleapis.com/";
 
-        return $"//iam.googleapis.com/{workloadIdentityPoolProvider.TrimStart('/')}";
+        if (workloadIdentityPoolProvider.StartsWith(audiencePrefix, StringComparison.OrdinalIgnoreCase))
+        {
+            return audiencePrefix + workloadIdentityPoolProvider.Substring(audiencePrefix.Length);
+        }
+
+        return $"{audiencePrefix}{workloadIdentityPoolProvider.TrimStart('/')}";
     }
 
     private sealed class AzureAdSubjectTokenSupplier(IGcpSubjectTokenProvider provider)

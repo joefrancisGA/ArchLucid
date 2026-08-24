@@ -12,12 +12,23 @@ public sealed class GcpWorkloadIdentityCredentialFactoryTests
     [Theory]
     [InlineData("//iam.googleapis.com/projects/123/locations/global/workloadIdentityPools/pool/providers/provider")]
     [InlineData("projects/123/locations/global/workloadIdentityPools/pool/providers/provider")]
+    [InlineData("//IAM.GOOGLEAPIS.COM/projects/123/locations/global/workloadIdentityPools/pool/providers/provider")]
     public void NormalizeAudience_accepts_full_or_relative_provider_resource(string provider)
     {
         string audience = GcpWorkloadIdentityCredentialFactory.NormalizeAudience(provider);
 
         audience.Should().StartWith("//iam.googleapis.com/");
         audience.Should().Contain("workloadIdentityPools");
+    }
+
+    [Fact]
+    public void NormalizeAudience_normalizes_mixed_case_audience_prefix()
+    {
+        string audience = GcpWorkloadIdentityCredentialFactory.NormalizeAudience(
+            "//IAM.GOOGLEAPIS.COM/projects/123/locations/global/workloadIdentityPools/pool/providers/provider");
+
+        audience.Should().Be(
+            "//iam.googleapis.com/projects/123/locations/global/workloadIdentityPools/pool/providers/provider");
     }
 
     [Fact]

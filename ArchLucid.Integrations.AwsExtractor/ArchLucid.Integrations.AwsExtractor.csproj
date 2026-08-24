@@ -25,4 +25,8 @@
     <Using Include="ArchLucid.Core" />
   </ItemGroup>
 
+  <ItemGroup>
+    <InternalsVisibleTo Include="ArchLucid.Application.Tests" />
+  </ItemGroup>
+
 </Project>
