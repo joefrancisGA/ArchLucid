@@ -153,11 +153,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** tenant settings; DefaultTenant FK
 - **paths:** ArchLucid.Persistence/Tenancy/SqlTenantSettingsRepository.cs; ArchLucid.Persistence/Tenancy/CachingTenantSettingsRepository.cs
 - **test-filter:** FullyQualifiedName~SqlTenantSettingsRepository
-- **hunts:** 2
-- **bugs-found:** 1
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-08-17
-- **last-bug:** 2026-08-17
+- **hunts:** 3
+- **bugs-found:** 2
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-08-24
+- **last-bug:** 2026-08-24 — upsert during in-flight cached read could pin stale miss after write completed
 - **related-pd-tb:** PD-003
 - **code-changed-since:** unknown
 
@@ -168,6 +168,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - [x] Tenant-plane SQL still uses the host catalog or a hardcoded tenant id (retired Î“Ã‡Ã¶ `SqlTenantSettingsRepositoryConnectionFactoryContractTests` + PD-003 fix on master)
 - [x] Cache wrapper returns stale miss after upsert when setting-key casing differs (`TenantSettings_TryGetAsync_refreshes_after_upsert_when_setting_key_casing_differs`)
 - [x] DefaultTenant FK insert/update disagrees with the cached read path (retired Î“Ã‡Ã¶ PD-003 disposition merged on master: `ArchLucidPersistenceStartup` ApiKey DefaultTenant bootstrap + scoped `ISqlConnectionFactory`; repository uses same `tenantId` on read/write/cache keys)
+- [x] (proven) Upsert during an in-flight cached read pins a stale miss after the write completes — **hit 2026-08-24:** `CachingTenantSettingsRepository` only removed the hybrid-cache key on upsert; a slow `TryGetAsync` loader could still publish a miss after the upsert; fixed by generation-stamped cache keys bumped on write/delete; regression in `TenantSettings_TryGetAsync_reflects_upsert_when_read_started_before_write_completed`
 
 ---
 
