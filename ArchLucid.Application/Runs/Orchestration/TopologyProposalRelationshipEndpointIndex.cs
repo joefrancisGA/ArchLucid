@@ -705,6 +705,7 @@ public static class TopologyProposalRelationshipEndpointIndex
             || normalized.Contains("data_factory", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("redis_cache", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("cosmosdb", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("mssql", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("communication_service", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("cognitive_account", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("cognitive_services", StringComparison.OrdinalIgnoreCase)
