@@ -27,6 +27,7 @@ import { StatusTag } from "@/components/ui/status-tag";
 import { useArchitectureDraftRegistryEntries } from "@/hooks/use-architecture-draft-registry-entries";
 import { useArchivedReviewsClientCache } from "@/hooks/use-archived-reviews-client-cache";
 import { useFavoriteReviews } from "@/hooks/use-favorite-reviews";
+import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
 import { showcaseSampleReviewPackageHref } from "@/lib/showcase-sample-review-registry";
 import { buyerFilterChipClass } from "@/lib/buyer/buyer-shell-home-present";
 import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -36,7 +37,7 @@ import {
   readOperatorScopeFromStorage,
   type OperatorScopeRecord,
 } from "@/lib/operator/operator-scope-storage";
-import { reviewPackageOwnerLabel } from "@/lib/review-package-validation-picker";
+import { type ReviewPackageOwnerResolutionContext } from "@/lib/review-package-validation-picker";
 import {
   buildReviewsHubWorkspaceScopeEmptyTeaching,
   shouldShowWorkspaceScopeEmptyTeaching,
@@ -111,14 +112,18 @@ const MORE_FILTER_OPTIONS: ReadonlyArray<{ id: ReviewFilterId; label: string }> 
   { id: "Archived", label: "Archived" },
 ];
 
-function matchesSearch(run: RunSummary, query: string): boolean {
+function matchesSearch(
+  run: RunSummary,
+  query: string,
+  ownerContext: ReviewPackageOwnerResolutionContext,
+): boolean {
   const normalized = query.trim().toLowerCase();
 
   if (normalized.length === 0) {
     return true;
   }
 
-  const row = toReviewsHubReviewRowDisplay(run);
+  const row = toReviewsHubReviewRowDisplay(run, ownerContext);
   const haystack = [
     row.reviewTitle,
     row.architectureName,
@@ -135,8 +140,12 @@ function matchesSearch(run: RunSummary, query: string): boolean {
   return haystack.includes(normalized);
 }
 
-function matchesFilter(run: RunSummary, filter: ReviewFilterId): boolean {
-  const row = toReviewsHubReviewRowDisplay(run);
+function matchesFilter(
+  run: RunSummary,
+  filter: ReviewFilterId,
+  ownerContext: ReviewPackageOwnerResolutionContext,
+): boolean {
+  const row = toReviewsHubReviewRowDisplay(run, ownerContext);
 
   if (filter === "all") {
     return true;
@@ -219,11 +228,12 @@ function emptyInventoryDescription(draftCount: number): string {
 
 type InventoryRowProps = {
   readonly run: RunSummary;
+  readonly ownerContext: ReviewPackageOwnerResolutionContext;
   readonly style?: CSSProperties;
 };
 
 function ReviewsHubInventoryRow(props: InventoryRowProps): React.JSX.Element {
-  const row = toReviewsHubReviewRowDisplay(props.run);
+  const row = toReviewsHubReviewRowDisplay(props.run, props.ownerContext);
 
   return (
     <EnterpriseTableRow
@@ -259,7 +269,7 @@ function ReviewsHubInventoryRow(props: InventoryRowProps): React.JSX.Element {
       </EnterpriseTableCell>
       <EnterpriseTableCell>{row.governanceState}</EnterpriseTableCell>
       <EnterpriseTableCell>{row.lifecycleStage}</EnterpriseTableCell>
-      <EnterpriseTableCell>{reviewPackageOwnerLabel(props.run)}</EnterpriseTableCell>
+      <EnterpriseTableCell>{row.ownerLabel}</EnterpriseTableCell>
       <EnterpriseTableCell title={props.run.createdUtc}>{row.lastUpdated}</EnterpriseTableCell>
       <EnterpriseTableCell className="text-right tabular-nums">
         {finiteIntegerCountDisplay(row.findingsCount)}
@@ -303,6 +313,7 @@ function ReviewsHubInventoryTableHead(): React.JSX.Element {
 
 type ReviewsHubInventoryTableProps = {
   readonly runs: readonly RunSummary[];
+  readonly ownerContext: ReviewPackageOwnerResolutionContext;
   readonly ariaLabel: string;
   readonly tableTestId: string;
   readonly virtualizedTestId?: string;
@@ -354,7 +365,14 @@ function ReviewsHubInventoryTable(props: ReviewsHubInventoryTableProps): React.J
                 tableLayout: "fixed",
               };
 
-              return <ReviewsHubInventoryRow key={run.runId} run={run} style={rowStyle} />;
+              return (
+                <ReviewsHubInventoryRow
+                  key={run.runId}
+                  run={run}
+                  ownerContext={props.ownerContext}
+                  style={rowStyle}
+                />
+              );
             })}
           </EnterpriseTableBody>
         </EnterpriseTable>
@@ -368,7 +386,7 @@ function ReviewsHubInventoryTable(props: ReviewsHubInventoryTableProps): React.J
         <ReviewsHubInventoryTableHead />
         <EnterpriseTableBody>
           {props.runs.map((run) => (
-            <ReviewsHubInventoryRow key={run.runId} run={run} />
+            <ReviewsHubInventoryRow key={run.runId} run={run} ownerContext={props.ownerContext} />
           ))}
         </EnterpriseTableBody>
       </EnterpriseTable>
@@ -384,11 +402,22 @@ export function ReviewsHubReviewInventory(props: ReviewsHubReviewInventoryProps)
   const { isFavorite } = useFavoriteReviews();
   const { archivedRuns } = useArchivedReviewsClientCache();
   const draftEntries = useArchitectureDraftRegistryEntries();
+  const { currentPrincipal } = useOperatorNavAuthority();
+  const ownerContext = useMemo<ReviewPackageOwnerResolutionContext>(
+    () => ({
+      currentUserLabel: currentPrincipal.name,
+      draftRegistryEntries: draftEntries,
+    }),
+    [currentPrincipal.name, draftEntries],
+  );
   const mergedRuns = useMemo(
     () => mergeRunsWithArchivedCache(props.runs, archivedRuns),
     [archivedRuns, props.runs],
   );
-  const rows = useMemo(() => mergedRuns.map(toReviewsHubReviewRowDisplay), [mergedRuns]);
+  const rows = useMemo(
+    () => mergedRuns.map((run) => toReviewsHubReviewRowDisplay(run, ownerContext)),
+    [mergedRuns, ownerContext],
+  );
   const draftCount = draftEntries.length;
   const hasDrafts = draftCount > 0;
   const moreFilterSelected = MORE_FILTER_OPTIONS.some((option) => option.id === activeFilter);
@@ -408,9 +437,9 @@ export function ReviewsHubReviewInventory(props: ReviewsHubReviewInventoryProps)
 
   const filteredRuns = useMemo(() => {
     return visibilityFilteredRuns.filter(
-      (run) => matchesSearch(run, searchQuery) && matchesFilter(run, activeFilter),
+      (run) => matchesSearch(run, searchQuery, ownerContext) && matchesFilter(run, activeFilter, ownerContext),
     );
-  }, [activeFilter, searchQuery, visibilityFilteredRuns]);
+  }, [activeFilter, ownerContext, searchQuery, visibilityFilteredRuns]);
 
   const pinnedFilteredRuns = useMemo(
     () => filteredRuns.filter((run) => isFavorite(run.runId)),
@@ -533,6 +562,7 @@ export function ReviewsHubReviewInventory(props: ReviewsHubReviewInventoryProps)
               </h2>
               <ReviewsHubInventoryTable
                 runs={pinnedFilteredRuns}
+                ownerContext={ownerContext}
                 ariaLabel={REVIEWS_HUB_PINNED_REVIEWS_TITLE}
                 tableTestId="reviews-hub-pinned-packages-table"
                 virtualizedTestId="reviews-hub-pinned-packages-virtualized"
@@ -548,6 +578,7 @@ export function ReviewsHubReviewInventory(props: ReviewsHubReviewInventoryProps)
             ) : null}
             <ReviewsHubInventoryTable
               runs={unpinnedFilteredRuns}
+              ownerContext={ownerContext}
               ariaLabel={REVIEWS_HUB_PAGE_TITLE}
               tableTestId="reviews-hub-packages-table"
               virtualizedTestId="reviews-hub-packages-virtualized"

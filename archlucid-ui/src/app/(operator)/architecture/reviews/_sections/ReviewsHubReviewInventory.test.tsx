@@ -12,6 +12,25 @@ vi.mock("@/components/reviews/ReviewArchiveControl", () => ({
   ReviewArchiveControl: () => <button type="button">Archive review</button>,
 }));
 
+vi.mock("@/components/operator/OperatorNavAuthorityProvider", () => ({
+  useOperatorNavAuthority: () => ({
+    currentPrincipal: {
+      name: "Taylor Morgan",
+      provenance: "auth-me",
+      roleClaimValues: [],
+      primaryAppRole: "Operator",
+      maxAuthority: "ExecuteAuthority",
+      authorityRank: 2,
+      hasEnterpriseOperatorSurfaces: true,
+      hasCommittedArchitectureReview: false,
+      hasRecognizedArchLucidRole: true,
+      permissionClaimValues: [],
+    },
+    isAuthorityLoading: false,
+    callerAuthorityRank: 2,
+  }),
+}));
+
 vi.mock("@/lib/architecture/architecture-draft-registry", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/architecture/architecture-draft-registry")>();
 
@@ -141,6 +160,7 @@ describe("ReviewsHubReviewInventory", () => {
     expect(screen.getByRole("columnheader", { name: "Approval" })).toBeInTheDocument();
     expect(screen.getByRole("columnheader", { name: "Risks" })).toBeInTheDocument();
     expect(screen.getByTestId("reviews-hub-row-review-001")).toBeInTheDocument();
+    expect(screen.getByText("Taylor Morgan")).toBeInTheDocument();
     const titleLink = screen.getByTestId("reviews-hub-primary-action-review-001");
     expect(titleLink).toHaveAttribute("href");
     expect(titleLink.className).toMatch(/underline/);
