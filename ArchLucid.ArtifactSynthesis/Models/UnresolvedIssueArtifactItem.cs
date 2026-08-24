@@ -25,4 +25,10 @@ public class UnresolvedIssueArtifactItem
         get;
         set;
     } = null!;
+
+    public List<string> SupportingFindingIds
+    {
+        get;
+        set;
+    } = [];
 }

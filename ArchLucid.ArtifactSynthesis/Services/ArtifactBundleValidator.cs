@@ -38,6 +38,11 @@ public class ArtifactBundleValidator : IArtifactBundleValidator
             if (string.IsNullOrWhiteSpace(artifact.ContentHash))
                 throw new InvalidOperationException("Artifact content hash is required.");
 
+            string computedHash = ArtifactHashing.ComputeHash(artifact.Content);
+
+            if (!string.Equals(computedHash, artifact.ContentHash.Trim(), StringComparison.OrdinalIgnoreCase))
+                throw new InvalidOperationException("Artifact content hash does not match content.");
+
             if (string.Equals(artifact.ArtifactType, ArtifactType.ArchitectureNarrative, StringComparison.OrdinalIgnoreCase)
                 || string.Equals(artifact.ArtifactType, ArtifactType.ReferenceArchitectureMarkdown, StringComparison.OrdinalIgnoreCase))
             {

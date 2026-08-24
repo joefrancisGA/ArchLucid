@@ -115,7 +115,18 @@ public class ReferenceArchitectureMarkdownGenerator : IArtifactGenerator
         sb.AppendLine();
 
         sb.AppendLine("## Constraints");
-        sb.AppendLine("Not specified.");
+        foreach (string item in manifest.Constraints.MandatoryConstraints)
+
+            sb.AppendLine($"- Mandatory: {item}");
+
+        foreach (string item in manifest.Constraints.Preferences)
+
+            sb.AppendLine($"- Preference: {item}");
+
+        if (manifest.Constraints.MandatoryConstraints.Count == 0 && manifest.Constraints.Preferences.Count == 0)
+
+            sb.AppendLine("No constraints were recorded.");
+
         sb.AppendLine();
 
         sb.AppendLine("## Architecture Overview");

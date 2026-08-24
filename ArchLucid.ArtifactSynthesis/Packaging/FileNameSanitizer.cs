@@ -19,9 +19,19 @@ public static class FileNameSanitizer
         if (string.IsNullOrWhiteSpace(fileName))
             return "artifact.txt";
 
-        string sanitized = new(fileName.Select(c => InvalidChars.Contains(c) ? '_' : c).ToArray());
+        string normalized = NormalizeTraversalHomoglyphs(fileName);
+        string sanitized = new(normalized.Select(c => InvalidChars.Contains(c) ? '_' : c).ToArray());
 
         return string.IsNullOrWhiteSpace(sanitized) ? "artifact.txt" : sanitized;
+    }
+
+    private static string NormalizeTraversalHomoglyphs(string fileName)
+    {
+        return fileName
+            .Replace('\uFF0F', '_')
+            .Replace('\uFF3C', '_')
+            .Replace('\u2044', '_')
+            .Replace('\u2215', '_');
     }
 
     private static HashSet<char> CreateInvalidCharSet()

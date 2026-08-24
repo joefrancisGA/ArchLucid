@@ -116,6 +116,33 @@ public sealed class ArtifactSynthesisPackageCoverageBatchRc28eTests
     }
 
     [Fact]
+    public async Task ReferenceArchitectureMarkdownGenerator_GenerateAsync_emits_committed_constraints_not_not_specified()
+    {
+        ManifestDocument manifest = new()
+        {
+            RunId = Guid.NewGuid(),
+            ManifestId = Guid.NewGuid(),
+            RuleSetId = "core-default",
+            RuleSetVersion = "1",
+            ManifestHash = "constraints-hash",
+            Metadata = new ManifestMetadata { Name = "Regional Retail" },
+            Constraints = new ConstraintSection
+            {
+                MandatoryConstraints = ["Must stay in Canada Central"],
+                Preferences = ["Prefer Azure-native services"],
+            },
+        };
+
+        ReferenceArchitectureMarkdownGenerator generator = new();
+
+        SynthesizedArtifact artifact = await generator.GenerateAsync(manifest, CancellationToken.None);
+
+        artifact.Content.Should().Contain("- Mandatory: Must stay in Canada Central");
+        artifact.Content.Should().Contain("- Preference: Prefer Azure-native services");
+        artifact.Content.Should().NotContain("## Constraints\nNot specified.");
+    }
+
+    [Fact]
     public async Task ArchitectureNarrativeArtifactGenerator_GenerateAsync_emits_constraints_and_provenance()
     {
         ManifestDocument manifest = new()

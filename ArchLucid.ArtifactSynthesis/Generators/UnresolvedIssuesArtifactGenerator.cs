@@ -20,7 +20,11 @@ public class UnresolvedIssuesArtifactGenerator : IArtifactGenerator
         {
             Items = manifest.UnresolvedIssues.Items.Select(x => new UnresolvedIssueArtifactItem
             {
-                IssueType = x.IssueType, Title = x.Title, Description = x.Description, Severity = x.Severity
+                IssueType = x.IssueType,
+                Title = x.Title,
+                Description = x.Description,
+                Severity = x.Severity,
+                SupportingFindingIds = x.SupportingFindingIds.ToList(),
             }).ToList()
         };
 

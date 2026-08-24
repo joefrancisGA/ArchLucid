@@ -33,6 +33,7 @@ public sealed class ArtifactSynthesisPackageCoverageBatchRc27Tests
     [InlineData("report:v1?.docx", "report_v1_.docx")]
     [InlineData("a<b>c|d*e", "a_b_c_d_e")]
     [InlineData("path\\file/name", "path_file_name")]
+    [InlineData("..／..／manifest.json", ".._.._manifest.json")]
     public void FileNameSanitizer_replaces_invalid_windows_characters(string input, string expected)
     {
         string sanitized = FileNameSanitizer.Sanitize(input);

@@ -18,14 +18,14 @@ public sealed class ArtifactBundleValidatorTests
             {
                 ArtifactType = "Inventory",
                 Content = "a",
-                ContentHash = "h1",
+                ContentHash = ArtifactHashing.ComputeHash("a"),
             });
         bundle.Artifacts.Add(
             new SynthesizedArtifact
             {
                 ArtifactType = "inventory",
                 Content = "b",
-                ContentHash = "h2",
+                ContentHash = ArtifactHashing.ComputeHash("b"),
             });
 
         Action act = () => new ArtifactBundleValidator().Validate(bundle);
@@ -52,6 +52,7 @@ public sealed class ArtifactBundleValidatorTests
         ArtifactBundle bundle = ValidBundle();
         bundle.Artifacts[0].ArtifactType = artifactType;
         bundle.Artifacts[0].Content = "Missing headers";
+        bundle.Artifacts[0].ContentHash = ArtifactHashing.ComputeHash(bundle.Artifacts[0].Content);
 
         Action act = () => new ArtifactBundleValidator().Validate(bundle);
 
@@ -75,10 +76,23 @@ public sealed class ArtifactBundleValidatorTests
             "## Data Flow",
             "## Security Model",
             "## Operational Considerations");
+        bundle.Artifacts[0].ContentHash = ArtifactHashing.ComputeHash(bundle.Artifacts[0].Content);
 
         Action act = () => new ArtifactBundleValidator().Validate(bundle);
 
         act.Should().NotThrow();
+    }
+
+    [Fact]
+    public void Validate_when_content_hash_mismatch_throws()
+    {
+        ArtifactBundle bundle = ValidBundle();
+        bundle.Artifacts[0].Content = "hello";
+        bundle.Artifacts[0].ContentHash = "DEADBEEF";
+
+        Action act = () => new ArtifactBundleValidator().Validate(bundle);
+
+        act.Should().Throw<InvalidOperationException>().WithMessage("*hash does not match*");
     }
 
     private static ArtifactBundle ValidBundle()
@@ -93,7 +107,7 @@ public sealed class ArtifactBundleValidatorTests
                 {
                     ArtifactType = "Test",
                     Content = "body",
-                    ContentHash = "abc",
+                    ContentHash = ArtifactHashing.ComputeHash("body"),
                 },
             ],
         };
