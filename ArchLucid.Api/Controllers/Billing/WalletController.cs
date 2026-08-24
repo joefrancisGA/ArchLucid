@@ -66,7 +66,8 @@ public sealed class WalletController(
 
         ScopeContext scope = _scopeProvider.GetCurrentScope();
 
-        byte[] rowVersion = DecodeRowVersion(body.RowVersionBase64);
+        if (!TryDecodeRowVersion(body.RowVersionBase64, out byte[] rowVersion))
+            return this.BadRequestProblem("Row version is not valid Base64.", ProblemTypes.ValidationFailed);
 
         LlmTenantWalletView? updated = await _walletService
             .UpdateWalletAsync(
@@ -128,18 +129,26 @@ public sealed class WalletController(
         };
     }
 
-    private static byte[] DecodeRowVersion(string? rowVersionBase64)
+    private static bool TryDecodeRowVersion(string? rowVersionBase64, out byte[] rowVersion)
     {
         if (string.IsNullOrWhiteSpace(rowVersionBase64))
-            return [];
+        {
+            rowVersion = [];
+
+            return true;
+        }
 
         try
         {
-            return Convert.FromBase64String(rowVersionBase64.Trim());
+            rowVersion = Convert.FromBase64String(rowVersionBase64.Trim());
+
+            return true;
         }
         catch (FormatException)
         {
-            return [];
+            rowVersion = [];
+
+            return false;
         }
     }
 }

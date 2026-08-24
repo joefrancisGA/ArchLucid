@@ -18,6 +18,7 @@ public interface ILlmTenantWalletService
         Guid tenantId,
         decimal actualUsd,
         Guid correlationId,
+        decimal authorizedUsd = 0m,
         CancellationToken cancellationToken = default);
 
     Task<bool> TryAutoRefillAsync(Guid tenantId, Guid correlationId, CancellationToken cancellationToken = default);

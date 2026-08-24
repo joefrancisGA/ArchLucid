@@ -35,6 +35,7 @@ internal sealed class NoOpLlmTenantWalletService : ILlmTenantWalletService
         Guid tenantId,
         decimal actualUsd,
         Guid correlationId,
+        decimal authorizedUsd = 0m,
         CancellationToken cancellationToken = default)
     {
         return Task.CompletedTask;

@@ -281,6 +281,85 @@ public sealed class SqlLlmTenantWalletRepository(IDbConnectionFactory connection
         return LlmTenantWalletCreditResult.Conflict();
     }
 
+    public async Task<LlmTenantWalletCreditResult> TryCreditAdjustmentAsync(
+        Guid tenantId,
+        decimal amountUsd,
+        Guid correlationId,
+        byte[] expectedRowVersion,
+        CancellationToken cancellationToken = default)
+    {
+        if (amountUsd <= 0m)
+            return LlmTenantWalletCreditResult.Ok(0m);
+
+        for (int attempt = 0; attempt < MaxOptimisticRetries; attempt++)
+        {
+            LlmTenantWalletStateReadModel state = await GetOrCreateAsync(tenantId, cancellationToken).ConfigureAwait(false);
+            byte[] rowVersion = expectedRowVersion.Length > 0 ? expectedRowVersion : state.RowVersion;
+
+            decimal balanceAfter = decimal.Round(state.BalanceUsd + amountUsd, 2, MidpointRounding.AwayFromZero);
+
+            using IDbConnection connection = await _connectionFactory
+                .CreateOpenConnectionAsync(cancellationToken)
+                .ConfigureAwait(false);
+
+            using IDbTransaction transaction = connection.BeginTransaction(IsolationLevel.Serializable);
+
+            const string update = """
+                                  UPDATE dbo.LlmTenantWalletState
+                                  SET BalanceUsd = @BalanceAfterUsd
+                                  WHERE TenantId = @TenantId
+                                    AND RowVersion = @ExpectedRowVersion;
+                                  """;
+
+            int rows = await connection.ExecuteAsync(
+                new CommandDefinition(
+                    update,
+                    new
+                    {
+                        TenantId = tenantId,
+                        BalanceAfterUsd = balanceAfter,
+                        ExpectedRowVersion = rowVersion,
+                    },
+                    transaction: transaction,
+                    cancellationToken: cancellationToken)).ConfigureAwait(false);
+
+            if (rows == 0)
+            {
+                transaction.Rollback();
+                await Task.Delay(5 * (attempt + 1), cancellationToken).ConfigureAwait(false);
+
+                continue;
+            }
+
+            const string ledger = """
+                                  INSERT INTO dbo.LlmTenantWalletLedger
+                                      (TenantId, EntryType, AmountUsd, BalanceAfterUsd, StripePaymentIntentId, CorrelationId)
+                                  VALUES
+                                      (@TenantId, @EntryType, @AmountUsd, @BalanceAfterUsd, NULL, @CorrelationId);
+                                  """;
+
+            await connection.ExecuteAsync(
+                new CommandDefinition(
+                    ledger,
+                    new
+                    {
+                        TenantId = tenantId,
+                        EntryType = LlmTenantWalletLedgerEntryTypes.OperatorAdjustment,
+                        AmountUsd = amountUsd,
+                        BalanceAfterUsd = balanceAfter,
+                        CorrelationId = correlationId,
+                    },
+                    transaction: transaction,
+                    cancellationToken: cancellationToken)).ConfigureAwait(false);
+
+            transaction.Commit();
+
+            return LlmTenantWalletCreditResult.Ok(balanceAfter);
+        }
+
+        return LlmTenantWalletCreditResult.Conflict();
+    }
+
     public async Task<bool> TryInsertStripeWebhookIdempotencyAsync(
         string stripeEventId,
         string eventType,

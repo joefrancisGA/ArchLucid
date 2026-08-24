@@ -25,6 +25,13 @@ public interface ILlmTenantWalletRepository
         byte[] expectedRowVersion,
         CancellationToken cancellationToken = default);
 
+    Task<LlmTenantWalletCreditResult> TryCreditAdjustmentAsync(
+        Guid tenantId,
+        decimal amountUsd,
+        Guid correlationId,
+        byte[] expectedRowVersion,
+        CancellationToken cancellationToken = default);
+
     Task<bool> TryInsertStripeWebhookIdempotencyAsync(
         string stripeEventId,
         string eventType,

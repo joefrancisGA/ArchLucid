@@ -94,18 +94,40 @@ public sealed class LlmTenantWalletService(
         if (tenantId == Guid.Empty || estimatedUsd <= 0m)
             return false;
 
-        LlmTenantWalletStateReadModel state = await _repository.GetOrCreateAsync(tenantId, cancellationToken).ConfigureAwait(false);
+        for (int attempt = 0; attempt < MaxOptimisticRetries; attempt++)
+        {
+            LlmTenantWalletStateReadModel state = await _repository.GetOrCreateAsync(tenantId, cancellationToken).ConfigureAwait(false);
 
-        if (state.BalanceUsd + 0.0001m < estimatedUsd)
-            return false;
+            LlmTenantWalletConsumeResult result = await _repository
+                .TryConsumeAsync(tenantId, estimatedUsd, Guid.NewGuid(), state.RowVersion, cancellationToken)
+                .ConfigureAwait(false);
 
-        return true;
+            if (result.InsufficientFunds)
+                return false;
+
+            if (result.ConcurrencyConflict)
+            {
+                await Task.Delay(5 * (attempt + 1), cancellationToken).ConfigureAwait(false);
+
+                continue;
+            }
+
+            if (result.Succeeded)
+            {
+                RecordBalanceGauge(tenantId, result.BalanceAfterUsd);
+
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public Task QueueOverageSettlementAsync(
         Guid tenantId,
         decimal actualUsd,
         Guid correlationId,
+        decimal authorizedUsd = 0m,
         CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
@@ -113,7 +135,7 @@ public sealed class LlmTenantWalletService(
         if (tenantId == Guid.Empty || actualUsd <= 0m)
             return Task.CompletedTask;
 
-        _settlementQueue.EnqueueConsume(tenantId, actualUsd, correlationId);
+        _settlementQueue.EnqueueConsume(tenantId, actualUsd, correlationId, authorizedUsd);
 
         return Task.CompletedTask;
     }
@@ -225,6 +247,70 @@ public sealed class LlmTenantWalletService(
 
             return;
         }
+
+        _logger.LogWarning(
+            "LLM wallet consume exhausted optimistic retries for tenant {TenantId}; re-queuing settlement for {AmountUsd} USD.",
+            tenantId,
+            amountUsd);
+
+        _settlementQueue.EnqueueConsume(tenantId, amountUsd, correlationId);
+    }
+
+    internal async Task ReconcileOverageInternalAsync(
+        Guid tenantId,
+        decimal actualUsd,
+        decimal authorizedUsd,
+        Guid correlationId,
+        CancellationToken cancellationToken)
+    {
+        decimal delta = decimal.Round(actualUsd - authorizedUsd, 2, MidpointRounding.AwayFromZero);
+
+        if (delta > 0m)
+        {
+            await ConsumeInternalAsync(tenantId, delta, correlationId, cancellationToken).ConfigureAwait(false);
+
+            return;
+        }
+
+        if (delta < 0m)
+            await CreditAdjustmentInternalAsync(tenantId, -delta, correlationId, cancellationToken).ConfigureAwait(false);
+    }
+
+    internal async Task CreditAdjustmentInternalAsync(
+        Guid tenantId,
+        decimal amountUsd,
+        Guid correlationId,
+        CancellationToken cancellationToken)
+    {
+        for (int attempt = 0; attempt < MaxOptimisticRetries; attempt++)
+        {
+            LlmTenantWalletStateReadModel state = await _repository.GetOrCreateAsync(tenantId, cancellationToken).ConfigureAwait(false);
+
+            LlmTenantWalletCreditResult credit = await _repository
+                .TryCreditAdjustmentAsync(tenantId, amountUsd, correlationId, state.RowVersion, cancellationToken)
+                .ConfigureAwait(false);
+
+            if (credit.ConcurrencyConflict)
+            {
+                await Task.Delay(5 * (attempt + 1), cancellationToken).ConfigureAwait(false);
+
+                continue;
+            }
+
+            if (credit.Succeeded)
+            {
+                RecordBalanceGauge(tenantId, credit.BalanceAfterUsd);
+
+                return;
+            }
+
+            return;
+        }
+
+        _logger.LogWarning(
+            "LLM wallet settlement credit exhausted optimistic retries for tenant {TenantId}; amount {AmountUsd} USD was not credited.",
+            tenantId,
+            amountUsd);
     }
 
     private async Task<LlmTenantWalletCreditResult> CreditRefillWithRetryAsync(
@@ -264,7 +350,7 @@ public sealed class LlmTenantWalletService(
         return LlmTenantWalletCreditResult.Conflict();
     }
 
-    private static bool CanAutoRefill(LlmTenantWalletStateReadModel state)
+    private bool CanAutoRefill(LlmTenantWalletStateReadModel state)
     {
         if (!state.AutoReplenishEnabled)
             return false;
@@ -275,7 +361,12 @@ public sealed class LlmTenantWalletService(
         if (state.BalanceUsd >= state.RefillTriggerThresholdUsd)
             return false;
 
-        decimal spentThisMonth = state.AutoRefillsThisUtcMonthCount * state.RefillIncrementUsd;
+        int utcYearMonth = GetUtcYearMonth();
+        int monthRefillCount = state.AutoRefillsThisUtcMonthYearMonth == utcYearMonth
+            ? state.AutoRefillsThisUtcMonthCount
+            : 0;
+
+        decimal spentThisMonth = monthRefillCount * state.RefillIncrementUsd;
 
         return spentThisMonth + state.RefillIncrementUsd <= state.MonthlyCapUsd + 0.0001m;
     }
@@ -381,9 +472,10 @@ public sealed class LlmWalletSettlementQueue : ILlmWalletSettlementQueue
 
     internal ChannelReader<LlmWalletSettlementWorkItem> Reader => _channel.Reader;
 
-    public void EnqueueConsume(Guid tenantId, decimal amountUsd, Guid correlationId)
+    public void EnqueueConsume(Guid tenantId, decimal amountUsd, Guid correlationId, decimal authorizedUsd = 0m)
     {
-        _channel.Writer.TryWrite(new LlmWalletSettlementWorkItem(LlmWalletSettlementKind.Consume, tenantId, amountUsd, correlationId));
+        _channel.Writer.TryWrite(
+            new LlmWalletSettlementWorkItem(LlmWalletSettlementKind.Consume, tenantId, amountUsd, correlationId, authorizedUsd));
     }
 
     public void EnqueueAutoRefill(Guid tenantId, Guid correlationId)
@@ -402,7 +494,8 @@ internal readonly record struct LlmWalletSettlementWorkItem(
     LlmWalletSettlementKind Kind,
     Guid TenantId,
     decimal AmountUsd,
-    Guid CorrelationId);
+    Guid CorrelationId,
+    decimal AuthorizedUsd = 0m);
 
 public sealed class LlmWalletSettlementHostedService(
     LlmWalletSettlementQueue queue,
@@ -420,9 +513,23 @@ public sealed class LlmWalletSettlementHostedService(
 
                 if (item.Kind == LlmWalletSettlementKind.Consume)
                 {
-                    await walletService
-                        .ConsumeInternalAsync(item.TenantId, item.AmountUsd, item.CorrelationId, stoppingToken)
-                        .ConfigureAwait(false);
+                    if (item.AuthorizedUsd > 0m)
+                    {
+                        await walletService
+                            .ReconcileOverageInternalAsync(
+                                item.TenantId,
+                                item.AmountUsd,
+                                item.AuthorizedUsd,
+                                item.CorrelationId,
+                                stoppingToken)
+                            .ConfigureAwait(false);
+                    }
+                    else
+                    {
+                        await walletService
+                            .ConsumeInternalAsync(item.TenantId, item.AmountUsd, item.CorrelationId, stoppingToken)
+                            .ConfigureAwait(false);
+                    }
                 }
                 else
                 {

@@ -187,6 +187,42 @@ public sealed class InMemoryLlmTenantWalletRepository : ILlmTenantWalletReposito
         }
     }
 
+    public Task<LlmTenantWalletCreditResult> TryCreditAdjustmentAsync(
+        Guid tenantId,
+        decimal amountUsd,
+        Guid correlationId,
+        byte[] expectedRowVersion,
+        CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        if (amountUsd <= 0m)
+            return Task.FromResult(LlmTenantWalletCreditResult.Ok(0m));
+
+        object gate = _locks.GetOrAdd(tenantId, _ => new object());
+
+        lock (gate)
+        {
+            Row row = _rows.GetOrAdd(tenantId, _ => new Row());
+
+            if (!RowVersionMatches(row, expectedRowVersion))
+                return Task.FromResult(LlmTenantWalletCreditResult.Conflict());
+
+            row.BalanceUsd = decimal.Round(row.BalanceUsd + amountUsd, 2, MidpointRounding.AwayFromZero);
+            row.Version++;
+
+            AppendLedger(
+                tenantId,
+                LlmTenantWalletLedgerEntryTypes.OperatorAdjustment,
+                amountUsd,
+                row.BalanceUsd,
+                null,
+                correlationId);
+
+            return Task.FromResult(LlmTenantWalletCreditResult.Ok(row.BalanceUsd));
+        }
+    }
+
     public Task<bool> TryInsertStripeWebhookIdempotencyAsync(
         string stripeEventId,
         string eventType,

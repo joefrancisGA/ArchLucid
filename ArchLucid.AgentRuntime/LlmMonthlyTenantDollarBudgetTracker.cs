@@ -119,7 +119,7 @@ public sealed class LlmMonthlyTenantDollarBudgetTracker(
                     ReleaseInFlightReservationSlot(tenantId);
                     inFlightHeld = false;
 
-                    return (null, true);
+                    return (assumed, true);
                 }
 
                 throw CreateHardCapExceededException(effectiveMax, state.TotalUsdPressure, periodKey);
@@ -176,7 +176,7 @@ public sealed class LlmMonthlyTenantDollarBudgetTracker(
                         ReleaseInFlightReservationSlot(tenantId);
                         inFlightHeld = false;
 
-                        return (null, true);
+                        return (assumed, true);
                     }
 
                     LlmTenantBudgetStateReadModel blocked = reserved.NewState ?? state;
@@ -228,7 +228,12 @@ public sealed class LlmMonthlyTenantDollarBudgetTracker(
             if (walletUsd is > 0m)
             {
                 await _walletService
-                    .QueueOverageSettlementAsync(tenantId, walletUsd.Value, Guid.NewGuid(), cancellationToken)
+                    .QueueOverageSettlementAsync(
+                        tenantId,
+                        walletUsd.Value,
+                        Guid.NewGuid(),
+                        pendingReservedUsd ?? 0m,
+                        cancellationToken)
                     .ConfigureAwait(false);
             }
 
