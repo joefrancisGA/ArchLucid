@@ -35,7 +35,6 @@ export const TIMESTAMP_TIMEZONE_BASELINE: readonly string[] = [
   "components/alerts/AlertRoutingDestinationList.tsx",
   "components/architecture/ArchitectureCreationLocalDraftsPanel.tsx",
   "components/architecture/ArchitectureDiagramEditor.tsx",
-  "components/architecture/ArchitectureDraftSaveStatus.tsx",
   "components/digests/DigestsPageHeader.tsx",
   "components/evolution/SimulationRunDiffCard.tsx",
   "components/operator-home/BuyerCtoDemoReadinessPanel.tsx",

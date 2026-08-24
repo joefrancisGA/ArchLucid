@@ -17,7 +17,6 @@ import { ArchitectureDraftHandoffBanner } from "@/components/architecture/Archit
 import { ArchitectureDraftIntakeModeBanner } from "@/components/architecture/ArchitectureDraftIntakeModeBanner";
 import { ArchitectureScopeUnderstandingCheckPanel } from "@/components/architecture/ArchitectureScopeUnderstandingCheckPanel";
 import { ArchitectureDraftWorkspaceLoadingSkeleton } from "@/components/architecture/ArchitectureDraftWorkspaceLoadingSkeleton";
-import { ArchitectureDraftSaveStatus } from "@/components/architecture/ArchitectureDraftSaveStatus";
 import { AiBudgetSpendNotice } from "@/components/ai-budget/AiBudgetSpendNotice";
 import { DraftIntakeAdvancedSection } from "@/components/draft-intake/DraftIntakeAdvancedSection";
 import { DraftIntakeReasoningPanel } from "@/components/draft-intake/DraftIntakeReasoningPanel";
@@ -38,7 +37,7 @@ import {
   applyArchitectureCreationDraftToFormState,
   architectureCreationDefaultActorSet,
 } from "@/lib/architecture/architecture-creation-init";
-import { writeArchitectureCreationDraftId } from "@/lib/architecture/architecture-creation-session";
+import { writeArchitectureCreationDraftId, replaceArchitectureCreationUrlWithoutNavigation } from "@/lib/architecture/architecture-creation-session";
 import {
   acknowledgeArchitectureDraftHandoff,
   architectureDraftSpawnedRunId,
@@ -60,7 +59,6 @@ import { emptyArchitectureDraftStructuredBrief } from "@/lib/architecture/archit
 import { architectureDraftDetailPageSubtitle } from "@/lib/architecture/architecture-draft-detail-page-copy";
 import {
   ARCHITECTURES_LIST_PATH,
-  architectureDraftPath,
   isArchitectureNewDraftSegment,
   reviewDetailPath,
   startReviewFromArchitectureHref,
@@ -121,6 +119,7 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
   const [handoffAcknowledged, setHandoffAcknowledged] = useState(false);
   const [linkedReviewTitle, setLinkedReviewTitle] = useState("Untitled review");
   const [unlockBusy, setUnlockBusy] = useState(false);
+  const [resolvedDraftId, setResolvedDraftId] = useState<string | null>(null);
   const previousSaveStateRef = useRef<ArchitectureDraftSaveState>("saved");
   const exitTimeoutIdRef = useRef<number | null>(null);
   const loadDraftInFlightRef = useRef<Promise<void> | null>(null);
@@ -141,16 +140,19 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
   const briefFrozen = isArchitectureDraftBriefFrozen(draft?.status);
   const canUnlockBrief = architectureDraftAllowsBriefUnlock(draft?.status);
   const editorLocked = handoffEditorLocked || briefFrozen || exitPending;
+  const effectiveArchitectureId = resolvedDraftId ?? props.architectureId;
 
   // Reasoning needs a real draft id — unavailable on /new until the first deferred create succeeds.
-  const refinementDraftId = draft?.draftId?.trim() || (isNewDraft ? null : props.architectureId.trim() || null);
+  const refinementDraftId =
+    draft?.draftId?.trim() || resolvedDraftId || (isNewDraft ? null : props.architectureId.trim() || null);
 
   const handleDraftCreated = useCallback(
     (draftId: string) => {
       writeArchitectureCreationDraftId(draftId);
-      router.replace(architectureDraftPath(draftId));
+      setResolvedDraftId(draftId);
+      replaceArchitectureCreationUrlWithoutNavigation(draftId);
     },
-    [router],
+    [],
   );
 
   const applyLoadedDraftToForm = useCallback((loaded: DraftRequestResponse) => {
@@ -182,7 +184,7 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
     setDraft(loaded);
   }, []);
 
-  const { saveState, lastSavedUtc, conflictMessage, saveDraft, reloadDraft, acceptServerBaseline, hasPersistedDraft } =
+  const { saveState, conflictMessage, saveDraft, reloadDraft, acceptServerBaseline, hasPersistedDraft } =
     useArchitectureDraftAutosave({
       architectureId: props.architectureId,
       fields,
@@ -422,11 +424,11 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
       previousSaveStateRef.current === "saving" &&
       saveState === "saved"
     ) {
-      trackArchitectureDraftPostSpawnEdit(props.architectureId, linkedReviewId);
+      trackArchitectureDraftPostSpawnEdit(effectiveArchitectureId, linkedReviewId);
     }
 
     previousSaveStateRef.current = saveState;
-  }, [handoffAcknowledged, linkedReviewId, props.architectureId, saveState]);
+  }, [effectiveArchitectureId, handoffAcknowledged, linkedReviewId, saveState]);
 
   const handleSaveDraft = useCallback(async () => {
     setSaveActionError(null);
@@ -522,7 +524,7 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
         const mergedIntent = mergeScopeBulletsIntoBrief(scopeBullets, fields.freeTextIntent).trim();
 
         if (mergedIntent.length >= GUIDED_INTAKE_ARCHITECTURE_INTENT_MIN_CHARS) {
-          await patchDraftRequest(props.architectureId, {
+          await patchDraftRequest(effectiveArchitectureId, {
             freeTextIntent: mergedIntent,
           });
         }
@@ -535,7 +537,7 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
         }),
       );
 
-      reviewStartProgress.openReview(startReviewFromArchitectureHref(props.architectureId));
+      reviewStartProgress.openReview(startReviewFromArchitectureHref(effectiveArchitectureId));
     } catch {
       reviewStartProgress.reset();
       setStartReviewError("Could not start the architecture review. Try again.");
@@ -543,10 +545,10 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
   }, [
     canStartReview,
     draft,
+    effectiveArchitectureId,
     fields.freeTextIntent,
     isNewDraft,
     linkedReviewId,
-    props.architectureId,
     reviewStartProgress,
     saveDraft,
     scopeBullets,
@@ -557,9 +559,9 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
       return;
     }
 
-    acknowledgeArchitectureDraftHandoff(props.architectureId, linkedReviewId);
+    acknowledgeArchitectureDraftHandoff(effectiveArchitectureId, linkedReviewId);
     setHandoffAcknowledged(true);
-  }, [linkedReviewId, props.architectureId]);
+  }, [effectiveArchitectureId, linkedReviewId]);
 
   const handleUnlockBrief = useCallback(async () => {
     if (!canUnlockBrief || draft === null) {
@@ -620,13 +622,8 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
         <ArchitectureDraftDetailBreadcrumb draftLabel={workspaceHeading} />
       ) : null}
 
-      <div
-        className={cn(
-          "flex flex-col gap-3 sm:flex-row sm:items-start",
-          isNewDraft ? "sm:justify-end" : "sm:justify-between",
-        )}
-      >
-        {isNewDraft ? null : (
+      {!isNewDraft ? (
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div className="min-w-0 space-y-1">
             <h1
               className={cn("m-0", OPERATOR_TYPOGRAPHY.pageTitle)}
@@ -649,10 +646,8 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
               </Link>
             ) : null}
           </div>
-        )}
-        <div className="flex shrink-0 flex-col items-start gap-2 sm:items-end">
-          {isNewDraft ? null : <PageContextualHelpButton />}
-          {!isNewDraft ? (
+          <div className="flex shrink-0 flex-col items-start gap-2 sm:items-end">
+            <PageContextualHelpButton />
             <ArchitectureDraftDeleteControl
               architectureId={props.architectureId}
               displayName={workspaceHeading}
@@ -660,15 +655,9 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
               serverStatus={draft?.status ?? null}
               testId="architecture-draft-delete-workspace"
             />
-          ) : null}
-          <ArchitectureDraftSaveStatus
-            saveState={saveState}
-            lastSavedUtc={lastSavedUtc}
-            autosaveActive={!handoffEditorLocked && !briefFrozen}
-            hasPersistedDraft={hasPersistedDraft}
-          />
+          </div>
         </div>
-      </div>
+      ) : null}
 
       {buyerPolishedShell ? null : <ArchitectureDraftGuidanceDisclosure />}
 
@@ -688,7 +677,7 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
       {intakeModeActive && linkedReviewId === null ? (
         <ArchitectureDraftIntakeModeBanner
           status={draft?.status}
-          continueHref={startReviewFromArchitectureHref(props.architectureId)}
+          continueHref={startReviewFromArchitectureHref(effectiveArchitectureId)}
           canUnlock={canUnlockBrief}
           unlockBusy={unlockBusy}
           onUnlock={() => {
@@ -786,15 +775,6 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
             {formatArchitectureReviewReadinessMessage(reviewReadiness.blockers)}
           </p>
         ) : null}
-        {linkedReviewId === null && !briefFrozen && reviewReadiness.isValid && needsPersistedDraftBeforeStart ? (
-          <p
-            className={cn("m-0", OPERATOR_TYPOGRAPHY.helper, "text-al-text-secondary")}
-            role="status"
-            data-testid="architecture-draft-persist-readiness"
-          >
-            Save the architecture draft before starting a review.
-          </p>
-        ) : null}
         {linkedReviewId === null && !briefFrozen && reviewReadiness.isValid && !needsPersistedDraftBeforeStart && !scopeGateOpen ? (
           <p
             className={cn("m-0", OPERATOR_TYPOGRAPHY.helper, "text-al-text-secondary")}
@@ -815,7 +795,7 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
         ) : null}
         {reviewStartProgress.stalled ? (
           <ReviewStartNavigationStallNotice
-            href={startReviewFromArchitectureHref(props.architectureId)}
+            href={startReviewFromArchitectureHref(effectiveArchitectureId)}
             testId="architecture-start-review-stall"
           />
         ) : null}
@@ -836,7 +816,7 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
         <div className="flex flex-wrap gap-2">
           {intakeModeActive && linkedReviewId === null ? (
             <Button type="button" variant="primary" size="sm" asChild>
-              <Link href={startReviewFromArchitectureHref(props.architectureId)}>
+              <Link href={startReviewFromArchitectureHref(effectiveArchitectureId)}>
                 {ARCHITECTURE_DRAFT_INTAKE_MODE_CONTINUE_LABEL}
               </Link>
             </Button>

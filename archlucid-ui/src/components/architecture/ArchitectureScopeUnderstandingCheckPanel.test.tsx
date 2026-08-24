@@ -242,7 +242,7 @@ describe("ArchitectureScopeUnderstandingCheckPanel", () => {
     expect(onGateChange).toHaveBeenCalledWith(true);
   });
 
-  it("shows a Saving chip instead of the ready line while draft persistence is in flight", () => {
+  it("keeps the ready line visible while draft persistence is in flight", () => {
     render(
       <ArchitectureScopeUnderstandingCheckPanel
         input={{ architectureName: "Vertex" }}
@@ -252,8 +252,8 @@ describe("ArchitectureScopeUnderstandingCheckPanel", () => {
 
     fireEvent.click(screen.getByRole("button", { name: SCOPE_UNDERSTANDING_CONFIRM_LABEL }));
 
-    expect(screen.getByTestId("architecture-scope-understanding-saving")).toHaveTextContent("Saving…");
-    expect(screen.queryByTestId("architecture-scope-understanding-ready")).not.toBeInTheDocument();
+    expect(screen.getByTestId("architecture-scope-understanding-ready")).toBeInTheDocument();
+    expect(screen.queryByTestId("architecture-scope-understanding-saving")).not.toBeInTheDocument();
   });
 
   it("shows a save error after scope is confirmed when draft persistence failed", () => {
