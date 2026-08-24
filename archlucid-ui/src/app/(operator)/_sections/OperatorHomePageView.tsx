@@ -25,6 +25,7 @@ import {
 } from "@/lib/compose-operator-home-sections";
 import {
   BuyerPolishedHomeHeroSectionDeferred,
+  DevTestingQuickSwitchPanelDeferred,
   OperatorHomeBelowFoldPanelsDeferred,
   OperatorHomeSponsorRoiStripDeferred,
   OperatorHomeGateDeferred,
@@ -185,6 +186,7 @@ function OperatorHomePageBody(props: {
           workspaceMetrics,
         }),
       )}
+      <DevTestingQuickSwitchPanelDeferred />
     </OperatorHomeWorkspaceActivityProvider>
   );
 }
