@@ -127,11 +127,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** ARM resource ids; terraform source id; endpoint index
 - **paths:** ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs
 - **test-filter:** FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests
-- **hunts:** 7
-- **bugs-found:** 7
+- **hunts:** 8
+- **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24 — `site_recovery` and `data_collection_endpoint` Terraform ids omitted from LooksLike lists
+- **last-bug:** 2026-08-24 — `kubernetes_configuration` and `storage_data_lake` / `data_lake_gen2` Terraform ids omitted from LooksLike lists
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
