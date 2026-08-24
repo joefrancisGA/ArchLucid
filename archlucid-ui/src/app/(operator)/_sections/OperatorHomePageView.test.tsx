@@ -33,6 +33,7 @@ vi.mock("./operator-home-page-view-deferred-chunks", () => ({
   ),
   OperatorHomeGateDeferred: ({ children }: { children: React.ReactNode }) => <>{children}</>,
   OperatorHomeStickinessCockpitDeferred: () => <div data-testid="operator-home-stickiness-cockpit" />,
+  DevTestingQuickSwitchPanelDeferred: () => <div data-testid="dev-testing-quick-switch" />,
   CtoDemoSponsorLandingRedirectDeferred: () => null,
 }));
 
@@ -184,6 +185,20 @@ describe("OperatorHomePageView", () => {
       const runsDashboard = screen.getByTestId("home-block-runs-dashboard");
 
       expect(runsDashboard.compareDocumentPosition(cockpit) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    },
+  );
+
+  it.each([false, true])(
+    "mounts the dev testing quick switch after stickiness and sponsor ROI (buyerPolishedShell=%s)",
+    (buyerPolishedShell) => {
+      render(<OperatorHomePageView model={mockHomeModel(buyerPolishedShell)} />);
+
+      const quickSwitch = screen.getByTestId("dev-testing-quick-switch");
+      const stickiness = screen.getByTestId("operator-home-stickiness-cockpit");
+      const sponsorRoi = screen.getByTestId("home-block-sponsor-roi");
+
+      expect(stickiness.compareDocumentPosition(quickSwitch) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+      expect(sponsorRoi.compareDocumentPosition(quickSwitch) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     },
   );
 

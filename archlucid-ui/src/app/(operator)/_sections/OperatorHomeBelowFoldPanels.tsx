@@ -1,6 +1,5 @@
 "use client";
 
-import { DevTestingQuickSwitchPanel } from "@/components/dev-testing/DevTestingQuickSwitchPanel";
 import { OperatorHomeAdvancedGuidancePanel } from "@/components/operator-home/OperatorHomeAdvancedGuidancePanel";
 import { OperatorHomeExamplesPlacement } from "@/components/operator-home/OperatorHomeExamplesPlacement";
 import { OperatorHomeWorkspaceContextDisclosure } from "@/components/operator-home/OperatorHomeWorkspaceContextDisclosure";
@@ -41,8 +40,6 @@ export function OperatorHomeBelowFoldPanels(props: OperatorHomeBelowFoldPanelsPr
           </>
         }
       />
-
-      <DevTestingQuickSwitchPanel />
     </>
   );
 }

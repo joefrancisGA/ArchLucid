@@ -100,4 +100,11 @@ export const OPERATOR_HOME_CHUNK_MANIFEST: readonly DeferredChunkManifestEntry[]
     modulePath: "@/components/operator-home/OperatorHomeAdvancedGuidanceSection",
     exportName: "OperatorHomeAdvancedGuidanceSection",
   },
+  {
+    id: "operator-home-dev-testing-quick-switch",
+    label: "Loading dev testing quick switch",
+    variant: "compact",
+    modulePath: "@/components/dev-testing/DevTestingQuickSwitchPanel",
+    exportName: "DevTestingQuickSwitchPanel",
+  },
 ] as const;

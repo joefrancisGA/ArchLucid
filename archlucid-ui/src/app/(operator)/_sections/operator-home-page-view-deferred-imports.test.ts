@@ -45,6 +45,7 @@ describe("operator home deferred imports (TB-2145)", () => {
     expect(homePageViewSource).toContain("OperatorHomeSponsorRoiStripDeferred");
     expect(homePageViewSource).toContain("OperatorHomeBelowFoldPanelsDeferred");
     expect(homePageViewSource).toContain("BuyerPolishedHomeHeroSectionDeferred");
+    expect(homePageViewSource).toContain("DevTestingQuickSwitchPanelDeferred");
     expect(homePageViewSource).toContain("OperatorHomeGateDeferred");
   });
 
@@ -67,6 +68,7 @@ describe("operator home deferred imports (TB-2145)", () => {
     expect(manifestLoaderSource).toContain('import("@/components/operator-home/OperatorHomeSponsorRoiStrip")');
     expect(manifestLoaderSource).toContain('import("@/app/(operator)/_sections/OperatorHomeBelowFoldPanels")');
     expect(manifestLoaderSource).toContain('import("@/components/operator-home/BuyerPolishedHomeHeroSection")');
+    expect(manifestLoaderSource).toContain('import("@/components/dev-testing/DevTestingQuickSwitchPanel")');
     expect(manifestLoaderSource).toContain('import("@/components/operator-home/OperatorHomeGate")');
     expect(manifestLoaderSource).toContain('import("@/components/cto-demo/CtoDemoSponsorLandingRedirect")');
     expect(deferredSource).toContain("operator-home-cto-demo-sponsor-landing");
@@ -79,6 +81,7 @@ describe("operator home deferred imports (TB-2145)", () => {
 
   it("defers advanced guidance off below-fold static import graph (TB-2371)", () => {
     expect(belowFoldSource).not.toContain('@/components/operator-home/OperatorHomeAdvancedGuidanceSection"');
+    expect(belowFoldSource).not.toContain('@/components/dev-testing/DevTestingQuickSwitchPanel"');
     expect(belowFoldSource).toContain("OperatorHomeAdvancedGuidancePanel");
     expect(advancedGuidancePanelSource).toContain("createDeferredComponentFromManifest");
     expect(advancedGuidancePanelSource).toContain("operator-home-advanced-guidance");

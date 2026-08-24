@@ -95,6 +95,12 @@ export function resolveDeferredChunkImportLoader(
           (module) => module.OperatorHomeAdvancedGuidanceSection,
         ),
       ) as () => Promise<ComponentType<Record<string, unknown>>>;
+    case "operator-home-dev-testing-quick-switch":
+      return deferredChunkLoader(() =>
+        import("@/components/dev-testing/DevTestingQuickSwitchPanel").then(
+          (module) => module.DevTestingQuickSwitchPanel,
+        ),
+      ) as () => Promise<ComponentType<Record<string, unknown>>>;
     case "reviews-hub-inventory":
       return deferredChunkLoader(() =>
         import("@/app/(operator)/architecture/reviews/_sections/ReviewsHubReviewInventory").then(
