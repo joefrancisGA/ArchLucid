@@ -184,6 +184,7 @@ describe("PilotCommandCenterCard", () => {
     }
 
     expect(screen.getByTestId("operator-home-dual-path-cards")).toBeInTheDocument();
+    expect(screen.queryByTestId("first-pilot-operate-unlock-vocabulary")).toBeNull();
     expect(screen.getByTestId("operator-home-create-architecture-cta")).toHaveTextContent(
       CREATE_ARCHITECTURE_LABEL,
     );

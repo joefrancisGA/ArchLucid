@@ -13,6 +13,7 @@ import { renderWithOperatorQuery } from "@/testing/render-with-operator-query";
 
 const OVERVIEW_BANNED_PATTERNS = [
   /\blane\b/i,
+  /operate unlock/i,
   /operating path/i,
   /full operating path/i,
   /fast path/i,
@@ -153,6 +154,7 @@ vi.mock("@/app/(operator)/_sections/operator-home-page-view-deferred-chunks", as
     OperatorHomeSponsorRoiStripDeferred: OperatorHomeSponsorRoiStrip,
     OperatorHomeStickinessCockpitDeferred: OperatorHomeStickinessCockpit,
     CtoDemoSponsorLandingRedirectDeferred: () => null,
+    DevTestingQuickSwitchPanelDeferred: () => null,
   };
 });
 
