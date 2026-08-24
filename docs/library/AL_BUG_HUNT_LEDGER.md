@@ -470,13 +470,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** run repository; sql run scope
 - **paths:** ArchLucid.Persistence/Repositories/SqlRunRepository.cs
 - **test-filter:** FullyQualifiedName~SqlRunRepositoryScopeIsolationSqlIntegrationTests|FullyQualifiedName~RunRepositoryWorkspaceSystemNameSqlTests
-- **hunts:** 2
-- **bugs-found:** 1
+- **hunts:** 3
+- **bugs-found:** 2
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-23
-- **last-bug:** 2026-08-23 — hunt #38: workspace system-name collision SQL must trim ProjectId
+- **last-hunt:** 2026-08-24
+- **last-bug:** 2026-08-24 — graph-at-or-before and committed-run lookups compared raw `ProjectId` while collision guard trims and ignores case
 - **related-pd-tb:** none
-- **code-changed-since:** 0
+- **code-changed-since:** yes
 
 2026-08-16 dry hunt: listed hypotheses do not hold on `SqlRunRepository`. `SelectByScopedId` and `Update` already require `TenantId` + `WorkspaceId` + `ScopeProjectId`; `GetById_wrong_scope_returns_null_when_run_saved_under_other_tenant` covers cross-tenant get. List shapes use `RunListWarningFlagSql.ScopeWhereTail` with `r.TenantId = @TenantId` always; `WorkspaceId` is a non-nullable `Guid` (empty workspace is not a security boundary). Cross-tenant update matches 0 rows and throws. Admin/archive paths are `[TenantScopeExempt]` by catalog routing, not Layer D bleed.
 
@@ -487,6 +487,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) Update succeeds against a run id from another tenant in the same database — scoped `WHERE` matches 0 rows
 - [x] (valid-no-repro) Workspace system-name collision returns true for another tenant's active run — InMemory cross-tenant guard test
 - [x] (proven) `ExistsActiveRunWithSystemNameInWorkspace` compares `UPPER(ProjectId)` without trimming so padded slugs bypass the workspace collision guard — **hit 2026-08-23 hunt #38:** `LTRIM(RTRIM(ProjectId))` before `UPPER`
+- [x] (proven) `GetLatestWithGraphAtOrBefore` / `GetLatestCommittedRunIdByManifestCreatedUtc` / `GetPriorCommittedRunIdBeforeCurrent` compare raw `ProjectId` while collision guard trims and ignores case — **hit 2026-08-24:** padded or differently-cased stored slugs missed committed/graph lookups (advisory eligibility, temporal graph); SQL uses `UPPER(LTRIM(RTRIM(ProjectId)))`; InMemory uses trim + ordinal-ignore-case; regressions in `RunRepositoryWorkspaceSystemNameSqlTests` / `InMemoryRunRepositoryGetLatestWithGraphAtOrBeforeTests`
 
 ---
 

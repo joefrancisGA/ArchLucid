@@ -168,4 +168,4 @@
 {"at":"2026-08-24T14:00:00.000000Z","zoneId":"email-otp-auth","outcome":"hit"}
 {"at":"2026-08-24T14:15:00.000000Z","zoneId":"arm-terraform-source-ids","outcome":"hit"}
 {"at":"2026-08-24T14:30:00.000000Z","zoneId":"tenant-settings-sql","outcome":"hit"}
-{"at":"2026-08-24T14:45:00.000000Z","zoneId":"alert-simulation","outcome":"hit"}
+{"at":"2026-08-24T15:00:00.000000Z","zoneId":"sql-run-repository","outcome":"hit"}
