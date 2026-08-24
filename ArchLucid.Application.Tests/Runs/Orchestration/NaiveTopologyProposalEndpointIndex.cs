@@ -644,7 +644,9 @@ public static class NaiveTopologyProposalEndpointIndex
             || normalized.Contains("storage_mover", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("storage_share", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("storage_queue", StringComparison.OrdinalIgnoreCase)
-            || normalized.Contains("storage_table", StringComparison.OrdinalIgnoreCase);
+            || normalized.Contains("storage_table", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("storage_blob", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("storage_container", StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool LooksLikeTerraformServiceSourceId(string? sourceId)
