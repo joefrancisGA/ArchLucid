@@ -1005,24 +1005,27 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ## Zone: worker-host
 
 - **id:** worker-host
-- **status:** unseeded
+- **status:** open
 - **impact:** low
 - **aliases:** worker program; worker host startup
 - **paths:** ArchLucid.Worker/Program.cs
 - **test-filter:** FullyQualifiedName~WorkerHostStartupTests|FullyQualifiedName~WorkerCompositionTests
-- **hunts:** 0
-- **bugs-found:** 0
+- **hunts:** 1
+- **bugs-found:** 4
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **last-hunt:** 2026-08-24
+- **last-bug:** 2026-08-24 — unset Hosting:Role skipped worker production rules; DI validated after Build; DevelopmentCatalogReset broke InMemory worker startup
 - **related-pd-tb:** none
-- **code-changed-since:** unknown
+- **code-changed-since:** yes
 
 ### Hypotheses
 
-- [ ] (candidate) Worker host starts without a tenant-scope constraint on background jobs
-- [ ] (candidate) Composition registers a singleton that caches the first requestÎ“Ã‡Ã–s tenant
-- [ ] (candidate) Startup succeeds when a required hosted service failed to resolve
+- [x] (proven) Worker host starts without a tenant-scope constraint on background jobs — **valid-no-repro:** background loops push `AmbientScopeContext` per job; `HttpScopeContextProvider` is stateless (not a Program.cs gap)
+- [x] (invalid) Composition registers a singleton that caches the first request's tenant — `HttpScopeContextProvider` reads ambient/HTTP per call; no cached tenant state
+- [x] (proven) Startup succeeds when a required hosted service failed to resolve — **hit 2026-08-24:** `DevelopmentCatalogResetService` required `ISchemaBootstrapper` while InMemory worker dev hosts skipped SQL registration; stub `InMemoryDevelopmentCatalogResetService` for non-SQL storage
+- [x] (proven) Missing `Hosting:Role=Worker` let production validation use Combined — **hit 2026-08-24:** `ContainerJobsOffloadRules` skipped when role unset; `WorkerProcessHostingRoleConfiguration` defaults/rejects
+- [x] (proven) Invalid configuration built full DI before fail-fast — **hit 2026-08-24:** `ValidateOrThrow` runs before `Build()` in Worker `Program.cs`
+
 ---
 
 ## Zone: billing-webhooks
