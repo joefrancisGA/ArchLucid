@@ -22,6 +22,7 @@ internal sealed class TenantErasureQuarantineMiddleware(RequestDelegate next)
                path.StartsWithSegments("/swagger", StringComparison.OrdinalIgnoreCase) ||
                path.StartsWithSegments("/scalar", StringComparison.OrdinalIgnoreCase) ||
                path.StartsWithSegments("/v1/register", StringComparison.OrdinalIgnoreCase) ||
+               path.StartsWithSegments("/v1/tenant/erasure", StringComparison.OrdinalIgnoreCase) ||
                path.StartsWithSegments("/v1/admin", StringComparison.OrdinalIgnoreCase);
     }
 
