@@ -18,11 +18,13 @@ import { GovernanceJobRouterStrip } from "@/components/governance/GovernanceJobR
 import { GovernanceFindingsAssignedToMeBreadcrumb } from "@/components/governance/findings/GovernanceFindingsAssignedToMeBreadcrumb";
 import { GovernanceFindingsBuyerChrome } from "@/components/governance/findings/GovernanceFindingsBuyerChrome";
 import { GovernanceFindingsQueueBreadcrumb } from "@/components/governance/findings/GovernanceFindingsQueueBreadcrumb";
+import { PolicyPackAssignFromReviewStrip } from "@/components/governance/PolicyPackAssignFromReviewStrip";
 import { GovernanceFindingsRelatedQueuesDisclosure } from "@/components/governance/findings/GovernanceFindingsRelatedQueuesDisclosure";
 import { RiskExceptionsFindingsVocabularyRail } from "@/components/RiskExceptionsFindingsVocabularyRail";
 import { PageCapabilityBoundaryStrip } from "@/components/PageCapabilityBoundaryStrip";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { FindingsKeyboardTriageCoach } from "@/components/usability/FindingsKeyboardTriageCoach";
+import { FindingsTriageFirstFindingStrip } from "@/components/usability/FindingsTriageFirstFindingStrip";
 import { WorkspaceScopeEmptyTeaching } from "@/components/WorkspaceScopeEmptyTeaching";
 import { GovernanceFindingsFilterBar } from "@/components/governance/findings/GovernanceFindingsFilterBar";
 import { ArchitecturePosturePillarOverview } from "@/components/governance/posture/ArchitecturePosturePillarOverview";
@@ -105,6 +107,7 @@ import type { GovernanceFindingsQueueMode } from "@/lib/governance/governance-fi
 import { CanonicalObjectSecondaryViewStrip } from "@/components/usability/CanonicalObjectSecondaryViewStrip";
 import { SelfDescribingMetricCount } from "@/components/usability/SelfDescribingMetricCount";
 import { secondaryViewFromGovernanceQueueRow } from "@/lib/canonical-object-home-registry";
+import { governanceFindingInspectHref } from "@/components/governance/findings/governance-findings-navigation";
 import {
   patchGovernanceFindingsQueueFacets,
   readGovernanceFindingsQueueFacets,
@@ -282,6 +285,19 @@ export default function GovernanceFindingsQueueClient({
     : GOVERNANCE_FINDINGS_FILTER_NO_MATCH_COMPACT;
   const secondaryViewPresentation =
     displayedRows.length > 0 ? secondaryViewFromGovernanceQueueRow(displayedRows[0]) : null;
+  const firstFindingTriageTarget = useMemo(() => {
+    const row = displayedRows.find((candidate) => candidate.recordKind === "finding");
+
+    if (row === undefined) {
+      return null;
+    }
+
+    return {
+      findingId: row.findingId,
+      findingTitle: row.title,
+      href: governanceFindingInspectHref(row.runId, row.findingId),
+    };
+  }, [displayedRows]);
   const sponsorSynopsisPackageTitle =
     displayedRows.find((row) => row.recordKind === "finding")?.runLabel ??
     (scopedRunId !== null && scopedRunId.length > 0 ? scopedRunId : "this workspace");
@@ -589,6 +605,19 @@ export default function GovernanceFindingsQueueClient({
               counts={sponsorSynopsisCounts}
               sponsorHandoffHref={sponsorHandoffHref}
             />
+            {scopedRunId !== null && scopedRunId.length > 0 ? (
+              <PolicyPackAssignFromReviewStrip
+                reviewId={scopedRunId}
+                reviewTitle={scopedRunContextQuery.data?.displayTitle ?? null}
+              />
+            ) : null}
+            {firstFindingTriageTarget !== null ? (
+              <FindingsTriageFirstFindingStrip
+                findingId={firstFindingTriageTarget.findingId}
+                findingTitle={firstFindingTriageTarget.findingTitle}
+                href={firstFindingTriageTarget.href}
+              />
+            ) : null}
             <GovernanceFindingsList
               displayedRows={displayedRows}
               buyerPolishedShell={buyerPolishedShell}
