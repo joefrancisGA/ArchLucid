@@ -5,6 +5,7 @@ using ArchLucid.Api.Attributes;
 using ArchLucid.Api.Contracts;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Api.Support;
+using ArchLucid.Application.ArchitectureIntelligence;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Comparison;
@@ -48,9 +49,13 @@ public sealed class AdvisoryController(
     IRecommendationWorkflowService recommendationWorkflowService,
     IRecommendationRepository recommendationRepository,
     IAuditService auditService,
-    ILogger<AdvisoryController> logger)
+    ILogger<AdvisoryController> logger,
+    IRecommendationImproveLoopCoordinator? recommendationImproveLoopCoordinator = null)
     : ControllerBase
 {
+    private readonly IRecommendationImproveLoopCoordinator? _recommendationImproveLoopCoordinator =
+        recommendationImproveLoopCoordinator;
+
     private readonly ILogger<AdvisoryController> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
 
@@ -204,6 +209,12 @@ public sealed class AdvisoryController(
         if (updated is null)
             return this.NotFoundProblem($"Recommendation '{recommendationId}' was not found.",
                 ProblemTypes.ResourceNotFound);
+
+        if (_recommendationImproveLoopCoordinator is not null
+            && request.Action is RecommendationActionType.Accept or RecommendationActionType.MarkImplemented)
+        {
+            await _recommendationImproveLoopCoordinator.TryApplyAsync(updated, ct).ConfigureAwait(false);
+        }
 
         string eventType = request.Action switch
         {
