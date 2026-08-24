@@ -27,7 +27,7 @@ using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
-using ArchLucid.Core.Configuration;
+using ArchLucid.Core.DevTesting;
 using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Persistence.ApplicationPorts.Agents;
 using ArchLucid.Core.Persistence.ApplicationPorts.Runs;
@@ -75,6 +75,7 @@ public sealed class RunQueryController(
     IRunTrustEvidenceCardBuilder trustEvidenceCardBuilder,
     ILlmCostEstimator llmCostEstimator,
     IAuthorityQueryService authorityQueryService,
+    IEffectiveAgentExecutionModeAccessor effectiveAgentExecutionModeAccessor,
     IConfiguration configuration,
     IAuditService auditService,
     ExportFormatterService exportFormatter,
@@ -133,13 +134,13 @@ public sealed class RunQueryController(
 
         response.ExecutionFlavorBuyerSummary = RunExecutionFlavorSummary.Build(
             detail.Run,
-            configuration["AgentExecution:Mode"]);
+            effectiveAgentExecutionModeAccessor.GetEffectiveMode());
 
         if (detail.IsCommitted)
         {
             response.TrustEvidenceCard = await trustEvidenceCardBuilder.BuildAsync(
                 detail,
-                configuration["AgentExecution:Mode"],
+                effectiveAgentExecutionModeAccessor.GetEffectiveMode(),
                 cancellationToken);
         }
 

@@ -24,6 +24,7 @@ using ArchLucid.Contracts.Requests;
 using ArchLucid.Core;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.DevTesting;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Integration;
 using ArchLucid.Core.Runs;
@@ -63,6 +64,7 @@ public sealed partial class ArchitectureRunExecuteOrchestrator(
     IAgentEvidenceUntrustedInputSanitizer agentEvidenceUntrustedInputSanitizer,
     IRequestContentSafetyPrecheck requestContentSafetyPrecheck,
     IOptions<AgentExecutionOptions> agentExecutionOptions,
+    IEffectiveAgentExecutionModeAccessor effectiveAgentExecutionModeAccessor,
     IOptions<AgentOutputQualityGateOptions> agentOutputQualityGateOptions,
     IRunStateTransitionService runStateTransitionService,
     IRunEngineProvenanceCaptureService runEngineProvenanceCaptureService,
@@ -87,6 +89,9 @@ public sealed partial class ArchitectureRunExecuteOrchestrator(
 
     private readonly IOptions<AgentExecutionOptions> _agentExecutionOptions =
         agentExecutionOptions ?? throw new ArgumentNullException(nameof(agentExecutionOptions));
+
+    private readonly IEffectiveAgentExecutionModeAccessor _effectiveAgentExecutionModeAccessor =
+        effectiveAgentExecutionModeAccessor ?? throw new ArgumentNullException(nameof(effectiveAgentExecutionModeAccessor));
 
     private readonly IAgentResultRepository _resultRepository = resultRepository ?? throw new ArgumentNullException(nameof(resultRepository));
 
@@ -287,7 +292,7 @@ public sealed partial class ArchitectureRunExecuteOrchestrator(
     private async Task<ExecuteRunResult> ExecuteRunCoreAsync(string runId, string actor, CancellationToken cancellationToken)
     {
         string executionModeLabel =
-            AgentOutputQualityGateTelemetry.ResolveExecutionModeLabel(_agentExecutionOptions.Value.Mode);
+            AgentOutputQualityGateTelemetry.ResolveExecutionModeLabel(EffectiveAgentExecutionOptions().Mode);
 
         using Activity? runActivity = ArchLucidInstrumentation.AgentExecution.StartActivity("architecture.run.execute");
         runActivity?.SetTag("archlucid.run_id", runId);
@@ -387,5 +392,13 @@ public sealed partial class ArchitectureRunExecuteOrchestrator(
             throw new ConflictException(
                 $"Run '{runId}' is authority-pipeline complete and cannot be executed via the agent-task loop.");
         }
+    }
+
+    private AgentExecutionOptions EffectiveAgentExecutionOptions()
+    {
+        return new AgentExecutionOptions
+        {
+            Mode = _effectiveAgentExecutionModeAccessor.GetEffectiveMode(),
+        };
     }
 }

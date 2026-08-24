@@ -6,18 +6,27 @@ export const DEV_SHELL_EXPERIENCE_COOKIE = "archlucid_dev_shell_experience_v1";
 /** Browser cookie — overrides dev-bypass / mock `/me` role in local development only. */
 export const DEV_ROLE_OVERRIDE_COOKIE = "archlucid_dev_role_override_v1";
 
+/** Browser cookie — overrides host AgentExecution mode in local development only. */
+export const DEV_AGENT_EXECUTION_MODE_COOKIE = "archlucid_dev_agent_execution_mode_v1";
+
 /** Browser localStorage — hides the dev testing quick-switch panel without disabling other dev overrides. */
 export const DEV_QUICK_SWITCH_PANEL_HIDDEN_STORAGE_KEY = "archlucid_dev_quick_switch_panel_hidden_v1";
 
 /** Matches upstream `ArchLucidAuthOptions.TestActorRoleHeader`. */
 export const DEV_TEST_ACTOR_ROLE_HEADER = "X-ArchLucid-Test-Actor-Role";
 
+/** Matches `DevAgentExecutionModeHeaderNames.Header` on the API host. */
+export const DEV_AGENT_EXECUTION_MODE_HEADER = "X-ArchLucid-Dev-Agent-Execution-Mode";
+
 export type DevShellExperienceOverride = "buyer-polished" | "full-operator";
 
 export type DevRoleOverride = "Admin" | "Operator" | "Reader" | "Auditor";
 
+export type DevAgentExecutionModeOverride = "Real" | "Simulator";
+
 const DEV_SHELL_VALUES = new Set<string>(["buyer-polished", "full-operator"]);
 const DEV_ROLE_VALUES = new Set<string>(["Admin", "Operator", "Reader", "Auditor"]);
+const DEV_AGENT_EXECUTION_MODE_VALUES = new Set<string>(["Real", "Simulator"]);
 
 const COOKIE_MAX_AGE_SEC = 60 * 60 * 24 * 30;
 
@@ -94,6 +103,37 @@ export function parseDevRoleOverride(raw: string | null | undefined): DevRoleOve
   return trimmed as DevRoleOverride;
 }
 
+export function parseDevAgentExecutionModeOverride(
+  raw: string | null | undefined,
+): DevAgentExecutionModeOverride | null {
+  if (raw === null || raw === undefined) {
+    return null;
+  }
+
+  const trimmed = raw.trim();
+
+  if (stringEqualsIgnoreCase(trimmed, "real") || stringEqualsIgnoreCase(trimmed, "live")) {
+    return "Real";
+  }
+
+  if (stringEqualsIgnoreCase(trimmed, "simulator")) {
+    return "Simulator";
+  }
+
+  if (DEV_AGENT_EXECUTION_MODE_VALUES.has(trimmed)) {
+    return trimmed as DevAgentExecutionModeOverride;
+  }
+
+  return null;
+}
+
+/** Dev quick-switch default — Real API unless the operator explicitly picks Simulator. */
+export function resolveEffectiveDevAgentExecutionMode(
+  override: DevAgentExecutionModeOverride | null,
+): DevAgentExecutionModeOverride {
+  return override ?? "Real";
+}
+
 export function readDevShellExperienceOverrideFromDocument(): DevShellExperienceOverride | null {
   if (!isDevTestingOverridesEnabled()) {
     return null;
@@ -108,6 +148,14 @@ export function readDevRoleOverrideFromDocument(): DevRoleOverride | null {
   }
 
   return parseDevRoleOverride(readCookieValue(DEV_ROLE_OVERRIDE_COOKIE));
+}
+
+export function readDevAgentExecutionModeOverrideFromDocument(): DevAgentExecutionModeOverride | null {
+  if (!isDevTestingOverridesEnabled()) {
+    return null;
+  }
+
+  return parseDevAgentExecutionModeOverride(readCookieValue(DEV_AGENT_EXECUTION_MODE_COOKIE));
 }
 
 export function readDevShellExperienceOverrideFromRequestCookies(
@@ -128,6 +176,16 @@ export function readDevRoleOverrideFromRequestCookies(cookieStore: CookieReader)
   return parseDevRoleOverride(cookieStore.get(DEV_ROLE_OVERRIDE_COOKIE)?.value);
 }
 
+export function readDevAgentExecutionModeOverrideFromRequestCookies(
+  cookieStore: CookieReader,
+): DevAgentExecutionModeOverride | null {
+  if (!isDevTestingOverridesEnabled()) {
+    return null;
+  }
+
+  return parseDevAgentExecutionModeOverride(cookieStore.get(DEV_AGENT_EXECUTION_MODE_COOKIE)?.value);
+}
+
 export function persistDevShellExperienceOverride(value: DevShellExperienceOverride | null): void {
   if (!isDevTestingOverridesEnabled()) {
     return;
@@ -142,6 +200,14 @@ export function persistDevRoleOverride(value: DevRoleOverride | null): void {
   }
 
   writeCookieValue(DEV_ROLE_OVERRIDE_COOKIE, value);
+}
+
+export function persistDevAgentExecutionModeOverride(value: DevAgentExecutionModeOverride | null): void {
+  if (!isDevTestingOverridesEnabled()) {
+    return;
+  }
+
+  writeCookieValue(DEV_AGENT_EXECUTION_MODE_COOKIE, value);
 }
 
 export function reloadAfterDevTestingOverrideChange(): void {
@@ -238,4 +304,12 @@ export function isDevShellExperienceOverrideValue(value: string): value is DevSh
 
 export function isDevRoleOverrideValue(value: string): value is DevRoleOverride {
   return DEV_ROLE_VALUES.has(value);
+}
+
+export function isDevAgentExecutionModeOverrideValue(value: string): value is DevAgentExecutionModeOverride {
+  return DEV_AGENT_EXECUTION_MODE_VALUES.has(value);
+}
+
+function stringEqualsIgnoreCase(left: string, right: string): boolean {
+  return left.localeCompare(right, undefined, { sensitivity: "accent" }) === 0;
 }

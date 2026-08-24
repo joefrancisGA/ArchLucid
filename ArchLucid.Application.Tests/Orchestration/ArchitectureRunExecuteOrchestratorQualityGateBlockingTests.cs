@@ -194,6 +194,7 @@ public sealed class ArchitectureRunExecuteOrchestratorQualityGateBlockingTests
             new NoOpAgentEvidenceUntrustedInputSanitizer(),
             contentSafety.Object,
             Options.Create(new AgentExecutionOptions()),
+            new FixedEffectiveAgentExecutionModeAccessor(),
             gateOptions,
             new RunStateTransitionService(),
             Mock.Of<IRunEngineProvenanceCaptureService>(),

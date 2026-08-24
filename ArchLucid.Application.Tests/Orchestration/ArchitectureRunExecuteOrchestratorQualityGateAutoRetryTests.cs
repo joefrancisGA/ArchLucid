@@ -225,6 +225,7 @@ public sealed class ArchitectureRunExecuteOrchestratorQualityGateAutoRetryTests
             new NoOpAgentEvidenceUntrustedInputSanitizer(),
             contentSafety.Object,
             Options.Create(new AgentExecutionOptions()),
+            new FixedEffectiveAgentExecutionModeAccessor(),
             gateOptions,
             new RunStateTransitionService(),
             Mock.Of<IRunEngineProvenanceCaptureService>(),

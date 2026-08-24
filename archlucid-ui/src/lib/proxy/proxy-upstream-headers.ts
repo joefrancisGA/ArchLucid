@@ -8,6 +8,7 @@ import {
   isValidTraceParent,
 } from "@/lib/correlation";
 import { readServerSideApiKey } from "@/lib/legacy-arch-env";
+import { applyDevAgentExecutionModeUpstreamHeader } from "@/lib/proxy/dev-agent-execution-mode-upstream";
 import { isAnonymousMarketingProxyPath } from "@/lib/proxy-anonymous-marketing-paths";
 import { resolveProxyUpstreamScopeHeaders } from "@/lib/proxy-scope-resolution";
 
@@ -74,6 +75,8 @@ export function buildProxyUpstreamHeaders(request: NextRequest, proxyPath?: stri
   ) {
     h.set(IDEMPOTENCY_KEY_HEADER, incomingIdempotencyKey);
   }
+
+  applyDevAgentExecutionModeUpstreamHeader(h, request);
 
   return h;
 }

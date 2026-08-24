@@ -12,7 +12,7 @@ using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Core.AiUsage;
 using ArchLucid.Core.Audit;
-using ArchLucid.Core.Configuration;
+using ArchLucid.Core.DevTesting;
 using ArchLucid.Core.Integration;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Contracts.Requests;
@@ -130,6 +130,7 @@ public sealed class ArchitectureRunOrchestrationAuditTests
             new NoOpAgentEvidenceUntrustedInputSanitizer(),
             precheck,
             Options.Create(new AgentExecutionOptions()),
+            Mock.Of<IEffectiveAgentExecutionModeAccessor>(accessor => accessor.GetEffectiveMode() == "Simulator"),
             Options.Create(new AgentOutputQualityGateOptions()),
             new RunStateTransitionService(),
             Mock.Of<IRunEngineProvenanceCaptureService>(),

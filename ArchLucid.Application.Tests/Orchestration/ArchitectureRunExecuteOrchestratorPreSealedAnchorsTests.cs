@@ -186,6 +186,7 @@ public sealed class ArchitectureRunExecuteOrchestratorPreSealedAnchorsTests
             new NoOpAgentEvidenceUntrustedInputSanitizer(),
             contentSafety.Object,
             Microsoft.Extensions.Options.Options.Create(new AgentExecutionOptions { Mode = "Simulator" }),
+            new FixedEffectiveAgentExecutionModeAccessor("Simulator"),
             Microsoft.Extensions.Options.Options.Create(new AgentOutputQualityGateOptions()),
             new RunStateTransitionService(),
             Mock.Of<IRunEngineProvenanceCaptureService>(),

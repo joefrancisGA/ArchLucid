@@ -163,6 +163,7 @@ public sealed class ArchitectureRunExecuteOrchestratorIdempotencyTests
             new NoOpAgentEvidenceUntrustedInputSanitizer(),
             Mock.Of<IRequestContentSafetyPrecheck>(),
             Options.Create(new AgentExecutionOptions()),
+            new FixedEffectiveAgentExecutionModeAccessor(),
             Options.Create(new AgentOutputQualityGateOptions()),
             new RunStateTransitionService(),
             Mock.Of<IRunEngineProvenanceCaptureService>(),

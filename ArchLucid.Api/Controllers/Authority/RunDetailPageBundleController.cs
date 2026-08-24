@@ -7,6 +7,7 @@ using ArchLucid.Application.Runs;
 using ArchLucid.ArtifactSynthesis.Models;
 using ArchLucid.Contracts.Runs;
 using ArchLucid.Core.Authorization;
+using ArchLucid.Core.DevTesting;
 using ArchLucid.Core.Persistence.ApplicationPorts.Runs;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Coordination.Compare;
@@ -37,6 +38,7 @@ public sealed class RunDetailPageBundleController(
     IAuthorityCompareService compareService,
     IScopeContextProvider scopeProvider,
     IConfiguration configuration,
+    IEffectiveAgentExecutionModeAccessor effectiveAgentExecutionModeAccessor,
     ILogger<RunDetailPageBundleController> logger) : ControllerBase
 {
     private const int DeferredProjectRunTake = 60;
@@ -66,6 +68,9 @@ public sealed class RunDetailPageBundleController(
 
     private readonly IConfiguration _configuration =
         configuration ?? throw new ArgumentNullException(nameof(configuration));
+
+    private readonly IEffectiveAgentExecutionModeAccessor _effectiveAgentExecutionModeAccessor =
+        effectiveAgentExecutionModeAccessor ?? throw new ArgumentNullException(nameof(effectiveAgentExecutionModeAccessor));
 
     private readonly ILogger<RunDetailPageBundleController> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
@@ -277,12 +282,12 @@ public sealed class RunDetailPageBundleController(
     {
         detail.ExecutionFlavorBuyerSummary = RunExecutionFlavorSummary.Build(
             detail.Run.RealModeFellBackToSimulator,
-            _configuration["AgentExecution:Mode"]);
+            _effectiveAgentExecutionModeAccessor.GetEffectiveMode());
 
         try
         {
             await _runDetailOperatorEnricher
-                .EnrichBuyerSummaryAsync(detail, _configuration["AgentExecution:Mode"], cancellationToken)
+                .EnrichBuyerSummaryAsync(detail, _effectiveAgentExecutionModeAccessor.GetEffectiveMode(), cancellationToken)
                 .ConfigureAwait(false);
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)

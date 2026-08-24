@@ -37,7 +37,7 @@ using ArchLucid.Core.Agents;
 using ArchLucid.Core.AiUsage;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
-using ArchLucid.Core.Diagnostics;
+using ArchLucid.Core.DevTesting;
 using ArchLucid.Core.Http;
 using ArchLucid.Core.Llm;
 using ArchLucid.Core.Llm.Redaction;
@@ -51,6 +51,7 @@ using ArchLucid.Decisioning.Validation;
 using ArchLucid.Host.Composition.AzureOpenAI;
 using ArchLucid.Host.Composition.Caching;
 using ArchLucid.Host.Core.Configuration;
+using ArchLucid.Host.Core.DevTesting;
 using ArchLucid.Host.Core.Diagnostics;
 using ArchLucid.Host.Core.Http;
 using ArchLucid.Host.Core.Resilience;
@@ -387,7 +388,18 @@ public static partial class ServiceCollectionExtensions
 
         RegisterAgentModelTierOrchestration(services, configuration);
 
+        bool allowDevAgentExecutionModeHeaderOverride = configuration.GetValue(
+            $"{DeveloperExperienceOptions.SectionName}:{nameof(DeveloperExperienceOptions.AllowAgentExecutionModeHeaderOverride)}",
+            false);
+
+        services.AddSingleton<IEffectiveAgentExecutionModeAccessor, EffectiveAgentExecutionModeAccessor>();
+
         string? agentMode = configuration["AgentExecution:Mode"];
+
+        if (allowDevAgentExecutionModeHeaderOverride)
+        {
+            agentMode = DevAgentExecutionModeHeaderNames.Real;
+        }
         string? completionClientRaw = configuration["AgentExecution:CompletionClient"]?.Trim();
         bool useEchoClient = string.Equals(agentMode, "Real", StringComparison.OrdinalIgnoreCase)
                               && string.Equals(completionClientRaw, "Echo", StringComparison.OrdinalIgnoreCase);
@@ -427,7 +439,17 @@ public static partial class ServiceCollectionExtensions
                 new SimulatorExecutionTraceRecordingExecutor(
                     sp.GetRequiredService<DeterministicAgentSimulator>(),
                     sp.GetRequiredService<IAgentExecutionTraceRecorder>()));
-            services.AddScoped<IAgentExecutor, RealAgentExecutor>();
+
+            if (allowDevAgentExecutionModeHeaderOverride)
+            {
+                services.AddScoped<RealAgentExecutor>();
+                services.AddScoped<DevSwitchableAgentExecutor>();
+                services.AddScoped<IAgentExecutor>(static sp => sp.GetRequiredService<DevSwitchableAgentExecutor>());
+            }
+            else
+            {
+                services.AddScoped<IAgentExecutor, RealAgentExecutor>();
+            }
             services.AddScoped<ITopologyProposalSecondaryCompletionInvoker, TopologyProposalSecondaryCompletionInvoker>();
             services.AddScoped<IAgentHandler, TopologyAgentHandler>();
             services.AddScoped<IAgentHandler, CostAgentHandler>();

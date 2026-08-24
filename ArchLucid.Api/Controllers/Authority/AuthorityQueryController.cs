@@ -13,6 +13,7 @@ using ArchLucid.Contracts.Explanation;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
+using ArchLucid.Core.DevTesting;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Explanation;
 using ArchLucid.Core.Pagination;
@@ -56,10 +57,14 @@ public sealed class AuthorityQueryController(
     IActorContext actorContext,
     IRunOperatorGovernanceDispositionService runOperatorGovernanceDispositionService,
     IConfiguration configuration,
+    IEffectiveAgentExecutionModeAccessor effectiveAgentExecutionModeAccessor,
     ILogger<AuthorityQueryController> logger) : ControllerBase
 {
     private readonly IConfiguration _configuration =
         configuration ?? throw new ArgumentNullException(nameof(configuration));
+
+    private readonly IEffectiveAgentExecutionModeAccessor _effectiveAgentExecutionModeAccessor =
+        effectiveAgentExecutionModeAccessor ?? throw new ArgumentNullException(nameof(effectiveAgentExecutionModeAccessor));
 
     private readonly ILogger<AuthorityQueryController> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
@@ -238,10 +243,10 @@ public sealed class AuthorityQueryController(
 
         result.ExecutionFlavorBuyerSummary = RunExecutionFlavorSummary.Build(
             result.Run.RealModeFellBackToSimulator,
-            _configuration["AgentExecution:Mode"]);
+            _effectiveAgentExecutionModeAccessor.GetEffectiveMode());
 
         await runDetailOperatorEnricher
-            .EnrichAsync(result, _configuration["AgentExecution:Mode"], ct)
+            .EnrichAsync(result, _effectiveAgentExecutionModeAccessor.GetEffectiveMode(), ct)
             .ConfigureAwait(false);
 
         int findingCount = result.FindingsSnapshot?.Findings?.Count ?? 0;
@@ -268,12 +273,12 @@ public sealed class AuthorityQueryController(
 
         result.ExecutionFlavorBuyerSummary = RunExecutionFlavorSummary.Build(
             result.Run.RealModeFellBackToSimulator,
-            _configuration["AgentExecution:Mode"]);
+            _effectiveAgentExecutionModeAccessor.GetEffectiveMode());
 
         try
         {
             await runDetailOperatorEnricher
-                .EnrichBuyerSummaryAsync(result, _configuration["AgentExecution:Mode"], ct)
+                .EnrichBuyerSummaryAsync(result, _effectiveAgentExecutionModeAccessor.GetEffectiveMode(), ct)
                 .ConfigureAwait(false);
         }
         catch (OperationCanceledException) when (ct.IsCancellationRequested)

@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { DevTestingQuickSwitchPanel } from "@/components/dev-testing/DevTestingQuickSwitchPanel";
 import {
+  DEV_AGENT_EXECUTION_MODE_COOKIE,
   DEV_ROLE_OVERRIDE_COOKIE,
   DEV_SHELL_EXPERIENCE_COOKIE,
   reloadAfterDevTestingOverrideChange,
@@ -59,6 +60,7 @@ describe("DevTestingQuickSwitchPanel", () => {
   afterEach(() => {
     document.cookie = `${DEV_SHELL_EXPERIENCE_COOKIE}=; Max-Age=0; Path=/; SameSite=Lax`;
     document.cookie = `${DEV_ROLE_OVERRIDE_COOKIE}=; Max-Age=0; Path=/; SameSite=Lax`;
+    document.cookie = `${DEV_AGENT_EXECUTION_MODE_COOKIE}=; Max-Age=0; Path=/; SameSite=Lax`;
     vi.mocked(reloadAfterDevTestingOverrideChange).mockClear();
     vi.mocked(loadDevTestingQuickJumpSnapshot).mockReset();
   });
@@ -69,6 +71,8 @@ describe("DevTestingQuickSwitchPanel", () => {
     expect(await screen.findByTestId("dev-testing-quick-switch")).toBeInTheDocument();
     expect(screen.getByTestId("dev-shell-option-buyer-polished")).toBeInTheDocument();
     expect(screen.getByTestId("dev-role-option-Reader")).toBeInTheDocument();
+    expect(screen.getByTestId("dev-agent-execution-option-real")).toBeInTheDocument();
+    expect(screen.getByTestId("dev-agent-execution-option-simulator")).toBeInTheDocument();
     expect(screen.getByTestId("dev-reset-database-button")).toBeInTheDocument();
   });
 
@@ -77,6 +81,15 @@ describe("DevTestingQuickSwitchPanel", () => {
 
     await screen.findByTestId("dev-testing-quick-switch");
     fireEvent.click(screen.getByTestId("dev-shell-option-full-operator"));
+
+    expect(reloadAfterDevTestingOverrideChange).toHaveBeenCalledTimes(1);
+  });
+
+  it("persists a simulator execution override and reloads", async () => {
+    render(<DevTestingQuickSwitchPanel />);
+
+    await screen.findByTestId("dev-testing-quick-switch");
+    fireEvent.click(screen.getByTestId("dev-agent-execution-option-simulator"));
 
     expect(reloadAfterDevTestingOverrideChange).toHaveBeenCalledTimes(1);
   });
