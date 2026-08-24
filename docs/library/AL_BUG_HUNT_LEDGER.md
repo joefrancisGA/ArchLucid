@@ -127,11 +127,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** ARM resource ids; terraform source id; endpoint index
 - **paths:** ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs
 - **test-filter:** FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests
-- **hunts:** 11
-- **bugs-found:** 12
+- **hunts:** 12
+- **bugs-found:** 13
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24 — `azurerm_monitor_data_collection_rule` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (only `data_collection_endpoint` was listed)
+- **last-bug:** 2026-08-24 — `azurerm_cognitive_account` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (only `cognitive_services` / `cognitive_deployment` were listed)
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -144,6 +144,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - [x] (proven) `azurerm_active_directory` Terraform address omitted from `LooksLikeTerraformServiceSourceId` — **hit 2026-08-24:** only `azuread` substring was listed; `azurerm_active_directory.main` on Data-category nodes dropped `svc-` synthetic aliases; regression in gate + merge tests
 - [x] (proven) `azurerm_cognitive_services_account` Terraform address omitted from `LooksLikeTerraformServiceSourceId` — **hit 2026-08-24:** only `cognitive_account` / `cognitive_deployment` substrings were listed; `azurerm_cognitive_services_account.main` on Data-category nodes dropped `svc-` synthetic aliases; regression in gate + merge tests
 - [x] (proven) `azurerm_monitor_data_collection_rule` Terraform address omitted from `LooksLikeTerraformServiceSourceId` — **hit 2026-08-24:** only `data_collection_endpoint` was listed; `azurerm_monitor_data_collection_rule.main` on Data-category nodes dropped `svc-` synthetic aliases; regression in gate + merge tests
+- [x] (proven) `azurerm_cognitive_account` Terraform address omitted from `LooksLikeTerraformServiceSourceId` — **hit 2026-08-24:** only `cognitive_services` / `cognitive_deployment` were listed; `azurerm_cognitive_account.main` on Data-category nodes dropped `svc-` synthetic aliases; regression in gate + merge tests
 
 ---
 
