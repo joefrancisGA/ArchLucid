@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useState } from "react";
 
+import { CopyExecutiveSponsorLinkButton } from "@/components/reviews/CopyExecutiveSponsorLinkButton";
 import { ExportTrackedAnchor } from "@/components/ExportTrackedAnchor";
 import { GoldenManifestExportMenu } from "@/components/GoldenManifestExportMenu";
 import { ArtifactPreviewSponsorExportVocabularyRail } from "@/components/ArtifactPreviewSponsorExportVocabularyRail";
@@ -96,6 +97,7 @@ export function ReviewPackageSponsorHandoffStrip(
         </div>
       ) : null}
       <div className="mt-3 flex flex-wrap items-center gap-2">
+        <CopyExecutiveSponsorLinkButton runId={props.runId} />
         {props.usedStaticDemoRun ? (
           <div className={cn("flex flex-col gap-1.5", OPERATOR_SHORT_HELPER_MEASURE_CLASS)}>
             <Button
