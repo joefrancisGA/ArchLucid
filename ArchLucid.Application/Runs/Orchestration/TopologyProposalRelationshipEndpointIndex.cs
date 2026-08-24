@@ -697,6 +697,7 @@ public static class TopologyProposalRelationshipEndpointIndex
             || normalized.Contains("api_connection", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("monitor_action_group", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("communication_service", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("cognitive_account", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("cognitive_services", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("cognitive_deployment", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("data_collection_endpoint", StringComparison.OrdinalIgnoreCase)
