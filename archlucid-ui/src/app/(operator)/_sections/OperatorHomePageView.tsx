@@ -6,7 +6,6 @@ import {
   OperatorHomeRunsPanel,
 } from "@/components/operator-home/OperatorHomeDeferredPanels";
 import { OperatorHomeWorkspaceActivityProvider } from "@/components/operator-home/operator-home-workspace-activity-context";
-import { OperatorAttentionKindStrip } from "@/components/operator/OperatorAttentionKindStrip";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorHomeBuyerChrome } from "@/components/operator-home/OperatorHomeBuyerChrome";
 import {
@@ -15,7 +14,7 @@ import {
 } from "@/lib/design-tokens";
 import { HELP_PAGE_LAYOUT } from "@/lib/help/help-page-layout";
 import { deriveOperatorHomeWorkspaceMetrics } from "@/lib/operator/operator-home-workspace-metrics";
-import { resolveOperatorHomeWorkspacePhase, deriveOperatorHomeWorkspacePhaseSignalsFromOverviewRuns } from "@/lib/resolve-operator-home-workspace-phase";
+import { deriveOperatorHomeWorkspacePhaseSignalsFromOverviewRuns } from "@/lib/resolve-operator-home-workspace-phase";
 import { OperatorHomeRefreshProvider } from "@/lib/operator/operator-home-refresh-context";
 import { OPERATOR_HOME_RECENT_REVIEWS_HEADING } from "@/lib/operator/operator-home-recent-reviews-heading";
 import {
@@ -191,33 +190,9 @@ function OperatorHomePageBody(props: {
   );
 }
 
-function resolveOperatorHomeAttentionKindStripVisible(
-  model: OperatorHomePageViewModel,
-): boolean {
-  const workspaceMetrics = deriveOperatorHomeWorkspaceMetrics(
-    model.runsDashboard.items,
-    model.runsDashboard.totalCount,
-  );
-  const overviewPhaseSignals = deriveOperatorHomeWorkspacePhaseSignalsFromOverviewRuns(
-    model.runsDashboard.items,
-    model.runsDashboard.totalCount,
-  );
-  const phase = resolveOperatorHomeWorkspacePhase({
-    hasWorkspaceReviews: workspaceMetrics.hasReviews,
-    hasOverviewReviewRows: overviewPhaseSignals.hasOverviewReviewRows,
-    draftCount: 0,
-    hasCommittedManifest: workspaceMetrics.reviewPackagesCommitted > 0,
-    openFindingsCount: workspaceMetrics.openFindings,
-    governanceWarningsCount: workspaceMetrics.governanceWarnings,
-  });
-
-  return phase !== "eval-empty" && overviewPhaseSignals.hasOverviewReviewRows;
-}
-
 /** Landing page: hero CTA, workspace activity, and collapsed advanced guidance. */
 export function OperatorHomePageView({ model }: OperatorHomePageViewProps) {
   const buyerPolishedShell = model.buyerPolishedShell;
-  const showAttentionKindStrip = resolveOperatorHomeAttentionKindStripVisible(model);
 
   return (
     <OperatorHomeGateDeferred>
@@ -233,7 +208,6 @@ export function OperatorHomePageView({ model }: OperatorHomePageViewProps) {
         ) : null}
         <OperatorPageContainer variant="dashboard" className={OPERATOR_LAYOUT.majorSectionGap}>
           <OperatorHomePageChrome buyerPolishedShell={buyerPolishedShell} />
-          {showAttentionKindStrip ? <OperatorAttentionKindStrip /> : null}
           {buyerPolishedShell ? (
             <div
               id={OPERATOR_HOME_PRIMARY_CONTENT_ID}

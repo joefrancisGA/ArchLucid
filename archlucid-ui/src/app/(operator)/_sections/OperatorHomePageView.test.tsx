@@ -202,7 +202,7 @@ describe("OperatorHomePageView", () => {
     },
   );
 
-  it("shows the attention kind strip only when returning home has reviews (TB-2353)", () => {
+  it("does not show the attention kind strip on home (TB-2353)", () => {
     render(<OperatorHomePageView model={mockHomeModel(false)} />);
     expect(screen.queryByTestId("operator-attention-kind-strip")).not.toBeInTheDocument();
 
@@ -226,6 +226,6 @@ describe("OperatorHomePageView", () => {
       />,
     );
 
-    expect(screen.getAllByTestId("operator-attention-kind-strip")).toHaveLength(1);
+    expect(screen.queryByTestId("operator-attention-kind-strip")).not.toBeInTheDocument();
   });
 });
