@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { ReviewPackageDoThisNextStrip } from "./ReviewPackageDoThisNextStrip";
+import { FinalizeReadinessStrip } from "@/components/reviews/FinalizeReadinessStrip";
 import type {
   ResolveReviewPackageDoThisNextInput,
   ReviewPackageDoThisNext,
@@ -113,11 +114,14 @@ export function RunDetailReviewPackageDoThisNextResolved(
   }
 
   return (
-    <ReviewPackageDoThisNextStrip
-      next={next}
-      runId={props.runId}
-      hasGoldenManifest={props.hasGoldenManifest}
-      commitBlockedReason={assumptionAwareCommitBlockedReason}
-    />
+    <>
+      <FinalizeReadinessStrip commitBlockedReason={assumptionAwareCommitBlockedReason} />
+      <ReviewPackageDoThisNextStrip
+        next={next}
+        runId={props.runId}
+        hasGoldenManifest={props.hasGoldenManifest}
+        commitBlockedReason={assumptionAwareCommitBlockedReason}
+      />
+    </>
   );
 }
