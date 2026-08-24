@@ -165,3 +165,4 @@
 {"at":"2026-08-24T13:15:00.000000Z","zoneId":"arm-terraform-source-ids","outcome":"hit"}
 {"at":"2026-08-24T13:30:00.000000Z","zoneId":"arm-terraform-source-ids","outcome":"hit"}
 {"at":"2026-08-24T13:45:00.000000Z","zoneId":"application-governance-policy","outcome":"hit"}
+{"at":"2026-08-24T14:00:00.000000Z","zoneId":"email-otp-auth","outcome":"hit"}
