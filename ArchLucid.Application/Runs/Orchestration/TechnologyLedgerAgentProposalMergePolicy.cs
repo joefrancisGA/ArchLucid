@@ -38,13 +38,13 @@ public static class TechnologyLedgerAgentProposalMergePolicy
             if (existing.Role != candidate.Role)
                 continue;
 
+            if (EvidenceRefsMatch(existing.EvidenceRef, candidate.EvidenceRef))
+                return true;
+
             if (existing.ProviderFamily != candidate.ProviderFamily)
                 continue;
 
             if (TechnologyNamesMatch(existing.TechnologyName, candidate.TechnologyName))
-                return true;
-
-            if (EvidenceRefsMatch(existing.EvidenceRef, candidate.EvidenceRef))
                 return true;
         }
 
