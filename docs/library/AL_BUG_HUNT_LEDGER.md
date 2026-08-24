@@ -127,11 +127,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** ARM resource ids; terraform source id; endpoint index
 - **paths:** ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs
 - **test-filter:** FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests
-- **hunts:** 36
-- **bugs-found:** 37
+- **hunts:** 37
+- **bugs-found:** 38
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24 — `azurerm_app_configuration` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`app_configuration` was only listed for datastore aliases)
+- **last-bug:** 2026-08-24 — `azurerm_stream_analytics_job` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`stream_analytics` was only listed for datastore aliases)
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -168,6 +168,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - [x] (proven) `azurerm_databricks_workspace` Terraform address omitted from `LooksLikeTerraformServiceSourceId` — **hit 2026-08-24:** `databricks` was only in the datastore list; `azurerm_databricks_workspace.main` on Data-category nodes dropped `svc-` synthetic aliases; regression in gate + merge tests
 - [x] (proven) `azurerm_kusto_cluster` Terraform address omitted from `LooksLikeTerraformServiceSourceId` — **hit 2026-08-24:** `kusto_cluster` was only in the datastore list; `azurerm_kusto_cluster.main` on Data-category nodes dropped `svc-` synthetic aliases; regression in gate + merge tests
 - [x] (proven) `azurerm_app_configuration` Terraform address omitted from `LooksLikeTerraformServiceSourceId` — **hit 2026-08-24:** `app_configuration` was only in the datastore list; `azurerm_app_configuration.main` on Data-category nodes dropped `svc-` synthetic aliases; regression in gate + merge tests
+- [x] (proven) `azurerm_stream_analytics_job` Terraform address omitted from `LooksLikeTerraformServiceSourceId` — **hit 2026-08-24:** `stream_analytics` was only in the datastore list; `azurerm_stream_analytics_job.main` on Data-category nodes dropped `svc-` synthetic aliases; regression in gate + merge tests
 
 ---
 
