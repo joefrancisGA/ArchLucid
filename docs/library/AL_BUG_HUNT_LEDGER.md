@@ -127,11 +127,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** ARM resource ids; terraform source id; endpoint index
 - **paths:** ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs
 - **test-filter:** FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests
-- **hunts:** 15
-- **bugs-found:** 16
+- **hunts:** 16
+- **bugs-found:** 17
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24 — `azurerm_key_vault` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`key_vault` was only listed for datastore aliases)
+- **last-bug:** 2026-08-24 — `azurerm_search_service` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`search_service` was only listed for datastore aliases)
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
