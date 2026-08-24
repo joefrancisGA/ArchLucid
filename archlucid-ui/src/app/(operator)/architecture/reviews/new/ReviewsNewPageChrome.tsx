@@ -8,6 +8,7 @@ import { InlineGlossaryChip } from "@/components/InlineGlossaryChip";
 import { PathChooserCreateObjectVocabularyRail } from "@/components/PathChooserCreateObjectVocabularyRail";
 import { ReviewsNewStarterTemplateGallery } from "@/components/review-intake/ReviewsNewStarterTemplateGallery";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import { ReviewsNewWizardResumeStrip } from "@/components/usability/ReviewsNewWizardResumeStrip";
 import { SpecimenDeliverablePreviewCallout } from "@/components/usability/SpecimenDeliverablePreviewCallout";
 import { START_REVIEW_LABEL } from "@/lib/architecture/architecture-workflow-labels";
 import { REVIEWS_NEW_PATH } from "@/lib/architecture/architecture-routes";
@@ -141,6 +142,7 @@ export function ReviewsNewPageChrome(): React.JSX.Element {
         headingLevel="h1"
         actions={showContextualHelp ? <PageContextualHelpButton /> : undefined}
       />
+      {!onPathTab ? <ReviewsNewWizardResumeStrip /> : null}
       {!onPathTab ? <PathChooserCreateObjectVocabularyRail currentSurfaceId="reviews-new" /> : null}
       {!onPathTab ? <ReviewsNewStarterTemplateGallery /> : null}
     </>
