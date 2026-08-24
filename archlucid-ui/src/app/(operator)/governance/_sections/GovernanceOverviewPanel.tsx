@@ -252,6 +252,7 @@ export function GovernanceOverviewPanel(props: GovernanceOverviewPanelProps): Re
   };
 
   const loadReviewDisabled = listsLoading || queryRunId.trim().length === 0;
+  const reviewSelected = queryRunId.trim().length > 0;
   const workspaceIsIdle =
     loadState.status === "ready" &&
     loadState.metrics.pendingApprovalRequests === 0 &&
@@ -262,6 +263,47 @@ export function GovernanceOverviewPanel(props: GovernanceOverviewPanelProps): Re
 
   return (
     <div className={cn("mb-8", OPERATOR_LAYOUT.sectionStack)} data-testid="governance-overview-panel">
+      <section
+        aria-labelledby="governance-overview-load-review-heading"
+        className="rounded-md border border-neutral-200 bg-white px-3 py-3 dark:border-neutral-800 dark:bg-neutral-950/40"
+        data-testid="governance-overview-load-review-section"
+      >
+        <h2 id="governance-overview-load-review-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
+          {GOVERNANCE_OVERVIEW_LOAD_REVIEW_SECTION_TITLE}
+        </h2>
+        <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+          {GOVERNANCE_OVERVIEW_LOAD_REVIEW_SECTION_LEAD}
+        </p>
+        <div className="mt-3 grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end">
+          <RunIdPicker
+            inputId="governance-overview-run"
+            label="Review"
+            placeholder="Select a review from the list"
+            value={queryRunId}
+            useBuyerFacingRunLabels={buyerPolishedShell}
+            onChange={setQueryRunId}
+          />
+          <div className="space-y-1">
+            <Button
+              type="button"
+              variant="secondary"
+              size="sm"
+              data-testid="governance-overview-load-review"
+              disabled={loadReviewDisabled}
+              onClick={onLoadReview}
+            >
+              {listsLoading ? "Loading…" : GOVERNANCE_OVERVIEW_LOAD_REVIEW_ACTION}
+            </Button>
+            {loadReviewDisabled && !listsLoading ? (
+              <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="governance-overview-load-review-hint">
+                {GOVERNANCE_OVERVIEW_LOAD_REVIEW_DISABLED_HINT}
+              </p>
+            ) : null}
+          </div>
+        </div>
+      </section>
+
+      {reviewSelected ? (
       <section aria-labelledby="governance-overview-summary-heading">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="min-w-0 flex-1">
@@ -422,50 +464,11 @@ export function GovernanceOverviewPanel(props: GovernanceOverviewPanelProps): Re
           </>
         ) : null}
       </section>
+      ) : null}
 
-      <GovernanceOverviewWorkflowStrip />
+      {reviewSelected ? <GovernanceOverviewWorkflowStrip /> : null}
 
-      <section
-        aria-labelledby="governance-overview-load-review-heading"
-        className="rounded-md border border-neutral-200 bg-white px-3 py-3 dark:border-neutral-800 dark:bg-neutral-950/40"
-        data-testid="governance-overview-load-review-section"
-      >
-        <h2 id="governance-overview-load-review-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
-          {GOVERNANCE_OVERVIEW_LOAD_REVIEW_SECTION_TITLE}
-        </h2>
-        <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-          {GOVERNANCE_OVERVIEW_LOAD_REVIEW_SECTION_LEAD}
-        </p>
-        <div className="mt-3 grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end">
-          <RunIdPicker
-            inputId="governance-overview-run"
-            label="Review"
-            placeholder="Select a review from the list"
-            value={queryRunId}
-            useBuyerFacingRunLabels={buyerPolishedShell}
-            onChange={setQueryRunId}
-          />
-          <div className="space-y-1">
-            <Button
-              type="button"
-              variant="secondary"
-              size="sm"
-              data-testid="governance-overview-load-review"
-              disabled={loadReviewDisabled}
-              onClick={onLoadReview}
-            >
-              {listsLoading ? "Loading…" : GOVERNANCE_OVERVIEW_LOAD_REVIEW_ACTION}
-            </Button>
-            {loadReviewDisabled && !listsLoading ? (
-              <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="governance-overview-load-review-hint">
-                {GOVERNANCE_OVERVIEW_LOAD_REVIEW_DISABLED_HINT}
-              </p>
-            ) : null}
-          </div>
-        </div>
-      </section>
-
-      {loadState.status === "ready" ? (
+      {reviewSelected && loadState.status === "ready" ? (
         <section
           ref={pendingSectionRef}
           id="governance-overview-pending"
@@ -500,7 +503,7 @@ export function GovernanceOverviewPanel(props: GovernanceOverviewPanelProps): Re
         </section>
       ) : null}
 
-      {loadState.status === "ready" && loadState.dashboard.recentDecisions.length > 0 ? (
+      {reviewSelected && loadState.status === "ready" && loadState.dashboard.recentDecisions.length > 0 ? (
         <section aria-labelledby="governance-overview-recent-decisions-heading">
           <h2 id="governance-overview-recent-decisions-heading" className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>
             {GOVERNANCE_OVERVIEW_RECENT_DECISIONS_SECTION_TITLE}

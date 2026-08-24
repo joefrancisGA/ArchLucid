@@ -16,6 +16,7 @@ import { OperatorPageContainer } from "@/components/operator/OperatorPageContain
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { useWorkspaceActiveRun } from "@/components/WorkspaceActiveRunContext";
 import { LayerHeader } from "@/components/LayerHeader";
 import { useGovernanceReviewContextQuery } from "@/hooks/use-governance-review-context-query";
 import { useGovernanceWorkflowRunListsQuery } from "@/hooks/use-governance-workflow-run-lists-query";
@@ -91,6 +92,7 @@ export type { FocusSubmitSectionResult } from "./governance-focus-submit-result"
 export function GovernanceWorkflowPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const workspaceRun = useWorkspaceActiveRun();
   const canMutateWorkflow = useOperateCapability();
   const [mutationSuccessMessage, setMutationSuccessMessage] = useState<string | null>(null);
   const [mutationErrorMessage, setMutationErrorMessage] = useState<string | null>(null);
@@ -217,6 +219,22 @@ export function GovernanceWorkflowPageContent() {
     setMutationErrorMessage(null);
     replaceApprovalQueueUrl(id);
   }, [queryRunId, replaceApprovalQueueUrl]);
+
+  useEffect(() => {
+    const fromQuery = searchParams.get("runId")?.trim() ?? "";
+
+    if (fromQuery.length > 0) {
+      return;
+    }
+
+    const workspaceRunId = workspaceRun.runId.trim();
+
+    if (workspaceRunId.length === 0 || queryRunId.trim().length > 0) {
+      return;
+    }
+
+    setQueryRunId(workspaceRunId);
+  }, [queryRunId, searchParams, workspaceRun.runId]);
 
   useEffect(() => {
     const fromQuery = searchParams.get("runId")?.trim() ?? "";
