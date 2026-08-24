@@ -135,3 +135,4 @@
 {"at": "2026-08-24T02:46:00.000000Z", "zoneId": "ui-operator-lib", "outcome": "hit"}
 {"at": "2026-08-24T03:10:00.000000Z", "zoneId": "archlucid-contracts", "outcome": "hit"}
 {"at": "2026-08-24T03:15:00.000000Z", "zoneId": "saml-jwt-bearer", "outcome": "hit"}
+{"at": "2026-08-24T03:25:00.000000Z", "zoneId": "context-ingestion", "outcome": "hit"}
