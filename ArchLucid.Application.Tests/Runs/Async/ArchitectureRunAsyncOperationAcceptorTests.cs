@@ -78,6 +78,7 @@ public sealed class ArchitectureRunAsyncOperationAcceptorTests
             runRepo.Object,
             operationQueue.Object,
             new ArchitectureRunAsyncOperationRegistrar(),
-            replayService.Object);
+            replayService.Object,
+            Mock.Of<IArchitectureRunAsyncCreateAdmitter>());
     }
 }

@@ -3,6 +3,7 @@
 import type { ReactNode } from "react";
 
 import { OperatorHomeCompactStartingActionsSection } from "@/components/operator-home/OperatorHomeCompactStartingActionsSection";
+import { OperatorHomeInFlightReviewsSection } from "@/components/operator-home/OperatorHomeInFlightReviewsSection";
 import { useOperatorHomeWorkspaceActivity } from "@/components/operator-home/operator-home-workspace-activity-context";
 
 type OperatorHomePageMainContentProps = {
@@ -20,6 +21,7 @@ export function OperatorHomePageMainContent(props: OperatorHomePageMainContentPr
   if (hasWorkspaceReviews) {
     return (
       <>
+        <OperatorHomeInFlightReviewsSection />
         {props.recentReviewsSection}
         <OperatorHomeCompactStartingActionsSection />
         {props.sponsorRoiStrip}
@@ -31,6 +33,7 @@ export function OperatorHomePageMainContent(props: OperatorHomePageMainContentPr
   return (
     <>
       {props.heroSection}
+      <OperatorHomeInFlightReviewsSection />
       {props.recentReviewsSection}
       {props.sponsorRoiStrip}
       {props.firstValueCallout}

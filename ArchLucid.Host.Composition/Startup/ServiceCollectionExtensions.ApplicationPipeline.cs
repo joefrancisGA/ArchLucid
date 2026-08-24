@@ -414,6 +414,7 @@ public static partial class ServiceCollectionExtensions
         services.AddSingleton<IArchitectureRunAsyncOperationQueue>(static sp =>
             sp.GetRequiredService<ArchitectureRunAsyncOperationQueue>());
         services.AddSingleton<IArchitectureRunAsyncOperationRegistrar, ArchitectureRunAsyncOperationRegistrar>();
+        services.AddScoped<IArchitectureRunAsyncCreateAdmitter, ArchitectureRunAsyncCreateAdmitter>();
         services.AddScoped<IArchitectureRunAsyncOperationAcceptor, ArchitectureRunAsyncOperationAcceptor>();
         services.AddHostedService<ArchitectureRunAsyncOperationHostedService>();
         services.AddScoped<IDeterminismCheckService, DeterminismCheckService>();

@@ -8,6 +8,9 @@ export const ARCHITECTURE_REQUEST_CREATE_PATH = "/v1/architecture/request";
 export const ARCHITECTURE_REQUEST_CREATE_TIMEOUT_MESSAGE =
   "Request timed out creating the architecture review (POST /v1/architecture/request). Please check the Reviews list before resubmitting to avoid duplicates.";
 
+/** Marker on unresolved create errors — see {@link ArchitectureRequestCreateUnresolvedError}. */
+export const ARCHITECTURE_REQUEST_CREATE_UNRESOLVED_FLAG = "architecture-request-create-unresolved";
+
 /**
  * True when create-run failed because a gateway / UI BFF aborted waiting on ArchLucid.Api.
  * Proxy AbortSignal.timeout surfaces as HTTP 502 with timeout wording (not always 504).

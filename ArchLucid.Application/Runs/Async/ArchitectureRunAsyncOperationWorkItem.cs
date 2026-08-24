@@ -1,8 +1,11 @@
+using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Scoping;
+
+using ArchLucid.Application.Runs;
 
 namespace ArchLucid.Application.Runs.Async;
 
-/// <summary>Queued execute/replay work executed outside the HTTP request (TB-2075).</summary>
+/// <summary>Queued execute/replay/create work executed outside the HTTP request (TB-2075).</summary>
 public sealed record ArchitectureRunAsyncOperationWorkItem(
     ArchitectureRunAsyncOperationKind Kind,
     ScopeContext Scope,
@@ -12,4 +15,6 @@ public sealed record ArchitectureRunAsyncOperationWorkItem(
     string? ReplayExecutionMode,
     bool ReplayCommit,
     string? ReplayManifestVersionOverride,
-    string? PreparedReplayRunId);
+    string? PreparedReplayRunId,
+    ArchitectureRequest? CreateRequest = null,
+    CreateRunIdempotencyState? CreateIdempotency = null);

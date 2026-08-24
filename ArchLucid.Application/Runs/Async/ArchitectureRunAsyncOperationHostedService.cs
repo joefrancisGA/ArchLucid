@@ -96,6 +96,29 @@ public sealed class ArchitectureRunAsyncOperationHostedService(
             return;
         }
 
+        if (item.Kind == ArchitectureRunAsyncOperationKind.Create)
+        {
+            if (item.CreateRequest is null)
+                throw new InvalidOperationException("Create work item is missing CreateRequest.");
+
+            if (!Guid.TryParseExact(item.RunId, "N", out Guid parsedCreateRunId)
+                && !Guid.TryParse(item.RunId, out parsedCreateRunId))
+            {
+                throw new InvalidOperationException($"Create work item run id '{item.RunId}' is not a valid GUID.");
+            }
+
+            IArchitectureRunCreateOrchestrator createOrchestrator =
+                scope.ServiceProvider.GetRequiredService<IArchitectureRunCreateOrchestrator>();
+
+            await createOrchestrator.CompleteAsyncAcceptedCreateRunAsync(
+                parsedCreateRunId,
+                item.CreateRequest,
+                item.CreateIdempotency,
+                cancellationToken);
+
+            return;
+        }
+
         IReplayRunService replayRunService = scope.ServiceProvider.GetRequiredService<IReplayRunService>();
 
         if (string.IsNullOrWhiteSpace(item.PreparedReplayRunId))
