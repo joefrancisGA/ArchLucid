@@ -36,7 +36,7 @@ public sealed class OutboundWebhookDryRunServiceTests
         using HttpClient http = new(handler);
         OutboundWebhookDryRunService service = new(http);
 
-        Uri target = new("https://example.test/webhook");
+        Uri target = new("https://example.com/webhook");
         OutboundWebhookDryRunResult result =
             await service.ProbeAuthorityRunCompletedAsync(target, sharedSecret: null, CancellationToken.None);
 

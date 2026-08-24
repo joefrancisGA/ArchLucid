@@ -5,6 +5,7 @@ using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application.Integrations;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
+using ArchLucid.Core.Security;
 
 using Asp.Versioning;
 
@@ -37,6 +38,12 @@ public sealed class OutboundWebhookDryRunController(
         if (body is null)
 
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+
+        string? targetUrlRejection = await AllowedOutboundWebhookProbeUrlPolicy
+            .TryGetRejectionReasonAfterDnsResolveAsync(body.TargetUrl.ToString(), cancellationToken);
+
+        if (targetUrlRejection is not null)
+            return this.BadRequestProblem(targetUrlRejection, ProblemTypes.ValidationFailed);
 
         OutboundWebhookDryRunResult outcome =
             await probe.ProbeAsync(body.TargetUrl, body.SharedSecret, cancellationToken);
