@@ -128,3 +128,4 @@
 {"at": "2026-08-24T01:05:00.000000Z", "zoneId": "notifications-pipeline", "outcome": "hit"}
 {"at": "2026-08-24T01:25:00.000000Z", "zoneId": "tenant-erasure", "outcome": "hit"}
 {"at": "2026-08-24T01:35:00.000000Z", "zoneId": "billing-webhooks", "outcome": "hit"}
+{"at": "2026-08-24T01:50:00.000000Z", "zoneId": "persistence-identity", "outcome": "hit"}

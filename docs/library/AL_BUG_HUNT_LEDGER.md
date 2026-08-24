@@ -1408,11 +1408,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** identity repository; authentication identity dapper
 - **paths:** ArchLucid.Persistence/Identity/
 - **test-filter:** FullyQualifiedName~AuthenticationIdentity|FullyQualifiedName~IdentityRepository
-- **hunts:** 2
-- **bugs-found:** 2
+- **hunts:** 3
+- **bugs-found:** 5
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-23
-- **last-bug:** 2026-08-23
+- **last-hunt:** 2026-08-24
+- **last-bug:** 2026-08-24
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -1423,6 +1423,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) Cached identity read returns stale data after a tenant-scoped upsert — `CachingSecondaryReferenceDataRepositoryTests` proves eviction after upsert/insert for tenant IdP config and sign-in domains.
 - [x] (proven) `InMemoryAuthenticationIdentityRepository.ReEnableAsync` reclaimed a disabled external key while another active identity already held it — **hit 2026-08-23:** in-memory store ignored the SQL filtered unique index (`UX_AuthenticationIdentities_ExternalKey WHERE DisabledUtc IS NULL`) and dual-activated the same external key.
 - [x] (proven) `InMemoryTenantSignInEmailDomainRepository.FindByNormalizedDomainAsync` / `ListByTenantIdAsync` return soft-removed domains (`RemovedUtc` set) that `DapperTenantSignInEmailDomainRepository` excludes via `RemovedUtc IS NULL` — **hit 2026-08-23:** in-memory reads ignored soft-delete filter on all three query methods; dev/test routing could resurrect removed sign-in domains.
+- [x] (proven) `DapperAuthenticationIdentityRepository.ReEnableAsync` threw on filtered unique-index violation — **hit 2026-08-24:** re-enabling a disabled identity while another active row held the same external key surfaced `SqlException` 2601/2627 instead of returning `false` like `InMemoryAuthenticationIdentityRepository`.
+- [x] (proven) `InMemoryPlatformTenantAuthRecoveryGrantRepository.RevokeAsync` was not idempotent — **hit 2026-08-24:** second revoke returned `true` while Dapper only updates rows with `RevokedUtc IS NULL`, masking double-revoke regressions in dev/test.
+- [x] (proven) `InMemoryTenantSignInEmailDomainRepository.UpdateAsync` could reassign domains across tenants — **hit 2026-08-24:** update keyed only by `NormalizedDomain`, unlike Dapper's `(TenantId, NormalizedDomain)` predicate, so a mismatched tenant id silently hijacked sign-in routing in memory hosts.
 
 ---
 
