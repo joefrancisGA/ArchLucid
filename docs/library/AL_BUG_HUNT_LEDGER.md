@@ -1256,6 +1256,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Untrusted evidence delimiter is stripped so injection payload reaches the model prompt — embedded `</untrusted_input>` / `<untrusted_input>` broke the outer wrapper; fixed with ZWSP tag neutralization in `AzureResourceTagPromptSanitizer`.
 - [x] (valid-no-repro) Sanitizer runs after the prompt is assembled instead of before — `ArchitectureRunExecuteOrchestrator.AgentLoop` calls `SanitizeAsync` before `agentExecutor.ExecuteAsync`.
 - [x] (proven) `StreamJsonAsync` yielded completion chunks before output content-safety scan — blocked output could reach streaming callers; fixed by buffering until `CheckOutputAsync` passes.
+- [x] (proven) Sanitizer wrapped only `evidence.Request` while `AgentUserPromptComposer` reads live `ArchitectureRequest` fields — untrusted-input wrapping bypassed for description/constraints; fixed by sanitizing both objects in `AgentEvidenceUntrustedInputSanitizer`.
 
 ---
 

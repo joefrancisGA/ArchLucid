@@ -1,5 +1,6 @@
 using ArchLucid.Core.Evidence;
 using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.AgentEvaluation;
 
 namespace ArchLucid.AgentRuntime.PromptInjection;
@@ -8,18 +9,17 @@ namespace ArchLucid.AgentRuntime.PromptInjection;
 public sealed class AgentEvidenceUntrustedInputSanitizer : IAgentEvidenceUntrustedInputSanitizer
 {
     /// <inheritdoc />
-    public Task SanitizeAsync(AgentEvidencePackage evidence, CancellationToken cancellationToken = default)
+    public Task SanitizeAsync(
+        AgentEvidencePackage evidence,
+        ArchitectureRequest request,
+        CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(evidence);
+        ArgumentNullException.ThrowIfNull(request);
         cancellationToken.ThrowIfCancellationRequested();
 
-        RequestEvidence request = evidence.Request;
-
-        request.Description = AzureResourceTagPromptSanitizer.SanitizeScalar(request.Description);
-
-        SanitizeStringList(request.Constraints);
-        SanitizeStringList(request.RequiredCapabilities);
-        SanitizeStringList(request.Assumptions);
+        SanitizeArchitectureRequest(request);
+        SanitizeRequestEvidence(evidence.Request);
 
         foreach (PolicyEvidence policy in evidence.Policies)
         {
@@ -57,6 +57,22 @@ public sealed class AgentEvidenceUntrustedInputSanitizer : IAgentEvidenceUntrust
             note.Message = AzureResourceTagPromptSanitizer.SanitizeScalar(note.Message);
 
         return Task.CompletedTask;
+    }
+
+    private static void SanitizeArchitectureRequest(ArchitectureRequest request)
+    {
+        request.Description = AzureResourceTagPromptSanitizer.SanitizeScalar(request.Description);
+        SanitizeStringList(request.Constraints);
+        SanitizeStringList(request.RequiredCapabilities);
+        SanitizeStringList(request.Assumptions);
+    }
+
+    private static void SanitizeRequestEvidence(RequestEvidence request)
+    {
+        request.Description = AzureResourceTagPromptSanitizer.SanitizeScalar(request.Description);
+        SanitizeStringList(request.Constraints);
+        SanitizeStringList(request.RequiredCapabilities);
+        SanitizeStringList(request.Assumptions);
     }
 
     private static void SanitizeStringList(List<string> rows)

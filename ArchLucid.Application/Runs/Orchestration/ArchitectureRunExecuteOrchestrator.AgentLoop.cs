@@ -56,7 +56,7 @@ public sealed partial class ArchitectureRunExecuteOrchestrator
 
             await _evidencePackageInjectionMitigator.RedactKnownInjectionPatternsAsync(evidence, cancellationToken);
 
-            await _agentEvidenceUntrustedInputSanitizer.SanitizeAsync(evidence, cancellationToken);
+            await _agentEvidenceUntrustedInputSanitizer.SanitizeAsync(evidence, request, cancellationToken);
 
             string scheduledTaskIds = AgentExecutionStateTransitionTaskIds.Format(tasks.ToList());
 

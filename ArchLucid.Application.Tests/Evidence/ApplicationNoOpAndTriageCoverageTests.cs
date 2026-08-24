@@ -35,8 +35,14 @@ public sealed class ApplicationNoOpAndTriageCoverageTests
     {
         NoOpAgentEvidenceUntrustedInputSanitizer sut = new();
         AgentEvidencePackage evidence = new() { RunId = Guid.NewGuid().ToString("N") };
+        ArchitectureRequest request = new()
+        {
+            Description = new string('b', 20),
+            SystemName = "Sys",
+            Environment = "prod",
+        };
 
-        await sut.Invoking(s => s.SanitizeAsync(evidence, CancellationToken.None)).Should().NotThrowAsync();
+        await sut.Invoking(s => s.SanitizeAsync(evidence, request, CancellationToken.None)).Should().NotThrowAsync();
     }
 
     [Fact]
