@@ -1,4 +1,5 @@
 using ArchLucid.Application.Analysis;
+using ArchLucid.Application.Bootstrap;
 using ArchLucid.Application.Exports;
 using ArchLucid.Application.Exports.ArchitectureReviewBoard;
 using ArchLucid.Core.Explanation;
@@ -245,5 +246,41 @@ public sealed class ArchitectureReviewExportServiceTests
             await sut.GenerateReportAsync(detail.Run.RunId, ExportFormat.Docx, null, null, null, CancellationToken.None);
 
         await act.Should().ThrowAsync<ConflictException>().WithMessage("*broken manifest reference*");
+    }
+
+    [Fact]
+    public async Task GenerateReportAsync_html_includes_demo_tenant_notice_for_demo_runs()
+    {
+        string runId = ContosoRetailDemoIdentifiers.RunBaseline;
+        ArchitectureRunDetail detail = CreateCommittedDetail(runId);
+        detail.Run.RequestId = ContosoRetailDemoIdentifiers.RequestContoso;
+
+        Mock<IRunDetailQueryService> runDetailQuery = new();
+        runDetailQuery.Setup(x => x.GetRunDetailAsync(runId, It.IsAny<CancellationToken>())).ReturnsAsync(detail);
+
+        ArchitectureAnalysisReport report = new()
+        {
+            Run = detail.Run,
+            Manifest = detail.Manifest,
+            Summary = "Summary text."
+        };
+
+        Mock<IArchitectureAnalysisService> analysis = new();
+        analysis.Setup(x => x.BuildAsync(It.IsAny<ArchitectureAnalysisRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(report);
+
+        ArchitectureReviewExportService sut = CreateSut(runDetailQuery.Object, analysis.Object);
+
+        ExportResult result =
+            await sut.GenerateReportAsync(runId, ExportFormat.Html, whitelabel: null, logoImageBytes: null, httpCorrelationId: null,
+                CancellationToken.None);
+
+        using MemoryStream ms = new();
+        await result.Content.CopyToAsync(ms);
+        string html = System.Text.Encoding.UTF8.GetString(ms.ToArray());
+
+        html.Should().Contain("Demo notice");
+        html.Should().Contain(ArchitectureReviewBoardCoverPageContent.DemoTenantNotice);
+
+        await result.Content.DisposeAsync();
     }
 }

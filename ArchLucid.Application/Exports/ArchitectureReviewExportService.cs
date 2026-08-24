@@ -244,6 +244,20 @@ public sealed class ArchitectureReviewExportService(
         html.AppendLine(CultureInfo.InvariantCulture, $"<h1>{HtmlEncode(title)}</h1>");
         html.AppendLine(CultureInfo.InvariantCulture, $"<p><strong>Run:</strong> {HtmlEncode(documentModel.RunId)}</p>");
 
+        if (documentModel.IsDemoTenant)
+        {
+            html.AppendLine(
+                CultureInfo.InvariantCulture,
+                $"<p><strong>Demo notice:</strong> {HtmlEncode(ArchitectureReviewBoardCoverPageContent.DemoTenantNotice)}</p>");
+        }
+
+        if (!string.IsNullOrWhiteSpace(documentModel.ExplanationConfidenceCallout))
+        {
+            html.AppendLine(
+                CultureInfo.InvariantCulture,
+                $"<p><em>{HtmlEncode(documentModel.ExplanationConfidenceCallout)}</em></p>");
+        }
+
         if (!string.IsNullOrWhiteSpace(documentModel.ManifestVersion))
         {
             html.AppendLine(

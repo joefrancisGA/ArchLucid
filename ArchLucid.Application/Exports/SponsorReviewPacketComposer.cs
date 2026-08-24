@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.Text;
 
+using ArchLucid.Application.Bootstrap;
 using ArchLucid.Application.Exports.ArchitectureReviewBoard;
 using ArchLucid.Application.Pilots;
 using ArchLucid.Contracts.Architecture;
@@ -46,17 +47,25 @@ public static class SponsorReviewPacketComposer
         AppendRunSummarySection(sb, detail, SponsorReport, topFindingTitles);
         AppendPortfolioSignalsSection(sb, portfolioSignals);
         AppendRoiBasisSection(sb, roiSummary);
-        AppendSponsorArtifactEvidenceBadgeSection(sb, roiSummary);
+        AppendSponsorArtifactEvidenceBadgeSection(sb, roiSummary, detail);
         AppendDispositionRoiBasisSection(sb, roiSummary);
         AppendRealizedValueSection(sb, roiSummary);
 
         return sb.ToString().TrimEnd() + Environment.NewLine;
     }
 
-    private static void AppendSponsorArtifactEvidenceBadgeSection(StringBuilder sb, SponsorRoiSummaryResponse roiSummary)
+    private static void AppendSponsorArtifactEvidenceBadgeSection(
+        StringBuilder sb,
+        SponsorRoiSummaryResponse roiSummary,
+        ArchitectureRunDetail detail)
     {
+        bool isDemoTenant = ContosoRetailDemoIdentifiers.IsDemoRunId(detail.Run?.RunId ?? string.Empty)
+            || ContosoRetailDemoIdentifiers.IsDemoRequestId(detail.Run?.RequestId);
+
+        PilotRunDeltas deltas = new() { IsDemoTenant = isDemoTenant };
+
         SponsorArtifactEvidenceBadgeSummary badges = SponsorArtifactEvidenceBadgeMarkdownFormatter.Resolve(
-            new PilotRunDeltas(),
+            deltas,
             new ProofPackageCompletenessResponse(),
             CreateEmptyValueReportSnapshot(),
             roiSummary.SavingsPricingBasis,

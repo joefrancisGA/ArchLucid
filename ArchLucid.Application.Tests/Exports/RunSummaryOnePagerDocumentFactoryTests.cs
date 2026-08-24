@@ -57,4 +57,21 @@ public sealed class RunSummaryOnePagerDocumentFactoryTests
         model.LowCount.Should().Be(0);
         model.TopFindingTitles.Should().Equal("Critical gap", "High gap", "Extra");
     }
+
+    [Fact]
+    public void Create_preserves_all_provided_top_titles_not_only_three()
+    {
+        ArchitectureRunDetail detail = new()
+        {
+            Run = new ArchitectureRun { RunId = "run-1" },
+            Results = []
+        };
+
+        string[] titles = ["Finding 1", "Finding 2", "Finding 3", "Finding 4", "Finding 5"];
+
+        RunSummaryOnePagerDocumentModel model =
+            RunSummaryOnePagerDocumentFactory.Create(detail, "Summary text.", titles);
+
+        model.TopFindingTitles.Should().Equal(titles);
+    }
 }

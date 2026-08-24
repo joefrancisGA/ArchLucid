@@ -44,6 +44,10 @@ public sealed class RunSummaryOnePagerExportService(
         if (detail is null)
             throw new RunNotFoundException(runId.Trim());
 
+        if (detail.HasBrokenManifestReference)
+            throw new ConflictException(
+                "This finalized review references an architecture snapshot that could not be loaded from storage. Resolve the broken manifest reference before exporting.");
+
         if (!detail.IsCommitted)
             throw new ConflictException("Export requires a finalized review with a committed architecture snapshot.");
 

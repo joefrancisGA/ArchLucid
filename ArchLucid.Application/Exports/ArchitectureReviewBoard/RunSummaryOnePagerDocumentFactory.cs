@@ -31,7 +31,6 @@ public static class RunSummaryOnePagerDocumentFactory
             TopFindingTitles = topFindingTitles
                 .Where(static title => !string.IsNullOrWhiteSpace(title))
                 .Select(static title => title.Trim())
-                .Take(3)
                 .ToArray()
         };
     }
