@@ -6,6 +6,7 @@ import { useMemo, useState } from "react";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { ArchitecturesHubListSkeleton } from "@/app/(operator)/architecture/architectures/_sections/ArchitecturesHubListSkeleton";
 import { ArchitectureDraftDeleteControl } from "@/components/architecture/ArchitectureDraftDeleteControl";
+import { ArchitectureDraftContinueLastRow } from "@/components/architecture/ArchitectureDraftContinueLastRow";
 import { ArchitectureDraftGuidanceDisclosure } from "@/components/architecture/ArchitectureDraftGuidanceDisclosure";
 import { ArchitectureDraftResumeControl } from "@/components/architecture/ArchitectureDraftResumeControl";
 import { WorkspaceScopeEmptyTeaching } from "@/components/WorkspaceScopeEmptyTeaching";
@@ -71,6 +72,7 @@ import { buyerFilterChipClass } from "@/lib/buyer/buyer-shell-home-present";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { formatUpdatedAbsoluteWithRelative } from "@/lib/relative-time";
+import { resolveContinueLastArchitectureDraftEntry } from "@/lib/architecture-draft-continue-last";
 import { resolveWorkspaceScopeEmptyTeachingForHub } from "@/lib/workspace-scope-empty-teaching";
 import { cn } from "@/lib/utils";
 
@@ -203,6 +205,8 @@ export function ArchitectureDraftListClient(): React.JSX.Element {
       .sort((left, right) => compareEntries(left, right, activeSort));
   }, [activeFilter, activeSort, entries, searchQuery]);
 
+  const continueLastDraft = useMemo(() => resolveContinueLastArchitectureDraftEntry(entries), [entries]);
+
   if (!isHydrated) {
     return <ArchitecturesHubListSkeleton />;
   }
@@ -247,6 +251,7 @@ export function ArchitectureDraftListClient(): React.JSX.Element {
           <PathChooserCreateObjectVocabularyRail currentSurfaceId="architecture-drafts" />
         </>
       ) : null}
+      {continueLastDraft !== null ? <ArchitectureDraftContinueLastRow entry={continueLastDraft} /> : null}
       <ArchitectureDraftGuidanceDisclosure />
       <div
         className="flex flex-col gap-2 lg:flex-row lg:flex-wrap lg:items-center"

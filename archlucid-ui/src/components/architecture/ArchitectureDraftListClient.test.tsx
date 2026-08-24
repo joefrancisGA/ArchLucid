@@ -8,6 +8,7 @@ import { ArchitectureDraftListClient } from "./ArchitectureDraftListClient";
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: vi.fn(), replace: vi.fn() }),
+  usePathname: () => "/architecture/architectures",
 }));
 
 vi.mock("@/lib/api/draft-intake-api", () => ({
@@ -157,12 +158,30 @@ describe("ArchitectureDraftListClient", () => {
 
     render(<ArchitectureDraftListClient />);
 
-    expect(screen.getByText("Draft A")).toBeInTheDocument();
+    const table = screen.getByTestId("architecture-draft-list-table");
+
+    expect(within(table).getByText("Draft A")).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: "Filter architectures: Draft (1)" }));
 
-    expect(screen.getByText("Draft A")).toBeInTheDocument();
-    expect(screen.queryByText("Ready B")).not.toBeInTheDocument();
+    expect(within(table).getByText("Draft A")).toBeInTheDocument();
+    expect(within(table).queryByText("Ready B")).not.toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Filter architectures: All (2)" })).toBeInTheDocument();
+  });
+
+  it("pins continue last draft when session remembers an architecture id", () => {
+    window.sessionStorage.setItem("archlucid.architecture-creation.draft-id", "a1");
+    useArchitectureDraftRegistryEntries.mockReturnValue([
+      entry({ architectureId: "a1", customerStatus: "draft", displayName: "Draft A" }),
+      entry({ architectureId: "a2", customerStatus: "draft", displayName: "Draft B" }),
+    ]);
+
+    render(<ArchitectureDraftListClient />);
+
+    expect(screen.getByTestId("architecture-draft-continue-last-row")).toBeInTheDocument();
+    expect(screen.getByTestId("architecture-draft-continue-last-open")).toHaveAttribute(
+      "href",
+      "/architecture/architectures/a1",
+    );
   });
 });
