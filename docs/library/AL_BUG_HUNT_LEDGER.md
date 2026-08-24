@@ -432,24 +432,27 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ## Zone: tenant-scoped-analyzer
 
 - **id:** tenant-scoped-analyzer
-- **status:** unseeded
+- **status:** open
 - **impact:** high
 - **aliases:** ARCH006; tenant scoped query analyzer
 - **paths:** ArchLucid.Analyzers/TenantScopedQueryScopeBindingAnalyzer.cs
 - **test-filter:** FullyQualifiedName~TenantScopedQueryScopeBindingAnalyzerTests
-- **hunts:** 0
-- **bugs-found:** 0
+- **hunts:** 1
+- **bugs-found:** 4
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **last-hunt:** 2026-08-24
+- **last-bug:** 2026-08-24 — SqlMapper analyzed connection arg not sql; SQL comments spoofed scope predicates; registry JSON order-sensitive; CommandDefinition named args picked wrong expression
 - **related-pd-tb:** none
-- **code-changed-since:** unknown
+- **code-changed-since:** yes
 
 ### Hypotheses
 
-- [ ] (candidate) Analyzer misses a Dapper QueryAsync on a tenant table with no scope binding
-- [ ] (candidate) Interpolated SQL is treated as scoped when the tenant predicate is only in a comment
-- [ ] (candidate) Empty exemption justification does not fire the diagnostic
+- [x] (proven) Analyzer missed Dapper `QueryAsync` on tenant tables — **hit 2026-08-24:** `TryGetSqlArgument` always used `Arguments[0]` (connection) instead of the `sql`/`command` parameter; regression in `ARCH006_reports_unscoped_static_sql_on_scoped_table`
+- [x] (proven) Interpolated SQL treated as scoped when tenant predicate only appeared in a comment — **hit 2026-08-24:** predicate regex matched `/* TenantId = @TenantId ... */`; regression in `Tenant_id_predicate_in_sql_comment_does_not_bind_runs`
+- [x] (invalid) Empty exemption justification does not fire — `ARCH006b_reports_empty_exemption_justification` already covers class-level blank justification
+- [x] (proven) `tenant_scoped_tables.v1.json` with `tenantIdOnRow` before `scopeTripleOnRow` loaded empty registry — **hit 2026-08-24:** single regex required fixed property order; regression in `LoadFromAdditionalFile_supports_tenant_array_before_triple_array`
+- [x] (proven) `CommandDefinition` with reordered named arguments analyzed `cancellationToken` instead of SQL — **hit 2026-08-24:** only read first positional argument; regression in `ARCH006_reports_unscoped_sql_for_command_definition_named_command_argument`
+- [x] (proven) Bracketed `[dbo].[Runs]` references in dynamic SQL skipped ARCH006a — **hit 2026-08-24:** guess-table regex lacked bracket form; regression in `ARCH006a_reports_unanalyzable_sql_for_bracketed_table_reference`
 
 ---
 

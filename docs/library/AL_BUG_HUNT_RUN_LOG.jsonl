@@ -149,3 +149,4 @@
 {"at": "2026-08-24T09:15:00.000000Z", "zoneId": "api-key-auth", "outcome": "hit"}
 {"at": "2026-08-24T09:30:00.000000Z", "zoneId": "identity-provider-config", "outcome": "hit"}
 {"at": "2026-08-24T09:45:00.000000Z", "zoneId": "scim-users", "outcome": "hit"}
+{"at": "2026-08-24T10:00:00.000000Z", "zoneId": "tenant-scoped-analyzer", "outcome": "hit"}
