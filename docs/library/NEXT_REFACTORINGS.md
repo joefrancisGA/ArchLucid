@@ -35,7 +35,7 @@ Execute in order when possible; quick wins (#11–#12) may ship ahead of larger 
 
 7. ~~**Shared Terraform posture module**~~ — **Done** (2026-08-24): `infra/modules/posture/` centralizes tier/waiver validation; nine stacks consume via `module "posture"`.
 
-8. **Split monolithic OpenAPI TypeScript output** — Per-domain generated files instead of single `api-types.generated.ts` (~112K lines). **Impact:** Medium · **Effort:** Low–Medium · **Paths:** `archlucid-ui/src/lib/api-types.generated.ts`, `npm run generate:api-types`
+8. ~~**Split monolithic OpenAPI TypeScript output**~~ — **Done** (2026-08-24): `generate-api-types-split.mjs` emits `api-types/schemas.generated.ts` + `paths.generated.ts`; barrel at `api-types.generated.ts`.
 
 9. **Merge API query controllers / retire legacy routes** — Consolidate `RunQueryController` and `AuthorityQueryController` overlapping reads; sunset legacy aliases. **Impact:** Medium · **Effort:** Medium · **Note:** `docs/architecture/api/REST_API_REDESIGN_IMPLEMENTATION_NOTES.md`
 

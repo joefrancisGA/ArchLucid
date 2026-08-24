@@ -31,6 +31,7 @@ export default defineConfig([
       "**/*.test.tsx",
       "**/*.generated.ts",
       "**/api-types.generated.ts",
+      "**/api-types/*.generated.ts",
       "**/help-index.generated.ts",
       "**/review-terminology-surfaces.ts",
     ],

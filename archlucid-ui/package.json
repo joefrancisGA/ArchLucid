@@ -61,7 +61,7 @@
     "test:e2e:founder:console-network": "playwright test -c playwright.founder.config.ts e2e/founder-console-network.spec.ts",
     "typecheck": "npm run build:api-types && tsc --noEmit -p tsconfig.json",
     "typecheck:e2e": "tsc --noEmit -p e2e/tsconfig.json",
-    "generate:api-types": "openapi-typescript ../ArchLucid.Api.Tests/Contracts/openapi-v1.contract.snapshot.json -o src/lib/api-types.generated.ts",
+    "generate:api-types": "node scripts/generate-api-types-split.mjs",
     "build:api-types": "npm run build -w @archlucid/api-types",
     "rebrand-check": "python3 ../scripts/ci/assert_brand_category_seam.py",
     "demo:preflight": "node ./scripts/demo-preflight.mjs",
