@@ -949,4 +949,65 @@ describe("ArchitectureDraftWorkspace", () => {
       expect(saveDraft).toHaveBeenCalled();
     });
   });
+
+  it("blocks Start review with a gate dialog when actor suggestions are unresolved (TB-2006)", async () => {
+    const longOverview =
+      "Claims intake modernization with nightly batch API integration for partner channels, routing rules, exception queues, and operator handoffs.";
+
+    getDraftRequest.mockResolvedValue({
+      ...spawnedDraft,
+      status: "Drafting",
+      spawnedRunId: null,
+      document: {
+        ...spawnedDraft.document,
+        freeTextIntent: longOverview,
+        businessOutcome: "Reduce manual routing",
+        workflowIntent: "create-architecture",
+        structuredBrief: readyStructuredBriefDocument,
+        actorSet: {
+          actors: [
+            {
+              label: "Primary operator",
+              kind: "Human",
+              trustOrigin: "Internal",
+              contract: "Sync",
+              origin: "Asserted",
+              confidence: 100,
+            },
+          ],
+        },
+      },
+    });
+
+    render(<ArchitectureDraftWorkspace architectureId="arch-001" />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-scope-understanding-confirm")).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId("draft-intake-actor-suggest"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("draft-intake-actor-suggestions-panel")).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId("architecture-scope-understanding-confirm"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-start-review")).not.toBeDisabled();
+    });
+
+    expect(screen.getByTestId("architecture-draft-actor-suggestions-readiness")).toHaveTextContent(
+      /Resolve suggested people and systems before starting a review/i,
+    );
+
+    fireEvent.click(screen.getByTestId("architecture-start-review"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("draft-intake-actor-suggestions-gate-dialog")).toBeInTheDocument();
+    });
+
+    expect(saveDraft).not.toHaveBeenCalled();
+    expect(vi.mocked(showError)).not.toHaveBeenCalled();
+  });
 });

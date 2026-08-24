@@ -38,6 +38,8 @@ type ArchitectureDraftFormFieldsProps = {
   readonly markReviewReadinessInvalid?: boolean;
   readonly onFieldsChange: Dispatch<SetStateAction<ArchitectureDraftFieldState>>;
   readonly onActorSetChange: (actorSet: ActorSet) => void;
+  readonly actorSuggestionGateRequestId?: number;
+  readonly onActorSuggestionsUnresolvedChange?: (unresolved: boolean) => void;
 };
 
 /** Fixed starting architecture questions for draft editing. */
@@ -152,6 +154,8 @@ export function ArchitectureDraftFormFields(props: ArchitectureDraftFormFieldsPr
         intentText={props.fields.freeTextIntent}
         disabled={props.disabled === true}
         creationFlow
+        suggestionGateRequestId={props.actorSuggestionGateRequestId}
+        onUnresolvedSuggestionsChange={props.onActorSuggestionsUnresolvedChange}
         onChange={props.onActorSetChange}
       />
 

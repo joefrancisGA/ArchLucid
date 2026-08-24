@@ -84,7 +84,7 @@ import {
 import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer/buyer-facing-review-title";
 import { CREATE_ARCHITECTURE_INTENT } from "@/lib/architecture/architecture-workflow-intent";
 import { GuidedIntakeAlreadySubmittedCallout } from "@/app/(operator)/architecture/reviews/new/GuidedIntakeAlreadySubmittedCallout";
-import { GUIDED_INTAKE_ARCHITECTURE_INTENT_MIN_CHARS } from "@/lib/guided-intake-copy";
+import { GUIDED_INTAKE_ARCHITECTURE_INTENT_MIN_CHARS, GUIDED_INTAKE_ACTOR_SUGGESTIONS_READINESS_HINT } from "@/lib/guided-intake-copy";
 import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer/buyer-polish-copy";
 import { scheduleScrollDeepLinkTargetIntoView } from "@/lib/scroll-deep-link-target-into-view";
 import { OPERATOR_LINK, OPERATOR_PAGE_LEAD_MEASURE, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -117,6 +117,8 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
   const [exitPending, setExitPending] = useState(false);
   const [scopeGateOpen, setScopeGateOpen] = useState(false);
   const [scopeBullets, setScopeBullets] = useState<ScopeUnderstandingBullet[]>([]);
+  const [actorSuggestionsUnresolved, setActorSuggestionsUnresolved] = useState(false);
+  const [actorSuggestionGateRequestId, setActorSuggestionGateRequestId] = useState(0);
   const [startReviewError, setStartReviewError] = useState<string | null>(null);
   const [saveActionError, setSaveActionError] = useState<string | null>(null);
   const [handoffAcknowledged, setHandoffAcknowledged] = useState(false);
@@ -550,6 +552,12 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
       return;
     }
 
+    if (actorSuggestionsUnresolved) {
+      setActorSuggestionGateRequestId((current) => current + 1);
+
+      return;
+    }
+
     // Client-known blockers stay on the form; CTA is disabled until canStartReview.
     if (!canStartReview) {
       return;
@@ -562,7 +570,13 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
     }
 
     await executeStartReview();
-  }, [canStartReview, executeStartReview, fields.structuredBrief.qualityAttribute, reviewStartProgress.isPending]);
+  }, [
+    actorSuggestionsUnresolved,
+    canStartReview,
+    executeStartReview,
+    fields.structuredBrief.qualityAttribute,
+    reviewStartProgress.isPending,
+  ]);
 
   const handleEncourageAddQualityAttributes = useCallback(() => {
     setQualityAttributesEncouragementOpen(false);
@@ -745,6 +759,8 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
             disabled={editorLocked}
             blocksLlmExecution={blocksLlmExecution}
             markReviewReadinessInvalid={linkedReviewId === null && !reviewReadiness.isValid}
+            actorSuggestionGateRequestId={actorSuggestionGateRequestId}
+            onActorSuggestionsUnresolvedChange={setActorSuggestionsUnresolved}
             onFieldsChange={setFields}
             onActorSetChange={setActorSet}
           />
@@ -794,6 +810,15 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
             data-testid="architecture-draft-review-readiness"
           >
             {formatArchitectureReviewReadinessMessage(reviewReadiness.blockers)}
+          </p>
+        ) : null}
+        {linkedReviewId === null && !briefFrozen && reviewReadiness.isValid && !needsPersistedDraftBeforeStart && scopeGateOpen && actorSuggestionsUnresolved ? (
+          <p
+            className={cn("m-0", OPERATOR_TYPOGRAPHY.helper, "text-al-text-secondary")}
+            role="status"
+            data-testid="architecture-draft-actor-suggestions-readiness"
+          >
+            {GUIDED_INTAKE_ACTOR_SUGGESTIONS_READINESS_HINT}
           </p>
         ) : null}
         {linkedReviewId === null && !briefFrozen && reviewReadiness.isValid && !needsPersistedDraftBeforeStart && !scopeGateOpen ? (

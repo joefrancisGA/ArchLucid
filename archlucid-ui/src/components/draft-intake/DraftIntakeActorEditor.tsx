@@ -11,6 +11,7 @@ import {
 import { useEffect, useMemo, useState } from "react";
 
 import { InlineGuidanceLabel } from "@/components/InlineGuidanceLabel";
+import { DraftIntakeActorSuggestionsGateDialog } from "@/components/draft-intake/DraftIntakeActorSuggestionsGateDialog";
 import { Button } from "@/components/ui/button";
 import { DismissControl } from "@/components/usability/DismissControl";
 import { Input } from "@/components/ui/input";
@@ -63,6 +64,9 @@ export type DraftIntakeActorEditorProps = {
   readonly onChange: (actorSet: ActorSet) => void;
   /** When true, uses create-architecture helper copy and always allows manual adds. */
   readonly creationFlow?: boolean;
+  /** Increment to prompt the unresolved-suggestions gate dialog (architecture draft Start review). */
+  readonly suggestionGateRequestId?: number;
+  readonly onUnresolvedSuggestionsChange?: (unresolved: boolean) => void;
 };
 
 function updateActorAtIndex(
@@ -111,6 +115,7 @@ export function DraftIntakeActorEditor(props: DraftIntakeActorEditorProps) {
   const canSuggestFromIntent = props.intentText.trim().length >= minIntentChars;
 
   const [suggestionPanelOpen, setSuggestionPanelOpen] = useState(false);
+  const [suggestionGateOpen, setSuggestionGateOpen] = useState(false);
   const [selectedSuggestionKeys, setSelectedSuggestionKeys] = useState<ReadonlySet<string>>(() => new Set());
 
   const pendingSuggestions = useMemo(() => {
@@ -133,6 +138,22 @@ export function DraftIntakeActorEditor(props: DraftIntakeActorEditorProps) {
       .querySelector("[data-testid='draft-intake-actor-suggestions-panel']")
       ?.scrollIntoView({ behavior: "smooth", block: "nearest" });
   }, [suggestionPanelOpen]);
+
+  useEffect(() => {
+    props.onUnresolvedSuggestionsChange?.(suggestionPanelOpen);
+  }, [props.onUnresolvedSuggestionsChange, suggestionPanelOpen]);
+
+  useEffect(() => {
+    if (props.suggestionGateRequestId === undefined || props.suggestionGateRequestId === 0) {
+      return;
+    }
+
+    if (!suggestionPanelOpen) {
+      return;
+    }
+
+    setSuggestionGateOpen(true);
+  }, [props.suggestionGateRequestId, suggestionPanelOpen]);
 
   function addActor(): void {
     props.onChange({
@@ -170,6 +191,12 @@ export function DraftIntakeActorEditor(props: DraftIntakeActorEditorProps) {
     });
   }
 
+  function dismissSuggestionPanel(): void {
+    setSuggestionPanelOpen(false);
+    setSelectedSuggestionKeys(new Set());
+    setSuggestionGateOpen(false);
+  }
+
   function addSelectedSuggestions(): void {
     const selectedActors = pendingSuggestions.filter((actor) =>
       selectedSuggestionKeys.has(actorIdentityKey(actor)),
@@ -182,8 +209,7 @@ export function DraftIntakeActorEditor(props: DraftIntakeActorEditorProps) {
     props.onChange({
       actors: [...props.actorSet.actors, ...selectedActors],
     });
-    setSuggestionPanelOpen(false);
-    setSelectedSuggestionKeys(new Set());
+    dismissSuggestionPanel();
   }
 
   const addActorButtonLabel =
@@ -298,13 +324,25 @@ export function DraftIntakeActorEditor(props: DraftIntakeActorEditorProps) {
               disabled={panelDisabled}
               data-testid="draft-intake-actor-dismiss-suggestions"
               onDismiss={() => {
-                setSuggestionPanelOpen(false);
-                setSelectedSuggestionKeys(new Set());
+                dismissSuggestionPanel();
               }}
             />
           </div>
         </div>
       ) : null}
+
+      <DraftIntakeActorSuggestionsGateDialog
+        open={suggestionGateOpen}
+        onOpenChange={setSuggestionGateOpen}
+        addSelectedDisabled={selectedSuggestionKeys.size === 0}
+        panelDisabled={panelDisabled}
+        onAddSelected={() => {
+          addSelectedSuggestions();
+        }}
+        onDismissSuggestions={() => {
+          dismissSuggestionPanel();
+        }}
+      />
 
       {props.actorSet.actors.map((actor, index) => {
         const heading = resolveActorCardHeadingParts(actor, index);
