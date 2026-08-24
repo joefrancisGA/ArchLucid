@@ -1537,11 +1537,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** API contracts; DTO serialization; OpenAPI models
 - **paths:** ArchLucid.Contracts/
 - **test-filter:** FullyQualifiedName~Contracts
-- **hunts:** 4
-- **bugs-found:** 4
+- **hunts:** 5
+- **bugs-found:** 8
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-23
-- **last-bug:** 2026-08-23
+- **last-hunt:** 2026-08-24
+- **last-bug:** 2026-08-24
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1553,6 +1553,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `FindingSeverity` numeric ordinals bypass validation in eval-corpus and architecture-finding converters — `EvalCorpusFindingSeverityJsonConverter` and `ArchitectureFindingJsonConverter.ReadSeverity` cast out-of-range integers; fixed with `Enum.IsDefined` + regression tests.
 - [x] (proven) Case-variant unknown sentinel bypasses structured-brief readiness — **hit 2026-08-21:** `IsUnknownConfirmSentinel` used ordinal string equality so `"unknown — confirm before review"` counted as a confirmed quality-attribute chip and could unblock review start under TB-2343.
 - [x] (proven) Hyphen/en-dash unknown sentinel variants bypass structured-brief readiness — **hit 2026-08-23:** `IsUnknownConfirmSentinel` compared only case-normalized text, so `"Unknown - confirm before review"` (ASCII hyphen) and en-dash variants counted as confirmed brief entries and could satisfy `QualityAttributeMeetsMinimum`; fixed by normalizing dash glyphs before comparison.
+- [x] (proven) `CloudProvider`, `ArchitectureRunStatus`, and `AgentTaskStatus` accept out-of-range integer ordinals via global `JsonStringEnumConverter` — **hit 2026-08-24:** `cloudProvider: 99` and similar status ordinals deserialized without `Enum.IsDefined`; fixed with dedicated converters and `[JsonConverter]` on each enum (`CloudProviderJsonConverterTests`, `ArchitectureRunStatusJsonConverterTests`, `AgentTaskStatusJsonConverterTests`).
+- [x] (proven) `AgentResultClaimListJsonConverter` drops PascalCase structured claims — **hit 2026-08-24:** `TryGetProperty` is case-sensitive so `{"Detail":"..."}` yielded empty claims; fixed with case-insensitive property lookup (`ContractsPackageCoverageBatchRc28cTests`).
+- [x] (proven) `ArchitectureFindingJsonConverter.ReadSeverity` downgrades unknown severity strings to `Info` — **hit 2026-08-24:** labels like `"blocker"` silently became `Info` while `EvalCorpusFindingSeverityJsonConverter` throws; fixed to throw on unknown labels (`ArchitectureFindingJsonConverterTests`).
 
 ---
 
