@@ -64,8 +64,38 @@ internal static class SecurityDeltaRegressionClassifier
     {
         foreach (string token in tokens)
 
-            if (value.Contains(token, StringComparison.Ordinal))
+            if (ContainsStatusToken(value, token))
                 return true;
+
+        return false;
+    }
+
+  private static bool ContainsStatusToken(string value, string token)
+    {
+        if (string.IsNullOrEmpty(token))
+            return false;
+
+        if (token.Contains(' ') || token.Contains('-') || token.Contains('_'))
+            return value.Contains(token, StringComparison.Ordinal);
+
+        int searchStart = 0;
+
+        while (searchStart <= value.Length - token.Length)
+        {
+            int index = value.IndexOf(token, searchStart, StringComparison.Ordinal);
+
+            if (index < 0)
+                return false;
+
+            bool leftBoundary = index == 0 || !char.IsLetterOrDigit(value[index - 1]);
+            int after = index + token.Length;
+            bool rightBoundary = after >= value.Length || !char.IsLetterOrDigit(value[after]);
+
+            if (leftBoundary && rightBoundary)
+                return true;
+
+            searchStart = index + 1;
+        }
 
         return false;
     }

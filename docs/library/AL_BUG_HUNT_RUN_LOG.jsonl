@@ -119,3 +119,4 @@
 {"at": "2026-08-23T23:55:30.000000Z", "zoneId": "agent-runtime-safety", "outcome": "hit"}
 {"at": "2026-08-23T23:58:30.000000Z", "zoneId": "agent-runtime-safety", "outcome": "hit"}
 {"at": "2026-08-24T00:02:30.000000Z", "zoneId": "agent-runtime-safety", "outcome": "hit"}
+{"at": "2026-08-24T00:08:30.000000Z", "zoneId": "decisioning", "outcome": "hit"}
