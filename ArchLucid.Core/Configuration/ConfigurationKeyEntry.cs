@@ -9,7 +9,9 @@ public sealed record ConfigurationKeyEntry(
     string RequiredSummary,
     string Description,
     ConfigKeyRequirementKind Requirement,
-    ConfigurationKeyProductionProfileGuardKind ProductionProfileGuardKind = ConfigurationKeyProductionProfileGuardKind.None);
+    ConfigurationKeyProductionProfileGuardKind ProductionProfileGuardKind = ConfigurationKeyProductionProfileGuardKind.None,
+    ConfigurationKeyDeprecationKind DeprecationKind = ConfigurationKeyDeprecationKind.None,
+    string? DeprecatedReplacementPath = null);
 
 public enum ArchLucidConfigHostingRole
 {

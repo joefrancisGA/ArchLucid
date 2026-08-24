@@ -54,4 +54,23 @@ public sealed class ConfigurationKeyCatalogTests
           .BeEmpty(
             $"doc must name each catalog path in backticks; missing: {string.Join(", ", missingBacktickPaths)}");
     }
+
+    [Fact]
+    public void Deprecated_catalog_entries_declare_canonical_replacement_paths()
+    {
+        List<string> missingReplacement = [];
+
+        foreach (ConfigurationKeyEntry entry in ConfigurationKeyCatalog.All)
+        {
+            if (entry.DeprecationKind != ConfigurationKeyDeprecationKind.DeprecatedBindingPath)
+                continue;
+
+            if (string.IsNullOrWhiteSpace(entry.DeprecatedReplacementPath))
+                missingReplacement.Add(entry.ConfigPath);
+        }
+
+        missingReplacement.Should().BeEmpty(
+            "deprecated catalog rows must name a replacement path; missing for: "
+            + string.Join(", ", missingReplacement));
+    }
 }

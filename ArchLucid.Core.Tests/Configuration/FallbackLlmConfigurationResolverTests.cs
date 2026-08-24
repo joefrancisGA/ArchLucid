@@ -2,6 +2,8 @@ using ArchLucid.Core.Configuration;
 
 using FluentAssertions;
 
+#pragma warning disable CS0618 // Tests intentionally exercise legacy flat FallbackLlm properties.
+
 namespace ArchLucid.Core.Tests.Configuration;
 [Trait("Category", "Unit")]
 
