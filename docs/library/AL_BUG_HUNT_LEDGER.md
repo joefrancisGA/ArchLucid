@@ -375,11 +375,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** technology ledger; ledger merge policy
 - **paths:** ArchLucid.Application/Runs/Orchestration/TechnologyLedgerAgentProposalMergePolicy.cs
 - **test-filter:** FullyQualifiedName~TechnologyLedger
-- **hunts:** 2
-- **bugs-found:** 5
+- **hunts:** 3
+- **bugs-found:** 6
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24 — same EvidenceRef duplicated when provider family differed
+- **last-bug:** 2026-08-24 — same-family/name agent proposals with distinct evidence refs were deduplicated
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -390,8 +390,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Topology re-seed with same `EvidenceRef` duplicated agent rows — **hit 2026-08-24:** merge ignored stable `agentTopologyProposal:*` refs; regression in `Resolve_skips_when_evidence_ref_already_present`
 - [x] (proven) Same `EvidenceRef` duplicated when provider family differed — **hit 2026-08-24:** dedupe required matching `ProviderFamily` before evidence-ref check; regression in `Resolve_skips_when_evidence_ref_matches_across_provider_families`
 - [x] (invalid) Ledger merge keeps an agent-proposed technology that the inventory already replaced — inventory/evidence rows are `Chosen`; same `ProviderFamily` proposals are already skipped via chosen-family gate; name-level dedupe now also matches authoritative `Chosen` rows
-- [ ] (hunt-ready) `TechnologyLedgerAgentProposalMergePolicy.Resolve` with two agents proposing the same `ProviderFamily` but different `EvidenceRef` values — dedupe requires matching `ProviderFamily` before evidence-ref check; a second agent's distinct evidence ref may be dropped when family matches an earlier proposal, losing cross-agent evidence linkage at commit.
-- [ ] (hunt-ready) `TechnologyLedgerAgentProposalMergePolicy` inventory `Chosen` row with blank `ProviderFamily` — same-family skip gate treats blank family as matching any proposal family, suppressing agent-proposed technologies that should augment inventory when family is unset on the authoritative row.
+- [x] (proven) Same provider family and technology name dropped a second agent proposal with a distinct non-empty `EvidenceRef` — **hit 2026-08-24:** `HasMatchingProposal` treated matching names as duplicates before comparing evidence refs; fixed by skipping name dedupe when both refs are non-empty and differ; regression in `Resolve_keeps_distinct_evidence_ref_when_family_and_technology_name_match`
+- [x] (invalid) Inventory `Chosen` row with `CloudProvider.None` suppresses every proposal family — **2026-08-24:** `chosen.ProviderFamily == candidate.ProviderFamily` uses enum equality; `None` only blocks other `None` proposals, not Aws/Azure/Gcp candidates (`Resolve_inserts_assumed_on_provider_conflict`).
 
 ---
 

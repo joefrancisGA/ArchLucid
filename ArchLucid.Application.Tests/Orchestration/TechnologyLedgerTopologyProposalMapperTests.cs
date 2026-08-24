@@ -206,6 +206,23 @@ public sealed class TechnologyLedgerAgentProposalMergePolicyTests
         resolved.Should().BeNull();
     }
 
+    [Fact]
+    public void Resolve_keeps_distinct_evidence_ref_when_family_and_technology_name_match()
+    {
+        TechnologyLedgerEntry existingAssumed = CreateCandidate(CloudProvider.Aws);
+        existingAssumed.EvidenceRef = "agentTopologyProposal:p1:svc-api";
+        existingAssumed.TechnologyName = "Amazon ECS";
+
+        TechnologyLedgerEntry candidate = CreateCandidate(CloudProvider.Aws);
+        candidate.EvidenceRef = "agentTopologyProposal:p2:svc-api";
+        candidate.TechnologyName = "Amazon ECS";
+
+        TechnologyLedgerEntry? resolved =
+            TechnologyLedgerAgentProposalMergePolicy.Resolve(candidate, [existingAssumed]);
+
+        resolved.Should().BeSameAs(candidate);
+    }
+
     private static TechnologyLedgerEntry CreateChosen(CloudProvider provider) =>
         new()
         {

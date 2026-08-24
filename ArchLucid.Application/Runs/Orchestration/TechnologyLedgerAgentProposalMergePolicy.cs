@@ -44,12 +44,18 @@ public static class TechnologyLedgerAgentProposalMergePolicy
             if (existing.ProviderFamily != candidate.ProviderFamily)
                 continue;
 
-            if (TechnologyNamesMatch(existing.TechnologyName, candidate.TechnologyName))
+            if (TechnologyNamesMatch(existing.TechnologyName, candidate.TechnologyName)
+                && !HasDistinctEvidenceRefs(existing.EvidenceRef, candidate.EvidenceRef))
                 return true;
         }
 
         return false;
     }
+
+    private static bool HasDistinctEvidenceRefs(string? left, string? right) =>
+        !string.IsNullOrWhiteSpace(left)
+        && !string.IsNullOrWhiteSpace(right)
+        && !EvidenceRefsMatch(left, right);
 
     private static bool TechnologyNamesMatch(string left, string right) =>
         string.Equals(left.Trim(), right.Trim(), StringComparison.OrdinalIgnoreCase);
