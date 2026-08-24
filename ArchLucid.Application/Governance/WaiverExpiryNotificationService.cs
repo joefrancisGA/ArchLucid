@@ -134,6 +134,9 @@ public sealed class WaiverExpiryNotificationService(
             notification.Waiver.ExpiresAtUtc,
             notification.BoundaryDays);
 
+        WaiverExpiryReminderEmailContent content =
+            WaiverExpiryReminderEmailComposer.Compose(notification, emailOptions);
+
         SentEmailLedgerEntry ledgerEntry = new(
             idempotencyKey,
             notification.Waiver.TenantId,
@@ -141,16 +144,13 @@ public sealed class WaiverExpiryNotificationService(
             _emailProvider.ProviderName,
             null);
 
-        // Reserve before sending: the ledger is the only thing standing between a restart and a duplicate reminder.
+        // Reserve before sending: duplicate scanner passes must not re-send the same boundary reminder.
         bool reserved = await _sentEmailLedger
             .TryRecordSentAsync(ledgerEntry, cancellationToken)
             .ConfigureAwait(false);
 
         if (!reserved)
             return false;
-
-        WaiverExpiryReminderEmailContent content =
-            WaiverExpiryReminderEmailComposer.Compose(notification, emailOptions);
 
         foreach (string recipient in recipients)
         {
@@ -179,6 +179,8 @@ public sealed class WaiverExpiryNotificationService(
                         ex,
                         "Waiver expiry reminder send failed for risk exception {RiskExceptionId}.",
                         notification.Waiver.RiskExceptionId);
+
+                throw;
             }
         }
 

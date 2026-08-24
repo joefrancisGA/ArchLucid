@@ -144,6 +144,20 @@ public sealed class WaiverExpiryNotificationServiceTests
     }
 
     [Fact]
+    public async Task RunTenantPassAsync_throws_when_send_fails_after_ledger_reservation()
+    {
+        Harness harness = new();
+        harness.WithActiveWaivers(Waiver(daysUntilExpiry: 6));
+        harness.WithSendFailure(new InvalidOperationException("provider down"));
+
+        Func<Task> act = () => harness.Service.RunTenantPassAsync(TenantId);
+
+        await act.Should().ThrowAsync<InvalidOperationException>();
+        harness.LedgerEntries.Should().HaveCount(1);
+        harness.SentMessages.Should().BeEmpty();
+    }
+
+    [Fact]
     public async Task RunTenantPassAsync_rejects_an_empty_tenant_id()
     {
         Harness harness = new();
@@ -203,16 +217,9 @@ public sealed class WaiverExpiryNotificationServiceTests
                 .Returns((SentEmailLedgerEntry entry, CancellationToken _) =>
                     Task.FromResult(RecordLedgerEntry(entry)));
 
-            Mock<IEmailProvider> emailProvider = new();
-            emailProvider.SetupGet(instance => instance.ProviderName).Returns("test-provider");
-            emailProvider
-                .Setup(instance => instance.SendAsync(It.IsAny<EmailMessage>(), It.IsAny<CancellationToken>()))
-                .Returns((EmailMessage message, CancellationToken _) =>
-                {
-                    SentMessages.Add(message);
-
-                    return Task.CompletedTask;
-                });
+            EmailProvider = new Mock<IEmailProvider>();
+            EmailProvider.SetupGet(instance => instance.ProviderName).Returns("test-provider");
+            WithSendSuccess();
 
             Mock<IAuditService> audit = new();
             audit
@@ -229,7 +236,7 @@ public sealed class WaiverExpiryNotificationServiceTests
                 preferences.Object,
                 adminLookup.Object,
                 ledger.Object,
-                emailProvider.Object,
+                EmailProvider.Object,
                 MonitorFor(new EmailNotificationOptions
                 {
                     OperatorBaseUrl = "https://app.example.com",
@@ -250,6 +257,8 @@ public sealed class WaiverExpiryNotificationServiceTests
         public List<EmailMessage> SentMessages { get; } = [];
 
         public WaiverExpiryNotificationService Service { get; }
+
+        private Mock<IEmailProvider> EmailProvider { get; }
 
         private Mock<ITenantTrialEmailContactLookup> AdminLookup { get; }
 
@@ -281,6 +290,25 @@ public sealed class WaiverExpiryNotificationServiceTests
             AdminLookup
                 .Setup(lookup => lookup.TryResolveAdminEmailAsync(TenantId, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(email);
+        }
+
+        public void WithSendFailure(Exception exception)
+        {
+            EmailProvider
+                .Setup(instance => instance.SendAsync(It.IsAny<EmailMessage>(), It.IsAny<CancellationToken>()))
+                .ThrowsAsync(exception);
+        }
+
+        public void WithSendSuccess()
+        {
+            EmailProvider
+                .Setup(instance => instance.SendAsync(It.IsAny<EmailMessage>(), It.IsAny<CancellationToken>()))
+                .Returns((EmailMessage message, CancellationToken _) =>
+                {
+                    SentMessages.Add(message);
+
+                    return Task.CompletedTask;
+                });
         }
 
         private static IOptionsMonitor<TOptions> MonitorFor<TOptions>(TOptions options)
