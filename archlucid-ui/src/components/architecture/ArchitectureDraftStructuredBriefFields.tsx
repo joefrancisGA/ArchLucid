@@ -22,7 +22,6 @@ import {
   mergeExclusiveConfirmedItem,
   mergeUniqueStrings,
   parseQualityAttributeEntries,
-  qualityAttributeMeetsMinimum,
   type ArchitectureDraftStructuredBriefState,
   type StructuredBriefSuggestedFieldKey,
 } from "@/lib/architecture/architecture-draft-structured-brief";
@@ -524,8 +523,6 @@ export function ArchitectureDraftStructuredBriefFields(
     }
   }
 
-  const qualityInvalid = markInvalid && !qualityAttributeMeetsMinimum(brief.qualityAttribute);
-
   return (
     <div className="space-y-6" data-testid="architecture-draft-structured-brief-fields">
       <div className="space-y-2">
@@ -715,7 +712,8 @@ export function ArchitectureDraftStructuredBriefFields(
         inputPlaceholder={GUIDED_INTAKE_STRUCTURED_BRIEF_QUALITY_ATTRIBUTES_PLACEHOLDER}
         items={parseQualityAttributeEntries(brief.qualityAttribute)}
         suggestedItems={[]}
-        invalid={qualityInvalid}
+        invalid={false}
+        required={false}
         emptyMessage="No quality attributes yet."
         disabled={props.disabled === true}
         helpSlug="structured-brief"
