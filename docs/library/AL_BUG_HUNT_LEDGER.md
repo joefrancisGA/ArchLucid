@@ -1607,8 +1607,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** notifications; email dispatchers beyond weekly summary
 - **paths:** ArchLucid.Notifications/; ArchLucid.Application/Notifications/
 - **test-filter:** FullyQualifiedName~Notifications|FullyQualifiedName~EmailDispatcher
-- **hunts:** 3
-- **bugs-found:** 6
+- **hunts:** 4
+- **bugs-found:** 10
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-24
 - **last-bug:** 2026-08-24
@@ -1626,6 +1626,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Weekly sponsor report template is missing from embedded Razor resources — **hit 2026-08-24:** `WeeklySponsorReportEmailDispatcher` targeted `WeeklySponsorReport` but no `WeeklySponsorReport.cshtml` shipped; report email render threw `TemplateNotFoundException`; added template and removed orphan `WeeklyExecutiveSummary.cshtml`.
 - [x] (proven) Weekly sponsor summary reserved the sent-email ledger before template render — **hit 2026-08-24:** a render failure reserved the weekly ledger key and permanently skipped the summary for that tenant/week; fixed by rendering before ledger reservation (matching the report dispatcher).
 - [x] (proven) Finding remediation assignment email swallowed provider send failures — **hit 2026-08-24:** `FindingRemediationAssignmentEmailDispatcher` returned `false` after reserving the ledger, so the assignment API returned 204 while the assignee never received mail and retries were blocked; fixed by throwing on send failure and recording the ledger only after a successful send.
+- [x] (proven) Recurrence completion email reserved ledger before template render — **hit 2026-08-24:** `RecurrenceCompletionEmailDispatcher` called `TryRecordSentAsync` before `RenderHtmlAsync`; a Razor failure permanently suppressed the schedule-run email; fixed by rendering before ledger reservation.
+- [x] (proven) Weekly sponsor summary treated whitespace-only recipients as success — **hit 2026-08-24:** `WeeklySponsorSummaryEmailDispatcher` only checked `toMailboxes.Count == 0`, reserved the ledger, skipped blank entries, and returned `true` without sending; fixed by normalizing recipients like the report dispatcher.
+- [x] (proven) Exec digest email reserved ledger before template render — **hit 2026-08-24:** `ExecDigestEmailDispatcher` reserved the weekly ledger before render and accepted all-whitespace recipient lists; fixed by render-before-ledger and recipient normalization.
+- [x] (proven) Trial lifecycle email reserved ledger before template render — **hit 2026-08-24:** `TrialLifecycleEmailDispatcher` reserved the idempotency key before Razor render; template failures permanently blocked trial onboarding mail; fixed by rendering before ledger reservation.
 
 ---
 
