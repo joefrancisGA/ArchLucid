@@ -104,7 +104,7 @@ public sealed class InMemoryRunRepository(ITenantRepository? tenantRepository = 
             if (candidate.ArchivedUtc.HasValue)
                 continue;
 
-            if (!string.Equals(candidate.ProjectId, authorityProjectSlug, StringComparison.Ordinal))
+            if (!AuthorityProjectSlugMatches(candidate.ProjectId, authorityProjectSlug))
                 continue;
 
             if (!candidate.GraphSnapshotId.HasValue)
@@ -143,7 +143,7 @@ public sealed class InMemoryRunRepository(ITenantRepository? tenantRepository = 
             if (candidate.ArchivedUtc.HasValue)
                 continue;
 
-            if (!string.Equals(candidate.ProjectId, projectId, StringComparison.Ordinal))
+            if (!AuthorityProjectSlugMatches(candidate.ProjectId, projectId))
                 continue;
 
             if (!candidate.GoldenManifestId.HasValue)
@@ -189,7 +189,7 @@ public sealed class InMemoryRunRepository(ITenantRepository? tenantRepository = 
             if (candidate.ArchivedUtc.HasValue)
                 continue;
 
-            if (!string.Equals(candidate.ProjectId, projectId, StringComparison.Ordinal))
+            if (!AuthorityProjectSlugMatches(candidate.ProjectId, projectId))
                 continue;
 
             if (candidate.RunId == currentRunId)
@@ -692,6 +692,17 @@ public sealed class InMemoryRunRepository(ITenantRepository? tenantRepository = 
         return r.TenantId == scope.TenantId &&
                r.WorkspaceId == scope.WorkspaceId &&
                r.ScopeProjectId == scope.ProjectId;
+    }
+
+    private static bool AuthorityProjectSlugMatches(string? storedProjectId, string authorityProjectSlug)
+    {
+        if (string.IsNullOrWhiteSpace(storedProjectId))
+            return false;
+
+        return string.Equals(
+            storedProjectId.Trim(),
+            authorityProjectSlug.Trim(),
+            StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool MatchesWorkspace(RunRecord r, ScopeContext scope) =>

@@ -105,4 +105,39 @@ public sealed class InMemoryRunRepositoryGetLatestWithGraphAtOrBeforeTests
 
         found.Should().BeNull();
     }
+
+    [Fact]
+    public async Task GetLatestWithGraphAtOrBefore_matches_padded_stored_project_slug()
+    {
+        IRunRepository repo = new InMemoryRunRepository(new InMemoryTenantRepository());
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid()
+        };
+
+        DateTime createdUtc = new(2026, 2, 1, 0, 0, 0, DateTimeKind.Utc);
+        RunRecord withGraph = new()
+        {
+            RunId = Guid.NewGuid(),
+            TenantId = scope.TenantId,
+            WorkspaceId = scope.WorkspaceId,
+            ScopeProjectId = scope.ProjectId,
+            ProjectId = "Payments Hub  ",
+            CreatedUtc = createdUtc,
+            GraphSnapshotId = Guid.NewGuid()
+        };
+
+        await repo.SaveAsync(withGraph, CancellationToken.None);
+
+        RunRecord? found = await repo.GetLatestWithGraphAtOrBeforeAsync(
+            scope,
+            "payments hub",
+            createdUtc.AddDays(1),
+            CancellationToken.None);
+
+        found.Should().NotBeNull();
+        found!.RunId.Should().Be(withGraph.RunId);
+    }
 }

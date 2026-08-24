@@ -77,7 +77,7 @@ internal static class RunRepositorySql
                                                             WHERE TenantId = @TenantId
                                                               AND WorkspaceId = @WorkspaceId
                                                               AND ScopeProjectId = @ScopeProjectId
-                                                              AND ProjectId = @AuthorityProjectSlug
+                                                              AND UPPER(LTRIM(RTRIM(ProjectId))) = @NormalizedAuthorityProjectSlug
                                                               AND ArchivedUtc IS NULL
                                                               AND GraphSnapshotId IS NOT NULL
                                                               AND CreatedUtc <= @AsOfUtc
@@ -92,7 +92,7 @@ internal static class RunRepositorySql
                                                                          WHERE r.TenantId = @TenantId
                                                                            AND r.WorkspaceId = @WorkspaceId
                                                                            AND r.ScopeProjectId = @ScopeProjectId
-                                                                           AND r.ProjectId = @AuthorityProjectSlug
+                                                                           AND UPPER(LTRIM(RTRIM(r.ProjectId))) = @NormalizedAuthorityProjectSlug
                                                                            AND r.ArchivedUtc IS NULL
                                                                            AND gm.ArchivedUtc IS NULL
                                                                            AND (
@@ -111,7 +111,7 @@ internal static class RunRepositorySql
                                                                  WHERE r.TenantId = @TenantId
                                                                    AND r.WorkspaceId = @WorkspaceId
                                                                    AND r.ScopeProjectId = @ScopeProjectId
-                                                                   AND r.ProjectId = @AuthorityProjectSlug
+                                                                   AND UPPER(LTRIM(RTRIM(r.ProjectId))) = @NormalizedAuthorityProjectSlug
                                                                    AND r.ArchivedUtc IS NULL
                                                                    AND gm.ArchivedUtc IS NULL
                                                                    AND r.RunId <> @CurrentRunId

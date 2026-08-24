@@ -104,13 +104,14 @@ internal static class RunListQueryParameters
     public static object ForLatestGraphAtOrBefore(ScopeContext scope, string authorityProjectSlug, DateTime asOfUtc)
     {
         ArgumentNullException.ThrowIfNull(scope);
+        ArgumentException.ThrowIfNullOrWhiteSpace(authorityProjectSlug);
 
         return new
         {
             scope.TenantId,
             scope.WorkspaceId,
             ScopeProjectId = scope.ProjectId,
-            AuthorityProjectSlug = authorityProjectSlug,
+            NormalizedAuthorityProjectSlug = NormalizeAuthorityProjectSlug(authorityProjectSlug),
             AsOfUtc = DateTime.SpecifyKind(asOfUtc, DateTimeKind.Utc)
         };
     }
@@ -118,13 +119,14 @@ internal static class RunListQueryParameters
     public static object ForLatestCommittedByManifestCreatedUtc(ScopeContext scope, string authorityProjectSlug)
     {
         ArgumentNullException.ThrowIfNull(scope);
+        ArgumentException.ThrowIfNullOrWhiteSpace(authorityProjectSlug);
 
         return new
         {
             scope.TenantId,
             scope.WorkspaceId,
             ScopeProjectId = scope.ProjectId,
-            AuthorityProjectSlug = authorityProjectSlug,
+            NormalizedAuthorityProjectSlug = NormalizeAuthorityProjectSlug(authorityProjectSlug),
             CommittedStatus = nameof(ArchitectureRunStatus.Committed)
         };
     }
@@ -136,13 +138,14 @@ internal static class RunListQueryParameters
         DateTime currentCreatedUtc)
     {
         ArgumentNullException.ThrowIfNull(scope);
+        ArgumentException.ThrowIfNullOrWhiteSpace(authorityProjectSlug);
 
         return new
         {
             scope.TenantId,
             scope.WorkspaceId,
             ScopeProjectId = scope.ProjectId,
-            AuthorityProjectSlug = authorityProjectSlug,
+            NormalizedAuthorityProjectSlug = NormalizeAuthorityProjectSlug(authorityProjectSlug),
             CurrentRunId = currentRunId,
             CurrentCreatedUtc = DateTime.SpecifyKind(currentCreatedUtc, DateTimeKind.Utc),
             CommittedStatus = nameof(ArchitectureRunStatus.Committed)
@@ -200,4 +203,7 @@ internal static class RunListQueryParameters
 
     private static int ClampTake(int take, int fallbackWhenUnset) =>
         Math.Clamp(take <= 0 ? fallbackWhenUnset : take, 1, MaxUnpagedTake);
+
+    private static string NormalizeAuthorityProjectSlug(string authorityProjectSlug) =>
+        authorityProjectSlug.Trim().ToUpperInvariant();
 }
