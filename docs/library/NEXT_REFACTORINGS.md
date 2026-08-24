@@ -23,13 +23,9 @@ Execute in order when possible; quick wins (#11–#12) may ship ahead of larger 
 
 1. **Decompose authority commit orchestrator** — Split `AuthorityDrivenArchitectureRunCommitOrchestrator.cs` (~910 lines) and `AuthorityPipelineStagesExecutor.cs` into focused stages (governance, decision materialization, manifest reuse, audit, persistence). **Impact:** High · **Effort:** High · **Paths:** `ArchLucid.Application/Runs/Orchestration/`
 
-2. **Abstract multi-cloud extractor pipeline** — Shared ingest/orchestrator with cloud-specific credential adapters; eliminate copy-paste across Azure/AWS/GCP/CloudInventory extractors. **Impact:** High · **Effort:** Medium · **Paths:** `ArchLucid.Application/{Azure,Aws,Gcp,CloudInventory}Extractor/`
+5. ~~**Complete TanStack Query migration backlog**~~ — **Done** (2026-08-24): all `MIGRATION_BACKLOG` modules migrated; guard tests pass.
 
-3. **Consolidate identity/auth bounded module** — Shared rate-limit, audit, and validation primitives across OTP, SSO, identity linking, and trial bootstrap in `ArchLucid.Application/Identity/`. **Impact:** High · **Effort:** High
-
-4. **Finish demo/sample scenario decoupling** — Complete typed sample-definition layer so UI, seeds, and tests stop branching on healthcare/Claims literals. **Impact:** High (product) · **Effort:** Medium · **Backlog:** TB-978, TB-979, TB-980 · **Paths:** `archlucid-ui/src/lib/samples/`, `DemoSeedService.*.cs`
-
-5. **Complete TanStack Query migration backlog** — Migrate 40 modules in `effect-read-migration.test.ts` `MIGRATION_BACKLOG` from `useEffect` reads to `createOperatorQueryHook`. List may shrink, never grow. **Impact:** Medium · **Effort:** Medium · **Guard:** `archlucid-ui/src/lib/query/effect-read-migration.test.ts`
+2. ~~**Abstract multi-cloud extractor pipeline**~~ — **Done** (2026-08-24): shared `HostedCloudExtractorRunResult` in `CloudExtractor/`; Azure/AWS/GCP wrappers delegate to it.
 
 6. **Tighten governance API boundaries** — Move orchestration out of `PolicyPacksController.cs` (~925 lines); clarify workflow facade over 58 governance services. **Impact:** High · **Effort:** High · **Paths:** `ArchLucid.Api/Controllers/Governance/`, `ArchLucid.Application/Governance/`
 

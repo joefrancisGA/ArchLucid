@@ -1,65 +1,48 @@
 namespace ArchLucid.Application.AzureExtractor;
 
+/// <summary>Azure-hosted extractor poll result — delegates to shared cloud extractor envelope.</summary>
 public sealed class HostedAzureExtractorRunResult
 {
-    public bool Succeeded { get; init; }
+    private readonly CloudExtractor.HostedCloudExtractorRunResult _inner;
 
-    public Guid? PackageId { get; init; }
+    private HostedAzureExtractorRunResult(CloudExtractor.HostedCloudExtractorRunResult inner)
+    {
+        _inner = inner;
+    }
 
-    public int ResourceCount { get; init; }
+    public bool Succeeded => _inner.Succeeded;
 
-    public string? FailureDetail { get; init; }
+    public Guid? PackageId => _inner.PackageId;
 
-    public HostedAzureExtractorRunFailureKind FailureKind { get; init; }
+    public int ResourceCount => _inner.ResourceCount;
+
+    public string? FailureDetail => _inner.FailureDetail;
+
+    public HostedAzureExtractorRunFailureKind FailureKind =>
+        (HostedAzureExtractorRunFailureKind)_inner.FailureKind;
 
     public static HostedAzureExtractorRunResult CreateSuccess(Guid packageId, int resourceCount) =>
-        new()
-        {
-            Succeeded = true,
-            PackageId = packageId,
-            ResourceCount = resourceCount,
-            FailureKind = HostedAzureExtractorRunFailureKind.None
-        };
+        Wrap(CloudExtractor.HostedCloudExtractorRunResult.CreateSuccess(packageId, resourceCount));
 
     public static HostedAzureExtractorRunResult CreateFeatureDisabled() =>
-        new()
-        {
-            Succeeded = false,
-            FailureDetail = "Hosted Azure extractor is disabled (HostedAzureExtractor:Enabled=false).",
-            FailureKind = HostedAzureExtractorRunFailureKind.FeatureDisabled
-        };
+        Wrap(CloudExtractor.HostedCloudExtractorRunResult.CreateFeatureDisabled("Azure", "HostedAzureExtractor"));
 
     public static HostedAzureExtractorRunResult CreateNotConfigured() =>
-        new()
-        {
-            Succeeded = false,
-            FailureDetail = "No hosted Azure extractor configuration exists for this tenant and subscription.",
-            FailureKind = HostedAzureExtractorRunFailureKind.NotConfigured
-        };
+        Wrap(CloudExtractor.HostedCloudExtractorRunResult.CreateNotConfigured(
+            "Azure",
+            "No hosted Azure extractor configuration exists for this tenant and subscription."));
 
     public static HostedAzureExtractorRunResult CreateIngestFailed(string detail) =>
-        new()
-        {
-            Succeeded = false,
-            FailureDetail = detail,
-            FailureKind = HostedAzureExtractorRunFailureKind.IngestFailed
-        };
+        Wrap(CloudExtractor.HostedCloudExtractorRunResult.CreateIngestFailed(detail));
 
     public static HostedAzureExtractorRunResult CreateThrottled(string detail) =>
-        new()
-        {
-            Succeeded = false,
-            FailureDetail = detail,
-            FailureKind = HostedAzureExtractorRunFailureKind.Throttled
-        };
+        Wrap(CloudExtractor.HostedCloudExtractorRunResult.CreateThrottled(detail));
 
     public static HostedAzureExtractorRunResult CreateCollectionFailed(string detail) =>
-        new()
-        {
-            Succeeded = false,
-            FailureDetail = detail,
-            FailureKind = HostedAzureExtractorRunFailureKind.CollectionFailed
-        };
+        Wrap(CloudExtractor.HostedCloudExtractorRunResult.CreateCollectionFailed(detail));
+
+    private static HostedAzureExtractorRunResult Wrap(CloudExtractor.HostedCloudExtractorRunResult inner) =>
+        new(inner);
 }
 
 public enum HostedAzureExtractorRunFailureKind
