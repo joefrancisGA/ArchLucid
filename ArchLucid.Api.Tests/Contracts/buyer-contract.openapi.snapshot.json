@@ -10344,6 +10344,20 @@
         },
         "type": "object"
       },
+      "DevelopmentCatalogResetResponse": {
+        "properties": {
+          "catalogName": {
+            "type": "string"
+          },
+          "demoSeedApplied": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "catalogName"
+        ],
+        "type": "object"
+      },
       "DiagramResponse": {
         "properties": {
           "diagram": {
@@ -38350,6 +38364,9 @@
     },
     {
       "name": "DemoViewer"
+    },
+    {
+      "name": "DevelopmentCatalogReset"
     },
     {
       "name": "Diagnostics"
