@@ -1919,13 +1919,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** marketing pages; pricing; trust center UI
 - **paths:** archlucid-ui/src/app/(marketing)/
 - **test-filter:** marketing
-- **hunts:** 3
-- **bugs-found:** 3
+- **hunts:** 4
+- **bugs-found:** 6
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-23
-- **last-bug:** 2026-08-23
+- **last-hunt:** 2026-08-24
+- **last-bug:** 2026-08-24
 - **related-pd-tb:** none
-- **code-changed-since:** unknown
+- **code-changed-since:** yes
 
 ### Hypotheses
 
@@ -1934,6 +1934,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Trust Center evidence pack ZIP href used raw `/v1/marketing/trust-center/evidence-pack.zip` instead of `/api/proxy/...` — Next.js has no rewrite; anonymous download links 404. Fixed `TRUST_CENTER_EVIDENCE_PACK_ZIP_HREF`; regression in `trust-center-marketing.test.ts`.
 - [x] (proven) Sponsor digest deep-link `mapResponse` defaulted `signInUrl` to `/auth/sign-in` (no route) when API omitted the field — workspace sign-in CTA on `/digest/sponsor` links 404 instead of `/auth/signin` — fixed 2026-08-21 (`exec-digest-sponsor-deep-link-server.test.ts`)
 - [x] (proven) Marketing showcase page used raw `decodeURIComponent(runId)` and `encodeURIComponent(runId)` for API fetch — malformed `%` segments throw `URIError` (500) and encoded run keys double-encode for `/v1/marketing/showcase/{runKey}` — fixed 2026-08-23 (`showcase-page.test.tsx`)
+- [x] (proven) Sponsor digest `mapResponse` only defaulted missing `signInUrl`; API still returns `/auth/sign-in` (404) — fixed 2026-08-24; normalize legacy path to `/auth/signin` (`exec-digest-sponsor-deep-link-server.test.ts`).
+- [x] (proven) `showcaseTitleForRunId` / `showcaseScenarioRibbonLabel` still called raw `decodeURIComponent` — malformed `%` in route segment throws during metadata/hero render — fixed 2026-08-24; use `decodeShowcaseRunId` (`showcase-page-copy.test.ts`, `showcase-page.test.tsx`).
+- [x] (proven) Showcase API 200 with only `run` + `manifest` crashed render on `payload.artifacts.length` — fixed 2026-08-24; reject thin payloads in `fetchShowcasePayload` and guard snapshot (`ShowcaseWhatThisProves.test.tsx`, `showcase-page.test.tsx`).
 
 ---
 
