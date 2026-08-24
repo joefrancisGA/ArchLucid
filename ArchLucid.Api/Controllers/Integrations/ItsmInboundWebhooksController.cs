@@ -87,6 +87,9 @@ public sealed class ItsmInboundWebhooksController(
 
     private async Task<IActionResult> ProcessJiraAsync(Guid? tenantId, CancellationToken ct)
     {
+        if (tenantId == Guid.Empty)
+            return this.BadRequestProblem("Tenant id is required.", ProblemTypes.ValidationFailed);
+
         InboundWebhookCorrelationBinder.EnsureIncomingCorrelationTags(HttpContext);
 
         string? sharedSecret = await ResolveInboundSecretAsync(tenantId, TenantItsmConnectorProvider.Jira, ct)
@@ -140,6 +143,9 @@ public sealed class ItsmInboundWebhooksController(
 
     private async Task<IActionResult> ProcessServiceNowAsync(Guid? tenantId, CancellationToken ct)
     {
+        if (tenantId == Guid.Empty)
+            return this.BadRequestProblem("Tenant id is required.", ProblemTypes.ValidationFailed);
+
         InboundWebhookCorrelationBinder.EnsureIncomingCorrelationTags(HttpContext);
 
         string? sharedSecret = await ResolveInboundSecretAsync(tenantId, TenantItsmConnectorProvider.ServiceNow, ct)

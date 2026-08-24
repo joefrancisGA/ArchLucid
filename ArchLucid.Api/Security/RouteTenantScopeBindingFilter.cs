@@ -49,6 +49,12 @@ public sealed class RouteTenantScopeBindingFilter(IScopeContextProvider scopeCon
         if (context.ActionDescriptor.EndpointMetadata.Any(static m => m is AllowCrossTenantRouteAttribute))
             return true;
 
+        if (context.ActionDescriptor.EndpointMetadata.Any(static m => m is AllowUnscopedRouteAttribute))
+            return true;
+
+        if (context.ActionDescriptor.EndpointMetadata.Any(static m => m is IAllowAnonymous))
+            return true;
+
         if (HasPolicy(context, ArchLucidPolicies.PlatformTenantDeletionAuthority))
             return true;
 

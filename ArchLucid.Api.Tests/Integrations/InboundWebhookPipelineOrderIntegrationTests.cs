@@ -124,6 +124,25 @@ public sealed class InboundWebhookPipelineOrderIntegrationTests
         correlationHeaders!.Should().ContainSingle().Which.Should().Be("inbound-it-sm-corr-hdr-1");
     }
 
+    [Fact]
+    public async Task Jira_tenant_scoped_route_with_empty_guid_returns_400()
+    {
+        await using WebApplicationFactory<Program> factory = CreateFactory();
+        using HttpClient client = factory.CreateClient();
+
+        using HttpRequestMessage request = new(
+            HttpMethod.Post,
+            "/v1/integrations/webhooks/jira/tenants/00000000-0000-0000-0000-000000000000");
+        request.Content = new StringContent("{}", Encoding.UTF8, "application/json");
+        request.Headers.TryAddWithoutValidation("X-Jira-Token", JiraSecret);
+
+        using HttpResponseMessage response = await client.SendAsync(request);
+
+        response.StatusCode.Should().Be(
+            HttpStatusCode.BadRequest,
+            "tenant-scoped ITSM routes must reject Guid.Empty instead of falling back to deployment-wide secret resolution");
+    }
+
     private static WebApplicationFactory<Program> CreateFactory() =>
         new OpenApiContractWebAppFactory().WithWebHostBuilder(builder =>
             builder.ConfigureAppConfiguration(
