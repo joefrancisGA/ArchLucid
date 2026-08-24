@@ -91,4 +91,19 @@ public sealed class ArchLucidConfigurationBridgeTests
 
         cs.Should().BeNull();
     }
+
+    [SkippableTheory]
+    [InlineData("")]
+    [InlineData("   ")]
+    public void ResolveSqlConnectionString_treats_blank_values_as_missing(string blankConnectionString)
+    {
+        IConfiguration configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(
+                new Dictionary<string, string?> { ["ConnectionStrings:ArchLucid"] = blankConnectionString })
+            .Build();
+
+        string? cs = ArchLucidConfigurationBridge.ResolveSqlConnectionString(configuration);
+
+        cs.Should().BeNull();
+    }
 }

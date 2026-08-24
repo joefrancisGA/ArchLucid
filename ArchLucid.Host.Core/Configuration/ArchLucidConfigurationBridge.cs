@@ -42,9 +42,10 @@ public static class ArchLucidConfigurationBridge
 
         string? raw = configuration.GetConnectionString(PrimarySqlConnectionName);
 
-        return raw is null
-            ? null
-            : SqlConnectionStringSecurity.EnsureSqlClientEncryptMandatory(raw, enforceServerCertificateTrust);
+        if (string.IsNullOrWhiteSpace(raw))
+            return null;
+
+        return SqlConnectionStringSecurity.EnsureSqlClientEncryptMandatory(raw, enforceServerCertificateTrust);
     }
 
     /// <summary>
@@ -58,9 +59,10 @@ public static class ArchLucidConfigurationBridge
 
         string? raw = configuration.GetConnectionString(SystemSqlConnectionName);
 
-        return raw is null
-            ? null
-            : SqlConnectionStringSecurity.EnsureSqlClientEncryptMandatory(raw, enforceServerCertificateTrust);
+        if (string.IsNullOrWhiteSpace(raw))
+            return null;
+
+        return SqlConnectionStringSecurity.EnsureSqlClientEncryptMandatory(raw, enforceServerCertificateTrust);
     }
 
     /// <summary>

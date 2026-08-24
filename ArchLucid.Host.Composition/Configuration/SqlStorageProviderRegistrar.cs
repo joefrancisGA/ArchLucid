@@ -167,7 +167,10 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
                                       configuration,
                                       enforceServerCertificateTrust)
                                   ?? throw new InvalidOperationException(
-                                      "Missing connection string 'ArchLucid'."),
+                                      "ConnectionStrings:ArchLucid is missing or blank. "
+                                      + "Set ConnectionStrings:ArchLucid in appsettings or the ConnectionStrings__ArchLucid "
+                                      + "environment variable to a valid SQL Server connection string before starting the host "
+                                      + "(not required when ArchLucid:StorageProvider is InMemory)."),
             poolSnapshot);
 
         services.Configure<SqlServerOptions>(configuration.GetSection(SqlServerOptions.SectionName));
