@@ -66,15 +66,15 @@ public sealed class WeeklySponsorSummaryEmailDispatcher(
         };
 
         string idempotencyKey = $"weekly-sponsor-summary:{tenantId:N}:{isoWeekIdempotencyKey}";
+        string html = await _templateRenderer.RenderHtmlAsync(TemplateId, model, cancellationToken);
+        string text = await _templateRenderer.RenderTextAsync(TemplateId, model, cancellationToken);
+        string subject = $"{productName} weekly sponsor summary — {weekLabel}";
+
         SentEmailLedgerEntry ledgerEntry = new(idempotencyKey, tenantId, TemplateId, _emailProvider.ProviderName, null);
         bool reserved = await _sentEmailLedger.TryRecordSentAsync(ledgerEntry, cancellationToken);
 
         if (!reserved)
             return false;
-
-        string html = await _templateRenderer.RenderHtmlAsync(TemplateId, model, cancellationToken);
-        string text = await _templateRenderer.RenderTextAsync(TemplateId, model, cancellationToken);
-        string subject = $"{productName} weekly sponsor summary — {weekLabel}";
 
         foreach (string mailbox in toMailboxes)
         {

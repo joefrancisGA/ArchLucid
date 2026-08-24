@@ -1,4 +1,4 @@
-@model ArchLucid.Application.Notifications.Email.Models.WeeklyExecutiveSummaryEmailModel
+@model ArchLucid.Application.Notifications.Email.Models.WeeklySponsorReportEmailModel
 <!DOCTYPE html>
 <html>
 <head>
@@ -15,10 +15,10 @@
         </tr>
     </table>
 }
-<p>Weekly executive summary from @Model.ProductName.</p>
+<p>Weekly sponsor report from @Model.ProductName.</p>
 <p><strong>@Model.WeekLabel</strong></p>
 <p>Latest committed review: <a href="@Model.RunDetailUrl">@Model.RunIdHex</a></p>
-<p>Executive summary (Markdown):</p>
+<p>Sponsor report (Markdown):</p>
 <pre style="font-family:Consolas,monospace;font-size:13px;white-space:pre-wrap;">@Model.SummaryMarkdown</pre>
 <p>Open the run in ArchLucid for exports and sponsor artifacts.</p>
 </body>

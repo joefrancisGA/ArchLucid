@@ -73,12 +73,6 @@ public sealed class FindingRemediationAssignmentEmailDispatcher(
         string idempotencyKey =
             $"finding-remediation-assignment:{tenantId:N}:{runHex}:{trimmedFindingId}:{mailbox.ToLowerInvariant()}";
 
-        SentEmailLedgerEntry ledgerEntry = new(idempotencyKey, tenantId, TemplateId, _emailProvider.ProviderName, null);
-        bool reserved = await _sentEmailLedger.TryRecordSentAsync(ledgerEntry, cancellationToken).ConfigureAwait(false);
-
-        if (!reserved)
-            return false;
-
         FindingRemediationAssignmentEmailModel model = new()
         {
             ProductName = productName,
@@ -113,7 +107,6 @@ public sealed class FindingRemediationAssignmentEmailDispatcher(
         try
         {
             await _emailProvider.SendAsync(message, cancellationToken).ConfigureAwait(false);
-            return true;
         }
         catch (Exception ex) when (!cancellationToken.IsCancellationRequested)
         {
@@ -126,8 +119,13 @@ public sealed class FindingRemediationAssignmentEmailDispatcher(
                     LogSanitizer.Sanitize(trimmedFindingId)); // codeql[cs/log-forging]: FindingId operational id; TenantId is Guid.
             }
 
-            return false;
+            throw;
         }
+
+        SentEmailLedgerEntry ledgerEntry = new(idempotencyKey, tenantId, TemplateId, _emailProvider.ProviderName, null);
+        bool reserved = await _sentEmailLedger.TryRecordSentAsync(ledgerEntry, cancellationToken).ConfigureAwait(false);
+
+        return reserved;
     }
 
     private static bool IsMailboxAddress(string value) =>
