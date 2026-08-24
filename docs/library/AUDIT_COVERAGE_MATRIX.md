@@ -46,7 +46,7 @@ Full operation-level rows: **Operations → durable audit** and **Baseline mutat
 
 ---
 
-<!-- audit-core-const-count:391 -->
+<!-- audit-core-const-count:393 -->
 
 The HTML comment above is a **CI anchor**: `.github/workflows/ci.yml` runs `scripts/ci/assert_audit_const_count.py`, which parses every `public const string` across the `ArchLucid.Core/Audit/AuditEventTypes*.cs` family partials (top-level, `Run`, `Operation`, and `Baseline.*`), cross-checks names against the three appendix tables in this file, and compares the count to this comment. Update the comment whenever constants change, and extend the appendix rows below.
 
@@ -104,6 +104,7 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 | Architecture run pin / unpin | `RunsController` (`PATCH /v1/architecture/run/{runId}/pin`) | `AuditEventTypes.RunPinStateChanged` | RunId | `{ isPinned }` |
 | Operator saved view create | `OperatorSavedViewsController` (`POST /v1/operator/saved-views`) | `AuditEventTypes.OperatorSavedViewCreated` | Tenant/Workspace/Project from ambient scope | `{ viewId, surface, name, isShared }` — filter JSON not duplicated (may contain operator query terms) |
 | Operator saved view delete | `OperatorSavedViewsController` (`DELETE /v1/operator/saved-views/{viewId}`) | `AuditEventTypes.OperatorSavedViewDeleted` | Tenant/Workspace/Project from ambient scope | `{ viewId }` |
+| Run effective governance scope resolved at execute time | `ExecuteTimeGovernanceScopeCaptureService` (`ArchitectureRunExecuteOrchestrator` execute path) | `AuditEventTypes.RunGovernanceScopeResolved` | RunId | `{ runId, packAssignmentCount, coverageAssignmentCount, notAssessedDimensionCount, conflictCount, focusedPilotModeEnabled, cloudProvider }` |
 | Run operator governance disposition (approve / defer / reject) | `AuthorityQueryController` (`POST /v1/authority/runs/{runId}/disposition`); `RunOperatorGovernanceDispositionService` | `AuditEventTypes.RunOperatorGovernanceDispositionRecorded` | RunId | `{ decision, rationale?, actorUserId, occurredUtc }` |
 | Technology Ledger entry approval patch | `TechnologyLedgerController` (`PATCH /v1/runs/{runId}/technology-ledger/{entryId}`) | `AuditEventTypes.TechnologyLedgerEntryUpdated` | RunId | `{ entryId, role, status, isLocked }` |
 | Architect one-click demo review | `ReviewsDemoController` (`POST /v1/reviews/demo`); `OperatorDemoReviewService` | `RunSubmitted`, `RunCompleted` (via service pipeline) | Tenant/Workspace/Project from ambient scope | Built-in flawed brief → finalized architecture package; controller `[MutatingAuditExcluded]` because service emits pipeline audit events |
@@ -236,6 +237,7 @@ Retention tiering (hot / warm / cold) and operational guidance: **`docs/AUDIT_RE
 | Trial upgrade nudge CTA clicked | `ClientErrorTelemetryController` (`POST /v1/diagnostics/trial-upgrade-nudge/clicked`) | `TrialUpgradeNudgeClicked` | Tenant + workspace/project from ambient scope | `{ trigger }` |
 | Team expansion nudge shown (paid Team architect workspace) | `ClientErrorTelemetryController` (`POST /v1/diagnostics/team-expansion-nudge/shown`) | `TeamExpansionNudgeShown` | Tenant + workspace/project from ambient scope | `{ trigger }` — `seats` / `workspaces` |
 | Team expansion nudge CTA clicked | `ClientErrorTelemetryController` (`POST /v1/diagnostics/team-expansion-nudge/clicked`) | `TeamExpansionNudgeClicked` | Tenant + workspace/project from ambient scope | `{ trigger }` |
+| Development catalog reset (drop/recreate local SQL catalog) | `DevelopmentCatalogResetController` (`POST /v1/diagnostics/reset-development-catalog`) | `AuditEventTypes.DevelopmentCatalogResetInvoked` | Tenant/Workspace/Project from ambient scope | `{ catalogName, demoSeedApplied, hostIsDevelopment }` — Development host + Sql storage only |
 | Synthetic operator demo-pack markers (dev/demo UI validation) | `SyntheticOperatorDemoPackWriter` (`SyntheticOperatorDemoPackController`) | `SyntheticOperatorDemoPack.Marker` | Tenant/Workspace/Project from ambient scope | `POST /v1/diagnostics/synthetic-operator-demo-pack` (Development host or `Demo:Enabled`, Admin policy); filter durable audit by this event type or `DataJson.syntheticDemoPack=true`. |
 | Authority committed manifest FK chain (demo trusted-baseline seed) | `DemoSeedService` | `AuthorityCommittedChainPersisted` | RunId, ManifestId | `{ source: "demo-seed", projectSlug, richFindingsAndGraph, contextSnapshotId, graphSnapshotId, findingsSnapshotId, decisionTraceId, manifestId }` |
 | Authority committed manifest FK chain (replay commit) | `ReplayRunService` | `AuthorityCommittedChainPersisted` | RunId, ManifestId | `{ source: "replay-commit", projectSlug, richFindingsAndGraph: true, … }` — emitted only after `CommitAsync` succeeds. |
@@ -437,6 +439,7 @@ Neither weakens **DENY UPDATE/DELETE** on `dbo.AuditEvents` ([`051_AuditEvents_D
 | `RunPinStateChanged` | `RunPinStateChanged` | `RunsController` (`PATCH /v1/architecture/run/{runId}/pin`) |
 | `OperatorSavedViewCreated` | `OperatorSavedView.Created` | `OperatorSavedViewsController` (`POST /v1/operator/saved-views`) |
 | `OperatorSavedViewDeleted` | `OperatorSavedView.Deleted` | `OperatorSavedViewsController` (`DELETE /v1/operator/saved-views/{viewId}`) |
+| `RunGovernanceScopeResolved` | `RunGovernanceScopeResolved` | `ExecuteTimeGovernanceScopeCaptureService` (`ArchitectureRunExecuteOrchestrator` execute path) |
 | `RunOperatorGovernanceDispositionRecorded` | `RunOperatorGovernanceDispositionRecorded` | `RunOperatorGovernanceDispositionService` (`AuthorityQueryController` `POST /v1/authority/runs/{runId}/disposition`) |
 | `InternalArchitectureDeterminismCheckExecuted` | `InternalArchitectureDeterminismCheckExecuted` | `InternalArchitectureDiagnosticsController` (`POST …/internal/architecture/runs/{runId}/determinism-check`) |
 | `InternalArchitectureFakeResultsSeeded` | `InternalArchitectureFakeResultsSeeded` | `InternalArchitectureDiagnosticsController` (`POST …/internal/architecture/runs/{runId}/seed-fake-results`) |
@@ -500,6 +503,7 @@ Neither weakens **DENY UPDATE/DELETE** on `dbo.AuditEvents` ([`051_AuditEvents_D
 | `AdvisoryScanExecuted` | `AdvisoryScanExecuted` | `AdvisoryScanRunner`, `AdvisoryController` |
 | `ArchitectureDigestGenerated` | `ArchitectureDigestGenerated` | `AdvisoryScanRunner`, `AdvisoryController` |
 | `DecisionReceiptExported` | `DecisionReceipt.Exported` | `DraftRequestsController` (`GET /v1/architecture/draft/{draftId}/decision-receipt`); `ArtifactExportController` (`GET /v1/artifacts/runs/{runId}/decision-receipt`) |
+| `DevelopmentCatalogResetInvoked` | `DevelopmentCatalogReset.Invoked` | `DevelopmentCatalogResetController` (`POST /v1/diagnostics/reset-development-catalog`) |
 | `DigestSubscriptionCreated` | `DigestSubscriptionCreated` | `DigestSubscriptionsController` |
 | `DigestSubscriptionToggled` | `DigestSubscriptionToggled` | `DigestSubscriptionsController` |
 | `DigestDeliverySucceeded` | `DigestDeliverySucceeded` | `DigestDeliveryDispatcher` |
