@@ -10,7 +10,6 @@ import { ARCHITECTURES_LIST_PATH } from "@/lib/architecture/architecture-routes"
 import { CONTINUE_DRAFT_LABEL } from "@/lib/architecture/architecture-workflow-labels";
 import {
   ARCHITECTURE_CREATION_CONTINUE_SECTION_TITLE,
-  ARCHITECTURE_CREATION_NO_DRAFTS_GUIDANCE,
   ARCHITECTURE_CREATION_RECENT_DRAFTS_BODY,
   ARCHITECTURE_CREATION_RECENT_DRAFTS_SECTION_TITLE,
   ARCHITECTURE_CREATION_VIEW_ALL_DRAFTS_LABEL,
@@ -43,7 +42,7 @@ function resolveResumeSectionTitle(entryCount: number): string {
   return ARCHITECTURE_CREATION_RECENT_DRAFTS_SECTION_TITLE;
 }
 
-/** `/architectures/new` — browser-local draft resume or empty guidance (TB-1459). */
+/** `/architectures/new` — browser-local draft resume when registry entries exist (TB-1459). */
 export function ArchitectureCreationLocalDraftsPanel(): React.JSX.Element | null {
   const entries = useArchitectureDraftRegistryEntries();
   const [registryHydrated, setRegistryHydrated] = useState(false);
@@ -57,14 +56,7 @@ export function ArchitectureCreationLocalDraftsPanel(): React.JSX.Element | null
   }
 
   if (entries.length === 0) {
-    return (
-      <p
-        className={cn("m-0 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
-        data-testid="architecture-creation-no-drafts-guidance"
-      >
-        {ARCHITECTURE_CREATION_NO_DRAFTS_GUIDANCE}
-      </p>
-    );
+    return null;
   }
 
   const previewEntries = entries.slice(0, ARCHITECTURE_CREATION_RESUME_PREVIEW_LIMIT);
