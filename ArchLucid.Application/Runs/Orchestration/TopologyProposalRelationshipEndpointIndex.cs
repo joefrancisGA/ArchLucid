@@ -720,6 +720,7 @@ public static class TopologyProposalRelationshipEndpointIndex
             || normalized.Contains("kusto_cluster", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("app_configuration", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("stream_analytics", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("iothub", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("communication_service", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("cognitive_account", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("cognitive_services", StringComparison.OrdinalIgnoreCase)
