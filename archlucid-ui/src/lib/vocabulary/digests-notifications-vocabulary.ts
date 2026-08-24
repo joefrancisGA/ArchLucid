@@ -13,7 +13,6 @@
  */
 
 import { DIGESTS_HUB_PATH } from "@/lib/digests-route-paths";
-import { NOTIFICATION_PREFERENCE_CENTER_PATH } from "@/lib/notification-preference-center";
 import { SETTINGS_NOTIFICATIONS_PATH } from "@/lib/settings-admin-route-paths";
 import type { PairwiseVocabularyRailModel } from "@/lib/vocabulary/create-pairwise-vocabulary-rail";
 
@@ -92,7 +91,12 @@ export function resolveDigestsNotificationsPeerLink(
   return DIGESTS_NOTIFICATIONS_DIGESTS_LINK;
 }
 
-/** Assert notifications hub path aliases stay aligned. */
+/**
+ * Notifications hub path for vocabulary deep links.
+ * Intentionally uses SETTINGS_NOTIFICATIONS_PATH (same value as
+ * NOTIFICATION_PREFERENCE_CENTER_PATH) to avoid a circular import with
+ * notification-preference-center.ts, which composes this vocabulary module.
+ */
 export function digestsNotificationsPreferenceCenterPath(): string {
-  return NOTIFICATION_PREFERENCE_CENTER_PATH;
+  return SETTINGS_NOTIFICATIONS_PATH;
 }
