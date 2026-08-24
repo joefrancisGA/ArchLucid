@@ -1251,24 +1251,26 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ## Zone: security-analyzers
 
 - **id:** security-analyzers
-- **status:** unseeded
+- **status:** open
 - **impact:** high
 - **aliases:** require authorization analyzer; tenant identity boundary; mutating controller audit
 - **paths:** ArchLucid.Analyzers/RequireAuthorizationAnalyzer.cs; ArchLucid.Analyzers/TenantIdentityBoundaryAnalyzer.cs; ArchLucid.Analyzers/MutatingControllerAuditAnalyzer.cs
 - **test-filter:** FullyQualifiedName~RequireAuthorizationAnalyzer|FullyQualifiedName~TenantIdentityBoundaryAnalyzer|FullyQualifiedName~MutatingControllerAuditAnalyzer
-- **hunts:** 0
-- **bugs-found:** 0
+- **hunts:** 1
+- **bugs-found:** 4
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **last-hunt:** 2026-08-24
+- **last-bug:** 2026-08-24 — AL0003 skipped HttpPatch; ARCH001 fired on Tests assemblies and typeof(); AL0001 reported [NonAction] helpers
 - **related-pd-tb:** none
-- **code-changed-since:** unknown
+- **code-changed-since:** yes
 
 ### Hypotheses
 
-- [ ] (candidate) Mutating controller without `[Authorize]` does not fire `RequireAuthorizationAnalyzer`
-- [ ] (candidate) Cross-tenant repository call with only workspace id in scope passes `TenantIdentityBoundaryAnalyzer`
-- [ ] (candidate) Controller action mutates state without audit attribute and analyzer stays silent
+- [x] (proven) Controller action mutates state without audit attribute and analyzer stays silent — **hit 2026-08-24:** `TrackedVerbAttribute` omitted `HttpPatchAttribute`; many PATCH endpoints skipped AL0003; regression in `AL0003_reports_when_HttpPatch_action_lacks_IAudit_LogAsync`
+- [x] (proven) Cross-tenant repository call with only workspace id in scope passes `TenantIdentityBoundaryAnalyzer` — **hit 2026-08-24:** `typeof(HttpContext)` / `typeof(ClaimsPrincipal)` flagged like real usage; `IsInTypeOf` exemption; regressions in `Does_not_report_typeof_HttpContext` / `Does_not_report_typeof_ClaimsPrincipal`
+- [x] (invalid) Mutating controller without `[Authorize]` does not fire `RequireAuthorizationAnalyzer` — analyzer targets missing auth on actions/controllers; not a mutating-without-audit gap
+- [x] (proven) ARCH001 analyzed `*.Tests` assemblies — `ShouldAnalyzeAssembly` lacked `.Tests` suffix exclusion (unlike AL0001); regression in `Does_not_report_when_assembly_is_tests`
+- [x] (proven) AL0001 reported public `[NonAction]` controller helpers — `RequireAuthorizationAnalyzer` did not skip `NonActionAttribute`; regression in `Does_not_report_public_NonAction_helper`
 
 ---
 
