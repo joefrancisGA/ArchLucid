@@ -67,6 +67,16 @@ public sealed class InMemoryTenantSignInEmailDomainRepository : ITenantSignInEma
     {
         _ = cancellationToken;
 
+        if (!_byDomain.TryGetValue(record.NormalizedDomain, out TenantSignInEmailDomainRecord? existing))
+        {
+            return Task.CompletedTask;
+        }
+
+        if (existing.TenantId != record.TenantId)
+        {
+            return Task.CompletedTask;
+        }
+
         _byDomain[record.NormalizedDomain] = record;
 
         return Task.CompletedTask;

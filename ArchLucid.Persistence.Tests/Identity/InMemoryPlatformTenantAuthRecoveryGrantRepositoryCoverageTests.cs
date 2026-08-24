@@ -52,4 +52,27 @@ public sealed class InMemoryPlatformTenantAuthRecoveryGrantRepositoryCoverageTes
             .Should()
             .Be(now.AddMinutes(1));
     }
+
+    [Fact]
+    public async Task RevokeAsync_second_call_returns_false_when_grant_already_revoked()
+    {
+        InMemoryPlatformTenantAuthRecoveryGrantRepository sut = new();
+        DateTimeOffset now = TimeProvider.System.GetUtcNow();
+
+        PlatformTenantAuthRecoveryGrantRecord stored = await sut.InsertAsync(
+            new PlatformTenantAuthRecoveryGrantRecord
+            {
+                TenantId = Guid.NewGuid(),
+                NormalizedDomain = "example.com",
+                Reason = "lost-idp",
+                EvidenceReference = "ticket-1",
+                GrantedByActorId = "ops",
+                GrantedUtc = now.AddMinutes(-10),
+                ExpiresUtc = now.AddHours(1),
+            },
+            CancellationToken.None);
+
+        (await sut.RevokeAsync(stored.GrantId, "ops", now, CancellationToken.None)).Should().BeTrue();
+        (await sut.RevokeAsync(stored.GrantId, "ops", now, CancellationToken.None)).Should().BeFalse();
+    }
 }

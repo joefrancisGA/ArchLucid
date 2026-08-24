@@ -77,6 +77,11 @@ public sealed class InMemoryPlatformTenantAuthRecoveryGrantRepository : IPlatfor
             return Task.FromResult(false);
         }
 
+        if (existing.RevokedUtc is not null)
+        {
+            return Task.FromResult(false);
+        }
+
         _byId[grantId] = new PlatformTenantAuthRecoveryGrantRecord
         {
             GrantId = existing.GrantId,

@@ -222,10 +222,17 @@ public sealed class DapperAuthenticationIdentityRepository(ISqlConnectionFactory
 
         await using SqlConnection connection = await _connectionFactory.CreateOpenConnectionAsync(cancellationToken);
 
-        int rows = await connection.ExecuteAsync(
-            new CommandDefinition(sql, new { Id = identityId }, cancellationToken: cancellationToken));
+        try
+        {
+            int rows = await connection.ExecuteAsync(
+                new CommandDefinition(sql, new { Id = identityId }, cancellationToken: cancellationToken));
 
-        return rows > 0;
+            return rows > 0;
+        }
+        catch (SqlException ex) when (ex.Number is 2601 or 2627)
+        {
+            return false;
+        }
     }
 
     public async Task RecordAuthenticationAsync(

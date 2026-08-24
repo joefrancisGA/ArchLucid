@@ -103,4 +103,36 @@ public sealed class InMemoryTenantSignInEmailDomainRepositoryCoverageTests
             .Should()
             .Equal("active.example");
     }
+
+    [Fact]
+    public async Task UpdateAsync_does_not_reassign_domain_to_different_tenant()
+    {
+        InMemoryTenantSignInEmailDomainRepository sut = new();
+        Guid tenantA = Guid.NewGuid();
+        Guid tenantB = Guid.NewGuid();
+        DateTimeOffset now = TimeProvider.System.GetUtcNow();
+
+        await sut.InsertAsync(
+            new TenantSignInEmailDomainRecord
+            {
+                TenantId = tenantA,
+                NormalizedDomain = "corp.example",
+                CreatedUtc = now,
+            },
+            CancellationToken.None);
+
+        await sut.UpdateAsync(
+            new TenantSignInEmailDomainRecord
+            {
+                TenantId = tenantB,
+                NormalizedDomain = "corp.example",
+                CreatedUtc = now.AddMinutes(5),
+            },
+            CancellationToken.None);
+
+        (await sut.TryGetAsync(tenantA, "corp.example", CancellationToken.None)).Should().NotBeNull();
+        (await sut.TryGetAsync(tenantB, "corp.example", CancellationToken.None)).Should().BeNull();
+        (await sut.FindByNormalizedDomainAsync("corp.example", CancellationToken.None))!.TenantId.Should().Be(tenantA);
+        (await sut.FindByNormalizedDomainAsync("corp.example", CancellationToken.None))!.CreatedUtc.Should().Be(now);
+    }
 }
