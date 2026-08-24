@@ -106,6 +106,27 @@ public sealed class EmailOtpVerifyRequest
     }
 }
 
+public sealed class AcceptedEmailOtpInvitation
+{
+    public Guid InvitationId
+    {
+        get;
+        init;
+    }
+
+    public Guid TenantId
+    {
+        get;
+        init;
+    }
+
+    public Guid WorkspaceId
+    {
+        get;
+        init;
+    }
+}
+
 public sealed class EmailOtpVerifyResult
 {
     public bool Succeeded
@@ -539,7 +560,7 @@ public sealed class EmailOtpAuthService(
                 .ConfigureAwait(false);
         }
 
-        Guid? acceptedInvitationId =
+        AcceptedEmailOtpInvitation? acceptedInvitation =
             await TryAcceptInvitationAsync(
                 user.Id,
                 normalizedEmail,
@@ -551,7 +572,8 @@ public sealed class EmailOtpAuthService(
             await ResolveNextStepAsync(
                     user.Id,
                     normalizedEmail,
-                    acceptedInvitationId ?? completion.Challenge.InvitationId,
+                    acceptedInvitation,
+                    completion.Challenge.InvitationId,
                     cancellationToken)
                 .ConfigureAwait(false);
 
@@ -662,7 +684,7 @@ public sealed class EmailOtpAuthService(
         return invitation.Id;
     }
 
-    private async Task<Guid?> TryAcceptInvitationAsync(
+    private async Task<AcceptedEmailOtpInvitation?> TryAcceptInvitationAsync(
         Guid platformUserId,
         string normalizedEmail,
         Guid? challengeInvitationId,
@@ -725,7 +747,12 @@ public sealed class EmailOtpAuthService(
                 invitation.TenantId),
             cancellationToken).ConfigureAwait(false);
 
-        return invitation.Id;
+        return new AcceptedEmailOtpInvitation
+        {
+            InvitationId = invitation.Id,
+            TenantId = invitation.TenantId,
+            WorkspaceId = invitation.WorkspaceId
+        };
     }
 
     private async Task<UserInvitationRecord?> FindInvitationByIdAsync(
@@ -750,7 +777,8 @@ public sealed class EmailOtpAuthService(
         ResolveNextStepAsync(
             Guid platformUserId,
             string normalizedEmail,
-            Guid? linkedInvitationId,
+            AcceptedEmailOtpInvitation? acceptedInvitation,
+            Guid? challengeLinkedInvitationId,
             CancellationToken cancellationToken)
     {
         IReadOnlyList<WorkspaceMembershipRecord> memberships =
@@ -759,11 +787,13 @@ public sealed class EmailOtpAuthService(
         IReadOnlyList<WorkspaceMembershipRecord> activeMemberships =
             memberships.Where(row => row.Status == WorkspaceMembershipStatus.Active).ToList();
 
-        if (linkedInvitationId is Guid acceptedInvitationId && activeMemberships.Count > 0)
+        if (acceptedInvitation is not null)
         {
-            WorkspaceMembershipRecord membership = activeMemberships[^1];
-
-            return (EmailOtpAuthNextStep.Complete, membership.TenantId, membership.WorkspaceId, acceptedInvitationId);
+            return (
+                EmailOtpAuthNextStep.Complete,
+                acceptedInvitation.TenantId,
+                acceptedInvitation.WorkspaceId,
+                acceptedInvitation.InvitationId);
         }
 
         if (activeMemberships.Count == 1)
@@ -778,7 +808,7 @@ public sealed class EmailOtpAuthService(
             return (EmailOtpAuthNextStep.SelectWorkspace, null, null, null);
         }
 
-        if (linkedInvitationId is Guid invitationId)
+        if (challengeLinkedInvitationId is Guid invitationId)
         {
             UserInvitationRecord? linked =
                 await _invitations.GetPendingByIdAsync(invitationId, cancellationToken).ConfigureAwait(false);

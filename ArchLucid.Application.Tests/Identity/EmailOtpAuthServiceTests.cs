@@ -705,6 +705,228 @@ public sealed class EmailOtpAuthServiceTests
     }
 
     [Fact]
+    public async Task VerifyCodeAsync_returns_invited_workspace_when_user_already_has_older_membership()
+    {
+        FakeTimeProvider clock = new(DateTimeOffset.UtcNow);
+        EmailOtpAuthService sut = CreateSut(
+            out InMemoryEmailOtpChallengeRepository challenges,
+            out _,
+            out _,
+            out InMemoryWorkspaceMembershipRepository memberships,
+            out InMemoryUserInvitationRepository invitations,
+            out _,
+            out _,
+            out _,
+            new EmailOtpAuthOptions { Enabled = true, ResendCooldownSeconds = 0 },
+            clock);
+
+        Guid tenantId = Guid.NewGuid();
+        Guid olderWorkspaceId = Guid.NewGuid();
+        Guid newerWorkspaceId = Guid.NewGuid();
+        const string email = "member@example.com";
+
+        EmailOtpChallengeRequestResult bootstrap = await sut.RequestCodeAsync(
+            new EmailOtpChallengeRequest { Email = email },
+            CancellationToken.None);
+
+        EmailOtpChallengeRecord bootstrapChallenge =
+            (await challenges.GetByIdAsync(bootstrap.ChallengeId!.Value, CancellationToken.None))!;
+
+        EmailOtpVerifyResult bootstrapVerified = await sut.VerifyCodeAsync(
+            new EmailOtpVerifyRequest
+            {
+                ChallengeId = bootstrapChallenge.Id,
+                Code = RecoverCodeForTests(bootstrapChallenge)
+            },
+            CancellationToken.None);
+
+        Guid userId = bootstrapVerified.PlatformUserId!.Value;
+        DateTimeOffset olderCreatedUtc = clock.GetUtcNow();
+
+        await memberships.UpsertAsync(
+            new WorkspaceMembershipInsert
+            {
+                UserId = userId,
+                TenantId = tenantId,
+                WorkspaceId = olderWorkspaceId,
+                Role = "Reader",
+                Status = WorkspaceMembershipStatus.Active
+            },
+            olderCreatedUtc,
+            CancellationToken.None);
+
+        clock.Advance(TimeSpan.FromDays(30));
+
+        await memberships.UpsertAsync(
+            new WorkspaceMembershipInsert
+            {
+                UserId = userId,
+                TenantId = tenantId,
+                WorkspaceId = newerWorkspaceId,
+                Role = "Reader",
+                Status = WorkspaceMembershipStatus.Active
+            },
+            clock.GetUtcNow(),
+            CancellationToken.None);
+
+        const string rawToken = "reinvite-older-workspace";
+        byte[] tokenHash = EmailOtpInvitationTokenHasher.Hash(rawToken);
+
+        await invitations.InsertAsync(
+            tenantId,
+            olderWorkspaceId,
+            email,
+            "Reader",
+            "admin",
+            null,
+            tokenHash,
+            clock.GetUtcNow().AddDays(7),
+            CancellationToken.None);
+
+        EmailOtpChallengeRequestResult requested = await sut.RequestCodeAsync(
+            new EmailOtpChallengeRequest
+            {
+                Email = email,
+                InvitationToken = rawToken
+            },
+            CancellationToken.None);
+
+        EmailOtpChallengeRecord challenge =
+            (await challenges.GetByIdAsync(requested.ChallengeId!.Value, CancellationToken.None))!;
+
+        EmailOtpVerifyResult verified = await sut.VerifyCodeAsync(
+            new EmailOtpVerifyRequest
+            {
+                ChallengeId = challenge.Id,
+                Code = RecoverCodeForTests(challenge),
+                InvitationToken = rawToken
+            },
+            CancellationToken.None);
+
+        Assert.True(verified.Succeeded);
+        Assert.Equal(EmailOtpAuthNextStep.Complete, verified.NextStep);
+        Assert.Equal(olderWorkspaceId, verified.WorkspaceId);
+    }
+
+    [Fact]
+    public async Task VerifyCodeAsync_selects_workspace_when_challenge_invitation_is_not_accepted()
+    {
+        FakeTimeProvider clock = new(DateTimeOffset.UtcNow);
+        EmailOtpAuthService sut = CreateSut(
+            out InMemoryEmailOtpChallengeRepository challenges,
+            out _,
+            out _,
+            out InMemoryWorkspaceMembershipRepository memberships,
+            out InMemoryUserInvitationRepository invitations,
+            out _,
+            out _,
+            out _,
+            new EmailOtpAuthOptions
+            {
+                Enabled = true,
+                ResendCooldownSeconds = 0,
+                CodeLifetimeMinutes = 30
+            },
+            clock);
+
+        Guid tenantId = Guid.NewGuid();
+        Guid workspaceA = Guid.NewGuid();
+        Guid workspaceB = Guid.NewGuid();
+        const string email = "multi@example.com";
+        const string rawToken = "expired-invite-token";
+        byte[] tokenHash = EmailOtpInvitationTokenHasher.Hash(rawToken);
+
+        EmailOtpChallengeRequestResult bootstrap = await sut.RequestCodeAsync(
+            new EmailOtpChallengeRequest { Email = email },
+            CancellationToken.None);
+
+        EmailOtpChallengeRecord bootstrapChallenge =
+            (await challenges.GetByIdAsync(bootstrap.ChallengeId!.Value, CancellationToken.None))!;
+
+        EmailOtpVerifyResult bootstrapVerified = await sut.VerifyCodeAsync(
+            new EmailOtpVerifyRequest
+            {
+                ChallengeId = bootstrapChallenge.Id,
+                Code = RecoverCodeForTests(bootstrapChallenge)
+            },
+            CancellationToken.None);
+
+        Guid userId = bootstrapVerified.PlatformUserId!.Value;
+        DateTimeOffset createdUtc = clock.GetUtcNow();
+
+        await memberships.UpsertAsync(
+            new WorkspaceMembershipInsert
+            {
+                UserId = userId,
+                TenantId = tenantId,
+                WorkspaceId = workspaceA,
+                Role = "Reader",
+                Status = WorkspaceMembershipStatus.Active
+            },
+            createdUtc,
+            CancellationToken.None);
+
+        await memberships.UpsertAsync(
+            new WorkspaceMembershipInsert
+            {
+                UserId = userId,
+                TenantId = tenantId,
+                WorkspaceId = workspaceB,
+                Role = "Reader",
+                Status = WorkspaceMembershipStatus.Active
+            },
+            createdUtc.AddMinutes(1),
+            CancellationToken.None);
+
+        Guid invitationId = Guid.NewGuid();
+        DateTimeOffset expiresUtc = clock.GetUtcNow().AddMinutes(5);
+
+        await invitations.SeedPendingForTestsAsync(
+            new UserInvitationRecord
+            {
+                Id = invitationId,
+                TenantId = tenantId,
+                WorkspaceId = workspaceA,
+                Email = email,
+                AppRole = "Reader",
+                InvitedByActorId = "admin",
+                Status = UserInvitationStatus.Pending,
+                CreatedUtc = expiresUtc.AddDays(-1),
+                ExpiresUtc = expiresUtc
+            },
+            tokenHash);
+
+        clock.Advance(TimeSpan.FromMinutes(1));
+
+        EmailOtpChallengeRequestResult requested = await sut.RequestCodeAsync(
+            new EmailOtpChallengeRequest
+            {
+                Email = email,
+                InvitationToken = rawToken
+            },
+            CancellationToken.None);
+
+        Assert.NotNull(requested.ChallengeId);
+
+        clock.Advance(TimeSpan.FromMinutes(6));
+
+        EmailOtpChallengeRecord challenge =
+            (await challenges.GetByIdAsync(requested.ChallengeId!.Value, CancellationToken.None))!;
+
+        EmailOtpVerifyResult verified = await sut.VerifyCodeAsync(
+            new EmailOtpVerifyRequest
+            {
+                ChallengeId = challenge.Id,
+                Code = RecoverCodeForTests(challenge)
+            },
+            CancellationToken.None);
+
+        Assert.True(verified.Succeeded);
+        Assert.Equal(EmailOtpAuthNextStep.SelectWorkspace, verified.NextStep);
+        Assert.Null(verified.WorkspaceId);
+    }
+
+    [Fact]
     public async Task VerifyCodeAsync_reuses_existing_email_code_identity()
     {
         FakeTimeProvider clock = new(DateTimeOffset.UtcNow);
