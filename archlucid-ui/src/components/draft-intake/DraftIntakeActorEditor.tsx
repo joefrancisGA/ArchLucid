@@ -249,7 +249,7 @@ export function DraftIntakeActorEditor(props: DraftIntakeActorEditorProps) {
           className="space-y-3 rounded-md border border-dashed border-neutral-300 p-3 dark:border-neutral-700"
           data-testid="draft-intake-actor-suggestions-panel"
         >
-          <p className={cn("m-0 font-medium text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
+          <p className={cn("m-0", OPERATOR_FORM_FIELD_LABEL_CLASS)}>
             {GUIDED_INTAKE_SUGGESTED_ACTORS_HEADING}
           </p>
           {pendingSuggestions.length === 0 ? (
