@@ -25,10 +25,7 @@ public sealed class FindingJsonConverter : JsonConverter<Finding>
             FindingType = root.GetProperty("findingType").GetString() ?? "",
             Category = root.TryGetProperty("category", out JsonElement cat) ? cat.GetString() ?? "" : "",
             EngineType = root.GetProperty("engineType").GetString() ?? "",
-            Severity = root.TryGetProperty("severity", out JsonElement sev) &&
-                       Enum.TryParse(sev.GetString(), true, out FindingSeverity se)
-                ? se
-                : FindingSeverity.Info,
+            Severity = ReadSeverity(root, "severity"),
             Title = root.GetProperty("title").GetString() ?? "",
             Rationale = root.GetProperty("rationale").GetString() ?? "",
             RelatedNodeIds = ReadStringList(root, "relatedNodeIds"),
@@ -290,6 +287,39 @@ public sealed class FindingJsonConverter : JsonConverter<Finding>
         foreach (JsonProperty p in el.EnumerateObject())
             d[p.Name] = p.Value.GetString() ?? "";
         return d;
+    }
+
+    private static FindingSeverity ReadSeverity(JsonElement root, string propertyName)
+    {
+        if (!root.TryGetProperty(propertyName, out JsonElement severityElement))
+            return FindingSeverity.Info;
+
+        if (severityElement.ValueKind == JsonValueKind.Number && severityElement.TryGetInt32(out int numeric))
+        {
+            if (!Enum.IsDefined(typeof(FindingSeverity), numeric))
+                throw new JsonException($"Unknown finding severity value '{numeric}'.");
+
+            return (FindingSeverity)numeric;
+        }
+
+        if (severityElement.ValueKind != JsonValueKind.String)
+            throw new JsonException("Expected string or number for finding severity.");
+
+        string? raw = severityElement.GetString();
+
+        if (string.IsNullOrWhiteSpace(raw))
+            return FindingSeverity.Info;
+
+        if (Enum.TryParse(raw, ignoreCase: true, out FindingSeverity parsed))
+            return parsed;
+
+        return raw.Trim().ToLowerInvariant() switch
+        {
+            "low" => FindingSeverity.Info,
+            "medium" => FindingSeverity.Warning,
+            "high" => FindingSeverity.Error,
+            _ => throw new JsonException($"Unknown finding severity value '{raw}'."),
+        };
     }
 }
 

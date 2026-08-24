@@ -32,12 +32,15 @@ public sealed class CorePackageCoverageBatchRc28fTests
         PrivateNetworkAddressGuard.IsForbiddenIpAddress(ip).Should().BeTrue();
     }
 
-    [Fact]
-    public void PrivateNetworkAddressGuard_IsForbiddenIpAddress_blocks_ipv6_link_local()
+    [Theory]
+    [InlineData("fe80::1")]
+    [InlineData("fd12:3456:789a:1::1")]
+    [InlineData("fc00::1")]
+    public void PrivateNetworkAddressGuard_IsForbiddenIpAddress_blocks_ipv6_link_local_and_unique_local(string address)
     {
-        IPAddress linkLocal = IPAddress.Parse("fe80::1");
+        IPAddress ip = IPAddress.Parse(address);
 
-        PrivateNetworkAddressGuard.IsForbiddenIpAddress(linkLocal).Should().BeTrue();
+        PrivateNetworkAddressGuard.IsForbiddenIpAddress(ip).Should().BeTrue();
     }
 
     [Theory]

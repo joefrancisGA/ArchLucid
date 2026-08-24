@@ -46,6 +46,12 @@ public static class PrivateNetworkAddressGuard
         if (ip.AddressFamily is not AddressFamily.InterNetworkV6)
             return false;
 
-        return ip.IsIPv6LinkLocal || ip.IsIPv6Multicast;
+        if (ip.IsIPv6LinkLocal || ip.IsIPv6Multicast)
+            return true;
+
+        byte firstOctet = ip.GetAddressBytes()[0];
+
+        // IPv6 unique local addresses (fc00::/7) are non-routable like RFC1918.
+        return firstOctet is 0xfc or 0xfd;
     }
 }

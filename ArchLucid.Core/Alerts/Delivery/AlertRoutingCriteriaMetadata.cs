@@ -22,7 +22,7 @@ public static class AlertRoutingCriteriaMetadata
             using JsonDocument document = JsonDocument.Parse(metadataJson);
             JsonElement root = document.RootElement;
 
-            if (!root.TryGetProperty(RoutingCriteriaPropertyName, out JsonElement criteriaElement) ||
+            if (!TryGetPropertyCaseInsensitive(root, RoutingCriteriaPropertyName, out JsonElement criteriaElement) ||
                 criteriaElement.ValueKind != JsonValueKind.Object)
             {
                 return new AlertRoutingCriteria();
@@ -102,7 +102,7 @@ public static class AlertRoutingCriteriaMetadata
 
     private static IReadOnlyList<string> ReadStringArray(JsonElement parent, string propertyName)
     {
-        if (!parent.TryGetProperty(propertyName, out JsonElement arrayElement) ||
+        if (!TryGetPropertyCaseInsensitive(parent, propertyName, out JsonElement arrayElement) ||
             arrayElement.ValueKind != JsonValueKind.Array)
         {
             return [];
@@ -133,5 +133,22 @@ public static class AlertRoutingCriteriaMetadata
             .Select(value => value.Trim())
             .Distinct(StringComparer.OrdinalIgnoreCase)
             .ToList();
+    }
+
+    private static bool TryGetPropertyCaseInsensitive(JsonElement element, string propertyName, out JsonElement value)
+    {
+        foreach (JsonProperty property in element.EnumerateObject())
+        {
+            if (string.Equals(property.Name, propertyName, StringComparison.OrdinalIgnoreCase))
+            {
+                value = property.Value;
+
+                return true;
+            }
+        }
+
+        value = default;
+
+        return false;
     }
 }

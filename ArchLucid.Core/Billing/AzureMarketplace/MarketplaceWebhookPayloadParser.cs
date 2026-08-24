@@ -33,10 +33,8 @@ public static class MarketplaceWebhookPayloadParser
     {
         planId = null;
 
-        if (!root.TryGetProperty("planId", out JsonElement el))
+        if (!TryGetStringPropertyCaseInsensitive(root, "planId", out string? s))
             return false;
-
-        string? s = el.GetString();
 
         if (string.IsNullOrWhiteSpace(s))
             return false;
@@ -44,6 +42,23 @@ public static class MarketplaceWebhookPayloadParser
         planId = s.Trim();
 
         return true;
+    }
+
+    private static bool TryGetStringPropertyCaseInsensitive(JsonElement root, string propertyName, out string? value)
+    {
+        foreach (JsonProperty property in root.EnumerateObject())
+        {
+            if (!string.Equals(property.Name, propertyName, StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            value = property.Value.GetString();
+
+            return true;
+        }
+
+        value = null;
+
+        return false;
     }
 
     /// <summary>

@@ -49,6 +49,53 @@ public sealed class CorePackageCoverageBatchRc28dTests
     }
 
     [Fact]
+    public void AlertRoutingCriteriaMetadata_Parse_PascalCase_property_names_preserves_severity_filter()
+    {
+        AlertRoutingCriteria parsed = AlertRoutingCriteriaMetadata.Parse(
+            """
+            {
+              "RoutingCriteria": {
+                "Severities": ["Critical"],
+                "FindingTypes": ["Security"],
+                "Tags": ["ops"]
+              }
+            }
+            """);
+
+        parsed.Severities.Should().ContainSingle("Critical");
+        parsed.FindingTypes.Should().ContainSingle("Security");
+        parsed.Tags.Should().ContainSingle("ops");
+    }
+
+    [Fact]
+    public void AlertRoutingMatcher_PascalCase_metadata_does_not_match_non_listed_severity()
+    {
+        AlertRoutingSubscription subscription = new()
+        {
+            MinimumSeverity = "Info",
+            MetadataJson = """{"RoutingCriteria":{"Severities":["Critical"]}}"""
+        };
+
+        AlertRoutingSignal infoSignal = new()
+        {
+            Severity = "Info",
+            FindingType = "Security",
+            Tags = ["ops"]
+        };
+
+        AlertRoutingMatcher.Matches(subscription, infoSignal).Should().BeFalse();
+
+        AlertRoutingSignal criticalSignal = new()
+        {
+            Severity = "Critical",
+            FindingType = "Security",
+            Tags = ["ops"]
+        };
+
+        AlertRoutingMatcher.Matches(subscription, criticalSignal).Should().BeTrue();
+    }
+
+    [Fact]
     public void AlertRoutingCriteriaMetadata_MergeIntoMetadata_writes_and_clears_criteria()
     {
         string withCriteria = AlertRoutingCriteriaMetadata.MergeIntoMetadata(
