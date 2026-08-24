@@ -51,6 +51,7 @@ import { AuditPageBreadcrumb } from "./AuditPageBreadcrumb";
 import { AuditPageBuyerChrome } from "./AuditPageBuyerChrome";
 import { AuditPageHeader } from "./AuditPageHeader";
 import { AuditResultsSection } from "./AuditResultsSection";
+import { AuditSaveViewCoach } from "./AuditSaveViewCoach";
 import { AuditSearchSection } from "./AuditSearchSection";
 import type { AuditPageViewProps } from "./audit-page-view-props";
 
@@ -225,6 +226,10 @@ export function AuditPageView(props: AuditPageViewProps) {
 
       <div className={cn(buyerPolishedShell && "flex flex-col")}>
         <div className={cn(buyerPolishedShell && "order-2")}>
+          <AuditSaveViewCoach
+            filtersActive={props.auditFiltersActive}
+            showSavedViews={!buyerPolishedShell && props.canMutateEnterpriseShell}
+          />
           <AuditSearchSection
             buyerPolishedShell={buyerPolishedShell}
             buyerOmitSearchFiltersChrome={buyerOmitSearchFiltersChrome}

@@ -271,7 +271,7 @@ export function OperatorSavedViewsBar(props: OperatorSavedViewsBarProps) {
           />
           Share with team
         </label>
-        <Button type="button" variant="primary" size="sm" disabled={disabled || saving} onClick={() => void handleSave()}>
+        <Button type="button" variant="primary" size="sm" disabled={disabled || saving} onClick={() => void handleSave()} data-testid={`operator-saved-views-save-${surface}`}>
           {saving ? "Saving…" : "Save view"}
         </Button>
       </div>

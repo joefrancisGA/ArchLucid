@@ -585,6 +585,15 @@ export function useAuditPage(serverLoad: AuditPageServerLoad): AuditPageViewProp
     return buyerAuditTrailGovernanceSummaryCounts(displayEvents);
   }, [buyerPolishedShell, displayEvents]);
 
+  const auditFiltersActive =
+    eventType.trim().length > 0 ||
+    fromUtc.trim().length > 0 ||
+    toUtc.trim().length > 0 ||
+    correlationId.trim().length > 0 ||
+    actorUserId.trim().length > 0 ||
+    runId.trim().length > 0 ||
+    auditDatePreset !== null;
+
   return {
     buyerPolishedShell,
     viewMode,
@@ -636,5 +645,6 @@ export function useAuditPage(serverLoad: AuditPageServerLoad): AuditPageViewProp
     loadAuditSavedView,
     ctoDemoAuditFilterActive,
     onClearCtoDemoAuditFilter,
+    auditFiltersActive,
   };
 }
