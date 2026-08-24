@@ -13,7 +13,6 @@
  */
 
 import { DIGESTS_HUB_PATH } from "@/lib/digests-route-paths";
-import { NOTIFICATION_PREFERENCE_CENTER_PATH } from "@/lib/notification-preference-center";
 import { SETTINGS_NOTIFICATIONS_PATH } from "@/lib/settings-admin-route-paths";
 import type { PairwiseVocabularyRailModel } from "@/lib/vocabulary/create-pairwise-vocabulary-rail";
 
@@ -94,5 +93,5 @@ export function resolveDigestsNotificationsPeerLink(
 
 /** Assert notifications hub path aliases stay aligned. */
 export function digestsNotificationsPreferenceCenterPath(): string {
-  return NOTIFICATION_PREFERENCE_CENTER_PATH;
+  return SETTINGS_NOTIFICATIONS_PATH;
 }

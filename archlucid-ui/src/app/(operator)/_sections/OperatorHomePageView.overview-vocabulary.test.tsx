@@ -337,7 +337,7 @@ describe("OperatorHomePageView overview vocabulary guard", () => {
 
     expect(screen.getByRole("heading", { name: OPERATOR_HOME_RECENT_REVIEWS_HEADING })).toBeInTheDocument();
     expect(screen.getByTestId("pilot-command-center-card")).toBeInTheDocument();
-    expect(screen.getByTestId("operator-home-do-this-next")).toBeInTheDocument();
+    expect(screen.getByTestId("operator-home-dual-path-cards")).toBeInTheDocument();
     expect(screen.queryByText("Do this next")).toBeNull();
 
     await waitFor(() => {
@@ -356,7 +356,7 @@ describe("OperatorHomePageView overview vocabulary guard", () => {
 
     expect(screen.getByRole("heading", { name: OPERATOR_HOME_RECENT_REVIEWS_HEADING })).toBeInTheDocument();
     expect(screen.getByTestId("pilot-command-center-card")).toBeInTheDocument();
-    expect(screen.getByTestId("operator-home-do-this-next")).toBeInTheDocument();
+    expect(screen.getByTestId("operator-home-dual-path-cards")).toBeInTheDocument();
     expect(screen.queryByText("Do this next")).toBeNull();
     expect(screen.queryByTestId("operator-home-advanced-guidance")).toBeNull();
 
