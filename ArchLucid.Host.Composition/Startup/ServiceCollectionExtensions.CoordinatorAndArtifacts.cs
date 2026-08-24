@@ -110,7 +110,8 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IDraftSemanticAdmissionEvaluator, HostDraftSemanticAdmissionEvaluator>();
         services.AddScoped<IPreCommitGovernanceBlockExplainer, PreCommitGovernanceBlockExplainer>();
         services.AddScoped<IAgentEvaluationService, FindingsBackedAgentEvaluationService>();
-        services.AddScoped<IEvidenceBuilder, DefaultEvidenceBuilder>();
+        services.AddScoped<DefaultEvidenceBuilder>();
+        services.AddScoped<IEvidenceBuilder, WorkspacePolicyPackEvidenceBuilder>();
         services.AddScoped<IAgentExecutionTraceRecorder, AgentExecutionTraceRecorder>();
         services.AddScoped<ICommitRunIdempotencyCoordinator, CommitRunIdempotencyCoordinator>();
 
