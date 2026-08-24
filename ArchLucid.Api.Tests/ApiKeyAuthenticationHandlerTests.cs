@@ -344,6 +344,134 @@ public sealed class ApiKeyAuthenticationHandlerTests
         result.Succeeded.Should().BeTrue();
     }
 
+    [SkippableFact]
+    public async Task When_enabled_true_and_admin_key_has_surrounding_whitespace_in_header_still_authenticates()
+    {
+        DefaultHttpContext http = new();
+        http.Request.Headers.Append("X-Api-Key", "  secret-admin  ");
+        IHostEnvironment env = Mock.Of<IHostEnvironment>(e => e.EnvironmentName == Environments.Development);
+        ApiKeyAuthHandlerTestDouble handler = CreateHandler(
+            new Dictionary<string, string?>
+            {
+                ["Authentication:ApiKey:Enabled"] = "true",
+                ["Authentication:ApiKey:AdminKey"] = "secret-admin"
+            },
+            http,
+            env);
+
+        AuthenticateResult result = await handler.InvokeHandleAuthenticateAsync();
+
+        result.Succeeded.Should().BeTrue();
+    }
+
+    [SkippableFact]
+    public async Task When_enabled_true_and_header_is_blank_returns_missing_failure()
+    {
+        DefaultHttpContext http = new();
+        http.Request.Headers.Append("X-Api-Key", "   ");
+        IHostEnvironment env = Mock.Of<IHostEnvironment>(e => e.EnvironmentName == Environments.Development);
+        ApiKeyAuthHandlerTestDouble handler = CreateHandler(
+            new Dictionary<string, string?>
+            {
+                ["Authentication:ApiKey:Enabled"] = "true",
+                ["Authentication:ApiKey:AdminKey"] = "secret-admin"
+            },
+            http,
+            env);
+
+        AuthenticateResult result = await handler.InvokeHandleAuthenticateAsync();
+
+        result.Succeeded.Should().BeFalse();
+        result.Failure?.Message.Should().Contain("missing");
+    }
+
+    [SkippableFact]
+    public async Task When_shared_key_admin_expired_but_reader_slot_still_valid_authenticates_as_reader()
+    {
+        DefaultHttpContext http = new();
+        http.Request.Headers.Append("X-Api-Key", "shared-key");
+        IHostEnvironment env = Mock.Of<IHostEnvironment>(e => e.EnvironmentName == Environments.Development);
+
+        Mock<TimeProvider> frozenTime = new();
+        frozenTime.Setup(t => t.GetUtcNow())
+            .Returns(new DateTimeOffset(2026, 1, 2, 0, 0, 0, TimeSpan.Zero));
+
+        ApiKeyAuthHandlerTestDouble handler = CreateHandler(
+            new Dictionary<string, string?>
+            {
+                ["Authentication:ApiKey:Enabled"] = "true",
+                ["Authentication:ApiKey:AdminKey"] = "shared-key",
+                ["Authentication:ApiKey:ReadOnlyKey"] = "shared-key",
+                ["Authentication:ApiKey:AdminKeyExpiresAt"] = "2026-01-01T00:00:00Z",
+                ["Authentication:ApiKey:ReadOnlyKeyExpiresAt"] = "2026-12-31T00:00:00Z"
+            },
+            http,
+            env,
+            frozenTime.Object);
+
+        AuthenticateResult result = await handler.InvokeHandleAuthenticateAsync();
+
+        result.Succeeded.Should().BeTrue();
+        result.Principal?.FindFirst(ClaimTypes.Name)?.Value.Should().Be("ApiKeyReadOnly");
+        result.Principal?.IsInRole(ArchLucidRoles.Reader).Should().BeTrue();
+    }
+
+    [SkippableFact]
+    public async Task When_read_only_key_is_expired_returns_failure_with_expiry_message()
+    {
+        DefaultHttpContext http = new();
+        http.Request.Headers.Append("X-Api-Key", "reader-key");
+        IHostEnvironment env = Mock.Of<IHostEnvironment>(e => e.EnvironmentName == Environments.Development);
+
+        Mock<TimeProvider> frozenTime = new();
+        frozenTime.Setup(t => t.GetUtcNow())
+            .Returns(new DateTimeOffset(2026, 1, 2, 0, 0, 0, TimeSpan.Zero));
+
+        ApiKeyAuthHandlerTestDouble handler = CreateHandler(
+            new Dictionary<string, string?>
+            {
+                ["Authentication:ApiKey:Enabled"] = "true",
+                ["Authentication:ApiKey:ReadOnlyKey"] = "reader-key",
+                ["Authentication:ApiKey:ReadOnlyKeyExpiresAt"] = "2026-01-01T00:00:00Z"
+            },
+            http,
+            env,
+            frozenTime.Object);
+
+        AuthenticateResult result = await handler.InvokeHandleAuthenticateAsync();
+
+        result.Succeeded.Should().BeFalse();
+        result.Failure?.Message.Should().Contain("read-only API key has expired");
+    }
+
+    [SkippableFact]
+    public async Task When_admin_key_expiry_is_exactly_now_returns_failure()
+    {
+        DateTimeOffset expiresAt = new(2026, 1, 1, 0, 0, 0, TimeSpan.Zero);
+        DefaultHttpContext http = new();
+        http.Request.Headers.Append("X-Api-Key", "admin-key");
+        IHostEnvironment env = Mock.Of<IHostEnvironment>(e => e.EnvironmentName == Environments.Development);
+
+        Mock<TimeProvider> frozenTime = new();
+        frozenTime.Setup(t => t.GetUtcNow()).Returns(expiresAt);
+
+        ApiKeyAuthHandlerTestDouble handler = CreateHandler(
+            new Dictionary<string, string?>
+            {
+                ["Authentication:ApiKey:Enabled"] = "true",
+                ["Authentication:ApiKey:AdminKey"] = "admin-key",
+                ["Authentication:ApiKey:AdminKeyExpiresAt"] = expiresAt.ToString("O")
+            },
+            http,
+            env,
+            frozenTime.Object);
+
+        AuthenticateResult result = await handler.InvokeHandleAuthenticateAsync();
+
+        result.Succeeded.Should().BeFalse();
+        result.Failure?.Message.Should().Contain("expired");
+    }
+
     private static ApiKeyAuthHandlerTestDouble CreateHandler(
         IReadOnlyDictionary<string, string?> configData,
         HttpContext httpContext,

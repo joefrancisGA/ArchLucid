@@ -80,6 +80,28 @@ public sealed class AdminApiKeySettingsServiceTests
         response.AppendConfigSuffix.Should().Contain(response.PlaintextKey);
     }
 
+    [Fact]
+    public void GetSnapshot_returns_configured_expiry_timestamps()
+    {
+        DateTimeOffset adminExpires = new(2026, 12, 1, 0, 0, 0, TimeSpan.Zero);
+        DateTimeOffset readerExpires = new(2026, 6, 1, 0, 0, 0, TimeSpan.Zero);
+
+        AdminApiKeySettingsService sut = CreateService(
+            new ApiKeyAuthenticationOptions
+            {
+                Enabled = true,
+                AdminKey = AdminKey,
+                ReadOnlyKey = ReaderKey,
+                AdminKeyExpiresAt = adminExpires,
+                ReadOnlyKeyExpiresAt = readerExpires
+            });
+
+        AdminApiKeySettingsResponse snapshot = sut.GetSnapshot();
+
+        snapshot.Admin.ExpiresAtUtc.Should().Be(adminExpires);
+        snapshot.ReadOnly.ExpiresAtUtc.Should().Be(readerExpires);
+    }
+
     private static AdminApiKeySettingsService CreateService(ApiKeyAuthenticationOptions options)
     {
         Mock<IOptionsMonitor<ApiKeyAuthenticationOptions>> monitor = new();

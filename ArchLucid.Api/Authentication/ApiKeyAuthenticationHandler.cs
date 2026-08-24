@@ -77,23 +77,21 @@ public class ApiKeyAuthenticationHandler(
         if (!Request.Headers.TryGetValue("X-Api-Key", out StringValues providedKey))
             return Task.FromResult(AuthenticateResult.Fail("API key header 'X-Api-Key' is missing."));
 
-        string key = providedKey.ToString();
+        string key = providedKey.ToString().Trim();
+
+        if (key.Length == 0)
+            return Task.FromResult(AuthenticateResult.Fail("API key header 'X-Api-Key' is missing."));
 
         string? adminKeyRaw = keys.AdminKey;
         string? readerKeyRaw = keys.ReadOnlyKey;
 
-        string? userName;
-        Claim[] claims;
+        bool matchesAdmin = MatchesAnyCommaSeparatedKey(key, adminKeyRaw);
+        bool matchesReader = MatchesAnyCommaSeparatedKey(key, readerKeyRaw);
 
-        if (MatchesAnyCommaSeparatedKey(key, adminKeyRaw))
+        if (matchesAdmin && !IsKeyExpired(keys.AdminKeyExpiresAt))
         {
-            if (IsKeyExpired(keys.AdminKeyExpiresAt))
-                return Task.FromResult(AuthenticateResult.Fail(
-                    "The admin API key has expired. Rotate the key and update Authentication:ApiKey:AdminKey."));
-
-            userName = "ApiKeyAdmin";
-            claims = BuildApiKeyClaims(
-                userName,
+            Claim[] claims = BuildApiKeyClaims(
+                "ApiKeyAdmin",
                 ArchLucidRoles.Admin,
                 [
                     new Claim("permission", "commit:run"),
@@ -104,23 +102,34 @@ public class ApiKeyAuthenticationHandler(
                     new Claim("permission", "replay:diagnostics")
                 ],
                 keys);
-        }
-        else if (MatchesAnyCommaSeparatedKey(key, readerKeyRaw))
-        {
-            if (IsKeyExpired(keys.ReadOnlyKeyExpiresAt))
-                return Task.FromResult(AuthenticateResult.Fail(
-                    "The read-only API key has expired. Rotate the key and update Authentication:ApiKey:ReadOnlyKey."));
 
-            userName = "ApiKeyReadOnly";
-            claims = BuildApiKeyClaims(
-                userName,
+            return Task.FromResult(BuildSuccessTicket(claims, authOpts));
+        }
+
+        if (matchesReader && !IsKeyExpired(keys.ReadOnlyKeyExpiresAt))
+        {
+            Claim[] claims = BuildApiKeyClaims(
+                "ApiKeyReadOnly",
                 ArchLucidRoles.Reader,
                 [new Claim("permission", "metrics:read")],
                 keys);
-        }
-        else
-            return Task.FromResult(AuthenticateResult.Fail("Invalid API key."));
 
+            return Task.FromResult(BuildSuccessTicket(claims, authOpts));
+        }
+
+        if (matchesAdmin && IsKeyExpired(keys.AdminKeyExpiresAt))
+            return Task.FromResult(AuthenticateResult.Fail(
+                "The admin API key has expired. Rotate the key and update Authentication:ApiKey:AdminKey."));
+
+        if (matchesReader && IsKeyExpired(keys.ReadOnlyKeyExpiresAt))
+            return Task.FromResult(AuthenticateResult.Fail(
+                "The read-only API key has expired. Rotate the key and update Authentication:ApiKey:ReadOnlyKey."));
+
+        return Task.FromResult(AuthenticateResult.Fail("Invalid API key."));
+    }
+
+    private AuthenticateResult BuildSuccessTicket(Claim[] claims, ArchLucidAuthOptions authOpts)
+    {
         if (authOpts.AllowTestActorHeaders)
             claims = ApplyTestActorHeaderOverrides(claims, Request);
 
@@ -128,7 +137,7 @@ public class ApiKeyAuthenticationHandler(
         ClaimsPrincipal successPrincipal = new(successIdentity);
         AuthenticationTicket successTicket = new(successPrincipal, Scheme.Name);
 
-        return Task.FromResult(AuthenticateResult.Success(successTicket));
+        return AuthenticateResult.Success(successTicket);
     }
 
     /// <summary>
@@ -210,7 +219,7 @@ public class ApiKeyAuthenticationHandler(
     ///     Returns <c>true</c> when <paramref name="expiresAt" /> is set and is strictly in the past.
     /// </summary>
     private bool IsKeyExpired(DateTimeOffset? expiresAt)
-        => expiresAt is not null && timeProvider.GetUtcNow() > expiresAt.Value;
+        => expiresAt is not null && timeProvider.GetUtcNow() >= expiresAt.Value;
 
     private static Claim[] BuildApiKeyClaims(
         string userName,
