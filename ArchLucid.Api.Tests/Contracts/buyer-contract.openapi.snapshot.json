@@ -27144,6 +27144,14 @@
         },
         "type": "object"
       },
+      "SetSampleReviewsOnOverviewVisibilityRequest": {
+        "properties": {
+          "enabled": {
+            "type": "boolean"
+          }
+        },
+        "type": "object"
+      },
       "SetWhereToGoNextVisibilityRequest": {
         "properties": {
           "enabled": {
@@ -31871,6 +31879,12 @@
             "type": "string"
           },
           "ianaTimeZoneIsExplicit": {
+            "type": "boolean"
+          },
+          "sampleReviewsOnOverviewEnabled": {
+            "type": "boolean"
+          },
+          "sampleReviewsOnOverviewIsExplicit": {
             "type": "boolean"
           },
           "whereToGoNextEnabled": {
