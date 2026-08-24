@@ -12,6 +12,7 @@ using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Core.AiUsage;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Configuration;
 using ArchLucid.Core.DevTesting;
 using ArchLucid.Core.Integration;
 using ArchLucid.Core.Scoping;
