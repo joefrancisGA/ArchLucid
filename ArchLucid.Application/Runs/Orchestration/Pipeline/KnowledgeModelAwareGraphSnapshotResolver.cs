@@ -20,6 +20,7 @@ public static class KnowledgeModelAwareGraphSnapshotResolver
         ContextSnapshot contextSnapshot,
         Guid runId,
         ArchitectureKnowledgeModel? knowledgeModel,
+        ArchitectureKnowledgeModel? priorKnowledgeModel,
         IKnowledgeGraphService knowledgeGraphService,
         IArchitectureKnowledgeModelGraphProjector knowledgeModelGraphProjector,
         IGraphSnapshotRepository graphSnapshotRepository,
@@ -47,7 +48,9 @@ public static class KnowledgeModelAwareGraphSnapshotResolver
             runId,
             knowledgeGraphService,
             graphSnapshotRepository,
-            ct);
+            ct,
+            priorKnowledgeModel,
+            knowledgeModel);
     }
 
     private static bool HasProjectableElements(ArchitectureKnowledgeModel model) =>

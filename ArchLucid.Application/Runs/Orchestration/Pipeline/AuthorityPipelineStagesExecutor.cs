@@ -212,6 +212,15 @@ public sealed class AuthorityPipelineStagesExecutor(
             }
 
             ArchitectureKnowledgeModel? knowledgeModel = await TryLoadKnowledgeModelAsync(ctx.Scope, run.RunId, token);
+            ArchitectureKnowledgeModel? priorKnowledgeModel = null;
+
+            if (ctx.PriorCommittedContext is not null)
+            {
+                priorKnowledgeModel = await TryLoadKnowledgeModelAsync(
+                    ctx.Scope,
+                    ctx.PriorCommittedContext.RunId,
+                    token);
+            }
 
             GraphSnapshotResolutionResult graphResolution;
 
@@ -223,6 +232,7 @@ public sealed class AuthorityPipelineStagesExecutor(
                     ctx.ContextSnapshot!,
                     run.RunId,
                     knowledgeModel,
+                    priorKnowledgeModel,
                     _knowledgeGraphService,
                     _knowledgeModelGraphProjector,
                     _graphSnapshotRepository,
@@ -237,7 +247,9 @@ public sealed class AuthorityPipelineStagesExecutor(
                     run.RunId,
                     _knowledgeGraphService,
                     _graphSnapshotRepository,
-                    token);
+                    token,
+                    priorKnowledgeModel,
+                    knowledgeModel);
             }
 
             ctx.GraphResolution = graphResolution;
