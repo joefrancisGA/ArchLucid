@@ -26,8 +26,27 @@ public sealed class ArchitectureReviewRecurrenceNextRunCalculator(IScanScheduleC
     }
 
     /// <inheritdoc />
-    public IReadOnlyList<DateTime> ComputeNextRunsUtc(string cronExpression, DateTime fromUtc, int count) =>
-        _scheduleCalculator.ComputeNextRunsUtc(cronExpression, NormalizeReferenceUtc(fromUtc), count);
+    public IReadOnlyList<DateTime> ComputeNextRunsUtc(string cronExpression, DateTime fromUtc, int count)
+    {
+        if (count <= 0)
+            return Array.Empty<DateTime>();
+
+        List<DateTime> results = new(capacity: count);
+        DateTime cursor = NormalizeReferenceUtc(fromUtc);
+
+        for (int index = 0; index < count; index += 1)
+        {
+            DateTime? next = ComputeNextRunUtc(cronExpression, cursor);
+
+            if (next is null)
+                break;
+
+            results.Add(next.Value);
+            cursor = next.Value;
+        }
+
+        return results;
+    }
 
     private DateTime? NormalizeNextRunUtc(string cronExpression, DateTime fromUtc, DateTime? next)
     {
