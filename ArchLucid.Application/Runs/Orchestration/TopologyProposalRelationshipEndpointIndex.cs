@@ -700,6 +700,7 @@ public static class TopologyProposalRelationshipEndpointIndex
             || normalized.Contains("cognitive_services", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("cognitive_deployment", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("data_collection_endpoint", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("data_collection_rule", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("web_pubsub", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("healthbot", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("notification_hub", StringComparison.OrdinalIgnoreCase)
