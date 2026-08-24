@@ -236,12 +236,6 @@ describe("OperatorHomePageView", () => {
   );
 
   it("does not show the attention kind strip on home (TB-2353)", () => {
-<<<<<<< HEAD
-    render(<OperatorHomePageView model={mockHomeModel(false)} />);
-    expect(screen.queryByTestId("operator-attention-kind-strip")).not.toBeInTheDocument();
-
-=======
->>>>>>> a1dfafd2b3 (Improve operator Home information hierarchy and work queue)
     render(
       <OperatorHomePageView
         model={{
