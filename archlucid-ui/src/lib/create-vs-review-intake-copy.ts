@@ -47,10 +47,6 @@ export const ARCHITECTURE_CREATION_REVIEW_BOUNDARY =
 /** Restrained autosave reassurance — only show where draft autosave is real. */
 export const ARCHITECTURE_CREATION_AUTOSAVE_REASSURANCE = "Architecture drafts are saved automatically.";
 
-/** Browser session persistence for multi-step intake and admin wizards (TB-2157). */
-export const WIZARD_SESSION_AUTOSAVE_REASSURANCE =
-  "Your progress is saved while you work.";
-
 /** Section label when a single recent draft is offered for resume (TB-1461). */
 export const ARCHITECTURE_CREATION_CONTINUE_SECTION_TITLE = "Resume an architecture draft";
 

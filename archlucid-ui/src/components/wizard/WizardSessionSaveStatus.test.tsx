@@ -1,11 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
-import {
-  WizardSessionSaveReassurance,
-  WizardSessionSaveStatus,
-} from "@/components/wizard/WizardSessionSaveStatus";
-import { WIZARD_SESSION_AUTOSAVE_REASSURANCE } from "@/lib/create-vs-review-intake-copy";
+import { WizardSessionSaveStatus } from "@/components/wizard/WizardSessionSaveStatus";
 
 describe("WizardSessionSaveStatus", () => {
   it("renders nothing while the session is idle", () => {
@@ -27,7 +23,7 @@ describe("WizardSessionSaveStatus", () => {
     expect(screen.queryByTestId("wizard-session-autosave-reassurance")).not.toBeInTheDocument();
   });
 
-  it("keeps stacked reassurance inside the default layout", () => {
+  it("does not render autosave reassurance in the default stacked layout", () => {
     render(
       <WizardSessionSaveStatus
         saveState="saved"
@@ -35,20 +31,7 @@ describe("WizardSessionSaveStatus", () => {
       />,
     );
 
-    expect(screen.getByTestId("wizard-session-autosave-reassurance")).toHaveTextContent(
-      WIZARD_SESSION_AUTOSAVE_REASSURANCE,
-    );
-  });
-});
-
-describe("WizardSessionSaveReassurance", () => {
-  it("renders reassurance only while saved or saving", () => {
-    const { rerender } = render(<WizardSessionSaveReassurance saveState="saved" />);
-
-    expect(screen.getByTestId("wizard-session-autosave-reassurance")).toBeInTheDocument();
-
-    rerender(<WizardSessionSaveReassurance saveState="unsaved" />);
-
+    expect(screen.getByTestId("wizard-session-save-status")).toBeInTheDocument();
     expect(screen.queryByTestId("wizard-session-autosave-reassurance")).not.toBeInTheDocument();
   });
 });

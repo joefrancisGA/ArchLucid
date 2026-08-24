@@ -12,7 +12,7 @@ export function ReviewsNewJobChooserSection(): React.JSX.Element {
   return (
     <section
       aria-labelledby="reviews-new-job-chooser-heading"
-      className="space-y-3 border-t border-neutral-200 pt-5 dark:border-neutral-800"
+      className="space-y-3 border-t border-neutral-200 pt-4 dark:border-neutral-800"
       data-testid="reviews-new-job-chooser-section"
     >
       <div>

@@ -8,10 +8,7 @@ import { ReviewStartLoadingButton } from "@/components/review-intake/ReviewStart
 import { ReviewStartStagedProgress } from "@/components/review-intake/ReviewStartStagedProgress";
 import { ReviewStartUnresolvedNotice } from "@/components/review-intake/ReviewStartUnresolvedNotice";
 import { NewReviewSampleEscapeLink } from "@/components/usability/NewReviewSampleEscapeLink";
-import {
-  WizardSessionSaveReassurance,
-  WizardSessionSaveStatus,
-} from "@/components/wizard/WizardSessionSaveStatus";
+import { WizardSessionSaveStatus } from "@/components/wizard/WizardSessionSaveStatus";
 import type { WizardSessionSaveState } from "@/hooks/use-wizard-session-persistence";
 import type { ReviewCreationProgress } from "@/hooks/use-review-creation-progress";
 import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer/buyer-polish-copy";
@@ -122,30 +119,27 @@ export function FirstPilotIntakeStartFooter(props: FirstPilotIntakeStartFooterPr
       {noticeStack.length > 0 ? <div className="space-y-3">{noticeStack}</div> : null}
 
       <div className="space-y-3" data-testid="first-pilot-start-actions">
-        <div className="space-y-1">
-          <div
-            className="flex flex-wrap items-center gap-3"
-            data-testid="first-pilot-intake-action-row"
-          >
-            <WizardSessionSaveStatus
-              layout="inline"
-              saveState={wizardSaveState}
-              lastSavedUtc={wizardLastSavedUtc}
-            />
-            <ReviewStartLoadingButton
-              type="button"
-              variant="primary"
-              className={CTA_WIDTH.content}
-              disabled={creationProgress.isActive || blocksLlmExecution}
-              onClick={onStartReview}
-              data-testid="first-pilot-start"
-              idleLabel={BUYER_START_ARCHITECTURE_REVIEW_CTA}
-              loadingLabel={creationProgress.loadingLabel}
-              isLoading={creationProgress.isActive}
-              aria-describedby={readinessId}
-            />
-          </div>
-          <WizardSessionSaveReassurance saveState={wizardSaveState} />
+        <div
+          className="flex flex-wrap items-center gap-3"
+          data-testid="first-pilot-intake-action-row"
+        >
+          <WizardSessionSaveStatus
+            layout="inline"
+            saveState={wizardSaveState}
+            lastSavedUtc={wizardLastSavedUtc}
+          />
+          <ReviewStartLoadingButton
+            type="button"
+            variant="primary"
+            className={CTA_WIDTH.content}
+            disabled={creationProgress.isActive || blocksLlmExecution}
+            onClick={onStartReview}
+            data-testid="first-pilot-start"
+            idleLabel={BUYER_START_ARCHITECTURE_REVIEW_CTA}
+            loadingLabel={creationProgress.loadingLabel}
+            isLoading={creationProgress.isActive}
+            aria-describedby={readinessId}
+          />
         </div>
         <NewReviewSampleEscapeLink presentation="inline" />
       </div>

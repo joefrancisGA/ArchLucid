@@ -96,7 +96,7 @@ function lifecycleCardClassName(
 
   return cn(
     OPERATOR_SURFACE_CARD_CLASS,
-    "flex flex-col gap-3 border border-neutral-200 p-4 dark:border-neutral-800",
+    "min-w-0 flex flex-col gap-3 border border-neutral-200 p-4 dark:border-neutral-800",
     isEmphasized && OPERATOR_CARD.lifecycleEmphasized,
     selectedPath === path && "ring-2 ring-teal-700/40 ring-offset-2",
     extraClassName,
@@ -186,9 +186,8 @@ export function OperatorHomeDualPathCards(props: OperatorHomeDualPathCardsProps)
     >
       <div
         className={cn(
-          "grid gap-3",
+          "grid grid-cols-1 gap-3",
           hideExplorePath ? "sm:grid-cols-2" : "sm:grid-cols-2 md:grid-cols-3",
-          OPERATOR_LAYOUT.inlineGap,
         )}
       >
         <article
