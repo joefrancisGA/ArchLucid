@@ -86,6 +86,7 @@ public sealed class RequireAuthorizationAnalyzer : DiagnosticAnalyzer
             return;
 
         bool reportedAnyMethod = false;
+        bool hasQualifyingPublicMethods = false;
 
         foreach (ISymbol member in symbol.GetMembers())
         {
@@ -107,6 +108,8 @@ public sealed class RequireAuthorizationAnalyzer : DiagnosticAnalyzer
             if (method.AssociatedSymbol is not null)
                 continue;
 
+            hasQualifyingPublicMethods = true;
+
             if (nonActionAttribute is not null && SymbolHasAttribute(method, nonActionAttribute))
                 continue;
 
@@ -126,13 +129,16 @@ public sealed class RequireAuthorizationAnalyzer : DiagnosticAnalyzer
         if (reportedAnyMethod)
             return;
 
-        Location? typeLocation = symbol.Locations.FirstOrDefault();
+        if (!hasQualifyingPublicMethods)
+        {
+            Location? typeLocation = symbol.Locations.FirstOrDefault();
 
-        if (typeLocation is null)
-            return;
+            if (typeLocation is null)
+                return;
 
-        context.ReportDiagnostic(
-            Al0001Descriptor.Create(typeLocation, symbol.ToDisplayString(SymbolDisplayFormat.CSharpShortErrorMessageFormat)));
+            context.ReportDiagnostic(
+                Al0001Descriptor.Create(typeLocation, symbol.ToDisplayString(SymbolDisplayFormat.CSharpShortErrorMessageFormat)));
+        }
     }
 
     private static bool InheritsFromControllerBase(INamedTypeSymbol type, INamedTypeSymbol controllerBase)

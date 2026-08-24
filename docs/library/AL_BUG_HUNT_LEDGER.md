@@ -1276,11 +1276,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** require authorization analyzer; tenant identity boundary; mutating controller audit
 - **paths:** ArchLucid.Analyzers/RequireAuthorizationAnalyzer.cs; ArchLucid.Analyzers/TenantIdentityBoundaryAnalyzer.cs; ArchLucid.Analyzers/MutatingControllerAuditAnalyzer.cs
 - **test-filter:** FullyQualifiedName~RequireAuthorizationAnalyzer|FullyQualifiedName~TenantIdentityBoundaryAnalyzer|FullyQualifiedName~MutatingControllerAuditAnalyzer
-- **hunts:** 1
-- **bugs-found:** 4
+- **hunts:** 2
+- **bugs-found:** 5
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24 — AL0003 skipped HttpPatch; ARCH001 fired on Tests assemblies and typeof(); AL0001 reported [NonAction] helpers
+- **last-bug:** 2026-08-24 — AL0001 reported controller when every public action had AllowAnonymous
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1291,6 +1291,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) Mutating controller without `[Authorize]` does not fire `RequireAuthorizationAnalyzer` — analyzer targets missing auth on actions/controllers; not a mutating-without-audit gap
 - [x] (proven) ARCH001 analyzed `*.Tests` assemblies — `ShouldAnalyzeAssembly` lacked `.Tests` suffix exclusion (unlike AL0001); regression in `Does_not_report_when_assembly_is_tests`
 - [x] (proven) AL0001 reported public `[NonAction]` controller helpers — `RequireAuthorizationAnalyzer` did not skip `NonActionAttribute`; regression in `Does_not_report_public_NonAction_helper`
+- [x] (proven) AL0001 reported controller when every public action had `[AllowAnonymous]` — type-level fallback fired after all actions were skipped; regression in `Does_not_report_controller_when_all_public_actions_have_AllowAnonymous`
 
 ---
 

@@ -239,6 +239,40 @@ namespace N
         await test.RunAsync();
     }
 
+    [Fact]
+    public async Task Does_not_report_controller_when_all_public_actions_have_AllowAnonymous()
+    {
+        const string testCode = AspNetCoreStubs +
+            """
+
+namespace N
+{
+    using Microsoft.AspNetCore.Authorization;
+    using Microsoft.AspNetCore.Mvc;
+
+    public sealed class PublicController : ControllerBase
+    {
+        [HttpGet]
+        [AllowAnonymous]
+        public IActionResult A() => Ok();
+
+        [HttpGet]
+        [AllowAnonymous]
+        public IActionResult B() => Ok();
+    }
+}
+""";
+
+        CSharpAnalyzerTest<RequireAuthorizationAnalyzer, DefaultVerifier> test = new()
+        {
+            TestCode = testCode,
+            ReferenceAssemblies = ReferenceAssemblies.Net.Net90,
+            SolutionTransforms = { ProductAssemblyNameTransform }
+        };
+
+        await test.RunAsync();
+    }
+
     private static Solution ProductAssemblyNameTransform(Solution solution, ProjectId projectId) =>
         solution.WithProjectAssemblyName(projectId, "ArchLucid.Api");
 }
