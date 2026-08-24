@@ -127,9 +127,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** ARM resource ids; terraform source id; endpoint index
 - **paths:** ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs
 - **test-filter:** FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests
-- **hunts:** 28
-- **bugs-found:** 29
-- **last-bug:** 2026-08-24 — `azurerm_sql_managed_instance` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`sql_managed_instance` was only listed for datastore aliases)
+- **hunts:** 29
+- **bugs-found:** 30
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-08-24
+- **last-bug:** 2026-08-24 — `azurerm_mariadb_server` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`mariadb` was only listed for datastore aliases)
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -158,6 +160,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - [x] (proven) `azurerm_mysql_flexible_server` Terraform address omitted from `LooksLikeTerraformServiceSourceId` — **hit 2026-08-24:** `mysql` was only in the datastore list; `azurerm_mysql_flexible_server.main` on Data-category nodes dropped `svc-` synthetic aliases; regression in gate + merge tests
 - [x] (proven) `azurerm_sql_server` Terraform address omitted from `LooksLikeTerraformServiceSourceId` — **hit 2026-08-24:** `sql_server` was only in the datastore list; `azurerm_sql_server.main` on Data-category nodes dropped `svc-` synthetic aliases; regression in gate + merge tests
 - [x] (proven) `azurerm_sql_managed_instance` Terraform address omitted from `LooksLikeTerraformServiceSourceId` — **hit 2026-08-24:** `sql_managed_instance` was only in the datastore list; `azurerm_sql_managed_instance.main` on Data-category nodes dropped `svc-` synthetic aliases; regression in gate + merge tests
+- [x] (proven) `azurerm_mariadb_server` Terraform address omitted from `LooksLikeTerraformServiceSourceId` — **hit 2026-08-24:** `mariadb` was only in the datastore list; `azurerm_mariadb_server.main` on Data-category nodes dropped `svc-` synthetic aliases; regression in gate + merge tests
 
 ---
 
