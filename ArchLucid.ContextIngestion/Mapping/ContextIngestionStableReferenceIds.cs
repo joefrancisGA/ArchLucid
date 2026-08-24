@@ -25,7 +25,7 @@ public static class ContextIngestionStableReferenceIds
         // SupportedContextDocumentContentTypes; stable ids must not churn on casing alone.
         byte[] hash = SHA256.HashData(
             Encoding.UTF8.GetBytes(
-                $"{kind}|{part1.Trim()}|{part2.Trim().ToLowerInvariant()}"));
+                $"{kind}|{part1.Trim().ToLowerInvariant()}|{part2.Trim().ToLowerInvariant()}"));
 
         return Convert.ToHexString(hash.AsSpan(0, 16)).ToLowerInvariant();
     }

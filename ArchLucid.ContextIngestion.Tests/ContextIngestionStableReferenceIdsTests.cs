@@ -26,4 +26,14 @@ public sealed class ContextIngestionStableReferenceIdsTests
             .Should()
             .Be(ContextIngestionStableReferenceIds.ForInfrastructureDeclaration("env.json", upperFormat));
     }
+
+    [Theory]
+    [InlineData("spec.txt", "SPEC.TXT")]
+    [InlineData("Env.json", "env.JSON")]
+    public void ForDocument_ignores_name_casing(string lowerName, string upperName)
+    {
+        ContextIngestionStableReferenceIds.ForDocument(lowerName, "text/plain")
+            .Should()
+            .Be(ContextIngestionStableReferenceIds.ForDocument(upperName, "text/plain"));
+    }
 }

@@ -141,4 +141,100 @@ public sealed class DocumentConnectorTests
         delta.RemovedCount.Should().Be(0);
         delta.UnchangedCount.Should().Be(1);
     }
+
+    [Fact]
+    public async Task DeltaAsync_ReMappedDocumentWithDifferentNameCasing_ReportsUnchanged()
+    {
+        ArchitectureRequest request = new()
+        {
+            Description = "1234567890 minimum len",
+            SystemName = "billing-api",
+            Environment = "prod",
+            CloudProvider = CloudProvider.Azure,
+            Documents =
+            [
+                new ContextDocumentRequest
+                {
+                    Name = "spec.txt",
+                    ContentType = "text/plain",
+                    Content = "REQ: Must scale",
+                }
+            ],
+        };
+
+        DocumentConnector connector = new(
+            new DocumentConnectorPayloadExtractor(),
+            new DocumentConnectorPayloadNormalizer([new PlainTextContextDocumentParser()]),
+            new SetDiffConnectorDeltaComputer());
+
+        ContextIngestionRequest firstMapped = ContextIngestionRequestMapper.FromArchitectureRequest(request);
+        RawContextPayload firstRaw = await connector.FetchAsync(firstMapped, CancellationToken.None);
+        NormalizedContextBatch firstBatch = await connector.NormalizeAsync(firstRaw, CancellationToken.None);
+
+        ContextSnapshot previous = new()
+        {
+            SnapshotId = Guid.NewGuid(),
+            RunId = Guid.NewGuid(),
+            ProjectId = firstMapped.ProjectId,
+            CanonicalObjects = firstBatch.CanonicalObjects,
+        };
+
+        request.Documents[0].Name = "SPEC.TXT";
+        ContextIngestionRequest secondMapped = ContextIngestionRequestMapper.FromArchitectureRequest(request);
+        RawContextPayload secondRaw = await connector.FetchAsync(secondMapped, CancellationToken.None);
+        NormalizedContextBatch secondBatch = await connector.NormalizeAsync(secondRaw, CancellationToken.None);
+
+        ContextDelta delta = await connector.DeltaAsync(secondBatch, previous, CancellationToken.None);
+
+        delta.AddedCount.Should().Be(0);
+        delta.RemovedCount.Should().Be(0);
+        delta.UnchangedCount.Should().Be(1);
+    }
+
+    [Fact]
+    public async Task DeltaAsync_LongRequirementsWithSharedNamePrefix_ReportsBothUnchanged()
+    {
+        string prefix = new('a', 80);
+        string content = $"REQ: {prefix}1\nREQ: {prefix}2";
+
+        ArchitectureRequest request = new()
+        {
+            Description = "1234567890 minimum len",
+            SystemName = "billing-api",
+            Environment = "prod",
+            CloudProvider = CloudProvider.Azure,
+            Documents =
+            [
+                new ContextDocumentRequest
+                {
+                    Name = "spec.txt",
+                    ContentType = "text/plain",
+                    Content = content,
+                }
+            ],
+        };
+
+        DocumentConnector connector = new(
+            new DocumentConnectorPayloadExtractor(),
+            new DocumentConnectorPayloadNormalizer([new PlainTextContextDocumentParser()]),
+            new SetDiffConnectorDeltaComputer());
+
+        ContextIngestionRequest mapped = ContextIngestionRequestMapper.FromArchitectureRequest(request);
+        RawContextPayload raw = await connector.FetchAsync(mapped, CancellationToken.None);
+        NormalizedContextBatch batch = await connector.NormalizeAsync(raw, CancellationToken.None);
+
+        ContextSnapshot previous = new()
+        {
+            SnapshotId = Guid.NewGuid(),
+            RunId = Guid.NewGuid(),
+            ProjectId = mapped.ProjectId,
+            CanonicalObjects = batch.CanonicalObjects,
+        };
+
+        ContextDelta delta = await connector.DeltaAsync(batch, previous, CancellationToken.None);
+
+        delta.AddedCount.Should().Be(0);
+        delta.RemovedCount.Should().Be(0);
+        delta.UnchangedCount.Should().Be(2);
+    }
 }

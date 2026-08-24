@@ -39,4 +39,21 @@ public sealed class PlainTextContextDocumentParserTests
         result[0].Properties["text"].Should().Be("System must be HA");
         result[0].SourceId.Should().Be(doc.DocumentId);
     }
+
+    [Fact]
+    public async Task ParseAsync_Utf8BomReqLine_ExtractsRequirement()
+    {
+        ContextDocumentReference doc = new()
+        {
+            Name = "spec.txt",
+            ContentType = "text/plain",
+            Content = "\uFEFFREQ: Must scale horizontally"
+        };
+
+        IReadOnlyList<CanonicalObject> result = await _sut.ParseAsync(doc, CancellationToken.None);
+
+        result.Should().ContainSingle();
+        result[0].ObjectType.Should().Be("Requirement");
+        result[0].Properties["text"].Should().Be("Must scale horizontally");
+    }
 }

@@ -9,10 +9,18 @@ public class CanonicalDeduplicator : ICanonicalDeduplicator
     {
         return items
             .GroupBy(
-                x => $"{x.ObjectType}|{x.Name}|{GetDedupeFingerprint(x)}",
+                x => $"{x.ObjectType}|{x.Name}|{GetDedupeFingerprint(x)}|{GetDedupeScopeSuffix(x)}",
                 StringComparer.OrdinalIgnoreCase)
             .Select(g => g.First())
             .ToList();
+    }
+
+    private static string GetDedupeScopeSuffix(CanonicalObject item)
+    {
+        if (string.Equals(item.SourceType, "PolicyReference", StringComparison.OrdinalIgnoreCase))
+            return string.Empty;
+
+        return item.SourceId ?? string.Empty;
     }
 
     /// <summary>

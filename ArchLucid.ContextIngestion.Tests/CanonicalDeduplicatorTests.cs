@@ -76,4 +76,39 @@ public sealed class CanonicalDeduplicatorTests
 
         result.Should().HaveCount(2);
     }
+
+    [Fact]
+    public void Deduplicate_KeepsInfrastructureResourcesFromDifferentDeclarations()
+    {
+        List<CanonicalObject> items =
+        [
+            new()
+            {
+                ObjectType = "TopologyResource",
+                Name = "hub-vnet",
+                SourceType = "InfrastructureDeclaration",
+                SourceId = "decl-a",
+                Properties = new Dictionary<string, string>
+                {
+                    ["resourceType"] = "vnet", ["region"] = "eastus"
+                }
+            },
+
+            new()
+            {
+                ObjectType = "TopologyResource",
+                Name = "hub-vnet",
+                SourceType = "InfrastructureDeclaration",
+                SourceId = "decl-b",
+                Properties = new Dictionary<string, string>
+                {
+                    ["resourceType"] = "vnet", ["region"] = "westus"
+                }
+            }
+        ];
+
+        IReadOnlyList<CanonicalObject> result = _sut.Deduplicate(items);
+
+        result.Should().HaveCount(2);
+    }
 }

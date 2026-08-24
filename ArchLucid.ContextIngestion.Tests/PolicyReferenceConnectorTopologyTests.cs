@@ -48,4 +48,49 @@ public sealed class PolicyReferenceConnectorTopologyTests
 
         batch.CanonicalObjects.Single().Properties.Should().NotContainKey("applicableTopologyNodeIds");
     }
+
+    [Fact]
+    public async Task NormalizeAsync_TrimsWhitespacePolicyReferences()
+    {
+        PolicyReferenceConnector sut = new(
+            new PolicyReferencePayloadExtractor(),
+            new PolicyReferencePayloadNormalizer(new PolicyTopologyOverlapResolver()),
+            new SetDiffConnectorDeltaComputer());
+        RawContextPayload raw = new() { PolicyReferences = [" SOC2 ", "SOC2"] };
+
+        NormalizedContextBatch batch = await sut.NormalizeAsync(raw, CancellationToken.None);
+
+        batch.CanonicalObjects.Should().ContainSingle();
+        batch.CanonicalObjects[0].Name.Should().Be("SOC2");
+        batch.CanonicalObjects[0].SourceId.Should().Be("SOC2");
+    }
+
+    [Fact]
+    public async Task DeltaAsync_PaddedPolicyReference_ReportsUnchanged()
+    {
+        PolicyReferenceConnector connector = new(
+            new PolicyReferencePayloadExtractor(),
+            new PolicyReferencePayloadNormalizer(new PolicyTopologyOverlapResolver()),
+            new SetDiffConnectorDeltaComputer());
+
+        RawContextPayload firstRaw = new() { PolicyReferences = ["SOC2"] };
+        NormalizedContextBatch firstBatch = await connector.NormalizeAsync(firstRaw, CancellationToken.None);
+
+        ContextSnapshot previous = new()
+        {
+            SnapshotId = Guid.NewGuid(),
+            RunId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid().ToString("D"),
+            CanonicalObjects = firstBatch.CanonicalObjects,
+        };
+
+        RawContextPayload secondRaw = new() { PolicyReferences = [" SOC2 "] };
+        NormalizedContextBatch secondBatch = await connector.NormalizeAsync(secondRaw, CancellationToken.None);
+
+        ContextDelta delta = await connector.DeltaAsync(secondBatch, previous, CancellationToken.None);
+
+        delta.AddedCount.Should().Be(0);
+        delta.RemovedCount.Should().Be(0);
+        delta.UnchangedCount.Should().Be(1);
+    }
 }

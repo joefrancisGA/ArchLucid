@@ -1,6 +1,9 @@
 using ArchLucid.ContextIngestion.Contracts;
 using ArchLucid.ContextIngestion.Models;
 
+using System.Security.Cryptography;
+using System.Text;
+
 using static ArchLucid.ContextIngestion.SupportedContextDocumentContentTypes;
 
 namespace ArchLucid.ContextIngestion.Parsing;
@@ -20,7 +23,12 @@ public class PlainTextContextDocumentParser : IContextDocumentParser
         _ = ct;
         List<CanonicalObject> results = [];
 
-        string[] lines = document.Content
+        string content = document.Content;
+
+        if (content.Length > 0 && content[0] == '\uFEFF')
+            content = content[1..];
+
+        string[] lines = content
             .Replace("\r\n", "\n")
             .Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
 
@@ -33,7 +41,7 @@ public class PlainTextContextDocumentParser : IContextDocumentParser
                 results.Add(new CanonicalObject
                 {
                     ObjectType = "Requirement",
-                    Name = text.Length > 80 ? text[..80] : text,
+                    Name = BuildStableLineName(text),
                     SourceType = "Document",
                     SourceId = document.DocumentId,
                     Properties = new Dictionary<string, string> { ["text"] = text }
@@ -46,7 +54,7 @@ public class PlainTextContextDocumentParser : IContextDocumentParser
                 results.Add(new CanonicalObject
                 {
                     ObjectType = "PolicyControl",
-                    Name = text.Length > 80 ? text[..80] : text,
+                    Name = BuildStableLineName(text),
                     SourceType = "Document",
                     SourceId = document.DocumentId,
                     Properties = new Dictionary<string, string> { ["text"] = text }
@@ -59,7 +67,7 @@ public class PlainTextContextDocumentParser : IContextDocumentParser
                 results.Add(new CanonicalObject
                 {
                     ObjectType = "TopologyResource",
-                    Name = text.Length > 80 ? text[..80] : text,
+                    Name = BuildStableLineName(text),
                     SourceType = "Document",
                     SourceId = document.DocumentId,
                     Properties = new Dictionary<string, string> { ["text"] = text }
@@ -72,7 +80,7 @@ public class PlainTextContextDocumentParser : IContextDocumentParser
                 results.Add(new CanonicalObject
                 {
                     ObjectType = "SecurityBaseline",
-                    Name = text.Length > 80 ? text[..80] : text,
+                    Name = BuildStableLineName(text),
                     SourceType = "Document",
                     SourceId = document.DocumentId,
                     Properties = new Dictionary<string, string> { ["text"] = text, ["status"] = "declared" }
@@ -81,5 +89,16 @@ public class PlainTextContextDocumentParser : IContextDocumentParser
 
 
         return Task.FromResult<IReadOnlyList<CanonicalObject>>(results);
+    }
+
+    private static string BuildStableLineName(string text)
+    {
+        if (text.Length <= 80)
+            return text;
+
+        string prefix = text[..80];
+        string suffix = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(text)).AsSpan(0, 4)).ToLowerInvariant();
+
+        return $"{prefix}#{suffix}";
     }
 }
