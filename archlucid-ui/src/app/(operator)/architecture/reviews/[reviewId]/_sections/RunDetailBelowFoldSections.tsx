@@ -163,7 +163,7 @@ export function RunDetailBelowFoldSections(props: RunDetailBelowFoldSectionsProp
         />
       ) : null}
 
-      {!m.manifestId ? <RunDetailPreFinalizedEmptyState /> : null}
+      {!m.manifestId ? <RunDetailPreFinalizedEmptyState runId={m.routeRunId} /> : null}
 
       {ownedByAnotherTab ? null : (
         <RunDetailManifestSummaryAlerts
