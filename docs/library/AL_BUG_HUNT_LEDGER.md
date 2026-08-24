@@ -1040,24 +1040,28 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ## Zone: api-key-auth
 
 - **id:** api-key-auth
-- **status:** unseeded
+- **status:** open
 - **impact:** high
 - **aliases:** API key auth; admin API key settings
 - **paths:** ArchLucid.Api/Authentication/ApiKeyAuthenticationHandler.cs; ArchLucid.Api/Services/Admin/AdminApiKeySettingsService.cs; ArchLucid.Api/Controllers/Admin/AdminApiKeySettingsController.cs
 - **test-filter:** FullyQualifiedName~ApiKeyAuthentication|FullyQualifiedName~AdminApiKeySettings
-- **hunts:** 0
-- **bugs-found:** 0
+- **hunts:** 1
+- **bugs-found:** 4
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **last-hunt:** 2026-08-24
+- **last-bug:** 2026-08-24 — header whitespace not trimmed; blank header misclassified; shared key admin expiry blocked valid reader slot; expiry boundary still accepted key at exact timestamp
 - **related-pd-tb:** none
-- **code-changed-since:** unknown
+- **code-changed-since:** yes
 
 ### Hypotheses
 
-- [ ] (candidate) Revoked API key still authenticates until process restart
-- [ ] (candidate) Admin can read or rotate another tenantÃ¢â‚¬â„¢s API key settings
-- [ ] (candidate) Missing or malformed key header is treated as an authenticated principal
+- [x] (invalid) Revoked API key still authenticates until process restart — handler reads `IOptionsMonitor<ApiKeyAuthenticationOptions>.CurrentValue`; rotation via config reload is covered by `When_api_key_options_monitor_advances_old_material_fails_and_new_succeeds`
+- [x] (invalid) Admin can read or rotate another tenant's API key settings — host-level `AdminAuthority` settings; keys are not tenant-partitioned configuration
+- [x] (invalid) Missing or malformed key header is treated as an authenticated principal — missing/blank/invalid headers return `AuthenticateResult.Fail`; no anonymous success when `Enabled=true`
+- [x] (proven) `X-Api-Key` surrounding whitespace broke authentication — **hit 2026-08-24:** provided material was not trimmed before compare; regression in `When_enabled_true_and_admin_key_has_surrounding_whitespace_in_header_still_authenticates`
+- [x] (proven) Blank `X-Api-Key` header returned invalid-key failure — **hit 2026-08-24:** whitespace-only header now fails as missing; regression in `When_enabled_true_and_header_is_blank_returns_missing_failure`
+- [x] (proven) Shared material in admin and reader slots blocked when admin expiry lapsed but reader expiry valid — **hit 2026-08-24:** admin branch failed before reader branch; regression in `When_shared_key_admin_expired_but_reader_slot_still_valid_authenticates_as_reader`
+- [x] (proven) Expired keys still authenticated at exact `ExpiresAt` timestamp — **hit 2026-08-24:** `IsKeyExpired` used `>` instead of `>=`; regression in `When_admin_key_expiry_is_exactly_now_returns_failure`
 
 ---
 
