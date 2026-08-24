@@ -38,6 +38,8 @@ import {
   RunsListAggregateErrorBoundaryDeferred,
 } from "./reviews-hub-deferred-chunks";
 import { ReviewsHubResumeDrafts } from "./ReviewsHubResumeDrafts";
+import { ReviewsHubContinueReviewStrip } from "./ReviewsHubContinueReviewStrip";
+import { resolveReviewsHubContinueReviewCandidate } from "@/lib/reviews-hub-continue-review";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { InlineGuidanceText } from "@/components/InlineGuidanceText";
 import type { RunsPageModel } from "./runs-page-model";
@@ -54,6 +56,7 @@ export function RunsPageView(props: Props) {
   const malformedMessage = m.malformedMessage;
   const isDev = process.env.NODE_ENV === "development";
   const workspaceSummary = deriveReviewsWorkspaceSummary(m.runs);
+  const continueReviewCandidate = resolveReviewsHubContinueReviewCandidate(m.runs);
   const hubLoadOk = loadFailure === null && malformedMessage === null;
   const hasReviews = m.runs.length > 0;
   // Advanced aggregate list only when the hub page cannot show the full inventory.
@@ -85,6 +88,9 @@ export function RunsPageView(props: Props) {
       {hubLoadOk ? (
         <>
           <ReviewsHubReviewInventoryDeferred runs={m.runs} summary={workspaceSummary} />
+          {continueReviewCandidate !== null ? (
+            <ReviewsHubContinueReviewStrip candidate={continueReviewCandidate} />
+          ) : null}
           <ReviewsHubResumeDrafts />
           {hasReviews ? <OperatorAttentionKindStrip variant="compact" /> : null}
           <ArchitectureObjectMapStrip focus="review" />
