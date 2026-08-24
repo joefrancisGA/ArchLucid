@@ -51,5 +51,17 @@ public sealed class AuthorityPipelineWorkPayload
         request.RequiredCapabilities ??= [];
         request.Constraints ??= [];
         request.Assumptions ??= [];
+
+        PruneNullReferenceElements(request.Documents);
+        PruneNullReferenceElements(request.InfrastructureDeclarations);
+    }
+
+    private static void PruneNullReferenceElements<T>(List<T> values)
+        where T : class
+    {
+        if (values.Count == 0)
+            return;
+
+        values.RemoveAll(static value => value is null);
     }
 }
