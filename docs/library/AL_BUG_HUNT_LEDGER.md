@@ -479,11 +479,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** run repository; sql run scope
 - **paths:** ArchLucid.Persistence/Repositories/SqlRunRepository.cs
 - **test-filter:** FullyQualifiedName~SqlRunRepositoryScopeIsolationSqlIntegrationTests|FullyQualifiedName~RunRepositoryWorkspaceSystemNameSqlTests
-- **hunts:** 3
-- **bugs-found:** 2
+- **hunts:** 4
+- **bugs-found:** 3
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24 — graph-at-or-before and committed-run lookups compared raw `ProjectId` while collision guard trims and ignores case
+- **last-bug:** 2026-08-24 — ListByProject compared raw ProjectId while collision/committed lookups trim and ignore case
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -497,6 +497,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) Workspace system-name collision returns true for another tenant's active run — InMemory cross-tenant guard test
 - [x] (proven) `ExistsActiveRunWithSystemNameInWorkspace` compares `UPPER(ProjectId)` without trimming so padded slugs bypass the workspace collision guard — **hit 2026-08-23 hunt #38:** `LTRIM(RTRIM(ProjectId))` before `UPPER`
 - [x] (proven) `GetLatestWithGraphAtOrBefore` / `GetLatestCommittedRunIdByManifestCreatedUtc` / `GetPriorCommittedRunIdBeforeCurrent` compare raw `ProjectId` while collision guard trims and ignores case — **hit 2026-08-24:** padded or differently-cased stored slugs missed committed/graph lookups (advisory eligibility, temporal graph); SQL uses `UPPER(LTRIM(RTRIM(ProjectId)))`; InMemory uses trim + ordinal-ignore-case; regressions in `RunRepositoryWorkspaceSystemNameSqlTests` / `InMemoryRunRepositoryGetLatestWithGraphAtOrBeforeTests`
+- [x] (proven) `ListByProjectAsync` / `ListByProjectKeysetAsync` compared raw `ProjectId` while workspace collision and committed-run lookups trim and ignore case — **hit 2026-08-24:** padded or differently-cased stored slugs omitted from dashboard project lists; SQL uses `UPPER(LTRIM(RTRIM(r.ProjectId))) = @NormalizedProjectSlug`; InMemory uses `MatchesProjectListFilter`; regressions in `InMemory_matches_padded_project_id_for_list_by_project` and `Project_list_queries_trim_project_id_before_upper_compare`
 
 ---
 
