@@ -13,6 +13,7 @@ import { PersistentWorkspaceNextActionStrip } from "@/components/usability/Persi
 import { PageContextualHelpFab } from "@/components/usability/PageContextualHelpFab";
 import { RecentReviewsResumeStrip } from "@/components/usability/RecentReviewsResumeStrip";
 import { CorePilotCompleteCelebrateStrip } from "@/components/usability/CorePilotCompleteCelebrateStrip";
+import { GlobalSearchShortcutCoach } from "@/components/usability/GlobalSearchShortcutCoach";
 import { ReviewsListReturnStateTracker } from "@/components/usability/ReviewsListReturnStateTracker";
 import { isExplicitStaticDemoMarketingBuild } from "@/lib/buyer/buyer-demo-content-gating";
 
@@ -28,6 +29,7 @@ export function AppShellMainAffordances() {
       <PersistentWorkspaceNextActionStrip />
       {isOperatorHome ? <RecentReviewsResumeStrip /> : null}
       {isOperatorHome ? <CorePilotCompleteCelebrateStrip /> : null}
+      <GlobalSearchShortcutCoach />
       <OperatorRecentViewsTracker />
       <ReviewsListReturnStateTracker />
       <FirstVisitHelpAutoOpen />
