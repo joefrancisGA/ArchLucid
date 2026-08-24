@@ -36,10 +36,16 @@ public sealed class GcpWorkloadIdentityCredentialFactory(
     internal static string NormalizeAudience(string workloadIdentityPoolProvider)
     {
         const string audiencePrefix = "//iam.googleapis.com/";
+        const string httpsAudiencePrefix = "https://iam.googleapis.com/";
 
         if (workloadIdentityPoolProvider.StartsWith(audiencePrefix, StringComparison.OrdinalIgnoreCase))
         {
             return audiencePrefix + workloadIdentityPoolProvider.Substring(audiencePrefix.Length);
+        }
+
+        if (workloadIdentityPoolProvider.StartsWith(httpsAudiencePrefix, StringComparison.OrdinalIgnoreCase))
+        {
+            return audiencePrefix + workloadIdentityPoolProvider.Substring(httpsAudiencePrefix.Length);
         }
 
         return $"{audiencePrefix}{workloadIdentityPoolProvider.TrimStart('/')}";

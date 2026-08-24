@@ -1782,16 +1782,18 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** aws extractor; gcp extractor; azure extractor
 - **paths:** ArchLucid.Integrations.AwsExtractor/; ArchLucid.Integrations.GcpExtractor/; ArchLucid.Integrations.AzureExtractor/
 - **test-filter:** FullyQualifiedName~AwsExtractor|FullyQualifiedName~GcpExtractor|FullyQualifiedName~AzureExtractor
-- **hunts:** 4
-- **bugs-found:** 7
+- **hunts:** 5
+- **bugs-found:** 8
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24 — AWS Resource Explorer inventory used connection region instead of per-resource Region field
+- **last-bug:** 2026-08-24 — GCP WIF audience `https://iam.googleapis.com/...` provider double-prefixed
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
 ### Hypotheses
 
+- [ ] (hunt-ready) AWS STS AssumeRole hardcoded to commercial `us-east-1` — `HostedAwsExtractorClient.AssumeRoleAsync` ignores connection region/partition for STS endpoint
+- [x] (proven) GCP WIF audience `https://` provider double-prefixed — **hit 2026-08-24:** `GcpWorkloadIdentityCredentialFactory.NormalizeAudience` prepended `//iam.googleapis.com/` to full `https://iam.googleapis.com/...` URLs; regression in `NormalizeAudience_normalizes_https_iam_googleapis_com_prefix`
 - [x] (valid-no-repro) Extractor pulls resources using credentials from another tenant's connector — tenant binding lives in application orchestration (`HostedAwsExtractorRunService`, connection repositories); integration clients consume caller-supplied credentials only
 - [x] (valid-no-repro) ARM/resource id mapping drops subscription scope and mis-attributes resources — `GetOnlyHostedAzureArmReadClient` preserves full ARM `id` strings from list API; no subscription-scope stripping locus in extractor integration layer
 - [x] (proven) AWS Resource Explorer inventory truncated at first page — **hit 2026-08-24:** `HostedAwsExtractorClient.SearchResourcesAsync` used single `SearchAsync` with `MaxResults=50` and no `NextToken` loop; regression in `SearchResourcesAsync_paginates_until_next_token_exhausted`

@@ -32,6 +32,16 @@ public sealed class GcpWorkloadIdentityCredentialFactoryTests
     }
 
     [Fact]
+    public void NormalizeAudience_normalizes_https_iam_googleapis_com_prefix()
+    {
+        string audience = GcpWorkloadIdentityCredentialFactory.NormalizeAudience(
+            "https://iam.googleapis.com/projects/123/locations/global/workloadIdentityPools/pool/providers/provider");
+
+        audience.Should().Be(
+            "//iam.googleapis.com/projects/123/locations/global/workloadIdentityPools/pool/providers/provider");
+    }
+
+    [Fact]
     public void CreateImpersonatedCredential_throws_when_provider_missing()
     {
         Mock<IGcpSubjectTokenProvider> tokenProvider = new();
