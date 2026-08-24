@@ -721,6 +721,7 @@ public static class TopologyProposalRelationshipEndpointIndex
             || normalized.Contains("app_configuration", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("stream_analytics", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("iothub", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("powerbi", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("managed_disk", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("recovery_services", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("netapp", StringComparison.OrdinalIgnoreCase)
