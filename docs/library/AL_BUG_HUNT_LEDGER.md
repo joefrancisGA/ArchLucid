@@ -993,11 +993,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** identity provider; idp activation
 - **paths:** ArchLucid.Api/Controllers/Admin/IdentityProviderConfigurationController.cs; ArchLucid.Api/Services/Admin/IdentityProviderActivationService.cs
 - **test-filter:** FullyQualifiedName~IdentityProviderActivationServiceTests
-- **hunts:** 1
-- **bugs-found:** 4
+- **hunts:** 2
+- **bugs-found:** 5
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24 — SAML discovery timeout bubbled as 500; re-activate cleared KeyVaultSecretName/MetadataXml when omitted; non-HTTP(S) metadata URL accepted; empty SAML body threw ArgumentException
+- **last-bug:** 2026-08-24 — protocol switch preserved prior protocol MetadataXml/KeyVaultSecretName when omitted
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1010,6 +1010,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Re-activate cleared stored `KeyVaultSecretName` and `MetadataXml` when omitted — **hit 2026-08-24:** upsert always nulled whitespace fields; now null preserves existing; regression in `ActivateAsync_reactivate_preserves_key_vault_secret_when_omitted` and `ActivateAsync_reactivate_preserves_metadata_xml_when_omitted`
 - [x] (proven) Discover accepted non-HTTP(S) absolute metadata URLs — **hit 2026-08-24:** `Uri.TryCreate` alone allowed `file://`; regression in `DiscoverAsync_rejects_non_http_scheme_metadata_url`
 - [x] (proven) Empty SAML metadata HTTP body threw `ArgumentException` to callers — **hit 2026-08-24:** parser throw was uncaught; regression in `DiscoverAsync_saml_empty_body_returns_failed_response_instead_of_throwing`
+- [x] (proven) Protocol switch preserved prior protocol `MetadataXml` / `KeyVaultSecretName` when omitted — **hit 2026-08-24:** `ResolveOptionalPersistedField` inherited existing values across SAML↔OIDC; now only preserves within same protocol; regression in `ActivateAsync_protocol_switch_clears_saml_metadata_xml_when_omitted` and `ActivateAsync_protocol_switch_clears_oidc_key_vault_secret_when_omitted`
 
 ---
 

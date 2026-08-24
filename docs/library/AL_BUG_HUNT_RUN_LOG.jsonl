@@ -179,3 +179,4 @@
 {"at":"2026-08-24T15:36:18.356519Z","zoneId":"scim-users","outcome":"hit"}
 {"at":"2026-08-24T15:36:18.3020324Z","zoneId":"cloud-extractors","outcome":"hit"}
 {"at":"2026-08-24T15:45:54.2015875Z","zoneId":"authority-pipeline-payload","outcome":"hit"}
+{"at":"2026-08-24T15:45:00.000000Z","zoneId":"identity-provider-config","outcome":"hit"}

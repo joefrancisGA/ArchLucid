@@ -57,14 +57,20 @@ public sealed class IdentityProviderActivationService(
         TenantIdentityProviderConfigurationRecord? existing =
             await _repository.TryGetAsync(tenantId, cancellationToken).ConfigureAwait(false);
 
+        bool sameProtocol = existing?.Protocol == parsedProtocol;
+
         TenantIdentityProviderConfigurationRecord record = new()
         {
             TenantId = tenantId,
             Protocol = parsedProtocol,
             IssuerUri = request.IssuerUri.Trim(),
-            MetadataXml = ResolveOptionalPersistedField(request.MetadataXml, existing?.MetadataXml),
+            MetadataXml = ResolveOptionalPersistedField(
+                request.MetadataXml,
+                sameProtocol ? existing?.MetadataXml : null),
             ClaimMappingJson = claimMappingJson,
-            KeyVaultSecretName = ResolveOptionalPersistedField(request.KeyVaultSecretName, existing?.KeyVaultSecretName),
+            KeyVaultSecretName = ResolveOptionalPersistedField(
+                request.KeyVaultSecretName,
+                sameProtocol ? existing?.KeyVaultSecretName : null),
             UpdatedUtc = TimeProvider.System.GetUtcNow(),
             UpdatedByActorId = actorId.Trim(),
             IsActive = true

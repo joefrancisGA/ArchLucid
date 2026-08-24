@@ -148,4 +148,107 @@ public sealed class IdentityProviderActivationServiceTests
 
         loaded!.MetadataXml.Should().Be(metadataXml);
     }
+
+    [Fact]
+    public async Task ActivateAsync_protocol_switch_clears_saml_metadata_xml_when_omitted()
+    {
+        InMemoryTenantIdentityProviderConfigurationRepository repository = new();
+        IdentityProviderActivationService sut = new(repository);
+        Guid tenantId = Guid.Parse("33333333-3333-3333-3333-333333333333");
+        const string metadataXml = "<EntityDescriptor entityID=\"https://idp.example/saml\" />";
+        IdentityClaimRoleMappingRequest mapping = new()
+        {
+            RoleClaimName = "groups",
+            Mappings =
+            [
+                new IdentityClaimRoleMappingEntryRequest
+                {
+                    IdpValue = "al-admins",
+                    ArchLucidRole = "Admin"
+                }
+            ]
+        };
+
+        await sut.ActivateAsync(
+            tenantId,
+            "admin@test",
+            new IdentityProviderActivateRequest
+            {
+                Protocol = "saml",
+                IssuerUri = "https://idp.example/saml",
+                ClaimMapping = mapping,
+                MetadataXml = metadataXml
+            },
+            CancellationToken.None);
+
+        TenantIdentityProviderConfigurationRecord record = await sut.ActivateAsync(
+            tenantId,
+            "admin@test",
+            new IdentityProviderActivateRequest
+            {
+                Protocol = "oidc",
+                IssuerUri = "https://idp.example/oidc",
+                ClaimMapping = mapping
+            },
+            CancellationToken.None);
+
+        record.Protocol.Should().Be(TenantIdentityProtocol.Oidc);
+        record.MetadataXml.Should().BeNull();
+
+        TenantIdentityProviderConfigurationRecord? loaded =
+            await repository.TryGetAsync(tenantId, CancellationToken.None);
+
+        loaded!.MetadataXml.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task ActivateAsync_protocol_switch_clears_oidc_key_vault_secret_when_omitted()
+    {
+        InMemoryTenantIdentityProviderConfigurationRepository repository = new();
+        IdentityProviderActivationService sut = new(repository);
+        Guid tenantId = Guid.Parse("44444444-4444-4444-4444-444444444444");
+        IdentityClaimRoleMappingRequest mapping = new()
+        {
+            RoleClaimName = "groups",
+            Mappings =
+            [
+                new IdentityClaimRoleMappingEntryRequest
+                {
+                    IdpValue = "al-admins",
+                    ArchLucidRole = "Admin"
+                }
+            ]
+        };
+
+        await sut.ActivateAsync(
+            tenantId,
+            "admin@test",
+            new IdentityProviderActivateRequest
+            {
+                Protocol = "oidc",
+                IssuerUri = "https://idp.example/",
+                ClaimMapping = mapping,
+                KeyVaultSecretName = "tenant-idp-client-secret"
+            },
+            CancellationToken.None);
+
+        TenantIdentityProviderConfigurationRecord record = await sut.ActivateAsync(
+            tenantId,
+            "admin@test",
+            new IdentityProviderActivateRequest
+            {
+                Protocol = "saml",
+                IssuerUri = "https://idp.example/saml",
+                ClaimMapping = mapping
+            },
+            CancellationToken.None);
+
+        record.Protocol.Should().Be(TenantIdentityProtocol.Saml);
+        record.KeyVaultSecretName.Should().BeNull();
+
+        TenantIdentityProviderConfigurationRecord? loaded =
+            await repository.TryGetAsync(tenantId, CancellationToken.None);
+
+        loaded!.KeyVaultSecretName.Should().BeNull();
+    }
 }
