@@ -727,6 +727,8 @@ public static class TopologyProposalRelationshipEndpointIndex
             || normalized.Contains("recovery_services", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("netapp", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("eventgrid", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("digital_twins", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("media_services", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("communication_service", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("cognitive_account", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("cognitive_services", StringComparison.OrdinalIgnoreCase)
