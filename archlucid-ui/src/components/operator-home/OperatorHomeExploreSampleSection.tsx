@@ -1,6 +1,7 @@
 "use client";
 
 import { useOperatorHomeWorkspaceActivity } from "@/components/operator-home/operator-home-workspace-activity-context";
+import { useSampleReviewsOnOverviewVisible } from "@/components/SampleReviewsOnOverviewPreferenceProvider";
 import { GoldenSponsorPackageWalkthroughPanel } from "@/components/golden-walkthrough/GoldenSponsorPackageWalkthroughPanel";
 import { OperatorHomeCardSectionTitle } from "@/components/operator-home/OperatorHomeCardSectionTitle";
 import { OperatorHomeNavigateLoadingButton } from "@/components/operator-home/OperatorHomeNavigateLoadingButton";
@@ -37,8 +38,13 @@ const creationExampleHref = showcaseSampleCreatedPackageHref(SHOWCASE_SAMPLE_CRE
 
 /** Secondary examples below workspace activity — distinct from the hero completed-review path. */
 export function OperatorHomeExploreSampleSection(): React.JSX.Element | null {
+  const sampleReviewsVisible = useSampleReviewsOnOverviewVisible();
   const hasCommittedArchitectureReview = useNavCommittedArchitectureReview();
   const { hasWorkspaceReviews, recentRunIds } = useOperatorHomeWorkspaceActivity();
+
+  if (!sampleReviewsVisible) {
+    return null;
+  }
 
   // When Recent reviews already shows a sample or tenant row, do not solicit more demos (Azure Portal bar).
   if (hasCommittedArchitectureReview || recentRunIds.length > 0) {

@@ -18,6 +18,11 @@ const setupReadiness = vi.hoisted(() => ({
 }));
 
 const callerAuthorityRank = vi.hoisted(() => ({ value: 100 }));
+const sampleReviewsVisibleMock = vi.hoisted(() => ({ value: true }));
+
+vi.mock("@/components/SampleReviewsOnOverviewPreferenceProvider", () => ({
+  useSampleReviewsOnOverviewVisible: () => sampleReviewsVisibleMock.value,
+}));
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({
@@ -254,5 +259,15 @@ describe("OperatorHomeDualPathCards", () => {
     expect(grid).not.toBeNull();
     expect(grid?.getAttribute("role")).toBeNull();
     expect(grid?.getAttribute("aria-live")).toBeNull();
+  });
+
+  it("hides the explore completed review card when sample reviews are hidden on Overview", () => {
+    sampleReviewsVisibleMock.value = false;
+
+    render(<OperatorHomeDualPathCards emphasizedPath="explore-completed-review" />);
+
+    expect(screen.getByTestId("operator-home-explore-completed-review-card")).toHaveClass("hidden");
+    expect(screen.getByTestId("operator-home-create-architecture-card")).toBeInTheDocument();
+    expect(screen.getByTestId("operator-home-review-architecture-card")).toBeInTheDocument();
   });
 });

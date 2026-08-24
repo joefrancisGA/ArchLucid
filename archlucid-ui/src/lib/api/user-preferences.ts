@@ -18,6 +18,8 @@ export type UserPreferencesResponse = {
   cloudPlatformScopeIsExplicit: boolean;
   whereToGoNextEnabled: boolean;
   whereToGoNextIsExplicit: boolean;
+  sampleReviewsOnOverviewEnabled: boolean;
+  sampleReviewsOnOverviewIsExplicit: boolean;
   ianaTimeZoneId: string;
   ianaTimeZoneIsExplicit: boolean;
 };
@@ -31,6 +33,10 @@ export type SetCloudPlatformScopeRequest = {
 };
 
 export type SetWhereToGoNextVisibilityRequest = {
+  enabled: boolean;
+};
+
+export type SetSampleReviewsOnOverviewVisibilityRequest = {
   enabled: boolean;
 };
 
@@ -58,6 +64,8 @@ function defaultUserPreferencesResponse(): UserPreferencesResponse {
     cloudPlatformScopeIsExplicit: false,
     whereToGoNextEnabled: true,
     whereToGoNextIsExplicit: false,
+    sampleReviewsOnOverviewEnabled: true,
+    sampleReviewsOnOverviewIsExplicit: false,
     ianaTimeZoneId: DEFAULT_IANA_TIME_ZONE_ID,
     ianaTimeZoneIsExplicit: false,
   };
@@ -182,6 +190,18 @@ export async function setUserWhereToGoNextEnabled(enabled: boolean): Promise<voi
   patchUserPreferencesCache({
     whereToGoNextEnabled: enabled,
     whereToGoNextIsExplicit: true,
+  });
+}
+
+export async function setUserSampleReviewsOnOverviewEnabled(enabled: boolean): Promise<void> {
+  await httpApi.apiPutJson<void>(
+    "/v1/user/preferences/sample-reviews-on-overview",
+    { enabled } satisfies SetSampleReviewsOnOverviewVisibilityRequest,
+  );
+
+  patchUserPreferencesCache({
+    sampleReviewsOnOverviewEnabled: enabled,
+    sampleReviewsOnOverviewIsExplicit: true,
   });
 }
 

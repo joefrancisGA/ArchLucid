@@ -2,7 +2,9 @@
 
 import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from "react";
 
+import { useSampleReviewsOnOverviewVisible } from "@/components/SampleReviewsOnOverviewPreferenceProvider";
 import { isRunNeedingAttention } from "@/components/operator-home/runs-dashboard-helpers";
+import { isShowcaseStaticDemoRunId } from "@/lib/demo-run-canonical";
 import { isDemoSeededOverviewInjectedRun } from "@/lib/demo-seeded-overview";
 import type { OperatorHomeLiveRunsSnapshot } from "@/lib/operator/operator-home-live-runs-dashboard";
 import { deriveOperatorHomeWorkspaceMetrics } from "@/lib/operator/operator-home-workspace-metrics";
@@ -60,6 +62,7 @@ export function OperatorHomeWorkspaceActivityProvider(
   const [homeAttentionPreviewExcludedRunIds, setHomeAttentionPreviewExcludedRunIds] = useState<
     readonly string[]
   >([]);
+  const sampleReviewsVisible = useSampleReviewsOnOverviewVisible();
 
   const reportHomeAttentionPreviewExcludedRunIds = useCallback((runIds: readonly string[]) => {
     setHomeAttentionPreviewExcludedRunIds((current) =>
@@ -71,16 +74,31 @@ export function OperatorHomeWorkspaceActivityProvider(
 
   const reportWorkspaceReviews = useCallback((items: readonly RunSummary[], totalCount?: number) => {
     const activeItems = items.filter((run) => run.isArchived !== true);
+    const isOverviewSampleRun = (run: RunSummary): boolean =>
+      isDemoSeededOverviewInjectedRun(run) || isShowcaseStaticDemoRunId(run.runId ?? "");
     // Synthetic demo/seeded Overview rows stay visible in Recent reviews but must not flip
     // empty-home off — otherwise Do-this-next / Open sample package disappears (TB-1039).
-    const realItems = activeItems.filter((run) => !isDemoSeededOverviewInjectedRun(run));
+    const realItems = activeItems.filter((run) => {
+      if (isDemoSeededOverviewInjectedRun(run)) {
+        return false;
+      }
+
+      if (!sampleReviewsVisible && isShowcaseStaticDemoRunId(run.runId ?? "")) {
+        return false;
+      }
+
+      return true;
+    });
+    const overviewVisibleItems = sampleReviewsVisible
+      ? activeItems
+      : activeItems.filter((run) => !isOverviewSampleRun(run));
     const metrics = deriveOperatorHomeWorkspaceMetrics(realItems, realItems.length);
 
     setHasWorkspaceReviews(realItems.length > 0);
-    setHasOverviewReviewRows(activeItems.length > 0);
+    setHasOverviewReviewRows(overviewVisibleItems.length > 0);
     setHasActionNeededReviews(realItems.some(isRunNeedingAttention));
     setOpenFindingsCount(metrics.openFindings);
-    setRecentRunIds(activeItems.map((run) => run.runId));
+    setRecentRunIds(overviewVisibleItems.map((run) => run.runId));
 
     const nextTotalCount = typeof totalCount === "number" ? totalCount : items.length;
 
@@ -91,7 +109,7 @@ export function OperatorHomeWorkspaceActivityProvider(
         ? current
         : { items, totalCount: nextTotalCount },
     );
-  }, []);
+  }, [sampleReviewsVisible]);
 
   const value = useMemo(
     (): OperatorHomeWorkspaceActivityContextValue => ({

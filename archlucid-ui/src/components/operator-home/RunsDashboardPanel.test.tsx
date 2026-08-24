@@ -35,6 +35,11 @@ vi.mock("@/lib/api", async (importOriginal) => {
 });
 
 const runsDashBuyerPolishedForced = vi.hoisted(() => ({ on: false as boolean }));
+const sampleReviewsVisibleMock = vi.hoisted(() => ({ value: true as boolean }));
+
+vi.mock("@/components/SampleReviewsOnOverviewPreferenceProvider", () => ({
+  useSampleReviewsOnOverviewVisible: () => sampleReviewsVisibleMock.value,
+}));
 
 vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/demo-ui-env")>();
@@ -407,6 +412,43 @@ describe("RunsDashboardPanel", () => {
       expect(screen.queryByRole("link", { name: "All" })).toBeNull();
     } finally {
       runsDashBuyerPolishedForced.on = false;
+    }
+  });
+
+  it("hides buyer proof card and sample row on Overview when sample reviews preference is off", async () => {
+    runsDashBuyerPolishedForced.on = true;
+    sampleReviewsVisibleMock.value = false;
+
+    try {
+      const run: RunSummary = {
+        runId: CUSTOMER_INTAKE_SAMPLE_RUN_ID,
+        projectId: "default",
+        description: "Claims Intake sample",
+        createdUtc: "2026-01-15T12:00:00.000Z",
+        hasFindingsSnapshot: true,
+        hasGoldenManifest: true,
+        hasGovernanceWarnings: true,
+      };
+      listRuns.mockResolvedValue({
+        items: [run],
+        totalCount: 1,
+        page: 1,
+        pageSize: 5,
+        hasMore: false,
+      });
+      stubFetchForDashboard();
+
+      renderRunsDashboardPanel(<RunsDashboardPanel hideHeading />);
+
+      await waitFor(() => {
+        expect(screen.getByTestId("runs-dashboard-panel")).toBeInTheDocument();
+      });
+      expect(screen.queryByTestId("runs-dashboard-buyer-proof-summary")).toBeNull();
+      expect(screen.queryByTestId("recent-runs-home-panel")).toBeNull();
+      expect(screen.getByText(OPERATOR_HOME_WORKSPACE_EMPTY_TITLE)).toBeInTheDocument();
+    } finally {
+      runsDashBuyerPolishedForced.on = false;
+      sampleReviewsVisibleMock.value = true;
     }
   });
 

@@ -37,6 +37,11 @@ vi.mock("@/components/operator-home/operator-home-workspace-activity-context", (
 
 const workspaceReviewsMock = vi.hoisted(() => ({ value: false }));
 const recentRunIdsMock = vi.hoisted(() => ({ value: [] as string[] }));
+const sampleReviewsVisibleMock = vi.hoisted(() => ({ value: true }));
+
+vi.mock("@/components/SampleReviewsOnOverviewPreferenceProvider", () => ({
+  useSampleReviewsOnOverviewVisible: () => sampleReviewsVisibleMock.value,
+}));
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({
@@ -86,6 +91,17 @@ describe("OperatorHomeExploreSampleSection", () => {
   it("hides once the tenant has a committed architecture review", () => {
     committedReviewMock.value = true;
     recentRunIdsMock.value = [];
+
+    render(<OperatorHomeExploreSampleSection />);
+
+    expect(screen.queryByTestId("operator-home-explore-sample-section")).toBeNull();
+  });
+
+  it("hides when the personal preference turns sample reviews off on Overview", () => {
+    committedReviewMock.value = false;
+    workspaceReviewsMock.value = false;
+    recentRunIdsMock.value = [];
+    sampleReviewsVisibleMock.value = false;
 
     render(<OperatorHomeExploreSampleSection />);
 

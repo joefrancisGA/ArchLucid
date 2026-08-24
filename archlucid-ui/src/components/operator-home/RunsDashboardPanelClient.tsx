@@ -12,6 +12,7 @@ import { RunsDashboardFilters } from "@/components/operator-home/RunsDashboardFi
 import { RunsDashboardOutcomesTab } from "@/components/operator-home/RunsDashboardOutcomesTab";
 import { RunsDashboardRecentTab } from "@/components/operator-home/RunsDashboardRecentTab";
 import { useOperatorHomeWorkspaceActivity } from "@/components/operator-home/operator-home-workspace-activity-context";
+import { useSampleReviewsOnOverviewVisible } from "@/components/SampleReviewsOnOverviewPreferenceProvider";
 import { filterRunsForHomeAttentionPreview } from "@/lib/operator/home-attention-dedup";
 import { operatorAttentionKindLabel } from "@/lib/operator/operator-attention-taxonomy";
 import {
@@ -130,6 +131,7 @@ export function RunsDashboardPanelClient({
     );
   const pageSize = initialModel?.pageSize ?? OPERATOR_HOME_RUNS_DASHBOARD_PAGE_SIZE;
   const { reportWorkspaceReviews, homeAttentionPreviewExcludedRunIds } = useOperatorHomeWorkspaceActivity();
+  const sampleReviewsVisible = useSampleReviewsOnOverviewVisible();
   const homeRefresh = useOptionalOperatorHomeRefresh();
 
   useEffect(() => {
@@ -298,9 +300,17 @@ export function RunsDashboardPanelClient({
     return items;
   }, [items, phase, projectId, runsListAuthorityUnusable]);
 
+  const displayItems = useMemo(() => {
+    if (hideHeading && !sampleReviewsVisible) {
+      return filterTenantOverviewRuns(effectiveItems);
+    }
+
+    return effectiveItems;
+  }, [effectiveItems, hideHeading, sampleReviewsVisible]);
+
   const archivedFieldSupported = useMemo(
-    () => effectiveItems.some(runSummaryHasArchivedField),
-    [effectiveItems],
+    () => displayItems.some(runSummaryHasArchivedField),
+    [displayItems],
   );
 
   const archivedCount = useMemo(() => {
@@ -308,8 +318,8 @@ export function RunsDashboardPanelClient({
       return 0;
     }
 
-    return effectiveItems.filter((run) => run.isArchived === true).length;
-  }, [archivedFieldSupported, effectiveItems]);
+    return displayItems.filter((run) => run.isArchived === true).length;
+  }, [archivedFieldSupported, displayItems]);
 
   const archivedFilterDisabled = !archivedFieldSupported || archivedCount === 0;
 
@@ -320,7 +330,7 @@ export function RunsDashboardPanelClient({
   }, [archivedFilterDisabled, showArchived]);
 
   const filteredItems = useMemo(() => {
-    let rows = effectiveItems;
+    let rows = displayItems;
 
     if (showArchived) {
       if (archivedFieldSupported) {
@@ -335,7 +345,7 @@ export function RunsDashboardPanelClient({
     }
 
     return rows;
-  }, [archivedFieldSupported, effectiveItems, governanceWarningsOnly, showArchived]);
+  }, [archivedFieldSupported, displayItems, governanceWarningsOnly, showArchived]);
 
   const showcaseDemoRun = useMemo(
     () => filteredItems.find((run) => runIsShowcaseHomeExampleStory(run)),
@@ -427,12 +437,14 @@ export function RunsDashboardPanelClient({
       return null;
     }
 
-    const exampleReviewOnly = isExampleOnlyOverviewRunList(effectiveItems);
-    const tenantItems = filterTenantOverviewRuns(effectiveItems);
+    const exampleReviewOnly = hideHeading && !sampleReviewsVisible
+      ? false
+      : isExampleOnlyOverviewRunList(displayItems);
+    const tenantItems = filterTenantOverviewRuns(displayItems);
     const metrics = deriveOperatorHomeWorkspaceMetrics(tenantItems, tenantItems.length);
 
     return formatOperatorHomeRecentReviewsOutcome(metrics, { exampleReviewOnly });
-  }, [effectiveItems, phase]);
+  }, [displayItems, hideHeading, phase, sampleReviewsVisible]);
 
   const selectDashboardTab = (next: RunsDashboardTabId) => {
     setTab(next);
@@ -618,7 +630,7 @@ export function RunsDashboardPanelClient({
                 failure={failure}
                 runListError={runListError}
                 filteredItems={filteredItems}
-                effectiveItems={effectiveItems}
+                effectiveItems={displayItems}
                 buyerPolishedShell={buyerPolishedShell}
                 showcaseDemoRun={allTabShowcase}
                 showcasePrimaryCta={allTabShowcase !== undefined ? showcasePrimaryCta : null}
@@ -641,7 +653,7 @@ export function RunsDashboardPanelClient({
                 failure={failure}
                 runListError={runListError}
                 filteredItems={approvedTabItems}
-                effectiveItems={effectiveItems}
+                effectiveItems={displayItems}
                 buyerPolishedShell={buyerPolishedShell}
                 showcaseDemoRun={approvedTabShowcase}
                 showcasePrimaryCta={approvedTabShowcase !== undefined ? showcasePrimaryCta : null}
@@ -666,7 +678,7 @@ export function RunsDashboardPanelClient({
                   failure={failure}
                   runListError={runListError}
                   filteredItems={attentionTabItems}
-                  effectiveItems={effectiveItems}
+                  effectiveItems={displayItems}
                   buyerPolishedShell={buyerPolishedShell}
                   showcaseDemoRun={attentionTabShowcase}
                   showcasePrimaryCta={attentionTabShowcase !== undefined ? showcasePrimaryCta : null}
@@ -702,7 +714,7 @@ export function RunsDashboardPanelClient({
                   failure={failure}
                   runListError={runListError}
                   filteredItems={monitoringTabItems}
-                  effectiveItems={effectiveItems}
+                  effectiveItems={displayItems}
                   buyerPolishedShell={buyerPolishedShell}
                   showcaseDemoRun={monitoringTabShowcase}
                   showcasePrimaryCta={monitoringTabShowcase !== undefined ? showcasePrimaryCta : null}

@@ -2,6 +2,7 @@ import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { PREFERENCES_WHERE_TO_GO_NEXT_HEADING } from "@/lib/where-to-go-next-preference-copy";
+import { PREFERENCES_SAMPLE_REVIEWS_ON_OVERVIEW_HEADING } from "@/lib/sample-reviews-on-overview-preference-copy";
 
 vi.mock("next/link", () => ({
   default: ({ href, children }: { href: string; children: React.ReactNode }) => <a href={href}>{children}</a>,
@@ -39,6 +40,16 @@ vi.mock("@/components/WhereToGoNextPreferenceProvider", () => ({
   useWhereToGoNextVisible: () => true,
 }));
 
+vi.mock("@/components/SampleReviewsOnOverviewPreferenceProvider", () => ({
+  useSampleReviewsOnOverviewPreference: () => ({
+    enabled: true,
+    mounted: true,
+    accountSyncState: "idle",
+    setAndPersist: vi.fn(),
+  }),
+  useSampleReviewsOnOverviewVisible: () => true,
+}));
+
 import PreferencesSettingsPage from "./page";
 
 describe("PreferencesSettingsPage", () => {
@@ -61,6 +72,8 @@ describe("PreferencesSettingsPage", () => {
     expect(screen.getByRole("heading", { name: "Time zone" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Cloud platforms shown" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: PREFERENCES_WHERE_TO_GO_NEXT_HEADING })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: PREFERENCES_SAMPLE_REVIEWS_ON_OVERVIEW_HEADING })).toBeInTheDocument();
+    expect(screen.getByTestId("preferences-sample-reviews-on-overview-card")).toBeInTheDocument();
     expect(screen.getByTestId("preferences-follow-up-link-strips-card")).toHaveAttribute("id", "follow-up-link-strips");
     expect(screen.queryByRole("link", { name: "← Settings" })).not.toBeInTheDocument();
   });
