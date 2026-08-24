@@ -22,6 +22,7 @@ import { GovernanceFindingsRelatedQueuesDisclosure } from "@/components/governan
 import { RiskExceptionsFindingsVocabularyRail } from "@/components/RiskExceptionsFindingsVocabularyRail";
 import { PageCapabilityBoundaryStrip } from "@/components/PageCapabilityBoundaryStrip";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import { FindingsKeyboardTriageCoach } from "@/components/usability/FindingsKeyboardTriageCoach";
 import { WorkspaceScopeEmptyTeaching } from "@/components/WorkspaceScopeEmptyTeaching";
 import { GovernanceFindingsFilterBar } from "@/components/governance/findings/GovernanceFindingsFilterBar";
 import { ArchitecturePosturePillarOverview } from "@/components/governance/posture/ArchitecturePosturePillarOverview";
@@ -411,6 +412,8 @@ export default function GovernanceFindingsQueueClient({
       ) : !isAssignedToMe && !buyerPolishedShell ? (
         <LayerHeader pageKey="governance-findings" density="compact" />
       ) : null}
+
+      {!isAssignedToMe ? <FindingsKeyboardTriageCoach /> : null}
 
       <OperatorPageHeader
         navHref={navHref}
