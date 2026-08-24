@@ -1781,11 +1781,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** aws extractor; gcp extractor; azure extractor
 - **paths:** ArchLucid.Integrations.AwsExtractor/; ArchLucid.Integrations.GcpExtractor/; ArchLucid.Integrations.AzureExtractor/
 - **test-filter:** FullyQualifiedName~AwsExtractor|FullyQualifiedName~GcpExtractor|FullyQualifiedName~AzureExtractor
-- **hunts:** 3
-- **bugs-found:** 6
+- **hunts:** 4
+- **bugs-found:** 7
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24 — Azure ARM subscription list followed repeating `nextLink` indefinitely (no cycle guard)
+- **last-bug:** 2026-08-24 — AWS Resource Explorer inventory used connection region instead of per-resource Region field
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -1799,6 +1799,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) GCP workload-identity audience prefix case-sensitive — **hit 2026-08-24:** `NormalizeAudience` used `Ordinal` for `//iam.googleapis.com/` prefix; regression in `NormalizeAudience_normalizes_mixed_case_audience_prefix`
 - [x] (proven) GCP `ProjectId` not validated against impersonated service account email — **hit 2026-08-24:** `HostedGcpExtractorClient.CollectZipAsync` stamped manifest/search scope from request `ProjectId` without checking `{name}@{project}.iam.gserviceaccount.com`; dual-path gap vs AWS `AwsIamRoleArn.EnsureAccountMatches`; regression in `CollectZipAsync_rejects_service_account_project_mismatch`
 - [x] (proven) Azure ARM subscription list pagination follows repeating `nextLink` indefinitely — **hit 2026-08-24:** `GetOnlyHostedAzureArmReadClient.ListSubscriptionResourcesAsync` had no visited-link guard; regression in `ListSubscriptionResourcesAsync_throws_when_next_link_repeats`
+- [x] (proven) AWS inventory stamps every resource with connection region — **hit 2026-08-24:** `AwsResourceExplorerInventoryCollector.CollectAsync` passed `regionSystemName` into `AwsInventoryResourceEntry.Location` instead of `resource.Region`; regression in `CollectAsync_uses_resource_region_not_connection_region`
 
 ---
 

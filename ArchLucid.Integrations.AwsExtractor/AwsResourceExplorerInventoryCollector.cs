@@ -35,10 +35,12 @@ internal static class AwsResourceExplorerInventoryCollector
             {
                 foreach (Resource resource in response.Resources)
                 {
+                    string location = ResolveResourceLocation(resource, regionSystemName);
+
                     resources.Add(new AwsInventoryResourceEntry(
                         resource.Arn ?? string.Empty,
                         resource.ResourceType ?? string.Empty,
-                        regionSystemName,
+                        location,
                         null));
                 }
             }
@@ -48,5 +50,15 @@ internal static class AwsResourceExplorerInventoryCollector
         while (!string.IsNullOrEmpty(nextToken));
 
         return resources;
+    }
+
+    private static string ResolveResourceLocation(Resource resource, string connectionRegionSystemName)
+    {
+        if (!string.IsNullOrWhiteSpace(resource.Region))
+        {
+            return resource.Region;
+        }
+
+        return connectionRegionSystemName;
     }
 }

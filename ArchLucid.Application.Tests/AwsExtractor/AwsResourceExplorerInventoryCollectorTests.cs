@@ -58,4 +58,34 @@ public sealed class AwsResourceExplorerInventoryCollectorTests
             c => c.SearchAsync(It.IsAny<SearchRequest>(), It.IsAny<CancellationToken>()),
             Times.Exactly(2));
     }
+
+    [Fact]
+    public async Task CollectAsync_uses_resource_region_not_connection_region()
+    {
+        Mock<IAmazonResourceExplorer2> explorerClient = new();
+
+        explorerClient
+            .Setup(c => c.SearchAsync(It.IsAny<SearchRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new SearchResponse
+            {
+                Resources =
+                [
+                    new Resource
+                    {
+                        Arn = "arn:aws:ec2:eu-west-1:123456789012:instance/i-abc",
+                        ResourceType = "AWS::EC2::Instance",
+                        Region = "eu-west-1"
+                    }
+                ],
+                NextToken = null
+            });
+
+        List<AwsInventoryResourceEntry> resources = await AwsResourceExplorerInventoryCollector.CollectAsync(
+            explorerClient.Object,
+            "us-east-1",
+            CancellationToken.None);
+
+        resources.Should().ContainSingle();
+        resources[0].Location.Should().Be("eu-west-1");
+    }
 }
