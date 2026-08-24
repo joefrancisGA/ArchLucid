@@ -14,10 +14,52 @@ public sealed class ArchitectureReviewRecurrenceNextRunCalculator(IScanScheduleC
         _scheduleCalculator.IsSupportedCronExpression(cronExpression);
 
     /// <inheritdoc />
-    public DateTime? ComputeNextRunUtc(string cronExpression, DateTime fromUtc) =>
-        _scheduleCalculator.ComputeNextRunUtc(cronExpression, fromUtc);
+    public DateTime? ComputeNextRunUtc(string cronExpression, DateTime fromUtc, bool isScheduleEnabled = true)
+    {
+        if (!isScheduleEnabled)
+            return null;
+
+        DateTime normalizedFrom = NormalizeReferenceUtc(fromUtc);
+        DateTime? next = _scheduleCalculator.ComputeNextRunUtc(cronExpression, normalizedFrom);
+
+        return NormalizeNextRunUtc(cronExpression, normalizedFrom, next);
+    }
 
     /// <inheritdoc />
     public IReadOnlyList<DateTime> ComputeNextRunsUtc(string cronExpression, DateTime fromUtc, int count) =>
-        _scheduleCalculator.ComputeNextRunsUtc(cronExpression, fromUtc, count);
+        _scheduleCalculator.ComputeNextRunsUtc(cronExpression, NormalizeReferenceUtc(fromUtc), count);
+
+    private DateTime? NormalizeNextRunUtc(string cronExpression, DateTime fromUtc, DateTime? next)
+    {
+        if (next is null)
+            return null;
+
+        DateTime candidate = SpecifyUtc(next.Value);
+
+        if (candidate <= fromUtc)
+        {
+            DateTime? advanced = _scheduleCalculator.ComputeNextRunUtc(cronExpression, candidate);
+
+            if (advanced is null || SpecifyUtc(advanced.Value) <= fromUtc)
+                return null;
+
+            candidate = SpecifyUtc(advanced.Value);
+        }
+
+        return candidate;
+    }
+
+    private static DateTime NormalizeReferenceUtc(DateTime reference)
+    {
+        if (reference.Kind == DateTimeKind.Utc)
+            return reference;
+
+        if (reference.Kind == DateTimeKind.Local)
+            return reference.ToUniversalTime();
+
+        return DateTime.SpecifyKind(reference, DateTimeKind.Utc);
+    }
+
+    private static DateTime SpecifyUtc(DateTime value) =>
+        value.Kind == DateTimeKind.Utc ? value : DateTime.SpecifyKind(value, DateTimeKind.Utc);
 }

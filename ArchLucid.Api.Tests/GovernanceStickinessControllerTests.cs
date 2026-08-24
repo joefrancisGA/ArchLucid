@@ -103,8 +103,8 @@ public sealed class GovernanceStickinessControllerTests
                 .Setup(c => c.IsSupportedCronExpression(It.IsAny<string>()))
                 .Returns(true);
             nextRun
-                .Setup(c => c.ComputeNextRunUtc(It.IsAny<string>(), It.IsAny<DateTime>()))
-                .Returns(DateTime.UtcNow.AddDays(7));
+                .Setup(c => c.ComputeNextRunUtc(It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<bool>()))
+                .Returns((string _, DateTime _, bool enabled) => enabled ? DateTime.UtcNow.AddDays(7) : null);
         }
 
         Mock<IGovernanceDigestDecisionNeededComposer> digestComposer = new();
@@ -522,6 +522,7 @@ public sealed class GovernanceStickinessControllerTests
         body.IsEnabled.Should().BeFalse();
         captured.Should().NotBeNull();
         captured!.IsEnabled.Should().BeFalse();
+        captured.NextRunUtc.Should().BeNull();
     }
 
     [Fact]
@@ -645,8 +646,8 @@ public sealed class GovernanceStickinessControllerTests
         Mock<IArchitectureReviewRecurrenceNextRunCalculator> mock = new();
         mock.Setup(c => c.IsSupportedCronExpression(It.IsAny<string>()))
             .Returns((string cron) => real.IsSupportedCronExpression(cron));
-        mock.Setup(c => c.ComputeNextRunUtc(It.IsAny<string>(), It.IsAny<DateTime>()))
-            .Returns((string cron, DateTime from) => real.ComputeNextRunUtc(cron, from));
+        mock.Setup(c => c.ComputeNextRunUtc(It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<bool>()))
+            .Returns((string cron, DateTime from, bool enabled) => real.ComputeNextRunUtc(cron, from, enabled));
         mock.Setup(c => c.ComputeNextRunsUtc(It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<int>()))
             .Returns((string cron, DateTime from, int count) => real.ComputeNextRunsUtc(cron, from, count));
 

@@ -471,9 +471,10 @@ public sealed class GovernanceStickinessController(
                 ProblemTypes.ValidationFailed);
         }
 
-        DateTime? nextRunUtc = recurrenceNextRunCalculator.ComputeNextRunUtc(cronExpression, now);
+        DateTime? nextRunUtc =
+            recurrenceNextRunCalculator.ComputeNextRunUtc(cronExpression, now, request.IsEnabled.Value);
 
-        if (nextRunUtc is null)
+        if (request.IsEnabled.Value && nextRunUtc is null)
         {
             return this.BadRequestProblem(
                 RecurrenceScheduleCronValidation.InvalidCronMessage,
@@ -631,9 +632,10 @@ public sealed class GovernanceStickinessController(
         }
 
         DateTime updateNow = TimeProvider.System.GetUtcNow().UtcDateTime;
-        DateTime? nextRunUtc = recurrenceNextRunCalculator.ComputeNextRunUtc(cron, updateNow);
+        DateTime? nextRunUtc =
+            recurrenceNextRunCalculator.ComputeNextRunUtc(cron, updateNow, existing.IsEnabled);
 
-        if (nextRunUtc is null)
+        if (existing.IsEnabled && nextRunUtc is null)
         {
             return this.BadRequestProblem(
                 RecurrenceScheduleCronValidation.InvalidCronMessage,

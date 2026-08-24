@@ -8,7 +8,7 @@ public interface IArchitectureReviewRecurrenceNextRunCalculator
 {
     bool IsSupportedCronExpression(string cronExpression);
 
-    DateTime? ComputeNextRunUtc(string cronExpression, DateTime fromUtc);
+    DateTime? ComputeNextRunUtc(string cronExpression, DateTime fromUtc, bool isScheduleEnabled = true);
 
     IReadOnlyList<DateTime> ComputeNextRunsUtc(string cronExpression, DateTime fromUtc, int count);
 }
