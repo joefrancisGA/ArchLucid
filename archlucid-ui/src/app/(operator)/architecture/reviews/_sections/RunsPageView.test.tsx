@@ -202,6 +202,7 @@ describe("RunsPageView page chrome", () => {
     );
 
     expect(screen.getByTestId("reviews-hub-summary-row")).toBeInTheDocument();
+    expect(screen.getByTestId("reviews-hub-toolbar")).toBeInTheDocument();
     expect(screen.getByTestId("reviews-hub-packages-table")).toBeInTheDocument();
     expect(screen.getByTestId("reviews-hub-row-review-001")).toBeInTheDocument();
     expect(screen.queryByTestId("reviews-hub-recent-empty")).toBeNull();

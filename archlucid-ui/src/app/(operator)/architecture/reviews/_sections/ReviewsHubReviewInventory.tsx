@@ -8,7 +8,6 @@ import { cn } from "@/lib/utils";
 
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
 import { FavoriteReviewToggle } from "@/components/reviews/FavoriteReviewToggle";
-import { ReviewArchiveControl } from "@/components/reviews/ReviewArchiveControl";
 import { ReviewPinGlyph } from "@/components/reviews/ReviewPinGlyph";
 import { WorkspaceScopeEmptyTeaching } from "@/components/WorkspaceScopeEmptyTeaching";
 import { FilterChip } from "@/components/ui/filter-chip";
@@ -45,14 +44,14 @@ import {
 } from "@/lib/workspace-scope-empty-teaching";
 import type { RunSummary } from "@/types/authority";
 
+import { ReviewsHubInventoryRowActions } from "./ReviewsHubInventoryRowActions";
+import { ReviewsHubSummaryRow } from "./ReviewsHubSummaryRow";
 import {
-  REVIEWS_HUB_ALL_REVIEWS_TITLE,
   REVIEWS_HUB_FILTER_FINALIZED_LABEL,
   REVIEWS_HUB_FILTER_MORE_LABEL,
   REVIEWS_HUB_FILTER_NEEDS_ATTENTION_LABEL,
   REVIEWS_HUB_FILTER_SEARCH_PLACEHOLDER,
   REVIEWS_HUB_FILTER_UPDATED_RECENTLY_LABEL,
-  REVIEWS_HUB_PINNED_REVIEWS_TITLE,
   REVIEWS_HUB_RECENT_EMPTY_BODY,
   REVIEWS_HUB_RECENT_EMPTY_PRIMARY_LABEL,
   REVIEWS_HUB_RECENT_EMPTY_SECONDARY_LABEL,
@@ -69,9 +68,11 @@ import {
   REVIEWS_LIST_ROW_ESTIMATE_PX,
   shouldVirtualizeReviewsList,
 } from "./reviews-list-virtualization";
+import type { ReviewsWorkspaceSummary } from "./reviews-workspace-summary";
 
 type ReviewsHubReviewInventoryProps = {
   readonly runs: readonly RunSummary[];
+  readonly summary: ReviewsWorkspaceSummary;
 };
 
 const PINNED_COLUMN_CLASS = "w-10 px-2";
@@ -127,6 +128,7 @@ function matchesSearch(
   const row = toReviewsHubReviewRowDisplay(run, ownerContext);
   const haystack = [
     row.reviewTitle,
+    row.reviewTitlePrimary,
     row.architectureName,
     row.ownerLabel,
     run.runId,
@@ -198,6 +200,29 @@ function isArchivedRun(run: RunSummary): boolean {
   return run.isArchived === true;
 }
 
+function sortRunsForInventory(
+  runs: readonly RunSummary[],
+  isFavorite: (runId: string) => boolean,
+): RunSummary[] {
+  return [...runs].sort((left, right) => {
+    const leftPinned = isFavorite(left.runId) ? 0 : 1;
+    const rightPinned = isFavorite(right.runId) ? 0 : 1;
+
+    if (leftPinned !== rightPinned) {
+      return leftPinned - rightPinned;
+    }
+
+    const leftUpdated = new Date(left.createdUtc).getTime();
+    const rightUpdated = new Date(right.createdUtc).getTime();
+
+    if (!Number.isNaN(leftUpdated) && !Number.isNaN(rightUpdated) && leftUpdated !== rightUpdated) {
+      return rightUpdated - leftUpdated;
+    }
+
+    return left.runId.localeCompare(right.runId);
+  });
+}
+
 function ReviewFilterChip(props: {
   readonly option: { id: ReviewFilterId; label: string };
   readonly selected: boolean;
@@ -242,18 +267,23 @@ function ReviewsHubInventoryRow(props: InventoryRowProps): React.JSX.Element {
       style={props.style}
     >
       <EnterpriseTableCell className={PINNED_COLUMN_CLASS}>
-        <FavoriteReviewToggle runId={row.runId} title={row.reviewTitle} />
+        <FavoriteReviewToggle runId={row.runId} title={row.reviewTitlePrimary} />
       </EnterpriseTableCell>
       <EnterpriseTableCell>
         <div className="min-w-[12rem]">
           <Link
             href={row.reviewHref}
             className={cn(OPERATOR_LINK.nav, "font-medium")}
-            aria-label={`Open review ${row.reviewTitle}`}
+            aria-label={`Open review ${row.reviewTitlePrimary}`}
             data-testid={`reviews-hub-primary-action-${row.runId}`}
           >
-            {row.reviewTitle}
+            {row.reviewTitlePrimary}
           </Link>
+          {row.reviewTitleKindLabel !== null ? (
+            <p className={cn("m-0 mt-0.5 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+              {row.reviewTitleKindLabel}
+            </p>
+          ) : null}
           {row.isSampleReview ? (
             <p className={cn("m-0 mt-0.5 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
               Sample review
@@ -261,17 +291,23 @@ function ReviewsHubInventoryRow(props: InventoryRowProps): React.JSX.Element {
           ) : null}
         </div>
       </EnterpriseTableCell>
-      <EnterpriseTableCell>{row.architectureName}</EnterpriseTableCell>
+      <EnterpriseTableCell>
+        <span className="font-medium text-al-text-primary">{row.architectureName}</span>
+      </EnterpriseTableCell>
       <EnterpriseTableCell>
         <StatusTag
           kind={reviewsHubOverallStatusTagKind(row.overallStatus, row.needsAttention)}
           label={row.overallStatus}
         />
       </EnterpriseTableCell>
-      <EnterpriseTableCell>{row.governanceState}</EnterpriseTableCell>
-      <EnterpriseTableCell>{row.lifecycleStage}</EnterpriseTableCell>
+      <EnterpriseTableCell>
+        <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{row.governanceState}</span>
+      </EnterpriseTableCell>
+      <EnterpriseTableCell>
+        <span className="text-al-text-primary">{row.lifecycleStage}</span>
+      </EnterpriseTableCell>
       <EnterpriseTableCell>{row.ownerLabel}</EnterpriseTableCell>
-      <EnterpriseTableCell title={props.run.createdUtc}>{row.lastUpdated}</EnterpriseTableCell>
+      <EnterpriseTableCell title={row.lastUpdatedAbsolute}>{row.lastUpdated}</EnterpriseTableCell>
       <EnterpriseTableCell className="text-right tabular-nums">
         {finiteIntegerCountDisplay(row.findingsCount)}
       </EnterpriseTableCell>
@@ -279,11 +315,7 @@ function ReviewsHubInventoryRow(props: InventoryRowProps): React.JSX.Element {
         {finiteIntegerCountDisplay(row.riskCount)}
       </EnterpriseTableCell>
       <EnterpriseTableCell>
-        <ReviewArchiveControl
-          run={props.run}
-          reviewTitle={row.reviewTitle}
-          archivedRunSnapshot={props.run}
-        />
+        <ReviewsHubInventoryRowActions run={props.run} row={row} />
       </EnterpriseTableCell>
     </EnterpriseTableRow>
   );
@@ -303,10 +335,10 @@ function ReviewsHubInventoryTableHead(): React.JSX.Element {
         <EnterpriseTableHeaderCell>Approval</EnterpriseTableHeaderCell>
         <EnterpriseTableHeaderCell>Stage</EnterpriseTableHeaderCell>
         <EnterpriseTableHeaderCell>Owner</EnterpriseTableHeaderCell>
-        <EnterpriseTableHeaderCell>Last updated</EnterpriseTableHeaderCell>
+        <EnterpriseTableHeaderCell>Updated</EnterpriseTableHeaderCell>
         <EnterpriseTableHeaderCell className="text-right">Findings</EnterpriseTableHeaderCell>
         <EnterpriseTableHeaderCell className="text-right">Risks</EnterpriseTableHeaderCell>
-        <EnterpriseTableHeaderCell>Actions</EnterpriseTableHeaderCell>
+        <EnterpriseTableHeaderCell className="text-right">Actions</EnterpriseTableHeaderCell>
       </EnterpriseTableHeadRow>
     </EnterpriseTableHead>
   );
@@ -442,13 +474,8 @@ export function ReviewsHubReviewInventory(props: ReviewsHubReviewInventoryProps)
     );
   }, [activeFilter, ownerContext, searchQuery, visibilityFilteredRuns]);
 
-  const pinnedFilteredRuns = useMemo(
-    () => filteredRuns.filter((run) => isFavorite(run.runId)),
-    [filteredRuns, isFavorite],
-  );
-
-  const unpinnedFilteredRuns = useMemo(
-    () => filteredRuns.filter((run) => !isFavorite(run.runId)),
+  const sortedFilteredRuns = useMemo(
+    () => sortRunsForInventory(filteredRuns, isFavorite),
     [filteredRuns, isFavorite],
   );
 
@@ -467,9 +494,10 @@ export function ReviewsHubReviewInventory(props: ReviewsHubReviewInventoryProps)
     : null;
 
   return (
-    <section className="mt-8" data-testid="reviews-hub-recent-packages">
+    <section className="mt-4" data-testid="reviews-hub-recent-packages">
+      <ReviewsHubSummaryRow summary={props.summary} />
       {rows.length === 0 ? (
-        <div data-has-architecture-drafts={hasDrafts ? "true" : "false"}>
+        <div className="mt-4" data-has-architecture-drafts={hasDrafts ? "true" : "false"}>
           {workspaceScopeTeaching !== null ? (
             <WorkspaceScopeEmptyTeaching
               title={workspaceScopeTeaching.title}
@@ -498,8 +526,11 @@ export function ReviewsHubReviewInventory(props: ReviewsHubReviewInventoryProps)
         </div>
       ) : (
         <div className={OPERATOR_LAYOUT.sectionStack}>
-          <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
-            <div className="w-full max-w-md">
+          <div
+            className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between"
+            data-testid="reviews-hub-toolbar"
+          >
+            <div className="min-w-0 flex-1 xl:max-w-xl">
               <Input
                 value={searchQuery}
                 onChange={(event) => setSearchQuery(event.target.value)}
@@ -508,7 +539,7 @@ export function ReviewsHubReviewInventory(props: ReviewsHubReviewInventoryProps)
                 data-testid="reviews-hub-search"
               />
             </div>
-            <div className="flex flex-col gap-2" data-testid="reviews-hub-filters">
+            <div className="flex flex-wrap items-center gap-2" data-testid="reviews-hub-filters">
               <div className="flex flex-wrap gap-1.5" role="group" aria-label="Filter reviews">
                 {PRIMARY_FILTER_OPTIONS.map((option) => (
                   <ReviewFilterChip
@@ -519,72 +550,56 @@ export function ReviewsHubReviewInventory(props: ReviewsHubReviewInventoryProps)
                   />
                 ))}
               </div>
-              <details className="m-0" data-testid="reviews-hub-more-filters" open={moreFilterSelected}>
+              <details
+                className="m-0"
+                data-testid="reviews-hub-more-filters"
+                open={moreFilterSelected || showArchived}
+              >
                 <summary className={cn("cursor-pointer text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
                   {REVIEWS_HUB_FILTER_MORE_LABEL}
                 </summary>
-                <div className="mt-2 flex flex-wrap gap-1.5" role="group" aria-label={REVIEWS_HUB_FILTER_MORE_LABEL}>
-                  {MORE_FILTER_OPTIONS.map((option) => (
-                    <ReviewFilterChip
-                      key={option.id}
-                      option={option}
-                      selected={activeFilter === option.id}
-                      onSelect={setActiveFilter}
+                <div className="mt-2 flex flex-col gap-2">
+                  <div className="flex flex-wrap gap-1.5" role="group" aria-label={REVIEWS_HUB_FILTER_MORE_LABEL}>
+                    {MORE_FILTER_OPTIONS.map((option) => (
+                      <ReviewFilterChip
+                        key={option.id}
+                        option={option}
+                        selected={activeFilter === option.id}
+                        onSelect={setActiveFilter}
+                      />
+                    ))}
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <input
+                      id="reviews-hub-show-archived"
+                      type="checkbox"
+                      className="h-4 w-4 rounded border-neutral-300 text-teal-700 focus:ring-neutral-400 dark:border-neutral-600"
+                      checked={showArchived}
+                      disabled={showArchivedDisabled}
+                      onChange={(event) => {
+                        setShowArchived(event.target.checked);
+                      }}
+                      data-testid="reviews-hub-show-archived"
                     />
-                  ))}
+                    <Label
+                      htmlFor="reviews-hub-show-archived"
+                      className={cn(OPERATOR_TYPOGRAPHY.helper, "font-medium")}
+                    >
+                      {REVIEWS_HUB_SHOW_ARCHIVED_REVIEWS_LABEL}
+                    </Label>
+                  </div>
                 </div>
               </details>
-              <div className="flex items-center gap-2">
-                <input
-                  id="reviews-hub-show-archived"
-                  type="checkbox"
-                  className="h-4 w-4 rounded border-neutral-300 text-teal-700 focus:ring-neutral-400 dark:border-neutral-600"
-                  checked={showArchived}
-                  disabled={showArchivedDisabled}
-                  onChange={(event) => {
-                    setShowArchived(event.target.checked);
-                  }}
-                  data-testid="reviews-hub-show-archived"
-                />
-                <Label
-                  htmlFor="reviews-hub-show-archived"
-                  className={cn(OPERATOR_TYPOGRAPHY.helper, "font-medium")}
-                >
-                  {REVIEWS_HUB_SHOW_ARCHIVED_REVIEWS_LABEL}
-                </Label>
-              </div>
             </div>
           </div>
 
-          {pinnedFilteredRuns.length > 0 ? (
-            <div className={OPERATOR_LAYOUT.sectionStack} data-testid="reviews-hub-pinned-reviews">
-              <h2 className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}>
-                {REVIEWS_HUB_PINNED_REVIEWS_TITLE}
-              </h2>
-              <ReviewsHubInventoryTable
-                runs={pinnedFilteredRuns}
-                ownerContext={ownerContext}
-                ariaLabel={REVIEWS_HUB_PINNED_REVIEWS_TITLE}
-                tableTestId="reviews-hub-pinned-packages-table"
-                virtualizedTestId="reviews-hub-pinned-packages-virtualized"
-              />
-            </div>
-          ) : null}
-
-          <div className={OPERATOR_LAYOUT.sectionStack}>
-            {pinnedFilteredRuns.length > 0 ? (
-              <h2 className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}>
-                {REVIEWS_HUB_ALL_REVIEWS_TITLE}
-              </h2>
-            ) : null}
-            <ReviewsHubInventoryTable
-              runs={unpinnedFilteredRuns}
-              ownerContext={ownerContext}
-              ariaLabel={REVIEWS_HUB_PAGE_TITLE}
-              tableTestId="reviews-hub-packages-table"
-              virtualizedTestId="reviews-hub-packages-virtualized"
-            />
-          </div>
+          <ReviewsHubInventoryTable
+            runs={sortedFilteredRuns}
+            ownerContext={ownerContext}
+            ariaLabel={REVIEWS_HUB_PAGE_TITLE}
+            tableTestId="reviews-hub-packages-table"
+            virtualizedTestId="reviews-hub-packages-virtualized"
+          />
         </div>
       )}
     </section>

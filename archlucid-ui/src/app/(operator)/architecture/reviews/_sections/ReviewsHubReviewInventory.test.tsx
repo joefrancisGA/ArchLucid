@@ -12,6 +12,18 @@ vi.mock("@/components/reviews/ReviewArchiveControl", () => ({
   ReviewArchiveControl: () => <button type="button">Archive review</button>,
 }));
 
+vi.mock("./ReviewsHubInventoryRowActions", () => ({
+  ReviewsHubInventoryRowActions: ({
+    row,
+  }: {
+    row: { runId: string; primaryAction: { label: string; href: string } };
+  }) => (
+    <a href={row.primaryAction.href} data-testid={`reviews-hub-open-${row.runId}`}>
+      {row.primaryAction.label}
+    </a>
+  ),
+}));
+
 vi.mock("@/components/operator/OperatorNavAuthorityProvider", () => ({
   useOperatorNavAuthority: () => ({
     currentPrincipal: {
@@ -71,6 +83,11 @@ vi.mock("next/link", () => ({
 }));
 
 import { ReviewsHubReviewInventory } from "./ReviewsHubReviewInventory";
+import { deriveReviewsWorkspaceSummary } from "./reviews-workspace-summary";
+
+function emptySummary() {
+  return deriveReviewsWorkspaceSummary([]);
+}
 
 beforeEach(() => {
   window.localStorage.clear();
@@ -82,7 +99,7 @@ beforeEach(() => {
 
 describe("ReviewsHubReviewInventory", () => {
   it("renders a rich empty state with start and sample actions when no drafts exist", () => {
-    render(<ReviewsHubReviewInventory runs={[]} />);
+    render(<ReviewsHubReviewInventory runs={[]} summary={emptySummary()} />);
 
     expect(screen.getByText("No reviews yet")).toBeInTheDocument();
     expect(screen.getByTestId("reviews-hub-recent-empty")).toBeInTheDocument();
@@ -105,7 +122,7 @@ describe("ReviewsHubReviewInventory", () => {
       projectLabel: "Payments",
     });
 
-    render(<ReviewsHubReviewInventory runs={[]} />);
+    render(<ReviewsHubReviewInventory runs={[]} summary={emptySummary()} />);
 
     expect(screen.getByTestId("workspace-scope-empty-teaching")).toBeInTheDocument();
     expect(screen.getByText("No reviews in Payments")).toBeInTheDocument();
@@ -126,7 +143,7 @@ describe("ReviewsHubReviewInventory", () => {
       },
     ]);
 
-    render(<ReviewsHubReviewInventory runs={[]} />);
+    render(<ReviewsHubReviewInventory runs={[]} summary={emptySummary()} />);
 
     expect(screen.getByText("No reviews yet")).toBeInTheDocument();
     expect(screen.getByText(/Continue editing from the header/i)).toBeInTheDocument();
@@ -151,6 +168,16 @@ describe("ReviewsHubReviewInventory", () => {
             findingCount: 2,
           } satisfies RunSummary,
         ]}
+        summary={deriveReviewsWorkspaceSummary([
+          {
+            runId: "review-001",
+            projectId: "claims-intake",
+            description: "Claims intake modernization",
+            createdUtc: "2026-01-15T12:00:00.000Z",
+            hasFindingsSnapshot: true,
+            findingCount: 2,
+          } satisfies RunSummary,
+        ])}
       />,
     );
 
@@ -165,6 +192,7 @@ describe("ReviewsHubReviewInventory", () => {
     expect(titleLink).toHaveAttribute("href");
     expect(titleLink.className).toMatch(/underline/);
     expect(titleLink.className).not.toMatch(/no-underline/);
+    expect(screen.getByTestId("reviews-hub-open-review-001")).toHaveTextContent("Review findings");
     expect(screen.queryByRole("columnheader", { name: "Action" })).toBeNull();
   });
 
@@ -184,6 +212,19 @@ describe("ReviewsHubReviewInventory", () => {
             hasGoldenManifest: true,
           } satisfies RunSummary,
         ]}
+        summary={deriveReviewsWorkspaceSummary([
+          {
+            runId: "draft",
+            projectId: "default",
+            createdUtc: "2026-01-15T12:00:00.000Z",
+          } satisfies RunSummary,
+          {
+            runId: "finalized",
+            projectId: "default",
+            createdUtc: "2026-01-10T12:00:00.000Z",
+            hasGoldenManifest: true,
+          } satisfies RunSummary,
+        ])}
       />,
     );
 
@@ -204,6 +245,7 @@ describe("ReviewsHubReviewInventory", () => {
             displayName: "Pinned candidate",
           } satisfies RunSummary,
         ]}
+        summary={emptySummary()}
       />,
     );
 
@@ -213,7 +255,7 @@ describe("ReviewsHubReviewInventory", () => {
     expect(screen.getByRole("columnheader", { name: "Pinned" })).toBeInTheDocument();
   });
 
-  it("splits pinned reviews into a dedicated top table", () => {
+  it("sorts pinned reviews to the top of the unified inventory table", () => {
     writeFavoriteReviews([
       { runId: "run-pinned", title: "Pinned package", pinnedAt: "2026-08-10T12:00:00.000Z" },
     ]);
@@ -234,15 +276,30 @@ describe("ReviewsHubReviewInventory", () => {
             createdUtc: "2026-08-09T12:00:00.000Z",
           } satisfies RunSummary,
         ]}
+        summary={deriveReviewsWorkspaceSummary([
+          {
+            runId: "run-pinned",
+            projectId: "default",
+            description: "Pinned package",
+            createdUtc: "2026-08-10T12:00:00.000Z",
+          } satisfies RunSummary,
+          {
+            runId: "run-other",
+            projectId: "default",
+            description: "Other package",
+            createdUtc: "2026-08-09T12:00:00.000Z",
+          } satisfies RunSummary,
+        ])}
       />,
     );
 
-    expect(screen.getByTestId("reviews-hub-pinned-reviews")).toBeInTheDocument();
-    expect(screen.getByTestId("reviews-hub-pinned-packages-table")).toBeInTheDocument();
+    expect(screen.queryByTestId("reviews-hub-pinned-reviews")).toBeNull();
+    expect(screen.queryByTestId("reviews-hub-pinned-packages-table")).toBeNull();
     expect(screen.getByTestId("reviews-hub-packages-table")).toBeInTheDocument();
     expect(screen.getAllByTestId("reviews-hub-row-run-pinned")).toHaveLength(1);
     expect(screen.getAllByTestId("reviews-hub-row-run-other")).toHaveLength(1);
-    expect(screen.getByText("Reviews")).toBeInTheDocument();
+    const rows = screen.getAllByTestId(/^reviews-hub-row-/);
+    expect(rows[0]).toHaveAttribute("data-testid", "reviews-hub-row-run-pinned");
   });
 
   it("hides archived reviews by default and shows them when the checkbox is selected", () => {
@@ -266,6 +323,14 @@ describe("ReviewsHubReviewInventory", () => {
             createdUtc: "2026-08-10T12:00:00.000Z",
           } satisfies RunSummary,
         ]}
+        summary={deriveReviewsWorkspaceSummary([
+          {
+            runId: "active-review",
+            projectId: "default",
+            description: "Active package",
+            createdUtc: "2026-08-10T12:00:00.000Z",
+          } satisfies RunSummary,
+        ])}
       />,
     );
 

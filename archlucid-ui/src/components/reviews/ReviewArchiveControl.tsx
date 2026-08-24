@@ -23,6 +23,8 @@ import {
 import { invalidateRunsByProjectPagedCache } from "@/lib/runs-by-project-paged-client";
 import { addArchivedReviewToClientCache } from "@/lib/archived-reviews-client-cache";
 import { ARCHIVED_REVIEWS_CLIENT_CACHE_CHANGED_EVENT } from "@/hooks/use-archived-reviews-client-cache";
+import { cn } from "@/lib/utils";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import type { RunSummary } from "@/types/authority";
 
 export type ReviewArchiveControlProps = {
@@ -34,6 +36,8 @@ export type ReviewArchiveControlProps = {
   readonly onArchived?: () => void;
   /** Full summary snapshot for browser-local archived inventory when the list API omits archived rows. */
   readonly archivedRunSnapshot?: RunSummary;
+  /** Menu-item presentation for row overflow menus on the reviews hub. */
+  readonly presentation?: "button" | "menu-item";
 };
 
 /** Soft-archives an in-flight review with irreversibility warnings. */
@@ -92,17 +96,34 @@ export function ReviewArchiveControl(props: ReviewArchiveControlProps): React.JS
     return null;
   }
 
+  const archiveLabel = props.buttonLabel ?? "Archive review";
+  const presentation = props.presentation ?? "button";
+
   return (
     <>
-      <Button
-        type="button"
-        variant="outline"
-        size="sm"
-        data-testid={props.testId ?? `review-archive-${props.run.runId}`}
-        onClick={() => setConfirmOpen(true)}
-      >
-        {props.buttonLabel ?? "Archive review"}
-      </Button>
+      {presentation === "menu-item" ? (
+        <button
+          type="button"
+          className={cn(
+            "block w-full rounded px-2 py-1.5 text-left text-al-text-primary hover:bg-neutral-100 dark:hover:bg-neutral-900",
+            OPERATOR_TYPOGRAPHY.helper,
+          )}
+          data-testid={props.testId ?? `review-archive-${props.run.runId}`}
+          onClick={() => setConfirmOpen(true)}
+        >
+          {archiveLabel}
+        </button>
+      ) : (
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          data-testid={props.testId ?? `review-archive-${props.run.runId}`}
+          onClick={() => setConfirmOpen(true)}
+        >
+          {archiveLabel}
+        </Button>
+      )}
       <ConfirmationDialog
         open={confirmOpen}
         onOpenChange={(open) => {

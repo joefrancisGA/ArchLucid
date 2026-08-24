@@ -15,11 +15,12 @@ import {
   ARCHITECTURES_LIST_PATH,
   startReviewFromArchitectureHref,
 } from "@/lib/architecture/architecture-routes";
-import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { parseIsoUtcMs } from "@/lib/format-iso-utc";
-import { formatUpdatedRelativeWithAbsoluteParenthetical } from "@/lib/relative-time";
+import { formatRelativeTime } from "@/lib/relative-time";
 import { cn } from "@/lib/utils";
 
+import { REVIEWS_HUB_RESUME_DRAFTS_SECTION_ID } from "./ReviewsHubSummaryRow";
 import {
   REVIEWS_HUB_RESUME_DRAFTS_BODY,
   REVIEWS_HUB_RESUME_DRAFTS_CONTINUE_LABEL,
@@ -59,15 +60,23 @@ export function ReviewsHubResumeDrafts(): React.JSX.Element | null {
 
   return (
     <section
-      className="mt-4 rounded-md border border-neutral-200 bg-neutral-50/40 p-4 dark:border-neutral-800 dark:bg-neutral-900/20"
+      className="mt-6"
+      id={REVIEWS_HUB_RESUME_DRAFTS_SECTION_ID}
       data-testid="reviews-hub-resume-drafts"
       aria-label={REVIEWS_HUB_RESUME_DRAFTS_TITLE}
     >
-      <h2 className={cn("m-0 text-al-text-secondary", OPERATOR_NAV_GROUP_LABEL)}>{REVIEWS_HUB_RESUME_DRAFTS_TITLE}</h2>
+      <div className="flex flex-wrap items-baseline justify-between gap-2">
+        <h2 className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}>
+          {REVIEWS_HUB_RESUME_DRAFTS_TITLE}
+          <span className={cn("ml-2 font-normal text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+            — {previewEntries.length}
+          </span>
+        </h2>
+      </div>
       <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
         {REVIEWS_HUB_RESUME_DRAFTS_BODY}
       </p>
-      <ul className="m-0 mt-3 list-none space-y-3 p-0">
+      <ul className="m-0 mt-3 list-none divide-y divide-neutral-200 border-y border-neutral-200 p-0 dark:divide-neutral-800 dark:border-neutral-800">
         {previewEntries.map((entry) => {
           const canStartReview = isArchitectureDraftEligibleToStartReview(entry);
           const absoluteUpdated = formatAbsoluteUpdatedTitle(entry.lastUpdatedUtc);
@@ -75,34 +84,30 @@ export function ReviewsHubResumeDrafts(): React.JSX.Element | null {
           return (
             <li
               key={entry.architectureId}
-              className="rounded-md border border-neutral-200 bg-al-surface-raised px-3 py-2 dark:border-neutral-800"
+              className="flex flex-col gap-2 py-3 sm:flex-row sm:items-center sm:justify-between"
               data-testid={`reviews-hub-resume-draft-${entry.architectureId}`}
             >
-              <p className={cn("m-0 line-clamp-2 break-words font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
-                {entry.displayName}
-              </p>
-              <div className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1">
-                <StatusTag
-                  kind={architectureDraftCustomerStatusTagKind(entry.customerStatus)}
-                  label={ARCHITECTURE_DRAFT_STATUS_LABELS[entry.customerStatus]}
-                />
-                <time
-                  dateTime={entry.lastUpdatedUtc}
-                  className={cn(OPERATOR_TYPOGRAPHY.helper, "text-al-text-secondary")}
-                >
-                  {formatUpdatedRelativeWithAbsoluteParenthetical(entry.lastUpdatedUtc, absoluteUpdated)}
-                </time>
+              <div className="min-w-0">
+                <p className={cn("m-0 line-clamp-2 break-words font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>
+                  {entry.displayName}
+                </p>
+                <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1">
+                  <StatusTag
+                    kind={architectureDraftCustomerStatusTagKind(entry.customerStatus)}
+                    label={ARCHITECTURE_DRAFT_STATUS_LABELS[entry.customerStatus]}
+                  />
+                  <time
+                    dateTime={entry.lastUpdatedUtc}
+                    title={absoluteUpdated}
+                    className={cn(OPERATOR_TYPOGRAPHY.helper, "text-al-text-secondary")}
+                  >
+                    Updated {formatRelativeTime(entry.lastUpdatedUtc)}
+                  </time>
+                </div>
               </div>
-              <div className="mt-2 flex flex-wrap gap-2">
-                <ArchitectureDraftResumeControl
-                  architectureId={entry.architectureId}
-                  label={REVIEWS_HUB_RESUME_DRAFTS_CONTINUE_LABEL}
-                  source="reviews-hub"
-                  testId={`reviews-hub-resume-draft-continue-${entry.architectureId}`}
-                  ariaLabel={`${REVIEWS_HUB_RESUME_DRAFTS_CONTINUE_LABEL}: ${entry.displayName}`}
-                />
+              <div className="flex flex-wrap gap-2 sm:justify-end">
                 {canStartReview ? (
-                  <Button variant="outline" size="sm" asChild>
+                  <Button variant="default" size="sm" asChild>
                     <Link
                       href={startReviewFromArchitectureHref(entry.architectureId)}
                       data-testid={`reviews-hub-resume-draft-start-${entry.architectureId}`}
@@ -111,6 +116,13 @@ export function ReviewsHubResumeDrafts(): React.JSX.Element | null {
                     </Link>
                   </Button>
                 ) : null}
+                <ArchitectureDraftResumeControl
+                  architectureId={entry.architectureId}
+                  label={REVIEWS_HUB_RESUME_DRAFTS_CONTINUE_LABEL}
+                  source="reviews-hub"
+                  testId={`reviews-hub-resume-draft-continue-${entry.architectureId}`}
+                  ariaLabel={`${REVIEWS_HUB_RESUME_DRAFTS_CONTINUE_LABEL}: ${entry.displayName}`}
+                />
               </div>
             </li>
           );

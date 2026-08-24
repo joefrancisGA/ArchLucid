@@ -22,11 +22,11 @@ describe("reviews-hub-copy", () => {
     expect(REVIEWS_HUB_PAGE_SUBTITLE).toBe("Create, refine, evaluate, and approve architecture reviews.");
     expect(REVIEWS_HUB_RECENT_EMPTY_TITLE).toBe("No reviews yet");
     expect(REVIEWS_HUB_RECENT_EMPTY_BODY.toLowerCase()).toContain("findings");
-    expect(REVIEWS_HUB_RECENT_EMPTY_BODY.toLowerCase()).toContain("governance");
+    expect(REVIEWS_HUB_RECENT_EMPTY_BODY.toLowerCase()).toContain("approval");
     expect(REVIEWS_HUB_RECENT_EMPTY_WITH_DRAFT_TITLE).toBe("No reviews yet");
     expect(REVIEWS_HUB_RESUME_DRAFTS_TITLE).toBe("Architectures ready for review");
-    expect(REVIEWS_HUB_SUMMARY_DRAFTS_READY_LABEL).toBe("Drafts ready");
-    expect(REVIEWS_HUB_SUMMARY_EMPTY_HINT.toLowerCase()).toContain("drafts ready");
+    expect(REVIEWS_HUB_SUMMARY_DRAFTS_READY_LABEL).toBe("Ready for review");
+    expect(REVIEWS_HUB_SUMMARY_EMPTY_HINT.toLowerCase()).toContain("ready for review");
   });
 
   it("avoids retired package terminology in hub copy", () => {

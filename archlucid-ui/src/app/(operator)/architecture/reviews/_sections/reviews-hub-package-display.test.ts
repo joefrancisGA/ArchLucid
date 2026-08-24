@@ -20,7 +20,7 @@ describe("toReviewsHubReviewRowDisplay", () => {
 
     expect(row.isSampleReview).toBe(true);
     expect(row.findingsCount).toBeGreaterThan(0);
-    expect(row.governanceState).toBe("Approved");
+    expect(row.governanceState).toBe("Ready for governance");
     expect(row.overallStatus).toBe("Finalized");
     expect(row.primaryAction.label).toBe("View finalized review");
     expect(row.primaryAction.href).toContain(SHOWCASE_STATIC_DEMO_RUN_ID);
@@ -37,7 +37,7 @@ describe("toReviewsHubReviewRowDisplay", () => {
 
     expect(row.overallStatus).toBe("Active");
     expect(row.lifecycleStage).toBe("Evaluation");
-    expect(row.governanceState).toBe("Not ready");
+    expect(row.governanceState).toBe("Not submitted");
     expect(row.findingsCount).toBe(2);
     expect(row.primaryAction.label).toBe("Review findings");
   });
@@ -52,6 +52,19 @@ describe("toReviewsHubReviewRowDisplay", () => {
     expect(row.overallStatus).toBe("Draft");
     expect(row.lifecycleStage).toBe("Architecture definition");
     expect(row.primaryAction.label).toBe("Continue review");
+  });
+
+  it("shortens architecture review packet titles for the hub table", () => {
+    const row = toReviewsHubReviewRowDisplay({
+      runId: "packet-review",
+      projectId: "default",
+      createdUtc: "2026-01-21T12:00:00.000Z",
+      description:
+        "# Architecture Review Packet: B2B SaaS Tenant Migration Platform\n\n**Classification:** Synthetic sanitized packet.",
+    } satisfies RunSummary);
+
+    expect(row.reviewTitlePrimary).toBe("B2B SaaS Tenant Migration Platform");
+    expect(row.reviewTitleKindLabel).toBe("Architecture review packet");
   });
 
   it("describes archived reviews", () => {

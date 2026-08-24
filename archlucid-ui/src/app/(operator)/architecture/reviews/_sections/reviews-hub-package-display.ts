@@ -22,11 +22,14 @@ import {
 export type ReviewsHubReviewRowDisplay = {
   readonly runId: string;
   readonly reviewTitle: string;
+  readonly reviewTitlePrimary: string;
+  readonly reviewTitleKindLabel: string | null;
   readonly architectureName: string;
   readonly overallStatus: ReviewsHubOverallStatus;
   readonly lifecycleStage: ReviewsHubLifecycleStage;
   readonly ownerLabel: string;
   readonly lastUpdated: string;
+  readonly lastUpdatedAbsolute: string;
   readonly findingsCount: number;
   readonly riskCount: number;
   readonly evidenceCount: number;
@@ -63,6 +66,37 @@ function formatLastUpdated(run: RunSummary): string {
   return formatRelativeTime(run.createdUtc);
 }
 
+function formatLastUpdatedAbsolute(run: RunSummary): string {
+  const parsed = new Date(run.createdUtc);
+
+  if (Number.isNaN(parsed.getTime())) {
+    return run.createdUtc;
+  }
+
+  return parsed.toLocaleString(undefined, {
+    dateStyle: "medium",
+    timeStyle: "short",
+  });
+}
+
+const ARCHITECTURE_REVIEW_PACKET_TITLE_PREFIX = /^Architecture Review Packet:\s*(.+)$/i;
+
+function splitReviewsHubReviewTitle(title: string): { primary: string; kindLabel: string | null } {
+  const packetMatch = ARCHITECTURE_REVIEW_PACKET_TITLE_PREFIX.exec(title.trim());
+
+  if (packetMatch !== null) {
+    return {
+      primary: packetMatch[1].trim(),
+      kindLabel: "Architecture review packet",
+    };
+  }
+
+  return {
+    primary: title,
+    kindLabel: null,
+  };
+}
+
 function reviewGovernanceState(run: RunSummary): string {
   const demoMeta = buyerDemoPackageCardMeta(run.runId);
 
@@ -77,7 +111,7 @@ function reviewGovernanceState(run: RunSummary): string {
   }
 
   if (run.hasGoldenManifest !== true) {
-    return "Not ready";
+    return "Not submitted";
   }
 
   if (run.hasGovernanceWarnings === true) {
@@ -154,15 +188,20 @@ export function toReviewsHubReviewRowDisplay(
 ): ReviewsHubReviewRowDisplay {
   const runId = canonicalizeDemoRunId(run.runId);
   const primaryAction = getBuyerSafeReviewsTableLinkForRun(run);
+  const reviewTitle = buyerFacingReviewTitleFromSummary(run);
+  const titleParts = splitReviewsHubReviewTitle(reviewTitle);
 
   return {
     runId,
-    reviewTitle: buyerFacingReviewTitleFromSummary(run),
+    reviewTitle,
+    reviewTitlePrimary: titleParts.primary,
+    reviewTitleKindLabel: titleParts.kindLabel,
     architectureName: reviewPackageArchitectureName(run),
     overallStatus: reviewsHubOverallStatus(run),
     lifecycleStage: reviewsHubLifecycleStage(run),
     ownerLabel: reviewPackageOwnerLabel(run, ownerContext),
     lastUpdated: formatLastUpdated(run),
+    lastUpdatedAbsolute: formatLastUpdatedAbsolute(run),
     findingsCount: reviewFindingCount(run),
     riskCount: reviewRiskCount(run),
     evidenceCount: reviewEvidenceCount(run),

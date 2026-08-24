@@ -18,7 +18,7 @@ export const REVIEWS_HUB_MORE_WAYS_TITLE = "Samples and what a review includes";
 export const REVIEWS_HUB_MORE_WAYS_SUMMARY =
   "Load a sample workspace, open the showcase review, compare finalized reviews, or scan deliverables.";
 
-export const REVIEWS_HUB_FILTER_MORE_LABEL = "More status filters";
+export const REVIEWS_HUB_FILTER_MORE_LABEL = "More filters";
 
 export const REVIEWS_HUB_SUMMARY_IN_PROGRESS_LABEL = "Active";
 
@@ -30,10 +30,10 @@ export const REVIEWS_HUB_SUMMARY_OPEN_RISKS_LABEL = "Open risks";
 
 export const REVIEWS_HUB_SUMMARY_READY_FOR_GOVERNANCE_LABEL = "Awaiting approval";
 
-export const REVIEWS_HUB_SUMMARY_DRAFTS_READY_LABEL = "Drafts ready";
+export const REVIEWS_HUB_SUMMARY_DRAFTS_READY_LABEL = "Ready for review";
 
 export const REVIEWS_HUB_SUMMARY_EMPTY_HINT =
-  "Counts update as you start and finalize reviews. Drafts ready counts architectures that can start a review.";
+  "Counts update as you start and finalize reviews. Ready for review counts architectures that can start a review.";
 
 export const REVIEWS_HUB_PRIMARY_START_LABEL = BUYER_START_ARCHITECTURE_REVIEW_CTA;
 

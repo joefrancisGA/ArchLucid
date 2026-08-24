@@ -80,7 +80,7 @@ describe("ReviewsHubResumeDrafts", () => {
     render(<ReviewsHubResumeDrafts />);
 
     expect(screen.getByTestId("reviews-hub-resume-drafts")).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Architectures ready for review" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /Architectures ready for review/ })).toBeInTheDocument();
     expect(screen.getByText("Ready for review")).toBeInTheDocument();
     expect(screen.getByTestId("reviews-hub-resume-draft-continue-draft-001")).toHaveTextContent("Continue editing");
     expect(screen.getByTestId("reviews-hub-resume-draft-start-draft-001").getAttribute("href")).toContain(

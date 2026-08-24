@@ -7,6 +7,7 @@ import { createDeferredComponentFromManifest } from "@/lib/operator/load-deferre
 import type { RunsIndexBeforeAfterPanelProps } from "@/components/runs/RunsIndexBeforeAfterPanel";
 import type { RunsListClientProps } from "@/app/(operator)/architecture/reviews/RunsListClient";
 import type { RunSummary } from "@/types/authority";
+import type { ReviewsWorkspaceSummary } from "./reviews-workspace-summary";
 
 /** TB-2371 — welcome onboarding off reviews hub First Load JS. */
 export const OperatorWelcomeOnboardingDeferred: ComponentType<{
@@ -34,8 +35,10 @@ export const ReviewsHubBeforeAfterDeltaPanelDeferred: ComponentType = () => (
 
 export const ReviewsHubReviewInventoryDeferred: ComponentType<{
   readonly runs: readonly RunSummary[];
+  readonly summary: ReviewsWorkspaceSummary;
 }> = createDeferredComponentFromManifest("reviews-hub-inventory") as ComponentType<{
   readonly runs: readonly RunSummary[];
+  readonly summary: ReviewsWorkspaceSummary;
 }>;
 
 export const RunsIndexBeforeAfterPanelDeferred: ComponentType<RunsIndexBeforeAfterPanelProps> =
