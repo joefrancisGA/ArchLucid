@@ -37,6 +37,7 @@ internal static class FindingInspectReadSql
                                                      INNER JOIN dbo.FindingsSnapshots fs ON fs.FindingsSnapshotId = fr.FindingsSnapshotId
                                                      INNER JOIN dbo.Runs r ON r.RunId = fs.RunId
                                                      LEFT JOIN dbo.AgentExecutionTraces aet ON aet.TraceId = fr.AgentExecutionTraceId
+                                                                                            AND aet.RunId = r.RunId
                                                      LEFT JOIN dbo.DecisioningTraces dt
                                                          ON dt.DecisionTraceId = r.DecisionTraceId
                                                         AND dt.TenantId = r.TenantId
@@ -49,7 +50,8 @@ internal static class FindingInspectReadSql
                                                        AND r.TenantId = @TenantId
                                                        AND r.WorkspaceId = @WorkspaceId
                                                        AND r.ScopeProjectId = @ScopeProjectId
-                                                       AND (r.ArchivedUtc IS NULL);
+                                                       AND (r.ArchivedUtc IS NULL)
+                                                     ORDER BY r.CreatedUtc DESC, r.RunId DESC;
                                                      """;
 
     /// <summary>Primary inspect row with payload omitted (metadata-only typed payload built in-process).</summary>
@@ -83,6 +85,7 @@ internal static class FindingInspectReadSql
                                                         INNER JOIN dbo.FindingsSnapshots fs ON fs.FindingsSnapshotId = fr.FindingsSnapshotId
                                                         INNER JOIN dbo.Runs r ON r.RunId = fs.RunId
                                                         LEFT JOIN dbo.AgentExecutionTraces aet ON aet.TraceId = fr.AgentExecutionTraceId
+                                                                                               AND aet.RunId = r.RunId
                                                         LEFT JOIN dbo.DecisioningTraces dt
                                                             ON dt.DecisionTraceId = r.DecisionTraceId
                                                            AND dt.TenantId = r.TenantId
@@ -95,13 +98,16 @@ internal static class FindingInspectReadSql
                                                           AND r.TenantId = @TenantId
                                                           AND r.WorkspaceId = @WorkspaceId
                                                           AND r.ScopeProjectId = @ScopeProjectId
-                                                          AND (r.ArchivedUtc IS NULL);
+                                                          AND (r.ArchivedUtc IS NULL)
+                                                        ORDER BY r.CreatedUtc DESC, r.RunId DESC;
                                                         """;
 
     /// <summary>
     ///     Related nodes, rule text, recommended actions, audit row, latest disposition, and active waiver count.
     ///     FindingRecords and child rows filter tenant/workspace/project because FindingId is not unique within a tenant,
     ///     and run-only predicates can still surface a FindingRecords row when <c>fr.TenantId</c> diverges from the run.
+    ///     Child rows loaded from <c>FindingRecords</c> also bind <c>r.RunId = @RunId</c> from the primary inspect row so
+    ///     duplicate finding ids across reruns do not merge evidence from another run in the same project.
     /// </summary>
     public const string FollowUpBatch = """
                                        SELECT frn.NodeId
@@ -119,6 +125,7 @@ internal static class FindingInspectReadSql
                                          AND r.TenantId = @TenantId
                                          AND r.WorkspaceId = @WorkspaceId
                                          AND r.ScopeProjectId = @ScopeProjectId
+                                         AND r.RunId = @RunId
                                        ORDER BY frn.SortOrder;
 
                                        SELECT TOP 1 tra.RuleText
@@ -136,6 +143,7 @@ internal static class FindingInspectReadSql
                                          AND r.TenantId = @TenantId
                                          AND r.WorkspaceId = @WorkspaceId
                                          AND r.ScopeProjectId = @ScopeProjectId
+                                         AND r.RunId = @RunId
                                        ORDER BY tra.SortOrder;
 
                                        SELECT fra.ActionText
@@ -153,6 +161,7 @@ internal static class FindingInspectReadSql
                                          AND r.TenantId = @TenantId
                                          AND r.WorkspaceId = @WorkspaceId
                                          AND r.ScopeProjectId = @ScopeProjectId
+                                         AND r.RunId = @RunId
                                        ORDER BY fra.SortOrder;
 
                                        SELECT TOP 1 ae.EventId

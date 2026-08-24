@@ -76,6 +76,44 @@ public sealed class FindingInspectReadSqlTests
         auditSql.Should().Contain("ae.ProjectId = @ScopeProjectId");
     }
 
+    [Fact]
+    public void FollowUpBatch_scopes_related_nodes_to_main_inspect_run()
+    {
+        string relatedNodesSql = ExtractStatementContaining(FindingInspectReadSql.FollowUpBatch, "FROM dbo.FindingRelatedNodes");
+
+        relatedNodesSql.Should().Contain("r.RunId = @RunId");
+    }
+
+    [Fact]
+    public void FollowUpBatch_scopes_trace_rules_to_main_inspect_run()
+    {
+        string traceRulesSql = ExtractStatementContaining(FindingInspectReadSql.FollowUpBatch, "FROM dbo.FindingTraceRulesApplied");
+
+        traceRulesSql.Should().Contain("r.RunId = @RunId");
+    }
+
+    [Fact]
+    public void FollowUpBatch_scopes_recommended_actions_to_main_inspect_run()
+    {
+        string actionsSql = ExtractStatementContaining(FindingInspectReadSql.FollowUpBatch, "FROM dbo.FindingRecommendedActions");
+
+        actionsSql.Should().Contain("r.RunId = @RunId");
+    }
+
+    [Fact]
+    public void MainInspect_orders_by_latest_run_when_finding_id_collides()
+    {
+        FindingInspectReadSql.MainInspectWithTypedPayload.Should().Contain("ORDER BY r.CreatedUtc DESC, r.RunId DESC");
+        FindingInspectReadSql.MainInspectWithoutTypedPayload.Should().Contain("ORDER BY r.CreatedUtc DESC, r.RunId DESC");
+    }
+
+    [Fact]
+    public void MainInspect_scopes_agent_execution_trace_to_run()
+    {
+        FindingInspectReadSql.MainInspectWithTypedPayload.Should().Contain("aet.RunId = r.RunId");
+        FindingInspectReadSql.MainInspectWithoutTypedPayload.Should().Contain("aet.RunId = r.RunId");
+    }
+
     private static string ExtractStatementContaining(string batch, string marker)
     {
         string[] statements = batch.Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
