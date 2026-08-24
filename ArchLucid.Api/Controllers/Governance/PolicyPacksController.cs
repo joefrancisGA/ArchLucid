@@ -169,6 +169,14 @@ public sealed class PolicyPacksController(
         if (validationProblem is not null)
             return validationProblem;
 
+        ScopeContext scope = scopeProvider.GetCurrentScope();
+        PolicyPack? pack = await packRepository.GetByIdAsync(policyPackId, ct);
+
+        if (!IsPackVisibleInScope(pack, scope))
+            return this.NotFoundProblem(
+                $"Policy pack '{policyPackId}' was not found in the current scope.",
+                ProblemTypes.ResourceNotFound);
+
         PolicyPackVersion version = await policyPacksApp.PublishVersionAsync(
             policyPackId,
             request.Version.Trim(),
@@ -205,6 +213,13 @@ public sealed class PolicyPacksController(
             return validationProblem;
 
         ScopeContext scope = scopeProvider.GetCurrentScope();
+        PolicyPack? pack = await packRepository.GetByIdAsync(policyPackId, ct);
+
+        if (!IsPackVisibleInScope(pack, scope))
+            return this.NotFoundProblem(
+                $"Policy pack '{policyPackId}' was not found in the current scope.",
+                ProblemTypes.ResourceNotFound);
+
         string versionKey = request.Version.Trim();
         string scopeLevel = string.IsNullOrWhiteSpace(request.ScopeLevel) ? "Project" : request.ScopeLevel;
 
@@ -747,18 +762,14 @@ public sealed class PolicyPacksController(
         ScopeContext scope = scopeProvider.GetCurrentScope();
         PolicyPack? pack = await packRepository.GetByIdAsync(policyPackId, cancellationToken);
 
-        if (pack is null ||
-            pack.IsDeleted ||
-            pack.TenantId != scope.TenantId ||
-            pack.WorkspaceId != scope.WorkspaceId ||
-            pack.ProjectId != scope.ProjectId)
+        if (!IsPackVisibleInScope(pack, scope))
             return this.NotFoundProblem(
                 $"Policy pack '{policyPackId}' was not found in the current scope.",
                 ProblemTypes.ResourceNotFound);
 
         PolicyPackVersion? versionRow = await versionRepository.GetByPackAndVersionAsync(
             policyPackId,
-            pack.CurrentVersion.Trim(),
+            pack!.CurrentVersion.Trim(),
             cancellationToken);
 
         if (versionRow is null)
@@ -900,5 +911,15 @@ public sealed class PolicyPacksController(
         }
 
         return visiblePacks;
+    }
+
+    private static bool IsPackVisibleInScope(PolicyPack? pack, ScopeContext scope)
+    {
+        if (pack is null || pack.IsDeleted)
+            return false;
+
+        return pack.TenantId == scope.TenantId
+            && pack.WorkspaceId == scope.WorkspaceId
+            && pack.ProjectId == scope.ProjectId;
     }
 }
