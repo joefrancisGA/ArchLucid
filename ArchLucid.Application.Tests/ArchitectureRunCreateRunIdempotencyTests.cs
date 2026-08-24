@@ -233,6 +233,7 @@ public sealed class ArchitectureRunCreateRunIdempotencyTests
             new DefaultRequestContentSafetyPrecheck(),
             ArchitectureRunCreateOrchestratorTestSupport.CreatePolicyPackCloudBaselineApplicator(),
             WorkspaceSystemNameCollisionGuardTestDoubles.NoOp(),
+            Mock.Of<IArchitectureIdentityService>(),
             NullLogger<ArchitectureRunCreateOrchestrator>.Instance);
     }
 }

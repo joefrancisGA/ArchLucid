@@ -321,6 +321,7 @@ public sealed class ArchitectureSynthesisKernelTests
             ?? TechnologyLedgerSeederTestDoubles.CreateEvidenceSeeder(
                 Mock.Of<ArchLucid.Persistence.Data.Repositories.ITechnologyLedgerRepository>(),
                 scopeProvider ?? defaultScope.Object),
+            null,
             NullLogger<ArchitectureSynthesisKernel>.Instance,
             timeProvider ?? TimeProvider.System);
     }

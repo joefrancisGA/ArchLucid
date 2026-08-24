@@ -294,6 +294,7 @@ public sealed class ArchitectureRunCreateOrchestratorTechnologyLedgerSeedingTest
             new DefaultRequestContentSafetyPrecheck(),
             ArchitectureRunCreateOrchestratorTestSupport.CreatePolicyPackCloudBaselineApplicator(),
             WorkspaceSystemNameCollisionGuardTestDoubles.NoOp(),
+            Mock.Of<IArchitectureIdentityService>(),
             NullLogger<ArchitectureRunCreateOrchestrator>.Instance);
     }
 }

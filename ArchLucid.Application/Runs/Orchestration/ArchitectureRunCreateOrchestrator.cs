@@ -59,6 +59,7 @@ public sealed class ArchitectureRunCreateOrchestrator(
     IRequestContentSafetyPrecheck requestContentSafetyPrecheck,
     DefaultPolicyPackCloudBaselineApplicator defaultPolicyPackCloudBaselineApplicator,
     IWorkspaceSystemNameCollisionGuard workspaceSystemNameCollisionGuard,
+    IArchitectureIdentityService architectureIdentityService,
     ILogger<ArchitectureRunCreateOrchestrator> logger) : IArchitectureRunCreateOrchestrator
 {
     private readonly IOptions<ArchitectureRunCreateOptions> _createRunOptions = createRunOptions ?? throw new ArgumentNullException(nameof(createRunOptions));
@@ -108,6 +109,9 @@ public sealed class ArchitectureRunCreateOrchestrator(
 
     private readonly IWorkspaceSystemNameCollisionGuard _workspaceSystemNameCollisionGuard =
         workspaceSystemNameCollisionGuard ?? throw new ArgumentNullException(nameof(workspaceSystemNameCollisionGuard));
+
+    private readonly IArchitectureIdentityService _architectureIdentityService =
+        architectureIdentityService ?? throw new ArgumentNullException(nameof(architectureIdentityService));
 
     /// <inheritdoc/>
     public async Task<CreateRunResult> CreateRunAsync(ArchitectureRequest request, CreateRunIdempotencyState? idempotency = null,
@@ -533,7 +537,34 @@ public sealed class ArchitectureRunCreateOrchestrator(
                 coordination.Tasks.Count);
         await TryRecordArchitectureRunMeteringAsync(_scopeContextProvider.GetCurrentScope(), coordination.Run.RunId, cancellationToken);
         await TryApplyCloudPolicyPackBaselineAsync(request, cancellationToken);
+        await TryLinkReviewRunArchitectureIdentityAsync(request, coordination.Run.RunId, cancellationToken);
         return new CreateRunResult { Run = coordination.Run, EvidenceBundle = coordination.EvidenceBundle, Tasks = coordination.Tasks };
+    }
+
+    private async Task TryLinkReviewRunArchitectureIdentityAsync(
+        ArchitectureRequest request,
+        string runId,
+        CancellationToken cancellationToken)
+    {
+        if (!TryParseCoordinationRunGuid(runId, out Guid reviewRunGuid))
+            return;
+
+        try
+        {
+            await _architectureIdentityService
+                .TryEnsureReviewRunLinkedAsync(_scopeContextProvider.GetCurrentScope(), reviewRunGuid, request, cancellationToken: cancellationToken)
+                .ConfigureAwait(false);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            if (_logger.IsEnabled(LogLevel.Warning))
+            {
+                _logger.LogWarning(
+                    ex,
+                    "Review run architecture identity link failed for RunId={RunId}.",
+                    LogSanitizer.Sanitize(runId));
+            }
+        }
     }
 
     private static bool TryParseCoordinationRunGuid(string runId, out Guid runGuid)

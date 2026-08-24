@@ -2,6 +2,7 @@ using System.Collections.Concurrent;
 using System.Data;
 using System.Diagnostics.CodeAnalysis;
 
+using ArchLucid.Application.Architecture;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Coordination;
@@ -201,6 +202,7 @@ public sealed class ArchitectureRunCreateOrchestratorIdempotencyConcurrencyTests
             new DefaultRequestContentSafetyPrecheck(),
             ArchitectureRunCreateOrchestratorTestSupport.CreatePolicyPackCloudBaselineApplicator(),
             Mock.Of<IWorkspaceSystemNameCollisionGuard>(),
+            Mock.Of<IArchitectureIdentityService>(),
             NullLogger<ArchitectureRunCreateOrchestrator>.Instance);
 
         const int parallel = 64;
@@ -321,6 +323,7 @@ public sealed class ArchitectureRunCreateOrchestratorIdempotencyConcurrencyTests
             new DefaultRequestContentSafetyPrecheck(),
             ArchitectureRunCreateOrchestratorTestSupport.CreatePolicyPackCloudBaselineApplicator(),
             Mock.Of<IWorkspaceSystemNameCollisionGuard>(),
+            Mock.Of<IArchitectureIdentityService>(),
             NullLogger<ArchitectureRunCreateOrchestrator>.Instance);
 
         const int parallel = 64;

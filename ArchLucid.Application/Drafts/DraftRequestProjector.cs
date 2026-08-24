@@ -44,6 +44,7 @@ public sealed class DraftRequestProjector : IDraftRequestProjector
             IntakeTransparencyTrail = CloneTransparencyTrail(document.TransparencyTrail),
             PolicyReferences = BuildPolicyReferences(document),
             WorkflowIntent = ResolveWorkflowIntent(document),
+            PriorRunId = string.IsNullOrWhiteSpace(document.PriorRunId) ? null : document.PriorRunId.Trim(),
         };
     }
 

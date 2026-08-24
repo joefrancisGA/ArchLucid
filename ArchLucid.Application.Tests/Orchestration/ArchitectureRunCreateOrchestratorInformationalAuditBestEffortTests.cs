@@ -1,3 +1,4 @@
+using ArchLucid.Application.Architecture;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Runs.Coordination;
 using ArchLucid.Application.Runs.Orchestration;
@@ -141,6 +142,7 @@ public sealed class ArchitectureRunCreateOrchestratorInformationalAuditBestEffor
             new DefaultRequestContentSafetyPrecheck(),
             ArchitectureRunCreateOrchestratorTestSupport.CreatePolicyPackCloudBaselineApplicator(),
             Mock.Of<IWorkspaceSystemNameCollisionGuard>(),
+            Mock.Of<IArchitectureIdentityService>(),
             NullLogger<ArchitectureRunCreateOrchestrator>.Instance);
 
         CreateRunResult result = await sut.CreateRunAsync(request, null, CancellationToken.None);

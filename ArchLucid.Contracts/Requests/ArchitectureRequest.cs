@@ -256,4 +256,14 @@ public sealed class ArchitectureRequest
         get;
         set;
     }
+
+    /// <summary>
+    ///     Prior committed run id for re-review, compare spawn, and semantic inheritance (TB-2350).
+    /// </summary>
+    [JsonPropertyName("priorRunId")]
+    public string? PriorRunId
+    {
+        get;
+        set;
+    }
 }
