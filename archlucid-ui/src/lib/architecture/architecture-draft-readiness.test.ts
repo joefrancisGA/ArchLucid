@@ -109,7 +109,21 @@ describe("architecture-draft-readiness", () => {
     expect(result.blockers).not.toContain("assumptions");
   });
 
-  it("blocks review start when only an unknown quality-attribute sentinel is present", () => {
+  it("does not block review start when quality attributes are empty (optional with encouragement modal)", () => {
+    const legacyMinimumOnly = {
+      freeTextIntent: readyOverview,
+      businessOutcome: "Reduce cycle time for architecture reviews.",
+      systemName: "Claims intake",
+      structuredBrief: emptyArchitectureDraftStructuredBrief(),
+    };
+
+    const result = validateArchitectureReviewReadiness(legacyMinimumOnly, [assertedActor]);
+
+    expect(result.isValid).toBe(true);
+    expect(result.blockers).not.toContain("quality-attributes");
+  });
+
+  it("does not block review start when only an unknown quality-attribute sentinel is present", () => {
     const unknownQuality = {
       freeTextIntent: readyOverview,
       businessOutcome: "Reduce cycle time for architecture reviews.",
@@ -122,8 +136,8 @@ describe("architecture-draft-readiness", () => {
 
     const result = validateArchitectureReviewReadiness(unknownQuality, [assertedActor]);
 
-    expect(result.isValid).toBe(false);
-    expect(result.blockers).toEqual(["quality-attributes"]);
+    expect(result.isValid).toBe(true);
+    expect(result.blockers).not.toContain("quality-attributes");
   });
 
   it("allows review start with qualitative-only quality attributes", () => {
@@ -141,22 +155,6 @@ describe("architecture-draft-readiness", () => {
 
     expect(result.isValid).toBe(true);
     expect(result.blockers).not.toContain("quality-attributes");
-  });
-
-  it("blocks a legacy-minimum draft on quality attributes, not constraints or assumptions (TB-2282)", () => {
-    const legacyMinimumOnly = {
-      freeTextIntent: readyOverview,
-      businessOutcome: "Reduce cycle time for architecture reviews.",
-      systemName: "Claims intake",
-      structuredBrief: emptyArchitectureDraftStructuredBrief(),
-    };
-
-    const result = validateArchitectureReviewReadiness(legacyMinimumOnly, [assertedActor]);
-
-    expect(result.isValid).toBe(false);
-    expect(result.blockers).not.toContain("constraints");
-    expect(result.blockers).not.toContain("assumptions");
-    expect(result.blockers).toContain("quality-attributes");
   });
 
   it("gates deferred server create until at least one valid field has content", () => {

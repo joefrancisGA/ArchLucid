@@ -394,6 +394,7 @@ describe("ArchitectureDraftStructuredBriefFields", () => {
     ).not.toBeInTheDocument();
     expect(screen.getByText(/Numeric targets \(latency, RTO, throughput\)/i)).toBeInTheDocument();
     expect(screen.getByText(/qualitative ones \(defense in depth, zero trust\)/i)).toBeInTheDocument();
+    expect(screen.getByRole("textbox", { name: /Quality Attributes/i })).toBeInTheDocument();
   });
 
   it("renders confirmed items as stacked rows with full text and a labeled Remove button", () => {
