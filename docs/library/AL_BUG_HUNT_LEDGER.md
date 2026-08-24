@@ -127,11 +127,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** ARM resource ids; terraform source id; endpoint index
 - **paths:** ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs
 - **test-filter:** FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests
-- **hunts:** 24
-- **bugs-found:** 25
+- **hunts:** 26
+- **bugs-found:** 27
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24 — `azurerm_storage_account` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`storage_account` was only listed for datastore aliases)
+- **last-bug:** 2026-08-24 — `azurerm_mysql_flexible_server` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`mysql` was only listed for datastore aliases)
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -156,6 +156,8 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - [x] (proven) `azurerm_cosmosdb_account` Terraform address omitted from `LooksLikeTerraformServiceSourceId` — **hit 2026-08-24:** `cosmosdb` was only in the datastore list; `azurerm_cosmosdb_account.main` on Data-category nodes dropped `svc-` synthetic aliases; regression in gate + merge tests
 - [x] (proven) `azurerm_mssql_server` Terraform address omitted from `LooksLikeTerraformServiceSourceId` — **hit 2026-08-24:** `mssql` was only in the datastore list; `azurerm_mssql_server.main` on Data-category nodes dropped `svc-` synthetic aliases; regression in gate + merge tests
 - [x] (proven) `azurerm_storage_account` Terraform address omitted from `LooksLikeTerraformServiceSourceId` — **hit 2026-08-24:** `storage_account` was only in the datastore list; `azurerm_storage_account.main` on Data-category nodes dropped `svc-` synthetic aliases; regression in gate + merge tests
+- [x] (proven) `azurerm_postgresql_flexible_server` Terraform address omitted from `LooksLikeTerraformServiceSourceId` — **hit 2026-08-24:** `postgresql` was only in the datastore list; `azurerm_postgresql_flexible_server.main` on Data-category nodes dropped `svc-` synthetic aliases; regression in gate + merge tests
+- [x] (proven) `azurerm_mysql_flexible_server` Terraform address omitted from `LooksLikeTerraformServiceSourceId` — **hit 2026-08-24:** `mysql` was only in the datastore list; `azurerm_mysql_flexible_server.main` on Data-category nodes dropped `svc-` synthetic aliases; regression in gate + merge tests
 
 ---
 
