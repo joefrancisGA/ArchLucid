@@ -331,6 +331,9 @@ async function fetchShowcasePayload(
     if (payload == null || typeof payload !== "object" || payload.run == null || payload.manifest == null)
       return { kind: "invalid" };
 
+    if (!Array.isArray(payload.artifacts) || !Array.isArray(payload.pipelineTimeline))
+      return { kind: "invalid" };
+
     return { kind: "ok", payload };
   } catch {
     return { kind: "missing" };

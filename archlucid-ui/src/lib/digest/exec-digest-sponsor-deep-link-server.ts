@@ -85,6 +85,14 @@ function mapResponse(payload: ExecDigestSponsorDeepLinkViewResponse): ExecDigest
     decisionNeededMarkdown: payload.decisionNeededMarkdown,
     runIdHex: payload.runIdHex,
     runSummaryMarkdown: payload.runSummaryMarkdown,
-    signInUrl: payload.signInUrl ?? AUTH_SIGNIN_PATH,
+    signInUrl: normalizeSignInUrl(payload.signInUrl),
   };
+}
+
+/** API historically emitted `/auth/sign-in`; Next operator route is `/auth/signin`. */
+function normalizeSignInUrl(url: string | undefined): string {
+  if (!url?.trim())
+    return AUTH_SIGNIN_PATH;
+
+  return url.replace(/\/auth\/sign-in(?=[?#]|$)/i, AUTH_SIGNIN_PATH);
 }

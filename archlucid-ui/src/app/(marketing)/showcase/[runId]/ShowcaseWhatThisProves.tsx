@@ -57,9 +57,9 @@ export function showcaseOutcomeSnapshotFromPayload(
 
     findingCount: payload.runExplanation?.findingCount ?? null,
 
-    artifactCount: payload.artifacts.length,
+    artifactCount: payload.artifacts?.length ?? 0,
 
-    pipelineEventCount: payload.pipelineTimeline.length,
+    pipelineEventCount: payload.pipelineTimeline?.length ?? 0,
 
   };
 

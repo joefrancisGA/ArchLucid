@@ -17,4 +17,9 @@ describe("showcase-page-copy", () => {
   it("resolves curated showcase titles", () => {
     expect(showcaseTitleForRunId(CUSTOMER_INTAKE_SAMPLE_RUN_ID)).toContain("Enterprise Customer Intake");
   });
+
+  it("does not throw when run id has malformed percent encoding", () => {
+    expect(() => showcaseTitleForRunId("%")).not.toThrow();
+    expect(showcaseTitleForRunId("%")).toBe("Completed example (%)");
+  });
 });

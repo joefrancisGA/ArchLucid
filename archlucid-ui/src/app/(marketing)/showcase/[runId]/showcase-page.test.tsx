@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { render, screen } from "@testing-library/react";
 
 import type { DemoCommitPagePreviewResponse } from "@/types/demo-preview";
 
@@ -16,6 +17,7 @@ vi.mock("@/lib/showcase-static-demo", async (importOriginal) => {
 });
 
 import MarketingShowcasePage from "./page";
+import { generateMetadata } from "./page";
 
 describe("MarketingShowcasePage", () => {
   const fetchMock = vi.fn<typeof fetch>();
@@ -37,6 +39,39 @@ describe("MarketingShowcasePage", () => {
     ).resolves.toBeDefined();
 
     expect(getShowcaseStaticDemoPayloadMock).toHaveBeenCalledWith("%");
+  });
+
+  it("generateMetadata does not throw when run id has malformed percent encoding", async () => {
+    await expect(
+      generateMetadata({ params: Promise.resolve({ runId: "%" }) }),
+    ).resolves.toMatchObject({
+      title: expect.stringContaining("Completed example (%)"),
+    });
+  });
+
+  it("treats API payloads missing artifact arrays as invalid", async () => {
+    vi.stubEnv("ARCHLUCID_API_BASE_URL", "https://api.test");
+
+    const payload = createMinimalDemoPreviewPayload();
+    const thinPayload = {
+      run: payload.run,
+      manifest: payload.manifest,
+    };
+
+    fetchMock.mockResolvedValue(
+      new Response(JSON.stringify(thinPayload), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+
+    const page = await MarketingShowcasePage({
+      params: Promise.resolve({ runId: "acme-corp" }),
+    });
+
+    render(page);
+
+    expect(screen.getByTestId("demo-preview-not-available")).toBeInTheDocument();
   });
 
   it("requests the marketing showcase API with a decoded run key", async () => {

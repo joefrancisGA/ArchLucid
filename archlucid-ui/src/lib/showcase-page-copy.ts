@@ -1,5 +1,6 @@
 import { SEE_IT_CANONICAL_PATH } from "@/lib/see-it-evidence-copy";
 import { SEE_IT_PAGE_TITLE } from "@/lib/see-it-page-copy";
+import { decodeShowcaseRunId } from "@/lib/showcase-page-resolution";
 
 export const SHOWCASE_PRIMARY_CONTENT_ID = "showcase-primary-content" as const;
 
@@ -19,7 +20,7 @@ export const SHOWCASE_HERO_SUBTITLE_BUYER =
 export const SHOWCASE_HERO_SUBTITLE = SHOWCASE_HERO_SUBTITLE_BUYER;
 
 export function showcaseTitleForRunId(runId: string): string {
-  const decoded = decodeURIComponent(runId);
+  const decoded = decodeShowcaseRunId(runId);
 
   if (decoded === "claims-intake-modernization") {
     return "Claims Intake Modernization: Completed Architecture Output";
@@ -33,7 +34,7 @@ export function showcaseTitleForRunId(runId: string): string {
 }
 
 export function showcaseScenarioRibbonLabel(runId: string): string {
-  const decoded = decodeURIComponent(runId);
+  const decoded = decodeShowcaseRunId(runId);
 
   if (decoded === "customer-intake-modernization") {
     return "Enterprise Customer Intake Modernization sample scenario.";
