@@ -257,4 +257,16 @@ public sealed class InMemoryUserInvitationRepository : IUserInvitationRepository
 
         return diff == 0;
     }
+
+    /// <summary>Seeds a pending invitation row for tests (allows non-normalized display emails).</summary>
+    public Task SeedPendingForTestsAsync(UserInvitationRecord row, byte[] tokenHash)
+    {
+        ArgumentNullException.ThrowIfNull(row);
+        ArgumentNullException.ThrowIfNull(tokenHash);
+
+        _byId[row.Id] = row;
+        _tokenHashesByInvitationId[row.Id] = tokenHash;
+
+        return Task.CompletedTask;
+    }
 }

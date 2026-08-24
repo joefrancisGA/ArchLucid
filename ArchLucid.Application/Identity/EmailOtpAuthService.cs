@@ -684,8 +684,8 @@ public sealed class EmailOtpAuthService(
         }
 
         if (invitation is null
-            || !string.Equals(invitation.Email, normalizedEmail, StringComparison.Ordinal)
-            || invitation.ExpiresUtc <= _timeProvider.GetUtcNow())
+            || invitation.ExpiresUtc <= _timeProvider.GetUtcNow()
+            || !InvitationEmailMatchesVerifiedEmail(invitation.Email, normalizedEmail))
         {
             return null;
         }
@@ -733,11 +733,18 @@ public sealed class EmailOtpAuthService(
         string normalizedEmail,
         CancellationToken cancellationToken)
     {
-        IReadOnlyList<UserInvitationRecord> pending =
-            await _invitations.ListPendingByNormalizedEmailAsync(normalizedEmail, cancellationToken).ConfigureAwait(false);
+        UserInvitationRecord? invitation =
+            await _invitations.GetPendingByIdAsync(invitationId, cancellationToken).ConfigureAwait(false);
 
-        return pending.FirstOrDefault(row => row.Id == invitationId);
+        if (invitation is null || !InvitationEmailMatchesVerifiedEmail(invitation.Email, normalizedEmail))
+            return null;
+
+        return invitation;
     }
+
+    private static bool InvitationEmailMatchesVerifiedEmail(string invitationEmail, string normalizedEmail) =>
+        IdentityEmailNormalizer.TryNormalize(invitationEmail, out string normalizedInviteeEmail, out _)
+        && string.Equals(normalizedInviteeEmail, normalizedEmail, StringComparison.Ordinal);
 
     private async Task<(EmailOtpAuthNextStep NextStep, Guid? TenantId, Guid? WorkspaceId, Guid? InvitationId)>
         ResolveNextStepAsync(

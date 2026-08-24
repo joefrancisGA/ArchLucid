@@ -368,6 +368,72 @@ public sealed class EmailOtpAuthServiceTests
     }
 
     [Fact]
+    public async Task VerifyCodeAsync_accepts_invitation_when_stored_email_casing_differs_from_normalized_sign_in_email()
+    {
+        EmailOtpAuthService sut = CreateSut(
+            out InMemoryEmailOtpChallengeRepository challenges,
+            out _,
+            out _,
+            out InMemoryWorkspaceMembershipRepository memberships,
+            out InMemoryUserInvitationRepository invitations,
+            out _,
+            out _,
+            out _);
+
+        Guid tenantId = Guid.NewGuid();
+        Guid workspaceId = Guid.NewGuid();
+        Guid invitationId = Guid.NewGuid();
+        const string rawToken = "invite-token-mixed-case";
+        byte[] tokenHash = EmailOtpInvitationTokenHasher.Hash(rawToken);
+        DateTimeOffset expiresUtc = DateTimeOffset.UtcNow.AddDays(7);
+
+        await invitations.SeedPendingForTestsAsync(
+            new UserInvitationRecord
+            {
+                Id = invitationId,
+                TenantId = tenantId,
+                WorkspaceId = workspaceId,
+                Email = "Invited@Example.com",
+                AppRole = "Reader",
+                InvitedByActorId = "admin",
+                Status = UserInvitationStatus.Pending,
+                CreatedUtc = expiresUtc.AddDays(-1),
+                ExpiresUtc = expiresUtc
+            },
+            tokenHash);
+
+        EmailOtpChallengeRequestResult requested = await sut.RequestCodeAsync(
+            new EmailOtpChallengeRequest
+            {
+                Email = "invited@example.com",
+                InvitationToken = rawToken
+            },
+            CancellationToken.None);
+
+        EmailOtpChallengeRecord challenge =
+            (await challenges.GetByIdAsync(requested.ChallengeId!.Value, CancellationToken.None))!;
+
+        string code = RecoverCodeForTests(challenge);
+
+        EmailOtpVerifyResult verified = await sut.VerifyCodeAsync(
+            new EmailOtpVerifyRequest
+            {
+                ChallengeId = challenge.Id,
+                Code = code,
+                InvitationToken = rawToken
+            },
+            CancellationToken.None);
+
+        Assert.True(verified.Succeeded);
+        Assert.Equal(EmailOtpAuthNextStep.Complete, verified.NextStep);
+
+        IReadOnlyList<WorkspaceMembershipRecord> rows =
+            await memberships.ListByUserIdAsync(verified.PlatformUserId!.Value, CancellationToken.None);
+
+        Assert.Single(rows);
+    }
+
+    [Fact]
     public async Task RequestCodeAsync_audits_recovery_bypass_for_break_glass_admin()
     {
         Mock<IAuditService> audit = new();
