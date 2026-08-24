@@ -10596,6 +10596,12 @@
       },
       "DraftArchitectureRequestInput": {
         "properties": {
+          "confirmedAssumptions": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
           "currentAssumptions": {
             "items": {
               "type": "string"
@@ -10620,6 +10626,12 @@
       },
       "DraftArchitectureRequestResponse": {
         "properties": {
+          "evidenceContradictedAssumptions": {
+            "items": {
+              "$ref": "#/components/schemas/EvidenceContradictedBriefAssumption"
+            },
+            "type": "array"
+          },
           "securityBaselineHints": {
             "items": {
               "type": "string"
@@ -10655,6 +10667,17 @@
               "type": "string"
             },
             "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "EvidenceContradictedBriefAssumption": {
+        "properties": {
+          "assumption": {
+            "type": "string"
+          },
+          "evidenceNote": {
+            "type": "string"
           }
         },
         "type": "object"

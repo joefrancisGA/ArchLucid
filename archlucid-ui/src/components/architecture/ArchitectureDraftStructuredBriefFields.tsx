@@ -33,7 +33,7 @@ import {
   hasArchitectureContextForFailureModeSuggestion,
   resolveFailureModeSuggestion,
 } from "@/lib/architecture/architecture-draft-structured-brief-suggestions";
-import { OPERATOR_FORM_FIELD_LABEL_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_FORM_FIELD_LABEL_CLASS, OPERATOR_TYPOGRAPHY, OPERATOR_CALLOUT_WARN_CLASS } from "@/lib/design-tokens";
 import {
   GUIDED_INTAKE_STRUCTURED_BRIEF_FAILURE_MODE_HINT,
   GUIDED_INTAKE_STRUCTURED_BRIEF_FAILURE_MODE_LABEL,
@@ -51,6 +51,8 @@ import {
   GUIDED_INTAKE_STRUCTURED_BRIEF_REQUIRED_CAPABILITIES_LABEL,
   GUIDED_INTAKE_CONFIRM_ACTOR_BUTTON,
   GUIDED_INTAKE_DENY_SUGGESTION_BUTTON,
+  GUIDED_INTAKE_ASSUMPTION_EVIDENCE_CONTRADICTION_LABEL,
+  GUIDED_INTAKE_ASSUMPTION_EVIDENCE_CONTRADICTION_SECTION,
   GUIDED_INTAKE_STRUCTURED_BRIEF_SECTION_LABEL,
   GUIDED_INTAKE_STRUCTURED_BRIEF_SUGGEST_EMPTY,
   GUIDED_INTAKE_STRUCTURED_BRIEF_SUGGEST_EDITOR_LOCKED_HINT,
@@ -151,11 +153,15 @@ function suggestionSourceMeetsMinimum(sourceText: string): boolean {
 function StructuredBriefListRow(props: {
   readonly item: string;
   readonly testId?: string;
+  readonly className?: string;
   readonly children: React.ReactNode;
 }): React.JSX.Element {
   return (
     <li
-      className="space-y-2 rounded-md border border-neutral-200 p-3 dark:border-neutral-700"
+      className={cn(
+        "space-y-2 rounded-md border border-neutral-200 p-3 dark:border-neutral-700",
+        props.className,
+      )}
       data-testid={props.testId}
     >
       <p className={cn("m-0 text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
@@ -181,6 +187,24 @@ type ArchitectureDraftStructuredBriefFieldsProps = {
   readonly suggestFromOverviewNonce?: number;
 };
 
+function mapEvidenceContradictedAssumptions(
+  items: readonly { readonly assumption?: string; readonly evidenceNote?: string }[] | undefined,
+): Record<string, string> {
+  const mapped: Record<string, string> = {};
+
+  for (const item of items ?? []) {
+    const assumption = item.assumption?.trim() ?? "";
+
+    if (assumption.length === 0) {
+      continue;
+    }
+
+    mapped[assumption] = item.evidenceNote?.trim() ?? "";
+  }
+
+  return mapped;
+}
+
 function ConfirmableChipList(props: {
   readonly label: string;
   readonly hint: string;
@@ -201,6 +225,7 @@ function ConfirmableChipList(props: {
   readonly onRemove: (index: number) => void;
   readonly onConfirmSuggested: (value: string) => void;
   readonly onDenySuggested: (value: string) => void;
+  readonly evidenceContradictionNotes?: Readonly<Record<string, string>>;
 }): React.JSX.Element {
   const [draft, setDraft] = useState("");
   const isRequired = props.required !== false;
@@ -234,6 +259,15 @@ function ConfirmableChipList(props: {
             label={props.helpLabel}
             variant="text"
           />
+        </p>
+      ) : null}
+      {props.evidenceContradictionNotes !== undefined
+      && Object.keys(props.evidenceContradictionNotes).length > 0 ? (
+        <p
+          className={cn("m-0 rounded-md p-3", OPERATOR_CALLOUT_WARN_CLASS, OPERATOR_TYPOGRAPHY.helper)}
+          data-testid={`${props.inputId}-evidence-contradiction-notice`}
+        >
+          {GUIDED_INTAKE_ASSUMPTION_EVIDENCE_CONTRADICTION_SECTION}
         </p>
       ) : null}
       <div className="flex flex-wrap gap-2">
@@ -316,26 +350,45 @@ function ConfirmableChipList(props: {
       ) : null}
       {props.items.length > 0 ? (
         <ul className="m-0 list-none space-y-2 p-0">
-          {props.items.map((item, index) => (
-            <StructuredBriefListRow
-              key={`${props.inputId}-${index}-${item.slice(0, 12)}`}
-              item={item}
-              testId={`${props.inputId}-confirmed`}
-            >
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                disabled={props.disabled}
-                onClick={() => {
-                  props.onRemove(index);
-                }}
-                aria-label={`Remove ${item}`}
+          {props.items.map((item, index) => {
+            const evidenceNote = props.evidenceContradictionNotes?.[item];
+            const isContradicted = evidenceNote !== undefined;
+            const evidenceNoteText = evidenceNote?.trim() ?? "";
+
+            return (
+              <StructuredBriefListRow
+                key={`${props.inputId}-${index}-${item.slice(0, 12)}`}
+                item={item}
+                testId={`${props.inputId}-confirmed`}
+                className={isContradicted ? "border-amber-300 dark:border-amber-700" : undefined}
               >
-                Remove
-              </Button>
-            </StructuredBriefListRow>
-          ))}
+                {isContradicted ? (
+                  <p
+                    className={cn("m-0 text-amber-900 dark:text-amber-200", OPERATOR_TYPOGRAPHY.helper)}
+                    data-testid={`${props.inputId}-evidence-contradiction`}
+                  >
+                    <span className="font-semibold">{GUIDED_INTAKE_ASSUMPTION_EVIDENCE_CONTRADICTION_LABEL}:</span>
+                    {" "}
+                    {evidenceNoteText.length > 0
+                      ? evidenceNoteText
+                      : "Revise this assumption or your overview."}
+                  </p>
+                ) : null}
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  disabled={props.disabled}
+                  onClick={() => {
+                    props.onRemove(index);
+                  }}
+                  aria-label={`Remove ${item}`}
+                >
+                  Remove
+                </Button>
+              </StructuredBriefListRow>
+            );
+          })}
         </ul>
       ) : (
         <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper, "text-neutral-500")}>{emptyMessage}</p>
@@ -364,6 +417,7 @@ export function ArchitectureDraftStructuredBriefFields(
     problem: ApiProblemDetails | null;
     correlationId: string | null;
   } | null>(null);
+  const [evidenceContradictedAssumptions, setEvidenceContradictedAssumptions] = useState<Record<string, string>>({});
   const markInvalid = props.markReviewReadinessInvalid === true;
   const brief = props.structuredBrief;
   const overviewTrimmedLength = props.freeTextIntent.trim().length;
@@ -406,6 +460,9 @@ export function ArchitectureDraftStructuredBriefFields(
     props.onBriefConfirmOrDeny?.();
   };
 
+  useEffect(() => {
+    setEvidenceContradictedAssumptions({});
+  }, [props.freeTextIntent]);
 
   async function onSuggestFromOverview(): Promise<void> {
     const freeTextDescription = buildSuggestionSourceText(props, brief, true);
@@ -429,6 +486,7 @@ export function ArchitectureDraftStructuredBriefFields(
         freeTextDescription,
         currentConstraints: [...brief.confirmedConstraints, ...brief.suggestedConstraints],
         currentAssumptions: [...brief.confirmedAssumptions, ...brief.suggestedAssumptions],
+        confirmedAssumptions: brief.confirmedAssumptions,
       });
       const applied = applyArchitectureDraftStructuredBriefSuggestionsFromDraftResponse({
         brief,
@@ -441,6 +499,9 @@ export function ArchitectureDraftStructuredBriefFields(
       const addedSuggestionCount = countStructuredBriefSuggestionApplyDelta(brief, applied.brief);
 
       props.onStructuredBriefChange(applied.brief);
+      setEvidenceContradictedAssumptions(
+        mapEvidenceContradictedAssumptions(response.evidenceContradictedAssumptions),
+      );
       setSuggestEmpty(addedSuggestionCount === 0);
       setSuggestAddedCount(addedSuggestionCount > 0 ? addedSuggestionCount : null);
 
@@ -664,6 +725,7 @@ export function ArchitectureDraftStructuredBriefFields(
         }}
         onRemove={(index) => {
           removeConfirmedListItem(props.onStructuredBriefChange, "confirmedAssumptions", index);
+          setEvidenceContradictedAssumptions({});
         }}
         onConfirmSuggested={(value) => {
           confirmSuggested("confirmedAssumptions", "suggestedAssumptions", value);
@@ -671,6 +733,7 @@ export function ArchitectureDraftStructuredBriefFields(
         onDenySuggested={(value) => {
           denySuggested("suggestedAssumptions", value);
         }}
+        evidenceContradictionNotes={evidenceContradictedAssumptions}
       />
 
       <ConfirmableChipList

@@ -109,6 +109,11 @@ export const GUIDED_INTAKE_STRUCTURED_BRIEF_SUGGEST_HEADING =
 
 export const GUIDED_INTAKE_DENY_SUGGESTION_BUTTON = "Deny";
 
+export const GUIDED_INTAKE_ASSUMPTION_EVIDENCE_CONTRADICTION_LABEL = "Contradicted by evidence";
+
+export const GUIDED_INTAKE_ASSUMPTION_EVIDENCE_CONTRADICTION_SECTION =
+  "Your architecture overview contradicts confirmed assumptions below. Update the assumption or revise the overview so agents do not rely on facts your evidence disputes.";
+
 export const GUIDED_INTAKE_EXPLAIN_SUGGESTION_BUTTON = "Explain";
 
 export const GUIDED_INTAKE_EXPLAIN_SUGGESTION_LOADING = "Loading explanation…";

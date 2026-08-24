@@ -9,7 +9,8 @@ namespace ArchLucid.Application.Planning;
 
 public sealed class ArchitectureRequestDraftService(
     IAgentCompletionClient completionClient,
-    IArchitectureRequestDraftSemanticUniquePass semanticUniquePass) : IArchitectureRequestDraftService
+    IArchitectureRequestDraftSemanticUniquePass semanticUniquePass,
+    IBriefAssumptionEvidenceContradictionPass assumptionEvidenceContradictionPass) : IArchitectureRequestDraftService
 {
     private const string DraftSystemPrompt =
         "You are an enterprise architecture intake assistant. " +
@@ -36,6 +37,10 @@ public sealed class ArchitectureRequestDraftService(
 
     private readonly IArchitectureRequestDraftSemanticUniquePass _semanticUniquePass = semanticUniquePass
         ?? throw new ArgumentNullException(nameof(semanticUniquePass));
+
+    private readonly IBriefAssumptionEvidenceContradictionPass _assumptionEvidenceContradictionPass =
+        assumptionEvidenceContradictionPass
+        ?? throw new ArgumentNullException(nameof(assumptionEvidenceContradictionPass));
 
     public async Task<DraftArchitectureRequestResponse> DraftAsync(
         DraftArchitectureRequestInput input,
@@ -79,6 +84,12 @@ public sealed class ArchitectureRequestDraftService(
             normalizedAssumptions,
             cancellationToken);
 
+        IReadOnlyList<EvidenceContradictedBriefAssumption> evidenceContradictedAssumptions =
+            await _assumptionEvidenceContradictionPass.DetectAsync(
+                input.FreeTextDescription,
+                input.ConfirmedAssumptions,
+                cancellationToken);
+
         return new DraftArchitectureRequestResponse
         {
             SuggestedConstraints = filteredConstraints,
@@ -86,7 +97,8 @@ public sealed class ArchitectureRequestDraftService(
             SuggestedAssumptions = filteredAssumptions,
             TopologyHints = Normalize(response.TopologyHints),
             SecurityBaselineHints = Normalize(response.SecurityBaselineHints),
-            SuggestedFailureModeNote = NormalizeFailureModeNote(response.SuggestedFailureModeNote, response.FailureModeNote)
+            SuggestedFailureModeNote = NormalizeFailureModeNote(response.SuggestedFailureModeNote, response.FailureModeNote),
+            EvidenceContradictedAssumptions = evidenceContradictedAssumptions.ToList(),
         };
     }
 

@@ -10,6 +10,13 @@ export type DraftArchitectureRequestInput = {
   currentConstraints?: readonly string[];
   /** Assumptions already on the draft — avoids semantic duplicates in new suggestions. */
   currentAssumptions?: readonly string[];
+  /** Confirmed assumptions — checked against overview evidence for contradictions. */
+  confirmedAssumptions?: readonly string[];
+};
+
+export type EvidenceContradictedBriefAssumption = {
+  assumption: string;
+  evidenceNote: string;
 };
 
 /** Parsed intake suggestions from the architecture request draft endpoint. */
@@ -20,6 +27,7 @@ export type DraftArchitectureRequestResponse = {
   topologyHints: string[];
   securityBaselineHints: string[];
   suggestedFailureModeNote?: string | null;
+  evidenceContradictedAssumptions?: EvidenceContradictedBriefAssumption[];
 };
 
 /** Calls POST /v1/architecture/request/draft to suggest wizard chip fields from a free-text brief. */
@@ -30,5 +38,6 @@ export async function draftArchitectureRequest(
     freeTextDescription: input.freeTextDescription,
     currentConstraints: input.currentConstraints ?? [],
     currentAssumptions: input.currentAssumptions ?? [],
+    confirmedAssumptions: input.confirmedAssumptions ?? [],
   });
 }

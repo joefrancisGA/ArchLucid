@@ -31,8 +31,9 @@ public sealed class ArchitectureRequestDraftServiceTests
             .ReturnsAsync(json);
 
         Mock<IArchitectureRequestDraftSemanticUniquePass> semanticPass = CreatePassThroughSemanticPassMock();
+        Mock<IBriefAssumptionEvidenceContradictionPass> contradictionPass = CreateEmptyContradictionPassMock();
 
-        ArchitectureRequestDraftService sut = new(client.Object, semanticPass.Object);
+        ArchitectureRequestDraftService sut = new(client.Object, semanticPass.Object, contradictionPass.Object);
 
         DraftArchitectureRequestResponse response = await sut.DraftAsync(
             new DraftArchitectureRequestInput { FreeTextDescription = "This is a sufficiently long architecture description." },
@@ -64,8 +65,9 @@ public sealed class ArchitectureRequestDraftServiceTests
             .ReturnsAsync(json);
 
         Mock<IArchitectureRequestDraftSemanticUniquePass> semanticPass = CreatePassThroughSemanticPassMock();
+        Mock<IBriefAssumptionEvidenceContradictionPass> contradictionPass = CreateEmptyContradictionPassMock();
 
-        ArchitectureRequestDraftService sut = new(client.Object, semanticPass.Object);
+        ArchitectureRequestDraftService sut = new(client.Object, semanticPass.Object, contradictionPass.Object);
 
         DraftArchitectureRequestResponse response = await sut.DraftAsync(
             new DraftArchitectureRequestInput { FreeTextDescription = "Vertex B2B SaaS tenant migration platform overview." },
@@ -109,7 +111,10 @@ public sealed class ArchitectureRequestDraftServiceTests
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(["Stable internet connection"]);
 
-        ArchitectureRequestDraftService sut = new(client.Object, semanticPass.Object);
+        ArchitectureRequestDraftService sut = new(
+            client.Object,
+            semanticPass.Object,
+            CreateEmptyContradictionPassMock().Object);
 
         DraftArchitectureRequestResponse response = await sut.DraftAsync(
             new DraftArchitectureRequestInput
@@ -169,5 +174,18 @@ public sealed class ArchitectureRequestDraftServiceTests
                 candidates is string[] array ? array : candidates.ToArray());
 
         return semanticPass;
+    }
+
+    private static Mock<IBriefAssumptionEvidenceContradictionPass> CreateEmptyContradictionPassMock()
+    {
+        Mock<IBriefAssumptionEvidenceContradictionPass> contradictionPass = new();
+        contradictionPass
+            .Setup(p => p.DetectAsync(
+                It.IsAny<string>(),
+                It.IsAny<IReadOnlyList<string>>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        return contradictionPass;
     }
 }

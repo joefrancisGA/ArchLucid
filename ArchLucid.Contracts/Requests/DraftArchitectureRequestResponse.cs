@@ -40,4 +40,13 @@ public sealed class DraftArchitectureRequestResponse
         get;
         set;
     }
+
+    /// <summary>
+    ///     Confirmed assumptions that explicit overview evidence contradicts (empty when none or check skipped).
+    /// </summary>
+    public List<EvidenceContradictedBriefAssumption> EvidenceContradictedAssumptions
+    {
+        get;
+        set;
+    } = [];
 }

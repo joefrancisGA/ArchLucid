@@ -420,6 +420,7 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IDeterminismCheckService, DeterminismCheckService>();
         services.AddScoped<IExportReplayService, ExportReplayService>();
         services.AddScoped<IArchitectureRequestDraftSemanticUniquePass, ArchitectureRequestDraftSemanticUniquePass>();
+        services.AddScoped<IBriefAssumptionEvidenceContradictionPass, BriefAssumptionEvidenceContradictionPass>();
         services.AddScoped<IArchitectureRequestDraftService, ArchitectureRequestDraftService>();
         services.AddScoped<IArchitectureOverviewRewriteService, ArchitectureOverviewRewriteService>();
         services.AddScoped<IStructuredBriefSuggestionExplainService, StructuredBriefSuggestionExplainService>();

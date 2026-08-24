@@ -14,7 +14,7 @@ import {
   emptyArchitectureDraftStructuredBrief,
   type ArchitectureDraftStructuredBriefState,
 } from "@/lib/architecture/architecture-draft-structured-brief";
-import { GUIDED_INTAKE_STRUCTURED_BRIEF_SUGGEST_EMPTY } from "@/lib/guided-intake-copy";
+import { GUIDED_INTAKE_ASSUMPTION_EVIDENCE_CONTRADICTION_SECTION, GUIDED_INTAKE_STRUCTURED_BRIEF_SUGGEST_EMPTY } from "@/lib/guided-intake-copy";
 
 vi.mock("@/lib/api/architecture-request-draft-api", () => ({
   ARCHITECTURE_REQUEST_DRAFT_MIN_DESCRIPTION_CHARS: 20,
@@ -83,6 +83,7 @@ describe("ArchitectureDraftStructuredBriefFields", () => {
         "Architecture overview:\nTenant migration platform with private networking and EU residency goals.",
       currentConstraints: [],
       currentAssumptions: [],
+      confirmedAssumptions: [],
     });
   });
 
@@ -114,6 +115,7 @@ describe("ArchitectureDraftStructuredBriefFields", () => {
           "Architecture overview:\nTenant migration platform with private networking and EU residency goals.\n\nConfirmed constraints:\n- Encryption at rest",
         currentConstraints: ["Encryption at rest"],
         currentAssumptions: ["Stable internet connection"],
+        confirmedAssumptions: [],
       });
     });
   });
@@ -503,6 +505,46 @@ describe("ArchitectureDraftStructuredBriefFields", () => {
 
     expect(screen.getByTestId("architecture-draft-suggest-structured-brief")).toBeDisabled();
     expect(screen.getByTestId("architecture-draft-suggest-structured-brief-editor-locked-hint")).toBeInTheDocument();
+  });
+
+  it("surfaces evidence contradictions for confirmed assumptions after suggest", async () => {
+    mockedDraftArchitectureRequest.mockResolvedValue({
+      suggestedConstraints: [],
+      suggestedAssumptions: [],
+      suggestedCapabilities: [],
+      topologyHints: [],
+      securityBaselineHints: [],
+      evidenceContradictedAssumptions: [
+        {
+          assumption: "Single-region pilot",
+          evidenceNote: "Overview describes multi-region active-active deployment.",
+        },
+      ],
+    });
+
+    render(
+      <StructuredBriefHarness
+        freeTextIntent={"Tenant migration platform with private networking and EU residency goals."}
+        initialBrief={{
+          ...emptyArchitectureDraftStructuredBrief(),
+          confirmedAssumptions: ["Single-region pilot"],
+        }}
+      />,
+    );
+
+    fireEvent.click(screen.getByTestId("architecture-draft-suggest-structured-brief"));
+
+    expect(
+      await screen.findByTestId("architecture-draft-assumptions-evidence-contradiction-notice"),
+    ).toHaveTextContent(GUIDED_INTAKE_ASSUMPTION_EVIDENCE_CONTRADICTION_SECTION);
+    expect(screen.getByTestId("architecture-draft-assumptions-evidence-contradiction")).toHaveTextContent(
+      "multi-region active-active",
+    );
+    expect(mockedDraftArchitectureRequest).toHaveBeenCalledWith(
+      expect.objectContaining({
+        confirmedAssumptions: ["Single-region pilot"],
+      }),
+    );
   });
 
   it("surfaces API failures inline", async () => {
