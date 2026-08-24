@@ -2757,6 +2757,22 @@ public sealed class AgentTopologyProposalGraphMergeTests
     }
 
     [Fact]
+    public void WithMergedTopologyProposals_materializes_edge_when_synapse_workspace_node_has_data_category_but_synthetic_service_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            DataNode(nodeId: "syn-1", label: "synapse", sourceId: "azurerm_synapse_workspace.main"),
+            DataNode());
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship("svc-synapse")), resultId: "topology-1");
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == "syn-1" &&
+            e.ToNodeId == "ds-1");
+    }
+
+    [Fact]
     public void WithMergedTopologyProposals_materializes_edge_when_application_gateway_node_has_data_category_but_synthetic_service_id_used()
     {
         GraphSnapshot graph = Graph(
