@@ -941,24 +941,28 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ## Zone: scim-users
 
 - **id:** scim-users
-- **status:** unseeded
+- **status:** open
 - **impact:** high
 - **aliases:** scim; entra provisioning users
 - **paths:** ArchLucid.Api/Controllers/Scim/ScimUsersController.cs
 - **test-filter:** FullyQualifiedName~ScimUsers
-- **hunts:** 0
-- **bugs-found:** 0
+- **hunts:** 1
+- **bugs-found:** 4
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **last-hunt:** 2026-08-24
+- **last-bug:** 2026-08-24 — externalId whitespace bypassed uniqueness; replace/patch duplicate externalId surfaced as 500; create leaked seat on insert failure; replace leaked seat when persistence failed after re-activation
 - **related-pd-tb:** none
-- **code-changed-since:** unknown
+- **code-changed-since:** yes
 
 ### Hypotheses
 
-- [ ] (candidate) PATCH/DELETE affects a user in another tenant when externalId collides
-- [ ] (candidate) Filter query returns users outside the provisioning tenant
-- [ ] (candidate) Create succeeds without mapping the user into the callerÎ“Ã‡Ã–s tenant
+- [x] (invalid) PATCH/DELETE affects a user in another tenant when externalId collides — repository and service scope by `tenantId` + user `id`; externalId collisions are per-tenant only
+- [x] (invalid) Filter query returns users outside the provisioning tenant — `ListAsync` always passes `scope.TenantId` to repository; SQL and in-memory repos filter `TenantId`
+- [x] (invalid) Create succeeds without mapping the user into the caller's tenant — `CreateAsync` inserts with controller-provided `scope.TenantId`
+- [x] (proven) Whitespace-padded `externalId` bypassed duplicate detection — **hit 2026-08-24:** parser did not trim optional externalId; regression in `CreateAsync_trimmed_external_id_conflicts_with_existing_user`
+- [x] (proven) PUT/PATCH changing `externalId` to another user's value threw SQL uniqueness fault instead of SCIM 409 — **hit 2026-08-24:** pre-check via `EnsureExternalIdNotUsedByAnotherUserAsync`; controller maps `ScimConflictException`; regression in `ReplaceAsync_duplicate_external_id_throws_conflict`
+- [x] (proven) Active create reserved enterprise seat then leaked it when insert failed — **hit 2026-08-24:** compensating decrement on failure; regression in `CreateAsync_releases_reserved_seat_when_insert_fails`
+- [x] (proven) PUT re-activation reserved seat then leaked it when replace failed — **hit 2026-08-24:** `CompensateSeatTransitionAsync` on persistence failure; regression in `ReplaceAsync_compensates_seat_when_persistence_fails_after_activation`
 
 ---
 
