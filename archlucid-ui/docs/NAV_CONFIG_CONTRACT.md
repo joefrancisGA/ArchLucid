@@ -46,8 +46,8 @@ Removed **workflow-mode presets** (Pilot operator, Full navigator, Governance re
 |-------------------------|----------------|-------------------|---------|------:|--------|
 | `pilot`                 | Architecture   | `review-workflow` | Pilot   | 6 | request · run · finalize · review; essentials omit `requiredAuthority` |
 | `operate-analysis`      | Insights       | `review-workflow` | Operate | 11 | analysis slice — compare, graph, Q&A, sponsor value, workspace health KPIs, … |
-| `operate-governance`    | Approval       | `review-workflow` | Operate | 9 | decide/track loop — queue, findings, decisions, audit, alerts |
-| `operate-policy`        | Policy         | `review-workflow` | Operate | 5 | policy packs, standards, alert rules, schedules, approval setup |
+| `operate-governance`    | Approval       | `review-workflow` | Operate | 10 | decide/track loop — queue, findings, decisions, audit, alerts, approval setup |
+| `operate-policy`        | Policy         | `review-workflow` | Operate | 4 | policy packs, standards, alert rules, schedules |
 | `operate-integrations`  | Integrations   | `review-workflow` | Operate | 7 | connector configuration and outbound event surfaces |
 | `operator-admin`        | Administration | `platform-admin`  | Admin   | 14 | system health, tenant cost, settings, support, users |
 | `operator-system-admin` | Internal       | `system-admin`    | Admin   | 17 | employee-only; behind `isShowSystemAdministrationNavEnabled()` |

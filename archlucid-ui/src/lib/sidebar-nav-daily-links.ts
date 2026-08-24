@@ -30,6 +30,7 @@ function sidebarLinkMatchesPathname(pathname: string, href: string): boolean {
 export const SIDEBAR_DAILY_HREFS_BY_GROUP: Readonly<Record<string, readonly string[]>> = {
   "operate-governance": [
     "/governance/approval-queue",
+    "/governance/setup",
     "/governance/findings",
     SIGNED_RECORDS_LIST_PATH,
     "/governance/advisory-scans",
@@ -38,7 +39,6 @@ export const SIDEBAR_DAILY_HREFS_BY_GROUP: Readonly<Record<string, readonly stri
   "operate-policy": [
     "/governance/policy-packs",
     "/governance/standards-and-rules",
-    "/governance/setup",
   ],
   // Routine configuration leads; System health and Support are break-glass pages and Support is also
   // published as an inline bundle card on the settings hub, so neither needs a first-viewport slot.
