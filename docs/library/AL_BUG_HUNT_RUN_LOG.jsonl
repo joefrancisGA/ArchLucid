@@ -145,3 +145,4 @@
 {"at": "2026-08-24T04:45:00.000000Z", "zoneId": "host-composition", "outcome": "hit"}
 {"at": "2026-08-24T08:20:00.000000Z", "zoneId": "retrieval", "outcome": "hit"}
 {"at": "2026-08-24T08:45:00.000000Z", "zoneId": "llm-wallet", "outcome": "hit"}
+{"at": "2026-08-24T09:05:00.000000Z", "zoneId": "scope-binding-middleware", "outcome": "hit"}
