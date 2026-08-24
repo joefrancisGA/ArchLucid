@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
   fetchAndHydrateOperatorShellStatus,
+  fetchOperatorShellStatus,
   hydrateOperatorShellStatusCaches,
 } from "@/lib/operator/operator-shell-status-client";
 import type { OperatorScopeQueryKey } from "@/lib/operator/operator-scope-query-key";
@@ -112,5 +113,54 @@ describe("operator shell status client", () => {
     expect(queryClient.getQueryData(operatorQueryKeys.operatorStickinessSnapshot)?.latestRunId).toBe("run-2");
     expect(queryClient.getQueryData(operatorQueryKeys.governanceAssignedToMeFindingsCount(SCOPE))).toBe(4);
     expect(queryClient.getQueryData(operatorQueryKeys.governanceReviewsAwaitingAction(SCOPE))?.items).toHaveLength(1);
+  });
+
+  it("treats stickinessSnapshot pilotFunnel null as absent without throwing", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        new Response(JSON.stringify({ stickinessSnapshot: { pilotFunnel: null } }), {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        }),
+      ),
+    );
+
+    const payload = await fetchOperatorShellStatus();
+
+    expect(payload.stickinessSnapshot).toBeNull();
+  });
+
+  it("clears scope-agnostic caches when a later hydrate payload omits a concern", () => {
+    const queryClient = createOperatorQueryClient();
+    const activeTrial = { status: "Active", daysRemaining: 5 } as const;
+
+    hydrateOperatorShellStatusCaches(queryClient, SCOPE, {
+      trialStatus: activeTrial,
+      catalogMigration: null,
+      llmMonthlyBudgetStatus: null,
+      alertsInboxSummary: null,
+      usageStatus: null,
+      homepageSettings: null,
+      stickinessSnapshot: null,
+      assignedToMeFindingsCount: null,
+      reviewsAwaitingAction: null,
+    });
+
+    expect(queryClient.getQueryData(operatorQueryKeys.tenantTrialStatus)).toEqual(activeTrial);
+
+    hydrateOperatorShellStatusCaches(queryClient, SCOPE, {
+      trialStatus: null,
+      catalogMigration: null,
+      llmMonthlyBudgetStatus: null,
+      alertsInboxSummary: null,
+      usageStatus: null,
+      homepageSettings: null,
+      stickinessSnapshot: null,
+      assignedToMeFindingsCount: null,
+      reviewsAwaitingAction: null,
+    });
+
+    expect(queryClient.getQueryData(operatorQueryKeys.tenantTrialStatus)).toBeUndefined();
   });
 });

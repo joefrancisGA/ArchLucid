@@ -29,6 +29,19 @@ export function createEmptyRecentViewsState(): OperatorRecentViewsState {
   return { schemaVersion: 1, entries: [] };
 }
 
+/** Clears persisted recent views when operator scope changes (global key is not tenant-scoped). */
+export function clearOperatorRecentViewsStorage(): void {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  try {
+    window.localStorage.removeItem(OPERATOR_RECENT_VIEWS_STORAGE_KEY);
+  } catch {
+    /* private mode */
+  }
+}
+
 export function parseStoredRecentViews(raw: string | null): OperatorRecentViewsState {
   if (raw === null || raw.trim().length === 0) {
     return createEmptyRecentViewsState();

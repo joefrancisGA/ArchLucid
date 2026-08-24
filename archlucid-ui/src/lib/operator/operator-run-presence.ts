@@ -22,3 +22,16 @@ export function writeHasExistingRunsCache(hasRuns: boolean): void {
     /* private mode */
   }
 }
+
+/** Clears run-presence hint when operator scope changes (global key is not tenant-scoped). */
+export function clearHasExistingRunsCache(): void {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  try {
+    window.localStorage.removeItem(HAS_EXISTING_RUNS_CACHE_KEY);
+  } catch {
+    /* private mode */
+  }
+}

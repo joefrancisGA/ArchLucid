@@ -2,6 +2,8 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { getEffectiveBrowserProxyScopeHeaders, writeOperatorScopeToStorage, ARCHLUCID_OPERATOR_SCOPE_CHANGED_EVENT } from "@/lib/operator/operator-scope-storage";
 import { OPERATOR_SCOPE_COOKIE_NAME } from "@/lib/operator/operator-scope-cookie";
+import { OPERATOR_RECENT_VIEWS_STORAGE_KEY } from "@/lib/operator/operator-recent-views";
+import { HAS_EXISTING_RUNS_CACHE_KEY } from "@/lib/operator/operator-run-presence";
 import { DEV_SCOPE_PROJECT_ID, DEV_SCOPE_TENANT_ID, DEV_SCOPE_WORKSPACE_ID } from "@/lib/scope";
 
 describe("operator-scope-storage", () => {
@@ -46,5 +48,27 @@ describe("operator-scope-storage", () => {
 
     expect(listener).toHaveBeenCalledTimes(1);
     window.removeEventListener(ARCHLUCID_OPERATOR_SCOPE_CHANGED_EVENT, listener);
+  });
+
+  it("writeOperatorScopeToStorage_clears_scope_agnostic_client_caches", () => {
+    localStorage.setItem(
+      OPERATOR_RECENT_VIEWS_STORAGE_KEY,
+      JSON.stringify({
+        schemaVersion: 1,
+        entries: [{ href: "/architecture/reviews/old", label: "Review", kind: "review", visitedAtUtc: "2026-08-01T00:00:00Z" }],
+      }),
+    );
+    localStorage.setItem(HAS_EXISTING_RUNS_CACHE_KEY, "1");
+
+    writeOperatorScopeToStorage({
+      tenantId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+      workspaceId: "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+      projectId: "cccccccc-cccc-cccc-cccc-cccccccccccc",
+      workspaceLabel: "WS",
+      projectLabel: "PR",
+    });
+
+    expect(localStorage.getItem(OPERATOR_RECENT_VIEWS_STORAGE_KEY)).toBeNull();
+    expect(localStorage.getItem(HAS_EXISTING_RUNS_CACHE_KEY)).toBeNull();
   });
 });

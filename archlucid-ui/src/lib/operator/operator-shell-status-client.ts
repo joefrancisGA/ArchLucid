@@ -98,7 +98,7 @@ function mapHomepageSettings(
 function mapStickinessSnapshot(
   dto: OperatorShellStickinessSnapshotApiDto | null | undefined,
 ): OperatorStickinessSnapshotDto | null {
-  if (dto === null || dto === undefined || dto.pilotFunnel === undefined) {
+  if (dto === null || dto === undefined || dto.pilotFunnel === undefined || dto.pilotFunnel === null) {
     return null;
   }
 
@@ -152,50 +152,38 @@ export async function fetchAndHydrateOperatorShellStatus(
   return payload;
 }
 
+function hydrateNullableQueryCache<T>(
+  queryClient: QueryClient,
+  queryKey: readonly unknown[],
+  value: T | null,
+): void {
+  if (value !== null) {
+    queryClient.setQueryData(queryKey, value);
+  } else {
+    queryClient.removeQueries({ queryKey, exact: true });
+  }
+}
+
 export function hydrateOperatorShellStatusCaches(
   queryClient: QueryClient,
   scope: OperatorScopeQueryKey,
   payload: OperatorShellStatusPayload,
 ): void {
-  if (payload.trialStatus !== null) {
-    queryClient.setQueryData(operatorQueryKeys.tenantTrialStatus, payload.trialStatus);
-  }
-
-  if (payload.catalogMigration !== null) {
-    queryClient.setQueryData(operatorQueryKeys.tenantCatalogMigrationStatus, payload.catalogMigration);
-  }
-
-  if (payload.llmMonthlyBudgetStatus !== null) {
-    queryClient.setQueryData(operatorQueryKeys.llmMonthlyBudgetStatus, payload.llmMonthlyBudgetStatus);
-  }
-
-  if (payload.alertsInboxSummary !== null) {
-    queryClient.setQueryData(operatorQueryKeys.alertsInboxSummary(scope), payload.alertsInboxSummary);
-  }
-
-  if (payload.usageStatus !== null) {
-    queryClient.setQueryData(operatorQueryKeys.tenantUsageStatus, payload.usageStatus);
-  }
-
-  if (payload.homepageSettings !== null) {
-    queryClient.setQueryData(operatorQueryKeys.tenantHomepageSettings, payload.homepageSettings);
-  }
-
-  if (payload.stickinessSnapshot !== null) {
-    queryClient.setQueryData(operatorQueryKeys.operatorStickinessSnapshot, payload.stickinessSnapshot);
-  }
-
-  if (payload.assignedToMeFindingsCount !== null) {
-    queryClient.setQueryData(
-      operatorQueryKeys.governanceAssignedToMeFindingsCount(scope),
-      payload.assignedToMeFindingsCount,
-    );
-  }
-
-  if (payload.reviewsAwaitingAction !== null) {
-    queryClient.setQueryData(
-      operatorQueryKeys.governanceReviewsAwaitingAction(scope),
-      payload.reviewsAwaitingAction,
-    );
-  }
+  hydrateNullableQueryCache(queryClient, operatorQueryKeys.tenantTrialStatus, payload.trialStatus);
+  hydrateNullableQueryCache(queryClient, operatorQueryKeys.tenantCatalogMigrationStatus, payload.catalogMigration);
+  hydrateNullableQueryCache(queryClient, operatorQueryKeys.llmMonthlyBudgetStatus, payload.llmMonthlyBudgetStatus);
+  hydrateNullableQueryCache(queryClient, operatorQueryKeys.alertsInboxSummary(scope), payload.alertsInboxSummary);
+  hydrateNullableQueryCache(queryClient, operatorQueryKeys.tenantUsageStatus, payload.usageStatus);
+  hydrateNullableQueryCache(queryClient, operatorQueryKeys.tenantHomepageSettings, payload.homepageSettings);
+  hydrateNullableQueryCache(queryClient, operatorQueryKeys.operatorStickinessSnapshot, payload.stickinessSnapshot);
+  hydrateNullableQueryCache(
+    queryClient,
+    operatorQueryKeys.governanceAssignedToMeFindingsCount(scope),
+    payload.assignedToMeFindingsCount,
+  );
+  hydrateNullableQueryCache(
+    queryClient,
+    operatorQueryKeys.governanceReviewsAwaitingAction(scope),
+    payload.reviewsAwaitingAction,
+  );
 }
