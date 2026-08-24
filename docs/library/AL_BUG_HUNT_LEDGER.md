@@ -601,11 +601,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** alert sim; simulation context
 - **paths:** ArchLucid.Api/Controllers/Alerts/AlertSimulationController.cs; ArchLucid.Persistence/Alerts/Simulation/AlertSimulationContextProvider.cs
 - **test-filter:** FullyQualifiedName~AlertSimulationContextProviderTests
-- **hunts:** 2
-- **bugs-found:** 1
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-08-23
-- **last-bug:** 2026-08-17
+- **hunts:** 3
+- **bugs-found:** 2
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-08-24
+- **last-bug:** 2026-08-24 — empty FindingsSnapshot.RunId bypassed run binding guard
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 
@@ -614,6 +614,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] Simulation context loads findings from a tenant other than the caller — fixed: reject run detail / findings whose scope or RunId does not match the caller
 - [x] Dry-run simulation persists a real alert delivery — retired (invalid): `RuleSimulationService` evaluates in-memory and only reads suppression state
 - [x] Missing workspace still returns 200 with another workspace's rules — (valid-no-repro): `RunMatchesCallerScope` rejects foreign-workspace run detail; `StampSimulationScope` overwrites embedded rule scope before `SimulateAsync`; covered by `GetContextsAsync_when_authority_returns_foreign_workspace_run_returns_empty`
+- [x] (proven) Findings snapshot with empty `RunId` bypasses run binding and simulates unscoped findings — **hit 2026-08-24:** guard only rejected mismatched ids when `findings.RunId != Guid.Empty`; empty id skipped check; fixed by requiring `findings.RunId == runId` and matching golden-manifest run ids before compare
 
 ---
 
