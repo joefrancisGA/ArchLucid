@@ -1,3 +1,5 @@
+using System.Collections.Concurrent;
+
 using ArchLucid.Persistence.Caching;
 
 namespace ArchLucid.Persistence.Tenancy;
@@ -7,6 +9,9 @@ public sealed class CachingTenantSettingsRepository(
     ITenantSettingsRepository inner,
     IHotPathReadCache hotPathReadCache) : ITenantSettingsRepository
 {
+    private static readonly ConcurrentDictionary<(Guid TenantId, string SettingKey), long> CacheGenerations =
+        new();
+
     private readonly IHotPathReadCache _hotPathReadCache =
         hotPathReadCache ?? throw new ArgumentNullException(nameof(hotPathReadCache));
 
@@ -19,7 +24,7 @@ public sealed class CachingTenantSettingsRepository(
 
         // Wrapper distinguishes "cached miss" (null Value) from HybridCache absent entry.
         TenantSettingCacheEntry? entry = await _hotPathReadCache.GetOrCreateAsync(
-            HotPathCacheKeys.TenantSetting(tenantId, normalizedKey),
+            BuildCacheKey(tenantId, normalizedKey),
             async innerCt =>
             {
                 string? value = await _inner.TryGetAsync(tenantId, normalizedKey, innerCt);
@@ -44,7 +49,7 @@ public sealed class CachingTenantSettingsRepository(
         string normalizedKey = TenantSettingKeyNormalizer.Normalize(settingKey);
 
         await _inner.UpsertAsync(tenantId, normalizedKey, settingValue, cancellationToken);
-        await HotPathCacheEviction.RemoveTenantSettingAsync(_hotPathReadCache, tenantId, normalizedKey, cancellationToken);
+        BumpCacheGeneration(tenantId, normalizedKey);
     }
 
     /// <inheritdoc />
@@ -53,8 +58,18 @@ public sealed class CachingTenantSettingsRepository(
         string normalizedKey = TenantSettingKeyNormalizer.Normalize(settingKey);
 
         await _inner.DeleteAsync(tenantId, normalizedKey, cancellationToken);
-        await HotPathCacheEviction.RemoveTenantSettingAsync(_hotPathReadCache, tenantId, normalizedKey, cancellationToken);
+        BumpCacheGeneration(tenantId, normalizedKey);
     }
+
+    private static string BuildCacheKey(Guid tenantId, string normalizedKey)
+    {
+        long generation = CacheGenerations.GetValueOrDefault((tenantId, normalizedKey));
+
+        return $"{HotPathCacheKeys.TenantSetting(tenantId, normalizedKey)}:g{generation}";
+    }
+
+    private static void BumpCacheGeneration(Guid tenantId, string normalizedKey) =>
+        CacheGenerations.AddOrUpdate((tenantId, normalizedKey), 1, static (_, current) => current + 1);
 }
 
 /// <summary>Cache slot for nullable setting values (null means key absent in SQL).</summary>
