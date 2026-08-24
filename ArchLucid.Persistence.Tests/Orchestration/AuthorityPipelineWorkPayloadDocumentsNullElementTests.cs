@@ -7,7 +7,7 @@ namespace ArchLucid.Persistence.Tests.Orchestration;
 public sealed class AuthorityPipelineWorkPayloadDocumentsNullElementTests
 {
     [Fact]
-    public void IsValidForProcessing_rejects_documents_with_null_element_after_deserialize()
+    public void Deserialize_filters_null_document_elements_before_worker_gate()
     {
         Guid runId = Guid.NewGuid();
         string json =
@@ -25,8 +25,9 @@ public sealed class AuthorityPipelineWorkPayloadDocumentsNullElementTests
         AuthorityPipelineWorkPayload? back = AuthorityPipelineWorkPayloadJson.Deserialize(json);
 
         back.Should().NotBeNull();
-        back!.IsValidForProcessing().Should().BeFalse(
-            "null document entries survive EnsureMutableCollections and NRE in DocumentConnectorPayloadNormalizer");
+        back!.ContextIngestionRequest.Documents.Should().NotBeNull().And.BeEmpty(
+            "EnsureMutableCollections must strip null STJ array entries before connector normalizers run");
+        back.IsValidForProcessing().Should().BeTrue();
     }
 
     [Fact]

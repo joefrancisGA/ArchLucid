@@ -286,10 +286,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **impact:** medium
 - **aliases:** authority payload; pipeline work payload
 - **paths:** ArchLucid.Application/Runs/Orchestration/AuthorityPipelineWorkPayload.cs
-- **test-filter:** FullyQualifiedName~AuthorityPipelineWorkPayloadJsonTests
-- **hunts:** 5
+- **test-filter:** FullyQualifiedName~AuthorityPipelineWorkPayloadJsonTests|FullyQualifiedName~AuthorityPipelineWorkPayloadDocumentsNullElementTests
+- **hunts:** 6
 - **bugs-found:** 8
-- **consecutive-dry-hunts:** 0
+- **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-08-24
 - **last-bug:** 2026-08-24 — `IsValidForProcessing` rejected blank payload `projectId` before worker could overwrite from `dbo.Runs`
 - **related-pd-tb:** none
@@ -305,6 +305,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Explicit `null` document elements in JSON arrays cause connector NRE — **hit 2026-08-24:** `documents: [null]` survived STJ; `DocumentConnectorPayloadNormalizer` dereferenced null entries; `MaterializeDocumentList` filters null reference elements; regression in `Deserialize_removes_null_document_elements`
 - [x] (proven) Zero-width-only `EvidenceBundleId` passes `IsValidForProcessing` and dead-letters instead of invalid-payload discard — **hit 2026-08-24:** U+200B is not `IsNullOrWhiteSpace`; `HasSubstantiveText` rejects format/control-only ids; regression in `IsValidForProcessing_rejects_zero_width_only_evidence_bundle_id` / `IsValidForProcessing_rejects_blank_evidence_bundle_id`
 - [x] (proven) Explicit `null` string elements inside JSON list arrays cause connector NRE — **hit 2026-08-24:** `inlineRequirements: [null, "keep-me"]` kept null entries after STJ; `InlineRequirementsPayloadNormalizer` NRE on `requirement.Length`; `MaterializeStringList` filters null entries; regression in `Deserialize_filters_null_string_list_entries`
+
+2026-08-24 dry hunt #6: no open hypotheses; re-tested null-document / gate paths — `MaterializeDocumentList` already filters `[null]` before `IsValidForProcessing`; aligned stale repro test with filter semantics (`Deserialize_filters_null_document_elements_before_worker_gate`).
 - [x] (proven) `IsValidForProcessing` rejects blank payload `projectId` before worker can overwrite from `dbo.Runs` — **hit 2026-08-24:** gate ran before `GetByIdAsync`; whitespace-only `projectId` marked processed instead of resuming; fixed by dropping non-authoritative `ProjectId` from `IsValidForProcessing`; regression in `IsValidForProcessing_allows_blank_project_id_because_worker_overwrites_from_persisted_run` / `ProcessPendingBatchAsync_recovers_blank_payload_project_id_from_persisted_run`
 
 ---
