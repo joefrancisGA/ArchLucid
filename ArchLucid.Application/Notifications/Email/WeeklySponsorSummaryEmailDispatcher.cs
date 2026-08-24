@@ -48,7 +48,17 @@ public sealed class WeeklySponsorSummaryEmailDispatcher(
         if (tenantId == Guid.Empty)
             throw new ArgumentException("Tenant id is required.", nameof(tenantId));
 
-        if (toMailboxes.Count == 0)
+        List<string> normalizedMailboxes = [];
+
+        foreach (string mailbox in toMailboxes)
+        {
+            if (string.IsNullOrWhiteSpace(mailbox))
+                continue;
+
+            normalizedMailboxes.Add(mailbox.Trim());
+        }
+
+        if (normalizedMailboxes.Count == 0)
             return false;
 
         EmailNotificationOptions emailOptions = _emailOptionsMonitor.CurrentValue;
@@ -76,18 +86,15 @@ public sealed class WeeklySponsorSummaryEmailDispatcher(
         if (!reserved)
             return false;
 
-        foreach (string mailbox in toMailboxes)
+        foreach (string mailbox in normalizedMailboxes)
         {
-            if (string.IsNullOrWhiteSpace(mailbox))
-                continue;
-
             EmailMessage message = new()
             {
-                To = mailbox.Trim(),
+                To = mailbox,
                 Subject = subject,
                 HtmlBody = html,
                 TextBody = text,
-                IdempotencyKey = idempotencyKey + ":" + mailbox.Trim(),
+                IdempotencyKey = idempotencyKey + ":" + mailbox,
                 Tags = new EmailMessageTags { TenantId = tenantId, EventType = "weekly-sponsor-summary" }
             };
 

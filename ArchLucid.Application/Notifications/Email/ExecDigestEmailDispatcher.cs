@@ -40,8 +40,20 @@ public sealed class ExecDigestEmailDispatcher(
         if (string.IsNullOrWhiteSpace(isoWeekIdempotencyKey))
             throw new ArgumentException("Idempotency key is required.", nameof(isoWeekIdempotencyKey));
         ArgumentNullException.ThrowIfNull(composition);
-        if (toMailboxes.Count == 0)
+
+        List<string> normalizedMailboxes = [];
+
+        foreach (string mailbox in toMailboxes)
+        {
+            if (string.IsNullOrWhiteSpace(mailbox))
+                continue;
+
+            normalizedMailboxes.Add(mailbox.Trim());
+        }
+
+        if (normalizedMailboxes.Count == 0)
             return false;
+
         if (string.IsNullOrWhiteSpace(unsubscribeAbsoluteUrl))
             throw new ArgumentException("Unsubscribe URL is required.", nameof(unsubscribeAbsoluteUrl));
         EmailNotificationOptions emailOptions = _emailOptionsMonitor.CurrentValue;
@@ -61,24 +73,25 @@ public sealed class ExecDigestEmailDispatcher(
             LogoImageUrl = EmailBrandingUrls.TryBuildLogoImageUrl(operatorBase)
         };
         string idempotencyKey = $"exec-digest:{tenantId:N}:{isoWeekIdempotencyKey}";
-        SentEmailLedgerEntry ledgerEntry = new(idempotencyKey, tenantId, TemplateId, _emailProvider.ProviderName, null);
-        bool reserved = await _sentEmailLedger.TryRecordSentAsync(ledgerEntry, cancellationToken);
-        if (!reserved)
-            return false;
         string html = await _templateRenderer.RenderHtmlAsync(TemplateId, model, cancellationToken);
         string text = await _templateRenderer.RenderTextAsync(TemplateId, model, cancellationToken);
         string subject = $"{productName} weekly digest — {composition.WeekLabel}";
-        foreach (string mailbox in toMailboxes)
+
+        SentEmailLedgerEntry ledgerEntry = new(idempotencyKey, tenantId, TemplateId, _emailProvider.ProviderName, null);
+        bool reserved = await _sentEmailLedger.TryRecordSentAsync(ledgerEntry, cancellationToken);
+
+        if (!reserved)
+            return false;
+
+        foreach (string mailbox in normalizedMailboxes)
         {
-            if (string.IsNullOrWhiteSpace(mailbox))
-                continue;
             EmailMessage message = new()
             {
-                To = mailbox.Trim(),
+                To = mailbox,
                 Subject = subject,
                 HtmlBody = html,
                 TextBody = text,
-                IdempotencyKey = idempotencyKey + ":" + mailbox.Trim(),
+                IdempotencyKey = idempotencyKey + ":" + mailbox,
                 Tags = new EmailMessageTags { TenantId = tenantId, EventType = "exec-digest-weekly" }
             };
             try

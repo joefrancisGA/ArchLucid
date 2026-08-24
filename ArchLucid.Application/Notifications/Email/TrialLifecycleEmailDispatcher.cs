@@ -65,14 +65,19 @@ public sealed class TrialLifecycleEmailDispatcher(
         string productName = string.IsNullOrWhiteSpace(emailOptions.ProductDisplayName) ? DefaultProductName : emailOptions.ProductDisplayName.Trim();
         string? baseUrl = string.IsNullOrWhiteSpace(emailOptions.OperatorBaseUrl) ? null : emailOptions.OperatorBaseUrl.TrimEnd('/');
         TrialDispatchPlan? plan = TryBuildPlan(envelope, tenant, productName, baseUrl, utcNow);
+
         if (plan is null)
             return;
-        SentEmailLedgerEntry ledgerEntry = new(plan.IdempotencyKey, envelope.TenantId, plan.TemplateId, _emailProvider.ProviderName, null);
-        bool reserved = await _sentEmailLedger.TryRecordSentAsync(ledgerEntry, cancellationToken);
-        if (!reserved)
-            return;
+
         string html = await _templateRenderer.RenderHtmlAsync(plan.TemplateId, plan.Model, cancellationToken).ConfigureAwait(false);
         string text = await _templateRenderer.RenderTextAsync(plan.TemplateId, plan.Model, cancellationToken).ConfigureAwait(false);
+
+        SentEmailLedgerEntry ledgerEntry = new(plan.IdempotencyKey, envelope.TenantId, plan.TemplateId, _emailProvider.ProviderName, null);
+        bool reserved = await _sentEmailLedger.TryRecordSentAsync(ledgerEntry, cancellationToken);
+
+        if (!reserved)
+            return;
+
         EmailMessage message = new()
         {
             To = to.Trim(),

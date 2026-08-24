@@ -48,7 +48,17 @@ public sealed class RecurrenceCompletionEmailDispatcher(
         if (tenantId == Guid.Empty)
             throw new ArgumentException("Tenant id is required.", nameof(tenantId));
 
-        if (toMailboxes.Count == 0)
+        List<string> normalizedMailboxes = [];
+
+        foreach (string mailbox in toMailboxes)
+        {
+            if (string.IsNullOrWhiteSpace(mailbox))
+                continue;
+
+            normalizedMailboxes.Add(mailbox.Trim());
+        }
+
+        if (normalizedMailboxes.Count == 0)
             return false;
 
         EmailNotificationOptions emailOptions = _emailOptionsMonitor.CurrentValue;
@@ -76,29 +86,26 @@ public sealed class RecurrenceCompletionEmailDispatcher(
         };
 
         string idempotencyKey = $"recurrence-completion:{tenantId:N}:{scheduleId:N}:{runHex}";
+        string html = await _templateRenderer.RenderHtmlAsync(TemplateId, model, cancellationToken).ConfigureAwait(false);
+        string text = await _templateRenderer.RenderTextAsync(TemplateId, model, cancellationToken).ConfigureAwait(false);
+        string subject =
+            $"{productName}: your scheduled architecture review is ready — {newFindingCount} new finding(s)";
+
         SentEmailLedgerEntry ledgerEntry = new(idempotencyKey, tenantId, TemplateId, _emailProvider.ProviderName, null);
         bool reserved = await _sentEmailLedger.TryRecordSentAsync(ledgerEntry, cancellationToken).ConfigureAwait(false);
 
         if (!reserved)
             return false;
 
-        string html = await _templateRenderer.RenderHtmlAsync(TemplateId, model, cancellationToken).ConfigureAwait(false);
-        string text = await _templateRenderer.RenderTextAsync(TemplateId, model, cancellationToken).ConfigureAwait(false);
-        string subject =
-            $"{productName}: your scheduled architecture review is ready — {newFindingCount} new finding(s)";
-
-        foreach (string mailbox in toMailboxes)
+        foreach (string mailbox in normalizedMailboxes)
         {
-            if (string.IsNullOrWhiteSpace(mailbox))
-                continue;
-
             EmailMessage message = new()
             {
-                To = mailbox.Trim(),
+                To = mailbox,
                 Subject = subject,
                 HtmlBody = html,
                 TextBody = text,
-                IdempotencyKey = $"{idempotencyKey}:{mailbox.Trim()}",
+                IdempotencyKey = $"{idempotencyKey}:{mailbox}",
                 Tags = new EmailMessageTags
                 {
                     TenantId = tenantId,
