@@ -820,9 +820,7 @@ In `TECH_BACKLOG.md` summary table: **V1 / V1.1 first** (cluster order); **`### 
 
 | ID | Title | Notes |
 | --- | --- | --- |
-| TB-882 | Automated nav-authority/label-consistency guard | P2 **V1**; Tier 3 hold |
 | TB-883 | RAG-V2 live-model Graph-RAG ablation signal | P2 **V1**; Tier 3 hold |
-| TB-884 | Policy-pack attribution signal | P2 **V1**; Tier 3 hold |
 | TB-885 | Policy-pack compounding-evidence ledger | P2 **V1**; Tier 3 hold |
 | TB-886 | Surface tamper-evident manifest-verify in buyer-facing material | P3 **V1** (docs); cheapest early pilot-packet candidate |
 

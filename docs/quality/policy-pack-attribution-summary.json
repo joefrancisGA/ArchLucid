@@ -1,0 +1,85 @@
+{
+  "schema": "archlucid.policy-pack-attribution-summary.v1",
+  "generatedUtc": "2026-08-24T14:28:56.525599+00:00",
+  "rollup": "PASS",
+  "scenarioCount": 4,
+  "hasZeroPercentScenario": true,
+  "hasPositivePercentScenario": true,
+  "allScenariosMatchExpected": true,
+  "claimBoundary": "Offline eval-corpus fixtures only. Measures intersection of RulesApplied / PolicyRuleId with assigned pack rule ids. Does not prove live pack evaluation changed gate outcomes.",
+  "scenarios": [
+    {
+      "scenarioId": "all-pack-100pct",
+      "file": "all-pack-100pct.json",
+      "totalFindingCount": 3,
+      "attributableFindingCount": 3,
+      "attributionPercentage": 100.0,
+      "expectedAttributionPercentage": 100.0,
+      "matchesExpected": true,
+      "byEngine": [
+        {
+          "engineType": "compliance",
+          "findingCount": 3,
+          "attributableFindingCount": 3,
+          "attributionPercentage": 100.0
+        }
+      ]
+    },
+    {
+      "scenarioId": "empty-0pct",
+      "file": "empty-0pct.json",
+      "totalFindingCount": 0,
+      "attributableFindingCount": 0,
+      "attributionPercentage": 0.0,
+      "expectedAttributionPercentage": 0.0,
+      "matchesExpected": true,
+      "byEngine": []
+    },
+    {
+      "scenarioId": "engine-only-0pct",
+      "file": "engine-only-0pct.json",
+      "totalFindingCount": 2,
+      "attributableFindingCount": 0,
+      "attributionPercentage": 0.0,
+      "expectedAttributionPercentage": 0.0,
+      "matchesExpected": true,
+      "byEngine": [
+        {
+          "engineType": "security",
+          "findingCount": 1,
+          "attributableFindingCount": 0,
+          "attributionPercentage": 0.0
+        },
+        {
+          "engineType": "topology",
+          "findingCount": 1,
+          "attributableFindingCount": 0,
+          "attributionPercentage": 0.0
+        }
+      ]
+    },
+    {
+      "scenarioId": "mixed-50pct",
+      "file": "mixed-50pct.json",
+      "totalFindingCount": 2,
+      "attributableFindingCount": 1,
+      "attributionPercentage": 50.0,
+      "expectedAttributionPercentage": 50.0,
+      "matchesExpected": true,
+      "byEngine": [
+        {
+          "engineType": "compliance",
+          "findingCount": 1,
+          "attributableFindingCount": 1,
+          "attributionPercentage": 100.0
+        },
+        {
+          "engineType": "topology",
+          "findingCount": 1,
+          "attributableFindingCount": 0,
+          "attributionPercentage": 0.0
+        }
+      ]
+    }
+  ]
+}

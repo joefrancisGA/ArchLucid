@@ -535,6 +535,14 @@ jobs:
         continue-on-error: true
         run: python -m unittest discover -s scripts/ci/tests -p "test_check_policy_pack_manifests.py"
 
+      - name: Policy-pack attribution signal (TB-884)
+        continue-on-error: true
+        run: python scripts/ci/policy_pack_attribution_signal.py --enforce --check
+
+      - name: Policy-pack attribution signal unit tests (TB-884)
+        continue-on-error: true
+        run: python -m unittest discover -s scripts/ci/tests -p "test_policy_pack_attribution_signal.py"
+
       - name: Audit event catalog metadata (TB-126)
         continue-on-error: true
         run: python scripts/ci/check_audit_event_catalog.py

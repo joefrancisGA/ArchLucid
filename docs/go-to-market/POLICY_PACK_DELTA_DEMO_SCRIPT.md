@@ -16,6 +16,8 @@
 
 **Automation:** [`scripts/demo-policy-pack-delta.ps1`](../../scripts/demo-policy-pack-delta.ps1) runs Phases B–D against a local or staging API when `-RunId` is supplied.
 
+**Complementary read-side metric (TB-884):** The gate-outcome-flip demo proves *policy assignments change finalize outcomes*. For evaluators who also want *what fraction of findings cite assigned pack rules*, use the offline attribution signal: `PolicyPackAttributionSignalCalculator` + `scripts/ci/policy_pack_attribution_signal.py` (summary at [`docs/quality/policy-pack-attribution-summary.md`](../quality/policy-pack-attribution-summary.md)). See [`EXPLAINABILITY_TRACE_COVERAGE.md`](../library/EXPLAINABILITY_TRACE_COVERAGE.md#policy-pack-attribution-signal-tb-884).
+
 **Pilot sequencing:** [`#policy-to-decision-proof-pilot-run-sheet`](#policy-to-decision-proof-pilot-run-sheet) turns this demo + fixture + proof packet into one repeatable pilot.
 
 ---

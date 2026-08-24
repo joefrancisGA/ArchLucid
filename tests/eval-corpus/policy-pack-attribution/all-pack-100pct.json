@@ -1,0 +1,39 @@
+{
+  "schema": "archlucid.policy-pack-attribution-scenario.v1",
+  "id": "all-pack-100pct",
+  "description": "Every finding traces to an assigned pack rule via PolicyRuleId or RulesApplied.",
+  "packContent": {
+    "complianceRuleKeys": [
+      "phi.minimization.intake"
+    ],
+    "complianceRuleIds": [
+      "22222222-2222-2222-2222-222222222222"
+    ],
+    "metadata": {
+      "pack.curatedRules.v1": "{\"rules\": [{\"id\": \"curated-rule-1\"}]}"
+    }
+  },
+  "findings": [
+    {
+      "findingId": "f-key",
+      "engineType": "compliance",
+      "policyRuleId": "phi.minimization.intake",
+      "rulesApplied": []
+    },
+    {
+      "findingId": "f-guid",
+      "engineType": "compliance",
+      "policyRuleId": "22222222-2222-2222-2222-222222222222",
+      "rulesApplied": []
+    },
+    {
+      "findingId": "f-curated",
+      "engineType": "compliance",
+      "policyRuleId": null,
+      "rulesApplied": [
+        "curated-rule-1"
+      ]
+    }
+  ],
+  "expectedAttributionPercentage": 100.0
+}

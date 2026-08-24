@@ -1,0 +1,33 @@
+{
+  "schema": "archlucid.policy-pack-attribution-scenario.v1",
+  "id": "mixed-50pct",
+  "description": "Half of findings trace to assigned pack rules; half are engine-only.",
+  "packContent": {
+    "complianceRuleKeys": [
+      "phi.minimization.intake"
+    ],
+    "complianceRuleIds": [
+      "11111111-1111-1111-1111-111111111111"
+    ],
+    "metadata": {
+      "pack.curatedRules.v1": "{\"rules\": [{\"id\": \"curated-rule-1\"}]}"
+    }
+  },
+  "findings": [
+    {
+      "findingId": "f-compliant",
+      "engineType": "compliance",
+      "policyRuleId": "phi.minimization.intake",
+      "rulesApplied": []
+    },
+    {
+      "findingId": "f-topology",
+      "engineType": "topology",
+      "policyRuleId": null,
+      "rulesApplied": [
+        "topology-coverage-presence"
+      ]
+    }
+  ],
+  "expectedAttributionPercentage": 50.0
+}

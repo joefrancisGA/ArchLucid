@@ -39,6 +39,16 @@ Location: `ArchLucid.Decisioning/Findings/ExplainabilityTraceCompletenessAnalyze
 
 Pure functions: no I/O, suitable for tests and batch reporting.
 
+## Policy-pack attribution signal (TB-884)
+
+Location: `ArchLucid.Decisioning/Findings/PolicyPackAttributionSignalCalculator.cs`.
+
+Read-side metric for differentiability: what fraction of findings in a snapshot cite **assigned policy-pack rule ids** via `Finding.PolicyRuleId` or `ExplainabilityTrace.RulesApplied` (ordinal ignore-case). Engine-only rule tokens such as `topology-coverage-presence` do **not** count unless they are also present in the assigned pack rule set.
+
+- **`PolicyPackAssignedRuleIdCollector.Collect(PolicyPackContentDocument)`** unions `complianceRuleKeys`, GUID `complianceRuleIds` formatted as `"D"` strings, and curated `pack.curatedRules.v1` `rules[].id` values (malformed curated JSON is ignored).
+- **`PolicyPackAttributionSignalCalculator.Calculate(FindingsSnapshot, PolicyPackContentDocument)`** returns `PolicyPackAttributionSignal` with `TotalFindingCount`, `AttributableFindingCount`, `AttributionPercentage` (0.0?100.0), and per-engine `ByEngine` rows. Empty snapshots yield **0.0%**, not null.
+- **Offline CI:** `scripts/ci/policy_pack_attribution_signal.py` evaluates `tests/eval-corpus/policy-pack-attribution/` and writes `docs/quality/policy-pack-attribution-summary.{json,md}`. Complements the gate-outcome-flip demo in `POLICY_PACK_DELTA_DEMO_SCRIPT.md`; does not change finding engines or pack evaluation.
+
 ### Property-based tests (FsCheck)
 
 **`ExplainabilityTraceCompletenessAnalyzerPropertyTests`** (in **`ArchLucid.Decisioning.Tests`**) use **FsCheck** to assert invariants such as: populated list fields increase **`PopulatedFieldCount`**; **`CompletenessRatio`** stays in **[0, 1]**; and **`AnalyzeSnapshot`** mean ratios match the arithmetic mean of per-finding ratios. See **`docs/TEST_STRUCTURE.md`** (Tier 1 / property tests).
