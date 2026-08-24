@@ -94,11 +94,10 @@ public sealed class EndToEndReplayComparisonService(
             report.AgentResultDiff = agentResultDiffService.Compare(leftRunId, leftResults, rightRunId, rightResults);
         else
             report.Warnings.Add("Neither run contained agent results.");
-        if (!string.IsNullOrWhiteSpace(leftRun.CurrentManifestVersion) && !string.IsNullOrWhiteSpace(rightRun.CurrentManifestVersion))
-            if (leftDetail.Manifest is not null && rightDetail.Manifest is not null)
-                report.ManifestDiff = manifestDiffService.Compare(leftDetail.Manifest, rightDetail.Manifest);
-            else
-                report.Warnings.Add("One or both manifests were unavailable for manifest comparison.");
+        if (leftDetail.Manifest is not null && rightDetail.Manifest is not null)
+            report.ManifestDiff = manifestDiffService.Compare(leftDetail.Manifest, rightDetail.Manifest);
+        else if (!string.IsNullOrWhiteSpace(leftRun.CurrentManifestVersion) || !string.IsNullOrWhiteSpace(rightRun.CurrentManifestVersion))
+            report.Warnings.Add("One or both manifests were unavailable for manifest comparison.");
         IReadOnlyList<RunExportRecord> leftExports = await runExportRecordRepository.GetByRunIdAsync(leftRunId, cancellationToken);
         IReadOnlyList<RunExportRecord> rightExports = await runExportRecordRepository.GetByRunIdAsync(rightRunId, cancellationToken);
         // Match by ExportType so that ordering differences between runs don't produce nonsensical diffs.
@@ -292,6 +291,12 @@ public sealed class EndToEndReplayComparisonService(
                     "Agent outputs changed, but the resolved manifest remained stable, suggesting merge logic absorbed or normalized the drift.");
             else
                 report.InterpretationNotes.Add("Neither agent outputs nor manifest changed materially.");
+        }
+
+        else if (report.RunDiff.ManifestVersionsDiffer)
+        {
+            report.InterpretationNotes.Add(
+                "Current manifest version metadata differs between the two reviews but resolved manifest bodies were not compared — confirm completion state and manifest availability on both runs.");
         }
 
         if (report.ExportDiffs.Any(d => d.ChangedTopLevelFields.Count > 0 || d.RequestDiff.ChangedFlags.Count > 0 || d.RequestDiff.ChangedValues.Count > 0))

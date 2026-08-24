@@ -65,6 +65,11 @@ public sealed class MarkdownEndToEndReplayComparisonSummaryFormatter
             AppendSection(sb, "Export Diff Summary", exportChangeSummaries);
         }
 
+        if (report.CompareQualityDelta is not null)
+        {
+            CompareQualityDeltaExportFormatter.AppendMarkdown(sb, report.CompareQualityDelta);
+        }
+
         AppendSection(sb, "Interpretation Notes", report.InterpretationNotes);
         AppendSection(sb, "Warnings", report.Warnings);
 

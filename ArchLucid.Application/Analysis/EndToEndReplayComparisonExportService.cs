@@ -51,6 +51,8 @@ public sealed class EndToEndReplayComparisonExportService(IEndToEndReplayCompari
             AppendMarkdownAgentResultDiff(sb, report);
             AppendMarkdownManifestDiff(sb, report);
             AppendMarkdownExportDiffs(sb, report);
+            if (report.CompareQualityDelta is not null)
+                CompareQualityDeltaExportFormatter.AppendMarkdown(sb, report.CompareQualityDelta);
         }
 
         AppendList(sb, "Interpretation Notes", report.InterpretationNotes);
@@ -110,6 +112,8 @@ public sealed class EndToEndReplayComparisonExportService(IEndToEndReplayCompari
                 AppendHtmlAgentResultDiff(sb, report);
                 AppendHtmlManifestDiff(sb, report);
                 AppendHtmlExportDiffs(sb, report);
+                if (report.CompareQualityDelta is not null)
+                    CompareQualityDeltaExportFormatter.AppendHtml(sb, report.CompareQualityDelta);
             }
 
             AppendHtmlList(sb, "Interpretation Notes", report.InterpretationNotes);
@@ -212,6 +216,19 @@ public sealed class EndToEndReplayComparisonExportService(IEndToEndReplayCompari
                         AddSpacer(body);
                     }
                 }
+
+                if (report.CompareQualityDelta is not null)
+                {
+                    AddHeading(body, "Compare Quality Delta", 2);
+
+                    foreach (CompareQualityDeltaExportFormatter.CompareQualityDeltaExportRow row in
+                             CompareQualityDeltaExportFormatter.BuildRows(report.CompareQualityDelta))
+                    {
+                        AddBullet(body, $"{row.Label}: before {row.Before}, after {row.After}");
+                    }
+
+                    AddSpacer(body);
+                }
             }
 
             AddHeading(body, "Interpretation Notes", 2);
@@ -276,6 +293,16 @@ public sealed class EndToEndReplayComparisonExportService(IEndToEndReplayCompari
                                 $"Manifest: +{report.ManifestDiff.AddedServices.Count} / -{report.ManifestDiff.RemovedServices.Count} services; +{report.ManifestDiff.AddedDatastores.Count} / -{report.ManifestDiff.RemovedDatastores.Count} datastores");
 
                         column.Item().Text($"Export diffs: {report.ExportDiffs.Count}");
+
+                        if (report.CompareQualityDelta is not null)
+                        {
+                            foreach (CompareQualityDeltaExportFormatter.CompareQualityDeltaExportRow row in
+                                     CompareQualityDeltaExportFormatter.BuildRows(report.CompareQualityDelta))
+                            {
+                                column.Item().Text($"{row.Label}: before {row.Before}, after {row.After}");
+                            }
+                        }
+
                         column.Item().PaddingTop(10).LineHorizontal(1).LineColor(Colors.Grey.Lighten2);
                         column.Item().PaddingTop(5).Text("Interpretation Notes").Bold();
                     }
