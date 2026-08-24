@@ -30,6 +30,7 @@ import { auditTrailNavHref, isAuditNavPath } from "@/lib/audit-nav-paths";
 import { scopeOperatorShellHrefSet, scopeOperatorShellNavRows } from "@/lib/nav-audit-run-scope";
 import { BUYER_COMMAND_PALETTE_CURATED_TASKS } from "@/lib/command-palette-buyer-curated-tasks";
 import { COMMAND_PALETTE_ACTIONS } from "@/lib/command-palette-actions";
+import { buildCommandPaletteReviewActions } from "@/lib/command-palette-review-actions";
 import { COMMAND_PALETTE_CURATED_TASKS, commandPaletteNavVisibilityHref } from "@/lib/command-palette-curated-tasks";
 import { DOCUMENTATION_SEARCH_ITEMS, resolveDocumentationHref } from "@/lib/docs-search-index";
 import { NAV_GROUPS } from "@/lib/nav-config";
@@ -190,6 +191,36 @@ function CommandPaletteActions({ onNavigate }: { onNavigate: (href: string) => v
         <CommandItem
           key={action.id}
           value={`action ${action.label} ${action.searchValue}`}
+          onSelect={() => {
+            onNavigate(action.href);
+          }}
+        >
+          {action.label}
+        </CommandItem>
+      ))}
+    </CommandGroup>
+  );
+}
+
+function CommandPaletteReviewActions({
+  runId,
+  onNavigate,
+}: {
+  runId: string | null;
+  onNavigate: (href: string) => void;
+}) {
+  const actions = useMemo(() => buildCommandPaletteReviewActions(runId), [runId]);
+
+  if (actions.length === 0) {
+    return null;
+  }
+
+  return (
+    <CommandGroup heading="This review">
+      {actions.map((action) => (
+        <CommandItem
+          key={action.id}
+          value={`review ${action.label} ${action.searchValue}`}
           onSelect={() => {
             onNavigate(action.href);
           }}
@@ -622,6 +653,7 @@ export function CommandPalette({ showTrigger = false }: CommandPaletteProps) {
           <CommandPaletteFindPageSearch visibleHrefs={visibleHrefs} onNavigate={navigate} />
           <CommandPaletteDocumentationSearch buyerPolishedShell={buyerPolishedShell} onNavigate={navigate} />
           <CommandPaletteActions onNavigate={navigate} />
+          <CommandPaletteReviewActions runId={auditRunId} onNavigate={navigate} />
           <CommandPaletteDemoActions onNavigate={navigate} onClose={() => setOpen(false)} />
           <CommandPaletteCuratedTasks
             visibleHrefs={visibleHrefs}
