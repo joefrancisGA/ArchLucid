@@ -45,7 +45,7 @@ Execute in order when possible; quick wins (#11–#12) may ship ahead of larger 
 
 11. ~~**Remove duplicate sponsor summary services**~~ — **Done** (2026-08-24): removed unused `SponsorSummaryService` / `ISponsorSummaryService`; `ISponsorReportService` is canonical.
 
-12. **Align DemoSeedService with UI sample registry** — Registry pattern for scenario seeds (mirror `archlucid-ui/src/lib/samples/registry.ts`). **Impact:** Low–Medium · **Effort:** Low · **Paths:** `ArchLucid.Application/**/DemoSeedService*.cs`
+12. ~~**Align DemoSeedService with UI sample registry**~~ — **Done** (2026-08-24): `DemoSeedScenarioRegistry` maps seed steps to UI sample slugs; `BuildSeedSteps` reads registry order.
 
 ## Related (not duplicated here)
 

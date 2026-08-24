@@ -130,25 +130,38 @@ public sealed partial class DemoSeedService(
     /// <summary>
     ///     Seed order is load-bearing: the baseline request must exist before its committed runs, the runs before
     ///     governance and export rows, and the trusted baseline before the additional demo workspaces (which key
-    ///     off the baseline scope's tenant).
+    ///     off the baseline scope's tenant). Order is defined by <see cref="DemoSeedScenarioRegistry"/>.
     /// </summary>
     private IReadOnlyList<DemoSeedStep> BuildSeedSteps(ScopeContext scope, ContosoRetailDemoIds demo)
     {
-        return
-        [
-            new DemoSeedStep("retail-request", ct => EnsureRequestAsync(demo, ct)),
-            new DemoSeedStep("retail-run-baseline",
-                ct => EnsureCommittedRunAsync(demo, demo.AuthorityRunBaselineId, demo.TaskBaseline, demo.ResultBaseline, demo.ManifestBaseline,
-                    demo.TraceBaseline, false, ct)),
-            new DemoSeedStep("retail-run-hardened",
-                ct => EnsureCommittedRunAsync(demo, demo.AuthorityRunHardenedId, demo.TaskHardened, demo.ResultHardened, demo.ManifestHardened,
-                    demo.TraceHardened, true, ct)),
-            new DemoSeedStep("retail-governance", ct => EnsureGovernanceAsync(demo, ct)),
-            new DemoSeedStep("retail-export-record", ct => EnsureExportRecordAsync(demo, ct)),
-            new DemoSeedStep("northwind-product-tour", ct => EnsureNorthwindProductTourWorkspaceSeedAsync(scope, ct)),
-            new DemoSeedStep("meridian-alpine-regulated", ct => EnsureMeridianAlpineRegulatedScenarioWorkspaceSeedAsync(scope, ct)),
-            new DemoSeedStep("created-package-sample", ct => EnsureCreatedArchitecturePackageSampleAsync(scope, ct))
-        ];
+        Dictionary<string, Func<CancellationToken, Task>> executors = new(StringComparer.Ordinal)
+        {
+            ["retail-request"] = ct => EnsureRequestAsync(demo, ct),
+            ["retail-run-baseline"] = ct => EnsureCommittedRunAsync(demo, demo.AuthorityRunBaselineId, demo.TaskBaseline, demo.ResultBaseline,
+                demo.ManifestBaseline, demo.TraceBaseline, false, ct),
+            ["retail-run-hardened"] = ct => EnsureCommittedRunAsync(demo, demo.AuthorityRunHardenedId, demo.TaskHardened, demo.ResultHardened,
+                demo.ManifestHardened, demo.TraceHardened, true, ct),
+            ["retail-governance"] = ct => EnsureGovernanceAsync(demo, ct),
+            ["retail-export-record"] = ct => EnsureExportRecordAsync(demo, ct),
+            ["northwind-product-tour"] = ct => EnsureNorthwindProductTourWorkspaceSeedAsync(scope, ct),
+            ["meridian-alpine-regulated"] = ct => EnsureMeridianAlpineRegulatedScenarioWorkspaceSeedAsync(scope, ct),
+            ["created-package-sample"] = ct => EnsureCreatedArchitecturePackageSampleAsync(scope, ct)
+        };
+
+        List<DemoSeedStep> steps = [];
+
+        foreach (DemoSeedScenarioDefinition registration in DemoSeedScenarioRegistry.ListSeedSteps())
+        {
+            if (!executors.TryGetValue(registration.StepName, out Func<CancellationToken, Task>? execute))
+            {
+                throw new InvalidOperationException(
+                    $"Demo seed registry step '{registration.StepName}' has no executor in {nameof(DemoSeedService)}.");
+            }
+
+            steps.Add(new DemoSeedStep(registration.StepName, execute));
+        }
+
+        return steps;
     }
 
     private async Task RunSeedStepAsync(DemoSeedStep step, CancellationToken cancellationToken)
