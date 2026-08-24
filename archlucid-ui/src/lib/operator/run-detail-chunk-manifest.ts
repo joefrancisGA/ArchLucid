@@ -24,13 +24,6 @@ export const RUN_DETAIL_CHUNK_MANIFEST: readonly DeferredChunkManifestEntry[] = 
     exportName: "RunDetailEvidenceTabPanel",
   },
   {
-    id: "run-detail-below-fold",
-    label: "Loading additional review sections",
-    variant: "section",
-    modulePath: "@/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailBelowFoldSections",
-    exportName: "RunDetailBelowFoldSections",
-  },
-  {
     id: "run-detail-architecture-created-workspace",
     label: "Loading create-home workspace",
     variant: "section",

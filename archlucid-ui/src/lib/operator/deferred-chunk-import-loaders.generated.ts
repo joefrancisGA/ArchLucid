@@ -281,12 +281,6 @@ export function resolveDeferredChunkImportLoader(
           (module) => module.RunDetailEvidenceTabPanel,
         ),
       ) as () => Promise<ComponentType<Record<string, unknown>>>;
-    case "run-detail-below-fold":
-      return deferredChunkLoader(() =>
-        import("@/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailBelowFoldSections").then(
-          (module) => module.RunDetailBelowFoldSections,
-        ),
-      ) as () => Promise<ComponentType<Record<string, unknown>>>;
     case "run-detail-architecture-created-workspace":
       return deferredChunkLoader(() =>
         import("@/components/architecture/ArchitectureCreatedReviewWorkspaceShell").then(

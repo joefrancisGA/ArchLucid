@@ -14,7 +14,6 @@ import {
   RecurrenceSchedulePostCommitCardDeferred,
   ReviewDetailWorkspaceDeferred,
   RunDetailArtifactsExportsSectionDeferred,
-  RunDetailBelowFoldSectionsDeferred,
   RunDetailColdOpenOrientationDeferred,
   RunDetailCompareToBaselineCta,
   RunDetailEvidenceTabPanelDeferred,
@@ -44,6 +43,7 @@ import {
   RunDetailWorkspaceBlockingBannerDeferred,
   RunDetailWorkspaceSummaryStripDeferred,
 } from "./run-detail-page-view-deferred-chunks";
+import { RunDetailBelowFoldSectionsDeferred } from "./RunDetailBelowFoldSectionsDeferred";
 import { resolveRunDetailSponsorBriefingSection } from "./RunDetailSponsorBriefingSection";
 import {
   RunDetailPackageChangesSinceFinalizeSection,

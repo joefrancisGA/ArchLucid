@@ -154,6 +154,7 @@ describe("run detail bundle deferred imports (TB-697 / TB-933 / TB-2021 / TB-211
     expect(pageViewSource).toContain("HelpPageSituationRegistrarDeferred");
     expect(pageViewSource).toContain("ReviewGenerationCreatedNoticeDeferred");
     expect(pageViewSource).toContain("RunDetailBelowFoldSectionsDeferred");
+    expect(pageViewSource).toContain('./RunDetailBelowFoldSectionsDeferred"');
     expect(pageViewSource).not.toContain("GoldenSponsorPackageWalkthroughDestinationDeferred");
     expect(deferredChunksSource).toContain('"run-detail-golden-sponsor-walkthrough"');
     expect(pageViewSource).toContain("RunDetailWorkspaceShell");
@@ -173,7 +174,7 @@ describe("run detail bundle deferred imports (TB-697 / TB-933 / TB-2021 / TB-211
     expect(deferredChunksSource).toContain('"run-detail-review-workspace-shell"');
     expect(deferredChunksSource).toContain('"run-detail-overview-panel"');
     expect(deferredChunksSource).toContain('"run-detail-evidence-tab"');
-    expect(deferredChunksSource).toContain('"run-detail-below-fold"');
+    expect(deferredChunksSource).not.toContain('"run-detail-below-fold"');
     expect(deferredChunksSource).toContain('"run-detail-architecture-created-workspace"');
     expect(deferredChunksSource).toContain('"run-detail-create-home-evidence"');
     expect(deferredChunksSource).toContain('"run-detail-create-home-activity"');
@@ -255,7 +256,7 @@ describe("run detail bundle deferred imports (TB-697 / TB-933 / TB-2021 / TB-211
     expect(manifestLoaderSource).toContain(
       'import("@/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailEvidenceTabPanel")',
     );
-    expect(manifestLoaderSource).toContain(
+    expect(manifestLoaderSource).not.toContain(
       'import("@/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailBelowFoldSections")',
     );
     expect(manifestLoaderSource).toContain(

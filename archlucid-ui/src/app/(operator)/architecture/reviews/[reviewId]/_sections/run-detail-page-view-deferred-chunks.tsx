@@ -372,11 +372,6 @@ export const ReviewGenerationCreatedNoticeDeferred = createDeferredComponentFrom
   { suppressLoading: true },
 );
 
-/** Perf wave 8 — below-fold forensics/pipeline/provenance cluster off sync First Load JS. */
-export const RunDetailBelowFoldSectionsDeferred = createDeferredComponentFromManifest("run-detail-below-fold", {
-  loadingClassName: "h-32",
-});
-
 /** Perf wave 10 — mid-band compare/savings leaves off sync First Load JS. */
 export const ChangesSinceLastReviewBannerDeferred = createDeferredComponentFromManifest(
   "run-detail-changes-since-last-review",
