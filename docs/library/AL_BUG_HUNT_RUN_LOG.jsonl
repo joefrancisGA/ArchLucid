@@ -95,77 +95,78 @@
 {"at":"2026-08-23T15:43:56.9884432Z","zoneId":"host-core-jobs","outcome":"hit"}
 {"at":"2026-08-23T16:17:13.3732911Z","zoneId":"host-core-jobs","outcome":"hit"}
 {"at":"2026-08-23T16:35:04.8615976Z","zoneId":"host-core-jobs","outcome":"hit"}
-{"at":"2026-08-23T16:40:50.3671450Z","zoneId":"application-governance-policy","outcome":"hit"}
+{"at":"2026-08-23T16:40:50.367145Z","zoneId":"application-governance-policy","outcome":"hit"}
 {"at":"2026-08-23T16:58:29Z","zoneId":"ui-oidc","outcome":"hit"}
 {"at":"2026-08-23T17:04:54Z","zoneId":"architecture-recommendation","outcome":"hit"}
 {"at":"2026-08-23T17:35:57.066395Z","zoneId":"application-analysis","outcome":"hit"}
 {"at":"2026-08-23T17:45:17.939839Z","zoneId":"ui-oidc","outcome":"hit"}
 {"at":"2026-08-23T18:48:52.860723Z","zoneId":"tenant-erasure","outcome":"hit"}
 {"at":"2026-08-23T21:05:12.389277Z","zoneId":"tenant-erasure","outcome":"hit"}
-{"at": "2026-08-23T21:13:26.126144Z", "zoneId": "finding-disposition", "outcome": "hit"}
-{"at": "2026-08-23T21:17:55.296880Z", "zoneId": "finding-disposition", "outcome": "hit"}
-{"at": "2026-08-23T21:22:37.106054Z", "zoneId": "weekly-digest-email", "outcome": "hit"}
-{"at": "2026-08-23T21:25:59.857192Z", "zoneId": "weekly-digest-email", "outcome": "hit"}
-{"at": "2026-08-23T22:57:06.854610Z", "zoneId": "cli-tenant-isolation", "outcome": "hit"}
-{"at": "2026-08-23T23:00:58.269002Z", "zoneId": "cli-tenant-isolation", "outcome": "hit"}
-{"at": "2026-08-23T23:03:56.272707Z", "zoneId": "ui-runs-list", "outcome": "hit"}
-{"at": "2026-08-23T23:09:14.369880Z", "zoneId": "cli-tenant-isolation", "outcome": "hit"}
-{"at": "2026-08-23T23:15:22.601812Z", "zoneId": "cli-terraform-evidence", "outcome": "hit"}
-{"at": "2026-08-23T23:21:40.538910Z", "zoneId": "cli-terraform-evidence", "outcome": "hit"}
-{"at": "2026-08-23T23:26:21.438803Z", "zoneId": "billing-webhooks", "outcome": "hit"}
-{"at": "2026-08-23T23:44:04.387693Z", "zoneId": "billing-webhooks", "outcome": "hit"}
-{"at": "2026-08-23T23:47:57.066493Z", "zoneId": "itsm-inbound-webhooks", "outcome": "hit"}
-{"at": "2026-08-23T23:52:04.655497Z", "zoneId": "agent-runtime-safety", "outcome": "hit"}
-{"at": "2026-08-23T23:55:30.000000Z", "zoneId": "agent-runtime-safety", "outcome": "hit"}
-{"at": "2026-08-23T23:58:30.000000Z", "zoneId": "agent-runtime-safety", "outcome": "hit"}
-{"at": "2026-08-24T00:02:30.000000Z", "zoneId": "agent-runtime-safety", "outcome": "hit"}
-{"at": "2026-08-24T00:08:30.000000Z", "zoneId": "decisioning", "outcome": "hit"}
-{"at": "2026-08-24T00:17:30.000000Z", "zoneId": "api-governance-tenancy-controllers", "outcome": "hit"}
-{"at": "2026-08-24T00:28:00.000000Z", "zoneId": "ui-oidc", "outcome": "hit"}
-{"at": "2026-08-24T00:35:00.000000Z", "zoneId": "notifications-pipeline", "outcome": "hit"}
-{"at": "2026-08-24T00:42:00.000000Z", "zoneId": "cli-tenant-isolation", "outcome": "hit"}
-{"at": "2026-08-24T00:48:00.000000Z", "zoneId": "application-analysis", "outcome": "hit"}
-{"at": "2026-08-24T01:05:00.000000Z", "zoneId": "notifications-pipeline", "outcome": "hit"}
-{"at": "2026-08-24T01:25:00.000000Z", "zoneId": "tenant-erasure", "outcome": "hit"}
-{"at": "2026-08-24T01:35:00.000000Z", "zoneId": "billing-webhooks", "outcome": "hit"}
-{"at": "2026-08-24T01:50:00.000000Z", "zoneId": "persistence-identity", "outcome": "hit"}
-{"at": "2026-08-24T02:00:00.000000Z", "zoneId": "application-billing-logic", "outcome": "hit"}
-{"at": "2026-08-24T02:35:00.000000Z", "zoneId": "itsm-inbound-webhooks", "outcome": "hit"}
-{"at": "2026-08-24T02:42:00.000000Z", "zoneId": "ui-marketing-surfaces", "outcome": "hit"}
-{"at": "2026-08-24T02:46:00.000000Z", "zoneId": "ui-operator-lib", "outcome": "hit"}
-{"at": "2026-08-24T03:10:00.000000Z", "zoneId": "archlucid-contracts", "outcome": "hit"}
-{"at": "2026-08-24T03:15:00.000000Z", "zoneId": "saml-jwt-bearer", "outcome": "hit"}
-{"at": "2026-08-24T03:25:00.000000Z", "zoneId": "context-ingestion", "outcome": "hit"}
-{"at": "2026-08-24T03:35:00.000000Z", "zoneId": "tenant-data-export", "outcome": "hit"}
-{"at": "2026-08-24T03:50:00.000000Z", "zoneId": "api-authority-admin-controllers", "outcome": "hit"}
-{"at": "2026-08-24T04:05:00.000000Z", "zoneId": "archlucid-core", "outcome": "hit"}
-{"at": "2026-08-24T04:10:00.000000Z", "zoneId": "application-pilots", "outcome": "hit"}
-{"at": "2026-08-24T04:20:00.000000Z", "zoneId": "artifact-synthesis", "outcome": "hit"}
-{"at": "2026-08-24T04:30:00.000000Z", "zoneId": "cloud-extractors", "outcome": "hit"}
-{"at": "2026-08-24T04:45:00.000000Z", "zoneId": "host-composition", "outcome": "hit"}
-{"at": "2026-08-24T08:20:00.000000Z", "zoneId": "retrieval", "outcome": "hit"}
-{"at": "2026-08-24T08:45:00.000000Z", "zoneId": "llm-wallet", "outcome": "hit"}
-{"at": "2026-08-24T09:05:00.000000Z", "zoneId": "scope-binding-middleware", "outcome": "hit"}
-{"at": "2026-08-24T09:15:00.000000Z", "zoneId": "api-key-auth", "outcome": "hit"}
-{"at": "2026-08-24T09:30:00.000000Z", "zoneId": "identity-provider-config", "outcome": "hit"}
-{"at": "2026-08-24T09:45:00.000000Z", "zoneId": "scim-users", "outcome": "hit"}
-{"at": "2026-08-24T10:00:00.000000Z", "zoneId": "tenant-scoped-analyzer", "outcome": "hit"}
-{"at": "2026-08-24T10:15:00.000000Z", "zoneId": "security-analyzers", "outcome": "hit"}
-{"at": "2026-08-24T10:30:00.000000Z", "zoneId": "authority-pipeline-payload", "outcome": "hit"}
-{"at": "2026-08-24T10:45:00.000000Z", "zoneId": "technology-ledger-merge", "outcome": "hit"}
-{"at": "2026-08-24T11:00:00.000000Z", "zoneId": "review-recurrence", "outcome": "hit"}
-{"at": "2026-08-24T11:15:00.000000Z", "zoneId": "cli-draft-new", "outcome": "hit"}
-{"at": "2026-08-24T11:30:00.000000Z", "zoneId": "worker-host", "outcome": "hit"}
-{"at":"2026-08-24T11:45:00.000000Z","zoneId":"ui-architecture-intelligence","outcome":"hit"}
-{"at":"2026-08-24T12:00:00.000000Z","zoneId":"topology-proposal-merge","outcome":"dry"}
-{"at":"2026-08-24T12:15:00.000000Z","zoneId":"arm-terraform-source-ids","outcome":"hit"}
-{"at":"2026-08-24T12:30:00.000000Z","zoneId":"arm-terraform-source-ids","outcome":"hit"}
-{"at":"2026-08-24T12:45:00.000000Z","zoneId":"outbound-webhook-dry-run","outcome":"hit"}
-{"at":"2026-08-24T13:00:00.000000Z","zoneId":"arm-terraform-source-ids","outcome":"hit"}
-{"at":"2026-08-24T13:15:00.000000Z","zoneId":"arm-terraform-source-ids","outcome":"hit"}
-{"at":"2026-08-24T13:30:00.000000Z","zoneId":"arm-terraform-source-ids","outcome":"hit"}
-{"at":"2026-08-24T13:45:00.000000Z","zoneId":"application-governance-policy","outcome":"hit"}
-{"at":"2026-08-24T14:00:00.000000Z","zoneId":"email-otp-auth","outcome":"hit"}
-{"at":"2026-08-24T14:15:00.000000Z","zoneId":"arm-terraform-source-ids","outcome":"hit"}
-{"at":"2026-08-24T14:30:00.000000Z","zoneId":"tenant-settings-sql","outcome":"hit"}
-{"at":"2026-08-24T15:00:00.000000Z","zoneId":"sql-run-repository","outcome":"hit"}
+{"at":"2026-08-23T21:13:26.126144Z","zoneId":"finding-disposition","outcome":"hit"}
+{"at":"2026-08-23T21:17:55.29688Z","zoneId":"finding-disposition","outcome":"hit"}
+{"at":"2026-08-23T21:22:37.106054Z","zoneId":"weekly-digest-email","outcome":"hit"}
+{"at":"2026-08-23T21:25:59.857192Z","zoneId":"weekly-digest-email","outcome":"hit"}
+{"at":"2026-08-23T22:57:06.85461Z","zoneId":"cli-tenant-isolation","outcome":"hit"}
+{"at":"2026-08-23T23:00:58.269002Z","zoneId":"cli-tenant-isolation","outcome":"hit"}
+{"at":"2026-08-23T23:03:56.272707Z","zoneId":"ui-runs-list","outcome":"hit"}
+{"at":"2026-08-23T23:09:14.36988Z","zoneId":"cli-tenant-isolation","outcome":"hit"}
+{"at":"2026-08-23T23:15:22.601812Z","zoneId":"cli-terraform-evidence","outcome":"hit"}
+{"at":"2026-08-23T23:21:40.53891Z","zoneId":"cli-terraform-evidence","outcome":"hit"}
+{"at":"2026-08-23T23:26:21.438803Z","zoneId":"billing-webhooks","outcome":"hit"}
+{"at":"2026-08-23T23:44:04.387693Z","zoneId":"billing-webhooks","outcome":"hit"}
+{"at":"2026-08-23T23:47:57.066493Z","zoneId":"itsm-inbound-webhooks","outcome":"hit"}
+{"at":"2026-08-23T23:52:04.655497Z","zoneId":"agent-runtime-safety","outcome":"hit"}
+{"at":"2026-08-23T23:55:30Z","zoneId":"agent-runtime-safety","outcome":"hit"}
+{"at":"2026-08-23T23:58:30Z","zoneId":"agent-runtime-safety","outcome":"hit"}
+{"at":"2026-08-24T00:02:30Z","zoneId":"agent-runtime-safety","outcome":"hit"}
+{"at":"2026-08-24T00:08:30Z","zoneId":"decisioning","outcome":"hit"}
+{"at":"2026-08-24T00:17:30Z","zoneId":"api-governance-tenancy-controllers","outcome":"hit"}
+{"at":"2026-08-24T00:28:00Z","zoneId":"ui-oidc","outcome":"hit"}
+{"at":"2026-08-24T00:35:00Z","zoneId":"notifications-pipeline","outcome":"hit"}
+{"at":"2026-08-24T00:42:00Z","zoneId":"cli-tenant-isolation","outcome":"hit"}
+{"at":"2026-08-24T00:48:00Z","zoneId":"application-analysis","outcome":"hit"}
+{"at":"2026-08-24T01:05:00Z","zoneId":"notifications-pipeline","outcome":"hit"}
+{"at":"2026-08-24T01:25:00Z","zoneId":"tenant-erasure","outcome":"hit"}
+{"at":"2026-08-24T01:35:00Z","zoneId":"billing-webhooks","outcome":"hit"}
+{"at":"2026-08-24T01:50:00Z","zoneId":"persistence-identity","outcome":"hit"}
+{"at":"2026-08-24T02:00:00Z","zoneId":"application-billing-logic","outcome":"hit"}
+{"at":"2026-08-24T02:35:00Z","zoneId":"itsm-inbound-webhooks","outcome":"hit"}
+{"at":"2026-08-24T02:42:00Z","zoneId":"ui-marketing-surfaces","outcome":"hit"}
+{"at":"2026-08-24T02:46:00Z","zoneId":"ui-operator-lib","outcome":"hit"}
+{"at":"2026-08-24T03:10:00Z","zoneId":"archlucid-contracts","outcome":"hit"}
+{"at":"2026-08-24T03:15:00Z","zoneId":"saml-jwt-bearer","outcome":"hit"}
+{"at":"2026-08-24T03:25:00Z","zoneId":"context-ingestion","outcome":"hit"}
+{"at":"2026-08-24T03:35:00Z","zoneId":"tenant-data-export","outcome":"hit"}
+{"at":"2026-08-24T03:50:00Z","zoneId":"api-authority-admin-controllers","outcome":"hit"}
+{"at":"2026-08-24T04:05:00Z","zoneId":"archlucid-core","outcome":"hit"}
+{"at":"2026-08-24T04:10:00Z","zoneId":"application-pilots","outcome":"hit"}
+{"at":"2026-08-24T04:20:00Z","zoneId":"artifact-synthesis","outcome":"hit"}
+{"at":"2026-08-24T04:30:00Z","zoneId":"cloud-extractors","outcome":"hit"}
+{"at":"2026-08-24T04:45:00Z","zoneId":"host-composition","outcome":"hit"}
+{"at":"2026-08-24T08:20:00Z","zoneId":"retrieval","outcome":"hit"}
+{"at":"2026-08-24T08:45:00Z","zoneId":"llm-wallet","outcome":"hit"}
+{"at":"2026-08-24T09:05:00Z","zoneId":"scope-binding-middleware","outcome":"hit"}
+{"at":"2026-08-24T09:15:00Z","zoneId":"api-key-auth","outcome":"hit"}
+{"at":"2026-08-24T09:30:00Z","zoneId":"identity-provider-config","outcome":"hit"}
+{"at":"2026-08-24T09:45:00Z","zoneId":"scim-users","outcome":"hit"}
+{"at":"2026-08-24T10:00:00Z","zoneId":"tenant-scoped-analyzer","outcome":"hit"}
+{"at":"2026-08-24T10:15:00Z","zoneId":"security-analyzers","outcome":"hit"}
+{"at":"2026-08-24T10:30:00Z","zoneId":"authority-pipeline-payload","outcome":"hit"}
+{"at":"2026-08-24T10:45:00Z","zoneId":"technology-ledger-merge","outcome":"hit"}
+{"at":"2026-08-24T11:00:00Z","zoneId":"review-recurrence","outcome":"hit"}
+{"at":"2026-08-24T11:15:00Z","zoneId":"cli-draft-new","outcome":"hit"}
+{"at":"2026-08-24T11:30:00Z","zoneId":"worker-host","outcome":"hit"}
+{"at":"2026-08-24T11:45:00Z","zoneId":"ui-architecture-intelligence","outcome":"hit"}
+{"at":"2026-08-24T12:00:00Z","zoneId":"topology-proposal-merge","outcome":"dry"}
+{"at":"2026-08-24T12:15:00Z","zoneId":"arm-terraform-source-ids","outcome":"hit"}
+{"at":"2026-08-24T12:30:00Z","zoneId":"arm-terraform-source-ids","outcome":"hit"}
+{"at":"2026-08-24T12:45:00Z","zoneId":"outbound-webhook-dry-run","outcome":"hit"}
+{"at":"2026-08-24T13:00:00Z","zoneId":"arm-terraform-source-ids","outcome":"hit"}
+{"at":"2026-08-24T13:15:00Z","zoneId":"arm-terraform-source-ids","outcome":"hit"}
+{"at":"2026-08-24T13:30:00Z","zoneId":"arm-terraform-source-ids","outcome":"hit"}
+{"at":"2026-08-24T13:45:00Z","zoneId":"application-governance-policy","outcome":"hit"}
+{"at":"2026-08-24T14:00:00Z","zoneId":"email-otp-auth","outcome":"hit"}
+{"at":"2026-08-24T14:15:00Z","zoneId":"arm-terraform-source-ids","outcome":"hit"}
+{"at":"2026-08-24T14:30:00Z","zoneId":"tenant-settings-sql","outcome":"hit"}
+{"at":"2026-08-24T15:00:00Z","zoneId":"sql-run-repository","outcome":"hit"}
+{"at":"2026-08-24T14:35:23.4690018Z","zoneId":"review-recurrence","outcome":"hit"}

@@ -577,20 +577,21 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** recurrence; next run calculator
 - **paths:** ArchLucid.Application/Governance/ArchitectureReviewRecurrenceNextRunCalculator.cs
 - **test-filter:** FullyQualifiedName~ArchitectureReviewRecurrenceNextRunCalculatorTests
-- **hunts:** 1
-- **bugs-found:** 4
+- **hunts:** 2
+- **bugs-found:** 5
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24 — disabled schedules still got NextRunUtc; Unspecified/Local reference skew; non-strict next instant; UTC kind not stamped
+- **last-bug:** 2026-08-24 — preview path skipped single-run normalization (reference-equality / Unspecified kind)
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** no
 
 ### Hypotheses
 
 - [x] (proven) Disabled recurrence still computes a next run — **hit 2026-08-24:** paused schedules persisted `NextRunUtc` anyway; `ComputeNextRunUtc(..., isScheduleEnabled: false)` returns null; controller only requires next when enabled; regression in `ComputeNextRunUtc_returns_null_when_schedule_disabled` / `CreateRecurrenceSchedule_persists_inactive_schedule`
 - [x] (proven) Time-zone conversion shifts the cadence by a day around DST — **hit 2026-08-24:** `DateTimeKind.Unspecified` / `Local` references passed to Cronos without UTC normalization; regressions in `ComputeNextRunUtc_normalizes_unspecified_reference_kind_to_utc` / `ComputeNextRunUtc_returns_utc_kind_even_when_reference_is_local`
 - [x] (proven) Next-run lands in the past so the scheduler fires immediately in a loop — **hit 2026-08-24:** wrapper returned `next <= fromUtc` without recomputing; `NormalizeNextRunUtc` advances once and stamps UTC; regression in `ComputeNextRunUtc_recomputes_when_first_occurrence_is_not_strictly_after_reference`
-- [x] (valid-no-repro) Preview path already delegates to normalized `ComputeNextRunsUtc` after reference normalization fix
+- [x] (invalid) Preview path already delegates to normalized `ComputeNextRunsUtc` after reference normalization fix — **disproven 2026-08-24:** only the reference instant was normalized; batch preview bypassed `NormalizeNextRunUtc`
+- [x] (proven) Preview path skipped single-run normalization so the first preview instant could equal the reference or omit UTC kind — **hit 2026-08-24:** `ComputeNextRunsUtc` delegated to underlying batch expansion; route preview through the `ComputeNextRunUtc` loop; regressions in `ComputeNextRunsUtc_advances_first_preview_when_underlying_returns_reference_instant` / `ComputeNextRunsUtc_stamps_utc_kind_when_underlying_returns_unspecified_kind`
 
 ---
 
