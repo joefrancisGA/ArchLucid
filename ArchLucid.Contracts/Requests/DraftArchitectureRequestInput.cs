@@ -31,4 +31,13 @@ public sealed class DraftArchitectureRequestInput
         get;
         set;
     } = [];
+
+    /// <summary>
+    ///     Assumptions the operator confirmed on the draft. Checked against overview evidence for contradictions.
+    /// </summary>
+    public string[] ConfirmedAssumptions
+    {
+        get;
+        set;
+    } = [];
 }
