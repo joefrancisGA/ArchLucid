@@ -24,7 +24,7 @@ public sealed class DraftRequestServiceQuestionTests
 {
     private readonly IDraftRequestRepository _repository = new InMemoryDraftRequestRepository();
     private readonly Mock<IEffectiveGovernanceLoader> _governanceLoader = new();
-    private readonly Mock<IArchitectureRunCreateOrchestrator> _runCreateOrchestrator = new();
+    private readonly Mock<IArchitectureRunCommandService> _architectureRunCommandService = new();
     private readonly Mock<IRequestContentSafetyPrecheck> _contentSafety = new();
     private readonly DraftRequestService _service;
     private readonly ScopeContext _scope = new()
@@ -48,20 +48,12 @@ public sealed class DraftRequestServiceQuestionTests
             .Setup(static s => s.EvaluateAsync(It.IsAny<ArchitectureRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new RequestContentSafetyResult { IsAllowed = true });
 
-        _runCreateOrchestrator
-            .Setup(static o => o.CreateRunAsync(
-                It.IsAny<ArchitectureRequest>(),
-                It.IsAny<CreateRunIdempotencyState?>(),
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new CreateRunResult
-            {
-                Run = new ArchitectureRun { RunId = "abc123run", RequestId = "req123" },
-            });
+        DraftRunCommandServiceTestDoubles.SetupStandardReviewCreate(_architectureRunCommandService);
 
         _service = DraftRequestServiceTestFactory.CreateWithDefaults(
             _repository,
             _governanceLoader,
-            _runCreateOrchestrator,
+            _architectureRunCommandService,
             _contentSafety,
             new DraftIntakeBranchOptions());
     }

@@ -23,7 +23,7 @@ public sealed class DraftRequestServiceTests
 {
     private readonly IDraftRequestRepository _repository = new InMemoryDraftRequestRepository();
     private readonly Mock<IEffectiveGovernanceLoader> _governanceLoader = new();
-    private readonly Mock<IArchitectureRunCreateOrchestrator> _runCreateOrchestrator = new();
+    private readonly Mock<IArchitectureRunCommandService> _architectureRunCommandService = new();
     private readonly Mock<IRequestContentSafetyPrecheck> _contentSafety = new();
 
     private readonly DraftRequestService _service;
@@ -48,20 +48,12 @@ public sealed class DraftRequestServiceTests
             .Setup(static s => s.EvaluateAsync(It.IsAny<ArchitectureRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new RequestContentSafetyResult { IsAllowed = true });
 
-        _runCreateOrchestrator
-            .Setup(static o => o.CreateRunAsync(
-                It.IsAny<ArchitectureRequest>(),
-                It.IsAny<CreateRunIdempotencyState?>(),
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new CreateRunResult
-            {
-                Run = new ArchitectureRun { RunId = "abc123run", RequestId = "req123" },
-            });
+        DraftRunCommandServiceTestDoubles.SetupStandardReviewCreate(_architectureRunCommandService);
 
         _service = DraftRequestServiceTestFactory.CreateWithDefaults(
             _repository,
             _governanceLoader,
-            _runCreateOrchestrator,
+            _architectureRunCommandService,
             _contentSafety,
             new DraftIntakeBranchOptions());
     }
@@ -166,10 +158,11 @@ public sealed class DraftRequestServiceTests
         submit!.Status.Should().Be(DraftRequestStatus.RunSpawned);
         submit.RunId.Should().Be("abc123run");
 
-        _runCreateOrchestrator.Verify(
+        _architectureRunCommandService.Verify(
             static o => o.CreateRunAsync(
+                It.IsAny<ScopeContext>(),
                 It.IsAny<ArchitectureRequest>(),
-                It.IsAny<CreateRunIdempotencyState?>(),
+                It.IsAny<string?>(),
                 It.IsAny<CancellationToken>()),
             Times.Once);
     }

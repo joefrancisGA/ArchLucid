@@ -1,9 +1,11 @@
 using ArchLucid.Application;
+using ArchLucid.Application.Architecture;
 using ArchLucid.Application.Drafts;
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Application.Tests.Architecture;
 using ArchLucid.Contracts.Architecture;
+using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Drafts;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Contracts.Metadata;
@@ -24,7 +26,7 @@ public sealed class DraftAdmissionServiceSubmitTests
 {
     private readonly IDraftRequestRepository _repository = new InMemoryDraftRequestRepository();
     private readonly Mock<IEffectiveGovernanceLoader> _governanceLoader = new();
-    private readonly Mock<IArchitectureRunCreateOrchestrator> _runCreateOrchestrator = new();
+    private readonly Mock<IArchitectureRunCommandService> _architectureRunCommandService = new();
     private readonly Mock<IRequestContentSafetyPrecheck> _contentSafety = new();
     private readonly DraftRequestService _service;
     private readonly ScopeContext _scope = new()
@@ -51,7 +53,7 @@ public sealed class DraftAdmissionServiceSubmitTests
         _service = DraftRequestServiceTestFactory.CreateWithDefaults(
             _repository,
             _governanceLoader,
-            _runCreateOrchestrator,
+            _architectureRunCommandService,
             _contentSafety,
             new DraftIntakeBranchOptions());
     }
@@ -60,22 +62,27 @@ public sealed class DraftAdmissionServiceSubmitTests
     public async Task SubmitAsync_WhenCreateRunThrows_DraftStaysAdmitted_AndRetryLinksOneRun()
     {
         int createRunCalls = 0;
-        _runCreateOrchestrator
+        _architectureRunCommandService
             .Setup(o => o.CreateRunAsync(
+                It.IsAny<ScopeContext>(),
                 It.IsAny<ArchitectureRequest>(),
-                It.IsAny<CreateRunIdempotencyState?>(),
+                It.IsAny<string?>(),
                 It.IsAny<CancellationToken>()))
             .Returns((
+                ScopeContext _,
                 ArchitectureRequest request,
-                CreateRunIdempotencyState? _,
+                string? _,
                 CancellationToken _) =>
             {
                 if (Interlocked.Increment(ref createRunCalls) == 1)
                     throw new InvalidOperationException("transient create-run failure");
 
-                return Task.FromResult(new CreateRunResult
+                return Task.FromResult(new CreateRunCommandResult
                 {
-                    Run = new ArchitectureRun { RunId = "linked-run", RequestId = request.RequestId },
+                    StandardResult = new CreateRunResult
+                    {
+                        Run = new ArchitectureRun { RunId = "linked-run", RequestId = request.RequestId },
+                    },
                 });
             });
 
@@ -98,10 +105,11 @@ public sealed class DraftAdmissionServiceSubmitTests
         secondSubmit.RunId.Should().Be("linked-run");
         secondSubmit.RequestId.Should().Be(DraftSpawnedArchitectureRequestId.FromDraftId(draftId));
 
-        _runCreateOrchestrator.Verify(
+        _architectureRunCommandService.Verify(
             static o => o.CreateRunAsync(
+                It.IsAny<ScopeContext>(),
                 It.IsAny<ArchitectureRequest>(),
-                It.IsAny<CreateRunIdempotencyState?>(),
+                It.IsAny<string?>(),
                 It.IsAny<CancellationToken>()),
             Times.Exactly(2));
     }
@@ -109,15 +117,19 @@ public sealed class DraftAdmissionServiceSubmitTests
     [Fact]
     public async Task SubmitAsync_WhenRunSpawned_ReplaysWithoutSecondCreateRun()
     {
-        _runCreateOrchestrator
+        _architectureRunCommandService
             .Setup(static o => o.CreateRunAsync(
+                It.IsAny<ScopeContext>(),
                 It.IsAny<ArchitectureRequest>(),
-                It.IsAny<CreateRunIdempotencyState?>(),
+                It.IsAny<string?>(),
                 It.IsAny<CancellationToken>()))
-            .Returns(static (ArchitectureRequest request, CreateRunIdempotencyState? _, CancellationToken _) =>
-                Task.FromResult(new CreateRunResult
+            .Returns(static (ScopeContext _, ArchitectureRequest request, string? __, CancellationToken ___) =>
+                Task.FromResult(new CreateRunCommandResult
                 {
-                    Run = new ArchitectureRun { RunId = "linked-run", RequestId = request.RequestId },
+                    StandardResult = new CreateRunResult
+                    {
+                        Run = new ArchitectureRun { RunId = "linked-run", RequestId = request.RequestId },
+                    },
                 }));
 
         DraftRequestResponse admitted = await CreateAdmittedWithMustAnswersAsync();
@@ -131,10 +143,11 @@ public sealed class DraftAdmissionServiceSubmitTests
         second!.RunId.Should().Be(first!.RunId);
         second.RequestId.Should().Be(DraftSpawnedArchitectureRequestId.FromDraftId(draftId));
 
-        _runCreateOrchestrator.Verify(
+        _architectureRunCommandService.Verify(
             static o => o.CreateRunAsync(
+                It.IsAny<ScopeContext>(),
                 It.IsAny<ArchitectureRequest>(),
-                It.IsAny<CreateRunIdempotencyState?>(),
+                It.IsAny<string?>(),
                 It.IsAny<CancellationToken>()),
             Times.Once);
     }
@@ -161,10 +174,11 @@ public sealed class DraftAdmissionServiceSubmitTests
         await act.Should().ThrowAsync<ConflictException>()
             .WithMessage($"*{draftId}*");
 
-        _runCreateOrchestrator.Verify(
+        _architectureRunCommandService.Verify(
             static o => o.CreateRunAsync(
+                It.IsAny<ScopeContext>(),
                 It.IsAny<ArchitectureRequest>(),
-                It.IsAny<CreateRunIdempotencyState?>(),
+                It.IsAny<string?>(),
                 It.IsAny<CancellationToken>()),
             Times.Never);
     }
@@ -198,12 +212,42 @@ public sealed class DraftAdmissionServiceSubmitTests
         loaded!.Status.Should().Be(DraftRequestStatus.RunSpawned);
         loaded.SpawnedRunId.Should().Be(legacyRunId);
 
-        _runCreateOrchestrator.Verify(
+        _architectureRunCommandService.Verify(
             static o => o.CreateRunAsync(
+                It.IsAny<ScopeContext>(),
                 It.IsAny<ArchitectureRequest>(),
-                It.IsAny<CreateRunIdempotencyState?>(),
+                It.IsAny<string?>(),
                 It.IsAny<CancellationToken>()),
             Times.Never);
+    }
+
+    [Fact]
+    public async Task SubmitAsync_create_architecture_routes_through_synthesis_command_result()
+    {
+        _architectureRunCommandService
+            .Setup(static o => o.CreateRunAsync(
+                It.IsAny<ScopeContext>(),
+                It.IsAny<ArchitectureRequest>(),
+                It.IsAny<string?>(),
+                It.IsAny<CancellationToken>()))
+            .Returns(static (ScopeContext _, ArchitectureRequest request, string? __, CancellationToken ___) =>
+                Task.FromResult(new CreateRunCommandResult
+                {
+                    SynthesisResult = new ArchitectureSynthesisGenerateResult
+                    {
+                        RunId = "synth-run-1",
+                        PackageOrigin = ArchitecturePackageOrigin.Created,
+                        KnowledgeModelId = "model-1",
+                    },
+                }));
+
+        DraftRequestResponse admitted = await CreateAdmittedWithMustAnswersAsync(
+            ArchitectureWorkflowIntent.CreateArchitecture);
+
+        SubmitDraftResponse? submit = await _service.SubmitAsync(_scope, admitted.DraftId, CancellationToken.None);
+
+        submit.Should().NotBeNull();
+        submit!.RunId.Should().Be("synth-run-1");
     }
 
     [Fact]
@@ -243,7 +287,8 @@ public sealed class DraftAdmissionServiceSubmitTests
             .Should().Equal(first.IdempotencyKeyHash);
     }
 
-    private async Task<DraftRequestResponse> CreateAdmittedWithMustAnswersAsync()
+    private async Task<DraftRequestResponse> CreateAdmittedWithMustAnswersAsync(
+        string? workflowIntent = null)
     {
         DraftRequestResponse created = await _service.CreateAsync(
             _scope,
@@ -251,27 +296,33 @@ public sealed class DraftAdmissionServiceSubmitTests
             new CreateDraftRequest { FreeTextIntent = DraftIntakeTestIntents.ValidGrcWorkflow },
             CancellationToken.None);
 
-        await _service.PatchAsync(
-            _scope,
-            created.DraftId,
-            new PatchDraftRequest
+        PatchDraftRequest patch = new()
+        {
+            BusinessOutcome = "Faster audit prep",
+            ActorSet = new ActorSet
             {
-                BusinessOutcome = "Faster audit prep",
-                ActorSet = new ActorSet
-                {
-                    Actors =
-                    [
-                        new ActorDescriptor
-                        {
-                            Kind = ActorKind.Human,
-                            TrustOrigin = TrustOrigin.Internal,
-                            Contract = InteractionContract.Sync,
-                            Origin = ActorOrigin.Asserted,
-                        },
-                    ],
-                },
+                Actors =
+                [
+                    new ActorDescriptor
+                    {
+                        Kind = ActorKind.Human,
+                        TrustOrigin = TrustOrigin.Internal,
+                        Contract = InteractionContract.Sync,
+                        Origin = ActorOrigin.Asserted,
+                    },
+                ],
             },
-            CancellationToken.None);
+        };
+
+        if (!string.IsNullOrWhiteSpace(workflowIntent))
+        {
+            patch.WorkflowIntent = workflowIntent;
+
+            if (string.Equals(workflowIntent, ArchitectureWorkflowIntent.CreateArchitecture, StringComparison.OrdinalIgnoreCase))
+                patch.SystemName = "Synth Draft System";
+        }
+
+        await _service.PatchAsync(_scope, created.DraftId, patch, CancellationToken.None);
 
         DraftAdmissionResponse? admission = await _service.RequestAdmissionAsync(
             _scope,
