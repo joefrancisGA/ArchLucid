@@ -245,7 +245,6 @@ describe("first-pilot-intake", () => {
     expect(
       describeFirstPilotStartBlocker({
         intake: readyIntake,
-        reviewStandardsConfirmed: true,
         policyPackCloudMismatch: null,
         scopeGateOpen: false,
         briefExceedsMaxLength: false,

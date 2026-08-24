@@ -8,11 +8,7 @@ import {
   describeFirstPilotReviewTitleGap,
   isFirstPilotReviewTitleReady,
 } from "@/lib/first-pilot-review-title-quality";
-import {
-  isReviewStandardsConfirmSatisfied,
-  POLICY_PACK_CLOUD_MISMATCH_MESSAGE,
-  REVIEW_STANDARDS_CONFIRM_GAP,
-} from "@/lib/review-quality/review-intake-quality-gates";
+import { POLICY_PACK_CLOUD_MISMATCH_MESSAGE } from "@/lib/review-quality/review-intake-quality-gates";
 import { SCOPE_UNDERSTANDING_CONFIRM_BLOCKED_HINT } from "@/lib/architecture/architecture-scope-understanding-check";
 import { GUIDED_INTAKE_ARCHITECTURE_CONTEXT_LABEL } from "@/lib/guided-intake-copy";
 import {
@@ -139,7 +135,6 @@ export function describeFirstPilotIntakeGap(input: FirstPilotIntakeReadinessInpu
 
 export type FirstPilotStartBlockerInput = {
   readonly intake: FirstPilotIntakeReadinessInput;
-  readonly reviewStandardsConfirmed: boolean;
   readonly policyPackCloudMismatch: string | null;
   readonly scopeGateOpen: boolean;
   readonly briefExceedsMaxLength: boolean;
@@ -152,10 +147,6 @@ export function describeFirstPilotStartBlocker(input: FirstPilotStartBlockerInpu
 
   if (intakeGap !== null) {
     return intakeGap;
-  }
-
-  if (!isReviewStandardsConfirmSatisfied(input.reviewStandardsConfirmed)) {
-    return REVIEW_STANDARDS_CONFIRM_GAP;
   }
 
   if (input.policyPackCloudMismatch !== null) {
