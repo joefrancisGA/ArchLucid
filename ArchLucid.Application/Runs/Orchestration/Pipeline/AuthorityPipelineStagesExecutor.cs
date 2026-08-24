@@ -2,6 +2,7 @@ using System.Diagnostics;
 using System.Text.Json;
 
 using ArchLucid.Application.ArchitectureIntelligence;
+using ArchLucid.Contracts.ArchitectureIntelligence;
 using ArchLucid.Contracts.Persistence.Ports;
 using ArchLucid.Contracts.Persistence.Context;
 using ArchLucid.Contracts.Persistence.DecisionTraces;
@@ -24,6 +25,7 @@ using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Decisioning.Manifest;
 using ArchLucid.Persistence.Serialization;
+using ArchLucid.KnowledgeGraph.Interfaces;
 
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -60,7 +62,9 @@ public sealed class AuthorityPipelineStagesExecutor(
     IIntegrationEventPublisher integrationEventPublisher,
     IOptionsMonitor<IntegrationEventsOptions> integrationEventsOptions,
     IOptionsMonitor<PublicSiteOptions> publicSiteOptions,
-    ILogger<AuthorityPipelineStagesExecutor> logger) : IAuthorityPipelineStagesExecutor
+    ILogger<AuthorityPipelineStagesExecutor> logger,
+    IArchitectureIntelligencePersistence? architectureIntelligencePersistence = null,
+    IArchitectureKnowledgeModelGraphProjector? knowledgeModelGraphProjector = null) : IAuthorityPipelineStagesExecutor
 {
     private readonly AuthorityPipelineStageContextHydrator _stageContextHydrator =
         new(
@@ -138,6 +142,12 @@ public sealed class AuthorityPipelineStagesExecutor(
     private readonly IAuthorityClosedLoopStrengtheningPass _closedLoopStrengtheningPass =
         closedLoopStrengtheningPass ?? throw new ArgumentNullException(nameof(closedLoopStrengtheningPass));
 
+    private readonly IArchitectureIntelligencePersistence? _architectureIntelligencePersistence =
+        architectureIntelligencePersistence;
+
+    private readonly IArchitectureKnowledgeModelGraphProjector? _knowledgeModelGraphProjector =
+        knowledgeModelGraphProjector;
+
     private static readonly string[] PipelineStageSequence = AuthorityPipelineStageNames.Sequence;
 
     /// <inheritdoc />
@@ -193,14 +203,34 @@ public sealed class AuthorityPipelineStagesExecutor(
                 return;
             }
 
-            GraphSnapshotResolutionResult graphResolution = await GraphSnapshotReuseEvaluator.ResolveAsync(
-                ctx.Scope,
-                ctx.PriorCommittedContext,
-                ctx.ContextSnapshot!,
-                run.RunId,
-                _knowledgeGraphService,
-                _graphSnapshotRepository,
-                token);
+            ArchitectureKnowledgeModel? knowledgeModel = await TryLoadKnowledgeModelAsync(ctx.Scope, run.RunId, token);
+
+            GraphSnapshotResolutionResult graphResolution;
+
+            if (knowledgeModel is not null && _knowledgeModelGraphProjector is not null)
+            {
+                graphResolution = await KnowledgeModelAwareGraphSnapshotResolver.ResolveAsync(
+                    ctx.Scope,
+                    ctx.PriorCommittedContext,
+                    ctx.ContextSnapshot!,
+                    run.RunId,
+                    knowledgeModel,
+                    _knowledgeGraphService,
+                    _knowledgeModelGraphProjector,
+                    _graphSnapshotRepository,
+                    token);
+            }
+            else
+            {
+                graphResolution = await GraphSnapshotReuseEvaluator.ResolveAsync(
+                    ctx.Scope,
+                    ctx.PriorCommittedContext,
+                    ctx.ContextSnapshot!,
+                    run.RunId,
+                    _knowledgeGraphService,
+                    _graphSnapshotRepository,
+                    token);
+            }
 
             ctx.GraphResolution = graphResolution;
             GraphSnapshot graphSnapshot = graphResolution.Snapshot;
@@ -770,6 +800,19 @@ public sealed class AuthorityPipelineStagesExecutor(
         manifest.TenantId = scope.TenantId;
         manifest.WorkspaceId = scope.WorkspaceId;
         manifest.ProjectId = scope.ProjectId;
+    }
+
+    private async Task<ArchitectureKnowledgeModel?> TryLoadKnowledgeModelAsync(
+        ScopeContext scope,
+        Guid runId,
+        CancellationToken cancellationToken)
+    {
+        if (_architectureIntelligencePersistence is null)
+            return null;
+
+        return await _architectureIntelligencePersistence
+            .GetModelByRunIdAsync(scope.TenantId.ToString("D"), runId.ToString("D"), cancellationToken)
+            .ConfigureAwait(false);
     }
 }
 

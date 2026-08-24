@@ -579,5 +579,7 @@ public static partial class ServiceCollectionExtensions
         services.AddSingleton<IGraphValidator, GraphValidator>();
         services.AddScoped<GraphBuilder, KnowledgeGraph.Builders.DefaultGraphBuilder>();
         services.AddScoped<KnowledgeGraphService, ArchLucid.KnowledgeGraph.Services.KnowledgeGraphService>();
+        services.AddScoped<ArchLucid.KnowledgeGraph.Interfaces.IArchitectureKnowledgeModelGraphProjector,
+            ArchLucid.KnowledgeGraph.Projection.ArchitectureKnowledgeModelGraphProjector>();
     }
 }
