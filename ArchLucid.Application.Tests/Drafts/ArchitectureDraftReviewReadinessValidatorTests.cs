@@ -11,7 +11,7 @@ namespace ArchLucid.Application.Tests.Drafts;
 public sealed class ArchitectureDraftReviewReadinessValidatorTests
 {
     [Fact]
-    public void EvaluateBlockers_WhenOnlyUnknownQualityAttribute_ReturnsQualityAttributeBlocker()
+    public void EvaluateBlockers_WhenOnlyUnknownQualityAttribute_ReturnsEmpty()
     {
         DraftRequestDocument document = CreateReadyDocument();
         document.StructuredBrief.ConfirmedConstraints = [ArchitectureDraftStructuredBrief.UnknownConfirmBeforeReview];
@@ -22,7 +22,7 @@ public sealed class ArchitectureDraftReviewReadinessValidatorTests
 
         blockers.Should().NotContain("constraints");
         blockers.Should().NotContain("assumptions");
-        blockers.Should().Equal("quality attributes");
+        blockers.Should().BeEmpty();
     }
 
     [Fact]
@@ -48,7 +48,7 @@ public sealed class ArchitectureDraftReviewReadinessValidatorTests
     }
 
     [Fact]
-    public void EvaluateBlockers_WhenLegacyMinimumOnly_ReturnsQualityAttributeBlocker()
+    public void EvaluateBlockers_WhenLegacyMinimumOnly_ReturnsEmpty()
     {
         DraftRequestDocument document = CreateReadyDocument();
         document.StructuredBrief = new ArchitectureDraftStructuredBrief();
@@ -57,7 +57,7 @@ public sealed class ArchitectureDraftReviewReadinessValidatorTests
 
         blockers.Should().NotContain("constraints");
         blockers.Should().NotContain("assumptions");
-        blockers.Should().Equal("quality attributes");
+        blockers.Should().BeEmpty();
     }
 
     [Fact]
@@ -99,15 +99,14 @@ public sealed class ArchitectureDraftReviewReadinessValidatorTests
     }
 
     [Fact]
-    public void EnsureReviewReady_ThrowsWhenQualityAttributeMissing()
+    public void EnsureReviewReady_DoesNotThrowWhenQualityAttributeMissing()
     {
         DraftRequestDocument document = CreateReadyDocument();
         document.StructuredBrief.QualityAttribute = "";
 
         Action act = () => ArchitectureDraftReviewReadinessValidator.EnsureReviewReady(document);
 
-        act.Should().Throw<InvalidOperationException>()
-            .WithMessage("*quality attributes*");
+        act.Should().NotThrow();
     }
 
     [Fact]

@@ -15,6 +15,7 @@ import { ArchitectureDraftFormFields } from "@/components/architecture/Architect
 import { ArchitectureDraftGuidanceDisclosure } from "@/components/architecture/ArchitectureDraftGuidanceDisclosure";
 import { ArchitectureDraftHandoffBanner } from "@/components/architecture/ArchitectureDraftHandoffBanner";
 import { ArchitectureDraftIntakeModeBanner } from "@/components/architecture/ArchitectureDraftIntakeModeBanner";
+import { ArchitectureDraftQualityAttributesEncouragementDialog } from "@/components/architecture/ArchitectureDraftQualityAttributesEncouragementDialog";
 import { ArchitectureScopeUnderstandingCheckPanel } from "@/components/architecture/ArchitectureScopeUnderstandingCheckPanel";
 import { ArchitectureDraftWorkspaceLoadingSkeleton } from "@/components/architecture/ArchitectureDraftWorkspaceLoadingSkeleton";
 import { AiBudgetSpendNotice } from "@/components/ai-budget/AiBudgetSpendNotice";
@@ -55,7 +56,8 @@ import {
   type ArchitectureDraftFieldState,
 } from "@/lib/architecture/architecture-draft-readiness";
 import { formatArchitectureReviewReadinessMessage } from "@/lib/architecture/architecture-review-readiness-copy";
-import { emptyArchitectureDraftStructuredBrief } from "@/lib/architecture/architecture-draft-structured-brief";
+import { emptyArchitectureDraftStructuredBrief, qualityAttributeMeetsMinimum } from "@/lib/architecture/architecture-draft-structured-brief";
+import { ARCHITECTURE_DRAFT_SECTION_ANCHORS } from "@/lib/architecture/architecture-draft-form-section-anchors";
 import { architectureDraftDetailPageSubtitle } from "@/lib/architecture/architecture-draft-detail-page-copy";
 import {
   ARCHITECTURES_LIST_PATH,
@@ -84,6 +86,7 @@ import { CREATE_ARCHITECTURE_INTENT } from "@/lib/architecture/architecture-work
 import { GuidedIntakeAlreadySubmittedCallout } from "@/app/(operator)/architecture/reviews/new/GuidedIntakeAlreadySubmittedCallout";
 import { GUIDED_INTAKE_ARCHITECTURE_INTENT_MIN_CHARS } from "@/lib/guided-intake-copy";
 import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer/buyer-polish-copy";
+import { scheduleScrollDeepLinkTargetIntoView } from "@/lib/scroll-deep-link-target-into-view";
 import { OPERATOR_LINK, OPERATOR_PAGE_LEAD_MEASURE, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { showError, showSuccess } from "@/lib/toast";
 import { cn } from "@/lib/utils";
@@ -120,6 +123,7 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
   const [linkedReviewTitle, setLinkedReviewTitle] = useState("Untitled review");
   const [unlockBusy, setUnlockBusy] = useState(false);
   const [resolvedDraftId, setResolvedDraftId] = useState<string | null>(null);
+  const [qualityAttributesEncouragementOpen, setQualityAttributesEncouragementOpen] = useState(false);
   const previousSaveStateRef = useRef<ArchitectureDraftSaveState>("saved");
   const exitTimeoutIdRef = useRef<number | null>(null);
   const loadDraftInFlightRef = useRef<Promise<void> | null>(null);
@@ -491,13 +495,8 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
     router.push(ARCHITECTURES_LIST_PATH);
   }, [fields, hasPersistedDraft, isNewDraft, router, saveDraft]);
 
-  const handleStartReview = useCallback(async () => {
+  const executeStartReview = useCallback(async () => {
     if (reviewStartProgress.isPending) {
-      return;
-    }
-
-    // Client-known blockers stay on the form; CTA is disabled until canStartReview.
-    if (!canStartReview) {
       return;
     }
 
@@ -543,7 +542,6 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
       setStartReviewError("Could not start the architecture review. Try again.");
     }
   }, [
-    canStartReview,
     draft,
     effectiveArchitectureId,
     fields.freeTextIntent,
@@ -553,6 +551,36 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
     saveDraft,
     scopeBullets,
   ]);
+
+  const handleStartReview = useCallback(async () => {
+    if (reviewStartProgress.isPending) {
+      return;
+    }
+
+    // Client-known blockers stay on the form; CTA is disabled until canStartReview.
+    if (!canStartReview) {
+      return;
+    }
+
+    if (!qualityAttributeMeetsMinimum(fields.structuredBrief.qualityAttribute)) {
+      setQualityAttributesEncouragementOpen(true);
+
+      return;
+    }
+
+    await executeStartReview();
+  }, [canStartReview, executeStartReview, fields.structuredBrief.qualityAttribute, reviewStartProgress.isPending]);
+
+  const handleEncourageAddQualityAttributes = useCallback(() => {
+    setQualityAttributesEncouragementOpen(false);
+    scheduleScrollDeepLinkTargetIntoView(ARCHITECTURE_DRAFT_SECTION_ANCHORS.qualityAttributes);
+    document.getElementById(ARCHITECTURE_DRAFT_SECTION_ANCHORS.qualityAttributes)?.querySelector("input")?.focus();
+  }, []);
+
+  const handleContinueWithoutQualityAttributes = useCallback(() => {
+    setQualityAttributesEncouragementOpen(false);
+    void executeStartReview();
+  }, [executeStartReview]);
 
   const handleAcknowledgeHandoff = useCallback(() => {
     if (linkedReviewId === null) {
@@ -867,6 +895,13 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
           </Button>
         </div>
       </div>
+      <ArchitectureDraftQualityAttributesEncouragementDialog
+        open={qualityAttributesEncouragementOpen}
+        busy={reviewStartProgress.isPending}
+        onOpenChange={setQualityAttributesEncouragementOpen}
+        onAddQualityAttributes={handleEncourageAddQualityAttributes}
+        onContinueWithout={handleContinueWithoutQualityAttributes}
+      />
     </div>
   );
 }

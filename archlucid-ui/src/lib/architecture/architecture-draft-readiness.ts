@@ -9,7 +9,6 @@ import type { ArchitectureReviewReadinessBlockerId } from "./architecture-review
 import type { ArchitectureDraftStructuredBriefState } from "./architecture-draft-structured-brief";
 import {
   hasConfirmedActor,
-  qualityAttributeMeetsMinimum,
   structuredBriefToPatchPayload,
 } from "./architecture-draft-structured-brief";
 import type { ActorDescriptor, ActorSet } from "@/types/draft-intake";
@@ -115,10 +114,6 @@ export function validateArchitectureReviewReadiness(
 
   if (!hasConfirmedActor(actors)) {
     blockers.push("confirmed-actor");
-  }
-
-  if (!qualityAttributeMeetsMinimum(fields.structuredBrief.qualityAttribute)) {
-    blockers.push("quality-attributes");
   }
 
   return {

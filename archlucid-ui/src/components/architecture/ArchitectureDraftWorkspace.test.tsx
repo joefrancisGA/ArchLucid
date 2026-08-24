@@ -835,4 +835,118 @@ describe("ArchitectureDraftWorkspace", () => {
 
     expect(vi.mocked(showError)).not.toHaveBeenCalled();
   });
+
+  it("shows quality-attribute encouragement modal instead of blocking Start review when quality attributes are empty", async () => {
+    const longOverview =
+      "Claims intake modernization covering intake channels, routing rules, exception queues, and operator handoffs across the claims workspace.";
+
+    getDraftRequest.mockResolvedValue({
+      ...spawnedDraft,
+      status: "Drafting",
+      spawnedRunId: null,
+      document: {
+        ...spawnedDraft.document,
+        freeTextIntent: longOverview,
+        businessOutcome: "Reduce manual routing",
+        workflowIntent: "create-architecture",
+        structuredBrief: {
+          ...readyStructuredBriefDocument,
+          qualityAttribute: "",
+        },
+        actorSet: {
+          actors: [
+            {
+              label: "Primary operator",
+              kind: "Human",
+              trustOrigin: "Internal",
+              contract: "Sync",
+              origin: "Asserted",
+              confidence: 100,
+            },
+          ],
+        },
+      },
+    });
+
+    render(<ArchitectureDraftWorkspace architectureId="arch-001" />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-scope-understanding-confirm")).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId("architecture-scope-understanding-confirm"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-start-review")).not.toBeDisabled();
+    });
+
+    expect(screen.queryByTestId("architecture-draft-review-readiness")).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByTestId("architecture-start-review"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-draft-quality-attributes-encouragement-dialog")).toBeInTheDocument();
+    });
+
+    expect(saveDraft).not.toHaveBeenCalled();
+  });
+
+  it("continues Start review after choosing to proceed without quality attributes", async () => {
+    const longOverview =
+      "Claims intake modernization covering intake channels, routing rules, exception queues, and operator handoffs across the claims workspace.";
+
+    getDraftRequest.mockResolvedValue({
+      ...spawnedDraft,
+      status: "Drafting",
+      spawnedRunId: null,
+      document: {
+        ...spawnedDraft.document,
+        freeTextIntent: longOverview,
+        businessOutcome: "Reduce manual routing",
+        workflowIntent: "create-architecture",
+        structuredBrief: {
+          ...readyStructuredBriefDocument,
+          qualityAttribute: "",
+        },
+        actorSet: {
+          actors: [
+            {
+              label: "Primary operator",
+              kind: "Human",
+              trustOrigin: "Internal",
+              contract: "Sync",
+              origin: "Asserted",
+              confidence: 100,
+            },
+          ],
+        },
+      },
+    });
+
+    saveDraft.mockResolvedValue(true);
+
+    render(<ArchitectureDraftWorkspace architectureId="arch-001" />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-scope-understanding-confirm")).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId("architecture-scope-understanding-confirm"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-start-review")).not.toBeDisabled();
+    });
+
+    fireEvent.click(screen.getByTestId("architecture-start-review"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-draft-quality-attributes-encouragement-dialog")).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId("architecture-draft-quality-attributes-encouragement-continue"));
+
+    await waitFor(() => {
+      expect(saveDraft).toHaveBeenCalled();
+    });
+  });
 });

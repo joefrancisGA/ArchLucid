@@ -30,9 +30,6 @@ public static class ArchitectureDraftReviewReadinessValidator
         if (!HasConfirmedActor(document.ActorSet))
             blockers.Add("confirmed actor");
 
-        if (!ArchitectureDraftStructuredBrief.QualityAttributeMeetsMinimum(document.StructuredBrief.QualityAttribute))
-            blockers.Add("quality attributes");
-
         return blockers;
     }
 
