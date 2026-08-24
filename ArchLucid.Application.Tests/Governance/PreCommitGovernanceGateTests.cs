@@ -1504,7 +1504,9 @@ public sealed class PreCommitGovernanceGateTests
         IOptions<AuthorityCommitSchemaValidationOptions>? authoritySchemaOptions = null,
         ITechnologyLedgerRepository? ledgerRepository = null,
         IOptions<TechnologyConsistencyFindingEngineOptions>? consistencyOptions = null,
-        ITechnologyConsistencyFindingEngine? consistencyEngine = null)
+        ITechnologyConsistencyFindingEngine? consistencyEngine = null,
+        IFindingEvidenceLinkageFindingEngine? linkageEngine = null,
+        IOptions<FindingEvidenceLinkageFindingEngineOptions>? linkageOptions = null)
     {
         return new PreCommitGovernanceGate(
             gateOptions,
@@ -1517,6 +1519,8 @@ public sealed class PreCommitGovernanceGateTests
             ?? Options.Create(new AuthorityCommitSchemaValidationOptions { ValidateGoldenManifestSchema = false }),
             ledgerRepository ?? new InMemoryTechnologyLedgerRepository(),
             consistencyEngine ?? new TechnologyConsistencyFindingEngine(),
-            consistencyOptions ?? Options.Create(new TechnologyConsistencyFindingEngineOptions { Enabled = false }));
+            consistencyOptions ?? Options.Create(new TechnologyConsistencyFindingEngineOptions { Enabled = false }),
+            linkageEngine ?? new FindingEvidenceLinkageFindingEngine(),
+            linkageOptions ?? Options.Create(new FindingEvidenceLinkageFindingEngineOptions { Enabled = false }));
     }
 }
