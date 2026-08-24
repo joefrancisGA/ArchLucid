@@ -236,7 +236,7 @@ function ConfirmableChipList(props: {
           />
         </p>
       ) : null}
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap items-center gap-2">
         <Input
           id={`${props.inputId}-input`}
           value={draft}
@@ -257,6 +257,7 @@ function ConfirmableChipList(props: {
         <Button
           type="button"
           variant="secondary"
+          size="sm"
           disabled={props.disabled}
           data-testid={`${props.inputId}-add`}
           onClick={addDraft}
