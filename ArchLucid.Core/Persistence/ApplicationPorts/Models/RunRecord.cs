@@ -83,6 +83,13 @@ public sealed class RunRecord
         set;
     }
 
+    /// <summary>Stable cross-run architecture identity (tenant-scoped); not a sealed record.</summary>
+    public Guid? ArchitectureId
+    {
+        get;
+        set;
+    }
+
     /// <summary>FK logical key to <c>ArchitectureRequests.RequestId</c>.</summary>
     public string? ArchitectureRequestId
     {

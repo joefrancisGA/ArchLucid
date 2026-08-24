@@ -430,6 +430,7 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IStructuredBriefSuggestionExplainService, StructuredBriefSuggestionExplainService>();
         services.AddScoped<IArchitectureKnowledgeModelIntakeBuilder, ArchitectureKnowledgeModelIntakeBuilder>();
         services.AddScoped<IArchitectureSynthesisKernel, ArchitectureSynthesisKernel>();
+        services.AddScoped<IArchitectureIdentityService, ArchitectureIdentityService>();
         services.AddScoped<IWorkspaceSystemNameCollisionGuard, WorkspaceSystemNameCollisionGuard>();
         services.AddScoped<IChatIntakeParserService, ChatIntakeParserService>();
         services.AddHttpClient(GitTerraformContentFetcher.HttpClientName)
