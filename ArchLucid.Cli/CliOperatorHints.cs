@@ -69,6 +69,13 @@ internal static class CliOperatorHints
             $"Next: Create the file at {relativeBriefPath} (minimum 10 characters) or update inputs.brief in archlucid.json.");
     }
 
+    public static void WriteAfterScopeMismatch(TextWriter? stderr = null)
+    {
+        stderr ??= Console.Error;
+        stderr.WriteLine(
+            "Next: Verify scope headers (x-tenant-id, x-workspace-id, x-project-id) and archlucid.json scope match the tenant where the draft was created.");
+    }
+
     private static string? LineForHttpStatus(int? code)
     {
         return code switch

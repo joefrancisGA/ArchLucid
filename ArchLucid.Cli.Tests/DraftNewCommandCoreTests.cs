@@ -127,6 +127,122 @@ public sealed class DraftNewCommandCoreTests
         output.ToString().Should().NotContain("Execution started");
     }
 
+    [Fact]
+    public async Task RunCoreAsync_draft_scope_mismatch_after_create_returns_operation_failed()
+    {
+        Guid configuredTenantId = Guid.Parse("55555555-5555-5555-5555-555555555555");
+        string? previousTenant = Environment.GetEnvironmentVariable("ARCHLUCID_TENANT_ID");
+
+        try
+        {
+            Environment.SetEnvironmentVariable("ARCHLUCID_TENANT_ID", configuredTenantId.ToString("D"));
+
+            DraftNewCommandOptions options = new()
+            {
+                IntentText = ValidDraftIntent,
+                SystemName = "Contoso API",
+                BusinessOutcome = "Ship a governed review package for the architecture board.",
+                SkipMustQuestions = true,
+            };
+
+            ArchLucidApiClient client = CreateDraftFlowClient();
+            DraftNewCommandHooks hooks = ConnectedHooks(client);
+            StringWriter output = new();
+            StringWriter error = new();
+
+            int exit = await DraftNewCommand.RunCoreAsync(options, hooks, output, error);
+
+            exit.Should().Be(CliExitCode.OperationFailed);
+            error.ToString().Should().Contain("does not match configured CLI scope");
+            error.ToString().Should().Contain("x-tenant-id");
+        }
+        finally
+        {
+            Environment.SetEnvironmentVariable("ARCHLUCID_TENANT_ID", previousTenant);
+        }
+    }
+
+    [Fact]
+    public async Task RunCoreAsync_draft_scope_mismatch_after_patch_returns_operation_failed()
+    {
+        Guid configuredTenantId = Guid.Parse("55555555-5555-5555-5555-555555555555");
+        string? previousTenant = Environment.GetEnvironmentVariable("ARCHLUCID_TENANT_ID");
+
+        try
+        {
+            Environment.SetEnvironmentVariable("ARCHLUCID_TENANT_ID", configuredTenantId.ToString("D"));
+
+            DraftNewCommandOptions options = new()
+            {
+                IntentText = ValidDraftIntent,
+                SystemName = "Contoso API",
+                BusinessOutcome = "Ship a governed review package for the architecture board.",
+                SkipMustQuestions = true,
+            };
+
+            ArchLucidApiClient client = CreateDraftFlowClient(new PatchScopeMismatchHandler());
+            DraftNewCommandHooks hooks = ConnectedHooks(client);
+            StringWriter output = new();
+            StringWriter error = new();
+
+            int exit = await DraftNewCommand.RunCoreAsync(options, hooks, output, error);
+
+            exit.Should().Be(CliExitCode.OperationFailed);
+            error.ToString().Should().Contain("Error patching draft");
+            error.ToString().Should().Contain("does not match configured CLI scope");
+        }
+        finally
+        {
+            Environment.SetEnvironmentVariable("ARCHLUCID_TENANT_ID", previousTenant);
+        }
+    }
+
+    [Fact]
+    public async Task RunCoreAsync_submit_without_run_id_returns_operation_failed()
+    {
+        DraftNewCommandOptions options = new()
+        {
+            IntentText = ValidDraftIntent,
+            SystemName = "Contoso API",
+            BusinessOutcome = "Ship a governed review package for the architecture board.",
+            SkipMustQuestions = true,
+            NoAutoExecute = true,
+        };
+
+        ArchLucidApiClient client = CreateDraftFlowClient(new SubmitWithoutRunIdHandler());
+        DraftNewCommandHooks hooks = ConnectedHooks(client);
+        StringWriter output = new();
+        StringWriter error = new();
+
+        int exit = await DraftNewCommand.RunCoreAsync(options, hooks, output, error);
+
+        exit.Should().Be(CliExitCode.OperationFailed);
+        error.ToString().Should().Contain("no runId");
+    }
+
+    [Fact]
+    public async Task RunCoreAsync_questions_load_failure_writes_operator_hint()
+    {
+        DraftNewCommandOptions options = new()
+        {
+            IntentText = ValidDraftIntent,
+            SystemName = "Contoso API",
+            BusinessOutcome = "Ship a governed review package for the architecture board.",
+            SkipMustQuestions = false,
+        };
+
+        ArchLucidApiClient client = CreateDraftFlowClient(new QuestionsForbiddenHandler());
+        DraftNewCommandHooks hooks = ConnectedHooks(client);
+        StringWriter output = new();
+        StringWriter error = new();
+
+        int exit = await DraftNewCommand.RunCoreAsync(options, hooks, output, error);
+
+        exit.Should().Be(CliExitCode.OperationFailed);
+        error.ToString().Should().Contain("Error loading draft questions");
+        error.ToString().Should().Contain("Reader, Operator, or Admin");
+    }
+
     private static DraftNewCommandHooks ConnectedHooks(ArchLucidApiClient? client = null)
     {
         ArchLucidApiClient sharedClient = client ?? CreateDraftFlowClient();
@@ -138,10 +254,10 @@ public sealed class DraftNewCommandCoreTests
         };
     }
 
-    private static ArchLucidApiClient CreateDraftFlowClient()
+    private static ArchLucidApiClient CreateDraftFlowClient(DraftFlowHandler? handler = null)
     {
-        DraftFlowHandler handler = new();
-        HttpClient http = new(handler)
+        DraftFlowHandler flowHandler = handler ?? new DraftFlowHandler();
+        HttpClient http = new(flowHandler)
         {
             BaseAddress = new Uri("http://127.0.0.1:9/"),
         };
@@ -149,13 +265,76 @@ public sealed class DraftNewCommandCoreTests
         return new ArchLucidApiClient(http);
     }
 
-    private sealed class DraftFlowHandler : HttpMessageHandler
+    private sealed class PatchScopeMismatchHandler : DraftFlowHandler
     {
-        private static readonly Guid TenantId = Guid.Parse("22222222-2222-2222-2222-222222222222");
+        protected override HttpResponseMessage? TryHandle(
+            HttpRequestMessage request,
+            string path)
+        {
+            if (request.Method == HttpMethod.Post && path.EndsWith("/v1/architecture/draft", StringComparison.OrdinalIgnoreCase))
+            {
+                Guid configuredTenantId = Guid.Parse("55555555-5555-5555-5555-555555555555");
 
-        private static readonly Guid WorkspaceId = Guid.Parse("33333333-3333-3333-3333-333333333333");
+                return Json(HttpStatusCode.Created, DraftBody("Drafting", configuredTenantId));
+            }
 
-        private static readonly Guid ProjectId = Guid.Parse("44444444-4444-4444-4444-444444444444");
+            if (request.Method == HttpMethod.Patch && path.Contains("/v1/architecture/draft/", StringComparison.OrdinalIgnoreCase))
+            {
+                Guid mismatchedTenantId = Guid.Parse("66666666-6666-6666-6666-666666666666");
+
+                return Json(HttpStatusCode.OK, DraftBody("Drafting", mismatchedTenantId));
+            }
+
+            return null;
+        }
+    }
+
+    private sealed class SubmitWithoutRunIdHandler : DraftFlowHandler
+    {
+        protected override HttpResponseMessage? TryHandle(
+            HttpRequestMessage request,
+            string path)
+        {
+            if (request.Method == HttpMethod.Post && path.EndsWith("/submit", StringComparison.OrdinalIgnoreCase))
+            {
+                return Json(HttpStatusCode.OK, new
+                {
+                    draftId = DraftId,
+                    status = "RunSpawned",
+                    runId = string.Empty,
+                    requestId = "req-draft-cli-001",
+                });
+            }
+
+            return null;
+        }
+    }
+
+    private sealed class QuestionsForbiddenHandler : DraftFlowHandler
+    {
+        protected override HttpResponseMessage? TryHandle(
+            HttpRequestMessage request,
+            string path)
+        {
+            if (request.Method == HttpMethod.Get && path.EndsWith("/questions", StringComparison.OrdinalIgnoreCase))
+            {
+                return new HttpResponseMessage(HttpStatusCode.Forbidden)
+                {
+                    Content = new StringContent("{\"title\":\"Forbidden\"}", System.Text.Encoding.UTF8, "application/json"),
+                };
+            }
+
+            return null;
+        }
+    }
+
+    private class DraftFlowHandler : HttpMessageHandler
+    {
+        protected static readonly Guid TenantId = Guid.Parse("22222222-2222-2222-2222-222222222222");
+
+        protected static readonly Guid WorkspaceId = Guid.Parse("33333333-3333-3333-3333-333333333333");
+
+        protected static readonly Guid ProjectId = Guid.Parse("44444444-4444-4444-4444-444444444444");
 
         protected override Task<HttpResponseMessage> SendAsync(
             HttpRequestMessage request,
@@ -163,66 +342,77 @@ public sealed class DraftNewCommandCoreTests
         {
             _ = cancellationToken;
             string path = request.RequestUri!.AbsolutePath.TrimEnd('/');
+            HttpResponseMessage? handled = TryHandle(request, path);
 
+            if (handled is not null)
+                return Task.FromResult(handled);
+
+            return Task.FromResult(HandleDefault(request, path));
+        }
+
+        protected virtual HttpResponseMessage? TryHandle(HttpRequestMessage request, string path) => null;
+
+        private HttpResponseMessage HandleDefault(HttpRequestMessage request, string path)
+        {
             if (request.Method == HttpMethod.Post && path.EndsWith("/v1/architecture/draft", StringComparison.OrdinalIgnoreCase))
             {
-                return Task.FromResult(Json(HttpStatusCode.Created, DraftBody("Drafting")));
+                return Json(HttpStatusCode.Created, DraftBody("Drafting"));
             }
 
             if (request.Method == HttpMethod.Patch && path.Contains("/v1/architecture/draft/", StringComparison.OrdinalIgnoreCase))
             {
-                return Task.FromResult(Json(HttpStatusCode.OK, DraftBody("Drafting")));
+                return Json(HttpStatusCode.OK, DraftBody("Drafting"));
             }
 
             if (request.Method == HttpMethod.Post && path.EndsWith("/admit", StringComparison.OrdinalIgnoreCase))
             {
-                return Task.FromResult(Json(HttpStatusCode.OK, new
+                return Json(HttpStatusCode.OK, new
                 {
                     admitted = true,
                     status = "Admitted",
                     draft = DraftBody("Admitted"),
                     pendingMustQuestions = Array.Empty<object>(),
-                }));
+                });
             }
 
             if (request.Method == HttpMethod.Get && path.EndsWith("/questions", StringComparison.OrdinalIgnoreCase))
             {
-                return Task.FromResult(Json(HttpStatusCode.OK, new
+                return Json(HttpStatusCode.OK, new
                 {
                     draftId = DraftId,
                     status = "Admitted",
                     selection = new { pendingMustQuestions = Array.Empty<object>() },
-                }));
+                });
             }
 
             if (request.Method == HttpMethod.Post && path.EndsWith("/submit", StringComparison.OrdinalIgnoreCase))
             {
-                return Task.FromResult(Json(HttpStatusCode.OK, new
+                return Json(HttpStatusCode.OK, new
                 {
                     draftId = DraftId,
                     status = "RunSpawned",
                     runId = "run-draft-cli-001",
                     requestId = "req-draft-cli-001",
-                }));
+                });
             }
 
             if (request.Method == HttpMethod.Post && path.EndsWith("/execute", StringComparison.OrdinalIgnoreCase))
             {
-                return Task.FromResult(Json(HttpStatusCode.OK, new { accepted = true }));
+                return Json(HttpStatusCode.OK, new { accepted = true });
             }
 
-            return Task.FromResult(new HttpResponseMessage(HttpStatusCode.NotFound)
+            return new HttpResponseMessage(HttpStatusCode.NotFound)
             {
                 Content = new StringContent($"Unexpected route: {request.Method} {path}"),
-            });
+            };
         }
 
-        private static object DraftBody(string status)
+        protected static object DraftBody(string status, Guid? tenantIdOverride = null)
         {
             return new
             {
                 draftId = DraftId,
-                tenantId = TenantId,
+                tenantId = tenantIdOverride ?? TenantId,
                 workspaceId = WorkspaceId,
                 projectId = ProjectId,
                 status,
@@ -240,7 +430,7 @@ public sealed class DraftNewCommandCoreTests
             };
         }
 
-        private static HttpResponseMessage Json(HttpStatusCode status, object body)
+        protected static HttpResponseMessage Json(HttpStatusCode status, object body)
         {
             HttpResponseMessage response = new(status)
             {

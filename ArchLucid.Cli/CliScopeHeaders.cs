@@ -11,15 +11,24 @@ internal static class CliScopeHeaders
     internal const string WorkspaceHeader = "X-Workspace-Id";
     internal const string ProjectHeader = "X-Project-Id";
 
+    internal static string? ResolveTenantId(ArchLucidProjectScaffolder.ArchLucidCliConfig? config) =>
+        Resolve(config?.Scope?.TenantId, "ARCHLUCID_TENANT_ID", "X_TENANT_ID");
+
+    internal static string? ResolveWorkspaceId(ArchLucidProjectScaffolder.ArchLucidCliConfig? config) =>
+        Resolve(config?.Scope?.WorkspaceId, "ARCHLUCID_WORKSPACE_ID", "X_WORKSPACE_ID");
+
+    internal static string? ResolveProjectId(ArchLucidProjectScaffolder.ArchLucidCliConfig? config) =>
+        Resolve(config?.Scope?.ProjectId, "ARCHLUCID_PROJECT_ID", "X_PROJECT_ID");
+
     internal static void Apply(HttpClient http, ArchLucidProjectScaffolder.ArchLucidCliConfig? config)
     {
         ArgumentNullException.ThrowIfNull(http);
 
-        string? tenantId = Resolve(config?.Scope?.TenantId, "ARCHLUCID_TENANT_ID", "X_TENANT_ID");
-        string? workspaceId = Resolve(config?.Scope?.WorkspaceId, "ARCHLUCID_WORKSPACE_ID", "X_WORKSPACE_ID");
-        string? projectId = Resolve(config?.Scope?.ProjectId, "ARCHLUCID_PROJECT_ID", "X_PROJECT_ID");
-
-        ApplyExplicit(http, tenantId, workspaceId, projectId);
+        ApplyExplicit(
+            http,
+            ResolveTenantId(config),
+            ResolveWorkspaceId(config),
+            ResolveProjectId(config));
     }
 
     internal static void ApplyExplicit(HttpClient http, string? tenantId, string? workspaceId, string? projectId)

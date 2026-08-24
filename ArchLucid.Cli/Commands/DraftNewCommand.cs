@@ -88,7 +88,15 @@ internal static class DraftNewCommand
         if (!created.Success || created.Value is null)
         {
             await error.WriteLineAsync($"Error creating draft: {created.Error}");
-            CliOperatorHints.WriteAfterApiFailure(created.HttpStatusCode, created.Error);
+            CliOperatorHints.WriteAfterApiFailure(created.HttpStatusCode, created.Error, error);
+
+            return CliExitCode.OperationFailed;
+        }
+
+        if (!CliScopeResponseValidator.TryValidateDraftScope(created.Value, config, out string? createScopeError))
+        {
+            await error.WriteLineAsync($"Error creating draft: {createScopeError}");
+            CliOperatorHints.WriteAfterScopeMismatch(error);
 
             return CliExitCode.OperationFailed;
         }
@@ -140,7 +148,15 @@ internal static class DraftNewCommand
         if (!patched.Success || patched.Value is null)
         {
             await error.WriteLineAsync($"Error patching draft: {patched.Error}");
-            CliOperatorHints.WriteAfterApiFailure(patched.HttpStatusCode, patched.Error);
+            CliOperatorHints.WriteAfterApiFailure(patched.HttpStatusCode, patched.Error, error);
+
+            return CliExitCode.OperationFailed;
+        }
+
+        if (!CliScopeResponseValidator.TryValidateDraftScope(patched.Value, config, out string? patchScopeError))
+        {
+            await error.WriteLineAsync($"Error patching draft: {patchScopeError}");
+            CliOperatorHints.WriteAfterScopeMismatch(error);
 
             return CliExitCode.OperationFailed;
         }
@@ -151,7 +167,7 @@ internal static class DraftNewCommand
         if (!admission.Success || admission.Value is null)
         {
             await error.WriteLineAsync($"Error admitting draft: {admission.Error}");
-            CliOperatorHints.WriteAfterApiFailure(admission.HttpStatusCode, admission.Error);
+            CliOperatorHints.WriteAfterApiFailure(admission.HttpStatusCode, admission.Error, error);
 
             return CliExitCode.OperationFailed;
         }
@@ -160,6 +176,7 @@ internal static class DraftNewCommand
         {
             await error.WriteLineAsync(
                 $"Draft was not admitted: {admission.Value.RedirectReason ?? "semantic admission gate redirected the request."}");
+            CliOperatorHints.WriteAfterApiFailure(admission.HttpStatusCode, admission.Value.RedirectReason, error);
 
             return CliExitCode.OperationFailed;
         }
@@ -184,12 +201,23 @@ internal static class DraftNewCommand
         if (!submit.Success || submit.Value is null)
         {
             await error.WriteLineAsync($"Error submitting draft: {submit.Error}");
-            CliOperatorHints.WriteAfterApiFailure(submit.HttpStatusCode, submit.Error);
+            CliOperatorHints.WriteAfterApiFailure(submit.HttpStatusCode, submit.Error, error);
 
             return CliExitCode.OperationFailed;
         }
 
-        string runId = submit.Value.RunId;
+        string runId = submit.Value.RunId?.Trim() ?? string.Empty;
+
+        if (string.IsNullOrWhiteSpace(runId))
+        {
+            await error.WriteLineAsync(
+                "Error submitting draft: API returned success but no runId. The review was not spawned.");
+
+            CliOperatorHints.WriteAfterApiFailure(submit.HttpStatusCode, submit.Error, error);
+
+            return CliExitCode.OperationFailed;
+        }
+
         string requestId = submit.Value.RequestId;
 
         if (CliExecutionContext.JsonOutput)
@@ -220,6 +248,7 @@ internal static class DraftNewCommand
                 await error.WriteLineAsync(
                     $"Review created but execute failed: {executed?.Error ?? "unknown"}. "
                     + $"Poll with 'archlucid status {runId}' and execute via the operator UI.");
+                CliOperatorHints.WriteAfterApiFailure(executed?.HttpStatusCode, executed?.Error, error);
 
                 return CliExitCode.OperationFailed;
             }
@@ -251,6 +280,7 @@ internal static class DraftNewCommand
         if (!questionsResult.Success || questionsResult.Value is null)
         {
             await error.WriteLineAsync($"Error loading draft questions: {questionsResult.Error}");
+            CliOperatorHints.WriteAfterApiFailure(questionsResult.HttpStatusCode, questionsResult.Error, error);
 
             return CliExitCode.OperationFailed;
         }
@@ -271,6 +301,7 @@ internal static class DraftNewCommand
                 if (!skipped.Success)
                 {
                     await error.WriteLineAsync($"Error skipping question '{question.QuestionKey}': {skipped.Error}");
+                    CliOperatorHints.WriteAfterApiFailure(skipped.HttpStatusCode, skipped.Error, error);
 
                     return CliExitCode.OperationFailed;
                 }
@@ -298,6 +329,7 @@ internal static class DraftNewCommand
                 if (!skipped.Success)
                 {
                     await error.WriteLineAsync($"Error skipping question '{question.QuestionKey}': {skipped.Error}");
+                    CliOperatorHints.WriteAfterApiFailure(skipped.HttpStatusCode, skipped.Error, error);
 
                     return CliExitCode.OperationFailed;
                 }
@@ -325,6 +357,7 @@ internal static class DraftNewCommand
             if (!answered.Success)
             {
                 await error.WriteLineAsync($"Error answering question '{question.QuestionKey}': {answered.Error}");
+                CliOperatorHints.WriteAfterApiFailure(answered.HttpStatusCode, answered.Error, error);
 
                 return CliExitCode.OperationFailed;
             }
