@@ -71,8 +71,21 @@ public static partial class ServiceCollectionExtensions
         services.Configure<GcpBillingCatalogOptions>(configuration.GetSection(GcpBillingCatalogOptions.SectionName));
         services.AddScoped<Application.Diagnostics.ISyntheticOperatorDemoPackWriter,
             Application.Diagnostics.SyntheticOperatorDemoPackWriter>();
-        services.AddScoped<Application.Diagnostics.IDevelopmentCatalogResetService,
-            DevelopmentCatalogResetService>();
+
+        ArchLucidOptions archLucidOptionsForDiagnostics =
+            ArchLucidConfigurationBridge.ResolveArchLucidOptions(configuration);
+
+        if (ArchLucidOptions.EffectiveIsSql(archLucidOptionsForDiagnostics.StorageProvider))
+        {
+            services.AddScoped<Application.Diagnostics.IDevelopmentCatalogResetService,
+                DevelopmentCatalogResetService>();
+        }
+        else
+        {
+            services.AddScoped<Application.Diagnostics.IDevelopmentCatalogResetService,
+                InMemoryDevelopmentCatalogResetService>();
+        }
+
         services.AddScoped<Application.Authority.IAuthorityCommittedManifestChainWriter,
             Application.Authority.AuthorityCommittedManifestChainWriter>();
         services.AddSingleton<Application.Findings.IReasoningSummaryBuilder, Application.Findings.ReasoningSummaryBuilder>();

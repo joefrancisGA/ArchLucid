@@ -42,6 +42,33 @@ public sealed class WorkerHostStartupTests
     }
 
     [Fact]
+    public void Worker_host_fails_fast_when_hosting_role_is_api()
+    {
+        WorkerTestArchLucidAuthEnvSnapshot snapshot = WorkerTestArchLucidAuthEnvSnapshot.CaptureAndApplyWorkerDefaults();
+
+        try
+        {
+            using WebApplicationFactory<Program> factory = new WebApplicationFactory<Program>()
+                .WithWebHostBuilder(builder =>
+                {
+                    builder.UseSetting("Hosting:Role", "Api");
+                    builder.UseSetting("ArchLucid:StorageProvider", "InMemory");
+                    builder.UseSetting("ConnectionStrings:Redis", "localhost");
+                });
+
+            Action act = () => _ = factory.Services;
+
+            act.Should()
+                .Throw<InvalidOperationException>()
+                .WithMessage("*Hosting:Role=Worker*");
+        }
+        finally
+        {
+            snapshot.Restore();
+        }
+    }
+
+    [Fact]
     public void CollectErrors_rejects_transactional_outbox_with_in_memory_storage()
     {
         Dictionary<string, string?> data = new()

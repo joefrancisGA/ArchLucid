@@ -17,6 +17,8 @@ public partial class Program
     {
         WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
+        WorkerProcessHostingRoleConfiguration.Apply(builder);
+
         AzureOpenAiEnvironmentConfigurationBridge.Apply(builder.Configuration);
 
         builder.AddArchLucidGracefulShutdown();
@@ -32,6 +34,8 @@ public partial class Program
             telemetryServiceName: "ArchLucid.Worker");
         builder.Services.AddArchLucidApplicationServices(builder.Configuration, ArchLucidHostingRole.Worker);
 
+        WorkerProcessHostingRoleConfiguration.ValidateOrThrow(builder);
+
         WebApplication app = builder.Build();
 
         ArchLucidLegacyConfigurationWarnings.LogIfLegacyKeysPresent(app.Configuration, app.Logger);
@@ -39,15 +43,6 @@ public partial class Program
             app.Configuration,
             app.Environment,
             app.Logger);
-
-        IReadOnlyList<string> configurationErrors = ArchLucidConfigurationRules.CollectErrors(
-            app.Configuration,
-            app.Environment);
-
-        if (configurationErrors.Count > 0)
-        {
-            StartupConfigurationFailureLogger.LogCriticalAndThrow(configurationErrors, app.Logger);
-        }
 
         ArchLucidConfigurationRules.LogConfigurationWarnings(app.Configuration, app.Environment, app.Logger);
 
