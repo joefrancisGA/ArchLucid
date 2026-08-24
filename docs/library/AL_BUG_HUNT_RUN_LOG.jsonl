@@ -152,3 +152,4 @@
 {"at": "2026-08-24T10:00:00.000000Z", "zoneId": "tenant-scoped-analyzer", "outcome": "hit"}
 {"at": "2026-08-24T10:15:00.000000Z", "zoneId": "security-analyzers", "outcome": "hit"}
 {"at": "2026-08-24T10:30:00.000000Z", "zoneId": "authority-pipeline-payload", "outcome": "hit"}
+{"at": "2026-08-24T10:45:00.000000Z", "zoneId": "technology-ledger-merge", "outcome": "hit"}
