@@ -196,8 +196,6 @@
 {"at":"2026-08-24T17:15:00.000000Z","zoneId":"arm-terraform-source-ids","outcome":"hit"}
 {"at":"2026-08-24T17:20:00.000000Z","zoneId":"arm-terraform-source-ids","outcome":"hit"}
 {"at":"2026-08-24T17:25:00.000000Z","zoneId":"arm-terraform-source-ids","outcome":"hit"}
-<<<<<<< HEAD
 {"at":"2026-08-24T17:22:43.0261280Z","zoneId":"worker-host","outcome":"hit"}
-=======
 {"at":"2026-08-24T17:30:00.000000Z","zoneId":"arm-terraform-source-ids","outcome":"hit"}
->>>>>>> 8d86660998 (docs(al-bug): record arm-terraform log_analytics hunt hit)
+{"at":"2026-08-24T17:35:00.000000Z","zoneId":"arm-terraform-source-ids","outcome":"hit"}
