@@ -726,6 +726,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Live ship-gate reported overall PASS when cross-tenant probes were SKIP (primary sanity Pass + infra 5xx skips) — fixed by downgrading live overall to SKIP and non-zero exit when isolation was not verified.
 
 - [x] (proven) exclude-run-id probes reported PASS on HTTP 5xx when the foreign runId was absent — fixed by skipping list-exclusion probes on server errors like deny-status probes.
+- [x] (proven) Run-list probe missed foreign run ids when the API returned compact `N` guids but the CLI `--run-id` used dashed formatting — **hit 2026-08-24:** `TryFindRunIdInRunList` compared raw strings, so a leaked compact id was treated as absent and the cross-tenant list probe falsely passed; fixed by normalizing both sides to canonical `N` before comparison.
+- [x] (proven) Cross-tenant artifacts probe targeted a non-canonical route — **hit 2026-08-24:** live probes called `GET /v1/artifacts/runs/{runId}` (export-only prefix) instead of `GET /v1/architecture/runs/{runId}/artifacts`, so a 404 on the wrong path reported PASS without exercising artifact isolation; fixed probe path to the product route.
 
 ---
 
