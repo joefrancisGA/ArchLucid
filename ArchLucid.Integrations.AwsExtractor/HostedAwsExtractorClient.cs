@@ -86,7 +86,7 @@ public sealed class HostedAwsExtractorClient(
         RegionEndpoint region,
         CancellationToken cancellationToken)
     {
-        using AmazonSecurityTokenServiceClient stsClient = new(RegionEndpoint.USEast1);
+        using AmazonSecurityTokenServiceClient stsClient = AwsWebIdentityStsClientFactory.Create(region);
 
         AssumeRoleWithWebIdentityResponse response = await stsClient
             .AssumeRoleWithWebIdentityAsync(
