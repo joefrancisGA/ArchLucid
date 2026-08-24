@@ -158,3 +158,4 @@
 {"at": "2026-08-24T11:30:00.000000Z", "zoneId": "worker-host", "outcome": "hit"}
 {"at":"2026-08-24T11:45:00.000000Z","zoneId":"ui-architecture-intelligence","outcome":"hit"}
 {"at":"2026-08-24T12:00:00.000000Z","zoneId":"topology-proposal-merge","outcome":"dry"}
+{"at":"2026-08-24T12:15:00.000000Z","zoneId":"arm-terraform-source-ids","outcome":"hit"}
