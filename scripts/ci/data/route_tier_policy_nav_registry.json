@@ -1202,6 +1202,16 @@
       "nav_operator_href": "/internal/health"
     },
     {
+      "controller_file": "Diagnostics/DevelopmentCatalogResetController.cs",
+      "class_name": "DevelopmentCatalogResetController",
+      "route_template": "v{version:apiVersion}/diagnostics",
+      "normalized_prefix": "/v1/diagnostics",
+      "commercial_tier": "none",
+      "class_policy": "RequireAdmin",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
       "controller_file": "Diagnostics/OperatorTaskSuccessDiagnosticsController.cs",
       "class_name": "OperatorTaskSuccessDiagnosticsController",
       "route_template": "v{version:apiVersion}/diagnostics",
@@ -1219,16 +1229,6 @@
       "commercial_tier": "none",
       "class_policy": "RequireAdmin",
       "exemption": "synthetic_demo_admin_pack",
-      "nav_operator_href": null
-    },
-    {
-      "controller_file": "Diagnostics/DevelopmentCatalogResetController.cs",
-      "class_name": "DevelopmentCatalogResetController",
-      "route_template": "v{version:apiVersion}/diagnostics",
-      "normalized_prefix": "/v1/diagnostics",
-      "commercial_tier": "none",
-      "class_policy": "RequireAdmin",
-      "exemption": "development_catalog_reset",
       "nav_operator_href": null
     },
     {
@@ -1304,6 +1304,16 @@
     {
       "controller_file": "Governance/GovernanceCoverageController.cs",
       "class_name": "GovernanceCoverageController",
+      "route_template": "v{version:apiVersion}/governance",
+      "normalized_prefix": "/v1/governance",
+      "commercial_tier": "standard",
+      "class_policy": "ReadAuthority",
+      "exemption": null,
+      "nav_operator_href": null
+    },
+    {
+      "controller_file": "Governance/GovernancePostureController.cs",
+      "class_name": "GovernancePostureController",
       "route_template": "v{version:apiVersion}/governance",
       "normalized_prefix": "/v1/governance",
       "commercial_tier": "standard",
