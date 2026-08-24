@@ -1,5 +1,6 @@
 using ArchLucid.Application.Drafts;
 using ArchLucid.Application.Drafts.QuestionSelection;
+using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Drafts;
@@ -48,7 +49,10 @@ public sealed class DraftRequestServiceQuestionTests
             .ReturnsAsync(new RequestContentSafetyResult { IsAllowed = true });
 
         _runCreateOrchestrator
-            .Setup(static o => o.CreateRunAsync(It.IsAny<ArchitectureRequest>(), null, It.IsAny<CancellationToken>()))
+            .Setup(static o => o.CreateRunAsync(
+                It.IsAny<ArchitectureRequest>(),
+                It.IsAny<CreateRunIdempotencyState?>(),
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync(new CreateRunResult
             {
                 Run = new ArchitectureRun { RunId = "abc123run", RequestId = "req123" },

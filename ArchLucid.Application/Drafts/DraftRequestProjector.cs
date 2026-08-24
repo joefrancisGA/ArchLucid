@@ -24,7 +24,7 @@ public sealed class DraftRequestProjector : IDraftRequestProjector
 
         return new ArchitectureRequest
         {
-            RequestId = Guid.NewGuid().ToString("N"),
+            RequestId = DraftSpawnedArchitectureRequestId.FromDraftId(draftId),
             Description = description,
             SystemName = systemName,
             Environment = "prod",

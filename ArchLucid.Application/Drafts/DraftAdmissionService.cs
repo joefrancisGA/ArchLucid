@@ -2,6 +2,7 @@ using ArchLucid.Application;
 using ArchLucid.Application.Architecture;
 using ArchLucid.Application.Drafts.PriorAnswerReuse;
 using ArchLucid.Application.Drafts.QuestionSelection;
+using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Drafts;
@@ -221,6 +222,12 @@ public sealed class DraftAdmissionService(
         if (existing is null)
             return null;
 
+        if (DraftRequestStateMachine.AllowsSubmitReplay(existing.Status))
+            return await ReplaySpawnedSubmitAsync(scope, draftId, existing, cancellationToken);
+
+        if (existing.Status == DraftRequestStatus.Submitted)
+            return await HealOrRejectSubmittedSubmitAsync(scope, draftId, existing, cancellationToken);
+
         if (!DraftRequestStateMachine.AllowsSubmit(existing.Status))
             throw new InvalidOperationException($"Draft '{draftId}' cannot be submitted from status '{existing.Status}'.");
 
@@ -235,20 +242,10 @@ public sealed class DraftAdmissionService(
         }
 
         ArchitectureRequest architectureRequest = _projector.Project(existing.Document, draftId);
-
-        await _draftRepository.UpdateAsync(
-            scope.TenantId,
-            scope.WorkspaceId,
-            scope.ProjectId,
-            draftId,
-            DraftRequestStatus.Submitted,
-            existing.Document,
-            existing.RedirectReason,
-            existing.SpawnedRunId,
-            cancellationToken);
+        CreateRunIdempotencyState idempotency = DraftSubmitIdempotency.Build(scope, draftId, architectureRequest);
 
         CreateRunResult createResult =
-            await _runCreateOrchestrator.CreateRunAsync(architectureRequest, idempotency: null, cancellationToken);
+            await _runCreateOrchestrator.CreateRunAsync(architectureRequest, idempotency, cancellationToken);
 
         DraftRequestResponse? spawned = await _draftRepository.UpdateAsync(
             scope.TenantId,
@@ -266,14 +263,74 @@ public sealed class DraftAdmissionService(
             existing.Document.ParentDraftId,
             cancellationToken);
 
-        return new SubmitDraftResponse
+        return DraftSubmitResponseFactory.Create(
+            draftId,
+            spawned!.Status,
+            createResult.Run.RunId,
+            architectureRequest.RequestId,
+            parentSpawnedRunId);
+    }
+
+    private async Task<SubmitDraftResponse> ReplaySpawnedSubmitAsync(
+        ScopeContext scope,
+        Guid draftId,
+        DraftRequestResponse existing,
+        CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(existing.SpawnedRunId))
         {
-            DraftId = draftId,
-            Status = spawned!.Status,
-            RunId = createResult.Run.RunId,
-            RequestId = architectureRequest.RequestId,
-            ParentSpawnedRunId = parentSpawnedRunId,
-        };
+            throw new InvalidOperationException(
+                $"Draft '{draftId}' is in status '{existing.Status}' but has no spawned run id.");
+        }
+
+        ArchitectureRequest architectureRequest = _projector.Project(existing.Document, draftId);
+
+        string? parentSpawnedRunId = await ResolveParentSpawnedRunIdAsync(
+            scope,
+            existing.Document.ParentDraftId,
+            cancellationToken);
+
+        return DraftSubmitResponseFactory.Create(
+            draftId,
+            existing.Status,
+            existing.SpawnedRunId,
+            architectureRequest.RequestId,
+            parentSpawnedRunId);
+    }
+
+    private async Task<SubmitDraftResponse> HealOrRejectSubmittedSubmitAsync(
+        ScopeContext scope,
+        Guid draftId,
+        DraftRequestResponse existing,
+        CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(existing.SpawnedRunId))
+            throw new ConflictException(DraftSubmitSplitState.ConflictMessage(draftId));
+
+        DraftRequestResponse? healed = await _draftRepository.UpdateAsync(
+            scope.TenantId,
+            scope.WorkspaceId,
+            scope.ProjectId,
+            draftId,
+            DraftRequestStatus.RunSpawned,
+            existing.Document,
+            existing.RedirectReason,
+            existing.SpawnedRunId,
+            cancellationToken);
+
+        ArchitectureRequest architectureRequest = _projector.Project(existing.Document, draftId);
+
+        string? parentSpawnedRunId = await ResolveParentSpawnedRunIdAsync(
+            scope,
+            existing.Document.ParentDraftId,
+            cancellationToken);
+
+        return DraftSubmitResponseFactory.Create(
+            draftId,
+            healed!.Status,
+            existing.SpawnedRunId,
+            architectureRequest.RequestId,
+            parentSpawnedRunId);
     }
 
     private async Task<string?> ResolveParentSpawnedRunIdAsync(
