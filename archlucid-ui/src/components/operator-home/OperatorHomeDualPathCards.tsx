@@ -198,7 +198,7 @@ export function OperatorHomeDualPathCards(props: OperatorHomeDualPathCardsProps)
           <div className="min-w-0 space-y-1">
             {lifecycleRecommendedBadge("create-architecture", emphasizedPath, isCompact)}
             <h3
-              className={cn("m-0", isCompact ? OPERATOR_TYPE_SCALE.helper : OPERATOR_HOME_LIFECYCLE_CARD_TITLE)}
+              className={cn("m-0", OPERATOR_HOME_LIFECYCLE_CARD_TITLE)}
               id="operator-home-create-architecture-title"
             >
               {OPERATOR_HOME_CREATE_ARCHITECTURE_CARD_TITLE}
@@ -264,7 +264,7 @@ export function OperatorHomeDualPathCards(props: OperatorHomeDualPathCardsProps)
           <div className="min-w-0 space-y-1">
             {lifecycleRecommendedBadge("review-architecture", emphasizedPath, isCompact)}
             <h3
-              className={cn("m-0", isCompact ? OPERATOR_TYPE_SCALE.helper : OPERATOR_HOME_LIFECYCLE_CARD_TITLE)}
+              className={cn("m-0", OPERATOR_HOME_LIFECYCLE_CARD_TITLE)}
               id="operator-home-review-architecture-title"
             >
               {OPERATOR_HOME_REVIEW_ARCHITECTURE_CARD_TITLE}

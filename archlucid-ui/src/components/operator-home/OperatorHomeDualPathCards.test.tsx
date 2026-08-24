@@ -206,6 +206,13 @@ describe("OperatorHomeDualPathCards", () => {
     expect(screen.queryByTestId("operator-home-explore-recommended-badge")).toBeNull();
   });
 
+  it("renders semibold titles for create and review cards in the compact variant", () => {
+    render(<OperatorHomeDualPathCards variant="compact" />);
+
+    expect(screen.getByRole("heading", { level: 3, name: "Create architecture" })).toHaveClass("font-semibold");
+    expect(screen.getByRole("heading", { level: 3, name: "Review architecture" })).toHaveClass("font-semibold");
+  });
+
   it("still names a blocking prerequisite in the compact variant", () => {
     setupReadiness.context = { ...UNBLOCKED_SETUP_CONTEXT, principalAdmin: false };
 

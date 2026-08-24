@@ -78,35 +78,34 @@ function UnfinishedWorkRailRow(props: { readonly item: UnfinishedWorkRailItem })
 
   return (
     <li
-      className="border-b border-neutral-200 py-2 last:border-b-0 dark:border-neutral-800"
+      className={cn(
+        "grid gap-x-4 gap-y-1 border-b border-neutral-200 py-2 last:border-b-0 dark:border-neutral-800",
+        "sm:col-span-full sm:grid-cols-subgrid sm:items-center sm:gap-y-0",
+      )}
       data-testid={`unfinished-work-rail-item-${item.kind}`}
     >
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-        <div className="grid min-w-0 flex-1 gap-x-4 gap-y-1 sm:grid-cols-[minmax(0,1.6fr)_minmax(0,0.9fr)_minmax(0,0.8fr)] sm:items-center">
-          <Link
-            href={item.href}
-            className={cn("min-w-0 break-words font-medium text-al-text-primary no-underline hover:underline", OPERATOR_TYPOGRAPHY.body)}
-            data-testid={`unfinished-work-rail-link-${item.id}`}
-          >
-            {item.title}
-          </Link>
-          <span className={cn("min-w-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-            {item.workTypeLabel}
-          </span>
-          <span className={cn("min-w-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-            {item.activityLabel ?? "—"}
-          </span>
-        </div>
-        <div className="flex shrink-0 items-center gap-2 sm:justify-end">
-          <StatusTag kind={statusTagKindForRailItem(item.kind)} label={item.statusLabel} />
-          <Link
-            href={item.href}
-            className={cn("font-medium", OPERATOR_TYPOGRAPHY.helper, "text-al-link no-underline hover:underline")}
-            data-testid={`unfinished-work-rail-action-${item.id}`}
-          >
-            {item.actionLabel} →
-          </Link>
-        </div>
+      <Link
+        href={item.href}
+        className={cn("min-w-0 break-words font-medium text-al-text-primary no-underline hover:underline", OPERATOR_TYPOGRAPHY.body)}
+        data-testid={`unfinished-work-rail-link-${item.id}`}
+      >
+        {item.title}
+      </Link>
+      <span className={cn("min-w-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+        {item.workTypeLabel}
+      </span>
+      <span className={cn("min-w-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+        {item.activityLabel ?? "—"}
+      </span>
+      <div className="flex shrink-0 items-center gap-2 sm:justify-end">
+        <StatusTag kind={statusTagKindForRailItem(item.kind)} label={item.statusLabel} />
+        <Link
+          href={item.href}
+          className={cn("font-medium", OPERATOR_TYPOGRAPHY.helper, "text-al-link no-underline hover:underline")}
+          data-testid={`unfinished-work-rail-action-${item.id}`}
+        >
+          {item.actionLabel} →
+        </Link>
       </div>
     </li>
   );
@@ -114,7 +113,10 @@ function UnfinishedWorkRailRow(props: { readonly item: UnfinishedWorkRailItem })
 
 function UnfinishedWorkRailList(props: { readonly items: readonly UnfinishedWorkRailItem[] }): React.JSX.Element {
   return (
-    <ul className="m-0 mt-2 list-none space-y-0 p-0" data-testid="unfinished-work-rail-list">
+    <ul
+      className="m-0 mt-2 list-none space-y-0 p-0 sm:grid sm:grid-cols-[minmax(0,1.6fr)_minmax(0,0.9fr)_minmax(0,0.8fr)_auto] sm:gap-x-4"
+      data-testid="unfinished-work-rail-list"
+    >
       {props.items.map((item) => (
         <UnfinishedWorkRailRow key={item.id} item={item} />
       ))}
