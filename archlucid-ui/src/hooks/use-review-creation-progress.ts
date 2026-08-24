@@ -157,6 +157,23 @@ export function useReviewCreationProgress() {
     [settle],
   );
 
+  const markUnresolved = useCallback(() => {
+    settle();
+    setOutcome({ kind: "unresolved" });
+  }, [settle]);
+
+  const bindOperation = useCallback((operationId: string | null) => {
+    if (operationId === null || operationId.trim().length === 0) {
+      return;
+    }
+
+    clearTimers();
+    setActiveStageId(null);
+    setShowStagedPanel(true);
+    setIsActive(true);
+    setOutcome(null);
+  }, [clearTimers]);
+
   const stages = useMemo(() => resolveReviewStartStages(hasTemplate), [hasTemplate]);
 
   const loadingLabel = useMemo(() => {
@@ -189,6 +206,8 @@ export function useReviewCreationProgress() {
     markOpeningReview,
     succeed,
     fail,
+    markUnresolved,
+    bindOperation,
     reset,
     isActive,
     activeStageId,

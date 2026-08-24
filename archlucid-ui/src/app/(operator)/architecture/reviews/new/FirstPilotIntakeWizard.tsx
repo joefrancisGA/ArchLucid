@@ -34,6 +34,7 @@ import {
 import { deriveGuidedIntakeCloudTargetForMismatch } from "@/lib/review-quality/guided-intake-policy-pack-cloud-mismatch";
 import { getRunSummary } from "@/lib/api/architecture-runs";
 import { createArchitectureRun } from "@/lib/api";
+import { isArchitectureRequestCreateUnresolvedError } from "@/lib/api/architecture-request-create-unresolved-error";
 import { isApiRequestError } from "@/lib/api-request-error";
 import { ARCHITECTURE_REQUEST_DESCRIPTION_MAX_LENGTH } from "@/lib/architecture/architecture-request-limits";
 import {
@@ -68,7 +69,7 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { recordFirstTenantFunnelEvent } from "@/lib/first-tenant-funnel-telemetry";
 
 import { FirstPilotIntakeStartFooter } from "./FirstPilotIntakeStartFooter";
-import { trackReviewPipelineInFlight } from "@/lib/operations/review-pipeline-in-flight";
+import { reviewPipelineOperationId } from "@/lib/operations/review-pipeline-in-flight";
 import {
   buildEvidenceBackedIntakeBrief,
   describeFirstPilotStartBlocker,
@@ -437,9 +438,7 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
         return;
       }
 
-      // Registered before the upload step: analysis is already running server-side, so an upload
-      // failure that keeps the reader on this page must not hide the work from the shell.
-      trackReviewPipelineInFlight(id);
+      creationProgress.bindOperation(reviewPipelineOperationId(id));
 
       if (filesToUpload.length > 0) {
         const uploadResult = await uploadWizardPendingDocumentEvidence(id, filesToUpload);
@@ -468,6 +467,12 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
 
       router.push(buildReviewGenerationRedirect(id, "quick-review"));
     } catch (error) {
+      if (isArchitectureRequestCreateUnresolvedError(error)) {
+        creationProgress.markUnresolved();
+
+        return;
+      }
+
       const message =
         isApiRequestError(error) && error.message.trim().length > 0
           ? error.message

@@ -2,9 +2,10 @@ import type { UseFormGetValues, UseFormTrigger } from "react-hook-form";
 
 import type { ReviewCreationProgressBeginInput } from "@/hooks/use-review-creation-progress";
 import { createArchitectureRun } from "@/lib/api";
+import { isArchitectureRequestCreateUnresolvedError } from "@/lib/api/architecture-request-create-unresolved-error";
 import { isApiRequestError } from "@/lib/api-request-error";
 import { recordFirstTenantFunnelEvent } from "@/lib/first-tenant-funnel-telemetry";
-import { trackReviewPipelineInFlight } from "@/lib/operations/review-pipeline-in-flight";
+import { reviewPipelineOperationId } from "@/lib/operations/review-pipeline-in-flight";
 import {
   REVIEW_START_CREATION_FAILED_MESSAGE,
   REVIEW_START_LLM_BUDGET_EXCEEDED_MESSAGE,
@@ -75,7 +76,7 @@ export async function evaluateWizardFormCreateRunGates(
 
 /** POST create-run after gates have already passed. Records funnel + wizard-completed telemetry. */
 export async function executeWizardFormCreateRun(
-  args: ExecuteArgs,
+  args: ExecuteArgs & { readonly progress?: WizardCreateRunProgressBridge },
 ): Promise<WizardFormCreateRunExecuteResult> {
   try {
     const body = wizardValuesToCreateRunPayload(args.getValues(), args.payloadOptions);
@@ -86,9 +87,10 @@ export async function executeWizardFormCreateRun(
       return { ok: false, reason: "no-run-id" };
     }
 
+    args.progress?.bindOperation?.(reviewPipelineOperationId(runId));
+
     trackWizardCompleted(args.wizardCompletedName);
     recordFirstTenantFunnelEvent("first_run_started");
-    trackReviewPipelineInFlight(runId);
 
     return { ok: true, runId };
   } catch (error: unknown) {
@@ -122,6 +124,8 @@ export type WizardCreateRunProgressBridge = {
   readonly begin: (input?: ReviewCreationProgressBeginInput) => void;
   readonly succeed: () => void;
   readonly fail: (message?: string) => void;
+  readonly markUnresolved: () => void;
+  readonly bindOperation: (operationId: string | null) => void;
 };
 
 export function resolveCreateRunFailureMessage(error: unknown): string {
@@ -182,7 +186,7 @@ export async function submitQuickFamilyWizardCreateRun(
   args.progress?.begin(args.progressBeginInput ?? { hasTemplate: false });
 
   try {
-    const result = await executeWizardFormCreateRun(args);
+    const result = await executeWizardFormCreateRun({ ...args, progress: args.progress });
 
     if (result.ok) {
       args.progress?.succeed();
@@ -194,6 +198,12 @@ export async function submitQuickFamilyWizardCreateRun(
     if (result.reason === "no-run-id") {
       args.progress?.fail(REVIEW_START_CREATION_FAILED_MESSAGE);
       args.setSubmitError(new Error(REVIEW_START_CREATION_FAILED_MESSAGE));
+
+      return;
+    }
+
+    if (isArchitectureRequestCreateUnresolvedError(result.error)) {
+      args.progress?.markUnresolved?.();
 
       return;
     }

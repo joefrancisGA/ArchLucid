@@ -233,6 +233,8 @@ describe("submitQuickFamilyWizardCreateRun", () => {
       begin: vi.fn(),
       succeed: vi.fn(),
       fail: vi.fn(),
+      markUnresolved: vi.fn(),
+      bindOperation: vi.fn(),
     };
     const onRunCreated = vi.fn();
 
