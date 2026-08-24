@@ -1,6 +1,6 @@
 # `/al-bug` evidence-guided reseed report
 
-Generated UTC: `2026-08-24T21:01:43.988524+00:00`
+Generated UTC: `2026-08-24T21:13:19.013564+00:00`
 
 This report ranks evidence sources; each row is a hypothesis input, not proof of a defect.
 
@@ -32,14 +32,14 @@ This report ranks evidence sources; each row is a hypothesis input, not proof of
 | architecture-recommendation | open | `ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationEngine.cs` |
 | extraction-router | open | `ArchLucid.Application/ArchitectureIntelligence/DifficultyBasedExtractionRouter.cs` |
 | cli-tenant-isolation | open | `ArchLucid.Cli/Commands/TenantIsolationNegativeTestCommand.cs`<br>`ArchLucid.Cli/Commands/TenantIsolationNegativeTestRunner.cs` |
-| cli-draft-new | open | `ArchLucid.Cli/Commands/DraftNewCommand.cs` |
 | cli-terraform-evidence | open | `ArchLucid.Cli/Commands/DeploymentEvidenceTerraformReference.cs` |
 | ui-runs-list | open | `archlucid-ui/src/app/(operator)/architecture/reviews/RunsListClient.tsx` |
 | ui-auth-callback | open | `archlucid-ui/src/app/(operator)/auth/callback/AuthCallbackAccessPanel.tsx` |
 | ui-help-docs | open | `archlucid-ui/src/app/(operator)/help/HelpDocsClient.tsx` |
 | ui-webhooks-settings | open | `archlucid-ui/src/app/(operator)/integrations/webhooks/WebhooksSettingsClient.tsx`<br>`archlucid-ui/src/app/(operator)/integrations/webhooks/use-webhooks-settings.ts` |
+| ui-architecture-intelligence | open | `archlucid-ui/src/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligencePageClient.tsx` |
 
-Total requiring reseed: **69**.
+Total requiring reseed: **65**.
 
 ## Coverage-guided branch hotspots
 
@@ -165,7 +165,7 @@ Total surviving mutants: **27**.
 - `ArchLucid.Application/Runs/Async/IArchitectureRunAsyncCreateAdmitter.cs`
 - `ArchLucid.Application/Runs/Coordination/ArchitectureRunAuthorityCoordination.cs`
 
-Total: **249**.
+Total: **254**.
 
 ## Changed production files outside the zone catalog
 
@@ -214,13 +214,13 @@ Total: **249**.
 - `ArchLucid.Application/Runs/Orchestration/ArchitectureRunCreateOrchestrator.cs`
 - `ArchLucid.Application/Runs/Orchestration/ArchitectureRunExecuteOrchestrator.AgentLoop.cs`
 - `ArchLucid.Application/Runs/Orchestration/ArchitectureRunExecuteOrchestrator.Persistence.cs`
-- `ArchLucid.Application/Runs/Orchestration/ArchitectureRunExecuteOrchestrator.cs`
 - `ArchLucid.Application/Runs/Orchestration/AuthorityPipelineWorkPayloadJson.cs`
 - `ArchLucid.Application/Runs/Orchestration/AuthorityRunOrchestrator.cs`
 - `ArchLucid.Application/Runs/Orchestration/IArchitectureRunCreateOrchestrator.cs`
 - `ArchLucid.Application/Runs/QuickStartReviewTitleCompleteness.cs`
+- `ArchLucid.Application/Scim/ScimUserResourceParser.cs`
 
-Total: **224**.
+Total: **227**.
 
 ## Required mechanism rotation
 
