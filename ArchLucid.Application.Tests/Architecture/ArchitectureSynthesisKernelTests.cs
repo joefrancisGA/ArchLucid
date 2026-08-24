@@ -3,6 +3,7 @@ using ArchLucid.Application.ArchitectureIntelligence;
 using ArchLucid.Application.Planning;
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Orchestration;
+using ArchLucid.Application.Tests.Orchestration;
 using ArchLucid.Contracts.ArchitectureIntelligence;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Requests;
@@ -226,6 +227,64 @@ public sealed class ArchitectureSynthesisKernelTests
         saved!.Elements.Should().Contain(e => e.Kind == ArchitectureElementKind.Constraint);
     }
 
+    [Fact]
+    public async Task GenerateAsync_seeds_technology_ledger_from_intake()
+    {
+        ArchitectureRequest request = new()
+        {
+            RequestId = "req-synth-ledger",
+            SystemName = "LedgerSystem",
+            Description = "Created-origin generate seeds technology ledger",
+            CloudProvider = CloudProvider.Azure,
+            WorkflowIntent = ArchitectureWorkflowIntent.CreateArchitecture,
+        };
+
+        Mock<IRequestContentSafetyPrecheck> safety = new();
+        safety
+            .Setup(s => s.EvaluateAsync(request, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RequestContentSafetyResult { IsAllowed = true });
+
+        Mock<IArchitectureRequestRepository> requests = new();
+        requests
+            .Setup(r => r.GetByIdAsync(request.RequestId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((ArchitectureRequest?)null);
+
+        Mock<IRunRepository> runs = new();
+        runs
+            .Setup(r => r.SaveAsync(
+                It.IsAny<RunRecord>(),
+                It.IsAny<CancellationToken>(),
+                It.IsAny<System.Data.IDbConnection?>(),
+                It.IsAny<System.Data.IDbTransaction?>()))
+            .Returns(Task.CompletedTask);
+
+        InMemoryTechnologyLedgerRepository ledger = new();
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+        };
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(p => p.GetCurrentScope()).Returns(scope);
+
+        ArchitectureSynthesisKernel sut = CreateSut(
+            requestRepository: requests.Object,
+            runRepository: runs.Object,
+            scopeProvider: scopeProvider.Object,
+            contentSafety: safety.Object,
+            technologyLedgerRequestSeeder: TechnologyLedgerSeederTestDoubles.CreateRequestSeeder(ledger),
+            technologyLedgerEvidenceSeeder: TechnologyLedgerSeederTestDoubles.CreateEvidenceSeeder(ledger, scopeProvider.Object));
+
+        ArchitectureSynthesisGenerateResult result =
+            await sut.GenerateAsync(request, idempotency: null, CancellationToken.None);
+
+        IReadOnlyList<ArchLucid.Contracts.Persistence.TechnologyLedger.TechnologyLedgerEntry> entries =
+            await ledger.GetByRunIdAsync(scope, result.RunId, CancellationToken.None);
+
+        entries.Should().ContainSingle(e => e.Role == ArchLucid.Contracts.Persistence.TechnologyLedger.TechnologyLedgerRole.CloudPlatform);
+    }
+
     private static ArchitectureSynthesisKernel CreateSut(
         IArchitectureRequestDraftService? draftService = null,
         IArchitectureRequestRepository? requestRepository = null,
@@ -234,6 +293,8 @@ public sealed class ArchitectureSynthesisKernelTests
         IRequestContentSafetyPrecheck? contentSafety = null,
         IArchitectureKnowledgeModelIntakeBuilder? knowledgeModelIntakeBuilder = null,
         IArchitectureIntelligencePersistence? architectureIntelligencePersistence = null,
+        TechnologyLedgerRequestSeeder? technologyLedgerRequestSeeder = null,
+        TechnologyLedgerEvidenceSeeder? technologyLedgerEvidenceSeeder = null,
         TimeProvider? timeProvider = null)
     {
         Mock<IScopeContextProvider> defaultScope = new();
@@ -253,6 +314,13 @@ public sealed class ArchitectureSynthesisKernelTests
             WorkspaceSystemNameCollisionGuardTestDoubles.NoOp(),
             knowledgeModelIntakeBuilder ?? new ArchitectureKnowledgeModelIntakeBuilder(TimeProvider.System),
             architectureIntelligencePersistence,
+            technologyLedgerRequestSeeder
+            ?? TechnologyLedgerSeederTestDoubles.CreateRequestSeeder(
+                Mock.Of<ArchLucid.Persistence.Data.Repositories.ITechnologyLedgerRepository>()),
+            technologyLedgerEvidenceSeeder
+            ?? TechnologyLedgerSeederTestDoubles.CreateEvidenceSeeder(
+                Mock.Of<ArchLucid.Persistence.Data.Repositories.ITechnologyLedgerRepository>(),
+                scopeProvider ?? defaultScope.Object),
             NullLogger<ArchitectureSynthesisKernel>.Instance,
             timeProvider ?? TimeProvider.System);
     }

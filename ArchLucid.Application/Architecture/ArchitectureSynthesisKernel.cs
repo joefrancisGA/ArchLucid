@@ -28,6 +28,8 @@ public sealed class ArchitectureSynthesisKernel(
     IWorkspaceSystemNameCollisionGuard workspaceSystemNameCollisionGuard,
     IArchitectureKnowledgeModelIntakeBuilder knowledgeModelIntakeBuilder,
     IArchitectureIntelligencePersistence? architectureIntelligencePersistence,
+    TechnologyLedgerRequestSeeder technologyLedgerRequestSeeder,
+    TechnologyLedgerEvidenceSeeder technologyLedgerEvidenceSeeder,
     ILogger<ArchitectureSynthesisKernel> logger,
     TimeProvider timeProvider) : IArchitectureSynthesisKernel
 {
@@ -54,6 +56,12 @@ public sealed class ArchitectureSynthesisKernel(
 
     private readonly IArchitectureIntelligencePersistence? _architectureIntelligencePersistence =
         architectureIntelligencePersistence;
+
+    private readonly TechnologyLedgerRequestSeeder _technologyLedgerRequestSeeder =
+        technologyLedgerRequestSeeder ?? throw new ArgumentNullException(nameof(technologyLedgerRequestSeeder));
+
+    private readonly TechnologyLedgerEvidenceSeeder _technologyLedgerEvidenceSeeder =
+        technologyLedgerEvidenceSeeder ?? throw new ArgumentNullException(nameof(technologyLedgerEvidenceSeeder));
 
     private readonly ILogger<ArchitectureSynthesisKernel> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
@@ -122,6 +130,14 @@ public sealed class ArchitectureSynthesisKernel(
 
         string runId = runGuid.ToString("N");
         string? knowledgeModelId = await TryPersistKnowledgeModelAsync(scope, request, runId, cancellationToken);
+
+        await TechnologyLedgerRunCreateSeeding.TrySeedIntakeAsync(
+            runId,
+            request,
+            _technologyLedgerRequestSeeder,
+            _technologyLedgerEvidenceSeeder,
+            _logger,
+            cancellationToken);
 
         return new ArchitectureSynthesisGenerateResult
         {
