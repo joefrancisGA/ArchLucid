@@ -94,7 +94,7 @@ export function InviteReviewerPageView(props: Props) {
           <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Reviewer invitation</CardTitle>
         </CardHeader>
         <CardContent>
-          <SettingsRolesInvitePanel initialMessage={invitePrefillMessage} />
+          <SettingsRolesInvitePanel initialMessage={invitePrefillMessage} reviewId={reviewIdFromQuery} />
         </CardContent>
       </Card>
 
