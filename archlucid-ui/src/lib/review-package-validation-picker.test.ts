@@ -69,7 +69,7 @@ describe("reviewPackageOwnerLabel", () => {
     expect(label).toBe("Taylor Morgan");
   });
 
-  it("uses You when the current user label is missing", () => {
+  it("returns unavailable marker when the current user label is missing", () => {
     const label = reviewPackageOwnerLabel(
       {
         runId: "draft-review",
@@ -79,7 +79,33 @@ describe("reviewPackageOwnerLabel", () => {
       { currentUserLabel: null },
     );
 
-    expect(label).toBe("You");
+    expect(label).toBe(REVIEW_PACKAGE_OWNER_UNAVAILABLE);
+  });
+
+  it("replaces draft registry You placeholder with the signed-in username", () => {
+    const label = reviewPackageOwnerLabel(
+      {
+        runId: "review-linked",
+        projectId: "default",
+        createdUtc: "2026-01-14T12:00:00.000Z",
+      } satisfies RunSummary,
+      {
+        currentUserLabel: "alex@example.com",
+        draftRegistryEntries: [
+          {
+            architectureId: "draft-001",
+            displayName: "Payments platform",
+            customerStatus: "ready-for-review",
+            ownerLabel: "You",
+            lastUpdatedUtc: "2026-01-14T12:00:00.000Z",
+            linkedReviewId: "review-linked",
+            serverUpdatedUtc: "2026-01-14T12:00:00.000Z",
+          },
+        ],
+      },
+    );
+
+    expect(label).toBe("alex@example.com");
   });
 
   it("returns unavailable marker when no owner can be resolved", () => {

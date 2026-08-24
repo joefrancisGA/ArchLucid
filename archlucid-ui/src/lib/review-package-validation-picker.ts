@@ -25,6 +25,9 @@ export type ReviewPackageValidationRow = {
 /** Shown when no package owner can be resolved for a review row. */
 export const REVIEW_PACKAGE_OWNER_UNAVAILABLE = " — ";
 
+/** Legacy draft-registry placeholder for the signed-in operator — replaced with username when known. */
+export const REVIEW_PACKAGE_SELF_OWNER_PLACEHOLDER = "You";
+
 export type ReviewPackageOwnerResolutionContext = {
   readonly currentUserLabel?: string | null;
   readonly draftRegistryEntries?: readonly ArchitectureDraftRegistryEntry[];
@@ -113,11 +116,28 @@ function governanceDecisionOwnerLabel(run: RunSummary): string | null {
   return formatted;
 }
 
+function normalizeResolvedOwnerLabel(
+  ownerLabel: string,
+  currentUserLabel: string | null | undefined,
+): string {
+  if (ownerLabel.trim().toLowerCase() !== REVIEW_PACKAGE_SELF_OWNER_PLACEHOLDER.toLowerCase()) {
+    return ownerLabel;
+  }
+
+  const formatted = formatActionActorName(currentUserLabel);
+
+  if (formatted === ACTION_ACTOR_UNAVAILABLE) {
+    return ownerLabel;
+  }
+
+  return formatted;
+}
+
 function currentUserOwnerFallback(currentUserLabel: string | null | undefined): string | null {
   const formatted = formatActionActorName(currentUserLabel);
 
   if (formatted === ACTION_ACTOR_UNAVAILABLE) {
-    return "You";
+    return null;
   }
 
   return formatted;
@@ -137,7 +157,7 @@ export function reviewPackageOwnerLabel(
   const draftOwner = lookupArchitectureDraftOwnerLabel(run.runId, context.draftRegistryEntries);
 
   if (draftOwner !== null) {
-    return draftOwner;
+    return normalizeResolvedOwnerLabel(draftOwner, context.currentUserLabel);
   }
 
   const governanceOwner = governanceDecisionOwnerLabel(run);

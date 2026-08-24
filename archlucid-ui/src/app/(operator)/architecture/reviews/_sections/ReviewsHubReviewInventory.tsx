@@ -37,6 +37,7 @@ import {
   readOperatorScopeFromStorage,
   type OperatorScopeRecord,
 } from "@/lib/operator/operator-scope-storage";
+import { resolveOperatorPrincipalOwnerLabel } from "@/lib/action-actor-display";
 import { type ReviewPackageOwnerResolutionContext } from "@/lib/review-package-validation-picker";
 import {
   buildReviewsHubWorkspaceScopeEmptyTeaching,
@@ -405,10 +406,10 @@ export function ReviewsHubReviewInventory(props: ReviewsHubReviewInventoryProps)
   const { currentPrincipal } = useOperatorNavAuthority();
   const ownerContext = useMemo<ReviewPackageOwnerResolutionContext>(
     () => ({
-      currentUserLabel: currentPrincipal.name,
+      currentUserLabel: resolveOperatorPrincipalOwnerLabel(currentPrincipal),
       draftRegistryEntries: draftEntries,
     }),
-    [currentPrincipal.name, draftEntries],
+    [currentPrincipal, draftEntries],
   );
   const mergedRuns = useMemo(
     () => mergeRunsWithArchivedCache(props.runs, archivedRuns),
