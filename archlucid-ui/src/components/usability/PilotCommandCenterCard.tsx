@@ -15,6 +15,7 @@ import { InviteeFirstOrientationPanel } from "@/components/operator/InviteeFirst
 import { OperatorHomeDualPathCards } from "@/components/operator-home/OperatorHomeDualPathCards";
 import { OperatorHomeWorkspaceMetricsSummary } from "@/components/operator-home/OperatorHomeWorkspaceMetricsSummary";
 import { useOperatorHomeWorkspaceActivity } from "@/components/operator-home/operator-home-workspace-activity-context";
+import { useSampleReviewsOnOverviewVisible } from "@/components/SampleReviewsOnOverviewPreferenceProvider";
 import { Button } from "@/components/ui/button";
 import { FirstPilotOperateUnlockVocabularyRail } from "@/components/FirstPilotOperateUnlockVocabularyRail";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
@@ -166,13 +167,16 @@ export function PilotCommandCenterCard(props: PilotCommandCenterCardProps = {}):
   const latestDraftPrimary = resolveOperatorHomeLatestDraftPrimaryAction(latestDraft);
   const resumeHref = latestDraftPrimary?.href ?? null;
   const resumeCtaLabel = latestDraftPrimary?.ctaLabel ?? "Resume latest draft";
+  const sampleReviewsVisible = useSampleReviewsOnOverviewVisible();
+  const rawEmphasizedPath = resolveOperatorHomeLifecycleEmphasizedPath(workspacePhase, latestDraft);
+  const emphasizedPath =
+    !sampleReviewsVisible && rawEmphasizedPath === "explore-completed-review" ? null : rawEmphasizedPath;
   const heroCopy = resolveOperatorHomePhaseHeroCopy(
     workspacePhase,
     phaseSignals,
     latestDraft?.displayName ?? null,
     latestDraft,
   );
-  const emphasizedPath = resolveOperatorHomeLifecycleEmphasizedPath(workspacePhase, latestDraft);
   const draftLastEditedLabel =
     latestDraft?.lastUpdatedUtc !== undefined && latestDraft.lastUpdatedUtc.trim().length > 0
       ? formatRunHomeListUpdatedLabel({

@@ -43,6 +43,20 @@ public sealed class UserPreferencesResponse
         set;
     }
 
+    /// <summary>When false, Overview sample-review onboarding surfaces are hidden.</summary>
+    public bool SampleReviewsOnOverviewEnabled
+    {
+        get;
+        set;
+    } = true;
+
+    /// <summary>True when the user has an explicit stored sample-reviews-on-Overview visibility row.</summary>
+    public bool SampleReviewsOnOverviewIsExplicit
+    {
+        get;
+        set;
+    }
+
     /// <summary>Personal IANA time zone for date and time display.</summary>
     public string IanaTimeZoneId
     {

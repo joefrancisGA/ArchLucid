@@ -12,6 +12,7 @@ import { buildColorModeBootstrapInlineScript } from "@/lib/color-mode-bootstrap"
 import { resolveAuthorityThemeFromEnv } from "@/lib/ui-authority-theme";
 
 import { ColorModePreferenceProvider } from "@/components/ColorModePreferenceProvider";
+import { SampleReviewsOnOverviewPreferenceProvider } from "@/components/SampleReviewsOnOverviewPreferenceProvider";
 import { WhereToGoNextPreferenceProvider } from "@/components/WhereToGoNextPreferenceProvider";
 
 import "./globals.css";
@@ -74,7 +75,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       </head>
       <body className="min-h-screen font-sans">
         <ColorModePreferenceProvider>
-          <WhereToGoNextPreferenceProvider>{children}</WhereToGoNextPreferenceProvider>
+          <WhereToGoNextPreferenceProvider>
+            <SampleReviewsOnOverviewPreferenceProvider>{children}</SampleReviewsOnOverviewPreferenceProvider>
+          </WhereToGoNextPreferenceProvider>
         </ColorModePreferenceProvider>
       </body>
     </html>

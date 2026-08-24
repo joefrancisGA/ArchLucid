@@ -277,6 +277,8 @@ describe("setUserAppearancePreference", () => {
       cloudPlatformScopeIsExplicit: false,
       whereToGoNextEnabled: true,
       whereToGoNextIsExplicit: false,
+      sampleReviewsOnOverviewEnabled: true,
+      sampleReviewsOnOverviewIsExplicit: false,
       ianaTimeZoneId: "UTC",
       ianaTimeZoneIsExplicit: false,
     });
@@ -317,6 +319,44 @@ describe("setUserWhereToGoNextEnabled", () => {
     expect(preferences.whereToGoNextIsExplicit).toBe(true);
     expect(apiGetMock).not.toHaveBeenCalled();
     expect(apiPutJsonMock).toHaveBeenCalledWith("/v1/user/preferences/where-to-go-next", {
+      enabled: false,
+    });
+  });
+});
+
+describe("setUserSampleReviewsOnOverviewEnabled", () => {
+  let getUserPreferences: typeof import("@/lib/api/user-preferences").getUserPreferences;
+  let resetUserPreferencesCacheForTests: typeof import("@/lib/api/user-preferences").resetUserPreferencesCacheForTests;
+  let setUserSampleReviewsOnOverviewEnabled: typeof import("@/lib/api/user-preferences").setUserSampleReviewsOnOverviewEnabled;
+
+  beforeEach(async () => {
+    vi.resetModules();
+    apiGetMock.mockReset();
+    apiPutJsonMock.mockReset();
+    resetOperatorQueryClientForTests();
+    const mod = await import("@/lib/api/user-preferences");
+    getUserPreferences = mod.getUserPreferences;
+    resetUserPreferencesCacheForTests = mod.resetUserPreferencesCacheForTests;
+    setUserSampleReviewsOnOverviewEnabled = mod.setUserSampleReviewsOnOverviewEnabled;
+    resetUserPreferencesCacheForTests();
+  });
+
+  afterEach(() => {
+    resetUserPreferencesCacheForTests();
+    resetOperatorQueryClientForTests();
+  });
+
+  it("persists visibility and seeds cache without a follow-up GET", async () => {
+    apiPutJsonMock.mockResolvedValue(undefined);
+
+    await setUserSampleReviewsOnOverviewEnabled(false);
+
+    const preferences = await getUserPreferences();
+
+    expect(preferences.sampleReviewsOnOverviewEnabled).toBe(false);
+    expect(preferences.sampleReviewsOnOverviewIsExplicit).toBe(true);
+    expect(apiGetMock).not.toHaveBeenCalled();
+    expect(apiPutJsonMock).toHaveBeenCalledWith("/v1/user/preferences/sample-reviews-on-overview", {
       enabled: false,
     });
   });

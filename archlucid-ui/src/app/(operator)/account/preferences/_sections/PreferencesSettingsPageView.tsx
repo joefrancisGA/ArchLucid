@@ -3,6 +3,7 @@
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { CloudPlatformScopePanel } from "@/components/preferences/CloudPlatformScopePanel";
+import { SampleReviewsOnOverviewPreferencePanel } from "@/components/preferences/SampleReviewsOnOverviewPreferencePanel";
 import { TimeZonePreferencePanel } from "@/components/preferences/TimeZonePreferencePanel";
 import { WhereToGoNextPreferencePanel } from "@/components/preferences/WhereToGoNextPreferencePanel";
 import { PreferencesNotificationsVocabularyRail } from "@/components/PreferencesNotificationsVocabularyRail";
@@ -17,10 +18,15 @@ import {
   PREFERENCES_FOLLOW_UP_LINK_STRIPS_ANCHOR_ID,
   PREFERENCES_WHERE_TO_GO_NEXT_HEADING,
 } from "@/lib/where-to-go-next-preference-copy";
+import {
+  PREFERENCES_SAMPLE_REVIEWS_ON_OVERVIEW_ANCHOR_ID,
+  PREFERENCES_SAMPLE_REVIEWS_ON_OVERVIEW_HEADING,
+} from "@/lib/sample-reviews-on-overview-preference-copy";
 import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { PREFERENCES_HELP_TOPIC_LABEL } from "@/lib/preferences-settings-evidence-copy";
 import { useCloudPlatformScope } from "@/lib/use-cloud-platform-scope";
 import { useIanaTimeZonePreference } from "@/lib/use-iana-time-zone-preference";
+import { useSampleReviewsOnOverviewPreference } from "@/components/SampleReviewsOnOverviewPreferenceProvider";
 import { useWhereToGoNextPreference } from "@/components/WhereToGoNextPreferenceProvider";
 import { cn } from "@/lib/utils";
 
@@ -32,6 +38,12 @@ export function PreferencesSettingsPageView() {
     accountSyncState: whereToGoNextAccountSyncState,
     setAndPersist: setWhereToGoNextAndPersist,
   } = useWhereToGoNextPreference();
+  const {
+    enabled: sampleReviewsOnOverviewEnabled,
+    mounted: sampleReviewsOnOverviewMounted,
+    accountSyncState: sampleReviewsOnOverviewAccountSyncState,
+    setAndPersist: setSampleReviewsOnOverviewAndPersist,
+  } = useSampleReviewsOnOverviewPreference();
   const {
     ianaTimeZoneId,
     mounted: timeZoneMounted,
@@ -100,6 +112,36 @@ export function PreferencesSettingsPageView() {
             />
           ) : (
             <div aria-hidden="true" className="h-24 w-full" data-testid="cloud-platform-scope-loading" />
+          )}
+        </CardContent>
+      </Card>
+      <Card
+        id={PREFERENCES_SAMPLE_REVIEWS_ON_OVERVIEW_ANCHOR_ID}
+        data-testid="preferences-sample-reviews-on-overview-card"
+      >
+        <CardHeader>
+          <CardTitle
+            id="preferences-sample-reviews-on-overview-heading"
+            as="h2"
+            className={OPERATOR_TYPOGRAPHY.cardTitle}
+          >
+            {PREFERENCES_SAMPLE_REVIEWS_ON_OVERVIEW_HEADING}
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {sampleReviewsOnOverviewMounted ? (
+            <SampleReviewsOnOverviewPreferencePanel
+              enabled={sampleReviewsOnOverviewEnabled}
+              onEnabledChange={setSampleReviewsOnOverviewAndPersist}
+              accountSyncState={sampleReviewsOnOverviewAccountSyncState}
+              labelledById="preferences-sample-reviews-on-overview-heading"
+            />
+          ) : (
+            <div
+              aria-hidden="true"
+              className="h-16 w-full"
+              data-testid="sample-reviews-on-overview-preference-loading"
+            />
           )}
         </CardContent>
       </Card>

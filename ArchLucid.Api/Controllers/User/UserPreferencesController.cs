@@ -51,6 +51,10 @@ public sealed class UserPreferencesController(
             userId,
             UserSettingKeys.WhereToGoNextEnabled,
             cancellationToken);
+        string? sampleReviewsOnOverviewStored = await _userSettingsRepository.TryGetAsync(
+            userId,
+            UserSettingKeys.SampleReviewsOnOverviewEnabled,
+            cancellationToken);
         string? ianaTimeZoneStored = await _userSettingsRepository.TryGetAsync(
             userId,
             UserSettingKeys.IanaTimeZoneId,
@@ -60,6 +64,7 @@ public sealed class UserPreferencesController(
             ?? AppearancePreferenceValues.Default;
         CloudPlatformScopeDto cloudPlatformScope = CloudPlatformScopeValues.NormalizeOrDefault(cloudScopeStored);
         bool whereToGoNextEnabled = WhereToGoNextVisibilityValues.ParseOrDefault(whereToGoNextStored);
+        bool sampleReviewsOnOverviewEnabled = SampleReviewsOnOverviewVisibilityValues.ParseOrDefault(sampleReviewsOnOverviewStored);
         string ianaTimeZoneId = IanaTimeZonePreferenceValues.NormalizeOrDefault(ianaTimeZoneStored);
 
         return Ok(new UserPreferencesResponse
@@ -72,6 +77,8 @@ public sealed class UserPreferencesController(
                 && CloudPlatformScopeValues.TryParse(cloudScopeStored) is not null,
             WhereToGoNextEnabled = whereToGoNextEnabled,
             WhereToGoNextIsExplicit = whereToGoNextStored is not null,
+            SampleReviewsOnOverviewEnabled = sampleReviewsOnOverviewEnabled,
+            SampleReviewsOnOverviewIsExplicit = sampleReviewsOnOverviewStored is not null,
             IanaTimeZoneId = ianaTimeZoneId,
             IanaTimeZoneIsExplicit = ianaTimeZoneStored is not null
                 && IanaTimeZonePreferenceValues.NormalizeOrNull(ianaTimeZoneStored) is not null,
@@ -158,6 +165,32 @@ public sealed class UserPreferencesController(
         await _userSettingsRepository.UpsertAsync(
             userId,
             UserSettingKeys.WhereToGoNextEnabled,
+            serialized,
+            cancellationToken);
+
+        return NoContent();
+    }
+
+    /// <summary>Persists whether sample reviews are shown on Overview.</summary>
+    [HttpPut("sample-reviews-on-overview")]
+    [MutatingAuditExcluded("Personal sample-reviews-on-Overview visibility stored in dbo.UserSettings; no durable tenant audit row required.")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> SetSampleReviewsOnOverviewVisibility(
+        [FromBody] SetSampleReviewsOnOverviewVisibilityRequest? body,
+        CancellationToken cancellationToken)
+    {
+        if (body is null)
+        {
+            return this.BadRequestProblem("Request body is required.", ProblemTypes.ValidationFailed);
+        }
+
+        string userId = _actorContext.GetActorId();
+        string serialized = SampleReviewsOnOverviewVisibilityValues.Serialize(body.Enabled);
+
+        await _userSettingsRepository.UpsertAsync(
+            userId,
+            UserSettingKeys.SampleReviewsOnOverviewEnabled,
             serialized,
             cancellationToken);
 

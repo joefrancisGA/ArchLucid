@@ -4,6 +4,7 @@ import { useState } from "react";
 
 import { useNavCallerAuthorityRank } from "@/components/operator/OperatorNavAuthorityProvider";
 import { OperatorHomeCompletedSampleAction } from "@/components/operator-home/OperatorHomeCompletedSampleAction";
+import { useSampleReviewsOnOverviewVisible } from "@/components/SampleReviewsOnOverviewPreferenceProvider";
 import { SpecimenDeliverablePreviewCallout } from "@/components/usability/SpecimenDeliverablePreviewCallout";
 import { OperatorHomeNavigateLoadingButton } from "@/components/operator-home/OperatorHomeNavigateLoadingButton";
 import { OperatorHomeReadinessStrip } from "@/components/operator-home/OperatorHomeReadinessStrip";
@@ -156,7 +157,8 @@ export function OperatorHomeDualPathCards(props: OperatorHomeDualPathCardsProps)
 
   const canManageCloudConnections = callerAuthorityRank >= AUTHORITY_RANK.AdminAuthority;
   const isCompact = variant === "compact";
-  const hideExplorePath = props.hideExplorePath === true;
+  const sampleReviewsVisible = useSampleReviewsOnOverviewVisible();
+  const hideExplorePath = props.hideExplorePath === true || !sampleReviewsVisible;
 
   const workspaceReadiness =
     readiness.context !== null
