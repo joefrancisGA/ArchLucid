@@ -156,3 +156,4 @@
 {"at": "2026-08-24T11:00:00.000000Z", "zoneId": "review-recurrence", "outcome": "hit"}
 {"at": "2026-08-24T11:15:00.000000Z", "zoneId": "cli-draft-new", "outcome": "hit"}
 {"at": "2026-08-24T11:30:00.000000Z", "zoneId": "worker-host", "outcome": "hit"}
+{"at":"2026-08-24T11:45:00.000000Z","zoneId":"ui-architecture-intelligence","outcome":"hit"}
