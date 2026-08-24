@@ -35,18 +35,29 @@ public partial class Program
     {
         WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
-        // Optional tuning (observability, replay batch limits, DOCX export profiles, integration hooks). Loaded after default JSON; see docs/PILOT_GUIDE.md.
+        // Configuration layering (lowest → highest for the same key):
+        // 1. WebApplication defaults — appsettings.json (pilot-minimal product defaults) then appsettings.{Environment}.json
+        // 2. Optional appsettings.Pilot.json — connection strings + scale-honest pilot profile (TB-2082)
+        // 3. Optional appsettings.Advanced.json / appsettings.SaaS.json — feature-grouped tuning (QuickScan, DR fallback, retrieval, workers)
+        // 4. AddEnvironmentVariables() — deployment/CI overrides beat Pilot/Advanced/SaaS overlays
+        // 5. In-memory bridges — AzureOpenAiEnvironmentConfigurationBridge, ArchitectureRunCreationConfigurationBridge
+        // See docs/library/CONFIGURATION_REFERENCE.md and docs/architecture/architecture_diagrams/archlucid-config-precedence.mmd.
+        builder.Configuration.AddJsonFile(
+            Path.Combine(builder.Environment.ContentRootPath, "appsettings.Pilot.json"),
+            optional: true,
+            reloadOnChange: true);
+
         builder.Configuration.AddJsonFile(
             Path.Combine(builder.Environment.ContentRootPath, "appsettings.Advanced.json"),
-            true,
-            true);
+            optional: true,
+            reloadOnChange: true);
 
         builder.Configuration.AddJsonFile(
             Path.Combine(builder.Environment.ContentRootPath, "appsettings.SaaS.json"),
-            true,
-            true);
+            optional: true,
+            reloadOnChange: true);
 
-        // Advanced/SaaS JSON load before environment variables so deployment and CI env overrides still win.
+        // Pilot/Advanced/SaaS JSON load before environment variables so deployment and CI env overrides still win.
         builder.Configuration.AddEnvironmentVariables();
 
         AzureOpenAiEnvironmentConfigurationBridge.Apply(builder.Configuration);
