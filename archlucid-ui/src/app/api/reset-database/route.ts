@@ -51,6 +51,16 @@ function buildResetTargetUrl(request: NextRequest): string {
   return `${origin}${RESET_TARGET_PATH}`;
 }
 
+function resolveResponseCorrelationId(upstream: Response, fallbackCorrelationId: string): string {
+  const upstreamCorrelationId = upstream.headers.get(CORRELATION_ID_HEADER)?.trim() ?? "";
+
+  if (upstreamCorrelationId.length > 0) {
+    return upstreamCorrelationId;
+  }
+
+  return fallbackCorrelationId;
+}
+
 async function buildPassThroughResponse(
   upstream: Response,
   correlationId: string,
@@ -58,9 +68,10 @@ async function buildPassThroughResponse(
   const text = await upstream.text();
   const contentType = upstream.headers.get("content-type") ?? "application/json";
   const res = new NextResponse(text.length > 0 ? text : null, { status: upstream.status });
+  const responseCorrelationId = resolveResponseCorrelationId(upstream, correlationId);
 
   res.headers.set("Content-Type", contentType);
-  res.headers.set(CORRELATION_ID_HEADER, correlationId);
+  res.headers.set(CORRELATION_ID_HEADER, responseCorrelationId);
 
   return res;
 }
@@ -87,7 +98,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         type: "about:blank",
         title: "Database reset unavailable",
         status: 502,
-        detail: message,
+        detail: `${message} (target: ${RESET_TARGET_PATH})`,
         correlationId,
       },
       { status: 502 },
