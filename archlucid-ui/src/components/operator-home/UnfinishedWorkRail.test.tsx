@@ -141,6 +141,50 @@ describe("UnfinishedWorkRail (TB-2209)", () => {
     expect(container).toBeEmptyDOMElement();
   });
 
+  it("uses a shared grid so columns align across rows", () => {
+    mockDraftEntries = [
+      {
+        architectureId: "arch-long",
+        displayName: "Architecture Review Packet: B2B SaaS Tenant Migration Platform",
+        customerStatus: "draft",
+        ownerLabel: "You",
+        lastUpdatedUtc: "2026-08-10T12:00:00Z",
+        linkedReviewId: null,
+        serverUpdatedUtc: "2026-08-10T12:00:00Z",
+      },
+      {
+        architectureId: "arch-short",
+        displayName: "Vertex",
+        customerStatus: "draft",
+        ownerLabel: "You",
+        lastUpdatedUtc: "2026-08-09T12:00:00Z",
+        linkedReviewId: null,
+        serverUpdatedUtc: "2026-08-09T12:00:00Z",
+      },
+    ];
+    const runs = [
+      {
+        runId: "run-mid",
+        projectId: "default",
+        createdUtc: "2026-08-10T11:00:00Z",
+        description: "Edge review in flight",
+        hasFindingsSnapshot: false,
+        hasGoldenManifest: false,
+      },
+    ] as RunSummary[];
+
+    render(
+      <OperatorHomeWorkspaceActivityProvider initialHasReviews>
+        <UnfinishedWorkRail runs={runs} />
+      </OperatorHomeWorkspaceActivityProvider>,
+    );
+
+    const list = screen.getByTestId("unfinished-work-rail-list");
+
+    expect(list.className).toContain("sm:grid-cols-[minmax(0,1.6fr)_minmax(0,0.9fr)_minmax(0,0.8fr)_auto]");
+    expect(screen.getAllByTestId(/unfinished-work-rail-item-/)[0]?.className).toContain("sm:grid-cols-subgrid");
+  });
+
   it("surfaces mid-execute reviews from runs props", () => {
     mockDraftEntries = [];
     const runs = [
