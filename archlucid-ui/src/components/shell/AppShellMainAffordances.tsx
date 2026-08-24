@@ -7,6 +7,7 @@ import { BuyerGoldenJourneyLayerContextStrip } from "@/components/shell/BuyerGol
 import { DemoVsLiveChromeBanner } from "@/components/usability/DemoVsLiveChromeBanner";
 import { ExplainThisViewBanner } from "@/components/usability/ExplainThisViewBanner";
 import { FirstVisitHelpAutoOpen } from "@/components/usability/FirstVisitHelpAutoOpen";
+import { PersistentWorkspaceNextActionStrip } from "@/components/usability/PersistentWorkspaceNextActionStrip";
 import { ReviewsListReturnStateTracker } from "@/components/usability/ReviewsListReturnStateTracker";
 import { isExplicitStaticDemoMarketingBuild } from "@/lib/buyer/buyer-demo-content-gating";
 
@@ -17,6 +18,7 @@ export function AppShellMainAffordances() {
   return (
     <>
       <BuyerGoldenJourneyLayerContextStrip />
+      <PersistentWorkspaceNextActionStrip />
       <OperatorRecentViewsTracker />
       <ReviewsListReturnStateTracker />
       <FirstVisitHelpAutoOpen />
