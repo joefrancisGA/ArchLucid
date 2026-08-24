@@ -476,7 +476,7 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
   };
 
   return (
-    <div className="space-y-5 pb-24" data-testid="first-pilot-intake-wizard">
+    <div className="space-y-5" data-testid="first-pilot-intake-wizard">
       {wizardSession.pendingRestore !== null ? (
         <WizardSessionResumePrompt
           onResume={wizardSession.acceptRestore}

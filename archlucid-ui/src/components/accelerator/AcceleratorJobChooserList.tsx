@@ -39,7 +39,7 @@ function AcceleratorChooserPackRow(props: AcceleratorChooserPackRowProps): React
 
   return (
     <li
-      className="rounded-md border border-neutral-200 p-3 dark:border-neutral-800"
+      className="min-w-0 rounded-md border border-neutral-200 p-3 dark:border-neutral-800"
       data-testid={`${rowPrefix}-${entry.id}`}
     >
       <h3 className={cn("m-0 text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>
@@ -91,7 +91,7 @@ export function AcceleratorJobChooserList(props: AcceleratorJobChooserListProps)
 
   return (
     <ul
-      className={cn("m-0 grid list-none gap-3 p-0 sm:grid-cols-2", props.className)}
+      className={cn("m-0 grid list-none grid-cols-1 gap-3 p-0 sm:grid-cols-2", props.className)}
       data-testid={props.listTestId}
     >
       {gridItems.map((item) => {

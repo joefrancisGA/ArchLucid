@@ -4,16 +4,12 @@ import { cn } from "@/lib/utils";
 
 import { StatusTag } from "@/components/ui/status-tag";
 import type { WizardSessionSaveState } from "@/hooks/use-wizard-session-persistence";
-import { WIZARD_SESSION_AUTOSAVE_REASSURANCE } from "@/lib/create-vs-review-intake-copy";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 type WizardSessionSaveStatusProps = {
   readonly saveState: WizardSessionSaveState;
   readonly lastSavedUtc: string | null;
-  /**
-   * `inline` aligns the status row with adjacent h-9 action buttons; reassurance renders separately
-   * via {@link WizardSessionSaveReassurance}.
-   */
+  /** `inline` aligns the status row with adjacent h-9 action buttons. */
   readonly layout?: "stacked" | "inline";
 };
 
@@ -91,22 +87,6 @@ export function WizardSessionSaveStatus(props: WizardSessionSaveStatusProps): Re
       data-save-state={props.saveState}
     >
       <div className="flex flex-wrap items-center justify-end gap-2">{statusContent}</div>
-      <WizardSessionSaveReassurance saveState={props.saveState} />
     </div>
-  );
-}
-
-/** Autosave reassurance line for stacked save status or below an inline action row. */
-export function WizardSessionSaveReassurance(props: {
-  readonly saveState: WizardSessionSaveState;
-}): React.JSX.Element | null {
-  if (props.saveState !== "saved" && props.saveState !== "saving") {
-    return null;
-  }
-
-  return (
-    <span className="text-al-text-secondary" data-testid="wizard-session-autosave-reassurance">
-      {WIZARD_SESSION_AUTOSAVE_REASSURANCE}
-    </span>
   );
 }

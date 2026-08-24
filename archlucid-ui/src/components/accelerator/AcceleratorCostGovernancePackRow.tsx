@@ -37,7 +37,7 @@ export function AcceleratorCostGovernancePackRow(props: AcceleratorCostGovernanc
 
   return (
     <li
-      className="rounded-md border border-neutral-200 p-3 dark:border-neutral-800"
+      className="min-w-0 rounded-md border border-neutral-200 p-3 dark:border-neutral-800"
       data-testid={`${rowPrefix}-${ACCELERATOR_COST_GOVERNANCE_GROUP_ID}`}
     >
       <h3 className={cn("m-0 text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>
