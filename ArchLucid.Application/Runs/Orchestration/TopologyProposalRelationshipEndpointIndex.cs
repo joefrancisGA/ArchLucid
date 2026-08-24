@@ -702,6 +702,7 @@ public static class TopologyProposalRelationshipEndpointIndex
             || normalized.Contains("search_service", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("eventhub_namespace", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("synapse_workspace", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("data_factory", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("communication_service", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("cognitive_account", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("cognitive_services", StringComparison.OrdinalIgnoreCase)
