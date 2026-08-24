@@ -845,8 +845,9 @@ export function AzureBoardsIntegrationPageClient(): React.ReactElement {
 
           <AzureBoardsIntegrationAside
             status={connectionStatus}
-            setupSteps={setupSteps}
-            emphasizedSetupStepId={pageComposition.emphasizedSetupStepId}
+            credentialsReady={credentialsReady}
+            settingsReady={settingsReady}
+            connectionVerified={health?.reachable === true}
             lastTestAt={lastTestAt}
             lastTestSummary={lastTestSummary}
             lastTestSuccess={lastTestSuccess}
