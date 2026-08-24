@@ -93,11 +93,11 @@ Set `status` to `cooling` when yield has dropped (for example two dry hunts) but
 - **aliases:** topology merge; merge gate; graph merge
 - **paths:** ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalMergeGate.cs; ArchLucid.Application/Runs/Orchestration/AgentTopologyProposalGraphMerge.cs
 - **test-filter:** FullyQualifiedName~AgentTopologyProposalMergeGateTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests
-- **hunts:** 43
-- **bugs-found:** 44
+- **hunts:** 44
+- **bugs-found:** 45
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24 — `azurerm_powerbi_embedded` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`powerbi` was only listed for datastore aliases)
+- **last-bug:** 2026-08-24 — `azurerm_maps_account` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`maps_account` was only listed for datastore aliases)
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
@@ -127,11 +127,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** ARM resource ids; terraform source id; endpoint index
 - **paths:** ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs
 - **test-filter:** FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests
-- **hunts:** 43
-- **bugs-found:** 44
+- **hunts:** 44
+- **bugs-found:** 45
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24 — `azurerm_powerbi_embedded` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`powerbi` was only listed for datastore aliases)
+- **last-bug:** 2026-08-24 — `azurerm_maps_account` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`maps_account` was only listed for datastore aliases)
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -170,6 +170,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - [x] (proven) `azurerm_app_configuration` Terraform address omitted from `LooksLikeTerraformServiceSourceId` — **hit 2026-08-24:** `app_configuration` was only in the datastore list; `azurerm_app_configuration.main` on Data-category nodes dropped `svc-` synthetic aliases; regression in gate + merge tests
 - [x] (proven) `azurerm_stream_analytics_job` Terraform address omitted from `LooksLikeTerraformServiceSourceId` — **hit 2026-08-24:** `stream_analytics` was only in the datastore list; `azurerm_stream_analytics_job.main` on Data-category nodes dropped `svc-` synthetic aliases; regression in gate + merge tests
 - [x] (proven) `azurerm_iothub` Terraform address omitted from `LooksLikeTerraformServiceSourceId` — **hit 2026-08-24:** `iothub` was only in the datastore list; `azurerm_iothub.main` on Data-category nodes dropped `svc-` synthetic aliases; regression in gate + merge tests
+- [x] (proven) `azurerm_maps_account` Terraform address omitted from `LooksLikeTerraformServiceSourceId` — **hit 2026-08-24:** `maps_account` was only in the datastore list; `azurerm_maps_account.main` on Data-category nodes dropped `svc-` synthetic aliases; regression in gate + merge tests
 - [x] (proven) `azurerm_powerbi_embedded` Terraform address omitted from `LooksLikeTerraformServiceSourceId` — **hit 2026-08-24:** `powerbi` was only in the datastore list; `azurerm_powerbi_embedded.main` on Data-category nodes dropped `svc-` synthetic aliases; regression in gate + merge tests
 - [x] (proven) `azurerm_managed_disk` Terraform address omitted from `LooksLikeTerraformServiceSourceId` — **hit 2026-08-24:** `managed_disk` was only in the datastore list; `azurerm_managed_disk.main` on Data-category nodes dropped `svc-` synthetic aliases; regression in gate + merge tests
 - [x] (proven) `azurerm_recovery_services_vault` Terraform address omitted from `LooksLikeTerraformServiceSourceId` — **hit 2026-08-24:** `recovery_services` was only in the datastore list; `azurerm_recovery_services_vault.main` on Data-category nodes dropped `svc-` synthetic aliases; regression in gate + merge tests
@@ -186,11 +187,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** tenant settings; DefaultTenant FK
 - **paths:** ArchLucid.Persistence/Tenancy/SqlTenantSettingsRepository.cs; ArchLucid.Persistence/Tenancy/CachingTenantSettingsRepository.cs
 - **test-filter:** FullyQualifiedName~SqlTenantSettingsRepository
-- **hunts:** 43
-- **bugs-found:** 44
+- **hunts:** 44
+- **bugs-found:** 45
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24 — `azurerm_powerbi_embedded` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`powerbi` was only listed for datastore aliases)
+- **last-bug:** 2026-08-24 — `azurerm_maps_account` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`maps_account` was only listed for datastore aliases)
 - **related-pd-tb:** PD-003
 - **code-changed-since:** unknown
 
@@ -213,11 +214,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** form validation; signup form; TB-2005
 - **paths:** archlucid-ui/src/components/marketing/SignupForm.tsx
 - **test-filter:** SignupForm
-- **hunts:** 43
-- **bugs-found:** 44
+- **hunts:** 44
+- **bugs-found:** 45
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-08-16
-- **last-bug:** 2026-08-24 — `azurerm_powerbi_embedded` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`powerbi` was only listed for datastore aliases)
+- **last-bug:** 2026-08-24 — `azurerm_maps_account` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`maps_account` was only listed for datastore aliases)
 - **related-pd-tb:** TB-2005
 - **code-changed-since:** unknown
 
@@ -241,11 +242,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** output integrity; commit integrity
 - **paths:** ArchLucid.Application/Runs/Orchestration/CommitOutputIntegrityService.cs; ArchLucid.Application/Runs/Orchestration/RealCommitAgentOutputQualityGateEvaluator.cs; ArchLucid.Core/AgentEvaluation/AgentExecutionTraceLatestPerTaskSelector.cs
 - **test-filter:** FullyQualifiedName~AuthorityDrivenArchitectureRunCommitOrchestratorIntegrityTests|FullyQualifiedName~RealCommitAgentOutputQualityGateEvaluatorTests|FullyQualifiedName~AgentExecutionTraceLatestPerTaskSelectorTests
-- **hunts:** 43
-- **bugs-found:** 44
+- **hunts:** 44
+- **bugs-found:** 45
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-23
-- **last-bug:** 2026-08-24 — `azurerm_powerbi_embedded` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`powerbi` was only listed for datastore aliases)
+- **last-bug:** 2026-08-24 — `azurerm_maps_account` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`maps_account` was only listed for datastore aliases)
 - **related-pd-tb:** TB-2226
 - **code-changed-since:** 0
 
@@ -267,11 +268,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** content safety; admission gate; prompt injection
 - **paths:** ArchLucid.Application/Runs/Orchestration/CompositeRequestContentSafetyPrecheck.cs; ArchLucid.Application/Runs/Orchestration/LlmSemanticAdmissionGate.cs; ArchLucid.Application/Runs/Orchestration/DefaultRequestContentSafetyPrecheck.cs
 - **test-filter:** FullyQualifiedName~DefaultRequestContentSafetyPrecheckTests|FullyQualifiedName~LlmSemanticAdmissionGateTests
-- **hunts:** 43
-- **bugs-found:** 44
+- **hunts:** 44
+- **bugs-found:** 45
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-08-23
-- **last-bug:** 2026-08-24 — `azurerm_powerbi_embedded` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`powerbi` was only listed for datastore aliases)
+- **last-bug:** 2026-08-24 — `azurerm_maps_account` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`maps_account` was only listed for datastore aliases)
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
@@ -294,11 +295,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** storage vs data; structural post-processor; consistency gate
 - **paths:** ArchLucid.Application/Runs/Orchestration/AgentProposalStructuralPostProcessor.cs; ArchLucid.Application/Runs/Orchestration/CrossAgentProposalConsistencyGate.cs
 - **test-filter:** FullyQualifiedName~AgentProposalStructuralPostProcessorTests|FullyQualifiedName~CrossAgentProposalConsistencyGateTests
-- **hunts:** 43
-- **bugs-found:** 44
+- **hunts:** 44
+- **bugs-found:** 45
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-08-16
-- **last-bug:** 2026-08-24 — `azurerm_powerbi_embedded` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`powerbi` was only listed for datastore aliases)
+- **last-bug:** 2026-08-24 — `azurerm_maps_account` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`maps_account` was only listed for datastore aliases)
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
@@ -320,11 +321,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** authority payload; pipeline work payload
 - **paths:** ArchLucid.Application/Runs/Orchestration/AuthorityPipelineWorkPayload.cs
 - **test-filter:** FullyQualifiedName~AuthorityPipelineWorkPayloadJsonTests|FullyQualifiedName~AuthorityPipelineWorkPayloadDocumentsNullElementTests
-- **hunts:** 43
-- **bugs-found:** 44
+- **hunts:** 44
+- **bugs-found:** 45
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24 — `azurerm_powerbi_embedded` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`powerbi` was only listed for datastore aliases)
+- **last-bug:** 2026-08-24 — `azurerm_maps_account` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`maps_account` was only listed for datastore aliases)
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -352,11 +353,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** technology ledger; ledger merge policy
 - **paths:** ArchLucid.Application/Runs/Orchestration/TechnologyLedgerAgentProposalMergePolicy.cs
 - **test-filter:** FullyQualifiedName~TechnologyLedger
-- **hunts:** 43
-- **bugs-found:** 44
+- **hunts:** 44
+- **bugs-found:** 45
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24 — `azurerm_powerbi_embedded` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`powerbi` was only listed for datastore aliases)
+- **last-bug:** 2026-08-24 — `azurerm_maps_account` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`maps_account` was only listed for datastore aliases)
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -378,11 +379,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** transient retry; commit retry
 - **paths:** ArchLucid.Application/Runs/Orchestration/OrchestratorTransientDbRetry.cs; ArchLucid.Application/Runs/Orchestration/CommitRunTransientRetryPolicy.cs
 - **test-filter:** FullyQualifiedName~OrchestratorTransientDbRetryTests|FullyQualifiedName~CommitRunTransientRetryPolicyTests
-- **hunts:** 43
-- **bugs-found:** 44
+- **hunts:** 44
+- **bugs-found:** 45
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-23
-- **last-bug:** 2026-08-24 — `azurerm_powerbi_embedded` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`powerbi` was only listed for datastore aliases)
+- **last-bug:** 2026-08-24 — `azurerm_maps_account` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`maps_account` was only listed for datastore aliases)
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 
@@ -403,11 +404,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** email otp; otp auth; email challenge
 - **paths:** ArchLucid.Api/Controllers/Auth/EmailOtpAuthController.cs; ArchLucid.Application/Identity/EmailOtpAuthService.cs
 - **test-filter:** FullyQualifiedName~EmailOtpAuthServiceTests|FullyQualifiedName~EmailOtpChallengeRepositoryConcurrencyTests
-- **hunts:** 43
-- **bugs-found:** 44
+- **hunts:** 44
+- **bugs-found:** 45
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24 — `azurerm_powerbi_embedded` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`powerbi` was only listed for datastore aliases)
+- **last-bug:** 2026-08-24 — `azurerm_maps_account` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`maps_account` was only listed for datastore aliases)
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
@@ -429,11 +430,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** return path; sign-in redirect; open redirect
 - **paths:** ArchLucid.Application/Identity/AuthSignInReturnPathGuard.cs
 - **test-filter:** FullyQualifiedName~AuthSignInReturnPathGuardTests
-- **hunts:** 43
-- **bugs-found:** 44
+- **hunts:** 44
+- **bugs-found:** 45
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-23
-- **last-bug:** 2026-08-24 — `azurerm_powerbi_embedded` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`powerbi` was only listed for datastore aliases)
+- **last-bug:** 2026-08-24 — `azurerm_maps_account` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`maps_account` was only listed for datastore aliases)
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
@@ -458,11 +459,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** tenant delete; erasure; quarantine middleware
 - **paths:** ArchLucid.Application/Tenancy/TenantErasureCommandService.cs; ArchLucid.Api/Middleware/TenantErasureQuarantineMiddleware.cs
 - **test-filter:** FullyQualifiedName~TenantErasure
-- **hunts:** 43
-- **bugs-found:** 44
+- **hunts:** 44
+- **bugs-found:** 45
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24 — `azurerm_powerbi_embedded` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`powerbi` was only listed for datastore aliases)
+- **last-bug:** 2026-08-24 — `azurerm_maps_account` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`maps_account` was only listed for datastore aliases)
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -484,11 +485,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** ARCH006; tenant scoped query analyzer
 - **paths:** ArchLucid.Analyzers/TenantScopedQueryScopeBindingAnalyzer.cs
 - **test-filter:** FullyQualifiedName~TenantScopedQueryScopeBindingAnalyzerTests
-- **hunts:** 43
-- **bugs-found:** 44
+- **hunts:** 44
+- **bugs-found:** 45
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24 — `azurerm_powerbi_embedded` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`powerbi` was only listed for datastore aliases)
+- **last-bug:** 2026-08-24 — `azurerm_maps_account` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`maps_account` was only listed for datastore aliases)
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -513,11 +514,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** run repository; sql run scope
 - **paths:** ArchLucid.Persistence/Repositories/SqlRunRepository.cs
 - **test-filter:** FullyQualifiedName~SqlRunRepositoryScopeIsolationSqlIntegrationTests|FullyQualifiedName~RunRepositoryWorkspaceSystemNameSqlTests
-- **hunts:** 43
-- **bugs-found:** 44
+- **hunts:** 44
+- **bugs-found:** 45
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24 — `azurerm_powerbi_embedded` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`powerbi` was only listed for datastore aliases)
+- **last-bug:** 2026-08-24 — `azurerm_maps_account` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`maps_account` was only listed for datastore aliases)
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -543,11 +544,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** finding inspect; dapper inspect read
 - **paths:** ArchLucid.Persistence/Findings/DapperFindingInspectReadRepository.cs; ArchLucid.Persistence/Findings/FindingInspectReadModelMapper.cs; ArchLucid.Persistence/Sql/FindingInspectReadSql.cs
 - **test-filter:** FullyQualifiedName~FindingInspectReadModelMapperTests|FullyQualifiedName~FindingInspectReadSqlTests|FullyQualifiedName~DapperFindingInspectReadRepositoryTests|FullyQualifiedName~FindingInspectEndpointTests
-- **hunts:** 43
-- **bugs-found:** 44
+- **hunts:** 44
+- **bugs-found:** 45
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24 — `azurerm_powerbi_embedded` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`powerbi` was only listed for datastore aliases)
+- **last-bug:** 2026-08-24 — `azurerm_maps_account` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`maps_account` was only listed for datastore aliases)
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
@@ -569,11 +570,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** llm wallet; tenant wallet; billing wallet
 - **paths:** ArchLucid.Api/Controllers/Billing/WalletController.cs; ArchLucid.Application/Budgeting/LlmTenantWalletService.cs; ArchLucid.Persistence/Data/Repositories/SqlLlmTenantWalletRepository.cs
 - **test-filter:** FullyQualifiedName~LlmTenantWalletServiceTests
-- **hunts:** 43
-- **bugs-found:** 44
+- **hunts:** 44
+- **bugs-found:** 45
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24 — `azurerm_powerbi_embedded` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`powerbi` was only listed for datastore aliases)
+- **last-bug:** 2026-08-24 — `azurerm_maps_account` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`maps_account` was only listed for datastore aliases)
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -597,11 +598,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** disposition; finding decision
 - **paths:** ArchLucid.Application/Governance/FindingDisposition/FindingDispositionService.cs; ArchLucid.Application/Governance/FindingDisposition/FindingDispositionValidation.cs
 - **test-filter:** FullyQualifiedName~FindingDispositionValidationTests
-- **hunts:** 43
-- **bugs-found:** 44
+- **hunts:** 44
+- **bugs-found:** 45
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-23
-- **last-bug:** 2026-08-24 — `azurerm_powerbi_embedded` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`powerbi` was only listed for datastore aliases)
+- **last-bug:** 2026-08-24 — `azurerm_maps_account` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`maps_account` was only listed for datastore aliases)
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
@@ -623,11 +624,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** recurrence; next run calculator
 - **paths:** ArchLucid.Application/Governance/ArchitectureReviewRecurrenceNextRunCalculator.cs
 - **test-filter:** FullyQualifiedName~ArchitectureReviewRecurrenceNextRunCalculatorTests
-- **hunts:** 43
-- **bugs-found:** 44
+- **hunts:** 44
+- **bugs-found:** 45
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24 — `azurerm_powerbi_embedded` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`powerbi` was only listed for datastore aliases)
+- **last-bug:** 2026-08-24 — `azurerm_maps_account` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`maps_account` was only listed for datastore aliases)
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -649,11 +650,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** alert sim; simulation context
 - **paths:** ArchLucid.Api/Controllers/Alerts/AlertSimulationController.cs; ArchLucid.Persistence/Alerts/Simulation/AlertSimulationContextProvider.cs
 - **test-filter:** FullyQualifiedName~AlertSimulationContextProviderTests
-- **hunts:** 43
-- **bugs-found:** 44
+- **hunts:** 44
+- **bugs-found:** 45
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24 — `azurerm_powerbi_embedded` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`powerbi` was only listed for datastore aliases)
+- **last-bug:** 2026-08-24 — `azurerm_maps_account` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`maps_account` was only listed for datastore aliases)
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 
@@ -674,11 +675,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** weekly digest; executive summary email
 - **paths:** ArchLucid.Application/Notifications/Email/WeeklyExecutiveSummaryEmailDispatcher.cs
 - **test-filter:** FullyQualifiedName~WeeklyExecutiveSummaryJobTests
-- **hunts:** 43
-- **bugs-found:** 44
+- **hunts:** 44
+- **bugs-found:** 45
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-23
-- **last-bug:** 2026-08-24 — `azurerm_powerbi_embedded` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`powerbi` was only listed for datastore aliases)
+- **last-bug:** 2026-08-24 — `azurerm_maps_account` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`maps_account` was only listed for datastore aliases)
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
@@ -700,11 +701,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** webhook dry run; outbound webhook
 - **paths:** ArchLucid.Api/Controllers/Webhooks/OutboundWebhookDryRunController.cs; ArchLucid.Host.Composition/Services/OutboundWebhookDryRunService.cs
 - **test-filter:** FullyQualifiedName~OutboundWebhookDryRunServiceTests|FullyQualifiedName~OutboundWebhookDryRunControllerTests
-- **hunts:** 43
-- **bugs-found:** 44
+- **hunts:** 44
+- **bugs-found:** 45
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24 — `azurerm_powerbi_embedded` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`powerbi` was only listed for datastore aliases)
+- **last-bug:** 2026-08-24 — `azurerm_maps_account` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`maps_account` was only listed for datastore aliases)
 - **related-pd-tb:** none
 - **code-changed-since:** 3
 
@@ -725,11 +726,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** recommendation engine; alternatives
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/ArchitectureRecommendationEngine.cs
 - **test-filter:** FullyQualifiedName~ArchitectureRecommendationAlternativesTests|FullyQualifiedName~ArchitectureRecommendationProposedChangeTests
-- **hunts:** 43
-- **bugs-found:** 44
+- **hunts:** 44
+- **bugs-found:** 45
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-23
-- **last-bug:** 2026-08-24 — `azurerm_powerbi_embedded` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`powerbi` was only listed for datastore aliases)
+- **last-bug:** 2026-08-24 — `azurerm_maps_account` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`maps_account` was only listed for datastore aliases)
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -750,11 +751,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** extraction router; difficulty router
 - **paths:** ArchLucid.Application/ArchitectureIntelligence/DifficultyBasedExtractionRouter.cs
 - **test-filter:** FullyQualifiedName~DifficultyBasedExtractionRouterTests
-- **hunts:** 43
-- **bugs-found:** 44
+- **hunts:** 44
+- **bugs-found:** 45
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-23
-- **last-bug:** 2026-08-24 — `azurerm_powerbi_embedded` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`powerbi` was only listed for datastore aliases)
+- **last-bug:** 2026-08-24 — `azurerm_maps_account` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`maps_account` was only listed for datastore aliases)
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
@@ -775,11 +776,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** tenant isolation cli; negative isolation test
 - **paths:** ArchLucid.Cli/Commands/TenantIsolationNegativeTestCommand.cs; ArchLucid.Cli/Commands/TenantIsolationNegativeTestRunner.cs
 - **test-filter:** FullyQualifiedName~TenantIsolationNegativeTestRunnerTests
-- **hunts:** 43
-- **bugs-found:** 44
+- **hunts:** 44
+- **bugs-found:** 45
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-23
-- **last-bug:** 2026-08-24 — `azurerm_powerbi_embedded` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`powerbi` was only listed for datastore aliases)
+- **last-bug:** 2026-08-24 — `azurerm_maps_account` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`maps_account` was only listed for datastore aliases)
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
@@ -803,11 +804,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** draft new; cli draft
 - **paths:** ArchLucid.Cli/Commands/DraftNewCommand.cs
 - **test-filter:** FullyQualifiedName~DraftNewCommandCoreTests
-- **hunts:** 43
-- **bugs-found:** 44
+- **hunts:** 44
+- **bugs-found:** 45
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24 — `azurerm_powerbi_embedded` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`powerbi` was only listed for datastore aliases)
+- **last-bug:** 2026-08-24 — `azurerm_maps_account` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`maps_account` was only listed for datastore aliases)
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -828,11 +829,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** terraform evidence; deployment evidence terraform
 - **paths:** ArchLucid.Cli/Commands/DeploymentEvidenceTerraformReference.cs
 - **test-filter:** FullyQualifiedName~DeploymentEvidenceTerraformReferenceTests
-- **hunts:** 43
-- **bugs-found:** 44
+- **hunts:** 44
+- **bugs-found:** 45
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-23
-- **last-bug:** 2026-08-24 — `azurerm_powerbi_embedded` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`powerbi` was only listed for datastore aliases)
+- **last-bug:** 2026-08-24 — `azurerm_maps_account` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`maps_account` was only listed for datastore aliases)
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
@@ -854,11 +855,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** reviews list; runs list client
 - **paths:** archlucid-ui/src/app/(operator)/architecture/reviews/RunsListClient.tsx
 - **test-filter:** RunsListClient
-- **hunts:** 43
-- **bugs-found:** 44
+- **hunts:** 44
+- **bugs-found:** 45
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-23
-- **last-bug:** 2026-08-24 — `azurerm_powerbi_embedded` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`powerbi` was only listed for datastore aliases)
+- **last-bug:** 2026-08-24 — `azurerm_maps_account` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`maps_account` was only listed for datastore aliases)
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
@@ -879,11 +880,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** auth callback; access panel
 - **paths:** archlucid-ui/src/app/(operator)/auth/callback/AuthCallbackAccessPanel.tsx
 - **test-filter:** AuthCallbackAccessPanel
-- **hunts:** 43
-- **bugs-found:** 44
+- **hunts:** 44
+- **bugs-found:** 45
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-08-17
-- **last-bug:** 2026-08-24 — `azurerm_powerbi_embedded` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`powerbi` was only listed for datastore aliases)
+- **last-bug:** 2026-08-24 — `azurerm_maps_account` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`maps_account` was only listed for datastore aliases)
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
@@ -905,11 +906,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** help docs; help client
 - **paths:** archlucid-ui/src/app/(operator)/help/HelpDocsClient.tsx
 - **test-filter:** HelpDocsClient
-- **hunts:** 43
-- **bugs-found:** 44
+- **hunts:** 44
+- **bugs-found:** 45
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-23
-- **last-bug:** 2026-08-24 — `azurerm_powerbi_embedded` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`powerbi` was only listed for datastore aliases)
+- **last-bug:** 2026-08-24 — `azurerm_maps_account` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`maps_account` was only listed for datastore aliases)
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 
@@ -930,11 +931,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** webhooks settings; outbound webhook ui
 - **paths:** archlucid-ui/src/app/(operator)/integrations/webhooks/WebhooksSettingsClient.tsx; archlucid-ui/src/app/(operator)/integrations/webhooks/use-webhooks-settings.ts
 - **test-filter:** WebhooksSettings
-- **hunts:** 43
-- **bugs-found:** 44
+- **hunts:** 44
+- **bugs-found:** 45
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-23
-- **last-bug:** 2026-08-24 — `azurerm_powerbi_embedded` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`powerbi` was only listed for datastore aliases)
+- **last-bug:** 2026-08-24 — `azurerm_maps_account` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`maps_account` was only listed for datastore aliases)
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 
@@ -956,11 +957,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** host gate; split site host
 - **paths:** archlucid-ui/src/lib/host-gate.ts
 - **test-filter:** host-gate
-- **hunts:** 43
-- **bugs-found:** 44
+- **hunts:** 44
+- **bugs-found:** 45
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-08-23
-- **last-bug:** 2026-08-24 — `azurerm_powerbi_embedded` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`powerbi` was only listed for datastore aliases)
+- **last-bug:** 2026-08-24 — `azurerm_maps_account` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`maps_account` was only listed for datastore aliases)
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 
@@ -982,11 +983,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** architecture intelligence page; ai page client
 - **paths:** archlucid-ui/src/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligencePageClient.tsx
 - **test-filter:** ArchitectureIntelligencePageClient
-- **hunts:** 43
-- **bugs-found:** 44
+- **hunts:** 44
+- **bugs-found:** 45
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24 — `azurerm_powerbi_embedded` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`powerbi` was only listed for datastore aliases)
+- **last-bug:** 2026-08-24 — `azurerm_maps_account` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`maps_account` was only listed for datastore aliases)
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1007,11 +1008,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** scim; entra provisioning users
 - **paths:** ArchLucid.Api/Controllers/Scim/ScimUsersController.cs
 - **test-filter:** FullyQualifiedName~ScimUsers
-- **hunts:** 43
-- **bugs-found:** 44
+- **hunts:** 44
+- **bugs-found:** 45
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24 — `azurerm_powerbi_embedded` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`powerbi` was only listed for datastore aliases)
+- **last-bug:** 2026-08-24 — `azurerm_maps_account` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`maps_account` was only listed for datastore aliases)
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1036,11 +1037,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** identity provider; idp activation
 - **paths:** ArchLucid.Api/Controllers/Admin/IdentityProviderConfigurationController.cs; ArchLucid.Api/Services/Admin/IdentityProviderActivationService.cs
 - **test-filter:** FullyQualifiedName~IdentityProviderActivationServiceTests
-- **hunts:** 43
-- **bugs-found:** 44
+- **hunts:** 44
+- **bugs-found:** 45
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24 — `azurerm_powerbi_embedded` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`powerbi` was only listed for datastore aliases)
+- **last-bug:** 2026-08-24 — `azurerm_maps_account` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`maps_account` was only listed for datastore aliases)
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1065,11 +1066,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** worker program; worker host startup
 - **paths:** ArchLucid.Worker/Program.cs
 - **test-filter:** FullyQualifiedName~WorkerHostStartupTests|FullyQualifiedName~WorkerCompositionTests
-- **hunts:** 43
-- **bugs-found:** 44
+- **hunts:** 44
+- **bugs-found:** 45
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24 — `azurerm_powerbi_embedded` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`powerbi` was only listed for datastore aliases)
+- **last-bug:** 2026-08-24 — `azurerm_maps_account` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`maps_account` was only listed for datastore aliases)
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1092,11 +1093,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** stripe webhook; marketplace webhook; billing webhook replay
 - **paths:** ArchLucid.Api/Controllers/Billing/BillingStripeWebhookController.cs; ArchLucid.Api/Controllers/Billing/BillingMarketplaceWebhookController.cs; ArchLucid.Application/Budgeting/LlmTenantWalletStripeWebhookProcessor.cs; ArchLucid.Persistence/Billing/MemoryCacheBillingWebhookReplayGuard.cs
 - **test-filter:** FullyQualifiedName~BillingStripeWebhook|FullyQualifiedName~BillingMarketplaceWebhook|FullyQualifiedName~LlmTenantWalletStripeWebhook|FullyQualifiedName~MemoryCacheBillingWebhookReplayGuard
-- **hunts:** 43
-- **bugs-found:** 44
+- **hunts:** 44
+- **bugs-found:** 45
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24 — `azurerm_powerbi_embedded` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`powerbi` was only listed for datastore aliases)
+- **last-bug:** 2026-08-24 — `azurerm_maps_account` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`maps_account` was only listed for datastore aliases)
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
@@ -1120,11 +1121,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** API key auth; admin API key settings
 - **paths:** ArchLucid.Api/Authentication/ApiKeyAuthenticationHandler.cs; ArchLucid.Api/Services/Admin/AdminApiKeySettingsService.cs; ArchLucid.Api/Controllers/Admin/AdminApiKeySettingsController.cs
 - **test-filter:** FullyQualifiedName~ApiKeyAuthentication|FullyQualifiedName~AdminApiKeySettings
-- **hunts:** 43
-- **bugs-found:** 44
+- **hunts:** 44
+- **bugs-found:** 45
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24 — `azurerm_powerbi_embedded` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`powerbi` was only listed for datastore aliases)
+- **last-bug:** 2026-08-24 — `azurerm_maps_account` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`maps_account` was only listed for datastore aliases)
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1149,11 +1150,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** scope binding; tenant scope middleware; route tenant filter
 - **paths:** ArchLucid.Api/Middleware/ScopeIdentityBindingMiddleware.cs; ArchLucid.Api/Middleware/ScopeResolutionGuardMiddleware.cs; ArchLucid.Api/Security/RouteTenantScopeBindingFilter.cs
 - **test-filter:** FullyQualifiedName~ScopeIdentityBinding|FullyQualifiedName~ScopeResolutionGuard|FullyQualifiedName~RouteTenantScopeBinding
-- **hunts:** 43
-- **bugs-found:** 44
+- **hunts:** 44
+- **bugs-found:** 45
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24 — `azurerm_powerbi_embedded` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`powerbi` was only listed for datastore aliases)
+- **last-bug:** 2026-08-24 — `azurerm_maps_account` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`maps_account` was only listed for datastore aliases)
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1177,11 +1178,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** SAML; trial JWT; SCIM bearer; OIDC auth stack
 - **paths:** ArchLucid.Api/Auth/; ArchLucid.Core/Auth/Saml/
 - **test-filter:** FullyQualifiedName~Saml|FullyQualifiedName~LocalTrialJwt|FullyQualifiedName~ScimBearer
-- **hunts:** 43
-- **bugs-found:** 44
+- **hunts:** 44
+- **bugs-found:** 45
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24 — `azurerm_powerbi_embedded` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`powerbi` was only listed for datastore aliases)
+- **last-bug:** 2026-08-24 — `azurerm_maps_account` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`maps_account` was only listed for datastore aliases)
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1207,11 +1208,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** tenant export; run export; export SSRF
 - **paths:** ArchLucid.Application/Exports/; ArchLucid.Api/Controllers/Authority/ExportsController.cs; ArchLucid.Api/Controllers/Authority/ArchitectureExportController.cs; ArchLucid.Api/Controllers/Authority/RunsExportController.cs; ArchLucid.Core/Security/AllowedRunExportBlobDestinationUrlPolicy.cs
 - **test-filter:** FullyQualifiedName~ArchitectureReviewExport|FullyQualifiedName~ExportsController|FullyQualifiedName~AllowedRunExportBlobDestinationUrlPolicy
-- **hunts:** 43
-- **bugs-found:** 44
+- **hunts:** 44
+- **bugs-found:** 45
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24 — `azurerm_powerbi_embedded` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`powerbi` was only listed for datastore aliases)
+- **last-bug:** 2026-08-24 — `azurerm_maps_account` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`maps_account` was only listed for datastore aliases)
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1237,11 +1238,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** background jobs; hosted services; durable job queue
 - **paths:** ArchLucid.Host.Core/Jobs/; ArchLucid.Host.Core/Hosted/
 - **test-filter:** FullyQualifiedName~ArchLucidJob|FullyQualifiedName~BackgroundJob|FullyQualifiedName~Hosted
-- **hunts:** 43
-- **bugs-found:** 44
+- **hunts:** 44
+- **bugs-found:** 45
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-23
-- **last-bug:** 2026-08-24 — `azurerm_powerbi_embedded` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`powerbi` was only listed for datastore aliases)
+- **last-bug:** 2026-08-24 — `azurerm_maps_account` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`maps_account` was only listed for datastore aliases)
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -1265,11 +1266,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** ITSM webhook; ServiceNow inbound; connector secret
 - **paths:** ArchLucid.Api/Controllers/Integrations/ItsmInboundWebhooksController.cs; ArchLucid.Application/Integrations/Itsm/; ArchLucid.Persistence/Integrations/MemoryCacheItsmInboundWebhookReplayGuard.cs
 - **test-filter:** FullyQualifiedName~ItsmInboundWebhook
-- **hunts:** 43
-- **bugs-found:** 44
+- **hunts:** 44
+- **bugs-found:** 45
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24 — `azurerm_powerbi_embedded` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`powerbi` was only listed for datastore aliases)
+- **last-bug:** 2026-08-24 — `azurerm_maps_account` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`maps_account` was only listed for datastore aliases)
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1294,11 +1295,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** UI auth; API proxy; edge proxy
 - **paths:** archlucid-ui/src/lib/auth/; archlucid-ui/src/app/api/proxy/; archlucid-ui/src/proxy.ts
 - **test-filter:** lib/auth|proxy-route|proxy.ts
-- **hunts:** 43
-- **bugs-found:** 44
+- **hunts:** 44
+- **bugs-found:** 45
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-23
-- **last-bug:** 2026-08-24 — `azurerm_powerbi_embedded` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`powerbi` was only listed for datastore aliases)
+- **last-bug:** 2026-08-24 — `azurerm_maps_account` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`maps_account` was only listed for datastore aliases)
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
@@ -1322,11 +1323,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** require authorization analyzer; tenant identity boundary; mutating controller audit
 - **paths:** ArchLucid.Analyzers/RequireAuthorizationAnalyzer.cs; ArchLucid.Analyzers/TenantIdentityBoundaryAnalyzer.cs; ArchLucid.Analyzers/MutatingControllerAuditAnalyzer.cs
 - **test-filter:** FullyQualifiedName~RequireAuthorizationAnalyzer|FullyQualifiedName~TenantIdentityBoundaryAnalyzer|FullyQualifiedName~MutatingControllerAuditAnalyzer
-- **hunts:** 43
-- **bugs-found:** 44
+- **hunts:** 44
+- **bugs-found:** 45
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24 — `azurerm_powerbi_embedded` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`powerbi` was only listed for datastore aliases)
+- **last-bug:** 2026-08-24 — `azurerm_maps_account` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`maps_account` was only listed for datastore aliases)
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1350,11 +1351,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** content safety guard; prompt injection sanitizer; agent evidence untrusted input
 - **paths:** ArchLucid.AgentRuntime/Safety/; ArchLucid.AgentRuntime/PromptInjection/
 - **test-filter:** FullyQualifiedName~AzureContentSafetyGuard|FullyQualifiedName~AgentEvidenceUntrustedInputSanitizer|FullyQualifiedName~PromptInjection
-- **hunts:** 43
-- **bugs-found:** 44
+- **hunts:** 44
+- **bugs-found:** 45
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24 — `azurerm_powerbi_embedded` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`powerbi` was only listed for datastore aliases)
+- **last-bug:** 2026-08-24 — `azurerm_maps_account` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`maps_account` was only listed for datastore aliases)
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -1377,11 +1378,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** architecture analysis; compare quality delta
 - **paths:** ArchLucid.Application/Analysis/
 - **test-filter:** FullyQualifiedName~ArchitectureAnalysis|FullyQualifiedName~CompareQuality
-- **hunts:** 43
-- **bugs-found:** 44
+- **hunts:** 44
+- **bugs-found:** 45
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24 — `azurerm_powerbi_embedded` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`powerbi` was only listed for datastore aliases)
+- **last-bug:** 2026-08-24 — `azurerm_maps_account` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`maps_account` was only listed for datastore aliases)
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -1404,11 +1405,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** marketplace billing; checkout mutation; billing application layer
 - **paths:** ArchLucid.Application/Billing/
 - **test-filter:** FullyQualifiedName~Marketplace|FullyQualifiedName~BillingCheckout|FullyQualifiedName~TenantLlmCostReporting
-- **hunts:** 43
-- **bugs-found:** 44
+- **hunts:** 44
+- **bugs-found:** 45
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24 — `azurerm_powerbi_embedded` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`powerbi` was only listed for datastore aliases)
+- **last-bug:** 2026-08-24 — `azurerm_maps_account` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`maps_account` was only listed for datastore aliases)
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1433,11 +1434,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** buyer proof pack; board pack; pilot artifacts
 - **paths:** ArchLucid.Application/Pilots/
 - **test-filter:** FullyQualifiedName~BuyerProofPack|FullyQualifiedName~BoardPack
-- **hunts:** 43
-- **bugs-found:** 44
+- **hunts:** 44
+- **bugs-found:** 45
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24 — `azurerm_powerbi_embedded` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`powerbi` was only listed for datastore aliases)
+- **last-bug:** 2026-08-24 — `azurerm_maps_account` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`maps_account` was only listed for datastore aliases)
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -1462,11 +1463,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** agent evaluation; evaluation runner
 - **paths:** ArchLucid.AgentRuntime/Evaluation/
 - **test-filter:** FullyQualifiedName~Evaluation
-- **hunts:** 43
-- **bugs-found:** 44
+- **hunts:** 44
+- **bugs-found:** 45
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-23
-- **last-bug:** 2026-08-24 — `azurerm_powerbi_embedded` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`powerbi` was only listed for datastore aliases)
+- **last-bug:** 2026-08-24 — `azurerm_maps_account` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`maps_account` was only listed for datastore aliases)
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -1490,11 +1491,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** decisioning engine; findings merge; advisory alerts
 - **paths:** ArchLucid.Decisioning/
 - **test-filter:** FullyQualifiedName~Decisioning|FullyQualifiedName~FindingsMerge
-- **hunts:** 43
-- **bugs-found:** 44
+- **hunts:** 44
+- **bugs-found:** 45
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24 — `azurerm_powerbi_embedded` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`powerbi` was only listed for datastore aliases)
+- **last-bug:** 2026-08-24 — `azurerm_maps_account` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`maps_account` was only listed for datastore aliases)
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -1517,11 +1518,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** identity repository; authentication identity dapper
 - **paths:** ArchLucid.Persistence/Identity/
 - **test-filter:** FullyQualifiedName~AuthenticationIdentity|FullyQualifiedName~IdentityRepository
-- **hunts:** 43
-- **bugs-found:** 44
+- **hunts:** 44
+- **bugs-found:** 45
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24 — `azurerm_powerbi_embedded` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`powerbi` was only listed for datastore aliases)
+- **last-bug:** 2026-08-24 — `azurerm_maps_account` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`maps_account` was only listed for datastore aliases)
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -1546,11 +1547,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** retrieval indexing; embedding; pricing retrieval
 - **paths:** ArchLucid.Retrieval/
 - **test-filter:** FullyQualifiedName~Retrieval|FullyQualifiedName~Indexing
-- **hunts:** 43
-- **bugs-found:** 44
+- **hunts:** 44
+- **bugs-found:** 45
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24 — `azurerm_powerbi_embedded` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`powerbi` was only listed for datastore aliases)
+- **last-bug:** 2026-08-24 — `azurerm_maps_account` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`maps_account` was only listed for datastore aliases)
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1575,11 +1576,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 43
-- **bugs-found:** 44
+- **hunts:** 44
+- **bugs-found:** 45
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24 — `azurerm_powerbi_embedded` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`powerbi` was only listed for datastore aliases)
+- **last-bug:** 2026-08-24 — `azurerm_maps_account` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`maps_account` was only listed for datastore aliases)
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -1613,11 +1614,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** core domain; security policies; tenancy models
 - **paths:** ArchLucid.Core/
 - **test-filter:** FullyQualifiedName~ArchLucid.Core
-- **hunts:** 43
-- **bugs-found:** 44
+- **hunts:** 44
+- **bugs-found:** 45
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24 — `azurerm_powerbi_embedded` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`powerbi` was only listed for datastore aliases)
+- **last-bug:** 2026-08-24 — `azurerm_maps_account` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`maps_account` was only listed for datastore aliases)
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1646,11 +1647,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** API contracts; DTO serialization; OpenAPI models
 - **paths:** ArchLucid.Contracts/
 - **test-filter:** FullyQualifiedName~Contracts
-- **hunts:** 43
-- **bugs-found:** 44
+- **hunts:** 44
+- **bugs-found:** 45
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24 — `azurerm_powerbi_embedded` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`powerbi` was only listed for datastore aliases)
+- **last-bug:** 2026-08-24 — `azurerm_maps_account` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`maps_account` was only listed for datastore aliases)
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1676,11 +1677,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 43
-- **bugs-found:** 44
+- **hunts:** 44
+- **bugs-found:** 45
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24 — `azurerm_powerbi_embedded` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`powerbi` was only listed for datastore aliases)
+- **last-bug:** 2026-08-24 — `azurerm_maps_account` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`maps_account` was only listed for datastore aliases)
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1708,11 +1709,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** knowledge graph; provenance; lineage
 - **paths:** ArchLucid.KnowledgeGraph/; ArchLucid.Provenance/
 - **test-filter:** FullyQualifiedName~KnowledgeGraph|FullyQualifiedName~Provenance
-- **hunts:** 43
-- **bugs-found:** 44
+- **hunts:** 44
+- **bugs-found:** 45
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-23
-- **last-bug:** 2026-08-24 — `azurerm_powerbi_embedded` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`powerbi` was only listed for datastore aliases)
+- **last-bug:** 2026-08-24 — `azurerm_maps_account` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`maps_account` was only listed for datastore aliases)
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -1737,11 +1738,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** notifications; email dispatchers beyond weekly summary
 - **paths:** ArchLucid.Notifications/; ArchLucid.Application/Notifications/
 - **test-filter:** FullyQualifiedName~Notifications|FullyQualifiedName~EmailDispatcher
-- **hunts:** 43
-- **bugs-found:** 44
+- **hunts:** 44
+- **bugs-found:** 45
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24 — `azurerm_powerbi_embedded` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`powerbi` was only listed for datastore aliases)
+- **last-bug:** 2026-08-24 — `azurerm_maps_account` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`maps_account` was only listed for datastore aliases)
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 
@@ -1771,11 +1772,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** artifact synthesis; docx generator; packaging sanitization
 - **paths:** ArchLucid.ArtifactSynthesis/
 - **test-filter:** FullyQualifiedName~ArtifactSynthesis|FullyQualifiedName~Docx
-- **hunts:** 43
-- **bugs-found:** 44
+- **hunts:** 44
+- **bugs-found:** 45
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24 — `azurerm_powerbi_embedded` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`powerbi` was only listed for datastore aliases)
+- **last-bug:** 2026-08-24 — `azurerm_maps_account` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`maps_account` was only listed for datastore aliases)
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
@@ -1799,11 +1800,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** host composition; DI registration; startup modules
 - **paths:** ArchLucid.Host.Composition/
 - **test-filter:** FullyQualifiedName~Host.Composition|FullyQualifiedName~ServiceCollectionExtensions
-- **hunts:** 43
-- **bugs-found:** 44
+- **hunts:** 44
+- **bugs-found:** 45
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24 — `azurerm_powerbi_embedded` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`powerbi` was only listed for datastore aliases)
+- **last-bug:** 2026-08-24 — `azurerm_maps_account` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`maps_account` was only listed for datastore aliases)
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1834,11 +1835,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** aws extractor; gcp extractor; azure extractor
 - **paths:** ArchLucid.Integrations.AwsExtractor/; ArchLucid.Integrations.GcpExtractor/; ArchLucid.Integrations.AzureExtractor/
 - **test-filter:** FullyQualifiedName~AwsExtractor|FullyQualifiedName~GcpExtractor|FullyQualifiedName~AzureExtractor
-- **hunts:** 43
-- **bugs-found:** 44
+- **hunts:** 44
+- **bugs-found:** 45
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24 — `azurerm_powerbi_embedded` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`powerbi` was only listed for datastore aliases)
+- **last-bug:** 2026-08-24 — `azurerm_maps_account` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`maps_account` was only listed for datastore aliases)
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -1866,11 +1867,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** authority controllers; admin controllers
 - **paths:** ArchLucid.Api/Controllers/Authority/; ArchLucid.Api/Controllers/Admin/
 - **test-filter:** FullyQualifiedName~AuthorityController|FullyQualifiedName~AdminController
-- **hunts:** 43
-- **bugs-found:** 44
+- **hunts:** 44
+- **bugs-found:** 45
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24 — `azurerm_powerbi_embedded` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`powerbi` was only listed for datastore aliases)
+- **last-bug:** 2026-08-24 — `azurerm_maps_account` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`maps_account` was only listed for datastore aliases)
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1892,11 +1893,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 43
-- **bugs-found:** 44
+- **hunts:** 44
+- **bugs-found:** 45
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24 — `azurerm_powerbi_embedded` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`powerbi` was only listed for datastore aliases)
+- **last-bug:** 2026-08-24 — `azurerm_maps_account` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`maps_account` was only listed for datastore aliases)
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
@@ -1919,11 +1920,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** application agents; agent handlers wiring
 - **paths:** ArchLucid.Application/Agents/
 - **test-filter:** FullyQualifiedName~Application.Agents
-- **hunts:** 43
-- **bugs-found:** 44
+- **hunts:** 44
+- **bugs-found:** 45
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-23
-- **last-bug:** 2026-08-24 — `azurerm_powerbi_embedded` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`powerbi` was only listed for datastore aliases)
+- **last-bug:** 2026-08-24 — `azurerm_maps_account` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`maps_account` was only listed for datastore aliases)
 - **related-pd-tb:** none
 - **code-changed-since:** 12
 
@@ -1946,11 +1947,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** policy packs; governance coverage; before-after diff
 - **paths:** ArchLucid.Application/Governance/
 - **test-filter:** FullyQualifiedName~PolicyPack|FullyQualifiedName~Governance
-- **hunts:** 43
-- **bugs-found:** 44
+- **hunts:** 44
+- **bugs-found:** 45
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24 — `azurerm_powerbi_embedded` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`powerbi` was only listed for datastore aliases)
+- **last-bug:** 2026-08-24 — `azurerm_maps_account` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`maps_account` was only listed for datastore aliases)
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 
@@ -1974,11 +1975,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** tenant suspend; tenant migration; trial bootstrap
 - **paths:** ArchLucid.Application/Tenancy/
 - **test-filter:** FullyQualifiedName~Tenancy|FullyQualifiedName~TenantSuspend|FullyQualifiedName~TenantMigration
-- **hunts:** 43
-- **bugs-found:** 44
+- **hunts:** 44
+- **bugs-found:** 45
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-23
-- **last-bug:** 2026-08-24 — `azurerm_powerbi_embedded` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`powerbi` was only listed for datastore aliases)
+- **last-bug:** 2026-08-24 — `azurerm_maps_account` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`maps_account` was only listed for datastore aliases)
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
@@ -2000,11 +2001,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** host coordination; export outbox; backfill
 - **paths:** ArchLucid.Host.Core/Coordination/
 - **test-filter:** FullyQualifiedName~Coordination|FullyQualifiedName~OutboxProcessor
-- **hunts:** 43
-- **bugs-found:** 44
+- **hunts:** 44
+- **bugs-found:** 45
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-23
-- **last-bug:** 2026-08-24 — `azurerm_powerbi_embedded` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`powerbi` was only listed for datastore aliases)
+- **last-bug:** 2026-08-24 — `azurerm_maps_account` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`maps_account` was only listed for datastore aliases)
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
@@ -2027,11 +2028,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** operator shell routes; operator pages
 - **paths:** archlucid-ui/src/app/(operator)/
 - **test-filter:** operator
-- **hunts:** 43
-- **bugs-found:** 44
+- **hunts:** 44
+- **bugs-found:** 45
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-23
-- **last-bug:** 2026-08-24 — `azurerm_powerbi_embedded` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`powerbi` was only listed for datastore aliases)
+- **last-bug:** 2026-08-24 — `azurerm_maps_account` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`maps_account` was only listed for datastore aliases)
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
@@ -2055,11 +2056,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** marketing pages; pricing; trust center UI
 - **paths:** archlucid-ui/src/app/(marketing)/
 - **test-filter:** marketing
-- **hunts:** 43
-- **bugs-found:** 44
+- **hunts:** 44
+- **bugs-found:** 45
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24 — `azurerm_powerbi_embedded` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`powerbi` was only listed for datastore aliases)
+- **last-bug:** 2026-08-24 — `azurerm_maps_account` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`maps_account` was only listed for datastore aliases)
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2084,11 +2085,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** capabilities cost; MCP server; cost estimation
 - **paths:** ArchLucid.Capabilities.Cost/; ArchLucid.Mcp/
 - **test-filter:** FullyQualifiedName~Capabilities.Cost|FullyQualifiedName~Mcp
-- **hunts:** 43
-- **bugs-found:** 44
+- **hunts:** 44
+- **bugs-found:** 45
 - **consecutive-dry-hunts:** 1
 - **last-hunt:** 2026-08-23
-- **last-bug:** 2026-08-24 — `azurerm_powerbi_embedded` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`powerbi` was only listed for datastore aliases)
+- **last-bug:** 2026-08-24 — `azurerm_maps_account` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`maps_account` was only listed for datastore aliases)
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -2111,11 +2112,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** operator lib; operator scope; operator API client
 - **paths:** archlucid-ui/src/lib/operator/
 - **test-filter:** lib/operator
-- **hunts:** 43
-- **bugs-found:** 44
+- **hunts:** 44
+- **bugs-found:** 45
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24 — `azurerm_powerbi_embedded` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`powerbi` was only listed for datastore aliases)
+- **last-bug:** 2026-08-24 — `azurerm_maps_account` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`maps_account` was only listed for datastore aliases)
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
