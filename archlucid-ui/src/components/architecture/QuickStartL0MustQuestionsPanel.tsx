@@ -257,7 +257,7 @@ export function QuickStartL0MustQuestionsPanel(props: QuickStartL0MustQuestionsP
                 OPERATOR_TYPOGRAPHY.tab,
               )}
             >
-              Other clarifications
+              Other required clarifications
             </p>
             {otherPendingQuestions.map((question) =>
               renderClarificationField(question, {
