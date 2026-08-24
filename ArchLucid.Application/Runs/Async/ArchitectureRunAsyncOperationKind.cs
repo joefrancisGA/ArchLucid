@@ -4,5 +4,6 @@ namespace ArchLucid.Application.Runs.Async;
 public enum ArchitectureRunAsyncOperationKind
 {
     Execute = 0,
-    Replay = 1
+    Replay = 1,
+    Create = 2
 }

@@ -156,6 +156,157 @@ public sealed class ArchitectureRunCreateOrchestrator(
         return await CreateRunWithCoordinationAsync(request, idempotency, cancellationToken);
     }
 
+    /// <inheritdoc />
+    public async Task CompleteAsyncAcceptedCreateRunAsync(
+        Guid runId,
+        ArchitectureRequest request,
+        CreateRunIdempotencyState? idempotency,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+
+        if (runId == Guid.Empty)
+            throw new ArgumentException("Run id must be non-empty.", nameof(runId));
+
+        QuickStartIntakeRequestEnricher.EnrichIfQuickStart(request);
+
+        string? documentUrlRejection = await AllowedDocumentUrlPolicy
+            .TryGetFirstDocumentRejectionReasonAfterDnsResolveAsync(request.Documents, cancellationToken)
+            .ConfigureAwait(false);
+
+        if (documentUrlRejection is not null)
+            throw new InvalidOperationException(documentUrlRejection);
+
+        RequestContentSafetyResult safety =
+            await _requestContentSafetyPrecheck.EvaluateAsync(request, cancellationToken).ConfigureAwait(false);
+
+        if (!safety.IsAllowed)
+        {
+            string actor = _actorContext.GetActor();
+            await _baselineMutationAudit.RecordAsync(
+                AuditEventTypes.Baseline.Architecture.RunFailed,
+                actor,
+                request.RequestId,
+                $"Request content failed safety precheck: {string.Join("; ", safety.Reasons)}",
+                cancellationToken).ConfigureAwait(false);
+            throw new RequestContentSafetyRejectedException(safety.Reasons);
+        }
+
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+        await _workspaceSystemNameCollisionGuard
+            .EnsureAvailableAsync(scope, request.SystemName, cancellationToken: cancellationToken)
+            .ConfigureAwait(false);
+
+        CreateRunResult result = await CompleteAcceptedCreateWithEnlistedCoordinationAsync(
+            runId,
+            request,
+            cancellationToken);
+
+        if (idempotency is not null && result.IdempotentReplay)
+            return;
+
+        string completionActor = _actorContext.GetActor();
+        await FinalizeSuccessfulCreateRunAsync(
+            request,
+            idempotency: null,
+            new CoordinationResult
+            {
+                Run = result.Run,
+                EvidenceBundle = result.EvidenceBundle,
+                Tasks = result.Tasks
+            },
+            inserted: true,
+            completionActor,
+            cancellationToken);
+    }
+
+    private async Task<CreateRunResult> CompleteAcceptedCreateWithEnlistedCoordinationAsync(
+        Guid runId,
+        ArchitectureRequest request,
+        CancellationToken cancellationToken)
+    {
+        string actor = _actorContext.GetActor();
+        CoordinationResult? coordination = null;
+
+        try
+        {
+            await using IArchLucidUnitOfWork uow = await _unitOfWorkFactory.CreateAsync(cancellationToken);
+
+            try
+            {
+                coordination = await _authorityCoordination.CreateRunAsync(
+                    request,
+                    cancellationToken,
+                    uow,
+                    runId);
+
+                if (!coordination.Success)
+                {
+                    string detail = string.Join("; ", coordination.Errors);
+                    await _baselineMutationAudit.RecordAsync(
+                        AuditEventTypes.Baseline.Architecture.RunFailed,
+                        actor,
+                        request.RequestId,
+                        $"Coordination failed: {detail}",
+                        cancellationToken);
+                    throw new InvalidOperationException($"CreateRun failed: {detail}");
+                }
+
+                await PersistCreateRunRowsAsync(
+                    request,
+                    coordination,
+                    idempotency: null,
+                    uow,
+                    persistArchitectureRequest: false,
+                    cancellationToken);
+                await PatchRunHeaderInTransactionAsync(
+                    coordination,
+                    request,
+                    uow,
+                    cancellationToken);
+
+                await uow.CommitAsync(cancellationToken);
+            }
+            catch
+            {
+                await uow.RollbackAsync(cancellationToken);
+                throw;
+            }
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            if (ex is not InvalidOperationException invalid
+                || !invalid.Message.StartsWith("CreateRun failed:", StringComparison.Ordinal))
+            {
+                string runOrRequestId = coordination?.Run?.RunId ?? request.RequestId;
+                await _baselineMutationAudit.RecordAsync(
+                    AuditEventTypes.Baseline.Architecture.RunFailed,
+                    actor,
+                    runOrRequestId,
+                    $"Persist failed: {ex.GetType().Name}",
+                    cancellationToken);
+            }
+
+            throw;
+        }
+
+        if (_logger.IsEnabled(LogLevel.Information))
+        {
+            _logger.LogInformationCreatingArchitectureRun(
+                coordination!.Run.RunId,
+                request.RequestId,
+                request.SystemName,
+                request.Environment);
+        }
+
+        return new CreateRunResult
+        {
+            Run = coordination.Run,
+            EvidenceBundle = coordination.EvidenceBundle,
+            Tasks = coordination.Tasks
+        };
+    }
+
     /// <summary>
     ///     Lock wait budget (shared by SQL <c>sp_getapplock</c> and in-process semaphores) while another caller holds
     ///     the same idempotency key. The lock spans coordinator + persistence.

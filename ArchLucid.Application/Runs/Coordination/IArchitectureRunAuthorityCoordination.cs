@@ -28,4 +28,14 @@ public interface IArchitectureRunAuthorityCoordination
         ArchitectureRequest request,
         CancellationToken cancellationToken = default,
         IArchLucidUnitOfWork? enlistUnitOfWork = null);
+
+    /// <summary>
+    ///     Same as <see cref="CreateRunAsync(ArchitectureRequest,CancellationToken,IArchLucidUnitOfWork?)" /> but reuses an
+    ///     already-admitted run header (<paramref name="preAllocatedRunId" />).
+    /// </summary>
+    Task<CoordinationResult> CreateRunAsync(
+        ArchitectureRequest request,
+        CancellationToken cancellationToken,
+        IArchLucidUnitOfWork? enlistUnitOfWork,
+        Guid? preAllocatedRunId);
 }

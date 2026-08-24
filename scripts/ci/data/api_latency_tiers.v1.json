@@ -34,8 +34,19 @@
       "id": "architecture-request",
       "method": "POST",
       "pathTemplate": "/v1/architecture/request",
-      "tier": "B",
-      "notes": "Sync OK for Simulator; Real may stay sync on fast path"
+      "tier": "C",
+      "syncAllowedForSimulator": true,
+      "asyncSiblingId": "architecture-request-async",
+      "notes": "Sync OK for Simulator/CI; Real-mode clients must use async sibling"
+    },
+    {
+      "id": "architecture-request-async",
+      "method": "POST",
+      "pathTemplate": "/v1/architecture/request/async",
+      "tier": "C",
+      "requiresAccepted202": true,
+      "requiresAsyncRequiredAttribute": true,
+      "notes": "Tier C async create accept"
     },
     {
       "id": "execute-sync",
@@ -101,6 +112,7 @@
     }
   ],
   "tierCSyncPathAllowlist": [
+    "POST /v1/architecture/request",
     "POST /v1/architecture/review/{runId}/execute",
     "POST /v1/architecture/review/{runId}/execute/selective",
     "POST /v1/architecture/review/{runId}/replay"

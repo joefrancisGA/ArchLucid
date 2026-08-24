@@ -123,38 +123,51 @@ public sealed class AuthorityRunOrchestrator(
             CancellationToken pipelineCt = linkedCts.Token;
 
             ScopeContext scope = scopeContextProvider.GetCurrentScope();
-            RunRecord run = new()
-            {
-                RunId = Guid.NewGuid(),
-                ArchitectureRequestId = request.ArchitectureRequestId,
-                ProjectId = request.ProjectId,
-                Description = request.Description,
-                CreatedUtc = TimeProvider.System.UtcNowDateTime(),
-                StructuralExecutionMode = StructuralExecutionMode.Simulator
-            };
-            ApplyScope(run, scope);
+            Guid runId = request.RunId != Guid.Empty ? request.RunId : Guid.NewGuid();
+            RunRecord run;
 
+            if (request.RunId != Guid.Empty)
+            {
+                RunRecord? existingRun = await _runRepository.GetByIdAsync(scope, runId, pipelineCt);
+
+                if (existingRun is not null)
+                {
+                    run = existingRun;
+                    LogAgentExecutionStateTransition(run.RunId, "async_create_admitted", "run_persisted", "(none)");
+                }
+                else
+                {
+                    run = BuildNewRunRecord(runId, request, scope);
+                    await SaveRunWithTransientRetryAsync(run, uow, pipelineCt);
+                    ArchLucidInstrumentation.RunsCreatedTotal.Add(1);
+                    LogAgentExecutionStateTransition(run.RunId, "authority_pipeline_start", "run_persisted", "(none)");
+                }
+            }
+            else
+            {
+                run = BuildNewRunRecord(runId, request, scope);
+                await SaveRunWithTransientRetryAsync(run, uow, pipelineCt);
+                ArchLucidInstrumentation.RunsCreatedTotal.Add(1);
+                LogAgentExecutionStateTransition(run.RunId, "authority_pipeline_start", "run_persisted", "(none)");
+            }
+
+            RunRecord runForActivity = run;
             using Activity? runActivity = ArchLucidInstrumentation.AuthorityRun.StartActivity(
                 ArchLucidInstrumentation.AuthorityRunRootActivityName);
-            runActivity?.SetTag("archlucid.run_id", run.RunId.ToString("D"));
+            runActivity?.SetTag("archlucid.run_id", runForActivity.RunId.ToString("D"));
 
             string logicalCorrelation =
                 ActivityCorrelation.FindTagValueInChain(runActivity?.Parent,
                     ActivityCorrelation.LogicalCorrelationIdTag)
-                ?? run.RunId.ToString("D");
+                ?? runForActivity.RunId.ToString("D");
             runActivity?.SetTag(ActivityCorrelation.LogicalCorrelationIdTag, logicalCorrelation);
 
             using IDisposable _ = LogContext.PushProperty("CorrelationId", logicalCorrelation);
 
-            run.OtelTraceId = Activity.Current?.TraceId.ToString();
-
-            await SaveRunWithTransientRetryAsync(run, uow, pipelineCt);
-
-            ArchLucidInstrumentation.RunsCreatedTotal.Add(1);
+            if (string.IsNullOrWhiteSpace(run.OtelTraceId))
+                run.OtelTraceId = Activity.Current?.TraceId.ToString();
 
             pipelineRunIdForDiagnostics = run.RunId;
-
-            LogAgentExecutionStateTransition(run.RunId, "authority_pipeline_start", "run_persisted", "(none)");
 
             if (logger.IsEnabled(LogLevel.Information))
 
@@ -555,6 +568,22 @@ public sealed class AuthorityRunOrchestrator(
                 }
             },
             ct);
+
+    private static RunRecord BuildNewRunRecord(Guid runId, ContextIngestionRequest request, ScopeContext scope)
+    {
+        RunRecord run = new()
+        {
+            RunId = runId,
+            ArchitectureRequestId = request.ArchitectureRequestId,
+            ProjectId = request.ProjectId,
+            Description = request.Description,
+            CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+            StructuralExecutionMode = StructuralExecutionMode.Simulator
+        };
+        ApplyScope(run, scope);
+
+        return run;
+    }
 
     private static void ApplyScope(RunRecord run, ScopeContext scope)
     {

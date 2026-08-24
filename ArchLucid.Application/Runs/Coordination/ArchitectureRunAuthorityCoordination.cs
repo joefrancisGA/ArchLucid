@@ -83,10 +83,18 @@ public sealed class ArchitectureRunAuthorityCoordination(
         auditService ?? throw new ArgumentNullException(nameof(auditService));
 
     /// <inheritdoc/>
-    public async Task<CoordinationResult> CreateRunAsync(
+    public Task<CoordinationResult> CreateRunAsync(
         ArchitectureRequest request,
         CancellationToken cancellationToken = default,
-        IArchLucidUnitOfWork? enlistUnitOfWork = null)
+        IArchLucidUnitOfWork? enlistUnitOfWork = null) =>
+        CreateRunAsync(request, cancellationToken, enlistUnitOfWork, preAllocatedRunId: null);
+
+    /// <inheritdoc/>
+    public async Task<CoordinationResult> CreateRunAsync(
+        ArchitectureRequest request,
+        CancellationToken cancellationToken,
+        IArchLucidUnitOfWork? enlistUnitOfWork,
+        Guid? preAllocatedRunId)
     {
         ArgumentNullException.ThrowIfNull(request);
         CoordinationResult output = new();
@@ -111,8 +119,13 @@ public sealed class ArchitectureRunAuthorityCoordination(
 
         request.EffectiveModelAliasId = aliasResolution.EffectiveAliasId;
 
+        ContextIngestionRequest ingestionRequest = ContextIngestionRequestMapper.FromArchitectureRequest(request);
+
+        if (preAllocatedRunId is Guid allocated && allocated != Guid.Empty)
+            ingestionRequest.RunId = allocated;
+
         RunRecord authorityRun = await _authorityRunOrchestrator.ExecuteAsync(
-            ContextIngestionRequestMapper.FromArchitectureRequest(request),
+            ingestionRequest,
             cancellationToken,
             evidenceBundle.EvidenceBundleId,
             enlistUnitOfWork);

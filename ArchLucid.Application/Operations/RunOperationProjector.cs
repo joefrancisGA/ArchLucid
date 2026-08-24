@@ -15,7 +15,7 @@ internal static class RunOperationProjector
   {
     ArchitectureRunStatus status = ParseStatus(run.LegacyRunStatus);
     OperationState state = MapState(status, run, cancelRequested);
-    (string stepLabel, int? currentStep, int? totalSteps) = ResolveProgress(status, tasks);
+    (string stepLabel, int? currentStep, int? totalSteps) = ResolveProgress(status, tasks, run);
 
     if (state == OperationState.CancelRequested)
       stepLabel = "Cancel requested";
@@ -85,10 +85,11 @@ internal static class RunOperationProjector
 
   private static (string StepLabel, int? CurrentStep, int? TotalSteps) ResolveProgress(
     ArchitectureRunStatus status,
-    IReadOnlyList<AgentTask> tasks)
+    IReadOnlyList<AgentTask> tasks,
+    RunRecord run)
   {
     if (status is ArchitectureRunStatus.Created)
-      return ("Creating review", null, null);
+      return ResolveAsyncCreatePipelineProgress(run);
 
     if (status is ArchitectureRunStatus.TasksGenerated)
       return ("Agents queued", null, null);
@@ -118,6 +119,27 @@ internal static class RunOperationProjector
       return ("Execute failed", CountCompletedSteps(tasks), tasks.Count > 0 ? tasks.Count : null);
 
     return ("Processing review", null, null);
+  }
+
+  private static (string StepLabel, int? CurrentStep, int? TotalSteps) ResolveAsyncCreatePipelineProgress(
+    RunRecord run)
+  {
+    if (run.ContextSnapshotId is null)
+      return ("Reading architecture evidence", null, null);
+
+    if (run.GraphSnapshotId is null)
+      return ("Building the model", null, null);
+
+    if (run.FindingsSnapshotId is null)
+      return ("Writing findings", null, null);
+
+    if (run.GoldenManifestId is null && run.DecisionTraceId is null)
+      return ("Running decisioning", null, null);
+
+    if (run.ArtifactBundleId is null)
+      return ("Preparing artifacts", null, null);
+
+    return ("Creating review", null, null);
   }
 
   private static (string StepLabel, int? CurrentStep, int? TotalSteps) ResolveAgentExecutionProgress(

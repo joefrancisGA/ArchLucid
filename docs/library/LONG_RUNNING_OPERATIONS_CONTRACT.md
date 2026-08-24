@@ -53,7 +53,8 @@ Update this table when routes change. Tiers are **product contract**, not k6 tag
 |---------|-----------------|------|----------------|---------------------|
 | Health live/ready | `GET /health/live`, `GET /health/ready` | A | N/A | Keep sync |
 | List / get run | `GET /v1/architecture/reviews`, `GET /v1/architecture/review/{runId}` | A–B | Run DTO flags | Keep sync |
-| Create request | `POST /v1/architecture/request` | B–C | Run created | Sync OK for Simulator; Real relies on `AsyncAuthorityPipeline` queue mode (ADR 0038) to keep the accept fast. Client must treat a create wait ceiling as **unresolved**, never failed — see § 11 |
+| Create request (sync) | `POST /v1/architecture/request` | C | Run created | Sync OK for Simulator/CI only (**tierCSyncPathAllowlist**) |
+| Create request (async) | `POST /v1/architecture/request/async` | C | **202** + `Location: /v1/operations/run:{runId}` | **Done** (Tier C create sibling) |
 | Execute (sync) | `POST /v1/architecture/review/{runId}/execute` | C in Real | Blocks until agents complete | Keep for Simulator/CI |
 | Execute (async) | `POST /v1/architecture/review/{runId}/execute/async` | C | **202** + `Location: /v1/operations/run:{runId}` | **Done** (**TB-2075** 2026-08-08) |
 | Finalize / commit | `POST .../finalize` (and commit aliases) | B–C | Run status | Prefer sync when short; watch edge ceilings |

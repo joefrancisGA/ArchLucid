@@ -1,13 +1,15 @@
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Operations;
+using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Orchestration;
+using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 
 namespace ArchLucid.Application.Runs.Async;
 
-/// <summary>Accepts async execute/replay and returns unified operation handles (TB-2075).</summary>
+/// <summary>Accepts async execute/replay/create and returns unified operation handles (TB-2075).</summary>
 public interface IArchitectureRunAsyncOperationAcceptor
 {
     /// <summary>
@@ -36,13 +38,26 @@ public interface IArchitectureRunAsyncOperationAcceptor
         string actor,
         string correlationId,
         CancellationToken cancellationToken = default);
+
+    /// <summary>
+    ///     Fast-admits create (request + run stub + idempotency), enqueues coordination, and returns
+    ///     <c>run:{runId}</c> for poll (Tier C create sibling).
+    /// </summary>
+    Task<string> AcceptCreateAsync(
+        ArchitectureRequest request,
+        CreateRunIdempotencyState? idempotency,
+        ScopeContext scope,
+        string actor,
+        string correlationId,
+        CancellationToken cancellationToken = default);
 }
 
 public sealed class ArchitectureRunAsyncOperationAcceptor(
     IRunRepository runRepository,
     IArchitectureRunAsyncOperationQueue queue,
     IArchitectureRunAsyncOperationRegistrar registrar,
-    IReplayRunService replayRunService) : IArchitectureRunAsyncOperationAcceptor
+    IReplayRunService replayRunService,
+    IArchitectureRunAsyncCreateAdmitter createAdmitter) : IArchitectureRunAsyncOperationAcceptor
 {
     private readonly IRunRepository _runRepository =
         runRepository ?? throw new ArgumentNullException(nameof(runRepository));
@@ -55,6 +70,9 @@ public sealed class ArchitectureRunAsyncOperationAcceptor(
 
     private readonly IReplayRunService _replayRunService =
         replayRunService ?? throw new ArgumentNullException(nameof(replayRunService));
+
+    private readonly IArchitectureRunAsyncCreateAdmitter _createAdmitter =
+        createAdmitter ?? throw new ArgumentNullException(nameof(createAdmitter));
 
     public async Task<string> AcceptExecuteAsync(
         string runId,
@@ -134,6 +152,54 @@ public sealed class ArchitectureRunAsyncOperationAcceptor(
         catch
         {
             _registrar.Release(scope, originalRunId, ArchitectureRunAsyncOperationKind.Replay);
+            throw;
+        }
+    }
+
+    public async Task<string> AcceptCreateAsync(
+        ArchitectureRequest request,
+        CreateRunIdempotencyState? idempotency,
+        ScopeContext scope,
+        string actor,
+        string correlationId,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+        ArgumentNullException.ThrowIfNull(scope);
+
+        ArchitectureRunAsyncCreateAdmitResult admitResult =
+            await _createAdmitter.AdmitAsync(request, idempotency, scope, cancellationToken);
+
+        string runId = admitResult.RunId.ToString("N");
+
+        if (admitResult.IdempotentReplay)
+            return OperationIdCodec.ForRun(admitResult.RunId);
+
+        if (!_registrar.TryRegister(scope, runId, ArchitectureRunAsyncOperationKind.Create))
+            throw new ConflictException($"Async create is already in flight for run '{runId}'.");
+
+        try
+        {
+            await _queue.EnqueueAsync(
+                new ArchitectureRunAsyncOperationWorkItem(
+                    ArchitectureRunAsyncOperationKind.Create,
+                    scope,
+                    actor,
+                    correlationId,
+                    runId,
+                    ReplayExecutionMode: null,
+                    ReplayCommit: false,
+                    ReplayManifestVersionOverride: null,
+                    PreparedReplayRunId: null,
+                    CreateRequest: request,
+                    CreateIdempotency: idempotency),
+                cancellationToken);
+
+            return OperationIdCodec.ForRun(admitResult.RunId);
+        }
+        catch
+        {
+            _registrar.Release(scope, runId, ArchitectureRunAsyncOperationKind.Create);
             throw;
         }
     }

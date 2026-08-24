@@ -3,7 +3,9 @@ using ArchLucid.Api.Models;
 using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application;
 using ArchLucid.Application.Common;
+using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Async;
+using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Scoping;
@@ -19,6 +21,104 @@ namespace ArchLucid.Api.Controllers.Authority;
 
 public sealed partial class RunsController
 {
+    /// <summary>
+    ///     Accepts create work and returns <c>202</c> with <c>Location: /v1/operations/run:{runId}</c> (Tier C create).
+    /// </summary>
+    [HttpPost("request/async")]
+    [Authorize(Policy = ArchLucidPolicies.ExecuteAuthority)]
+    [AsyncRequired]
+    [ProducesResponseType(StatusCodes.Status202Accepted)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status409Conflict)]
+    [EnableRateLimiting("expensive")]
+    public async Task<IActionResult> AcceptCreateRunAsync(
+        [FromBody] ArchitectureRequest? request,
+        [FromServices] IArchitectureRunAsyncOperationAcceptor asyncOperationAcceptor,
+        CancellationToken cancellationToken)
+    {
+        if (request is null)
+            return this.BadRequestProblem("Request body is required.", ProblemTypes.ValidationFailed);
+
+        FluentValidation.Results.ValidationResult validationResult =
+            await architectureRequestValidator.ValidateAsync(request, cancellationToken);
+
+        if (!validationResult.IsValid)
+        {
+            return this.BadRequestProblem(
+                string.Join("; ", validationResult.Errors.Select(error => error.ErrorMessage)),
+                ProblemTypes.ValidationFailed);
+        }
+
+        if (!TryReadIdempotencyKeyHeader(out string? idempotencyKey, out IActionResult? badIdempotencyHeader))
+        {
+            ArgumentNullException.ThrowIfNull(badIdempotencyHeader);
+            return badIdempotencyHeader;
+        }
+
+        ScopeContext scope = scopeContextProvider.GetCurrentScope();
+        string actor = actorContext.GetActor();
+        CreateRunIdempotencyState? idempotency = BuildAsyncCreateIdempotency(scope, idempotencyKey, request);
+
+        try
+        {
+            string operationId = await asyncOperationAcceptor.AcceptCreateAsync(
+                request,
+                idempotency,
+                scope,
+                actor,
+                HttpContext.TraceIdentifier,
+                cancellationToken);
+
+            await auditService.LogAsync(
+                new AuditEvent
+                {
+                    EventType = AuditEventTypes.RequestCreated,
+                    ActorUserId = actor,
+                    ActorUserName = actor,
+                    TenantId = scope.TenantId,
+                    WorkspaceId = scope.WorkspaceId,
+                    ProjectId = scope.ProjectId,
+                    CorrelationId = HttpContext.TraceIdentifier,
+                    DataJson = JsonSerializer.Serialize(
+                        new
+                        {
+                            requestId = request.RequestId,
+                            operationId,
+                            asyncCreateAccepted = true
+                        },
+                        AuditJsonSerializationOptions.Instance)
+                },
+                cancellationToken);
+
+            Response.Headers.Location = $"/v1/operations/{operationId}";
+            return StatusCode(StatusCodes.Status202Accepted);
+        }
+        catch (ConflictException ex)
+        {
+            return this.ConflictProblem(ex.Message, ProblemTypes.Conflict);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return this.InvalidOperationProblem(ex, ProblemTypes.BadRequest);
+        }
+    }
+
+    private static CreateRunIdempotencyState? BuildAsyncCreateIdempotency(
+        ScopeContext scope,
+        string? idempotencyKey,
+        ArchitectureRequest request)
+    {
+        if (string.IsNullOrWhiteSpace(idempotencyKey))
+            return null;
+
+        return new CreateRunIdempotencyState(
+            scope.TenantId,
+            scope.WorkspaceId,
+            scope.ProjectId,
+            ArchitectureRunIdempotencyHashing.HashIdempotencyKey(idempotencyKey),
+            ArchitectureRunIdempotencyHashing.FingerprintRequest(request));
+    }
+
     /// <summary>
     ///     Accepts execute work and returns <c>202</c> with <c>Location: /v1/operations/run:{runId}</c> (TB-2075).
     /// </summary>
