@@ -693,6 +693,7 @@ public static class TopologyProposalRelationshipEndpointIndex
             || normalized.Contains("bastion_host", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("nat_gateway", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("azuread", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("active_directory", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("api_connection", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("monitor_action_group", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("communication_service", StringComparison.OrdinalIgnoreCase)
