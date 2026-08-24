@@ -411,11 +411,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** tenant delete; erasure; quarantine middleware
 - **paths:** ArchLucid.Application/Tenancy/TenantErasureCommandService.cs; ArchLucid.Api/Middleware/TenantErasureQuarantineMiddleware.cs
 - **test-filter:** FullyQualifiedName~TenantErasure
-- **hunts:** 2
-- **bugs-found:** 2
+- **hunts:** 3
+- **bugs-found:** 3
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-23
-- **last-bug:** 2026-08-23
+- **last-hunt:** 2026-08-24
+- **last-bug:** 2026-08-24
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -425,6 +425,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Quarantine middleware lets mutating requests through after erasure has started — **hit 2026-08-23:** `TrialSeatReservationMiddleware` ran before `TenantErasureQuarantineMiddleware`, so offboarded active-trial tenants still incremented `TrialSeatsUsed` before the 403; fixed by running erasure quarantine first in `PipelineExtensions`
 - [x] (proven) Restore quarantine leaves stale `TenantErasureApprovedUtc` on in-memory tenants — **hit 2026-08-23:** `InMemoryTenantRepository` `CopyTenant(clearErasureQuarantine: true)` kept prior approval, so a restored tenant could be hard-purged after re-offboard without a fresh admin approval; aligned with Dapper restore SQL that nulls approval columns
 - [x] (invalid) Erasure command deletes another tenant's rows when ids collide in cache — `TenantGetByIdRequestCache` keys by `Guid` tenant id; no cross-tenant alias path in this zone
+- [x] (proven) Quarantine middleware blocked tenant erasure lifecycle APIs — **hit 2026-08-24:** offboarded tenants received 403 on `POST /v1/tenant/erasure/approve` and `/legal-hold`, so `TenantErasureApprovedUtc` could never be set and hard purge stalled; fixed by allowlisting `/v1/tenant/erasure` in `TenantErasureQuarantineMiddleware.Skip`
 
 ---
 
