@@ -11,6 +11,8 @@ import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { OperatorRelatedSurfacesDisclosure } from "@/components/operator/OperatorRelatedSurfacesDisclosure";
 import { PageCapabilityBoundaryStrip } from "@/components/PageCapabilityBoundaryStrip";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
+import { PageShortcutsDisclosure } from "@/components/usability/PageShortcutsDisclosure";
+import { COMPARE_PAGE_SHORTCUTS } from "@/lib/compare-page-shortcuts";
 import { ValidateCompareVocabularyRail } from "@/components/ValidateCompareVocabularyRail";
 import { ImpactPreviewCompareVocabularyRail } from "@/components/ImpactPreviewCompareVocabularyRail";
 import { coerceComparisonExplanation, coerceGoldenManifestComparison, coerceRunComparison } from "@/lib/operator/operator-response-guards";
@@ -513,7 +515,12 @@ export function CompareForm() {
         title={buyerPolished ? BUYER_COMPARE_PAGE_TITLE : "Compare two reviews"}
         titleTestId="compare-page-heading"
         subtitle={COMPARE_PAGE_SUBTITLE}
-        actions={<PageContextualHelpButton />}
+        actions={
+          <div className="flex flex-wrap items-center gap-2" data-testid="compare-page-header-actions">
+            <PageShortcutsDisclosure testId="compare-page-shortcuts" entries={COMPARE_PAGE_SHORTCUTS} />
+            <PageContextualHelpButton />
+          </div>
+        }
       />
       {!buyerPolished ? (
         <OperatorRelatedSurfacesDisclosure testId="compare-related-surfaces-disclosure">

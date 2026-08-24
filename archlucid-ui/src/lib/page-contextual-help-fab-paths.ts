@@ -4,6 +4,8 @@ export const PAGE_CONTEXTUAL_HELP_FAB_PATH_PREFIXES: readonly string[] = [
   "/internal/validate-route",
   "/insights/evidence-graph",
   "/governance/policy-packs",
+  "/insights/ask-review-questions",
+  "/insights/search-review-evidence",
 ];
 
 export function pathnameShowsContextualHelpFab(pathname: string): boolean {
