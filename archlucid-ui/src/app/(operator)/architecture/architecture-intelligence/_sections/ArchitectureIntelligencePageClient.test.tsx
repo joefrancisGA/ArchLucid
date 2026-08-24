@@ -201,6 +201,55 @@ describe("ArchitectureIntelligencePageClient", () => {
     expect(screen.getByTestId("architecture-intelligence-analyze-review-button")).toBeInTheDocument();
   });
 
+  it("shows empty-intake notice when deep-linked run has no source texts", async () => {
+    searchParamsGet.mockImplementation((key: string) => {
+      if (key === "runId") {
+        return "eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee";
+      }
+
+      return null;
+    });
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (input: RequestInfo) => {
+        const url = String(input);
+
+        if (url.includes("/product-runs/") && url.includes("/source-context")) {
+          return {
+            ok: true,
+            json: async () => ({
+              runId: "eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee",
+              sourceTexts: [],
+            }),
+            text: async () => "",
+          };
+        }
+
+        return {
+          ok: true,
+          json: async () => ({}),
+          text: async () => "",
+        };
+      }),
+    );
+
+    render(<ArchitectureIntelligencePageClient />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-intelligence-inbound-context")).toHaveTextContent(
+        "no architecture intake",
+      );
+    });
+
+    expect(screen.getByTestId("architecture-intelligence-inbound-context")).toHaveTextContent(
+      "paste a description or use the golden fixture",
+    );
+    expect(screen.getByTestId("architecture-intelligence-inbound-context")).not.toHaveTextContent(
+      "Scoped to run",
+    );
+  });
+
   it("clears reasoning results when inbound runId switches to another review", async () => {
     let currentRunId = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
 

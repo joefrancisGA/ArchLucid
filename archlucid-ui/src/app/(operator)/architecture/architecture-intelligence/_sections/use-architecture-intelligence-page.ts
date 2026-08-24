@@ -261,16 +261,40 @@ export function useArchitectureIntelligencePage(): UseArchitectureIntelligencePa
         : `Loaded product intake for run ${inboundRunId}${extra}.`;
     }
 
-    if (inboundFrom === "findings") {
+    if (productContextStatus === "empty") {
+      if (inboundFrom === "findings") {
+        return buyerPolishedShell
+          ? "Opened from the findings queue for this review. Load failed or empty — paste a description or use the golden fixture."
+          : `Opened from the findings queue for run ${inboundRunId}. Load failed or empty — paste a description or use the golden fixture.`;
+      }
+
+      if (inboundFrom === "reviews") {
+        return buyerPolishedShell
+          ? "Opened from this review. Load failed or empty — paste a description or use the golden fixture."
+          : `Opened from review ${inboundRunId}. Load failed or empty — paste a description or use the golden fixture.`;
+      }
+
       return buyerPolishedShell
-        ? "Opened from the findings queue for this review. Load failed or empty — paste a description or use the golden fixture."
-        : `Opened from the findings queue for run ${inboundRunId}. Load failed or empty — paste a description or use the golden fixture.`;
+        ? "Opened with no architecture intake for this review — paste a description or use the golden fixture."
+        : `Opened for run ${inboundRunId} with no architecture intake — paste a description or use the golden fixture.`;
     }
 
-    if (inboundFrom === "reviews") {
+    if (productContextStatus === "error") {
+      if (inboundFrom === "findings") {
+        return buyerPolishedShell
+          ? "Opened from the findings queue for this review. Load failed or empty — paste a description or use the golden fixture."
+          : `Opened from the findings queue for run ${inboundRunId}. Load failed or empty — paste a description or use the golden fixture.`;
+      }
+
+      if (inboundFrom === "reviews") {
+        return buyerPolishedShell
+          ? "Opened from this review. Load failed or empty — paste a description or use the golden fixture."
+          : `Opened from review ${inboundRunId}. Load failed or empty — paste a description or use the golden fixture.`;
+      }
+
       return buyerPolishedShell
-        ? "Opened from this review. Load failed or empty — paste a description or use the golden fixture."
-        : `Opened from review ${inboundRunId}. Load failed or empty — paste a description or use the golden fixture.`;
+        ? "Could not load architecture intake for this review — paste a description or use the golden fixture."
+        : `Could not load architecture intake for run ${inboundRunId} — paste a description or use the golden fixture.`;
     }
 
     return buyerPolishedShell ? "Scoped to this review." : `Scoped to run ${inboundRunId}.`;
