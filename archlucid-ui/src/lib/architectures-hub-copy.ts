@@ -6,10 +6,10 @@ import { REVIEWS_LIST_PATH } from "@/lib/architecture/architecture-routes";
 export const ARCHITECTURES_HUB_PAGE_TITLE = ARCHITECTURE_DRAFTS_LIST_LABEL;
 
 export const ARCHITECTURES_HUB_PAGE_SUBTITLE =
-  "This draft list stays on this device after you close the browser — not a shared tenant-wide inventory." as const;
+  "Saved architecture drafts for your account — sync across browsers where you sign in." as const;
 
 export const ARCHITECTURES_HUB_PAGE_SUBTITLE_BUYER =
-  "Saved architecture drafts in this browser — start a review when a draft is ready for evidence intake." as const;
+  "Saved architecture drafts for your account — start a review when a draft is ready for evidence intake." as const;
 
 export function architecturesHubPageSubtitle(buyerPolishedShell: boolean): string {
   return buyerPolishedShell ? ARCHITECTURES_HUB_PAGE_SUBTITLE_BUYER : ARCHITECTURES_HUB_PAGE_SUBTITLE;

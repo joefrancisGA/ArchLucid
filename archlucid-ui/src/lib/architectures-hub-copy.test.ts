@@ -17,9 +17,8 @@ describe("architectures-hub-copy", () => {
     expect(ARCHITECTURES_HUB_PAGE_TITLE).toBe(ARCHITECTURE_DRAFTS_LIST_LABEL);
     expect(ARCHITECTURES_HUB_PAGE_TITLE.toLowerCase()).toContain("draft");
     expect(ARCHITECTURES_HUB_PAGE_SUBTITLE.toLowerCase()).toContain("draft");
-    expect(ARCHITECTURES_HUB_PAGE_SUBTITLE.toLowerCase()).toContain("this device");
-    expect(ARCHITECTURES_HUB_PAGE_SUBTITLE.toLowerCase()).toContain("close the browser");
-    expect(ARCHITECTURES_HUB_PAGE_SUBTITLE.toLowerCase()).toContain("not a shared tenant-wide");
+    expect(ARCHITECTURES_HUB_PAGE_SUBTITLE.toLowerCase()).toContain("account");
+    expect(ARCHITECTURES_HUB_PAGE_SUBTITLE.toLowerCase()).toContain("sync");
   });
 
   it("keeps empty-state copy action-oriented without repeating scope prose", () => {
@@ -30,9 +29,10 @@ describe("architectures-hub-copy", () => {
     expect(ARCHITECTURES_HUB_EMPTY_TITLE.toLowerCase()).toContain("draft");
   });
 
-  it("uses a shorter buyer subtitle", () => {
+  it("uses buyer and operator hub subtitles with account-backed drafts", () => {
     expect(architecturesHubPageSubtitle(true)).toBe(ARCHITECTURES_HUB_PAGE_SUBTITLE_BUYER);
     expect(architecturesHubPageSubtitle(false)).toBe(ARCHITECTURES_HUB_PAGE_SUBTITLE);
-    expect(ARCHITECTURES_HUB_PAGE_SUBTITLE_BUYER.length).toBeLessThan(ARCHITECTURES_HUB_PAGE_SUBTITLE.length);
+    expect(ARCHITECTURES_HUB_PAGE_SUBTITLE_BUYER.toLowerCase()).toContain("account");
+    expect(ARCHITECTURES_HUB_PAGE_SUBTITLE.toLowerCase()).toContain("sync");
   });
 });

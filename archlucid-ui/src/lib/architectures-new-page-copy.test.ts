@@ -35,4 +35,17 @@ describe("architectures-new-page-copy", () => {
       expect(subtitle.startsWith(ARCHITECTURES_NEW_DRAFTING_SCOPE_SENTENCE)).toBe(true);
     }
   });
+
+  it("states account sync on create-path subtitles", () => {
+    for (const subtitle of [
+      ARCHITECTURES_NEW_PAGE_SUBTITLE_BUYER,
+      ARCHITECTURES_NEW_PAGE_SUBTITLE_BUYER_WITH_DRAFTS,
+      ARCHITECTURES_NEW_PAGE_SUBTITLE_OPERATOR,
+      ARCHITECTURES_NEW_PAGE_SUBTITLE_OPERATOR_WITH_DRAFTS,
+    ]) {
+      expect(subtitle.toLowerCase()).toContain("sync");
+      expect(subtitle).not.toContain("nothing syncs across browsers");
+      expect(subtitle).not.toContain("on this device");
+    }
+  });
 });

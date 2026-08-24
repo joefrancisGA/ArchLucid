@@ -45,7 +45,7 @@ describe("ArchitectureCreationLocalDraftsPanel (TB-1459)", () => {
     useArchitectureDraftRegistryEntries.mockReset();
   });
 
-  it("shows browser-local empty guidance when no drafts exist", async () => {
+  it("shows empty guidance when no drafts exist", async () => {
     useArchitectureDraftRegistryEntries.mockReturnValue([]);
 
     render(<ArchitectureCreationLocalDraftsPanel />);
@@ -59,7 +59,7 @@ describe("ArchitectureCreationLocalDraftsPanel (TB-1459)", () => {
     expect(screen.queryByTestId("architecture-creation-resume-drafts")).toBeNull();
   });
 
-  it("shows resume drafts with browser-local honesty and view-all link", async () => {
+  it("shows resume drafts with account-sync honesty and view-all link", async () => {
     useArchitectureDraftRegistryEntries.mockReturnValue([
       entry({ architectureId: "draft-001", displayName: "Claims intake" }),
     ]);
