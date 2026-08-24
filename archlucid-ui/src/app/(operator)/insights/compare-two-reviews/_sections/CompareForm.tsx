@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
+import { useWorkspaceActiveRun } from "@/components/WorkspaceActiveRunContext";
 import { LayerHeader } from "@/components/LayerHeader";
 import { COMPARE_TWO_REVIEWS_PATH } from "@/lib/compare-two-reviews-route";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
@@ -62,11 +63,13 @@ import {
 export function CompareForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const workspaceRun = useWorkspaceActiveRun();
   const compareGenerationRef = useRef(0);
   const aiGenerationRef = useRef(0);
   const autoComparedFromUrlRef = useRef(false);
   const demoComparePrefillDoneRef = useRef(false);
   const buyerAutoSeedDoneRef = useRef(false);
+  const workspaceActivePrefillDoneRef = useRef(false);
   const initialUrlPair = readCompareRunIdsFromSearchParams(searchParams);
   const [leftRunId, setLeftRunId] = useState(initialUrlPair.prior);
   const [rightRunId, setRightRunId] = useState(initialUrlPair.later);
@@ -290,6 +293,40 @@ export function CompareForm() {
     setRightRunId(SHOWCASE_STATIC_DEMO_LATER_COMPARE_RUN_ID);
     void runCompareForPair(SHOWCASE_STATIC_DEMO_PRIOR_COMPARE_RUN_ID, SHOWCASE_STATIC_DEMO_LATER_COMPARE_RUN_ID);
   }, [searchParams, runCompareForPair]);
+
+  useEffect(() => {
+    if (workspaceActivePrefillDoneRef.current) {
+      return;
+    }
+
+    if (isBuyerPolishedOperatorShellEnv()) {
+      return;
+    }
+
+    const { prior: priorQ, later: laterQ } = readCompareRunIdsFromSearchParams(searchParams);
+
+    if (priorQ.length > 0 || laterQ.length > 0) {
+      return;
+    }
+
+    if (leftRunId.trim().length > 0 || rightRunId.trim().length > 0) {
+      return;
+    }
+
+    if (isStaticDemoPayloadFallbackEnabled()) {
+      return;
+    }
+
+    const fromWorkspace = workspaceRun?.activeRunId?.trim() ?? "";
+
+    if (fromWorkspace.length === 0) {
+      return;
+    }
+
+    workspaceActivePrefillDoneRef.current = true;
+    setLeftRunId(fromWorkspace);
+    syncSelectionToUrl(fromWorkspace, rightRunId);
+  }, [searchParams, leftRunId, rightRunId, workspaceRun?.activeRunId, syncSelectionToUrl]);
 
   useEffect(() => {
     const { prior: left, later: right } = readCompareRunIdsFromSearchParams(searchParams);
