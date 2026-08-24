@@ -212,6 +212,7 @@ public static partial class ServiceCollectionExtensions
         services.Configure<ArchitectureRunCreateOptions>(
             configuration.GetSection(ArchitectureRunCreateOptions.SectionPath));
         services.AddScoped<IPreCommitGovernanceGate, PreCommitGovernanceGate>();
+        services.AddScoped<IPreFinalizeChecklistService, PreFinalizeChecklistService>();
         services.AddScoped<ITechnologyConsistencyFindingEngine, TechnologyConsistencyFindingEngine>();
         services.AddScoped<ICommittedEffectiveGovernanceSnapshotCapturer, CommittedEffectiveGovernanceSnapshotCapturer>();
         services.AddScoped<ICommittedReviewStandardsSnapshotCapturer, CommittedReviewStandardsSnapshotCapturer>();

@@ -69,6 +69,7 @@ import {
   RunDetailSampleReviewPackageSummaryDeferred,
   RunDetailStalledReviewGuidanceCalloutDeferred,
   RunDetailTechnologyBaselineSection,
+  RunDetailPreFinalizeChecklistSection,
   RunDetailTrustEvidenceCardSectionDeferred,
   RunDetailWhatIfBranchCompareBannerDeferred,
   ReviewDetailWorkspaceDeferred,
@@ -526,6 +527,13 @@ export async function RunDetailPageView(props: {
             usedStaticDemoRun={m.usedStaticDemoRun}
             warningCountDisplay={m.warningCountDisplay ?? 0}
           />
+
+          {!m.manifestId ? (
+            <RunDetailPreFinalizeChecklistSection
+              runId={m.resolvedDetail.run.runId}
+              manifestFinalized={Boolean(m.manifestId)}
+            />
+          ) : null}
 
           {!m.manifestId ? (
             <RunDetailCaptureEvidenceSectionDeferred

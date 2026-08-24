@@ -34,6 +34,19 @@ export const RunDetailTechnologyBaselineSection = createDeferredComponentFromMan
   },
 );
 
+const preFinalizeChecklistLoading = (
+  <section id="pre-finalize-checklist" className="scroll-mt-24">
+    {runDetailDeferredLoading("Loading pre-finalize checklist", "h-28")}
+  </section>
+);
+
+export const RunDetailPreFinalizeChecklistSection = createDeferredComponentFromManifest(
+  "run-detail-pre-finalize-checklist",
+  {
+    loadingWrapper: () => preFinalizeChecklistLoading,
+  },
+);
+
 export const RunDetailHolisticCriticPanelDeferred = createDeferredComponentFromManifest(
   "run-detail-holistic-critic-panel",
   { suppressLoading: true },
