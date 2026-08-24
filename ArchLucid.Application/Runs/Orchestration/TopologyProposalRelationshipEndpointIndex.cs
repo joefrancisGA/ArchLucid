@@ -732,6 +732,7 @@ public static class TopologyProposalRelationshipEndpointIndex
             || normalized.Contains("data_share", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("elastic_san", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("healthcare_workspace", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("backup_vault", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("communication_service", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("cognitive_account", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("cognitive_services", StringComparison.OrdinalIgnoreCase)
