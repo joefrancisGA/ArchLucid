@@ -39,6 +39,20 @@ namespace Dapper
             System.Data.CommandType? commandType = null) =>
             throw null!;
     }
+
+    public sealed class CommandDefinition
+    {
+        public CommandDefinition(
+            string command,
+            object? parameters = null,
+            System.Data.IDbTransaction? transaction = null,
+            int? commandTimeout = null,
+            System.Data.CommandType? commandType = null,
+            System.Data.CommandBehavior flags = System.Data.CommandBehavior.Default,
+            System.Threading.CancellationToken cancellationToken = default)
+        {
+        }
+    }
 }
 
 """;
@@ -49,6 +63,100 @@ namespace Dapper
           "tenantIdOnRow": ["dbo.TenantSettings"]
         }
         """;
+
+    [Fact]
+    public async Task ARCH006_reports_unscoped_static_sql_on_scoped_table()
+    {
+        const string testCode = SharedStubs +
+            """
+
+namespace ArchLucid.Persistence.Repositories
+{
+using System.Data;
+using Dapper;
+
+public sealed class UnscopedRunsRepository
+{
+    public void Load(IDbConnection connection)
+    {
+        _ = SqlMapper.Query<int>(
+            connection,
+            "SELECT RunId FROM dbo.Runs WHERE ArchivedUtc IS NULL");
+    }
+}
+}
+""";
+
+        DiagnosticResult expected = CSharpAnalyzerVerifier<TenantScopedQueryScopeBindingAnalyzer, DefaultVerifier>
+            .Diagnostic(Arch006Descriptor.UnscopedTableRule)
+            .WithSpan(57, 13, 59, 68)
+            .WithArguments("dbo.Runs");
+
+        await RunPersistenceAnalyzerTestAsync(testCode, expected);
+    }
+
+    [Fact]
+    public async Task ARCH006_reports_unscoped_sql_for_command_definition_named_command_argument()
+    {
+        const string testCode = SharedStubs +
+            """
+
+namespace ArchLucid.Persistence.Repositories
+{
+using System.Data;
+using System.Threading;
+using Dapper;
+
+public sealed class CommandDefinitionRunsRepository
+{
+    public void Load(IDbConnection connection, CancellationToken cancellationToken)
+    {
+        _ = new CommandDefinition(
+            cancellationToken: cancellationToken,
+            command: "SELECT RunId FROM dbo.Runs WHERE ArchivedUtc IS NULL");
+    }
+}
+}
+""";
+
+        DiagnosticResult expected = CSharpAnalyzerVerifier<TenantScopedQueryScopeBindingAnalyzer, DefaultVerifier>
+            .Diagnostic(Arch006Descriptor.UnscopedTableRule)
+            .WithSpan(58, 13, 60, 77)
+            .WithArguments("dbo.Runs");
+
+        await RunPersistenceAnalyzerTestAsync(testCode, expected);
+    }
+
+    [Fact]
+    public async Task ARCH006a_reports_unanalyzable_sql_for_bracketed_table_reference()
+    {
+        const string testCode = SharedStubs +
+            """
+
+namespace ArchLucid.Persistence.Repositories
+{
+using System.Data;
+using Dapper;
+
+public sealed class BracketedDynamicRunsRepository
+{
+    public void Load(IDbConnection connection, string filterColumn)
+    {
+        _ = SqlMapper.Query<int>(
+            connection,
+            "SELECT RunId FROM [dbo].[Runs] WHERE " + filterColumn + " IS NULL");
+    }
+}
+}
+""";
+
+        DiagnosticResult expected = CSharpAnalyzerVerifier<TenantScopedQueryScopeBindingAnalyzer, DefaultVerifier>
+            .Diagnostic(Arch006Descriptor.UnanalyzableSqlRule)
+            .WithSpan(57, 13, 59, 81)
+            .WithArguments("dbo.Runs");
+
+        await RunPersistenceAnalyzerTestAsync(testCode, expected);
+    }
 
     [Fact]
     public async Task ARCH006b_reports_empty_exemption_justification()
@@ -69,7 +177,7 @@ public sealed class BadExemptionRepository
 
         DiagnosticResult expected = CSharpAnalyzerVerifier<TenantScopedQueryScopeBindingAnalyzer, DefaultVerifier>
             .Diagnostic(Arch006Descriptor.EmptyExemptionJustificationRule)
-            .WithSpan(38, 2, 38, 60)
+            .WithSpan(52, 2, 52, 60)
             .WithArguments("ArchLucid.Persistence.Probe.BadExemptionRepository");
 
         await RunPersistenceAnalyzerTestAsync(testCode, expected);
@@ -100,7 +208,7 @@ public sealed class DynamicRunsRepository
 
         DiagnosticResult expected = CSharpAnalyzerVerifier<TenantScopedQueryScopeBindingAnalyzer, DefaultVerifier>
             .Diagnostic(Arch006Descriptor.UnanalyzableSqlRule)
-            .WithSpan(43, 13, 45, 77)
+            .WithSpan(57, 13, 59, 77)
             .WithArguments("dbo.Runs");
 
         await RunPersistenceAnalyzerTestAsync(testCode, expected);

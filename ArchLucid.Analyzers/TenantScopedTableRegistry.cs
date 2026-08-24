@@ -8,9 +8,13 @@ internal sealed class TenantScopedTableRegistry
         @"^dbo\.([A-Za-z_][A-Za-z0-9_]*)$",
         RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
-    private static readonly Regex JsonStringArrayRegex = new(
-        @"""scopeTripleOnRow""\s*:\s*\[(?<triple>[^\]]*)\].*""tenantIdOnRow""\s*:\s*\[(?<tenant>[^\]]*)\]",
-        RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.Singleline);
+    private static readonly Regex JsonTripleArrayRegex = new(
+        @"""scopeTripleOnRow""\s*:\s*\[(?<triple>[^\]]*)\]",
+        RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.IgnoreCase | RegexOptions.Singleline);
+
+    private static readonly Regex JsonTenantArrayRegex = new(
+        @"""tenantIdOnRow""\s*:\s*\[(?<tenant>[^\]]*)\]",
+        RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.IgnoreCase | RegexOptions.Singleline);
 
     private static readonly Regex JsonQuotedValueRegex = new(
         @"""dbo\.([A-Za-z_][A-Za-z0-9_]*)""",
@@ -32,13 +36,19 @@ internal sealed class TenantScopedTableRegistry
         if (string.IsNullOrWhiteSpace(jsonText))
             return Empty;
 
-        Match match = JsonStringArrayRegex.Match(jsonText);
+        Match tripleMatch = JsonTripleArrayRegex.Match(jsonText);
+        Match tenantMatch = JsonTenantArrayRegex.Match(jsonText);
 
-        if (!match.Success)
+        if (!tripleMatch.Success && !tenantMatch.Success)
             return Empty;
 
-        HashSet<string> triple = ParseTableArray(match.Groups["triple"].Value);
-        HashSet<string> tenant = ParseTableArray(match.Groups["tenant"].Value);
+        HashSet<string> triple = tripleMatch.Success
+            ? ParseTableArray(tripleMatch.Groups["triple"].Value)
+            : new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+        HashSet<string> tenant = tenantMatch.Success
+            ? ParseTableArray(tenantMatch.Groups["tenant"].Value)
+            : new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
         return new TenantScopedTableRegistry(triple, tenant);
     }

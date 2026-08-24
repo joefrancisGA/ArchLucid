@@ -144,9 +144,30 @@ public sealed class TenantScopedQueryScopeBindingAnalyzer : DiagnosticAnalyzer
         if (objectCreation.ArgumentList?.Arguments.Count is not > 0)
             return;
 
-        ExpressionSyntax sqlExpression = objectCreation.ArgumentList.Arguments[0].Expression;
+        ExpressionSyntax? sqlExpression = TryGetCommandDefinitionSqlExpression(objectCreation);
+
+        if (sqlExpression is null)
+            return;
 
         AnalyzeSqlExpression(context, registry, sqlExpression, objectCreation.GetLocation());
+    }
+
+    private static ExpressionSyntax? TryGetCommandDefinitionSqlExpression(ObjectCreationExpressionSyntax objectCreation)
+    {
+        if (objectCreation.ArgumentList is null)
+            return null;
+
+        foreach (ArgumentSyntax argument in objectCreation.ArgumentList.Arguments)
+        {
+            string? parameterName = argument.NameColon?.Name.Identifier.Text;
+
+            if (parameterName is not null &&
+                (string.Equals(parameterName, "command", StringComparison.Ordinal) ||
+                 string.Equals(parameterName, "commandText", StringComparison.Ordinal)))
+                return argument.Expression;
+        }
+
+        return objectCreation.ArgumentList.Arguments[0].Expression;
     }
 
     private static void AnalyzeSqlExpression(
@@ -229,10 +250,10 @@ public sealed class TenantScopedQueryScopeBindingAnalyzer : DiagnosticAnalyzer
     {
         foreach (System.Text.RegularExpressions.Match match in System.Text.RegularExpressions.Regex.Matches(
                      expressionText,
-                     @"(?:FROM|JOIN|INTO|UPDATE|DELETE\s+FROM?|MERGE)\s+(?:dbo\.)?([A-Za-z_][A-Za-z0-9_]*)",
+                     @"(?:FROM|JOIN|INTO|UPDATE|DELETE\s+FROM|MERGE)\s+(?:\[?dbo\]?\.)?\[?(?<table>[A-Za-z_][A-Za-z0-9_]*)\]?",
                      System.Text.RegularExpressions.RegexOptions.IgnoreCase))
         {
-            string? normalized = TenantScopedTableRegistry.NormalizeTableName(match.Groups[1].Value);
+            string? normalized = TenantScopedTableRegistry.NormalizeTableName(match.Groups["table"].Value);
 
             if (normalized is not null)
                 yield return normalized;
@@ -263,10 +284,51 @@ public sealed class TenantScopedQueryScopeBindingAnalyzer : DiagnosticAnalyzer
         if (invocation.ArgumentList.Arguments.Count == 0)
             return false;
 
-        sqlExpression = invocation.ArgumentList.Arguments[0].Expression;
+        ExpressionSyntax? sql = TryGetSqlArgumentExpression(invocation, method);
+
+        if (sql is null)
+            return false;
+
+        sqlExpression = sql;
 
         return true;
     }
+
+    private static ExpressionSyntax? TryGetSqlArgumentExpression(
+        InvocationExpressionSyntax invocation,
+        IMethodSymbol method)
+    {
+        SeparatedSyntaxList<ArgumentSyntax> arguments = invocation.ArgumentList.Arguments;
+
+        for (int index = 0; index < arguments.Count; index++)
+        {
+            ArgumentSyntax argument = arguments[index];
+            string? parameterName = argument.NameColon?.Name.Identifier.Text;
+
+            if (parameterName is not null)
+            {
+                if (IsSqlParameterName(parameterName))
+                    return argument.Expression;
+
+                continue;
+            }
+
+            if (index >= method.Parameters.Length)
+                continue;
+
+            IParameterSymbol parameter = method.Parameters[index];
+
+            if (IsSqlParameterName(parameter.Name))
+                return argument.Expression;
+        }
+
+        return null;
+    }
+
+    private static bool IsSqlParameterName(string parameterName) =>
+        string.Equals(parameterName, "sql", StringComparison.Ordinal) ||
+        string.Equals(parameterName, "command", StringComparison.Ordinal) ||
+        string.Equals(parameterName, "commandText", StringComparison.Ordinal);
 
     private static bool IsDapperSqlMapperMethod(IMethodSymbol method)
     {

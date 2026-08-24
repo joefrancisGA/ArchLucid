@@ -4,6 +4,14 @@ namespace ArchLucid.Analyzers;
 
 internal static class TenantScopedQuerySqlInspector
 {
+    private static readonly Regex BlockCommentRegex = new(
+        @"/\*.*?\*/",
+        RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.Singleline);
+
+    private static readonly Regex LineCommentRegex = new(
+        @"--[^\r\n]*",
+        RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.Multiline);
+
     private static readonly Regex TopLevelFromJoinRegex = new(
         @"(?:(?:FROM|JOIN)\s+(?:\[?dbo\]?\.)?\[?(?<table>[A-Za-z_][A-Za-z0-9_]*)\]?)",
         RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
@@ -33,17 +41,17 @@ internal static class TenantScopedQuerySqlInspector
         RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
 
     internal static bool HasRecognizedScopeHelperMarkers(string sqlText) =>
-        RunChildJoinMarkerRegex.IsMatch(sqlText) ||
-        RunChildScopeWhereRegex.IsMatch(sqlText) ||
-        RepositoryScopePredicateMarkerRegex.IsMatch(sqlText);
+        RunChildJoinMarkerRegex.IsMatch(StripSqlComments(sqlText)) ||
+        RunChildScopeWhereRegex.IsMatch(StripSqlComments(sqlText)) ||
+        RepositoryScopePredicateMarkerRegex.IsMatch(StripSqlComments(sqlText));
 
     internal static bool HasTenantIdScopePredicate(string sqlText) =>
-        TenantIdPredicateRegex.IsMatch(sqlText);
+        TenantIdPredicateRegex.IsMatch(StripSqlComments(sqlText));
 
     internal static bool HasTripleScopePredicate(string sqlText) =>
-        TripleScopePredicateRegex.IsMatch(sqlText) ||
-        RunChildScopeWhereRegex.IsMatch(sqlText) ||
-        RepositoryScopePredicateMarkerRegex.IsMatch(sqlText);
+        TripleScopePredicateRegex.IsMatch(StripSqlComments(sqlText)) ||
+        RunChildScopeWhereRegex.IsMatch(StripSqlComments(sqlText)) ||
+        RepositoryScopePredicateMarkerRegex.IsMatch(StripSqlComments(sqlText));
 
     internal static bool InsertIncludesTenantIdColumn(string sqlText, string normalizedTableName)
     {
@@ -67,8 +75,9 @@ internal static class TenantScopedQuerySqlInspector
         if (string.IsNullOrWhiteSpace(sqlText))
             return Array.Empty<string>();
 
-        int subqueryStart = FindFirstSubqueryStart(sqlText);
-        string mainStatement = subqueryStart >= 0 ? sqlText.Substring(0, subqueryStart) : sqlText;
+        string scrubbed = StripSqlComments(sqlText);
+        int subqueryStart = FindFirstSubqueryStart(scrubbed);
+        string mainStatement = subqueryStart >= 0 ? scrubbed.Substring(0, subqueryStart) : scrubbed;
         HashSet<string> tables = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
         foreach (Match match in MutationTargetRegex.Matches(mainStatement))
@@ -105,33 +114,44 @@ internal static class TenantScopedQuerySqlInspector
         bool requiresTripleScope,
         bool hasScopeHelperInvocation)
     {
-        if (hasScopeHelperInvocation || HasRecognizedScopeHelperMarkers(sqlText))
+        string scrubbed = StripSqlComments(sqlText);
+
+        if (hasScopeHelperInvocation || HasRecognizedScopeHelperMarkers(scrubbed))
             return true;
 
-        if (InsertIncludesTenantIdColumn(sqlText, normalizedTableName))
+        if (InsertIncludesTenantIdColumn(scrubbed, normalizedTableName))
             return true;
 
-        if (MergeIncludesTenantIdOnClause(sqlText, normalizedTableName))
+        if (MergeIncludesTenantIdOnClause(scrubbed, normalizedTableName))
             return true;
 
-        if (IsPrimaryKeyScopedMutation(sqlText))
+        if (IsPrimaryKeyScopedMutation(scrubbed))
             return true;
 
-        if (IsSingleSurrogateKeyRead(sqlText))
+        if (IsSingleSurrogateKeyRead(scrubbed))
             return true;
 
         if (requiresTripleScope)
         {
-            if (HasTripleScopePredicate(sqlText))
+            if (HasTripleScopePredicate(scrubbed))
                 return true;
 
-            if (HasTenantIdScopePredicate(sqlText) && HasCompoundWhereClause(sqlText))
+            if (HasTenantIdScopePredicate(scrubbed) && HasCompoundWhereClause(scrubbed))
                 return true;
 
             return false;
         }
 
-        return HasTenantIdScopePredicate(sqlText) || HasTripleScopePredicate(sqlText);
+        return HasTenantIdScopePredicate(scrubbed) || HasTripleScopePredicate(scrubbed);
+    }
+
+    internal static string StripSqlComments(string sqlText)
+    {
+        if (string.IsNullOrEmpty(sqlText))
+            return sqlText;
+
+        string withoutBlock = BlockCommentRegex.Replace(sqlText, " ");
+        return LineCommentRegex.Replace(withoutBlock, " ");
     }
 
     internal static bool MergeIncludesTenantIdOnClause(string sqlText, string normalizedTableName)

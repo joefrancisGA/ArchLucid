@@ -47,6 +47,23 @@ public sealed class TenantScopedTableRegistryTests
     }
 
     [Fact]
+    public void LoadFromAdditionalFile_supports_tenant_array_before_triple_array()
+    {
+        const string reversedOrderJson = """
+            {
+              "tenantIdOnRow": ["dbo.TenantSettings"],
+              "scopeTripleOnRow": ["dbo.Runs"]
+            }
+            """;
+
+        TenantScopedTableRegistry registry = TenantScopedTableRegistry.LoadFromAdditionalFile(reversedOrderJson);
+
+        Assert.True(registry.IsTenantScoped("dbo.Runs"));
+        Assert.True(registry.RequiresTripleScope("dbo.Runs"));
+        Assert.True(registry.RequiresTenantIdScope("dbo.TenantSettings"));
+    }
+
+    [Fact]
     public void LoadFromAdditionalFile_returns_empty_for_missing_arrays()
     {
         TenantScopedTableRegistry registry = TenantScopedTableRegistry.LoadFromAdditionalFile("{}");
