@@ -56,7 +56,7 @@ export type QuickDecisionFinding = {
   trustLabelReason?: string | null;
   /** Operator-assigned remediation owner (TB-395 `Finding.AssignedToUserId`); raw user id/email, no display-name lookup. */
   assignedToUserId?: string | null;
-  /** Raw `FindingHumanReviewStatus` enum value (0=NotRequired..4=Overridden) when present on the wire. */
+  /** Normalized `FindingHumanReviewStatus` enum value (0=NotRequired..4=Overridden) when present on the wire. */
   humanReviewStatus?: number | null;
 };
 
@@ -119,6 +119,40 @@ export type FindingHumanReviewStatusDisplay = {
   readonly label: string;
   readonly statusKind: EnterpriseStatusKind;
 };
+
+/** Normalizes numeric and OpenAPI string representations of `FindingHumanReviewStatus`. */
+export function normalizeFindingHumanReviewStatus(value: unknown): number | null {
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return Math.trunc(value);
+  }
+
+  if (typeof value !== "string") {
+    return null;
+  }
+
+  const trimmed = value.trim();
+
+  if (trimmed.length === 0) {
+    return null;
+  }
+
+  switch (trimmed.toLowerCase()) {
+    case "notrequired":
+      return 0;
+    case "pending":
+      return 1;
+    case "approved":
+      return 2;
+    case "rejected":
+      return 3;
+    case "overridden":
+      return 4;
+    default: {
+      const numeric = Number(trimmed);
+      return Number.isFinite(numeric) ? Math.trunc(numeric) : null;
+    }
+  }
+}
 
 /**
  * Maps the raw `FindingHumanReviewStatus` enum (0=NotRequired, 1=Pending, 2=Approved, 3=Rejected, 4=Overridden)
@@ -431,11 +465,7 @@ export function extractQuickDecisionFindingsFromRunDetail(detail: RunDetail): Qu
           ? assignedToUserIdRaw.trim()
           : null;
 
-      const humanReviewStatusRaw = fr.humanReviewStatus;
-      const humanReviewStatus =
-        typeof humanReviewStatusRaw === "number" && Number.isFinite(humanReviewStatusRaw)
-          ? Math.trunc(humanReviewStatusRaw)
-          : null;
+      const humanReviewStatus = normalizeFindingHumanReviewStatus(fr.humanReviewStatus);
 
       out.push({
         findingId,

@@ -145,7 +145,7 @@ describe("quick-decision-summary-derive", () => {
     expect(extracted[0]?.evidenceRefSnippets).toEqual(["r1", "r2"]);
   });
 
-  it("extractQuickDecisionFindingsFromRunDetail maps owner and human-review-status fields", () => {
+  it("extractQuickDecisionFindingsFromRunDetail maps owner and live string human-review-status fields", () => {
     const detail = {
       run: { runId: "r1", projectId: "p", createdUtc: "2026-01-01T00:00:00Z" },
       results: [
@@ -156,7 +156,7 @@ describe("quick-decision-summary-derive", () => {
               message: "Needs an owner",
               severity: 1,
               assignedToUserId: " reviewer@example.com ",
-              humanReviewStatus: 2,
+              humanReviewStatus: "Pending",
             },
             {
               findingId: "unowned-1",
@@ -171,7 +171,11 @@ describe("quick-decision-summary-derive", () => {
     const extracted = extractQuickDecisionFindingsFromRunDetail(detail);
 
     expect(extracted[0]?.assignedToUserId).toBe("reviewer@example.com");
-    expect(extracted[0]?.humanReviewStatus).toBe(2);
+    expect(extracted[0]?.humanReviewStatus).toBe(1);
+    expect(humanReviewStatusDisplay(extracted[0]?.humanReviewStatus)).toEqual({
+      label: "Pending review",
+      statusKind: "needs-attention",
+    });
     expect(extracted[1]?.assignedToUserId).toBeNull();
     expect(extracted[1]?.humanReviewStatus).toBeNull();
   });
