@@ -5,6 +5,8 @@ using System.Security.Claims;
 using ArchLucid.Api.Auth.Services;
 using ArchLucid.Host.Core.Auth.Services;
 
+using ITfoxtec.Identity.Saml2.Schemas;
+
 using Microsoft.Extensions.Primitives;
 
 /// <summary>
@@ -41,7 +43,7 @@ internal sealed class ScopeIdentityBindingMiddleware(RequestDelegate next)
     }
 
     /// <summary>
-    ///     ApiKey principals without <c>tenant_id</c> claims must not steer tenant scope via headers alone (TB-072).
+    ///     Principals without a bound <c>tenant_id</c> claim must not steer tenant scope via headers alone (TB-072).
     /// </summary>
     private static ScopeIdentityBindingValidator.ScopeIdentityBindingResult ValidateHeaderOnlyScopeEscalation(
         ClaimsPrincipal user,
@@ -49,7 +51,7 @@ internal sealed class ScopeIdentityBindingMiddleware(RequestDelegate next)
     {
         string? authType = user.Identity?.AuthenticationType;
 
-        if (!string.Equals(authType, AuthServiceCollectionExtensions.ApiKeySchemeName, StringComparison.Ordinal))
+        if (!RequiresBoundTenantClaimForHeaders(authType))
             return ScopeIdentityBindingValidator.ScopeIdentityBindingResult.Ok();
 
         if (TryParseClaimGuid(user, "tenant_id", out _))
@@ -63,9 +65,31 @@ internal sealed class ScopeIdentityBindingMiddleware(RequestDelegate next)
         if (string.IsNullOrWhiteSpace(tenantText))
             return ScopeIdentityBindingValidator.ScopeIdentityBindingResult.Ok();
 
+        if (string.Equals(authType, AuthServiceCollectionExtensions.ApiKeySchemeName, StringComparison.Ordinal))
+        {
+            return ScopeIdentityBindingValidator.ScopeIdentityBindingResult.Forbidden(
+                "API key authentication requires Authentication:ApiKey:TenantId (tenant_id claim); "
+                + "x-tenant-id cannot be used without a bound key scope.");
+        }
+
         return ScopeIdentityBindingValidator.ScopeIdentityBindingResult.Forbidden(
-            "API key authentication requires Authentication:ApiKey:TenantId (tenant_id claim); "
-            + "x-tenant-id cannot be used without a bound key scope.");
+            "Authenticated scope is not bound to a tenant_id claim; "
+            + "x-tenant-id cannot be used to steer tenant scope.");
+    }
+
+    private static bool RequiresBoundTenantClaimForHeaders(string? authType)
+    {
+        if (string.Equals(authType, AuthServiceCollectionExtensions.ApiKeySchemeName, StringComparison.Ordinal))
+            return true;
+
+        if (string.Equals(authType, "Bearer", StringComparison.Ordinal))
+            return true;
+
+        if (string.Equals(authType, Saml2Constants.AuthenticationScheme, StringComparison.Ordinal)
+            || string.Equals(authType, Saml2Constants.AuthenticationScheme, StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        return false;
     }
 
     private static bool TryParseClaimGuid(ClaimsPrincipal user, string claimType, out Guid value)

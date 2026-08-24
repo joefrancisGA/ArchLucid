@@ -104,6 +104,43 @@ public sealed class ArchLucidSaml2IdpMetadataBinderTests
         act.Should().Throw<InvalidOperationException>().WithMessage("*signing certificates*");
     }
 
+    [Fact]
+    public void ApplyResolvedEntity_prefers_https_redirect_endpoint_over_http_post_listed_first()
+    {
+        X509Certificate2 idpSigning = CreateValidTestCertificate(validYears: 10);
+        string certB64 = Convert.ToBase64String(idpSigning.Export(X509ContentType.Cert));
+
+        StringBuilder xml = new();
+        xml.AppendLine("""<?xml version="1.0" encoding="UTF-8"?>""");
+        xml.AppendLine(
+            """<EntityDescriptor xmlns="urn:oasis:names:tc:SAML:2.0:metadata" entityID="https://idp.test.example/metadata">""");
+        xml.AppendLine(
+            """  <IDPSSODescriptor protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol">""");
+        xml.AppendLine("""    <KeyDescriptor use="signing">""");
+        xml.AppendLine("""      <KeyInfo xmlns="http://www.w3.org/2000/09/xmldsig#">""");
+        xml.AppendLine("""        <X509Data>""");
+        xml.AppendLine($"""          <X509Certificate>{certB64}</X509Certificate>""");
+        xml.AppendLine("""        </X509Data>""");
+        xml.AppendLine("""      </KeyInfo>""");
+        xml.AppendLine("""    </KeyDescriptor>""");
+        xml.AppendLine(
+            """    <SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="http://idp.test.example/sso-post"/>""");
+        xml.AppendLine(
+            """    <SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect" Location="https://idp.test.example/sso-redirect"/>""");
+        xml.AppendLine("""  </IDPSSODescriptor>""");
+        xml.AppendLine("</EntityDescriptor>");
+
+        EntityDescriptor entityDescriptor = new EntityDescriptor();
+        entityDescriptor.ReadIdPSsoDescriptor(xml.ToString());
+
+        Saml2Configuration configuration = new();
+        configuration.SignatureValidationCertificates.Clear();
+
+        ArchLucidSaml2IdpMetadataBinder.ApplyResolvedEntity(configuration, entityDescriptor);
+
+        configuration.SingleSignOnDestination.ToString().Should().Be("https://idp.test.example/sso-redirect");
+    }
+
     private static X509Certificate2 CreateValidTestCertificate(int validYears)
     {
         return CreateTestCertificate(DateTime.UtcNow.AddDays(-1), DateTime.UtcNow.AddYears(validYears));

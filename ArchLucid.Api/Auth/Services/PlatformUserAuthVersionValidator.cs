@@ -1,3 +1,4 @@
+using ArchLucid.Api.Auth.Models;
 using ArchLucid.Core.Identity;
 
 using Microsoft.Extensions.Options;
@@ -9,7 +10,8 @@ namespace ArchLucid.Api.Auth.Services;
 /// <summary>Validates <see cref="PlatformIdentityClaimTypes.AuthVersion" /> on ArchLucid-issued JWTs.</summary>
 public sealed class PlatformUserAuthVersionValidator(
     IPlatformUserRepository users,
-    IOptions<TrialAuthOptions> trialOptions)
+    IOptions<TrialAuthOptions> trialOptions,
+    IOptions<ArchLucidAuthOptions> authOptions)
 {
     private readonly IPlatformUserRepository _users =
         users ?? throw new ArgumentNullException(nameof(users));
@@ -17,11 +19,12 @@ public sealed class PlatformUserAuthVersionValidator(
     private readonly TrialAuthOptions _trialOptions =
         trialOptions?.Value ?? throw new ArgumentNullException(nameof(trialOptions));
 
+    private readonly ArchLucidAuthOptions _authOptions =
+        authOptions?.Value ?? throw new ArgumentNullException(nameof(authOptions));
+
     public async Task<bool> ValidateAsync(string? issuer, string? subject, string? authVersionClaim, CancellationToken cancellationToken)
     {
-        string localIssuer = _trialOptions.LocalIdentity.JwtIssuer.Trim();
-
-        if (string.IsNullOrEmpty(localIssuer) || !string.Equals(issuer, localIssuer, StringComparison.Ordinal))
+        if (!MatchesLocalIssuer(issuer))
         {
             return true;
         }
@@ -47,5 +50,23 @@ public sealed class PlatformUserAuthVersionValidator(
         }
 
         return user.AuthVersion == tokenAuthVersion;
+    }
+
+    private bool MatchesLocalIssuer(string? issuer)
+    {
+        if (string.IsNullOrWhiteSpace(issuer))
+            return false;
+
+        string trialIssuer = _trialOptions.LocalIdentity.JwtIssuer.Trim();
+
+        if (!string.IsNullOrEmpty(trialIssuer) && string.Equals(issuer, trialIssuer, StringComparison.Ordinal))
+            return true;
+
+        string jwtLocalIssuer = _authOptions.JwtLocalIssuer.Trim();
+
+        if (!string.IsNullOrEmpty(jwtLocalIssuer) && string.Equals(issuer, jwtLocalIssuer, StringComparison.Ordinal))
+            return true;
+
+        return false;
     }
 }

@@ -92,9 +92,15 @@ internal static class ArchLucidSamlInboundClaimsNormalizer
 
         string trimmed = incoming.Value.Trim();
 
+        if (IsGuidScopeClaimType(targetClaimType) && !Guid.TryParse(trimmed, out _))
+            return;
+
         if (identity.HasClaim(targetClaimType, trimmed))
             return;
 
         identity.AddClaim(new Claim(targetClaimType, trimmed));
     }
+
+    private static bool IsGuidScopeClaimType(string targetClaimType) =>
+        targetClaimType is "tenant_id" or "workspace_id" or "project_id";
 }

@@ -96,7 +96,27 @@ public sealed class PlatformUserAuthVersionValidatorTests
         valid.Should().BeTrue();
     }
 
-    private static PlatformUserAuthVersionValidator CreateSut(IPlatformUserRepository users) =>
+    [Fact]
+    public async Task ValidateAsync_rejects_platform_user_when_trial_issuer_empty_but_jwt_local_issuer_matches()
+    {
+        PlatformUserAuthVersionValidator sut = CreateSut(
+            new InMemoryPlatformUserRepository(),
+            trialJwtIssuer: "",
+            jwtLocalIssuer: "https://issuer.test");
+
+        bool valid = await sut.ValidateAsync(
+            "https://issuer.test",
+            Guid.NewGuid().ToString("D"),
+            null,
+            CancellationToken.None);
+
+        valid.Should().BeFalse();
+    }
+
+    private static PlatformUserAuthVersionValidator CreateSut(
+        IPlatformUserRepository users,
+        string trialJwtIssuer = "https://issuer.test",
+        string jwtLocalIssuer = "") =>
         new(
             users,
             Options.Create(
@@ -104,7 +124,12 @@ public sealed class PlatformUserAuthVersionValidatorTests
                 {
                     LocalIdentity = new TrialLocalIdentityOptions
                     {
-                        JwtIssuer = "https://issuer.test"
+                        JwtIssuer = trialJwtIssuer
                     }
+                }),
+            Options.Create(
+                new ArchLucid.Api.Auth.Models.ArchLucidAuthOptions
+                {
+                    JwtLocalIssuer = jwtLocalIssuer
                 }));
 }

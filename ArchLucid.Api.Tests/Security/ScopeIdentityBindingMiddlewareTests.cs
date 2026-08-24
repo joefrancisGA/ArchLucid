@@ -108,6 +108,50 @@ public sealed class ScopeIdentityBindingMiddlewareTests
     }
 
     [Fact]
+    public async Task InvokeAsync_bearer_without_tenant_claim_rejects_x_tenant_id_header()
+    {
+        DefaultHttpContext context = CreateContext();
+        context.User = new ClaimsPrincipal(new ClaimsIdentity(
+            [new Claim(ClaimTypes.Name, "JwtUser")],
+            "Bearer"));
+        context.Request.Headers["x-tenant-id"] = Guid.NewGuid().ToString("D");
+        bool nextCalled = false;
+
+        await RunMiddlewareAsync(context, _ =>
+        {
+            nextCalled = true;
+
+            return Task.CompletedTask;
+        });
+
+        nextCalled.Should().BeFalse();
+        context.Response.StatusCode.Should().Be(StatusCodes.Status403Forbidden);
+        string body = await ReadResponseBodyAsync(context);
+        body.Should().Contain("tenant_id claim");
+    }
+
+    [Fact]
+    public async Task InvokeAsync_bearer_with_non_guid_tenant_claim_rejects_x_tenant_id_header()
+    {
+        DefaultHttpContext context = CreateContext();
+        context.User = new ClaimsPrincipal(new ClaimsIdentity(
+            [new Claim("tenant_id", "division-east")],
+            "Bearer"));
+        context.Request.Headers["x-tenant-id"] = Guid.NewGuid().ToString("D");
+        bool nextCalled = false;
+
+        await RunMiddlewareAsync(context, _ =>
+        {
+            nextCalled = true;
+
+            return Task.CompletedTask;
+        });
+
+        nextCalled.Should().BeFalse();
+        context.Response.StatusCode.Should().Be(StatusCodes.Status403Forbidden);
+    }
+
+    [Fact]
     public async Task InvokeAsync_api_key_with_tenant_claim_rejects_mismatched_header()
     {
         DefaultHttpContext context = CreateContext();

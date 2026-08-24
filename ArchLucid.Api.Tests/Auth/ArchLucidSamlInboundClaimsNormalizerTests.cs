@@ -99,6 +99,29 @@ public sealed class ArchLucidSamlInboundClaimsNormalizerTests
         identity.FindFirst("oid")?.Value.Should().Be("00000000-0000-0000-0000-0000000000ad");
     }
 
+    [Fact]
+    public void Apply_skips_non_guid_scope_values_when_promoting_tenant_workspace_project()
+    {
+        ClaimsIdentity identity = CreateSamlIdentity(
+            new Claim("http://idp.example/tenant", "division-east"),
+            new Claim("http://idp.example/workspace", "not-a-guid"),
+            new Claim("http://idp.example/project", "also-not-a-guid"));
+
+        ArchLucidSamlInboundClaimsNormalizer.Apply(
+            identity,
+            new ArchLucidSamlAuthOptions
+            {
+                Enabled = true,
+                TenantIdClaimType = "http://idp.example/tenant",
+                WorkspaceIdClaimType = "http://idp.example/workspace",
+                ProjectIdClaimType = "http://idp.example/project"
+            });
+
+        identity.HasClaim("tenant_id", "division-east").Should().BeFalse();
+        identity.HasClaim("workspace_id", "not-a-guid").Should().BeFalse();
+        identity.HasClaim("project_id", "also-not-a-guid").Should().BeFalse();
+    }
+
     private static ClaimsIdentity CreateSamlIdentity(params Claim[] claims) =>
         new(claims, Saml2Constants.AuthenticationScheme);
 }
