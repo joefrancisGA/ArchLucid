@@ -1342,11 +1342,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** buyer proof pack; board pack; pilot artifacts
 - **paths:** ArchLucid.Application/Pilots/
 - **test-filter:** FullyQualifiedName~BuyerProofPack|FullyQualifiedName~BoardPack
-- **hunts:** 2
-- **bugs-found:** 2
+- **hunts:** 3
+- **bugs-found:** 6
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-23
-- **last-bug:** 2026-08-23
+- **last-hunt:** 2026-08-24
+- **last-bug:** 2026-08-24 — snapshot muted severity buckets; unresolved PilotStrict pass; scorecard ready-for-commit counted as committed; buyer proof summary omitted governed coverage
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -1678,11 +1678,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** artifact synthesis; docx generator; packaging sanitization
 - **paths:** ArchLucid.ArtifactSynthesis/
 - **test-filter:** FullyQualifiedName~ArtifactSynthesis|FullyQualifiedName~Docx
-- **hunts:** 1
-- **bugs-found:** 0
+- **hunts:** 2
+- **bugs-found:** 4
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-19
-- **last-bug:** never
+- **last-hunt:** 2026-08-24
+- **last-bug:** 2026-08-24 — reference markdown dropped constraints; unresolved issues omitted finding ids; bundle validator skipped hash verify; filename sanitizer missed unicode slash homoglyphs
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
@@ -1691,6 +1691,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) Generated document embeds unsanitized user HTML/script — `LlmArtifactFreeTextSanitizer` and `WordDocumentBuilder` emit plain OpenXML text nodes (control/bidi strip only); DOCX does not execute embedded markup as script
 - [x] (invalid) Packager includes artifacts from a run outside the requested scope — `ArtifactPackagingService` only zips the `artifacts` list passed by the caller; no cross-run artifact selection locus in this zone
 - [x] (invalid) Validation passes when required manifest hash is missing — `ExportManifestBuilder` intentionally writes empty `committedManifestHash` when `RunExportReadmeContext.ManifestHash` is absent; `ArtifactBundleValidator` does not model manifest-hash enforcement (see `ArtifactPackagingServiceExportManifestTests`)
+- [x] (proven) `ReferenceArchitectureMarkdownGenerator` hardcoded `## Constraints` as `Not specified.` — **hit 2026-08-24:** committed `MandatoryConstraints` / `Preferences` dropped while `ArchitectureNarrativeArtifactGenerator` emitted them; regression in `ReferenceArchitectureMarkdownGenerator_GenerateAsync_emits_committed_constraints_not_not_specified`
+- [x] (proven) `UnresolvedIssuesArtifactGenerator` dropped `SupportingFindingIds` — **hit 2026-08-24:** JSON projection omitted finding provenance; regression in `GenerateAsync_preserves_supporting_finding_ids`
+- [x] (proven) `ArtifactBundleValidator` fail-open on content-hash mismatch — **hit 2026-08-24:** required non-empty hash but never compared to `ArtifactHashing.ComputeHash`; regression in `Validate_when_content_hash_mismatch_throws`
+- [x] (proven) `FileNameSanitizer` allowed Unicode slash homoglyphs in export paths — **hit 2026-08-24:** fullwidth solidus U+FF0F survived sanitization; regression in `FileNameSanitizer_replaces_invalid_windows_characters` (`..／..／manifest.json`)
 
 ---
 
