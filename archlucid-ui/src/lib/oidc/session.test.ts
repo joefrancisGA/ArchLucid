@@ -106,6 +106,18 @@ describe("persistTokenResponse", () => {
     expect(isLikelySignedIn()).toBe(false);
     expect(getAccessTokenForApi()).toBeUndefined();
   });
+
+  it("coerces string expires_in from the token response before writing expiry", () => {
+    persistTokenResponse({ access_token: "tok", expires_in: "7200" as unknown as number });
+
+    const expiresAtMs = Number(sessionStorage.getItem(OIDC_EXPIRES_AT_MS_KEY));
+    const expectedMin = Date.now() + 7190 * 1000;
+    const expectedMax = Date.now() + 7210 * 1000;
+
+    expect(expiresAtMs).toBeGreaterThanOrEqual(expectedMin);
+    expect(expiresAtMs).toBeLessThanOrEqual(expectedMax);
+    expect(isLikelySignedIn()).toBe(true);
+  });
 });
 
 describe("clearOidcSession", () => {

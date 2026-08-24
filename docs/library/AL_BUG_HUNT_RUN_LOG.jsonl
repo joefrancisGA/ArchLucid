@@ -121,3 +121,4 @@
 {"at": "2026-08-24T00:02:30.000000Z", "zoneId": "agent-runtime-safety", "outcome": "hit"}
 {"at": "2026-08-24T00:08:30.000000Z", "zoneId": "decisioning", "outcome": "hit"}
 {"at": "2026-08-24T00:17:30.000000Z", "zoneId": "api-governance-tenancy-controllers", "outcome": "hit"}
+{"at": "2026-08-24T00:28:00.000000Z", "zoneId": "ui-oidc", "outcome": "hit"}

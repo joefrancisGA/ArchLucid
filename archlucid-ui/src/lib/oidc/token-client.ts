@@ -7,13 +7,28 @@ export type OidcTokenResponse = {
   scope?: string;
 };
 
+function errorFromOAuthJson(json: unknown): Error | null {
+  if (!json || typeof json !== "object") {
+    return null;
+  }
+
+  const record = json as { error?: string; error_description?: string };
+  const msg = [record.error, record.error_description].filter(Boolean).join(": ");
+
+  if (!msg) {
+    return null;
+  }
+
+  return new Error(msg);
+}
+
 async function readOAuthError(res: Response, bodyText: string): Promise<Error> {
   try {
-    const json = JSON.parse(bodyText) as { error?: string; error_description?: string };
-    const msg = [json.error, json.error_description].filter(Boolean).join(": ");
+    const json = JSON.parse(bodyText) as unknown;
+    const oauthError = errorFromOAuthJson(json);
 
-    if (msg) {
-      return new Error(msg);
+    if (oauthError) {
+      return oauthError;
     }
   } catch {
     /* fall through */
@@ -42,7 +57,14 @@ async function postTokenForm(
     throw await readOAuthError(response, text);
   }
 
-  return JSON.parse(text) as OidcTokenResponse;
+  const parsed = JSON.parse(text) as unknown;
+  const oauthError = errorFromOAuthJson(parsed);
+
+  if (oauthError) {
+    throw oauthError;
+  }
+
+  return parsed as OidcTokenResponse;
 }
 
 export async function exchangeAuthorizationCode(params: {

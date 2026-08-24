@@ -1453,11 +1453,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** oidc authority; sign-in routing; OIDC host
 - **paths:** archlucid-ui/src/lib/oidc/
 - **test-filter:** oidc-authority|oidc
-- **hunts:** 10
-- **bugs-found:** 11
+- **hunts:** 11
+- **bugs-found:** 14
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-23
-- **last-bug:** 2026-08-23
+- **last-hunt:** 2026-08-24
+- **last-bug:** 2026-08-24
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -1477,6 +1477,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Stale refresh `finally` clears the replacement session's in-flight guard — **hit 2026-08-23 hunt #42:** `ensureAccessTokenFresh` always set `refreshInFlight = null` in `finally`, so when a prior-session refresh completed after `clearOidcSession` and a replacement refresh had started, the stale `finally` nulled the guard and parallel API callers fired a duplicate IdP refresh (`invalid_grant` risk); fixed by clearing `refreshInFlight` only when it still references the completing promise.
 - [x] (proven) Negative `expires_in` from token response writes a past expiry and breaks the session — **hit 2026-08-23:** `persistTokenResponse` stored `Date.now() + negative expires_in`, so a malformed IdP payload left the access token immediately expired and could tight-loop refresh; fixed by falling back to the default lifetime for negative values while still honoring zero.
 - [x] (proven) Missing `access_token` in token response persists the literal string `"undefined"` — **hit 2026-08-23:** `sessionStorage.setItem` coerced `undefined` to `"undefined"`, so `isLikelySignedIn` returned true and API calls sent `Bearer undefined`; fixed by rejecting empty or non-string access tokens before writing session keys.
+- [x] (proven) Malformed OIDC discovery document missing endpoints is cached permanently — **hit 2026-08-24:** `loadDiscoveryDocument` cached any HTTP 200 JSON body, so a partial discovery payload blocked sign-in, refresh, and logout discovery until a full page reload; fixed by validating required endpoints and evicting invalid documents from the cache.
+- [x] (proven) Token endpoint OAuth error returned with HTTP 200 is treated as a token response — **hit 2026-08-24:** `postTokenForm` only parsed OAuth `error` bodies when `response.ok` was false, so `invalid_grant` in a 200 body threw on missing `access_token` and `ensureAccessTokenFresh` kept a stale refresh token instead of clearing the session; fixed by rejecting OAuth error JSON before returning token responses.
+- [x] (proven) String `expires_in` from token response falls back to default lifetime — **hit 2026-08-24:** `resolveExpiresInSeconds` used `Number.isFinite` on the raw value, so IdPs that serialize `expires_in` as a JSON string were treated as non-finite and given the 3600s default; fixed by coercing with `Number()` before validation.
 
 ---
 
@@ -1729,11 +1732,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** governance controllers; tenancy controllers
 - **paths:** ArchLucid.Api/Controllers/Governance/; ArchLucid.Api/Controllers/Tenancy/
 - **test-filter:** FullyQualifiedName~GovernanceController|FullyQualifiedName~TenancyController
-- **hunts:** 2
-- **bugs-found:** 2
+- **hunts:** 3
+- **bugs-found:** 3
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-23
-- **last-bug:** 2026-08-23
+- **last-hunt:** 2026-08-24
+- **last-bug:** 2026-08-24
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
@@ -1743,6 +1746,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) Tenancy suspend endpoint affects a tenant id from the body not the principal — no suspend action under `ArchLucid.Api/Controllers/Tenancy/`
 - [x] (invalid) List endpoint omits tenant predicate when workspace filter is empty — `PolicyPacksController.ListVisiblePacksAsync` always passes `scope.TenantId` into `ListByScopeAsync` (`WHERE TenantId = @TenantId`)
 - [x] (proven) `PolicyPacksController.SimulateBulk` — pack id from another tenant scope → dry-run evaluates foreign pack content (only `IsDeleted` checked, not tenant/workspace/project vs `scope`) (2026-08-23)
+- [x] (proven) `PolicyPacksController.Publish` omitted tenant/workspace/project scope check before `PublishVersionAsync` — cross-tenant publish returned 200 (ledger hit 2026-08-18; controller guard added 2026-08-24).
+- [x] (proven) `PolicyPacksController.Assign` omitted pack scope check — foreign pack id with existing version created assignment rows in caller tenant scope (2026-08-24).
 
 ---
 

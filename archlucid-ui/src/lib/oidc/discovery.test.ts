@@ -61,4 +61,35 @@ describe("loadDiscoveryDocument", () => {
     expect(doc).toEqual(discoveryDoc);
     expect(fetchMock).toHaveBeenCalledTimes(2);
   });
+
+  it("retries discovery after a malformed document missing endpoints instead of caching it permanently", async () => {
+    let attempt = 0;
+    const fetchMock = vi.fn(async () => {
+      attempt += 1;
+
+      if (attempt === 1) {
+        return {
+          ok: true,
+          json: async () => ({ issuer: "https://login.microsoftonline.com/tenant/v2.0" }),
+        };
+      }
+
+      return {
+        ok: true,
+        json: async () => discoveryDoc,
+      };
+    });
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    const { loadDiscoveryDocument } = await import("@/lib/oidc/discovery");
+    const authority = "https://login.microsoftonline.com/tenant/v2.0";
+
+    await expect(loadDiscoveryDocument(authority)).rejects.toThrow(/missing required endpoints/i);
+
+    const doc = await loadDiscoveryDocument(authority);
+
+    expect(doc).toEqual(discoveryDoc);
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+  });
 });

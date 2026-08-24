@@ -31,19 +31,21 @@ function resolveExpiresInSeconds(expiresIn: number | undefined): number {
     return defaultExpiresInSec;
   }
 
-  if (!Number.isFinite(expiresIn)) {
+  const numericExpiresIn = Number(expiresIn);
+
+  if (!Number.isFinite(numericExpiresIn)) {
     return defaultExpiresInSec;
   }
 
-  if (expiresIn === 0) {
+  if (numericExpiresIn === 0) {
     return 0;
   }
 
-  if (expiresIn < 0) {
+  if (numericExpiresIn < 0) {
     return defaultExpiresInSec;
   }
 
-  return expiresIn;
+  return numericExpiresIn;
 }
 
 function shouldClearOidcSessionOnRefreshFailure(error: unknown): boolean {
