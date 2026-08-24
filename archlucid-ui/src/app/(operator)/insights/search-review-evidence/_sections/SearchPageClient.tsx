@@ -7,7 +7,7 @@ import { apiGet } from "@/lib/api";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 
-import type { SearchPageViewModel } from "./search-page-view-model";
+import { recordSearchRecentQuery, readSearchRecentQueries, clearSearchRecentQueries } from "@/lib/search-recent-queries";
 import type { RetrievalHit } from "./retrieval-hit";
 import { SearchPageView } from "./SearchPageView";
 
@@ -28,6 +28,7 @@ export function SearchPageClient(props: SearchPageClientProps) {
   const [hasSearched, setHasSearched] = useState(false);
   const [loading, setLoading] = useState(false);
   const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
+  const [recentQueries, setRecentQueries] = useState<readonly string[]>(() => readSearchRecentQueries());
 
   useEffect(() => {
     const nextRunId = searchParams.get("runId")?.trim() ?? "";
@@ -60,6 +61,7 @@ export function SearchPageClient(props: SearchPageClientProps) {
       const data = await apiGet<RetrievalHit[]>(`/v1/retrieval/search?${params.toString()}`);
       setResults(data);
       setHasSearched(true);
+      setRecentQueries(recordSearchRecentQuery(q));
     } catch (e: unknown) {
       setFailure(toApiLoadFailure(e));
       setResults([]);
@@ -76,6 +78,11 @@ export function SearchPageClient(props: SearchPageClientProps) {
     loading,
     onSearch,
     query,
+    recentQueries,
+    onClearRecentQueries: () => {
+      clearSearchRecentQueries();
+      setRecentQueries([]);
+    },
     results,
     runId,
     setQuery,

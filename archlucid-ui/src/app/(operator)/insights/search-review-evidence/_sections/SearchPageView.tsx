@@ -69,6 +69,8 @@ export function SearchPageView({ model }: SearchPageViewProps) {
     query,
     results,
     runId,
+    recentQueries,
+    onClearRecentQueries,
     setQuery,
     setRunId,
   } = model;
@@ -212,6 +214,43 @@ export function SearchPageView({ model }: SearchPageViewProps) {
               ))}
             </div>
           </div>
+
+          {recentQueries.length > 0 ? (
+            <div className="space-y-2" data-testid="search-recent-query-chips">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>Recent searches</p>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="h-auto px-2 py-1"
+                  data-testid="search-recent-queries-clear"
+                  onClick={onClearRecentQueries}
+                >
+                  Clear
+                </Button>
+              </div>
+              <div className="flex flex-wrap gap-2" role="group" aria-label="Recent search queries">
+                {recentQueries.map((recentQuery) => (
+                  <Button
+                    key={recentQuery}
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="h-auto max-w-full whitespace-normal py-1 font-normal"
+                    data-testid={`search-recent-query-chip-${recentQuery}`}
+                    disabled={loading}
+                    onClick={() => {
+                      setQuery(recentQuery);
+                      void onSearch(recentQuery);
+                    }}
+                  >
+                    {recentQuery}
+                  </Button>
+                ))}
+              </div>
+            </div>
+          ) : null}
         </CardContent>
       </Card>
 
