@@ -27,6 +27,7 @@ using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Models;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
+using ArchLucid.Core.Configuration;
 using ArchLucid.Core.DevTesting;
 using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Persistence.ApplicationPorts.Agents;
@@ -76,7 +77,6 @@ public sealed class RunQueryController(
     ILlmCostEstimator llmCostEstimator,
     IAuthorityQueryService authorityQueryService,
     IEffectiveAgentExecutionModeAccessor effectiveAgentExecutionModeAccessor,
-    IConfiguration configuration,
     IAuditService auditService,
     ExportFormatterService exportFormatter,
     IFindingsSnapshotRepository findingsSnapshotRepository,

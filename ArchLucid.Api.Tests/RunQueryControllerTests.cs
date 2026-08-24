@@ -17,6 +17,7 @@ using ArchLucid.Contracts.Metadata;
 using ArchLucid.Core.AgentEvaluation;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.DevTesting;
 using ArchLucid.Core.Persistence.ApplicationPorts.Agents;
 using ArchLucid.Core.Persistence.ApplicationPorts.Findings;
 using ArchLucid.Core.Persistence.Ports;
@@ -32,7 +33,6 @@ using FluentAssertions;
 
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
 
 using Moq;
 
@@ -355,10 +355,6 @@ public sealed class RunQueryControllerTests
             trackingRead.Object,
             new ItsmExternalTicketUrlBuilder(connectorRegistry.Object));
 
-        IConfiguration configuration = new ConfigurationBuilder()
-            .AddInMemoryCollection(new Dictionary<string, string?> { ["AgentExecution:Mode"] = "Simulator" })
-            .Build();
-
         return new RunQueryController(
             runDetailQueryService ?? Mock.Of<IRunDetailQueryService>(),
             runRoiEstimator ?? Mock.Of<IRunRoiEstimator>(),
@@ -377,7 +373,7 @@ public sealed class RunQueryControllerTests
             Mock.Of<IRunTrustEvidenceCardBuilder>(),
             Mock.Of<ILlmCostEstimator>(),
             Mock.Of<IAuthorityQueryService>(),
-            configuration,
+            Mock.Of<IEffectiveAgentExecutionModeAccessor>(a => a.GetEffectiveMode() == "Simulator"),
             Mock.Of<IAuditService>(),
             new ExportFormatterService(),
             Mock.Of<IFindingsSnapshotRepository>(),
