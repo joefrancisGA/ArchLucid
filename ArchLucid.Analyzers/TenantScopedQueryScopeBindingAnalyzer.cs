@@ -31,7 +31,9 @@ public sealed class TenantScopedQueryScopeBindingAnalyzer : DiagnosticAnalyzer
         "ExecuteScalar",
         "ExecuteScalarAsync",
         "ExecuteReader",
-        "ExecuteReaderAsync");
+        "ExecuteReaderAsync",
+        "QueryMultiple",
+        "QueryMultipleAsync");
 
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } =
     [

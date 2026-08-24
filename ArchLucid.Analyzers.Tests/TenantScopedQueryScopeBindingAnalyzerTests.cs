@@ -38,6 +38,17 @@ namespace Dapper
             int? commandTimeout = null,
             System.Data.CommandType? commandType = null) =>
             throw null!;
+
+        public static System.Threading.Tasks.Task<GridReader> QueryMultipleAsync(
+            this System.Data.IDbConnection cnn,
+            string sql,
+            object? param = null) =>
+            throw null!;
+
+        public sealed class GridReader : System.IAsyncDisposable
+        {
+            public System.Threading.Tasks.ValueTask DisposeAsync() => default;
+        }
     }
 
     public sealed class CommandDefinition
@@ -89,7 +100,7 @@ public sealed class UnscopedRunsRepository
 
         DiagnosticResult expected = CSharpAnalyzerVerifier<TenantScopedQueryScopeBindingAnalyzer, DefaultVerifier>
             .Diagnostic(Arch006Descriptor.UnscopedTableRule)
-            .WithSpan(57, 13, 59, 68)
+            .WithSpan(68, 13, 70, 68)
             .WithArguments("dbo.Runs");
 
         await RunPersistenceAnalyzerTestAsync(testCode, expected);
@@ -121,7 +132,7 @@ public sealed class CommandDefinitionRunsRepository
 
         DiagnosticResult expected = CSharpAnalyzerVerifier<TenantScopedQueryScopeBindingAnalyzer, DefaultVerifier>
             .Diagnostic(Arch006Descriptor.UnscopedTableRule)
-            .WithSpan(58, 13, 60, 77)
+            .WithSpan(69, 13, 71, 77)
             .WithArguments("dbo.Runs");
 
         await RunPersistenceAnalyzerTestAsync(testCode, expected);
@@ -152,7 +163,7 @@ public sealed class BracketedDynamicRunsRepository
 
         DiagnosticResult expected = CSharpAnalyzerVerifier<TenantScopedQueryScopeBindingAnalyzer, DefaultVerifier>
             .Diagnostic(Arch006Descriptor.UnanalyzableSqlRule)
-            .WithSpan(57, 13, 59, 81)
+            .WithSpan(68, 13, 70, 81)
             .WithArguments("dbo.Runs");
 
         await RunPersistenceAnalyzerTestAsync(testCode, expected);
@@ -177,8 +188,38 @@ public sealed class BadExemptionRepository
 
         DiagnosticResult expected = CSharpAnalyzerVerifier<TenantScopedQueryScopeBindingAnalyzer, DefaultVerifier>
             .Diagnostic(Arch006Descriptor.EmptyExemptionJustificationRule)
-            .WithSpan(52, 2, 52, 60)
+            .WithSpan(63, 2, 63, 60)
             .WithArguments("ArchLucid.Persistence.Probe.BadExemptionRepository");
+
+        await RunPersistenceAnalyzerTestAsync(testCode, expected);
+    }
+
+    [Fact]
+    public async Task ARCH006_reports_unscoped_static_sql_for_query_multiple_async()
+    {
+        const string testCode = SharedStubs +
+            """
+
+namespace ArchLucid.Persistence.Repositories
+{
+using System.Data;
+using Dapper;
+
+public sealed class QueryMultipleRunsRepository
+{
+    public async System.Threading.Tasks.Task LoadAsync(IDbConnection connection)
+    {
+        await using SqlMapper.GridReader _ = await connection.QueryMultipleAsync(
+            "SELECT RunId FROM dbo.Runs WHERE ArchivedUtc IS NULL");
+    }
+}
+}
+""";
+
+        DiagnosticResult expected = CSharpAnalyzerVerifier<TenantScopedQueryScopeBindingAnalyzer, DefaultVerifier>
+            .Diagnostic(Arch006Descriptor.UnscopedTableRule)
+            .WithSpan(68, 52, 69, 68)
+            .WithArguments("dbo.Runs");
 
         await RunPersistenceAnalyzerTestAsync(testCode, expected);
     }
@@ -208,7 +249,7 @@ public sealed class DynamicRunsRepository
 
         DiagnosticResult expected = CSharpAnalyzerVerifier<TenantScopedQueryScopeBindingAnalyzer, DefaultVerifier>
             .Diagnostic(Arch006Descriptor.UnanalyzableSqlRule)
-            .WithSpan(57, 13, 59, 77)
+            .WithSpan(68, 13, 70, 77)
             .WithArguments("dbo.Runs");
 
         await RunPersistenceAnalyzerTestAsync(testCode, expected);
