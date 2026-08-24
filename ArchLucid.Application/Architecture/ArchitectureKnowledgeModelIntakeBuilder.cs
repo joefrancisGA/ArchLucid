@@ -1,3 +1,4 @@
+using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.ArchitectureIntelligence;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Scoping;
@@ -69,9 +70,74 @@ public sealed class ArchitectureKnowledgeModelIntakeBuilder(TimeProvider timePro
                 ClaimOrigin.ExternallySourced);
         }
 
-        model.IsProvisionalSynthesis = model.Elements.Count == 0;
+        AddTransparencyTrail(model, request.IntakeTransparencyTrail, runId);
+
+        model.IsProvisionalSynthesis = model.Elements.Count == 0
+            || (request.IntakeTransparencyTrail?.HasSkippedMustQuestions ?? false);
 
         return model;
+    }
+
+    private static void AddTransparencyTrail(
+        ArchitectureKnowledgeModel model,
+        TransparencyTrail? trail,
+        string runId)
+    {
+        if (trail is null)
+            return;
+
+        foreach (AssertedTrailEntry asserted in trail.Asserted)
+        {
+            if (string.IsNullOrWhiteSpace(asserted.Key))
+                continue;
+
+            model.FramingAnswers[asserted.Key] = asserted.Value;
+            AddNamedElement(
+                model,
+                ArchitectureElementKind.FunctionalRequirement,
+                $"{asserted.Key}: {asserted.Value}",
+                runId,
+                ClaimOrigin.UserAsserted);
+        }
+
+        foreach (InferredTrailEntry inferred in trail.Inferred)
+        {
+            if (string.IsNullOrWhiteSpace(inferred.Key))
+                continue;
+
+            model.Elements.Add(new ArchitectureModelElement
+            {
+                ElementId = ArchitectureKnowledgeModelStableElementId.FromKindAndName(
+                    ArchitectureElementKind.Assumption,
+                    inferred.Key,
+                    runId),
+                Kind = ArchitectureElementKind.Assumption,
+                Name = inferred.Key,
+                Description = inferred.Value,
+                ExtractionConfidence = inferred.Confidence / 100.0,
+                Provenance = new ClaimProvenance
+                {
+                    Origin = ClaimOrigin.ModelInferred,
+                    SupportStatus = SupportStatus.PartiallySupported,
+                    Confidence = inferred.Confidence / 100.0,
+                    SourceArtifactId = runId,
+                },
+            });
+        }
+
+        foreach (SkippedQuestionTrailEntry skipped in trail.Skipped)
+        {
+            if (string.IsNullOrWhiteSpace(skipped.QuestionKey))
+                continue;
+
+            AddNamedElement(
+                model,
+                ArchitectureElementKind.UnresolvedQuestion,
+                skipped.QuestionKey,
+                runId,
+                ClaimOrigin.SystemProposed,
+                $"Skipped during intake ({skipped.Tier} tier).");
+        }
     }
 
     private static void AddSystemComponent(ArchitectureKnowledgeModel model, ArchitectureRequest request, string runId)
