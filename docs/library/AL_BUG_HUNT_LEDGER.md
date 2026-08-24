@@ -1743,10 +1743,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **status:** open
 - **impact:** medium
 - **aliases:** notifications; email dispatchers beyond weekly summary
-- **paths:** ArchLucid.Notifications/; ArchLucid.Application/Notifications/
-- **test-filter:** FullyQualifiedName~Notifications|FullyQualifiedName~EmailDispatcher
-- **hunts:** 4
-- **bugs-found:** 10
+- **paths:** ArchLucid.Notifications/; ArchLucid.Application/Notifications/; ArchLucid.Api/Controllers/Advisory/DigestSubscriptionsController.cs
+- **test-filter:** FullyQualifiedName~Notifications|FullyQualifiedName~EmailDispatcher|FullyQualifiedName~DigestSubscriptionsController
+- **hunts:** 5
+- **bugs-found:** 11
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-24
 - **last-bug:** 2026-08-24
@@ -1768,6 +1768,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Weekly sponsor summary treated whitespace-only recipients as success — **hit 2026-08-24:** `WeeklySponsorSummaryEmailDispatcher` only checked `toMailboxes.Count == 0`, reserved the ledger, skipped blank entries, and returned `true` without sending; fixed by normalizing recipients like the report dispatcher.
 - [x] (proven) Exec digest email reserved ledger before template render — **hit 2026-08-24:** `ExecDigestEmailDispatcher` reserved the weekly ledger before render and accepted all-whitespace recipient lists; fixed by render-before-ledger and recipient normalization.
 - [x] (proven) Trial lifecycle email reserved ledger before template render — **hit 2026-08-24:** `TrialLifecycleEmailDispatcher` reserved the idempotency key before Razor render; template failures permanently blocked trial onboarding mail; fixed by rendering before ledger reservation.
+- [x] (proven) Digest webhook subscriptions bypass the alert-routing SSRF destination policy — **hit 2026-08-24:** `DigestSubscriptionsController.Create` persisted `SlackWebhook` and `TeamsWebhook` destinations without calling `AlertRoutingWebhookDestinationPolicy`, accepting HTTP and loopback URLs; fixed by applying the shared policy before persistence.
 
 ---
 

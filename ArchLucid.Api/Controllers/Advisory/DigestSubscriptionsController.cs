@@ -7,6 +7,7 @@ using ArchLucid.Core.Audit;
 using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Scoping;
+using ArchLucid.Core.Security;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Decisioning.Advisory.Delivery;
 using ArchLucid.Decisioning.Advisory.Scheduling;
@@ -57,6 +58,15 @@ public sealed class DigestSubscriptionsController(
     {
         if (subscription is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
+
+        if (IsOutboundWebhookChannel(subscription.ChannelType))
+        {
+            string? destinationRejection =
+                AlertRoutingWebhookDestinationPolicy.TryGetRejectionReason(subscription.Destination);
+
+            if (destinationRejection is not null)
+                return this.BadRequestProblem(destinationRejection, ProblemTypes.ValidationFailed);
+        }
 
         ScopeContext scope = scopeProvider.GetCurrentScope();
 
@@ -280,5 +290,11 @@ public sealed class DigestSubscriptionsController(
         return subscription.TenantId == scope.TenantId &&
                subscription.WorkspaceId == scope.WorkspaceId &&
                subscription.ProjectId == scope.ProjectId;
+    }
+
+    private static bool IsOutboundWebhookChannel(string? channelType)
+    {
+        return string.Equals(channelType, DigestDeliveryChannelType.TeamsWebhook, StringComparison.OrdinalIgnoreCase) ||
+               string.Equals(channelType, DigestDeliveryChannelType.SlackWebhook, StringComparison.OrdinalIgnoreCase);
     }
 }
