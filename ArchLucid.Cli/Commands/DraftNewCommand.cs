@@ -1,5 +1,3 @@
-using System.Diagnostics.CodeAnalysis;
-
 using ArchLucid.Contracts.Drafts;
 
 namespace ArchLucid.Cli.Commands;
@@ -7,7 +5,6 @@ namespace ArchLucid.Cli.Commands;
 /// <summary>
 ///     Interactive Socratic intake via <c>archlucid draft new</c> — create, admit, answer MUST questions, submit.
 /// </summary>
-[ExcludeFromCodeCoverage(Justification = "CLI orchestration; covered via DraftNewCommandCoreTests with injected hooks.")]
 internal static class DraftNewCommand
 {
     public static Task<int> RunAsync(string[] args, CancellationToken cancellationToken = default)

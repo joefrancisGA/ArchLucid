@@ -9,7 +9,7 @@ Curated zones covering the full product surface (API, persistence, UI, CLI, orch
 ## How to use
 
 1. Run `.\scripts\agent\al-bug-pick-zone.ps1 -Preview` (add `-Hint 'â€¦'` when the user named an area; add `-Refresh` to recompute git churn).
-2. Hunt **only** the returned zone's `paths`. Treat `huntReadyHypotheses` as claims; treat `candidateHypotheses` as search lenses until a seed hunt.
+2. Hunt **only** the returned zone's `paths`. Treat `huntReadyHypotheses` as claims; treat `candidateHypotheses` as search lenses until a seed hunt. When `seedHunt` is true because all stored rows are closed, read the source again and generate fresh mechanism-backed hypotheses; an empty list is not a dry-run result.
 3. After the hunt, edit this file (the script does **not** write it):
    - **Hit:** increment `hunts` and `bugs-found`; set `consecutive-dry-hunts` to `0`; set `last-hunt` and `last-bug` to today (`YYYY-MM-DD`); tick the hypothesis as `(proven)`.
    - **Dry:** increment `hunts` and `consecutive-dry-hunts`; set `last-hunt` to today; tick attempted hunt-ready rows as `(valid-no-repro)` or `(invalid)`. Do not invent another bug in the same files.
@@ -289,6 +289,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) Semantic admission gate skips deterministic precheck failures — `CompositeRequestContentSafetyPrecheck` accumulates failures from every inner precheck (Default then Semantic).
 - [x] (valid-no-repro) Default precheck allows an executable injection pattern covered by AgentRuntime regression tests — `PromptInjectionExecutableRegressionTests.Precheck_blocks_expected_prompts` already exercises `expectedBlockedAt=precheck` fixtures.
 - [x] (proven) Default precheck omitted `Environment`, `Constraints`, and other list/snapshot fields from `PromptInjectionPatternSignals` scan, allowing injection to pass create-time admission and reach agent objectives (`TechnologyLedgerObjectiveComposer`).
+- [ ] (hunt-ready) `DefaultRequestContentSafetyPrecheck.EvaluateAsync` scans each document's `Name` and `Content` but not `SourceDocumentUrl`; a URL string containing a known injection instruction can pass admission even though sibling request fields use `PromptInjectionPatternSignals.AccumulateForField`.
 
 2026-08-23 dry hunt #46: no open hypotheses remain after hunt #45 fix; composite/semantic paths already retired or proven.
 
@@ -811,11 +812,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** draft new; cli draft
 - **paths:** ArchLucid.Cli/Commands/DraftNewCommand.cs
 - **test-filter:** FullyQualifiedName~DraftNewCommandCoreTests
-- **hunts:** 1
-- **bugs-found:** 4
+- **hunts:** 2
+- **bugs-found:** 5
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24 — draft scope not validated after create/patch; submit success without runId; question/execute paths omitted operator hints
+- **last-bug:** 2026-08-24 — admit response draft scope was not validated before MUST-question resolution
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -824,7 +825,12 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Draft is created under a tenant other than the signed-in CLI tenant — **hit 2026-08-24:** misconfigured scope headers could create a draft in another tenant while the CLI continued; `CliScopeResponseValidator` fails closed after create/patch when configured scope disagrees with API body; regressions in `RunCoreAsync_draft_scope_mismatch_after_create_returns_operation_failed` / `RunCoreAsync_draft_scope_mismatch_after_patch_returns_operation_failed`
 - [x] (proven) Command reports success when the API returned a hollow success — **hit 2026-08-24:** submit returned HTTP 200 with empty `runId` and the command still printed success; now fails with `OperationFailed`; regression in `RunCoreAsync_submit_without_run_id_returns_operation_failed`
 - [x] (proven) MUST-question and late-step API failures omitted operator hints — **hit 2026-08-24:** `ResolveMustQuestionsAsync` and execute/admit failure paths did not call `CliOperatorHints`; regression in `RunCoreAsync_questions_load_failure_writes_operator_hint`
+- [x] (proven) `AdmitDraftAsync` can return `admitted: true` with a draft under another tenant and the CLI continues — **hit 2026-08-24:** `DraftNewCommand` now validates `admission.Value.Draft` before MUST-question resolution (`RunCoreAsync_draft_scope_mismatch_after_admit_returns_operation_failed`).
 - [x] (invalid) Existing draft id is overwritten without confirmation — command always POSTs a new draft; no overwrite path
+- [ ] (hunt-ready) `RunCoreAsync` line 85 uses `!created.Success || created.Value is null`; Stryker's surviving `&&` mutant means tests do not prove that a failed response carrying a non-null value is rejected, so a concrete `Success=false`/non-null handler may continue with an invalid draft.
+- [ ] (hunt-ready) `RunCoreAsync` line 145 uses `!patched.Success || patched.Value is null`; Stryker's surviving `&&` mutant means tests do not prove a failed patch with a body stops before admission.
+- [ ] (hunt-ready) `RunCoreAsync` line 164 uses `!admission.Success || admission.Value is null`; Stryker's surviving `&&` mutant means tests do not prove a failed admit with a body stops before `Admitted` handling.
+- [ ] (hunt-ready) `RunCoreAsync` line 206 uses `!submit.Success || submit.Value is null`; Stryker's surviving `&&` mutant means tests do not prove a failed submit with a populated response stops before run-id success output.
 
 ---
 
@@ -1235,6 +1241,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Run summary export misreported broken-manifest runs as not finalized — **hit 2026-08-24:** `RunSummaryOnePagerExportService` skipped `HasBrokenManifestReference` guard; aligned message with other export paths (`RunSummaryOnePagerExportServiceTests`).
 - [x] (proven) HTML architecture review export omitted demo-tenant safety labeling — **hit 2026-08-24:** `BuildMinimalHtml` ignored `IsDemoTenant`; added demo notice (`ArchitectureReviewExportServiceTests`).
 - [x] (proven) Sponsor review packet evidence badges ignored demo-run context — **hit 2026-08-24:** `SponsorReviewPacketComposer` resolved badges with empty `PilotRunDeltas`; passes demo provenance from run detail (`SponsorReviewPacketComposerTests`).
+- [ ] (hunt-ready) `ArtifactExportController.DownloadTerraformAdvisoryExport` and `CreateTerraformPr` load run detail but omit the committed-manifest guard used by `PushRunExportToBlob`; an in-progress run with `GoldenManifest == null` may return export bytes or create a PR.
+- [ ] (hunt-ready) `RunQueryController.ExportRunFindingsCsv` checks run existence and manifest pointer consistency but not `IsCommitted`; a Created/ReadyForCommit run may export findings while sibling buyer export services reject it.
 
 ---
 
@@ -1263,6 +1271,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Integration event DLQ auto-retry never requeues eligible dead letters when permanently failed rows fill the first list cap — **hit 2026-08-23:** `IntegrationEventDlqRetryBackgroundWork` listed only the first 100 dead-letter rows; 100 newer permanently failed rows hid an eligible older row from `ResetDeadLetterForRetryAsync`
 - [x] (proven) `MarkCanceledAsync` on a running in-memory job is overwritten by late executor success — **hit 2026-08-23:** `ExecuteAsync` persisted `Succeeded` without re-checking `BackgroundJobState.Canceled` after `ExecuteAsync` returned
 - [x] (proven) Stale-running watchdog never reclaims `MaxRetries=0` export jobs (`RetryCount < MaxRetries` is always false) and leaves reclaimed `Pending` rows without Azure queue notifications — **hit 2026-08-23:** `ResetStaleRunningJobsOlderThanAsync` now allows the zero-retry crash reclaim path, marks exhausted rows `Failed`, and `BackgroundJobStuckRunningWatchdogBackgroundWork` re-sends queue notifications for pending reclaims
+- [ ] (hunt-ready) `IntegrationEventDlqRetryBackgroundWork.RunSinglePassAsync` reads `DateTime.UtcNow` directly while `IntegrationEventDlqRetryPolicy` accepts an explicit UTC instant; an NTP clock step during a pass can requeue rows before backoff or leave eligible rows delayed instead of using an injected `TimeProvider`.
 
 ---
 
@@ -1674,6 +1683,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `CloudProvider`, `ArchitectureRunStatus`, and `AgentTaskStatus` accept out-of-range integer ordinals via global `JsonStringEnumConverter` — **hit 2026-08-24:** `cloudProvider: 99` and similar status ordinals deserialized without `Enum.IsDefined`; fixed with dedicated converters and `[JsonConverter]` on each enum (`CloudProviderJsonConverterTests`, `ArchitectureRunStatusJsonConverterTests`, `AgentTaskStatusJsonConverterTests`).
 - [x] (proven) `AgentResultClaimListJsonConverter` drops PascalCase structured claims — **hit 2026-08-24:** `TryGetProperty` is case-sensitive so `{"Detail":"..."}` yielded empty claims; fixed with case-insensitive property lookup (`ContractsPackageCoverageBatchRc28cTests`).
 - [x] (proven) `ArchitectureFindingJsonConverter.ReadSeverity` downgrades unknown severity strings to `Info` — **hit 2026-08-24:** labels like `"blocker"` silently became `Info` while `EvalCorpusFindingSeverityJsonConverter` throws; fixed to throw on unknown labels (`ArchitectureFindingJsonConverterTests`).
+- [ ] (hunt-ready) `ArchLucid.Contracts/Common/AgentType.cs` is one-based while generated `Gen.AgentType` is zero-based; `GenNumericEnumBridgeJson` can round-trip contract `Topology` ordinal `1` into generated `Cost`, producing the wrong agent type in CLI mapping.
+- [ ] (hunt-ready) Global API enum conversion still permits out-of-range numeric `StructuralExecutionMode`, `FindingEnforcementTier`, `FindingHumanReviewStatus`, and `FindingTreatment`; unlike protected sibling enums, these types have no defined-value converter, so ordinal `99` may reach downstream switches.
+- [ ] (hunt-ready) `FindingJsonConverter` reads `humanReviewStatus` only when the token is a string; persisted JSON with numeric `1` leaves the default `NotRequired`, silently downgrading pending review state on round trip.
+- [ ] (hunt-ready) `AgentResultClaimListJsonConverter` flattens structured claim text but ignores an entry-level `evidenceRefs` array, so `{"detail":"Subnet missing","evidenceRefs":["pol-123"]}` loses its evidence linkage.
 
 ---
 
@@ -1969,6 +1982,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) Policy pack diff includes rules from a seeded pack in another tenant — retired: `PolicyPackBeforeAfterDiffComposer` and `PolicyPackBeforeAfterConfigurationSnapshotBuilder` operate on in-memory pack content and findings passed in; `DefaultPolicyPackSeeder` uses tenant-scoped repositories
 - [x] (invalid) Coverage calculator counts a waived finding as still open — retired: no coverage calculator in `Governance/`; waiver expiry uses `GovernanceWaiverExpiryWindow` / `GovernanceDecisionsNeededSummaryCalculator` distinct-finding union, not open-finding counts
 - [x] (invalid) Default policy pack activation skips required approval metadata — retired: `DefaultPolicyPackSeeder` platform bootstrap calls `CreatePackAsync` / `PublishVersionAsync` / `AssignAsync` by design for bundled defaults, not operator approval flow
+- [ ] (hunt-ready) `PreCommitGovernanceGate.SimulateSyntheticFindingsInternalAsync` returns `Allowed()` when scoped `GetByIdAsync(runId)` returns null before applying synthetic Critical findings; a foreign-tenant or missing run id can receive an HTTP success that reports the simulated gate as allowed.
 - [x] (proven) Policy-pack before/after snapshot marks advisory findings as blocking commit — `PolicyPackBeforeAfterConfigurationSnapshotBuilder` used severity-only check instead of `PreCommitGateResult.BlockingFindingIds` (fixed 2026-08-20)
 - [x] (proven) Governance dry-run skips pre-commit enforcement for PascalCase metadata keys — **hit 2026-08-21:** `PolicyPackGovernanceDryRunService` read `blockCommitOnCritical` / `blockCommitMinimumSeverity` via case-sensitive `metadata.TryGetValue`, so JSON-deserialized metadata with `BlockCommitOnCritical` never activated the gate
 - [x] (proven) Focused pilot execute-time snapshot excludes pinned organization packs that preview and commit capture include — **hit 2026-08-23:** `EffectiveGovernanceSnapshotBuilder` used `IsAllowedPackDisplayName` instead of `IsPackAllowedInFocusedReview`, dropping pinned org and platform-overlay packs from execute-time `PackAssignments`
@@ -2140,3 +2154,72 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `hydrateOperatorShellStatusCaches` left stale TanStack data when later shell-status payloads omitted concerns — fixed 2026-08-24; remove queries when payload fields are null (`operator-shell-status-client.test.ts`).
 - [x] (proven) `OPERATOR_RECENT_VIEWS_STORAGE_KEY` and `HAS_EXISTING_RUNS_CACHE_KEY` survived tenant/workspace switch — fixed 2026-08-24; clear on `notifyOperatorScopeChanged` (`operator-scope-storage.test.ts`).
 - [x] (proven) `extractQuickDecisionFindingsFromRunDetail` discarded live OpenAPI string `humanReviewStatus` values such as `Pending`, leaving review badges without a status — fixed 2026-08-24 via reusable `normalizeFindingHumanReviewStatus` (`quick-decision-summary-derive.test.ts`).
+
+---
+
+## Zone: quick-scan-distributed-concurrency
+
+- **id:** quick-scan-distributed-concurrency
+- **status:** open
+- **impact:** high
+- **aliases:** quick scan queue; anonymous concurrency; quick scan lease
+- **paths:** ArchLucid.Application/Architecture/QuickScanDistributedConcurrencyService.cs; ArchLucid.Persistence/Architecture/QuickScanDistributedConcurrencyStore.cs
+- **test-filter:** FullyQualifiedName~QuickScanDistributedConcurrency
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
+- **related-pd-tb:** none
+- **code-changed-since:** unknown
+
+### Hypotheses
+
+- [ ] (hunt-ready) `QuickScanDistributedConcurrencyService` catches caller cancellation while waiting but abandons the queue entry with `CancellationToken.None`; if SQL abandon stalls during shutdown, the row remains Waiting until `QueueExpiresUtc` and consumes effective queue capacity.
+- [ ] (hunt-ready) `QuickScanDistributedConcurrencyAdmissionResult.DisposeAsync` releases its lease without an execution or shutdown token; a host drain during disposal can leave the lease active until expiry and reject otherwise admissible scans.
+
+---
+
+## Zone: run-execute-ownership
+
+- **id:** run-execute-ownership
+- **status:** open
+- **impact:** high
+- **aliases:** run execute lease; execute ownership; orchestration ownership
+- **paths:** ArchLucid.Application/Runs/Orchestration/ArchitectureRunExecuteOrchestrator.cs; ArchLucid.Application/Runs/Orchestration/RunExecuteOwnershipLeaseService.cs
+- **test-filter:** FullyQualifiedName~RunExecuteOwnership|FullyQualifiedName~ArchitectureRunExecuteOrchestrator
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
+- **related-pd-tb:** none
+- **code-changed-since:** unknown
+
+### Hypotheses
+
+- [ ] (hunt-ready) `ArchitectureRunExecuteOrchestrator` releases an acquired ownership lease with `CancellationToken.None` after `ExecuteRunCoreAsync` is cancelled; a hanging release during host drain can retain ownership until TTL and make a second execute return conflict.
+- [ ] (hunt-ready) A cancellation after ownership acquisition but before durable execution state transition can expose different retry behavior between the direct API execute path and the background-job execute path.
+
+---
+
+## Zone: chatops-delivery
+
+- **id:** chatops-delivery
+- **status:** open
+- **impact:** medium
+- **aliases:** chatops webhook; authority commit notification; slack teams delivery
+- **paths:** ArchLucid.Notifications/AuthorityRunCommittedChatOpsHook.cs; ArchLucid.Notifications/AuthorityRunCompletedChatOpsIntegrationEventHandler.cs
+- **test-filter:** FullyQualifiedName~AuthorityRunCommittedChatOps|FullyQualifiedName~AuthorityRunCompletedChatOps
+- **hunts:** 0
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
+- **last-bug:** never
+- **related-pd-tb:** none
+- **code-changed-since:** unknown
+
+### Hypotheses
+
+- [ ] (hunt-ready) `AuthorityRunCommittedChatOpsHook.DeliverIfEnabledAsync` catches a Slack/Teams 500 or network exception per target and returns success; the integration event is acknowledged, so Service Bus never retries and operators permanently miss the completion message.
+- [ ] (hunt-ready) One target succeeding while a sibling target fails is not durably recorded; replay may duplicate the successful target or permanently suppress the failed target depending on handler acknowledgement semantics.

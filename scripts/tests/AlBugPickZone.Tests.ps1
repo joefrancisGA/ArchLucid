@@ -622,4 +622,35 @@ $bOpen
         $result.invalidCount | Should Be 0
         $result.provenCount | Should Be 0
     }
+
+    It 'forces a reseed when a previously hunted open zone has no hypotheses left' {
+        $content = @"
+# fixture
+
+## Zone: zone-spent
+
+- **id:** zone-spent
+- **status:** open
+- **aliases:** hypotheses consumed
+- **paths:** ArchLucid.Application/Spent.cs
+- **test-filter:** FullyQualifiedName~SpentTests
+- **hunts:** 8
+- **bugs-found:** 7
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-08-24
+- **last-bug:** 2026-08-24
+- **related-pd-tb:** none
+- **code-changed-since:** 0
+
+### Hypotheses
+
+- [x] (proven) Every stored hypothesis has been consumed
+"@
+        [string]$ledger = New-LedgerFixture -Content $content
+        $result = Invoke-Picker -LedgerPath $ledger
+
+        $result.zoneId | Should Be 'zone-spent'
+        $result.seedHunt | Should Be $true
+        @($result.openHypotheses).Count | Should Be 0
+    }
 }

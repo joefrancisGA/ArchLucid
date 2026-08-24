@@ -83,7 +83,7 @@ Scoring is **explore/exploit**: hunts are the time unit. Prefer shorter mean hun
 Rules:
 
 - Hunt **only** the returned `zoneId` (`paths` + hypotheses). Do not invent another zone in the same invocation.
-- If JSON `seedHunt` is `true` or `status` is `unseeded`, this run is a **seed hunt** (Phase 1.1a) before any repro.
+- If JSON `seedHunt` is `true` or `status` is `unseeded`, this run is a **seed hunt** (Phase 1.1a) before any repro. This includes previously hunted zones whose stored hypotheses are all closed: read the source again and generate fresh mechanism-backed hypotheses; do not record a mechanical dry hunt.
 - If JSON `exhaustedAll` is `true`, **stop** — report that every zone is exhausted without git churn. Do not invent a new zone.
 - If `--status`, print the preview and **stop** (do not hunt; do not write the ledger).
 - The script does **not** write the ledger. After the hunt, you edit `AL_BUG_HUNT_LEDGER.md`.
@@ -120,6 +120,15 @@ Do **not** spend a full repro loop on template candidates. Read the zone `paths`
 2. **Retire** a candidate as `(invalid)` when the locus or prerequisite does not exist in these files.
 3. You **may** prove one newly hunt-ready row in the **same** invocation.
 4. If nothing is hunt-ready after the read, stop as **seed-only** (not a dry hunt). Do not invent a fourth generic template.
+
+For a previously hunted zone with no open rows, reseed from fresh evidence rather than copying old mechanisms:
+
+- compare sibling paths for checks present on one path but absent on another;
+- inspect uncovered branches from the latest coverage artifact;
+- inspect surviving mutants when a scoped Stryker target exists;
+- inspect recent production changes that did not add or modify tests;
+- try serialization, null/empty, enum, culture/UTC, cancellation, retry/idempotency, and concurrency lenses;
+- use `-Nominate` when the implicated files are outside every current zone.
 
 Do not add new zones. Do not refill a zone with three untagged harm-class rows.
 

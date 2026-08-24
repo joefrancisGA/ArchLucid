@@ -653,6 +653,13 @@ function Test-ZoneNeedsSeedHunt {
         return $true
     }
 
+    # A previously productive zone can consume every stored hypothesis while
+    # defects remain. Force a fresh source read instead of treating an empty
+    # hypothesis list as a dry hunt.
+    if ($huntReadyCount -eq 0 -and $candidateCount -eq 0) {
+        return $true
+    }
+
     if ($Zone.Hunts -eq 0 -and $huntReadyCount -eq 0 -and $candidateCount -gt 0) {
         return $true
     }
