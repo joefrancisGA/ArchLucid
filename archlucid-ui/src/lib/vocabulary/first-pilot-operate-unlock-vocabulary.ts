@@ -11,7 +11,11 @@
  * escape hatch that reveals deeper analysis routes.
  */
 
+import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import type { PairwiseVocabularyRailModel } from "@/lib/vocabulary/create-pairwise-vocabulary-rail";
+
+const FIRST_PILOT_OPERATE_UNLOCK_ANALYSIS_NAV_LABELS =
+  `${OPERATOR_NAV_LINK_LABELS.compareTwoReviews}, ${OPERATOR_NAV_LINK_LABELS.evidenceGraph}, ${OPERATOR_NAV_LINK_LABELS.askReview}`;
 
 /** Operator home hosts the first-pilot command center. */
 export const FIRST_PILOT_SURFACE_PATH = "/" as const;
@@ -46,7 +50,7 @@ export const FIRST_PILOT_OPERATE_UNLOCK_WHY_TWO =
   "The first-pilot command center steers the next best action for starting and finalizing a review. Operate unlock reveals Compare, evidence graph, Ask, and related analysis nav that stay hidden on the focused pilot path. Pilot next-best-action is not the same task as unlocking Operate analysis routes." as const;
 
 export const FIRST_PILOT_OPERATE_UNLOCK_COMPACT_LINE =
-  "First pilot steers the next review action; Operate unlock reveals Compare/graph/Ask." as const;
+  `First pilot steers the next review action; Operate unlock reveals ${FIRST_PILOT_OPERATE_UNLOCK_ANALYSIS_NAV_LABELS}.`;
 
 export const FIRST_PILOT_OPERATE_UNLOCK_FIRST_PILOT_LINK: FirstPilotOperateUnlockLink = {
   id: "first-pilot",
