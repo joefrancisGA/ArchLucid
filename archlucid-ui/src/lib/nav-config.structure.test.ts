@@ -195,6 +195,7 @@ describe("nav-config structure", () => {
     expect(pilotHrefs).toContain("/architecture/digests");
     expect(governanceHrefs).toEqual([
       "/governance/approval-queue",
+      "/governance/setup",
       "/governance/findings",
       "/governance/findings/assigned-to-me",
       "/governance/exceptions",
@@ -209,7 +210,6 @@ describe("nav-config structure", () => {
       "/governance/standards-and-rules",
       "/governance/alert-rules",
       "/governance/recurrence-schedules",
-      "/governance/setup",
     ]);
     expect(integrationsHrefs).toEqual([
       "/integrations/cloud-connections",

@@ -1,5 +1,4 @@
 import {
-  CalendarCheck,
   CalendarClock,
   Scale,
   Shield,
@@ -8,19 +7,18 @@ import {
 
 import type { NavGroupConfig } from "@/lib/nav-config.types";
 import { GOVERNANCE_STANDARDS_AND_RULES_PATH } from "@/lib/governance/governance-route-paths";
-import { GOVERNANCE_SETUP_HREF } from "@/lib/governance/governance-setup-route";
 import { OPERATOR_NAV_GROUP_LABELS, OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 
 import { NavGroupBuilderBase } from "@/lib/nav-group-builder-base";
 
-/** Operate · policy — packs, standards, alert rules, schedules, and approval setup. */
+/** Operate · policy — packs, standards, alert rules, and schedules. */
 export class OperatePolicyNavGroupBuilder extends NavGroupBuilderBase {
   build(): NavGroupConfig {
     return {
       id: "operate-policy",
       label: OPERATOR_NAV_GROUP_LABELS.policy,
       surface: "review-workflow",
-      caption: "Configure policy packs, standards, alert rules, schedules, and approval setup.",
+      caption: "Configure policy packs, standards, alert rules, and recurrence schedules.",
       links: [
         {
           href: "/governance/policy-packs",
@@ -52,14 +50,6 @@ export class OperatePolicyNavGroupBuilder extends NavGroupBuilderBase {
           label: OPERATOR_NAV_LINK_LABELS.recurrenceSchedules,
           title: "Recurrence schedules — automated follow-up architecture reviews after finalize",
           icon: CalendarClock,
-          tier: "extended",
-          requiredAuthority: "ReadAuthority",
-        },
-        {
-          href: GOVERNANCE_SETUP_HREF,
-          label: OPERATOR_NAV_LINK_LABELS.governanceSetupGuide,
-          title: "Approval setup — operating rhythm for approvals, audit, and policy packs",
-          icon: CalendarCheck,
           tier: "extended",
           requiredAuthority: "ReadAuthority",
         },

@@ -121,7 +121,6 @@ describe("splitSidebarLinksDailyVsMore", () => {
     const links = [
       link("/governance/policy-packs", "Policy packs"),
       link("/governance/standards-and-rules", "Standards & rules"),
-      link("/governance/setup", "Approval setup"),
       link("/governance/alert-rules", "Alert rules"),
       link("/governance/recurrence-schedules", "Recurrence schedules"),
     ];

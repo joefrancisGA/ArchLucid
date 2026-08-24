@@ -1,6 +1,7 @@
 import {
   AlertTriangle,
   Bell,
+  CalendarCheck,
   ClipboardList,
   FileText,
   Gavel,
@@ -16,6 +17,7 @@ import {
   GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH,
   GOVERNANCE_EXCEPTIONS_PATH,
 } from "@/lib/governance/governance-route-paths";
+import { GOVERNANCE_SETUP_HREF } from "@/lib/governance/governance-setup-route";
 import { OPERATOR_NAV_GROUP_LABELS, OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import { SIGNED_RECORDS_LIST_PATH } from "@/lib/signed-records-paths";
 
@@ -41,6 +43,14 @@ export class OperateGovernanceNavGroupBuilder extends NavGroupBuilderBase {
           // GovernanceController's class-level [Authorize(ReadAuthority)] default. Only approve/reject/batch-review/
           // promote/activate are Execute-gated (see canMutateWorkflow in GovernanceWorkflowPageContent, which already
           // ships dedicated reader-mode copy and disables every mutating action for non-Execute callers).
+          requiredAuthority: "ReadAuthority",
+        },
+        {
+          href: GOVERNANCE_SETUP_HREF,
+          label: OPERATOR_NAV_LINK_LABELS.governanceSetupGuide,
+          title: "Approval setup — operating rhythm for approvals, audit, and policy packs",
+          icon: CalendarCheck,
+          tier: "extended",
           requiredAuthority: "ReadAuthority",
         },
         {
