@@ -30,6 +30,12 @@ public static partial class AuditEventTypes
     /// </summary>
     public const string SyntheticOperatorDemoPackInvoked = "SyntheticOperatorDemoPack.Invoked";
 
+    /// <summary>
+    ///     Admin invoked <c>POST /v1/diagnostics/reset-development-catalog</c> to drop and recreate the local
+    ///     development SQL catalog.
+    /// </summary>
+    public const string DevelopmentCatalogResetInvoked = "DevelopmentCatalogReset.Invoked";
+
     /// <summary>Post-commit projection outbox row exhausted retries during background side-effect processing (TB-309).</summary>
     public const string PostCommitProjectionDeadLettered = "PostCommitProjectionDeadLettered";
 
