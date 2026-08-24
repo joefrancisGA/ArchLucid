@@ -1,3 +1,5 @@
+using ArchLucid.Core.Configuration;
+
 namespace ArchLucid.Host.Core.Startup.Validation.Rules;
 
 internal static class AgentExecutionRules
@@ -21,17 +23,13 @@ internal static class AgentExecutionRules
         if (string.Equals(completionClient, "Echo", StringComparison.OrdinalIgnoreCase))
             return;
 
-        string? endpoint = configuration["AzureOpenAI:Endpoint"];
-        string? apiKey = configuration["AzureOpenAI:ApiKey"];
-        string? deployment = configuration["AzureOpenAI:DeploymentName"];
-
-        if (string.IsNullOrWhiteSpace(endpoint) || string.IsNullOrWhiteSpace(apiKey) || string.IsNullOrWhiteSpace(deployment))
+        if (!AzureOpenAiConfigurationProbe.IsCompletionStackConfigured(configuration))
             return;
 
         if (logger.IsEnabled(LogLevel.Information))
 
             logger.LogInformation(
-                "AgentExecution:Mode is Real and Azure OpenAI settings (Endpoint, ApiKey, DeploymentName) are configured.");
+                "AgentExecution:Mode is Real and Azure OpenAI settings (Endpoint, DeploymentName, and ApiKey or ManagedIdentity) are configured.");
     }
 
     public static void Collect(IConfiguration configuration, List<string> errors)
@@ -60,18 +58,13 @@ internal static class AgentExecutionRules
         if (useEchoClient)
             return;
 
-        string? endpoint = configuration["AzureOpenAI:Endpoint"];
-        string? apiKey = configuration["AzureOpenAI:ApiKey"];
-        string? deployment = configuration["AzureOpenAI:DeploymentName"];
-
-        if (string.IsNullOrWhiteSpace(endpoint) ||
-            string.IsNullOrWhiteSpace(apiKey) ||
-            string.IsNullOrWhiteSpace(deployment))
+        if (!AzureOpenAiConfigurationProbe.IsCompletionStackConfigured(configuration))
 
             errors.Add(
                 "AgentExecution:Mode is 'Real' but Azure OpenAI is not fully configured. Set environment variables " +
-                "AZURE_OPENAI_ENDPOINT, AZURE_OPENAI_API_KEY, and AZURE_OPENAI_DEPLOYMENT_NAME (or the matching " +
-                "AzureOpenAI:Endpoint, AzureOpenAI:ApiKey, AzureOpenAI:DeploymentName configuration keys).");
+                "AZURE_OPENAI_ENDPOINT and AZURE_OPENAI_DEPLOYMENT_NAME with AZURE_OPENAI_API_KEY or " +
+                "AzureOpenAI:AuthenticationMode=ManagedIdentity (or the matching AzureOpenAI:Endpoint, " +
+                "AzureOpenAI:DeploymentName, and AzureOpenAI:ApiKey / AuthenticationMode configuration keys).");
 
         int maxCompletionTokens = configuration.GetValue("AzureOpenAI:MaxCompletionTokens", 0);
 

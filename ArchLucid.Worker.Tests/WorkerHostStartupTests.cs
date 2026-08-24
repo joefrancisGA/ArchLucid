@@ -42,6 +42,35 @@ public sealed class WorkerHostStartupTests
     }
 
     [Fact]
+    public void Worker_host_starts_when_real_mode_uses_managed_identity_without_api_key()
+    {
+        WorkerTestArchLucidAuthEnvSnapshot snapshot = WorkerTestArchLucidAuthEnvSnapshot.CaptureAndApplyWorkerDefaults();
+
+        try
+        {
+            using WebApplicationFactory<Program> factory = new WebApplicationFactory<Program>()
+                .WithWebHostBuilder(builder =>
+                {
+                    builder.UseSetting("ArchLucid:StorageProvider", "InMemory");
+                    builder.UseSetting("ConnectionStrings:Redis", "localhost");
+                    builder.UseSetting("AgentExecution:Mode", "Real");
+                    builder.UseSetting("AzureOpenAI:Endpoint", "https://example.openai.azure.com/");
+                    builder.UseSetting("AzureOpenAI:DeploymentName", "gpt");
+                    builder.UseSetting("AzureOpenAI:AuthenticationMode", "ManagedIdentity");
+                    builder.UseSetting("LlmCompletionCache:Enabled", "false");
+                });
+
+            Action act = () => _ = factory.Services;
+
+            act.Should().NotThrow();
+        }
+        finally
+        {
+            snapshot.Restore();
+        }
+    }
+
+    [Fact]
     public void Worker_host_fails_fast_when_hosting_role_is_api()
     {
         WorkerTestArchLucidAuthEnvSnapshot snapshot = WorkerTestArchLucidAuthEnvSnapshot.CaptureAndApplyWorkerDefaults();

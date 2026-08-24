@@ -1035,11 +1035,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** worker program; worker host startup
 - **paths:** ArchLucid.Worker/Program.cs
 - **test-filter:** FullyQualifiedName~WorkerHostStartupTests|FullyQualifiedName~WorkerCompositionTests
-- **hunts:** 1
-- **bugs-found:** 4
+- **hunts:** 2
+- **bugs-found:** 5
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24 — unset Hosting:Role skipped worker production rules; DI validated after Build; DevelopmentCatalogReset broke InMemory worker startup
+- **last-bug:** 2026-08-24 — Real mode + ManagedIdentity rejected ApiKey-less Azure OpenAI at worker startup validation and options bind
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1050,6 +1050,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Startup succeeds when a required hosted service failed to resolve — **hit 2026-08-24:** `DevelopmentCatalogResetService` required `ISchemaBootstrapper` while InMemory worker dev hosts skipped SQL registration; stub `InMemoryDevelopmentCatalogResetService` for non-SQL storage
 - [x] (proven) Missing `Hosting:Role=Worker` let production validation use Combined — **hit 2026-08-24:** `ContainerJobsOffloadRules` skipped when role unset; `WorkerProcessHostingRoleConfiguration` defaults/rejects
 - [x] (proven) Invalid configuration built full DI before fail-fast — **hit 2026-08-24:** `ValidateOrThrow` runs before `Build()` in Worker `Program.cs`
+- [x] (proven) Real mode with `AzureOpenAI:AuthenticationMode=ManagedIdentity` fails worker startup — **hit 2026-08-24:** `AgentExecutionRules` required ApiKey despite MI; `AzureOpenAiOptionsValidator` rejected partial credentials without ApiKey; fixed via `AzureOpenAiConfigurationProbe.IsCompletionStackConfigured` and MI-aware options validation; regression in `Worker_host_starts_when_real_mode_uses_managed_identity_without_api_key`
 
 ---
 

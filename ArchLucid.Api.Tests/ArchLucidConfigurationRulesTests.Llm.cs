@@ -157,6 +157,29 @@ public sealed partial class ArchLucidConfigurationRulesTests
     }
 
     [SkippableFact]
+    public void CollectErrors_WhenRealModeWithManagedIdentity_allows_missing_api_key()
+    {
+        Dictionary<string, string?> data = new()
+        {
+            ["ArchLucid:StorageProvider"] = "InMemory",
+            ["ArchLucidAuth:Mode"] = "DevelopmentBypass",
+            ["AgentExecution:Mode"] = "Real",
+            ["AzureOpenAI:Endpoint"] = "https://example.openai.azure.com/",
+            ["AzureOpenAI:DeploymentName"] = "dep",
+            ["AzureOpenAI:AuthenticationMode"] = "ManagedIdentity",
+            ["LlmCompletionCache:Enabled"] = "false",
+        };
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        Mock<IWebHostEnvironment> env = new();
+        env.Setup(e => e.EnvironmentName).Returns(Environments.Development);
+
+        IReadOnlyList<string> errors = ArchLucidConfigurationRules.CollectErrors(configuration, env.Object);
+
+        errors.Should().NotContain(e => e.Contains("Azure OpenAI is not fully configured", StringComparison.Ordinal));
+    }
+
+    [SkippableFact]
     public void CollectErrors_WhenRealModeWithEchoCompletionClient_allows_missing_AzureOpenAi()
     {
         Dictionary<string, string?> data = new()

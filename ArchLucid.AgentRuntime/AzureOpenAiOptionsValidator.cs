@@ -52,6 +52,10 @@ public sealed class AzureOpenAiOptionsValidator : IValidateOptions<AzureOpenAiOp
         bool hasEndpoint = !string.IsNullOrWhiteSpace(options.Endpoint);
         bool hasApiKey = !string.IsNullOrWhiteSpace(options.ApiKey);
         bool hasDeployment = !string.IsNullOrWhiteSpace(options.DeploymentName);
+        bool usesManagedIdentity = string.Equals(
+            options.AuthenticationMode?.Trim(),
+            "ManagedIdentity",
+            StringComparison.OrdinalIgnoreCase);
 
         if (!hasEndpoint && !hasApiKey && !hasDeployment)
             return failures;
@@ -62,7 +66,7 @@ public sealed class AzureOpenAiOptionsValidator : IValidateOptions<AzureOpenAiOp
                 $"{AzureOpenAiOptions.SectionName}:{nameof(AzureOpenAiOptions.Endpoint)} is required when Azure OpenAI credentials are partially configured.");
         }
 
-        if (!hasApiKey)
+        if (!hasApiKey && !usesManagedIdentity)
         {
             failures.Add(
                 $"{AzureOpenAiOptions.SectionName}:{nameof(AzureOpenAiOptions.ApiKey)} is required when Azure OpenAI credentials are partially configured.");

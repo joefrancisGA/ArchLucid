@@ -179,9 +179,9 @@
 {"at":"2026-08-24T15:36:18.356519Z","zoneId":"scim-users","outcome":"hit"}
 {"at":"2026-08-24T15:36:18.3020324Z","zoneId":"cloud-extractors","outcome":"hit"}
 {"at":"2026-08-24T15:45:54.2015875Z","zoneId":"authority-pipeline-payload","outcome":"hit"}
-{"at":"2026-08-24T15:45:00.000000Z","zoneId":"identity-provider-config","outcome":"hit"}
-{"at":"2026-08-24T15:52:00.000000Z","zoneId":"security-analyzers","outcome":"hit"}
-{"at":"2026-08-24T16:14:00.000000Z","zoneId":"api-key-auth","outcome":"hit"}
+{"at":"2026-08-24T15:45:00Z","zoneId":"identity-provider-config","outcome":"hit"}
+{"at":"2026-08-24T15:52:00Z","zoneId":"security-analyzers","outcome":"hit"}
+{"at":"2026-08-24T16:14:00Z","zoneId":"api-key-auth","outcome":"hit"}
 {"at":"2026-08-24T16:00:49.953Z","zoneId":"authority-pipeline-payload","outcome":"hit"}
 {"at":"2026-08-24T16:08:08.8347420Z","zoneId":"authority-pipeline-payload","outcome":"hit"}
 {"at":"2026-08-24T16:48:00.000000Z","zoneId":"scope-binding-middleware","outcome":"hit"}
@@ -196,3 +196,4 @@
 {"at":"2026-08-24T17:15:00.000000Z","zoneId":"arm-terraform-source-ids","outcome":"hit"}
 {"at":"2026-08-24T17:20:00.000000Z","zoneId":"arm-terraform-source-ids","outcome":"hit"}
 {"at":"2026-08-24T17:25:00.000000Z","zoneId":"arm-terraform-source-ids","outcome":"hit"}
+{"at":"2026-08-24T17:22:43.0261280Z","zoneId":"worker-host","outcome":"hit"}

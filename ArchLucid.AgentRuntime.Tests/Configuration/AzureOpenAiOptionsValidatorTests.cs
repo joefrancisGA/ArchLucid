@@ -68,6 +68,21 @@ public sealed class AzureOpenAiOptionsValidatorTests
     }
 
     [Fact]
+    public void Validate_managed_identity_credentials_without_api_key_succeeds()
+    {
+        AzureOpenAiOptions options = new()
+        {
+            Endpoint = "https://example.openai.azure.com/",
+            DeploymentName = "gpt-4o",
+            AuthenticationMode = "ManagedIdentity",
+        };
+
+        ValidateOptionsResult result = _sut.Validate(Options.DefaultName, options);
+
+        result.Succeeded.Should().BeTrue();
+    }
+
+    [Fact]
     public void Validate_negative_max_completion_tokens_fails()
     {
         AzureOpenAiOptions options = new() { MaxCompletionTokens = -1 };
