@@ -1,5 +1,10 @@
 #!/usr/bin/env python3
-"""Run N sequential /al-bug iterations: picker, cheap disproof, ledger, stats."""
+"""Run N sequential /al-bug iterations: picker, cheap disproof, ledger, stats.
+
+WARNING: This orchestrator is for picker/ledger/stats stress testing only. It does
+not author failing repro tests and must not replace the full /al-bug workflow in
+.cursor/commands/al-bug.md for defect hunting.
+"""
 
 from __future__ import annotations
 

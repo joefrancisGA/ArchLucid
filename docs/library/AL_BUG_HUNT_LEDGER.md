@@ -116,6 +116,9 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - [x] (valid-no-repro) Duplicate node-id collision when overlay and inventoried node share SourceId but different labels — `TryClaimService` blocks materialization when terraform id already indexed
 - [x] (valid-no-repro) Gate vs merge disagreement after structural post-processor strips a relationship — post-processor defers undeclared endpoints to gate; strip branch unreachable when both declared
 - [x] (valid-no-repro) Relationship-only follow-up when rename overlay is in a different agent result filtered out by inventory — cross-result follow-up passes when rename `ServiceId` matches inventoried node; correctly rejects undeclared rename labels
+- [ ] (hunt-ready) `AgentTopologyProposalMergeGate.FilterValidatedProposals` with a Cost/Compliance agent whose `SanitizeProposal` strips every service/datastore/relationship but leaves `RequiredControls` — agent row vanishes from `validatedResults` when `ProposalIsEmpty` is false for controls-only yet the result id was never stored because an earlier empty-sanitize `continue` dropped the whole `AgentResult` (findings/claims lost at commit).
+- [ ] (hunt-ready) `AgentTopologyProposalGraphMerge.MergeEndpointAliasesInto` (`TryAdd` first-wins) with two agents mapping the same relationship endpoint key to different node ids in one batch — second agent's `MapRelationships` resolves to the first alias while `DropDanglingEdges` drops edges whose resolved ids are absent from `graph.Nodes` union `added`.
+- [ ] (hunt-ready) `AgentTopologyProposalGraphMerge` topology pass with `materializeNodes == true` and claimed services skip `AddDeclaredManifestServiceEndpointAliases` — a relationship referencing only a pre-registered merge-gate key not mirrored in node `Label`/`NodeId`/`svc-{name}` produces zero edges after `TopologyProposalRelationshipEdgeMapper.MapRelationships`.
 
 ---
 
@@ -183,6 +186,9 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - [x] (proven) `azurerm_healthcare_workspace` Terraform address omitted from `LooksLikeTerraformServiceSourceId` — **hit 2026-08-24:** `healthcare_workspace` was only in the datastore list; `azurerm_healthcare_workspace.main` on Data-category nodes dropped `svc-` synthetic aliases; regression in gate + merge tests
 - [x] (proven) `azurerm_backup_vault` Terraform address omitted from `LooksLikeTerraformServiceSourceId` — **hit 2026-08-24:** `backup_vault` was only in the datastore list; `azurerm_backup_vault.main` on Data-category nodes dropped `svc-` synthetic aliases; regression in gate + merge tests
 - [x] (proven) `azurerm_storage_share` Terraform address omitted from `LooksLikeTerraformServiceSourceId` — **hit 2026-08-24:** `storage_share` was only in the datastore list; `azurerm_storage_share.main` on Data-category nodes dropped `svc-` synthetic aliases; regression in gate + merge tests
+- [ ] (hunt-ready) `TopologyProposalRelationshipEndpointIndex.AddManifestServiceEndpointAliases` (overlay path) with `ManifestService.ServiceId` = full ARM resource id and relationship `SourceId` = normalized ARM form only — overlay omits `AddArmResourceIdResolutionAliases` unlike `AddDeclaredManifestServiceEndpointAliases`, so edge creation fails when the inventoried node stores the id only in a differently indexed property field.
+- [ ] (hunt-ready) `TopologyProposalRelationshipEdgeMapper.TryResolveNodeId` with relationship endpoint = mixed-case ARM id — gate `EndpointKeyIsKnown` accepts via normalization, but `CrossAgentProposalConsistencyGate.FilterRelationshipOnlyProposals` uses raw `declaredBatchEndpointKeys.Contains(relationship.SourceId)` without ARM normalize, dropping batch-local relationships the merge gate would keep.
+- [ ] (hunt-ready) `TopologyProposalRelationshipEndpointIndex.AddGraphNodeSyntheticLabelEndpointKeys` on inventoried node `Category = Data/Storage` and `SourceId` not matching `LooksLikeTerraformServiceSourceId` — only `ds-{label}` is indexed; relationship `SourceId = svc-{label}` passes merge-gate inventory keys only when category is blank (both synthetics), and is filtered out for explicit datastore category nodes.
 
 ---
 
@@ -210,6 +216,8 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - [x] Cache wrapper returns stale miss after upsert when setting-key casing differs (`TenantSettings_TryGetAsync_refreshes_after_upsert_when_setting_key_casing_differs`)
 - [x] DefaultTenant FK insert/update disagrees with the cached read path (retired Î“Ã‡Ã¶ PD-003 disposition merged on master: `ArchLucidPersistenceStartup` ApiKey DefaultTenant bootstrap + scoped `ISqlConnectionFactory`; repository uses same `tenantId` on read/write/cache keys)
 - [x] (proven) Upsert during an in-flight cached read pins a stale miss after the write completes — **hit 2026-08-24:** `CachingTenantSettingsRepository` only removed the hybrid-cache key on upsert; a slow `TryGetAsync` loader could still publish a miss after the upsert; fixed by generation-stamped cache keys bumped on write/delete; regression in `TenantSettings_TryGetAsync_reflects_upsert_when_read_started_before_write_completed`
+- [ ] (hunt-ready) `CachingTenantSettingsRepository.TryGetAsync` with hybrid-cache loader started before `UpsertAsync` completes — without generation-stamped keys, a slow loader can publish a miss after upsert (regression guard exists; verify delete/upsert bumps generation on all code paths including `DeleteAsync` and bulk invalidation).
+- [ ] (hunt-ready) `SqlTenantSettingsRepository.UpsertAsync` with concurrent readers on the same tenant id — read path uses snapshot isolation while upsert uses row lock; verify no path returns pre-upsert defaults when upsert commits between read start and materialization.
 
 ---
 
@@ -264,6 +272,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] Integrity failure is logged but commit still proceeds Î“Ã‡Ã¶ retired: inverse bug found; superseded rejected traces incorrectly blocked commit after successful auto-retry
 - [x] Latest-per-task selector breaks on equal `CreatedUtc` and picks a superseded rejected schema-remediation attempt over a later accepted attempt Î“Ã‡Ã¶ fixed: tie-break on `AttemptIndex` then `TraceId` in `AgentExecutionTraceLatestPerTaskSelector`
 - [x] (proven) `AgentExecutionTraceLatestPerTaskSelector` sorts `CreatedUtc` before `AttemptIndex`, so a superseded rejected attempt with a newer timestamp blocks commit after a higher `AttemptIndex` accepted retry — **hit 2026-08-23 hunt #37:** order by `AttemptIndex` then `CreatedUtc` then `TraceId`
+- [ ] (hunt-ready) `RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons` with `StructuralExecutionMode.Real`, `PilotStrict`, and empty `traces` — returns no blocking reasons, so `CommitOutputIntegrityService.EnsurePassOrThrowAsync` allows commit with zero execution traces recorded.
+- [ ] (hunt-ready) `RealCommitAgentOutputQualityGateEvaluator.GetBlockingReasons` with `StructuralExecutionMode` not equal to `Real` — ignores `QualityRejected` and `RecordedQualityGateOutcome.Rejected` on all traces, permitting commit despite recorded rejections in simulator/non-real runs.
+- [ ] (hunt-ready) `RealCommitAgentOutputQualityGateEvaluator` with latest-per-task trace showing `RecordedQualityGateOutcome != Rejected` but `QualityRejected == true` — still emits a blocking reason, so a patch that clears only `RecordedQualityGateOutcome` cannot un-block commit while `QualityRejected` remains set.
 
 ---
 
@@ -318,6 +329,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] Post-processor rewrites a datastore to `storage` while the consistency gate still keys it as `data`
 - [x] Consistency gate drops a relationship the post-processor just added
 - [x] Category rewrite does not update synthetic `ds-` aliases
+- [ ] (hunt-ready) `AgentProposalStructuralPostProcessor.ShouldRetainDeclaredProposalRelationship` with proposal declaring a datastore plus relationship using `svc-{datastoreName}` — `CollectKnownEndpointKeys` indexes `ds-{name}` but not `svc-{name}` for manifest datastores; both endpoints appear declared under raw `Contains`, yet `RelationshipEndpointsAreKnown` drops the edge when both source/target match declared keys.
+- [ ] (hunt-ready) `CrossAgentProposalConsistencyGate.FilterRelationshipOnlyProposals` with relationship endpoints present only as normalized ARM ids — `declaredBatchEndpointKeys` may hold raw plus normalized keys from `AddArmResourceIdEndpointKeys`, but `Contains(relationship.SourceId)` on an unnormalized relationship id marks `sourceDeclaredInBatch` false and retains the row for later gates while `validationEndpointKeys` still fail `RelationshipEndpointsAreKnown`, silently stripping edges before merge.
+- [ ] (hunt-ready) `CrossAgentProposalConsistencyGate.TryAcceptRenameAliasService` accepting a rename — adds manifest endpoint keys to `claimedServiceEndpointKeys` after an earlier agent already claimed the stable id, but `declaredBatchEndpointKeys` was collected pre-claim without the renamed label, so downstream relationship-only proposals referencing only the new name miss batch declaration checks.
 
 ---
 
@@ -361,10 +375,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** technology ledger; ledger merge policy
 - **paths:** ArchLucid.Application/Runs/Orchestration/TechnologyLedgerAgentProposalMergePolicy.cs
 - **test-filter:** FullyQualifiedName~TechnologyLedger
-- **hunts:** 7
+- **hunts:** 2
 - **bugs-found:** 5
 - **consecutive-dry-hunts:** 0
-P26-08-24
+- **last-hunt:** 2026-08-24
 - **last-bug:** 2026-08-24 — same EvidenceRef duplicated when provider family differed
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -376,6 +390,8 @@ P26-08-24
 - [x] (proven) Topology re-seed with same `EvidenceRef` duplicated agent rows — **hit 2026-08-24:** merge ignored stable `agentTopologyProposal:*` refs; regression in `Resolve_skips_when_evidence_ref_already_present`
 - [x] (proven) Same `EvidenceRef` duplicated when provider family differed — **hit 2026-08-24:** dedupe required matching `ProviderFamily` before evidence-ref check; regression in `Resolve_skips_when_evidence_ref_matches_across_provider_families`
 - [x] (invalid) Ledger merge keeps an agent-proposed technology that the inventory already replaced — inventory/evidence rows are `Chosen`; same `ProviderFamily` proposals are already skipped via chosen-family gate; name-level dedupe now also matches authoritative `Chosen` rows
+- [ ] (hunt-ready) `TechnologyLedgerAgentProposalMergePolicy.Resolve` with two agents proposing the same `ProviderFamily` but different `EvidenceRef` values — dedupe requires matching `ProviderFamily` before evidence-ref check; a second agent's distinct evidence ref may be dropped when family matches an earlier proposal, losing cross-agent evidence linkage at commit.
+- [ ] (hunt-ready) `TechnologyLedgerAgentProposalMergePolicy` inventory `Chosen` row with blank `ProviderFamily` — same-family skip gate treats blank family as matching any proposal family, suppressing agent-proposed technologies that should augment inventory when family is unset on the authoritative row.
 
 ---
 
@@ -401,6 +417,9 @@ P26-08-24
 - [x] Commit retry exhausts attempts but still returns success to the caller Î“Ã‡Ã¶ retired: `IsExhausted` and orchestrator loop throw `ConflictException` on budget/attempt exhaustion; idempotent reconcile success is intentional
 - [x] Transient retry does not include the same isolation / tenant scope on the replay Î“Ã‡Ã¶ retired: `OrchestratorTransientDbRetry` re-invokes caller lambda; scope is captured by caller closure
 - [x] (proven) `AggregateException` with a non-transient `SqlException` listed before a deadlock (`1205`) skips orchestrator retry — fixed: `IsRetriableOrchestratorDbFailure` flattens aggregate inners before `SqlTransientDetector` (`ExecuteAsync_retries_deadlock_when_aggregate_exception_lists_it_after_non_transient_sql`)
+- [ ] (hunt-ready) `OrchestratorTransientDbRetry.IsRetriableOrchestratorDbFailure` with `AggregateException` containing one transient and one permanent inner — returns true and retries the whole action, so permanent failures wrapped with transient SQL errors cause repeated full orchestration persists instead of immediate fail-fast.
+- [ ] (hunt-ready) `CommitRunTransientRetryPolicy.IsExhausted` with `elapsed >= RetryBudget` (20s) before `attempt >= MaxAttempts` (12) — commit retry loop stops while `OrchestratorTransientDbRetry` may still perform up to three 2s/4s/8s backoff retries per inner operation, producing asymmetric give-up between outer commit reconciliation and inner DB retry layers.
+- [ ] (hunt-ready) `CommitRunTransientRetryPolicy.RetryDelay` linear `150ms * attempt` with `ManifestReconcilePollDelay` using the same multiplier — under manifest contention, eight reconcile polls plus twelve commit attempts can exceed the 20s `RetryBudget` mid-poll, returning exhausted while a concurrent commit is still within reconcile window.
 
 ---
 
@@ -427,6 +446,9 @@ P26-08-24
 - [x] Concurrent verify requests both succeed on the same one-time challenge Î“Ã‡Ã¶ retired: `EmailOtpChallengeRepositoryConcurrencyTests.TryCompleteAsync_allows_only_one_successful_completion`
 - [x] (proven) Mixed-case invitation email on the row blocks acceptance after OTP verify — **hit 2026-08-24:** `TryAcceptInvitationAsync` compared `invitation.Email` to normalized sign-in email with ordinal equality and `FindInvitationByIdAsync` filtered via `ListPendingByNormalizedEmailAsync`; legacy/display-case rows never accepted; fixed with `InvitationEmailMatchesVerifiedEmail` + `GetPendingByIdAsync`
 - [x] (proven) Post-verify next step returns wrong workspace after invitation accept — **hit 2026-08-24:** `ResolveNextStepAsync` merged `acceptedInvitationId ?? challenge.InvitationId` and picked `activeMemberships[^1]`; re-invites to an older workspace returned the newest membership, and multi-workspace users with an expired linked invitation got `Complete` instead of `SelectWorkspace`; fixed by returning `AcceptedEmailOtpInvitation` tenant/workspace only when accept succeeds and separating challenge-linked pending invitation routing
+- [ ] (hunt-ready) `EmailOtpAuthController.VerifyAsync` when `result.TenantId`/`WorkspaceId` are null but JWT issuance falls back to `TrialLocalJwtScopeDefaults.Resolve()` — access token carries default tenant/workspace while `EmailOtpVerifyResponse.TenantId`/`WorkspaceId` echo the null `result.*` fields, desyncing client routing from token claims.
+- [ ] (hunt-ready) `EmailOtpAuthController.VerifyAsync` audit on every verify attempt — logs `AuditEventTypes.EmailOtpCodeRequested` with channel `email_otp_verify_http` instead of a verification-failure/success event, conflating challenge and verify telemetry.
+- [ ] (hunt-ready) `EmailOtpAuthService.VerifyCodeAsync` on `RequireEnterpriseSso` domain decision — calls `FailWithAuditAsync("sso_required", emailCorrelation: null)`, which returns `Failed()` without audit because `emailCorrelation` is null, so SSO-blocked verifies leave no `EmailOtpVerificationFailed` trail.
 
 ---
 
@@ -456,6 +478,9 @@ P26-08-24
 - [x] (proven) Residual double-encoded slashes survive the eight-pass decode cap — **hit 2026-08-21:** `%252F%252F` residue evaded single-level `%2f` detection after the decode loop; regression in `TryNormalize_rejects_residual_double_encoded_slashes_after_decode_cap`
 - [x] (proven) Unicode slash homoglyphs bypass ASCII-only protocol-relative checks — **hit 2026-08-22:** fullwidth solidus (`／`, `%EF%BC%8F`) and fullwidth reverse solidus (`＼`) evaded `ContainsProtocolRelativeTraversal`; regression in `TryNormalize_rejects_unicode_slash_homoglyph_protocol_relative_paths`
 - [x] (proven) Additional Unicode slash homoglyphs bypass `IsSlashHomoglyph` — **hit 2026-08-23:** light diagonal (`╱`, `%E2%95%B1`), big solidus (`⧸`, `%E2%A7%B8`), and solidus overlay (`⧶`) evaded slash-homoglyph checks; regression in `TryNormalize_rejects_additional_unicode_slash_homoglyph_protocol_relative_paths` and `TryNormalize_rejects_deeply_encoded_additional_unicode_slash_homoglyph_segment`
+- [ ] (hunt-ready) `AuthSignInReturnPathGuard.TryNormalize` with return path `/app/foo/../bar` or `/signin/../../other` — passes `TryNormalizeRelativePath` (no `..` segment rejection/canonicalization) but browsers normalize to `/bar` or `/other`, yielding an unintended post-login destination outside the intended subtree.
+- [ ] (hunt-ready) `AuthSignInReturnPathGuard.TryNormalizeAfterPercentDecoding` with path that decodes across multiple passes to introduce `//` or `\` only after the eighth `%` decode — loop capped at `MaxPercentDecodePasses = 8` may return a normalized relative path while a ninth decode would expose protocol-relative traversal blocked in `ContainsResidualEncodedTraversal`.
+- [ ] (hunt-ready) `AuthSignInReturnPathGuard.TryNormalize` with path containing percent-encoded slash homoglyphs (e.g. fullwidth solidus) not present before decoding — initial `ContainsSlashHomoglyph` misses the literal; partially decoded `working` strings that still encode the homoglyph may return null inconsistently depending on pass count.
 
 ---
 
@@ -482,6 +507,9 @@ P26-08-24
 - [x] (proven) Restore quarantine leaves stale `TenantErasureApprovedUtc` on in-memory tenants — **hit 2026-08-23:** `InMemoryTenantRepository` `CopyTenant(clearErasureQuarantine: true)` kept prior approval, so a restored tenant could be hard-purged after re-offboard without a fresh admin approval; aligned with Dapper restore SQL that nulls approval columns
 - [x] (invalid) Erasure command deletes another tenant's rows when ids collide in cache — `TenantGetByIdRequestCache` keys by `Guid` tenant id; no cross-tenant alias path in this zone
 - [x] (proven) Quarantine middleware blocked tenant erasure lifecycle APIs — **hit 2026-08-24:** offboarded tenants received 403 on `POST /v1/tenant/erasure/approve` and `/legal-hold`, so `TenantErasureApprovedUtc` could never be set and hard purge stalled; fixed by allowlisting `/v1/tenant/erasure` in `TenantErasureQuarantineMiddleware.Skip`
+- [ ] (hunt-ready) `TenantErasureQuarantineMiddleware.InvokeAsync` with authenticated tenant scope but `ITenantGetByIdRequestCache.GetByIdAsync` returning null — `tenant is null` bypasses quarantine and calls `next`, allowing API access for a tenant id that should be blocked when the record is missing or evicted.
+- [ ] (hunt-ready) `TenantErasureQuarantineMiddleware.InvokeAsync` with `context.User.Identity?.IsAuthenticated != true` — unauthenticated requests always pass through, so tenant-scoped anonymous routes that resolve `scope.TenantId` without auth are not quarantine-gated.
+- [ ] (hunt-ready) `TenantErasureCommandService.TryRestoreQuarantineAsync` after `TryOffboardTenantAsync` (which calls `SuspendTenantAsync`) — restore clears offboard/eligible timestamps via repository only and never reverses suspend, leaving a restored tenant still suspended while middleware stops blocking login/API quarantine.
 
 ---
 
@@ -493,10 +521,10 @@ P26-08-24
 - **aliases:** ARCH006; tenant scoped query analyzer
 - **paths:** ArchLucid.Analyzers/TenantScopedQueryScopeBindingAnalyzer.cs
 - **test-filter:** FullyQualifiedName~TenantScopedQueryScopeBindingAnalyzerTests
-- **hunts:** 8
+- **hunts:** 3
 - **bugs-found:** 6
 - **consecutive-dry-hunts:** 0
-P26-08-24
+- **last-hunt:** 2026-08-24
 - **last-bug:** 2026-08-24 — non-const local and static readonly SQL variables bypassed ARCH006 static resolution
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -567,6 +595,9 @@ P26-08-24
 - [x] Inspect query joins without tenant on the child table and leaks sibling-tenant rows — fixed: FollowUpBatch now scopes FindingRelatedNodes / rules / actions / AuditEvents / FindingReviewEvents / RiskExceptions to TenantId+WorkspaceId+ProjectId
 - [x] (proven) `ResolveRuleFields` pairs `DecisionRuleId` from `AppliedRuleIdsJson` with unrelated `FindingTraceRulesApplied` SortOrder=0 text — fixed: keep `DecisionRuleName` aligned with the first applied rule id when JSON ids exist
 - [x] (proven) FollowUpBatch merged related nodes / rule text / recommended actions across reruns sharing the same scoped `FindingId` — **hit 2026-08-24:** `@RunId` from the primary inspect row was unused on child-table sub-queries; main inspect `TOP 1` was non-deterministic; fixed with `r.RunId = @RunId`, `ORDER BY r.CreatedUtc DESC, r.RunId DESC`, and `aet.RunId = r.RunId`; regressions in `FollowUpBatch_scopes_related_nodes_to_main_inspect_run` and related shape tests
+- [ ] (hunt-ready) `DapperFindingInspectReadRepository.ResolveRuleFields` with non-empty `AppliedRuleIdsJson` — always sets `DecisionRuleName` to the first rule id and deliberately ignores `firstRuleText` from the SQL join, so inspect UI shows id strings instead of trace rule labels.
+- [ ] (hunt-ready) `FindingInspectReadModelMapper.ParseFindingSeverity` with unknown or typo `Severity` column value — `Enum.TryParse` failure returns `FindingSeverity.Info`, downgrading Critical/High findings in inspect responses without surfacing parse failure.
+- [ ] (hunt-ready) `DapperFindingInspectReadRepository.GetInspectAsync` with `IncludeTypedPayload = false` — `BuildMetadataTypedPayload` duplicates `rationale` into both `rationale` and `whyThisMatters` keys, so clients expecting distinct fields from full `PayloadJson` see identical strings on first paint.
 
 ---
 
@@ -578,10 +609,10 @@ P26-08-24
 - **aliases:** llm wallet; tenant wallet; billing wallet
 - **paths:** ArchLucid.Api/Controllers/Billing/WalletController.cs; ArchLucid.Application/Budgeting/LlmTenantWalletService.cs; ArchLucid.Persistence/Data/Repositories/SqlLlmTenantWalletRepository.cs
 - **test-filter:** FullyQualifiedName~LlmTenantWalletServiceTests
-- **hunts:** 7
+- **hunts:** 2
 - **bugs-found:** 5
 - **consecutive-dry-hunts:** 0
-P26-08-24
+- **last-hunt:** 2026-08-24
 - **last-bug:** 2026-08-24 — overage reconciliation credit dropped when optimistic retries exhausted (no re-queue)
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -595,6 +626,8 @@ P26-08-24
 - [x] (proven) Malformed wallet `RowVersionBase64` bypassed optimistic concurrency — **hit 2026-08-24:** `WalletController.DecodeRowVersion` returned empty bytes on `FormatException`; regression in `PutAsync_returns_400_when_row_version_base64_is_malformed`
 - [x] (proven) Settlement consume silently dropped after optimistic retries exhausted — **hit 2026-08-24:** `ConsumeInternalAsync` abandoned debit without re-queue; regression in `ConsumeInternalAsync_requeues_settlement_when_optimistic_retries_exhausted`
 - [x] (proven) Overage reconciliation credit dropped when optimistic retries exhausted — **hit 2026-08-24:** `ReconcileOverageInternalAsync` called `CreditAdjustmentInternalAsync` without re-queue on failure; regression in `ReconcileOverageInternalAsync_requeues_settlement_when_credit_retries_exhausted`
+- [ ] (hunt-ready) `LlmTenantWalletService.ConsumeInternalAsync` when optimistic retries exhaust — verify settlement debit is re-queued rather than silently dropped (prior hit fixed re-queue; hunt sibling path `ReconcileOverageInternalAsync` for symmetric credit re-queue behavior under the same exhaustion branch).
+- [ ] (hunt-ready) `WalletController` balance read after concurrent consume — response may show stale available balance when read uses cached wallet row while consume transaction is in-flight; concrete input: two parallel POST consume plus GET balance without `If-None-Match`/version check.
 
 ---
 
@@ -632,10 +665,10 @@ P26-08-24
 - **aliases:** recurrence; next run calculator
 - **paths:** ArchLucid.Application/Governance/ArchitectureReviewRecurrenceNextRunCalculator.cs
 - **test-filter:** FullyQualifiedName~ArchitectureReviewRecurrenceNextRunCalculatorTests
-- **hunts:** 7
+- **hunts:** 2
 - **bugs-found:** 5
 - **consecutive-dry-hunts:** 0
-P26-08-24
+- **last-hunt:** 2026-08-24
 - **last-bug:** 2026-08-24 — preview path skipped single-run normalization (reference-equality / Unspecified kind)
 - **related-pd-tb:** none
 - **code-changed-since:** no
@@ -723,6 +756,9 @@ P26-08-24
 - [x] (invalid) Dry-run payload includes secrets from another tenant's webhook config — retired: controller uses request `SharedSecret` only; no tenant webhook lookup in zone paths
 - [x] (invalid) Controller returns success when the dry-run service throws — retired: `ProbeWithBodyAsync` catches transport errors and returns `TransportSucceeded=false`; controller intentionally returns 200 with probe outcome in body
 - [x] (proven) Operator webhook dry-run POSTs to loopback/private targets without SSRF guard — **hit 2026-08-24:** `AllowedOutboundWebhookProbeUrlPolicy` blocks unsafe `TargetUrl` before probe in dry-run and simulate controllers
+- [ ] (hunt-ready) `OutboundWebhookDryRunController.DryRunAsync` when `OutboundWebhookDryRunService` returns `TransportSucceeded = false` — still responds `200 OK` with `StatusCode = 0`, so API clients treating HTTP success as delivery success mark dead URLs as healthy unless they inspect `TransportSucceeded`.
+- [ ] (hunt-ready) `OutboundWebhookDryRunService.ProbeWithBodyAsync` with `sharedSecret` of whitespace — `trimmedSecret` becomes empty, skips `WebhookSignature` header, but controller audit records `hasSharedSecret` from raw `body.SharedSecret is { Length: > 0 }`, logging that a secret was provided when the probe was unsigned.
+- [ ] (hunt-ready) `OutboundWebhookDryRunService.ProbeWithBodyAsync` on large subscriber responses — reads the full body via `ReadAsStringAsync` before applying `PreviewMaxChars` truncation, so a probe to a URL returning a multi-megabyte body allocates the entire payload server-side even though only 8192 chars are returned.
 
 ---
 
@@ -812,10 +848,10 @@ P26-08-24
 - **aliases:** draft new; cli draft
 - **paths:** ArchLucid.Cli/Commands/DraftNewCommand.cs
 - **test-filter:** FullyQualifiedName~DraftNewCommandCoreTests
-- **hunts:** 5
+- **hunts:** 2
 - **bugs-found:** 5
-- **consecutive-dry-hunts:** 3
-P26-08-24
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-08-24
 - **last-bug:** 2026-08-24 — admit response draft scope was not validated before MUST-question resolution
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -827,7 +863,7 @@ P26-08-24
 - [x] (proven) MUST-question and late-step API failures omitted operator hints — **hit 2026-08-24:** `ResolveMustQuestionsAsync` and execute/admit failure paths did not call `CliOperatorHints`; regression in `RunCoreAsync_questions_load_failure_writes_operator_hint`
 - [x] (proven) `AdmitDraftAsync` can return `admitted: true` with a draft under another tenant and the CLI continues — **hit 2026-08-24:** `DraftNewCommand` now validates `admission.Value.Draft` before MUST-question resolution (`RunCoreAsync_draft_scope_mismatch_after_admit_returns_operation_failed`).
 - [x] (invalid) Existing draft id is overwritten without confirmation — command always POSTs a new draft; no overwrite path
-- [x] (invalid) (hunt-ready) `RunCoreAsync` line 85 uses `!created.Success || created.Value is null`; Stryker's surviving `&&` mutant means tests do not prove that a failed response carrying a non-null value is rejected, so a concrete `Success=false`/non-null handler may continue with an invalid draft. — **2026-08-24:** DraftApiResult.Fail always uses default(T?) for Value; failed API results never carry a body.
+- [ ] (hunt-ready) `RunCoreAsync` line 85 uses `!created.Success || created.Value is null`; Stryker's surviving `&&` mutant means tests do not prove that a failed response carrying a non-null value is rejected, so a concrete `Success=false`/non-null handler may continue with an invalid draft.
 - [ ] (hunt-ready) `RunCoreAsync` line 145 uses `!patched.Success || patched.Value is null`; Stryker's surviving `&&` mutant means tests do not prove a failed patch with a body stops before admission.
 - [ ] (hunt-ready) `RunCoreAsync` line 164 uses `!admission.Success || admission.Value is null`; Stryker's surviving `&&` mutant means tests do not prove a failed admit with a body stops before `Admitted` handling.
 - [ ] (hunt-ready) `RunCoreAsync` line 206 uses `!submit.Success || submit.Value is null`; Stryker's surviving `&&` mutant means tests do not prove a failed submit with a populated response stops before run-id success output.
@@ -842,10 +878,10 @@ P26-08-24
 - **aliases:** terraform evidence; deployment evidence terraform
 - **paths:** ArchLucid.Cli/Commands/DeploymentEvidenceTerraformReference.cs
 - **test-filter:** FullyQualifiedName~DeploymentEvidenceTerraformReferenceTests
-- **hunts:** 5
+- **hunts:** 2
 - **bugs-found:** 2
 - **consecutive-dry-hunts:** 0
-P26-08-24
+- **last-hunt:** 2026-08-23
 - **last-bug:** 2026-08-23
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
@@ -1021,10 +1057,10 @@ P26-08-24
 - **aliases:** scim; entra provisioning users
 - **paths:** ArchLucid.Api/Controllers/Scim/ScimUsersController.cs
 - **test-filter:** FullyQualifiedName~ScimUsers
-- **hunts:** 7
+- **hunts:** 2
 - **bugs-found:** 5
 - **consecutive-dry-hunts:** 0
-P26-08-24
+- **last-hunt:** 2026-08-24
 - **last-bug:** 2026-08-24 — DELETE decremented enterprise seat then leaked it when repository deactivate failed
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -1050,10 +1086,10 @@ P26-08-24
 - **aliases:** identity provider; idp activation
 - **paths:** ArchLucid.Api/Controllers/Admin/IdentityProviderConfigurationController.cs; ArchLucid.Api/Services/Admin/IdentityProviderActivationService.cs
 - **test-filter:** FullyQualifiedName~IdentityProviderActivationServiceTests
-- **hunts:** 12
+- **hunts:** 3
 - **bugs-found:** 6
 - **consecutive-dry-hunts:** 0
-P26-08-24
+- **last-hunt:** 2026-08-24
 - **last-bug:** 2026-08-24 — activation accepted non-HTTP(S) issuer URIs that discovery rejects
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -1080,10 +1116,10 @@ P26-08-24
 - **aliases:** worker program; worker host startup
 - **paths:** ArchLucid.Worker/Program.cs
 - **test-filter:** FullyQualifiedName~WorkerHostStartupTests|FullyQualifiedName~WorkerCompositionTests
-- **hunts:** 5
+- **hunts:** 2
 - **bugs-found:** 5
 - **consecutive-dry-hunts:** 0
-P26-08-24
+- **last-hunt:** 2026-08-24
 - **last-bug:** 2026-08-24 — Real mode + ManagedIdentity rejected ApiKey-less Azure OpenAI at worker startup validation and options bind
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -1107,10 +1143,10 @@ P26-08-24
 - **aliases:** stripe webhook; marketplace webhook; billing webhook replay
 - **paths:** ArchLucid.Api/Controllers/Billing/BillingStripeWebhookController.cs; ArchLucid.Api/Controllers/Billing/BillingMarketplaceWebhookController.cs; ArchLucid.Application/Budgeting/LlmTenantWalletStripeWebhookProcessor.cs; ArchLucid.Persistence/Billing/MemoryCacheBillingWebhookReplayGuard.cs
 - **test-filter:** FullyQualifiedName~BillingStripeWebhook|FullyQualifiedName~BillingMarketplaceWebhook|FullyQualifiedName~LlmTenantWalletStripeWebhook|FullyQualifiedName~MemoryCacheBillingWebhookReplayGuard
-- **hunts:** 11
+- **hunts:** 3
 - **bugs-found:** 5
 - **consecutive-dry-hunts:** 0
-P26-08-24
+- **last-hunt:** 2026-08-24
 - **last-bug:** 2026-08-24
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
@@ -1135,10 +1171,10 @@ P26-08-24
 - **aliases:** API key auth; admin API key settings
 - **paths:** ArchLucid.Api/Authentication/ApiKeyAuthenticationHandler.cs; ArchLucid.Api/Services/Admin/AdminApiKeySettingsService.cs; ArchLucid.Api/Controllers/Admin/AdminApiKeySettingsController.cs
 - **test-filter:** FullyQualifiedName~ApiKeyAuthentication|FullyQualifiedName~AdminApiKeySettings
-- **hunts:** 7
+- **hunts:** 2
 - **bugs-found:** 5
 - **consecutive-dry-hunts:** 0
-P26-08-24
+- **last-hunt:** 2026-08-24
 - **last-bug:** 2026-08-24 — duplicate X-Api-Key headers joined by comma broke authentication
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -1164,10 +1200,10 @@ P26-08-24
 - **aliases:** scope binding; tenant scope middleware; route tenant filter
 - **paths:** ArchLucid.Api/Middleware/ScopeIdentityBindingMiddleware.cs; ArchLucid.Api/Middleware/ScopeResolutionGuardMiddleware.cs; ArchLucid.Api/Security/RouteTenantScopeBindingFilter.cs
 - **test-filter:** FullyQualifiedName~ScopeIdentityBinding|FullyQualifiedName~ScopeResolutionGuard|FullyQualifiedName~RouteTenantScopeBinding
-- **hunts:** 10
+- **hunts:** 2
 - **bugs-found:** 5
 - **consecutive-dry-hunts:** 0
-P26-08-24
+- **last-hunt:** 2026-08-24
 - **last-bug:** 2026-08-24 — duplicate x-*-id headers bypassed header-only scope escalation guard
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -1192,10 +1228,10 @@ P26-08-24
 - **aliases:** SAML; trial JWT; SCIM bearer; OIDC auth stack
 - **paths:** ArchLucid.Api/Auth/; ArchLucid.Core/Auth/Saml/
 - **test-filter:** FullyQualifiedName~Saml|FullyQualifiedName~LocalTrialJwt|FullyQualifiedName~ScimBearer
-- **hunts:** 13
+- **hunts:** 3
 - **bugs-found:** 6
 - **consecutive-dry-hunts:** 0
-P26-08-24
+- **last-hunt:** 2026-08-24
 - **last-bug:** 2026-08-24
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -1222,10 +1258,10 @@ P26-08-24
 - **aliases:** tenant export; run export; export SSRF
 - **paths:** ArchLucid.Application/Exports/; ArchLucid.Api/Controllers/Authority/ExportsController.cs; ArchLucid.Api/Controllers/Authority/ArchitectureExportController.cs; ArchLucid.Api/Controllers/Authority/RunsExportController.cs; ArchLucid.Core/Security/AllowedRunExportBlobDestinationUrlPolicy.cs
 - **test-filter:** FullyQualifiedName~ArchitectureReviewExport|FullyQualifiedName~ExportsController|FullyQualifiedName~AllowedRunExportBlobDestinationUrlPolicy
-- **hunts:** 9
+- **hunts:** 4
 - **bugs-found:** 7
-- **consecutive-dry-hunts:** 1
-P26-08-24
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-08-24
 - **last-bug:** 2026-08-24
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -1241,8 +1277,8 @@ P26-08-24
 - [x] (proven) Run summary export misreported broken-manifest runs as not finalized — **hit 2026-08-24:** `RunSummaryOnePagerExportService` skipped `HasBrokenManifestReference` guard; aligned message with other export paths (`RunSummaryOnePagerExportServiceTests`).
 - [x] (proven) HTML architecture review export omitted demo-tenant safety labeling — **hit 2026-08-24:** `BuildMinimalHtml` ignored `IsDemoTenant`; added demo notice (`ArchitectureReviewExportServiceTests`).
 - [x] (proven) Sponsor review packet evidence badges ignored demo-run context — **hit 2026-08-24:** `SponsorReviewPacketComposer` resolved badges with empty `PilotRunDeltas`; passes demo provenance from run detail (`SponsorReviewPacketComposerTests`).
-- [x] (invalid) (hunt-ready) `ArtifactExportController.DownloadTerraformAdvisoryExport` and `CreateTerraformPr` load run detail but omit the committed-manifest guard used by `PushRunExportToBlob`; an in-progress run with `GoldenManifest == null` may return export bytes or create a PR. — **2026-08-24:** Referenced locus not present in zone paths.
-- [x] (invalid) (hunt-ready) `RunQueryController.ExportRunFindingsCsv` checks run existence and manifest pointer consistency but not `IsCommitted`; a Created/ReadyForCommit run may export findings while sibling buyer export services reject it. — **2026-08-24:** Referenced locus not present in zone paths.
+- [ ] (hunt-ready) `ArtifactExportController.DownloadTerraformAdvisoryExport` and `CreateTerraformPr` load run detail but omit the committed-manifest guard used by `PushRunExportToBlob`; an in-progress run with `GoldenManifest == null` may return export bytes or create a PR.
+- [ ] (hunt-ready) `RunQueryController.ExportRunFindingsCsv` checks run existence and manifest pointer consistency but not `IsCommitted`; a Created/ReadyForCommit run may export findings while sibling buyer export services reject it.
 
 ---
 
@@ -1254,10 +1290,10 @@ P26-08-24
 - **aliases:** background jobs; hosted services; durable job queue
 - **paths:** ArchLucid.Host.Core/Jobs/; ArchLucid.Host.Core/Hosted/
 - **test-filter:** FullyQualifiedName~ArchLucidJob|FullyQualifiedName~BackgroundJob|FullyQualifiedName~Hosted
-- **hunts:** 8
+- **hunts:** 6
 - **bugs-found:** 6
-- **consecutive-dry-hunts:** 2
-P26-08-24
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-08-23
 - **last-bug:** 2026-08-23 — stale-running watchdog skipped MaxRetries=0 jobs and did not re-notify the durable queue after reclaim
 - **related-pd-tb:** none
 - **code-changed-since:** no
@@ -1312,10 +1348,10 @@ P26-08-24
 - **aliases:** UI auth; API proxy; edge proxy
 - **paths:** archlucid-ui/src/lib/auth/; archlucid-ui/src/app/api/proxy/; archlucid-ui/src/proxy.ts
 - **test-filter:** lib/auth|proxy-route|proxy.ts
-- **hunts:** 11
+- **hunts:** 5
 - **bugs-found:** 5
 - **consecutive-dry-hunts:** 0
-P26-08-24
+- **last-hunt:** 2026-08-23
 - **last-bug:** 2026-08-23
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
@@ -1340,10 +1376,10 @@ P26-08-24
 - **aliases:** require authorization analyzer; tenant identity boundary; mutating controller audit
 - **paths:** ArchLucid.Analyzers/RequireAuthorizationAnalyzer.cs; ArchLucid.Analyzers/TenantIdentityBoundaryAnalyzer.cs; ArchLucid.Analyzers/MutatingControllerAuditAnalyzer.cs
 - **test-filter:** FullyQualifiedName~RequireAuthorizationAnalyzer|FullyQualifiedName~TenantIdentityBoundaryAnalyzer|FullyQualifiedName~MutatingControllerAuditAnalyzer
-- **hunts:** 13
+- **hunts:** 3
 - **bugs-found:** 6
 - **consecutive-dry-hunts:** 0
-P26-08-24
+- **last-hunt:** 2026-08-24
 - **last-bug:** 2026-08-24 — AL0001 false-positive when `[Authorize]` is on implemented interface methods or interface type
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -1422,10 +1458,10 @@ P26-08-24
 - **aliases:** marketplace billing; checkout mutation; billing application layer
 - **paths:** ArchLucid.Application/Billing/
 - **test-filter:** FullyQualifiedName~Marketplace|FullyQualifiedName~BillingCheckout|FullyQualifiedName~TenantLlmCostReporting
-- **hunts:** 11
+- **hunts:** 3
 - **bugs-found:** 5
 - **consecutive-dry-hunts:** 0
-P26-08-24
+- **last-hunt:** 2026-08-24
 - **last-bug:** 2026-08-24
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -1451,10 +1487,10 @@ P26-08-24
 - **aliases:** buyer proof pack; board pack; pilot artifacts
 - **paths:** ArchLucid.Application/Pilots/
 - **test-filter:** FullyQualifiedName~BuyerProofPack|FullyQualifiedName~BoardPack
-- **hunts:** 12
+- **hunts:** 3
 - **bugs-found:** 6
 - **consecutive-dry-hunts:** 0
-P26-08-24
+- **last-hunt:** 2026-08-24
 - **last-bug:** 2026-08-24 — snapshot muted severity buckets; unresolved PilotStrict pass; scorecard ready-for-commit counted as committed; buyer proof summary omitted governed coverage
 - **related-pd-tb:** none
 - **code-changed-since:** no
@@ -1535,10 +1571,10 @@ P26-08-24
 - **aliases:** identity repository; authentication identity dapper
 - **paths:** ArchLucid.Persistence/Identity/
 - **test-filter:** FullyQualifiedName~AuthenticationIdentity|FullyQualifiedName~IdentityRepository
-- **hunts:** 11
+- **hunts:** 3
 - **bugs-found:** 5
 - **consecutive-dry-hunts:** 0
-P26-08-24
+- **last-hunt:** 2026-08-24
 - **last-bug:** 2026-08-24
 - **related-pd-tb:** none
 - **code-changed-since:** no
@@ -1564,10 +1600,10 @@ P26-08-24
 - **aliases:** retrieval indexing; embedding; pricing retrieval
 - **paths:** ArchLucid.Retrieval/
 - **test-filter:** FullyQualifiedName~Retrieval|FullyQualifiedName~Indexing
-- **hunts:** 13
+- **hunts:** 4
 - **bugs-found:** 6
 - **consecutive-dry-hunts:** 0
-P26-08-24
+- **last-hunt:** 2026-08-24
 - **last-bug:** 2026-08-24 — embedding cache ignored model identity; Azure Search delete truncated at 1000 chunks; iterative retrieval exceeded TopK; malformed policy-pack ContentJson threw
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -1664,10 +1700,10 @@ P26-08-24
 - **aliases:** API contracts; DTO serialization; OpenAPI models
 - **paths:** ArchLucid.Contracts/
 - **test-filter:** FullyQualifiedName~Contracts
-- **hunts:** 11
+- **hunts:** 6
 - **bugs-found:** 9
-- **consecutive-dry-hunts:** 1
-P26-08-24
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-08-24
 - **last-bug:** 2026-08-24
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -1684,9 +1720,9 @@ P26-08-24
 - [x] (proven) `AgentResultClaimListJsonConverter` drops PascalCase structured claims — **hit 2026-08-24:** `TryGetProperty` is case-sensitive so `{"Detail":"..."}` yielded empty claims; fixed with case-insensitive property lookup (`ContractsPackageCoverageBatchRc28cTests`).
 - [x] (proven) `ArchitectureFindingJsonConverter.ReadSeverity` downgrades unknown severity strings to `Info` — **hit 2026-08-24:** labels like `"blocker"` silently became `Info` while `EvalCorpusFindingSeverityJsonConverter` throws; fixed to throw on unknown labels (`ArchitectureFindingJsonConverterTests`).
 - [x] (proven) CLI agent-result bridge maps one-based contract `AgentType` ordinals onto zero-based generated ordinals — **hit 2026-08-24:** `AgentType.Topology` (`1`) became generated `Cost` (`1`) and emitted `"agentType":"Cost"`; fixed by bridging generated agent results by enum name (`SubmitAgentResultAsync_writes_contract_agent_type_name`).
-- [x] (invalid) (hunt-ready) Global API enum conversion still permits out-of-range numeric `StructuralExecutionMode`, `FindingEnforcementTier`, `FindingHumanReviewStatus`, and `FindingTreatment`; unlike protected sibling enums, these types have no defined-value converter, so ordinal `99` may reach downstream switches. — **2026-08-24:** Referenced locus not present in zone paths.
-- [x] (invalid) (hunt-ready) `FindingJsonConverter` reads `humanReviewStatus` only when the token is a string; persisted JSON with numeric `1` leaves the default `NotRequired`, silently downgrading pending review state on round trip. — **2026-08-24:** Referenced locus not present in zone paths.
-- [x] (invalid) (hunt-ready) `AgentResultClaimListJsonConverter` flattens structured claim text but ignores an entry-level `evidenceRefs` array, so `{"detail":"Subnet missing","evidenceRefs":["pol-123"]}` loses its evidence linkage. — **2026-08-24:** Referenced locus not present in zone paths.
+- [ ] (hunt-ready) Global API enum conversion still permits out-of-range numeric `StructuralExecutionMode`, `FindingEnforcementTier`, `FindingHumanReviewStatus`, and `FindingTreatment`; unlike protected sibling enums, these types have no defined-value converter, so ordinal `99` may reach downstream switches.
+- [ ] (hunt-ready) `FindingJsonConverter` reads `humanReviewStatus` only when the token is a string; persisted JSON with numeric `1` leaves the default `NotRequired`, silently downgrading pending review state on round trip.
+- [ ] (hunt-ready) `AgentResultClaimListJsonConverter` flattens structured claim text but ignores an entry-level `evidenceRefs` array, so `{"detail":"Subnet missing","evidenceRefs":["pol-123"]}` loses its evidence linkage.
 
 ---
 
@@ -1698,10 +1734,10 @@ P26-08-24
 - **aliases:** context ingestion; connector stages; canonicalization
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
-- **hunts:** 16
+- **hunts:** 4
 - **bugs-found:** 8
 - **consecutive-dry-hunts:** 0
-P26-08-24
+- **last-hunt:** 2026-08-24
 - **last-bug:** 2026-08-24
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -1759,10 +1795,10 @@ P26-08-24
 - **aliases:** notifications; email dispatchers beyond weekly summary
 - **paths:** ArchLucid.Notifications/; ArchLucid.Application/Notifications/; ArchLucid.Api/Controllers/Advisory/DigestSubscriptionsController.cs
 - **test-filter:** FullyQualifiedName~Notifications|FullyQualifiedName~EmailDispatcher|FullyQualifiedName~DigestSubscriptionsController
-- **hunts:** 21
+- **hunts:** 5
 - **bugs-found:** 11
 - **consecutive-dry-hunts:** 0
-P26-08-24
+- **last-hunt:** 2026-08-24
 - **last-bug:** 2026-08-24
 - **related-pd-tb:** none
 - **code-changed-since:** 0
@@ -1794,10 +1830,10 @@ P26-08-24
 - **aliases:** artifact synthesis; docx generator; packaging sanitization
 - **paths:** ArchLucid.ArtifactSynthesis/
 - **test-filter:** FullyQualifiedName~ArtifactSynthesis|FullyQualifiedName~Docx
-- **hunts:** 9
+- **hunts:** 2
 - **bugs-found:** 4
 - **consecutive-dry-hunts:** 0
-P26-08-24
+- **last-hunt:** 2026-08-24
 - **last-bug:** 2026-08-24 — reference markdown dropped constraints; unresolved issues omitted finding ids; bundle validator skipped hash verify; filename sanitizer missed unicode slash homoglyphs
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
@@ -1857,10 +1893,10 @@ P26-08-24
 - **aliases:** aws extractor; gcp extractor; azure extractor
 - **paths:** ArchLucid.Integrations.AwsExtractor/; ArchLucid.Integrations.GcpExtractor/; ArchLucid.Integrations.AzureExtractor/
 - **test-filter:** FullyQualifiedName~AwsExtractor|FullyQualifiedName~GcpExtractor|FullyQualifiedName~AzureExtractor
-- **hunts:** 18
+- **hunts:** 6
 - **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
-P26-08-24
+- **last-hunt:** 2026-08-24
 - **last-bug:** 2026-08-24 — AWS STS AssumeRoleWithWebIdentity always used commercial `us-east-1` instead of connection region
 - **related-pd-tb:** none
 - **code-changed-since:** no
@@ -1889,10 +1925,10 @@ P26-08-24
 - **aliases:** authority controllers; admin controllers
 - **paths:** ArchLucid.Api/Controllers/Authority/; ArchLucid.Api/Controllers/Admin/
 - **test-filter:** FullyQualifiedName~AuthorityController|FullyQualifiedName~AdminController
-- **hunts:** 18
+- **hunts:** 6
 - **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
-P26-08-24
+- **last-hunt:** 2026-08-24
 - **last-bug:** 2026-08-24 — bulk outbox dead-letter retry ignored caller tenant scope; unrecognized replay mode ran destructive rebuild; invalid run id returned 400 on graph/pin reads
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -2051,10 +2087,10 @@ P26-08-24
 - **aliases:** operator shell routes; operator pages
 - **paths:** archlucid-ui/src/app/(operator)/
 - **test-filter:** operator
-- **hunts:** 7
+- **hunts:** 5
 - **bugs-found:** 5
-- **consecutive-dry-hunts:** 1
-P26-08-24
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-08-23
 - **last-bug:** 2026-08-23
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
@@ -2079,10 +2115,10 @@ P26-08-24
 - **aliases:** marketing pages; pricing; trust center UI
 - **paths:** archlucid-ui/src/app/(marketing)/
 - **test-filter:** marketing
-- **hunts:** 6
+- **hunts:** 4
 - **bugs-found:** 6
-- **consecutive-dry-hunts:** 2
-P26-08-24
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-08-24
 - **last-bug:** 2026-08-24
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -2135,10 +2171,10 @@ P26-08-24
 - **aliases:** operator lib; operator scope; operator API client
 - **paths:** archlucid-ui/src/lib/operator/
 - **test-filter:** lib/operator
-- **hunts:** 8
+- **hunts:** 5
 - **bugs-found:** 8
-- **consecutive-dry-hunts:** 3
-P26-08-24
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-08-24
 - **last-bug:** 2026-08-24
 - **related-pd-tb:** none
 - **code-changed-since:** yes
@@ -2188,10 +2224,10 @@ P26-08-24
 - **aliases:** run execute lease; execute ownership; orchestration ownership
 - **paths:** ArchLucid.Application/Runs/Orchestration/ArchitectureRunExecuteOrchestrator.cs; ArchLucid.Application/Runs/Orchestration/RunExecuteOwnershipLeaseService.cs
 - **test-filter:** FullyQualifiedName~RunExecuteOwnership|FullyQualifiedName~ArchitectureRunExecuteOrchestrator
-- **hunts:** 1
+- **hunts:** 0
 - **bugs-found:** 0
-- **consecutive-dry-hunts:** 1
-P26-08-24
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** never
 - **last-bug:** never
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
@@ -2199,7 +2235,7 @@ P26-08-24
 ### Hypotheses
 
 - [ ] (hunt-ready) `ArchitectureRunExecuteOrchestrator` releases an acquired ownership lease with `CancellationToken.None` after `ExecuteRunCoreAsync` is cancelled; a hanging release during host drain can retain ownership until TTL and make a second execute return conflict.
-- [x] (invalid) (hunt-ready) A cancellation after ownership acquisition but before durable execution state transition can expose different retry behavior between the direct API execute path and the background-job execute path. — **2026-08-24:** Referenced locus not present in zone paths.
+- [ ] (hunt-ready) A cancellation after ownership acquisition but before durable execution state transition can expose different retry behavior between the direct API execute path and the background-job execute path.
 
 ---
 
