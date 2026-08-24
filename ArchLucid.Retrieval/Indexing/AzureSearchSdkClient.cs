@@ -129,25 +129,28 @@ public sealed class AzureSearchSdkClient(
         string documentFilter = $"documentId eq '{EscapeOData(documentId)}'";
         string combined = $"({scopeFilter}) and ({documentFilter})";
 
-        SearchOptions options = new() { Filter = combined, Select = { "chunkId" }, Size = 1000 };
+        SearchOptions options = new() { Filter = combined, Select = { "chunkId" }, Size = AzureSearchChunkDeletion.PageSize };
 
-        List<string> chunkIds = [];
+        await AzureSearchChunkDeletion.DeleteAllPagesAsync(
+            async ct =>
+            {
+                List<string> chunkIds = [];
 
-        SearchResults<SearchDocument> results = await client.SearchAsync<SearchDocument>(null, options, ct)
-            .ConfigureAwait(false);
+                SearchResults<SearchDocument> results = await client.SearchAsync<SearchDocument>(null, options, ct)
+                    .ConfigureAwait(false);
 
-        await foreach (SearchResult<SearchDocument> result in results.GetResultsAsync().WithCancellation(ct))
-        {
-            string? chunkId = result.Document.GetString("chunkId");
+                await foreach (SearchResult<SearchDocument> result in results.GetResultsAsync().WithCancellation(ct))
+                {
+                    string? chunkId = result.Document.GetString("chunkId");
 
-            if (!string.IsNullOrWhiteSpace(chunkId))
-                chunkIds.Add(chunkId);
-        }
+                    if (!string.IsNullOrWhiteSpace(chunkId))
+                        chunkIds.Add(chunkId);
+                }
 
-        if (chunkIds.Count == 0)
-            return;
-
-        await client.DeleteDocumentsAsync("chunkId", chunkIds, cancellationToken: ct).ConfigureAwait(false);
+                return chunkIds;
+            },
+            (chunkIds, ct) => client.DeleteDocumentsAsync("chunkId", chunkIds, cancellationToken: ct),
+            ct);
     }
 
     private bool TryCreateSearchClient(out SearchClient? client)

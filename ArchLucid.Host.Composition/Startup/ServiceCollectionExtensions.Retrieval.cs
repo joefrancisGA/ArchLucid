@@ -265,7 +265,8 @@ public static partial class ServiceCollectionExtensions
                 return new CachingEmbeddingService(
                     inner,
                     sp.GetRequiredService<IMemoryCache>(),
-                    sp.GetRequiredService<IOptionsMonitor<EmbeddingContentHashCacheOptions>>());
+                    sp.GetRequiredService<IOptionsMonitor<EmbeddingContentHashCacheOptions>>(),
+                    sp.GetRequiredService<IEmbeddingModelIdentity>());
             });
         }
         else
@@ -286,7 +287,8 @@ public static partial class ServiceCollectionExtensions
                 return new CachingEmbeddingService(
                     inner,
                     sp.GetRequiredService<IMemoryCache>(),
-                    sp.GetRequiredService<IOptionsMonitor<EmbeddingContentHashCacheOptions>>());
+                    sp.GetRequiredService<IOptionsMonitor<EmbeddingContentHashCacheOptions>>(),
+                    sp.GetRequiredService<IEmbeddingModelIdentity>());
             });
         }
 

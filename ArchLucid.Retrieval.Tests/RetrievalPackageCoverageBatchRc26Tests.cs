@@ -191,6 +191,14 @@ public sealed class RetrievalPackageCoverageBatchRc26Tests
         }
     }
 
+    [Fact]
+    public void PolicyPackRulePackIdMapper_returns_null_when_pack_content_json_is_malformed()
+    {
+        string? rulePackId = PolicyPackRulePackIdMapper.TryResolveRulePackId(Pack("{ this is not valid json "));
+
+        rulePackId.Should().BeNull();
+    }
+
     private static ResolvedPolicyPack Pack(string contentJson)
     {
         return new ResolvedPolicyPack

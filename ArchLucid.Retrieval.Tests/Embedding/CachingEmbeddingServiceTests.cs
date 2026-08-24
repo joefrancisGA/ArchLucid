@@ -40,7 +40,7 @@ public sealed class CachingEmbeddingServiceTests
         float[] missVector = [2f];
 
         using MemoryCache memoryCache = new(new MemoryCacheOptions { SizeLimit = 128 });
-        string hitKey = CachingEmbeddingService.BuildCacheKey("hit");
+        string hitKey = CachingEmbeddingService.BuildCacheKey("hit", CreateModelIdentity());
         memoryCache.Set(hitKey, cachedVector, new MemoryCacheEntryOptions { Size = 1 });
 
         inner
@@ -61,7 +61,38 @@ public sealed class CachingEmbeddingServiceTests
             Times.Once);
     }
 
-    private static CachingEmbeddingService CreateSut(IEmbeddingService inner, IMemoryCache memoryCache)
+    [Fact]
+    public async Task EmbedAsync_does_not_reuse_cache_entry_after_embedding_model_identity_changes()
+    {
+        Mock<IEmbeddingService> inner = new();
+        float[] firstVector = [0.1f, 0.2f];
+        float[] secondVector = [0.3f, 0.4f];
+        inner
+            .SetupSequence(s => s.EmbedAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(firstVector)
+            .ReturnsAsync(secondVector);
+
+        using MemoryCache memoryCache = new(new MemoryCacheOptions { SizeLimit = 128 });
+        Mock<IEmbeddingModelIdentity> firstIdentity = CreateModelIdentityMock("text-embedding-3-small", 1536);
+        CachingEmbeddingService firstSut = CreateSut(inner.Object, memoryCache, firstIdentity.Object);
+
+        float[] first = await firstSut.EmbedAsync("same text", CancellationToken.None);
+
+        first.Should().BeSameAs(firstVector);
+
+        Mock<IEmbeddingModelIdentity> secondIdentity = CreateModelIdentityMock("text-embedding-3-large", 3072);
+        CachingEmbeddingService secondSut = CreateSut(inner.Object, memoryCache, secondIdentity.Object);
+
+        float[] second = await secondSut.EmbedAsync("same text", CancellationToken.None);
+
+        second.Should().BeSameAs(secondVector);
+        inner.Verify(s => s.EmbedAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Exactly(2));
+    }
+
+    private static CachingEmbeddingService CreateSut(
+        IEmbeddingService inner,
+        IMemoryCache memoryCache,
+        IEmbeddingModelIdentity? modelIdentity = null)
     {
         EmbeddingContentHashCacheOptions options = new()
         {
@@ -73,7 +104,20 @@ public sealed class CachingEmbeddingServiceTests
         return new CachingEmbeddingService(
             inner,
             memoryCache,
-            Options.Create(options).ToMonitor());
+            Options.Create(options).ToMonitor(),
+            modelIdentity ?? CreateModelIdentity());
+    }
+
+    private static IEmbeddingModelIdentity CreateModelIdentity()
+        => CreateModelIdentityMock("text-embedding-3-small", 1536).Object;
+
+    private static Mock<IEmbeddingModelIdentity> CreateModelIdentityMock(string modelId, int dimension)
+    {
+        Mock<IEmbeddingModelIdentity> identity = new();
+        identity.SetupGet(i => i.ModelId).Returns(modelId);
+        identity.SetupGet(i => i.ExpectedDimension).Returns(dimension);
+
+        return identity;
     }
 }
 

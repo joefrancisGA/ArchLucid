@@ -94,6 +94,32 @@ public sealed class IterativeRetrievalLoopTests
         trace.IterativeCritiqueDecisionsJson.Should().NotBeNullOrWhiteSpace();
     }
 
+    [Fact]
+    public async Task MaybeRetryAsync_returns_at_most_query_topk_hits_after_merge()
+    {
+        IterativeRetrievalLoop sut = CreateSut(
+            new AdvancedRetrievalOptions
+            {
+                Enabled = true,
+                EnableIterativeRetrieveCritiqueRetry = true,
+                MaxIterativeRetrievalRounds = 3,
+            });
+
+        RetrievalQuery query = BuildQuery();
+        query.TopK = 1;
+        List<RetrievalHit> initialHits = [Hit("chunk-1", 0.4)];
+
+        (IReadOnlyList<RetrievalHit> hits, _) = await sut.MaybeRetryAsync(
+            query,
+            PassthroughPlan(),
+            initialHits,
+            (_, _, _) => Task.FromResult<IReadOnlyList<RetrievalHit>>([Hit("chunk-2", 0.95)]),
+            CancellationToken.None);
+
+        hits.Should().HaveCount(1);
+        hits[0].ChunkId.Should().Be("chunk-2");
+    }
+
     private static IterativeRetrievalLoop CreateSut(AdvancedRetrievalOptions options)
     {
         AgenticRetrievalQueryExpander expander = new(

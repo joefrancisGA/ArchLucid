@@ -17,8 +17,16 @@ public static class PolicyPackRulePackIdMapper
         if (string.IsNullOrWhiteSpace(pack.ContentJson))
             return null;
 
-        PolicyPackContentDocument? content =
-            JsonSerializer.Deserialize<PolicyPackContentDocument>(pack.ContentJson, JsonOptions);
+        PolicyPackContentDocument? content;
+
+        try
+        {
+            content = JsonSerializer.Deserialize<PolicyPackContentDocument>(pack.ContentJson, JsonOptions);
+        }
+        catch (JsonException)
+        {
+            return null;
+        }
 
         if (content?.Metadata is not null
             && content.Metadata.TryGetValue("rulePackId", out string? explicitId)

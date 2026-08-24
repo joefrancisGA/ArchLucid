@@ -10,7 +10,8 @@ namespace ArchLucid.Retrieval.Embedding;
 public sealed class CachingEmbeddingService(
     IEmbeddingService inner,
     IMemoryCache memoryCache,
-    IOptionsMonitor<EmbeddingContentHashCacheOptions> optionsMonitor) : IEmbeddingService
+    IOptionsMonitor<EmbeddingContentHashCacheOptions> optionsMonitor,
+    IEmbeddingModelIdentity modelIdentity) : IEmbeddingService
 {
     private readonly IEmbeddingService _inner = inner ?? throw new ArgumentNullException(nameof(inner));
 
@@ -19,6 +20,9 @@ public sealed class CachingEmbeddingService(
 
     private readonly IOptionsMonitor<EmbeddingContentHashCacheOptions> _optionsMonitor =
         optionsMonitor ?? throw new ArgumentNullException(nameof(optionsMonitor));
+
+    private readonly IEmbeddingModelIdentity _modelIdentity =
+        modelIdentity ?? throw new ArgumentNullException(nameof(modelIdentity));
 
     /// <inheritdoc />
     public async Task<float[]> EmbedAsync(string text, CancellationToken ct)
@@ -30,7 +34,7 @@ public sealed class CachingEmbeddingService(
         if (!opts.Enabled)
             return await _inner.EmbedAsync(text, ct).ConfigureAwait(false);
 
-        string cacheKey = BuildCacheKey(text);
+        string cacheKey = BuildCacheKey(text, _modelIdentity);
 
         if (_memoryCache.TryGetValue(cacheKey, out float[]? cached) && cached is not null)
             return cached;
@@ -59,7 +63,7 @@ public sealed class CachingEmbeddingService(
         for (int i = 0; i < texts.Count; i++)
         {
             string text = texts[i] ?? string.Empty;
-            string cacheKey = BuildCacheKey(text);
+            string cacheKey = BuildCacheKey(text, _modelIdentity);
 
             if (_memoryCache.TryGetValue(cacheKey, out float[]? cached) && cached is not null)
             {
@@ -81,14 +85,19 @@ public sealed class CachingEmbeddingService(
             float[] vector = embedded[m];
             int originalIndex = missIndexes[m];
             results[originalIndex] = vector;
-            SetCache(BuildCacheKey(missTexts[m]), vector, opts);
+            SetCache(BuildCacheKey(missTexts[m], _modelIdentity), vector, opts);
         }
 
         return results.Select(static v => v!).ToList();
     }
 
-    internal static string BuildCacheKey(string text) =>
-        "embed:v1:" + EmbeddingTextContentHasher.Sha256HexUtf8Normalized(text);
+    internal static string BuildCacheKey(string text, IEmbeddingModelIdentity modelIdentity)
+    {
+        ArgumentNullException.ThrowIfNull(modelIdentity);
+
+        return $"embed:v2:{modelIdentity.ModelId}:{modelIdentity.ExpectedDimension}:"
+            + EmbeddingTextContentHasher.Sha256HexUtf8Normalized(text);
+    }
 
     private void SetCache(string cacheKey, float[] vector, EmbeddingContentHashCacheOptions opts)
     {
