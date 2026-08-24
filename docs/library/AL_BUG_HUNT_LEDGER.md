@@ -525,11 +525,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** llm wallet; tenant wallet; billing wallet
 - **paths:** ArchLucid.Api/Controllers/Billing/WalletController.cs; ArchLucid.Application/Budgeting/LlmTenantWalletService.cs; ArchLucid.Persistence/Data/Repositories/SqlLlmTenantWalletRepository.cs
 - **test-filter:** FullyQualifiedName~LlmTenantWalletServiceTests
-- **hunts:** 1
-- **bugs-found:** 4
+- **hunts:** 2
+- **bugs-found:** 5
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24 — auto-refill monthly cap ignored UTC month rollover; malformed row-version Base64 bypassed concurrency; settlement consume dropped after retry exhaustion; parallel overage authorize overspent without atomic debit
+- **last-bug:** 2026-08-24 — overage reconciliation credit dropped when optimistic retries exhausted (no re-queue)
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -541,6 +541,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `CanAutoRefill` monthly cap ignored UTC month rollover — **hit 2026-08-24:** stale `AutoRefillsThisUtcMonthCount` blocked refills after month change; regression in `TryAutoRefillAsync_allows_refill_after_utc_month_rollover_when_prior_month_at_cap`
 - [x] (proven) Malformed wallet `RowVersionBase64` bypassed optimistic concurrency — **hit 2026-08-24:** `WalletController.DecodeRowVersion` returned empty bytes on `FormatException`; regression in `PutAsync_returns_400_when_row_version_base64_is_malformed`
 - [x] (proven) Settlement consume silently dropped after optimistic retries exhausted — **hit 2026-08-24:** `ConsumeInternalAsync` abandoned debit without re-queue; regression in `ConsumeInternalAsync_requeues_settlement_when_optimistic_retries_exhausted`
+- [x] (proven) Overage reconciliation credit dropped when optimistic retries exhausted — **hit 2026-08-24:** `ReconcileOverageInternalAsync` called `CreditAdjustmentInternalAsync` without re-queue on failure; regression in `ReconcileOverageInternalAsync_requeues_settlement_when_credit_retries_exhausted`
 
 ---
 
