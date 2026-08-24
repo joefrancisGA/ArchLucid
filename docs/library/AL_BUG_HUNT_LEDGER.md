@@ -965,24 +965,28 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ## Zone: identity-provider-config
 
 - **id:** identity-provider-config
-- **status:** unseeded
+- **status:** open
 - **impact:** high
 - **aliases:** identity provider; idp activation
 - **paths:** ArchLucid.Api/Controllers/Admin/IdentityProviderConfigurationController.cs; ArchLucid.Api/Services/Admin/IdentityProviderActivationService.cs
 - **test-filter:** FullyQualifiedName~IdentityProviderActivationServiceTests
-- **hunts:** 0
-- **bugs-found:** 0
+- **hunts:** 1
+- **bugs-found:** 4
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **last-hunt:** 2026-08-24
+- **last-bug:** 2026-08-24 — SAML discovery timeout bubbled as 500; re-activate cleared KeyVaultSecretName/MetadataXml when omitted; non-HTTP(S) metadata URL accepted; empty SAML body threw ArgumentException
 - **related-pd-tb:** none
-- **code-changed-since:** unknown
+- **code-changed-since:** yes
 
 ### Hypotheses
 
-- [ ] (candidate) Activation writes IdP settings onto a tenant the admin does not own
-- [ ] (candidate) Disable still leaves the previous client secret usable
-- [ ] (candidate) Config GET returns another tenantÎ“Ã‡Ã–s client id
+- [x] (invalid) Activation writes IdP settings onto a tenant the admin does not own — `ActivateAsync` uses `scope.TenantId` from `ScopeContextProvider`; no tenant override in request body
+- [x] (invalid) Disable still leaves the previous client secret usable — no deactivate/disable endpoint; wizard only exposes `activate` which sets `IsActive = true`
+- [x] (invalid) Config GET returns another tenant's client id — `GetConfigurationAsync` loads by `scope.TenantId` only
+- [x] (proven) SAML metadata discovery HttpClient timeout surfaced as unhandled `OperationCanceledException` — **hit 2026-08-24:** `DiscoverSamlAsync` rethrew timeout; now returns failed response like OIDC; regression in `DiscoverAsync_saml_timeout_returns_failed_response_instead_of_throwing`
+- [x] (proven) Re-activate cleared stored `KeyVaultSecretName` and `MetadataXml` when omitted — **hit 2026-08-24:** upsert always nulled whitespace fields; now null preserves existing; regression in `ActivateAsync_reactivate_preserves_key_vault_secret_when_omitted` and `ActivateAsync_reactivate_preserves_metadata_xml_when_omitted`
+- [x] (proven) Discover accepted non-HTTP(S) absolute metadata URLs — **hit 2026-08-24:** `Uri.TryCreate` alone allowed `file://`; regression in `DiscoverAsync_rejects_non_http_scheme_metadata_url`
+- [x] (proven) Empty SAML metadata HTTP body threw `ArgumentException` to callers — **hit 2026-08-24:** parser throw was uncaught; regression in `DiscoverAsync_saml_empty_body_returns_failed_response_instead_of_throwing`
 
 ---
 
