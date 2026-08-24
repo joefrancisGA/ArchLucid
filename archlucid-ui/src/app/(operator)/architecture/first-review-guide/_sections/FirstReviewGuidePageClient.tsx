@@ -69,6 +69,7 @@ import { FirstReviewGuideSupportPanel } from "./FirstReviewGuideSupportPanel";
 import { FirstReviewGuideWalkthrough } from "./FirstReviewGuideWalkthrough";
 
 import { OnboardingOptionalSetupSection } from "./OnboardingOptionalSetupSection";
+import { OnboardingSampleReviewShortcut } from "@/components/usability/OnboardingSampleReviewShortcut";
 
 import type { OnboardingPageViewModel } from "./onboarding-page-view-model";
 
@@ -342,7 +343,7 @@ export function FirstReviewGuidePageClient({ model }: FirstReviewGuidePageClient
 
       </OperatorPageHeader>
 
-
+      <OnboardingSampleReviewShortcut />
 
       {model.fromRegistration ? <GettingStartedTrialSection fromRegistrationQuery={model.fromRegistration} /> : null}
 
