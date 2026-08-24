@@ -1120,11 +1120,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** tenant export; run export; export SSRF
 - **paths:** ArchLucid.Application/Exports/; ArchLucid.Api/Controllers/Authority/ExportsController.cs; ArchLucid.Api/Controllers/Authority/ArchitectureExportController.cs; ArchLucid.Api/Controllers/Authority/RunsExportController.cs; ArchLucid.Core/Security/AllowedRunExportBlobDestinationUrlPolicy.cs
 - **test-filter:** FullyQualifiedName~ArchitectureReviewExport|FullyQualifiedName~ExportsController|FullyQualifiedName~AllowedRunExportBlobDestinationUrlPolicy
-- **hunts:** 3
-- **bugs-found:** 3
+- **hunts:** 4
+- **bugs-found:** 7
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-23
-- **last-bug:** 2026-08-23 — sponsor packet deterministic report undercounted high-severity findings
+- **last-hunt:** 2026-08-24
+- **last-bug:** 2026-08-24
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1135,6 +1135,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Sponsor review packet deterministic report undercounts high-severity findings — **hit 2026-08-23:** `BuildDeterministicSponsorReport` compared `Severity.ToString()` to `"High"` but `FindingSeverity` uses `Error` for the high band; aligned with `RunSummaryOnePagerDocumentFactory` mapping.
 - [x] (invalid) Blob destination URL policy allows an internal/metadata endpoint (SSRF) — retired: decimal/link-local literals rejected; Azure blob host + DNS resolve guard
 - [x] (invalid) Export succeeds when the run is still in progress and returns partial or stale bytes — retired for DOCX/PDF/HTML/summary paths; sponsor packet gap fixed above.
+- [x] (proven) Run summary one-pager capped top findings at three after selecting five — **hit 2026-08-24:** `RunSummaryOnePagerDocumentFactory.Create` applied `.Take(3)` while export selected five High/Critical findings; removed cap (`RunSummaryOnePagerDocumentFactoryTests`).
+- [x] (proven) Run summary export misreported broken-manifest runs as not finalized — **hit 2026-08-24:** `RunSummaryOnePagerExportService` skipped `HasBrokenManifestReference` guard; aligned message with other export paths (`RunSummaryOnePagerExportServiceTests`).
+- [x] (proven) HTML architecture review export omitted demo-tenant safety labeling — **hit 2026-08-24:** `BuildMinimalHtml` ignored `IsDemoTenant`; added demo notice (`ArchitectureReviewExportServiceTests`).
+- [x] (proven) Sponsor review packet evidence badges ignored demo-run context — **hit 2026-08-24:** `SponsorReviewPacketComposer` resolved badges with empty `PilotRunDeltas`; passes demo provenance from run detail (`SponsorReviewPacketComposerTests`).
 
 ---
 
@@ -1572,7 +1576,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **paths:** ArchLucid.ContextIngestion/
 - **test-filter:** FullyQualifiedName~ContextIngestion|FullyQualifiedName~Canonicalization
 - **hunts:** 4
-- **bugs-found:** 7
+- **bugs-found:** 8
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-24
 - **last-bug:** 2026-08-24
