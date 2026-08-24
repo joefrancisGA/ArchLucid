@@ -17,31 +17,31 @@
 | Connection factory alignment | Done (2026-05-08) — unused `SqlConnectionFactory` removed |
 | Dual pipeline coordinator closure | Done — ADR 0030 + `DualPipelineRegistrationDisciplineTests` |
 
-## Active items (prioritized top 10)
-
-Execute in order when possible; quick wins (#11–#12) may ship ahead of larger items.
+## Active items (remaining)
 
 1. **Decompose authority commit orchestrator** — Split `AuthorityDrivenArchitectureRunCommitOrchestrator.cs` (~910 lines) and `AuthorityPipelineStagesExecutor.cs` into focused stages (governance, decision materialization, manifest reuse, audit, persistence). **Impact:** High · **Effort:** High · **Paths:** `ArchLucid.Application/Runs/Orchestration/`
 
-5. ~~**Complete TanStack Query migration backlog**~~ — **Done** (2026-08-24): all `MIGRATION_BACKLOG` modules migrated; guard tests pass.
+3. **Consolidate identity/auth bounded module** — Shared rate-limit, audit, and validation primitives across OTP, SSO, identity linking, and trial bootstrap in `ArchLucid.Application/Identity/`. **Impact:** High · **Effort:** High
 
-2. ~~**Abstract multi-cloud extractor pipeline**~~ — **Done** (2026-08-24): shared `HostedCloudExtractorRunResult` in `CloudExtractor/`; Azure/AWS/GCP wrappers delegate to it.
+4. **Finish demo/sample scenario decoupling** — Complete typed sample-definition layer so UI, seeds, and tests stop branching on healthcare/Claims literals. **Impact:** High (product) · **Effort:** Medium · **Backlog:** TB-978, TB-979, TB-980 · **Paths:** `archlucid-ui/src/lib/samples/`, `DemoSeedService.*.cs`
 
 6. **Tighten governance API boundaries** — Move orchestration out of `PolicyPacksController.cs` (~925 lines); clarify workflow facade over 58 governance services. **Impact:** High · **Effort:** High · **Paths:** `ArchLucid.Api/Controllers/Governance/`, `ArchLucid.Application/Governance/`
 
-7. ~~**Shared Terraform posture module**~~ — **Done** (2026-08-24): `infra/modules/posture/` centralizes tier/waiver validation; nine stacks consume via `module "posture"`.
-
-8. ~~**Split monolithic OpenAPI TypeScript output**~~ — **Done** (2026-08-24): `generate-api-types-split.mjs` emits `api-types/schemas.generated.ts` + `paths.generated.ts`; barrel at `api-types.generated.ts`.
-
 9. **Merge API query controllers / retire legacy routes** — Consolidate `RunQueryController` and `AuthorityQueryController` overlapping reads; sunset legacy aliases. **Impact:** Medium · **Effort:** Medium · **Note:** `docs/architecture/api/REST_API_REDESIGN_IMPLEMENTATION_NOTES.md`
 
-10. **Reduce configuration sprawl** — Pilot-minimal `appsettings` defaults; retire deprecated keys in `ConfigurationKeyCatalog.cs`; feature-grouped options. **Impact:** Medium · **Effort:** Medium · **Paths:** `ArchLucid.Api/appsettings*.json`, `ArchLucid.Core/Configuration/ConfigurationKeyCatalog.cs`
+10. **Merge API query controllers / retire legacy routes** — Consolidate `RunQueryController` and `AuthorityQueryController` overlapping reads; sunset legacy aliases. **Impact:** Medium · **Effort:** Medium · **Note:** `docs/architecture/api/REST_API_REDESIGN_IMPLEMENTATION_NOTES.md`
 
-## Quick wins (slot early)
+## Completed (2026-08-24 pass)
 
-11. ~~**Remove duplicate sponsor summary services**~~ — **Done** (2026-08-24): removed unused `SponsorSummaryService` / `ISponsorSummaryService`; `ISponsorReportService` is canonical.
-
-12. ~~**Align DemoSeedService with UI sample registry**~~ — **Done** (2026-08-24): `DemoSeedScenarioRegistry` maps seed steps to UI sample slugs; `BuildSeedSteps` reads registry order.
+| # | Item | Notes |
+|---|------|-------|
+| 2 | Multi-cloud extractor pipeline | `HostedCloudExtractorRunResult` shared envelope |
+| 5 | TanStack Query migration | `MIGRATION_BACKLOG` cleared; guard tests pass |
+| 7 | Terraform posture module | `infra/modules/posture/` |
+| 8 | OpenAPI TS split | `api-types/schemas.generated.ts` + `paths.generated.ts` |
+| 10 | Reduce configuration sprawl | Pilot overlay, slim base appsettings, deprecated key catalog tags |
+| 11 | Duplicate sponsor services | Removed unused `SponsorSummaryService` |
+| 12 | DemoSeed registry | `DemoSeedScenarioRegistry` |
 
 ## Related (not duplicated here)
 

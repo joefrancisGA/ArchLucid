@@ -30,10 +30,11 @@
 | Order | Layer |
 |-------|-------|
 | 1 | `WebApplication.CreateBuilder` defaults (base JSON → env JSON → user-secrets → env → args) |
-| 2 | `appsettings.Advanced.json` / `appsettings.SaaS.json` (optional overlays) |
-| 3 | Explicit `AddEnvironmentVariables()` again → **env beats Advanced/SaaS** |
-| 4 | In-memory bridges (`AzureOpenAiEnvironmentConfigurationBridge`, etc.) when nested unset |
-| 5 | Platform CA Key Vault references → appear as env/settings before process |
+| 2 | `appsettings.Pilot.json` (optional pilot overlay — connection strings + scale-honest defaults) |
+| 3 | `appsettings.Advanced.json` / `appsettings.SaaS.json` (optional feature-grouped overlays) |
+| 4 | Explicit `AddEnvironmentVariables()` again → **env beats Pilot/Advanced/SaaS** |
+| 5 | In-memory bridges (`AzureOpenAiEnvironmentConfigurationBridge`, etc.) when nested unset |
+| 6 | Platform CA Key Vault references → appear as env/settings before process |
 
 Documented per-key sources (`CONFIGURATION_REFERENCE.md`) do **not** replace this ladder. Terraform injects CA env/secrets — it does **not** apply appsettings as SoT.
 
