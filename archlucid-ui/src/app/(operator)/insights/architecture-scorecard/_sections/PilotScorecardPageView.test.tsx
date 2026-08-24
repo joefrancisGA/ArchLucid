@@ -48,6 +48,14 @@ vi.mock("@/components/ScorecardRoiVocabularyRail", () => ({
   ScorecardRoiVocabularyRail: () => <div data-testid="scorecard-roi-vocabulary" />,
 }));
 
+vi.mock("@/components/WorkspaceActiveRunContext", () => ({
+  useWorkspaceActiveRun: () => ({ runId: "workspace-run-1", setRunId: vi.fn() }),
+}));
+
+vi.mock("@/components/AskRunIdPicker", () => ({
+  AskRunIdPicker: () => <div data-testid="ask-run-id-picker" />,
+}));
+
 const mockUseSearchParams = vi.mocked(useSearchParams);
 
 const scorecardData: PilotScorecardJson = {
@@ -127,7 +135,7 @@ describe("PilotScorecardPageView", () => {
     expect(screen.getByTestId("review-scorecard-summary-row")).toBeInTheDocument();
     expect(screen.getByTestId("scorecard-summary-estimated-review-time-savings")).toBeInTheDocument();
     expect(screen.getByTestId("scorecard-summary-reviews-finalized")).toBeInTheDocument();
-    expect(screen.getByTestId("scorecard-summary-governance-approvals")).toBeInTheDocument();
+    expect(screen.getByTestId("scorecard-summary-resolve-outcomes")).toBeInTheDocument();
     expect(screen.queryByTestId("scorecard-summary-findings-affirmed")).not.toBeInTheDocument();
     expect(screen.getByText("Operational metrics")).toBeInTheDocument();
     expect(screen.getByTestId("review-scorecard-roi-assumptions")).toHaveClass("grid");
