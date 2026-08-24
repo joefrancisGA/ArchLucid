@@ -38,8 +38,7 @@ public sealed class IdentityProviderDiscoveryService(HttpClient httpClient) : II
         if (string.IsNullOrWhiteSpace(metadataUrl))
             return Failed(protocol, "MetadataUrl is required.");
 
-        if (!Uri.TryCreate(metadataUrl, UriKind.Absolute, out Uri? metadataUri)
-            || !IsHttpOrHttps(metadataUri))
+        if (!IdentityProviderUriValidator.TryCreateAbsoluteHttpOrHttps(metadataUrl, out Uri metadataUri))
             return Failed(protocol, "MetadataUrl must be an absolute HTTP(S) URL.");
 
         return protocol switch
@@ -257,9 +256,6 @@ public sealed class IdentityProviderDiscoveryService(HttpClient httpClient) : II
 
         return string.IsNullOrWhiteSpace(value) ? null : value.Trim();
     }
-
-    private static bool IsHttpOrHttps(Uri uri) =>
-        uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps;
 
     private static IdentityProviderDiscoverResponse Failed(string protocol, string message) =>
         new()

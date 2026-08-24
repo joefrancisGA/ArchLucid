@@ -251,4 +251,38 @@ public sealed class IdentityProviderActivationServiceTests
 
         loaded!.KeyVaultSecretName.Should().BeNull();
     }
+
+    [Theory]
+    [InlineData("file:///etc/passwd")]
+    [InlineData("javascript:alert('xss')")]
+    public async Task ActivateAsync_rejects_non_http_scheme_issuer_uri(string issuerUri)
+    {
+        InMemoryTenantIdentityProviderConfigurationRepository repository = new();
+        IdentityProviderActivationService sut = new(repository);
+
+        Func<Task> act = () => sut.ActivateAsync(
+            Guid.Parse("55555555-5555-5555-5555-555555555555"),
+            "admin@test",
+            new IdentityProviderActivateRequest
+            {
+                Protocol = "oidc",
+                IssuerUri = issuerUri,
+                ClaimMapping = new IdentityClaimRoleMappingRequest
+                {
+                    RoleClaimName = "groups",
+                    Mappings =
+                    [
+                        new IdentityClaimRoleMappingEntryRequest
+                        {
+                            IdpValue = "al-admins",
+                            ArchLucidRole = "Admin"
+                        }
+                    ]
+                }
+            },
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<ArgumentException>()
+            .WithMessage("*HTTP(S)*");
+    }
 }
