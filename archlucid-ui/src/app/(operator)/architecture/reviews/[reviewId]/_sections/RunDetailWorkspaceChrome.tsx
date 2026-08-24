@@ -9,6 +9,7 @@ import { buttonVariants } from "@/components/ui/button";
 import { SeverityTag } from "@/components/ui/severity-tag";
 import { StatusTag } from "@/components/ui/status-tag";
 import { FavoriteReviewToggle } from "@/components/reviews/FavoriteReviewToggle";
+import { SampleReviewDemoBanner } from "@/components/reviews/SampleReviewDemoBanner";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { useReviewsListReturnNavHref } from "@/hooks/use-reviews-list-return-nav-href";
 import { REVIEWS_LIST_PATH } from "@/lib/architecture/architecture-routes";
@@ -102,6 +103,7 @@ export function RunDetailWorkspaceHeader(props: RunDetailWorkspaceHeaderProps): 
 
   return (
     <div data-testid="run-detail-workspace-header">
+      <SampleReviewDemoBanner runId={props.runId} />
       <OperatorPageHeader
         navHref={reviewsListNavHref}
         title={h1Title}
