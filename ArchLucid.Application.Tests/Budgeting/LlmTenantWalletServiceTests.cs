@@ -327,6 +327,37 @@ public sealed class LlmTenantWalletServiceTests
     }
 
     [SkippableFact]
+    public async Task ReconcileOverageInternalAsync_requeues_settlement_when_delta_consume_insufficient_funds()
+    {
+        InMemoryLlmTenantWalletRepository repository = new();
+        Guid tenantId = Guid.NewGuid();
+        Guid correlationId = Guid.NewGuid();
+
+        await repository.TryCreditRefillAsync(
+            tenantId,
+            50m,
+            Guid.NewGuid(),
+            null,
+            int.Parse(TimeProvider.System.GetUtcNow().UtcDateTime.ToString("yyyyMM")),
+            [],
+            CancellationToken.None);
+
+        LlmWalletSettlementQueue queue = new();
+        LlmTenantWalletService service = CreateService(repository, new Mock<IStripeWalletGateway>().Object, queue: queue);
+
+        bool authorized = await service.TryAuthorizeOverageSpendAsync(tenantId, 40m, CancellationToken.None);
+        authorized.Should().BeTrue();
+
+        await service.ReconcileOverageInternalAsync(tenantId, 55m, 40m, correlationId, CancellationToken.None);
+
+        queue.Reader.TryRead(out LlmWalletSettlementWorkItem item).Should().BeTrue();
+        item.TenantId.Should().Be(tenantId);
+        item.AmountUsd.Should().Be(55m);
+        item.AuthorizedUsd.Should().Be(40m);
+        item.CorrelationId.Should().Be(correlationId);
+    }
+
+    [SkippableFact]
     public async Task ReconcileOverageInternalAsync_credits_wallet_when_actual_less_than_authorized()
     {
         InMemoryLlmTenantWalletRepository repository = new();
@@ -362,16 +393,17 @@ public sealed class LlmTenantWalletServiceTests
     private static LlmTenantWalletService CreateService(
         InMemoryLlmTenantWalletRepository repository,
         IStripeWalletGateway stripeGateway,
+        LlmWalletSettlementQueue? queue = null,
         TimeProvider? timeProvider = null)
     {
-        LlmWalletSettlementQueue queue = new();
+        LlmWalletSettlementQueue settlementQueue = queue ?? new LlmWalletSettlementQueue();
         Mock<IAuditService> audit = new();
         audit.Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
 
         return new LlmTenantWalletService(
             repository,
             stripeGateway,
-            queue,
+            settlementQueue,
             audit.Object,
             timeProvider ?? TimeProvider.System,
             NullLogger<LlmTenantWalletService>.Instance);
