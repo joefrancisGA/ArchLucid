@@ -234,6 +234,53 @@ public sealed class ScimUsersServiceUnitTests
     }
 
     [Fact]
+    public async Task DeactivateAsync_restores_seat_when_persistence_fails()
+    {
+        Guid tenantId = Guid.NewGuid();
+        ScimUserRecord existing = new()
+        {
+            Id = Guid.NewGuid(),
+            TenantId = tenantId,
+            ExternalId = "ext-1",
+            UserName = "alice@example.com",
+            Active = true,
+            ResolvedRoleOrigin = ScimResolvedRoleOrigin.Unknown,
+        };
+
+        Mock<IScimUserRepository> users = new();
+        users
+            .Setup(r => r.GetByIdAsync(tenantId, existing.Id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(existing);
+
+        users
+            .Setup(r => r.DeactivateAsync(tenantId, existing.Id, It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("simulated deactivate failure"));
+
+        Mock<ITenantRepository> tenants = new();
+        tenants
+            .Setup(t => t.DecrementEnterpriseScimSeatAsync(tenantId, It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        tenants
+            .Setup(t => t.TryIncrementEnterpriseScimSeatAsync(tenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+
+        ScimUserService sut = CreateService(users, tenants);
+
+        Func<Task> act = () => sut.DeactivateAsync(tenantId, existing.Id, CancellationToken.None);
+
+        await act.Should().ThrowAsync<InvalidOperationException>();
+
+        tenants.Verify(
+            t => t.DecrementEnterpriseScimSeatAsync(tenantId, It.IsAny<CancellationToken>()),
+            Times.Once);
+
+        tenants.Verify(
+            t => t.TryIncrementEnterpriseScimSeatAsync(tenantId, It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
     public async Task ListAsync_normalizes_start_index_below_one()
     {
         Guid tenantId = Guid.NewGuid();

@@ -963,11 +963,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** scim; entra provisioning users
 - **paths:** ArchLucid.Api/Controllers/Scim/ScimUsersController.cs
 - **test-filter:** FullyQualifiedName~ScimUsers
-- **hunts:** 1
-- **bugs-found:** 4
+- **hunts:** 2
+- **bugs-found:** 5
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24 — externalId whitespace bypassed uniqueness; replace/patch duplicate externalId surfaced as 500; create leaked seat on insert failure; replace leaked seat when persistence failed after re-activation
+- **last-bug:** 2026-08-24 — DELETE decremented enterprise seat then leaked it when repository deactivate failed
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -980,6 +980,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) PUT/PATCH changing `externalId` to another user's value threw SQL uniqueness fault instead of SCIM 409 — **hit 2026-08-24:** pre-check via `EnsureExternalIdNotUsedByAnotherUserAsync`; controller maps `ScimConflictException`; regression in `ReplaceAsync_duplicate_external_id_throws_conflict`
 - [x] (proven) Active create reserved enterprise seat then leaked it when insert failed — **hit 2026-08-24:** compensating decrement on failure; regression in `CreateAsync_releases_reserved_seat_when_insert_fails`
 - [x] (proven) PUT re-activation reserved seat then leaked it when replace failed — **hit 2026-08-24:** `CompensateSeatTransitionAsync` on persistence failure; regression in `ReplaceAsync_compensates_seat_when_persistence_fails_after_activation`
+- [x] (proven) DELETE decremented enterprise seat then leaked it when repository deactivate failed — **hit 2026-08-24:** `DeactivateAsync` had no compensating increment; regression in `DeactivateAsync_restores_seat_when_persistence_fails`
 
 ---
 

@@ -175,10 +175,26 @@ public sealed class ScimUserService(
     public async Task DeactivateAsync(Guid tenantId, Guid id, CancellationToken cancellationToken)
     {
         ScimUserRecord existing = await _users.GetByIdAsync(tenantId, id, cancellationToken) ?? throw new ScimNotFoundException("User not found.");
-        if (existing.Active)
-            await _tenants.DecrementEnterpriseScimSeatAsync(tenantId, cancellationToken);
-        await _users.DeactivateAsync(tenantId, id, cancellationToken);
-        await LogAsync(tenantId, AuditEventTypes.ScimUserDeactivated, $"{{\"userId\":\"{id:D}\"}}", cancellationToken);
+        bool seatDecremented = false;
+
+        try
+        {
+            if (existing.Active)
+            {
+                await _tenants.DecrementEnterpriseScimSeatAsync(tenantId, cancellationToken);
+                seatDecremented = true;
+            }
+
+            await _users.DeactivateAsync(tenantId, id, cancellationToken);
+            await LogAsync(tenantId, AuditEventTypes.ScimUserDeactivated, $"{{\"userId\":\"{id:D}\"}}", cancellationToken);
+        }
+        catch
+        {
+            if (seatDecremented)
+                await _tenants.TryIncrementEnterpriseScimSeatAsync(tenantId, cancellationToken);
+
+            throw;
+        }
     }
 
     private async Task CompensateSeatTransitionAsync(Guid tenantId, bool wasActive, bool willBeActive, CancellationToken ct)
