@@ -1090,11 +1090,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** SAML; trial JWT; SCIM bearer; OIDC auth stack
 - **paths:** ArchLucid.Api/Auth/; ArchLucid.Core/Auth/Saml/
 - **test-filter:** FullyQualifiedName~Saml|FullyQualifiedName~LocalTrialJwt|FullyQualifiedName~ScimBearer
-- **hunts:** 2
-- **bugs-found:** 2
+- **hunts:** 3
+- **bugs-found:** 6
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-23
-- **last-bug:** 2026-08-23 — SAML scope claim promotion skipped when IdP attribute type casing differed from configured claim type
+- **last-hunt:** 2026-08-24
+- **last-bug:** 2026-08-24
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1105,6 +1105,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) SCIM bearer token for tenant A authorizes provisioning writes for tenant B — Argon hash is tenant-salted (`ScimArgonSecretHasherTests.VerifySecret_wrong_tenant_salt_returns_false`); scope uses `tenant_id` claim over headers (`HttpScopeContextProviderTests.GetCurrentScope_prefers_jwt_claim_over_header`)
 - [x] Future `auth_time` / `iat` passes step-up as recent authentication (`RecentAuthenticationEvaluator.HasRecentAuthentication`) — fixed: reject negative age; regression in `HasRecentAuthentication_returns_false_for_future_auth_time`
 - [x] (proven) SAML inbound scope claims (`tenant_id`, `workspace_id`, `project_id`, `oid`) not promoted when configured source claim type casing differs from assertion — **hit 2026-08-23:** `PromoteSingleValueIfMissing` used case-sensitive `FindFirst` while role promotion was case-insensitive; aligned lookup in `ArchLucidSamlInboundClaimsNormalizer`.
+- [x] (proven) `PlatformUserAuthVersionValidator` skips auth-version stamp when trial `JwtIssuer` is empty but PEM `JwtLocalIssuer` matches — **hit 2026-08-24:** revoked platform-user GUID tokens without `archlucid_auth_ver` passed when `Auth:Trial:LocalIdentity:JwtIssuer` was unset; fixed by also matching `ArchLucidAuth:JwtLocalIssuer` (`PlatformUserAuthVersionValidatorTests`).
+- [x] (proven) JwtBearer principals without a bound `tenant_id` claim could steer tenant via `x-tenant-id` — **hit 2026-08-24:** header-only escalation guard applied only to ApiKey; extended to Bearer and SAML2 in `ScopeIdentityBindingMiddleware` (`ScopeIdentityBindingMiddlewareTests`).
+- [x] (proven) SAML inbound normalizer promoted non-GUID tenant/workspace/project values onto canonical scope claims — **hit 2026-08-24:** non-GUID `tenant_id` claims failed `Guid.TryParse` in scope resolution and fell back to headers; fixed by skipping non-GUID promotion (`ArchLucidSamlInboundClaimsNormalizerTests`).
+- [x] (proven) SAML IdP metadata binder picked first SSO endpoint regardless of HTTPS or Redirect binding — **hit 2026-08-24:** `SingleSignOnServices.First()` could select cleartext HTTP-POST before HTTPS Redirect; fixed with ordered selection (`ArchLucidSaml2IdpMetadataBinderTests`).
 
 ---
 
