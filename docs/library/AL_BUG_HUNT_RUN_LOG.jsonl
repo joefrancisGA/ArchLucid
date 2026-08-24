@@ -191,3 +191,4 @@
 {"at":"2026-08-24T16:53:29.448Z","zoneId":"authority-pipeline-payload","outcome":"dry"}
 {"at":"2026-08-24T16:58:00.264669Z","zoneId":"tenant-scoped-analyzer","outcome":"hit"}
 {"at":"2026-08-24T17:01:02.401662Z","zoneId":"sql-run-repository","outcome":"hit"}
+{"at":"2026-08-24T17:05:24.287524Z","zoneId":"finding-inspect-sql","outcome":"hit"}
