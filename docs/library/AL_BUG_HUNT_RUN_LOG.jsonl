@@ -124,3 +124,4 @@
 {"at": "2026-08-24T00:28:00.000000Z", "zoneId": "ui-oidc", "outcome": "hit"}
 {"at": "2026-08-24T00:35:00.000000Z", "zoneId": "notifications-pipeline", "outcome": "hit"}
 {"at": "2026-08-24T00:42:00.000000Z", "zoneId": "cli-tenant-isolation", "outcome": "hit"}
+{"at": "2026-08-24T00:48:00.000000Z", "zoneId": "application-analysis", "outcome": "hit"}
