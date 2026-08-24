@@ -748,9 +748,6 @@ export function ArchitectureDraftStructuredBriefFields(
         invalid={false}
         required={false}
         disabled={props.disabled === true}
-        helpSlug="structured-brief"
-        helpHashFragment="field-concepts"
-        helpLabel="Read required capabilities help"
         onAdd={(value) => {
           addConfirmedListItem(
             props.onStructuredBriefChange,
