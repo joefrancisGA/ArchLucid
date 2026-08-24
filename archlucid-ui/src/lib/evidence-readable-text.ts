@@ -1,3 +1,5 @@
+import { normalizeClarificationInferenceCorpus } from "@/lib/inferred-clarification-answer-quality";
+
 const READABLE_EVIDENCE_TEXT_EXTENSIONS = [".md", ".txt", ".json", ".yaml", ".yml"] as const;
 
 const BINARY_ARCHITECTURE_DOCUMENT_EXTENSIONS = [".pdf", ".docx"] as const;
@@ -76,5 +78,5 @@ export async function buildArchitectureIntakeInferenceCorpus(input: {
     }
   }
 
-  return parts.join("\n\n");
+  return normalizeClarificationInferenceCorpus(parts.join("\n\n"));
 }
