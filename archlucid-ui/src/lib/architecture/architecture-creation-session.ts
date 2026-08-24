@@ -1,3 +1,5 @@
+import { architectureDraftPath } from "@/lib/architecture/architecture-routes";
+
 const ARCHITECTURE_CREATION_DRAFT_ID_STORAGE_KEY = "archlucid.architecture-creation.draft-id";
 
 export function readArchitectureCreationDraftId(): string | null {
@@ -24,4 +26,13 @@ export function clearArchitectureCreationDraftId(): void {
   }
 
   sessionStorage.removeItem(ARCHITECTURE_CREATION_DRAFT_ID_STORAGE_KEY);
+}
+
+/** Updates the address bar after deferred create without remounting the create page. */
+export function replaceArchitectureCreationUrlWithoutNavigation(draftId: string): void {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  window.history.replaceState(window.history.state, "", architectureDraftPath(draftId));
 }

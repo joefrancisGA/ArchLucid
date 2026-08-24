@@ -116,7 +116,6 @@ vi.mock("@/components/usability/PageContextualHelpButton", async () => {
 
 import { ArchitectureDraftWorkspace } from "./ArchitectureDraftWorkspace";
 import { ARCHITECTURE_DRAFT_DETAIL_PAGE_SUBTITLE_OPERATOR } from "@/lib/architecture/architecture-draft-detail-page-copy";
-import { ARCHITECTURE_CREATION_AUTOSAVE_REASSURANCE } from "@/lib/create-vs-review-intake-copy";
 import { ARCHITECTURE_DRAFT_GUIDANCE_DISMISS_STORAGE_KEY } from "@/lib/architecture/architecture-draft-guidance-dismiss";
 import { ARCHITECTURE_NEW_DRAFT_SEGMENT } from "@/lib/architecture/architecture-routes";
 import { emptyArchitectureDraftStructuredBrief } from "@/lib/architecture/architecture-draft-structured-brief";
@@ -182,7 +181,14 @@ beforeEach(() => {
 });
 
 describe("ArchitectureDraftWorkspace", () => {
-  it("anchors page help in the header rail above save status, outside the dismissible tip", async () => {
+  it("anchors page help in the header rail outside the dismissible tip", async () => {
+    getDraftRequest.mockResolvedValue({
+      ...spawnedDraft,
+      status: "Drafting",
+      spawnedRunId: null,
+      document: { ...spawnedDraft.document, workflowIntent: "create-architecture" },
+    });
+
     render(<ArchitectureDraftWorkspace architectureId="arch-001" />);
 
     await waitFor(() => {
@@ -190,11 +196,11 @@ describe("ArchitectureDraftWorkspace", () => {
     });
 
     const help = screen.getByTestId("page-contextual-help-stub");
-    const saveStatus = screen.getByTestId("architecture-draft-save-status");
+    const deleteControl = screen.getByTestId("architecture-draft-delete-workspace");
 
-    expect(help.parentElement).toBe(saveStatus.parentElement);
-    // Help preceding save status keeps the affordance at the top of the right-hand rail.
-    expect(help.compareDocumentPosition(saveStatus) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(help.parentElement).toBe(deleteControl.parentElement);
+    expect(help.compareDocumentPosition(deleteControl) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(screen.queryByTestId("architecture-draft-save-status")).not.toBeInTheDocument();
 
     const disclosure = await screen.findByTestId("architecture-draft-guidance-disclosure");
     expect(disclosure).not.toContainElement(help);
@@ -224,8 +230,7 @@ describe("ArchitectureDraftWorkspace", () => {
     expect(screen.queryByTestId("architecture-draft-workspace-lead")).not.toBeInTheDocument();
 
     expect(screen.queryByTestId("architecture-creation-no-drafts-guidance")).not.toBeInTheDocument();
-
-    expect(screen.queryByTestId("architecture-draft-autosave-reassurance")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("architecture-draft-save-status")).not.toBeInTheDocument();
     expect(screen.getByRole("button", { name: BUYER_START_ARCHITECTURE_REVIEW_CTA })).toBeDisabled();
     expect(screen.getByTestId("architecture-scope-understanding-confirm")).toBeDisabled();
     expect(screen.getByTestId("architecture-draft-review-readiness")).toBeInTheDocument();
@@ -600,7 +605,7 @@ describe("ArchitectureDraftWorkspace", () => {
     );
   });
 
-  it("discloses autosave and omits a disabled Save draft when autosave is authoritative (TB-1455)", async () => {
+  it("omits autosave status UI when autosave is authoritative (TB-1455)", async () => {
     vi.mocked(useArchitectureDraftAutosave).mockReturnValue({
       saveState: "saved",
       lastSavedUtc: "2026-07-18T22:00:00.000Z",
@@ -621,11 +626,11 @@ describe("ArchitectureDraftWorkspace", () => {
     render(<ArchitectureDraftWorkspace architectureId="arch-001" />);
 
     await waitFor(() => {
-      expect(screen.getByTestId("architecture-draft-autosave-reassurance")).toHaveTextContent(
-        ARCHITECTURE_CREATION_AUTOSAVE_REASSURANCE,
-      );
+      expect(screen.getByTestId("architecture-draft-workspace")).toBeInTheDocument();
     });
 
+    expect(screen.queryByTestId("architecture-draft-save-status")).not.toBeInTheDocument();
+    expect(screen.queryByText("Saved")).not.toBeInTheDocument();
     expect(screen.queryByTestId("architecture-save-draft")).not.toBeInTheDocument();
     expect(screen.queryByTestId("architecture-save-draft-retry")).not.toBeInTheDocument();
     expect(screen.getByTestId("architecture-save-and-exit")).toBeInTheDocument();

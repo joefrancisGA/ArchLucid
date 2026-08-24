@@ -20,11 +20,11 @@ export const ARCHITECTURE_DRAFT_WORKSPACE_LEAD =
 
 /** `/architectures/new` page subtitle — subordinate to H1 {@link CREATE_ARCHITECTURE_LABEL} (TB-1461). */
 export const ARCHITECTURE_CREATION_PAGE_SUBTITLE =
-  "Describe the system, the outcome it must deliver, and the people and systems it touches. Start a new draft below — autosave keeps drafts on this device.";
+  "Describe the system, the outcome it must deliver, and the people and systems it touches. Start a new draft below.";
 
 /** `/architectures/new` page subtitle when browser-local drafts exist (TB-1462). */
 export const ARCHITECTURE_CREATION_PAGE_SUBTITLE_WITH_DRAFTS =
-  "Continue a saved draft below, or describe a new system — outcome, people, and systems it touches. Autosave applies on this device only.";
+  "Continue a saved draft below, or describe a new system — outcome, people, and systems it touches.";
 
 /** Form section heading on `/architectures/new` before the draft is named or persisted (TB-1461). */
 export const ARCHITECTURE_CREATION_NEW_DRAFT_SECTION_TITLE = "New architecture draft";
@@ -39,9 +39,6 @@ export const ARCHITECTURE_CREATION_VIEW_ALL_DRAFTS_LABEL = "View all drafts on t
 /** Concise create≠review boundary — not a warning banner. */
 export const ARCHITECTURE_CREATION_REVIEW_BOUNDARY =
   "Creating or saving an architecture does not start a review.";
-
-/** Restrained autosave reassurance — only show where draft autosave is real. */
-export const ARCHITECTURE_CREATION_AUTOSAVE_REASSURANCE = "Architecture drafts are saved automatically.";
 
 /** Section label when a single recent draft is offered for resume (TB-1461). */
 export const ARCHITECTURE_CREATION_CONTINUE_SECTION_TITLE = "Resume an architecture draft";

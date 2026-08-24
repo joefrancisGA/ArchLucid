@@ -6,7 +6,6 @@ import { ArchitectureScopeUnderstandingRow } from "@/components/architecture/Arc
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { StatusTag } from "@/components/ui/status-tag";
 import type { ArchitectureDraftSaveState } from "@/hooks/use-architecture-draft-autosave";
 import {
   deriveScopeUnderstandingBullets,
@@ -292,15 +291,7 @@ export function ArchitectureScopeUnderstandingCheckPanel(
       </div>
 
       {confirmed ? (
-        props.draftSaveState === "saving" ? (
-          <div
-            role="status"
-            aria-live="polite"
-            data-testid="architecture-scope-understanding-saving"
-          >
-            <StatusTag kind="in-progress" label="Saving…" />
-          </div>
-        ) : props.draftSaveState === "error" ? (
+        props.draftSaveState === "error" ? (
           <p
             className={cn("m-0 text-red-800 dark:text-red-300", OPERATOR_TYPOGRAPHY.helper)}
             role="alert"
