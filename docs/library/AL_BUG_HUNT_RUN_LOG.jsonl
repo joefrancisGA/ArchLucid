@@ -170,3 +170,4 @@
 {"at":"2026-08-24T14:30:00Z","zoneId":"tenant-settings-sql","outcome":"hit"}
 {"at":"2026-08-24T15:00:00Z","zoneId":"sql-run-repository","outcome":"hit"}
 {"at":"2026-08-24T14:35:23.4690018Z","zoneId":"review-recurrence","outcome":"hit"}
+{"at":"2026-08-24T14:43:10.6349896Z","zoneId":"cloud-extractors","outcome":"hit"}

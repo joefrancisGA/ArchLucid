@@ -1781,13 +1781,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** aws extractor; gcp extractor; azure extractor
 - **paths:** ArchLucid.Integrations.AwsExtractor/; ArchLucid.Integrations.GcpExtractor/; ArchLucid.Integrations.AzureExtractor/
 - **test-filter:** FullyQualifiedName~AwsExtractor|FullyQualifiedName~GcpExtractor|FullyQualifiedName~AzureExtractor
-- **hunts:** 1
-- **bugs-found:** 4
+- **hunts:** 2
+- **bugs-found:** 5
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24 — AWS inventory search ignored NextToken; AccountId not bound to RoleArn; Azure ARM rows missing id/type dropped silently; GCP WIF audience prefix case-sensitive
+- **last-bug:** 2026-08-24 — GCP ProjectId not validated against ServiceAccountEmail project segment
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** no
 
 ### Hypotheses
 
@@ -1797,6 +1797,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) AWS `AccountId` not validated against assumed `RoleArn` — **hit 2026-08-24:** manifest accepted mismatched account id vs role ARN account; regression in `CollectZipAsync_rejects_role_arn_account_mismatch`
 - [x] (proven) Azure ARM rows missing `id`/`type` dropped without warning — **hit 2026-08-24:** `MapResource` returned null with no log; regression in `ListSubscriptionResourcesAsync_logs_when_arm_row_missing_id_or_type`
 - [x] (proven) GCP workload-identity audience prefix case-sensitive — **hit 2026-08-24:** `NormalizeAudience` used `Ordinal` for `//iam.googleapis.com/` prefix; regression in `NormalizeAudience_normalizes_mixed_case_audience_prefix`
+- [x] (proven) GCP `ProjectId` not validated against impersonated service account email — **hit 2026-08-24:** `HostedGcpExtractorClient.CollectZipAsync` stamped manifest/search scope from request `ProjectId` without checking `{name}@{project}.iam.gserviceaccount.com`; dual-path gap vs AWS `AwsIamRoleArn.EnsureAccountMatches`; regression in `CollectZipAsync_rejects_service_account_project_mismatch`
 
 ---
 
