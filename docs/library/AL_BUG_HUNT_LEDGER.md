@@ -1706,11 +1706,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** host composition; DI registration; startup modules
 - **paths:** ArchLucid.Host.Composition/
 - **test-filter:** FullyQualifiedName~Host.Composition|FullyQualifiedName~ServiceCollectionExtensions
-- **hunts:** 4
-- **bugs-found:** 3
-- **consecutive-dry-hunts:** 1
-- **last-hunt:** 2026-08-23
-- **last-bug:** 2026-08-21
+- **hunts:** 5
+- **bugs-found:** 7
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-08-24
+- **last-bug:** 2026-08-24 — data archival health check stayed registered when offloaded; SCIM rotation reminder on Api role; LLM budget reclaim without leader election; value report async poll failed across replicas
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1726,6 +1726,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (valid-no-repro) Required-audit-trail-orphan-probe offload drops matching `IArchLucidJob` — same dual registration pattern as orphan-probe; `ContainerJobsOffloadRegistrationTests` (2026-08-23)
 - [x] (valid-no-repro) Audit-change-feed offload with Cosmos audit enabled drops `AuditEventChangeFeedArchLucidJob` — `RegisterCosmosPolyglotPersistence` registers job after hosted-service gate; `ContainerJobsOffloadRegistrationTests` (2026-08-23)
 - [x] (valid-no-repro) Logic App trial-email owner still registers `TrialLifecycleEmailScanHostedService` — `RegisterTrialLifecycleEmailHostedServices` gates on `TrialLifecycleEmailRoutingOptions.IsLogicAppOwnerMode`; `ContainerJobsOffloadRegistrationTests` (2026-08-23)
+- [x] (proven) `DataArchivalHostHealthCheck` registered when data-archival container-offloaded — **hit 2026-08-24:** readiness stayed healthy with archival enabled while in-process loop was offloaded; regression in `AddArchLucidApplicationServices_Worker_offloads_data_archival_does_not_register_DataArchivalHostHealthCheck`
+- [x] (proven) `ScimTokenRotationReminderJob` registered on Api role — **hit 2026-08-24:** split Api+Worker deployments duplicated daily rotation admin notices; regression in `AddArchLucidApplicationServices_Api_role_does_not_register_ScimTokenRotationReminderJob`
+- [x] (proven) `LlmMonthlyTenantBudgetReservationReclaimHostedService` lacked leader election — **hit 2026-08-24:** every replica reclaimed and inflated `LlmMonthlyBudgetReservationReclaimedTotal`; now uses `HostLeaderElectionCoordinator` + `hosted:llm-monthly-tenant-budget-reservation-reclaim`
+- [x] (proven) `InMemoryValueReportJobQueue` poll failed across service instances — **hit 2026-08-24:** enqueue/poll used per-process memory only; regression in `InMemoryValueReportJobQueue_poll_reads_job_enqueued_on_another_instance_via_distributed_cache`
 
 ---
 
