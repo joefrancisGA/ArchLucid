@@ -58,6 +58,42 @@ class RagLiveModelFaithfulnessSignalTests(unittest.TestCase):
         self.assertEqual(mod._disposition(failures=["p50 low"], positive_scored=3), "FAIL")
         self.assertEqual(mod._disposition(failures=[], positive_scored=3), "PASS")
 
+    def test_main_includes_graph_rag_ablation_when_smoke_exemplar_has_hits(self) -> None:
+        mod = _load_signal_module()
+        repo_root = Path(__file__).resolve().parents[3]
+        tmp_json = repo_root / "docs/quality/_tmp_rag_live_model_signal_ablation.json"
+        tmp_md = repo_root / "docs/quality/_tmp_rag_live_model_signal_ablation.md"
+
+        try:
+            exit_code = mod.main(
+                [
+                    "--json-out",
+                    str(tmp_json),
+                    "--markdown-out",
+                    str(tmp_md),
+                ],
+            )
+
+            self.assertEqual(exit_code, 0)
+            payload = json.loads(tmp_json.read_text(encoding="utf-8"))
+            ablation = payload.get("graphRagAblation")
+
+            self.assertIsInstance(ablation, dict)
+            self.assertIn(ablation.get("status"), {"computed", "insufficient_data"})
+
+            if ablation.get("status") == "computed":
+                self.assertGreaterEqual(int(ablation.get("exemplarsWithRetrievalHits") or 0), 1)
+                self.assertIsNotNone(ablation.get("meanDeltaVsAllOn"))
+
+            md_text = tmp_md.read_text(encoding="utf-8")
+            self.assertIn("Graph-RAG ablation (TB-883)", md_text)
+        finally:
+            if tmp_json.is_file():
+                tmp_json.unlink()
+
+            if tmp_md.is_file():
+                tmp_md.unlink()
+
 
 if __name__ == "__main__":
     unittest.main()

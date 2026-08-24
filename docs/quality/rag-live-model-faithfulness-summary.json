@@ -1,6 +1,6 @@
 {
-  "formatVersion": "1.0",
-  "generatedUtc": "2026-06-27T16:33:56.090571+00:00",
+  "formatVersion": "1.1",
+  "generatedUtc": "2026-08-24T14:42:20.592533+00:00",
   "program": "rag-live-model-faithfulness-signal",
   "disposition": "PASS",
   "configuredExemplarCount": 18,
@@ -186,17 +186,17 @@
       {
         "scenarioId": "corpus-adv-contradictory-requirements",
         "mode": "simulator",
-        "llmFaithfulnessScore": 0.3,
+        "llmFaithfulnessScore": 0.22,
         "supportRatio": 0.0,
-        "gateOutcome": "accepted",
+        "gateOutcome": "warned",
         "cohort": "adversarial"
       },
       {
         "scenarioId": "corpus-adv-oversized-context",
         "mode": "simulator",
-        "llmFaithfulnessScore": 0.35,
+        "llmFaithfulnessScore": 0.2,
         "supportRatio": 0.0,
-        "gateOutcome": "accepted",
+        "gateOutcome": "warned",
         "cohort": "adversarial"
       },
       {
@@ -216,6 +216,44 @@
         "cohort": "adversarial"
       }
     ]
+  },
+  "graphRagAblation": {
+    "status": "computed",
+    "interpretation": "Citation support ratio recomputed offline by filtering sourceType='KnowledgeGraphNodeNeighbor' hits (EnableGraphRag=false simulation). Negative mean \u0394 vs all-on means Graph-RAG neighbor expansion contributed cited hits on captured live-model exemplars; positive \u0394 means neighbors were uncited or diluted ratio.",
+    "exemplarsWithRetrievalHits": 1,
+    "exemplarsSkippedWithoutHits": 17,
+    "skippedWithoutHits": [
+      "corpus-real-mode-cost.real.json",
+      "corpus-real-mode-compliance.real.json",
+      "corpus-real-mode-critic.real.json",
+      "corpus-real-mode-three-tier.real.json",
+      "corpus-real-mode-microservices.real.json",
+      "corpus-real-mode-database-backup.real.json",
+      "corpus-real-mode-overprovisioned-vm.real.json",
+      "corpus-real-mode-multi-region.real.json",
+      "corpus-real-mode-azure-web-app.real.json",
+      "corpus-real-mode-cloud-migration-lift-shift.real.json",
+      "corpus-real-mode-greenfield-microservices.real.json",
+      "corpus-real-mode-healthcare-hipaa.real.json",
+      "corpus-real-mode-finops-existing-azure.real.json",
+      "corpus-real-mode-event-driven.real.json",
+      "corpus-real-mode-multi-region-active-active.real.json",
+      "corpus-real-mode-data-platform-analytics.real.json",
+      "corpus-real-mode-ai-ml-inference.real.json"
+    ],
+    "rows": [
+      {
+        "exemplarFile": "corpus-real-mode-smoke.real.json",
+        "allOnSupportRatio": 0.666667,
+        "graphRagOffSupportRatio": 1.0,
+        "deltaVsAllOn": 0.333333,
+        "retrievalHitCount": 3,
+        "graphRagNeighborHitsRemoved": 1
+      }
+    ],
+    "meanAllOnSupportRatio": 0.666667,
+    "meanGraphRagOffSupportRatio": 1.0,
+    "meanDeltaVsAllOn": 0.333333
   },
   "failures": [],
   "interpretation": "Phase B scores come from committed real-mode exemplars with semanticScore.llmFaithfulnessScore \u2014 not a live deployment-model run in this job."

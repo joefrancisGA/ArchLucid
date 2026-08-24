@@ -344,7 +344,7 @@ Phase B live-model faithfulness (LLM-graded golden cohort on committed exemplars
 
 | Step | Harness | What it measures | Artifact |
 | --- | --- | --- | --- |
-| **5 — Live-model signal** | `scripts/ci/run_rag_live_model_faithfulness_signal.py` | Phase B p50 / absolute / adversarial LLM faithfulness on committed `*.real.json` exemplars | `docs/quality/rag-live-model-faithfulness-summary.{json,md}` |
+| **5 — Live-model signal** | `scripts/ci/run_rag_live_model_faithfulness_signal.py` | Phase B p50 / absolute / adversarial LLM faithfulness on committed `*.real.json` exemplars; optional **Graph-RAG ablation (TB-883)** when exemplars carry `retrievalHits` (`sourceType == KnowledgeGraphNodeNeighbor` filtered for Δ vs all-on) | `docs/quality/rag-live-model-faithfulness-summary.{json,md}` |
 
 Nightly: `.github/workflows/golden-cohort-nightly.yml` job `cohort-rag-live-model-faithfulness` (enforce when repo var `ARCHLUCID_RAG_LIVE_MODEL_FAITHFULNESS_ENFORCE=true`).
 

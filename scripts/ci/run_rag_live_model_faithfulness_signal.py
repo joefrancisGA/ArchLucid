@@ -20,6 +20,13 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+_CI_DIR = Path(__file__).resolve().parent
+
+if str(_CI_DIR) not in sys.path:
+    sys.path.insert(0, str(_CI_DIR))
+
+from graph_rag_live_ablation import summarize_graph_rag_ablation_from_paths  # noqa: E402
+
 
 _REAL_MODE_ENV_KEYS: tuple[tuple[str, str], ...] = (
     ("ARCHLUCID_EVAL_CORPUS_REAL_MODE_SMOKE_AGENT_RESULT", "corpus-real-mode-smoke.real.json"),
@@ -75,16 +82,29 @@ def _load_eval_agent_corpus():
     return mod
 
 
-def _configure_real_mode_env(root: Path) -> int:
+def _configured_exemplar_paths(root: Path) -> list[Path]:
     results_dir = root / "tests/eval-corpus/agent-results"
-    configured = 0
+    paths: list[Path] = []
 
-    for env_key, file_name in _REAL_MODE_ENV_KEYS:
+    for _env_key, file_name in _REAL_MODE_ENV_KEYS:
         path = results_dir / file_name
 
         if path.is_file():
-            os.environ[env_key] = str(path.resolve())
-            configured += 1
+            paths.append(path.resolve())
+
+    return paths
+
+
+def _configure_real_mode_env(root: Path) -> int:
+    configured = 0
+
+    for env_key, path in zip(
+        (item[0] for item in _REAL_MODE_ENV_KEYS),
+        _configured_exemplar_paths(root),
+        strict=True,
+    ):
+        os.environ[env_key] = str(path)
+        configured += 1
 
     return configured
 
@@ -120,6 +140,67 @@ def _disposition(*, failures: list[str], positive_scored: int) -> str:
     return "PASS"
 
 
+def _graph_rag_ablation_markdown_lines(ablation: dict[str, Any]) -> list[str]:
+    lines = [
+        "## Graph-RAG ablation (TB-883)",
+        "",
+        f"- **Status:** {ablation.get('status')}",
+        "",
+        str(ablation.get("interpretation")),
+        "",
+    ]
+
+    if ablation.get("status") != "computed":
+        skipped = ablation.get("skippedWithoutHits")
+
+        if isinstance(skipped, list) and skipped:
+            lines.append(
+                f"- **Exemplars without retrievalHits (skipped):** {len(skipped)}",
+            )
+            lines.append("")
+
+        return lines
+
+    lines.extend(
+        [
+            f"- **Exemplars with retrievalHits:** {ablation.get('exemplarsWithRetrievalHits')}",
+            f"- **Mean all-on citation support ratio:** {ablation.get('meanAllOnSupportRatio')}",
+            f"- **Mean Graph-RAG-off citation support ratio:** {ablation.get('meanGraphRagOffSupportRatio')}",
+            f"- **Mean Δ vs all-on (Graph-RAG-off − all-on):** {ablation.get('meanDeltaVsAllOn')}",
+            "",
+            "| Exemplar | All-on | Graph-RAG off | Δ vs all-on | Neighbor hits removed |",
+            "| --- | ---: | ---: | ---: | ---: |",
+        ]
+    )
+
+    rows = ablation.get("rows")
+
+    if isinstance(rows, list):
+        for row in rows:
+            if not isinstance(row, dict):
+                continue
+
+            lines.append(
+                f"| `{row.get('exemplarFile')}` | {row.get('allOnSupportRatio')} | "
+                f"{row.get('graphRagOffSupportRatio')} | {row.get('deltaVsAllOn')} | "
+                f"{row.get('graphRagNeighborHitsRemoved')} |"
+            )
+
+    skipped = ablation.get("skippedWithoutHits")
+
+    if isinstance(skipped, list) and skipped:
+        lines.extend(
+            [
+                "",
+                f"Exemplars without `retrievalHits` skipped: {len(skipped)} "
+                "(HyDE/query-rewrite live ablation remains a separate follow-up).",
+            ]
+        )
+
+    lines.append("")
+    return lines
+
+
 def _write_markdown(path: Path, summary: dict[str, Any]) -> None:
     lines = [
         "> **Scope:** Committed real-mode LLM faithfulness signal for the RAG quality program; "
@@ -137,6 +218,11 @@ def _write_markdown(path: Path, summary: dict[str, Any]) -> None:
         str(summary.get("interpretation")),
         "",
     ]
+
+    ablation = summary.get("graphRagAblation")
+
+    if isinstance(ablation, dict):
+        lines.extend(_graph_rag_ablation_markdown_lines(ablation))
 
     failures = summary.get("failures")
 
@@ -157,11 +243,12 @@ def _build_summary(
     *,
     failures: list[str],
     configured_exemplars: int,
+    graph_rag_ablation: dict[str, Any],
 ) -> dict[str, Any]:
     positive_scored = int(llm_summary.get("positiveScoredCount") or 0)
 
     return {
-        "formatVersion": "1.0",
+        "formatVersion": "1.1",
         "generatedUtc": datetime.now(timezone.utc).isoformat(),
         "program": "rag-live-model-faithfulness-signal",
         "disposition": _disposition(failures=failures, positive_scored=positive_scored),
@@ -174,6 +261,7 @@ def _build_summary(
         "positiveScenarioCount": llm_summary.get("positiveScenarioCount"),
         "adversarialScenarioCount": llm_summary.get("adversarialScenarioCount"),
         "llmFaithfulnessSummary": llm_summary,
+        "graphRagAblation": graph_rag_ablation,
         "failures": failures,
         "interpretation": (
             "Phase B scores come from committed real-mode exemplars with "
@@ -207,10 +295,12 @@ def main(argv: list[str] | None = None) -> int:
     json_out = args.json_out or (root / "docs/quality/rag-live-model-faithfulness-summary.json")
     markdown_out = args.markdown_out or (root / "docs/quality/rag-live-model-faithfulness-summary.md")
 
+    exemplar_paths = _configured_exemplar_paths(root)
     configured = _configure_real_mode_env(root)
     mod = _load_eval_agent_corpus()
     rows = _evaluate_rows(root, mod)
     llm_summary = mod.summarize_llm_faithfulness(rows)
+    graph_rag_ablation = summarize_graph_rag_ablation_from_paths(exemplar_paths)
 
     failures = mod.enforce_llm_faithfulness_floors(
         rows,
@@ -219,7 +309,12 @@ def main(argv: list[str] | None = None) -> int:
         adversarial_ceiling=mod._resolve_llm_faithfulness_adversarial_ceiling(),
     )
 
-    summary = _build_summary(llm_summary, failures=failures, configured_exemplars=configured)
+    summary = _build_summary(
+        llm_summary,
+        failures=failures,
+        configured_exemplars=configured,
+        graph_rag_ablation=graph_rag_ablation,
+    )
     json_out.parent.mkdir(parents=True, exist_ok=True)
     json_out.write_text(json.dumps(summary, indent=2) + "\n", encoding="utf-8")
     _write_markdown(markdown_out, summary)

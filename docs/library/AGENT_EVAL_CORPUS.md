@@ -103,7 +103,7 @@ Reported **`recall`** = **hits Ã· rules** per scenario — not classical IR re
 2. Keep **â‰¥3** expected rules and **â‰¥2** unexpected rules (assessment minimum).
 3. Append the filename to **`manifest.json`**.
 4. (Optional) Add **`qualityEvidence`** with **`mode: "simulator"`** and **`agent-results/<case>.simulator.json`** — see the “V1 customer-like brief slice” section above.
-5. (Optional **real-mode quality row**) Clone **`scenario-real-mode-smoke.json`** or any **`scenario-real-mode-*.json`**: **`mode: "real"`**, a unique **`agentResultPathEnv`** name, **`agentType`** label, **`recordings/*.findings.json`**, substring probes. RC may commit **synthetic** **`agent-results/*.real.json`** exemplars (same shape as Web **`AgentResult`**); do **not** commit customer or production AOAI prompts/responses.
+5. (Optional **real-mode quality row**) Clone **`scenario-real-mode-smoke.json`** or any **`scenario-real-mode-*.json`**: **`mode: "real"`**, a unique **`agentResultPathEnv`** name, **`agentType`** label, **`recordings/*.findings.json`**, substring probes. RC may commit **synthetic** **`agent-results/*.real.json`** exemplars (same shape as Web **`AgentResult`**); do **not** commit customer or production AOAI prompts/responses. When curating exemplars for **Graph-RAG live ablation (TB-883)**, optionally attach a top-level **`retrievalHits`** array (`chunkId`, `sourceType`, `corpusKind`, `score`, plus optional `sourceId`/`title`) mirroring runtime **`RetrievalHit`** rows — including at least one **`KnowledgeGraphNodeNeighbor`** hit when Graph-RAG was enabled during capture.
 6. Run `python scripts/ci/eval_agent_corpus.py` locally before pushing; use `--markdown-report` for the RC artifact.
 
 ---

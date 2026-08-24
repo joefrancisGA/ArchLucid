@@ -38,6 +38,34 @@ _TRACE_LIST_KEYS = (
     "notes",
 )
 
+_RETRIEVAL_HIT_REQUIRED = ("chunkId", "sourceType", "corpusKind", "score")
+
+
+def _validate_retrieval_hits(raw_hits: object) -> list[str]:
+    errors: list[str] = []
+
+    if raw_hits is None:
+        return errors
+
+    if not isinstance(raw_hits, list):
+        return ["retrievalHits must be an array when present"]
+
+    for index, hit in enumerate(raw_hits):
+        if not isinstance(hit, dict):
+            errors.append(f"retrievalHits[{index}] must be an object")
+            continue
+
+        for key in _RETRIEVAL_HIT_REQUIRED:
+            if key not in hit:
+                errors.append(f"retrievalHits[{index}] missing required property '{key}'")
+
+        score = hit.get("score")
+
+        if score is not None and not isinstance(score, (int, float)):
+            errors.append(f"retrievalHits[{index}].score must be numeric")
+
+    return errors
+
 
 def _repo_root() -> Path:
     return Path(__file__).resolve().parents[2]
@@ -111,6 +139,8 @@ def validate_fixture(path: Path, *, require_trace: bool) -> list[str]:
     elif isinstance(findings, list):
         for index, finding in enumerate(findings):
             errors.extend(_validate_finding(index, finding, require_trace=require_trace))
+
+    errors.extend(_validate_retrieval_hits(doc.get("retrievalHits")))
 
     return errors
 
