@@ -127,11 +127,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** ARM resource ids; terraform source id; endpoint index
 - **paths:** ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs
 - **test-filter:** FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests
-- **hunts:** 32
-- **bugs-found:** 33
+- **hunts:** 33
+- **bugs-found:** 34
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24 — `azurerm_redis_enterprise_cache` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`redis_enterprise` was only listed for datastore aliases)
+- **last-bug:** 2026-08-24 — `azurerm_machine_learning_workspace` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`machine_learning` was only listed for datastore aliases)
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -164,6 +164,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - [x] (proven) `azurerm_sql_database` Terraform address omitted from `LooksLikeTerraformServiceSourceId` — **hit 2026-08-24:** `sql_database` was only in the datastore list and `mssql` does not match legacy `azurerm_sql_database.main`; Data-category nodes dropped `svc-` synthetic aliases; regression in gate + merge tests
 - [x] (proven) `azurerm_private_endpoint` Terraform address omitted from `LooksLikeTerraformServiceSourceId` — **hit 2026-08-24:** `private_endpoint` was only in the datastore list; `azurerm_private_endpoint.main` on Data-category nodes dropped `svc-` synthetic aliases; regression in gate + merge tests
 - [x] (proven) `azurerm_redis_enterprise_cache` Terraform address omitted from `LooksLikeTerraformServiceSourceId` — **hit 2026-08-24:** `redis_enterprise` was only in the datastore list; `azurerm_redis_enterprise_cache.main` on Data-category nodes dropped `svc-` synthetic aliases; regression in gate + merge tests
+- [x] (proven) `azurerm_machine_learning_workspace` Terraform address omitted from `LooksLikeTerraformServiceSourceId` — **hit 2026-08-24:** `machine_learning` was only in the datastore list; `azurerm_machine_learning_workspace.main` on Data-category nodes dropped `svc-` synthetic aliases; regression in gate + merge tests
 
 ---
 
