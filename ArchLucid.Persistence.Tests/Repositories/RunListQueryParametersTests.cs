@@ -23,6 +23,7 @@ public sealed class RunListQueryParametersTests
         object parameters = RunListQueryParameters.ForProjectList(Scope(), "billing-platform", 10);
 
         Read<string>(parameters, "ProjectSlug").Should().Be("billing-platform");
+        Read<string>(parameters, "NormalizedProjectSlug").Should().Be("BILLING-PLATFORM");
         Read<Guid>(parameters, "TenantId").Should().Be(TenantId);
         Read<Guid>(parameters, "WorkspaceId").Should().Be(WorkspaceId);
         Read<Guid>(parameters, "ScopeProjectId").Should().Be(ProjectId);

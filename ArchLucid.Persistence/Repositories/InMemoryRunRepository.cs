@@ -242,7 +242,7 @@ public sealed class InMemoryRunRepository(ITenantRepository? tenantRepository = 
             .Where(r =>
                 MatchesScope(r, scope) &&
                 !r.ArchivedUtc.HasValue &&
-                string.Equals(r.ProjectId, projectId, StringComparison.Ordinal))
+                MatchesProjectListFilter(r, projectId))
             .OrderByDescending(r => r.CreatedUtc)
             .Take(n)
             .ToList();
@@ -267,7 +267,7 @@ public sealed class InMemoryRunRepository(ITenantRepository? tenantRepository = 
             .Where(r =>
                 MatchesScope(r, scope) &&
                 !r.ArchivedUtc.HasValue &&
-                string.Equals(r.ProjectId, projectId, StringComparison.Ordinal))
+                MatchesProjectListFilter(r, projectId))
             .Where(r =>
                 !cursorRunId.HasValue ||
                 (r.RunId != cursorRunId.Value
@@ -703,6 +703,17 @@ public sealed class InMemoryRunRepository(ITenantRepository? tenantRepository = 
             storedProjectId.Trim(),
             authorityProjectSlug.Trim(),
             StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool MatchesProjectListFilter(RunRecord run, string projectSlug)
+    {
+        if (AuthorityProjectSlugMatches(run.ProjectId, projectSlug))
+            return true;
+
+        if (Guid.TryParse(projectSlug, out Guid scopeProjectId) && run.ScopeProjectId == scopeProjectId)
+            return true;
+
+        return false;
     }
 
     private static bool MatchesWorkspace(RunRecord r, ScopeContext scope) =>

@@ -55,7 +55,7 @@ internal static class RunListWarningFlagSql
     /// </summary>
     public const string ProjectWherePrefix = """
                                              (
-                                                 r.ProjectId = @ProjectSlug
+                                                 UPPER(LTRIM(RTRIM(r.ProjectId))) = @NormalizedProjectSlug
                                                  OR r.ScopeProjectId = TRY_CONVERT(uniqueidentifier, @ProjectSlug)
                                              )
                                                AND

@@ -27,6 +27,7 @@ internal static class RunListQueryParameters
         return new
         {
             ProjectSlug = projectSlug,
+            NormalizedProjectSlug = NormalizeProjectSlug(projectSlug),
             scope.TenantId,
             scope.WorkspaceId,
             ScopeProjectId = scope.ProjectId,
@@ -46,6 +47,7 @@ internal static class RunListQueryParameters
         return new
         {
             ProjectSlug = projectSlug,
+            NormalizedProjectSlug = NormalizeProjectSlug(projectSlug),
             scope.TenantId,
             scope.WorkspaceId,
             ScopeProjectId = scope.ProjectId,
@@ -205,5 +207,8 @@ internal static class RunListQueryParameters
         Math.Clamp(take <= 0 ? fallbackWhenUnset : take, 1, MaxUnpagedTake);
 
     private static string NormalizeAuthorityProjectSlug(string authorityProjectSlug) =>
-        authorityProjectSlug.Trim().ToUpperInvariant();
+        NormalizeProjectSlug(authorityProjectSlug);
+
+    private static string NormalizeProjectSlug(string projectSlug) =>
+        projectSlug.Trim().ToUpperInvariant();
 }

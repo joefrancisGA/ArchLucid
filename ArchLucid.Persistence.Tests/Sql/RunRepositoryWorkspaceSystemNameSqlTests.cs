@@ -35,6 +35,13 @@ public sealed class RunRepositoryWorkspaceSystemNameSqlTests
     }
 
     [Fact]
+    public void Project_list_queries_trim_project_id_before_upper_compare()
+    {
+        HotPathRelationalQueryShapes.RunsListByProjectNoLock.Should().Contain("UPPER(LTRIM(RTRIM(r.ProjectId))) = @NormalizedProjectSlug");
+        HotPathRelationalQueryShapes.RunsListByProjectKeysetNoLock.Should().Contain("UPPER(LTRIM(RTRIM(r.ProjectId))) = @NormalizedProjectSlug");
+    }
+
+    [Fact]
     public async Task InMemory_matches_padded_project_id_for_workspace_collision_lookup()
     {
         ScopeContext scope = new()
@@ -139,5 +146,73 @@ public sealed class RunRepositoryWorkspaceSystemNameSqlTests
             CancellationToken.None);
 
         latest.Should().Be(committedRunId);
+    }
+
+    [Fact]
+    public async Task InMemory_matches_padded_project_id_for_list_by_project()
+    {
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+        };
+
+        Guid runId = Guid.NewGuid();
+        InMemoryRunRepository runs = new();
+        await runs.SaveAsync(
+            new RunRecord
+            {
+                RunId = runId,
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ScopeProjectId = scope.ProjectId,
+                ProjectId = "Claims API  ",
+                Description = "padded slug",
+                CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+            },
+            CancellationToken.None);
+
+        IReadOnlyList<RunRecord> listed = await runs.ListByProjectAsync(
+            scope,
+            "claims api",
+            10,
+            CancellationToken.None);
+
+        listed.Should().ContainSingle(r => r.RunId == runId);
+    }
+
+    [Fact]
+    public async Task InMemory_list_by_project_matches_scope_project_guid_filter()
+    {
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+        };
+
+        Guid runId = Guid.NewGuid();
+        InMemoryRunRepository runs = new();
+        await runs.SaveAsync(
+            new RunRecord
+            {
+                RunId = runId,
+                TenantId = scope.TenantId,
+                WorkspaceId = scope.WorkspaceId,
+                ScopeProjectId = scope.ProjectId,
+                ProjectId = "display-name",
+                Description = "scope guid list",
+                CreatedUtc = TimeProvider.System.UtcNowDateTime(),
+            },
+            CancellationToken.None);
+
+        IReadOnlyList<RunRecord> listed = await runs.ListByProjectAsync(
+            scope,
+            scope.ProjectId.ToString("D"),
+            10,
+            CancellationToken.None);
+
+        listed.Should().ContainSingle(r => r.RunId == runId);
     }
 }
