@@ -127,11 +127,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** ARM resource ids; terraform source id; endpoint index
 - **paths:** ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs
 - **test-filter:** FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests
-- **hunts:** 8
-- **bugs-found:** 9
+- **hunts:** 9
+- **bugs-found:** 10
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24 — `kubernetes_configuration` and `storage_data_lake` / `data_lake_gen2` Terraform ids omitted from LooksLike lists
+- **last-bug:** 2026-08-24 — `azurerm_active_directory` Terraform ids omitted from LooksLike service list (`azuread` substring does not match)
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -141,6 +141,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - [x] Terraform SourceId claimed in merge but missing from alias resolution â€” fixed: NodeMatchesService/Datastore now compare ServiceId/DatastoreId to Label (tf show JSON address-on-label shape)
 - [x] Endpoint keyed by a property bag value that is not a SourceId
 - [x] (proven) New Terraform resource type missing from `LooksLikeTerraformDatastoreSourceId` / `LooksLikeTerraformServiceSourceId` drops synthetic endpoint keys on category-mismatched nodes — **hit 2026-08-24:** `azurerm_storage_share` (plus queue/table) omitted from datastore list; regression in gate + merge tests
+- [x] (proven) `azurerm_active_directory` Terraform address omitted from `LooksLikeTerraformServiceSourceId` — **hit 2026-08-24:** only `azuread` substring was listed; `azurerm_active_directory.main` on Data-category nodes dropped `svc-` synthetic aliases; regression in gate + merge tests
 
 ---
 
