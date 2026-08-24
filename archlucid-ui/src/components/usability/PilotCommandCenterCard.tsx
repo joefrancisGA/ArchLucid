@@ -210,47 +210,73 @@ export function PilotCommandCenterCard(props: PilotCommandCenterCardProps = {}):
     runsDashboard !== undefined &&
     (workspacePhase === "active-reviews" || workspacePhase === "operational");
 
+  const usesLifecycleEntryLayout =
+    workspacePhase === "eval-empty" ||
+    workspacePhase === "eval-with-drafts" ||
+    workspacePhase === "active-reviews";
+  const showOperationalHeroHeader = workspacePhase === "operational";
+  const showEvalWithDraftsResumeHeader = workspacePhase === "eval-with-drafts";
+  const showContextualHelpOnlyHeader = workspacePhase === "eval-empty" && showContextualHelp;
+
   return (
     <section
-      aria-labelledby="pilot-command-center-heading"
-      className={cn(OPERATOR_SURFACE_CARD_CLASS, OPERATOR_CARD.body, "heroCard space-y-4")}
+      aria-labelledby={showOperationalHeroHeader ? "pilot-command-center-heading" : undefined}
+      aria-label={usesLifecycleEntryLayout ? "Architecture lifecycle entry" : undefined}
+      className={cn(
+        usesLifecycleEntryLayout
+          ? "space-y-4"
+          : cn(OPERATOR_SURFACE_CARD_CLASS, OPERATOR_CARD.body, "heroCard space-y-4"),
+      )}
       data-testid={cardTestId}
       data-workspace-phase={workspacePhase}
     >
-      <div className="heroHeader space-y-3">
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-          <div className="min-w-0 space-y-1">
-            {showLeadCopy && workspacePhase !== "eval-with-drafts" ? (
-              <p
-                className={cn("m-0", OPERATOR_TYPE_SCALE.helper, "text-al-text-secondary")}
-                data-testid="pilot-command-center-tagline"
-              >
-                {heroCopy.lead}
-              </p>
-            ) : null}
-            <OperatorHomeCardSectionTitle id="pilot-command-center-heading">
-              {heroCopy.heading}
-            </OperatorHomeCardSectionTitle>
-            {workspacePhase === "eval-with-drafts" ? (
-              <>
-                {draftHeroEyebrowLabel !== null ? (
-                  <p
-                    className={cn("m-0", OPERATOR_TYPE_SCALE.micro, "text-al-text-secondary")}
-                    data-testid="operator-home-draft-hero-labels"
-                  >
-                    {draftHeroEyebrowLabel}
-                  </p>
-                ) : null}
+      {showOperationalHeroHeader ? (
+        <div className="heroHeader space-y-3">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+            <div className="min-w-0 space-y-1">
+              {showLeadCopy ? (
                 <p
                   className={cn("m-0", OPERATOR_TYPE_SCALE.helper, "text-al-text-secondary")}
-                  data-testid="operator-home-resume-draft-bridge"
+                  data-testid="pilot-command-center-tagline"
                 >
                   {heroCopy.lead}
                 </p>
-              </>
+              ) : null}
+              <OperatorHomeCardSectionTitle id="pilot-command-center-heading">
+                {heroCopy.heading}
+              </OperatorHomeCardSectionTitle>
+            </div>
+            {showContextualHelp ? (
+              <div className="shrink-0" data-testid="pilot-command-center-help">
+                <PageContextualHelpButton />
+              </div>
             ) : null}
           </div>
-          {workspacePhase === "eval-with-drafts" && resumeHref !== null ? (
+        </div>
+      ) : null}
+
+      {showEvalWithDraftsResumeHeader ? (
+        <div
+          className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between"
+          data-testid="operator-home-eval-with-drafts-resume-header"
+        >
+          <div className="min-w-0 space-y-1">
+            {draftHeroEyebrowLabel !== null ? (
+              <p
+                className={cn("m-0", OPERATOR_TYPE_SCALE.micro, "text-al-text-secondary")}
+                data-testid="operator-home-draft-hero-labels"
+              >
+                {draftHeroEyebrowLabel}
+              </p>
+            ) : null}
+            <p
+              className={cn("m-0", OPERATOR_TYPE_SCALE.helper, "text-al-text-secondary")}
+              data-testid="operator-home-resume-draft-bridge"
+            >
+              {heroCopy.lead}
+            </p>
+          </div>
+          {resumeHref !== null ? (
             <Button asChild variant="primary" size="sm" className={cn(heroCtaButtonClass, "shrink-0")}>
               <Link href={resumeHref} data-testid="operator-home-resume-draft-primary">
                 {resumeCtaLabel}
@@ -263,7 +289,13 @@ export function PilotCommandCenterCard(props: PilotCommandCenterCardProps = {}):
             </div>
           ) : null}
         </div>
-      </div>
+      ) : null}
+
+      {showContextualHelpOnlyHeader ? (
+        <div className="flex justify-end" data-testid="pilot-command-center-help">
+          <PageContextualHelpButton />
+        </div>
+      ) : null}
 
       {showHeroKpiStrip && runsDashboard !== undefined ? (
         <OperatorHomeWorkspaceMetricsSummary

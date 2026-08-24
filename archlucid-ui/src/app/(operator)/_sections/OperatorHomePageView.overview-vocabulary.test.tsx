@@ -334,8 +334,12 @@ describe("OperatorHomePageView overview vocabulary guard", () => {
     const { container } = renderWithOperatorQuery(<OperatorHomePageView model={mockHomeModel(false)} />);
 
     await waitFor(() => {
-      expect(screen.getByRole("heading", { name: OPERATOR_HOME_INTENT_CHOOSER_HEADING })).toBeInTheDocument();
+      expect(screen.getByTestId("operator-home-dual-path-cards")).toBeInTheDocument();
     });
+
+    expect(
+      screen.queryByRole("heading", { name: OPERATOR_HOME_INTENT_CHOOSER_HEADING }),
+    ).toBeNull();
 
     expect(screen.getByRole("heading", { name: OPERATOR_HOME_RECENT_REVIEWS_HEADING })).toBeInTheDocument();
     expect(screen.getByTestId("pilot-command-center-card")).toBeInTheDocument();
@@ -353,8 +357,12 @@ describe("OperatorHomePageView overview vocabulary guard", () => {
     const { container } = renderWithOperatorQuery(<OperatorHomePageView model={mockHomeModel(true)} />);
 
     await waitFor(() => {
-      expect(screen.getByRole("heading", { name: OPERATOR_HOME_INTENT_CHOOSER_HEADING })).toBeInTheDocument();
+      expect(screen.getByTestId("operator-home-dual-path-cards")).toBeInTheDocument();
     });
+
+    expect(
+      screen.queryByRole("heading", { name: OPERATOR_HOME_INTENT_CHOOSER_HEADING }),
+    ).toBeNull();
 
     expect(screen.getByRole("heading", { name: OPERATOR_HOME_RECENT_REVIEWS_HEADING })).toBeInTheDocument();
     expect(screen.getByTestId("pilot-command-center-card")).toBeInTheDocument();
