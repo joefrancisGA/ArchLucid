@@ -1,4 +1,5 @@
 using ArchLucid.Contracts.Persistence.Context;
+using System.Globalization;
 
 namespace ArchLucid.Application.Runs.Orchestration;
 
@@ -28,8 +29,33 @@ public sealed class AuthorityPipelineWorkPayload
     public bool IsValidForProcessing()
     {
         return ContextIngestionRequest is not null
-               && !string.IsNullOrWhiteSpace(EvidenceBundleId)
-               && !string.IsNullOrWhiteSpace(ContextIngestionRequest.ProjectId);
+               && HasSubstantiveText(EvidenceBundleId)
+               && HasSubstantiveText(ContextIngestionRequest.ProjectId);
+    }
+
+    /// <summary>
+    ///     Rejects blank and invisible-only strings (for example U+200B) that pass
+    ///     <see cref="string.IsNullOrWhiteSpace(string?)" /> but are not usable ids.
+    /// </summary>
+    private static bool HasSubstantiveText(string? value)
+    {
+        if (string.IsNullOrEmpty(value))
+            return false;
+
+        foreach (char character in value)
+        {
+            if (char.IsWhiteSpace(character))
+                continue;
+
+            UnicodeCategory category = char.GetUnicodeCategory(character);
+
+            if (category is UnicodeCategory.Format or UnicodeCategory.Control)
+                continue;
+
+            return true;
+        }
+
+        return false;
     }
 
     /// <summary>
