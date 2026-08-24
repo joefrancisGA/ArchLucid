@@ -1302,13 +1302,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** marketplace billing; checkout mutation; billing application layer
 - **paths:** ArchLucid.Application/Billing/
 - **test-filter:** FullyQualifiedName~Marketplace|FullyQualifiedName~BillingCheckout|FullyQualifiedName~TenantLlmCostReporting
-- **hunts:** 2
-- **bugs-found:** 2
+- **hunts:** 3
+- **bugs-found:** 5
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-23
-- **last-bug:** 2026-08-23
+- **last-hunt:** 2026-08-24
+- **last-bug:** 2026-08-24
 - **related-pd-tb:** none
-- **code-changed-since:** no
+- **code-changed-since:** yes
 
 ### Hypotheses
 
@@ -1317,6 +1317,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) Idempotent replay of a billing event double-applies seat or credit changes — replay guard and `TryInsertWebhookEventAsync` are in `AzureMarketplaceBillingProvider` (Persistence), not Application mutation handlers.
 - [x] (proven) `TenantLlmCostReportingService.BuildDashboardAsync` sets `ByWorkspaceProject[].WorkspaceName` from `tenant.Name` instead of the scoped workspace display name — operators see tenant label on workspace breakdown rows (fixed 2026-08-23; `TenantLlmCostReportingServiceTests`).
 - [x] (proven) `TenantLlmCostTopRunRanker.RankAsync` lists runs via `ListRunsByProjectAsync(..., "default", ...)` so create flows that map `SystemName` onto the run project slug yield an empty Top Runs panel — fixed 2026-08-23; `TenantLlmCostTopRunRankerTests.RankAsync_includes_runs_whose_project_slug_is_not_default`.
+- [x] (proven) `TenantLlmCostReportingService.BuildDashboardAsync` daily chart labels prior-month UTC dates with current-month spend when `days` exceeds elapsed month days — fixed 2026-08-24; clamp window to month start (`TenantLlmCostReportingServiceTests.BuildDashboardAsync_daily_buckets_stay_within_current_utc_month`).
+- [x] (proven) `TenantLlmCostReportingService.BuildDashboardAsync` labels tenant-wide `monthPressure` as "Current project" in `ByWorkspaceProject` — fixed 2026-08-24; row now reads "Tenant-wide (estimated)" (`TenantLlmCostReportingServiceTests.BuildDashboardAsync_labels_breakdown_as_tenant_wide_estimate`).
+- [x] (proven) `MarketplaceChangePlanWebhookMutationHandler` defaults missing `planId` to `TenantTier.Standard` and mutates ledger — fixed 2026-08-24; defer without mutation (`MarketplaceChangePlanWebhookMutationHandlerTests.Ga_enabled_missing_planId_defers_without_ledger_mutation`).
 
 ---
 
