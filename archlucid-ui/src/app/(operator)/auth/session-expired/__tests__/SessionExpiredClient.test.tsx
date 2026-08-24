@@ -114,12 +114,12 @@ describe("SessionExpiredClient", () => {
     expect(button.className).toContain("var(--al-primary-action-bg)");
   });
 
-  it("renders a public-safe secondary exit link (TB-1315)", () => {
+  it("renders an app-home secondary exit link (TB-1315)", () => {
     clearSearchParams();
 
     render(<SessionExpiredClient />);
 
-    expect(screen.getByTestId("session-expired-return-home")).toHaveAttribute("href", "/welcome");
+    expect(screen.getByTestId("session-expired-return-home")).toHaveAttribute("href", "/");
     expect(screen.getByTestId("session-expired-return-home")).toHaveTextContent("Back to ArchLucid");
   });
 

@@ -12,7 +12,7 @@ import {
   SESSION_EXPIRED_SECONDARY_EXIT_PATH,
 } from "@/lib/auth/post-auth-bootstrap-exit-copy";
 import { clearOidcSession, signOutAndRedirectHome } from "@/lib/oidc/session";
-import { publicSiteHref } from "@/lib/site-urls";
+import { appSiteHref } from "@/lib/site-urls";
 
 function redirectToSignInAgain(): void {
   clearOidcSession();
@@ -45,7 +45,7 @@ export function PostAuthBootstrapExitActions() {
       </Button>
       <Link
         className={OPERATOR_LINK.nav}
-        href={publicSiteHref(SESSION_EXPIRED_SECONDARY_EXIT_PATH)}
+        href={appSiteHref(SESSION_EXPIRED_SECONDARY_EXIT_PATH)}
         data-testid="bootstrap-public-exit"
       >
         {SESSION_EXPIRED_SECONDARY_EXIT_LABEL}

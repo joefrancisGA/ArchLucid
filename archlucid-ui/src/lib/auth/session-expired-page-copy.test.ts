@@ -9,10 +9,9 @@ import {
 } from "@/lib/auth/session-expired-page-copy";
 
 describe("session-expired-page-copy (TB-1315)", () => {
-  it("routes secondary exit to a public-safe path, not operator root", () => {
-    expect(SESSION_EXPIRED_SECONDARY_EXIT_PATH).not.toBe("/");
-    expect(SESSION_EXPIRED_SECONDARY_EXIT_PATH.startsWith("/")).toBe(true);
-    expect(SESSION_EXPIRED_SECONDARY_EXIT_PATH).toBe("/welcome");
+  it("routes secondary exit to the operator app home, not marketing welcome", () => {
+    expect(SESSION_EXPIRED_SECONDARY_EXIT_PATH).toBe("/");
+    expect(SESSION_EXPIRED_SECONDARY_EXIT_PATH).not.toBe("/welcome");
   });
 
   it("labels secondary exit honestly for signed-out users", () => {

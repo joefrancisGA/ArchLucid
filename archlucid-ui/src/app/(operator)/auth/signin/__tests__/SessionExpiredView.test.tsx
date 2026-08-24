@@ -143,14 +143,13 @@ describe("SessionExpiredView — sign-in action", () => {
 });
 
 describe("SessionExpiredView — return-to-home secondary action", () => {
-  it("renders a public-safe secondary exit link by default (TB-1315)", () => {
+  it("renders an app-home secondary exit link by default (TB-1315)", () => {
     render(<SessionExpiredView reason="idle-timeout" onSignIn={vi.fn()} />);
 
     const link = screen.getByTestId("session-expired-return-home");
 
     expect(link).toHaveTextContent("Back to ArchLucid");
-    expect(link).toHaveAttribute("href", "/welcome");
-    expect(link).not.toHaveAttribute("href", "/");
+    expect(link).toHaveAttribute("href", "/");
   });
 
   it("omits the secondary exit link when showReturnHome is false", () => {

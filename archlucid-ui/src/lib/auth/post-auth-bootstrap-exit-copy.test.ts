@@ -14,9 +14,9 @@ describe("post-auth-bootstrap-exit-copy (TB-1469)", () => {
     expect(POST_AUTH_BOOTSTRAP_SIGN_IN_PATH).not.toBe("/");
   });
 
-  it("reuses the public-safe secondary exit from session-expired (TB-1315 parity)", () => {
-    expect(SESSION_EXPIRED_SECONDARY_EXIT_PATH).toBe("/welcome");
-    expect(SESSION_EXPIRED_SECONDARY_EXIT_PATH).not.toBe("/");
+  it("reuses the app-home secondary exit from session-expired (TB-1315 parity)", () => {
+    expect(SESSION_EXPIRED_SECONDARY_EXIT_PATH).toBe("/");
+    expect(SESSION_EXPIRED_SECONDARY_EXIT_PATH).not.toBe("/welcome");
     expect(SESSION_EXPIRED_SECONDARY_EXIT_LABEL).toBe("Back to ArchLucid");
   });
 
