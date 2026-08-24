@@ -1,3 +1,4 @@
+using ArchLucid.Application.ArchitectureIntelligence;
 using ArchLucid.Contracts.ArchitectureIntelligence;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Governance;
@@ -20,7 +21,10 @@ public sealed class PreFinalizeChecklistService(
     IFindingEvidenceLinkageFindingEngine findingEvidenceLinkageFindingEngine,
     IOptions<FindingEvidenceLinkageFindingEngineOptions> findingEvidenceLinkageFindingEngineOptions,
     IPreCommitGovernanceGate preCommitGovernanceGate,
-    IArchitectureIntelligencePersistence? architectureIntelligencePersistence) : IPreFinalizeChecklistService
+    IArchitectureIntelligencePersistence? architectureIntelligencePersistence,
+    IArchitectureIntelligenceFinalizeTrustEvaluator? finalizeTrustEvaluator = null,
+    IBlockedReviewCheckProjector? blockedReviewCheckProjector = null,
+    ISpecialistReviewService? specialistReviewService = null) : IPreFinalizeChecklistService
 {
     private readonly IScopeContextProvider _scopeContextProvider =
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
@@ -46,6 +50,13 @@ public sealed class PreFinalizeChecklistService(
 
     private readonly IArchitectureIntelligencePersistence? _architectureIntelligencePersistence =
         architectureIntelligencePersistence;
+
+    private readonly IArchitectureIntelligenceFinalizeTrustEvaluator? _finalizeTrustEvaluator =
+        finalizeTrustEvaluator;
+
+    private readonly IBlockedReviewCheckProjector? _blockedReviewCheckProjector = blockedReviewCheckProjector;
+
+    private readonly ISpecialistReviewService? _specialistReviewService = specialistReviewService;
 
     public async Task<PreFinalizeChecklistResult> BuildAsync(string runId, CancellationToken cancellationToken = default)
     {
@@ -91,7 +102,18 @@ public sealed class PreFinalizeChecklistService(
         PreCommitGateResult gateResult =
             await _preCommitGovernanceGate.EvaluateAsync(runId, cancellationToken).ConfigureAwait(false);
 
+        if (_blockedReviewCheckProjector is not null)
+        {
+            await _blockedReviewCheckProjector
+                .ProjectBlockedChecksAsync(scope, runId, gateResult, cancellationToken)
+                .ConfigureAwait(false);
+        }
+
         items.Add(BuildPreCommitGateItem(gateResult));
+
+        await AddArchitectureIntelligenceTrustItemsAsync(scope, runId, items, cancellationToken).ConfigureAwait(false);
+
+        items.Add(await BuildPolicyPackCoverageProofItemAsync(scope, runKey, cancellationToken).ConfigureAwait(false));
 
         int advisoryCount = items.Count(item => item.Status == PreFinalizeChecklistItemStatus.Advisory);
         int blockingCount = items.Count(item => item.Status == PreFinalizeChecklistItemStatus.Blocking);
@@ -300,4 +322,76 @@ public sealed class PreFinalizeChecklistService(
             ReadyToFinalize = true,
             Items = [],
         };
+
+    private async Task AddArchitectureIntelligenceTrustItemsAsync(
+        ScopeContext scope,
+        string runId,
+        List<PreFinalizeChecklistItem> items,
+        CancellationToken cancellationToken)
+    {
+        if (_finalizeTrustEvaluator is null
+            || _architectureIntelligencePersistence is null
+            || _specialistReviewService is null)
+            return;
+
+        ArchitectureKnowledgeModel? model = await _architectureIntelligencePersistence
+            .GetModelByRunIdAsync(scope.TenantId.ToString("D"), runId, cancellationToken)
+            .ConfigureAwait(false);
+
+        if (model is null)
+            return;
+
+        SpecialistReviewResult review = _specialistReviewService.Review(model);
+        List<SpecialistReviewFinding> specialistFindings = review.Findings;
+
+        items.Add(_finalizeTrustEvaluator.EvaluateMustNotFail(specialistFindings, []));
+        items.Add(_finalizeTrustEvaluator.EvaluateTrustPublish(specialistFindings, []));
+    }
+
+    private async Task<PreFinalizeChecklistItem> BuildPolicyPackCoverageProofItemAsync(
+        ScopeContext scope,
+        Guid runKey,
+        CancellationToken cancellationToken)
+    {
+        RunRecord? run = await _runRepository.GetByIdAsync(scope, runKey, cancellationToken).ConfigureAwait(false);
+
+        if (run is null || string.IsNullOrWhiteSpace(run.GovernanceScopeJson))
+        {
+            return new PreFinalizeChecklistItem
+            {
+                ItemId = "policy-pack-coverage-proof",
+                Title = "Policy pack evaluation coverage",
+                Detail = "No execute-time governance scope captured for this run.",
+                Status = PreFinalizeChecklistItemStatus.Clear,
+                Count = 0,
+            };
+        }
+
+        List<Finding> findings = await LoadFindingsAsync(scope, runKey, cancellationToken).ConfigureAwait(false);
+        PolicyPackCoverageProofResult proof = PolicyPackCoverageProofEvaluator.Evaluate(
+            run.GovernanceScopeJson,
+            findings);
+
+        if (proof.UnprovenAssignmentCount == 0)
+        {
+            return new PreFinalizeChecklistItem
+            {
+                ItemId = "policy-pack-coverage-proof",
+                Title = "Policy pack evaluation coverage",
+                Detail = $"All {proof.AssignmentCount} in-scope pack assignment(s) have evaluation signals.",
+                Status = PreFinalizeChecklistItemStatus.Clear,
+                Count = 0,
+            };
+        }
+
+        return new PreFinalizeChecklistItem
+        {
+            ItemId = "policy-pack-coverage-proof",
+            Title = "Policy pack evaluation coverage",
+            Detail =
+                $"{proof.UnprovenAssignmentCount} assigned pack(s) lack evaluation proof — evidence of scope, not compliance certification.",
+            Status = PreFinalizeChecklistItemStatus.Advisory,
+            Count = proof.UnprovenAssignmentCount,
+        };
+    }
 }

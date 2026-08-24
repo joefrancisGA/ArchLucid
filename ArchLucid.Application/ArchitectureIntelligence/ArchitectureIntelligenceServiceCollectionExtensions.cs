@@ -77,6 +77,10 @@ internal static class ArchitectureIntelligenceServiceCollectionExtensions
         services.AddScoped<IAuthorityFindingsSnapshotUpdater, AuthorityFindingsSnapshotUpdater>();
         services.AddScoped<IArchitectureIntelligenceAuthorityFindingsContributor,
             ArchitectureIntelligenceAuthorityFindingsContributor>();
+        services.AddScoped<IArchitectureIntelligenceFinalizeTrustEvaluator,
+            ArchitectureIntelligenceFinalizeTrustEvaluator>();
+        services.AddScoped<IBlockedReviewCheckProjector, BlockedReviewCheckProjector>();
+        services.AddScoped<IRecommendationImproveLoopCoordinator, RecommendationImproveLoopCoordinator>();
         services.AddSingleton<IReviewResultCache, ReviewResultCache>();
         services.AddScoped<IArchitectureIntelligenceReviewTierBudgetGuard, ArchitectureIntelligenceReviewTierBudgetGuard>();
         services.AddScoped<IArchitectureIntelligenceProductRunSourceContextLoader,
