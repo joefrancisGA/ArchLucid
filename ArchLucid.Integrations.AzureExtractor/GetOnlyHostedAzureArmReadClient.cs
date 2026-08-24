@@ -13,6 +13,7 @@ public sealed class GetOnlyHostedAzureArmReadClient(
     ILogger<GetOnlyHostedAzureArmReadClient> logger) : IHostedAzureArmReadClient
 {
     private const string ResourcesApiVersion = "2021-04-01";
+    private const int MaxPaginationRequests = 64;
 
     private readonly HttpClient _httpClient =
         httpClient ?? throw new ArgumentNullException(nameof(httpClient));
@@ -31,9 +32,25 @@ public sealed class GetOnlyHostedAzureArmReadClient(
         List<HostedAzureArmResourceRecord> resources = [];
         string? nextLink =
             $"https://management.azure.com/subscriptions/{subscriptionId.Trim()}/resources?api-version={ResourcesApiVersion}";
+        HashSet<string> visitedLinks = new(StringComparer.OrdinalIgnoreCase);
+        int requestCount = 0;
 
         while (!string.IsNullOrWhiteSpace(nextLink))
         {
+            if (!visitedLinks.Add(nextLink))
+            {
+                throw new InvalidOperationException(
+                    "Hosted Azure extractor stopped ARM resource listing due to repeating nextLink.");
+            }
+
+            requestCount++;
+
+            if (requestCount > MaxPaginationRequests)
+            {
+                throw new InvalidOperationException(
+                    $"Hosted Azure extractor stopped ARM resource listing after {MaxPaginationRequests} pages.");
+            }
+
             using HttpRequestMessage request = new(HttpMethod.Get, nextLink);
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
 

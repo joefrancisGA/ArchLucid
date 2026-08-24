@@ -61,6 +61,59 @@ public sealed class GetOnlyHostedAzureArmReadClientTests
     }
 
     [Fact]
+    public async Task ListSubscriptionResourcesAsync_throws_when_next_link_repeats()
+    {
+        const string repeatingNextLink =
+            "https://management.azure.com/subscriptions/11111111-1111-1111-1111-111111111111/resources?api-version=2021-04-01&$skiptoken=repeat";
+
+        string body = """
+                      {
+                        "value": [
+                          {
+                            "id": "/subscriptions/sub/resourceGroups/rg/providers/Microsoft.Storage/storageAccounts/sa1",
+                            "name": "sa1",
+                            "type": "Microsoft.Storage/storageAccounts",
+                            "location": "eastus"
+                          }
+                        ],
+                        "nextLink": "REPEATING_LINK"
+                      }
+                      """.Replace("REPEATING_LINK", repeatingNextLink, StringComparison.Ordinal);
+
+        int requestCount = 0;
+
+        HttpMessageHandler handler = new RecordingHandler(
+            (_, _) =>
+            {
+                int current = Interlocked.Increment(ref requestCount);
+
+                if (current > 3)
+                {
+                    throw new InvalidOperationException(
+                        "Test hang guard: ARM resource listing did not stop on repeating nextLink.");
+                }
+
+                return Task.FromResult(
+                    new HttpResponseMessage(HttpStatusCode.OK)
+                    {
+                        Content = new StringContent(body)
+                    });
+            });
+
+        HttpClient httpClient = new(handler);
+        GetOnlyHostedAzureArmReadClient client = new(httpClient, NullLogger<GetOnlyHostedAzureArmReadClient>.Instance);
+
+        InvalidOperationException exception = await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            client.ListSubscriptionResourcesAsync(
+                "token-abc",
+                "11111111-1111-1111-1111-111111111111",
+                CancellationToken.None));
+
+        Assert.Contains("repeating nextLink", exception.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.Equal(2, requestCount);
+    }
+
+    [Fact]
     public async Task ListSubscriptionResourcesAsync_logs_when_arm_row_missing_id_or_type()
     {
         Mock<ILogger<GetOnlyHostedAzureArmReadClient>> logger = new();
