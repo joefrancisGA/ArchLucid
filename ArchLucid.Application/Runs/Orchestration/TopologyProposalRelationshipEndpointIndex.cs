@@ -717,6 +717,7 @@ public static class TopologyProposalRelationshipEndpointIndex
             || normalized.Contains("redis_enterprise", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("machine_learning", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("databricks", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("kusto_cluster", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("communication_service", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("cognitive_account", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("cognitive_services", StringComparison.OrdinalIgnoreCase)
