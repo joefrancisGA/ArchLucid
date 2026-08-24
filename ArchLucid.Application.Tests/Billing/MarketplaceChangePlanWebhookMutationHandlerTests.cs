@@ -107,4 +107,32 @@ public sealed class MarketplaceChangePlanWebhookMutationHandlerTests
 
         ledger.Verify(l => l.ChangePlanAsync(tenantId, nameof(TenantTier.Standard), raw, It.IsAny<CancellationToken>()), Times.Once);
     }
+
+    [SkippableFact]
+    public async Task Ga_enabled_missing_planId_defers_without_ledger_mutation()
+    {
+        BillingOptions billing = new()
+        {
+            Provider = BillingProviderNames.AzureMarketplace,
+            AzureMarketplace = new AzureMarketplaceBillingOptions { GaEnabled = true },
+        };
+
+        BillingOptionsTestMonitor<BillingOptions> monitor = new(billing);
+        Mock<IBillingLedger> ledger = new();
+        MarketplaceChangePlanWebhookMutationHandler sut = new(
+            monitor,
+            ledger.Object,
+            NullLogger<MarketplaceChangePlanWebhookMutationHandler>.Instance);
+
+        using JsonDocument doc = JsonDocument.Parse("""{"quantity":5}""");
+
+        MarketplaceWebhookMutationOutcome outcome =
+            await sut.HandleAsync(Guid.NewGuid(), doc.RootElement, "{}", CancellationToken.None);
+
+        outcome.Should().Be(MarketplaceWebhookMutationOutcome.DeferredGaDisabled);
+
+        ledger.Verify(
+            static l => l.ChangePlanAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
 }

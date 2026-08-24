@@ -39,9 +39,19 @@ public sealed class MarketplaceChangePlanWebhookMutationHandler(
             return MarketplaceWebhookMutationOutcome.DeferredGaDisabled;
         }
 
-        string tierCode = MarketplaceWebhookPayloadParser.TryGetPlanId(root, out string? planId)
-            ? MarketplaceWebhookPayloadParser.TierStorageCodeFromPlanId(planId)
-            : nameof(TenantTier.Standard);
+        if (!MarketplaceWebhookPayloadParser.TryGetPlanId(root, out string? planId))
+        {
+            if (_logger.IsEnabled(LogLevel.Warning))
+            {
+                _logger.LogWarning(
+                    "ChangePlan payload missing planId; skipping ledger mutation. TenantId={TenantId}",
+                    tenantId);
+            }
+
+            return MarketplaceWebhookMutationOutcome.DeferredGaDisabled;
+        }
+
+        string tierCode = MarketplaceWebhookPayloadParser.TierStorageCodeFromPlanId(planId);
         await _ledger.ChangePlanAsync(tenantId, tierCode, rawBody, cancellationToken);
         return MarketplaceWebhookMutationOutcome.Applied;
     }

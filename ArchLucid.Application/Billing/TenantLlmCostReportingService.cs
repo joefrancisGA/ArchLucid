@@ -50,18 +50,21 @@ public sealed class TenantLlmCostReportingService(
         int windowDays = Math.Clamp(days, 1, 90);
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
         DateTime utcNow = _timeProvider.GetUtcNow().UtcDateTime;
-        DateTime windowStart = utcNow.Date.AddDays(-(windowDays - 1));
+        DateTime monthStartUtc = new DateTime(utcNow.Year, utcNow.Month, 1, 0, 0, 0, DateTimeKind.Utc);
+        DateTime idealWindowStart = utcNow.Date.AddDays(-(windowDays - 1));
+        DateTime windowStart = idealWindowStart < monthStartUtc ? monthStartUtc : idealWindowStart;
+        int bucketDays = (utcNow.Date - windowStart).Days + 1;
 
         LlmTenantBudgetStateReadModel monthState = await _budgetRepository
             .GetOrCreateAsync(scope.TenantId, LlmBudgetPeriod.Monthly, FormatUtcMonthKey(utcNow), cancellationToken)
             .ConfigureAwait(false);
 
         decimal monthPressure = monthState.TotalUsdPressure;
-        decimal perDayEstimate = windowDays > 0 ? Math.Round(monthPressure / windowDays, 4) : 0m;
+        decimal perDayEstimate = bucketDays > 0 ? Math.Round(monthPressure / bucketDays, 4) : 0m;
 
         List<LlmCostDailyBucketResponse> dailyRows = [];
 
-        for (int offset = 0; offset < windowDays; offset += 1)
+        for (int offset = 0; offset < bucketDays; offset += 1)
         {
             DateTime day = windowStart.AddDays(offset);
 
@@ -77,7 +80,7 @@ public sealed class TenantLlmCostReportingService(
         if (dailyRows.Count > 0 && monthPressure > 0m)
         {
             LlmCostDailyBucketResponse last = dailyRows[^1];
-            decimal remainder = monthPressure - (perDayEstimate * (windowDays - 1));
+            decimal remainder = monthPressure - (perDayEstimate * (bucketDays - 1));
 
             dailyRows[^1] = new LlmCostDailyBucketResponse
             {
@@ -104,7 +107,7 @@ public sealed class TenantLlmCostReportingService(
                 WorkspaceId = scope.WorkspaceId,
                 WorkspaceName = workspaceName,
                 ProjectId = scope.ProjectId,
-                ProjectName = "Current project",
+                ProjectName = "Tenant-wide (estimated)",
                 EstimatedCostUsd = monthPressure,
                 PromptTokens = 0,
                 CompletionTokens = 0,
