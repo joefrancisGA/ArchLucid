@@ -66,6 +66,7 @@ public sealed class AuditPathClassificationArchitectureTests
         "QuickStartService",
         "TrialLimitProblemResponse",
         "AdminDiagnosticsService",
+        "DataConsistencyRemediationExecutor",
         "BaselineMutationAuditArchitectureDurableWriter",
         "SyntheticOperatorDemoPackWriter",
         "FindingReviewTrailAppendService",
