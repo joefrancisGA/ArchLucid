@@ -234,8 +234,8 @@ public sealed class QuickScanCostEstimatorTests
 
         Mock<ILlmCostEstimator> llmCostEstimator = new();
         llmCostEstimator
-            .Setup(e => e.EstimateUsd(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string?>()))
-            .Returns((int input, int output, int _, string? _) =>
+            .Setup(e => e.EstimateUsd(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string?>(), It.IsAny<string?>()))
+            .Returns((int input, int output, int _, string? _, string? _) =>
                 input * 0.15m / 1_000_000m + output * 0.60m / 1_000_000m);
 
         return new QuickScanCostEstimator(safetyMonitor.Object, catalogMonitor.Object, llmCostEstimator.Object);

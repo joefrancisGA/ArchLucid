@@ -1001,7 +1001,8 @@ public sealed class PilotRunDeltaComputerTests
         deltas.FindingsBySeverity[0].Value.Should().Be(1);
         deltas.TopFindingId.Should().Be("active-warning");
         deltas.TopFindingSeverity.Should().Be("Warning");
-        deltas.GovernedFindingCoverage.IsAvailable.Should().BeFalse();
+        deltas.GovernedFindingCoverage.IsAvailable.Should().BeTrue();
+        deltas.GovernedFindingCoverage.TotalDecisionGradeCount.Should().Be(1);
         evidence.Verify(e => e.BuildAsync(detail.Run.RunId, "active-warning", It.IsAny<CancellationToken>()), Times.Once);
         evidence.Verify(e => e.BuildAsync(detail.Run.RunId, "muted-critical", It.IsAny<CancellationToken>()), Times.Never);
     }

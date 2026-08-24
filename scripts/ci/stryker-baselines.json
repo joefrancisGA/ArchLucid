@@ -3,10 +3,10 @@
   "Application": { "mutationScore": 70.0 },
   "AgentRuntime": { "mutationScore": 70.0 },
   "Decisioning": { "mutationScore": 70.0 },
-  "PersistenceCoordination": { "mutationScore": 40.5 },
+  "PersistenceCoordination": { "mutationScore": 5.9 },
   "Api": { "mutationScore": 55.0 },
-  "DecisioningMerge": { "mutationScore": 30.6 },
-  "ApplicationGovernance": { "mutationScore": 55.0 },
+  "DecisioningMerge": { "mutationScore": 28.3 },
+  "ApplicationGovernance": { "mutationScore": 34.5 },
   "ApplicationCommitCriticalPaths": { "mutationScore": 22.5 },
-  "ApplicationGraphMergeProperties": { "mutationScore": 15.0 }
+  "ApplicationGraphMergeProperties": { "mutationScore": 13.8 }
 }

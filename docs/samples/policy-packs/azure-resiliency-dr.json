@@ -20,7 +20,7 @@
   "compositeAlertRuleIds": [],
   "advisoryDefaults": {
     "severityFloor": "warning",
-    "priorityFloor": "P0",
+    "priorityFloor": "P1",
     "scanDepth": "standard"
   },
   "metadata": {

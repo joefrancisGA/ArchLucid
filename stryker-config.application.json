@@ -4,6 +4,7 @@
     "test-projects": ["ArchLucid.Application.Tests/ArchLucid.Application.Tests.csproj"],
     "test-case-filter": "Category!=Integration&Category!=Slow&Category!=SqlServerContainer&Category!=GoldenCorpusRecord",
     "reporters": ["progress", "html", "json"],
+    "concurrency": 4,
     "thresholds": {
       "high": 80,
       "low": 70,
