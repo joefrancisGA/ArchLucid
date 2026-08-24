@@ -709,6 +709,7 @@ public static class TopologyProposalRelationshipEndpointIndex
             || normalized.Contains("storage_account", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("postgresql", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("mysql", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("sql_server", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("communication_service", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("cognitive_account", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("cognitive_services", StringComparison.OrdinalIgnoreCase)
