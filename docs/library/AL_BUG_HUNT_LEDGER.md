@@ -609,11 +609,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** llm wallet; tenant wallet; billing wallet
 - **paths:** ArchLucid.Api/Controllers/Billing/WalletController.cs; ArchLucid.Application/Budgeting/LlmTenantWalletService.cs; ArchLucid.Persistence/Data/Repositories/SqlLlmTenantWalletRepository.cs
 - **test-filter:** FullyQualifiedName~LlmTenantWalletServiceTests
-- **hunts:** 2
-- **bugs-found:** 5
+- **hunts:** 3
+- **bugs-found:** 6
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24 — overage reconciliation credit dropped when optimistic retries exhausted (no re-queue)
+- **last-bug:** 2026-08-24 — overage reconciliation delta consume dropped when remaining balance insufficient (no re-queue)
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -626,8 +626,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Malformed wallet `RowVersionBase64` bypassed optimistic concurrency — **hit 2026-08-24:** `WalletController.DecodeRowVersion` returned empty bytes on `FormatException`; regression in `PutAsync_returns_400_when_row_version_base64_is_malformed`
 - [x] (proven) Settlement consume silently dropped after optimistic retries exhausted — **hit 2026-08-24:** `ConsumeInternalAsync` abandoned debit without re-queue; regression in `ConsumeInternalAsync_requeues_settlement_when_optimistic_retries_exhausted`
 - [x] (proven) Overage reconciliation credit dropped when optimistic retries exhausted — **hit 2026-08-24:** `ReconcileOverageInternalAsync` called `CreditAdjustmentInternalAsync` without re-queue on failure; regression in `ReconcileOverageInternalAsync_requeues_settlement_when_credit_retries_exhausted`
-- [ ] (hunt-ready) `LlmTenantWalletService.ConsumeInternalAsync` when optimistic retries exhaust — verify settlement debit is re-queued rather than silently dropped (prior hit fixed re-queue; hunt sibling path `ReconcileOverageInternalAsync` for symmetric credit re-queue behavior under the same exhaustion branch).
-- [ ] (hunt-ready) `WalletController` balance read after concurrent consume — response may show stale available balance when read uses cached wallet row while consume transaction is in-flight; concrete input: two parallel POST consume plus GET balance without `If-None-Match`/version check.
+- [x] (valid-no-repro) `LlmTenantWalletService.ConsumeInternalAsync` when optimistic retries exhaust — re-queue on exhaustion already shipped; regression in `ConsumeInternalAsync_requeues_settlement_when_optimistic_retries_exhausted`
+- [x] (invalid) `WalletController` balance read after concurrent consume — `GetAsync` calls `GetWalletAsync` → repository directly; no app-level cache; controller exposes GET/PUT only (no POST consume endpoint)
+- [x] (proven) Overage reconciliation delta consume dropped when remaining balance insufficient — **hit 2026-08-24:** `ReconcileOverageInternalAsync` called `ConsumeInternalAsync` for positive delta; `InsufficientFunds` returned silently without re-queue; fixed via `TryConsumeWithRetryAsync` + full reconcile re-queue; regression in `ReconcileOverageInternalAsync_requeues_settlement_when_delta_consume_insufficient_funds`
+- [ ] (hunt-ready) `ConsumeInternalAsync` plain settlement re-queue on insufficient funds — when async settlement debit hits `InsufficientFunds` (not reconcile delta), debit is dropped without re-queue unlike concurrency exhaustion; input: settlement worker consumes more than post-authorize balance after parallel spend.
 
 ---
 
