@@ -15,4 +15,13 @@ public sealed class ArchitectureIntelligencePipelineOptions
         get;
         set;
     }
+
+    /// <summary>
+    ///     When enabled, all review packages receive closed-loop strengthening (not only golden cohort).
+    /// </summary>
+    public bool StrengthenAllReviewPackages
+    {
+        get;
+        set;
+    }
 }
