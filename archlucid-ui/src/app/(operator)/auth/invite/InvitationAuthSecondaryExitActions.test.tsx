@@ -40,7 +40,7 @@ describe("InvitationAuthSecondaryExitActions (TB-1476)", () => {
       AUTH_INVITE_USE_DIFFERENT_ACCOUNT_LABEL,
     );
     expect(screen.getByTestId("invitation-secondary-help")).toHaveTextContent(AUTH_INVITE_HELP_LABEL);
-    expect(screen.getByTestId("invitation-secondary-public-exit")).toHaveAttribute("href", "/welcome");
+    expect(screen.getByTestId("invitation-secondary-public-exit")).toHaveAttribute("href", "/");
     expect(screen.getByTestId("invitation-secondary-public-exit")).toHaveTextContent(
       AUTH_INVITE_PUBLIC_EXIT_LABEL,
     );

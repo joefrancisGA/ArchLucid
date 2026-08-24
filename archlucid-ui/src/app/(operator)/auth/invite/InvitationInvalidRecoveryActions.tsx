@@ -16,7 +16,7 @@ import {
   AUTH_INVITE_VALIDATION_RETRY_LABEL,
   type InvitationRecoveryContext,
 } from "@/lib/auth/invitation-invalid-recovery-copy";
-import { publicSiteHref } from "@/lib/site-urls";
+import { appSiteHref } from "@/lib/site-urls";
 
 export type InvitationInvalidRecoveryActionsProps = {
   readonly context: InvitationRecoveryContext;
@@ -70,7 +70,7 @@ export function InvitationInvalidRecoveryActions({
 
       <Link
         className={OPERATOR_LINK.nav}
-        href={publicSiteHref(AUTH_INVITE_PUBLIC_EXIT_PATH)}
+        href={appSiteHref(AUTH_INVITE_PUBLIC_EXIT_PATH)}
         data-testid="invitation-recovery-public-exit"
       >
         {AUTH_INVITE_PUBLIC_EXIT_LABEL}

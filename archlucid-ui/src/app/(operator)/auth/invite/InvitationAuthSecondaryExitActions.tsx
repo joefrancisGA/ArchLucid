@@ -15,7 +15,7 @@ import {
   AUTH_INVITE_USE_DIFFERENT_ACCOUNT_LABEL,
 } from "@/lib/auth/invitation-auth-secondary-exit-copy";
 import { clearOidcSession, signOutAndRedirectHome } from "@/lib/oidc/session";
-import { publicSiteHref } from "@/lib/site-urls";
+import { appSiteHref } from "@/lib/site-urls";
 
 export type InvitationAuthSecondaryExitActionsProps = {
   /** When false, omits Sign in again — invalid recovery already exposes sign-in (TB-1474). */
@@ -70,7 +70,7 @@ export function InvitationAuthSecondaryExitActions({
 
       <Link
         className={OPERATOR_LINK.nav}
-        href={publicSiteHref(AUTH_INVITE_PUBLIC_EXIT_PATH)}
+        href={appSiteHref(AUTH_INVITE_PUBLIC_EXIT_PATH)}
         data-testid="invitation-secondary-public-exit"
       >
         {AUTH_INVITE_PUBLIC_EXIT_LABEL}

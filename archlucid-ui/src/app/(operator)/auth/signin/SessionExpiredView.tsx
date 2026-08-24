@@ -19,7 +19,7 @@ import {
   AUTHENTICATION_SIGN_IN_INBOUND_HELP_HREF,
   AUTHENTICATION_SIGN_IN_INBOUND_HELP_LINK_LABEL,
 } from "@/lib/authentication-sign-in-inbound-copy";
-import { publicSiteHref } from "@/lib/site-urls";
+import { appSiteHref } from "@/lib/site-urls";
 import { getSessionMessageCopy } from "@/app/(operator)/auth/signin/session-message-copy";
 
 export type SessionExpiredViewProps = {
@@ -104,7 +104,7 @@ export function SessionExpiredView({
         {showReturnHome ? (
           <Link
             className={cn(OPERATOR_LINK.nav, "text-sm text-al-text-secondary")}
-            href={publicSiteHref(SESSION_EXPIRED_SECONDARY_EXIT_PATH)}
+            href={appSiteHref(SESSION_EXPIRED_SECONDARY_EXIT_PATH)}
             data-testid="session-expired-return-home"
           >
             {SESSION_EXPIRED_SECONDARY_EXIT_LABEL}

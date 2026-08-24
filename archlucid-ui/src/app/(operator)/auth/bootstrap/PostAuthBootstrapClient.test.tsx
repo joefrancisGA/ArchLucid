@@ -102,8 +102,8 @@ describe("PostAuthBootstrapClient (TB-1469)", () => {
 
     expect(screen.getByTestId("bootstrap-secondary-exit")).toBeInTheDocument();
     expect(screen.getByTestId("bootstrap-sign-in-again")).toBeInTheDocument();
-    expect(screen.getByTestId("bootstrap-public-exit")).toHaveAttribute("href", "/welcome");
-    expect(screen.getByTestId("bootstrap-public-exit")).not.toHaveAttribute("href", "/");
+    expect(screen.getByTestId("bootstrap-public-exit")).toHaveAttribute("href", "/");
+    expect(screen.getByTestId("bootstrap-public-exit")).not.toHaveAttribute("href", "/welcome");
   });
 
   it("exposes safe secondary exits on the no-access step", async () => {
@@ -123,6 +123,6 @@ describe("PostAuthBootstrapClient (TB-1469)", () => {
 
     expect(screen.getByTestId("bootstrap-secondary-exit")).toBeInTheDocument();
     expect(screen.getByTestId("bootstrap-use-different-account")).toBeInTheDocument();
-    expect(screen.getByTestId("bootstrap-public-exit")).toHaveAttribute("href", "/welcome");
+    expect(screen.getByTestId("bootstrap-public-exit")).toHaveAttribute("href", "/");
   });
 });

@@ -1,5 +1,5 @@
-/** Public marketing welcome — safe anonymous exit when declining Sign in (TB-1315). */
-export const SESSION_EXPIRED_SECONDARY_EXIT_PATH = "/welcome" as const;
+/** Operator app home — keeps "Back to ArchLucid" on the app host instead of marketing `/welcome`. */
+export const SESSION_EXPIRED_SECONDARY_EXIT_PATH = "/" as const;
 
 export const SESSION_EXPIRED_SECONDARY_EXIT_LABEL = "Back to ArchLucid";
 
@@ -7,7 +7,7 @@ export const SESSION_EXPIRED_SECONDARY_EXIT_LABEL = "Back to ArchLucid";
 export const SESSION_EXPIRED_PAGE_METADATA_TITLE = "Session expired · ArchLucid";
 
 export const SESSION_EXPIRED_PAGE_METADATA_DESCRIPTION =
-  "Your ArchLucid session ended. Sign in again to continue, or return to the public welcome page.";
+  "Your ArchLucid session ended. Sign in again to continue, or return to the ArchLucid home page.";
 
 /** TB-1314: Suspense fallback copy while search params hydrate. */
 export const SESSION_EXPIRED_LOADING_DETAIL = "Preparing session recovery…";

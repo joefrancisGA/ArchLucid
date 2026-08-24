@@ -262,7 +262,7 @@ describe("InvitationAcceptPageClient (TB-1476)", () => {
     expect(screen.getByTestId("invitation-secondary-sign-in-again")).toBeInTheDocument();
     expect(screen.getByTestId("invitation-secondary-use-different-account")).toBeInTheDocument();
     expect(screen.getByTestId("invitation-secondary-help")).toBeInTheDocument();
-    expect(screen.getByTestId("invitation-secondary-public-exit")).toHaveAttribute("href", "/welcome");
+    expect(screen.getByTestId("invitation-secondary-public-exit")).toHaveAttribute("href", "/");
   });
 
   it("exposes use-different-account secondary exit on invalid invitations", async () => {
@@ -297,6 +297,6 @@ describe("InvitationAcceptPageClient (TB-1476)", () => {
     });
 
     expect(screen.getByTestId("invitation-secondary-use-different-account")).toBeInTheDocument();
-    expect(screen.getByTestId("invitation-secondary-public-exit")).toHaveAttribute("href", "/welcome");
+    expect(screen.getByTestId("invitation-secondary-public-exit")).toHaveAttribute("href", "/");
   });
 });

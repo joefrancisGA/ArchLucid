@@ -15,8 +15,9 @@ describe("invitation-invalid-recovery-copy (TB-1474)", () => {
     expect(AUTH_INVITE_SIGN_IN_WITHOUT_TOKEN_PATH).not.toBe("/");
   });
 
-  it("reuses the public-safe secondary exit from session-expired (TB-1315 parity)", () => {
-    expect(AUTH_INVITE_PUBLIC_EXIT_PATH).toBe("/welcome");
+  it("reuses the app-home secondary exit from session-expired (TB-1315 parity)", () => {
+    expect(AUTH_INVITE_PUBLIC_EXIT_PATH).toBe("/");
+    expect(AUTH_INVITE_PUBLIC_EXIT_PATH).not.toBe("/welcome");
     expect(AUTH_INVITE_PUBLIC_EXIT_LABEL).toBe("Back to ArchLucid");
   });
 
