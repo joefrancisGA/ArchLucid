@@ -12,7 +12,7 @@ import {
 } from "@/lib/buyer/buyer-polish-copy";
 
 describe("OperatorHomeWorkspaceEmptyState (TB-352 / TB-1038)", () => {
-  it("uses the compact empty pattern without duplicating hero actions", () => {
+  it("uses the compact empty pattern with direct start CTAs", () => {
     render(<OperatorHomeWorkspaceEmptyState />);
 
     expect(screen.getByTestId("operator-home-workspace-empty-state")).toBeInTheDocument();
@@ -20,6 +20,11 @@ describe("OperatorHomeWorkspaceEmptyState (TB-352 / TB-1038)", () => {
     expect(screen.getByText(/Your in-progress and completed architecture reviews will appear here/i)).toBeInTheDocument();
     expect(screen.getByTestId("inline-glossary-chip-sealed-review-record")).toBeInTheDocument();
     expect(screen.getByTestId("inline-glossary-chip-evidence-trail")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Start first review" })).toHaveAttribute("href", "/architecture/reviews/new");
+    expect(screen.getByRole("link", { name: "Open sample review" })).toHaveAttribute(
+      "href",
+      expect.stringContaining("/architecture/reviews/"),
+    );
     // Learn how / workflow live on the hero Do-this-next card (TB-1038).
     expect(screen.queryByRole("link", { name: OPERATOR_HOME_LEARN_HOW_REVIEWS_WORK_CTA })).toBeNull();
     expect(screen.queryByRole("link", { name: /create architecture/i })).toBeNull();

@@ -6,8 +6,11 @@ import {
   OPERATOR_HOME_WORKSPACE_EMPTY_BODY,
   OPERATOR_HOME_WORKSPACE_EMPTY_TITLE,
 } from "@/lib/buyer/buyer-polish-copy";
+import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 
-/** First-run workspace with no reviews — compact empty pattern; primary paths live in the hero. */
+const sampleReviewHref = `/architecture/reviews/${encodeURIComponent(SHOWCASE_STATIC_DEMO_RUN_ID)}`;
+
+/** First-run workspace with no reviews — compact empty pattern with direct start paths. */
 export function OperatorHomeWorkspaceEmptyState() {
   return (
     <EnterpriseCompactEmptyState
@@ -21,6 +24,10 @@ export function OperatorHomeWorkspaceEmptyState() {
           <InlineGlossaryChip nounId="governance-approval">resolve outcomes</InlineGlossaryChip>.
         </>
       }
+      actions={[
+        { label: "Start first review", href: "/architecture/reviews/new", variant: "primary" },
+        { label: "Open sample review", href: sampleReviewHref, variant: "outline" },
+      ]}
     />
   );
 }
