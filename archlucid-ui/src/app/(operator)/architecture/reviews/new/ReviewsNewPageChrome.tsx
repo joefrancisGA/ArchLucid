@@ -6,6 +6,7 @@ import { useSearchParams } from "next/navigation";
 import { OperatorPageHeader } from "@/components/operator/OperatorPageHeader";
 import { InlineGlossaryChip } from "@/components/InlineGlossaryChip";
 import { PathChooserCreateObjectVocabularyRail } from "@/components/PathChooserCreateObjectVocabularyRail";
+import { ReviewsNewStarterTemplateGallery } from "@/components/review-intake/ReviewsNewStarterTemplateGallery";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { SpecimenDeliverablePreviewCallout } from "@/components/usability/SpecimenDeliverablePreviewCallout";
 import { START_REVIEW_LABEL } from "@/lib/architecture/architecture-workflow-labels";
@@ -141,6 +142,7 @@ export function ReviewsNewPageChrome(): React.JSX.Element {
         actions={showContextualHelp ? <PageContextualHelpButton /> : undefined}
       />
       {!onPathTab ? <PathChooserCreateObjectVocabularyRail currentSurfaceId="reviews-new" /> : null}
+      {!onPathTab ? <ReviewsNewStarterTemplateGallery /> : null}
     </>
   );
 }
