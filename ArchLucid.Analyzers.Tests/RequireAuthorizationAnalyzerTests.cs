@@ -209,6 +209,76 @@ namespace N
     }
 
     [Fact]
+    public async Task Does_not_report_when_interface_method_has_Authorize()
+    {
+        const string testCode = AspNetCoreStubs +
+            """
+
+namespace N
+{
+    using Microsoft.AspNetCore.Authorization;
+    using Microsoft.AspNetCore.Mvc;
+
+    public interface IAuthorizedApi
+    {
+        [Authorize]
+        IActionResult Get();
+    }
+
+    public sealed class ImplController : ControllerBase, IAuthorizedApi
+    {
+        [HttpGet]
+        public IActionResult Get() => Ok();
+    }
+}
+""";
+
+        CSharpAnalyzerTest<RequireAuthorizationAnalyzer, DefaultVerifier> test = new()
+        {
+            TestCode = testCode,
+            ReferenceAssemblies = ReferenceAssemblies.Net.Net90,
+            SolutionTransforms = { ProductAssemblyNameTransform }
+        };
+
+        await test.RunAsync();
+    }
+
+    [Fact]
+    public async Task Does_not_report_when_implemented_interface_has_Authorize()
+    {
+        const string testCode = AspNetCoreStubs +
+            """
+
+namespace N
+{
+    using Microsoft.AspNetCore.Authorization;
+    using Microsoft.AspNetCore.Mvc;
+
+    [Authorize]
+    public interface IAuthorizedApi
+    {
+        IActionResult Get();
+    }
+
+    public sealed class ImplController : ControllerBase, IAuthorizedApi
+    {
+        [HttpGet]
+        public IActionResult Get() => Ok();
+    }
+}
+""";
+
+        CSharpAnalyzerTest<RequireAuthorizationAnalyzer, DefaultVerifier> test = new()
+        {
+            TestCode = testCode,
+            ReferenceAssemblies = ReferenceAssemblies.Net.Net90,
+            SolutionTransforms = { ProductAssemblyNameTransform }
+        };
+
+        await test.RunAsync();
+    }
+
+    [Fact]
     public async Task Reports_controller_when_there_are_no_public_actions()
     {
         const string testCode = AspNetCoreStubs +

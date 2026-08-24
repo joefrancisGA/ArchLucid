@@ -85,6 +85,7 @@ public sealed class RequireAuthorizationAnalyzer : DiagnosticAnalyzer
         if (HasTypeLevelAuthorizeOrAllowAnonymous(symbol, controllerBase, authorizeAttribute, allowAnonymousAttribute))
             return;
 
+        bool foundPublicApiAction = false;
         bool reportedAnyMethod = false;
         bool hasQualifyingPublicMethods = false;
 
@@ -113,7 +114,15 @@ public sealed class RequireAuthorizationAnalyzer : DiagnosticAnalyzer
             if (nonActionAttribute is not null && SymbolHasAttribute(method, nonActionAttribute))
                 continue;
 
+            foundPublicApiAction = true;
+
             if (SymbolHasAuthorizeOrAllowAnonymous(method, authorizeAttribute, allowAnonymousAttribute))
+                continue;
+
+            if (MethodInheritsAuthorizeOrAllowAnonymousFromInterfaces(
+                    method,
+                    authorizeAttribute,
+                    allowAnonymousAttribute))
                 continue;
 
             Location? location = method.Locations.FirstOrDefault();
@@ -126,7 +135,7 @@ public sealed class RequireAuthorizationAnalyzer : DiagnosticAnalyzer
             reportedAnyMethod = true;
         }
 
-        if (reportedAnyMethod)
+        if (reportedAnyMethod || foundPublicApiAction)
             return;
 
         if (!hasQualifyingPublicMethods)
@@ -164,6 +173,69 @@ public sealed class RequireAuthorizationAnalyzer : DiagnosticAnalyzer
                 break;
 
             if (SymbolHasAuthorizeOrAllowAnonymous(current, authorizeAttribute, allowAnonymousAttribute))
+                return true;
+        }
+
+        return false;
+    }
+
+    private static bool MethodInheritsAuthorizeOrAllowAnonymousFromInterfaces(
+        IMethodSymbol method,
+        INamedTypeSymbol? authorizeAttribute,
+        INamedTypeSymbol? allowAnonymousAttribute)
+    {
+        foreach (IMethodSymbol explicitImplementation in method.ExplicitInterfaceImplementations)
+        {
+            if (SymbolHasAuthorizeOrAllowAnonymous(explicitImplementation, authorizeAttribute, allowAnonymousAttribute))
+                return true;
+
+            if (InterfaceTypeHasAuthorizeOrAllowAnonymous(
+                    explicitImplementation.ContainingType,
+                    authorizeAttribute,
+                    allowAnonymousAttribute))
+                return true;
+        }
+
+        INamedTypeSymbol containingType = method.ContainingType;
+
+        foreach (INamedTypeSymbol iface in containingType.AllInterfaces)
+        {
+            if (InterfaceTypeHasAuthorizeOrAllowAnonymous(iface, authorizeAttribute, allowAnonymousAttribute))
+                return true;
+
+            foreach (ISymbol member in iface.GetMembers())
+            {
+                if (member is not IMethodSymbol interfaceMethod)
+                    continue;
+
+                if (interfaceMethod.MethodKind != MethodKind.Ordinary)
+                    continue;
+
+                IMethodSymbol? implementation =
+                    containingType.FindImplementationForInterfaceMember(interfaceMethod) as IMethodSymbol;
+
+                if (implementation is null || !SymbolEqualityComparer.Default.Equals(implementation, method))
+                    continue;
+
+                if (SymbolHasAuthorizeOrAllowAnonymous(interfaceMethod, authorizeAttribute, allowAnonymousAttribute))
+                    return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static bool InterfaceTypeHasAuthorizeOrAllowAnonymous(
+        INamedTypeSymbol interfaceType,
+        INamedTypeSymbol? authorizeAttribute,
+        INamedTypeSymbol? allowAnonymousAttribute)
+    {
+        if (SymbolHasAuthorizeOrAllowAnonymous(interfaceType, authorizeAttribute, allowAnonymousAttribute))
+            return true;
+
+        foreach (INamedTypeSymbol inheritedInterface in interfaceType.AllInterfaces)
+        {
+            if (SymbolHasAuthorizeOrAllowAnonymous(inheritedInterface, authorizeAttribute, allowAnonymousAttribute))
                 return true;
         }
 
