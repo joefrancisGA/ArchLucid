@@ -12,7 +12,10 @@ import { Button } from "@/components/ui/button";
 import { ARCHITECTURE_CREATION_UNIVERSAL_QUESTIONS } from "@/lib/architecture/architecture-creation-question-definition";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { guidedIntakeClarificationsAnsweredCounter } from "@/lib/guided-intake-copy";
-import { UNIVERSAL_INTAKE_INFERRED_CLARIFICATION_HELPER } from "@/lib/universal-intake-answer-inference";
+import {
+  UNIVERSAL_INTAKE_CLARIFICATION_SUGGESTIONS_UNAVAILABLE_HELPER,
+  UNIVERSAL_INTAKE_INFERRED_CLARIFICATION_HELPER,
+} from "@/lib/universal-intake-answer-inference";
 import { UNIVERSAL_INTAKE_MUST_QUESTION_KEYS } from "@/lib/universal-intake-must-completeness";
 import type { DraftElicitationQuestion } from "@/types/draft-intake";
 
@@ -20,6 +23,7 @@ export type QuickStartL0MustQuestionsPanelProps = {
   readonly answers: Readonly<Record<string, string>>;
   readonly skippedQuestionKeys: ReadonlySet<string>;
   readonly inferredQuestionKeys?: ReadonlySet<string>;
+  readonly clarificationSuggestionsUnavailable?: boolean;
   readonly busy: boolean;
   readonly onAnswersChange: (answers: Readonly<Record<string, string>>) => void;
   readonly onSkippedQuestionKeysChange: (skippedQuestionKeys: ReadonlySet<string>) => void;
@@ -202,6 +206,15 @@ export function QuickStartL0MustQuestionsPanel(props: QuickStartL0MustQuestionsP
             data-testid="first-pilot-l0-inferred-helper"
           >
             {UNIVERSAL_INTAKE_INFERRED_CLARIFICATION_HELPER}
+          </p>
+        ) : null}
+
+        {props.clarificationSuggestionsUnavailable === true ? (
+          <p
+            className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+            data-testid="first-pilot-l0-inference-unavailable"
+          >
+            {UNIVERSAL_INTAKE_CLARIFICATION_SUGGESTIONS_UNAVAILABLE_HELPER}
           </p>
         ) : null}
 

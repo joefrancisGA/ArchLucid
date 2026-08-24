@@ -1,4 +1,8 @@
 import { CLOUD_TARGET_QUESTION_KEY } from "@/lib/architecture/architecture-creation-question-definition";
+import {
+  isReadableInferredClarificationAnswer,
+  normalizeClarificationInferenceCorpus,
+} from "@/lib/inferred-clarification-answer-quality";
 import { deriveStatedConstraintContextFromTexts } from "@/lib/review-quality/stated-constraint-context";
 import { UNIVERSAL_INTAKE_MUST_QUESTION_KEYS } from "@/lib/universal-intake-must-completeness";
 
@@ -6,6 +10,12 @@ export const UNIVERSAL_INTAKE_INFERENCE_MIN_CORPUS_CHARS = 40;
 
 export const UNIVERSAL_INTAKE_INFERRED_CLARIFICATION_HELPER =
   "Suggested from your architecture context — review each answer before you continue.";
+
+export const UNIVERSAL_INTAKE_CLARIFICATION_SUGGESTIONS_UNAVAILABLE_HELPER =
+  "We could not suggest clarification answers from your document text. Answer each question in your own words.";
+
+export const UNIVERSAL_INTAKE_CLARIFICATION_SUGGESTIONS_REQUIRE_REAL_LLM_HELPER =
+  "Clarification answer suggestions from uploaded documents require Real agent execution with Azure OpenAI connected. Answer each required clarification manually while Simulator mode is active.";
 
 const QUESTION_KEY = {
   additionalActors: "l0.actor.additional-kinds",
@@ -24,32 +34,25 @@ function splitSentences(corpus: string): readonly string[] {
     .filter((sentence) => sentence.length > 0);
 }
 
-function truncateSentence(sentence: string, maxLength = 320): string {
+function truncateSentenceAtWordBoundary(sentence: string, maxLength = 320): string {
   if (sentence.length <= maxLength) {
     return sentence;
   }
 
-  return `${sentence.slice(0, maxLength - 3)}...`;
+  const slice = sentence.slice(0, maxLength);
+  const lastSpace = slice.lastIndexOf(" ");
+
+  if (lastSpace > maxLength * 0.6) {
+    return slice.slice(0, lastSpace).trimEnd();
+  }
+
+  return slice.trimEnd();
 }
 
 function findSentenceMatching(corpus: string, patterns: readonly RegExp[]): string | null {
   for (const sentence of splitSentences(corpus)) {
     if (patterns.some((pattern) => pattern.test(sentence))) {
-      return truncateSentence(sentence);
-    }
-  }
-
-  for (const pattern of patterns) {
-    const match = pattern.exec(corpus);
-
-    if (match !== null && match[0] !== undefined) {
-      const start = Math.max(0, match.index - 80);
-      const end = Math.min(corpus.length, match.index + match[0].length + 120);
-      const snippet = corpus.slice(start, end).trim();
-
-      if (snippet.length > 0) {
-        return truncateSentence(snippet);
-      }
+      return truncateSentenceAtWordBoundary(sentence);
     }
   }
 
@@ -183,7 +186,7 @@ const INFERENCE_BY_QUESTION_KEY: Record<string, (corpus: string) => string | nul
 
 /** Deterministic, buyer-safe extraction from brief/evidence text — never invents facts beyond the corpus. */
 export function inferUniversalIntakeAnswersFromCorpus(corpus: string): Readonly<Record<string, string>> {
-  const normalized = corpus.replace(/\s+/g, " ").trim();
+  const normalized = normalizeClarificationInferenceCorpus(corpus);
 
   if (normalized.length < UNIVERSAL_INTAKE_INFERENCE_MIN_CORPUS_CHARS) {
     return {};
@@ -200,7 +203,7 @@ export function inferUniversalIntakeAnswersFromCorpus(corpus: string): Readonly<
 
     const answer = inferAnswer(normalized)?.trim() ?? "";
 
-    if (answer.length > 0) {
+    if (answer.length > 0 && isReadableInferredClarificationAnswer(answer)) {
       inferred[questionKey] = answer;
     }
   }

@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 import { buildArchitectureIntakeInferenceCorpus } from "@/lib/evidence-readable-text";
 import {
+  UNIVERSAL_INTAKE_INFERENCE_MIN_CORPUS_CHARS,
   inferUniversalIntakeAnswersFromCorpus,
   mergeInferredUniversalIntakeAnswers,
 } from "@/lib/universal-intake-answer-inference";
@@ -16,6 +17,7 @@ type UseInferredUniversalIntakeAnswersInput = {
 type UseInferredUniversalIntakeAnswersResult = {
   readonly inferredQuestionKeys: ReadonlySet<string>;
   readonly isExtractingEvidenceText: boolean;
+  readonly clarificationSuggestionsUnavailable: boolean;
   readonly markQuestionEdited: (questionKey: string) => void;
 };
 
@@ -25,6 +27,7 @@ export function useInferredUniversalIntakeAnswers(
 ): UseInferredUniversalIntakeAnswersResult {
   const [inferredQuestionKeys, setInferredQuestionKeys] = useState<ReadonlySet<string>>(() => new Set());
   const [isExtractingEvidenceText, setIsExtractingEvidenceText] = useState(false);
+  const [clarificationSuggestionsUnavailable, setClarificationSuggestionsUnavailable] = useState(false);
   const lockedQuestionKeysRef = useRef(new Set<string>());
   const onAnswersChangeRef = useRef(input.onAnswersChange);
   const answersRef = useRef(input.answers);
@@ -48,12 +51,21 @@ export function useInferredUniversalIntakeAnswers(
           return;
         }
 
+        const hasInferenceSource =
+          input.evidenceFiles.length > 0 || input.briefText.trim().length >= UNIVERSAL_INTAKE_INFERENCE_MIN_CORPUS_CHARS;
+
         const inferredAnswers = inferUniversalIntakeAnswersFromCorpus(corpus);
         const { mergedAnswers, newlyInferredQuestionKeys } = mergeInferredUniversalIntakeAnswers({
           currentAnswers: answersRef.current,
           inferredAnswers,
           lockedQuestionKeys: lockedQuestionKeysRef.current,
         });
+
+        setClarificationSuggestionsUnavailable(
+          hasInferenceSource
+            && corpus.trim().length >= UNIVERSAL_INTAKE_INFERENCE_MIN_CORPUS_CHARS
+            && Object.keys(inferredAnswers).length === 0,
+        );
 
         if (newlyInferredQuestionKeys.length === 0) {
           return;
@@ -101,6 +113,7 @@ export function useInferredUniversalIntakeAnswers(
   return {
     inferredQuestionKeys,
     isExtractingEvidenceText,
+    clarificationSuggestionsUnavailable,
     markQuestionEdited,
   };
 }
