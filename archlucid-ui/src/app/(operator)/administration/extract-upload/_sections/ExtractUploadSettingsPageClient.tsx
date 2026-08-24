@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import { AzureExtractorUploadFailureCallout } from "@/components/AzureExtractorUploadFailureCallout";
 import { AzureExtractorZipDropZone } from "@/components/AzureExtractorZipDropZone";
@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { AzureExtractorDemoScenarioPicker } from "@/components/wizard/AzureExtractorDemoScenarioPicker";
 import { AzureExtractorQuickStartCommandPanel } from "@/components/wizard/AzureExtractorQuickStartCommandPanel";
+import { useExtractUploadBaselineQuery } from "@/hooks/use-extract-upload-baseline-query";
 import type { ApiProblemDetails } from "@/lib/api-problem";
 import { buildApiRequestErrorFromParts } from "@/lib/api-error";
 import { parseAzureExtractorUploadFailure } from "@/lib/azure-extractor-upload-failure";
@@ -26,10 +27,7 @@ import {
 } from "@/lib/arch-lucid-azure-extractor-demo-scenarios";
 import { buildArchLucidAzurePackageZipFromFileList, type FolderPackageFileStatus } from "@/lib/read-arch-lucid-azure-folder-package";
 import { readArchLucidAzurePackageZipFromBytes, readArchLucidAzurePackageZipFromFile } from "@/lib/read-arch-lucid-azure-package-zip";
-import { tryParseJsonResponseText } from "@/lib/parse-json-response-text";
-import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import { showError, showSuccess } from "@/lib/toast";
-import { ApiV1Routes } from "@/lib/api-v1-routes";
 import {
   OPERATOR_DISCLOSURE_TRIGGER_CLASS,
   OPERATOR_LAYOUT,
@@ -66,22 +64,12 @@ import {
   EXTRACT_UPLOAD_SETTINGS_SKIP_LINK_LABEL,
 } from "@/lib/extract-upload-settings-page-copy";
 
-const EXTRACTOR_SCRIPT_CDN_URL =
-  process.env.NEXT_PUBLIC_EXTRACTOR_SCRIPT_CDN_URL?.trim() ||
-  "https://cdn.archlucid.net/scripts/Get-ArchLucidAzurePackage.ps1";
-
-const EXTRACTOR_SCRIPT_VERSION_PATTERN = /\$scriptVersion\s*=\s*"([^"]+)"/;
-
-type WorkspaceBaselineArtifactsPayload = {
-  hasBaselineArtifacts?: unknown;
-  extractorScriptVersion?: string | null;
-};
-
 /**
  * Guided Extract & Upload settings page — PowerShell script, validate hint, and server ZIP upload.
  */
 export function ExtractUploadSettingsPageClient() {
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const baselineQuery = useExtractUploadBaselineQuery();
   const [busy, setBusy] = useState(false);
   const [selectedFileLabel, setSelectedFileLabel] = useState<string | null>(null);
   const [uploadError, setUploadError] = useState<{
@@ -91,78 +79,14 @@ export function ExtractUploadSettingsPageClient() {
   } | null>(null);
   const [packageId, setPackageId] = useState<string | null>(null);
   const [fileStatuses, setFileStatuses] = useState<FolderPackageFileStatus[]>([]);
-  const [extractorUpdateBanner, setExtractorUpdateBanner] = useState<string | null>(null);
-  const [baselineLoading, setBaselineLoading] = useState(true);
-  const [hasBaselineArtifacts, setHasBaselineArtifacts] = useState<boolean | null>(null);
-  const [extractorScriptVersion, setExtractorScriptVersion] = useState<string | null>(null);
   const [selectedDemoScenarioId, setSelectedDemoScenarioId] = useState<AzureExtractorDemoScenarioId>(
     DEFAULT_AZURE_EXTRACTOR_DEMO_SCENARIO_ID,
   );
+  const baselineLoading = baselineQuery.isPending;
+  const hasBaselineArtifacts = baselineQuery.data?.hasBaselineArtifacts ?? null;
+  const extractorScriptVersion = baselineQuery.data?.extractorScriptVersion ?? null;
+  const extractorUpdateBanner = baselineQuery.data?.extractorUpdateBanner ?? null;
   const maxMb = Math.floor(ARCH_LUCID_AZURE_EXTRACTOR_MAX_ZIP_BYTES / (1024 * 1024));
-
-  useEffect(() => {
-    let canceled = false;
-
-    void (async () => {
-      setBaselineLoading(true);
-
-      try {
-        const [baselineResponse, scriptResponse] = await Promise.all([
-          fetch(
-            `/api/proxy/${ApiV1Routes.tenantWorkspaceBaselineArtifacts}`,
-            mergeRegistrationScopeForProxy({ headers: { Accept: "application/json" }, cache: "no-store" }),
-          ),
-          fetch(EXTRACTOR_SCRIPT_CDN_URL, { cache: "no-store" }),
-        ]);
-
-        if (canceled) {
-          return;
-        }
-
-        let baseline: WorkspaceBaselineArtifactsPayload | null = null;
-
-        if (baselineResponse.ok) {
-          baseline = tryParseJsonResponseText<WorkspaceBaselineArtifactsPayload>(await baselineResponse.text());
-          setHasBaselineArtifacts(baseline?.hasBaselineArtifacts === true);
-          setExtractorScriptVersion(baseline?.extractorScriptVersion?.trim() || null);
-        } else {
-          setHasBaselineArtifacts(null);
-          setExtractorScriptVersion(null);
-        }
-
-        if (!scriptResponse.ok || baseline === null) {
-          return;
-        }
-
-        const scriptText = await scriptResponse.text();
-        const match = EXTRACTOR_SCRIPT_VERSION_PATTERN.exec(scriptText);
-        const latestVersion = match?.[1]?.trim();
-
-        if (!latestVersion || !baseline.extractorScriptVersion) {
-          return;
-        }
-
-        if (baseline.extractorScriptVersion !== latestVersion) {
-          setExtractorUpdateBanner(
-            `Your last uploaded ZIP used extractor script v${baseline.extractorScriptVersion}. v${latestVersion} is available — download the updated script for improved coverage.`,
-          );
-        }
-      } catch {
-        if (!canceled) {
-          setHasBaselineArtifacts(null);
-          setExtractorScriptVersion(null);
-        }
-      } finally {
-        if (!canceled) {
-          setBaselineLoading(false);
-        }
-      }
-    })();
-
-    return () => {
-      canceled = true;
-    };
-  }, []);
 
   async function onFolderSelected(files: FileList): Promise<void> {
     setUploadError(null);

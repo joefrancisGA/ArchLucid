@@ -1,19 +1,19 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 
 import { AiBudgetSpendNotice } from "@/components/ai-budget/AiBudgetSpendNotice";
 import { ArchitectureIntelligenceAnalysisDepthSelect } from "@/components/architecture-intelligence/ArchitectureIntelligenceAnalysisDepthSelect";
 import { ArchitectureIntelligenceRefineResultSummary } from "@/components/architecture-intelligence/ArchitectureIntelligenceRefineResultSummary";
 import { Button } from "@/components/ui/button";
 import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
+import { useArchitectureIntelligenceSourceContextQuery } from "@/hooks/use-architecture-intelligence-source-context-query";
 import { useLlmMonthlyBudgetExecutionGate } from "@/hooks/use-llm-monthly-budget-execution-gate";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import {
   buildArchitectureIntelligenceRunRequest,
-  fetchArchitectureIntelligenceProductSourceContext,
   primaryDescriptionFromSources,
   runArchitectureIntelligenceReasoning,
   type ClosedLoopReasoningResult,
@@ -39,37 +39,42 @@ type SourceContextStatus = "loading" | "ready" | "empty" | "error";
 export function RunDetailAiRefinePanel(props: RunDetailAiRefinePanelProps) {
   const { runId } = props;
   const { blocksLlmExecution } = useLlmMonthlyBudgetExecutionGate();
+  const sourceContextQuery = useArchitectureIntelligenceSourceContextQuery(runId);
 
-  const [contextStatus, setContextStatus] = useState<SourceContextStatus>("loading");
-  const [hydratedSources, setHydratedSources] = useState<ClosedLoopReasoningSourceText[]>([]);
-  const [architectureDescription, setArchitectureDescription] = useState("");
-  const [priorities, setPriorities] = useState<string[]>([]);
   const [reviewTier, setReviewTier] = useState<ArchitectureIntelligenceReviewTier>("Standard");
   const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<ApiLoadFailureState | null>(null);
+  const [mutationError, setMutationError] = useState<ApiLoadFailureState | null>(null);
   const [result, setResult] = useState<ClosedLoopReasoningResult | null>(null);
 
-  const loadSourceContext = useCallback(async () => {
-    setContextStatus("loading");
-    setError(null);
+  const hydratedSources = useMemo(
+    () => [...(sourceContextQuery.data?.sourceTexts ?? [])],
+    [sourceContextQuery.data?.sourceTexts],
+  );
+  const architectureDescription = useMemo(
+    () => primaryDescriptionFromSources(sourceContextQuery.data?.sourceTexts ?? []),
+    [sourceContextQuery.data?.sourceTexts],
+  );
+  const priorities = useMemo(
+    () => [...(sourceContextQuery.data?.declaredPriorities ?? [])],
+    [sourceContextQuery.data?.declaredPriorities],
+  );
+
+  const contextStatus: SourceContextStatus = sourceContextQuery.isPending
+    ? "loading"
+    : sourceContextQuery.isError
+      ? "error"
+      : (sourceContextQuery.data?.sourceTexts.length ?? 0) > 0
+        ? "ready"
+        : "empty";
+  const error =
+    mutationError ??
+    (sourceContextQuery.isError ? toApiLoadFailure(sourceContextQuery.error) : null);
+
+  const reloadSourceContext = useCallback(() => {
     setResult(null);
-
-    try {
-      const context = await fetchArchitectureIntelligenceProductSourceContext(runId);
-      const sources = context.sourceTexts ?? [];
-      setHydratedSources(sources);
-      setArchitectureDescription(primaryDescriptionFromSources(sources));
-      setPriorities(context.declaredPriorities ?? []);
-      setContextStatus(sources.length > 0 ? "ready" : "empty");
-    } catch (cause) {
-      setContextStatus("error");
-      setError(toApiLoadFailure(cause));
-    }
-  }, [runId]);
-
-  useEffect(() => {
-    void loadSourceContext();
-  }, [loadSourceContext]);
+    setMutationError(null);
+    void sourceContextQuery.refetch();
+  }, [sourceContextQuery]);
 
   const canRefine =
     contextStatus === "ready" &&
@@ -83,7 +88,7 @@ export function RunDetailAiRefinePanel(props: RunDetailAiRefinePanelProps) {
     }
 
     setBusy(true);
-    setError(null);
+    setMutationError(null);
 
     try {
       const next = await runArchitectureIntelligenceReasoning(
@@ -99,7 +104,7 @@ export function RunDetailAiRefinePanel(props: RunDetailAiRefinePanelProps) {
 
       setResult(next);
     } catch (cause) {
-      setError(toApiLoadFailure(cause));
+      setMutationError(toApiLoadFailure(cause));
     } finally {
       setBusy(false);
     }
@@ -185,7 +190,7 @@ export function RunDetailAiRefinePanel(props: RunDetailAiRefinePanelProps) {
       {error !== null ? (
         <div className="space-y-2" data-testid="run-detail-ai-refine-error">
           <OperatorApiProblem failure={error} />
-          <Button type="button" variant="outline" size="sm" onClick={() => void loadSourceContext()}>
+          <Button type="button" variant="outline" size="sm" onClick={() => void reloadSourceContext()}>
             Try again
           </Button>
         </div>

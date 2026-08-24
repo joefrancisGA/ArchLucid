@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import { usePilotRunDeltasQuery } from "@/hooks/use-pilot-run-deltas-query";
+import { useTenantBaselineRoiQuery } from "@/hooks/use-tenant-baseline-roi-query";
 import { useTenantTrialStatusQuery } from "@/hooks/use-tenant-trial-status-query";
 import { downloadFirstValueReportPdf, markSponsorPackSent } from "@/lib/api";
 import type { ApiProblemDetails } from "@/lib/api-problem";
@@ -21,16 +22,9 @@ import {
   isProjectedUsdSponsorBadgeVisible,
   type PilotRunDeltasProofSummaryJson,
 } from "@/lib/pilot-proof-readiness";
-import { isPilotRoiBaselineComplete } from "@/lib/pilot-roi-baseline-completeness";
-import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import { recordSponsorBannerFirstCommitBadge } from "@/lib/sponsor-banner-telemetry";
 
 import type { EmailRunToSponsorBannerProps } from "./EmailRunToSponsorBanner";
-
-type TenantBaselineRoiGatePayload = {
-  baselineReviewCycleHours?: unknown;
-  manualPrepHoursPerReview?: unknown;
-};
 
 type ProofGateState =
   | { status: "skipped" }
@@ -69,7 +63,7 @@ export function useEmailRunToSponsorBanner(props: EmailRunToSponsorBannerProps) 
   } | null>(null);
   const [badgeDayN, setBadgeDayN] = useState<number | null>(null);
   const [timeToFirstCommitHours, setTimeToFirstCommitHours] = useState<number | null>(null);
-  const [roiBaselineGate, setRoiBaselineGate] = useState<boolean | null>(null);
+  const { data: roiBaselineGate } = useTenantBaselineRoiQuery({ enabled: sidecarFetchesEnabled });
   const telemetrySentRef = useRef(false);
   const [readinessLoadingPhase, setReadinessLoadingPhase] = useState<"quick" | "slow">("quick");
 
@@ -160,56 +154,6 @@ export function useEmailRunToSponsorBanner(props: EmailRunToSponsorBannerProps) 
     telemetrySentRef.current = true;
     recordSponsorBannerFirstCommitBadge(badgeDayN);
   }, [badgeDayN]);
-
-  useEffect(() => {
-    if (!sidecarFetchesEnabled) {
-      setRoiBaselineGate(null);
-
-      return;
-    }
-
-    let canceled = false;
-
-    async function loadBaseline(): Promise<void> {
-      try {
-        const baselineRes = await fetch(
-          "/api/proxy/v1/tenant/baseline",
-          mergeRegistrationScopeForProxy({ headers: { Accept: "application/json" } }),
-        );
-
-        if (canceled) {
-          return;
-        }
-
-        if (baselineRes.ok) {
-          try {
-            const baselinePayload = (await baselineRes.json()) as TenantBaselineRoiGatePayload;
-
-            setRoiBaselineGate(
-              isPilotRoiBaselineComplete({
-                baselineReviewCycleHours: baselinePayload.baselineReviewCycleHours,
-                manualPrepHoursPerReview: baselinePayload.manualPrepHoursPerReview,
-              }),
-            );
-          } catch {
-            setRoiBaselineGate(null);
-          }
-        } else {
-          setRoiBaselineGate(null);
-        }
-      } catch {
-        if (!canceled) {
-          setRoiBaselineGate(null);
-        }
-      }
-    }
-
-    void loadBaseline();
-
-    return () => {
-      canceled = true;
-    };
-  }, [sidecarFetchesEnabled]);
 
   const markdownHref = `/api/proxy/v1/pilots/runs/${encodeURIComponent(runId)}/first-value-report`;
   const SponsorReviewPacketHref = `/api/proxy/v1/pilots/runs/${encodeURIComponent(runId)}/sponsor-review-packet`;

@@ -76,7 +76,7 @@ import {
   SSO_WIZARD_METADATA_RETRIEVED_SUCCESS_MESSAGE,
   SSO_WIZARD_TEST_LOGIN_SUCCESS_MESSAGE,
 } from "@/lib/admin-integration-mutation-outcome-copy";
-import { fetchTenantIdentityProviderConfiguration } from "@/lib/admin-identity-provider-api";
+import { useTenantIdentityProviderConfigurationQuery } from "@/hooks/use-tenant-identity-provider-configuration-query";
 import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { SSO_WIZARD_CANONICAL_PATH } from "@/lib/sso-wizard-evidence-copy";
 import { resolveSsoWizardPrimaryDisabledReason } from "@/lib/sso-wizard-disabled-cta";
@@ -156,8 +156,14 @@ export function SsoWizardPageClient() {
   const [existingConfigSummary, setExistingConfigSummary] = useState<SsoWizardExistingConfigSummaryModel | null>(
     null,
   );
-  const [existingConfigLoading, setExistingConfigLoading] = useState(true);
-  const [existingConfigLoadError, setExistingConfigLoadError] = useState<string | null>(null);
+  const existingConfigQuery = useTenantIdentityProviderConfigurationQuery();
+  const existingConfigLoading = existingConfigQuery.isPending;
+  const existingConfigLoadError =
+    existingConfigQuery.isError
+      ? (existingConfigQuery.error instanceof Error
+          ? existingConfigQuery.error.message
+          : SSO_WIZARD_EXISTING_CONFIG_LOAD_ERROR)
+      : null;
   const [configurationSaved, setConfigurationSaved] = useState(false);
   const handleSessionRestore = useCallback((snapshot: { stepIndex: number; state: SsoWizardState }) => {
     setStep(snapshot.stepIndex);
@@ -172,46 +178,21 @@ export function SsoWizardPageClient() {
   });
 
   useEffect(() => {
-    let cancelled = false;
-
-    async function loadExistingConfiguration(): Promise<void> {
-      setExistingConfigLoading(true);
-      setExistingConfigLoadError(null);
-
-      try {
-        const record = await fetchTenantIdentityProviderConfiguration();
-
-        if (cancelled) {
-          return;
-        }
-
-        if (record === null) {
-          setExistingConfigSummary(null);
-
-          return;
-        }
-
-        setExistingConfigSummary(buildSsoWizardExistingConfigSummary(record));
-        setState((current) => (ssoWizardHasUnsavedChanges(current, 0) ? current : hydrateSsoWizardStateFromTenantRecord(record)));
-      } catch (loadError: unknown) {
-        if (!cancelled) {
-          setExistingConfigLoadError(
-            loadError instanceof Error ? loadError.message : SSO_WIZARD_EXISTING_CONFIG_LOAD_ERROR,
-          );
-        }
-      } finally {
-        if (!cancelled) {
-          setExistingConfigLoading(false);
-        }
-      }
+    if (existingConfigQuery.data === undefined) {
+      return;
     }
 
-    void loadExistingConfiguration();
+    const record = existingConfigQuery.data;
 
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+    if (record === null) {
+      setExistingConfigSummary(null);
+
+      return;
+    }
+
+    setExistingConfigSummary(buildSsoWizardExistingConfigSummary(record));
+    setState((current) => (ssoWizardHasUnsavedChanges(current, 0) ? current : hydrateSsoWizardStateFromTenantRecord(record)));
+  }, [existingConfigQuery.data]);
 
   useEffect(() => {
     document.getElementById("sso-wizard-step-heading")?.focus();

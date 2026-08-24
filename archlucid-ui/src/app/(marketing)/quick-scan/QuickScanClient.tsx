@@ -17,6 +17,7 @@ import { QuickScanEvidenceOrientationStrip } from "@/components/marketing/QuickS
 import { QuickScanScopeDisclosure } from "@/components/marketing/quick-scan/QuickScanScopeDisclosure";
 import { TrustCenterRevisionHistory } from "@/components/marketing/trust-center/TrustCenterRevisionHistory";
 import { Button } from "@/components/ui/button";
+import { useQuickScanStatusQuery } from "@/hooks/use-quick-scan-status-query";
 import { DESIGN_TOKENS, MARKETING_MOTION, MARKETING_SURFACES, MARKETING_TYPOGRAPHY } from "@/lib/design-tokens";
 import { findingSeverityLabel } from "@/lib/findings/finding-severity-label";
 import {
@@ -178,7 +179,8 @@ export function QuickScanClient(): ReactElement {
   const [error, setError] = useState<string | null>(null);
   const [capacityMessage, setCapacityMessage] = useState<string | null>(null);
   const [result, setResult] = useState<QuickScanResponse | null>(null);
-  const [status, setStatus] = useState<QuickScanStatusResponse | null>(null);
+  const { data: statusQueryData } = useQuickScanStatusQuery();
+  const status = statusQueryData ?? null;
 
   const fieldErrors = useMemo(() => validateQuickScanForm(formValues), [formValues]);
   const visibleFieldErrors = useMemo(
@@ -250,34 +252,20 @@ export function QuickScanClient(): ReactElement {
   }, [result, focusResults]);
 
   useEffect(() => {
-    void (async () => {
-      try {
-        const response = await fetch("/api/proxy/v1/marketing/quick-scan/status", {
-          credentials: "include",
-          cache: "no-store",
-        });
+    if (status === null) {
+      return;
+    }
 
-        if (!response.ok) {
-          return;
-        }
+    const message = resolveQuickScanCapacityMessage(status);
 
-        const body = (await response.json()) as QuickScanStatusResponse;
-        setStatus(body);
+    if (message !== null) {
+      setCapacityMessage(message);
+    }
 
-        const message = resolveQuickScanCapacityMessage(body);
-
-        if (message !== null) {
-          setCapacityMessage(message);
-        }
-
-        if (body.capacityState === "SampleOnly" && body.sampleResultAvailable) {
-          showSampleResult("SampleOnly");
-        }
-      } catch {
-        /* ignore — form still works with server-side enforcement */
-      }
-    })();
-  }, [showSampleResult]);
+    if (status.capacityState === "SampleOnly" && status.sampleResultAvailable) {
+      showSampleResult("SampleOnly");
+    }
+  }, [showSampleResult, status]);
 
   const markFieldTouched = useCallback((fieldName: QuickScanFormFieldName) => {
     setTouchedFields((previous) => {

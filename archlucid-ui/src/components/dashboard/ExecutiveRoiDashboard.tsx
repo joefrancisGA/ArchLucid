@@ -5,7 +5,7 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { useEffect, useState } from "react";
 
 import { ApiV1Routes } from "@/lib/api-v1-routes";
-import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
+import { useSponsorRoiAggregatesQuery } from "@/hooks/use-roi-dashboard-queries";
 
 type SponsorRoiAggregates = {
   timeSavedHours: number;
@@ -36,39 +36,8 @@ function formatCount(value: number): string {
 /** @deprecated Demo/legacy only — production `/dashboard` uses `SponsorRoiDashboardLiveKpiCards` (TB-062). */
 /** Sponsor ROI tiles backed by `GET /v1/analytics/roi` (mocked on the API until persistence is defined). */
 export function SponsorRoiDashboard() {
-  const [data, setData] = useState<SponsorRoiAggregates | null>(null);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    let canceled = false;
-
-    void (async () => {
-      try {
-        const res = await fetch(
-          ROI_PATH,
-          mergeRegistrationScopeForProxy({ headers: { Accept: "application/json" } }),
-        );
-
-        if (!res.ok) {
-          throw new Error(`HTTP ${res.status}`);
-        }
-
-        const json = (await res.json()) as SponsorRoiAggregates;
-
-        if (!canceled) {
-          setData(json);
-        }
-      } catch (e: unknown) {
-        if (!canceled) {
-          setError(e instanceof Error ? e.message : "Failed to load ROI metrics.");
-        }
-      }
-    })();
-
-    return () => {
-      canceled = true;
-    };
-  }, []);
+  const { data, error: queryError } = useSponsorRoiAggregatesQuery();
+  const error = queryError instanceof Error ? queryError.message : queryError ? "Failed to load ROI metrics." : null;
 
   if (error) {
     return (

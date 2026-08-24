@@ -1,20 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
-
-import { compareRunsEndToEnd } from "@/lib/api/architecture-runs";
-import {
-  coerceCompareFindingCorrelationMetadata,
-  type CompareFindingCorrelationMetadata,
+import { useCompareFindingCorrelationQuery } from "@/hooks/use-compare-finding-correlation-query";
+import type {
+  CompareFindingCorrelationMetadata,
 } from "@/lib/compare-finding-correlation";
-import {
-  coerceCompareFindingLifecycleRecords,
-  coerceCompareFindingLifecycleSummary,
-  type CompareFindingLifecycleRecord,
-  type CompareFindingLifecycleSummary,
+import type {
+  CompareFindingLifecycleRecord,
+  CompareFindingLifecycleSummary,
 } from "@/lib/compare-finding-lifecycle";
-import { coerceCompareQualityDeltaCounts, type CompareQualityDeltaCounts } from "@/lib/review-quality/compare-quality-delta";
-import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
+import type { CompareQualityDeltaCounts } from "@/lib/review-quality/compare-quality-delta";
 
 export type CompareFindingCorrelationLoadState = {
   readonly loading: boolean;
@@ -32,89 +26,28 @@ export function useCompareFindingCorrelation(
   baselineRunId: string | null,
   targetRunId: string | null,
 ): CompareFindingCorrelationLoadState {
-  const [loading, setLoading] = useState(false);
-  const [metadata, setMetadata] = useState<CompareFindingCorrelationMetadata | null>(null);
-  const [lifecycle, setLifecycle] = useState<CompareFindingLifecycleSummary | null>(null);
-  const [lifecycleRecords, setLifecycleRecords] = useState<readonly CompareFindingLifecycleRecord[]>([]);
-  const [compareQualityDelta, setCompareQualityDelta] = useState<CompareQualityDeltaCounts | null>(null);
-  const [softFailureMessage, setSoftFailureMessage] = useState<string | null>(null);
+  const query = useCompareFindingCorrelationQuery(baselineRunId, targetRunId);
+  const baseline = baselineRunId?.trim() ?? "";
+  const target = targetRunId?.trim() ?? "";
+  const pairReady = baseline.length > 0 && target.length > 0;
 
-  useEffect(() => {
-    const baseline = baselineRunId?.trim() ?? "";
-    const target = targetRunId?.trim() ?? "";
-
-    if (baseline.length === 0 || target.length === 0) {
-      setLoading(false);
-      setMetadata(null);
-      setLifecycle(null);
-      setLifecycleRecords([]);
-      setCompareQualityDelta(null);
-      setSoftFailureMessage(null);
-      return;
-    }
-
-    if (canonicalizeDemoRunId(baseline).toLowerCase() === canonicalizeDemoRunId(target).toLowerCase()) {
-      setLoading(false);
-      setMetadata(null);
-      setLifecycle(null);
-      setLifecycleRecords([]);
-      setCompareQualityDelta(null);
-      setSoftFailureMessage(null);
-      return;
-    }
-
-    let canceled = false;
-
-    setLoading(true);
-    setMetadata(null);
-    setLifecycle(null);
-    setLifecycleRecords([]);
-    setCompareQualityDelta(null);
-    setSoftFailureMessage(null);
-
-    async function load(): Promise<void> {
-      try {
-        const response = await compareRunsEndToEnd(baseline, target);
-        const rawCorrelation = response.report?.findingCorrelation ?? null;
-        const nextMetadata = coerceCompareFindingCorrelationMetadata(rawCorrelation);
-
-        if (!canceled) {
-          if (rawCorrelation !== null && rawCorrelation !== undefined && nextMetadata === null) {
-            setMetadata(null);
-            setLifecycle(null);
-            setLifecycleRecords([]);
-            setCompareQualityDelta(null);
-            setSoftFailureMessage("finding correlation metadata");
-          } else {
-            setMetadata(nextMetadata);
-            setLifecycle(coerceCompareFindingLifecycleSummary(response.report?.findingLifecycle ?? null));
-            setLifecycleRecords(
-              coerceCompareFindingLifecycleRecords(response.report?.findingLifecycleRecords ?? null),
-            );
-            setCompareQualityDelta(coerceCompareQualityDeltaCounts(response.report?.compareQualityDelta ?? null));
-            setSoftFailureMessage(null);
-          }
-
-          setLoading(false);
-        }
-      } catch {
-        if (!canceled) {
-          setMetadata(null);
-          setLifecycle(null);
-          setLifecycleRecords([]);
-          setCompareQualityDelta(null);
-          setSoftFailureMessage("finding correlation metadata");
-          setLoading(false);
-        }
-      }
-    }
-
-    void load();
-
-    return () => {
-      canceled = true;
+  if (!pairReady) {
+    return {
+      loading: false,
+      metadata: null,
+      lifecycle: null,
+      lifecycleRecords: [],
+      compareQualityDelta: null,
+      softFailureMessage: null,
     };
-  }, [baselineRunId, targetRunId]);
+  }
 
-  return { loading, metadata, lifecycle, lifecycleRecords, compareQualityDelta, softFailureMessage };
+  return {
+    loading: query.isPending,
+    metadata: query.data?.metadata ?? null,
+    lifecycle: query.data?.lifecycle ?? null,
+    lifecycleRecords: query.data?.lifecycleRecords ?? [],
+    compareQualityDelta: query.data?.compareQualityDelta ?? null,
+    softFailureMessage: query.data?.softFailureMessage ?? null,
+  };
 }

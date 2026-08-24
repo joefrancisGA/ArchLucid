@@ -2,9 +2,8 @@
 
 import { useEffect, useMemo, useState } from "react";
 
-import { fetchLlmMonthlyDollarBudgetStatusCached, type LlmMonthlyDollarBudgetStatus } from "@/lib/llm-monthly-budget-status";
-import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
-import type { TenantTrialStatusPayload } from "@/types/tenant-trial-status";
+import { useLlmMonthlyBudgetStatusQuery } from "@/hooks/use-llm-monthly-budget-status-query";
+import { useTenantTrialStatusQuery } from "@/hooks/use-tenant-trial-status-query";
 
 import { PilotConversionCta } from "./PilotConversionCta";
 
@@ -17,7 +16,8 @@ type RunDetailBuyerPilotConversionSectionProps = {
  */
 export function RunDetailBuyerPilotConversionSection(props: RunDetailBuyerPilotConversionSectionProps) {
   const { buyerPolishedArtifactTable } = props;
-  const [budgetStatus, setBudgetStatus] = useState<LlmMonthlyDollarBudgetStatus | null>(null);
+  const { data: budgetStatus } = useLlmMonthlyBudgetStatusQuery({ enabled: buyerPolishedArtifactTable });
+  const { data: trialPayload } = useTenantTrialStatusQuery({ enabled: buyerPolishedArtifactTable });
   const [trialStatus, setTrialStatus] = useState<"unknown" | "active" | "inactive">("unknown");
 
   useEffect(() => {
@@ -25,61 +25,32 @@ export function RunDetailBuyerPilotConversionSection(props: RunDetailBuyerPilotC
       return;
     }
 
-    let canceled = false;
+    if (trialPayload === undefined) {
+      return;
+    }
 
-    void (async () => {
-      try {
-        const status = await fetchLlmMonthlyDollarBudgetStatusCached();
+    if (trialPayload === null) {
+      setTrialStatus("unknown");
 
-        if (!canceled) {
-          setBudgetStatus(status);
-        }
-      } catch {
-        if (!canceled) {
-          setBudgetStatus(null);
-        }
-      }
-    })();
+      return;
+    }
 
-    void (async () => {
-      try {
-        const payload = await fetch(
-          "/api/proxy/v1/tenant/trial-status",
-          mergeRegistrationScopeForProxy({ headers: { Accept: "application/json" } }),
-        ).then(async (res) => {
-          if (!res.ok) {
-            return null;
-          }
+    const nextStatus = trialPayload.status;
 
-          return (await res.json()) as TenantTrialStatusPayload;
-        });
+    if (nextStatus === "Active" || nextStatus === "ReadOnly" || nextStatus === "ExportOnly") {
+      setTrialStatus("active");
 
-        if (canceled) {
-          return;
-        }
+      return;
+    }
 
-        const nextStatus = payload?.status;
+    if (typeof nextStatus === "string") {
+      setTrialStatus("inactive");
 
-        if (nextStatus === "Active" || nextStatus === "ReadOnly" || nextStatus === "ExportOnly") {
-          setTrialStatus("active");
+      return;
+    }
 
-          return;
-        }
-
-        if (typeof nextStatus === "string") {
-          setTrialStatus("inactive");
-        }
-      } catch {
-        if (!canceled) {
-          setTrialStatus("unknown");
-        }
-      }
-    })();
-
-    return () => {
-      canceled = true;
-    };
-  }, [buyerPolishedArtifactTable]);
+    setTrialStatus("unknown");
+  }, [buyerPolishedArtifactTable, trialPayload]);
 
   const blocksAdditionalLlmExecution = useMemo(() => {
     return budgetStatus?.blocksAdditionalLlmExecution === true;

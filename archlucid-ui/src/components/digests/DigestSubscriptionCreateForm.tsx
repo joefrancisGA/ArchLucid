@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
+import { useTenantIntegrationsOperationsQuery } from "@/hooks/use-tenant-integrations-operations-query";
 import {
   channelDestinationFieldLabel,
   channelDestinationHelper,
@@ -36,7 +37,6 @@ import {
   digestSubscriptionsCreateSubscriptionButtonLabelReaderRank,
 } from "@/lib/enterprise-controls-context-copy";
 import { whyDisabledEnterpriseMutationControl, whyDisabledIncompleteInput, firstWhyDisabledCtaReason } from "@/lib/why-disabled-cta";
-import { fetchTenantIntegrationsOperations } from "@/lib/api/tenant-customer-success";
 import { isBuyerPolishedOperatorShellEnv, isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
 import type { DigestSubscription } from "@/types/digest-subscriptions";
 import type { TenantIntegrationsOperationsDto } from "@/types/operate-rhythm";
@@ -70,27 +70,8 @@ export function DigestSubscriptionCreateForm(props: DigestSubscriptionCreateForm
   const [createEnabled, setCreateEnabled] = useState<boolean>(true);
   const [destinationTouched, setDestinationTouched] = useState<boolean>(false);
   const [nameTouched, setNameTouched] = useState<boolean>(false);
-  const [integrationOps, setIntegrationOps] = useState<TenantIntegrationsOperationsDto | null>(null);
-
-  useEffect(() => {
-    let canceled = false;
-
-    void fetchTenantIntegrationsOperations()
-      .then((data) => {
-        if (!canceled) {
-          setIntegrationOps(data);
-        }
-      })
-      .catch(() => {
-        if (!canceled) {
-          setIntegrationOps(null);
-        }
-      });
-
-    return () => {
-      canceled = true;
-    };
-  }, []);
+  const integrationsQuery = useTenantIntegrationsOperationsQuery();
+  const integrationOps = integrationsQuery.data ?? null;
 
   useEffect(() => {
     if (props.collapsedByDefault) {

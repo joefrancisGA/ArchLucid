@@ -3,8 +3,8 @@ import { cn } from "@/lib/utils";
 import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
 
+import { useAgentExecutionCostPreviewQuery } from "@/hooks/use-wizard-advanced-queries";
 import { resolveInAppDocHref } from "@/lib/in-app-doc-href";
 
 export type AgentExecutionCostPreviewPayload = {
@@ -39,43 +39,10 @@ function formatUsd(value: number): string {
  */
 export function RunWizardCostPreviewCard(props: RunWizardCostPreviewCardProps = {}) {
   const previewUrl = props.previewUrl ?? "/api/proxy/v1/agent-execution/cost-preview";
-  const [data, setData] = useState<AgentExecutionCostPreviewPayload | null>(null);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    let canceled = false;
-
-    const load = async () => {
-      try {
-        const res = await fetch(previewUrl, { method: "GET", credentials: "include" });
-
-        if (!res.ok) {
-          if (!canceled) {
-            setError(`Preview unavailable (${res.status})`);
-          }
-
-          return;
-        }
-
-        const json = (await res.json()) as AgentExecutionCostPreviewPayload;
-
-        if (!canceled) {
-          setData(json);
-          setError(null);
-        }
-      } catch {
-        if (!canceled) {
-          setError("Preview unavailable");
-        }
-      }
-    };
-
-    void load();
-
-    return () => {
-      canceled = true;
-    };
-  }, [previewUrl]);
+  const { data, isError, error: queryError } = useAgentExecutionCostPreviewQuery(previewUrl);
+  const error = isError
+    ? (queryError instanceof Error ? queryError.message : "Preview unavailable")
+    : null;
 
   if (error !== null) {
     return (

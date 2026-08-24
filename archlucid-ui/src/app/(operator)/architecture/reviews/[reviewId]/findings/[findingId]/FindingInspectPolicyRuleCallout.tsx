@@ -2,12 +2,12 @@
 
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useMemo, useState } from "react";
 import type { ReactElement } from "react";
 
 import { FindingPolicyTraceabilityBadges } from "@/components/findings/FindingPolicyTraceabilityBadges";
 import { StatusTag } from "@/components/ui/status-tag";
-import { getEffectivePolicyPacks } from "@/lib/api/policy-governance-api";
+import { useEffectivePolicyPacksQuery } from "@/hooks/use-effective-policy-packs-query";
 import type {
   FindingPolicyCitationLink,
   FindingPolicyPackCitationLink,
@@ -41,42 +41,20 @@ function initialPreview(
 /** Inline customer policy rule text shown before architecture evidence on finding inspect. */
 export function FindingInspectPolicyRuleCallout(props: FindingInspectPolicyRuleCalloutProps): ReactElement {
   const { pack, policy, className } = props;
-  const [preview, setPreview] = useState<PolicyRulePreview>(() => initialPreview(pack, policy));
-  const [loading, setLoading] = useState(true);
-  const [loadError, setLoadError] = useState<string | null>(null);
+  const { data: effective, isPending, isError, error } = useEffectivePolicyPacksQuery();
+  const loading = isPending;
+  const loadError = isError ? (error instanceof Error ? error.message : "Could not load policy rule text.") : null;
 
-  useEffect(() => {
-    let canceled = false;
+  const preview = useMemo(() => {
+    if (effective === undefined) {
+      return initialPreview(pack, policy);
+    }
 
-    void (async () => {
-      setLoading(true);
-      setLoadError(null);
-
-      try {
-        const effective = await getEffectivePolicyPacks();
-        const resolved =
-          lookupPolicyRulePreviewInEffectivePacks(policy.ruleId, effective.packs) ??
-          initialPreview(pack, policy);
-
-        if (!canceled) {
-          setPreview(resolved);
-        }
-      } catch (error) {
-        if (!canceled) {
-          setLoadError(error instanceof Error ? error.message : "Could not load policy rule text.");
-          setPreview(initialPreview(pack, policy));
-        }
-      } finally {
-        if (!canceled) {
-          setLoading(false);
-        }
-      }
-    })();
-
-    return () => {
-      canceled = true;
-    };
-  }, [pack, policy]);
+    return (
+      lookupPolicyRulePreviewInEffectivePacks(policy.ruleId, effective.packs) ??
+      initialPreview(pack, policy)
+    );
+  }, [effective, pack, policy]);
 
   const violationLabel = pack !== null ? `Policy violation: ${pack.packName}` : "Policy violation";
 
