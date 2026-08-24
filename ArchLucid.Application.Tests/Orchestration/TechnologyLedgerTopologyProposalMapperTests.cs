@@ -132,6 +132,63 @@ public sealed class TechnologyLedgerAgentProposalMergePolicyTests
         resolved.Should().BeNull();
     }
 
+    [Fact]
+    public void Resolve_skips_duplicate_assumed_when_no_chosen_exists()
+    {
+        TechnologyLedgerEntry existingAssumed = CreateCandidate(CloudProvider.Aws);
+        TechnologyLedgerEntry candidate = CreateCandidate(CloudProvider.Aws);
+
+        TechnologyLedgerEntry? resolved =
+            TechnologyLedgerAgentProposalMergePolicy.Resolve(candidate, [existingAssumed]);
+
+        resolved.Should().BeNull();
+    }
+
+    [Fact]
+    public void Resolve_skips_duplicate_assumed_when_chosen_provider_differs()
+    {
+        TechnologyLedgerEntry chosen = CreateChosen(CloudProvider.Azure);
+        TechnologyLedgerEntry existingAssumed = CreateCandidate(CloudProvider.Aws);
+        TechnologyLedgerEntry candidate = CreateCandidate(CloudProvider.Aws);
+
+        TechnologyLedgerEntry? resolved =
+            TechnologyLedgerAgentProposalMergePolicy.Resolve(candidate, [chosen, existingAssumed]);
+
+        resolved.Should().BeNull();
+    }
+
+    [Fact]
+    public void Resolve_treats_technology_name_case_insensitively()
+    {
+        TechnologyLedgerEntry existingAssumed = CreateCandidate(CloudProvider.Aws);
+        existingAssumed.TechnologyName = "PostgreSQL";
+
+        TechnologyLedgerEntry candidate = CreateCandidate(CloudProvider.Aws);
+        candidate.TechnologyName = "postgresql";
+
+        TechnologyLedgerEntry? resolved =
+            TechnologyLedgerAgentProposalMergePolicy.Resolve(candidate, [existingAssumed]);
+
+        resolved.Should().BeNull();
+    }
+
+    [Fact]
+    public void Resolve_skips_when_evidence_ref_already_present()
+    {
+        TechnologyLedgerEntry existingAssumed = CreateCandidate(CloudProvider.Aws);
+        existingAssumed.EvidenceRef = "agentTopologyProposal:p1:svc-api";
+        existingAssumed.TechnologyName = "api-a";
+
+        TechnologyLedgerEntry candidate = CreateCandidate(CloudProvider.Aws);
+        candidate.EvidenceRef = "agentTopologyProposal:p1:svc-api";
+        candidate.TechnologyName = "api-b";
+
+        TechnologyLedgerEntry? resolved =
+            TechnologyLedgerAgentProposalMergePolicy.Resolve(candidate, [existingAssumed]);
+
+        resolved.Should().BeNull();
+    }
+
     private static TechnologyLedgerEntry CreateChosen(CloudProvider provider) =>
         new()
         {
@@ -154,6 +211,7 @@ public sealed class TechnologyLedgerAgentProposalMergePolicyTests
             ProviderFamily = provider,
             Status = TechnologyLedgerStatus.Assumed,
             Source = TechnologyLedgerSource.AgentProposed,
+            EvidenceRef = "agentTopologyProposal:p1:candidate",
             CreatedUtc = DateTime.UtcNow,
             UpdatedUtc = DateTime.UtcNow,
         };

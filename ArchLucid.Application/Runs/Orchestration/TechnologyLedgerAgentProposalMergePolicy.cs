@@ -11,6 +11,9 @@ public static class TechnologyLedgerAgentProposalMergePolicy
         ArgumentNullException.ThrowIfNull(candidate);
         ArgumentNullException.ThrowIfNull(existingRows);
 
+        if (HasMatchingProposal(candidate, existingRows))
+            return null;
+
         TechnologyLedgerEntry? chosen = existingRows
             .FirstOrDefault(entry => entry.Role == candidate.Role && entry.Status == TechnologyLedgerStatus.Chosen);
 
@@ -25,4 +28,34 @@ public static class TechnologyLedgerAgentProposalMergePolicy
 
         return candidate;
     }
+
+    private static bool HasMatchingProposal(
+        TechnologyLedgerEntry candidate,
+        IReadOnlyList<TechnologyLedgerEntry> existingRows)
+    {
+        foreach (TechnologyLedgerEntry existing in existingRows)
+        {
+            if (existing.Role != candidate.Role)
+                continue;
+
+            if (existing.ProviderFamily != candidate.ProviderFamily)
+                continue;
+
+            if (TechnologyNamesMatch(existing.TechnologyName, candidate.TechnologyName))
+                return true;
+
+            if (EvidenceRefsMatch(existing.EvidenceRef, candidate.EvidenceRef))
+                return true;
+        }
+
+        return false;
+    }
+
+    private static bool TechnologyNamesMatch(string left, string right) =>
+        string.Equals(left.Trim(), right.Trim(), StringComparison.OrdinalIgnoreCase);
+
+    private static bool EvidenceRefsMatch(string? left, string? right) =>
+        !string.IsNullOrWhiteSpace(left)
+        && !string.IsNullOrWhiteSpace(right)
+        && string.Equals(left.Trim(), right.Trim(), StringComparison.Ordinal);
 }
