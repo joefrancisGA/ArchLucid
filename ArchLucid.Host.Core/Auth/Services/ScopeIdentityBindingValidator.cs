@@ -1,5 +1,6 @@
 using System.Security.Claims;
 
+using ArchLucid.Core.Authorization;
 using ArchLucid.Core.Scoping;
 
 using Microsoft.Extensions.Primitives;
@@ -45,6 +46,93 @@ public static class ScopeIdentityBindingValidator
             return workspace;
 
         return ValidateDimension(user, headers, "project_id", "x-project-id", "project");
+    }
+
+    /// <summary>
+    ///     Rejects scope headers that steer a dimension when the principal has no parseable claim for that dimension (TB-072).
+    /// </summary>
+    public static ScopeIdentityBindingResult ValidateHeaderOnlyScopeEscalation(
+        ClaimsPrincipal? user,
+        IHeaderDictionary? headers,
+        string? authenticationType)
+    {
+        if (!RequiresBoundScopeClaimsForHeaders(authenticationType))
+            return ScopeIdentityBindingResult.Ok();
+
+        ScopeIdentityBindingResult tenant = ValidateHeaderOnlyDimensionEscalation(
+            user,
+            headers,
+            "tenant_id",
+            "x-tenant-id",
+            "tenant",
+            authenticationType);
+
+        if (!tenant.IsValid)
+            return tenant;
+
+        ScopeIdentityBindingResult workspace = ValidateHeaderOnlyDimensionEscalation(
+            user,
+            headers,
+            "workspace_id",
+            "x-workspace-id",
+            "workspace",
+            authenticationType);
+
+        if (!workspace.IsValid)
+            return workspace;
+
+        return ValidateHeaderOnlyDimensionEscalation(
+            user,
+            headers,
+            "project_id",
+            "x-project-id",
+            "project",
+            authenticationType);
+    }
+
+    private static ScopeIdentityBindingResult ValidateHeaderOnlyDimensionEscalation(
+        ClaimsPrincipal? user,
+        IHeaderDictionary? headers,
+        string claimType,
+        string headerName,
+        string label,
+        string? authenticationType)
+    {
+        if (TryParseClaimGuid(user, claimType, out _))
+            return ScopeIdentityBindingResult.Ok();
+
+        if (!TryParseHeaderGuid(headers, headerName, out _))
+            return ScopeIdentityBindingResult.Ok();
+
+        if (string.Equals(claimType, "tenant_id", StringComparison.Ordinal)
+            && string.Equals(authenticationType, "ApiKey", StringComparison.Ordinal))
+        {
+            return ScopeIdentityBindingResult.Forbidden(
+                "API key authentication requires Authentication:ApiKey:TenantId (tenant_id claim); "
+                + "x-tenant-id cannot be used without a bound key scope.");
+        }
+
+        return ScopeIdentityBindingResult.Forbidden(
+            $"Authenticated scope is not bound to a {claimType} claim; "
+            + $"{headerName} cannot be used to steer {label} scope.");
+    }
+
+    private static bool RequiresBoundScopeClaimsForHeaders(string? authenticationType)
+    {
+        if (string.Equals(authenticationType, "ApiKey", StringComparison.Ordinal))
+            return true;
+
+        if (string.Equals(authenticationType, "Bearer", StringComparison.Ordinal))
+            return true;
+
+        if (string.Equals(authenticationType, ScimBearerDefaults.AuthenticationScheme, StringComparison.Ordinal))
+            return true;
+
+        if (string.Equals(authenticationType, "Saml2", StringComparison.Ordinal)
+            || string.Equals(authenticationType, "Saml2", StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        return false;
     }
 
     private static ScopeIdentityBindingResult ValidateDimension(

@@ -32,7 +32,8 @@ public static class ScopeResolutionGuard
         if (dimension.Source is ScopeSource.Header or ScopeSource.Default)
             return true;
 
-        if (dimension.Source is ScopeSource.Ambient && ScopeIds.IsDevelopmentDefault(dimension.Value))
+        if (ScopeIds.IsDevelopmentDefault(dimension.Value)
+            && dimension.Source is ScopeSource.Ambient or ScopeSource.Claim)
             return true;
 
         return false;

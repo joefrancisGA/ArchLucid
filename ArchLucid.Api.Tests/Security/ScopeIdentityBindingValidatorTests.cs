@@ -1,5 +1,6 @@
 using System.Security.Claims;
 
+using ArchLucid.Core.Authorization;
 using ArchLucid.Host.Core.Auth.Services;
 
 using FluentAssertions;
@@ -46,5 +47,44 @@ public sealed class ScopeIdentityBindingValidatorTests
 
         result.IsValid.Should().BeFalse();
         result.FailureMessage.Should().Contain("x-tenant-id");
+    }
+
+    [SkippableFact]
+    public void ValidateHeaderOnlyScopeEscalation_rejects_workspace_header_without_claim_for_bearer()
+    {
+        DefaultHttpContext http = new()
+        {
+            User = new ClaimsPrincipal(new ClaimsIdentity(
+                [new Claim("tenant_id", Guid.NewGuid().ToString("D"))],
+                "Bearer"))
+        };
+        http.Request.Headers["x-workspace-id"] = Guid.NewGuid().ToString("D");
+
+        ScopeIdentityBindingValidator.ScopeIdentityBindingResult result =
+            ScopeIdentityBindingValidator.ValidateHeaderOnlyScopeEscalation(http.User, http.Request.Headers, "Bearer");
+
+        result.IsValid.Should().BeFalse();
+        result.FailureMessage.Should().Contain("x-workspace-id");
+    }
+
+    [SkippableFact]
+    public void ValidateHeaderOnlyScopeEscalation_rejects_project_header_without_claim_for_scim_bearer()
+    {
+        DefaultHttpContext http = new()
+        {
+            User = new ClaimsPrincipal(new ClaimsIdentity(
+                [new Claim("tenant_id", Guid.NewGuid().ToString("D"))],
+                ScimBearerDefaults.AuthenticationScheme))
+        };
+        http.Request.Headers["x-project-id"] = Guid.NewGuid().ToString("D");
+
+        ScopeIdentityBindingValidator.ScopeIdentityBindingResult result =
+            ScopeIdentityBindingValidator.ValidateHeaderOnlyScopeEscalation(
+                http.User,
+                http.Request.Headers,
+                ScimBearerDefaults.AuthenticationScheme);
+
+        result.IsValid.Should().BeFalse();
+        result.FailureMessage.Should().Contain("x-project-id");
     }
 }

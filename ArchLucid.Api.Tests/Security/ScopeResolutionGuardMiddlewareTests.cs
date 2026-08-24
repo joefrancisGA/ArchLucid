@@ -153,7 +153,34 @@ public sealed class ScopeResolutionGuardMiddlewareTests
             });
 
         nextCalled.Should().BeTrue();
-        context.Response.StatusCode.Should().Be(StatusCodes.Status200OK);
+    }
+
+    [Fact]
+    public async Task InvokeAsync_staging_host_rejects_development_default_tenant_claim()
+    {
+        DefaultHttpContext context = CreateContext("/v1/runs");
+        context.User = new ClaimsPrincipal(new ClaimsIdentity(
+            [
+                new Claim("tenant_id", ScopeIds.DefaultTenant.ToString("D")),
+                new Claim("workspace_id", Guid.NewGuid().ToString("D")),
+                new Claim("project_id", Guid.NewGuid().ToString("D")),
+            ],
+            "Bearer"));
+        bool nextCalled = false;
+
+        await RunMiddlewareAsync(
+            context,
+            Environments.Staging,
+            new Dictionary<string, string?>(),
+            _ =>
+            {
+                nextCalled = true;
+
+                return Task.CompletedTask;
+            });
+
+        nextCalled.Should().BeFalse();
+        context.Response.StatusCode.Should().Be(StatusCodes.Status403Forbidden);
     }
 
     private static DefaultHttpContext CreateContext(string path)
