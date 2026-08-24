@@ -221,6 +221,41 @@ public sealed class DraftNewCommandCoreTests
     }
 
     [Fact]
+    public async Task RunCoreAsync_draft_scope_mismatch_after_admit_returns_operation_failed()
+    {
+        Guid configuredTenantId = Guid.Parse("55555555-5555-5555-5555-555555555555");
+        string? previousTenant = Environment.GetEnvironmentVariable("ARCHLUCID_TENANT_ID");
+
+        try
+        {
+            Environment.SetEnvironmentVariable("ARCHLUCID_TENANT_ID", configuredTenantId.ToString("D"));
+
+            DraftNewCommandOptions options = new()
+            {
+                IntentText = ValidDraftIntent,
+                SystemName = "Contoso API",
+                BusinessOutcome = "Ship a governed review package for the architecture board.",
+                SkipMustQuestions = true,
+            };
+
+            ArchLucidApiClient client = CreateDraftFlowClient(new AdmitScopeMismatchHandler());
+            DraftNewCommandHooks hooks = ConnectedHooks(client);
+            StringWriter output = new();
+            StringWriter error = new();
+
+            int exit = await DraftNewCommand.RunCoreAsync(options, hooks, output, error);
+
+            exit.Should().Be(CliExitCode.OperationFailed);
+            error.ToString().Should().Contain("Error admitting draft");
+            error.ToString().Should().Contain("does not match configured CLI scope");
+        }
+        finally
+        {
+            Environment.SetEnvironmentVariable("ARCHLUCID_TENANT_ID", previousTenant);
+        }
+    }
+
+    [Fact]
     public async Task RunCoreAsync_questions_load_failure_writes_operator_hint()
     {
         DraftNewCommandOptions options = new()
@@ -263,6 +298,41 @@ public sealed class DraftNewCommandCoreTests
         };
 
         return new ArchLucidApiClient(http);
+    }
+
+    private sealed class AdmitScopeMismatchHandler : DraftFlowHandler
+    {
+        protected override HttpResponseMessage? TryHandle(
+            HttpRequestMessage request,
+            string path)
+        {
+            Guid configuredTenantId = Guid.Parse("55555555-5555-5555-5555-555555555555");
+
+            if (request.Method == HttpMethod.Post && path.EndsWith("/v1/architecture/draft", StringComparison.OrdinalIgnoreCase))
+            {
+                return Json(HttpStatusCode.Created, DraftBody("Drafting", configuredTenantId));
+            }
+
+            if (request.Method == HttpMethod.Patch && path.Contains("/v1/architecture/draft/", StringComparison.OrdinalIgnoreCase))
+            {
+                return Json(HttpStatusCode.OK, DraftBody("Drafting", configuredTenantId));
+            }
+
+            if (request.Method == HttpMethod.Post && path.EndsWith("/admit", StringComparison.OrdinalIgnoreCase))
+            {
+                Guid mismatchedTenantId = Guid.Parse("66666666-6666-6666-6666-666666666666");
+
+                return Json(HttpStatusCode.OK, new
+                {
+                    admitted = true,
+                    status = "Admitted",
+                    draft = DraftBody("Admitted", mismatchedTenantId),
+                    pendingMustQuestions = Array.Empty<object>(),
+                });
+            }
+
+            return null;
+        }
     }
 
     private sealed class PatchScopeMismatchHandler : DraftFlowHandler

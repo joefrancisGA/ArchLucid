@@ -181,6 +181,14 @@ internal static class DraftNewCommand
             return CliExitCode.OperationFailed;
         }
 
+        if (!CliScopeResponseValidator.TryValidateDraftScope(admission.Value.Draft, config, out string? admitScopeError))
+        {
+            await error.WriteLineAsync($"Error admitting draft: {admitScopeError}");
+            CliOperatorHints.WriteAfterScopeMismatch(error);
+
+            return CliExitCode.OperationFailed;
+        }
+
         await output.WriteLineAsync("Draft admitted. Resolving MUST questions...");
 
         int resolveExit = await ResolveMustQuestionsAsync(
