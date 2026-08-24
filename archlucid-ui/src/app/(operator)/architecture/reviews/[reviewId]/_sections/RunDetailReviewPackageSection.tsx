@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { cn } from "@/lib/utils";
 import { PackagePrintOpenButton } from "@/components/reviews/PackagePrintOpenButton";
+import { RunDetailWhatsNextSection } from "@/components/runs/RunDetailWhatsNextSection";
 import { Button } from "@/components/ui/button";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { REVIEW_DETAIL_TAB_LABELS } from "@/lib/review-detail-workspace-tabs";
@@ -62,6 +63,7 @@ export function RunDetailReviewPackageSection(
               </>
             ) : null}
           </div>
+          <RunDetailWhatsNextSection runId={props.runId} />
         </div>
       )}
     </section>
