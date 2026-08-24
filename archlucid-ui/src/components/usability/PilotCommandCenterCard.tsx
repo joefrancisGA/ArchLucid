@@ -20,7 +20,6 @@ import { Button } from "@/components/ui/button";
 import { FirstPilotOperateUnlockVocabularyRail } from "@/components/FirstPilotOperateUnlockVocabularyRail";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import type { OperatorHomeRunsDashboardModel } from "@/app/(operator)/_sections/operator-home-runs-dashboard-model";
-import { useOperatorHomeEmptyDoThisNextAction } from "@/hooks/use-operator-home-empty-do-this-next-action";
 import {
   OPERATOR_HOME_COMMAND_CENTER_TAGLINE,
   formatOperatorHomeDraftArchitectureEyebrow,
@@ -32,10 +31,7 @@ import {
   OPERATOR_SURFACE_CARD_CLASS,
   OPERATOR_TYPE_SCALE,
 } from "@/lib/design-tokens";
-import {
-  toOperatorCanonicalNextActionFromEmptyHome,
-  toOperatorCanonicalNextActionFromPilot,
-} from "@/lib/operator-canonical-next-action";
+import { toOperatorCanonicalNextActionFromPilot } from "@/lib/operator-canonical-next-action";
 import { resolvePilotNextBestAction, type PilotNextBestAction } from "@/lib/resolve-pilot-next-best-action";
 import { resolveLiveRunsDashboardModel } from "@/lib/operator/operator-home-live-runs-dashboard";
 import { deriveOperatorHomeWorkspaceMetrics } from "@/lib/operator/operator-home-workspace-metrics";
@@ -139,7 +135,6 @@ export function PilotCommandCenterCard(props: PilotCommandCenterCardProps = {}):
     seedRunItems: runsDashboard?.items,
   });
   const setupReadiness = useFinishSetupReadinessContext();
-  const emptyNext = useOperatorHomeEmptyDoThisNextAction();
 
   const phaseSignals = useMemo(
     () => ({
@@ -289,13 +284,7 @@ export function PilotCommandCenterCard(props: PilotCommandCenterCardProps = {}):
           {isInviteeReviewer ? (
             <InviteeFirstOrientationPanel copy={resolveInviteeHomeOrientationCopy()} />
           ) : null}
-          <OperatorHomeCanonicalNextActionSlot
-            clientFallback={toOperatorCanonicalNextActionFromEmptyHome(emptyNext.action)}
-            sampleLoading={emptyNext.sampleLoading}
-            slotTestId="operator-home-do-this-next"
-            bridgeTestId="operator-home-do-this-next-bridge"
-            primaryTestId="operator-home-do-this-next-primary"
-          />
+          <OperatorHomeDualPathCards emphasizedPath={emphasizedPath} />
         </div>
       ) : null}
 

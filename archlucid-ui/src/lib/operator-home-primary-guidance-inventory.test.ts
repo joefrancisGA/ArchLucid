@@ -23,9 +23,9 @@ const commandCenterSource = readFileSync(
 );
 
 describe("operator home primary guidance inventory (TB-2232 / TB-2331)", () => {
-  it("routes home next-action through the canonical slot in the command center", () => {
+  it("routes operational home next-action through the canonical slot in the command center", () => {
     expect(commandCenterSource).toContain("OperatorHomeCanonicalNextActionSlot");
-    expect(commandCenterSource).toContain("useOperatorHomeEmptyDoThisNextAction");
+    expect(commandCenterSource).toContain("OperatorHomeDualPathCards");
     expect(commandCenterSource).not.toContain("OperatorHomeDoThisNextCard");
   });
 

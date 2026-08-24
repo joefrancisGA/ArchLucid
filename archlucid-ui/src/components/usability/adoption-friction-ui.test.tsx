@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { operatorNavOutsideProviderPrincipal } from "@/lib/current-principal";
 
@@ -7,9 +7,10 @@ import { OperatorHomeContinueSetupCard } from "@/components/operator-home/Operat
 import { RunsListCompareSelectionBar } from "./RunsListCompareSelectionBar";
 import { proofScopeToRequiredCapabilities } from "./QuickReviewProofScopeField";
 import {
-  OPERATOR_HOME_OPEN_SAMPLE_PACKAGE_CTA,
+  OPERATOR_HOME_REVIEW_ARCHITECTURE_CTA,
   PILOT_COMMAND_CENTER_OPTIONAL_SETUP_LABEL,
 } from "@/lib/buyer/buyer-polish-copy";
+import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture/architecture-workflow-labels";
 
 vi.mock("@/components/operator/OperatorNavAuthorityProvider", () => ({
   useNavCommittedArchitectureReview: vi.fn(() => false),
@@ -75,23 +76,47 @@ vi.mock("next/navigation", () => ({
   usePathname: () => "/",
 }));
 
+vi.mock("@/hooks/use-review-intake-navigation", () => ({
+  useReviewIntakeNavigation: () => ({
+    navigate: vi.fn(),
+    reset: vi.fn(),
+    isNavigating: false,
+    isPending: false,
+    activeStageId: null,
+    showStagedPanel: false,
+    stages: [],
+    loadingLabel: "Starting review…",
+    error: null,
+  }),
+}));
+
+vi.mock("@/hooks/use-create-architecture-navigation", () => ({
+  useCreateArchitectureNavigation: () => ({
+    navigate: vi.fn(),
+    reset: vi.fn(),
+    isNavigating: false,
+    loadingLabel: "Starting architecture…",
+    error: null,
+  }),
+}));
+
+vi.mock("@/components/SampleReviewsOnOverviewPreferenceProvider", () => ({
+  useSampleReviewsOnOverviewVisible: () => true,
+}));
+
 describe("PilotCommandCenterCard", () => {
-  it("renders a single Do-this-next primary CTA on empty Overview (TB-1038 / TB-1039)", async () => {
+  it("renders create and review lifecycle cards on empty Overview (ADR 0067)", async () => {
     render(<PilotCommandCenterCard />);
 
-    expect(screen.getByTestId("operator-home-do-this-next")).toBeInTheDocument();
-    expect(screen.queryByText("Do this next")).toBeNull();
-
-    await waitFor(() => {
-      expect(screen.getByTestId("operator-home-do-this-next-primary")).toHaveTextContent(
-        OPERATOR_HOME_OPEN_SAMPLE_PACKAGE_CTA,
-      );
-    });
-
-    expect(screen.getAllByTestId("operator-home-do-this-next-primary")).toHaveLength(1);
-    expect(screen.queryByTestId("operator-home-do-this-next-secondary")).toBeNull();
+    expect(screen.getByTestId("operator-home-dual-path-cards")).toBeInTheDocument();
+    expect(screen.getByTestId("operator-home-create-architecture-cta")).toHaveTextContent(
+      CREATE_ARCHITECTURE_LABEL,
+    );
+    expect(screen.getByTestId("operator-home-review-architecture-cta")).toHaveTextContent(
+      OPERATOR_HOME_REVIEW_ARCHITECTURE_CTA,
+    );
+    expect(screen.queryByTestId("operator-home-do-this-next")).toBeNull();
     expect(screen.getByTestId("pilot-command-center-help")).toBeInTheDocument();
-    expect(screen.queryByTestId("operator-home-dual-path-cards")).toBeNull();
     expect(screen.queryByTestId("pilot-command-center-open-completed-sample")).toBeNull();
     expect(screen.queryByTestId("pilot-next-best-action")).toBeNull();
     expect(screen.queryByTestId("pilot-command-center-example")).toBeNull();
@@ -100,13 +125,13 @@ describe("PilotCommandCenterCard", () => {
     expect(screen.queryByTestId("pilot-command-center-cta-row")).toBeNull();
   });
 
-  it("keeps optional cloud / invite setup off the empty-home hero (TB-346 / TB-1038)", () => {
+  it("keeps optional invite setup off the empty-home hero while lifecycle cards expose cloud connect (TB-346)", () => {
     render(<PilotCommandCenterCard />);
 
     expect(screen.queryByTestId("pilot-command-center-optional-setup")).toBeNull();
     expect(screen.queryByTestId("pilot-command-center-connect-azure")).toBeNull();
     expect(screen.queryByTestId("pilot-command-center-invite-reviewer")).toBeNull();
-    expect(screen.queryByTestId("operator-home-connect-cloud-path")).toBeNull();
+    expect(screen.getByTestId("operator-home-connect-cloud-path")).toBeInTheDocument();
 
     render(<OperatorHomeContinueSetupCard canBegin blockerMessage={null} />);
 

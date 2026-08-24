@@ -7,14 +7,18 @@ import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import {
   OPERATOR_HOME_COMMAND_CENTER_TAGLINE,
   OPERATOR_HOME_INTENT_CHOOSER_HEADING,
-  OPERATOR_HOME_OPEN_SAMPLE_PACKAGE_CTA,
   OPERATOR_HOME_RESUME_LATEST_DRAFT_CTA,
+  OPERATOR_HOME_REVIEW_ARCHITECTURE_CTA,
   OPERATOR_HOME_WORKSPACE_OVERVIEW_HEADING,
 } from "@/lib/buyer/buyer-polish-copy";
+import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture/architecture-workflow-labels";
 import { OPERATOR_HOME_CARD_SECTION_HEADING } from "@/lib/design-tokens";
 import { OPERATOR_HOME_SETUP_READINESS_HREF } from "@/lib/operator/operator-home-metric-hrefs";
 import { PUBLIC_DEMO_CORE_PILOT_COMMIT_CONTEXT } from "@/lib/core-pilot-commit-context";
-import { SHOWCASE_SAMPLE_REVIEW_REGISTRY } from "@/lib/showcase-sample-review-registry";
+
+vi.mock("@/components/SampleReviewsOnOverviewPreferenceProvider", () => ({
+  useSampleReviewsOnOverviewVisible: () => true,
+}));
 
 vi.mock("@/components/operator/OperatorNavAuthorityProvider", async () => {
   const { createOperatorNavAuthorityVitestMock } = await import(
@@ -157,7 +161,7 @@ describe("PilotCommandCenterCard", () => {
     workspaceActivityMock.liveRunsSnapshot = null;
   });
 
-  it("shows a single Do-this-next card on empty Overview (TB-1038 / TB-1039)", async () => {
+  it("shows create and review lifecycle cards on empty Overview (ADR 0067)", async () => {
     renderWithOperatorQuery(<PilotCommandCenterCard />);
 
     expect(screen.getByTestId("pilot-command-center-tagline")).toHaveTextContent(
@@ -179,20 +183,14 @@ describe("PilotCommandCenterCard", () => {
       }
     }
 
-    expect(screen.getByTestId("operator-home-do-this-next")).toBeInTheDocument();
-    expect(screen.queryByText("Do this next")).toBeNull();
-
-    await waitFor(() => {
-      expect(screen.getByTestId("operator-home-do-this-next-primary")).toHaveTextContent(
-        OPERATOR_HOME_OPEN_SAMPLE_PACKAGE_CTA,
-      );
-    });
-
-    expect(screen.getByTestId("operator-home-do-this-next-primary")).toHaveAttribute(
-      "href",
-      `/architecture/reviews/${SHOWCASE_SAMPLE_REVIEW_REGISTRY.runId}`,
+    expect(screen.getByTestId("operator-home-dual-path-cards")).toBeInTheDocument();
+    expect(screen.getByTestId("operator-home-create-architecture-cta")).toHaveTextContent(
+      CREATE_ARCHITECTURE_LABEL,
     );
-    expect(screen.queryByTestId("operator-home-do-this-next-secondary")).toBeNull();
+    expect(screen.getByTestId("operator-home-review-architecture-cta")).toHaveTextContent(
+      OPERATOR_HOME_REVIEW_ARCHITECTURE_CTA,
+    );
+    expect(screen.queryByTestId("operator-home-do-this-next")).toBeNull();
     expect(screen.getByTestId("pilot-command-center-help")).toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toHaveTextContent(
       OPERATOR_NAV_LINK_LABELS.home,
@@ -202,7 +200,6 @@ describe("PilotCommandCenterCard", () => {
       "href",
       "/help/first-architecture-review",
     );
-    expect(screen.queryByTestId("operator-home-dual-path-cards")).toBeNull();
     expect(screen.queryByTestId("pilot-next-best-action")).toBeNull();
     expect(screen.queryByTestId("inline-guidance-recommended-next")).toBeNull();
     expect(screen.queryByText(/Recommended first/i)).toBeNull();
@@ -318,14 +315,11 @@ describe("PilotCommandCenterCard", () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByTestId("operator-home-do-this-next-primary")).toHaveTextContent(
-        OPERATOR_HOME_OPEN_SAMPLE_PACKAGE_CTA,
-      );
+      expect(screen.getByTestId("operator-home-dual-path-cards")).toBeInTheDocument();
     });
 
-    expect(screen.getByTestId("operator-home-do-this-next-primary")).not.toHaveTextContent(
-      "Review open findings",
-    );
+    expect(screen.getByTestId("operator-home-review-architecture-cta")).toBeInTheDocument();
+    expect(screen.queryByText("Review open findings")).toBeNull();
     expect(screen.queryByTestId("pilot-next-best-action")).toBeNull();
   });
 
