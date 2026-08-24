@@ -8,6 +8,7 @@ import { DemoVsLiveChromeBanner } from "@/components/usability/DemoVsLiveChromeB
 import { ExplainThisViewBanner } from "@/components/usability/ExplainThisViewBanner";
 import { FirstVisitHelpAutoOpen } from "@/components/usability/FirstVisitHelpAutoOpen";
 import { PersistentWorkspaceNextActionStrip } from "@/components/usability/PersistentWorkspaceNextActionStrip";
+import { PageContextualHelpFab } from "@/components/usability/PageContextualHelpFab";
 import { ReviewsListReturnStateTracker } from "@/components/usability/ReviewsListReturnStateTracker";
 import { isExplicitStaticDemoMarketingBuild } from "@/lib/buyer/buyer-demo-content-gating";
 
@@ -28,6 +29,7 @@ export function AppShellMainAffordances() {
       ) : null}
       <ExplainThisViewBanner />
       <ContextualPageHintStrip />
+      <PageContextualHelpFab />
     </>
   );
 }
