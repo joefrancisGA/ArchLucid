@@ -1,18 +1,16 @@
 "use client";
 
-import { cn } from "@/lib/utils";
-import { useEffect, useId, useMemo, useState } from "react";
+import { useId, useMemo, useState } from "react";
 
+import { useFindingLlmAuditQuery } from "@/hooks/use-finding-llm-audit-query";
+import { useFindingProvenanceQuery } from "@/hooks/use-finding-provenance-query";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { buildFindingRawContextBlocks } from "@/lib/build-finding-raw-context-blocks";
-import { getFindingProvenance } from "@/lib/api/finding-provenance";
-import { getFindingLlmAudit } from "@/lib/api";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 import type { FindingInspectPayload } from "@/types/finding-inspect";
-import type { FindingLlmAudit } from "@/types/explanation";
-import type { FindingProvenance } from "@/lib/api/finding-provenance";
 
 export type FindingInspectContextDebugPanelProps = {
   readonly runId: string;
@@ -41,57 +39,16 @@ export function FindingInspectContextDebugPanel(props: FindingInspectContextDebu
   const { runId, findingId, inspectPayload } = props;
   const toggleId = useId();
   const [enabled, setEnabled] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [provenance, setProvenance] = useState<FindingProvenance | null>(null);
-  const [llmAudit, setLlmAudit] = useState<FindingLlmAudit | null>(null);
-  const [failure, setFailure] = useState<ApiLoadFailureState | null>(null);
-  const [loadedForFindingId, setLoadedForFindingId] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (!enabled) {
-      return;
-    }
-
-    if (loadedForFindingId === findingId.trim()) {
-      return;
-    }
-
-    let canceled = false;
-
-    setLoading(true);
-    setFailure(null);
-    setProvenance(null);
-    setLlmAudit(null);
-
-    void (async () => {
-      try {
-        const [provenanceResult, auditResult] = await Promise.all([
-          getFindingProvenance(runId, findingId.trim()),
-          getFindingLlmAudit(runId, findingId.trim()).catch(() => null),
-        ]);
-
-        if (canceled) {
-          return;
-        }
-
-        setProvenance(provenanceResult);
-        setLlmAudit(auditResult);
-        setLoadedForFindingId(findingId.trim());
-      } catch (error: unknown) {
-        if (!canceled) {
-          setFailure(toApiLoadFailure(error));
-        }
-      } finally {
-        if (!canceled) {
-          setLoading(false);
-        }
-      }
-    })();
-
-    return () => {
-      canceled = true;
-    };
-  }, [enabled, findingId, loadedForFindingId, runId]);
+  const trimmedFindingId = findingId.trim();
+  const provenanceQuery = useFindingProvenanceQuery(runId, trimmedFindingId, { enabled });
+  const llmAuditQuery = useFindingLlmAuditQuery(runId, trimmedFindingId, { enabled });
+  const loading = enabled && (provenanceQuery.isPending || llmAuditQuery.isPending);
+  const failure: ApiLoadFailureState | null = useMemo(
+    () => (provenanceQuery.isError ? toApiLoadFailure(provenanceQuery.error) : null),
+    [provenanceQuery.error, provenanceQuery.isError],
+  );
+  const provenance = provenanceQuery.data ?? null;
+  const llmAudit = llmAuditQuery.isError ? null : (llmAuditQuery.data ?? null);
 
   const blocks = useMemo(
     () => buildFindingRawContextBlocks(inspectPayload, provenance, llmAudit),

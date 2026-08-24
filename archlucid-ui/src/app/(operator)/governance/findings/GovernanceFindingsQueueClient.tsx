@@ -36,6 +36,7 @@ import { useGovernanceFindingsFilter } from "@/components/governance/findings/us
 import { useGovernanceFindingsQuery } from "@/components/governance/findings/use-governance-findings-query";
 import { useAssignedToMeFindingsQuery } from "@/components/governance/findings/use-assigned-to-me-findings-query";
 import { useAssignedToMeFindingsCountQuery } from "@/hooks/use-assigned-to-me-findings-count-query";
+import { useRunDetailWorkspaceContextBundleQuery } from "@/hooks/use-run-detail-workspace-context-bundle-query";
 import { useOperatorScopeQueryKey } from "@/hooks/use-operator-scope-query-key";
 import { useOperatorScopeRecord } from "@/hooks/use-operator-scope-record";
 import {
@@ -84,7 +85,6 @@ import {
 } from "@/lib/operator/operator-last-refreshed-label";
 import { comparePageHrefAdaptive } from "@/lib/compare-url-query-params";
 import { comparePageHrefWithLifecycleAnchor, COMPARE_FINDING_LIFECYCLE_ANCHOR } from "@/lib/compare-finding-lifecycle";
-import { fetchRunDetailWorkspaceContextBundle } from "@/lib/fetch-run-detail-page-bundle-client";
 import {
   GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_PATH,
   GOVERNANCE_FINDINGS_PATH,
@@ -167,42 +167,23 @@ export default function GovernanceFindingsQueueClient({
     toggleGroupByResource,
   } = useGovernanceFindingsFilter({ mode });
 
-  const [scopedFindingLifecycleCompareHref, setScopedFindingLifecycleCompareHref] = useState<string | null>(null);
-
-  useEffect(() => {
+  const scopedRunContextQuery = useRunDetailWorkspaceContextBundleQuery(scopedRunId ?? "", {
+    enabled: scopedRunId !== null && scopedRunId.length > 0,
+  });
+  const scopedFindingLifecycleCompareHref = useMemo(() => {
     if (scopedRunId === null || scopedRunId.length === 0) {
-      setScopedFindingLifecycleCompareHref(null);
-
-      return;
+      return null;
     }
 
     const laterOnlyHref = `${comparePageHrefAdaptive("", scopedRunId)}#${COMPARE_FINDING_LIFECYCLE_ANCHOR}`;
-    setScopedFindingLifecycleCompareHref(laterOnlyHref);
+    const priorRunId = scopedRunContextQuery.data?.priorCommittedRunId?.trim() ?? "";
 
-    let canceled = false;
+    if (priorRunId.length === 0) {
+      return laterOnlyHref;
+    }
 
-    void fetchRunDetailWorkspaceContextBundle(scopedRunId)
-      .then((bundle) => {
-        if (canceled) {
-          return;
-        }
-
-        const priorRunId = bundle.priorCommittedRunId?.trim() ?? "";
-
-        if (priorRunId.length === 0) {
-          return;
-        }
-
-        setScopedFindingLifecycleCompareHref(comparePageHrefWithLifecycleAnchor(priorRunId, scopedRunId));
-      })
-      .catch(() => {
-        // Keep later-only href when workspace context cannot be loaded.
-      });
-
-    return () => {
-      canceled = true;
-    };
-  }, [scopedRunId]);
+    return comparePageHrefWithLifecycleAnchor(priorRunId, scopedRunId);
+  }, [scopedRunContextQuery.data?.priorCommittedRunId, scopedRunId]);
 
   const setJobView = useCallback((next: FindingJobView): void => {
     setJobViewState(next);

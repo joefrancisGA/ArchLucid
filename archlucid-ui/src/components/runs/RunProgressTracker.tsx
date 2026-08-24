@@ -21,9 +21,9 @@ import {
   canPromptForDesktopNotifications,
   useReviewCompletionNotification,
 } from "@/hooks/use-review-completion-notification";
+import { useRunStageTimelineQuery } from "@/hooks/use-run-stage-timeline-query";
 import { useWorkspaceReviewDurationEstimate } from "@/hooks/use-workspace-review-duration-estimate";
 import { useRunSummaryStream } from "@/hooks/useRunSummaryStream";
-import { getRunStageTimeline } from "@/lib/api/architecture-runs";
 import {
   getDesktopNotificationPermission,
   requestDesktopNotificationPermission,
@@ -122,7 +122,14 @@ export function RunProgressTracker({
   const [clientPhase, setClientPhase] = useState<"polling" | "complete" | "timeout">(() =>
     preFinalizeTerminal || allStagesReady(initialSummary) ? "complete" : "polling",
   );
-  const [stageTimeline, setStageTimeline] = useState<StageTimelineSummary[]>([]);
+  const timelineEnabled = buyerAssessmentCopy || pollEnabled || preFinalizeTerminal;
+  const stageTimelineQuery = useRunStageTimelineQuery(runId, {
+    enabled: timelineEnabled,
+    pollSession,
+    refetchInterval:
+      pollEnabled && clientPhase === "polling" ? 5_000 : false,
+  });
+  const stageTimeline = stageTimelineQuery.data ?? [];
   const [notificationPermission, setNotificationPermission] = useState(() => getDesktopNotificationPermission());
   const [pollCount, setPollCount] = useState(0);
   const [lastPollAtIso, setLastPollAtIso] = useState<string | null>(null);
@@ -208,37 +215,36 @@ export function RunProgressTracker({
   }, [buyerAssessmentCopy, summary, streamPhase]);
 
   useEffect(() => {
-    if (!buyerAssessmentCopy && !pollEnabled && !preFinalizeTerminal) {
+    if (!timelineEnabled) {
       return;
     }
 
-    let canceled = false;
+    if (stageTimelineQuery.isFetched) {
+      setPollCount((count) => count + 1);
+      setLastPollAtIso(new Date().toISOString());
+      setLastPollError(
+        stageTimelineQuery.isError
+          ? stageTimelineQuery.error instanceof Error
+            ? stageTimelineQuery.error.message
+            : "Stage timeline fetch failed"
+          : null,
+      );
+    }
+  }, [
+    stageTimelineQuery.dataUpdatedAt,
+    stageTimelineQuery.error,
+    stageTimelineQuery.isError,
+    stageTimelineQuery.isFetched,
+    timelineEnabled,
+  ]);
 
-    const fetchTimeline = async (): Promise<void> => {
-      try {
-        const timeline = await getRunStageTimeline(runId);
+  useEffect(() => {
+    if (!timelineEnabled || summary === null) {
+      return;
+    }
 
-        if (!canceled) {
-          setStageTimeline(timeline);
-          setPollCount((count) => count + 1);
-          setLastPollAtIso(new Date().toISOString());
-          setLastPollError(null);
-        }
-      } catch (error: unknown) {
-        if (!canceled) {
-          setPollCount((count) => count + 1);
-          setLastPollAtIso(new Date().toISOString());
-          setLastPollError(error instanceof Error ? error.message : "Stage timeline fetch failed");
-        }
-      }
-    };
-
-    void fetchTimeline();
-
-    return () => {
-      canceled = true;
-    };
-  }, [buyerAssessmentCopy, clientPhase, pollEnabled, pollSession, preFinalizeTerminal, runId, summary]);
+    void stageTimelineQuery.refetch();
+  }, [summary, stageTimelineQuery, timelineEnabled]);
 
   const handleEnableNotifications = useCallback(async () => {
     const next = await requestDesktopNotificationPermission();

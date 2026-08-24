@@ -146,7 +146,11 @@ export const operatorQueryKeys = {
   compareGovernanceDiff: (baselineRunId: string, targetRunId: string) =>
     ["operator", "compare", "governance-diff", baselineRunId, targetRunId] as const,
   architectureRequest: (requestId: string) => ["operator", "architecture", "request", requestId] as const,
-  azureBoardsWorkItemTypes: ["operator", "integrations", "azure-boards", "work-item-types"] as const,
+  azureBoardsWorkItemTypes: (projectName: string) =>
+    ["operator", "integrations", "azure-boards", "work-item-types", projectName] as const,
+  policyPackRuleTemplates: ["operator", "governance", "policy-pack-rule-templates"] as const,
+  whyArchLucidPageBundle: (reloadNonce: number) =>
+    ["operator", "why-archlucid", "page-bundle", reloadNonce] as const,
   whyArchLucidEvidence: (runId: string) => ["operator", "why-archlucid", "evidence", runId] as const,
   recurrenceScheduleRunsPreview: (cron: string, count: number) =>
     ["operator", "governance", "recurrence-runs-preview", cron, { count }] as const,

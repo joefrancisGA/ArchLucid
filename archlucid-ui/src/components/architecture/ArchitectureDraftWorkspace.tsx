@@ -30,6 +30,7 @@ import { ReviewStartNavigationStallNotice } from "@/components/review-intake/Rev
 import { ReviewStartStagedProgress } from "@/components/review-intake/ReviewStartStagedProgress";
 import { Card, CardContent } from "@/components/ui/card";
 import { useArchitectureDraftAutosave, type ArchitectureDraftSaveState } from "@/hooks/use-architecture-draft-autosave";
+import { useRunSummaryQuery } from "@/hooks/use-run-summary-query";
 import { useLlmMonthlyBudgetExecutionGate } from "@/hooks/use-llm-monthly-budget-execution-gate";
 import { useReviewStartNavigationProgress } from "@/hooks/use-review-start-navigation-progress";
 import { SOFT_NAVIGATION_TIMEOUT_MS } from "@/hooks/use-soft-navigation-loading";
@@ -66,7 +67,6 @@ import {
   startReviewFromArchitectureHref,
 } from "@/lib/architecture/architecture-routes";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
-import { getRunSummary } from "@/lib/api/architecture-runs";
 import { isApiRequestError } from "@/lib/api-request-error";
 import { getDraftRequest, patchDraftRequest, reopenDraftRequest } from "@/lib/api/draft-intake-api";
 import { operatorQueryKeys } from "@/lib/query/operator-query-keys";
@@ -120,7 +120,6 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
   const [startReviewError, setStartReviewError] = useState<string | null>(null);
   const [saveActionError, setSaveActionError] = useState<string | null>(null);
   const [handoffAcknowledged, setHandoffAcknowledged] = useState(false);
-  const [linkedReviewTitle, setLinkedReviewTitle] = useState("Untitled review");
   const [unlockBusy, setUnlockBusy] = useState(false);
   const [resolvedDraftId, setResolvedDraftId] = useState<string | null>(null);
   const [qualityAttributesEncouragementOpen, setQualityAttributesEncouragementOpen] = useState(false);
@@ -139,6 +138,24 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
   const reviewStartProgress = useReviewStartNavigationProgress();
 
   const linkedReviewId = architectureDraftSpawnedRunId(draft);
+  const linkedReviewSummaryQuery = useRunSummaryQuery(linkedReviewId ?? "", {
+    enabled: linkedReviewId !== null,
+  });
+  const linkedReviewTitle = useMemo(() => {
+    if (linkedReviewId === null) {
+      return "Untitled review";
+    }
+
+    if (linkedReviewSummaryQuery.data !== undefined) {
+      return buyerFacingReviewTitleFromSummary(linkedReviewSummaryQuery.data);
+    }
+
+    if (linkedReviewSummaryQuery.isError) {
+      return linkedReviewId;
+    }
+
+    return "Untitled review";
+  }, [linkedReviewId, linkedReviewSummaryQuery.data, linkedReviewSummaryQuery.isError]);
   const handoffEditorLocked = linkedReviewId !== null && !handoffAcknowledged;
   const intakeModeActive = isArchitectureDraftInReviewIntake(draft?.status);
   const briefFrozen = isArchitectureDraftBriefFrozen(draft?.status);
@@ -396,30 +413,6 @@ export function ArchitectureDraftWorkspace(props: ArchitectureDraftWorkspaceProp
       window.removeEventListener("focus", handleResume);
     };
   }, [isNewDraft, syncDraftFromServer]);
-
-  useEffect(() => {
-    if (linkedReviewId === null) {
-      return;
-    }
-
-    let canceled = false;
-
-    void getRunSummary(linkedReviewId)
-      .then((summary) => {
-        if (!canceled) {
-          setLinkedReviewTitle(buyerFacingReviewTitleFromSummary(summary));
-        }
-      })
-      .catch(() => {
-        if (!canceled) {
-          setLinkedReviewTitle(linkedReviewId);
-        }
-      });
-
-    return () => {
-      canceled = true;
-    };
-  }, [linkedReviewId]);
 
   useEffect(() => {
     if (

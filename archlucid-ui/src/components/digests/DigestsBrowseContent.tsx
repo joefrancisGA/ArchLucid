@@ -3,9 +3,10 @@
 import { cn } from "@/lib/utils";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
-import { useCallback, useEffect, useRef, useState, type ReactElement } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactElement } from "react";
 
 import { useArchitectureDigestsBrowseQuery } from "@/hooks/use-architecture-digests-browse-query";
+import { useDigestDeliveryAttemptsBatchQuery } from "@/hooks/use-digest-delivery-attempts-batch-query";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
@@ -60,7 +61,6 @@ import { toApiLoadFailure } from "@/lib/api-load-failure";
 import {
   getArchitectureDigest,
   listDigestDeliveryAttempts,
-  listDigestDeliveryAttemptsBatch,
 } from "@/lib/api";
 import type { ArchitectureDigest } from "@/types/advisory-scheduling";
 import type { DigestDeliveryAttempt } from "@/types/digest-subscriptions";
@@ -124,9 +124,13 @@ export function DigestsBrowseContent(props: DigestsBrowseContentProps = {}): Rea
   const { refreshToken = 0, onLoaded, hidePageHeader = false, healthSnap = null } = props;
   const digestsQuery = useArchitectureDigestsBrowseQuery(40);
   const digests = digestsQuery.data ?? EMPTY_DIGESTS;
+  const digestIds = useMemo(() => digests.map((digest) => digest.digestId), [digests]);
+  const rowAttemptsQuery = useDigestDeliveryAttemptsBatchQuery(digestIds, {
+    enabled: digests.length > 0,
+  });
+  const rowAttempts = rowAttemptsQuery.data ?? {};
   const [selected, setSelected] = useState<ArchitectureDigest | null>(null);
   const [deliveryAttempts, setDeliveryAttempts] = useState<DigestDeliveryAttempt[]>([]);
-  const [rowAttempts, setRowAttempts] = useState<Record<string, DigestDeliveryAttempt[]>>({});
   const [detailFailure, setDetailFailure] = useState<ApiLoadFailureState | null>(null);
   const [previewOpen, setPreviewOpen] = useState(true);
   const detailPanelRef = useRef<HTMLElement | null>(null);
@@ -143,7 +147,6 @@ export function DigestsBrowseContent(props: DigestsBrowseContentProps = {}): Rea
       setSelected(full);
       const attempts = await listDigestDeliveryAttempts(digestId);
       setDeliveryAttempts(attempts);
-      setRowAttempts((prev) => ({ ...prev, [digestId]: attempts }));
       setPreviewOpen(true);
     } catch (e) {
       setDetailFailure(toApiLoadFailure(e));
@@ -170,44 +173,6 @@ export function DigestsBrowseContent(props: DigestsBrowseContentProps = {}): Rea
     setSelected(null);
     setDeliveryAttempts([]);
   }, [refreshToken]);
-
-  useEffect(() => {
-    if (digests.length === 0) {
-      setRowAttempts({});
-
-      return;
-    }
-
-    let canceled = false;
-
-    void (async () => {
-      const nextAttempts: Record<string, DigestDeliveryAttempt[]> = {};
-
-      try {
-        const batch = await listDigestDeliveryAttemptsBatch(
-          digests.map((digest) => digest.digestId),
-        );
-
-        for (const item of batch) {
-          nextAttempts[item.digestId] = item.attempts ?? [];
-        }
-      } catch {
-        for (const digest of digests) {
-          nextAttempts[digest.digestId] = [];
-        }
-      }
-
-      if (canceled) {
-        return;
-      }
-
-      setRowAttempts(nextAttempts);
-    })();
-
-    return () => {
-      canceled = true;
-    };
-  }, [digests, refreshToken]);
 
   /**
    * Honors `/digests?tab=get-started#digest-{id}` from the hub Preview action and

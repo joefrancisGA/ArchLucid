@@ -17,10 +17,10 @@ import {
 import { StatusTag } from "@/components/ui/status-tag";
 import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
+import { useAzureBoardsWorkItemTypesQuery } from "@/hooks/use-azure-boards-work-item-types-query";
 import {
   fetchAzureBoardsSettings,
   listAzureBoardsProjects,
-  listAzureBoardsWorkItemTypes,
   testAzureBoardsConnection,
   upsertAzureBoardsSettings,
   type AzureBoardsIntegrationHealthResponse,
@@ -149,7 +149,16 @@ export function AzureBoardsIntegrationPageClient(): React.ReactElement {
   const [iterationPath, setIterationPath] = useState("");
   const [defaultTags, setDefaultTags] = useState("");
   const [projects, setProjects] = useState<string[]>([]);
-  const [workItemTypes, setWorkItemTypes] = useState<string[]>([]);
+  const workItemTypesQuery = useAzureBoardsWorkItemTypesQuery(projectName, {
+    enabled: credentialsReady && projectName.trim().length > 0,
+  });
+  const workItemTypes = useMemo(() => {
+    if (!credentialsReady || projectName.trim().length === 0) {
+      return [];
+    }
+
+    return workItemTypesQuery.data ?? [];
+  }, [credentialsReady, projectName, workItemTypesQuery.data]);
   const [discoveryError, setDiscoveryError] = useState<string | null>(null);
   const [lastTestAt, setLastTestAt] = useState<string | null>(null);
   const [lastTestSummary, setLastTestSummary] = useState<string | null>(null);
@@ -346,33 +355,6 @@ export function AzureBoardsIntegrationPageClient(): React.ReactElement {
   useEffect(() => {
     void loadDiscovery();
   }, [loadDiscovery]);
-
-  useEffect(() => {
-    if (!credentialsReady || projectName.trim().length === 0) {
-      setWorkItemTypes([]);
-      return;
-    }
-
-    let canceled = false;
-
-    void (async () => {
-      try {
-        const types = await listAzureBoardsWorkItemTypes(projectName.trim());
-
-        if (!canceled) {
-          setWorkItemTypes(types);
-        }
-      } catch {
-        if (!canceled) {
-          setWorkItemTypes([]);
-        }
-      }
-    })();
-
-    return () => {
-      canceled = true;
-    };
-  }, [credentialsReady, projectName]);
 
   const saveConnection = useCallback(async () => {
     if (!canMutate) {

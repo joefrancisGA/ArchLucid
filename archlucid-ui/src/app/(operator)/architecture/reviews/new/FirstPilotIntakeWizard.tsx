@@ -33,8 +33,8 @@ import {
   useReviewCreationProgress,
 } from "@/hooks/use-review-creation-progress";
 import { deriveGuidedIntakeCloudTargetForMismatch } from "@/lib/review-quality/guided-intake-policy-pack-cloud-mismatch";
-import { getRunSummary } from "@/lib/api/architecture-runs";
 import { createArchitectureRun } from "@/lib/api";
+import { useRunSummaryQuery } from "@/hooks/use-run-summary-query";
 import { isArchitectureRequestCreateUnresolvedError } from "@/lib/api/architecture-request-create-unresolved-error";
 import { isApiRequestError } from "@/lib/api-request-error";
 import { ARCHITECTURE_REQUEST_DESCRIPTION_MAX_LENGTH } from "@/lib/architecture/architecture-request-limits";
@@ -252,37 +252,25 @@ export function FirstPilotIntakeWizard(props: FirstPilotIntakeWizardProps) {
     setBriefText(exampleTemplate.briefText);
   }, [exampleTemplate]);
 
+  const priorSummaryQuery = useRunSummaryQuery(priorRunId ?? "", {
+    enabled: priorRunId !== null,
+  });
+
   useEffect(() => {
-    if (priorRunId === null || priorPackagePrefillAppliedRef.current) {
+    if (priorRunId === null || priorPackagePrefillAppliedRef.current || priorSummaryQuery.data === undefined) {
       return;
     }
 
     priorPackagePrefillAppliedRef.current = true;
-    let canceled = false;
+    const inheritedTitle = priorPackageInheritedTitle(priorSummaryQuery.data);
 
-    void getRunSummary(priorRunId)
-      .then((summary) => {
-        if (canceled) {
-          return;
-        }
+    if (inheritedTitle.length === 0) {
+      return;
+    }
 
-        const inheritedTitle = priorPackageInheritedTitle(summary);
-
-        if (inheritedTitle.length === 0) {
-          return;
-        }
-
-        setInheritedPriorTitle(inheritedTitle);
-        setRunTitle((current) => (current.trim().length > 0 ? current : inheritedTitle));
-      })
-      .catch(() => {
-        // Prior package metadata is optional; the operator can still type a new title.
-      });
-
-    return () => {
-      canceled = true;
-    };
-  }, [priorRunId]);
+    setInheritedPriorTitle(inheritedTitle);
+    setRunTitle((current) => (current.trim().length > 0 ? current : inheritedTitle));
+  }, [priorRunId, priorSummaryQuery.data]);
 
   const resolvedBrief = useMemo(
     () => buildEvidenceBackedIntakeBrief(runTitle, evidenceFiles, briefText),

@@ -3,14 +3,13 @@
 import { useCallback, useEffect, useState } from "react";
 
 import { WelcomeModal } from "@/components/ui/welcome-modal";
-import { listRunsByProjectPaged } from "@/lib/api";
+import { useRunsByProjectPagedQuery } from "@/hooks/use-runs-by-project-paged-query";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { dispatchOnboardingTourStart } from "@/lib/onboarding-tour";
 import {
   setWelcomeModalVisible,
   WELCOME_MODAL_TOUR_START_DELAY_MS,
 } from "@/lib/operator/operator-onboarding-coordination";
-import { coerceRunSummaryPaged } from "@/lib/operator/operator-response-guards";
 import {
   persistHasSeenWelcomeOnboarding,
   readHasSeenWelcomeOnboarding,
@@ -33,6 +32,16 @@ const DEFAULT_PROJECT_ID = "default";
 export function OperatorWelcomeOnboarding(props: OperatorWelcomeOnboardingProps) {
   const { serverEligible } = props;
   const [open, setOpen] = useState(false);
+  const runsQuery = useRunsByProjectPagedQuery(
+    { projectId: DEFAULT_PROJECT_ID, page: 1, pageSize: 10 },
+    {
+      enabled:
+        typeof window !== "undefined" &&
+        !isBuyerPolishedOperatorShellEnv() &&
+        !readHasSeenWelcomeOnboarding() &&
+        serverEligible === undefined,
+    },
+  );
 
   useEffect(() => {
     setWelcomeModalVisible(open);
@@ -67,35 +76,10 @@ export function OperatorWelcomeOnboarding(props: OperatorWelcomeOnboardingProps)
       return;
     }
 
-    let cancelled = false;
-
-    void (async () => {
-      try {
-        const raw: unknown = await listRunsByProjectPaged(DEFAULT_PROJECT_ID, 1, 10);
-        const coerced = coerceRunSummaryPaged(raw, { page: 1 });
-
-        if (cancelled) {
-          return;
-        }
-
-        if (!coerced.ok) {
-          return;
-        }
-
-        if (coerced.value.totalCount !== 0) {
-          return;
-        }
-
-        setOpen(true);
-      } catch {
-        /* No modal when the runs list cannot be loaded — avoid blocking first paint on error. */
-      }
-    })();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [serverEligible]);
+    if (runsQuery.isSuccess && (runsQuery.data?.totalCount ?? 0) === 0) {
+      setOpen(true);
+    }
+  }, [runsQuery.data?.totalCount, runsQuery.isSuccess, serverEligible]);
 
   const dismiss = useCallback(() => {
     persistHasSeenWelcomeOnboarding();
@@ -103,15 +87,18 @@ export function OperatorWelcomeOnboarding(props: OperatorWelcomeOnboardingProps)
   }, []);
 
   const startTour = useCallback(() => {
-    persistHasSeenWelcomeOnboarding();
-    setOpen(false);
-
+    dismiss();
     window.setTimeout(() => {
       dispatchOnboardingTourStart();
     }, WELCOME_MODAL_TOUR_START_DELAY_MS);
-  }, []);
+  }, [dismiss]);
 
   return (
-    <WelcomeModal open={open} onDismiss={dismiss} onStartTour={startTour} buyerShell={isBuyerPolishedOperatorShellEnv()} />
+    <WelcomeModal
+      open={open}
+      onDismiss={dismiss}
+      onStartTour={startTour}
+      buyerShell={isBuyerPolishedOperatorShellEnv()}
+    />
   );
 }
