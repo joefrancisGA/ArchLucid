@@ -64,7 +64,7 @@ public sealed class PreCommitGovernanceGate(
     public Task<PreCommitGateResult> EvaluateAsync(string runId, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(runId);
-        return SimulateSyntheticFindingsInternalAsync(runId, null, 0, null, null, cancellationToken);
+        return SimulateSyntheticFindingsInternalAsync(runId, null, 0, null, null, requireScopedRun: false, cancellationToken);
     }
 
     /// <inheritdoc/>
@@ -72,7 +72,7 @@ public sealed class PreCommitGovernanceGate(
     {
         ArgumentNullException.ThrowIfNull(runId);
         ArgumentException.ThrowIfNullOrWhiteSpace(goldenManifestWireJson);
-        return SimulateSyntheticFindingsInternalAsync(runId, null, 0, goldenManifestWireJson, null, cancellationToken);
+        return SimulateSyntheticFindingsInternalAsync(runId, null, 0, goldenManifestWireJson, null, requireScopedRun: false, cancellationToken);
     }
 
     /// <inheritdoc/>
@@ -84,7 +84,7 @@ public sealed class PreCommitGovernanceGate(
     {
         ArgumentNullException.ThrowIfNull(runId);
         ArgumentException.ThrowIfNullOrWhiteSpace(goldenManifestWireJson);
-        return SimulateSyntheticFindingsInternalAsync(runId, null, 0, goldenManifestWireJson, preloadedData, cancellationToken);
+        return SimulateSyntheticFindingsInternalAsync(runId, null, 0, goldenManifestWireJson, preloadedData, requireScopedRun: false, cancellationToken);
     }
 
     /// <inheritdoc/>
@@ -94,7 +94,7 @@ public sealed class PreCommitGovernanceGate(
         ArgumentNullException.ThrowIfNull(runId);
         return syntheticCount < 0
             ? throw new ArgumentOutOfRangeException(nameof(syntheticCount), syntheticCount, "Count must be non-negative.")
-            : SimulateSyntheticFindingsInternalAsync(runId, syntheticSeverity, syntheticCount, null, null, cancellationToken);
+            : SimulateSyntheticFindingsInternalAsync(runId, syntheticSeverity, syntheticCount, null, null, requireScopedRun: true, cancellationToken);
     }
 
     private async Task<PreCommitGateResult> SimulateSyntheticFindingsInternalAsync(
@@ -103,6 +103,7 @@ public sealed class PreCommitGovernanceGate(
         int syntheticCount,
         string? goldenManifestWireJson,
         PreCommitGovernancePreloadedData? preloadedData,
+        bool requireScopedRun,
         CancellationToken cancellationToken)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(runId);
@@ -135,7 +136,9 @@ public sealed class PreCommitGovernanceGate(
             RunRecord? run = await _runRepository.GetByIdAsync(scope, runKey, cancellationToken);
 
             if (run is null)
-                return PreCommitGateResult.Allowed();
+                return requireScopedRun
+                    ? throw new RunNotFoundException(runId)
+                    : PreCommitGateResult.Allowed();
 
             if (run.FindingsSnapshotId.HasValue)
             {

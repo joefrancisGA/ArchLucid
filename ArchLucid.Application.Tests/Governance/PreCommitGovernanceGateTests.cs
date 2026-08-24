@@ -1,3 +1,4 @@
+using ArchLucid.Application;
 using ArchLucid.Application.Governance;
 using ArchLucid.Application.Runs;
 using ArchLucid.Contracts.Architecture;
@@ -1468,6 +1469,29 @@ public sealed class PreCommitGovernanceGateTests
 
         result.Blocked.Should().BeTrue();
         result.BlockingFindingIds.Should().Contain(id => id.StartsWith("tech-consistency-ConflictingChosenProviderFamily", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task SimulateSyntheticFindingsAsync_throws_when_run_is_not_in_current_scope()
+    {
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(TestScope);
+        PreCommitGovernanceGate sut = CreateGate(
+            Options.Create(new PreCommitGovernanceGateOptions { PreCommitGateEnabled = true }),
+            scopeProvider.Object,
+            new InMemoryRunRepository(),
+            new InMemoryFindingsSnapshotRepository(),
+            new InMemoryPolicyPackAssignmentRepository());
+        string runId = Guid.NewGuid().ToString("N");
+
+        Func<Task> act = () => sut.SimulateSyntheticFindingsAsync(
+            runId,
+            FindingSeverity.Critical,
+            syntheticCount: 1,
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<RunNotFoundException>()
+            .WithMessage($"Run '{runId}' was not found.");
     }
 
     private static PreCommitGovernanceGate CreateGate(

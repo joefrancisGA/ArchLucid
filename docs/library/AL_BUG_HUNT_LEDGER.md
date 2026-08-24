@@ -1969,11 +1969,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** policy packs; governance coverage; before-after diff
 - **paths:** ArchLucid.Application/Governance/
 - **test-filter:** FullyQualifiedName~PolicyPack|FullyQualifiedName~Governance
-- **hunts:** 4
-- **bugs-found:** 4
+- **hunts:** 5
+- **bugs-found:** 5
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24 — waiver expiry reminder swallowed provider send failures and returned success while the ledger blocked retry
+- **last-bug:** 2026-08-24 — synthetic pre-commit simulation reported missing or foreign scoped runs as allowed
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 
@@ -1982,11 +1982,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) Policy pack diff includes rules from a seeded pack in another tenant — retired: `PolicyPackBeforeAfterDiffComposer` and `PolicyPackBeforeAfterConfigurationSnapshotBuilder` operate on in-memory pack content and findings passed in; `DefaultPolicyPackSeeder` uses tenant-scoped repositories
 - [x] (invalid) Coverage calculator counts a waived finding as still open — retired: no coverage calculator in `Governance/`; waiver expiry uses `GovernanceWaiverExpiryWindow` / `GovernanceDecisionsNeededSummaryCalculator` distinct-finding union, not open-finding counts
 - [x] (invalid) Default policy pack activation skips required approval metadata — retired: `DefaultPolicyPackSeeder` platform bootstrap calls `CreatePackAsync` / `PublishVersionAsync` / `AssignAsync` by design for bundled defaults, not operator approval flow
-- [ ] (hunt-ready) `PreCommitGovernanceGate.SimulateSyntheticFindingsInternalAsync` returns `Allowed()` when scoped `GetByIdAsync(runId)` returns null before applying synthetic Critical findings; a foreign-tenant or missing run id can receive an HTTP success that reports the simulated gate as allowed.
 - [x] (proven) Policy-pack before/after snapshot marks advisory findings as blocking commit — `PolicyPackBeforeAfterConfigurationSnapshotBuilder` used severity-only check instead of `PreCommitGateResult.BlockingFindingIds` (fixed 2026-08-20)
 - [x] (proven) Governance dry-run skips pre-commit enforcement for PascalCase metadata keys — **hit 2026-08-21:** `PolicyPackGovernanceDryRunService` read `blockCommitOnCritical` / `blockCommitMinimumSeverity` via case-sensitive `metadata.TryGetValue`, so JSON-deserialized metadata with `BlockCommitOnCritical` never activated the gate
 - [x] (proven) Focused pilot execute-time snapshot excludes pinned organization packs that preview and commit capture include — **hit 2026-08-23:** `EffectiveGovernanceSnapshotBuilder` used `IsAllowedPackDisplayName` instead of `IsPackAllowedInFocusedReview`, dropping pinned org and platform-overlay packs from execute-time `PackAssignments`
 - [x] (proven) Waiver expiry reminder swallows provider send failures and counts the reminder as sent — **hit 2026-08-24:** `WaiverExpiryNotificationService.TrySendReminderAsync` reserved the ledger then caught `SendAsync` exceptions without rethrowing, so `RunTenantPassAsync` returned success while recipients received no mail and idempotency blocked resend; fixed by rethrowing after log (ExecDigest pattern)
+- [x] (proven) Synthetic pre-commit simulation reports a missing or foreign scoped run as allowed — **hit 2026-08-24:** `PreCommitGovernanceGate.SimulateSyntheticFindingsInternalAsync` returned `Allowed()` when scoped `GetByIdAsync(runId)` returned null, so the CI simulation endpoint could report a pass without evaluating the requested synthetic Critical finding; simulation now throws `RunNotFoundException` while live evaluation semantics remain unchanged
 
 ---
 
