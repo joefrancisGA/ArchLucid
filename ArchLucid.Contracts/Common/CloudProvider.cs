@@ -1,6 +1,9 @@
+using System.Text.Json.Serialization;
+
 namespace ArchLucid.Contracts.Common;
 
 /// <summary>Identifies the target cloud platform for an architecture run.</summary>
+[JsonConverter(typeof(CloudProviderJsonConverter))]
 public enum CloudProvider
 {
     /// <summary>No cloud provider — evidence-only architecture review (brief, docs, diagrams, IaC).</summary>

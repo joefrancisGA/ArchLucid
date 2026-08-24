@@ -203,7 +203,7 @@ public sealed class ArchitectureFindingJsonConverter : JsonConverter<Architectur
         }
 
         if (severityElement.ValueKind != JsonValueKind.String)
-            return FindingSeverity.Info;
+            throw new JsonException("Expected string or number for finding severity.");
 
         string? raw = severityElement.GetString();
 
@@ -218,7 +218,7 @@ public sealed class ArchitectureFindingJsonConverter : JsonConverter<Architectur
             "low" => FindingSeverity.Info,
             "medium" => FindingSeverity.Warning,
             "high" => FindingSeverity.Error,
-            _ => FindingSeverity.Info
+            _ => throw new JsonException($"Unknown finding severity value '{raw}'."),
         };
     }
 }

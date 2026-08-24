@@ -96,6 +96,25 @@ public sealed class ArchitectureFindingJsonConverterTests
             .WithMessage("*Unknown finding severity value*");
     }
 
+    [Fact]
+    public void Deserialize_unknown_severity_label_throws()
+    {
+        const string json = """
+                            {
+                              "severity": "blocker",
+                              "category": "Compliance",
+                              "message": "Unknown severity must not downgrade to Info."
+                            }
+                            """;
+
+        JsonSerializerOptions options = CreateOptions();
+
+        Action act = () => JsonSerializer.Deserialize<ArchitectureFinding>(json, options);
+
+        act.Should().Throw<JsonException>()
+            .WithMessage("*Unknown finding severity value*");
+    }
+
     private static JsonSerializerOptions CreateOptions()
     {
         return new JsonSerializerOptions(JsonSerializerDefaults.Web)

@@ -1,6 +1,9 @@
+using System.Text.Json.Serialization;
+
 namespace ArchLucid.Contracts.Common;
 
 /// <summary>Lifecycle state of an individual <c>AgentTask</c> within a run.</summary>
+[JsonConverter(typeof(AgentTaskStatusJsonConverter))]
 public enum AgentTaskStatus
 {
     /// <summary>Task created and queued for dispatch.</summary>

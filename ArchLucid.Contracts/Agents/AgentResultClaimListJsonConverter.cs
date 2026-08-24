@@ -57,18 +57,32 @@ public sealed class AgentResultClaimListJsonConverter : JsonConverter<List<strin
 
         foreach (string propertyName in StructuredClaimTextProperties)
         {
-            if (!claim.TryGetProperty(propertyName, out JsonElement property) ||
-                property.ValueKind != JsonValueKind.String)
-            {
+            if (!TryGetStringProperty(claim, propertyName, out string? text))
                 continue;
-            }
-
-            string? text = property.GetString();
 
             if (!string.IsNullOrWhiteSpace(text))
                 parts.Add(text.Trim());
         }
 
         return string.Join(' ', parts);
+    }
+
+    private static bool TryGetStringProperty(JsonElement element, string propertyName, out string? value)
+    {
+        value = null;
+
+        foreach (JsonProperty property in element.EnumerateObject())
+        {
+            if (!string.Equals(property.Name, propertyName, StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            if (property.Value.ValueKind != JsonValueKind.String)
+                return false;
+
+            value = property.Value.GetString();
+            return true;
+        }
+
+        return false;
     }
 }

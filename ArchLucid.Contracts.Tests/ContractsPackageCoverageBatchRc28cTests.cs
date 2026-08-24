@@ -38,6 +38,20 @@ public sealed class ContractsPackageCoverageBatchRc28cTests
         written.Should().Contain("plain claim");
     }
 
+    [Fact]
+    public void AgentResultClaimListJsonConverter_reads_pascal_case_structured_objects()
+    {
+        JsonSerializerOptions options = new() { Converters = { new AgentResultClaimListJsonConverter() } };
+        const string json = """[{"Detail":"Pascal-case detail","Evidence":"supporting evidence"}]""";
+
+        List<string>? claims = JsonSerializer.Deserialize<List<string>>(json, options);
+
+        claims.Should().NotBeNull();
+        claims!.Should().ContainSingle();
+        claims[0].Should().Contain("Pascal-case detail");
+        claims[0].Should().Contain("supporting evidence");
+    }
+
     [Theory]
     [InlineData("\"low\"", FindingSeverity.Info)]
     [InlineData("\"medium\"", FindingSeverity.Warning)]

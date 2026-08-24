@@ -1,6 +1,9 @@
+using System.Text.Json.Serialization;
+
 namespace ArchLucid.Contracts.Common;
 
 /// <summary>Lifecycle state of an <see cref="ArchLucid.Contracts.Metadata.ArchitectureRun" />.</summary>
+[JsonConverter(typeof(ArchitectureRunStatusJsonConverter))]
 public enum ArchitectureRunStatus
 {
     /// <summary>Run record created; no tasks generated yet.</summary>
