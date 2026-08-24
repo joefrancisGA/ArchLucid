@@ -356,7 +356,10 @@ export function TeamsNotificationsIntegrationPageView(props: Props): React.React
               ) : null}
             </section>
 
-            <TeamsIntegrationAside />
+            <TeamsIntegrationAside
+              secretNameConfigured={m.secretName.trim().length > 0}
+              testSucceeded={testSucceeded}
+            />
         </div>
       )}
 
