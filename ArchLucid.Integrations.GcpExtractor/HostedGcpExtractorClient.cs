@@ -32,10 +32,13 @@ public sealed class HostedGcpExtractorClient(
         ArgumentException.ThrowIfNullOrWhiteSpace(request.ServiceAccountEmail);
 
         string projectId = request.ProjectId.Trim();
+        string serviceAccountEmail = request.ServiceAccountEmail.Trim();
+
+        GcpServiceAccountEmail.EnsureProjectMatches(projectId, serviceAccountEmail);
 
         GoogleCredential credential = _credentialFactory.CreateImpersonatedCredential(
             request.WorkloadIdentityPoolProvider,
-            request.ServiceAccountEmail);
+            serviceAccountEmail);
 
         AssetServiceClient client = await new AssetServiceClientBuilder
         {
