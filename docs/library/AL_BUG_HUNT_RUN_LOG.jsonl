@@ -127,3 +127,4 @@
 {"at": "2026-08-24T00:48:00.000000Z", "zoneId": "application-analysis", "outcome": "hit"}
 {"at": "2026-08-24T01:05:00.000000Z", "zoneId": "notifications-pipeline", "outcome": "hit"}
 {"at": "2026-08-24T01:25:00.000000Z", "zoneId": "tenant-erasure", "outcome": "hit"}
+{"at": "2026-08-24T01:35:00.000000Z", "zoneId": "billing-webhooks", "outcome": "hit"}

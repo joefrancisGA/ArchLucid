@@ -1014,11 +1014,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** stripe webhook; marketplace webhook; billing webhook replay
 - **paths:** ArchLucid.Api/Controllers/Billing/BillingStripeWebhookController.cs; ArchLucid.Api/Controllers/Billing/BillingMarketplaceWebhookController.cs; ArchLucid.Application/Budgeting/LlmTenantWalletStripeWebhookProcessor.cs; ArchLucid.Persistence/Billing/MemoryCacheBillingWebhookReplayGuard.cs
 - **test-filter:** FullyQualifiedName~BillingStripeWebhook|FullyQualifiedName~BillingMarketplaceWebhook|FullyQualifiedName~LlmTenantWalletStripeWebhook|FullyQualifiedName~MemoryCacheBillingWebhookReplayGuard
-- **hunts:** 2
-- **bugs-found:** 2
+- **hunts:** 3
+- **bugs-found:** 5
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-23
-- **last-bug:** 2026-08-23
+- **last-hunt:** 2026-08-24
+- **last-bug:** 2026-08-24
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
@@ -1028,6 +1028,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `TryRegisterEventAsync` allowed duplicate concurrent registrations — fixed with atomic `ConcurrentDictionary` claims like ITSM replay guard.
 - [x] (invalid) Tenant resolution lives in `AzureMarketplaceBillingProvider`; verified JWT claim precedence is intentional when `TenantIdClaimType` is configured.
 - [x] (invalid) Stripe and Marketplace controllers return 400 BadRequest when provider rejects invalid signatures.
+- [x] (proven) Ledger duplicate deliveries replayed while row still `Received` — **hit 2026-08-24:** `StripeBillingProvider` and `AzureMarketplaceBillingProvider` only rejected duplicates when prior status was `Processed`, so concurrent retries double-applied mutations during in-flight handling; fixed via `BillingWebhookLedgerReplayPolicy`.
+- [x] (proven) Wallet `payment_intent.succeeded` acked without crediting on bad metadata — **hit 2026-08-24:** missing/invalid `tenant_id` on `llm_wallet_refill` intents was ignored and the event was marked `Processed`; fixed by validating metadata and throwing so the ledger records `Failed` and Stripe can retry.
+- [x] (proven) Marketplace dedupe key used 32-bit `GetHashCode` — **hit 2026-08-24:** distinct `ChangeQuantity` payloads could collide and be falsely rejected; fixed with SHA-256 payload fingerprints in `BillingMarketplaceWebhookDedupeKey`.
 
 ---
 
