@@ -424,6 +424,7 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IArchitectureRequestDraftService, ArchitectureRequestDraftService>();
         services.AddScoped<IArchitectureOverviewRewriteService, ArchitectureOverviewRewriteService>();
         services.AddScoped<IStructuredBriefSuggestionExplainService, StructuredBriefSuggestionExplainService>();
+        services.AddScoped<IArchitectureKnowledgeModelIntakeBuilder, ArchitectureKnowledgeModelIntakeBuilder>();
         services.AddScoped<IArchitectureSynthesisKernel, ArchitectureSynthesisKernel>();
         services.AddScoped<IWorkspaceSystemNameCollisionGuard, WorkspaceSystemNameCollisionGuard>();
         services.AddScoped<IChatIntakeParserService, ChatIntakeParserService>();

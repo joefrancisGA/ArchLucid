@@ -23,4 +23,11 @@ public sealed class ArchitectureSynthesisGenerateResult
         get;
         init;
     } = string.Empty;
+
+    /// <summary>Persisted architecture knowledge model id when synthesis populated structured intake.</summary>
+    public string? KnowledgeModelId
+    {
+        get;
+        init;
+    }
 }

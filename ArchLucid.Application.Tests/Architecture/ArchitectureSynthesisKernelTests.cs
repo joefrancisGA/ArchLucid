@@ -1,7 +1,9 @@
 using ArchLucid.Application.Architecture;
+using ArchLucid.Application.ArchitectureIntelligence;
 using ArchLucid.Application.Planning;
 using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Orchestration;
+using ArchLucid.Contracts.ArchitectureIntelligence;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Scoping;
@@ -11,6 +13,7 @@ using ArchLucid.Persistence.Models;
 
 using FluentAssertions;
 
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Time.Testing;
 
 using Moq;
@@ -159,12 +162,78 @@ public sealed class ArchitectureSynthesisKernelTests
         source.Should().NotContain("HasCommitReadyAgentResults");
     }
 
+    [Fact]
+    public async Task GenerateAsync_persists_knowledge_model_when_persistence_is_available()
+    {
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+        };
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(p => p.GetCurrentScope()).Returns(scope);
+
+        ArchitectureRequest request = new()
+        {
+            RequestId = "req-synth-model",
+            SystemName = "ModelSystem",
+            Description = "Created-origin generate with knowledge model",
+            WorkflowIntent = ArchitectureWorkflowIntent.CreateArchitecture,
+            Constraints = ["Must use managed identity"],
+        };
+
+        Mock<IRequestContentSafetyPrecheck> safety = new();
+        safety
+            .Setup(s => s.EvaluateAsync(request, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RequestContentSafetyResult { IsAllowed = true });
+
+        Mock<IArchitectureRequestRepository> requests = new();
+        requests
+            .Setup(r => r.GetByIdAsync(request.RequestId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((ArchitectureRequest?)null);
+
+        Mock<IRunRepository> runs = new();
+        runs
+            .Setup(r => r.SaveAsync(
+                It.IsAny<RunRecord>(),
+                It.IsAny<CancellationToken>(),
+                It.IsAny<System.Data.IDbConnection?>(),
+                It.IsAny<System.Data.IDbTransaction?>()))
+            .Returns(Task.CompletedTask);
+
+        InMemoryArchitectureIntelligencePersistence persistence = new();
+        ArchitectureKnowledgeModelIntakeBuilder intakeBuilder = new(TimeProvider.System);
+
+        ArchitectureSynthesisKernel sut = CreateSut(
+            requestRepository: requests.Object,
+            runRepository: runs.Object,
+            scopeProvider: scopeProvider.Object,
+            contentSafety: safety.Object,
+            knowledgeModelIntakeBuilder: intakeBuilder,
+            architectureIntelligencePersistence: persistence);
+
+        ArchitectureSynthesisGenerateResult result =
+            await sut.GenerateAsync(request, idempotency: null, CancellationToken.None);
+
+        result.KnowledgeModelId.Should().NotBeNullOrWhiteSpace();
+        ArchitectureKnowledgeModel? saved =
+            await persistence.GetModelAsync(
+                scope.TenantId.ToString("D"),
+                result.KnowledgeModelId!,
+                CancellationToken.None);
+        saved.Should().NotBeNull();
+        saved!.Elements.Should().Contain(e => e.Kind == ArchitectureElementKind.Constraint);
+    }
+
     private static ArchitectureSynthesisKernel CreateSut(
         IArchitectureRequestDraftService? draftService = null,
         IArchitectureRequestRepository? requestRepository = null,
         IRunRepository? runRepository = null,
         IScopeContextProvider? scopeProvider = null,
         IRequestContentSafetyPrecheck? contentSafety = null,
+        IArchitectureKnowledgeModelIntakeBuilder? knowledgeModelIntakeBuilder = null,
+        IArchitectureIntelligencePersistence? architectureIntelligencePersistence = null,
         TimeProvider? timeProvider = null)
     {
         Mock<IScopeContextProvider> defaultScope = new();
@@ -182,6 +251,9 @@ public sealed class ArchitectureSynthesisKernelTests
             scopeProvider ?? defaultScope.Object,
             contentSafety ?? Mock.Of<IRequestContentSafetyPrecheck>(),
             WorkspaceSystemNameCollisionGuardTestDoubles.NoOp(),
+            knowledgeModelIntakeBuilder ?? new ArchitectureKnowledgeModelIntakeBuilder(TimeProvider.System),
+            architectureIntelligencePersistence,
+            NullLogger<ArchitectureSynthesisKernel>.Instance,
             timeProvider ?? TimeProvider.System);
     }
 
