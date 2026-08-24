@@ -3,7 +3,7 @@
 import Link from "next/link";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
-import { StatusTag } from "@/components/ui/status-tag";
+import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
 import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { INTEGRATIONS_READINESS_PATH } from "@/lib/integrations-nav-paths";
 import { ITSM_PRODUCT_SMOKE_VERIFICATION_HREF } from "@/lib/itsm/itsm-connectors-admin-scope";
@@ -16,14 +16,19 @@ import {
   JIRA_PERMISSIONS_ASIDE_TITLE,
   JIRA_SETUP_PROGRESS_TITLE,
 } from "@/lib/jira-integration-page-copy";
-import type { JiraConnectionStatusPresentation, JiraSetupStep } from "@/lib/jira-integration-present";
+import {
+  resolveJiraIntegrationConnectSteps,
+  resolveJiraIntegrationEmphasizedStepId,
+} from "@/lib/jira-integration-connect-checklist";
+import type { JiraConnectionStatusPresentation } from "@/lib/jira-integration-present";
 import { inAppHelpHref } from "@/lib/product-documentation-registry";
 import { cn } from "@/lib/utils";
 
 type Props = {
   readonly status: JiraConnectionStatusPresentation;
-  readonly setupSteps: readonly JiraSetupStep[];
-  readonly emphasizedSetupStepId: string;
+  readonly oauthConnectReady: boolean;
+  readonly credentialsReady: boolean;
+  readonly connectionVerified: boolean;
   readonly lastTestAt: string | null;
   readonly lastTestSummary: string | null;
   readonly lastTestSuccess: boolean | null;
@@ -32,43 +37,29 @@ type Props = {
 };
 
 export function JiraIntegrationAside(props: Props): React.ReactElement {
+  const connectSteps = resolveJiraIntegrationConnectSteps({
+    oauthConnectReady: props.oauthConnectReady,
+    credentialsReady: props.credentialsReady,
+    connectionVerified: props.connectionVerified,
+  });
+  const emphasizedStepId = resolveJiraIntegrationEmphasizedStepId({
+    oauthConnectReady: props.oauthConnectReady,
+    credentialsReady: props.credentialsReady,
+    connectionVerified: props.connectionVerified,
+  });
+
   return (
     <aside
       className="space-y-4"
       data-testid="jira-integration-aside"
       data-operator-side-rail-kind="none"
     >
-      <div className="rounded-md border border-neutral-200 bg-al-surface-raised p-4 dark:border-neutral-800">
-        <h2 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>{JIRA_SETUP_PROGRESS_TITLE}</h2>
-        <ol
-          className={cn("m-0 mt-3 list-none space-y-2 p-0", OPERATOR_TYPOGRAPHY.body)}
-          aria-label="Jira setup progress"
-          data-testid="jira-setup-progress"
-        >
-          {props.setupSteps.map((step) => (
-            <li
-              key={step.id}
-              className="flex items-start justify-between gap-3"
-              aria-current={step.id === props.emphasizedSetupStepId ? "step" : undefined}
-              data-testid={`jira-setup-step-${step.id}`}
-              data-emphasized={step.id === props.emphasizedSetupStepId ? "true" : undefined}
-            >
-              <span
-                className={cn(
-                  step.complete ? "text-al-text-primary" : "text-al-text-secondary",
-                  step.id === props.emphasizedSetupStepId ? "font-medium text-al-text-primary" : undefined,
-                )}
-              >
-                {step.label}
-              </span>
-              <StatusTag
-                kind={step.complete ? "ready" : step.id === props.emphasizedSetupStepId ? "in-progress" : "neutral"}
-                label={step.complete ? "Done" : "Pending"}
-              />
-            </li>
-          ))}
-        </ol>
-      </div>
+      <IntegrationConnectChecklist
+        title={JIRA_SETUP_PROGRESS_TITLE}
+        steps={connectSteps}
+        emphasizedStepId={emphasizedStepId}
+        testIdPrefix="jira"
+      />
 
       <div className="rounded-md border border-neutral-200 bg-al-surface-raised p-4 dark:border-neutral-800">
         <h2 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>{JIRA_PERMISSIONS_ASIDE_TITLE}</h2>

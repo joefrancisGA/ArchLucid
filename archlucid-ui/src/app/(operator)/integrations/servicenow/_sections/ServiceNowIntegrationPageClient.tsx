@@ -570,8 +570,9 @@ export function ServiceNowIntegrationPageClient(): React.ReactElement {
 
           <ServiceNowIntegrationAside
             status={connectionStatus}
-            setupSteps={setupSteps}
-            emphasizedSetupStepId={pageComposition.emphasizedSetupStepId}
+            credentialsReady={credentialsReady}
+            destinationConfigured={nativeEnabled}
+            connectionVerified={probe?.reachable === true}
             lastTestAt={lastTestAt}
             lastTestSummary={lastTestSummary}
             lastTestSuccess={lastTestSuccess}

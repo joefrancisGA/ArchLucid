@@ -611,8 +611,9 @@ export function JiraIntegrationPageClient(): React.ReactElement {
 
           <JiraIntegrationAside
             status={connectionStatus}
-            setupSteps={setupSteps}
-            emphasizedSetupStepId={pageComposition.emphasizedSetupStepId}
+            oauthConnectReady={oauthConnectReady}
+            credentialsReady={credentialsReady}
+            connectionVerified={probe?.reachable === true}
             lastTestAt={lastTestAt}
             lastTestSummary={lastTestSummary}
             lastTestSuccess={lastTestSuccess}

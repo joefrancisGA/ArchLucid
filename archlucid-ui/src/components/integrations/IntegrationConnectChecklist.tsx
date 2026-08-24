@@ -30,6 +30,7 @@ export function IntegrationConnectChecklist(props: IntegrationConnectChecklistPr
             key={step.id}
             className="flex items-start justify-between gap-3"
             aria-current={step.id === props.emphasizedStepId ? "step" : undefined}
+            data-emphasized={step.id === props.emphasizedStepId ? "true" : undefined}
             data-testid={`${props.testIdPrefix}-setup-step-${step.id}`}
           >
             <span
