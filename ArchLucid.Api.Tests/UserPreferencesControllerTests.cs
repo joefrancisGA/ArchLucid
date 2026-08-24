@@ -35,6 +35,8 @@ public sealed class UserPreferencesControllerTests
         body.CloudPlatformScopeIsExplicit.Should().BeFalse();
         body.WhereToGoNextEnabled.Should().BeTrue();
         body.WhereToGoNextIsExplicit.Should().BeFalse();
+        body.SampleReviewsOnOverviewEnabled.Should().BeTrue();
+        body.SampleReviewsOnOverviewIsExplicit.Should().BeFalse();
         body.IanaTimeZoneId.Should().Be(IanaTimeZonePreferenceValues.Default);
         body.IanaTimeZoneIsExplicit.Should().BeFalse();
     }
@@ -149,6 +151,45 @@ public sealed class UserPreferencesControllerTests
     }
 
     [SkippableFact]
+    public async Task GetPreferences_ReturnsStoredSampleReviewsOnOverviewVisibility()
+    {
+        Mock<IUserSettingsRepository> repository = CreateRepositoryMock();
+        repository
+            .Setup(repo => repo.TryGetAsync("jwt:user-1", UserSettingKeys.SampleReviewsOnOverviewEnabled, It.IsAny<CancellationToken>()))
+            .ReturnsAsync("false");
+
+        UserPreferencesController sut = CreateController(repository.Object);
+
+        IActionResult result = await sut.GetPreferences(CancellationToken.None);
+
+        OkObjectResult ok = (OkObjectResult)result;
+        UserPreferencesResponse body = ok.Value.Should().BeOfType<UserPreferencesResponse>().Subject;
+        body.SampleReviewsOnOverviewEnabled.Should().BeFalse();
+        body.SampleReviewsOnOverviewIsExplicit.Should().BeTrue();
+    }
+
+    [SkippableFact]
+    public async Task SetSampleReviewsOnOverviewVisibility_ReturnsNoContentWhenValid()
+    {
+        Mock<IUserSettingsRepository> repository = CreateRepositoryMock();
+        UserPreferencesController sut = CreateController(repository.Object);
+
+        IActionResult result = await sut.SetSampleReviewsOnOverviewVisibility(
+            new SetSampleReviewsOnOverviewVisibilityRequest { Enabled = false },
+            CancellationToken.None);
+
+        result.Should().BeOfType<NoContentResult>();
+
+        repository.Verify(
+            repo => repo.UpsertAsync(
+                "jwt:user-1",
+                UserSettingKeys.SampleReviewsOnOverviewEnabled,
+                "false",
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [SkippableFact]
     public async Task GetPreferences_ReturnsStoredIanaTimeZone()
     {
         Mock<IUserSettingsRepository> repository = CreateRepositoryMock();
@@ -219,6 +260,9 @@ public sealed class UserPreferencesControllerTests
             .ReturnsAsync((string?)null);
         repository
             .Setup(repo => repo.TryGetAsync("jwt:user-1", UserSettingKeys.WhereToGoNextEnabled, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((string?)null);
+        repository
+            .Setup(repo => repo.TryGetAsync("jwt:user-1", UserSettingKeys.SampleReviewsOnOverviewEnabled, It.IsAny<CancellationToken>()))
             .ReturnsAsync((string?)null);
         repository
             .Setup(repo => repo.TryGetAsync("jwt:user-1", UserSettingKeys.IanaTimeZoneId, It.IsAny<CancellationToken>()))
