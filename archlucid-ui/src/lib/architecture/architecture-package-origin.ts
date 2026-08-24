@@ -29,3 +29,39 @@ export function resolveRunSummaryPackageOrigin(run: RunSummary): ArchitecturePac
 
   return null;
 }
+
+export type PipelineJobLabel = {
+  readonly heading: string;
+  readonly progressAriaLabel: string;
+  readonly stageSummaryNoun: string;
+};
+
+/** Operator-visible pipeline mode derived from package origin (create vs review). */
+export function resolvePipelineJobLabel(
+  run: RunSummary | null,
+  buyerAssessmentCopy: boolean,
+): PipelineJobLabel {
+  const origin = run === null ? null : resolveRunSummaryPackageOrigin(run);
+
+  if (origin === "created") {
+    return {
+      heading: buyerAssessmentCopy ? "Creation assessment progress" : "Architecture creation progress",
+      progressAriaLabel: "Architecture creation stages completed",
+      stageSummaryNoun: "architecture creation",
+    };
+  }
+
+  if (buyerAssessmentCopy) {
+    return {
+      heading: "Assessment progress",
+      progressAriaLabel: "Architecture assessment stages completed",
+      stageSummaryNoun: "assessment",
+    };
+  }
+
+  return {
+    heading: "Review pipeline progress",
+    progressAriaLabel: "Architecture review pipeline stages completed",
+    stageSummaryNoun: "review pipeline",
+  };
+}

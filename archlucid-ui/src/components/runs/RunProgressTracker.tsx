@@ -32,7 +32,7 @@ import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { formatStageDurationMs } from "@/lib/format-stage-duration";
 import { formatInstantForLocale } from "@/lib/locale-datetime";
-import { buyerPipelineStageName } from "@/lib/pipeline-stage-buyer-labels";
+import { resolvePipelineJobLabel } from "@/lib/architecture/architecture-package-origin";
 import {
   REVIEW_PIPELINE_ASSESSMENT_WATCHDOG_MESSAGE,
   REVIEW_PIPELINE_BACKGROUND_SAFETY_MESSAGE,
@@ -294,9 +294,10 @@ export function RunProgressTracker({
 
     const transport = sseConnected ? "live stream" : "polling";
 
-    return `${completedPipelineStages} of 4 review pipeline stages complete (${transport}).`;
+    return `${completedPipelineStages} of 4 ${pipelineJobLabel.stageSummaryNoun} stages complete (${transport}).`;
   }, [
     buyerAssessmentCopy,
+    pipelineJobLabel.stageSummaryNoun,
     clientPhase,
     completedAssessmentStages,
     completedPipelineStages,
@@ -314,7 +315,12 @@ export function RunProgressTracker({
   const showNotificationOptIn =
     pollEnabled && canPromptForDesktopNotifications() && notificationPermission === "default";
   const showNotificationEnabled = pollEnabled && notificationPermission === "granted";
-  const progressHeading = buyerAssessmentCopy ? "Assessment progress" : "Pipeline progress";
+  const pipelineJobLabel = useMemo(
+    () => resolvePipelineJobLabel(activeSummary, buyerAssessmentCopy),
+    [activeSummary, buyerAssessmentCopy],
+  );
+
+  const progressHeading = pipelineJobLabel.heading;
 
   return (
     <section
@@ -411,11 +417,7 @@ export function RunProgressTracker({
         <Progress
           value={progressValue}
           className="h-2"
-          aria-label={
-            buyerAssessmentCopy
-              ? "Architecture assessment stages completed"
-              : "Architecture review pipeline stages completed"
-          }
+          aria-label={pipelineJobLabel.progressAriaLabel}
         />
       </div>
 

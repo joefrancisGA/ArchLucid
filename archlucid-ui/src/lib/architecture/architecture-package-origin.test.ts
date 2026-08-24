@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { resolveRunSummaryPackageOrigin } from "@/lib/architecture/architecture-package-origin";
+import { resolvePipelineJobLabel, resolveRunSummaryPackageOrigin } from "@/lib/architecture/architecture-package-origin";
 import { SHOWCASE_SAMPLE_CREATED_REGISTRY } from "@/lib/showcase-sample-created-registry";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 
@@ -37,5 +37,27 @@ describe("resolveRunSummaryPackageOrigin", () => {
         projectId: "default",
       }),
     ).toBe("reviewed");
+  });
+});
+
+describe("resolvePipelineJobLabel", () => {
+  it("uses creation copy for Created-origin runs", () => {
+    const label = resolvePipelineJobLabel(
+      { runId: "run-a", projectId: "default", packageOrigin: "Created" },
+      false,
+    );
+
+    expect(label.heading).toBe("Architecture creation progress");
+    expect(label.stageSummaryNoun).toBe("architecture creation");
+  });
+
+  it("uses review copy for Reviewed-origin runs", () => {
+    const label = resolvePipelineJobLabel(
+      { runId: "run-b", projectId: "default", packageOrigin: "Reviewed" },
+      false,
+    );
+
+    expect(label.heading).toBe("Review pipeline progress");
+    expect(label.stageSummaryNoun).toBe("review pipeline");
   });
 });
