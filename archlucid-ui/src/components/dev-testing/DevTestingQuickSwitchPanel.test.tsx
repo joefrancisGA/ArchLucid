@@ -69,6 +69,7 @@ describe("DevTestingQuickSwitchPanel", () => {
     expect(await screen.findByTestId("dev-testing-quick-switch")).toBeInTheDocument();
     expect(screen.getByTestId("dev-shell-option-buyer-polished")).toBeInTheDocument();
     expect(screen.getByTestId("dev-role-option-Reader")).toBeInTheDocument();
+    expect(screen.getByTestId("dev-reset-database-button")).toBeInTheDocument();
   });
 
   it("persists a shell override and reloads", async () => {

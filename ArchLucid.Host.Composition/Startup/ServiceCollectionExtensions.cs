@@ -71,6 +71,8 @@ public static partial class ServiceCollectionExtensions
         services.Configure<GcpBillingCatalogOptions>(configuration.GetSection(GcpBillingCatalogOptions.SectionName));
         services.AddScoped<Application.Diagnostics.ISyntheticOperatorDemoPackWriter,
             Application.Diagnostics.SyntheticOperatorDemoPackWriter>();
+        services.AddScoped<Application.Diagnostics.IDevelopmentCatalogResetService,
+            DevelopmentCatalogResetService>();
         services.AddScoped<Application.Authority.IAuthorityCommittedManifestChainWriter,
             Application.Authority.AuthorityCommittedManifestChainWriter>();
         services.AddSingleton<Application.Findings.IReasoningSummaryBuilder, Application.Findings.ReasoningSummaryBuilder>();

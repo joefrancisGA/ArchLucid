@@ -38,7 +38,7 @@ internal static class SwaggerExtensions
                     "ProductLearning" => "Product learning",
                     "Audit" => "Audit",
                     "Diagnostics" or "Docs" or "AuthDebug" or "ScopeDebug" or "Demo" or "ConfigurationHealth"
-                        or "SyntheticOperatorDemoPack" => "Diagnostics & debug",
+                        or "SyntheticOperatorDemoPack" or "DevelopmentCatalogReset" => "Diagnostics & debug",
                     _ => cad.ControllerName
                 };
                 return [tag];

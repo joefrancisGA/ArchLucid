@@ -124,6 +124,7 @@
     "POST /v1/diagnostics/core-pilot-rail-step": "inbound-webhook-pipeline",
     "POST /v1/diagnostics/first-tenant-funnel": "inbound-webhook-pipeline",
     "POST /v1/diagnostics/sponsor-banner-first-commit-badge": "operator-documented-safe-retry",
+    "POST /v1/diagnostics/reset-development-catalog": "operator-documented-safe-retry",
     "POST /v1/diagnostics/synthetic-operator-demo-pack": "operator-documented-safe-retry",
     "POST /v1/diagnostics/team-expansion-nudge/clicked": "operator-documented-safe-retry",
     "POST /v1/diagnostics/team-expansion-nudge/shown": "operator-documented-safe-retry",

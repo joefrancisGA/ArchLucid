@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 
 import { DevTestingQuickJumpLinks } from "@/components/dev-testing/DevTestingQuickJumpLinks";
+import { DevTestingResetDatabaseButton } from "@/components/dev-testing/DevTestingResetDatabaseButton";
 import { useDevTestingQuickJumpSnapshot } from "@/components/dev-testing/use-dev-testing-quick-jump-snapshot";
 import { useOperatorHomeWorkspaceActivity } from "@/components/operator-home/operator-home-workspace-activity-context";
 import { Button } from "@/components/ui/button";
@@ -207,6 +208,8 @@ export function DevTestingQuickSwitchPanel(props: DevTestingQuickSwitchPanelProp
         </div>
 
         <DevTestingQuickJumpLinks snapshot={quickJumpSnapshot} loading={quickJumpLoading} />
+
+        <DevTestingResetDatabaseButton />
       </div>
     </section>
   );

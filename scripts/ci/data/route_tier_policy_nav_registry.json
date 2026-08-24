@@ -1222,6 +1222,16 @@
       "nav_operator_href": null
     },
     {
+      "controller_file": "Diagnostics/DevelopmentCatalogResetController.cs",
+      "class_name": "DevelopmentCatalogResetController",
+      "route_template": "v{version:apiVersion}/diagnostics",
+      "normalized_prefix": "/v1/diagnostics",
+      "commercial_tier": "none",
+      "class_policy": "RequireAdmin",
+      "exemption": "development_catalog_reset",
+      "nav_operator_href": null
+    },
+    {
       "controller_file": "E2e/E2eHarnessController.cs",
       "class_name": "E2EHarnessController",
       "route_template": "v{version:apiVersion}/e2e",
