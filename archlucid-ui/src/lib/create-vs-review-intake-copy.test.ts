@@ -4,7 +4,6 @@ import {
   ARCHITECTURE_DRAFT_WORKSPACE_LEAD,
   ARCHITECTURE_CREATION_CONTINUE_SECTION_TITLE,
   ARCHITECTURE_CREATION_NEW_DRAFT_SECTION_TITLE,
-  ARCHITECTURE_CREATION_NO_DRAFTS_GUIDANCE,
   ARCHITECTURE_CREATION_PAGE_SUBTITLE,
   ARCHITECTURE_CREATION_PAGE_SUBTITLE_WITH_DRAFTS,
   ARCHITECTURE_CREATION_RECENT_DRAFTS_BODY,
@@ -22,9 +21,6 @@ describe("create-vs-review-intake-copy (TB-1459)", () => {
     expect(ARCHITECTURE_CREATION_RECENT_DRAFTS_BODY.toLowerCase()).toContain("this device");
     expect(ARCHITECTURE_CREATION_RECENT_DRAFTS_BODY.toLowerCase()).toContain("close the browser");
     expect(ARCHITECTURE_CREATION_RECENT_DRAFTS_BODY.toLowerCase()).toContain("not a shared tenant-wide");
-
-    expect(ARCHITECTURE_CREATION_NO_DRAFTS_GUIDANCE.toLowerCase()).toContain("this device");
-    expect(ARCHITECTURE_CREATION_NO_DRAFTS_GUIDANCE.toLowerCase()).toContain("other browsers");
   });
 
   it("aligns view-all drafts label with architectures hub honesty", () => {

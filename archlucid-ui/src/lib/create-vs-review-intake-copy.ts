@@ -29,10 +29,6 @@ export const ARCHITECTURE_CREATION_PAGE_SUBTITLE_WITH_DRAFTS =
 /** Form section heading on `/architectures/new` before the draft is named or persisted (TB-1461). */
 export const ARCHITECTURE_CREATION_NEW_DRAFT_SECTION_TITLE = "New architecture draft";
 
-/** Empty-state guidance when the operator has no saved drafts yet (TB-1459). */
-export const ARCHITECTURE_CREATION_NO_DRAFTS_GUIDANCE =
-  "No architecture drafts on this device yet. Describe the system, goals, and constraints below to begin. Drafts from other browsers or devices will not appear here.";
-
 /** Resume strip body when local registry entries exist (TB-1459). */
 export const ARCHITECTURE_CREATION_RECENT_DRAFTS_BODY =
   "These drafts stay on this device after you close the browser — not a shared tenant-wide inventory. Continue one below or browse the full list.";

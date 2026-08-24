@@ -15,7 +15,6 @@ import type { ArchitectureDraftRegistryEntry } from "@/lib/architecture/architec
 import { CONTINUE_DRAFT_LABEL } from "@/lib/architecture/architecture-workflow-labels";
 import {
   ARCHITECTURE_CREATION_CONTINUE_SECTION_TITLE,
-  ARCHITECTURE_CREATION_NO_DRAFTS_GUIDANCE,
   ARCHITECTURE_CREATION_RECENT_DRAFTS_BODY,
   ARCHITECTURE_CREATION_VIEW_ALL_DRAFTS_LABEL,
 } from "@/lib/create-vs-review-intake-copy";
@@ -45,15 +44,13 @@ describe("ArchitectureCreationLocalDraftsPanel (TB-1459)", () => {
     useArchitectureDraftRegistryEntries.mockReset();
   });
 
-  it("shows browser-local empty guidance when no drafts exist", async () => {
+  it("renders nothing when no drafts exist", async () => {
     useArchitectureDraftRegistryEntries.mockReturnValue([]);
 
-    render(<ArchitectureCreationLocalDraftsPanel />);
+    const { container } = render(<ArchitectureCreationLocalDraftsPanel />);
 
     await waitFor(() => {
-      expect(screen.getByTestId("architecture-creation-no-drafts-guidance")).toHaveTextContent(
-        ARCHITECTURE_CREATION_NO_DRAFTS_GUIDANCE,
-      );
+      expect(container).toBeEmptyDOMElement();
     });
 
     expect(screen.queryByTestId("architecture-creation-resume-drafts")).toBeNull();
