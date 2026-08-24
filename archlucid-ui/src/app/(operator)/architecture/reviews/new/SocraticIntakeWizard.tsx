@@ -547,7 +547,7 @@ export function SocraticIntakeWizard() {
             {otherPendingQuestions.length > 0 ? (
               <div className="space-y-3" data-testid="socratic-other-clarifications">
                 <p className={cn("m-0 font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.tab)}>
-                  Other clarifications
+                  Other required clarifications
                 </p>
                 {otherPendingQuestions.map((question) =>
                   renderClarificationField(question, {
