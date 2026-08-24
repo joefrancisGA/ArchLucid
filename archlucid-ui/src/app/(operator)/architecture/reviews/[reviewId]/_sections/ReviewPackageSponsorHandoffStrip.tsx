@@ -16,7 +16,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import { getRunPackageExportUrl } from "@/lib/api";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_SHORT_HELPER_MEASURE_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { whyDisabledSampleReviewExport } from "@/lib/why-disabled-cta";
 import { buildReviewDetailTabHref } from "@/lib/review-detail-workspace-tabs";
 import {
@@ -67,7 +67,7 @@ export function ReviewPackageSponsorHandoffStrip(
       >
         {RUN_DETAIL_SPONSOR_HANDOFF_TITLE}
       </h2>
-      <p className={cn("m-0 mt-1 max-w-prose text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.body)}>
+      <p className={cn("m-0 mt-1 text-neutral-700 dark:text-neutral-300", OPERATOR_SHORT_HELPER_MEASURE_CLASS, OPERATOR_TYPOGRAPHY.body)}>
         {RUN_DETAIL_SPONSOR_HANDOFF_LEAD}
       </p>
       <SponsorRoiBaselineGateNotice isFinalized />
@@ -97,7 +97,7 @@ export function ReviewPackageSponsorHandoffStrip(
       ) : null}
       <div className="mt-3 flex flex-wrap items-center gap-2">
         {props.usedStaticDemoRun ? (
-          <div className="flex max-w-prose flex-col gap-1.5">
+          <div className={cn("flex flex-col gap-1.5", OPERATOR_SHORT_HELPER_MEASURE_CLASS)}>
             <Button
               variant="outline"
               size="sm"

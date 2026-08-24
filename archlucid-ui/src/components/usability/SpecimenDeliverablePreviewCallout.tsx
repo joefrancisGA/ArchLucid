@@ -7,7 +7,7 @@ import {
   REVIEWS_NEW_SPECIMEN_PREVIEW_PRIMARY_CTA,
   REVIEWS_NEW_SPECIMEN_PREVIEW_TITLE,
 } from "@/lib/buyer/buyer-polish-copy";
-import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LINK, OPERATOR_SHORT_HELPER_MEASURE_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   showcaseSpecimenFindingsHref,
   showcaseSpecimenSealedReviewRecordHref,
@@ -84,7 +84,7 @@ export function SpecimenDeliverablePreviewCallout(
         >
           {REVIEWS_NEW_SPECIMEN_PREVIEW_TITLE}
         </h2>
-        <p className={cn("m-0 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+        <p className={cn("m-0 text-al-text-secondary", OPERATOR_SHORT_HELPER_MEASURE_CLASS, OPERATOR_TYPOGRAPHY.helper)}>
           {REVIEWS_NEW_SPECIMEN_PREVIEW_LEAD}
         </p>
       </div>

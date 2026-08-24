@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LINK, OPERATOR_SHORT_HELPER_MEASURE_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import Link from "next/link";
 
 import { InlineGuidance } from "@/components/InlineGuidance";
@@ -81,7 +81,7 @@ export function FirstWeekRouteGuidance(props: FirstWeekRouteGuidanceProps) {
       <aside
         aria-label="First-week guidance"
         data-testid={`first-week-route-guidance-${props.variant}`}
-        className={cn("rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 max-w-prose px-3 py-2.5 leading-snug", OPERATOR_TYPOGRAPHY.body)}
+        className={cn("rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 px-3 py-2.5 leading-snug", OPERATOR_SHORT_HELPER_MEASURE_CLASS, OPERATOR_TYPOGRAPHY.body)}
       >
         <p className="m-0 font-semibold text-teal-900 dark:text-teal-200">{config.useWhen}</p>
         <GuidanceBody
@@ -143,7 +143,7 @@ export function FirstWeekRouteGuidance(props: FirstWeekRouteGuidanceProps) {
     <aside
       aria-label="First-week guidance"
       data-testid={`first-week-route-guidance-${props.variant}`}
-      className={cn("rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 max-w-prose px-3 py-2.5 leading-snug", OPERATOR_TYPOGRAPHY.body)}
+      className={cn("rounded-md border border-neutral-200 bg-al-surface-raised dark:border-neutral-800 px-3 py-2.5 leading-snug", OPERATOR_SHORT_HELPER_MEASURE_CLASS, OPERATOR_TYPOGRAPHY.body)}
     >
       <p className="m-0">
         <InlineGuidance label="Use this when:" labelTestId="inline-guidance-use-this-when">

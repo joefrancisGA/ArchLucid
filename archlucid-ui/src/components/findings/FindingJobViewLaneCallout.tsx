@@ -9,7 +9,7 @@ import {
 } from "@/lib/findings/finding-job-view";
 import { findingJobViewLaneLead } from "@/lib/findings/finding-job-view-lane-lead";
 import { buildReviewFindingsTabHref } from "@/lib/findings/review-findings-job-view-url";
-import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LINK, OPERATOR_SHORT_HELPER_MEASURE_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export type FindingJobViewLaneCalloutProps = {
   readonly jobView: FindingJobView;
@@ -36,7 +36,7 @@ export function FindingJobViewLaneCallout(props: FindingJobViewLaneCalloutProps)
         </span>
         <StatusTag kind="neutral" label={FINDING_JOB_VIEW_LABELS[props.jobView]} />
       </div>
-      <p className={cn("m-0 mt-2 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+      <p className={cn("m-0 mt-2 text-al-text-secondary", OPERATOR_SHORT_HELPER_MEASURE_CLASS, OPERATOR_TYPOGRAPHY.helper)}>
         {findingJobViewLaneLead(props.jobView)}
       </p>
       {findingsLaneHref !== null ? (

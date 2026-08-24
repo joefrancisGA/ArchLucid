@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
 
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_SHORT_HELPER_MEASURE_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 export type FindingSeverityConstraintNoteProps = {
   readonly note: string;
@@ -12,7 +12,7 @@ export function FindingSeverityConstraintNote(
 ): React.JSX.Element {
   return (
     <p
-      className={cn("m-0 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}
+      className={cn("m-0 text-al-text-secondary", OPERATOR_SHORT_HELPER_MEASURE_CLASS, OPERATOR_TYPOGRAPHY.helper)}
       data-testid="finding-severity-constraint-note"
     >
       {props.note}

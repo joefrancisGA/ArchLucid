@@ -24,7 +24,7 @@ import {
   standardsRuleEvidenceStatusLabel,
   STANDARDS_RULES_INLINE_LINK_CLASS,
 } from "@/lib/standards-rules-table-presentation";
-import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { DESIGN_TOKENS, OPERATOR_SHORT_HELPER_MEASURE_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 import { StandardsRulesPolicyPackReference } from "@/app/(operator)/governance/standards-and-rules/_sections/StandardsRulesPolicyPackReference";
 
@@ -96,7 +96,7 @@ export function StandardsRulesTable(props: StandardsRulesTableProps) {
         <h3 id="standards-rules-table-heading" className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}>
           {STANDARDS_RULES_TABLE_TITLE}
         </h3>
-        <p className={cn("m-0 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} data-testid="standards-rules-table-intro">
+        <p className={cn("m-0 text-al-text-secondary", OPERATOR_SHORT_HELPER_MEASURE_CLASS, OPERATOR_TYPOGRAPHY.body)} data-testid="standards-rules-table-intro">
           {STANDARDS_RULES_TABLE_INTRO}
         </p>
       </div>

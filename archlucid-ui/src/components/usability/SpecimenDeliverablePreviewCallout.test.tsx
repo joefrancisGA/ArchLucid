@@ -4,9 +4,11 @@ import { describe, expect, it } from "vitest";
 import { SpecimenDeliverablePreviewCallout } from "@/components/usability/SpecimenDeliverablePreviewCallout";
 import {
   REVIEWS_NEW_SPECIMEN_PREVIEW_FINDINGS_LINK,
+  REVIEWS_NEW_SPECIMEN_PREVIEW_LEAD,
   REVIEWS_NEW_SPECIMEN_PREVIEW_PRIMARY_CTA,
   REVIEWS_NEW_SPECIMEN_PREVIEW_TITLE,
 } from "@/lib/buyer/buyer-polish-copy";
+import { OPERATOR_SHORT_HELPER_MEASURE_CLASS } from "@/lib/design-tokens";
 import {
   showcaseSpecimenFindingsHref,
   showcaseSpecimenSignedReviewRecordHref,
@@ -18,6 +20,9 @@ describe("SpecimenDeliverablePreviewCallout", () => {
 
     expect(screen.getByTestId("reviews-new-specimen-preview")).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: REVIEWS_NEW_SPECIMEN_PREVIEW_TITLE })).toBeInTheDocument();
+    const lead = screen.getByText(REVIEWS_NEW_SPECIMEN_PREVIEW_LEAD);
+    expect(lead.className).toContain(OPERATOR_SHORT_HELPER_MEASURE_CLASS);
+    expect(lead.className).not.toContain("max-w-prose");
     const primaryCta = screen.getByTestId("reviews-new-specimen-preview-primary-cta");
     expect(primaryCta).toHaveAttribute("href", showcaseSpecimenSignedReviewRecordHref());
     expect(primaryCta.className).toContain("border-neutral-300");

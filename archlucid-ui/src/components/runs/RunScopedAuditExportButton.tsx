@@ -1,6 +1,6 @@
 "use client";
 import { cn } from "@/lib/utils";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_SHORT_HELPER_MEASURE_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import { useCallback, useState } from "react";
 
@@ -80,7 +80,7 @@ export function RunScopedAuditExportButton(props: RunScopedAuditExportButtonProp
       {roleHintVisible || !exportRoleOk ? (
         <p
           id="run-scoped-audit-export-role-hint"
-          className={cn("m-0 max-w-prose text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}
+          className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_SHORT_HELPER_MEASURE_CLASS, OPERATOR_TYPOGRAPHY.helper)}
           data-testid="run-scoped-audit-export-role-hint"
         >
           {auditExportExecuteRankAuditorRoleNote} Requires Auditor or Admin role for CSV export.

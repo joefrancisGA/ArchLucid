@@ -1,6 +1,6 @@
 "use client";
 import { cn } from "@/lib/utils";
-import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_BODY_INLINE_LINK_CLASS, OPERATOR_SHORT_HELPER_MEASURE_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -57,7 +57,7 @@ export function ContextualPageHintStrip(): React.JSX.Element | null {
       data-testid="contextual-page-hint-strip"
       role="note"
     >
-      <p className="m-0 max-w-prose">
+      <p className={cn("m-0 min-w-0 flex-1", OPERATOR_SHORT_HELPER_MEASURE_CLASS)}>
         <InlineGuidanceLabel label="What you can do here:" testId="inline-guidance-what-you-can-do-here" />{" "}
         {hint.message}
         {hint.learnMoreHref !== undefined ? (

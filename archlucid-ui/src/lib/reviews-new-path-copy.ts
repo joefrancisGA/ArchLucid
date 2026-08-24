@@ -62,7 +62,7 @@ export const REVIEWS_NEW_BACK_TO_QUICK_START_CTA = "Back to quick start";
  * Help covers Tier 1 inventory ZIP upload and Tier 2 hosted connectors; hub is where connectors are created.
  */
 export const REVIEWS_NEW_OPTIONAL_CLOUD_LEAD =
-  "For read-only Azure, AWS, or GCP inventory, connect a cloud environment or upload an inventory ZIP when you attach evidence — you can also add cloud evidence from the review detail page after the review starts.";
+  "For read-only AWS, Azure, or GCP inventory, connect a cloud environment or upload an inventory ZIP when you attach evidence — you can also add cloud evidence from the review detail page after the review starts.";
 
 export const REVIEWS_NEW_CLOUD_CONNECTIONS_HELP_LINK_LABEL = "How cloud connections work";
 

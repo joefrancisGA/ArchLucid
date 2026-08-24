@@ -29,6 +29,17 @@ export const OPERATOR_SHORT_HELPER_MEASURE_GUARDED_SOURCES = [
   "src/components/evidence-orientation/evidence-orientation-styles.ts",
   "src/components/evidence-orientation/EvidenceOrientationLead.tsx",
   "src/components/evidence-orientation/EvidenceOrientationMetaLine.tsx",
+  "src/components/usability/SpecimenDeliverablePreviewCallout.tsx",
+  "src/components/ContextualPageHintStrip.tsx",
+  "src/components/FirstWeekRouteGuidance.tsx",
+  "src/components/BuyerGoldenJourneyStrip.tsx",
+  "src/components/findings/FindingSeverityConstraintNote.tsx",
+  "src/components/findings/FindingJobViewLaneCallout.tsx",
+  "src/app/(operator)/architecture/reviews/[reviewId]/_sections/ReviewPackageSponsorHandoffStrip.tsx",
+  "src/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailArchitectureGraphSection.tsx",
+  "src/app/(operator)/architecture/reviews/[reviewId]/_sections/RunDetailArtifactsExportsSection.tsx",
+  "src/components/policy/PolicyPackImpactPreviewPanel.tsx",
+  "src/app/(operator)/governance/standards-and-rules/_sections/StandardsRulesTable.tsx",
 ] as const;
 
 /**

@@ -40,7 +40,7 @@ import { findingSeverityAudienceCopy } from "@/lib/findings/finding-explainabili
 import { getShowcaseManifestHref } from "@/lib/buyer/buyer-safe-review-navigation";
 import { isNextPublicDemoMode, isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
 import { isDemoRunIdEligibleForStaticFallback } from "@/lib/operator/operator-static-demo";
-import { DESIGN_TOKENS, OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { DESIGN_TOKENS, OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_NAV_GROUP_LABEL, OPERATOR_SHORT_HELPER_MEASURE_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { getFindingEvidenceTraceHref } from "@/lib/findings/finding-evidence-navigation";
 import { graphEvidenceHrefFromInspect } from "@/lib/findings/finding-inspect-graph-evidence";
 import {
@@ -499,7 +499,7 @@ export function FindingDetailPageView(props: Props) {
           ) : null}
 
           {inspectPayload !== null && severityRationale.length > 0 ? (
-            <p className={cn("m-0 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{severityRationale}</p>
+            <p className={cn("m-0 text-al-text-secondary", OPERATOR_SHORT_HELPER_MEASURE_CLASS, OPERATOR_TYPOGRAPHY.helper)}>{severityRationale}</p>
           ) : null}
 
           {severityConstraintNote !== null ? <FindingSeverityConstraintNote note={severityConstraintNote} /> : null}

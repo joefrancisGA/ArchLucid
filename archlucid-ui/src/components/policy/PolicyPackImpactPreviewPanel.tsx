@@ -12,7 +12,7 @@ import { Label } from "@/components/ui/label";
 import { StatusTag } from "@/components/ui/status-tag";
 import { simulatePolicyPackAgainstRun } from "@/lib/api/policy-governance-api";
 import { toApiLoadFailure, uiFailureFromMessage, type ApiLoadFailureState } from "@/lib/api-load-failure";
-import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { DESIGN_TOKENS, OPERATOR_LINK, OPERATOR_SHORT_HELPER_MEASURE_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { POLICY_PACK_DELTA_DEMO_HELP_PATH } from "@/lib/policy/policy-pack-delta-demo-help-route";
 import type { components } from "@/lib/openapi-schemas";
 import {
@@ -138,7 +138,7 @@ export function PolicyPackImpactPreviewPanel(props: PolicyPackImpactPreviewPanel
         >
           Policy impact preview
         </h2>
-        <p className={cn("m-0 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+        <p className={cn("m-0 text-al-text-secondary", OPERATOR_SHORT_HELPER_MEASURE_CLASS, OPERATOR_TYPOGRAPHY.body)}>
           Same finalized review, different enforcement posture — preview compliance rule key changes and whether the
           approval check before finalize would allow or block finalize. Read-only; nothing is persisted.
         </p>

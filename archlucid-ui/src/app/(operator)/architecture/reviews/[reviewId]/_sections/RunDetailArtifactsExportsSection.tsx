@@ -36,7 +36,7 @@ import { comparePageHrefAdaptive } from "@/lib/compare-url-query-params";
 import { isExportableDecisionVerdict } from "@/lib/decision-receipt-export";
 import type { ArtifactDescriptor, ManifestSummary, RunTrustEvidenceCard } from "@/types/authority";
 import type { ManifestFeasibilityVerdict } from "@/types/feasibility-verdict";
-import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LINK, OPERATOR_SHORT_HELPER_MEASURE_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { BUYER_REVIEW_DETAIL_IN_PROGRESS_FINALIZE_ANCHOR } from "@/lib/first-week-route-guidance";
 import { RUN_DELIVERABLES_PENDING_FINALIZE_COMPACT, RUN_DETAIL_DECISION_RECEIPT_EMPTY_COMPACT } from "@/lib/enterprise-compact-empty-state-presets";
 import {
@@ -107,7 +107,7 @@ export function RunDetailArtifactsExportsSection(
           headingLevel={3}
           defaultOpen={deliverablesSectionDefaultOpen}
         >
-          <p className={cn("m-0 mb-4 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+          <p className={cn("m-0 mb-4 text-al-text-secondary", OPERATOR_SHORT_HELPER_MEASURE_CLASS, OPERATOR_TYPOGRAPHY.body)}>
             {RUN_DETAIL_DELIVERABLES_INTRO}
           </p>
           <div className="mb-4 flex flex-wrap gap-3">
@@ -122,7 +122,7 @@ export function RunDetailArtifactsExportsSection(
             ) : null}
             {/* Exports stay secondary — the review's recommended next step owns the only primary affordance. */}
             {usedStaticDemoRun ? (
-              <div className="flex max-w-prose flex-col gap-1.5">
+              <div className={cn("flex flex-col gap-1.5", OPERATOR_SHORT_HELPER_MEASURE_CLASS)}>
                 <Button variant="outline" disabled aria-describedby="run-detail-docx-export-disabled-hint">
                   Download architecture review report (DOCX)
                 </Button>
@@ -135,7 +135,7 @@ export function RunDetailArtifactsExportsSection(
                 </p>
               </div>
             ) : (
-              <div className="flex max-w-prose flex-col gap-1">
+              <div className={cn("flex flex-col gap-1", OPERATOR_SHORT_HELPER_MEASURE_CLASS)}>
                 <ExportTrackedAnchor
                   className={buttonVariants({ variant: "outline" })}
                   href={getRunPackageExportUrl(runId, "docx")}
@@ -157,7 +157,7 @@ export function RunDetailArtifactsExportsSection(
           </div>
           {buyerPolishedArtifactTable ? (
             <div className="m-0 mb-3 space-y-2">
-              <p className={cn("m-0 max-w-prose text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
+              <p className={cn("m-0 text-al-text-secondary", OPERATOR_SHORT_HELPER_MEASURE_CLASS, OPERATOR_TYPOGRAPHY.body)}>
                 {RUN_DETAIL_DELIVERABLES_BUYER_TABLE_LEAD}
               </p>
             </div>
