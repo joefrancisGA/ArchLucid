@@ -74,7 +74,9 @@ internal static class ArchitectureIntelligenceServiceCollectionExtensions
         services.AddScoped<ISelectiveExecuteIncrementalReReviewCoordinator, SelectiveExecuteIncrementalReReviewCoordinator>();
         services.AddScoped<IMustNotFailEnforcer, MustNotFailEnforcer>();
         services.AddScoped<ITrustPublishGate, TrustPublishGate>();
-        services.AddScoped<IArchitectureIntelligenceProductPublishService, ArchitectureIntelligenceProductPublishService>();
+        services.AddScoped<IAuthorityFindingsSnapshotUpdater, AuthorityFindingsSnapshotUpdater>();
+        services.AddScoped<IArchitectureIntelligenceAuthorityFindingsContributor,
+            ArchitectureIntelligenceAuthorityFindingsContributor>();
         services.AddSingleton<IReviewResultCache, ReviewResultCache>();
         services.AddScoped<IArchitectureIntelligenceReviewTierBudgetGuard, ArchitectureIntelligenceReviewTierBudgetGuard>();
         services.AddScoped<IArchitectureIntelligenceProductRunSourceContextLoader,

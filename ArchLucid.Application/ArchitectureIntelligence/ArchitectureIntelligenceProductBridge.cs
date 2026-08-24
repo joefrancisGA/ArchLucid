@@ -168,6 +168,7 @@ public static class ArchitectureIntelligenceProductBridge
             FindingId = finding.FindingId,
             FindingType = FindingType,
             Category = Category,
+            PolicyRuleId = BuildPolicyRuleId(finding),
             QualityDimension = ArchitecturePillarRollup.ToStorageKey(
                 ArchitecturePillarRollup.FromSpecialistDimension(finding.Dimension)),
             EngineType = EngineType,
@@ -178,6 +179,11 @@ public static class ArchitectureIntelligenceProductBridge
             HumanReviewStatus = MapHumanReviewStatus(finding.GovernanceDisposition),
             Properties = properties,
         };
+    }
+
+    private static string BuildPolicyRuleId(SpecialistReviewFinding finding)
+    {
+        return $"architecture-intelligence.{finding.Dimension.ToString().ToLowerInvariant()}.{finding.FindingId}";
     }
 
     private static FindingHumanReviewStatus MapHumanReviewStatus(GovernanceDisposition disposition)

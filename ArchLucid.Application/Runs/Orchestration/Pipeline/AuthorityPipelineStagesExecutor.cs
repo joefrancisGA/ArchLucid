@@ -24,6 +24,7 @@ using ArchLucid.Persistence.IntegrationOutbox;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Decisioning.Manifest;
+using ArchLucid.Decisioning.Services;
 using ArchLucid.Persistence.Serialization;
 using ArchLucid.KnowledgeGraph.Interfaces;
 
@@ -64,7 +65,9 @@ public sealed class AuthorityPipelineStagesExecutor(
     IOptionsMonitor<PublicSiteOptions> publicSiteOptions,
     ILogger<AuthorityPipelineStagesExecutor> logger,
     IArchitectureIntelligencePersistence? architectureIntelligencePersistence = null,
-    IArchitectureKnowledgeModelGraphProjector? knowledgeModelGraphProjector = null) : IAuthorityPipelineStagesExecutor
+    IArchitectureKnowledgeModelGraphProjector? knowledgeModelGraphProjector = null,
+    IArchitectureIntelligenceAuthorityFindingsContributor? authorityFindingsContributor = null,
+    TimeProvider? timeProvider = null) : IAuthorityPipelineStagesExecutor
 {
     private readonly AuthorityPipelineStageContextHydrator _stageContextHydrator =
         new(
@@ -147,6 +150,11 @@ public sealed class AuthorityPipelineStagesExecutor(
 
     private readonly IArchitectureKnowledgeModelGraphProjector? _knowledgeModelGraphProjector =
         knowledgeModelGraphProjector;
+
+    private readonly IArchitectureIntelligenceAuthorityFindingsContributor? _authorityFindingsContributor =
+        authorityFindingsContributor;
+
+    private readonly TimeProvider _timeProvider = timeProvider ?? TimeProvider.System;
 
     private static readonly string[] PipelineStageSequence = AuthorityPipelineStageNames.Sequence;
 
@@ -258,6 +266,18 @@ public sealed class AuthorityPipelineStagesExecutor(
                 ctx.ContextSnapshot!.SnapshotId,
                 ctx.GraphSnapshot!,
                 token);
+
+            if (_authorityFindingsContributor is not null)
+            {
+                IReadOnlyList<Finding> contributedFindings = await _authorityFindingsContributor
+                    .ContributeAsync(scope, run.RunId.ToString("D"), token)
+                    .ConfigureAwait(false);
+
+                FindingsSnapshotAuthorityMerger.MergeAdditionalFindings(
+                    findingsSnapshot,
+                    contributedFindings,
+                    _timeProvider);
+            }
 
             try
             {

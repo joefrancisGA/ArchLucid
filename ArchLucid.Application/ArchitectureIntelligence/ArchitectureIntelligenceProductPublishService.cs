@@ -1,6 +1,7 @@
 using ArchLucid.Contracts.ArchitectureIntelligence;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Persistence.Ports;
+using ArchLucid.Decisioning.Services;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace ArchLucid.Application.ArchitectureIntelligence;
@@ -71,8 +72,13 @@ public sealed class ArchitectureIntelligenceProductPublishService : IArchitectur
                 FindingsSnapshotId = Guid.NewGuid(),
                 RunId = runGuid,
                 CreatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime,
-                Findings = result.ProductFindings.ToList(),
+                Findings = [],
             };
+
+            FindingsSnapshotAuthorityMerger.MergeAdditionalFindings(
+                snapshot,
+                result.ProductFindings,
+                TimeProvider.System);
 
             await _findingsSnapshotRepository.SaveAsync(snapshot, cancellationToken);
             findingsSnapshotId = snapshot.FindingsSnapshotId;

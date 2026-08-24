@@ -18,7 +18,8 @@ public sealed class SelectiveExecuteIncrementalReReviewCoordinator(
     IIncrementalReReviewService incrementalReReviewService,
     ISpecialistReviewService specialistReviewService,
     IRunStageOutcomesRepository runStageOutcomesRepository,
-    IAuditService auditService) : ISelectiveExecuteIncrementalReReviewCoordinator
+    IAuditService auditService,
+    IAuthorityFindingsSnapshotUpdater? authorityFindingsSnapshotUpdater = null) : ISelectiveExecuteIncrementalReReviewCoordinator
 {
     private const string StageName = "incremental-re-review";
 
@@ -42,6 +43,9 @@ public sealed class SelectiveExecuteIncrementalReReviewCoordinator(
 
     private readonly IAuditService _auditService =
         auditService ?? throw new ArgumentNullException(nameof(auditService));
+
+    private readonly IAuthorityFindingsSnapshotUpdater? _authorityFindingsSnapshotUpdater =
+        authorityFindingsSnapshotUpdater;
 
     public async Task<IncrementalReReviewResult?> TryRunAfterSelectiveExecuteAsync(
         string runId,
@@ -107,6 +111,21 @@ public sealed class SelectiveExecuteIncrementalReReviewCoordinator(
             model,
             reReviewScope,
             _specialistReviewService);
+
+        List<SpecialistReviewFinding> incrementalFindings = result.SpecialistResults
+            .SelectMany(specialistResult => specialistResult.Findings)
+            .ToList();
+
+        if (incrementalFindings.Count > 0
+            && _authorityFindingsSnapshotUpdater is not null
+            && Guid.TryParse(runId, out Guid runGuidForFindings))
+        {
+            await _authorityFindingsSnapshotUpdater.MergeSpecialistFindingsAsync(
+                scope,
+                runGuidForFindings,
+                incrementalFindings,
+                cancellationToken).ConfigureAwait(false);
+        }
 
         bool allGlobalInvariantsPassed = result.GlobalInvariantResults.All(check => check.Passed);
         string outcomeStatus = allGlobalInvariantsPassed ? "succeeded" : "completed-with-invariant-warnings";
