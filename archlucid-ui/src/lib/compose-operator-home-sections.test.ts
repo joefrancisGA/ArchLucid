@@ -28,12 +28,9 @@ describe("composeOperatorHomeSections (TB-2368)", () => {
     });
 
     expect(sections.map((section) => section.id)).toEqual([
-      "unfinished",
       "hero",
       "recent-reviews",
-      "buyer-chrome",
       "below-fold",
-      "stickiness",
       "sponsor-roi",
     ]);
   });
@@ -52,13 +49,20 @@ describe("composeOperatorHomeSections (TB-2368)", () => {
       metrics: { ...emptyMetrics, hasReviews: true, reviewPackagesCommitted: 1 },
     });
 
-    const aboveFoldIds = sections.slice(0, 3).map((section) => section.id);
+    const aboveFoldIds = sections.slice(0, 5).map((section) => section.id);
 
-    expect(aboveFoldIds).toEqual(["unfinished", "hero", "recent-reviews"]);
+    expect(aboveFoldIds).toEqual([
+      "recommended-next",
+      "metrics-strip",
+      "unfinished",
+      "start-something",
+      "recent-reviews",
+    ]);
     expect(sections.some((section) => section.id === "stickiness")).toBe(false);
+    expect(sections.some((section) => section.id === "buyer-chrome")).toBe(true);
   });
 
-  it("orders operator shell sections with command center before recent reviews", () => {
+  it("orders operator shell sections with recommended next before recent reviews when workspace has activity", () => {
     const sections = composeOperatorHomeSections({
       phaseSignals: {
         hasWorkspaceReviews: true,
@@ -74,7 +78,7 @@ describe("composeOperatorHomeSections (TB-2368)", () => {
 
     const sectionIds = sections.map((section) => section.id);
 
-    expect(sectionIds).toContain("command-center");
-    expect(sectionIds.indexOf("command-center")).toBeLessThan(sectionIds.indexOf("recent-reviews"));
+    expect(sectionIds).toContain("recommended-next");
+    expect(sectionIds.indexOf("recommended-next")).toBeLessThan(sectionIds.indexOf("recent-reviews"));
   });
 });

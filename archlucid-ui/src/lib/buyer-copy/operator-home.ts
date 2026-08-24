@@ -160,7 +160,30 @@ export const OPERATOR_HOME_CHOOSE_SAMPLE_REVIEW_CTA = "Choose sample review";
 
 export const OPERATOR_HOME_CONTACT_WORKSPACE_OWNER_HINT = "Contact the workspace owner.";
 
-export const OPERATOR_HOME_COMPACT_STARTING_ACTIONS_HEADING = "Start another review";
+export const OPERATOR_HOME_COMPACT_STARTING_ACTIONS_HEADING = "Start something";
+
+/** Buyer-polished Home subtitle — action-oriented, not lifecycle documentation. */
+export const BUYER_OPERATOR_HOME_PAGE_SUBTITLE = "Your architecture governance workspace";
+
+export const OPERATOR_HOME_RECOMMENDED_NEXT_HEADING = "Recommended next";
+
+export const OPERATOR_HOME_YOUR_WORK_HEADING = "Your work";
+
+export const OPERATOR_HOME_CREATE_ARCHITECTURE_CARD_BODY_COMPACT =
+  "Describe your system or connect cloud inventory to produce a draft architecture.";
+
+export const OPERATOR_HOME_REVIEW_ARCHITECTURE_CARD_BODY_COMPACT =
+  "Attach diagrams, documents, or inventory to run a governed architecture review.";
+
+export function formatOperatorHomeRecommendedNextTitle(title: string): string {
+  const trimmedTitle = title.trim();
+
+  if (trimmedTitle.length === 0) {
+    return "Continue your in-progress work";
+  }
+
+  return `Continue ${trimmedTitle} review`;
+}
 
 /**
  * Bold lead label on Overview subtitle (buyer-polished shell).

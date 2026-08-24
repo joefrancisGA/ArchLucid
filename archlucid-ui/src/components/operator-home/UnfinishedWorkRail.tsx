@@ -8,10 +8,10 @@ import { StatusTag } from "@/components/ui/status-tag";
 import { useArchitectureDraftRegistryEntries } from "@/hooks/use-architecture-draft-registry-entries";
 import { countUnlinkedArchitectureDraftRegistryEntries } from "@/lib/architecture/architecture-draft-registry";
 import {
-  OPERATOR_NAV_GROUP_LABEL,
   OPERATOR_TYPOGRAPHY,
   type EnterpriseStatusKind,
 } from "@/lib/design-tokens";
+import { OPERATOR_HOME_YOUR_WORK_HEADING } from "@/lib/buyer/buyer-polish-copy";
 import {
   buildUnfinishedWorkRailItems,
   listIncompleteWizardSignals,
@@ -73,30 +73,57 @@ function statusTagKindForRailItem(kind: UnfinishedWorkRailItemKind): EnterpriseS
   }
 }
 
-function UnfinishedWorkRailList(props: { readonly items: readonly UnfinishedWorkRailItem[] }): React.JSX.Element {
+function UnfinishedWorkRailRow(props: { readonly item: UnfinishedWorkRailItem }): React.JSX.Element {
+  const { item } = props;
+
   return (
-    <ul className="m-0 mt-2 list-none space-y-2 p-0" data-testid="unfinished-work-rail-list">
-      {props.items.map((item) => (
-        <li key={item.id} className="min-w-0" data-testid={`unfinished-work-rail-item-${item.kind}`}>
+    <li
+      className="border-b border-neutral-200 py-2 last:border-b-0 dark:border-neutral-800"
+      data-testid={`unfinished-work-rail-item-${item.kind}`}
+    >
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <div className="grid min-w-0 flex-1 gap-x-4 gap-y-1 sm:grid-cols-[minmax(0,1.6fr)_minmax(0,0.9fr)_minmax(0,0.8fr)] sm:items-center">
           <Link
             href={item.href}
-            className={cn(
-              "flex flex-wrap items-center gap-x-2 gap-y-1 rounded-sm border border-neutral-200 bg-al-surface-raised px-3 py-2 no-underline transition-colors hover:border-neutral-300 dark:border-neutral-800 dark:hover:border-neutral-700",
-              OPERATOR_TYPOGRAPHY.body,
-            )}
+            className={cn("min-w-0 break-words font-medium text-al-text-primary no-underline hover:underline", OPERATOR_TYPOGRAPHY.body)}
             data-testid={`unfinished-work-rail-link-${item.id}`}
           >
-            <span className="min-w-0 flex-1 break-words font-medium text-al-text-primary">{item.title}</span>
-            <StatusTag kind={statusTagKindForRailItem(item.kind)} label={item.statusLabel} />
+            {item.title}
           </Link>
-        </li>
+          <span className={cn("min-w-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+            {item.workTypeLabel}
+          </span>
+          <span className={cn("min-w-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+            {item.activityLabel ?? "—"}
+          </span>
+        </div>
+        <div className="flex shrink-0 items-center gap-2 sm:justify-end">
+          <StatusTag kind={statusTagKindForRailItem(item.kind)} label={item.statusLabel} />
+          <Link
+            href={item.href}
+            className={cn("font-medium", OPERATOR_TYPOGRAPHY.helper, "text-al-link no-underline hover:underline")}
+            data-testid={`unfinished-work-rail-action-${item.id}`}
+          >
+            {item.actionLabel} →
+          </Link>
+        </div>
+      </div>
+    </li>
+  );
+}
+
+function UnfinishedWorkRailList(props: { readonly items: readonly UnfinishedWorkRailItem[] }): React.JSX.Element {
+  return (
+    <ul className="m-0 mt-2 list-none space-y-0 p-0" data-testid="unfinished-work-rail-list">
+      {props.items.map((item) => (
+        <UnfinishedWorkRailRow key={item.id} item={item} />
       ))}
     </ul>
   );
 }
 
 /**
- * Compact cross-session continue rail for operator home — hidden when empty (TB-2209).
+ * Cross-session continue rail for operator home — hidden when empty (TB-2209).
  */
 export function UnfinishedWorkRail(props: UnfinishedWorkRailProps): React.JSX.Element | null {
   const drafts = useArchitectureDraftRegistryEntries();
@@ -145,12 +172,14 @@ export function UnfinishedWorkRail(props: UnfinishedWorkRailProps): React.JSX.El
 
   return (
     <section
-      className="rounded-md border border-neutral-200 bg-neutral-50/40 p-4 dark:border-neutral-800 dark:bg-neutral-900/20"
+      className="space-y-2"
       data-testid="unfinished-work-rail"
       data-attention-partition="unfinished-work"
       aria-label={UNFINISHED_WORK_RAIL_TITLE}
     >
-      <h2 className={cn("m-0 text-al-text-secondary", OPERATOR_NAV_GROUP_LABEL)}>{UNFINISHED_WORK_RAIL_TITLE}</h2>
+      <h2 className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
+        {OPERATOR_HOME_YOUR_WORK_HEADING}
+      </h2>
       <UnfinishedWorkRailList items={items} />
     </section>
   );

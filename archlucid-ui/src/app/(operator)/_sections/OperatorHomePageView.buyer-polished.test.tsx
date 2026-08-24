@@ -10,6 +10,10 @@ vi.mock("@/lib/demo-ui-env", async (importOriginal) => {
   };
 });
 
+vi.mock("@/components/operator/OperatorNavAuthorityProvider", () => ({
+  useNavCommittedArchitectureReview: () => false,
+}));
+
 vi.mock("@/components/usability/PageContextualHelpButton", () => ({
   PageContextualHelpButton: () => <div data-testid="page-contextual-help-button" />,
   PAGE_HELP_SHORT_TRIGGER_TEXT: "Help",
@@ -36,6 +40,18 @@ vi.mock("@/components/operator-home/UnfinishedWorkRail", () => ({
   UnfinishedWorkRail: () => null,
 }));
 
+vi.mock("@/components/operator-home/OperatorHomeRecommendedNextCard", () => ({
+  OperatorHomeRecommendedNextCard: () => <div data-testid="operator-home-recommended-next-card" />,
+}));
+
+vi.mock("@/components/operator-home/OperatorHomeWorkspaceMetricsStrip", () => ({
+  OperatorHomeWorkspaceMetricsStrip: () => <div data-testid="operator-home-workspace-metrics-strip" />,
+}));
+
+vi.mock("@/components/operator-home/OperatorHomeCompactStartingActionsSection", () => ({
+  OperatorHomeCompactStartingActionsSection: () => <div data-testid="operator-home-start-something" />,
+}));
+
 vi.mock("@/lib/operator/operator-home-refresh-context", () => ({
   OperatorHomeRefreshProvider: ({ children }: { readonly children: React.ReactNode }) => <>{children}</>,
   useOperatorHomeRefresh: () => ({
@@ -51,13 +67,12 @@ import {
   BUYER_OPERATOR_HOME_PAGE_SUBTITLE,
   OPERATOR_HOME_PAGE_SUBTITLE,
 } from "@/lib/operator/operator-home-page-copy";
-import { OPERATOR_HOME_FOLLOW_UPS_TITLE } from "@/lib/operator/operator-home-evidence-copy";
 import {
   OPERATOR_HOME_PRIMARY_CONTENT_ID,
   OPERATOR_HOME_SKIP_LINK_LABEL,
 } from "./operator-home-page-surface-copy";
 
-function mockHomeModel(): OperatorHomePageViewModel {
+function mockHomeModel(overrides?: Partial<OperatorHomePageViewModel["runsDashboard"]>): OperatorHomePageViewModel {
   return {
     buyerPolishedShell: true,
     runsDashboard: {
@@ -70,12 +85,13 @@ function mockHomeModel(): OperatorHomePageViewModel {
       malformedMessage: null,
       usedStaticRunsFallback: false,
       buyerPolishedShell: true,
+      ...overrides,
     },
   };
 }
 
 describe("OperatorHomePageView buyer-polished shell (HOM)", () => {
-  it("renders skip link, orientation strip, buyer subtitle, and contextual help on overview", () => {
+  it("renders skip link, buyer subtitle, and contextual help on first-run overview", () => {
     render(<OperatorHomePageView model={mockHomeModel()} />);
 
     expect(screen.getByRole("link", { name: OPERATOR_HOME_SKIP_LINK_LABEL })).toHaveAttribute(
@@ -86,26 +102,56 @@ describe("OperatorHomePageView buyer-polished shell (HOM)", () => {
       "id",
       OPERATOR_HOME_PRIMARY_CONTENT_ID,
     );
-    expect(screen.getByTestId("operator-home-orientation-top")).toBeInTheDocument();
-    expect(screen.getByTestId("operator-home-settings-sources")).toBeInTheDocument();
+    expect(screen.queryByTestId("operator-home-orientation-top")).toBeNull();
     expect(screen.getByTestId("operator-home-page-subtitle")).toHaveTextContent(
       BUYER_OPERATOR_HOME_PAGE_SUBTITLE,
     );
     expect(screen.queryByText(OPERATOR_HOME_PAGE_SUBTITLE)).not.toBeInTheDocument();
     expect(screen.getByTestId("page-contextual-help-button")).toBeInTheDocument();
 
-    expect(screen.getByRole("heading", { level: 2, name: OPERATOR_HOME_FOLLOW_UPS_TITLE })).toBeInTheDocument();
-    expect(screen.getByTestId("operator-home-settings-sources")).toHaveAttribute("data-layout", "columns");
-    expect(screen.getByTestId("operator-home-settings-sources").querySelector("ul")).toHaveClass("sm:grid-cols-2");
-    expect(screen.getByTestId("operator-home-settings-sources").querySelector("ul")).not.toHaveClass("flex-col");
-    expect(screen.getByTestId("operator-home-settings-sources").querySelector("p")).toHaveClass("max-w-none");
-
     const primaryContent = screen.getByTestId("operator-home-primary-content");
-    const orderedLandmarks = ["operator-home-hero-section", "operator-home-orientation-top"]
+    const orderedLandmarks = ["operator-home-hero-section"]
       .map((testId) => primaryContent.querySelector(`[data-testid="${testId}"]`))
       .filter((node): node is HTMLElement => node !== null)
       .map((node) => node.getAttribute("data-testid"));
 
-    expect(orderedLandmarks).toEqual(["operator-home-hero-section", "operator-home-orientation-top"]);
+    expect(orderedLandmarks).toEqual(["operator-home-hero-section"]);
+  });
+
+  it("renders returning-home hierarchy with recommended next before recent reviews", () => {
+    render(
+      <OperatorHomePageView
+        model={mockHomeModel({
+          items: [
+            {
+              runId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+              projectId: "default",
+              createdUtc: "2026-01-01T00:00:00Z",
+              hasGoldenManifest: false,
+            },
+          ],
+          totalCount: 1,
+        })}
+      />,
+    );
+
+    const primaryContent = screen.getByTestId("operator-home-primary-content");
+    const orderedLandmarks = [
+      "operator-home-recommended-next-card",
+      "operator-home-workspace-metrics-strip",
+      "operator-home-start-something",
+      "home-block-runs-dashboard",
+    ]
+      .map((testId) => primaryContent.querySelector(`[data-testid="${testId}"]`))
+      .filter((node): node is HTMLElement => node !== null)
+      .map((node) => node.getAttribute("data-testid"));
+
+    expect(orderedLandmarks).toEqual([
+      "operator-home-recommended-next-card",
+      "operator-home-workspace-metrics-strip",
+      "operator-home-start-something",
+      "home-block-runs-dashboard",
+    ]);
+    expect(screen.queryByTestId("operator-home-hero-section")).toBeNull();
   });
 });

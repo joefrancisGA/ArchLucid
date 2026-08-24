@@ -72,6 +72,32 @@ export function formatSetupReadinessLabel(readyCount: number, totalCount: number
   return `${readyCount} of ${totalCount} ready`;
 }
 
+export function formatSetupReadinessCompactLabel(readyCount: number, totalCount: number): string {
+  return `Setup ${readyCount}/${totalCount}`;
+}
+
+export type OperatorHomeCompactMetricsLineInput = {
+  readonly metrics: OperatorHomeWorkspaceMetricsSnapshot;
+  readonly setupReadyCount: number;
+  readonly setupTotalCount: number;
+  readonly setupReadinessLoading: boolean;
+};
+
+/** Single-line KPI strip for populated workspaces — e.g. `2 Active reviews · 0 Open findings`. */
+export function formatOperatorHomeCompactMetricsLine(
+  input: OperatorHomeCompactMetricsLineInput,
+): string {
+  const activeReviews = input.metrics.reviewPackagesActive;
+  const activeLabel = `${activeReviews} Active review${activeReviews === 1 ? "" : "s"}`;
+  const findingsLabel = `${input.metrics.openFindings} Open finding${input.metrics.openFindings === 1 ? "" : "s"}`;
+  const warningsLabel = `${input.metrics.governanceWarnings} Warning${input.metrics.governanceWarnings === 1 ? "" : "s"}`;
+  const setupLabel = input.setupReadinessLoading
+    ? "Setup …"
+    : formatSetupReadinessCompactLabel(input.setupReadyCount, input.setupTotalCount);
+
+  return [activeLabel, findingsLabel, warningsLabel, setupLabel].join(" · ");
+}
+
 export function formatSetupReadinessCompleteLabel(readyCount: number, totalCount: number): string {
   return `${readyCount} of ${totalCount} complete`;
 }

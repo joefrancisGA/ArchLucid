@@ -84,7 +84,7 @@ export function resolveRunHomeStatusTag(run: RunSummary): RunHomeStatusTag {
     return { kind: "in-progress" };
   }
 
-  return { kind: "in-progress", label: "Review started" };
+  return { kind: "draft", label: "Draft" };
 }
 
 export function deriveRunsDashboardTabCounts(items: readonly RunSummary[]): RunsDashboardTabCounts {

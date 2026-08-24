@@ -6,6 +6,9 @@ import {
 } from "@/lib/resolve-operator-home-workspace-phase";
 
 export type OperatorHomeSectionId =
+  | "recommended-next"
+  | "metrics-strip"
+  | "start-something"
   | "unfinished"
   | "hero"
   | "command-center"
@@ -27,36 +30,60 @@ export type ComposeOperatorHomeSectionsInput = {
 };
 
 function buyerPolishedSections(phase: OperatorHomeWorkspacePhase): OperatorHomeSectionDescriptor[] {
-  const sections: OperatorHomeSectionDescriptor[] = [
-    { id: "unfinished", testId: "operator-home-unfinished-work" },
-    { id: "hero", testId: "operator-home-hero-section" },
-    { id: "recent-reviews", testId: "operator-home-recent-reviews" },
-    { id: "buyer-chrome", testId: "operator-home-orientation-top" },
-    { id: "below-fold", testId: "operator-home-below-fold" },
-  ];
-
-  if (phase !== "operational") {
-    sections.push({ id: "stickiness", testId: "operator-home-stickiness-cockpit" });
+  if (phase === "eval-empty" || phase === "eval-with-drafts") {
+    return [
+      { id: "hero", testId: "operator-home-hero-section" },
+      { id: "recent-reviews", testId: "operator-home-recent-reviews" },
+      { id: "below-fold", testId: "operator-home-below-fold" },
+      { id: "sponsor-roi", testId: "operator-home-sponsor-roi" },
+    ];
   }
 
+  const sections: OperatorHomeSectionDescriptor[] = [
+    { id: "recommended-next", testId: "operator-home-recommended-next" },
+    { id: "metrics-strip", testId: "operator-home-metrics-strip" },
+    { id: "unfinished", testId: "operator-home-unfinished-work" },
+    { id: "start-something", testId: "operator-home-start-something" },
+    { id: "recent-reviews", testId: "operator-home-recent-reviews" },
+  ];
+
+  if (phase === "operational") {
+    sections.push({ id: "buyer-chrome", testId: "operator-home-orientation-top" });
+  }
+
+  sections.push({ id: "below-fold", testId: "operator-home-below-fold" });
   sections.push({ id: "sponsor-roi", testId: "operator-home-sponsor-roi" });
 
   return sections;
 }
 
 function operatorShellSections(phase: OperatorHomeWorkspacePhase): OperatorHomeSectionDescriptor[] {
-  const sections: OperatorHomeSectionDescriptor[] = [
-    { id: "unfinished", testId: "operator-home-unfinished-work" },
-    { id: "command-center", testId: "operator-home-pilot-command-center-host" },
-    { id: "recent-reviews", testId: "operator-home-recent-reviews" },
-    { id: "below-fold", testId: "operator-home-below-fold" },
-  ];
+  if (phase === "eval-empty" || phase === "eval-with-drafts") {
+    const sections: OperatorHomeSectionDescriptor[] = [
+      { id: "unfinished", testId: "operator-home-unfinished-work" },
+      { id: "command-center", testId: "operator-home-pilot-command-center-host" },
+      { id: "recent-reviews", testId: "operator-home-recent-reviews" },
+      { id: "below-fold", testId: "operator-home-below-fold" },
+    ];
 
-  if (phase !== "operational") {
-    sections.push({ id: "stickiness", testId: "operator-home-stickiness-cockpit" });
+    if (phase !== "operational") {
+      sections.push({ id: "stickiness", testId: "operator-home-stickiness-cockpit" });
+    }
+
+    sections.push({ id: "sponsor-roi", testId: "operator-home-sponsor-roi" });
+
+    return sections;
   }
 
-  sections.push({ id: "sponsor-roi", testId: "operator-home-sponsor-roi" });
+  const sections: OperatorHomeSectionDescriptor[] = [
+    { id: "recommended-next", testId: "operator-home-recommended-next" },
+    { id: "metrics-strip", testId: "operator-home-metrics-strip" },
+    { id: "unfinished", testId: "operator-home-unfinished-work" },
+    { id: "start-something", testId: "operator-home-start-something" },
+    { id: "recent-reviews", testId: "operator-home-recent-reviews" },
+    { id: "below-fold", testId: "operator-home-below-fold" },
+    { id: "sponsor-roi", testId: "operator-home-sponsor-roi" },
+  ];
 
   return sections;
 }

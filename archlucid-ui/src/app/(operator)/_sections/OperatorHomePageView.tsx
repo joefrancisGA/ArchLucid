@@ -2,6 +2,9 @@
 
 import { OperatorHomeDeferredOnboarding } from "@/components/operator-home/OperatorHomeDeferredOnboarding";
 import { UnfinishedWorkRail } from "@/components/operator-home/UnfinishedWorkRail";
+import { OperatorHomeRecommendedNextCard } from "@/components/operator-home/OperatorHomeRecommendedNextCard";
+import { OperatorHomeWorkspaceMetricsStrip } from "@/components/operator-home/OperatorHomeWorkspaceMetricsStrip";
+import { OperatorHomeCompactStartingActionsSection } from "@/components/operator-home/OperatorHomeCompactStartingActionsSection";
 import {
   OperatorHomeRunsPanel,
 } from "@/components/operator-home/OperatorHomeDeferredPanels";
@@ -84,6 +87,27 @@ type RenderOperatorHomeSectionInput = {
 
 function renderOperatorHomeSection(input: RenderOperatorHomeSectionInput): React.JSX.Element | null {
   switch (input.section.id) {
+    case "recommended-next":
+      return (
+        <div key={input.section.id} data-testid={input.section.testId}>
+          <OperatorHomeRecommendedNextCard runsDashboard={input.model.runsDashboard} />
+        </div>
+      );
+
+    case "metrics-strip":
+      return (
+        <div key={input.section.id} data-testid={input.section.testId}>
+          <OperatorHomeWorkspaceMetricsStrip runsDashboard={input.model.runsDashboard} />
+        </div>
+      );
+
+    case "start-something":
+      return (
+        <div key={input.section.id} data-testid={input.section.testId}>
+          <OperatorHomeCompactStartingActionsSection />
+        </div>
+      );
+
     case "unfinished":
       return (
         <div key={input.section.id} data-testid={input.section.testId}>

@@ -1,10 +1,7 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
-import {
-  OPERATOR_HOME_ARCHITECTURE_LIFECYCLE_INTRO_LABEL,
-  OPERATOR_HOME_DATA_CURRENCY_PREFIX,
-} from "@/lib/buyer/buyer-polish-copy";
+import { BUYER_OPERATOR_HOME_PAGE_SUBTITLE, OPERATOR_HOME_DATA_CURRENCY_PREFIX } from "@/lib/buyer/buyer-polish-copy";
 import { operatorHomePageSubtitle } from "@/lib/operator/operator-home-page-copy";
 
 vi.mock("next/navigation", () => ({
@@ -61,15 +58,12 @@ describe("OperatorHomePageHeader", () => {
     expect(requestRefresh).toHaveBeenCalledTimes(1);
   });
 
-  // ADR 0067 — the lead names two co-equal ways in; it must not number or rank the paths.
-  it("bolds the co-equal lead label on the buyer-polished Home lead", () => {
+  it("renders the buyer-polished Home subtitle without lifecycle documentation", () => {
     render(<OperatorHomePageHeader subtitle={operatorHomePageSubtitle(true)} />);
 
-    const label = screen.getByText(OPERATOR_HOME_ARCHITECTURE_LIFECYCLE_INTRO_LABEL);
-    expect(label.tagName).toBe("STRONG");
-    expect(label.className).toContain("font-bold");
     expect(screen.getByTestId("operator-home-page-subtitle")).toHaveTextContent(
-      operatorHomePageSubtitle(true),
+      BUYER_OPERATOR_HOME_PAGE_SUBTITLE,
     );
+    expect(screen.queryByText("Two ways in:")).toBeNull();
   });
 });

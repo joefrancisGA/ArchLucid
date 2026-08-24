@@ -16,6 +16,9 @@ function railItem(kind: UnfinishedWorkRailItem["kind"], id: string): UnfinishedW
     href: "/architecture/reviews/run-1",
     statusLabel: "Status",
     updatedUtc: null,
+    workTypeLabel: "Architecture review",
+    activityLabel: null,
+    actionLabel: "Continue",
   };
 }
 

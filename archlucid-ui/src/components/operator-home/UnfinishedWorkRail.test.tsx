@@ -197,7 +197,7 @@ describe("UnfinishedWorkRail (TB-2209)", () => {
 
     expect(screen.queryByText("Stale first paint review")).toBeNull();
     expect(screen.getByText("Refreshed review awaiting disposition")).toBeInTheDocument();
-    expect(screen.getByText("Awaiting disposition")).toBeInTheDocument();
+    expect(screen.getByText("Ready for review")).toBeInTheDocument();
   });
 
   it("hides once the refreshed snapshot reports no unfinished reviews", () => {

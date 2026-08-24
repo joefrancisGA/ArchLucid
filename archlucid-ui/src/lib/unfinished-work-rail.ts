@@ -5,6 +5,7 @@ import { architectureDraftPath, reviewDetailPath, REVIEWS_NEW_PATH } from "@/lib
 import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer/buyer-facing-review-title";
 import { isShowcaseStaticDemoRunId } from "@/lib/demo-run-canonical";
 import { resolveOperatorHomeLatestDraftPrimaryAction } from "@/lib/operator-home-latest-draft-primary-action";
+import { formatRelativeTime } from "@/lib/relative-time";
 import {
   readWizardSessionSnapshot,
   WIZARD_SESSION_IDS,
@@ -26,6 +27,9 @@ export type UnfinishedWorkRailItem = {
   readonly href: string;
   readonly statusLabel: string;
   readonly updatedUtc: string | null;
+  readonly workTypeLabel: string;
+  readonly activityLabel: string | null;
+  readonly actionLabel: string;
 };
 
 export type IncompleteWizardSignal = {
@@ -49,9 +53,37 @@ export const UNFINISHED_WORK_RAIL_TITLE = OPERATOR_ATTENTION_KIND_LABELS["unfini
 export const UNFINISHED_WORK_RAIL_STATUS_LABELS: Record<UnfinishedWorkRailItemKind, string> = {
   "architecture-draft": "Draft",
   "review-in-progress": "In progress",
-  "awaiting-disposition": "Awaiting disposition",
-  "incomplete-wizard": "Incomplete wizard",
+  "awaiting-disposition": "Ready for review",
+  "incomplete-wizard": "In progress",
 };
+
+export const UNFINISHED_WORK_RAIL_WORK_TYPE_LABELS: Record<UnfinishedWorkRailItemKind, string> = {
+  "architecture-draft": "Architecture draft",
+  "review-in-progress": "Architecture review",
+  "awaiting-disposition": "Architecture review",
+  "incomplete-wizard": "Setup wizard",
+};
+
+export const UNFINISHED_WORK_RAIL_ACTION_LABEL = "Continue";
+
+function formatRailActivityLabel(updatedUtc: string | null): string | null {
+  if (updatedUtc === null || updatedUtc.trim().length === 0) {
+    return null;
+  }
+
+  return `Updated ${formatRelativeTime(updatedUtc)}`;
+}
+
+function buildRailItemBase(
+  item: Omit<UnfinishedWorkRailItem, "workTypeLabel" | "activityLabel" | "actionLabel">,
+): UnfinishedWorkRailItem {
+  return {
+    ...item,
+    workTypeLabel: UNFINISHED_WORK_RAIL_WORK_TYPE_LABELS[item.kind],
+    activityLabel: formatRailActivityLabel(item.updatedUtc),
+    actionLabel: UNFINISHED_WORK_RAIL_ACTION_LABEL,
+  };
+}
 
 const KIND_PRIORITY: Record<UnfinishedWorkRailItemKind, number> = {
   "awaiting-disposition": 0,
@@ -154,14 +186,14 @@ function buildDraftItems(
 
       const draftPrimary = resolveOperatorHomeLatestDraftPrimaryAction(entry);
 
-      return {
+      return buildRailItemBase({
         id: `architecture-draft:${entry.architectureId}`,
         kind: "architecture-draft" as const,
         title: entry.displayName.trim().length > 0 ? entry.displayName : "Untitled architecture",
         href: draftPrimary?.href ?? architectureDraftPath(entry.architectureId),
         statusLabel,
         updatedUtc: entry.lastUpdatedUtc,
-      };
+      });
     });
 }
 
@@ -180,26 +212,30 @@ function buildRunItems(runs: readonly RunSummary[]): UnfinishedWorkRailItem[] {
     }
 
     if (isAwaitingDispositionRun(run)) {
-      items.push({
-        id: `awaiting-disposition:${runId}`,
-        kind: "awaiting-disposition",
-        title: resolveReviewTitle(run),
-        href: reviewDetailPath(runId),
-        statusLabel: UNFINISHED_WORK_RAIL_STATUS_LABELS["awaiting-disposition"],
-        updatedUtc: run.createdUtc ?? null,
-      });
+      items.push(
+        buildRailItemBase({
+          id: `awaiting-disposition:${runId}`,
+          kind: "awaiting-disposition",
+          title: resolveReviewTitle(run),
+          href: reviewDetailPath(runId),
+          statusLabel: UNFINISHED_WORK_RAIL_STATUS_LABELS["awaiting-disposition"],
+          updatedUtc: run.createdUtc ?? null,
+        }),
+      );
       continue;
     }
 
     if (isMidExecuteRun(run)) {
-      items.push({
-        id: `review-in-progress:${runId}`,
-        kind: "review-in-progress",
-        title: resolveReviewTitle(run),
-        href: reviewDetailPath(runId),
-        statusLabel: UNFINISHED_WORK_RAIL_STATUS_LABELS["review-in-progress"],
-        updatedUtc: run.createdUtc ?? null,
-      });
+      items.push(
+        buildRailItemBase({
+          id: `review-in-progress:${runId}`,
+          kind: "review-in-progress",
+          title: resolveReviewTitle(run),
+          href: reviewDetailPath(runId),
+          statusLabel: UNFINISHED_WORK_RAIL_STATUS_LABELS["review-in-progress"],
+          updatedUtc: run.createdUtc ?? null,
+        }),
+      );
     }
   }
 
@@ -212,14 +248,14 @@ function buildWizardItems(
   return incompleteWizards.map((signal) => {
     const meta = WIZARD_RAIL_META[signal.wizardId];
 
-    return {
+    return buildRailItemBase({
       id: `incomplete-wizard:${signal.wizardId}`,
       kind: "incomplete-wizard" as const,
       title: meta.title,
       href: meta.href,
       statusLabel: UNFINISHED_WORK_RAIL_STATUS_LABELS["incomplete-wizard"],
       updatedUtc: signal.savedAtUtc,
-    };
+    });
   });
 }
 
@@ -248,6 +284,15 @@ export function buildUnfinishedWorkRailItems(
   combined.sort(compareRailItems);
 
   return combined.slice(0, maxItems);
+}
+
+/** Highest-priority unfinished item for the Home recommended-next card. */
+export function resolveRecommendedUnfinishedWorkRailItem(
+  inputs: UnfinishedWorkRailInputs,
+): UnfinishedWorkRailItem | null {
+  const items = buildUnfinishedWorkRailItems({ ...inputs, maxItems: 1 });
+
+  return items[0] ?? null;
 }
 
 const EMPTY_INCOMPLETE_WIZARD_SIGNALS: readonly IncompleteWizardSignal[] = [];

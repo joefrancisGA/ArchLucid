@@ -22,12 +22,14 @@ import {
   OPERATOR_HOME_CLOUD_CONNECT_ADMIN_HINT,
   OPERATOR_HOME_CONNECT_CLOUD_CTA,
   OPERATOR_HOME_CREATE_ARCHITECTURE_CARD_BODY,
+  OPERATOR_HOME_CREATE_ARCHITECTURE_CARD_BODY_COMPACT,
   OPERATOR_HOME_CREATE_ARCHITECTURE_CARD_TITLE,
   OPERATOR_HOME_EXPLORE_COMPLETED_REVIEW_BODY,
   OPERATOR_HOME_EXPLORE_COMPLETED_REVIEW_TITLE,
   OPERATOR_HOME_LIFECYCLE_RECOMMENDED_BADGE,
   OPERATOR_HOME_READ_ONLY_INTENT_HINT,
   OPERATOR_HOME_REVIEW_ARCHITECTURE_CARD_BODY,
+  OPERATOR_HOME_REVIEW_ARCHITECTURE_CARD_BODY_COMPACT,
   OPERATOR_HOME_REVIEW_ARCHITECTURE_CARD_TITLE,
   OPERATOR_HOME_REVIEW_ARCHITECTURE_CTA,
 } from "@/lib/buyer/buyer-polish-copy";
@@ -51,6 +53,8 @@ type OperatorHomeDualPathCardsProps = {
   readonly emphasizedPath?: OperatorHomeLifecyclePath | null;
   /** When resume draft or Do-this-next owns the page primary, keep lifecycle cards secondary. */
   readonly pagePrimaryOwnedElsewhere?: boolean;
+  /** Hide the completed-sample explore card when Home already surfaces active reviews. */
+  readonly hideExplorePath?: boolean;
 };
 
 type LifecycleCardPath = Exclude<SelectedHomePath, null>;
@@ -152,6 +156,7 @@ export function OperatorHomeDualPathCards(props: OperatorHomeDualPathCardsProps)
 
   const canManageCloudConnections = callerAuthorityRank >= AUTHORITY_RANK.AdminAuthority;
   const isCompact = variant === "compact";
+  const hideExplorePath = props.hideExplorePath === true;
 
   const workspaceReadiness =
     readiness.context !== null
@@ -178,7 +183,11 @@ export function OperatorHomeDualPathCards(props: OperatorHomeDualPathCardsProps)
       aria-busy={reviewNavigation.isNavigating || createArchitectureNavigation.isNavigating}
     >
       <div
-        className={cn("grid gap-3 sm:grid-cols-2 md:grid-cols-3", OPERATOR_LAYOUT.inlineGap)}
+        className={cn(
+          "grid gap-3",
+          hideExplorePath ? "sm:grid-cols-2" : "sm:grid-cols-2 md:grid-cols-3",
+          OPERATOR_LAYOUT.inlineGap,
+        )}
       >
         <article
           className={lifecycleCardClassName("create-architecture", emphasizedPath, selectedPath)}
@@ -198,7 +207,11 @@ export function OperatorHomeDualPathCards(props: OperatorHomeDualPathCardsProps)
               <p className={cn("m-0", OPERATOR_TYPE_SCALE.helper, "text-al-text-secondary")}>
                 {OPERATOR_HOME_CREATE_ARCHITECTURE_CARD_BODY}
               </p>
-            ) : null}
+            ) : (
+              <p className={cn("m-0", OPERATOR_TYPE_SCALE.helper, "text-al-text-secondary")}>
+                {OPERATOR_HOME_CREATE_ARCHITECTURE_CARD_BODY_COMPACT}
+              </p>
+            )}
           </div>
           {canExecute ? (
             <div className="space-y-2" data-testid="operator-home-create-architecture-actions">
@@ -260,7 +273,11 @@ export function OperatorHomeDualPathCards(props: OperatorHomeDualPathCardsProps)
               <p className={cn("m-0", OPERATOR_TYPE_SCALE.helper, "text-al-text-secondary")}>
                 {OPERATOR_HOME_REVIEW_ARCHITECTURE_CARD_BODY}
               </p>
-            ) : null}
+            ) : (
+              <p className={cn("m-0", OPERATOR_TYPE_SCALE.helper, "text-al-text-secondary")}>
+                {OPERATOR_HOME_REVIEW_ARCHITECTURE_CARD_BODY_COMPACT}
+              </p>
+            )}
           </div>
           {canExecute ? (
             <ReviewStartLoadingButton
@@ -285,7 +302,7 @@ export function OperatorHomeDualPathCards(props: OperatorHomeDualPathCardsProps)
             "explore-completed-review",
             emphasizedPath,
             selectedPath,
-            "sm:col-span-2 md:col-span-1",
+            hideExplorePath ? "hidden" : "sm:col-span-2 md:col-span-1",
           )}
           data-testid="operator-home-explore-completed-review-card"
           aria-labelledby="operator-home-explore-completed-review-title"

@@ -30,6 +30,7 @@ import {
   resolveRunFindingCountDisplay,
   resolveRunWarningCountDisplay,
 } from "@/lib/operator/operator-home-run-list-insight";
+import { formatRunListTitleWithDisambiguator } from "@/lib/operator/run-home-list-disambiguator";
 import { signedRecordDetailPath } from "@/lib/signed-records-paths";
 import { SHOWCASE_STATIC_DEMO_MANIFEST_ID, SHOWCASE_STATIC_DEMO_SPINE_COUNTS } from "@/lib/showcase-static-demo";
 import { cn } from "@/lib/utils";
@@ -39,7 +40,8 @@ type OperatorHomeReviewSummaryCardProps = {
   readonly run: RunSummary;
   readonly href: string;
   readonly buyerPolishedShell: boolean;
-  readonly variant?: "list" | "featured";
+  readonly variant?: "list" | "featured" | "compact";
+  readonly siblingRuns?: readonly RunSummary[];
   readonly primaryAction?: { readonly href: string; readonly label: string } | null;
   readonly pagePrimaryOwnedElsewhere?: boolean;
 };
@@ -76,7 +78,11 @@ function ReviewSummaryMetadataItem(props: { readonly label: string; readonly val
 export function OperatorHomeReviewSummaryCard(props: OperatorHomeReviewSummaryCardProps): React.JSX.Element {
   const variant = props.variant ?? "list";
   const statusTag = resolveRunHomeStatusTag(props.run);
-  const title = runListPrimaryTitle(props.run);
+  const siblingRuns = props.siblingRuns ?? [props.run];
+  const title =
+    variant === "compact"
+      ? formatRunListTitleWithDisambiguator(props.run, siblingRuns)
+      : runListPrimaryTitle(props.run);
   const insightLine = formatRunHomeListInsightLine(props.run);
   const updatedLabel = formatRunHomeListUpdatedLabel(props.run);
   const findingsMetadata = formatFindingsMetadata(props.run);
@@ -86,6 +92,42 @@ export function OperatorHomeReviewSummaryCard(props: OperatorHomeReviewSummaryCa
   const showcaseProofMetadata = variant === "featured" && isShowcaseDemo;
   const showcaseProofMeta = showcaseProofMetadata ? buyerDemoPackageCardMeta(props.run.runId ?? "") : null;
   const insightText = [insightLine, updatedLabel].filter((part) => part !== null).join(" · ");
+
+  if (variant === "compact") {
+    return (
+      <article
+        className="border-b border-neutral-200 py-2 last:border-b-0 dark:border-neutral-800"
+        data-testid={`operator-home-review-summary-${props.run.runId}`}
+      >
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <div className="min-w-0 flex-1 space-y-1">
+            <div className="flex flex-wrap items-center gap-2">
+              <Link
+                href={props.href}
+                className={cn("min-w-0", OPERATOR_LINK.nav, OPERATOR_TYPE_SCALE.cardTitle)}
+              >
+                {title}
+              </Link>
+              <StatusTag
+                kind={statusTag.kind}
+                label={statusTag.label}
+                data-testid={`run-home-status-tag-${props.run.runId}`}
+              />
+            </div>
+            <ArchitecturePackageOriginMetadataLine run={props.run} buyerPolishedShell={props.buyerPolishedShell} />
+            {updatedLabel !== null ? (
+              <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.navHelper)}>
+                {updatedLabel}
+              </p>
+            ) : null}
+          </div>
+          <Link href={props.href} className={cn("shrink-0 font-medium", OPERATOR_LINK.optional)}>
+            Open →
+          </Link>
+        </div>
+      </article>
+    );
+  }
 
   return (
     <article

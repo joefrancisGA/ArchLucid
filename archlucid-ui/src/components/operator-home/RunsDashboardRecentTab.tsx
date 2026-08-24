@@ -218,7 +218,7 @@ export function RunsDashboardRecentTab(props: RunsDashboardRecentTabProps) {
 
       {(props.phase === "ready" || props.phase === "error") && featuredItems.length > 0 ? (
         <>
-          <ul className="m-0 list-none space-y-2 p-0" data-testid="recent-runs-home-panel">
+          <ul className="m-0 list-none space-y-0 p-0" data-testid="recent-runs-home-panel">
             {featuredItems.map((run) => {
               const requestId = runListPrimaryRequestId(run);
 
@@ -229,6 +229,8 @@ export function RunsDashboardRecentTab(props: RunsDashboardRecentTabProps) {
                       run={run}
                       href={`/architecture/reviews/${encodeURIComponent(run.runId)}`}
                       buyerPolishedShell={props.buyerPolishedShell}
+                      variant={props.pagePrimaryOwnedElsewhere === true ? "compact" : "list"}
+                      siblingRuns={featuredItems}
                     />
                   </div>
                   {props.showArchived && requestId !== null ? (
