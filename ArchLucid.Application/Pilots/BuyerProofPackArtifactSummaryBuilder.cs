@@ -64,7 +64,41 @@ internal static class BuyerProofPackArtifactSummaryBuilder
 
         builder.AppendLine();
 
+        if (root.TryGetProperty("governedFindingCoverage", out JsonElement coverage)
+            && coverage.ValueKind == JsonValueKind.Object
+            && coverage.TryGetProperty("isAvailable", out JsonElement availableElement)
+            && availableElement.ValueKind == JsonValueKind.True)
+        {
+            builder.AppendLine("## Governed finding coverage");
+            builder.AppendLine();
+            builder.AppendLine("| Metric | Value |");
+            builder.AppendLine("| --- | ---: |");
+            AppendCoverageRow(builder, coverage, "totalDecisionGradeCount", "Total decision-grade findings");
+            AppendCoverageRow(builder, coverage, "governedCount", "Governance-blocking");
+            AppendCoverageRow(builder, coverage, "advisoryCount", "Advisory-only");
+            AppendCoverageRow(builder, coverage, "withPolicyRuleCount", "With policy rule");
+            AppendCoverageRow(builder, coverage, "withEvidenceRefsCount", "With evidence refs");
+
+            if (coverage.TryGetProperty("governedPercentage", out JsonElement percentageElement)
+                && percentageElement.ValueKind == JsonValueKind.Number)
+            {
+                builder.AppendLine(CultureInfo.InvariantCulture,
+                    $"| Governed share | {percentageElement.GetDouble():F1}% |");
+            }
+
+            builder.AppendLine();
+        }
+
         return builder.ToString();
+    }
+
+    private static void AppendCoverageRow(StringBuilder builder, JsonElement coverage, string propertyName, string label)
+    {
+        if (!coverage.TryGetProperty(propertyName, out JsonElement valueElement)
+            || valueElement.ValueKind != JsonValueKind.Number)
+            return;
+
+        builder.AppendLine(CultureInfo.InvariantCulture, $"| {label} | {valueElement.GetInt32()} |");
     }
 
     private static string SummarizeJsonElement(JsonElement element) => element.ValueKind switch

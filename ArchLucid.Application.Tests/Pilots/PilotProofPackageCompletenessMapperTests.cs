@@ -128,6 +128,24 @@ public sealed class PilotProofPackageCompletenessMapperTests
         c.SponsorProofReadiness.Should().Be(nameof(SponsorProofReadinessClassification.Incomplete));
     }
 
+    [Fact]
+    public void Build_UnresolvedPilotStrictSignals_FlagsEvidenceUnsatisfied()
+    {
+        (ArchitectureRun run, GoldenManifest manifest, PilotRunDeltas deltas, _, ValueReportSnapshot snap) =
+            StrongBaselineFixture();
+        deltas = deltas with
+        {
+            AgentOutputPilotStrictSignalsResolved = false,
+            AgentOutputPilotStrictViolatesSponsorEvidence = false,
+        };
+        PilotBuyerSafeEvidenceGateResult gate = PilotBuyerSafeEvidenceGateEvaluator.Evaluate(run, manifest, deltas, snap);
+
+        ProofPackageCompletenessResponse c = PilotProofPackageCompletenessMapper.Build(run, manifest, deltas, gate, snap);
+
+        c.AgentOutputPilotStrictEvidenceSatisfied.Should().BeFalse();
+        gate.SoftGaps.Should().Contain(g => g.Contains("PilotStrict agent-output signals **not attested**", StringComparison.Ordinal));
+    }
+
     private static (ArchitectureRun Run, GoldenManifest Manifest, PilotRunDeltas Deltas, PilotBuyerSafeEvidenceGateResult Gate, ValueReportSnapshot Snap)
         StrongBaselineFixture()
     {

@@ -81,6 +81,12 @@ public static class PilotBuyerSafeEvidenceGateEvaluator
                 "LLM / agent execution trace count **not attested** — persistence or scope query failed; do not treat a zero value as proof of no calls.");
         }
 
+        if (!deltas.AgentOutputPilotStrictSignalsResolved)
+        {
+            softGapMessages.Add(
+                "PilotStrict agent-output signals **not attested** — execution trace query failed; do not treat this run as sponsor-grade real-mode evidence.");
+        }
+
         ReviewCycleBaselineProvenance prov = valueWindowSnapshot.ReviewCycleBaselineProvenance;
 
         if (prov is ReviewCycleBaselineProvenance.NoMeasurementYet or ReviewCycleBaselineProvenance.DefaultedFromRoiModelOptions)

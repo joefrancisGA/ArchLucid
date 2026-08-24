@@ -1,3 +1,4 @@
+using ArchLucid.Contracts.Common;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
@@ -35,7 +36,7 @@ public sealed class PilotScorecardBuilder(
         DateTime endUtc = periodEnd.UtcDateTime;
         List<RunRecord> inWindow = recent.Where(r => r.CreatedUtc >= startUtc && r.CreatedUtc < endUtc).ToList();
         int committed = inWindow.Count(static r =>
-            !string.IsNullOrWhiteSpace(r.CurrentManifestVersion) || (r.GoldenManifestId is not null && r.GoldenManifestId.Value != Guid.Empty));
+            string.Equals(r.LegacyRunStatus, nameof(ArchitectureRunStatus.Committed), StringComparison.OrdinalIgnoreCase));
         if (_logger.IsEnabled(LogLevel.Information))
             _logger.LogInformation("Pilot scorecard: tenant {TenantId}, window {Start:o}–{End:o}, runs {RunCount}, committed {Committed}.", scope.TenantId,
                 startUtc, endUtc, inWindow.Count, committed);

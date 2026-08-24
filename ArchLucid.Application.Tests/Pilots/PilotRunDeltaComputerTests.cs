@@ -843,6 +843,103 @@ public sealed class PilotRunDeltaComputerTests
     }
 
     [SkippableFact]
+    public async Task ComputeAsync_WhenSnapshotFallbackIncludesMutedFindings_ExcludesThemFromSeverityBuckets()
+    {
+        Guid runGuid = Guid.Parse("cccccccc-1111-2222-3333-444444444444");
+        Guid findingsSnapshotId = Guid.Parse("dddddddd-1111-2222-3333-444444444444");
+        DateTime created = new(2026, 4, 1, 0, 0, 0, DateTimeKind.Utc);
+
+        ArchitectureRun run = new()
+        {
+            RunId = runGuid.ToString("N"),
+            RequestId = "req-muted-snapshot",
+            Status = ArchitectureRunStatus.Committed,
+            CreatedUtc = created,
+            CompletedUtc = created.AddMinutes(10),
+            CurrentManifestVersion = "v1",
+            FindingsSnapshotId = findingsSnapshotId,
+        };
+
+        ArchitectureRunDetail detail = new()
+        {
+            Run = run,
+            Manifest = new GoldenManifest
+            {
+                RunId = run.RunId,
+                SystemName = "ArchLucid",
+                Metadata = new ManifestMetadata { ManifestVersion = "v1", CreatedUtc = created.AddMinutes(10) },
+                Governance = new ManifestGovernance(),
+            },
+            Results =
+            [
+                new AgentResult
+                {
+                    TaskId = "t-empty",
+                    RunId = run.RunId,
+                    AgentType = AgentType.Topology,
+                    Findings = [],
+                },
+            ],
+            DecisionTraces = [],
+        };
+
+        Mock<IFindingsSnapshotRepository> snapshots = new();
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+        };
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(scope);
+
+        snapshots.Setup(s => s.GetCoverageProjectionByIdAsync(scope, findingsSnapshotId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new FindingsSnapshot
+            {
+                FindingsSnapshotId = findingsSnapshotId,
+                Findings =
+                [
+                    new Finding
+                    {
+                        FindingId = "muted-critical",
+                        Severity = FindingSeverity.Critical,
+                        IsMuted = true,
+                    },
+                    new Finding
+                    {
+                        FindingId = "active-warning",
+                        Severity = FindingSeverity.Warning,
+                    },
+                ],
+            });
+
+        Mock<IFindingEvidenceChainService> evidence = new();
+        evidence.Setup(e => e.BuildAsync(run.RunId, "active-warning", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new FindingEvidenceChainResponse
+            {
+                RunId = run.RunId,
+                FindingId = "active-warning",
+                ManifestVersion = "v1",
+            });
+
+        PilotRunDeltaComputer sut = CreatePilotDeltaComputer(
+            evidence.Object,
+            Mock.Of<IAgentExecutionTraceRepository>(),
+            Mock.Of<IAuditRepository>(),
+            LooseArtifacts().Object,
+            scopeProvider.Object,
+            savingsResolver: null,
+            findingsSnapshotRepository: snapshots.Object);
+
+        PilotRunDeltas deltas = await sut.ComputeAsync(detail);
+
+        deltas.FindingsBySeverity.Sum(static p => p.Value).Should().Be(1);
+        deltas.FindingsBySeverity[0].Key.Should().Be("Warning");
+        deltas.TopFindingId.Should().Be("active-warning");
+        deltas.TopFindingSeverity.Should().Be("Warning");
+    }
+
+    [SkippableFact]
     public async Task ComputeAsync_WhenAgentResultsIncludeMutedFindings_ExcludesThemFromCountsAndTopFinding()
     {
         Guid runGuid = Guid.Parse("abababab-1111-2222-3333-444444444444");

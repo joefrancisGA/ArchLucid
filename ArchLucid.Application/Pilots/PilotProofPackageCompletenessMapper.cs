@@ -63,7 +63,8 @@ public static class PilotProofPackageCompletenessMapper
             ProofSendability = gate.ProofSendability.ToString(),
             EvidenceCompleteness = evidenceLevel.ToString(),
             AgentOutputPilotStrictEvidenceSatisfied =
-                !(deltas is { AgentOutputPilotStrictSignalsResolved: true, AgentOutputPilotStrictViolatesSponsorEvidence: true }),
+                deltas.AgentOutputPilotStrictSignalsResolved
+                && !deltas.AgentOutputPilotStrictViolatesSponsorEvidence,
             SponsorProofReadiness = sponsorReadiness.ToString(),
             RoiBaselineInputs = roiBaselineInputs,
         };

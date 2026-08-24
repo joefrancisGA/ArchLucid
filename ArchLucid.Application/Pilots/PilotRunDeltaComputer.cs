@@ -260,6 +260,7 @@ public sealed class PilotRunDeltaComputer(
     private static IReadOnlyList<KeyValuePair<string, int>> AggregateFindingsBySeverity(IReadOnlyList<Finding> findings)
     {
         return findings
+            .Where(static f => !f.IsMuted)
             .GroupBy(static f => f.Severity.ToString(), StringComparer.OrdinalIgnoreCase)
             .Select(g => new KeyValuePair<string, int>(g.Key, g.Count()))
             .OrderByDescending(static p => p.Value)
