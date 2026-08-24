@@ -51,6 +51,21 @@ function renderGovernanceFindingsQueue(mode: "tenant" | "assigned-to-me" = "tena
 const governanceStickinessApiMocks = vi.hoisted(() => ({
   getArchitectureDecisionRegister: vi.fn(),
   getArchitectureRiskRegister: vi.fn(),
+  getGovernancePosture: vi.fn().mockResolvedValue({
+    pillars: [],
+    reviewIntegrity: {
+      criticalCount: 0,
+      errorCount: 0,
+      warningCount: 0,
+      infoCount: 0,
+      dispositionedCount: 0,
+      mutedCount: 0,
+    },
+    uncategorizedCount: 0,
+    primaryPillarKey: null,
+    latestSnapshotCreatedUtc: null,
+    isDegraded: false,
+  }),
   fetchGovernanceFindingsRegistersBundle: vi.fn(async () => ({
     riskRegister: await governanceStickinessApiMocks.getArchitectureRiskRegister(),
     decisionRegister: await governanceStickinessApiMocks.getArchitectureDecisionRegister(),
@@ -203,6 +218,13 @@ describe("GovernanceFindingsQueueClient", () => {
       "href",
       "/governance/decision-register",
     );
+  });
+
+  it("renders architecture posture overview above the findings filter bar (TB-2378)", async () => {
+    renderGovernanceFindingsQueue();
+
+    expect(await screen.findByTestId("architecture-posture-pillar-overview")).toBeInTheDocument();
+    expect(governanceStickinessApiMocks.getGovernancePosture).toHaveBeenCalledWith("proj-1");
   });
 
   it("uses Governance Findings route title consistent with nav labels", () => {
@@ -395,6 +417,7 @@ describe("GovernanceFindingsQueueClient assigned-to-me mode", () => {
     renderGovernanceFindingsQueue("assigned-to-me");
 
     expect(await screen.findByRole("heading", { name: "Could not load your assigned findings" })).toBeInTheDocument();
+    expect(screen.queryByTestId("architecture-posture-pillar-overview")).not.toBeInTheDocument();
     expect(screen.queryByText(/risk register/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/risks for this review/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/this review/i)).not.toBeInTheDocument();

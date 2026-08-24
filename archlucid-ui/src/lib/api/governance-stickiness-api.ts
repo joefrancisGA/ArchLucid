@@ -90,6 +90,64 @@ export type GovernanceDecisionsNeededSummary = {
   totalDecisionItems: number;
 };
 
+export type PillarExaminationState =
+  | "Examined"
+  | "PartiallyExamined"
+  | "NotExamined"
+  | "Unavailable";
+
+export type PillarFindingAggregate = {
+  pillarKey: string;
+  criticalCount: number;
+  errorCount: number;
+  warningCount: number;
+  infoCount: number;
+  dispositionedCount: number;
+  mutedCount: number;
+};
+
+export type ExaminationStateResolution = {
+  state: PillarExaminationState;
+  reasonText: string;
+};
+
+export type PillarPackAssignment = {
+  pillarKey: string;
+  policyPackId: string;
+  policyPackName: string;
+  policyPackVersion: string;
+  scopeLevel: string;
+  isEnabled: boolean;
+  assignedUtc: string;
+};
+
+export type PillarPosture = {
+  pillarKey: string;
+  displayName: string;
+  displayOrder: number;
+  findingCounts: PillarFindingAggregate;
+  examination: ExaminationStateResolution;
+  packAssignments: PillarPackAssignment[];
+};
+
+export type ReviewIntegrityAggregate = {
+  criticalCount: number;
+  errorCount: number;
+  warningCount: number;
+  infoCount: number;
+  dispositionedCount: number;
+  mutedCount: number;
+};
+
+export type ArchitecturePostureSummary = {
+  pillars: PillarPosture[];
+  reviewIntegrity: ReviewIntegrityAggregate;
+  uncategorizedCount: number;
+  primaryPillarKey: string | null;
+  latestSnapshotCreatedUtc: string | null;
+  isDegraded: boolean;
+};
+
 export type ArchitectureReviewRecurrenceSchedule = {
   scheduleId: string;
   sourceRunId: string;
@@ -323,6 +381,13 @@ export async function getGovernanceDecisionsNeededSummary(
   if (projectId) query.set("projectId", projectId);
   const suffix = query.size > 0 ? `?${query.toString()}` : "";
   return apiGet<GovernanceDecisionsNeededSummary>(`${governanceBase()}/decisions-needed-summary${suffix}`);
+}
+
+export async function getGovernancePosture(projectId?: string): Promise<ArchitecturePostureSummary> {
+  const query = new URLSearchParams();
+  if (projectId) query.set("projectId", projectId);
+  const suffix = query.size > 0 ? `?${query.toString()}` : "";
+  return apiGet<ArchitecturePostureSummary>(`${governanceBase()}/posture${suffix}`);
 }
 
 export async function createArchitectureReviewRecurrenceSchedule(body: {

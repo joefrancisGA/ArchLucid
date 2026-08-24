@@ -24,6 +24,7 @@ import { PageCapabilityBoundaryStrip } from "@/components/PageCapabilityBoundary
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { WorkspaceScopeEmptyTeaching } from "@/components/WorkspaceScopeEmptyTeaching";
 import { GovernanceFindingsFilterBar } from "@/components/governance/findings/GovernanceFindingsFilterBar";
+import { ArchitecturePosturePillarOverview } from "@/components/governance/posture/ArchitecturePosturePillarOverview";
 import { GovernanceFindingsQueueActiveFilterChips } from "@/components/governance/findings/GovernanceFindingsQueueActiveFilterChips";
 import { GovernanceFindingsList } from "@/components/governance/findings/GovernanceFindingsList";
 import { SponsorStorySynopsisFromCounts } from "@/components/operator/SponsorStorySynopsisPanel";
@@ -550,6 +551,10 @@ export default function GovernanceFindingsQueueClient({
             Header count ({assignedToMeCountQuery.data}) differs from loaded rows ({assignedToMeLoadedFindingCount}).
             Refresh to reconcile.
           </p>
+        ) : null}
+
+        {!isAssignedToMe ? (
+          <ArchitecturePosturePillarOverview projectId={scopeRecord?.projectId} enabled />
         ) : null}
 
         {filterBarVisible ? (
