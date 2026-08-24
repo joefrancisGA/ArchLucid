@@ -1,6 +1,8 @@
+using ArchLucid.Application.Scim.Tokens;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Host.Composition.Startup;
+using ArchLucid.Host.Core.Health;
 using ArchLucid.Host.Core.Hosted;
 using ArchLucid.Host.Core.Hosting;
 using ArchLucid.Host.Core.Jobs;
@@ -11,8 +13,10 @@ using FluentAssertions;
 
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Host.Composition.Tests;
 
@@ -242,6 +246,46 @@ public sealed class ContainerJobsOffloadRegistrationTests
         bool hasHosted = services.Any(static d =>
             d.ServiceType == typeof(IHostedService)
             && d.ImplementationType == typeof(TenantHealthScoringHostedService));
+
+        hasHosted.Should().BeFalse();
+    }
+
+    [Fact]
+    public void
+        AddArchLucidApplicationServices_Worker_offloads_data_archival_does_not_register_DataArchivalHostHealthCheck()
+    {
+        Dictionary<string, string?> data = CreateWorkerCompositionDictionary();
+        data["Jobs:OffloadedToContainerJobs:0"] = ArchLucidJobNames.DataArchival;
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        ServiceCollection services = CreateCoreServices(configuration);
+
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Worker);
+
+        ServiceProvider provider = services.BuildServiceProvider();
+        HealthCheckServiceOptions healthOptions =
+            provider.GetRequiredService<IOptions<HealthCheckServiceOptions>>().Value;
+
+        bool hasHealthCheck = healthOptions.Registrations.Any(static r => r.Name == "data_archival");
+
+        hasHealthCheck.Should().BeFalse(
+            "in-process data archival health must not run when archival is container-offloaded");
+    }
+
+    [Fact]
+    public void AddArchLucidApplicationServices_Api_role_does_not_register_ScimTokenRotationReminderJob()
+    {
+        Dictionary<string, string?> data = CreateWorkerCompositionDictionary();
+        data["Hosting:Role"] = "Api";
+
+        IConfiguration configuration = new ConfigurationBuilder().AddInMemoryCollection(data).Build();
+        ServiceCollection services = CreateCoreServices(configuration);
+
+        _ = services.AddArchLucidApplicationServices(configuration, ArchLucidHostingRole.Api);
+
+        bool hasHosted = services.Any(static d =>
+            d.ServiceType == typeof(IHostedService)
+            && d.ImplementationType == typeof(ScimTokenRotationReminderJob));
 
         hasHosted.Should().BeFalse();
     }

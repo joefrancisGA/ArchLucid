@@ -1,6 +1,7 @@
 using System.Text;
 
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Budgeting;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Host.Core.Configuration;
@@ -13,6 +14,7 @@ using ArchLucid.Host.Core.ProblemDetails;
 using ArchLucid.Host.Core.Services.Delivery;
 using ArchLucid.Host.Core.Startup;
 using ArchLucid.Persistence.Archival;
+using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Models;
 using ArchLucid.Retrieval.Indexing;
 using ArchLucid.Retrieval.Queries;
@@ -351,6 +353,45 @@ public sealed class HostCorePackageCoverageBatch13Tests
 
         result.Status.Should().Be(HealthStatus.Healthy);
         result.Description.Should().Contain("policy-pack docs=3");
+    }
+
+    [Fact]
+    public async Task LlmMonthlyTenantBudgetReservationReclaimHostedService_reclaims_expired_reservations_under_coordinator()
+    {
+        Mock<ILlmMonthlyTenantBudgetReservationStore> store = new();
+        store
+            .Setup(s => s.ReclaimExpiredBatchAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new LlmMonthlyTenantBudgetReclaimResult { ReclaimedCount = 1 });
+
+        Mock<IOptionsMonitor<LlmMonthlyTenantDollarBudgetOptions>> budgetOptions = new();
+        budgetOptions.Setup(o => o.CurrentValue).Returns(
+            new LlmMonthlyTenantDollarBudgetOptions
+            {
+                Enabled = true,
+                ReservationReclaimIntervalSeconds = 15
+            });
+
+        Mock<IOptionsMonitor<HostLeaderElectionOptions>> electionOptions = new();
+        electionOptions.Setup(o => o.CurrentValue).Returns(new HostLeaderElectionOptions { Enabled = false });
+
+        Mock<IHostLeaderLeaseRepository> leaseRepository = new();
+        HostLeaderElectionCoordinator coordinator = new(
+            electionOptions.Object,
+            leaseRepository.Object,
+            HostInstanceIdentifier.ForTests("test-instance"),
+            NullLogger<HostLeaderElectionCoordinator>.Instance);
+
+        LlmMonthlyTenantBudgetReservationReclaimHostedService sut = new(
+            store.Object,
+            budgetOptions.Object,
+            NullLogger<LlmMonthlyTenantBudgetReservationReclaimHostedService>.Instance,
+            coordinator);
+
+        await sut.StartAsync(CancellationToken.None);
+        await Task.Delay(100);
+        await sut.StopAsync(CancellationToken.None);
+
+        store.Verify(s => s.ReclaimExpiredBatchAsync(It.IsAny<CancellationToken>()), Times.AtLeastOnce);
     }
 
     private sealed class TestLogger : ILogger

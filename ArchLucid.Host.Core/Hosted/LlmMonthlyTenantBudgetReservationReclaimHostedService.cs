@@ -12,7 +12,8 @@ namespace ArchLucid.Host.Core.Hosted;
 public sealed class LlmMonthlyTenantBudgetReservationReclaimHostedService(
     ILlmMonthlyTenantBudgetReservationStore reservationStore,
     IOptionsMonitor<LlmMonthlyTenantDollarBudgetOptions> optionsMonitor,
-    ILogger<LlmMonthlyTenantBudgetReservationReclaimHostedService> logger) : BackgroundService
+    ILogger<LlmMonthlyTenantBudgetReservationReclaimHostedService> logger,
+    HostLeaderElectionCoordinator electionCoordinator) : BackgroundService
 {
     private readonly ILlmMonthlyTenantBudgetReservationStore _reservationStore =
         reservationStore ?? throw new ArgumentNullException(nameof(reservationStore));
@@ -23,10 +24,21 @@ public sealed class LlmMonthlyTenantBudgetReservationReclaimHostedService(
     private readonly ILogger<LlmMonthlyTenantBudgetReservationReclaimHostedService> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
 
+    private readonly HostLeaderElectionCoordinator _electionCoordinator =
+        electionCoordinator ?? throw new ArgumentNullException(nameof(electionCoordinator));
+
     /// <inheritdoc />
-    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    protected override Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        while (!stoppingToken.IsCancellationRequested)
+        return _electionCoordinator.RunLeaderWorkAsync(
+            HostElectionLeaseNames.LlmMonthlyTenantBudgetReservationReclaim,
+            LoopAsync,
+            stoppingToken);
+    }
+
+    private async Task LoopAsync(CancellationToken leaderToken)
+    {
+        while (!leaderToken.IsCancellationRequested)
         {
             LlmMonthlyTenantDollarBudgetOptions opts = _optionsMonitor.CurrentValue;
             int intervalSeconds = Math.Clamp(opts.ReservationReclaimIntervalSeconds, 15, 3600);
@@ -36,7 +48,7 @@ public sealed class LlmMonthlyTenantBudgetReservationReclaimHostedService(
                 if (opts.Enabled)
                 {
                     LlmMonthlyTenantBudgetReclaimResult reclaimed =
-                        await _reservationStore.ReclaimExpiredBatchAsync(stoppingToken).ConfigureAwait(false);
+                        await _reservationStore.ReclaimExpiredBatchAsync(leaderToken).ConfigureAwait(false);
 
                     if (reclaimed.ReclaimedCount > 0)
                     {
@@ -48,7 +60,7 @@ public sealed class LlmMonthlyTenantBudgetReservationReclaimHostedService(
                     }
                 }
             }
-            catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+            catch (OperationCanceledException) when (leaderToken.IsCancellationRequested)
             {
                 break;
             }
@@ -59,9 +71,9 @@ public sealed class LlmMonthlyTenantBudgetReservationReclaimHostedService(
 
             try
             {
-                await Task.Delay(TimeSpan.FromSeconds(intervalSeconds), stoppingToken).ConfigureAwait(false);
+                await Task.Delay(TimeSpan.FromSeconds(intervalSeconds), leaderToken).ConfigureAwait(false);
             }
-            catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+            catch (OperationCanceledException) when (leaderToken.IsCancellationRequested)
             {
                 break;
             }

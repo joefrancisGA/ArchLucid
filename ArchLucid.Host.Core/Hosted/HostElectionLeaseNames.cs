@@ -95,5 +95,8 @@ public static class HostElectionLeaseNames
 
     public const string QuickScanBudgetReconciliation = "hosted:quick-scan-budget-reconciliation";
 
+    public const string LlmMonthlyTenantBudgetReservationReclaim =
+        "hosted:llm-monthly-tenant-budget-reservation-reclaim";
+
     public const string WaiverExpiryNotification = "hosted:waiver-expiry-notification";
 }

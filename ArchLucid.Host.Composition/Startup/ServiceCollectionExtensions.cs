@@ -247,7 +247,7 @@ public static partial class ServiceCollectionExtensions
             configuration.GetSection(ZipEvidenceExpanderOptions.SectionName));
         services.AddSingleton<IZipEvidenceExpanderService, ZipEvidenceExpanderService>();
         services.AddScoped<IBulkEvidenceUploadService, BulkEvidenceUploadService>();
-        RegisterScimProvisioning(services, configuration);
+        RegisterScimProvisioning(services, configuration, hostingRole);
         RegisterCorePersistencePortCompatibilityServices(services);
 
         return services;

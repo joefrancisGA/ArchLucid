@@ -399,6 +399,10 @@ public static partial class ServiceCollectionExtensions
         services.Configure<ValueReportComputationOptions>(
             configuration.GetSection(ValueReportComputationOptions.SectionPath));
         services.AddScoped<ValueReportBuilder>();
+
+        if (!services.Any(static d => d.ServiceType == typeof(IDistributedCache)))
+            services.AddDistributedMemoryCache();
+
         services.AddSingleton<IValueReportJobQueue, InMemoryValueReportJobQueue>();
         services.AddScoped<IRunRationaleService, RunRationaleService>();
         services.AddScoped<IArchitectureRunProvenanceService, ArchitectureRunProvenanceService>();

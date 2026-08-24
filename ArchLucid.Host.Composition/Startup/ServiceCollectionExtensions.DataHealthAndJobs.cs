@@ -114,7 +114,8 @@ public static partial class ServiceCollectionExtensions
                 failureStatus: HealthStatus.Unhealthy,
                 tags: [ReadinessTags.Ready]);
 
-        if (hostingRole is ArchLucidHostingRole.Combined or ArchLucidHostingRole.Worker)
+        if (hostingRole is ArchLucidHostingRole.Combined or ArchLucidHostingRole.Worker
+            && !ArchLucidJobsOffload.IsOffloaded(configuration, ArchLucidJobNames.DataArchival))
 
             builder.AddCheck<DataArchivalHostHealthCheck>(
                 "data_archival",
