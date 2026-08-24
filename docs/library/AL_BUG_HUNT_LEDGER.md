@@ -280,24 +280,26 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ## Zone: authority-pipeline-payload
 
 - **id:** authority-pipeline-payload
-- **status:** unseeded
+- **status:** open
 - **impact:** medium
 - **aliases:** authority payload; pipeline work payload
 - **paths:** ArchLucid.Application/Runs/Orchestration/AuthorityPipelineWorkPayload.cs
 - **test-filter:** FullyQualifiedName~AuthorityPipelineWorkPayloadJsonTests
-- **hunts:** 0
-- **bugs-found:** 0
+- **hunts:** 1
+- **bugs-found:** 4
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **last-hunt:** 2026-08-24
+- **last-bug:** 2026-08-24 — malformed JSON retried; null STJ lists NRE; blank ProjectId passed gate; stale payload ProjectId used for ingest
 - **related-pd-tb:** none
-- **code-changed-since:** unknown
+- **code-changed-since:** yes
 
 ### Hypotheses
 
-- [ ] (candidate) JSON round-trip drops a required work field and the processor still dequeues
-- [ ] (candidate) Unknown payload version is treated as the current contract
-- [ ] (candidate) Tenant id in the payload is not the tenant used for SQL
+- [x] (proven) JSON round-trip drops a required work field and the processor still dequeues — **hit 2026-08-24:** blank/missing `projectId` passed worker gate until `IngestAsync` threw; `IsValidForProcessing` + processor validation; regression in `IsValidForProcessing_rejects_blank_project_id`
+- [x] (invalid) Unknown payload version is treated as the current contract — no `payloadVersion` field in contract; not applicable until versioned envelope ships
+- [x] (proven) Tenant id in the payload is not the tenant used for SQL — **hit 2026-08-24:** stale `contextIngestionRequest.projectId` slug drove `GetLatestAsync` instead of persisted `dbo.Runs.ProjectId`; worker now overwrites from run row; regression in `ProcessPendingBatchAsync_overwrites_stale_payload_project_id_from_persisted_run`
+- [x] (proven) Malformed outbox JSON retried until dead-letter instead of invalid-payload discard — **hit 2026-08-24:** `Deserialize` threw `JsonException`; `TryDeserialize` swallows and marks processed; regression in `Deserialize_returns_null_for_malformed_json` / `ProcessPendingBatchAsync_when_payload_malformed_json_marks_processed_without_dead_letter`
+- [x] (proven) Explicit `null` list properties in JSON cause connector NRE — **hit 2026-08-24:** `inlineRequirements: null` etc. left null after STJ; `EnsureMutableCollections` materializes empty lists; regression in `Deserialize_materializes_null_list_properties`
 
 ---
 
