@@ -34,5 +34,31 @@
   "createdUtc": "2026-05-08T12:00:00Z",
   "semanticScore": {
     "llmFaithfulnessScore": 0.72
-  }
+  },
+  "retrievalHits": [
+    {
+      "chunkId": "chunk-cat-app-service",
+      "sourceId": "cat-app-service",
+      "sourceType": "PlatformDoc",
+      "corpusKind": "ReferenceArchitecture",
+      "title": "Azure App Service catalog entry",
+      "score": 0.88
+    },
+    {
+      "chunkId": "chunk-pattern-front-door",
+      "sourceId": "pattern-front-door",
+      "sourceType": "PlatformDoc",
+      "corpusKind": "ReferenceArchitecture",
+      "title": "Azure Front Door edge pattern",
+      "score": 0.85
+    },
+    {
+      "chunkId": "chunk-neighbor-waf-edge",
+      "sourceId": "pattern-waf-edge-rules",
+      "sourceType": "KnowledgeGraphNodeNeighbor",
+      "corpusKind": "ReferenceArchitecture",
+      "title": "WAF edge rule pack neighbor",
+      "score": 0.71
+    }
+  ]
 }
