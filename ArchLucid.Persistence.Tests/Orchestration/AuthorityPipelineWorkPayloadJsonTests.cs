@@ -42,7 +42,7 @@ public sealed class AuthorityPipelineWorkPayloadJsonTests
     }
 
     [SkippableFact]
-    public void IsValidForProcessing_rejects_blank_project_id()
+    public void IsValidForProcessing_allows_blank_project_id_because_worker_overwrites_from_persisted_run()
     {
         AuthorityPipelineWorkPayload payload = new()
         {
@@ -54,7 +54,8 @@ public sealed class AuthorityPipelineWorkPayloadJsonTests
             EvidenceBundleId = "bundle-1",
         };
 
-        payload.IsValidForProcessing().Should().BeFalse();
+        payload.IsValidForProcessing().Should().BeTrue(
+            "ProjectId in the outbox JSON is not authoritative; AuthorityPipelineWorkProcessor overwrites it from dbo.Runs before orchestration.");
     }
 
     [SkippableFact]
