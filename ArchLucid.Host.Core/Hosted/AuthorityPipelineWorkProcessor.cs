@@ -104,10 +104,9 @@ public sealed class AuthorityPipelineWorkProcessor(
         AuthorityPipelineWorkProcessorOptions opts,
         CancellationToken cancellationToken)
     {
-        AuthorityPipelineWorkPayload? payload = AuthorityPipelineWorkPayloadJson.Deserialize(entry.PayloadJson);
-
-        if (payload?.ContextIngestionRequest is null ||
-            string.IsNullOrWhiteSpace(payload.EvidenceBundleId))
+        if (!AuthorityPipelineWorkPayloadJson.TryDeserialize(entry.PayloadJson, out AuthorityPipelineWorkPayload? payload) ||
+            payload is null ||
+            !payload.IsValidForProcessing())
         {
             Logger.LogError(
                 "Authority pipeline work outbox {OutboxId} has invalid payload; marking processed.",
@@ -126,11 +125,29 @@ public sealed class AuthorityPipelineWorkProcessor(
 
         using IDisposable _ = AmbientScopeContext.Push(jobScope);
 
+        IRunRepository runRepository =
+            scope.ServiceProvider.GetRequiredService<IRunRepository>();
+
+        RunRecord? persistedRun =
+            await runRepository.GetByIdAsync(jobScope, entry.RunId, cancellationToken);
+
+        if (persistedRun is null)
+        {
+            Logger.LogError(
+                "Authority pipeline work outbox {OutboxId} references missing run {RunId}; marking processed.",
+                LogSanitizer.Sanitize(entry.OutboxId.ToString()),
+                LogSanitizer.Sanitize(entry.RunId.ToString("N")));
+            await workOutbox.MarkProcessedAsync(entry.OutboxId, cancellationToken);
+
+            return;
+        }
+
         IAuthorityRunOrchestrator orchestrator =
             scope.ServiceProvider.GetRequiredService<IAuthorityRunOrchestrator>();
 
         ContextIngestionRequest request = payload.ContextIngestionRequest;
         request.RunId = entry.RunId;
+        request.ProjectId = persistedRun.ProjectId;
 
         Logger.LogInformationAgentExecutionStateTransitionDeferredOutbox(
             entry.RunId,
@@ -148,8 +165,6 @@ public sealed class AuthorityPipelineWorkProcessor(
             "(none)",
             entry.OutboxId.ToString());
 
-        IRunRepository runRepository =
-            scope.ServiceProvider.GetRequiredService<IRunRepository>();
         IArchitectureRequestRepository requestRepository =
             scope.ServiceProvider.GetRequiredService<IArchitectureRequestRepository>();
         IEvidenceBundleRepository evidenceBundleRepository =

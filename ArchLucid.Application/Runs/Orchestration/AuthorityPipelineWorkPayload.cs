@@ -21,4 +21,35 @@ public sealed class AuthorityPipelineWorkPayload
         get;
         set;
     } = "";
+
+    /// <summary>
+    ///     Whether the worker can resume deferred authority pipeline work from this payload.
+    /// </summary>
+    public bool IsValidForProcessing()
+    {
+        return ContextIngestionRequest is not null
+               && !string.IsNullOrWhiteSpace(EvidenceBundleId)
+               && !string.IsNullOrWhiteSpace(ContextIngestionRequest.ProjectId);
+    }
+
+    /// <summary>
+    ///     STJ leaves explicit <c>null</c> list properties; connector extractors require materialized lists.
+    /// </summary>
+    public void EnsureMutableCollections()
+    {
+        if (ContextIngestionRequest is null)
+            return;
+
+        ContextIngestionRequest request = ContextIngestionRequest;
+
+        request.InlineRequirements ??= [];
+        request.Documents ??= [];
+        request.PolicyReferences ??= [];
+        request.TopologyHints ??= [];
+        request.SecurityBaselineHints ??= [];
+        request.InfrastructureDeclarations ??= [];
+        request.RequiredCapabilities ??= [];
+        request.Constraints ??= [];
+        request.Assumptions ??= [];
+    }
 }

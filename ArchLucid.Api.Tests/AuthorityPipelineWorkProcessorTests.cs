@@ -39,6 +39,7 @@ public sealed class AuthorityPipelineWorkProcessorTests
         RunRecord runRow = new()
         {
             RunId = entry.RunId,
+            ProjectId = "default",
             LegacyRunStatus = nameof(ArchitectureRunStatus.TasksGenerated),
         };
 
@@ -89,15 +90,20 @@ public sealed class AuthorityPipelineWorkProcessorTests
     {
         Mock<IAuthorityPipelineWorkRepository> outbox = new();
         Mock<IAuthorityRunOrchestrator> orchestrator = new();
+        Mock<IRunRepository> runRepository = new();
 
         FaultCompleteQueuedOrchestrator(orchestrator);
 
         AuthorityPipelineWorkOutboxEntry entry = CreateEntryWithValidPayload();
 
+        runRepository
+            .Setup(r => r.GetByIdAsync(It.IsAny<ScopeContext>(), entry.RunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunRecord { RunId = entry.RunId, ProjectId = "default" });
+
         outbox.Setup(r => r.DequeuePendingAsync(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync([entry]);
 
-        IServiceProvider provider = BuildProvider(outbox, orchestrator);
+        IServiceProvider provider = BuildProvider(outbox, orchestrator, runRepository);
         Mock<IServiceScopeFactory> scopeFactory = CreateScopeFactory(provider);
 
         AuthorityPipelineWorkProcessorOptions options = new()
@@ -167,10 +173,99 @@ public sealed class AuthorityPipelineWorkProcessorTests
     }
 
     [Fact]
+    public async Task ProcessPendingBatchAsync_when_payload_malformed_json_marks_processed_without_dead_letter()
+    {
+        Mock<IAuthorityPipelineWorkRepository> outbox = new();
+        Mock<IAuthorityRunOrchestrator> orchestrator = new();
+
+        AuthorityPipelineWorkOutboxEntry entry = new()
+        {
+            OutboxId = Guid.NewGuid(),
+            RunId = Guid.NewGuid(),
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+            AttemptCount = 0,
+            PayloadJson = "{ not-json",
+        };
+
+        outbox.Setup(r => r.DequeuePendingAsync(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([entry]);
+
+        IServiceProvider provider = BuildProvider(outbox, orchestrator);
+        Mock<IServiceScopeFactory> scopeFactory = CreateScopeFactory(provider);
+
+        AuthorityPipelineWorkProcessor sut = new(
+            scopeFactory.Object,
+            Options.Create(new AuthorityPipelineWorkProcessorOptions()),
+            TimeProvider.System,
+            NullLogger<AuthorityPipelineWorkProcessor>.Instance);
+
+        await sut.ProcessPendingBatchAsync(CancellationToken.None);
+
+        outbox.Verify(r => r.MarkProcessedAsync(entry.OutboxId, It.IsAny<CancellationToken>()), Times.Once);
+        orchestrator.Verify(
+            o => o.CompleteQueuedAuthorityPipelineAsync(It.IsAny<ContextIngestionRequest>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task ProcessPendingBatchAsync_overwrites_stale_payload_project_id_from_persisted_run()
+    {
+        Mock<IAuthorityPipelineWorkRepository> outbox = new();
+        Mock<IAuthorityRunOrchestrator> orchestrator = new();
+        Mock<IRunRepository> runRepository = new();
+
+        AuthorityPipelineWorkOutboxEntry entry = CreateEntryWithValidPayload(staleProjectId: "stale-project");
+
+        runRepository
+            .Setup(r => r.GetByIdAsync(It.IsAny<ScopeContext>(), entry.RunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunRecord
+            {
+                RunId = entry.RunId,
+                ProjectId = "authoritative-project",
+            });
+
+        orchestrator
+            .Setup(o => o.CompleteQueuedAuthorityPipelineAsync(It.IsAny<ContextIngestionRequest>(), It.IsAny<CancellationToken>()))
+            .Callback<ContextIngestionRequest, CancellationToken>((request, _) =>
+                request.ProjectId.Should().Be("authoritative-project"))
+            .Returns((ContextIngestionRequest _, CancellationToken _) =>
+                Task.FromException<RunRecord>(new InvalidOperationException("stop after project id check")));
+
+        outbox.Setup(r => r.DequeuePendingAsync(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([entry]);
+
+        IServiceProvider provider = BuildProvider(outbox, orchestrator, runRepository);
+        Mock<IServiceScopeFactory> scopeFactory = CreateScopeFactory(provider);
+
+        AuthorityPipelineWorkProcessorOptions options = new()
+        {
+            MaxAttemptsBeforeDeadLetter = 3,
+            RetryBackoffBaseSeconds = 5,
+        };
+
+        AuthorityPipelineWorkProcessor sut = new(
+            scopeFactory.Object,
+            Options.Create(options),
+            TimeProvider.System,
+            NullLogger<AuthorityPipelineWorkProcessor>.Instance);
+
+        await sut.ProcessPendingBatchAsync(CancellationToken.None);
+
+        orchestrator.Verify(
+            o => o.CompleteQueuedAuthorityPipelineAsync(
+                It.Is<ContextIngestionRequest>(r => r.ProjectId == "authoritative-project"),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
     public async Task ProcessPendingBatchAsync_processes_batch_without_throwing_when_one_entry_fails()
     {
         Mock<IAuthorityPipelineWorkRepository> outbox = new();
         Mock<IAuthorityRunOrchestrator> orchestrator = new();
+        Mock<IRunRepository> runRepository = new();
 
         FaultCompleteQueuedOrchestrator(orchestrator);
 
@@ -186,10 +281,14 @@ public sealed class AuthorityPipelineWorkProcessorTests
             PayloadJson = "{}",
         };
 
+        runRepository
+            .Setup(r => r.GetByIdAsync(It.IsAny<ScopeContext>(), poisonEntry.RunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunRecord { RunId = poisonEntry.RunId, ProjectId = "default" });
+
         outbox.Setup(r => r.DequeuePendingAsync(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync([poisonEntry, invalidEntry]);
 
-        IServiceProvider provider = BuildProvider(outbox, orchestrator);
+        IServiceProvider provider = BuildProvider(outbox, orchestrator, runRepository);
         Mock<IServiceScopeFactory> scopeFactory = CreateScopeFactory(provider);
 
         AuthorityPipelineWorkProcessor sut = new(
@@ -266,7 +365,7 @@ public sealed class AuthorityPipelineWorkProcessorTests
         };
     }
 
-    private static AuthorityPipelineWorkOutboxEntry CreateEntryWithValidPayload()
+    private static AuthorityPipelineWorkOutboxEntry CreateEntryWithValidPayload(string staleProjectId = "default")
     {
         Guid runId = Guid.NewGuid();
 
@@ -277,7 +376,7 @@ public sealed class AuthorityPipelineWorkProcessorTests
             {
               "contextIngestionRequest": {
                 "runId": "{{runId}}",
-                "projectId": "default",
+                "projectId": "{{staleProjectId}}",
                 "inlineRequirements": [],
                 "documents": [],
                 "policyReferences": [],
