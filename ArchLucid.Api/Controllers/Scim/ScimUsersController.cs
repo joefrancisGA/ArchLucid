@@ -107,10 +107,6 @@ public sealed class ScimUsersController(
         {
             return ScimErrorResultFactory.FromParseException(ex);
         }
-        catch (ScimConflictException ex)
-        {
-            return ScimErrorResultFactory.Create(409, "uniqueness", ex.Message);
-        }
     }
 
     [HttpPut("{id:guid}")]
