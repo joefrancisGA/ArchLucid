@@ -1,4 +1,5 @@
 using ArchLucid.Contracts.ArchitectureIntelligence;
+using ArchLucid.Contracts.Persistence.TechnologyLedger;
 
 namespace ArchLucid.Application.ArchitectureIntelligence;
 
@@ -10,6 +11,14 @@ public sealed class MustNotFailEnforcer : IMustNotFailEnforcer
         IReadOnlyList<SpecialistReviewFinding> findings,
         IReadOnlyList<ArchitectureRecommendation> recommendations)
     {
+        return Evaluate(findings, recommendations, ledgerEntries: null);
+    }
+
+    public IReadOnlyList<MustNotFailViolation> Evaluate(
+        IReadOnlyList<SpecialistReviewFinding> findings,
+        IReadOnlyList<ArchitectureRecommendation> recommendations,
+        IReadOnlyList<TechnologyLedgerEntry>? ledgerEntries)
+    {
         ArgumentNullException.ThrowIfNull(findings);
         ArgumentNullException.ThrowIfNull(recommendations);
 
@@ -17,9 +26,33 @@ public sealed class MustNotFailEnforcer : IMustNotFailEnforcer
 
         violations.AddRange(findings.SelectMany(EvaluateFinding));
         violations.AddRange(recommendations.SelectMany(EvaluateRecommendation));
+
+        if (ledgerEntries is not null)
+        {
+            violations.AddRange(recommendations.SelectMany(rec => EvaluateOffLedgerTechnology(rec, ledgerEntries)));
+        }
+
         violations.AddRange(DetectContradictoryArtifacts(findings));
 
         return violations;
+    }
+
+    private static IEnumerable<MustNotFailViolation> EvaluateOffLedgerTechnology(
+        ArchitectureRecommendation recommendation,
+        IReadOnlyList<TechnologyLedgerEntry> ledgerEntries)
+    {
+        string combined = $"{recommendation.ProposedChange} {recommendation.Problem}";
+
+        if (!TechnologyLedgerClosedWorldValidator.MentionsOffLedgerTechnology(combined, ledgerEntries))
+            yield break;
+
+        yield return new MustNotFailViolation
+        {
+            Class = MustNotFailClass.UnlabeledCloudSpecificRecommendation,
+            Message =
+                $"Recommendation '{recommendation.Problem}' cites technology outside the closed-world ledger.",
+            Blocked = true,
+        };
     }
 
     private static IEnumerable<MustNotFailViolation> EvaluateFinding(SpecialistReviewFinding finding)
