@@ -35,11 +35,15 @@ export function SearchPageClient(props: SearchPageClientProps) {
     setRunId(nextRunId);
   }, [searchParams]);
 
-  const onSearch = useCallback(async () => {
-    const q = query.trim();
+  const onSearch = useCallback(async (overrideQuery?: string) => {
+    const q = overrideQuery?.trim() ?? query.trim();
 
     if (!q) {
       return;
+    }
+
+    if (overrideQuery !== undefined) {
+      setQuery(overrideQuery.trim());
     }
 
     setLoading(true);

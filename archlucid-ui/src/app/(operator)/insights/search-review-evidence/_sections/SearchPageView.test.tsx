@@ -40,6 +40,26 @@ function buildModel(overrides: Partial<SearchPageViewModel> = {}): SearchPageVie
 }
 
 describe("SearchPageView", () => {
+  it("runs search when an example query chip is clicked", () => {
+    const onSearch = vi.fn().mockResolvedValue(undefined);
+    const setQuery = vi.fn();
+
+    render(
+      <SearchPageView
+        model={buildModel({
+          query: "",
+          onSearch,
+          setQuery,
+        })}
+      />,
+    );
+
+    fireEvent.click(screen.getByTestId("search-example-query-chip-finding-title"));
+
+    expect(setQuery).toHaveBeenCalledWith("cross-account access finding");
+    expect(onSearch).toHaveBeenCalledWith("cross-account access finding");
+  });
+
   it("shows load failure panel with retry that re-invokes search", () => {
     const onSearch = vi.fn();
 

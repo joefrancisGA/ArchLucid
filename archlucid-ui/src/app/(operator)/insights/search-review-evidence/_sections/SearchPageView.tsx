@@ -26,7 +26,7 @@ import { EVIDENCE_TRAIL_SEARCH } from "@/lib/search-surface-disambiguation";
 
 import type { SearchPageViewModel } from "./search-page-view-model";
 import {
-  SEARCH_EXAMPLE_QUERIES_LINE,
+  SEARCH_EXAMPLE_QUERY_CHIPS,
   SEARCH_LOAD_RETRY_LABEL,
   SEARCH_PAGE_TITLE,
   SEARCH_QUERY_FIELD_LABEL,
@@ -190,7 +190,28 @@ export function SearchPageView({ model }: SearchPageViewProps) {
             {loading ? "Searching…" : "Search"}
           </Button>
 
-          <p className={cn("m-0 leading-relaxed text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{SEARCH_EXAMPLE_QUERIES_LINE}</p>
+          <div className="space-y-2" data-testid="search-example-query-chips">
+            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>Example queries</p>
+            <div className="flex flex-wrap gap-2" role="group" aria-label="Example search queries">
+              {SEARCH_EXAMPLE_QUERY_CHIPS.map((chip) => (
+                <Button
+                  key={chip.id}
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="h-auto max-w-full whitespace-normal py-1 font-normal"
+                  data-testid={`search-example-query-chip-${chip.id}`}
+                  disabled={loading}
+                  onClick={() => {
+                    setQuery(chip.query);
+                    void onSearch(chip.query);
+                  }}
+                >
+                  {chip.label}
+                </Button>
+              ))}
+            </div>
+          </div>
         </CardContent>
       </Card>
 
