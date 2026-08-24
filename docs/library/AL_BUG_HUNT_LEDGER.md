@@ -127,11 +127,11 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - **aliases:** ARM resource ids; terraform source id; endpoint index
 - **paths:** ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEdgeMapper.cs; ArchLucid.Application/Runs/Orchestration/TopologyProposalRelationshipEndpointIndex.cs
 - **test-filter:** FullyQualifiedName~TopologyProposalRelationshipEdgeMapperTests|FullyQualifiedName~AgentTopologyProposalGraphMergeTests
-- **hunts:** 18
-- **bugs-found:** 19
+- **hunts:** 19
+- **bugs-found:** 20
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24 — `azurerm_synapse_workspace` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`synapse_workspace` was only listed for datastore aliases)
+- **last-bug:** 2026-08-24 — `azurerm_data_factory` Terraform ids omitted from `LooksLikeTerraformServiceSourceId` (`data_factory` was only listed for datastore aliases)
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -151,6 +151,7 @@ High historical yield. **Not exhausted** Î“Ã‡Ã¶ remaining hypotheses are
 - [x] (proven) `azurerm_search_service` Terraform address omitted from `LooksLikeTerraformServiceSourceId` — **hit 2026-08-24:** `search_service` was only in the datastore list; `azurerm_search_service.main` on Data-category nodes dropped `svc-` synthetic aliases; regression in gate + merge tests
 - [x] (proven) `azurerm_eventhub_namespace` Terraform address omitted from `LooksLikeTerraformServiceSourceId` — **hit 2026-08-24:** `eventhub_namespace` was only in the datastore list; `azurerm_eventhub_namespace.main` on Data-category nodes dropped `svc-` synthetic aliases; regression in gate + merge tests
 - [x] (proven) `azurerm_synapse_workspace` Terraform address omitted from `LooksLikeTerraformServiceSourceId` — **hit 2026-08-24:** `synapse_workspace` was only in the datastore list; `azurerm_synapse_workspace.main` on Data-category nodes dropped `svc-` synthetic aliases; regression in gate + merge tests
+- [x] (proven) `azurerm_data_factory` Terraform address omitted from `LooksLikeTerraformServiceSourceId` — **hit 2026-08-24:** `data_factory` was only in the datastore list; `azurerm_data_factory.main` on Data-category nodes dropped `svc-` synthetic aliases; regression in gate + merge tests
 
 ---
 
