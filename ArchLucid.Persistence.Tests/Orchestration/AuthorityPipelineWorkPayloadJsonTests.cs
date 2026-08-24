@@ -146,6 +146,33 @@ public sealed class AuthorityPipelineWorkPayloadJsonTests
     }
 
     [SkippableFact]
+    public void Deserialize_filters_null_string_list_entries()
+    {
+        Guid runId = Guid.Parse("44444444-4444-4444-4444-444444444444");
+        string json =
+            $$"""
+            {
+              "contextIngestionRequest": {
+                "runId": "{{runId}}",
+                "projectId": "default",
+                "inlineRequirements": [null, "keep-me"],
+                "policyReferences": [null],
+                "constraints": [null, null]
+              },
+              "evidenceBundleId": "bundle-1"
+            }
+            """;
+
+        AuthorityPipelineWorkPayload? back = AuthorityPipelineWorkPayloadJson.Deserialize(json);
+
+        back.Should().NotBeNull();
+        back!.ContextIngestionRequest.InlineRequirements.Should().Equal("keep-me");
+        back.ContextIngestionRequest.PolicyReferences.Should().BeEmpty();
+        back.ContextIngestionRequest.Constraints.Should().BeEmpty();
+        back.IsValidForProcessing().Should().BeTrue();
+    }
+
+    [SkippableFact]
     public void Serialize_round_trips_minimal_payload()
     {
         AuthorityPipelineWorkPayload payload = new()

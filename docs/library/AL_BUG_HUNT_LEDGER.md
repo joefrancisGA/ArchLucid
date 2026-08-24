@@ -287,13 +287,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** authority payload; pipeline work payload
 - **paths:** ArchLucid.Application/Runs/Orchestration/AuthorityPipelineWorkPayload.cs
 - **test-filter:** FullyQualifiedName~AuthorityPipelineWorkPayloadJsonTests
-- **hunts:** 3
-- **bugs-found:** 6
+- **hunts:** 4
+- **bugs-found:** 7
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24 — zero-width-only EvidenceBundleId passed gate; explicit null document elements in outbox JSON caused connector NRE; malformed JSON retried; null STJ lists NRE; blank ProjectId passed gate; stale payload ProjectId used for ingest
+- **last-bug:** 2026-08-24 — null string elements in JSON list arrays cause connector NRE after deferred resume
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** no
 
 ### Hypotheses
 
@@ -302,8 +302,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Tenant id in the payload is not the tenant used for SQL — **hit 2026-08-24:** stale `contextIngestionRequest.projectId` slug drove `GetLatestAsync` instead of persisted `dbo.Runs.ProjectId`; worker now overwrites from run row; regression in `ProcessPendingBatchAsync_overwrites_stale_payload_project_id_from_persisted_run`
 - [x] (proven) Malformed outbox JSON retried until dead-letter instead of invalid-payload discard — **hit 2026-08-24:** `Deserialize` threw `JsonException`; `TryDeserialize` swallows and marks processed; regression in `Deserialize_returns_null_for_malformed_json` / `ProcessPendingBatchAsync_when_payload_malformed_json_marks_processed_without_dead_letter`
 - [x] (proven) Explicit `null` list properties in JSON cause connector NRE — **hit 2026-08-24:** `inlineRequirements: null` etc. left null after STJ; `EnsureMutableCollections` materializes empty lists; regression in `Deserialize_materializes_null_list_properties`
-- [x] (proven) Explicit `null` document elements in JSON arrays cause connector NRE — **hit 2026-08-24:** `documents: [null]` survived STJ; `DocumentConnectorPayloadNormalizer` dereferenced null entries; `EnsureMutableCollections` now prunes null reference elements; regression in `Deserialize_removes_null_document_elements`
+- [x] (proven) Explicit `null` document elements in JSON arrays cause connector NRE — **hit 2026-08-24:** `documents: [null]` survived STJ; `DocumentConnectorPayloadNormalizer` dereferenced null entries; `MaterializeDocumentList` filters null reference elements; regression in `Deserialize_removes_null_document_elements`
 - [x] (proven) Zero-width-only `EvidenceBundleId` passes `IsValidForProcessing` and dead-letters instead of invalid-payload discard — **hit 2026-08-24:** U+200B is not `IsNullOrWhiteSpace`; `HasSubstantiveText` rejects format/control-only ids; regression in `IsValidForProcessing_rejects_zero_width_only_evidence_bundle_id` / `IsValidForProcessing_rejects_blank_evidence_bundle_id`
+- [x] (proven) Explicit `null` string elements inside JSON list arrays cause connector NRE — **hit 2026-08-24:** `inlineRequirements: [null, "keep-me"]` kept null entries after STJ; `InlineRequirementsPayloadNormalizer` NRE on `requirement.Length`; `MaterializeStringList` filters null entries; regression in `Deserialize_filters_null_string_list_entries`
 
 ---
 

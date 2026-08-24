@@ -60,6 +60,7 @@ public sealed class AuthorityPipelineWorkPayload
 
     /// <summary>
     ///     STJ leaves explicit <c>null</c> list properties; connector extractors require materialized lists.
+    ///     STJ also preserves <c>null</c> elements inside JSON arrays; normalizers dereference entries and NRE.
     /// </summary>
     public void EnsureMutableCollections()
     {
@@ -68,26 +69,39 @@ public sealed class AuthorityPipelineWorkPayload
 
         ContextIngestionRequest request = ContextIngestionRequest;
 
-        request.InlineRequirements ??= [];
-        request.Documents ??= [];
-        request.PolicyReferences ??= [];
-        request.TopologyHints ??= [];
-        request.SecurityBaselineHints ??= [];
-        request.InfrastructureDeclarations ??= [];
-        request.RequiredCapabilities ??= [];
-        request.Constraints ??= [];
-        request.Assumptions ??= [];
-
-        PruneNullReferenceElements(request.Documents);
-        PruneNullReferenceElements(request.InfrastructureDeclarations);
+        request.InlineRequirements = MaterializeStringList(request.InlineRequirements);
+        request.Documents = MaterializeDocumentList(request.Documents);
+        request.PolicyReferences = MaterializeStringList(request.PolicyReferences);
+        request.TopologyHints = MaterializeStringList(request.TopologyHints);
+        request.SecurityBaselineHints = MaterializeStringList(request.SecurityBaselineHints);
+        request.InfrastructureDeclarations = MaterializeInfrastructureDeclarationList(request.InfrastructureDeclarations);
+        request.RequiredCapabilities = MaterializeStringList(request.RequiredCapabilities);
+        request.Constraints = MaterializeStringList(request.Constraints);
+        request.Assumptions = MaterializeStringList(request.Assumptions);
     }
 
-    private static void PruneNullReferenceElements<T>(List<T> values)
-        where T : class
+    private static List<string> MaterializeStringList(List<string>? values)
     {
-        if (values.Count == 0)
-            return;
+        if (values is null)
+            return [];
 
-        values.RemoveAll(static value => value is null);
+        return values.Where(static value => value is not null).ToList();
+    }
+
+    private static List<ContextDocumentReference> MaterializeDocumentList(List<ContextDocumentReference>? values)
+    {
+        if (values is null)
+            return [];
+
+        return values.Where(static document => document is not null).ToList();
+    }
+
+    private static List<InfrastructureDeclarationReference> MaterializeInfrastructureDeclarationList(
+        List<InfrastructureDeclarationReference>? values)
+    {
+        if (values is null)
+            return [];
+
+        return values.Where(static declaration => declaration is not null).ToList();
     }
 }
