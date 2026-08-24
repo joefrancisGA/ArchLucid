@@ -1165,6 +1165,22 @@ public sealed class AgentTopologyProposalMergeGateTests
     }
 
     [Fact]
+    public void FilterValidatedProposals_keeps_relationship_when_sql_managed_instance_node_has_data_category_but_synthetic_service_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            DataNode(nodeId: "mi-1", label: "sqlmi-db", sourceId: "azurerm_sql_managed_instance.main"),
+            DataNode());
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship("svc-sqlmi-db")));
+
+        IReadOnlyList<AgentResult> filtered =
+            AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
+
+        filtered.Should().ContainSingle();
+        filtered[0].ProposedChanges!.AddedRelationships.Should().ContainSingle();
+    }
+
+    [Fact]
     public void FilterValidatedProposals_keeps_relationship_when_service_node_has_data_category_but_synthetic_service_id_used()
     {
         GraphSnapshot graph = Graph(
@@ -1629,6 +1645,22 @@ public sealed class AgentTopologyProposalMergeGateTests
             ComputeNode(nodeId: "mdb-1", label: "mariadb", sourceId: "azurerm_mariadb_server.main"));
 
         AgentResult topology = TopologyResult(RelationshipProposal(Relationship(targetId: "ds-mariadb")));
+
+        IReadOnlyList<AgentResult> filtered =
+            AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);
+
+        filtered.Should().ContainSingle();
+        filtered[0].ProposedChanges!.AddedRelationships.Should().ContainSingle();
+    }
+
+    [Fact]
+    public void FilterValidatedProposals_keeps_relationship_when_mariadb_server_node_has_data_category_but_synthetic_service_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            DataNode(nodeId: "mdb-1", label: "maria-db", sourceId: "azurerm_mariadb_server.main"),
+            DataNode());
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship("svc-maria-db")));
 
         IReadOnlyList<AgentResult> filtered =
             AgentTopologyProposalMergeGate.FilterValidatedProposals(graph, [topology]);

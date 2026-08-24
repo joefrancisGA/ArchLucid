@@ -2485,6 +2485,22 @@ public sealed class AgentTopologyProposalGraphMergeTests
     }
 
     [Fact]
+    public void WithMergedTopologyProposals_materializes_edge_when_sql_managed_instance_node_has_data_category_but_synthetic_service_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            DataNode(nodeId: "mi-1", label: "sqlmi-db", sourceId: "azurerm_sql_managed_instance.main"),
+            DataNode());
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship("svc-sqlmi-db")), resultId: "topology-1");
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == "mi-1" &&
+            e.ToNodeId == "ds-1");
+    }
+
+    [Fact]
     public void WithMergedTopologyProposals_materializes_edge_when_service_node_has_data_category_but_synthetic_service_id_used()
     {
         GraphSnapshot graph = Graph(
@@ -2914,6 +2930,22 @@ public sealed class AgentTopologyProposalGraphMergeTests
         merged.Edges.Should().ContainSingle(e =>
             e.FromNodeId == "svc-1" &&
             e.ToNodeId == "mdb-1");
+    }
+
+    [Fact]
+    public void WithMergedTopologyProposals_materializes_edge_when_mariadb_server_node_has_data_category_but_synthetic_service_id_used()
+    {
+        GraphSnapshot graph = Graph(
+            DataNode(nodeId: "mdb-1", label: "maria-db", sourceId: "azurerm_mariadb_server.main"),
+            DataNode());
+
+        AgentResult topology = TopologyResult(RelationshipProposal(Relationship("svc-maria-db")), resultId: "topology-1");
+
+        GraphSnapshot merged = AgentTopologyProposalGraphMerge.WithMergedTopologyProposals(graph, [topology]);
+
+        merged.Edges.Should().ContainSingle(e =>
+            e.FromNodeId == "mdb-1" &&
+            e.ToNodeId == "ds-1");
     }
 
     [Fact]
