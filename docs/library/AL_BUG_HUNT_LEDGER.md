@@ -1732,24 +1732,27 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ## Zone: cloud-extractors
 
 - **id:** cloud-extractors
-- **status:** unseeded
+- **status:** open
 - **impact:** high
 - **aliases:** aws extractor; gcp extractor; azure extractor
 - **paths:** ArchLucid.Integrations.AwsExtractor/; ArchLucid.Integrations.GcpExtractor/; ArchLucid.Integrations.AzureExtractor/
 - **test-filter:** FullyQualifiedName~AwsExtractor|FullyQualifiedName~GcpExtractor|FullyQualifiedName~AzureExtractor
-- **hunts:** 0
-- **bugs-found:** 0
+- **hunts:** 1
+- **bugs-found:** 4
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **last-hunt:** 2026-08-24
+- **last-bug:** 2026-08-24 — AWS inventory search ignored NextToken; AccountId not bound to RoleArn; Azure ARM rows missing id/type dropped silently; GCP WIF audience prefix case-sensitive
 - **related-pd-tb:** none
-- **code-changed-since:** unknown
+- **code-changed-since:** yes
 
 ### Hypotheses
 
-- [ ] (candidate) Extractor pulls resources using credentials from another tenantÃ¢â‚¬â„¢s connector
-- [ ] (candidate) ARM/resource id mapping drops subscription scope and mis-attributes resources
-- [ ] (candidate) Extractor treats a parse warning as success with an empty inventory
+- [x] (valid-no-repro) Extractor pulls resources using credentials from another tenant's connector — tenant binding lives in application orchestration (`HostedAwsExtractorRunService`, connection repositories); integration clients consume caller-supplied credentials only
+- [x] (valid-no-repro) ARM/resource id mapping drops subscription scope and mis-attributes resources — `GetOnlyHostedAzureArmReadClient` preserves full ARM `id` strings from list API; no subscription-scope stripping locus in extractor integration layer
+- [x] (proven) AWS Resource Explorer inventory truncated at first page — **hit 2026-08-24:** `HostedAwsExtractorClient.SearchResourcesAsync` used single `SearchAsync` with `MaxResults=50` and no `NextToken` loop; regression in `SearchResourcesAsync_paginates_until_next_token_exhausted`
+- [x] (proven) AWS `AccountId` not validated against assumed `RoleArn` — **hit 2026-08-24:** manifest accepted mismatched account id vs role ARN account; regression in `CollectZipAsync_rejects_role_arn_account_mismatch`
+- [x] (proven) Azure ARM rows missing `id`/`type` dropped without warning — **hit 2026-08-24:** `MapResource` returned null with no log; regression in `ListSubscriptionResourcesAsync_logs_when_arm_row_missing_id_or_type`
+- [x] (proven) GCP workload-identity audience prefix case-sensitive — **hit 2026-08-24:** `NormalizeAudience` used `Ordinal` for `//iam.googleapis.com/` prefix; regression in `NormalizeAudience_normalizes_mixed_case_audience_prefix`
 
 ---
 
