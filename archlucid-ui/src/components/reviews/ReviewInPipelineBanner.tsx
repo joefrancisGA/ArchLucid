@@ -3,6 +3,7 @@
 import type { ReactElement } from "react";
 
 import { Button } from "@/components/ui/button";
+import { useReviewPipelineElapsedWaitCopy } from "@/hooks/use-review-pipeline-elapsed-wait-copy";
 import { DESIGN_TOKENS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { isBuyerVocabularyPassActive } from "@/lib/demo-ui-env";
 import { resolveCurrentPipelineStageLabel } from "@/lib/resolve-active-pipeline-stage";
@@ -33,6 +34,7 @@ export function ReviewInPipelineBanner(props: ReviewInPipelineBannerProps): Reac
 
   const buyerLabelsActive = isBuyerVocabularyPassActive();
   const stageLabel = resolveCurrentPipelineStageLabel([], props.initialSummary, buyerLabelsActive);
+  const waitDetail = useReviewPipelineElapsedWaitCopy(stageLabel, true);
   const executionMode = props.initialSummary?.structuralExecutionMode ?? null;
   const safetyMessage =
     shouldShowReviewPipelineBackgroundSafety(executionMode)
@@ -54,6 +56,11 @@ export function ReviewInPipelineBanner(props: ReviewInPipelineBannerProps): Reac
         </p>
         {safetyMessage !== null ? (
           <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{safetyMessage}</p>
+        ) : null}
+        {waitDetail !== null ? (
+          <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="review-in-pipeline-wait-detail">
+            {waitDetail}
+          </p>
         ) : null}
       </div>
       <Button
