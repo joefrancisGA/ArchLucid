@@ -18,6 +18,9 @@ export const DEFAULT_NAV_GROUP_IDS_BY_ROLE_NAV_DENSITY_PERSONA: Readonly<
   admin: ["pilot", "operator-admin"],
 };
 
+/** First-session default: Review work only until a committed architecture package exists. */
+export const FIRST_SESSION_PILOT_ONLY_NAV_GROUP_IDS: readonly string[] = ["pilot"];
+
 const ADMIN_ROLE_CLAIMS = new Set(["admin", "workspaceadmin", "projectadmin"]);
 const GOVERNANCE_ROLE_CLAIMS = new Set(["auditor"]);
 
@@ -64,6 +67,35 @@ export function filterNavGroupsByRoleDensity(
   const allowed = defaultNavGroupIdsForRoleNavDensityPersona(persona);
 
   return rows.filter((row) => allowed.has(row.group.id));
+}
+
+/** Restricts sidebar to pilot/review-work groups until the tenant has a committed package. */
+export function filterNavGroupsForFirstSessionPilotMode(
+  rows: readonly NavGroupWithVisibleLinks[],
+  hasCommittedArchitectureReview: boolean,
+  showFullNav: boolean,
+): NavGroupWithVisibleLinks[] {
+  if (showFullNav || hasCommittedArchitectureReview) {
+    return [...rows];
+  }
+
+  const allowed = new Set(FIRST_SESSION_PILOT_ONLY_NAV_GROUP_IDS);
+
+  return rows.filter((row) => allowed.has(row.group.id));
+}
+
+export function countNavGroupsHiddenByFirstSessionPilotMode(
+  rows: readonly NavGroupWithVisibleLinks[],
+  hasCommittedArchitectureReview: boolean,
+  showFullNav: boolean,
+): number {
+  if (showFullNav || hasCommittedArchitectureReview) {
+    return 0;
+  }
+
+  const allowed = new Set(FIRST_SESSION_PILOT_ONLY_NAV_GROUP_IDS);
+
+  return rows.filter((row) => !allowed.has(row.group.id)).length;
 }
 
 /** Counts nav groups hidden by the persona default density (for sidebar “N more” / show-all affordance). */

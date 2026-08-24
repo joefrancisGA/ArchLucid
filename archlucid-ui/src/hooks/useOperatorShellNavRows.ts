@@ -20,8 +20,10 @@ import { listNavGroupsVisibleInOperatorShell } from "@/lib/nav-shell-visibility"
 import { applyPatternLibraryNavGate } from "@/lib/apply-pattern-library-nav-gate";
 import { scopeOperatorShellNavRows } from "@/lib/nav-audit-run-scope";
 import {
+  countNavGroupsHiddenByFirstSessionPilotMode,
   countNavGroupsHiddenByRoleDensity,
   filterNavGroupsByRoleDensity,
+  filterNavGroupsForFirstSessionPilotMode,
   resolveRoleNavDensityPersona,
 } from "@/lib/role-shaped-nav-density";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator/operator-static-demo";
@@ -96,16 +98,28 @@ export function useOperatorShellNavRows(): UseOperatorShellNavRowsResult {
       ),
       patternLibraryNavVisible,
     );
+    const firstSessionRows = filterNavGroupsForFirstSessionPilotMode(
+      scopedRows,
+      effectiveHasCommittedArchitectureReview,
+      effectiveRoleNavDensityShowFullNav,
+    );
     const allRows = filterNavGroupsByRoleDensity(
-      scopedRows,
+      firstSessionRows,
       roleNavDensityPersona,
       effectiveRoleNavDensityShowFullNav,
     );
-    const roleNavDensityHiddenGroupCount = countNavGroupsHiddenByRoleDensity(
+    const firstSessionHiddenCount = countNavGroupsHiddenByFirstSessionPilotMode(
       scopedRows,
-      roleNavDensityPersona,
+      effectiveHasCommittedArchitectureReview,
       effectiveRoleNavDensityShowFullNav,
     );
+    const roleNavDensityHiddenGroupCount =
+      firstSessionHiddenCount
+      + countNavGroupsHiddenByRoleDensity(
+        firstSessionRows,
+        roleNavDensityPersona,
+        effectiveRoleNavDensityShowFullNav,
+      );
 
     return {
       allRows,

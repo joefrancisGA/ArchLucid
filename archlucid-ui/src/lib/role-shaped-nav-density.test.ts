@@ -4,8 +4,10 @@ import { NAV_GROUPS } from "@/lib/nav-config";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import {
   DEFAULT_NAV_GROUP_IDS_BY_ROLE_NAV_DENSITY_PERSONA,
+  countNavGroupsHiddenByFirstSessionPilotMode,
   countNavGroupsHiddenByRoleDensity,
   filterNavGroupsByRoleDensity,
+  filterNavGroupsForFirstSessionPilotMode,
   resolveRoleNavDensityPersona,
 } from "@/lib/role-shaped-nav-density";
 import { listNavGroupsVisibleInOperatorShell } from "@/lib/nav-shell-visibility";
@@ -60,5 +62,17 @@ describe("role-shaped-nav-density", () => {
     expect(collapsed.some((row) => row.group.id === "operate-governance")).toBe(true);
     expect(collapsed.some((row) => row.group.id === "operate-policy")).toBe(true);
     expect(collapsed.some((row) => row.group.id === "operate-analysis")).toBe(false);
+  });
+
+  it("restricts first-session nav to pilot group until a committed package exists", () => {
+    const rows = adminShellRows();
+    const firstSession = filterNavGroupsForFirstSessionPilotMode(rows, false, false);
+    const afterCommit = filterNavGroupsForFirstSessionPilotMode(rows, true, false);
+
+    expect(firstSession.every((row) => row.group.id === "pilot")).toBe(true);
+    expect(firstSession.length).toBeGreaterThan(0);
+    expect(afterCommit.length).toBeGreaterThan(firstSession.length);
+    expect(countNavGroupsHiddenByFirstSessionPilotMode(rows, false, false)).toBeGreaterThan(0);
+    expect(countNavGroupsHiddenByFirstSessionPilotMode(rows, true, false)).toBe(0);
   });
 });
