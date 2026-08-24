@@ -7,7 +7,7 @@ import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer/buyer-facing-revi
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
 import { formatRelativeTime } from "@/lib/relative-time";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator/operator-static-demo";
-import { reviewPackageArchitectureName, reviewPackageOwnerLabel } from "@/lib/review-package-validation-picker";
+import { reviewPackageArchitectureName, reviewPackageOwnerLabel, type ReviewPackageOwnerResolutionContext } from "@/lib/review-package-validation-picker";
 import { SHOWCASE_STATIC_DEMO_RUN_ID, SHOWCASE_STATIC_DEMO_SPINE_COUNTS } from "@/lib/showcase-static-demo";
 import type { RunSummary } from "@/types/authority";
 
@@ -148,7 +148,10 @@ function reviewRiskCount(run: RunSummary): number {
 }
 
 /** Row presentation model for the `/architecture/reviews` hub inventory. */
-export function toReviewsHubReviewRowDisplay(run: RunSummary): ReviewsHubReviewRowDisplay {
+export function toReviewsHubReviewRowDisplay(
+  run: RunSummary,
+  ownerContext: ReviewPackageOwnerResolutionContext = {},
+): ReviewsHubReviewRowDisplay {
   const runId = canonicalizeDemoRunId(run.runId);
   const primaryAction = getBuyerSafeReviewsTableLinkForRun(run);
 
@@ -158,7 +161,7 @@ export function toReviewsHubReviewRowDisplay(run: RunSummary): ReviewsHubReviewR
     architectureName: reviewPackageArchitectureName(run),
     overallStatus: reviewsHubOverallStatus(run),
     lifecycleStage: reviewsHubLifecycleStage(run),
-    ownerLabel: reviewPackageOwnerLabel(run),
+    ownerLabel: reviewPackageOwnerLabel(run, ownerContext),
     lastUpdated: formatLastUpdated(run),
     findingsCount: reviewFindingCount(run),
     riskCount: reviewRiskCount(run),
