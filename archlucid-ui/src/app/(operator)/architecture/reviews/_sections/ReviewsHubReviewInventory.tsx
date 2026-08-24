@@ -495,9 +495,10 @@ export function ReviewsHubReviewInventory(props: ReviewsHubReviewInventoryProps)
 
   return (
     <section className="mt-4" data-testid="reviews-hub-recent-packages">
-      <ReviewsHubSummaryRow summary={props.summary} />
       {rows.length === 0 ? (
-        <div className="mt-4" data-has-architecture-drafts={hasDrafts ? "true" : "false"}>
+        <div className="space-y-4">
+          <ReviewsHubSummaryRow summary={props.summary} />
+          <div data-has-architecture-drafts={hasDrafts ? "true" : "false"}>
           {workspaceScopeTeaching !== null ? (
             <WorkspaceScopeEmptyTeaching
               title={workspaceScopeTeaching.title}
@@ -523,14 +524,15 @@ export function ReviewsHubReviewInventory(props: ReviewsHubReviewInventoryProps)
               ]}
             />
           )}
+          </div>
         </div>
       ) : (
         <div className={OPERATOR_LAYOUT.sectionStack}>
           <div
-            className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between"
+            className="flex flex-wrap items-center gap-2"
             data-testid="reviews-hub-toolbar"
           >
-            <div className="min-w-0 flex-1 xl:max-w-xl">
+            <div className="min-w-0 flex-1 basis-[14rem] sm:max-w-xs lg:max-w-sm">
               <Input
                 value={searchQuery}
                 onChange={(event) => setSearchQuery(event.target.value)}
@@ -539,7 +541,7 @@ export function ReviewsHubReviewInventory(props: ReviewsHubReviewInventoryProps)
                 data-testid="reviews-hub-search"
               />
             </div>
-            <div className="flex flex-wrap items-center gap-2" data-testid="reviews-hub-filters">
+            <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2" data-testid="reviews-hub-filters">
               <div className="flex flex-wrap gap-1.5" role="group" aria-label="Filter reviews">
                 {PRIMARY_FILTER_OPTIONS.map((option) => (
                   <ReviewFilterChip
@@ -592,6 +594,8 @@ export function ReviewsHubReviewInventory(props: ReviewsHubReviewInventoryProps)
               </details>
             </div>
           </div>
+
+          <ReviewsHubSummaryRow summary={props.summary} />
 
           <ReviewsHubInventoryTable
             runs={sortedFilteredRuns}

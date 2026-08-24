@@ -11,6 +11,7 @@ import {
   REVIEWS_HUB_RESUME_DRAFTS_TITLE,
   REVIEWS_HUB_SUMMARY_COMMITTED_LABEL,
   REVIEWS_HUB_SUMMARY_DRAFTS_READY_LABEL,
+  REVIEWS_HUB_SUMMARY_EMPTY_COUNTS_HINT,
   REVIEWS_HUB_SUMMARY_EMPTY_HINT,
   REVIEWS_HUB_SUMMARY_FINDINGS_LABEL,
   REVIEWS_HUB_SUMMARY_IN_PROGRESS_LABEL,
@@ -72,49 +73,77 @@ function scrollToReadyForReviewSection(): void {
   });
 }
 
-/** Compact workspace posture row on `/architecture/reviews` — always shown, including zeros. */
+function renderMetricSeparator(index: number): React.JSX.Element | null {
+  if (index === 0) {
+    return null;
+  }
+
+  return (
+    <span aria-hidden className="hidden text-al-text-secondary sm:inline">
+      |
+    </span>
+  );
+}
+
+/** Compact workspace posture row on `/architecture/reviews` — emphasizes non-zero counts. */
 export function ReviewsHubSummaryRow(props: ReviewsHubSummaryRowProps): React.JSX.Element {
   const { summary } = props;
   const draftEntries = useArchitectureDraftRegistryEntries();
   const draftsReady = countArchitectureDraftsReadyForReview(draftEntries);
-  const reviewMetricsAllZero =
-    summary.inProgress === 0
-    && summary.committed === 0
-    && summary.findings === 0
-    && summary.openRisks === 0
-    && summary.readyForGovernance === 0;
+  const attentionMetricsAllZero =
+    summary.findings === 0 && summary.openRisks === 0 && summary.readyForGovernance === 0;
 
   const metrics: SummaryMetricProps[] = [
     { label: REVIEWS_HUB_SUMMARY_IN_PROGRESS_LABEL, value: summary.inProgress },
-    { label: REVIEWS_HUB_SUMMARY_COMMITTED_LABEL, value: summary.committed },
-    { label: REVIEWS_HUB_SUMMARY_FINDINGS_LABEL, value: summary.findings },
-    { label: REVIEWS_HUB_SUMMARY_OPEN_RISKS_LABEL, value: summary.openRisks },
-    { label: REVIEWS_HUB_SUMMARY_READY_FOR_GOVERNANCE_LABEL, value: summary.readyForGovernance },
-    {
-      label: REVIEWS_HUB_SUMMARY_DRAFTS_READY_LABEL,
-      value: draftsReady,
-      onClick: draftsReady > 0 ? scrollToReadyForReviewSection : undefined,
-      testId: "reviews-hub-summary-ready-for-review",
-    },
   ];
 
+  if (summary.committed > 0) {
+    metrics.push({ label: REVIEWS_HUB_SUMMARY_COMMITTED_LABEL, value: summary.committed });
+  }
+
+  if (summary.findings > 0) {
+    metrics.push({ label: REVIEWS_HUB_SUMMARY_FINDINGS_LABEL, value: summary.findings });
+  }
+
+  if (summary.openRisks > 0) {
+    metrics.push({ label: REVIEWS_HUB_SUMMARY_OPEN_RISKS_LABEL, value: summary.openRisks });
+  }
+
+  if (summary.readyForGovernance > 0) {
+    metrics.push({
+      label: REVIEWS_HUB_SUMMARY_READY_FOR_GOVERNANCE_LABEL,
+      value: summary.readyForGovernance,
+    });
+  }
+
+  metrics.push({
+    label: REVIEWS_HUB_SUMMARY_DRAFTS_READY_LABEL,
+    value: draftsReady,
+    onClick: draftsReady > 0 ? scrollToReadyForReviewSection : undefined,
+    testId: "reviews-hub-summary-ready-for-review",
+  });
+
+  const showAttentionHint = attentionMetricsAllZero && summary.inProgress > 0;
+  const showCountsHint = summary.inProgress === 0 && draftsReady === 0;
+
   return (
-    <section className="space-y-2" data-testid="reviews-hub-summary-row" aria-label="Workspace review summary">
+    <section className="space-y-1" data-testid="reviews-hub-summary-row" aria-label="Workspace review summary">
       <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
         {metrics.map((metric, index) => (
           <div key={metric.label} className="inline-flex items-center gap-3">
-            {index > 0 ? (
-              <span aria-hidden className="hidden text-al-text-secondary sm:inline">
-                |
-              </span>
-            ) : null}
+            {renderMetricSeparator(index)}
             <SummaryMetric {...metric} />
           </div>
         ))}
       </div>
-      {reviewMetricsAllZero ? (
+      {showAttentionHint ? (
         <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="reviews-hub-summary-empty-hint">
           {REVIEWS_HUB_SUMMARY_EMPTY_HINT}
+        </p>
+      ) : null}
+      {showCountsHint ? (
+        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} data-testid="reviews-hub-summary-empty-hint">
+          {REVIEWS_HUB_SUMMARY_EMPTY_COUNTS_HINT}
         </p>
       ) : null}
     </section>

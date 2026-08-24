@@ -133,6 +133,9 @@ export const OPERATOR_PAGE_CONTAINER = {
 /** Max shell width shared by operator top bar, sidebar row, and footer. */
 export const OPERATOR_SHELL_MAX_WIDTH_CLASS = "w-full max-w-[1600px]";
 
+/** Shared height for compact top-bar controls (scope switcher, help, account menu). */
+export const OPERATOR_SHELL_TOOLBAR_CONTROL_CLASS = "h-8";
+
 /**
  * Sidebar + main content row beneath the sticky header.
  * Left-aligned with the top bar brand rail — never `mx-auto` (wide viewports otherwise gain a dead left gutter).

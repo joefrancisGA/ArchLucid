@@ -69,7 +69,7 @@ export function ReviewsHubResumeDrafts(): React.JSX.Element | null {
         <h2 className={cn("m-0 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.sectionTitle)}>
           {REVIEWS_HUB_RESUME_DRAFTS_TITLE}
           <span className={cn("ml-2 font-normal text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-            — {previewEntries.length}
+            — {entries.length}
           </span>
         </h2>
       </div>
@@ -120,6 +120,7 @@ export function ReviewsHubResumeDrafts(): React.JSX.Element | null {
                   architectureId={entry.architectureId}
                   label={REVIEWS_HUB_RESUME_DRAFTS_CONTINUE_LABEL}
                   source="reviews-hub"
+                  variant={canStartReview ? "outline" : "primary"}
                   testId={`reviews-hub-resume-draft-continue-${entry.architectureId}`}
                   ariaLabel={`${REVIEWS_HUB_RESUME_DRAFTS_CONTINUE_LABEL}: ${entry.displayName}`}
                 />

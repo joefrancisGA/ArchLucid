@@ -2,7 +2,7 @@ import { architectureDraftPath } from "@/lib/architecture/architecture-routes";
 import type { ArchitectureDraftRegistryEntry } from "@/lib/architecture/architecture-draft-registry";
 
 import {
-  REVIEWS_HUB_PRIMARY_START_LABEL,
+  REVIEWS_HUB_HEADER_START_LABEL,
   REVIEWS_HUB_RECENT_EMPTY_WITH_DRAFT_PRIMARY_LABEL,
 } from "./reviews-hub-copy";
 
@@ -34,7 +34,7 @@ export function resolveReviewsHubHeaderPrimary(
 
   return {
     href: "/architecture/reviews/new",
-    label: REVIEWS_HUB_PRIMARY_START_LABEL,
+    label: REVIEWS_HUB_HEADER_START_LABEL,
     continuesSingleDraft: false,
   };
 }

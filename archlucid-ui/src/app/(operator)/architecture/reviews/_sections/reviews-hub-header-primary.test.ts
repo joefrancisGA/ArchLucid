@@ -6,6 +6,7 @@ import {
   resolveReviewsHubHeaderPrimary,
   shouldShowReviewsHubResumeDrafts,
 } from "./reviews-hub-header-primary";
+import { REVIEWS_HUB_HEADER_START_LABEL } from "./reviews-hub-copy";
 
 function draft(id: string, name: string): ArchitectureDraftRegistryEntry {
   return {
@@ -23,7 +24,7 @@ describe("resolveReviewsHubHeaderPrimary", () => {
   it("starts a new review when no drafts exist", () => {
     expect(resolveReviewsHubHeaderPrimary([])).toEqual({
       href: "/architecture/reviews/new",
-      label: "Start an architecture review",
+      label: REVIEWS_HUB_HEADER_START_LABEL,
       continuesSingleDraft: false,
     });
   });
@@ -45,7 +46,7 @@ describe("resolveReviewsHubHeaderPrimary", () => {
 
     expect(primary).toEqual({
       href: "/architecture/reviews/new",
-      label: "Start an architecture review",
+      label: REVIEWS_HUB_HEADER_START_LABEL,
       continuesSingleDraft: false,
     });
     expect(shouldShowReviewsHubResumeDrafts(2)).toBe(true);

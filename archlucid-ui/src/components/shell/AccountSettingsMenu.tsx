@@ -15,7 +15,7 @@ import {
 import { createPortal } from "react-dom";
 
 import { Button } from "@/components/ui/button";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_SHELL_TOOLBAR_CONTROL_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { SELF_SETTINGS_DESTINATIONS } from "@/lib/self-settings-destinations";
 import { OPERATOR_SHELL_GET_SUPPORT_MENU_ITEM } from "@/lib/operator/operator-shell-support-affordances";
 import { cn } from "@/lib/utils";
@@ -204,7 +204,7 @@ export function AccountSettingsMenu(): React.JSX.Element {
         type="button"
         variant="outline"
         size="sm"
-        className="inline-flex h-7 w-7 items-center justify-center p-0"
+        className={cn("inline-flex w-8 items-center justify-center p-0", OPERATOR_SHELL_TOOLBAR_CONTROL_CLASS)}
         data-testid="account-settings-menu-trigger"
         aria-label={ACCOUNT_SETTINGS_MENU_ARIA_LABEL}
         aria-expanded={open}

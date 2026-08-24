@@ -16,6 +16,7 @@ import {
   BUYER_RUNS_LIST_MALFORMED_HEADING,
 } from "@/lib/buyer/buyer-polish-copy";
 import {
+  REVIEWS_HUB_HEADER_START_LABEL,
   REVIEWS_HUB_LIST_LOAD_FAILURE_TRY_NEXT,
   REVIEWS_HUB_LIST_NOT_FOUND_TRY_NEXT,
   REVIEWS_HUB_PAGE_SUBTITLE,
@@ -169,7 +170,7 @@ describe("RunsPageView page chrome", () => {
 
     expect(screen.getByTestId("runs-page-header-actions")).toBeInTheDocument();
     expect(screen.getByTestId("runs-page-start-review")).toHaveAttribute("href", "/architecture/reviews/new");
-    expect(screen.getByTestId("runs-page-start-review")).toHaveTextContent(REVIEWS_HUB_PRIMARY_START_LABEL);
+    expect(screen.getByTestId("runs-page-start-review")).toHaveTextContent(REVIEWS_HUB_HEADER_START_LABEL);
     expect(screen.getByTestId("reviews-hub-summary-row")).toBeInTheDocument();
     expect(screen.getByTestId("reviews-hub-summary-empty-hint")).toBeInTheDocument();
     expect(screen.queryByTestId("reviews-hub-more-ways")).toBeNull();
@@ -177,7 +178,10 @@ describe("RunsPageView page chrome", () => {
     expect(screen.queryByTestId("reviews-hub-package-includes")).toBeNull();
     expect(screen.getByTestId("reviews-hub-recent-empty")).toBeInTheDocument();
     expect(screen.getByText(REVIEWS_HUB_RECENT_EMPTY_TITLE)).toBeInTheDocument();
-    expect(screen.getAllByRole("link", { name: REVIEWS_HUB_PRIMARY_START_LABEL }).length).toBeGreaterThanOrEqual(2);
+    expect(screen.getByRole("link", { name: REVIEWS_HUB_PRIMARY_START_LABEL })).toHaveAttribute(
+      "href",
+      "/architecture/reviews/new",
+    );
     expect(screen.queryByRole("link", { name: "Create architecture" })).toBeNull();
     expect(screen.queryByTestId("runs-list-advanced")).toBeNull();
     expect(screen.queryByTestId("reviews-hub-resume-drafts")).toBeNull();

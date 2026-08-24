@@ -4,7 +4,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { OperatorShellTopBar } from "@/components/shell/OperatorShellTopBar";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { operatorNavOutsideProviderPrincipal } from "@/lib/current-principal";
-import { OPERATOR_SHELL_SIDEBAR_WIDTH_LG_CLASS } from "@/lib/design-tokens";
+import { OPERATOR_SHELL_SIDEBAR_WIDTH_LG_CLASS, OPERATOR_SHELL_TOOLBAR_CONTROL_CLASS } from "@/lib/design-tokens";
 import { GLOBAL_SEARCH_ARIA_LABEL } from "@/lib/keyboard-shortcut-display";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 import { resetOperatorQueryClientForTests } from "@/lib/query/operator-query-client";
@@ -186,6 +186,22 @@ describe("OperatorShellTopBar", () => {
     });
 
     expect(screen.queryByTestId("llm-budget-status-pill")).not.toBeInTheDocument();
+  });
+
+  it("aligns scope switcher, help, and account controls to a shared toolbar height", async () => {
+    renderWithOperatorQuery(
+      <TooltipProvider>
+        <OperatorShellTopBar onOpenHelpSearch={vi.fn()} />
+      </TooltipProvider>,
+    );
+
+    const scopeTrigger = await screen.findByTestId("operator-scope-switcher-trigger");
+    const helpTrigger = screen.getByTestId("operator-shell-help-trigger");
+    const accountTrigger = screen.getByTestId("account-settings-menu-trigger");
+
+    expect(scopeTrigger.className).toContain(OPERATOR_SHELL_TOOLBAR_CONTROL_CLASS);
+    expect(helpTrigger.className).toContain(OPERATOR_SHELL_TOOLBAR_CONTROL_CLASS);
+    expect(accountTrigger.className).toContain(OPERATOR_SHELL_TOOLBAR_CONTROL_CLASS);
   });
 
   it("renders workspace chrome before Help and AI usage on the toolbar", async () => {

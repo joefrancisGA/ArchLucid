@@ -33,9 +33,15 @@ export const REVIEWS_HUB_SUMMARY_READY_FOR_GOVERNANCE_LABEL = "Awaiting approval
 export const REVIEWS_HUB_SUMMARY_DRAFTS_READY_LABEL = "Ready for review";
 
 export const REVIEWS_HUB_SUMMARY_EMPTY_HINT =
+  "No findings or risks requiring attention.";
+
+export const REVIEWS_HUB_SUMMARY_EMPTY_COUNTS_HINT =
   "Counts update as you start and finalize reviews. Ready for review counts architectures that can start a review.";
 
 export const REVIEWS_HUB_PRIMARY_START_LABEL = BUYER_START_ARCHITECTURE_REVIEW_CTA;
+
+/** Shorter header CTA when page context makes the action obvious. */
+export const REVIEWS_HUB_HEADER_START_LABEL = "Start review";
 
 export const REVIEWS_HUB_RESUME_DRAFTS_TITLE = "Architectures ready for review";
 
@@ -110,7 +116,7 @@ export const REVIEWS_HUB_SHOW_ARCHIVED_REVIEWS_LABEL = "Show archived reviews";
 
 export const REVIEWS_HUB_ADVANCED_LIST_DISCLOSURE = "Search and filter all reviews";
 
-export const REVIEWS_HUB_FILTER_SEARCH_PLACEHOLDER = "Search reviews, systems, owners, or references";
+export const REVIEWS_HUB_FILTER_SEARCH_PLACEHOLDER = "Search reviews…";
 
 export const REVIEWS_HUB_FILTER_STATUS_LABEL = "Status";
 

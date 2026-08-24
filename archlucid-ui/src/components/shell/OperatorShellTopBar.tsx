@@ -26,6 +26,7 @@ import {
   OPERATOR_SHELL_CONTENT_PADDING_X_CLASS,
   OPERATOR_SHELL_MAX_WIDTH_CLASS,
   OPERATOR_SHELL_SIDEBAR_WIDTH_LG_CLASS,
+  OPERATOR_SHELL_TOOLBAR_CONTROL_CLASS,
 } from "@/lib/design-tokens";
 import { isUiAuthorityThemeEvalEnabledEnv } from "@/lib/ui-authority-theme";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
@@ -77,26 +78,26 @@ export function OperatorShellTopBar(props: OperatorShellTopBarProps): React.JSX.
 
         <div
           className={cn(
-            "flex min-w-0 flex-1 flex-nowrap items-center gap-x-3 py-2",
+            "flex min-w-0 flex-1 flex-nowrap items-center gap-x-4 py-2.5",
             OPERATOR_SHELL_CONTENT_PADDING_X_CLASS,
           )}
         >
-          <div className="min-w-0 flex-1 sm:max-w-sm lg:max-w-md xl:max-w-lg">
+          <div className="min-w-0 flex-1 sm:max-w-sm lg:max-w-md xl:max-w-xl">
             <GlobalSearchBarDeferred />
           </div>
 
           <div
             data-testid="app-shell-topbar-session"
-            className="ml-auto flex min-w-0 shrink-0 flex-nowrap items-center justify-end gap-2"
+            className="ml-auto flex min-w-0 shrink-0 flex-nowrap items-center justify-end gap-3"
           >
             <div
               data-testid="app-shell-topbar-context"
-              className="flex min-w-0 flex-nowrap items-center gap-2"
+              className="flex min-w-0 flex-nowrap items-center"
             >
               <ScopeSwitcherDeferred density="compact" />
             </div>
             <AuthPanel />
-            <div className="flex shrink-0 items-center gap-2 border-l border-neutral-200 pl-2 dark:border-neutral-700">
+            <div className="flex shrink-0 items-center gap-2.5 border-l border-neutral-200 pl-3 dark:border-neutral-700">
               <ShellInFlightOperationsAffordanceDeferred />
               <ToolbarHelpTooltip
                 aria-label={OPERATOR_HELP_ARIA_LABEL}
@@ -107,7 +108,7 @@ export function OperatorShellTopBar(props: OperatorShellTopBarProps): React.JSX.
                   type="button"
                   variant="outline"
                   size="sm"
-                  className="inline-flex h-8 items-center gap-1.5 px-2"
+                  className={cn("inline-flex items-center gap-1.5 px-2.5", OPERATOR_SHELL_TOOLBAR_CONTROL_CLASS)}
                   data-testid="operator-shell-help-trigger"
                   data-help-tooltip-trigger=""
                   data-help-tooltip-icon="help"

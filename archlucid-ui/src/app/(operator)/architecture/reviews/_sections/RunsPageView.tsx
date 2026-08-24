@@ -61,7 +61,7 @@ export function RunsPageView(props: Props) {
     isOperatorExperienceFullShellEnv() && hubLoadOk && hasReviews && m.totalCount > m.pageSize;
 
   return (
-    <OperatorPageContainer variant="dashboard">
+    <OperatorPageContainer variant="full">
       <OperatorWelcomeOnboardingDeferred serverEligible={m.welcomeOnboardingEligible} />
       <OperatorPageHeader
         navHref={REVIEWS_LIST_PATH}
@@ -82,12 +82,12 @@ export function RunsPageView(props: Props) {
         }
         actions={<ReviewsHubHeaderActions />}
       />
-      <ArchitectureObjectMapStrip focus="review" />
-      {hasReviews ? <OperatorAttentionKindStrip variant="compact" /> : null}
       {hubLoadOk ? (
         <>
           <ReviewsHubReviewInventoryDeferred runs={m.runs} summary={workspaceSummary} />
           <ReviewsHubResumeDrafts />
+          {hasReviews ? <OperatorAttentionKindStrip variant="compact" /> : null}
+          <ArchitectureObjectMapStrip focus="review" />
           {hasReviews ? (
             <CollapsibleSection
               title={REVIEWS_HUB_MORE_WAYS_TITLE}

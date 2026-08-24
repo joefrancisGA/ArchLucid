@@ -1,6 +1,6 @@
 "use client";
 import { cn } from "@/lib/utils";
-import { OPERATOR_TYPOGRAPHY, OPERATOR_NAV_GROUP_LABEL } from "@/lib/design-tokens";
+import { OPERATOR_SHELL_TOOLBAR_CONTROL_CLASS, OPERATOR_TYPOGRAPHY, OPERATOR_NAV_GROUP_LABEL } from "@/lib/design-tokens";
 
 import { ChevronsUpDown } from "lucide-react";
 import Link from "next/link";
@@ -589,7 +589,8 @@ export function ScopeSwitcher(props: ScopeSwitcherProps) {
             type="button"
             variant="outline"
             className={cn(
-              "inline-flex h-auto min-w-0 shrink cursor-pointer items-center gap-2 p-0 font-normal hover:bg-transparent",
+              "inline-flex min-w-0 shrink cursor-pointer items-center gap-2 p-0 font-normal hover:bg-transparent",
+              OPERATOR_SHELL_TOOLBAR_CONTROL_CLASS,
               polishedMaxWidthClass,
             )}
             aria-expanded={open}
@@ -604,7 +605,7 @@ export function ScopeSwitcher(props: ScopeSwitcherProps) {
           >
             <span
               className={cn(
-                "inline-flex min-w-0 max-w-full items-center gap-1 rounded-md border border-neutral-200 bg-white px-2.5 py-1.5 font-medium text-neutral-800 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200",
+                "inline-flex h-full min-w-0 max-w-full items-center gap-1 rounded-md border border-neutral-200 bg-white px-2.5 font-medium text-neutral-800 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200",
                 density === "compact" ? OPERATOR_TYPOGRAPHY.body : OPERATOR_TYPOGRAPHY.helper,
                 polishedTriggerMaxWidthClass,
               )}
@@ -627,7 +628,11 @@ export function ScopeSwitcher(props: ScopeSwitcherProps) {
           type="button"
           variant="outline"
           size="sm"
-          className={cn("min-w-0 max-w-full shrink gap-1 overflow-hidden", scopeTriggerMaxWidthClass)}
+          className={cn(
+            "min-w-0 max-w-full shrink gap-1 overflow-hidden",
+            OPERATOR_SHELL_TOOLBAR_CONTROL_CLASS,
+            scopeTriggerMaxWidthClass,
+          )}
           aria-expanded={open}
           aria-haspopup="dialog"
           id="operator-scope-switcher"
