@@ -163,7 +163,7 @@ export const OPERATOR_HOME_CONTACT_WORKSPACE_OWNER_HINT = "Contact the workspace
 export const OPERATOR_HOME_COMPACT_STARTING_ACTIONS_HEADING = "Start something";
 
 /** Buyer-polished Home subtitle — action-oriented, not lifecycle documentation. */
-export const BUYER_OPERATOR_HOME_PAGE_SUBTITLE = "Your architecture governance workspace";
+export const BUYER_OPERATOR_HOME_PAGE_SUBTITLE = "Your architecture workspace";
 
 export const OPERATOR_HOME_RECOMMENDED_NEXT_HEADING = "Recommended next";
 
