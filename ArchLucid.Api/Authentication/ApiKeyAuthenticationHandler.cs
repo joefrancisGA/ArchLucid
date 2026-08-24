@@ -77,7 +77,7 @@ public class ApiKeyAuthenticationHandler(
         if (!Request.Headers.TryGetValue("X-Api-Key", out StringValues providedKey))
             return Task.FromResult(AuthenticateResult.Fail("API key header 'X-Api-Key' is missing."));
 
-        string key = providedKey.ToString().Trim();
+        string key = ExtractProvidedApiKey(providedKey);
 
         if (key.Length == 0)
             return Task.FromResult(AuthenticateResult.Fail("API key header 'X-Api-Key' is missing."));
@@ -138,6 +138,23 @@ public class ApiKeyAuthenticationHandler(
         AuthenticationTicket successTicket = new(successPrincipal, Scheme.Name);
 
         return AuthenticateResult.Success(successTicket);
+    }
+
+    /// <summary>
+    ///     Uses the first non-empty <c>X-Api-Key</c> header value. ASP.NET merges duplicate headers into
+    ///     <see cref="StringValues" />; joining with commas would break rotation-safe comma-separated config keys.
+    /// </summary>
+    private static string ExtractProvidedApiKey(StringValues providedKey)
+    {
+        foreach (string? value in providedKey)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+                continue;
+
+            return value.Trim();
+        }
+
+        return string.Empty;
     }
 
     /// <summary>
