@@ -6,13 +6,17 @@ import {
   PATH_CHOOSER_CREATE_OBJECT_COMPACT_LINE,
   PATH_CHOOSER_CREATE_OBJECT_DRAFTS_LINK,
   PATH_CHOOSER_CREATE_OBJECT_HEADING,
+  PATH_CHOOSER_CREATE_OBJECT_PATH_CHOOSER_COMPACT_ANCHOR,
   PATH_CHOOSER_CREATE_OBJECT_PATH_CHOOSER_LINK,
+  PATH_CHOOSER_CREATE_OBJECT_PATH_CHOOSER_TOOLTIP,
+  PATH_CHOOSER_CREATE_OBJECT_REVIEWS_NEW_COMPACT_ANCHOR,
   PATH_CHOOSER_CREATE_OBJECT_REVIEWS_NEW_LINK,
   PATH_CHOOSER_CREATE_OBJECT_WHY_THREE,
+  buildPathChooserCreateObjectVocabularyRailLinks,
 } from "@/lib/vocabulary/path-chooser-create-object-vocabulary";
 
 describe("PathChooserCreateObjectVocabularyRail (TB-2260)", () => {
-  it("renders compact strip on path-chooser with peer links to drafts and Start a review", () => {
+  it("renders compact strip on path-chooser with inline peer links to drafts and Start a review", () => {
     render(
       <PathChooserCreateObjectVocabularyRail currentSurfaceId="path-chooser" />,
     );
@@ -21,21 +25,37 @@ describe("PathChooserCreateObjectVocabularyRail (TB-2260)", () => {
     expect(strip).toHaveAttribute("data-variant", "compact");
     expect(strip).toHaveAttribute("data-current-surface", "path-chooser");
     expect(strip.textContent ?? "").toContain(PATH_CHOOSER_CREATE_OBJECT_COMPACT_LINE);
+    expect(strip.textContent ?? "").not.toContain("·");
 
     const draftsPeer = screen.getByTestId(
       "path-chooser-create-object-vocabulary-peer-architecture-drafts",
     );
-    expect(draftsPeer).toHaveTextContent(PATH_CHOOSER_CREATE_OBJECT_DRAFTS_LINK.label);
+    expect(draftsPeer).toHaveTextContent("drafts");
     expect(draftsPeer).toHaveAttribute("href", PATH_CHOOSER_CREATE_OBJECT_DRAFTS_LINK.href);
 
     const reviewsPeer = screen.getByTestId(
       "path-chooser-create-object-vocabulary-peer-reviews-new",
     );
-    expect(reviewsPeer).toHaveTextContent(PATH_CHOOSER_CREATE_OBJECT_REVIEWS_NEW_LINK.label);
+    expect(reviewsPeer).toHaveTextContent(PATH_CHOOSER_CREATE_OBJECT_REVIEWS_NEW_COMPACT_ANCHOR);
     expect(reviewsPeer).toHaveAttribute("href", PATH_CHOOSER_CREATE_OBJECT_REVIEWS_NEW_LINK.href);
   });
 
-  it("renders compact strip on drafts with peer links to path-chooser and Start a review", () => {
+  it("inlines Path chooser with a help tooltip on Start review", () => {
+    render(<PathChooserCreateObjectVocabularyRail currentSurfaceId="reviews-new" />);
+
+    const pathChooserPeer = screen.getByTestId(
+      "path-chooser-create-object-vocabulary-peer-path-chooser",
+    );
+    expect(pathChooserPeer).toHaveTextContent(PATH_CHOOSER_CREATE_OBJECT_PATH_CHOOSER_COMPACT_ANCHOR);
+    expect(pathChooserPeer).toHaveAttribute("href", PATH_CHOOSER_CREATE_OBJECT_PATH_CHOOSER_LINK.href);
+    expect(pathChooserPeer.className).toContain("border-dotted");
+
+    const railLinks = buildPathChooserCreateObjectVocabularyRailLinks("reviews-new");
+    const pathChooserLink = railLinks.find((link) => link.testIdSuffix === "peer-path-chooser");
+    expect(pathChooserLink?.tooltip).toBe(PATH_CHOOSER_CREATE_OBJECT_PATH_CHOOSER_TOOLTIP);
+  });
+
+  it("renders compact strip on drafts with inline peer links to path-chooser and Start a review", () => {
     render(
       <PathChooserCreateObjectVocabularyRail currentSurfaceId="architecture-drafts" />,
     );
@@ -48,7 +68,7 @@ describe("PathChooserCreateObjectVocabularyRail (TB-2260)", () => {
     const pathPeer = screen.getByTestId(
       "path-chooser-create-object-vocabulary-peer-path-chooser",
     );
-    expect(pathPeer).toHaveTextContent(PATH_CHOOSER_CREATE_OBJECT_PATH_CHOOSER_LINK.label);
+    expect(pathPeer).toHaveTextContent(PATH_CHOOSER_CREATE_OBJECT_PATH_CHOOSER_COMPACT_ANCHOR);
     expect(pathPeer).toHaveAttribute("href", PATH_CHOOSER_CREATE_OBJECT_PATH_CHOOSER_LINK.href);
   });
 

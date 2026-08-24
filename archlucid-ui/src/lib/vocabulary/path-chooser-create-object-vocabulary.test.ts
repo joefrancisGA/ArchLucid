@@ -8,6 +8,7 @@ import {
   PATH_CHOOSER_CREATE_OBJECT_REVIEWS_NEW_LINK,
   PATH_CHOOSER_CREATE_OBJECT_WHY_THREE,
   buildPathChooserCreateObjectVocabulary,
+  buildPathChooserCreateObjectVocabularyRailLinks,
   resolvePathChooserCreateObjectLink,
   resolvePathChooserCreateObjectPeerLinks,
 } from "@/lib/vocabulary/path-chooser-create-object-vocabulary";
@@ -64,5 +65,17 @@ describe("path-chooser-create-object-vocabulary (TB-2260)", () => {
       PATH_CHOOSER_CREATE_OBJECT_PATH_CHOOSER_LINK,
       PATH_CHOOSER_CREATE_OBJECT_DRAFTS_LINK,
     ]);
+  });
+
+  it("builds compact rail links with inline anchors and a path-chooser tooltip", () => {
+    const links = buildPathChooserCreateObjectVocabularyRailLinks("reviews-new");
+
+    expect(links).toHaveLength(2);
+    expect(links[0]?.testIdSuffix).toBe("peer-path-chooser");
+    expect(links[0]?.compactLineAnchor).toBe("Path chooser");
+    expect(links[0]?.tooltip).toContain("product area");
+    expect(links[1]?.testIdSuffix).toBe("peer-architecture-drafts");
+    expect(links[1]?.compactLineAnchor).toBe("drafts");
+    expect(links[1]?.tooltip).toBeUndefined();
   });
 });

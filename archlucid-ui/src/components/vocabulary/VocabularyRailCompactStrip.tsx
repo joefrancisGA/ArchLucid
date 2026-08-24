@@ -2,8 +2,6 @@
 
 import { Fragment, type JSX } from "react";
 
-import Link from "next/link";
-
 import { OPERATOR_LINK } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 import {
@@ -12,6 +10,7 @@ import {
 } from "@/lib/vocabulary/split-vocabulary-compact-line";
 
 import { VocabularyRailNoteText } from "@/components/vocabulary/VocabularyRailNoteText";
+import { VocabularyRailCompactLink } from "@/components/vocabulary/VocabularyRailCompactLink";
 import type {
   VocabularyRailCompactLinkPlacement,
   VocabularyRailLink,
@@ -55,6 +54,26 @@ function renderCompactNotes(
   );
 }
 
+function renderVocabularyRailLink(
+  testIdPrefix: string,
+  link: VocabularyRailLink,
+  className: string,
+  children: React.ReactNode,
+): JSX.Element {
+  return (
+    <VocabularyRailCompactLink
+      href={link.href}
+      className={className}
+      testId={`${testIdPrefix}-${link.testIdSuffix}`}
+      onClick={link.onClick}
+      tooltip={link.tooltip}
+      tooltipTitle={link.tooltipTitle}
+    >
+      {children}
+    </VocabularyRailCompactLink>
+  );
+}
+
 function renderTrailingPeerLinks(
   testIdPrefix: string,
   links: readonly VocabularyRailLink[],
@@ -69,14 +88,7 @@ function renderTrailingPeerLinks(
       {links.map((link, index) => (
         <Fragment key={link.testIdSuffix}>
           {index > 0 ? " · " : null}
-          <Link
-            href={link.href}
-            className={cn(OPERATOR_LINK.nav, "font-medium")}
-            data-testid={`${testIdPrefix}-${link.testIdSuffix}`}
-            onClick={link.onClick}
-          >
-            {link.label}
-          </Link>
+          {renderVocabularyRailLink(testIdPrefix, link, cn(OPERATOR_LINK.nav, "font-medium"), link.label)}
         </Fragment>
       ))}
     </>
@@ -108,15 +120,9 @@ function buildInlineCompactLine(
         }
 
         return (
-          <Link
-            key={link.testIdSuffix}
-            href={link.href}
-            className={OPERATOR_LINK.inline}
-            data-testid={`${testIdPrefix}-${link.testIdSuffix}`}
-            onClick={link.onClick}
-          >
-            {segment.text}
-          </Link>
+          <Fragment key={link.testIdSuffix}>
+            {renderVocabularyRailLink(testIdPrefix, link, OPERATOR_LINK.inline, segment.text)}
+          </Fragment>
         );
       }
       default: {

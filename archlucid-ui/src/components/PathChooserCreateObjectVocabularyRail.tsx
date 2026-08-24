@@ -4,10 +4,11 @@ import type { JSX } from "react";
 
 import Link from "next/link";
 
+import { VocabularyRail } from "@/components/vocabulary/VocabularyRail";
 import {
   buildPathChooserCreateObjectVocabulary,
+  buildPathChooserCreateObjectVocabularyRailLinks,
   resolvePathChooserCreateObjectLink,
-  resolvePathChooserCreateObjectPeerLinks,
   type PathChooserCreateObjectSurfaceId,
   type PathChooserCreateObjectVocabularyModel,
 } from "@/lib/vocabulary/path-chooser-create-object-vocabulary";
@@ -33,35 +34,21 @@ export function PathChooserCreateObjectVocabularyRail(
 ): JSX.Element {
   const variant = props.variant ?? "compact";
   const model = props.model ?? buildPathChooserCreateObjectVocabulary();
-  const peers = resolvePathChooserCreateObjectPeerLinks(props.currentSurfaceId);
   const currentLink = resolvePathChooserCreateObjectLink(props.currentSurfaceId);
 
   if (variant === "compact") {
     return (
-      <p
-        className={cn(
-          "m-0 mb-3 leading-relaxed text-al-text-secondary",
-          OPERATOR_TYPOGRAPHY.helper,
-          props.className,
-        )}
-        data-testid="path-chooser-create-object-vocabulary"
-        data-variant="compact"
-        data-current-surface={props.currentSurfaceId}
-      >
-        <span>{model.compactLine}</span>{" "}
-        {peers.map((peer, index) => (
-          <span key={peer.id}>
-            {index > 0 ? " · " : null}
-            <Link
-              href={peer.href}
-              className={cn(OPERATOR_LINK.inline, "font-medium")}
-              data-testid={`path-chooser-create-object-vocabulary-peer-${peer.id}`}
-            >
-              {peer.label}
-            </Link>
-          </span>
-        ))}
-      </p>
+      <VocabularyRail
+        testIdPrefix="path-chooser-create-object-vocabulary"
+        currentSurfaceId={props.currentSurfaceId}
+        variant="compact"
+        className={props.className}
+        compactLine={model.compactLine}
+        compactLinkPlacement="inline"
+        heading={model.heading}
+        whyTwo={model.whyThree}
+        links={buildPathChooserCreateObjectVocabularyRailLinks(props.currentSurfaceId)}
+      />
     );
   }
 
