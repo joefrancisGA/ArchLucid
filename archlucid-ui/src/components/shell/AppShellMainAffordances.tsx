@@ -12,6 +12,7 @@ import { FirstVisitHelpAutoOpen } from "@/components/usability/FirstVisitHelpAut
 import { PersistentWorkspaceNextActionStrip } from "@/components/usability/PersistentWorkspaceNextActionStrip";
 import { PageContextualHelpFab } from "@/components/usability/PageContextualHelpFab";
 import { RecentReviewsResumeStrip } from "@/components/usability/RecentReviewsResumeStrip";
+import { CorePilotCompleteCelebrateStrip } from "@/components/usability/CorePilotCompleteCelebrateStrip";
 import { ReviewsListReturnStateTracker } from "@/components/usability/ReviewsListReturnStateTracker";
 import { isExplicitStaticDemoMarketingBuild } from "@/lib/buyer/buyer-demo-content-gating";
 
@@ -26,6 +27,7 @@ export function AppShellMainAffordances() {
       <BuyerGoldenJourneyLayerContextStrip />
       <PersistentWorkspaceNextActionStrip />
       {isOperatorHome ? <RecentReviewsResumeStrip /> : null}
+      {isOperatorHome ? <CorePilotCompleteCelebrateStrip /> : null}
       <OperatorRecentViewsTracker />
       <ReviewsListReturnStateTracker />
       <FirstVisitHelpAutoOpen />
