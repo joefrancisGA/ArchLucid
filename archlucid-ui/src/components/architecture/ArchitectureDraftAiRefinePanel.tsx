@@ -7,6 +7,7 @@ import { AiBudgetSpendNotice } from "@/components/ai-budget/AiBudgetSpendNotice"
 import { ArchitectureIntelligenceAnalysisDepthSelect } from "@/components/architecture-intelligence/ArchitectureIntelligenceAnalysisDepthSelect";
 import { ArchitectureIntelligenceFramingInterviewPanel } from "@/components/architecture-intelligence/ArchitectureIntelligenceFramingInterviewPanel";
 import { ArchitectureIntelligenceRefineResultSummary } from "@/components/architecture-intelligence/ArchitectureIntelligenceRefineResultSummary";
+import { ConfirmationDialog } from "@/components/ConfirmationDialog";
 import { Button } from "@/components/ui/button";
 import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import { useLlmMonthlyBudgetExecutionGate } from "@/hooks/use-llm-monthly-budget-execution-gate";
@@ -21,9 +22,14 @@ import {
   type ClosedLoopReasoningResult,
 } from "@/lib/architecture/architecture-intelligence-api";
 import {
+  ARCHITECTURE_FRAMING_SKIPPED_WARNING_DESCRIPTION,
+  ARCHITECTURE_FRAMING_SKIPPED_WARNING_GO_BACK_LABEL,
+  ARCHITECTURE_FRAMING_SKIPPED_WARNING_PROCEED_LABEL,
+  ARCHITECTURE_FRAMING_SKIPPED_WARNING_TITLE,
   buildFramingAnswersPayload,
   collectOpenFramingInterviewQuestions,
-  framingInterviewAnswersComplete,
+  framingInterviewReadyToSubmit,
+  hasSkippedFramingQuestions,
   isFramingIncompletePublishBlock,
   mergeFramingAnswerDefaults,
 } from "@/lib/architecture/architecture-intelligence-framing-interview";
@@ -55,6 +61,10 @@ export function ArchitectureDraftAiRefinePanel(props: ArchitectureDraftAiRefineP
   const [result, setResult] = useState<ClosedLoopReasoningResult | null>(null);
   const [activeRunId, setActiveRunId] = useState<string | null>(null);
   const [framingAnswers, setFramingAnswers] = useState<Record<string, string>>({});
+  const [skippedFramingQuestionIds, setSkippedFramingQuestionIds] = useState<ReadonlySet<string>>(
+    () => new Set(),
+  );
+  const [skippedFramingWarningOpen, setSkippedFramingWarningOpen] = useState(false);
 
   const hydratedSources = useMemo(
     () => buildArchitectureIntelligenceSourcesFromDraftFields(fields),
@@ -87,11 +97,13 @@ export function ArchitectureDraftAiRefinePanel(props: ArchitectureDraftAiRefineP
     }
 
     setFramingAnswers((current) => mergeFramingAnswerDefaults(openFramingQuestions, current));
+    setSkippedFramingQuestionIds(new Set());
   }, [openFramingQuestions, showFramingInterview]);
 
-  const canResubmitFramingAnswers = framingInterviewAnswersComplete(
+  const canResubmitFramingAnswers = framingInterviewReadyToSubmit(
     openFramingQuestions,
     framingAnswers,
+    skippedFramingQuestionIds,
   );
 
   const buildRunRequest = useCallback(
@@ -159,7 +171,11 @@ export function ArchitectureDraftAiRefinePanel(props: ArchitectureDraftAiRefineP
     setError(null);
 
     try {
-      const payload = buildFramingAnswersPayload(openFramingQuestions, framingAnswers);
+      const payload = buildFramingAnswersPayload(
+        openFramingQuestions,
+        framingAnswers,
+        skippedFramingQuestionIds,
+      );
       const next = await continueArchitectureIntelligenceReasoning(
         runId,
         buildRunRequest({
@@ -169,6 +185,7 @@ export function ArchitectureDraftAiRefinePanel(props: ArchitectureDraftAiRefineP
       );
 
       applyReasoningResult(next);
+      setSkippedFramingWarningOpen(false);
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : String(cause));
     } finally {
@@ -183,7 +200,22 @@ export function ArchitectureDraftAiRefinePanel(props: ArchitectureDraftAiRefineP
     linkedReviewId,
     openFramingQuestions,
     result?.runId,
+    skippedFramingQuestionIds,
   ]);
+
+  const requestFramingResubmit = useCallback(() => {
+    if (!canResubmitFramingAnswers) {
+      return;
+    }
+
+    if (hasSkippedFramingQuestions(skippedFramingQuestionIds)) {
+      setSkippedFramingWarningOpen(true);
+
+      return;
+    }
+
+    void resubmitFramingAnswers();
+  }, [canResubmitFramingAnswers, resubmitFramingAnswers, skippedFramingQuestionIds]);
 
   return (
     <section
@@ -284,8 +316,13 @@ export function ArchitectureDraftAiRefinePanel(props: ArchitectureDraftAiRefineP
             <ArchitectureIntelligenceFramingInterviewPanel
               questions={openFramingQuestions}
               answers={framingAnswers}
+              skippedQuestionIds={skippedFramingQuestionIds}
               busy={busy}
               canResubmit={canResubmitFramingAnswers && !disabled && !blocksLlmExecution}
+              overviewSourceText={architectureDescription}
+              businessOutcome={fields.businessOutcome}
+              structuredBrief={fields.structuredBrief}
+              disabled={disabled}
               testIdPrefix="architecture-draft-ai-refine-framing"
               onAnswerChange={(questionId, value) => {
                 setFramingAnswers((current) => ({
@@ -293,9 +330,8 @@ export function ArchitectureDraftAiRefinePanel(props: ArchitectureDraftAiRefineP
                   [questionId]: value,
                 }));
               }}
-              onResubmit={() => {
-                void resubmitFramingAnswers();
-              }}
+              onSkippedQuestionIdsChange={setSkippedFramingQuestionIds}
+              onResubmit={requestFramingResubmit}
             />
           ) : null}
           {!canPublish && !result.budgetRejected ? (
@@ -313,6 +349,20 @@ export function ArchitectureDraftAiRefinePanel(props: ArchitectureDraftAiRefineP
           ) : null}
         </>
       ) : null}
+
+      <ConfirmationDialog
+        open={skippedFramingWarningOpen}
+        onOpenChange={setSkippedFramingWarningOpen}
+        title={ARCHITECTURE_FRAMING_SKIPPED_WARNING_TITLE}
+        description={ARCHITECTURE_FRAMING_SKIPPED_WARNING_DESCRIPTION}
+        confirmLabel={ARCHITECTURE_FRAMING_SKIPPED_WARNING_PROCEED_LABEL}
+        cancelLabel={ARCHITECTURE_FRAMING_SKIPPED_WARNING_GO_BACK_LABEL}
+        variant="default"
+        busy={busy}
+        onConfirm={() => {
+          void resubmitFramingAnswers();
+        }}
+      />
     </section>
   );
 }

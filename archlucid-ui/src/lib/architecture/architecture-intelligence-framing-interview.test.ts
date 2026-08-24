@@ -7,6 +7,8 @@ import {
   buildFramingAnswersPayload,
   collectOpenFramingInterviewQuestions,
   framingInterviewAnswersComplete,
+  framingInterviewReadyToSubmit,
+  hasSkippedFramingQuestions,
   isFramingIncompletePublishBlock,
   mergeFramingAnswerDefaults,
   resolvePublishBlockedAlertMessage,
@@ -99,6 +101,49 @@ describe("architecture-intelligence-framing-interview", () => {
         "system-boundary": "API + DB in scope",
       }),
     ).toBe(true);
+  });
+
+  it("allows resubmit when unanswered questions are explicitly skipped", () => {
+    const questions = [
+      {
+        questionId: "business-outcome",
+        prompt: "Outcome?",
+      },
+      {
+        questionId: "system-boundary",
+        prompt: "Boundary?",
+      },
+    ];
+    const skipped = new Set(["system-boundary"]);
+
+    expect(
+      framingInterviewReadyToSubmit(
+        questions,
+        {
+          "business-outcome": "Faster claims",
+        },
+        skipped,
+      ),
+    ).toBe(true);
+    expect(hasSkippedFramingQuestions(skipped)).toBe(true);
+  });
+
+  it("omits skipped questions from the framing answer payload", () => {
+    expect(
+      buildFramingAnswersPayload(
+        [
+          { questionId: "business-outcome", prompt: "Outcome?" },
+          { questionId: "system-boundary", prompt: "Boundary?" },
+        ],
+        {
+          "business-outcome": "Faster claims",
+          "system-boundary": "Should not send",
+        },
+        new Set(["system-boundary"]),
+      ),
+    ).toEqual({
+      "business-outcome": "Faster claims",
+    });
   });
 
   it("builds a trimmed framing answer payload", () => {
