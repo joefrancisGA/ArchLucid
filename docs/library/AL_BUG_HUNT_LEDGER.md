@@ -1975,13 +1975,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** operator lib; operator scope; operator API client
 - **paths:** archlucid-ui/src/lib/operator/
 - **test-filter:** lib/operator
-- **hunts:** 3
-- **bugs-found:** 3
+- **hunts:** 4
+- **bugs-found:** 7
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-23
-- **last-bug:** 2026-08-23
+- **last-hunt:** 2026-08-24
+- **last-bug:** 2026-08-24
 - **related-pd-tb:** none
-- **code-changed-since:** unknown
+- **code-changed-since:** yes
 
 ### Hypotheses
 
@@ -1990,3 +1990,6 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Session stable shell cache survives tenant switch-back — `writeOperatorShellStableCache` kept prior-tenant snapshots in sessionStorage; switching away and back rehydrated stale trial/catalog/budget before bootstrap refetch. Fixed via `clearOperatorShellStableCache` on scope change (`operator-shell-status-scope-cache.test.ts`).
 - [x] (invalid) Error mapper surfaces another tenant's problem detail in the toast — `operator-connectivity-error-present.ts` is stateless; no cross-request error cache in this directory.
 - [x] (proven) Assigned-to-me findings compact presets missing from `OPERATOR_EMPTY_STATE_PRESET_KINDS` — three `GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_*_COMPACT` exports added without TB-1556 kind registration; `operator-empty-state-kind-presets.test.ts` failed on `GOVERNANCE_ASSIGNED_TO_ME_FINDINGS_LOAD_FAILED_COMPACT`. Fixed by registering `error` / `collection` / `filtered` kinds.
+- [x] (proven) `mapStickinessSnapshot` threw when API sent `stickinessSnapshot.pilotFunnel: null` — fixed 2026-08-24; treat null funnel as absent (`operator-shell-status-client.test.ts`).
+- [x] (proven) `hydrateOperatorShellStatusCaches` left stale TanStack data when later shell-status payloads omitted concerns — fixed 2026-08-24; remove queries when payload fields are null (`operator-shell-status-client.test.ts`).
+- [x] (proven) `OPERATOR_RECENT_VIEWS_STORAGE_KEY` and `HAS_EXISTING_RUNS_CACHE_KEY` survived tenant/workspace switch — fixed 2026-08-24; clear on `notifyOperatorScopeChanged` (`operator-scope-storage.test.ts`).
