@@ -184,5 +184,6 @@
 {"at":"2026-08-24T16:14:00.000000Z","zoneId":"api-key-auth","outcome":"hit"}
 {"at":"2026-08-24T16:00:49.953Z","zoneId":"authority-pipeline-payload","outcome":"hit"}
 {"at":"2026-08-24T16:08:08.8347420Z","zoneId":"authority-pipeline-payload","outcome":"hit"}
+{"at":"2026-08-24T16:48:00.000000Z","zoneId":"scope-binding-middleware","outcome":"hit"}
 {"at":"2026-08-24T16:16:47.731462Z","zoneId":"security-analyzers","outcome":"hit"}
 {"at":"2026-08-24T16:32:26.184137Z","zoneId":"authority-pipeline-payload","outcome":"hit"}
