@@ -33,7 +33,7 @@ Execute in order when possible; quick wins (#11–#12) may ship ahead of larger 
 
 6. **Tighten governance API boundaries** — Move orchestration out of `PolicyPacksController.cs` (~925 lines); clarify workflow facade over 58 governance services. **Impact:** High · **Effort:** High · **Paths:** `ArchLucid.Api/Controllers/Governance/`, `ArchLucid.Application/Governance/`
 
-7. **Shared Terraform posture module** — Extract duplicated `posture_variables.tf` / `posture_checks.tf` from nine stacks into `infra/modules/posture/`. **Impact:** Medium · **Effort:** Low–Medium · **Paths:** `infra/terraform-*/posture_*.tf`
+7. ~~**Shared Terraform posture module**~~ — **Done** (2026-08-24): `infra/modules/posture/` centralizes tier/waiver validation; nine stacks consume via `module "posture"`.
 
 8. **Split monolithic OpenAPI TypeScript output** — Per-domain generated files instead of single `api-types.generated.ts` (~112K lines). **Impact:** Medium · **Effort:** Low–Medium · **Paths:** `archlucid-ui/src/lib/api-types.generated.ts`, `npm run generate:api-types`
 
