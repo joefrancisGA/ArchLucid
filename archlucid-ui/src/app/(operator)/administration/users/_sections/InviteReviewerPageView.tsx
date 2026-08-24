@@ -1,6 +1,12 @@
 "use client";
 
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
+
+import {
+  INVITE_REVIEWER_REVIEW_ID_QUERY_PARAM,
+  buildInviteReviewerPrefillMessage,
+} from "@/lib/invite-reviewer-flow";
 
 import { DemoWorkspaceCapabilityUnavailablePanel } from "@/components/DemoWorkspaceCapabilityUnavailablePanel";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
@@ -35,6 +41,10 @@ type Props = {
 export function InviteReviewerPageView(props: Props) {
   const m = props.model;
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const searchParams = useSearchParams();
+  const reviewIdFromQuery = searchParams.get(INVITE_REVIEWER_REVIEW_ID_QUERY_PARAM)?.trim() ?? "";
+  const invitePrefillMessage =
+    reviewIdFromQuery.length > 0 ? buildInviteReviewerPrefillMessage(reviewIdFromQuery) : undefined;
 
   if (m.surface === "demo") {
     return (
@@ -84,7 +94,7 @@ export function InviteReviewerPageView(props: Props) {
           <CardTitle className={OPERATOR_TYPOGRAPHY.cardTitle}>Reviewer invitation</CardTitle>
         </CardHeader>
         <CardContent>
-          <SettingsRolesInvitePanel />
+          <SettingsRolesInvitePanel initialMessage={invitePrefillMessage} />
         </CardContent>
       </Card>
 

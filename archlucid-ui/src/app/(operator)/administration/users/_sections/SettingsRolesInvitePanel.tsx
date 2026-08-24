@@ -39,10 +39,14 @@ const EMPTY_FORM: InviteFormState = { email: "", role: "", message: "" };
 type Props = {
   readonly emailInputRef?: RefObject<HTMLInputElement | null>;
   readonly onInviteSent?: (invitation: AdminUserInvitationRow) => void;
+  readonly initialMessage?: string;
 };
 
-export function SettingsRolesInvitePanel({ emailInputRef, onInviteSent }: Props) {
-  const [form, setForm] = useState<InviteFormState>(EMPTY_FORM);
+export function SettingsRolesInvitePanel({ emailInputRef, onInviteSent, initialMessage }: Props) {
+  const [form, setForm] = useState<InviteFormState>(() => ({
+    ...EMPTY_FORM,
+    message: initialMessage?.trim() ?? "",
+  }));
   const [sending, setSending] = useState(false);
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
 

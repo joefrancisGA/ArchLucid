@@ -17,6 +17,10 @@ vi.mock("@/components/SponsorRoiBaselineGateNotice", () => ({
     isFinalized ? <div data-testid="sponsor-roi-baseline-gate-notice">ROI baselines not captured</div> : null,
 }));
 
+vi.mock("@/components/operator/OperatorNavAuthorityProvider", () => ({
+  useOperatorNavAuthority: () => ({ callerAuthorityRank: 900 }),
+}));
+
 vi.mock("next/link", () => ({
   default: ({
     href,
@@ -52,6 +56,10 @@ describe("ReviewPackageSponsorHandoffStrip", () => {
     expect(screen.getByText(/Download the sponsor review summary or architecture report/)).toBeInTheDocument();
     expect(screen.getByTestId("review-package-sponsor-handoff-docx")).toBeInTheDocument();
     expect(screen.getByTestId("review-package-sponsor-handoff-more-exports")).toBeInTheDocument();
+    expect(screen.getByTestId("review-package-sponsor-handoff-invite-reviewer")).toHaveAttribute(
+      "href",
+      "/administration/users/invite-reviewer?reviewId=run-abc",
+    );
   });
 
   it("reveals markdown export and rehearsal controls inside more exports", () => {
