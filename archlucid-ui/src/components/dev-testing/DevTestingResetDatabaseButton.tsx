@@ -12,6 +12,7 @@ import {
   generateCorrelationId,
 } from "@/lib/correlation";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { PROXY_UPSTREAM_CATALOG_RESET_FETCH_TIMEOUT_MS } from "@/lib/server-fetch-timeouts";
 import { cn } from "@/lib/utils";
 
 type ResetDatabaseResponse = {
@@ -82,6 +83,7 @@ async function postResetDatabase(requestCorrelationId: string): Promise<ResetDat
       [CORRELATION_ID_HEADER]: requestCorrelationId,
     },
     cache: "no-store",
+    signal: AbortSignal.timeout(PROXY_UPSTREAM_CATALOG_RESET_FETCH_TIMEOUT_MS),
   });
 
   captureTraceContextFromResponse(response);
@@ -140,8 +142,8 @@ function ResetDatabaseStatusPanel({ status }: ResetDatabaseStatusPanelProps): Re
       >
         <p className="m-0 font-medium">Resetting database…</p>
         <p className="m-0 mt-1 text-neutral-600 dark:text-neutral-400">
-          Calling <code>{RESET_DATABASE_ROUTE}</code>. This can take up to a few minutes while migrations and schema
-          bootstrap run.
+          Calling <code>{RESET_DATABASE_ROUTE}</code>. This can take up to 10 minutes while the catalog is dropped,
+          migrations replay, and schema bootstrap runs.
         </p>
       </div>
     );
@@ -297,19 +299,32 @@ export function DevTestingResetDatabaseButton(): React.JSX.Element {
     }
   }
 
-  const dialogExtraContent =
-    dialogErrorMessage !== null || dialogAdminHint !== null ? (
-      <div className="mt-2 space-y-2" data-testid="dev-reset-database-dialog-feedback">
-        {dialogErrorMessage !== null ? (
-          <p className={cn("m-0 text-[var(--al-danger-text)]", OPERATOR_TYPOGRAPHY.helper)} role="alert">
-            {dialogErrorMessage}
-          </p>
-        ) : null}
-        {dialogAdminHint !== null ? (
-          <p className={cn("m-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>{dialogAdminHint}</p>
-        ) : null}
-      </div>
-    ) : null;
+  const dialogExtraContent = (
+    <div className="space-y-2">
+      <p className={cn("m-0 text-neutral-600 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
+        SQL Server Management Studio: connect to the master database and run{" "}
+        <code className="font-mono text-[0.95em]">
+          EXEC dbo.usp_ArchLucid_ResetDevelopmentCatalog @DatabaseName = N&apos;ArchLucid&apos;, @Confirm =
+          N&apos;RESET&apos;;
+        </code>{" "}
+        then restart the API so schema and demo data return.
+      </p>
+      {dialogErrorMessage !== null || dialogAdminHint !== null ? (
+        <div className="space-y-2" data-testid="dev-reset-database-dialog-feedback">
+          {dialogErrorMessage !== null ? (
+            <p className={cn("m-0 text-[var(--al-danger-text)]", OPERATOR_TYPOGRAPHY.helper)} role="alert">
+              {dialogErrorMessage}
+            </p>
+          ) : null}
+          {dialogAdminHint !== null ? (
+            <p className={cn("m-0 text-neutral-700 dark:text-neutral-300", OPERATOR_TYPOGRAPHY.helper)}>
+              {dialogAdminHint}
+            </p>
+          ) : null}
+        </div>
+      ) : null}
+    </div>
+  );
 
   return (
     <div className="flex flex-col gap-2">
@@ -338,11 +353,11 @@ export function DevTestingResetDatabaseButton(): React.JSX.Element {
         open={dialogOpen}
         onOpenChange={setDialogOpen}
         title="Reset database to first-install state?"
-        description="This drops and recreates the local development SQL catalog, then replays migrations, schema bootstrap, default scope rows, and optional demo seed. All existing runs, workspaces, and audit history in this catalog are permanently removed."
+        description="This drops and recreates the local development SQL catalog, then replays migrations, schema bootstrap, default scope rows, and optional demo seed. The request is allowed to run for up to 10 minutes. All existing runs, workspaces, and audit history in this catalog are permanently removed."
+        extraContent={dialogExtraContent}
         confirmLabel="Reset Database"
         variant="destructive"
         busy={busy}
-        extraContent={dialogExtraContent}
         onConfirm={() => {
           void handleConfirmReset();
         }}

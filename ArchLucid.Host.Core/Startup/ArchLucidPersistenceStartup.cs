@@ -7,6 +7,7 @@ using ArchLucid.Host.Core.Startup.Validation.Rules;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Data.Infrastructure;
 using ArchLucid.Persistence.Sql;
+using ArchLucid.Persistence.Tenancy;
 
 namespace ArchLucid.Host.Core.Startup;
 
@@ -15,7 +16,7 @@ public static class ArchLucidPersistenceStartup
 {
     // ArchLucid.sql / ArchLucid.System.sql are split into hundreds of GO batches; brownfield idempotent
     // checks still round-trip per batch. 30s was too tight once the consolidated script grew past ~500 batches.
-    private const int DefaultSchemaBootstrapTimeoutSeconds = 300;
+    private const int DefaultSchemaBootstrapTimeoutSeconds = SqlCommandTimeouts.ExtendedSeconds;
 
     /// <summary>
     ///     Prefers the elevated bootstrap connection (DDL + self-granting DENY/GRANT rights); falls back to the
@@ -49,7 +50,12 @@ public static class ArchLucidPersistenceStartup
             systemScriptPath);
 
         SqlConnectionFactory connectionFactory = new(systemConnectionString);
-        SqlSchemaBootstrapper bootstrapper = new(connectionFactory, systemScriptPath);
+        SqlSchemaBootstrapper bootstrapper = new(
+            connectionFactory,
+            systemScriptPath,
+            persistenceOptions.DefaultSqlCommandTimeoutSeconds > 0
+                ? persistenceOptions.DefaultSqlCommandTimeoutSeconds
+                : DefaultSchemaBootstrapTimeoutSeconds);
         int bootstrapTimeoutSeconds = persistenceOptions.DefaultSqlCommandTimeoutSeconds > 0
             ? persistenceOptions.DefaultSqlCommandTimeoutSeconds
             : DefaultSchemaBootstrapTimeoutSeconds;
@@ -233,6 +239,24 @@ public static class ArchLucidPersistenceStartup
                 if (!string.IsNullOrWhiteSpace(catalogConnectionString)
                     && (app.Environment.IsDevelopment() || apiKeyUsesDefaultTenant))
                     DevelopmentDefaultScopeTenantBootstrap.TryEnsure(catalogConnectionString, app.Logger);
+
+                if (!string.IsNullOrWhiteSpace(catalogConnectionString) && app.Environment.IsDevelopment())
+                {
+                    try
+                    {
+                        using CancellationTokenSource resetProcCts = new(
+                            TimeSpan.FromSeconds(SqlCommandTimeouts.ExtendedSeconds));
+                        await SqlDevelopmentCatalogResetCommands
+                            .EnsureProcedureAsync(catalogConnectionString, resetProcCts.Token)
+                            .ConfigureAwait(false);
+                    }
+                    catch (Exception ex)
+                    {
+                        app.Logger.LogWarning(
+                            ex,
+                            "Startup: could not deploy dbo.usp_ArchLucid_ResetDevelopmentCatalog to master. SSMS reset will be unavailable until the next successful Reset Database.");
+                    }
+                }
 
                 TryValidateAuditImmutabilityIfRequired(app, archLucidOptions);
                 TryValidateSealedEvidenceImmutabilityIfRequired(app, archLucidOptions);

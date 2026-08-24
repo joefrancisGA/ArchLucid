@@ -10,6 +10,12 @@ export const MARKETING_UPSTREAM_FETCH_TIMEOUT_MS = 12_000;
 export const PROXY_UPSTREAM_FETCH_TIMEOUT_MS = 60_000;
 
 /**
+ * Development catalog reset (drop/create + migrations + bootstrap) through the UI BFF.
+ * SQL catalog work can run several minutes on a locked local instance.
+ */
+export const PROXY_UPSTREAM_CATALOG_RESET_FETCH_TIMEOUT_MS = 10 * 60 * 1000;
+
+/**
  * Multipart / large evidence uploads through the UI proxy — allow slow links up to the 100 MB envelope.
  * Keep well above {@link PROXY_UPSTREAM_FETCH_TIMEOUT_MS} so JSON calls stay snappy-fail.
  */

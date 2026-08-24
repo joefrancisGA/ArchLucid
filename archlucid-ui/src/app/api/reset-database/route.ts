@@ -5,6 +5,7 @@ import {
   generateCorrelationId,
   isSafeCorrelationId,
 } from "@/lib/correlation";
+import { PROXY_UPSTREAM_CATALOG_RESET_FETCH_TIMEOUT_MS } from "@/lib/server-fetch-timeouts";
 
 /**
  * Internal route handler for the dev testing quick-switch "Reset Database" action.
@@ -12,6 +13,9 @@ import {
  */
 
 const RESET_TARGET_PATH = "/api/proxy/v1/diagnostics/reset-development-catalog";
+
+/** Allow drop/create + migrations + bootstrap to finish on a locked local SQL instance. */
+export const maxDuration = 600;
 
 function readBrowserCorrelationId(request: NextRequest): string {
   const incoming = request.headers.get(CORRELATION_ID_HEADER);
@@ -89,6 +93,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       method: "POST",
       headers,
       cache: "no-store",
+      signal: AbortSignal.timeout(PROXY_UPSTREAM_CATALOG_RESET_FETCH_TIMEOUT_MS),
     });
   } catch (err: unknown) {
     const message =

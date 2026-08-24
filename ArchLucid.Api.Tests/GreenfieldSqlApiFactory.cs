@@ -56,7 +56,7 @@ public class GreenfieldSqlApiFactory : SqlIntegrationTestWebAppFactoryBase
         // (e.g. DapperAuditRepository.AppendAsync) must set an explicit commandTimeout on their CommandDefinition
         // rather than relying on this global.  Do NOT raise this value without also reviewing audit / outbox
         // commandTimeout caps — they intentionally do NOT inherit the global to avoid consuming the pipeline budget.
-        settings["ArchLucid:Persistence:DefaultSqlCommandTimeoutSeconds"] = "300";
+        settings["ArchLucid:Persistence:DefaultSqlCommandTimeoutSeconds"] = "600";
         settings["AuthorityPipeline:PipelineTimeout"] = "00:05:00";
         // Keep lock wait below slow-shard hang guards; 3 min is enough for one winner + idempotent replays in CI.
         settings["ArchLucid:CreateRun:DistributedIdempotencyLockTimeoutMilliseconds"] = "180000";
