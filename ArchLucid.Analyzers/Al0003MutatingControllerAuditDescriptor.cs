@@ -14,7 +14,7 @@ internal static class Al0003MutatingControllerAuditDescriptor
         defaultSeverity: DiagnosticSeverity.Error,
         isEnabledByDefault: true,
         description:
-            "POST, PUT, and DELETE endpoints are required to invoke durable auditing on the HTTP surface unless explicitly exempt.");
+            "POST, PUT, PATCH, and DELETE endpoints are required to invoke durable auditing on the HTTP surface unless explicitly exempt.");
 
     internal static Diagnostic Create(Location location, string fqMethodDisplay) =>
         Diagnostic.Create(Rule, location, fqMethodDisplay);

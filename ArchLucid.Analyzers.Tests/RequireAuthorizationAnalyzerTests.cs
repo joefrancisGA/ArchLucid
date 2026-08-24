@@ -24,6 +24,10 @@ namespace Microsoft.AspNetCore.Mvc
     public sealed class HttpGetAttribute : System.Attribute
     {
     }
+
+    public sealed class NonActionAttribute : System.Attribute
+    {
+    }
 }
 
 namespace Microsoft.AspNetCore.Authorization
@@ -58,7 +62,7 @@ namespace N
 """;
 
         DiagnosticResult expected = CSharpAnalyzerVerifier<RequireAuthorizationAnalyzer, DefaultVerifier>.Diagnostic(Al0001Descriptor.Rule)
-            .WithSpan(33, 30, 33, 33)
+            .WithSpan(37, 30, 37, 33)
             .WithArguments("BadController.Get()");
 
         CSharpAnalyzerTest<RequireAuthorizationAnalyzer, DefaultVerifier> test = new()
@@ -160,13 +164,43 @@ namespace N
 """;
 
         DiagnosticResult expected = CSharpAnalyzerVerifier<RequireAuthorizationAnalyzer, DefaultVerifier>.Diagnostic(Al0001Descriptor.Rule)
-            .WithSpan(38, 30, 38, 31)
+            .WithSpan(42, 30, 42, 31)
             .WithArguments("MixedController.B()");
 
         CSharpAnalyzerTest<RequireAuthorizationAnalyzer, DefaultVerifier> test = new()
         {
             TestCode = testCode,
             ExpectedDiagnostics = { expected },
+            ReferenceAssemblies = ReferenceAssemblies.Net.Net90,
+            SolutionTransforms = { ProductAssemblyNameTransform }
+        };
+
+        await test.RunAsync();
+    }
+
+    [Fact]
+    public async Task Does_not_report_public_NonAction_helper()
+    {
+        const string testCode = AspNetCoreStubs +
+            """
+
+namespace N
+{
+    using Microsoft.AspNetCore.Authorization;
+    using Microsoft.AspNetCore.Mvc;
+
+    [Authorize]
+    public sealed class HelperController : ControllerBase
+    {
+        [NonAction]
+        public IActionResult Helper() => Ok();
+    }
+}
+""";
+
+        CSharpAnalyzerTest<RequireAuthorizationAnalyzer, DefaultVerifier> test = new()
+        {
+            TestCode = testCode,
             ReferenceAssemblies = ReferenceAssemblies.Net.Net90,
             SolutionTransforms = { ProductAssemblyNameTransform }
         };
@@ -191,7 +225,7 @@ namespace N
 """;
 
         DiagnosticResult expected = CSharpAnalyzerVerifier<RequireAuthorizationAnalyzer, DefaultVerifier>.Diagnostic(Al0001Descriptor.Rule)
-            .WithSpan(30, 25, 30, 40)
+            .WithSpan(34, 25, 34, 40)
             .WithArguments("EmptyController");
 
         CSharpAnalyzerTest<RequireAuthorizationAnalyzer, DefaultVerifier> test = new()

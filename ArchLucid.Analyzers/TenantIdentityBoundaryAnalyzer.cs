@@ -43,12 +43,16 @@ public sealed class TenantIdentityBoundaryAnalyzer : DiagnosticAnalyzer
             return false;
 
         return !string.Equals(name, "ArchLucid.Api", StringComparison.Ordinal) &&
-               !name.StartsWith("ArchLucid.Host.", StringComparison.Ordinal);
+               !name.StartsWith("ArchLucid.Host.", StringComparison.Ordinal) &&
+               !name.EndsWith(".Tests", StringComparison.Ordinal);
     }
 
     private static void AnalyzeIdentifierOrGeneric(SyntaxNodeAnalysisContext context, TenantIdentityBoundaryTypeSymbols symbols)
     {
         if (IsInNameOf(context.Node))
+            return;
+
+        if (IsInTypeOf(context.Node))
             return;
 
         SyntaxNode node = context.Node;
@@ -152,6 +156,21 @@ public sealed class TenantIdentityBoundaryAnalyzer : DiagnosticAnalyzer
         {
             if (current is InvocationExpressionSyntax { Expression: IdentifierNameSyntax id } &&
                 string.Equals(id.Identifier.Text, "nameof", StringComparison.Ordinal))
+                return true;
+
+            current = current.Parent;
+        }
+
+        return false;
+    }
+
+    private static bool IsInTypeOf(SyntaxNode node)
+    {
+        SyntaxNode? current = node;
+
+        while (current is not null)
+        {
+            if (current is TypeOfExpressionSyntax)
                 return true;
 
             current = current.Parent;

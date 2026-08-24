@@ -13,6 +13,7 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
     internal const string HttpPostAttributeShortName = "HttpPostAttribute";
     internal const string HttpPutAttributeShortName = "HttpPutAttribute";
     internal const string HttpDeleteAttributeShortName = "HttpDeleteAttribute";
+    internal const string HttpPatchAttributeShortName = "HttpPatchAttribute";
 
     private static readonly SymbolDisplayFormat AllowlistFqTypeFormat =
         new(globalNamespaceStyle: SymbolDisplayGlobalNamespaceStyle.Omitted,
@@ -189,7 +190,10 @@ public sealed class MutatingControllerAuditAnalyzer : DiagnosticAnalyzer
 
     internal static bool TrackedVerbAttribute(string attributeSimpleNameScoped)
     {
-        return attributeSimpleNameScoped is HttpPostAttributeShortName or HttpPutAttributeShortName or HttpDeleteAttributeShortName;
+        return attributeSimpleNameScoped is HttpPostAttributeShortName
+            or HttpPutAttributeShortName
+            or HttpDeleteAttributeShortName
+            or HttpPatchAttributeShortName;
     }
 
     private static bool MethodSpecifiesTrackedVerb(IMethodSymbol methodDeclaredSymbolScoped)

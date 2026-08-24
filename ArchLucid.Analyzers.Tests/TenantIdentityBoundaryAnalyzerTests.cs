@@ -139,6 +139,63 @@ namespace N
   }
 
   [Fact]
+  public async Task Does_not_report_typeof_HttpContext()
+  {
+    const string testCode = """
+
+namespace N
+{
+    using Microsoft.AspNetCore.Http;
+
+    public sealed class C
+    {
+        System.Type M() => typeof(HttpContext);
+    }
+}
+""";
+
+    await RunInnerLayerTestAsync(testCode);
+  }
+
+  [Fact]
+  public async Task Does_not_report_typeof_ClaimsPrincipal()
+  {
+    const string testCode = """
+
+namespace N
+{
+    using System.Security.Claims;
+
+    public sealed class C
+    {
+        System.Type M() => typeof(ClaimsPrincipal);
+    }
+}
+""";
+
+    await RunInnerLayerTestAsync(testCode);
+  }
+
+  [Fact]
+  public async Task Does_not_report_when_assembly_is_tests()
+  {
+    const string testCode = """
+
+namespace N
+{
+    using Microsoft.AspNetCore.Http;
+
+    public sealed class C
+    {
+        void M(IHttpContextAccessor a) { }
+    }
+}
+""";
+
+    await RunTestAsync(testCode, TestsAssemblyNameTransform);
+  }
+
+  [Fact]
   public async Task Does_not_report_nameof_banned_type()
   {
     const string testCode = """
@@ -266,4 +323,7 @@ namespace N
 
   private static Solution HostAssemblyNameTransform(Solution solution, ProjectId projectId) =>
       solution.WithProjectAssemblyName(projectId, "ArchLucid.Host.Core");
+
+  private static Solution TestsAssemblyNameTransform(Solution solution, ProjectId projectId) =>
+      solution.WithProjectAssemblyName(projectId, "ArchLucid.Application.Tests");
 }

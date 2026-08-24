@@ -57,6 +57,11 @@ namespace Microsoft.AspNetCore.Mvc
 
     public sealed class HttpDeleteAttribute : System.Attribute { }
 
+    public sealed class HttpPatchAttribute : System.Attribute
+    {
+        public HttpPatchAttribute(string? template = null) { }
+    }
+
     public sealed class NonActionAttribute : System.Attribute { }
 }
 
@@ -87,7 +92,7 @@ public sealed class IgnoresAuditController(IAuditService auditService) : Control
         DiagnosticResult expectedDiagnostic =
             CSharpAnalyzerVerifier<MutatingControllerAuditAnalyzer, DefaultVerifier>.Diagnostic(
                     Al0003MutatingControllerAuditDescriptor.Rule)
-                .WithSpan(57, 55, 57, 61)
+                .WithSpan(62, 55, 62, 61)
                 .WithArguments("ArchLucid.Api.Probe.IgnoresAuditController.Breaks");
 
         await new CSharpAnalyzerTest<MutatingControllerAuditAnalyzer, DefaultVerifier>
@@ -198,6 +203,43 @@ public sealed class ExcludedController : ControllerBase
         await new CSharpAnalyzerTest<MutatingControllerAuditAnalyzer, DefaultVerifier>
         {
             TestCode = testCode,
+            ReferenceAssemblies = ReferenceAssemblies.Net.Net90,
+            SolutionTransforms = { MarkAssemblyAsArchLucidApi }
+        }.RunAsync();
+    }
+
+    [Fact]
+    public async Task AL0003_reports_when_HttpPatch_action_lacks_IAudit_LogAsync()
+    {
+        const string testCode = AuditAndMvcStubs +
+            """
+
+namespace ArchLucid.Api.Probe
+{
+using ArchLucid.Core.Audit;
+using Microsoft.AspNetCore.Mvc;
+
+public sealed class PatchIgnoresAuditController(IAuditService auditService) : ControllerBase
+{
+    [HttpPatch("x")]
+    public System.Threading.Tasks.Task<IActionResult> {|#0:Patch|}(System.Threading.CancellationToken cancellationToken)
+    {
+        return System.Threading.Tasks.Task.FromResult<IActionResult>(Ok());
+    }
+}
+}
+""";
+
+        DiagnosticResult expectedDiagnostic =
+            CSharpAnalyzerVerifier<MutatingControllerAuditAnalyzer, DefaultVerifier>.Diagnostic(
+                    Al0003MutatingControllerAuditDescriptor.Rule)
+                .WithLocation(0)
+                .WithArguments("ArchLucid.Api.Probe.PatchIgnoresAuditController.Patch");
+
+        await new CSharpAnalyzerTest<MutatingControllerAuditAnalyzer, DefaultVerifier>
+        {
+            TestCode = testCode,
+            ExpectedDiagnostics = { expectedDiagnostic },
             ReferenceAssemblies = ReferenceAssemblies.Net.Net90,
             SolutionTransforms = { MarkAssemblyAsArchLucidApi }
         }.RunAsync();

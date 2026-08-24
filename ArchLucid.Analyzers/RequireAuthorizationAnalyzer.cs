@@ -36,12 +36,14 @@ public sealed class RequireAuthorizationAnalyzer : DiagnosticAnalyzer
             compilation.GetTypeByMetadataName("Microsoft.AspNetCore.Authorization.AuthorizeAttribute");
         INamedTypeSymbol? allowAnonymousAttribute =
             compilation.GetTypeByMetadataName("Microsoft.AspNetCore.Authorization.AllowAnonymousAttribute");
+        INamedTypeSymbol? nonActionAttribute =
+            compilation.GetTypeByMetadataName("Microsoft.AspNetCore.Mvc.NonActionAttribute");
 
         if (authorizeAttribute is null && allowAnonymousAttribute is null)
             return;
 
         context.RegisterSymbolAction(
-            c => AnalyzeNamedType(c, controllerBase, authorizeAttribute, allowAnonymousAttribute),
+            c => AnalyzeNamedType(c, controllerBase, authorizeAttribute, allowAnonymousAttribute, nonActionAttribute),
             SymbolKind.NamedType);
     }
 
@@ -63,7 +65,8 @@ public sealed class RequireAuthorizationAnalyzer : DiagnosticAnalyzer
         SymbolAnalysisContext context,
         INamedTypeSymbol controllerBase,
         INamedTypeSymbol? authorizeAttribute,
-        INamedTypeSymbol? allowAnonymousAttribute)
+        INamedTypeSymbol? allowAnonymousAttribute,
+        INamedTypeSymbol? nonActionAttribute)
     {
         INamedTypeSymbol symbol = (INamedTypeSymbol)context.Symbol;
 
@@ -102,6 +105,9 @@ public sealed class RequireAuthorizationAnalyzer : DiagnosticAnalyzer
                 continue;
 
             if (method.AssociatedSymbol is not null)
+                continue;
+
+            if (nonActionAttribute is not null && SymbolHasAttribute(method, nonActionAttribute))
                 continue;
 
             if (SymbolHasAuthorizeOrAllowAnonymous(method, authorizeAttribute, allowAnonymousAttribute))
@@ -185,6 +191,19 @@ public sealed class RequireAuthorizationAnalyzer : DiagnosticAnalyzer
         for (INamedTypeSymbol? current = attributeClass; current is not null; current = current.BaseType)
         {
             if (SymbolEqualityComparer.Default.Equals(current, targetAttribute))
+                return true;
+        }
+
+        return false;
+    }
+
+    private static bool SymbolHasAttribute(ISymbol symbol, INamedTypeSymbol attributeType)
+    {
+        foreach (AttributeData attribute in symbol.GetAttributes())
+        {
+            INamedTypeSymbol? attributeClass = attribute.AttributeClass;
+
+            if (attributeClass is not null && InheritsFromOrEqualsAttribute(attributeClass, attributeType))
                 return true;
         }
 
