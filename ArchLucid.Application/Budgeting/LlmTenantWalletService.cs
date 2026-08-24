@@ -273,10 +273,23 @@ public sealed class LlmTenantWalletService(
         }
 
         if (delta < 0m)
-            await CreditAdjustmentInternalAsync(tenantId, -delta, correlationId, cancellationToken).ConfigureAwait(false);
+        {
+            bool credited = await CreditAdjustmentInternalAsync(tenantId, -delta, correlationId, cancellationToken).ConfigureAwait(false);
+
+            if (!credited)
+            {
+                _logger.LogWarning(
+                    "LLM wallet overage reconciliation credit failed for tenant {TenantId}; re-queuing settlement for actual {ActualUsd} USD (authorized {AuthorizedUsd} USD).",
+                    tenantId,
+                    actualUsd,
+                    authorizedUsd);
+
+                _settlementQueue.EnqueueConsume(tenantId, actualUsd, correlationId, authorizedUsd);
+            }
+        }
     }
 
-    internal async Task CreditAdjustmentInternalAsync(
+    internal async Task<bool> CreditAdjustmentInternalAsync(
         Guid tenantId,
         decimal amountUsd,
         Guid correlationId,
@@ -301,16 +314,18 @@ public sealed class LlmTenantWalletService(
             {
                 RecordBalanceGauge(tenantId, credit.BalanceAfterUsd);
 
-                return;
+                return true;
             }
 
-            return;
+            return false;
         }
 
         _logger.LogWarning(
             "LLM wallet settlement credit exhausted optimistic retries for tenant {TenantId}; amount {AmountUsd} USD was not credited.",
             tenantId,
             amountUsd);
+
+        return false;
     }
 
     private async Task<LlmTenantWalletCreditResult> CreditRefillWithRetryAsync(

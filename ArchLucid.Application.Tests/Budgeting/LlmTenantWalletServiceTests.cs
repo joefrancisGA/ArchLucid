@@ -288,6 +288,45 @@ public sealed class LlmTenantWalletServiceTests
     }
 
     [SkippableFact]
+    public async Task ReconcileOverageInternalAsync_requeues_settlement_when_credit_retries_exhausted()
+    {
+        Guid tenantId = Guid.NewGuid();
+        byte[] rowVersion = BitConverter.GetBytes(1L);
+        LlmTenantWalletStateReadModel state = new()
+        {
+            TenantId = tenantId,
+            BalanceUsd = 10m,
+            RowVersion = rowVersion,
+        };
+
+        Mock<ILlmTenantWalletRepository> repository = new();
+        repository
+            .Setup(r => r.GetOrCreateAsync(tenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(state);
+        repository
+            .Setup(r => r.TryCreditAdjustmentAsync(tenantId, 15m, It.IsAny<Guid>(), rowVersion, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(LlmTenantWalletCreditResult.Conflict());
+
+        LlmWalletSettlementQueue queue = new();
+        LlmTenantWalletService service = new(
+            repository.Object,
+            new Mock<IStripeWalletGateway>().Object,
+            queue,
+            new Mock<IAuditService>().Object,
+            TimeProvider.System,
+            NullLogger<LlmTenantWalletService>.Instance);
+
+        Guid correlationId = Guid.NewGuid();
+        await service.ReconcileOverageInternalAsync(tenantId, 25m, 40m, correlationId, CancellationToken.None);
+
+        queue.Reader.TryRead(out LlmWalletSettlementWorkItem item).Should().BeTrue();
+        item.TenantId.Should().Be(tenantId);
+        item.AmountUsd.Should().Be(25m);
+        item.AuthorizedUsd.Should().Be(40m);
+        item.CorrelationId.Should().Be(correlationId);
+    }
+
+    [SkippableFact]
     public async Task ReconcileOverageInternalAsync_credits_wallet_when_actual_less_than_authorized()
     {
         InMemoryLlmTenantWalletRepository repository = new();
