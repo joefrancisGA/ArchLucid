@@ -11,7 +11,8 @@ public static class ScimUserResourceParser
         string userName = ReadRequiredString(resource, "userName");
         string? displayName = ReadOptionalString(resource, "displayName");
         bool active = ReadActive(resource);
-        string externalId = ReadOptionalString(resource, "externalId") ?? userName;
+        string? externalIdRaw = ReadOptionalString(resource, "externalId");
+        string externalId = string.IsNullOrWhiteSpace(externalIdRaw) ? userName : externalIdRaw.Trim();
         return (userName, displayName, active, externalId);
     }
 

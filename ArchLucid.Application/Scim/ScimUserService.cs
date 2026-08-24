@@ -33,7 +33,9 @@ public sealed class ScimUserService(
         CancellationToken cancellationToken)
     {
         ScimFilterNode? ast = ScimFilterParser.Parse(filter);
-        (IReadOnlyList<ScimUserRecord> items, int total) = await _users.ListAsync(tenantId, ast, startIndex, Math.Clamp(count, 0, 200), cancellationToken);
+        int normalizedStartIndex = Math.Max(1, startIndex);
+        (IReadOnlyList<ScimUserRecord> items, int total) =
+            await _users.ListAsync(tenantId, ast, normalizedStartIndex, Math.Clamp(count, 0, 200), cancellationToken);
         return (items, total);
     }
 
@@ -52,23 +54,42 @@ public sealed class ScimUserService(
         (string userName, string? displayName, bool active, string externalId) = ScimUserResourceParser.ParseUser(resource);
         if (await _users.GetByExternalIdAsync(tenantId, externalId, cancellationToken) is not null)
             throw new ScimConflictException($"User with externalId '{externalId}' already exists.");
-        if (active)
-        {
-            bool ok = await _tenants.TryIncrementEnterpriseScimSeatAsync(tenantId, cancellationToken);
-            if (!ok)
-                throw new ScimSeatLimitExceededException();
-        }
 
-        ScimUserRecord created = await _users.InsertAsync(tenantId, externalId, userName, displayName, active, null, ScimResolvedRoleOrigin.Unknown,
-            cancellationToken);
-        string? role = await ResolveRoleAsync(tenantId, created.Id, cancellationToken);
-        ScimResolvedRoleOrigin origin = role is null ? ScimResolvedRoleOrigin.Unknown : ScimResolvedRoleOrigin.ScimGroups;
-        if (!string.Equals(role, created.ResolvedRole, StringComparison.Ordinal))
-            await _users.PatchAsync(tenantId, created.Id, null, null, null, null, role, origin, cancellationToken);
-        created = await _users.GetByIdAsync(tenantId, created.Id, cancellationToken) ?? created;
-        await LogAsync(tenantId, AuditEventTypes.ScimUserProvisioned, $"{{\"userId\":\"{created.Id:D}\",\"externalId\":\"{JsonEncoded(externalId)}\"}}",
-            cancellationToken);
-        return created;
+        bool seatReserved = false;
+
+        try
+        {
+            if (active)
+            {
+                bool ok = await _tenants.TryIncrementEnterpriseScimSeatAsync(tenantId, cancellationToken);
+
+                if (!ok)
+                    throw new ScimSeatLimitExceededException();
+
+                seatReserved = true;
+            }
+
+            ScimUserRecord created = await _users.InsertAsync(tenantId, externalId, userName, displayName, active, null, ScimResolvedRoleOrigin.Unknown,
+                cancellationToken);
+            string? role = await ResolveRoleAsync(tenantId, created.Id, cancellationToken);
+            ScimResolvedRoleOrigin origin = role is null ? ScimResolvedRoleOrigin.Unknown : ScimResolvedRoleOrigin.ScimGroups;
+
+            if (!string.Equals(role, created.ResolvedRole, StringComparison.Ordinal))
+                await _users.PatchAsync(tenantId, created.Id, null, null, null, null, role, origin, cancellationToken);
+
+            created = await _users.GetByIdAsync(tenantId, created.Id, cancellationToken) ?? created;
+            await LogAsync(tenantId, AuditEventTypes.ScimUserProvisioned, $"{{\"userId\":\"{created.Id:D}\",\"externalId\":\"{JsonEncoded(externalId)}\"}}",
+                cancellationToken);
+
+            return created;
+        }
+        catch
+        {
+            if (seatReserved)
+                await _tenants.DecrementEnterpriseScimSeatAsync(tenantId, cancellationToken);
+
+            throw;
+        }
     }
 
     /// <inheritdoc/>
@@ -78,14 +99,29 @@ public sealed class ScimUserService(
         if (existing.DirectoryRemovedUtc is not null)
             throw new ScimNotFoundException("User not found.");
         (string userName, string? displayName, bool active, string externalId) = ScimUserResourceParser.ParseUser(resource);
-        await TransitionSeatAsync(tenantId, existing.Active, active, cancellationToken);
-        string? manualFromBody = TryReadManualResolvedRoleFromUserResource(resource);
-        string? groupRole = await ResolveRoleAsync(tenantId, id, cancellationToken);
-        ResolveRoleChoices choices = DecideResolvedRole(existing, manualFromBody, groupRole);
-        if (choices.ShouldEmitManualOverriddenAudit)
-            await EmitRoleOverriddenAuditAsync(tenantId, existing, choices.FinalRole, cancellationToken);
-        await _users.ReplaceAsync(tenantId, id, externalId, userName, displayName, active, choices.FinalRole, choices.FinalOrigin, cancellationToken);
-        await LogAsync(tenantId, AuditEventTypes.ScimUserUpdated, $"{{\"userId\":\"{id:D}\",\"externalId\":\"{JsonEncoded(externalId)}\"}}", cancellationToken);
+        await EnsureExternalIdNotUsedByAnotherUserAsync(tenantId, id, externalId, cancellationToken);
+
+        bool wasActive = existing.Active;
+
+        try
+        {
+            await TransitionSeatAsync(tenantId, wasActive, active, cancellationToken);
+            string? manualFromBody = TryReadManualResolvedRoleFromUserResource(resource);
+            string? groupRole = await ResolveRoleAsync(tenantId, id, cancellationToken);
+            ResolveRoleChoices choices = DecideResolvedRole(existing, manualFromBody, groupRole);
+
+            if (choices.ShouldEmitManualOverriddenAudit)
+                await EmitRoleOverriddenAuditAsync(tenantId, existing, choices.FinalRole, cancellationToken);
+
+            await _users.ReplaceAsync(tenantId, id, externalId, userName, displayName, active, choices.FinalRole, choices.FinalOrigin, cancellationToken);
+            await LogAsync(tenantId, AuditEventTypes.ScimUserUpdated, $"{{\"userId\":\"{id:D}\",\"externalId\":\"{JsonEncoded(externalId)}\"}}", cancellationToken);
+        }
+        catch
+        {
+            await CompensateSeatTransitionAsync(tenantId, wasActive, active, cancellationToken);
+
+            throw;
+        }
     }
 
     /// <inheritdoc/>
@@ -111,13 +147,28 @@ public sealed class ScimUserService(
         string externalId = ReadString(core, "externalId", existing.ExternalId);
         string userName = ReadString(core, "userName", existing.UserName);
         string? displayName = ReadOptionalString(core, "displayName", existing.DisplayName);
-        await TransitionSeatAsync(tenantId, existing.Active, nextActive, cancellationToken);
-        string? groupRole = await ResolveRoleAsync(tenantId, id, cancellationToken);
-        ResolveRoleChoices choices = DecideResolvedRole(existing, manualFromPatch, groupRole);
-        if (choices.ShouldEmitManualOverriddenAudit)
-            await EmitRoleOverriddenAuditAsync(tenantId, existing, choices.FinalRole, cancellationToken);
-        await _users.PatchAsync(tenantId, id, externalId, userName, displayName, nextActive, choices.FinalRole, choices.FinalOrigin, cancellationToken);
-        await LogAsync(tenantId, AuditEventTypes.ScimUserUpdated, $"{{\"userId\":\"{id:D}\"}}", cancellationToken);
+        await EnsureExternalIdNotUsedByAnotherUserAsync(tenantId, id, externalId, cancellationToken);
+
+        bool wasActive = existing.Active;
+
+        try
+        {
+            await TransitionSeatAsync(tenantId, wasActive, nextActive, cancellationToken);
+            string? groupRole = await ResolveRoleAsync(tenantId, id, cancellationToken);
+            ResolveRoleChoices choices = DecideResolvedRole(existing, manualFromPatch, groupRole);
+
+            if (choices.ShouldEmitManualOverriddenAudit)
+                await EmitRoleOverriddenAuditAsync(tenantId, existing, choices.FinalRole, cancellationToken);
+
+            await _users.PatchAsync(tenantId, id, externalId, userName, displayName, nextActive, choices.FinalRole, choices.FinalOrigin, cancellationToken);
+            await LogAsync(tenantId, AuditEventTypes.ScimUserUpdated, $"{{\"userId\":\"{id:D}\"}}", cancellationToken);
+        }
+        catch
+        {
+            await CompensateSeatTransitionAsync(tenantId, wasActive, nextActive, cancellationToken);
+
+            throw;
+        }
     }
 
     /// <inheritdoc/>
@@ -128,6 +179,29 @@ public sealed class ScimUserService(
             await _tenants.DecrementEnterpriseScimSeatAsync(tenantId, cancellationToken);
         await _users.DeactivateAsync(tenantId, id, cancellationToken);
         await LogAsync(tenantId, AuditEventTypes.ScimUserDeactivated, $"{{\"userId\":\"{id:D}\"}}", cancellationToken);
+    }
+
+    private async Task CompensateSeatTransitionAsync(Guid tenantId, bool wasActive, bool willBeActive, CancellationToken ct)
+    {
+        if (wasActive == willBeActive)
+            return;
+
+        if (willBeActive)
+            await _tenants.DecrementEnterpriseScimSeatAsync(tenantId, ct);
+        else
+            await _tenants.TryIncrementEnterpriseScimSeatAsync(tenantId, ct);
+    }
+
+    private async Task EnsureExternalIdNotUsedByAnotherUserAsync(
+        Guid tenantId,
+        Guid userId,
+        string externalId,
+        CancellationToken cancellationToken)
+    {
+        ScimUserRecord? other = await _users.GetByExternalIdAsync(tenantId, externalId, cancellationToken);
+
+        if (other is not null && other.Id != userId)
+            throw new ScimConflictException($"User with externalId '{externalId}' already exists.");
     }
 
     private static Dictionary<string, JsonElement> ToCoreNextMap(IReadOnlyDictionary<string, JsonElement> next)

@@ -36,6 +36,9 @@ public sealed class ScimUsersController(
         [FromQuery] int count = 100,
         CancellationToken cancellationToken = default)
     {
+        if (startIndex < 1)
+            startIndex = 1;
+
         Guid tenantId = _scopeContextProvider.GetCurrentScope().TenantId;
 
         try
@@ -104,6 +107,10 @@ public sealed class ScimUsersController(
         {
             return ScimErrorResultFactory.FromParseException(ex);
         }
+        catch (ScimConflictException ex)
+        {
+            return ScimErrorResultFactory.Create(409, "uniqueness", ex.Message);
+        }
     }
 
     [HttpPut("{id:guid}")]
@@ -144,6 +151,10 @@ public sealed class ScimUsersController(
         {
             return ScimErrorResultFactory.FromParseException(ex);
         }
+        catch (ScimConflictException ex)
+        {
+            return ScimErrorResultFactory.Create(409, "uniqueness", ex.Message);
+        }
     }
 
     [HttpPatch("{id:guid}")]
@@ -183,6 +194,10 @@ public sealed class ScimUsersController(
         catch (ScimUserResourceParseException ex)
         {
             return ScimErrorResultFactory.FromParseException(ex);
+        }
+        catch (ScimConflictException ex)
+        {
+            return ScimErrorResultFactory.Create(409, "uniqueness", ex.Message);
         }
     }
 
