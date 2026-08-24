@@ -239,9 +239,9 @@ export function AskPageContent() {
     }
   }, []);
 
-  async function onAsk() {
+  async function onAsk(overrideQuestion?: string) {
     setActionFailure(null);
-    const q = question.trim();
+    const q = overrideQuestion?.trim() ?? question.trim();
     if (!q) return;
 
     const rid = runId.trim();
@@ -361,6 +361,26 @@ export function AskPageContent() {
       questionRef.current?.focus();
     });
   }, []);
+
+  const onStarterPromptClick = useCallback(
+    (line: string) => {
+      const trimmed = line.trim();
+
+      if (trimmed.length === 0) {
+        return;
+      }
+
+      if (!loading && !askStreaming && runId.trim().length > 0) {
+        setQuestion(trimmed);
+        void onAsk(trimmed);
+
+        return;
+      }
+
+      mergePromptLine(trimmed);
+    },
+    [askStreaming, loading, mergePromptLine, onAsk, runId],
+  );
 
   useEffect(() => {
     if (listFailure !== null) {
@@ -518,6 +538,7 @@ export function AskPageContent() {
             showRunDeepLinkPrompts={showRunDeepLinkPrompts}
             runAnchorUnset={runAnchorUnset}
             onMergePromptLine={mergePromptLine}
+            onStarterPromptClick={onStarterPromptClick}
             loading={loading || askStreaming}
             askDisabled={askDisabled}
             onAsk={onAsk}

@@ -15,9 +15,37 @@ const baseProps = {
   showPostAssistantFollowUps: false,
   runAnchorUnset: false,
   onMergePromptLine: () => {},
+  runId: "run-001",
 };
 
 describe("AskMessageThreadPanel", () => {
+  it("shows review-scoped starter chips on an empty thread", () => {
+    render(
+      <AskMessageThreadPanel
+        {...baseProps}
+        messages={[]}
+        isFinalizedReview
+      />,
+    );
+
+    expect(screen.getByTestId("ask-empty-thread-starters")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "What is the top risk?" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "What is blocking finalize?" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Summarize for a sponsor." })).toBeInTheDocument();
+  });
+
+  it("hides starter chips when no review is selected", () => {
+    render(
+      <AskMessageThreadPanel
+        {...baseProps}
+        messages={[]}
+        runId=""
+        isFinalizedReview
+      />,
+    );
+
+    expect(screen.queryByTestId("ask-empty-thread-starters")).not.toBeInTheDocument();
+  });
   it("shows finalized review artifact status", () => {
     render(
       <AskMessageThreadPanel

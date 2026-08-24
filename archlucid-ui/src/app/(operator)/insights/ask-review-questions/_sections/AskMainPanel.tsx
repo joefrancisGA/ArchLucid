@@ -33,9 +33,10 @@ export type AskMainPanelProps = {
   showRunDeepLinkPrompts: boolean;
   runAnchorUnset: boolean;
   onMergePromptLine: (line: string) => void;
+  onStarterPromptClick?: (line: string) => void;
   loading: boolean;
   askDisabled: boolean;
-  onAsk: () => void;
+  onAsk: (overrideQuestion?: string) => void;
   actionFailure: ApiLoadFailureState | null;
   messages: ConversationMessage[];
   streamingAssistantContent: string | null;
@@ -64,6 +65,7 @@ export function AskMainPanel(props: AskMainPanelProps) {
     showRunDeepLinkPrompts,
     runAnchorUnset,
     onMergePromptLine,
+    onStarterPromptClick,
     loading,
     askDisabled,
     onAsk,
@@ -86,6 +88,8 @@ export function AskMainPanel(props: AskMainPanelProps) {
       showPostAssistantFollowUps={showPostAssistantFollowUps}
       runAnchorUnset={runAnchorUnset}
       onMergePromptLine={onMergePromptLine}
+      onStarterPromptClick={onStarterPromptClick}
+      runId={runId}
       retrievalDegraded={retrievalDegraded}
     />
   );
