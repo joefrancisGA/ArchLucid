@@ -130,4 +130,29 @@ describe("POST /api/proxy/[...path] body limits", () => {
     expect(json.upstreamPath).toBe("v1/architecture/request");
     expect(json.upstreamTimeoutMs).toBe(60_000);
   });
+
+  it("uses the 10-minute budget when the catalog reset upstream times out", async () => {
+    fetchMock.mockRejectedValueOnce(new Error("The operation was aborted due to timeout"));
+
+    const req = new NextRequest("http://localhost/api/proxy/v1/diagnostics/reset-development-catalog", {
+      method: "POST",
+      headers: { "content-type": "application/json", "content-length": "2" },
+      body: "{}",
+    });
+
+    const res = await POST(req, {
+      params: Promise.resolve({ path: ["v1", "diagnostics", "reset-development-catalog"] }),
+    });
+
+    expect(res.status).toBe(502);
+    const json = (await res.json()) as {
+      title?: string;
+      detail?: string;
+      upstreamTimeoutMs?: number;
+    };
+    expect(json.title).toBe("Upstream API unreachable");
+    expect(json.detail).toContain("timed out after 600s");
+    expect(json.detail).toContain("budget 600000ms");
+    expect(json.upstreamTimeoutMs).toBe(600_000);
+  });
 });

@@ -14,7 +14,8 @@ namespace ArchLucid.Persistence.Sql;
 /// </summary>
 public sealed class SqlSchemaBootstrapper(
     ISqlConnectionFactory connectionFactory,
-    string scriptPath)
+    string scriptPath,
+    int? commandTimeoutSeconds = null)
     : ISchemaBootstrapper
 {
     [ExcludeFromCodeCoverage(Justification =
@@ -30,33 +31,20 @@ public sealed class SqlSchemaBootstrapper(
         await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct);
 
         foreach (string batch in batches)
+        {
+            if (string.IsNullOrWhiteSpace(batch))
+                continue;
 
-            if (!string.IsNullOrWhiteSpace(batch))
-
-                await connection.ExecuteAsync(new CommandDefinition(batch, cancellationToken: ct));
+            CommandDefinition command = new(
+                batch,
+                commandTimeout: commandTimeoutSeconds,
+                cancellationToken: ct);
+            await connection.ExecuteAsync(command);
+        }
     }
 
     public IReadOnlyList<string> SplitGoBatches(string script)
     {
-        string[] lines = script.Replace("\r\n", "\n", StringComparison.Ordinal).Split('\n');
-        List<string> batches = [];
-        List<string> current = [];
-
-        foreach (string line in lines)
-
-            if (line.Trim().Equals("GO", StringComparison.OrdinalIgnoreCase))
-            {
-                batches.Add(string.Join(Environment.NewLine, current));
-                current.Clear();
-            }
-            else
-
-                current.Add(line);
-
-        if (current.Count > 0)
-
-            batches.Add(string.Join(Environment.NewLine, current));
-
-        return batches;
+        return SqlGoBatchSplitter.Split(script);
     }
 }

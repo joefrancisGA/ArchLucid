@@ -349,10 +349,19 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
             sp.GetRequiredService<IOptions<SqlOpenResilienceOptions>>(),
             sp.GetRequiredService<ILogger<ReadReplicaRoutedConnectionFactory>>()));
 
-        services.AddScoped<ISchemaBootstrapper>(_ =>
-            new SqlSchemaBootstrapper(
+        services.AddScoped<ISchemaBootstrapper>(sp =>
+        {
+            int configuredTimeoutSeconds = sp.GetRequiredService<IOptionsMonitor<ArchLucidPersistenceOptions>>()
+                .CurrentValue.DefaultSqlCommandTimeoutSeconds;
+            int commandTimeoutSeconds = configuredTimeoutSeconds > 0
+                ? configuredTimeoutSeconds
+                : SqlCommandTimeouts.ExtendedSeconds;
+
+            return new SqlSchemaBootstrapper(
                 new SqlConnectionFactory(schemaBootstrapConnectionString, enforceServerCertificateTrust),
-                scriptPath));
+                scriptPath,
+                commandTimeoutSeconds);
+        });
     }
 
     private static string ResolveArchLucidSqlScriptPath()

@@ -6,6 +6,7 @@ using DbUp.Engine;
 using Microsoft.Data.SqlClient;
 
 using ArchLucid.Core.Diagnostics;
+using ArchLucid.Persistence.Connections;
 
 namespace ArchLucid.Persistence.Data.Infrastructure;
 
@@ -28,6 +29,12 @@ namespace ArchLucid.Persistence.Data.Infrastructure;
 public static class DatabaseMigrator
 {
     private static readonly TimeSpan MigrationRunMutexWait = TimeSpan.FromMinutes(10);
+
+    /// <summary>
+    ///     Per-script DbUp execution timeout. Greenfield reset and cold local catalogs can exceed SqlClient's 30s default.
+    /// </summary>
+    public static readonly TimeSpan ScriptExecutionTimeout =
+        TimeSpan.FromSeconds(SqlCommandTimeouts.ExtendedSeconds);
 
     /// <summary>
     ///     Applies all embedded migration scripts to the SQL Server database.
@@ -173,10 +180,14 @@ public static class DatabaseMigrator
         // Per-script transactions: a single transaction across all embedded scripts breaks SQL Server when later
         // migrations include security-policy / RLS DDL and other statements that do not compose in one long transaction.
         // Migration 091 (RCSI) is a no-op here; see TryEnableReadCommittedSnapshotIfNeeded (ALTER DATABASE cannot run in DbUp's transaction).
+        string timedConnectionString = SqlConnectionStringCommandTimeout.Apply(
+            connectionString,
+            SqlCommandTimeouts.ExtendedSeconds);
         UpgradeEngine upgrader = DeployChanges.To
-            .SqlDatabase(connectionString)
+            .SqlDatabase(timedConnectionString)
             .WithScripts(scripts)
             .WithTransactionPerScript()
+            .WithExecutionTimeout(ScriptExecutionTimeout)
             .LogToConsole()
             .Build();
 
@@ -246,6 +257,7 @@ public static class DatabaseMigrator
                            """;
 
         using SqlCommand command = new(sql, connection);
+        command.CommandTimeout = SqlCommandTimeouts.ExtendedSeconds;
         command.ExecuteNonQuery();
     }
 

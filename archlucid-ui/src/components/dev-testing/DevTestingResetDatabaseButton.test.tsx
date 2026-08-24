@@ -32,6 +32,16 @@ describe("DevTestingResetDatabaseButton", () => {
     expect(screen.getByTestId("dev-reset-database-button")).toHaveTextContent("Reset Database");
   });
 
+  it("explains the 10-minute budget and SSMS procedure in the confirm dialog", () => {
+    render(<DevTestingResetDatabaseButton />);
+
+    fireEvent.click(screen.getByTestId("dev-reset-database-button"));
+
+    expect(screen.getByText(/up to 10 minutes/i)).toBeInTheDocument();
+    expect(screen.getByText(/usp_ArchLucid_ResetDevelopmentCatalog/i)).toBeInTheDocument();
+    expect(screen.getByText(/connect to the master database/i)).toBeInTheDocument();
+  });
+
   it("confirms before calling the reset route and shows success telemetry", async () => {
     const assignMock = vi.fn();
     vi.stubGlobal("location", { assign: assignMock });

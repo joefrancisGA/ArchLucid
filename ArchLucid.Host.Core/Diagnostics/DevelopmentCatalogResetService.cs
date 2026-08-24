@@ -3,6 +3,7 @@ using ArchLucid.Application.Diagnostics;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Host.Core.Configuration;
 using ArchLucid.Host.Core.Startup;
+using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Data.Infrastructure;
 using ArchLucid.Persistence.Sql;
 using ArchLucid.Persistence.Tenancy;
@@ -24,7 +25,7 @@ public sealed class DevelopmentCatalogResetService(
     IOptions<ArchLucidPersistenceOptions> persistenceOptions,
     ILogger<DevelopmentCatalogResetService> logger) : IDevelopmentCatalogResetService
 {
-    private const int DefaultSchemaBootstrapTimeoutSeconds = 300;
+    private const int DefaultSchemaBootstrapTimeoutSeconds = SqlCommandTimeouts.ExtendedSeconds;
 
     private readonly IConfiguration _configuration =
         configuration ?? throw new ArgumentNullException(nameof(configuration));
@@ -70,28 +71,32 @@ public sealed class DevelopmentCatalogResetService(
             "Development catalog reset requested for {CatalogName}. Dropping and recreating the catalog.",
             catalogName);
 
-        await SqlTenantCatalogAdminCommands.DropCatalogIfExistsAsync(resolved.RuntimeConnectionString, cancellationToken)
+        await SqlDevelopmentCatalogResetCommands.EnsureProcedureAsync(resolved.RuntimeConnectionString, cancellationToken)
+            .ConfigureAwait(false);
+
+        await SqlDevelopmentCatalogResetCommands.ExecuteResetAsync(resolved.RuntimeConnectionString, cancellationToken)
             .ConfigureAwait(false);
 
         SqlConnection.ClearAllPools();
-
-        await SqlTenantCatalogAdminCommands.EnsureCatalogExistsAsync(resolved.RuntimeConnectionString, cancellationToken)
-            .ConfigureAwait(false);
 
         if (!string.IsNullOrWhiteSpace(resolved.MigrationConnectionString))
         {
             SqlTopologyOptions topology =
                 _configuration.GetSection(SqlTopologyOptions.SectionPath).Get<SqlTopologyOptions>()
                 ?? new SqlTopologyOptions();
+            string migrationConnectionString = SqlConnectionStringCommandTimeout.Apply(
+                resolved.MigrationConnectionString,
+                SqlCommandTimeouts.ExtendedSeconds);
 
             if (topology.Mode == SqlTopologyMode.SystemWithPerTenantCatalogs)
-                DatabaseMigrator.RunTenant(resolved.MigrationConnectionString);
+                DatabaseMigrator.RunTenant(migrationConnectionString);
             else
-                DatabaseMigrator.Run(resolved.MigrationConnectionString);
+                DatabaseMigrator.Run(migrationConnectionString);
         }
 
-        int bootstrapTimeoutSeconds = _persistenceOptions.DefaultSqlCommandTimeoutSeconds > 0
-            ? _persistenceOptions.DefaultSqlCommandTimeoutSeconds
+        int configuredBootstrapTimeoutSeconds = _persistenceOptions.DefaultSqlCommandTimeoutSeconds;
+        int bootstrapTimeoutSeconds = configuredBootstrapTimeoutSeconds > 0
+            ? Math.Max(configuredBootstrapTimeoutSeconds, SqlCommandTimeouts.ExtendedSeconds)
             : DefaultSchemaBootstrapTimeoutSeconds;
 
         using CancellationTokenSource bootstrapCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);

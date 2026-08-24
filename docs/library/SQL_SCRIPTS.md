@@ -35,17 +35,33 @@ ArchLucid uses **two** mechanisms for SQL Server schema (by design):
 |------|------|
 | `ArchLucid.Persistence/Scripts/ArchLucid.sql` | SQL Server **consolidated** schema (tenant / product plane). Source of truth for **greenfield** / manual runs / Persistence bootstrap copy. |
 | `ArchLucid.Persistence/Scripts/ArchLucid.System.sql` | SQL Server **consolidated** schema (**system / control-plane** catalog only). Runs after `DatabaseMigrator.RunSystem` via `SqlSchemaBootstrapper`; keep aligned with `Migrations/System/*.sql`. |
+| `ArchLucid.Persistence/Scripts/ArchLucid.Master.sql` | SQL Server **master** catalog DDL (development-only `dbo.usp_ArchLucid_ResetDevelopmentCatalog`). Copied to build output; deployed by the Development host; not applied by DbUp. |
 | `ArchLucid.Persistence/Scripts/ArchLucid_Unified_Schema.sql` | IaC reference subset generated from `ArchLucid.sql`. Regenerate: `python scripts/ci/build_archlucid_unified_schema_sql.py` or `bash scripts/ci/update_archlucid_unified_schema_snapshot.sh`. CI: `scripts/ci/check_archlucid_unified_schema_snapshot.sh` (**TB-066**). |
 | `ArchLucid.Persistence/Scripts/README.md` | Short pointer to this doc for repo browsers. |
 | `ArchLucid.Persistence/Migrations/001_*.sql` … `022_*.sql` | Incremental **DbUp** scripts (SQL Server); see §4 catalog. |
 | `ArchLucid.Persistence/Migrations/README.md` | Short pointer + naming rule for DbUp ordering. |
-| `ArchLucid.Persistence` output | `Scripts/ArchLucid.sql` and `Scripts/ArchLucid.System.sql` — MSBuild copies (`CopyToOutputDirectory`). |
+| `ArchLucid.Persistence` output | `Scripts/ArchLucid.sql`, `Scripts/ArchLucid.System.sql`, and `Scripts/ArchLucid.Master.sql` — MSBuild copies (`CopyToOutputDirectory`). |
 
 **Schema drift verification (TB-065):** after DbUp, `ArchLucid.Persistence.MigrateVerify` compares live catalog metadata to curated sentinel manifests (`TenantSchemaSentinelManifest`, `SystemSchemaSentinelManifest`). Failures name missing tables, columns, or indexes. Optional flags: `--skip-drift`, `--system-plane`.
 
 **Rolling deploy lint (TB-068):** `scripts/ci/check_migration_rolling_deploy_patterns.py` — see [runbooks/MIGRATION_ROLLBACK.md](../runbooks/MIGRATION_ROLLBACK.md#rolling-deploy-migrations).
 
 There is **no** remaining `001_AuthorityStore.sql` under Persistence; authority DDL lives inside `ArchLucid.sql`.
+
+### 2.1 Development catalog reset (`ArchLucid.Master.sql`)
+
+Local **Reset Database** (dev testing panel) drops and recreates the SQL catalog, then replays DbUp + `ArchLucid.sql` bootstrap + optional demo seed. That work is allowed **10 minutes** (`SqlCommandTimeouts.ExtendedSeconds`, UI proxy `PROXY_UPSTREAM_CATALOG_RESET_FETCH_TIMEOUT_MS`).
+
+The drop/create SQL lives in **`master`** because you cannot `DROP DATABASE` the catalog you are connected to:
+
+```sql
+-- SSMS: connect to master. Set execution timeout to 0 or >= 600 seconds.
+EXEC dbo.usp_ArchLucid_ResetDevelopmentCatalog
+    @DatabaseName = N'ArchLucid',
+    @Confirm = N'RESET';
+```
+
+Then restart the ArchLucid API so migrations, schema bootstrap, default scope rows, and demo seed replay. The UI button runs the same procedure and continues those steps in-process (no restart). The Development host deploys the procedure onto `master` at startup (best-effort) and again at the start of each reset.
 
 ---
 

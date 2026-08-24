@@ -48,6 +48,9 @@
     <None Include="Scripts\ArchLucid.System.sql">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="Scripts\ArchLucid.Master.sql">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
   <!-- DbUp: DatabaseMigrator includes only resources whose name contains ".Migrations." (see DatabaseMigrator.cs). -->

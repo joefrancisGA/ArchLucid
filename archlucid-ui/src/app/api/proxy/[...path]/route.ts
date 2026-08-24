@@ -8,6 +8,7 @@ import { buildProxyUpstreamPath } from "@/lib/proxy-upstream-path";
 import { declaredPostBodyExceedsLimit, readRequestBodyBytesWithLimit } from "@/lib/proxy-body-read";
 import {
   isProxyLargeUploadRequest,
+  isProxyDevelopmentCatalogResetRequest,
   resolveProxyMaxBodyBytes,
 } from "@/lib/proxy-constants";
 import { enforceProxyRateLimit } from "@/lib/proxy-rate-limit";
@@ -20,6 +21,7 @@ import {
   respondWithProxyProblem,
 } from "@/lib/proxy/proxy-problem-response";
 import {
+  PROXY_UPSTREAM_CATALOG_RESET_FETCH_TIMEOUT_MS,
   PROXY_UPSTREAM_FETCH_TIMEOUT_MS,
   PROXY_UPSTREAM_UPLOAD_FETCH_TIMEOUT_MS,
 } from "@/lib/server-fetch-timeouts";
@@ -52,7 +54,9 @@ async function forwardMutatingWithBody(
   const isLargeUpload = isProxyLargeUploadRequest(pathForLog, contentType);
   const upstreamTimeoutMs = isLargeUpload
     ? PROXY_UPSTREAM_UPLOAD_FETCH_TIMEOUT_MS
-    : PROXY_UPSTREAM_FETCH_TIMEOUT_MS;
+    : isProxyDevelopmentCatalogResetRequest(pathForLog)
+      ? PROXY_UPSTREAM_CATALOG_RESET_FETCH_TIMEOUT_MS
+      : PROXY_UPSTREAM_FETCH_TIMEOUT_MS;
 
   const tooLargeByHeader = declaredPostBodyExceedsLimit(
     request.headers.get("content-length"),

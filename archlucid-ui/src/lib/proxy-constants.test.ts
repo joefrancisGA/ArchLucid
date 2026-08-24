@@ -3,6 +3,7 @@
 import {
   PROXY_MAX_BODY_BYTES,
   PROXY_MAX_MULTIPART_BODY_BYTES,
+  isProxyDevelopmentCatalogResetRequest,
   isProxyLargeUploadRequest,
   resolveProxyMaxBodyBytes,
 } from "./proxy-constants";
@@ -35,5 +36,17 @@ describe("resolveProxyMaxBodyBytes", () => {
     expect(
       resolveProxyMaxBodyBytes("v1/azure-extractor/upload-sessions/s1/chunks/0", "application/octet-stream"),
     ).toBe(PROXY_MAX_MULTIPART_BODY_BYTES);
+  });
+});
+
+describe("isProxyDevelopmentCatalogResetRequest", () => {
+  it("matches the diagnostics catalog reset path", () => {
+    expect(isProxyDevelopmentCatalogResetRequest("v1/diagnostics/reset-development-catalog")).toBe(true);
+    expect(isProxyDevelopmentCatalogResetRequest("V1/Diagnostics/Reset-Development-Catalog")).toBe(true);
+  });
+
+  it("does not match other diagnostics routes", () => {
+    expect(isProxyDevelopmentCatalogResetRequest("v1/diagnostics/health")).toBe(false);
+    expect(isProxyDevelopmentCatalogResetRequest("v1/architecture/request")).toBe(false);
   });
 });

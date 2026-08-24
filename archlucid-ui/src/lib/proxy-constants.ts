@@ -47,6 +47,13 @@ export function isProxyLargeUploadRequest(pathForLog: string, contentType: strin
   return false;
 }
 
+/** True when the proxy is forwarding the development SQL catalog reset. */
+export function isProxyDevelopmentCatalogResetRequest(pathForLog: string): boolean {
+  const path = pathForLog.toLowerCase().replaceAll("\\", "/");
+
+  return path.includes("diagnostics/reset-development-catalog");
+}
+
 /** Resolves the proxy body byte cap for a mutating forward. */
 export function resolveProxyMaxBodyBytes(pathForLog: string, contentType: string | null): number {
   if (isProxyLargeUploadRequest(pathForLog, contentType)) {

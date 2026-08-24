@@ -156,6 +156,7 @@ Documented stack limits that sit **below** long Real-mode handler work. Values a
 |-------|-------------------|-------------------|-------|
 | Next.js RSC / server loaders | `SERVER_UPSTREAM_FETCH_TIMEOUT_MS` | **45s** | `archlucid-ui/src/lib/server-fetch-timeouts.ts` |
 | UI API proxy (JSON) | `PROXY_UPSTREAM_FETCH_TIMEOUT_MS` | **60s** | `archlucid-ui/src/app/api/proxy/[...path]/route.ts` |
+| UI API proxy (development catalog reset) | `PROXY_UPSTREAM_CATALOG_RESET_FETCH_TIMEOUT_MS` | **10 min** | `POST /api/proxy/v1/diagnostics/reset-development-catalog` and `/api/reset-database` only |
 | UI API proxy (multipart upload) | `PROXY_UPSTREAM_UPLOAD_FETCH_TIMEOUT_MS` | **10 min** | Large evidence uploads only |
 | Azure Front Door Standard origin | `origin_response_timeout` (platform default) | **60s** when unset | This repo's `infra/terraform-edge/` does **not** override origin response timeout — treat **60s** as the edge default until explicitly configured |
 | App Service / Container Apps origin | Platform / ingress defaults | **~230s** (varies by SKU) | Still below multi-minute Real-mode execute |

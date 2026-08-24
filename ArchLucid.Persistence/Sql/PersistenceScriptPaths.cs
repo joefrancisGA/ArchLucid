@@ -8,6 +8,7 @@ public static class PersistenceScriptPaths
     private const string ScriptsFolderName = "Scripts";
     private const string TenantScriptFileName = "ArchLucid.sql";
     private const string SystemScriptFileName = "ArchLucid.System.sql";
+    private const string MasterScriptFileName = "ArchLucid.Master.sql";
 
     public static string ResolveTenantScriptPath()
     {
@@ -17,6 +18,11 @@ public static class PersistenceScriptPaths
     public static string ResolveSystemScriptPath()
     {
         return ResolveScriptPath(SystemScriptFileName);
+    }
+
+    public static string ResolveMasterScriptPath()
+    {
+        return ResolveScriptPath(MasterScriptFileName);
     }
 
     private static string ResolveScriptPath(string fileName)
