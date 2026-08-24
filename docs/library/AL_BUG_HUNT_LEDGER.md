@@ -509,11 +509,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** finding inspect; dapper inspect read
 - **paths:** ArchLucid.Persistence/Findings/DapperFindingInspectReadRepository.cs; ArchLucid.Persistence/Findings/FindingInspectReadModelMapper.cs; ArchLucid.Persistence/Sql/FindingInspectReadSql.cs
 - **test-filter:** FullyQualifiedName~FindingInspectReadModelMapperTests|FullyQualifiedName~FindingInspectReadSqlTests|FullyQualifiedName~DapperFindingInspectReadRepositoryTests|FullyQualifiedName~FindingInspectEndpointTests
-- **hunts:** 3
-- **bugs-found:** 3
+- **hunts:** 4
+- **bugs-found:** 4
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-23
-- **last-bug:** 2026-08-23
+- **last-hunt:** 2026-08-24
+- **last-bug:** 2026-08-24 — FollowUpBatch merged child rows across reruns sharing the same scoped FindingId
 - **related-pd-tb:** none
 - **code-changed-since:** unknown
 
@@ -523,6 +523,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] Mapper drops evidence fields so inspect shows success with empty trail Î“Ã‡Ã¶ retired (invalid): mapper only parses enums; evidence is built in the repository from related nodes
 - [x] Inspect query joins without tenant on the child table and leaks sibling-tenant rows — fixed: FollowUpBatch now scopes FindingRelatedNodes / rules / actions / AuditEvents / FindingReviewEvents / RiskExceptions to TenantId+WorkspaceId+ProjectId
 - [x] (proven) `ResolveRuleFields` pairs `DecisionRuleId` from `AppliedRuleIdsJson` with unrelated `FindingTraceRulesApplied` SortOrder=0 text — fixed: keep `DecisionRuleName` aligned with the first applied rule id when JSON ids exist
+- [x] (proven) FollowUpBatch merged related nodes / rule text / recommended actions across reruns sharing the same scoped `FindingId` — **hit 2026-08-24:** `@RunId` from the primary inspect row was unused on child-table sub-queries; main inspect `TOP 1` was non-deterministic; fixed with `r.RunId = @RunId`, `ORDER BY r.CreatedUtc DESC, r.RunId DESC`, and `aet.RunId = r.RunId`; regressions in `FollowUpBatch_scopes_related_nodes_to_main_inspect_run` and related shape tests
 
 ---
 
