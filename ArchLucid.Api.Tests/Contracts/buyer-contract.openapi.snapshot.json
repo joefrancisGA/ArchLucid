@@ -10671,17 +10671,6 @@
         },
         "type": "object"
       },
-      "EvidenceContradictedBriefAssumption": {
-        "properties": {
-          "assumption": {
-            "type": "string"
-          },
-          "evidenceNote": {
-            "type": "string"
-          }
-        },
-        "type": "object"
-      },
       "DraftBranchOverrideKind": {
         "enum": [
           "QuestionAnswer",
@@ -11495,6 +11484,17 @@
           "Unverified"
         ],
         "type": "string"
+      },
+      "EvidenceContradictedBriefAssumption": {
+        "properties": {
+          "assumption": {
+            "type": "string"
+          },
+          "evidenceNote": {
+            "type": "string"
+          }
+        },
+        "type": "object"
       },
       "EvidenceNote": {
         "properties": {
