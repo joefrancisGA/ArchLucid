@@ -54,16 +54,17 @@ public sealed class IdentityProviderActivationService(
 
         string claimMappingJson = JsonSerializer.Serialize(mapping, JsonOptions);
 
+        TenantIdentityProviderConfigurationRecord? existing =
+            await _repository.TryGetAsync(tenantId, cancellationToken).ConfigureAwait(false);
+
         TenantIdentityProviderConfigurationRecord record = new()
         {
             TenantId = tenantId,
             Protocol = parsedProtocol,
             IssuerUri = request.IssuerUri.Trim(),
-            MetadataXml = string.IsNullOrWhiteSpace(request.MetadataXml) ? null : request.MetadataXml.Trim(),
+            MetadataXml = ResolveOptionalPersistedField(request.MetadataXml, existing?.MetadataXml),
             ClaimMappingJson = claimMappingJson,
-            KeyVaultSecretName = string.IsNullOrWhiteSpace(request.KeyVaultSecretName)
-                ? null
-                : request.KeyVaultSecretName.Trim(),
+            KeyVaultSecretName = ResolveOptionalPersistedField(request.KeyVaultSecretName, existing?.KeyVaultSecretName),
             UpdatedUtc = TimeProvider.System.GetUtcNow(),
             UpdatedByActorId = actorId.Trim(),
             IsActive = true
@@ -72,5 +73,19 @@ public sealed class IdentityProviderActivationService(
         await _repository.UpsertAsync(record, cancellationToken).ConfigureAwait(false);
 
         return record;
+    }
+
+    /// <summary>
+    ///     Null request field preserves an existing stored value; whitespace-only clears; otherwise trims and stores.
+    /// </summary>
+    private static string? ResolveOptionalPersistedField(string? requestValue, string? existingValue)
+    {
+        if (requestValue is null)
+            return existingValue;
+
+        if (string.IsNullOrWhiteSpace(requestValue))
+            return null;
+
+        return requestValue.Trim();
     }
 }

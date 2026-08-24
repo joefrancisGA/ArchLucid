@@ -71,6 +71,79 @@ public sealed class IdentityProviderDiscoveryServiceTests
         response.IssuerUri.Should().Be("https://idp.example/saml");
     }
 
+    [Fact]
+    public async Task DiscoverAsync_saml_timeout_returns_failed_response_instead_of_throwing()
+    {
+        using HttpClient httpClient = new(new TimeoutSimulatingHandler())
+        {
+            Timeout = TimeSpan.FromMilliseconds(50)
+        };
+
+        IdentityProviderDiscoveryService sut = new(httpClient);
+
+        IdentityProviderDiscoverResponse response = await sut.DiscoverAsync(
+            new IdentityProviderDiscoverRequest
+            {
+                Protocol = "saml",
+                MetadataUrl = "https://idp.example/metadata/saml"
+            },
+            CancellationToken.None);
+
+        response.DiscoverySucceeded.Should().BeFalse();
+        response.DiagnosticSummary.Should().Contain("timed out");
+    }
+
+    [Fact]
+    public async Task DiscoverAsync_rejects_non_http_scheme_metadata_url()
+    {
+        IdentityProviderDiscoveryService sut = new(new HttpClient(new CannedResponseHandler(_ => new HttpResponseMessage(HttpStatusCode.OK))));
+
+        IdentityProviderDiscoverResponse response = await sut.DiscoverAsync(
+            new IdentityProviderDiscoverRequest
+            {
+                Protocol = "oidc",
+                MetadataUrl = "file:///etc/passwd"
+            },
+            CancellationToken.None);
+
+        response.DiscoverySucceeded.Should().BeFalse();
+        response.DiagnosticSummary.Should().Contain("HTTP(S)");
+    }
+
+    [Fact]
+    public async Task DiscoverAsync_saml_empty_body_returns_failed_response_instead_of_throwing()
+    {
+        using HttpClient httpClient = new(new CannedResponseHandler(_ => new HttpResponseMessage(HttpStatusCode.OK)
+        {
+            Content = new StringContent(string.Empty, Encoding.UTF8, "application/xml")
+        }));
+
+        IdentityProviderDiscoveryService sut = new(httpClient);
+
+        IdentityProviderDiscoverResponse response = await sut.DiscoverAsync(
+            new IdentityProviderDiscoverRequest
+            {
+                Protocol = "saml",
+                MetadataUrl = "https://idp.example/metadata/saml"
+            },
+            CancellationToken.None);
+
+        response.DiscoverySucceeded.Should().BeFalse();
+        response.DiagnosticSummary.Should().Contain("SAML metadata XML is required");
+    }
+
+    private sealed class TimeoutSimulatingHandler : HttpMessageHandler
+    {
+        protected override async Task<HttpResponseMessage> SendAsync(
+            HttpRequestMessage request,
+            CancellationToken cancellationToken)
+        {
+            await Task.Delay(TimeSpan.FromSeconds(30), cancellationToken).ConfigureAwait(false);
+
+            return new HttpResponseMessage(HttpStatusCode.OK);
+        }
+    }
+
     private sealed class CannedResponseHandler : HttpMessageHandler
     {
         private readonly Func<HttpRequestMessage, HttpResponseMessage> _respond;
