@@ -83,11 +83,15 @@ public sealed class HttpScopeContextProvider(IHttpContextAccessor httpContextAcc
         if (headers is null || !headers.TryGetValue(headerName, out StringValues headerRaw))
             return new ScopeDimensionResolution(defaultId, ScopeSource.Default);
 
-        string headerText = headerRaw.ToString();
+        foreach (string? segment in headerRaw)
+        {
+            if (string.IsNullOrWhiteSpace(segment))
+                continue;
 
-        if (string.IsNullOrWhiteSpace(headerText) || !Guid.TryParse(headerText, out Guid fromHeader))
-            return new ScopeDimensionResolution(defaultId, ScopeSource.Default);
+            if (Guid.TryParse(segment.Trim(), out Guid fromHeader))
+                return new ScopeDimensionResolution(fromHeader, ScopeSource.Header);
+        }
 
-        return new ScopeDimensionResolution(fromHeader, ScopeSource.Header);
+        return new ScopeDimensionResolution(defaultId, ScopeSource.Default);
     }
 }

@@ -87,4 +87,24 @@ public sealed class ScopeIdentityBindingValidatorTests
         result.IsValid.Should().BeFalse();
         result.FailureMessage.Should().Contain("x-project-id");
     }
+
+    [SkippableFact]
+    public void ValidateHeaderOnlyScopeEscalation_rejects_duplicate_tenant_headers_without_claim_for_bearer()
+    {
+        Guid tenantId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");
+        DefaultHttpContext http = new()
+        {
+            User = new ClaimsPrincipal(new ClaimsIdentity(
+                [new Claim(ClaimTypes.Name, "JwtUser")],
+                "Bearer"))
+        };
+        http.Request.Headers.Append("x-tenant-id", tenantId.ToString("D"));
+        http.Request.Headers.Append("x-tenant-id", Guid.NewGuid().ToString("D"));
+
+        ScopeIdentityBindingValidator.ScopeIdentityBindingResult result =
+            ScopeIdentityBindingValidator.ValidateHeaderOnlyScopeEscalation(http.User, http.Request.Headers, "Bearer");
+
+        result.IsValid.Should().BeFalse();
+        result.FailureMessage.Should().Contain("x-tenant-id");
+    }
 }

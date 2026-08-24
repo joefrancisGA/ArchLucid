@@ -232,6 +232,30 @@ public sealed class ScopeIdentityBindingMiddlewareTests
         nextCalled.Should().BeTrue();
     }
 
+    [Fact]
+    public async Task InvokeAsync_bearer_without_tenant_claim_rejects_duplicate_x_tenant_id_headers()
+    {
+        DefaultHttpContext context = CreateContext();
+        context.User = new ClaimsPrincipal(new ClaimsIdentity(
+            [new Claim(ClaimTypes.Name, "JwtUser")],
+            "Bearer"));
+        context.Request.Headers.Append("x-tenant-id", Guid.NewGuid().ToString("D"));
+        context.Request.Headers.Append("x-tenant-id", Guid.NewGuid().ToString("D"));
+        bool nextCalled = false;
+
+        await RunMiddlewareAsync(context, _ =>
+        {
+            nextCalled = true;
+
+            return Task.CompletedTask;
+        });
+
+        nextCalled.Should().BeFalse();
+        context.Response.StatusCode.Should().Be(StatusCodes.Status403Forbidden);
+        string body = await ReadResponseBodyAsync(context);
+        body.Should().Contain("x-tenant-id");
+    }
+
     private static DefaultHttpContext CreateContext()
     {
         DefaultHttpContext context = new() { Request = { Path = "/v1/runs" } };

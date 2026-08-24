@@ -170,8 +170,15 @@ public static class ScopeIdentityBindingValidator
         if (headers is null || !headers.TryGetValue(headerName, out StringValues headerRaw))
             return false;
 
-        string text = headerRaw.ToString();
+        foreach (string? segment in headerRaw)
+        {
+            if (string.IsNullOrWhiteSpace(segment))
+                continue;
 
-        return !string.IsNullOrWhiteSpace(text) && Guid.TryParse(text, out value);
+            if (Guid.TryParse(segment.Trim(), out value))
+                return true;
+        }
+
+        return false;
     }
 }

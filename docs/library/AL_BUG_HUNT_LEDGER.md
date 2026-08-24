@@ -1108,11 +1108,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** scope binding; tenant scope middleware; route tenant filter
 - **paths:** ArchLucid.Api/Middleware/ScopeIdentityBindingMiddleware.cs; ArchLucid.Api/Middleware/ScopeResolutionGuardMiddleware.cs; ArchLucid.Api/Security/RouteTenantScopeBindingFilter.cs
 - **test-filter:** FullyQualifiedName~ScopeIdentityBinding|FullyQualifiedName~ScopeResolutionGuard|FullyQualifiedName~RouteTenantScopeBinding
-- **hunts:** 1
-- **bugs-found:** 4
+- **hunts:** 2
+- **bugs-found:** 5
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24 — production-like guard trusted dev-default claim GUIDs; workspace/project header escalation without bound claims; SCIM bearer omitted from header-only escalation guard
+- **last-bug:** 2026-08-24 — duplicate x-*-id headers bypassed header-only scope escalation guard
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1124,6 +1124,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Production-like guard trusted development-default GUIDs from JWT claims — **hit 2026-08-24:** `ScopeResolutionGuard` only rejected Header/Default/Ambient defaults; regression in `RequiresTrustedScopeRejection_true_when_claim_uses_development_default_guid`
 - [x] (proven) `x-workspace-id` header steered scope without a bound claim — **hit 2026-08-24:** middleware only blocked tenant header escalation; regression in `ValidateHeaderOnlyScopeEscalation_rejects_workspace_header_without_claim_for_bearer`
 - [x] (proven) `x-project-id` header steered scope without a bound claim — **hit 2026-08-24:** SCIM bearer omitted from header-only escalation guard; regression in `ValidateHeaderOnlyScopeEscalation_rejects_project_header_without_claim_for_scim_bearer`
+- [x] (proven) Duplicate `x-*-id` headers bypassed header-only scope escalation guard — **hit 2026-08-24:** `StringValues.ToString()` comma-joined duplicate headers so `Guid.TryParse` failed and steering was ignored; now first non-empty segment is parsed; regressions in `ValidateHeaderOnlyScopeEscalation_rejects_duplicate_tenant_headers_without_claim_for_bearer` and `InvokeAsync_bearer_without_tenant_claim_rejects_duplicate_x_tenant_id_headers`
 
 ---
 
