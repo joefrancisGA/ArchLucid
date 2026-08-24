@@ -205,6 +205,7 @@ public sealed class ArchitectureRunExecuteOrchestratorExecutionModeTelemetryTest
             new NoOpAgentEvidenceUntrustedInputSanitizer(),
             contentSafety.Object,
             Options.Create(new AgentExecutionOptions { Mode = executionMode }),
+            new FixedEffectiveAgentExecutionModeAccessor(executionMode),
             Options.Create(new AgentOutputQualityGateOptions()),
             new RunStateTransitionService(),
             Mock.Of<IRunEngineProvenanceCaptureService>(),

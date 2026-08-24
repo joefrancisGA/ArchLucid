@@ -285,7 +285,7 @@ public sealed partial class ArchitectureRunExecuteOrchestrator
             else if (derived is ArchitectureRunStatus.ReadyForCommit)
             {
                 header.StructuralExecutionMode = StructuralExecutionModeResolver.FromAgentExecutionOptionsAndFallback(
-                    _agentExecutionOptions.Value,
+                    EffectiveAgentExecutionOptions(),
                     header.RealModeFellBackToSimulator);
             }
         }

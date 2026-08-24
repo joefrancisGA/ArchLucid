@@ -1,5 +1,6 @@
 using ArchLucid.Api.Models;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.DevTesting;
 using ArchLucid.Core.Diagnostics;
 
 using Asp.Versioning;
@@ -25,6 +26,7 @@ using ArchLucid.Api.Security;
 [ProducesResponseType(typeof(AgentExecutionCostPreviewResponse), StatusCodes.Status200OK)]
 public sealed class AgentExecutionCostPreviewController(
     IOptionsMonitor<AgentExecutionOptions> agentExecutionOptions,
+    IEffectiveAgentExecutionModeAccessor effectiveAgentExecutionModeAccessor,
     IOptionsMonitor<AzureOpenAiOptions> azureOpenAiOptions,
     IOptionsMonitor<LlmDailyTenantTokenWindowOptions> dailyTenantBudgetOptions,
     IOptionsMonitor<LlmCostEstimationOptions> llmCostEstimationOptions,
@@ -38,6 +40,9 @@ public sealed class AgentExecutionCostPreviewController(
 
     private readonly IOptionsMonitor<AgentExecutionOptions> _agentExecutionOptions =
         agentExecutionOptions ?? throw new ArgumentNullException(nameof(agentExecutionOptions));
+
+    private readonly IEffectiveAgentExecutionModeAccessor _effectiveAgentExecutionModeAccessor =
+        effectiveAgentExecutionModeAccessor ?? throw new ArgumentNullException(nameof(effectiveAgentExecutionModeAccessor));
 
     private readonly IOptionsMonitor<AzureOpenAiOptions> _azureOpenAiOptions =
         azureOpenAiOptions ?? throw new ArgumentNullException(nameof(azureOpenAiOptions));
@@ -56,8 +61,8 @@ public sealed class AgentExecutionCostPreviewController(
     public ActionResult<AgentExecutionCostPreviewResponse> GetCostPreview()
     {
         bool isReal = string.Equals(
-            _agentExecutionOptions.CurrentValue.Mode.Trim(),
-            "Real",
+            _effectiveAgentExecutionModeAccessor.GetEffectiveMode(),
+            DevAgentExecutionModeHeaderNames.Real,
             StringComparison.OrdinalIgnoreCase);
 
         AzureOpenAiOptions azure = _azureOpenAiOptions.CurrentValue;

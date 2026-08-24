@@ -217,12 +217,12 @@ public sealed partial class ArchitectureRunExecuteOrchestrator
 
     private void StampTaskExecutionModesOnResults(IReadOnlyList<AgentResult> results, RunRecord? header)
     {
-        bool isSimulatorHost = !_agentExecutionOptions.Value.Mode.Equals("Real", StringComparison.OrdinalIgnoreCase);
+        bool isSimulatorHost = !EffectiveAgentExecutionOptions().Mode.Equals("Real", StringComparison.OrdinalIgnoreCase);
         bool realModeFellBackToSimulator = header?.RealModeFellBackToSimulator ?? false;
 
         AgentResultTaskExecutionModePersistStamper.EnsureStamped(
             results,
-            _agentExecutionOptions.Value,
+            EffectiveAgentExecutionOptions(),
             realModeFellBackToSimulator,
             isSimulatorHost);
     }

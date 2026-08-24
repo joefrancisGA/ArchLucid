@@ -182,6 +182,7 @@ public sealed class ArchitectureRunExecuteOrchestratorLegacyPromotionAuditTests
             new NoOpAgentEvidenceUntrustedInputSanitizer(),
             contentSafety.Object,
             Microsoft.Extensions.Options.Options.Create(new AgentExecutionOptions()),
+            new FixedEffectiveAgentExecutionModeAccessor(),
             Microsoft.Extensions.Options.Options.Create(new AgentOutputQualityGateOptions()),
             new RunStateTransitionService(),
             Mock.Of<IRunEngineProvenanceCaptureService>(),

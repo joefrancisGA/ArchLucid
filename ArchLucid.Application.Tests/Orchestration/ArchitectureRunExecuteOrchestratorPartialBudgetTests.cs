@@ -232,6 +232,7 @@ public sealed class ArchitectureRunExecuteOrchestratorPartialBudgetTests
             new NoOpAgentEvidenceUntrustedInputSanitizer(),
             contentSafety.Object,
             Options.Create(new AgentExecutionOptions()),
+            new FixedEffectiveAgentExecutionModeAccessor(),
             Options.Create(gateOptions),
             new RunStateTransitionService(),
             Mock.Of<IRunEngineProvenanceCaptureService>(),

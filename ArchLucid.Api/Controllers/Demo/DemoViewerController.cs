@@ -9,6 +9,7 @@ using ArchLucid.Application.Trust;
 using ArchLucid.Application.Bootstrap;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Core.Configuration;
+using ArchLucid.Core.DevTesting;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Host.Core.Demo;
@@ -42,7 +43,8 @@ public sealed class DemoViewerController(
     IRunTrustEvidenceCardBuilder trustEvidenceCardBuilder,
     IAgentExecutionTraceRepository agentExecutionTraceRepository,
     ILlmCostEstimator llmCostEstimator,
-    IConfiguration configuration) : ControllerBase
+    IConfiguration configuration,
+    IEffectiveAgentExecutionModeAccessor effectiveAgentExecutionModeAccessor) : ControllerBase
 {
     private readonly IArchitectureRunProvenanceService _architectureRunProvenanceService =
         architectureRunProvenanceService ?? throw new ArgumentNullException(nameof(architectureRunProvenanceService));
@@ -52,6 +54,9 @@ public sealed class DemoViewerController(
 
     private readonly IConfiguration _configuration =
         configuration ?? throw new ArgumentNullException(nameof(configuration));
+
+    private readonly IEffectiveAgentExecutionModeAccessor _effectiveAgentExecutionModeAccessor =
+        effectiveAgentExecutionModeAccessor ?? throw new ArgumentNullException(nameof(effectiveAgentExecutionModeAccessor));
 
     private readonly IOptions<DemoOptions> _demoOptions =
         demoOptions ?? throw new ArgumentNullException(nameof(demoOptions));
@@ -130,13 +135,13 @@ public sealed class DemoViewerController(
 
         response.ExecutionFlavorBuyerSummary = RunExecutionFlavorSummary.Build(
             detail.Run,
-            _configuration["AgentExecution:Mode"]);
+            _effectiveAgentExecutionModeAccessor.GetEffectiveMode());
 
         if (detail.IsCommitted)
         {
             response.TrustEvidenceCard = await _trustEvidenceCardBuilder.BuildAsync(
                 detail,
-                _configuration["AgentExecution:Mode"],
+                _effectiveAgentExecutionModeAccessor.GetEffectiveMode(),
                 cancellationToken);
         }
 

@@ -11,4 +11,14 @@ public sealed class DeveloperExperienceOptions
         get;
         set;
     }
+
+    /// <summary>
+    ///     When <c>true</c> in Development, honors <see cref="ArchLucid.Core.DevTesting.DevAgentExecutionModeHeaderNames.Header" />
+    ///     and defaults to Real when the header is absent.
+    /// </summary>
+    public bool AllowAgentExecutionModeHeaderOverride
+    {
+        get;
+        set;
+    }
 }

@@ -18,11 +18,15 @@ import {
 } from "@/lib/dev-quick-switch-panel-visibility";
 import {
   isDevTestingOverridesEnabled,
+  persistDevAgentExecutionModeOverride,
   persistDevRoleOverride,
   persistDevShellExperienceOverride,
+  readDevAgentExecutionModeOverrideFromDocument,
   readDevRoleOverrideFromDocument,
   readDevShellExperienceOverrideFromDocument,
   reloadAfterDevTestingOverrideChange,
+  resolveEffectiveDevAgentExecutionMode,
+  type DevAgentExecutionModeOverride,
   type DevRoleOverride,
   type DevShellExperienceOverride,
 } from "@/lib/dev-testing-overrides";
@@ -52,6 +56,16 @@ const ROLE_OPTIONS: RoleOption[] = [
   { value: "build-default", label: "Build default" },
 ];
 
+type AgentExecutionOption = {
+  value: DevAgentExecutionModeOverride;
+  label: string;
+};
+
+const AGENT_EXECUTION_OPTIONS: AgentExecutionOption[] = [
+  { value: "Real", label: "Real API" },
+  { value: "Simulator", label: "Simulator" },
+];
+
 function resolveBuildDefaultShellLabel(): string {
   const fullOperator = isOperatorExperienceFullShellEnv(null);
 
@@ -78,6 +92,16 @@ function selectRoleOverride(value: DevRoleOverride | "build-default"): void {
   reloadAfterDevTestingOverrideChange();
 }
 
+function selectAgentExecutionOverride(value: DevAgentExecutionModeOverride): void {
+  if (value === "Real") {
+    persistDevAgentExecutionModeOverride(null);
+  } else {
+    persistDevAgentExecutionModeOverride(value);
+  }
+
+  reloadAfterDevTestingOverrideChange();
+}
+
 type DevTestingQuickSwitchPanelProps = {
   /** Optional fallback when rendered outside the home workspace activity provider (tests). */
   readonly runIds?: readonly string[];
@@ -91,11 +115,13 @@ export function DevTestingQuickSwitchPanel(props: DevTestingQuickSwitchPanelProp
   const [mounted, setMounted] = useState(false);
   const [shellOverride, setShellOverride] = useState<DevShellExperienceOverride | null>(null);
   const [roleOverride, setRoleOverride] = useState<DevRoleOverride | null>(null);
+  const [agentExecutionOverride, setAgentExecutionOverride] = useState<DevAgentExecutionModeOverride | null>(null);
   const { snapshot: quickJumpSnapshot, loading: quickJumpLoading } = useDevTestingQuickJumpSnapshot(runIds);
 
   useEffect(() => {
     setShellOverride(readDevShellExperienceOverrideFromDocument());
     setRoleOverride(readDevRoleOverrideFromDocument());
+    setAgentExecutionOverride(readDevAgentExecutionModeOverrideFromDocument());
     setMounted(true);
   }, []);
 
@@ -110,6 +136,11 @@ export function DevTestingQuickSwitchPanel(props: DevTestingQuickSwitchPanelProp
 
     return resolveBuildDefaultShellLabel();
   }, [shellOverride]);
+
+  const effectiveAgentExecutionMode = useMemo(
+    () => resolveEffectiveDevAgentExecutionMode(agentExecutionOverride),
+    [agentExecutionOverride],
+  );
 
   if (!isDevTestingOverridesEnabled() || !mounted) {
     return null;
@@ -141,6 +172,8 @@ export function DevTestingQuickSwitchPanel(props: DevTestingQuickSwitchPanelProp
                 · role override <strong>{roleOverride}</strong>
               </>
             ) : null}
+            {" "}
+            · agent execution <strong>{effectiveAgentExecutionMode}</strong>
             {buyerPolishedChrome ? null : " · buyer-polished chrome off (demo build)"}. Press{" "}
             <kbd className="rounded border border-neutral-300 bg-white px-1 py-0.5 font-mono text-[11px] dark:border-neutral-600 dark:bg-neutral-800">
               Alt+Shift+D
@@ -173,6 +206,31 @@ export function DevTestingQuickSwitchPanel(props: DevTestingQuickSwitchPanelProp
                   data-testid={`dev-shell-option-${option.value}`}
                   aria-pressed={selected}
                   onClick={() => selectShellOverride(option.value)}
+                >
+                  {option.label}
+                </Button>
+              );
+            })}
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-2">
+          <p className={cn("m-0 font-medium text-neutral-700 dark:text-neutral-200", OPERATOR_TYPOGRAPHY.helper)}>
+            Agent execution (API host)
+          </p>
+          <div className="flex flex-wrap gap-2" role="group" aria-label="Agent execution mode override">
+            {AGENT_EXECUTION_OPTIONS.map((option) => {
+              const selected = effectiveAgentExecutionMode === option.value;
+
+              return (
+                <Button
+                  key={option.value}
+                  type="button"
+                  size="sm"
+                  variant={selected ? "default" : "outline"}
+                  data-testid={`dev-agent-execution-option-${option.value.toLowerCase()}`}
+                  aria-pressed={selected}
+                  onClick={() => selectAgentExecutionOverride(option.value)}
                 >
                   {option.label}
                 </Button>
