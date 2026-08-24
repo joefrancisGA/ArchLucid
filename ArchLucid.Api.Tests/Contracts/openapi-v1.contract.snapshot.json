@@ -4449,6 +4449,40 @@
         },
         "type": "object"
       },
+      "ArchitecturePostureSummary": {
+        "properties": {
+          "isDegraded": {
+            "type": "boolean"
+          },
+          "latestSnapshotCreatedUtc": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "pillars": {
+            "items": {
+              "$ref": "#/components/schemas/PillarPosture"
+            },
+            "type": "array"
+          },
+          "primaryPillarKey": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "reviewIntegrity": {
+            "$ref": "#/components/schemas/ReviewIntegrityAggregate"
+          },
+          "uncategorizedCount": {
+            "format": "int32",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
       "ArchitectureQuickScanFindingItem": {
         "properties": {
           "confidenceLevel": {
@@ -11774,6 +11808,17 @@
           "evaluationMode",
           "outcomeJson"
         ],
+        "type": "object"
+      },
+      "ExaminationStateResolution": {
+        "properties": {
+          "reasonText": {
+            "type": "string"
+          },
+          "state": {
+            "$ref": "#/components/schemas/PillarExaminationState"
+          }
+        },
         "type": "object"
       },
       "ExecDigestPreferencesResponse": {
@@ -19143,6 +19188,102 @@
         },
         "type": "object"
       },
+      "PillarExaminationState": {
+        "enum": [
+          "Examined",
+          "PartiallyExamined",
+          "NotExamined",
+          "Unavailable"
+        ],
+        "type": "string"
+      },
+      "PillarFindingAggregate": {
+        "properties": {
+          "criticalCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "dispositionedCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "errorCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "infoCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "mutedCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "pillarKey": {
+            "type": "string"
+          },
+          "warningCount": {
+            "format": "int32",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "PillarPackAssignment": {
+        "properties": {
+          "assignedUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "isEnabled": {
+            "type": "boolean"
+          },
+          "pillarKey": {
+            "type": "string"
+          },
+          "policyPackId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "policyPackName": {
+            "type": "string"
+          },
+          "policyPackVersion": {
+            "type": "string"
+          },
+          "scopeLevel": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "PillarPosture": {
+        "properties": {
+          "displayName": {
+            "type": "string"
+          },
+          "displayOrder": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "examination": {
+            "$ref": "#/components/schemas/ExaminationStateResolution"
+          },
+          "findingCounts": {
+            "$ref": "#/components/schemas/PillarFindingAggregate"
+          },
+          "packAssignments": {
+            "items": {
+              "$ref": "#/components/schemas/PillarPackAssignment"
+            },
+            "type": "array"
+          },
+          "pillarKey": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "PilotCloseoutPostRequest": {
         "properties": {
           "baselineHours": {
@@ -24215,6 +24356,35 @@
           "NotApplicable"
         ],
         "type": "string"
+      },
+      "ReviewIntegrityAggregate": {
+        "properties": {
+          "criticalCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "dispositionedCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "errorCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "infoCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "mutedCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "warningCount": {
+            "format": "int32",
+            "type": "integer"
+          }
+        },
+        "type": "object"
       },
       "ReviewRunEngineProvenance": {
         "properties": {
@@ -121455,6 +121625,201 @@
         "x-archlucid-audience": "operator"
       }
     },
+    "/v1/governance/posture": {
+      "get": {
+        "parameters": [
+          {
+            "in": "query",
+            "name": "projectId",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ArchitecturePostureSummary"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ArchitecturePostureSummary"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ArchitecturePostureSummary"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "400": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Bad Request (validation or malformed input)."
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Forbidden"
+          },
+          "404": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Not Found."
+          },
+          "405": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Method Not Allowed."
+          },
+          "409": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Conflict."
+          },
+          "415": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unsupported Media Type."
+          },
+          "422": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Unprocessable Entity."
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Too Many Requests"
+          },
+          "500": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Internal Server Error."
+          },
+          "503": {
+            "content": {
+              "application/problem\u002Bjson": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            },
+            "description": "Service Unavailable."
+          }
+        },
+        "tags": [
+          "GovernancePosture"
+        ],
+        "x-archlucid-audience": "operator"
+      }
+    },
     "/v1/governance/pre-finalize/simulate": {
       "post": {
         "requestBody": {
@@ -162692,6 +163057,9 @@
     },
     {
       "name": "GovernanceCoverage"
+    },
+    {
+      "name": "GovernancePosture"
     },
     {
       "name": "GovernancePreCommitSimulation"

@@ -4449,6 +4449,40 @@
         },
         "type": "object"
       },
+      "ArchitecturePostureSummary": {
+        "properties": {
+          "isDegraded": {
+            "type": "boolean"
+          },
+          "latestSnapshotCreatedUtc": {
+            "format": "date-time",
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "pillars": {
+            "items": {
+              "$ref": "#/components/schemas/PillarPosture"
+            },
+            "type": "array"
+          },
+          "primaryPillarKey": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "reviewIntegrity": {
+            "$ref": "#/components/schemas/ReviewIntegrityAggregate"
+          },
+          "uncategorizedCount": {
+            "format": "int32",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
       "ArchitectureQuickScanFindingItem": {
         "properties": {
           "confidenceLevel": {
@@ -11774,6 +11808,17 @@
           "evaluationMode",
           "outcomeJson"
         ],
+        "type": "object"
+      },
+      "ExaminationStateResolution": {
+        "properties": {
+          "reasonText": {
+            "type": "string"
+          },
+          "state": {
+            "$ref": "#/components/schemas/PillarExaminationState"
+          }
+        },
         "type": "object"
       },
       "ExecDigestPreferencesResponse": {
@@ -19143,6 +19188,102 @@
         },
         "type": "object"
       },
+      "PillarExaminationState": {
+        "enum": [
+          "Examined",
+          "PartiallyExamined",
+          "NotExamined",
+          "Unavailable"
+        ],
+        "type": "string"
+      },
+      "PillarFindingAggregate": {
+        "properties": {
+          "criticalCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "dispositionedCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "errorCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "infoCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "mutedCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "pillarKey": {
+            "type": "string"
+          },
+          "warningCount": {
+            "format": "int32",
+            "type": "integer"
+          }
+        },
+        "type": "object"
+      },
+      "PillarPackAssignment": {
+        "properties": {
+          "assignedUtc": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "isEnabled": {
+            "type": "boolean"
+          },
+          "pillarKey": {
+            "type": "string"
+          },
+          "policyPackId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "policyPackName": {
+            "type": "string"
+          },
+          "policyPackVersion": {
+            "type": "string"
+          },
+          "scopeLevel": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "PillarPosture": {
+        "properties": {
+          "displayName": {
+            "type": "string"
+          },
+          "displayOrder": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "examination": {
+            "$ref": "#/components/schemas/ExaminationStateResolution"
+          },
+          "findingCounts": {
+            "$ref": "#/components/schemas/PillarFindingAggregate"
+          },
+          "packAssignments": {
+            "items": {
+              "$ref": "#/components/schemas/PillarPackAssignment"
+            },
+            "type": "array"
+          },
+          "pillarKey": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "PilotCloseoutPostRequest": {
         "properties": {
           "baselineHours": {
@@ -24215,6 +24356,35 @@
           "NotApplicable"
         ],
         "type": "string"
+      },
+      "ReviewIntegrityAggregate": {
+        "properties": {
+          "criticalCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "dispositionedCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "errorCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "infoCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "mutedCount": {
+            "format": "int32",
+            "type": "integer"
+          },
+          "warningCount": {
+            "format": "int32",
+            "type": "integer"
+          }
+        },
+        "type": "object"
       },
       "ReviewRunEngineProvenance": {
         "properties": {
@@ -38447,6 +38617,9 @@
     },
     {
       "name": "GovernanceCoverage"
+    },
+    {
+      "name": "GovernancePosture"
     },
     {
       "name": "GovernancePreCommitSimulation"
