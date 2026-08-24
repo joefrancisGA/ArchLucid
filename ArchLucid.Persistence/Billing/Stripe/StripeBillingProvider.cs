@@ -206,7 +206,7 @@ public sealed class StripeBillingProvider(
         {
             string? prior = await _ledger.GetWebhookEventResultStatusAsync(stripeEvent.Id, cancellationToken);
 
-            if (string.Equals(prior, "Processed", StringComparison.OrdinalIgnoreCase))
+            if (BillingWebhookLedgerReplayPolicy.ShouldRejectDuplicateLedgerEntry(prior))
             {
                 return BillingWebhookHandleResult.ReplayRejected(
                     $"Stripe webhook event '{stripeEvent.Id}' was already processed.");
@@ -379,6 +379,14 @@ public sealed class StripeBillingProvider(
 
         intent.Metadata.TryGetValue("tenant_id", out string? tenantIdRaw);
         intent.Metadata.TryGetValue("correlation_id", out string? correlationRaw);
+
+        if (string.IsNullOrWhiteSpace(tenantIdRaw)
+            || !Guid.TryParse(tenantIdRaw.Trim(), out Guid tenantId)
+            || tenantId == Guid.Empty)
+        {
+            throw new InvalidOperationException(
+                $"Stripe wallet webhook '{stripeEvent.Id}' is missing or has an invalid tenant_id metadata value.");
+        }
 
         Guid correlationId = Guid.TryParse(correlationRaw, out Guid parsedCorrelation) ? parsedCorrelation : Guid.NewGuid();
 

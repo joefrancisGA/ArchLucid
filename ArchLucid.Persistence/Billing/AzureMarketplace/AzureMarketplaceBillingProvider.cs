@@ -116,7 +116,7 @@ public sealed class AzureMarketplaceBillingProvider(
             ? subEl.GetString() ?? string.Empty
             : string.Empty;
 
-        string dedupeKey = $"{subscriptionId}|{action}|{root.GetRawText().GetHashCode(StringComparison.Ordinal):X8}";
+        string dedupeKey = BillingMarketplaceWebhookDedupeKey.Build(subscriptionId, action, inbound.RawBody);
 
         if (await _webhookReplayGuard.HasSeenAsync(ProviderName, dedupeKey, cancellationToken).ConfigureAwait(false))
         {
@@ -135,7 +135,7 @@ public sealed class AzureMarketplaceBillingProvider(
         {
             string? prior = await _ledger.GetWebhookEventResultStatusAsync(dedupeKey, cancellationToken);
 
-            if (string.Equals(prior, "Processed", StringComparison.OrdinalIgnoreCase))
+            if (BillingWebhookLedgerReplayPolicy.ShouldRejectDuplicateLedgerEntry(prior))
                 return BillingWebhookHandleResult.ReplayRejected(
                     $"Marketplace webhook '{dedupeKey}' was already processed.");
         }

@@ -21,14 +21,14 @@ public sealed class LlmTenantWalletStripeWebhookProcessor(ILlmTenantWalletServic
         if (string.IsNullOrWhiteSpace(paymentIntentId))
             return;
 
-        if (string.IsNullOrWhiteSpace(tenantIdRaw))
-            return;
-
-        if (!Guid.TryParse(tenantIdRaw.Trim(), out Guid tenantId) || tenantId == Guid.Empty)
-            return;
-
         if (string.Equals(eventType, "payment_intent.succeeded", StringComparison.OrdinalIgnoreCase))
         {
+            if (string.IsNullOrWhiteSpace(tenantIdRaw))
+                throw new InvalidOperationException("Stripe wallet webhook is missing tenant_id metadata.");
+
+            if (!Guid.TryParse(tenantIdRaw.Trim(), out Guid tenantId) || tenantId == Guid.Empty)
+                throw new InvalidOperationException("Stripe wallet webhook has an invalid tenant_id metadata value.");
+
             decimal amountUsd = decimal.Round(amountCents / 100m, 2, MidpointRounding.AwayFromZero);
 
             await _walletService

@@ -45,4 +45,29 @@ public sealed class LlmTenantWalletStripeWebhookProcessorTests
                 It.IsAny<CancellationToken>()),
             Times.Once);
     }
+
+    [Fact]
+    public async Task ProcessPaymentIntentEventAsync_throws_when_tenant_metadata_missing_on_success()
+    {
+        Mock<ILlmTenantWalletService> walletService = new();
+        LlmTenantWalletStripeWebhookProcessor sut = new(walletService.Object);
+
+        Func<Task> act = () => sut.ProcessPaymentIntentEventAsync(
+            "payment_intent.succeeded",
+            "pi_missing_tenant",
+            tenantIdRaw: null,
+            1000,
+            null,
+            Guid.NewGuid());
+
+        await act.Should().ThrowAsync<InvalidOperationException>().WithMessage("*tenant_id*");
+        walletService.Verify(
+            s => s.ApplyWebhookPaymentIntentSucceededAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<string>(),
+                It.IsAny<decimal>(),
+                It.IsAny<Guid>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
 }
