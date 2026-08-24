@@ -378,6 +378,7 @@ public sealed partial class RunsController(
                     TaskIds = request.TaskIds,
                     AgentTypes = request.AgentTypes,
                     IncludeDependents = request.IncludeDependents,
+                    AffectedElementIds = request.AffectedElementIds,
                 },
                 cancellationToken);
 

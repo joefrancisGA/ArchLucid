@@ -71,6 +71,7 @@ internal static class ArchitectureIntelligenceServiceCollectionExtensions
         services.AddScoped<IChangeImpactAnalyzer, ChangeImpactAnalyzer>();
         services.AddScoped<IArchitectureModelDiffApplier, ArchitectureModelDiffApplier>();
         services.AddScoped<IIncrementalReReviewService, IncrementalReReviewService>();
+        services.AddScoped<ISelectiveExecuteIncrementalReReviewCoordinator, SelectiveExecuteIncrementalReReviewCoordinator>();
         services.AddScoped<IMustNotFailEnforcer, MustNotFailEnforcer>();
         services.AddScoped<ITrustPublishGate, TrustPublishGate>();
         services.AddScoped<IArchitectureIntelligenceProductPublishService, ArchitectureIntelligenceProductPublishService>();
