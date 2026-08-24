@@ -26,6 +26,7 @@ import {
   ASK_BUYER_PROMPT_GROUPS,
   ASK_EMPTY_THREAD_REVIEW_STARTER_PROMPTS,
 } from "@/app/(operator)/insights/ask-review-questions/_sections/ask-page-constants";
+import { ASK_ASSISTANT_ANSWER_FOLLOW_UP_PROMPTS } from "@/lib/ask-assistant-answer-follow-ups";
 import type { ConversationMessage } from "@/types/conversation";
 
 export type AskMessageThreadPanelProps = {
@@ -227,6 +228,36 @@ export function AskMessageThreadPanel(props: AskMessageThreadPanelProps) {
               />
             </CardContent>
           </Card>
+        ) : null}
+        {citationHostMessageId !== null && streamingAssistantContent === null ? (
+          <div className="space-y-2" data-testid="ask-assistant-answer-follow-ups">
+            <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+              {buyerPolishedShell ? "Suggested follow-ups" : "Follow up on this answer"}
+            </p>
+            <div className="flex flex-wrap gap-1.5" role="group" aria-label="Suggested follow-up questions">
+              {ASK_ASSISTANT_ANSWER_FOLLOW_UP_PROMPTS.map((line) => (
+                <Button
+                  key={line}
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className={cn(
+                    "h-auto max-w-full whitespace-normal border-neutral-200/80 py-1 text-left font-normal dark:border-neutral-700",
+                    OPERATOR_TYPOGRAPHY.helper,
+                  )}
+                  onClick={() => {
+                    if (onStarterPromptClick !== undefined) {
+                      onStarterPromptClick(line);
+                    } else {
+                      onMergePromptLine(line);
+                    }
+                  }}
+                >
+                  {line}
+                </Button>
+              ))}
+            </div>
+          </div>
         ) : null}
       </div>
       {showPostAssistantFollowUps ? (

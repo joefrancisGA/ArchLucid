@@ -147,4 +147,25 @@ describe("AskMessageThreadPanel", () => {
       /No linked finding, evidence, or decision/i,
     );
   });
+
+  it("shows suggested follow-ups below the latest assistant answer", () => {
+    render(
+      <AskMessageThreadPanel
+        {...baseProps}
+        messages={[
+          {
+            messageId: "m1",
+            threadId: "t1",
+            role: "Assistant",
+            content: "The top risk is data residency.",
+            createdUtc: "2026-01-01T00:00:00.000Z",
+            metadataJson: "{}",
+          },
+        ]}
+      />,
+    );
+
+    expect(screen.getByTestId("ask-assistant-answer-follow-ups")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Why is this the top risk?" })).toBeInTheDocument();
+  });
 });
