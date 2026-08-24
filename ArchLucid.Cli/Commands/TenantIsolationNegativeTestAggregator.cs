@@ -56,26 +56,39 @@ internal static class TenantIsolationNegativeTestAggregator
         if (string.IsNullOrWhiteSpace(json) || string.IsNullOrWhiteSpace(runId))
             return false;
 
+        string normalizedRunId = NormalizeRunIdForComparison(runId);
+
         try
         {
             using JsonDocument document = JsonDocument.Parse(json);
             JsonElement root = document.RootElement;
 
             if (root.ValueKind == JsonValueKind.Array)
-                return ArrayContainsRunId(root, runId);
+                return ArrayContainsRunId(root, normalizedRunId);
 
             if (root.TryGetProperty("items", out JsonElement items) && items.ValueKind == JsonValueKind.Array)
-                return ArrayContainsRunId(items, runId);
+                return ArrayContainsRunId(items, normalizedRunId);
         }
         catch (JsonException)
         {
-            return json.Contains(runId, StringComparison.OrdinalIgnoreCase);
+            return json.Contains(runId, StringComparison.OrdinalIgnoreCase)
+                || json.Contains(normalizedRunId, StringComparison.OrdinalIgnoreCase);
         }
 
         return false;
     }
 
-    private static bool ArrayContainsRunId(JsonElement array, string runId)
+    private static string NormalizeRunIdForComparison(string runId)
+    {
+        string trimmed = runId.Trim();
+
+        if (Guid.TryParse(trimmed, out Guid parsed))
+            return parsed.ToString("N");
+
+        return trimmed;
+    }
+
+    private static bool ArrayContainsRunId(JsonElement array, string normalizedRunId)
     {
         foreach (JsonElement item in array.EnumerateArray())
         {
@@ -83,7 +96,8 @@ internal static class TenantIsolationNegativeTestAggregator
                 continue;
 
             if (item.TryGetProperty("runId", out JsonElement runIdElement)
-                && string.Equals(runIdElement.GetString(), runId, StringComparison.OrdinalIgnoreCase))
+                && runIdElement.GetString() is string candidate
+                && string.Equals(NormalizeRunIdForComparison(candidate), normalizedRunId, StringComparison.OrdinalIgnoreCase))
             {
                 return true;
             }
@@ -118,7 +132,7 @@ internal static class TenantIsolationNegativeTestProbeCatalog
                 "Cross-tenant GET run provenance must not succeed."),
             new TenantIsolationNegativeTestProbeDefinition(
                 "cross-tenant-run-artifacts",
-                $"/v1/artifacts/runs/{runId}",
+                $"/v1/architecture/runs/{runId}/artifacts",
                 "deny-status",
                 "Cross-tenant GET run artifacts must not succeed."),
             new TenantIsolationNegativeTestProbeDefinition(
