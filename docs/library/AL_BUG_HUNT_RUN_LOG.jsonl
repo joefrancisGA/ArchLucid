@@ -188,4 +188,8 @@
 {"at":"2026-08-24T16:16:47.731462Z","zoneId":"security-analyzers","outcome":"hit"}
 {"at":"2026-08-24T16:32:26.184137Z","zoneId":"authority-pipeline-payload","outcome":"hit"}
 {"at":"2026-08-24T16:54:00.000000Z","zoneId":"technology-ledger-merge","outcome":"hit"}
+<<<<<<< HEAD
 {"at":"2026-08-24T16:53:29.448Z","zoneId":"authority-pipeline-payload","outcome":"dry"}
+=======
+{"at":"2026-08-24T16:58:00.264669Z","zoneId":"tenant-scoped-analyzer","outcome":"hit"}
+>>>>>>> af9ac451f3 (Record tenant-scoped-analyzer hunt hit for ARCH006 variable resolution.)
