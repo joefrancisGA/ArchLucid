@@ -92,9 +92,12 @@ public sealed class AlertSimulationContextProvider(
         if (!RunMatchesCallerScope(detail.Run, scope))
             return null;
 
+        if (detail.GoldenManifest.RunId != runId)
+            return null;
+
         FindingsSnapshot findings = detail.FindingsSnapshot ?? CreateEmptyFindings(detail.GoldenManifest);
 
-        if (findings.RunId != Guid.Empty && findings.RunId != runId)
+        if (findings.RunId != runId)
             return null;
 
         ComparisonResult? comparison = null;
@@ -106,7 +109,8 @@ public sealed class AlertSimulationContextProvider(
                 ;
 
             if (comparedDetail?.GoldenManifest is not null
-                && RunMatchesCallerScope(comparedDetail.Run, scope))
+                && RunMatchesCallerScope(comparedDetail.Run, scope)
+                && comparedDetail.GoldenManifest.RunId == comparedToRunId.Value)
             {
                 comparison = comparisonService.Compare(comparedDetail.GoldenManifest, detail.GoldenManifest);
             }
@@ -134,7 +138,7 @@ public sealed class AlertSimulationContextProvider(
             WorkspaceId = scope.WorkspaceId,
             ProjectId = scope.ProjectId,
             RunId = runId,
-            ComparedToRunId = comparedToRunId,
+            ComparedToRunId = comparison is null ? null : comparedToRunId,
             ImprovementPlan = plan,
             ComparisonResult = comparison,
             RecommendationRecords = recommendations,
