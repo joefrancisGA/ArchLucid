@@ -3,7 +3,7 @@ import type { AcceleratorChooserPrerequisiteStatus } from "@/lib/resolve-acceler
 export const ACCELERATOR_GREENFIELD_PACK_ID = "greenfield-web-app" as const;
 
 export const ACCELERATOR_PACK_PREREQUISITE_BLOCKED_MESSAGE =
-  "Needs a finalized review record first." as const;
+  "Follow-up pack — finalize your first architecture review in this tenant to unlock." as const;
 
 export const ACCELERATOR_PACK_CTA_PENDING_CHECKING_MESSAGE =
   "Checking whether this tenant has a finalized review record…" as const;
