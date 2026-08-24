@@ -278,6 +278,78 @@ public sealed class DraftNewCommandCoreTests
         error.ToString().Should().Contain("Reader, Operator, or Admin");
     }
 
+    [Fact]
+    public async Task RunCoreAsync_json_output_does_not_emit_ok_true_when_execute_fails()
+    {
+        bool previousJson = CliExecutionContext.JsonOutput;
+
+        try
+        {
+            CliExecutionContext.JsonOutput = true;
+
+            DraftNewCommandOptions options = new()
+            {
+                IntentText = ValidDraftIntent,
+                SystemName = "Contoso API",
+                BusinessOutcome = "Ship a governed review package for the architecture board.",
+                SkipMustQuestions = true,
+            };
+
+            ArchLucidApiClient client = CreateDraftFlowClient(new ExecuteFailureHandler());
+            DraftNewCommandHooks hooks = ConnectedHooks(client);
+            StringWriter output = new();
+            StringWriter error = new();
+
+            int exit = await DraftNewCommand.RunCoreAsync(options, hooks, output, error);
+
+            exit.Should().Be(CliExitCode.OperationFailed);
+            output.ToString().Should().NotContain("\"ok\":true", "JSON success must not be emitted before execute succeeds");
+        }
+        finally
+        {
+            CliExecutionContext.JsonOutput = previousJson;
+        }
+    }
+
+    [Fact]
+    public async Task RunCoreAsync_json_output_emits_ok_true_after_execute_succeeds()
+    {
+        bool previousJson = CliExecutionContext.JsonOutput;
+
+        try
+        {
+            CliExecutionContext.JsonOutput = true;
+
+            DraftNewCommandOptions options = new()
+            {
+                IntentText = ValidDraftIntent,
+                SystemName = "Contoso API",
+                BusinessOutcome = "Ship a governed review package for the architecture board.",
+                SkipMustQuestions = true,
+            };
+
+            ArchLucidApiClient client = CreateDraftFlowClient();
+            DraftNewCommandHooks hooks = ConnectedHooks(client);
+            StringWriter output = new();
+            StringWriter error = new();
+
+            int exit = await DraftNewCommand.RunCoreAsync(options, hooks, output, error);
+
+            exit.Should().Be(CliExitCode.Success);
+            string jsonLine = output.ToString()
+                .Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                .Last(line => line.StartsWith('{'));
+
+            using JsonDocument document = JsonDocument.Parse(jsonLine);
+            document.RootElement.GetProperty("ok").GetBoolean().Should().BeTrue();
+            document.RootElement.GetProperty("runId").GetString().Should().Be("run-draft-cli-001");
+        }
+        finally
+        {
+            CliExecutionContext.JsonOutput = previousJson;
+        }
+    }
+
     private static DraftNewCommandHooks ConnectedHooks(ArchLucidApiClient? client = null)
     {
         ArchLucidApiClient sharedClient = client ?? CreateDraftFlowClient();
@@ -374,6 +446,27 @@ public sealed class DraftNewCommandCoreTests
                     runId = string.Empty,
                     requestId = "req-draft-cli-001",
                 });
+            }
+
+            return null;
+        }
+    }
+
+    private sealed class ExecuteFailureHandler : DraftFlowHandler
+    {
+        protected override HttpResponseMessage? TryHandle(
+            HttpRequestMessage request,
+            string path)
+        {
+            if (request.Method == HttpMethod.Post && path.EndsWith("/execute", StringComparison.OrdinalIgnoreCase))
+            {
+                return new HttpResponseMessage(HttpStatusCode.ServiceUnavailable)
+                {
+                    Content = new StringContent(
+                        "{\"title\":\"Execute unavailable\",\"status\":503}",
+                        System.Text.Encoding.UTF8,
+                        "application/json"),
+                };
             }
 
             return null;

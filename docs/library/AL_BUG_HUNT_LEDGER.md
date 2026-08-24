@@ -848,11 +848,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** draft new; cli draft
 - **paths:** ArchLucid.Cli/Commands/DraftNewCommand.cs
 - **test-filter:** FullyQualifiedName~DraftNewCommandCoreTests
-- **hunts:** 2
-- **bugs-found:** 5
+- **hunts:** 3
+- **bugs-found:** 6
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24 — admit response draft scope was not validated before MUST-question resolution
+- **last-bug:** 2026-08-24 — `--json draft new` emitted `ok: true` before auto-execute completed
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -863,10 +863,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) MUST-question and late-step API failures omitted operator hints — **hit 2026-08-24:** `ResolveMustQuestionsAsync` and execute/admit failure paths did not call `CliOperatorHints`; regression in `RunCoreAsync_questions_load_failure_writes_operator_hint`
 - [x] (proven) `AdmitDraftAsync` can return `admitted: true` with a draft under another tenant and the CLI continues — **hit 2026-08-24:** `DraftNewCommand` now validates `admission.Value.Draft` before MUST-question resolution (`RunCoreAsync_draft_scope_mismatch_after_admit_returns_operation_failed`).
 - [x] (invalid) Existing draft id is overwritten without confirmation — command always POSTs a new draft; no overwrite path
-- [ ] (hunt-ready) `RunCoreAsync` line 85 uses `!created.Success || created.Value is null`; Stryker's surviving `&&` mutant means tests do not prove that a failed response carrying a non-null value is rejected, so a concrete `Success=false`/non-null handler may continue with an invalid draft.
-- [ ] (hunt-ready) `RunCoreAsync` line 145 uses `!patched.Success || patched.Value is null`; Stryker's surviving `&&` mutant means tests do not prove a failed patch with a body stops before admission.
-- [ ] (hunt-ready) `RunCoreAsync` line 164 uses `!admission.Success || admission.Value is null`; Stryker's surviving `&&` mutant means tests do not prove a failed admit with a body stops before `Admitted` handling.
-- [ ] (hunt-ready) `RunCoreAsync` line 206 uses `!submit.Success || submit.Value is null`; Stryker's surviving `&&` mutant means tests do not prove a failed submit with a populated response stops before run-id success output.
+- [x] (invalid) `RunCoreAsync` line 85 uses `!created.Success || created.Value is null`; Stryker's surviving `&&` mutant — **2026-08-24:** `DraftApiResult.Fail` always sets `Value` to `default(T?)`; `Success=false` with non-null body is unreachable via `ArchLucidApiClient` factories.
+- [x] (invalid) `RunCoreAsync` line 145 uses `!patched.Success || patched.Value is null`; Stryker's surviving `&&` mutant — **2026-08-24:** same `DraftApiResult.Fail` shape; no production path returns failed patch with a body.
+- [x] (invalid) `RunCoreAsync` line 164 uses `!admission.Success || admission.Value is null`; Stryker's surviving `&&` mutant — **2026-08-24:** same `DraftApiResult.Fail` shape; no production path returns failed admit with a body.
+- [x] (invalid) `RunCoreAsync` line 206 uses `!submit.Success || submit.Value is null`; Stryker's surviving `&&` mutant — **2026-08-24:** same `DraftApiResult.Fail` shape; hollow submit is already covered by `RunCoreAsync_submit_without_run_id_returns_operation_failed`.
+- [x] (proven) `RunCoreAsync` writes JSON `ok: true` before `ExecuteRunAsync` when `--json` and auto-execute are enabled — **hit 2026-08-24:** submit success emitted success JSON then execute failure still returned `OperationFailed`, leaving `"ok":true` on stdout; fixed by deferring success JSON until execute succeeds and emitting `WriteFailureLine` on execute failure; regressions in `RunCoreAsync_json_output_does_not_emit_ok_true_when_execute_fails` / `RunCoreAsync_json_output_emits_ok_true_after_execute_succeeds`.
 
 ---
 

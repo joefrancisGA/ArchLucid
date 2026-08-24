@@ -225,20 +225,7 @@ internal static class DraftNewCommand
 
         string requestId = submit.Value.RequestId;
 
-        if (CliExecutionContext.JsonOutput)
-        {
-            CliJson.WriteSuccessLine(
-                output,
-                new
-                {
-                    ok = true,
-                    draftId,
-                    runId,
-                    requestId,
-                    status = submit.Value.Status.ToString(),
-                });
-        }
-        else
+        if (!CliExecutionContext.JsonOutput)
         {
             await output.WriteLineAsync($"RunId: {runId}");
             await output.WriteLineAsync($"RequestId: {requestId}");
@@ -255,16 +242,43 @@ internal static class DraftNewCommand
                     + $"Poll with 'archlucid status {runId}' and execute via the operator UI.");
                 CliOperatorHints.WriteAfterApiFailure(executed?.HttpStatusCode, executed?.Error, error);
 
+                if (CliExecutionContext.JsonOutput)
+                {
+                    CliJson.WriteFailureLine(
+                        output,
+                        CliExitCode.OperationFailed,
+                        "execute_failed",
+                        executed?.Error ?? "unknown");
+                }
+
                 return CliExitCode.OperationFailed;
             }
 
-            await output.WriteLineAsync($"Execution started for run {runId}.");
-            await output.WriteLineAsync($"Next: archlucid status {runId}");
-            await output.WriteLineAsync($"When ready: archlucid commit {runId}");
+            if (!CliExecutionContext.JsonOutput)
+            {
+                await output.WriteLineAsync($"Execution started for run {runId}.");
+                await output.WriteLineAsync($"Next: archlucid status {runId}");
+                await output.WriteLineAsync($"When ready: archlucid commit {runId}");
+            }
         }
-        else
+        else if (!CliExecutionContext.JsonOutput)
         {
             await output.WriteLineAsync($"Next: execute the review, then 'archlucid status {runId}' and 'archlucid commit {runId}'.");
+        }
+
+        if (CliExecutionContext.JsonOutput)
+        {
+            CliJson.WriteSuccessLine(
+                output,
+                new
+                {
+                    ok = true,
+                    draftId,
+                    runId,
+                    requestId,
+                    status = submit.Value.Status.ToString(),
+                    executionStarted = !options.NoAutoExecute,
+                });
         }
 
         return CliExitCode.Success;
