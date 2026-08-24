@@ -306,24 +306,25 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ## Zone: technology-ledger-merge
 
 - **id:** technology-ledger-merge
-- **status:** unseeded
+- **status:** open
 - **impact:** medium
 - **aliases:** technology ledger; ledger merge policy
 - **paths:** ArchLucid.Application/Runs/Orchestration/TechnologyLedgerAgentProposalMergePolicy.cs
 - **test-filter:** FullyQualifiedName~TechnologyLedger
-- **hunts:** 0
-- **bugs-found:** 0
+- **hunts:** 1
+- **bugs-found:** 4
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **last-hunt:** 2026-08-24
+- **last-bug:** 2026-08-24 — duplicate Assumed rows; case-sensitive names; duplicate EvidenceRef re-seed; ignored existing Assumed when Chosen absent
 - **related-pd-tb:** none
-- **code-changed-since:** unknown
+- **code-changed-since:** yes
 
 ### Hypotheses
 
-- [ ] (candidate) Ledger merge keeps an agent-proposed technology that the inventory already replaced
-- [ ] (candidate) Duplicate technology names from two agents both survive merge
-- [ ] (candidate) Merge policy ignores a seeded ledger row when the proposal uses a different casing
+- [x] (proven) Duplicate technology names from two agents both survive merge — **hit 2026-08-24:** merge only consulted `Chosen` rows; repeated Assumed proposals with same role/provider/name all inserted; regressions in `Resolve_skips_duplicate_assumed_when_no_chosen_exists` / `Resolve_skips_duplicate_assumed_when_chosen_provider_differs`
+- [x] (proven) Merge policy ignores a seeded ledger row when the proposal uses a different casing — **hit 2026-08-24:** `TechnologyName` compared with ordinal case; `postgresql` vs `PostgreSQL` duplicated; regression in `Resolve_treats_technology_name_case_insensitively`
+- [x] (proven) Topology re-seed with same `EvidenceRef` duplicated agent rows — **hit 2026-08-24:** merge ignored stable `agentTopologyProposal:*` refs; regression in `Resolve_skips_when_evidence_ref_already_present`
+- [x] (invalid) Ledger merge keeps an agent-proposed technology that the inventory already replaced — inventory/evidence rows are `Chosen`; same `ProviderFamily` proposals are already skipped via chosen-family gate; name-level dedupe now also matches authoritative `Chosen` rows
 
 ---
 
