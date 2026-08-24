@@ -509,24 +509,27 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 ## Zone: llm-wallet
 
 - **id:** llm-wallet
-- **status:** unseeded
+- **status:** open
 - **impact:** high
 - **aliases:** llm wallet; tenant wallet; billing wallet
 - **paths:** ArchLucid.Api/Controllers/Billing/WalletController.cs; ArchLucid.Application/Budgeting/LlmTenantWalletService.cs; ArchLucid.Persistence/Data/Repositories/SqlLlmTenantWalletRepository.cs
 - **test-filter:** FullyQualifiedName~LlmTenantWalletServiceTests
-- **hunts:** 0
-- **bugs-found:** 0
+- **hunts:** 1
+- **bugs-found:** 4
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** never
-- **last-bug:** never
+- **last-hunt:** 2026-08-24
+- **last-bug:** 2026-08-24 — auto-refill monthly cap ignored UTC month rollover; malformed row-version Base64 bypassed concurrency; settlement consume dropped after retry exhaustion; parallel overage authorize overspent without atomic debit
 - **related-pd-tb:** none
-- **code-changed-since:** unknown
+- **code-changed-since:** yes
 
 ### Hypotheses
 
-- [ ] (candidate) Debit applies to a different tenantÎ“Ã‡Ã–s wallet when the header tenant differs from the route
-- [ ] (candidate) Concurrent debits both succeed past the remaining balance
-- [ ] (candidate) Wallet read returns another tenantÎ“Ã‡Ã–s remaining credits
+- [x] (invalid) Debit applies to a different tenant's wallet when the header tenant differs from the route — wallet paths scope by ambient `ScopeContext.TenantId`; no cross-tenant debit/read in listed controllers/services
+- [x] (proven) Concurrent debits both succeed past the remaining balance — **hit 2026-08-24:** `TryAuthorizeOverageSpendAsync` was read-only; parallel authorizes overspent before async settlement; fixed with atomic `TryConsumeAsync` reserve + settlement reconcile; regression in `TryAuthorizeOverageSpendAsync_parallel_estimates_only_one_succeeds_when_balance_covers_single_estimate`
+- [x] (invalid) Wallet read returns another tenant's remaining credits — `GetWalletAsync` / `WalletController.GetAsync` use scoped tenant id only
+- [x] (proven) `CanAutoRefill` monthly cap ignored UTC month rollover — **hit 2026-08-24:** stale `AutoRefillsThisUtcMonthCount` blocked refills after month change; regression in `TryAutoRefillAsync_allows_refill_after_utc_month_rollover_when_prior_month_at_cap`
+- [x] (proven) Malformed wallet `RowVersionBase64` bypassed optimistic concurrency — **hit 2026-08-24:** `WalletController.DecodeRowVersion` returned empty bytes on `FormatException`; regression in `PutAsync_returns_400_when_row_version_base64_is_malformed`
+- [x] (proven) Settlement consume silently dropped after optimistic retries exhausted — **hit 2026-08-24:** `ConsumeInternalAsync` abandoned debit without re-queue; regression in `ConsumeInternalAsync_requeues_settlement_when_optimistic_retries_exhausted`
 
 ---
 
