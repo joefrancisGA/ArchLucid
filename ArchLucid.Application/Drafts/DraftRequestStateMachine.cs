@@ -35,6 +35,9 @@ public static class DraftRequestStateMachine
     /// <summary>Returns <see langword="true" /> when submit may be requested.</summary>
     public static bool AllowsSubmit(DraftRequestStatus status) => status == DraftRequestStatus.Admitted;
 
+    /// <summary>Returns <see langword="true" /> when submit may replay an already-spawned draft (idempotent retry).</summary>
+    public static bool AllowsSubmitReplay(DraftRequestStatus status) => status == DraftRequestStatus.RunSpawned;
+
     /// <summary>Returns <see langword="true" /> when abandon may be requested.</summary>
     public static bool AllowsAbandon(DraftRequestStatus status) =>
         status is DraftRequestStatus.Drafting or DraftRequestStatus.Admitted;

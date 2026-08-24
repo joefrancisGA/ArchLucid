@@ -1,4 +1,5 @@
 using ArchLucid.Application.Drafts;
+using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Application.Tests.Architecture;
 using ArchLucid.Contracts.Architecture;
@@ -48,7 +49,10 @@ public sealed class DraftRequestServiceTests
             .ReturnsAsync(new RequestContentSafetyResult { IsAllowed = true });
 
         _runCreateOrchestrator
-            .Setup(static o => o.CreateRunAsync(It.IsAny<ArchitectureRequest>(), null, It.IsAny<CancellationToken>()))
+            .Setup(static o => o.CreateRunAsync(
+                It.IsAny<ArchitectureRequest>(),
+                It.IsAny<CreateRunIdempotencyState?>(),
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync(new CreateRunResult
             {
                 Run = new ArchitectureRun { RunId = "abc123run", RequestId = "req123" },
@@ -163,7 +167,10 @@ public sealed class DraftRequestServiceTests
         submit.RunId.Should().Be("abc123run");
 
         _runCreateOrchestrator.Verify(
-            static o => o.CreateRunAsync(It.IsAny<ArchitectureRequest>(), null, It.IsAny<CancellationToken>()),
+            static o => o.CreateRunAsync(
+                It.IsAny<ArchitectureRequest>(),
+                It.IsAny<CreateRunIdempotencyState?>(),
+                It.IsAny<CancellationToken>()),
             Times.Once);
     }
 
