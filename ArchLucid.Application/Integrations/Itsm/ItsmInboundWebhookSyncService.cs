@@ -568,8 +568,11 @@ public sealed class ItsmInboundWebhookSyncService(
 
             return (string.Empty, false);
 
-        if (TryConfiguredHumanReview(options.JiraStatusHumanReviewMap, s, out string? configured))
-            return (configured, true);
+        if (TryConfiguredHumanReview(options.JiraStatusHumanReviewMap, s, out string? configured, out bool invalidConfiguredValue))
+            return (configured!, true);
+
+        if (invalidConfiguredValue)
+            return (string.Empty, false);
 
         if (s.Equals("Done", StringComparison.OrdinalIgnoreCase) ||
             s.Equals("Closed", StringComparison.OrdinalIgnoreCase) ||
@@ -597,8 +600,11 @@ public sealed class ItsmInboundWebhookSyncService(
 
             return (string.Empty, false);
 
-        if (TryConfiguredHumanReview(options.ServiceNowStateHumanReviewMap, trimmed, out string? configured))
-            return (configured, true);
+        if (TryConfiguredHumanReview(options.ServiceNowStateHumanReviewMap, trimmed, out string? configured, out bool invalidConfiguredValue))
+            return (configured!, true);
+
+        if (invalidConfiguredValue)
+            return (string.Empty, false);
 
         if (int.TryParse(trimmed, NumberStyles.Integer, CultureInfo.InvariantCulture, out int state) &&
             (state is 6 or 7))
@@ -630,9 +636,11 @@ public sealed class ItsmInboundWebhookSyncService(
         Dictionary<string, string> rawMap,
         string incomingKey,
         [System.Diagnostics.CodeAnalysis.NotNullWhen(true)]
-        out string? humanReview)
+        out string? humanReview,
+        out bool matchedKeyWithInvalidValue)
     {
         humanReview = null;
+        matchedKeyWithInvalidValue = false;
 
         if (rawMap.Count is 0)
             return false;
@@ -640,7 +648,11 @@ public sealed class ItsmInboundWebhookSyncService(
         foreach (KeyValuePair<string, string> kv in rawMap.Where(kv => !string.IsNullOrWhiteSpace(kv.Key) && !string.IsNullOrWhiteSpace(kv.Value)).Where(kv => string.Equals(kv.Key.Trim(), incomingKey, StringComparison.OrdinalIgnoreCase)))
         {
             if (!Enum.TryParse(kv.Value.Trim(), ignoreCase: true, out FindingHumanReviewStatus parsed))
+            {
+                matchedKeyWithInvalidValue = true;
+
                 return false;
+            }
 
             humanReview = parsed.ToString();
 

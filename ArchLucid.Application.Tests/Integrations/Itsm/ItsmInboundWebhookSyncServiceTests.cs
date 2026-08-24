@@ -446,6 +446,37 @@ public sealed class ItsmInboundWebhookSyncServiceTests
     }
 
     [Fact]
+    public async Task Jira_invalid_configured_human_review_map_emits_unknown_status_audit_not_default_mapping()
+    {
+        Mock<IItsmFindingCorrelationRepository> correlations = new();
+        IntegrationsItsmInboundOptions options = new()
+        {
+            JiraStatusHumanReviewMap = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                ["Done"] = "NotARealHumanReviewStatus",
+            },
+        };
+        ItsmInboundWebhookSyncService sut = CreateSutWithInboundOptions(correlations, options);
+
+        using JsonDocument doc = JsonDocument.Parse(
+            """{"issue":{"key":"KK-9","fields":{"status":{"name":"Done"}}}}""");
+        ItsmInboundWebhookProcessResult r = await sut.TryProcessJiraIssueUpdateAsync(doc.RootElement, CancellationToken.None);
+
+        r.Accepted.Should().BeFalse();
+        r.DurableAuditEvent!.EventType.Should().Be(AuditEventTypes.IntegrationJiraInboundWebhookRejected);
+        JsonDocument ap = JsonDocument.Parse(r.DurableAuditEvent.DataJson);
+        ap.RootElement.GetProperty("reasonCode").GetString().Should().Be("jira_status_unknown");
+        correlations.Verify(
+            c => c.UpdateHumanReviewStatusForFindingAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<Guid?>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
     public async Task Jira_payload_over_byte_limit_is_rejected_with_payload_rejected_audit()
     {
         Mock<IItsmFindingCorrelationRepository> correlations = new();
