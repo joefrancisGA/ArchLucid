@@ -6,14 +6,11 @@ import { OperatorHomeDisclosureSection } from "@/components/operator-home/Operat
 import type { OperatorHomeRunsDashboardModel } from "@/app/(operator)/_sections/operator-home-runs-dashboard-model";
 import { OperatorHomeExploreSampleSection } from "@/components/operator-home/OperatorHomeExploreSampleSection";
 import { OperatorHomeWorkspaceContextDisclosure } from "@/components/operator-home/OperatorHomeWorkspaceContextDisclosure";
-import { PilotCommandCenterCard } from "@/components/usability/PilotCommandCenterCard";
 import { useNavCommittedArchitectureReview } from "@/components/operator/OperatorNavAuthorityProvider";
-import { renderWithOperatorQuery } from "@/testing/render-with-operator-query";
 import {
   OPERATOR_HOME_ADVANCED_GUIDANCE_TITLE,
   OPERATOR_HOME_ASSIGN_ADMIN_BLOCKER,
   OPERATOR_HOME_EXPLORE_SAMPLE_HEADING,
-  OPERATOR_HOME_INTENT_CHOOSER_HEADING,
   OPERATOR_HOME_ONE_REQUIRED_ITEM_TITLE,
 } from "@/lib/buyer/buyer-polish-copy";
 import { OPERATOR_HOME_CARD_SECTION_HEADING } from "@/lib/design-tokens";
@@ -150,17 +147,14 @@ describe("operator home peer card titles", () => {
     localStorage.clear();
   });
 
-  it("uses shared peer-card title typography for hero and explore sample sections", () => {
-    renderWithOperatorQuery(<PilotCommandCenterCard />);
+  it("uses shared peer-card title typography for explore sample sections", () => {
     render(<OperatorHomeExploreSampleSection />);
 
-    const heroTitle = screen.getByRole("heading", { level: 2, name: OPERATOR_HOME_INTENT_CHOOSER_HEADING });
     const exploreSampleTitle = screen.getByRole("heading", {
       level: 2,
       name: OPERATOR_HOME_EXPLORE_SAMPLE_HEADING,
     });
 
-    expectPeerCardTitleClasses(heroTitle.className);
     expectPeerCardTitleClasses(exploreSampleTitle.className);
   });
 

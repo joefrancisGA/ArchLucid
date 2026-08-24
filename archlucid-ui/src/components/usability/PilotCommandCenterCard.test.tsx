@@ -5,14 +5,12 @@ import { PilotCommandCenterCard } from "@/components/usability/PilotCommandCente
 import { renderWithOperatorQuery } from "@/testing/render-with-operator-query";
 import { OPERATOR_NAV_LINK_LABELS } from "@/lib/i18n";
 import {
-  OPERATOR_HOME_COMMAND_CENTER_TAGLINE,
   OPERATOR_HOME_INTENT_CHOOSER_HEADING,
   OPERATOR_HOME_RESUME_LATEST_DRAFT_CTA,
   OPERATOR_HOME_REVIEW_ARCHITECTURE_CTA,
   OPERATOR_HOME_WORKSPACE_OVERVIEW_HEADING,
 } from "@/lib/buyer/buyer-polish-copy";
 import { CREATE_ARCHITECTURE_LABEL } from "@/lib/architecture/architecture-workflow-labels";
-import { OPERATOR_HOME_CARD_SECTION_HEADING } from "@/lib/design-tokens";
 import { OPERATOR_HOME_SETUP_READINESS_HREF } from "@/lib/operator/operator-home-metric-hrefs";
 import { PUBLIC_DEMO_CORE_PILOT_COMMIT_CONTEXT } from "@/lib/core-pilot-commit-context";
 
@@ -164,24 +162,10 @@ describe("PilotCommandCenterCard", () => {
   it("shows create and review lifecycle cards on empty Overview (ADR 0067)", async () => {
     renderWithOperatorQuery(<PilotCommandCenterCard />);
 
-    expect(screen.getByTestId("pilot-command-center-tagline")).toHaveTextContent(
-      OPERATOR_HOME_COMMAND_CENTER_TAGLINE,
-    );
-    expect(screen.getByTestId("pilot-command-center-tagline")).not.toHaveTextContent(/Both paths/i);
-
     expect(
-      screen.getByRole("heading", { level: 2, name: OPERATOR_HOME_INTENT_CHOOSER_HEADING }),
-    ).toBeInTheDocument();
-
-    const title = screen.getByRole("heading", { level: 2, name: OPERATOR_HOME_INTENT_CHOOSER_HEADING });
-    expect(title.className).toContain("text-[15px]");
-    expect(title.className).not.toContain("text-lg");
-
-    for (const token of OPERATOR_HOME_CARD_SECTION_HEADING.split(/\s+/)) {
-      if (token.length > 0) {
-        expect(title.className).toContain(token);
-      }
-    }
+      screen.queryByRole("heading", { level: 2, name: OPERATOR_HOME_INTENT_CHOOSER_HEADING }),
+    ).toBeNull();
+    expect(screen.queryByTestId("pilot-command-center-tagline")).toBeNull();
 
     expect(screen.getByTestId("operator-home-dual-path-cards")).toBeInTheDocument();
     expect(screen.queryByTestId("first-pilot-operate-unlock-vocabulary")).toBeNull();
@@ -227,8 +211,8 @@ describe("PilotCommandCenterCard", () => {
       "eval-with-drafts",
     );
     expect(
-      screen.getByRole("heading", { level: 2, name: "Claims intake" }),
-    ).toBeInTheDocument();
+      screen.queryByRole("heading", { level: 2, name: "Claims intake" }),
+    ).toBeNull();
     expect(screen.getByTestId("operator-home-draft-hero-labels")).toHaveTextContent(
       /Draft architecture — Updated/,
     );
