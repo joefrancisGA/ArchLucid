@@ -39,6 +39,7 @@ import { CompareHowComparisonWorksSection } from "@/app/(operator)/insights/comp
 import { CompareRelatedReviewLinks } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareRelatedReviewLinks";
 import { CompareSampleComparisonAction } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareSampleComparisonAction";
 import { CompareDemoQuickPick } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareDemoQuickPick";
+import { CompareNaturalPairSuggestion } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareNaturalPairSuggestion";
 import { CompareInsufficientFinalizedEmptyState } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareInsufficientFinalizedEmptyState";
 import { CompareLastRequestOutcomeDetails } from "@/app/(operator)/insights/compare-two-reviews/_sections/CompareLastRequestOutcomeDetails";
 import { COMPARE_PAGE_SUBTITLE } from "@/app/(operator)/insights/compare-two-reviews/_sections/ComparePageIntro";
@@ -537,6 +538,17 @@ export function CompareForm() {
       ) : null}
       {isStaticDemoPayloadFallbackEnabled() && !buyerPolished ? (
         <CompareDemoQuickPick onPickClaimsIntake={pickClaimsIntakePair} />
+      ) : null}
+      {!isStaticDemoPayloadFallbackEnabled() ? (
+        <CompareNaturalPairSuggestion
+          leftRunId={leftRunId}
+          rightRunId={rightRunId}
+          onApplyPair={(priorRunId, laterRunId) => {
+            setLeftRunId(priorRunId);
+            setRightRunId(laterRunId);
+            syncSelectionToUrl(priorRunId, laterRunId);
+          }}
+        />
       ) : null}
       <div className={cn("flex flex-col", OPERATOR_LAYOUT.unrelatedClusterGap)} data-testid="compare-workspace">
         {buyerPolished ? (
