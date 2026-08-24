@@ -713,6 +713,7 @@ public static class TopologyProposalRelationshipEndpointIndex
             || normalized.Contains("sql_managed_instance", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("mariadb", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("sql_database", StringComparison.OrdinalIgnoreCase)
+            || normalized.Contains("private_endpoint", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("communication_service", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("cognitive_account", StringComparison.OrdinalIgnoreCase)
             || normalized.Contains("cognitive_services", StringComparison.OrdinalIgnoreCase)
