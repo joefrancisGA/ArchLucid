@@ -219,4 +219,74 @@ describe("ArchitectureDraftAiRefinePanel", () => {
       expect(screen.queryByTestId("architecture-draft-ai-refine-publish-blocked")).not.toBeInTheDocument();
     });
   });
+
+  it("warns before re-running refine when framing questions are skipped but still allows proceed", async () => {
+    runReasoning.mockResolvedValue({
+      runId: "ai-run-framing-skip",
+      model: { elements: [{ id: "1" }] },
+      integrityPassedFindingIds: [],
+      publishedToProduct: false,
+      publishBlocked: true,
+      publishBlockReasons: [ARCHITECTURE_FRAMING_INCOMPLETE_PUBLISH_BLOCK_REASON],
+      interview: {
+        framingQuestions: [
+          {
+            questionId: "system-boundary",
+            prompt: "What is inside and outside the system boundary?",
+            isAnswered: false,
+          },
+          {
+            questionId: "architecture-kind",
+            prompt: "What kind of architecture is this?",
+            isAnswered: false,
+          },
+        ],
+      },
+    });
+
+    continueReasoning.mockResolvedValue({
+      runId: "ai-run-framing-skip",
+      model: { elements: [{ id: "1" }, { id: "2" }] },
+      integrityPassedFindingIds: ["f1"],
+      publishedToProduct: false,
+      publishBlocked: false,
+      publishBlockReasons: [],
+      interview: {
+        framingQuestions: [],
+      },
+    });
+
+    render(<ArchitectureDraftAiRefinePanel fields={draftFields} linkedReviewId={null} />);
+
+    fireEvent.click(screen.getByTestId("architecture-draft-ai-refine-run"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("architecture-draft-ai-refine-framing-panel")).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByTestId("architecture-draft-ai-refine-framing-system-boundary-skip"));
+    fireEvent.change(screen.getByTestId("architecture-draft-ai-refine-framing-architecture-kind"), {
+      target: { value: "Migration" },
+    });
+    fireEvent.click(screen.getByTestId("architecture-draft-ai-refine-framing-resubmit"));
+
+    await waitFor(() => {
+      expect(screen.getByText(/Some framing questions are skipped/i)).toBeInTheDocument();
+    });
+    expect(continueReasoning).not.toHaveBeenCalled();
+
+    fireEvent.click(screen.getByRole("button", { name: "Proceed anyway" }));
+
+    await waitFor(() => {
+      expect(continueReasoning).toHaveBeenCalledWith(
+        "ai-run-framing-skip",
+        expect.objectContaining({
+          continueFromExistingRun: true,
+          framingAnswers: {
+            "architecture-kind": "Migration",
+          },
+        }),
+      );
+    });
+  });
 });
