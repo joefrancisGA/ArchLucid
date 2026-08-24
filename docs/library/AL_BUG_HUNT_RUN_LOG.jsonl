@@ -194,3 +194,4 @@
 {"at":"2026-08-24T17:05:24.287524Z","zoneId":"finding-inspect-sql","outcome":"hit"}
 {"at":"2026-08-24T17:10:00.000000Z","zoneId":"email-otp-auth","outcome":"hit"}
 {"at":"2026-08-24T17:15:00.000000Z","zoneId":"arm-terraform-source-ids","outcome":"hit"}
+{"at":"2026-08-24T17:20:00.000000Z","zoneId":"arm-terraform-source-ids","outcome":"hit"}
