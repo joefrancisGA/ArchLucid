@@ -61,7 +61,7 @@ export function SponsorRoiEnvironmentSavingsSection() {
                 <div
                   key={slice.environment}
                   style={{
-                    flex: `${Math.max(slice.estimatedUsdSavings, 1)} 1 0%`,
+                    flex: `${Math.max(Number(slice.estimatedUsdSavings ?? 0), 1)} 1 0%`,
                     backgroundColor: SLICE_COLORS[index % SLICE_COLORS.length],
                   }}
                 />
@@ -77,7 +77,7 @@ export function SponsorRoiEnvironmentSavingsSection() {
                     />
                     {slice.environment}
                   </span>
-                  <span className="font-mono tabular-nums">${Math.round(slice.estimatedUsdSavings).toLocaleString()}</span>
+                  <span className="font-mono tabular-nums">${Math.round(Number(slice.estimatedUsdSavings ?? 0)).toLocaleString()}</span>
                 </li>
               ))}
             </ul>

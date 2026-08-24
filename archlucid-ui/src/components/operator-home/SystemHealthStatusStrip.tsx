@@ -35,7 +35,7 @@ function isHealthStatusHealthy(status: string): boolean {
   return normalized.includes("healthy") || normalized.includes("ok");
 }
 
-type SystemHealthStatusStripProps = {
+export type SystemHealthStatusStripProps = {
   className?: string;
 };
 

@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
-import { OperatorEmptyState } from "@/components/OperatorShellMessage";
+import { OperatorEmptyState } from "@/components/operator/OperatorShellMessage";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -43,6 +43,7 @@ import {
   roleMatrixKey,
   type RolePermissionBaseline,
   toggleRolePermission,
+  totalUnsavedPermissionChanges,
 } from "./custom-role-draft-state";
 import { type CustomRoleFailureCopy, customRoleFailureCopy } from "./custom-role-failure-copy";
 import { CustomRoleRequestError, customRoleRequestStatus } from "./custom-role-request-error";
@@ -152,7 +153,12 @@ function BuiltinRoleSummaryCard({ apiRoleName, description }: { apiRoleName: str
   );
 }
 
-export function SettingsRolesMatrixSection() {
+export type SettingsRolesMatrixSectionProps = {
+  readonly assignmentCountsByRole?: ReadonlyMap<string, number>;
+  readonly assignmentCountsReliable?: boolean;
+};
+
+export function SettingsRolesMatrixSection(_props: SettingsRolesMatrixSectionProps = {}) {
   const [matrix, setMatrix] = useState<RoleMatrixState>(EMPTY_MATRIX_STATE);
   const [loading, setLoading] = useState(true);
   const [savingRoleId, setSavingRoleId] = useState<string | null>(null);
@@ -208,6 +214,7 @@ export function SettingsRolesMatrixSection() {
 
   const columns = useMemo(() => sortMatrixRoles(roles), [roles]);
   const unsavedRoleNames = useMemo(() => dirtyRoleDisplayNames(roles, matrix.baseline), [matrix.baseline, roles]);
+  const unsavedChangeCount = useMemo(() => totalUnsavedPermissionChanges(roles, matrix.baseline), [matrix.baseline, roles]);
   const hasUnsavedEdits = unsavedRoleNames.length > 0;
 
   useEffect(() => {
@@ -414,7 +421,7 @@ export function SettingsRolesMatrixSection() {
               OPERATOR_TYPOGRAPHY.body,
             )}
           >
-            {unsavedRoleEditsNotice(unsavedRoleNames)}
+            {unsavedRoleEditsNotice(unsavedRoleNames, unsavedChangeCount)}
           </p>
         ) : null}
 
@@ -568,7 +575,7 @@ export function SettingsRolesMatrixSection() {
                                 <Button
                                   type="button"
                                   size="sm"
-                                  variant="ghost"
+                                  variant="outline"
                                   className="h-7 px-2 text-xs"
                                   aria-label={`Discard unsaved changes to ${displayName}`}
                                   onClick={() => discardRoleEdits(roleKey)}

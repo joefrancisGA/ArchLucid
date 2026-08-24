@@ -26,6 +26,18 @@ import { SponsorRoiSavingsTrendSvgChart } from "./SponsorRoiSavingsTrendSvgChart
 
 type HistoryPoint = SponsorRoiHistoryPoint;
 
+function normalizedTrendPoint(point: HistoryPoint) {
+  return {
+    snapshotUtc: point.snapshotUtc ?? "",
+    totalEstimatedUsdSavings: Number(point.totalEstimatedUsdSavings ?? 0),
+    realModeSavingsUsd: Number(point.realModeSavingsUsd ?? 0),
+    realRunCount: point.realRunCount ?? 0,
+    simulatorRunCount: point.simulatorRunCount ?? 0,
+    criticalSecurityFindings: point.criticalSecurityFindings ?? 0,
+    isMixedMode: point.isMixedMode ?? false,
+  };
+}
+
 function formatMonth(isoUtc: string): string {
   const date = new Date(isoUtc);
 
@@ -37,21 +49,24 @@ function formatMonth(isoUtc: string): string {
 }
 
 function chartIncludesMixedMode(points: HistoryPoint[]): boolean {
-  return points.some((point) => point.isMixedMode);
+  return points.some((point) => normalizedTrendPoint(point).isMixedMode);
 }
 
 function buildCriticalBarTitle(point: HistoryPoint, buyerPolished: boolean): string {
-  const monthLabel = formatMonth(point.snapshotUtc);
+  const normalized = normalizedTrendPoint(point);
+  const monthLabel = formatMonth(normalized.snapshotUtc);
 
   if (buyerPolished) {
-    return `${point.criticalSecurityFindings} critical findings — ${monthLabel}`;
+    return `${normalized.criticalSecurityFindings} critical findings — ${monthLabel}`;
   }
 
-  return `${point.criticalSecurityFindings} critical findings — ${monthLabel} · ${point.realRunCount} Real · ${point.simulatorRunCount} Simulator`;
+  return `${normalized.criticalSecurityFindings} critical findings — ${monthLabel} · ${normalized.realRunCount} Real · ${normalized.simulatorRunCount} Simulator`;
 }
 
 function isSimulatorOnlyPeriod(point: HistoryPoint): boolean {
-  return point.realRunCount === 0 && point.simulatorRunCount > 0;
+  const normalized = normalizedTrendPoint(point);
+
+  return normalized.realRunCount === 0 && normalized.simulatorRunCount > 0;
 }
 
 export type SponsorRoiTrendSectionProps = {
@@ -91,7 +106,7 @@ export function SponsorRoiTrendSection({
     [allPoints, timeRange],
   );
 
-  const maxCritical = Math.max(...points.map((point) => point.criticalSecurityFindings), 1);
+  const maxCritical = Math.max(...points.map((point) => normalizedTrendPoint(point).criticalSecurityFindings), 1);
   const showMixedModeFootnote = chartIncludesMixedMode(points);
   const buyerPolished = isBuyerPolishedOperatorShellEnv();
 
@@ -145,20 +160,25 @@ export function SponsorRoiTrendSection({
         {!loading && !error && points.length > 0 ? (
           <div className="space-y-4" data-testid="exec-roi-trend-chart">
             <SponsorRoiSavingsTrendSvgChart
-              points={points.map((point) => ({
-                snapshotUtc: point.snapshotUtc,
-                totalEstimatedUsdSavings: resolveExecutiveTrendSavingsUsd(point, buyerPolished),
-              }))}
+              points={points.map((point) => {
+                const normalized = normalizedTrendPoint(point);
+
+                return {
+                  snapshotUtc: normalized.snapshotUtc,
+                  totalEstimatedUsdSavings: resolveExecutiveTrendSavingsUsd(normalized, buyerPolished),
+                };
+              })}
             />
             <div>
               <div className={cn("mb-2 font-medium text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>Critical security findings</div>
               <div className="flex items-end gap-2">
                 {points.map((point) => {
+                  const normalized = normalizedTrendPoint(point);
                   const criticalBarLabel = buildCriticalBarTitle(point, buyerPolished);
 
                   return (
                   <div
-                    key={`critical-${point.snapshotUtc}`}
+                    key={`critical-${normalized.snapshotUtc}`}
                     className="flex flex-1 flex-col items-center gap-1"
                     tabIndex={0}
                     aria-label={criticalBarLabel}
@@ -173,9 +193,9 @@ export function SponsorRoiTrendSection({
                     ) : null}
                     <div
                       className="w-full rounded-sm bg-amber-500/80"
-                      style={{ height: `${Math.max(8, Math.round((point.criticalSecurityFindings / maxCritical) * 120))}px` }}
+                      style={{ height: `${Math.max(8, Math.round((normalized.criticalSecurityFindings / maxCritical) * 120))}px` }}
                     />
-                    <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.navHelper)}>{formatMonth(point.snapshotUtc)}</span>
+                    <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.navHelper)}>{formatMonth(normalized.snapshotUtc)}</span>
                   </div>
                   );
                 })}

@@ -12,7 +12,7 @@ import {
 } from "@/lib/deployment-fingerprint";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
-type DeploymentBuildFingerprintStripProps = {
+export type DeploymentBuildFingerprintStripProps = {
   readonly className?: string;
   readonly variant?: DeploymentBuildFingerprintStripVariant;
 };

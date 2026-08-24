@@ -33,7 +33,7 @@ import {
   useReviewCreationProgress,
 } from "@/hooks/use-review-creation-progress";
 import { deriveGuidedIntakeCloudTargetForMismatch } from "@/lib/review-quality/guided-intake-policy-pack-cloud-mismatch";
-import { getRunSummary } from "@/lib/api/architecture-runs";
+import { getRunSummary, type CreateArchitectureRunRequestPayload } from "@/lib/api/architecture-runs";
 import { createArchitectureRun } from "@/lib/api";
 import { isArchitectureRequestCreateUnresolvedError } from "@/lib/api/architecture-request-create-unresolved-error";
 import { isApiRequestError } from "@/lib/api-request-error";

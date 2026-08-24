@@ -12,7 +12,7 @@ import {
   submitDraftRequest,
 } from "@/lib/api/draft-intake-api";
 import { architectureCreationDefaultActorSet } from "@/lib/architecture/architecture-creation-init";
-import { structuredBriefToPatchPayload } from "@/lib/architecture/architecture-draft-structured-brief";
+import { structuredBriefToPatchPayload, emptyArchitectureDraftStructuredBrief } from "@/lib/architecture/architecture-draft-structured-brief";
 import { projectClarificationAnswersToConfirmedAssumptions } from "@/lib/architecture/clarification-answer-projection";
 import { buildReviewGenerationRedirect } from "@/lib/review-generation-handoff";
 import { cn } from "@/lib/utils";
@@ -61,15 +61,8 @@ export function ClarificationAnswerCapturePanel(
         actorSet: architectureCreationDefaultActorSet(),
         workflowIntent: "start-review",
         structuredBrief: structuredBriefToPatchPayload({
-          confirmedConstraints: [],
+          ...emptyArchitectureDraftStructuredBrief(),
           confirmedAssumptions,
-          confirmedRequiredCapabilities: [],
-          suggestedConstraints: [],
-          suggestedAssumptions: [],
-          suggestedRequiredCapabilities: [],
-          qualityAttribute: "",
-          failureModeNote: "",
-          operationalOwner: "",
         }),
       });
 

@@ -3,7 +3,7 @@ import Link from "next/link";
 
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 
-type TrustCenterShellLinkProps = {
+export type TrustCenterShellLinkProps = {
   readonly className?: string;
   readonly variant?: "header" | "footer";
 };

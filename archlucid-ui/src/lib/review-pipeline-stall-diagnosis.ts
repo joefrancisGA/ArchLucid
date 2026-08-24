@@ -57,7 +57,7 @@ export function deriveReviewPipelineStallDiagnosis(input: {
       detail:
         lastFailureReason.length > 0
           ? `Server marked this review as dead-lettered. Last failure: ${lastFailureReason}`
-          : "Server marked this review as dead-lettered. Check API logs and AuthorityPipelineWork outbox for this run.",
+          : "Server marked this review as dead-lettered. Check API logs and AuthorityPipelineWork outbox for this review.",
     };
   }
 
@@ -69,7 +69,7 @@ export function deriveReviewPipelineStallDiagnosis(input: {
         detail:
           lastFailureReason.length > 0
             ? `Run status is Failed with no stage snapshots. ${lastFailureReason}`
-            : "Run status is Failed with no stage snapshots. Re-execute or inspect API logs for this run id.",
+            : "Run status is Failed with no stage snapshots. Re-execute or inspect API logs for this review id.",
       };
     }
 
@@ -79,7 +79,7 @@ export function deriveReviewPipelineStallDiagnosis(input: {
       detail:
         "This usually means deferred AuthorityPipelineWork is queued but the background worker is not processing, " +
         "or execute never advanced past run creation. Confirm the API host runs AuthorityPipelineWorkHostedService " +
-        "(Combined role, not Api-only) and check dbo.AuthorityPipelineWorkOutbox for this run id.",
+        "(Combined role, not Api-only) and check dbo.AuthorityPipelineWorkOutbox for this review id.",
     };
   }
 
