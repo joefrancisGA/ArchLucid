@@ -626,7 +626,7 @@ public sealed partial class RunsController(
         CancellationToken cancellationToken)
     {
         if (!TryParseRunGuidForAudit(runId, out Guid runGuid))
-            return this.BadRequestProblem("runId must be a valid GUID.", ProblemTypes.ValidationFailed);
+            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
 
         ScopeContext scope = scopeContextProvider.GetCurrentScope();
         RunRecord? run = await _runRepository.GetByIdAsync(scope, runGuid, cancellationToken);

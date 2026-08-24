@@ -970,7 +970,7 @@ public sealed class AdminDiagnosticsServiceNonSqlTests
 
         _ = integration
             .Setup(i => i.RetryMatchingDeadLettersAsync(
-                null,
+                DefaultScope().TenantId,
                 IntegrationEventTypes.ManifestFinalizedV1,
                 100,
                 It.IsAny<CancellationToken>()))
@@ -982,6 +982,7 @@ public sealed class AdminDiagnosticsServiceNonSqlTests
 
         IntegrationOutboxDeadLetterBulkRetryRequest request = new()
         {
+            TenantId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee"),
             EventType = IntegrationEventTypes.ManifestFinalizedV1,
             MaxRows = 100
         };
@@ -990,11 +991,74 @@ public sealed class AdminDiagnosticsServiceNonSqlTests
             await sut.RetryIntegrationOutboxDeadLettersAsync(request, CancellationToken.None);
 
         Assert.Equal(1, response.RetriedCount);
+        integration.Verify(
+            i => i.RetryMatchingDeadLettersAsync(
+                DefaultScope().TenantId,
+                IntegrationEventTypes.ManifestFinalizedV1,
+                100,
+                It.IsAny<CancellationToken>()),
+            Times.Once);
         audit.Verify(
             service => service.LogAsync(
                 It.Is<AuditEvent>(e => e.EventType == AuditEventTypes.IntegrationOutboxDeadLetterRetried),
                 It.IsAny<CancellationToken>()),
             Times.Once);
+    }
+
+    [Fact]
+    public async Task RetryIntegrationOutboxDeadLettersAsync_passes_current_tenant_scope_to_repository()
+    {
+        Mock<IAuditService> audit = new();
+        Mock<IActorContext> actor = ActorMock();
+        Mock<IDbConnectionFactory> factory = new(MockBehavior.Strict);
+
+        ScopeContext scope = DefaultScope();
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(s => s.GetCurrentScope()).Returns(scope);
+
+        AdminDiagnosticsService sut = CreateDiagnosticsService(
+            factory,
+            SqlOptions(),
+            audit,
+            actor,
+            scopeProvider.Object,
+            out _,
+            out Mock<IIntegrationEventOutboxRepository> integration,
+            out _,
+            out _);
+
+        _ = integration
+            .Setup(i => i.RetryMatchingDeadLettersAsync(
+                scope.TenantId,
+                null,
+                50,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new IntegrationOutboxDeadLetterBulkRetryResult
+            {
+                RetriedCount = 0,
+                RetriedOutboxIds = []
+            });
+
+        IntegrationOutboxDeadLetterBulkRetryRequest request = new()
+        {
+            TenantId = Guid.Parse("ffffffff-ffff-ffff-ffff-ffffffffffff"),
+            MaxRows = 50
+        };
+
+        IntegrationOutboxDeadLetterBulkRetryResponse response =
+            await sut.RetryIntegrationOutboxDeadLettersAsync(request, CancellationToken.None);
+
+        Assert.Equal(0, response.RetriedCount);
+        integration.Verify(
+            i => i.RetryMatchingDeadLettersAsync(
+                scope.TenantId,
+                null,
+                50,
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+        audit.Verify(
+            service => service.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
     /// <remarks>Moq <see cref="It.Is{TValue}"/> requires an expression-tree lambda; keep checks in this helper.</remarks>

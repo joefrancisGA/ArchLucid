@@ -173,9 +173,11 @@ public sealed class AdminDiagnosticsService(
     {
         ArgumentNullException.ThrowIfNull(request);
 
+        ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+
         IntegrationOutboxDeadLetterBulkRetryResult result =
             await _integrationEventOutbox.RetryMatchingDeadLettersAsync(
-                request.TenantId,
+                scope.TenantId,
                 request.EventType,
                 request.MaxRows,
                 cancellationToken).ConfigureAwait(false);
@@ -189,7 +191,7 @@ public sealed class AdminDiagnosticsService(
                     DataJson = JsonSerializer.Serialize(
                         new
                         {
-                            tenantId = request.TenantId,
+                            tenantId = scope.TenantId,
                             eventType = request.EventType,
                             retriedCount = result.RetriedCount,
                             outboxIds = result.RetriedOutboxIds

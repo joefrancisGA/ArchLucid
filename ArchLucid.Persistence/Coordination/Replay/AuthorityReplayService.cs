@@ -46,6 +46,9 @@ public sealed class AuthorityReplayService(
             ? ReplayMode.ReconstructOnly
             : request.Mode.Trim();
 
+        if (!ReplayMode.IsKnown(mode))
+            throw new ArgumentOutOfRangeException(nameof(request), request.Mode, "Replay mode is not recognized.");
+
         ReplayResult result = new()
         {
             RunId = request.RunId,

@@ -347,6 +347,17 @@ public sealed class RunsControllerTests
             Times.Once);
     }
 
+    [Fact]
+    public async Task PinRun_returns_not_found_for_invalid_run_id_like_GetRun()
+    {
+        RunsController controller = CreateController();
+
+        IActionResult action = await controller.PinRun("not-a-guid", null, CancellationToken.None);
+
+        ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+    }
+
     private static RunsController CreateController(
         IArchitectureApplicationService? architectureApplicationService = null,
         IArchitectureRequestDraftService? draftService = null,

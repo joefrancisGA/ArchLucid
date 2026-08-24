@@ -360,7 +360,7 @@ public sealed class RunQueryController(
             return this.BadRequestProblem("Run id is required.", ProblemTypes.ValidationFailed);
 
         if (!AuthorityRunIdentifier.TryParse(runId, out Guid runGuid))
-            return this.BadRequestProblem("Run id must be a valid GUID.", ProblemTypes.ValidationFailed);
+            return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
 
         return await GetCytoscapeGraphSnapshotAsync(runGuid, cancellationToken);
     }

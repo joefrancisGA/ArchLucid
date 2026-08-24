@@ -235,4 +235,32 @@ public sealed class AuthorityReplayServiceTests
                 It.IsAny<CancellationToken>()),
             Times.Once);
     }
+
+    [Fact]
+    public async Task ReplayAsync_unknown_mode_throws_and_does_not_call_decision_engine()
+    {
+        Guid runId = Guid.NewGuid();
+        (AuthorityReplayService sut, _, Mock<IDecisionEngine> engine, Mock<IArtifactSynthesisService> artifactSvc, _)
+            = Build(MakeFullDetailDto(runId));
+
+        Func<Task> act = () => sut.ReplayAsync(
+            new ReplayRequest { RunId = runId, Mode = "DestroyEverything" },
+            CancellationToken.None);
+
+        await act.Should().ThrowAsync<ArgumentOutOfRangeException>();
+        engine.Verify(
+            x => x.DecideAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<Guid>(),
+                It.IsAny<GraphSnapshot>(),
+                It.IsAny<FindingsSnapshot>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+        artifactSvc.Verify(
+            x => x.SynthesizeAsync(
+                It.IsAny<ManifestDocument>(),
+                It.IsAny<IReadOnlyList<TechnologyLedgerEntry>>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
 }

@@ -200,6 +200,28 @@ public sealed class RunQueryControllerTests
     }
 
     [Fact]
+    public async Task GetRun_returns_not_found_for_invalid_run_id_like_GetRun()
+    {
+        RunQueryController controller = CreateController();
+
+        IActionResult action = await controller.GetRun("not-a-guid", CancellationToken.None);
+
+        ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+    }
+
+    [Fact]
+    public async Task GetInteractiveGraphSnapshot_returns_not_found_for_invalid_run_id_like_GetRun()
+    {
+        RunQueryController controller = CreateController();
+
+        IActionResult action = await controller.GetInteractiveGraphSnapshot("not-a-guid", CancellationToken.None);
+
+        ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+    }
+
+    [Fact]
     public async Task GetRunStageTimeline_returns_bad_request_when_run_id_blank()
     {
         RunQueryController controller = CreateController();

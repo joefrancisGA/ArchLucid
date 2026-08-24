@@ -64,6 +64,11 @@ public sealed class AuthorityReplayController(
             ? ReplayMode.ReconstructOnly
             : request.Mode.Trim();
 
+        if (!ReplayMode.IsKnown(mode))
+            return this.BadRequestProblem(
+                $"Replay mode '{mode}' is not recognized.",
+                ProblemTypes.ValidationFailed);
+
         ReplayResult? result = await replayService.ReplayAsync(
             new ReplayRequest { RunId = request.RunId, Mode = mode },
             ct);

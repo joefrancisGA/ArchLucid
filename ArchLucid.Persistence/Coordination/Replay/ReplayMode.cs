@@ -14,4 +14,17 @@ public static class ReplayMode
 
     /// <summary><see cref="RebuildManifest" /> plus artifact synthesis and bundle persistence.</summary>
     public const string RebuildArtifacts = "RebuildArtifacts";
+
+    /// <summary>
+    ///     Returns whether <paramref name="mode" /> is one of the supported replay mode tokens (case-insensitive).
+    /// </summary>
+    public static bool IsKnown(string mode)
+    {
+        if (string.IsNullOrWhiteSpace(mode))
+            return true;
+
+        return string.Equals(mode, ReconstructOnly, StringComparison.OrdinalIgnoreCase)
+            || string.Equals(mode, RebuildManifest, StringComparison.OrdinalIgnoreCase)
+            || string.Equals(mode, RebuildArtifacts, StringComparison.OrdinalIgnoreCase);
+    }
 }
