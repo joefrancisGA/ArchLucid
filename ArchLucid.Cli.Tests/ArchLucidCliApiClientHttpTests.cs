@@ -2,6 +2,8 @@ using System.Net;
 using System.Net.Http.Headers;
 using System.Text.Json;
 
+using ArchLucid.Contracts.Agents;
+using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Requests;
 
 using FluentAssertions;
@@ -139,6 +141,38 @@ public sealed class ArchLucidApiClientHttpTests
         result.Should().BeNull();
     }
 
+    [Theory]
+    [InlineData(AgentType.Topology)]
+    [InlineData(AgentType.Cost)]
+    [InlineData(AgentType.Compliance)]
+    [InlineData(AgentType.Critic)]
+    public async Task SubmitAgentResultAsync_writes_contract_agent_type_name(AgentType agentType)
+    {
+        HttpResponseMessage response = new(HttpStatusCode.OK)
+        {
+            Content = new StringContent("""{"resultId":"result-1"}""")
+        };
+        CapturingHttpMessageHandler handler = new(response);
+        HttpClient http = new(handler) { BaseAddress = new Uri("http://localhost") };
+        ArchLucidApiClient client = new(http);
+        AgentResult result = new()
+        {
+            ResultId = "result-1",
+            TaskId = "task-1",
+            AgentType = agentType,
+            Confidence = 0.8
+        };
+
+        ArchLucidApiClient.SubmitResultResult? submitted =
+            await client.SubmitAgentResultAsync("run-1", result);
+
+        submitted.Should().NotBeNull();
+        submitted!.Success.Should().BeTrue();
+        using JsonDocument body = JsonDocument.Parse(handler.RequestBody!);
+        body.RootElement.GetProperty("result").GetProperty("agentType").GetString()
+            .Should().Be(agentType.ToString());
+    }
+
     [Fact]
     public async Task CommitRunAsync_On200_ReturnsSuccessAndManifestVersion()
     {
@@ -222,6 +256,22 @@ public sealed class ArchLucidApiClientHttpTests
             CancellationToken cancellationToken)
         {
             return Task.FromResult(response);
+        }
+    }
+
+    private sealed class CapturingHttpMessageHandler(HttpResponseMessage response) : HttpMessageHandler
+    {
+        public string? RequestBody { get; private set; }
+
+        protected override async Task<HttpResponseMessage> SendAsync(
+            HttpRequestMessage request,
+            CancellationToken cancellationToken)
+        {
+            RequestBody = request.Content is null
+                ? null
+                : await request.Content.ReadAsStringAsync(cancellationToken);
+
+            return response;
         }
     }
 }

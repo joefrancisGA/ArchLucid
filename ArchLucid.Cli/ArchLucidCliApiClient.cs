@@ -26,9 +26,9 @@ namespace ArchLucid.Cli;
 public sealed partial class ArchLucidApiClient
 {
     /// <summary>
-    ///     Contracts → NSwag <c>Gen.*</c> round-trip: generated request DTOs use numeric enums (
-    ///     <see cref="Gen.ArchitectureRequest.CloudProvider" />, <see cref="Gen.AgentResult.AgentType" />), so bridging
-    ///     JSON must not emit string enum tokens.
+    ///     Contracts → NSwag <c>Gen.ArchitectureRequest</c> round-trip: generated request DTOs use numeric enums such as
+    ///     <see cref="Gen.ArchitectureRequest.CloudProvider" />, so bridging JSON must not emit string enum tokens.
+    ///     Generated agent-result enums are bridged by name because their zero-based ordinals differ from contract values.
     /// </summary>
     private static readonly JsonSerializerOptions GenNumericEnumBridgeJson = new()
     {

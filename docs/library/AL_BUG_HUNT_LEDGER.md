@@ -1664,8 +1664,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** API contracts; DTO serialization; OpenAPI models
 - **paths:** ArchLucid.Contracts/
 - **test-filter:** FullyQualifiedName~Contracts
-- **hunts:** 5
-- **bugs-found:** 8
+- **hunts:** 6
+- **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-24
 - **last-bug:** 2026-08-24
@@ -1683,7 +1683,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `CloudProvider`, `ArchitectureRunStatus`, and `AgentTaskStatus` accept out-of-range integer ordinals via global `JsonStringEnumConverter` — **hit 2026-08-24:** `cloudProvider: 99` and similar status ordinals deserialized without `Enum.IsDefined`; fixed with dedicated converters and `[JsonConverter]` on each enum (`CloudProviderJsonConverterTests`, `ArchitectureRunStatusJsonConverterTests`, `AgentTaskStatusJsonConverterTests`).
 - [x] (proven) `AgentResultClaimListJsonConverter` drops PascalCase structured claims — **hit 2026-08-24:** `TryGetProperty` is case-sensitive so `{"Detail":"..."}` yielded empty claims; fixed with case-insensitive property lookup (`ContractsPackageCoverageBatchRc28cTests`).
 - [x] (proven) `ArchitectureFindingJsonConverter.ReadSeverity` downgrades unknown severity strings to `Info` — **hit 2026-08-24:** labels like `"blocker"` silently became `Info` while `EvalCorpusFindingSeverityJsonConverter` throws; fixed to throw on unknown labels (`ArchitectureFindingJsonConverterTests`).
-- [ ] (hunt-ready) `ArchLucid.Contracts/Common/AgentType.cs` is one-based while generated `Gen.AgentType` is zero-based; `GenNumericEnumBridgeJson` can round-trip contract `Topology` ordinal `1` into generated `Cost`, producing the wrong agent type in CLI mapping.
+- [x] (proven) CLI agent-result bridge maps one-based contract `AgentType` ordinals onto zero-based generated ordinals — **hit 2026-08-24:** `AgentType.Topology` (`1`) became generated `Cost` (`1`) and emitted `"agentType":"Cost"`; fixed by bridging generated agent results by enum name (`SubmitAgentResultAsync_writes_contract_agent_type_name`).
 - [ ] (hunt-ready) Global API enum conversion still permits out-of-range numeric `StructuralExecutionMode`, `FindingEnforcementTier`, `FindingHumanReviewStatus`, and `FindingTreatment`; unlike protected sibling enums, these types have no defined-value converter, so ordinal `99` may reach downstream switches.
 - [ ] (hunt-ready) `FindingJsonConverter` reads `humanReviewStatus` only when the token is a string; persisted JSON with numeric `1` leaves the default `NotRequired`, silently downgrading pending review state on round trip.
 - [ ] (hunt-ready) `AgentResultClaimListJsonConverter` flattens structured claim text but ignores an entry-level `evidenceRefs` array, so `{"detail":"Subnet missing","evidenceRefs":["pol-123"]}` loses its evidence linkage.
