@@ -1,52 +1,34 @@
 "use client";
 
 import type { Dispatch, SetStateAction } from "react";
-import { useMutation } from "@tanstack/react-query";
-import { useCallback, useEffect, useState } from "react";
 
+import { ArchitectureDraftStructuredBriefConfirmableChipList } from "@/components/architecture/ArchitectureDraftStructuredBriefConfirmableChipList";
+import {
+  addConfirmedListItem,
+  confirmSuggestedListItem,
+  denySuggestedListItem,
+  removeConfirmedListItem,
+  type StructuredBriefListFieldKey,
+} from "@/components/architecture/structured-brief-list-mutations";
+import { useStructuredBriefSuggestions } from "@/components/architecture/use-structured-brief-suggestions";
 import { LongOperationWaitNotice } from "@/components/LongOperationWaitNotice";
-import { StructuredBriefSuggestionExplainPanel } from "@/components/architecture/StructuredBriefSuggestionExplainPanel";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
-import { InAppHelpLink } from "@/components/InAppHelpLink";
 import { StructuredBriefCapabilitiesQualityVocabularyRail } from "@/components/StructuredBriefCapabilitiesQualityVocabularyRail";
-import { IntakeFieldLabel } from "@/components/intake/IntakeFieldLabel";
 import { IntakeTextField } from "@/components/intake/IntakeTextField";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import type { StructuredBriefSuggestionKind } from "@/lib/api/structured-brief-suggestion-explain-api";
-import { draftArchitectureRequest, ARCHITECTURE_REQUEST_DRAFT_MIN_DESCRIPTION_CHARS } from "@/lib/api/architecture-request-draft-api";
-import { draftArchitectureRequestWithPoll } from "@/lib/api/architecture-request-draft-async-api";
-import { isApiRequestError } from "@/lib/api-request-error";
-import type { ApiProblemDetails } from "@/lib/api-problem";
+import { ARCHITECTURE_REQUEST_DRAFT_MIN_DESCRIPTION_CHARS } from "@/lib/api/architecture-request-draft-api";
 import {
-  countStructuredBriefSuggestionApplyDelta,
-  denyStructuredBriefSuggestion,
   joinQualityAttributeEntries,
-  mergeExclusiveConfirmedItem,
   mergeUniqueStrings,
   parseQualityAttributeEntries,
   type ArchitectureDraftStructuredBriefState,
   type StructuredBriefSuggestedFieldKey,
 } from "@/lib/architecture/architecture-draft-structured-brief";
-import {
-  applyArchitectureDraftStructuredBriefSuggestionsFromDraftResponse,
-  applyFailureModeSuggestionIfEmpty,
-  buildArchitectureDraftSuggestionSourceText,
-  hasArchitectureContextForFailureModeSuggestion,
-  resolveFailureModeSuggestion,
-} from "@/lib/architecture/architecture-draft-structured-brief-suggestions";
-import {
-  estimateStructuredBriefSuggestDuration,
-  formatStructuredBriefSuggestDurationBand,
-} from "@/lib/architecture/structured-brief-suggest-duration-estimate";
-import { OPERATOR_FORM_FIELD_LABEL_CLASS, OPERATOR_TYPOGRAPHY, OPERATOR_CALLOUT_WARN_CLASS } from "@/lib/design-tokens";
+import { OPERATOR_FORM_FIELD_LABEL_CLASS, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import {
   GUIDED_INTAKE_STRUCTURED_BRIEF_FAILURE_MODE_HINT,
   GUIDED_INTAKE_STRUCTURED_BRIEF_FAILURE_MODE_LABEL,
   GUIDED_INTAKE_STRUCTURED_BRIEF_FAILURE_MODE_PLACEHOLDER,
-  GUIDED_INTAKE_STRUCTURED_BRIEF_FAILURE_MODE_SUGGEST_BUTTON,
-  GUIDED_INTAKE_STRUCTURED_BRIEF_FAILURE_MODE_SUGGEST_EMPTY,
-  GUIDED_INTAKE_STRUCTURED_BRIEF_FAILURE_MODE_SUGGEST_SUCCESS,
   GUIDED_INTAKE_STRUCTURED_BRIEF_OPERATIONAL_OWNER_HINT,
   GUIDED_INTAKE_STRUCTURED_BRIEF_OPERATIONAL_OWNER_LABEL,
   GUIDED_INTAKE_STRUCTURED_BRIEF_OPERATIONAL_OWNER_PLACEHOLDER,
@@ -55,130 +37,13 @@ import {
   GUIDED_INTAKE_STRUCTURED_BRIEF_QUALITY_ATTRIBUTES_PLACEHOLDER,
   GUIDED_INTAKE_STRUCTURED_BRIEF_REQUIRED_CAPABILITIES_HINT,
   GUIDED_INTAKE_STRUCTURED_BRIEF_REQUIRED_CAPABILITIES_LABEL,
-  GUIDED_INTAKE_CONFIRM_ACTOR_BUTTON,
-  GUIDED_INTAKE_DENY_SUGGESTION_BUTTON,
-  GUIDED_INTAKE_ASSUMPTION_EVIDENCE_CONTRADICTION_LABEL,
-  GUIDED_INTAKE_ASSUMPTION_EVIDENCE_CONTRADICTION_SECTION,
   GUIDED_INTAKE_STRUCTURED_BRIEF_SECTION_LABEL,
   GUIDED_INTAKE_STRUCTURED_BRIEF_SUGGEST_EMPTY,
   GUIDED_INTAKE_STRUCTURED_BRIEF_SUGGEST_EDITOR_LOCKED_HINT,
-  GUIDED_INTAKE_STRUCTURED_BRIEF_SUGGEST_HEADING,
   guidedIntakeStructuredBriefSuggestDisabledHint,
   guidedIntakeStructuredBriefSuggestSuccess,
 } from "@/lib/guided-intake-copy";
 import { cn } from "@/lib/utils";
-
-type ListFieldKey =
-  | "confirmedConstraints"
-  | "confirmedAssumptions"
-  | "confirmedRequiredCapabilities";
-
-type SuggestedFieldKey = StructuredBriefSuggestedFieldKey;
-
-function addConfirmedListItem(
-  onStructuredBriefChange: Dispatch<SetStateAction<ArchitectureDraftStructuredBriefState>>,
-  confirmedKey: ListFieldKey,
-  suggestedKey: SuggestedFieldKey,
-  value: string,
-): void {
-  onStructuredBriefChange((current) => ({
-    ...current,
-    [confirmedKey]: mergeExclusiveConfirmedItem(current[confirmedKey], value),
-    [suggestedKey]: current[suggestedKey].filter((item) => item !== value),
-  }));
-}
-
-function removeConfirmedListItem(
-  onStructuredBriefChange: Dispatch<SetStateAction<ArchitectureDraftStructuredBriefState>>,
-  confirmedKey: ListFieldKey,
-  index: number,
-): void {
-  onStructuredBriefChange((current) => ({
-    ...current,
-    [confirmedKey]: current[confirmedKey].filter((_, itemIndex) => itemIndex !== index),
-  }));
-}
-
-function confirmSuggestedListItem(
-  onStructuredBriefChange: Dispatch<SetStateAction<ArchitectureDraftStructuredBriefState>>,
-  confirmedKey: ListFieldKey,
-  suggestedKey: SuggestedFieldKey,
-  value: string,
-): void {
-  onStructuredBriefChange((current) => ({
-    ...current,
-    [confirmedKey]: mergeExclusiveConfirmedItem(current[confirmedKey], value),
-    [suggestedKey]: current[suggestedKey].filter((item) => item !== value),
-  }));
-}
-
-function denySuggestedListItem(
-  onStructuredBriefChange: Dispatch<SetStateAction<ArchitectureDraftStructuredBriefState>>,
-  suggestedKey: SuggestedFieldKey,
-  value: string,
-): void {
-  onStructuredBriefChange((current) => denyStructuredBriefSuggestion(current, suggestedKey, value));
-}
-
-type StructuredBriefSuggestionContextInput = Pick<
-  ArchitectureDraftStructuredBriefState,
-  | "confirmedConstraints"
-  | "confirmedAssumptions"
-  | "confirmedRequiredCapabilities"
-  | "qualityAttribute"
->;
-
-function buildStructuredBriefSuggestionContext(
-  brief: ArchitectureDraftStructuredBriefState,
-): StructuredBriefSuggestionContextInput {
-  return {
-    confirmedConstraints: brief.confirmedConstraints,
-    confirmedAssumptions: brief.confirmedAssumptions,
-    confirmedRequiredCapabilities: brief.confirmedRequiredCapabilities,
-    qualityAttribute: brief.qualityAttribute,
-  };
-}
-
-function buildSuggestionSourceText(
-  props: ArchitectureDraftStructuredBriefFieldsProps,
-  brief: ArchitectureDraftStructuredBriefState,
-  includeStructuredBrief: boolean,
-): string {
-  return buildArchitectureDraftSuggestionSourceText({
-    architectureOverview: props.freeTextIntent,
-    systemName: props.systemName,
-    businessOutcome: props.businessOutcome,
-    structuredBrief: includeStructuredBrief ? buildStructuredBriefSuggestionContext(brief) : undefined,
-  }).trim();
-}
-
-function suggestionSourceMeetsMinimum(sourceText: string): boolean {
-  return sourceText.trim().length >= ARCHITECTURE_REQUEST_DRAFT_MIN_DESCRIPTION_CHARS;
-}
-
-function StructuredBriefListRow(props: {
-  readonly item: string;
-  readonly testId?: string;
-  readonly className?: string;
-  readonly children: React.ReactNode;
-}): React.JSX.Element {
-  return (
-    <li
-      className={cn(
-        "space-y-2 rounded-md border border-neutral-200 p-3 dark:border-neutral-700",
-        props.className,
-      )}
-      data-testid={props.testId}
-    >
-      <p className={cn("m-0 text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.body)}>
-        {props.item}
-      </p>
-      <div className="flex flex-wrap items-center gap-2">
-        {props.children}
-      </div>
-    </li>
-  );
-}
 
 type ArchitectureDraftStructuredBriefFieldsProps = {
   readonly structuredBrief: ArchitectureDraftStructuredBriefState;
@@ -193,425 +58,42 @@ type ArchitectureDraftStructuredBriefFieldsProps = {
   readonly suggestFromOverviewNonce?: number;
 };
 
-function mapEvidenceContradictedAssumptions(
-  items: readonly { readonly assumption?: string; readonly evidenceNote?: string }[] | undefined,
-): Record<string, string> {
-  const mapped: Record<string, string> = {};
-
-  for (const item of items ?? []) {
-    const assumption = item.assumption?.trim() ?? "";
-
-    if (assumption.length === 0) {
-      continue;
-    }
-
-    mapped[assumption] = item.evidenceNote?.trim() ?? "";
-  }
-
-  return mapped;
-}
-
-function ConfirmableChipList(props: {
-  readonly label: string;
-  readonly hint: string;
-  readonly inputId: string;
-  readonly items: readonly string[];
-  readonly suggestedItems: readonly string[];
-  readonly suggestionKind?: StructuredBriefSuggestionKind;
-  readonly suggestionSourceText?: string;
-  readonly invalid: boolean;
-  readonly disabled: boolean;
-  readonly required?: boolean;
-  readonly inputPlaceholder?: string;
-  readonly emptyMessage?: string;
-  readonly helpSlug?: string;
-  readonly helpHashFragment?: string;
-  readonly helpLabel?: string;
-  readonly onAdd: (value: string) => void;
-  readonly onRemove: (index: number) => void;
-  readonly onConfirmSuggested: (value: string) => void;
-  readonly onDenySuggested: (value: string) => void;
-  readonly evidenceContradictionNotes?: Readonly<Record<string, string>>;
-}): React.JSX.Element {
-  const [draft, setDraft] = useState("");
-  const isRequired = props.required !== false;
-  const inputPlaceholder = props.inputPlaceholder ?? "Type and Add";
-  const emptyMessage = props.emptyMessage ?? "No confirmed items yet.";
-
-  const addDraft = () => {
-    const trimmed = draft.trim();
-
-    if (trimmed.length === 0) {
-      return;
-    }
-
-    props.onAdd(trimmed);
-    setDraft("");
-  };
-
-  return (
-    <div className="space-y-2" data-testid={props.inputId}>
-      <IntakeFieldLabel
-        htmlFor={`${props.inputId}-input`}
-        label={props.label}
-        required={isRequired}
-      />
-      <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper, "text-neutral-600 dark:text-neutral-400")}>{props.hint}</p>
-      {props.helpSlug !== undefined && props.helpLabel !== undefined ? (
-        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper, "text-neutral-600 dark:text-neutral-400")}>
-          <InAppHelpLink
-            helpSlug={props.helpSlug}
-            hashFragment={props.helpHashFragment}
-            label={props.helpLabel}
-            variant="text"
-          />
-        </p>
-      ) : null}
-      {props.evidenceContradictionNotes !== undefined
-      && Object.keys(props.evidenceContradictionNotes).length > 0 ? (
-        <p
-          className={cn("m-0 rounded-md p-3", OPERATOR_CALLOUT_WARN_CLASS, OPERATOR_TYPOGRAPHY.helper)}
-          data-testid={`${props.inputId}-evidence-contradiction-notice`}
-        >
-          {GUIDED_INTAKE_ASSUMPTION_EVIDENCE_CONTRADICTION_SECTION}
-        </p>
-      ) : null}
-      <div className="flex flex-wrap items-center gap-2">
-        <Input
-          id={`${props.inputId}-input`}
-          value={draft}
-          onChange={(event) => {
-            setDraft(event.target.value);
-          }}
-          onKeyDown={(event) => {
-            if (event.key === "Enter") {
-              event.preventDefault();
-              addDraft();
-            }
-          }}
-          disabled={props.disabled}
-          className="max-w-md min-w-[12rem] flex-1"
-          placeholder={inputPlaceholder}
-          aria-invalid={props.invalid}
-        />
-        <Button
-          type="button"
-          variant="secondary"
-          size="sm"
-          disabled={props.disabled}
-          data-testid={`${props.inputId}-add`}
-          onClick={addDraft}
-        >
-          Add
-        </Button>
-      </div>
-      {props.suggestedItems.length > 0 ? (
-        <div className="space-y-2">
-          <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper, "text-neutral-600 dark:text-neutral-400")}>
-            {GUIDED_INTAKE_STRUCTURED_BRIEF_SUGGEST_HEADING}
-          </p>
-          <ul className="m-0 list-none space-y-2 p-0">
-            {props.suggestedItems.map((item) => (
-              <StructuredBriefListRow
-                key={`suggested-${props.inputId}-${item}`}
-                item={item}
-                testId={`${props.inputId}-suggestion`}
-              >
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  disabled={props.disabled}
-                  onClick={() => {
-                    props.onDenySuggested(item);
-                  }}
-                >
-                  {GUIDED_INTAKE_DENY_SUGGESTION_BUTTON}
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  disabled={props.disabled}
-                  onClick={() => {
-                    props.onConfirmSuggested(item);
-                  }}
-                >
-                  {GUIDED_INTAKE_CONFIRM_ACTOR_BUTTON}
-                </Button>
-                {props.suggestionKind !== undefined
-                && props.suggestionSourceText !== undefined
-                && props.suggestionSourceText.trim().length >= ARCHITECTURE_REQUEST_DRAFT_MIN_DESCRIPTION_CHARS ? (
-                  <StructuredBriefSuggestionExplainPanel
-                    suggestionKind={props.suggestionKind}
-                    suggestionText={item}
-                    sourceText={props.suggestionSourceText}
-                    disabled={props.disabled}
-                    testId={`${props.inputId}-explain`}
-                  />
-                ) : null}
-              </StructuredBriefListRow>
-            ))}
-          </ul>
-        </div>
-      ) : null}
-      {props.items.length > 0 ? (
-        <ul className="m-0 list-none space-y-2 p-0">
-          {props.items.map((item, index) => {
-            const evidenceNote = props.evidenceContradictionNotes?.[item];
-            const isContradicted = evidenceNote !== undefined;
-            const evidenceNoteText = evidenceNote?.trim() ?? "";
-
-            return (
-              <StructuredBriefListRow
-                key={`${props.inputId}-${index}-${item.slice(0, 12)}`}
-                item={item}
-                testId={`${props.inputId}-confirmed`}
-                className={isContradicted ? "border-amber-300 dark:border-amber-700" : undefined}
-              >
-                {isContradicted ? (
-                  <p
-                    className={cn("m-0 text-amber-900 dark:text-amber-200", OPERATOR_TYPOGRAPHY.helper)}
-                    data-testid={`${props.inputId}-evidence-contradiction`}
-                  >
-                    <span className="font-semibold">{GUIDED_INTAKE_ASSUMPTION_EVIDENCE_CONTRADICTION_LABEL}:</span>
-                    {" "}
-                    {evidenceNoteText.length > 0
-                      ? evidenceNoteText
-                      : "Revise this assumption or your overview."}
-                  </p>
-                ) : null}
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  disabled={props.disabled}
-                  onClick={() => {
-                    props.onRemove(index);
-                  }}
-                  aria-label={`Remove ${item}`}
-                >
-                  Remove
-                </Button>
-              </StructuredBriefListRow>
-            );
-          })}
-        </ul>
-      ) : (
-        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper, "text-neutral-500")}>{emptyMessage}</p>
-      )}
-    </div>
-  );
-}
-
 /** Structured brief lists and quality notes for architecture draft review readiness (TB-2282). */
 export function ArchitectureDraftStructuredBriefFields(
   props: ArchitectureDraftStructuredBriefFieldsProps,
 ): React.JSX.Element {
-  const [suggestBusy, setSuggestBusy] = useState(false);
-  const [suggestStageLabel, setSuggestStageLabel] = useState<string | null>(null);
-  const [suggestEmpty, setSuggestEmpty] = useState(false);
-  const [suggestAddedCount, setSuggestAddedCount] = useState<number | null>(null);
-  const [suggestError, setSuggestError] = useState<{
-    message: string;
-    problem: ApiProblemDetails | null;
-    correlationId: string | null;
-  } | null>(null);
-  const [failureModeSuggestBusy, setFailureModeSuggestBusy] = useState(false);
-  const [failureModeSuggestEmpty, setFailureModeSuggestEmpty] = useState(false);
-  const [failureModeSuggestApplied, setFailureModeSuggestApplied] = useState(false);
-  const [failureModeSuggestError, setFailureModeSuggestError] = useState<{
-    message: string;
-    problem: ApiProblemDetails | null;
-    correlationId: string | null;
-  } | null>(null);
-  const [evidenceContradictedAssumptions, setEvidenceContradictedAssumptions] = useState<Record<string, string>>({});
-  const markInvalid = props.markReviewReadinessInvalid === true;
   const brief = props.structuredBrief;
-  const overviewTrimmedLength = props.freeTextIntent.trim().length;
-  const structuredBriefContext = buildStructuredBriefSuggestionContext(brief);
-  const failureModeSourceText = buildSuggestionSourceText(props, brief, true);
-  const hasFailureModeContext = hasArchitectureContextForFailureModeSuggestion({
-    architectureOverview: props.freeTextIntent,
-    structuredBrief: structuredBriefContext,
+
+  const suggestions = useStructuredBriefSuggestions({
+    structuredBrief: brief,
+    freeTextIntent: props.freeTextIntent,
+    systemName: props.systemName,
+    businessOutcome: props.businessOutcome,
+    disabled: props.disabled,
+    blocksLlmExecution: props.blocksLlmExecution,
+    suggestFromOverviewNonce: props.suggestFromOverviewNonce,
+    onStructuredBriefChange: (nextBrief) => {
+      props.onStructuredBriefChange(nextBrief);
+    },
   });
-  const canSuggestFailureMode =
-    hasFailureModeContext
-    && suggestionSourceMeetsMinimum(failureModeSourceText)
-    && props.disabled !== true
-    && props.blocksLlmExecution !== true
-    && !failureModeSuggestBusy
-    && !suggestBusy;
-
-  const canSuggestFromOverview =
-    overviewTrimmedLength >= ARCHITECTURE_REQUEST_DRAFT_MIN_DESCRIPTION_CHARS
-    && props.disabled !== true
-    && props.blocksLlmExecution !== true
-    && !suggestBusy
-    && !failureModeSuggestBusy;
-
-  const suggestDurationBand = estimateStructuredBriefSuggestDuration(overviewTrimmedLength);
-  const suggestDurationHint = formatStructuredBriefSuggestDurationBand(suggestDurationBand);
 
   const updateBrief = (partial: Partial<ArchitectureDraftStructuredBriefState>) => {
     props.onStructuredBriefChange((current) => ({ ...current, ...partial }));
   };
 
   const confirmSuggested = (
-    confirmedKey: ListFieldKey,
-    suggestedKey: SuggestedFieldKey,
+    confirmedKey: StructuredBriefListFieldKey,
+    suggestedKey: StructuredBriefSuggestedFieldKey,
     value: string,
   ) => {
     confirmSuggestedListItem(props.onStructuredBriefChange, confirmedKey, suggestedKey, value);
     props.onBriefConfirmOrDeny?.();
   };
 
-  const denySuggested = (suggestedKey: SuggestedFieldKey, value: string) => {
+  const denySuggested = (suggestedKey: StructuredBriefSuggestedFieldKey, value: string) => {
     denySuggestedListItem(props.onStructuredBriefChange, suggestedKey, value);
     props.onBriefConfirmOrDeny?.();
   };
-
-  useEffect(() => {
-    setEvidenceContradictedAssumptions({});
-  }, [props.freeTextIntent]);
-
-  const runSuggestFromOverview = useCallback(async (): Promise<void> => {
-    const freeTextDescription = buildSuggestionSourceText(props, brief, true);
-
-    if (
-      freeTextDescription.length < ARCHITECTURE_REQUEST_DRAFT_MIN_DESCRIPTION_CHARS
-      || props.disabled === true
-      || props.blocksLlmExecution === true
-    ) {
-      return;
-    }
-
-    setSuggestBusy(true);
-    setSuggestStageLabel("Queued");
-    setSuggestError(null);
-    setSuggestEmpty(false);
-    setSuggestAddedCount(null);
-    setFailureModeSuggestApplied(false);
-    setFailureModeSuggestEmpty(false);
-
-    try {
-      const { response } = await draftArchitectureRequestWithPoll(
-        {
-          freeTextDescription,
-          currentConstraints: [...brief.confirmedConstraints, ...brief.suggestedConstraints],
-          currentAssumptions: [...brief.confirmedAssumptions, ...brief.suggestedAssumptions],
-          confirmedAssumptions: brief.confirmedAssumptions,
-        },
-        {
-          onUpdate: (operation) => {
-            setSuggestStageLabel(operation.stepLabel);
-          },
-        },
-      );
-      const applied = applyArchitectureDraftStructuredBriefSuggestionsFromDraftResponse({
-        brief,
-        sourceText: freeTextDescription,
-        suggestedConstraints: response.suggestedConstraints ?? [],
-        suggestedAssumptions: response.suggestedAssumptions ?? [],
-        suggestedCapabilities: response.suggestedCapabilities ?? [],
-        suggestedFailureModeNote: response.suggestedFailureModeNote,
-      });
-      const addedSuggestionCount = countStructuredBriefSuggestionApplyDelta(brief, applied.brief);
-
-      props.onStructuredBriefChange(applied.brief);
-      setEvidenceContradictedAssumptions(
-        mapEvidenceContradictedAssumptions(response.evidenceContradictedAssumptions),
-      );
-      setSuggestEmpty(addedSuggestionCount === 0);
-      setSuggestAddedCount(addedSuggestionCount > 0 ? addedSuggestionCount : null);
-
-      if (addedSuggestionCount > 0) {
-        window.requestAnimationFrame(() => {
-          document.getElementById("architecture-draft-constraints")?.scrollIntoView({
-            behavior: "smooth",
-            block: "nearest",
-          });
-        });
-      }
-    } catch (error: unknown) {
-      if (isApiRequestError(error)) {
-        setSuggestError({
-          message: error.message,
-          problem: error.problem,
-          correlationId: error.correlationId,
-        });
-      } else {
-        setSuggestError({
-          message: error instanceof Error ? error.message : "Could not suggest structured brief items.",
-          problem: null,
-          correlationId: null,
-        });
-      }
-    } finally {
-      setSuggestBusy(false);
-      setSuggestStageLabel(null);
-    }
-  }, [brief, props]);
-
-  const suggestFromOverviewMutation = useMutation({
-    mutationFn: runSuggestFromOverview,
-  });
-
-  function onSuggestFromOverview(): void {
-    suggestFromOverviewMutation.mutate();
-  }
-
-  useEffect(() => {
-    if (props.suggestFromOverviewNonce === undefined || props.suggestFromOverviewNonce < 1) {
-      return;
-    }
-
-    suggestFromOverviewMutation.mutate();
-  }, [props.suggestFromOverviewNonce, suggestFromOverviewMutation]);
-
-  async function onSuggestFailureMode(): Promise<void> {
-    if (!canSuggestFailureMode) {
-      return;
-    }
-
-    setFailureModeSuggestBusy(true);
-    setFailureModeSuggestError(null);
-    setFailureModeSuggestEmpty(false);
-    setFailureModeSuggestApplied(false);
-
-    try {
-      const response = await draftArchitectureRequest({
-        freeTextDescription: failureModeSourceText,
-        currentConstraints: [...brief.confirmedConstraints, ...brief.suggestedConstraints],
-        currentAssumptions: [...brief.confirmedAssumptions, ...brief.suggestedAssumptions],
-      });
-      const failureModeSuggestion = resolveFailureModeSuggestion({
-        llmSuggestion: response.suggestedFailureModeNote,
-        sourceText: failureModeSourceText,
-      });
-      const applied = applyFailureModeSuggestionIfEmpty(brief, failureModeSuggestion);
-
-      props.onStructuredBriefChange(applied.brief);
-      setFailureModeSuggestApplied(applied.applied);
-      setFailureModeSuggestEmpty(!applied.applied && (failureModeSuggestion?.trim().length ?? 0) === 0);
-    } catch (error: unknown) {
-      if (isApiRequestError(error)) {
-        setFailureModeSuggestError({
-          message: error.message,
-          problem: error.problem,
-          correlationId: error.correlationId,
-        });
-      } else {
-        setFailureModeSuggestError({
-          message: error instanceof Error ? error.message : "Could not suggest failure mode and recovery.",
-          problem: null,
-          correlationId: null,
-        });
-      }
-    } finally {
-      setFailureModeSuggestBusy(false);
-    }
-  }
 
   return (
     <div className="space-y-6" data-testid="architecture-draft-structured-brief-fields">
@@ -627,33 +109,33 @@ export function ArchitectureDraftStructuredBriefFields(
             type="button"
             variant="secondary"
             size="sm"
-            disabled={!canSuggestFromOverview}
-            onClick={onSuggestFromOverview}
+            disabled={!suggestions.canSuggestFromOverview}
+            onClick={suggestions.onSuggestFromOverview}
             data-testid="architecture-draft-suggest-structured-brief"
           >
-            {suggestBusy ? "Suggesting…" : "Suggest from overview"}
+            {suggestions.suggestBusy ? "Suggesting…" : "Suggest from overview"}
           </Button>
           <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper, "text-neutral-600 dark:text-neutral-400")}>
             Suggestions stay unconfirmed until you add or confirm them.
           </p>
         </div>
-        {canSuggestFromOverview && !suggestBusy ? (
+        {suggestions.canSuggestFromOverview && !suggestions.suggestBusy ? (
           <p
             className={cn("m-0", OPERATOR_TYPOGRAPHY.helper, "text-neutral-600 dark:text-neutral-400")}
             role="status"
             data-testid="architecture-draft-suggest-structured-brief-duration-hint"
           >
-            {suggestDurationHint}
+            {suggestions.suggestDurationHint}
           </p>
         ) : null}
         <LongOperationWaitNotice
-          active={suggestBusy}
+          active={suggestions.suggestBusy}
           operationLabel="Structured brief suggestions"
-          stageLabel={suggestStageLabel ?? "Structured brief suggestions"}
+          stageLabel={suggestions.suggestStageLabel ?? "Structured brief suggestions"}
           testId="architecture-draft-suggest-structured-brief-wait"
           showTimeoutRecovery={false}
         />
-        {!canSuggestFromOverview && props.blocksLlmExecution === true ? (
+        {!suggestions.canSuggestFromOverview && props.blocksLlmExecution === true ? (
           <p
             className={cn("m-0", OPERATOR_TYPOGRAPHY.helper, "text-neutral-600 dark:text-neutral-400")}
             role="status"
@@ -662,20 +144,20 @@ export function ArchitectureDraftStructuredBriefFields(
             Monthly AI budget is exhausted — suggestions are paused until the budget resets or your admin raises the limit.
           </p>
         ) : null}
-        {!canSuggestFromOverview
+        {!suggestions.canSuggestFromOverview
         && props.blocksLlmExecution !== true
-        && overviewTrimmedLength < ARCHITECTURE_REQUEST_DRAFT_MIN_DESCRIPTION_CHARS ? (
+        && suggestions.overviewTrimmedLength < ARCHITECTURE_REQUEST_DRAFT_MIN_DESCRIPTION_CHARS ? (
           <p
             className={cn("m-0", OPERATOR_TYPOGRAPHY.helper, "text-neutral-500")}
             role="status"
             data-testid="architecture-draft-suggest-structured-brief-disabled-hint"
           >
-            {guidedIntakeStructuredBriefSuggestDisabledHint(overviewTrimmedLength)}
+            {guidedIntakeStructuredBriefSuggestDisabledHint(suggestions.overviewTrimmedLength)}
           </p>
         ) : null}
-        {!canSuggestFromOverview && props.disabled === true && props.blocksLlmExecution !== true
-        && overviewTrimmedLength >= ARCHITECTURE_REQUEST_DRAFT_MIN_DESCRIPTION_CHARS
-        && !suggestBusy ? (
+        {!suggestions.canSuggestFromOverview && props.disabled === true && props.blocksLlmExecution !== true
+        && suggestions.overviewTrimmedLength >= ARCHITECTURE_REQUEST_DRAFT_MIN_DESCRIPTION_CHARS
+        && !suggestions.suggestBusy ? (
           <p
             className={cn("m-0", OPERATOR_TYPOGRAPHY.helper, "text-neutral-600 dark:text-neutral-400")}
             role="status"
@@ -684,16 +166,16 @@ export function ArchitectureDraftStructuredBriefFields(
             {GUIDED_INTAKE_STRUCTURED_BRIEF_SUGGEST_EDITOR_LOCKED_HINT}
           </p>
         ) : null}
-        {suggestAddedCount !== null && suggestAddedCount > 0 ? (
+        {suggestions.suggestAddedCount !== null && suggestions.suggestAddedCount > 0 ? (
           <p
             className={cn("m-0", OPERATOR_TYPOGRAPHY.helper, "text-emerald-800 dark:text-emerald-200")}
             role="status"
             data-testid="architecture-draft-suggest-structured-brief-success"
           >
-            {guidedIntakeStructuredBriefSuggestSuccess(suggestAddedCount)}
+            {guidedIntakeStructuredBriefSuggestSuccess(suggestions.suggestAddedCount)}
           </p>
         ) : null}
-        {suggestEmpty ? (
+        {suggestions.suggestEmpty ? (
           <p
             className={cn("m-0", OPERATOR_TYPOGRAPHY.helper, "text-neutral-600 dark:text-neutral-400")}
             role="status"
@@ -702,25 +184,25 @@ export function ArchitectureDraftStructuredBriefFields(
             {GUIDED_INTAKE_STRUCTURED_BRIEF_SUGGEST_EMPTY}
           </p>
         ) : null}
-        {suggestError !== null ? (
+        {suggestions.suggestError !== null ? (
           <OperatorApiProblem
-            problem={suggestError.problem}
-            fallbackMessage={suggestError.message}
-            correlationId={suggestError.correlationId}
+            problem={suggestions.suggestError.problem}
+            fallbackMessage={suggestions.suggestError.message}
+            correlationId={suggestions.suggestError.correlationId}
           />
         ) : null}
       </div>
 
       <StructuredBriefCapabilitiesQualityVocabularyRail currentSurfaceId="architecture-draft-structured-brief" />
 
-      <ConfirmableChipList
+      <ArchitectureDraftStructuredBriefConfirmableChipList
         label="Constraints"
         hint="Hard limits the architecture must not violate — budget, regions, compliance. Leave empty if none are stated."
         inputId="architecture-draft-constraints"
         items={brief.confirmedConstraints}
         suggestedItems={brief.suggestedConstraints}
         suggestionKind="Constraint"
-        suggestionSourceText={failureModeSourceText}
+        suggestionSourceText={suggestions.failureModeSourceText}
         invalid={false}
         required={false}
         disabled={props.disabled === true}
@@ -744,14 +226,14 @@ export function ArchitectureDraftStructuredBriefFields(
         }}
       />
 
-      <ConfirmableChipList
+      <ArchitectureDraftStructuredBriefConfirmableChipList
         label="Assumptions"
         hint="Facts agents may rely on unless evidence contradicts them. Leave empty if none are stated."
         inputId="architecture-draft-assumptions"
         items={brief.confirmedAssumptions}
         suggestedItems={brief.suggestedAssumptions}
         suggestionKind="Assumption"
-        suggestionSourceText={failureModeSourceText}
+        suggestionSourceText={suggestions.failureModeSourceText}
         invalid={false}
         required={false}
         disabled={props.disabled === true}
@@ -766,7 +248,7 @@ export function ArchitectureDraftStructuredBriefFields(
         }}
         onRemove={(index) => {
           removeConfirmedListItem(props.onStructuredBriefChange, "confirmedAssumptions", index);
-          setEvidenceContradictedAssumptions({});
+          suggestions.setEvidenceContradictedAssumptions({});
         }}
         onConfirmSuggested={(value) => {
           confirmSuggested("confirmedAssumptions", "suggestedAssumptions", value);
@@ -774,17 +256,17 @@ export function ArchitectureDraftStructuredBriefFields(
         onDenySuggested={(value) => {
           denySuggested("suggestedAssumptions", value);
         }}
-        evidenceContradictionNotes={evidenceContradictedAssumptions}
+        evidenceContradictionNotes={suggestions.evidenceContradictedAssumptions}
       />
 
-      <ConfirmableChipList
+      <ArchitectureDraftStructuredBriefConfirmableChipList
         label={GUIDED_INTAKE_STRUCTURED_BRIEF_REQUIRED_CAPABILITIES_LABEL}
         hint={GUIDED_INTAKE_STRUCTURED_BRIEF_REQUIRED_CAPABILITIES_HINT}
         inputId="architecture-draft-capabilities"
         items={brief.confirmedRequiredCapabilities}
         suggestedItems={brief.suggestedRequiredCapabilities}
         suggestionKind="RequiredCapability"
-        suggestionSourceText={failureModeSourceText}
+        suggestionSourceText={suggestions.failureModeSourceText}
         invalid={false}
         required={false}
         disabled={props.disabled === true}
@@ -808,7 +290,7 @@ export function ArchitectureDraftStructuredBriefFields(
         }}
       />
 
-      <ConfirmableChipList
+      <ArchitectureDraftStructuredBriefConfirmableChipList
         label={GUIDED_INTAKE_STRUCTURED_BRIEF_QUALITY_ATTRIBUTES_LABEL}
         hint={GUIDED_INTAKE_STRUCTURED_BRIEF_QUALITY_ATTRIBUTES_HINT}
         inputId="architecture-draft-quality-attributes"
