@@ -1378,13 +1378,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** UI auth; API proxy; edge proxy
 - **paths:** archlucid-ui/src/lib/auth/; archlucid-ui/src/app/api/proxy/; archlucid-ui/src/proxy.ts
 - **test-filter:** lib/auth|proxy-route|proxy.ts
-- **hunts:** 5
-- **bugs-found:** 5
+- **hunts:** 6
+- **bugs-found:** 6
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-23
-- **last-bug:** 2026-08-23
+- **last-hunt:** 2026-08-25
+- **last-bug:** 2026-08-25
 - **related-pd-tb:** none
-- **code-changed-since:** unknown
+- **code-changed-since:** yes
 
 ### Hypotheses
 
@@ -1395,6 +1395,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Double-encoded `%252e%252e` proxy segments bypass the `%2e` substring guard and still reach operator draft routes from anonymous marketing paths
 - [x] (proven) Post-sign-in return URLs accept embedded protocol-relative segments — **hit 2026-08-21:** `isSafeReturnPath` only rejected leading `//` and percent-decoded three passes, so `/x%2F%2Fevil.example` and quadruple-encoded `//` payloads passed through `signInHasReturnDestination`.
 - [x] (proven) Nine-level `%2e%2e` proxy segments bypass the eight-pass decode guard and still normalize onto `architecture/draft/*` while `isAnonymousMarketingProxyPath` skips bearer auth — **hit 2026-08-23:** reject proxy segments and return paths that remain percent-encoded after the decode guard.
+- [x] (proven) Post-sign-in return URLs accept backslash path separators that normalize to traversal — **hit 2026-08-25:** `isSafeReturnPath` rejected `/\\evil` but not `/welcome\..\..\operator`; browsers normalize `\` to `/` so dot-segment smuggling bypassed the return-url gate; regression in `safe-return-path.test.ts` and `sign-in-return-destination.test.ts`.
 
 ---
 
