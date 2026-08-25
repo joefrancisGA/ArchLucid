@@ -261,16 +261,6 @@ public sealed partial class RunsController(
 
         try
         {
-            if (pilotTryRealMode)
-            {
-                ArchLucidInstrumentation.RecordTryRealModePilotAttempted();
-                await LogPilotTryRealModeAuditAsync(
-                    AuditEventTypes.FirstRealValueRunStarted,
-                    runId,
-                    user,
-                    cancellationToken);
-            }
-
             ExecuteRunResult result =
                 await runLifecycleCommandService.ExecuteRunAsync(runId, cancellationToken);
 
@@ -282,6 +272,13 @@ public sealed partial class RunsController(
 
             if (!pilotTryRealMode)
                 return Ok(response);
+
+            ArchLucidInstrumentation.RecordTryRealModePilotAttempted();
+            await LogPilotTryRealModeAuditAsync(
+                AuditEventTypes.FirstRealValueRunStarted,
+                runId,
+                user,
+                cancellationToken);
 
             ArchLucidInstrumentation.RecordTryRealModePilotSucceeded();
             await LogPilotTryRealModeAuditAsync(

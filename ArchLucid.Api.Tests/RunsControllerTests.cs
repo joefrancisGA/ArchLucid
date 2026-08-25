@@ -10,6 +10,7 @@ using ArchLucid.Application.Runs.Query;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Drafts;
+using ArchLucid.Contracts.Pilots;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Feedback;
@@ -390,6 +391,36 @@ public sealed class RunsControllerTests
     }
 
     [Fact]
+    public async Task ExecuteRun_with_pilot_try_real_header_does_not_log_started_audit_when_run_not_found()
+    {
+        Mock<IRunLifecycleCommandService> commands = new();
+        commands
+            .Setup(s => s.ExecuteRunAsync("missing-run", It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new RunNotFoundException("missing-run"));
+
+        Mock<IAuditService> audit = new();
+        RunsController controller = CreateController(
+            runLifecycleCommandService: commands.Object,
+            auditService: audit.Object);
+        controller.ControllerContext.HttpContext.Request.Headers[PilotTryRealModeHeaders.PilotTryRealMode] = "1";
+
+        IActionResult action = await controller.ExecuteRun("missing-run", CancellationToken.None);
+
+        ObjectResult notFound = action.Should().BeOfType<ObjectResult>().Subject;
+        notFound.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        audit.Verify(
+            a => a.LogAsync(
+                It.Is<AuditEvent>(e => e.EventType == AuditEventTypes.FirstRealValueRunStarted),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+        audit.Verify(
+            a => a.LogAsync(
+                It.Is<AuditEvent>(e => e.EventType == AuditEventTypes.FirstRealValueRunCompleted),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
     public async Task PinRun_returns_not_found_for_invalid_run_id_like_GetRun()
     {
         RunsController controller = CreateController();
@@ -434,7 +465,8 @@ public sealed class RunsControllerTests
         IClarificationAnswerRephraseService? clarificationRephraseService = null,
         IStructuredBriefSuggestionExplainService? explainService = null,
         IRunLifecycleCommandService? runLifecycleCommandService = null,
-        IRunRepository? runRepository = null)
+        IRunRepository? runRepository = null,
+        IAuditService? auditService = null)
     {
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(s => s.GetCurrentScope()).Returns(Scope);
@@ -459,7 +491,7 @@ public sealed class RunsControllerTests
             validator.Object,
             scopeProvider.Object,
             actor.Object,
-            Mock.Of<IAuditService>(),
+            auditService ?? Mock.Of<IAuditService>(),
             Mock.Of<IAuthorityQueryService>(),
             Mock.Of<IFindingFeedbackRepository>(),
             runRepository ?? Mock.Of<IRunRepository>(),
