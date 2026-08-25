@@ -376,29 +376,13 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
     /// <summary>Product repositories scoped to tenant-plane connections (plus <see cref="DapperTenantRepository" /> directory routing).</summary>
     private static void RegisterTenantRepositories(IServiceCollection services, IConfiguration configuration)
     {
-        services.AddScoped<IManifestFinalizationSqlRepository, SqlManifestFinalizationRepository>();
-        services.AddScoped<IRunTelemetryRepository, SqlRunTelemetryRepository>();
-        services.AddScoped<IContextSnapshotRepository, SqlContextSnapshotRepository>();
-        services.AddScoped<SqlGraphSnapshotRepository>();
-        services.AddScoped<IGraphSnapshotRepository, SqlGraphSnapshotRepository>();
-        services.AddScoped<IGraphSnapshotSqlAuthorityWriter>(static sp => sp.GetRequiredService<SqlGraphSnapshotRepository>());
-        services.AddScoped<ICosmosGraphSnapshotOutboxRepository, DapperCosmosGraphSnapshotOutboxRepository>();
+        SqlGraphAndContextSnapshotRegistrar.Register(services);
         SqlFindingsSnapshotRepositoryRegistrar.Register(services);
         ArchLucidStorageServiceCollectionExtensions.RegisterGoldenManifestRunAndPolicyPackRepositories(services, configuration);
-
-        services.AddScoped<IArtifactBundleRepository, SqlArtifactBundleRepository>();
-        services.AddScoped<IAuthorityQueryService, DapperAuthorityQueryService>();
-        services.AddScoped<IArtifactQueryService, DapperArtifactQueryService>();
-        services.AddScoped<IAuthorityCompareService, AuthorityCompareService>();
-        services.AddScoped<IAuthorityReplayService, AuthorityReplayService>();
-        services.AddScoped<IArchLucidUnitOfWorkFactory, DapperArchLucidUnitOfWorkFactory>();
-        services.AddScoped<IDistributedCreateRunIdempotencyLock, SqlSessionDistributedCreateRunIdempotencyLock>();
-        services.AddScoped<IRetrievalIndexingOutboxRepository, DapperRetrievalIndexingOutboxRepository>();
-        services.AddScoped<IRunExportBlobPushOutboxRepository, DapperRunExportBlobPushOutboxRepository>();
-        services.AddScoped<IPostCommitProjectionOutboxRepository, DapperPostCommitProjectionOutboxRepository>();
+        SqlAuthorityPipelineRepositoryRegistrar.Register(services, configuration);
+        SqlOutboxRepositoryRegistrar.Register(services);
         services.AddScoped<IRetrievalGroundingTraceWriter, DapperRetrievalGroundingTraceWriter>();
         services.AddScoped<IRetrievalGroundingTraceReader, DapperRetrievalGroundingTraceReader>();
-        services.AddScoped<IIntegrationEventOutboxRepository, DapperIntegrationEventOutboxRepository>();
         services.AddScoped<IProductLearningPilotSignalRepository, DapperProductLearningPilotSignalRepository>();
         services.AddScoped<IProductLearningPlanningRepository, DapperProductLearningPlanningRepository>();
         services.AddScoped<IProductLearningFeedbackAggregationService, ProductLearningFeedbackAggregationService>();
@@ -408,23 +392,7 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
         services.AddScoped<IPatternInsightAggregateRepository, DapperPatternInsightAggregateRepository>();
         services.AddScoped<IEvolutionCandidateChangeSetRepository, DapperEvolutionCandidateChangeSetRepository>();
         services.AddScoped<IEvolutionSimulationRunRepository, DapperEvolutionSimulationRunRepository>();
-        services.AddScoped<IAuthorityPipelineWorkRepository, DapperAuthorityPipelineWorkRepository>();
-        services.AddScoped<IAsyncAuthorityPipelineModeResolver, FeatureManagementAuthorityPipelineModeResolver>();
-        services.AddScoped<IRunStageOutcomesRepository, SqlRunStageOutcomesRepository>();
-        services.AddScoped<IAuthorityPipelineStagesExecutor, AuthorityPipelineStagesExecutor>();
-        services.AddScoped<IAuthorityCommittedPipelineFinalizer, AuthorityCommittedPipelineFinalizer>();
-        services.AddScoped<IAuthorityPipelineStagesExecutionDriver, InlineAuthorityPipelineStagesExecutionDriver>();
-        services.AddScoped<SqlAuthorityPipelineTenantExecutionLeaseRepository>();
-        services.AddScoped<ITenantAuthorityPipelineConcurrencyGate, SqlTenantAuthorityPipelineConcurrencyGate>();
-        // Authority orchestration body lives in Application; SQL host wraps it with DTF forwarding port.
-        services.AddScoped<AuthorityRunOrchestrator>();
-        services.AddScoped<IAuthorityRunOrchestrator, DtfAuthorityRunOrchestrator>();
-        services.AddScoped<IAuditSqlRetryPolicyProvider, AuditSqlRetryPolicyProvider>();
-        ArchLucidStorageServiceCollectionExtensions.RegisterAuditRepository(services, configuration);
-        services.AddScoped<IPilotScorecardMetricsReader, DapperPilotScorecardMetricsReader>();
-        services.AddScoped<IPilotReportCardMetricsReader, DapperPilotReportCardMetricsReader>();
-        services.AddScoped<IPilotBaselineRepository, DapperPilotBaselineRepository>();
-        services.AddScoped<IPilotCloseoutRepository, DapperPilotCloseoutRepository>();
+        SqlPilotRepositoryRegistrar.Register(services);
         SqlMarketingRepositoryRegistrar.Register(services);
         SqlItsmRepositoryRegistrar.Register(services);
         SqlIdentityRepositoryRegistrar.Register(services);
@@ -473,7 +441,6 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
         services.AddScoped<IAdminNotificationsRepository, DapperAdminNotificationsRepository>();
         services.AddScoped<IRoiBulletinAggregateReader, SqlRoiBulletinAggregateReader>();
         services.AddScoped<ITenantCustomerSuccessRepository, SqlTenantCustomerSuccessRepository>();
-        services.AddScoped<ICorePilotTeamChecklistRepository, SqlCorePilotTeamChecklistRepository>();
         services.AddScoped<IOperatorStickinessSnapshotReader, SqlOperatorStickinessSnapshotReader>();
         services.AddScoped<IAdminTenantHealthReader, SqlAdminTenantHealthReader>();
         services.AddScoped<IFindingFeedbackRepository, SqlFindingFeedbackRepository>();
