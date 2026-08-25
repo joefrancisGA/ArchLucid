@@ -153,4 +153,37 @@ public sealed class ClosedLoopArchitectureReasoningOrchestratorTests
             .Should()
             .NotContain(finding => finding.Conclusion == ReviewConclusion.Fail);
     }
+
+    [Fact]
+    public async Task RunAsync_does_not_mutate_inbound_request_identity_fields()
+    {
+        ServiceCollection services = new();
+        services.AddArchitectureIntelligence();
+        services.AddArchitectureIntelligenceInMemoryPersistence();
+        services.AddClosedLoopArchitectureIntelligenceTestDependencies();
+        ServiceProvider provider = services.BuildServiceProvider();
+        IClosedLoopArchitectureReasoningOrchestrator orchestrator =
+            provider.GetRequiredService<IClosedLoopArchitectureReasoningOrchestrator>();
+
+        ClosedLoopReasoningRequest request = new()
+        {
+            TenantId = "tenant-immutable",
+            RunId = string.Empty,
+            SourceTexts =
+            [
+                new ClosedLoopReasoningSourceText
+                {
+                    FileName = "architecture.md",
+                    ContentType = "text/markdown",
+                    Content = "Public API exposes customer records without authentication.",
+                },
+            ],
+        };
+
+        ClosedLoopReasoningResult result = await orchestrator.RunAsync(request);
+
+        request.TenantId.Should().Be("tenant-immutable");
+        request.RunId.Should().BeEmpty();
+        result.RunId.Should().NotBeNullOrWhiteSpace();
+    }
 }

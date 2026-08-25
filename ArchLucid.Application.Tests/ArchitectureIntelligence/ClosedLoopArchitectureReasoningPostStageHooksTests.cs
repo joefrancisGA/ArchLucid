@@ -80,7 +80,7 @@ public sealed class ClosedLoopArchitectureReasoningPostStageHooksTests
             authorityUpdater.Object);
 
         await hooks.IntegrateReReviewFindingsAsync(
-            request,
+            runId,
             reReview,
             allFindings,
             validationResults,
@@ -132,7 +132,12 @@ public sealed class ClosedLoopArchitectureReasoningPostStageHooksTests
             Mock.Of<ISpecialistFindingsSubstantiationService>(),
             publishService.Object);
 
-        await hooks.ApplyProductPublishAsync(request, result, CancellationToken.None);
+        await hooks.ApplyProductPublishAsync(
+            request,
+            result,
+            "tenant-publish",
+            "run-publish",
+            CancellationToken.None);
 
         result.PublishedToProduct.Should().BeTrue();
         result.PublishedFindingsSnapshotId.Should().NotBeNull();

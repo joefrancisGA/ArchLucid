@@ -24,14 +24,14 @@ public sealed class ClosedLoopArchitectureReasoningPostStageHooks(
         authorityFindingsSnapshotUpdater;
 
     public async Task IntegrateReReviewFindingsAsync(
-        ClosedLoopReasoningRequest request,
+        string runId,
         IncrementalReReviewResult reReview,
         List<SpecialistReviewFinding> allFindings,
         List<EvidenceValidationResult> validationResults,
         Dictionary<string, EvidenceValidationResult> validationByFindingId,
         CancellationToken cancellationToken = default)
     {
-        ArgumentNullException.ThrowIfNull(request);
+        ArgumentNullException.ThrowIfNull(runId);
         ArgumentNullException.ThrowIfNull(reReview);
         ArgumentNullException.ThrowIfNull(allFindings);
         ArgumentNullException.ThrowIfNull(validationResults);
@@ -50,12 +50,12 @@ public sealed class ClosedLoopArchitectureReasoningPostStageHooks(
         if (substantiation is null
             || _authorityFindingsSnapshotUpdater is null
             || _scopeContextProvider is null
-            || !Guid.TryParse(request.RunId, out Guid runId))
+            || !Guid.TryParse(runId, out Guid parsedRunId))
             return;
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
         IReadOnlyList<string> mergedFindingIds = await _authorityFindingsSnapshotUpdater
-            .MergeSubstantiatedFindingsAsync(scope, runId, substantiation, cancellationToken)
+            .MergeSubstantiatedFindingsAsync(scope, parsedRunId, substantiation, cancellationToken)
             .ConfigureAwait(false);
 
         reReview.MergedFindingIds = mergedFindingIds;
@@ -64,12 +64,15 @@ public sealed class ClosedLoopArchitectureReasoningPostStageHooks(
     public async Task ApplyProductPublishAsync(
         ClosedLoopReasoningRequest request,
         ClosedLoopReasoningResult result,
+        string tenantId,
+        string runId,
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(request);
         ArgumentNullException.ThrowIfNull(result);
+        ArgumentNullException.ThrowIfNull(tenantId);
+        ArgumentNullException.ThrowIfNull(runId);
 
-        string tenantId = RequireTenantId(request);
         string workspaceId = request.WorkspaceId ?? tenantId;
         string projectId = request.ProjectId ?? tenantId;
 
@@ -78,24 +81,12 @@ public sealed class ClosedLoopArchitectureReasoningPostStageHooks(
             tenantId,
             workspaceId,
             projectId,
-            request.RunId!,
+            runId,
             cancellationToken);
 
         result.PublishedToProduct = publishResult.Published;
         result.PublishedFindingsSnapshotId = publishResult.FindingsSnapshotId;
         result.PublishedRecommendationCount = publishResult.RecommendationCount;
         result.PublishSkipReason = publishResult.SkipReason;
-    }
-
-    private static string RequireTenantId(ClosedLoopReasoningRequest request)
-    {
-        string tenantId = request.TenantId?.Trim() ?? string.Empty;
-
-        if (string.IsNullOrWhiteSpace(tenantId))
-        {
-            throw new ArgumentException("TenantId is required.", nameof(request));
-        }
-
-        return tenantId;
     }
 }

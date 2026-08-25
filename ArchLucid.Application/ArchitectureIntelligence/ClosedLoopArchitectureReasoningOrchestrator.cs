@@ -83,22 +83,19 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        // Local non-null copy: TenantId is optional on inbound HTTP bodies (scope-stamped).
+        // Local effective ids: do not mutate the caller's request instance.
         string tenantId = RequireTenantId(request);
-        request.TenantId = tenantId;
+        string runId = string.IsNullOrWhiteSpace(request.RunId)
+            ? Guid.NewGuid().ToString("N")
+            : request.RunId.Trim();
 
         cancellationToken.ThrowIfCancellationRequested();
-
-        if (string.IsNullOrWhiteSpace(request.RunId))
-        {
-            request.RunId = Guid.NewGuid().ToString("N");
-        }
 
         ArchitectureIntelligenceBudgetDecision budget = await _tierBudgetGuard.EvaluateAsync(request, cancellationToken);
 
         if (!budget.Permitted)
         {
-            return ArchitectureIntelligenceBudgetResultApplier.CreateRejected(request.RunId, budget);
+            return ArchitectureIntelligenceBudgetResultApplier.CreateRejected(runId, budget);
         }
 
         ReviewCacheDependencyManifest? cacheManifest = null;
@@ -123,25 +120,25 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
         List<string> storedArtifactIds = [];
 
         if (request.ContinueFromExistingRun
-            && !string.IsNullOrWhiteSpace(request.RunId))
+            && !string.IsNullOrWhiteSpace(runId))
         {
-            ArchitectureKnowledgeModel? existing = await TryLoadExistingModelAsync(tenantId, request.RunId, cancellationToken);
+            ArchitectureKnowledgeModel? existing = await TryLoadExistingModelAsync(tenantId, runId, cancellationToken);
 
             if (existing is null)
             {
                 throw new InvalidOperationException(
-                    $"No ArchitectureIntelligence model found for run '{request.RunId}'.");
+                    $"No ArchitectureIntelligence model found for run '{runId}'.");
             }
 
             model = existing;
         }
         else
         {
-            storedArtifactIds = await StoreSourcesAsync(request, cancellationToken);
-            model = await BuildModelAsync(request, storedArtifactIds, cancellationToken);
+            storedArtifactIds = await StoreSourcesAsync(request, tenantId, cancellationToken);
+            model = await BuildModelAsync(request, tenantId, runId, storedArtifactIds, cancellationToken);
         }
 
-        model.RunId = request.RunId;
+        model.RunId = runId;
         model.DeclaredPriorities = request.DeclaredPriorities.Count > 0
             ? request.DeclaredPriorities.ToList()
             : model.DeclaredPriorities;
@@ -269,7 +266,7 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
                     cancellationToken).ConfigureAwait(false);
 
                 await _postStageHooks.IntegrateReReviewFindingsAsync(
-                    request,
+                    runId,
                     reReview,
                     allFindings,
                     validationResults,
@@ -282,7 +279,7 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
             .Evaluate(
                 allFindings,
                 recommendations,
-                await TryLoadLedgerEntriesAsync(request, cancellationToken))
+                await TryLoadLedgerEntriesAsync(runId, cancellationToken))
             .ToList();
 
         TrustPublishDecision publishDecision = _trustPublishGate.Decide(
@@ -298,7 +295,7 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
                 publishDecision);
         }
 
-        await SaveModelAsync(request.RunId, model, cancellationToken);
+        await SaveModelAsync(runId, model, cancellationToken);
 
         string workspaceId = request.WorkspaceId ?? tenantId;
         string projectId = request.ProjectId ?? tenantId;
@@ -321,7 +318,7 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
             ReviewCompleteBlocked = !interview.IsFramingComplete,
             PublishBlockReasons = publishDecision.BlockReasons,
             IntegrityPassedFindingIds = publishDecision.IntegrityPassedFindingIds.ToList(),
-            RunId = request.RunId,
+            RunId = runId,
             ModelId = model.ModelId,
             ProductFindings = ArchitectureIntelligenceProductBridge.ToFindings(
                 publishDecision.PublishableFindings,
@@ -332,14 +329,19 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
                 tenantId,
                 workspaceId,
                 projectId,
-                request.RunId),
+                runId),
         };
 
         ArchitectureIntelligenceBudgetResultApplier.Apply(result, budget);
 
         if (request.PublishToProduct)
         {
-            await _postStageHooks.ApplyProductPublishAsync(request, result, cancellationToken);
+            await _postStageHooks.ApplyProductPublishAsync(
+                request,
+                result,
+                tenantId,
+                runId,
+                cancellationToken);
         }
 
         if (cacheManifest is not null)
@@ -352,10 +354,10 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
 
     private async Task<List<string>> StoreSourcesAsync(
         ClosedLoopReasoningRequest request,
+        string tenantId,
         CancellationToken cancellationToken)
     {
         List<string> artifactIds = [];
-        string tenantId = RequireTenantId(request);
 
         foreach (ClosedLoopReasoningSourceText sourceText in request.SourceTexts)
         {
@@ -381,11 +383,12 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
 
     private async Task<ArchitectureKnowledgeModel> BuildModelAsync(
         ClosedLoopReasoningRequest request,
+        string tenantId,
+        string runId,
         List<string> artifactIds,
         CancellationToken cancellationToken)
     {
-        string tenantId = RequireTenantId(request);
-        ArchitectureKnowledgeModel model = _ontologyService.CreateEmptyModel(tenantId, request.RunId);
+        ArchitectureKnowledgeModel model = _ontologyService.CreateEmptyModel(tenantId, runId);
 
         if (request.SourceTexts.Count > 0)
         {
@@ -491,12 +494,12 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
     }
 
     private async Task<IReadOnlyList<TechnologyLedgerEntry>?> TryLoadLedgerEntriesAsync(
-        ClosedLoopReasoningRequest request,
+        string runId,
         CancellationToken cancellationToken)
     {
         if (_technologyLedgerRepository is null
             || _scopeContextProvider is null
-            || string.IsNullOrWhiteSpace(request.RunId))
+            || string.IsNullOrWhiteSpace(runId))
         {
             return null;
         }
@@ -506,7 +509,7 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
             ScopeContext scope = _scopeContextProvider.GetCurrentScope();
 
             return await _technologyLedgerRepository
-                .GetByRunIdAsync(scope, request.RunId, cancellationToken)
+                .GetByRunIdAsync(scope, runId, cancellationToken)
                 .ConfigureAwait(false);
         }
         catch (Exception) when (cancellationToken.IsCancellationRequested)
