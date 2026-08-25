@@ -139,7 +139,7 @@ public sealed class ArchitectureModelDiffApplier : IArchitectureModelDiffApplier
                     Kind = element.Kind,
                     Name = element.Name,
                     Description = element.Description,
-                    Provenance = element.Provenance,
+                    Provenance = CloneProvenance(element.Provenance),
                     ExtractionConfidence = element.ExtractionConfidence,
                     SourcePassageIds = [.. element.SourcePassageIds],
                     RelatedElementIds = [.. element.RelatedElementIds],
@@ -148,6 +148,31 @@ public sealed class ArchitectureModelDiffApplier : IArchitectureModelDiffApplier
                 .ToList(),
             DeclaredPriorities = [.. source.DeclaredPriorities],
             FramingAnswers = new Dictionary<string, string>(source.FramingAnswers),
+            IsProvisionalSynthesis = source.IsProvisionalSynthesis,
+        };
+    }
+
+    private static ClaimProvenance CloneProvenance(ClaimProvenance provenance)
+    {
+        SourcePassageLocator? locator = provenance.PassageLocator is null
+            ? null
+            : new SourcePassageLocator
+            {
+                ArtifactId = provenance.PassageLocator.ArtifactId,
+                StartOffset = provenance.PassageLocator.StartOffset,
+                EndOffset = provenance.PassageLocator.EndOffset,
+                Quote = provenance.PassageLocator.Quote,
+                SectionPath = provenance.PassageLocator.SectionPath,
+            };
+
+        return new ClaimProvenance
+        {
+            Origin = provenance.Origin,
+            SupportStatus = provenance.SupportStatus,
+            Confidence = provenance.Confidence,
+            SourceArtifactId = provenance.SourceArtifactId,
+            PassageLocator = locator,
+            Notes = provenance.Notes,
         };
     }
 }
