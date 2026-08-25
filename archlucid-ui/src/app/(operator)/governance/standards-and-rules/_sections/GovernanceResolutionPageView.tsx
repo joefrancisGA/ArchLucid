@@ -69,6 +69,7 @@ import { GovernanceResolutionExportControls } from "./GovernanceResolutionExport
 import { StandardsRulesEmptyState } from "./StandardsRulesEmptyState";
 import { StandardsRulesFilters } from "./StandardsRulesFilters";
 import { StandardsRulesApplyFirstUnmatchedStrip } from "./StandardsRulesApplyFirstUnmatchedStrip";
+import { GovernanceStandardsRulesNextReviewFooterClient } from "./GovernanceStandardsRulesNextReviewFooterClient";
 import { StandardsRulesPickReviewBeforeResolvingStrip } from "./StandardsRulesPickReviewBeforeResolvingStrip";
 import { StandardsRulesPolicyPackReference } from "./StandardsRulesPolicyPackReference";
 import { StandardsRulesReviewContextRow } from "./StandardsRulesReviewContextRow";
@@ -367,6 +368,9 @@ export function GovernanceResolutionPageView(props: Props) {
             {usesShowcaseRuleRows ? (
               <OperatorEvidenceLimitsFooter runId={SHOWCASE_STATIC_DEMO_RUN_ID} showArchitectureReviewSummaryLink={false} />
             ) : null}
+            {pickedReviewId.trim().length > 0 ? (
+              <GovernanceStandardsRulesNextReviewFooterClient runId={pickedReviewId.trim()} />
+            ) : null}
           </>
         ) : null}
       </OperatorPageContainer>
@@ -403,6 +407,9 @@ export function GovernanceResolutionPageView(props: Props) {
         </div>
       ) : null}
       <GovernanceResolutionOperatorDiagnostics model={m} />
+      {pickedReviewId.trim().length > 0 ? (
+        <GovernanceStandardsRulesNextReviewFooterClient runId={pickedReviewId.trim()} />
+      ) : null}
     </OperatorPageContainer>
   );
 }
