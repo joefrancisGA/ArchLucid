@@ -253,6 +253,32 @@ public sealed class SqlRunRepository(
                 cancellationToken: ct)).ConfigureAwait(false);
     }
 
+    public async Task<Guid?> GetCommittedRunIdByGoldenManifestIdAsync(
+        ScopeContext scope,
+        Guid architectureId,
+        Guid goldenManifestId,
+        Guid excludeRunId,
+        CancellationToken ct)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+        PersistenceTenantScope.RequireScopedTenant(scope);
+
+        if (architectureId == Guid.Empty || goldenManifestId == Guid.Empty)
+            return null;
+
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
+
+        return await connection.QuerySingleOrDefaultAsync<Guid?>(
+            new CommandDefinition(
+                RunRepositorySql.SelectCommittedRunIdByGoldenManifestId,
+                RunListQueryParameters.ForCommittedRunByGoldenManifestId(
+                    scope,
+                    architectureId,
+                    goldenManifestId,
+                    excludeRunId),
+                cancellationToken: ct)).ConfigureAwait(false);
+    }
+
     public async Task<IReadOnlyList<RunRecord>> ListByProjectAsync(
         ScopeContext scope,
         string projectId,

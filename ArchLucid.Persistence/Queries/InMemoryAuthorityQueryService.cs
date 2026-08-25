@@ -1,8 +1,10 @@
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Contracts.Governance;
+using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Persistence.Ports;
 using ArchLucid.Contracts.Persistence.Context;
 using ArchLucid.Contracts.Persistence.DecisionTraces;
+using ArchLucid.Core.Persistence.Ports;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.Interfaces;
@@ -25,9 +27,12 @@ public sealed class InMemoryAuthorityQueryService(
     IArtifactBundleRepository artifactBundleRepository,
     IAgentExecutionTraceRepository agentExecutionTraceRepository,
     IFindingReviewTrailRepository findingReviewTrailRepository,
-    IRiskExceptionRepository riskExceptionRepository)
+    IRiskExceptionRepository riskExceptionRepository,
+    IArchitectureIdentityRepository? architectureIdentityRepository = null)
     : IAuthorityQueryService
 {
+    private readonly IArchitectureIdentityRepository? _architectureIdentityRepository =
+        architectureIdentityRepository;
     private readonly IAgentExecutionTraceRepository _agentExecutionTraceRepository =
         agentExecutionTraceRepository ?? throw new ArgumentNullException(nameof(agentExecutionTraceRepository));
 
@@ -105,6 +110,28 @@ public sealed class InMemoryAuthorityQueryService(
 
         if (currentRun?.ArchitectureId is Guid architectureId)
         {
+            if (_architectureIdentityRepository is not null)
+            {
+                ArchitectureIdentityRecord? identity = await _architectureIdentityRepository
+                    .GetByIdAsync(scope, architectureId, ct)
+                    .ConfigureAwait(false);
+
+                if (identity?.LatestSealedManifestId is Guid sealedManifestId)
+                {
+                    Guid? sealedRunId = await runRepository
+                        .GetCommittedRunIdByGoldenManifestIdAsync(
+                            scope,
+                            architectureId,
+                            sealedManifestId,
+                            currentRunId,
+                            ct)
+                        .ConfigureAwait(false);
+
+                    if (sealedRunId is not null)
+                        return await GetRunSummaryAsync(scope, sealedRunId.Value, ct).ConfigureAwait(false);
+                }
+            }
+
             Guid? architecturePriorRunId = await runRepository
                 .GetPriorCommittedRunIdForArchitectureBeforeCurrentAsync(
                     scope,

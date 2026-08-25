@@ -278,6 +278,45 @@ public sealed class InMemoryRunRepository(ITenantRepository? tenantRepository = 
         return Task.FromResult(best?.RunId);
     }
 
+    public Task<Guid?> GetCommittedRunIdByGoldenManifestIdAsync(
+        ScopeContext scope,
+        Guid architectureId,
+        Guid goldenManifestId,
+        Guid excludeRunId,
+        CancellationToken ct)
+    {
+        ct.ThrowIfCancellationRequested();
+        ArgumentNullException.ThrowIfNull(scope);
+
+        if (architectureId == Guid.Empty || goldenManifestId == Guid.Empty)
+            return Task.FromResult<Guid?>(null);
+
+        foreach (RunRecord candidate in _store.Values)
+        {
+            if (!MatchesScope(candidate, scope))
+                continue;
+
+            if (candidate.ArchivedUtc.HasValue)
+                continue;
+
+            if (candidate.ArchitectureId != architectureId)
+                continue;
+
+            if (candidate.GoldenManifestId != goldenManifestId)
+                continue;
+
+            if (candidate.RunId == excludeRunId)
+                continue;
+
+            if (!IsCommittedRun(candidate))
+                continue;
+
+            return Task.FromResult<Guid?>(candidate.RunId);
+        }
+
+        return Task.FromResult<Guid?>(null);
+    }
+
     private static bool IsCommittedRun(RunRecord run)
     {
         if (string.Equals(run.LegacyRunStatus, nameof(ArchitectureRunStatus.Committed), StringComparison.OrdinalIgnoreCase))

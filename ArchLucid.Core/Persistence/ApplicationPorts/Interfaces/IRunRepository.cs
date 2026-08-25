@@ -100,6 +100,17 @@ public interface IRunRepository
         CancellationToken ct);
 
     /// <summary>
+    ///     Committed run for <paramref name="architectureId" /> whose <see cref="RunRecord.GoldenManifestId" />
+    ///     matches <paramref name="goldenManifestId" />, excluding <paramref name="excludeRunId" /> when set.
+    /// </summary>
+    Task<Guid?> GetCommittedRunIdByGoldenManifestIdAsync(
+        ScopeContext scope,
+        Guid architectureId,
+        Guid goldenManifestId,
+        Guid excludeRunId,
+        CancellationToken ct);
+
+    /// <summary>
     ///     Returns up to <paramref name="take" /> runs for <paramref name="projectId" /> within
     ///     <paramref name="scope" />, ordered by <c>CreatedUtc</c> descending (newest first).
     /// </summary>

@@ -151,6 +151,24 @@ internal static class RunRepositorySql
                                                                  ORDER BY r.CreatedUtc DESC, r.RunId DESC;
                                                                  """;
 
+    public const string SelectCommittedRunIdByGoldenManifestId = """
+                                                                 SELECT TOP (1) r.RunId
+                                                                 FROM dbo.Runs r WITH (NOLOCK)
+                                                                 WHERE r.TenantId = @TenantId
+                                                                   AND r.WorkspaceId = @WorkspaceId
+                                                                   AND r.ScopeProjectId = @ScopeProjectId
+                                                                   AND r.ArchitectureId = @ArchitectureId
+                                                                   AND r.GoldenManifestId = @GoldenManifestId
+                                                                   AND r.ArchivedUtc IS NULL
+                                                                   AND r.RunId <> @ExcludeRunId
+                                                                   AND (
+                                                                        r.LegacyRunStatus = @CommittedStatus
+                                                                        OR NULLIF(LTRIM(RTRIM(r.CurrentManifestVersion)), N'') IS NOT NULL
+                                                                        OR r.GoldenManifestId IS NOT NULL
+                                                                   )
+                                                                 ORDER BY r.CreatedUtc DESC, r.RunId DESC;
+                                                                 """;
+
     public const string Update = """
                                  DECLARE @RunUpdateOutput TABLE (RowVersionStamp VARBINARY(8) NOT NULL);
 

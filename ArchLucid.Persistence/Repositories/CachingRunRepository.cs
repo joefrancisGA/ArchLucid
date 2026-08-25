@@ -85,6 +85,20 @@ public sealed class CachingRunRepository(IRunRepository inner, IHotPathReadCache
             ct);
 
     /// <inheritdoc />
+    public Task<Guid?> GetCommittedRunIdByGoldenManifestIdAsync(
+        ScopeContext scope,
+        Guid architectureId,
+        Guid goldenManifestId,
+        Guid excludeRunId,
+        CancellationToken ct)
+        => _inner.GetCommittedRunIdByGoldenManifestIdAsync(
+            scope,
+            architectureId,
+            goldenManifestId,
+            excludeRunId,
+            ct);
+
+    /// <inheritdoc />
     public async Task<IReadOnlyList<RunRecord>> ListByProjectAsync(
         ScopeContext scope,
         string projectId,
