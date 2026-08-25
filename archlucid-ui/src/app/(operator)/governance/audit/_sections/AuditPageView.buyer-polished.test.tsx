@@ -42,6 +42,10 @@ vi.mock("./AuditResultsSection", () => ({
   AuditResultsSection: () => <div data-testid="audit-results-section" />,
 }));
 
+vi.mock("./AuditNextReviewFooterClient", () => ({
+  AuditNextReviewFooterClient: () => <div data-testid="audit-next-review-footer-stub" />,
+}));
+
 function buildProps(overrides: Partial<AuditPageViewProps> = {}): AuditPageViewProps {
   return {
     buyerPolishedShell: true,
@@ -124,5 +128,6 @@ describe("AuditPageView buyer-polished shell", () => {
     expect(screen.getByTestId("audit-header-refresh-button")).toBeInTheDocument();
     expect(screen.getByTestId("audit-last-refreshed")).toHaveTextContent(/Not refreshed yet/i);
     expect(screen.queryAllByText(AUDIT_TRAIL_PRODUCT_SAFE_INTRO).length).toBe(1);
+    expect(screen.getByTestId("audit-next-review-footer-stub")).toBeInTheDocument();
   });
 });

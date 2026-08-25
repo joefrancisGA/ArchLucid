@@ -52,6 +52,7 @@ import { AuditPageBuyerChrome } from "./AuditPageBuyerChrome";
 import { AuditPageHeader } from "./AuditPageHeader";
 import { AuditResultsSection } from "./AuditResultsSection";
 import { AuditPickReviewBeforeSearchStrip } from "./AuditPickReviewBeforeSearchStrip";
+import { AuditNextReviewFooterClient } from "./AuditNextReviewFooterClient";
 import { AuditSaveViewCoach } from "./AuditSaveViewCoach";
 import { AuditSearchSection } from "./AuditSearchSection";
 import type { AuditPageViewProps } from "./audit-page-view-props";
@@ -339,6 +340,8 @@ export function AuditPageView(props: AuditPageViewProps) {
           onExportCsv={props.onExportCsv}
         />
       ) : null}
+
+      {props.runId.trim().length > 0 ? <AuditNextReviewFooterClient runId={props.runId.trim()} /> : null}
       </div>
     </OperatorPageContainer>
   );
