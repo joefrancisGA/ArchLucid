@@ -43,6 +43,7 @@ import {
   reviewPipelineOperationId,
 } from "@/lib/operations/review-pipeline-in-flight";
 import {
+  type ApiGetOptions,
   type ApiResponseWithTrace,
   apiGet,
   apiGetJsonWithTrace,
@@ -481,7 +482,7 @@ export async function getRunSummary(
 /** Fetches the full run detail envelope (run metadata, snapshots, manifest, trace, bundle). */
 export async function getRunDetail(
   runId: string,
-  options?: { readonly scopeHeaders?: Record<string, string> },
+  options?: ApiGetOptions,
 ): Promise<ApiResponseWithTrace<RunDetail>> {
   return apiGetJsonWithTrace<RunDetail>(`/v1/authority/reviews/${runId}`, options);
 }
@@ -588,7 +589,7 @@ export async function getManifestSummary(
 /** Lists all synthesized artifacts for a manifest (metadata only, no binary content). */
 export async function listArtifacts(
   manifestId: string,
-  options?: { readonly scopeHeaders?: Record<string, string> },
+  options?: ApiGetOptions,
 ): Promise<ArtifactDescriptor[]> {
   return apiGet<ArtifactDescriptor[]>(`/v1/artifacts/signed-review-records/${manifestId}`, options);
 }

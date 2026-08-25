@@ -183,10 +183,18 @@ function serverFetchInit(
   return requestInit;
 }
 
+export type ApiGetOptions = {
+  readonly scopeHeaders?: Record<string, string>;
+  readonly signal?: AbortSignal;
+  /** When true, do not surface automatic 5xx Sonner toasts (optional background probes). */
+  readonly suppressErrorToast?: boolean;
+};
+
 export function throwApiRequestError(
   response: Response,
   bodyText: string,
   requestCorrelationId?: string | null,
+  options?: Pick<ApiGetOptions, "suppressErrorToast">,
 ): never {
   const err = buildApiRequestErrorFromParts(response, bodyText, requestCorrelationId);
 
@@ -209,7 +217,7 @@ export function throwApiRequestError(
     });
   }
 
-  if (isBrowser() && err.httpStatus >= 500) {
+  if (isBrowser() && err.httpStatus >= 500 && options?.suppressErrorToast !== true) {
     void import("@/lib/api-error-toast").then(({ showApiRequestErrorToast }) => {
       showApiRequestErrorToast(err);
     });
@@ -228,7 +236,7 @@ function notifyIfIdempotencyReplayed(response: Response): void {
 
 export async function apiGetJsonWithTrace<T>(
   path: string,
-  options?: { readonly scopeHeaders?: Record<string, string>; readonly signal?: AbortSignal },
+  options?: ApiGetOptions,
 ): Promise<ApiResponseWithTrace<T>> {
   const sandboxPayload = trySandboxMockJsonForApiGet(path);
 
@@ -248,23 +256,20 @@ export async function apiGetJsonWithTrace<T>(
   const traceId = extractTraceId(response);
 
   if (!response.ok) {
-    throwApiRequestError(response, text, correlationId);
+    throwApiRequestError(response, text, correlationId, options);
   }
 
   const parsed = tryParseJsonResponseText<T>(text);
 
   if (parsed === null) {
-    throwApiRequestError(response, text, correlationId);
+    throwApiRequestError(response, text, correlationId, options);
   }
 
   return { data: parsed, traceId };
 }
 
 /** GETs JSON from the ArchLucid API. Throws {@link ApiRequestError} on HTTP errors. */
-export async function apiGet<T>(
-  path: string,
-  options?: { readonly scopeHeaders?: Record<string, string>; readonly signal?: AbortSignal },
-): Promise<T> {
+export async function apiGet<T>(path: string, options?: ApiGetOptions): Promise<T> {
   const { data } = await apiGetJsonWithTrace<T>(path, options);
 
   return data;

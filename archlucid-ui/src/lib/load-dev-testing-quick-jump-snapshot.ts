@@ -1,6 +1,7 @@
 import { getRunDetail, listArtifacts } from "@/lib/api/architecture-runs";
 import { fetchLearningPlans } from "@/lib/api/learning-evolution-api";
 import { listApprovalRequests } from "@/lib/api/policy-governance-api";
+import type { ApiGetOptions } from "@/lib/api/http";
 import { coerceRunDetail } from "@/lib/operator/operator-response-guards";
 import type { GovernanceApprovalRequest } from "@/types/governance-workflow";
 
@@ -9,6 +10,10 @@ export const DEV_TESTING_QUICK_JUMP_MAX_ITEMS = 8;
 export const DEV_TESTING_QUICK_JUMP_MANIFEST_PROBE_RUNS = 4;
 
 export const DEV_TESTING_QUICK_JUMP_ARTIFACT_PROBE_MANIFESTS = 2;
+
+const QUIET_PROBE_GET_OPTIONS: ApiGetOptions = {
+  suppressErrorToast: true,
+};
 
 export type DevTestingQuickJumpPlanLink = {
   readonly planId: string;
@@ -77,7 +82,11 @@ function buildManifestLinks(manifestIds: readonly string[]): DevTestingQuickJump
 
 async function loadPlanIds(signal?: AbortSignal): Promise<string[]> {
   try {
+<<<<<<< HEAD
     const response = await fetchLearningPlans(DEV_TESTING_QUICK_JUMP_MAX_ITEMS, { signal });
+=======
+    const response = await fetchLearningPlans(DEV_TESTING_QUICK_JUMP_MAX_ITEMS, QUIET_PROBE_GET_OPTIONS);
+>>>>>>> cursor/quiet-quick-jump-and-api-warmup-9725
 
     return uniqueNonEmptyIds(response.plans.map((plan) => plan.planId));
   } catch {
@@ -90,7 +99,7 @@ async function loadApprovalRequestIds(runIds: readonly string[]): Promise<string
   const nested = await Promise.all(
     probeRunIds.map(async (runId) => {
       try {
-        return await listApprovalRequests(runId);
+        return await listApprovalRequests(runId, QUIET_PROBE_GET_OPTIONS);
       } catch {
         return [] as GovernanceApprovalRequest[];
       }
@@ -107,7 +116,7 @@ async function resolveManifestIdsFromRuns(runIds: readonly string[]): Promise<st
   const manifestIds = await Promise.all(
     probeRunIds.map(async (runId) => {
       try {
-        const detailEnvelope = await getRunDetail(runId);
+        const detailEnvelope = await getRunDetail(runId, QUIET_PROBE_GET_OPTIONS);
         const coercedDetail = coerceRunDetail(detailEnvelope.data);
 
         if (!coercedDetail.ok) {
@@ -129,7 +138,7 @@ async function loadArtifactLinks(manifestIds: readonly string[]): Promise<DevTes
   const nested = await Promise.all(
     probeManifestIds.map(async (manifestId) => {
       try {
-        const artifacts = await listArtifacts(manifestId);
+        const artifacts = await listArtifacts(manifestId, QUIET_PROBE_GET_OPTIONS);
 
         return artifacts.map((artifact) => ({
           manifestId,

@@ -13,7 +13,7 @@ import type {
   EvolutionResultsResponse,
   EvolutionSimulateResponse,
 } from "@/types/evolution";
-import { apiGet, apiPostJson, ensureOidcBearerReady, resolveRequest, throwApiRequestError, withCorrelationHeaders } from "./http";
+import { apiGet, apiPostJson, ensureOidcBearerReady, resolveRequest, throwApiRequestError, withCorrelationHeaders, type ApiGetOptions } from "./http";
 
 /** Generates an AI-driven improvement plan for a run, optionally compared to another run. */
 export async function getImprovementPlan(runId: string, compareToRunId?: string): Promise<ImprovementPlan> {
@@ -84,7 +84,11 @@ export async function fetchLearningThemes(maxThemes?: number): Promise<LearningT
 /** Lists improvement plans for the current scope (newest first). */
 export async function fetchLearningPlans(
   maxPlans?: number,
+<<<<<<< HEAD
   options?: { readonly signal?: AbortSignal },
+=======
+  options?: Pick<ApiGetOptions, "suppressErrorToast">,
+>>>>>>> cursor/quiet-quick-jump-and-api-warmup-9725
 ): Promise<LearningPlansListResponse> {
   const q = learningMaxQuery("maxPlans", maxPlans);
   return apiGet<LearningPlansListResponse>(`/${ApiV1Routes.learning}/plans${q}`, options);

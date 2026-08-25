@@ -31,7 +31,7 @@ import type {
   PolicyPackWorkspaceSelectionItem,
 } from "@/types/policy-packs";
 import type { AlertRoutingSubscription } from "@/types/alert-routing";
-import { apiGet, apiPostJson, apiPutJson, apiPutNoContent } from "./http";
+import { apiGet, apiPostJson, apiPutJson, apiPutNoContent, type ApiGetOptions } from "./http";
 
 const governanceBase = (): string => `/${ApiV1Routes.governance}`;
 
@@ -153,9 +153,13 @@ export async function getGovernanceApprovalRationale(
 }
 
 /** Lists approval requests for a run (governance workflow). */
-export async function listApprovalRequests(runId: string): Promise<GovernanceApprovalRequest[]> {
+export async function listApprovalRequests(
+  runId: string,
+  options?: Pick<ApiGetOptions, "suppressErrorToast">,
+): Promise<GovernanceApprovalRequest[]> {
   return apiGet<GovernanceApprovalRequest[]>(
     `${governanceBase()}/runs/${encodeURIComponent(runId)}/approval-requests`,
+    options,
   );
 }
 
