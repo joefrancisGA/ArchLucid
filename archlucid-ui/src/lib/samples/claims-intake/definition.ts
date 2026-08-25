@@ -45,6 +45,7 @@ export const CLAIMS_INTAKE_SAMPLE_DEFINITION: SampleScenarioDefinition = {
   buyerReviewPackageTitle: CLAIMS_INTAKE_BUYER_REVIEW_PACKAGE_TITLE,
   policyPackDetailHref: CLAIMS_INTAKE_POLICY_PACK_DETAIL_HREF,
   policyPackIdAliases: ["demo-healthcare-claims-pack", "healthcare-claims-v3", "healthcare_claims"],
+  policyPackDisplayLabel: "Healthcare Claims Policy Pack",
   ruleSetId: "healthcare-claims-v3",
   ruleSetVersion: CLAIMS_INTAKE_RULE_SET_VERSION,
   tenantName: CLAIMS_INTAKE_DEMO_TENANT_NAME,

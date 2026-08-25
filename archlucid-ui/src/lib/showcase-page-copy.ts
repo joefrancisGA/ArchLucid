@@ -1,5 +1,6 @@
 import { SEE_IT_CANONICAL_PATH } from "@/lib/see-it-evidence-copy";
 import { SEE_IT_PAGE_TITLE } from "@/lib/see-it-page-copy";
+import { getActiveSampleScenario, resolveSampleScenarioByRunId } from "@/lib/samples/registry";
 import { decodeShowcaseRunId } from "@/lib/showcase-page-resolution";
 
 export const SHOWCASE_PRIMARY_CONTENT_ID = "showcase-primary-content" as const;
@@ -21,13 +22,10 @@ export const SHOWCASE_HERO_SUBTITLE = SHOWCASE_HERO_SUBTITLE_BUYER;
 
 export function showcaseTitleForRunId(runId: string): string {
   const decoded = decodeShowcaseRunId(runId);
+  const scenario = resolveSampleScenarioByRunId(decoded);
 
-  if (decoded === "claims-intake-modernization") {
-    return "Claims Intake Modernization: Completed Architecture Output";
-  }
-
-  if (decoded === "customer-intake-modernization") {
-    return "Enterprise Customer Intake Modernization: Completed Architecture Output";
+  if (scenario !== null) {
+    return `${scenario.buyerReviewPackageTitle}: Completed Architecture Output`;
   }
 
   return `Completed example (${decoded})`;
@@ -35,10 +33,7 @@ export function showcaseTitleForRunId(runId: string): string {
 
 export function showcaseScenarioRibbonLabel(runId: string): string {
   const decoded = decodeShowcaseRunId(runId);
+  const scenario = resolveSampleScenarioByRunId(decoded) ?? getActiveSampleScenario();
 
-  if (decoded === "customer-intake-modernization") {
-    return "Enterprise Customer Intake Modernization sample scenario.";
-  }
-
-  return "Claims Intake Modernization sample scenario.";
+  return `${scenario.buyerReviewPackageTitle} sample scenario.`;
 }

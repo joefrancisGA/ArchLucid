@@ -9,6 +9,9 @@ import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import {
   getActiveSampleScenario,
   isActiveSampleHeroFindingId,
+  isSampleHeroFindingReferenceId,
+  resolveSampleScenarioByHeroFindingId,
+  resolveSampleScenarioByRunId,
   sampleCategoryTokenMatches,
 } from "@/lib/samples/registry";
 import { BUYER_SURFACE_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
@@ -96,29 +99,73 @@ export function findingInspectNarrativeFields(payload: FindingInspectPayload): {
 }
 
 export function isPhiMinimizationFindingId(findingId: string | null | undefined): boolean {
-  if (isActiveSampleHeroFindingId(findingId)) {
+  if (isSampleHeroFindingReferenceId(findingId)) {
     return true;
   }
 
   return sampleCategoryTokenMatches(findingId ?? "");
 }
 
+function resolveFindingSampleScenario(
+  payload: FindingInspectPayload | null,
+  findingId?: string | null,
+): ReturnType<typeof getActiveSampleScenario> | null {
+  if (payload !== null) {
+    const byRun = resolveSampleScenarioByRunId(payload.runId);
+
+    if (byRun !== null) {
+      return byRun;
+    }
+
+    const byFinding = resolveSampleScenarioByHeroFindingId(payload.findingId);
+
+    if (byFinding !== null) {
+      return byFinding;
+    }
+  }
+
+  if (findingId !== undefined && findingId !== null) {
+    return resolveSampleScenarioByHeroFindingId(findingId);
+  }
+
+  return null;
+}
+
+function residualMinimizationRiskHeading(scenario: ReturnType<typeof getActiveSampleScenario> | null): string {
+  if (scenario?.slug === "claims-intake") {
+    return "Residual PHI minimization risk (monitored)";
+  }
+
+  return "Residual sensitive data minimization risk (monitored)";
+}
+
+function sampleHeroFindingEyebrowSuffix(scenario: ReturnType<typeof getActiveSampleScenario> | null): string {
+  if (scenario?.slug === "claims-intake") {
+    return "PHI minimization";
+  }
+
+  return "Sensitive data minimization";
+}
+
 /**
  * Preferred page title for Finding detail — human narrative first, then rule context, generic last.
  */
 function isShowcasePrimaryPhiFindingId(findingId: string | null | undefined): boolean {
-  return isActiveSampleHeroFindingId(findingId);
+  return isSampleHeroFindingReferenceId(findingId) || isActiveSampleHeroFindingId(findingId);
 }
 
 export function findingDetailHeadingTitle(payload: FindingInspectPayload): string {
-  const scenario = getActiveSampleScenario();
+  const scenario =
+    resolveSampleScenarioByHeroFindingId(payload.findingId) ??
+    resolveSampleScenarioByRunId(payload.runId) ??
+    getActiveSampleScenario();
 
   if (isShowcasePrimaryPhiFindingId(payload.findingId)) {
-    return scenario.primaryFindingTitle;
+    return (resolveSampleScenarioByHeroFindingId(payload.findingId) ?? scenario).primaryFindingTitle;
   }
 
   if (isPhiMinimizationSampleFinding(payload)) {
-    return "Residual PHI minimization risk (monitored)";
+    return residualMinimizationRiskHeading(resolveFindingSampleScenario(payload));
   }
 
   const narrative = findingInspectNarrativeFields(payload);
@@ -148,14 +195,17 @@ export function findingDetailHeadingTitleForRoute(
   findingId: string,
   payload: FindingInspectPayload | null
 ): string {
-  const scenario = getActiveSampleScenario();
+  const scenario =
+    resolveSampleScenarioByHeroFindingId(findingId) ??
+    (payload !== null ? resolveSampleScenarioByRunId(payload.runId) : null) ??
+    getActiveSampleScenario();
 
   if (isShowcasePrimaryPhiFindingId(findingId)) {
-    return scenario.primaryFindingTitle;
+    return (resolveSampleScenarioByHeroFindingId(findingId) ?? scenario).primaryFindingTitle;
   }
 
   if (isPhiMinimizationFindingId(findingId)) {
-    return "Residual PHI minimization risk (monitored)";
+    return residualMinimizationRiskHeading(resolveFindingSampleScenario(payload, findingId));
   }
 
   if (payload !== null) {
@@ -228,7 +278,7 @@ export function isPhiMinimizationSampleFinding(payload: FindingInspectPayload): 
  */
 export function findingDetailPageEyebrow(payload: FindingInspectPayload | null, findingId?: string): string {
   if (payload !== null ? isPhiMinimizationSampleFinding(payload) : isPhiMinimizationFindingId(findingId)) {
-    return "Finding summary — PHI minimization";
+    return `Finding summary — ${sampleHeroFindingEyebrowSuffix(resolveFindingSampleScenario(payload, findingId))}`;
   }
 
   return "Finding summary";
@@ -239,7 +289,7 @@ export function findingDetailPageEyebrow(payload: FindingInspectPayload | null, 
  */
 export function findingInspectPageEyebrow(payload: FindingInspectPayload): string {
   if (isPhiMinimizationSampleFinding(payload)) {
-    return "Technical evidence trace — PHI minimization";
+    return `Technical evidence trace — ${sampleHeroFindingEyebrowSuffix(resolveFindingSampleScenario(payload))}`;
   }
 
   return "Technical evidence trace";

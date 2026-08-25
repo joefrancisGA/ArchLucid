@@ -1,22 +1,19 @@
-import { CLAIMS_INTAKE_POLICY_PACK_DETAIL_HREF } from "@/lib/samples/claims-intake/definition";
-import { CUSTOMER_INTAKE_POLICY_PACK_DETAIL_HREF } from "@/lib/samples/customer-intake-modernization/definition";
 import { RESPONSIBLE_AI_POLICY_PACK_BREADCRUMB_LABEL } from "@/lib/responsible-ai-policy-pack-detail-content";
 import { governancePolicyPackDetailPath } from "@/lib/governance/governance-route-paths";
+import { resolveSampleScenarioByPolicyPackId } from "@/lib/samples/registry";
 
 /**
- * Buyer-facing policy pack line for healthcare claims demo and generic rule-set ids.
+ * Buyer-facing policy pack line for registered sample rule-set ids and generic rule-set ids.
  */
 export function policyPackBuyerLabel(ruleSetId: string, ruleSetVersion: string): string {
-  const id = ruleSetId.trim();
+  const scenario = resolveSampleScenarioByPolicyPackId(ruleSetId);
   const ver = ruleSetVersion.trim();
 
-  if (id === "healthcare-claims-v3" && ver.length > 0) {
-    return `Healthcare Claims Policy Pack v${ver}`;
+  if (scenario !== null && ver.length > 0) {
+    return `${scenario.policyPackDisplayLabel} v${ver}`;
   }
 
-  if (id === "enterprise-privacy-v2" && ver.length > 0) {
-    return `Enterprise Privacy Policy Pack v${ver}`;
-  }
+  const id = ruleSetId.trim();
 
   if (id.length > 0 && ver.length > 0) {
     return `${id} v${ver}`;
@@ -33,15 +30,13 @@ export function policyPackBuyerLabel(ruleSetId: string, ruleSetVersion: string):
  * When the manifest references a pack we route with a sponsor narrative, return that governance detail path.
  */
 export function policyPackBuyerGovernanceDetailHref(ruleSetId: string): string | null {
+  const scenario = resolveSampleScenarioByPolicyPackId(ruleSetId);
+
+  if (scenario !== null) {
+    return scenario.policyPackDetailHref;
+  }
+
   const id = ruleSetId.trim();
-
-  if (id === "healthcare-claims-v3") {
-    return CLAIMS_INTAKE_POLICY_PACK_DETAIL_HREF;
-  }
-
-  if (id === "enterprise-privacy-v2") {
-    return CUSTOMER_INTAKE_POLICY_PACK_DETAIL_HREF;
-  }
 
   if (id === "1" || id === "ai-governance-responsible-ai-v1") {
     return governancePolicyPackDetailPath("1");

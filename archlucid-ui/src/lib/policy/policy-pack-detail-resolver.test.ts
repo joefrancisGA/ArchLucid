@@ -7,6 +7,12 @@ import {
   resolvePolicyPackDetailBreadcrumbLabel,
   resolvePolicyPackDetailKind,
 } from "@/lib/policy/policy-pack-detail-resolver";
+import {
+  CLAIMS_INTAKE_POLICY_PACK_DETAIL_HREF,
+} from "@/lib/samples/claims-intake/definition";
+import {
+  CUSTOMER_INTAKE_POLICY_PACK_DETAIL_HREF,
+} from "@/lib/samples/customer-intake-modernization/definition";
 import { RESPONSIBLE_AI_POLICY_PACK_BREADCRUMB_LABEL } from "@/lib/responsible-ai-policy-pack-detail-content";
 
 describe("policy-pack-detail-resolver", () => {
@@ -19,14 +25,16 @@ describe("policy-pack-detail-resolver", () => {
     );
   });
 
-  it("maps healthcare claims demo ids", () => {
+  it("maps registered sample privacy pack ids via the sample registry", () => {
     expect(resolvePolicyPackDetailKind("demo-enterprise-privacy-pack", null)).toBe("healthcare-claims");
     expect(resolvePolicyPackDetailBreadcrumbLabel("demo-enterprise-privacy-pack", null)).toBe("Enterprise Privacy");
-  });
-
-  it("does not map inactive healthcare demo pack aliases without API metadata", () => {
-    expect(resolvePolicyPackDetailKind("demo-healthcare-claims-pack", null)).toBe("unknown");
-    expect(resolvePolicyPackDetailBreadcrumbLabel("demo-healthcare-claims-pack", null)).toBe("Policy pack detail");
+    expect(resolvePolicyPackDetailKind("demo-healthcare-claims-pack", null)).toBe("healthcare-claims");
+    expect(resolvePolicyPackDetailKind(CUSTOMER_INTAKE_POLICY_PACK_DETAIL_HREF.split("/").pop()!, null)).toBe(
+      "healthcare-claims",
+    );
+    expect(resolvePolicyPackDetailKind(CLAIMS_INTAKE_POLICY_PACK_DETAIL_HREF.split("/").pop()!, null)).toBe(
+      "healthcare-claims",
+    );
   });
 
   it("does not infer Responsible AI from pack name heuristics alone", () => {
