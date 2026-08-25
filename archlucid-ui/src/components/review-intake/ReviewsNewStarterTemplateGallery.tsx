@@ -41,7 +41,7 @@ export function ReviewsNewStarterTemplateGallery(): React.JSX.Element {
             className="flex flex-col justify-between gap-3 rounded-md border border-neutral-200 p-3 dark:border-neutral-700"
           >
             <div className="space-y-1">
-              <p className={cn("m-0 font-medium text-neutral-900 dark:text-neutral-50", OPERATOR_TYPOGRAPHY.body)}>
+              <p className={cn("m-0 text-neutral-900 dark:text-neutral-50", OPERATOR_TYPOGRAPHY.cardTitle)}>
                 {template.label}
               </p>
               <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.helper)}>
