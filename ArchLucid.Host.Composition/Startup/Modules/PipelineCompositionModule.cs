@@ -358,6 +358,11 @@ private static void RegisterRunExportAndArchitectureAnalysis(IServiceCollection 
         services.AddScoped<RoiCostEvidenceCollectionResolver>();
         services.AddScoped<RoiCostEvidenceFreshnessEvaluator>();
         services.AddScoped<SponsorRoiPricingLabelResolver>();
+        services.AddScoped<SponsorRoiRunCollector>();
+        services.AddScoped<SponsorRoiSummaryBuilder>();
+        services.AddScoped<SponsorRoiHistoryBuilder>();
+        services.AddScoped<SponsorRoiExportBuilder>();
+        services.AddScoped<CrossTenantPortfolioSummaryBuilder>();
         services.AddScoped<SponsorRoiSummaryService>();
         services.AddScoped<ISponsorRoiSummaryService>(static sp =>
             new CachingSponsorRoiSummaryService(

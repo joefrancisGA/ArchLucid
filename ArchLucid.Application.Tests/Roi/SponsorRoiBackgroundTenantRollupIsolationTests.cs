@@ -166,22 +166,55 @@ public sealed class SponsorRoiBackgroundTenantRollupIsolationTests
             .Setup(repo => repo.TryGetAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((TenantCostSettingsRecord?)null);
 
-        SponsorRoiSummaryService roiService = new(
+        IFindingReviewTrailRepository reviewTrail = CreateEmptyFindingReviewTrailRepository();
+        IRiskExceptionService riskExceptions = CreateEmptyRiskExceptionService();
+        IArchitectureRiskRegisterService architectureRiskRegister = CreateArchitectureRiskRegisterService();
+        ITenantSettingsRepository tenantSettings = CreateEmptyTenantSettingsRepository();
+        Core.Configuration.ValueReportComputationOptions valueReportOptions = new();
+
+        SponsorRoiRunCollector runCollector = new(
             runQuery.Object,
             savingsResolver.Object,
-            tenantRepository.Object,
-            Mock.Of<IScimUserRepository>(),
-            pricingLabelResolver,
             ambientScopeProvider.Object,
-            CreateEmptyFindingReviewTrailRepository(),
-            CreateEmptyRiskExceptionService(),
-            CreateArchitectureRiskRegisterService(),
-            CreateEmptyTenantSettingsRepository(),
+            reviewTrail,
+            riskExceptions,
             findingsSnapshots.Object,
             tenantCostSettings.Object,
+            Microsoft.Extensions.Options.Options.Create(valueReportOptions),
+            NullLogger<SponsorRoiRunCollector>.Instance);
+
+        SponsorRoiSummaryBuilder summaryBuilder = new(
+            runCollector,
+            pricingLabelResolver,
+            ambientScopeProvider.Object,
+            reviewTrail,
+            riskExceptions,
+            architectureRiskRegister,
+            tenantSettings,
+            runQuery.Object,
             SponsorRoiSummaryServiceTestSupport.CreateDefaultPilotScorecardMetricsReader(),
-            Microsoft.Extensions.Options.Options.Create(new Core.Configuration.ValueReportComputationOptions()),
-            NullLogger<SponsorRoiSummaryService>.Instance);
+            NullLogger<SponsorRoiSummaryBuilder>.Instance);
+
+        SponsorRoiHistoryBuilder historyBuilder = new(
+            runCollector,
+            runQuery.Object,
+            NullLogger<SponsorRoiHistoryBuilder>.Instance);
+
+        SponsorRoiExportBuilder exportBuilder = new(
+            runCollector,
+            pricingLabelResolver);
+
+        CrossTenantPortfolioSummaryBuilder portfolioBuilder = new(
+            runCollector,
+            tenantRepository.Object,
+            Mock.Of<IScimUserRepository>(),
+            NullLogger<CrossTenantPortfolioSummaryBuilder>.Instance);
+
+        SponsorRoiSummaryService roiService = new(
+            summaryBuilder,
+            historyBuilder,
+            exportBuilder,
+            portfolioBuilder);
 
         List<(Guid TenantId, decimal TotalUsd)> observed = [];
         int invalidScopeCallbacks = 0;
