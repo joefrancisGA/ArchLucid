@@ -5,6 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { FormProvider, useForm, useWatch } from "react-hook-form";
 
+import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
 import { CorePilotProgressTrackerBanner } from "@/components/usability/CorePilotProgressTrackerBanner";
 import { ReviewIntakeExampleTemplateCallout } from "@/components/review-intake/ReviewIntakeExampleTemplateCallout";
@@ -32,6 +33,10 @@ import { isApiRequestError } from "@/lib/api-request-error";
 import { isArchitectureRequestCreateUnresolvedError } from "@/lib/api/architecture-request-create-unresolved-error";
 import { BUYER_START_ARCHITECTURE_REVIEW_CTA } from "@/lib/buyer/buyer-polish-copy";
 import { isBuyerPolishedOperatorShellEnv, isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
+import {
+  resolveNewRunWizardCompleteSetupEmphasizedStepId,
+  resolveNewRunWizardCompleteSetupSteps,
+} from "@/lib/new-run-wizard-complete-setup-checklist";
 import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { showError, showSuccess } from "@/lib/toast";
 import {
@@ -263,6 +268,16 @@ export function NewRunWizardClient(props: NewRunWizardClientProps = {}) {
 
   const macroStep: number = macroWizardStepIndex(stepIndex);
   const completedMacroSteps: number[] = macroCompletedSteps(stepIndex);
+  const wizardCompleteSetupSteps = resolveNewRunWizardCompleteSetupSteps({
+    identityConfigured: stepIndex >= 2 && (watchedWizardValues?.systemName?.trim().length ?? 0) > 0,
+    evidenceConfigured: stepIndex > 1 || evidence.hasPendingEvidence,
+    reviewStarted: runId !== null,
+  });
+  const wizardCompleteSetupEmphasizedStepId = resolveNewRunWizardCompleteSetupEmphasizedStepId({
+    identityConfigured: stepIndex >= 2 && (watchedWizardValues?.systemName?.trim().length ?? 0) > 0,
+    evidenceConfigured: stepIndex > 1 || evidence.hasPendingEvidence,
+    reviewStarted: runId !== null,
+  });
 
   const liveMessage =
     runId === null
@@ -642,6 +657,12 @@ export function NewRunWizardClient(props: NewRunWizardClientProps = {}) {
                 steps={[...MACRO_WIZARD_STEP_DEFINITIONS]}
                 currentStep={macroStep}
                 completedSteps={completedMacroSteps}
+              />
+              <IntegrationConnectChecklist
+                title="Complete setup checklist"
+                steps={wizardCompleteSetupSteps}
+                emphasizedStepId={wizardCompleteSetupEmphasizedStepId}
+                testIdPrefix="new-run-wizard-complete-setup"
               />
             </>
           ) : null}
