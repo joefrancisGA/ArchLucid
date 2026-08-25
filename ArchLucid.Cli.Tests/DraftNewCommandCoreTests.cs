@@ -350,6 +350,50 @@ public sealed class DraftNewCommandCoreTests
         }
     }
 
+    [Fact]
+    public async Task RunCoreAsync_json_output_suppresses_human_progress_lines()
+    {
+        bool previousJson = CliExecutionContext.JsonOutput;
+
+        try
+        {
+            CliExecutionContext.JsonOutput = true;
+
+            DraftNewCommandOptions options = new()
+            {
+                IntentText = ValidDraftIntent,
+                SystemName = "Contoso API",
+                BusinessOutcome = "Ship a governed review package for the architecture board.",
+                SkipMustQuestions = true,
+                NoAutoExecute = true,
+            };
+
+            ArchLucidApiClient client = CreateDraftFlowClient();
+            DraftNewCommandHooks hooks = ConnectedHooks(client);
+            StringWriter output = new();
+            StringWriter error = new();
+
+            int exit = await DraftNewCommand.RunCoreAsync(options, hooks, output, error);
+
+            exit.Should().Be(CliExitCode.Success);
+            string stdout = output.ToString();
+            stdout.Should().NotContain("DraftId:", "JSON mode should not emit human progress lines");
+            stdout.Should().NotContain("Draft admitted", "JSON mode should not emit human progress lines");
+
+            string jsonLine = stdout
+                .Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                .Single(line => line.StartsWith('{'));
+
+            using JsonDocument document = JsonDocument.Parse(jsonLine);
+            document.RootElement.GetProperty("ok").GetBoolean().Should().BeTrue();
+            document.RootElement.GetProperty("executionStarted").GetBoolean().Should().BeFalse();
+        }
+        finally
+        {
+            CliExecutionContext.JsonOutput = previousJson;
+        }
+    }
+
     private static DraftNewCommandHooks ConnectedHooks(ArchLucidApiClient? client = null)
     {
         ArchLucidApiClient sharedClient = client ?? CreateDraftFlowClient();

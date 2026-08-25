@@ -99,7 +99,9 @@ internal static class DraftNewCommand
         }
 
         Guid draftId = created.Value.DraftId;
-        await output.WriteLineAsync($"DraftId: {draftId}");
+
+        if (!CliExecutionContext.JsonOutput)
+            await output.WriteLineAsync($"DraftId: {draftId}");
 
         string systemName = options.SystemName?.Trim() ?? string.Empty;
 
@@ -186,7 +188,8 @@ internal static class DraftNewCommand
             return CliExitCode.OperationFailed;
         }
 
-        await output.WriteLineAsync("Draft admitted. Resolving MUST questions...");
+        if (!CliExecutionContext.JsonOutput)
+            await output.WriteLineAsync("Draft admitted. Resolving MUST questions...");
 
         int resolveExit = await ResolveMustQuestionsAsync(
             client,
@@ -328,9 +331,12 @@ internal static class DraftNewCommand
                 continue;
             }
 
-            await output.WriteLineAsync(string.Empty);
-            await output.WriteLineAsync($"[{question.QuestionKey}] {question.Prompt}");
-            await output.WriteLineAsync("Enter an answer (or type 'skip' to leave a transparency trail skip):");
+            if (!CliExecutionContext.JsonOutput)
+            {
+                await output.WriteLineAsync(string.Empty);
+                await output.WriteLineAsync($"[{question.QuestionKey}] {question.Prompt}");
+                await output.WriteLineAsync("Enter an answer (or type 'skip' to leave a transparency trail skip):");
+            }
 
             string? answerLine = await hooks.ReadLineAsync(string.Empty, cancellationToken);
 
