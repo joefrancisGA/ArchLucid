@@ -35,6 +35,9 @@ import { AskSearchEvidenceVocabularyRail } from "@/components/AskSearchEvidenceV
 import { AskVsFrontierAiDifferentiationStrip } from "@/components/ask/AskVsFrontierAiDifferentiationStrip";
 import { PageCapabilityBoundaryStrip } from "@/components/PageCapabilityBoundaryStrip";
 import { AskThreadHistoryPanel } from "@/app/(operator)/insights/ask-review-questions/_sections/AskThreadHistoryPanel";
+import { AskContinueLastThreadRow } from "@/app/(operator)/insights/ask-review-questions/_sections/AskContinueLastThreadRow";
+import { writeAskContinueLastThreadId } from "@/lib/ask/ask-continue-last-thread-storage";
+import { resolveContinueLastAskThread } from "@/lib/ask/resolve-continue-last-ask-thread";
 const ASK_PAGE_SUBTITLE =
   "Ask questions across finalized reviews in this workspace, or narrow to one review. Answers cite indexed evidence when available.";
 
@@ -308,6 +311,7 @@ export function AskPageContent() {
 
   const onSelectThread = useCallback(
     async (threadId: string) => {
+      writeAskContinueLastThreadId(threadId);
       setSelectedThreadId(threadId);
       setLastAskReferencedFindings([]);
       setLastAskReferencedDecisions([]);
@@ -395,14 +399,20 @@ export function AskPageContent() {
       return;
     }
 
-    const firstThreadId = threads[0]?.threadId?.trim() ?? "";
+    const resumeThreadId = resolveContinueLastAskThread(threads)?.threadId?.trim() ?? "";
 
-    if (firstThreadId.length === 0) {
+    if (resumeThreadId.length === 0) {
       return;
     }
 
-    void onSelectThread(firstThreadId);
+    void onSelectThread(resumeThreadId);
   }, [threads, selectedThreadId, listFailure, onSelectThread]);
+
+  const continueLastThread = useMemo(() => resolveContinueLastAskThread(threads), [threads]);
+  const showContinueLastThreadRow =
+    continueLastThread !== null &&
+    continueLastThread.threadId.trim() !== selectedThreadId.trim() &&
+    threads.length > 0;
 
   const threadSelected = selectedThreadId.trim().length > 0;
   const runAnchorUnset = !threadSelected && runId.trim().length === 0;
@@ -492,6 +502,14 @@ export function AskPageContent() {
       <AskArchitectureIntelligenceVocabularyRail currentSurfaceId="ask-review-questions" />
       <AskVsFrontierAiDifferentiationStrip />
       <PageCapabilityBoundaryStrip surfaceId="ask" />
+      {showContinueLastThreadRow && continueLastThread !== null ? (
+        <AskContinueLastThreadRow
+          thread={continueLastThread}
+          onResume={(threadId) => {
+            void onSelectThread(threadId);
+          }}
+        />
+      ) : null}
       {listFailure !== null ? (
         <div role="alert" className="mb-4">
           <OperatorApiProblem
