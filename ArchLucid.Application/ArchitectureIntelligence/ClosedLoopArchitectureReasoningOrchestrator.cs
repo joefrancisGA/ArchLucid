@@ -265,27 +265,16 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
 
             if (recommendations.Count > 0)
             {
-                ArchitectureRecommendation firstRecommendation = recommendations[0];
-                ArchitectureModelDiff diff = _modelDiffApplier.ApplyRecommendation(model, firstRecommendation);
-                modelDiffs.Add(diff);
+                ClosedLoopRecommendationBatchApplyResult applied =
+                    new ClosedLoopRecommendationBatchApplier(_modelDiffApplier, _changeImpactAnalyzer)
+                        .Apply(model, recommendations);
 
-                ChangeImpactResult impact = _changeImpactAnalyzer.Analyze(diff, firstRecommendation);
-                impactResults.Add(impact);
-
-                ReReviewScope scope = new()
-                {
-                    AffectedElementIds = impact.ImpactedItems
-                        .Select(item => item.ElementId)
-                        .Distinct(StringComparer.Ordinal)
-                        .ToList(),
-                    IncludeGlobalInvariantChecks = true,
-                    FullReReview = impact.RequiresFullReReview,
-                    Trigger = ResolveReReviewTrigger(impact, firstRecommendation),
-                };
+                modelDiffs = applied.ModelDiffs;
+                impactResults = applied.ImpactResults;
 
                 reReview = await _incrementalReReviewService.ReReviewAsync(
-                    diff.AfterModel,
-                    scope,
+                    applied.WorkingModel,
+                    applied.Scope,
                     _specialistReviewService,
                     cancellationToken).ConfigureAwait(false);
 
@@ -619,34 +608,6 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
         }
 
         return tenantId;
-    }
-
-    private static ReReviewTrigger? ResolveReReviewTrigger(
-        ChangeImpactResult impact,
-        ArchitectureRecommendation recommendation)
-    {
-        if (!impact.RequiresFullReReview)
-        {
-            return null;
-        }
-
-        if (recommendation.ProposedChange.Contains("trust boundary", StringComparison.OrdinalIgnoreCase))
-        {
-            return ReReviewTrigger.NewTrustBoundary;
-        }
-
-        if (recommendation.ProposedChange.Contains("jurisdiction", StringComparison.OrdinalIgnoreCase)
-            || recommendation.ProposedChange.Contains("residency", StringComparison.OrdinalIgnoreCase))
-        {
-            return ReReviewTrigger.NewJurisdiction;
-        }
-
-        if (recommendation.ProposedChange.Contains("data classification", StringComparison.OrdinalIgnoreCase))
-        {
-            return ReReviewTrigger.NewDataClassification;
-        }
-
-        return ReReviewTrigger.MajorTopologyChange;
     }
 
     private async Task<ArchitectureKnowledgeModel?> TryLoadExistingModelAsync(
