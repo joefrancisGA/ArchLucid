@@ -1,5 +1,7 @@
 "use client";
 
+import { useMemo } from "react";
+
 import { cn } from "@/lib/utils";
 import { AdvancedOptionsAccordion } from "@/components/AdvancedOptionsAccordion";
 import type { PolicyPacksPageViewModel } from "./policy-packs-page-view-model";
@@ -27,6 +29,8 @@ import { PolicyPacksMarketingIntro } from "./PolicyPacksMarketingIntro";
 import { PolicyPacksMetricStrip } from "./PolicyPacksMetricStrip";
 import { PolicyPacksPageHeader } from "./PolicyPacksPageHeader";
 import { PolicyPacksRegisteredListSection } from "./PolicyPacksRegisteredListSection";
+import { PolicyPacksContinueLastViewedRow } from "./PolicyPacksContinueLastViewedRow";
+import { resolveContinueLastPolicyPack } from "@/lib/resolve-continue-last-policy-pack";
 import { PolicyPacksWorkspaceSelectionSection } from "./PolicyPacksWorkspaceSelectionSection";
 import { PolicyPacksAdvancedAuthoringPanel } from "./PolicyPacksAdvancedAuthoringPanel";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
@@ -85,6 +89,7 @@ export function PolicyPacksPageView(props: Props) {
   const authoringInnerTab = resolveAuthoringInnerTab(m.pageTab);
   const enforcedRuleRows = buildPolicyPackEnforcedRuleRows(m.effectiveContent, m.effective?.packs ?? []);
   const enforcedRuleCount = enforcedRuleRows.length;
+  const continueLastPack = useMemo(() => resolveContinueLastPolicyPack(m.packs), [m.packs]);
 
   return (
     <OperatorPageContainer variant="dashboard" className={OPERATOR_LAYOUT.sectionStack}>
@@ -230,6 +235,8 @@ export function PolicyPacksPageView(props: Props) {
                 void m.onToggleWorkspaceSelection(assignmentId, nextEnabled);
               }}
             />
+
+            {continueLastPack !== null ? <PolicyPacksContinueLastViewedRow pack={continueLastPack} /> : null}
 
             <PolicyPacksRegisteredListSection
               buyerPolishedShell={m.buyerPolishedShell}
