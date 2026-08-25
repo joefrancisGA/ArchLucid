@@ -25,6 +25,7 @@ import {
 import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
+import { ArchitectureIntelligencePickReviewBeforeAnalysisStrip } from "@/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligencePickReviewBeforeAnalysisStrip";
 import { useArchitectureIntelligencePage } from "./use-architecture-intelligence-page";
 
 export function ArchitectureIntelligencePageClient() {
@@ -38,6 +39,7 @@ export function ArchitectureIntelligencePageClient() {
     showIntakeForm,
     inboundContextLine,
     activeRunId,
+    onSelectReview,
     architectureDescription,
     setArchitectureDescription,
     prioritiesRaw,
@@ -116,6 +118,13 @@ export function ArchitectureIntelligencePageClient() {
 
       {showIntakeForm ? (
         <div className="space-y-4">
+          {(activeRunId?.trim() ?? "").length === 0 ? (
+            <ArchitectureIntelligencePickReviewBeforeAnalysisStrip
+              selectedReviewId={activeRunId ?? ""}
+              onSelectReview={onSelectReview}
+            />
+          ) : null}
+          <div className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="architecture-description">Architecture description</Label>
             <Textarea
@@ -222,6 +231,7 @@ export function ArchitectureIntelligencePageClient() {
               output into findings/advisory.
             </p>
           ) : null}
+          </div>
         </div>
       ) : null}
 

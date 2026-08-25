@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import {
@@ -57,6 +57,7 @@ export type UseArchitectureIntelligencePageResult = {
   showIntakeForm: boolean;
   inboundContextLine: string | null;
   activeRunId: string | null;
+  onSelectReview: (reviewId: string) => void;
   architectureDescription: string;
   setArchitectureDescription: (value: string) => void;
   prioritiesRaw: string;
@@ -85,6 +86,8 @@ export type UseArchitectureIntelligencePageResult = {
 };
 
 export function useArchitectureIntelligencePage(): UseArchitectureIntelligencePageResult {
+  const router = useRouter();
+  const pathname = usePathname();
   const searchParams = useSearchParams();
   const inboundRunId = searchParams.get("runId")?.trim() ?? "";
   const inboundFrom = searchParams.get("from")?.trim() ?? "";
@@ -508,6 +511,21 @@ export function useArchitectureIntelligencePage(): UseArchitectureIntelligencePa
 
   const isBusy = loadingAction !== null;
 
+  const onSelectReview = useCallback(
+    (runId: string) => {
+      const normalized = runId.trim();
+
+      if (normalized.length === 0) {
+        return;
+      }
+
+      const params = new URLSearchParams(searchParams.toString());
+      params.set("runId", normalized);
+      router.replace(`${pathname}?${params.toString()}`);
+    },
+    [pathname, router, searchParams],
+  );
+
   return {
     buyerPolishedShell,
     pageSubtitle: architectureIntelligencePageSubtitle(buyerPolishedShell),
@@ -521,6 +539,7 @@ export function useArchitectureIntelligencePage(): UseArchitectureIntelligencePa
     showIntakeForm,
     inboundContextLine,
     activeRunId,
+    onSelectReview,
     architectureDescription,
     setArchitectureDescription,
     prioritiesRaw,
