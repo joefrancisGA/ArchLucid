@@ -49,8 +49,7 @@ public sealed class FindingJsonConverter : JsonConverter<Finding>
         finding.ReviewNotes = ReadOptionalString(root, "reviewNotes");
 
         if (root.TryGetProperty("enforcementTier", out JsonElement tierEl) &&
-            tierEl.ValueKind == JsonValueKind.String &&
-            Enum.TryParse(tierEl.GetString(), ignoreCase: true, out FindingEnforcementTier tier))
+            TryReadEnforcementTier(tierEl, out FindingEnforcementTier tier))
         {
             finding.EnforcementTier = tier;
         }
@@ -76,7 +75,7 @@ public sealed class FindingJsonConverter : JsonConverter<Finding>
             finding.ConfidenceLevel = ecl;
 
         if (root.TryGetProperty("humanReviewStatus", out JsonElement hrsEl) &&
-            Enum.TryParse(hrsEl.GetString(), true, out FindingHumanReviewStatus hrs))
+            TryReadHumanReviewStatus(hrsEl, out FindingHumanReviewStatus hrs))
             finding.HumanReviewStatus = hrs;
 
         if (root.TryGetProperty("projectedImpactUsd", out JsonElement impactEl) &&
@@ -287,6 +286,62 @@ public sealed class FindingJsonConverter : JsonConverter<Finding>
         foreach (JsonProperty p in el.EnumerateObject())
             d[p.Name] = p.Value.GetString() ?? "";
         return d;
+    }
+
+    /// <summary>
+    ///     Accepts enum names and defined integer ordinals. Numeric <c>1</c> is Advisory;
+    ///     out-of-range ordinals throw so they cannot collapse to the PolicyViolation default.
+    /// </summary>
+    private static bool TryReadEnforcementTier(JsonElement element, out FindingEnforcementTier tier)
+    {
+        tier = default;
+
+        if (element.ValueKind == JsonValueKind.Number && element.TryGetInt32(out int numeric))
+        {
+
+            if (!Enum.IsDefined(typeof(FindingEnforcementTier), numeric))
+                throw new JsonException($"Unknown finding enforcement tier value '{numeric}'.");
+
+            tier = (FindingEnforcementTier)numeric;
+            return true;
+        }
+
+        if (element.ValueKind == JsonValueKind.String &&
+            Enum.TryParse(element.GetString(), ignoreCase: true, out FindingEnforcementTier parsed))
+        {
+            tier = parsed;
+            return true;
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    ///     Accepts enum names and defined integer ordinals. Numeric <c>1</c> is Pending;
+    ///     <see cref="JsonElement.GetString"/> must not run on number tokens (that throws).
+    /// </summary>
+    private static bool TryReadHumanReviewStatus(JsonElement element, out FindingHumanReviewStatus status)
+    {
+        status = default;
+
+        if (element.ValueKind == JsonValueKind.Number && element.TryGetInt32(out int numeric))
+        {
+
+            if (!Enum.IsDefined(typeof(FindingHumanReviewStatus), numeric))
+                throw new JsonException($"Unknown finding human review status value '{numeric}'.");
+
+            status = (FindingHumanReviewStatus)numeric;
+            return true;
+        }
+
+        if (element.ValueKind == JsonValueKind.String &&
+            Enum.TryParse(element.GetString(), ignoreCase: true, out FindingHumanReviewStatus parsed))
+        {
+            status = parsed;
+            return true;
+        }
+
+        return false;
     }
 
     private static FindingSeverity ReadSeverity(JsonElement root, string propertyName)
