@@ -49,6 +49,8 @@ public sealed class TechnologyLedgerTopologyProposalSeeder(
             if (resolved is null)
                 continue;
 
+            resolved = TechnologyLedgerColdStartChosenPromoter.Apply(resolved, existingRows);
+
             await _technologyLedgerRepository.AddAsync(resolved, cancellationToken);
             existingRows = await _technologyLedgerRepository.GetByRunIdAsync(scope, runId, cancellationToken);
         }

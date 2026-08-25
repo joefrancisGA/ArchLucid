@@ -1,6 +1,9 @@
 using System.Text;
 using ArchLucid.Contracts.ArchitectureIntelligence;
+using ArchLucid.Contracts.Persistence.TechnologyLedger;
 using ArchLucid.Core.Concurrency;
+using ArchLucid.Core.Scoping;
+using ArchLucid.Persistence.Data.Repositories;
 
 namespace ArchLucid.Application.ArchitectureIntelligence;
 
@@ -27,6 +30,8 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
     private readonly IReviewResultCache _reviewResultCache;
     private readonly IArchitectureIntelligenceReviewTierBudgetGuard _tierBudgetGuard;
     private readonly IArchitectureIntelligencePersistence? _persistence;
+    private readonly ITechnologyLedgerRepository? _technologyLedgerRepository;
+    private readonly IScopeContextProvider? _scopeContextProvider;
 
     public ClosedLoopArchitectureReasoningOrchestrator(
         IImmutableSourceStore sourceStore,
@@ -46,7 +51,9 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
         IArchitectureIntelligenceProductPublishService productPublishService,
         IReviewResultCache reviewResultCache,
         IArchitectureIntelligenceReviewTierBudgetGuard tierBudgetGuard,
-        IArchitectureIntelligencePersistence? persistence = null)
+        IArchitectureIntelligencePersistence? persistence = null,
+        ITechnologyLedgerRepository? technologyLedgerRepository = null,
+        IScopeContextProvider? scopeContextProvider = null)
     {
         _sourceStore = sourceStore ?? throw new ArgumentNullException(nameof(sourceStore));
         _ontologyService = ontologyService ?? throw new ArgumentNullException(nameof(ontologyService));
@@ -67,6 +74,8 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
         _reviewResultCache = reviewResultCache ?? throw new ArgumentNullException(nameof(reviewResultCache));
         _tierBudgetGuard = tierBudgetGuard ?? throw new ArgumentNullException(nameof(tierBudgetGuard));
         _persistence = persistence;
+        _technologyLedgerRepository = technologyLedgerRepository;
+        _scopeContextProvider = scopeContextProvider;
     }
 
     public async Task<ClosedLoopReasoningResult> RunAsync(
@@ -280,7 +289,10 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
         }
 
         List<MustNotFailViolation> mustNotFailViolations = _mustNotFailEnforcer
-            .Evaluate(allFindings, recommendations)
+            .Evaluate(
+                allFindings,
+                recommendations,
+                await TryLoadLedgerEntriesAsync(request, cancellationToken))
             .ToList();
 
         TrustPublishDecision publishDecision = _trustPublishGate.Decide(
@@ -510,6 +522,35 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
             cancellationToken);
 
         return validationResults.ToList();
+    }
+
+    private async Task<IReadOnlyList<TechnologyLedgerEntry>?> TryLoadLedgerEntriesAsync(
+        ClosedLoopReasoningRequest request,
+        CancellationToken cancellationToken)
+    {
+        if (_technologyLedgerRepository is null
+            || _scopeContextProvider is null
+            || string.IsNullOrWhiteSpace(request.RunId))
+        {
+            return null;
+        }
+
+        try
+        {
+            ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+
+            return await _technologyLedgerRepository
+                .GetByRunIdAsync(scope, request.RunId, cancellationToken)
+                .ConfigureAwait(false);
+        }
+        catch (Exception) when (cancellationToken.IsCancellationRequested)
+        {
+            throw;
+        }
+        catch (Exception)
+        {
+            return null;
+        }
     }
 
     private static void MergeAdversarialChallengesIntoModel(
