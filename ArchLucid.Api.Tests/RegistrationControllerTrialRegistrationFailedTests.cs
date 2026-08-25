@@ -130,8 +130,11 @@ public sealed class RegistrationControllerTrialRegistrationFailedTests
         tenants
             .Setup(repository => repository.GetByNormalizedOrganizationNameAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((TenantRecord?)null);
+        tenants
+            .Setup(repository => repository.GetBySlugAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((TenantRecord?)null);
 
-        return new RegistrationController(
+        RegistrationApplicationService registration = new(
             provisioning,
             tenants.Object,
             audit,
@@ -139,5 +142,7 @@ public sealed class RegistrationControllerTrialRegistrationFailedTests
             abusePolicy.Object,
             Options.Create(new PublicSignupOptions { Mode = PublicSignupMode.PublicSelfService }),
             TimeProvider.System);
+
+        return new RegistrationController(registration);
     }
 }

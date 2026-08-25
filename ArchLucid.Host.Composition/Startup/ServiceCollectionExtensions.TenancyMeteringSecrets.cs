@@ -78,6 +78,7 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<TurnstileEmailOtpBotChallengeVerifier>();
         services.AddScoped<IEmailOtpBotChallengeVerifier, EmailOtpBotChallengeVerifier>();
         services.AddScoped<ISelfServiceTrialAbusePolicy, SelfServiceTrialAbusePolicy>();
+        services.AddScoped<IRegistrationApplicationService, RegistrationApplicationService>();
         services.AddScoped<IWorkspacePackagingLimitEvaluator, WorkspacePackagingLimitEvaluator>();
         services.AddScoped<IPostAuthInvitationBootstrapService, PostAuthInvitationBootstrapService>();
         services.AddScoped<IPostAuthWorkspaceBootstrapService, PostAuthWorkspaceBootstrapService>();
