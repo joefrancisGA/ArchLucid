@@ -11,5 +11,11 @@ public interface IArchitectureRunAsyncOperationRegistrar
         string runId,
         ArchitectureRunAsyncOperationKind kind);
 
+    /// <summary>True when <see cref="TryRegister" /> currently holds this scope/run/kind.</summary>
+    bool IsRegistered(
+        ScopeContext scope,
+        string runId,
+        ArchitectureRunAsyncOperationKind kind);
+
     void Release(ScopeContext scope, string runId, ArchitectureRunAsyncOperationKind kind);
 }

@@ -1,13 +1,13 @@
+using System.Collections.Concurrent;
+
 using ArchLucid.Application;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Operations;
 using ArchLucid.Application.Runs.Orchestration;
 using ArchLucid.Contracts.Common;
-using ArchLucid.Core.Audit;
 using ArchLucid.Core.Scoping;
-using ArchLucid.Persistence.Serialization;
-
-using System.Text.Json;
+using ArchLucid.Persistence.Interfaces;
+using ArchLucid.Persistence.Models;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -15,7 +15,10 @@ using Microsoft.Extensions.Logging;
 
 namespace ArchLucid.Application.Runs.Async;
 
-/// <summary>Drains the async execute/replay queue; create items run concurrently so they are not blocked by execute.</summary>
+/// <summary>
+///     Drains the async run queue without blocking create behind execute/replay.
+///     Create completions are bounded; execute waits until create for the same run finishes.
+/// </summary>
 public sealed class ArchitectureRunAsyncOperationHostedService(
     ArchitectureRunAsyncOperationQueue queue,
     IServiceScopeFactory scopeFactory,
@@ -23,6 +26,8 @@ public sealed class ArchitectureRunAsyncOperationHostedService(
     IOperationCancellationRegistry operationCancellationRegistry,
     ILogger<ArchitectureRunAsyncOperationHostedService> logger) : BackgroundService
 {
+    internal const int MaxConcurrentCreateCompletions = 4;
+
     private readonly ArchitectureRunAsyncOperationQueue _queue =
         queue ?? throw new ArgumentNullException(nameof(queue));
 
@@ -38,20 +43,164 @@ public sealed class ArchitectureRunAsyncOperationHostedService(
     private readonly ILogger<ArchitectureRunAsyncOperationHostedService> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
 
+    private readonly SemaphoreSlim _createGate = new(MaxConcurrentCreateCompletions);
+    private readonly SemaphoreSlim _executeReplayGate = new(1);
+    private readonly ConcurrentDictionary<Guid, Task> _inFlight = new();
+    private readonly ConcurrentDictionary<string, TaskCompletionSource> _createCompleted = new(StringComparer.Ordinal);
+
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        await foreach (ArchitectureRunAsyncOperationWorkItem item in _queue.Reader.ReadAllAsync(stoppingToken))
+        try
         {
-            // Create must not sit behind a multi-minute execute/replay on this single-reader
-            // channel — the run stub is already admitted and the operator is waiting on
-            // notifications / the review workspace.
-            if (item.Kind == ArchitectureRunAsyncOperationKind.Create)
+            await foreach (ArchitectureRunAsyncOperationWorkItem item in _queue.Reader.ReadAllAsync(stoppingToken))
             {
-                _ = ProcessWorkItemDetachedAsync(item, stoppingToken);
-                continue;
+                Track(DispatchAsync(item, stoppingToken));
             }
+        }
+        catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+        {
+        }
 
-            await ProcessWorkItemAndReleaseAsync(item, stoppingToken);
+        await DrainInFlightAsync();
+    }
+
+    public override async Task StopAsync(CancellationToken cancellationToken)
+    {
+        await base.StopAsync(cancellationToken);
+        await DrainInFlightAsync();
+    }
+
+    public override void Dispose()
+    {
+        _createGate.Dispose();
+        _executeReplayGate.Dispose();
+        base.Dispose();
+    }
+
+    private Task DispatchAsync(
+        ArchitectureRunAsyncOperationWorkItem item,
+        CancellationToken cancellationToken)
+    {
+        if (item.Kind == ArchitectureRunAsyncOperationKind.Create)
+            return ProcessCreateBoundedAsync(item, cancellationToken);
+
+        return ProcessExecuteOrReplayAsync(item, cancellationToken);
+    }
+
+    private async Task ProcessCreateBoundedAsync(
+        ArchitectureRunAsyncOperationWorkItem item,
+        CancellationToken cancellationToken)
+    {
+        TaskCompletionSource completion = GetCreateCompletion(item);
+
+        try
+        {
+            await _createGate.WaitAsync(cancellationToken);
+        }
+        catch (OperationCanceledException)
+        {
+            await TryMarkCreateFailedAsync(item, cancellationToken);
+            _registrar.Release(item.Scope, item.RunId, item.Kind);
+            completion.TrySetResult();
+            throw;
+        }
+
+        try
+        {
+            await ProcessWorkItemAndReleaseAsync(item, cancellationToken);
+        }
+        finally
+        {
+            _createGate.Release();
+            completion.TrySetResult();
+        }
+    }
+
+    private async Task ProcessExecuteOrReplayAsync(
+        ArchitectureRunAsyncOperationWorkItem item,
+        CancellationToken cancellationToken)
+    {
+        if (item.Kind == ArchitectureRunAsyncOperationKind.Execute)
+            await WaitForCreateIfNeededAsync(item, cancellationToken);
+
+        await _executeReplayGate.WaitAsync(cancellationToken);
+
+        try
+        {
+            await ProcessWorkItemAndReleaseAsync(item, cancellationToken);
+        }
+        finally
+        {
+            _executeReplayGate.Release();
+        }
+    }
+
+    private async Task WaitForCreateIfNeededAsync(
+        ArchitectureRunAsyncOperationWorkItem item,
+        CancellationToken cancellationToken)
+    {
+        string key = BuildCreateCompletionKey(item.Scope, item.RunId);
+        bool createInFlight = _registrar.IsRegistered(
+            item.Scope,
+            item.RunId,
+            ArchitectureRunAsyncOperationKind.Create);
+
+        if (!createInFlight && !_createCompleted.ContainsKey(key))
+            return;
+
+        TaskCompletionSource completion = GetCreateCompletion(item);
+        await completion.Task.WaitAsync(cancellationToken);
+    }
+
+    private TaskCompletionSource GetCreateCompletion(
+        ArchitectureRunAsyncOperationWorkItem item)
+    {
+        string key = BuildCreateCompletionKey(item.Scope, item.RunId);
+
+        return _createCompleted.GetOrAdd(
+            key,
+            static _ => new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously));
+    }
+
+    private static string BuildCreateCompletionKey(ScopeContext scope, string runId)
+    {
+        string normalized = Guid.TryParse(runId, out Guid parsed) ? parsed.ToString("N") : runId;
+
+        return $"{scope.TenantId:N}:{scope.WorkspaceId:N}:{scope.ProjectId:N}:{normalized}";
+    }
+
+    private void Track(Task task)
+    {
+        Guid id = Guid.NewGuid();
+        _inFlight[id] = task;
+        _ = task.ContinueWith(
+            static (completed, state) =>
+            {
+                (ConcurrentDictionary<Guid, Task> inFlight, Guid trackedId) =
+                    ((ConcurrentDictionary<Guid, Task>, Guid))state!;
+                inFlight.TryRemove(trackedId, out _);
+                _ = completed.Exception;
+            },
+            (_inFlight, id),
+            CancellationToken.None,
+            TaskContinuationOptions.ExecuteSynchronously,
+            TaskScheduler.Default);
+    }
+
+    private async Task DrainInFlightAsync()
+    {
+        Task[] tasks = _inFlight.Values.ToArray();
+
+        if (tasks.Length == 0)
+            return;
+
+        try
+        {
+            await Task.WhenAll(tasks);
+        }
+        catch (Exception) when (tasks.All(static t => t.IsCompleted))
+        {
+            // Observed via WhenAll; individual processors already logged failures.
         }
     }
 
@@ -70,6 +219,16 @@ public sealed class ArchitectureRunAsyncOperationHostedService(
                 "Async run operation failed for run {RunId} kind {Kind}.",
                 item.RunId,
                 item.Kind);
+
+            if (item.Kind == ArchitectureRunAsyncOperationKind.Create)
+                await TryMarkCreateFailedAsync(item, cancellationToken);
+        }
+        catch (OperationCanceledException)
+        {
+            if (item.Kind == ArchitectureRunAsyncOperationKind.Create)
+                await TryMarkCreateFailedAsync(item, CancellationToken.None);
+
+            throw;
         }
         finally
         {
@@ -77,19 +236,48 @@ public sealed class ArchitectureRunAsyncOperationHostedService(
         }
     }
 
-    private async Task ProcessWorkItemDetachedAsync(
+    private async Task TryMarkCreateFailedAsync(
         ArchitectureRunAsyncOperationWorkItem item,
         CancellationToken cancellationToken)
     {
+        if (!Guid.TryParse(item.RunId, out Guid runId))
+            return;
+
         try
         {
-            await ProcessWorkItemAndReleaseAsync(item, cancellationToken);
+            await using AsyncServiceScope scope = _scopeFactory.CreateAsyncScope();
+            IRunRepository runs = scope.ServiceProvider.GetRequiredService<IRunRepository>();
+            RunRecord? header = await runs.GetByIdAsync(item.Scope, runId, cancellationToken);
+
+            if (header is null)
+                return;
+
+            if (string.Equals(
+                    header.LegacyRunStatus,
+                    nameof(ArchitectureRunStatus.Committed),
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                return;
+            }
+
+            if (string.Equals(
+                    header.LegacyRunStatus,
+                    nameof(ArchitectureRunStatus.Failed),
+                    StringComparison.OrdinalIgnoreCase))
+            {
+                return;
+            }
+
+            header.LegacyRunStatus = nameof(ArchitectureRunStatus.Failed);
+            header.CompletedUtc = TimeProvider.System.UtcNowDateTime();
+            header.LastFailureReason = "Async create worker failed before coordination completed.";
+            await runs.UpdateAsync(header, cancellationToken);
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
-            _logger.LogError(
+            _logger.LogWarning(
                 ex,
-                "Detached async create processing failed for run {RunId}.",
+                "Failed to mark async create run {RunId} as Failed.",
                 item.RunId);
         }
     }
@@ -142,30 +330,6 @@ public sealed class ArchitectureRunAsyncOperationHostedService(
                 throw new InvalidOperationException($"Create work item run id '{item.RunId}' is not a valid GUID.");
             }
 
-            IAuditService createAudit = scope.ServiceProvider.GetRequiredService<IAuditService>();
-            string createOperationId = OperationIdCodec.ForRun(parsedCreateRunId);
-            await createAudit.LogAsync(
-                new AuditEvent
-                {
-                    EventType = AuditEventTypes.RequestCreated,
-                    ActorUserId = item.Actor,
-                    ActorUserName = item.Actor,
-                    TenantId = item.Scope.TenantId,
-                    WorkspaceId = item.Scope.WorkspaceId,
-                    ProjectId = item.Scope.ProjectId,
-                    RunId = parsedCreateRunId,
-                    CorrelationId = item.CorrelationId,
-                    DataJson = JsonSerializer.Serialize(
-                        new
-                        {
-                            requestId = item.CreateRequest.RequestId,
-                            operationId = createOperationId,
-                            asyncCreateAccepted = true
-                        },
-                        AuditJsonSerializationOptions.Instance)
-                },
-                cancellationToken);
-
             IArchitectureRunCreateOrchestrator createOrchestrator =
                 scope.ServiceProvider.GetRequiredService<IArchitectureRunCreateOrchestrator>();
 
@@ -173,7 +337,8 @@ public sealed class ArchitectureRunAsyncOperationHostedService(
                 parsedCreateRunId,
                 item.CreateRequest,
                 item.CreateIdempotency,
-                cancellationToken);
+                cancellationToken,
+                item.Actor);
 
             return;
         }
