@@ -1956,11 +1956,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** authority controllers; admin controllers
 - **paths:** ArchLucid.Api/Controllers/Authority/; ArchLucid.Api/Controllers/Admin/
 - **test-filter:** FullyQualifiedName~AuthorityController|FullyQualifiedName~AdminController
-- **hunts:** 6
-- **bugs-found:** 9
+- **hunts:** 7
+- **bugs-found:** 10
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24 — bulk outbox dead-letter retry ignored caller tenant scope; unrecognized replay mode ran destructive rebuild; invalid run id returned 400 on graph/pin reads
+- **last-hunt:** 2026-08-25
+- **last-bug:** 2026-08-25 — clarification-answer POST returned 200 for a missing/out-of-scope run that GET already 404s
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1971,6 +1971,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Invalid run id on authority graph/pin reads returned 400 while sibling `GetRun` returned 404 — `RunQueryController.GetInteractiveGraphSnapshot`, `RunsController.PinRun` (2026-08-24)
 - [x] Authority read returns artifacts for a run in another workspace — fixed ComparisonsController scoped load (2026-08-17)
 - [x] (valid-no-repro) Controller accepts a scope header that overrides the authenticated tenant — `ScopeIdentityBindingMiddleware` + `ScopeIdentityBindingIntegrationTests` (TB-072/TB-925) reject mismatched headers on Authority/Admin routes; `HttpScopeContextProvider` prefers claims over headers
+- [x] (proven) `ReviewClarificationQuestionsController.ApplyKnowledgeModelClarificationAnswers` returned 200/`appliedCount: 0` for a missing or out-of-scope `runId` while GET `clarification-questions` maps `RunNotFoundException` to 404 — **hit 2026-08-25:** applicator treats a null κ as a no-op; POST now reuses GET's existence check (`ApplyKnowledgeModelClarificationAnswers_missing_run_returns_404_like_get`).
+- [ ] (hunt-ready) `AuthorityReadsController.ListRuns` rejects `page > 1` without `cursor` (400) while `RunQueryController.ListRunsCore` falls through to offset paging and returns 200 for `GET /v1/architecture/reviews?page=2&pageSize=20`.
+- [ ] (hunt-ready) `RunsController.ReplayRun` catch ladder is only `RunNotFoundException` + `InvalidOperationException`; unknown `executionMode` `"DestroyEverything"` throws uncaught `ArgumentException` (500) while async `ReplayRunAsync` maps `ArgumentException` to 400 via `AuthorityRunProblemLadder`.
+- [ ] (hunt-ready) `RunsController.Intake.GetDraftRequestAsyncResult` maps `OperationState.Failed` to HTTP 400 while `OperationsController.GetOperation` returns 200 with `state: Failed` for the same `draft:{guid}` operation.
 
 ---
 
