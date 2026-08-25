@@ -4,6 +4,7 @@ using ArchLucid.Api.ProblemDetails;
 using ArchLucid.Application;
 using ArchLucid.Application.Architecture;
 using ArchLucid.Application.Common;
+using ArchLucid.Application.Operations;
 using ArchLucid.Application.Planning;
 using ArchLucid.Application.Operations;
 using ArchLucid.Application.Planning.AdvisoryDraft;
@@ -81,6 +82,40 @@ public sealed class RunsControllerTests
 
         ObjectResult bad = action.Should().BeOfType<ObjectResult>().Subject;
         bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+    }
+
+    [Fact]
+    public async Task DraftRequest_returns_bad_request_when_description_exceeds_chat_intake_max_length()
+    {
+        Mock<IArchitectureRequestDraftService> draftService = new();
+        RunsController controller = CreateController(draftService: draftService.Object);
+
+        DraftArchitectureRequestInput input = new() { FreeTextDescription = new string('x', 50_001) };
+
+        IActionResult action = await controller.DraftRequest(input, CancellationToken.None);
+
+        ObjectResult bad = action.Should().BeOfType<ObjectResult>().Subject;
+        bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        draftService.Verify(
+            s => s.DraftAsync(It.IsAny<DraftArchitectureRequestInput>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task DraftRequestAsync_returns_bad_request_when_description_exceeds_chat_intake_max_length()
+    {
+        Mock<IAdvisoryDraftOperationAcceptor> acceptor = new();
+        RunsController controller = CreateController();
+
+        DraftArchitectureRequestInput input = new() { FreeTextDescription = new string('x', 50_001) };
+
+        IActionResult action = await controller.DraftRequestAsync(input, acceptor.Object, CancellationToken.None);
+
+        ObjectResult bad = action.Should().BeOfType<ObjectResult>().Subject;
+        bad.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        acceptor.Verify(
+            a => a.AcceptAsync(It.IsAny<DraftArchitectureRequestInput>(), It.IsAny<ScopeContext>(), It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
     [Fact]

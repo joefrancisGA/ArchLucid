@@ -1964,9 +1964,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **bugs-found:** 10
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-25
-- **last-bug:** 2026-08-25 — advisory draft async result endpoint returned 400 ValidationFailed for background job failure while operations poll returned 200 Failed
+- **last-bug:** 2026-08-25 — draft intake endpoints omitted chat-intake max text length guard; advisory draft async result returned 400 for background failure
 - **related-pd-tb:** none
-- **code-changed-since:** yes
+- **code-changed-since:** no
 
 ### Hypotheses
 
@@ -1976,6 +1976,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] Authority read returns artifacts for a run in another workspace — fixed ComparisonsController scoped load (2026-08-17)
 - [x] (valid-no-repro) Controller accepts a scope header that overrides the authenticated tenant — `ScopeIdentityBindingMiddleware` + `ScopeIdentityBindingIntegrationTests` (TB-072/TB-925) reject mismatched headers on Authority/Admin routes; `HttpScopeContextProvider` prefers claims over headers
 - [x] (proven) `RunsController.GetDraftRequestAsyncResult` mapped `OperationState.Failed` to HTTP 400 `ValidationFailed` — background advisory-draft failure is an operational outcome, not bad client input; fixed 2026-08-25 to return 422 `BusinessRuleViolation` (`RunsControllerTests.GetDraftRequestAsyncResult_failed_operation_returns_422_not_400_validation`)
+- [x] (proven) `DraftRequest` / `DraftRequestAsync` omitted `MaximumChatIntakeTextLength` guard present on sibling `ChatIntake` — **hit 2026-08-25:** 50_001+ char paste reached LLM parse on draft routes while chat-intake returned 400 (`RunsControllerTests.DraftRequest_returns_bad_request_when_description_exceeds_chat_intake_max_length`, `DraftRequestAsync_returns_bad_request_when_description_exceeds_chat_intake_max_length`).
 
 ---
 
