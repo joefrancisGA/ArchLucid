@@ -2,7 +2,11 @@ using ArchLucid.Contracts.ArchitectureIntelligence;
 
 namespace ArchLucid.Application.ArchitectureIntelligence;
 
-public sealed class LlmBackedSpecialistReviewService : IAsyncSpecialistReviewService
+/// <summary>
+///     Unified specialist review adapter: sync path is heuristic-only; async path routes LLM vs heuristic.
+/// </summary>
+internal sealed class SpecialistReviewRouterService
+    : ISpecialistReviewService, IAsyncSpecialistReviewService
 {
     private static readonly IReadOnlyList<QualityDimension> DefaultDimensions =
     [
@@ -11,16 +15,24 @@ public sealed class LlmBackedSpecialistReviewService : IAsyncSpecialistReviewSer
         QualityDimension.Cost,
     ];
 
+    private readonly IArchitectureIntelligenceReviewRouter _router;
     private readonly IArchitectureIntelligenceLlmGateway _gateway;
     private readonly SpecialistReviewService _heuristicService;
 
-    public LlmBackedSpecialistReviewService(
+    public SpecialistReviewRouterService(
+        IArchitectureIntelligenceReviewRouter router,
         IArchitectureIntelligenceLlmGateway gateway,
         SpecialistReviewService heuristicService)
     {
+        _router = router ?? throw new ArgumentNullException(nameof(router));
         _gateway = gateway ?? throw new ArgumentNullException(nameof(gateway));
         _heuristicService = heuristicService ?? throw new ArgumentNullException(nameof(heuristicService));
     }
+
+    public SpecialistReviewResult Review(
+        ArchitectureKnowledgeModel model,
+        IReadOnlyList<QualityDimension>? dimensions = null) =>
+        _heuristicService.Review(model, dimensions);
 
     public async Task<SpecialistReviewResult> ReviewAsync(
         ArchitectureKnowledgeModel model,
@@ -28,6 +40,11 @@ public sealed class LlmBackedSpecialistReviewService : IAsyncSpecialistReviewSer
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(model);
+
+        if (!_router.IsLlmReviewEnabled)
+        {
+            return _heuristicService.Review(model, dimensions);
+        }
 
         IReadOnlyList<QualityDimension> reviewDimensions = dimensions ?? DefaultDimensions;
         List<SpecialistReviewFinding> findings = [];

@@ -24,4 +24,13 @@ public sealed class ArchitectureIntelligencePipelineOptions
         get;
         set;
     }
+
+    /// <summary>
+    ///     When false, specialist and adversarial review async paths use heuristic implementations only.
+    /// </summary>
+    public bool UseLlmReview
+    {
+        get;
+        set;
+    } = true;
 }

@@ -3,20 +3,35 @@ using ArchLucid.Contracts.ArchitectureIntelligence;
 namespace ArchLucid.Application.ArchitectureIntelligence;
 
 /// <summary>
-/// LLM-backed adversarial lane with heuristic fallback (mirrors specialist pattern).
+///     Unified adversarial review adapter: sync path is heuristic-only; async path routes LLM vs heuristic.
 /// </summary>
-public sealed class LlmBackedAdversarialReviewService : IAsyncAdversarialReviewService
+internal sealed class AdversarialReviewRouterService
+    : IAdversarialReviewService, IAsyncAdversarialReviewService
 {
+    private readonly IArchitectureIntelligenceReviewRouter _router;
     private readonly IArchitectureIntelligenceLlmGateway _gateway;
     private readonly AdversarialReviewService _heuristicService;
 
-    public LlmBackedAdversarialReviewService(
+    public AdversarialReviewRouterService(
+        IArchitectureIntelligenceReviewRouter router,
         IArchitectureIntelligenceLlmGateway gateway,
         AdversarialReviewService heuristicService)
     {
+        _router = router ?? throw new ArgumentNullException(nameof(router));
         _gateway = gateway ?? throw new ArgumentNullException(nameof(gateway));
         _heuristicService = heuristicService ?? throw new ArgumentNullException(nameof(heuristicService));
     }
+
+    public AdversarialReviewResult Review(IReadOnlyList<SpecialistReviewFinding> findings) =>
+        _heuristicService.Review(findings);
+
+    public AdversarialReviewResult Review(
+        IReadOnlyList<SpecialistReviewFinding> findings,
+        IReadOnlySet<string>? integrityPassedFindingIds) =>
+        _heuristicService.Review(findings, integrityPassedFindingIds);
+
+    public IReadOnlyList<string> ToOpenQuestions(AdversarialReviewResult adversarialResult) =>
+        _heuristicService.ToOpenQuestions(adversarialResult);
 
     public async Task<AdversarialReviewResult> ReviewAsync(
         IReadOnlyList<SpecialistReviewFinding> findings,
@@ -26,6 +41,11 @@ public sealed class LlmBackedAdversarialReviewService : IAsyncAdversarialReviewS
         ArgumentNullException.ThrowIfNull(findings);
 
         AdversarialReviewResult heuristic = _heuristicService.Review(findings, integrityPassedFindingIds);
+
+        if (!_router.IsLlmReviewEnabled)
+        {
+            return heuristic;
+        }
 
         List<SpecialistReviewFinding> challengeCandidates = findings
             .Where(finding => integrityPassedFindingIds is null
@@ -97,10 +117,5 @@ public sealed class LlmBackedAdversarialReviewService : IAsyncAdversarialReviewS
             Challenges = mergedChallenges,
             FalsePositiveRateByLane = heuristic.FalsePositiveRateByLane,
         };
-    }
-
-    public IReadOnlyList<string> ToOpenQuestions(AdversarialReviewResult adversarialResult)
-    {
-        return _heuristicService.ToOpenQuestions(adversarialResult);
     }
 }

@@ -44,6 +44,7 @@ internal static class ArchitectureIntelligenceServiceCollectionExtensions
     private static void RegisterCoreServices(IServiceCollection services)
     {
         services.AddScoped<IArchitectureIntelligenceLlmGateway, ArchitectureIntelligenceLlmGateway>();
+        services.AddScoped<IArchitectureIntelligenceReviewRouter, ArchitectureIntelligenceReviewRouter>();
 
         services.AddScoped<DifficultyBasedExtractionRouter>();
         services.AddScoped<IDifficultyBasedExtractionRouter>(static sp =>
@@ -51,8 +52,9 @@ internal static class ArchitectureIntelligenceServiceCollectionExtensions
         services.AddScoped<IAsyncArchitectureExtractionService, LlmBackedArchitectureExtractionService>();
 
         services.AddScoped<SpecialistReviewService>();
-        services.AddScoped<ISpecialistReviewService>(static sp => sp.GetRequiredService<SpecialistReviewService>());
-        services.AddScoped<IAsyncSpecialistReviewService, LlmBackedSpecialistReviewService>();
+        services.AddScoped<SpecialistReviewRouterService>();
+        services.AddScoped<ISpecialistReviewService>(static sp => sp.GetRequiredService<SpecialistReviewRouterService>());
+        services.AddScoped<IAsyncSpecialistReviewService>(static sp => sp.GetRequiredService<SpecialistReviewRouterService>());
 
         services.AddScoped<ArchitectureRecommendationEngine>();
         services.AddScoped<IArchitectureRecommendationEngine>(static sp =>
@@ -66,8 +68,9 @@ internal static class ArchitectureIntelligenceServiceCollectionExtensions
         services.AddScoped<IEvidenceValidationPipeline>(static sp =>
             new EvidenceValidationPipeline(sp.GetService<IArchitectureIntelligenceLlmGateway>()));
         services.AddScoped<AdversarialReviewService>();
-        services.AddScoped<IAdversarialReviewService>(static sp => sp.GetRequiredService<AdversarialReviewService>());
-        services.AddScoped<IAsyncAdversarialReviewService, LlmBackedAdversarialReviewService>();
+        services.AddScoped<AdversarialReviewRouterService>();
+        services.AddScoped<IAdversarialReviewService>(static sp => sp.GetRequiredService<AdversarialReviewRouterService>());
+        services.AddScoped<IAsyncAdversarialReviewService>(static sp => sp.GetRequiredService<AdversarialReviewRouterService>());
         services.AddScoped<IChangeImpactAnalyzer, ChangeImpactAnalyzer>();
         services.AddScoped<IArchitectureModelDiffApplier, ArchitectureModelDiffApplier>();
         services.AddScoped<IIncrementalReReviewService, IncrementalReReviewService>();
