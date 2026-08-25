@@ -1,0 +1,44 @@
+"use client";
+
+import Link from "next/link";
+
+import { Button } from "@/components/ui/button";
+import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer/buyer-facing-review-title";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
+import type { RunSummary } from "@/types/authority";
+
+export type RunsListContinueLastViewedRowProps = {
+  readonly run: RunSummary;
+};
+
+/** Pinned continue row for the most recently viewed architecture review. */
+export function RunsListContinueLastViewedRow(props: RunsListContinueLastViewedRowProps): React.JSX.Element {
+  const href = `/architecture/reviews/${encodeURIComponent(props.run.runId)}`;
+  const title = buyerFacingReviewTitleFromSummary(props.run);
+
+  return (
+    <section
+      aria-labelledby="runs-list-continue-last-viewed-heading"
+      className="mb-4 rounded-lg border border-teal-200 bg-teal-50/60 px-4 py-3 dark:border-teal-900/50 dark:bg-teal-950/20"
+      data-testid="runs-list-continue-last-viewed-row"
+    >
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="min-w-0">
+          <h2
+            id="runs-list-continue-last-viewed-heading"
+            className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}
+          >
+            Continue last viewed review
+          </h2>
+          <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
+            <span className="font-medium text-al-text-primary">{title}</span>
+          </p>
+        </div>
+        <Button type="button" variant="primary" size="sm" asChild data-testid="runs-list-continue-last-viewed-open">
+          <Link href={href}>Open review</Link>
+        </Button>
+      </div>
+    </section>
+  );
+}
