@@ -1193,11 +1193,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** API key auth; admin API key settings
 - **paths:** ArchLucid.Api/Authentication/ApiKeyAuthenticationHandler.cs; ArchLucid.Api/Services/Admin/AdminApiKeySettingsService.cs; ArchLucid.Api/Controllers/Admin/AdminApiKeySettingsController.cs
 - **test-filter:** FullyQualifiedName~ApiKeyAuthentication|FullyQualifiedName~AdminApiKeySettings
-- **hunts:** 3
-- **bugs-found:** 6
+- **hunts:** 4
+- **bugs-found:** 7
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-25
-- **last-bug:** 2026-08-25 — duplicate X-ArchLucid-Test-Actor-Name headers joined by comma broke governance actor override
+- **last-bug:** 2026-08-25 — DevelopmentBypassAll ignored governance test-actor header override
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1212,6 +1212,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Expired keys still authenticated at exact `ExpiresAt` timestamp — **hit 2026-08-24:** `IsKeyExpired` used `>` instead of `>=`; regression in `When_admin_key_expiry_is_exactly_now_returns_failure`
 - [x] (proven) Duplicate `X-Api-Key` headers broke authentication — **hit 2026-08-24:** `StringValues.ToString()` comma-joined multiple header values; now uses first non-empty value; regression in `When_enabled_true_and_duplicate_api_key_headers_use_first_value`
 - [x] (proven) Duplicate `X-ArchLucid-Test-Actor-Name` headers broke governance actor override — **hit 2026-08-25:** `ApplyTestActorHeaderOverrides` used `StringValues.ToString()` comma-join; now reuses `ExtractProvidedApiKey` for first non-empty segment; regression in `When_allow_test_actor_headers_and_duplicate_actor_name_headers_use_first_value`
+- [x] (proven) `DevelopmentBypassAll` ignored `X-ArchLucid-Test-Actor-Name` governance override — **hit 2026-08-25:** bypass branch returned `BuildSyntheticAdminClaims` directly instead of `BuildSuccessTicket`/`ApplyTestActorHeaderOverrides`; segregation E2E saw `DevUser` instead of peer actor; regression in `When_development_bypass_and_allow_test_actor_headers_overrides_display_name`
 
 ---
 
