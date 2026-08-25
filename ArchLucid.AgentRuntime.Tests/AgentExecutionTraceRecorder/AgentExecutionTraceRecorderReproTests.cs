@@ -454,6 +454,7 @@ public sealed class AgentExecutionTraceRecorderReproTests
         services.AddSingleton<IPromptRedactor, PromptRedactor>();
         services.AddSingleton<IAgentToolInvocationRecordWriter, NoOpAgentToolInvocationRecordWriter>();
         services.AddLogging(b => b.SetMinimumLevel(LogLevel.None));
+        services.AddScoped<IAgentExecutionTraceForensicPersistence, AgentExecutionTraceForensicPersistence>();
         services.AddScoped<AgentRuntime.AgentExecutionTraceRecorder>();
         ServiceProvider provider = services.BuildServiceProvider();
         IServiceScope scope = provider.CreateScope();

@@ -78,13 +78,17 @@ public sealed class AgentExecutionTraceRecorderSamplingParamsTests
             repo,
             cost.Object,
             Options.Create(new LlmCostEstimationOptions { Enabled = false }),
-            Options.Create(new AgentExecutionTraceStorageOptions()),
-            Mock.Of<IArtifactBlobStore>(),
-            new NoOpAuditService(),
             new FixedScopeProvider(),
             redactionMonitor.Object,
             redactor,
             new NoOpAgentToolInvocationRecordWriter(),
+            new AgentExecutionTraceForensicPersistence(
+                repo,
+                Options.Create(new AgentExecutionTraceStorageOptions()),
+                Mock.Of<IArtifactBlobStore>(),
+                new NoOpAuditService(),
+                new FixedScopeProvider(),
+                NullLogger<AgentExecutionTraceForensicPersistence>.Instance),
             NullLogger<AgentExecutionTraceRecorderImpl>.Instance);
     }
 
