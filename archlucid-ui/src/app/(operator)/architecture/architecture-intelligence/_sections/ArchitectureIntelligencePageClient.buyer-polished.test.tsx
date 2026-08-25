@@ -47,10 +47,9 @@ vi.mock("@/components/usability/PageContextualHelpButton", () => ({
 }));
 
 vi.mock("next/navigation", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("next/navigation")>();
+  const { extendNextNavigationVitestMock } = await import("@/testing/next-navigation-vitest-mock");
 
-  return {
-    ...actual,
+  return extendNextNavigationVitestMock(importOriginal, {
     useSearchParams: () => ({
       get: searchParamsGet,
       getAll: vi.fn(() => []),
@@ -62,8 +61,16 @@ vi.mock("next/navigation", async (importOriginal) => {
       values: vi.fn(),
       [Symbol.iterator]: vi.fn(),
     }),
-  };
+  });
 });
+
+vi.mock("@/components/WorkspaceActiveRunContext", () => ({
+  useWorkspaceActiveRun: () => ({ runId: "", activeRunId: "" }),
+}));
+
+vi.mock("@/components/AskRunIdPicker", () => ({
+  AskRunIdPicker: () => <div data-testid="ask-run-id-picker" />,
+}));
 
 describe("ArchitectureIntelligencePageClient buyer-polished shell", () => {
   beforeEach(() => {

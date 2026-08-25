@@ -93,10 +93,9 @@ vi.mock("@/hooks/use-llm-monthly-budget-execution-gate", () => ({
 }));
 
 vi.mock("next/navigation", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("next/navigation")>();
+  const { extendNextNavigationVitestMock } = await import("@/testing/next-navigation-vitest-mock");
 
-  return {
-    ...actual,
+  return extendNextNavigationVitestMock(importOriginal, {
     useSearchParams: () => ({
       get: searchParamsGet,
       getAll: vi.fn(() => []),
@@ -108,8 +107,16 @@ vi.mock("next/navigation", async (importOriginal) => {
       values: vi.fn(),
       [Symbol.iterator]: vi.fn(),
     }),
-  };
+  });
 });
+
+vi.mock("@/components/WorkspaceActiveRunContext", () => ({
+  useWorkspaceActiveRun: () => ({ runId: "", activeRunId: "" }),
+}));
+
+vi.mock("@/components/AskRunIdPicker", () => ({
+  AskRunIdPicker: () => <div data-testid="ask-run-id-picker" />,
+}));
 
 describe("ArchitectureIntelligencePageClient", () => {
   beforeEach(() => {
@@ -128,6 +135,11 @@ describe("ArchitectureIntelligencePageClient", () => {
     render(<ArchitectureIntelligencePageClient />);
 
     expect(screen.getByTestId("architecture-intelligence-page")).toBeInTheDocument();
+    expect(screen.getByTestId("architecture-intelligence-analysis-setup-progress")).toBeInTheDocument();
+    expect(screen.getByTestId("architecture-intelligence-analysis-setup-step-review")).toHaveAttribute(
+      "data-emphasized",
+      "true",
+    );
     expect(screen.getByTestId("architecture-intelligence-description")).toBeInTheDocument();
     expect(screen.getByTestId("architecture-intelligence-priorities")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Run architecture reasoning" })).toBeInTheDocument();
@@ -282,6 +294,7 @@ describe("ArchitectureIntelligencePageClient", () => {
     });
 
     expect(screen.getByText("Stale finding from previous review")).toBeInTheDocument();
+    expect(screen.getByTestId("architecture-intelligence-analysis-setup-step-analyze")).toHaveTextContent("Done");
 
     currentRunId = "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb";
     stubProductContextFetch(currentRunId, "Architecture for review B.");

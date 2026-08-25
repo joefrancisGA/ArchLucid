@@ -26,6 +26,11 @@ import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 import { ArchitectureIntelligencePickReviewBeforeAnalysisStrip } from "@/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligencePickReviewBeforeAnalysisStrip";
+import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
+import {
+  resolveArchitectureIntelligenceAnalysisEmphasizedStepId,
+  resolveArchitectureIntelligenceAnalysisSteps,
+} from "@/lib/architecture-intelligence-analysis-checklist";
 import { useArchitectureIntelligencePage } from "./use-architecture-intelligence-page";
 
 export function ArchitectureIntelligencePageClient() {
@@ -64,6 +69,18 @@ export function ArchitectureIntelligencePageClient() {
     onInterviewAnswerChange,
     continueWithAnswers,
   } = useArchitectureIntelligencePage();
+
+  const reviewPicked = (activeRunId?.trim() ?? "").length > 0;
+  const descriptionWritten = architectureDescription.trim().length > 0;
+  const analysisComplete = runState?.kind === "reasoning";
+  const analysisChecklistInput = {
+    reviewPicked,
+    descriptionWritten,
+    analysisComplete,
+  };
+  const analysisSteps = resolveArchitectureIntelligenceAnalysisSteps(analysisChecklistInput);
+  const analysisEmphasizedStepId =
+    resolveArchitectureIntelligenceAnalysisEmphasizedStepId(analysisChecklistInput);
 
   return (
     <OperatorPageContainer
@@ -124,6 +141,12 @@ export function ArchitectureIntelligencePageClient() {
               onSelectReview={onSelectReview}
             />
           ) : null}
+          <IntegrationConnectChecklist
+            title="Analysis checklist"
+            steps={analysisSteps}
+            emphasizedStepId={analysisEmphasizedStepId}
+            testIdPrefix="architecture-intelligence-analysis"
+          />
           <div className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="architecture-description">Architecture description</Label>
