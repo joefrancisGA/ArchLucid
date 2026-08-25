@@ -29,12 +29,8 @@ public sealed class ArchitectureFindingJsonConverter : JsonConverter<Architectur
         if (root.TryGetProperty("findingId", out JsonElement findingId) && findingId.ValueKind == JsonValueKind.String)
             finding.FindingId = findingId.GetString() ?? finding.FindingId;
 
-        if (root.TryGetProperty("sourceAgent", out JsonElement sourceAgent) &&
-            sourceAgent.ValueKind == JsonValueKind.String &&
-            Enum.TryParse(sourceAgent.GetString(), ignoreCase: true, out AgentType agentType))
-        {
-            finding.SourceAgent = agentType;
-        }
+        if (root.TryGetProperty("sourceAgent", out JsonElement sourceAgent))
+            finding.SourceAgent = ReadDefinedEnum<AgentType>(sourceAgent, "source agent");
 
         if (root.TryGetProperty("severity", out JsonElement severityElement))
             finding.Severity = ReadSeverity(severityElement);
@@ -48,12 +44,8 @@ public sealed class ArchitectureFindingJsonConverter : JsonConverter<Architectur
             finding.PolicyRuleId = policyRuleId.GetString();
         }
 
-        if (root.TryGetProperty("enforcementTier", out JsonElement enforcementTier) &&
-            enforcementTier.ValueKind == JsonValueKind.String &&
-            Enum.TryParse(enforcementTier.GetString(), ignoreCase: true, out FindingEnforcementTier tier))
-        {
-            finding.EnforcementTier = tier;
-        }
+        if (root.TryGetProperty("enforcementTier", out JsonElement enforcementTier))
+            finding.EnforcementTier = ReadDefinedEnum<FindingEnforcementTier>(enforcementTier, "finding enforcement tier");
 
         finding.Message = ReadMessage(root);
 
@@ -113,19 +105,11 @@ public sealed class ArchitectureFindingJsonConverter : JsonConverter<Architectur
             finding.InsightDensityScore = insightDensityScore;
         }
 
-        if (root.TryGetProperty("treatment", out JsonElement treatmentElement) &&
-            treatmentElement.ValueKind == JsonValueKind.String &&
-            Enum.TryParse(treatmentElement.GetString(), ignoreCase: true, out FindingTreatment treatment))
-        {
-            finding.Treatment = treatment;
-        }
+        if (root.TryGetProperty("treatment", out JsonElement treatmentElement))
+            finding.Treatment = ReadOptionalDefinedEnum<FindingTreatment>(treatmentElement, "finding treatment");
 
-        if (root.TryGetProperty("classification", out JsonElement classificationElement) &&
-            classificationElement.ValueKind == JsonValueKind.String &&
-            Enum.TryParse(classificationElement.GetString(), ignoreCase: true, out FindingClassification classification))
-        {
-            finding.Classification = classification;
-        }
+        if (root.TryGetProperty("classification", out JsonElement classificationElement))
+            finding.Classification = ReadOptionalDefinedEnum<FindingClassification>(classificationElement, "finding classification");
 
         finding.WhyThisIsNotGeneric = ReadOptionalStringProperty(root, "whyThisIsNotGeneric");
         finding.PrincipalArchitectValue = ReadOptionalStringProperty(root, "principalArchitectValue");
@@ -220,5 +204,39 @@ public sealed class ArchitectureFindingJsonConverter : JsonConverter<Architectur
             "high" => FindingSeverity.Error,
             _ => throw new JsonException($"Unknown finding severity value '{raw}'."),
         };
+    }
+
+    private static T ReadDefinedEnum<T>(JsonElement element, string fieldLabel)
+        where T : struct, Enum
+    {
+        if (element.ValueKind == JsonValueKind.Number && element.TryGetInt32(out int numeric))
+        {
+            if (!Enum.IsDefined(typeof(T), numeric))
+                throw new JsonException($"Unknown {fieldLabel} value '{numeric}'.");
+
+            return (T)Enum.ToObject(typeof(T), numeric);
+        }
+
+        if (element.ValueKind != JsonValueKind.String)
+            throw new JsonException($"Expected string or number for {fieldLabel}.");
+
+        string? raw = element.GetString();
+
+        if (string.IsNullOrWhiteSpace(raw))
+            return default;
+
+        if (Enum.TryParse(raw, ignoreCase: true, out T parsed))
+            return parsed;
+
+        throw new JsonException($"Unknown {fieldLabel} value '{raw}'.");
+    }
+
+    private static T? ReadOptionalDefinedEnum<T>(JsonElement element, string fieldLabel)
+        where T : struct, Enum
+    {
+        if (element.ValueKind == JsonValueKind.Null)
+            return null;
+
+        return ReadDefinedEnum<T>(element, fieldLabel);
     }
 }

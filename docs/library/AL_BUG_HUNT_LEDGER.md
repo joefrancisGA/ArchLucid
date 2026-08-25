@@ -1746,6 +1746,7 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [ ] (hunt-ready) Global API enum conversion still permits out-of-range numeric `StructuralExecutionMode`, `FindingEnforcementTier`, `FindingHumanReviewStatus`, and `FindingTreatment`; unlike protected sibling enums, these types have no defined-value converter, so ordinal `99` may reach downstream switches.
 - [ ] (hunt-ready) `FindingJsonConverter` reads `humanReviewStatus` only when the token is a string; persisted JSON with numeric `1` leaves the default `NotRequired`, silently downgrading pending review state on round trip.
 - [ ] (hunt-ready) `AgentResultClaimListJsonConverter` flattens structured claim text but ignores an entry-level `evidenceRefs` array, so `{"detail":"Subnet missing","evidenceRefs":["pol-123"]}` loses its evidence linkage.
+- [x] (proven) `ArchitectureFindingJsonConverter` ignored numeric ordinals for `sourceAgent`, `enforcementTier`, `treatment`, and `classification` — string-only reads left defaults (`PolicyViolation`, `AgentType` 0); fixed 2026-08-25 with shared `ReadDefinedEnum` helpers (`ArchitectureFindingJsonConverterTests`).
 
 ---
 
