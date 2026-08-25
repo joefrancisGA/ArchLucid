@@ -30,6 +30,7 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
     private readonly IReviewResultCache _reviewResultCache;
     private readonly IArchitectureIntelligenceReviewTierBudgetGuard _tierBudgetGuard;
     private readonly IArchitectureIntelligencePersistence? _persistence;
+    private readonly IArchitectureKnowledgeModelAccess? _knowledgeModelAccess;
     private readonly ITechnologyLedgerRepository? _technologyLedgerRepository;
     private readonly IScopeContextProvider? _scopeContextProvider;
 
@@ -52,6 +53,7 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
         IReviewResultCache reviewResultCache,
         IArchitectureIntelligenceReviewTierBudgetGuard tierBudgetGuard,
         IArchitectureIntelligencePersistence? persistence = null,
+        IArchitectureKnowledgeModelAccess? knowledgeModelAccess = null,
         ITechnologyLedgerRepository? technologyLedgerRepository = null,
         IScopeContextProvider? scopeContextProvider = null)
     {
@@ -74,6 +76,7 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
         _reviewResultCache = reviewResultCache ?? throw new ArgumentNullException(nameof(reviewResultCache));
         _tierBudgetGuard = tierBudgetGuard ?? throw new ArgumentNullException(nameof(tierBudgetGuard));
         _persistence = persistence;
+        _knowledgeModelAccess = knowledgeModelAccess;
         _technologyLedgerRepository = technologyLedgerRepository;
         _scopeContextProvider = scopeContextProvider;
     }
@@ -128,13 +131,9 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
         List<string> storedArtifactIds = [];
 
         if (request.ContinueFromExistingRun
-            && _persistence is not null
             && !string.IsNullOrWhiteSpace(request.RunId))
         {
-            ArchitectureKnowledgeModel? existing = await _persistence.GetModelByRunIdAsync(
-                tenantId,
-                request.RunId,
-                cancellationToken);
+            ArchitectureKnowledgeModel? existing = await TryLoadExistingModelAsync(tenantId, request.RunId, cancellationToken);
 
             if (existing is null)
             {
@@ -308,10 +307,7 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
                 publishDecision);
         }
 
-        if (_persistence is not null)
-        {
-            await _persistence.SaveModelAsync(model, cancellationToken);
-        }
+        await SaveModelAsync(request.RunId, model, cancellationToken);
 
         string workspaceId = request.WorkspaceId ?? tenantId;
         string projectId = request.ProjectId ?? tenantId;
@@ -620,5 +616,50 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
         }
 
         return ReReviewTrigger.MajorTopologyChange;
+    }
+
+    private async Task<ArchitectureKnowledgeModel?> TryLoadExistingModelAsync(
+        string tenantId,
+        string runId,
+        CancellationToken cancellationToken)
+    {
+        if (_knowledgeModelAccess is not null
+            && _scopeContextProvider is not null
+            && Guid.TryParse(runId, out Guid parsedRunId))
+        {
+            ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+
+            return await _knowledgeModelAccess
+                .GetForRunAsync(scope, parsedRunId, cancellationToken)
+                .ConfigureAwait(false);
+        }
+
+        if (_persistence is null)
+            return null;
+
+        return await _persistence
+            .GetModelByRunIdAsync(tenantId, runId, cancellationToken)
+            .ConfigureAwait(false);
+    }
+
+    private async Task SaveModelAsync(
+        string? runId,
+        ArchitectureKnowledgeModel model,
+        CancellationToken cancellationToken)
+    {
+        if (_knowledgeModelAccess is not null
+            && _scopeContextProvider is not null
+            && !string.IsNullOrWhiteSpace(runId)
+            && Guid.TryParse(runId, out Guid parsedRunId))
+        {
+            ScopeContext scope = _scopeContextProvider.GetCurrentScope();
+            await _knowledgeModelAccess.SaveForRunAsync(scope, parsedRunId, model, cancellationToken)
+                .ConfigureAwait(false);
+
+            return;
+        }
+
+        if (_persistence is not null)
+            await _persistence.SaveModelAsync(model, cancellationToken).ConfigureAwait(false);
     }
 }

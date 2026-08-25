@@ -18,11 +18,11 @@ public interface IArchitectureIntelligenceAuthorityFindingsContributor
 }
 
 public sealed class ArchitectureIntelligenceAuthorityFindingsContributor(
-    IArchitectureIntelligencePersistence? persistence,
+    IArchitectureKnowledgeModelAccess? knowledgeModelAccess,
     ISpecialistReviewService specialistReviewService,
     IAdversarialReviewService adversarialReviewService) : IArchitectureIntelligenceAuthorityFindingsContributor
 {
-    private readonly IArchitectureIntelligencePersistence? _persistence = persistence;
+    private readonly IArchitectureKnowledgeModelAccess? _knowledgeModelAccess = knowledgeModelAccess;
 
     private readonly ISpecialistReviewService _specialistReviewService =
         specialistReviewService ?? throw new ArgumentNullException(nameof(specialistReviewService));
@@ -38,11 +38,11 @@ public sealed class ArchitectureIntelligenceAuthorityFindingsContributor(
         ArgumentNullException.ThrowIfNull(scope);
         ArgumentException.ThrowIfNullOrWhiteSpace(runId);
 
-        if (_persistence is null)
+        if (_knowledgeModelAccess is null || !Guid.TryParse(runId, out Guid parsedRunId))
             return [];
 
-        ArchitectureKnowledgeModel? model = await _persistence
-            .GetModelByRunIdAsync(scope.TenantId.ToString("D"), runId, cancellationToken)
+        ArchitectureKnowledgeModel? model = await _knowledgeModelAccess
+            .GetForRunAsync(scope, parsedRunId, cancellationToken)
             .ConfigureAwait(false);
 
         if (model is null)

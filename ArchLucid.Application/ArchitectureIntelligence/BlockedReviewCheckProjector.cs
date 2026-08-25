@@ -18,9 +18,9 @@ public interface IBlockedReviewCheckProjector
 }
 
 public sealed class BlockedReviewCheckProjector(
-    IArchitectureIntelligencePersistence? persistence) : IBlockedReviewCheckProjector
+    IArchitectureKnowledgeModelAccess? knowledgeModelAccess) : IBlockedReviewCheckProjector
 {
-    private readonly IArchitectureIntelligencePersistence? _persistence = persistence;
+    private readonly IArchitectureKnowledgeModelAccess? _knowledgeModelAccess = knowledgeModelAccess;
 
     public async Task<int> ProjectBlockedChecksAsync(
         ScopeContext scope,
@@ -32,11 +32,14 @@ public sealed class BlockedReviewCheckProjector(
         ArgumentException.ThrowIfNullOrWhiteSpace(runId);
         ArgumentNullException.ThrowIfNull(gateResult);
 
-        if (_persistence is null || !gateResult.Blocked)
+        if (_knowledgeModelAccess is null || !gateResult.Blocked)
             return 0;
 
-        ArchitectureKnowledgeModel? model = await _persistence
-            .GetModelByRunIdAsync(scope.TenantId.ToString("D"), runId, cancellationToken)
+        if (!Guid.TryParse(runId, out Guid parsedRunId))
+            return 0;
+
+        ArchitectureKnowledgeModel? model = await _knowledgeModelAccess
+            .GetForRunAsync(scope, parsedRunId, cancellationToken)
             .ConfigureAwait(false);
 
         if (model is null)
@@ -77,7 +80,8 @@ public sealed class BlockedReviewCheckProjector(
         {
             model.IsProvisionalSynthesis = true;
             model.UpdatedUtc = TimeProvider.System.GetUtcNow().UtcDateTime;
-            await _persistence.SaveModelAsync(model, cancellationToken).ConfigureAwait(false);
+            await _knowledgeModelAccess.SaveForRunAsync(scope, parsedRunId, model, cancellationToken)
+                .ConfigureAwait(false);
         }
 
         return added;

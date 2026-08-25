@@ -13,7 +13,7 @@ public sealed class ReviewClarificationQuestionService(
     IAuthorityQueryService authorityQueryService,
     ReviewClarificationQuestionDeriver questionDeriver,
     ReviewClarificationDeltaComputer deltaComputer,
-    IArchitectureIntelligencePersistence? architectureIntelligencePersistence = null) : IReviewClarificationQuestionService
+    IArchitectureKnowledgeModelAccess? knowledgeModelAccess = null) : IReviewClarificationQuestionService
 {
     private readonly IAuthorityQueryService _authorityQueryService =
         authorityQueryService ?? throw new ArgumentNullException(nameof(authorityQueryService));
@@ -24,8 +24,7 @@ public sealed class ReviewClarificationQuestionService(
     private readonly ReviewClarificationDeltaComputer _deltaComputer =
         deltaComputer ?? throw new ArgumentNullException(nameof(deltaComputer));
 
-    private readonly IArchitectureIntelligencePersistence? _architectureIntelligencePersistence =
-        architectureIntelligencePersistence;
+    private readonly IArchitectureKnowledgeModelAccess? _knowledgeModelAccess = knowledgeModelAccess;
 
     public async Task<ReviewClarificationQuestionsResponse> GetQuestionsAsync(
         ScopeContext scope,
@@ -85,11 +84,11 @@ public sealed class ReviewClarificationQuestionService(
         Guid runId,
         CancellationToken cancellationToken)
     {
-        if (_architectureIntelligencePersistence is null)
+        if (_knowledgeModelAccess is null)
             return [];
 
-        ArchitectureKnowledgeModel? model = await _architectureIntelligencePersistence
-            .GetModelByRunIdAsync(scope.TenantId.ToString("D"), runId.ToString("N"), cancellationToken)
+        ArchitectureKnowledgeModel? model = await _knowledgeModelAccess
+            .GetForRunAsync(scope, runId, cancellationToken)
             .ConfigureAwait(false);
 
         return KnowledgeModelInterviewQuestionDeriver.Derive(model);

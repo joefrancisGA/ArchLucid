@@ -27,16 +27,13 @@ public sealed class SelectiveExecuteIncrementalReReviewCoordinatorTests
     [Fact]
     public async Task TryRunAfterSelectiveExecuteAsync_returns_null_when_no_knowledge_model()
     {
-        Mock<IArchitectureIntelligencePersistence> persistence = new();
-        persistence
-            .Setup(p => p.GetModelByRunIdAsync(
-                TestScope.TenantId.ToString("D"),
-                It.IsAny<string>(),
-                It.IsAny<CancellationToken>()))
+        Mock<IArchitectureKnowledgeModelAccess> knowledgeModelAccess = new();
+        knowledgeModelAccess
+            .Setup(k => k.GetForRunAsync(TestScope, It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((ArchitectureKnowledgeModel?)null);
 
         SelectiveExecuteIncrementalReReviewCoordinator sut = CreateSut(
-            persistence.Object,
+            knowledgeModelAccess.Object,
             taskRepository: Mock.Of<IAgentTaskRepository>());
 
         IncrementalReReviewResult? result = await sut.TryRunAfterSelectiveExecuteAsync(
@@ -50,7 +47,7 @@ public sealed class SelectiveExecuteIncrementalReReviewCoordinatorTests
     [Fact]
     public async Task TryRunAfterSelectiveExecuteAsync_runs_scoped_re_review_for_topology()
     {
-        string runId = "aaaaaaaa11112222333344445555666677778888";
+        string runId = Guid.NewGuid().ToString("N");
         string taskId = "task-topo";
 
         ArchitectureKnowledgeModel model = new()
@@ -69,9 +66,9 @@ public sealed class SelectiveExecuteIncrementalReReviewCoordinatorTests
             ],
         };
 
-        Mock<IArchitectureIntelligencePersistence> persistence = new();
-        persistence
-            .Setup(p => p.GetModelByRunIdAsync(TestScope.TenantId.ToString("D"), runId, It.IsAny<CancellationToken>()))
+        Mock<IArchitectureKnowledgeModelAccess> knowledgeModelAccess = new();
+        knowledgeModelAccess
+            .Setup(k => k.GetForRunAsync(TestScope, It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(model);
 
         Mock<IAgentTaskRepository> taskRepo = new();
@@ -113,7 +110,7 @@ public sealed class SelectiveExecuteIncrementalReReviewCoordinatorTests
             .Returns(Task.CompletedTask);
 
         SelectiveExecuteIncrementalReReviewCoordinator sut = CreateSut(
-            persistence.Object,
+            knowledgeModelAccess.Object,
             taskRepo.Object,
             stages.Object,
             audit.Object);
@@ -138,7 +135,7 @@ public sealed class SelectiveExecuteIncrementalReReviewCoordinatorTests
     [Fact]
     public async Task TryRunAfterSelectiveExecuteAsync_triggers_full_re_review_when_critic_forced()
     {
-        string runId = "bbbbbbbb11112222333344445555666677778888";
+        string runId = Guid.NewGuid().ToString("N");
         ArchitectureKnowledgeModel model = new()
         {
             ModelId = "model-2",
@@ -155,9 +152,9 @@ public sealed class SelectiveExecuteIncrementalReReviewCoordinatorTests
             ],
         };
 
-        Mock<IArchitectureIntelligencePersistence> persistence = new();
-        persistence
-            .Setup(p => p.GetModelByRunIdAsync(TestScope.TenantId.ToString("D"), runId, It.IsAny<CancellationToken>()))
+        Mock<IArchitectureKnowledgeModelAccess> knowledgeModelAccess = new();
+        knowledgeModelAccess
+            .Setup(k => k.GetForRunAsync(TestScope, It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(model);
 
         Mock<IAgentTaskRepository> taskRepo = new();
@@ -189,7 +186,7 @@ public sealed class SelectiveExecuteIncrementalReReviewCoordinatorTests
             .Returns(Task.CompletedTask);
 
         SelectiveExecuteIncrementalReReviewCoordinator sut = CreateSut(
-            persistence.Object,
+            knowledgeModelAccess.Object,
             taskRepo.Object,
             stages.Object,
             Mock.Of<IAuditService>());
@@ -204,7 +201,7 @@ public sealed class SelectiveExecuteIncrementalReReviewCoordinatorTests
     }
 
     private static SelectiveExecuteIncrementalReReviewCoordinator CreateSut(
-        IArchitectureIntelligencePersistence persistence,
+        IArchitectureKnowledgeModelAccess knowledgeModelAccess,
         IAgentTaskRepository? taskRepository = null,
         IRunStageOutcomesRepository? stageOutcomesRepository = null,
         IAuditService? auditService = null)
@@ -215,7 +212,7 @@ public sealed class SelectiveExecuteIncrementalReReviewCoordinatorTests
         return new SelectiveExecuteIncrementalReReviewCoordinator(
             scopeProvider.Object,
             taskRepository ?? Mock.Of<IAgentTaskRepository>(),
-            persistence,
+            knowledgeModelAccess,
             new IncrementalReReviewService(),
             new SpecialistReviewService(),
             stageOutcomesRepository ?? Mock.Of<IRunStageOutcomesRepository>(),

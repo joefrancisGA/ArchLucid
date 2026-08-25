@@ -21,7 +21,7 @@ public sealed class PreFinalizeChecklistService(
     IFindingEvidenceLinkageFindingEngine findingEvidenceLinkageFindingEngine,
     IOptions<FindingEvidenceLinkageFindingEngineOptions> findingEvidenceLinkageFindingEngineOptions,
     IPreCommitGovernanceGate preCommitGovernanceGate,
-    IArchitectureIntelligencePersistence? architectureIntelligencePersistence,
+    IArchitectureKnowledgeModelAccess? knowledgeModelAccess,
     IArchitectureIntelligenceFinalizeTrustEvaluator? finalizeTrustEvaluator = null,
     IBlockedReviewCheckProjector? blockedReviewCheckProjector = null,
     ISpecialistReviewService? specialistReviewService = null) : IPreFinalizeChecklistService
@@ -48,8 +48,7 @@ public sealed class PreFinalizeChecklistService(
     private readonly IPreCommitGovernanceGate _preCommitGovernanceGate =
         preCommitGovernanceGate ?? throw new ArgumentNullException(nameof(preCommitGovernanceGate));
 
-    private readonly IArchitectureIntelligencePersistence? _architectureIntelligencePersistence =
-        architectureIntelligencePersistence;
+    private readonly IArchitectureKnowledgeModelAccess? _knowledgeModelAccess = knowledgeModelAccess;
 
     private readonly IArchitectureIntelligenceFinalizeTrustEvaluator? _finalizeTrustEvaluator =
         finalizeTrustEvaluator;
@@ -141,7 +140,9 @@ public sealed class PreFinalizeChecklistService(
         FindingsSnapshot? snapshot =
             await _findingsSnapshotRepository.GetByIdAsync(scope, snapshotId, cancellationToken).ConfigureAwait(false);
 
-        return snapshot?.Findings is { Count: > 0 } ? snapshot.Findings.ToList() : [];
+        return snapshot?.Findings is { Count: > 0 }
+            ? AuthorityFindingRollupFilter.ForAuthorityRollup(snapshot.Findings)
+            : [];
     }
 
     private async Task<FindingsSnapshot?> LoadFindingsSnapshotAsync(
@@ -248,7 +249,7 @@ public sealed class PreFinalizeChecklistService(
         string runId,
         CancellationToken cancellationToken)
     {
-        if (_architectureIntelligencePersistence is null)
+        if (_knowledgeModelAccess is null || !Guid.TryParse(runId, out Guid parsedRunId))
         {
             return new PreFinalizeChecklistItem
             {
@@ -260,8 +261,8 @@ public sealed class PreFinalizeChecklistService(
             };
         }
 
-        ArchitectureKnowledgeModel? model = await _architectureIntelligencePersistence
-            .GetModelByRunIdAsync(scope.TenantId.ToString("D"), runId, cancellationToken)
+        ArchitectureKnowledgeModel? model = await _knowledgeModelAccess
+            .GetForRunAsync(scope, parsedRunId, cancellationToken)
             .ConfigureAwait(false);
 
         if (model is null || !model.IsProvisionalSynthesis)
@@ -343,12 +344,13 @@ public sealed class PreFinalizeChecklistService(
         CancellationToken cancellationToken)
     {
         if (_finalizeTrustEvaluator is null
-            || _architectureIntelligencePersistence is null
-            || _specialistReviewService is null)
+            || _knowledgeModelAccess is null
+            || _specialistReviewService is null
+            || !Guid.TryParse(runId, out Guid parsedRunId))
             return;
 
-        ArchitectureKnowledgeModel? model = await _architectureIntelligencePersistence
-            .GetModelByRunIdAsync(scope.TenantId.ToString("D"), runId, cancellationToken)
+        ArchitectureKnowledgeModel? model = await _knowledgeModelAccess
+            .GetForRunAsync(scope, parsedRunId, cancellationToken)
             .ConfigureAwait(false);
 
         if (model is null)

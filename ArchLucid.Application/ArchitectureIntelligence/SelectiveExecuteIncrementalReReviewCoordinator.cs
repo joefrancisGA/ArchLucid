@@ -14,7 +14,7 @@ namespace ArchLucid.Application.ArchitectureIntelligence;
 public sealed class SelectiveExecuteIncrementalReReviewCoordinator(
     IScopeContextProvider scopeContextProvider,
     IAgentTaskRepository agentTaskRepository,
-    IArchitectureIntelligencePersistence? architectureIntelligencePersistence,
+    IArchitectureKnowledgeModelAccess? architectureKnowledgeModelAccess,
     IIncrementalReReviewService incrementalReReviewService,
     ISpecialistReviewService specialistReviewService,
     IRunStageOutcomesRepository runStageOutcomesRepository,
@@ -29,8 +29,8 @@ public sealed class SelectiveExecuteIncrementalReReviewCoordinator(
     private readonly IAgentTaskRepository _agentTaskRepository =
         agentTaskRepository ?? throw new ArgumentNullException(nameof(agentTaskRepository));
 
-    private readonly IArchitectureIntelligencePersistence? _architectureIntelligencePersistence =
-        architectureIntelligencePersistence;
+    private readonly IArchitectureKnowledgeModelAccess? _architectureKnowledgeModelAccess =
+        architectureKnowledgeModelAccess;
 
     private readonly IIncrementalReReviewService _incrementalReReviewService =
         incrementalReReviewService ?? throw new ArgumentNullException(nameof(incrementalReReviewService));
@@ -55,7 +55,7 @@ public sealed class SelectiveExecuteIncrementalReReviewCoordinator(
         ArgumentException.ThrowIfNullOrWhiteSpace(runId);
         ArgumentNullException.ThrowIfNull(request);
 
-        if (_architectureIntelligencePersistence is null)
+        if (_architectureKnowledgeModelAccess is null || !Guid.TryParse(runId, out Guid parsedRunId))
             return null;
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
@@ -69,8 +69,8 @@ public sealed class SelectiveExecuteIncrementalReReviewCoordinator(
         IReadOnlyList<AgentTask> forcedTasks = SelectiveAgentExecutePlanner.ResolveTasksToForce(scheduledTasks, request);
 
         ArchitectureKnowledgeModel? model =
-            await _architectureIntelligencePersistence
-                .GetModelByRunIdAsync(scope.TenantId.ToString("D"), runId, cancellationToken)
+            await _architectureKnowledgeModelAccess
+                .GetForRunAsync(scope, parsedRunId, cancellationToken)
                 .ConfigureAwait(false);
 
         if (model is null)

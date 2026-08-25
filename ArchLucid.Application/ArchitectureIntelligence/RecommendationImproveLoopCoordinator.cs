@@ -43,7 +43,7 @@ public sealed class RecommendationImproveLoopResult
 
 public sealed class RecommendationImproveLoopCoordinator(
     IScopeContextProvider scopeContextProvider,
-    IArchitectureIntelligencePersistence? persistence,
+    IArchitectureKnowledgeModelAccess? knowledgeModelAccess,
     IArchitectureModelDiffApplier diffApplier,
     IChangeImpactAnalyzer changeImpactAnalyzer,
     IIncrementalReReviewService incrementalReReviewService,
@@ -53,7 +53,7 @@ public sealed class RecommendationImproveLoopCoordinator(
     private readonly IScopeContextProvider _scopeContextProvider =
         scopeContextProvider ?? throw new ArgumentNullException(nameof(scopeContextProvider));
 
-    private readonly IArchitectureIntelligencePersistence? _persistence = persistence;
+    private readonly IArchitectureKnowledgeModelAccess? _knowledgeModelAccess = knowledgeModelAccess;
 
     private readonly IArchitectureModelDiffApplier _diffApplier =
         diffApplier ?? throw new ArgumentNullException(nameof(diffApplier));
@@ -75,14 +75,14 @@ public sealed class RecommendationImproveLoopCoordinator(
     {
         ArgumentNullException.ThrowIfNull(recommendation);
 
-        if (_persistence is null || recommendation.RunId == Guid.Empty)
+        if (_knowledgeModelAccess is null || recommendation.RunId == Guid.Empty)
             return null;
 
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
-        string runId = recommendation.RunId.ToString("D");
+        Guid runId = recommendation.RunId;
 
-        ArchitectureKnowledgeModel? model = await _persistence
-            .GetModelByRunIdAsync(scope.TenantId.ToString("D"), runId, cancellationToken)
+        ArchitectureKnowledgeModel? model = await _knowledgeModelAccess
+            .GetForRunAsync(scope, runId, cancellationToken)
             .ConfigureAwait(false);
 
         if (model is null)
@@ -97,7 +97,8 @@ public sealed class RecommendationImproveLoopCoordinator(
         };
 
         ArchitectureModelDiff diff = _diffApplier.ApplyRecommendation(model, architectureRecommendation);
-        await _persistence.SaveModelAsync(diff.AfterModel, cancellationToken).ConfigureAwait(false);
+        await _knowledgeModelAccess.SaveForRunAsync(scope, runId, diff.AfterModel, cancellationToken)
+            .ConfigureAwait(false);
 
         ChangeImpactResult impact = _changeImpactAnalyzer.Analyze(diff, architectureRecommendation);
 

@@ -17,6 +17,7 @@ public sealed class AuthorityPipelineGraphStage(
     IAuthorityPipelineStagePersistence stagePersistence,
     ILogger<AuthorityPipelineGraphStage> logger,
     IArchitectureIntelligencePersistence? architectureIntelligencePersistence = null,
+    IArchitectureKnowledgeModelAccess? knowledgeModelAccess = null,
     IArchitectureKnowledgeModelGraphProjector? knowledgeModelGraphProjector = null) : IAuthorityPipelineGraphStage
 {
     private readonly IKnowledgeGraphService _knowledgeGraphService =
@@ -31,8 +32,7 @@ public sealed class AuthorityPipelineGraphStage(
     private readonly ILogger<AuthorityPipelineGraphStage> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
 
-    private readonly IArchitectureIntelligencePersistence? _architectureIntelligencePersistence =
-        architectureIntelligencePersistence;
+    private readonly IArchitectureKnowledgeModelAccess? _knowledgeModelAccess = knowledgeModelAccess;
 
     private readonly IArchitectureKnowledgeModelGraphProjector? _knowledgeModelGraphProjector =
         knowledgeModelGraphProjector;
@@ -140,11 +140,11 @@ public sealed class AuthorityPipelineGraphStage(
         Guid runId,
         CancellationToken cancellationToken)
     {
-        if (_architectureIntelligencePersistence is null)
+        if (_knowledgeModelAccess is null)
             return null;
 
-        return await _architectureIntelligencePersistence
-            .GetModelByRunIdAsync(scope.TenantId.ToString("D"), runId.ToString("D"), cancellationToken)
+        return await _knowledgeModelAccess
+            .GetForRunAsync(scope, runId, cancellationToken)
             .ConfigureAwait(false);
     }
 }

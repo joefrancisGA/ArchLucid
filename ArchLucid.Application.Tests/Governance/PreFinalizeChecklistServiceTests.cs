@@ -1,3 +1,4 @@
+using ArchLucid.Application.ArchitectureIntelligence;
 using ArchLucid.Application.Governance;
 using ArchLucid.Contracts.ArchitectureIntelligence;
 using ArchLucid.Contracts.Findings;
@@ -105,16 +106,16 @@ public sealed class PreFinalizeChecklistServiceTests
     [Fact]
     public async Task BuildAsync_marks_provisional_synthesis_as_advisory()
     {
-        string runId = Guid.NewGuid().ToString("D");
+        Guid runKey = Guid.NewGuid();
 
-        Mock<IArchitectureIntelligencePersistence> persistence = new();
-        persistence
-            .Setup(p => p.GetModelByRunIdAsync(TestScope.TenantId.ToString("D"), runId, It.IsAny<CancellationToken>()))
+        Mock<IArchitectureKnowledgeModelAccess> knowledgeModelAccess = new();
+        knowledgeModelAccess
+            .Setup(k => k.GetForRunAsync(TestScope, runKey, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ArchitectureKnowledgeModel
             {
                 ModelId = "model-1",
                 TenantId = TestScope.TenantId.ToString("D"),
-                RunId = runId,
+                RunId = runKey.ToString("D"),
                 IsProvisionalSynthesis = true,
                 Elements =
                 [
@@ -127,9 +128,9 @@ public sealed class PreFinalizeChecklistServiceTests
                 ],
             });
 
-        PreFinalizeChecklistService sut = CreateSut(architectureIntelligencePersistence: persistence.Object);
+        PreFinalizeChecklistService sut = CreateSut(knowledgeModelAccess: knowledgeModelAccess.Object);
 
-        PreFinalizeChecklistResult result = await sut.BuildAsync(runId, CancellationToken.None);
+        PreFinalizeChecklistResult result = await sut.BuildAsync(runKey.ToString("D"), CancellationToken.None);
 
         result.Items.Should().Contain(item =>
             item.ItemId == "provisional-synthesis"
@@ -143,7 +144,7 @@ public sealed class PreFinalizeChecklistServiceTests
         ITechnologyLedgerRepository? ledger = null,
         IFindingEvidenceLinkageFindingEngine? linkageEngine = null,
         IPreCommitGovernanceGate? gate = null,
-        IArchitectureIntelligencePersistence? architectureIntelligencePersistence = null)
+        IArchitectureKnowledgeModelAccess? knowledgeModelAccess = null)
     {
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(s => s.GetCurrentScope()).Returns(TestScope);
@@ -176,6 +177,6 @@ public sealed class PreFinalizeChecklistServiceTests
             linkageEngine ?? linkageMock.Object,
             Options.Create(new FindingEvidenceLinkageFindingEngineOptions { Enabled = true }),
             gate ?? gateMock.Object,
-            architectureIntelligencePersistence);
+            knowledgeModelAccess);
     }
 }
