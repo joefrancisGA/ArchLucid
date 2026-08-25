@@ -9,6 +9,7 @@ import {
 import { resolveSampleScenarioByPolicyPackId } from "@/lib/samples/registry";
 import { CLAIMS_INTAKE_RULE_SET_VERSION } from "@/lib/samples/claims-intake/definition";
 import { RESPONSIBLE_AI_POLICY_PACK_DEFAULT_VERSION } from "@/lib/responsible-ai-policy-pack-detail-content";
+import { SHOWCASE_STATIC_DEMO_POLICY_PACK_DETAIL_HREF } from "@/lib/showcase-static-demo";
 import type { WizardFormValues } from "@/lib/wizard-schema";
 
 /** Routes specialty template pack citations to a resolvable governance surface when one exists. */
