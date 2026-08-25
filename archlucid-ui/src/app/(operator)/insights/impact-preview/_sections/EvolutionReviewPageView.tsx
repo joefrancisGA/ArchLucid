@@ -34,6 +34,7 @@ import { ImpactPreviewContinueLastBaselinePairRow } from "./ImpactPreviewContinu
 import { ImpactPreviewEmptyState } from "./ImpactPreviewEmptyState";
 import { ImpactPreviewEvidenceBasisSection } from "./ImpactPreviewEvidenceBasisSection";
 import { ImpactPreviewHowItWorksSection } from "./ImpactPreviewHowItWorksSection";
+import { ImpactPreviewNextReviewFooterClient } from "./ImpactPreviewNextReviewFooterClient";
 import { ImpactPreviewLoadFailurePanel } from "./ImpactPreviewLoadFailurePanel";
 import { ImpactPreviewOutputPreviewPanel } from "./ImpactPreviewOutputPreviewPanel";
 import { ImpactPreviewPageHeader } from "./ImpactPreviewPageHeader";
@@ -300,6 +301,9 @@ export function EvolutionReviewPageView(props: Props): React.JSX.Element {
                   runId={m.selectedBaselineId}
                   showArchitectureReviewSummaryLink={false}
                 />
+              ) : null}
+              {m.selectedBaselineId !== null ? (
+                <ImpactPreviewNextReviewFooterClient runId={m.selectedBaselineId} />
               ) : null}
             </>
           ) : null}
