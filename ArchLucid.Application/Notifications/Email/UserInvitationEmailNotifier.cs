@@ -60,7 +60,7 @@ public sealed class UserInvitationEmailNotifier(
             Subject = subject,
             HtmlBody = html,
             TextBody = text,
-            IdempotencyKey = $"{TemplateId}:{displayEmail.Trim().ToLowerInvariant()}:{Guid.NewGuid():N}",
+            IdempotencyKey = BuildIdempotencyKey(displayEmail, acceptUrl),
             Tags = new EmailMessageTags { TenantId = Guid.Empty, EventType = TemplateId }
         };
 
@@ -124,5 +124,37 @@ public sealed class UserInvitationEmailNotifier(
         html += "<p>If you were not expecting this invitation, you can ignore this email.</p>";
 
         return html;
+    }
+
+    private static string BuildIdempotencyKey(string displayEmail, string acceptUrl)
+    {
+        string normalizedEmail = displayEmail.Trim().ToLowerInvariant();
+        string? invitationToken = TryExtractInvitationToken(acceptUrl);
+
+        if (!string.IsNullOrWhiteSpace(invitationToken))
+        {
+            return $"{TemplateId}:{normalizedEmail}:{invitationToken}";
+        }
+
+        return $"{TemplateId}:{normalizedEmail}:{acceptUrl.Trim()}";
+    }
+
+    private static string? TryExtractInvitationToken(string acceptUrl)
+    {
+        string trimmedUrl = acceptUrl.Trim();
+        const string tokenPrefix = "token=";
+        int tokenIndex = trimmedUrl.IndexOf(tokenPrefix, StringComparison.OrdinalIgnoreCase);
+
+        if (tokenIndex < 0)
+        {
+            return null;
+        }
+
+        string tokenPart = trimmedUrl[(tokenIndex + tokenPrefix.Length)..];
+        int ampersandIndex = tokenPart.IndexOf('&');
+
+        string token = ampersandIndex >= 0 ? tokenPart[..ampersandIndex] : tokenPart;
+
+        return string.IsNullOrWhiteSpace(token) ? null : token;
     }
 }
