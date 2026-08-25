@@ -20,15 +20,16 @@ public interface IArchitectureIntelligenceAuthorityFindingsContributor
 public sealed class ArchitectureIntelligenceAuthorityFindingsContributor(
     IArchitectureKnowledgeModelAccess? knowledgeModelAccess,
     IAsyncSpecialistReviewService specialistReviewService,
-    IAsyncAdversarialReviewService adversarialReviewService) : IArchitectureIntelligenceAuthorityFindingsContributor
+    ISpecialistFindingsSubstantiationService specialistFindingsSubstantiationService) : IArchitectureIntelligenceAuthorityFindingsContributor
 {
     private readonly IArchitectureKnowledgeModelAccess? _knowledgeModelAccess = knowledgeModelAccess;
 
     private readonly IAsyncSpecialistReviewService _specialistReviewService =
         specialistReviewService ?? throw new ArgumentNullException(nameof(specialistReviewService));
 
-    private readonly IAsyncAdversarialReviewService _adversarialReviewService =
-        adversarialReviewService ?? throw new ArgumentNullException(nameof(adversarialReviewService));
+    private readonly ISpecialistFindingsSubstantiationService _specialistFindingsSubstantiationService =
+        specialistFindingsSubstantiationService
+        ?? throw new ArgumentNullException(nameof(specialistFindingsSubstantiationService));
 
     public async Task<IReadOnlyList<Finding>> ContributeAsync(
         ScopeContext scope,
@@ -56,11 +57,12 @@ public sealed class ArchitectureIntelligenceAuthorityFindingsContributor(
         if (specialistFindings.Count == 0)
             return [];
 
-        AdversarialReviewResult adversarial = await _adversarialReviewService
-            .ReviewAsync(specialistFindings, cancellationToken: cancellationToken)
+        SpecialistFindingsSubstantiationResult substantiation = await _specialistFindingsSubstantiationService
+            .SubstantiateAsync(specialistFindings, cancellationToken)
             .ConfigureAwait(false);
 
-        List<Finding> findings = ArchitectureIntelligenceProductBridge.ToFindings(adversarial.SubstantiatedFindings);
+        List<Finding> findings = ArchitectureIntelligenceProductBridge.ToFindings(substantiation.SubstantiatedFindings);
+        findings.AddRange(ArchitectureIntelligenceProductBridge.ToHypothesisLaneFindings(substantiation.Challenges));
 
         return findings;
     }

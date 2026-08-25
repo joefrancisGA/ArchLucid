@@ -11,7 +11,7 @@ namespace ArchLucid.Application.ArchitectureIntelligence;
 
 public interface IAuthorityFindingsSnapshotUpdater
 {
-    Task MergeSpecialistFindingsAsync(
+    Task<IReadOnlyList<string>> MergeSpecialistFindingsAsync(
         ScopeContext scope,
         Guid runId,
         IReadOnlyList<SpecialistReviewFinding> specialistFindings,
@@ -21,7 +21,7 @@ public interface IAuthorityFindingsSnapshotUpdater
 public sealed class AuthorityFindingsSnapshotUpdater(
     IRunRepository runRepository,
     IFindingsSnapshotRepository findingsSnapshotRepository,
-    IAsyncAdversarialReviewService adversarialReviewService,
+    ISpecialistFindingsSubstantiationService specialistFindingsSubstantiationService,
     TimeProvider timeProvider) : IAuthorityFindingsSnapshotUpdater
 {
     private readonly IRunRepository _runRepository =
@@ -30,12 +30,13 @@ public sealed class AuthorityFindingsSnapshotUpdater(
     private readonly IFindingsSnapshotRepository _findingsSnapshotRepository =
         findingsSnapshotRepository ?? throw new ArgumentNullException(nameof(findingsSnapshotRepository));
 
-    private readonly IAsyncAdversarialReviewService _adversarialReviewService =
-        adversarialReviewService ?? throw new ArgumentNullException(nameof(adversarialReviewService));
+    private readonly ISpecialistFindingsSubstantiationService _specialistFindingsSubstantiationService =
+        specialistFindingsSubstantiationService
+        ?? throw new ArgumentNullException(nameof(specialistFindingsSubstantiationService));
 
     private readonly TimeProvider _clock = timeProvider ?? TimeProvider.System;
 
-    public async Task MergeSpecialistFindingsAsync(
+    public async Task<IReadOnlyList<string>> MergeSpecialistFindingsAsync(
         ScopeContext scope,
         Guid runId,
         IReadOnlyList<SpecialistReviewFinding> specialistFindings,
@@ -45,41 +46,49 @@ public sealed class AuthorityFindingsSnapshotUpdater(
         ArgumentNullException.ThrowIfNull(specialistFindings);
 
         if (specialistFindings.Count == 0)
-            return;
+            return [];
 
         RunRecord? run = await _runRepository.GetByIdAsync(scope, runId, cancellationToken).ConfigureAwait(false);
 
         if (run?.FindingsSnapshotId is not Guid snapshotId)
-            return;
+            return [];
 
         FindingsSnapshot? snapshot =
             await _findingsSnapshotRepository.GetByIdAsync(scope, snapshotId, cancellationToken).ConfigureAwait(false);
 
         if (snapshot is null)
-            return;
+            return [];
 
-        AdversarialReviewResult adversarial = await _adversarialReviewService
-            .ReviewAsync(specialistFindings, cancellationToken: cancellationToken)
+        SpecialistFindingsSubstantiationResult substantiation = await _specialistFindingsSubstantiationService
+            .SubstantiateAsync(specialistFindings, cancellationToken)
             .ConfigureAwait(false);
 
-        List<Finding> mapped = ArchitectureIntelligenceProductBridge.ToFindings(adversarial.SubstantiatedFindings);
+        List<Finding> mapped = ArchitectureIntelligenceProductBridge.ToFindings(substantiation.SubstantiatedFindings);
+        mapped.AddRange(ArchitectureIntelligenceProductBridge.ToHypothesisLaneFindings(substantiation.Challenges));
+
         FindingsSnapshotAuthorityMerger.MergeAdditionalFindings(snapshot, mapped, _clock);
 
         await _findingsSnapshotRepository.SaveAsync(snapshot, cancellationToken).ConfigureAwait(false);
 
-        if (string.IsNullOrWhiteSpace(run.GovernanceScopeJson))
-            return;
+        if (!string.IsNullOrWhiteSpace(run.GovernanceScopeJson))
+        {
+            List<Finding> rollupFindings = snapshot.Findings?.ToList() ?? [];
+            string updatedScopeJson = PolicyPackAssignmentOutcomeRecorder.ApplyOutcomes(
+                run.GovernanceScopeJson,
+                rollupFindings,
+                snapshot);
 
-        List<Finding> rollupFindings = snapshot.Findings?.ToList() ?? [];
-        string updatedScopeJson = PolicyPackAssignmentOutcomeRecorder.ApplyOutcomes(
-            run.GovernanceScopeJson,
-            rollupFindings,
-            snapshot);
+            if (!string.Equals(updatedScopeJson, run.GovernanceScopeJson, StringComparison.Ordinal))
+            {
+                run.GovernanceScopeJson = updatedScopeJson;
+                await _runRepository.UpdateAsync(run, cancellationToken).ConfigureAwait(false);
+            }
+        }
 
-        if (string.Equals(updatedScopeJson, run.GovernanceScopeJson, StringComparison.Ordinal))
-            return;
-
-        run.GovernanceScopeJson = updatedScopeJson;
-        await _runRepository.UpdateAsync(run, cancellationToken).ConfigureAwait(false);
+        return mapped
+            .Select(static finding => finding.FindingId)
+            .Where(static id => !string.IsNullOrWhiteSpace(id))
+            .Distinct(StringComparer.Ordinal)
+            .ToList();
     }
 }
