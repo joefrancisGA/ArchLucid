@@ -67,6 +67,9 @@ describe("ArchitectureCreationLocalDraftsPanel (TB-1459)", () => {
       expect(screen.getByTestId("architecture-creation-resume-drafts")).toBeInTheDocument();
     });
     expect(screen.getByRole("heading", { level: 2, name: ARCHITECTURE_CREATION_CONTINUE_SECTION_TITLE })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 2, name: ARCHITECTURE_CREATION_CONTINUE_SECTION_TITLE })).toHaveClass(
+      "text-al-text-primary",
+    );
     expect(screen.getByText(ARCHITECTURE_CREATION_RECENT_DRAFTS_BODY)).toBeInTheDocument();
     expect(screen.getByTestId("architecture-creation-resume-draft-continue-draft-001")).toHaveTextContent(
       CONTINUE_DRAFT_LABEL,

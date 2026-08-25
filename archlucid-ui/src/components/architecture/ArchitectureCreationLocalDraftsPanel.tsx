@@ -14,7 +14,7 @@ import {
   ARCHITECTURE_CREATION_RECENT_DRAFTS_SECTION_TITLE,
   ARCHITECTURE_CREATION_VIEW_ALL_DRAFTS_LABEL,
 } from "@/lib/create-vs-review-intake-copy";
-import { OPERATOR_NAV_GROUP_LABEL, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { parseIsoUtcMs } from "@/lib/format-iso-utc";
 import { formatUpdatedRelativeWithAbsoluteParenthetical } from "@/lib/relative-time";
 import { cn } from "@/lib/utils";
@@ -68,7 +68,7 @@ export function ArchitectureCreationLocalDraftsPanel(): React.JSX.Element | null
       data-testid="architecture-creation-resume-drafts"
       aria-label={sectionTitle}
     >
-      <h2 className={cn("m-0 text-al-text-secondary", OPERATOR_NAV_GROUP_LABEL)}>{sectionTitle}</h2>
+      <h2 className={cn("m-0", OPERATOR_TYPOGRAPHY.cardTitle)}>{sectionTitle}</h2>
       <p className={cn("m-0 mt-1 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
         {ARCHITECTURE_CREATION_RECENT_DRAFTS_BODY}
       </p>
