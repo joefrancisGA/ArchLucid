@@ -58,6 +58,7 @@ import {
 
 import type { ProvenancePageWorkspaceProps } from "./provenance-page-workspace-types";
 import { FILTER_OPTIONS, SEARCH_THRESHOLD, useProvenancePageWorkspace } from "./use-provenance-page-workspace";
+import { ProvenanceNextReviewFooterClient } from "./ProvenanceNextReviewFooterClient";
 
 export type { ProvenancePageWorkspaceProps, ProvenanceReviewContext } from "./provenance-page-workspace-types";
 
@@ -705,6 +706,8 @@ export function ProvenancePageWorkspace(props: ProvenancePageWorkspaceProps): Re
 
         <ProvenanceSectionNav sections={sections} placement="sidebar" />
       </div>
+
+      <ProvenanceNextReviewFooterClient runId={runId} />
 
       <style>{`
         .prov-node-row--flash {
