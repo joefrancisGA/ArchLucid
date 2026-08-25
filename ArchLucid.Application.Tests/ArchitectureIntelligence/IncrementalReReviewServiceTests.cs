@@ -260,6 +260,48 @@ public sealed class IncrementalReReviewServiceTests
             .BeEquivalentTo(["affected-target", "worker", "checkout-cache"]);
     }
 
+    [Fact]
+    public async Task ReReviewAsync_scoped_model_clones_elements_and_provenance()
+    {
+        ClaimProvenance provenance = new()
+        {
+            Origin = ClaimOrigin.UserAsserted,
+            SupportStatus = SupportStatus.DirectlyEstablished,
+            Notes = "scoped clone",
+        };
+
+        ArchitectureKnowledgeModel model = new()
+        {
+            ModelId = "model-clone",
+            TenantId = "tenant-1",
+            Elements =
+            [
+                new ArchitectureModelElement
+                {
+                    ElementId = "el-1",
+                    Kind = ArchitectureElementKind.Component,
+                    Name = "Billing",
+                    Provenance = provenance,
+                },
+            ],
+        };
+
+        CapturingAsyncSpecialistReviewService capturingSpecialist = new();
+        ReReviewScope scope = new()
+        {
+            AffectedElementIds = ["el-1"],
+            FullReReview = false,
+            IncludeGlobalInvariantChecks = false,
+        };
+
+        await _service.ReReviewAsync(model, scope, capturingSpecialist);
+
+        ArchitectureModelElement scopedElement = capturingSpecialist.CapturedModel!
+            .Elements.Single(element => element.ElementId == "el-1");
+        scopedElement.Provenance.Notes.Should().Be("scoped clone");
+        scopedElement.Provenance.Should().NotBeSameAs(provenance);
+    }
+
     private sealed class AsyncSpecialistReviewServiceAdapter(SpecialistReviewService inner) : IAsyncSpecialistReviewService
     {
         public Task<SpecialistReviewResult> ReviewAsync(

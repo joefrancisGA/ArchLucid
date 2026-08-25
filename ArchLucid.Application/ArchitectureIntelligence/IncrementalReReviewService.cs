@@ -109,10 +109,52 @@ public sealed class IncrementalReReviewService : IIncrementalReReviewService
             UpdatedUtc = model.UpdatedUtc,
             Elements = model.Elements
                 .Where(element => includedIds.Contains(element.ElementId))
+                .Select(CloneScopedElement)
                 .ToList(),
             DeclaredPriorities = [.. model.DeclaredPriorities],
             FramingAnswers = new Dictionary<string, string>(model.FramingAnswers),
             IsProvisionalSynthesis = model.IsProvisionalSynthesis,
+        };
+    }
+
+    private static ArchitectureModelElement CloneScopedElement(ArchitectureModelElement element)
+    {
+        return new ArchitectureModelElement
+        {
+            ElementId = element.ElementId,
+            Kind = element.Kind,
+            Name = element.Name,
+            Description = element.Description,
+            Provenance = CloneScopedProvenance(element.Provenance),
+            ExtractionConfidence = element.ExtractionConfidence,
+            SourcePassageIds = [.. element.SourcePassageIds],
+            RelatedElementIds = [.. element.RelatedElementIds],
+            Properties = new Dictionary<string, string>(element.Properties),
+            LifecycleScope = element.LifecycleScope,
+        };
+    }
+
+    private static ClaimProvenance CloneScopedProvenance(ClaimProvenance provenance)
+    {
+        SourcePassageLocator? locator = provenance.PassageLocator is null
+            ? null
+            : new SourcePassageLocator
+            {
+                ArtifactId = provenance.PassageLocator.ArtifactId,
+                StartOffset = provenance.PassageLocator.StartOffset,
+                EndOffset = provenance.PassageLocator.EndOffset,
+                Quote = provenance.PassageLocator.Quote,
+                SectionPath = provenance.PassageLocator.SectionPath,
+            };
+
+        return new ClaimProvenance
+        {
+            Origin = provenance.Origin,
+            SupportStatus = provenance.SupportStatus,
+            Confidence = provenance.Confidence,
+            SourceArtifactId = provenance.SourceArtifactId,
+            PassageLocator = locator,
+            Notes = provenance.Notes,
         };
     }
 
