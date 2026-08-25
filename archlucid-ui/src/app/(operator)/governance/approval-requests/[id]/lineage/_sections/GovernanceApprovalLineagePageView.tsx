@@ -12,6 +12,7 @@ import { resolveApiLoadFailurePresentation } from "@/lib/api-load-failure";
 import { GOVERNANCE_APPROVAL_LINEAGE_NO_DATA_COMPACT } from "@/lib/enterprise-compact-empty-state-presets";
 
 import { GovernanceApprovalLineageDetailContent } from "./GovernanceApprovalLineageDetailContent";
+import { GovernanceApprovalLineageNextRequestFooterClient } from "./GovernanceApprovalLineageNextRequestFooterClient";
 import type { UseGovernanceApprovalLineagePageModel } from "./use-governance-approval-lineage-page";
 
 type GovernanceApprovalLineagePageViewProps = {
@@ -91,5 +92,13 @@ export function GovernanceApprovalLineagePageView({ model }: GovernanceApprovalL
     return <EnterpriseCompactEmptyState {...GOVERNANCE_APPROVAL_LINEAGE_NO_DATA_COMPACT} />;
   }
 
-  return <GovernanceApprovalLineageDetailContent data={data} />;
+  return (
+    <>
+      <GovernanceApprovalLineageDetailContent data={data} />
+      <GovernanceApprovalLineageNextRequestFooterClient
+        runId={data.run?.runId ?? data.approvalRequest.runId}
+        currentApprovalRequestId={model.approvalRequestId}
+      />
+    </>
+  );
 }
