@@ -67,6 +67,7 @@ public sealed class AuthorityPipelineStagesExecutor(
     IArchitectureIntelligencePersistence? architectureIntelligencePersistence = null,
     IArchitectureKnowledgeModelGraphProjector? knowledgeModelGraphProjector = null,
     IArchitectureIntelligenceAuthorityFindingsContributor? authorityFindingsContributor = null,
+    IArchitectureIdentityRepository? architectureIdentityRepository = null,
     TimeProvider? timeProvider = null) : IAuthorityPipelineStagesExecutor
 {
     private readonly AuthorityPipelineStageContextHydrator _stageContextHydrator =
@@ -153,6 +154,9 @@ public sealed class AuthorityPipelineStagesExecutor(
 
     private readonly IArchitectureIntelligenceAuthorityFindingsContributor? _authorityFindingsContributor =
         authorityFindingsContributor;
+
+    private readonly IArchitectureIdentityRepository? _architectureIdentityRepository =
+        architectureIdentityRepository;
 
     private readonly TimeProvider _timeProvider = timeProvider ?? TimeProvider.System;
 
@@ -494,7 +498,35 @@ public sealed class AuthorityPipelineStagesExecutor(
             // Seal coordinator-shaped manifest version with anchors so sp_FinalizeManifest pre-sealed path matches commit.
             run.CurrentManifestVersion = AuthorityCommitManifestVersionRules.ResolveContractManifestVersion(ctx.Manifest!);
             await UpdateRunAsync(run, uow, token);
+            await TryUpdateArchitectureLatestSealedManifestAsync(run, ctx.Manifest!.ManifestId, scope, token);
         }, ct);
+    }
+
+    private async Task TryUpdateArchitectureLatestSealedManifestAsync(
+        RunRecord run,
+        Guid manifestId,
+        ScopeContext scope,
+        CancellationToken cancellationToken)
+    {
+        if (_architectureIdentityRepository is null || !run.ArchitectureId.HasValue)
+            return;
+
+        try
+        {
+            await _architectureIdentityRepository
+                .UpdateLatestSealedManifestAsync(scope, run.ArchitectureId.Value, manifestId, cancellationToken)
+                .ConfigureAwait(false);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            if (_logger.IsEnabled(LogLevel.Warning))
+            {
+                _logger.LogWarning(
+                    ex,
+                    "Failed to update LatestSealedManifestId for ArchitectureId={ArchitectureId}.",
+                    run.ArchitectureId);
+            }
+        }
     }
 
     private void EnforceFindingsReadyForDecisioning(FindingsSnapshot snapshot, Guid runId)
