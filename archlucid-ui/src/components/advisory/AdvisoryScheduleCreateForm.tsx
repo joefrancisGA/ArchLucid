@@ -7,6 +7,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState, type FormEvent, type ReactElement } from "react";
 
 import { CronExpressionBuilder } from "@/components/advisory/CronExpressionBuilder";
+import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
 import { Button } from "@/components/ui/button";
 import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import { Input } from "@/components/ui/input";
@@ -41,6 +42,10 @@ import {
   ADVISORY_SCANS_SCHEDULES_SCOPE_CURRENT,
   ADVISORY_SCANS_SCHEDULES_TIMING_NOTE,
 } from "@/lib/advisory-copy";
+import {
+  resolveAdvisoryScheduleCreateChecklistEmphasizedStepId,
+  resolveAdvisoryScheduleCreateChecklistSteps,
+} from "@/lib/advisory-schedule-create-checklist";
 import { whyDisabledEnterpriseMutationControl } from "@/lib/why-disabled-cta";
 import {
   formatIanaTimeZoneOptionLabel,
@@ -122,6 +127,16 @@ export function AdvisoryScheduleCreateForm(props: AdvisoryScheduleCreateFormProp
   }, [cronExpression, form.frequency, form.timeZoneId]);
 
   const showFormUpcomingPreview = form.frequency !== "custom";
+  const advisoryCreateSteps = resolveAdvisoryScheduleCreateChecklistSteps({
+    reviewConfigured: props.runProjectSlug.trim().length > 0,
+    frequencyConfigured: cronPreviewValid,
+    scheduleSaved: props.createSuccess,
+  });
+  const advisoryCreateEmphasizedStepId = resolveAdvisoryScheduleCreateChecklistEmphasizedStepId({
+    reviewConfigured: props.runProjectSlug.trim().length > 0,
+    frequencyConfigured: cronPreviewValid,
+    scheduleSaved: props.createSuccess,
+  });
 
   function updateForm(patch: Partial<AdvisoryScheduleFormState>): void {
     setForm((current) => {
@@ -182,6 +197,13 @@ export function AdvisoryScheduleCreateForm(props: AdvisoryScheduleCreateFormProp
           .
         </p>
       ) : null}
+
+      <IntegrationConnectChecklist
+        title="Schedule checklist"
+        steps={advisoryCreateSteps}
+        emphasizedStepId={advisoryCreateEmphasizedStepId}
+        testIdPrefix="advisory-schedule-create"
+      />
 
       <form onSubmit={(event) => void onSubmit(event)} className="mt-3 grid gap-4">
         <div className="grid gap-1.5">
