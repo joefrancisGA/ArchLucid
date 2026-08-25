@@ -124,7 +124,7 @@ public sealed class AgentTraceOrphanBlobCleanupService(
             Dictionary<string, List<string>> blobsByRunPrefix = new(StringComparer.OrdinalIgnoreCase);
 
             await foreach (BlobItem item in container
-                               .GetBlobsAsync(BlobTraits.None, BlobStates.All, cancellationToken: cancellationToken)
+                               .GetBlobsAsync(BlobTraits.None, BlobStates.All, prefix: string.Empty, cancellationToken: cancellationToken)
                                .ConfigureAwait(false))
             {
                 if (item.Properties.LastModified.HasValue && item.Properties.LastModified.Value > cutoff)
