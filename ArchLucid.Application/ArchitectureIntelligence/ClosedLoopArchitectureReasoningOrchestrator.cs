@@ -318,7 +318,9 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
             Adversarial = adversarial,
             Recommendations = recommendations,
             ImpactResults = impactResults,
-            ModelDiffs = modelDiffs,
+            ModelDiffs = modelDiffs
+                .Select(ArchitectureModelDiffPayloadSlimmer.WithoutModels)
+                .ToList(),
             ReReview = reReview,
             MustNotFailViolations = mustNotFailViolations,
             ValidationResults = validationResults,
