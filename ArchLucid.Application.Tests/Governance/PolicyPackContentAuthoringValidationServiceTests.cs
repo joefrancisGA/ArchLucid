@@ -79,6 +79,33 @@ public sealed class PolicyPackContentAuthoringValidationServiceTests
     }
 
     [Fact]
+    public async Task ValidateAsync_when_curated_metadata_key_uses_PascalCase_accepts_matching_rule()
+    {
+        PolicyPackContentAuthoringValidationService sut = CreateSut([]);
+
+        string json =
+            """
+            {
+              "complianceRuleKeys": ["tenant-authored-rule"],
+              "metadata": {
+                "Pack.CuratedRules.V1": "{\"schemaVersion\":1,\"kind\":\"archlucid.policyPack.curatedRules.v1\",\"rules\":[{\"id\":\"tenant-authored-rule\",\"title\":\"Tenant rule\"}]}"
+              }
+            }
+            """;
+
+        PolicyPackContentDocument document =
+            System.Text.Json.JsonSerializer.Deserialize<PolicyPackContentDocument>(
+                json,
+                ArchLucid.Core.Governance.PolicyPacks.PolicyPackJsonSerializerOptions.Default)!;
+
+        PolicyPackContentValidationResponse response = await sut.ValidateAsync(document, CancellationToken.None);
+
+        response.Valid.Should().BeTrue();
+        response.Issues.Should().BeEmpty(
+            "deserialized metadata dictionaries may lose OrdinalIgnoreCase comparer; curated rule keys must still resolve");
+    }
+
+    [Fact]
     public async Task ValidateAsync_when_empty_guid_in_compliance_rule_ids_returns_error()
     {
         PolicyPackContentAuthoringValidationService sut = CreateSut([]);

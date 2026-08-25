@@ -13,7 +13,7 @@ internal static class PolicyPackCuratedRuleKeyReader
 
     internal static IReadOnlyCollection<string> ReadRuleIdsFromMetadata(IReadOnlyDictionary<string, string> metadata)
     {
-        if (!metadata.TryGetValue(PolicyPackCuratedRulesMetadataKey.V1, out string? raw) ||
+        if (!PolicyPackContentMetadataReader.TryGetValue(metadata, PolicyPackCuratedRulesMetadataKey.V1, out string? raw) ||
             string.IsNullOrWhiteSpace(raw))
         {
             return [];
