@@ -9,41 +9,62 @@ namespace ArchLucid.Application.Tests.ArchitectureIntelligence;
 public sealed class ClosedLoopCacheHitPublishGuardTests
 {
     [Fact]
-    public void SuppressUnpublishedCacheHit_sets_skip_reason_when_publish_requested_and_cached_result_was_not_published()
+    public void ApplyCacheHitPolicy_sets_skip_reason_and_clears_published_flags_when_publish_requested()
     {
+        Guid findingsSnapshotId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
         ClosedLoopReasoningRequest request = new() { PublishToProduct = true };
-        ClosedLoopReasoningResult cached = new() { PublishedToProduct = false };
+        ClosedLoopReasoningResult cached = new()
+        {
+            RunId = "cached-run",
+            Model = new ArchitectureKnowledgeModel { RunId = "cached-run", ModelId = "cached-model" },
+            PublishedToProduct = true,
+            PublishedFindingsSnapshotId = findingsSnapshotId,
+            PublishedRecommendationCount = 2,
+        };
 
-        ClosedLoopCacheHitPublishGuard.SuppressUnpublishedCacheHit(request, cached);
+        ClosedLoopCacheHitPublishGuard.ApplyCacheHitPolicy(request, "current-run", cached);
 
+        cached.RunId.Should().Be("current-run");
+        cached.Model.RunId.Should().Be("current-run");
         cached.PublishedToProduct.Should().BeFalse();
+        cached.PublishedFindingsSnapshotId.Should().BeNull();
+        cached.PublishedRecommendationCount.Should().Be(0);
         cached.PublishSkipReason.Should().Be(ClosedLoopCacheHitPublishGuard.SkipReason);
     }
 
     [Fact]
-    public void SuppressUnpublishedCacheHit_leaves_already_published_cache_entry_unchanged()
+    public void ApplyCacheHitPolicy_clears_published_flags_even_when_publish_was_not_requested()
     {
-        ClosedLoopReasoningRequest request = new() { PublishToProduct = true };
+        ClosedLoopReasoningRequest request = new() { PublishToProduct = false };
         ClosedLoopReasoningResult cached = new()
         {
             PublishedToProduct = true,
-            PublishSkipReason = null,
+            PublishedRecommendationCount = 1,
         };
 
-        ClosedLoopCacheHitPublishGuard.SuppressUnpublishedCacheHit(request, cached);
+        ClosedLoopCacheHitPublishGuard.ApplyCacheHitPolicy(request, "current-run", cached);
 
-        cached.PublishedToProduct.Should().BeTrue();
+        cached.PublishedToProduct.Should().BeFalse();
+        cached.PublishedRecommendationCount.Should().Be(0);
         cached.PublishSkipReason.Should().BeNull();
     }
 
     [Fact]
-    public void SuppressUnpublishedCacheHit_is_noop_when_publish_was_not_requested()
+    public void SanitizeForStorage_strips_publish_side_effects_from_result()
     {
-        ClosedLoopReasoningRequest request = new() { PublishToProduct = false };
-        ClosedLoopReasoningResult cached = new() { PublishedToProduct = false };
+        ClosedLoopReasoningResult result = new()
+        {
+            PublishedToProduct = true,
+            PublishedFindingsSnapshotId = Guid.NewGuid(),
+            PublishedRecommendationCount = 4,
+            PublishSkipReason = "already published",
+        };
 
-        ClosedLoopCacheHitPublishGuard.SuppressUnpublishedCacheHit(request, cached);
+        ClosedLoopCacheHitPublishGuard.SanitizeForStorage(result);
 
-        cached.PublishSkipReason.Should().BeNull();
+        result.PublishedToProduct.Should().BeFalse();
+        result.PublishedFindingsSnapshotId.Should().BeNull();
+        result.PublishedRecommendationCount.Should().Be(0);
+        result.PublishSkipReason.Should().BeNull();
     }
 }

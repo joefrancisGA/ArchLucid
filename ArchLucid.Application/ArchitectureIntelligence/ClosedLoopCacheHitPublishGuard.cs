@@ -10,16 +10,33 @@ public static class ClosedLoopCacheHitPublishGuard
     public const string SkipReason =
         "Cache hit does not publish product findings without a fresh adversarial pass.";
 
-    public static void SuppressUnpublishedCacheHit(
+    public static void ApplyCacheHitPolicy(
         ClosedLoopReasoningRequest request,
+        string runId,
         ClosedLoopReasoningResult cached)
     {
         ArgumentNullException.ThrowIfNull(request);
+        ArgumentNullException.ThrowIfNull(runId);
         ArgumentNullException.ThrowIfNull(cached);
 
-        if (!request.PublishToProduct || cached.PublishedToProduct)
-            return;
+        cached.RunId = runId;
+        cached.Model.RunId = runId;
 
-        cached.PublishSkipReason = SkipReason;
+        cached.PublishedToProduct = false;
+        cached.PublishedFindingsSnapshotId = null;
+        cached.PublishedRecommendationCount = 0;
+
+        if (request.PublishToProduct)
+            cached.PublishSkipReason = SkipReason;
+    }
+
+    public static void SanitizeForStorage(ClosedLoopReasoningResult result)
+    {
+        ArgumentNullException.ThrowIfNull(result);
+
+        result.PublishedToProduct = false;
+        result.PublishedFindingsSnapshotId = null;
+        result.PublishedRecommendationCount = 0;
+        result.PublishSkipReason = null;
     }
 }
