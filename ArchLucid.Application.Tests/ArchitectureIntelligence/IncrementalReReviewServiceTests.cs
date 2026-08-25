@@ -118,6 +118,39 @@ public sealed class IncrementalReReviewServiceTests
     }
 
     [Fact]
+    public async Task ReReviewAsync_full_re_review_clones_model_before_specialist_review()
+    {
+        ArchitectureKnowledgeModel model = new()
+        {
+            ModelId = "model-full-clone",
+            TenantId = "tenant-1",
+            Elements =
+            [
+                new ArchitectureModelElement
+                {
+                    ElementId = "el-1",
+                    Kind = ArchitectureElementKind.Component,
+                    Name = "Billing",
+                },
+            ],
+        };
+
+        CapturingAsyncSpecialistReviewService capturingSpecialist = new();
+        ReReviewScope scope = new()
+        {
+            AffectedElementIds = [],
+            FullReReview = true,
+            IncludeGlobalInvariantChecks = false,
+        };
+
+        await _service.ReReviewAsync(model, scope, capturingSpecialist);
+
+        capturingSpecialist.CapturedModel.Should().NotBeSameAs(model);
+        model.Elements[0].Name = "mutated";
+        capturingSpecialist.CapturedModel!.Elements[0].Name.Should().Be("Billing");
+    }
+
+    [Fact]
     public async Task ReReviewAsync_scoped_model_includes_reverse_related_chain_regardless_of_element_order()
     {
         ArchitectureKnowledgeModel model = new()

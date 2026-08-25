@@ -25,7 +25,8 @@ public sealed class IncrementalReReviewService : IIncrementalReReviewService
 
         if (fullReReviewTriggered)
         {
-            specialistResults.Add(await specialistService.ReviewAsync(model, cancellationToken: cancellationToken)
+            ArchitectureKnowledgeModel reviewModel = ArchitectureKnowledgeModelCloner.Clone(model);
+            specialistResults.Add(await specialistService.ReviewAsync(reviewModel, cancellationToken: cancellationToken)
                 .ConfigureAwait(false));
         }
         else if (scope.AffectedElementIds.Count > 0)
