@@ -43,6 +43,14 @@ public interface IProductLearningPlanningRepository
         int take,
         CancellationToken cancellationToken);
 
+    /// <summary>
+    ///     List projection with parent theme evidence count in one query (no per-plan theme round-trips or action-step JSON).
+    /// </summary>
+    Task<IReadOnlyList<ProductLearningImprovementPlanListRecord>> ListPlanListItemsAsync(
+        ProductLearningScope scope,
+        int take,
+        CancellationToken cancellationToken);
+
     Task<IReadOnlyList<ProductLearningImprovementPlanRecord>> ListPlansForThemeAsync(
         Guid themeId,
         ProductLearningScope scope,

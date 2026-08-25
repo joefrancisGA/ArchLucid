@@ -457,7 +457,10 @@ internal sealed class SqlStorageProviderRegistrar : IStorageProviderRegistrar
         services.AddScoped<ITenantNotificationChannelPreferencesRepository, DapperTenantNotificationChannelPreferencesRepository>();
         services.AddScoped<IOperatorSavedViewRepository, DapperOperatorSavedViewRepository>();
         services.AddScoped<ISupportProblemReportRepository, DapperSupportProblemReportRepository>();
-        services.AddScoped<IDraftRequestRepository, DapperDraftRequestRepository>();
+        services.AddScoped<DapperDraftRequestRepository>();
+        services.AddScoped<IDraftRequestRepository>(static sp => new CachingDraftRequestRepository(
+            sp.GetRequiredService<DapperDraftRequestRepository>(),
+            sp.GetRequiredService<IHotPathReadCache>()));
         services.AddScoped<ITenantTeamsIncomingWebhookConnectionRepository, DapperTenantTeamsIncomingWebhookConnectionRepository>();
         services.AddScoped<ITenantAzureOpenAiConnectionRepository, DapperTenantAzureOpenAiConnectionRepository>();
         services.AddScoped<ITenantExecDigestPreferencesRepository, DapperTenantExecDigestPreferencesRepository>();

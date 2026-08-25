@@ -277,6 +277,14 @@ public static class HotPathCacheKeys
         return $"{Prefix}car:{compositeRuleId:N}";
     }
 
+    /// <summary>Architecture intake draft GET snapshot.</summary>
+    public static string DraftRequest(ScopeContext scope, Guid draftId)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+
+        return $"{Prefix}draft:{scope.TenantId:N}:{scope.WorkspaceId:N}:{scope.ProjectId:N}:{draftId:N}";
+    }
+
     /// <summary>Tenant AI budget policy override row.</summary>
     public static string TenantAiBudgetPolicy(Guid tenantId)
     {

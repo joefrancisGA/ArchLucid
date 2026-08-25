@@ -57,6 +57,14 @@ public sealed class DapperProductLearningPlanningRepository(ISqlConnectionFactor
         return _plans.ListPlansAsync(scope, take, cancellationToken);
     }
 
+    public Task<IReadOnlyList<ProductLearningImprovementPlanListRecord>> ListPlanListItemsAsync(
+        ProductLearningScope scope,
+        int take,
+        CancellationToken cancellationToken)
+    {
+        return _plans.ListPlanListItemsAsync(scope, take, cancellationToken);
+    }
+
     public Task<IReadOnlyList<ProductLearningImprovementPlanRecord>> ListPlansForThemeAsync(
         Guid themeId,
         ProductLearningScope scope,

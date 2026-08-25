@@ -6,6 +6,7 @@ using ArchLucid.Contracts.Drafts;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Persistence.Connections;
 using ArchLucid.Persistence.Data.Infrastructure;
+using ArchLucid.Persistence.Drafts;
 
 using Dapper;
 
@@ -40,6 +41,8 @@ public sealed class DapperDraftRequestRepository(ISqlConnectionFactory connectio
                                ProjectId,
                                Status,
                                DocumentJson,
+                               ReadModelJson,
+                               ReadModelSchemaVersion,
                                RedirectReason,
                                SpawnedRunId,
                                CreatedUtc,
@@ -56,10 +59,22 @@ public sealed class DapperDraftRequestRepository(ISqlConnectionFactory connectio
             new CommandDefinition(
                 sql,
                 new { DraftId = draftId, TenantId = tenantId, WorkspaceId = workspaceId, ProjectId = projectId },
-                cancellationToken: cancellationToken));
+                cancellationToken: cancellationToken,
+                commandTimeout: InteractiveDraftCommandTimeoutSeconds));
 
-        return row is null ? null : MapRow(row);
+        if (row is null)
+            return null;
+
+        if (TryDeserializeReadModel(row, out DraftRequestResponse? snapshot))
+            return snapshot;
+
+        DraftRequestResponse mapped = MapRow(row);
+        await TryHealReadModelAsync(connection, draftId, tenantId, workspaceId, projectId, mapped, cancellationToken);
+
+        return mapped;
     }
+
+    private const int InteractiveDraftCommandTimeoutSeconds = 5;
 
     /// <inheritdoc />
     public async Task<DraftRequestResponse> CreateAsync(
@@ -77,6 +92,18 @@ public sealed class DapperDraftRequestRepository(ISqlConnectionFactory connectio
         Guid draftId = Guid.NewGuid();
         DateTime now = TimeProvider.System.GetUtcNow().UtcDateTime;
         string documentJson = JsonSerializer.Serialize(document, JsonOptions);
+        DraftRequestResponse response = new()
+        {
+            DraftId = draftId,
+            TenantId = tenantId,
+            WorkspaceId = workspaceId,
+            ProjectId = projectId,
+            Status = DraftRequestStatus.Drafting,
+            Document = document,
+            CreatedUtc = now,
+            UpdatedUtc = now,
+        };
+        string readModelJson = DraftRequestSnapshotSerializer.Serialize(response);
 
         const string sql = """
                            INSERT INTO dbo.DraftRequests (
@@ -87,6 +114,8 @@ public sealed class DapperDraftRequestRepository(ISqlConnectionFactory connectio
                                CreatedByUserId,
                                Status,
                                DocumentJson,
+                               ReadModelJson,
+                               ReadModelSchemaVersion,
                                CreatedUtc,
                                UpdatedUtc)
                            VALUES (
@@ -97,6 +126,8 @@ public sealed class DapperDraftRequestRepository(ISqlConnectionFactory connectio
                                @CreatedByUserId,
                                @Status,
                                @DocumentJson,
+                               @ReadModelJson,
+                               @ReadModelSchemaVersion,
                                @CreatedUtc,
                                @UpdatedUtc);
                            """;
@@ -114,22 +145,15 @@ public sealed class DapperDraftRequestRepository(ISqlConnectionFactory connectio
                     CreatedByUserId = createdByUserId,
                     Status = DraftRequestStatus.Drafting.ToString(),
                     DocumentJson = documentJson,
+                    ReadModelJson = readModelJson,
+                    ReadModelSchemaVersion = DraftRequestReadModelSchema.CurrentVersion,
                     CreatedUtc = now,
                     UpdatedUtc = now,
                 },
-                cancellationToken: cancellationToken));
+                cancellationToken: cancellationToken,
+                commandTimeout: InteractiveDraftCommandTimeoutSeconds));
 
-        return new DraftRequestResponse
-        {
-            DraftId = draftId,
-            TenantId = tenantId,
-            WorkspaceId = workspaceId,
-            ProjectId = projectId,
-            Status = DraftRequestStatus.Drafting,
-            Document = document,
-            CreatedUtc = now,
-            UpdatedUtc = now,
-        };
+        return response;
     }
 
     /// <inheritdoc />
@@ -155,6 +179,8 @@ public sealed class DapperDraftRequestRepository(ISqlConnectionFactory connectio
                            SET
                                Status = @Status,
                                DocumentJson = @DocumentJson,
+                               ReadModelJson = NULL,
+                               ReadModelSchemaVersion = 0,
                                RedirectReason = @RedirectReason,
                                SpawnedRunId = @SpawnedRunId,
                                UpdatedUtc = @UpdatedUtc
@@ -182,7 +208,8 @@ public sealed class DapperDraftRequestRepository(ISqlConnectionFactory connectio
                     SpawnedRunId = spawnedRunId,
                     UpdatedUtc = now,
                 },
-                cancellationToken: cancellationToken));
+                cancellationToken: cancellationToken,
+                commandTimeout: InteractiveDraftCommandTimeoutSeconds));
 
         if (rows == 0)
             return null;
@@ -356,6 +383,66 @@ public sealed class DapperDraftRequestRepository(ISqlConnectionFactory connectio
         return exists == 1;
     }
 
+    private static bool TryDeserializeReadModel(DraftRequestRow row, out DraftRequestResponse? response)
+    {
+        response = null;
+
+        if (string.IsNullOrWhiteSpace(row.ReadModelJson))
+            return false;
+
+        if (row.ReadModelSchemaVersion != DraftRequestReadModelSchema.CurrentVersion)
+            return false;
+
+        try
+        {
+            response = DraftRequestSnapshotSerializer.Deserialize(row.ReadModelJson);
+
+            return true;
+        }
+        catch (JsonException)
+        {
+            return false;
+        }
+    }
+
+    private static async Task TryHealReadModelAsync(
+        SqlConnection connection,
+        Guid draftId,
+        Guid tenantId,
+        Guid workspaceId,
+        Guid projectId,
+        DraftRequestResponse mapped,
+        CancellationToken cancellationToken)
+    {
+        string readModelJson = DraftRequestSnapshotSerializer.Serialize(mapped);
+
+        const string sql = """
+                           UPDATE dbo.DraftRequests
+                           SET
+                               ReadModelJson = @ReadModelJson,
+                               ReadModelSchemaVersion = @ReadModelSchemaVersion
+                           WHERE DraftId = @DraftId
+                             AND TenantId = @TenantId
+                             AND WorkspaceId = @WorkspaceId
+                             AND ProjectId = @ProjectId;
+                           """;
+
+        await connection.ExecuteAsync(
+            new CommandDefinition(
+                sql,
+                new
+                {
+                    DraftId = draftId,
+                    TenantId = tenantId,
+                    WorkspaceId = workspaceId,
+                    ProjectId = projectId,
+                    ReadModelJson = readModelJson,
+                    ReadModelSchemaVersion = DraftRequestReadModelSchema.CurrentVersion,
+                },
+                cancellationToken: cancellationToken,
+                commandTimeout: InteractiveDraftCommandTimeoutSeconds));
+    }
+
     private static DraftRequestResponse MapRow(DraftRequestRow row)
     {
         DraftRequestDocument? document =
@@ -421,6 +508,18 @@ public sealed class DapperDraftRequestRepository(ISqlConnectionFactory connectio
             get;
             set;
         } = string.Empty;
+
+        public string? ReadModelJson
+        {
+            get;
+            set;
+        }
+
+        public int ReadModelSchemaVersion
+        {
+            get;
+            set;
+        }
 
         public string? RedirectReason
         {

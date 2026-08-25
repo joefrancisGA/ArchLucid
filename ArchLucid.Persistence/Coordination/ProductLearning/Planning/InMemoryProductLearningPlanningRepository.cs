@@ -187,6 +187,44 @@ public sealed class InMemoryProductLearningPlanningRepository : IProductLearning
         return Task.FromResult<IReadOnlyList<ProductLearningImprovementPlanRecord>>(list);
     }
 
+    public Task<IReadOnlyList<ProductLearningImprovementPlanListRecord>> ListPlanListItemsAsync(
+        ProductLearningScope scope,
+        int take,
+        CancellationToken cancellationToken)
+    {
+        ProductLearningPlanningRepositoryValidation.EnsureScope(scope);
+        ProductLearningPlanningRepositoryValidation.EnsureTake(take);
+
+        List<ProductLearningImprovementPlanListRecord> list = _plans
+            .Where(p =>
+                p.TenantId == scope.TenantId &&
+                p.WorkspaceId == scope.WorkspaceId &&
+                p.ProjectId == scope.ProjectId)
+            .OrderByDescending(static p => p.CreatedUtc)
+            .ThenBy(static p => p.PlanId)
+            .Take(take)
+            .Select(p =>
+            {
+                ProductLearningImprovementThemeRecord? theme = _themes.FirstOrDefault(t => t.ThemeId == p.ThemeId);
+
+                return new ProductLearningImprovementPlanListRecord
+                {
+                    PlanId = p.PlanId,
+                    ThemeId = p.ThemeId,
+                    Title = p.Title,
+                    Summary = p.Summary,
+                    PriorityScore = p.PriorityScore,
+                    PriorityExplanation = p.PriorityExplanation,
+                    Status = p.Status,
+                    CreatedUtc = p.CreatedUtc,
+                    ThemeEvidenceSignalCount = theme?.EvidenceSignalCount,
+                };
+            })
+            .ToList();
+
+        return Task.FromResult<IReadOnlyList<ProductLearningImprovementPlanListRecord>>(list);
+    }
+
     public Task<IReadOnlyList<ProductLearningImprovementPlanRecord>> ListPlansForThemeAsync(
         Guid themeId,
         ProductLearningScope scope,

@@ -144,6 +144,18 @@ public static class HotPathCacheEviction
         return cache.RemoveAsync(HotPathCacheKeys.FindingsSnapshot(scope, findingsSnapshotId), ct);
     }
 
+    public static Task RemoveDraftRequestAsync(
+        IHotPathReadCache cache,
+        ScopeContext scope,
+        Guid draftId,
+        CancellationToken ct)
+    {
+        ArgumentNullException.ThrowIfNull(cache);
+        ArgumentNullException.ThrowIfNull(scope);
+
+        return cache.RemoveAsync(HotPathCacheKeys.DraftRequest(scope, draftId), ct);
+    }
+
     /// <summary>
     ///     Bumps the tenant revision stamp read by custom-role list/assignment caches so prior entries are bypassed.
     /// </summary>

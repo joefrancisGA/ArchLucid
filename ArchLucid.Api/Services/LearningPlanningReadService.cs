@@ -40,8 +40,8 @@ public sealed class LearningPlanningReadService(IProductLearningPlanningReposito
             ("maxPlans", maxPlans));
 
         Stopwatch listPlansStopwatch = Stopwatch.StartNew();
-        IReadOnlyList<ProductLearningImprovementPlanRecord> rows =
-            await planningRepository.ListPlansAsync(scope, maxPlans, cancellationToken);
+        IReadOnlyList<ProductLearningImprovementPlanListRecord> rows =
+            await planningRepository.ListPlanListItemsAsync(scope, maxPlans, cancellationToken);
 
         LearningPlansHangDiagnostics.Log(
             "service_list_plans_completed",
@@ -50,33 +50,7 @@ public sealed class LearningPlanningReadService(IProductLearningPlanningReposito
 
         DateTime generatedUtc = TimeProvider.System.UtcNowDateTime();
 
-        Guid[] distinctThemeIds = rows.Select(r => r.ThemeId).Distinct().ToArray();
-
-        LearningPlansHangDiagnostics.Log(
-            "service_resolve_themes_started",
-            ("distinctThemeCount", distinctThemeIds.Length));
-
-        Stopwatch resolveThemesStopwatch = Stopwatch.StartNew();
-        ProductLearningImprovementThemeRecord?[] themeRows =
-            await Task.WhenAll(
-                    distinctThemeIds.Select(id =>
-                        planningRepository.GetThemeAsync(id, scope, cancellationToken)))
-                .ConfigureAwait(false);
-
-        LearningPlansHangDiagnostics.Log(
-            "service_resolve_themes_completed",
-            ("durationMs", resolveThemesStopwatch.ElapsedMilliseconds),
-            ("resolvedThemeCount", themeRows.Count(t => t is not null)));
-
-        Dictionary<Guid, ProductLearningImprovementThemeRecord?> themeById = [];
-        for (int i = 0; i < distinctThemeIds.Length; i++)
-
-            themeById[distinctThemeIds[i]] = themeRows[i];
-
-        List<LearningPlanListItemResponse> plans = rows
-            .Select(p => MapPlanListItem(p,
-                themeById.TryGetValue(p.ThemeId, out ProductLearningImprovementThemeRecord? t) ? t : null))
-            .ToList();
+        List<LearningPlanListItemResponse> plans = rows.Select(MapPlanListItem).ToList();
 
         LearningPlansHangDiagnostics.Log(
             "service_get_plans_completed",
@@ -181,41 +155,14 @@ public sealed class LearningPlanningReadService(IProductLearningPlanningReposito
         IReadOnlyList<ProductLearningImprovementThemeRecord> themeRows =
             await planningRepository.ListThemesAsync(scope, maxThemes, cancellationToken);
 
-        IReadOnlyList<ProductLearningImprovementPlanRecord> planRows =
-            await planningRepository.ListPlansAsync(scope, maxPlans, cancellationToken);
+        IReadOnlyList<ProductLearningImprovementPlanListRecord> planRows =
+            await planningRepository.ListPlanListItemsAsync(scope, maxPlans, cancellationToken);
 
         DateTime generatedUtc = TimeProvider.System.UtcNowDateTime();
 
-        Dictionary<Guid, ProductLearningImprovementThemeRecord> themeById =
-            themeRows.ToDictionary(t => t.ThemeId);
-
-        Guid[] missingThemeIds = planRows
-            .Select(p => p.ThemeId)
-            .Distinct()
-            .Where(id => !themeById.ContainsKey(id))
-            .ToArray();
-
-        if (missingThemeIds.Length > 0)
-        {
-            ProductLearningImprovementThemeRecord?[] extraThemeRows =
-                await Task.WhenAll(
-                        missingThemeIds.Select(id =>
-                            planningRepository.GetThemeAsync(id, scope, cancellationToken)))
-                    .ConfigureAwait(false);
-
-            foreach (ProductLearningImprovementThemeRecord? extra in extraThemeRows)
-            {
-                if (extra is not null)
-                    themeById[extra.ThemeId] = extra;
-            }
-        }
-
         List<LearningThemeResponse> themes = themeRows.Select(MapTheme).ToList();
 
-        List<LearningPlanListItemResponse> plans = planRows
-            .Select(p => MapPlanListItem(p,
-                themeById.TryGetValue(p.ThemeId, out ProductLearningImprovementThemeRecord? t) ? t : null))
-            .ToList();
+        List<LearningPlanListItemResponse> plans = planRows.Select(MapPlanListItem).ToList();
 
         int[] linkCounts = await Task.WhenAll(
                 planRows.Select(async p =>
@@ -270,6 +217,22 @@ public sealed class LearningPlanningReadService(IProductLearningPlanningReposito
             Status = t.Status,
             CreatedUtc = t.CreatedUtc,
             CreatedByUserId = t.CreatedByUserId
+        };
+    }
+
+    private static LearningPlanListItemResponse MapPlanListItem(ProductLearningImprovementPlanListRecord p)
+    {
+        return new LearningPlanListItemResponse
+        {
+            PlanId = p.PlanId,
+            ThemeId = p.ThemeId,
+            Title = p.Title,
+            Summary = p.Summary,
+            PriorityScore = p.PriorityScore,
+            PriorityExplanation = p.PriorityExplanation,
+            Status = p.Status,
+            CreatedUtc = p.CreatedUtc,
+            ThemeEvidenceSignalCount = p.ThemeEvidenceSignalCount
         };
     }
 
