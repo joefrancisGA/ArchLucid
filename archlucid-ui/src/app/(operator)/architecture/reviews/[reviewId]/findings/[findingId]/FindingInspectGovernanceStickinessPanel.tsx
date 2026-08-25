@@ -5,6 +5,7 @@ import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 import { ConfirmationDialog } from "@/components/ConfirmationDialog";
+import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
 import { WhyDisabledCtaHint } from "@/components/usability/WhyDisabledCtaHint";
 import { CollabRecentActorPresenceStrip } from "@/components/CollabRecentActorPresenceStrip";
 import { DispositionExportBeforeAfterPreview } from "@/components/operator/DispositionExportBeforeAfterPreview";
@@ -38,6 +39,10 @@ import {
   DISPOSITION_RATIONALE_REQUIRED_MESSAGE,
   TRADE_OFF_ACKNOWLEDGMENT_REQUIRED_MESSAGE,
 } from "@/lib/review-quality/finding-governance-gates";
+import {
+  resolveRiskExceptionCreateEmphasizedStepId,
+  resolveRiskExceptionCreateSteps,
+} from "@/lib/risk-exception-create-checklist";
 
 import {
   useFindingInspectGovernanceStickiness,
@@ -114,6 +119,14 @@ export function FindingInspectGovernanceStickinessPanel(
     recentDispositionActors,
     pendingDispositionBlockedReason,
   } = useFindingInspectGovernanceStickiness(props);
+
+  const waiverCreateChecklistInput = {
+    ownerAssigned: waiverOwnerUserId.trim().length > 0 && waiverOwnerError === null,
+    evidenceDocumented: waiverRationale.trim().length > 0 && waiverEvidenceRef.trim().length > 0,
+    waiverCreated: activeWaiver !== null,
+  };
+  const waiverCreateSteps = resolveRiskExceptionCreateSteps(waiverCreateChecklistInput);
+  const waiverCreateEmphasizedStepId = resolveRiskExceptionCreateEmphasizedStepId(waiverCreateChecklistInput);
 
   return (
     <div className={cn(OPERATOR_LAYOUT.sectionStack, "rounded-lg border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950/40", OPERATOR_TYPOGRAPHY.body)}>
@@ -323,6 +336,14 @@ export function FindingInspectGovernanceStickinessPanel(
           </p>
         ) : (
           <>
+            {canMutate ? (
+              <IntegrationConnectChecklist
+                title="Create waiver checklist"
+                steps={waiverCreateSteps}
+                emphasizedStepId={waiverCreateEmphasizedStepId}
+                testIdPrefix="finding-waiver-create"
+              />
+            ) : null}
             <label className="grid gap-1">
               <span className="font-medium">{EXCEPTION_OWNER_LABEL}</span>
               <span className={cn("text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>{EXCEPTION_OWNER_HELP}</span>
