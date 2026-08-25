@@ -48,11 +48,35 @@ public sealed class GraphSnapshotCommittedReuseResolverTests
     }
 
     [Fact]
-    public async Task TryResolveAsync_reuses_orphan_graph_for_run_when_header_fk_missing()
+    public async Task TryResolveAsync_skips_orphan_reuse_when_run_header_graph_id_is_null()
+    {
+        Guid runId = Guid.NewGuid();
+        Guid contextId = Guid.NewGuid();
+        ScopeContext scope = new() { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() };
+
+        Mock<IGraphSnapshotRepository> repo = new();
+
+        GraphSnapshotResolutionResult? result = await GraphSnapshotCommittedReuseResolver.TryResolveAsync(
+            scope,
+            runId,
+            runGraphSnapshotId: null,
+            contextId,
+            repo.Object,
+            CancellationToken.None);
+
+        result.Should().BeNull();
+        repo.Verify(
+            r => r.GetLatestByContextSnapshotIdAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task TryResolveAsync_reuses_orphan_graph_when_header_points_to_missing_graph()
     {
         Guid runId = Guid.NewGuid();
         Guid graphId = Guid.NewGuid();
         Guid contextId = Guid.NewGuid();
+        Guid staleHeaderId = Guid.NewGuid();
         GraphSnapshot orphan = new()
         {
             GraphSnapshotId = graphId,
@@ -64,6 +88,8 @@ public sealed class GraphSnapshotCommittedReuseResolverTests
         ScopeContext scope = new() { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() };
 
         Mock<IGraphSnapshotRepository> repo = new();
+        repo.Setup(r => r.GetByIdAsync(scope, staleHeaderId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((GraphSnapshot?)null);
         repo
             .Setup(r => r.GetLatestByContextSnapshotIdAsync(scope, contextId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(orphan);
@@ -71,7 +97,7 @@ public sealed class GraphSnapshotCommittedReuseResolverTests
         GraphSnapshotResolutionResult? result = await GraphSnapshotCommittedReuseResolver.TryResolveAsync(
             scope,
             runId,
-            runGraphSnapshotId: null,
+            staleHeaderId,
             contextId,
             repo.Object,
             CancellationToken.None);
