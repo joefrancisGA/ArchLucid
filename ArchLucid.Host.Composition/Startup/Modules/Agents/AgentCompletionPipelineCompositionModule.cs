@@ -91,21 +91,60 @@ using Polly;
 using System.Text.Json.Serialization;
 using System.Text.Json;
 
-using ArchLucid.Host.Composition.Startup.Modules.Agents;
+using ArchLucid.Host.Composition.Startup.Modules;
 
-namespace ArchLucid.Host.Composition.Startup.Modules;
+namespace ArchLucid.Host.Composition.Startup.Modules.Agents;
 
 /// <summary>
-/// Agent execution and LLM completion pipeline DI registrations.
+/// Public entry points for agent completion pipeline variants.
 /// </summary>
-public static class AgentCompositionModule
+public static class AgentCompletionPipelineCompositionModule
 {
-    public static void Register(IServiceCollection services, IConfiguration configuration)
+    public static void RegisterEchoPipeline(IServiceCollection services)
     {
-        AzureOpenAiCircuitBreakerCompositionModule.Register(services, configuration);
-        AgentExecutionCompositionModule.Register(services, configuration);
+        AgentCompletionPipelineHelpers.RegisterEchoAgentCompletionPipeline(services);
     }
 
-    internal static CircuitBreakerGate CreateOpenAiCircuitBreakerGate(IServiceProvider serviceProvider, string gateName) =>
-        AzureOpenAiCircuitBreakerCompositionModule.CreateOpenAiCircuitBreakerGate(serviceProvider, gateName);
+    public static void RegisterFakeClient(IServiceCollection services)
+    {
+        AgentCompletionPipelineHelpers.RegisterFakeAgentCompletionClient(services);
+    }
+
+    public static void RegisterSchemaRemediationClient(IServiceCollection services, bool useAzureOpenAi)
+    {
+        AgentCompletionPipelineHelpers.RegisterSchemaRemediationAgentCompletionClient(services, useAzureOpenAi);
+    }
+
+    public static void ConfigureLlmTelemetryLabels(
+        IServiceCollection services,
+        IConfiguration configuration,
+        string? agentMode,
+        bool useAzureOpenAi,
+        bool useEchoClient)
+    {
+        services.Configure<LlmTelemetryLabelOptions>(options =>
+        {
+            if (useEchoClient)
+            {
+                options.ProviderId = "echo";
+                options.ModelDeploymentLabel = "echo";
+            }
+            else if (useAzureOpenAi)
+            {
+                options.ProviderId = "azure-openai";
+                options.ModelDeploymentLabel = configuration["AzureOpenAI:DeploymentName"]?.Trim() ?? "unknown";
+            }
+            else if (string.Equals(agentMode, "Simulator", StringComparison.OrdinalIgnoreCase))
+            {
+                options.ProviderId = "simulator";
+                options.ModelDeploymentLabel = "deterministic";
+            }
+            else
+            {
+                options.ProviderId = "fake";
+                options.ModelDeploymentLabel = "fake";
+            }
+        });
+    }
+
 }

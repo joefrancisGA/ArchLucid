@@ -91,21 +91,75 @@ using Polly;
 using System.Text.Json.Serialization;
 using System.Text.Json;
 
-using ArchLucid.Host.Composition.Startup.Modules.Agents;
+using ArchLucid.Host.Composition.Startup.Modules;
 
-namespace ArchLucid.Host.Composition.Startup.Modules;
+namespace ArchLucid.Host.Composition.Startup.Modules.Agents;
 
 /// <summary>
-/// Agent execution and LLM completion pipeline DI registrations.
+/// LLM batch completion transport and routing.
 /// </summary>
-public static class AgentCompositionModule
+public static class LlmBatchCompositionModule
 {
     public static void Register(IServiceCollection services, IConfiguration configuration)
     {
-        AzureOpenAiCircuitBreakerCompositionModule.Register(services, configuration);
-        AgentExecutionCompositionModule.Register(services, configuration);
-    }
+        services.Configure<LlmBatchOptions>(configuration.GetSection(LlmBatchOptions.SectionPath));
+        services.PostConfigure<LlmBatchOptions>(static options =>
+        {
+            options.PollIntervalSeconds = Math.Clamp(options.PollIntervalSeconds, 5, 300);
+            options.MaxWaitMinutes = Math.Clamp(options.MaxWaitMinutes, 1, 1_440);
+            options.EstimatedDiscountRatio = Math.Clamp(options.EstimatedDiscountRatio, 0.0, 1.0);
+        });
+        services.AddSingleton<ILlmBatchRoutingContext>(_ => LlmBatchRoutingContext.Instance);
+        services.AddHttpClient(
+            AzureOpenAiBatchHttpClients.BatchHttpClientName,
+            static (sp, client) =>
+            {
+                IConfiguration config = sp.GetRequiredService<IConfiguration>();
+                string? apiKey = config["AzureOpenAI:ApiKey"];
 
-    internal static CircuitBreakerGate CreateOpenAiCircuitBreakerGate(IServiceProvider serviceProvider, string gateName) =>
-        AzureOpenAiCircuitBreakerCompositionModule.CreateOpenAiCircuitBreakerGate(serviceProvider, gateName);
+                if (!string.IsNullOrWhiteSpace(apiKey))
+                    client.DefaultRequestHeaders.Add("api-key", apiKey);
+
+                client.Timeout = TimeSpan.FromHours(3);
+            })
+            .ConfigureArchLucidOutboundSocketsHandler(OutboundHttpSocketsHandlerProfile.LlmCompletion);
+        services.AddSingleton<IBatchAgentCompletionClient>(static sp =>
+        {
+            IConfiguration config = sp.GetRequiredService<IConfiguration>();
+            LlmBatchOptions batchOptions = config.GetSection(LlmBatchOptions.SectionPath).Get<LlmBatchOptions>()
+                                           ?? new LlmBatchOptions();
+
+            if (!batchOptions.Enabled)
+                return DisabledBatchAgentCompletionClient.Instance;
+
+            string endpoint = config["AzureOpenAI:Endpoint"]?.Trim()
+                              ?? throw new InvalidOperationException("AzureOpenAI:Endpoint is missing.");
+            string deploymentName = config["AzureOpenAI:DeploymentName"]?.Trim()
+                                    ?? throw new InvalidOperationException("AzureOpenAI:DeploymentName is missing.");
+            string authenticationMode = config["AzureOpenAI:AuthenticationMode"]?.Trim() ?? "ApiKey";
+            string? apiKey = config["AzureOpenAI:ApiKey"];
+
+            if (string.Equals(authenticationMode, "ManagedIdentity", StringComparison.OrdinalIgnoreCase))
+            {
+                throw new InvalidOperationException(
+                    "ArchLucid:LlmBatch requires ApiKey authentication today; ManagedIdentity batch transport is not implemented.");
+            }
+
+            if (string.IsNullOrWhiteSpace(apiKey))
+                throw new InvalidOperationException("AzureOpenAI:ApiKey is missing.");
+
+            IAzureOpenAiBatchTransport transport = new AzureOpenAiBatchHttpTransport(
+                sp.GetRequiredService<IHttpClientFactory>(),
+                endpoint,
+                sp.GetRequiredService<ILogger<AzureOpenAiBatchHttpTransport>>());
+
+            return new AzureOpenAiBatchCompletionClient(
+                transport,
+                deploymentName,
+                sp.GetRequiredService<IOptionsMonitor<LlmBatchOptions>>(),
+                sp.GetRequiredService<ILlmCostEstimator>(),
+                TimeProvider.System,
+                sp.GetRequiredService<ILogger<AzureOpenAiBatchCompletionClient>>());
+        });
+    }
 }
