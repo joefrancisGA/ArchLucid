@@ -128,6 +128,11 @@ describe("CompositeAlertRulesContent", () => {
 
     expect(screen.getByLabelText("Name")).toBeInTheDocument();
     expect(screen.getByTestId("composite-rules-create-button")).toHaveTextContent("Create composite rule");
+    expect(screen.getByTestId("composite-alert-rules-create-setup-progress")).toBeInTheDocument();
+    expect(screen.getByTestId("composite-alert-rules-create-setup-step-name")).toHaveAttribute(
+      "data-emphasized",
+      "true",
+    );
   });
 
   it("TB-1580: composite form source avoids raw html input and button elements", () => {
