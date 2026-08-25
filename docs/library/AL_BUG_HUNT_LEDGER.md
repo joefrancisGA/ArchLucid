@@ -1920,11 +1920,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** aws extractor; gcp extractor; azure extractor
 - **paths:** ArchLucid.Integrations.AwsExtractor/; ArchLucid.Integrations.GcpExtractor/; ArchLucid.Integrations.AzureExtractor/
 - **test-filter:** FullyQualifiedName~AwsExtractor|FullyQualifiedName~GcpExtractor|FullyQualifiedName~AzureExtractor
-- **hunts:** 6
-- **bugs-found:** 9
+- **hunts:** 7
+- **bugs-found:** 10
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24 — AWS STS AssumeRoleWithWebIdentity always used commercial `us-east-1` instead of connection region
+- **last-hunt:** 2026-08-25
+- **last-bug:** 2026-08-25 — AWS GovCloud IAM role ARN rejected by commercial-partition prefix check
 - **related-pd-tb:** none
 - **code-changed-since:** no
 
@@ -1941,6 +1941,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) GCP `ProjectId` not validated against impersonated service account email — **hit 2026-08-24:** `HostedGcpExtractorClient.CollectZipAsync` stamped manifest/search scope from request `ProjectId` without checking `{name}@{project}.iam.gserviceaccount.com`; dual-path gap vs AWS `AwsIamRoleArn.EnsureAccountMatches`; regression in `CollectZipAsync_rejects_service_account_project_mismatch`
 - [x] (proven) Azure ARM subscription list pagination follows repeating `nextLink` indefinitely — **hit 2026-08-24:** `GetOnlyHostedAzureArmReadClient.ListSubscriptionResourcesAsync` had no visited-link guard; regression in `ListSubscriptionResourcesAsync_throws_when_next_link_repeats`
 - [x] (proven) AWS inventory stamps every resource with connection region — **hit 2026-08-24:** `AwsResourceExplorerInventoryCollector.CollectAsync` passed `regionSystemName` into `AwsInventoryResourceEntry.Location` instead of `resource.Region`; regression in `CollectAsync_uses_resource_region_not_connection_region`
+- [x] (proven) `AwsIamRoleArn.TryGetAccountId` rejects GovCloud IAM role ARNs — **hit 2026-08-25:** prefix check required `arn:aws:iam::` so `arn:aws-us-gov:iam::123456789012:role/ReadOnly` failed validation and blocked GovCloud extractor runs; fixed by locating account id via `:iam::` infix across partitions; regression in `TryGetAccountId_accepts_aws_us_gov_partition_role_arn`
+- [ ] (hunt-ready) `AwsResourceExplorerInventoryCollector.CollectAsync` follows repeating `NextToken` indefinitely — pagination loop has no visited-token guard or page cap, so a stuck API response can spin forever (Azure extractor already guards repeating `nextLink`).
+- [ ] (hunt-ready) `AwsResourceExplorerInventoryCollector` hardcodes `QueryString = "arn:aws:*"` — GovCloud connections in `us-gov-*` regions need `arn:aws-us-gov:*` or inventory returns empty while commercial partition query runs.
 
 ---
 
