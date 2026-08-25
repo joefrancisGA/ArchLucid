@@ -33,6 +33,7 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
     private readonly ITechnologyLedgerRepository? _technologyLedgerRepository;
     private readonly IScopeContextProvider? _scopeContextProvider;
     private readonly IAuthorityFindingsSnapshotUpdater? _authorityFindingsSnapshotUpdater;
+    private readonly ISpecialistFindingsSubstantiationService _specialistFindingsSubstantiationService;
 
     public ClosedLoopArchitectureReasoningOrchestrator(
         IImmutableSourceStore sourceStore,
@@ -51,6 +52,7 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
         IArchitectureIntelligenceProductPublishService productPublishService,
         IReviewResultCache reviewResultCache,
         IArchitectureIntelligenceReviewTierBudgetGuard tierBudgetGuard,
+        ISpecialistFindingsSubstantiationService specialistFindingsSubstantiationService,
         IArchitectureIntelligencePersistence? persistence = null,
         IArchitectureKnowledgeModelAccess? knowledgeModelAccess = null,
         ITechnologyLedgerRepository? technologyLedgerRepository = null,
@@ -73,6 +75,8 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
         _productPublishService = productPublishService ?? throw new ArgumentNullException(nameof(productPublishService));
         _reviewResultCache = reviewResultCache ?? throw new ArgumentNullException(nameof(reviewResultCache));
         _tierBudgetGuard = tierBudgetGuard ?? throw new ArgumentNullException(nameof(tierBudgetGuard));
+        _specialistFindingsSubstantiationService = specialistFindingsSubstantiationService
+            ?? throw new ArgumentNullException(nameof(specialistFindingsSubstantiationService));
         _persistence = persistence;
         _knowledgeModelAccess = knowledgeModelAccess;
         _technologyLedgerRepository = technologyLedgerRepository;
@@ -263,14 +267,21 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
 
                 modelDiffs = applied.ModelDiffs;
                 impactResults = applied.ImpactResults;
+                model = applied.WorkingModel;
 
                 reReview = await _incrementalReReviewService.ReReviewAsync(
-                    applied.WorkingModel,
+                    model,
                     applied.Scope,
                     _specialistReviewService,
                     cancellationToken).ConfigureAwait(false);
 
-                await TryMergeClosedLoopReReviewAsync(request, reReview, cancellationToken).ConfigureAwait(false);
+                await IntegrateClosedLoopReReviewFindingsAsync(
+                    request,
+                    reReview,
+                    allFindings,
+                    validationResults,
+                    validationByFindingId,
+                    cancellationToken).ConfigureAwait(false);
             }
         }
 
@@ -344,26 +355,39 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
         return result;
     }
 
-    private async Task TryMergeClosedLoopReReviewAsync(
+    private async Task IntegrateClosedLoopReReviewFindingsAsync(
         ClosedLoopReasoningRequest request,
         IncrementalReReviewResult reReview,
+        List<SpecialistReviewFinding> allFindings,
+        List<EvidenceValidationResult> validationResults,
+        Dictionary<string, EvidenceValidationResult> validationByFindingId,
         CancellationToken cancellationToken)
     {
+        List<SpecialistReviewFinding> incrementalFindings =
+            ClosedLoopReReviewPublishIntegrator.SelectNewIncrementalFindings(reReview, allFindings);
+
+        if (incrementalFindings.Count == 0)
+            return;
+
+        SpecialistFindingsSubstantiationResult substantiation = await _specialistFindingsSubstantiationService
+            .SubstantiateAsync(incrementalFindings, cancellationToken)
+            .ConfigureAwait(false);
+
+        ClosedLoopReReviewPublishIntegrator.IntegrateFromSubstantiation(
+            incrementalFindings,
+            substantiation,
+            allFindings,
+            validationResults,
+            validationByFindingId);
+
         if (_authorityFindingsSnapshotUpdater is null
             || _scopeContextProvider is null
             || !Guid.TryParse(request.RunId, out Guid runId))
             return;
 
-        List<SpecialistReviewFinding> incrementalFindings = reReview.SpecialistResults
-            .SelectMany(static result => result.Findings)
-            .ToList();
-
-        if (incrementalFindings.Count == 0)
-            return;
-
         ScopeContext scope = _scopeContextProvider.GetCurrentScope();
         IReadOnlyList<string> mergedFindingIds = await _authorityFindingsSnapshotUpdater
-            .MergeSpecialistFindingsAsync(scope, runId, incrementalFindings, cancellationToken)
+            .MergeSubstantiatedFindingsAsync(scope, runId, substantiation, cancellationToken)
             .ConfigureAwait(false);
 
         reReview.MergedFindingIds = mergedFindingIds;

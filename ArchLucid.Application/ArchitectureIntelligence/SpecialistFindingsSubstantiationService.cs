@@ -23,6 +23,12 @@ public sealed class SpecialistFindingsSubstantiationResult
         get;
         init;
     } = [];
+
+    public IReadOnlyList<EvidenceValidationResult> ValidationResults
+    {
+        get;
+        init;
+    } = [];
 }
 
 public sealed class SpecialistFindingsSubstantiationService(
@@ -78,6 +84,7 @@ public sealed class SpecialistFindingsSubstantiationService(
         {
             SubstantiatedFindings = adversarial.SubstantiatedFindings,
             Challenges = adversarial.Challenges,
+            ValidationResults = validationResults,
         };
     }
 
