@@ -9,6 +9,7 @@ import type { PolicyPack, PolicyPackContentDocument, PolicyPackWorkspaceSelectio
 import { HealthcareClaimsPolicyPackDetail } from "./HealthcareClaimsPolicyPackDetail";
 import { PolicyPackDetailEvidenceChrome } from "./PolicyPackDetailEvidenceChrome";
 import { PolicyPackDetailLoadError } from "./PolicyPackDetailLoadError";
+import { PolicyPackDetailNextPackFooterClient } from "./PolicyPackDetailNextPackFooterClient";
 import { PolicyPackGenericDetail } from "./PolicyPackGenericDetail";
 import { PolicyPackDetailNotFound } from "./PolicyPackDetailNotFound";
 import { ResponsibleAiPolicyPackDetail } from "./ResponsibleAiPolicyPackDetail";
@@ -17,8 +18,15 @@ type PolicyPackDetailClientProps = {
   readonly policyPackId: string;
 };
 
-function withEvidenceChrome(node: ReactElement): ReactElement {
-  return <PolicyPackDetailEvidenceChrome>{node}</PolicyPackDetailEvidenceChrome>;
+function withEvidenceChrome(node: ReactElement, policyPackId: string): ReactElement {
+  return (
+    <PolicyPackDetailEvidenceChrome>
+      {node}
+      <div className="px-4 pb-4">
+        <PolicyPackDetailNextPackFooterClient policyPackId={policyPackId} />
+      </div>
+    </PolicyPackDetailEvidenceChrome>
+  );
 }
 
 function resolveWorkspaceEnablement(
@@ -64,7 +72,7 @@ export function PolicyPackDetailClient(props: PolicyPackDetailClientProps): Reac
   }
 
   if (kind === "healthcare-claims") {
-    return withEvidenceChrome(<HealthcareClaimsPolicyPackDetail policyPackId={policyPackId} />);
+    return withEvidenceChrome(<HealthcareClaimsPolicyPackDetail policyPackId={policyPackId} />, policyPackId);
   }
 
   if (kind === "responsible-ai") {
@@ -76,11 +84,12 @@ export function PolicyPackDetailClient(props: PolicyPackDetailClientProps): Reac
         isEnabled={isEnabled}
         isGloballyActive={isGloballyActive}
       />,
+      policyPackId,
     );
   }
 
   if (detailQuery.isError) {
-    return withEvidenceChrome(<PolicyPackDetailLoadError onRetry={handleRetry} />);
+    return withEvidenceChrome(<PolicyPackDetailLoadError onRetry={handleRetry} />, policyPackId);
   }
 
   if (packRecord !== null) {
@@ -92,8 +101,9 @@ export function PolicyPackDetailClient(props: PolicyPackDetailClientProps): Reac
         isEnabled={isEnabled}
         isGloballyActive={isGloballyActive}
       />,
+      policyPackId,
     );
   }
 
-  return withEvidenceChrome(<PolicyPackDetailNotFound policyPackId={policyPackId} />);
+  return withEvidenceChrome(<PolicyPackDetailNotFound policyPackId={policyPackId} />, policyPackId);
 }
