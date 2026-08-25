@@ -2,7 +2,9 @@
 
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { useMemo, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+
+import { useWorkspaceActiveRun } from "@/components/WorkspaceActiveRunContext";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { DocumentLayout } from "@/components/DocumentLayout";
@@ -65,6 +67,11 @@ import { PilotOutcomesLoadingSkeleton } from "./PilotOutcomesLoadingSkeleton";
 import { PilotValueReportBuyerChrome } from "./PilotValueReportBuyerChrome";
 import { PilotValueReportSeverityBars } from "./PilotValueReportSeverityBars";
 import { SponsorReportFinalizedReviewPickerStrip } from "./SponsorReportFinalizedReviewPickerStrip";
+import { SponsorReportNextReviewFooterClient } from "./SponsorReportNextReviewFooterClient";
+import {
+  readSponsorReportPickedReviewId,
+  writeSponsorReportPickedReviewId,
+} from "@/lib/sponsor-report/sponsor-report-picked-review-storage";
 import { ValueReportIncludesSection } from "./ValueReportIncludesSection";
 import { PilotRoiValidationHandoffClient } from "@/components/pilots/PilotRoiValidationHandoffCard";
 import { formatPilotValueReportAvgCompletion } from "./pilot-value-report-page-helpers";
@@ -118,6 +125,37 @@ function exportDisabledReason(
 export function PilotValueReportPageView(props: Props) {
   const m = props.model;
   const periodControlsRef = useRef<HTMLDivElement>(null);
+  const workspaceRun = useWorkspaceActiveRun();
+  const workspaceRunId = workspaceRun.runId.trim();
+  const [selectedReviewId, setSelectedReviewId] = useState("");
+
+  useEffect(() => {
+    const fromStorage = readSponsorReportPickedReviewId();
+
+    if (fromStorage.length > 0) {
+      setSelectedReviewId(fromStorage);
+
+      return;
+    }
+
+    if (workspaceRunId.length > 0) {
+      setSelectedReviewId(workspaceRunId);
+    }
+  }, [workspaceRunId]);
+
+  useEffect(() => {
+    const firstTimelineRunId = m.data?.committedRunsTimeline[0]?.runId?.trim() ?? "";
+
+    if (selectedReviewId.trim().length === 0 && firstTimelineRunId.length > 0) {
+      setSelectedReviewId(firstTimelineRunId);
+    }
+  }, [m.data, selectedReviewId]);
+
+  const onSelectedReviewIdChange = useCallback((reviewId: string) => {
+    const trimmed = reviewId.trim();
+    setSelectedReviewId(trimmed);
+    writeSponsorReportPickedReviewId(trimmed);
+  }, []);
 
   const hasFinalizedReviews = pilotOutcomesReportHasFinalizedReviews(m.data);
   const emptyDiagnostics = useMemo(
@@ -173,7 +211,11 @@ export function PilotValueReportPageView(props: Props) {
 
           <PilotValueReportBuyerChrome />
 
-        <SponsorReportFinalizedReviewPickerStrip hasFinalizedReviews={hasFinalizedReviews} />
+        <SponsorReportFinalizedReviewPickerStrip
+          hasFinalizedReviews={hasFinalizedReviews}
+          selectedReviewId={selectedReviewId}
+          onSelectedReviewIdChange={onSelectedReviewIdChange}
+        />
 
         <CollapsibleSection
           title={BUYER_VALUE_REPORT_HOW_IT_WORKS_TITLE}
@@ -558,6 +600,10 @@ export function PilotValueReportPageView(props: Props) {
                 <li>Review completion time reflects pipeline duration for finalized reviews in the detail sample.</li>
               </ul>
             </CollapsibleSection>
+
+            {selectedReviewId.trim().length > 0 ? (
+              <SponsorReportNextReviewFooterClient runId={selectedReviewId.trim()} />
+            ) : null}
           </div>
         ) : null}
         </div>

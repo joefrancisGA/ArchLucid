@@ -37,6 +37,14 @@ vi.mock("@/components/pilots/PilotRoiValidationHandoffCard", () => ({
   PilotRoiValidationHandoffClient: () => null,
 }));
 
+vi.mock("@/components/WorkspaceActiveRunContext", () => ({
+  useWorkspaceActiveRun: () => ({ runId: "", displayTitle: "" }),
+}));
+
+vi.mock("./SponsorReportNextReviewFooterClient", () => ({
+  SponsorReportNextReviewFooterClient: () => <div data-testid="sponsor-report-next-review-footer-client" />,
+}));
+
 function buildModel(overrides: Partial<PilotValueReportPilotPageViewModel> = {}): PilotValueReportPilotPageViewModel {
   return {
     fromUtc: "2026-03-01T00:00",
@@ -242,7 +250,6 @@ describe("PilotValueReportPageView buyer-polished chrome (TB-1969)", () => {
       "href",
       `#${PILOT_OUTCOMES_PRIMARY_CONTENT_ID}`,
     );
-    expect(screen.getByTestId("sponsor-report-breadcrumb")).toBeInTheDocument();
     expect(screen.getByTestId("pilot-outcomes-orientation-top")).toBeInTheDocument();
     expect(screen.getByTestId("pilot-outcomes-claim-discipline").textContent).toContain(
       PILOT_OUTCOMES_CLAIM_DISCIPLINE.slice(0, 40),

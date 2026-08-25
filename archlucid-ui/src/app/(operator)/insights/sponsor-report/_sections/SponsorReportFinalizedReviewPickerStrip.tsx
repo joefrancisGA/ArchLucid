@@ -1,10 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
 
 import { AskRunIdPicker } from "@/components/AskRunIdPicker";
-import { useWorkspaceActiveRun } from "@/components/WorkspaceActiveRunContext";
 import { Button } from "@/components/ui/button";
 import { reviewDetailPath } from "@/lib/architecture/architecture-routes";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
@@ -12,27 +10,19 @@ import { cn } from "@/lib/utils";
 
 export type SponsorReportFinalizedReviewPickerStripProps = {
   readonly hasFinalizedReviews: boolean;
+  readonly selectedReviewId: string;
+  readonly onSelectedReviewIdChange: (reviewId: string) => void;
 };
 
 /** Guides sponsors to open a finalized review package before reading aggregate outcomes. */
 export function SponsorReportFinalizedReviewPickerStrip(
   props: SponsorReportFinalizedReviewPickerStripProps,
 ): React.JSX.Element | null {
-  const workspaceRun = useWorkspaceActiveRun();
-  const workspaceRunId = workspaceRun.runId.trim();
-  const [selectedReviewId, setSelectedReviewId] = useState(workspaceRunId);
-
-  useEffect(() => {
-    if (selectedReviewId.trim().length === 0 && workspaceRunId.length > 0) {
-      setSelectedReviewId(workspaceRunId);
-    }
-  }, [selectedReviewId, workspaceRunId]);
-
   if (!props.hasFinalizedReviews) {
     return null;
   }
 
-  const openReviewId = selectedReviewId.trim();
+  const openReviewId = props.selectedReviewId.trim();
 
   return (
     <section
@@ -54,7 +44,7 @@ export function SponsorReportFinalizedReviewPickerStrip(
           <AskRunIdPicker
             value={openReviewId}
             onChange={(value) => {
-              setSelectedReviewId(value.trim());
+              props.onSelectedReviewIdChange(value.trim());
             }}
             selectedThreadId=""
             committedOnly
