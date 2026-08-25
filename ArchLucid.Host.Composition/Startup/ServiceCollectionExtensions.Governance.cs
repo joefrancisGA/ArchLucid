@@ -26,6 +26,8 @@ using ArchLucid.AgentRuntime.PromptInjection;
 using ArchLucid.Application.Agents.IaC;
 using ArchLucid.Application.Findings;
 using ArchLucid.Application.Governance;
+using ArchLucid.Application.Governance.Workflow;
+using ArchLucid.Application.Governance.Workflow.Stages;
 using ArchLucid.Contracts.Abstractions.Agents;
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Core.AgentEvaluation;
@@ -110,6 +112,13 @@ public static partial class ServiceCollectionExtensions
             services.AddScoped<IGovernanceEnvironmentActivationRepository, GovernanceEnvironmentActivationRepository>();
         }
 
+        services.AddScoped<GovernanceWorkflowAuditSupport>();
+        services.AddScoped<GovernanceWorkflowIntegrationEventSupport>();
+        services.AddScoped<IGovernanceWorkflowSubmitStage, GovernanceWorkflowSubmitStage>();
+        services.AddScoped<IGovernanceWorkflowReviewStage, GovernanceWorkflowReviewStage>();
+        services.AddScoped<IGovernanceWorkflowPromoteStage, GovernanceWorkflowPromoteStage>();
+        services.AddScoped<IGovernanceWorkflowActivateStage, GovernanceWorkflowActivateStage>();
+        services.AddScoped<IGovernanceWorkflowFacade, GovernanceWorkflowFacade>();
         services.AddScoped<IGovernanceWorkflowService, GovernanceWorkflowService>();
         RegisterGovernanceDashboardService(services, configuration);
         services.AddScoped<IGovernanceLineageService, GovernanceLineageService>();

@@ -13,6 +13,7 @@ using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.IntegrationOutbox;
 using ArchLucid.TestSupport;
+using ArchLucid.TestSupport.Governance;
 
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -103,7 +104,7 @@ internal static class GovernanceWorkflowTestFactory
         Mock<IIntegrationEventOutboxRepository> outbox = CreateIntegrationOutboxStub();
         Mock<IOptionsMonitor<IntegrationEventsOptions>> opts = CreateIntegrationEventsOptionsMonitor();
 
-        return new GovernanceWorkflowService(
+        return GovernanceWorkflowTestComposition.CreateService(
             approvalRepo.Object,
             promotionRepo.Object,
             activationRepo.Object,
@@ -115,8 +116,7 @@ internal static class GovernanceWorkflowTestFactory
             outbox.Object,
             opts.Object,
             Options.Create(new PreCommitGovernanceGateOptions()),
-            ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
-            logger.Object);
+            ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory());
     }
 
     internal static GovernanceWorkflowService CreateWithActivationRepo(
@@ -166,7 +166,7 @@ internal static class GovernanceWorkflowTestFactory
         Mock<IIntegrationEventOutboxRepository> outbox = CreateIntegrationOutboxStub();
         Mock<IOptionsMonitor<IntegrationEventsOptions>> opts = CreateIntegrationEventsOptionsMonitor();
 
-        return new GovernanceWorkflowService(
+        return GovernanceWorkflowTestComposition.CreateService(
             approvalRepo.Object,
             promotionRepo.Object,
             activationRepo.Object,
@@ -178,8 +178,7 @@ internal static class GovernanceWorkflowTestFactory
             outbox.Object,
             opts.Object,
             Options.Create(new PreCommitGovernanceGateOptions()),
-            ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
-            logger.Object);
+            ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory());
     }
 
     private static Mock<IIntegrationEventOutboxRepository> CreateIntegrationOutboxStub()
