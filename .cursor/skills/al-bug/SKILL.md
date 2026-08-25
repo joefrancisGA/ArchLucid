@@ -33,7 +33,9 @@ Default push target: **`master`**.
 3. **Ship** — `.\scripts\agent\al-bug-push-master.ps1` when main tree is dirty; else direct commit. Always update `docs/library/AL_BUG_HUNT_LEDGER.md`.
 4. **Stats** — `.\scripts\agent\al-bug-rolling-stats.ps1 -RecordHunt -HuntZoneId '<id>' -HuntOutcome hit|dry|seed-only -Rolling24h` (skip for `--status`). Ship `docs/library/AL_BUG_HUNT_RUN_LOG.jsonl` with the ledger. Report **Bugs found (24h)** and **Dry runs (24h)** in the result table.
 
-`--status` prints the picker preview and stops. A dry hunt (hunt-ready hypotheses tested, no failing repro) updates the ledger and stops — do not invent another zone. A **seed hunt** (`seedHunt: true`) reads the zone files, promotes or retires candidates, and may prove one hunt-ready row in the same run.
+`--status` prints the picker preview and stops. Each run is either a **thorough defect hunt** or a **seed hunt** — announce the kind immediately after the picker, even when other `/al-bug` messages are queued. A dry hunt (hunt-ready hypotheses tested with failing-repro attempts, no failing repro) updates the ledger and stops — do not invent another zone. A **seed hunt** (`seedHunt: true`) must say **This /al-bug run is a seed hunt**, read the zone files, promote or retire candidates, and prove any newly hunt-ready row in the same run; otherwise stop as seed-only and keep Kind `seed hunt` in the result table.
+
+Queued follow-ups do **not** skip scoped tests, cheap-disproof, or failing-repro attempts.
 
 ## Hunt the picked zone only
 

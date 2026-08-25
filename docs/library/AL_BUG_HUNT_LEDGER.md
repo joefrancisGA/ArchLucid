@@ -9,7 +9,7 @@ Curated zones covering the full product surface (API, persistence, UI, CLI, orch
 ## How to use
 
 1. Run `.\scripts\agent\al-bug-pick-zone.ps1 -Preview` (add `-Hint 'â€¦'` when the user named an area; add `-Refresh` to recompute git churn).
-2. Hunt **only** the returned zone's `paths`. Treat `huntReadyHypotheses` as claims; treat `candidateHypotheses` as search lenses until a seed hunt. When `seedHunt` is true because all stored rows are closed, read the source again and generate fresh mechanism-backed hypotheses; an empty list is not a dry-run result.
+2. Hunt **only** the returned zone's `paths`. After the picker, announce **seed hunt** or **thorough defect hunt** from `seedHunt` before reading files. Treat `huntReadyHypotheses` as claims; treat `candidateHypotheses` as search lenses until a seed hunt. When `seedHunt` is true because all stored rows are closed, read the source again and generate fresh mechanism-backed hypotheses; an empty list is not a dry-run result. Queued `/al-bug` messages do not shorten a thorough hunt.
 3. After the hunt, edit this file (the script does **not** write it):
    - **Hit:** increment `hunts` and `bugs-found`; set `consecutive-dry-hunts` to `0`; set `last-hunt` and `last-bug` to today (`YYYY-MM-DD`); tick the hypothesis as `(proven)`.
    - **Dry:** increment `hunts` and `consecutive-dry-hunts`; set `last-hunt` to today; tick attempted hunt-ready rows as `(valid-no-repro)` or `(invalid)`. Do not invent another bug in the same files.

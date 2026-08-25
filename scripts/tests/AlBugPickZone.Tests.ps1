@@ -653,4 +653,76 @@ $bOpen
         $result.seedHunt | Should Be $true
         @($result.openHypotheses).Count | Should Be 0
     }
+
+    It 'prints a seed-hunt kind banner when previewing a spent zone' {
+        $content = @"
+# fixture
+
+## Zone: zone-spent
+
+- **id:** zone-spent
+- **status:** open
+- **aliases:** hypotheses consumed
+- **paths:** ArchLucid.Application/Spent.cs
+- **test-filter:** FullyQualifiedName~SpentTests
+- **hunts:** 8
+- **bugs-found:** 7
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-08-24
+- **last-bug:** 2026-08-24
+- **related-pd-tb:** none
+- **code-changed-since:** 0
+
+### Hypotheses
+
+- [x] (proven) Every stored hypothesis has been consumed
+"@
+        [string]$ledger = New-LedgerFixture -Content $content
+        $pickerArgs = @{
+            LedgerPath = $ledger
+            SkipGit    = $true
+            Preview    = $true
+        }
+        [string]$output = @(& $script:pickerScript @pickerArgs 6>&1 | ForEach-Object { "$_" }) -join "`n"
+
+        $output | Should Match 'Kind: seed hunt'
+        $output | Should Match 'This /al-bug run is a seed hunt'
+        $output | Should Not Match 'Kind: thorough hunt'
+    }
+
+    It 'prints a thorough-hunt kind banner when previewing a zone with open hypotheses' {
+        $content = @"
+# fixture
+
+## Zone: zone-open
+
+- **id:** zone-open
+- **status:** open
+- **aliases:** still hunting
+- **paths:** ArchLucid.Application/Open.cs
+- **test-filter:** FullyQualifiedName~OpenTests
+- **hunts:** 1
+- **bugs-found:** 0
+- **consecutive-dry-hunts:** 0
+- **last-hunt:** 2026-08-24
+- **last-bug:** never
+- **related-pd-tb:** none
+- **code-changed-since:** 0
+
+### Hypotheses
+
+- [ ] (hunt-ready) Locus Open.cs SubmitAsync; empty name; 200 instead of 400; omitted null check
+"@
+        [string]$ledger = New-LedgerFixture -Content $content
+        $pickerArgs = @{
+            LedgerPath = $ledger
+            SkipGit    = $true
+            Preview    = $true
+        }
+        [string]$output = @(& $script:pickerScript @pickerArgs 6>&1 | ForEach-Object { "$_" }) -join "`n"
+
+        $output | Should Match 'Kind: thorough hunt'
+        $output | Should Match 'This /al-bug run is a thorough defect hunt'
+        $output | Should Not Match 'Kind: seed hunt'
+    }
 }

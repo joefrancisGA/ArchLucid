@@ -781,6 +781,17 @@ function Write-ZonePreview {
     Write-Host ("| Test filter | `{0}` |" -f $Result.testFilter)
     Write-Host ("| Reopened | {0} |" -f $Result.reopened)
     Write-Host ''
+
+    if ($Result.seedHunt) {
+        Write-Host ('**Kind: seed hunt** for zone `{0}`.' -f $Result.zoneId)
+        Write-Host 'This /al-bug run is a seed hunt. It reseeds hypotheses from the source files. It is not a thorough defect hunt unless a newly promoted hunt-ready row is proven in this same run.'
+    }
+    else {
+        Write-Host ('**Kind: thorough hunt** for zone `{0}`.' -f $Result.zoneId)
+        Write-Host 'This /al-bug run is a thorough defect hunt. Cheap-disproof and failing-repro attempts run to completion even if other /al-bug messages are queued.'
+    }
+
+    Write-Host ''
     Write-Host 'Open hypotheses:'
     Write-Host ''
 
