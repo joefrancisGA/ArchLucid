@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { POST } from "./[...path]/route";
 import { PROXY_MAX_BODY_BYTES, PROXY_MAX_MULTIPART_BODY_BYTES } from "@/lib/proxy-constants";
+import { PROXY_UPSTREAM_LLM_ADVISORY_FETCH_TIMEOUT_MS } from "@/lib/server-fetch-timeouts";
 
 describe("POST /api/proxy/[...path] body limits", () => {
   const fetchMock = vi.fn();
@@ -154,5 +155,30 @@ describe("POST /api/proxy/[...path] body limits", () => {
     expect(json.detail).toContain("timed out after 600s");
     expect(json.detail).toContain("budget 600000ms");
     expect(json.upstreamTimeoutMs).toBe(600_000);
+  });
+
+  it("uses the LLM advisory budget when structured-brief suggest upstream times out", async () => {
+    fetchMock.mockRejectedValueOnce(new Error("The operation was aborted due to timeout"));
+
+    const req = new NextRequest("http://localhost/api/proxy/v1/architecture/request/draft", {
+      method: "POST",
+      headers: { "content-type": "application/json", "content-length": "2" },
+      body: "{}",
+    });
+
+    const res = await POST(req, {
+      params: Promise.resolve({ path: ["v1", "architecture", "request", "draft"] }),
+    });
+
+    expect(res.status).toBe(502);
+    const json = (await res.json()) as {
+      title?: string;
+      detail?: string;
+      upstreamTimeoutMs?: number;
+    };
+    expect(json.title).toBe("Upstream API unreachable");
+    expect(json.detail).toContain("timed out after 180s");
+    expect(json.detail).toContain(`budget ${PROXY_UPSTREAM_LLM_ADVISORY_FETCH_TIMEOUT_MS}ms`);
+    expect(json.upstreamTimeoutMs).toBe(PROXY_UPSTREAM_LLM_ADVISORY_FETCH_TIMEOUT_MS);
   });
 });

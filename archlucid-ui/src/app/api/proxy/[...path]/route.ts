@@ -7,8 +7,6 @@ import { resolveUpstreamApiBaseUrlForProxy } from "@/lib/config";
 import { buildProxyUpstreamPath } from "@/lib/proxy-upstream-path";
 import { declaredPostBodyExceedsLimit, readRequestBodyBytesWithLimit } from "@/lib/proxy-body-read";
 import {
-  isProxyLargeUploadRequest,
-  isProxyDevelopmentCatalogResetRequest,
   resolveProxyMaxBodyBytes,
 } from "@/lib/proxy-constants";
 import { enforceProxyRateLimit } from "@/lib/proxy-rate-limit";
@@ -20,14 +18,11 @@ import {
   logProxyDiagnostic,
   respondWithProxyProblem,
 } from "@/lib/proxy/proxy-problem-response";
-import {
-  PROXY_UPSTREAM_CATALOG_RESET_FETCH_TIMEOUT_MS,
-  PROXY_UPSTREAM_FETCH_TIMEOUT_MS,
-  PROXY_UPSTREAM_UPLOAD_FETCH_TIMEOUT_MS,
-} from "@/lib/server-fetch-timeouts";
+import { PROXY_UPSTREAM_FETCH_TIMEOUT_MS } from "@/lib/server-fetch-timeouts";
+import { resolveProxyUpstreamFetchTimeout } from "@/lib/resolve-proxy-upstream-fetch-timeout";
 import { trySandboxProxyMock } from "@/lib/sandbox-proxy-mocks";
 import { resolveProxyUpstreamScopeHeaders } from "@/lib/proxy-scope-resolution";
-import { formatProxyUpstreamUnreachableDetail } from "@/lib/proxy-upstream-unreachable-detail";
+import { formatProxyUpstreamUnreachableDetail, isProxyUpstreamTimeoutFailure } from "@/lib/proxy-upstream-unreachable-detail";
 import { fetchWithWarmupRetry } from "@/lib/warmup-retry";
 import { normalizeProxyPathForTelemetry } from "@/lib/telemetry/normalize-proxy-path-for-telemetry";
 import {
@@ -51,12 +46,8 @@ async function forwardMutatingWithBody(
 ): Promise<NextResponse> {
   const contentType = request.headers.get("content-type");
   const maxBodyBytes = resolveProxyMaxBodyBytes(pathForLog, contentType);
-  const isLargeUpload = isProxyLargeUploadRequest(pathForLog, contentType);
-  const upstreamTimeoutMs = isLargeUpload
-    ? PROXY_UPSTREAM_UPLOAD_FETCH_TIMEOUT_MS
-    : isProxyDevelopmentCatalogResetRequest(pathForLog)
-      ? PROXY_UPSTREAM_CATALOG_RESET_FETCH_TIMEOUT_MS
-      : PROXY_UPSTREAM_FETCH_TIMEOUT_MS;
+  const upstreamTimeout = resolveProxyUpstreamFetchTimeout(pathForLog, contentType);
+  const upstreamTimeoutMs = upstreamTimeout.timeoutMs;
 
   const tooLargeByHeader = declaredPostBodyExceedsLimit(
     request.headers.get("content-length"),
@@ -136,6 +127,8 @@ async function forwardMutatingWithBody(
       path: pathForLog,
       message,
       timeoutMs: upstreamTimeoutMs,
+      timeoutKind: upstreamTimeout.kind,
+      timedOut: isProxyUpstreamTimeoutFailure(message) ? 1 : 0,
       correlationId,
     });
     return respondWithProxyProblem(
