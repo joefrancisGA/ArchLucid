@@ -55,12 +55,6 @@ export function useReviewCreationProgress() {
   const elapsedIntervalIdRef = useRef<number | null>(null);
   const wizardTypeRef = useRef<string>("unknown");
 
-  const reportUnresolved = useCallback(() => {
-    trackCreateUnresolved(wizardTypeRef.current);
-    settle();
-    setOutcome({ kind: "unresolved" });
-  }, [settle]);
-
   const clearTimers = useCallback(() => {
     for (const timerId of timerIdsRef.current) {
       window.clearTimeout(timerId);
@@ -87,6 +81,12 @@ export function useReviewCreationProgress() {
     setActiveStageId(null);
     setShowStagedPanel(false);
   }, [clearTimers]);
+
+  const reportUnresolved = useCallback(() => {
+    trackCreateUnresolved(wizardTypeRef.current);
+    settle();
+    setOutcome({ kind: "unresolved" });
+  }, [settle]);
 
   const reset = useCallback(() => {
     settle();
