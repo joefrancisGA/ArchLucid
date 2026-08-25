@@ -43,11 +43,16 @@ import {
 
 import { CloudConnectionsEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
 import { CloudFirstInventoryCoach } from "@/components/integrations/CloudFirstInventoryCoach";
+import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
 import { PageHeading } from "@/components/PageHeading";
 import { PageContextualHelpButton } from "@/components/usability/PageContextualHelpButton";
 import { CloudConnectionsHubVocabularyDisclosure } from "./CloudConnectionsHubVocabularyDisclosure";
 import { CloudProviderSummaryCard } from "./CloudProviderSummaryCard";
 import { isCloudProviderSummaryConfigured } from "./is-cloud-provider-summary-configured";
+import {
+  resolveCloudConnectionsConnectSteps,
+  resolveCloudConnectionsEmphasizedStepId,
+} from "@/lib/cloud-connections-connect-checklist";
 
 function formatTimestamp(value: string | null | undefined): string {
   if (value === null || value === undefined || value.trim().length === 0) {
@@ -284,6 +289,12 @@ export function CloudConnectionsPageClient() {
 
   const showConnectionContent = !isLoading && !allZonesFailed;
 
+  const cloudConnectChecklistInput = {
+    providerSelected: visibleProviders.length > 0,
+    connectionConfigured: hasConfiguredProvider,
+    connectionValidated: hasSuccessfulPull,
+  };
+
   return (
     <OperatorPageContainer
       variant="workflow"
@@ -306,6 +317,15 @@ export function CloudConnectionsPageClient() {
           </>
         }
       />
+
+      {showConnectionContent ? (
+        <IntegrationConnectChecklist
+          title="Connect cloud inventory"
+          steps={resolveCloudConnectionsConnectSteps(cloudConnectChecklistInput)}
+          emphasizedStepId={resolveCloudConnectionsEmphasizedStepId(cloudConnectChecklistInput)}
+          testIdPrefix="cloud-connections"
+        />
+      ) : null}
 
       <CloudConnectionsEvidenceOrientationStrip />
 
