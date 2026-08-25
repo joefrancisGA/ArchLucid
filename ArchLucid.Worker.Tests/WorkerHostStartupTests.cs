@@ -5,6 +5,7 @@ using FluentAssertions;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Hosting;
 
 using Moq;
 
@@ -93,6 +94,96 @@ public sealed class WorkerHostStartupTests
         }
         finally
         {
+            snapshot.Restore();
+        }
+    }
+
+    [Fact]
+    public void Worker_host_fails_fast_when_production_uses_in_memory_storage()
+    {
+        WorkerTestArchLucidAuthEnvSnapshot snapshot = WorkerTestArchLucidAuthEnvSnapshot.CaptureAndApplyWorkerDefaults();
+
+        try
+        {
+            using WebApplicationFactory<Program> factory = new WebApplicationFactory<Program>()
+                .WithWebHostBuilder(builder =>
+                {
+                    builder.UseEnvironment(Environments.Production);
+                    builder.UseSetting("ArchLucid:StorageProvider", "InMemory");
+                    builder.UseSetting("ConnectionStrings:Redis", "localhost");
+                });
+
+            Action act = () => _ = factory.Services;
+
+            act.Should()
+                .Throw<InvalidOperationException>()
+                .WithMessage("*ArchLucid configuration is invalid*");
+        }
+        finally
+        {
+            snapshot.Restore();
+        }
+    }
+
+    [Fact]
+    public void Worker_host_fails_fast_when_prometheus_enabled_without_scrape_credentials()
+    {
+        WorkerTestArchLucidAuthEnvSnapshot snapshot = WorkerTestArchLucidAuthEnvSnapshot.CaptureAndApplyWorkerDefaults();
+
+        try
+        {
+            using WebApplicationFactory<Program> factory = new WebApplicationFactory<Program>()
+                .WithWebHostBuilder(builder =>
+                {
+                    builder.UseSetting("ArchLucid:StorageProvider", "InMemory");
+                    builder.UseSetting("ConnectionStrings:Redis", "localhost");
+                    builder.UseSetting("Observability:Prometheus:Enabled", "true");
+                });
+
+            Action act = () => _ = factory.Services;
+
+            act.Should()
+                .Throw<InvalidOperationException>()
+                .WithMessage("*Prometheus*");
+        }
+        finally
+        {
+            snapshot.Restore();
+        }
+    }
+
+    [Fact]
+    public void Worker_host_starts_when_real_mode_uses_azure_openai_environment_aliases()
+    {
+        WorkerTestArchLucidAuthEnvSnapshot snapshot = WorkerTestArchLucidAuthEnvSnapshot.CaptureAndApplyWorkerDefaults();
+        string? priorEndpoint = Environment.GetEnvironmentVariable("AZURE_OPENAI_ENDPOINT");
+        string? priorDeployment = Environment.GetEnvironmentVariable("AZURE_OPENAI_DEPLOYMENT_NAME");
+        string? priorApiKey = Environment.GetEnvironmentVariable("AZURE_OPENAI_API_KEY");
+
+        try
+        {
+            Environment.SetEnvironmentVariable("AZURE_OPENAI_ENDPOINT", "https://example.openai.azure.com/");
+            Environment.SetEnvironmentVariable("AZURE_OPENAI_DEPLOYMENT_NAME", "gpt");
+            Environment.SetEnvironmentVariable("AZURE_OPENAI_API_KEY", "test-key");
+
+            using WebApplicationFactory<Program> factory = new WebApplicationFactory<Program>()
+                .WithWebHostBuilder(builder =>
+                {
+                    builder.UseSetting("ArchLucid:StorageProvider", "InMemory");
+                    builder.UseSetting("ConnectionStrings:Redis", "localhost");
+                    builder.UseSetting("AgentExecution:Mode", "Real");
+                    builder.UseSetting("LlmCompletionCache:Enabled", "false");
+                });
+
+            Action act = () => _ = factory.Services;
+
+            act.Should().NotThrow();
+        }
+        finally
+        {
+            Environment.SetEnvironmentVariable("AZURE_OPENAI_ENDPOINT", priorEndpoint);
+            Environment.SetEnvironmentVariable("AZURE_OPENAI_DEPLOYMENT_NAME", priorDeployment);
+            Environment.SetEnvironmentVariable("AZURE_OPENAI_API_KEY", priorApiKey);
             snapshot.Restore();
         }
     }
