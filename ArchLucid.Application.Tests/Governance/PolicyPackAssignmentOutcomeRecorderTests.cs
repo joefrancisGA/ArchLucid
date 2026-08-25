@@ -78,4 +78,46 @@ public sealed class PolicyPackAssignmentOutcomeRecorderTests
 
         parsed!.PackAssignments[0].EvaluationOutcome.Should().Be(PolicyPackEvaluationOutcomes.Evaluated);
     }
+
+    [Fact]
+    public void ApplyOutcomes_ignores_muted_findings_when_snapshot_is_incomplete()
+    {
+        Guid packId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");
+        ExecutedEffectiveGovernanceSnapshotDescriptor descriptor = new()
+        {
+            PackAssignments =
+            [
+                new CommittedGovernancePackAssignmentSnapshot
+                {
+                    PolicyPackId = packId,
+                    PolicyPackVersion = "1.0",
+                    ComplianceRuleKeys = ["rule-muted"],
+                },
+            ],
+        };
+
+        string scopeJson = ExecutedEffectiveGovernanceSnapshotJson.Serialize(descriptor);
+
+        List<Finding> findings =
+        [
+            new()
+            {
+                FindingId = "f-muted",
+                PolicyRuleId = "rule-muted",
+                IsMuted = true,
+            },
+        ];
+
+        FindingsSnapshot snapshot = new()
+        {
+            GenerationStatus = FindingsSnapshotGenerationStatus.InProgress,
+        };
+
+        string updated = PolicyPackAssignmentOutcomeRecorder.ApplyOutcomes(scopeJson, findings, snapshot);
+
+        ExecutedEffectiveGovernanceSnapshotDescriptor? parsed =
+            ExecutedEffectiveGovernanceSnapshotJson.TryDeserialize(updated);
+
+        parsed!.PackAssignments[0].EvaluationOutcome.Should().Be(PolicyPackEvaluationOutcomes.Skipped);
+    }
 }

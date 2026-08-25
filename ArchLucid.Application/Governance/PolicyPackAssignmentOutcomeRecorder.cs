@@ -14,7 +14,9 @@ public static class PolicyPackAssignmentOutcomeRecorder
         ArgumentException.ThrowIfNullOrWhiteSpace(governanceScopeJson);
         ArgumentNullException.ThrowIfNull(findings);
 
-        List<Finding> rollupFindings = AuthorityFindingRollupFilter.ForAuthorityRollup(findings);
+        List<Finding> rollupFindings = AuthorityFindingRollupFilter.ForAuthorityRollup(findings)
+            .Where(static finding => !finding.IsMuted)
+            .ToList();
 
         ExecutedEffectiveGovernanceSnapshotDescriptor? descriptor =
             ExecutedEffectiveGovernanceSnapshotJson.TryDeserialize(governanceScopeJson);
@@ -54,7 +56,12 @@ public static class PolicyPackAssignmentOutcomeRecorder
             return PolicyPackEvaluationOutcomes.NotApplicable;
 
         if (!findingsComplete && findingsSnapshot is not null)
+        {
+            if (findings.Any(finding => PolicyPackFindingMatcher.MatchesAssignment(finding, assignment)))
+                return PolicyPackEvaluationOutcomes.Evaluated;
+
             return PolicyPackEvaluationOutcomes.Skipped;
+        }
 
         return PolicyPackEvaluationOutcomes.Evaluated;
     }

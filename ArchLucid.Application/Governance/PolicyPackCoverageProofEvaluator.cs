@@ -45,7 +45,8 @@ public static class PolicyPackCoverageProofEvaluator
 
         foreach (CommittedGovernancePackAssignmentSnapshot assignment in assignments)
         {
-            bool hasSignal = findings.Any(finding => PolicyPackFindingMatcher.MatchesAssignment(finding, assignment));
+            bool hasSignal = findings.Any(finding =>
+                !finding.IsMuted && PolicyPackFindingMatcher.MatchesAssignment(finding, assignment));
 
             if (!hasSignal)
                 unproven++;

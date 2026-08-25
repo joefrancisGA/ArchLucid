@@ -1,4 +1,5 @@
 using ArchLucid.Application.Clarifications;
+using ArchLucid.Application.Governance;
 using ArchLucid.Contracts.Clarifications;
 using ArchLucid.Contracts.Findings;
 using ArchLucid.Core.Scoping;
@@ -96,6 +97,20 @@ public sealed class ClarificationResolvedFindingMuter(
             return 0;
 
         await _findingsSnapshotRepository.SaveAsync(snapshot, cancellationToken).ConfigureAwait(false);
+
+        if (!string.IsNullOrWhiteSpace(run.GovernanceScopeJson))
+        {
+            string updatedScopeJson = PolicyPackAssignmentOutcomeRecorder.ApplyOutcomes(
+                run.GovernanceScopeJson,
+                snapshot.Findings,
+                snapshot);
+
+            if (!string.Equals(updatedScopeJson, run.GovernanceScopeJson, StringComparison.Ordinal))
+            {
+                run.GovernanceScopeJson = updatedScopeJson;
+                await _runRepository.UpdateAsync(run, cancellationToken).ConfigureAwait(false);
+            }
+        }
 
         return muted;
     }
