@@ -42,6 +42,5 @@ export const TIMESTAMP_TIMEZONE_BASELINE: readonly string[] = [
   "components/runs/RunsListBuyerFeaturedCard.tsx",
   "components/showcase/ShowcasePipelineReviewTrailCards.tsx",
   "components/wizard/RunWizardCostPreviewCard.tsx",
-  "components/wizard/WizardSessionSaveStatus.tsx",
   "lib/baseline-settings-present.ts",
 ] as const;

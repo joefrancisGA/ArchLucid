@@ -396,10 +396,7 @@ export function SsoWizardPageClient() {
 
       {wizardSession.saveState !== "idle" ? (
         <div className="flex justify-end">
-          <WizardSessionSaveStatus
-            saveState={wizardSession.saveState}
-            lastSavedUtc={wizardSession.lastSavedUtc}
-          />
+          <WizardSessionSaveStatus saveState={wizardSession.saveState} />
         </div>
       ) : null}
 

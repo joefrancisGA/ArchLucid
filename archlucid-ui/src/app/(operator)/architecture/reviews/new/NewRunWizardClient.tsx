@@ -580,10 +580,7 @@ export function NewRunWizardClient(props: NewRunWizardClientProps = {}) {
                   </p>
                 </div>
                 <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
-                  <WizardSessionSaveStatus
-                    saveState={templateWizardSession.saveState}
-                    lastSavedUtc={templateWizardSession.lastSavedUtc}
-                  />
+                  <WizardSessionSaveStatus saveState={templateWizardSession.saveState} />
                   <ArchitectureRequestWizardHelpDrawer />
                 </div>
               </div>

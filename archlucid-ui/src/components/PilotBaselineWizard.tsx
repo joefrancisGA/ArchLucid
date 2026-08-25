@@ -256,10 +256,7 @@ export function PilotBaselineWizard({ open, onOpenChange, onSaved }: PilotBaseli
             />
           ) : null}
           <div className="flex justify-end">
-            <WizardSessionSaveStatus
-              saveState={wizardSession.saveState}
-              lastSavedUtc={wizardSession.lastSavedUtc}
-            />
+            <WizardSessionSaveStatus saveState={wizardSession.saveState} />
           </div>
           {demoMode ? (
             <p className={cn("m-0 text-neutral-600 dark:text-neutral-400", OPERATOR_TYPOGRAPHY.body)}>
