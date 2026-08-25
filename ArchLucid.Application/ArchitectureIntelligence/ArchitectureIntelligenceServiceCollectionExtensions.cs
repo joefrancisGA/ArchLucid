@@ -82,6 +82,7 @@ internal static class ArchitectureIntelligenceServiceCollectionExtensions
         services.AddScoped<IMustNotFailEnforcer, MustNotFailEnforcer>();
         services.AddScoped<ITrustPublishGate, TrustPublishGate>();
         services.AddScoped<IArchitectureIntelligenceProductPublishService, ArchitectureIntelligenceProductPublishService>();
+        services.AddScoped<ISpecialistFindingsSubstantiationService, SpecialistFindingsSubstantiationService>();
         services.AddScoped<IAuthorityFindingsSnapshotUpdater, AuthorityFindingsSnapshotUpdater>();
         services.AddScoped<IArchitectureIntelligenceAuthorityFindingsContributor,
             ArchitectureIntelligenceAuthorityFindingsContributor>();
