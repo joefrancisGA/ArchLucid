@@ -29,6 +29,7 @@ import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { SponsorDashboardBaselineWarningBanner } from "./SponsorDashboardBaselineWarningBanner";
 import { SponsorDashboardLatestFinalizedReviewStrip } from "./SponsorDashboardLatestFinalizedReviewStrip";
 import { SponsorDashboardPickReviewBeforeKpisStrip } from "./SponsorDashboardPickReviewBeforeKpisStrip";
+import { SponsorRoiDashboardNextReviewFooterClient } from "./SponsorRoiDashboardNextReviewFooterClient";
 import {
   BusinessImpactSummaryWidgetDeferred,
   SponsorComplianceDriftTrendSectionDeferred,
@@ -180,6 +181,10 @@ function SponsorRoiDashboardPortfolioSections({
       </section>
 
       <SponsorDashboardBaselineWarningBanner variant="setup" />
+
+      {reviewPicked ? (
+        <SponsorRoiDashboardNextReviewFooterClient runId={selectedReviewId.trim()} />
+      ) : null}
     </OperatorPageContainer>
     </div>
   );
