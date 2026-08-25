@@ -9,15 +9,15 @@ namespace ArchLucid.Application.ArchitectureIntelligence;
 public sealed class ArchitectureKnowledgeModelAccess(
     IArchitectureIntelligencePersistence? persistence,
     IRunRepository runRepository,
-    IArchitectureIdentityRepository architectureIdentityRepository) : IArchitectureKnowledgeModelAccess
+    IArchitectureIdentityRepository? architectureIdentityRepository = null) : IArchitectureKnowledgeModelAccess
 {
     private readonly IArchitectureIntelligencePersistence? _persistence = persistence;
 
     private readonly IRunRepository _runRepository =
         runRepository ?? throw new ArgumentNullException(nameof(runRepository));
 
-    private readonly IArchitectureIdentityRepository _architectureIdentityRepository =
-        architectureIdentityRepository ?? throw new ArgumentNullException(nameof(architectureIdentityRepository));
+    private readonly IArchitectureIdentityRepository? _architectureIdentityRepository =
+        architectureIdentityRepository;
 
     public async Task<ArchitectureKnowledgeModel?> GetForRunAsync(
         ScopeContext scope,
@@ -69,7 +69,8 @@ public sealed class ArchitectureKnowledgeModelAccess(
             .GetByIdAsync(scope, runId, cancellationToken)
             .ConfigureAwait(false);
 
-        if (run?.ArchitectureId is not Guid architectureId)
+        if (run?.ArchitectureId is not Guid architectureId
+            || _architectureIdentityRepository is null)
             return;
 
         await _architectureIdentityRepository
@@ -83,6 +84,9 @@ public sealed class ArchitectureKnowledgeModelAccess(
         string tenantId,
         CancellationToken cancellationToken)
     {
+        if (_architectureIdentityRepository is null)
+            return null;
+
         ArchLucid.Persistence.Models.RunRecord? run = await _runRepository
             .GetByIdAsync(scope, runId, cancellationToken)
             .ConfigureAwait(false);
