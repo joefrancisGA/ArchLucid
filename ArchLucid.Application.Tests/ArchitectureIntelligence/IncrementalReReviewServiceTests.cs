@@ -85,6 +85,39 @@ public sealed class IncrementalReReviewServiceTests
     }
 
     [Fact]
+    public async Task ReReviewAsync_scoped_model_preserves_IsProvisionalSynthesis()
+    {
+        ArchitectureKnowledgeModel model = new()
+        {
+            ModelId = "model-provisional",
+            TenantId = "tenant-1",
+            IsProvisionalSynthesis = true,
+            Elements =
+            [
+                new ArchitectureModelElement
+                {
+                    ElementId = "el-1",
+                    Kind = ArchitectureElementKind.Component,
+                    Name = "Billing",
+                },
+            ],
+        };
+
+        CapturingAsyncSpecialistReviewService capturingSpecialist = new();
+        ReReviewScope scope = new()
+        {
+            AffectedElementIds = ["el-1"],
+            FullReReview = false,
+            IncludeGlobalInvariantChecks = false,
+        };
+
+        await _service.ReReviewAsync(model, scope, capturingSpecialist);
+
+        capturingSpecialist.CapturedModel.Should().NotBeNull();
+        capturingSpecialist.CapturedModel!.IsProvisionalSynthesis.Should().BeTrue();
+    }
+
+    [Fact]
     public async Task ReReviewAsync_scoped_model_includes_reverse_related_chain_regardless_of_element_order()
     {
         ArchitectureKnowledgeModel model = new()

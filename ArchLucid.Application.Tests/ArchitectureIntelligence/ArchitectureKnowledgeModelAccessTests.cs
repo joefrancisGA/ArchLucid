@@ -83,6 +83,9 @@ public sealed class ArchitectureKnowledgeModelAccessTests
     runs
       .Setup(r => r.GetByIdAsync(TestScope, runId, It.IsAny<CancellationToken>()))
       .ReturnsAsync(new RunRecord { RunId = runId, ArchitectureId = architectureId });
+    runs
+      .Setup(r => r.GetLatestRunIdForArchitectureAsync(TestScope, architectureId, It.IsAny<CancellationToken>()))
+      .ReturnsAsync(runId);
 
     Mock<IArchitectureIdentityRepository> identities = new();
     identities
@@ -102,6 +105,44 @@ public sealed class ArchitectureKnowledgeModelAccessTests
 
     model.Should().NotBeNull();
     model!.ModelId.Should().Be(currentModelId);
+  }
+
+  [Fact]
+  public async Task GetForRunAsync_skips_CurrentModelId_fallback_for_non_head_unpinned_run()
+  {
+    Guid runId = Guid.Parse("11111111-1111-1111-1111-111111111112");
+    Guid headRunId = Guid.Parse("22222222-2222-2222-2222-222222222222");
+    Guid architectureId = Guid.Parse("99999999-9999-9999-9999-999999999999");
+
+    Mock<IArchitectureIntelligencePersistence> persistence = new();
+    persistence
+      .Setup(p => p.GetModelByRunIdAsync(TestScope.TenantId.ToString("D"), runId.ToString("D"), It.IsAny<CancellationToken>()))
+      .ReturnsAsync((ArchitectureKnowledgeModel?)null);
+    persistence
+      .Setup(p => p.GetModelByRunIdAsync(TestScope.TenantId.ToString("D"), runId.ToString("N"), It.IsAny<CancellationToken>()))
+      .ReturnsAsync((ArchitectureKnowledgeModel?)null);
+
+    Mock<IRunRepository> runs = new();
+    runs
+      .Setup(r => r.GetByIdAsync(TestScope, runId, It.IsAny<CancellationToken>()))
+      .ReturnsAsync(new RunRecord { RunId = runId, ArchitectureId = architectureId });
+    runs
+      .Setup(r => r.GetLatestRunIdForArchitectureAsync(TestScope, architectureId, It.IsAny<CancellationToken>()))
+      .ReturnsAsync(headRunId);
+
+    Mock<IArchitectureIdentityRepository> identities = new();
+
+    ArchitectureKnowledgeModelAccess access = new(
+      persistence.Object,
+      runs.Object,
+      identities.Object);
+
+    ArchitectureKnowledgeModel? model = await access.GetForRunAsync(TestScope, runId);
+
+    model.Should().BeNull();
+    identities.Verify(
+      i => i.GetByIdAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()),
+      Times.Never);
   }
 
   [Fact]
