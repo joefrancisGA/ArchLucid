@@ -24,6 +24,7 @@ import {
 import type { ArchLucidAppRole } from "@/lib/current-principal";
 import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { roleDisplayLabel } from "@/lib/role-display-labels";
+import { writeSettingsPrincipalLastViewedId } from "@/lib/resolve-continue-last-settings-principal";
 
 import { isSettingsRolesPrincipalSelfRow } from "./settings-roles-principal-self-match";
 import { settingsRolesRoleChangeRequiresConfirmation } from "./settings-roles-privileged-role-change";
@@ -64,6 +65,8 @@ export function SettingsRolesPrincipalTable({ rows, tableContext = "users", onRo
       setRowSaveState((current) => ({ ...current, [key]: "saving" }));
 
       const outcome = await onRoleChange(change.row, change.nextRole);
+
+      writeSettingsPrincipalLastViewedId(change.row.kind, change.row.id);
 
       setRowSaveState((current) => ({
         ...current,
@@ -133,7 +136,7 @@ export function SettingsRolesPrincipalTable({ rows, tableContext = "users", onRo
             const saveState = rowSaveState[key] ?? "idle";
 
             return (
-              <EnterpriseTableRow key={key}>
+              <EnterpriseTableRow key={key} data-principal-id={row.id}>
                 <EnterpriseTableCell>
                   <span className={cn("font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>{row.name}</span>
                 </EnterpriseTableCell>

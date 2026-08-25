@@ -53,6 +53,7 @@ describe("SettingsRolesPrincipalTable (SSU P0)", () => {
 
     expect(screen.getByTestId("settings-roles-self-role-helper-self")).toBeInTheDocument();
     expect(screen.getByTestId("settings-roles-select-user-self")).toBeDisabled();
+    expect(document.querySelector('[data-principal-id="self"]')).toBeInTheDocument();
   });
 
   it("requires confirmation before assigning Admin and cancels without saving", async () => {

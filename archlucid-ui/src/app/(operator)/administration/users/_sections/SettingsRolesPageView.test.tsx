@@ -21,6 +21,22 @@ vi.mock("@/lib/api-keys-settings-access", () => ({
 
 vi.mock("@/components/operator/OperatorNavAuthorityProvider", () => ({
   useNavCallerAuthorityRank: () => 3,
+  useOperatorNavAuthority: () => ({
+    currentPrincipal: {
+      provenance: "auth-me" as const,
+      name: "Admin User",
+      roleClaimValues: ["Admin"],
+      primaryAppRole: "Admin" as const,
+      maxAuthority: "AdminAuthority" as const,
+      authorityRank: 3,
+      hasEnterpriseOperatorSurfaces: true,
+      hasCommittedArchitectureReview: true,
+      hasRecognizedArchLucidRole: true,
+      permissionClaimValues: [],
+    },
+    callerAuthorityRank: 3,
+    isAuthorityLoading: false,
+  }),
 }));
 
 vi.mock("@/components/usability/PageContextualHelpButton", () => ({
@@ -256,5 +272,30 @@ describe("SettingsRolesPageView (SEU / keys tab)", () => {
     expect(openCta).toHaveAttribute("href", SETTINGS_ROLES_KEYS_TAB_LIFECYCLE_HREF);
     expect(openCta.className).toContain("al-primary-action-bg");
     expect(within(keysPanel).queryByText(/No principals found/i)).not.toBeInTheDocument();
+  });
+
+  it("pins continue last viewed principal when the directory has users", () => {
+    window.localStorage.removeItem("archlucid_settings_principal_continue_last_v1");
+
+    render(
+      <SettingsRolesPageView
+        model={buildModel({
+          usersNote: null,
+          sortedRows: [
+            {
+              id: "u1",
+              kind: "user",
+              name: "Ada",
+              detail: "ada@example.com",
+              role: "Operator",
+            },
+          ],
+        })}
+      />,
+    );
+
+    expect(screen.getByTestId("settings-roles-continue-last-viewed-row")).toHaveTextContent("Ada");
+    expect(screen.getByTestId("settings-roles-continue-last-viewed-open")).toBeInTheDocument();
+    expect(document.querySelector('[data-principal-id="u1"]')).toBeInTheDocument();
   });
 });

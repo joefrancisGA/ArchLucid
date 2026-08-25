@@ -55,6 +55,11 @@ import {
 import { SettingsRolesMatrixSection } from "./SettingsRolesMatrixSection";
 import { assignmentCountsByRoleName } from "./roles-matrix-assignment-counts";
 import type { SettingsRolesPageViewModel } from "./settings-roles-page-view-model";
+import { SettingsRolesContinueLastViewedRow } from "./SettingsRolesContinueLastViewedRow";
+import {
+  resolveContinueLastSettingsPrincipal,
+  writeSettingsPrincipalLastViewedId,
+} from "@/lib/resolve-continue-last-settings-principal";
 
 const ALL_TABS: readonly { id: SettingsUsersTabId; label: string }[] = [
   { id: "users", label: "Users and invitations" },
@@ -128,6 +133,10 @@ export function SettingsRolesPageView(props: Props) {
     && (canManageApiKeys ? directoryNoteReliableForAssignmentCounts(m.keysNote) : true);
   const userRows = useMemo(() => m.sortedRows.filter((r) => r.kind === "user"), [m.sortedRows]);
   const apiKeyRows = useMemo(() => m.sortedRows.filter((r) => r.kind === "api_key"), [m.sortedRows]);
+  const continueLastPrincipal = useMemo(
+    () => resolveContinueLastSettingsPrincipal(userRows),
+    [userRows],
+  );
   // Empty workspace: invite is the only job — do not stack members/pending empty theater (TB-1214).
   const usersDirectoryEmpty =
     m.surface === "admin"
@@ -204,6 +213,17 @@ export function SettingsRolesPageView(props: Props) {
       inviteEmailInputRef.current?.focus();
     }, 0);
   }, []);
+
+  function openPrincipal(principalId: string): void {
+    writeSettingsPrincipalLastViewedId("user", principalId);
+    setActiveTab("users");
+    router.replace(SETTINGS_USERS_USERS_TAB_PATH);
+    window.setTimeout(() => {
+      document
+        .querySelector(`[data-principal-id="${CSS.escape(principalId)}"]`)
+        ?.scrollIntoView({ behavior: "smooth", block: "center" });
+    }, 0);
+  }
 
   if (m.surface === "demo") {
     return (
@@ -378,7 +398,15 @@ export function SettingsRolesPageView(props: Props) {
                       <EnterpriseCompactEmptyState {...SETTINGS_ROLES_USERS_EMPTY_COMPACT} />
                     ) : null}
                     {!m.loading && userRows.length > 0 ? (
-                      <SettingsRolesPrincipalTable rows={userRows} onRoleChange={m.onRoleChange} />
+                      <>
+                        {continueLastPrincipal !== null ? (
+                          <SettingsRolesContinueLastViewedRow
+                            target={continueLastPrincipal}
+                            onOpen={openPrincipal}
+                          />
+                        ) : null}
+                        <SettingsRolesPrincipalTable rows={userRows} onRoleChange={m.onRoleChange} />
+                      </>
                     ) : null}
                     {!m.loading && m.usersNote === null && userRows.length === 0 ? (
                       <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>
