@@ -26,7 +26,7 @@ export function AppShellMainAffordances() {
   return (
     <>
       <BuyerGoldenJourneyLayerContextStrip />
-      <PersistentWorkspaceNextActionStrip />
+      {isOperatorHome ? null : <PersistentWorkspaceNextActionStrip />}
       {isOperatorHome ? <RecentReviewsResumeStrip /> : null}
       {isOperatorHome ? <CorePilotCompleteCelebrateStrip /> : null}
       <GlobalSearchShortcutCoach />

@@ -250,11 +250,11 @@ describe("OperatorHomeDualPathCards", () => {
     expect(screen.getByText(OPERATOR_HOME_CLOUD_CONNECT_ADMIN_HINT)).toBeInTheDocument();
   });
 
-  it("keeps the emphasized lifecycle card primary when another surface owns the page primary", () => {
+  it("demotes all lifecycle card CTAs to outline when another surface owns the page primary", () => {
     render(<OperatorHomeDualPathCards emphasizedPath="review-architecture" pagePrimaryOwnedElsewhere />);
 
     expect(screen.getByRole("button", { name: CREATE_ARCHITECTURE_LABEL })).toHaveClass("border-neutral-300");
-    expect(screen.getByRole("button", { name: OPERATOR_HOME_REVIEW_ARCHITECTURE_CTA })).not.toHaveClass("border-neutral-300");
+    expect(screen.getByRole("button", { name: OPERATOR_HOME_REVIEW_ARCHITECTURE_CTA })).toHaveClass("border-neutral-300");
     expect(screen.getByRole("link", { name: OPERATOR_HOME_OPEN_COMPLETED_REVIEW_CTA })).toHaveClass("border-neutral-300");
   });
 

@@ -67,16 +67,16 @@ function resolveLifecycleCardButtonVariant(
     pagePrimaryOwnedElsewhere: boolean;
   },
 ): "primary" | "outline" {
+  if (options.pagePrimaryOwnedElsewhere) {
+    return "outline";
+  }
+
   if (
     options.emphasizedPath !== null &&
     options.emphasizedPath !== undefined &&
     options.emphasizedPath === path
   ) {
     return "primary";
-  }
-
-  if (options.pagePrimaryOwnedElsewhere) {
-    return "outline";
   }
 
   if (options.emphasizedPath !== null && options.emphasizedPath !== undefined && options.emphasizedPath !== path) {
