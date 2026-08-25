@@ -386,6 +386,20 @@ public sealed partial class ClosedLoopArchitectureReasoningOrchestrator : IClose
         if (cacheManifest is not null)
         {
             _reviewResultCache.Set(cacheManifest, result);
+
+            if (!string.IsNullOrWhiteSpace(request.RunId))
+            {
+                ReviewCacheDependencyManifest postSaveManifest =
+                    ReviewCacheManifestBuilder.Build(request, model);
+
+                if (!string.Equals(
+                        postSaveManifest.ContentHash,
+                        cacheManifest.ContentHash,
+                        StringComparison.Ordinal))
+                {
+                    _reviewResultCache.Set(postSaveManifest, result);
+                }
+            }
         }
 
         return result;
