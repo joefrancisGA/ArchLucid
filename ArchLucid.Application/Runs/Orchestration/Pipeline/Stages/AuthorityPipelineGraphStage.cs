@@ -16,7 +16,6 @@ public sealed class AuthorityPipelineGraphStage(
     IGraphSnapshotRepository graphSnapshotRepository,
     IAuthorityPipelineStagePersistence stagePersistence,
     ILogger<AuthorityPipelineGraphStage> logger,
-    IArchitectureIntelligencePersistence? architectureIntelligencePersistence = null,
     IArchitectureKnowledgeModelAccess? knowledgeModelAccess = null,
     IArchitectureKnowledgeModelGraphProjector? knowledgeModelGraphProjector = null) : IAuthorityPipelineGraphStage
 {
