@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
+import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
 import { AlertOperatorToolingRankCue } from "@/components/EnterpriseControlsContextHints";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { AlertRuleListRow } from "@/components/alerts/AlertRuleListRow";
@@ -79,6 +80,10 @@ import {
   ALERT_RULES_STATUS_LIVE_REGION_LABEL,
 } from "@/lib/alert-rule-conditions-copy";
 import { latestAlertRulesConfigChange } from "@/lib/alert-rules-config-change";
+import {
+  resolveAlertRulesCreateEmphasizedStepId,
+  resolveAlertRulesCreateSteps,
+} from "@/lib/alert-rules-create-checklist";
 import { ALERT_RULES_LIST_EMPTY_COMPACT } from "@/lib/enterprise-compact-empty-state-presets";
 import { isBuyerPolishedOperatorShellEnv, isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
 import {
@@ -268,6 +273,20 @@ export function AlertRulesContent() {
     );
   }, [routingSubscriptions.length]);
 
+  const thresholdConfigured =
+    ruleType === "RejectedSecurityRecommendation" ||
+    (Number.isFinite(threshold) && threshold > 0 && fieldErrors.thresholdValue === undefined);
+  const alertRulesCreateSteps = resolveAlertRulesCreateSteps({
+    signalConfigured: name.trim().length > 0,
+    thresholdConfigured,
+    ruleEnabled: items.some((rule) => rule.isEnabled === true),
+  });
+  const alertRulesCreateEmphasizedStepId = resolveAlertRulesCreateEmphasizedStepId({
+    signalConfigured: name.trim().length > 0,
+    thresholdConfigured,
+    ruleEnabled: items.some((rule) => rule.isEnabled === true),
+  });
+
   const emptyStateFooter = canEdit ? (
     <div className="flex flex-wrap items-center gap-2" data-testid="alert-rules-empty-footer">
       <Button
@@ -377,6 +396,17 @@ export function AlertRulesContent() {
               <h2 id="alert-rules-create-heading" className={cn("mb-3 mt-0", OPERATOR_TYPOGRAPHY.sectionTitle)}>
                 {ALERT_RULES_CREATE_HEADING}
               </h2>
+
+              {canEdit ? (
+                <div className="mb-4 max-w-2xl">
+                  <IntegrationConnectChecklist
+                    title="Create checklist"
+                    steps={alertRulesCreateSteps}
+                    emphasizedStepId={alertRulesCreateEmphasizedStepId}
+                    testIdPrefix="alert-rules-create"
+                  />
+                </div>
+              ) : null}
 
               <div className="grid max-w-2xl gap-4">
               <div className={OPERATOR_FORM_FIELD_STACK_CLASS}>
