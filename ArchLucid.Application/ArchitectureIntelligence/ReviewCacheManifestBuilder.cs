@@ -34,6 +34,8 @@ public static class ReviewCacheManifestBuilder
         builder.Append("continue=").Append(request.ContinueFromExistingRun ? '1' : '0').Append('|');
         builder.Append("publish=").Append(request.PublishToProduct ? '1' : '0').Append('|');
         builder.Append("tier=").Append(request.ReviewTier.ToString()).Append('|');
+        builder.Append("golden=").Append(request.UseGoldenFixture ? '1' : '0').Append('|');
+        builder.Append("alias=").Append(request.ModelAliasId ?? string.Empty).Append('|');
 
         if (!string.IsNullOrWhiteSpace(request.RunId) && baselineKnowledgeModel is not null)
         {

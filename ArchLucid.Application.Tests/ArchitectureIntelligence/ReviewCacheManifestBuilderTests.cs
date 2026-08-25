@@ -77,6 +77,34 @@ public sealed class ReviewCacheManifestBuilderTests
             .NotBe(ReviewCacheManifestBuilder.Build(withPublish).ContentHash);
     }
 
+    [Fact]
+    public void Build_changes_hash_when_model_alias_changes()
+    {
+        ClosedLoopReasoningRequest baseline = CreateRequest("Architecture note.");
+        baseline.ModelAliasId = "alias-a";
+
+        ClosedLoopReasoningRequest changed = CreateRequest("Architecture note.");
+        changed.ModelAliasId = "alias-b";
+
+        ReviewCacheManifestBuilder.Build(baseline).ContentHash
+            .Should()
+            .NotBe(ReviewCacheManifestBuilder.Build(changed).ContentHash);
+    }
+
+    [Fact]
+    public void Build_changes_hash_when_golden_fixture_flag_changes()
+    {
+        ClosedLoopReasoningRequest withoutGolden = CreateRequest("Architecture note.");
+        withoutGolden.UseGoldenFixture = false;
+
+        ClosedLoopReasoningRequest withGolden = CreateRequest("Architecture note.");
+        withGolden.UseGoldenFixture = true;
+
+        ReviewCacheManifestBuilder.Build(withoutGolden).ContentHash
+            .Should()
+            .NotBe(ReviewCacheManifestBuilder.Build(withGolden).ContentHash);
+    }
+
     private static ClosedLoopReasoningRequest CreateRequest(string content)
     {
         return new ClosedLoopReasoningRequest
