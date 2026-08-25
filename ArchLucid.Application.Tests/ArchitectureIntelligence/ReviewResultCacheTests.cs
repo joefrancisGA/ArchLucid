@@ -184,6 +184,39 @@ public sealed class ReviewResultCacheTests
     }
 
     [Fact]
+    public void TryGet_isolates_dictionary_product_finding_payload_from_stored_entry()
+    {
+        ReviewResultCache cache = new();
+        ReviewCacheDependencyManifest manifest = new() { ContentHash = "hash-dict-payload" };
+        Dictionary<string, string> payload = new() { ["key"] = "value" };
+        ClosedLoopReasoningResult stored = new()
+        {
+            ProductFindings =
+            [
+                new ArchLucid.Contracts.Findings.Finding
+                {
+                    FindingId = "product-finding-payload",
+                    Title = "Gap",
+                    FindingType = "gap",
+                    Category = "security",
+                    EngineType = "specialist",
+                    Severity = ArchLucid.Contracts.Findings.FindingSeverity.Error,
+                    Rationale = "Rationale.",
+                    Payload = payload,
+                },
+            ],
+        };
+
+        cache.Set(manifest, stored);
+        cache.TryGet(manifest, out ClosedLoopReasoningResult? cached).Should().BeTrue();
+
+        ((Dictionary<string, string>)cached!.ProductFindings[0].Payload!)["key"] = "mutated";
+
+        cache.TryGet(manifest, out ClosedLoopReasoningResult? again).Should().BeTrue();
+        ((Dictionary<string, string>)again!.ProductFindings[0].Payload!)["key"].Should().Be("value");
+    }
+
+    [Fact]
     public void Set_stores_result_without_publish_side_effects()
     {
         ReviewResultCache cache = new();

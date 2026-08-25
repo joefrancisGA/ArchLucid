@@ -336,10 +336,16 @@ internal static class ClosedLoopReasoningResultCloner
 
     private static object? ClonePayload(object? payload)
     {
+        if (payload is null)
+            return null;
+
         if (payload is JsonElement jsonElement)
             return jsonElement.Clone();
 
-        return payload;
+        if (payload is ICloneable cloneable)
+            return cloneable.Clone();
+
+        return JsonSerializer.SerializeToElement(payload).Clone();
     }
 
     private static ExplainabilityTrace CloneExplainabilityTrace(ExplainabilityTrace trace)
