@@ -118,6 +118,12 @@ vi.mock("@/components/AskRunIdPicker", () => ({
   AskRunIdPicker: () => <div data-testid="ask-run-id-picker" />,
 }));
 
+vi.mock("./ArchitectureIntelligenceNextReviewFooterClient", () => ({
+  ArchitectureIntelligenceNextReviewFooterClient: () => (
+    <div data-testid="architecture-intelligence-next-review-footer-stub" />
+  ),
+}));
+
 describe("ArchitectureIntelligencePageClient", () => {
   beforeEach(() => {
     searchParamsGet.mockImplementation(() => null);

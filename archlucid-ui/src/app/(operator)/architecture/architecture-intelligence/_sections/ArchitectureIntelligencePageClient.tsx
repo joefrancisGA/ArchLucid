@@ -26,6 +26,7 @@ import { OPERATOR_LAYOUT, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { cn } from "@/lib/utils";
 
 import { ArchitectureIntelligencePickReviewBeforeAnalysisStrip } from "@/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligencePickReviewBeforeAnalysisStrip";
+import { ArchitectureIntelligenceNextReviewFooterClient } from "@/app/(operator)/architecture/architecture-intelligence/_sections/ArchitectureIntelligenceNextReviewFooterClient";
 import { IntegrationConnectChecklist } from "@/components/integrations/IntegrationConnectChecklist";
 import {
   resolveArchitectureIntelligenceAnalysisEmphasizedStepId,
@@ -284,6 +285,10 @@ export function ArchitectureIntelligencePageClient() {
       ) : null}
 
       {runState?.kind === "golden" ? <ArchitectureIntelligenceGoldenResults result={runState.result} /> : null}
+
+      {(activeRunId?.trim() ?? "").length > 0 ? (
+        <ArchitectureIntelligenceNextReviewFooterClient runId={activeRunId.trim()} />
+      ) : null}
     </OperatorPageContainer>
   );
 }
