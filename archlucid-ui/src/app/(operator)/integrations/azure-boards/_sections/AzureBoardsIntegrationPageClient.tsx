@@ -54,7 +54,6 @@ import {
 import {
   AZURE_BOARDS_CONNECTION_SETTINGS_LEAD,
   AZURE_BOARDS_CONNECTION_SETTINGS_TITLE,
-  AZURE_BOARDS_CONNECTION_STATUS_HEADING,
   AZURE_BOARDS_CONNECTION_TEST_COLLAPSED_CREDENTIALS_SUMMARY,
   AZURE_BOARDS_CONNECTION_TEST_COLLAPSED_SUMMARY,
   AZURE_BOARDS_CONNECTION_AUDIT_TRAIL_LINK_LABEL,
@@ -95,34 +94,12 @@ import {
   type IntegrationZoneLoadSlice,
 } from "@/lib/integration-zone-recovery";
 import { AzureBoardsIntegrationEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
-import { IntegrationZoneRecoveryCard } from "@/components/integrations/IntegrationZoneRecoveryCard";
 import { ItsmConnectorProviderChooserRail } from "@/components/itsm/ItsmConnectorProviderChooserRail";
 
 import { AzureBoardsIntegrationAside } from "./AzureBoardsIntegrationAside";
+import { AzureBoardsConnectionStatusPanel } from "./AzureBoardsConnectionStatusPanel";
 import { AzureBoardsIntegrationPageHeader } from "./AzureBoardsIntegrationPageHeader";
 import { AzureBoardsIntegrationPageLoadingSkeleton } from "./AzureBoardsIntegrationPageLoadingSkeleton";
-
-function statusTagKind(
-  status: ReturnType<typeof resolveAzureBoardsConnectionStatus>["status"],
-): "ready" | "needs-attention" | "neutral" | "in-progress" {
-  if (status === "connected") {
-    return "ready";
-  }
-
-  if (status === "connection-issue") {
-    return "needs-attention";
-  }
-
-  if (status === "testing") {
-    return "in-progress";
-  }
-
-  if (status === "setup-incomplete") {
-    return "needs-attention";
-  }
-
-  return "neutral";
-}
 
 export function AzureBoardsIntegrationPageClient(): React.ReactElement {
   const canMutate = useOperateCapability();
@@ -149,16 +126,6 @@ export function AzureBoardsIntegrationPageClient(): React.ReactElement {
   const [iterationPath, setIterationPath] = useState("");
   const [defaultTags, setDefaultTags] = useState("");
   const [projects, setProjects] = useState<string[]>([]);
-  const workItemTypesQuery = useAzureBoardsWorkItemTypesQuery(projectName, {
-    enabled: credentialsReady && projectName.trim().length > 0,
-  });
-  const workItemTypes = useMemo(() => {
-    if (!credentialsReady || projectName.trim().length === 0) {
-      return [];
-    }
-
-    return workItemTypesQuery.data ?? [];
-  }, [credentialsReady, projectName, workItemTypesQuery.data]);
   const [discoveryError, setDiscoveryError] = useState<string | null>(null);
   const [lastTestAt, setLastTestAt] = useState<string | null>(null);
   const [lastTestSummary, setLastTestSummary] = useState<string | null>(null);
@@ -268,6 +235,17 @@ export function AzureBoardsIntegrationPageClient(): React.ReactElement {
     organizationUrl.trim() !== (connection?.instanceBaseUrl?.trim() ?? "") || tokenReference.trim().length > 0;
   const settingsReady =
     (settings?.projectName?.trim().length ?? 0) > 0 && (settings?.defaultWorkItemType?.trim().length ?? 0) > 0;
+
+  const workItemTypesQuery = useAzureBoardsWorkItemTypesQuery(projectName, {
+    enabled: credentialsReady && projectName.trim().length > 0,
+  });
+  const workItemTypes = useMemo(() => {
+    if (!credentialsReady || projectName.trim().length === 0) {
+      return [];
+    }
+
+    return workItemTypesQuery.data ?? [];
+  }, [credentialsReady, projectName, workItemTypesQuery.data]);
 
   const connectionStatus = useMemo(
     () =>
@@ -504,28 +482,10 @@ export function AzureBoardsIntegrationPageClient(): React.ReactElement {
           ) : null}
 
           <div className={cn("min-w-0", OPERATOR_LAYOUT.majorSectionGap, isRefreshing && "opacity-70")}>
-            <section aria-labelledby="azure-boards-status-heading" className="space-y-3" data-testid="azure-boards-connection-status">
-              <div className="flex flex-wrap items-center gap-3">
-                <h2 id="azure-boards-status-heading" className={OPERATOR_TYPOGRAPHY.sectionTitle}>
-                  {AZURE_BOARDS_CONNECTION_STATUS_HEADING}
-                </h2>
-                <StatusTag kind={statusTagKind(connectionStatus.status)} label={connectionStatus.label} />
-              </div>
-              <p className={cn("m-0 text-al-text-primary", OPERATOR_TYPOGRAPHY.body)} role="status">
-                {connectionStatus.explanation}
-              </p>
-              <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                <span className="font-medium text-al-text-primary">Next step:</span> {connectionStatus.nextAction}
-              </p>
-            </section>
-
-            {integrationZoneRecoveries.length > 0 ? (
-              <div className="space-y-3" data-testid="azure-boards-zone-recoveries">
-                {integrationZoneRecoveries.map((recovery) => (
-                  <IntegrationZoneRecoveryCard key={recovery.zoneId} recovery={recovery} />
-                ))}
-              </div>
-            ) : null}
+            <AzureBoardsConnectionStatusPanel
+              connectionStatus={connectionStatus}
+              integrationZoneRecoveries={integrationZoneRecoveries}
+            />
 
             {pageComposition.showConnectionSettings ? (
               <section
