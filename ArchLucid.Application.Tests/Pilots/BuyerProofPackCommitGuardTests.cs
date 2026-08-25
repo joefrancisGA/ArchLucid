@@ -3,8 +3,11 @@ using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Manifest;
 using ArchLucid.Contracts.Metadata;
+using ArchLucid.Contracts.Pilots;
 
 using FluentAssertions;
+
+using System.Text.Json;
 
 namespace ArchLucid.Application.Tests.Pilots;
 
@@ -36,5 +39,24 @@ public sealed class BuyerProofPackCommitGuardTests
 
         ok.Should().BeFalse();
         error.Should().NotBeNullOrWhiteSpace();
+    }
+
+    [Fact]
+    public void TryValidateDeltasJson_accepts_default_serialized_pilot_run_deltas_response()
+    {
+        PilotRunDeltasResponse response = new()
+        {
+            IsDemoTenant = false,
+            ProofPackageCompleteness = new ProofPackageCompletenessResponse { RunInCommittedStatus = true },
+        };
+
+        string json = JsonSerializer.Serialize(response, new JsonSerializerOptions
+        {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        });
+
+        bool ok = BuyerProofPackCommitGuard.TryValidateDeltasJson(json, out _, out string? error);
+
+        ok.Should().BeTrue(error);
     }
 }
