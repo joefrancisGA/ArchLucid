@@ -28,7 +28,10 @@ export function deriveOperatorHomeWorkspaceMetrics(
   items: readonly RunSummary[],
   totalCount: number,
 ): OperatorHomeWorkspaceMetricsSnapshot {
-  const reviewPackagesTotal = Math.max(0, totalCount);
+  const loadedCount = items.length;
+  const normalizedTotalCount = Math.max(0, totalCount);
+  const reviewPackagesTotal =
+    loadedCount > 0 && loadedCount < normalizedTotalCount ? loadedCount : normalizedTotalCount;
   let reviewPackagesCommitted = 0;
   let reviewPackagesActive = 0;
   let openFindings = 0;

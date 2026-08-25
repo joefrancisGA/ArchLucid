@@ -58,6 +58,22 @@ describe("deriveOperatorHomeWorkspaceMetrics", () => {
     expect(metrics.evidenceSources).toBe(2);
     expect(metrics.hasReviews).toBe(true);
   });
+
+  it("does not mix workspace totalCount with page-local aggregates when the dashboard slice is partial", () => {
+    const items: RunSummary[] = Array.from({ length: 5 }, (_, index) =>
+      makeRun({
+        runId: `11111111-1111-1111-1111-11111111111${index}`,
+        hasGoldenManifest: true,
+        findingCount: 2,
+      }),
+    );
+
+    const metrics = deriveOperatorHomeWorkspaceMetrics(items, 20);
+
+    expect(metrics.reviewPackagesTotal).toBe(5);
+    expect(metrics.reviewPackagesCommitted).toBe(5);
+    expect(metrics.openFindings).toBe(10);
+  });
 });
 
 describe("formatSetupReadinessLabel", () => {
