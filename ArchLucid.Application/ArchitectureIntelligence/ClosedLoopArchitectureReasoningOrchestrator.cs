@@ -120,11 +120,7 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
                 cached.CacheHit = true;
                 cached.CacheReuseReason = cacheManifest.ReuseReason ?? "dependency-manifest-match";
                 ArchitectureIntelligenceBudgetResultApplier.Apply(cached, budget);
-
-                if (request.PublishToProduct && !cached.PublishedToProduct)
-                {
-                    await ApplyProductPublishAsync(request, cached, cancellationToken);
-                }
+                ClosedLoopCacheHitPublishGuard.SuppressUnpublishedCacheHit(request, cached);
 
                 return cached;
             }
