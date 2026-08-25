@@ -1,5 +1,6 @@
 using ArchLucid.Application.Bootstrap;
 using ArchLucid.Contracts.Architecture;
+using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Pilots;
 using ArchLucid.Core.Diagnostics;
 
@@ -9,8 +10,8 @@ namespace ArchLucid.Application.Pilots;
 
 /// <inheritdoc cref = "IRecentPilotRunDeltasService"/>
 /// <remarks>
-///     Filters <see cref = "IRunDetailQueryService.ListRunSummariesAsync"/> to runs that already carry a
-///     <c>CurrentManifestVersion</c> (i.e. committed) so the panel never advertises an aggregate that mixes
+///     Filters <see cref = "IRunDetailQueryService.ListRunSummariesAsync"/> to runs in
+///     <see cref="ArchitectureRunStatus.Committed"/> status so the panel never advertises an aggregate that mixes
 ///     in-flight and committed runs. Compute cost is bounded: <see cref = "IRecentPilotRunDeltasService.MaxCount"/>
 ///     × one <see cref = "IPilotRunDeltaComputer.ComputeAsync"/> per run.
 /// </remarks>
@@ -54,9 +55,9 @@ public sealed class RecentPilotRunDeltasService(
         };
     }
 
-    private static bool IsCommitted(RunSummary r)
+    private static bool IsCommitted(RunSummary summary)
     {
-        return !string.IsNullOrWhiteSpace(r.CurrentManifestVersion);
+        return string.Equals(summary.Status, nameof(ArchitectureRunStatus.Committed), StringComparison.OrdinalIgnoreCase);
     }
 
     private async Task<RecentPilotRunDeltaSummaryResponse?> TryProjectAsync(RunSummary summary, CancellationToken cancellationToken)

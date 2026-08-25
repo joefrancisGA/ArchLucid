@@ -21,6 +21,45 @@ namespace ArchLucid.Application.Tests.Pilots;
 public sealed class RecentPilotRunDeltasServiceTests
 {
     [SkippableFact]
+    public async Task GetRecentDeltasAsync_ReadyForCommitRunWithManifest_IsExcludedFromCommittedPanel()
+    {
+        Mock<IRunDetailQueryService> queryService = new();
+        Mock<IPilotRunDeltaComputer> deltaComputer = new();
+
+        DateTime baseTime = new(2026, 4, 23, 10, 0, 0, DateTimeKind.Utc);
+        RunSummary readyForCommit = BuildSummary(
+            "readyforcommit000000000000000aaa",
+            "req-A",
+            baseTime.AddMinutes(-20),
+            committed: false);
+        readyForCommit.Status = nameof(ArchitectureRunStatus.ReadyForCommit);
+        readyForCommit.CurrentManifestVersion = "v1";
+
+        RunSummary committed = BuildSummary(
+            "newcommit22222222222222222222cccc",
+            "req-B",
+            baseTime.AddMinutes(-10),
+            committed: true);
+
+        queryService.Setup(q => q.ListRunSummariesAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync([readyForCommit, committed]);
+
+        StubDetailAndDelta(queryService, deltaComputer, readyForCommit, findingsCount: 99, secondsToCommit: 30);
+        StubDetailAndDelta(queryService, deltaComputer, committed, findingsCount: 2, secondsToCommit: 90);
+
+        RecentPilotRunDeltasService sut = BuildSut(queryService, deltaComputer);
+
+        RecentPilotRunDeltasResponse response = await sut.GetRecentDeltasAsync(5);
+
+        response.Items.Should().HaveCount(1);
+        response.Items[0].RunId.Should().Be(committed.RunId);
+        response.Items[0].TotalFindings.Should().Be(2);
+        deltaComputer.Verify(
+            d => d.ComputeAsync(It.IsAny<ArchitectureRunDetail>(), It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [SkippableFact]
     public async Task GetRecentDeltasAsync_FiltersToCommittedRuns_NewestFirst_AndClampsCount()
     {
         Mock<IRunDetailQueryService> queryService = new();
