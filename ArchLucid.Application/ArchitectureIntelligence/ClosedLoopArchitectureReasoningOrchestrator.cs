@@ -312,6 +312,7 @@ public sealed partial class ClosedLoopArchitectureReasoningOrchestrator : IClose
         }
 
         if (!publishDecision.PublishBlocked
+            && request.PublishToProduct
             && reReviewSubstantiation is not null
             && reReview is not null)
         {
