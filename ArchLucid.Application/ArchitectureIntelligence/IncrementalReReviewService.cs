@@ -8,46 +8,6 @@ public sealed class IncrementalReReviewService : IIncrementalReReviewService
         "Only the affected subgraph was re-reviewed. Unreviewed remainder of the model is not guaranteed safe; "
         + "global invariant checks still apply.";
 
-    public IncrementalReReviewResult ReReview(
-        ArchitectureKnowledgeModel model,
-        ReReviewScope scope,
-        ISpecialistReviewService specialistService)
-    {
-        ArgumentNullException.ThrowIfNull(model);
-        ArgumentNullException.ThrowIfNull(scope);
-        ArgumentNullException.ThrowIfNull(specialistService);
-
-        List<GlobalInvariantCheckResult> globalInvariantResults = [];
-        bool fullReReviewTriggered = scope.FullReReview || scope.Trigger.HasValue;
-        List<SpecialistReviewResult> specialistResults = [];
-        string? partialScopeDisclaimer = null;
-
-        if (fullReReviewTriggered)
-        {
-            specialistResults.Add(specialistService.Review(model));
-        }
-        else if (scope.AffectedElementIds.Count > 0)
-        {
-            ArchitectureKnowledgeModel scopedModel = BuildScopedModel(model, scope.AffectedElementIds);
-            specialistResults.Add(specialistService.Review(scopedModel));
-            partialScopeDisclaimer = PartialScopeDisclaimer;
-        }
-
-        if (scope.IncludeGlobalInvariantChecks)
-        {
-            globalInvariantResults = RunGlobalInvariantChecks(model);
-        }
-
-        return new IncrementalReReviewResult
-        {
-            Scope = scope,
-            SpecialistResults = specialistResults,
-            GlobalInvariantResults = globalInvariantResults,
-            FullReReviewTriggered = fullReReviewTriggered,
-            PartialScopeDisclaimer = partialScopeDisclaimer,
-        };
-    }
-
     public async Task<IncrementalReReviewResult> ReReviewAsync(
         ArchitectureKnowledgeModel model,
         ReReviewScope scope,

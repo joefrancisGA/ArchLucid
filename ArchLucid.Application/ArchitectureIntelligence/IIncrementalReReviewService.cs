@@ -4,11 +4,6 @@ namespace ArchLucid.Application.ArchitectureIntelligence;
 
 public interface IIncrementalReReviewService
 {
-    IncrementalReReviewResult ReReview(
-        ArchitectureKnowledgeModel model,
-        ReReviewScope scope,
-        ISpecialistReviewService specialistService);
-
     Task<IncrementalReReviewResult> ReReviewAsync(
         ArchitectureKnowledgeModel model,
         ReReviewScope scope,

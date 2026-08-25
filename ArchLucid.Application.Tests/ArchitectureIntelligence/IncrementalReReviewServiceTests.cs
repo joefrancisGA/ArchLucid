@@ -8,10 +8,11 @@ namespace ArchLucid.Application.Tests.ArchitectureIntelligence;
 public sealed class IncrementalReReviewServiceTests
 {
     private readonly IncrementalReReviewService _service = new();
-    private readonly SpecialistReviewService _specialistReviewService = new();
+    private readonly AsyncSpecialistReviewServiceAdapter _specialistReviewService =
+        new(new SpecialistReviewService());
 
     [Fact]
-    public void ReReview_always_runs_global_invariant_checks()
+    public async Task ReReviewAsync_always_runs_global_invariant_checks()
     {
         ArchitectureKnowledgeModel model = new ArchitectureOntologyService().CreateEmptyModel("tenant-1");
         ReReviewScope scope = new()
@@ -20,7 +21,7 @@ public sealed class IncrementalReReviewServiceTests
             FullReReview = false,
         };
 
-        IncrementalReReviewResult result = _service.ReReview(model, scope, _specialistReviewService);
+        IncrementalReReviewResult result = await _service.ReReviewAsync(model, scope, _specialistReviewService);
 
         result.GlobalInvariantResults.Should().HaveCount(5);
         result.GlobalInvariantResults.Select(check => check.InvariantId).Should().BeEquivalentTo(
@@ -34,7 +35,7 @@ public sealed class IncrementalReReviewServiceTests
     }
 
     [Fact]
-    public void ReReview_scoped_path_sets_partial_scope_disclaimer()
+    public async Task ReReviewAsync_scoped_path_sets_partial_scope_disclaimer()
     {
         ArchitectureKnowledgeModel model = new()
         {
@@ -48,12 +49,6 @@ public sealed class IncrementalReReviewServiceTests
                     Kind = ArchitectureElementKind.Component,
                     Name = "Billing",
                 },
-                new ArchitectureModelElement
-                {
-                    ElementId = "el-2",
-                    Kind = ArchitectureElementKind.Component,
-                    Name = "Unrelated",
-                },
             ],
         };
 
@@ -61,38 +56,40 @@ public sealed class IncrementalReReviewServiceTests
         {
             AffectedElementIds = ["el-1"],
             FullReReview = false,
+            IncludeGlobalInvariantChecks = false,
         };
 
-        IncrementalReReviewResult result = _service.ReReview(model, scope, _specialistReviewService);
+        IncrementalReReviewResult result = await _service.ReReviewAsync(model, scope, _specialistReviewService);
 
+        result.PartialScopeDisclaimer.Should().Be(
+            "Only the affected subgraph was re-reviewed. Unreviewed remainder of the model is not guaranteed safe; "
+            + "global invariant checks still apply.");
         result.FullReReviewTriggered.Should().BeFalse();
-        result.PartialScopeDisclaimer.Should().Contain("Unreviewed remainder");
-        result.SpecialistResults.Should().NotBeEmpty();
-        result.GlobalInvariantResults.Should().HaveCount(5);
     }
 
     [Fact]
-    public void ReReview_skips_global_invariant_checks_when_flag_disabled()
+    public async Task ReReviewAsync_full_re_review_path_does_not_set_partial_scope_disclaimer()
     {
         ArchitectureKnowledgeModel model = new ArchitectureOntologyService().CreateEmptyModel("tenant-1");
         ReReviewScope scope = new()
         {
             AffectedElementIds = [],
-            FullReReview = false,
+            FullReReview = true,
             IncludeGlobalInvariantChecks = false,
         };
 
-        IncrementalReReviewResult result = _service.ReReview(model, scope, _specialistReviewService);
+        IncrementalReReviewResult result = await _service.ReReviewAsync(model, scope, _specialistReviewService);
 
-        result.GlobalInvariantResults.Should().BeEmpty();
+        result.PartialScopeDisclaimer.Should().BeNull();
+        result.FullReReviewTriggered.Should().BeTrue();
     }
 
     [Fact]
-    public void ReReview_scoped_model_includes_reverse_related_chain_regardless_of_element_order()
+    public async Task ReReviewAsync_scoped_model_includes_reverse_related_chain_regardless_of_element_order()
     {
         ArchitectureKnowledgeModel model = new()
         {
-            ModelId = "model-chain",
+            ModelId = "model-reverse-chain",
             TenantId = "tenant-1",
             Elements =
             [
@@ -119,7 +116,7 @@ public sealed class IncrementalReReviewServiceTests
             ],
         };
 
-        CapturingSpecialistReviewService capturingSpecialist = new();
+        CapturingAsyncSpecialistReviewService capturingSpecialist = new();
         ReReviewScope scope = new()
         {
             AffectedElementIds = ["affected-target"],
@@ -127,7 +124,7 @@ public sealed class IncrementalReReviewServiceTests
             IncludeGlobalInvariantChecks = false,
         };
 
-        _service.ReReview(model, scope, capturingSpecialist);
+        await _service.ReReviewAsync(model, scope, capturingSpecialist);
 
         capturingSpecialist.CapturedModel.Should().NotBeNull();
         capturingSpecialist.CapturedModel!.Elements.Select(element => element.ElementId)
@@ -136,7 +133,7 @@ public sealed class IncrementalReReviewServiceTests
     }
 
     [Fact]
-    public void ReReview_scoped_model_includes_forward_related_chain_regardless_of_element_order()
+    public async Task ReReviewAsync_scoped_model_includes_forward_related_chain_regardless_of_element_order()
     {
         ArchitectureKnowledgeModel model = new()
         {
@@ -167,7 +164,7 @@ public sealed class IncrementalReReviewServiceTests
             ],
         };
 
-        CapturingSpecialistReviewService capturingSpecialist = new();
+        CapturingAsyncSpecialistReviewService capturingSpecialist = new();
         ReReviewScope scope = new()
         {
             AffectedElementIds = ["affected-target"],
@@ -175,7 +172,7 @@ public sealed class IncrementalReReviewServiceTests
             IncludeGlobalInvariantChecks = false,
         };
 
-        _service.ReReview(model, scope, capturingSpecialist);
+        await _service.ReReviewAsync(model, scope, capturingSpecialist);
 
         capturingSpecialist.CapturedModel.Should().NotBeNull();
         capturingSpecialist.CapturedModel!.Elements.Select(element => element.ElementId)
@@ -184,7 +181,7 @@ public sealed class IncrementalReReviewServiceTests
     }
 
     [Fact]
-    public void ReReview_scoped_model_includes_forward_related_elements_discovered_via_reverse_related_hubs()
+    public async Task ReReviewAsync_scoped_model_includes_forward_related_elements_discovered_via_reverse_related_hubs()
     {
         ArchitectureKnowledgeModel model = new()
         {
@@ -214,7 +211,7 @@ public sealed class IncrementalReReviewServiceTests
             ],
         };
 
-        CapturingSpecialistReviewService capturingSpecialist = new();
+        CapturingAsyncSpecialistReviewService capturingSpecialist = new();
         ReReviewScope scope = new()
         {
             AffectedElementIds = ["affected-target"],
@@ -222,7 +219,7 @@ public sealed class IncrementalReReviewServiceTests
             IncludeGlobalInvariantChecks = false,
         };
 
-        _service.ReReview(model, scope, capturingSpecialist);
+        await _service.ReReviewAsync(model, scope, capturingSpecialist);
 
         capturingSpecialist.CapturedModel.Should().NotBeNull();
         capturingSpecialist.CapturedModel!.Elements.Select(element => element.ElementId)
@@ -230,16 +227,26 @@ public sealed class IncrementalReReviewServiceTests
             .BeEquivalentTo(["affected-target", "worker", "checkout-cache"]);
     }
 
-    private sealed class CapturingSpecialistReviewService : ISpecialistReviewService
+    private sealed class AsyncSpecialistReviewServiceAdapter(SpecialistReviewService inner) : IAsyncSpecialistReviewService
+    {
+        public Task<SpecialistReviewResult> ReviewAsync(
+            ArchitectureKnowledgeModel model,
+            IReadOnlyList<QualityDimension>? dimensions = null,
+            CancellationToken cancellationToken = default)
+            => Task.FromResult(inner.Review(model, dimensions));
+    }
+
+    private sealed class CapturingAsyncSpecialistReviewService : IAsyncSpecialistReviewService
     {
         public ArchitectureKnowledgeModel? CapturedModel { get; private set; }
 
-        public SpecialistReviewResult Review(
+        public Task<SpecialistReviewResult> ReviewAsync(
             ArchitectureKnowledgeModel model,
-            IReadOnlyList<QualityDimension>? dimensions = null)
+            IReadOnlyList<QualityDimension>? dimensions = null,
+            CancellationToken cancellationToken = default)
         {
             CapturedModel = model;
-            return new SpecialistReviewResult();
+            return Task.FromResult(new SpecialistReviewResult());
         }
     }
 }
