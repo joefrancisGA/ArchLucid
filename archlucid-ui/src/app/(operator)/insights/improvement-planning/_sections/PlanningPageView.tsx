@@ -41,6 +41,7 @@ import { resolveContinueLastPlanningPlan } from "@/lib/resolve-continue-last-pla
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import { PlanningBuyerChrome } from "./PlanningBuyerChrome";
 import { PlanningContinueLastPlanRow } from "./PlanningContinueLastPlanRow";
+import { PlanningNextReviewFooterClient } from "./PlanningNextReviewFooterClient";
 import { PlanningPickReviewBeforePlanningStrip } from "./PlanningPickReviewBeforePlanningStrip";
 import { PlanningPageEmptyState } from "./PlanningPageEmptyState";
 import { PlanningLoadFailurePanel } from "./PlanningLoadFailurePanel";
@@ -265,6 +266,10 @@ export function PlanningPageView(props: Props) {
           {!showTablesSkeleton ? <PlanningExportReadinessNote /> : null}
           {m.usedPlanningDemoFallback && !showTablesSkeleton ? (
             <OperatorEvidenceLimitsFooter runId={SHOWCASE_STATIC_DEMO_RUN_ID} showArchitectureReviewSummaryLink={false} />
+          ) : null}
+
+          {selectedReviewId.trim().length > 0 ? (
+            <PlanningNextReviewFooterClient runId={selectedReviewId.trim()} />
           ) : null}
         </>
       ) : null}
