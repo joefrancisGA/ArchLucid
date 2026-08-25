@@ -58,6 +58,12 @@ import {
   resolveApiKeysIssueEmphasizedStepId,
   resolveApiKeysIssueSteps,
 } from "@/lib/api-keys-issue-checklist";
+import {
+  resolveContinueLastApiKeyCredential,
+  writeApiKeyCredentialLastViewedSlot,
+} from "@/lib/resolve-continue-last-api-key-credential";
+import { ApiKeysContinueLastViewedRow } from "./ApiKeysContinueLastViewedRow";
+import { ApiKeysSettingsBreadcrumb } from "./ApiKeysSettingsBreadcrumb";
 import { ApiKeysSettingsBuyerChrome } from "./ApiKeysSettingsBuyerChrome";
 import {
   API_KEYS_SETTINGS_PRIMARY_CONTENT_ID,
@@ -221,6 +227,7 @@ export function ApiKeysSettingsPageClient() {
         }
 
         const response = (await res.json()) as AdminApiKeyRotateResponse;
+        writeApiKeyCredentialLastViewedSlot(slot);
         setRotateReveal(response);
         setStatusBanner(resolveSuccessBanner(slot, invalidatePrevious));
         setAuditEvents((current) => [
@@ -267,6 +274,33 @@ export function ApiKeysSettingsPageClient() {
 
     return buildCredentialRows(state.settings);
   }, [state]);
+
+  const continueLastCredential = useMemo(
+    () =>
+      resolveContinueLastApiKeyCredential(
+        credentialRows.map((row) => ({
+          slot: row.slot,
+          keyName: row.keyName,
+          isConfigured: row.slotStatus?.isConfigured === true,
+          expiresAtUtc: row.slotStatus?.expiresAtUtc,
+        })),
+        auditEvents,
+      ),
+    [auditEvents, credentialRows],
+  );
+
+  function rememberPendingAction(action: ApiKeyPendingAction): void {
+    writeApiKeyCredentialLastViewedSlot(action.kind === "rotate_readonly" ? "ReadOnly" : "Admin");
+    setSecretAcknowledged(false);
+    setPendingAction(action);
+  }
+
+  function openCredential(slot: ApiKeyCredentialSlot): void {
+    writeApiKeyCredentialLastViewedSlot(slot);
+    document
+      .querySelector(`[data-api-key-slot="${slot}"]`)
+      ?.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
 
   const apiKeysIssueSteps = resolveApiKeysIssueSteps({
     slotSelected: pendingAction !== null || rotating || rotateReveal !== null,
@@ -345,6 +379,10 @@ export function ApiKeysSettingsPageClient() {
 
       <ApiKeysSettingsSummaryRow summary={summary} loading={state.status === "loading"} />
 
+      {state.status === "ready" && continueLastCredential !== null ? (
+        <ApiKeysContinueLastViewedRow target={continueLastCredential} onOpen={openCredential} />
+      ) : null}
+
       {state.status === "ready" ? (
         <Card>
           <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-3">
@@ -355,8 +393,7 @@ export function ApiKeysSettingsPageClient() {
                 size="sm"
                 disabled={rotating}
                 onClick={() => {
-                  setSecretAcknowledged(false);
-                  setPendingAction({ kind: "issue_overlap" });
+                  rememberPendingAction({ kind: "issue_overlap" });
                 }}
               >
                 {API_KEYS_ACTION_ISSUE_OVERLAP}
@@ -367,8 +404,7 @@ export function ApiKeysSettingsPageClient() {
                 variant="outline"
                 disabled={rotating}
                 onClick={() => {
-                  setSecretAcknowledged(false);
-                  setPendingAction({ kind: "rotate_readonly" });
+                  rememberPendingAction({ kind: "rotate_readonly" });
                 }}
               >
                 {API_KEYS_ACTION_ROTATE_READONLY}
@@ -387,8 +423,7 @@ export function ApiKeysSettingsPageClient() {
                 variant="destructive"
                 disabled={rotating}
                 onClick={() => {
-                  setSecretAcknowledged(false);
-                  setPendingAction({ kind: "rotate_admin" });
+                  rememberPendingAction({ kind: "rotate_admin" });
                 }}
               >
                 {API_KEYS_ACTION_ROTATE_ADMIN}
@@ -406,16 +441,13 @@ export function ApiKeysSettingsPageClient() {
               rows={credentialRows}
               busy={rotating}
               onIssueOverlap={() => {
-                setSecretAcknowledged(false);
-                setPendingAction({ kind: "issue_overlap" });
+                rememberPendingAction({ kind: "issue_overlap" });
               }}
               onRotateAdmin={() => {
-                setSecretAcknowledged(false);
-                setPendingAction({ kind: "rotate_admin" });
+                rememberPendingAction({ kind: "rotate_admin" });
               }}
               onRotateReadOnly={() => {
-                setSecretAcknowledged(false);
-                setPendingAction({ kind: "rotate_readonly" });
+                rememberPendingAction({ kind: "rotate_readonly" });
               }}
             />
           </CardContent>

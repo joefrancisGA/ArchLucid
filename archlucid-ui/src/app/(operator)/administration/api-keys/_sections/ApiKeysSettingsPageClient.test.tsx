@@ -49,6 +49,10 @@ describe("ApiKeysSettingsPageClient", () => {
       expect(screen.getByTestId("api-keys-settings-page")).toBeInTheDocument();
     });
 
+    await waitFor(() => {
+      expect(screen.getByTestId("api-keys-continue-last-viewed-row")).toBeInTheDocument();
+    });
+    expect(screen.getByTestId("api-key-row-admin")).toHaveAttribute("data-api-key-slot", "Admin");
     expect(screen.getByTestId("api-keys-settings-sources")).toBeInTheDocument();
     expect(screen.queryByTestId("api-keys-settings-page-breadcrumb")).not.toBeInTheDocument();
   });

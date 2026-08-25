@@ -116,7 +116,11 @@ export function ApiKeyCredentialTable(props: ApiKeyCredentialTableProps): React.
       </EnterpriseTableHead>
       <EnterpriseTableBody>
         {props.rows.map((row) => (
-          <EnterpriseTableRow key={row.slot} data-testid={`api-key-row-${row.slot.toLowerCase()}`}>
+          <EnterpriseTableRow
+            key={row.slot}
+            data-testid={`api-key-row-${row.slot.toLowerCase()}`}
+            data-api-key-slot={row.slot}
+          >
             <EnterpriseTableCell>
               <div>
                 <p className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}>{row.keyName}</p>
