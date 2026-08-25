@@ -482,6 +482,7 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IPlatformBundledPolicyPackAvailability, PlatformBundledPolicyPackAvailability>();
         services.AddScoped<PlatformBundledPolicyPackRegistryBootstrapper>();
         services.AddScoped<PolicyPackWorkspaceSelectionService>();
+        services.AddScoped<IPolicyPackWorkflowFacade, PolicyPackWorkflowFacade>();
     }
 
     private static void RegisterIntegrationEventPublishing(IServiceCollection services, IConfiguration configuration)
