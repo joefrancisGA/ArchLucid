@@ -197,9 +197,7 @@ public sealed class PilotValueReportService(
 
     private static bool IsCommittedSummary(RunSummary summary)
     {
-        if (string.Equals(summary.Status, nameof(ArchitectureRunStatus.Committed), StringComparison.OrdinalIgnoreCase))
-            return true;
-        return !string.IsNullOrWhiteSpace(summary.CurrentManifestVersion);
+        return string.Equals(summary.Status, nameof(ArchitectureRunStatus.Committed), StringComparison.OrdinalIgnoreCase);
     }
 
     private static void AddFindings(ArchitectureRunDetail detail, PilotValueReportSeverityBreakdown target)
