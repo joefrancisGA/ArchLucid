@@ -32,13 +32,13 @@ export function ScorecardReviewPickerStrip(props: ScorecardReviewPickerStripProp
     <section
       aria-labelledby="scorecard-review-picker-heading"
       className="rounded-lg border border-neutral-200 bg-al-surface-raised px-4 py-3 dark:border-neutral-800"
-      data-testid="scorecard-review-picker-strip"
+      data-testid="scorecard-pick-review-before-metrics-strip"
     >
       <h2
         id="scorecard-review-picker-heading"
         className={cn("m-0 font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.body)}
       >
-        Pick a review
+        Pick a review before metrics
       </h2>
       <p className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
         Scorecard metrics are scoped to a review package. Workspace active review is the default when available.

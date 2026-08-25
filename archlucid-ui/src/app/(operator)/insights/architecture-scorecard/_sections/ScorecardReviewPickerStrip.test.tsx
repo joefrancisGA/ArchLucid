@@ -31,7 +31,7 @@ describe("ScorecardReviewPickerStrip", () => {
     render(<ScorecardReviewPickerStrip selectedReviewId={null} onSelectReview={onSelectReview} />);
 
     expect(onSelectReview).toHaveBeenCalledWith("workspace-run-1");
-    expect(screen.getByTestId("scorecard-review-picker-strip")).toBeInTheDocument();
+    expect(screen.getByTestId("scorecard-pick-review-before-metrics-strip")).toBeInTheDocument();
   });
 
   it("forwards manual review selection", () => {
