@@ -201,7 +201,10 @@ public sealed class ArchitectureRunCreateOrchestrator(
             .EnsureAvailableAsync(scope, request.SystemName, cancellationToken: cancellationToken)
             .ConfigureAwait(false);
 
-        CreateRunResult result = await CompleteAcceptedCreateWithEnlistedCoordinationAsync(
+        // Do not enlist the HTTP/worker unit of work across authority coordination. Holding that
+        // transaction for ingestion/graph/LLM work serializes later async admits (the 60s UI proxy
+        // then reports a false create failure). Coordination uses its own short UoW / queue.
+        CreateRunResult result = await CompleteAcceptedCreateWithDetachedCoordinationAsync(
             runId,
             request,
             cancellationToken);
@@ -224,7 +227,7 @@ public sealed class ArchitectureRunCreateOrchestrator(
             cancellationToken);
     }
 
-    private async Task<CreateRunResult> CompleteAcceptedCreateWithEnlistedCoordinationAsync(
+    private async Task<CreateRunResult> CompleteAcceptedCreateWithDetachedCoordinationAsync(
         Guid runId,
         ArchitectureRequest request,
         CancellationToken cancellationToken)
@@ -241,7 +244,7 @@ public sealed class ArchitectureRunCreateOrchestrator(
                 coordination = await _authorityCoordination.CreateRunAsync(
                     request,
                     cancellationToken,
-                    uow,
+                    enlistUnitOfWork: null,
                     runId);
 
                 if (!coordination.Success)
