@@ -23,7 +23,7 @@ public sealed class ClosedLoopArchitectureReasoningPostStageHooks(
     private readonly IAuthorityFindingsSnapshotUpdater? _authorityFindingsSnapshotUpdater =
         authorityFindingsSnapshotUpdater;
 
-    public async Task IntegrateReReviewFindingsAsync(
+    public async Task<SpecialistFindingsSubstantiationResult?> IntegrateReReviewFindingsAsync(
         string runId,
         IncrementalReReviewResult reReview,
         List<SpecialistReviewFinding> allFindings,
@@ -47,8 +47,20 @@ public sealed class ClosedLoopArchitectureReasoningPostStageHooks(
                 cancellationToken)
             .ConfigureAwait(false);
 
-        if (substantiation is null
-            || _authorityFindingsSnapshotUpdater is null
+        return substantiation;
+    }
+
+    public async Task TryMergeAuthorityFindingsAsync(
+        string runId,
+        SpecialistFindingsSubstantiationResult substantiation,
+        IncrementalReReviewResult reReview,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(runId);
+        ArgumentNullException.ThrowIfNull(substantiation);
+        ArgumentNullException.ThrowIfNull(reReview);
+
+        if (_authorityFindingsSnapshotUpdater is null
             || _scopeContextProvider is null
             || !Guid.TryParse(runId, out Guid parsedRunId))
             return;

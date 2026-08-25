@@ -88,6 +88,61 @@ public sealed class ClosedLoopArchitectureReasoningPostStageHooksTests
             CancellationToken.None);
 
         allFindings.Should().HaveCount(2);
+        reReview.MergedFindingIds.Should().BeEmpty();
+        authorityUpdater.Verify(
+            updater => updater.MergeSubstantiatedFindingsAsync(
+                It.IsAny<ScopeContext>(),
+                It.IsAny<Guid>(),
+                It.IsAny<SpecialistFindingsSubstantiationResult>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task TryMergeAuthorityFindingsAsync_merges_substantiation_when_publish_allowed()
+    {
+        string runId = Guid.NewGuid().ToString("N");
+        SpecialistFindingsSubstantiationResult substantiation = new()
+        {
+            SubstantiatedFindings =
+            [
+                new SpecialistReviewFinding { FindingId = "finding-new", Title = "New from re-review" },
+            ],
+        };
+
+        IncrementalReReviewResult reReview = new();
+
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid(),
+        };
+
+        Mock<IScopeContextProvider> scopeProvider = new();
+        scopeProvider.Setup(provider => provider.GetCurrentScope()).Returns(scope);
+
+        Mock<IAuthorityFindingsSnapshotUpdater> authorityUpdater = new();
+        authorityUpdater
+            .Setup(updater => updater.MergeSubstantiatedFindingsAsync(
+                scope,
+                Guid.Parse(runId),
+                substantiation,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(["finding-new"]);
+
+        ClosedLoopArchitectureReasoningPostStageHooks hooks = new(
+            Mock.Of<ISpecialistFindingsSubstantiationService>(),
+            Mock.Of<IArchitectureIntelligenceProductPublishService>(),
+            scopeProvider.Object,
+            authorityUpdater.Object);
+
+        await hooks.TryMergeAuthorityFindingsAsync(
+            runId,
+            substantiation,
+            reReview,
+            CancellationToken.None);
+
         reReview.MergedFindingIds.Should().Equal("finding-new");
         authorityUpdater.Verify(
             updater => updater.MergeSubstantiatedFindingsAsync(
