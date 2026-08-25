@@ -28,6 +28,7 @@ public static class ClosedLoopCacheHitPublishGuard
         cached.Interview.ModelId = runId;
 
         RewriteProductRunIdentity(cached, runId);
+        StripProductPayloads(cached);
 
         cached.PublishedToProduct = false;
         cached.PublishedFindingsSnapshotId = null;
@@ -56,5 +57,11 @@ public static class ClosedLoopCacheHitPublishGuard
 
         foreach (RecommendationRecord recommendation in cached.ProductRecommendations)
             recommendation.RunId = runGuid;
+    }
+
+    private static void StripProductPayloads(ClosedLoopReasoningResult cached)
+    {
+        cached.ProductFindings = [];
+        cached.ProductRecommendations = [];
     }
 }

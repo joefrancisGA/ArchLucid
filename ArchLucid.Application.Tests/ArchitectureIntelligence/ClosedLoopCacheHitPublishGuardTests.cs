@@ -75,9 +75,8 @@ public sealed class ClosedLoopCacheHitPublishGuardTests
         ClosedLoopCacheHitPublishGuard.ApplyCacheHitPolicy(request, "current-run", cached);
 
         cached.Interview.ModelId.Should().Be("current-run");
-        cached.ProductFindings[0].RunIdRef.Should().Be("current-run");
-        cached.ProductRecommendations[0].RunId
-            .Should().Be(ArchitectureIntelligenceTenantIdMapper.ToStorageGuid("current-run"));
+        cached.ProductFindings.Should().BeEmpty();
+        cached.ProductRecommendations.Should().BeEmpty();
     }
 
     [Fact]
