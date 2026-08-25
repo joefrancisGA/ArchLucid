@@ -1,5 +1,6 @@
 using ArchLucid.Application.Bootstrap;
 using ArchLucid.Contracts.Architecture;
+using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Pilots;
 using ArchLucid.Core.Diagnostics;
 
@@ -56,7 +57,7 @@ public sealed class RecentPilotRunDeltasService(
 
     private static bool IsCommitted(RunSummary r)
     {
-        return !string.IsNullOrWhiteSpace(r.CurrentManifestVersion);
+        return string.Equals(r.Status, nameof(ArchitectureRunStatus.Committed), StringComparison.OrdinalIgnoreCase);
     }
 
     private async Task<RecentPilotRunDeltaSummaryResponse?> TryProjectAsync(RunSummary summary, CancellationToken cancellationToken)
