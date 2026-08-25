@@ -98,6 +98,10 @@ public sealed class ArchitectureKnowledgeModelAccess(
             || _architectureIdentityRepository is null)
             return;
 
+        await _runRepository
+            .ClearGraphSnapshotForArchitectureAsync(scope, architectureId, cancellationToken)
+            .ConfigureAwait(false);
+
         await _architectureIdentityRepository
             .UpdateCurrentModelAsync(scope, architectureId, nextModelId, cancellationToken)
             .ConfigureAwait(false);

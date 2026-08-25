@@ -317,6 +317,34 @@ public sealed class InMemoryRunRepository(ITenantRepository? tenantRepository = 
         return Task.FromResult<Guid?>(null);
     }
 
+    public Task ClearGraphSnapshotForArchitectureAsync(
+        ScopeContext scope,
+        Guid architectureId,
+        CancellationToken ct)
+    {
+        ct.ThrowIfCancellationRequested();
+        ArgumentNullException.ThrowIfNull(scope);
+
+        if (architectureId == Guid.Empty)
+            return Task.CompletedTask;
+
+        foreach (RunRecord candidate in _store.Values)
+        {
+            if (!MatchesScope(candidate, scope))
+                continue;
+
+            if (candidate.ArchivedUtc.HasValue)
+                continue;
+
+            if (candidate.ArchitectureId != architectureId)
+                continue;
+
+            candidate.GraphSnapshotId = null;
+        }
+
+        return Task.CompletedTask;
+    }
+
     private static bool IsCommittedRun(RunRecord run)
     {
         if (string.Equals(run.LegacyRunStatus, nameof(ArchitectureRunStatus.Committed), StringComparison.OrdinalIgnoreCase))

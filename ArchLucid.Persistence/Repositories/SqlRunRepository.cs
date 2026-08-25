@@ -279,6 +279,26 @@ public sealed class SqlRunRepository(
                 cancellationToken: ct)).ConfigureAwait(false);
     }
 
+    public async Task ClearGraphSnapshotForArchitectureAsync(
+        ScopeContext scope,
+        Guid architectureId,
+        CancellationToken ct)
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+        PersistenceTenantScope.RequireScopedTenant(scope);
+
+        if (architectureId == Guid.Empty)
+            return;
+
+        await using SqlConnection connection = await connectionFactory.CreateOpenConnectionAsync(ct).ConfigureAwait(false);
+
+        await connection.ExecuteAsync(
+            new CommandDefinition(
+                RunRepositorySql.ClearGraphSnapshotForArchitecture,
+                RunListQueryParameters.ForClearGraphSnapshotForArchitecture(scope, architectureId),
+                cancellationToken: ct)).ConfigureAwait(false);
+    }
+
     public async Task<IReadOnlyList<RunRecord>> ListByProjectAsync(
         ScopeContext scope,
         string projectId,

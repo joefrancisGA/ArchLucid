@@ -99,6 +99,13 @@ public sealed class CachingRunRepository(IRunRepository inner, IHotPathReadCache
             ct);
 
     /// <inheritdoc />
+    public Task ClearGraphSnapshotForArchitectureAsync(
+        ScopeContext scope,
+        Guid architectureId,
+        CancellationToken ct)
+        => _inner.ClearGraphSnapshotForArchitectureAsync(scope, architectureId, ct);
+
+    /// <inheritdoc />
     public async Task<IReadOnlyList<RunRecord>> ListByProjectAsync(
         ScopeContext scope,
         string projectId,

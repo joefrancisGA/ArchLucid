@@ -169,6 +169,17 @@ internal static class RunRepositorySql
                                                                  ORDER BY r.CreatedUtc DESC, r.RunId DESC;
                                                                  """;
 
+    public const string ClearGraphSnapshotForArchitecture = """
+                                                            UPDATE dbo.Runs
+                                                            SET GraphSnapshotId = NULL
+                                                            WHERE TenantId = @TenantId
+                                                              AND WorkspaceId = @WorkspaceId
+                                                              AND ScopeProjectId = @ScopeProjectId
+                                                              AND ArchitectureId = @ArchitectureId
+                                                              AND ArchivedUtc IS NULL
+                                                              AND GraphSnapshotId IS NOT NULL;
+                                                            """;
+
     public const string Update = """
                                  DECLARE @RunUpdateOutput TABLE (RowVersionStamp VARBINARY(8) NOT NULL);
 

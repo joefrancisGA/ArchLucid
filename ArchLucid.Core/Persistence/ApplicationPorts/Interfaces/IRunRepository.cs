@@ -111,6 +111,15 @@ public interface IRunRepository
         CancellationToken ct);
 
     /// <summary>
+    ///     Clears <see cref="RunRecord.GraphSnapshotId" /> on all non-archived runs for
+    ///     <paramref name="architectureId" /> so authority pipeline reprojects Γ after κ mutations.
+    /// </summary>
+    Task ClearGraphSnapshotForArchitectureAsync(
+        ScopeContext scope,
+        Guid architectureId,
+        CancellationToken ct);
+
+    /// <summary>
     ///     Returns up to <paramref name="take" /> runs for <paramref name="projectId" /> within
     ///     <paramref name="scope" />, ordered by <c>CreatedUtc</c> descending (newest first).
     /// </summary>
