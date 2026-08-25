@@ -17,7 +17,6 @@ public interface IEmailOtpEmailNotifier
 public sealed class EmailOtpEmailNotifier(
     IEmailProvider emailProvider,
     Microsoft.Extensions.Options.IOptionsMonitor<EmailNotificationOptions> emailOptionsMonitor,
-    TimeProvider timeProvider,
     Microsoft.Extensions.Logging.ILogger<EmailOtpEmailNotifier> logger) : IEmailOtpEmailNotifier
 {
     private const string DefaultProductName = "ArchLucid";
@@ -31,9 +30,6 @@ public sealed class EmailOtpEmailNotifier(
 
     private readonly Microsoft.Extensions.Logging.ILogger<EmailOtpEmailNotifier> _logger =
         logger ?? throw new ArgumentNullException(nameof(logger));
-
-    private readonly TimeProvider _timeProvider =
-        timeProvider ?? throw new ArgumentNullException(nameof(timeProvider));
 
     public async Task<bool> TrySendSignInCodeAsync(
         string displayEmail,
@@ -53,13 +49,16 @@ public sealed class EmailOtpEmailNotifier(
         string text = BuildTextBody(productName, code, lifetimeMinutes);
         string html = BuildHtmlBody(productName, code, lifetimeMinutes);
 
+        string codeFingerprint = EmailOtpRequestMetadataHasher.HashOptional(code)
+            ?? throw new ArgumentException("Code is required.", nameof(code));
+
         EmailMessage message = new()
         {
             To = displayEmail.Trim(),
             Subject = subject,
             HtmlBody = html,
             TextBody = text,
-            IdempotencyKey = $"{TemplateId}:{EmailOtpCorrelationFingerprint.ComputeHexPrefix(displayEmail)}:{_timeProvider.GetUtcNow():yyyyMMddHHmm}",
+            IdempotencyKey = $"{TemplateId}:{EmailOtpCorrelationFingerprint.ComputeHexPrefix(displayEmail)}:{codeFingerprint}",
             Tags = new EmailMessageTags { TenantId = Guid.Empty, EventType = TemplateId }
         };
 

@@ -1837,11 +1837,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** notifications; email dispatchers beyond weekly summary
 - **paths:** ArchLucid.Notifications/; ArchLucid.Application/Notifications/; ArchLucid.Api/Controllers/Advisory/DigestSubscriptionsController.cs
 - **test-filter:** FullyQualifiedName~Notifications|FullyQualifiedName~EmailDispatcher|FullyQualifiedName~DigestSubscriptionsController
-- **hunts:** 7
-- **bugs-found:** 14
+- **hunts:** 8
+- **bugs-found:** 15
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-25
-- **last-bug:** 2026-08-25 — user invitation email idempotency key used fresh GUID per send, breaking provider retry deduplication
+- **last-bug:** 2026-08-25 — email OTP idempotency key bucketed by minute, suppressing new codes within the same minute at the provider
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 
@@ -1865,8 +1865,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Digest subscription create accepts blank channel/destination — **hit 2026-08-25:** `DigestSubscriptionsController.Create` persisted subscriptions with empty `ChannelType`/`Destination` while `AlertRoutingSubscriptionsController` rejects them; fixed required-field validation; regression in `Create_rejects_blank_channel_or_destination`
 - [x] (invalid) Commit sponsor email has no sent-email ledger — single-recipient notifier uses stable provider idempotency key `architecture-commit-sponsor:{tenant}:{runId}`; no multi-recipient retry loop that `ISentEmailLedger` guards
 - [x] (proven) User invitation email idempotency key includes fresh GUID — **hit 2026-08-25:** `UserInvitationEmailNotifier` appended `Guid.NewGuid()` on every send so provider retries duplicated invitation mail; fixed with invitation-token suffix from `acceptUrl`; regression in `TrySendInvitationAsync_uses_stable_idempotency_key_for_same_invitation`
-
----
+- [x] (proven) Email OTP idempotency key buckets by minute — **hit 2026-08-25:** `EmailOtpEmailNotifier` keyed idempotency as `template:email:yyyyMMddHHmm`, so a second sign-in code issued within the same minute reused the provider key and could suppress delivery of the new code; fixed with per-code fingerprint via `EmailOtpRequestMetadataHasher`; regression in `TrySendSignInCodeAsync_uses_distinct_idempotency_keys_for_different_codes_in_same_minute`
+- [ ] (candidate) Trial lifecycle email reserves ledger before provider send — `TrialLifecycleEmailDispatcher` calls `TryRecordSentAsync` before `SendAsync`; a send failure throws but blocks retry because the ledger row remains reserved
+- [ ] (candidate) Marketing and support notifiers swallow send failures without surfacing to callers — `MarketingEarlyAccessSalesNotifier` and `SupportProblemReportNotifier` log and return on `SendAsync` exceptions with no retry or dead-letter signal
+- [ ] (candidate) Digest webhook delivery omits digest attempt persistence on channel failure — `DigestSlackWebhookDeliveryChannel` delegates to `ChatOpsWebhookDeliveryService` without recording failed `DigestDeliveryAttempt` rows in-zone (persistence may live in caller)
 
 ## Zone: artifact-synthesis
 
