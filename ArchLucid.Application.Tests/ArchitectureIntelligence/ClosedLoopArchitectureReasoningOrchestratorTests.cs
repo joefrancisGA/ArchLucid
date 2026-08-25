@@ -9,6 +9,20 @@ namespace ArchLucid.Application.Tests.ArchitectureIntelligence;
 public sealed class ClosedLoopArchitectureReasoningOrchestratorTests
 {
     [Fact]
+    public void Constructor_does_not_inject_unused_sync_specialist_review_service()
+    {
+        Type[] parameterTypes = typeof(ClosedLoopArchitectureReasoningOrchestrator)
+            .GetConstructors()
+            .Single()
+            .GetParameters()
+            .Select(parameter => parameter.ParameterType)
+            .ToArray();
+
+        parameterTypes.Should().NotContain(typeof(ISpecialistReviewService));
+        parameterTypes.Should().Contain(typeof(IAsyncSpecialistReviewService));
+    }
+
+    [Fact]
     public async Task RunAsync_processes_incomplete_architecture_text_end_to_end()
     {
         ServiceCollection services = new();

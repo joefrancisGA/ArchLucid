@@ -17,7 +17,6 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
     private readonly IAsyncArchitectureExtractionService _extractionService;
     private readonly IProgressiveInterviewService _interviewService;
     private readonly IAsyncSpecialistReviewService _specialistReviewService;
-    private readonly ISpecialistReviewService _heuristicSpecialistReviewService;
     private readonly IEvidenceValidationPipeline _evidenceValidationPipeline;
     private readonly IAsyncAdversarialReviewService _adversarialReviewService;
     private readonly IAsyncArchitectureRecommendationEngine _recommendationEngine;
@@ -41,7 +40,6 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
         IAsyncArchitectureExtractionService extractionService,
         IProgressiveInterviewService interviewService,
         IAsyncSpecialistReviewService specialistReviewService,
-        ISpecialistReviewService heuristicSpecialistReviewService,
         IEvidenceValidationPipeline evidenceValidationPipeline,
         IAsyncAdversarialReviewService adversarialReviewService,
         IAsyncArchitectureRecommendationEngine recommendationEngine,
@@ -64,8 +62,6 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
         _extractionService = extractionService ?? throw new ArgumentNullException(nameof(extractionService));
         _interviewService = interviewService ?? throw new ArgumentNullException(nameof(interviewService));
         _specialistReviewService = specialistReviewService ?? throw new ArgumentNullException(nameof(specialistReviewService));
-        _heuristicSpecialistReviewService = heuristicSpecialistReviewService
-            ?? throw new ArgumentNullException(nameof(heuristicSpecialistReviewService));
         _evidenceValidationPipeline = evidenceValidationPipeline ?? throw new ArgumentNullException(nameof(evidenceValidationPipeline));
         _adversarialReviewService = adversarialReviewService ?? throw new ArgumentNullException(nameof(adversarialReviewService));
         _recommendationEngine = recommendationEngine ?? throw new ArgumentNullException(nameof(recommendationEngine));
