@@ -155,7 +155,9 @@ public sealed class ArchitectureRunExecuteOrchestratorIdempotencyTests
             new DefaultEvidenceBuilder(Mock.Of<IUnifiedGoldenManifestReader>()),
             Mock.Of<IActorContext>(),
             Mock.Of<IBaselineMutationAuditService>(),
-            Mock.Of<IAuditService>(),
+            ArchitectureRunExecuteOrchestratorTestFactory.CreatePostExecuteHooks(
+                scopeContextProvider: scopeProvider.Object,
+                runRepository: runRepo.Object),
             ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
             Mock.Of<IAgentOutputTraceEvaluationHook>(),
             new NoOpAgentResultPostExecutionEnricher(),
@@ -175,9 +177,6 @@ public sealed class ArchitectureRunExecuteOrchestratorIdempotencyTests
             new OperationRunCancellationMarker(runRepo.Object),
             new DisabledRunExecuteOwnershipLeaseService(),
             Mock.Of<IRunStageOutcomesRepository>(),
-            ArchitectureRunExecuteOrchestratorTestFactory.CreateIntegrationEventOutbox(),
-            ArchitectureRunExecuteOrchestratorTestFactory.CreateIntegrationEventPublisher(),
-            ArchitectureRunExecuteOrchestratorTestFactory.CreateIntegrationEventsOptionsMonitor(),
             NullLogger<ArchitectureRunExecuteOrchestrator>.Instance);
     }
 

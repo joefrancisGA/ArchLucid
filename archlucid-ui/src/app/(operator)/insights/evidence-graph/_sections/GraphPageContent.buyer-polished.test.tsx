@@ -56,18 +56,13 @@ import {
   EVIDENCE_GRAPH_PRIMARY_CONTENT_ID,
   EVIDENCE_GRAPH_SKIP_LINK_LABEL,
 } from "@/lib/evidence-graph-page-copy";
-import { OPERATOR_NAV_GROUP_LABELS } from "@/lib/i18n";
 
 describe("GraphPageContent buyer-polished shell", () => {
-  it("renders skip link, breadcrumb, orientation, and hides vocabulary rails", () => {
+  it("renders skip link, page title, orientation, and hides vocabulary rails", () => {
     render(<GraphPageContent />);
 
     const skipLink = screen.getByRole("link", { name: EVIDENCE_GRAPH_SKIP_LINK_LABEL });
     expect(skipLink).toHaveAttribute("href", `#${EVIDENCE_GRAPH_PRIMARY_CONTENT_ID}`);
-
-    const breadcrumb = screen.getByTestId("evidence-graph-breadcrumb");
-    expect(breadcrumb).toHaveTextContent(OPERATOR_NAV_GROUP_LABELS.analysis);
-    expect(breadcrumb).toHaveTextContent(EVIDENCE_GRAPH_PAGE_TITLE);
 
     expect(screen.getByTestId("evidence-graph-page-title")).toHaveTextContent(EVIDENCE_GRAPH_PAGE_TITLE);
     expect(screen.getByText(EVIDENCE_GRAPH_PAGE_SUBTITLE)).toBeInTheDocument();

@@ -2,70 +2,35 @@
 
 import { cn } from "@/lib/utils";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
-import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { ItsmConnectorProviderChooserRail } from "@/components/itsm/ItsmConnectorProviderChooserRail";
 import { JiraIntegrationEvidenceOrientationStrip } from "@/components/evidence-orientation/registry/claim-and-sources-strips";
 import { useNavCallerAuthorityRank } from "@/components/operator/OperatorNavAuthorityProvider";
 import { OperatorLoadingNotice } from "@/components/operator/OperatorShellMessage";
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { StatusTag } from "@/components/ui/status-tag";
 import { useItsmConnectorPage } from "@/hooks/use-itsm-connector-page";
 import { useOperateCapability } from "@/hooks/use-operate-capability";
 import {
-  fetchItsmIntegrationHealth,
-  fetchTenantItsmConnectorConnection,
-  fetchTenantItsmOutboundSettings,
   probeItsmIntegrationHealth,
   upsertTenantItsmOutboundSettings,
-  type ItsmIntegrationHealthResponse,
-  type TenantItsmConnectorConnectionResponse,
   type TenantItsmOutboundSettingsResponse,
 } from "@/lib/api/itsm-outbound-api";
 import {
   DESIGN_TOKENS,
-  OPERATOR_DISCLOSURE_TRIGGER_CLASS,
   OPERATOR_LAYOUT,
-  OPERATOR_LINK,
   OPERATOR_TYPOGRAPHY,
 } from "@/lib/design-tokens";
-import { enterpriseMutationControlDisabledTitle } from "@/lib/enterprise-controls-context-copy";
 import { isShowSystemAdministrationNavEnabled } from "@/lib/features";
 import { launchJiraAtlassianOAuthConnect } from "@/lib/jira-atlassian-oauth-connect";
 import { buildJiraPageLoadResult } from "@/lib/jira-page-load";
-import { ITSM_CONNECTION_TEST_UNAVAILABLE_UNTIL_CONFIGURED } from "@/lib/itsm/itsm-product-integration-page-copy";
-import { ITSM_PRODUCT_SMOKE_VERIFICATION_HREF } from "@/lib/itsm/itsm-connectors-admin-scope";
 import {
-  JIRA_CONNECTION_SETTINGS_LEAD,
-  JIRA_CONNECTION_SETTINGS_TITLE,
   JIRA_CONNECTION_STATUS_HEADING,
-  JIRA_CONNECTION_TEST_BUTTON,
-  JIRA_CONNECTION_TEST_COLLAPSED_SUMMARY,
-  JIRA_CONNECTION_TEST_LEAD,
-  JIRA_CONNECTION_TEST_PENDING,
-  JIRA_CONNECTION_TEST_TITLE,
-  JIRA_CONNECTION_VERIFICATION_HELP_LABEL,
-  JIRA_FIELD_AUTH_METHOD,
-  JIRA_FIELD_CONNECTION_LABEL,
-  JIRA_FIELD_CREDENTIAL_STATUS,
-  JIRA_FIELD_SITE_URL,
   JIRA_INTEGRATION_PAGE_TITLE,
   JIRA_LOADING_MESSAGE,
-  JIRA_MUTATION_DISABLED_HELPER,
   JIRA_OAUTH_CONNECT_ERROR,
-  JIRA_RELOAD_BUTTON,
-  JIRA_SAVE_PENDING,
-  JIRA_SAVE_SETTINGS_BUTTON,
   JIRA_SAVE_SUCCESS,
   JIRA_SITE_URL_NOT_SET,
-  JIRA_WORKSPACE_ROUTING_COLLAPSED_SUMMARY,
-  JIRA_WORKSPACE_ROUTING_LEAD,
-  JIRA_WORKSPACE_ROUTING_TITLE,
-  JIRA_WORKSPACE_ROUTING_UNAVAILABLE_LEAD,
 } from "@/lib/jira-integration-page-copy";
 import {
   formatJiraAuthMethod,
@@ -76,17 +41,18 @@ import {
   resolveJiraConnectionTestGate,
   resolveJiraCredentialStatusLabel,
   resolveJiraPageComposition,
-  resolveJiraSetupSteps,
   sanitizeCustomerFacingJiraProbeSummary,
 } from "@/lib/jira-integration-present";
 import { itsmConnectionStatusTagKind } from "@/lib/itsm/itsm-connection-status-tag-kind";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
 
 import { ItsmNotConfiguredNextStep } from "../../_sections/itsm/ItsmNotConfiguredNextStep";
-import { JiraIssueTypeBySeverityField } from "../../_sections/itsm/JiraIssueTypeBySeverityField";
 import { validateJiraIssueTypeBySeverityJson } from "../../_sections/itsm/jira-issue-type-by-severity";
+import { JiraConnectionSettingsPanel } from "./JiraConnectionSettingsPanel";
+import { JiraConnectionTestPanel } from "./JiraConnectionTestPanel";
 import { JiraIntegrationAside } from "./JiraIntegrationAside";
 import { JiraIntegrationPageHeader } from "./JiraIntegrationPageHeader";
+import { JiraWorkspaceRoutingPanel } from "./JiraWorkspaceRoutingPanel";
 
 export function JiraIntegrationPageClient(): React.ReactElement {
   const canMutate = useOperateCapability();
@@ -124,7 +90,7 @@ export function JiraIntegrationPageClient(): React.ReactElement {
     isLoading,
     lastCheckedAt,
     refresh,
-    setSettings,
+    setHealth,
   } = useItsmConnectorPage({
     providerId: "jira",
     buildPageLoadResult: buildJiraPageLoadResult,
@@ -178,17 +144,6 @@ export function JiraIntegrationPageClient(): React.ReactElement {
     [canMutate, isConnecting, oauthConnectReady],
   );
 
-  const setupSteps = useMemo(
-    () =>
-      resolveJiraSetupSteps({
-        nativeEnabled,
-        oauthConnectReady,
-        credentialsReady,
-        probe,
-      }),
-    [credentialsReady, nativeEnabled, oauthConnectReady, probe],
-  );
-
   const credentialsStateKnown = !healthLoadFailed && health !== null;
 
   const pageComposition = useMemo(
@@ -239,7 +194,7 @@ export function JiraIntegrationPageClient(): React.ReactElement {
     } finally {
       setIsTesting(false);
     }
-  }, [testGate.allowed]);
+  }, [setHealth, testGate.allowed]);
 
   const saveSettings = useCallback(async () => {
     if (!workspaceRoutingEditable) {
@@ -296,105 +251,6 @@ export function JiraIntegrationPageClient(): React.ReactElement {
   const authMethod = formatJiraAuthMethod(connection?.authMode);
   const credentialStatus = resolveJiraCredentialStatusLabel(settings, credentialsReady);
   const connectionLabel = connection?.label?.trim();
-
-  const workspaceRoutingBody = (
-    <>
-      {saveError ? (
-        <p className="m-0 text-red-600 dark:text-red-400" role="alert">
-          {saveError}
-        </p>
-      ) : null}
-
-      {saveSuccess ? (
-        <p className="m-0 text-teal-800 dark:text-teal-200" role="status">
-          {saveSuccess}
-        </p>
-      ) : null}
-
-      <div className="space-y-2">
-        <Label htmlFor="jira-project-key">Jira project key override</Label>
-        <Input
-          id="jira-project-key"
-          value={jiraProjectKey}
-          onChange={(event) => setJiraProjectKey(event.target.value)}
-          disabled={isSaving || !workspaceRoutingEditable}
-          placeholder="e.g. ARCH"
-          autoComplete="off"
-        />
-      </div>
-
-      <div className="flex items-start gap-2">
-        <Checkbox
-          id="jira-send-info"
-          checked={jiraSendInfo}
-          onCheckedChange={(checked) => setJiraSendInfo(checked === true)}
-          disabled={isSaving || !workspaceRoutingEditable}
-        />
-        <Label htmlFor="jira-send-info">Send informational findings to Jira at low priority</Label>
-      </div>
-
-      <JiraIssueTypeBySeverityField
-        value={issueTypeJson}
-        onChange={setIssueTypeJson}
-        disabled={isSaving || !workspaceRoutingEditable}
-      />
-
-      {settingsLoadFailed ? (
-        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} role="status">
-          Workspace routing settings could not be loaded. Reload the page before changing them.
-        </p>
-      ) : null}
-
-      <div className="flex flex-wrap gap-2">
-        <Button
-          type="button"
-          onClick={() => void saveSettings()}
-          disabled={isSaving || !workspaceRoutingEditable}
-          title={!canMutate ? enterpriseMutationControlDisabledTitle : undefined}
-        >
-          {isSaving ? JIRA_SAVE_PENDING : JIRA_SAVE_SETTINGS_BUTTON}
-        </Button>
-        <Button type="button" variant="outline" onClick={() => void refresh()} disabled={isSaving || isTesting}>
-          {JIRA_RELOAD_BUTTON}
-        </Button>
-      </div>
-
-      {!canMutate ? (
-        <p className={cn("m-0", OPERATOR_TYPOGRAPHY.helper)}>{JIRA_MUTATION_DISABLED_HELPER}</p>
-      ) : null}
-    </>
-  );
-
-  const connectionTestBody = (
-    <>
-      {testError ? (
-        <p className="m-0 text-red-600 dark:text-red-400" role="alert">
-          {testError}
-        </p>
-      ) : null}
-
-      {!testGate.allowed && testGate.reason ? (
-        <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)} id="jira-test-disabled-reason">
-          {testGate.reason}
-        </p>
-      ) : null}
-
-      <Button
-        type="button"
-        onClick={() => void runConnectionTest()}
-        disabled={!testGate.allowed}
-        aria-describedby={!testGate.allowed ? "jira-test-disabled-reason" : undefined}
-      >
-        {isTesting ? JIRA_CONNECTION_TEST_PENDING : JIRA_CONNECTION_TEST_BUTTON}
-      </Button>
-
-      <p className="m-0">
-        <Link href={ITSM_PRODUCT_SMOKE_VERIFICATION_HREF} className={cn(OPERATOR_LINK.inline)}>
-          {JIRA_CONNECTION_VERIFICATION_HELP_LABEL}
-        </Link>
-      </p>
-    </>
-  );
 
   return (
     <OperatorPageContainer
@@ -462,122 +318,39 @@ export function JiraIntegrationPageClient(): React.ReactElement {
               />
             ) : null}
 
-            <section
-              aria-labelledby="jira-connection-settings-heading"
-              className="space-y-4 rounded-md border border-neutral-200 p-5 dark:border-neutral-800"
-            >
-              <div>
-                <h2 id="jira-connection-settings-heading" className={OPERATOR_TYPOGRAPHY.sectionTitle}>
-                  {JIRA_CONNECTION_SETTINGS_TITLE}
-                </h2>
-                <p className={cn("m-0 mt-1 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                  {JIRA_CONNECTION_SETTINGS_LEAD}
-                </p>
-              </div>
+            <JiraConnectionSettingsPanel
+              siteUrl={siteUrl}
+              authMethod={authMethod}
+              credentialStatus={credentialStatus}
+              connectionLabel={connectionLabel}
+            />
 
-              <dl className="grid max-w-2xl gap-4 sm:grid-cols-2">
-                <div>
-                  <dt className={cn("font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>{JIRA_FIELD_SITE_URL}</dt>
-                  <dd className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} data-testid="jira-site-url">
-                    {siteUrl}
-                  </dd>
-                </div>
-                <div>
-                  <dt className={cn("font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>{JIRA_FIELD_AUTH_METHOD}</dt>
-                  <dd className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} data-testid="jira-auth-method">
-                    {authMethod}
-                  </dd>
-                </div>
-                <div>
-                  <dt className={cn("font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>{JIRA_FIELD_CREDENTIAL_STATUS}</dt>
-                  <dd className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)} data-testid="jira-credential-status">
-                    {credentialStatus}
-                  </dd>
-                </div>
-                {connectionLabel ? (
-                  <div>
-                    <dt className={cn("font-medium text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>{JIRA_FIELD_CONNECTION_LABEL}</dt>
-                    <dd className={cn("m-0 mt-1 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{connectionLabel}</dd>
-                  </div>
-                ) : null}
-              </dl>
-            </section>
+            <JiraWorkspaceRoutingPanel
+              pageComposition={pageComposition}
+              canMutate={canMutate}
+              workspaceRoutingEditable={workspaceRoutingEditable}
+              settingsLoadFailed={settingsLoadFailed}
+              jiraProjectKey={jiraProjectKey}
+              onJiraProjectKeyChange={setJiraProjectKey}
+              jiraSendInfo={jiraSendInfo}
+              onJiraSendInfoChange={setJiraSendInfo}
+              issueTypeJson={issueTypeJson}
+              onIssueTypeJsonChange={setIssueTypeJson}
+              saveError={saveError}
+              saveSuccess={saveSuccess}
+              isSaving={isSaving}
+              isTesting={isTesting}
+              onSaveSettings={() => void saveSettings()}
+              onRefresh={() => void refresh()}
+            />
 
-            {pageComposition.workspaceRoutingCollapsed ? (
-              <details
-                className="rounded-md border border-neutral-200 bg-neutral-50/80 p-5 dark:border-neutral-800 dark:bg-neutral-900/40"
-                data-testid="jira-workspace-routing-collapsed"
-              >
-                <summary
-                  className={cn(
-                    "cursor-pointer select-none outline-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--al-accent-border-focus)] focus-visible:ring-offset-2",
-                    OPERATOR_DISCLOSURE_TRIGGER_CLASS,
-                  )}
-                >
-                  {JIRA_WORKSPACE_ROUTING_COLLAPSED_SUMMARY}
-                </summary>
-                <div className="mt-3 space-y-3">
-                  <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                    {JIRA_WORKSPACE_ROUTING_UNAVAILABLE_LEAD}
-                  </p>
-                </div>
-              </details>
-            ) : (
-              <section
-                aria-labelledby="jira-workspace-routing-heading"
-                className="space-y-4 rounded-md border border-neutral-200 p-5 dark:border-neutral-800"
-                data-testid="jira-workspace-routing"
-              >
-                <div>
-                  <h2 id="jira-workspace-routing-heading" className={OPERATOR_TYPOGRAPHY.sectionTitle}>
-                    {JIRA_WORKSPACE_ROUTING_TITLE}
-                  </h2>
-                  <p className={cn("m-0 mt-1 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                    {JIRA_WORKSPACE_ROUTING_LEAD}
-                  </p>
-                </div>
-
-                {workspaceRoutingBody}
-              </section>
-            )}
-
-            {pageComposition.showConnectionTest ? (
-              <section
-                aria-labelledby="jira-test-heading"
-                className="space-y-4 rounded-md border border-neutral-200 p-5 dark:border-neutral-800"
-                data-testid="jira-connection-test"
-              >
-                <div>
-                  <h2 id="jira-test-heading" className={OPERATOR_TYPOGRAPHY.sectionTitle}>
-                    {JIRA_CONNECTION_TEST_TITLE}
-                  </h2>
-                  <p className={cn("m-0 mt-1 max-w-3xl text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                    {JIRA_CONNECTION_TEST_LEAD}
-                  </p>
-                </div>
-
-                {connectionTestBody}
-              </section>
-            ) : pageComposition.connectionTestCollapsed ? (
-              <details
-                className="rounded-md border border-neutral-200 bg-neutral-50/80 p-5 dark:border-neutral-800 dark:bg-neutral-900/40"
-                data-testid="jira-connection-test-collapsed"
-              >
-                <summary
-                  className={cn(
-                    "cursor-pointer select-none outline-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--al-accent-border-focus)] focus-visible:ring-offset-2",
-                    OPERATOR_DISCLOSURE_TRIGGER_CLASS,
-                  )}
-                >
-                  {JIRA_CONNECTION_TEST_COLLAPSED_SUMMARY}
-                </summary>
-                <div className="mt-3 space-y-3">
-                  <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.helper)}>
-                    {ITSM_CONNECTION_TEST_UNAVAILABLE_UNTIL_CONFIGURED}
-                  </p>
-                </div>
-              </details>
-            ) : null}
+            <JiraConnectionTestPanel
+              pageComposition={pageComposition}
+              testGate={testGate}
+              testError={testError}
+              isTesting={isTesting}
+              onRunConnectionTest={() => void runConnectionTest()}
+            />
           </div>
 
           <JiraIntegrationAside

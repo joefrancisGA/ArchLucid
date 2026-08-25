@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using System.Runtime.CompilerServices;
 
 using ArchLucid.Core.Audit;
@@ -7,10 +6,8 @@ using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Llm;
 using ArchLucid.Core.Llm.Redaction;
-using ArchLucid.Core.Metering;
 using ArchLucid.Core.Scoping;
 
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace ArchLucid.AgentRuntime;
@@ -29,10 +26,6 @@ public sealed class LlmCompletionAccountingClient : IAgentStreamingCompletionCli
 
     private readonly IAgentCompletionClient _inner;
 
-    private readonly IOptionsMonitor<LlmTelemetryLabelOptions> _labelOptions;
-
-    private readonly ILogger<LlmCompletionAccountingClient> _logger;
-
     private readonly IOptionsMonitor<LlmMonthlyTenantDollarBudgetOptions> _monthlyDollarBudgetOptions;
 
     private readonly LlmMonthlyTenantDollarBudgetTracker _monthlyDollarBudgetTracker;
@@ -47,9 +40,7 @@ public sealed class LlmCompletionAccountingClient : IAgentStreamingCompletionCli
 
     private readonly IScopeContextProvider _scopeProvider;
 
-    private readonly IOptionsMonitor<LlmTelemetryOptions> _telemetryOptions;
-
-    private readonly IUsageMeteringService _usageMetering;
+    private readonly LlmCompletionAccountingTelemetry _telemetry;
 
     private readonly ILlmCostEstimator _costEstimator;
 
@@ -72,11 +63,9 @@ public sealed class LlmCompletionAccountingClient : IAgentStreamingCompletionCli
         LlmTokenQuotaWindowTracker quotaTracker,
         IScopeContextProvider scopeProvider,
         IOptionsMonitor<LlmTokenQuotaOptions> quotaOptions,
-        IOptionsMonitor<LlmTelemetryOptions> telemetryOptions,
-        IOptionsMonitor<LlmTelemetryLabelOptions> labelOptions,
+        LlmCompletionAccountingTelemetry telemetry,
         IOptionsMonitor<LlmPromptRedactionOptions> redactionOptions,
         IPromptRedactor promptRedactor,
-        IUsageMeteringService usageMetering,
         IOptionsMonitor<LlmDailyTenantTokenWindowOptions> dailyTenantBudgetOptions,
         LlmDailyTenantBudgetTracker dailyTenantBudgetTracker,
         IOptionsMonitor<LlmMonthlyTenantDollarBudgetOptions> monthlyDollarBudgetOptions,
@@ -86,7 +75,6 @@ public sealed class LlmCompletionAccountingClient : IAgentStreamingCompletionCli
         IDemoAiPromptCache demoPromptCache,
         IOptionsMonitor<AiUsageControlsOptions> aiUsageControlsOptions,
         IAuditService auditService,
-        ILogger<LlmCompletionAccountingClient> logger,
         bool useJudgeDailyCapOnly = false,
         IOptionsMonitor<LlmJudgeDailyTokenBudgetOptions>? judgeDailyBudgetOptions = null,
         LlmJudgeDailyTokenBudgetTracker? judgeDailyBudgetTracker = null,
@@ -96,11 +84,9 @@ public sealed class LlmCompletionAccountingClient : IAgentStreamingCompletionCli
         ArgumentNullException.ThrowIfNull(quotaTracker);
         ArgumentNullException.ThrowIfNull(scopeProvider);
         ArgumentNullException.ThrowIfNull(quotaOptions);
-        ArgumentNullException.ThrowIfNull(telemetryOptions);
-        ArgumentNullException.ThrowIfNull(labelOptions);
+        ArgumentNullException.ThrowIfNull(telemetry);
         ArgumentNullException.ThrowIfNull(redactionOptions);
         ArgumentNullException.ThrowIfNull(promptRedactor);
-        ArgumentNullException.ThrowIfNull(usageMetering);
         ArgumentNullException.ThrowIfNull(dailyTenantBudgetOptions);
         ArgumentNullException.ThrowIfNull(dailyTenantBudgetTracker);
         ArgumentNullException.ThrowIfNull(monthlyDollarBudgetOptions);
@@ -110,17 +96,14 @@ public sealed class LlmCompletionAccountingClient : IAgentStreamingCompletionCli
         ArgumentNullException.ThrowIfNull(demoPromptCache);
         ArgumentNullException.ThrowIfNull(aiUsageControlsOptions);
         ArgumentNullException.ThrowIfNull(auditService);
-        ArgumentNullException.ThrowIfNull(logger);
 
         _inner = inner;
         _quotaTracker = quotaTracker;
         _scopeProvider = scopeProvider;
         _quotaOptions = quotaOptions;
-        _telemetryOptions = telemetryOptions;
-        _labelOptions = labelOptions;
+        _telemetry = telemetry;
         _redactionOptions = redactionOptions;
         _promptRedactor = promptRedactor;
-        _usageMetering = usageMetering;
         _dailyTenantBudgetOptions = dailyTenantBudgetOptions;
         _dailyTenantBudgetTracker = dailyTenantBudgetTracker;
         _monthlyDollarBudgetOptions = monthlyDollarBudgetOptions;
@@ -130,7 +113,6 @@ public sealed class LlmCompletionAccountingClient : IAgentStreamingCompletionCli
         _demoPromptCache = demoPromptCache;
         _aiUsageControlsOptions = aiUsageControlsOptions;
         _auditService = auditService;
-        _logger = logger;
         _useJudgeDailyCapOnly = useJudgeDailyCapOnly;
 
         if (useJudgeDailyCapOnly)
@@ -323,31 +305,8 @@ public sealed class LlmCompletionAccountingClient : IAgentStreamingCompletionCli
                         CancellationToken.None)
                     .ConfigureAwait(false);
 
-                bool perTenant = _telemetryOptions.CurrentValue.RecordPerTenantTokens;
-                string? tenantKey = perTenant && scope.TenantId != Guid.Empty ? scope.TenantId.ToString("N") : null;
-
-                LlmTelemetryLabelOptions labels = _labelOptions.CurrentValue;
-                LlmAccountingInvocationScope? invocationScope = LlmAccountingInvocationScope.GetCurrent();
-
-                ArchLucidInstrumentation.RecordLlmTokenUsage(
-                    promptTok,
-                    completionTok,
-                    perTenant,
-                    tenantKey,
-                    labels.ProviderId,
-                    labels.ModelDeploymentLabel,
-                    invocationScope?.ResolveConsumeRoleLabel(),
-                    invocationScope?.ResolveInvokeKindLabel(),
-                    cachedPromptTok);
-
-                LlmCompletionCostDeltaLogger.LogIfEnabled(
-                    _logger,
-                    _costEstimator,
-                    _monthlyDollarBudgetOptions,
-                    promptTok,
-                    completionTok);
-
-                await TryRecordLlmUsageMeteringAsync(scope, promptTok, completionTok, CancellationToken.None)
+                await _telemetry
+                    .RecordTokenUsageAsync(scope, promptTok, completionTok, cachedPromptTok, CancellationToken.None)
                     .ConfigureAwait(false);
 
                 decimal? estimatedUsd = _costEstimator.EstimateUsd(promptTok, completionTok);
@@ -557,102 +516,8 @@ public sealed class LlmCompletionAccountingClient : IAgentStreamingCompletionCli
                 CancellationToken.None)
             .ConfigureAwait(false);
 
-        bool perTenant = _telemetryOptions.CurrentValue.RecordPerTenantTokens;
-        string? tenantKey = perTenant && scope.TenantId != Guid.Empty ? scope.TenantId.ToString("N") : null;
-
-        LlmTelemetryLabelOptions labels = _labelOptions.CurrentValue;
-        LlmAccountingInvocationScope? invocationScope = LlmAccountingInvocationScope.GetCurrent();
-
-        ArchLucidInstrumentation.RecordLlmTokenUsage(
-            promptTok,
-            completionTok,
-            perTenant,
-            tenantKey,
-            labels.ProviderId,
-            labels.ModelDeploymentLabel,
-            invocationScope?.ResolveConsumeRoleLabel(),
-            invocationScope?.ResolveInvokeKindLabel(),
-            cachedPromptTok);
-
-        LlmCompletionCostDeltaLogger.LogIfEnabled(
-            _logger,
-            _costEstimator,
-            _monthlyDollarBudgetOptions,
-            promptTok,
-            completionTok);
-
-        await TryRecordLlmUsageMeteringAsync(scope, promptTok, completionTok, CancellationToken.None)
+        await _telemetry
+            .RecordTokenUsageAsync(scope, promptTok, completionTok, cachedPromptTok, CancellationToken.None)
             .ConfigureAwait(false);
-    }
-
-    private async Task TryRecordLlmUsageMeteringAsync(
-        ScopeContext scope,
-        int promptTok,
-        int completionTok,
-        CancellationToken cancellationToken)
-    {
-        if (scope.TenantId == Guid.Empty)
-            return;
-
-        DateTimeOffset recordedUtc = TimeProvider.System.GetUtcNow();
-        string? correlationId = Activity.Current?.Id;
-        string scopeKey = !string.IsNullOrWhiteSpace(correlationId)
-            ? correlationId
-            : string.Concat(
-                scope.TenantId.ToString("N"),
-                ":",
-                scope.WorkspaceId.ToString("N"),
-                ":",
-                scope.ProjectId.ToString("N"),
-                ":",
-                recordedUtc.ToUnixTimeMilliseconds().ToString(System.Globalization.CultureInfo.InvariantCulture));
-
-        try
-        {
-            if (promptTok > 0)
-
-                await _usageMetering
-                    .RecordAsync(
-                        new UsageEvent
-                        {
-                            TenantId = scope.TenantId,
-                            WorkspaceId = scope.WorkspaceId,
-                            ProjectId = scope.ProjectId,
-                            Kind = UsageMeterKind.LlmPromptTokens,
-                            Quantity = promptTok,
-                            RecordedUtc = recordedUtc,
-                            CorrelationId = correlationId,
-                            IdempotencyKey = UsageEventIdempotencyKeys.ForLlmTokens(scopeKey, UsageMeterKind.LlmPromptTokens)
-                        },
-                        cancellationToken)
-                    .ConfigureAwait(false);
-
-            if (completionTok > 0)
-
-                await _usageMetering
-                    .RecordAsync(
-                        new UsageEvent
-                        {
-                            TenantId = scope.TenantId,
-                            WorkspaceId = scope.WorkspaceId,
-                            ProjectId = scope.ProjectId,
-                            Kind = UsageMeterKind.LlmCompletionTokens,
-                            Quantity = completionTok,
-                            RecordedUtc = recordedUtc,
-                            CorrelationId = correlationId,
-                            IdempotencyKey = UsageEventIdempotencyKeys.ForLlmTokens(scopeKey, UsageMeterKind.LlmCompletionTokens)
-                        },
-                        cancellationToken)
-                    .ConfigureAwait(false);
-        }
-        catch (Exception ex) when (ex is not OperationCanceledException)
-        {
-            if (_logger.IsEnabled(LogLevel.Warning))
-
-                _logger.LogWarning(
-                    ex,
-                    "Usage metering failed for tenant {TenantId} (LLM tokens).",
-                    scope.TenantId);
-        }
     }
 }

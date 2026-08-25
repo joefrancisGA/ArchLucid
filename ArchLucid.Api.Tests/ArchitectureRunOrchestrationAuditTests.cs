@@ -123,7 +123,7 @@ public sealed class ArchitectureRunOrchestrationAuditTests
             Mock.Of<IEvidenceBuilder>(),
             actorContext,
             baselineMutationAudit,
-            auditService,
+            ArchitectureRunExecuteOrchestratorTestFactory.CreatePostExecuteHooks(auditService, scopeContextProvider, baselineMutationAudit, runRepository),
             ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
             new NoOpAgentOutputTraceEvaluationHook(),
             new ArchLucid.Application.Agents.Evidence.NoOpAgentResultPostExecutionEnricher(),
@@ -148,9 +148,6 @@ public sealed class ArchitectureRunOrchestrationAuditTests
             new OperationRunCancellationMarker(runRepository),
             new DisabledRunExecuteOwnershipLeaseService(),
             Mock.Of<IRunStageOutcomesRepository>(),
-            Mock.Of<IIntegrationEventOutboxRepository>(),
-            Mock.Of<IIntegrationEventPublisher>(),
-            CreateIntegrationEventsOptionsMonitor(),
             NullLogger<ArchitectureRunExecuteOrchestrator>.Instance);
     }
 

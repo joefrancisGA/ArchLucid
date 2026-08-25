@@ -448,16 +448,22 @@ public sealed class AgentRuntimePackageCoverageBatch16Tests
         Mock<IAuditService> audit = new();
         audit.Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
 
+        LlmCompletionAccountingTelemetry accountingTelemetry = new(
+            new FixedValueOptionsMonitor<LlmTelemetryOptions>(new LlmTelemetryOptions()),
+            new FixedValueOptionsMonitor<LlmTelemetryLabelOptions>(new LlmTelemetryLabelOptions()),
+            metering.Object,
+            costEstimator.Object,
+            new FixedValueOptionsMonitor<LlmMonthlyTenantDollarBudgetOptions>(monthlyOpts),
+            NullLogger<LlmCompletionAccountingTelemetry>.Instance);
+
         return new LlmCompletionAccountingClient(
             inner,
             quotaTracker,
             scope.Object,
             new FixedValueOptionsMonitor<LlmTokenQuotaOptions>(quotaOpts),
-            new FixedValueOptionsMonitor<LlmTelemetryOptions>(new LlmTelemetryOptions()),
-            new FixedValueOptionsMonitor<LlmTelemetryLabelOptions>(new LlmTelemetryLabelOptions()),
+            accountingTelemetry,
             new FixedValueOptionsMonitor<LlmPromptRedactionOptions>(new LlmPromptRedactionOptions { Enabled = false }),
             new NoOpPromptRedactor(),
-            metering.Object,
             new FixedValueOptionsMonitor<LlmDailyTenantTokenWindowOptions>(dailyOpts),
             dailyTracker,
             new FixedValueOptionsMonitor<LlmMonthlyTenantDollarBudgetOptions>(monthlyOpts),
@@ -466,8 +472,7 @@ public sealed class AgentRuntimePackageCoverageBatch16Tests
             aiBudgetPreCallGuard ?? new NoOpAiBudgetPreCallGuard(),
             demoPromptCache ?? new NoOpDemoAiPromptCache(),
             new FixedValueOptionsMonitor<AiUsageControlsOptions>(aiUsageControlsOptions ?? new AiUsageControlsOptions()),
-            audit.Object,
-            NullLogger<LlmCompletionAccountingClient>.Instance);
+            audit.Object);
     }
 
     private static IHostEnvironment CreateNonProductionHostEnvironment() => new NonProductionTestHostEnvironment();

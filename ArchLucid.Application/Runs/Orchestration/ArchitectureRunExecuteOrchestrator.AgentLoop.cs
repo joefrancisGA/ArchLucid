@@ -108,7 +108,7 @@ public sealed partial class ArchitectureRunExecuteOrchestrator
                         AuditEventTypes.Baseline.Architecture.RunFailed,
                         actor,
                         runId,
-                        FormatExecuteRunFailureAuditDetails(partialFailure),
+                        AgentExecutionFailureSummaryJson.Serialize(partialFailure),
                         cancellationToken);
 
                     throw new RunCostBudgetExceededPartialPersistRecordedException(
@@ -296,30 +296,14 @@ public sealed partial class ArchitectureRunExecuteOrchestrator
             return;
 
         string actor = actorContext.GetActor();
-        AuditEvent legacyReadyForCommitPromoted = new()
-        {
-            EventType = AuditEventTypes.RunLegacyReadyForCommitPromoted,
-            ActorUserId = actor,
-            ActorUserName = actor,
-            TenantId = scope.TenantId,
-            WorkspaceId = scope.WorkspaceId,
-            ProjectId = scope.ProjectId,
-            RunId = runGuid,
-            DataJson = JsonSerializer.Serialize(new
-            {
-                runId,
-                previousLegacyRunStatus,
-                newLegacyRunStatus = header.LegacyRunStatus
-            },
-                AuditJsonSerializationOptions.Instance)
-        };
-
-        await DurableAuditLogRetry.TryLogAsync(
-            ct => auditService.LogAsync(legacyReadyForCommitPromoted, ct),
-            logger,
-            $"{AuditEventTypes.RunLegacyReadyForCommitPromoted}:{LogSanitizer.Sanitize(runId)}",
-            cancellationToken,
-            auditEventTypeForMetrics: AuditEventTypes.RunLegacyReadyForCommitPromoted);
+        await _postExecuteHooks.LogLegacyReadyForCommitPromotedAsync(
+            runId,
+            actor,
+            runGuid,
+            scope,
+            previousLegacyRunStatus,
+            header.LegacyRunStatus,
+            cancellationToken);
     }
 
 

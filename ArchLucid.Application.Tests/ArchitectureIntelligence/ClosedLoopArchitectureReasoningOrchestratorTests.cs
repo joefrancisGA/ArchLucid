@@ -20,6 +20,10 @@ public sealed class ClosedLoopArchitectureReasoningOrchestratorTests
 
         parameterTypes.Should().NotContain(typeof(ISpecialistReviewService));
         parameterTypes.Should().Contain(typeof(IAsyncSpecialistReviewService));
+        parameterTypes.Should().Contain(typeof(ClosedLoopArchitectureReasoningPostStageHooks));
+        parameterTypes.Should().NotContain(typeof(IArchitectureIntelligenceProductPublishService));
+        parameterTypes.Should().NotContain(typeof(ISpecialistFindingsSubstantiationService));
+        parameterTypes.Should().NotContain(typeof(IAuthorityFindingsSnapshotUpdater));
     }
 
     [Fact]
@@ -28,6 +32,7 @@ public sealed class ClosedLoopArchitectureReasoningOrchestratorTests
         ServiceCollection services = new();
         services.AddArchitectureIntelligence();
         services.AddArchitectureIntelligenceInMemoryPersistence();
+        services.AddClosedLoopArchitectureIntelligenceTestDependencies();
         ServiceProvider provider = services.BuildServiceProvider();
         IClosedLoopArchitectureReasoningOrchestrator orchestrator =
             provider.GetRequiredService<IClosedLoopArchitectureReasoningOrchestrator>();
@@ -84,6 +89,7 @@ public sealed class ClosedLoopArchitectureReasoningOrchestratorTests
         ServiceCollection services = new();
         services.AddArchitectureIntelligence();
         services.AddArchitectureIntelligenceInMemoryPersistence();
+        services.AddClosedLoopArchitectureIntelligenceTestDependencies();
         ServiceProvider provider = services.BuildServiceProvider();
         IClosedLoopArchitectureReasoningOrchestrator orchestrator =
             provider.GetRequiredService<IClosedLoopArchitectureReasoningOrchestrator>();
@@ -118,6 +124,7 @@ public sealed class ClosedLoopArchitectureReasoningOrchestratorTests
         ServiceCollection services = new();
         services.AddArchitectureIntelligence();
         services.AddArchitectureIntelligenceInMemoryPersistence();
+        services.AddClosedLoopArchitectureIntelligenceTestDependencies();
         ServiceProvider provider = services.BuildServiceProvider();
         IClosedLoopArchitectureReasoningOrchestrator orchestrator =
             provider.GetRequiredService<IClosedLoopArchitectureReasoningOrchestrator>();

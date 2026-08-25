@@ -11,9 +11,6 @@ import type { EmptyStateProps } from "@/components/EmptyState";
 import { EvidenceGraphFirstOpenCoach } from "@/components/EvidenceGraphFirstOpenCoach";
 import { CtoDemoBuyerValueStrip } from "@/components/cto-demo/CtoDemoBuyerValueStrip";
 import { useWorkspaceActiveRun } from "@/components/WorkspaceActiveRunContext";
-import { isApiRequestError } from "@/lib/api-request-error";
-import type { ApiLoadFailureState } from "@/lib/api-load-failure";
-import { toApiLoadFailure } from "@/lib/api-load-failure";
 import { OPERATOR_GRAPH_PAGE_SUBTITLE } from "@/lib/buyer/buyer-polish-copy";
 import { BUYER_SURFACE_VOCABULARY } from "@/lib/vocabulary/buyer-surface-vocabulary";
 import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
@@ -30,13 +27,6 @@ import {
 import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { SHOWCASE_PHI_FINDING_GRAPH_NODE_ID } from "@/lib/findings/finding-inspect-graph-evidence";
 import {
-  getArchitectureGraph,
-  getDecisionSubgraph,
-  getNodeNeighborhood,
-  getProvenanceGraph,
-  mergeArchitectureGraphPages,
-} from "@/lib/graph-api";
-import {
   isStaticDemoPayloadFallbackActiveForRun,
   isStaticDemoPayloadFallbackEnabled,
   tryStaticDemoProvenanceGraph,
@@ -49,8 +39,8 @@ import {
   type AskRunListAvailability,
 } from "@/lib/graph-page-state";
 import { GraphSampleModeBanner } from "@/app/(operator)/insights/evidence-graph/_sections/GraphSampleModeBanner";
-import { coerceGraphViewModel } from "@/lib/operator/operator-response-guards";
 import { provenanceLinkageToGraphViewModel } from "@/lib/provenance-linkage-to-graph-vm";
+import { useGraphPageFetch } from "@/app/(operator)/insights/evidence-graph/_sections/use-graph-page-fetch";
 import {
   SHOWCASE_STATIC_DEMO_RUN_ID,
 } from "@/lib/showcase-static-demo";
@@ -92,17 +82,12 @@ export function GraphPageContent() {
   const [nodeId, setNodeId] = useState("");
   const [depth, setDepth] = useState(1);
   const [mode, setMode] = useState<GraphMode>("provenance-full");
-  const [graph, setGraph] = useState<GraphViewModel | null>(null);
-  const [loadFailure, setLoadFailure] = useState<ApiLoadFailureState | null>(null);
-  const [malformedMessage, setMalformedMessage] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
   const [typeFilter, setTypeFilter] = useState("");
   const handleTypeFilterChange = useCallback((value: string) => {
     startTransition(() => {
       setTypeFilter(value);
     });
   }, []);
-  const [architectureGraphNote, setArchitectureGraphNote] = useState<string | null>(null);
   const [graphInteractiveReady, setGraphInteractiveReady] = useState(false);
   const [presentationView, setPresentationView] = useState<EvidenceTrailPresentationView>(() =>
     resolveEvidenceTrailPresentationView(urlPresentation, isBuyerPolishedOperatorShellEnv()),
@@ -114,8 +99,6 @@ export function GraphPageContent() {
     packageCount: 0,
     usingSyntheticSample: false,
   });
-
-  const loadGenRef = useRef(0);
 
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
   const [runId, setRunId] = useState(() => {
@@ -137,6 +120,26 @@ export function GraphPageContent() {
           canonicalizeDemoRunId(runId) === canonicalizeDemoRunId(SHOWCASE_STATIC_DEMO_RUN_ID)
         ? SHOWCASE_PHI_FINDING_GRAPH_NODE_ID
         : undefined;
+
+  const {
+    graph,
+    setGraph,
+    loading,
+    loadFailure,
+    malformedMessage,
+    architectureGraphNote,
+    performGraphLoad,
+  } = useGraphPageFetch({
+    runId,
+    mode,
+    decisionId,
+    nodeId,
+    depth,
+    typeFilter,
+    buyerPolishedShell,
+    setTypeFilter,
+    setGraphInteractiveReady,
+  });
 
   const graphEndpointHint = useMemo((): string => {
     const rid = runId.trim();
@@ -278,137 +281,6 @@ export function GraphPageContent() {
 
     return [...set].sort((a, b) => a.localeCompare(b));
   }, [effectiveGraph]);
-
-  const performGraphLoad = useCallback(async (override?: Partial<GraphSavedViewState>) => {
-    const effectiveRunId = override?.runId ?? runId;
-    const effectiveMode = override?.mode ?? mode;
-    const effectiveDecisionId = override?.decisionId ?? decisionId;
-    const effectiveNodeId = override?.nodeId ?? nodeId;
-    const effectiveDepth = override?.depth ?? depth;
-    const effectiveTypeFilter = override?.typeFilter ?? typeFilter;
-    const gen = ++loadGenRef.current;
-    setLoading(true);
-
-    if (buyerPolishedShell) {
-      setGraphInteractiveReady(false);
-    }
-
-    setLoadFailure(null);
-    setMalformedMessage(null);
-    setArchitectureGraphNote(null);
-
-    const tryStaticProvenance = (): void => {
-      if (gen !== loadGenRef.current) {
-        return;
-      }
-
-      if (effectiveMode !== "provenance-full") {
-        return;
-      }
-
-      const rid = effectiveRunId.trim();
-      const prov = tryStaticDemoProvenanceGraph(rid);
-
-      if (prov === null) {
-        return;
-      }
-
-      setLoadFailure(null);
-      setMalformedMessage(null);
-      setGraph(
-        applyProvenanceDemoPresentationIfEligible(provenanceLinkageToGraphViewModel(prov), effectiveMode, rid),
-      );
-      setTypeFilter(effectiveTypeFilter);
-    };
-
-    try {
-      let raw: unknown;
-
-      switch (effectiveMode) {
-        case "provenance-full":
-          raw = await getProvenanceGraph(effectiveRunId);
-          break;
-        case "decision-subgraph":
-          raw = await getDecisionSubgraph(effectiveRunId, effectiveDecisionId);
-          break;
-        case "node-neighborhood":
-          raw = await getNodeNeighborhood(effectiveRunId, effectiveNodeId, effectiveDepth);
-          break;
-        case "architecture":
-          try {
-            raw = await getArchitectureGraph(effectiveRunId);
-          } catch (err) {
-            const rid = effectiveRunId.trim();
-
-            if (!isApiRequestError(err) || err.httpStatus !== 413 || rid.length === 0) throw err;
-
-            raw = await mergeArchitectureGraphPages(rid);
-            setArchitectureGraphNote(
-              "Full graph response exceeded the API size limit; loaded all pages via the paginated endpoint. Edges appear only when both endpoints fall on the same page — some cross-page links may be missing from this view.",
-            );
-          }
-          break;
-        default:
-          throw new Error("Unsupported graph mode.");
-      }
-
-      const coerced = coerceGraphViewModel(raw);
-
-      if (!coerced.ok) {
-        if (gen !== loadGenRef.current) {
-          return;
-        }
-
-        setGraph(null);
-        setMalformedMessage(coerced.message);
-        tryStaticProvenance();
-
-        return;
-      }
-
-      if (gen !== loadGenRef.current) {
-        return;
-      }
-
-      let nextGraph = coerced.value;
-
-      if (effectiveMode === "provenance-full" && nextGraph.nodes.length === 0 && nextGraph.edges.length === 0) {
-        const prov = tryStaticDemoProvenanceGraph(effectiveRunId.trim());
-
-        if (prov !== null) {
-          nextGraph = provenanceLinkageToGraphViewModel(prov);
-        }
-      }
-
-      setGraph(applyProvenanceDemoPresentationIfEligible(nextGraph, effectiveMode, effectiveRunId.trim()));
-      setTypeFilter(effectiveTypeFilter);
-
-      if (effectiveMode !== "architecture") {
-        setArchitectureGraphNote(null);
-      }
-    } catch (err) {
-      if (gen !== loadGenRef.current) {
-        return;
-      }
-
-      setLoadFailure(toApiLoadFailure(err));
-      setGraph(null);
-      tryStaticProvenance();
-
-      if (gen === loadGenRef.current && effectiveMode === "provenance-full") {
-        const rid = effectiveRunId.trim();
-        const prov = tryStaticDemoProvenanceGraph(rid);
-
-        if (prov !== null) {
-          setLoadFailure(null);
-        }
-      }
-    } finally {
-      if (gen === loadGenRef.current) {
-        setLoading(false);
-      }
-    }
-  }, [buyerPolishedShell, decisionId, depth, mode, nodeId, runId, typeFilter]);
 
   const performRef = useRef(performGraphLoad);
   performRef.current = performGraphLoad;
