@@ -15,15 +15,17 @@ using Moq;
 
 namespace ArchLucid.Application.Tests.Notifications.Email;
 
-/// <summary>TB-089 — ledger reservation must precede outbound send so ACA retries do not duplicate digests.</summary>
+/// <summary>TB-089 — per-recipient ledger reservation after successful send so ACA retries do not duplicate digests.</summary>
 [Trait("Category", "Unit")]
 public sealed class DigestEmailDispatcherIdempotencyTests
 {
     [Fact]
-    public async Task ExecDigestEmailDispatcher_records_ledger_before_send()
+    public async Task ExecDigestEmailDispatcher_records_ledger_after_send()
     {
         List<string> order = [];
         Mock<ISentEmailLedger> ledger = new();
+        ledger.Setup(l => l.IsRecordedAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
         ledger.Setup(l => l.TryRecordSentAsync(It.IsAny<SentEmailLedgerEntry>(), It.IsAny<CancellationToken>()))
             .Callback(() => order.Add("ledger"))
             .ReturnsAsync(true);
@@ -67,14 +69,16 @@ public sealed class DigestEmailDispatcherIdempotencyTests
             CancellationToken.None);
 
         sent.Should().BeTrue();
-        order.Should().Equal("render", "ledger", "send");
+        order.Should().Equal("render", "send", "ledger");
     }
 
     [Fact]
-    public async Task WeeklySponsorReportEmailDispatcher_records_ledger_before_send()
+    public async Task WeeklySponsorReportEmailDispatcher_records_ledger_after_send()
     {
         List<string> order = [];
         Mock<ISentEmailLedger> ledger = new();
+        ledger.Setup(l => l.IsRecordedAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
         ledger.Setup(l => l.TryRecordSentAsync(It.IsAny<SentEmailLedgerEntry>(), It.IsAny<CancellationToken>()))
             .Callback(() => order.Add("ledger"))
             .ReturnsAsync(true);
@@ -112,7 +116,7 @@ public sealed class DigestEmailDispatcherIdempotencyTests
             cancellationToken: CancellationToken.None);
 
         sent.Should().BeTrue();
-        order.Should().Equal("render", "ledger", "send");
+        order.Should().Equal("render", "send", "ledger");
     }
 
     [Fact]
@@ -334,6 +338,8 @@ public sealed class DigestEmailDispatcherIdempotencyTests
     {
         List<string> order = [];
         Mock<ISentEmailLedger> ledger = new();
+        ledger.Setup(l => l.IsRecordedAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
         ledger.Setup(l => l.TryRecordSentAsync(It.IsAny<SentEmailLedgerEntry>(), It.IsAny<CancellationToken>()))
             .Callback(() => order.Add("ledger"))
             .ReturnsAsync(true);
@@ -371,7 +377,7 @@ public sealed class DigestEmailDispatcherIdempotencyTests
             cancellationToken: CancellationToken.None);
 
         sent.Should().BeTrue();
-        order.Should().Equal("render", "ledger", "send");
+        order.Should().Equal("render", "send", "ledger");
     }
 
     [Fact]
@@ -591,5 +597,76 @@ public sealed class DigestEmailDispatcherIdempotencyTests
         provider.Verify(
             p => p.SendAsync(It.IsAny<EmailMessage>(), It.IsAny<CancellationToken>()),
             Times.Never);
+    }
+
+    [Fact]
+    public async Task ExecDigestEmailDispatcher_partial_multi_recipient_send_failure_delivers_remaining_recipients_on_retry()
+    {
+        InMemorySentEmailLedger ledger = new();
+        Dictionary<string, int> sendCounts = new(StringComparer.OrdinalIgnoreCase);
+
+        Mock<IEmailProvider> provider = new();
+        provider.SetupGet(p => p.ProviderName).Returns("test-provider");
+        provider.Setup(p => p.SendAsync(It.IsAny<EmailMessage>(), It.IsAny<CancellationToken>()))
+            .Returns<EmailMessage, CancellationToken>((message, _) =>
+            {
+                sendCounts.TryGetValue(message.To, out int prior);
+                sendCounts[message.To] = prior + 1;
+
+                if (string.Equals(message.To, "b@example.test", StringComparison.OrdinalIgnoreCase) && prior == 0)
+                    return Task.FromException(new InvalidOperationException("smtp down"));
+
+                return Task.CompletedTask;
+            });
+
+        Mock<IEmailTemplateRenderer> renderer = new();
+        renderer.Setup(r => r.RenderHtmlAsync(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync("<p>digest</p>");
+        renderer.Setup(r => r.RenderTextAsync(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync("digest");
+
+        Mock<IOptionsMonitor<EmailNotificationOptions>> options = new();
+        options.Setup(o => o.CurrentValue).Returns(new EmailNotificationOptions { ProductDisplayName = "ArchLucid" });
+
+        ExecDigestEmailDispatcher sut = new(
+            renderer.Object,
+            provider.Object,
+            ledger,
+            options.Object,
+            NullLogger<ExecDigestEmailDispatcher>.Instance);
+
+        Guid tenantId = Guid.Parse("17171717-1717-1717-1717-171717171717");
+        const string isoWeek = "2026-W17";
+        ExecDigestComposition composition = new(
+            WeekLabel: "W17",
+            ComplianceDriftMarkdown: null,
+            CommittedManifestsInWeek: null,
+            TopManifestRuns: [],
+            FindingsDeltaSummary: null,
+            DashboardUrl: "https://example.test/d",
+            SponsorValueReportUrl: "https://example.test/sponsor",
+            LatestCommittedRunIdHex: null);
+
+        Func<Task> firstAttempt = () => sut.TryDispatchAsync(
+            tenantId,
+            isoWeek,
+            composition,
+            ["a@example.test", "b@example.test"],
+            "https://example.test/unsub",
+            CancellationToken.None);
+
+        await firstAttempt.Should().ThrowAsync<InvalidOperationException>();
+
+        bool secondAttempt = await sut.TryDispatchAsync(
+            tenantId,
+            isoWeek,
+            composition,
+            ["a@example.test", "b@example.test"],
+            "https://example.test/unsub",
+            CancellationToken.None);
+
+        secondAttempt.Should().BeTrue("partial multi-recipient failures must not permanently suppress remaining digest recipients");
+        sendCounts["b@example.test"].Should().Be(2);
+        sendCounts.Should().ContainKey("a@example.test");
     }
 }

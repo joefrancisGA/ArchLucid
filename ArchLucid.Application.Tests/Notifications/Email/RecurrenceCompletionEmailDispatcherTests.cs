@@ -21,6 +21,8 @@ public sealed class RecurrenceCompletionEmailDispatcherTests
     {
         List<string> order = [];
         Mock<ISentEmailLedger> ledger = new();
+        ledger.Setup(l => l.IsRecordedAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
         ledger.Setup(l => l.TryRecordSentAsync(It.IsAny<SentEmailLedgerEntry>(), It.IsAny<CancellationToken>()))
             .Callback(() => order.Add("ledger"))
             .ReturnsAsync(true);
@@ -64,7 +66,7 @@ public sealed class RecurrenceCompletionEmailDispatcherTests
             CancellationToken.None);
 
         sent.Should().BeTrue();
-        order.Should().Equal("render", "ledger", "send");
+        order.Should().Equal("render", "send", "ledger");
     }
 
     [Fact]
