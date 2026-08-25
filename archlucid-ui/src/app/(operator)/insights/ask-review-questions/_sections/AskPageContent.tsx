@@ -36,6 +36,7 @@ import { AskVsFrontierAiDifferentiationStrip } from "@/components/ask/AskVsFront
 import { PageCapabilityBoundaryStrip } from "@/components/PageCapabilityBoundaryStrip";
 import { AskThreadHistoryPanel } from "@/app/(operator)/insights/ask-review-questions/_sections/AskThreadHistoryPanel";
 import { AskContinueLastThreadRow } from "@/app/(operator)/insights/ask-review-questions/_sections/AskContinueLastThreadRow";
+import { AskNextReviewFooterClient } from "@/app/(operator)/insights/ask-review-questions/_sections/AskNextReviewFooterClient";
 import { writeAskContinueLastThreadId } from "@/lib/ask/ask-continue-last-thread-storage";
 import { resolveContinueLastAskThread } from "@/lib/ask/resolve-continue-last-ask-thread";
 const ASK_PAGE_SUBTITLE =
@@ -569,6 +570,8 @@ export function AskPageContent() {
             retrievalDegraded={retrievalDegraded}
           />
         </div>
+
+      {runId.trim().length > 0 ? <AskNextReviewFooterClient runId={runId.trim()} /> : null}
     </OperatorPageContainer>
   );
 }
