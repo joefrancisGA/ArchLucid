@@ -72,6 +72,12 @@ describe("ProjectsRecycleBinPage restore confirm (TB-1290)", () => {
       expect(screen.getByTestId("projects-recycle-bin-row-proj-1")).toBeInTheDocument();
     });
 
+    expect(screen.getByTestId("projects-recycle-bin-continue-last-viewed-row")).toHaveTextContent("Contoso Core");
+    expect(screen.getByTestId("projects-recycle-bin-row-proj-1")).toHaveAttribute(
+      "data-recycle-bin-project-id",
+      "proj-1",
+    );
+
     fireEvent.click(screen.getByRole("button", { name: "Restore project Contoso Core" }));
 
     expect(

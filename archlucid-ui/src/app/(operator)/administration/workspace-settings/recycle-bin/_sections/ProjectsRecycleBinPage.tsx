@@ -3,7 +3,7 @@
 import Link from "next/link";
 
 import { cn } from "@/lib/utils";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { useOperatorNavAuthority } from "@/components/operator/OperatorNavAuthorityProvider";
 import { OperatorPageContainer } from "@/components/operator/OperatorPageContainer";
@@ -52,10 +52,17 @@ import { whyDisabledNeedsRole } from "@/lib/why-disabled-cta";
 
 import { ProjectsRecycleBinEmptyState, ProjectsRecycleBinLoadingNotice } from "./ProjectsRecycleBinListStates";
 import { ProjectsRecycleBinPageHeader } from "./ProjectsRecycleBinPageHeader";
+import { ProjectsRecycleBinContinueLastViewedRow } from "./ProjectsRecycleBinContinueLastViewedRow";
 import {
   ProjectsRecycleBinRestoreConfirmDialog,
   type ProjectsRecycleBinPendingRestore,
 } from "./ProjectsRecycleBinRestoreConfirmDialog";
+import {
+  flattenRecycleBinProjects,
+  resolveContinueLastRecycleBinProject,
+  writeRecycleBinProjectLastViewedId,
+  type RecycleBinContinueLastTarget,
+} from "@/lib/resolve-continue-last-recycle-bin-project";
 
 const RECYCLE_BIN_PATH = `/api/proxy/${ApiV1Routes.tenantWorkspacesRecycleBin}`;
 
@@ -124,6 +131,7 @@ function WorkspaceRecycleBinTable(props: WorkspaceRecycleBinTableProps) {
               <EnterpriseTableRow
                 key={project.projectId}
                 data-testid={`projects-recycle-bin-row-${project.projectId}`}
+                data-recycle-bin-project-id={project.projectId}
               >
                 <EnterpriseTableCell className="font-medium text-neutral-900 dark:text-neutral-100">
                   {project.name}
@@ -160,6 +168,7 @@ function WorkspaceRecycleBinTable(props: WorkspaceRecycleBinTableProps) {
                     data-testid="projects-recycle-bin-restore"
                     disabled={!canRestoreExecute || restoreBusyRow === rowKey}
                     onClick={() => {
+                      writeRecycleBinProjectLastViewedId(project.projectId);
                       onRequestRestore(workspace.workspaceId, workspace.name, project.projectId, project.name);
                     }}
                   >
@@ -281,6 +290,24 @@ export function ProjectsRecycleBinPage() {
     }
   }
 
+  const continueLastProject = useMemo(
+    () => resolveContinueLastRecycleBinProject(flattenRecycleBinProjects(rows)),
+    [rows],
+  );
+
+  function openDeletedProject(target: RecycleBinContinueLastTarget): void {
+    writeRecycleBinProjectLastViewedId(target.projectId);
+    document
+      .querySelector(`[data-recycle-bin-project-id="${CSS.escape(target.projectId)}"]`)
+      ?.scrollIntoView({ behavior: "smooth", block: "center" });
+    setPendingRestore({
+      workspaceId: target.workspaceId,
+      workspaceName: target.workspaceName,
+      projectId: target.projectId,
+      projectName: target.projectName,
+    });
+  }
+
   const pageDescription = recycleBinPageDescription(retentionDays);
 
   return (
@@ -341,6 +368,10 @@ export function ProjectsRecycleBinPage() {
 
       {!loading && rows.length === 0 && error === null ? (
         <ProjectsRecycleBinEmptyState retentionDays={retentionDays} />
+      ) : null}
+
+      {continueLastProject !== null ? (
+        <ProjectsRecycleBinContinueLastViewedRow target={continueLastProject} onOpen={openDeletedProject} />
       ) : null}
 
       {rows.map((workspace) => {
