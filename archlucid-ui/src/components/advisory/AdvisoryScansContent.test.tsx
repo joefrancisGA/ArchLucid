@@ -53,6 +53,14 @@ vi.mock("@/components/operator/OperatorNavAuthorityProvider", () => ({
   }),
 }));
 
+vi.mock("@/components/AskRunIdPicker", () => ({
+  AskRunIdPicker: () => <div data-testid="ask-run-id-picker" />,
+}));
+
+vi.mock("@/components/WorkspaceActiveRunContext", () => ({
+  useWorkspaceActiveRun: () => null,
+}));
+
 vi.mock("@/components/runs/RunIdPicker", () => ({
   RunIdPicker: (props: {
     label: string;
@@ -95,6 +103,7 @@ describe("AdvisoryScansContent", () => {
     expect(screen.getByTestId("advisory-scans-list-header")).toBeInTheDocument();
     expect(screen.getByText(ADVISORY_SCANS_LIST_HEADING)).toBeInTheDocument();
     expect(screen.getByTestId("advisory-scan-form")).toBeInTheDocument();
+    expect(screen.getByTestId("advisory-scans-pick-review-before-scanning-strip")).toBeInTheDocument();
     expect(screen.getByLabelText("Finalized review")).toBeInTheDocument();
     expect(screen.getByTestId("advisory-scans-inline-boundary")).toHaveTextContent(
       ADVISORY_SCANS_INLINE_CAPABILITY_BOUNDARY,

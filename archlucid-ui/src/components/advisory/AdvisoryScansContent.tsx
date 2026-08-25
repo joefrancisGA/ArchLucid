@@ -16,6 +16,7 @@ import { AdvisoryScansTriageFirstPendingStrip } from "@/components/advisory/Advi
 import { AdvisoryRecommendationDispositionDialog } from "@/components/advisory/AdvisoryRecommendationDispositionDialog";
 import { AdvisorySampleRecommendationPreview } from "@/components/advisory/AdvisorySampleRecommendationPreview";
 import { AdvisoryScanSummaryPanel } from "@/components/advisory/AdvisoryScanSummaryPanel";
+import { AdvisoryScansPickReviewBeforeScanningStrip } from "@/components/advisory/AdvisoryScansPickReviewBeforeScanningStrip";
 import { AdvisoryResultsSchedulesVocabularyRail } from "@/components/AdvisoryResultsSchedulesVocabularyRail";
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
@@ -405,6 +406,10 @@ export function AdvisoryScansContent(props: AdvisoryScansContentProps = {}): Rea
   return (
     <OperatorPageContainer variant="workflow" data-testid="advisory-scans-content">
       {listHeader}
+
+      {runId.trim().length === 0 ? (
+        <AdvisoryScansPickReviewBeforeScanningStrip selectedReviewId={runId} onSelectReview={setRunId} />
+      ) : null}
 
       <section
         className={cn(DESIGN_TOKENS.surface.card, "mb-6 mt-4 space-y-4 p-5")}
