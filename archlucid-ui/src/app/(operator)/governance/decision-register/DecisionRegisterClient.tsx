@@ -38,6 +38,7 @@ import { DecisionRegisterSummaryRow } from "./DecisionRegisterSummaryRow";
 import { DecisionRegisterViewSwitcher, type DecisionRegisterViewMode } from "./DecisionRegisterViewSwitcher";
 import { DecisionRegisterWorkspaceActiveApprovalStrip } from "./DecisionRegisterWorkspaceActiveApprovalStrip";
 import { DecisionRegisterPickReviewBeforeFilteringStrip } from "./DecisionRegisterPickReviewBeforeFilteringStrip";
+import { DecisionRegisterNextReviewFooterClient } from "./DecisionRegisterNextReviewFooterClient";
 import {
   DECISION_REGISTER_EMPTY_ACTION_GOVERNANCE,
   DECISION_REGISTER_EMPTY_ACTION_REVIEW_PACKAGES,
@@ -349,6 +350,8 @@ export default function DecisionRegisterClient() {
           ))}
         </div>
       ) : null}
+
+      {scopedRunFilterActive ? <DecisionRegisterNextReviewFooterClient runId={scopedRunId} /> : null}
     </div>
   );
 }
