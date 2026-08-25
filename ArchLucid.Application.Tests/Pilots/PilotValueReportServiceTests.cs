@@ -70,6 +70,46 @@ public sealed class PilotValueReportServiceTests
     }
 
     [SkippableFact]
+    public async Task BuildAsync_ReadyForCommitRunWithManifest_IsNotCountedAsCommitted()
+    {
+        DateTime from = new(2026, 4, 10, 0, 0, 0, DateTimeKind.Utc);
+        DateTime to = new(2026, 4, 20, 0, 0, 0, DateTimeKind.Utc);
+        TenantRecord tenant = Tenant(new DateTimeOffset(2026, 1, 1, 0, 0, 0, TimeSpan.Zero));
+
+        RunSummary readyForCommit = Summary(RunA, from.AddDays(1), committed: false);
+        readyForCommit.Status = nameof(ArchitectureRunStatus.ReadyForCommit);
+        readyForCommit.CurrentManifestVersion = "v1";
+
+        RunSummary committed = Summary(RunB, from.AddDays(2), committed: true);
+
+        Mock<IRunDetailQueryService> runs = new();
+        runs.SetupSequence(r => r.ListRunSummariesKeysetAsync(null, 100, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(((IReadOnlyList<RunSummary>)[readyForCommit, committed], true, "c1"));
+        runs.SetupSequence(r => r.ListRunSummariesKeysetAsync("c1", 100, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(([], false, null));
+
+        runs.Setup(r => r.GetRunDetailForRoiAsync(RunB, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Detail(RunB, from.AddDays(2), committedUtc: from.AddDays(2).AddHours(1), findings: []));
+
+        Mock<IAuditRepository> audit = new();
+        audit.Setup(a => a.GetExportAsync(Scope.TenantId, Scope.WorkspaceId, Scope.ProjectId, from, to, It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        PilotValueReportService sut = CreateSut(
+            tenant,
+            runs.Object,
+            audit.Object,
+            gov: GovEmpty().Object);
+
+        PilotValueReport? report = await sut.BuildAsync(from, to, CancellationToken.None);
+
+        report.Should().NotBeNull();
+        report!.TotalRunsCommitted.Should().Be(1);
+        report.CommittedRunsTimeline.Should().ContainSingle().Which.RunId.Should().Be(RunB);
+        runs.Verify(r => r.GetRunDetailForRoiAsync(RunA, It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [SkippableFact]
     public async Task BuildAsync_counts_committed_runs_in_range_and_aggregates_findings()
     {
         DateTime from = new(2026, 4, 10, 0, 0, 0, DateTimeKind.Utc);
