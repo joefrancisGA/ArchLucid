@@ -204,7 +204,9 @@ export function QuickStartWizard(props: QuickStartWizardProps) {
                       OPERATOR_TYPOGRAPHY.body,
                     )}
                   >
-                    <span className="font-medium text-neutral-900 dark:text-neutral-100">{t.name}</span>
+                    <span className={cn("text-neutral-900 dark:text-neutral-100", OPERATOR_TYPOGRAPHY.cardTitle)}>
+                      {t.name}
+                    </span>
                     <span className={OPERATOR_TYPOGRAPHY.helper}>{t.description}</span>
                   </button>
                 ))}
