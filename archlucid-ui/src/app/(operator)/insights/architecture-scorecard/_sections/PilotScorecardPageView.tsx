@@ -3,7 +3,7 @@
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 
 import { CollapsibleSection } from "@/components/CollapsibleSection";
 import { DocumentLayout } from "@/components/DocumentLayout";
@@ -53,6 +53,7 @@ import { SPONSOR_REPORT_ROI_SUMMARY_PATH } from "@/lib/sponsor-report-navigation
 import { ArchitectureScorecardBuyerChrome } from "./ArchitectureScorecardBuyerChrome";
 import { ReviewScorecardEmptyState } from "./ReviewScorecardEmptyState";
 import { ScorecardReviewPickerStrip } from "./ScorecardReviewPickerStrip";
+import { ScorecardNextReviewFooterClient } from "./ScorecardNextReviewFooterClient";
 import {
   ScorecardMetricCard,
   ScorecardSavingsClaimDiscipline,
@@ -86,7 +87,16 @@ function resolveSampleSavingsLabels(data: NonNullable<ReturnType<typeof resolveR
 export function PilotScorecardPageView({ model }: PilotScorecardPageViewProps) {
   const searchParams = useSearchParams();
   const sampleMode = isReviewScorecardSampleMode(searchParams);
+  const urlRunId = searchParams.get("runId")?.trim() ?? "";
   const [selectedReviewId, setSelectedReviewId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (urlRunId.length === 0 || selectedReviewId !== null) {
+      return;
+    }
+
+    setSelectedReviewId(urlRunId);
+  }, [selectedReviewId, urlRunId]);
 
   const {
     assumptionsComplete,
@@ -629,6 +639,9 @@ export function PilotScorecardPageView({ model }: PilotScorecardPageViewProps) {
             </ul>
           </CollapsibleSection>
         </>
+      ) : null}
+      {selectedReviewId !== null && selectedReviewId.trim().length > 0 ? (
+        <ScorecardNextReviewFooterClient runId={selectedReviewId} />
       ) : null}
         </div>
       </DocumentLayout>

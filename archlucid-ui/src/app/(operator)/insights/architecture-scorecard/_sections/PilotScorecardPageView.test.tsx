@@ -56,6 +56,10 @@ vi.mock("@/components/AskRunIdPicker", () => ({
   AskRunIdPicker: () => <div data-testid="ask-run-id-picker" />,
 }));
 
+vi.mock("./ScorecardNextReviewFooterClient", () => ({
+  ScorecardNextReviewFooterClient: () => <div data-testid="scorecard-next-review-footer-stub" />,
+}));
+
 const mockUseSearchParams = vi.mocked(useSearchParams);
 
 const scorecardData: PilotScorecardJson = {
