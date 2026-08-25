@@ -30,16 +30,14 @@ public sealed class ArchitectureKnowledgeModelAccess(
             return null;
 
         string tenantId = scope.TenantId.ToString("D");
-        ArchitectureKnowledgeModel? fromIdentity = await TryLoadViaArchitectureIdentityAsync(
-            scope,
-            runId,
-            tenantId,
-            cancellationToken).ConfigureAwait(false);
+        ArchitectureKnowledgeModel? runScoped = await LoadByRunIdFallbackAsync(tenantId, runId, cancellationToken)
+            .ConfigureAwait(false);
 
-        if (fromIdentity is not null)
-            return fromIdentity;
+        if (runScoped is not null)
+            return runScoped;
 
-        return await LoadByRunIdFallbackAsync(tenantId, runId, cancellationToken).ConfigureAwait(false);
+        return await TryLoadViaArchitectureIdentityAsync(scope, runId, tenantId, cancellationToken)
+            .ConfigureAwait(false);
     }
 
     public async Task SaveForRunAsync(

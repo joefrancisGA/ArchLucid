@@ -20,13 +20,60 @@ public sealed class ArchitectureKnowledgeModelAccessTests
   };
 
   [Fact]
-  public async Task GetForRunAsync_prefers_CurrentModelId_over_run_scoped_row()
+  public async Task GetForRunAsync_prefers_run_scoped_row_over_CurrentModelId()
   {
     Guid runId = Guid.Parse("44444444-4444-4444-4444-444444444444");
     Guid architectureId = Guid.Parse("55555555-5555-5555-5555-555555555555");
     string currentModelId = "model-current";
+    string runScopedModelId = "model-run-scoped";
 
     Mock<IArchitectureIntelligencePersistence> persistence = new();
+    persistence
+      .Setup(p => p.GetModelByRunIdAsync(TestScope.TenantId.ToString("D"), runId.ToString("D"), It.IsAny<CancellationToken>()))
+      .ReturnsAsync(new ArchitectureKnowledgeModel { ModelId = runScopedModelId, TenantId = TestScope.TenantId.ToString("D") });
+
+    Mock<IRunRepository> runs = new();
+    runs
+      .Setup(r => r.GetByIdAsync(TestScope, runId, It.IsAny<CancellationToken>()))
+      .ReturnsAsync(new RunRecord { RunId = runId, ArchitectureId = architectureId });
+
+    Mock<IArchitectureIdentityRepository> identities = new();
+    identities
+      .Setup(i => i.GetByIdAsync(TestScope, architectureId, It.IsAny<CancellationToken>()))
+      .ReturnsAsync(new ArchitectureIdentityRecord
+      {
+        ArchitectureId = architectureId,
+        CurrentModelId = currentModelId,
+      });
+
+    ArchitectureKnowledgeModelAccess access = new(
+      persistence.Object,
+      runs.Object,
+      identities.Object);
+
+    ArchitectureKnowledgeModel? model = await access.GetForRunAsync(TestScope, runId);
+
+    model.Should().NotBeNull();
+    model!.ModelId.Should().Be(runScopedModelId);
+    persistence.Verify(
+      p => p.GetModelAsync(It.IsAny<string>(), currentModelId, It.IsAny<CancellationToken>()),
+      Times.Never);
+  }
+
+  [Fact]
+  public async Task GetForRunAsync_falls_back_to_CurrentModelId_when_run_scoped_row_missing()
+  {
+    Guid runId = Guid.Parse("88888888-8888-8888-8888-888888888888");
+    Guid architectureId = Guid.Parse("99999999-9999-9999-9999-999999999999");
+    string currentModelId = "model-current";
+
+    Mock<IArchitectureIntelligencePersistence> persistence = new();
+    persistence
+      .Setup(p => p.GetModelByRunIdAsync(TestScope.TenantId.ToString("D"), runId.ToString("D"), It.IsAny<CancellationToken>()))
+      .ReturnsAsync((ArchitectureKnowledgeModel?)null);
+    persistence
+      .Setup(p => p.GetModelByRunIdAsync(TestScope.TenantId.ToString("D"), runId.ToString("N"), It.IsAny<CancellationToken>()))
+      .ReturnsAsync((ArchitectureKnowledgeModel?)null);
     persistence
       .Setup(p => p.GetModelAsync(TestScope.TenantId.ToString("D"), currentModelId, It.IsAny<CancellationToken>()))
       .ReturnsAsync(new ArchitectureKnowledgeModel { ModelId = currentModelId, TenantId = TestScope.TenantId.ToString("D") });
@@ -54,9 +101,6 @@ public sealed class ArchitectureKnowledgeModelAccessTests
 
     model.Should().NotBeNull();
     model!.ModelId.Should().Be(currentModelId);
-    persistence.Verify(
-      p => p.GetModelByRunIdAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()),
-      Times.Never);
   }
 
   [Fact]
