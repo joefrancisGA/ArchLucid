@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmptyState";
@@ -19,7 +21,7 @@ import { getShowcaseManifestHref } from "@/lib/buyer/buyer-safe-review-navigatio
 import { listRunsByProjectPaged } from "@/lib/api";
 import { toApiLoadFailure, type ApiLoadFailureState } from "@/lib/api-load-failure";
 import { isOperatorExperienceFullShellEnv } from "@/lib/demo-ui-env";
-import { OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { coerceRunSummaryPaged } from "@/lib/operator/operator-response-guards";
 import { getEffectiveBrowserProxyScopeHeaders } from "@/lib/operator/operator-scope-storage";
 import { projectIdFromScopeHeaders } from "@/lib/operator/operator-resource-scope";
@@ -53,6 +55,7 @@ import {
   SIGNED_RECORDS_LIST_RETRY_SUCCEEDED_STATUS,
 } from "./signed-records-list-copy";
 import { SignedRecordsContinueLastViewedRow } from "./SignedRecordsContinueLastViewedRow";
+import { SignedRecordsListPickReviewBeforeFilteringStrip } from "./SignedRecordsListPickReviewBeforeFilteringStrip";
 import { SignedRecordsListPagination } from "./SignedRecordsListPagination";
 import { SignedRecordsListTableSkeleton } from "./SignedRecordsListTableSkeleton";
 import {
@@ -65,6 +68,11 @@ import { buildSignedRecordsListRowsFromRuns, type SignedRecordsListRow } from ".
 const SIGNED_RECORDS_LIST_PAGE_SIZE = 100;
 
 export default function SignedRecordsListClient() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const scopedRunId = (searchParams.get("runId") ?? "").trim();
+  const scopedRunFilterActive = scopedRunId.length > 0;
+
   const [rows, setRows] = useState<readonly SignedRecordsListRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [enriching, setEnriching] = useState(false);
@@ -82,6 +90,21 @@ export default function SignedRecordsListClient() {
   const [nextCursor, setNextCursor] = useState<string | null>(null);
   const [lastRefreshedAt, setLastRefreshedAt] = useState<Date | null>(null);
   const scopeRecord = useOperatorScopeRecord();
+
+  const onPickReviewForFiltering = useCallback(
+    (reviewId: string) => {
+      const trimmed = reviewId.trim();
+
+      if (trimmed.length === 0) {
+        return;
+      }
+
+      const params = new URLSearchParams(searchParams.toString());
+      params.set("runId", trimmed);
+      router.replace(`${SIGNED_RECORDS_LIST_PATH}?${params.toString()}`, { scroll: false });
+    },
+    [router, searchParams],
+  );
 
   const loadRows = useCallback(async (request: { readonly page: number; readonly cursor: string }) => {
     setLoading(true);
@@ -210,8 +233,8 @@ export default function SignedRecordsListClient() {
   const isInitialLoad = loading && !hasRows;
   const isPageRefresh = loading && hasRows;
   const filteredRows = useMemo(
-    () => filterSignedRecordsListRows(rows, searchQuery, integrityFilter),
-    [integrityFilter, rows, searchQuery],
+    () => filterSignedRecordsListRows(rows, searchQuery, integrityFilter, scopedRunFilterActive ? scopedRunId : null),
+    [integrityFilter, rows, scopedRunFilterActive, scopedRunId, searchQuery],
   );
   const continueLastViewedRow = useMemo(() => resolveContinueLastSignedRecordsListRow(rows), [rows]);
   const filtersActive = searchQuery.trim().length > 0 || integrityFilter !== "all";
@@ -273,6 +296,32 @@ export default function SignedRecordsListClient() {
         </div>
       ) : null}
 
+      {scopedRunFilterActive ? (
+        <p
+          className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+          data-testid="signed-records-list-run-scope-banner"
+        >
+          {"Showing signed records for review "}
+          <span className="font-mono text-al-text-primary">{scopedRunId}</span>
+          {" · "}
+          <Link className={OPERATOR_LINK.inline} href={SIGNED_RECORDS_LIST_PATH}>
+            Clear review scope
+          </Link>
+          {" · "}
+          <Link
+            className={OPERATOR_LINK.inline}
+            href={`/architecture/reviews/${encodeURIComponent(scopedRunId)}`}
+          >
+            Open review
+          </Link>
+        </p>
+      ) : (
+        <SignedRecordsListPickReviewBeforeFilteringStrip
+          selectedReviewId=""
+          onSelectReview={onPickReviewForFiltering}
+        />
+      )}
+
       {showEmptyState ? (
         workspaceScopeTeaching !== null ? (
           <WorkspaceScopeEmptyTeaching
@@ -299,7 +348,7 @@ export default function SignedRecordsListClient() {
         )
       ) : null}
 
-      {showListChrome ? (
+      {scopedRunFilterActive && showListChrome ? (
         <div className="mb-4 space-y-2" data-testid="signed-records-list-chrome">
           <p className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}>{SIGNED_RECORDS_LIST_LIST_LEAD}</p>
           <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
@@ -316,7 +365,7 @@ export default function SignedRecordsListClient() {
         </div>
       ) : null}
 
-      {showListChrome && hasRows ? (
+      {scopedRunFilterActive && showListChrome && hasRows ? (
         <SignedRecordsListToolbar
           searchQuery={searchQuery}
           integrityFilter={integrityFilter}
@@ -360,7 +409,7 @@ export default function SignedRecordsListClient() {
         />
       ) : null}
 
-      {!loading && hasRows && !showFilterNoMatch ? (
+      {scopedRunFilterActive && !loading && hasRows && !showFilterNoMatch ? (
         <SignedRecordsListTableDeferred
           rows={filteredRows}
           enriching={enriching}
@@ -395,7 +444,7 @@ export default function SignedRecordsListClient() {
         </p>
       ) : null}
 
-      {showPagination ? (
+      {scopedRunFilterActive && showPagination ? (
         <SignedRecordsListPagination
           page={page}
           shownCount={rows.length}

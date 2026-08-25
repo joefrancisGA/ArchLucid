@@ -33,10 +33,16 @@ export function filterSignedRecordsListRows(
   rows: readonly SignedRecordsListRow[],
   searchQuery: string,
   integrityFilter: SignedRecordsListIntegrityFilter,
+  scopedRunId: string | null = null,
 ): SignedRecordsListRow[] {
   const normalizedQuery = searchQuery.trim().toLowerCase();
+  const scopedTrim = scopedRunId?.trim() ?? "";
 
   return rows.filter((row) => {
+    if (scopedTrim.length > 0 && row.runId.trim() !== scopedTrim) {
+      return false;
+    }
+
     if (!rowMatchesIntegrityFilter(row, integrityFilter)) {
       return false;
     }
