@@ -51,6 +51,17 @@ public sealed class ArchitectureKnowledgeModelAccess(
         if (runScoped is not null)
             return runScoped;
 
+        if (run is not null
+            && run.ArchitectureId is Guid architectureId)
+        {
+            Guid? architectureHeadRunId = await _runRepository
+                .GetLatestRunIdForArchitectureAsync(scope, architectureId, cancellationToken)
+                .ConfigureAwait(false);
+
+            if (architectureHeadRunId.HasValue && architectureHeadRunId.Value != runId)
+                return null;
+        }
+
         return await TryLoadViaArchitectureIdentityAsync(scope, run, tenantId, cancellationToken)
             .ConfigureAwait(false);
     }
@@ -98,16 +109,16 @@ public sealed class ArchitectureKnowledgeModelAccess(
             || _architectureIdentityRepository is null)
             return;
 
-        await _runRepository
-            .ClearGraphSnapshotForArchitectureAsync(scope, architectureId, cancellationToken)
-            .ConfigureAwait(false);
-
         Guid? architectureHeadRunId = await _runRepository
             .GetLatestRunIdForArchitectureAsync(scope, architectureId, cancellationToken)
             .ConfigureAwait(false);
 
         if (architectureHeadRunId == runId)
         {
+            await _runRepository
+                .ClearGraphSnapshotForArchitectureAsync(scope, architectureId, cancellationToken)
+                .ConfigureAwait(false);
+
             await _architectureIdentityRepository
                 .UpdateCurrentModelAsync(scope, architectureId, nextModelId, cancellationToken)
                 .ConfigureAwait(false);
