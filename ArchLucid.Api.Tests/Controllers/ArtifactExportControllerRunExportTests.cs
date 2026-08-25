@@ -1,7 +1,10 @@
 using ArchLucid.Api.Controllers.Authority;
 using ArchLucid.Api.Contracts;
 using ArchLucid.Application.Analysis;
+using ArchLucid.ArtifactSynthesis.Models;
+using ArchLucid.ArtifactSynthesis.Packaging;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Manifest;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Coordination.Export;
 using ArchLucid.Persistence.Models;
@@ -46,6 +49,99 @@ public sealed class ArtifactExportControllerRunExportTests
                 It.IsAny<Guid>(),
                 It.IsAny<string>(),
                 It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task DownloadTerraformAdvisoryExport_returns_404_when_run_has_no_committed_manifest()
+    {
+        Guid runId = Guid.NewGuid();
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid()
+        };
+
+        Mock<IArtifactPackagingService> packaging = new();
+        packaging
+            .Setup(p => p.BuildTerraformAdvisoryPlaceholderExport(It.IsAny<Guid>()))
+            .Returns(new ArtifactPackage
+            {
+                Content = [0x50, 0x4b],
+                ContentType = "application/zip",
+                PackageFileName = "terraform.zip"
+            });
+
+        ArtifactExportController sut = CreateController(
+            out Mock<IAuthorityQueryService> authority,
+            out Mock<IAuditService> audit,
+            out _,
+            scope,
+            artifactPackagingService: packaging.Object);
+
+        authority
+            .Setup(q => q.GetRunDetailAsync(scope, runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunDetailDto
+            {
+                Run = new RunRecord { RunId = runId },
+                GoldenManifest = null
+            });
+
+        IActionResult result = await sut.DownloadTerraformAdvisoryExport(runId, CancellationToken.None);
+
+        result.Should().BeOfType<ObjectResult>().Which.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        packaging.Verify(p => p.BuildTerraformAdvisoryPlaceholderExport(It.IsAny<Guid>()), Times.Never);
+        audit.Verify(
+            a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task CreateTerraformPr_returns_404_when_run_has_no_committed_manifest()
+    {
+        Guid runId = Guid.NewGuid();
+        ScopeContext scope = new()
+        {
+            TenantId = Guid.NewGuid(),
+            WorkspaceId = Guid.NewGuid(),
+            ProjectId = Guid.NewGuid()
+        };
+
+        Mock<IArtifactPackagingService> packaging = new();
+        packaging
+            .Setup(p => p.BuildTerraformAdvisoryPlaceholderExport(It.IsAny<Guid>()))
+            .Returns(new ArtifactPackage
+            {
+                Content = [0x50, 0x4b],
+                ContentType = "application/zip",
+                PackageFileName = "terraform.zip"
+            });
+
+        Mock<ITerraformGitHubPrService> terraformPr = new();
+
+        ArtifactExportController sut = CreateController(
+            out Mock<IAuthorityQueryService> authority,
+            out _,
+            out _,
+            scope,
+            artifactPackagingService: packaging.Object,
+            terraformGitHubPrService: terraformPr.Object);
+
+        authority
+            .Setup(q => q.GetRunDetailAsync(scope, runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunDetailDto
+            {
+                Run = new RunRecord { RunId = runId },
+                GoldenManifest = null
+            });
+
+        IActionResult result = await sut.CreateTerraformPr(runId, CancellationToken.None);
+
+        result.Should().BeOfType<ObjectResult>().Which.StatusCode.Should().Be(StatusCodes.Status404NotFound);
+        packaging.Verify(p => p.BuildTerraformAdvisoryPlaceholderExport(It.IsAny<Guid>()), Times.Never);
+        terraformPr.Verify(
+            t => t.CreatePrAsync(It.IsAny<Guid>(), It.IsAny<byte[]>(), It.IsAny<CancellationToken>()),
             Times.Never);
     }
 
@@ -193,7 +289,9 @@ public sealed class ArtifactExportControllerRunExportTests
         out Mock<IRunExportBlobPushOutboxRepository> outbox,
         ScopeContext? scope = null,
         IRunExportPackageBuilder? runExportPackageBuilder = null,
-        IRunExportLineageVerifier? runExportLineageVerifier = null)
+        IRunExportLineageVerifier? runExportLineageVerifier = null,
+        IArtifactPackagingService? artifactPackagingService = null,
+        ITerraformGitHubPrService? terraformGitHubPrService = null)
     {
         authority = new Mock<IAuthorityQueryService>();
         audit = new Mock<IAuditService>();
@@ -224,12 +322,12 @@ public sealed class ArtifactExportControllerRunExportTests
         ArtifactExportController controller = new(
             Mock.Of<IArtifactQueryService>(),
             authority.Object,
-            Mock.Of<ArchLucid.ArtifactSynthesis.Packaging.IArtifactPackagingService>(),
+            artifactPackagingService ?? Mock.Of<IArtifactPackagingService>(),
             scopeProvider.Object,
             audit.Object,
             Mock.Of<ArchLucid.Core.Diagrams.IDiagramImageRenderer>(),
             configuration,
-            Mock.Of<ITerraformGitHubPrService>(),
+            terraformGitHubPrService ?? Mock.Of<ITerraformGitHubPrService>(),
             runExportPackageBuilder,
             outbox.Object,
             runExportLineageVerifier ?? Mock.Of<IRunExportLineageVerifier>(),

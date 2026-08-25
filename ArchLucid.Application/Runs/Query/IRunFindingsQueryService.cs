@@ -36,7 +36,8 @@ public enum RunFindingsQueryOutcome
     Success,
     BadRequest,
     NotFound,
-    ManifestNotFound
+    ManifestNotFound,
+    Conflict
 }
 
 public sealed class RunFindingsListQueryResult

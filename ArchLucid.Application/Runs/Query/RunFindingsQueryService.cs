@@ -139,6 +139,15 @@ public sealed class RunFindingsQueryService(
             };
         }
 
+        if (!detail.IsCommitted)
+        {
+            return new RunFindingsCsvExportQueryResult
+            {
+                Outcome = RunFindingsQueryOutcome.Conflict,
+                ProblemDetail = "Export requires a finalized review with a committed architecture snapshot."
+            };
+        }
+
         ScopeContext scope = scopeContextProvider.GetCurrentScope();
         Guid? findingsSnapshotId = null;
 

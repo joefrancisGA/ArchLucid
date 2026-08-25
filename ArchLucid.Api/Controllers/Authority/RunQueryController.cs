@@ -141,6 +141,7 @@ public sealed class RunQueryController(
     [Produces("text/csv")]
     [ProducesResponseType(typeof(FileContentResult), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<IActionResult> ExportRunFindingsCsv(
         [FromRoute] string runId,
         [FromServices] IAuditService auditService,
@@ -153,6 +154,7 @@ public sealed class RunQueryController(
         {
             RunFindingsQueryOutcome.ManifestNotFound => this.NotFoundProblem(result.ProblemDetail!, ProblemTypes.ResourceNotFound),
             RunFindingsQueryOutcome.NotFound => this.NotFoundProblem(result.ProblemDetail!, ProblemTypes.RunNotFound),
+            RunFindingsQueryOutcome.Conflict => this.ConflictProblem(result.ProblemDetail!, ProblemTypes.Conflict),
             _ => await ExportFindingsCsvSuccessAsync(result, auditService, cancellationToken)
         };
     }

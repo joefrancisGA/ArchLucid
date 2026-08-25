@@ -7,6 +7,7 @@ using ArchLucid.Application.Traceability;
 using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Explanation;
 using ArchLucid.Contracts.Metadata;
+using ArchLucid.Core.Audit;
 using ArchLucid.Core.Pagination;
 using ArchLucid.Core.Persistence.ApplicationPorts.Runs;
 using ArchLucid.Persistence.Queries;
@@ -155,6 +156,29 @@ public sealed class RunQueryControllerTests
         IActionResult action = await controller.ListRuns(cancellationToken: CancellationToken.None);
 
         action.Should().BeOfType<OkObjectResult>();
+    }
+
+    [Fact]
+    public async Task ExportRunFindingsCsv_returns_conflict_when_run_not_committed()
+    {
+        Mock<IRunFindingsQueryService> findings = new();
+        findings
+            .Setup(s => s.ExportRunFindingsCsvAsync(RunId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RunFindingsCsvExportQueryResult
+            {
+                Outcome = RunFindingsQueryOutcome.Conflict,
+                ProblemDetail = "Export requires a finalized review with a committed architecture snapshot."
+            });
+
+        RunQueryController controller = CreateController(runFindingsQueryService: findings.Object);
+
+        IActionResult action = await controller.ExportRunFindingsCsv(
+            RunId,
+            Mock.Of<IAuditService>(),
+            CancellationToken.None);
+
+        ObjectResult conflict = action.Should().BeOfType<ObjectResult>().Subject;
+        conflict.StatusCode.Should().Be(StatusCodes.Status409Conflict);
     }
 
     [Fact]

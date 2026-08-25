@@ -395,6 +395,11 @@ public sealed class ArtifactExportController(
         if (runDetail is null)
             return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
 
+        if (runDetail.GoldenManifest is null)
+            return this.NotFoundProblem(
+                $"Run '{runId}' has no committed golden manifest available for export.",
+                ProblemTypes.ManifestNotFound);
+
         ArtifactPackage package = artifactPackagingService.BuildTerraformAdvisoryPlaceholderExport(runId);
 
         await auditService.LogAsync(
@@ -489,6 +494,11 @@ public sealed class ArtifactExportController(
 
         if (runDetail is null)
             return this.NotFoundProblem($"Run '{runId}' was not found.", ProblemTypes.RunNotFound);
+
+        if (runDetail.GoldenManifest is null)
+            return this.NotFoundProblem(
+                $"Run '{runId}' has no committed golden manifest available for export.",
+                ProblemTypes.ManifestNotFound);
 
         ArtifactPackage package = artifactPackagingService.BuildTerraformAdvisoryPlaceholderExport(runId);
 

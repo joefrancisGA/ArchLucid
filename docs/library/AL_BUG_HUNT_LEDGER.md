@@ -1287,11 +1287,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** tenant export; run export; export SSRF
 - **paths:** ArchLucid.Application/Exports/; ArchLucid.Api/Controllers/Authority/ExportsController.cs; ArchLucid.Api/Controllers/Authority/ArchitectureExportController.cs; ArchLucid.Api/Controllers/Authority/RunsExportController.cs; ArchLucid.Core/Security/AllowedRunExportBlobDestinationUrlPolicy.cs
 - **test-filter:** FullyQualifiedName~ArchitectureReviewExport|FullyQualifiedName~ExportsController|FullyQualifiedName~AllowedRunExportBlobDestinationUrlPolicy
-- **hunts:** 4
-- **bugs-found:** 7
+- **hunts:** 5
+- **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24
+- **last-hunt:** 2026-08-25
+- **last-bug:** 2026-08-25 — terraform advisory export/PR and findings CSV omitted committed-manifest guards
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -1306,8 +1306,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Run summary export misreported broken-manifest runs as not finalized — **hit 2026-08-24:** `RunSummaryOnePagerExportService` skipped `HasBrokenManifestReference` guard; aligned message with other export paths (`RunSummaryOnePagerExportServiceTests`).
 - [x] (proven) HTML architecture review export omitted demo-tenant safety labeling — **hit 2026-08-24:** `BuildMinimalHtml` ignored `IsDemoTenant`; added demo notice (`ArchitectureReviewExportServiceTests`).
 - [x] (proven) Sponsor review packet evidence badges ignored demo-run context — **hit 2026-08-24:** `SponsorReviewPacketComposer` resolved badges with empty `PilotRunDeltas`; passes demo provenance from run detail (`SponsorReviewPacketComposerTests`).
-- [ ] (hunt-ready) `ArtifactExportController.DownloadTerraformAdvisoryExport` and `CreateTerraformPr` load run detail but omit the committed-manifest guard used by `PushRunExportToBlob`; an in-progress run with `GoldenManifest == null` may return export bytes or create a PR.
-- [ ] (hunt-ready) `RunQueryController.ExportRunFindingsCsv` checks run existence and manifest pointer consistency but not `IsCommitted`; a Created/ReadyForCommit run may export findings while sibling buyer export services reject it.
+- [x] (proven) `ArtifactExportController.DownloadTerraformAdvisoryExport` and `CreateTerraformPr` load run detail but omit the committed-manifest guard used by `PushRunExportToBlob` — **hit 2026-08-25:** in-progress runs with `GoldenManifest == null` returned ZIP bytes or opened a PR; aligned with blob-push guard (`ArtifactExportControllerRunExportTests`).
+- [x] (proven) `RunQueryController.ExportRunFindingsCsv` checks run existence and manifest pointer consistency but not `IsCommitted` — **hit 2026-08-25:** ReadyForCommit runs exported findings CSV while sibling buyer exports reject; added `IsCommitted` guard and 409 mapping (`RunFindingsQueryServiceExportTests`, `RunQueryControllerTests`).
 
 ---
 
