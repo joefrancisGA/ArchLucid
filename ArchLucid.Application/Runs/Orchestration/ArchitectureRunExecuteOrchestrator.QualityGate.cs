@@ -98,7 +98,7 @@ public sealed partial class ArchitectureRunExecuteOrchestrator
             catch (AgentOutputQualityGateRejectedException ex)
                 when (_agentOutputQualityGateOptions.Value is { BlockRunOnReject: true, EnforceOnReject: true })
             {
-                await TryMarkRunQualityGateRejectedAsync(runId, actor, ex, cancellationToken);
+                await _postExecuteHooks.RecordQualityGateRejectedAsync(runId, actor, ex, cancellationToken);
                 throw;
             }
             catch (Exception ex)
@@ -209,81 +209,5 @@ public sealed partial class ArchitectureRunExecuteOrchestrator
             AllowedSources = task.AllowedSources,
             ModelTierOverride = escalatedTier,
         };
-    }
-
-
-    private async Task TryMarkRunQualityGateRejectedAsync(
-        string runId,
-        string actor,
-        AgentOutputQualityGateRejectedException ex,
-        CancellationToken cancellationToken)
-    {
-        ArgumentNullException.ThrowIfNull(ex);
-
-        if (!TryParseRunGuid(runId, out Guid runGuid))
-            return;
-
-        ScopeContext scope = scopeContextProvider.GetCurrentScope();
-        RunRecord? header = await runRepository.GetByIdAsync(scope, runGuid, cancellationToken);
-
-        if (header is null)
-        {
-            if (logger.IsEnabled(LogLevel.Warning))
-                logger.LogWarning("Quality gate reject: dbo.Runs header missing for RunId={RunId}.", LogSanitizer.Sanitize(runId));
-
-            return;
-        }
-
-        header.LegacyRunStatus = nameof(ArchitectureRunStatus.ExecutionCompletedQualityRejected);
-        await runRepository.UpdateAsync(header, cancellationToken);
-
-        string details = BuildQualityGateRejectedAuditDetails(ex);
-        await baselineMutationAudit.RecordAsync(
-            AuditEventTypes.Baseline.Architecture.RunQualityGateRejected,
-            actor,
-            runId,
-            details,
-            cancellationToken);
-
-        await ArchitectureRunIntegrationEventPublishing.TryPublishQualityGateRejectedAsync(
-            integrationEventOutbox,
-            integrationEventPublisher,
-            integrationEventsOptions,
-            logger,
-            runGuid,
-            scope,
-            ex,
-            cancellationToken);
-    }
-
-    private static string BuildQualityGateRejectedAuditDetails(AgentOutputQualityGateRejectedException ex)
-    {
-        List<string> parts = [
-            $"TraceId={ex.TraceId}",
-            $"AgentLabel={ex.AgentLabel}",
-        ];
-
-        if (ex.StructuralCompletenessRatio is { } structural)
-            parts.Add($"StructuralCompletenessRatio={structural}");
-
-        if (ex.SemanticScore is { } semantic)
-            parts.Add($"SemanticScore={semantic}");
-
-        if (!string.IsNullOrWhiteSpace(ex.RejectReasonCategory))
-            parts.Add($"RejectReasonCategory={ex.RejectReasonCategory}");
-
-        if (!string.IsNullOrWhiteSpace(ex.TriageScenarioId))
-            parts.Add($"TriageScenarioId={ex.TriageScenarioId}");
-
-        if (!string.IsNullOrWhiteSpace(ex.GateDefinitionVersion))
-            parts.Add($"GateDefinitionVersion={ex.GateDefinitionVersion}");
-
-        if (!string.IsNullOrWhiteSpace(ex.GateDefinitionContentHashSha256))
-            parts.Add($"GateDefinitionContentHashSha256={ex.GateDefinitionContentHashSha256}");
-
-        if (!string.IsNullOrWhiteSpace(ex.GateMode))
-            parts.Add($"GateMode={ex.GateMode}");
-
-        return string.Join(';', parts);
     }
 }

@@ -276,6 +276,7 @@ private static void RegisterRunExportAndArchitectureAnalysis(IServiceCollection 
         services.AddScoped<ArchitectureRunCreateIdempotencyHelper>();
         services.AddScoped<ArchitectureRunCreatePersistenceHelper>();
         services.AddScoped<ArchitectureRunCreatePostCreateHooks>();
+        services.AddScoped<ArchitectureRunExecutePostExecuteHooks>();
         services.AddScoped<IArchitectureRunCreateOrchestrator, ArchitectureRunCreateOrchestrator>();
         services.AddScoped<IArchitectureRunBatchCreateOrchestrator, ArchitectureRunBatchCreateOrchestrator>();
         services.AddScoped<IArchitectureRunExecuteOrchestrator, ArchitectureRunExecuteOrchestrator>();

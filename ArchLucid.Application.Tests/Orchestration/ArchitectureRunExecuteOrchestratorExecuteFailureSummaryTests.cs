@@ -145,7 +145,11 @@ public sealed class ArchitectureRunExecuteOrchestratorExecuteFailureSummaryTests
             new DefaultEvidenceBuilder(manifestReader.Object),
             actorContext.Object,
             baselineAudit.Object,
-            auditService.Object,
+            ArchitectureRunExecuteOrchestratorTestFactory.CreatePostExecuteHooks(
+                auditService.Object,
+                scopeProvider.Object,
+                baselineAudit.Object,
+                runRepo.Object),
             ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
             new NoOpAgentOutputTraceEvaluationHook(),
             new ArchLucid.Application.Agents.Evidence.NoOpAgentResultPostExecutionEnricher(),
@@ -165,9 +169,6 @@ public sealed class ArchitectureRunExecuteOrchestratorExecuteFailureSummaryTests
             new OperationRunCancellationMarker(runRepo.Object),
             new DisabledRunExecuteOwnershipLeaseService(),
             Mock.Of<IRunStageOutcomesRepository>(),
-            ArchitectureRunExecuteOrchestratorTestFactory.CreateIntegrationEventOutbox(),
-            ArchitectureRunExecuteOrchestratorTestFactory.CreateIntegrationEventPublisher(),
-            ArchitectureRunExecuteOrchestratorTestFactory.CreateIntegrationEventsOptionsMonitor(),
             NullLogger<ArchitectureRunExecuteOrchestrator>.Instance);
 
         Func<Task> act = async () => await sut.ExecuteRunAsync(runId);

@@ -197,7 +197,9 @@ public sealed class ArchitectureRunExecuteOrchestratorExecutionModeTelemetryTest
             new DefaultEvidenceBuilder(Mock.Of<IUnifiedGoldenManifestReader>()),
             actorContext.Object,
             Mock.Of<IBaselineMutationAuditService>(),
-            Mock.Of<IAuditService>(),
+            ArchitectureRunExecuteOrchestratorTestFactory.CreatePostExecuteHooks(
+                scopeContextProvider: scopeProvider.Object,
+                runRepository: runRepo.Object),
             ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
             Mock.Of<IAgentOutputTraceEvaluationHook>(),
             new ArchLucid.Application.Agents.Evidence.NoOpAgentResultPostExecutionEnricher(),
@@ -217,9 +219,6 @@ public sealed class ArchitectureRunExecuteOrchestratorExecutionModeTelemetryTest
             new OperationRunCancellationMarker(runRepo.Object),
             new DisabledRunExecuteOwnershipLeaseService(),
             Mock.Of<IRunStageOutcomesRepository>(),
-            ArchitectureRunExecuteOrchestratorTestFactory.CreateIntegrationEventOutbox(),
-            ArchitectureRunExecuteOrchestratorTestFactory.CreateIntegrationEventPublisher(),
-            ArchitectureRunExecuteOrchestratorTestFactory.CreateIntegrationEventsOptionsMonitor(),
             NullLogger<ArchitectureRunExecuteOrchestrator>.Instance);
     }
 }

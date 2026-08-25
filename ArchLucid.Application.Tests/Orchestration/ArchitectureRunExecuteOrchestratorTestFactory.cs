@@ -1,12 +1,16 @@
 using ArchLucid.Application.AiUsage;
 using ArchLucid.Application.Budgeting;
+using ArchLucid.Application.Common;
 using ArchLucid.Application.Operations;
 using ArchLucid.Application.Runs.ExecuteOwnership;
+using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Orchestration;
+using ArchLucid.Core.Audit;
 using ArchLucid.Core.AiUsage;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Integration;
 using ArchLucid.Core.Persistence.ApplicationPorts.Runs;
+using ArchLucid.Core.Runs;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Data.Repositories;
 using ArchLucid.Persistence.IntegrationOutbox;
@@ -37,11 +41,30 @@ public static class ArchitectureRunExecuteOrchestratorTestFactory
             new OperationRunCancellationMarker(runs),
             new DisabledRunExecuteOwnershipLeaseService(),
             Mock.Of<IRunStageOutcomesRepository>(),
-            ArchitectureRunExecuteOrchestratorTestFactory.CreateIntegrationEventOutbox(),
-            ArchitectureRunExecuteOrchestratorTestFactory.CreateIntegrationEventPublisher(),
-            ArchitectureRunExecuteOrchestratorTestFactory.CreateIntegrationEventsOptionsMonitor(),
+            CreatePostExecuteHooks(runRepository: runs, scopeContextProvider: scopeContextProvider),
             NullLogger<ArchitectureRunExecuteOrchestrator>.Instance);
     }
+
+    internal static ArchitectureRunExecutePostExecuteHooks CreatePostExecuteHooks(
+        IAuditService? auditService = null,
+        IScopeContextProvider? scopeContextProvider = null,
+        IBaselineMutationAuditService? baselineMutationAudit = null,
+        IRunRepository? runRepository = null,
+        IRunStateTransitionService? runStateTransitionService = null,
+        IIntegrationEventOutboxRepository? integrationEventOutbox = null,
+        IIntegrationEventPublisher? integrationEventPublisher = null,
+        IOptionsMonitor<IntegrationEventsOptions>? integrationEventsOptions = null,
+        ILogger<ArchitectureRunExecutePostExecuteHooks>? logger = null) =>
+        new(
+            auditService ?? Mock.Of<IAuditService>(),
+            scopeContextProvider ?? Mock.Of<IScopeContextProvider>(),
+            baselineMutationAudit ?? Mock.Of<IBaselineMutationAuditService>(),
+            runRepository ?? Mock.Of<IRunRepository>(),
+            runStateTransitionService ?? new RunStateTransitionService(),
+            integrationEventOutbox ?? CreateIntegrationEventOutbox(),
+            integrationEventPublisher ?? CreateIntegrationEventPublisher(),
+            integrationEventsOptions ?? CreateIntegrationEventsOptionsMonitor(),
+            logger ?? NullLogger<ArchitectureRunExecutePostExecuteHooks>.Instance);
 
     internal static TechnologyLedgerTopologyProposalSeeder CreateDefaultTopologyProposalSeeder(
         IScopeContextProvider? scopeContextProvider = null) =>

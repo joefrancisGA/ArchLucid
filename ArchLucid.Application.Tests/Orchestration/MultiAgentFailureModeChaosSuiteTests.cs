@@ -361,7 +361,7 @@ public sealed class MultiAgentFailureModeChaosSuiteTests
             new DefaultEvidenceBuilder(Mock.Of<IUnifiedGoldenManifestReader>()),
             actorContext.Object,
             baselineAudit.Object,
-            audit.Object,
+            ArchitectureRunExecuteOrchestratorTestFactory.CreatePostExecuteHooks(audit.Object, scopeProvider.Object, baselineAudit.Object, runRepo),
             ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
             Mock.Of<IAgentOutputTraceEvaluationHook>(),
             new NoOpAgentResultPostExecutionEnricher(),
@@ -381,9 +381,6 @@ public sealed class MultiAgentFailureModeChaosSuiteTests
             tail.RunCancellationMarker,
             tail.RunExecuteOwnershipLeaseService,
             tail.RunStageOutcomesRepository,
-            tail.IntegrationEventOutbox,
-            tail.IntegrationEventPublisher,
-            tail.IntegrationEventsOptions,
             tail.Logger);
     }
 

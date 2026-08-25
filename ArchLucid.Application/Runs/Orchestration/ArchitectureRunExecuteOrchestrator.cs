@@ -56,7 +56,7 @@ public sealed partial class ArchitectureRunExecuteOrchestrator(
     IEvidenceBuilder evidenceBuilder,
     IActorContext actorContext,
     IBaselineMutationAuditService baselineMutationAudit,
-    IAuditService auditService,
+    ArchitectureRunExecutePostExecuteHooks postExecuteHooks,
     IArchLucidUnitOfWorkFactory unitOfWorkFactory,
     IAgentOutputTraceEvaluationHook outputTraceEvaluationHook,
     IAgentResultPostExecutionEnricher agentResultPostExecutionEnricher,
@@ -76,13 +76,12 @@ public sealed partial class ArchitectureRunExecuteOrchestrator(
     OperationRunCancellationMarker runCancellationMarker,
     IRunExecuteOwnershipLeaseService runExecuteOwnershipLeaseService,
     IRunStageOutcomesRepository runStageOutcomesRepository,
-    IIntegrationEventOutboxRepository integrationEventOutbox,
-    IIntegrationEventPublisher integrationEventPublisher,
-    IOptionsMonitor<IntegrationEventsOptions> integrationEventsOptions,
     ILogger<ArchitectureRunExecuteOrchestrator> logger) : IArchitectureRunExecuteOrchestrator
 {
     private readonly IActorContext _actorContext = actorContext ?? throw new ArgumentNullException(nameof(actorContext));
-    private readonly IAuditService _auditService = auditService ?? throw new ArgumentNullException(nameof(auditService));
+
+    private readonly ArchitectureRunExecutePostExecuteHooks _postExecuteHooks =
+        postExecuteHooks ?? throw new ArgumentNullException(nameof(postExecuteHooks));
 
     private readonly IOptions<AgentOutputQualityGateOptions> _agentOutputQualityGateOptions =
         agentOutputQualityGateOptions ?? throw new ArgumentNullException(nameof(agentOutputQualityGateOptions));
@@ -168,7 +167,7 @@ public sealed partial class ArchitectureRunExecuteOrchestrator(
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(runId);
         ValidateDependencies(runRepository, scopeContextProvider, requestRepository, taskRepository, agentExecutor, agentEvaluationService, resultRepository,
-            agentEvaluationRepository, agentEvidencePackageRepository, evidenceBuilder, actorContext, baselineMutationAudit, auditService, unitOfWorkFactory,
+            agentEvaluationRepository, agentEvidencePackageRepository, evidenceBuilder, actorContext, baselineMutationAudit, postExecuteHooks, unitOfWorkFactory,
             outputTraceEvaluationHook, agentResultPostExecutionEnricher, evidencePackageInjectionMitigator,
             agentEvidenceUntrustedInputSanitizer, requestContentSafetyPrecheck,
             agentExecutionOptions, agentOutputQualityGateOptions, logger);
@@ -209,7 +208,7 @@ public sealed partial class ArchitectureRunExecuteOrchestrator(
         ArgumentException.ThrowIfNullOrWhiteSpace(runId);
         ArgumentNullException.ThrowIfNull(request);
         ValidateDependencies(runRepository, scopeContextProvider, requestRepository, taskRepository, agentExecutor, agentEvaluationService, resultRepository,
-            agentEvaluationRepository, agentEvidencePackageRepository, evidenceBuilder, actorContext, baselineMutationAudit, auditService, unitOfWorkFactory,
+            agentEvaluationRepository, agentEvidencePackageRepository, evidenceBuilder, actorContext, baselineMutationAudit, postExecuteHooks, unitOfWorkFactory,
             outputTraceEvaluationHook, agentResultPostExecutionEnricher, evidencePackageInjectionMitigator,
             agentEvidenceUntrustedInputSanitizer, requestContentSafetyPrecheck,
             agentExecutionOptions, agentOutputQualityGateOptions, logger);
@@ -248,7 +247,7 @@ public sealed partial class ArchitectureRunExecuteOrchestrator(
         }
 
         await TryDemoteReadyForCommitBeforeSelectiveExecuteAsync(runId, run.Status, cancellationToken);
-        await TryLogSelectiveExecuteRequestedAsync(runId, actor, forcedTasks, request.IncludeDependents, cancellationToken);
+        await _postExecuteHooks.LogSelectiveExecuteRequestedAsync(runId, actor, forcedTasks, request.IncludeDependents, cancellationToken);
 
         return await ExecuteRunAsync(runId, cancellationToken);
     }
@@ -257,7 +256,7 @@ public sealed partial class ArchitectureRunExecuteOrchestrator(
         IArchitectureRequestRepository requestRepository, IAgentTaskRepository taskRepository, IAgentExecutor agentExecutor,
         IAgentEvaluationService agentEvaluationService, IAgentResultRepository resultRepository, IAgentEvaluationRepository agentEvaluationRepository,
         IAgentEvidencePackageRepository agentEvidencePackageRepository, IEvidenceBuilder evidenceBuilder, IActorContext actorContext,
-        IBaselineMutationAuditService baselineMutationAudit, IAuditService auditService, IArchLucidUnitOfWorkFactory unitOfWorkFactory,
+        IBaselineMutationAuditService baselineMutationAudit, ArchitectureRunExecutePostExecuteHooks postExecuteHooks, IArchLucidUnitOfWorkFactory unitOfWorkFactory,
         IAgentOutputTraceEvaluationHook outputTraceEvaluationHook, IAgentResultPostExecutionEnricher agentResultPostExecutionEnricher,
         IEvidencePackageInjectionMitigator evidencePackageInjectionMitigator,
         IAgentEvidenceUntrustedInputSanitizer agentEvidenceUntrustedInputSanitizer,
@@ -277,7 +276,7 @@ public sealed partial class ArchitectureRunExecuteOrchestrator(
         ArgumentNullException.ThrowIfNull(evidenceBuilder);
         ArgumentNullException.ThrowIfNull(actorContext);
         ArgumentNullException.ThrowIfNull(baselineMutationAudit);
-        ArgumentNullException.ThrowIfNull(auditService);
+        ArgumentNullException.ThrowIfNull(postExecuteHooks);
         ArgumentNullException.ThrowIfNull(unitOfWorkFactory);
         ArgumentNullException.ThrowIfNull(outputTraceEvaluationHook);
         ArgumentNullException.ThrowIfNull(agentResultPostExecutionEnricher);
@@ -317,7 +316,7 @@ public sealed partial class ArchitectureRunExecuteOrchestrator(
             if (ex is not RunCostBudgetExceededPartialPersistRecordedException
                 and not AgentOutputQualityGateRejectedException)
             {
-                await RecordExecuteRunFailureAsync(runId, actor, ex, cancellationToken);
+                await _postExecuteHooks.RecordExecuteRunFailureAsync(runId, actor, ex, cancellationToken);
             }
 
             throw;
@@ -334,7 +333,7 @@ public sealed partial class ArchitectureRunExecuteOrchestrator(
 
         await ThrowIfAuthorityPipelineCompleteAsync(run, runId, cancellationToken);
 
-        await TryLogFailedRunRetryRequestedAsync(run, runId, actor, cancellationToken);
+        await _postExecuteHooks.LogFailedRunRetryRequestedAsync(run, runId, actor, cancellationToken);
 
         ExecuteRunResult? idempotent = await TryReturnExistingExecuteResultsAsync(run, runId, cancellationToken);
 

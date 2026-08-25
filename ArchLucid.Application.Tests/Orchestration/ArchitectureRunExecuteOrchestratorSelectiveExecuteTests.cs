@@ -226,7 +226,7 @@ public sealed class ArchitectureRunExecuteOrchestratorSelectiveExecuteTests
             new DefaultEvidenceBuilder(Mock.Of<IUnifiedGoldenManifestReader>()),
             actorContext.Object,
             baselineAudit.Object,
-            auditService,
+            ArchitectureRunExecuteOrchestratorTestFactory.CreatePostExecuteHooks(auditService, scopeProvider.Object, baselineAudit.Object, runRepo.Object),
             ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
             Mock.Of<IAgentOutputTraceEvaluationHook>(),
             new NoOpAgentResultPostExecutionEnricher(),
@@ -246,9 +246,6 @@ public sealed class ArchitectureRunExecuteOrchestratorSelectiveExecuteTests
             new OperationRunCancellationMarker(runRepo.Object),
             new DisabledRunExecuteOwnershipLeaseService(),
             Mock.Of<IRunStageOutcomesRepository>(),
-            ArchitectureRunExecuteOrchestratorTestFactory.CreateIntegrationEventOutbox(),
-            ArchitectureRunExecuteOrchestratorTestFactory.CreateIntegrationEventPublisher(),
-            ArchitectureRunExecuteOrchestratorTestFactory.CreateIntegrationEventsOptionsMonitor(),
             NullLogger<ArchitectureRunExecuteOrchestrator>.Instance);
     }
 

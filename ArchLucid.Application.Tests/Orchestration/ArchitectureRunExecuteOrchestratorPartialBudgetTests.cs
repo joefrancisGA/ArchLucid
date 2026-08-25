@@ -224,7 +224,10 @@ public sealed class ArchitectureRunExecuteOrchestratorPartialBudgetTests
             new DefaultEvidenceBuilder(Mock.Of<IUnifiedGoldenManifestReader>()),
             actorContext.Object,
             baselineAudit,
-            Mock.Of<IAuditService>(),
+            ArchitectureRunExecuteOrchestratorTestFactory.CreatePostExecuteHooks(
+                scopeContextProvider: scopeProvider.Object,
+                baselineMutationAudit: baselineAudit,
+                runRepository: runRepo.Object),
             ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
             Mock.Of<IAgentOutputTraceEvaluationHook>(),
             new NoOpAgentResultPostExecutionEnricher(),
@@ -244,9 +247,6 @@ public sealed class ArchitectureRunExecuteOrchestratorPartialBudgetTests
             new OperationRunCancellationMarker(runRepo.Object),
             new DisabledRunExecuteOwnershipLeaseService(),
             Mock.Of<IRunStageOutcomesRepository>(),
-            ArchitectureRunExecuteOrchestratorTestFactory.CreateIntegrationEventOutbox(),
-            ArchitectureRunExecuteOrchestratorTestFactory.CreateIntegrationEventPublisher(),
-            ArchitectureRunExecuteOrchestratorTestFactory.CreateIntegrationEventsOptionsMonitor(),
             NullLogger<ArchitectureRunExecuteOrchestrator>.Instance);
     }
 }

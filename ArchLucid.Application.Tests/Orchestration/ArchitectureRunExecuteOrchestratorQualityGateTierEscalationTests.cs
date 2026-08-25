@@ -226,7 +226,11 @@ public sealed class ArchitectureRunExecuteOrchestratorQualityGateTierEscalationT
             new DefaultEvidenceBuilder(manifestReader.Object),
             actorContext.Object,
             baselineAudit.Object,
-            auditService.Object,
+            ArchitectureRunExecuteOrchestratorTestFactory.CreatePostExecuteHooks(
+                auditService.Object,
+                scopeProvider.Object,
+                baselineAudit.Object,
+                runRepo.Object),
             ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
             traceHook.Object,
             new ArchLucid.Application.Agents.Evidence.NoOpAgentResultPostExecutionEnricher(),
@@ -246,9 +250,6 @@ public sealed class ArchitectureRunExecuteOrchestratorQualityGateTierEscalationT
             new OperationRunCancellationMarker(runRepo.Object),
             new DisabledRunExecuteOwnershipLeaseService(),
             Mock.Of<IRunStageOutcomesRepository>(),
-            ArchitectureRunExecuteOrchestratorTestFactory.CreateIntegrationEventOutbox(),
-            ArchitectureRunExecuteOrchestratorTestFactory.CreateIntegrationEventPublisher(),
-            ArchitectureRunExecuteOrchestratorTestFactory.CreateIntegrationEventsOptionsMonitor(),
             NullLogger<ArchitectureRunExecuteOrchestrator>.Instance);
 
         ExecuteRunResult result = await sut.ExecuteRunAsync(runId);
@@ -446,7 +447,11 @@ public sealed class ArchitectureRunExecuteOrchestratorQualityGateTierEscalationT
             new DefaultEvidenceBuilder(manifestReader.Object),
             actorContext.Object,
             baselineAudit.Object,
-            auditService.Object,
+            ArchitectureRunExecuteOrchestratorTestFactory.CreatePostExecuteHooks(
+                auditService.Object,
+                scopeProvider.Object,
+                baselineAudit.Object,
+                runRepo.Object),
             ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
             traceHook.Object,
             new ArchLucid.Application.Agents.Evidence.NoOpAgentResultPostExecutionEnricher(),
@@ -466,9 +471,6 @@ public sealed class ArchitectureRunExecuteOrchestratorQualityGateTierEscalationT
             new OperationRunCancellationMarker(runRepo.Object),
             new DisabledRunExecuteOwnershipLeaseService(),
             Mock.Of<IRunStageOutcomesRepository>(),
-            ArchitectureRunExecuteOrchestratorTestFactory.CreateIntegrationEventOutbox(),
-            ArchitectureRunExecuteOrchestratorTestFactory.CreateIntegrationEventPublisher(),
-            ArchitectureRunExecuteOrchestratorTestFactory.CreateIntegrationEventsOptionsMonitor(),
             NullLogger<ArchitectureRunExecuteOrchestrator>.Instance);
 
         await sut.ExecuteRunAsync(runId);
