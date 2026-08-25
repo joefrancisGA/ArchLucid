@@ -117,6 +117,9 @@ public sealed class ArchitectureKnowledgeModelAccessTests
     runs
       .Setup(r => r.GetByIdAsync(TestScope, runId, It.IsAny<CancellationToken>()))
       .ReturnsAsync(run);
+    runs
+      .Setup(r => r.GetLatestRunIdForArchitectureAsync(TestScope, architectureId, It.IsAny<CancellationToken>()))
+      .ReturnsAsync(runId);
 
     Mock<IArchitectureIdentityRepository> identities = new();
 

@@ -195,6 +195,28 @@ public sealed class InMemoryRunRepository(ITenantRepository? tenantRepository = 
         return Task.CompletedTask;
     }
 
+    public Task<Guid?> GetLatestRunIdForArchitectureAsync(
+        ScopeContext scope,
+        Guid architectureId,
+        CancellationToken ct)
+    {
+        ct.ThrowIfCancellationRequested();
+        ArgumentNullException.ThrowIfNull(scope);
+
+        if (architectureId == Guid.Empty)
+            return Task.FromResult<Guid?>(null);
+
+        RunRecord? latest = _store.Values
+            .Where(run =>
+                RunRepositoryCore.IsActiveInScope(run, scope)
+                && run.ArchitectureId == architectureId)
+            .OrderByDescending(run => run.CreatedUtc)
+            .ThenByDescending(run => run.RunId)
+            .FirstOrDefault();
+
+        return Task.FromResult(latest?.RunId);
+    }
+
     public Task<IReadOnlyList<RunRecord>> ListByProjectAsync(ScopeContext scope, string projectId, int take,
         CancellationToken ct)
     {

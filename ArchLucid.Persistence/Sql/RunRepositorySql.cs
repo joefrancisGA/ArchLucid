@@ -180,6 +180,17 @@ internal static class RunRepositorySql
                                                               AND GraphSnapshotId IS NOT NULL;
                                                             """;
 
+    public const string SelectLatestRunIdForArchitecture = """
+                                                             SELECT TOP (1) r.RunId
+                                                             FROM dbo.Runs r WITH (NOLOCK)
+                                                             WHERE r.TenantId = @TenantId
+                                                               AND r.WorkspaceId = @WorkspaceId
+                                                               AND r.ScopeProjectId = @ScopeProjectId
+                                                               AND r.ArchitectureId = @ArchitectureId
+                                                               AND r.ArchivedUtc IS NULL
+                                                             ORDER BY r.CreatedUtc DESC, r.RunId DESC;
+                                                             """;
+
     public const string Update = """
                                  DECLARE @RunUpdateOutput TABLE (RowVersionStamp VARBINARY(8) NOT NULL);
 

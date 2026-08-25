@@ -120,6 +120,14 @@ public interface IRunRepository
         CancellationToken ct);
 
     /// <summary>
+    ///     Latest non-archived run id for <paramref name="architectureId" /> (created order, newest first).
+    /// </summary>
+    Task<Guid?> GetLatestRunIdForArchitectureAsync(
+        ScopeContext scope,
+        Guid architectureId,
+        CancellationToken ct);
+
+    /// <summary>
     ///     Returns up to <paramref name="take" /> runs for <paramref name="projectId" /> within
     ///     <paramref name="scope" />, ordered by <c>CreatedUtc</c> descending (newest first).
     /// </summary>

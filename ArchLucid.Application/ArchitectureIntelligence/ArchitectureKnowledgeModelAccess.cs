@@ -102,9 +102,16 @@ public sealed class ArchitectureKnowledgeModelAccess(
             .ClearGraphSnapshotForArchitectureAsync(scope, architectureId, cancellationToken)
             .ConfigureAwait(false);
 
-        await _architectureIdentityRepository
-            .UpdateCurrentModelAsync(scope, architectureId, nextModelId, cancellationToken)
+        Guid? architectureHeadRunId = await _runRepository
+            .GetLatestRunIdForArchitectureAsync(scope, architectureId, cancellationToken)
             .ConfigureAwait(false);
+
+        if (architectureHeadRunId == runId)
+        {
+            await _architectureIdentityRepository
+                .UpdateCurrentModelAsync(scope, architectureId, nextModelId, cancellationToken)
+                .ConfigureAwait(false);
+        }
     }
 
     private async Task<ArchitectureKnowledgeModel?> TryLoadViaArchitectureIdentityAsync(
