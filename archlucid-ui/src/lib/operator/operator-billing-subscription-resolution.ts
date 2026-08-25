@@ -32,6 +32,14 @@ export function resolveOperatorBillingSubscriptionLoadState(
   const hasSubscriptionSignal = subscriptionData !== null && subscriptionData !== undefined;
   const hasUsageSignal = usageData !== null && usageData !== undefined;
 
+  if (!usageFetched && !hasSubscriptionSignal) {
+    return "pending";
+  }
+
+  if (!subscriptionFetched && !hasUsageSignal) {
+    return "pending";
+  }
+
   if (!hasSubscriptionSignal && !hasUsageSignal) {
     return "unavailable";
   }

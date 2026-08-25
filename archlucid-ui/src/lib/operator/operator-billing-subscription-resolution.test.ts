@@ -19,6 +19,12 @@ describe("operator-billing-subscription-resolution", () => {
     expect(resolveOperatorBillingSubscriptionLoadState(false, false, true, true, null, null)).toBe("unavailable");
   });
 
+  it("stays pending when subscription finished with null before usage-status loads", () => {
+    expect(
+      resolveOperatorBillingSubscriptionLoadState(false, false, true, false, null, undefined),
+    ).toBe("pending");
+  });
+
   it("prefers usage commercial tier over subscription tier code", () => {
     expect(
       resolveOperatorBillingCommercialTier(
