@@ -1,15 +1,8 @@
-using System.Globalization;
-using System.Text.Json;
-using System.Threading.Channels;
-
-using ArchLucid.Core.Billing;
 using ArchLucid.Core.Audit;
+using ArchLucid.Core.Billing;
 using ArchLucid.Core.Budgeting;
 using ArchLucid.Core.Diagnostics;
-using ArchLucid.Core.Scoping;
 
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 namespace ArchLucid.Application.Budgeting;
@@ -22,12 +15,9 @@ public sealed class LlmTenantWalletService(
     TimeProvider timeProvider,
     ILogger<LlmTenantWalletService> logger) : ILlmTenantWalletService
 {
-    private const int MaxOptimisticRetries = 12;
+    private readonly LlmTenantWalletConsumeRetry _consumeRetry = new(repository, settlementQueue, logger);
 
-    private readonly IAuditService _auditService = auditService ?? throw new ArgumentNullException(nameof(auditService));
-
-    private readonly ILogger<LlmTenantWalletService> _logger =
-        logger ?? throw new ArgumentNullException(nameof(logger));
+    private readonly LlmTenantWalletRefillAuditor _refillAuditor = new(auditService, timeProvider);
 
     private readonly ILlmTenantWalletRepository _repository =
         repository ?? throw new ArgumentNullException(nameof(repository));
@@ -94,7 +84,7 @@ public sealed class LlmTenantWalletService(
         if (tenantId == Guid.Empty || estimatedUsd <= 0m)
             return false;
 
-        for (int attempt = 0; attempt < MaxOptimisticRetries; attempt++)
+        for (int attempt = 0; attempt < LlmTenantWalletConsumeRetry.MaxOptimisticRetries; attempt++)
         {
             LlmTenantWalletStateReadModel state = await _repository.GetOrCreateAsync(tenantId, cancellationToken).ConfigureAwait(false);
 
@@ -165,7 +155,7 @@ public sealed class LlmTenantWalletService(
 
         if (!charge.Succeeded || string.IsNullOrWhiteSpace(charge.PaymentIntentId))
         {
-            await LogRefillFailedAsync(tenantId, charge.DeclineCode, charge.ErrorMessage, cancellationToken).ConfigureAwait(false);
+            await _refillAuditor.LogRefillFailedAsync(tenantId, charge.DeclineCode, charge.ErrorMessage, cancellationToken).ConfigureAwait(false);
 
             return false;
         }
@@ -182,7 +172,7 @@ public sealed class LlmTenantWalletService(
 
         ArchLucidInstrumentation.RecordLlmWalletRefillUsd(state.RefillIncrementUsd);
         RecordBalanceGauge(tenantId, credit.BalanceAfterUsd);
-        await LogRefillSucceededAsync(tenantId, charge.PaymentIntentId, state.RefillIncrementUsd, cancellationToken).ConfigureAwait(false);
+        await _refillAuditor.LogRefillSucceededAsync(tenantId, charge.PaymentIntentId, state.RefillIncrementUsd, cancellationToken).ConfigureAwait(false);
 
         return true;
     }
@@ -213,145 +203,20 @@ public sealed class LlmTenantWalletService(
         return true;
     }
 
-    internal async Task ConsumeInternalAsync(
+    internal Task ConsumeInternalAsync(
         Guid tenantId,
         decimal amountUsd,
         Guid correlationId,
-        CancellationToken cancellationToken)
-    {
-        bool consumed = await TryConsumeWithRetryAsync(tenantId, amountUsd, correlationId, cancellationToken).ConfigureAwait(false);
+        CancellationToken cancellationToken) =>
+        _consumeRetry.ConsumeInternalAsync(tenantId, amountUsd, correlationId, cancellationToken);
 
-        if (!consumed)
-        {
-            _logger.LogWarning(
-                "LLM wallet consume exhausted optimistic retries for tenant {TenantId}; re-queuing settlement for {AmountUsd} USD.",
-                tenantId,
-                amountUsd);
-
-            _settlementQueue.EnqueueConsume(tenantId, amountUsd, correlationId);
-        }
-    }
-
-    internal async Task ReconcileOverageInternalAsync(
+    internal Task ReconcileOverageInternalAsync(
         Guid tenantId,
         decimal actualUsd,
         decimal authorizedUsd,
         Guid correlationId,
-        CancellationToken cancellationToken)
-    {
-        decimal delta = decimal.Round(actualUsd - authorizedUsd, 2, MidpointRounding.AwayFromZero);
-
-        if (delta > 0m)
-        {
-            bool consumed = await TryConsumeWithRetryAsync(tenantId, delta, correlationId, cancellationToken).ConfigureAwait(false);
-
-            if (!consumed)
-            {
-                _logger.LogWarning(
-                    "LLM wallet overage reconciliation delta consume failed for tenant {TenantId}; re-queuing settlement for actual {ActualUsd} USD (authorized {AuthorizedUsd} USD).",
-                    tenantId,
-                    actualUsd,
-                    authorizedUsd);
-
-                _settlementQueue.EnqueueConsume(tenantId, actualUsd, correlationId, authorizedUsd);
-            }
-
-            return;
-        }
-
-        if (delta < 0m)
-        {
-            bool credited = await CreditAdjustmentInternalAsync(tenantId, -delta, correlationId, cancellationToken).ConfigureAwait(false);
-
-            if (!credited)
-            {
-                _logger.LogWarning(
-                    "LLM wallet overage reconciliation credit failed for tenant {TenantId}; re-queuing settlement for actual {ActualUsd} USD (authorized {AuthorizedUsd} USD).",
-                    tenantId,
-                    actualUsd,
-                    authorizedUsd);
-
-                _settlementQueue.EnqueueConsume(tenantId, actualUsd, correlationId, authorizedUsd);
-            }
-        }
-    }
-
-    private async Task<bool> TryConsumeWithRetryAsync(
-        Guid tenantId,
-        decimal amountUsd,
-        Guid correlationId,
-        CancellationToken cancellationToken)
-    {
-        for (int attempt = 0; attempt < MaxOptimisticRetries; attempt++)
-        {
-            LlmTenantWalletStateReadModel state = await _repository.GetOrCreateAsync(tenantId, cancellationToken).ConfigureAwait(false);
-
-            LlmTenantWalletConsumeResult result = await _repository
-                .TryConsumeAsync(tenantId, amountUsd, correlationId, state.RowVersion, cancellationToken)
-                .ConfigureAwait(false);
-
-            if (result.InsufficientFunds)
-                return false;
-
-            if (result.ConcurrencyConflict)
-            {
-                await Task.Delay(5 * (attempt + 1), cancellationToken).ConfigureAwait(false);
-
-                continue;
-            }
-
-            if (result.Succeeded)
-            {
-                RecordBalanceGauge(tenantId, result.BalanceAfterUsd);
-
-                if (result.BalanceAfterUsd < state.RefillTriggerThresholdUsd)
-                    _settlementQueue.EnqueueAutoRefill(tenantId, correlationId);
-
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    internal async Task<bool> CreditAdjustmentInternalAsync(
-        Guid tenantId,
-        decimal amountUsd,
-        Guid correlationId,
-        CancellationToken cancellationToken)
-    {
-        for (int attempt = 0; attempt < MaxOptimisticRetries; attempt++)
-        {
-            LlmTenantWalletStateReadModel state = await _repository.GetOrCreateAsync(tenantId, cancellationToken).ConfigureAwait(false);
-
-            LlmTenantWalletCreditResult credit = await _repository
-                .TryCreditAdjustmentAsync(tenantId, amountUsd, correlationId, state.RowVersion, cancellationToken)
-                .ConfigureAwait(false);
-
-            if (credit.ConcurrencyConflict)
-            {
-                await Task.Delay(5 * (attempt + 1), cancellationToken).ConfigureAwait(false);
-
-                continue;
-            }
-
-            if (credit.Succeeded)
-            {
-                RecordBalanceGauge(tenantId, credit.BalanceAfterUsd);
-
-                return true;
-            }
-
-            return false;
-        }
-
-        _logger.LogWarning(
-            "LLM wallet settlement credit exhausted optimistic retries for tenant {TenantId}; amount {AmountUsd} USD was not credited.",
-            tenantId,
-            amountUsd);
-
-        return false;
-    }
+        CancellationToken cancellationToken) =>
+        _consumeRetry.ReconcileOverageInternalAsync(tenantId, actualUsd, authorizedUsd, correlationId, cancellationToken);
 
     private async Task<LlmTenantWalletCreditResult> CreditRefillWithRetryAsync(
         Guid tenantId,
@@ -362,7 +227,7 @@ public sealed class LlmTenantWalletService(
     {
         int utcYearMonth = GetUtcYearMonth();
 
-        for (int attempt = 0; attempt < MaxOptimisticRetries; attempt++)
+        for (int attempt = 0; attempt < LlmTenantWalletConsumeRetry.MaxOptimisticRetries; attempt++)
         {
             LlmTenantWalletStateReadModel state = await _repository.GetOrCreateAsync(tenantId, cancellationToken).ConfigureAwait(false);
 
@@ -431,58 +296,6 @@ public sealed class LlmTenantWalletService(
         return utc.Year * 100 + utc.Month;
     }
 
-    private async Task LogRefillSucceededAsync(
-        Guid tenantId,
-        string paymentIntentId,
-        decimal amountUsd,
-        CancellationToken cancellationToken)
-    {
-        string dataJson = JsonSerializer.Serialize(new { paymentIntentId, amountUsd });
-
-        await LogRefillAuditAsync(
-                new AuditEvent
-                {
-                    TenantId = tenantId,
-                    EventType = AuditEventTypes.LlmWalletRefillSucceeded,
-                    ActorUserId = "system",
-                    ActorUserName = "system",
-                    ExplicitActor = true,
-                    DataJson = dataJson,
-                    OccurredUtc = _timeProvider.GetUtcNow().UtcDateTime,
-                },
-                cancellationToken)
-            .ConfigureAwait(false);
-    }
-
-    private async Task LogRefillFailedAsync(
-        Guid tenantId,
-        string? declineCode,
-        string? errorMessage,
-        CancellationToken cancellationToken)
-    {
-        ArchLucidInstrumentation.RecordLlmWalletRefillFailure(declineCode);
-
-        string dataJson = JsonSerializer.Serialize(new { declineCode, errorMessage });
-
-        await LogRefillAuditAsync(
-                new AuditEvent
-                {
-                    TenantId = tenantId,
-                    EventType = AuditEventTypes.LlmWalletRefillFailed,
-                    ActorUserId = "system",
-                    ActorUserName = "system",
-                    ExplicitActor = true,
-                    DataJson = dataJson,
-                    OccurredUtc = _timeProvider.GetUtcNow().UtcDateTime,
-                },
-                cancellationToken)
-            .ConfigureAwait(false);
-    }
-
-    [InformationalAudit]
-    private Task LogRefillAuditAsync(AuditEvent auditEvent, CancellationToken cancellationToken) =>
-        _auditService.LogAsync(auditEvent, cancellationToken);
-
     private static void RecordBalanceGauge(Guid tenantId, decimal balanceUsd)
     {
         ArchLucidInstrumentation.RecordLlmWalletBalanceUsd(tenantId, balanceUsd);
@@ -502,88 +315,5 @@ public sealed class LlmTenantWalletService(
             HasPaymentMethod = !string.IsNullOrWhiteSpace(state.StripePaymentMethodId),
             RowVersion = state.RowVersion,
         };
-    }
-}
-
-public sealed class LlmWalletSettlementQueue : ILlmWalletSettlementQueue
-{
-    private readonly Channel<LlmWalletSettlementWorkItem> _channel =
-        Channel.CreateUnbounded<LlmWalletSettlementWorkItem>(new UnboundedChannelOptions { SingleReader = true });
-
-    internal ChannelReader<LlmWalletSettlementWorkItem> Reader => _channel.Reader;
-
-    public void EnqueueConsume(Guid tenantId, decimal amountUsd, Guid correlationId, decimal authorizedUsd = 0m)
-    {
-        _channel.Writer.TryWrite(
-            new LlmWalletSettlementWorkItem(LlmWalletSettlementKind.Consume, tenantId, amountUsd, correlationId, authorizedUsd));
-    }
-
-    public void EnqueueAutoRefill(Guid tenantId, Guid correlationId)
-    {
-        _channel.Writer.TryWrite(new LlmWalletSettlementWorkItem(LlmWalletSettlementKind.AutoRefill, tenantId, 0m, correlationId));
-    }
-}
-
-internal enum LlmWalletSettlementKind
-{
-    Consume = 0,
-    AutoRefill = 1,
-}
-
-internal readonly record struct LlmWalletSettlementWorkItem(
-    LlmWalletSettlementKind Kind,
-    Guid TenantId,
-    decimal AmountUsd,
-    Guid CorrelationId,
-    decimal AuthorizedUsd = 0m);
-
-public sealed class LlmWalletSettlementHostedService(
-    LlmWalletSettlementQueue queue,
-    IServiceScopeFactory scopeFactory,
-    ILogger<LlmWalletSettlementHostedService> logger) : BackgroundService
-{
-    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
-    {
-        await foreach (LlmWalletSettlementWorkItem item in queue.Reader.ReadAllAsync(stoppingToken))
-        {
-            try
-            {
-                await using AsyncServiceScope scope = scopeFactory.CreateAsyncScope();
-                LlmTenantWalletService walletService = scope.ServiceProvider.GetRequiredService<LlmTenantWalletService>();
-
-                if (item.Kind == LlmWalletSettlementKind.Consume)
-                {
-                    if (item.AuthorizedUsd > 0m)
-                    {
-                        await walletService
-                            .ReconcileOverageInternalAsync(
-                                item.TenantId,
-                                item.AmountUsd,
-                                item.AuthorizedUsd,
-                                item.CorrelationId,
-                                stoppingToken)
-                            .ConfigureAwait(false);
-                    }
-                    else
-                    {
-                        await walletService
-                            .ConsumeInternalAsync(item.TenantId, item.AmountUsd, item.CorrelationId, stoppingToken)
-                            .ConfigureAwait(false);
-                    }
-                }
-                else
-                {
-                    await walletService.TryAutoRefillAsync(item.TenantId, item.CorrelationId, stoppingToken).ConfigureAwait(false);
-                }
-            }
-            catch (Exception ex) when (ex is not OperationCanceledException)
-            {
-                logger.LogError(
-                    ex,
-                    "LLM wallet settlement failed for tenant {TenantId} kind {Kind}.",
-                    item.TenantId,
-                    item.Kind);
-            }
-        }
     }
 }
