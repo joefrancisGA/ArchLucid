@@ -121,7 +121,7 @@ public sealed class ArchitectureRunCreateOrchestratorInformationalAuditBestEffor
             CloudProvider = CloudProvider.Azure,
         };
 
-        ArchitectureRunCreateOrchestrator sut = new(
+        ArchitectureRunCreateOrchestrator sut = ArchitectureRunCreateOrchestratorTestSupport.CreateOrchestrator(
             coordination.Object,
             requestRepo.Object,
             runRepo.Object,
@@ -131,19 +131,9 @@ public sealed class ArchitectureRunCreateOrchestratorInformationalAuditBestEffor
             idempotencyRepo.Object,
             actorContext.Object,
             baselineAudit.Object,
-            auditService.Object,
-            ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
-            metering.Object,
-            new InProcessCreateRunIdempotencyLock(),
-            Options.Create(new ArchitectureRunCreateOptions()),
-            new DisabledAsyncAuthorityPipelineModeResolver(),
-            Mock.Of<IRunStateTransitionService>(),
-            TimeProvider.System,
-            new DefaultRequestContentSafetyPrecheck(),
-            ArchitectureRunCreateOrchestratorTestSupport.CreatePolicyPackCloudBaselineApplicator(),
-            Mock.Of<IWorkspaceSystemNameCollisionGuard>(),
-            Mock.Of<IArchitectureIdentityService>(),
-            NullLogger<ArchitectureRunCreateOrchestrator>.Instance);
+            auditService: auditService.Object,
+            usageMetering: metering.Object,
+            workspaceSystemNameCollisionGuard: Mock.Of<IWorkspaceSystemNameCollisionGuard>());
 
         CreateRunResult result = await sut.CreateRunAsync(request, null, CancellationToken.None);
 

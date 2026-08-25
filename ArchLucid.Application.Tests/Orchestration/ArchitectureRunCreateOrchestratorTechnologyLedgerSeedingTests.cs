@@ -273,7 +273,7 @@ public sealed class ArchitectureRunCreateOrchestratorTechnologyLedgerSeedingTest
         IUsageMeteringService metering,
         InMemoryTechnologyLedgerRepository ledgerRepository)
     {
-        return new ArchitectureRunCreateOrchestrator(
+        return ArchitectureRunCreateOrchestratorTestSupport.CreateOrchestrator(
             coordination,
             requestRepository,
             runRepository,
@@ -283,18 +283,7 @@ public sealed class ArchitectureRunCreateOrchestratorTechnologyLedgerSeedingTest
             idempotencyRepository,
             actorContext,
             baselineAudit,
-            auditService,
-            ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
-            metering,
-            new InProcessCreateRunIdempotencyLock(),
-            Options.Create(new ArchitectureRunCreateOptions()),
-            new DisabledAsyncAuthorityPipelineModeResolver(),
-            Mock.Of<IRunStateTransitionService>(),
-            TimeProvider.System,
-            new DefaultRequestContentSafetyPrecheck(),
-            ArchitectureRunCreateOrchestratorTestSupport.CreatePolicyPackCloudBaselineApplicator(),
-            WorkspaceSystemNameCollisionGuardTestDoubles.NoOp(),
-            Mock.Of<IArchitectureIdentityService>(),
-            NullLogger<ArchitectureRunCreateOrchestrator>.Instance);
+            auditService: auditService,
+            usageMetering: metering);
     }
 }
