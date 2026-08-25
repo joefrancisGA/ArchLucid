@@ -56,12 +56,7 @@ public static class PolicyPackAssignmentOutcomeRecorder
         if (!findingsComplete && findingsSnapshot is not null)
             return PolicyPackEvaluationOutcomes.Skipped;
 
-        bool hasSignal = findings.Any(finding => PolicyPackFindingMatcher.MatchesAssignment(finding, assignment));
-
-        if (hasSignal)
-            return PolicyPackEvaluationOutcomes.Evaluated;
-
-        return PolicyPackEvaluationOutcomes.Skipped;
+        return PolicyPackEvaluationOutcomes.Evaluated;
     }
 
     private static bool descriptorNotApplicable(

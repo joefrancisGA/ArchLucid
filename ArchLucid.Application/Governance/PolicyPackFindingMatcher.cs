@@ -24,6 +24,8 @@ internal static class PolicyPackFindingMatcher
                     || finding.PolicyRuleId.Contains(ruleKey, StringComparison.OrdinalIgnoreCase))
                     return true;
             }
+
+            return false;
         }
 
         string packToken = assignment.PolicyPackId.ToString("D");

@@ -49,7 +49,7 @@ public sealed class PolicyPackAssignmentOutcomeRecorderTests
     }
 
     [Fact]
-    public void ApplyOutcomes_marks_skipped_when_complete_without_pack_signal()
+    public void ApplyOutcomes_marks_evaluated_when_complete_without_pack_signal()
     {
         Guid packId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
         ExecutedEffectiveGovernanceSnapshotDescriptor descriptor = new()
@@ -76,6 +76,6 @@ public sealed class PolicyPackAssignmentOutcomeRecorderTests
         ExecutedEffectiveGovernanceSnapshotDescriptor? parsed =
             ExecutedEffectiveGovernanceSnapshotJson.TryDeserialize(updated);
 
-        parsed!.PackAssignments[0].EvaluationOutcome.Should().Be(PolicyPackEvaluationOutcomes.Skipped);
+        parsed!.PackAssignments[0].EvaluationOutcome.Should().Be(PolicyPackEvaluationOutcomes.Evaluated);
     }
 }
