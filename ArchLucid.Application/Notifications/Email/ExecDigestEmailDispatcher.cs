@@ -90,7 +90,7 @@ public sealed class ExecDigestEmailDispatcher(
                 Subject = subject,
                 HtmlBody = html,
                 TextBody = text,
-                IdempotencyKey = idempotencyKey + ":" + mailbox,
+                IdempotencyKey = MultiRecipientEmailDispatch.BuildMailboxIdempotencyKey(idempotencyKey, mailbox),
                 Tags = new EmailMessageTags { TenantId = tenantId, EventType = "exec-digest-weekly" }
             },
             (ex, mailbox) =>

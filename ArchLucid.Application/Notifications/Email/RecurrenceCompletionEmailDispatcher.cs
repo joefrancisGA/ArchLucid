@@ -104,7 +104,7 @@ public sealed class RecurrenceCompletionEmailDispatcher(
                 Subject = subject,
                 HtmlBody = html,
                 TextBody = text,
-                IdempotencyKey = $"{idempotencyKey}:{mailbox}",
+                IdempotencyKey = MultiRecipientEmailDispatch.BuildMailboxIdempotencyKey(idempotencyKey, mailbox),
                 Tags = new EmailMessageTags
                 {
                     TenantId = tenantId,

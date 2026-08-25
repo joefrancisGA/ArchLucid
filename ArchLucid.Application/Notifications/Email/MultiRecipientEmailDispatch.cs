@@ -9,6 +9,9 @@ namespace ArchLucid.Application.Notifications.Email;
 /// </summary>
 internal static class MultiRecipientEmailDispatch
 {
+    internal static string BuildMailboxIdempotencyKey(string idempotencyKeyPrefix, string mailbox) =>
+        idempotencyKeyPrefix + ":" + mailbox.ToLowerInvariant();
+
     internal static async Task<bool> TrySendToMailboxesAsync(
         Guid tenantId,
         string idempotencyKeyPrefix,
@@ -21,10 +24,11 @@ internal static class MultiRecipientEmailDispatch
         CancellationToken cancellationToken)
     {
         bool recordedAny = false;
+        List<string> distinctMailboxes = DistinctMailboxesCaseInsensitive(normalizedMailboxes);
 
-        foreach (string mailbox in normalizedMailboxes)
+        foreach (string mailbox in distinctMailboxes)
         {
-            string mailboxIdempotencyKey = idempotencyKeyPrefix + ":" + mailbox;
+            string mailboxIdempotencyKey = BuildMailboxIdempotencyKey(idempotencyKeyPrefix, mailbox);
             SentEmailLedgerEntry ledgerEntry = new(
                 mailboxIdempotencyKey,
                 tenantId,
@@ -52,5 +56,21 @@ internal static class MultiRecipientEmailDispatch
         }
 
         return recordedAny;
+    }
+
+    private static List<string> DistinctMailboxesCaseInsensitive(IReadOnlyList<string> normalizedMailboxes)
+    {
+        List<string> distinct = [];
+        HashSet<string> seen = new(StringComparer.OrdinalIgnoreCase);
+
+        foreach (string mailbox in normalizedMailboxes)
+        {
+            if (!seen.Add(mailbox))
+                continue;
+
+            distinct.Add(mailbox);
+        }
+
+        return distinct;
     }
 }

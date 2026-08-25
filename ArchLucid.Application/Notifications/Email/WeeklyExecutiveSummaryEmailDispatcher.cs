@@ -93,7 +93,7 @@ public sealed class WeeklySponsorReportEmailDispatcher(
                 Subject = subject,
                 HtmlBody = html,
                 TextBody = text,
-                IdempotencyKey = idempotencyKey + ":" + mailbox,
+                IdempotencyKey = MultiRecipientEmailDispatch.BuildMailboxIdempotencyKey(idempotencyKey, mailbox),
                 Tags = new EmailMessageTags { TenantId = tenantId, EventType = "weekly-sponsor-report" }
             },
             (ex, mailbox) =>

@@ -723,13 +723,13 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** weekly digest; executive summary email
 - **paths:** ArchLucid.Application/Notifications/Email/WeeklyExecutiveSummaryEmailDispatcher.cs
 - **test-filter:** FullyQualifiedName~WeeklyExecutiveSummaryJobTests
-- **hunts:** 2
-- **bugs-found:** 2
+- **hunts:** 3
+- **bugs-found:** 3
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-23
-- **last-bug:** 2026-08-23
+- **last-hunt:** 2026-08-25
+- **last-bug:** 2026-08-25 — case-differing duplicate mailboxes bypassed per-recipient ledger keys in multi-recipient weekly dispatch
 - **related-pd-tb:** none
-- **code-changed-since:** unknown
+- **code-changed-since:** 0
 
 ### Hypotheses
 
@@ -738,6 +738,8 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (invalid) Unsubscribed address still receives the weekly summary — unsubscribe filtering is not in the dispatcher; sponsor report path has no unsubscribe URL parameter (unlike exec digest).
 - [x] (proven) Whitespace-only recipient lists reserve the weekly ledger and return success without sending any email — fixed by normalizing mailboxes before ledger reservation.
 - [x] (proven) Template render failures after ledger reservation block weekly retry for the ISO week — fixed by rendering templates before `TryRecordSentAsync` while keeping ledger-before-send for outbound idempotency.
+- [x] (valid-no-repro) Partial multi-recipient send failure on weekly sponsor report permanently suppresses remaining recipients — shared `MultiRecipientEmailDispatch` skips ledger-recorded mailboxes on retry (`WeeklySponsorReportEmailDispatcher_partial_multi_recipient_send_failure_delivers_remaining_recipients_on_retry`).
+- [x] (proven) Case-differing duplicate mailboxes in multi-recipient weekly dispatch bypass per-recipient ledger keys and send duplicate emails — fixed by case-insensitive dedupe and lowercase mailbox suffixes in `MultiRecipientEmailDispatch`.
 
 ---
 
