@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
@@ -52,6 +53,7 @@ import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { OPERATOR_LAYOUT, OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
 import { whyDisabledEnterpriseMutationControl } from "@/lib/why-disabled-cta";
 import { RiskExceptionsTriageFirstExpiringStrip } from "@/components/governance/RiskExceptionsTriageFirstExpiringStrip";
+import { RiskExceptionsPickReviewBeforeRenewStrip } from "@/components/governance/RiskExceptionsPickReviewBeforeRenewStrip";
 import { RiskExceptionsContinueLastViewedRow } from "@/components/governance/RiskExceptionsContinueLastViewedRow";
 import { resolveRiskExceptionsTriageFirstExpiring } from "@/lib/governance/resolve-risk-exceptions-triage-first-expiring";
 import {
@@ -107,8 +109,22 @@ function toDatetimeLocalInputValue(isoUtc: string): string {
   return `${parsed.getUTCFullYear()}-${pad(parsed.getUTCMonth() + 1)}-${pad(parsed.getUTCDate())}T${pad(parsed.getUTCHours())}:${pad(parsed.getUTCMinutes())}`;
 }
 
+function matchesRiskExceptionRunScope(record: RiskExceptionRecord, scopedRunId: string): boolean {
+  if (scopedRunId.trim().length === 0) {
+    return true;
+  }
+
+  const recordRunId = (record.runId ?? "").trim();
+
+  return recordRunId.length > 0 && recordRunId === scopedRunId.trim();
+}
+
 /** TB-226 — cross-finding risk exception (waiver) register with renew/revoke. */
 export default function RiskExceptionsClient() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const scopedRunId = (searchParams.get("runId") ?? "").trim();
+  const scopedRunFilterActive = scopedRunId.length > 0;
   const canMutate = useOperateCapability();
   const mutationDisabledHintId = "risk-exceptions-mutate-disabled-hint";
   const mutationDisabledReason = canMutate ? null : whyDisabledEnterpriseMutationControl();
@@ -160,17 +176,37 @@ export default function RiskExceptionsClient() {
     };
   }, [reload, reloadToken]);
 
+  const scopedRecords = useMemo(
+    () => records.filter((record) => matchesRiskExceptionRunScope(record, scopedRunId)),
+    [records, scopedRunId],
+  );
+
   const expiringSoonCount = useMemo(
-    () => records.filter((row) => resolveRiskExceptionDisplayStatus(row) === "expiring-soon").length,
-    [records],
+    () => scopedRecords.filter((row) => resolveRiskExceptionDisplayStatus(row) === "expiring-soon").length,
+    [scopedRecords],
   );
   const triageFirstExpiringTarget = useMemo(
-    () => resolveRiskExceptionsTriageFirstExpiring(records),
-    [records],
+    () => (scopedRunFilterActive ? resolveRiskExceptionsTriageFirstExpiring(scopedRecords) : null),
+    [scopedRecords, scopedRunFilterActive],
   );
   const continueLastException = useMemo(
-    () => resolveContinueLastRiskException(records),
-    [records],
+    () => (scopedRunFilterActive ? resolveContinueLastRiskException(scopedRecords) : null),
+    [scopedRecords, scopedRunFilterActive],
+  );
+
+  const onPickReviewForRenew = useCallback(
+    (reviewId: string) => {
+      const trimmed = reviewId.trim();
+
+      if (trimmed.length === 0) {
+        return;
+      }
+
+      const params = new URLSearchParams(searchParams.toString());
+      params.set("runId", trimmed);
+      router.replace(`${GOVERNANCE_EXCEPTIONS_PATH}?${params.toString()}`, { scroll: false });
+    },
+    [router, searchParams],
   );
 
   const pageTitle = buyerPolishedShell ? BUYER_RISK_EXCEPTIONS_PAGE_TITLE : RISK_EXCEPTIONS_PAGE_TITLE;
@@ -300,6 +336,33 @@ export default function RiskExceptionsClient() {
           />
         ) : !loading && !loadError ? (
           <>
+            {scopedRunFilterActive ? (
+              <p
+                className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+                data-testid="risk-exceptions-run-scope-banner"
+              >
+                {"Showing exceptions for review "}
+                <span className="font-mono text-al-text-primary">{scopedRunId}</span>
+                {" · "}
+                <Link className={OPERATOR_LINK.inline} href={GOVERNANCE_EXCEPTIONS_PATH}>
+                  Clear review scope
+                </Link>
+                {" · "}
+                <Link
+                  className={OPERATOR_LINK.inline}
+                  href={`/architecture/reviews/${encodeURIComponent(scopedRunId)}`}
+                >
+                  Open review
+                </Link>
+              </p>
+            ) : (
+              <RiskExceptionsPickReviewBeforeRenewStrip
+                selectedReviewId=""
+                onSelectReview={onPickReviewForRenew}
+              />
+            )}
+            {scopedRunFilterActive ? (
+              <>
             {continueLastException !== null ? (
               <RiskExceptionsContinueLastViewedRow
                 target={continueLastException}
@@ -341,7 +404,7 @@ export default function RiskExceptionsClient() {
                 </EnterpriseTableHeadRow>
               </EnterpriseTableHead>
               <EnterpriseTableBody>
-                {records.map((record) => {
+                {scopedRecords.map((record) => {
                   const displayStatus = resolveRiskExceptionDisplayStatus(record);
                   const tag = statusTagFor(displayStatus);
                   const isRenewing = renewingId === record.riskExceptionId;
@@ -447,6 +510,8 @@ export default function RiskExceptionsClient() {
                 })}
               </EnterpriseTableBody>
             </EnterpriseTable>
+              </>
+            ) : null}
           </>
         ) : null}
       </div>
