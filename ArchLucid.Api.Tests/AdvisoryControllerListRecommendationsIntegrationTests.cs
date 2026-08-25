@@ -27,11 +27,11 @@ public sealed class AdvisoryControllerListRecommendationsIntegrationTests(ArchLu
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        List<RecommendationRecordResponse>? items =
+        AdvisoryRunRecommendationsListResponse? payload =
             await response.Content.ReadFromJsonAsync<AdvisoryRunRecommendationsListResponse>(JsonOptions);
 
-        items.Should().NotBeNull();
-        items!.Recommendations.Should().BeEmpty();
+        payload.Should().NotBeNull();
+        payload!.Recommendations.Should().BeEmpty();
     }
 
     [SkippableFact]
@@ -52,11 +52,11 @@ public sealed class AdvisoryControllerListRecommendationsIntegrationTests(ArchLu
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        List<RecommendationRecordResponse>? items =
+        AdvisoryRunRecommendationsListResponse? payload =
             await response.Content.ReadFromJsonAsync<AdvisoryRunRecommendationsListResponse>(JsonOptions);
 
-        items.Should().NotBeNull();
-        items!.Recommendations.Should().BeEmpty();
+        payload.Should().NotBeNull();
+        payload!.Recommendations.Should().BeEmpty();
     }
 
     [SkippableFact]
