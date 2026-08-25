@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { DecisionRegisterTimeline } from "@/components/DecisionRegisterTimeline";
@@ -20,6 +22,8 @@ import { getEffectiveBrowserProxyScopeHeaders } from "@/lib/operator/operator-sc
 import { projectIdFromScopeHeaders } from "@/lib/operator/operator-resource-scope";
 import { BUYER_GOVERNANCE_DECISION_REGISTER_TITLE } from "@/lib/buyer/buyer-polish-copy";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
+import { OPERATOR_LINK, OPERATOR_TYPOGRAPHY } from "@/lib/design-tokens";
+import { cn } from "@/lib/utils";
 
 import { DecisionRegisterBreadcrumb } from "./_sections/DecisionRegisterBreadcrumb";
 import { DecisionRegisterBuyerChrome } from "./_sections/DecisionRegisterBuyerChrome";
@@ -33,6 +37,7 @@ import { DecisionRegisterFiltersPanel } from "./DecisionRegisterFiltersPanel";
 import { DecisionRegisterSummaryRow } from "./DecisionRegisterSummaryRow";
 import { DecisionRegisterViewSwitcher, type DecisionRegisterViewMode } from "./DecisionRegisterViewSwitcher";
 import { DecisionRegisterWorkspaceActiveApprovalStrip } from "./DecisionRegisterWorkspaceActiveApprovalStrip";
+import { DecisionRegisterPickReviewBeforeFilteringStrip } from "./DecisionRegisterPickReviewBeforeFilteringStrip";
 import {
   DECISION_REGISTER_EMPTY_ACTION_GOVERNANCE,
   DECISION_REGISTER_EMPTY_ACTION_REVIEW_PACKAGES,
@@ -55,8 +60,23 @@ import { resolveContinueLastDecisionRegisterEntry } from "@/lib/resolve-continue
 
 const defaultDateRange = resolveDecisionRegisterDateRange(DEFAULT_DECISION_REGISTER_DATE_PRESET);
 
+function matchesDecisionRegisterRunScope(
+  decision: ArchitectureDecisionRegisterEntry,
+  scopedRunId: string | null,
+): boolean {
+  if (scopedRunId === null || scopedRunId.trim().length === 0) {
+    return true;
+  }
+
+  return decision.runId.trim() === scopedRunId.trim();
+}
+
 export default function DecisionRegisterClient() {
   const buyerPolishedShell = isBuyerPolishedOperatorShellEnv();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const scopedRunId = (searchParams.get("runId") ?? "").trim();
+  const scopedRunFilterActive = scopedRunId.length > 0;
   const projectId = useMemo(
     () => projectIdFromScopeHeaders(getEffectiveBrowserProxyScopeHeaders()),
     [],
@@ -121,10 +141,15 @@ export default function DecisionRegisterClient() {
     () => [...(workspaceQuery.data?.decisions ?? [])] as ArchitectureDecisionRegisterEntry[],
     [workspaceQuery.data?.decisions],
   );
-  const filteredDecisions = useMemo(
-    () => [...(filteredQuery.data?.decisions ?? [])] as ArchitectureDecisionRegisterEntry[],
-    [filteredQuery.data?.decisions],
+  const scopedWorkspaceDecisions = useMemo(
+    () => workspaceDecisions.filter((decision) => matchesDecisionRegisterRunScope(decision, scopedRunId)),
+    [scopedRunId, workspaceDecisions],
   );
+  const filteredDecisions = useMemo((): ArchitectureDecisionRegisterEntry[] => {
+    const decisions = [...(filteredQuery.data?.decisions ?? [])] as ArchitectureDecisionRegisterEntry[];
+
+    return decisions.filter((decision) => matchesDecisionRegisterRunScope(decision, scopedRunId));
+  }, [filteredQuery.data?.decisions, scopedRunId]);
   const loadError = workspaceQuery.isError
     ? (workspaceQuery.error instanceof Error ? workspaceQuery.error.message : "Failed to load decision register.")
     : filteredQuery.isError
@@ -133,16 +158,34 @@ export default function DecisionRegisterClient() {
   const loadingWorkspace = workspaceQuery.isPending;
   const loadingFiltered = filteredQuery.isPending;
 
-  const summary = useMemo(() => deriveDecisionRegisterSummary(workspaceDecisions), [workspaceDecisions]);
-  const continueLastDecision = useMemo(
-    () => resolveContinueLastDecisionRegisterEntry(workspaceDecisions),
-    [workspaceDecisions],
+  const summary = useMemo(
+    () => deriveDecisionRegisterSummary(scopedWorkspaceDecisions),
+    [scopedWorkspaceDecisions],
   );
-  const collapseAdvancedFilters = workspaceDecisions.length === 0;
+  const continueLastDecision = useMemo(
+    () => resolveContinueLastDecisionRegisterEntry(scopedWorkspaceDecisions),
+    [scopedWorkspaceDecisions],
+  );
+  const collapseAdvancedFilters = scopedWorkspaceDecisions.length === 0;
   const loading = loadingWorkspace || loadingFiltered;
-  const hasWorkspaceDecisions = workspaceDecisions.length > 0;
+  const hasWorkspaceDecisions = scopedWorkspaceDecisions.length > 0;
   const hasFilteredResults = filteredDecisions.length > 0;
   const filtersExcludeMatches = hasWorkspaceDecisions && !hasFilteredResults && !loading && loadError === null;
+
+  const onPickReviewForFiltering = useCallback(
+    (reviewId: string) => {
+      const trimmed = reviewId.trim();
+
+      if (trimmed.length === 0) {
+        return;
+      }
+
+      const params = new URLSearchParams(searchParams.toString());
+      params.set("runId", trimmed);
+      router.replace(`${GOVERNANCE_DECISION_REGISTER_PATH}?${params.toString()}`, { scroll: false });
+    },
+    [router, searchParams],
+  );
 
   const resetFilters = useCallback(() => {
     const range = resolveDecisionRegisterDateRange(DEFAULT_DECISION_REGISTER_DATE_PRESET);
@@ -183,30 +226,58 @@ export default function DecisionRegisterClient() {
       )}
       {!loadError ? <DecisionRegisterSummaryRow summary={summary} /> : null}
 
-      <DecisionRegisterFiltersPanel
-        category={category}
-        recordedAfter={recordedAfter}
-        recordedBefore={recordedBefore}
-        minConfidence={minConfidence}
-        maxConfidence={maxConfidence}
-        confidenceBasis={confidenceBasis}
-        datePreset={datePreset}
-        collapseAdvanced={collapseAdvancedFilters}
-        onCategoryChange={setCategory}
-        onRecordedAfterChange={(value) => {
-          setRecordedAfter(value);
-          setDatePreset("all");
-        }}
-        onRecordedBeforeChange={(value) => {
-          setRecordedBefore(value);
-          setDatePreset("all");
-        }}
-        onMinConfidenceChange={setMinConfidence}
-        onMaxConfidenceChange={setMaxConfidence}
-        onConfidenceBasisChange={setConfidenceBasis}
-        onDatePresetChange={applyDatePreset}
-        onClearFilters={resetFilters}
-      />
+      {scopedRunFilterActive ? (
+        <p
+          className={cn("m-0 text-al-text-secondary", OPERATOR_TYPOGRAPHY.body)}
+          data-testid="decision-register-run-scope-banner"
+        >
+          {"Showing decisions for review "}
+          <span className="font-mono text-al-text-primary">{scopedRunId}</span>
+          {" · "}
+          <Link className={OPERATOR_LINK.inline} href={GOVERNANCE_DECISION_REGISTER_PATH}>
+            Clear review scope
+          </Link>
+          {" · "}
+          <Link
+            className={OPERATOR_LINK.inline}
+            href={`/architecture/reviews/${encodeURIComponent(scopedRunId)}`}
+          >
+            Open review
+          </Link>
+        </p>
+      ) : (
+        <DecisionRegisterPickReviewBeforeFilteringStrip
+          selectedReviewId=""
+          onSelectReview={onPickReviewForFiltering}
+        />
+      )}
+
+      {scopedRunFilterActive ? (
+        <DecisionRegisterFiltersPanel
+          category={category}
+          recordedAfter={recordedAfter}
+          recordedBefore={recordedBefore}
+          minConfidence={minConfidence}
+          maxConfidence={maxConfidence}
+          confidenceBasis={confidenceBasis}
+          datePreset={datePreset}
+          collapseAdvanced={collapseAdvancedFilters}
+          onCategoryChange={setCategory}
+          onRecordedAfterChange={(value) => {
+            setRecordedAfter(value);
+            setDatePreset("all");
+          }}
+          onRecordedBeforeChange={(value) => {
+            setRecordedBefore(value);
+            setDatePreset("all");
+          }}
+          onMinConfidenceChange={setMinConfidence}
+          onMaxConfidenceChange={setMaxConfidence}
+          onConfidenceBasisChange={setConfidenceBasis}
+          onDatePresetChange={applyDatePreset}
+          onClearFilters={resetFilters}
+        />
+      ) : null}
 
       {!loading && !loadError && continueLastDecision !== null ? (
         <DecisionRegisterContinueLastViewedRow decision={continueLastDecision} />
