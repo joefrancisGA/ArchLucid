@@ -88,4 +88,47 @@ public sealed class AwsResourceExplorerInventoryCollectorTests
         resources.Should().ContainSingle();
         resources[0].Location.Should().Be("eu-west-1");
     }
+
+    [Fact]
+    public async Task CollectAsync_throws_when_next_token_repeats()
+    {
+        const string repeatingToken = "repeat-token";
+        Mock<IAmazonResourceExplorer2> explorerClient = new();
+        int requestCount = 0;
+
+        explorerClient
+            .Setup(c => c.SearchAsync(It.IsAny<SearchRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(() =>
+            {
+                int current = Interlocked.Increment(ref requestCount);
+
+                if (current > 3)
+                {
+                    throw new InvalidOperationException(
+                        "Test hang guard: AWS Resource Explorer listing did not stop on repeating NextToken.");
+                }
+
+                return new SearchResponse
+                {
+                    Resources =
+                    [
+                        new Resource
+                        {
+                            Arn = "arn:aws:ec2:us-east-1:123456789012:vpc/vpc-1",
+                            ResourceType = "AWS::EC2::VPC"
+                        }
+                    ],
+                    NextToken = repeatingToken
+                };
+            });
+
+        InvalidOperationException exception = await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            AwsResourceExplorerInventoryCollector.CollectAsync(
+                explorerClient.Object,
+                "us-east-1",
+                CancellationToken.None));
+
+        Assert.Contains("repeating NextToken", exception.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.Equal(2, requestCount);
+    }
 }
