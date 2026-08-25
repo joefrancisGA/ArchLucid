@@ -27,6 +27,10 @@ vi.mock("./use-is-operator-nav-href-reachable", () => ({
   useIsOperatorNavHrefReachable: () => true,
 }));
 
+vi.mock("./ImpactPreviewNextReviewFooterClient", () => ({
+  ImpactPreviewNextReviewFooterClient: () => <div data-testid="impact-preview-next-review-footer-client" />,
+}));
+
 import { EvolutionReviewPageView } from "./EvolutionReviewPageView";
 import type { EvolutionReviewPageViewModel } from "./evolution-review-view-model";
 

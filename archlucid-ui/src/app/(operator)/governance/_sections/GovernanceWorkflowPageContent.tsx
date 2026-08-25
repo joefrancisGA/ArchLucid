@@ -63,6 +63,7 @@ import {
 } from "./governance-workflow-deferred-chunks";
 import type { FocusSubmitSectionResult } from "./governance-focus-submit-result";
 import { GovernanceWorkflowMutationHost } from "./GovernanceWorkflowMutationHost";
+import { GovernanceApprovalQueueNextReviewFooterClient } from "./GovernanceApprovalQueueNextReviewFooterClient";
 import {
   GOVERNANCE_APPROVAL_DECISION_RECORD_TITLE,
   GOVERNANCE_APPROVAL_REQUESTS_COMPACT_SECTION_LEAD,
@@ -587,6 +588,10 @@ export function GovernanceWorkflowPageContent() {
             </>
           )}
           </div>
+
+          {activeRunId !== null && activeRunId.trim().length > 0 ? (
+            <GovernanceApprovalQueueNextReviewFooterClient runId={activeRunId.trim()} />
+          ) : null}
         </>
       ) : null}
     </OperatorPageContainer>
