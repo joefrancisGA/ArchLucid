@@ -2,6 +2,7 @@ using ArchLucid.Application.ArchitectureIntelligence;
 using ArchLucid.Contracts.ArchitectureIntelligence;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
+using Moq;
 
 namespace ArchLucid.Application.Tests.ArchitectureIntelligence;
 
@@ -55,5 +56,78 @@ public sealed class ContinueFromRunOrchestratorTests
         continued.Model.Elements.Should().Contain(element =>
             element.Kind == ArchitectureElementKind.Evidence
             && element.Provenance.Origin == ClaimOrigin.UserAsserted);
+    }
+
+    [Fact]
+    public async Task RunAsync_continue_clones_loaded_model_before_mutation()
+    {
+        Guid runId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+        ArchitectureKnowledgeModel persisted = new()
+        {
+            ModelId = "persisted-model",
+            TenantId = "tenant-continue-clone",
+            RunId = runId.ToString("N"),
+            Elements =
+            [
+                new ArchitectureModelElement
+                {
+                    ElementId = "svc-1",
+                    Kind = ArchitectureElementKind.Component,
+                    Name = "API",
+                },
+            ],
+        };
+
+        Mock<IArchitectureKnowledgeModelAccess> knowledgeModelAccess = new();
+        knowledgeModelAccess
+            .Setup(access => access.GetForRunAsync(
+                It.IsAny<ArchLucid.Core.Scoping.ScopeContext>(),
+                runId,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(persisted);
+        knowledgeModelAccess
+            .Setup(access => access.SaveForRunAsync(
+                It.IsAny<ArchLucid.Core.Scoping.ScopeContext>(),
+                runId,
+                It.IsAny<ArchitectureKnowledgeModel>(),
+                It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<ArchLucid.Core.Scoping.IScopeContextProvider> scopeProvider = new();
+        scopeProvider
+            .Setup(provider => provider.GetCurrentScope())
+            .Returns(new ArchLucid.Core.Scoping.ScopeContext
+            {
+                TenantId = Guid.NewGuid(),
+                WorkspaceId = Guid.NewGuid(),
+                ProjectId = Guid.NewGuid(),
+            });
+
+        ServiceCollection services = new();
+        services.AddArchitectureIntelligence();
+        services.AddArchitectureIntelligenceInMemoryPersistence();
+        services.AddClosedLoopArchitectureIntelligenceTestDependencies();
+        services.AddSingleton(knowledgeModelAccess.Object);
+        services.AddSingleton(scopeProvider.Object);
+        await using ServiceProvider provider = services.BuildServiceProvider();
+
+        IClosedLoopArchitectureReasoningOrchestrator orchestrator =
+            provider.GetRequiredService<IClosedLoopArchitectureReasoningOrchestrator>();
+
+        int persistedElementCount = persisted.Elements.Count;
+
+        await orchestrator.RunAsync(new ClosedLoopReasoningRequest
+        {
+            TenantId = "tenant-continue-clone",
+            RunId = runId.ToString("N"),
+            ContinueFromExistingRun = true,
+            FramingAnswers = new Dictionary<string, string>
+            {
+                ["business-outcome"] = "Secure claims intake",
+            },
+            DeclaredPriorities = ["Security"],
+        });
+
+        persisted.Elements.Count.Should().Be(persistedElementCount);
     }
 }

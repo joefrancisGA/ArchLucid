@@ -130,7 +130,7 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
                     $"No ArchitectureIntelligence model found for run '{runId}'.");
             }
 
-            model = existing;
+            model = ArchitectureKnowledgeModelCloner.Clone(existing);
         }
         else
         {
