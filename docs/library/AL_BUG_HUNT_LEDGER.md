@@ -667,10 +667,10 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** recurrence; next run calculator
 - **paths:** ArchLucid.Application/Governance/ArchitectureReviewRecurrenceNextRunCalculator.cs
 - **test-filter:** FullyQualifiedName~ArchitectureReviewRecurrenceNextRunCalculatorTests
-- **hunts:** 2
+- **hunts:** 3
 - **bugs-found:** 5
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-24
+- **last-hunt:** 2026-08-25
 - **last-bug:** 2026-08-24 — preview path skipped single-run normalization (reference-equality / Unspecified kind)
 - **related-pd-tb:** none
 - **code-changed-since:** no
@@ -682,6 +682,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Next-run lands in the past so the scheduler fires immediately in a loop — **hit 2026-08-24:** wrapper returned `next <= fromUtc` without recomputing; `NormalizeNextRunUtc` advances once and stamps UTC; regression in `ComputeNextRunUtc_recomputes_when_first_occurrence_is_not_strictly_after_reference`
 - [x] (invalid) Preview path already delegates to normalized `ComputeNextRunsUtc` after reference normalization fix — **disproven 2026-08-24:** only the reference instant was normalized; batch preview bypassed `NormalizeNextRunUtc`
 - [x] (proven) Preview path skipped single-run normalization so the first preview instant could equal the reference or omit UTC kind — **hit 2026-08-24:** `ComputeNextRunsUtc` delegated to underlying batch expansion; route preview through the `ComputeNextRunUtc` loop; regressions in `ComputeNextRunsUtc_advances_first_preview_when_underlying_returns_reference_instant` / `ComputeNextRunsUtc_stamps_utc_kind_when_underlying_returns_unspecified_kind`
+- [x] (valid-no-repro) Batch preview from an exact weekly cron occurrence repeats the reference Monday — `NormalizeNextRunUtc` advances when `candidate <= fromUtc`; regression in `ComputeNextRunsUtc_from_exact_weekly_occurrence_returns_following_mondays`
+- [x] (valid-no-repro) `ComputeNextRunsUtc` with `count <= 0` still invoked the underlying calculator — early return `Array.Empty<DateTime>()`; regression in `ComputeNextRunsUtc_returns_empty_when_count_is_zero`
+- [x] (invalid) `SpecifyUtc` mishandles `DateTimeKind.Local` from the underlying calculator on production paths — `SimpleScanScheduleCalculator` always receives UTC-normalized references; Local-kind results are not produced in this wrapper's live path
 
 ---
 
