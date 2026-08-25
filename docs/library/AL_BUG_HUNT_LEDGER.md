@@ -2198,11 +2198,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** operator lib; operator scope; operator API client
 - **paths:** archlucid-ui/src/lib/operator/
 - **test-filter:** lib/operator
-- **hunts:** 5
-- **bugs-found:** 8
+- **hunts:** 6
+- **bugs-found:** 9
 - **consecutive-dry-hunts:** 0
-- **last-hunt:** 2026-08-24
-- **last-bug:** 2026-08-24
+- **last-hunt:** 2026-08-25
+- **last-bug:** 2026-08-25 — canonical `/governance/audit` recent-view label
 - **related-pd-tb:** none
 - **code-changed-since:** yes
 
@@ -2217,6 +2217,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) `hydrateOperatorShellStatusCaches` left stale TanStack data when later shell-status payloads omitted concerns — fixed 2026-08-24; remove queries when payload fields are null (`operator-shell-status-client.test.ts`).
 - [x] (proven) `OPERATOR_RECENT_VIEWS_STORAGE_KEY` and `HAS_EXISTING_RUNS_CACHE_KEY` survived tenant/workspace switch — fixed 2026-08-24; clear on `notifyOperatorScopeChanged` (`operator-scope-storage.test.ts`).
 - [x] (proven) `extractQuickDecisionFindingsFromRunDetail` discarded live OpenAPI string `humanReviewStatus` values such as `Pending`, leaving review badges without a status — fixed 2026-08-24 via reusable `normalizeFindingHumanReviewStatus` (`quick-decision-summary-derive.test.ts`).
+- [x] (proven) `recentViewLabelFromPathname` imports `GOVERNANCE_AUDIT_PATH` (`/governance/audit`) but only maps legacy `/audit`; canonical audit visits persisted as `governance · audit` instead of `Audit trail` in Home recent views — **hit 2026-08-25 seed hunt:** fixed by mapping `GOVERNANCE_AUDIT_PATH` to `Audit trail` (`operator-recent-views.test.ts`).
+- [ ] (hunt-ready) `resolveOperatorBillingCurrentPlan` treats stale shell `trialStatus: Active` as tenant trial before checking `isTrialUsage: false` with a commercial tier — plan card shows Trial while usage reports a paid Team tier.
+- [ ] (hunt-ready) `deriveOperatorHomeWorkspaceMetrics` sets `reviewPackagesTotal` from `totalCount` while committed/active/openFindings counts iterate only `items` — components such as `OperatorHomeWorkspaceMetricsSummary` pass paginated `runsDashboard.items` with full `totalCount`, understating active/committed KPIs relative to workspace total.
 
 ---
 
