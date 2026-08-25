@@ -7,6 +7,8 @@ import {
 import { findingLinkedManifestDetailHrefForRun } from "@/lib/findings/finding-linked-manifest-href";
 import { shouldTreatFindingInspectFailureAsNotFound } from "@/lib/load-finding-inspect-for-route";
 import { loadFindingInspectForRouteCached } from "@/lib/load-finding-inspect-for-route-cached";
+import { resolveNextFindingInReviewForRunDetail } from "@/lib/findings/resolve-next-finding-in-review";
+import { fetchRunDetailCriticalPageBundle } from "@/lib/fetch-run-detail-page-bundle-client";
 import { tryLoadRunExecutionFootnote } from "@/lib/try-load-run-execution-footnote";
 import { tryLoadStatedConstraintContextForRun } from "@/lib/try-load-stated-constraint-context";
 import type { FindingInspectPayload } from "@/types/finding-inspect";
@@ -29,10 +31,11 @@ export async function loadFindingDetailPageModel(
 ): Promise<LoadFindingDetailPageModelResult> {
   // Detail first paint: omit PayloadJson LOB; title/rationale still projected for narrative (TB-931).
   // Cached so generateMetadata on the same request reuses this inspect (no second API call).
-  const [inspectResult, runExecutionFootnote, statedConstraintContext] = await Promise.all([
+  const [inspectResult, runExecutionFootnote, statedConstraintContext, criticalBundle] = await Promise.all([
     loadFindingInspectForRouteCached(runId, decodedFindingId, false),
     tryLoadRunExecutionFootnote(runId),
     tryLoadStatedConstraintContextForRun(runId),
+    fetchRunDetailCriticalPageBundle(runId).catch(() => null),
   ]);
 
   const { payload: inspectPayloadRaw, failure: inspectFailureRaw, invalidRouteAlignment } =
@@ -53,6 +56,11 @@ export async function loadFindingDetailPageModel(
       ? isPhiMinimizationSampleFinding(inspectPayload)
       : isPhiMinimizationFindingId(decodedFindingId);
 
+  const nextFindingInReview =
+    criticalBundle?.data.buyerSummary !== undefined && criticalBundle.data.buyerSummary !== null
+      ? resolveNextFindingInReviewForRunDetail(criticalBundle.data.buyerSummary, decodedFindingId)
+      : null;
+
   const model: FindingDetailPageModel = {
     runId,
     findingIdRouteParam,
@@ -65,6 +73,7 @@ export async function loadFindingDetailPageModel(
     findingIsPhi,
     runExecutionFootnote,
     statedConstraintContext,
+    nextFindingInReview,
   };
 
   return { kind: "success", model };
