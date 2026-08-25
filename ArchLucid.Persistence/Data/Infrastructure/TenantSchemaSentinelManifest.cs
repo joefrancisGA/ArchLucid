@@ -26,6 +26,7 @@ public static class TenantSchemaSentinelManifest
                 new SchemaSentinelColumn { ColumnName = "GovernanceScopeJson", SqlDataType = "nvarchar" },
                 new SchemaSentinelColumn { ColumnName = "ArchitectureId", SqlDataType = "uniqueidentifier" },
                 new SchemaSentinelColumn { ColumnName = "ImproveLoopEvidenceJson", SqlDataType = "nvarchar" },
+                new SchemaSentinelColumn { ColumnName = "KnowledgeModelId", SqlDataType = "nvarchar" },
             ],
         },
         new SchemaSentinelExpectation

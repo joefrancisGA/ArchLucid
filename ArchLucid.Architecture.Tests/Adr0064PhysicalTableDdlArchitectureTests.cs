@@ -70,6 +70,27 @@ public sealed class Adr0064PhysicalTableDdlArchitectureTests
     }
 
     [Fact]
+    public void Migration_325_adds_knowledge_model_id_on_physical_reviews_table()
+    {
+        string migrationText = ReadPersistenceSql("Migrations", "325_Runs_KnowledgeModelId.sql");
+
+        migrationText.Should().Contain("OBJECT_ID(N'dbo.Reviews', N'U')");
+        migrationText.Should().Contain("KnowledgeModelId");
+        migrationText.Should().Contain("sp_executesql");
+        AlterRunsTableRegex.IsMatch(StripSqlComments(migrationText)).Should().BeFalse();
+    }
+
+    [Fact]
+    public void Rollback_325_targets_physical_table()
+    {
+        string rollbackText = ReadPersistenceSql("Migrations", "Rollback", "R325_Runs_KnowledgeModelId.sql");
+
+        rollbackText.Should().Contain("OBJECT_ID(N'dbo.Reviews', N'U')");
+        rollbackText.Should().Contain("DROP COLUMN KnowledgeModelId");
+        AlterRunsTableRegex.IsMatch(StripSqlComments(rollbackText)).Should().BeFalse();
+    }
+
+    [Fact]
     public void ArchLucid_sql_adds_architecture_id_on_physical_table()
     {
         string ddl = ReadPersistenceSql("Scripts", "ArchLucid.sql");
@@ -77,6 +98,7 @@ public sealed class Adr0064PhysicalTableDdlArchitectureTests
         ddl.Should().Contain("CREATE TABLE dbo.Architectures");
         ddl.Should().Contain("ArchitectureId");
         ddl.Should().Contain("ImproveLoopEvidenceJson");
+        ddl.Should().Contain("KnowledgeModelId");
         ddl.Should().Contain("OBJECT_ID(N'dbo.Reviews', N'U')");
     }
 

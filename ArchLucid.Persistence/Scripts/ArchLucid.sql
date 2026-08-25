@@ -10405,3 +10405,21 @@ BEGIN
     EXEC sp_executesql @improveLoopRunSql;
 END
 GO
+
+/* 325: Pin as-of-run knowledge model id on the physical run table (ADR 0064 synonym-safe). */
+DECLARE @knowledgeModelRunTable sysname =
+    CASE
+        WHEN OBJECT_ID(N'dbo.Reviews', N'U') IS NOT NULL THEN N'dbo.Reviews'
+        WHEN OBJECT_ID(N'dbo.Runs', N'U') IS NOT NULL THEN N'dbo.Runs'
+    END;
+
+DECLARE @knowledgeModelRunSql NVARCHAR(MAX);
+
+IF @knowledgeModelRunTable IS NOT NULL
+   AND COL_LENGTH(@knowledgeModelRunTable, N'KnowledgeModelId') IS NULL
+BEGIN
+    SET @knowledgeModelRunSql = N'ALTER TABLE ' + @knowledgeModelRunTable + N' ADD KnowledgeModelId NVARCHAR(64) NULL;';
+
+    EXEC sp_executesql @knowledgeModelRunSql;
+END
+GO

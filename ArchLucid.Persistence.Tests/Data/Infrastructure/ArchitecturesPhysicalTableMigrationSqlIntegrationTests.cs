@@ -34,6 +34,7 @@ public sealed class ArchitecturesPhysicalTableMigrationSqlIntegrationTests
             AssertTableExists(connection, "dbo.Architectures");
             AssertColumnExists(connection, "dbo.Reviews", "ArchitectureId");
             AssertColumnExists(connection, "dbo.Reviews", "ImproveLoopEvidenceJson");
+            AssertColumnExists(connection, "dbo.Reviews", "KnowledgeModelId");
             AssertIndexExists(connection, "dbo.Reviews", "IX_Runs_ArchitectureId");
             AssertColumnExists(connection, "dbo.ArchitectureReviewRecurrenceSchedules", "ArchitectureId");
         }

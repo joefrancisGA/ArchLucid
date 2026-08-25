@@ -213,6 +213,7 @@ sequenceDiagram
 | **322_Reviews_GovernanceScopeJson_Repair.sql** | Repair: add **`GovernanceScopeJson`** on physical **`dbo.Reviews`** (fallback **`dbo.Runs`**) and recreate the seal trigger. Rollback: **`Rollback/R322_*.sql`**. |
 | **323_Architectures.sql** | Creates **`dbo.Architectures`** and adds **`ArchitectureId`** on the physical run table (**`dbo.Reviews`** after ADR 0064, else **`dbo.Runs`**). Do not `ALTER TABLE dbo.Runs` — that name is a synonym after 295 (SQL 4909). Rollback: **`Rollback/R323_*.sql`**. |
 | **324_ArchitectureRecurrenceAndImproveLoop.sql** | Adds **`ArchitectureId`** on **`dbo.ArchitectureReviewRecurrenceSchedules`** and **`ImproveLoopEvidenceJson`** on the physical run table (same Reviews/Runs resolution as 323). Rollback: **`Rollback/R324_*.sql`**. |
+| **325_Runs_KnowledgeModelId.sql** | Adds **`KnowledgeModelId`** on the physical run table (same Reviews/Runs resolution as 323). Rollback: **`Rollback/R325_*.sql`**. |
 
 **Note:** Authority-chain tables also appear in **`ArchLucid.sql`** for Persistence bootstrap parity.
 
