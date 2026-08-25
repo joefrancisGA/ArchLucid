@@ -36,6 +36,11 @@ export function deriveOperatorHomeWorkspaceMetrics(
   let evidenceSources = 0;
 
   for (const run of items) {
+
+    if (run.isArchived === true) {
+      continue;
+    }
+
     if (run.hasGoldenManifest === true) {
       reviewPackagesCommitted += 1;
     } else {
