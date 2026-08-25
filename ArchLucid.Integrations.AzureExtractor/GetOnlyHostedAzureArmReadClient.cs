@@ -144,6 +144,12 @@ public sealed class GetOnlyHostedAzureArmReadClient(
 
             foreach (JsonProperty tag in tagsElement.EnumerateObject())
             {
+                if (tag.Value.ValueKind == JsonValueKind.Null)
+                {
+                    tags[tag.Name] = string.Empty;
+                    continue;
+                }
+
                 if (tag.Value.ValueKind == JsonValueKind.String)
                     tags[tag.Name] = tag.Value.GetString() ?? string.Empty;
             }
