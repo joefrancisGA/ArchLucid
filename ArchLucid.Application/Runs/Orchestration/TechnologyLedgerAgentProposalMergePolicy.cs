@@ -63,5 +63,5 @@ public static class TechnologyLedgerAgentProposalMergePolicy
     private static bool EvidenceRefsMatch(string? left, string? right) =>
         !string.IsNullOrWhiteSpace(left)
         && !string.IsNullOrWhiteSpace(right)
-        && string.Equals(left.Trim(), right.Trim(), StringComparison.Ordinal);
+        && string.Equals(left.Trim(), right.Trim(), StringComparison.OrdinalIgnoreCase);
 }
