@@ -86,11 +86,17 @@ Cloud environment (Linux VM):
    - Else: git add <scoped paths>; git commit; git push origin ${Branch}
 5. Phase 4 — Update docs/library/AL_BUG_HUNT_LEDGER.md and docs/library/AL_BUG_HUNT_RUN_LOG.jsonl; record stats with al-bug-rolling-stats.ps1 when pwsh is available.
 
+Run kind (announce immediately after the picker preview, before reading files):
+- If picker seedHunt is true (or zone status is unseeded): say "This /al-bug run is a seed hunt" for the zone. Reseed hypotheses. Prove any newly hunt-ready row in this same run. If nothing is hunt-ready, stop as seed-only and keep Kind = seed hunt in the result table.
+- Otherwise: say "This /al-bug run is a thorough defect hunt" for the zone. Complete cheap-disproof and failing-repro attempts. Do not exit after a file skim.
+
+Queued /al-bug follow-ups do not shorten this run. Do not skip scoped tests, record seed-only on a thorough hunt, or invent another zone to reach the next queued command.
+
 Guardrails:
 - Hunt only the picker zone; no drive-by refactors.
 - Stage only paths changed for this bug; never git add -A on a dirty tree.
 - Do not open a PR (autoCreatePR is false).
-- Finish with the /al-bug result markdown table from al-bug.md Phase 4.
+- Finish with the /al-bug result markdown table from al-bug.md Phase 4. Kind (seed hunt / thorough hunt) is the first row.
 "@
 }
 

@@ -6,6 +6,8 @@ description: Launch a Cloud Agent to run the /al-bug hunt-fix-ship workflow on m
 
 Starts a **Cursor Cloud Agent** (Composer 2.5 standard, not Fast) that follows the full **`/al-bug`** workflow in `.cursor/commands/al-bug.md`. The local chat agent does **not** hunt bugs — it only launches the cloud run and returns the agent URL.
 
+Each cloud hunt is a **seed hunt** or a **thorough defect hunt** (announced after the picker). Queued launches still complete that kind; they must not skim and exit.
+
 Distinct from **`/al-bug`** (local hunt loop) and **`/al-api`** (generic cloud task launcher).
 
 **Default git target:** **`master`** (cloud agent pushes with `workOnCurrentBranch=true`).

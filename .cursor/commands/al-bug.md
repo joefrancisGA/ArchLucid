@@ -10,6 +10,15 @@ Distinct from **`/al-defect`** (production defect intake + `PD-###` log) and **`
 
 **Default git target:** **`master`** (user may override by naming another branch in the same message).
 
+**Every invocation is one of two kinds.** After the picker preview, announce the kind in chat **before** reading files or writing tests, then finish that kind. Do not silently skim and move on.
+
+| Kind | When | What you must do |
+| --- | --- | --- |
+| **Seed hunt** | Picker JSON `seedHunt` is `true`, or zone `status` is `unseeded` | Say **This /al-bug run is a seed hunt** (zone id). Reseed hypotheses from the zone files (Phase 1.1a). If you promote a hunt-ready row, prove it in this same run. If nothing is hunt-ready, stop as **seed-only** and say so in the result table. |
+| **Thorough hunt** | Otherwise | Say **This /al-bug run is a thorough defect hunt** (zone id). Complete cheap-disproof **and** failing-repro attempts on remaining hunt-ready rows. Ship a **hit** or a **dry** — never a file-skim exit. |
+
+Queued `/al-bug` messages, cloud follow-up queues, and “defer slow testing while queued” **do not** change the kind or shorten it.
+
 One invocation runs these phases **without stopping for approval between them** (except `--status`, which stops after the preview):
 
 | Phase | Goal |
@@ -63,6 +72,7 @@ Examples:
 - **No full-solution builds** unless scoped compile/test cannot cover the defect.
 - **Do not** run `/fix-ci` or full CI unless the user explicitly asks — scoped tests + one compile check are enough for this command.
 - **Do not** log `PD-###` / `TB-###` unless the user also asked for defect/backlog intake.
+- **Do not** shorten this run because another `/al-bug` is queued. Each message is an independent full kind (seed hunt or thorough hunt). Forbidden when anything is queued: skipping scoped tests, stopping after the picker without hunting (except `--status`), recording `seed-only` without reading zone `paths` and existing tests, recording `dry` without a failing-repro attempt on remaining hunt-ready rows, inventing another zone to reach the next queued command.
 
 ---
 
@@ -84,6 +94,9 @@ Rules:
 
 - Hunt **only** the returned `zoneId` (`paths` + hypotheses). Do not invent another zone in the same invocation.
 - If JSON `seedHunt` is `true` or `status` is `unseeded`, this run is a **seed hunt** (Phase 1.1a) before any repro. This includes previously hunted zones whose stored hypotheses are all closed: read the source again and generate fresh mechanism-backed hypotheses; do not record a mechanical dry hunt.
+- **Announce the kind immediately** after the picker table (the picker also prints a Kind banner). Copy one of:
+  - `This /al-bug run is a **seed hunt** for zone \`<zoneId>\`. It reseeds hypotheses from the source files. It is not a thorough defect hunt unless a newly promoted hunt-ready row is proven in this same run.`
+  - `This /al-bug run is a **thorough defect hunt** for zone \`<zoneId>\`. Cheap-disproof and failing-repro attempts run to completion even if other /al-bug messages are queued.`
 - If JSON `exhaustedAll` is `true`, **stop** — report that every zone is exhausted without git churn. Do not invent a new zone.
 - If `--status`, print the preview and **stop** (do not hunt; do not write the ledger).
 - The script does **not** write the ledger. After the hunt, you edit `AL_BUG_HUNT_LEDGER.md`.
@@ -118,8 +131,8 @@ Do **not** spend a full repro loop on template candidates. Read the zone `paths`
 
 1. **Promote** a candidate to `(hunt-ready)` only when it meets the quality bar (1.1b).
 2. **Retire** a candidate as `(invalid)` when the locus or prerequisite does not exist in these files.
-3. You **may** prove one newly hunt-ready row in the **same** invocation.
-4. If nothing is hunt-ready after the read, stop as **seed-only** (not a dry hunt). Do not invent a fourth generic template.
+3. If you promote a hunt-ready row, **prove it in this same run** (failing repro). A proven row makes this seed hunt a **hit**. Do not leave a new hunt-ready row untested because another `/al-bug` is queued.
+4. If nothing is hunt-ready after the read, stop as **seed-only** (not a dry hunt), keep the seed-hunt banner in the result table, and do not invent a fourth generic template.
 
 For a previously hunted zone with no open rows, reseed from fresh evidence rather than copying old mechanisms:
 
@@ -290,22 +303,24 @@ Replacement hypotheses after a miss must cite a **different mechanism**, not the
 
 | Field | Value |
 | --- | --- |
+| Kind | seed hunt / thorough hunt |
+| Outcome | hit / dry / seed-only |
 | Branch | `master` (or override) |
 | Zone | `<zoneId>` |
-| Dry or hit | dry / hit / seed-only |
-| Seed hunt | true / false |
 | Hunt-ready left | N |
 | Candidates left | N |
 | Zone status | unseeded / open / cooling / exhausted |
 | Bug | <one-line title, or n/a if dry/seed-only> |
 | Root cause | <short mechanism, or n/a if dry> |
-| Fix | <what changed, or ledger-only if dry> |
+| Fix | <what changed, or ledger-only if dry/seed-only> |
 | Tests | <test names> — N passed |
 | Commit | `<sha>` on `origin/master` |
 | Left unstaged | <paths or none> |
 | Bugs found (24h) | N |
 | Dry runs (24h) | N |
 ```
+
+**Kind** is the picker decision (`seedHunt` true → seed hunt; else thorough hunt). **Outcome** is what the run produced. A seed hunt that proves a new row is Kind `seed hunt` and Outcome `hit`. Never omit Kind. Never report a thorough hunt as `seed-only`.
 
 Copy the **Bugs found (24h)** and **Dry runs (24h)** values from the `-Rolling24h` table the script prints.
 
