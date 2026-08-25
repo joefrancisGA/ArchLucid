@@ -15,16 +15,20 @@ import {
 } from "@/lib/digests-browse-copy";
 import type { WeeklyDigestHealthDto } from "@/types/operate-rhythm";
 
-vi.mock("@/hooks/use-operate-capability", () => ({
-  useOperateCapability: () => true,
-}));
-
-vi.mock("@/lib/api", () => ({
+const digestBrowseApiMocks = vi.hoisted(() => ({
   listArchitectureDigests: vi.fn(),
   getArchitectureDigest: vi.fn(),
   listDigestDeliveryAttempts: vi.fn(),
   listDigestDeliveryAttemptsBatch: vi.fn(),
 }));
+
+vi.mock("@/hooks/use-operate-capability", () => ({
+  useOperateCapability: () => true,
+}));
+
+vi.mock("@/lib/api", () => digestBrowseApiMocks);
+
+vi.mock("@/lib/api/advisory-digests-api", () => digestBrowseApiMocks);
 
 import {
   getArchitectureDigest,
@@ -244,7 +248,10 @@ describe("DigestsBrowseContent", () => {
     renderWithOperatorQuery(<DigestsBrowseContent hidePageHeader healthSnap={healthSnap} />);
 
     expect(await screen.findByRole("table", { name: "Architecture digest history" })).toBeInTheDocument();
-    expect(screen.getByText("Weekly architecture digest")).toBeInTheDocument();
-    expect(await screen.findByText("ops@example.com")).toBeInTheDocument();
+    expect(screen.getByTestId("digests-browse-continue-last-viewed-row")).toBeInTheDocument();
+    expect(screen.getAllByText("Weekly architecture digest").length).toBeGreaterThanOrEqual(1);
+    await waitFor(() => {
+      expect(screen.getByText("ops@example.com")).toBeInTheDocument();
+    });
   });
 });

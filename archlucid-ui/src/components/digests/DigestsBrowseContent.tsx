@@ -13,6 +13,7 @@ import { EnterpriseCompactEmptyState } from "@/components/EnterpriseCompactEmpty
 import { OperatorApiProblem } from "@/components/operator/OperatorApiProblem";
 import { operatorPageContainerClass } from "@/components/operator/OperatorPageContainer";
 import { Button } from "@/components/ui/button";
+import { DigestsBrowseContinueLastViewedRow } from "@/components/digests/DigestsBrowseContinueLastViewedRow";
 import { DigestsBrowseHistorySkeleton } from "@/components/digests/DigestsBrowseHistorySkeleton";
 import { DigestsBrowseIncludesPreview } from "@/components/digests/DigestsBrowseIncludesPreview";
 import { DigestsBrowseSetupChecklist } from "@/components/digests/DigestsBrowseSetupChecklist";
@@ -56,6 +57,10 @@ import {
   DIGESTS_BROWSE_SETUP_UNKNOWN_TITLE,
 } from "@/lib/digests-browse-copy";
 import { digestRowElementId, digestIdFromLocationHash } from "@/lib/digests-browse-deep-link";
+import {
+  resolveContinueLastDigestBrowse,
+  writeDigestBrowseLastViewedId,
+} from "@/lib/resolve-continue-last-digest-browse";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure } from "@/lib/api-load-failure";
 import {
@@ -141,6 +146,7 @@ export function DigestsBrowseContent(props: DigestsBrowseContentProps = {}): Rea
 
   const selectDigest = useCallback(async (digestId: string): Promise<void> => {
     setDetailFailure(null);
+    writeDigestBrowseLastViewedId(digestId);
 
     try {
       const full = await getArchitectureDigest(digestId);
@@ -214,6 +220,22 @@ export function DigestsBrowseContent(props: DigestsBrowseContentProps = {}): Rea
   const setupIncomplete: boolean =
     setupChecklist !== null ? digestSetupHasIncompleteActionableStep(setupChecklist) : false;
   const showEmptyComposition: boolean = !loading && digests.length === 0 && failure === null;
+  const continueLastDigest = useMemo(() => resolveContinueLastDigestBrowse(digests), [digests]);
+
+  const openContinueLastDigest = useCallback(
+    (digestId: string) => {
+      const row = document.getElementById(digestRowElementId(digestId));
+
+      if (row !== null) {
+        row.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+
+      void selectDigest(digestId).then(() => {
+        detailPanelRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+    },
+    [selectDigest],
+  );
 
   return (
     <div className={operatorPageContainerClass("dashboard")} data-testid="digests-browse-content">
@@ -278,6 +300,14 @@ export function DigestsBrowseContent(props: DigestsBrowseContentProps = {}): Rea
           data-testid="digests-browse-master-detail"
           data-operator-side-rail-kind="master-detail"
         >
+          {continueLastDigest !== null ? (
+            <div className="xl:col-span-2">
+              <DigestsBrowseContinueLastViewedRow
+                target={continueLastDigest}
+                onOpen={openContinueLastDigest}
+              />
+            </div>
+          ) : null}
           <section className="min-w-0 rounded-lg border border-neutral-200 bg-white p-3 dark:border-neutral-700 dark:bg-neutral-950">
             <h3 className={cn("m-0 mb-3 font-semibold text-al-text-primary", OPERATOR_TYPOGRAPHY.cardTitle)}>
               Digest history
