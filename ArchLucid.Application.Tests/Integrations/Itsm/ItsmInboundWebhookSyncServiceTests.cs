@@ -353,7 +353,7 @@ public sealed class ItsmInboundWebhookSyncServiceTests
     public async Task Jira_unknown_status_logs_warning_emits_audit_and_does_not_update_finding()
     {
         Mock<IItsmFindingCorrelationRepository> correlations = new();
-        Mock<ILogger<ItsmInboundWebhookSyncService>> logger = new();
+        Mock<ILogger<ItsmInboundJiraWebhookProcessor>> logger = new();
         Mock<IOptionsMonitor<IntegrationsItsmInboundOptions>> monitor = new();
         monitor.Setup(m => m.CurrentValue).Returns(new IntegrationsItsmInboundOptions());
         Mock<IFindingDispositionService> dispositionService = new();
@@ -364,7 +364,7 @@ public sealed class ItsmInboundWebhookSyncServiceTests
             .Setup(g => g.TryClaimAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(false);
         ItsmInboundWebhookSyncService sut =
-            new(correlations.Object, monitor.Object, dispositionSync, replayGuard.Object, logger.Object);
+            CreateSut(correlations.Object, monitor.Object, dispositionSync, replayGuard.Object, logger.Object);
 
         using JsonDocument doc = JsonDocument.Parse(
             """{"issue":{"key":"KK-9","fields":{"status":{"name":"Custom-Not-Mapped"}}}}""");
@@ -401,7 +401,7 @@ public sealed class ItsmInboundWebhookSyncServiceTests
     public async Task ServiceNow_unknown_state_logs_warning_emits_audit_and_does_not_touch_correlation_repository()
     {
         Mock<IItsmFindingCorrelationRepository> correlations = new();
-        Mock<ILogger<ItsmInboundWebhookSyncService>> logger = new();
+        Mock<ILogger<ItsmInboundServiceNowWebhookProcessor>> logger = new();
         Mock<IOptionsMonitor<IntegrationsItsmInboundOptions>> monitor = new();
         monitor.Setup(m => m.CurrentValue).Returns(new IntegrationsItsmInboundOptions());
         Mock<IFindingDispositionService> dispositionService = new();
@@ -412,7 +412,7 @@ public sealed class ItsmInboundWebhookSyncServiceTests
             .Setup(g => g.TryClaimAsync(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(false);
         ItsmInboundWebhookSyncService sut =
-            new(correlations.Object, monitor.Object, dispositionSync, replayGuard.Object, logger.Object);
+            CreateSut(correlations.Object, monitor.Object, dispositionSync, replayGuard.Object, serviceNowLogger: logger.Object);
 
         const string json = $$"""{"sys_id":"{{ServiceNowSysId1}}","state":"88"}""";
         using JsonDocument doc = JsonDocument.Parse(json);
@@ -905,12 +905,11 @@ public sealed class ItsmInboundWebhookSyncServiceTests
         MemoryCacheItsmInboundWebhookReplayGuard replayGuard = new(cache, TimeProvider.System);
         Mock<IOptionsMonitor<IntegrationsItsmInboundOptions>> monitor = new();
         monitor.Setup(m => m.CurrentValue).Returns(new IntegrationsItsmInboundOptions());
-        ItsmInboundWebhookSyncService sut = new(
+        ItsmInboundWebhookSyncService sut = CreateSut(
             correlations.Object,
             monitor.Object,
             new ItsmInboundDispositionSync(new Mock<IFindingDispositionService>().Object, NullLogger<ItsmInboundDispositionSync>.Instance),
-            replayGuard,
-            NullLogger<ItsmInboundWebhookSyncService>.Instance);
+            replayGuard);
 
         using JsonDocument doneDoc = JsonDocument.Parse(
             """{"issue":{"key":"KEY-1","fields":{"status":{"name":"Done"}}}}""");
@@ -967,12 +966,11 @@ public sealed class ItsmInboundWebhookSyncServiceTests
         MemoryCacheItsmInboundWebhookReplayGuard replayGuard = new(cache, TimeProvider.System);
         Mock<IOptionsMonitor<IntegrationsItsmInboundOptions>> monitor = new();
         monitor.Setup(m => m.CurrentValue).Returns(new IntegrationsItsmInboundOptions());
-        ItsmInboundWebhookSyncService sut = new(
+        ItsmInboundWebhookSyncService sut = CreateSut(
             correlations.Object,
             monitor.Object,
             new ItsmInboundDispositionSync(new Mock<IFindingDispositionService>().Object, NullLogger<ItsmInboundDispositionSync>.Instance),
-            replayGuard,
-            NullLogger<ItsmInboundWebhookSyncService>.Instance);
+            replayGuard);
 
         const string json =
             """
@@ -1029,11 +1027,29 @@ public sealed class ItsmInboundWebhookSyncServiceTests
                 .ReturnsAsync(true);
         }
 
-        return new ItsmInboundWebhookSyncService(
-            correlations.Object,
-            monitor.Object,
+        return CreateSut(correlations.Object, monitor.Object, dispositionSync, replay.Object);
+    }
+
+    private static ItsmInboundWebhookSyncService CreateSut(
+        IItsmFindingCorrelationRepository correlations,
+        IOptionsMonitor<IntegrationsItsmInboundOptions> inboundOptions,
+        ItsmInboundDispositionSync dispositionSync,
+        IItsmInboundWebhookReplayGuard replayGuard,
+        ILogger<ItsmInboundJiraWebhookProcessor>? jiraLogger = null,
+        ILogger<ItsmInboundServiceNowWebhookProcessor>? serviceNowLogger = null)
+    {
+        ItsmInboundWebhookSyncSupport support = new(correlations, replayGuard);
+        ItsmInboundJiraWebhookProcessor jiraProcessor = new(
+            support,
+            inboundOptions,
             dispositionSync,
-            replay.Object,
-            NullLogger<ItsmInboundWebhookSyncService>.Instance);
+            jiraLogger ?? NullLogger<ItsmInboundJiraWebhookProcessor>.Instance);
+        ItsmInboundServiceNowWebhookProcessor serviceNowProcessor = new(
+            support,
+            inboundOptions,
+            dispositionSync,
+            serviceNowLogger ?? NullLogger<ItsmInboundServiceNowWebhookProcessor>.Instance);
+
+        return new ItsmInboundWebhookSyncService(jiraProcessor, serviceNowProcessor);
     }
 }

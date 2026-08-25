@@ -20,6 +20,9 @@ internal static class SqlItsmRepositoryRegistrar
         services.AddScoped<IFineTuningManifestConsentReader, TenantSettingsFineTuningManifestConsentReader>();
         services.AddScoped<IFineTuningTrainingExportAuditRepository, SqlFineTuningTrainingExportAuditRepository>();
         services.AddScoped<ItsmInboundDispositionSync>();
+        services.AddScoped<ItsmInboundWebhookSyncSupport>();
+        services.AddScoped<ItsmInboundJiraWebhookProcessor>();
+        services.AddScoped<ItsmInboundServiceNowWebhookProcessor>();
         services.AddScoped<ItsmInboundWebhookSyncService>();
     }
 }

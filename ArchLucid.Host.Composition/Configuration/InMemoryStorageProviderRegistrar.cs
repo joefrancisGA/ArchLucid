@@ -330,6 +330,9 @@ internal sealed class InMemoryStorageProviderRegistrar : IStorageProviderRegistr
         services.AddSingleton<IGlobalSearchRepository, InMemoryGlobalSearchRepository>();
         services.AddSingleton<ITenantFirstValueReportBrandingRepository, InMemoryTenantFirstValueReportBrandingRepository>();
         services.AddScoped<ItsmInboundDispositionSync>();
+        services.AddScoped<ItsmInboundWebhookSyncSupport>();
+        services.AddScoped<ItsmInboundJiraWebhookProcessor>();
+        services.AddScoped<ItsmInboundServiceNowWebhookProcessor>();
         services.AddScoped<ItsmInboundWebhookSyncService>();
 
         ArchLucidStorageServiceCollectionExtensions.RegisterHostLeaderLeaseInfrastructure(services);
