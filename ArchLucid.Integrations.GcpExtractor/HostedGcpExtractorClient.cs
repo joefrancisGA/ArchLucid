@@ -35,6 +35,7 @@ public sealed class HostedGcpExtractorClient(
         string serviceAccountEmail = request.ServiceAccountEmail.Trim();
 
         GcpServiceAccountEmail.EnsureProjectMatches(projectId, serviceAccountEmail);
+        GcpWorkloadIdentityPoolProvider.EnsureProjectMatches(projectId, request.WorkloadIdentityPoolProvider);
 
         GoogleCredential credential = _credentialFactory.CreateImpersonatedCredential(
             request.WorkloadIdentityPoolProvider,

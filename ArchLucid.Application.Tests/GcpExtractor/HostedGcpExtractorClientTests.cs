@@ -35,4 +35,29 @@ public sealed class HostedGcpExtractorClientTests
             p => p.GetSubjectTokenAsync(It.IsAny<CancellationToken>()),
             Times.Never);
     }
+
+    [Fact]
+    public async Task CollectZipAsync_rejects_workload_identity_pool_provider_project_mismatch()
+    {
+        Mock<IGcpSubjectTokenProvider> tokenProvider = new();
+        GcpWorkloadIdentityCredentialFactory credentialFactory = new(tokenProvider.Object);
+        HostedGcpExtractorClient client = new(credentialFactory, NullLogger<HostedGcpExtractorClient>.Instance);
+
+        HostedGcpExtractorCollectionRequest request = new()
+        {
+            ProjectId = "my-gcp-project",
+            WorkloadIdentityPoolProvider =
+                "projects/other-gcp-project/locations/global/workloadIdentityPools/pool/providers/provider",
+            ServiceAccountEmail = "readonly@my-gcp-project.iam.gserviceaccount.com"
+        };
+
+        Func<Task> act = () => client.CollectZipAsync(request, CancellationToken.None);
+
+        await act.Should().ThrowAsync<ArgumentException>()
+            .WithMessage("*does not match workload identity pool provider project*");
+
+        tokenProvider.Verify(
+            p => p.GetSubjectTokenAsync(It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
 }
