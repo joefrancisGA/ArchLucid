@@ -12,6 +12,14 @@ import { GovernanceResolutionPageView } from "./GovernanceResolutionPageView";
 
 import type { GovernanceResolutionPageViewModel } from "./governance-resolution-page-view-model";
 
+vi.mock("@/components/AskRunIdPicker", () => ({
+  AskRunIdPicker: () => <div data-testid="ask-run-id-picker" />,
+}));
+
+vi.mock("@/components/WorkspaceActiveRunContext", () => ({
+  useWorkspaceActiveRun: () => null,
+}));
+
 
 
 function buildModel(overrides: Partial<GovernanceResolutionPageViewModel> = {}): GovernanceResolutionPageViewModel {
@@ -71,6 +79,8 @@ describe("GovernanceResolutionPageView buyer-polished shell", () => {
     expect(screen.getAllByLabelText("Severity: High").length).toBeGreaterThan(0);
 
     expect(screen.getByTestId("standards-rules-review-context-row")).toBeInTheDocument();
+
+    expect(screen.getByTestId("standards-rules-pick-review-before-resolving-strip")).toBeInTheDocument();
 
     expect(screen.getByText(/Policy packs in scope \(6\)/i)).toBeInTheDocument();
 

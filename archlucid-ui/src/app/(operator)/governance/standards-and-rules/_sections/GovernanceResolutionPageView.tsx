@@ -69,6 +69,7 @@ import { GovernanceResolutionExportControls } from "./GovernanceResolutionExport
 import { StandardsRulesEmptyState } from "./StandardsRulesEmptyState";
 import { StandardsRulesFilters } from "./StandardsRulesFilters";
 import { StandardsRulesApplyFirstUnmatchedStrip } from "./StandardsRulesApplyFirstUnmatchedStrip";
+import { StandardsRulesPickReviewBeforeResolvingStrip } from "./StandardsRulesPickReviewBeforeResolvingStrip";
 import { StandardsRulesPolicyPackReference } from "./StandardsRulesPolicyPackReference";
 import { StandardsRulesReviewContextRow } from "./StandardsRulesReviewContextRow";
 import { StandardsRulesSummaryStrip } from "./StandardsRulesSummaryStrip";
@@ -203,6 +204,7 @@ function GovernanceResolutionOperatorDiagnostics(props: { readonly model: Govern
 export function GovernanceResolutionPageView(props: Props) {
   const m = props.model;
   const [filters, setFilters] = useState(EMPTY_STANDARDS_RULES_FILTER_STATE);
+  const [pickedReviewId, setPickedReviewId] = useState("");
   const allRuleRows = useMemo(
     () =>
       buildStandardsRuleRows(m.data, {
@@ -289,6 +291,12 @@ export function GovernanceResolutionPageView(props: Props) {
         ) : null}
         {m.failure === null ? (
           <>
+            {pickedReviewId.trim().length === 0 ? (
+              <StandardsRulesPickReviewBeforeResolvingStrip
+                selectedReviewId={pickedReviewId}
+                onSelectReview={setPickedReviewId}
+              />
+            ) : null}
             {reviewContext !== null ? <StandardsRulesReviewContextRow context={reviewContext} /> : null}
             <div className="mb-4">
               <OperatorPageFreshnessMetadata
@@ -379,6 +387,12 @@ export function GovernanceResolutionPageView(props: Props) {
       <PolicyPacksStandardsVocabularyRail currentSurfaceId="standards-and-rules" />
       <GovernanceSetupConfigHubsVocabularyRail currentSurfaceId="standards" />
       <GovernanceResolutionRankCue className="mb-3" />
+      {pickedReviewId.trim().length === 0 ? (
+        <StandardsRulesPickReviewBeforeResolvingStrip
+          selectedReviewId={pickedReviewId}
+          onSelectReview={setPickedReviewId}
+        />
+      ) : null}
       {m.failure !== null ? (
         <div role="alert">
           <OperatorApiProblem
