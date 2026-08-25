@@ -28,5 +28,6 @@ describe("operator-recent-views", () => {
     expect(recentViewLabelFromPathname("/")).toBeNull();
     expect(recentViewLabelFromPathname("/architecture/reviews/run-1")).toBe("Review");
     expect(recentViewLabelFromPathname("/audit")).toBe("Audit trail");
+    expect(recentViewLabelFromPathname("/governance/audit")).toBe("Audit trail");
   });
 });
