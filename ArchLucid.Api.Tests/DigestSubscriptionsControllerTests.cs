@@ -20,6 +20,32 @@ namespace ArchLucid.Api.Tests;
 public sealed class DigestSubscriptionsControllerTests
 {
     [Theory]
+    [InlineData("", "user@example.com")]
+    [InlineData(DigestDeliveryChannelType.Email, "")]
+    [InlineData("   ", "user@example.com")]
+    public async Task Create_rejects_blank_channel_or_destination(string channelType, string destination)
+    {
+        Mock<IDigestSubscriptionRepository> subscriptions = new();
+        DigestSubscriptionsController sut = CreateController(subscriptions.Object);
+
+        IActionResult action = await sut.Create(
+            new DigestSubscription
+            {
+                ChannelType = channelType,
+                Destination = destination,
+            },
+            CancellationToken.None);
+
+        ObjectResult problem = action.Should().BeOfType<ObjectResult>().Subject;
+        problem.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        subscriptions.Verify(
+            repository => repository.CreateAsync(
+                It.IsAny<DigestSubscription>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Theory]
     [InlineData(DigestDeliveryChannelType.SlackWebhook, "http://hooks.slack.com/services/test")]
     [InlineData(DigestDeliveryChannelType.TeamsWebhook, "https://127.0.0.1/webhook")]
     public async Task Create_rejects_unsafe_webhook_destinations(string channelType, string destination)

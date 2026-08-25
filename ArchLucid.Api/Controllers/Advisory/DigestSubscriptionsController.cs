@@ -59,6 +59,9 @@ public sealed class DigestSubscriptionsController(
         if (subscription is null)
             return this.BadRequestProblem("Request body is required.", ProblemTypes.RequestBodyRequired);
 
+        if (string.IsNullOrWhiteSpace(subscription.ChannelType) || string.IsNullOrWhiteSpace(subscription.Destination))
+            return this.BadRequestProblem("ChannelType and Destination are required.", ProblemTypes.ValidationFailed);
+
         if (IsOutboundWebhookChannel(subscription.ChannelType))
         {
             string? destinationRejection =

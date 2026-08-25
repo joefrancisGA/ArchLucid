@@ -1837,11 +1837,11 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - **aliases:** notifications; email dispatchers beyond weekly summary
 - **paths:** ArchLucid.Notifications/; ArchLucid.Application/Notifications/; ArchLucid.Api/Controllers/Advisory/DigestSubscriptionsController.cs
 - **test-filter:** FullyQualifiedName~Notifications|FullyQualifiedName~EmailDispatcher|FullyQualifiedName~DigestSubscriptionsController
-- **hunts:** 6
-- **bugs-found:** 12
+- **hunts:** 7
+- **bugs-found:** 14
 - **consecutive-dry-hunts:** 0
 - **last-hunt:** 2026-08-25
-- **last-bug:** 2026-08-25 — multi-recipient digest dispatch reserved tenant-level ledger before send loop, blocking retry for remaining recipients after partial failure
+- **last-bug:** 2026-08-25 — user invitation email idempotency key used fresh GUID per send, breaking provider retry deduplication
 - **related-pd-tb:** none
 - **code-changed-since:** 0
 
@@ -1862,9 +1862,9 @@ TB-2005 program is **Done** (2026-07-29). Hunt remaining form gaps against `docs
 - [x] (proven) Trial lifecycle email reserved ledger before template render — **hit 2026-08-24:** `TrialLifecycleEmailDispatcher` reserved the idempotency key before Razor render; template failures permanently blocked trial onboarding mail; fixed by rendering before ledger reservation.
 - [x] (proven) Digest webhook subscriptions bypass the alert-routing SSRF destination policy — **hit 2026-08-24:** `DigestSubscriptionsController.Create` persisted `SlackWebhook` and `TeamsWebhook` destinations without calling `AlertRoutingWebhookDestinationPolicy`, accepting HTTP and loopback URLs; fixed by applying the shared policy before persistence.
 - [x] (proven) Multi-recipient digest dispatch reserved tenant-level ledger before the send loop — **hit 2026-08-25:** `ExecDigestEmailDispatcher` (and sibling weekly/recurrence dispatchers) called `TryRecordSentAsync` on the tenant/week key before iterating mailboxes; when the first recipient succeeded and a later send failed, retry returned `false` and skipped remaining recipients; fixed with per-mailbox send-then-ledger via `MultiRecipientEmailDispatch` and `ISentEmailLedger.IsRecordedAsync`; regression in `ExecDigestEmailDispatcher_partial_multi_recipient_send_failure_delivers_remaining_recipients_on_retry`.
-- [ ] (candidate) Digest subscription create accepts blank channel/destination — `DigestSubscriptionsController.Create` lacks required-field validation present on alert-routing subscriptions
-- [ ] (candidate) Commit sponsor email has no sent-email ledger — `CommitSponsorEmailNotifier` relies on provider idempotency only
-- [ ] (candidate) User invitation email idempotency key includes fresh GUID — `UserInvitationEmailNotifier` generates a new suffix on every send attempt
+- [x] (proven) Digest subscription create accepts blank channel/destination — **hit 2026-08-25:** `DigestSubscriptionsController.Create` persisted subscriptions with empty `ChannelType`/`Destination` while `AlertRoutingSubscriptionsController` rejects them; fixed required-field validation; regression in `Create_rejects_blank_channel_or_destination`
+- [x] (invalid) Commit sponsor email has no sent-email ledger — single-recipient notifier uses stable provider idempotency key `architecture-commit-sponsor:{tenant}:{runId}`; no multi-recipient retry loop that `ISentEmailLedger` guards
+- [x] (proven) User invitation email idempotency key includes fresh GUID — **hit 2026-08-25:** `UserInvitationEmailNotifier` appended `Guid.NewGuid()` on every send so provider retries duplicated invitation mail; fixed with invitation-token suffix from `acceptUrl`; regression in `TrySendInvitationAsync_uses_stable_idempotency_key_for_same_invitation`
 
 ---
 
