@@ -1,5 +1,6 @@
 using System.Text.Json;
 
+using ArchLucid.Contracts.Common;
 using ArchLucid.Contracts.Findings;
 
 using FluentAssertions;
@@ -113,6 +114,46 @@ public sealed class ArchitectureFindingJsonConverterTests
 
         act.Should().Throw<JsonException>()
             .WithMessage("*Unknown finding severity value*");
+    }
+
+    [Fact]
+    public void Deserialize_numeric_sourceAgent_maps_topology()
+    {
+        const string json = """
+                            {
+                              "severity": "Warning",
+                              "category": "Topology",
+                              "message": "Missing subnet.",
+                              "sourceAgent": 1
+                            }
+                            """;
+
+        JsonSerializerOptions options = CreateOptions();
+
+        ArchitectureFinding? finding = JsonSerializer.Deserialize<ArchitectureFinding>(json, options);
+
+        finding.Should().NotBeNull();
+        finding!.SourceAgent.Should().Be(AgentType.Topology);
+    }
+
+    [Fact]
+    public void Deserialize_numeric_enforcementTier_maps_advisory()
+    {
+        const string json = """
+                            {
+                              "severity": "Warning",
+                              "category": "Security",
+                              "message": "Advisory-only gap.",
+                              "enforcementTier": 1
+                            }
+                            """;
+
+        JsonSerializerOptions options = CreateOptions();
+
+        ArchitectureFinding? finding = JsonSerializer.Deserialize<ArchitectureFinding>(json, options);
+
+        finding.Should().NotBeNull();
+        finding!.EnforcementTier.Should().Be(FindingEnforcementTier.Advisory);
     }
 
     private static JsonSerializerOptions CreateOptions()
