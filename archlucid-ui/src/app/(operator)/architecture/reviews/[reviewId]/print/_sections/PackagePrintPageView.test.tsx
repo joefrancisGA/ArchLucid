@@ -9,6 +9,10 @@ import {
   PACKAGE_PRINT_SYNOPSIS_HEADING,
 } from "@/lib/package-print-view";
 
+vi.mock("./PackagePrintNextReviewFooterClient", () => ({
+  PackagePrintNextReviewFooterClient: () => <div data-testid="package-print-next-review-footer-stub" />,
+}));
+
 describe("PackagePrintPageView (TB-2205)", () => {
   it("renders title, status, findings, and sponsor synopsis", () => {
     render(
