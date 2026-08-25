@@ -73,14 +73,28 @@ public sealed class AuthorityFindingsSnapshotUpdater(
 
         RunRecord? run = await _runRepository.GetByIdAsync(scope, runId, cancellationToken).ConfigureAwait(false);
 
-        if (run?.FindingsSnapshotId is not Guid snapshotId)
+        if (run is null)
             return [];
 
-        FindingsSnapshot? snapshot =
-            await _findingsSnapshotRepository.GetByIdAsync(scope, snapshotId, cancellationToken).ConfigureAwait(false);
+        FindingsSnapshot? snapshot = null;
+
+        if (run.FindingsSnapshotId is Guid existingSnapshotId)
+        {
+            snapshot = await _findingsSnapshotRepository
+                .GetByIdAsync(scope, existingSnapshotId, cancellationToken)
+                .ConfigureAwait(false);
+        }
 
         if (snapshot is null)
-            return [];
+        {
+            snapshot = new FindingsSnapshot
+            {
+                FindingsSnapshotId = Guid.NewGuid(),
+                RunId = runId,
+                CreatedUtc = _clock.GetUtcNow().UtcDateTime,
+                Findings = [],
+            };
+        }
 
         List<Finding> mapped = ArchitectureIntelligenceProductBridge.ToFindings(substantiation.SubstantiatedFindings);
         mapped.AddRange(ArchitectureIntelligenceProductBridge.ToHypothesisLaneFindings(substantiation.Challenges));
@@ -88,6 +102,12 @@ public sealed class AuthorityFindingsSnapshotUpdater(
         FindingsSnapshotAuthorityMerger.MergeAdditionalFindings(snapshot, mapped, _clock);
 
         await _findingsSnapshotRepository.SaveAsync(snapshot, cancellationToken).ConfigureAwait(false);
+
+        if (run.FindingsSnapshotId != snapshot.FindingsSnapshotId)
+        {
+            run.FindingsSnapshotId = snapshot.FindingsSnapshotId;
+            await _runRepository.UpdateAsync(run, cancellationToken).ConfigureAwait(false);
+        }
 
         if (!string.IsNullOrWhiteSpace(run.GovernanceScopeJson))
         {

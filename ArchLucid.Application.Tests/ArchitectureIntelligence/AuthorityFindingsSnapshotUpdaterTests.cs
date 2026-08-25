@@ -86,4 +86,65 @@ public sealed class AuthorityFindingsSnapshotUpdaterTests
         mergedIds.Should().ContainSingle(id => id == "finding-substantiated");
         snapshot.Findings.Should().ContainSingle(finding => finding.FindingId == "finding-substantiated");
     }
+
+    [Fact]
+    public async Task MergeSubstantiatedFindingsAsync_creates_snapshot_when_run_has_none()
+    {
+        Guid runId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
+
+        RunRecord run = new()
+        {
+            RunId = runId,
+            FindingsSnapshotId = null,
+        };
+
+        SpecialistReviewFinding substantiated = new()
+        {
+            FindingId = "finding-new-snapshot",
+            Title = "New snapshot gap",
+            Conclusion = ReviewConclusion.Fail,
+            Severity = "High",
+        };
+
+        SpecialistFindingsSubstantiationResult substantiation = new()
+        {
+            SubstantiatedFindings = [substantiated],
+            Challenges = [],
+            ValidationResults = [],
+        };
+
+        Mock<IRunRepository> runRepository = new();
+        runRepository
+            .Setup(repository => repository.GetByIdAsync(TestScope, runId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(run);
+        runRepository
+            .Setup(repository => repository.UpdateAsync(run, It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        Mock<IFindingsSnapshotRepository> findingsRepository = new();
+        findingsRepository
+            .Setup(repository => repository.SaveAsync(It.IsAny<FindingsSnapshot>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        AuthorityFindingsSnapshotUpdater sut = new(
+            runRepository.Object,
+            findingsRepository.Object,
+            Mock.Of<ISpecialistFindingsSubstantiationService>(),
+            TimeProvider.System);
+
+        IReadOnlyList<string> mergedIds = await sut.MergeSubstantiatedFindingsAsync(
+            TestScope,
+            runId,
+            substantiation,
+            CancellationToken.None);
+
+        mergedIds.Should().ContainSingle(id => id == "finding-new-snapshot");
+        run.FindingsSnapshotId.Should().NotBeNull();
+        findingsRepository.Verify(
+            repository => repository.SaveAsync(
+                It.Is<FindingsSnapshot>(snapshot =>
+                    snapshot.Findings!.Any(finding => finding.FindingId == "finding-new-snapshot")),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
 }
