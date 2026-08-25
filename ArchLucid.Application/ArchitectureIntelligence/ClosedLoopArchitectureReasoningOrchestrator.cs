@@ -263,9 +263,10 @@ public sealed class ClosedLoopArchitectureReasoningOrchestrator : IClosedLoopArc
 
                 modelDiffs = applied.ModelDiffs;
                 impactResults = applied.ImpactResults;
+                model = applied.WorkingModel;
 
                 reReview = await _incrementalReReviewService.ReReviewAsync(
-                    applied.WorkingModel,
+                    model,
                     applied.Scope,
                     _specialistReviewService,
                     cancellationToken).ConfigureAwait(false);

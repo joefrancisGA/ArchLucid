@@ -44,6 +44,8 @@ public sealed class ClosedLoopRecommendationBatchApplierTests
             element.Kind == ArchitectureElementKind.Recommendation
             && element.Properties.ContainsKey("recommendationId")
             && element.Properties["recommendationId"] == "rec-second");
+        result.WorkingModel.Should().NotBeSameAs(model);
+        result.WorkingModel.Elements.Count.Should().BeGreaterThan(model.Elements.Count);
         result.Scope.AffectedElementIds.Should().NotBeEmpty();
     }
 
