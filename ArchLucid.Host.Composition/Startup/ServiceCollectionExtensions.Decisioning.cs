@@ -105,6 +105,12 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<Dm.TopologyManifestSectionPopulator>();
         services.AddScoped<Dm.SecurityManifestSectionPopulator>();
         services.AddScoped<Dm.CostManifestSectionPopulator>();
+        services.AddScoped<Dm.RequirementsManifestSectionPopulator>();
+        services.AddScoped<Dm.ComplianceManifestSectionPopulator>();
+        services.AddScoped<Dm.PolicyManifestSectionPopulator>();
+        services.AddScoped<Dm.CoverageManifestSectionPopulator>();
+        services.AddScoped<Dm.ConstraintsManifestSectionPopulator>();
+        services.AddScoped<Dm.ProvenanceManifestSectionPopulator>();
         services.AddScoped<Di.IGoldenManifestBuilder, Dm.DefaultGoldenManifestBuilder>();
         services.AddSingleton<Di.IGoldenManifestValidator, Ds.GoldenManifestValidator>();
         services.AddSingleton<IManifestHashService, Ds.ManifestHashService>();

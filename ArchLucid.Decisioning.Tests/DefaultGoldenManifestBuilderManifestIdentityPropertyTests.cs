@@ -54,7 +54,7 @@ public sealed class DefaultGoldenManifestBuilderManifestIdentityPropertyTests
             .GetAwaiter()
             .GetResult();
 
-        ManifestDocument manifest = new DefaultGoldenManifestBuilder().Build(
+        ManifestDocument manifest = DefaultGoldenManifestBuilderTestFactory.Create().Build(
             runId,
             ctxId,
             graph,

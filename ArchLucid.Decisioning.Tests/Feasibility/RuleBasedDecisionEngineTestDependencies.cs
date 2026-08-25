@@ -10,7 +10,7 @@ internal static class RuleBasedDecisionEngineTestDependencies
     internal static RuleBasedDecisionEngine CreateEngine(IDecisionRuleProvider ruleProvider) =>
         new(
             ruleProvider,
-            new DefaultGoldenManifestBuilder(),
+            DefaultGoldenManifestBuilderTestFactory.Create(),
             new GoldenManifestValidator(),
             new ManifestHashService(),
             CreateFeasibilityComposer(),
